@@ -24,8 +24,9 @@
 #include <android/hardware/camera/device/3.2/ICameraDevice.h>
 #include <ui/GraphicBuffer.h>
 
-#include <thread>
 #include <functional>
+#include <thread>
+#include <set>
 
 #include "VideoCapture.h"
 #include "ConfigManager.h"
@@ -85,6 +86,8 @@ public:
                                           const hidl_vec<uint8_t>& opaqueValue) override;
     Return<void>      getExtendedInfo_1_1(uint32_t opaqueIdentifier,
                                           getExtendedInfo_1_1_cb _hidl_cb) override;
+    Return<void>      importExternalBuffers(const hidl_vec<BufferDesc_1_1>& buffers,
+                                            importExternalBuffers_cb _hidl_cb) override;
 
     static sp<EvsV4lCamera> Create(const char *deviceName);
     static sp<EvsV4lCamera> Create(const char *deviceName,

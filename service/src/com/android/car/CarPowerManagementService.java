@@ -16,15 +16,15 @@
 package com.android.car;
 
 import android.annotation.NonNull;
-import android.annotation.Nullable;
-import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.Car;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.hardware.power.ICarPower;
 import android.car.hardware.power.ICarPowerStateListener;
-import android.car.userlib.CarUserManagerHelper;
 import android.car.userlib.HalCallback;
+import android.car.userlib.InitialUserSetter;
+import android.car.userlib.UserHalHelper;
+import android.car.userlib.UserHelper;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -61,7 +61,6 @@ import com.android.internal.annotations.VisibleForTesting;
 import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -129,11 +128,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private boolean mRebootAfterGarageMode;
     private final boolean mDisableUserSwitchDuringResume;
 
-    // TODO(b/150413515): should depend only on mUserService
-    private final CarUserManagerHelper mCarUserManagerHelper;
-    private final UserManager mUserManager;    // CarUserManagerHelper is deprecated...
+    private final UserManager mUserManager;
     private final CarUserService mUserService;
-    private final String mNewGuestName;
+    private final InitialUserSetter mInitialUserSetter;
 
     // TODO:  Make this OEM configurable.
     private static final int SHUTDOWN_POLLING_INTERVAL_MS = 2000;
@@ -159,21 +156,20 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     public CarPowerManagementService(Context context, PowerHalService powerHal,
-            SystemInterface systemInterface, CarUserManagerHelper carUserManagerHelper,
-            CarUserService carUserService) {
-        this(context, context.getResources(), powerHal, systemInterface, carUserManagerHelper,
-                UserManager.get(context), carUserService,
-                context.getString(R.string.default_guest_name));
+            SystemInterface systemInterface, CarUserService carUserService) {
+        this(context, context.getResources(), powerHal, systemInterface, UserManager.get(context),
+                carUserService, new InitialUserSetter(context,
+                        context.getString(R.string.default_guest_name),
+                        !carUserService.isUserHalSupported()));
     }
 
     @VisibleForTesting
     CarPowerManagementService(Context context, Resources resources, PowerHalService powerHal,
-            SystemInterface systemInterface, CarUserManagerHelper carUserManagerHelper,
-            UserManager userManager, CarUserService carUserService, String newGuestName) {
+            SystemInterface systemInterface, UserManager userManager,
+            CarUserService carUserService, InitialUserSetter initialUserSetter) {
         mContext = context;
         mHal = powerHal;
         mSystemInterface = systemInterface;
-        mCarUserManagerHelper = carUserManagerHelper;
         mUserManager = userManager;
         mDisableUserSwitchDuringResume = resources
                 .getBoolean(R.bool.config_disableUserSwitchDuringResume);
@@ -187,7 +183,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             mShutdownPrepareTimeMs = MIN_MAX_GARAGE_MODE_DURATION_MS;
         }
         mUserService = carUserService;
-        mNewGuestName = newGuestName;
+        mInitialUserSetter = initialUserSetter;
     }
 
     @VisibleForTesting
@@ -264,8 +260,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             writer.print(",mShutdownPrepareTimeMs:" + mShutdownPrepareTimeMs);
             writer.print(",mDisableUserSwitchDuringResume:" + mDisableUserSwitchDuringResume);
             writer.println(",mRebootAfterGarageMode:" + mRebootAfterGarageMode);
-            writer.print("mNewGuestName: "); writer.println(mNewGuestName);
         }
+        mInitialUserSetter.dump(writer);
     }
 
     @Override
@@ -431,116 +427,85 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     @VisibleForTesting // Ideally it should not be exposed, but it speeds up the unit tests
     void switchUserOnResumeIfNecessary(boolean allowSwitching) {
-        if (CarProperties.user_hal_enabled().orElse(false) && mUserService.isUserHalSupported()) {
-            switchUserOnResumeIfNecessaryUsingHal(allowSwitching);
-        } else {
-            switchUserOnResumeIfNecessaryDirectly(allowSwitching);
-        }
-    }
-
-    /**
-     * Switches the initial user directly, without using the User HAL to define the behavior.
-     */
-    private void switchUserOnResumeIfNecessaryDirectly(boolean allowSwitching) {
-        Log.i(CarLog.TAG_POWER, "NOT using User HAL to define initial user behavior");
-
-        int currentUserId = ActivityManager.getCurrentUser();
-
         if (!allowSwitching) {
+            int currentUserId = ActivityManager.getCurrentUser();
             UserInfo currentUserInfo = mUserManager.getUserInfo(currentUserId);
             switchToNewGuestIfNecessary(currentUserInfo);
             return;
         }
 
-        int targetUserId = mCarUserManagerHelper.getInitialUser();
-        if (targetUserId == UserHandle.USER_SYSTEM || targetUserId == UserHandle.USER_NULL) {
-            Log.wtf(CarLog.TAG_POWER, "getInitialUser() returned user" + targetUserId);
+        if (CarProperties.user_hal_enabled().orElse(false) && mUserService.isUserHalSupported()) {
+            switchUserOnResumeIfNecessaryUsingHal();
             return;
         }
 
-        UserInfo targetUserInfo = mUserManager.getUserInfo(targetUserId);
-        if (switchToNewGuestIfNecessary(targetUserInfo)) return;
-
-        if (currentUserId == targetUserId) {
-            Log.v(TAG, "no need to switch to (same user) " + currentUserId);
-            return;
-        }
-
-        switchToUser(currentUserId, targetUserId, /* reason= */ null);
-
+        mInitialUserSetter.executeDefaultBehavior();
     }
 
     /**
-     * Replaces the current user if it's a guest, returning whether it was switched.
+     * Replaces the current user if it's a guest.
      */
-    private boolean switchToNewGuestIfNecessary(@NonNull UserInfo user) {
-        boolean isGuest = user.isGuest();
+    private void switchToNewGuestIfNecessary(@NonNull UserInfo user) {
+        int newUserId = mInitialUserSetter.replaceGuestIfNeeded(user);
 
-        if (!isGuest) return false;
+        if (newUserId == user.id) return; // Not a guest
 
-        Log.i(TAG, "User " + user.id + " is a guest; replacing it by a new guest");
+        if (newUserId == UserHandle.USER_NULL) {
+            Log.w(TAG, "Failed to replace guest; falling back to default behavior");
+            mInitialUserSetter.executeDefaultBehavior();
+            return;
 
-        // At this point, target user is a guest - we cannot resume into an ephemeral guest for
-        // privacy reasons, so we need to create a new guest and switch to it (even if the OEM
-        // doesn't allow switching)
-
-        boolean marked = mUserManager.markGuestForDeletion(user.id);
-        if (!marked) {
-            Log.w(TAG, "Could not mark guest user " + user.id + " for deletion");
-            return false;
         }
-
-        UserInfo newGuest = mUserManager.createGuest(mContext, mNewGuestName);
-
-        if (newGuest == null) {
-            Log.wtf(TAG, "Could not create new guest");
-            // TODO(b/146380030): decide whether we should switch to SYSTEM
-            return false;
-        }
-
-        switchToUser(user.id, newGuest.id, "Created new guest");
-        Log.d(TAG, "Removing previous guest " + user.id);
-        if (!mUserManager.removeUser(user.id)) {
-            Log.w(TAG, "Failed to remove old guest " + user.toFullString());
-        }
-        return true;
+        mInitialUserSetter.switchUser(newUserId);
     }
 
     /**
      * Switches the initial user by calling the User HAL to define the behavior.
      */
-    private void switchUserOnResumeIfNecessaryUsingHal(boolean allowSwitching) {
-        Log.i(CarLog.TAG_POWER, "Using User HAL to define initial user behavior");
+    private void switchUserOnResumeIfNecessaryUsingHal() {
+        Log.i(TAG, "Using User HAL to define initial user behavior");
         mUserService.getInitialUserInfo(InitialUserInfoRequestType.RESUME, (status, response) -> {
             switch (status) {
                 case HalCallback.STATUS_HAL_RESPONSE_TIMEOUT:
                 case HalCallback.STATUS_HAL_SET_TIMEOUT:
-                    switchUserOnResumeUserHalFallback("timeout", allowSwitching);
+                    switchUserOnResumeUserHalFallback("timeout");
                     return;
                 case HalCallback.STATUS_CONCURRENT_OPERATION:
-                    switchUserOnResumeUserHalFallback("concurrent call", allowSwitching);
+                    switchUserOnResumeUserHalFallback("concurrent call");
                     return;
                 case HalCallback.STATUS_WRONG_HAL_RESPONSE:
-                    switchUserOnResumeUserHalFallback("wrong response", allowSwitching);
+                    switchUserOnResumeUserHalFallback("wrong response");
                     return;
                 case HalCallback.STATUS_OK:
                     if (response == null) {
-                        switchUserOnResumeUserHalFallback("no response", allowSwitching);
+                        switchUserOnResumeUserHalFallback("no response");
                         return;
                     }
                     switch (response.action) {
                         case InitialUserInfoResponseAction.DEFAULT:
                             Log.i(TAG, "HAL requested default initial user behavior");
-                            switchUserOnResumeIfNecessaryDirectly(allowSwitching);
+                            mInitialUserSetter.executeDefaultBehavior();
                             return;
-                        // TODO(b/150419143): implement others
+                        case InitialUserInfoResponseAction.SWITCH:
+                            int userId = response.userToSwitchOrCreate.userId;
+                            Log.i(TAG, "HAL requested switch to user " + userId);
+                            mInitialUserSetter.switchUser(userId);
+                            return;
+                        case InitialUserInfoResponseAction.CREATE:
+                            int halFlags = response.userToSwitchOrCreate.flags;
+                            String name = response.userNameToCreate;
+                            Log.i(TAG, "HAL requested new user (name="
+                                    + UserHelper.safeName(name) + ", flags="
+                                    + UserHalHelper.userFlagsToString(halFlags) + ")");
+                            mInitialUserSetter.createUser(name, halFlags);
+                            return;
                         default:
                             switchUserOnResumeUserHalFallback(
-                                    "invalid response action: " + response.action, allowSwitching);
+                                    "invalid response action: " + response.action);
                             return;
                     }
                 default:
-                    switchUserOnResumeUserHalFallback("invalid status: " + status, allowSwitching);
+                    switchUserOnResumeUserHalFallback("invalid status: " + status);
             }
         });
     }
@@ -548,35 +513,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     /**
      * Switches the initial user directly when the User HAL call failed.
      */
-    private void switchUserOnResumeUserHalFallback(String reason, boolean allowSwitching) {
+    private void switchUserOnResumeUserHalFallback(String reason) {
         Log.w(TAG, "Failed to set initial user based on User Hal (" + reason
                 + "); falling back to default behavior");
-        switchUserOnResumeIfNecessaryDirectly(allowSwitching);
-    }
-
-
-    private void switchToUser(@UserIdInt int fromUser, @UserIdInt int toUser,
-            @Nullable String reason) {
-        StringBuilder message = new StringBuilder();
-        if (reason == null) {
-            message.append("Desired user changed");
-        } else {
-            message.append(reason);
-        }
-        message.append(", switching from ").append(fromUser).append(" to ").append(toUser);
-        Log.i(CarLog.TAG_POWER, message.toString());
-        mCarUserManagerHelper.startForegroundUser(toUser);
-    }
-
-    private int getFirstSwitchableUser() {
-        List<UserInfo> allUsers = mUserManager.getUsers();
-        for (UserInfo user : allUsers) {
-            if (user.id != UserHandle.USER_SYSTEM) {
-                return user.id;
-            }
-        }
-        Log.wtf(CarLog.TAG_POWER, "no switchable user: " + allUsers);
-        return UserHandle.USER_NULL;
+        mInitialUserSetter.executeDefaultBehavior();
     }
 
     private void handleShutdownPrepare(CpmsState newState) {
