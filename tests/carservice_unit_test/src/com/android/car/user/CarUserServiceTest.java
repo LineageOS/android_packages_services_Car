@@ -642,7 +642,14 @@ public class CarUserServiceTest {
     @Test
     public void testSwitchUser_nullReceiver() throws Exception {
         assertThrows(NullPointerException.class, () -> mCarUserService
-                .switchUser(mAdminUser, mAsyncCallTimeoutMs, null));
+                .switchUser(mGuestUser.id, mAsyncCallTimeoutMs, null));
+    }
+
+    @Test
+    public void testSwitchUser_nullTarget() throws Exception {
+        mockCurrentUsers(mAdminUser);
+        assertThrows(IllegalArgumentException.class, () -> mCarUserService
+                .switchUser(/*invalid user id*/15, mAsyncCallTimeoutMs, mReceiver));
     }
 
     @Test
@@ -652,10 +659,10 @@ public class CarUserServiceTest {
         mockHalSwitchUser(mAdminUser.id, mSwitchUserResponse, mGuestUser);
         mockAmSwitchUser(mGuestUser, true);
 
-        mCarUserService.switchUser(mGuestUser, mAsyncCallTimeoutMs, mReceiver);
+        mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mReceiver);
 
         assertThat(mReceiver.getResultCode())
-                .isEqualTo(CarUserManager.USER_SWICTH_STATUS_SUCCESSFUL);
+                .isEqualTo(CarUserManager.USER_SWITCH_STATUS_SUCCESSFUL);
         Bundle resultData = mReceiver.getResultData();
         assertThat(resultData).isNotNull();
         assertSwitchUserStatus(resultData, mSwitchUserResponse.status);
@@ -668,10 +675,10 @@ public class CarUserServiceTest {
         mockHalSwitchUser(mAdminUser.id, mSwitchUserResponse, mGuestUser);
         mockAmSwitchUser(mGuestUser, false);
 
-        mCarUserService.switchUser(mGuestUser, mAsyncCallTimeoutMs, mReceiver);
+        mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mReceiver);
 
         assertThat(mReceiver.getResultCode())
-                .isEqualTo(CarUserManager.USER_SWICTH_STATUS_ANDROID_FAILURE);
+                .isEqualTo(CarUserManager.USER_SWITCH_STATUS_ANDROID_FAILURE);
         Bundle resultData = mReceiver.getResultData();
         assertThat(resultData).isNotNull();
         assertSwitchUserStatus(resultData, mSwitchUserResponse.status);
@@ -685,10 +692,10 @@ public class CarUserServiceTest {
         mSwitchUserResponse.errorMessage = "Error Message";
         mockHalSwitchUser(mAdminUser.id, mSwitchUserResponse, mGuestUser);
 
-        mCarUserService.switchUser(mGuestUser, mAsyncCallTimeoutMs, mReceiver);
+        mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mReceiver);
 
         assertThat(mReceiver.getResultCode())
-                .isEqualTo(CarUserManager.USER_SWICTH_STATUS_HAL_FAILURE);
+                .isEqualTo(CarUserManager.USER_SWITCH_STATUS_HAL_FAILURE);
         Bundle resultData = mReceiver.getResultData();
         assertThat(resultData).isNotNull();
         assertSwitchUserStatus(resultData, mSwitchUserResponse.status);
@@ -697,10 +704,25 @@ public class CarUserServiceTest {
     }
 
     @Test
+    public void testSwitchUser_HalInternalFailure() throws Exception {
+        mockCurrentUsers(mAdminUser);
+        mockHalSwitchUser(mAdminUser.id, null, mGuestUser);
+
+        mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mReceiver);
+
+        assertThat(mReceiver.getResultCode())
+                .isEqualTo(CarUserManager.USER_SWITCH_STATUS_HAL_INTERNAL_FAILURE);
+        Bundle resultData = mReceiver.getResultData();
+        assertThat(resultData).isNotNull();
+        // 0 is default value for status
+        assertSwitchUserStatus(resultData, 0);
+    }
+
+    @Test
     public void testSwitchUser_InvalidPermission() throws Exception {
         mockManageUsersPermission(android.Manifest.permission.MANAGE_USERS, false);
         assertThrows(SecurityException.class,
-                () -> mCarUserService.switchUser(mGuestUser, mAsyncCallTimeoutMs, mReceiver));
+                () -> mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mReceiver));
     }
 
     @Test
@@ -810,9 +832,17 @@ public class CarUserServiceTest {
     /**
      * Mock calls that generate a {@code UsersInfo}.
      */
-    private void mockCurrentUsers(@NonNull UserInfo user) throws Exception {
+    private void mockCurrentUsers(@NonNull UserInfo user)
+            throws Exception {
         when(mMockedIActivityManager.getCurrentUser()).thenReturn(user);
+        mockExistingUsers();
+    }
+
+    private void mockExistingUsers() {
         when(mMockedUserManager.getUsers()).thenReturn(mExistingUsers);
+        for (UserInfo user : mExistingUsers) {
+            when(mMockedUserManager.getUserInfo(user.id)).thenReturn(user);
+        }
     }
 
     private void mockAmSwitchUser(@NonNull UserInfo user, boolean result) throws Exception {
