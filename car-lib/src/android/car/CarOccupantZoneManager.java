@@ -403,6 +403,31 @@ public class CarOccupantZoneManager extends CarManagerBase {
         }
     }
 
+    /**
+     * Assigns the given profile {@code userId} to the {@code occupantZone}. Returns true when the
+     * request succeeds.
+     *
+     * <p>Note that only non-driver zone can be assigned with this call. Calling this for driver
+     * zone will lead into {@code IllegalArgumentException}.
+     *
+     * @param occupantZone Zone to assign user.
+     * @param userId profile user id to assign. Passing {@link UserHandle#USER_NULL} leads into
+     *               removing the current user assignment.
+     * @return true if the request succeeds or if the user is already assigned to the zone.
+     *
+     * @hide
+     */
+    @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
+    public boolean assignProfileUserToOccupantZone(@NonNull OccupantZoneInfo occupantZone,
+            @UserIdInt int userId) {
+        assertNonNullOccupant(occupantZone);
+        try {
+            return mService.assignProfileUserToOccupantZone(occupantZone.zoneId, userId);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, false);
+        }
+    }
+
     private void assertNonNullOccupant(OccupantZoneInfo occupantZone) {
         if (occupantZone == null) {
             throw new IllegalArgumentException("null OccupantZoneInfo");

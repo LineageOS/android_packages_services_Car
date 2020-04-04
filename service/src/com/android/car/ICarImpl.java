@@ -126,11 +126,13 @@ public class ICarImpl extends ICar.Stub {
 
     private TimingsTraceLog mBootTiming;
 
+    private final Object mLock = new Object();
+
     /** Test only service. Populate it only when necessary. */
-    @GuardedBy("this")
+    @GuardedBy("mLock")
     private CarTestService mCarTestService;
 
-    @GuardedBy("this")
+    @GuardedBy("mLock")
     private ICarServiceHelper mICarServiceHelper;
 
     private final String mVehicleInterfaceName;
@@ -343,10 +345,12 @@ public class ICarImpl extends ICar.Stub {
     @Override
     public void setCarServiceHelper(IBinder helper) {
         assertCallingFromSystemProcess();
-        synchronized (this) {
-            mICarServiceHelper = ICarServiceHelper.Stub.asInterface(helper);
-            mSystemInterface.setCarServiceHelper(mICarServiceHelper);
+        ICarServiceHelper carServiceHelper = ICarServiceHelper.Stub.asInterface(helper);
+        synchronized (mLock) {
+            mICarServiceHelper = carServiceHelper;
         }
+        mSystemInterface.setCarServiceHelper(carServiceHelper);
+        mCarOccupantZoneService.setCarServiceHelper(carServiceHelper);
     }
 
     @Override
@@ -478,7 +482,7 @@ public class ICarImpl extends ICar.Stub {
                 return mVmsBrokerService;
             case Car.TEST_SERVICE: {
                 assertPermission(mContext, Car.PERMISSION_CAR_TEST_SERVICE);
-                synchronized (this) {
+                synchronized (mLock) {
                     if (mCarTestService == null) {
                         mCarTestService = new CarTestService(mContext, this);
                     }
