@@ -249,7 +249,7 @@
     </string-array>
     <!--
         Specifies configuration of displays in system telling its usage / type and assigned
-        occupant.
+        occupant. DEFAULT_DISPLAY, if assigned here, should be always assigned to the DRIVER zone.
 
         Some examples are:
         <item>displayPort=0,displayType=MAIN,occupantZoneId=0</item>
@@ -328,4 +328,8 @@
     <!-- Controls the use of bluetooth voice recognition when long pressing the voice assist
          button. -->
     <bool name="enableLongPressBluetoothVoiceRecognition" translatable="false">true</bool>
+
+    <!-- Enable profile user assignment per each CarOccupantZone for per display android user
+         assignments. This feature is still experimental. -->
+    <bool name="enableProfileUserAssignmentForMultiDisplay" translatable="false">false</bool>
 </resources>
