@@ -32,4 +32,5 @@ interface ICarOccupantZone {
     int getOccupantZoneIdForUserId(in int userId);
     void registerCallback(in ICarOccupantZoneCallback callback);
     void unregisterCallback(in ICarOccupantZoneCallback callback);
+    boolean assignProfileUserToOccupantZone(in int occupantZoneId, in int userId);
 }
