@@ -131,7 +131,9 @@ public class BlurredSurfaceRenderer implements GLSurfaceView.Renderer {
      * cleans up the OpenGL program
      */
     public void onPause() {
-        mProgram.cleanupResources();
+        if (mProgram != null) {
+            mProgram.cleanupResources();
+        }
         deleteScreenshotTexture();
     }
 

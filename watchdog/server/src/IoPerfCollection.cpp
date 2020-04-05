@@ -56,6 +56,7 @@ using android::content::pm::IPackageManagerNative;
 namespace {
 
 const int32_t kDefaultTopNStatsPerCategory = 5;
+const int32_t kDefaultTopNStatsPerSubcategory = 3;
 const std::chrono::seconds kDefaultBoottimeCollectionInterval = 1s;
 const std::chrono::seconds kDefaultPeriodicCollectionInterval = 10s;
 // Number of periodic collection perf data snapshots to cache in memory.
@@ -235,6 +236,8 @@ Result<void> IoPerfCollection::start() {
         }
         mTopNStatsPerCategory = static_cast<int>(
                 sysprop::topNStatsPerCategory().value_or(kDefaultTopNStatsPerCategory));
+        mTopNStatsPerSubcategory = static_cast<int>(
+                sysprop::topNStatsPerSubcategory().value_or(kDefaultTopNStatsPerSubcategory));
         std::chrono::nanoseconds boottimeCollectionInterval =
                 std::chrono::duration_cast<std::chrono::nanoseconds>(
                         std::chrono::seconds(sysprop::boottimeCollectionInterval().value_or(
@@ -311,10 +314,14 @@ void IoPerfCollection::terminate() {
 Result<void> IoPerfCollection::onBootFinished() {
     Mutex::Autolock lock(mMutex);
     if (mCurrCollectionEvent != CollectionEvent::BOOT_TIME) {
-        return Error(INVALID_OPERATION)
-                << "Current I/O performance data collection event "
-                << toString(mCurrCollectionEvent) << " != " << toString(CollectionEvent::BOOT_TIME)
-                << " collection event";
+        // This case happens when either the I/O perf collection has prematurely terminated before
+        // boot complete notification is received or multiple boot complete notifications are
+        // received. In either case don't return error as this will lead to runtime exception and
+        // cause system to boot loop.
+        ALOGE("Current I/O performance data collection event %s != %s",
+                toString(mCurrCollectionEvent).c_str(),
+                toString(CollectionEvent::BOOT_TIME).c_str());
+        return {};
     }
     mHandlerLooper->removeMessages(this);
     mCurrCollectionEvent = CollectionEvent::PERIODIC;

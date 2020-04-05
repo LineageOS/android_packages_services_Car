@@ -449,6 +449,84 @@ Return<void> EvsV4lCamera::getExtendedInfo_1_1(uint32_t opaqueIdentifier,
 }
 
 
+Return<void>
+EvsV4lCamera::importExternalBuffers(const hidl_vec<BufferDesc_1_1>& buffers,
+                                    importExternalBuffers_cb _hidl_cb) {
+    LOG(DEBUG) << __FUNCTION__;
+
+    // If we've been displaced by another owner of the camera, then we can't do anything else
+    if (!mVideo.isOpen()) {
+        LOG(WARNING) << "Ignoring a request add external buffers "
+                     << "when camera has been lost.";
+        _hidl_cb(EvsResult::UNDERLYING_SERVICE_ERROR, mFramesAllowed);
+        return {};
+    }
+
+    auto numBuffersToAdd = buffers.size();
+    if (numBuffersToAdd < 1) {
+        LOG(DEBUG) << "No buffers to add.";
+        _hidl_cb(EvsResult::OK, mFramesAllowed);
+        return {};
+    }
+
+    {
+        std::scoped_lock<std::mutex> lock(mAccessLock);
+
+        if (numBuffersToAdd > (MAX_BUFFERS_IN_FLIGHT - mFramesAllowed)) {
+            numBuffersToAdd -= (MAX_BUFFERS_IN_FLIGHT - mFramesAllowed);
+            LOG(WARNING) << "Exceed the limit on number of buffers.  "
+                         << numBuffersToAdd << " buffers will be added only.";
+        }
+
+        GraphicBufferMapper& mapper = GraphicBufferMapper::get();
+        const auto before = mFramesAllowed;
+        for (auto i = 0; i < numBuffersToAdd; ++i) {
+            // TODO: reject if external buffer is configured differently.
+            auto& b = buffers[i];
+            const AHardwareBuffer_Desc* pDesc =
+                reinterpret_cast<const AHardwareBuffer_Desc *>(&b.buffer.description);
+
+            // Import a buffer to add
+            buffer_handle_t memHandle = nullptr;
+            status_t result = mapper.importBuffer(b.buffer.nativeHandle,
+                                                  pDesc->width,
+                                                  pDesc->height,
+                                                  1,
+                                                  pDesc->format,
+                                                  pDesc->usage,
+                                                  pDesc->stride,
+                                                  &memHandle);
+            if (result != android::NO_ERROR || !memHandle) {
+                LOG(WARNING) << "Failed to import a buffer " << b.bufferId;
+                continue;
+            }
+
+            auto stored = false;
+            for (auto&& rec : mBuffers) {
+                if (rec.handle == nullptr) {
+                    // Use this existing entry
+                    rec.handle = memHandle;
+                    rec.inUse = false;
+
+                    stored = true;
+                    break;
+                }
+            }
+
+            if (!stored) {
+                // Add a BufferRecord wrapping this handle to our set of available buffers
+                mBuffers.emplace_back(memHandle);
+            }
+
+            ++mFramesAllowed;
+        }
+
+        _hidl_cb(EvsResult::OK, mFramesAllowed - before);
+        return {};
+    }
+}
+
+
 EvsResult EvsV4lCamera::doneWithFrame_impl(const uint32_t bufferId,
                                            const buffer_handle_t memHandle) {
     std::lock_guard <std::mutex> lock(mAccessLock);
@@ -649,7 +727,7 @@ void EvsV4lCamera::forwardFrame(imageBuffer* pV4lBuff, void* pData) {
     }
 
     if (!readyForFrame) {
-        // We need to return the vide buffer so it can capture a new frame
+        // We need to return the video buffer so it can capture a new frame
         mVideo.markFrameConsumed();
     } else {
         // Assemble the buffer description we'll transmit below
@@ -675,10 +753,11 @@ void EvsV4lCamera::forwardFrame(imageBuffer* pV4lBuff, void* pData) {
         // causes SEGV_MAPPER.
         void *targetPixels = nullptr;
         GraphicBufferMapper &mapper = GraphicBufferMapper::get();
-        status_t result = mapper.lock(bufDesc_1_1.buffer.nativeHandle,
-                    GRALLOC_USAGE_SW_WRITE_OFTEN | GRALLOC_USAGE_SW_READ_NEVER,
-                    android::Rect(pDesc->width, pDesc->height),
-                    (void **)&targetPixels);
+        status_t result =
+            mapper.lock(bufDesc_1_1.buffer.nativeHandle,
+                        GRALLOC_USAGE_SW_WRITE_OFTEN | GRALLOC_USAGE_SW_READ_NEVER,
+                        android::Rect(pDesc->width, pDesc->height),
+                        (void **)&targetPixels);
 
         // If we failed to lock the pixel buffer, we're about to crash, but log it first
         if (!targetPixels) {
@@ -740,6 +819,7 @@ void EvsV4lCamera::forwardFrame(imageBuffer* pV4lBuff, void* pData) {
             // Since we didn't actually deliver it, mark the frame as available
             std::lock_guard<std::mutex> lock(mAccessLock);
             mBuffers[idx].inUse = false;
+
             mFramesInUse--;
         }
     }
