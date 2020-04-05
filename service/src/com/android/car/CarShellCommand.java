@@ -20,9 +20,12 @@ import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.app.UiModeManager;
 import android.car.Car;
+import android.car.user.CarUserManager;
+import android.car.user.CarUserManager.UserSwitchResult;
 import android.car.userlib.HalCallback;
 import android.car.userlib.UserHalHelper;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserMessageType;
@@ -47,6 +50,7 @@ import com.android.car.hal.VehicleHal;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.trust.CarTrustedDeviceService;
+import com.android.car.user.CarUserService;
 import com.android.internal.util.ArrayUtils;
 
 import java.io.PrintWriter;
@@ -94,6 +98,7 @@ final class CarShellCommand extends ShellCommand {
     private static final int RESULT_OK = 0;
     private static final int RESULT_ERROR = -1; // Arbitrary value, any non-0 is fine
 
+    private final Context mContext;
     private final VehicleHal mHal;
     private final CarAudioService mCarAudioService;
     private final CarPackageManagerService mCarPackageManagerService;
@@ -106,8 +111,10 @@ final class CarShellCommand extends ShellCommand {
     private final CarNightService mCarNightService;
     private final SystemInterface mSystemInterface;
     private final GarageModeService mGarageModeService;
+    private final CarUserService mCarUserService;
 
-    CarShellCommand(VehicleHal hal,
+    CarShellCommand(Context context,
+            VehicleHal hal,
             CarAudioService carAudioService,
             CarPackageManagerService carPackageManagerService,
             CarProjectionService carProjectionService,
@@ -118,7 +125,9 @@ final class CarShellCommand extends ShellCommand {
             CarInputService carInputService,
             CarNightService carNightService,
             SystemInterface systemInterface,
-            GarageModeService garageModeService) {
+            GarageModeService garageModeService,
+            CarUserService carUserService) {
+        mContext = context;
         mHal = hal;
         mCarAudioService = carAudioService;
         mCarPackageManagerService = carPackageManagerService;
@@ -131,6 +140,7 @@ final class CarShellCommand extends ShellCommand {
         mCarNightService = carNightService;
         mSystemInterface = systemInterface;
         mGarageModeService = garageModeService;
+        mCarUserService = carUserService;
     }
 
     @Override
@@ -629,40 +639,59 @@ final class CarShellCommand extends ShellCommand {
         Log.d(TAG, "handleSwitchUser(): target=" + targetUserId + ", dryRun=" + dryRun
                 + ", timeout=" + timeout);
 
-        if (!dryRun) {
-            writer.println("'Wet' run not supported yet, please use --dry-run");
-            // TODO(b/150409110): implement by calling CarUserManager.switchUser
-            return;
+        CountDownLatch latch = new CountDownLatch(1);
+
+        if (dryRun) {
+            UserHalService userHal = mHal.getUserHal();
+            // TODO(b/150413515): use UserHalHelper to populate it with current users
+            UsersInfo usersInfo = new UsersInfo();
+            UserInfo targetUserInfo = new UserInfo();
+            targetUserInfo.userId = targetUserId;
+            // TODO(b/150413515): use UserHalHelper to set user flags
+
+            userHal.switchUser(targetUserInfo, timeout, usersInfo, (status, resp) -> {
+                try {
+                    Log.d(TAG, "SwitchUserResponse: status=" + status + ", resp=" + resp);
+                    writer.printf("Call Status: %s\n",
+                            UserHalHelper.halCallbackStatusToString(status));
+                    if (status != HalCallback.STATUS_OK) {
+                        return;
+                    }
+                    writer.printf("Request id: %d\n", resp.requestId);
+                    writer.printf("Message type: %s\n",
+                            SwitchUserMessageType.toString(resp.messageType));
+                    writer.printf("Switch Status: %s\n", SwitchUserStatus.toString(resp.status));
+                    String errorMessage = resp.errorMessage;
+                    if (!TextUtils.isEmpty(errorMessage)) {
+                        writer.printf("Error message: %s", errorMessage);
+                    }
+                    // TODO: If HAL returned OK, make a "post-switch" call to the HAL indicating an
+                    // Android error. This is to "rollback" the HAL switch.
+                } finally {
+                    latch.countDown();
+                }
+            });
+        } else {
+            Car car = Car.createCar(mContext);
+            CarUserManager carUserManager =
+                    (CarUserManager) car.getCarManager(Car.CAR_USER_SERVICE);
+            carUserManager.switchUser(targetUserId, new CarUserManager.UserSwitchListener() {
+                @Override
+                public void onResult(UserSwitchResult result) {
+                    try {
+                        writer.printf("UserSwitchResult: status = %s\n",
+                                CarUserManager.userSwitchStatusToString(result.getStatus()));
+                        String msg = result.getErrorMessage();
+                        if (msg != null && !msg.isEmpty()) {
+                            writer.printf("UserSwitchResult: Message = %s\n", msg);
+                        }
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
         }
 
-        UserHalService userHal = mHal.getUserHal();
-        // TODO(b/150413515): use UserHalHelper to populate it with current users
-        UsersInfo usersInfo = new UsersInfo();
-        UserInfo targetUserInfo = new UserInfo();
-        targetUserInfo.userId = targetUserId;
-        // TODO(b/150413515): use UserHalHelper to set user flags
-
-        CountDownLatch latch = new CountDownLatch(1);
-        userHal.switchUser(targetUserInfo, timeout, usersInfo, (status, resp) -> {
-            try {
-                Log.d(TAG, "SwitchUserResponse: status=" + status + ", resp=" + resp);
-                writer.printf("Call Status: %s\n",
-                        UserHalHelper.halCallbackStatusToString(status));
-                if (status != HalCallback.STATUS_OK) {
-                    return;
-                }
-                writer.printf("Request id: %d\n", resp.requestId);
-                writer.printf("Message type: %s\n",
-                        SwitchUserMessageType.toString(resp.messageType));
-                writer.printf("Switch Status: %s\n", SwitchUserStatus.toString(resp.status));
-                String errorMessage = resp.errorMessage;
-                if (!TextUtils.isEmpty(errorMessage)) {
-                    writer.printf("Error message: %s", errorMessage);
-                }
-            } finally {
-                latch.countDown();
-            }
-        });
         waitForHal(writer, latch, timeout);
     }
 

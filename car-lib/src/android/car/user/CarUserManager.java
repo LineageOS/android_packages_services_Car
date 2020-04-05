@@ -397,6 +397,26 @@ public final class CarUserManager extends CarManagerBase {
     }
 
     /**
+     * Converts user switch status to string.
+     *
+     * @hide
+     */
+    public static String userSwitchStatusToString(@UserSwitchStatus int status) {
+        switch (status) {
+            case USER_SWITCH_STATUS_SUCCESSFUL:
+                return "SUCCESSFUL";
+            case USER_SWITCH_STATUS_ANDROID_FAILURE:
+                return "ANDROID_FAILURE";
+            case USER_SWITCH_STATUS_HAL_FAILURE:
+                return "HAL_FAILURE";
+            case USER_SWITCH_STATUS_HAL_INTERNAL_FAILURE:
+                return "HAL_INTERNAL_FAILURE";
+            default:
+                return "INVALID_STATUS";
+        }
+    }
+
+    /**
      * @hide
      */
     @TestApi
