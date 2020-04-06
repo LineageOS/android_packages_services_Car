@@ -81,6 +81,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -596,6 +597,7 @@ public final class Car {
      * @hide
      * @deprecated mocking vehicle HAL in car service is no longer supported.
      */
+    @Deprecated
     @SystemApi
     public static final String PERMISSION_MOCK_VEHICLE_HAL =
             "android.car.permission.CAR_MOCK_VEHICLE_HAL";
@@ -647,7 +649,7 @@ public final class Car {
      */
     @SystemApi
     public static final String PERMISSION_CAR_DIAGNOSTIC_READ_ALL =
-        "android.car.permission.CAR_DIAGNOSTICS";
+            "android.car.permission.CAR_DIAGNOSTICS";
 
     /**
      * Permissions necessary to clear diagnostic information.
@@ -922,7 +924,7 @@ public final class Car {
     };
 
     private final ServiceConnection mServiceConnectionListener =
-            new ServiceConnection () {
+            new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             synchronized (mLock) {
@@ -1024,7 +1026,7 @@ public final class Car {
      */
     @Deprecated
     public static Car createCar(Context context, ServiceConnection serviceConnectionListener) {
-      return createCar(context, serviceConnectionListener, null);
+        return createCar(context, serviceConnectionListener, null);
     }
 
     /**
@@ -1763,7 +1765,8 @@ public final class Car {
             Constructor constructor = managerClass.getConstructor(Car.class, IBinder.class);
             CarManagerBase manager = (CarManagerBase) constructor.newInstance(this, binder);
             return manager;
-        } catch (Exception e) {
+        } catch (ClassNotFoundException | IllegalAccessException | NoSuchMethodException
+                | InstantiationException | InvocationTargetException e) {
             Log.e(TAG_CAR, "Cannot construct CarManager, class:" + className, e);
             return null;
         }
