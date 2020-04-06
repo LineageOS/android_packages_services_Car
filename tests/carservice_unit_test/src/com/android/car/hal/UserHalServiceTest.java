@@ -233,10 +233,8 @@ public final class UserHalServiceTest {
 
     @Test
     public void testGetUserInfo_halReplyWithWrongRequestId() throws Exception {
-        // TODO(b/150419600): use helper method to convert prop value to proper req
-        VehiclePropValue propResponse = new VehiclePropValue();
-        propResponse.prop = INITIAL_USER_INFO;
-        propResponse.value.int32Values.add(REQUEST_ID_PLACE_HOLDER);
+        VehiclePropValue propResponse = UserHalHelper.createPropRequest(REQUEST_ID_PLACE_HOLDER,
+                    INITIAL_USER_INFO_RESPONSE_ACTION, INITIAL_USER_INFO);
 
         replySetPropertyWithOnChangeEvent(INITIAL_USER_INFO, propResponse,
                 /* rightRequestId= */ false);
@@ -253,11 +251,8 @@ public final class UserHalServiceTest {
 
     @Test
     public void testGetUserInfo_halReturnedInvalidAction() throws Exception {
-        // TODO(b/150419600): use helper method to convert prop value to proper req
-        VehiclePropValue propResponse = new VehiclePropValue();
-        propResponse.prop = INITIAL_USER_INFO;
-        propResponse.value.int32Values.add(REQUEST_ID_PLACE_HOLDER);
-        propResponse.value.int32Values.add(INITIAL_USER_INFO_RESPONSE_ACTION);
+        VehiclePropValue propResponse = UserHalHelper.createPropRequest(REQUEST_ID_PLACE_HOLDER,
+                    INITIAL_USER_INFO_RESPONSE_ACTION, INITIAL_USER_INFO);
 
         AtomicReference<VehiclePropValue> reqCaptor = replySetPropertyWithOnChangeEvent(
                 INITIAL_USER_INFO, propResponse, /* rightRequestId= */ true);
@@ -279,11 +274,8 @@ public final class UserHalServiceTest {
 
     @Test
     public void testGetUserInfo_successDefault() throws Exception {
-        // TODO(b/150419600): use helper method to convert prop value to proper req
-        VehiclePropValue propResponse = new VehiclePropValue();
-        propResponse.prop = INITIAL_USER_INFO;
-        propResponse.value.int32Values.add(REQUEST_ID_PLACE_HOLDER);
-        propResponse.value.int32Values.add(InitialUserInfoResponseAction.DEFAULT);
+        VehiclePropValue propResponse = UserHalHelper.createPropRequest(REQUEST_ID_PLACE_HOLDER,
+                    InitialUserInfoResponseAction.DEFAULT, INITIAL_USER_INFO);
 
         AtomicReference<VehiclePropValue> reqCaptor = replySetPropertyWithOnChangeEvent(
                 INITIAL_USER_INFO, propResponse, /* rightRequestId= */ true);
@@ -311,11 +303,8 @@ public final class UserHalServiceTest {
     @Test
     public void testGetUserInfo_successSwitchUser() throws Exception {
         int userIdToSwitch = 42;
-        // TODO(b/150419600): use helper method to convert prop value to proper req
-        VehiclePropValue propResponse = new VehiclePropValue();
-        propResponse.prop = INITIAL_USER_INFO;
-        propResponse.value.int32Values.add(REQUEST_ID_PLACE_HOLDER);
-        propResponse.value.int32Values.add(InitialUserInfoResponseAction.SWITCH);
+        VehiclePropValue propResponse = UserHalHelper.createPropRequest(REQUEST_ID_PLACE_HOLDER,
+                    InitialUserInfoResponseAction.SWITCH, INITIAL_USER_INFO);
         propResponse.value.int32Values.add(userIdToSwitch);
 
         AtomicReference<VehiclePropValue> reqCaptor = replySetPropertyWithOnChangeEvent(
@@ -345,11 +334,8 @@ public final class UserHalServiceTest {
     public void testGetUserInfo_successCreateUser() throws Exception {
         int newUserFlags = 108;
         String newUserName = "Groot";
-        // TODO(b/150419600): use helper method to convert prop value to proper req
-        VehiclePropValue propResponse = new VehiclePropValue();
-        propResponse.prop = INITIAL_USER_INFO;
-        propResponse.value.int32Values.add(REQUEST_ID_PLACE_HOLDER);
-        propResponse.value.int32Values.add(InitialUserInfoResponseAction.CREATE);
+        VehiclePropValue propResponse = UserHalHelper.createPropRequest(REQUEST_ID_PLACE_HOLDER,
+                    InitialUserInfoResponseAction.CREATE, INITIAL_USER_INFO);
         propResponse.value.int32Values.add(newUserFlags);
         propResponse.value.stringValue = newUserName;
 
@@ -438,10 +424,8 @@ public final class UserHalServiceTest {
 
     @Test
     public void testSwitchUser_halReplyWithWrongRequestId() throws Exception {
-        // TODO(b/150419600): use helper method to convert prop value to proper req
-        VehiclePropValue propResponse = new VehiclePropValue();
-        propResponse.prop = SWITCH_USER;
-        propResponse.value.int32Values.add(REQUEST_ID_PLACE_HOLDER);
+        VehiclePropValue propResponse = UserHalHelper.createPropRequest(REQUEST_ID_PLACE_HOLDER,
+                    InitialUserInfoResponseAction.SWITCH, SWITCH_USER);
 
         replySetPropertyWithOnChangeEvent(SWITCH_USER, propResponse,
                 /* rightRequestId= */ false);
@@ -457,11 +441,8 @@ public final class UserHalServiceTest {
 
     @Test
     public void testSwitchUser_halReturnedInvalidMessageType() throws Exception {
-        // TODO(b/150419600): use helper method to convert prop value to proper req
-        VehiclePropValue propResponse = new VehiclePropValue();
-        propResponse.prop = SWITCH_USER;
-        propResponse.value.int32Values.add(REQUEST_ID_PLACE_HOLDER);
-        propResponse.value.int32Values.add(SwitchUserMessageType.VEHICLE_REQUEST);
+        VehiclePropValue propResponse = UserHalHelper.createPropRequest(REQUEST_ID_PLACE_HOLDER,
+                    SwitchUserMessageType.VEHICLE_REQUEST, SWITCH_USER);
         propResponse.value.int32Values.add(SwitchUserStatus.SUCCESS);
 
         AtomicReference<VehiclePropValue> reqCaptor = replySetPropertyWithOnChangeEvent(
@@ -483,11 +464,8 @@ public final class UserHalServiceTest {
 
     @Test
     public void testUserSwitch_success() throws Exception {
-        // TODO(b/150419600): use helper method to convert prop value to proper req
-        VehiclePropValue propResponse = new VehiclePropValue();
-        propResponse.prop = SWITCH_USER;
-        propResponse.value.int32Values.add(REQUEST_ID_PLACE_HOLDER);
-        propResponse.value.int32Values.add(SwitchUserMessageType.VEHICLE_RESPONSE);
+        VehiclePropValue propResponse = UserHalHelper.createPropRequest(REQUEST_ID_PLACE_HOLDER,
+                    SwitchUserMessageType.VEHICLE_RESPONSE, SWITCH_USER);
         propResponse.value.int32Values.add(SwitchUserStatus.SUCCESS);
 
         AtomicReference<VehiclePropValue> reqCaptor = replySetPropertyWithOnChangeEvent(
@@ -511,11 +489,8 @@ public final class UserHalServiceTest {
 
     @Test
     public void testUserSwitch_failure() throws Exception {
-        // TODO(b/150419600): use helper method to convert prop value to proper req
-        VehiclePropValue propResponse = new VehiclePropValue();
-        propResponse.prop = SWITCH_USER;
-        propResponse.value.int32Values.add(REQUEST_ID_PLACE_HOLDER);
-        propResponse.value.int32Values.add(SwitchUserMessageType.VEHICLE_RESPONSE);
+        VehiclePropValue propResponse = UserHalHelper.createPropRequest(REQUEST_ID_PLACE_HOLDER,
+                    SwitchUserMessageType.VEHICLE_RESPONSE, SWITCH_USER);
         propResponse.value.int32Values.add(SwitchUserStatus.FAILURE);
 
         AtomicReference<VehiclePropValue> reqCaptor = replySetPropertyWithOnChangeEvent(
@@ -557,11 +532,8 @@ public final class UserHalServiceTest {
 
     @Test
     public void testSwitchUser_halReturnedInvalidStatus() throws Exception {
-        // TODO(b/150419600): use helper method to convert prop value to proper req
-        VehiclePropValue propResponse = new VehiclePropValue();
-        propResponse.prop = SWITCH_USER;
-        propResponse.value.int32Values.add(REQUEST_ID_PLACE_HOLDER);
-        propResponse.value.int32Values.add(SwitchUserMessageType.VEHICLE_RESPONSE);
+        VehiclePropValue propResponse = UserHalHelper.createPropRequest(REQUEST_ID_PLACE_HOLDER,
+                    SwitchUserMessageType.VEHICLE_RESPONSE, SWITCH_USER);
         propResponse.value.int32Values.add(/*status =*/ 110); // an invalid status
 
         AtomicReference<VehiclePropValue> reqCaptor = replySetPropertyWithOnChangeEvent(
