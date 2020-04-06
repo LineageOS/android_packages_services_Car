@@ -270,7 +270,8 @@ public class CarUserManagerHelperTest {
         setLastActiveUser(lastActiveUserId);
         mockGetUsers(mSystemUser, user10, user11, user12);
 
-        assertThat(mCarUserManagerHelper.getInitialUser()).isEqualTo(lastActiveUserId);
+        assertThat(mCarUserManagerHelper.getInitialUser(/* usesOverrideUserIdProperty= */ true))
+                .isEqualTo(lastActiveUserId);
     }
 
     @Test
@@ -284,7 +285,8 @@ public class CarUserManagerHelperTest {
         setLastActiveUser(lastActiveUserId);
         mockGetUsers(mSystemUser, smallestUser, notSmallestUser);
 
-        assertThat(mCarUserManagerHelper.getInitialUser()).isEqualTo(minimumUserId);
+        assertThat(mCarUserManagerHelper.getInitialUser(/* usesOverrideUserIdProperty= */ true))
+                .isEqualTo(minimumUserId);
     }
 
     @Test
@@ -301,7 +303,8 @@ public class CarUserManagerHelperTest {
         setLastActiveUser(lastActiveUserId);
         mockGetUsers(mSystemUser, user10, user11, user12);
 
-        assertThat(mCarUserManagerHelper.getInitialUser()).isEqualTo(overrideUserId);
+        assertThat(mCarUserManagerHelper.getInitialUser(/* usesOverrideUserIdProperty= */ true))
+                .isEqualTo(overrideUserId);
     }
 
     @Test
@@ -317,7 +320,8 @@ public class CarUserManagerHelperTest {
         setLastActiveUser(lastActiveUserId);
         mockGetUsers(mSystemUser, user10, user11, user12);
 
-        assertThat(mCarUserManagerHelper.getInitialUser()).isEqualTo(lastActiveUserId);
+        assertThat(mCarUserManagerHelper.getInitialUser(/* usesOverrideUserIdProperty= */ true))
+                .isEqualTo(lastActiveUserId);
     }
 
     @Test
@@ -334,7 +338,8 @@ public class CarUserManagerHelperTest {
         setLastActiveUser(invalidLastActiveUserId);
         mockGetUsers(mSystemUser, minimumUser, user11, user12);
 
-        assertThat(mCarUserManagerHelper.getInitialUser()).isEqualTo(minimumUserId);
+        assertThat(mCarUserManagerHelper.getInitialUser(/* usesOverrideUserIdProperty= */ true))
+                .isEqualTo(minimumUserId);
     }
 
     @Test
@@ -356,7 +361,8 @@ public class CarUserManagerHelperTest {
 
     @Test
     public void testGetInitialUser_WithEmptyReturnNull() {
-        assertThat(mCarUserManagerHelper.getInitialUser()).isEqualTo(UserHandle.USER_NULL);
+        assertThat(mCarUserManagerHelper.getInitialUser(/* usesOverrideUserIdProperty= */ true))
+                .isEqualTo(UserHandle.USER_NULL);
     }
 
     @Test
