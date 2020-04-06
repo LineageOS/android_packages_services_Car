@@ -117,12 +117,10 @@ Status WatchdogProcessService::unregisterMediator(const sp<ICarWatchdogClient>& 
 
 Status WatchdogProcessService::registerMonitor(const sp<ICarWatchdogMonitor>& monitor) {
     Mutex::Autolock lock(mMutex);
-    if (mMonitor != nullptr) {
-        ALOGW("Cannot register the monitor. The other monitor is already registered.");
-        return Status::fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
-                                         "The other monitor is already registered.");
-    }
     sp<IBinder> binder = BnCarWatchdog::asBinder(monitor);
+    if (mMonitor != nullptr && binder == BnCarWatchdog::asBinder(mMonitor)) {
+        return Status::ok();
+    }
     status_t ret = binder->linkToDeath(this);
     if (ret != OK) {
         ALOGW("Cannot register the monitor. The monitor is dead.");
@@ -412,7 +410,7 @@ Status WatchdogProcessService::unregisterClientLocked(const std::vector<TimeoutL
         std::string errorStr = StringPrintf("The %s has not been registered", clientName);
         const char* errorCause = errorStr.c_str();
         ALOGW("Cannot unregister the %s: %s", clientName, errorCause);
-        Status::fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT, errorCause);
+        return Status::fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT, errorCause);
     }
     if (DEBUG) {
         ALOGD("Car watchdog %s is unregistered", clientName);
