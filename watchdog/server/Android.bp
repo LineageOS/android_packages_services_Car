@@ -80,6 +80,7 @@ cc_test {
         "tests/ProcStatTest.cpp",
         "tests/UidIoStatsTest.cpp",
         "tests/WatchdogBinderMediatorTest.cpp",
+        "tests/WatchdogProcessServiceTest.cpp",
     ],
     static_libs: [
         "libgmock",
