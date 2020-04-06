@@ -33,6 +33,7 @@ android_test {
 
     static_libs: [
         "android-support-test",
+        "mockito-target",
         "truth-prebuilt",
     ],
 

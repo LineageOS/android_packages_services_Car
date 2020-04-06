@@ -70,10 +70,15 @@
 
         <service android:name="com.android.car.bugreport.UploadJob"
                  android:permission="android.permission.BIND_JOB_SERVICE"
-                 android:exported="true"/>
+                 android:exported="false"/>
+
+        <service android:name="com.android.car.bugreport.ExpireOldBugReportsJob"
+                 android:permission="android.permission.BIND_JOB_SERVICE"
+                 android:exported="false"/>
 
         <receiver android:name=".StartUpBootReceiver"
-                  android:exported="true">
+                  android:enabled="true"
+                  android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
