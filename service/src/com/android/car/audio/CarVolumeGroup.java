@@ -43,7 +43,7 @@ import java.util.Map;
  */
 /* package */ final class CarVolumeGroup {
 
-    private CarVolumeSettings mSettingsManager;
+    private CarAudioSettings mSettingsManager;
     private final int mZoneId;
     private final int mId;
     private final SparseArray<String> mContextToAddress = new SparseArray<>();
@@ -58,11 +58,11 @@ import java.util.Map;
 
     /**
      * Constructs a {@link CarVolumeGroup} instance
-     * @param Settings {@link CarVolumeSettings} instance
+     * @param Settings {@link CarAudioSettings} instance
      * @param zoneId Audio zone this volume group belongs to
      * @param id ID of this volume group
      */
-    CarVolumeGroup(CarVolumeSettings settings, int zoneId, int id) {
+    CarVolumeGroup(CarAudioSettings settings, int zoneId, int id) {
         mSettingsManager = settings;
         mZoneId = zoneId;
         mId = id;
@@ -79,7 +79,7 @@ import java.util.Map;
      * @deprecated In favor of {@link #CarVolumeGroup(Context, int, int)}
      */
     @Deprecated
-    CarVolumeGroup(CarVolumeSettings settings, int zoneId, int id, @NonNull int[] contexts) {
+    CarVolumeGroup(CarAudioSettings settings, int zoneId, int id, @NonNull int[] contexts) {
         this(settings, zoneId, id);
         // Deal with the pre-populated car audio contexts
         for (int audioContext : contexts) {
