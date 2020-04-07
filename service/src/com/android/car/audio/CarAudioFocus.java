@@ -41,6 +41,8 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
     private final LocalLog mFocusEventLogger;
 
+    private final FocusInteraction mFocusInteraction;
+
 
     // We keep track of all the focus requesters in this map, with their clientId as the key.
     // This is used both for focus dispatch and death handling
@@ -59,10 +61,12 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     private final Object mLock = new Object();
 
 
-    CarAudioFocus(AudioManager audioManager, PackageManager packageManager) {
+    CarAudioFocus(AudioManager audioManager, PackageManager packageManager,
+            FocusInteraction focusInteraction) {
         mAudioManager = audioManager;
         mPackageManager = packageManager;
         mFocusEventLogger = new LocalLog(FOCUS_EVENT_LOGGER_QUEUE_SIZE);
+        mFocusInteraction = focusInteraction;
     }
 
 
@@ -167,7 +171,7 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
                 }
             }
 
-            @AudioManager.FocusRequestResult int interactionResult = FocusInteraction
+            @AudioManager.FocusRequestResult int interactionResult = mFocusInteraction
                     .evaluateRequest(requestedContext, entry, losers, allowDucking);
             if (interactionResult == AudioManager.AUDIOFOCUS_REQUEST_FAILED) {
                 return interactionResult;
@@ -209,7 +213,7 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
                 }
             }
 
-            @AudioManager.FocusRequestResult int interactionResult = FocusInteraction
+            @AudioManager.FocusRequestResult int interactionResult = mFocusInteraction
                     .evaluateRequest(requestedContext, entry, blocked, allowDucking);
             if (interactionResult == AudioManager.AUDIOFOCUS_REQUEST_FAILED) {
                 return interactionResult;
@@ -494,8 +498,8 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     public void dump(String indent, PrintWriter writer) {
         synchronized (mLock) {
             writer.printf("%s*CarAudioFocus*\n", indent);
-
             String innerIndent = indent + "\t";
+            mFocusInteraction.dump(innerIndent, writer);
             writer.printf("%sCurrent Focus Holders:\n", innerIndent);
             for (String clientId : mFocusHolders.keySet()) {
                 writer.printf("%s\t%s - %s\n", innerIndent, clientId,
@@ -546,5 +550,12 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     private void logFocusEvent(String log) {
         mFocusEventLogger.log(log);
         Log.i(TAG, log);
+    }
+
+    /**
+     * Returns the focus interaction for this car focus instance.
+     */
+    public FocusInteraction getFocusInteraction() {
+        return mFocusInteraction;
     }
 }
