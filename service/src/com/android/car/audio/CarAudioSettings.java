@@ -15,14 +15,19 @@
  */
 package com.android.car.audio;
 
+import android.annotation.UserIdInt;
+import android.car.settings.CarSettings;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.provider.Settings;
+
+import androidx.annotation.NonNull;
+
+import java.util.Objects;
 
 /**
  * Use to save/load car volume settings
  */
-public class CarVolumeSettings {
+public class CarAudioSettings {
 
     // The trailing slash forms a directory-liked hierarchy and
     // allows listening for both GROUP/MEDIA and GROUP/NAVIGATION.
@@ -45,8 +50,8 @@ public class CarVolumeSettings {
 
     private final ContentResolver mContentResolver;
 
-    CarVolumeSettings(Context context) {
-        mContentResolver = context.getContentResolver();
+    CarAudioSettings(@NonNull ContentResolver contentResolver) {
+        mContentResolver = Objects.requireNonNull(contentResolver);
     }
 
     int getStoredVolumeGainIndexForUser(int userId, int zoneId, int id) {
@@ -69,5 +74,18 @@ public class CarVolumeSettings {
     boolean getMasterMute() {
         return Settings.Global.getInt(mContentResolver,
                 VOLUME_SETTINGS_KEY_MASTER_MUTE, 0) != 0;
+    }
+
+    /**
+     * Determines if for a given userId the reject navigation on call setting is enabled
+     */
+    public boolean isRejectNavigationOnCallEnabledInSettings(@UserIdInt int userId) {
+        return Settings.Secure.getIntForUser(mContentResolver,
+                CarSettings.Secure.KEY_AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL,
+                /*disabled by default*/ 0, userId) == 1;
+    }
+
+    public ContentResolver getContentResolver() {
+        return mContentResolver;
     }
 }
