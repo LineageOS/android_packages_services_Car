@@ -37,6 +37,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A helper class loads volume groups from car_volume_groups.xml configuration into one zone.
@@ -55,15 +56,23 @@ class CarAudioZonesHelperLegacy {
     private final @XmlRes int mXmlConfiguration;
     private final SparseIntArray mLegacyAudioContextToBus;
     private final SparseArray<CarAudioDeviceInfo> mBusToCarAudioDeviceInfo;
+    private final CarAudioSettings mCarAudioSettings;
 
-    CarAudioZonesHelperLegacy(Context context, @XmlRes int xmlConfiguration,
+    CarAudioZonesHelperLegacy(@NonNull  Context context, @XmlRes int xmlConfiguration,
             @NonNull List<CarAudioDeviceInfo> carAudioDeviceInfos,
-            @NonNull AudioControlWrapper audioControlWrapper) {
+            @NonNull AudioControlWrapper audioControlWrapper,
+            @NonNull CarAudioSettings carAudioSettings) {
+        Objects.requireNonNull(context);
+        Objects.requireNonNull(carAudioDeviceInfos);
+        Objects.requireNonNull(audioControlWrapper);
+        mCarAudioSettings = Objects.requireNonNull(carAudioSettings);
         mContext = context;
         mXmlConfiguration = xmlConfiguration;
-        mBusToCarAudioDeviceInfo = generateBusToCarAudioDeviceInfo(carAudioDeviceInfos);
+        mBusToCarAudioDeviceInfo =
+                generateBusToCarAudioDeviceInfo(carAudioDeviceInfos);
 
-        mLegacyAudioContextToBus = loadBusesForLegacyContexts(audioControlWrapper);
+        mLegacyAudioContextToBus =
+                loadBusesForLegacyContexts(audioControlWrapper);
     }
 
     /* Loads mapping from {@link CarAudioContext} values to bus numbers
@@ -191,9 +200,7 @@ class CarAudioZonesHelperLegacy {
             }
         }
 
-        final CarVolumeSettings settings = new CarVolumeSettings(mContext);
-
-        return new CarVolumeGroup(settings, CarAudioManager.PRIMARY_AUDIO_ZONE, id,
+        return new CarVolumeGroup(mCarAudioSettings, CarAudioManager.PRIMARY_AUDIO_ZONE, id,
                 contexts.stream().mapToInt(i -> i).filter(i -> i >= 0).toArray());
     }
 

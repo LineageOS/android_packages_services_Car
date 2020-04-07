@@ -118,7 +118,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private final AudioManager mAudioManager;
     private final boolean mUseDynamicRouting;
     private final boolean mPersistMasterMuteState;
-    private final CarVolumeSettings mCarVolumeSettings;
+    private final CarAudioSettings mCarAudioSettings;
     private AudioControlWrapper mAudioControlWrapper;
 
     private CarOccupantZoneService mOccupantZoneService;
@@ -215,7 +215,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 R.bool.audioPersistMasterMuteState);
         mUidToZoneMap = new HashMap<>();
         mCarVolumeCallbackHandler = new CarVolumeCallbackHandler();
-        mCarVolumeSettings = new CarVolumeSettings(mContext);
+        mCarAudioSettings = new CarAudioSettings(mContext.getContentResolver());
         mAudioZoneIdToUserIdMapping = new SparseIntArray();
     }
 
@@ -238,7 +238,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
             // Restore master mute state if applicable
             if (mPersistMasterMuteState) {
-                boolean storedMasterMute = mCarVolumeSettings.getMasterMute();
+                boolean storedMasterMute = mCarAudioSettings.getMasterMute();
                 setMasterMute(storedMasterMute, 0);
             }
 
@@ -345,7 +345,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
         // Persists master mute state if applicable
         if (mPersistMasterMuteState) {
-            mCarVolumeSettings.storeMasterMute(mAudioManager.isMasterMute());
+            mCarAudioSettings.storeMasterMute(mAudioManager.isMasterMute());
         }
     }
 
@@ -439,8 +439,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             List<CarAudioDeviceInfo> carAudioDeviceInfos) {
         AudioDeviceInfo[] inputDevices = getAllInputDevices();
         try (InputStream inputStream = new FileInputStream(mCarAudioConfigurationPath)) {
-            CarAudioZonesHelper zonesHelper = new CarAudioZonesHelper(mContext, inputStream,
-                    carAudioDeviceInfos, inputDevices);
+            CarAudioZonesHelper zonesHelper = new CarAudioZonesHelper(mCarAudioSettings,
+                    inputStream, carAudioDeviceInfos, inputDevices);
             mAudioZoneIdToOccupantZoneIdMapping =
                     zonesHelper.getCarAudioZoneIdToOccupantZoneIdMapping();
             return zonesHelper.loadAudioZones();
@@ -453,7 +453,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             List<CarAudioDeviceInfo> carAudioDeviceInfos) {
         AudioControlWrapper audioControlWrapper = getAudioControlWrapperLocked();
         CarAudioZonesHelperLegacy legacyHelper = new CarAudioZonesHelperLegacy(mContext,
-                R.xml.car_volume_groups, carAudioDeviceInfos, audioControlWrapper);
+                R.xml.car_volume_groups, carAudioDeviceInfos,
+                audioControlWrapper, mCarAudioSettings);
         return legacyHelper.loadAudioZones();
     }
 
@@ -496,7 +497,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             // the framework ducking logic.
             mFocusHandler = new CarZonesAudioFocus(mAudioManager,
                     mContext.getPackageManager(),
-                    mCarAudioZones);
+                    mCarAudioZones,
+                    mCarAudioSettings);
             builder.setAudioPolicyFocusListener(mFocusHandler);
             builder.setIsAudioFocusPolicy(true);
         }
@@ -1105,6 +1107,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         // This would be true even if the new user is UserHandle.USER_NULL,
         // as that indicates the user has logged out.
         removeUserIdDeviceAffinitiesLocked(prevUserId);
+        resetCarZonesAudioFocus(audioZoneId);
 
         if (userId == UserHandle.USER_NULL) {
             return;
@@ -1123,6 +1126,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         }
         mAudioZoneIdToUserIdMapping.put(audioZoneId, userId);
         zone.updateVolumeGroupsForUser(userId);
+        mFocusHandler.updateUserForZoneId(audioZoneId, userId);
+    }
+
+    private void resetCarZonesAudioFocus(int audioZoneId) {
+        mFocusHandler.updateUserForZoneId(audioZoneId, UserHandle.USER_NULL);
     }
 
     private CarAudioZone getAudioZoneForZoneIdLocked(int audioZoneId) {
