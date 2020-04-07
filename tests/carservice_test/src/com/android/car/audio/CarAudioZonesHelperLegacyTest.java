@@ -50,6 +50,8 @@ public class CarAudioZonesHelperLegacyTest {
 
     @Mock
     private AudioControlWrapper mMockAudioControlWrapper;
+    @Mock
+    private CarAudioSettings mMockCarAudioSettings;
 
     private static final int INVALID_BUS = -1;
     private final Context mContext = ApplicationProvider.getApplicationContext();
@@ -61,7 +63,7 @@ public class CarAudioZonesHelperLegacyTest {
 
         RuntimeException exception = expectThrows(RuntimeException.class,
                 () -> new CarAudioZonesHelperLegacy(mContext, mCarVolumeGroups,
-                        carAudioDeviceInfos, mMockAudioControlWrapper));
+                        carAudioDeviceInfos, mMockAudioControlWrapper, mMockCarAudioSettings));
 
         assertThat(exception.getMessage()).contains("Two addresses map to same bus number:");
     }
@@ -74,7 +76,7 @@ public class CarAudioZonesHelperLegacyTest {
 
         RuntimeException exception = expectThrows(RuntimeException.class,
                 () -> new CarAudioZonesHelperLegacy(mContext, mCarVolumeGroups,
-                carAudioDeviceInfos, mMockAudioControlWrapper));
+                carAudioDeviceInfos, mMockAudioControlWrapper, mMockCarAudioSettings));
 
         assertThat(exception.getMessage()).contains("Invalid bus -1 was associated with context");
     }
@@ -85,7 +87,7 @@ public class CarAudioZonesHelperLegacyTest {
         when(mMockAudioControlWrapper.getBusForContext(anyInt())).thenReturn(1);
 
         CarAudioZonesHelperLegacy helper = new CarAudioZonesHelperLegacy(mContext, mCarVolumeGroups,
-                carAudioDeviceInfos, mMockAudioControlWrapper);
+                carAudioDeviceInfos, mMockAudioControlWrapper, mMockCarAudioSettings);
 
         CarAudioZone[] zones = helper.loadAudioZones();
 
@@ -99,7 +101,7 @@ public class CarAudioZonesHelperLegacyTest {
         when(mMockAudioControlWrapper.getBusForContext(anyInt())).thenReturn(1);
 
         CarAudioZonesHelperLegacy helper = new CarAudioZonesHelperLegacy(mContext, mCarVolumeGroups,
-                carAudioDeviceInfos, mMockAudioControlWrapper);
+                carAudioDeviceInfos, mMockAudioControlWrapper, mMockCarAudioSettings);
 
         CarAudioZone[] zones = helper.loadAudioZones();
         CarVolumeGroup[] volumeGroups = zones[0].getVolumeGroups();
@@ -114,7 +116,7 @@ public class CarAudioZonesHelperLegacyTest {
         when(mMockAudioControlWrapper.getBusForContext(CarAudioContext.MUSIC)).thenReturn(1);
 
         CarAudioZonesHelperLegacy helper = new CarAudioZonesHelperLegacy(mContext, mCarVolumeGroups,
-                carAudioDeviceInfos, mMockAudioControlWrapper);
+                carAudioDeviceInfos, mMockAudioControlWrapper, mMockCarAudioSettings);
 
         CarAudioZone[] zones = helper.loadAudioZones();
 
@@ -141,7 +143,7 @@ public class CarAudioZonesHelperLegacyTest {
                 .thenReturn(1);
 
         CarAudioZonesHelperLegacy helper = new CarAudioZonesHelperLegacy(mContext, mCarVolumeGroups,
-                carAudioDeviceInfos, mMockAudioControlWrapper);
+                carAudioDeviceInfos, mMockAudioControlWrapper, mMockCarAudioSettings);
 
         CarAudioZone[] zones = helper.loadAudioZones();
 

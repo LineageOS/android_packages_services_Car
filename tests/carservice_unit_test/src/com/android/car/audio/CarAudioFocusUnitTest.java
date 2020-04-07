@@ -33,6 +33,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import android.content.ContentResolver;
 import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
 import android.media.AudioAttributes.AttributeUsage;
@@ -67,12 +68,21 @@ public class CarAudioFocusUnitTest {
     private PackageManager mMockPackageManager;
     @Mock
     private AudioPolicy mAudioPolicy;
+    @Mock
+    private ContentResolver mContentResolver;
+    @Mock
+    private CarAudioSettings mCarAudioSettings;
 
     private CarAudioFocus mCarAudioFocus;
 
+    private FocusInteraction mFocusInteraction;
+
+
     @Before
     public void setUp() {
-        mCarAudioFocus = new CarAudioFocus(mMockAudioManager, mMockPackageManager);
+        mFocusInteraction = new FocusInteraction(mCarAudioSettings);
+        mCarAudioFocus =
+                new CarAudioFocus(mMockAudioManager, mMockPackageManager, mFocusInteraction);
         mCarAudioFocus.setOwningPolicy(mAudioPolicy);
     }
 
