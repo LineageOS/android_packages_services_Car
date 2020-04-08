@@ -140,6 +140,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     private final CopyOnWriteArrayList<PassengerCallback> mPassengerCallbacks =
             new CopyOnWriteArrayList<>();
 
+    @Nullable
+    @GuardedBy("mLockUser")
+    private UserInfo mInitialUser;
+
     /** Interface for callbaks related to passenger activities. */
     public interface PassengerCallback {
         /** Called when passenger is started at a certain zone. */
@@ -237,9 +241,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 }
                 writer.println();
             }
-            writer.println("EnablePassengerSupport: " + mEnablePassengerSupport);
-            writer.println("User HAL timeout: " + mHalTimeoutMs + "ms");
-            writer.println("Relevant overlayable  properties");
+            writer.printf("EnablePassengerSupport: %s\n", mEnablePassengerSupport);
+            writer.printf("User HAL timeout: %dms\n",  mHalTimeoutMs);
+            writer.printf("Initial user: %s\n", mInitialUser);
+            writer.println("Relevant overlayable properties");
             Resources res = mContext.getResources();
             writer.printf("%sowner_name=%s\n", indent,
                     res.getString(com.android.internal.R.string.owner_name));
@@ -524,6 +529,57 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 Log.w(TAG_USER, "Could not send result back to receiver", e);
             }
         });
+    }
+
+    /**
+     * Gets the initial foreground user after the device boots or resumes from suspension.
+     *
+     * <p>When the OEM supports the User HAL, the initial user won't be available until the HAL
+     * returns the initial value to {@code CarService} - if HAL takes too long or times out, this
+     * method returns {@code null}.
+     *
+     * <p>If the HAL eventually times out, {@code CarService} will fallback to its default behavior
+     * (like switching to the last active user), and this method will return the result of such
+     * operation.
+     *
+     * <p>Notice that if {@code CarService} crashes, subsequent calls to this method will return
+     * {@code null}.
+     *
+     * @hide
+     */
+    @Nullable
+    public UserInfo getInitialUser() {
+        checkInteractAcrossUsersPermission("getInitialUser");
+        synchronized (mLockUser) {
+            return mInitialUser;
+        }
+    }
+
+    // TODO(b/150413515): temporary method called by ICarImpl.setInitialUser(int userId), as for
+    // some reason passing the whole UserInfo through a raw binder transaction  is not working.
+    /**
+     * Sets the initial foreground user after the device boots or resumes from suspension.
+     */
+    public void setInitialUser(@UserIdInt int userId) {
+        UserInfo initialUser = userId == UserHandle.USER_NULL ? null
+                : mUserManager.getUserInfo(userId);
+        setInitialUser(initialUser);
+    }
+
+    /**
+     * Sets the initial foreground user after the device boots or resumes from suspension.
+     */
+    public void setInitialUser(@Nullable UserInfo user) {
+        Log.i(TAG_USER, "setInitialUser: " + user);
+        synchronized (mLockUser) {
+            mInitialUser = user;
+        }
+        if (user == null) {
+            // This mean InitialUserSetter failed and could not fallback, so the initial user was
+            // not switched (and most likely is SYSTEM_USER).
+            // TODO(b/153104378): should we set it to ActivityManager.getCurrentUser() instead?
+            Log.wtf(TAG_USER, "Initial user set to null");
+        }
     }
 
     /**

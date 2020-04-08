@@ -18,6 +18,7 @@ package com.android.car;
 
 import static android.car.userlib.InitialUserSetterTest.expectCurrentUser;
 import static android.car.userlib.InitialUserSetterTest.isUserInfo;
+import static android.car.userlib.InitialUserSetterTest.newGuestUser;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
@@ -51,7 +52,6 @@ import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateShutdownParam;
 import android.os.RemoteException;
-import android.os.UserHandle;
 import android.os.UserManager;
 import android.sysprop.CarProperties;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -406,8 +406,8 @@ public class CarPowerManagementServiceTest {
 
     @Test
     public void testUserSwitchingOnResume_disabledByOEM_nonGuest() throws Exception {
-        setCurrentUser(CURRENT_USER_ID, /* isGuest= */ false);
-        expectNewGuestCreated(CURRENT_USER_ID, CURRENT_USER_ID);
+        UserInfo currentUser = setCurrentUser(CURRENT_USER_ID, /* isGuest= */ false);
+        expectNewGuestCreated(CURRENT_USER_ID, currentUser);
 
         suspendAndResumeForUserSwitchingTestsWhileDisabledByOem();
 
@@ -418,7 +418,8 @@ public class CarPowerManagementServiceTest {
     @Test
     public void testUserSwitchingOnResume_disabledByOEM_guest() throws Exception {
         setCurrentUser(CURRENT_GUEST_ID, /* isGuest= */ true);
-        expectNewGuestCreated(CURRENT_GUEST_ID, NEW_GUEST_ID);
+        UserInfo newGuest = newGuestUser(NEW_GUEST_ID, /* ephemeral= */ true);
+        expectNewGuestCreated(CURRENT_GUEST_ID, newGuest);
 
         suspendAndResumeForUserSwitchingTestsWhileDisabledByOem();
 
@@ -429,7 +430,7 @@ public class CarPowerManagementServiceTest {
     @Test
     public void testUserSwitchingOnResume_disabledByOEM_guestReplacementFails() throws Exception {
         setCurrentUser(CURRENT_GUEST_ID, /* isGuest= */ true);
-        expectNewGuestCreated(CURRENT_GUEST_ID, UserHandle.USER_NULL);
+        expectNewGuestCreated(CURRENT_GUEST_ID, /* newGuest= */ null);
 
         suspendAndResumeForUserSwitchingTestsWhileDisabledByOem();
 
@@ -682,7 +683,7 @@ public class CarPowerManagementServiceTest {
         }
     }
 
-    private void setCurrentUser(int userId, boolean isGuest) {
+    private UserInfo setCurrentUser(int userId, boolean isGuest) {
         expectCurrentUser(userId);
         final UserInfo userInfo = new UserInfo();
         userInfo.id = userId;
@@ -691,6 +692,7 @@ public class CarPowerManagementServiceTest {
                 : UserManager.USER_TYPE_FULL_SECONDARY;
         Log.v(TAG, "UM.getUserInfo("  + userId + ") will return " + userInfo.toFullString());
         when(mUserManager.getUserInfo(userId)).thenReturn(userInfo);
+        return userInfo;
     }
 
     private void verifyUserNotSwitched() {
@@ -701,9 +703,9 @@ public class CarPowerManagementServiceTest {
         verify(mInitialUserSetter).switchUser(userId);
     }
 
-    private void expectNewGuestCreated(int existingGuestId, int newGuestId) {
+    private void expectNewGuestCreated(int existingGuestId, UserInfo newGuest) {
         when(mInitialUserSetter.replaceGuestIfNeeded(isUserInfo(existingGuestId)))
-                .thenReturn(newGuestId);
+                .thenReturn(newGuest);
     }
 
     private void verifyDefaultInitialUserBehaviorCalled() {
