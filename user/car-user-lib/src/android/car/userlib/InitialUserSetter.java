@@ -35,6 +35,7 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
 import java.io.PrintWriter;
+import java.util.function.Consumer;
 
 /**
  * Helper used to set the initial Android user on boot or when resuming from RAM.
@@ -57,26 +58,31 @@ public final class InitialUserSetter {
     private final String mNewUserName;
     private final String mNewGuestName;
 
-    public InitialUserSetter(@NonNull Context context, boolean supportsOverrideUserIdProperty) {
-        this(context, /* newGuestName= */ null, supportsOverrideUserIdProperty);
+    private final Consumer<UserInfo> mListener;
+
+    public InitialUserSetter(@NonNull Context context, @NonNull Consumer<UserInfo> listener,
+            boolean supportsOverrideUserIdProperty) {
+        this(context, listener, /* newGuestName= */ null, supportsOverrideUserIdProperty);
     }
 
-    public InitialUserSetter(@NonNull Context context, @Nullable String newGuestName,
-            boolean supportsOverrideUserIdProperty) {
-        this(new CarUserManagerHelper(context), UserManager.get(context),
+    public InitialUserSetter(@NonNull Context context, @NonNull Consumer<UserInfo> listener,
+            @Nullable String newGuestName, boolean supportsOverrideUserIdProperty) {
+        this(new CarUserManagerHelper(context), UserManager.get(context), listener,
                 context.getString(com.android.internal.R.string.owner_name), newGuestName,
                 supportsOverrideUserIdProperty);
     }
 
     @VisibleForTesting
     public InitialUserSetter(@NonNull CarUserManagerHelper helper, @NonNull UserManager um,
+            @NonNull Consumer<UserInfo> listener,
             @Nullable String newUserName, @Nullable String newGuestName,
             boolean supportsOverrideUserIdProperty) {
         mHelper = helper;
         mUm = um;
-        mSupportsOverrideUserIdProperty = supportsOverrideUserIdProperty;
+        mListener = listener;
         mNewUserName = newUserName;
         mNewGuestName = newGuestName;
+        mSupportsOverrideUserIdProperty = supportsOverrideUserIdProperty;
     }
 
     /**
@@ -115,6 +121,8 @@ public final class InitialUserSetter {
         if (!fallback) {
             // Only log the error
             Log.w(TAG, reason);
+            // Must explicitly tell listener that initial user could not be determined
+            notifyListener(/*initialUser= */ null);
             return;
         }
         Log.w(TAG, "Falling back to default behavior. Reason: " + reason);
@@ -138,12 +146,14 @@ public final class InitialUserSetter {
             return;
         }
 
-        int actualUserId = replaceGuestIfNeeded(user);
+        UserInfo actualUser = replaceGuestIfNeeded(user);
 
-        if (actualUserId == UserHandle.USER_NULL) {
+        if (actualUser == null) {
             fallbackDefaultBehavior(fallback, "could not replace guest " + user.toFullString());
             return;
         }
+
+        int actualUserId = actualUser.id;
 
         // If system user is the only user to unlock, it will be handled when boot is complete.
         if (actualUserId != UserHandle.USER_SYSTEM) {
@@ -158,6 +168,7 @@ public final class InitialUserSetter {
             }
             mHelper.setLastActiveUser(actualUserId);
         }
+        notifyListener(actualUser);
 
         if (actualUserId != userId) {
             Slog.i(TAG, "Removing old guest " + userId);
@@ -167,19 +178,20 @@ public final class InitialUserSetter {
         }
     }
 
+    // TODO(b/151758646): move to CarUserManagerHelper
     /**
      * Replaces {@code user} by a new guest, if necessary.
      *
-     * <p>If {@code user} is not a guest, it doesn't do anything and returns its id.
+     * <p>If {@code user} is not a guest, it doesn't do anything and returns the same user.
      *
-     * <p>Otherwise, it marks the current guest for deletion, creates a new one, and returns its
-     * id (or {@link UserHandle#USER_NULL} if a new guest could not be created).
+     * <p>Otherwise, it marks the current guest for deletion, creates a new one, and returns the
+     * new guest (or {@code null} if a new guest could not be created).
      */
-    @UserIdInt
-    public int replaceGuestIfNeeded(@NonNull UserInfo user) {
+    @Nullable
+    public UserInfo replaceGuestIfNeeded(@NonNull UserInfo user) {
         Preconditions.checkArgument(user != null, "user cannot be null");
 
-        if (!user.isGuest()) return user.id;
+        if (!user.isGuest()) return user;
 
         Log.i(TAG, "Replacing guest (" + user.toFullString() + ")");
 
@@ -204,10 +216,10 @@ public final class InitialUserSetter {
         String errorMessage = result.second;
         if (errorMessage != null) {
             Log.w(TAG, "could not replace guest " + user.toFullString() + ": " + errorMessage);
-            return UserHandle.USER_NULL;
+            return null;
         }
 
-        return result.first.id;
+        return result.first;
     }
 
     /**
@@ -283,6 +295,11 @@ public final class InitialUserSetter {
 
         if (DBG) Log.d(TAG, "user created: " + userInfo.id);
         return new Pair<>(userInfo, null);
+    }
+
+    private void notifyListener(@Nullable UserInfo initialUser) {
+        if (DBG) Log.d(TAG, "notifyListener(): " + initialUser);
+        mListener.accept(initialUser);
     }
 
     /**

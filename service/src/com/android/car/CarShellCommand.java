@@ -63,6 +63,8 @@ import java.util.concurrent.TimeUnit;
 
 final class CarShellCommand extends ShellCommand {
 
+    private static final String NO_INITIAL_USER = "N/A";
+
     private static final String TAG = CarShellCommand.class.getSimpleName();
 
     private static final String COMMAND_HELP = "-h";
@@ -89,6 +91,7 @@ final class CarShellCommand extends ShellCommand {
     private static final String COMMAND_INJECT_ROTARY = "inject-rotary";
     private static final String COMMAND_GET_INITIAL_USER_INFO = "get-initial-user-info";
     private static final String COMMAND_SWITCH_USER = "switch-user";
+    private static final String COMMAND_GET_INITIAL_USER = "get-initial-user";
 
     private static final String PARAM_DAY_MODE = "day";
     private static final String PARAM_NIGHT_MODE = "night";
@@ -248,6 +251,10 @@ final class CarShellCommand extends ShellCommand {
         pw.println("\t  Switches to user USER_ID using the HAL integration.");
         pw.println("\t  The --dry-run option only calls HAL, without switching the user,");
         pw.println("\t  while the --timeout defines how long to wait for the HAL response");
+
+        pw.printf("\t%s\n", COMMAND_GET_INITIAL_USER);
+        pw.printf("\t  Gets the id of the initial user (or %s when it's not available)\n",
+                NO_INITIAL_USER);
     }
 
     private static int showInvalidArguments(PrintWriter pw) {
@@ -421,6 +428,10 @@ final class CarShellCommand extends ShellCommand {
             case COMMAND_SWITCH_USER:
                 switchUser(args, writer);
                 break;
+            case COMMAND_GET_INITIAL_USER:
+                getInitialUser(writer);
+                break;
+
             default:
                 writer.println("Unknown command: \"" + arg + "\"");
                 showHelp(writer);
@@ -559,6 +570,7 @@ final class CarShellCommand extends ShellCommand {
         if (delayMs < 0) {
             writer.println("Invalid delay:" + delayMs);
             showHelp(writer);
+
             return;
         }
         KeyEvent keyDown = new KeyEvent(KeyEvent.ACTION_DOWN, keyCode);
@@ -777,6 +789,11 @@ final class CarShellCommand extends ShellCommand {
         }
 
         waitForHal(writer, latch, timeout);
+    }
+
+    private void getInitialUser(PrintWriter writer) {
+        android.content.pm.UserInfo user = mCarUserService.getInitialUser();
+        writer.println(user == null ? NO_INITIAL_USER : user.id);
     }
 
     private void forceDayNightMode(String arg, PrintWriter writer) {
