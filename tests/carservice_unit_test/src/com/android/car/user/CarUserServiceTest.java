@@ -824,6 +824,21 @@ public class CarUserServiceTest {
     }
 
     @Test
+    public void testGetInitialUser_invalidPermission() throws Exception {
+        mockManageUsersPermission(android.Manifest.permission.INTERACT_ACROSS_USERS, false);
+        mockManageUsersPermission(android.Manifest.permission.INTERACT_ACROSS_USERS_FULL, false);
+        assertThrows(SecurityException.class, () -> mCarUserService.getInitialUser());
+    }
+
+    @Test
+    public void testGetInitialUser_ok() throws Exception {
+        assertThat(mCarUserService.getInitialUser()).isNull();
+        UserInfo user = new UserInfo();
+        mCarUserService.setInitialUser(user);
+        assertThat(mCarUserService.getInitialUser()).isSameAs(user);
+    }
+
+    @Test
     public void testIsHalSupported() throws Exception {
         when(mUserHal.isSupported()).thenReturn(true);
         assertThat(mCarUserService.isUserHalSupported()).isTrue();
