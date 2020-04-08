@@ -86,6 +86,10 @@ public class CarTest {
         }
 
         @Override
+        public void setInitialUser(int userId) {
+        }
+
+        @Override
         public boolean isFeatureEnabled(String featureName) {
             return false;
         }
