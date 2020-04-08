@@ -100,16 +100,16 @@ public final class CarAudioPatchHandle implements Parcelable {
         out.writeString(mSinkAddress);
     }
 
-    public static final Parcelable.Creator<CarAudioPatchHandle> CREATOR
-            = new Parcelable.Creator<CarAudioPatchHandle>() {
-        public CarAudioPatchHandle createFromParcel(Parcel in) {
-            return new CarAudioPatchHandle(in);
-        }
+    public static final Parcelable.Creator<CarAudioPatchHandle> CREATOR =
+                new Parcelable.Creator<CarAudioPatchHandle>() {
+            public CarAudioPatchHandle createFromParcel(Parcel in) {
+                return new CarAudioPatchHandle(in);
+            }
 
-        public CarAudioPatchHandle[] newArray(int size) {
-            return new CarAudioPatchHandle[size];
-        }
-    };
+            public CarAudioPatchHandle[] newArray(int size) {
+                return new CarAudioPatchHandle[size];
+            }
+        };
 
     @Override
     public int describeContents() {
