@@ -89,7 +89,8 @@ public final class CarActivityView extends ActivityView {
         Log.d(TAG, "reportPhysicalDisplayId: virtualDisplayId=" + virtualDisplayId
                 + ", physicalDisplayId=" + physicalDisplayId);
         if (virtualDisplayId == Display.INVALID_DISPLAY) {
-            throw new RuntimeException("Has no virtual display to report.");
+            Log.w(TAG, "No virtual display to report");
+            return;
         }
         if (manager == null) {
             Log.w(TAG, "CarUxRestrictionsManager is not ready yet");
