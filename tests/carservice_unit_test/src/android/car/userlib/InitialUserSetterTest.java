@@ -19,6 +19,7 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -50,6 +51,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoSession;
 import org.mockito.quality.Strictness;
 
+import java.util.function.Consumer;
+
 public final class InitialUserSetterTest {
 
     @UserInfoFlag
@@ -73,6 +76,8 @@ public final class InitialUserSetterTest {
 
     private MockitoSession mSession;
 
+    private final MyListener mListener = new MyListener();
+
     @Before
     public void setFixtures() {
         mSession = mockitoSession()
@@ -80,7 +85,7 @@ public final class InitialUserSetterTest {
                 .spyStatic(ActivityManager.class)
                 .initMocks(this)
                 .startMocking();
-        mSetter = spy(new InitialUserSetter(mHelper, mUm, OWNER_NAME, GUEST_NAME,
+        mSetter = spy(new InitialUserSetter(mHelper, mUm, mListener, OWNER_NAME, GUEST_NAME,
                 /* supportsOverrideUserIdProperty= */ false));
 
         expectCurrentUser(CURRENT_USER_ID);
@@ -93,7 +98,7 @@ public final class InitialUserSetterTest {
 
     @Test
     public void testSwitchUser_ok_nonGuest() throws Exception {
-        expectUserExists(USER_ID);
+        UserInfo user = expectUserExists(USER_ID);
         expectSwitchUser(USER_ID);
 
         mSetter.switchUser(USER_ID);
@@ -101,11 +106,12 @@ public final class InitialUserSetterTest {
         verifyUserSwitched(USER_ID);
         verifyFallbackDefaultBehaviorNeverCalled();
         verifySystemUserUnlocked();
+        assertInitialUserSet(user);
     }
 
     @Test
     public void testSwitchUser_ok_systemUser() throws Exception {
-        expectUserExists(UserHandle.USER_SYSTEM);
+        UserInfo user = expectUserExists(UserHandle.USER_SYSTEM);
         expectSwitchUser(UserHandle.USER_SYSTEM);
 
         mSetter.switchUser(UserHandle.USER_SYSTEM);
@@ -113,13 +119,16 @@ public final class InitialUserSetterTest {
         verifyUserSwitched(UserHandle.USER_SYSTEM);
         verifyFallbackDefaultBehaviorNeverCalled();
         verifySystemUserNeverUnlocked();
+        assertInitialUserSet(user);
     }
 
     @Test
     public void testSwitchUser_ok_guestReplaced() throws Exception {
+        boolean ephemeral = true; // ephemeral doesn't really matter in this test
         expectCurrentUser(CURRENT_USER_ID);
-        expectGuestExists(USER_ID, /* isEphemeral= */ true); // ephemeral doesn't matter
-        expectGuestReplaced(USER_ID, NEW_USER_ID);
+        expectGuestExists(USER_ID, ephemeral); // ephemeral doesn't matter
+        UserInfo newGuest = newGuestUser(NEW_USER_ID, ephemeral);
+        expectGuestReplaced(USER_ID, newGuest);
         expectSwitchUser(NEW_USER_ID);
 
         mSetter.switchUser(USER_ID);
@@ -128,12 +137,13 @@ public final class InitialUserSetterTest {
         verifyFallbackDefaultBehaviorNeverCalled();
         verifySystemUserUnlocked();
         verifyUserDeleted(USER_ID);
+        assertInitialUserSet(newGuest);
     }
 
     @Test
     public void testSwitchUser_fail_guestReplacementFailed() throws Exception {
         expectGuestExists(USER_ID, /* isEphemeral= */ true); // ephemeral doesn't matter
-        expectGuestReplaced(USER_ID, UserHandle.USER_NULL);
+        expectGuestReplaced(USER_ID, /* newGuest= */ null);
 
         mSetter.switchUser(USER_ID);
 
@@ -145,7 +155,6 @@ public final class InitialUserSetterTest {
     @Test
     public void testSwitchUser_fail_switchFail() throws Exception {
         expectUserExists(USER_ID);
-
         // No need to set switchUser() expectations - will return false by default
 
         mSetter.switchUser(USER_ID);
@@ -169,13 +178,14 @@ public final class InitialUserSetterTest {
     @Test
     public void testSwitchUser_ok_targetIsCurrentUser() throws Exception {
         expectCurrentUser(CURRENT_USER_ID);
-        expectUserExists(CURRENT_USER_ID);
+        UserInfo currentUser = expectUserExists(CURRENT_USER_ID);
 
         mSetter.switchUser(CURRENT_USER_ID);
 
         verifyUserNeverSwitched();
         verifyFallbackDefaultBehaviorNeverCalled();
         verifySystemUserUnlocked();
+        assertInitialUserSet(currentUser);
     }
 
     @Test
@@ -187,7 +197,7 @@ public final class InitialUserSetterTest {
     public void testReplaceGuestIfNeeded_nonGuest() {
         UserInfo user = newSecondaryUser(USER_ID);
 
-        assertThat(mSetter.replaceGuestIfNeeded(user)).isEqualTo(USER_ID);
+        assertThat(mSetter.replaceGuestIfNeeded(user)).isSameAs(user);
 
         verifyGuestNeverMarkedForDeletion();
         verifyUserNeverCreated();
@@ -195,20 +205,20 @@ public final class InitialUserSetterTest {
 
     @Test
     public void testReplaceGuestIfNeeded_ok_nonEphemeralGuest() {
-        expectCreateGuestUser(NEW_USER_ID, GUEST_NAME, NO_FLAGS);
-
+        UserInfo newGuest = expectCreateGuestUser(NEW_USER_ID, GUEST_NAME, NO_FLAGS);
         UserInfo user = newGuestUser(USER_ID, /* ephemeral= */ false);
-        assertThat(mSetter.replaceGuestIfNeeded(user)).isEqualTo(NEW_USER_ID);
+
+        assertThat(mSetter.replaceGuestIfNeeded(user)).isSameAs(newGuest);
 
         verifyGuestMarkedForDeletion(USER_ID);
     }
 
     @Test
     public void testReplaceGuestIfNeeded_ok_ephemeralGuest() {
-        expectCreateGuestUser(NEW_USER_ID, GUEST_NAME, UserInfo.FLAG_EPHEMERAL);
-
+        UserInfo newGuest = expectCreateGuestUser(NEW_USER_ID, GUEST_NAME, UserInfo.FLAG_EPHEMERAL);
         UserInfo user = newGuestUser(USER_ID, /* ephemeral= */ true);
-        assertThat(mSetter.replaceGuestIfNeeded(user)).isEqualTo(NEW_USER_ID);
+
+        assertThat(mSetter.replaceGuestIfNeeded(user)).isSameAs(newGuest);
 
         verifyGuestMarkedForDeletion(USER_ID);
     }
@@ -218,14 +228,14 @@ public final class InitialUserSetterTest {
         // don't set create guest expectation, so it returns null
 
         UserInfo user = newGuestUser(USER_ID, /* ephemeral= */ true);
-        assertThat(mSetter.replaceGuestIfNeeded(user)).isEqualTo(UserHandle.USER_NULL);
+        assertThat(mSetter.replaceGuestIfNeeded(user)).isEqualTo(null);
 
         verifyGuestMarkedForDeletion(USER_ID);
     }
 
     @Test
     public void testCreateUser_ok_noflags() throws Exception {
-        expectCreateFullUser(USER_ID, "TheDude", NO_FLAGS);
+        UserInfo newUser = expectCreateFullUser(USER_ID, "TheDude", NO_FLAGS);
         expectSwitchUser(USER_ID);
 
         mSetter.createUser("TheDude", UserFlags.NONE);
@@ -233,11 +243,12 @@ public final class InitialUserSetterTest {
         verifyUserSwitched(USER_ID);
         verifyFallbackDefaultBehaviorNeverCalled();
         verifySystemUserUnlocked();
+        assertInitialUserSet(newUser);
     }
 
     @Test
     public void testCreateUser_ok_admin() throws Exception {
-        expectCreateFullUser(USER_ID, "TheDude", UserInfo.FLAG_ADMIN);
+        UserInfo newUser = expectCreateFullUser(USER_ID, "TheDude", UserInfo.FLAG_ADMIN);
         expectSwitchUser(USER_ID);
 
         mSetter.createUser("TheDude", UserFlags.ADMIN);
@@ -245,11 +256,12 @@ public final class InitialUserSetterTest {
         verifyUserSwitched(USER_ID);
         verifyFallbackDefaultBehaviorNeverCalled();
         verifySystemUserUnlocked();
+        assertInitialUserSet(newUser);
     }
 
     @Test
     public void testCreateUser_ok_ephemeralGuest() throws Exception {
-        expectCreateGuestUser(USER_ID, "TheDude", UserInfo.FLAG_EPHEMERAL);
+        UserInfo newGuest = expectCreateGuestUser(USER_ID, "TheDude", UserInfo.FLAG_EPHEMERAL);
         expectSwitchUser(USER_ID);
 
         mSetter.createUser("TheDude", UserFlags.EPHEMERAL | UserFlags.GUEST);
@@ -257,6 +269,7 @@ public final class InitialUserSetterTest {
         verifyUserSwitched(USER_ID);
         verifyFallbackDefaultBehaviorNeverCalled();
         verifySystemUserUnlocked();
+        assertInitialUserSet(newGuest);
     }
 
     @Test
@@ -316,7 +329,7 @@ public final class InitialUserSetterTest {
     @Test
     public void testDefaultBehavior_firstBoot_ok() throws Exception {
         // no need to mock hasInitialUser(), it will return false by default
-        expectCreateFullUser(USER_ID, OWNER_NAME, UserInfo.FLAG_ADMIN);
+        UserInfo newUser = expectCreateFullUser(USER_ID, OWNER_NAME, UserInfo.FLAG_ADMIN);
         expectSwitchUser(USER_ID);
 
         mSetter.executeDefaultBehavior();
@@ -324,6 +337,7 @@ public final class InitialUserSetterTest {
         verifyUserSwitched(USER_ID);
         verifyFallbackDefaultBehaviorNeverCalled();
         verifySystemUserUnlocked();
+        assertInitialUserSet(newUser);
     }
 
     @Test
@@ -353,7 +367,7 @@ public final class InitialUserSetterTest {
 
     @Test
     public void testDefaultBehavior_nonFirstBoot_ok() throws Exception {
-        expectHasInitialUser(USER_ID);
+        UserInfo existingUser = expectHasInitialUser(USER_ID);
         expectSwitchUser(USER_ID);
 
         mSetter.executeDefaultBehavior();
@@ -362,11 +376,12 @@ public final class InitialUserSetterTest {
         verifyFallbackDefaultBehaviorNeverCalled();
         verifyUserNeverCreated();
         verifySystemUserUnlocked();
+        assertInitialUserSet(existingUser);
     }
 
     @Test
     public void testDefaultBehavior_nonFirstBoot_ok_targetIsCurrentUser() throws Exception {
-        expectHasInitialUser(CURRENT_USER_ID);
+        UserInfo currentUser = expectHasInitialUser(CURRENT_USER_ID);
         expectSwitchUser(CURRENT_USER_ID);
 
         mSetter.executeDefaultBehavior();
@@ -375,6 +390,7 @@ public final class InitialUserSetterTest {
         verifyFallbackDefaultBehaviorNeverCalled();
         verifyUserNeverCreated();
         verifySystemUserUnlocked();
+        assertInitialUserSet(currentUser);
     }
 
     @Test
@@ -392,9 +408,11 @@ public final class InitialUserSetterTest {
 
     @Test
     public void testDefaultBehavior_nonFirstBoot_ok_guestReplaced() throws Exception {
+        boolean ephemeral = true; // ephemeral doesn't really matter in this test
         expectHasInitialUser(USER_ID);
-        expectGuestExists(USER_ID, /* isEphemeral= */ true); // ephemeral doesn't matter
-        expectGuestReplaced(USER_ID, NEW_USER_ID);
+        expectGuestExists(USER_ID, ephemeral);
+        UserInfo newGuest = newGuestUser(NEW_USER_ID, ephemeral);
+        expectGuestReplaced(USER_ID, newGuest);
         expectSwitchUser(NEW_USER_ID);
 
         mSetter.executeDefaultBehavior();
@@ -404,13 +422,14 @@ public final class InitialUserSetterTest {
         verifyUserNeverCreated();
         verifySystemUserUnlocked();
         verifyUserDeleted(USER_ID);
+        assertInitialUserSet(newGuest);
     }
 
     @Test
     public void testDefaultBehavior_nonFirstBoot_fail_guestReplacementFailed() throws Exception {
         expectHasInitialUser(USER_ID);
         expectGuestExists(USER_ID, /* isEphemeral= */ true); // ephemeral doesn't matter
-        expectGuestReplaced(USER_ID, UserHandle.USER_NULL);
+        expectGuestReplaced(USER_ID, /* newGuest= */ null);
 
         mSetter.executeDefaultBehavior();
 
@@ -425,9 +444,9 @@ public final class InitialUserSetterTest {
             throws Exception {
         boolean supportsOverrideUserIdProperty = true;
         // Must use a different helper as the property is set on constructor
-        InitialUserSetter setter = spy(new InitialUserSetter(mHelper, mUm, OWNER_NAME, GUEST_NAME,
-                supportsOverrideUserIdProperty));
-        expectHasInitialUser(USER_ID, supportsOverrideUserIdProperty);
+        InitialUserSetter setter = spy(new InitialUserSetter(mHelper, mUm, mListener,
+                OWNER_NAME, GUEST_NAME, supportsOverrideUserIdProperty));
+        UserInfo user = expectHasInitialUser(USER_ID, supportsOverrideUserIdProperty);
         expectSwitchUser(USER_ID);
 
         setter.executeDefaultBehavior();
@@ -436,23 +455,25 @@ public final class InitialUserSetterTest {
         verifyFallbackDefaultBehaviorNeverCalled();
         verifyUserNeverCreated();
         verifySystemUserUnlocked();
+        assertInitialUserSet(user);
     }
 
-    private void expectHasInitialUser(@UserIdInt int userId) {
-        expectHasInitialUser(userId, /* supportsOverrideUserIdProperty= */ false);
+    private UserInfo expectHasInitialUser(@UserIdInt int userId) {
+        return expectHasInitialUser(userId, /* supportsOverrideUserIdProperty= */ false);
     }
 
-    private void expectHasInitialUser(@UserIdInt int userId,
+    private UserInfo expectHasInitialUser(@UserIdInt int userId,
             boolean supportsOverrideUserIdProperty) {
         when(mHelper.hasInitialUser()).thenReturn(true);
         when(mHelper.getInitialUser(supportsOverrideUserIdProperty)).thenReturn(userId);
-        expectUserExists(userId);
+        return expectUserExists(userId);
     }
 
-    private void expectUserExists(@UserIdInt int userId) {
+    private UserInfo expectUserExists(@UserIdInt int userId) {
         UserInfo user = new UserInfo();
         user.id = userId;
         when(mUm.getUserInfo(userId)).thenReturn(user);
+        return user;
     }
 
     private void expectGuestExists(@UserIdInt int userId, boolean isEphemeral) {
@@ -465,30 +486,31 @@ public final class InitialUserSetterTest {
         when(mUm.getUserInfo(userId)).thenReturn(user);
     }
 
-    private void expectGuestReplaced(int existingGuestId, int newGuestId) {
-        doReturn(newGuestId).when(mSetter).replaceGuestIfNeeded(isUserInfo(existingGuestId));
+    private void expectGuestReplaced(int existingGuestId, UserInfo newGuest) {
+        doReturn(newGuest).when(mSetter).replaceGuestIfNeeded(isUserInfo(existingGuestId));
     }
 
     private void expectSwitchUser(@UserIdInt int userId) throws Exception {
         when(mHelper.startForegroundUser(userId)).thenReturn(true);
     }
 
-    private void expectCreateFullUser(@UserIdInt int userId, @Nullable String name,
+    private UserInfo expectCreateFullUser(@UserIdInt int userId, @Nullable String name,
             @UserInfoFlag int flags) {
-        expectCreateUserOfType(UserManager.USER_TYPE_FULL_SECONDARY, userId, name, flags);
+        return expectCreateUserOfType(UserManager.USER_TYPE_FULL_SECONDARY, userId, name, flags);
     }
 
-    private void expectCreateGuestUser(@UserIdInt int userId, @Nullable String name,
+    private UserInfo expectCreateGuestUser(@UserIdInt int userId, @Nullable String name,
             @UserInfoFlag int flags) {
-        expectCreateUserOfType(UserManager.USER_TYPE_FULL_GUEST, userId, name, flags);
+        return expectCreateUserOfType(UserManager.USER_TYPE_FULL_GUEST, userId, name, flags);
     }
 
-    private void expectCreateUserOfType(@NonNull String type, @UserIdInt int userId,
+    private UserInfo expectCreateUserOfType(@NonNull String type, @UserIdInt int userId,
             @Nullable String name, @UserInfoFlag int flags) {
         UserInfo userInfo = new UserInfo(userId, name, flags);
         when(mUm.createUser(name, type, flags)).thenReturn(userInfo);
         // Once user is created, it should exist...
         when(mUm.getUserInfo(userId)).thenReturn(userInfo);
+        return userInfo;
     }
 
     private void verifyUserSwitched(@UserIdInt int userId) throws Exception {
@@ -519,10 +541,12 @@ public final class InitialUserSetterTest {
 
     private void verifyFallbackDefaultBehaviorCalledFromCreateOrSwitch() {
         verify(mSetter).fallbackDefaultBehavior(eq(true), anyString());
+        assertInitialUserSet(null);
     }
 
     private void verifyFallbackDefaultBehaviorCalledFromDefaultBehavior() {
         verify(mSetter).fallbackDefaultBehavior(eq(false), anyString());
+        assertInitialUserSet(null);
     }
 
     private void verifyFallbackDefaultBehaviorNeverCalled() {
@@ -541,6 +565,24 @@ public final class InitialUserSetterTest {
         verify(mHelper, never()).setLastActiveUser(anyInt());
     }
 
+    private void assertInitialUserSet(@NonNull UserInfo expectedUser) {
+        assertWithMessage("listener called wrong number of times").that(mListener.numberCalls)
+            .isEqualTo(1);
+        assertWithMessage("wrong initial user set on listener").that(mListener.initialUser)
+            .isSameAs(expectedUser);
+    }
+
+    private final class MyListener implements Consumer<UserInfo> {
+        public int numberCalls;
+        public UserInfo initialUser;
+
+        @Override
+        public void accept(UserInfo initialUser) {
+            this.initialUser = initialUser;
+            numberCalls++;
+        }
+    }
+
     // TODO(b/149099817): move stuff below (and some from above) to common testing code
 
     public static void expectCurrentUser(@UserIdInt int userId) {
@@ -548,7 +590,7 @@ public final class InitialUserSetterTest {
     }
 
     @NonNull
-    private static UserInfo newSecondaryUser(@UserIdInt int userId) {
+    public static UserInfo newSecondaryUser(@UserIdInt int userId) {
         UserInfo userInfo = new UserInfo();
         userInfo.userType = UserManager.USER_TYPE_FULL_SECONDARY;
         userInfo.id = userId;
@@ -556,7 +598,7 @@ public final class InitialUserSetterTest {
     }
 
     @NonNull
-    private static UserInfo newGuestUser(@UserIdInt int userId, boolean ephemeral) {
+    public static UserInfo newGuestUser(@UserIdInt int userId, boolean ephemeral) {
         UserInfo userInfo = new UserInfo();
         userInfo.userType = UserManager.USER_TYPE_FULL_GUEST;
         userInfo.id = userId;
