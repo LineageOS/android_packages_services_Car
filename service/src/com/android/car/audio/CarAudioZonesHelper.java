@@ -17,7 +17,6 @@ package com.android.car.audio;
 
 import android.annotation.NonNull;
 import android.car.media.CarAudioManager;
-import android.content.Context;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.text.TextUtils;
@@ -129,7 +128,7 @@ import java.util.stream.Collectors;
         }
     }
 
-    private final Context mContext;
+    private final CarAudioSettings mCarAudioSettings;
     private final Map<String, CarAudioDeviceInfo> mAddressToCarAudioDeviceInfo;
     private final Map<String, AudioDeviceInfo> mAddressToInputAudioDeviceInfo;
     private final InputStream mInputStream;
@@ -146,11 +145,14 @@ import java.util.stream.Collectors;
      * <p><b>Note: <b/> CarAudioZonesHelper is expected to be used from a single thread. This
      * should be the same thread that originally called new CarAudioZonesHelper.
      */
-    CarAudioZonesHelper(Context context, @NonNull InputStream inputStream,
+    CarAudioZonesHelper(@NonNull CarAudioSettings carAudioSettings,
+            @NonNull InputStream inputStream,
             @NonNull List<CarAudioDeviceInfo> carAudioDeviceInfos,
             @NonNull AudioDeviceInfo[] inputDeviceInfo) {
-        mContext = context;
-        mInputStream = inputStream;
+        mCarAudioSettings = Objects.requireNonNull(carAudioSettings);
+        mInputStream = Objects.requireNonNull(inputStream);
+        Objects.requireNonNull(carAudioDeviceInfos);
+        Objects.requireNonNull(inputDeviceInfo);
         mAddressToCarAudioDeviceInfo = CarAudioZonesHelper.generateAddressToInfoMap(
                 carAudioDeviceInfos);
         mAddressToInputAudioDeviceInfo =
@@ -424,8 +426,7 @@ import java.util.stream.Collectors;
 
     private CarVolumeGroup parseVolumeGroup(XmlPullParser parser, int zoneId, int groupId)
             throws XmlPullParserException, IOException {
-        final CarVolumeSettings settings = new CarVolumeSettings(mContext);
-        final CarVolumeGroup group = new CarVolumeGroup(settings, zoneId, groupId);
+        CarVolumeGroup group = new CarVolumeGroup(mCarAudioSettings, zoneId, groupId);
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
             if (TAG_AUDIO_DEVICE.equals(parser.getName())) {
