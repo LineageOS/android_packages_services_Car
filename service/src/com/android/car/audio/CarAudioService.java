@@ -270,7 +270,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             if (mHalAudioFocus != null) {
                 mHalAudioFocus.unregisterFocusListener();
             }
-            mAudioControlWrapper = null;
+
+            if (mAudioControlWrapper != null) {
+                mAudioControlWrapper.unlinkToDeath();
+                mAudioControlWrapper = null;
+            }
         }
     }
 
@@ -1201,8 +1205,16 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private AudioControlWrapper getAudioControlWrapperLocked() {
         if (mAudioControlWrapper == null) {
             mAudioControlWrapper = AudioControlFactory.newAudioControl();
+            mAudioControlWrapper.linkToDeath(this::resetHalAudioFocus);
         }
         return mAudioControlWrapper;
+    }
+
+    private void resetHalAudioFocus() {
+        if (mHalAudioFocus != null) {
+            mHalAudioFocus.reset();
+            mHalAudioFocus.registerFocusListener();
+        }
     }
 
     boolean isAudioZoneIdValid(int zoneId) {

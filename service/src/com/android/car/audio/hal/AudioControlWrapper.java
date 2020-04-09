@@ -19,6 +19,8 @@ package com.android.car.audio.hal;
 import android.hardware.automotive.audiocontrol.V2_0.IFocusListener;
 import android.media.AudioAttributes.AttributeUsage;
 
+import androidx.annotation.Nullable;
+
 import java.io.PrintWriter;
 
 /**
@@ -75,4 +77,25 @@ public interface AudioControlWrapper {
      * @param value to set for the balance. Positive is towards the right.
      */
     void setBalanceTowardRight(float value);
+
+    /**
+     * Registers recipient to be notified if AudioControl HAL service dies.
+     * @param deathRecipient to be notified upon HAL service death.
+     */
+    void linkToDeath(@Nullable AudioControlDeathRecipient deathRecipient);
+
+    /**
+     * Unregisters recipient for AudioControl HAL service death.
+     */
+    void unlinkToDeath();
+
+    /**
+     * Recipient to be notified upon death of AudioControl HAL.
+     */
+    interface AudioControlDeathRecipient {
+        /**
+         * Called if AudioControl HAL dies.
+         */
+        void serviceDied();
+    }
 }

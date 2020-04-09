@@ -35,6 +35,7 @@ final class AudioControlWrapperV2 implements AudioControlWrapper {
 
     private IAudioControl mAudioControlV2;
 
+    private AudioControlDeathRecipient mDeathRecipient;
     private ICloseHandle mCloseHandle;
 
     public static @Nullable IAudioControl getService() {
@@ -120,6 +121,35 @@ final class AudioControlWrapperV2 implements AudioControlWrapper {
             mAudioControlV2.setBalanceTowardRight(value);
         } catch (RemoteException e) {
             Log.e(TAG, "setBalanceTowardRight failed", e);
+        }
+    }
+
+    @Override
+    public void linkToDeath(@Nullable AudioControlDeathRecipient deathRecipient) {
+        try {
+            mAudioControlV2.linkToDeath(this::serviceDied, 0);
+            mDeathRecipient = deathRecipient;
+        } catch (RemoteException e) {
+            throw new IllegalStateException("Call to IAudioControl@2.0#linkToDeath failed", e);
+        }
+    }
+
+    @Override
+    public void unlinkToDeath() {
+        try {
+            mAudioControlV2.unlinkToDeath(this::serviceDied);
+            mDeathRecipient = null;
+        } catch (RemoteException e) {
+            throw new IllegalStateException("Call to IAudioControl@2.0#unlinkToDeath failed", e);
+        }
+    }
+
+    private void serviceDied(long cookie) {
+        Log.w(TAG, "IAudioControl@2.0 died. Fetching new handle");
+        mAudioControlV2 = AudioControlWrapperV2.getService();
+        linkToDeath(mDeathRecipient);
+        if (mDeathRecipient != null) {
+            mDeathRecipient.serviceDied();
         }
     }
 }
