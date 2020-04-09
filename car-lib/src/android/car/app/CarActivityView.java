@@ -57,7 +57,7 @@ public final class CarActivityView extends ActivityView {
 
     public CarActivityView(
             Context context, AttributeSet attrs, int defStyle, boolean singleTaskInstance) {
-        super(context, attrs, defStyle, singleTaskInstance);
+        super(context, attrs, defStyle, singleTaskInstance, /*usePublicVirtualDisplay=*/ true);
         super.setCallback(new CarActivityViewCallback());
         Car.createCar(mContext, /*handler=*/ null,
                 Car.CAR_WAIT_TIMEOUT_DO_NOT_WAIT,
