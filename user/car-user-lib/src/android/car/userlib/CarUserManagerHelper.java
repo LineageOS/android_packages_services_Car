@@ -21,18 +21,14 @@ import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
-import android.app.IActivityManager;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.graphics.Bitmap;
-import android.os.RemoteException;
-import android.os.Trace;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
 import android.sysprop.CarProperties;
 import android.util.Log;
-import android.util.TimingsTraceLog;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.UserIcons;
@@ -53,10 +49,11 @@ import java.util.Set;
  * <p>This class provides method for user management, including creating, removing, adding
  * and switching users. Methods related to get users will exclude system user by default.
  *
+ * <p><b>Note: </b>this class is in the process of being removed.  Use {@link UserManager} APIs
+ * directly or {@link android.car.user.CarUserManager.CarUserManager} instead.
+ *
  * @hide
- * @deprecated In the process of being removed.  Use {@link UserManager} APIs directly instead.
  */
-@Deprecated
 public final class CarUserManagerHelper {
     private static final String TAG = "CarUserManagerHelper";
 
@@ -91,8 +88,8 @@ public final class CarUserManagerHelper {
      * @param context Application Context
      */
     public CarUserManagerHelper(Context context) {
-        mContext = context.getApplicationContext();
-        mUserManager = (UserManager) mContext.getSystemService(Context.USER_SERVICE);
+        mContext = context;
+        mUserManager = UserManager.get(mContext);
         mActivityManager = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
     }
 
@@ -220,8 +217,6 @@ public final class CarUserManagerHelper {
         return users;
     }
 
-    // Current process user restriction accessors
-
     /**
      * Grants admin permissions to the user.
      *
@@ -249,7 +244,10 @@ public final class CarUserManagerHelper {
      *
      * @param userName Name to give to the newly created user.
      * @return Newly created non-admin user, null if failed to create a user.
+     *
+     * @deprecated non-admin restrictions should be set by resources overlay
      */
+    @Deprecated
     @Nullable
     public UserInfo createNewNonAdminUser(String userName) {
         UserInfo user = mUserManager.createUser(userName, 0);
@@ -269,7 +267,10 @@ public final class CarUserManagerHelper {
      *
      * @param userInfo User to set restrictions on.
      * @param enable If true, restriction is ON, If false, restriction is OFF.
+     *
+     * @deprecated non-admin restrictions should be set by resources overlay
      */
+    @Deprecated
     public void setDefaultNonAdminRestrictions(UserInfo userInfo, boolean enable) {
         for (String restriction : DEFAULT_NON_ADMIN_RESTRICTIONS) {
             mUserManager.setUserRestriction(restriction, enable, userInfo.getUserHandle());
@@ -293,9 +294,12 @@ public final class CarUserManagerHelper {
      *
      * @param id User id to switch to.
      * @return {@code true} if user switching succeed.
+     *
+     * @deprecated should use {@link android.car.user.CarUserManager.CarUserManager} instead
      */
+    @Deprecated
     public boolean switchToUserId(int id) {
-        if (id == UserHandle.USER_SYSTEM && UserManager.isHeadlessSystemUserMode()) {
+        if (UserHelper.isHeadlessSystemUser(id)) {
             // System User doesn't associate with real person, can not be switched to.
             return false;
         }
@@ -309,59 +313,14 @@ public final class CarUserManagerHelper {
     }
 
     /**
-     * Streamlined version of {@code switchUser()} - should only be called on boot / resume.
-     */
-    public boolean startForegroundUser(@UserIdInt int userId) {
-        if (userId == UserHandle.USER_SYSTEM && UserManager.isHeadlessSystemUserMode()) {
-            // System User doesn't associate with real person, can not be switched to.
-            return false;
-        }
-        try {
-            return ActivityManager.getService().startUserInForegroundWithListener(userId, null);
-        } catch (RemoteException e) {
-            Log.w(TAG, "failed to start user " + userId, e);
-            return false;
-        }
-    }
-
-    @VisibleForTesting
-    void unlockSystemUser() {
-        Log.i(TAG, "unlocking system user");
-        IActivityManager am = ActivityManager.getService();
-
-        TimingsTraceLog t = new TimingsTraceLog(TAG, Trace.TRACE_TAG_SYSTEM_SERVER);
-        t.traceBegin("UnlockSystemUser");
-        try {
-            // This is for force changing state into RUNNING_LOCKED. Otherwise unlock does not
-            // update the state and USER_SYSTEM unlock happens twice.
-            t.traceBegin("am.startUser");
-            boolean started = am.startUserInBackground(UserHandle.USER_SYSTEM);
-            t.traceEnd();
-            if (!started) {
-                Log.w(TAG, "could not restart system user in foreground; trying unlock instead");
-                t.traceBegin("am.unlockUser");
-                boolean unlocked = am.unlockUser(UserHandle.USER_SYSTEM, /* token= */ null,
-                        /* secret= */ null, /* listener= */ null);
-                t.traceEnd();
-                if (!unlocked) {
-                    Log.w(TAG, "could not unlock system user neither");
-                    return;
-                }
-            }
-        } catch (RemoteException e) {
-            // should not happen for local call.
-            Log.wtf("RemoteException from AMS", e);
-        } finally {
-            t.traceEnd();
-        }
-    }
-
-    /**
      * Switches (logs in) to another user.
      *
      * @param userInfo User to switch to.
      * @return {@code true} if user switching succeed.
+     *
+     * @deprecated should use {@link android.car.user.CarUserManager.CarUserManager} instead
      */
+    @Deprecated
     public boolean switchToUser(UserInfo userInfo) {
         return switchToUserId(userInfo.id);
     }
