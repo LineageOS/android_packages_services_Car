@@ -159,6 +159,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             SystemInterface systemInterface, CarUserService carUserService) {
         this(context, context.getResources(), powerHal, systemInterface, UserManager.get(context),
                 carUserService, new InitialUserSetter(context,
+                        (u) -> carUserService.setInitialUser(u),
                         context.getString(R.string.default_guest_name),
                         !carUserService.isUserHalSupported()));
     }
@@ -446,17 +447,16 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      * Replaces the current user if it's a guest.
      */
     private void switchToNewGuestIfNecessary(@NonNull UserInfo user) {
-        int newUserId = mInitialUserSetter.replaceGuestIfNeeded(user);
+        UserInfo newUser = mInitialUserSetter.replaceGuestIfNeeded(user);
+        if (newUser == user) return; // Not a guest
 
-        if (newUserId == user.id) return; // Not a guest
-
-        if (newUserId == UserHandle.USER_NULL) {
+        if (newUser == null) {
             Log.w(TAG, "Failed to replace guest; falling back to default behavior");
             mInitialUserSetter.executeDefaultBehavior();
             return;
 
         }
-        mInitialUserSetter.switchUser(newUserId);
+        mInitialUserSetter.switchUser(newUser.id);
     }
 
     /**

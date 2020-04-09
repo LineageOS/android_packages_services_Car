@@ -123,6 +123,7 @@ public class ICarImpl extends ICar.Stub {
 
     private static final String TAG = "ICarImpl";
     private static final String VHAL_TIMING_TAG = "VehicleHalTiming";
+    private static final boolean DBG = true; // TODO(b/153104378): STOPSHIP if true
 
     private TimingsTraceLog mBootTiming;
 
@@ -373,6 +374,12 @@ public class ICarImpl extends ICar.Stub {
     public void getInitialUserInfo(int requestType, int timeoutMs, IBinder binder) {
         IResultReceiver receiver = IResultReceiver.Stub.asInterface(binder);
         mCarUserService.getInitialUserInfo(requestType, timeoutMs, receiver);
+    }
+
+    @Override
+    public void setInitialUser(int userId) {
+        if (DBG) Log.d(TAG, "setInitialUser(): " + userId);
+        mCarUserService.setInitialUser(userId);
     }
 
     @Override
@@ -747,7 +754,7 @@ public class ICarImpl extends ICar.Stub {
         return new CarShellCommand(mContext, mHal, mCarAudioService, mCarPackageManagerService,
                 mCarProjectionService, mCarPowerManagementService, mCarTrustedDeviceService,
                 mFixedActivityService, mFeatureController, mCarInputService, mCarNightService,
-                mSystemInterface, mGarageModeService, mCarUserService);
+                mSystemInterface, mGarageModeService, mCarUserService, mCarOccupantZoneService);
     }
 
     private void dumpListOfServices(PrintWriter writer) {

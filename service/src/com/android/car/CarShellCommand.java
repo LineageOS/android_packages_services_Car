@@ -39,6 +39,7 @@ import android.os.Binder;
 import android.os.Process;
 import android.os.ShellCommand;
 import android.os.SystemClock;
+import android.os.UserHandle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -53,7 +54,6 @@ import com.android.car.pm.CarPackageManagerService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.trust.CarTrustedDeviceService;
 import com.android.car.user.CarUserService;
-import com.android.internal.util.ArrayUtils;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -62,6 +62,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 final class CarShellCommand extends ShellCommand {
+
+    private static final String NO_INITIAL_USER = "N/A";
 
     private static final String TAG = CarShellCommand.class.getSimpleName();
 
@@ -80,7 +82,7 @@ final class CarShellCommand extends ShellCommand {
     private static final String COMMAND_SUSPEND = "suspend";
     private static final String COMMAND_ENABLE_TRUSTED_DEVICE = "enable-trusted-device";
     private static final String COMMAND_REMOVE_TRUSTED_DEVICES = "remove-trusted-devices";
-    private static final String COMMAND_SET_UID_TO_ZONE = "set-zoneid-for-uid";
+    private static final String COMMAND_SET_UID_TO_ZONE = "set-audio-zone-for-uid";
     private static final String COMMAND_START_FIXED_ACTIVITY_MODE = "start-fixed-activity-mode";
     private static final String COMMAND_STOP_FIXED_ACTIVITY_MODE = "stop-fixed-activity-mode";
     private static final String COMMAND_ENABLE_FEATURE = "enable-feature";
@@ -89,6 +91,11 @@ final class CarShellCommand extends ShellCommand {
     private static final String COMMAND_INJECT_ROTARY = "inject-rotary";
     private static final String COMMAND_GET_INITIAL_USER_INFO = "get-initial-user-info";
     private static final String COMMAND_SWITCH_USER = "switch-user";
+    private static final String COMMAND_GET_INITIAL_USER = "get-initial-user";
+    private static final String COMMAND_SET_USER_ID_TO_OCCUPANT_ZONE =
+            "set-occupant-zone-for-user";
+    private static final String COMMAND_RESET_USER_ID_IN_OCCUPANT_ZONE =
+            "reset-user-in-occupant-zone";
 
     private static final String PARAM_DAY_MODE = "day";
     private static final String PARAM_NIGHT_MODE = "night";
@@ -116,6 +123,7 @@ final class CarShellCommand extends ShellCommand {
     private final SystemInterface mSystemInterface;
     private final GarageModeService mGarageModeService;
     private final CarUserService mCarUserService;
+    private final CarOccupantZoneService mCarOccupantZoneService;
 
     CarShellCommand(Context context,
             VehicleHal hal,
@@ -130,7 +138,8 @@ final class CarShellCommand extends ShellCommand {
             CarNightService carNightService,
             SystemInterface systemInterface,
             GarageModeService garageModeService,
-            CarUserService carUserService) {
+            CarUserService carUserService,
+            CarOccupantZoneService carOccupantZoneService) {
         mContext = context;
         mHal = hal;
         mCarAudioService = carAudioService;
@@ -145,6 +154,7 @@ final class CarShellCommand extends ShellCommand {
         mSystemInterface = systemInterface;
         mGarageModeService = garageModeService;
         mCarUserService = carUserService;
+        mCarOccupantZoneService = carOccupantZoneService;
     }
 
     @Override
@@ -207,7 +217,7 @@ final class CarShellCommand extends ShellCommand {
                 + " wireless projection");
         pw.println("\t--metrics");
         pw.println("\t  When used with dumpsys, only metrics will be in the dumpsys output.");
-        pw.println("\tset-zoneid-for-uid [zoneid] [uid]");
+        pw.printf("\t%s [zoneid] [uid]\n", COMMAND_SET_UID_TO_ZONE);
         pw.println("\t  Maps the audio zoneid to uid.");
         pw.println("\tstart-fixed-activity displayId packageName activityName");
         pw.println("\t  Start an Activity the specified display as fixed mode");
@@ -248,6 +258,16 @@ final class CarShellCommand extends ShellCommand {
         pw.println("\t  Switches to user USER_ID using the HAL integration.");
         pw.println("\t  The --dry-run option only calls HAL, without switching the user,");
         pw.println("\t  while the --timeout defines how long to wait for the HAL response");
+
+        pw.printf("\t%s\n", COMMAND_GET_INITIAL_USER);
+        pw.printf("\t  Gets the id of the initial user (or %s when it's not available)\n",
+                NO_INITIAL_USER);
+
+        pw.printf("\t%s [occupantZoneId] [userId]\n", COMMAND_SET_USER_ID_TO_OCCUPANT_ZONE);
+        pw.println("\t  Maps the occupant zone id to user id.");
+
+        pw.printf("\t%s [occupantZoneId]\n", COMMAND_RESET_USER_ID_IN_OCCUPANT_ZONE);
+        pw.println("\t  Unmaps the user assigned to occupant zone id.");
     }
 
     private static int showInvalidArguments(PrintWriter pw) {
@@ -256,14 +276,29 @@ final class CarShellCommand extends ShellCommand {
         return RESULT_ERROR;
     }
 
-    private String runSetZoneIdForUid(String zoneString, String uidString) {
+    private void runSetZoneIdForUid(String zoneString, String uidString) {
         int uid = Integer.parseInt(uidString);
         int zoneId = Integer.parseInt(zoneString);
-        if (!ArrayUtils.contains(mCarAudioService.getAudioZoneIds(), zoneId)) {
-            return  "zoneid " + zoneId + " not found";
-        }
         mCarAudioService.setZoneIdForUid(zoneId, uid);
-        return null;
+    }
+
+    private void runSetOccupantZoneIdForUserId(String occupantZoneIdString,
+            String userIdString) {
+        int userId = Integer.parseInt(userIdString);
+        int occupantZoneId = Integer.parseInt(occupantZoneIdString);
+        if (!mCarOccupantZoneService.assignProfileUserToOccupantZone(occupantZoneId, userId)) {
+            throw new IllegalStateException("Failed to set userId " + userId + " to occupantZoneId "
+                    + occupantZoneIdString);
+        }
+    }
+
+    private void runResetOccupantZoneId(String occupantZoneIdString) {
+        int occupantZoneId = Integer.parseInt(occupantZoneIdString);
+        if (!mCarOccupantZoneService
+                .assignProfileUserToOccupantZone(occupantZoneId, UserHandle.USER_NULL)) {
+            throw new IllegalStateException("Failed to reset occupantZoneId "
+                    + occupantZoneIdString);
+        }
     }
 
     int exec(String[] args, PrintWriter writer) {
@@ -379,11 +414,19 @@ final class CarShellCommand extends ShellCommand {
                 if (args.length != 3) {
                     return showInvalidArguments(writer);
                 }
-                String results = runSetZoneIdForUid(args[1], args[2]);
-                if (results != null) {
-                    writer.println(results);
-                    showHelp(writer);
+                runSetZoneIdForUid(args[1], args[2]);
+                break;
+            case COMMAND_SET_USER_ID_TO_OCCUPANT_ZONE:
+                if (args.length != 3) {
+                    return showInvalidArguments(writer);
                 }
+                runSetOccupantZoneIdForUserId(args[1], args[2]);
+                break;
+            case COMMAND_RESET_USER_ID_IN_OCCUPANT_ZONE:
+                if (args.length != 2) {
+                    return showInvalidArguments(writer);
+                }
+                runResetOccupantZoneId(args[1]);
                 break;
             case COMMAND_START_FIXED_ACTIVITY_MODE:
                 startFixedActivity(args, writer);
@@ -421,6 +464,10 @@ final class CarShellCommand extends ShellCommand {
             case COMMAND_SWITCH_USER:
                 switchUser(args, writer);
                 break;
+            case COMMAND_GET_INITIAL_USER:
+                getInitialUser(writer);
+                break;
+
             default:
                 writer.println("Unknown command: \"" + arg + "\"");
                 showHelp(writer);
@@ -559,6 +606,7 @@ final class CarShellCommand extends ShellCommand {
         if (delayMs < 0) {
             writer.println("Invalid delay:" + delayMs);
             showHelp(writer);
+
             return;
         }
         KeyEvent keyDown = new KeyEvent(KeyEvent.ACTION_DOWN, keyCode);
@@ -777,6 +825,11 @@ final class CarShellCommand extends ShellCommand {
         }
 
         waitForHal(writer, latch, timeout);
+    }
+
+    private void getInitialUser(PrintWriter writer) {
+        android.content.pm.UserInfo user = mCarUserService.getInitialUser();
+        writer.println(user == null ? NO_INITIAL_USER : user.id);
     }
 
     private void forceDayNightMode(String arg, PrintWriter writer) {
