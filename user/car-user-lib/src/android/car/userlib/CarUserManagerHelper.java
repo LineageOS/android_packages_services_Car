@@ -128,12 +128,6 @@ public final class CarUserManagerHelper {
      * @return user id of the initial user to boot into on the device, or
      * {@link UserHandle#USER_NULL} if there is no user available.
      */
-    public int getInitialUser() {
-        return getInitialUser(/* usesOverrideUserIdProperty= */ true);
-    }
-
-    // TODO(b/151758646): get rid of the public one / add javadoc here once not used externally
-    // anymore
     @VisibleForTesting
     int getInitialUser(boolean usesOverrideUserIdProperty) {
 
