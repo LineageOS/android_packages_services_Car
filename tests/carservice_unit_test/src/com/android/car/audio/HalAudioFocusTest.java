@@ -27,9 +27,13 @@ import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
 
@@ -326,6 +330,39 @@ public class HalAudioFocusTest {
                 .onAudioFocusChange(USAGE_MEDIA, ZONE_ID, AUDIOFOCUS_LOSS);
     }
 
+    @Test
+    public void reset_abandonsExistingRequests() {
+        whenAnyFocusRequestGranted();
+        mHalAudioFocus.requestAudioFocus(USAGE_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
+        AudioFocusRequest mediaRequest = getLastRequest();
+        mHalAudioFocus.requestAudioFocus(USAGE_ALARM, ZONE_ID, AUDIOFOCUS_GAIN);
+        AudioFocusRequest alarmRequest = getLastRequest();
+
+        verify(mMockAudioManager, never()).abandonAudioFocusRequest(any());
+
+        mHalAudioFocus.reset();
+
+        verify(mMockAudioManager).abandonAudioFocusRequest(mediaRequest);
+        verify(mMockAudioManager).abandonAudioFocusRequest(alarmRequest);
+        verifyNoMoreInteractions(mMockAudioManager);
+    }
+
+    @Test
+    public void reset_notifiesHal() {
+        whenAnyFocusRequestGranted();
+        mHalAudioFocus.requestAudioFocus(USAGE_MEDIA, ZONE_ID, AUDIOFOCUS_GAIN);
+        mHalAudioFocus.requestAudioFocus(USAGE_ALARM, ZONE_ID, AUDIOFOCUS_GAIN);
+
+        verify(mAudioControlWrapper, never()).onAudioFocusChange(anyInt(), eq(ZONE_ID),
+                eq(AUDIOFOCUS_LOSS));
+        when(mMockAudioManager.abandonAudioFocusRequest(any())).thenReturn(
+                AUDIOFOCUS_REQUEST_GRANTED);
+
+        mHalAudioFocus.reset();
+
+        verify(mAudioControlWrapper).onAudioFocusChange(USAGE_MEDIA, ZONE_ID, AUDIOFOCUS_LOSS);
+        verify(mAudioControlWrapper).onAudioFocusChange(USAGE_ALARM, ZONE_ID, AUDIOFOCUS_LOSS);
+    }
 
     private void whenAnyFocusRequestGranted() {
         when(mMockAudioManager.requestAudioFocus(any())).thenReturn(AUDIOFOCUS_REQUEST_GRANTED);
@@ -333,7 +370,7 @@ public class HalAudioFocusTest {
 
     private AudioFocusRequest getLastRequest() {
         ArgumentCaptor<AudioFocusRequest> captor = ArgumentCaptor.forClass(AudioFocusRequest.class);
-        verify(mMockAudioManager).requestAudioFocus(captor.capture());
+        verify(mMockAudioManager, atLeastOnce()).requestAudioFocus(captor.capture());
         return captor.getValue();
     }
 }

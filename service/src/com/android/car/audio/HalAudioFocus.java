@@ -90,7 +90,10 @@ final class HalAudioFocus extends IFocusListener.Stub {
             HalAudioFocusRequest currentRequest = mHalFocusRequestsByZoneAndUsage.get(zoneId).get(
                     usage);
             if (currentRequest != null) {
-                Log.i(TAG, "A request already exists for zoneId " + zoneId + " and usage " + usage);
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "A request already exists for zoneId " + zoneId + " and usage "
+                            + usage);
+                }
                 mAudioControlWrapper.onAudioFocusChange(usage, zoneId, currentRequest.mFocusStatus);
             } else {
                 makeAudioFocusRequestLocked(usage, zoneId, focusGain);
@@ -107,29 +110,26 @@ final class HalAudioFocus extends IFocusListener.Stub {
                     + " for zoneId " + zoneId);
         }
         synchronized (mLock) {
-            HalAudioFocusRequest currentRequest = mHalFocusRequestsByZoneAndUsage.get(zoneId)
-                    .removeReturnOld(usage);
-            if (currentRequest == null) {
-                Log.i(TAG, "No focus to abandon for usage " + AudioAttributes.usageToString(usage)
-                        + " and zoneId " + zoneId);
-            } else {
-                abandonFocusLocked(currentRequest, usage, zoneId);
-            }
+            abandonAudioFocusLocked(usage, zoneId);
         }
     }
 
-    private void abandonFocusLocked(HalAudioFocusRequest currentRequest, int usage, int zoneId) {
-        int result = mAudioManager.abandonAudioFocusRequest(currentRequest.mAudioFocusRequest);
-        if (result == AUDIOFOCUS_REQUEST_GRANTED) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "Abandoned focus for usage " + AudioAttributes.usageToString(usage)
-                        + "and zoneId " + zoneId);
+    /**
+     * Clear out all existing focus requests. Called when HAL dies.
+     */
+    public void reset() {
+        Log.d(TAG, "Resetting HAL Audio Focus requests");
+        synchronized (mLock) {
+            for (int i = 0; i < mHalFocusRequestsByZoneAndUsage.size(); i++) {
+                int zoneId = mHalFocusRequestsByZoneAndUsage.keyAt(i);
+                SparseArray<HalAudioFocusRequest> requestsByUsage =
+                        mHalFocusRequestsByZoneAndUsage.valueAt(i);
+                int usageCount = requestsByUsage.size();
+                for (int j = 0; j < usageCount; j++) {
+                    int usage = requestsByUsage.keyAt(j);
+                    abandonAudioFocusLocked(usage, zoneId);
+                }
             }
-            mAudioControlWrapper.onAudioFocusChange(usage, zoneId, AUDIOFOCUS_LOSS);
-        } else {
-            Log.w(TAG,
-                    "Failed to abandon focus for usage " + AudioAttributes.usageToString(usage)
-                            + " and zoneId " + zoneId);
         }
     }
 
@@ -155,6 +155,32 @@ final class HalAudioFocus extends IFocusListener.Stub {
                 writer.printf("%s\t\t\t%s - focusGain: %s\n", indent,
                         AudioAttributes.usageToString(usage), request.mFocusStatus);
             }
+        }
+    }
+
+    private void abandonAudioFocusLocked(int usage, int zoneId) {
+        HalAudioFocusRequest currentRequest = mHalFocusRequestsByZoneAndUsage.get(zoneId)
+                .removeReturnOld(usage);
+
+        if (currentRequest == null) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "No focus to abandon for usage " + AudioAttributes.usageToString(usage)
+                        + " and zoneId " + zoneId);
+            }
+            return;
+        }
+
+        int result = mAudioManager.abandonAudioFocusRequest(currentRequest.mAudioFocusRequest);
+        if (result == AUDIOFOCUS_REQUEST_GRANTED) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Abandoned focus for usage " + AudioAttributes.usageToString(usage)
+                        + "and zoneId " + zoneId);
+            }
+            mAudioControlWrapper.onAudioFocusChange(usage, zoneId, AUDIOFOCUS_LOSS);
+        } else {
+            Log.w(TAG,
+                    "Failed to abandon focus for usage " + AudioAttributes.usageToString(usage)
+                            + " and zoneId " + zoneId);
         }
     }
 
