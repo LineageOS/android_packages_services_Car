@@ -35,7 +35,7 @@ namespace sv {
 namespace V1_0 {
 namespace implementation {
 
-static const char kGrayColor = 128;
+static const uint8_t kGrayColor = 128;
 static const int kNumChannels = 4;
 
 SurroundView3dSession::SurroundView3dSession() :
