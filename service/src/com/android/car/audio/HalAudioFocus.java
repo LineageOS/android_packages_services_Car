@@ -34,6 +34,7 @@ import android.util.SparseArray;
 
 import androidx.annotation.NonNull;
 
+import com.android.car.audio.hal.AudioControlWrapper;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 

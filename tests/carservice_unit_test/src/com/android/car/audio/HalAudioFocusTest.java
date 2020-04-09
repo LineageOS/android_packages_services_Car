@@ -41,6 +41,8 @@ import android.os.Bundle;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.android.car.audio.hal.AudioControlWrapper;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
