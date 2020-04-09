@@ -177,6 +177,11 @@ public class FakeCar {
         }
 
         @Override
+        public void setInitialUser(int userId) {
+            // Nothing to do yet.
+        }
+
+        @Override
         public IBinder getCarService(String serviceName) throws RemoteException {
             switch (serviceName) {
                 case Car.AUDIO_SERVICE:
