@@ -43,6 +43,8 @@ import android.hardware.automotive.vehicle.V2_0.UserFlags;
 import android.os.UserHandle;
 import android.os.UserManager;
 
+import com.android.internal.widget.LockPatternUtils;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -71,6 +73,9 @@ public final class InitialUserSetterTest {
     @Mock
     private UserManager mUm;
 
+    @Mock
+    private LockPatternUtils mLockPatternUtils;
+
     // Spy used in tests that need to verify the default behavior as fallback
     private InitialUserSetter mSetter;
 
@@ -85,7 +90,8 @@ public final class InitialUserSetterTest {
                 .spyStatic(ActivityManager.class)
                 .initMocks(this)
                 .startMocking();
-        mSetter = spy(new InitialUserSetter(mHelper, mUm, mListener, OWNER_NAME, GUEST_NAME,
+        mSetter = spy(new InitialUserSetter(mHelper, mUm, mListener,
+                mLockPatternUtils, OWNER_NAME, GUEST_NAME,
                 /* supportsOverrideUserIdProperty= */ false));
 
         expectCurrentUser(CURRENT_USER_ID);
@@ -211,6 +217,16 @@ public final class InitialUserSetterTest {
         assertThat(mSetter.replaceGuestIfNeeded(user)).isSameAs(newGuest);
 
         verifyGuestMarkedForDeletion(USER_ID);
+    }
+
+    @Test
+    public void testReplaceGuestIfNeeded_lockScreen() throws Exception {
+        UserInfo user = newGuestUser(USER_ID, /* ephemeral= */ false);
+        expectUserIsSecure(USER_ID);
+        assertThat(mSetter.replaceGuestIfNeeded(user)).isSameAs(user);
+
+        verifyGuestNeverMarkedForDeletion();
+        verifyUserNeverCreated();
     }
 
     @Test
@@ -445,7 +461,7 @@ public final class InitialUserSetterTest {
         boolean supportsOverrideUserIdProperty = true;
         // Must use a different helper as the property is set on constructor
         InitialUserSetter setter = spy(new InitialUserSetter(mHelper, mUm, mListener,
-                OWNER_NAME, GUEST_NAME, supportsOverrideUserIdProperty));
+                mLockPatternUtils, OWNER_NAME, GUEST_NAME, supportsOverrideUserIdProperty));
         UserInfo user = expectHasInitialUser(USER_ID, supportsOverrideUserIdProperty);
         expectSwitchUser(USER_ID);
 
@@ -474,6 +490,10 @@ public final class InitialUserSetterTest {
         user.id = userId;
         when(mUm.getUserInfo(userId)).thenReturn(user);
         return user;
+    }
+
+    private void expectUserIsSecure(@UserIdInt int userId) {
+        when(mLockPatternUtils.isSecure(userId)).thenReturn(true);
     }
 
     private void expectGuestExists(@UserIdInt int userId, boolean isEphemeral) {
