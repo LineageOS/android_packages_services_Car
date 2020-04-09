@@ -656,7 +656,9 @@ public final class CarUserServiceTest {
     @Test
     public void testSwitchUser_HalSuccessAndroidSuccess() throws Exception {
         mockCurrentUsers(mAdminUser);
+        int requestId = 42;
         mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
+        mSwitchUserResponse.requestId = requestId;
         mockHalSwitchUser(mAdminUser.id, mSwitchUserResponse, mGuestUser);
         mockAmSwitchUser(mGuestUser, true);
 
@@ -667,12 +669,19 @@ public final class CarUserServiceTest {
         Bundle resultData = mReceiver.getResultData();
         assertThat(resultData).isNotNull();
         assertSwitchUserStatus(resultData, mSwitchUserResponse.status);
+
+        // update current user due to successful user switch
+        mockCurrentUsers(mGuestUser);
+        sendUserUnlockedEvent(mGuestUser.id);
+        assertPostSwitch(requestId, mGuestUser.id, mGuestUser.id);
     }
 
     @Test
     public void testSwitchUser_HalSuccessAndroidFailure() throws Exception {
         mockCurrentUsers(mAdminUser);
+        int requestId = 42;
         mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
+        mSwitchUserResponse.requestId = requestId;
         mockHalSwitchUser(mAdminUser.id, mSwitchUserResponse, mGuestUser);
         mockAmSwitchUser(mGuestUser, false);
 
@@ -683,6 +692,7 @@ public final class CarUserServiceTest {
         Bundle resultData = mReceiver.getResultData();
         assertThat(resultData).isNotNull();
         assertSwitchUserStatus(resultData, mSwitchUserResponse.status);
+        assertPostSwitch(requestId, mAdminUser.id, mGuestUser.id);
     }
 
     @Test
@@ -717,6 +727,28 @@ public final class CarUserServiceTest {
         assertThat(resultData).isNotNull();
         // 0 is default value for status
         assertSwitchUserStatus(resultData, 0);
+    }
+
+    @Test
+    public void testSwitchUser_HalSuccessMultipleCalls() throws Exception {
+        mockCurrentUsers(mAdminUser);
+        int requestId = 42;
+        mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
+        mSwitchUserResponse.requestId = requestId;
+        mockHalSwitchUser(mAdminUser.id, mSwitchUserResponse, mGuestUser);
+        mockAmSwitchUser(mGuestUser, true);
+        mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mReceiver);
+
+        // calling another user switch before unlock
+        int newRequestId = 43;
+        mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
+        mSwitchUserResponse.requestId = newRequestId;
+        mockHalSwitchUser(mAdminUser.id, mSwitchUserResponse, mSystemUser);
+        mockAmSwitchUser(mSystemUser, true);
+        BlockingResultReceiver receiver = new BlockingResultReceiver(mAsyncCallTimeoutMs);
+        mCarUserService.switchUser(mSystemUser.id, mAsyncCallTimeoutMs, receiver);
+
+        assertPostSwitch(requestId, mAdminUser.id, mGuestUser.id);
     }
 
     @Test
@@ -1027,6 +1059,17 @@ public final class CarUserServiceTest {
         assertWithMessage("wrong error message on bundle extra %s",
                 CarUserManager.BUNDLE_USER_SWITCH_ERROR_MSG).that(actualMsg)
                 .isEqualTo(expectedMsg);
+    }
+
+    private void assertPostSwitch(int requestId, int currentId, int targetId) {
+        // verify post switch response
+        ArgumentCaptor<android.hardware.automotive.vehicle.V2_0.UserInfo> targetUser =
+                ArgumentCaptor.forClass(android.hardware.automotive.vehicle.V2_0.UserInfo.class);
+        ArgumentCaptor<UsersInfo> usersInfo = ArgumentCaptor.forClass(UsersInfo.class);
+        verify(mUserHal).postSwitchResponse(eq(requestId), targetUser.capture(),
+                usersInfo.capture());
+        assertThat(targetUser.getValue().userId).isEqualTo(targetId);
+        assertThat(usersInfo.getValue().currentUser.userId).isEqualTo(currentId);
     }
 
     static final class FakeCarOccupantZoneService {
