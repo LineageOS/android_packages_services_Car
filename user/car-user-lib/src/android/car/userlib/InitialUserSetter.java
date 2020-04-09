@@ -33,6 +33,7 @@ import android.util.Slog;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
+import com.android.internal.widget.LockPatternUtils;
 
 import java.io.PrintWriter;
 import java.util.function.Consumer;
@@ -51,6 +52,7 @@ public final class InitialUserSetter {
     // implementation (where local is implemented by ActivityManagerInternal / UserManagerInternal)
     private final CarUserManagerHelper mHelper;
     private final UserManager mUm;
+    private final LockPatternUtils mLockPatternUtils;
 
     // TODO(b/151758646): make sure it's unit tested
     private final boolean mSupportsOverrideUserIdProperty;
@@ -68,18 +70,20 @@ public final class InitialUserSetter {
     public InitialUserSetter(@NonNull Context context, @NonNull Consumer<UserInfo> listener,
             @Nullable String newGuestName, boolean supportsOverrideUserIdProperty) {
         this(new CarUserManagerHelper(context), UserManager.get(context), listener,
+                new LockPatternUtils(context),
                 context.getString(com.android.internal.R.string.owner_name), newGuestName,
                 supportsOverrideUserIdProperty);
     }
 
     @VisibleForTesting
     public InitialUserSetter(@NonNull CarUserManagerHelper helper, @NonNull UserManager um,
-            @NonNull Consumer<UserInfo> listener,
+            @NonNull Consumer<UserInfo> listener, @NonNull LockPatternUtils lockPatternUtils,
             @Nullable String newUserName, @Nullable String newGuestName,
             boolean supportsOverrideUserIdProperty) {
         mHelper = helper;
         mUm = um;
         mListener = listener;
+        mLockPatternUtils = lockPatternUtils;
         mNewUserName = newUserName;
         mNewGuestName = newGuestName;
         mSupportsOverrideUserIdProperty = supportsOverrideUserIdProperty;
@@ -192,6 +196,14 @@ public final class InitialUserSetter {
         Preconditions.checkArgument(user != null, "user cannot be null");
 
         if (!user.isGuest()) return user;
+
+        if (mLockPatternUtils.isSecure(user.id)) {
+            if (DBG) {
+                Log.d(TAG, "replaceGuestIfNeeded(), skipped, since user "
+                        + user.id + " has secure lock pattern");
+            }
+            return user;
+        }
 
         Log.i(TAG, "Replacing guest (" + user.toFullString() + ")");
 
