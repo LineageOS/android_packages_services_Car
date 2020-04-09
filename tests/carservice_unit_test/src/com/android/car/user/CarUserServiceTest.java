@@ -860,7 +860,7 @@ public final class CarUserServiceTest {
     }
 
     private void mockAmSwitchUser(@NonNull UserInfo user, boolean result) throws Exception {
-        when(mMockedIActivityManager.switchUser(eq(user.id))).thenReturn(result);
+        when(mMockedIActivityManager.switchUser(user.id)).thenReturn(result);
     }
 
     private void mockGetInitialInfo(@UserIdInt int currentUserId,
