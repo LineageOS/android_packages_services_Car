@@ -469,7 +469,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             mInitialUserSetter.executeDefaultBehavior();
             return;
         }
-        mInitialUserSetter.switchUser(newUser.id);
+        mInitialUserSetter.switchUser(newUser.id, /* replaceGuest= */ true);
     }
 
     /**
@@ -502,7 +502,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                         case InitialUserInfoResponseAction.SWITCH:
                             int userId = response.userToSwitchOrCreate.userId;
                             Log.i(TAG, "HAL requested switch to user " + userId);
-                            mInitialUserSetter.switchUser(userId);
+                            // If guest was replaced on shutdown, it doesn't need to be replaced
+                            // again
+                            boolean replaceGuest = !mSwitchGuestUserBeforeSleep;
+                            mInitialUserSetter.switchUser(userId, replaceGuest);
                             return;
                         case InitialUserInfoResponseAction.CREATE:
                             int halFlags = response.userToSwitchOrCreate.flags;
