@@ -23,6 +23,7 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "types/Status.h"
+#include "ProfilingType.pb.h"
 
 using ::android::automotive::computepipe::runner::ClientConfig;
 using ::android::automotive::computepipe::runner::RunnerComponentInterface;
@@ -49,7 +50,8 @@ class PrebuiltEngineInterfaceImpl : public PrebuiltEngineInterface {
   public:
     virtual ~PrebuiltEngineInterfaceImpl() = default;
 
-    void DispatchPixelData(int streamId, int64_t timestamp, const runner::InputFrame& frame) override {
+    void DispatchPixelData(int streamId, int64_t timestamp,
+                           const runner::InputFrame& frame) override {
         mPixelCallbackFn(streamId, timestamp, frame);
     }
 
@@ -112,7 +114,7 @@ TEST(PrebuiltGraphTest, GraphConfigurationIssuesCorrectFunctionCalls) {
     EXPECT_THAT(functionVisited, HasSubstr("GetSupportedGraphConfigs"));
 
     std::map<int, int> maxOutputPacketsPerStream;
-    ClientConfig e(0, 0, 0, maxOutputPacketsPerStream);
+    ClientConfig e(0, 0, 0, maxOutputPacketsPerStream, proto::ProfilingType::DISABLED);
     e.setPhaseState(runner::PhaseState::ENTRY);
     EXPECT_EQ(graph->handleConfigPhase(e), Status::SUCCESS);
     functionVisited = graph->GetErrorMessage();
@@ -158,7 +160,7 @@ TEST(PrebuiltGraphTest, GraphOperationEndToEndIsSuccessful) {
     EXPECT_THAT(functionVisited, HasSubstr("GetSupportedGraphConfigs"));
 
     std::map<int, int> maxOutputPacketsPerStream;
-    ClientConfig e(0, 0, 0, maxOutputPacketsPerStream);
+    ClientConfig e(0, 0, 0, maxOutputPacketsPerStream, proto::ProfilingType::DISABLED);
     e.setPhaseState(runner::PhaseState::ENTRY);
     EXPECT_EQ(graph->handleConfigPhase(e), Status::SUCCESS);
     functionVisited = graph->GetErrorMessage();
@@ -178,10 +180,10 @@ TEST(PrebuiltGraphTest, GraphOperationEndToEndIsSuccessful) {
                   /*streamIndex =*/0, /*timestamp =*/0, /*inputFrame =*/inputFrame),
               Status::SUCCESS);
     EXPECT_EQ(graph->SetInputStreamPixelData(
-                  /*streamIndex =*/0, /*timestamp =*/0, /*inputFrame =*/inputFrame),
+                  /*streamIndex =*/1, /*timestamp =*/0, /*inputFrame =*/inputFrame),
               Status::SUCCESS);
     EXPECT_EQ(graph->SetInputStreamPixelData(
-                  /*streamIndex =*/0, /*timestamp =*/0, /*inputFrame =*/inputFrame),
+                  /*streamIndex =*/1, /*timestamp =*/0, /*inputFrame =*/inputFrame),
               Status::SUCCESS);
     functionVisited = graph->GetErrorMessage();
     EXPECT_THAT(functionVisited, HasSubstr("SetInputStreamPixelData"));
