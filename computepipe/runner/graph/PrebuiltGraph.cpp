@@ -118,9 +118,8 @@ Status PrebuiltGraph::handleExecutionPhase(const runner::RunnerEvent& e) {
         return Status::SUCCESS;
     }
 
-    auto mappedFn = (PrebuiltComputepipeRunner_ErrorCode(*)(void*, bool))mFnStartGraphExecution;
-    PrebuiltComputepipeRunner_ErrorCode errorCode =
-        mappedFn(reinterpret_cast<void*>(this), /* debuggingEnabled =*/false);
+    auto mappedFn = (PrebuiltComputepipeRunner_ErrorCode(*)(void*))mFnStartGraphExecution;
+    PrebuiltComputepipeRunner_ErrorCode errorCode = mappedFn(reinterpret_cast<void*>(this));
     if (errorCode == PrebuiltComputepipeRunner_ErrorCode::SUCCESS) {
         mGraphState.store(PrebuiltGraphState::RUNNING);
     }
@@ -232,6 +231,8 @@ PrebuiltGraph* PrebuiltGraph::GetPrebuiltGraphFromLibrary(
         LOAD_FUNCTION(SetGraphTerminationCallback);
         LOAD_FUNCTION(StartGraphExecution);
         LOAD_FUNCTION(StopGraphExecution);
+        LOAD_FUNCTION(StartGraphProfiling);
+        LOAD_FUNCTION(StopGraphProfiling);
         LOAD_FUNCTION(GetDebugInfo);
 
         // This is the only way to create this object and there is already a
@@ -319,6 +320,18 @@ Status PrebuiltGraph::StopGraphExecution(bool flushOutputFrames) {
         mGraphState.store(flushOutputFrames ? PrebuiltGraphState::FLUSHING
                                             : PrebuiltGraphState::STOPPED);
     }
+    return static_cast<Status>(static_cast<int>(errorCode));
+}
+
+Status PrebuiltGraph::StartGraphProfiling() {
+    auto mappedFn = (PrebuiltComputepipeRunner_ErrorCode(*)())mFnStartGraphProfiling;
+    PrebuiltComputepipeRunner_ErrorCode errorCode = mappedFn();
+    return static_cast<Status>(static_cast<int>(errorCode));
+}
+
+Status PrebuiltGraph::StopGraphProfiling() {
+    auto mappedFn = (PrebuiltComputepipeRunner_ErrorCode(*)())mFnStopGraphProfiling;
+    PrebuiltComputepipeRunner_ErrorCode errorCode = mappedFn();
     return static_cast<Status>(static_cast<int>(errorCode));
 }
 
