@@ -16,6 +16,7 @@
 
 package com.android.car.audio;
 
+import android.hardware.automotive.audiocontrol.V2_0.ICloseHandle;
 import android.hardware.automotive.audiocontrol.V2_0.IFocusListener;
 import android.media.AudioAttributes;
 import android.media.AudioAttributes.AttributeUsage;
@@ -28,6 +29,7 @@ import com.android.car.audio.CarAudioContext.AudioContext;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
+import java.io.PrintWriter;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
@@ -41,6 +43,7 @@ final class AudioControlWrapper {
     private final android.hardware.automotive.audiocontrol.V1_0.IAudioControl mAudioControlV1;
     @Nullable
     private final android.hardware.automotive.audiocontrol.V2_0.IAudioControl mAudioControlV2;
+    private ICloseHandle mCloseHandle;
 
     static AudioControlWrapper newAudioControl() {
         android.hardware.automotive.audiocontrol.V1_0.IAudioControl audioControlV1 = null;
@@ -66,6 +69,18 @@ final class AudioControlWrapper {
         return new AudioControlWrapper(audioControlV1, audioControlV2);
     }
 
+    void unregisterFocusListener() {
+        if (mCloseHandle != null) {
+            try {
+                mCloseHandle.close();
+            } catch (RemoteException e) {
+                Log.e(TAG, "Failed to close focus listener", e);
+            } finally {
+                mCloseHandle = null;
+            }
+        }
+    }
+
     @VisibleForTesting
     AudioControlWrapper(
             @Nullable android.hardware.automotive.audiocontrol.V1_0.IAudioControl audioControlV1,
@@ -83,9 +98,10 @@ final class AudioControlWrapper {
     void registerFocusListener(IFocusListener focusListener) {
         Objects.requireNonNull(mAudioControlV2,
                 "IAudioControl V2.0 is required for HAL audio focus requests");
+
         Log.d(TAG, "Registering focus listener on AudioControl HAL");
         try {
-            mAudioControlV2.registerFocusListener(focusListener);
+            mCloseHandle = mAudioControlV2.registerFocusListener(focusListener);
         } catch (RemoteException e) {
             Log.e(TAG, "Failed to register focus listener");
             throw new IllegalStateException("Failed to query IAudioControl#registerFocusListener",
@@ -105,6 +121,28 @@ final class AudioControlWrapper {
         } catch (RemoteException e) {
             throw new IllegalStateException("Failed to query IAudioControl#onAudioFocusChange", e);
         }
+    }
+
+    /**
+     * dumps the current state of the AudioControlWrapper
+     *
+     * @param indent indent to append to each new line
+     * @param writer stream to write current state
+     */
+    public void dump(String indent, PrintWriter writer) {
+        writer.printf("%s*AudioControlWrapper*\n", indent);
+
+        String innerIndent = "\t" + indent;
+        writer.printf("%sIAudioControl HAL\n", innerIndent);
+        if (mAudioControlV2 != null) {
+            writer.printf("%s\t- V2.0\n", innerIndent);
+        }
+        if (mAudioControlV1 != null) {
+            writer.printf("%s\t- V1.0\n", innerIndent);
+        }
+
+        writer.printf("%sFocus listener registered on HAL? %b", innerIndent,
+                (mCloseHandle != null));
     }
 
     void setFadeTowardFront(float value) {
