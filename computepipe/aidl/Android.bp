@@ -17,6 +17,7 @@ aidl_interface {
             enabled: false,
         },
     },
+    versions: ["1"],
 }
 
 aidl_interface {
@@ -36,4 +37,5 @@ aidl_interface {
             enabled: false,
         },
     },
+    versions: ["1"],
 }
