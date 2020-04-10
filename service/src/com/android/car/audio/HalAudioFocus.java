@@ -37,6 +37,7 @@ import androidx.annotation.NonNull;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 
+import java.io.PrintWriter;
 import java.util.Objects;
 
 /**
@@ -124,6 +125,31 @@ final class HalAudioFocus extends IFocusListener.Stub {
             Log.w(TAG,
                     "Failed to abandon focus for usage " + AudioAttributes.usageToString(usage)
                             + " and zoneId " + zoneId);
+        }
+    }
+
+    /**
+     * dumps the current state of the HalAudioFocus
+     *
+     * @param indent indent to append to each new line
+     * @param writer stream to write current state
+     */
+    public void dump(String indent, PrintWriter writer) {
+        writer.printf("%s*HalAudioFocus*\n", indent);
+
+        writer.printf("%s\tCurrent focus requests:\n", indent);
+        for (int i = 0; i < mHalFocusRequestsByZoneAndUsage.size(); i++) {
+            int zoneId = mHalFocusRequestsByZoneAndUsage.keyAt(i);
+            writer.printf("%s\t\tZone %s:\n", indent, zoneId);
+
+            SparseArray<HalAudioFocusRequest> requestsByUsage =
+                    mHalFocusRequestsByZoneAndUsage.valueAt(i);
+            for (int j = 0; j < requestsByUsage.size(); j++) {
+                int usage = requestsByUsage.keyAt(j);
+                HalAudioFocusRequest request = requestsByUsage.valueAt(j);
+                writer.printf("%s\t\t\t%s - focusGain: %s\n", indent,
+                        AudioAttributes.usageToString(usage), request.getFocusStatus());
+            }
         }
     }
 
