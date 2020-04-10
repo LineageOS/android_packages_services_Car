@@ -37,11 +37,15 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
+import android.app.IActivityManager;
 import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
+import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
+
+import com.android.internal.widget.LockPatternUtils;
 
 import org.junit.After;
 import org.junit.Before;
@@ -69,7 +73,13 @@ public final class InitialUserSetterTest {
     private CarUserManagerHelper mHelper;
 
     @Mock
+    private IActivityManager mIActivityManager;
+
+    @Mock
     private UserManager mUm;
+
+    @Mock
+    private LockPatternUtils mLockPatternUtils;
 
     // Spy used in tests that need to verify the default behavior as fallback
     private InitialUserSetter mSetter;
@@ -83,11 +93,14 @@ public final class InitialUserSetterTest {
         mSession = mockitoSession()
                 .strictness(Strictness.LENIENT)
                 .spyStatic(ActivityManager.class)
+                .spyStatic(UserManager.class)
                 .initMocks(this)
                 .startMocking();
-        mSetter = spy(new InitialUserSetter(mHelper, mUm, mListener, OWNER_NAME, GUEST_NAME,
+        mSetter = spy(new InitialUserSetter(mHelper, mUm, mListener,
+                mLockPatternUtils, OWNER_NAME, GUEST_NAME,
                 /* supportsOverrideUserIdProperty= */ false));
 
+        doReturn(mIActivityManager).when(() -> ActivityManager.getService());
         expectCurrentUser(CURRENT_USER_ID);
     }
 
@@ -155,7 +168,7 @@ public final class InitialUserSetterTest {
     @Test
     public void testSwitchUser_fail_switchFail() throws Exception {
         expectUserExists(USER_ID);
-        // No need to set switchUser() expectations - will return false by default
+        expectSwitchUserFails(USER_ID);
 
         mSetter.switchUser(USER_ID);
 
@@ -211,6 +224,16 @@ public final class InitialUserSetterTest {
         assertThat(mSetter.replaceGuestIfNeeded(user)).isSameAs(newGuest);
 
         verifyGuestMarkedForDeletion(USER_ID);
+    }
+
+    @Test
+    public void testReplaceGuestIfNeeded_lockScreen() throws Exception {
+        UserInfo user = newGuestUser(USER_ID, /* ephemeral= */ false);
+        expectUserIsSecure(USER_ID);
+        assertThat(mSetter.replaceGuestIfNeeded(user)).isSameAs(user);
+
+        verifyGuestNeverMarkedForDeletion();
+        verifyUserNeverCreated();
     }
 
     @Test
@@ -316,8 +339,7 @@ public final class InitialUserSetterTest {
     @Test
     public void testCreateUser_fail_switchFail() throws Exception {
         expectCreateFullUser(USER_ID, "TheDude", NO_FLAGS);
-
-        // No need to set switchUser() expectations - will return false by default
+        expectSwitchUserFails(USER_ID);
 
         mSetter.createUser("TheDude", UserFlags.NONE);
 
@@ -356,7 +378,7 @@ public final class InitialUserSetterTest {
     public void testDefaultBehavior_firstBoot_fail_switchFailed() throws Exception {
         // no need to mock hasInitialUser(), it will return false by default
         expectCreateFullUser(USER_ID, OWNER_NAME, UserInfo.FLAG_ADMIN);
-        // no need to mock switchUser(), it will return false by default
+        expectSwitchUserFails(USER_ID);
 
         mSetter.executeDefaultBehavior();
 
@@ -396,7 +418,7 @@ public final class InitialUserSetterTest {
     @Test
     public void testDefaultBehavior_nonFirstBoot_fail_switchFail() throws Exception {
         expectHasInitialUser(USER_ID);
-        // no need to mock switchUser(), it will return false by default
+        expectSwitchUserFails(USER_ID);
 
         mSetter.executeDefaultBehavior();
 
@@ -440,22 +462,80 @@ public final class InitialUserSetterTest {
     }
 
     @Test
-    public void testDefaultBehavior_testDefaultBehavior_nonFirstBoot_ok_withOverriddenProperty()
-            throws Exception {
+    public void testDefaultBehavior_nonFirstBoot_ok_withOverriddenProperty() throws Exception {
         boolean supportsOverrideUserIdProperty = true;
         // Must use a different helper as the property is set on constructor
         InitialUserSetter setter = spy(new InitialUserSetter(mHelper, mUm, mListener,
-                OWNER_NAME, GUEST_NAME, supportsOverrideUserIdProperty));
+                mLockPatternUtils, OWNER_NAME, GUEST_NAME, supportsOverrideUserIdProperty));
         UserInfo user = expectHasInitialUser(USER_ID, supportsOverrideUserIdProperty);
-        expectSwitchUser(USER_ID);
+        expectSwitchUser(setter, USER_ID);
 
         setter.executeDefaultBehavior();
 
-        verifyUserSwitched(USER_ID);
+        verifyUserSwitched(setter, USER_ID);
         verifyFallbackDefaultBehaviorNeverCalled();
         verifyUserNeverCreated();
-        verifySystemUserUnlocked();
+        verifySystemUserUnlocked(setter);
         assertInitialUserSet(user);
+    }
+
+    @Test
+    public void testUnlockSystemUser_startedOk() throws Exception {
+        when(mIActivityManager.startUserInBackground(UserHandle.USER_SYSTEM)).thenReturn(true);
+
+        mSetter.unlockSystemUser();
+
+        verify(mIActivityManager, never()).unlockUser(UserHandle.USER_SYSTEM, /* token= */ null,
+                /* secret= */ null, /* listener= */ null);
+    }
+
+    @Test
+    public void testUnlockSystemUser_startFailUnlockedInstead() throws Exception {
+        // No need to set startUserInBackground() expectation as it will return false by default
+
+        mSetter.unlockSystemUser();
+
+        verify(mIActivityManager).unlockUser(UserHandle.USER_SYSTEM, /* token= */ null,
+                /* secret= */ null, /* listener= */ null);
+    }
+
+    @Test
+    public void testStartForegroundUser_ok() throws Exception {
+        expectAmStartFgUser(10);
+
+        assertThat(mSetter.startForegroundUser(10)).isTrue();
+    }
+
+    @Test
+    public void testStartForegroundUser_fail() {
+        // startUserInForegroundWithListener will return false by default
+
+        assertThat(mSetter.startForegroundUser(10)).isFalse();
+    }
+
+    @Test
+    public void testStartForegroundUser_remoteException() throws Exception {
+        expectAmStartFgUserThrowsException(10);
+
+        assertThat(mSetter.startForegroundUser(10)).isFalse();
+    }
+
+    @Test
+    public void testStartForegroundUser_nonHeadlessSystemUser() throws Exception {
+        setHeadlessSystemUserMode(false);
+        expectAmStartFgUser(UserHandle.USER_SYSTEM);
+
+        assertThat(mSetter.startForegroundUser(UserHandle.USER_SYSTEM)).isTrue();
+    }
+
+    @Test
+    public void testStartForegroundUser_headlessSystemUser() throws Exception {
+        setHeadlessSystemUserMode(true);
+
+        assertThat(mSetter.startForegroundUser(UserHandle.USER_SYSTEM)).isFalse();
+
+        verify(mIActivityManager, never()).startUserInForegroundWithListener(UserHandle.USER_SYSTEM,
+                null);
     }
 
     private UserInfo expectHasInitialUser(@UserIdInt int userId) {
@@ -476,6 +556,10 @@ public final class InitialUserSetterTest {
         return user;
     }
 
+    private void expectUserIsSecure(@UserIdInt int userId) {
+        when(mLockPatternUtils.isSecure(userId)).thenReturn(true);
+    }
+
     private void expectGuestExists(@UserIdInt int userId, boolean isEphemeral) {
         UserInfo user = new UserInfo();
         user.id = userId;
@@ -491,7 +575,15 @@ public final class InitialUserSetterTest {
     }
 
     private void expectSwitchUser(@UserIdInt int userId) throws Exception {
-        when(mHelper.startForegroundUser(userId)).thenReturn(true);
+        expectSwitchUser(mSetter, userId);
+    }
+
+    private void expectSwitchUser(@NonNull InitialUserSetter setter, @UserIdInt int userId)
+            throws Exception {
+        doReturn(true).when(setter).startForegroundUser(userId);
+    }
+    private void expectSwitchUserFails(@UserIdInt int userId) {
+        when(mSetter.startForegroundUser(userId)).thenReturn(false);
     }
 
     private UserInfo expectCreateFullUser(@UserIdInt int userId, @Nullable String name,
@@ -513,13 +605,27 @@ public final class InitialUserSetterTest {
         return userInfo;
     }
 
+    private void expectAmStartFgUser(@UserIdInt int userId) throws Exception {
+        when(mIActivityManager.startUserInForegroundWithListener(userId, null)).thenReturn(true);
+    }
+
+    private void expectAmStartFgUserThrowsException(@UserIdInt int userId) throws Exception {
+        when(mIActivityManager.startUserInForegroundWithListener(userId, null))
+                .thenThrow(new RemoteException("DOH!"));
+    }
+
     private void verifyUserSwitched(@UserIdInt int userId) throws Exception {
-        verify(mHelper).startForegroundUser(userId);
+        verifyUserSwitched(mSetter, userId);
+    }
+
+    private void verifyUserSwitched(@NonNull InitialUserSetter setter, @UserIdInt int userId)
+            throws Exception {
+        verify(setter).startForegroundUser(userId);
         verify(mHelper).setLastActiveUser(userId);
     }
 
     private void verifyUserNeverSwitched() throws Exception {
-        verify(mHelper, never()).startForegroundUser(anyInt());
+        verify(mSetter, never()).startForegroundUser(anyInt());
         verifyLastActiveUserNeverSet();
     }
 
@@ -554,11 +660,15 @@ public final class InitialUserSetterTest {
     }
 
     private void verifySystemUserUnlocked() {
-        verify(mHelper).unlockSystemUser();
+        verifySystemUserUnlocked(mSetter);
+    }
+
+    private void verifySystemUserUnlocked(InitialUserSetter setter) {
+        verify(setter).unlockSystemUser();
     }
 
     private void verifySystemUserNeverUnlocked() {
-        verify(mHelper, never()).unlockSystemUser();
+        verify(mSetter, never()).unlockSystemUser();
     }
 
     private void verifyLastActiveUserNeverSet() {
@@ -587,6 +697,10 @@ public final class InitialUserSetterTest {
 
     public static void expectCurrentUser(@UserIdInt int userId) {
         doReturn(userId).when(() -> ActivityManager.getCurrentUser());
+    }
+
+    public static void setHeadlessSystemUserMode(boolean mode) {
+        doReturn(mode).when(() -> UserManager.isHeadlessSystemUserMode());
     }
 
     @NonNull

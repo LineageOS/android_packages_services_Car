@@ -16,9 +16,12 @@
 package android.car.userlib;
 
 import android.annotation.Nullable;
+import android.annotation.UserIdInt;
+import android.os.UserHandle;
+import android.os.UserManager;
 
 /**
- * Provides utility methods for generic user-related code.
+ * Provides utility methods for generic user-related functionalities that don't require a manager.
  */
 public final class UserHelper {
 
@@ -32,5 +35,12 @@ public final class UserHelper {
     @Nullable
     public static String safeName(@Nullable String name) {
         return name == null ? name : name.length() + "_chars";
+    }
+
+    /**
+     * Checks whether the given user is both {@code SYSTEM} and headless.
+     */
+    public static boolean isHeadlessSystemUser(@UserIdInt int userId) {
+        return userId == UserHandle.USER_SYSTEM && UserManager.isHeadlessSystemUserMode();
     }
 }
