@@ -73,6 +73,10 @@ final class HalAudioFocus extends IFocusListener.Stub {
         mAudioControlWrapper.registerFocusListener(this);
     }
 
+    void unregisterFocusListener() {
+        mAudioControlWrapper.unregisterFocusListener();
+    }
+
     @Override
     public void requestAudioFocus(@AttributeUsage int usage, int zoneId, int focusGain) {
         Preconditions.checkArgument(mHalFocusRequestsByZoneAndUsage.contains(zoneId),
@@ -148,7 +152,7 @@ final class HalAudioFocus extends IFocusListener.Stub {
                 int usage = requestsByUsage.keyAt(j);
                 HalAudioFocusRequest request = requestsByUsage.valueAt(j);
                 writer.printf("%s\t\t\t%s - focusGain: %s\n", indent,
-                        AudioAttributes.usageToString(usage), request.getFocusStatus());
+                        AudioAttributes.usageToString(usage), request.mFocusStatus);
             }
         }
     }
