@@ -381,6 +381,7 @@ Return<void> HalCamera::deliverFrame_1_1(const hardware::hidl_vec<BufferDesc_1_1
                 // Skip current frame because it arrives too soon.
                 LOG(DEBUG) << "Skips a frame from " << getId();
                 mNextRequests->push_back(req);
+                ++mSyncFrames;
             } else if (vCam != nullptr && vCam->deliverFrame(buffer[0])) {
                 // Forward a frame and move a timeline.
                 LOG(DEBUG) << getId() << " forwarded the buffer #" << buffer[0].bufferId;
@@ -389,6 +390,7 @@ Return<void> HalCamera::deliverFrame_1_1(const hardware::hidl_vec<BufferDesc_1_1
             }
         }
     }
+    ++mFramesReceived;
 
     // Frames are being forwarded to active v1.0 clients and v1.1 clients if we
     // failed to create a timeline.
@@ -410,6 +412,7 @@ Return<void> HalCamera::deliverFrame_1_1(const hardware::hidl_vec<BufferDesc_1_1
         // right away.
         LOG(INFO) << "Trivially rejecting frame (" << buffer[0].bufferId
                   << ") from " << getId() << " with no acceptance";
+        ++mFramesNotUsed;
         mHwCamera->doneWithFrame_1_1(buffer);
     } else {
         // Add an entry for this frame in our tracking list.
@@ -556,6 +559,50 @@ Return<EvsResult> HalCamera::getParameter(CameraParam id, int32_t& value) {
     });
 
     return result;
+}
+
+
+void HalCamera::dump(int fd) const {
+    dprintf(fd, "HalCamera: %s\n", mId.c_str());
+    const auto timeElapsedNano = android::elapsedRealtimeNano() - mTimeCreated;
+    dprintf(fd, "\tCreated: %ld (elapsed %ld ns)\n", (long)mTimeCreated, (long)timeElapsedNano);
+    dprintf(fd, "\tFrames received: %lu (%f fps)\n",
+                (unsigned long)mFramesReceived,
+                (double)mFramesReceived / timeElapsedNano * 1e+9);
+    dprintf(fd, "\tFrames not used: %lu\n", (unsigned long)mFramesNotUsed);
+    dprintf(fd, "\tFrames skipped to sync: %lu\n", (unsigned long)mSyncFrames);
+    dprintf(fd, "\tActive Stream Configuration:\n");
+    dprintf(fd, "\t\tid: %d\n", mStreamConfig.id);
+    dprintf(fd, "\t\twidth: %d\n", mStreamConfig.width);
+    dprintf(fd, "\t\theight: %d\n", mStreamConfig.height);
+    dprintf(fd, "\t\tformat: %d\n", mStreamConfig.width);
+    dprintf(fd, "\t\tusage: 0x%lX\n", (unsigned long)mStreamConfig.usage);
+    dprintf(fd, "\t\trotation: 0x%X\n", mStreamConfig.rotation);
+
+    dprintf(fd, "\tActive clients:\n");
+    for (auto&& client : mClients) {
+        auto handle = client.promote();
+        if (!handle) {
+            continue;
+        }
+
+        dprintf(fd, "\t\tClient %p\n", handle.get());
+        handle->dump(fd, "\t\t\t");
+        {
+            std::scoped_lock<std::mutex> lock(mFrameMutex);
+            dprintf(fd, "\t\t\tUse a fence-based delivery: %s\n",
+                    mTimelines.find((uint64_t)handle.get()) != mTimelines.end() ? "T" : "F");
+        }
+    }
+
+    dprintf(fd, "\tMaster client: %p\n", mMaster.promote().get());
+    dprintf(fd, "\tSynchronization support: %s\n", mSyncSupported ? "T" : "F");
+}
+
+
+double HalCamera::getFramerate() const {
+    const auto timeElapsed = android::elapsedRealtimeNano() - mTimeCreated;
+    return static_cast<double>(mFramesReceived) / timeElapsed;
 }
 
 

@@ -893,6 +893,19 @@ VirtualCamera::importExternalBuffers(const hidl_vec<BufferDesc_1_1>& buffers,
     return {};
 }
 
+
+void VirtualCamera::dump(int fd, const char* prefix) const {
+    dprintf(fd, "%sLogical camera device: %s\n",
+                prefix, mHalCamera.size() > 1 ? "T" : "F");
+    dprintf(fd, "%sFramesAllowed: %u\n", prefix, mFramesAllowed);
+    dprintf(fd, "%sFrames in use:\n", prefix);
+    for (auto&& [id, queue] : mFramesHeld) {
+        dprintf(fd, "%s\t%s, %d\n", prefix, id.c_str(), (int)queue.size());
+    }
+    dprintf(fd, "%sCurrent stream state: %d\n", prefix, mStreamState);
+}
+
+
 } // namespace implementation
 } // namespace V1_1
 } // namespace evs
