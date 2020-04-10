@@ -21,6 +21,7 @@
 #include <android/hardware/automotive/evs/1.1/IEvsCamera.h>
 #include <android/hardware/automotive/evs/1.1/IEvsCameraStream.h>
 #include <ui/GraphicBuffer.h>
+#include <utils/SystemClock.h>
 
 #include <thread>
 #include <list>
@@ -63,7 +64,11 @@ public:
         : mHwCamera(hwCamera),
           mId(deviceId),
           mStreamConfig(cfg),
-          mSyncSupported(UniqueTimeline::Supported()) {
+          mSyncSupported(UniqueTimeline::Supported()),
+          mTimeCreated(android::elapsedRealtimeNano()),
+          mFramesReceived(0),
+          mFramesNotUsed(0),
+          mSyncFrames(0) {
         mCurrentRequests = &mFrameRequests[0];
         mNextRequests    = &mFrameRequests[1];
     }
@@ -95,6 +100,9 @@ public:
                                      CameraParam id, int32_t& value);
     Return<EvsResult>   getParameter(CameraParam id, int32_t& value);
     bool                isSyncSupported() const { return mSyncSupported; }
+
+    void                dump(int fd) const;
+    double              getFramerate() const;
 
     // Methods from ::android::hardware::automotive::evs::V1_0::IEvsCameraStream follow.
     Return<void> deliverFrame(const BufferDesc_1_0& buffer) override;
@@ -129,13 +137,19 @@ private:
     };
 
     // synchronization
-    std::mutex                mFrameMutex;
+    mutable std::mutex        mFrameMutex;
     std::deque<FrameRequest>  mFrameRequests[2] GUARDED_BY(mFrameMutex);
     std::deque<FrameRequest>* mCurrentRequests  PT_GUARDED_BY(mFrameMutex);
     std::deque<FrameRequest>* mNextRequests     PT_GUARDED_BY(mFrameMutex);
     std::unordered_map<uint64_t,
                        std::unique_ptr<UniqueTimeline>> mTimelines GUARDED_BY(mFrameMutex);
     bool                      mSyncSupported;
+
+    // debugging information
+    int64_t                   mTimeCreated;
+    uint64_t                  mFramesReceived;
+    uint64_t                  mFramesNotUsed;
+    uint64_t                  mSyncFrames;
 };
 
 } // namespace implementation
