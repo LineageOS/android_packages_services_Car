@@ -76,12 +76,16 @@ class MockICarWatchdogClient : public ICarWatchdogClient {
 public:
     MOCK_METHOD(Status, checkIfAlive, (int32_t sessionId, TimeoutLength timeout), (override));
     MOCK_METHOD(IBinder*, onAsBinder, (), (override));
+    MOCK_METHOD(int32_t, getInterfaceVersion, (), (override));
+    MOCK_METHOD(std::string, getInterfaceHash, (), (override));
 };
 
 class MockICarWatchdogMonitor : public ICarWatchdogMonitor {
 public:
     MOCK_METHOD(Status, onClientsNotResponding, (const std::vector<int32_t>& pids), (override));
     MOCK_METHOD(IBinder*, onAsBinder, (), (override));
+    MOCK_METHOD(int32_t, getInterfaceVersion, (), (override));
+    MOCK_METHOD(std::string, getInterfaceHash, (), (override));
 };
 
 class ScopedChangeCallingUid : public RefBase {
