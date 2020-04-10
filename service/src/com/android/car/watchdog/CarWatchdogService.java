@@ -555,6 +555,16 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             mMainHandler.sendMessage(obtainMessage(CarWatchdogService::doHealthCheck,
                     CarWatchdogService.this, sessionId));
         }
+
+        @Override
+        public int getInterfaceVersion() {
+            return this.VERSION;
+        }
+
+        @Override
+        public String getInterfaceHash() {
+            return this.HASH;
+        }
     }
 
     private final class ClientInfo implements IBinder.DeathRecipient {
