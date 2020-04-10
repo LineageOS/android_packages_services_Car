@@ -329,6 +329,11 @@
          button. -->
     <bool name="enableLongPressBluetoothVoiceRecognition" translatable="false">true</bool>
 
+    <!-- Switch guest user into new guest user before going to sleep. If this is false, it will
+         be done after waking up from sleep. This only affects if the current user is a guest user.
+         -->
+    <bool name="config_switchGuestUserBeforeGoingSleep" translate="false">true</bool>
+
     <!-- Enable profile user assignment per each CarOccupantZone for per display android user
          assignments. This feature is still experimental. -->
     <bool name="enableProfileUserAssignmentForMultiDisplay" translatable="false">false</bool>
