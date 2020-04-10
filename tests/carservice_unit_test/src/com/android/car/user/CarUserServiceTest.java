@@ -50,6 +50,7 @@ import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.settings.CarSettings;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
+import android.car.user.CarUserManager.UserLifecycleEventType;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.userlib.CarUserManagerHelper;
 import android.car.userlib.HalCallback;
@@ -112,7 +113,7 @@ import java.util.concurrent.TimeUnit;
  * <li> {@link Drawable} provides bitmap of user icon.
  * <ol/>
  */
-public class CarUserServiceTest {
+public final class CarUserServiceTest {
 
     private static final String TAG = CarUserServiceTest.class.getSimpleName();
     private static final int NO_USER_INFO_FLAGS = 0;
@@ -206,7 +207,7 @@ public class CarUserServiceTest {
     @Test
     public void testDoesNotSetSystemUserRestrictions_IfRestrictionsAlreadySet() {
         putSettingsInt(CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET, 1);
-        sendUserUnlockingEvent(UserHandle.USER_SYSTEM);
+        sendUserUnlockedEvent(UserHandle.USER_SYSTEM);
         verify(mMockedUserManager, never())
                 .setUserRestriction(
                         UserManager.DISALLOW_MODIFY_ACCOUNTS,
@@ -227,21 +228,20 @@ public class CarUserServiceTest {
     }
 
     @Test
-    public void testOnSwitchUser_addListenerAndReceiveEvent() {
+    public void testOnUserLifecycleEvent_nofityListener() {
         // Arrange
         mCarUserService.addUserLifecycleListener(mUserLifecycleListener);
 
         // Act
-        int anyNewUserId = 11;
-        onUserSwitching(anyNewUserId);
+        int userId = 11;
+        sendUserLifecycleEvent(userId, CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING);
 
         // Verify
-        verifyListenerOnEventInvoked(anyNewUserId,
-                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING);
+        verifyListenerOnEventInvoked(userId, CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING);
     }
 
     @Test
-    public void testOnSwitchUser_ensureAllListenersAreNotified() {
+    public void testOnUserLifecycleEvent_ensureAllListenersAreNotified() {
         // Arrange: add two listeners, one to fail on onEvent
         // Adding the failure listener first.
         UserLifecycleListener failureListener = mock(UserLifecycleListener.class);
@@ -253,12 +253,11 @@ public class CarUserServiceTest {
         mCarUserService.addUserLifecycleListener(mUserLifecycleListener);
 
         // Act
-        int anyNewUserId = 11;
-        onUserSwitching(anyNewUserId);
+        int userId = 11;
+        sendUserLifecycleEvent(userId, CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING);
 
         // Verify
-        verifyListenerOnEventInvoked(anyNewUserId,
-                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING);
+        verifyListenerOnEventInvoked(userId, CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING);
     }
 
     private void verifyListenerOnEventInvoked(int expectedNewUserId, int expectedEventType) {
@@ -274,7 +273,7 @@ public class CarUserServiceTest {
      */
     @Test
     public void testDisableLocationForHeadlessSystemUserOnFirstRun() {
-        sendUserUnlockingEvent(UserHandle.USER_SYSTEM);
+        sendUserUnlockedEvent(UserHandle.USER_SYSTEM);
         verify(mLocationManager).setLocationEnabledForUser(
                 /* enabled= */ false, UserHandle.of(UserHandle.USER_SYSTEM));
     }
@@ -289,7 +288,7 @@ public class CarUserServiceTest {
                 NO_USER_INFO_FLAGS);
         doReturn(persistentUser).when(mMockedUserManager).getUserInfo(lastActiveUserId);
 
-        onUserSwitching(lastActiveUserId);
+        sendUserSwitchingEvent(lastActiveUserId);
 
         verify(mMockedCarUserManagerHelper).setLastActiveUser(lastActiveUserId);
     }
@@ -299,7 +298,7 @@ public class CarUserServiceTest {
      */
     @Test
     public void testInitializeGuestRestrictions_IfNotAlreadySet() {
-        sendUserUnlockingEvent(UserHandle.USER_SYSTEM);
+        sendUserUnlockedEvent(UserHandle.USER_SYSTEM);
         assertThat(getSettingsInt(CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET)).isEqualTo(1);
     }
 
@@ -309,14 +308,14 @@ public class CarUserServiceTest {
     @Test
     public void test_DoesNotInitializeGuestRestrictions_IfAlreadySet() {
         putSettingsInt(CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET, 1);
-        sendUserUnlockingEvent(UserHandle.USER_SYSTEM);
+        sendUserUnlockedEvent(UserHandle.USER_SYSTEM);
         verify(mMockedUserManager, never()).setDefaultGuestRestrictions(any(Bundle.class));
     }
 
     @Test
     public void testRunOnUser0UnlockImmediate() {
         mUser0TaskExecuted = false;
-        sendUserUnlockingEvent(UserHandle.USER_SYSTEM);
+        sendUserUnlockedEvent(UserHandle.USER_SYSTEM);
         mCarUserService.runOnUser0Unlock(() -> {
             mUser0TaskExecuted = true;
         });
@@ -330,7 +329,7 @@ public class CarUserServiceTest {
             mUser0TaskExecuted = true;
         });
         assertFalse(mUser0TaskExecuted);
-        sendUserUnlockingEvent(UserHandle.USER_SYSTEM);
+        sendUserUnlockedEvent(UserHandle.USER_SYSTEM);
         assertTrue(mUser0TaskExecuted);
     }
 
@@ -359,31 +358,31 @@ public class CarUserServiceTest {
         doReturn(user5Info).when(mMockedUserManager).getUserInfo(user5);
 
         doReturn(user1).when(() -> ActivityManager.getCurrentUser());
-        sendUserUnlockingEvent(UserHandle.USER_SYSTEM);
+        sendUserUnlockedEvent(UserHandle.USER_SYSTEM);
         // user 0 should never go to that list.
         assertTrue(mCarUserService.getBackgroundUsersToRestart().isEmpty());
 
-        sendUserUnlockingEvent(user1);
+        sendUserUnlockedEvent(user1);
         assertEquals(new Integer[]{user1},
                 mCarUserService.getBackgroundUsersToRestart().toArray());
 
         // user 2 background, ignore in restart list
-        sendUserUnlockingEvent(user2);
+        sendUserUnlockedEvent(user2);
         assertEquals(new Integer[]{user1},
                 mCarUserService.getBackgroundUsersToRestart().toArray());
 
         doReturn(user3).when(() -> ActivityManager.getCurrentUser());
-        sendUserUnlockingEvent(user3);
+        sendUserUnlockedEvent(user3);
         assertEquals(new Integer[]{user3, user1},
                 mCarUserService.getBackgroundUsersToRestart().toArray());
 
         doReturn(user4Guest).when(() -> ActivityManager.getCurrentUser());
-        sendUserUnlockingEvent(user4Guest);
+        sendUserUnlockedEvent(user4Guest);
         assertEquals(new Integer[]{user3, user1},
                 mCarUserService.getBackgroundUsersToRestart().toArray());
 
         doReturn(user5).when(() -> ActivityManager.getCurrentUser());
-        sendUserUnlockingEvent(user5);
+        sendUserUnlockedEvent(user5);
         assertEquals(new Integer[]{user5, user3},
                 mCarUserService.getBackgroundUsersToRestart().toArray());
     }
@@ -406,13 +405,13 @@ public class CarUserServiceTest {
         doReturn(user3Info).when(mMockedUserManager).getUserInfo(user3);
 
         doReturn(user1).when(() -> ActivityManager.getCurrentUser());
-        sendUserUnlockingEvent(UserHandle.USER_SYSTEM);
-        sendUserUnlockingEvent(user1);
+        sendUserUnlockedEvent(UserHandle.USER_SYSTEM);
+        sendUserUnlockedEvent(user1);
         doReturn(user2).when(() -> ActivityManager.getCurrentUser());
-        sendUserUnlockingEvent(user2);
-        sendUserUnlockingEvent(user1);
+        sendUserUnlockedEvent(user2);
+        sendUserUnlockedEvent(user1);
         doReturn(user3).when(() -> ActivityManager.getCurrentUser());
-        sendUserUnlockingEvent(user3);
+        sendUserUnlockedEvent(user3);
 
         assertEquals(new Integer[]{user3, user2},
                 mCarUserService.getBackgroundUsersToRestart().toArray());
@@ -422,7 +421,7 @@ public class CarUserServiceTest {
                 null, null, null);
         assertEquals(new Integer[]{user2},
                 mCarUserService.startAllBackgroundUsers().toArray());
-        sendUserUnlockingEvent(user2);
+        sendUserUnlockedEvent(user2);
         assertEquals(new Integer[]{user3, user2},
                 mCarUserService.getBackgroundUsersToRestart().toArray());
 
@@ -1094,14 +1093,17 @@ public class CarUserServiceTest {
                 key, /* default= */ 0);
     }
 
-    private void sendUserUnlockingEvent(int userId) {
-        mCarUserService.onUserLifecycleEvent(new UserLifecycleEvent(
-                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKING, userId));
+    private void sendUserLifecycleEvent(@UserIdInt int userId,
+            @UserLifecycleEventType int eventType) {
+        mCarUserService.onUserLifecycleEvent(new UserLifecycleEvent(eventType, userId));
     }
 
-    private void onUserSwitching(int userId) {
-        mCarUserService.onUserLifecycleEvent(new UserLifecycleEvent(
-                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, userId));
+    private void sendUserUnlockedEvent(@UserIdInt int userId) {
+        sendUserLifecycleEvent(userId, CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED);
+    }
+
+    private void sendUserSwitchingEvent(@UserIdInt int userId) {
+        sendUserLifecycleEvent(userId, CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING);
     }
 
     // TODO(b/149099817): move stuff below to common code
