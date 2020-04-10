@@ -142,7 +142,11 @@ public final class InitialUserSetter {
      * fails.
      */
     public void switchUser(@UserIdInt int userId, boolean replaceGuest) {
-        switchUser(userId, replaceGuest, /* fallback= */ true);
+        try {
+            switchUser(userId, replaceGuest, /* fallback= */ true);
+        } catch (Exception e) {
+            fallbackDefaultBehavior(/* fallback= */ true, "Exception switching user: " + e);
+        }
     }
 
     private void switchUser(@UserIdInt int userId, boolean replaceGuest, boolean fallback) {
@@ -261,7 +265,12 @@ public final class InitialUserSetter {
      * @param halFlags user flags as defined by Vehicle HAL ({@code UserFlags} enum).
      */
     public void createUser(@Nullable String name, int halFlags) {
-        createAndSwitchUser(name, halFlags, /* fallback= */ true);
+        try {
+            createAndSwitchUser(name, halFlags, /* fallback= */ true);
+        } catch (Exception e) {
+            fallbackDefaultBehavior(/* fallback= */ true, "Exception createUser user with flags "
+                    + UserHalHelper.userFlagsToString(halFlags) + ": " + e);
+        }
     }
 
     private void createAndSwitchUser(@Nullable String name, int halFlags, boolean fallback) {
