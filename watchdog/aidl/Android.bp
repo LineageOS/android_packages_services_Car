@@ -25,4 +25,5 @@ aidl_interface {
             enabled: true,
         },
     },
+    versions: ["1"],
 }
