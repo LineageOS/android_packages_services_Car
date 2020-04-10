@@ -119,7 +119,7 @@ public final class InitialUserSetter {
         } else {
             if (DBG) Log.d(TAG, "executeDefaultBehavior(): switching to initial user");
             int userId = mHelper.getInitialUser(mSupportsOverrideUserIdProperty);
-            switchUser(userId, fallback);
+            switchUser(userId, /* replaceGuest= */ true, fallback);
         }
     }
 
@@ -141,11 +141,11 @@ public final class InitialUserSetter {
      * Switches to the given user, falling back to {@link #fallbackDefaultBehavior(String)} if it
      * fails.
      */
-    public void switchUser(@UserIdInt int userId) {
-        switchUser(userId, /* fallback= */ true);
+    public void switchUser(@UserIdInt int userId, boolean replaceGuest) {
+        switchUser(userId, replaceGuest, /* fallback= */ true);
     }
 
-    private void switchUser(@UserIdInt int userId, boolean fallback) {
+    private void switchUser(@UserIdInt int userId, boolean replaceGuest, boolean fallback) {
         if (DBG) Log.d(TAG, "switchUser(): userId=" + userId);
 
         UserInfo user = mUm.getUserInfo(userId);
@@ -154,19 +154,27 @@ public final class InitialUserSetter {
             return;
         }
 
-        UserInfo actualUser = replaceGuestIfNeeded(user);
+        UserInfo actualUser = user;
 
-        if (actualUser == null) {
-            fallbackDefaultBehavior(fallback, "could not replace guest " + user.toFullString());
-            return;
+        if (user.isGuest()) {
+            if (!replaceGuest) {
+                if (DBG) {
+                    Log.d(TAG, "not switching to guest user when replaceGuest is false");
+                }
+                unlockSystemUserIfNecessary(user.id);
+                return;
+            }
+            actualUser = replaceGuestIfNeeded(user);
+
+            if (actualUser == null) {
+                fallbackDefaultBehavior(fallback, "could not replace guest " + user.toFullString());
+                return;
+            }
         }
 
         int actualUserId = actualUser.id;
 
-        // If system user is the only user to unlock, it will be handled when boot is complete.
-        if (actualUserId != UserHandle.USER_SYSTEM) {
-            unlockSystemUser();
-        }
+        unlockSystemUserIfNecessary(actualUserId);
 
         int currentUserId = ActivityManager.getCurrentUser();
         if (actualUserId != currentUserId) {
@@ -183,6 +191,13 @@ public final class InitialUserSetter {
             if (!mUm.removeUser(userId)) {
                 Slog.w(TAG, "Could not remove old guest " + userId);
             }
+        }
+    }
+
+    private void unlockSystemUserIfNecessary(@UserIdInt int userId) {
+        // If system user is the only user to unlock, it will be handled when boot is complete.
+        if (userId != UserHandle.USER_SYSTEM) {
+            unlockSystemUser();
         }
     }
 
@@ -257,7 +272,7 @@ public final class InitialUserSetter {
             return;
         }
 
-        switchUser(result.first.id, fallback);
+        switchUser(result.first.id, /* replaceGuest= */ false, fallback);
     }
 
     /**
