@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef COMPUTEPIPE_RUNNER_CLIENT_INTERFACE_H
-#define COMPUTEPIPE_RUNNER_CLIENT_INTERFACE_H
+#ifndef COMPUTEPIPE_RUNNER_CLIENT_INTERFACE_INCLUDE_CLIENTINTERFACE_H_
+#define COMPUTEPIPE_RUNNER_CLIENT_INTERFACE_INCLUDE_CLIENTINTERFACE_H_
 
 #include <memory>
 
@@ -45,6 +45,11 @@ class ClientInterface : public RunnerComponentInterface {
      * external clients
      */
     virtual Status activate() = 0;
+
+    /*
+     *
+     */
+    virtual Status deliverGraphDebugInfo(const std::string& debugData) = 0;
     virtual ~ClientInterface() = default;
 };
 
@@ -64,4 +69,4 @@ class ClientInterfaceFactory {
 }  // namespace automotive
 }  // namespace android
 
-#endif
+#endif  // COMPUTEPIPE_RUNNER_CLIENT_INTERFACE_INCLUDE_CLIENTINTERFACE_H_
