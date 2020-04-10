@@ -39,6 +39,8 @@ import android.util.Pair;
 import android.util.SparseArray;
 import android.view.Display;
 
+import com.android.internal.annotations.GuardedBy;
+
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -106,11 +108,15 @@ public class SystemActivityMonitoringService implements CarServiceBase {
     private final HandlerThread mMonitorHandlerThread;
     private final ActivityMonitorHandler mHandler;
 
+    private final Object mLock = new Object();
+
     /** K: display id, V: top task */
+    @GuardedBy("mLock")
     private final SparseArray<TopTaskInfoContainer> mTopTasks = new SparseArray<>();
     /** K: uid, V : list of pid */
+    @GuardedBy("mLock")
     private final Map<Integer, Set<Integer>> mForegroundUidPids = new ArrayMap<>();
-    private int mFocusedStackId = INVALID_STACK_ID;
+    @GuardedBy("mLock")
     private ActivityLaunchListener mActivityLaunchListener;
 
     public SystemActivityMonitoringService(Context context) {
@@ -145,7 +151,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
     public void dump(PrintWriter writer) {
         writer.println("*SystemActivityMonitoringService*");
         writer.println(" Top Tasks per display:");
-        synchronized (this) {
+        synchronized (mLock) {
             for (int i = 0; i < mTopTasks.size(); i++) {
                 int displayId = mTopTasks.keyAt(i);
                 TopTaskInfoContainer info = mTopTasks.valueAt(i);
@@ -161,7 +167,6 @@ public class SystemActivityMonitoringService implements CarServiceBase {
                 }
                 writer.println("uid:" + key + ", pids:" + Arrays.toString(pids.toArray()));
             }
-            writer.println(" focused stack:" + mFocusedStackId);
         }
     }
 
@@ -176,7 +181,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
 
     public List<TopTaskInfoContainer> getTopTasks() {
         LinkedList<TopTaskInfoContainer> tasks = new LinkedList<>();
-        synchronized (this) {
+        synchronized (mLock) {
             for (int i = 0; i < mTopTasks.size(); i++) {
                 TopTaskInfoContainer topTask = mTopTasks.valueAt(i);
                 if (topTask == null) {
@@ -191,7 +196,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
     }
 
     public boolean isInForeground(int pid, int uid) {
-        synchronized (this) {
+        synchronized (mLock) {
             Set<Integer> pids = mForegroundUidPids.get(uid);
             if (pids == null) {
                 return false;
@@ -255,7 +260,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
     }
 
     public void registerActivityLaunchListener(ActivityLaunchListener listener) {
-        synchronized (this) {
+        synchronized (mLock) {
             mActivityLaunchListener = listener;
         }
     }
@@ -288,7 +293,8 @@ public class SystemActivityMonitoringService implements CarServiceBase {
 
         SparseArray<TopTaskInfoContainer> topTasks = new SparseArray<>();
         ActivityLaunchListener listener;
-        synchronized (this) {
+        synchronized (mLock) {
+            mTopTasks.clear();
             listener = mActivityLaunchListener;
 
             for (StackInfo info : infos) {
@@ -350,7 +356,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
     }
 
     private void handleForegroundActivitiesChanged(int pid, int uid, boolean foregroundActivities) {
-        synchronized (this) {
+        synchronized (mLock) {
             if (foregroundActivities) {
                 Set<Integer> pids = mForegroundUidPids.get(uid);
                 if (pids == null) {
@@ -365,7 +371,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
     }
 
     private void handleProcessDied(int pid, int uid) {
-        synchronized (this) {
+        synchronized (mLock) {
             doHandlePidGoneLocked(pid, uid);
         }
     }
