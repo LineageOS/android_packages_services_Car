@@ -95,6 +95,11 @@ Status ClientConfig::getOptionalConfigs(std::string& outOptional) const {
     return Status::SUCCESS;
 }
 
+Status ClientConfig::getProfilingType(proto::ProfilingType* profilingType) const {
+    *profilingType = mProfilingType;
+    return Status::SUCCESS;
+}
+
 /**
  * Methods for ComponentInterface
  */

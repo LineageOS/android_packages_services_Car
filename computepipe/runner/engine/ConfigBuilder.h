@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef COMPUTEPIPE_RUNNER_CONFIG_BUILDER_H
-#define COMPUTEPIPE_RUNNER_CONFIG_BUILDER_H
+#ifndef COMPUTEPIPE_RUNNER_ENGINE_CONFIGBUILDER_H_
+#define COMPUTEPIPE_RUNNER_ENGINE_CONFIGBUILDER_H_
+
+#include "ProfilingType.pb.h"
 
 #include "RunnerComponent.h"
 #include "types/Status.h"
@@ -55,6 +57,10 @@ class ConfigBuilder {
      */
     ConfigBuilder& updateOptionalConfig(std::string options);
     /**
+     * Update profiling Config
+     */
+    ConfigBuilder& updateProfilingType(proto::ProfilingType profilingType);
+    /**
      * Emit Options
      */
     ClientConfig emitClientOptions();
@@ -68,6 +74,7 @@ class ConfigBuilder {
     int mInputConfigId = ClientConfig::kInvalidId;
     int mOffloadId = ClientConfig::kInvalidId;
     int mTerminationId = ClientConfig::kInvalidId;
+    proto::ProfilingType mProfilingType = proto::ProfilingType::DISABLED;
     bool mConfigHasDisplayStream = false;
     std::map<int, int> mOutputConfig;
     std::string mOptionalConfig;
@@ -79,4 +86,4 @@ class ConfigBuilder {
 }  // namespace automotive
 }  // namespace android
 
-#endif
+#endif  // COMPUTEPIPE_RUNNER_ENGINE_CONFIGBUILDER_H_

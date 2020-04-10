@@ -32,6 +32,7 @@
 #include "MockMemHandle.h"
 #include "MockRunnerEvent.h"
 #include "Options.pb.h"
+#include "ProfilingType.pb.h"
 #include "runner/client_interface/AidlClient.h"
 #include "runner/client_interface/include/ClientEngineInterface.h"
 #include "types/Status.h"
@@ -307,7 +308,7 @@ TEST_F(ClientInterface, TestStateChangeNotification) {
 
     // Test that config complete status is conveyed to client.
     std::map<int, int> m;
-    ClientConfig config(0, 0, 0, m);
+    ClientConfig config(0, 0, 0, m, proto::ProfilingType::DISABLED);
     config.setPhaseState(TRANSITION_COMPLETE);
     EXPECT_EQ(mAidlClient->handleConfigPhase(config), Status::SUCCESS);
     EXPECT_EQ(stateCallback->mState, PipeState::CONFIG_DONE);
@@ -344,7 +345,7 @@ TEST_F(ClientInterface, TestStateChangeToError) {
 
     // Test that error while applying config is conveyed to client.
     std::map<int, int> m;
-    ClientConfig config(0, 0, 0, m);
+    ClientConfig config(0, 0, 0, m, proto::ProfilingType::DISABLED);
     config.setPhaseState(ABORTED);
     EXPECT_EQ(mAidlClient->handleConfigPhase(config), Status::SUCCESS);
     EXPECT_EQ(stateCallback->mState, PipeState::ERR_HALT);

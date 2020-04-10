@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef COMPUTEPIPE_RUNNER_COMPONENT_H
-#define COMPUTEPIPE_RUNNER_COMPONENT_H
+#ifndef COMPUTEPIPE_RUNNER_INCLUDE_RUNNERCOMPONENT_H_
+#define COMPUTEPIPE_RUNNER_INCLUDE_RUNNERCOMPONENT_H_
 #include <map>
 #include <memory>
 #include <string>
 
 #include "types/Status.h"
+#include "ProfilingType.pb.h"
 
 namespace android {
 namespace automotive {
@@ -80,12 +81,13 @@ class ClientConfig : public RunnerEvent {
      * Accessor methods
      */
     Status getInputConfigId(int* outId) const;
-    Status getOutputConfigId(int* outId) const;
     Status getOffloadId(int* outId) const;
     Status getTerminationId(int* outId) const;
     Status getOptionalConfigs(std::string& outOptional) const;
     Status getOutputStreamConfigs(std::map<int, int>& outputConfig) const;
+    Status getProfilingType(proto::ProfilingType* profilingType) const;
     std::string getSerializedClientConfig() const;
+
     /**
      * Constructors
      */
@@ -101,11 +103,12 @@ class ClientConfig : public RunnerEvent {
         *this = std::move(c);
     }
     ClientConfig(int inputConfigId, int offload, int termination, std::map<int, int>& outputConfigs,
-                 std::string opt = "")
+                 proto::ProfilingType profilingType, std::string opt = "")
         : mInputConfigId(inputConfigId),
           mOutputConfigs(outputConfigs),
           mTerminationId(termination),
           mOffloadId(offload),
+          mProfilingType(profilingType),
           mOptionalConfigs(opt) {
     }
 
@@ -130,6 +133,8 @@ class ClientConfig : public RunnerEvent {
      * offload option
      */
     int mOffloadId = kInvalidId;
+
+    proto::ProfilingType mProfilingType = proto::ProfilingType::DISABLED;
     /**
      * serialized optional config
      */
@@ -167,4 +172,4 @@ class RunnerComponentInterface {
 }  // namespace computepipe
 }  // namespace automotive
 }  // namespace android
-#endif
+#endif  // COMPUTEPIPE_RUNNER_INCLUDE_RUNNERCOMPONENT_H_
