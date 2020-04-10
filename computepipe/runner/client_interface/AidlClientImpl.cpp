@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.c
 
-#define LOG_TAG "RunnerIpcInterface"
-
 #include "AidlClientImpl.h"
 
 #include <vector>
@@ -21,6 +19,7 @@
 #include "OutputConfig.pb.h"
 #include "PacketDescriptor.pb.h"
 #include "PipeOptionsConverter.h"
+#include "StatusUtil.h"
 
 #include <aidl/android/automotive/computepipe/runner/PacketDescriptor.h>
 #include <aidl/android/automotive/computepipe/runner/PacketDescriptorPacketType.h>
@@ -42,20 +41,6 @@ using ::aidl::android::automotive::computepipe::runner::PacketDescriptorPacketTy
 using ::aidl::android::automotive::computepipe::runner::PipeDescriptor;
 using ::aidl::android::automotive::computepipe::runner::PipeState;
 using ::ndk::ScopedAStatus;
-
-ScopedAStatus ToNdkStatus(Status status) {
-    switch (status) {
-        case SUCCESS:
-            return ScopedAStatus::ok();
-        case INTERNAL_ERROR:
-            return ScopedAStatus::fromExceptionCode(EX_TRANSACTION_FAILED);
-        case INVALID_ARGUMENT:
-            return ScopedAStatus::fromExceptionCode(EX_ILLEGAL_ARGUMENT);
-        case FATAL_ERROR:
-        default:
-            return ScopedAStatus::fromExceptionCode(EX_TRANSACTION_FAILED);
-    }
-}
 
 PipeState ToAidlState(GraphState state) {
     switch (state) {
@@ -195,6 +180,12 @@ Status AidlClientImpl::dispatchPacketToClient(int32_t streamId,
     return Status::SUCCESS;
 }
 
+void AidlClientImpl::setPipeDebugger(
+        const std::shared_ptr<aidl::android::automotive::computepipe::runner::IPipeDebugger>&
+        pipeDebugger) {
+    mPipeDebugger = pipeDebugger;
+}
+
 Status AidlClientImpl::stateUpdateNotification(const GraphState newState) {
     if (mClientStateChangeCallback) {
         (void)mClientStateChangeCallback->handleState(ToAidlState(newState));
@@ -288,7 +279,7 @@ ScopedAStatus AidlClientImpl::setPipeOutputConfig(int32_t streamId, int32_t maxI
     proto::ConfigurationCommand configurationCommand;
     configurationCommand.mutable_set_output_stream()->set_stream_id(streamId);
     configurationCommand.mutable_set_output_stream()->set_max_inflight_packets_count(
-        maxInFlightCount);
+            maxInFlightCount);
     Status status = mEngine->processClientConfigUpdate(configurationCommand);
 
     if (status != SUCCESS) {
@@ -348,14 +339,20 @@ ScopedAStatus AidlClientImpl::doneWithPacket(int32_t bufferId, int32_t streamId)
     return ToNdkStatus(mEngine->freePacket(bufferId, streamId));
 }
 
-ndk::ScopedAStatus AidlClientImpl::getPipeDebugger(
+ScopedAStatus AidlClientImpl::getPipeDebugger(
     std::shared_ptr<aidl::android::automotive::computepipe::runner::IPipeDebugger>*
-    /* _aidl_return */ ) {
-    // TODO(146464281) implement.
+    _aidl_return) {
+    if (_aidl_return == nullptr) {
+        return ScopedAStatus::fromExceptionCode(EX_ILLEGAL_ARGUMENT);
+    }
+    if (mPipeDebugger == nullptr) {
+        return ScopedAStatus::fromExceptionCode(EX_TRANSACTION_FAILED);
+    }
+    *_aidl_return = mPipeDebugger;
     return ScopedAStatus::ok();
 }
 
-ndk::ScopedAStatus AidlClientImpl::releaseRunner() {
+ScopedAStatus AidlClientImpl::releaseRunner() {
     proto::ControlCommand controlCommand;
     *controlCommand.mutable_death_notification() = proto::DeathNotification();
 
