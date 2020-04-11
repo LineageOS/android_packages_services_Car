@@ -49,7 +49,7 @@ public final class CarWatchdogClient {
 
         @Override
         public void onPrepareProcessTermination() {
-            Log.i(TAG, "This process is being terminated by Car watchdog");
+            Log.w(TAG, "This process is being terminated by car watchdog");
         }
     };
     private final ExecutorService mCallbackExecutor = Executors.newFixedThreadPool(1);
