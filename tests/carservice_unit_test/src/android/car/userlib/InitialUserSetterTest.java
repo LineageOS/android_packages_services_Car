@@ -203,6 +203,18 @@ public final class InitialUserSetterTest {
     }
 
     @Test
+    public void testSwitchUser_fail_switchThrowsException() throws Exception {
+        expectUserExists(USER_ID);
+        expectSwitchUserThrowsException(USER_ID);
+
+        mSetter.switchUser(USER_ID, /* replaceGuest= */ true);
+
+        verifyFallbackDefaultBehaviorCalledFromCreateOrSwitch();
+        verifySystemUserUnlocked();
+        verifyLastActiveUserNeverSet();
+    }
+
+    @Test
     public void testSwitchUser_ok_targetIsCurrentUser() throws Exception {
         expectCurrentUser(CURRENT_USER_ID);
         UserInfo currentUser = expectUserExists(CURRENT_USER_ID);
@@ -342,7 +354,17 @@ public final class InitialUserSetterTest {
 
     @Test
     public void testCreateUser_fail_createFail() throws Exception {
-        // No need to set mUm.createUser() expectation - it shouldn't be called
+        // No need to set mUm.createUser() expectation - it will return false by default
+
+        mSetter.createUser("TheDude", UserFlags.NONE);
+
+        verifyUserNeverSwitched();
+        verifyFallbackDefaultBehaviorCalledFromCreateOrSwitch();
+    }
+
+    @Test
+    public void testCreateUser_fail_createThrowsException() throws Exception {
+        expectCreateUserThrowsException("TheDude", UserFlags.NONE);
 
         mSetter.createUser("TheDude", UserFlags.NONE);
 
@@ -600,6 +622,11 @@ public final class InitialUserSetterTest {
         when(mSetter.startForegroundUser(userId)).thenReturn(false);
     }
 
+    private void expectSwitchUserThrowsException(@UserIdInt int userId) {
+        when(mSetter.startForegroundUser(userId))
+                .thenThrow(new RuntimeException("D'OH! Cannot switch to " + userId));
+    }
+
     private UserInfo expectCreateFullUser(@UserIdInt int userId, @Nullable String name,
             @UserInfoFlag int flags) {
         return expectCreateUserOfType(UserManager.USER_TYPE_FULL_SECONDARY, userId, name, flags);
@@ -619,13 +646,18 @@ public final class InitialUserSetterTest {
         return userInfo;
     }
 
+    private void expectCreateUserThrowsException(@NonNull String name, @UserIdInt int userId) {
+        when(mUm.createUser(eq(name), anyString(), eq(userId)))
+                .thenThrow(new RuntimeException("Cannot create user. D'OH!"));
+    }
+
     private void expectAmStartFgUser(@UserIdInt int userId) throws Exception {
         when(mIActivityManager.startUserInForegroundWithListener(userId, null)).thenReturn(true);
     }
 
     private void expectAmStartFgUserThrowsException(@UserIdInt int userId) throws Exception {
         when(mIActivityManager.startUserInForegroundWithListener(userId, null))
-                .thenThrow(new RemoteException("DOH!"));
+                .thenThrow(new RemoteException("D'OH! Cannot switch to " + userId));
     }
 
     private void verifyUserSwitched(@UserIdInt int userId) throws Exception {
