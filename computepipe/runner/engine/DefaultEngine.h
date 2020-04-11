@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef COMPUTEPIPE_RUNNER_ENGINE_DEFAULT_H
-#define COMPUTEPIPE_RUNNER_ENGINE_DEFAULT_H
+#ifndef COMPUTEPIPE_RUNNER_ENGINE_DEFAULTENGINE_H_
+#define COMPUTEPIPE_RUNNER_ENGINE_DEFAULTENGINE_H_
 
 #include <condition_variable>
 #include <functional>
 #include <mutex>
 #include <queue>
+#include <string>
 #include <thread>
 #include <vector>
 
@@ -48,6 +49,9 @@ struct EngineCommand {
         BROADCAST_START_RUN,
         BROADCAST_INITIATE_STOP,
         POLL_COMPLETE,
+        RESET_CONFIG,
+        RELEASE_DEBUGGER,
+        READ_PROFILING,
     };
     std::string source;
     Type cmdType;
@@ -328,4 +332,4 @@ class InputCallback : public input_manager::InputEngineInterface {
 }  // namespace automotive
 }  // namespace android
 
-#endif
+#endif  // COMPUTEPIPE_RUNNER_ENGINE_DEFAULTENGINE_H_

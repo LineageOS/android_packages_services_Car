@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef COMPUTEPIPE_RUNNER_CLIENT_INTERFACE_AIDL_CLIENT_H
-#define COMPUTEPIPE_RUNNER_CLIENT_INTERFACE_AIDL_CLIENT_H
+#ifndef COMPUTEPIPE_RUNNER_CLIENT_INTERFACE_AIDLCLIENT_H_
+#define COMPUTEPIPE_RUNNER_CLIENT_INTERFACE_AIDLCLIENT_H_
 
 #include <memory>
 
 #include "ClientInterface.h"
 #include "AidlClientImpl.h"
+#include "DebuggerImpl.h"
 
 namespace android {
 namespace automotive {
@@ -38,6 +39,7 @@ class AidlClient : public ClientInterface {
     Status dispatchPacketToClient(int32_t streamId,
                                   const std::shared_ptr<MemHandle> packet) override;
     Status activate() override;
+    Status deliverGraphDebugInfo(const std::string& debugData) override;
     /**
      * Override RunnerComponentInterface function
      */
@@ -52,13 +54,13 @@ class AidlClient : public ClientInterface {
     virtual ~AidlClient() = default;
 
   private:
-
     // Attempt to register pipe runner with router. Returns true on success.
     // This is a blocking API, calling thread will be blocked until router connection is
     // established or max attempts are made without success.
     void tryRegisterPipeRunner();
     const proto::Options mGraphOptions;
     std::shared_ptr<AidlClientImpl> mPipeRunner = nullptr;
+    std::shared_ptr<DebuggerImpl> mPipeDebugger = nullptr;
     std::shared_ptr<ClientEngineInterface> mRunnerEngine;
 };
 
@@ -68,4 +70,4 @@ class AidlClient : public ClientInterface {
 }  // namespace computepipe
 }  // namespace automotive
 }  // namespace android
-#endif
+#endif  // COMPUTEPIPE_RUNNER_CLIENT_INTERFACE_AIDLCLIENT_H_

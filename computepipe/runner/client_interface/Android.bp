@@ -17,8 +17,10 @@ cc_library {
     srcs: [
         "AidlClient.cpp",
         "AidlClientImpl.cpp",
+        "DebuggerImpl.cpp",
         "Factory.cpp",
         "PipeOptionsConverter.cpp",
+        "StatusUtil.cpp",
     ],
     export_include_dirs: ["include"],
     header_libs: [
@@ -32,7 +34,7 @@ cc_library {
         "libbase",
         "libbinder_ndk",
         "liblog",
-	"libnativewindow",
+        "libnativewindow",
         "libutils",
         "android.automotive.computepipe.runner-ndk_platform",
         "android.automotive.computepipe.registry-ndk_platform",
@@ -41,4 +43,5 @@ cc_library {
     include_dirs: [
         "packages/services/Car/computepipe",
     ],
+    cflags: ["-DLOG_TAG=\"RunnerIpcInterface\""],
 }
