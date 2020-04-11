@@ -28,6 +28,7 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -696,11 +697,12 @@ public class CarPowerManagementServiceTest {
     }
 
     private void verifyUserNotSwitched() {
-        verify(mInitialUserSetter, never()).switchUser(anyInt());
+        verify(mInitialUserSetter, never()).switchUser(anyInt(), anyBoolean());
     }
 
     private void verifyUserSwitched(int userId) {
-        verify(mInitialUserSetter).switchUser(userId);
+        // TODO(b/153679319): pass proper value for replaceGuest
+        verify(mInitialUserSetter).switchUser(userId, true);
     }
 
     private void expectNewGuestCreated(int existingGuestId, UserInfo newGuest) {

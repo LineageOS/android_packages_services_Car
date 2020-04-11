@@ -22,10 +22,30 @@ message DeathNotification {
   // No member fields yet.
 }
 
+message StartPipeProfile {
+  // No member fields yet.
+}
+
+message StopPipeProfile {
+  // No member fields yet.
+}
+
+message ReleaseDebugger {
+  // No member fields yet.
+}
+
+message ReadDebugData {
+  // No member fields yet.
+}
+
 message ControlCommand {
   optional StartGraph start_graph = 1;
   optional StopGraph stop_graph = 2;
   optional ApplyConfigs apply_configs = 3;
   optional DeathNotification death_notification = 4;
   optional ResetConfigs reset_configs = 5;
+  optional StartPipeProfile start_pipe_profile = 6;
+  optional StopPipeProfile stop_pipe_profile = 7;
+  optional ReleaseDebugger release_debugger = 8;
+  optional ReadDebugData read_debug_data = 9;
 }

@@ -16,6 +16,10 @@
 
 package com.android.car.audio;
 
+import android.hardware.automotive.audiocontrol.V2_0.ICloseHandle;
+import android.hardware.automotive.audiocontrol.V2_0.IFocusListener;
+import android.media.AudioAttributes;
+import android.media.AudioAttributes.AttributeUsage;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -25,7 +29,9 @@ import com.android.car.audio.CarAudioContext.AudioContext;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
+import java.io.PrintWriter;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 /**
  * AudioControlWrapper wraps IAudioControl HAL interface, handling version specific support so that
@@ -37,6 +43,7 @@ final class AudioControlWrapper {
     private final android.hardware.automotive.audiocontrol.V1_0.IAudioControl mAudioControlV1;
     @Nullable
     private final android.hardware.automotive.audiocontrol.V2_0.IAudioControl mAudioControlV2;
+    private ICloseHandle mCloseHandle;
 
     static AudioControlWrapper newAudioControl() {
         android.hardware.automotive.audiocontrol.V1_0.IAudioControl audioControlV1 = null;
@@ -62,23 +69,80 @@ final class AudioControlWrapper {
         return new AudioControlWrapper(audioControlV1, audioControlV2);
     }
 
+    void unregisterFocusListener() {
+        if (mCloseHandle != null) {
+            try {
+                mCloseHandle.close();
+            } catch (RemoteException e) {
+                Log.e(TAG, "Failed to close focus listener", e);
+            } finally {
+                mCloseHandle = null;
+            }
+        }
+    }
+
     @VisibleForTesting
     AudioControlWrapper(
             @Nullable android.hardware.automotive.audiocontrol.V1_0.IAudioControl audioControlV1,
             @Nullable android.hardware.automotive.audiocontrol.V2_0.IAudioControl audioControlV2) {
+        checkAudioControls(audioControlV1, audioControlV2);
         mAudioControlV1 = audioControlV1;
         mAudioControlV2 = audioControlV2;
-        checkAudioControl();
+
     }
 
-    private void checkAudioControl() {
-        if (mAudioControlV2 != null && mAudioControlV1 != null) {
-            Log.w(TAG, "Both versions of IAudioControl are present, defaulting to V2");
-        } else if (mAudioControlV2 == null && mAudioControlV1 == null) {
-            throw new IllegalStateException("No version of AudioControl HAL in the manifest");
-        } else if (mAudioControlV1 != null) {
-            Log.w(TAG, "IAudioControl@V1.0 is deprecated. Consider upgrading to V2.0");
+    boolean supportsHalAudioFocus() {
+        return mAudioControlV2 != null;
+    }
+
+    void registerFocusListener(IFocusListener focusListener) {
+        Objects.requireNonNull(mAudioControlV2,
+                "IAudioControl V2.0 is required for HAL audio focus requests");
+
+        Log.d(TAG, "Registering focus listener on AudioControl HAL");
+        try {
+            mCloseHandle = mAudioControlV2.registerFocusListener(focusListener);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Failed to register focus listener");
+            throw new IllegalStateException("Failed to query IAudioControl#registerFocusListener",
+                    e);
         }
+    }
+
+    void onAudioFocusChange(@AttributeUsage int usage, int zoneId, int focusChange) {
+        Objects.requireNonNull(mAudioControlV2,
+                "IAudioControl V2.0 is required for HAL audio focus requests");
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "onAudioFocusChange: usage " + AudioAttributes.usageToString(usage)
+                    + ", zoneId " + zoneId + ", focusChange " + focusChange);
+        }
+        try {
+            mAudioControlV2.onAudioFocusChange(usage, zoneId, focusChange);
+        } catch (RemoteException e) {
+            throw new IllegalStateException("Failed to query IAudioControl#onAudioFocusChange", e);
+        }
+    }
+
+    /**
+     * dumps the current state of the AudioControlWrapper
+     *
+     * @param indent indent to append to each new line
+     * @param writer stream to write current state
+     */
+    public void dump(String indent, PrintWriter writer) {
+        writer.printf("%s*AudioControlWrapper*\n", indent);
+
+        String innerIndent = "\t" + indent;
+        writer.printf("%sIAudioControl HAL\n", innerIndent);
+        if (mAudioControlV2 != null) {
+            writer.printf("%s\t- V2.0\n", innerIndent);
+        }
+        if (mAudioControlV1 != null) {
+            writer.printf("%s\t- V1.0\n", innerIndent);
+        }
+
+        writer.printf("%sFocus listener registered on HAL? %b", innerIndent,
+                (mCloseHandle != null));
     }
 
     void setFadeTowardFront(float value) {
@@ -127,6 +191,20 @@ final class AudioControlWrapper {
         } catch (RemoteException e) {
             Log.e(TAG, "Failed to query IAudioControl HAL to get bus for context", e);
             throw new IllegalStateException("Failed to query IAudioControl#getBusForContext", e);
+        }
+    }
+
+    private void checkAudioControls(
+            @Nullable android.hardware.automotive.audiocontrol.V1_0.IAudioControl audioControlV1,
+            @Nullable android.hardware.automotive.audiocontrol.V2_0.IAudioControl audioControlV2) {
+        if (audioControlV2 != null && audioControlV1 != null) {
+            Log.w(TAG, "Both versions of IAudioControl are present, defaulting to V2.0");
+        } else if (audioControlV2 == null && audioControlV1 == null) {
+            throw new IllegalStateException("No version of AudioControl HAL in the manifest");
+        } else if (audioControlV1 != null) {
+            Log.w(TAG, "IAudioControl V1.0 is deprecated. Consider upgrading to V2.0");
+        } else {
+            Log.d(TAG, "Using IAudioControl V2.0");
         }
     }
 }

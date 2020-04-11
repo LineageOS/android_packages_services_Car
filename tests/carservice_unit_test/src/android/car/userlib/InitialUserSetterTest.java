@@ -114,7 +114,7 @@ public final class InitialUserSetterTest {
         UserInfo user = expectUserExists(USER_ID);
         expectSwitchUser(USER_ID);
 
-        mSetter.switchUser(USER_ID);
+        mSetter.switchUser(USER_ID, /* replaceGuest= */ true);
 
         verifyUserSwitched(USER_ID);
         verifyFallbackDefaultBehaviorNeverCalled();
@@ -127,7 +127,7 @@ public final class InitialUserSetterTest {
         UserInfo user = expectUserExists(UserHandle.USER_SYSTEM);
         expectSwitchUser(UserHandle.USER_SYSTEM);
 
-        mSetter.switchUser(UserHandle.USER_SYSTEM);
+        mSetter.switchUser(UserHandle.USER_SYSTEM, true);
 
         verifyUserSwitched(UserHandle.USER_SYSTEM);
         verifyFallbackDefaultBehaviorNeverCalled();
@@ -144,7 +144,7 @@ public final class InitialUserSetterTest {
         expectGuestReplaced(USER_ID, newGuest);
         expectSwitchUser(NEW_USER_ID);
 
-        mSetter.switchUser(USER_ID);
+        mSetter.switchUser(USER_ID, /* replaceGuest= */ true);
 
         verifyUserSwitched(NEW_USER_ID);
         verifyFallbackDefaultBehaviorNeverCalled();
@@ -154,11 +154,25 @@ public final class InitialUserSetterTest {
     }
 
     @Test
+    public void testSwitchUser_fail_guestDoesNotNeedToBeReplaced() throws Exception {
+        boolean ephemeral = true; // ephemeral doesn't really matter in this test
+        expectGuestExists(USER_ID, ephemeral);
+        expectSwitchUser(USER_ID);
+
+        mSetter.switchUser(USER_ID, /* replaceGuest= */ false);
+
+        verifyUserNeverSwitched();
+        verifyGuestNeverMarkedForDeletion();
+        verifyFallbackDefaultBehaviorNeverCalled();
+        verifySystemUserUnlocked();
+    }
+
+    @Test
     public void testSwitchUser_fail_guestReplacementFailed() throws Exception {
         expectGuestExists(USER_ID, /* isEphemeral= */ true); // ephemeral doesn't matter
         expectGuestReplaced(USER_ID, /* newGuest= */ null);
 
-        mSetter.switchUser(USER_ID);
+        mSetter.switchUser(USER_ID, /* replaceGuest= */ true);
 
         verifyUserNeverSwitched();
         verifyFallbackDefaultBehaviorCalledFromCreateOrSwitch();
@@ -170,7 +184,7 @@ public final class InitialUserSetterTest {
         expectUserExists(USER_ID);
         expectSwitchUserFails(USER_ID);
 
-        mSetter.switchUser(USER_ID);
+        mSetter.switchUser(USER_ID, /* replaceGuest= */ true);
 
         verifyFallbackDefaultBehaviorCalledFromCreateOrSwitch();
         verifySystemUserUnlocked();
@@ -181,7 +195,7 @@ public final class InitialUserSetterTest {
     public void testSwitchUser_fail_userDoesntExist() throws Exception {
         // No need to set user exists expectation / will return null by default
 
-        mSetter.switchUser(USER_ID);
+        mSetter.switchUser(USER_ID, /* replaceGuest= */ true);
 
         verifyUserNeverSwitched();
         verifyFallbackDefaultBehaviorCalledFromCreateOrSwitch();
@@ -193,7 +207,7 @@ public final class InitialUserSetterTest {
         expectCurrentUser(CURRENT_USER_ID);
         UserInfo currentUser = expectUserExists(CURRENT_USER_ID);
 
-        mSetter.switchUser(CURRENT_USER_ID);
+        mSetter.switchUser(CURRENT_USER_ID, true);
 
         verifyUserNeverSwitched();
         verifyFallbackDefaultBehaviorNeverCalled();
