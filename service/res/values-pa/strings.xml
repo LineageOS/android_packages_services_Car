@@ -72,9 +72,11 @@
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"ਇਨਪੁੱਟ ਇਵੈਂਟਾਂ ਦੀ ਸੰਭਾਲ"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN ਬੱਸ ਅਸਫਲ ਰਹੀ"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN ਬੱਸ ਕੰਮ ਨਹੀਂ ਕਰਦੀ। ਹੈੱਡ ਯੂਨਿਟ ਬਾਕਸ ਨੂੰ ਅਨਪਲੱਗ ਕਰੋ ਅਤੇ ਦੁਬਾਰਾ ਪਲੱਗ ਲਗਾ ਕੇ ਕਾਰ ਨੂੰ ਮੁੜ-ਚਾਲੂ ਕਰੋ"</string>
-    <string name="activity_blocked_text" msgid="5342114426610711378">"ਤੁਹਾਡੀ ਸੁਰੱਖਿਆ ਲਈ, ਗੱਡੀ ਚਲਾਉਣ ਵੇਲੇ ਇਹ ਸਰਗਰਮੀ ਉਪਲਬਧ ਨਹੀਂ ਹੈ।\nਜਾਰੀ ਰੱਖਣ ਲਈ, ਗੱਡੀ ਰੋਕਣ ਤੱਕ ਉਡੀਕ ਕਰੋ।"</string>
+    <string name="activity_blocked_text" msgid="8088902789540147995">"ਤੁਸੀਂ ਇਹ ਵਿਸ਼ੇਸ਼ਤਾ ਗੱਡੀ ਚਲਾਉਂਦੇ ਸਮੇਂ ਨਹੀਂ ਵਰਤ ਸਕਦੇ"</string>
     <string name="exit_button_message" msgid="8554690915924055685">"ਸੁਰੱਖਿਅਤ ਐਪ ਵਿਸ਼ੇਸ਼ਤਾਵਾਂ ਨਾਲ ਮੁੜ ਤੋਂ ਸ਼ੁਰੂ ਕਰਨ ਲਈ, <xliff:g id="EXIT_BUTTON">%s</xliff:g> ਚੁਣੋ।"</string>
     <string name="exit_button" msgid="5829638404777671253">"ਪਿੱਛੇ"</string>
+    <string name="exit_button_close_application" msgid="8824289547809332460">"ਐਪ ਬੰਦ ਕਰੋ"</string>
+    <string name="exit_button_go_back" msgid="3469083862100560326">"ਪਿੱਛੇ"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"ਤਸ਼ਖੀਸੀ ਡਾਟੇ ਨੂੰ ਪੜ੍ਹਨਾ"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"ਕਾਰ ਦਾ ਤਸ਼ਖੀਸੀ ਡਾਟਾ ਪੜ੍ਹਨਾ।"</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"ਤਸ਼ਖੀਸੀ ਡਾਟਾ ਕਲੀਅਰ ਕਰਨਾ"</string>
@@ -140,4 +142,5 @@
     <string name="car_permission_label_use_car_watchdog" msgid="6973938293170413475">"ਕਾਰ ਵਾਚਡੌਗ ਵਰਤੋ"</string>
     <string name="car_permission_desc_use_car_watchdog" msgid="8244592601805516086">"ਕਾਰ ਵਾਚਡੌਗ ਵਰਤੋ।"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"ਮੇਰਾ ਡੀਵਾਈਸ"</string>
+    <string name="default_guest_name" msgid="2912812799433131476">"ਮਹਿਮਾਨ"</string>
 </resources>

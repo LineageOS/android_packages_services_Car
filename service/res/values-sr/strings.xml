@@ -72,9 +72,11 @@
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Управља догађајима уноса"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Грешка CAN магистрале"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN магистрала не реагује. Искључите и поново укључите главну јединицу и поново покрените аутомобил"</string>
-    <string name="activity_blocked_text" msgid="5342114426610711378">"Ова активност није доступна док возите ради ваше безбедности.\nДа бисте наставили, прво се паркирајте."</string>
+    <string name="activity_blocked_text" msgid="8088902789540147995">"Не можете да користите ову функцију док возите"</string>
     <string name="exit_button_message" msgid="8554690915924055685">"Да бисте поново почели са безбедним функцијама апликације, изаберите <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="5829638404777671253">"Назад"</string>
+    <string name="exit_button_close_application" msgid="8824289547809332460">"Затвори апликацију"</string>
+    <string name="exit_button_go_back" msgid="3469083862100560326">"Назад"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"читање дијагностичких података"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Читање дијагностичких података из аутомобила."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"брисање дијагностичких података"</string>
@@ -140,4 +142,5 @@
     <string name="car_permission_label_use_car_watchdog" msgid="6973938293170413475">"користи надзорни тајмер аутомобила"</string>
     <string name="car_permission_desc_use_car_watchdog" msgid="8244592601805516086">"Користи надзорни тајмер аутомобила."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Мој уређај"</string>
+    <string name="default_guest_name" msgid="2912812799433131476">"Гост"</string>
 </resources>
