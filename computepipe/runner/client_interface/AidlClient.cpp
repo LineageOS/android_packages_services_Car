@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#define LOG_TAG "RunnerIpcInterface"
-
 #include <string>
 
 #include "AidlClient.h"
@@ -62,10 +60,19 @@ Status AidlClient::activate() {
         return Status::ILLEGAL_STATE;
     }
 
-    mPipeRunner = ndk::SharedRefBase::make<AidlClientImpl>(
-        mGraphOptions, mRunnerEngine);
+    mPipeRunner = ndk::SharedRefBase::make<AidlClientImpl>(mGraphOptions, mRunnerEngine);
+    mPipeDebugger = ndk::SharedRefBase::make<DebuggerImpl>(mGraphOptions, mRunnerEngine);
+    mPipeRunner->setPipeDebugger(mPipeDebugger);
+
     std::thread t(&AidlClient::tryRegisterPipeRunner, this);
     t.detach();
+    return Status::SUCCESS;
+}
+
+Status AidlClient::deliverGraphDebugInfo(const std::string& debugData) {
+    if (mPipeDebugger) {
+        return mPipeDebugger->deliverGraphDebugInfo(debugData);
+    }
     return Status::SUCCESS;
 }
 
@@ -121,6 +128,10 @@ Status AidlClient::handleResetPhase(const RunnerEvent& e) {
     if (e.isTransitionComplete()) {
         mPipeRunner->stateUpdateNotification(GraphState::RESET);
     }
+
+    if (mPipeDebugger) {
+        mPipeDebugger->handleResetPhase(e);
+    }
     return SUCCESS;
 }
 
@@ -133,6 +144,10 @@ Status AidlClient::handleConfigPhase(const ClientConfig& e) {
     } else if (e.isAborted()) {
         mPipeRunner->stateUpdateNotification(GraphState::ERR_HALT);
     }
+    if (mPipeDebugger) {
+        mPipeDebugger->handleConfigPhase(e);
+    }
+
     return SUCCESS;
 }
 
@@ -145,6 +160,9 @@ Status AidlClient::handleExecutionPhase(const RunnerEvent& e) {
     } else if (e.isAborted()) {
         mPipeRunner->stateUpdateNotification(GraphState::ERR_HALT);
     }
+    if (mPipeDebugger) {
+        mPipeDebugger->handleExecutionPhase(e);
+    }
     return SUCCESS;
 }
 
@@ -155,6 +173,9 @@ Status AidlClient::handleStopWithFlushPhase(const RunnerEvent& e) {
     if (e.isTransitionComplete()) {
         mPipeRunner->stateUpdateNotification(GraphState::DONE);
     }
+    if (mPipeDebugger) {
+        mPipeDebugger->handleStopWithFlushPhase(e);
+    }
     return SUCCESS;
 }
 
@@ -164,6 +185,9 @@ Status AidlClient::handleStopImmediatePhase(const RunnerEvent& e) {
     }
     if (e.isTransitionComplete()) {
         mPipeRunner->stateUpdateNotification(GraphState::ERR_HALT);
+    }
+    if (mPipeDebugger) {
+        mPipeDebugger->handleStopImmediatePhase(e);
     }
     return SUCCESS;
 }

@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef COMPUTEPIPE_RUNNER_CLIENTINTERFACE_AIDLCLIENTIMPL_H
-#define COMPUTEPIPE_RUNNER_CLIENTINTERFACE_AIDLCLIENTIMPL_H
+#ifndef COMPUTEPIPE_RUNNER_CLIENT_INTERFACE_AIDLCLIENTIMPL_H_
+#define COMPUTEPIPE_RUNNER_CLIENT_INTERFACE_AIDLCLIENTIMPL_H_
 #include <aidl/android/automotive/computepipe/runner/BnPipeRunner.h>
+#include <aidl/android/automotive/computepipe/runner/BnPipeDebugger.h>
 
 #include <map>
 #include <memory>
@@ -46,6 +47,9 @@ class AidlClientImpl : public aidl::android::automotive::computepipe::runner::Bn
     }
 
     Status dispatchPacketToClient(int32_t streamId, const std::shared_ptr<MemHandle>& packetHandle);
+    void setPipeDebugger(
+        const std::shared_ptr<aidl::android::automotive::computepipe::runner::IPipeDebugger>&
+        pipeDebugger);
 
     Status stateUpdateNotification(const GraphState newState);
 
@@ -69,8 +73,8 @@ class AidlClientImpl : public aidl::android::automotive::computepipe::runner::Bn
     ndk::ScopedAStatus doneWithPacket(int32_t bufferId, int32_t streamId) override;
 
     ndk::ScopedAStatus getPipeDebugger(
-        std::shared_ptr<aidl::android::automotive::computepipe::runner::IPipeDebugger>* _aidl_return)
-        override;
+        std::shared_ptr<aidl::android::automotive::computepipe::runner::IPipeDebugger>*
+        _aidl_return) override;
 
     ndk::ScopedAStatus releaseRunner() override;
 
@@ -97,6 +101,9 @@ class AidlClientImpl : public aidl::android::automotive::computepipe::runner::Bn
 
     std::map<int, std::shared_ptr<aidl::android::automotive::computepipe::runner::IPipeStream>>
         mPacketHandlers;
+
+    std::shared_ptr<aidl::android::automotive::computepipe::runner::IPipeDebugger> mPipeDebugger =
+        nullptr;
 };
 
 }  // namespace aidl_client
@@ -106,4 +113,4 @@ class AidlClientImpl : public aidl::android::automotive::computepipe::runner::Bn
 }  // namespace automotive
 }  // namespace android
 
-#endif  // COMPUTEPIPE_RUNNER_CLIENTINTERFACE_AIDLCLIENTIMPL_H
+#endif  // COMPUTEPIPE_RUNNER_CLIENT_INTERFACE_AIDLCLIENTIMPL_H_

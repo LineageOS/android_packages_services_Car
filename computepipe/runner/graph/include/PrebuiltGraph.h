@@ -85,6 +85,12 @@ class PrebuiltGraph : public runner::RunnerComponentInterface {
     Status SetInputStreamPixelData(int streamIndex, int64_t timestamp,
                                    const runner::InputFrame& inputFrame);
 
+    // Start graph profiling.
+    Status StartGraphProfiling();
+
+    // Stop graph profiling.
+    Status StopGraphProfiling();
+
     // Collects debugging and profiling information for the graph. The graph
     // needs to be started with debugging enabled in order to get valid info.
     std::string GetDebugInfo();
@@ -140,6 +146,8 @@ class PrebuiltGraph : public runner::RunnerComponentInterface {
     void* mFnSetGraphTerminationCallback;
     void* mFnStartGraphExecution;
     void* mFnStopGraphExecution;
+    void* mFnStartGraphProfiling;
+    void* mFnStopGraphProfiling;
     void* mFnGetDebugInfo;
 };
 

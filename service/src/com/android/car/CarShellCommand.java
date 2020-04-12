@@ -97,6 +97,8 @@ final class CarShellCommand extends ShellCommand {
     private static final String COMMAND_RESET_USER_ID_IN_OCCUPANT_ZONE =
             "reset-user-in-occupant-zone";
 
+    private static final String DEVICE_POWER_PERMISSION = "android.permission.DEVICE_POWER";
+
     private static final String PARAM_DAY_MODE = "day";
     private static final String PARAM_NIGHT_MODE = "night";
     private static final String PARAM_SENSOR_MODE = "sensor";
@@ -313,6 +315,10 @@ final class CarShellCommand extends ShellCommand {
                 break;
             }
             case COMMAND_GARAGE_MODE: {
+                if (!ICarImpl.hasPermission(mContext, DEVICE_POWER_PERMISSION)) {
+                    writer.println("This command requires " + DEVICE_POWER_PERMISSION);
+                    return RESULT_ERROR;
+                }
                 String value = args.length < 2 ? "" : args[1];
                 forceGarageMode(value, writer);
                 break;
@@ -390,10 +396,18 @@ final class CarShellCommand extends ShellCommand {
                 mCarProjectionService.setAccessPointTethering(Boolean.valueOf(args[1]));
                 break;
             case COMMAND_RESUME:
+                if (!ICarImpl.hasPermission(mContext, DEVICE_POWER_PERMISSION)) {
+                    writer.println("This command requires " + DEVICE_POWER_PERMISSION);
+                    return RESULT_ERROR;
+                }
                 mCarPowerManagementService.forceSimulatedResume();
                 writer.println("Resume: Simulating resuming from Deep Sleep");
                 break;
             case COMMAND_SUSPEND:
+                if (!ICarImpl.hasPermission(mContext, DEVICE_POWER_PERMISSION)) {
+                    writer.println("This command requires " + DEVICE_POWER_PERMISSION);
+                    return RESULT_ERROR;
+                }
                 mCarPowerManagementService.forceSuspendAndMaybeReboot(false);
                 writer.println("Resume: Simulating powering down to Deep Sleep");
                 break;
