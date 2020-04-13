@@ -154,17 +154,18 @@ public final class InitialUserSetterTest {
     }
 
     @Test
-    public void testSwitchUser_fail_guestDoesNotNeedToBeReplaced() throws Exception {
+    public void testSwitchUser_ok_guestDoesNotNeedToBeReplaced() throws Exception {
         boolean ephemeral = true; // ephemeral doesn't really matter in this test
-        expectGuestExists(USER_ID, ephemeral);
+        UserInfo existingGuest = expectGuestExists(USER_ID, ephemeral);
         expectSwitchUser(USER_ID);
 
         mSetter.switchUser(USER_ID, /* replaceGuest= */ false);
 
-        verifyUserNeverSwitched();
+        verifyUserSwitched(USER_ID);
         verifyGuestNeverMarkedForDeletion();
         verifyFallbackDefaultBehaviorNeverCalled();
         verifySystemUserUnlocked();
+        assertInitialUserSet(existingGuest);
     }
 
     @Test
@@ -596,7 +597,7 @@ public final class InitialUserSetterTest {
         when(mLockPatternUtils.isSecure(userId)).thenReturn(true);
     }
 
-    private void expectGuestExists(@UserIdInt int userId, boolean isEphemeral) {
+    private UserInfo expectGuestExists(@UserIdInt int userId, boolean isEphemeral) {
         UserInfo user = new UserInfo();
         user.id = userId;
         user.userType = UserManager.USER_TYPE_FULL_GUEST;
@@ -604,6 +605,7 @@ public final class InitialUserSetterTest {
             user.flags = UserInfo.FLAG_EPHEMERAL;
         }
         when(mUm.getUserInfo(userId)).thenReturn(user);
+        return user;
     }
 
     private void expectGuestReplaced(int existingGuestId, UserInfo newGuest) {
