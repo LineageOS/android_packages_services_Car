@@ -78,6 +78,7 @@ import android.util.SparseArray;
 
 import androidx.annotation.Nullable;
 import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.FlakyTest;
 
 import com.android.car.hal.UserHalService;
 import com.android.internal.R;
@@ -228,6 +229,7 @@ public final class CarUserServiceTest {
     }
 
     @Test
+    @FlakyTest  // TODO(b/153834987): to be fixed as part of this bug.
     public void testOnUserLifecycleEvent_nofityListener() {
         // Arrange
         mCarUserService.addUserLifecycleListener(mUserLifecycleListener);

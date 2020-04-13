@@ -45,6 +45,7 @@ import android.os.UserManager;
 import android.util.Log;
 
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.FlakyTest;
 
 import com.android.car.CarLocalServices;
 import com.android.car.hal.UserHalService;
@@ -169,6 +170,7 @@ public final class VendorServiceControllerTest {
     }
 
     @Test
+    @FlakyTest  // TODO(b/153834987): to be fixed as part of this bug.
     public void fgUserUnlocked() throws Exception {
         mContext.expectServices(SERVICE_BIND_ALL_USERS_ASAP, SERVICE_BIND_FG_USER_UNLOCKED);
         mockGetCurrentUser(UserHandle.USER_SYSTEM);
