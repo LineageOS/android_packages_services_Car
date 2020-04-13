@@ -468,7 +468,7 @@
     <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"Sensor berühren"</string>
     <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"Lege deinen Finger auf den Sensor und hebe ihn an, wenn du eine Vibration spürst."</string>
     <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"Anheben und erneut berühren"</string>
-    <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"Ändere zur vollständige Erfassung jedes Mal ein wenig die Position deines Fingers"</string>
+    <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"Ändere zur vollständigen Erfassung jedes Mal ein wenig die Position deines Fingers"</string>
     <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"Fingerabdruck hinzugefügt"</string>
     <string name="security_settings_fingerprint_enroll_finish_message" msgid="5862643337893923347">"Wenn du dieses Symbol siehst, kannst du deinen Fingerabdruck verwenden, um dich zu identifizieren oder einen Kauf zu autorisieren."</string>
     <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"Später"</string>
@@ -487,7 +487,7 @@
     <string name="security_settings_fingerprint_enroll_done" msgid="4111289529758845926">"Fertig"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_title" msgid="7410398793283818609">"Das ist nicht der Sensor"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_message" msgid="7192100314788868883">"Sensor auf Rückseite mit Zeigefinger berühren."</string>
-    <string name="security_settings_fingerprint_enroll_error_dialog_title" msgid="1415709674142168770">"Registrierung wurde nicht abgeschlossen."</string>
+    <string name="security_settings_fingerprint_enroll_error_dialog_title" msgid="1415709674142168770">"Registrierung wurde nicht abgeschlossen"</string>
     <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"Zeitüberschreitung bei Fingerabdruckregistrierung. Bitte versuche es noch einmal."</string>
     <string name="security_settings_fingerprint_enroll_error_generic_dialog_message" msgid="7896295829530444810">"Fehler bei Fingerabdruckregistrierung. Versuche es erneut oder verwende einen anderen Finger."</string>
     <string name="fingerprint_enroll_button_add" msgid="6335782936874996629">"Weiteren hinzufügen"</string>
@@ -595,8 +595,8 @@
     <string name="unlock_disable_lock_title" msgid="3508492427073600294">"Displaysperre deaktivieren"</string>
     <string name="unlock_disable_frp_warning_title" msgid="5858589970505254193">"Geräteschutz entfernen?"</string>
     <string name="unlock_disable_frp_warning_title_profile" msgid="3814123014295965266">"Profilschutz entfernen?"</string>
-    <string name="unlock_disable_frp_warning_content_pattern" msgid="1843950215687159135">"Wenn du dein Muster entfernst, funktionieren die Funktionen zum Geräteschutz nicht."</string>
-    <string name="unlock_disable_frp_warning_content_pattern_fingerprint" msgid="8846957650251741548">"Wenn du dein Muster entfernst, funktionieren die Funktionen zum Geräteschutz nicht.<xliff:g id="EMPTY_LINE">
+    <string name="unlock_disable_frp_warning_content_pattern" msgid="1843950215687159135">"Der Geräteschutz funktioniert ohne dein Muster nicht."</string>
+    <string name="unlock_disable_frp_warning_content_pattern_fingerprint" msgid="8846957650251741548">"Der Geräteschutz funktioniert ohne dein Muster nicht.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>Deine gespeicherten Fingerabdrücke werden ebenfalls von diesem Gerät entfernt und du kannst mit ihnen weder dein Smartphone entsperren noch Käufe autorisieren oder dich in Apps anmelden."</string>
     <string name="unlock_disable_frp_warning_content_pin" msgid="6760473271034592796">"Der Geräteschutz funktioniert ohne deine PIN nicht."</string>
@@ -718,7 +718,7 @@
       <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> aktive App</item>
     </plurals>
     <string name="manage_trust_agents" msgid="8129970926213142261">"Trust Agents"</string>
-    <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"Lege zunächst eine Displaysperre fest, damit du die Option verwenden kannst."</string>
+    <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"Lege zuerst eine Displaysperre fest, damit du die Option verwenden kannst."</string>
     <string name="manage_trust_agents_summary" msgid="2023116850759962248">"Keine"</string>
     <plurals name="manage_trust_agents_summary_on" formatted="false" msgid="5550538038916606097">
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> aktive Trust Agents</item>
@@ -863,7 +863,7 @@
     <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"Für diese Funktion musst du zuerst einen kompatiblen Anbieter von Netzwerkbewertungen auswählen"</string>
     <string name="wifi_install_credentials" msgid="5650088113710858289">"Zertifikate installieren"</string>
     <string name="wifi_scan_notify_text" msgid="7614101215028336927">"Zur Verbesserung der Standortgenauigkeit können Apps und Dienste weiter nach WLANs suchen, auch wenn die WLAN-Funktion deaktiviert ist. Dadurch können beispielsweise standortbasierte Funktionen und Dienste verbessert werden. Dies lässt sich in den <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>Sucheinstellungen<xliff:g id="LINK_END_1">LINK_END</xliff:g> ändern."</string>
-    <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"Um die Standortgenauigkeit zu erhöhen, aktiviere die WLAN-Suche in den <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>Sucheinstellungen<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
+    <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"Aktiviere zur Erhöhung der Standortgenauigkeit die WLAN-Suche in den <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>Sucheinstellungen<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="wifi_scan_notify_remember_choice" msgid="1235445971400237444">"Nicht mehr anzeigen"</string>
     <string name="wifi_setting_sleep_policy_title" msgid="2120785188625932076">"WLAN im Ruhemodus aktiviert lassen"</string>
     <string name="wifi_setting_on_during_sleep_title" msgid="856670183023402715">"WLAN im Ruhemodus aktiviert"</string>
@@ -1040,7 +1040,7 @@
     <string name="wifi_dns1" msgid="5250809981658822505">"DNS 1"</string>
     <string name="wifi_dns2" msgid="1905876166783761641">"DNS 2"</string>
     <string name="wifi_gateway" msgid="7455334454444443397">"Gateway"</string>
-    <string name="wifi_network_prefix_length" msgid="1941206966133010633">"Länge Netzwerkpräfix"</string>
+    <string name="wifi_network_prefix_length" msgid="1941206966133010633">"Länge d. Netzwerkpräfixes"</string>
     <string name="wifi_p2p_settings_title" msgid="3213180637906683308">"Wi-Fi Direct"</string>
     <string name="wifi_p2p_device_info" msgid="4717490498956029237">"Geräte-Informationen"</string>
     <string name="wifi_p2p_persist_network" msgid="1110453878886476660">"Diese Verbindung speichern"</string>
@@ -1103,7 +1103,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"WLAN"</item>
+    <item msgid="2271962426654621656">"Mobil"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Mobilfunknetz nutzen, wenn WLAN nicht verfügbar ist"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Bei nicht verfügbarem Mobilfunknetz WLAN verwenden"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Anruf über WLAN. Bei Abbruch der WLAN-Verbindung endet der Anruf."</string>
@@ -1706,15 +1709,15 @@
     <string name="confirm_device_credential_use_alternate_method" msgid="1279869272895739941">"Alternative Methode verwenden"</string>
     <string name="lockpassword_choose_your_screen_lock_header" msgid="6283518876031424798">"Displaysperre einrichten"</string>
     <string name="lockpassword_choose_your_password_message" msgid="2838273977481046536">"Richte zur Sicherheit ein Passwort ein"</string>
-    <string name="lockpassword_choose_your_password_header_for_fingerprint" msgid="4921343500484160894">"Passwort festlegen, um Fingerabdruck zu verwenden"</string>
-    <string name="lockpassword_choose_your_pattern_header_for_fingerprint" msgid="314870151462139417">"Muster festlegen, um Fingerabdruck zu verwenden"</string>
+    <string name="lockpassword_choose_your_password_header_for_fingerprint" msgid="4921343500484160894">"Für Fingerabdruck Passwort festlegen"</string>
+    <string name="lockpassword_choose_your_pattern_header_for_fingerprint" msgid="314870151462139417">"Für Fingerabdruck Muster festlegen"</string>
     <string name="lockpassword_choose_your_pin_message" msgid="8942598950627277885">"Richte zur Sicherheit eine PIN ein"</string>
-    <string name="lockpassword_choose_your_pin_header_for_fingerprint" msgid="1102927520952116303">"PIN festlegen, um Fingerabdruck zu verwenden"</string>
+    <string name="lockpassword_choose_your_pin_header_for_fingerprint" msgid="1102927520952116303">"Für Fingerabdruck PIN festlegen"</string>
     <string name="lockpassword_choose_your_pattern_message" msgid="1503075455752279687">"Richte zur Sicherheit ein Muster ein"</string>
     <string name="lockpassword_confirm_your_password_header" msgid="9055242184126838887">"Passwort noch einmal eingeben"</string>
     <string name="lockpassword_confirm_your_pattern_header" msgid="7137526922696316545">"Muster bestätigen"</string>
     <string name="lockpassword_confirm_your_pin_header" msgid="4335593948303036343">"PIN noch einmal eingeben"</string>
-    <string name="lockpassword_confirm_passwords_dont_match" msgid="1783767008133345784">"Die Passwörter stimmen nicht überein."</string>
+    <string name="lockpassword_confirm_passwords_dont_match" msgid="1783767008133345784">"Die Passwörter stimmen nicht überein"</string>
     <string name="lockpassword_confirm_pins_dont_match" msgid="5444357293637748942">"Die PINs stimmen nicht überein"</string>
     <string name="lockpassword_draw_your_pattern_again_header" msgid="9017394036814402348">"Muster noch einmal zeichnen"</string>
     <string name="lockpassword_choose_lock_generic_header" msgid="4418423132980560119">"Sperre einrichten"</string>

@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Намалете го или зголемете го текстот на екранот."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Намали"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Зголеми"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Примерок на текст"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"Чудесниот волшебник од Оз"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"Поглавје 11: Чудесниот смарагден град Оз"</string>
@@ -200,7 +199,7 @@
     <string name="proxy_exclusionlist_label" msgid="8179084955547941904">"Заобиколи прокси за"</string>
     <string name="proxy_defaultView_text" msgid="5785775257042403261">"Врати стандардни вредности"</string>
     <string name="proxy_action_text" msgid="814511434843981413">"Готово"</string>
-    <string name="proxy_hostname_label" msgid="6798891831427287847">"Име на домаќин на прокси"</string>
+    <string name="proxy_hostname_label" msgid="6798891831427287847">"Име на хост за прокси"</string>
     <string name="proxy_error" msgid="5036164133669802299">"Внимание"</string>
     <string name="proxy_error_dismiss" msgid="883805570485635650">"Во ред"</string>
     <string name="proxy_error_invalid_host" msgid="5430640241353307223">"Името на домаќинот што го внесовте не е важечко."</string>
@@ -208,7 +207,7 @@
     <string name="proxy_error_empty_port" msgid="8034561724923076215">"Порт полето треба да се пополни."</string>
     <string name="proxy_error_empty_host_set_port" msgid="8471455809508588255">"Полето на портот мора да биде празно ако полето на хостот е празно."</string>
     <string name="proxy_error_invalid_port" msgid="4046559920586100637">"Внесениот порт не е исправен."</string>
-    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"HTTP проксито го користи прелистувачот, но не може да го користат другите апликации."</string>
+    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"Прелистувачот користи HTTP-прокси, но не може да го користат и другите апликации."</string>
     <string name="proxy_url_title" msgid="882042361706435904">"PAC URL: "</string>
     <string name="radio_info_dl_kbps" msgid="2903778264453410272">"Брзина на пренос при преземање (кбит/с):"</string>
     <string name="radio_info_ul_kbps" msgid="3802245899811732716">"Брзина на пренос при прикачување (кбит/с):"</string>
@@ -411,7 +410,7 @@
     <string name="face_add_max" msgid="8870899421165189413">"Може да додадете до <xliff:g id="COUNT">%d</xliff:g> лица"</string>
     <string name="face_intro_error_max" msgid="4024147799079828937">"Додадовте максимален број лица"</string>
     <string name="face_intro_error_unknown" msgid="3241592604198351134">"Не може да додадете повеќе лица"</string>
-    <string name="security_settings_face_enroll_error_dialog_title" msgid="3933492758701563051">"Запишувањето не е завршено"</string>
+    <string name="security_settings_face_enroll_error_dialog_title" msgid="3933492758701563051">"Регистрацијата не е завршена"</string>
     <string name="security_settings_face_enroll_dialog_ok" msgid="1078348922734845090">"Во ред"</string>
     <string name="security_settings_face_enroll_error_timeout_dialog_message" msgid="4917894418448325405">"Се достигна временското ограничување на запишувањето со лице. Обидете се повторно."</string>
     <string name="security_settings_face_enroll_error_generic_dialog_message" msgid="5160473187142616862">"Не успеа запишувањето со лице."</string>
@@ -488,7 +487,7 @@
     <string name="security_settings_fingerprint_enroll_done" msgid="4111289529758845926">"Готово"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_title" msgid="7410398793283818609">"Упс, тоа не е сензорот"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_message" msgid="7192100314788868883">"Допрете го сензорот одзади со показалецот."</string>
-    <string name="security_settings_fingerprint_enroll_error_dialog_title" msgid="1415709674142168770">"Запишувањето не е завршено"</string>
+    <string name="security_settings_fingerprint_enroll_error_dialog_title" msgid="1415709674142168770">"Регистрацијата не е завршена"</string>
     <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"Се достигна временското ограничување на запишувањето со отпечаток од прст. Обидете се повторно."</string>
     <string name="security_settings_fingerprint_enroll_error_generic_dialog_message" msgid="7896295829530444810">"Запишувањето со отпечаток од прст не успеа. Обидете се повторно или користете друг прст."</string>
     <string name="fingerprint_enroll_button_add" msgid="6335782936874996629">"Додај друг"</string>
@@ -504,7 +503,7 @@
     <string name="fingerprint_delete_message" msgid="5895802741486967970">"Дали сакате да го избришете отпечатоков?"</string>
     <string name="fingerprint_last_delete_message" msgid="3346252479778971442">"Нема да може да ги користите отпечатоците за да го отклучите телефонот, да одобрувате купувања или да се најавувате на апликации со нив"</string>
     <string name="fingerprint_last_delete_message_profile_challenge" msgid="5385095150532247025">"Нема да може да ги користите отпечатоците за да го отклучите работниот профил, да одобрувате купувања или да се најавувате на апликациите за работа"</string>
-    <string name="fingerprint_last_delete_confirm" msgid="7984595457589664004">"Отстрани го"</string>
+    <string name="fingerprint_last_delete_confirm" msgid="7984595457589664004">"Отстрани"</string>
     <string name="crypt_keeper_settings_title" msgid="839783588093862748">"Шифрирање"</string>
     <string name="crypt_keeper_encrypt_title" product="tablet" msgid="2292129135369853167">"Шифрирај таблет"</string>
     <string name="crypt_keeper_encrypt_title" product="default" msgid="3110852053238357832">"Шифрирање на телефонот"</string>
@@ -544,7 +543,7 @@
     <string name="suggested_fingerprint_lock_settings_summary" product="tablet" msgid="8114514312665251311"></string>
     <string name="suggested_fingerprint_lock_settings_summary" product="device" msgid="8114514312665251311"></string>
     <string name="suggested_fingerprint_lock_settings_summary" product="default" msgid="8114514312665251311"></string>
-    <string name="lock_settings_picker_title" msgid="1034741644461982205">"Избери заклучување на екранот"</string>
+    <string name="lock_settings_picker_title" msgid="1034741644461982205">"Заклучување на екранот"</string>
     <string name="lock_settings_picker_title_profile" msgid="5086594364428782115">"Избери закл. раб. профил"</string>
     <string name="setup_lock_settings_picker_title" product="tablet" msgid="2429667472335773519">"Заштитете го таблетот"</string>
     <string name="setup_lock_settings_picker_title" product="device" msgid="4739290104106645233">"Заштитете го уредот"</string>
@@ -656,8 +655,8 @@
       <item quantity="other">Мора да содржи барем <xliff:g id="COUNT_1">%d</xliff:g> знаци</item>
     </plurals>
     <plurals name="lockpassword_pin_too_short" formatted="false" msgid="6805936168283187298">
-      <item quantity="one">PIN-от мора да има најмалку <xliff:g id="COUNT_1">%d</xliff:g> цифра</item>
-      <item quantity="other">PIN-от мора да има најмалку <xliff:g id="COUNT_1">%d</xliff:g> цифри</item>
+      <item quantity="one">PIN-кодот мора да содржи барем <xliff:g id="COUNT_1">%d</xliff:g> цифра</item>
+      <item quantity="other">PIN-кодот мора да содржи барем <xliff:g id="COUNT_1">%d</xliff:g> цифри</item>
     </plurals>
     <string name="lockpassword_continue_label" msgid="7279261861924400655">"Продолжи"</string>
     <plurals name="lockpassword_password_too_long" formatted="false" msgid="7994068708438608179">
@@ -719,7 +718,7 @@
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> активни апликации</item>
     </plurals>
     <string name="manage_trust_agents" msgid="8129970926213142261">"Агенти од доверба"</string>
-    <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"Прво поставете заклучување на екран"</string>
+    <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"Прво поставете заклучување екран"</string>
     <string name="manage_trust_agents_summary" msgid="2023116850759962248">"Ниеден"</string>
     <plurals name="manage_trust_agents_summary_on" formatted="false" msgid="5550538038916606097">
       <item quantity="one"><xliff:g id="COUNT">%d</xliff:g> активен агент од доверба</item>
@@ -845,22 +844,22 @@
     <string name="wifi_starting" msgid="1299466156783469023">"Вклучување на Wi-Fi..."</string>
     <string name="wifi_stopping" msgid="413711069039939520">"Исклучување на Wi-Fi..."</string>
     <string name="wifi_error" msgid="5605801874484465557">"Грешка"</string>
-    <string name="wifi_sap_no_channel_error" msgid="6881796988574851628">"Појас од 5 GHz не е достапен во земјава"</string>
+    <string name="wifi_sap_no_channel_error" msgid="6881796988574851628">"Опсег од 5 GHz не е достапен во земјава"</string>
     <string name="wifi_in_airplane_mode" msgid="4729571191578262246">"Во режим на работа во авион"</string>
-    <string name="wifi_notify_open_networks" msgid="4782239203624619655">"Известување за отворени мрежи"</string>
+    <string name="wifi_notify_open_networks" msgid="4782239203624619655">"Известувај за отворени мрежи"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"Извести ме кога ќе биде достапна јавна мрежа со висок квалитет"</string>
-    <string name="wifi_wakeup" msgid="4963732992164721548">"Автоматски вклучи Wi‑Fi"</string>
-    <string name="wifi_wakeup_summary" msgid="1152699417411690">"Wi‑Fi ќе се вклучи автоматски на зачувани мрежи со висок квалитет во близина, како на пр., вашата домашна мрежа"</string>
+    <string name="wifi_wakeup" msgid="4963732992164721548">"Автоматски вклучувај Wi‑Fi"</string>
+    <string name="wifi_wakeup_summary" msgid="1152699417411690">"Wi‑Fi ќе се вклучува автоматски во близина на зачувани мрежи со висок квалитет, како на пр., вашата домашна мрежа"</string>
     <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"Недостапно бидејќи локацијата е исклучена. Вклучете ја "<annotation id="link">"локацијата"</annotation>"."</string>
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"Недостапно бидејќи скенирањето на Wi-Fi е исклучено"</string>
-    <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"За користење, изберете оператор за оценување мрежа"</string>
+    <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"За користење, изберете оценувач на мрежата"</string>
     <string name="wifi_poor_network_detection" msgid="7193423327400703073">"Избегнувај слаби поврзувања"</string>
     <string name="wifi_poor_network_detection_summary" msgid="5539951465985614590">"Не користи Wi-Fi-мрежа, освен ако има добра интернет-врска"</string>
     <string name="wifi_avoid_poor_network_detection_summary" msgid="1976503191780928104">"Користи само мрежи со добра интернет-врска"</string>
     <string name="use_open_wifi_automatically_title" msgid="3084513215481454350">"Поврзувај се на отворени мрежи"</string>
     <string name="use_open_wifi_automatically_summary" msgid="8338020172673161754">"Автоматски поврзувај се на јавни мрежи со висок квалитет"</string>
-    <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"За користење, изберете оператор за оценување мрежа"</string>
-    <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"За користење, изберете компатибилен оператор за оценување мрежа"</string>
+    <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"За користење, изберете оценувач на мрежата"</string>
+    <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"За користење, изберете компатибилен оценувач на мрежата"</string>
     <string name="wifi_install_credentials" msgid="5650088113710858289">"Инсталирај сертификати"</string>
     <string name="wifi_scan_notify_text" msgid="7614101215028336927">"За да се подобри точноста на локацијата, апликациите и услугите можат да скенираат Wi‑Fi мрежи во секое време, дури и кога Wi‑Fi е исклучено. Ова може да се користи, на пример, за подобрување на функциите и услугите базирани на локација. Може да го измените ова во <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>поставките за скенирање<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"За да се подобри точноста на локацијата, вклучете „Скенирање на Wi‑Fi“ во <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>поставките за скенирање<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
@@ -875,10 +874,10 @@
     <string name="wifi_switch_away_when_unvalidated" msgid="2418577764071293971">"Префрли се на мобилен интернет ако Wi-Fi-мрежата го губи пристапот до интернет."</string>
     <string name="wifi_cellular_data_fallback_title" msgid="5067241930716252665">"Автоматски префрли се на мобилен интернет"</string>
     <string name="wifi_cellular_data_fallback_summary" msgid="2721467405851519769">"Користете мобилен интернет кога Wi‑Fi нема пристап до интернет. Може да ви се наплати за потрошениот сообраќај."</string>
-    <string name="wifi_add_network" msgid="4094957940791876640">"Додај мрежа"</string>
+    <string name="wifi_add_network" msgid="4094957940791876640">"Додајте мрежа"</string>
     <string name="wifi_configure_settings_preference_title" msgid="2678534679408777268">"Поставки за Wi‑Fi"</string>
     <string name="wifi_configure_settings_preference_summary_wakeup_on" msgid="5714892572614655675">"Wi‑Fi се вклучува повторно автоматски"</string>
-    <string name="wifi_configure_settings_preference_summary_wakeup_off" msgid="286904094152909651">"Wi‑Fi не се вклучува повторно автоматски"</string>
+    <string name="wifi_configure_settings_preference_summary_wakeup_off" msgid="286904094152909651">"Wi‑Fi не се вклучува автоматски"</string>
     <string name="wifi_access_points" msgid="1647976498906871869">"Wi-Fi мрежи"</string>
     <string name="wifi_menu_more_options" msgid="8318269834264035524">"Повеќе опции"</string>
     <string name="wifi_menu_p2p" msgid="4945665601551289791">"Wi‑Fi Direct"</string>
@@ -909,8 +908,8 @@
     <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Ако вашиот рутер не емитува мрежен ID, а сакате да се поврзете со него во иднина, може да ја поставите мрежата како сокриена.\n\nОва може да создаде безбедносен ризик бидејќи вашиот телефон редовно ќе го емитува својот сигнал за да ја најде мрежата.\n\nПоставувањето на мрежата како сокриена нема да ги смени поставките на рутерот."</string>
     <string name="wifi_signal" msgid="696548364467704808">"Јачина на сигнал"</string>
     <string name="wifi_status" msgid="3439931558930689940">"Статус"</string>
-    <string name="tx_wifi_speed" msgid="2571810085003261073">"Брзина на линкот за пренесување"</string>
-    <string name="rx_wifi_speed" msgid="7392873246110937187">"Брзина на линкот за примање"</string>
+    <string name="tx_wifi_speed" msgid="2571810085003261073">"Брзина на пренос"</string>
+    <string name="rx_wifi_speed" msgid="7392873246110937187">"Брзина на прием"</string>
     <string name="wifi_frequency" msgid="6132852924995724246">"Фреквенција"</string>
     <string name="wifi_ip_address" msgid="5572539114989914831">"IP-адреса"</string>
     <string name="passpoint_label" msgid="7429247462404128615">"Зачувано преку"</string>
@@ -926,13 +925,13 @@
     <string name="wifi_show_password" msgid="7878398590772942202">"Прикажи лозинка"</string>
     <string name="wifi_ap_band_config" msgid="6565016368079288433">"Изберете појас на АП"</string>
     <string name="wifi_ap_choose_auto" msgid="7927637960569365785">"Автоматски"</string>
-    <string name="wifi_ap_choose_2G" msgid="43198403259714736">"Појас од 2,4 GHz"</string>
-    <string name="wifi_ap_choose_5G" msgid="2624859713183683146">"Појас од 5,0 GHz"</string>
-    <string name="wifi_ap_prefer_5G" msgid="8339172330471170142">"Претпочитан појас: 5,0 GHz"</string>
+    <string name="wifi_ap_choose_2G" msgid="43198403259714736">"Опсег од 2,4 GHz"</string>
+    <string name="wifi_ap_choose_5G" msgid="2624859713183683146">"Опсег од 5,0 GHz"</string>
+    <string name="wifi_ap_prefer_5G" msgid="8339172330471170142">"Претпочитан опсег: 5,0 GHz"</string>
     <string name="wifi_ap_2G" msgid="5793110086517338494">"2,4 GHz"</string>
     <string name="wifi_ap_5G" msgid="4584892544393675403">"5,0 GHz"</string>
     <string name="wifi_ap_band_select_one" msgid="4409754936554360355">"Изберете барем еден појас за Wi‑Fi точка на пристап:"</string>
-    <string name="wifi_ip_settings" msgid="4636102290236116946">"Поставки на IP"</string>
+    <string name="wifi_ip_settings" msgid="4636102290236116946">"Поставки за IP"</string>
     <string name="wifi_privacy_settings" msgid="4462092795794247809">"Приватност"</string>
     <string name="wifi_privacy_settings_ephemeral_summary" msgid="2411375348287064283">"Рандомизирана MAC-адреса"</string>
     <string name="wifi_dpp_add_device_to_network" msgid="8871041525483253430">"Додајте уред"</string>
@@ -941,7 +940,7 @@
     <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"Наместете го QR-кодот во средината на подолниот прозорец за да се поврзете со „<xliff:g id="SSID">%1$s</xliff:g>“"</string>
     <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"Придружете се на Wi‑Fi со скенирање на QR-кодот"</string>
     <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"Сподели Wi‑Fi"</string>
-    <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"Скенирајте го овој QR-код за да се поврзете со „<xliff:g id="SSID">%1$s</xliff:g>“ и споделете ја лозинката"</string>
+    <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"Скенирајте го овој QR-код за да се поврзете со „<xliff:g id="SSID">%1$s</xliff:g>“ и да ја споделите лозинката"</string>
     <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"Скенирајте го овој QR-код за да се поврзете со „<xliff:g id="SSID">%1$s</xliff:g>“"</string>
     <string name="wifi_dpp_could_not_detect_valid_qr_code" msgid="27667719861826438">"Не можеше да се прочита QR-кодот. Центрирајте го кодот и обидете се повторно"</string>
     <string name="wifi_dpp_failure_authentication_or_configuration" msgid="9142051662156233679">"Обидете се повторно. Ако проблемот продолжи, контактирајте со производителот на уредот"</string>
@@ -963,12 +962,12 @@
     <string name="wifi_dpp_share_hotspot" msgid="847987212473038179">"Споделете точка на пристап"</string>
     <string name="wifi_dpp_lockscreen_title" msgid="3910665850075275963">"Потврдете дека сте вие"</string>
     <string name="wifi_dpp_wifi_password" msgid="8007558344032612455">"Лозинка за Wi-Fi: <xliff:g id="PASSWORD">%1$s</xliff:g>"</string>
-    <string name="wifi_dpp_hotspot_password" msgid="6172326289042241924">"Лозинка за точка на пристап: <xliff:g id="PASSWORD">%1$s</xliff:g>"</string>
+    <string name="wifi_dpp_hotspot_password" msgid="6172326289042241924">"Лозинка за точката на пристап: <xliff:g id="PASSWORD">%1$s</xliff:g>"</string>
     <string name="wifi_dpp_add_device" msgid="1347056725253936358">"Додајте уред"</string>
     <string name="wifi_dpp_connect_network_using_qr_code" msgid="115993715600532357">"ПОврзете се на мрежава со QR-код"</string>
     <string name="retry" msgid="8500839563577344702">"Обиди се повторно"</string>
     <string name="wifi_shared" msgid="5054256778276524960">"Сподели со други корисници на уредот"</string>
-    <string name="wifi_unchanged" msgid="6804964646942333992">"(непроменети)"</string>
+    <string name="wifi_unchanged" msgid="6804964646942333992">"(непроменето)"</string>
     <string name="wifi_unspecified" msgid="893491188483500809">"Изберете"</string>
     <string name="wifi_multiple_cert_added" msgid="7986200585749147204">"(Додадени се повеќе сертификати)"</string>
     <string name="wifi_use_system_certs" msgid="4794489370929885022">"Користете системски сертификати"</string>
@@ -1021,26 +1020,26 @@
     <string name="wifi_advanced_ssid_title" msgid="4229741334913894856">"SSID"</string>
     <string name="wifi_advanced_mac_address_title" msgid="1162782083754021737">"MAC адреса"</string>
     <string name="wifi_advanced_ip_address_title" msgid="2708185994512829071">"IP-адреса"</string>
-    <string name="wifi_details_title" msgid="2164042631550920157">"Детали за мрежа"</string>
-    <string name="wifi_details_subnet_mask" msgid="53396707004763012">"Маска на подмрежа"</string>
+    <string name="wifi_details_title" msgid="2164042631550920157">"Детали за мрежата"</string>
+    <string name="wifi_details_subnet_mask" msgid="53396707004763012">"Подмрежна маска"</string>
     <string name="wifi_details_dns" msgid="1118251455740116559">"DNS"</string>
-    <string name="wifi_details_ipv6_address_header" msgid="1642310137145363299">"IPv6 адреси"</string>
+    <string name="wifi_details_ipv6_address_header" msgid="1642310137145363299">"IPv6-адреси"</string>
     <string name="wifi_saved_access_points_label" msgid="3790693285928292563">"Зачувани мрежи"</string>
     <string name="wifi_subscribed_access_points_tab" msgid="7498765485953257229">"Претплати"</string>
     <!-- no translation found for wifi_saved_access_points_tab (4677730543624191122) -->
     <skip />
-    <string name="wifi_advanced_settings_label" msgid="9147669851658738784">"Поставки на IP"</string>
+    <string name="wifi_advanced_settings_label" msgid="9147669851658738784">"Поставки за IP"</string>
     <string name="wifi_advanced_not_available" msgid="5751084989400195009">"Напредни поставки за Wi‑Fi не се достапни за корисников"</string>
     <string name="wifi_ip_settings_menu_save" msgid="6557330818360425933">"Зачувај"</string>
     <string name="wifi_ip_settings_menu_cancel" msgid="8098696509412462494">"Откажи"</string>
     <string name="wifi_ip_settings_invalid_ip_address" msgid="7764507690387286292">"Внеси важечка ИП адреса."</string>
     <string name="wifi_ip_settings_invalid_gateway" msgid="7602732367437862422">"Внеси важечка адреса на капија."</string>
     <string name="wifi_ip_settings_invalid_dns" msgid="4471473055625376300">"Внеси важечка адреса на DNS."</string>
-    <string name="wifi_ip_settings_invalid_network_prefix_length" msgid="392977552691002076">"Напишете префикс на мрежа со должина меѓу 0 и 32."</string>
+    <string name="wifi_ip_settings_invalid_network_prefix_length" msgid="392977552691002076">"Внесете мрежен префикс со должина од 0 до 32."</string>
     <string name="wifi_dns1" msgid="5250809981658822505">"DNS 1"</string>
     <string name="wifi_dns2" msgid="1905876166783761641">"DNS 2"</string>
-    <string name="wifi_gateway" msgid="7455334454444443397">"Мрежен мост"</string>
-    <string name="wifi_network_prefix_length" msgid="1941206966133010633">"Долж. на префикс на мрежа"</string>
+    <string name="wifi_gateway" msgid="7455334454444443397">"Портал"</string>
+    <string name="wifi_network_prefix_length" msgid="1941206966133010633">"Должина на мрежен префикс"</string>
     <string name="wifi_p2p_settings_title" msgid="3213180637906683308">"Wi‑Fi Direct"</string>
     <string name="wifi_p2p_device_info" msgid="4717490498956029237">"Информации за уредот"</string>
     <string name="wifi_p2p_persist_network" msgid="1110453878886476660">"Запомни ја оваа врска"</string>
@@ -1063,11 +1062,11 @@
     <string name="wifi_hotspot_tethering_on_subtext" product="default" msgid="8914285514605049879">"Интернет-врската на телефонов се споделува преку точка на пристап"</string>
     <string name="wifi_hotspot_on_local_only_subtext" msgid="7415381343846704553">"Апликацијата споделува содржини. За споделување на интернет-врската, исклучете ја, а потоа вклучете ја точката на пристап"</string>
     <string name="wifi_hotspot_no_password_subtext" msgid="5400500962974373706">"Не е поставена лозинка"</string>
-    <string name="wifi_hotspot_name_title" msgid="6572202165400226127">"Име на точка на пристап"</string>
+    <string name="wifi_hotspot_name_title" msgid="6572202165400226127">"Име на точката на пристап"</string>
     <string name="wifi_hotspot_name_summary_connecting" msgid="5176787959408511889">"Се вклучува <xliff:g id="WIFI_HOTSPOT_NAME">%1$s</xliff:g>…"</string>
     <string name="wifi_hotspot_name_summary_connected" msgid="8387768642326756749">"Другите уреди може да се поврзат на <xliff:g id="WIFI_HOTSPOT_NAME">%1$s</xliff:g>"</string>
-    <string name="wifi_hotspot_password_title" msgid="4289338152595154889">"Лозинка на точка на пристап"</string>
-    <string name="wifi_hotspot_ap_band_title" msgid="3485744480410441949">"Појас на точката на пристап"</string>
+    <string name="wifi_hotspot_password_title" msgid="4289338152595154889">"Лозинка за точката на пристап"</string>
+    <string name="wifi_hotspot_ap_band_title" msgid="3485744480410441949">"Опсег на точката на пристап"</string>
     <string name="wifi_hotspot_footer_info_regular" msgid="3876006922622827363">"Користете точка на пристап за да создадете Wi‑Fi мрежа за другите уреди. Точката на пристап обезбедува интернет со помош на мобилната интернет-врска. Може да ви се наплатат дополнителни трошоци за мобилен интернет."</string>
     <string name="wifi_hotspot_footer_info_local_only" msgid="3339582350894639261">"Апликациите може да создадат точка на пристап за да споделуваат содржини со уредите во близина."</string>
     <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"Автоматско исклучување на точката на пристап"</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"Мобилен интернет"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Ако Wi‑Fi не е достапно, користи ја мобилната мрежа"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Ако мобилната мрежа не е достапна, користи Wi‑Fi"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Повикувај преку Wi-Fi. Ако Wi‑Fi врската се загуби, повикот ќе заврши."</string>
@@ -1284,7 +1286,7 @@
     <string name="sim_reenter_new" msgid="5692585822458989725">"Повторно внеси нов PIN"</string>
     <string name="sim_change_pin" msgid="1674620855223900785">"PIN на SIM картичка"</string>
     <string name="sim_bad_pin" msgid="2409776007569751629">"Неточен PIN"</string>
-    <string name="sim_pins_dont_match" msgid="1076283313667637902">"PIN-овите не се совпаѓаат"</string>
+    <string name="sim_pins_dont_match" msgid="1076283313667637902">"PIN-кодовите не се совпаѓаат"</string>
     <string name="sim_change_failed" msgid="8874765697694275459">"Не може да го промените PIN-от.\nМожно е PIN-от да е погрешен."</string>
     <string name="sim_change_succeeded" msgid="8802418023120614533">"PIN на SIM картичката е успешно променет"</string>
     <string name="sim_lock_failed" msgid="7949781515066772755">"Не може да се промени состојбата на заклучување на SIM картичката.\nМожно е PIN-от да е погрешен."</string>
@@ -1608,20 +1610,20 @@
     <string name="master_clear_progress_text" msgid="5418958116008976218">"Почекајте..."</string>
     <string name="call_settings_title" msgid="5033906789261282752">"Поставки на повик"</string>
     <string name="call_settings_summary" msgid="2119161087671450035">"Постави говорна пошта, проследување на повик, повик на чекање, ID на повикувач"</string>
-    <string name="tether_settings_title_usb" msgid="4265582654602420357">"Поврзување со USB"</string>
+    <string name="tether_settings_title_usb" msgid="4265582654602420357">"Врзување преку USB"</string>
     <string name="tether_settings_title_wifi" msgid="2060965130234484613">"Преносл. точка на пристап"</string>
-    <string name="tether_settings_title_bluetooth" msgid="1999590158102569959">"Поврзување со Bluetooth"</string>
-    <string name="tether_settings_title_usb_bluetooth" msgid="1159128764162788159">"Поврзување"</string>
+    <string name="tether_settings_title_bluetooth" msgid="1999590158102569959">"Врзување преку Bluetooth"</string>
+    <string name="tether_settings_title_usb_bluetooth" msgid="1159128764162788159">"Врзување"</string>
     <string name="tether_settings_title_all" msgid="6935843543433954181">"Точка на пристап и врзување"</string>
     <string name="tether_settings_summary_hotspot_on_tether_on" msgid="1289593649526514499">"Точката на пристап е вклучена, се поврзува"</string>
     <string name="tether_settings_summary_hotspot_on_tether_off" msgid="8010689354668285422">"Точката на пристап е вклучена"</string>
-    <string name="tether_settings_summary_hotspot_off_tether_on" msgid="1349909238672649877">"Поврзување"</string>
+    <string name="tether_settings_summary_hotspot_off_tether_on" msgid="1349909238672649877">"Врзување"</string>
     <string name="tether_settings_disabled_on_data_saver" msgid="3682544845899910726">"Не може да се врзе или се да користат преносни точки на пристап додека е вклучен Штедачот на интернет"</string>
     <string name="usb_title" msgid="7480927657535578688">"USB"</string>
-    <string name="usb_tethering_button_text" msgid="6242228383142012332">"Поврзување со USB"</string>
+    <string name="usb_tethering_button_text" msgid="6242228383142012332">"Врзување преку USB"</string>
     <string name="usb_tethering_subtext" product="default" msgid="1573513260339548671">"Споделете ја интернет-врската на телефонот преку USB"</string>
     <string name="usb_tethering_subtext" product="tablet" msgid="154536000235361034">"Споделете ја интернет-врската на таблетот преку USB"</string>
-    <string name="bluetooth_tether_checkbox_text" msgid="7257293066139372774">"Поврзување со Bluetooth"</string>
+    <string name="bluetooth_tether_checkbox_text" msgid="7257293066139372774">"Врзување преку Bluetooth"</string>
     <string name="bluetooth_tethering_subtext" product="tablet" msgid="6868756914621131635">"Споделете ја интернет-врската на таблетот преку Bluetooth"</string>
     <string name="bluetooth_tethering_subtext" product="default" msgid="9167912297565425178">"Споделете ја интернет-врската на телефонот преку Bluetooth"</string>
     <string name="bluetooth_tethering_off_subtext_config" msgid="3981528184780083266">"Интернет-врската на <xliff:g id="DEVICE_NAME">%1$d</xliff:g> се споделува преку Bluetooth"</string>
@@ -1635,8 +1637,8 @@
     <string name="sms_change_default_dialog_title" msgid="6301260161969667578">"Избери апликација за SMS"</string>
     <string name="sms_change_default_dialog_text" msgid="8275088077930942680">"Да се користи <xliff:g id="NEW_APP">%1$s</xliff:g> наместо <xliff:g id="CURRENT_APP">%2$s</xliff:g> како SMS-апликација?"</string>
     <string name="sms_change_default_no_previous_dialog_text" msgid="4680224695080527907">"Користи <xliff:g id="NEW_APP">%s</xliff:g> како SMS-апликација?"</string>
-    <string name="network_scorer_picker_title" msgid="1691073966560952916">"Оператор за оценување мрежа"</string>
-    <string name="network_scorer_picker_none_preference" msgid="6448280557733231737">"Ниедно"</string>
+    <string name="network_scorer_picker_title" msgid="1691073966560952916">"Оценувач на мрежата"</string>
+    <string name="network_scorer_picker_none_preference" msgid="6448280557733231737">"Нема"</string>
     <string name="network_scorer_change_active_dialog_title" msgid="4274159562371475090">"Да се промени помошникот за Wi‑Fi?"</string>
     <string name="network_scorer_change_active_dialog_text" msgid="4264089809189760730">"Да се користи <xliff:g id="NEW_APP">%1$s</xliff:g> наместо <xliff:g id="CURRENT_APP">%2$s</xliff:g> за управување со мрежните врски?"</string>
     <string name="network_scorer_change_active_no_previous_dialog_text" msgid="6394483538843474495">"Да се користи <xliff:g id="NEW_APP">%s</xliff:g> за управување на вашите мрежни врски?"</string>
@@ -1715,7 +1717,7 @@
     <string name="lockpassword_confirm_your_pattern_header" msgid="7137526922696316545">"Потврдете ја шемата"</string>
     <string name="lockpassword_confirm_your_pin_header" msgid="4335593948303036343">"Внесете го PIN-кодот повторно"</string>
     <string name="lockpassword_confirm_passwords_dont_match" msgid="1783767008133345784">"Лозинките не се совпаѓаат"</string>
-    <string name="lockpassword_confirm_pins_dont_match" msgid="5444357293637748942">"PIN-овите не се совпаѓаат"</string>
+    <string name="lockpassword_confirm_pins_dont_match" msgid="5444357293637748942">"PIN-кодовите не се совпаѓаат"</string>
     <string name="lockpassword_draw_your_pattern_again_header" msgid="9017394036814402348">"Нацртајте ја шемата повторно"</string>
     <string name="lockpassword_choose_lock_generic_header" msgid="4418423132980560119">"Избери начин на отклучување"</string>
     <string name="lockpassword_password_set_toast" msgid="601928982984489868">"Лозинката е поставена"</string>
@@ -1748,12 +1750,12 @@
     <string name="lock_settings_title" msgid="233657584969886812">"Безбедност на уред"</string>
     <string name="lockpattern_change_lock_pattern_label" msgid="333149762562581510">"Промени шема на отклучување"</string>
     <string name="lockpattern_change_lock_pin_label" msgid="3435796032210265723">"Промени PIN за отклучување"</string>
-    <string name="lockpattern_recording_intro_header" msgid="2262005028838969839">"Нацртајте ја шемата за отклучување"</string>
+    <string name="lockpattern_recording_intro_header" msgid="2262005028838969839">"Нацртајте шема за отклучување"</string>
     <string name="lockpattern_recording_intro_footer" msgid="5426745740754065099">"Притисни „Мени“ за помош."</string>
     <string name="lockpattern_recording_inprogress" msgid="4060818382176523671">"Отпуштете го прстот кога ќе завршите"</string>
     <string name="lockpattern_recording_incorrect_too_short" msgid="6374760294545431845">"Поврзете најмалку <xliff:g id="NUMBER">%d</xliff:g> точки. Обидете се повторно."</string>
     <string name="lockpattern_pattern_entered_header" msgid="2108106638322637851">"Шемата е снимена"</string>
-    <string name="lockpattern_need_to_confirm" msgid="4079482507985867389">"Употреби ја шемата повторно за потврда"</string>
+    <string name="lockpattern_need_to_confirm" msgid="4079482507985867389">"Нацртајте ја шемата повторно за потврда"</string>
     <string name="lockpattern_pattern_confirmed_header" msgid="5603156929428721407">"Вашата нова шема за отклучување"</string>
     <string name="lockpattern_confirm_button_text" msgid="7059311304112902598">"Потврди"</string>
     <string name="lockpattern_restart_button_text" msgid="4322968353922529868">"Измени"</string>
@@ -2525,11 +2527,11 @@
     <string name="credentials_install" product="default" msgid="8997183776710118353">"Инсталирај од СД картичка"</string>
     <string name="credentials_install_summary" product="nosdcard" msgid="3426661965567059596">"Инсталирај сертификати од меморија"</string>
     <string name="credentials_install_summary" product="default" msgid="4943897416156671633">"Инсталирај сертификати од СД картичка"</string>
-    <string name="credentials_reset" msgid="355080737664731678">"Исчисти акредитиви"</string>
+    <string name="credentials_reset" msgid="355080737664731678">"Избриши акредитиви"</string>
     <string name="credentials_reset_summary" msgid="7622528359699428555">"Отстрани ги сите акредитиви"</string>
     <string name="trusted_credentials" msgid="6989242522455395200">"Доверливи акредитиви"</string>
     <string name="trusted_credentials_summary" msgid="7411781319056251582">"Прикажи доверливи CA сертификати"</string>
-    <string name="user_credentials" msgid="8365731467650306757">"Акредитиви на корисникот"</string>
+    <string name="user_credentials" msgid="8365731467650306757">"Кориснички акредитиви"</string>
     <string name="user_credentials_summary" msgid="7350223899317423252">"Прегледајте и изменете ги зачуваните акредитиви"</string>
     <string name="advanced_security_title" msgid="286883005673855845">"Напредни"</string>
     <string name="credential_storage_type" msgid="2585337320206095255">"Тип меморија"</string>
@@ -2538,7 +2540,7 @@
     <string name="credentials_settings_not_available" msgid="5490259681690183274">"Акредитивите не се достапни за овој корисник"</string>
     <string name="credential_for_vpn_and_apps" msgid="2462642486949593841">"Инсталиран за VPN и апликации"</string>
     <string name="credential_for_wifi" msgid="2903295786961726388">"Инсталиран за Wi-Fi"</string>
-    <string name="credentials_reset_hint" msgid="3484350477764088169">"Отстрани ги сите содржини?"</string>
+    <string name="credentials_reset_hint" msgid="3484350477764088169">"Да се отстранат сите содржини?"</string>
     <string name="credentials_erased" msgid="7287088033523869085">"Меморијата на акредитиви е избришана."</string>
     <string name="credentials_not_erased" msgid="9137227570738627637">"Мемо за. акредит. не се брише."</string>
     <string name="usage_access_title" msgid="7981321142726540574">"Апликации со пристап до корис."</string>
@@ -2563,8 +2565,8 @@
     <string name="fullbackup_erase_dialog_message" msgid="2588536036471144070">"Дали да се престане со создавање резервна копија на податоците за уредот (како што се лозинки за Wi-Fi и историја на повици) и податоците за апликациите (како што се поставки и датотеки што ги складирале апликациите) и да се избришат сите копии на далечински сервери?"</string>
     <string name="fullbackup_data_summary" msgid="406274198094268556">"Автоматски создајте резервна копија на податоците на уредот (како што се лозинки за Wi-Fi и историја на повици) и податоците за апликациите (како што се поставки и датотеки кои ги складирале апликациите) од далечина.\n\nОткако ќе вклучите автоматско создавање резервна копија, податоците за уредот и апликациите повремено се зачувуваат на далечина. Податоците за апликацијата може да бидат секакви податоци кои ги зачувала апликацијата (според поставките на програмерот), вклучувајќи потенцијално чувствителни податоци како што се контакти, пораки и фотографии."</string>
     <string name="device_admin_settings_title" msgid="2074319456047334589">"Поставки за администраторот на уредот"</string>
-    <string name="active_device_admin_msg" msgid="6929247869516924549">"Апликација на администраторот на уредот"</string>
-    <string name="remove_device_admin" msgid="4413438593788336400">"Деактивирај ја апликацијата на администраторот на уредот"</string>
+    <string name="active_device_admin_msg" msgid="6929247869516924549">"Апликација за администраторот на уредот"</string>
+    <string name="remove_device_admin" msgid="4413438593788336400">"Деактивирај ја апликацијата за администраторот на уредот"</string>
     <string name="uninstall_device_admin" msgid="9017499299961719830">"Деинсталирај ја апликацијата"</string>
     <string name="remove_and_uninstall_device_admin" msgid="5607703579731496253">"Деактивирај и деинсталирај"</string>
     <string name="select_device_admin_msg" msgid="4173769638399075387">"Апликации за администраторот"</string>
@@ -2574,18 +2576,18 @@
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"Ограничи пристап до SMS и евиденцијата на повици"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"Само стандардните апликации за телефон и пораки имаат дозволи за SMS и евиденција на повици"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"Нема достапни агенти од доверба"</string>
-    <string name="add_device_admin_msg" msgid="3573765823476931173">"Да се активира аплик. на администратор?"</string>
-    <string name="add_device_admin" msgid="1621152410207260584">"Активирај ја апликацијата на администраторот на уредот"</string>
+    <string name="add_device_admin_msg" msgid="3573765823476931173">"Да се активира аплик. за администратор?"</string>
+    <string name="add_device_admin" msgid="1621152410207260584">"Активирај ја апликацијата за администраторот на уредот"</string>
     <string name="device_admin_add_title" msgid="6097881332139146897">"Администратор на уредот"</string>
-    <string name="device_admin_warning" msgid="4421817419326480449">"Со активирање на апликацијата на администраторот ќе се дозволи апликацијата „<xliff:g id="APP_NAME">%1$s</xliff:g>“ да ги извршува следните операции:"</string>
-    <string name="device_admin_status" msgid="5424944611789040723">"Апликацијата на администраторот е активна и дозволува апликацијата „<xliff:g id="APP_NAME">%1$s</xliff:g>“ да ги извршува следните операции:"</string>
+    <string name="device_admin_warning" msgid="4421817419326480449">"Со активирање на апликацијата за администраторот ќе се дозволи апликацијата <xliff:g id="APP_NAME">%1$s</xliff:g> да ги извршува следниве операции:"</string>
+    <string name="device_admin_status" msgid="5424944611789040723">"Апликацијата за администраторот е активна и дозволува апликацијата <xliff:g id="APP_NAME">%1$s</xliff:g> да ги извршува следниве операции:"</string>
     <string name="profile_owner_add_title" msgid="735805919754362791">"Да се активира Управникот со профил?"</string>
     <string name="adding_profile_owner_warning" msgid="1284541194547382194">"Ако продолжите, администраторот ќе управува со вашиот корисник, а ќе може и да складира поврзани податоци, заедно со вашите лични податоци.\n\nАдминистраторот може да ги следи поставките, пристапот, апликациите и податоците поврзани со овој корисник и да управува со нив, како и со мрежната активност и информациите за локацијата на уредот."</string>
     <string name="admin_disabled_other_options" msgid="8097063307730025707">"Другите опции се оневозможени од администраторот"</string>
     <string name="admin_more_details" msgid="1719819589822345585">"Повеќе детали"</string>
     <string name="notification_log_title" msgid="4200467765474474753">"Дневник за известувања"</string>
     <string name="sound_category_call_ringtone_vibrate_title" msgid="4678065664534722153">"Мелодија на повик и вибрации"</string>
-    <string name="wifi_setup_detail" msgid="3551227109377008779">"Детали за мрежа"</string>
+    <string name="wifi_setup_detail" msgid="3551227109377008779">"Детали за мрежата"</string>
     <string name="accessibility_sync_enabled" msgid="4620153705473448002">"Синхронизација е овозможена"</string>
     <string name="accessibility_sync_disabled" msgid="3810092470274708197">"Синхронизацијата е оневозможена"</string>
     <string name="accessibility_sync_in_progress" msgid="440606222479878898">"Се синхронизира"</string>
@@ -2907,7 +2909,7 @@
     <string name="user_enable_calling_confirm_message" msgid="2490126715153125970">"Историјата на повици ќе се сподели со овој корисник."</string>
     <string name="user_enable_calling_and_sms_confirm_title" msgid="4153856398523366976">"Вклучи телефонски повици и SMS?"</string>
     <string name="user_enable_calling_and_sms_confirm_message" msgid="3278802798876095734">"Историјата на повици и пораки ќе се сподели со овој корисник."</string>
-    <string name="emergency_info_title" msgid="1522609271881425375">"Информации за итни случаи"</string>
+    <string name="emergency_info_title" msgid="1522609271881425375">"Податоци за итни случаи"</string>
     <string name="emergency_info_summary" msgid="7280464759837387342">"Информации и контакти за <xliff:g id="USER_NAME">%1$s</xliff:g>"</string>
     <string name="application_restrictions" msgid="6871981013736536763">"Дозволи апликации и содржина"</string>
     <string name="apps_with_restrictions_header" msgid="8656739605673756176">"Апликации со ограничувања"</string>
@@ -3933,7 +3935,7 @@
     <string name="usage" msgid="9172908720164431622">"Користење"</string>
     <string name="cellular_data_usage" msgid="1236562234207782386">"Потрошен мобилен интернет"</string>
     <string name="app_cellular_data_usage" msgid="8499761516172121957">"Потрошен сообраќај на апликациите"</string>
-    <string name="wifi_data_usage" msgid="275569900562265895">"Потрошен Wi-Fi сообраќај"</string>
+    <string name="wifi_data_usage" msgid="275569900562265895">"Сообраќај преку Wi-Fi"</string>
     <string name="ethernet_data_usage" msgid="747614925362556718">"Потрошен етернет сообраќај"</string>
     <string name="wifi" msgid="1586738489862966138">"Wi-Fi"</string>
     <string name="ethernet" msgid="2365753635113154667">"Етернет"</string>
@@ -4330,7 +4332,7 @@
     <string name="prevent_ringing_option_vibrate_summary" msgid="7961818570574683926">"Вклучено (вибрации)"</string>
     <string name="prevent_ringing_option_mute_summary" msgid="3509459199090688328">"Вклучено (исклучен звук)"</string>
     <string name="prevent_ringing_option_none_summary" msgid="5152618221093037451">"Исклучено"</string>
-    <string name="pref_title_network_details" msgid="3971074015034595956">"Детали за мрежа"</string>
+    <string name="pref_title_network_details" msgid="3971074015034595956">"Детали за мрежата"</string>
     <string name="about_phone_device_name_warning" msgid="9088572775969880106">"Името на уредот е видливо за апликациите на телефонот. Може да го видат и други луѓе кога ќе се поврзете со уреди со Bluetooth или кога ќе поставите Wi-Fi точка на пристап."</string>
     <string name="devices_title" msgid="4768432575951993648">"Уреди"</string>
     <string name="homepage_all_settings" msgid="3201220879559136116">"Сите поставки"</string>
@@ -4443,7 +4445,7 @@
     <string name="mobile_network_mode_error" msgid="6818434186286086554">"Неважечки режим на мрежа <xliff:g id="NETWORKMODEID">%1$d</xliff:g>. Игнорирајте."</string>
     <string name="mobile_network_apn_title" msgid="5628635067747404382">"Имиња на пристапни точки"</string>
     <string name="manual_mode_disallowed_summary" msgid="799800630000340665">"Недостапно кога сте поврзани на <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
-    <string name="emergency_info_contextual_card_summary" msgid="5541444321969803486">"Медицински информации, контакти за итни случаи"</string>
+    <string name="emergency_info_contextual_card_summary" msgid="5541444321969803486">"Медицински податоци, контакти за итни случаи"</string>
     <string name="see_more" msgid="7463940160389802632">"Видете повеќе"</string>
     <string name="see_less" msgid="3718892257002813387">"Види помалку"</string>
     <string name="network_connection_request_dialog_title" msgid="3150489262902506588">"Уред за користење со <xliff:g id="APPNAME">%1$s</xliff:g>"</string>

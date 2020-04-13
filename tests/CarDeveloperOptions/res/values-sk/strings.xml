@@ -943,8 +943,8 @@
     <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Ak váš smerovač nevysiela ID určitej siete, ale chcete sa k nej pripojiť v budúcnosti, môžete ju nastaviť ako skrytú.\n\nMôže tým vzniknúť bezpečnostné riziko, pretože váš telefón bude pravidelne vysielať signál, aby sieť našiel.\n\nNastavením danej siete ako skrytej nezmeníte nastavenia smerovača."</string>
     <string name="wifi_signal" msgid="696548364467704808">"Sila signálu"</string>
     <string name="wifi_status" msgid="3439931558930689940">"Stav"</string>
-    <string name="tx_wifi_speed" msgid="2571810085003261073">"Rýchlosť prenosu dát"</string>
-    <string name="rx_wifi_speed" msgid="7392873246110937187">"Rýchlosť pripojenia (prijímanie)"</string>
+    <string name="tx_wifi_speed" msgid="2571810085003261073">"Rýchlosť posielania dát"</string>
+    <string name="rx_wifi_speed" msgid="7392873246110937187">"Rýchlosť prijímania dát"</string>
     <string name="wifi_frequency" msgid="6132852924995724246">"Frekvencia"</string>
     <string name="wifi_ip_address" msgid="5572539114989914831">"Adresa IP"</string>
     <string name="passpoint_label" msgid="7429247462404128615">"Uložené prostredníctvom siete"</string>
@@ -1103,10 +1103,10 @@
     <string name="wifi_hotspot_name_summary_connecting" msgid="5176787959408511889">"Zapína sa hotspot <xliff:g id="WIFI_HOTSPOT_NAME">%1$s</xliff:g>…"</string>
     <string name="wifi_hotspot_name_summary_connected" msgid="8387768642326756749">"Iné zariadenia sa môžu pripojiť k hotspotu <xliff:g id="WIFI_HOTSPOT_NAME">%1$s</xliff:g>"</string>
     <string name="wifi_hotspot_password_title" msgid="4289338152595154889">"Heslo hotspotu"</string>
-    <string name="wifi_hotspot_ap_band_title" msgid="3485744480410441949">"Pásmo pre prístupový bod"</string>
+    <string name="wifi_hotspot_ap_band_title" msgid="3485744480410441949">"Pásmo prístup. bodu"</string>
     <string name="wifi_hotspot_footer_info_regular" msgid="3876006922622827363">"Použite hotspot na vytvorenie siete Wi‑Fi pre ostatné zariadenia. Hotspot poskytuje internet pomocou mobilného dátového pripojenia. Môžu vám byť účtované ďalšie poplatky za mobilné dáta."</string>
     <string name="wifi_hotspot_footer_info_local_only" msgid="3339582350894639261">"Aplikácie tiež môžu vytvoriť hostpot na zdieľanie obsahu so zariadeniami v okolí."</string>
-    <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"Automatické vypínanie hotspotu"</string>
+    <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"Hotspot automaticky vypínať"</string>
     <string name="wifi_hotspot_auto_off_summary" msgid="3866769400624802105">"Ak nebudú pripojené žiadne zariadenia, hotspot Wi‑Fi sa vypne"</string>
     <string name="wifi_tether_starting" msgid="7676952148471297900">"Prebieha zapínanie hotspotu..."</string>
     <string name="wifi_tether_stopping" msgid="7478561853791953349">"Prebieha vypínanie hotspotu..."</string>
@@ -1249,7 +1249,7 @@
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"Časový plán"</string>
     <string name="night_display_auto_mode_never" msgid="2897444637217807088">"Nikdy"</string>
     <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"Zapnuté vo vybranom čase"</string>
-    <string name="night_display_auto_mode_twilight" msgid="4000162110017520674">"Zapnuté od západu do východu slnka"</string>
+    <string name="night_display_auto_mode_twilight" msgid="4000162110017520674">"Od západu do východu slnka"</string>
     <string name="night_display_start_time_title" msgid="1069255169673371077">"Čas začatia"</string>
     <string name="night_display_end_time_title" msgid="2760793157124245911">"Čas ukončenia"</string>
     <string name="night_display_status_title" msgid="1727020934735770319">"Stav"</string>
@@ -1665,7 +1665,7 @@
     <string name="bluetooth_tethering_off_subtext_config" msgid="3981528184780083266">"Internetové pripojenie zariadenia <xliff:g id="DEVICE_NAME">%1$d</xliff:g> sa zdieľa cez Bluetooth"</string>
     <string name="bluetooth_tethering_overflow_error" msgid="6946561351369376943">"Maximálny počet zariadení na zdieľanie dátového pripojenia: <xliff:g id="MAXCONNECTION">%1$d</xliff:g>."</string>
     <string name="bluetooth_untether_blank" msgid="5428300773782256084">"Ukončí sa zdieľané dát. pripojenie zariad. <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
-    <string name="tethering_footer_info" msgid="8019555174339154124">"Hotspot a tethering umožňujú poskytovať internet iným zariadeniam prostredníctvom mobilného dátového pripojenia. Aplikácie tiež môžu vytvoriť hostpot na zdieľanie obsahu so zariadeniami v okolí."</string>
+    <string name="tethering_footer_info" msgid="8019555174339154124">"Hotspot a tethering umožňujú poskytovať internet iným zariadeniam prostredníctvom vášho mobilného dátového pripojenia. Aplikácie tiež môžu vytvárať hotspot na zdieľanie obsahu so zariadeniami v okolí."</string>
     <string name="tethering_help_button_text" msgid="7653022000284543996">"Pomocník"</string>
     <string name="network_settings_title" msgid="8516526011407061679">"Mobilná sieť"</string>
     <string name="manage_mobile_plan_title" msgid="3312016665522553062">"Mobilný plán"</string>
@@ -2076,14 +2076,14 @@
     <string name="usage_time_label" msgid="5615725415876461039">"Doba použitia"</string>
     <string name="accessibility_settings" msgid="9140621093888234485">"Dostupnosť"</string>
     <string name="accessibility_settings_title" msgid="1687226556576913576">"Nastavenia dostupnosti"</string>
-    <string name="accessibility_settings_summary" msgid="5742379519336396561">"Čítačky obrazovky, obrazovka, ovládacie prvky"</string>
+    <string name="accessibility_settings_summary" msgid="5742379519336396561">"Čítačky obrazovky, obrazovka, doplnkové ovládanie"</string>
     <string name="vision_settings_title" msgid="7315352351051423944">"Pre slabozrakých"</string>
     <string name="vision_settings_description" msgid="3476589459009287332">"Zariadenie môžete prispôsobiť, aby zodpovedalo vašim potrebám. Tieto funkcie dostupnosti môžete neskôr zmeniť v Nastaveniach."</string>
     <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"Zmeniť veľkosť písma"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"Čítačky obrazovky"</string>
     <string name="audio_and_captions_category_title" msgid="6140472938769619212">"Zvuk a text na obrazovke"</string>
     <string name="display_category_title" msgid="545168481672250195">"Zobrazenie"</string>
-    <string name="interaction_control_category_title" msgid="8775039211811947683">"Interaktívne ovládanie"</string>
+    <string name="interaction_control_category_title" msgid="8775039211811947683">"Doplnkové ovládanie"</string>
     <string name="user_installed_services_category_title" msgid="4288689493753221319">"Stiahnuté služby"</string>
     <string name="experimental_category_title" msgid="3797000069740110717">"Experimentálne"</string>
     <string name="feature_flags_dashboard_title" msgid="3153034144122754381">"Experimentálne funkcie"</string>
@@ -3959,7 +3959,7 @@
     <string name="screen_zoom_conversation_icon_pete" msgid="4990733893088820204">"P"</string>
     <string name="screen_zoom_conversation_message_1" msgid="7215516160541988278">"Servus, Peter!"</string>
     <string name="screen_zoom_conversation_message_2" msgid="5409482621887655034">"Nezájdeme dnes na kávu?"</string>
-    <string name="screen_zoom_conversation_message_3" msgid="2471777953578052296">"Dobre, poznám tu jedno skvelé miesto."</string>
+    <string name="screen_zoom_conversation_message_3" msgid="2471777953578052296">"Poďme. Poznám tu blízko jeden super podnik."</string>
     <string name="screen_zoom_conversation_message_4" msgid="8258817329742550137">"Výborne!"</string>
     <string name="screen_zoom_conversation_timestamp_1" msgid="8011637725391996769">"Ut 18:00"</string>
     <string name="screen_zoom_conversation_timestamp_2" msgid="816265985618121370">"Ut 18:01"</string>

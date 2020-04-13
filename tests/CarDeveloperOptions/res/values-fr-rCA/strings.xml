@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Agrandissez ou réduisez le texte affiché."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Rapetisser"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Agrandir"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Exemple de texte"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"Le Magicien d\'Oz"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"Chapitre 11 : La merveilleuse cité d\'émeraude d\'Oz"</string>
@@ -596,20 +595,20 @@
     <string name="unlock_disable_lock_title" msgid="3508492427073600294">"Désactiver le verrouillage de l\'écran"</string>
     <string name="unlock_disable_frp_warning_title" msgid="5858589970505254193">"Supprimer la protection de l\'appareil?"</string>
     <string name="unlock_disable_frp_warning_title_profile" msgid="3814123014295965266">"Supprimer la protection du profil?"</string>
-    <string name="unlock_disable_frp_warning_content_pattern" msgid="1843950215687159135">"Les fonctions de protection de l\'appareil ne fonctionneront pas sans votre schéma."</string>
-    <string name="unlock_disable_frp_warning_content_pattern_fingerprint" msgid="8846957650251741548">"Les fonctions de protection de l\'appareil ne fonctionneront pas sans votre schéma.<xliff:g id="EMPTY_LINE">
+    <string name="unlock_disable_frp_warning_content_pattern" msgid="1843950215687159135">"Les fonctionnalités de protection de l\'appareil ne fonctionneront pas sans votre schéma."</string>
+    <string name="unlock_disable_frp_warning_content_pattern_fingerprint" msgid="8846957650251741548">"Les fonctionnalités de protection de l\'appareil ne fonctionneront pas sans votre schéma.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>Vos empreintes digitales enregistrées seront également supprimées de cet appareil et vous ne pourrez pas déverrouiller votre téléphone, autoriser des achats ni vous connecter à des applications avec celles-ci."</string>
-    <string name="unlock_disable_frp_warning_content_pin" msgid="6760473271034592796">"Les fonctions de protection de l\'appareil ne fonctionneront pas sans votre NIP."</string>
-    <string name="unlock_disable_frp_warning_content_pin_fingerprint" msgid="4384632309103635233">"Les fonctions de protection de l\'appareil ne fonctionneront pas sans votre NIP.<xliff:g id="EMPTY_LINE">
+    <string name="unlock_disable_frp_warning_content_pin" msgid="6760473271034592796">"Les fonctionnalités de protection de l\'appareil ne fonctionneront pas sans votre NIP."</string>
+    <string name="unlock_disable_frp_warning_content_pin_fingerprint" msgid="4384632309103635233">"Les fonctionnalités de protection de l\'appareil ne fonctionneront pas sans votre NIP.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>Vos empreintes digitales enregistrées seront également supprimées de cet appareil et vous ne pourrez pas déverrouiller votre téléphone, autoriser des achats ni vous connecter à des applications avec celles-ci."</string>
-    <string name="unlock_disable_frp_warning_content_password" msgid="854665587186358170">"Les fonctions de protection de l\'appareil ne fonctionneront pas sans votre mot de passe."</string>
-    <string name="unlock_disable_frp_warning_content_password_fingerprint" msgid="218143910981979545">"Les fonctions de protection de l\'appareil ne fonctionneront pas sans votre mot de passe. <xliff:g id="EMPTY_LINE">
+    <string name="unlock_disable_frp_warning_content_password" msgid="854665587186358170">"Les fonctionnalités de protection de l\'appareil ne fonctionneront pas sans votre mot de passe."</string>
+    <string name="unlock_disable_frp_warning_content_password_fingerprint" msgid="218143910981979545">"Les fonctionnalités de protection de l\'appareil ne fonctionneront pas sans votre mot de passe. <xliff:g id="EMPTY_LINE">
 
 </xliff:g>Vos empreintes digitales enregistrées seront également supprimées de cet appareil et vous ne pourrez pas déverrouiller votre téléphone, autoriser des achats ni vous connecter à des applications avec celles-ci."</string>
-    <string name="unlock_disable_frp_warning_content_unknown" msgid="3570135744390201244">"Les fonctions de protection de l\'appareil ne fonctionneront pas sans votre verrouillage d\'écran."</string>
-    <string name="unlock_disable_frp_warning_content_unknown_fingerprint" msgid="5775815077478538855">"Les fonctions de protection de l\'appareil ne fonctionneront pas sans votre verrouillage d\'écran.<xliff:g id="EMPTY_LINE">
+    <string name="unlock_disable_frp_warning_content_unknown" msgid="3570135744390201244">"Les fonctionnalités de protection de l\'appareil ne fonctionneront pas sans votre verrouillage d\'écran."</string>
+    <string name="unlock_disable_frp_warning_content_unknown_fingerprint" msgid="5775815077478538855">"Les fonctionnalités de protection de l\'appareil ne fonctionneront pas sans votre verrouillage d\'écran.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>Vos empreintes digitales enregistrées seront également supprimées de cet appareil et vous ne pourrez pas déverrouiller votre téléphone, autoriser des achats ni vous connecter à des applications avec celles-ci."</string>
     <string name="unlock_disable_frp_warning_content_pattern_profile" msgid="2369992898062808499">"Les fonctions de protection du profil ne fonctionneront pas sans votre schéma."</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"Cellulaire"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Si aucun réseau Wi‑Fi n\'est accessible, utiliser le réseau cellulaire"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Si le réseau cellulaire n\'est pas accessible, utiliser le Wi‑Fi"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Appeler sur réseau Wi‑Fi. Si le Wi‑Fi est interr., l\'appel prendra fin."</string>
@@ -3724,7 +3726,7 @@
     <string name="sharing_remote_bugreport_dialog_message" msgid="3814787466701526359">"Ce rapport de bogue est partagé avec votre administrateur informatique. Pour en savoir plus, communiquez avec lui."</string>
     <string name="share_remote_bugreport_action" msgid="8600797271670537888">"Partager"</string>
     <string name="decline_remote_bugreport_action" msgid="706319275774199033">"Refuser"</string>
-    <string name="usb_use_charging_only" msgid="2344625733377110164">"Pas de transfert de données"</string>
+    <string name="usb_use_charging_only" msgid="2344625733377110164">"Aucun transfert de données"</string>
     <string name="usb_use_charging_only_desc" msgid="3283518562582478950">"Charger cet appareil seulement"</string>
     <string name="usb_use_power_only" msgid="6595783381323810697">"Charger l\'appareil connecté"</string>
     <string name="usb_use_file_transfers" msgid="6153021302176151884">"Transfert de fichiers"</string>

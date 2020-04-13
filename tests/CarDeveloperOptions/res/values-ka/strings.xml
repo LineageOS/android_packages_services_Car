@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"ეკრანზე ტექსტის დაპატარავება ან გადიდება."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"დაპატარავება"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"გადიდება"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"ტექსტის ნიმუში"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"ოზის საოცარი ჯადოქარი"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"თავი 11: ოზის ზურმუხტის ქალაქი"</string>
@@ -1039,7 +1038,7 @@
     <string name="wifi_ip_settings_invalid_network_prefix_length" msgid="392977552691002076">"შეიყვანეთ ქსელის პრეფიქსი, რომლის სიგრძეა 0-დან 32-მდე."</string>
     <string name="wifi_dns1" msgid="5250809981658822505">"DNS 1"</string>
     <string name="wifi_dns2" msgid="1905876166783761641">"DNS 2"</string>
-    <string name="wifi_gateway" msgid="7455334454444443397">"კარიბჭე"</string>
+    <string name="wifi_gateway" msgid="7455334454444443397">"გეითვეი"</string>
     <string name="wifi_network_prefix_length" msgid="1941206966133010633">"ქსელის პრეფიქსის სიგრძე"</string>
     <string name="wifi_p2p_settings_title" msgid="3213180637906683308">"Wi‑Fi Direct"</string>
     <string name="wifi_p2p_device_info" msgid="4717490498956029237">"ინფორმაცია მოწყობილობის შესახებ"</string>
@@ -1058,7 +1057,7 @@
     <string name="wifi_p2p_cancel_connect_message" msgid="3752679335020392154">"ნამდვილად გსურთ <xliff:g id="PEER_NAME">%1$s</xliff:g>-თან დაკავშირების მიწვევის გაუქმება?"</string>
     <string name="wifi_p2p_delete_group_message" msgid="3206660449067701089">"გსურთ, ამ ჯგუფის დავიწყება?"</string>
     <string name="wifi_hotspot_checkbox_text" msgid="12062341344410520">"Wi‑Fi უსადენო ქსელი"</string>
-    <string name="wifi_hotspot_off_subtext" msgid="6177054857136221058">"არ მოხდეს ინტერნეტის ან კონტენტის სხვა მოწყობილობებთან გაზიარება"</string>
+    <string name="wifi_hotspot_off_subtext" msgid="6177054857136221058">"არ ხორციელდება ინტერნეტის ან კონტენტის სხვა მოწყობილობებთან გაზიარება"</string>
     <string name="wifi_hotspot_tethering_on_subtext" product="tablet" msgid="71421730039785897">"ამ ტაბლეტის ინტერნეტ-კავშირი უსადენო ქსელით ზიარდება"</string>
     <string name="wifi_hotspot_tethering_on_subtext" product="default" msgid="8914285514605049879">"ამ ტელეფონის ინტერნეტ-კავშირი უსადენო ქსელით ზიარდება"</string>
     <string name="wifi_hotspot_on_local_only_subtext" msgid="7415381343846704553">"აპი კონტენტს აზიარებს. ინტერნეტ-კავშირის გასაზიარებლად, ჯერ გამორთეთ, შემდეგ კი ხელახლა ჩართეთ უსადენო ქსელი"</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"მობილური"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"თუ Wi‑Fi მიუწვდომელია, ისარგებლეთ მობილური ქსელით"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"თუ მობილური ქსელი მიუწვდომელია, გამოიყენეთ Wi‑Fi"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"დარეკვა Wi-Fi-ის მეშვეობით. თუ Wi‑Fi გაითიშა, ზარი დასრულდება."</string>

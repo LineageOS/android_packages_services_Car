@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"نوشتار روی صفحه‌نمایش را بزرگ‌تر یا کوچک‌تر کنید."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"کوچک‌تر کردن"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"بزرگ‌تر کردن"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"برای این آقا آبجو و کیوی سرو کنید."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"نوشتار نمونه"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"جادوگر شهر اوز"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"فصل ۱۱: شهر زمردی شگفت‌انگیز اوز"</string>
@@ -596,10 +595,10 @@
     <string name="unlock_disable_lock_title" msgid="3508492427073600294">"خاموش کردن قفل صفحه"</string>
     <string name="unlock_disable_frp_warning_title" msgid="5858589970505254193">"محافظ دستگاه برداشته شود؟"</string>
     <string name="unlock_disable_frp_warning_title_profile" msgid="3814123014295965266">"محافظت از نمایه غیرفعال شود؟"</string>
-    <string name="unlock_disable_frp_warning_content_pattern" msgid="1843950215687159135">"قابلیت‌های محافظ دستگاه بدون الگوی شما کار نمی‌کند."</string>
-    <string name="unlock_disable_frp_warning_content_pattern_fingerprint" msgid="8846957650251741548">"قابلیت‌های محافظت از دستگاه، بدون الگوی شما کار نمی‌کنند.<xliff:g id="EMPTY_LINE">
+    <string name="unlock_disable_frp_warning_content_pattern" msgid="1843950215687159135">"ویژگی‌های محافظ دستگاه بدون الگوی شما کار نمی‌کند."</string>
+    <string name="unlock_disable_frp_warning_content_pattern_fingerprint" msgid="8846957650251741548">"ویژگی‌های محافظ دستگاه بدون الگوی شما کار نمی‌کند.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>اثرانگشت‌های ذخیره‌شده‌تان هم از این دستگاه پاک می‌شود و نمی‌توانید با آن‌ها قفل تلفنتان را باز کنید، خریدها را تأیید کنید یا به سیستم برنامه‌ها وارد شوید."</string>
+</xliff:g>اثرانگشت‌های ذخیره‌شده‌تان هم از این دستگاه پاک می‌شود و نمی‌توانید با آن‌ها قفل تلفنتان را باز کنید، خریدها را تأیید کنید، یا به سیستم برنامه‌ها وارد شوید."</string>
     <string name="unlock_disable_frp_warning_content_pin" msgid="6760473271034592796">"قابلیت‌های محافظ دستگاه بدون پین شما کار نمی‌کند."</string>
     <string name="unlock_disable_frp_warning_content_pin_fingerprint" msgid="4384632309103635233">"قابلیت‌های محافظت از دستگاه، بدون پین شما کار نمی‌کنند.<xliff:g id="EMPTY_LINE">
 
@@ -941,7 +940,7 @@
     <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"برای اتصال به «<xliff:g id="SSID">%1$s</xliff:g>»،‌ کد QR را در مرکز پنجره زیر قرار دهید"</string>
     <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"با اسکن کردن کد QR، به Wi‑Fi بپیوندید"</string>
     <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"استفاده مشترک از Wi‑Fi"</string>
-    <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"برای اتصال به «<xliff:g id="SSID">%1$s</xliff:g>»، این کد QR را اسکن کنید و گذرواژه مربوطه را به اشتراک گذارید"</string>
+    <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"برای اتصال به «<xliff:g id="SSID">%1$s</xliff:g>»، این کد QR را اسکن کنید و گذرواژه مربوطه را هم‌رسانی کنید"</string>
     <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"برای اتصال به «<xliff:g id="SSID">%1$s</xliff:g>»، این کد QR را اسکن کنید"</string>
     <string name="wifi_dpp_could_not_detect_valid_qr_code" msgid="27667719861826438">"کد QR خوانده نشد. کد را در مرکز قرار دهید و دوباره امتحان کنید"</string>
     <string name="wifi_dpp_failure_authentication_or_configuration" msgid="9142051662156233679">"دوباره امتحان کنید. اگر مشکل همچنان ادامه دارد، با سازنده دستگاه تماس بگیرید"</string>
@@ -1025,7 +1024,7 @@
     <string name="wifi_details_subnet_mask" msgid="53396707004763012">"پوشش زیرشبکه"</string>
     <string name="wifi_details_dns" msgid="1118251455740116559">"DNS"</string>
     <string name="wifi_details_ipv6_address_header" msgid="1642310137145363299">"نشانی‌های IPv6"</string>
-    <string name="wifi_saved_access_points_label" msgid="3790693285928292563">"شبکه‌های ذخیره شده"</string>
+    <string name="wifi_saved_access_points_label" msgid="3790693285928292563">"شبکه‌های ذخیره‌شده"</string>
     <string name="wifi_subscribed_access_points_tab" msgid="7498765485953257229">"اشتراک‌ها"</string>
     <!-- no translation found for wifi_saved_access_points_tab (4677730543624191122) -->
     <skip />
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"داده شبکه تلفن همراه"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"استفاده از شبکه تلفن همراه، درصورت عدم‌دسترسی به Wi-Fi"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"اگر شبکه تلفن همراه دردسترس نبود، از Wi-Fi استفاده شود"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"تماس ازطریق Wi-Fi. اگر اتصال Wi-Fi قطع شود، تماس متوقف می‌شود."</string>
@@ -2817,7 +2819,7 @@
     <string name="n_cacrts" msgid="7539893176217891549">"%d گواهی CA"</string>
     <string name="user_credential_title" msgid="6237611303219831419">"جزئیات اعتبارنامه"</string>
     <string name="user_credential_removed" msgid="6243576567538844852">"اعتبارنامه برداشته شد: <xliff:g id="CREDENTIAL_NAME">%s</xliff:g>"</string>
-    <string name="user_credential_none_installed" msgid="4129252817676332368">"اطلاعات کاربری‌ای نصب نشد"</string>
+    <string name="user_credential_none_installed" msgid="4129252817676332368">"اطلاعات کاربری‌ای نصب نشده"</string>
     <string name="spellcheckers_settings_title" msgid="1687210427248364327">"غلط‌گیر املا"</string>
     <string name="spellcheckers_settings_for_work_title" msgid="7461318390801573022">"غلط‌گیر املا برای کار"</string>
     <string name="current_backup_pw_prompt" msgid="8914812770233159610">"گذرواژه فعلی پشتیبان‌گیری‌تان را به‌طور کامل اینجا تایپ کنید"</string>
@@ -3042,7 +3044,7 @@
     <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"دستیار، برنامه‌های اخیر، برنامه‌های پیش‌فرض"</string>
     <string name="notification_settings_work_profile" msgid="7190550347842400029">"برنامه‌ها نمی‌توانند در نمایه کاری به اعلان‌ها دسترسی داشته باشند."</string>
     <string name="account_dashboard_title" msgid="4734300939532555885">"حساب‌ها"</string>
-    <string name="account_dashboard_default_summary" msgid="6822549669771936206">"حسابی اضافه نشد"</string>
+    <string name="account_dashboard_default_summary" msgid="6822549669771936206">"حسابی اضافه نشده"</string>
     <string name="app_default_dashboard_title" msgid="6575301028225232193">"برنامه‌های پیش‌فرض"</string>
     <string name="system_dashboard_summary" msgid="6582464466735779394">"زبان‌ها، ژست‌ها، زمان، پشتیبان"</string>
     <string name="search_results_title" msgid="4160717656435503940">"تنظیمات"</string>
@@ -3624,8 +3626,8 @@
       <item quantity="other">‏<xliff:g id="COUNT_2">%d</xliff:g> از <xliff:g id="COUNT_3">%d</xliff:g> اجازه اعطا شد</item>
     </plurals>
     <plurals name="runtime_permissions_additional_count" formatted="false" msgid="2068102378805218668">
-      <item quantity="one"><xliff:g id="COUNT_1">%d</xliff:g> مجوز اضافی</item>
-      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> مجوز اضافی</item>
+      <item quantity="one"><xliff:g id="COUNT_1">%d</xliff:g> اجازه تکمیلی</item>
+      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> اجازه‌های تکمیلی</item>
     </plurals>
     <string name="runtime_permissions_summary_no_permissions_granted" msgid="3477934429220828771">"اجازه‌ای داده نشده"</string>
     <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"اجازه‌ای درخواست نشده"</string>
@@ -3643,7 +3645,7 @@
     <string name="advanced_apps" msgid="6643869089344883537">"پیشرفته"</string>
     <string name="configure_apps" msgid="4066683118857400943">"پیکربندی برنامه‌ها"</string>
     <string name="unknown_app" msgid="2312052973570376877">"برنامه ناشناس"</string>
-    <string name="app_permissions" msgid="3215958256821756086">"مدیر مجوز"</string>
+    <string name="app_permissions" msgid="3215958256821756086">"مدیر اجازه‌ها"</string>
     <string name="app_permissions_summary" msgid="8785798165776061594">"برنامه‌های درحال استفاده از <xliff:g id="APPS">%1$s</xliff:g>"</string>
     <string name="tap_to_wake" msgid="1902991239401652323">"ضربه برای بیدار شدن"</string>
     <string name="tap_to_wake_summary" msgid="8485222120721006793">"برای بیدار کردن دستگاه روی قسمتی از صفحه دوبار ضربه بزنید"</string>
@@ -3716,7 +3718,7 @@
     <string name="no_battery_summary" msgid="4105932628367471314">"از آخرین شارژ کامل، از باتری استفاده نشده است"</string>
     <string name="app_notification_preferences" msgid="5154466638524523201">"تنظیمات برنامه"</string>
     <string name="system_ui_settings" msgid="6751165163665775447">"نمایش تنظیم‌گر واسط کاربری سیستم"</string>
-    <string name="additional_permissions" msgid="3142290772324571654">"مجوزهای بیشتر"</string>
+    <string name="additional_permissions" msgid="3142290772324571654">"اجازه‌های تکمیلی"</string>
     <string name="additional_permissions_more" msgid="714264060348056246">"<xliff:g id="COUNT">%1$d</xliff:g> مورد دیگر"</string>
     <string name="share_remote_bugreport_dialog_title" msgid="1390719492733882678">"گزارش اشکال به اشتراک گذاشته شود؟"</string>
     <string name="share_remote_bugreport_dialog_message_finished" msgid="5133489230646384192">"سرپرست فناوری اطلاعات شما برای کمک به عیب‌یابی این دستگاه، گزارش اشکال درخواست کرده است. ممکن است برنامه‌ها و داده‌ها به اشتراک گذاشته شوند."</string>

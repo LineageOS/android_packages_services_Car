@@ -85,8 +85,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Powiększ lub pomniejsz tekst na ekranie."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Pomniejsz"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Powiększ"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Zażółć gęślą jaźń."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Przykładowy tekst"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"Czarnoksiężnik z Krainy Oz"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"Rozdział 11: Szmaragdowe Miasto"</string>
@@ -1139,7 +1138,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"Komórkowe"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Jeśli sieć Wi-Fi jest niedostępna, użyj sieci komórkowej"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Jeśli sieć komórkowa jest niedostępna, użyj Wi-Fi"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Rozmowa przez Wi-Fi. Po utracie połączenia z Wi-Fi zostanie przerwana."</string>
@@ -1744,7 +1746,7 @@
     <string name="settings_safetylegal_activity_unreachable" msgid="3541894966476445833">"Brak połączenia do transmisji danych. Aby wyświetlić te informacje teraz, otwórz stronę %s na dowolnym komputerze połączonym z internetem."</string>
     <string name="settings_safetylegal_activity_loading" msgid="7680998654145172">"Wczytuję..."</string>
     <string name="confirm_device_credential_use_alternate_method" msgid="1279869272895739941">"Użyj innej metody"</string>
-    <string name="lockpassword_choose_your_screen_lock_header" msgid="6283518876031424798">"Ustawianie blokady ekranu"</string>
+    <string name="lockpassword_choose_your_screen_lock_header" msgid="6283518876031424798">"Ustaw blokadę ekranu"</string>
     <string name="lockpassword_choose_your_password_message" msgid="2838273977481046536">"Ze względów bezpieczeństwa ustaw hasło"</string>
     <string name="lockpassword_choose_your_password_header_for_fingerprint" msgid="4921343500484160894">"Aby korzystać z odcisku palca, ustaw hasło"</string>
     <string name="lockpassword_choose_your_pattern_header_for_fingerprint" msgid="314870151462139417">"Aby korzystać z odcisku palca, ustaw wzór"</string>
@@ -1805,7 +1807,7 @@
     <string name="lockpattern_settings_enable_visible_pattern_title" msgid="4935583222709647096">"Wzór jest widoczny"</string>
     <string name="lockpattern_settings_enable_visible_pattern_title_profile" msgid="5338893138982642228">"Pokazuj wzór dla profilu"</string>
     <string name="lockpattern_settings_enable_tactile_feedback_title" msgid="3203621862806531947">"Wibracja przy dotknięciu"</string>
-    <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"Blokada przyciskiem zasilania"</string>
+    <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"Blokuj przyciskiem zasilania"</string>
     <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"Z wyjątkiem sytuacji, gdy blokadę anuluje <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g>"</string>
     <string name="lockpattern_settings_choose_lock_pattern" msgid="9042142745571386381">"Ustaw wzór odblokowania"</string>
     <string name="lockpattern_settings_change_lock_pattern" msgid="1456643060737114885">"Zmień wzór odblokowania"</string>
@@ -2640,7 +2642,7 @@
     <string name="uninstall_device_admin" msgid="9017499299961719830">"Odinstaluj aplikację"</string>
     <string name="remove_and_uninstall_device_admin" msgid="5607703579731496253">"Dezaktywuj i odinstaluj"</string>
     <string name="select_device_admin_msg" msgid="4173769638399075387">"Aplikacje do zarządzania urządzeniem"</string>
-    <string name="no_device_admins" msgid="4129231900385977460">"Brak dostępnych aplikacji do administrowania urządzeniem"</string>
+    <string name="no_device_admins" msgid="4129231900385977460">"Brak dostępnych aplikacji do zarządzania urządzeniem"</string>
     <string name="personal_device_admin_title" msgid="759440849188565661">"Osobiste"</string>
     <string name="managed_device_admin_title" msgid="8021522755492551726">"Praca"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"Ogranicz dostęp do SMS-ów i rejestru połączeń"</string>
@@ -3394,7 +3396,7 @@
     <string name="notification_badging_title" msgid="6311699476970264712">"Zezwól na plakietki z powiadomieniami"</string>
     <string name="notification_bubbles_title" msgid="9196562435741861317">"Dymki"</string>
     <string name="notification_bubbles_summary" msgid="4624512775901949578">"Szybki dostęp do zawartości aplikacji z dowolnego miejsca dzięki pływającym skrótom"</string>
-    <string name="bubbles_feature_education" msgid="8979109826818881018">"Niektóre powiadomienia i inne treści mogą pojawiać się jako dymki na ekranie. Aby otworzyć dymek, kliknij go. Aby zamknąć, przeciągnij go w dół ekranu."</string>
+    <string name="bubbles_feature_education" msgid="8979109826818881018">"Niektóre powiadomienia i inne treści mogą pojawiać się jako dymki na ekranie. Aby otworzyć dymek, kliknij go. Aby zamknąć, przeciągnij go na dół ekranu."</string>
     <string name="bubbles_app_toggle_title" msgid="6401217027603326439">"Dymki"</string>
     <string name="bubbles_app_toggle_summary" msgid="7707611139796553855">"Zezwól aplikacji <xliff:g id="APP_NAME">%1$s</xliff:g> na pokazywanie niektórych powiadomień jako dymków"</string>
     <string name="bubbles_feature_disabled_dialog_title" msgid="3375452386012079293">"Włącz dymki"</string>

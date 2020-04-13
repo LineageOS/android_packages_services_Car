@@ -484,7 +484,7 @@
     <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"PIN kod kerak emasmi?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Parol kerak emasmi?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Grafik kalit kerak emasmi?"</string>
-    <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Ekranni qulfini sozlash"</string>
+    <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Ekran qulfini sozlash"</string>
     <string name="security_settings_fingerprint_enroll_done" msgid="4111289529758845926">"Tayyor"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_title" msgid="7410398793283818609">"Obbo, bu sensor emas."</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_message" msgid="7192100314788868883">"Telefonning orqasida joylashgan sensorga tegining. Ko‘rsatkich barmog‘ingizdan foydalaning."</string>
@@ -1704,7 +1704,7 @@
     <string name="settings_safetylegal_activity_unreachable" msgid="3541894966476445833">"Qurilma internetga ulanmagan. Bu ma’lumotni ko‘rish uchun internetga ulangan istalgan kompyuterda %s sahifasini oching."</string>
     <string name="settings_safetylegal_activity_loading" msgid="7680998654145172">"Yuklanmoqda…"</string>
     <string name="confirm_device_credential_use_alternate_method" msgid="1279869272895739941">"Muqobil usuldan foydalanish"</string>
-    <string name="lockpassword_choose_your_screen_lock_header" msgid="6283518876031424798">"Ekranni qulfini sozlash"</string>
+    <string name="lockpassword_choose_your_screen_lock_header" msgid="6283518876031424798">"Ekran qulfini sozlash"</string>
     <string name="lockpassword_choose_your_password_message" msgid="2838273977481046536">"Xavfsizlik uchun parol o‘rnating"</string>
     <string name="lockpassword_choose_your_password_header_for_fingerprint" msgid="4921343500484160894">"Barmoq izidan foydalanish uchun parol o‘rnating"</string>
     <string name="lockpassword_choose_your_pattern_header_for_fingerprint" msgid="314870151462139417">"Avval grafik kalit yarating"</string>

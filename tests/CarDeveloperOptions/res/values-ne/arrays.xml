@@ -62,8 +62,8 @@
   <string-array name="entries_font_size">
     <item msgid="2340391964816059553">"सानो"</item>
     <item msgid="591935967183159581">"पूर्वनिर्धारित"</item>
-    <item msgid="1714184661981538355">"ठूलो"</item>
-    <item msgid="6195563047686707484">"सबैभन्दा ठूलो"</item>
+    <item msgid="1714184661981538355">"ठुलो"</item>
+    <item msgid="6195563047686707484">"सबैभन्दा ठुलो"</item>
   </string-array>
   <string-array name="wifi_status">
     <item msgid="1304883790721412351"></item>
@@ -307,8 +307,8 @@
     <item msgid="1680223634161592855">"ज्यादै साना"</item>
     <item msgid="5091603983404027034">"सानो"</item>
     <item msgid="176844712416932112">"सामान्य"</item>
-    <item msgid="2784236342175159295">"ठूलो"</item>
-    <item msgid="218913203203160606">"ज्यादै ठूलो"</item>
+    <item msgid="2784236342175159295">"ठुलो"</item>
+    <item msgid="218913203203160606">"ज्यादै ठुलो"</item>
   </string-array>
   <string-array name="captioning_edge_type_selector_titles">
     <item msgid="3865198759294188069">"पूर्वनिर्धारित"</item>
@@ -398,7 +398,7 @@
   <string-array name="wifi_metered_entries">
     <item msgid="4329206416008519163">"स्वतः पत्ता लगाउनुहोस्"</item>
     <item msgid="773943026484148895">"शुल्क लाग्ने वाइफाइका रूपमा लिनुहोस्"</item>
-    <item msgid="1008268820118852416">"मिटर नगरिएको रूपमा व्यवहार गर्नुहोस्"</item>
+    <item msgid="1008268820118852416">"नि:शुल्क वाइफाइको रूपमा व्यवहार गर्नुहोस्"</item>
   </string-array>
   <string-array name="wifi_privacy_entries">
     <item msgid="6545683814310036454">"क्रमरहित MAC प्रयोग गर्नुहोस् (पूर्वनिर्धारित)"</item>

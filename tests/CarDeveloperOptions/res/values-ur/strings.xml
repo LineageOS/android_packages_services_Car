@@ -910,7 +910,7 @@
     <string name="wifi_signal" msgid="696548364467704808">"سگنل کی قوت"</string>
     <string name="wifi_status" msgid="3439931558930689940">"اسٹیٹس"</string>
     <string name="tx_wifi_speed" msgid="2571810085003261073">"ترسیل کے لنک کی رفتار"</string>
-    <string name="rx_wifi_speed" msgid="7392873246110937187">"لنک کی رفتار وصول کریں"</string>
+    <string name="rx_wifi_speed" msgid="7392873246110937187">"وصولی کے لنک کی رفتار"</string>
     <string name="wifi_frequency" msgid="6132852924995724246">"تعدد"</string>
     <string name="wifi_ip_address" msgid="5572539114989914831">"IP پتہ"</string>
     <string name="passpoint_label" msgid="7429247462404128615">"محفوظ کردہ بذریعہ"</string>
@@ -1219,7 +1219,7 @@
     <string name="night_display_status_title" msgid="1727020934735770319">"اسٹیٹس"</string>
     <string name="night_display_temperature_title" msgid="8375126629902616296">"شدت"</string>
     <string name="night_display_summary_off" msgid="8850539785332228069">"آف / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="night_display_summary_off_auto_mode_never" msgid="8618824386434992487">"کبھی بھی خودکار طور پر آن نہیں ہوگا"</string>
+    <string name="night_display_summary_off_auto_mode_never" msgid="8618824386434992487">"کبھی بھی خودکار طور پر آن نہیں ہو گی"</string>
     <string name="night_display_summary_off_auto_mode_custom" msgid="596847003171394411">"<xliff:g id="ID_1">%1$s</xliff:g> پر خودکار طور پر آن ہو جائے گا"</string>
     <string name="night_display_summary_off_auto_mode_twilight" msgid="4071750976585359952">"غروب آفتاب پر خودکار طور پر آن ہو جائے گا"</string>
     <string name="night_display_summary_on" msgid="6580571388791426596">"آن / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
@@ -3704,7 +3704,7 @@
     </plurals>
     <string name="high_power_filter_on" msgid="5294209328473386403">"بہترین بنائی گئی نہیں ہیں"</string>
     <string name="high_power_on" msgid="3573501822510580334">"بہترین بنائی گئی نہیں ہیں"</string>
-    <string name="high_power_off" msgid="5906679734326490426">"بیٹری استعمال کو بہترین بنا رہی ہے"</string>
+    <string name="high_power_off" msgid="5906679734326490426">"بیٹری استعمال کو بہتر بنایا جا رہا ہے"</string>
     <string name="high_power_system" msgid="739584574711292753">"بیٹری بہترین بنانا دستیاب نہیں ہے"</string>
     <string name="high_power_desc" msgid="333756885680362741">"بیٹری بہترین بنانا لاگو مت کریں۔ ممکن ہے یہ آپ کی بیٹری مزید تیزی سے ختم کر دے۔"</string>
     <string name="high_power_prompt_title" msgid="2805745781720454052">"ایپ کو ہمیشہ پس منظر میں چلنے دیں؟"</string>
@@ -4067,7 +4067,7 @@
     <string name="premium_sms_warning" msgid="7604011651486294515">"ہو سکتا ہے آپ کو پریمیم SMS کے پیسے ادا کرنا پڑیں اور یہ آپ کے کیرئیر بلز میں شامل ہو جائیں گے۔ اگر آپ ایک ایپ کیلئے اجازت فعال کرتے ہیں تو آپ اس ایپ کو استعمال کرکے آپ پریمیم SMS بھیج پائیں گے۔"</string>
     <string name="premium_sms_access" msgid="4550027460595822851">"پریمیم SMS رسائی"</string>
     <string name="bluetooth_disabled" msgid="6588102116819268238">"آف"</string>
-    <string name="bluetooth_connected_summary" msgid="439920840053965217">"<xliff:g id="ID_1">%1$s</xliff:g> سے منسلک کردہ"</string>
+    <string name="bluetooth_connected_summary" msgid="439920840053965217">"‫<xliff:g id="ID_1">%1$s</xliff:g> سے منسلک کردہ"</string>
     <string name="bluetooth_connected_multiple_devices_summary" msgid="596205630653123250">"متعدد آلات سے منسلک کردہ"</string>
     <string name="demo_mode" msgid="3831081808592541104">"سسٹم UI ڈیمو موڈ"</string>
     <string name="dark_ui_mode" msgid="703844190192599217">"تھیم"</string>

@@ -110,7 +110,7 @@
   <string-array name="wifi_proxy_settings">
     <item msgid="9032900195127165132">"ਕੋਈ ਨਹੀਂ"</item>
     <item msgid="1464741437353223198">"ਮੈਨੁਅਲ"</item>
-    <item msgid="5793600062487886090">"ਪ੍ਰੌਕਸੀ ਆਟੋ-ਕੌਂਫਿਗਰ"</item>
+    <item msgid="5793600062487886090">"ਪ੍ਰੌਕਸੀ ਸਵੈ-ਸੰਰੂਪਣ"</item>
   </string-array>
   <string-array name="apn_auth_entries">
     <item msgid="7099647881902405997">"ਕੋਈ ਨਹੀਂ"</item>
@@ -291,9 +291,9 @@
     <item msgid="6248998242443333892">"ਕੈਚ ਕੀਤੀ (ਖਾਲੀ)"</item>
   </string-array>
   <string-array name="color_picker">
-    <item msgid="3151827842194201728">"Teal"</item>
+    <item msgid="3151827842194201728">"ਟੀਲ"</item>
     <item msgid="3228505970082457852">"ਨੀਲਾ"</item>
-    <item msgid="6590260735734795647">"Indigo"</item>
+    <item msgid="6590260735734795647">"ਗੂੜ੍ਹਾ ਨੀਲਾ"</item>
     <item msgid="3521763377357218577">"ਜਾਮਨੀ"</item>
     <item msgid="5932337981182999919">"ਗੁਲਾਬੀ"</item>
     <item msgid="5642914536624000094">"ਲਾਲ"</item>
