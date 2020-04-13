@@ -351,12 +351,13 @@ void WatchdogProcessService::binderDied(const wp<IBinder>& who) {
     sp<IBinder> monitor = BnCarWatchdog::asBinder(mMonitor);
     if (monitor == binder) {
         mMonitor = nullptr;
-        ALOGI("The monitor has died.");
+        ALOGW("The monitor has died.");
         return;
     }
     findClientAndProcessLocked(kTimeouts, binder,
                                [&](std::vector<ClientInfo>& clients,
                                    std::vector<ClientInfo>::const_iterator it) {
+                                   ALOGW("Client(pid: %d) died", it->pid);
                                    clients.erase(it);
                                });
 }
