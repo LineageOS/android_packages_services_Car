@@ -26,7 +26,6 @@ import static com.android.car.CarLog.TAG_WATCHDOG;
 import static com.android.internal.util.function.pooled.PooledLambda.obtainMessage;
 
 import android.annotation.NonNull;
-import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.automotive.watchdog.ICarWatchdogClient;
 import android.automotive.watchdog.PowerCycle;
@@ -387,7 +386,6 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         return mLastSessionId;
     }
 
-    @Nullable
     private void removeClientLocked(IBinder clientBinder, int timeout) {
         ArrayList<ClientInfo> clients = mClientMap.get(timeout);
         for (int i = 0; i < clients.size(); i++) {
@@ -591,6 +589,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
         @Override
         public void binderDied() {
+            Log.w(TAG, "Client(pid: " + pid + ") died");
             onClientDeath(client, timeout);
         }
     }
