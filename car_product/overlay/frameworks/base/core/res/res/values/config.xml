@@ -111,7 +111,7 @@
          Common scenarios for auto:
           - to enable feature (fully enforced) for a complete whitelist: 1
           - to enable feature for an incomplete whitelist (so use implicit whitelist mode): 5 -->
-    <integer name="config_userTypePackageWhitelistMode">5</integer> <!-- 1+4 -->
+    <integer name="config_userTypePackageWhitelistMode">1</integer>
 
     <!-- Default user restrictions for system user 0. -->
     <string-array translatable="false" name="config_defaultFirstUserRestrictions">
