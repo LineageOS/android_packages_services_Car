@@ -145,13 +145,13 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
                 OwnershipClientInfo ownerInfo = mFocusOwners.get(appType);
                 if (ownerInfo != null && ownerInfo != info) {
                     if (mSystemActivityMonitoringService.isInForeground(
-                                ownerInfo.getPid(), ownerInfo.getUid()) &&
-                        !mSystemActivityMonitoringService.isInForeground(
-                                info.getPid(), info.getUid())) {
+                            ownerInfo.getPid(), ownerInfo.getUid())
+                            && !mSystemActivityMonitoringService.isInForeground(
+                            info.getPid(), info.getUid())) {
                         Log.w(CarLog.TAG_APP_FOCUS, "Focus request failed for non-foreground app("
-                              + "pid=" + info.getPid() + ", uid=" + info.getUid() + ")."
-                              + "Foreground app (pid=" + ownerInfo.getPid() + ", uid="
-                              + ownerInfo.getUid() + ") owns it.");
+                                + "pid=" + info.getPid() + ", uid=" + info.getUid() + ")."
+                                + "Foreground app (pid=" + ownerInfo.getPid() + ", uid="
+                                + ownerInfo.getUid() + ") owns it.");
                         return CarAppFocusManager.APP_FOCUS_REQUEST_FAILED;
                     }
                     ownerInfo.removeOwnedAppType(appType);
