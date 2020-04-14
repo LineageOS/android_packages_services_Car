@@ -266,12 +266,11 @@ public final class CarWatchdogDaemonHelper {
      *                                  interface for more information on the args.
      * @throws RemoteException
      */
-    public void notifySystemStateChange(int type, int arg1, int arg2)
-            throws IllegalArgumentException, RemoteException {
+    public void notifySystemStateChange(int type, int arg1, int arg2) throws RemoteException {
         invokeDaemonMethod((daemon) -> daemon.notifySystemStateChange(type, arg1, arg2));
     }
 
-    private void invokeDaemonMethod(Invokable r) throws IllegalArgumentException, RemoteException {
+    private void invokeDaemonMethod(Invokable r) throws RemoteException {
         ICarWatchdog daemon;
         synchronized (mLock) {
             if (mCarWatchdogDaemon == null) {
