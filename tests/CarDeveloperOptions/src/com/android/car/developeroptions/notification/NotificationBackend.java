@@ -19,6 +19,7 @@ import static android.app.NotificationManager.IMPORTANCE_NONE;
 import static android.app.NotificationManager.IMPORTANCE_UNSPECIFIED;
 
 import android.app.INotificationManager;
+import android.app.NotificationManager;
 import android.app.NotificationChannel;
 import android.app.NotificationChannelGroup;
 import android.app.usage.IUsageStatsManager;
@@ -71,7 +72,7 @@ public class NotificationBackend {
         row.icon = IconDrawableFactory.newInstance(context).getBadgedIcon(app);
         row.banned = getNotificationsBanned(row.pkg, row.uid);
         row.showBadge = canShowBadge(row.pkg, row.uid);
-        row.allowBubbles = canBubble(row.pkg, row.uid);
+        row.bubblePreference = getBubblePreference(row.pkg, row.uid);
         row.userId = UserHandle.getUserId(row.uid);
         row.blockedChannelCount = getBlockedChannelCount(row.pkg, row.uid);
         row.channelCount = getChannelCount(row.pkg, row.uid);
@@ -176,18 +177,18 @@ public class NotificationBackend {
         }
     }
 
-    public boolean canBubble(String pkg, int uid) {
+    public int getBubblePreference(String pkg, int uid) {
         try {
-            return sINM.areBubblesAllowedForPackage(pkg, uid);
+            return sINM.getBubblePreferenceForPackage(pkg, uid);
         } catch (Exception e) {
             Log.w(TAG, "Error calling NoMan", e);
-            return false;
+            return -1;
         }
     }
 
-    public boolean setAllowBubbles(String pkg, int uid, boolean allow) {
+    public boolean setAllowBubbles(String pkg, int uid, int pref) {
         try {
-            sINM.setBubblesAllowed(pkg, uid, allow);
+            sINM.setBubblesAllowed(pkg, uid, pref);
             return true;
         } catch (Exception e) {
             Log.w(TAG, "Error calling NoMan", e);
@@ -485,7 +486,7 @@ public class NotificationBackend {
         public boolean lockedImportance;
         public String lockedChannelId;
         public boolean showBadge;
-        public boolean allowBubbles;
+        public int bubblePreference = NotificationManager.BUBBLE_PREFERENCE_NONE;
         public int userId;
         public int blockedChannelCount;
         public int channelCount;
