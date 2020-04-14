@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Tornar o texto na tela menor ou maior."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Tornar menor"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Tornar maior"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Texto de amostra"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"O Mágico de Oz"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"Capítulo 11: A maravilhosa Cidade das Esmeraldas de Oz"</string>
@@ -544,7 +543,7 @@
     <string name="suggested_fingerprint_lock_settings_summary" product="tablet" msgid="8114514312665251311"></string>
     <string name="suggested_fingerprint_lock_settings_summary" product="device" msgid="8114514312665251311"></string>
     <string name="suggested_fingerprint_lock_settings_summary" product="default" msgid="8114514312665251311"></string>
-    <string name="lock_settings_picker_title" msgid="1034741644461982205">"Escolher bloqueio de tela"</string>
+    <string name="lock_settings_picker_title" msgid="1034741644461982205">"Bloqueio de tela"</string>
     <string name="lock_settings_picker_title_profile" msgid="5086594364428782115">"Escolher bloq de trab."</string>
     <string name="setup_lock_settings_picker_title" product="tablet" msgid="2429667472335773519">"Proteger o tablet"</string>
     <string name="setup_lock_settings_picker_title" product="device" msgid="4739290104106645233">"Proteger o dispositivo"</string>
@@ -906,7 +905,7 @@
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"Digite o SSID"</string>
     <string name="wifi_security" msgid="9136702039496152831">"Segurança"</string>
     <string name="wifi_hidden_network" msgid="6647772204699776833">"Rede oculta"</string>
-    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Se seu roteador não estiver transmitindo um código de rede, mas você quiser se conectar a ele no futuro, configure a rede como oculta.\n\nIsso pode gerar um risco à segurança, porque seu smartphone transmitirá regularmente o próprio sinal para encontrar a rede.\n\nA configuração da rede como oculta não altera as configurações do seu roteador."</string>
+    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Se seu roteador não estiver transmitindo o ID da rede, mas você quiser se conectar a ela no futuro, configure a rede como oculta.\n\nIsso pode gerar um risco à segurança, porque seu smartphone transmitirá regularmente o próprio sinal para encontrar a rede.\n\nA configuração da rede como oculta não altera as configurações do seu roteador."</string>
     <string name="wifi_signal" msgid="696548364467704808">"Potência do sinal"</string>
     <string name="wifi_status" msgid="3439931558930689940">"Status"</string>
     <string name="tx_wifi_speed" msgid="2571810085003261073">"Velocidade do link de transmissão"</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"Celular"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Se o Wi‑Fi estiver indisponível, use a rede móvel"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Se a rede móvel estiver indisponível, use Wi‑Fi"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Chamar via Wi-Fi. Sem sinal do Wi‑Fi, a chamada será encerrada."</string>
@@ -2428,7 +2430,7 @@
     <string name="battery_last_full_charge" msgid="5624033030647170717">"Última carga completa"</string>
     <string name="battery_full_charge_last" msgid="4614554109170251301">"A carga completa dura cerca de"</string>
     <string name="battery_footer_summary" msgid="4828444679643906943">"Os dados de uso da bateria são aproximados e podem mudar conforme o uso"</string>
-    <string name="battery_detail_foreground" msgid="6616408559186553085">"Ativo"</string>
+    <string name="battery_detail_foreground" msgid="6616408559186553085">"Durante o uso"</string>
     <string name="battery_detail_background" msgid="7938146832943604280">"Em segundo plano"</string>
     <string name="battery_detail_power_usage" msgid="3606930232257489212">"Uso da bateria"</string>
     <string name="battery_detail_info_title" msgid="4617514228447481336">"Desde a carga completa"</string>
@@ -3962,8 +3964,8 @@
     <string name="configure" msgid="8232696842838580549">"Configurar"</string>
     <string name="data_usage_other_apps" msgid="7002491980141402084">"Outros apps inclusos no uso"</string>
     <plurals name="data_saver_unrestricted_summary" formatted="false" msgid="6046013861315713697">
-      <item quantity="one"><xliff:g id="COUNT">%1$d</xliff:g> app autorizado a usar dados irrestritos quando a Economia de dados estiver ativada</item>
-      <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> apps autorizados a usar dados irrestritos quando a Economia de dados estiver ativada</item>
+      <item quantity="one"><xliff:g id="COUNT">%1$d</xliff:g> app autorizado a usar dados ilimitados quando a Economia de dados estiver ativada</item>
+      <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> apps autorizados a usar dados ilimitados quando a Economia de dados estiver ativada</item>
     </plurals>
     <string name="data_usage_title" msgid="7874606430902201083">"Dados primários"</string>
     <string name="data_usage_wifi_title" msgid="7161828479387766556">"Dados Wi‑Fi"</string>
@@ -3984,12 +3986,12 @@
     <string name="launch_mdp_app_text" msgid="9186559496664208252">"Ver plano"</string>
     <string name="launch_wifi_text" msgid="317820210431682605">"Ver detalhes"</string>
     <string name="data_saver_title" msgid="7903308134514179256">"Economia de dados"</string>
-    <string name="unrestricted_data_saver" msgid="9139401849550738720">"Dados irrestritos"</string>
+    <string name="unrestricted_data_saver" msgid="9139401849550738720">"Dados ilimitados"</string>
     <string name="restrict_background_blacklisted" msgid="7158991683849067124">"Os dados em segundo plano estão desativados"</string>
     <string name="data_saver_on" msgid="7281809065420480881">"Ativada"</string>
     <string name="data_saver_off" msgid="7439439787358504018">"Desativada"</string>
     <string name="data_saver_switch_title" msgid="8244008132112735207">"Usar o recurso Economia de dados"</string>
-    <string name="unrestricted_app_title" msgid="4390661122069905122">"Uso irrestrito de dados"</string>
+    <string name="unrestricted_app_title" msgid="4390661122069905122">"Uso ilimitado de dados"</string>
     <string name="unrestricted_app_summary" msgid="2829141815077800483">"Permitir acesso irrestrito a dados quando a Economia de dados estiver ativada"</string>
     <string name="home_app" msgid="3695063566006954160">"App de início"</string>
     <string name="no_default_home" msgid="1518949210961918497">"Nenhuma Página inicial padrão"</string>
@@ -4052,8 +4054,8 @@
     <string name="overlay_toast_failed_to_apply" msgid="5692251825129250040">"Falha ao aplicar sobreposição"</string>
     <string name="special_access" msgid="1453926335914696206">"Acesso especial a apps"</string>
     <plurals name="special_access_summary" formatted="false" msgid="5182092345063909346">
-      <item quantity="one"><xliff:g id="COUNT">%d</xliff:g> app pode usar dados irrestritos</item>
-      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> apps podem usar dados irrestritos</item>
+      <item quantity="one"><xliff:g id="COUNT">%d</xliff:g> app pode usar dados ilimitados</item>
+      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> apps podem usar dados ilimitados</item>
     </plurals>
     <string name="special_access_more" msgid="7086690625048471400">"Ver mais"</string>
     <string name="confirm_convert_to_fbe_warning" msgid="4972595831034280189">"Quer mesmo limpar dados do usuário e converter em criptografia de arquivos?"</string>

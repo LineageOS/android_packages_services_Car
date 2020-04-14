@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"画面上のテキストのサイズを変更します。"</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"縮小"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"拡大"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"サンプル テキスト"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"オズの魔法使い"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"第 11 章: オズの不思議なエメラルド シティ"</string>
@@ -468,7 +467,7 @@
     <string name="security_settings_fingerprint_enroll_dialog_delete" msgid="4312297515772004580">"削除"</string>
     <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"センサーに触れる"</string>
     <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"指をセンサーに当て、振動したら離します。"</string>
-    <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"指を離してからもう一度触れる"</string>
+    <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"指をタッチして離す"</string>
     <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"指を何度か離して、あらゆる角度から指紋を登録します。"</string>
     <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"指紋の登録完了"</string>
     <string name="security_settings_fingerprint_enroll_finish_message" msgid="5862643337893923347">"このアイコンが表示されているときは、本人確認や購入の承認に指紋認証を使用できます"</string>
@@ -863,7 +862,7 @@
     <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"この機能を使用するには、対応するネットワーク評価プロバイダを選択してください"</string>
     <string name="wifi_install_credentials" msgid="5650088113710858289">"証明書のインストール"</string>
     <string name="wifi_scan_notify_text" msgid="7614101215028336927">"位置情報の精度を向上させるため、Wi‑Fi が OFF の場合でも、アプリやサービスはいつでも Wi‑Fi ネットワークをスキャンできます。この設定は、位置情報を使用する機能やサービスの改善などに役立ちます。この設定は<xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>スキャンの設定<xliff:g id="LINK_END_1">LINK_END</xliff:g>で変更できます。"</string>
-    <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"位置情報の精度を上げるには、<xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>スキャンの設定<xliff:g id="LINK_END_1">LINK_END</xliff:g>で Wi-Fi スキャンをオンにしてください。"</string>
+    <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"位置情報の精度を上げるには、<xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>スキャンの設定<xliff:g id="LINK_END_1">LINK_END</xliff:g>で Wi-Fi スキャンを ON にしてください。"</string>
     <string name="wifi_scan_notify_remember_choice" msgid="1235445971400237444">"次回から表示しない"</string>
     <string name="wifi_setting_sleep_policy_title" msgid="2120785188625932076">"スリープ時にWi-Fi接続を維持"</string>
     <string name="wifi_setting_on_during_sleep_title" msgid="856670183023402715">"スリープ時にWi-Fi接続を維持"</string>
@@ -889,7 +888,7 @@
     <string name="wifi_menu_remember" msgid="717257200269700641">"ネットワークを保存"</string>
     <string name="wifi_menu_forget" msgid="7561140554450163075">"ネットワークを削除"</string>
     <string name="wifi_menu_modify" msgid="4080178040721021101">"ネットワークを変更"</string>
-    <string name="wifi_empty_list_wifi_off" msgid="272877164691346240">"利用可能なネットワークを表示するにはWi-FiをON"</string>
+    <string name="wifi_empty_list_wifi_off" msgid="272877164691346240">"利用可能なネットワークを表示するには Wi-Fi を ON にします。"</string>
     <string name="wifi_empty_list_wifi_on" msgid="881478805041020600">"Wi-Fiネットワークを検索しています…"</string>
     <string name="wifi_empty_list_user_restricted" msgid="2341613007817352431">"Wi-Fiネットワークを変更する権限がありません。"</string>
     <string name="wifi_more" msgid="3538241640407382185">"その他"</string>
@@ -936,7 +935,7 @@
     <string name="wifi_privacy_settings" msgid="4462092795794247809">"プライバシー"</string>
     <string name="wifi_privacy_settings_ephemeral_summary" msgid="2411375348287064283">"ランダム化 MAC"</string>
     <string name="wifi_dpp_add_device_to_network" msgid="8871041525483253430">"デバイスの追加"</string>
-    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"「<xliff:g id="SSID">%1$s</xliff:g>」にデバイスを追加するには、下記の中心に QR コードを合わせてください"</string>
+    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"「<xliff:g id="SSID">%1$s</xliff:g>」にデバイスを追加するには、下の枠に QR コードを合わせてください"</string>
     <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"QR コードのスキャン"</string>
     <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"「<xliff:g id="SSID">%1$s</xliff:g>」に接続するには、下記の中心に QR コードを合わせてください"</string>
     <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"Wi‑Fi に接続するには、QR コードをスキャンしてください"</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"モバイル"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Wi‑Fi が利用できない場合は、モバイル ネットワークを使用します"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"モバイル ネットワークが使用できない場合は、Wi‑Fi を使用します"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Wi‑Fi 経由で通話します。Wi‑Fi が切断されると、通話は終了します。"</string>
@@ -2934,7 +2936,7 @@
     <string name="restriction_menu_change_pin" msgid="592512748243421101">"PINを変更"</string>
     <string name="app_notifications_switch_label" msgid="670683308275498821">"通知を表示"</string>
     <string name="help_label" msgid="1296484776243905646">"ヘルプとフィードバック"</string>
-    <string name="support_summary" msgid="3278943815956130740">"ヘルプ記事、電話とチャット、使ってみる"</string>
+    <string name="support_summary" msgid="3278943815956130740">"ヘルプ記事、電話とチャット、スタートガイド"</string>
     <string name="user_account_title" msgid="2108666882630552859">"コンテンツのアカウント"</string>
     <string name="user_picture_title" msgid="6664602422948159123">"画像ID"</string>
     <string name="extreme_threats_title" msgid="1405820547540456436">"極めて重大な脅威"</string>
@@ -4443,7 +4445,7 @@
     <string name="mobile_network_mode_error" msgid="6818434186286086554">"ネットワーク モード <xliff:g id="NETWORKMODEID">%1$d</xliff:g> は無効です。無視してください。"</string>
     <string name="mobile_network_apn_title" msgid="5628635067747404382">"アクセス ポイント名"</string>
     <string name="manual_mode_disallowed_summary" msgid="799800630000340665">"<xliff:g id="CARRIER">%1$s</xliff:g> への接続時は利用できません"</string>
-    <string name="emergency_info_contextual_card_summary" msgid="5541444321969803486">"医療記録、緊急連絡先"</string>
+    <string name="emergency_info_contextual_card_summary" msgid="5541444321969803486">"医療情報、緊急連絡先"</string>
     <string name="see_more" msgid="7463940160389802632">"詳細"</string>
     <string name="see_less" msgid="3718892257002813387">"一部を表示"</string>
     <string name="network_connection_request_dialog_title" msgid="3150489262902506588">"<xliff:g id="APPNAME">%1$s</xliff:g> で使用するデバイス"</string>

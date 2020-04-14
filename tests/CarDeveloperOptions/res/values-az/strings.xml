@@ -2529,7 +2529,7 @@
     <string name="credentials_reset_summary" msgid="7622528359699428555">"Bütün sertifikatları sil"</string>
     <string name="trusted_credentials" msgid="6989242522455395200">"İnanılmış etimadlar"</string>
     <string name="trusted_credentials_summary" msgid="7411781319056251582">"İnanılmış CA sertifikatları göstər"</string>
-    <string name="user_credentials" msgid="8365731467650306757">"İstifadəçi haqqında məlumatlar"</string>
+    <string name="user_credentials" msgid="8365731467650306757">"İstifadəçi məlumatı"</string>
     <string name="user_credentials_summary" msgid="7350223899317423252">"Saxlanılan məlumatlara baxın və dəyişin"</string>
     <string name="advanced_security_title" msgid="286883005673855845">"Qabaqcıl ayarlar"</string>
     <string name="credential_storage_type" msgid="2585337320206095255">"Saxlama növü"</string>

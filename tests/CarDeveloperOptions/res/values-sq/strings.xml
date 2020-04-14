@@ -596,7 +596,7 @@
     <string name="unlock_disable_lock_title" msgid="3508492427073600294">"Çakt. kyçjen e ekranit"</string>
     <string name="unlock_disable_frp_warning_title" msgid="5858589970505254193">"Të hiqet mbrojtja e pajisjes?"</string>
     <string name="unlock_disable_frp_warning_title_profile" msgid="3814123014295965266">"Të hiqet mbrojtja e profilit?"</string>
-    <string name="unlock_disable_frp_warning_content_pattern" msgid="1843950215687159135">"Funksionet e mbrojtjes së pajisjes nuk do të funksionojnë pa motivin tënd."</string>
+    <string name="unlock_disable_frp_warning_content_pattern" msgid="1843950215687159135">"Veçoritë e mbrojtjes së pajisjes nuk do të funksionojnë pa motivin tënd."</string>
     <string name="unlock_disable_frp_warning_content_pattern_fingerprint" msgid="8846957650251741548">"Funksionet e mbrojtjes së pajisjes nuk do të funksionojnë pa motivin tënd.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>Gjurmët e gishtave të ruajtura do të hiqen nga kjo pajisje dhe nuk do të jesh në gjendje të shkyçësh telefonin, të autorizosh blerjet apo të identifikohesh në aplikacione me to."</string>
@@ -850,7 +850,7 @@
     <string name="wifi_notify_open_networks" msgid="4782239203624619655">"Hap njoftimin e rrjetit"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"Njofto kur ofrohet një rrjet publik me cilësi të lartë"</string>
     <string name="wifi_wakeup" msgid="4963732992164721548">"Aktivizo automatikisht Wi‑Fi"</string>
-    <string name="wifi_wakeup_summary" msgid="1152699417411690">"Wi-Fi do të aktivizohet përsëri në afërsi të rrjeteve të ruajtura me cilësi të lartë, si p.sh. rrjetin e shtëpisë"</string>
+    <string name="wifi_wakeup_summary" msgid="1152699417411690">"Wi-Fi do të aktivizohet përsëri në afërsi të rrjeteve të ruajtura me cilësi të lartë, si p.sh. rrjeti i shtëpisë"</string>
     <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"Nuk ofrohet sepse vendndodhja është e çaktivizuar. Aktivizo "<annotation id="link">"vendndodhjen"</annotation>"."</string>
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"Nuk ofrohet sepse skanimi i Wi-Fi është çaktivizuar"</string>
     <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"Për ta përdorur, zgjidh një ofrues të vlerësimit të rrjetit"</string>
@@ -3042,7 +3042,7 @@
     <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"Asistenti, aplikacionet së fundi, aplikacionet e parazgjedhura"</string>
     <string name="notification_settings_work_profile" msgid="7190550347842400029">"Qasja te njoftimet nuk ofrohet për aplikacionet në profilin e punës."</string>
     <string name="account_dashboard_title" msgid="4734300939532555885">"Llogaritë"</string>
-    <string name="account_dashboard_default_summary" msgid="6822549669771936206">"Nuk u shtua asnjë llogari"</string>
+    <string name="account_dashboard_default_summary" msgid="6822549669771936206">"Nuk është shtuar asnjë llogari"</string>
     <string name="app_default_dashboard_title" msgid="6575301028225232193">"Apl. e parazgjedhura"</string>
     <string name="system_dashboard_summary" msgid="6582464466735779394">"Gjuhët, gjestet, koha, rezervimi"</string>
     <string name="search_results_title" msgid="4160717656435503940">"Cilësimet"</string>

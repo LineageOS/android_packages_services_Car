@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Agrandissez ou réduisez la taille du texte affiché."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Réduire"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Agrandir"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Exemple de texte"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"Le Magicien d\'Oz"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"Chapitre 11 : La merveilleuse cité d\'émeraude"</string>
@@ -549,7 +548,7 @@
     <string name="setup_lock_settings_picker_title" product="tablet" msgid="2429667472335773519">"Protéger la tablette"</string>
     <string name="setup_lock_settings_picker_title" product="device" msgid="4739290104106645233">"Protéger l\'appareil"</string>
     <string name="setup_lock_settings_picker_title" product="default" msgid="3911582328576859628">"Protégez votre téléphone"</string>
-    <string name="lock_settings_picker_biometrics_added_security_message" msgid="799453282539387294">"Pour plus de sécurité, définissez un mode de verrouillage d\'écran secondaire"</string>
+    <string name="lock_settings_picker_biometrics_added_security_message" msgid="799453282539387294">"Pour plus de sécurité, définissez une méthode secondaire pour verrouiller l\'écran"</string>
     <string name="setup_lock_settings_picker_message" product="tablet" msgid="7230799135599877804">"Activez les fonctionnalités de protection de l\'appareil pour empêcher d\'autres personnes d\'utiliser cette tablette sans votre autorisation. Choisissez la méthode de verrouillage de l\'écran à utiliser."</string>
     <string name="setup_lock_settings_picker_message" product="device" msgid="2098404520816295371">"Activez les fonctionnalités de protection de l\'appareil pour empêcher d\'autres personnes d\'utiliser cet appareil sans votre autorisation. Choisissez la méthode de verrouillage de l\'écran à utiliser."</string>
     <string name="setup_lock_settings_picker_message" product="default" msgid="2003984443953672040">"Activez les fonctionnalités de protection de l\'appareil pour empêcher d\'autres personnes d\'utiliser ce téléphone sans votre autorisation. Choisissez la méthode de verrouillage de l\'écran à utiliser."</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"Mobile"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Si le réseau Wi‑Fi n\'est pas disponible, utilisez le réseau mobile"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Si le réseau mobile n\'est pas disponible, utiliser le réseau Wi‑Fi"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Appel via le Wi-Fi. Si vous perdez le Wi‑Fi, l\'appel se terminera."</string>
@@ -1645,7 +1647,7 @@
     <string name="mobile_insert_sim_card" msgid="7594550403454243732">"Insérez la carte SIM, puis redémarrez."</string>
     <string name="mobile_connect_to_internet" msgid="6031886097365170913">"Connectez-vous à Internet."</string>
     <string name="location_title" msgid="8664674161765477168">"Ma position"</string>
-    <string name="managed_profile_location_switch_title" msgid="8157384427925389680">"Emplacement du profil pro"</string>
+    <string name="managed_profile_location_switch_title" msgid="8157384427925389680">"Position du profil pro"</string>
     <string name="location_app_level_permissions" msgid="1298041503927632960">"Autorisation des applications"</string>
     <string name="location_app_permission_summary_location_off" msgid="541372845344796336">"La localisation est désactivée"</string>
     <plurals name="location_app_permission_summary_location_on" formatted="false" msgid="7904821382328758218">

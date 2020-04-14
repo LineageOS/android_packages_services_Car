@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"မျက်နှာပြင်ပေါ်ရှိ စာလုံးကို ပိုသေးအောင် သို့မဟုတ် ပိုကြီးအောင် လုပ်ပါ။"</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"ပိုသေးအောင် ပြုလုပ်ပါ"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"ပိုကြီးအောင် ပြုလုပ်ပါ"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"နမူနာ စာသား"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"Oz ၏အံ့ဖွယ်ဝိဇ္ဇာ"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"အခန်းကြီး ၁၁ − Oz ၏အံ့ဖွယ် မြစိမ်းရောင်မြို့တော်"</string>
@@ -324,7 +323,7 @@
     <string name="date_and_time_settings_title_setup_wizard" msgid="1573030770187844365">"ရက်စွဲနှင့် အချိန် သတ်မှတ်ရန်"</string>
     <string name="date_and_time_settings_summary" msgid="4617979434474713417">"ရက်စွဲ အချိန် အချိန်ဇုန်နှင့် ပုံစံများအား သတ်မှတ်ရန်"</string>
     <string name="date_time_auto" msgid="2679132152303750218">"ကွန်ရက်က ပြသောအချိန် သုံးပါ"</string>
-    <string name="zone_auto_title" msgid="5500880975376882488">"ကွန်ရက်ကပြသော စံတော်ချိန် သုံးပါ"</string>
+    <string name="zone_auto_title" msgid="5500880975376882488">"ကွန်ရက်က ဖော်ပြထားသောအချိန်ဇုန်ကို အသုံးပြုရန်"</string>
     <string name="date_time_24hour_auto" msgid="7499659679134962547">"အသုံးပြုမည့် ဒေသဘာသာစကား၏စနစ်ကို သုံးရန်"</string>
     <string name="date_time_24hour_title" msgid="6209923858891621283">"၂၄-နာရီပုံစံ"</string>
     <string name="date_time_24hour" msgid="1265706705061608742">"၂၄-နာရီပုံစံကို အသုံးပြုမည်"</string>
@@ -544,7 +543,7 @@
     <string name="suggested_fingerprint_lock_settings_summary" product="tablet" msgid="8114514312665251311"></string>
     <string name="suggested_fingerprint_lock_settings_summary" product="device" msgid="8114514312665251311"></string>
     <string name="suggested_fingerprint_lock_settings_summary" product="default" msgid="8114514312665251311"></string>
-    <string name="lock_settings_picker_title" msgid="1034741644461982205">"မျက်နှာပြင်လော့ခ်ချနည်းရွေးရန်"</string>
+    <string name="lock_settings_picker_title" msgid="1034741644461982205">"ဖန်သားပြင်လော့ခ်"</string>
     <string name="lock_settings_picker_title_profile" msgid="5086594364428782115">"အလုပ် လော့ခ်ချခြင်းကို ရွေးပါ"</string>
     <string name="setup_lock_settings_picker_title" product="tablet" msgid="2429667472335773519">"သင့်တက်ဘလက်ကို ကာကွယ်ပါ"</string>
     <string name="setup_lock_settings_picker_title" product="device" msgid="4739290104106645233">"သင့်စက်ပစ္စည်းကို ကာကွယ်ပါ"</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"မိုဘိုင်း"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Wi‑Fi မရနိုင်လျှင် မိုဘိုင်းကွန်ရက် သုံးပါ"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"မိုဘိုင်းကွန်ရက် မရနိုင်လျှင် Wi‑Fi သုံးပါ"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Wi-Fi သုံး၍ ခေါ်ဆိုသည်။ Wi‑Fi မရတော့လျှင် ခေါ်ဆိုမှု ပြီးသွားပါမည်။"</string>
@@ -1704,7 +1706,7 @@
     <string name="settings_safetylegal_activity_unreachable" msgid="3541894966476445833">"သင့်တွင်ဒေတာချိတ်ဆက်မှု မရှိပါ။ ဤအချက်အလက်ကိုကြည့်ရန် အင်တာနက်ချိတ်ဆက်မှုရှိသည့် မည်သည့်ကွန်ပျူတာမှမဆို %s ထံသို့ သွားပါ။"</string>
     <string name="settings_safetylegal_activity_loading" msgid="7680998654145172">"ဖွင့်နေဆဲ…"</string>
     <string name="confirm_device_credential_use_alternate_method" msgid="1279869272895739941">"အခြားနည်းလမ်း သုံးရန်"</string>
-    <string name="lockpassword_choose_your_screen_lock_header" msgid="6283518876031424798">"မျက်နှာပြင်လော့ခ် သတ်မှတ်ခြင်း"</string>
+    <string name="lockpassword_choose_your_screen_lock_header" msgid="6283518876031424798">"ဖန်သားပြင်လော့ခ် သတ်မှတ်ခြင်း"</string>
     <string name="lockpassword_choose_your_password_message" msgid="2838273977481046536">"လုံခြုံရေးအတွက် စကားဝှက် သတ်မှတ်ပါ"</string>
     <string name="lockpassword_choose_your_password_header_for_fingerprint" msgid="4921343500484160894">"လက်ဗွေသုံးရန် စကားဝှက်သတ်မှတ်ပါ"</string>
     <string name="lockpassword_choose_your_pattern_header_for_fingerprint" msgid="314870151462139417">"လက်ဗွေသုံးရန် ပုံစံသတ်မှတ်ပါ"</string>
@@ -2000,7 +2002,7 @@
     <string name="user_dict_settings_edit_dialog_title" msgid="6492621665762797309">"စာလုံးကို ပြင်ဆင်မည်"</string>
     <string name="user_dict_settings_context_menu_edit_title" msgid="4577283176672181497">"ပြင်ဆင်ရန်"</string>
     <string name="user_dict_settings_context_menu_delete_title" msgid="670470172230144069">"ဖျက်ရန်"</string>
-    <string name="user_dict_settings_empty_text" msgid="2774939221998982609">"အသုံးပြုသူအဘိဓာန်တွင် သင့်စကားလုံးများမရှိပါ။ စကားလုံးတစ်ခု ပေါင်းထည့်ရန်၊ (+) ခလုတ်ကိုနှိပ်ပါ။"</string>
+    <string name="user_dict_settings_empty_text" msgid="2774939221998982609">"အသုံးပြုသူအဘိဓာန်တွင် စကားလုံးများမရှိပါ။ စကားလုံးတစ်ခု ပေါင်းထည့်ရန်၊ (+) ခလုတ်ကိုနှိပ်ပါ။"</string>
     <string name="user_dict_settings_all_languages" msgid="8839702015353418176">"ဘာသာစကားအားလုံးအတွက်"</string>
     <string name="user_dict_settings_more_languages" msgid="8345984308635521364">"ဘာသာစကားပိုများများ…"</string>
     <string name="testing" msgid="4255916838792186365">"စမ်းသပ်မှု"</string>

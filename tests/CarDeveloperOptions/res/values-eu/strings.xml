@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Handitu edo txikitu pantailako testua."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Txikitu"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Handitu"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Testu-lagina"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"Ozeko azti miragarria"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"11. kapitulua: Esmeraldazko Oz hiri harrigarria"</string>
@@ -197,7 +196,7 @@
     <string name="proxy_settings_title" msgid="6014901859338211713">"Proxya"</string>
     <string name="proxy_clear_text" msgid="498317431076294101">"Garbitu"</string>
     <string name="proxy_port_label" msgid="8285157632538848509">"Proxy-ataka"</string>
-    <string name="proxy_exclusionlist_label" msgid="8179084955547941904">"Egin hauen proxyaren salbuespena"</string>
+    <string name="proxy_exclusionlist_label" msgid="8179084955547941904">"Egin ez ikusi proxyari kasu hauetan"</string>
     <string name="proxy_defaultView_text" msgid="5785775257042403261">"Leheneratu balio lehenetsiak"</string>
     <string name="proxy_action_text" msgid="814511434843981413">"Eginda"</string>
     <string name="proxy_hostname_label" msgid="6798891831427287847">"Proxyaren ostalari-izena"</string>
@@ -427,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Kendu aurpegiaren datuak"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Gailua desblokeatzeko eta aplikazioetan sartzeko erabil dezakezu aurpegia. "<annotation id="url">"Lortu informazio gehiago"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Aurpegiari buruzko datuak ezabatu?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Aurpegiaren bidez desblokeatzeko aukerak erregistratutako datuak betiko eta segurtasun osoz ezabatuko dira. Horren ondoren, PIN kodea, eredua edo pasahitza beharko duzu telefonoa desblokeatzeko, aplikazioetan saioa hasteko eta ordainketak berresteko."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Aurpegiaren bidez desblokeatzeko eginbideak erregistratutako datuak betiko eta segurtasun osoz ezabatuko dira. Horren ondoren, PIN kodea, eredua edo pasahitza beharko duzu telefonoa desblokeatzeko, aplikazioetan saioa hasteko eta ordainketak berresteko."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Hatz-marka digitala"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Kudeatu hatz-markak"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Hatz-marken erabilera"</string>
@@ -932,7 +931,7 @@
     <string name="wifi_ap_2G" msgid="5793110086517338494">"2,4 GHz"</string>
     <string name="wifi_ap_5G" msgid="4584892544393675403">"5,0 GHz"</string>
     <string name="wifi_ap_band_select_one" msgid="4409754936554360355">"Aukeratu gutxienez banda bat wifi-sare publikorako:"</string>
-    <string name="wifi_ip_settings" msgid="4636102290236116946">"IP ezarpenak"</string>
+    <string name="wifi_ip_settings" msgid="4636102290236116946">"IParen ezarpenak"</string>
     <string name="wifi_privacy_settings" msgid="4462092795794247809">"Pribatutasuna"</string>
     <string name="wifi_privacy_settings_ephemeral_summary" msgid="2411375348287064283">"Ausaz aukeratutako MACa"</string>
     <string name="wifi_dpp_add_device_to_network" msgid="8871041525483253430">"Gehitu gailua"</string>
@@ -1029,7 +1028,7 @@
     <string name="wifi_subscribed_access_points_tab" msgid="7498765485953257229">"Harpidetzak"</string>
     <!-- no translation found for wifi_saved_access_points_tab (4677730543624191122) -->
     <skip />
-    <string name="wifi_advanced_settings_label" msgid="9147669851658738784">"IP ezarpenak"</string>
+    <string name="wifi_advanced_settings_label" msgid="9147669851658738784">"IParen ezarpenak"</string>
     <string name="wifi_advanced_not_available" msgid="5751084989400195009">"Erabiltzaile honek ezin ditu erabili Wi-Fi aurreratuaren ezarpenak"</string>
     <string name="wifi_ip_settings_menu_save" msgid="6557330818360425933">"Gorde"</string>
     <string name="wifi_ip_settings_menu_cancel" msgid="8098696509412462494">"Utzi"</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wifia"</item>
+    <item msgid="2271962426654621656">"Datu-konexioa"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Wifi-sarerik ez badago, erabili sare mugikorra"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Sare mugikorra erabilgarri ez badago, erabili wifi-konexioa"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Deitu wifi bidez. Wifi-konexioa galduz gero, eseki egingo da deia."</string>
@@ -1340,10 +1342,10 @@
     <string name="status_msid_number" msgid="7808175928664357661">"MSID"</string>
     <string name="status_prl_version" msgid="5634561205739199042">"PRL bertsioa"</string>
     <string name="meid_multi_sim" msgid="7449892644113569529">"MEID (%1$d. SIM zirrikitua)"</string>
-    <string name="scanning_status_text_wifi_on_ble_on" msgid="6370507836346838473">"Wifi-sareen eta Bluetooth gailuen bilaketa aktibatuta daude"</string>
-    <string name="scanning_status_text_wifi_on_ble_off" msgid="8205014713732412608">"Wifi-sareen bilaketa aktibatuta dago; Bluetooth gailuen bilaketa, berriz, desaktibatuta"</string>
-    <string name="scanning_status_text_wifi_off_ble_on" msgid="7400522456303307057">"Bluetooth gailuen bilaketa aktibatuta dago; Wifi-sareen bilaketa, berriz, desaktibatuta"</string>
-    <string name="scanning_status_text_wifi_off_ble_off" msgid="8575026386237481457">"Wifi-sareen eta Bluetooth gailuen bilaketa desaktibatuta daude"</string>
+    <string name="scanning_status_text_wifi_on_ble_on" msgid="6370507836346838473">"Wifi-sareen bilaketa eta Bluetooth bidezko gailuen bilaketa aktibatuta daude"</string>
+    <string name="scanning_status_text_wifi_on_ble_off" msgid="8205014713732412608">"Wifi-sareen bilaketa aktibatuta dago; Bluetooth bidezko gailuen bilaketa, berriz, desaktibatuta"</string>
+    <string name="scanning_status_text_wifi_off_ble_on" msgid="7400522456303307057">"Bluetooth bidezko gailuen bilaketa aktibatuta dago; Wifi-sareen bilaketa, berriz, desaktibatuta"</string>
+    <string name="scanning_status_text_wifi_off_ble_off" msgid="8575026386237481457">"Wifi-sareen bilaketa eta Bluetooth bidezko gailuen bilaketa desaktibatuta daude"</string>
     <string name="status_meid_number" msgid="8756271256760479835">"MEID"</string>
     <string name="status_icc_id" msgid="9191847562997702709">"ICCID"</string>
     <string name="status_data_network_type" msgid="2344720457353394909">"Datuetarako sare mugikor mota"</string>
@@ -1563,9 +1565,9 @@
     <string name="error_mcc_not3" msgid="1333037488064427164">"MCC eremuak 3 digitu izan behar ditu."</string>
     <string name="error_mnc_not23" msgid="6738398924368729180">"MNC eremuak 2 edo 3 digitu izan behar ditu."</string>
     <string name="error_adding_apn_type" msgid="671634520340569678">"Operadoreak ez du onartzen %s motako APN identifikatzailerik."</string>
-    <string name="restore_default_apn" msgid="7195266404077471007">"APN ezarpen lehenetsiak leheneratzen."</string>
+    <string name="restore_default_apn" msgid="7195266404077471007">"APNaren ezarpen lehenetsiak leheneratzen."</string>
     <string name="menu_restore" msgid="3799288817317293115">"Berrezarri balio lehenetsiak"</string>
-    <string name="restore_default_apn_completed" msgid="5671734152740058937">"APN ezarpen lehenetsiak berrezarri dira."</string>
+    <string name="restore_default_apn_completed" msgid="5671734152740058937">"APNaren ezarpen lehenetsiak berrezarri dira."</string>
     <string name="reset_dashboard_title" msgid="7084966342252178530">"Berrezartzeko aukerak"</string>
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"Sarea, aplikazioak edota gailua berrezar daitezke"</string>
     <string name="reset_network_title" msgid="8944059136930806211">"Berrezarri wifi, Bluetooth eta sare mugikorrak"</string>
@@ -1658,10 +1660,10 @@
     <string name="location_no_recent_accesses" msgid="6289916310397279890">"Ez dago kokapena berriki atzitu duen aplikaziorik"</string>
     <string name="location_high_battery_use" msgid="7177199869979522663">"Bateria-erabilera handia"</string>
     <string name="location_low_battery_use" msgid="5030448574501435888">"Bateria-erabilera txikia"</string>
-    <string name="location_scanning_screen_title" msgid="7663329319689413454">"Wifi eta Bluetooth bidezko bilaketa"</string>
+    <string name="location_scanning_screen_title" msgid="7663329319689413454">"Wifi-sareen bilaketa eta Bluetooth bidezko gailuen bilaketa"</string>
     <string name="location_scanning_wifi_always_scanning_title" msgid="6750542206763112172">"Wifi-sareen bilaketa"</string>
     <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"Eman wifi-sareak edozein unetan bilatzeko baimena aplikazioei eta zerbitzuei, baita wifi-konexioa desaktibatuta dagoenean ere. Kokapenean oinarritutako eginbideak eta zerbitzuak hobetzeko erabil daiteke hori, besteak beste."</string>
-    <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"Bluetooth gailuak bilatzea"</string>
+    <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"Bluetooth bidezko gailuen bilaketa"</string>
     <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"Eman inguruko gailuak edozein unetan bilatzeko baimena aplikazioei eta zerbitzuei, baita Bluetooth konexioa desaktibatuta dagoenean ere. Kokapenean oinarritutako eginbideak eta zerbitzuak hobetzeko erabil daiteke hori, besteak beste."</string>
     <string name="managed_profile_location_services" msgid="224925483299159541">"Lanerako kokapen-zerbitzuak"</string>
     <string name="location_network_based" msgid="1535812159327454835">"Wi‑Fi eta sare mugikor bidezko kokapena"</string>
@@ -2538,7 +2540,7 @@
     <string name="credentials_settings_not_available" msgid="5490259681690183274">"Erabiltzaile honek ez dauka kredentzialik"</string>
     <string name="credential_for_vpn_and_apps" msgid="2462642486949593841">"VPN konexioarekin eta aplikazioekin erabiltzeko instalatuta"</string>
     <string name="credential_for_wifi" msgid="2903295786961726388">"Wi-Fi konexioarekin erabiltzeko instalatuta"</string>
-    <string name="credentials_reset_hint" msgid="3484350477764088169">"Eduki guztiak kendu?"</string>
+    <string name="credentials_reset_hint" msgid="3484350477764088169">"Eduki guztiak kendu nahi dituzu?"</string>
     <string name="credentials_erased" msgid="7287088033523869085">"Kredentz. biltegia ezabatu da."</string>
     <string name="credentials_not_erased" msgid="9137227570738627637">"Ezin izan da kredentzialen biltegia ezabatu."</string>
     <string name="usage_access_title" msgid="7981321142726540574">"Erabilera-baimena dutenak"</string>
@@ -2561,7 +2563,7 @@
     <string name="backup_erase_dialog_title" msgid="8178424339104463014"></string>
     <string name="backup_erase_dialog_message" msgid="8767843355330070902">"Wifi-sareen pasahitzen, laster-marken, bestelako ezarpenen eta aplikazioetako datuen babeskopiak egiteari utzi eta Google-ren zerbitzarietako kopia guztiak ezabatu nahi dituzu?"</string>
     <string name="fullbackup_erase_dialog_message" msgid="2588536036471144070">"Gailuko datuen (adibidez, Wi-Fi pasahitzak eta deien historia) eta aplikazioetako datuen (besteak beste, ezarpenak eta aplikazioek gordetako fitxategiak) babeskopiak egiteari utzi nahi diozu eta urruneko zerbitzarietako kopia guztiak ezabatu nahi dituzu?"</string>
-    <string name="fullbackup_data_summary" msgid="406274198094268556">"Egin babeskopiak automatikoki urrunetik, bai gailuetako datuenak (esaterako, Wi-Fi sareetako pasahitzak eta deien historia), bai aplikazioetako datuenak (esaterako, ezarpenak eta aplikazioek gordetako fitxategiak).\n\nBabeskopiak automatikoki egiteko aukera aktibatzean, gailuko eta aplikazioetako datuak urrunetik gordetzen dira aldizka. Aplikazioetako datuak aplikazioek gordetako edozein datu izan daitezke (garatzailearen ezarpenen arabera), eta kontuzkoak izan litezkeen datuak ere sar daitezke (adibidez, kontaktuak, mezuak eta argazkiak)."</string>
+    <string name="fullbackup_data_summary" msgid="406274198094268556">"Egin babeskopiak automatikoki urrunetik, bai gailuetako datuenak (esaterako, Wi-Fi sareetako pasahitzak eta deien historia), bai aplikazioetako datuenak (esaterako, ezarpenak eta aplikazioek gordetako fitxategiak).\n\nBabeskopiak automatikoki egiteko aukera aktibatzean, gailuko eta aplikazioetako datuak urrunetik gordetzen dira aldizka. Aplikazioetako datuak aplikazioek gordetako edozein datu izan daitezke (garatzaileen ezarpenen arabera), eta kontuzkoak izan litezkeen datuak ere sar daitezke (adibidez, kontaktuak, mezuak eta argazkiak)."</string>
     <string name="device_admin_settings_title" msgid="2074319456047334589">"Gailua administratzeko aplikazioaren ezarpenak"</string>
     <string name="active_device_admin_msg" msgid="6929247869516924549">"Gailua administratzeko aplikazioa"</string>
     <string name="remove_device_admin" msgid="4413438593788336400">"Desaktibatu gailua administratzeko aplikazioa"</string>

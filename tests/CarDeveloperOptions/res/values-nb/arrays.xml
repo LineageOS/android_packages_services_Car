@@ -467,7 +467,7 @@
     <item msgid="1008268820118852416">"Behandle som uten datamåling"</item>
   </string-array>
   <string-array name="wifi_privacy_entries">
-    <item msgid="6545683814310036454">"Bruk tilfeldig valgt MAC-adresse (standard)"</item>
+    <item msgid="6545683814310036454">"Bruk tilfeldig MAC-adresse (standard)"</item>
     <item msgid="214234417308375326">"Bruk enhetens MAC-adresse"</item>
   </string-array>
   <string-array name="wifi_hidden_entries">

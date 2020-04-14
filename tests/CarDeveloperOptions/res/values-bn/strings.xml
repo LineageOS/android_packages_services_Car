@@ -713,7 +713,7 @@
     <string name="lockpattern_tutorial_continue_label" msgid="8474690922559443018">"পরবর্তী"</string>
     <string name="lock_setup" msgid="8710689848703935088">"সেটআপ সম্পূর্ণ।"</string>
     <string name="manage_device_admin" msgid="322047441168191695">"ডিভাইস প্রশাসক অ্যাপ"</string>
-    <string name="number_of_device_admins_none" msgid="8519193548630223132">"কোনো সক্রিয় অ্যাপ নেই"</string>
+    <string name="number_of_device_admins_none" msgid="8519193548630223132">"কোনও সক্রিয় অ্যাপ নেই"</string>
     <plurals name="number_of_device_admins" formatted="false" msgid="6445613288828151224">
       <item quantity="one"><xliff:g id="COUNT_1">%d</xliff:g>টি অ্যাপ সক্রিয় আছে</item>
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g>টি অ্যাপ সক্রিয় আছে</item>
@@ -889,7 +889,7 @@
     <string name="wifi_menu_remember" msgid="717257200269700641">"নেটওয়ার্ক মনে রাখুন"</string>
     <string name="wifi_menu_forget" msgid="7561140554450163075">"নেটওয়ার্ক ভুলে যান"</string>
     <string name="wifi_menu_modify" msgid="4080178040721021101">"নেটওয়ার্ক পরিবর্তন করুন"</string>
-    <string name="wifi_empty_list_wifi_off" msgid="272877164691346240">"উপলব্ধ নেটওয়ার্কগুলি দেখতে, ওয়াই-ফাই চালু করুন।"</string>
+    <string name="wifi_empty_list_wifi_off" msgid="272877164691346240">"উপলভ্য নেটওয়ার্কগুলি দেখতে, ওয়াই-ফাই চালু করুন।"</string>
     <string name="wifi_empty_list_wifi_on" msgid="881478805041020600">"ওয়াই-ফাই নেটওয়ার্কগুলির জন্য সার্চ করা হচ্ছে..."</string>
     <string name="wifi_empty_list_user_restricted" msgid="2341613007817352431">"ওয়াই-ফাই নেটওয়ার্ক পরিবর্তন করার অনুমতি আপনার নেই।"</string>
     <string name="wifi_more" msgid="3538241640407382185">"আরো"</string>
@@ -4069,7 +4069,7 @@
     <string name="premium_sms_warning" msgid="7604011651486294515">"প্রিমিয়াম SMS এর জন্য অর্থ খরচ হতে পারে এবং আপনার পরিষেবা প্রদানকারীর বিলে যোগ করা হবে৷ আপনি যদি কোনো অ্যাপ্লিকেশানের জন্য অনুমতি সক্ষম করেন তাহলে আপনি সেই অ্যাপ্লিকেশানটি ব্যবহার করে প্রিমিয়াম SMS পাঠাতে পারবেন৷"</string>
     <string name="premium_sms_access" msgid="4550027460595822851">"প্রিমিয়াম SMS অ্যাক্সেস"</string>
     <string name="bluetooth_disabled" msgid="6588102116819268238">"বন্ধ আছে"</string>
-    <string name="bluetooth_connected_summary" msgid="439920840053965217">"<xliff:g id="ID_1">%1$s</xliff:g> এর সাথে কানেক্ট আছে"</string>
+    <string name="bluetooth_connected_summary" msgid="439920840053965217">"<xliff:g id="ID_1">%1$s</xliff:g>-এ কানেক্ট আছে"</string>
     <string name="bluetooth_connected_multiple_devices_summary" msgid="596205630653123250">"একাধিক ডিভাইসের সাথে কানেক্ট আছে"</string>
     <string name="demo_mode" msgid="3831081808592541104">"সিস্টেম UI ডেমো মোড"</string>
     <string name="dark_ui_mode" msgid="703844190192599217">"থিম"</string>

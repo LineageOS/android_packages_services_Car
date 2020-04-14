@@ -84,8 +84,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Омогућава да текст на екрану буде мањи или већи."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Умањи"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Увећај"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Пример текста"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"Чаробњак из Оза"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"Поглавље 11: Чудесни Смарагдни град Оза"</string>
@@ -747,7 +746,7 @@
     <string name="bluetooth_settings" msgid="5228032727293770389">"Bluetooth"</string>
     <string name="bluetooth_settings_title" msgid="7261244857456521825">"Bluetooth"</string>
     <string name="bluetooth_settings_summary" msgid="1221689092429277887">"Управљање везама, подешавање назива и видљивости уређаја"</string>
-    <string name="bluetooth_pairing_request" msgid="7221745525632573125">"Упарити са уређајем <xliff:g id="DEVICE_NAME">%1$s</xliff:g>?"</string>
+    <string name="bluetooth_pairing_request" msgid="7221745525632573125">"Желите да упарите са <xliff:g id="DEVICE_NAME">%1$s</xliff:g>?"</string>
     <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"Кôд за упаривање са Bluetooth уређајем"</string>
     <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"Унесите кôд за упаривање, па притисните Return или Enter"</string>
     <string name="bluetooth_enable_alphanumeric_pin" msgid="9138308197078115672">"PIN садржи слова или симболе"</string>
@@ -1121,7 +1120,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"Мобилни подаци"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Ако је Wi‑Fi недоступан, користите мобилну мрежу"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Ако мобилна мрежа није доступна, користи Wi‑Fi"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Позивање преко Wi-Fi-ја. Ако се Wi‑Fi веза изгуби, позив ће се завршити."</string>
@@ -1584,7 +1586,7 @@
     <string name="error_adding_apn_type" msgid="671634520340569678">"Мобилни оператер не дозвољава називе приступних тачака типа %s."</string>
     <string name="restore_default_apn" msgid="7195266404077471007">"Враћање подразумеваних подешавања назива приступне тачке."</string>
     <string name="menu_restore" msgid="3799288817317293115">"Ресетуј на подразумевано"</string>
-    <string name="restore_default_apn_completed" msgid="5671734152740058937">"Поновно постављање подразумеваних подешавања назива приступне тачке је завршено"</string>
+    <string name="restore_default_apn_completed" msgid="5671734152740058937">"Поновно постављање подразумеваних подешавања назива приступне тачке је завршено."</string>
     <string name="reset_dashboard_title" msgid="7084966342252178530">"Опције за ресетовање"</string>
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"Мрежа, апликацијe или уређај могу да се ресетују"</string>
     <string name="reset_network_title" msgid="8944059136930806211">"Ресетуј Wi-Fi, мобилну мрежу и Bluetooth"</string>
@@ -1674,7 +1676,7 @@
     </plurals>
     <string name="location_category_recent_location_access" msgid="286059523360285026">"Недавни приступ локацији"</string>
     <string name="location_recent_location_access_view_details" msgid="2051602261436245905">"Прикажи детаље"</string>
-    <string name="location_no_recent_apps" msgid="77502059586413278">"Ниједна апликација није скоро тражила локацију"</string>
+    <string name="location_no_recent_apps" msgid="77502059586413278">"Ниједна апликација није недавно тражила локацију"</string>
     <string name="location_no_recent_accesses" msgid="6289916310397279890">"Ниједна апликација није недавно приступила локацији"</string>
     <string name="location_high_battery_use" msgid="7177199869979522663">"Велика потрошња батерије"</string>
     <string name="location_low_battery_use" msgid="5030448574501435888">"Мала потрошња батерије"</string>
@@ -2599,7 +2601,7 @@
     <string name="fullbackup_erase_dialog_message" msgid="2588536036471144070">"Желите ли да зауставите прављење резервних копија података уређаја (попут Wi-Fi лозинки и историје позива) и података апликација (попут подешавања и датотека сачуваних у апликацијама) и избришете све копије на удаљеним серверима?"</string>
     <string name="fullbackup_data_summary" msgid="406274198094268556">"Аутоматски правите резервне копије података уређаја (попут Wi-Fi лозинки и историје позива) и података апликација (попут подешавања и датотека сачуваних у апликацијама) даљински.\n\nКада укључите аутоматско прављење резервних копија, подаци уређаја и апликација се повремено чувају даљински. Подаци апликација могу да буду било који подаци које је апликација сачувала (на основу подешавања програмера), укључујући потенцијално осетљиве податке као што су контакти, поруке и слике."</string>
     <string name="device_admin_settings_title" msgid="2074319456047334589">"Подешавања администратора уређаја"</string>
-    <string name="active_device_admin_msg" msgid="6929247869516924549">"Апликација за администраторе уређаја"</string>
+    <string name="active_device_admin_msg" msgid="6929247869516924549">"Апликација за администратора уређаја"</string>
     <string name="remove_device_admin" msgid="4413438593788336400">"Деактивирај ову апликацију за администратора уређаја"</string>
     <string name="uninstall_device_admin" msgid="9017499299961719830">"Деинсталирај апликацију"</string>
     <string name="remove_and_uninstall_device_admin" msgid="5607703579731496253">"Деактивирај и деинсталирај"</string>
@@ -2614,7 +2616,7 @@
     <string name="add_device_admin" msgid="1621152410207260584">"Активирај ову апликацију за администраторе уређаја"</string>
     <string name="device_admin_add_title" msgid="6097881332139146897">"Администратор уређаја"</string>
     <string name="device_admin_warning" msgid="4421817419326480449">"Активирање ове апликације за администраторе омогућиће апликацији <xliff:g id="APP_NAME">%1$s</xliff:g> да обави следеће операције:"</string>
-    <string name="device_admin_status" msgid="5424944611789040723">"Ова апликација за администраторе је активна и омогућава апликацији <xliff:g id="APP_NAME">%1$s</xliff:g> да обави следеће операције:"</string>
+    <string name="device_admin_status" msgid="5424944611789040723">"Ова апликација за администратора је активна и омогућава апликацији <xliff:g id="APP_NAME">%1$s</xliff:g> да обави следеће операције:"</string>
     <string name="profile_owner_add_title" msgid="735805919754362791">"Активирати Менаџера профила?"</string>
     <string name="adding_profile_owner_warning" msgid="1284541194547382194">"Ако наставите, корисником ће управљати администратор, који ће можда моћи да чува и повезане податке, поред личних података.\n\nАдминистратор може да прати подешавања, приступ, апликације и податке повезане са овим корисником, укључујући активности на мрежи и информације о локацији уређаја, као и да управља њима."</string>
     <string name="admin_disabled_other_options" msgid="8097063307730025707">"Администратор је онемогућио друге опције"</string>
@@ -4017,7 +4019,7 @@
     </plurals>
     <string name="operator_warning" msgid="4676042739221117031">"Обрачун података код мобилног оператера се можда разликује од обрачуна уређаја."</string>
     <string name="data_used_template" msgid="761605393453849477">"Потрошили сте <xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="set_data_warning" msgid="8115980184415563941">"Подешавање упозорења о подацима"</string>
+    <string name="set_data_warning" msgid="8115980184415563941">"Подеси упозорење о подацима"</string>
     <string name="data_warning" msgid="2699207195535036240">"Упозорење за потрошњу података"</string>
     <string name="data_warning_footnote" msgid="965724845580257305">"Упозорење за потрошњу података и ограничење потрошње података активира мерење уређаја. То може да се разликује од мерења мобилног оператера."</string>
     <string name="set_data_limit" msgid="5043770023229990674">"Подеси ограничење за податке"</string>

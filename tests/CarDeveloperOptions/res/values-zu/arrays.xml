@@ -34,7 +34,7 @@
     <item msgid="772029947136115322">"30 amasekhondi"</item>
     <item msgid="8743663928349474087">"1 iminithi"</item>
     <item msgid="1506508631223164814">"2 amaminithi"</item>
-    <item msgid="8664703938127907662">"5 amaminithi"</item>
+    <item msgid="8664703938127907662">"amaminithi ama-5"</item>
     <item msgid="5827960506924849753">"10 amaminithi"</item>
     <item msgid="6677424950124253938">"30 amaminithi"</item>
   </string-array>
@@ -56,7 +56,7 @@
     <item msgid="227647485917789272">"1 iminithi"</item>
     <item msgid="3367011891231217504">"2 amaminithi"</item>
     <item msgid="4376575879222393045">"5 amaminithi"</item>
-    <item msgid="811192536981678974">"10 amaminithi"</item>
+    <item msgid="811192536981678974">"amaminithi ayi-10"</item>
     <item msgid="7258394417241706272">"30 amaminithi"</item>
   </string-array>
   <string-array name="entries_font_size">
@@ -423,9 +423,19 @@
     <item msgid="7718817231348607934">"Ungavumeli"</item>
     <item msgid="8184570120217958741">"Vumela njalo?"</item>
   </string-array>
-    <!-- no translation found for ram_states:0 (708247372474061274) -->
-    <!-- no translation found for ram_states:4 (1567326459340152525) -->
-    <!-- no translation found for proc_stats_memory_states:3 (8577246509202964244) -->
+  <string-array name="ram_states">
+    <item msgid="708247372474061274">"Ivamile"</item>
+    <item msgid="5101233285497327432">"Maphakathi"</item>
+    <item msgid="1555861583162930714">"Phansi"</item>
+    <item msgid="1719683776264798117">"Bucayi"</item>
+    <item msgid="1567326459340152525">"?"</item>
+  </string-array>
+  <string-array name="proc_stats_memory_states">
+    <item msgid="3474232046138139454">"Okujwayelekile"</item>
+    <item msgid="6107138933849816768">"Maphakathi"</item>
+    <item msgid="182695359839047859">"Phansi"</item>
+    <item msgid="8577246509202964244">"Bucayi"</item>
+  </string-array>
   <string-array name="proc_stats_process_states">
     <item msgid="7560955722349181440">"Qhubekayo"</item>
     <item msgid="167418068739176448">"Umsebenzi ophezulu"</item>
