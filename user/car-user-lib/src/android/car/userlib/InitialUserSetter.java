@@ -150,7 +150,10 @@ public final class InitialUserSetter {
     }
 
     private void switchUser(@UserIdInt int userId, boolean replaceGuest, boolean fallback) {
-        if (DBG) Log.d(TAG, "switchUser(): userId=" + userId);
+        if (DBG) {
+            Log.d(TAG, "switchUser(): userId=" + userId + ", replaceGuest=" + replaceGuest
+                    + ", fallback=" + fallback);
+        }
 
         UserInfo user = mUm.getUserInfo(userId);
         if (user == null) {
@@ -158,16 +161,11 @@ public final class InitialUserSetter {
             return;
         }
 
+        if (DBG) Log.d(TAG, "switchUser(): " + user.toFullString());
+
         UserInfo actualUser = user;
 
-        if (user.isGuest()) {
-            if (!replaceGuest) {
-                if (DBG) {
-                    Log.d(TAG, "not switching to guest user when replaceGuest is false");
-                }
-                unlockSystemUserIfNecessary(user.id);
-                return;
-            }
+        if (user.isGuest() && replaceGuest) {
             actualUser = replaceGuestIfNeeded(user);
 
             if (actualUser == null) {
