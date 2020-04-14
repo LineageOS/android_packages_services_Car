@@ -54,6 +54,7 @@ import android.util.Pair;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -553,6 +554,23 @@ public final class UserHalServiceTest {
         assertThat(callback.response).isNull();
     }
 
+    @Test
+    public void testPostSwitchResponse_noUsersInfo() {
+        assertThrows(NullPointerException.class,
+                () -> mUserHalService.postSwitchResponse(42, mUser10, null));
+    }
+
+    @Test
+    public void testPostSwitchResponse_HalCalledWithCorrectProp() {
+        mUserHalService.postSwitchResponse(42, mUser10, mUsersInfo);
+        ArgumentCaptor<VehiclePropValue> propCaptor =
+                ArgumentCaptor.forClass(VehiclePropValue.class);
+        verify(mVehicleHal).set(propCaptor.capture());
+        VehiclePropValue prop = propCaptor.getValue();
+        assertPostSwitchResponseSetRequest(prop, SwitchUserMessageType.ANDROID_POST_SWITCH,
+                mUser10);
+    }
+
     /**
      * Asserts the given {@link UsersInfo} is properly represented in the {@link VehiclePropValue}.
      *
@@ -628,6 +646,16 @@ public final class UserHalServiceTest {
     }
 
     private void assertSwitchUserSetRequest(VehiclePropValue req, int messageType,
+            UserInfo targetUserInfo) {
+        assertThat(req.value.int32Values.get(1)).isEqualTo(messageType);
+        assertWithMessage("targetuser.id mismatch").that(req.value.int32Values.get(2))
+                .isEqualTo(targetUserInfo.userId);
+        assertWithMessage("targetuser.flags mismatch").that(req.value.int32Values.get(3))
+                .isEqualTo(targetUserInfo.flags);
+        assertUsersInfo(req, mUsersInfo, 4);
+    }
+
+    private void assertPostSwitchResponseSetRequest(VehiclePropValue req, int messageType,
             UserInfo targetUserInfo) {
         assertThat(req.value.int32Values.get(1)).isEqualTo(messageType);
         assertWithMessage("targetuser.id mismatch").that(req.value.int32Values.get(2))
