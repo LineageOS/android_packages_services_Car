@@ -438,24 +438,6 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     }
 
     /**
-     * Attempts to play the current source using MediaController.TransportControls.play()
-     */
-    private void play() {
-        if (mActiveUserMediaController != null) {
-            if (Log.isLoggable(CarLog.TAG_MEDIA, Log.DEBUG)) {
-                Log.d(CarLog.TAG_MEDIA, "playing " + mActiveUserMediaController.getPackageName());
-            }
-            TransportControls controls = mActiveUserMediaController.getTransportControls();
-            if (controls != null) {
-                controls.play();
-            } else {
-                Log.e(CarLog.TAG_MEDIA, "Can't start playback, transport controls unavailable "
-                        + mActiveUserMediaController.getPackageName());
-            }
-        }
-    }
-
-    /**
      * Attempts to stop the current source using MediaController.TransportControls.stop()
      * This method also unregisters callbacks to the active media controller before calling stop(),
      * to preserve the PlaybackState before stopping.
@@ -899,7 +881,6 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
                 Log.e(CarLog.TAG_MEDIA, "Unsupported playback configuration: " + config);
                 return false;
         }
-
     }
 
     @NonNull
