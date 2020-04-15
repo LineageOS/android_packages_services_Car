@@ -17,7 +17,7 @@ cc_test {
     test_suites: ["device-tests"],
     srcs: [
         "EnumConversionTest.cpp",
-        "PrebuiltGraphTest.cpp",
+        "LocalPrebuiltGraphTest.cpp",
     ],
     static_libs: [
         "computepipe_prebuilt_graph",
@@ -40,5 +40,40 @@ cc_test {
         "packages/services/Car/computepipe",
         "packages/services/Car/computepipe/runner/graph",
     ],
+}
 
+cc_test {
+    name: "computepipe_grpc_graph_test",
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+        "-Wno-unused-parameter",
+    ],
+    test_suites: ["device-tests"],
+    srcs: [
+        "GrpcGraphTest.cpp",
+    ],
+    static_libs: [
+        "computepipe_grpc_graph_proto",
+        "computepipe_runner_component",
+        "libgtest",
+        "libgmock",
+    ],
+    shared_libs: [
+        "computepipe_grpc_graph",
+        "libbase",
+	      "libcomputepipeprotos",
+        "libgrpc++",
+        "libdl",
+        "liblog",
+        "libprotobuf-cpp-full",
+    ],
+    header_libs: [
+        "computepipe_runner_includes",
+    ],
+    include_dirs: [
+        "packages/services/Car/computepipe",
+        "packages/services/Car/computepipe/runner/graph",
+    ],
 }

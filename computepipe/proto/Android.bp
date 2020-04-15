@@ -44,9 +44,9 @@ cc_library {
             static_libs: [
                 "libprotobuf-cpp-lite",
             ],
-            shared: {
-                enabled: false,
-            },
+            shared_libs: [
+                "liblog",
+            ],
         },
     },
 }
