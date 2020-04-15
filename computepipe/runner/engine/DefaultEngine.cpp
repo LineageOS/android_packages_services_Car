@@ -57,6 +57,9 @@ void DefaultEngine::setClientInterface(std::unique_ptr<ClientInterface>&& client
 void DefaultEngine::setPrebuiltGraph(std::unique_ptr<PrebuiltGraph>&& graph) {
     mGraph = std::move(graph);
     mGraphDescriptor = mGraph->GetSupportedGraphConfigs();
+    if (mGraph->GetGraphType() == graph::PrebuiltGraphType::REMOTE) {
+        mIgnoreInputManager = true;
+    }
 }
 
 Status DefaultEngine::setArgs(std::string engine_args) {
