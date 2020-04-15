@@ -278,6 +278,37 @@ public final class UserHalService extends HalServiceBase {
         }
     }
 
+    /**
+     * Calls HAL after android user switch.
+     *
+     * @param requestId for which switch response is sent.
+     * @param targetInfo target user info.
+     * @param usersInfo current state of Android users.
+     */
+    public void postSwitchResponse(int requestId, @NonNull UserInfo targetInfo,
+            @NonNull UsersInfo usersInfo) {
+        if (DBG) Log.d(TAG, "postSwitchResponse(" + targetInfo + ")");
+        Objects.requireNonNull(usersInfo);
+        // TODO(b/150413515): use helper method to check usersInfo is valid
+
+        VehiclePropValue propRequest;
+        synchronized (mLock) {
+            checkSupportedLocked();
+            propRequest = UserHalHelper.createPropRequest(requestId,
+                    SwitchUserMessageType.ANDROID_POST_SWITCH, SWITCH_USER);
+            propRequest.value.int32Values.add(targetInfo.userId);
+            propRequest.value.int32Values.add(targetInfo.flags);
+            UserHalHelper.addUsersInfo(propRequest, usersInfo);
+        }
+
+        try {
+            if (DBG) Log.d(TAG, "Calling hal.set(): " + propRequest);
+            mHal.set(propRequest);
+        } catch (ServiceSpecificException e) {
+            Log.w(TAG, "Failed to set ANDROID POST SWITCH", e);
+        }
+    }
+
     @GuardedBy("mLock")
     private void addPendingRequestLocked(int requestId, @NonNull Class<?> responseClass,
             @NonNull HalCallback<?> callback) {
