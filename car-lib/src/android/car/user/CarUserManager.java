@@ -69,7 +69,8 @@ public final class CarUserManager extends CarManagerBase {
     private static final boolean DBG = true;
 
     /**
-     * {@link UserLifecycleEvent} called when the user is starting.
+     * {@link UserLifecycleEvent} called when the user is starting, for components to initialize
+     * any per-user state they maintain for running users.
      *
      * @hide
      */
@@ -78,7 +79,13 @@ public final class CarUserManager extends CarManagerBase {
     public static final int USER_LIFECYCLE_EVENT_TYPE_STARTING = 1;
 
     /**
-     * {@link UserLifecycleEvent} called when the user is switching.
+     * {@link UserLifecycleEvent} called when switching to a different foreground user, for
+     * components that have special behavior for whichever user is currently in the foreground.
+     *
+     * <p>This is called before any application processes are aware of the new user.
+     *
+     * <p>Notice that internal system services might not have handled user switching yet, so be
+     * careful with interaction with them.
      *
      * @hide
      */
@@ -87,7 +94,13 @@ public final class CarUserManager extends CarManagerBase {
     public static final int USER_LIFECYCLE_EVENT_TYPE_SWITCHING = 2;
 
     /**
-     * {@link UserLifecycleEvent} called whe the user is unlocking.
+     * {@link UserLifecycleEvent} called when an existing user is in the process of being unlocked.
+     *
+     * <p>This means the credential-encrypted storage for that user is now available, and
+     * encryption-aware component filtering is no longer in effect.
+     *
+     * <p>Notice that internal system services might not have handled unlock yet, so most components
+     * should ignore this callback and rely on {@link #USER_LIFECYCLE_EVENT_TYPE_UNLOCKED} instead.
      *
      * @hide
      */
@@ -96,7 +109,7 @@ public final class CarUserManager extends CarManagerBase {
     public static final int USER_LIFECYCLE_EVENT_TYPE_UNLOCKING = 3;
 
     /**
-     * {@link UserLifecycleEvent} called after the user was unlocked.
+     * {@link UserLifecycleEvent} called after an existing user is unlocked.
      *
      * @hide
      */
@@ -105,7 +118,15 @@ public final class CarUserManager extends CarManagerBase {
     public static final int USER_LIFECYCLE_EVENT_TYPE_UNLOCKED = 4;
 
     /**
-     * {@link UserLifecycleEvent} called when the user is stopping.
+     * {@link UserLifecycleEvent} called when an existing user is stopping, for components to
+     * finalize any per-user state they maintain for running users.
+     *
+     * <p>This is called prior to sending the {@code SHUTDOWN} broadcast to the user; it is a good
+     * place to stop making use of any resources of that user (such as binding to a service running
+     * in the user).
+     *
+     * <p><b>Note:</b> this is the last callback where the callee may access the target user's CE
+     * storage.
      *
      * @hide
      */
@@ -114,7 +135,9 @@ public final class CarUserManager extends CarManagerBase {
     public static final int USER_LIFECYCLE_EVENT_TYPE_STOPPING = 5;
 
     /**
-     * {@link UserLifecycleEvent} called after the user stoppped.
+     * {@link UserLifecycleEvent} called after an existing user is stopped.
+     *
+     * <p>This is called after all application process teardown of the user is complete.
      *
      * @hide
      */
