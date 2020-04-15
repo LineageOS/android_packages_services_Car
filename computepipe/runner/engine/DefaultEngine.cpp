@@ -633,18 +633,18 @@ void DefaultEngine::processCommands() {
         mCommandQueue.pop();
         switch (ec.cmdType) {
             case EngineCommand::Type::BROADCAST_CONFIG:
-                LOG(INFO) << "Engine::Received broacast config request";
+                LOG(INFO) << "Engine::Received broadcast config request";
                 (void)broadcastClientConfig();
                 break;
             case EngineCommand::Type::BROADCAST_START_RUN:
-                LOG(INFO) << "Engine::Received broacast run request";
+                LOG(INFO) << "Engine::Received broadcast run request";
                 (void)broadcastStartRun();
                 break;
             case EngineCommand::Type::BROADCAST_INITIATE_STOP:
                 if (ec.source.find("ClientInterface") != std::string::npos) {
                     mStopFromClient = true;
                 }
-                LOG(INFO) << "Engine::Received broacast stop with flush request";
+                LOG(INFO) << "Engine::Received broadcast stop with flush request";
                 broadcastStopWithFlush();
                 break;
             case EngineCommand::Type::POLL_COMPLETE:
@@ -680,7 +680,8 @@ void DefaultEngine::processCommands() {
                 break;
             case EngineCommand::Type::READ_PROFILING:
                 std::string debugData;
-                if (mGraph && (mCurrentPhase == kConfigPhase || mCurrentPhase == kRunPhase)) {
+                if (mGraph && (mCurrentPhase == kConfigPhase || mCurrentPhase == kRunPhase
+                                || mCurrentPhase == kStopPhase)) {
                     debugData = mGraph->GetDebugInfo();
                 }
                 if (mClient) {
