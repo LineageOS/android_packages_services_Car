@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "PrebuiltGraph.h"
+#include "LocalPrebuiltGraph.h"
 
 #include <android-base/logging.h>
 #include <dlfcn.h>
@@ -26,6 +26,7 @@
 
 #include "ClientConfig.pb.h"
 #include "InputFrame.h"
+#include "PrebuiltGraph.h"
 #include "RunnerComponent.h"
 #include "prebuilt_interface.h"
 #include "types/Status.h"
@@ -39,19 +40,19 @@ namespace graph {
     {                                                                              \
         std::string func_name = std::string("PrebuiltComputepipeRunner_") + #name; \
         mPrebuiltGraphInstance->mFn##name =                                        \
-            dlsym(mPrebuiltGraphInstance->mHandle, func_name.c_str());             \
+                dlsym(mPrebuiltGraphInstance->mHandle, func_name.c_str());         \
         if (mPrebuiltGraphInstance->mFn##name == nullptr) {                        \
             initialized = false;                                                   \
             LOG(ERROR) << std::string(dlerror()) << std::endl;                     \
         }                                                                          \
     }
 
-std::mutex PrebuiltGraph::mCreationMutex;
-PrebuiltGraph* PrebuiltGraph::mPrebuiltGraphInstance = nullptr;
+std::mutex LocalPrebuiltGraph::mCreationMutex;
+LocalPrebuiltGraph* LocalPrebuiltGraph::mPrebuiltGraphInstance = nullptr;
 
 // Function to confirm that there would be no further changes to the graph configuration. This
 // needs to be called before starting the graph.
-Status PrebuiltGraph::handleConfigPhase(const runner::ClientConfig& e) {
+Status LocalPrebuiltGraph::handleConfigPhase(const runner::ClientConfig& e) {
     if (mGraphState.load() == PrebuiltGraphState::UNINITIALIZED) {
         return Status::ILLEGAL_STATE;
     }
@@ -64,39 +65,41 @@ Status PrebuiltGraph::handleConfigPhase(const runner::ClientConfig& e) {
     }
 
     std::string config = e.getSerializedClientConfig();
-    auto mappedFn =
-        (PrebuiltComputepipeRunner_ErrorCode(*)(const unsigned char*, size_t))mFnUpdateGraphConfig;
+    auto mappedFn = (PrebuiltComputepipeRunner_ErrorCode(*)(const unsigned char*,
+                                                            size_t))mFnUpdateGraphConfig;
     PrebuiltComputepipeRunner_ErrorCode errorCode =
-        mappedFn(reinterpret_cast<const unsigned char*>(config.c_str()), config.length());
+            mappedFn(reinterpret_cast<const unsigned char*>(config.c_str()), config.length());
     if (errorCode != PrebuiltComputepipeRunner_ErrorCode::SUCCESS) {
         return static_cast<Status>(static_cast<int>(errorCode));
     }
 
     // Set the pixel stream callback function. The same function will be called for all requested
     // pixel output streams.
-    if (mEngineInterface) {
+    if (mEngineInterface.lock() != nullptr) {
         auto pixelCallbackFn = (PrebuiltComputepipeRunner_ErrorCode(*)(
-            void (*)(void* cookie, int, int64_t, const uint8_t* pixels, int width, int height,
-                     int step, int format)))mFnSetOutputPixelStreamCallback;
+                void (*)(void* cookie, int, int64_t, const uint8_t* pixels, int width, int height,
+                         int step, int format)))mFnSetOutputPixelStreamCallback;
         PrebuiltComputepipeRunner_ErrorCode errorCode =
-            pixelCallbackFn(PrebuiltGraph::OutputPixelStreamCallbackFunction);
+                pixelCallbackFn(LocalPrebuiltGraph::OutputPixelStreamCallbackFunction);
         if (errorCode != PrebuiltComputepipeRunner_ErrorCode::SUCCESS) {
             return static_cast<Status>(static_cast<int>(errorCode));
         }
 
         // Set the serialized stream callback function. The same callback function will be invoked
         // for all requested serialized output streams.
-        auto streamCallbackFn = (PrebuiltComputepipeRunner_ErrorCode(*)(void (*)(
-            void* cookie, int, int64_t, const unsigned char*, size_t)))mFnSetOutputStreamCallback;
-        errorCode = streamCallbackFn(PrebuiltGraph::OutputStreamCallbackFunction);
+        auto streamCallbackFn = (PrebuiltComputepipeRunner_ErrorCode(*)(
+                void (*)(void* cookie, int, int64_t, const unsigned char*,
+                         size_t)))mFnSetOutputStreamCallback;
+        errorCode = streamCallbackFn(LocalPrebuiltGraph::OutputStreamCallbackFunction);
         if (errorCode != PrebuiltComputepipeRunner_ErrorCode::SUCCESS) {
             return static_cast<Status>(static_cast<int>(errorCode));
         }
 
         // Set the callback function for when the graph terminates.
         auto terminationCallback = (PrebuiltComputepipeRunner_ErrorCode(*)(
-            void (*)(void* cookie, const unsigned char*, size_t)))mFnSetGraphTerminationCallback;
-        errorCode = terminationCallback(PrebuiltGraph::GraphTerminationCallbackFunction);
+                void (*)(void* cookie, const unsigned char*,
+                         size_t)))mFnSetGraphTerminationCallback;
+        errorCode = terminationCallback(LocalPrebuiltGraph::GraphTerminationCallbackFunction);
         if (errorCode != PrebuiltComputepipeRunner_ErrorCode::SUCCESS) {
             return static_cast<Status>(static_cast<int>(errorCode));
         }
@@ -106,7 +109,7 @@ Status PrebuiltGraph::handleConfigPhase(const runner::ClientConfig& e) {
 }
 
 // Starts the graph.
-Status PrebuiltGraph::handleExecutionPhase(const runner::RunnerEvent& e) {
+Status LocalPrebuiltGraph::handleExecutionPhase(const runner::RunnerEvent& e) {
     if (mGraphState.load() != PrebuiltGraphState::STOPPED) {
         return Status::ILLEGAL_STATE;
     }
@@ -127,7 +130,7 @@ Status PrebuiltGraph::handleExecutionPhase(const runner::RunnerEvent& e) {
 }
 
 // Stops the graph while letting the graph flush output packets in flight.
-Status PrebuiltGraph::handleStopWithFlushPhase(const runner::RunnerEvent& e) {
+Status LocalPrebuiltGraph::handleStopWithFlushPhase(const runner::RunnerEvent& e) {
     if (mGraphState.load() != PrebuiltGraphState::RUNNING) {
         return Status::ILLEGAL_STATE;
     }
@@ -142,7 +145,7 @@ Status PrebuiltGraph::handleStopWithFlushPhase(const runner::RunnerEvent& e) {
 }
 
 // Stops the graph and cancels all the output packets.
-Status PrebuiltGraph::handleStopImmediatePhase(const runner::RunnerEvent& e) {
+Status LocalPrebuiltGraph::handleStopImmediatePhase(const runner::RunnerEvent& e) {
     if (mGraphState.load() != PrebuiltGraphState::RUNNING) {
         return Status::ILLEGAL_STATE;
     }
@@ -156,7 +159,7 @@ Status PrebuiltGraph::handleStopImmediatePhase(const runner::RunnerEvent& e) {
     return StopGraphExecution(/* flushOutputFrames = */ false);
 }
 
-Status PrebuiltGraph::handleResetPhase(const runner::RunnerEvent& e) {
+Status LocalPrebuiltGraph::handleResetPhase(const runner::RunnerEvent& e) {
     if (mGraphState.load() != PrebuiltGraphState::STOPPED) {
         return Status::ILLEGAL_STATE;
     }
@@ -172,11 +175,12 @@ Status PrebuiltGraph::handleResetPhase(const runner::RunnerEvent& e) {
     return Status::SUCCESS;
 }
 
-PrebuiltGraph* PrebuiltGraph::GetPrebuiltGraphFromLibrary(
-    const std::string& prebuilt_library, std::shared_ptr<PrebuiltEngineInterface> engineInterface) {
-    std::unique_lock<std::mutex> lock(PrebuiltGraph::mCreationMutex);
+LocalPrebuiltGraph* LocalPrebuiltGraph::GetPrebuiltGraphFromLibrary(
+        const std::string& prebuilt_library,
+        std::weak_ptr<PrebuiltEngineInterface> engineInterface) {
+    std::unique_lock<std::mutex> lock(LocalPrebuiltGraph::mCreationMutex);
     if (mPrebuiltGraphInstance != nullptr) {
-        mPrebuiltGraphInstance = new PrebuiltGraph();
+        mPrebuiltGraphInstance = new LocalPrebuiltGraph();
     }
     if (mPrebuiltGraphInstance->mGraphState.load() != PrebuiltGraphState::UNINITIALIZED) {
         return mPrebuiltGraphInstance;
@@ -187,18 +191,20 @@ PrebuiltGraph* PrebuiltGraph::GetPrebuiltGraphFromLibrary(
         bool initialized = true;
 
         // Load config and version number first.
-        const unsigned char* (*getVersionFn)() = (const unsigned char* (*)())dlsym(
-            mPrebuiltGraphInstance->mHandle, "PrebuiltComputepipeRunner_GetVersion");
+        const unsigned char* (*getVersionFn)() =
+                (const unsigned char* (*)())dlsym(mPrebuiltGraphInstance->mHandle,
+                                                  "PrebuiltComputepipeRunner_GetVersion");
         if (getVersionFn != nullptr) {
             mPrebuiltGraphInstance->mGraphVersion =
-                std::string(reinterpret_cast<const char*>(getVersionFn()));
+                    std::string(reinterpret_cast<const char*>(getVersionFn()));
         } else {
             LOG(ERROR) << std::string(dlerror());
             initialized = false;
         }
 
-        void (*getSupportedGraphConfigsFn)(const void**, size_t*) = (void (*)(
-            const void**, size_t*))dlsym(mPrebuiltGraphInstance->mHandle,
+        void (*getSupportedGraphConfigsFn)(const void**, size_t*) =
+                (void (*)(const void**,
+                          size_t*))dlsym(mPrebuiltGraphInstance->mHandle,
                                          "PrebuiltComputepipeRunner_GetSupportedGraphConfigs");
         if (getSupportedGraphConfigsFn != nullptr) {
             size_t graphConfigSize;
@@ -208,7 +214,7 @@ PrebuiltGraph* PrebuiltGraph::GetPrebuiltGraphFromLibrary(
 
             if (graphConfigSize > 0) {
                 initialized &= mPrebuiltGraphInstance->mGraphConfig.ParseFromString(
-                    std::string(reinterpret_cast<const char*>(graphConfig), graphConfigSize));
+                        std::string(reinterpret_cast<const char*>(graphConfig), graphConfigSize));
             }
         } else {
             LOG(ERROR) << std::string(dlerror());
@@ -216,7 +222,7 @@ PrebuiltGraph* PrebuiltGraph::GetPrebuiltGraphFromLibrary(
         }
 
         // Null callback interface is not acceptable.
-        if (initialized && engineInterface == nullptr) {
+        if (initialized && engineInterface.lock() == nullptr) {
             initialized = false;
         }
 
@@ -247,13 +253,13 @@ PrebuiltGraph* PrebuiltGraph::GetPrebuiltGraphFromLibrary(
     return mPrebuiltGraphInstance;
 }
 
-PrebuiltGraph::~PrebuiltGraph() {
+LocalPrebuiltGraph::~LocalPrebuiltGraph() {
     if (mHandle) {
         dlclose(mHandle);
     }
 }
 
-Status PrebuiltGraph::GetStatus() const {
+Status LocalPrebuiltGraph::GetStatus() const {
     if (mGraphState.load() == PrebuiltGraphState::UNINITIALIZED) {
         return Status::ILLEGAL_STATE;
     }
@@ -263,12 +269,12 @@ Status PrebuiltGraph::GetStatus() const {
     return static_cast<Status>(static_cast<int>(errorCode));
 }
 
-std::string PrebuiltGraph::GetErrorMessage() const {
+std::string LocalPrebuiltGraph::GetErrorMessage() const {
     if (mGraphState.load() == PrebuiltGraphState::UNINITIALIZED) {
         return "Graph has not been initialized";
     }
-    auto mappedFn =
-        (PrebuiltComputepipeRunner_ErrorCode(*)(unsigned char*, size_t, size_t*))mFnGetErrorMessage;
+    auto mappedFn = (PrebuiltComputepipeRunner_ErrorCode(*)(unsigned char*, size_t,
+                                                            size_t*))mFnGetErrorMessage;
     size_t errorMessageSize = 0;
 
     PrebuiltComputepipeRunner_ErrorCode errorCode = mappedFn(nullptr, 0, &errorMessageSize);
@@ -283,37 +289,40 @@ std::string PrebuiltGraph::GetErrorMessage() const {
                        reinterpret_cast<char*>(&errorMessage[0]) + errorMessage.size());
 }
 
-Status PrebuiltGraph::SetInputStreamData(int streamIndex, int64_t timestamp,
-                                         const std::string& streamData) {
+Status LocalPrebuiltGraph::SetInputStreamData(int streamIndex, int64_t timestamp,
+                                              const std::string& streamData) {
     if (mGraphState.load() == PrebuiltGraphState::UNINITIALIZED) {
         return Status::ILLEGAL_STATE;
     }
     auto mappedFn = (PrebuiltComputepipeRunner_ErrorCode(*)(int, int64_t, const unsigned char*,
                                                             size_t))mFnSetInputStreamData;
     PrebuiltComputepipeRunner_ErrorCode errorCode =
-        mappedFn(streamIndex, timestamp, reinterpret_cast<const unsigned char*>(streamData.c_str()),
-                 streamData.length());
+            mappedFn(streamIndex, timestamp,
+                     reinterpret_cast<const unsigned char*>(streamData.c_str()),
+                     streamData.length());
     return static_cast<Status>(static_cast<int>(errorCode));
 }
 
-Status PrebuiltGraph::SetInputStreamPixelData(int streamIndex, int64_t timestamp,
-                                              const runner::InputFrame& inputFrame) {
+Status LocalPrebuiltGraph::SetInputStreamPixelData(int streamIndex, int64_t timestamp,
+                                                   const runner::InputFrame& inputFrame) {
     if (mGraphState.load() == PrebuiltGraphState::UNINITIALIZED) {
         return Status::ILLEGAL_STATE;
     }
 
-    auto mappedFn = (PrebuiltComputepipeRunner_ErrorCode(*)(
-        int, int64_t, const uint8_t*, int, int, int,
-        PrebuiltComputepipeRunner_PixelDataFormat))mFnSetInputStreamPixelData;
+    auto mappedFn =
+            (PrebuiltComputepipeRunner_ErrorCode(*)(int, int64_t, const uint8_t*, int, int, int,
+                                                    PrebuiltComputepipeRunner_PixelDataFormat))
+                    mFnSetInputStreamPixelData;
     PrebuiltComputepipeRunner_ErrorCode errorCode =
-        mappedFn(streamIndex, timestamp, inputFrame.getFramePtr(), inputFrame.getFrameInfo().width,
-                 inputFrame.getFrameInfo().height, inputFrame.getFrameInfo().stride,
-                 static_cast<PrebuiltComputepipeRunner_PixelDataFormat>(
-                     static_cast<int>(inputFrame.getFrameInfo().format)));
+            mappedFn(streamIndex, timestamp, inputFrame.getFramePtr(),
+                     inputFrame.getFrameInfo().width, inputFrame.getFrameInfo().height,
+                     inputFrame.getFrameInfo().stride,
+                     static_cast<PrebuiltComputepipeRunner_PixelDataFormat>(
+                             static_cast<int>(inputFrame.getFrameInfo().format)));
     return static_cast<Status>(static_cast<int>(errorCode));
 }
 
-Status PrebuiltGraph::StopGraphExecution(bool flushOutputFrames) {
+Status LocalPrebuiltGraph::StopGraphExecution(bool flushOutputFrames) {
     auto mappedFn = (PrebuiltComputepipeRunner_ErrorCode(*)(bool))mFnStopGraphExecution;
     PrebuiltComputepipeRunner_ErrorCode errorCode = mappedFn(flushOutputFrames);
     if (errorCode == PrebuiltComputepipeRunner_ErrorCode::SUCCESS) {
@@ -323,24 +332,24 @@ Status PrebuiltGraph::StopGraphExecution(bool flushOutputFrames) {
     return static_cast<Status>(static_cast<int>(errorCode));
 }
 
-Status PrebuiltGraph::StartGraphProfiling() {
+Status LocalPrebuiltGraph::StartGraphProfiling() {
     auto mappedFn = (PrebuiltComputepipeRunner_ErrorCode(*)())mFnStartGraphProfiling;
     PrebuiltComputepipeRunner_ErrorCode errorCode = mappedFn();
     return static_cast<Status>(static_cast<int>(errorCode));
 }
 
-Status PrebuiltGraph::StopGraphProfiling() {
+Status LocalPrebuiltGraph::StopGraphProfiling() {
     auto mappedFn = (PrebuiltComputepipeRunner_ErrorCode(*)())mFnStopGraphProfiling;
     PrebuiltComputepipeRunner_ErrorCode errorCode = mappedFn();
     return static_cast<Status>(static_cast<int>(errorCode));
 }
 
-std::string PrebuiltGraph::GetDebugInfo() {
+std::string LocalPrebuiltGraph::GetDebugInfo() {
     if (mGraphState.load() == PrebuiltGraphState::UNINITIALIZED) {
         return "";
     }
-    auto mappedFn =
-        (PrebuiltComputepipeRunner_ErrorCode(*)(unsigned char*, size_t, size_t*))mFnGetDebugInfo;
+    auto mappedFn = (PrebuiltComputepipeRunner_ErrorCode(*)(unsigned char*, size_t,
+                                                            size_t*))mFnGetDebugInfo;
 
     size_t debugInfoSize = 0;
     PrebuiltComputepipeRunner_ErrorCode errorCode = mappedFn(nullptr, 0, &debugInfoSize);
@@ -355,36 +364,53 @@ std::string PrebuiltGraph::GetDebugInfo() {
                        reinterpret_cast<char*>(&debugInfo[0]) + debugInfo.size());
 }
 
-void PrebuiltGraph::OutputStreamCallbackFunction(void* cookie, int streamIndex, int64_t timestamp,
-                                                 const unsigned char* data, size_t data_size) {
-    PrebuiltGraph* graph = reinterpret_cast<PrebuiltGraph*>(cookie);
+void LocalPrebuiltGraph::OutputStreamCallbackFunction(void* cookie, int streamIndex,
+                                                      int64_t timestamp, const unsigned char* data,
+                                                      size_t data_size) {
+    LocalPrebuiltGraph* graph = reinterpret_cast<LocalPrebuiltGraph*>(cookie);
     CHECK(graph);
-    graph->mEngineInterface->DispatchSerializedData(streamIndex, timestamp,
-                                                    std::string(data, data + data_size));
-}
-
-void PrebuiltGraph::OutputPixelStreamCallbackFunction(void* cookie, int streamIndex,
-                                                      int64_t timestamp, const uint8_t* pixels,
-                                                      int width, int height, int step, int format) {
-    PrebuiltGraph* graph = reinterpret_cast<PrebuiltGraph*>(cookie);
-    CHECK(graph);
-    runner::InputFrame frame(height, width, static_cast<PixelFormat>(format), step, pixels);
-
-    graph->mEngineInterface->DispatchPixelData(streamIndex, timestamp, frame);
-}
-
-void PrebuiltGraph::GraphTerminationCallbackFunction(void* cookie,
-                                                     const unsigned char* termination_message,
-                                                     size_t termination_message_size) {
-    PrebuiltGraph* graph = reinterpret_cast<PrebuiltGraph*>(cookie);
-    CHECK(graph);
-    std::string errorMessage = "";
-    if (termination_message != nullptr && termination_message_size > 0) {
-        std::string(termination_message, termination_message + termination_message_size);
+    std::shared_ptr<PrebuiltEngineInterface> engineInterface = graph->mEngineInterface.lock();
+    if (engineInterface != nullptr) {
+        engineInterface->DispatchSerializedData(streamIndex, timestamp,
+                                                std::string(data, data + data_size));
     }
-    graph->mGraphState.store(PrebuiltGraphState::STOPPED);
-    graph->mEngineInterface->DispatchGraphTerminationMessage(graph->GetStatus(),
-                                                             std::move(errorMessage));
+}
+
+void LocalPrebuiltGraph::OutputPixelStreamCallbackFunction(void* cookie, int streamIndex,
+                                                           int64_t timestamp, const uint8_t* pixels,
+                                                           int width, int height, int step,
+                                                           int format) {
+    LocalPrebuiltGraph* graph = reinterpret_cast<LocalPrebuiltGraph*>(cookie);
+    CHECK(graph);
+    std::shared_ptr<PrebuiltEngineInterface> engineInterface = graph->mEngineInterface.lock();
+
+    if (engineInterface) {
+        runner::InputFrame frame(height, width, static_cast<PixelFormat>(format), step, pixels);
+        engineInterface->DispatchPixelData(streamIndex, timestamp, frame);
+    }
+}
+
+void LocalPrebuiltGraph::GraphTerminationCallbackFunction(void* cookie,
+                                                          const unsigned char* termination_message,
+                                                          size_t termination_message_size) {
+    LocalPrebuiltGraph* graph = reinterpret_cast<LocalPrebuiltGraph*>(cookie);
+    CHECK(graph);
+    std::shared_ptr<PrebuiltEngineInterface> engineInterface = graph->mEngineInterface.lock();
+
+    if (engineInterface) {
+        std::string errorMessage = "";
+        if (termination_message != nullptr && termination_message_size > 0) {
+            std::string(termination_message, termination_message + termination_message_size);
+        }
+        graph->mGraphState.store(PrebuiltGraphState::STOPPED);
+        engineInterface->DispatchGraphTerminationMessage(graph->GetStatus(),
+                                                         std::move(errorMessage));
+    }
+}
+
+PrebuiltGraph* GetLocalGraphFromLibrary(const std::string& prebuilt_library,
+                                        std::weak_ptr<PrebuiltEngineInterface> engineInterface) {
+    return LocalPrebuiltGraph::GetPrebuiltGraphFromLibrary(prebuilt_library, engineInterface);
 }
 
 }  // namespace graph
