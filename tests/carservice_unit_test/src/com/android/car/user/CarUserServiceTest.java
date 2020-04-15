@@ -28,6 +28,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
@@ -78,7 +79,6 @@ import android.util.SparseArray;
 
 import androidx.annotation.Nullable;
 import androidx.test.InstrumentationRegistry;
-import androidx.test.filters.FlakyTest;
 
 import com.android.car.hal.UserHalService;
 import com.android.internal.R;
@@ -128,8 +128,10 @@ public final class CarUserServiceTest {
     @Mock private UserManager mMockedUserManager;
     @Mock private Resources mMockedResources;
     @Mock private Drawable mMockedDrawable;
-    @Mock private UserLifecycleListener mUserLifecycleListener;
-    @Captor private ArgumentCaptor<UserLifecycleEvent> mLifeCycleEventCaptor;
+
+    private final BlockingUserLifecycleListener mUserLifecycleListener =
+            new BlockingUserLifecycleListener();
+
     @Captor private ArgumentCaptor<UsersInfo> mUsersInfoCaptor;
 
     private MockitoSession mSession;
@@ -229,8 +231,7 @@ public final class CarUserServiceTest {
     }
 
     @Test
-    @FlakyTest  // TODO(b/153834987): to be fixed as part of this bug.
-    public void testOnUserLifecycleEvent_nofityListener() {
+    public void testOnUserLifecycleEvent_nofityListener() throws Exception {
         // Arrange
         mCarUserService.addUserLifecycleListener(mUserLifecycleListener);
 
@@ -243,7 +244,7 @@ public final class CarUserServiceTest {
     }
 
     @Test
-    public void testOnUserLifecycleEvent_ensureAllListenersAreNotified() {
+    public void testOnUserLifecycleEvent_ensureAllListenersAreNotified() throws Exception {
         // Arrange: add two listeners, one to fail on onEvent
         // Adding the failure listener first.
         UserLifecycleListener failureListener = mock(UserLifecycleListener.class);
@@ -262,9 +263,9 @@ public final class CarUserServiceTest {
         verifyListenerOnEventInvoked(userId, CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING);
     }
 
-    private void verifyListenerOnEventInvoked(int expectedNewUserId, int expectedEventType) {
-        verify(mUserLifecycleListener).onEvent(mLifeCycleEventCaptor.capture());
-        UserLifecycleEvent actualEvent = mLifeCycleEventCaptor.getValue();
+    private void verifyListenerOnEventInvoked(int expectedNewUserId, int expectedEventType)
+            throws Exception {
+        UserLifecycleEvent actualEvent = mUserLifecycleListener.waitForEvent();
         assertThat(actualEvent.getEventType()).isEqualTo(expectedEventType);
         assertThat(actualEvent.getUserId()).isEqualTo(expectedNewUserId);
     }
@@ -656,7 +657,9 @@ public final class CarUserServiceTest {
     @Test
     public void testSwitchUser_HalSuccessAndroidSuccess() throws Exception {
         mockCurrentUsers(mAdminUser);
+        int requestId = 42;
         mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
+        mSwitchUserResponse.requestId = requestId;
         mockHalSwitchUser(mAdminUser.id, mSwitchUserResponse, mGuestUser);
         mockAmSwitchUser(mGuestUser, true);
 
@@ -667,12 +670,19 @@ public final class CarUserServiceTest {
         Bundle resultData = mReceiver.getResultData();
         assertThat(resultData).isNotNull();
         assertSwitchUserStatus(resultData, mSwitchUserResponse.status);
+
+        // update current user due to successful user switch
+        mockCurrentUsers(mGuestUser);
+        sendUserUnlockedEvent(mGuestUser.id);
+        assertPostSwitch(requestId, mGuestUser.id, mGuestUser.id);
     }
 
     @Test
     public void testSwitchUser_HalSuccessAndroidFailure() throws Exception {
         mockCurrentUsers(mAdminUser);
+        int requestId = 42;
         mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
+        mSwitchUserResponse.requestId = requestId;
         mockHalSwitchUser(mAdminUser.id, mSwitchUserResponse, mGuestUser);
         mockAmSwitchUser(mGuestUser, false);
 
@@ -683,6 +693,7 @@ public final class CarUserServiceTest {
         Bundle resultData = mReceiver.getResultData();
         assertThat(resultData).isNotNull();
         assertSwitchUserStatus(resultData, mSwitchUserResponse.status);
+        assertPostSwitch(requestId, mAdminUser.id, mGuestUser.id);
     }
 
     @Test
@@ -717,6 +728,28 @@ public final class CarUserServiceTest {
         assertThat(resultData).isNotNull();
         // 0 is default value for status
         assertSwitchUserStatus(resultData, 0);
+    }
+
+    @Test
+    public void testSwitchUser_HalSuccessMultipleCalls() throws Exception {
+        mockCurrentUsers(mAdminUser);
+        int requestId = 42;
+        mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
+        mSwitchUserResponse.requestId = requestId;
+        mockHalSwitchUser(mAdminUser.id, mSwitchUserResponse, mGuestUser);
+        mockAmSwitchUser(mGuestUser, true);
+        mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mReceiver);
+
+        // calling another user switch before unlock
+        int newRequestId = 43;
+        mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
+        mSwitchUserResponse.requestId = newRequestId;
+        mockHalSwitchUser(mAdminUser.id, mSwitchUserResponse, mSystemUser);
+        mockAmSwitchUser(mSystemUser, true);
+        BlockingResultReceiver receiver = new BlockingResultReceiver(mAsyncCallTimeoutMs);
+        mCarUserService.switchUser(mSystemUser.id, mAsyncCallTimeoutMs, receiver);
+
+        assertPostSwitch(requestId, mAdminUser.id, mGuestUser.id);
     }
 
     @Test
@@ -1029,6 +1062,17 @@ public final class CarUserServiceTest {
                 .isEqualTo(expectedMsg);
     }
 
+    private void assertPostSwitch(int requestId, int currentId, int targetId) {
+        // verify post switch response
+        ArgumentCaptor<android.hardware.automotive.vehicle.V2_0.UserInfo> targetUser =
+                ArgumentCaptor.forClass(android.hardware.automotive.vehicle.V2_0.UserInfo.class);
+        ArgumentCaptor<UsersInfo> usersInfo = ArgumentCaptor.forClass(UsersInfo.class);
+        verify(mUserHal).postSwitchResponse(eq(requestId), targetUser.capture(),
+                usersInfo.capture());
+        assertThat(targetUser.getValue().userId).isEqualTo(targetId);
+        assertThat(usersInfo.getValue().currentUser.userId).isEqualTo(currentId);
+    }
+
     static final class FakeCarOccupantZoneService {
         private final SparseArray<Integer> mZoneUserMap = new SparseArray<Integer>();
         private final CarUserService.ZoneUserBindingHelper mZoneUserBindigHelper =
@@ -1251,6 +1295,42 @@ public final class CarUserServiceTest {
         public Bundle getResultData() throws InterruptedException {
             assertCalled();
             return mResultData;
+        }
+    }
+
+    /**
+     * CarUserService now notifies listener in its own handler thread. This wrapper is used to
+     * block test thread until listener is notified.
+     */
+    // TODO(b/149099817): Move this class to a common place
+    private static final class BlockingUserLifecycleListener implements UserLifecycleListener {
+
+        public static final int USER_LIFECYCLE_LISTENER_ON_EVENT_TIMEOUT_SECONDS = 2;
+
+        private final CountDownLatch mLatch = new CountDownLatch(1);
+
+        @Nullable
+        private UserLifecycleEvent mReceivedEvent;
+
+        @Override
+        public void onEvent(UserLifecycleEvent event) {
+            this.mReceivedEvent = event;
+            mLatch.countDown();
+        }
+
+        /**
+         * Blocks until onEvent is invoked.
+         */
+        @Nullable
+        public UserLifecycleEvent waitForEvent() throws InterruptedException {
+            if (!mLatch.await(USER_LIFECYCLE_LISTENER_ON_EVENT_TIMEOUT_SECONDS,
+                    TimeUnit.SECONDS)) {
+                String errorMessage = "mUserLifecycleListenerWrapper.onEvent not called in "
+                        + USER_LIFECYCLE_LISTENER_ON_EVENT_TIMEOUT_SECONDS + " seconds";
+                Log.e(TAG, errorMessage);
+                fail(errorMessage);
+            }
+            return mReceivedEvent;
         }
     }
 }
