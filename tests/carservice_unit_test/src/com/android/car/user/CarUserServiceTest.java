@@ -1141,7 +1141,8 @@ public final class CarUserServiceTest {
 
     private void sendUserLifecycleEvent(@UserIdInt int userId,
             @UserLifecycleEventType int eventType) {
-        mCarUserService.onUserLifecycleEvent(new UserLifecycleEvent(eventType, userId));
+        mCarUserService.onUserLifecycleEvent(eventType, /* timestampMs= */ 0,
+                /* fromUserId= */ UserHandle.USER_NULL, userId);
     }
 
     private void sendUserUnlockedEvent(@UserIdInt int userId) {

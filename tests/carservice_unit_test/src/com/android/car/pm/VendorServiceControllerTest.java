@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.user.CarUserManager;
-import android.car.user.CarUserManager.UserLifecycleEvent;
+import android.car.user.CarUserManager.UserLifecycleEventType;
 import android.car.userlib.CarUserManagerHelper;
 import android.content.ComponentName;
 import android.content.Context;
@@ -162,9 +162,8 @@ public final class VendorServiceControllerTest {
 
         // Unlock system user
         mockUserUnlock(UserHandle.USER_SYSTEM);
-        runOnMainThreadAndWaitForIdle(() -> mCarUserService.onUserLifecycleEvent(
-                new UserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKING,
-                        UserHandle.USER_SYSTEM)));
+        sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKING,
+                UserHandle.USER_SYSTEM);
 
         mContext.assertStartedService(SERVICE_START_SYSTEM_UNLOCKED);
         mContext.verifyNoMoreServiceLaunches();
@@ -181,9 +180,7 @@ public final class VendorServiceControllerTest {
         // Switch user to foreground
         mockGetCurrentUser(FG_USER_ID);
         when(ActivityManager.getCurrentUser()).thenReturn(FG_USER_ID);
-        runOnMainThreadAndWaitForIdle(() -> mCarUserService.onUserLifecycleEvent(
-                new UserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING,
-                        FG_USER_ID)));
+        sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, FG_USER_ID);
 
         // Expect only services with ASAP trigger to be started
         mContext.assertBoundService(SERVICE_BIND_ALL_USERS_ASAP);
@@ -191,9 +188,7 @@ public final class VendorServiceControllerTest {
 
         // Unlock foreground user
         mockUserUnlock(FG_USER_ID);
-        runOnMainThreadAndWaitForIdle(() -> mCarUserService.onUserLifecycleEvent(
-                new UserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKING,
-                        FG_USER_ID)));
+        sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKING, FG_USER_ID);
 
         mContext.assertBoundService(SERVICE_BIND_FG_USER_UNLOCKED);
         mContext.verifyNoMoreServiceLaunches();
@@ -216,6 +211,12 @@ public final class VendorServiceControllerTest {
         assertWithMessage("Wrong component %s", action).that(intents.get(0).getComponent())
                 .isEqualTo(ComponentName.unflattenFromString(service));
         intents.clear();
+    }
+
+    private void sendUserLifecycleEvent(@UserLifecycleEventType int eventType,
+            @UserIdInt int userId) {
+        runOnMainThreadAndWaitForIdle(() -> mCarUserService.onUserLifecycleEvent(eventType,
+                /* timestampMs= */ 0, /* fromUserId= */ UserHandle.USER_NULL, userId));
     }
 
     /** Overrides framework behavior to succeed on binding/starting processes. */
