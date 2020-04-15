@@ -41,6 +41,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
+import android.hardware.automotive.vehicle.V2_0.SwitchUserResponse;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserStatus;
 import android.hardware.automotive.vehicle.V2_0.UsersInfo;
 import android.location.LocationManager;
@@ -144,6 +145,16 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      */
     private final SparseArray<IResultReceiver> mAppLifecycleListeners = new SparseArray<>();
 
+    /**
+     * User Id for the user switch in process, if any.
+     */
+    @GuardedBy("mLockUser")
+    private int mUserSwitchInProcess = UserHandle.USER_NULL;
+    /**
+     * Request Id for the user switch in process, if any.
+     */
+    @GuardedBy("mLockUser")
+    private int mRequestIdForUserSwitchInProcess = UserHandle.USER_NULL;
     private final int mHalTimeoutMs = CarProperties.user_hal_timeout().orElse(5_000);
 
     private final CopyOnWriteArrayList<PassengerCallback> mPassengerCallbacks =
@@ -253,6 +264,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 res.getString(com.android.internal.R.string.owner_name));
         writer.printf("%sdefault_guest_name=%s\n", indent,
                 res.getString(R.string.default_guest_name));
+        writer.printf("User switch in process=%d\n", mUserSwitchInProcess);
+        writer.printf("Request Id for the user switch in process=%d\n ",
+                    mRequestIdForUserSwitchInProcess);
     }
 
     private void handleDumpListeners(@NonNull PrintWriter writer, String indent) {
@@ -643,12 +657,24 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         Objects.requireNonNull(receiver);
         UserInfo targetUser = mUserManager.getUserInfo(targetUserId);
         Preconditions.checkArgument(targetUser != null, "Invalid target user Id");
+
+        synchronized (mLockUser) {
+            if (mUserSwitchInProcess == targetUserId) {
+                if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
+                    Log.d(TAG_USER,
+                            "User switch for user: " + targetUserId + " is already in process.");
+                }
+                // TODO(b/150409110): Add concurrent User Switch status and tests
+                return;
+            }
+        }
+
         UsersInfo usersInfo = getUsersInfo();
-        android.hardware.automotive.vehicle.V2_0.UserInfo halUser =
+        android.hardware.automotive.vehicle.V2_0.UserInfo halTargetUser =
                 new android.hardware.automotive.vehicle.V2_0.UserInfo();
-        halUser.userId = targetUser.id;
-        halUser.flags = UserHalHelper.convertFlags(targetUser);
-        mHal.switchUser(halUser, timeoutMs, usersInfo, (status, resp) -> {
+        halTargetUser.userId = targetUser.id;
+        halTargetUser.flags = UserHalHelper.convertFlags(targetUser);
+        mHal.switchUser(halTargetUser, timeoutMs, usersInfo, (status, resp) -> {
             Bundle resultData = null;
             resultData = new Bundle();
             int resultStatus = CarUserManager.USER_SWITCH_STATUS_HAL_INTERNAL_FAILURE;
@@ -664,12 +690,12 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                         boolean result;
                         try {
                             result = mAm.switchUser(targetUserId);
-                            // TODO(b/150409110): post user switch OK/FAIL to Hal using
-                            // ANDROID_POST_SWITCH
                             if (result) {
                                 resultStatus = CarUserManager.USER_SWITCH_STATUS_SUCCESSFUL;
+                                updateUserSwitchInProcess(targetUserId, resp);
                             } else {
                                 resultStatus = CarUserManager.USER_SWITCH_STATUS_ANDROID_FAILURE;
+                                postSwitchHalResponse(resp.requestId, targetUserId);
                             }
                         } catch (RemoteException e) {
                             // ignore
@@ -691,6 +717,33 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             }
 
         });
+    }
+
+    private void updateUserSwitchInProcess(@UserIdInt int targetUserId,
+            @NonNull SwitchUserResponse resp) {
+        synchronized (mLockUser) {
+            if (mUserSwitchInProcess != UserHandle.USER_NULL) {
+                // Some other user switch is in process.
+                if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
+                    Log.d(TAG_USER, "User switch for user: " + mUserSwitchInProcess
+                            + " is in process. Sending failed android post switch response for it "
+                            + " as new user switch is requested for user: " + targetUserId);
+                }
+                postSwitchHalResponse(mRequestIdForUserSwitchInProcess, mUserSwitchInProcess);
+            }
+            mUserSwitchInProcess = targetUserId;
+            mRequestIdForUserSwitchInProcess = resp.requestId;
+        }
+    }
+
+    private void postSwitchHalResponse(int requestId, @UserIdInt int targetUserId) {
+        UserInfo targetUser = mUserManager.getUserInfo(targetUserId);
+        UsersInfo usersInfo = getUsersInfo();
+        android.hardware.automotive.vehicle.V2_0.UserInfo halTargetUser =
+                new android.hardware.automotive.vehicle.V2_0.UserInfo();
+        halTargetUser.userId = targetUser.id;
+        halTargetUser.flags = UserHalHelper.convertFlags(targetUser);
+        mHal.postSwitchResponse(requestId, halTargetUser, usersInfo);
     }
 
     /**
@@ -791,6 +844,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     private void onUserUnlocked(@UserIdInt int userId) {
         ArrayList<Runnable> tasks = null;
         synchronized (mLockUser) {
+            sendPostSwitchToHalLocked(userId);
             if (userId == UserHandle.USER_SYSTEM) {
                 if (!mUser0Unlocked) { // user 0, unlocked, do this only once
                     updateDefaultUserRestriction();
@@ -929,6 +983,18 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             handleNotifyServiceUserLifecycleListeners(event);
             handleNotifyAppUserLifecycleListeners(event);
         });
+    }
+
+    private void sendPostSwitchToHalLocked(@UserIdInt int userId) {
+        if (mUserSwitchInProcess == UserHandle.USER_NULL || mUserSwitchInProcess != userId) {
+            if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
+                Log.d(TAG_USER, "No user switch request Id. No android post switch sent.");
+            }
+            return;
+        }
+        postSwitchHalResponse(mRequestIdForUserSwitchInProcess, mUserSwitchInProcess);
+        mUserSwitchInProcess = UserHandle.USER_NULL;
+        mRequestIdForUserSwitchInProcess = UserHandle.USER_NULL;
     }
 
     private void handleNotifyAppUserLifecycleListeners(UserLifecycleEvent event) {
