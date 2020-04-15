@@ -53,7 +53,7 @@ import java.io.StringWriter;
  * {{@link #INITIAL_CAPACITY}} occurrences of each when the operation finished (so it can be dumped
  * later).
  */
-public final class UserMetrics {
+final class UserMetrics {
 
     private static final String TAG = UserMetrics.class.getSimpleName();
 
@@ -190,6 +190,10 @@ public final class UserMetrics {
     @Nullable
     private <T extends BaseUserMetric> T getExistingMetricsLocked(
             @NonNull SparseArray<? extends BaseUserMetric> metrics, @UserIdInt int userId) {
+        if (metrics == null) {
+            Slog.w(TAG, "getExistingMetricsLocked() should not pass null metrics, except on tests");
+            return null;
+        }
         @SuppressWarnings("unchecked")
         T metric = (T) metrics.get(userId);
         if (metric == null) {
