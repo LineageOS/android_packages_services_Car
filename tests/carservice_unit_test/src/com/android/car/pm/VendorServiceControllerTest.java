@@ -152,6 +152,7 @@ public final class VendorServiceControllerTest {
     }
 
     @Test
+    @FlakyTest  // TODO(b/153834987): to be fixed as part of this bug.
     public void systemUserUnlocked() throws Exception {
         // TODO(b/152069895): must refactor this test because
         // SERVICE_BIND_ALL_USERS_ASAP is bound twice (users 0 and 10)
