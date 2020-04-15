@@ -31,6 +31,7 @@ import android.car.ICarUserService;
 import android.car.settings.CarSettings;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
+import android.car.user.CarUserManager.UserLifecycleEventType;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.userlib.CarUserManagerHelper;
 import android.car.userlib.HalCallback;
@@ -164,6 +165,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @GuardedBy("mLockUser")
     private UserInfo mInitialUser;
 
+    private final UserMetrics mUserMetrics = new UserMetrics();
+
     /** Interface for callbaks related to passenger activities. */
     public interface PassengerCallback {
         /** Called when passenger is started at a certain zone. */
@@ -267,6 +270,22 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         writer.printf("User switch in process=%d\n", mUserSwitchInProcess);
         writer.printf("Request Id for the user switch in process=%d\n ",
                     mRequestIdForUserSwitchInProcess);
+
+        dumpUserMetrics(writer);
+    }
+
+    /**
+     * Dumps user metrics.
+     */
+    public void dumpUserMetrics(@NonNull PrintWriter writer) {
+        mUserMetrics.dump(writer);
+    }
+
+    /**
+     * Dumps first user unlocking time.
+     */
+    public void dumpFirstUserUnlockDuration(PrintWriter writer) {
+        mUserMetrics.dumpFirstUserUnlockDuration(writer);
     }
 
     private void handleDumpListeners(@NonNull PrintWriter writer, String indent) {
@@ -967,9 +986,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     /**
      * Notifies all registered {@link UserLifecycleListener} with the event passed as argument.
      */
-    public void onUserLifecycleEvent(UserLifecycleEvent event) {
-        int userId = event.getUserId();
-        int eventType = event.getEventType();
+    public void onUserLifecycleEvent(@UserLifecycleEventType int eventType, long timestampMs,
+            @UserIdInt int fromUserId, @UserIdInt int toUserId) {
+        int userId = toUserId;
 
         // Handle special cases first...
         if (eventType == CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING) {
@@ -978,11 +997,24 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             onUserUnlocked(userId);
         }
 
-        // ...then notify listeners
+        // ...then notify listeners.
+        UserLifecycleEvent event = new UserLifecycleEvent(eventType, userId);
+
         mHandler.post(() -> {
             handleNotifyServiceUserLifecycleListeners(event);
             handleNotifyAppUserLifecycleListeners(event);
         });
+
+        // Finally, update metrics.
+        mUserMetrics.onEvent(eventType, timestampMs, fromUserId, toUserId);
+    }
+
+    /**
+     * Sets the first user unlocking metrics.
+     */
+    public void onFirstUserUnlocked(@UserIdInt int userId, long timestampMs, long duration,
+            int halResponseTime) {
+        mUserMetrics.logFirstUnlockedUser(userId, timestampMs, duration, halResponseTime);
     }
 
     private void sendPostSwitchToHalLocked(@UserIdInt int userId) {
