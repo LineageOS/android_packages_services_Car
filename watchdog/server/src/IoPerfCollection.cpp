@@ -27,6 +27,7 @@
 #include <inttypes.h>
 #include <log/log.h>
 #include <processgroup/sched_policy.h>
+#include <pthread.h>
 #include <pwd.h>
 
 #include <iomanip>
@@ -281,6 +282,10 @@ Result<void> IoPerfCollection::start() {
         if (set_sched_policy(0, SP_BACKGROUND) != 0) {
             ALOGW("Failed to set background scheduling priority to I/O performance data collection "
                   "thread");
+        }
+        int ret = pthread_setname_np(pthread_self(), "IoPerfCollect");
+        if (ret != 0) {
+            ALOGE("Failed to set I/O perf collection thread name: %d", ret);
         }
         bool isCollectionActive = true;
         // Loop until the collection is not active -- I/O perf collection runs on this thread in a
