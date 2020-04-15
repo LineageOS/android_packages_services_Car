@@ -52,10 +52,11 @@ void terminate(bool isError, std::string msg) {
 
 int main(int /* argc */, char** /* argv */) {
     std::shared_ptr<RunnerEngine> engine =
-        sEngineFactory.createRunnerEngine(RunnerEngineFactory::kDefault, "");
+            sEngineFactory.createRunnerEngine(RunnerEngineFactory::kDefault, "");
 
     std::unique_ptr<PrebuiltGraph> graph;
-    graph.reset(PrebuiltGraph::GetPrebuiltGraphFromLibrary("libfacegraph.so", engine));
+    graph.reset(android::automotive::computepipe::graph::GetLocalGraphFromLibrary("libfacegraph.so",
+                                                                                  engine));
 
     Options options = graph->GetSupportedGraphConfigs();
     engine->setPrebuiltGraph(std::move(graph));
