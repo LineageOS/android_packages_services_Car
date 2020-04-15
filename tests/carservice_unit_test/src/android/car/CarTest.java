@@ -78,7 +78,8 @@ public class CarTest {
         }
 
         @Override
-        public void onFirstUserUnlocked(int userId, long timestampMs, long duration) {
+        public void onFirstUserUnlocked(int userId, long timestampMs, long duration,
+                int halResponseTime) {
         }
 
         @Override
