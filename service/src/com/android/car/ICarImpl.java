@@ -362,8 +362,9 @@ public class ICarImpl extends ICar.Stub {
     }
 
     @Override
-    public void onFirstUserUnlocked(int userId, long timestampMs, long duration) {
-        mUserMetrics.logFirstUnlockedUser(userId, timestampMs, duration);
+    public void onFirstUserUnlocked(int userId, long timestampMs, long duration,
+            int halResponseTime) {
+        mUserMetrics.logFirstUnlockedUser(userId, timestampMs, duration, halResponseTime);
     }
 
     @Override
