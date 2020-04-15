@@ -208,7 +208,7 @@
     <string name="proxy_error_empty_port" msgid="8034561724923076215">"Bạn cần hoàn tất trường cổng."</string>
     <string name="proxy_error_empty_host_set_port" msgid="8471455809508588255">"Trường cổng phải trống nếu trường máy chủ lưu trữ trống."</string>
     <string name="proxy_error_invalid_port" msgid="4046559920586100637">"Cổng bạn đã nhập không hợp lệ."</string>
-    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"Proxy HTTP được sử dụng bởi trình duyệt nhưng có thể không được sử dụng bởi các ứng dụng khác."</string>
+    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"Trình duyệt sẽ sử dụng proxy HTTP, nhưng các ứng dụng khác có thể không."</string>
     <string name="proxy_url_title" msgid="882042361706435904">"URL PAC: "</string>
     <string name="radio_info_dl_kbps" msgid="2903778264453410272">"Băng thông DL (kb/giây):"</string>
     <string name="radio_info_ul_kbps" msgid="3802245899811732716">"Băng thông UL (kb/giây):"</string>
@@ -411,10 +411,10 @@
     <string name="face_add_max" msgid="8870899421165189413">"Bạn có thể thêm tới <xliff:g id="COUNT">%d</xliff:g> khuôn mặt"</string>
     <string name="face_intro_error_max" msgid="4024147799079828937">"Bạn đã thêm số khuôn mặt tối đa"</string>
     <string name="face_intro_error_unknown" msgid="3241592604198351134">"Không thể thêm khuôn mặt khác nữa"</string>
-    <string name="security_settings_face_enroll_error_dialog_title" msgid="3933492758701563051">"Đăng ký chưa hoàn tất"</string>
+    <string name="security_settings_face_enroll_error_dialog_title" msgid="3933492758701563051">"Chưa đăng ký xong"</string>
     <string name="security_settings_face_enroll_dialog_ok" msgid="1078348922734845090">"OK"</string>
     <string name="security_settings_face_enroll_error_timeout_dialog_message" msgid="4917894418448325405">"Đã đến giới hạn thời gian đăng ký khuôn mặt. Hãy thử lại."</string>
-    <string name="security_settings_face_enroll_error_generic_dialog_message" msgid="5160473187142616862">"Đăng ký khuôn mặt không hoạt động."</string>
+    <string name="security_settings_face_enroll_error_generic_dialog_message" msgid="5160473187142616862">"Quy trình đăng ký khuôn mặt không hoạt động."</string>
     <string name="security_settings_face_enroll_finish_title" msgid="6800717857394410769">"Đã hoàn tất. Trông rất ổn."</string>
     <string name="security_settings_face_enroll_done" msgid="5409739233373490971">"Xong"</string>
     <string name="security_settings_face_settings_use_face_category" msgid="1586532139528115416">"Sử dụng khuôn mặt để"</string>
@@ -469,7 +469,7 @@
     <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"Chạm vào cảm biến"</string>
     <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"Đặt ngón tay lên cảm biến và nhấc lên sau khi cảm thấy rung"</string>
     <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"Nhấc ngón tay lên rồi chạm lại"</string>
-    <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"Tiếp tục nhấc ngón tay để thêm các phần khác nhau của vân tay"</string>
+    <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"Chạm liên tục trên cảm biến để thêm các phần khác của ngón tay"</string>
     <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"Đã thêm vân tay"</string>
     <string name="security_settings_fingerprint_enroll_finish_message" msgid="5862643337893923347">"Khi bạn nhìn thấy biểu tượng này, hãy sử dụng vân tay của mình để nhận dạng hoặc phê duyệt hoạt động mua hàng"</string>
     <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"Thực hiện sau"</string>
@@ -488,8 +488,8 @@
     <string name="security_settings_fingerprint_enroll_done" msgid="4111289529758845926">"Xong"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_title" msgid="7410398793283818609">"Rất tiếc, đó không phải là cảm biến"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_message" msgid="7192100314788868883">"Chạm vào cảm biến ở mặt sau điện thoại. Dùng ngón tay trỏ."</string>
-    <string name="security_settings_fingerprint_enroll_error_dialog_title" msgid="1415709674142168770">"Đăng ký chưa hoàn tất"</string>
-    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"Đã đến giới hạn thời gian đăng ký dấu vân tay. Hãy thử lại."</string>
+    <string name="security_settings_fingerprint_enroll_error_dialog_title" msgid="1415709674142168770">"Chưa đăng ký xong"</string>
+    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"Thời gian đăng ký vân tay đã hết hạn. Hãy thử lại."</string>
     <string name="security_settings_fingerprint_enroll_error_generic_dialog_message" msgid="7896295829530444810">"Đăng ký dấu vân tay không hoạt động. Hãy thử lại hoặc sử dụng ngón tay khác."</string>
     <string name="fingerprint_enroll_button_add" msgid="6335782936874996629">"Thêm vân tay khác"</string>
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"Tiếp theo"</string>
@@ -568,7 +568,7 @@
     <string name="unlock_set_unlock_off_summary" msgid="3997346045783359119"></string>
     <string name="unlock_set_unlock_none_title" msgid="1922027966983146392">"Vuốt"</string>
     <string name="unlock_set_unlock_none_summary" msgid="4044529413627659031">"Không có bảo mật"</string>
-    <string name="unlock_set_unlock_pattern_title" msgid="7533759994999423587">"Hình"</string>
+    <string name="unlock_set_unlock_pattern_title" msgid="7533759994999423587">"Hình mở khóa"</string>
     <string name="unlock_set_unlock_pattern_summary" msgid="8858697834522201333">"Mức độ bảo mật trung bình"</string>
     <string name="unlock_set_unlock_pin_title" msgid="361479901761948207">"Mã PIN"</string>
     <string name="unlock_set_unlock_pin_summary" msgid="8076921768675948228">"Mức độ bảo mật từ trung bình đến cao"</string>
@@ -589,7 +589,7 @@
     <string name="unlock_set_unlock_disabled_summary" msgid="1713159782896140817">"Do quản trị viên tắt, c.sách mã hóa hay vùng l.trữ t.tin xác thực"</string>
     <string name="unlock_set_unlock_mode_off" msgid="2950701212659081973">"Không"</string>
     <string name="unlock_set_unlock_mode_none" msgid="3441605629077912292">"Vuốt"</string>
-    <string name="unlock_set_unlock_mode_pattern" msgid="8564909572968419459">"Hình"</string>
+    <string name="unlock_set_unlock_mode_pattern" msgid="8564909572968419459">"Hình mở khóa"</string>
     <string name="unlock_set_unlock_mode_pin" msgid="7828354651668392875">"Mã PIN"</string>
     <string name="unlock_set_unlock_mode_password" msgid="397703731925549447">"Mật khẩu"</string>
     <string name="unlock_setup_wizard_fingerprint_details" msgid="6515136915205473675">"Sau khi thiết lập khóa màn hình, bạn cũng có thể thiết lập vân tay của mình trong Cài đặt và bảo mật."</string>
@@ -863,7 +863,7 @@
     <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"Để sử dụng, hãy chọn một nhà cung cấp dịch vụ xếp hạng mạng tương thích"</string>
     <string name="wifi_install_credentials" msgid="5650088113710858289">"Cài đặt chứng chỉ"</string>
     <string name="wifi_scan_notify_text" msgid="7614101215028336927">"Để nâng cao độ chính xác của vị trí, các ứng dụng và dịch vụ có thể vẫn quét tìm mạng Wi‑Fi bất kỳ lúc nào, ngay cả khi Wi-Fi bị tắt. Chẳng hạn, bạn có thể sử dụng cài đặt này để cải thiện các tính năng và dịch vụ dựa trên vị trí. Bạn có thể thay đổi cài đặt này trong phần <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>cài đặt quét<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
-    <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"Để nâng cao độ chính xác về vị trí, hãy bật quét tìm Wi-Fi trong <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>cài đặt quét<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
+    <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"Để nâng cao độ chính xác về vị trí, hãy bật tính năng quét tìm Wi-Fi trong phần <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>cài đặt quét<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="wifi_scan_notify_remember_choice" msgid="1235445971400237444">"Không hiển thị nữa"</string>
     <string name="wifi_setting_sleep_policy_title" msgid="2120785188625932076">"Bật Wi-Fi khi ở chế độ ngủ"</string>
     <string name="wifi_setting_on_during_sleep_title" msgid="856670183023402715">"Bật Wi-Fi khi ở chế độ ngủ"</string>
@@ -909,8 +909,8 @@
     <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Nếu bộ định tuyến của bạn không phát ID mạng nhưng bạn muốn kết nối với mạng này trong tương lai, thì bạn có thể đặt mạng ẩn.\n\nĐiều này có thể gây rủi ro bảo mật vì điện thoại của bạn sẽ thường xuyên phát tín hiệu để tìm mạng.\n\nViệc đặt mạng ẩn sẽ không thay đổi các cài đặt của bộ định tuyến."</string>
     <string name="wifi_signal" msgid="696548364467704808">"Cường độ tín hiệu"</string>
     <string name="wifi_status" msgid="3439931558930689940">"Trạng thái"</string>
-    <string name="tx_wifi_speed" msgid="2571810085003261073">"Tốc độ của liên kết truyền"</string>
-    <string name="rx_wifi_speed" msgid="7392873246110937187">"Tốc độ nhận đường dẫn liên kết"</string>
+    <string name="tx_wifi_speed" msgid="2571810085003261073">"Tốc độ truyền"</string>
+    <string name="rx_wifi_speed" msgid="7392873246110937187">"Tốc độ nhận"</string>
     <string name="wifi_frequency" msgid="6132852924995724246">"Tần số"</string>
     <string name="wifi_ip_address" msgid="5572539114989914831">"Địa chỉa IP"</string>
     <string name="passpoint_label" msgid="7429247462404128615">"Đã lưu thông qua"</string>
@@ -936,7 +936,7 @@
     <string name="wifi_privacy_settings" msgid="4462092795794247809">"Quyền riêng tư"</string>
     <string name="wifi_privacy_settings_ephemeral_summary" msgid="2411375348287064283">"Địa chỉ MAC gán ngẫu nhiên"</string>
     <string name="wifi_dpp_add_device_to_network" msgid="8871041525483253430">"Thêm một thiết bị"</string>
-    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"Căn giữa mã QR dưới đây để thêm thiết bị vào “<xliff:g id="SSID">%1$s</xliff:g>”"</string>
+    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"Đưa mã QR vào giữa khung bên dưới để thêm thiết bị vào “<xliff:g id="SSID">%1$s</xliff:g>”"</string>
     <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"Quét mã QR"</string>
     <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"Căn giữa mã QR dưới đây để kết nối với “<xliff:g id="SSID">%1$s</xliff:g>”"</string>
     <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"Kết nối với Wi‑Fi bằng cách quét mã QR"</string>
@@ -1608,26 +1608,26 @@
     <string name="master_clear_progress_text" msgid="5418958116008976218">"Vui lòng chờ..."</string>
     <string name="call_settings_title" msgid="5033906789261282752">"Cài đặt cuộc gọi"</string>
     <string name="call_settings_summary" msgid="2119161087671450035">"Thiết lập thư thoại, chuyển tiếp cuộc gọi, chờ cuộc gọi, Số gọi đến"</string>
-    <string name="tether_settings_title_usb" msgid="4265582654602420357">"Chia sẻ kết nối Internet qua USB"</string>
+    <string name="tether_settings_title_usb" msgid="4265582654602420357">"Chia sẻ Internet qua USB"</string>
     <string name="tether_settings_title_wifi" msgid="2060965130234484613">"Điểm phát sóng di động"</string>
-    <string name="tether_settings_title_bluetooth" msgid="1999590158102569959">"Chia sẻ kết nối Internet qua Bluetooth"</string>
-    <string name="tether_settings_title_usb_bluetooth" msgid="1159128764162788159">"Đang dùng làm điểm truy cập Internet"</string>
-    <string name="tether_settings_title_all" msgid="6935843543433954181">"Điểm phát sóng và chia sẻ kết nối"</string>
-    <string name="tether_settings_summary_hotspot_on_tether_on" msgid="1289593649526514499">"Điểm phát sóng bật, chia sẻ kết nối"</string>
+    <string name="tether_settings_title_bluetooth" msgid="1999590158102569959">"Chia sẻ Internet qua Bluetooth"</string>
+    <string name="tether_settings_title_usb_bluetooth" msgid="1159128764162788159">"Chia sẻ Internet"</string>
+    <string name="tether_settings_title_all" msgid="6935843543433954181">"Điểm phát sóng và chia sẻ Internet"</string>
+    <string name="tether_settings_summary_hotspot_on_tether_on" msgid="1289593649526514499">"Điểm phát sóng đang bật, đang chia sẻ Internet"</string>
     <string name="tether_settings_summary_hotspot_on_tether_off" msgid="8010689354668285422">"Điểm phát sóng bật"</string>
-    <string name="tether_settings_summary_hotspot_off_tether_on" msgid="1349909238672649877">"Chia sẻ kết nối"</string>
+    <string name="tether_settings_summary_hotspot_off_tether_on" msgid="1349909238672649877">"Chia sẻ Internet"</string>
     <string name="tether_settings_disabled_on_data_saver" msgid="3682544845899910726">"Không thể chia sẻ kết nối hoặc sử dụng điểm phát sóng di động khi Trình tiết kiệm dữ liệu đang bật"</string>
     <string name="usb_title" msgid="7480927657535578688">"USB"</string>
-    <string name="usb_tethering_button_text" msgid="6242228383142012332">"Chia sẻ kết nối Internet qua USB"</string>
+    <string name="usb_tethering_button_text" msgid="6242228383142012332">"Chia sẻ Internet qua USB"</string>
     <string name="usb_tethering_subtext" product="default" msgid="1573513260339548671">"Chia sẻ kết nối Internet của điện thoại qua USB"</string>
     <string name="usb_tethering_subtext" product="tablet" msgid="154536000235361034">"Chia sẻ kết nối Internet của máy tính bảng qua USB"</string>
-    <string name="bluetooth_tether_checkbox_text" msgid="7257293066139372774">"Chia sẻ kết nối Internet qua Bluetooth"</string>
+    <string name="bluetooth_tether_checkbox_text" msgid="7257293066139372774">"Chia sẻ Internet qua Bluetooth"</string>
     <string name="bluetooth_tethering_subtext" product="tablet" msgid="6868756914621131635">"Chia sẻ kết nối Internet của máy tính bảng qua Bluetooth"</string>
     <string name="bluetooth_tethering_subtext" product="default" msgid="9167912297565425178">"Chia sẻ kết nối Internet của điện thoại qua Bluetooth"</string>
     <string name="bluetooth_tethering_off_subtext_config" msgid="3981528184780083266">"Chia sẻ kết nối Internet của <xliff:g id="DEVICE_NAME">%1$d</xliff:g> này qua Bluetooth"</string>
     <string name="bluetooth_tethering_overflow_error" msgid="6946561351369376943">"Không thể dùng làm điểm truy cập Internet cho hơn <xliff:g id="MAXCONNECTION">%1$d</xliff:g> thiết bị."</string>
     <string name="bluetooth_untether_blank" msgid="5428300773782256084">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> sẽ được tháo."</string>
-    <string name="tethering_footer_info" msgid="8019555174339154124">"Sử dụng điểm phát sóng và chia sẻ kết nối để cung cấp kết nối Internet cho thiết bị khác thông qua kết nối dữ liệu di động. Các ứng dụng cũng có thể tạo điểm phát sóng để chia sẻ nội dung với thiết bị lân cận."</string>
+    <string name="tethering_footer_info" msgid="8019555174339154124">"Sử dụng tính năng điểm phát sóng và chia sẻ Internet để cho phép các thiết bị khác kết nối với Internet thông qua dữ liệu di động của bạn. Các ứng dụng cũng có thể tạo điểm phát sóng để chia sẻ nội dung với thiết bị ở gần."</string>
     <string name="tethering_help_button_text" msgid="7653022000284543996">"Trợ giúp"</string>
     <string name="network_settings_title" msgid="8516526011407061679">"Mạng di động"</string>
     <string name="manage_mobile_plan_title" msgid="3312016665522553062">"Gói dịch vụ di động"</string>
@@ -1744,7 +1744,7 @@
     <string name="lockpassword_confirm_your_password_header_frp" msgid="7326670978891793470">"Xác minh mật khẩu"</string>
     <string name="lockpassword_invalid_pin" msgid="3059022215815900137">"Mã PIN sai"</string>
     <string name="lockpassword_invalid_password" msgid="8374331995318204099">"Mật khẩu sai"</string>
-    <string name="lockpattern_need_to_unlock_wrong" msgid="1328670466959377948">"Hình không chính xác"</string>
+    <string name="lockpattern_need_to_unlock_wrong" msgid="1328670466959377948">"Hình mở khóa không chính xác"</string>
     <string name="lock_settings_title" msgid="233657584969886812">"Bảo mật thiết bị"</string>
     <string name="lockpattern_change_lock_pattern_label" msgid="333149762562581510">"Thay đổi hình mở khóa"</string>
     <string name="lockpattern_change_lock_pin_label" msgid="3435796032210265723">"Thay đổi mã PIN mở khóa"</string>
@@ -2636,7 +2636,7 @@
     <string name="enter_password" msgid="2963496904625715235">"Để bắt đầu sử dụng thiết bị Android, hãy nhập mật khẩu của bạn"</string>
     <string name="enter_pin" msgid="7140938268709546890">"Để bắt đầu sử dụng thiết bị Android, hãy nhập mã PIN của bạn"</string>
     <string name="enter_pattern" msgid="1653841963422825336">"Để bắt đầu sử dụng thiết bị Android, hãy vẽ hình mẫu của bạn"</string>
-    <string name="cryptkeeper_wrong_pattern" msgid="4580105105385125467">"Hình không chính xác"</string>
+    <string name="cryptkeeper_wrong_pattern" msgid="4580105105385125467">"Hình mở khóa không chính xác"</string>
     <string name="cryptkeeper_wrong_password" msgid="1709534330303983166">"Mật khẩu sai"</string>
     <string name="cryptkeeper_wrong_pin" msgid="857757190077859245">"Mã PIN sai"</string>
     <string name="checking_decryption" msgid="5927759912073053101">"Đang kiểm tra…"</string>
@@ -3044,7 +3044,7 @@
     <string name="account_dashboard_title" msgid="4734300939532555885">"Tài khoản"</string>
     <string name="account_dashboard_default_summary" msgid="6822549669771936206">"Chưa thêm tài khoản nào"</string>
     <string name="app_default_dashboard_title" msgid="6575301028225232193">"Ứng dụng mặc định"</string>
-    <string name="system_dashboard_summary" msgid="6582464466735779394">"Ngôn ngữ, cử chỉ, thời gian, bản sao lưu"</string>
+    <string name="system_dashboard_summary" msgid="6582464466735779394">"Ngôn ngữ, cử chỉ, ngày giờ, bản sao lưu"</string>
     <string name="search_results_title" msgid="4160717656435503940">"Cài đặt"</string>
     <string name="keywords_wifi" msgid="8477688080895466846">"wifi, wi-fi, kết nối mạng, internet, không dây, dữ liệu, wi fi"</string>
     <string name="keywords_wifi_notify_open_networks" msgid="1031260564121854773">"thông báo về Wi‑Fi, thông báo wifi"</string>
@@ -3731,7 +3731,7 @@
     <string name="usb_use_file_transfers_desc" msgid="6953866660041189580">"Truyền tệp sang thiết bị khác"</string>
     <string name="usb_use_photo_transfers" msgid="5974236250197451257">"PTP"</string>
     <string name="usb_use_photo_transfers_desc" msgid="2325112887316125320">"Chuyển ảnh hoặc tệp nếu MTP không được hỗ trợ (PTP)"</string>
-    <string name="usb_use_tethering" msgid="4250626730173163846">"Chia sẻ kết nối qua USB"</string>
+    <string name="usb_use_tethering" msgid="4250626730173163846">"Chia sẻ Interent qua USB"</string>
     <string name="usb_use_MIDI" msgid="4710632870781041401">"MIDI"</string>
     <string name="usb_use_MIDI_desc" msgid="1770966187150010947">"Sử dụng thiết bị này làm MIDI"</string>
     <string name="usb_use" msgid="8940500223316278632">"Sử dụng USB cho"</string>
@@ -3747,11 +3747,11 @@
     <string name="usb_summary_charging_only" msgid="4118449308708872339">"Đang sạc thiết bị này"</string>
     <string name="usb_summary_power_only" msgid="3552240122641051107">"Sạc thiết bị được kết nối"</string>
     <string name="usb_summary_file_transfers" msgid="7805342797099821502">"Truyền tệp"</string>
-    <string name="usb_summary_tether" msgid="778845069037366883">"Chia sẻ kết nối qua USB"</string>
+    <string name="usb_summary_tether" msgid="778845069037366883">"Chia sẻ Interent qua USB"</string>
     <string name="usb_summary_photo_transfers" msgid="4743028167400644354">"PTP"</string>
     <string name="usb_summary_MIDI" msgid="5540604166270861247">"MIDI"</string>
     <string name="usb_summary_file_transfers_power" msgid="1684501026426766867">"Truyền tệp và cấp điện"</string>
-    <string name="usb_summary_tether_power" msgid="5684170912136320002">"Chia sẻ kết nối qua USB và cấp điện"</string>
+    <string name="usb_summary_tether_power" msgid="5684170912136320002">"Chia sẻ Internet và cấp điện qua USB"</string>
     <string name="usb_summary_photo_transfers_power" msgid="4424106272137720464">"PTP và cấp điện"</string>
     <string name="usb_summary_MIDI_power" msgid="7685597621357005180">"MIDI và cấp điện"</string>
     <string name="background_check_pref" msgid="664081406854758392">"Kiểm tra nền"</string>
@@ -4069,8 +4069,8 @@
     <string name="premium_sms_warning" msgid="7604011651486294515">"Tin nhắn dịch vụ có thể làm bạn mất tiền và sẽ tính thêm vào hóa đơn nhà mạng của bạn. Nếu bạn bật quyền cho một ứng dụng, bạn sẽ có thể gửi Tin nhắn dịch vụ bằng ứng dụng đó."</string>
     <string name="premium_sms_access" msgid="4550027460595822851">"Truy cập Tin nhắn dịch vụ"</string>
     <string name="bluetooth_disabled" msgid="6588102116819268238">"Tắt"</string>
-    <string name="bluetooth_connected_summary" msgid="439920840053965217">"Được kết nối với <xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="bluetooth_connected_multiple_devices_summary" msgid="596205630653123250">"Được kết nối với nhiều thiết bị"</string>
+    <string name="bluetooth_connected_summary" msgid="439920840053965217">"Đã kết nối với <xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <string name="bluetooth_connected_multiple_devices_summary" msgid="596205630653123250">"Đã kết nối với nhiều thiết bị"</string>
     <string name="demo_mode" msgid="3831081808592541104">"Chế độ thử nghiệm giao diện người dùng hệ thống"</string>
     <string name="dark_ui_mode" msgid="703844190192599217">"Giao diện"</string>
     <string name="dark_ui_mode_title" msgid="8774932716427742413">"Chọn giao diện"</string>

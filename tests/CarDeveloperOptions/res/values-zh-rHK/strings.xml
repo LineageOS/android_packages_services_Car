@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"縮小或放大畫面上的文字。"</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"縮小"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"放大"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"範例文字"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"《綠野仙蹤》"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"第 11 章：奧茲國的奇妙翡翠城"</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"流動網絡"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"如果無法使用 Wi‑Fi，請使用流動網絡"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"如果無法使用流動網絡，請使用 Wi‑Fi"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"使用 Wi-Fi 通話。如果 Wi‑Fi 斷線，通話便會結束。"</string>

@@ -268,7 +268,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             if (DEBUG) {
                 Log.d(TAG, "CarWatchdogService registers to car watchdog daemon");
             }
-        } catch (RemoteException | IllegalArgumentException | IllegalStateException e) {
+        } catch (RemoteException | RuntimeException e) {
             Log.w(TAG, "Cannot register to car watchdog daemon: " + e);
         }
         UserManager userManager = UserManager.get(mContext);
@@ -286,7 +286,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                     mStoppedUser.delete(info.id);
                 }
             }
-        } catch (IllegalArgumentException | RemoteException e) {
+        } catch (RemoteException | RuntimeException e) {
             Log.w(TAG, "Notifying system state change failed: " + e);
         }
     }
@@ -297,7 +297,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             if (DEBUG) {
                 Log.d(TAG, "CarWatchdogService unregisters from car watchdog daemon");
             }
-        } catch (RemoteException | IllegalArgumentException | IllegalStateException e) {
+        } catch (RemoteException | RuntimeException e) {
             Log.w(TAG, "Cannot unregister from car watchdog daemon: " + e);
         }
     }
@@ -406,7 +406,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         try {
             mCarWatchdogDaemonHelper.tellMediatorAlive(mWatchdogClient, clientsNotResponding,
                     sessionId);
-        } catch (RemoteException | IllegalArgumentException | IllegalStateException e) {
+        } catch (RemoteException | RuntimeException e) {
             Log.w(TAG, "Cannot respond to car watchdog daemon (sessionId=" + sessionId + "): " + e);
         }
     }
@@ -440,11 +440,12 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 try {
                     mCarWatchdogDaemonHelper.notifySystemStateChange(StateType.POWER_CYCLE,
                             powerCycle, /* arg2= */ -1);
-                } catch (IllegalArgumentException | RemoteException e) {
+                    if (DEBUG) {
+                        Log.d(TAG, "Notified car watchdog daemon a power cycle("
+                                + powerCycle + ")");
+                    }
+                } catch (RemoteException | RuntimeException e) {
                     Log.w(TAG, "Notifying system state change failed: " + e);
-                }
-                if (DEBUG) {
-                    Log.d(TAG, "Notified car watchdog daemon a power cycle(" + powerCycle + ")");
                 }
             }
         });
@@ -479,12 +480,12 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             try {
                 mCarWatchdogDaemonHelper.notifySystemStateChange(StateType.USER_STATE, userId,
                         userState);
-            } catch (IllegalArgumentException | RemoteException e) {
+                if (DEBUG) {
+                    Log.d(TAG, "Notified car watchdog daemon a user state: userId = " + userId
+                            + ", userState = " + userStateDesc);
+                }
+            } catch (RemoteException | RuntimeException e) {
                 Log.w(TAG, "Notifying system state change failed: " + e);
-            }
-            if (DEBUG) {
-                Log.d(TAG, "Notified car watchdog daemon a user state: userId = " + userId
-                        + ", userState = " + userStateDesc);
             }
         });
     }

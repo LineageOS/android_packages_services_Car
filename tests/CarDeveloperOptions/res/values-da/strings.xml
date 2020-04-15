@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Gør teksten på skærmen mindre eller større."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Formindsk"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Forstør"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Eksempeltekst"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"Den vidunderlige troldmand fra Oz"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"Kapitel 11: Den vidunderlige smaragdby i Oz"</string>
@@ -504,7 +503,7 @@
     <string name="fingerprint_delete_message" msgid="5895802741486967970">"Vil du slette dette fingeraftryk?"</string>
     <string name="fingerprint_last_delete_message" msgid="3346252479778971442">"Du vil ikke kunne bruge dine fingeraftryk til at låse din telefon op, godkende køb eller logge ind på apps"</string>
     <string name="fingerprint_last_delete_message_profile_challenge" msgid="5385095150532247025">"Du vil ikke kunne bruge dine fingeraftryk til at låse din arbejdsprofil op, godkende køb eller logge ind på arbejdsapps"</string>
-    <string name="fingerprint_last_delete_confirm" msgid="7984595457589664004">"Ja, fjern det"</string>
+    <string name="fingerprint_last_delete_confirm" msgid="7984595457589664004">"Ja, fjern"</string>
     <string name="crypt_keeper_settings_title" msgid="839783588093862748">"Kryptering"</string>
     <string name="crypt_keeper_encrypt_title" product="tablet" msgid="2292129135369853167">"Krypter tablet"</string>
     <string name="crypt_keeper_encrypt_title" product="default" msgid="3110852053238357832">"Kryptér telefon"</string>
@@ -910,7 +909,7 @@
     <string name="wifi_signal" msgid="696548364467704808">"Signalstyrke"</string>
     <string name="wifi_status" msgid="3439931558930689940">"Status"</string>
     <string name="tx_wifi_speed" msgid="2571810085003261073">"Overførselshastighed"</string>
-    <string name="rx_wifi_speed" msgid="7392873246110937187">"Modtag linkhastighed"</string>
+    <string name="rx_wifi_speed" msgid="7392873246110937187">"Modtagelseshastighed"</string>
     <string name="wifi_frequency" msgid="6132852924995724246">"Frekvens"</string>
     <string name="wifi_ip_address" msgid="5572539114989914831">"IP-adresse"</string>
     <string name="passpoint_label" msgid="7429247462404128615">"Gemt via"</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"Mobil"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Brug mobilnetværk, hvis der ikk er nogen Wi-Fi-forbindelse"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Brug Wi-Fi, hvis mobilnetværket ikke er tilgængeligt"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Ring via Wi‑Fi. Opkaldet afsluttes, hvis Wi-Fi-forbindelsen afbrydes."</string>
@@ -4341,7 +4343,7 @@
     <string name="network_connecting" msgid="8798611458457547110">"Opretter forbindelse…"</string>
     <string name="network_could_not_connect" msgid="552874922030763713">"Der kunne ikke oprettes forbindelse"</string>
     <string name="empty_networks_list" msgid="5170020017144403884">"Der blev ikke fundet nogen netværk."</string>
-    <string name="network_query_error" msgid="525635151099480463">"Der kunne ikke findes nogen netværk. Prøv igen."</string>
+    <string name="network_query_error" msgid="525635151099480463">"Der blev ikke fundet nogen netværk. Prøv igen."</string>
     <string name="forbidden_network" msgid="8493827960968261182">"(forbudt)"</string>
     <string name="no_sim_card" msgid="3708682108324275635">"Intet SIM-kort"</string>
     <string name="preferred_network_mode_wcdma_perf_summary" msgid="6899270534608086704">"Foretrukken netværkstilstand: WCDMA foretrækkes"</string>

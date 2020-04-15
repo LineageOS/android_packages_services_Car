@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Kuongeza au kupunguza ukubwa wa maandishi kwenye skrini."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Punguza"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Kuza"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Sampuli ya maandishi"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"Wachawi wa Ajabu kutoka Oz"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"Sura ya 11: Mji wa Ajabu wa Johari wa Oz"</string>
@@ -426,7 +425,7 @@
     <string name="security_settings_face_settings_require_confirmation_details" msgid="8740564864091803429">"Iombe uthibitishaji kila wakati unapothibitisha katika programu"</string>
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Ondoa data ya uso"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Unaweza kutumia uso wako kufungua kifaa chako na kufikia programu. "<annotation id="url">"Pata maelezo zaidi"</annotation></string>
-    <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Je, ungependa kufuta data ya uso?"</string>
+    <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Ungependa kufuta data ya uso?"</string>
     <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Data iliyorekodiwa na kipengele cha kufungua kwa uso itafutwa kabisa kwa njia salama. Ikishafutwa, utahitaji PIN, mchoro au nenosiri lako ili kufungua simu yako, kuingia kwenye akaunti za programu na kuthibitisha malipo."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Kitambulisho"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Dhibiti vitambulisho"</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"Mtandao wa simu"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Ikiwa Wi-Fi haipatikani, tumia mtandao wa simu"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Ikiwa mtandao wa simu haupatikani, tumia Wi-Fi"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Piga simu kupitia WI-FI. Ikiwa Wi-Fi haipatikani, simu itakatika."</string>
@@ -3986,7 +3988,7 @@
     <string name="data_saver_title" msgid="7903308134514179256">"Kiokoa Data"</string>
     <string name="unrestricted_data_saver" msgid="9139401849550738720">"Data bila kipimo"</string>
     <string name="restrict_background_blacklisted" msgid="7158991683849067124">"Data ya chini chini imezimwa"</string>
-    <string name="data_saver_on" msgid="7281809065420480881">"Kimewashwa"</string>
+    <string name="data_saver_on" msgid="7281809065420480881">"Imewashwa"</string>
     <string name="data_saver_off" msgid="7439439787358504018">"Kimezimwa"</string>
     <string name="data_saver_switch_title" msgid="8244008132112735207">"Tumia Kiokoa Data"</string>
     <string name="unrestricted_app_title" msgid="4390661122069905122">"Matumizi ya data bila vikwazo"</string>

@@ -414,7 +414,7 @@
     <string name="security_settings_face_enroll_error_dialog_title" msgid="3933492758701563051">"నమోదు పూర్తి కాలేదు"</string>
     <string name="security_settings_face_enroll_dialog_ok" msgid="1078348922734845090">"సరే"</string>
     <string name="security_settings_face_enroll_error_timeout_dialog_message" msgid="4917894418448325405">"ముఖ నమోదు సమయ పరిమితి చేరుకుంది. మళ్లీ ప్రయత్నించండి."</string>
-    <string name="security_settings_face_enroll_error_generic_dialog_message" msgid="5160473187142616862">"ముఖ నమోదు పని చేయలేదు."</string>
+    <string name="security_settings_face_enroll_error_generic_dialog_message" msgid="5160473187142616862">"ఫేస్ నమోదు పని చేయలేదు."</string>
     <string name="security_settings_face_enroll_finish_title" msgid="6800717857394410769">"మొత్తం పూర్తయింది. చూడడానికి భాగుంది."</string>
     <string name="security_settings_face_enroll_done" msgid="5409739233373490971">"పూర్తయింది"</string>
     <string name="security_settings_face_settings_use_face_category" msgid="1586532139528115416">"ముఖాన్ని వాడండి"</string>
@@ -2574,7 +2574,7 @@
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"SMS &amp; కాల్ లాగ్ యాక్సెస్‌ను పరిమితం చేయండి"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"కేవలం డిఫాల్ట్ ఫోన్ మరియు సందేశ యాప్‌లు మాత్రమే SMS &amp; లాగ్ అనుమతులను కలిగి ఉన్నాయి"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"విశ్వసనీయ ఏజెంట్‌లు అందుబాటులో లేరు"</string>
-    <string name="add_device_admin_msg" msgid="3573765823476931173">"పరికర నిర్వాహకుల యాప్‌ను యాక్టివేట్‌ చేయాలా?"</string>
+    <string name="add_device_admin_msg" msgid="3573765823476931173">"డివైజ్ నిర్వాహకుల యాప్‌ను యాక్టివేట్‌ చేయాలా?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"ఈ పరికరం నిర్వాహకుల యాప్‌ను యాక్టివేట్‌ చేయి"</string>
     <string name="device_admin_add_title" msgid="6097881332139146897">"పరికర నిర్వాహకులు"</string>
     <string name="device_admin_warning" msgid="4421817419326480449">"ఈ \'నిర్వాహకుల యాప్‌\'ను యాక్టివేట్‌ చేస్తే, కింది చర్యలను చేయడానికి <xliff:g id="APP_NAME">%1$s</xliff:g> యాప్ అనుమతించబడుతుంది:"</string>

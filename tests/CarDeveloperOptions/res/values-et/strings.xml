@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Muutke ekraanil kuvatavat tekst suuremaks või väiksemaks."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Vähendamine"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Suurendamine"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Näidistekst"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"Võlur Oz"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"11. peatükk: Ozi imeline smaragdlinn"</string>
@@ -495,7 +494,7 @@
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"Järgmine"</string>
     <string name="security_settings_fingerprint_enroll_disclaimer" msgid="5831834311961551423">"Lisaks telefoni avamisele saate oma sõrmejälje abil volitada ka ostusid ja juurdepääsu rakendustele. "<annotation id="url">"Lisateave"</annotation></string>
     <string name="security_settings_fingerprint_enroll_disclaimer_lockscreen_disabled" msgid="7954742554236652690">" Ekraaniluku valik on keelatud. Küsige lisateavet organisatsiooni administraatorilt. "<annotation id="admin_details">"Rohkem üksikasju"</annotation>\n\n"Saate ka edaspidi sõrmejäljega oste volitada ja rakendustele juurde pääseda. "<annotation id="url">"Lisateave"</annotation></string>
-    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"Tõstke sõrme, seejärel puudutage sõrmejäljelugejat uuesti"</string>
+    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"Tõstke sõrme, seejärel puudutage sõrmejäljeandurit uuesti"</string>
     <string name="fingerprint_add_max" msgid="2939393314646115661">"Saate lisada kuni <xliff:g id="COUNT">%d</xliff:g> sõrmejälge"</string>
     <string name="fingerprint_intro_error_max" msgid="3247720976621039437">"Olete lisanud maksimaalse arvu sõrmejälgi"</string>
     <string name="fingerprint_intro_error_unknown" msgid="3975674268256524015">"Rohkem sõrmejälgi ei saa lisada"</string>
@@ -964,7 +963,7 @@
     <string name="wifi_dpp_lockscreen_title" msgid="3910665850075275963">"Kinnitage oma isik"</string>
     <string name="wifi_dpp_wifi_password" msgid="8007558344032612455">"WiFi-võrgu parool: <xliff:g id="PASSWORD">%1$s</xliff:g>"</string>
     <string name="wifi_dpp_hotspot_password" msgid="6172326289042241924">"Kuumkoha parool: <xliff:g id="PASSWORD">%1$s</xliff:g>"</string>
-    <string name="wifi_dpp_add_device" msgid="1347056725253936358">"Lisa seade"</string>
+    <string name="wifi_dpp_add_device" msgid="1347056725253936358">"Seadme lisamine"</string>
     <string name="wifi_dpp_connect_network_using_qr_code" msgid="115993715600532357">"Looge võrguga ühendus QR-koodi abil"</string>
     <string name="retry" msgid="8500839563577344702">"Proovi uuesti"</string>
     <string name="wifi_shared" msgid="5054256778276524960">"Jaga seadme teiste kasutajatega"</string>
@@ -976,7 +975,7 @@
     <string name="wifi_do_not_validate_eap_server" msgid="1892537559682474878">"Ära kinnita"</string>
     <string name="wifi_do_not_validate_eap_server_warning" msgid="3895397996759837323">"Sertifikaati pole määratud. Teie ühendus pole privaatne."</string>
     <string name="wifi_ssid_too_long" msgid="34911971389775920">"Võrgu nimi on liiga pikk."</string>
-    <string name="wifi_no_domain_warning" msgid="735859919311067606">"Tuleb määrata domeen."</string>
+    <string name="wifi_no_domain_warning" msgid="735859919311067606">"Domeeni määramine on kohustuslik."</string>
     <string name="wifi_wps_available_first_item" msgid="3221671453930485243">"WPS on saadaval"</string>
     <string name="wifi_wps_available_second_item" msgid="5703265526619705185">" WPS on saadaval"</string>
     <string name="wifi_carrier_connect" msgid="7202618367339982884">"Operaatori WiFi-võrk"</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"WiFi"</item>
+    <item msgid="2271962426654621656">"Mobiilne andmeside"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Kasuta mobiilsidevõrku, kui WiFi ei ole saadaval"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Kasuta WiFi-ühendust, kui mobiilsidevõrk ei ole saadaval"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Helistage WiFi-võrgu kaudu. WiFi-ühenduse katkemisel kõne lõpeb."</string>
@@ -1524,11 +1526,11 @@
     <string name="storage_wizard_ready_v2_internal_moved_body" msgid="4133133596316768033">"Sisu teisaldati seadmesse <xliff:g id="NAME_0">^1</xliff:g>. \n\nSeadme <xliff:g id="NAME_1">^2</xliff:g> haldamiseks tehke valikud "<b>"Seaded &gt; Salvestusruum"</b>"."</string>
     <string name="battery_status_title" msgid="8731200319740671905">"Aku olek"</string>
     <string name="battery_level_title" msgid="5207775387973771646">"Aku tase"</string>
-    <string name="apn_settings" msgid="8130776653826271664">"Pääsupunktid"</string>
+    <string name="apn_settings" msgid="8130776653826271664">"Pääsupunktid (APN-id)"</string>
     <string name="apn_edit" msgid="4350571070853305357">"Pääsupunkti muutmine"</string>
     <string name="apn_not_set" msgid="5344235604466825691">"Määramata"</string>
     <string name="apn_name" msgid="8431432886706852226">"Nimi"</string>
-    <string name="apn_apn" msgid="190519449579357696">"Pääsupunktnimi"</string>
+    <string name="apn_apn" msgid="190519449579357696">"Pääsupunkti nimi"</string>
     <string name="apn_http_proxy" msgid="8816906767987944465">"Puhverserver"</string>
     <string name="apn_http_port" msgid="5789193688960075486">"Port"</string>
     <string name="apn_user" msgid="6979724587671704006">"Kasutajanimi"</string>
@@ -1544,7 +1546,7 @@
     <string name="apn_auth_type_pap" msgid="6155876141679480864">"PAP"</string>
     <string name="apn_auth_type_chap" msgid="5484031368454788686">"CHAP"</string>
     <string name="apn_auth_type_pap_chap" msgid="2977833804460109203">"PAP või CHAP"</string>
-    <string name="apn_type" msgid="6725346490902871146">"Pääsupunktinime tüüp"</string>
+    <string name="apn_type" msgid="6725346490902871146">"APN-i tüüp"</string>
     <string name="apn_protocol" msgid="1240197323563960912">"APN-i protokoll"</string>
     <string name="apn_roaming_protocol" msgid="6913336248771263497">"APN-i rändlusprotokoll"</string>
     <string name="carrier_enabled" msgid="1819916725305365581">"Luba/keela APN"</string>
@@ -2528,7 +2530,7 @@
     <string name="credentials_reset" msgid="355080737664731678">"Mandaatide kustutamine"</string>
     <string name="credentials_reset_summary" msgid="7622528359699428555">"Kõikide sertifikaatide eemaldamine"</string>
     <string name="trusted_credentials" msgid="6989242522455395200">"Usaldusväärsed mandaadid"</string>
-    <string name="trusted_credentials_summary" msgid="7411781319056251582">"Usaldusväärsete CA-sertifikaatide kuvamine"</string>
+    <string name="trusted_credentials_summary" msgid="7411781319056251582">"Kuva usaldusväärsed CA-sertifikaadid"</string>
     <string name="user_credentials" msgid="8365731467650306757">"Kasutaja mandaadid"</string>
     <string name="user_credentials_summary" msgid="7350223899317423252">"Salvestatud mandaatide vaatamine ja muutmine"</string>
     <string name="advanced_security_title" msgid="286883005673855845">"Täpsemad"</string>
@@ -2577,7 +2579,7 @@
     <string name="add_device_admin_msg" msgid="3573765823476931173">"Kas aktiveerida admin. rakendus?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"Aktiveeri seadme administraatori rakendus"</string>
     <string name="device_admin_add_title" msgid="6097881332139146897">"Seadme administraator"</string>
-    <string name="device_admin_warning" msgid="4421817419326480449">"Selle administraatori rakenduse aktiveerimisel lubatakse rakendusel <xliff:g id="APP_NAME">%1$s</xliff:g> teha järgmisi toiminguid:"</string>
+    <string name="device_admin_warning" msgid="4421817419326480449">"Selle administraatori rakenduse aktiveerimisel lubatakse rakendusel <xliff:g id="APP_NAME">%1$s</xliff:g> teha järgmisi toiminguid."</string>
     <string name="device_admin_status" msgid="5424944611789040723">"See administraatori rakendus on aktiivne ja lubab rakendusel <xliff:g id="APP_NAME">%1$s</xliff:g> teha järgmisi toiminguid."</string>
     <string name="profile_owner_add_title" msgid="735805919754362791">"Kas aktiveerida profiilihaldur?"</string>
     <string name="adding_profile_owner_warning" msgid="1284541194547382194">"Kui jätkate, haldab teie kasutajat edaspidi administraator, kes saab võib-olla talletada peale teie isiklike andmete ka seotud andmeid.\n\nTeie administraator saab jälgida ja hallata selle kasutajaga seotud seadeid, juurdepääsu, rakendusi ja andmeid, sealhulgas veebitegevusi ja seadme asukohateavet."</string>
@@ -4308,7 +4310,7 @@
     <string name="change_wifi_state_title" msgid="5140754955787584174">"WiFi-seadete juhtimine"</string>
     <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"Lubage rakendusel WiFi-seadeid juhtida"</string>
     <string name="change_wifi_state_app_detail_summary" msgid="614854822469259860">"Lubage sellel rakendusel WiFi sisse või välja lülitada, otsida WiFi-võrke ja nendega ühendus luua, võrke lisada või eemaldada või luua kohalik kuumkoht"</string>
-    <string name="media_output_title" msgid="8710632337456601848">"Esita meedia seadmes"</string>
+    <string name="media_output_title" msgid="8710632337456601848">"Meedia esitamise seade:"</string>
     <string name="media_output_default_summary" msgid="3159237976830415584">"See seade"</string>
     <string name="media_output_summary" product="default" msgid="6294261435613551178">"Telefon"</string>
     <string name="media_output_summary" product="tablet" msgid="6672024060360538526">"Tahvelarvuti"</string>
@@ -4439,7 +4441,7 @@
     <string name="register_automatically" msgid="1858081641661493109">"Automaatne registreerimine …"</string>
     <string name="roaming_alert_title" msgid="1849237823113454475">"Kas lubada andmesiderändlus?"</string>
     <string name="roaming_check_price_warning" msgid="5883499714594419439">"Hinnakirja küsige oma võrguteenuse pakkujalt."</string>
-    <string name="mobile_data_usage_title" msgid="2376358672434990037">"Rakenduse andmekasutus"</string>
+    <string name="mobile_data_usage_title" msgid="2376358672434990037">"Rakenduste andmekasutus"</string>
     <string name="mobile_network_mode_error" msgid="6818434186286086554">"Võrgu režiim <xliff:g id="NETWORKMODEID">%1$d</xliff:g> on sobimatu. Eirake seda."</string>
     <string name="mobile_network_apn_title" msgid="5628635067747404382">"Pääsupunktide nimed"</string>
     <string name="manual_mode_disallowed_summary" msgid="799800630000340665">"Pole saadaval, kui on ühendus on loodud operaatoriga <xliff:g id="CARRIER">%1$s</xliff:g>"</string>

@@ -210,7 +210,7 @@
     <string name="proxy_error_empty_port" msgid="8034561724923076215">"Трэба запоўніць поле порта."</string>
     <string name="proxy_error_empty_host_set_port" msgid="8471455809508588255">"Поле парта павінна быць пустым, калі поле хоста пустое."</string>
     <string name="proxy_error_invalid_port" msgid="4046559920586100637">"Вы ўвялі несапраўднае імя порта."</string>
-    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"Проксі HTTP выкарыстоўваецца браўзэрам, але ён не можа выкарыстоўвацца іншымі прыкладаннямi"</string>
+    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"Проксі HTTP выкарыстоўваецца браўзерам, але не можа выкарыстоўвацца іншымі праграмамі."</string>
     <string name="proxy_url_title" msgid="882042361706435904">"URL аўтаканфіг. проксі: "</string>
     <string name="radio_info_dl_kbps" msgid="2903778264453410272">"Паласа прапускання спампоўкі (кбіт/с):"</string>
     <string name="radio_info_ul_kbps" msgid="3802245899811732716">"Паласа прапускання запампоўкі (кбіт/с):"</string>
@@ -353,16 +353,16 @@
     <string name="time_picker_title" msgid="1596400307061268660">"Час"</string>
     <string name="lock_after_timeout" msgid="7755520959071097304">"Аўтаматычная блакіроўка"</string>
     <string name="lock_after_timeout_summary" msgid="3160517585613694740">"<xliff:g id="TIMEOUT_STRING">%1$s</xliff:g> пасля сну"</string>
-    <string name="lock_immediately_summary_with_exception" msgid="6442552135409347556">"Адразу ж пасля сну, за выключэннем выпадкаў, калі экран разблакіруецца функцыяй <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g>"</string>
-    <string name="lock_after_timeout_summary_with_exception" msgid="7218267834086717545">"<xliff:g id="TIMEOUT_STRING">%1$s</xliff:g> пасля сну, за выключэннем выпадкаў, калі экран разблакіруецца функцыяй <xliff:g id="TRUST_AGENT_NAME">%2$s</xliff:g>"</string>
+    <string name="lock_immediately_summary_with_exception" msgid="6442552135409347556">"Адразу пасля сну акрамя выпадкаў, калі экран застаецца разблакіраваным функцыяй <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g>"</string>
+    <string name="lock_after_timeout_summary_with_exception" msgid="7218267834086717545">"<xliff:g id="TIMEOUT_STRING">%1$s</xliff:g> пасля сну акрамя выпадкаў, калі экран застаецца разблакіраваным функцыяй <xliff:g id="TRUST_AGENT_NAME">%2$s</xliff:g>"</string>
     <string name="show_owner_info_on_lockscreen_label" msgid="4510756693837171575">"Паказаць інфармацыю аб уладальніку на экране блакавання"</string>
     <string name="owner_info_settings_title" msgid="2537966178998339896">"Тэкст на экране блакіроўкі"</string>
     <string name="security_enable_widgets_title" msgid="1701510007926738088">"Уключыць віджэты"</string>
     <string name="security_enable_widgets_disabled_summary" msgid="4408176087132339331">"Адключана адміністратарам"</string>
     <string name="lockdown_settings_title" msgid="4534779922580115990">"Паказаць параметр блакіроўкі"</string>
     <string name="lockdown_settings_summary" msgid="7270756909878256174">"Дадаць у меню кнопкі сілкавання функцыю, якая выключае разумную блакіроўку, разблакіроўку адбіткам пальца і апавяшчэнні на экране блакіроўкі"</string>
-    <string name="trust_agents_extend_unlock_title" msgid="3582017561316089951">"Давераныя агенты падаўжаюць разблакіроўку"</string>
-    <string name="trust_agents_extend_unlock_summary" msgid="3543997596586078084">"Калі функцыя ўключана, давераныя агенты будуць даўжэй трымаць прыладу разблакіраванай, аднак не змогуць разблакіраваць ужо заблакіраваную прыладу."</string>
+    <string name="trust_agents_extend_unlock_title" msgid="3582017561316089951">"Даверчыя агенты падаўжаюць разблакіроўку"</string>
+    <string name="trust_agents_extend_unlock_summary" msgid="3543997596586078084">"Калі функцыя ўключана, даверчыя агенты будуць даўжэй трымаць прыладу разблакіраванай, аднак не змогуць разблакіраваць ужо заблакіраваную прыладу."</string>
     <string name="trust_lost_locks_screen_title" msgid="3094736590690459372">"Блакіраваць экран, калі давер страчаны"</string>
     <string name="trust_lost_locks_screen_summary" msgid="2058567484625606803">"Пры ўключанай функцыі прылада будзе заблакіравана, калі страціць давер апошні агент"</string>
     <string name="owner_info_settings_summary" msgid="4208702251226725583">"Няма"</string>
@@ -750,14 +750,14 @@
       <item quantity="many"><xliff:g id="COUNT_1">%d</xliff:g> актыўных праграм</item>
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> актыўнай праграмы</item>
     </plurals>
-    <string name="manage_trust_agents" msgid="8129970926213142261">"Давераныя агенты"</string>
+    <string name="manage_trust_agents" msgid="8129970926213142261">"Даверчыя агенты"</string>
     <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"Перад выкарыстаннем задайце блакіроўку экрана"</string>
     <string name="manage_trust_agents_summary" msgid="2023116850759962248">"Няма"</string>
     <plurals name="manage_trust_agents_summary_on" formatted="false" msgid="5550538038916606097">
-      <item quantity="one"><xliff:g id="COUNT">%d</xliff:g> актыўны давераны агент</item>
-      <item quantity="few"><xliff:g id="COUNT">%d</xliff:g> актыўныя давераныя агенты</item>
-      <item quantity="many"><xliff:g id="COUNT">%d</xliff:g> актыўных давераных агентаў</item>
-      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> актыўнага даверанага агента</item>
+      <item quantity="one"><xliff:g id="COUNT">%d</xliff:g> актыўны даверчы агент</item>
+      <item quantity="few"><xliff:g id="COUNT">%d</xliff:g> актыўныя даверчыя агенты</item>
+      <item quantity="many"><xliff:g id="COUNT">%d</xliff:g> актыўных даверчых агентаў</item>
+      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> актыўнага даверчага агента</item>
     </plurals>
     <string name="bluetooth_quick_toggle_title" msgid="7410319268406112792">"Bluetooth"</string>
     <string name="bluetooth_quick_toggle_summary" msgid="3951769568065428093">"Уключыць Bluetooth"</string>
@@ -881,10 +881,10 @@
     <string name="wifi_error" msgid="5605801874484465557">"Памылка"</string>
     <string name="wifi_sap_no_channel_error" msgid="6881796988574851628">"Дыяпазон 5 ГГц недаступны ў гэтай краіне"</string>
     <string name="wifi_in_airplane_mode" msgid="4729571191578262246">"У рэжыме палёту"</string>
-    <string name="wifi_notify_open_networks" msgid="4782239203624619655">"Апавяшчэнне пра адкрытыя сеткі"</string>
+    <string name="wifi_notify_open_networks" msgid="4782239203624619655">"Апавяшчаць пра адкрытыя сеткі"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"Апавяшчаць, калі даступная высакаякасная сетка агульнага доступу"</string>
     <string name="wifi_wakeup" msgid="4963732992164721548">"Уключаць Wi‑Fi аўтаматычна"</string>
-    <string name="wifi_wakeup_summary" msgid="1152699417411690">"Wi‑Fi будзе ўключацца аўтаматычна побач з захаванымі высакаякаснымі сеткамі, напрыклад вашай дамашняй сеткай"</string>
+    <string name="wifi_wakeup_summary" msgid="1152699417411690">"Wi‑Fi будзе ўключацца аўтаматычна побач з захаванымі высакаякаснымі сеткамі, напрыклад у вашай дамашняй сетцы"</string>
     <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"Недаступна, таму што выключана вызначэнне месцазнаходжання. Уключыце "<annotation id="link">"Вызначаць месцазнаходжанне"</annotation>"."</string>
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"Недаступна, бо выключаны пошук сетак Wi-Fi"</string>
     <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"Для выкарыстання функцыі выберыце пастаўшчыка паслугі ацэнкі сеткі"</string>
@@ -1803,11 +1803,11 @@
     <string name="lockpattern_settings_title" msgid="5152005866870766842">"Камбінацыя разблакоўкі"</string>
     <string name="lockpattern_settings_enable_title" msgid="8508410891939268080">"Патрабаваць камбінацыю разблакавання"</string>
     <string name="lockpattern_settings_enable_summary" msgid="8027605503917737512">"Патрабаваць камбінацыю разблакоўкі, каб разблакаваць экран"</string>
-    <string name="lockpattern_settings_enable_visible_pattern_title" msgid="4935583222709647096">"Зрабіць шаблон бачным"</string>
+    <string name="lockpattern_settings_enable_visible_pattern_title" msgid="4935583222709647096">"Зрабіць узор бачным"</string>
     <string name="lockpattern_settings_enable_visible_pattern_title_profile" msgid="5338893138982642228">"Зрабіць узор разблакіроўкі профілю бачным"</string>
     <string name="lockpattern_settings_enable_tactile_feedback_title" msgid="3203621862806531947">"Вібрацыя пры дотыку"</string>
     <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"Блакір. кнопкай сілкавання"</string>
-    <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"За выключэннем выпадкаў, калі экран разблакіруецца функцыяй <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g>"</string>
+    <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"Акрамя выпадкаў, калі экран застаецца разблакіраваным функцыяй <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g>"</string>
     <string name="lockpattern_settings_choose_lock_pattern" msgid="9042142745571386381">"Усталяваць камбінацыю разблакоўкі"</string>
     <string name="lockpattern_settings_change_lock_pattern" msgid="1456643060737114885">"Змяніць камбінацыю разблакоўкі"</string>
     <string name="lockpattern_settings_help_how_to_record" msgid="6037403647312543908">"Як зрабіць камбінацыю разблакоўкі"</string>
@@ -2248,10 +2248,10 @@
     <string name="print_settings" msgid="7886184656544483072">"Друк"</string>
     <string name="print_settings_summary_no_service" msgid="634173687975841526">"Выключана"</string>
     <plurals name="print_settings_summary" formatted="false" msgid="7580293760281445137">
-      <item quantity="one">Уключана <xliff:g id="COUNT">%1$d</xliff:g> служба друку</item>
-      <item quantity="few">Уключаны <xliff:g id="COUNT">%1$d</xliff:g> службы друку</item>
-      <item quantity="many">Уключаны <xliff:g id="COUNT">%1$d</xliff:g> служб друку</item>
-      <item quantity="other">Уключаны <xliff:g id="COUNT">%1$d</xliff:g> службы друку</item>
+      <item quantity="one">Уключаны <xliff:g id="COUNT">%1$d</xliff:g> сэрвіс друку</item>
+      <item quantity="few">Уключаны <xliff:g id="COUNT">%1$d</xliff:g> сэрвісы друку</item>
+      <item quantity="many">Уключаны <xliff:g id="COUNT">%1$d</xliff:g> сэрвісаў друку</item>
+      <item quantity="other">Уключаны <xliff:g id="COUNT">%1$d</xliff:g> сэрвісу друку</item>
     </plurals>
     <plurals name="print_jobs_summary" formatted="false" msgid="6180308415569432845">
       <item quantity="one"><xliff:g id="COUNT">%1$d</xliff:g> заданне друку</item>
@@ -2259,14 +2259,14 @@
       <item quantity="many"><xliff:g id="COUNT">%1$d</xliff:g> заданняў друку</item>
       <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> задання друку</item>
     </plurals>
-    <string name="print_settings_title" msgid="2886445296786932763">"Службы друку"</string>
+    <string name="print_settings_title" msgid="2886445296786932763">"Сэрвісы друку"</string>
     <string name="print_no_services_installed" msgid="3387777739528003794">"Няма ўсталяваных службаў"</string>
     <string name="print_no_printers_found" msgid="5090925427392294881">"Прынтараў не знойдзена"</string>
     <string name="print_menu_item_settings" msgid="2654804159012579508">"Налады"</string>
     <string name="print_menu_item_add_printers" msgid="8198201275621756510">"Дадаць прынтары"</string>
     <string name="print_feature_state_on" msgid="1838010230650403367">"Уключана"</string>
     <string name="print_feature_state_off" msgid="208580346723223688">"Выключана"</string>
-    <string name="print_menu_item_add_service" msgid="6803000110578493782">"Дадаць службу"</string>
+    <string name="print_menu_item_add_service" msgid="6803000110578493782">"Дадаць сэрвіс"</string>
     <string name="print_menu_item_add_printer" msgid="8529196211179574921">"Дадаць прынтар"</string>
     <string name="print_menu_item_search" msgid="1165316329772287360">"Пошук"</string>
     <string name="print_searching_for_printers" msgid="6538687129687642542">"Пошук прынтараў"</string>
@@ -3408,7 +3408,7 @@
     <string name="notification_pulse_title" msgid="4861418327614907116">"Мігценне святла"</string>
     <string name="lock_screen_notifications_title" msgid="6889072265118747835">"На экране блакіроўкі"</string>
     <string name="locked_work_profile_notification_title" msgid="8307025804986190658">"Працоўны профіль заблакіраваны"</string>
-    <string name="lock_screen_notifications_summary_show" msgid="5788874994455257378">"Паказваць усё змесціва ў апавяшчэннях"</string>
+    <string name="lock_screen_notifications_summary_show" msgid="5788874994455257378">"Паказваць усе апавяшчэнні"</string>
     <string name="lock_screen_notifications_summary_hide" msgid="3668806866535260143">"Схаваць канфідэнцыяльныя даныя"</string>
     <string name="lock_screen_notifications_summary_disable" msgid="3259929507369817672">"Ніколі не паказваць апавяшчэнні"</string>
     <string name="lock_screen_notifications_interstitial_message" msgid="4230189215124387818">"Як павінны паказвацца апавяшчэнні, калі прылада заблакіравана?"</string>
@@ -4061,7 +4061,7 @@
     <string name="usage" msgid="9172908720164431622">"Выкарыстанне"</string>
     <string name="cellular_data_usage" msgid="1236562234207782386">"Выкарыстанне мабільнага трафіку"</string>
     <string name="app_cellular_data_usage" msgid="8499761516172121957">"Выкарыстанне трафіка"</string>
-    <string name="wifi_data_usage" msgid="275569900562265895">"Выкарыстанне трафіка Wi-Fi"</string>
+    <string name="wifi_data_usage" msgid="275569900562265895">"Выкарыстанне трафіка сеткай Wi-Fi"</string>
     <string name="ethernet_data_usage" msgid="747614925362556718">"Выкарыстанне даных Ethernet"</string>
     <string name="wifi" msgid="1586738489862966138">"Wi-Fi"</string>
     <string name="ethernet" msgid="2365753635113154667">"Ethernet"</string>

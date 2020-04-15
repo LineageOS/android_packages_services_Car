@@ -109,7 +109,7 @@
     <!-- no translation found for wifi_ip_settings:1 (4377002609760712163) -->
   <string-array name="wifi_proxy_settings">
     <item msgid="9032900195127165132">"Эчтеке жок"</item>
-    <item msgid="1464741437353223198">"Нускама"</item>
+    <item msgid="1464741437353223198">"Кол менен"</item>
     <item msgid="5793600062487886090">"Прокси авто-конфигурац."</item>
   </string-array>
   <string-array name="apn_auth_entries">
@@ -273,7 +273,7 @@
   </string-array>
   <string-array name="vpn_proxy_settings">
     <item msgid="2958623927055120839">"Эч нерсе жок"</item>
-    <item msgid="1157046369795346308">"Нускама"</item>
+    <item msgid="1157046369795346308">"Кол менен"</item>
   </string-array>
     <!-- no translation found for vpn_states:4 (9135049670787351881) -->
   <string-array name="security_settings_premium_sms_values">
@@ -325,7 +325,7 @@
     <item msgid="1008268820118852416">"Ченелбейт"</item>
   </string-array>
   <string-array name="wifi_privacy_entries">
-    <item msgid="6545683814310036454">"Демейки (туш келди MAC дарегин колдонуу)"</item>
+    <item msgid="6545683814310036454">"Туш келди MAC дарек колдонулат (демейки)"</item>
     <item msgid="214234417308375326">"MAC түзмөгүн колдонуу"</item>
   </string-array>
   <string-array name="wifi_hidden_entries">

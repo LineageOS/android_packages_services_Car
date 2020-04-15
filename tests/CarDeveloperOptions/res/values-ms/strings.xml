@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Kecilkan atau besarkan teks pada skrin."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Kecilkan"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Besarkan"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Teks contoh"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"Ahli Sihir Oz yang Menakjubkan"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"Bab 11: Oz, Kota Zamrud yang Menakjubkan"</string>
@@ -928,7 +927,7 @@
     <string name="wifi_ap_choose_auto" msgid="7927637960569365785">"Automatik"</string>
     <string name="wifi_ap_choose_2G" msgid="43198403259714736">"Jalur 2.4 GHz"</string>
     <string name="wifi_ap_choose_5G" msgid="2624859713183683146">"Jalur 5.0 GHz"</string>
-    <string name="wifi_ap_prefer_5G" msgid="8339172330471170142">"Lajur 5.0 GHz diutamakan"</string>
+    <string name="wifi_ap_prefer_5G" msgid="8339172330471170142">"Jalur 5.0 GHz diutamakan"</string>
     <string name="wifi_ap_2G" msgid="5793110086517338494">"2.4 GHz"</string>
     <string name="wifi_ap_5G" msgid="4584892544393675403">"5.0 GHz"</string>
     <string name="wifi_ap_band_select_one" msgid="4409754936554360355">"Pilih sekurang-kurangnya satu jalur untuk tempat liputan Wi-Fi:"</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"Mudah alih"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Jika Wi-Fi tidak tersedia, gunakan rangkaian mudah alih"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Jika rangkaian mudah alih tidak tersedia, gunakan Wi-Fi"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Panggil melalui Wi‑Fi. Jika Wi-Fi terputus, panggilan akan ditamatkan."</string>

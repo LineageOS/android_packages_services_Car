@@ -1805,7 +1805,7 @@
     <string name="lockpattern_settings_enable_visible_pattern_title" msgid="4935583222709647096">"Зробити ключ видимим"</string>
     <string name="lockpattern_settings_enable_visible_pattern_title_profile" msgid="5338893138982642228">"Зробити ключ профілю видимим"</string>
     <string name="lockpattern_settings_enable_tactile_feedback_title" msgid="3203621862806531947">"Вібрація під час дотику"</string>
-    <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"Блокування кнопкою живлення"</string>
+    <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"Блокувати кнопкою живлення"</string>
     <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"Якщо <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g> не запобігає блокуванню"</string>
     <string name="lockpattern_settings_choose_lock_pattern" msgid="9042142745571386381">"Налашт. ключ розблок."</string>
     <string name="lockpattern_settings_change_lock_pattern" msgid="1456643060737114885">"Змінити ключ розблокув."</string>
