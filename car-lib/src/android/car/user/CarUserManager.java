@@ -211,6 +211,19 @@ public final class CarUserManager extends CarManagerBase {
      * @hide
      */
     public static final int USER_SWITCH_STATUS_HAL_INTERNAL_FAILURE = 4;
+    /**
+     * {@link UserSwitchStatus} called when target user is same as current user.
+     *
+     * @hide
+     */
+    public static final int USER_SWITCH_STATUS_ALREADY_REQUESTED_USER = 5;
+    /**
+     * {@link UserSwitchStatus} called when another user switch request for the same target user is
+     * in process.
+     *
+     * @hide
+     */
+    public static final int USER_SWITCH_STATUS_ANOTHER_REQUEST_IN_PROCESS = 6;
 
     /** @hide */
     @IntDef(prefix = { "USER_SWITCH_STATUS_" }, value = {
@@ -218,6 +231,8 @@ public final class CarUserManager extends CarManagerBase {
             USER_SWITCH_STATUS_ANDROID_FAILURE,
             USER_SWITCH_STATUS_HAL_FAILURE,
             USER_SWITCH_STATUS_HAL_INTERNAL_FAILURE,
+            USER_SWITCH_STATUS_ALREADY_REQUESTED_USER,
+            USER_SWITCH_STATUS_ANOTHER_REQUEST_IN_PROCESS,
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface UserSwitchStatus{}
@@ -434,6 +449,10 @@ public final class CarUserManager extends CarManagerBase {
                 return "HAL_FAILURE";
             case USER_SWITCH_STATUS_HAL_INTERNAL_FAILURE:
                 return "HAL_INTERNAL_FAILURE";
+            case USER_SWITCH_STATUS_ALREADY_REQUESTED_USER:
+                return "ALREADY_REQUESTED_USER";
+            case USER_SWITCH_STATUS_ANOTHER_REQUEST_IN_PROCESS:
+                return "ANOTHER_REQUEST_IN_PROCESS";
             default:
                 return "INVALID_STATUS";
         }
@@ -647,8 +666,10 @@ public final class CarUserManager extends CarManagerBase {
          *
          * @return either {@link CarUserManager#USER_SWITCH_STATUS_SUCCESSFUL},
          *         {@link CarUserManager#USER_SWITCH_STATUS_ANDROID_FAILURE},
-         *         {@link CarUserManager#USER_SWITCH_STATUS_HAL_FAILURE}, or
-         *         {@link CarUserManager#USER_SWITCH_STATUS_HAL_INTERNAL_FAILURE}.
+         *         {@link CarUserManager#USER_SWITCH_STATUS_HAL_FAILURE},
+         *         {@link CarUserManager#USER_SWITCH_STATUS_HAL_INTERNAL_FAILURE},
+         *         {@link CarUserManager#USER_SWITCH_STATUS_ALREADY_REQUESTED_USER}, or
+         *         {@link CarUserManager#USER_SWITCH_STATUS_ANOTHER_REQUEST_IN_PROCESS}.
          */
         @UserSwitchStatus
         public int getStatus() {
