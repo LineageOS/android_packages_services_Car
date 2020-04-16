@@ -23,6 +23,7 @@ allow experimentalcarservice_app {
     input_method_service
     input_service
     location_service
+    lock_settings_service
     media_session_service
     network_management_service
     power_service
