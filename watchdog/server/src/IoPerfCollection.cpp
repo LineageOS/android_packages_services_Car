@@ -77,75 +77,32 @@ double percentage(uint64_t numer, uint64_t denom) {
 }
 
 struct UidProcessStats {
-    struct ProcessInfo {
-        std::string comm = "";
-        uint64_t count = 0;
-    };
     uint64_t uid = 0;
     uint32_t ioBlockedTasksCnt = 0;
     uint32_t totalTasksCnt = 0;
     uint64_t majorFaults = 0;
-    std::vector<ProcessInfo> topNIoBlockedProcesses = {};
-    std::vector<ProcessInfo> topNMajorFaultProcesses = {};
 };
 
-std::unique_ptr<std::unordered_map<uint32_t, UidProcessStats>> getUidProcessStats(
-        const std::vector<ProcessStats>& processStats, int topNStatsPerSubCategory) {
-    std::unique_ptr<std::unordered_map<uint32_t, UidProcessStats>> uidProcessStats(
-            new std::unordered_map<uint32_t, UidProcessStats>());
+std::unordered_map<uint32_t, UidProcessStats> getUidProcessStats(
+        const std::vector<ProcessStats>& processStats) {
+    std::unordered_map<uint32_t, UidProcessStats> uidProcessStats;
     for (const auto& stats : processStats) {
         if (stats.uid < 0) {
             continue;
         }
         uint32_t uid = static_cast<uint32_t>(stats.uid);
-        if (uidProcessStats->find(uid) == uidProcessStats->end()) {
-            (*uidProcessStats)[uid] = UidProcessStats{
-                    .uid = uid,
-                    .topNIoBlockedProcesses = std::vector<
-                            UidProcessStats::ProcessInfo>(topNStatsPerSubCategory,
-                                                          UidProcessStats::ProcessInfo{}),
-                    .topNMajorFaultProcesses = std::vector<
-                            UidProcessStats::ProcessInfo>(topNStatsPerSubCategory,
-                                                          UidProcessStats::ProcessInfo{}),
-            };
+        if (uidProcessStats.find(uid) == uidProcessStats.end()) {
+            uidProcessStats[uid] = UidProcessStats{.uid = uid};
         }
-        auto& curUidProcessStats = (*uidProcessStats)[uid];
+        auto& curUidProcessStats = uidProcessStats[uid];
         // Top-level process stats has the aggregated major page faults count and this should be
         // persistent across thread creation/termination. Thus use the value from this field.
         curUidProcessStats.majorFaults += stats.process.majorFaults;
         curUidProcessStats.totalTasksCnt += stats.threads.size();
         // The process state is the same as the main thread state. Thus to avoid double counting
         // ignore the process state.
-        uint32_t ioBlockedTasksCnt = 0;
         for (const auto& threadStat : stats.threads) {
-            ioBlockedTasksCnt += threadStat.second.state == "D" ? 1 : 0;
-        }
-        curUidProcessStats.ioBlockedTasksCnt += ioBlockedTasksCnt;
-        for (auto it = curUidProcessStats.topNIoBlockedProcesses.begin();
-             it != curUidProcessStats.topNIoBlockedProcesses.end(); ++it) {
-            if (it->count < ioBlockedTasksCnt) {
-                curUidProcessStats.topNIoBlockedProcesses
-                        .emplace(it,
-                                 UidProcessStats::ProcessInfo{
-                                         .comm = stats.process.comm,
-                                         .count = ioBlockedTasksCnt,
-                                 });
-                curUidProcessStats.topNIoBlockedProcesses.pop_back();
-                break;
-            }
-        }
-        for (auto it = curUidProcessStats.topNMajorFaultProcesses.begin();
-             it != curUidProcessStats.topNMajorFaultProcesses.end(); ++it) {
-            if (it->count < stats.process.majorFaults) {
-                curUidProcessStats.topNMajorFaultProcesses
-                        .emplace(it,
-                                 UidProcessStats::ProcessInfo{
-                                         .comm = stats.process.comm,
-                                         .count = stats.process.majorFaults,
-                                 });
-                curUidProcessStats.topNMajorFaultProcesses.pop_back();
-                break;
-            }
+            curUidProcessStats.ioBlockedTasksCnt += threadStat.second.state == "D" ? 1 : 0;
         }
     }
     return uidProcessStats;
@@ -220,42 +177,28 @@ std::string toString(const ProcessIoPerfData& data) {
     StringAppendF(&buffer,
                   "Percentage of change in major page faults since last collection: %.2f%%\n",
                   data.majorFaultsPercentChange);
-    if (data.topNMajorFaultUids.size() > 0) {
+    if (data.topNMajorFaults.size() > 0) {
         StringAppendF(&buffer, "\nTop N major page faults:\n%s\n", std::string(24, '-').c_str());
         StringAppendF(&buffer,
                       "Android User ID, Package Name, Number of major page faults, "
                       "Percentage of total major page faults\n");
-        StringAppendF(&buffer,
-                      "\tCommand, Number of major page faults, Percentage of UID's major page "
-                      "faults\n");
     }
-    for (const auto& uidStats : data.topNMajorFaultUids) {
-        StringAppendF(&buffer, "%" PRIu32 ", %s, %" PRIu64 ", %.2f%%\n", uidStats.userId,
-                      uidStats.packageName.c_str(), uidStats.count,
-                      percentage(uidStats.count, data.totalMajorFaults));
-        for (const auto& procStats : uidStats.topNProcesses) {
-            StringAppendF(&buffer, "\t%s, %" PRIu64 ", %.2f%%\n", procStats.comm.c_str(),
-                          procStats.count, percentage(procStats.count, uidStats.count));
-        }
+    for (const auto& stat : data.topNMajorFaults) {
+        StringAppendF(&buffer, "%" PRIu32 ", %s, %" PRIu64 ", %.2f%%\n", stat.userId,
+                      stat.packageName.c_str(), stat.count,
+                      percentage(stat.count, data.totalMajorFaults));
     }
     if (data.topNIoBlockedUids.size() > 0) {
         StringAppendF(&buffer, "\nTop N I/O waiting UIDs:\n%s\n", std::string(23, '-').c_str());
         StringAppendF(&buffer,
                       "Android User ID, Package Name, Number of owned tasks waiting for I/O, "
                       "Percentage of owned tasks waiting for I/O\n");
-        StringAppendF(&buffer,
-                      "\tCommand, Number of I/O waiting tasks, Percentage of UID's tasks waiting "
-                      "for I/O\n");
     }
     for (size_t i = 0; i < data.topNIoBlockedUids.size(); ++i) {
-        const auto& uidStats = data.topNIoBlockedUids[i];
-        StringAppendF(&buffer, "%" PRIu32 ", %s, %" PRIu64 ", %.2f%%\n", uidStats.userId,
-                      uidStats.packageName.c_str(), uidStats.count,
-                      percentage(uidStats.count, data.topNIoBlockedUidsTotalTaskCnt[i]));
-        for (const auto& procStats : uidStats.topNProcesses) {
-            StringAppendF(&buffer, "\t%s, %" PRIu64 ", %.2f%%\n", procStats.comm.c_str(),
-                          procStats.count, percentage(procStats.count, uidStats.count));
-        }
+        const auto& stat = data.topNIoBlockedUids[i];
+        StringAppendF(&buffer, "%" PRIu32 ", %s, %" PRIu64 ", %.2f%%\n", stat.userId,
+                      stat.packageName.c_str(), stat.count,
+                      percentage(stat.count, data.topNIoBlockedUidsTotalTaskCnt[i]));
     }
     return buffer;
 }
@@ -720,19 +663,21 @@ Result<void> IoPerfCollection::collectUidIoPerfDataLocked(UidIoPerfData* uidIoPe
 
         for (auto it = topNReads.begin(); it != topNReads.end(); ++it) {
             const UidIoUsage* curRead = *it;
-            if (curRead->ios.sumReadBytes() < curUsage.ios.sumReadBytes()) {
-                topNReads.erase(topNReads.end() - 1);
-                topNReads.emplace(it, &curUsage);
-                break;
+            if (curRead->ios.sumReadBytes() > curUsage.ios.sumReadBytes()) {
+                continue;
             }
+            topNReads.erase(topNReads.end() - 1);
+            topNReads.emplace(it, &curUsage);
+            break;
         }
         for (auto it = topNWrites.begin(); it != topNWrites.end(); ++it) {
             const UidIoUsage* curWrite = *it;
-            if (curWrite->ios.sumWriteBytes() < curUsage.ios.sumWriteBytes()) {
-                topNWrites.erase(topNWrites.end() - 1);
-                topNWrites.emplace(it, &curUsage);
-                break;
+            if (curWrite->ios.sumWriteBytes() > curUsage.ios.sumWriteBytes()) {
+                continue;
             }
+            topNWrites.erase(topNWrites.end() - 1);
+            topNWrites.emplace(it, &curUsage);
+            break;
         }
     }
 
@@ -816,14 +761,15 @@ Result<void> IoPerfCollection::collectProcessIoPerfDataLocked(
         return Error() << "Failed to collect process stats: " << processStats.error();
     }
 
-    const auto& uidProcessStats = getUidProcessStats(*processStats, mTopNStatsPerSubcategory);
+    const auto& uidProcessStats = getUidProcessStats(*processStats);
+
     std::unordered_set<uint32_t> unmappedUids;
     // Fetch only the top N I/O blocked UIDs and UIDs with most major page faults.
     UidProcessStats temp = {};
     std::vector<const UidProcessStats*> topNIoBlockedUids(mTopNStatsPerCategory, &temp);
-    std::vector<const UidProcessStats*> topNMajorFaultUids(mTopNStatsPerCategory, &temp);
+    std::vector<const UidProcessStats*> topNMajorFaults(mTopNStatsPerCategory, &temp);
     processIoPerfData->totalMajorFaults = 0;
-    for (const auto& it : *uidProcessStats) {
+    for (const auto& it : uidProcessStats) {
         const UidProcessStats& curStats = it.second;
         if (mUidToPackageNameMapping.find(curStats.uid) == mUidToPackageNameMapping.end()) {
             unmappedUids.insert(curStats.uid);
@@ -831,19 +777,21 @@ Result<void> IoPerfCollection::collectProcessIoPerfDataLocked(
         processIoPerfData->totalMajorFaults += curStats.majorFaults;
         for (auto it = topNIoBlockedUids.begin(); it != topNIoBlockedUids.end(); ++it) {
             const UidProcessStats* topStats = *it;
-            if (topStats->ioBlockedTasksCnt < curStats.ioBlockedTasksCnt) {
-                topNIoBlockedUids.erase(topNIoBlockedUids.end() - 1);
-                topNIoBlockedUids.emplace(it, &curStats);
-                break;
+            if (topStats->ioBlockedTasksCnt > curStats.ioBlockedTasksCnt) {
+                continue;
             }
+            topNIoBlockedUids.erase(topNIoBlockedUids.end() - 1);
+            topNIoBlockedUids.emplace(it, &curStats);
+            break;
         }
-        for (auto it = topNMajorFaultUids.begin(); it != topNMajorFaultUids.end(); ++it) {
+        for (auto it = topNMajorFaults.begin(); it != topNMajorFaults.end(); ++it) {
             const UidProcessStats* topStats = *it;
-            if (topStats->majorFaults < curStats.majorFaults) {
-                topNMajorFaultUids.erase(topNMajorFaultUids.end() - 1);
-                topNMajorFaultUids.emplace(it, &curStats);
-                break;
+            if (topStats->majorFaults > curStats.majorFaults) {
+                continue;
             }
+            topNMajorFaults.erase(topNMajorFaults.end() - 1);
+            topNMajorFaults.emplace(it, &curStats);
+            break;
         }
     }
 
@@ -859,7 +807,7 @@ Result<void> IoPerfCollection::collectProcessIoPerfDataLocked(
             // processes is < |ro.carwatchdog.top_n_stats_per_category|.
             break;
         }
-        ProcessIoPerfData::UidStats stats = {
+        ProcessIoPerfData::Stats stats = {
                 .userId = multiuser_get_user_id(it->uid),
                 .packageName = std::to_string(it->uid),
                 .count = it->ioBlockedTasksCnt,
@@ -867,23 +815,16 @@ Result<void> IoPerfCollection::collectProcessIoPerfDataLocked(
         if (mUidToPackageNameMapping.find(it->uid) != mUidToPackageNameMapping.end()) {
             stats.packageName = mUidToPackageNameMapping[it->uid];
         }
-        for (const auto& pIt : it->topNIoBlockedProcesses) {
-            if (pIt.count == 0) {
-                break;
-            }
-            stats.topNProcesses.emplace_back(
-                    ProcessIoPerfData::UidStats::ProcessStats{pIt.comm, pIt.count});
-        }
         processIoPerfData->topNIoBlockedUids.emplace_back(stats);
         processIoPerfData->topNIoBlockedUidsTotalTaskCnt.emplace_back(it->totalTasksCnt);
     }
-    for (const auto& it : topNMajorFaultUids) {
+    for (const auto& it : topNMajorFaults) {
         if (it->majorFaults == 0) {
             // End of non-zero elements. This case occurs when the number of UIDs with major faults
             // is < |ro.carwatchdog.top_n_stats_per_category|.
             break;
         }
-        ProcessIoPerfData::UidStats stats = {
+        ProcessIoPerfData::Stats stats = {
                 .userId = multiuser_get_user_id(it->uid),
                 .packageName = std::to_string(it->uid),
                 .count = it->majorFaults,
@@ -891,14 +832,7 @@ Result<void> IoPerfCollection::collectProcessIoPerfDataLocked(
         if (mUidToPackageNameMapping.find(it->uid) != mUidToPackageNameMapping.end()) {
             stats.packageName = mUidToPackageNameMapping[it->uid];
         }
-        for (const auto& pIt : it->topNMajorFaultProcesses) {
-            if (pIt.count == 0) {
-                break;
-            }
-            stats.topNProcesses.emplace_back(
-                    ProcessIoPerfData::UidStats::ProcessStats{pIt.comm, pIt.count});
-        }
-        processIoPerfData->topNMajorFaultUids.emplace_back(stats);
+        processIoPerfData->topNMajorFaults.emplace_back(stats);
     }
     if (mLastMajorFaults == 0) {
         processIoPerfData->majorFaultsPercentChange = 0;
