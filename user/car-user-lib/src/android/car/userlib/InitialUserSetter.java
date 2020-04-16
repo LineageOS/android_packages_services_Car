@@ -108,18 +108,18 @@ public final class InitialUserSetter {
      *   </ol>
      * </ol>
      */
-    public void executeDefaultBehavior() {
-        executeDefaultBehavior(/* fallback= */ false);
+    public void executeDefaultBehavior(boolean replaceGuest) {
+        executeDefaultBehavior(replaceGuest, /* fallback= */ false);
     }
 
-    private void executeDefaultBehavior(boolean fallback) {
+    private void executeDefaultBehavior(boolean replaceGuest, boolean fallback) {
         if (!mHelper.hasInitialUser()) {
             if (DBG) Log.d(TAG, "executeDefaultBehavior(): no initial user, creating it");
             createAndSwitchUser(mNewUserName, UserFlags.ADMIN, fallback);
         } else {
             if (DBG) Log.d(TAG, "executeDefaultBehavior(): switching to initial user");
             int userId = mHelper.getInitialUser(mSupportsOverrideUserIdProperty);
-            switchUser(userId, /* replaceGuest= */ true, fallback);
+            switchUser(userId, replaceGuest, fallback);
         }
     }
 
@@ -134,7 +134,7 @@ public final class InitialUserSetter {
             return;
         }
         Log.w(TAG, "Falling back to default behavior. Reason: " + reason);
-        executeDefaultBehavior(/* fallback= */ false);
+        executeDefaultBehavior(/* replaceGuest= */ true, /* fallback= */ false);
     }
 
     /**
@@ -160,8 +160,6 @@ public final class InitialUserSetter {
             fallbackDefaultBehavior(fallback, "user with id " + userId + " doesn't exist");
             return;
         }
-
-        if (DBG) Log.d(TAG, "switchUser(): " + user.toFullString());
 
         UserInfo actualUser = user;
 
