@@ -65,6 +65,7 @@ import com.android.car.audio.CarAudioContext.AudioContext;
 import com.android.car.audio.hal.AudioControlFactory;
 import com.android.car.audio.hal.AudioControlWrapper;
 import com.android.car.audio.hal.AudioControlWrapperV1;
+import com.android.car.audio.hal.HalAudioFocus;
 import com.android.internal.util.Preconditions;
 
 import org.xmlpull.v1.XmlPullParserException;
