@@ -29,7 +29,9 @@ import static org.mockito.Mockito.when;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.user.CarUserManager;
+import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleEventType;
+import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.userlib.CarUserManagerHelper;
 import android.content.ComponentName;
 import android.content.Context;
@@ -44,8 +46,8 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.FlakyTest;
 
 import com.android.car.CarLocalServices;
 import com.android.car.hal.UserHalService;
@@ -152,13 +154,13 @@ public final class VendorServiceControllerTest {
     }
 
     @Test
-    @FlakyTest  // TODO(b/153834987): to be fixed as part of this bug.
     public void systemUserUnlocked() throws Exception {
+        mController.init();
+        mContext.reset();
+
         // TODO(b/152069895): must refactor this test because
         // SERVICE_BIND_ALL_USERS_ASAP is bound twice (users 0 and 10)
         mContext.expectServices(SERVICE_START_SYSTEM_UNLOCKED);
-        mController.init();
-        mContext.reset();
 
         // Unlock system user
         mockUserUnlock(UserHandle.USER_SYSTEM);
@@ -170,12 +172,12 @@ public final class VendorServiceControllerTest {
     }
 
     @Test
-    @FlakyTest  // TODO(b/153834987): to be fixed as part of this bug.
     public void fgUserUnlocked() throws Exception {
-        mContext.expectServices(SERVICE_BIND_ALL_USERS_ASAP, SERVICE_BIND_FG_USER_UNLOCKED);
         mockGetCurrentUser(UserHandle.USER_SYSTEM);
         mController.init();
         mContext.reset();
+
+        mContext.expectServices(SERVICE_BIND_ALL_USERS_ASAP, SERVICE_BIND_FG_USER_UNLOCKED);
 
         // Switch user to foreground
         mockGetCurrentUser(FG_USER_ID);
@@ -214,9 +216,15 @@ public final class VendorServiceControllerTest {
     }
 
     private void sendUserLifecycleEvent(@UserLifecycleEventType int eventType,
-            @UserIdInt int userId) {
+            @UserIdInt int userId) throws InterruptedException {
+        // Adding a blocking listener to ensure CarUserService event notification is completed
+        // before proceeding with test execution.
+        BlockingUserLifecycleListener blockingListener = new BlockingUserLifecycleListener();
+        mCarUserService.addUserLifecycleListener(blockingListener);
+
         runOnMainThreadAndWaitForIdle(() -> mCarUserService.onUserLifecycleEvent(eventType,
                 /* timestampMs= */ 0, /* fromUserId= */ UserHandle.USER_NULL, userId));
+        blockingListener.waitForEvent();
     }
 
     /** Overrides framework behavior to succeed on binding/starting processes. */
@@ -250,6 +258,7 @@ public final class VendorServiceControllerTest {
                 Handler handler, UserHandle user) {
             synchronized (mLock) {
                 mBoundIntents.add(service);
+                Log.v(TAG, "Added service (" + service + ") to bound intents");
             }
             conn.onServiceConnected(service.getComponent(), null);
             countdown(mBoundLatches, service, "bound");
@@ -281,12 +290,13 @@ public final class VendorServiceControllerTest {
             Preconditions.checkArgument(latch != null,
                     "no latch set for %s - did you call expectBoundServices()?", service);
             Log.d(TAG, "waiting " + DEFAULT_TIMEOUT_MS + "ms for " + method);
-            if (!latch.await(DEFAULT_TIMEOUT_MS, TimeUnit.MICROSECONDS)) {
+            if (!latch.await(DEFAULT_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
                 String errorMessage = method + " not called in " + DEFAULT_TIMEOUT_MS + "ms";
                 Log.e(TAG, errorMessage);
                 fail(errorMessage);
             }
-            Log.v(TAG, "latch called fine");
+            Log.v(TAG, "latch.await for service (" + service + ") and method ("
+                    + method + ") called fine");
         }
 
         private void countdown(Map<String, CountDownLatch> latches, Intent service, String action) {
@@ -297,6 +307,8 @@ public final class VendorServiceControllerTest {
                         + mBoundLatches.keySet());
             } else {
                 latch.countDown();
+                Log.v(TAG, "latch.countDown for service (" + service + ") and action ("
+                        + action + ") called fine");
             }
         }
 
@@ -362,6 +374,42 @@ public final class VendorServiceControllerTest {
         @Override
         public boolean matches(UserHandle argument) {
             return argument != null && argument.getIdentifier() == userId;
+        }
+    }
+
+    /**
+     * CarUserService now notifies listener in its own handler thread. This wrapper is used to
+     * block test thread until listener is notified.
+     */
+    // TODO(b/149099817): Move this class to a common place
+    private static final class BlockingUserLifecycleListener implements UserLifecycleListener {
+
+        public static final int USER_LIFECYCLE_LISTENER_ON_EVENT_TIMEOUT_SECONDS = 2;
+
+        private final CountDownLatch mLatch = new CountDownLatch(1);
+
+        @Nullable
+        private UserLifecycleEvent mReceivedEvent;
+
+        @Override
+        public void onEvent(UserLifecycleEvent event) {
+            this.mReceivedEvent = event;
+            mLatch.countDown();
+        }
+
+        /**
+         * Blocks until onEvent is invoked.
+         */
+        @Nullable
+        public UserLifecycleEvent waitForEvent() throws InterruptedException {
+            if (!mLatch.await(USER_LIFECYCLE_LISTENER_ON_EVENT_TIMEOUT_SECONDS,
+                    TimeUnit.SECONDS)) {
+                String errorMessage = "mUserLifecycleListenerWrapper.onEvent not called in "
+                        + USER_LIFECYCLE_LISTENER_ON_EVENT_TIMEOUT_SECONDS + " seconds";
+                Log.e(TAG, errorMessage);
+                fail(errorMessage);
+            }
+            return mReceivedEvent;
         }
     }
 }
