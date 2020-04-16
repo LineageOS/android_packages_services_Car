@@ -1570,7 +1570,8 @@ public final class Car {
     }
 
     /** @hide */
-    <T> T handleRemoteExceptionFromCarService(RemoteException e, T returnValue) {
+    @VisibleForTesting
+    public <T> T handleRemoteExceptionFromCarService(RemoteException e, T returnValue) {
         handleRemoteExceptionFromCarService(e);
         return returnValue;
     }
