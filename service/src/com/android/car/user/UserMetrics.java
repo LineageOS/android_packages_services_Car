@@ -53,7 +53,7 @@ import java.io.StringWriter;
  * {{@link #INITIAL_CAPACITY}} occurrences of each when the operation finished (so it can be dumped
  * later).
  */
-public final class UserMetrics {
+final class UserMetrics {
 
     private static final String TAG = UserMetrics.class.getSimpleName();
 
@@ -81,6 +81,9 @@ public final class UserMetrics {
 
     @GuardedBy("mLock")
     private final SparseLongArray mFirstUserUnlockDuration = new SparseLongArray(1);
+
+    @GuardedBy("mLock")
+    private int mHalResponseTime;
 
     /**
      * Logs a user lifecycle event.
@@ -116,8 +119,10 @@ public final class UserMetrics {
     /**
      * Logs when the first user was unlocked.
      */
-    public void logFirstUnlockedUser(int userId, long timestampMs, long duration) {
+    public void logFirstUnlockedUser(int userId, long timestampMs, long duration,
+            int halResponseTime) {
         synchronized (mLock) {
+            mHalResponseTime = halResponseTime;
             mFirstUserUnlockDuration.put(userId, duration);
             onUserUnlockedEventLocked(timestampMs, userId);
         }
@@ -185,6 +190,10 @@ public final class UserMetrics {
     @Nullable
     private <T extends BaseUserMetric> T getExistingMetricsLocked(
             @NonNull SparseArray<? extends BaseUserMetric> metrics, @UserIdInt int userId) {
+        if (metrics == null) {
+            Slog.w(TAG, "getExistingMetricsLocked() should not pass null metrics, except on tests");
+            return null;
+        }
         @SuppressWarnings("unchecked")
         T metric = (T) metrics.get(userId);
         if (metric == null) {
@@ -239,6 +248,17 @@ public final class UserMetrics {
 
             pw.printf("Last %d stopped users\n", LOG_SIZE);
             mUserStoppedLogs.dump("  ", pw);
+
+            pw.print("HAL response time: ");
+            if (mHalResponseTime == 0) {
+                pw.print("N/A");
+            } else if (mHalResponseTime < 0) {
+                pw.print("not replied yet, sent at ");
+                TimeUtils.formatUptime(-mHalResponseTime);
+            } else {
+                TimeUtils.formatDuration(mHalResponseTime, pw);
+            }
+            pw.println();
         }
     }
 

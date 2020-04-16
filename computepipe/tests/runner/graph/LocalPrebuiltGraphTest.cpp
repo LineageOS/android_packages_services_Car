@@ -16,14 +16,14 @@
 #include <string>
 
 #include "ClientConfig.pb.h"
+#include "LocalPrebuiltGraph.h"
 #include "PrebuiltEngineInterface.h"
-#include "PrebuiltGraph.h"
+#include "ProfilingType.pb.h"
 #include "RunnerComponent.h"
 #include "gmock/gmock-matchers.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "types/Status.h"
-#include "ProfilingType.pb.h"
 
 using ::android::automotive::computepipe::runner::ClientConfig;
 using ::android::automotive::computepipe::runner::RunnerComponentInterface;
@@ -42,12 +42,12 @@ typedef std::function<void(int, int64_t, const runner::InputFrame&)> PixelCallba
 typedef std::function<void(int, int64_t, std::string&&)> SerializedStreamCallback;
 typedef std::function<void(Status, std::string&&)> GraphTerminationCallback;
 class PrebuiltEngineInterfaceImpl : public PrebuiltEngineInterface {
-  private:
+private:
     PixelCallback mPixelCallbackFn;
     SerializedStreamCallback mSerializedStreamCallbackFn;
     GraphTerminationCallback mGraphTerminationCallbackFn;
 
-  public:
+public:
     virtual ~PrebuiltEngineInterfaceImpl() = default;
 
     void DispatchPixelData(int streamId, int64_t timestamp,
@@ -63,9 +63,7 @@ class PrebuiltEngineInterfaceImpl : public PrebuiltEngineInterface {
         mGraphTerminationCallbackFn(status, std::move(msg));
     }
 
-    void SetPixelCallback(PixelCallback callback) {
-        mPixelCallbackFn = callback;
-    }
+    void SetPixelCallback(PixelCallback callback) { mPixelCallbackFn = callback; }
 
     void SetSerializedStreamCallback(SerializedStreamCallback callback) {
         mSerializedStreamCallbackFn = callback;
@@ -87,26 +85,26 @@ class PrebuiltEngineInterfaceImpl : public PrebuiltEngineInterface {
 // The above two properties are used to test that the prebuilt graph wrapper calls the correct
 // functions and callbacks are issued as expected. These tests do not test the internals of the
 // graph themselves and such tests must be written along with the graph implementation.
-TEST(PrebuiltGraphTest, FunctionMappingFromLibraryIsSuccessful) {
+TEST(LocalPrebuiltGraphTest, FunctionMappingFromLibraryIsSuccessful) {
     PrebuiltEngineInterfaceImpl callback;
     std::shared_ptr<PrebuiltEngineInterface> engineInterface =
-        std::static_pointer_cast<PrebuiltEngineInterface, PrebuiltEngineInterfaceImpl>(
-            std::make_shared<PrebuiltEngineInterfaceImpl>(callback));
-    PrebuiltGraph* graph =
-        PrebuiltGraph::GetPrebuiltGraphFromLibrary("libstubgraphimpl.so", engineInterface);
+            std::static_pointer_cast<PrebuiltEngineInterface, PrebuiltEngineInterfaceImpl>(
+                    std::make_shared<PrebuiltEngineInterfaceImpl>(callback));
+    PrebuiltGraph* graph = GetLocalGraphFromLibrary("libstubgraphimpl.so", engineInterface);
     ASSERT_TRUE(graph);
+    EXPECT_EQ(graph->GetGraphType(), PrebuiltGraphType::LOCAL);
     EXPECT_NE(graph->GetGraphState(), PrebuiltGraphState::UNINITIALIZED);
     EXPECT_EQ(graph->GetSupportedGraphConfigs().graph_name(), "stub_graph");
 }
 
-TEST(PrebuiltGraphTest, GraphConfigurationIssuesCorrectFunctionCalls) {
+TEST(LocalPrebuiltGraphTest, GraphConfigurationIssuesCorrectFunctionCalls) {
     PrebuiltEngineInterfaceImpl callback;
     std::shared_ptr<PrebuiltEngineInterface> engineInterface =
-        std::static_pointer_cast<PrebuiltEngineInterface, PrebuiltEngineInterfaceImpl>(
-            std::make_shared<PrebuiltEngineInterfaceImpl>(callback));
-    PrebuiltGraph* graph =
-        PrebuiltGraph::GetPrebuiltGraphFromLibrary("libstubgraphimpl.so", engineInterface);
+            std::static_pointer_cast<PrebuiltEngineInterface, PrebuiltEngineInterfaceImpl>(
+                    std::make_shared<PrebuiltEngineInterfaceImpl>(callback));
+    PrebuiltGraph* graph = GetLocalGraphFromLibrary("libstubgraphimpl.so", engineInterface);
     ASSERT_TRUE(graph);
+    EXPECT_EQ(graph->GetGraphType(), PrebuiltGraphType::LOCAL);
     ASSERT_NE(graph->GetGraphState(), PrebuiltGraphState::UNINITIALIZED);
 
     graph->GetSupportedGraphConfigs();
@@ -124,13 +122,13 @@ TEST(PrebuiltGraphTest, GraphConfigurationIssuesCorrectFunctionCalls) {
     EXPECT_THAT(functionVisited, HasSubstr("GetErrorCode"));
 }
 
-TEST(PrebuiltGraphTest, GraphOperationEndToEndIsSuccessful) {
+TEST(LocalPrebuiltGraphTest, GraphOperationEndToEndIsSuccessful) {
     bool graphHasTerminated = false;
     int numOutputStreamCallbacksReceived[4] = {0, 0, 0, 0};
 
     PrebuiltEngineInterfaceImpl callback;
     callback.SetGraphTerminationCallback(
-        [&graphHasTerminated](Status, std::string) { graphHasTerminated = true; });
+            [&graphHasTerminated](Status, std::string) { graphHasTerminated = true; });
 
     // Add multiple pixel stream callback functions to see if all of them register.
     callback.SetPixelCallback([&numOutputStreamCallbacksReceived](int streamIndex, int64_t,
@@ -141,18 +139,18 @@ TEST(PrebuiltGraphTest, GraphOperationEndToEndIsSuccessful) {
 
     // Add multiple stream callback functions to see if all of them register.
     callback.SetSerializedStreamCallback(
-        [&numOutputStreamCallbacksReceived](int streamIndex, int64_t, std::string&&) {
-            ASSERT_TRUE(streamIndex == 2 || streamIndex == 3);
-            numOutputStreamCallbacksReceived[streamIndex]++;
-        });
+            [&numOutputStreamCallbacksReceived](int streamIndex, int64_t, std::string&&) {
+                ASSERT_TRUE(streamIndex == 2 || streamIndex == 3);
+                numOutputStreamCallbacksReceived[streamIndex]++;
+            });
 
     std::shared_ptr<PrebuiltEngineInterface> engineInterface =
-        std::static_pointer_cast<PrebuiltEngineInterface, PrebuiltEngineInterfaceImpl>(
-            std::make_shared<PrebuiltEngineInterfaceImpl>(callback));
+            std::static_pointer_cast<PrebuiltEngineInterface, PrebuiltEngineInterfaceImpl>(
+                    std::make_shared<PrebuiltEngineInterfaceImpl>(callback));
 
-    PrebuiltGraph* graph =
-        PrebuiltGraph::GetPrebuiltGraphFromLibrary("libstubgraphimpl.so", engineInterface);
+    PrebuiltGraph* graph = GetLocalGraphFromLibrary("libstubgraphimpl.so", engineInterface);
 
+    EXPECT_EQ(graph->GetGraphType(), PrebuiltGraphType::LOCAL);
     ASSERT_NE(graph->GetGraphState(), PrebuiltGraphState::UNINITIALIZED);
 
     graph->GetSupportedGraphConfigs();
@@ -171,19 +169,19 @@ TEST(PrebuiltGraphTest, GraphOperationEndToEndIsSuccessful) {
 
     runner::InputFrame inputFrame(0, 0, PixelFormat::RGB, 0, nullptr);
     EXPECT_EQ(graph->SetInputStreamPixelData(
-                  /*streamIndex =*/0, /*timestamp =*/0, /*inputFrame =*/inputFrame),
+                      /*streamIndex =*/0, /*timestamp =*/0, /*inputFrame =*/inputFrame),
               Status::SUCCESS);
     EXPECT_EQ(graph->SetInputStreamPixelData(
-                  /*streamIndex =*/0, /*timestamp =*/0, /*inputFrame =*/inputFrame),
+                      /*streamIndex =*/0, /*timestamp =*/0, /*inputFrame =*/inputFrame),
               Status::SUCCESS);
     EXPECT_EQ(graph->SetInputStreamPixelData(
-                  /*streamIndex =*/0, /*timestamp =*/0, /*inputFrame =*/inputFrame),
+                      /*streamIndex =*/0, /*timestamp =*/0, /*inputFrame =*/inputFrame),
               Status::SUCCESS);
     EXPECT_EQ(graph->SetInputStreamPixelData(
-                  /*streamIndex =*/1, /*timestamp =*/0, /*inputFrame =*/inputFrame),
+                      /*streamIndex =*/1, /*timestamp =*/0, /*inputFrame =*/inputFrame),
               Status::SUCCESS);
     EXPECT_EQ(graph->SetInputStreamPixelData(
-                  /*streamIndex =*/1, /*timestamp =*/0, /*inputFrame =*/inputFrame),
+                      /*streamIndex =*/1, /*timestamp =*/0, /*inputFrame =*/inputFrame),
               Status::SUCCESS);
     functionVisited = graph->GetErrorMessage();
     EXPECT_THAT(functionVisited, HasSubstr("SetInputStreamPixelData"));
