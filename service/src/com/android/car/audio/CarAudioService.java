@@ -62,6 +62,9 @@ import com.android.car.CarOccupantZoneService;
 import com.android.car.CarServiceBase;
 import com.android.car.R;
 import com.android.car.audio.CarAudioContext.AudioContext;
+import com.android.car.audio.hal.AudioControlFactory;
+import com.android.car.audio.hal.AudioControlWrapper;
+import com.android.car.audio.hal.AudioControlWrapperV1;
 import com.android.internal.util.Preconditions;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -267,7 +270,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             if (mHalAudioFocus != null) {
                 mHalAudioFocus.unregisterFocusListener();
             }
-            mAudioControlWrapper = null;
+
+            if (mAudioControlWrapper != null) {
+                mAudioControlWrapper.unlinkToDeath();
+                mAudioControlWrapper = null;
+            }
         }
     }
 
@@ -469,9 +476,14 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private CarAudioZone[] loadVolumeGroupConfigurationWithAudioControlLocked(
             List<CarAudioDeviceInfo> carAudioDeviceInfos) {
         AudioControlWrapper audioControlWrapper = getAudioControlWrapperLocked();
+        if (!(audioControlWrapper instanceof AudioControlWrapperV1)) {
+            throw new IllegalStateException(
+                    "Updated version of IAudioControl no longer supports CarAudioZonesHelperLegacy."
+                    + " Please provide car_audio_configuration.xml.");
+        }
         CarAudioZonesHelperLegacy legacyHelper = new CarAudioZonesHelperLegacy(mContext,
                 R.xml.car_volume_groups, carAudioDeviceInfos,
-                audioControlWrapper, mCarAudioSettings);
+                (AudioControlWrapperV1) audioControlWrapper, mCarAudioSettings);
         return legacyHelper.loadAudioZones();
     }
 
@@ -1192,9 +1204,17 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     private AudioControlWrapper getAudioControlWrapperLocked() {
         if (mAudioControlWrapper == null) {
-            mAudioControlWrapper = AudioControlWrapper.newAudioControl();
+            mAudioControlWrapper = AudioControlFactory.newAudioControl();
+            mAudioControlWrapper.linkToDeath(this::resetHalAudioFocus);
         }
         return mAudioControlWrapper;
+    }
+
+    private void resetHalAudioFocus() {
+        if (mHalAudioFocus != null) {
+            mHalAudioFocus.reset();
+            mHalAudioFocus.registerFocusListener();
+        }
     }
 
     boolean isAudioZoneIdValid(int zoneId) {

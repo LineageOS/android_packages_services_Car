@@ -28,6 +28,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.android.car.R;
+import com.android.car.audio.hal.AudioControlWrapperV1;
 
 import com.google.common.collect.Lists;
 
@@ -49,7 +50,7 @@ public class CarAudioZonesHelperLegacyTest {
     public final MockitoRule rule = MockitoJUnit.rule();
 
     @Mock
-    private AudioControlWrapper mMockAudioControlWrapper;
+    private AudioControlWrapperV1 mMockAudioControlWrapper;
     @Mock
     private CarAudioSettings mMockCarAudioSettings;
 
