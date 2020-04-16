@@ -31,6 +31,7 @@ import android.util.Xml;
 
 import com.android.car.CarLog;
 import com.android.car.R;
+import com.android.car.audio.hal.AudioControlWrapperV1;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -60,7 +61,7 @@ class CarAudioZonesHelperLegacy {
 
     CarAudioZonesHelperLegacy(@NonNull  Context context, @XmlRes int xmlConfiguration,
             @NonNull List<CarAudioDeviceInfo> carAudioDeviceInfos,
-            @NonNull AudioControlWrapper audioControlWrapper,
+            @NonNull AudioControlWrapperV1 audioControlWrapper,
             @NonNull CarAudioSettings carAudioSettings) {
         Objects.requireNonNull(context);
         Objects.requireNonNull(carAudioDeviceInfos);
@@ -85,7 +86,7 @@ class CarAudioZonesHelperLegacy {
      * @return SparseIntArray mapping from {@link CarAudioContext} to bus number.
      */
     private static SparseIntArray loadBusesForLegacyContexts(
-            @NonNull AudioControlWrapper audioControlWrapper) {
+            @NonNull AudioControlWrapperV1 audioControlWrapper) {
         SparseIntArray contextToBus = new SparseIntArray();
 
         for (int legacyContext : LEGACY_CONTEXTS) {
