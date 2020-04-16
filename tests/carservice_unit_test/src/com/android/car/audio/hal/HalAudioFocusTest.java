@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.audio;
+package com.android.car.audio.hal;
 
 import static android.media.AudioAttributes.USAGE_ALARM;
 import static android.media.AudioAttributes.USAGE_MEDIA;
@@ -44,8 +44,6 @@ import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.os.Bundle;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-
-import com.android.car.audio.hal.AudioControlWrapper;
 
 import org.junit.Before;
 import org.junit.Rule;
