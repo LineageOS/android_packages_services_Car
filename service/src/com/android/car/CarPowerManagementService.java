@@ -779,11 +779,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             case CpmsState.SIMULATE_SLEEP:
                 return true;
             case CpmsState.WAIT_FOR_FINISH:
-                return newState.mState == CpmsState.SUSPEND;
+                return (newState.mState == CpmsState.SUSPEND
+                        || newState.mState == CpmsState.WAIT_FOR_VHAL);
             default:
-                Log.e(CarLog.TAG_POWER, "Unhandled state transition:  currentState="
+                Log.e(CarLog.TAG_POWER, "Unexpected current state:  currentState="
                         + mCurrentState.name() + ", newState=" + newState.name());
-                return false;
+                return true;
         }
     }
 
