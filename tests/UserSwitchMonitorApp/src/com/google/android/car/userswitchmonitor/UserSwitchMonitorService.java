@@ -21,10 +21,16 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.car.Car;
 import android.car.user.CarUserManager;
+import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
+
+import java.io.FileDescriptor;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Service that users {@link CarUserManager.UserLifecycleEvent UserLifecycleEvents} to monitor
@@ -33,17 +39,26 @@ import android.util.Log;
  */
 public final class UserSwitchMonitorService extends Service {
 
-    private static final String TAG = UserSwitchMonitorService.class.getSimpleName();
+    static final String TAG = "UserSwitchMonitor";
 
+    private final Object mLock = new Object();
 
-    private final CarUserManager.UserLifecycleListener mListener = (e) ->
-            Log.d(TAG, "onEvent(): " + e);
+    private final int mUserId = android.os.Process.myUserHandle().getIdentifier();
+
+    private final List<UserLifecycleEvent> mEvents = new ArrayList<>();
+
+    private final CarUserManager.UserLifecycleListener mListener = (e) -> {
+        Log.d(TAG, "onEvent(" + mUserId + "): " + e);
+        synchronized (mLock) {
+            mEvents.add(e);
+        }
+    };
 
     private CarUserManager mCarUserManager;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "onStartCommand(): " + intent);
+        Log.d(TAG, "onStartCommand(" + mUserId + "): " + intent);
 
         Context context = getApplicationContext();
         Car car = Car.createCar(context);
@@ -70,7 +85,7 @@ public final class UserSwitchMonitorService extends Service {
 
     @Override
     public void onDestroy() {
-        Log.d(TAG, "onDestroy()");
+        Log.d(TAG, "onDestroy(" + mUserId + ")");
 
         if (mCarUserManager != null) {
             mCarUserManager.removeListener(mListener);
@@ -79,6 +94,23 @@ public final class UserSwitchMonitorService extends Service {
         }
 
         super.onDestroy();
+    }
+
+    @Override
+    protected void dump(FileDescriptor fd, PrintWriter pw, String[] args) {
+        pw.printf("User id: %d\n", mUserId);
+        synchronized (mLock) {
+            if (mEvents.isEmpty()) {
+                pw.println("Did not receive any event yet");
+                return;
+            }
+            int size = mEvents.size();
+            String indent = "  ";
+            pw.printf("Received %d events:\n", size);
+            for (int i = 0; i < size; i++) {
+                pw.printf("%s%d: %s\n", indent, (i + 1), mEvents.get(i));
+            }
+        }
     }
 
     @Override
