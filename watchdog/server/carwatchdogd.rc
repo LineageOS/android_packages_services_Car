@@ -19,12 +19,23 @@ on early-init
     # Number of top stats per sub-category
     setprop ro.carwatchdog.top_n_stats_per_subcategory 3
 
+    # Cache size for the periodically collected records
+    setprop ro.carwatchdog.periodic_collection_buffer_size 180
+
+on early-init && property:ro.build.type=userdebug
     # Below intervals are in seconds
     setprop ro.carwatchdog.boottime_collection_interval 1
     setprop ro.carwatchdog.periodic_collection_interval 10
 
-    # Cache size for the periodically collected records
-    setprop ro.carwatchdog.periodic_collection_buffer_size 180
+on early-init && property:ro.build.type=eng
+    # Below intervals are in seconds
+    setprop ro.carwatchdog.boottime_collection_interval 1
+    setprop ro.carwatchdog.periodic_collection_interval 10
+
+on early-init && property:ro.build.type=user
+    # Below intervals are in seconds
+    setprop ro.carwatchdog.boottime_collection_interval 20
+    setprop ro.carwatchdog.periodic_collection_interval 60
 
 service carwatchdogd /system/bin/carwatchdogd
     class core
