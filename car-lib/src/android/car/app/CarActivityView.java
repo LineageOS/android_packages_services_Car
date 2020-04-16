@@ -39,6 +39,7 @@ public final class CarActivityView extends ActivityView {
     // volatile, since mUserActivityViewCallback can be accessed from Main and Binder thread.
     @Nullable private volatile StateCallback mUserActivityViewCallback;
 
+    @Nullable private Car mCar;
     @Nullable private CarUxRestrictionsManager mUxRestrictionsManager;
 
     private int mVirtualDisplayId = Display.INVALID_DISPLAY;
@@ -59,21 +60,6 @@ public final class CarActivityView extends ActivityView {
             Context context, AttributeSet attrs, int defStyle, boolean singleTaskInstance) {
         super(context, attrs, defStyle, singleTaskInstance);
         super.setCallback(new CarActivityViewCallback());
-        Car.createCar(mContext, /*handler=*/ null,
-                Car.CAR_WAIT_TIMEOUT_DO_NOT_WAIT,
-                (car, ready) -> {
-                    // Expect to be called in the main thread, since passed a 'null' handler
-                    // in Car.createCar().
-                    if (!ready) return;
-                    mUxRestrictionsManager = (CarUxRestrictionsManager) car.getCarManager(
-                            Car.CAR_UX_RESTRICTION_SERVICE);
-                    if (mVirtualDisplayId != Display.INVALID_DISPLAY) {
-                        // When the CarService is reconnected, we'd like to report the physical
-                        // display id again, since the previously reported mapping could be gone.
-                        reportPhysicalDisplayId(
-                                mUxRestrictionsManager, mVirtualDisplayId, mContext.getDisplayId());
-                    }
-                });
     }
 
     @Override
@@ -153,5 +139,31 @@ public final class CarActivityView extends ActivityView {
                 stateCallback.onTaskRemovalStarted(taskId);
             }
         }
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        mCar = Car.createCar(mContext, /*handler=*/ null,
+                Car.CAR_WAIT_TIMEOUT_DO_NOT_WAIT,
+                (car, ready) -> {
+                    // Expect to be called in the main thread, since passed a 'null' handler
+                    // in Car.createCar().
+                    if (!ready) return;
+                    mUxRestrictionsManager = (CarUxRestrictionsManager) car.getCarManager(
+                            Car.CAR_UX_RESTRICTION_SERVICE);
+                    if (mVirtualDisplayId != Display.INVALID_DISPLAY) {
+                        // When the CarService is reconnected, we'd like to report the physical
+                        // display id again, since the previously reported mapping could be gone.
+                        reportPhysicalDisplayId(
+                                mUxRestrictionsManager, mVirtualDisplayId, mContext.getDisplayId());
+                    }
+                });
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        if (mCar != null) mCar.disconnect();
     }
 }
