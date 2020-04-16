@@ -129,7 +129,9 @@ bool isEqual(const UidIoPerfData& lhs, const UidIoPerfData& rhs) {
         }
         return isEqual;
     };
-    return std::equal(lhs.topNReads.begin(), lhs.topNReads.end(), rhs.topNReads.begin(), comp) &&
+    return lhs.topNReads.size() == rhs.topNReads.size() &&
+            std::equal(lhs.topNReads.begin(), lhs.topNReads.end(), rhs.topNReads.begin(), comp) &&
+            lhs.topNWrites.size() == rhs.topNWrites.size() &&
             std::equal(lhs.topNWrites.begin(), lhs.topNWrites.end(), rhs.topNWrites.begin(), comp);
 }
 
@@ -141,21 +143,32 @@ bool isEqual(const SystemIoPerfData& lhs, const SystemIoPerfData& rhs) {
 
 bool isEqual(const ProcessIoPerfData& lhs, const ProcessIoPerfData& rhs) {
     if (lhs.topNIoBlockedUids.size() != rhs.topNIoBlockedUids.size() ||
-        lhs.topNMajorFaults.size() != rhs.topNMajorFaults.size() ||
+        lhs.topNMajorFaultUids.size() != rhs.topNMajorFaultUids.size() ||
         lhs.totalMajorFaults != rhs.totalMajorFaults ||
         lhs.majorFaultsPercentChange != rhs.majorFaultsPercentChange) {
         return false;
     }
-    auto comp = [&](const ProcessIoPerfData::Stats& l, const ProcessIoPerfData::Stats& r) -> bool {
-        return l.userId == r.userId && l.packageName == r.packageName && l.count == r.count;
+    auto comp = [&](const ProcessIoPerfData::UidStats& l,
+                    const ProcessIoPerfData::UidStats& r) -> bool {
+        auto comp = [&](const ProcessIoPerfData::UidStats::ProcessStats& l,
+                        const ProcessIoPerfData::UidStats::ProcessStats& r) -> bool {
+            return l.comm == r.comm && l.count == r.count;
+        };
+        return l.userId == r.userId && l.packageName == r.packageName && l.count == r.count &&
+                l.topNProcesses.size() == r.topNProcesses.size() &&
+                std::equal(l.topNProcesses.begin(), l.topNProcesses.end(), r.topNProcesses.begin(),
+                           comp);
     };
-    return std::equal(lhs.topNIoBlockedUids.begin(), lhs.topNIoBlockedUids.end(),
-                      rhs.topNIoBlockedUids.begin(), comp) &&
+    return lhs.topNIoBlockedUids.size() == lhs.topNIoBlockedUids.size() &&
+            std::equal(lhs.topNIoBlockedUids.begin(), lhs.topNIoBlockedUids.end(),
+                       rhs.topNIoBlockedUids.begin(), comp) &&
+            lhs.topNIoBlockedUidsTotalTaskCnt.size() == rhs.topNIoBlockedUidsTotalTaskCnt.size() &&
             std::equal(lhs.topNIoBlockedUidsTotalTaskCnt.begin(),
                        lhs.topNIoBlockedUidsTotalTaskCnt.end(),
                        rhs.topNIoBlockedUidsTotalTaskCnt.begin()) &&
-            std::equal(lhs.topNMajorFaults.begin(), lhs.topNMajorFaults.end(),
-                       rhs.topNMajorFaults.begin(), comp);
+            lhs.topNMajorFaultUids.size() == rhs.topNMajorFaultUids.size() &&
+            std::equal(lhs.topNMajorFaultUids.begin(), lhs.topNMajorFaultUids.end(),
+                       rhs.topNMajorFaultUids.begin(), comp);
 }
 
 bool isEqual(const IoPerfRecord& lhs, const IoPerfRecord& rhs) {
@@ -175,6 +188,9 @@ TEST(IoPerfCollectionTest, TestCollectionStartAndTerminate) {
             << "No error returned when collector was started more than once";
     ASSERT_TRUE(sysprop::topNStatsPerCategory().has_value());
     ASSERT_EQ(collector->mTopNStatsPerCategory, sysprop::topNStatsPerCategory().value());
+
+    ASSERT_TRUE(sysprop::topNStatsPerSubcategory().has_value());
+    ASSERT_EQ(collector->mTopNStatsPerSubcategory, sysprop::topNStatsPerSubcategory().value());
 
     ASSERT_TRUE(sysprop::boottimeCollectionInterval().has_value());
     ASSERT_EQ(std::chrono::duration_cast<std::chrono::seconds>(
@@ -253,9 +269,9 @@ TEST(IoPerfCollectionTest, TestValidCollectionSequence) {
                                  .totalCpuTime = 26900,
                                  .ioBlockedProcessesCnt = 5,
                                  .totalProcessesCnt = 22},
-            .processIoPerfData = {.topNIoBlockedUids = {{0, "mount", 1}},
+            .processIoPerfData = {.topNIoBlockedUids = {{0, "mount", 1, {{"disk I/O", 1}}}},
                                   .topNIoBlockedUidsTotalTaskCnt = {1},
-                                  .topNMajorFaults = {{0, "mount", 5000}},
+                                  .topNMajorFaultUids = {{0, "mount", 5000, {{"disk I/O", 5000}}}},
                                   .totalMajorFaults = 5000,
                                   .majorFaultsPercentChange = 0.0},
     };
@@ -312,11 +328,12 @@ TEST(IoPerfCollectionTest, TestValidCollectionSequence) {
                                  .totalCpuTime = 19800,
                                  .ioBlockedProcessesCnt = 6,
                                  .totalProcessesCnt = 14},
-            .processIoPerfData = {.topNIoBlockedUids = {{0, "mount", 2}},
-                                  .topNIoBlockedUidsTotalTaskCnt = {2},
-                                  .topNMajorFaults = {{0, "mount", 11000}},
-                                  .totalMajorFaults = 11000,
-                                  .majorFaultsPercentChange = ((11000.0 - 5000.0) / 5000.0) * 100},
+            .processIoPerfData =
+                    {.topNIoBlockedUids = {{0, "mount", 2, {{"disk I/O", 2}}}},
+                     .topNIoBlockedUidsTotalTaskCnt = {2},
+                     .topNMajorFaultUids = {{0, "mount", 11000, {{"disk I/O", 11000}}}},
+                     .totalMajorFaults = 11000,
+                     .majorFaultsPercentChange = ((11000.0 - 5000.0) / 5000.0) * 100},
     };
     ret = looperStub->pollCache();
     ASSERT_TRUE(ret) << ret.error().message();
@@ -448,9 +465,9 @@ TEST(IoPerfCollectionTest, TestValidCollectionSequence) {
                                  .totalCpuTime = 4276,
                                  .ioBlockedProcessesCnt = 3,
                                  .totalProcessesCnt = 15},
-            .processIoPerfData = {.topNIoBlockedUids = {{0, "mount", 1}},
+            .processIoPerfData = {.topNIoBlockedUids = {{0, "mount", 1, {{"disk I/O", 1}}}},
                                   .topNIoBlockedUidsTotalTaskCnt = {2},
-                                  .topNMajorFaults = {{0, "mount", 4100}},
+                                  .topNMajorFaultUids = {{0, "mount", 4100, {{"disk I/O", 4100}}}},
                                   .totalMajorFaults = 4100,
                                   .majorFaultsPercentChange = ((4100.0 - 5000.0) / 5000.0) * 100},
     };
@@ -508,11 +525,12 @@ TEST(IoPerfCollectionTest, TestValidCollectionSequence) {
                                  .totalCpuTime = 43576,
                                  .ioBlockedProcessesCnt = 4,
                                  .totalProcessesCnt = 6},
-            .processIoPerfData = {.topNIoBlockedUids = {{0, "mount", 2}},
-                                  .topNIoBlockedUidsTotalTaskCnt = {2},
-                                  .topNMajorFaults = {{0, "mount", 44300}},
-                                  .totalMajorFaults = 44300,
-                                  .majorFaultsPercentChange = ((44300.0 - 4100.0) / 4100.0) * 100},
+            .processIoPerfData =
+                    {.topNIoBlockedUids = {{0, "mount", 2, {{"disk I/O", 2}}}},
+                     .topNIoBlockedUidsTotalTaskCnt = {2},
+                     .topNMajorFaultUids = {{0, "mount", 44300, {{"disk I/O", 44300}}}},
+                     .totalMajorFaults = 44300,
+                     .majorFaultsPercentChange = ((44300.0 - 4100.0) / 4100.0) * 100},
     };
     ret = looperStub->pollCache();
     ASSERT_TRUE(ret) << ret.error().message();
@@ -587,12 +605,12 @@ TEST(IoPerfCollectionTest, TestValidCollectionSequence) {
                                  .totalCpuTime = 47576,
                                  .ioBlockedProcessesCnt = 13,
                                  .totalProcessesCnt = 213},
-            .processIoPerfData = {.topNIoBlockedUids = {{0, "mount", 2}},
-                                  .topNIoBlockedUidsTotalTaskCnt = {2},
-                                  .topNMajorFaults = {{0, "mount", 49800}},
-                                  .totalMajorFaults = 49800,
-                                  .majorFaultsPercentChange =
-                                          ((49800.0 - 44300.0) / 44300.0) * 100},
+            .processIoPerfData =
+                    {.topNIoBlockedUids = {{0, "mount", 2, {{"disk I/O", 2}}}},
+                     .topNIoBlockedUidsTotalTaskCnt = {2},
+                     .topNMajorFaultUids = {{0, "mount", 49800, {{"disk I/O", 49800}}}},
+                     .totalMajorFaults = 49800,
+                     .majorFaultsPercentChange = ((49800.0 - 44300.0) / 44300.0) * 100},
     };
     ret = looperStub->pollCache();
     ASSERT_TRUE(ret) << ret.error().message();
@@ -646,12 +664,12 @@ TEST(IoPerfCollectionTest, TestValidCollectionSequence) {
                                  .totalCpuTime = 48376,
                                  .ioBlockedProcessesCnt = 57,
                                  .totalProcessesCnt = 157},
-            .processIoPerfData = {.topNIoBlockedUids = {{0, "mount", 2}},
-                                  .topNIoBlockedUidsTotalTaskCnt = {2},
-                                  .topNMajorFaults = {{0, "mount", 50900}},
-                                  .totalMajorFaults = 50900,
-                                  .majorFaultsPercentChange =
-                                          ((50900.0 - 49800.0) / 49800.0) * 100},
+            .processIoPerfData =
+                    {.topNIoBlockedUids = {{0, "mount", 2, {{"disk I/O", 2}}}},
+                     .topNIoBlockedUidsTotalTaskCnt = {2},
+                     .topNMajorFaultUids = {{0, "mount", 50900, {{"disk I/O", 50900}}}},
+                     .totalMajorFaults = 50900,
+                     .majorFaultsPercentChange = ((50900.0 - 49800.0) / 49800.0) * 100},
     };
     ret = looperStub->pollCache();
     ASSERT_TRUE(ret) << ret.error().message();
@@ -729,9 +747,9 @@ TEST(IoPerfCollectionTest, TestValidCollectionSequence) {
                                  .totalCpuTime = 20676,
                                  .ioBlockedProcessesCnt = 1,
                                  .totalProcessesCnt = 4},
-            .processIoPerfData = {.topNIoBlockedUids = {{0, "mount", 2}},
+            .processIoPerfData = {.topNIoBlockedUids = {{0, "mount", 2, {{"disk I/O", 2}}}},
                                   .topNIoBlockedUidsTotalTaskCnt = {2},
-                                  .topNMajorFaults = {{0, "mount", 5701}},
+                                  .topNMajorFaultUids = {{0, "mount", 5701, {{"disk I/O", 5701}}}},
                                   .totalMajorFaults = 5701,
                                   .majorFaultsPercentChange = ((5701.0 - 50900.0) / 50900.0) * 100},
     };
@@ -1153,6 +1171,7 @@ TEST(IoPerfCollectionTest, TestValidProcPidContents) {
             .userId = 10,
             .packageName = "shared:android.uid.system",
             .count = 4,
+            .topNProcesses = {{"logd", 3}, {"system_server", 1}},
     });
     expectedProcessIoPerfData.topNIoBlockedUidsTotalTaskCnt.push_back(6);
     expectedProcessIoPerfData.topNIoBlockedUids.push_back({
@@ -1160,19 +1179,22 @@ TEST(IoPerfCollectionTest, TestValidProcPidContents) {
             .userId = 0,
             .packageName = "mount",
             .count = 3,
+            .topNProcesses = {{"disk I/O", 3}},
     });
     expectedProcessIoPerfData.topNIoBlockedUidsTotalTaskCnt.push_back(3);
-    expectedProcessIoPerfData.topNMajorFaults.push_back({
+    expectedProcessIoPerfData.topNMajorFaultUids.push_back({
             // uid: 1001234
             .userId = 10,
             .packageName = "1001234",
             .count = 89765,
+            .topNProcesses = {{"tombstoned", 89765}},
     });
-    expectedProcessIoPerfData.topNMajorFaults.push_back({
+    expectedProcessIoPerfData.topNMajorFaultUids.push_back({
             // uid: 1009
             .userId = 0,
             .packageName = "mount",
             .count = 45678,
+            .topNProcesses = {{"disk I/O", 45678}},
     });
     expectedProcessIoPerfData.totalMajorFaults = 156663;
     expectedProcessIoPerfData.majorFaultsPercentChange = 0;
@@ -1185,6 +1207,7 @@ TEST(IoPerfCollectionTest, TestValidProcPidContents) {
     IoPerfCollection collector;
     collector.mProcPidStat = new ProcPidStat(firstSnapshot.path);
     collector.mTopNStatsPerCategory = 2;
+    collector.mTopNStatsPerSubcategory = 2;
     ASSERT_TRUE(collector.mProcPidStat->enabled())
             << "Files under the temporary proc directory are inaccessible";
 
@@ -1221,19 +1244,22 @@ TEST(IoPerfCollectionTest, TestValidProcPidContents) {
             .userId = 10,
             .packageName = "shared:android.uid.system",
             .count = 1,
+            .topNProcesses = {{"system_server", 1}},
     });
     expectedProcessIoPerfData.topNIoBlockedUidsTotalTaskCnt.push_back(3);
-    expectedProcessIoPerfData.topNMajorFaults.push_back({
+    expectedProcessIoPerfData.topNMajorFaultUids.push_back({
             // uid: 1001000
             .userId = 10,
             .packageName = "shared:android.uid.system",
             .count = 12000,
+            .topNProcesses = {{"system_server", 12000}},
     });
-    expectedProcessIoPerfData.topNMajorFaults.push_back({
+    expectedProcessIoPerfData.topNMajorFaultUids.push_back({
             // uid: 0
             .userId = 0,
             .packageName = "root",
             .count = 660,
+            .topNProcesses = {{"init", 660}},
     });
     expectedProcessIoPerfData.totalMajorFaults = 12660;
     expectedProcessIoPerfData.majorFaultsPercentChange = ((12660.0 - 156663.0) / 156663.0) * 100;
@@ -1269,11 +1295,12 @@ TEST(IoPerfCollectionTest, TestProcPidContentsLessThanTopNStatsLimit) {
             {453, "453 (init) S 0 0 0 0 0 0 0 0 80 0 0 0 0 0 0 0 2 0 275\n"},
     };
     struct ProcessIoPerfData expectedProcessIoPerfData = {};
-    expectedProcessIoPerfData.topNMajorFaults.push_back({
+    expectedProcessIoPerfData.topNMajorFaultUids.push_back({
             // uid: 0
             .userId = 0,
             .packageName = "root",
             .count = 880,
+            .topNProcesses = {{"init", 880}},
     });
     expectedProcessIoPerfData.totalMajorFaults = 880;
     expectedProcessIoPerfData.majorFaultsPercentChange = 0.0;
@@ -1285,6 +1312,7 @@ TEST(IoPerfCollectionTest, TestProcPidContentsLessThanTopNStatsLimit) {
 
     IoPerfCollection collector;
     collector.mTopNStatsPerCategory = 5;
+    collector.mTopNStatsPerSubcategory = 3;
     collector.mProcPidStat = new ProcPidStat(prodDir.path);
     struct ProcessIoPerfData actualProcessIoPerfData = {};
     ret = collector.collectProcessIoPerfDataLocked(&actualProcessIoPerfData);
