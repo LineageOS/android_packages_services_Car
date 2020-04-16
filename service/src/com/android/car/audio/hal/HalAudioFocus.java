@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.audio;
+package com.android.car.audio.hal;
 
 import static android.media.AudioManager.AUDIOFOCUS_LOSS;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_DELAYED;
@@ -34,7 +34,6 @@ import android.util.SparseArray;
 
 import androidx.annotation.NonNull;
 
-import com.android.car.audio.hal.AudioControlWrapper;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 
@@ -44,7 +43,7 @@ import java.util.Objects;
 /**
  * Manages focus requests from the HAL on a per-zone per-usage basis
  */
-final class HalAudioFocus extends IFocusListener.Stub {
+public final class HalAudioFocus extends IFocusListener.Stub {
     private static final String TAG = HalAudioFocus.class.getSimpleName();
 
     private final AudioManager mAudioManager;
@@ -57,7 +56,7 @@ final class HalAudioFocus extends IFocusListener.Stub {
     @GuardedBy("mImplLock")
     private final SparseArray<SparseArray<HalAudioFocusRequest>> mHalFocusRequestsByZoneAndUsage;
 
-    HalAudioFocus(@NonNull AudioManager audioManager,
+    public HalAudioFocus(@NonNull AudioManager audioManager,
             @NonNull AudioControlWrapper audioControlWrapper,
             @NonNull int[] audioZoneIds) {
         mAudioManager = Objects.requireNonNull(audioManager);
@@ -70,11 +69,18 @@ final class HalAudioFocus extends IFocusListener.Stub {
         }
     }
 
-    void registerFocusListener() {
+    /**
+     * Registers {@code IFocusListener} on {@code AudioControlWrapper} to receive HAL audio focus
+     * request and abandon calls.
+     */
+    public void registerFocusListener() {
         mAudioControlWrapper.registerFocusListener(this);
     }
 
-    void unregisterFocusListener() {
+    /**
+     * Unregisters {@code IFocusListener} from {@code AudioControlWrapper}.
+     */
+    public void unregisterFocusListener() {
         mAudioControlWrapper.unregisterFocusListener();
     }
 
