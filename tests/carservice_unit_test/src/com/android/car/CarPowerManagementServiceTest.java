@@ -711,11 +711,12 @@ public class CarPowerManagementServiceTest {
     }
 
     private void verifyDefaultInitialUserBehaviorCalled() {
-        verify(mInitialUserSetter).executeDefaultBehavior();
+        // TODO(b/153679319): pass proper value for replaceGuest
+        verify(mInitialUserSetter).executeDefaultBehavior(true);
     }
 
     private void verifyDefaultInitilUserBehaviorNeverCalled() {
-        verify(mInitialUserSetter, never()).executeDefaultBehavior();
+        verify(mInitialUserSetter, never()).executeDefaultBehavior(anyBoolean());
     }
 
     private void verifyUserCreated(String name, int halFlags) {
