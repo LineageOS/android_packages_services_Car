@@ -53,6 +53,8 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
+import com.android.car.CarLocalServices;
+import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.car.EventLogTags;
@@ -95,7 +97,7 @@ public final class UserHalService extends HalServiceBase {
     // This handler handles 2 types of messages:
     // - "Anonymous" messages (what=0) containing runnables.
     // - "Identifiable" messages used to check for timeouts (whose 'what' is the request id).
-    private final Handler mHandler = new Handler(Looper.getMainLooper());
+    private final Handler mHandler;
 
     /**
      * Value used on the next request.
@@ -110,7 +112,13 @@ public final class UserHalService extends HalServiceBase {
     private final SparseArray<PendingRequest<?, ?>> mPendingRequests = new SparseArray<>();
 
     public UserHalService(VehicleHal hal) {
+        this(hal, new Handler(Looper.getMainLooper()));
+    }
+
+    @VisibleForTesting
+    UserHalService(VehicleHal hal, Handler handler) {
         mHal = hal;
+        mHandler = handler;
     }
 
     @Override
@@ -666,6 +674,52 @@ public final class UserHalService extends HalServiceBase {
 
     private void handleOnSwitchUserResponse(VehiclePropValue value) {
         int requestId = value.value.int32Values.get(0);
+        int messageType = value.value.int32Values.get(1);
+
+        if (messageType == SwitchUserMessageType.VEHICLE_RESPONSE) {
+            handleVehicleResponse(value);
+            return;
+        }
+
+        if (messageType == SwitchUserMessageType.VEHICLE_REQUEST) {
+            handleVehicleRequest(value);
+            return;
+        }
+
+        Log.e(TAG, "handleOnSwitchUserResponse invalid message type (" + messageType
+                + ") from HAL: " + value);
+
+        // check if a callback exists for the request ID
+        HalCallback<SwitchUserResponse> callback =
+                handleGetPendingCallback(requestId, SwitchUserResponse.class);
+        if (callback != null) {
+            handleRemovePendingRequest(requestId);
+            EventLog.writeEvent(EventLogTags.CAR_USER_HAL_SWITCH_USER_RESP, requestId,
+                    HalCallback.STATUS_WRONG_HAL_RESPONSE, SwitchUserStatus.FAILURE);
+            callback.onResponse(HalCallback.STATUS_WRONG_HAL_RESPONSE, null);
+            return;
+        }
+    }
+
+    private void handleVehicleRequest(VehiclePropValue value) {
+        int requestId = value.value.int32Values.get(0);
+        // Index 1 is message type, which is not required in this call.
+        int targetUserId = value.value.int32Values.get(2);
+        EventLog.writeEvent(EventLogTags.CAR_USER_HAL_OEM_SWITCH_USER_REQ, requestId, targetUserId);
+
+        // HAL vehicle request should have negative request ID
+        if (requestId >= 0) {
+            Log.e(TAG, "handleVehicleRequest invalid requestId (" + requestId + ") from HAL: "
+                    + value);
+            return;
+        }
+
+        CarUserService userService = CarLocalServices.getService(CarUserService.class);
+        userService.switchAndroidUserFromHal(requestId, targetUserId);
+    }
+
+    private void handleVehicleResponse(VehiclePropValue value) {
+        int requestId = value.value.int32Values.get(0);
         HalCallback<SwitchUserResponse> callback =
                 handleGetPendingCallback(requestId, SwitchUserResponse.class);
         if (callback == null) {
@@ -678,13 +732,6 @@ public final class UserHalService extends HalServiceBase {
         SwitchUserResponse response = new SwitchUserResponse();
         response.requestId = requestId;
         response.messageType = value.value.int32Values.get(1);
-        if (response.messageType != SwitchUserMessageType.VEHICLE_RESPONSE) {
-            EventLog.writeEvent(EventLogTags.CAR_USER_HAL_SWITCH_USER_RESP, requestId,
-                    HalCallback.STATUS_WRONG_HAL_RESPONSE);
-            Log.e(TAG, "invalid message type (" + response.messageType + ") from HAL: " + value);
-            callback.onResponse(HalCallback.STATUS_WRONG_HAL_RESPONSE, null);
-            return;
-        }
         response.status = value.value.int32Values.get(2);
         if (response.status == SwitchUserStatus.SUCCESS
                 || response.status == SwitchUserStatus.FAILURE) {
