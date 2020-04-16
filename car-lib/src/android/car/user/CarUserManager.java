@@ -41,10 +41,12 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.sysprop.CarProperties;
 import android.util.ArrayMap;
+import android.util.EventLog;
 import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.internal.car.EventLogTags;
 import com.android.internal.os.IResultReceiver;
 
 import java.lang.annotation.Retention;
@@ -277,16 +279,20 @@ public final class CarUserManager extends CarManagerBase {
      */
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
     public void switchUser(@UserIdInt int targetUserId, @NonNull UserSwitchListener listener) {
+        Objects.requireNonNull(listener);
+        int uid = myUid();
         try {
-            Objects.requireNonNull(listener);
             IResultReceiver callback = new IResultReceiver.Stub() {
                 @Override
                 public void send(@UserSwitchStatus int status, Bundle resultData)
                         throws RemoteException {
                     UserSwitchResult result = new UserSwitchResult(status, resultData);
+                    EventLog.writeEvent(EventLogTags.CAR_USER_MGR_SWITCH_USER_RESPONSE, uid,
+                            result.getStatus(), result.getErrorMessage());
                     listener.onResult(result);
                 }
             };
+            EventLog.writeEvent(EventLogTags.CAR_USER_MGR_SWITCH_USER_REQUEST, uid, targetUserId);
             mService.switchUser(targetUserId, HAL_TIMEOUT_MS, callback);
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
@@ -310,17 +316,19 @@ public final class CarUserManager extends CarManagerBase {
         // - listener cannot be null
         // - listener must not be added before
 
+        int uid = myUid();
         synchronized (mLock) {
             if (mReceiver == null) {
                 mReceiver = new LifecycleResultReceiver();
                 try {
-                    Log.i(TAG, "Setting lifecycle receiver for uid " + myUid());
+                    EventLog.writeEvent(EventLogTags.CAR_USER_MGR_ADD_LISTENER, uid);
+                    if (DBG) Log.d(TAG, "Setting lifecycle receiver for uid " + uid);
                     mService.setLifecycleListenerForUid(mReceiver);
                 } catch (RemoteException e) {
                     handleRemoteExceptionFromCarService(e);
                 }
             } else {
-                if (DBG) Log.d(TAG, "Already set receiver for uid " + myUid());
+                if (DBG) Log.d(TAG, "Already set receiver for uid " + uid);
             }
 
             if (mListeners == null) {
@@ -345,9 +353,10 @@ public final class CarUserManager extends CarManagerBase {
         // TODO(b/144120654): add unit tests to validate input
         // - listener cannot be null
         // - listener must not be added before
+        int uid = myUid();
         synchronized (mLock) {
             if (mListeners == null) {
-                Log.w(TAG, "removeListener(): no listeners for uid " + myUid());
+                Log.w(TAG, "removeListener(): no listeners for uid " + uid);
                 return;
             }
 
@@ -364,7 +373,8 @@ public final class CarUserManager extends CarManagerBase {
                 return;
             }
 
-            Log.i(TAG, "Removing lifecycle receiver for uid=" + myUid());
+            EventLog.writeEvent(EventLogTags.CAR_USER_MGR_REMOVE_LISTENER, uid);
+            if (DBG) Log.d(TAG, "Removing lifecycle receiver for uid=" + uid);
             try {
                 mService.resetLifecycleListenerForUid();
                 mReceiver = null;

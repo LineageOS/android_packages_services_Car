@@ -29,6 +29,7 @@ import java.lang.annotation.RetentionPolicy;
  */
 public interface HalCallback<R> {
 
+    int STATUS_INVALID = -1; // Used for logging purposes only
     int STATUS_OK = 1;
     int STATUS_HAL_SET_TIMEOUT = 2;
     int STATUS_HAL_RESPONSE_TIMEOUT = 3;
