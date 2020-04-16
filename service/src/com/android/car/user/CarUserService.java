@@ -566,34 +566,30 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         checkManageUsersPermission("getInitialInfo");
         UsersInfo usersInfo = getUsersInfo();
         mHal.getInitialUserInfo(requestType, timeoutMs, usersInfo, (status, resp) -> {
-            try {
-                Bundle resultData = null;
-                if (resp != null) {
-                    switch (resp.action) {
-                        case InitialUserInfoResponseAction.SWITCH:
-                            resultData = new Bundle();
-                            resultData.putInt(BUNDLE_INITIAL_INFO_ACTION, resp.action);
-                            resultData.putInt(BUNDLE_USER_ID, resp.userToSwitchOrCreate.userId);
-                            break;
-                        case InitialUserInfoResponseAction.CREATE:
-                            resultData = new Bundle();
-                            resultData.putInt(BUNDLE_INITIAL_INFO_ACTION, resp.action);
-                            resultData.putInt(BUNDLE_USER_FLAGS, resp.userToSwitchOrCreate.flags);
-                            resultData.putString(BUNDLE_USER_NAME, resp.userNameToCreate);
-                            break;
-                        case InitialUserInfoResponseAction.DEFAULT:
-                            resultData = new Bundle();
-                            resultData.putInt(BUNDLE_INITIAL_INFO_ACTION, resp.action);
-                            break;
-                        default:
-                            // That's ok, it will be the same as DEFAULT...
-                            Log.w(TAG_USER, "invalid response action on " + resp);
-                    }
+            Bundle resultData = null;
+            if (resp != null) {
+                switch (resp.action) {
+                    case InitialUserInfoResponseAction.SWITCH:
+                        resultData = new Bundle();
+                        resultData.putInt(BUNDLE_INITIAL_INFO_ACTION, resp.action);
+                        resultData.putInt(BUNDLE_USER_ID, resp.userToSwitchOrCreate.userId);
+                        break;
+                    case InitialUserInfoResponseAction.CREATE:
+                        resultData = new Bundle();
+                        resultData.putInt(BUNDLE_INITIAL_INFO_ACTION, resp.action);
+                        resultData.putInt(BUNDLE_USER_FLAGS, resp.userToSwitchOrCreate.flags);
+                        resultData.putString(BUNDLE_USER_NAME, resp.userNameToCreate);
+                        break;
+                    case InitialUserInfoResponseAction.DEFAULT:
+                        resultData = new Bundle();
+                        resultData.putInt(BUNDLE_INITIAL_INFO_ACTION, resp.action);
+                        break;
+                    default:
+                        // That's ok, it will be the same as DEFAULT...
+                        Log.w(TAG_USER, "invalid response action on " + resp);
                 }
-                receiver.send(status, resultData);
-            } catch (RemoteException e) {
-                Log.w(TAG_USER, "Could not send result back to receiver", e);
             }
+            sendResult(receiver, status, resultData);
         });
     }
 
@@ -677,13 +673,24 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         UserInfo targetUser = mUserManager.getUserInfo(targetUserId);
         Preconditions.checkArgument(targetUser != null, "Invalid target user Id");
 
+        if (ActivityManager.getCurrentUser() == targetUserId) {
+            if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
+                Log.d(TAG_USER, "Current user is same as requested target user: " + targetUserId);
+            }
+            int resultStatus = CarUserManager.USER_SWITCH_STATUS_ALREADY_REQUESTED_USER;
+            sendResult(receiver, resultStatus, null);
+            return;
+        }
+
         synchronized (mLockUser) {
             if (mUserSwitchInProcess == targetUserId) {
                 if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
                     Log.d(TAG_USER,
-                            "User switch for user: " + targetUserId + " is already in process.");
+                            "A user switch request is already in process for the target user: "
+                                    + targetUserId);
                 }
-                // TODO(b/150409110): Add concurrent User Switch status and tests
+                int resultStatus = CarUserManager.USER_SWITCH_STATUS_ANOTHER_REQUEST_IN_PROCESS;
+                sendResult(receiver, resultStatus, null);
                 return;
             }
         }
@@ -728,14 +735,18 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                         break;
                 }
             }
-            try {
-                receiver.send(resultStatus, resultData);
-            } catch (RemoteException e) {
-                // ignore
-                Log.w(TAG_USER, "error while sending results", e);
-            }
-
+            sendResult(receiver, resultStatus, resultData);
         });
+    }
+
+    private void sendResult(@NonNull IResultReceiver receiver, int resultCode,
+            @Nullable Bundle resultData) {
+        try {
+            receiver.send(resultCode, resultData);
+        } catch (RemoteException e) {
+            // ignore
+            Log.w(TAG_USER, "error while sending results", e);
+        }
     }
 
     private void updateUserSwitchInProcess(@UserIdInt int targetUserId,
