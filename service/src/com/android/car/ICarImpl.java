@@ -40,6 +40,7 @@ import android.os.ResultReceiver;
 import android.os.ShellCallback;
 import android.os.Trace;
 import android.os.UserManager;
+import android.util.EventLog;
 import android.util.Log;
 import android.util.Slog;
 import android.util.TimingsTraceLog;
@@ -59,6 +60,7 @@ import com.android.car.vms.VmsBrokerService;
 import com.android.car.watchdog.CarWatchdogService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.internal.car.EventLogTags;
 import com.android.internal.car.ICarServiceHelper;
 import com.android.internal.os.IResultReceiver;
 
@@ -121,7 +123,7 @@ public class ICarImpl extends ICar.Stub {
 
     private static final String TAG = "ICarImpl";
     private static final String VHAL_TIMING_TAG = "VehicleHalTiming";
-    private static final boolean DBG = true; // TODO(b/153104378): STOPSHIP if true
+    private static final boolean DBG = true; // TODO(b/154033860): STOPSHIP if true
 
     private TimingsTraceLog mBootTiming;
 
@@ -333,6 +335,7 @@ public class ICarImpl extends ICar.Stub {
     }
 
     void vehicleHalReconnected(IVehicle vehicle) {
+        EventLog.writeEvent(EventLogTags.CAR_SERVICE_VHAL_RECONNECTED, mAllServices.length);
         mHal.vehicleHalReconnected(vehicle);
         for (CarServiceBase service : mAllServices) {
             service.vehicleHalReconnected();
@@ -341,6 +344,8 @@ public class ICarImpl extends ICar.Stub {
 
     @Override
     public void setCarServiceHelper(IBinder helper) {
+        EventLog.writeEvent(EventLogTags.CAR_SERVICE_SET_CAR_SERVICE_HELPER,
+                Binder.getCallingPid());
         assertCallingFromSystemProcess();
         ICarServiceHelper carServiceHelper = ICarServiceHelper.Stub.asInterface(helper);
         synchronized (mLock) {
@@ -354,8 +359,12 @@ public class ICarImpl extends ICar.Stub {
     public void onUserLifecycleEvent(int eventType, long timestampMs, int fromUserId,
             int toUserId) {
         assertCallingFromSystemProcess();
-        Log.i(TAG, "onUserLifecycleEvent("
-                + CarUserManager.lifecycleEventTypeToString(eventType) + ", " + toUserId + ")");
+        EventLog.writeEvent(EventLogTags.CAR_SERVICE_ON_USER_LIFECYCLE, eventType, fromUserId,
+                toUserId);
+        if (DBG) {
+            Log.d(TAG, "onUserLifecycleEvent("
+                    + CarUserManager.lifecycleEventTypeToString(eventType) + ", " + toUserId + ")");
+        }
         mCarUserService.onUserLifecycleEvent(eventType, timestampMs, fromUserId, toUserId);
     }
 
@@ -373,6 +382,7 @@ public class ICarImpl extends ICar.Stub {
 
     @Override
     public void setInitialUser(int userId) {
+        EventLog.writeEvent(EventLogTags.CAR_SERVICE_SET_INITIAL_USER, userId);
         if (DBG) Log.d(TAG, "setInitialUser(): " + userId);
         mCarUserService.setInitialUser(userId);
     }
