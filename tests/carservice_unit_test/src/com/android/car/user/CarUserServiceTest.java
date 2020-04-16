@@ -655,6 +655,15 @@ public final class CarUserServiceTest {
     }
 
     @Test
+    public void testSwitchUser_targetSameAsCurrentUser() throws Exception {
+        mockExistingUsers();
+        doReturn(mAdminUser.id).when(() -> ActivityManager.getCurrentUser());
+        mCarUserService.switchUser(mAdminUser.id, mAsyncCallTimeoutMs, mReceiver);
+        assertThat(mReceiver.getResultCode())
+                .isEqualTo(CarUserManager.USER_SWITCH_STATUS_ALREADY_REQUESTED_USER);
+    }
+
+    @Test
     public void testSwitchUser_HalSuccessAndroidSuccess() throws Exception {
         mockCurrentUsers(mAdminUser);
         int requestId = 42;
@@ -731,7 +740,7 @@ public final class CarUserServiceTest {
     }
 
     @Test
-    public void testSwitchUser_HalSuccessMultipleCalls() throws Exception {
+    public void testSwitchUser_HalSuccessMultipleCallsDifferentUser() throws Exception {
         mockCurrentUsers(mAdminUser);
         int requestId = 42;
         mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
@@ -750,6 +759,24 @@ public final class CarUserServiceTest {
         mCarUserService.switchUser(mSystemUser.id, mAsyncCallTimeoutMs, receiver);
 
         assertPostSwitch(requestId, mAdminUser.id, mGuestUser.id);
+    }
+
+    @Test
+    public void testSwitchUser_HalSuccessMultipleCallsSameUser() throws Exception {
+        mockCurrentUsers(mAdminUser);
+        int requestId = 42;
+        mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
+        mSwitchUserResponse.requestId = requestId;
+        mockHalSwitchUser(mAdminUser.id, mSwitchUserResponse, mGuestUser);
+        mockAmSwitchUser(mGuestUser, true);
+
+        mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mReceiver);
+        // calling another user switch before unlock
+        BlockingResultReceiver receiver = new BlockingResultReceiver(mAsyncCallTimeoutMs);
+        mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, receiver);
+
+        assertThat(receiver.getResultCode())
+                .isEqualTo(CarUserManager.USER_SWITCH_STATUS_ANOTHER_REQUEST_IN_PROCESS);
     }
 
     @Test
@@ -1141,7 +1168,8 @@ public final class CarUserServiceTest {
 
     private void sendUserLifecycleEvent(@UserIdInt int userId,
             @UserLifecycleEventType int eventType) {
-        mCarUserService.onUserLifecycleEvent(new UserLifecycleEvent(eventType, userId));
+        mCarUserService.onUserLifecycleEvent(eventType, /* timestampMs= */ 0,
+                /* fromUserId= */ UserHandle.USER_NULL, userId);
     }
 
     private void sendUserUnlockedEvent(@UserIdInt int userId) {

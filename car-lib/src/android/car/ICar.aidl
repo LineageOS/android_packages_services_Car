@@ -44,8 +44,10 @@ interface ICar {
      * @param userId - id of first non-system user locked
      * @param timestampMs - when the user was unlocked
      * @param duration - how long it took to unlock (from SystemServer start)
+     * @param halResponseTime - see CarServiceHelperService.mHhalResponseTime
      */
-    oneway void onFirstUserUnlocked(int userId, long timestampMs, long duration) = 2;
+    oneway void onFirstUserUnlocked(int userId, long timestampMs, long duration,
+            int halResponseTime) = 2;
 
     /**
      * Calls User HAL to get the initial user info.

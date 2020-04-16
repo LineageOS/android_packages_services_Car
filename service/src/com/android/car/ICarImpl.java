@@ -24,7 +24,6 @@ import android.car.CarFeatures;
 import android.car.ICar;
 import android.car.cluster.renderer.IInstrumentClusterNavigation;
 import android.car.user.CarUserManager;
-import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -56,7 +55,6 @@ import com.android.car.systeminterface.SystemInterface;
 import com.android.car.trust.CarTrustedDeviceService;
 import com.android.car.user.CarUserNoticeService;
 import com.android.car.user.CarUserService;
-import com.android.car.user.UserMetrics;
 import com.android.car.vms.VmsBrokerService;
 import com.android.car.watchdog.CarWatchdogService;
 import com.android.internal.annotations.GuardedBy;
@@ -137,8 +135,6 @@ public class ICarImpl extends ICar.Stub {
     private ICarServiceHelper mICarServiceHelper;
 
     private final String mVehicleInterfaceName;
-
-    private final UserMetrics mUserMetrics = new UserMetrics();
 
     public ICarImpl(Context serviceContext, IVehicle vehicle, SystemInterface systemInterface,
             CanBusErrorNotifier errorNotifier, String vehicleInterfaceName) {
@@ -360,14 +356,13 @@ public class ICarImpl extends ICar.Stub {
         assertCallingFromSystemProcess();
         Log.i(TAG, "onUserLifecycleEvent("
                 + CarUserManager.lifecycleEventTypeToString(eventType) + ", " + toUserId + ")");
-        UserLifecycleEvent event = new UserLifecycleEvent(eventType, toUserId);
-        mCarUserService.onUserLifecycleEvent(event);
-        mUserMetrics.onEvent(eventType, timestampMs, fromUserId, toUserId);
+        mCarUserService.onUserLifecycleEvent(eventType, timestampMs, fromUserId, toUserId);
     }
 
     @Override
-    public void onFirstUserUnlocked(int userId, long timestampMs, long duration) {
-        mUserMetrics.logFirstUnlockedUser(userId, timestampMs, duration);
+    public void onFirstUserUnlocked(int userId, long timestampMs, long duration,
+            int halResponseTime) {
+        mCarUserService.onFirstUserUnlocked(userId, timestampMs, duration, halResponseTime);
     }
 
     @Override
@@ -656,7 +651,6 @@ public class ICarImpl extends ICar.Stub {
             writer.println("*Dump car service*");
             dumpAllServices(writer);
             dumpAllHals(writer);
-            mUserMetrics.dump(writer);
         } else if ("--list".equals(args[0])) {
             dumpListOfServices(writer);
             return;
@@ -690,9 +684,9 @@ public class ICarImpl extends ICar.Stub {
             mHal.dumpListHals(writer);
             return;
         } else if ("--user-metrics".equals(args[0])) {
-            mUserMetrics.dump(writer);
+            mCarUserService.dumpUserMetrics(writer);
         } else if ("--first-user-metrics".equals(args[0])) {
-            mUserMetrics.dumpFirstUserUnlockDuration(writer);
+            mCarUserService.dumpFirstUserUnlockDuration(writer);
         } else if ("--help".equals(args[0])) {
             showDumpHelp(writer);
         } else if (Build.IS_USERDEBUG || Build.IS_ENG) {
