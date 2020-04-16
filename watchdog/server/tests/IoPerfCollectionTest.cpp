@@ -324,7 +324,69 @@ TEST(IoPerfCollectionTest, TestValidCollectionSequence) {
             << "Subsequent boot-time collection didn't happen at " << kTestBootInterval.count()
             << " seconds interval";
 
-    ASSERT_EQ(collector->mBoottimeCollection.records.size(), 2);
+    // #3 Last boot-time collection
+    ret = collector->onBootFinished();
+    ASSERT_TRUE(ret) << ret.error().message();
+    uidIoStatsStub->push({
+            {1009, {.uid = 1009, .ios = {0, 7000, 0, 8000, 0, 50}}},
+    });
+    procStatStub->push(ProcStatInfo{
+            /*stats=*/{1400, 1900, 2900, 8000, /*ioWaitTime=*/5700, 700, 500, 0, 0, 300},
+            /*runnableCnt=*/10,
+            /*ioBlockedCnt=*/8,
+    });
+    procPidStatStub->push({{.tgid = 100,
+                            .uid = 1009,
+                            .process = {.pid = 100,
+                                        .comm = "disk I/O",
+                                        .state = "D",
+                                        .ppid = 1,
+                                        .majorFaults = 5000,
+                                        .numThreads = 1,
+                                        .startTime = 234},
+                            .threads = {{100,
+                                         {.pid = 100,
+                                          .comm = "disk I/O",
+                                          .state = "D",
+                                          .ppid = 1,
+                                          .majorFaults = 3000,
+                                          .numThreads = 1,
+                                          .startTime = 234}},
+                                        {200,
+                                         {.pid = 200,
+                                          .comm = "disk I/O",
+                                          .state = "D",
+                                          .ppid = 1,
+                                          .majorFaults = 2000,
+                                          .numThreads = 1,
+                                          .startTime = 1234}}}}});
+    IoPerfRecord bootExpectedThird = {
+            .uidIoPerfData = {.topNReads = {{.userId = 0,
+                                             .packageName = "mount",
+                                             .bytes = {0, 7000},
+                                             .fsync{0, 50}}},
+                              .topNWrites = {{.userId = 0,
+                                              .packageName = "mount",
+                                              .bytes = {0, 8000},
+                                              .fsync{0, 50}}},
+                              .total = {{0, 7000}, {0, 8000}, {0, 50}}},
+            .systemIoPerfData = {.cpuIoWaitTime = 5700,
+                                 .totalCpuTime = 21400,
+                                 .ioBlockedProcessesCnt = 8,
+                                 .totalProcessesCnt = 18},
+            .processIoPerfData = {.topNIoBlockedUids = {{0, "mount", 2}},
+                                  .topNIoBlockedUidsTotalTaskCnt = {2},
+                                  .topNMajorFaults = {{0, "mount", 5000}},
+                                  .totalMajorFaults = 5000,
+                                  .majorFaultsPercentChange = ((5000.0 - 11000.0) / 11000.0) * 100},
+    };
+    ret = looperStub->pollCache();
+    ASSERT_TRUE(ret) << ret.error().message();
+    ASSERT_EQ(looperStub->numSecondsElapsed(), 0)
+            << "Last boot-time collection didn't happen immediately after receiving boot complete "
+            << "notification";
+
+    ASSERT_EQ(collector->mBoottimeCollection.records.size(), 3);
     ASSERT_TRUE(isEqual(collector->mBoottimeCollection.records[0], bootExpectedFirst))
             << "Boot-time collection record 1 doesn't match.\nExpected:\n"
             << toString(bootExpectedFirst) << "\nActual:\n"
@@ -333,10 +395,12 @@ TEST(IoPerfCollectionTest, TestValidCollectionSequence) {
             << "Boot-time collection record 2 doesn't match.\nExpected:\n"
             << toString(bootExpectedSecond) << "\nActual:\n"
             << toString(collector->mBoottimeCollection.records[1]);
+    ASSERT_TRUE(isEqual(collector->mBoottimeCollection.records[2], bootExpectedThird))
+            << "Boot-time collection record 3 doesn't match.\nExpected:\n"
+            << toString(bootExpectedSecond) << "\nActual:\n"
+            << toString(collector->mBoottimeCollection.records[2]);
 
-    // #3 Periodic collection
-    ret = collector->onBootFinished();
-    ASSERT_TRUE(ret) << ret.error().message();
+    // #4 Periodic collection
     uidIoStatsStub->push({
             {1009, {.uid = 1009, .ios = {0, 4000, 0, 6000, 0, 100}}},
     });
@@ -388,13 +452,15 @@ TEST(IoPerfCollectionTest, TestValidCollectionSequence) {
                                   .topNIoBlockedUidsTotalTaskCnt = {2},
                                   .topNMajorFaults = {{0, "mount", 4100}},
                                   .totalMajorFaults = 4100,
-                                  .majorFaultsPercentChange = ((4100.0 - 11000.0) / 11000.0) * 100},
+                                  .majorFaultsPercentChange = ((4100.0 - 5000.0) / 5000.0) * 100},
     };
     ret = looperStub->pollCache();
     ASSERT_TRUE(ret) << ret.error().message();
-    ASSERT_EQ(looperStub->numSecondsElapsed(), 0) << "Periodic collection didn't start immediately";
+    ASSERT_EQ(looperStub->numSecondsElapsed(), kTestPeriodicInterval.count())
+            << "First periodic collection didn't happen at " << kTestPeriodicInterval.count()
+            << " seconds interval";
 
-    // #4 Periodic collection
+    // #5 Periodic collection
     uidIoStatsStub->push({
             {1009, {.uid = 1009, .ios = {0, 3000, 0, 5000, 0, 800}}},
     });
@@ -464,7 +530,7 @@ TEST(IoPerfCollectionTest, TestValidCollectionSequence) {
             << toString(periodicExpectedSecond) << "\nActual:\n"
             << toString(collector->mPeriodicCollection.records[1]);
 
-    // #4 Custom collection
+    // #6 Custom collection
     Vector<String16> args;
     args.push_back(String16(kStartCustomCollectionFlag));
     args.push_back(String16(kIntervalFlag));
@@ -532,7 +598,7 @@ TEST(IoPerfCollectionTest, TestValidCollectionSequence) {
     ASSERT_TRUE(ret) << ret.error().message();
     ASSERT_EQ(looperStub->numSecondsElapsed(), 0) << "Custom collection didn't start immediately";
 
-    // #5 Custom collection
+    // #7 Custom collection
     uidIoStatsStub->push({
             {1009, {.uid = 1009, .ios = {0, 14000, 0, 16000, 0, 100}}},
     });
@@ -603,7 +669,7 @@ TEST(IoPerfCollectionTest, TestValidCollectionSequence) {
             << toString(customExpectedSecond) << "\nActual:\n"
             << toString(collector->mCustomCollection.records[1]);
 
-    // #6 Switch to periodic collection
+    // #8 Switch to periodic collection
     args.clear();
     args.push_back(String16(kEndCustomCollectionFlag));
     TemporaryFile customDump;
@@ -685,7 +751,7 @@ TEST(IoPerfCollectionTest, TestValidCollectionSequence) {
             << toString(periodicExpectedThird) << "\nActual:\n"
             << toString(collector->mPeriodicCollection.records[1]);
 
-    ASSERT_EQ(collector->mBoottimeCollection.records.size(), 2)
+    ASSERT_EQ(collector->mBoottimeCollection.records.size(), 3)
             << "Boot-time records not persisted until collector termination";
 
     TemporaryFile bugreportDump;

@@ -121,8 +121,11 @@ enum CollectionEvent {
 };
 
 enum SwitchEvent {
+    // Ends boot-time collection by collecting the last boot-time record and switching the
+    // collection event to periodic collection.
+    END_BOOTTIME_COLLECTION = CollectionEvent::LAST_EVENT + 1,
     // Ends custom collection, discards collected data and starts periodic collection.
-    END_CUSTOM_COLLECTION = CollectionEvent::LAST_EVENT + 1,
+    END_CUSTOM_COLLECTION
 };
 
 static inline std::string toString(CollectionEvent event) {
