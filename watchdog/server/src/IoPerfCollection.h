@@ -77,20 +77,15 @@ std::string toString(const SystemIoPerfData& perfData);
 
 // Performance data collected from the `/proc/[pid]/stat` and `/proc/[pid]/task/[tid]/stat` files.
 struct ProcessIoPerfData {
-    struct UidStats {
+    struct Stats {
         userid_t userId = 0;
         std::string packageName;
         uint64_t count = 0;
-        struct ProcessStats {
-            std::string comm = "";
-            uint64_t count = 0;
-        };
-        std::vector<ProcessStats> topNProcesses = {};
     };
-    std::vector<UidStats> topNIoBlockedUids = {};
+    std::vector<Stats> topNIoBlockedUids = {};
     // Total # of tasks owned by each UID in |topNIoBlockedUids|.
     std::vector<uint64_t> topNIoBlockedUidsTotalTaskCnt = {};
-    std::vector<UidStats> topNMajorFaultUids = {};
+    std::vector<Stats> topNMajorFaults = {};
     uint64_t totalMajorFaults = 0;
     // Percentage of increase/decrease in the major page faults since last collection.
     double majorFaultsPercentChange = 0.0;
