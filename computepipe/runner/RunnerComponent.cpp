@@ -49,6 +49,7 @@ std::string ClientConfig::getSerializedClientConfig() const {
     config.set_input_config_id(mInputConfigId);
     config.set_termination_id(mTerminationId);
     config.set_offload_id(mOffloadId);
+    config.set_profiling_type(mProfilingType);
     for (auto it : mOutputConfigs) {
         (*config.mutable_output_options())[it.first] = it.second;
     }
