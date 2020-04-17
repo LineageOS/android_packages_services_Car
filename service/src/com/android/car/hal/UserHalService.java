@@ -138,7 +138,7 @@ public final class UserHalService extends HalServiceBase {
                     break;
                 case SWITCH_USER:
                     mHandler.sendMessage(obtainMessage(
-                            UserHalService::handleOnSwicthUserResponse, this, value));
+                            UserHalService::handleOnSwitchUserResponse, this, value));
                     break;
                 default:
                     Slog.w(TAG, "received unsupported event from HAL: " + value);
@@ -418,7 +418,7 @@ public final class UserHalService extends HalServiceBase {
         callback.onResponse(HalCallback.STATUS_OK, response);
     }
 
-    private void handleOnSwicthUserResponse(VehiclePropValue value) {
+    private void handleOnSwitchUserResponse(VehiclePropValue value) {
         int requestId = value.value.int32Values.get(0);
         HalCallback<SwitchUserResponse> callback =
                 handleGetPendingCallback(requestId, SwitchUserResponse.class);
