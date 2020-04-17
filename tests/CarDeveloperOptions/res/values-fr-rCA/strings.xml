@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Agrandissez ou réduisez le texte affiché."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Rapetisser"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Agrandir"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Exemple de texte"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"Le Magicien d\'Oz"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"Chapitre 11 : La merveilleuse cité d\'émeraude d\'Oz"</string>
@@ -212,7 +211,7 @@
     <string name="proxy_url_title" msgid="882042361706435904">"URL config. auto mand. : "</string>
     <string name="radio_info_dl_kbps" msgid="2903778264453410272">"Bande passante de téléchargement (kb/s) :"</string>
     <string name="radio_info_ul_kbps" msgid="3802245899811732716">"Bande passante de téléversement (kb/s) :"</string>
-    <string name="radio_info_signal_location_label" msgid="6788144906873498013">"Données de la position de la cellule (discontinuées) :"</string>
+    <string name="radio_info_signal_location_label" msgid="6788144906873498013">"Données de la position de la cellule (obsolètes) :"</string>
     <string name="radio_info_phy_chan_config" msgid="1184401689381480522">"Configuration du canal physique LTE :"</string>
     <string name="radio_info_cell_info_refresh_rate" msgid="3557422342215875913">"Taux d\'actualisation des données de la cellule :"</string>
     <string name="radio_info_cellinfo_label" msgid="632796561627452215">"Données des mesures de toutes les cellules :"</string>
@@ -419,7 +418,7 @@
     <string name="security_settings_face_enroll_done" msgid="5409739233373490971">"Terminé"</string>
     <string name="security_settings_face_settings_use_face_category" msgid="1586532139528115416">"Util. votre visage pour"</string>
     <string name="security_settings_face_settings_use_face_unlock_phone" msgid="318274519126401671">"Déverr. l\'appareil"</string>
-    <string name="security_settings_face_settings_use_face_for_apps" msgid="5479369083370664351">"Connex. et paiements dans applis"</string>
+    <string name="security_settings_face_settings_use_face_for_apps" msgid="5479369083370664351">"Connexion applis et paiements"</string>
     <string name="security_settings_face_settings_require_attention" msgid="2755140150841557225">"Yeux ouverts pour déverrouillage"</string>
     <string name="security_settings_face_settings_require_attention_details" msgid="2557060433599942587">"Lorsque vous utilisez l\'authent. visage, vos yeux doivent être ouverts"</string>
     <string name="security_settings_face_settings_require_confirmation" msgid="7312024271060416438">"Toujours demander une confirmation"</string>
@@ -596,20 +595,20 @@
     <string name="unlock_disable_lock_title" msgid="3508492427073600294">"Désactiver le verrouillage de l\'écran"</string>
     <string name="unlock_disable_frp_warning_title" msgid="5858589970505254193">"Supprimer la protection de l\'appareil?"</string>
     <string name="unlock_disable_frp_warning_title_profile" msgid="3814123014295965266">"Supprimer la protection du profil?"</string>
-    <string name="unlock_disable_frp_warning_content_pattern" msgid="1843950215687159135">"Les fonctions de protection de l\'appareil ne fonctionneront pas sans votre schéma."</string>
-    <string name="unlock_disable_frp_warning_content_pattern_fingerprint" msgid="8846957650251741548">"Les fonctions de protection de l\'appareil ne fonctionneront pas sans votre schéma.<xliff:g id="EMPTY_LINE">
+    <string name="unlock_disable_frp_warning_content_pattern" msgid="1843950215687159135">"Les fonctionnalités de protection de l\'appareil ne fonctionneront pas sans votre schéma."</string>
+    <string name="unlock_disable_frp_warning_content_pattern_fingerprint" msgid="8846957650251741548">"Les fonctionnalités de protection de l\'appareil ne fonctionneront pas sans votre schéma.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>Vos empreintes digitales enregistrées seront également supprimées de cet appareil et vous ne pourrez pas déverrouiller votre téléphone, autoriser des achats ni vous connecter à des applications avec celles-ci."</string>
-    <string name="unlock_disable_frp_warning_content_pin" msgid="6760473271034592796">"Les fonctions de protection de l\'appareil ne fonctionneront pas sans votre NIP."</string>
-    <string name="unlock_disable_frp_warning_content_pin_fingerprint" msgid="4384632309103635233">"Les fonctions de protection de l\'appareil ne fonctionneront pas sans votre NIP.<xliff:g id="EMPTY_LINE">
+    <string name="unlock_disable_frp_warning_content_pin" msgid="6760473271034592796">"Les fonctionnalités de protection de l\'appareil ne fonctionneront pas sans votre NIP."</string>
+    <string name="unlock_disable_frp_warning_content_pin_fingerprint" msgid="4384632309103635233">"Les fonctionnalités de protection de l\'appareil ne fonctionneront pas sans votre NIP.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>Vos empreintes digitales enregistrées seront également supprimées de cet appareil et vous ne pourrez pas déverrouiller votre téléphone, autoriser des achats ni vous connecter à des applications avec celles-ci."</string>
-    <string name="unlock_disable_frp_warning_content_password" msgid="854665587186358170">"Les fonctions de protection de l\'appareil ne fonctionneront pas sans votre mot de passe."</string>
-    <string name="unlock_disable_frp_warning_content_password_fingerprint" msgid="218143910981979545">"Les fonctions de protection de l\'appareil ne fonctionneront pas sans votre mot de passe. <xliff:g id="EMPTY_LINE">
+    <string name="unlock_disable_frp_warning_content_password" msgid="854665587186358170">"Les fonctionnalités de protection de l\'appareil ne fonctionneront pas sans votre mot de passe."</string>
+    <string name="unlock_disable_frp_warning_content_password_fingerprint" msgid="218143910981979545">"Les fonctionnalités de protection de l\'appareil ne fonctionneront pas sans votre mot de passe. <xliff:g id="EMPTY_LINE">
 
 </xliff:g>Vos empreintes digitales enregistrées seront également supprimées de cet appareil et vous ne pourrez pas déverrouiller votre téléphone, autoriser des achats ni vous connecter à des applications avec celles-ci."</string>
-    <string name="unlock_disable_frp_warning_content_unknown" msgid="3570135744390201244">"Les fonctions de protection de l\'appareil ne fonctionneront pas sans votre verrouillage d\'écran."</string>
-    <string name="unlock_disable_frp_warning_content_unknown_fingerprint" msgid="5775815077478538855">"Les fonctions de protection de l\'appareil ne fonctionneront pas sans votre verrouillage d\'écran.<xliff:g id="EMPTY_LINE">
+    <string name="unlock_disable_frp_warning_content_unknown" msgid="3570135744390201244">"Les fonctionnalités de protection de l\'appareil ne fonctionneront pas sans votre verrouillage d\'écran."</string>
+    <string name="unlock_disable_frp_warning_content_unknown_fingerprint" msgid="5775815077478538855">"Les fonctionnalités de protection de l\'appareil ne fonctionneront pas sans votre verrouillage d\'écran.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>Vos empreintes digitales enregistrées seront également supprimées de cet appareil et vous ne pourrez pas déverrouiller votre téléphone, autoriser des achats ni vous connecter à des applications avec celles-ci."</string>
     <string name="unlock_disable_frp_warning_content_pattern_profile" msgid="2369992898062808499">"Les fonctions de protection du profil ne fonctionneront pas sans votre schéma."</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"Cellulaire"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Si aucun réseau Wi‑Fi n\'est accessible, utiliser le réseau cellulaire"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Si le réseau cellulaire n\'est pas accessible, utiliser le Wi‑Fi"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Appeler sur réseau Wi‑Fi. Si le Wi‑Fi est interr., l\'appel prendra fin."</string>
@@ -2275,9 +2277,9 @@
     <string name="battery_tip_smart_battery_title" product="tablet" msgid="203494973250969040">"Améliorer l\'autonomie de la tablette"</string>
     <string name="battery_tip_smart_battery_title" product="device" msgid="7419448992583346364">"Améliorer l\'autonomie de l\'appareil"</string>
     <string name="battery_tip_smart_battery_summary" msgid="5344821856478265778">"Activer le gestionnaire de pile"</string>
-    <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"Activer la fonction Économie d\'énergie"</string>
+    <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"Activer la fonction Économiseur de pile"</string>
     <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"La pile pourrait s\'épuiser plus tôt que d\'habitude"</string>
-    <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"La fonction Économie d\'énergie est activée"</string>
+    <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"Économiseur de pile activé"</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"Certaines fonctionnalités pourraient être limitées"</string>
     <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"Le téléphone a été sollicité plus que d\'habitude"</string>
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"La tablette a été sollicitée plus que d\'habitude"</string>
@@ -2315,9 +2317,9 @@
     <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"Cette application pourra utiliser la pile en arrière-plan. Cela pourrait épuiser la pile plus rapidement."</string>
     <string name="battery_tip_unrestrict_app_dialog_ok" msgid="9154938931448151479">"Supprimer"</string>
     <string name="battery_tip_unrestrict_app_dialog_cancel" msgid="7331148618292397166">"Annuler"</string>
-    <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"Vos applications utilisent une quantité normale d\'énergie. Si les applications utilisent trop d\'énergie, votre téléphone vous suggérera des actions à essayer.\n\nVous pouvez toujours activer la fonction Économie d\'énergie si la pile est trop faible."</string>
-    <string name="battery_tip_dialog_summary_message" product="tablet" msgid="1721081030632329647">"Vos applications utilisent une quantité normale d\'énergie. Si les applications utilisent trop d\'énergie, votre tablette vous suggérera des actions à essayer.\n\nVous pouvez toujours activer la fonction Économie d\'énergie si la pile est trop faible."</string>
-    <string name="battery_tip_dialog_summary_message" product="device" msgid="146872407040848465">"Vos applications utilisent une quantité normale d\'énergie. Si les applications utilisent trop d\'énergie, votre appareil vous suggérera des actions à essayer.\n\nVous pouvez toujours activer la fonction Économie d\'énergie si la pile est trop faible."</string>
+    <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"Vos applications utilisent une quantité normale d\'énergie. Si les applications utilisent trop d\'énergie, votre téléphone vous suggérera des actions à essayer.\n\nVous pouvez toujours activer la fonction Économiseur de pile si la pile est trop faible."</string>
+    <string name="battery_tip_dialog_summary_message" product="tablet" msgid="1721081030632329647">"Vos applications utilisent une quantité normale d\'énergie. Si les applications utilisent trop d\'énergie, votre tablette vous suggérera des actions à essayer.\n\nVous pouvez toujours activer la fonction Économiseur de pile si la pile est trop faible."</string>
+    <string name="battery_tip_dialog_summary_message" product="device" msgid="146872407040848465">"Vos applications utilisent une quantité normale d\'énergie. Si les applications utilisent trop d\'énergie, votre appareil vous suggérera des actions à essayer.\n\nVous pouvez toujours activer la fonction Économiseur de pile si la pile est trop faible."</string>
     <string name="smart_battery_manager_title" msgid="5744035036663849515">"Gestionnaire de pile"</string>
     <string name="smart_battery_title" msgid="4919670408532804351">"Gérer les applications automatiquement"</string>
     <string name="smart_battery_summary" msgid="640027046471198174">"Restreindre l\'usage de la pile pour les applications que vous n\'utilisez pas souvent"</string>
@@ -2444,7 +2446,7 @@
     <string name="process_kernel_label" msgid="4175060316414593760">"Système d\'exploitation Android"</string>
     <string name="process_mediaserver_label" msgid="8591722404282619153">"Serveur multimédia"</string>
     <string name="process_dex2oat_label" msgid="8249082119748556085">"Optimisation des applications"</string>
-    <string name="battery_saver" msgid="3989710213758938398">"Économie d\'énergie"</string>
+    <string name="battery_saver" msgid="3989710213758938398">"Économiseur de pile"</string>
     <string name="battery_saver_auto_title" msgid="4158659069641849952">"Activer automatiquement"</string>
     <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"Aucun horaire"</string>
     <string name="battery_saver_auto_routine" msgid="886514412067906980">"Selon votre routine"</string>
@@ -2749,8 +2751,8 @@
     <string name="vpn_ipsec_server_cert" msgid="3066696943831527934">"Certificat de serveur IPSec"</string>
     <string name="vpn_show_options" msgid="7672984921872882859">"Afficher les options avancées"</string>
     <string name="vpn_search_domains" msgid="8469394307693909080">"Domaines de recherche DNS"</string>
-    <string name="vpn_dns_servers" msgid="3017453300909321239">"Serveurs DNS (Ex. 8.8.8.8)"</string>
-    <string name="vpn_routes" msgid="3393989650778663742">"Itinéraires transfert (Ex. 10.0.0.0/8)"</string>
+    <string name="vpn_dns_servers" msgid="3017453300909321239">"Serveurs DNS (p. ex. 8.8.8.8)"</string>
+    <string name="vpn_routes" msgid="3393989650778663742">"Itinéraires transfert (p. ex. 10.0.0.0/8)"</string>
     <string name="vpn_username" msgid="5357878823189445042">"Nom d\'utilisateur"</string>
     <string name="vpn_password" msgid="5325943601523662246">"Mot de passe"</string>
     <string name="vpn_save_login" msgid="6215503139606646915">"Enregistrer les informations de compte"</string>
@@ -3724,7 +3726,7 @@
     <string name="sharing_remote_bugreport_dialog_message" msgid="3814787466701526359">"Ce rapport de bogue est partagé avec votre administrateur informatique. Pour en savoir plus, communiquez avec lui."</string>
     <string name="share_remote_bugreport_action" msgid="8600797271670537888">"Partager"</string>
     <string name="decline_remote_bugreport_action" msgid="706319275774199033">"Refuser"</string>
-    <string name="usb_use_charging_only" msgid="2344625733377110164">"Pas de transfert de données"</string>
+    <string name="usb_use_charging_only" msgid="2344625733377110164">"Aucun transfert de données"</string>
     <string name="usb_use_charging_only_desc" msgid="3283518562582478950">"Charger cet appareil seulement"</string>
     <string name="usb_use_power_only" msgid="6595783381323810697">"Charger l\'appareil connecté"</string>
     <string name="usb_use_file_transfers" msgid="6153021302176151884">"Transfert de fichiers"</string>
@@ -3891,7 +3893,7 @@
     <string name="condition_zen_title" msgid="2128184708916052585">"Mode Ne pas déranger activé"</string>
     <string name="condition_zen_summary_phone_muted" msgid="4396050395522974654">"Téléphone en sourdine"</string>
     <string name="condition_zen_summary_with_exceptions" msgid="3435216391993785818">"Avec des exceptions"</string>
-    <string name="condition_battery_title" msgid="6704870010912986274">"Économie d\'énergie activée"</string>
+    <string name="condition_battery_title" msgid="6704870010912986274">"Économiseur de pile activé"</string>
     <string name="condition_battery_summary" msgid="1236078243905690620">"Fonctionnalités restreintes"</string>
     <string name="condition_cellular_title" msgid="6605277435894307935">"Données cellulaires désactivées"</string>
     <string name="condition_cellular_summary" msgid="3607459310548343777">"Internet est uniquement accessible par Wi‑Fi"</string>
@@ -3940,7 +3942,7 @@
     <string name="cell_data_template" msgid="5473177306229738078">"Données cellulaires utilisées : <xliff:g id="AMOUNT">^1</xliff:g>"</string>
     <string name="wifi_data_template" msgid="3146090439147042068">"Données Wi-Fi : <xliff:g id="AMOUNT">^1</xliff:g>"</string>
     <string name="ethernet_data_template" msgid="6414118030827090119">"Données Ethernet : <xliff:g id="AMOUNT">^1</xliff:g>"</string>
-    <string name="billing_cycle" msgid="5740717948341713190">"Avertissement et limites données"</string>
+    <string name="billing_cycle" msgid="5740717948341713190">"Avertissement et limites de données"</string>
     <string name="app_usage_cycle" msgid="213483325132959663">"Cycle d\'util. données d\'appli."</string>
     <string name="cell_data_warning" msgid="8902740337286652689">"Seuil à partir duquel un avertissement relatif à la consommation des données est envoyé : <xliff:g id="ID_1">^1</xliff:g>"</string>
     <string name="cell_data_limit" msgid="3175933829235314233">"Limite d\'utilisation de données : <xliff:g id="ID_1">^1</xliff:g>"</string>
@@ -4308,7 +4310,7 @@
     <string name="change_wifi_state_title" msgid="5140754955787584174">"Gestion du Wi-Fi"</string>
     <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"Autoriser l\'application à gérer le Wi-Fi"</string>
     <string name="change_wifi_state_app_detail_summary" msgid="614854822469259860">"Autorisez cette application à activer ou à désactiver le Wi-Fi, à rechercher les réseaux Wi-Fi et à s\'y connecter, à ajouter et à supprimer des réseaux ou à créer un point d\'accès local uniquement"</string>
-    <string name="media_output_title" msgid="8710632337456601848">"Faire jouer les médias vers"</string>
+    <string name="media_output_title" msgid="8710632337456601848">"Faire jouer les contenus multimédias sur"</string>
     <string name="media_output_default_summary" msgid="3159237976830415584">"Cet appareil"</string>
     <string name="media_output_summary" product="default" msgid="6294261435613551178">"Téléphone"</string>
     <string name="media_output_summary" product="tablet" msgid="6672024060360538526">"Tablette"</string>

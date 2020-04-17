@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"ਸਕ੍ਰੀਨ \'ਤੇ ਦਿਖਦੀ ਲਿਖਤ ਨੂੰ ਛੋਟਾ ਜਾਂ ਵੱਡਾ ਕਰੋ।"</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"ਛੋਟਾ ਕਰੋ"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"ਵੱਡਾ ਕਰੋ"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"ਨਮੂਨਾ ਲਿਖਤ"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"ਔਜ਼ ਦਾ ਨਿਰਾਲਾ ਵਿਜ਼ਾਰਡ"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"ਪਾਠ 11: ਔਜ਼ ਦਾ ਹੀਰਿਆਂ-ਪੰਨਿਆਂ ਵਾਲਾ ਨਿਰਾਲਾ ਸ਼ਹਿਰ"</string>
@@ -195,7 +194,7 @@
     <string name="intent_sender_resource_label" msgid="8002433688075847091">"<xliff:g id="RESOURCE">Resource</xliff:g>:"</string>
     <string name="intent_sender_account_label" msgid="7904284551281213567">"ਖਾਤਾ:"</string>
     <string name="proxy_settings_title" msgid="6014901859338211713">"ਪ੍ਰੌਕਸੀ"</string>
-    <string name="proxy_clear_text" msgid="498317431076294101">"ਹਟਾਓ"</string>
+    <string name="proxy_clear_text" msgid="498317431076294101">"ਕਲੀਅਰ ਕਰੋ"</string>
     <string name="proxy_port_label" msgid="8285157632538848509">"ਪ੍ਰੌਕਸੀ ਪੋਰਟ"</string>
     <string name="proxy_exclusionlist_label" msgid="8179084955547941904">"ਇਸ ਲਈ ਪ੍ਰੌਕਸੀ ਬਾਈਪਾਸ ਕਰੋ"</string>
     <string name="proxy_defaultView_text" msgid="5785775257042403261">"ਡਿਫੌਲਟਸ ਰੀਸਟੋਰ ਕਰੋ"</string>
@@ -460,15 +459,15 @@
     <string name="go_back_button_label" msgid="7310586887969860472">"ਵਾਪਸ ਜਾਓ"</string>
     <string name="skip_lock_screen_dialog_button_label" msgid="6706047245716780006">"ਛੱਡੋ"</string>
     <string name="cancel_lock_screen_dialog_button_label" msgid="2534925227627658819">"ਰੱਦ ਕਰੋ"</string>
-    <string name="security_settings_fingerprint_enroll_find_sensor_title" msgid="8909829699273726469">"ਸੈਂਸਰ ਨੂੰ ਸਪੱਰਸ਼ ਕਰੋ"</string>
+    <string name="security_settings_fingerprint_enroll_find_sensor_title" msgid="8909829699273726469">"ਸੈਂਸਰ ਨੂੰ ਸਪਰਸ਼ ਕਰੋ"</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_message" msgid="581120963079780740">"ਇਹ ਤੁਹਾਡੇ ਫ਼ੋਨ ਦੇ ਪਿਛਲੇ ਪਾਸੇ ਹੈ। ਆਪਣੀ ਪਹਿਲੀ ਉਂਗਲ ਦੀ ਵਰਤੋਂ ਕਰੋ।"</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_content_description" msgid="7835824123269738540">"ਡੀਵਾਈਸ ਵਾਲੀ ਤਸਵੀਰ ਅਤੇ ਫਿੰਗਰਪ੍ਰਿੰਟ ਸੈਂਸਰ ਟਿਕਾਣਾ"</string>
     <string name="security_settings_fingerprint_enroll_dialog_name_label" msgid="3519748398694308901">"ਨਾਮ"</string>
     <string name="security_settings_fingerprint_enroll_dialog_ok" msgid="3428927518029038956">"ਠੀਕ"</string>
     <string name="security_settings_fingerprint_enroll_dialog_delete" msgid="4312297515772004580">"ਮਿਟਾਓ"</string>
-    <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"ਸੈਂਸਰ ਨੂੰ ਸਪੱਰਸ਼ ਕਰੋ"</string>
+    <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"ਸੈਂਸਰ ਨੂੰ ਸਪਰਸ਼ ਕਰੋ"</string>
     <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"ਆਪਣੀ ਉਂਗਲ ਨੂੰ ਸੈਂਸਰ ’ਤੇ ਰੱਖੋ ਅਤੇ ਇੱਕ ਥਰਥਰਾਹਟ ਮਹਿਸੂਸ ਹੋਣ ਤੋਂ ਬਾਅਦ ਚੁੱਕ ਲਵੋ"</string>
-    <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"ਚੁੱਕੋ, ਫਿਰ ਦੁਬਾਰਾ ਸਪੱਰਸ਼ ਕਰੋ"</string>
+    <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"ਚੁੱਕੋ, ਫਿਰ ਦੁਬਾਰਾ ਸਪਰਸ਼ ਕਰੋ"</string>
     <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"ਆਪਣੇ ਫਿੰਗਰਪ੍ਰਿੰਟ ਦੇ ਵੱਖ-ਵੱਖ ਭਾਗਾਂ ਨੂੰ ਸ਼ਾਮਲ ਕਰਨ ਲਈ ਆਪਣੀ ਉਂਗਲ ਨੂੰ ਰੱਖਣਾ-ਚੁੱਕਣਾ ਜਾਰੀ ਰੱਖੋ"</string>
     <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"ਫਿੰਗਰਪ੍ਰਿੰਟ ਸ਼ਾਮਲ ਹੋ ਗਿਆ"</string>
     <string name="security_settings_fingerprint_enroll_finish_message" msgid="5862643337893923347">"ਜਦ ਤੁਹਾਨੂੰ ਇਹ ਪ੍ਰਤੀਕ ਦਿਖਾਈ ਦਿੰਦਾ ਹੈ, ਤਾਂ ਪਛਾਣ ਵਾਸਤੇ ਜਾਂ ਖਰੀਦਾਂ ਨੂੰ ਮਨਜ਼ੂਰ ਕਰਨ ਲਈ ਆਪਣੇ ਫਿੰਗਰਪ੍ਰਿੰਟ ਦੀ ਵਰਤੋਂ ਕਰੋ"</string>
@@ -488,21 +487,21 @@
     <string name="security_settings_fingerprint_enroll_done" msgid="4111289529758845926">"ਹੋ ਗਿਆ"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_title" msgid="7410398793283818609">"ਓਹੋ, ਉਹ ਸੈਂਸਰ ਨਹੀਂ ਹੈ"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_message" msgid="7192100314788868883">"ਫ਼ੋਨ ਦੇ ਪਿਛਲੇ ਪਾਸੇ ਸੈਂਸਰ ਨੂੰ ਸਪਰਸ਼ ਕਰੋ। ਪਹਿਲੀ ਉਂਗਲ ਵਰਤੋ।"</string>
-    <string name="security_settings_fingerprint_enroll_error_dialog_title" msgid="1415709674142168770">"ਦਾਖਲਾ ਪੂਰਾ ਨਾ ਕੀਤਾ ਗਿਆ"</string>
+    <string name="security_settings_fingerprint_enroll_error_dialog_title" msgid="1415709674142168770">"ਦਾਖਲਾ ਪੂਰਾ ਨਹੀਂ ਹੋਇਆ"</string>
     <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"ਫਿੰਗਰਪ੍ਰਿੰਟ ਦਾਖ਼ਲੇ ਦੀ ਸਮਾਂ ਸੀਮਾ ਪੂਰੀ ਹੋ ਗਈ। ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।"</string>
     <string name="security_settings_fingerprint_enroll_error_generic_dialog_message" msgid="7896295829530444810">"ਫਿੰਗਰਪ੍ਰਿੰਟ ਦਾਖ਼ਲੇ ਨੇ ਕੰਮ ਨਹੀਂ ਕੀਤਾ। ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ ਜਾਂ ਕੋਈ ਵੱਖਰੀ ਉਂਗਲ ਉਪਯੋਗ ਕਰੋ।"</string>
     <string name="fingerprint_enroll_button_add" msgid="6335782936874996629">"ਇੱਕ ਹੋਰ ਸ਼ਾਮਲ ਕਰੋ"</string>
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"ਅੱਗੇ"</string>
     <string name="security_settings_fingerprint_enroll_disclaimer" msgid="5831834311961551423">"ਤੁਹਾਡੇ ਫ਼ੋਨ ਨੂੰ ਅਣਲਾਕ ਕਰਨ ਤੋਂ ਇਲਾਵਾ, ਤੁਸੀਂ ਖਰੀਦਾਰੀਆਂ ਅਤੇ ਐਪ ਪਹੁੰਚ ਨੂੰ ਪ੍ਰਮਾਣਿਤ ਕਰਨ ਲਈ ਆਪਣੇ ਫਿੰਗਰਪ੍ਰਿੰਟ ਦੀ ਵਰਤੋਂ ਵੀ ਕਰ ਸਕਦੇ ਹੋ। "<annotation id="url">"ਹੋਰ ਜਾਣੋ"</annotation></string>
     <string name="security_settings_fingerprint_enroll_disclaimer_lockscreen_disabled" msgid="7954742554236652690">" ਸਕ੍ਰੀਨ ਲਾਕ ਵਿਕਲਪ ਨੂੰ ਅਯੋਗ ਬਣਾਇਆ ਗਿਆ ਹੈ। ਹੋਰ ਜਾਣਕਾਰੀ ਲਈ, ਆਪਣੀ ਸੰਸਥਾ ਦੇ ਪ੍ਰਸ਼ਾਸਕ ਨਾਲ ਸੰਪਰਕ ਕਰੋ। "<annotation id="admin_details">"ਹੋਰ ਵੇਰਵੇ"</annotation>\n\n"ਤੁਸੀਂ ਖਰੀਦਾਂ ਨੂੰ ਅਧਿਕਾਰਿਤ ਕਰਨ ਅਤੇ ਐਪ \'ਤੇ ਪਹੁੰਚ ਕਰਨ ਲਈ ਹਾਲੇ ਵੀ ਆਪਣੇ ਫਿੰਗਰਪ੍ਰਿੰਟ ਦੀ ਵਰਤੋਂ ਕਰ ਸਕਦੇ ਹੋ। "<annotation id="url">"ਹੋਰ ਜਾਣੋ"</annotation></string>
-    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"ਉਂਗਲ ਚੁੱਕੋ, ਫਿਰ ਦੁਬਾਰਾ ਸੈਂਸਰ ਨੂੰ ਸਪੱਰਸ਼ ਕਰੋ"</string>
+    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"ਉਂਗਲ ਚੁੱਕੋ, ਫਿਰ ਦੁਬਾਰਾ ਸੈਂਸਰ ਨੂੰ ਸਪਰਸ਼ ਕਰੋ"</string>
     <string name="fingerprint_add_max" msgid="2939393314646115661">"ਤੁਸੀਂ <xliff:g id="COUNT">%d</xliff:g> ਤੱਕ ਫਿੰਗਰਪ੍ਰਿੰਟ ਸ਼ਾਮਲ ਕਰ ਸਕਦੇ ਹੋ"</string>
     <string name="fingerprint_intro_error_max" msgid="3247720976621039437">"ਤੁਸੀਂ ਫਿੰਗਰਪ੍ਰਿੰਟਾਂ ਦੀ ਅਧਿਕਤਮ ਸੰਖਿਆ ਨੂੰ ਸ਼ਾਮਲ ਕੀਤਾ ਹੋਇਆ ਹੈ"</string>
     <string name="fingerprint_intro_error_unknown" msgid="3975674268256524015">"ਹੋਰ ਫਿੰਗਰਪ੍ਰਿੰਟਾਂ ਨੂੰ ਸ਼ਾਮਲ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਦਾ"</string>
     <string name="fingerprint_last_delete_title" msgid="3104596858161269635">"ਕੀ ਸਾਰੇ ਫਿੰਗਰਪ੍ਰਿੰਟ ਹਟਾਉਣੇ ਹਨ?"</string>
     <string name="fingerprint_delete_title" msgid="3120894112324235536">"\'<xliff:g id="FINGERPRINT_ID">%1$s</xliff:g>\' ਨੂੰ ਹਟਾਓ"</string>
     <string name="fingerprint_delete_message" msgid="5895802741486967970">"ਕੀ ਤੁਸੀਂ ਇਸ ਫਿੰਗਰਪ੍ਰਿੰਟ ਨੂੰ ਮਿਟਾਉਣਾ ਚਾਹੁੰਦੇ ਹੋ?"</string>
-    <string name="fingerprint_last_delete_message" msgid="3346252479778971442">"ਤੁਸੀਂ ਆਪਣੇ ਫ਼ੋਨ ਨੂੰ ਅਣਲਾਕ ਕਰਨ, ਖਰੀਦਾਂ ਨੂੰ ਅਧਿਕਾਰਿਤ ਕਰਨ ਜਾਂ ਉਹਨਾਂ ਨਾਲ ਐਪਾਂ \'ਤੇ ਸਾਈਨ-ਇਨ ਕਰਨ ਲਈ ਆਪਣੇ ਫਿੰਗਰਪ੍ਰਿੰਟਾਂ ਦੀ ਵਰਤੋਂ ਨਹੀਂ ਕਰ ਸਕੋਗੇ"</string>
+    <string name="fingerprint_last_delete_message" msgid="3346252479778971442">"ਤੁਸੀਂ ਆਪਣੇ ਫ਼ੋਨ ਨੂੰ ਅਣਲਾਕ ਕਰਨ, ਖਰੀਦਾਂ ਨੂੰ ਅਧਿਕਾਰਿਤ ਕਰਨ ਜਾਂ ਐਪਾਂ \'ਤੇ ਸਾਈਨ-ਇਨ ਕਰਨ ਲਈ ਆਪਣੇ ਫਿੰਗਰਪ੍ਰਿੰਟਾਂ ਦੀ ਵਰਤੋਂ ਨਹੀਂ ਕਰ ਸਕੋਗੇ"</string>
     <string name="fingerprint_last_delete_message_profile_challenge" msgid="5385095150532247025">"ਤੁਸੀਂ ਆਪਣੇ ਕਾਰਜ ਪ੍ਰੋਫਾਈਲ ਨੂੰ ਅਣਲਾਕ ਕਰਨ, ਖਰੀਦਾਂ ਨੂੰ ਅਧਿਕਾਰਿਤ ਕਰਨ ਜਾਂ ਕਾਰਜ ਐਪਾਂ \'ਤੇ ਸਾਈਨ-ਇਨ ਕਰਨ ਲਈ ਆਪਣੇ ਫਿੰਗਰਪ੍ਰਿੰਟਾਂ ਦੀ ਵਰਤੋਂ ਨਹੀਂ ਕਰ ਸਕੋਂਗੇ"</string>
     <string name="fingerprint_last_delete_confirm" msgid="7984595457589664004">"ਹਾਂ, ਹਟਾਓ"</string>
     <string name="crypt_keeper_settings_title" msgid="839783588093862748">"ਇਨਕ੍ਰਿਪਸ਼ਨ"</string>
@@ -730,7 +729,7 @@
     <string name="bluetooth_settings" msgid="5228032727293770389">"ਬਲੂਟੁੱਥ"</string>
     <string name="bluetooth_settings_title" msgid="7261244857456521825">"ਬਲੂਟੁੱਥ"</string>
     <string name="bluetooth_settings_summary" msgid="1221689092429277887">"ਕਨੈਕਸ਼ਨ ਵਿਵਸਥਿਤ ਕਰੋ, ਡੀਵਾਈਸ ਨਾਮ ਅਤੇ ਖੋਜਯੋਗਤਾ ਸੈੱਟ ਕਰੋ"</string>
-    <string name="bluetooth_pairing_request" msgid="7221745525632573125">"ਕੀ <xliff:g id="DEVICE_NAME">%1$s</xliff:g> ਦੇ ਨਾਲ ਜੋੜੀ ਬਣਾਉਣੀ ਹੈ?"</string>
+    <string name="bluetooth_pairing_request" msgid="7221745525632573125">"ਕੀ <xliff:g id="DEVICE_NAME">%1$s</xliff:g> ਦੇ ਨਾਲ ਜੋੜਾਬੱਧ ਕਰਨਾ ਹੈ?"</string>
     <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"ਬਲੂਟੁੱਥ ਜੋੜਾਬੱਧਕਰਨ ਕੋਡ"</string>
     <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"ਜੋੜਾਬੱਧ ਕਰਨ ਦਾ ਕੋਡ ਟਾਈਪ ਕਰੋ ਫਿਰ ਵਾਪਸ ਜਾਓ ਜਾਂ ਦਾਖਲ ਕਰੋ ਨੂੰ ਦਬਾਓ"</string>
     <string name="bluetooth_enable_alphanumeric_pin" msgid="9138308197078115672">"ਪਿੰਨ ਵਿੱਚ ਅੱਖਰ ਜਾਂ ਚਿੰਨ੍ਹ ਹਨ"</string>
@@ -799,7 +798,7 @@
     <string name="bluetooth_dock_settings_remember" msgid="5512957564380371067">"ਸੈਟਿੰਗਾਂ ਯਾਦ ਰੱਖੋ"</string>
     <string name="bluetooth_max_connected_audio_devices_string" msgid="6799012540303500020">"ਵੱਧ ਤੋਂ ਵੱਧ ਕਨੈਕਟ ਕੀਤੇ ਬਲੂਟੁੱਥ ਆਡੀਓ ਡੀਵਾਈਸ"</string>
     <string name="bluetooth_max_connected_audio_devices_dialog_title" msgid="6049527354499590314">"ਵੱਧ ਤੋਂ ਵੱਧ ਕਨੈਕਟ ਕੀਤੇ ਬਲੂਟੁੱਥ ਆਡੀਓ ਡੀਵਾਈਸ ਚੁਣੋ"</string>
-    <string name="wifi_display_settings_title" msgid="8718182672694575456">"ਕਾਸਟ"</string>
+    <string name="wifi_display_settings_title" msgid="8718182672694575456">"ਕਾਸਟ ਕਰੋ"</string>
     <string name="wifi_display_enable_menu_item" msgid="4578340247147692250">"ਵਾਇਰਲੈਸ ਡਿਸਪਲੇ ਚਾਲੂ ਕਰੋ"</string>
     <string name="wifi_display_no_devices_found" msgid="186501729518830451">"ਨੇੜੇ ਕੋਈ ਡੀਵਾਈਸ ਨਹੀਂ ਮਿਲਿਆ।"</string>
     <string name="wifi_display_status_connecting" msgid="3799827425457383349">"ਕਨੈਕਟ ਕਰ ਰਿਹਾ ਹੈ"</string>
@@ -849,7 +848,7 @@
     <string name="wifi_in_airplane_mode" msgid="4729571191578262246">"ਏਅਰਪਲੇਨ ਮੋਡ ਵਿੱਚ"</string>
     <string name="wifi_notify_open_networks" msgid="4782239203624619655">"ਖੁੱਲ੍ਹੇ ਨੈੱਟਵਰਕ ਦੀ ਸੂਚਨਾ"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"ਉੱਚ ਗੁਣਵੱਤਾ ਵਾਲਾ ਕੋਈ ਜਨਤਕ ਨੈੱਟਵਰਕ ਉਪਲਬਧ ਹੋਣ \'ਤੇ ਸੂਚਿਤ ਕਰੋ"</string>
-    <string name="wifi_wakeup" msgid="4963732992164721548">"ਆਪਣੇ ਆਪ ਵਾਈ‑ਫਾਈ ਚਾਲੂ ਕਰੋ"</string>
+    <string name="wifi_wakeup" msgid="4963732992164721548">"ਸਵੈਚਲਿਤ ਤੌਰ \'ਤੇ ਵਾਈ‑ਫਾਈ ਚਾਲੂ ਕਰੋ"</string>
     <string name="wifi_wakeup_summary" msgid="1152699417411690">"ਤੁਹਾਡੇ ਘਰੇਲੂ ਨੈੱਟਵਰਕ ਵਰਗੇ ਵਧੀਆ ਕੁਆਲਿਟੀ ਵਾਲੇ ਰੱਖਿਅਤ ਕੀਤੇ ਨੈੱਟਵਰਕਾਂ ਦੇ ਨੇੜੇ ਹੋਣ \'ਤੇ ਵਾਈ-ਫਾਈ ਦੁਬਾਰਾ ਚਾਲੂ ਹੋ ਜਾਵੇਗਾ"</string>
     <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"ਅਣਉਪਲਬਧ ਕਿਉਂਕਿ ਟਿਕਾਣਾ ਬੰਦ ਹੈ। "<annotation id="link">"ਟਿਕਾਣਾ"</annotation>" ਚਾਲੂ ਕਰੋ।"</string>
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"ਅਣਉਪਲਬਧ, ਕਿਉਂਕਿ ਵਾਈ‑ਫਾਈ ਸਕੈਨਿੰਗ ਬੰਦ ਹੈ"</string>
@@ -858,7 +857,7 @@
     <string name="wifi_poor_network_detection_summary" msgid="5539951465985614590">"ਜਦ ਤੱਕ ਤੁਹਾਡੇ ਕੋਲ ਇੱਕ ਚੰਗਾ ਇੰਟਰਨੈੱਟ ਕਨੈਕਸ਼ਨ ਨਾ ਹੋਵੇ ਤਦ ਤੱਕ ਵਾਈ-ਫਾਈ ਨੈੱਟਵਰਕ ਨਾ ਵਰਤੋ"</string>
     <string name="wifi_avoid_poor_network_detection_summary" msgid="1976503191780928104">"ਸਿਰਫ਼ ਉਹ ਨੈੱਟਵਰਕ ਵਰਤੋ ਜਿਨ੍ਹਾਂ ਕੋਲ ਇੱਕ ਚੰਗਾ ਇੰਟਰਨੈੱਟ ਕਨੈਕਸ਼ਨ ਹੈ"</string>
     <string name="use_open_wifi_automatically_title" msgid="3084513215481454350">"ਖੁੱਲ੍ਹੇ ਨੈੱਟਵਰਕਾਂ ਨਾਲ ਕਨੈਕਟ ਕਰੋ"</string>
-    <string name="use_open_wifi_automatically_summary" msgid="8338020172673161754">"ਆਪਣੇ ਆਪ ਵਧੀਆ ਕੁਆਲਿਟੀ ਵਾਲੇ ਜਨਤਕ ਨੈੱਟਵਰਕਾਂ ਨਾਲ ਕਨੈਕਟ ਕਰੋ"</string>
+    <string name="use_open_wifi_automatically_summary" msgid="8338020172673161754">"ਸਵੈਚਲਿਤ ਤੌਰ \'ਤੇ ਵਧੀਆ ਕੁਆਲਿਟੀ ਵਾਲੇ ਜਨਤਕ ਨੈੱਟਵਰਕਾਂ ਨਾਲ ਕਨੈਕਟ ਕਰੋ"</string>
     <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"ਵਰਤਣ ਲਈ, ਕੋਈ ਨੈੱਟਵਰਕ ਰੇਟਿੰਗ ਪ੍ਰਦਾਨਕ ਚੁਣੋ"</string>
     <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"ਵਰਤਣ ਲਈ, ਕੋਈ ਅਨੁਰੂਪ ਨੈੱਟਵਰਕ ਰੇਟਿੰਗ ਪ੍ਰਦਾਨਕ ਚੁਣੋ"</string>
     <string name="wifi_install_credentials" msgid="5650088113710858289">"ਪ੍ਰਮਾਣ-ਪੱਤਰ ਸਥਾਪਤ ਕਰੋ"</string>
@@ -878,7 +877,7 @@
     <string name="wifi_add_network" msgid="4094957940791876640">"ਨੈੱਟਵਰਕ ਸ਼ਾਮਲ ਕਰੋ"</string>
     <string name="wifi_configure_settings_preference_title" msgid="2678534679408777268">"ਵਾਈ‑ਫਾਈ ਤਰਜੀਹਾਂ"</string>
     <string name="wifi_configure_settings_preference_summary_wakeup_on" msgid="5714892572614655675">"ਵਾਈ‑ਫਾਈ ਆਪਣੇ ਆਪ ਦੁਬਾਰਾ ਚਾਲੂ ਹੁੰਦਾ ਹੈ"</string>
-    <string name="wifi_configure_settings_preference_summary_wakeup_off" msgid="286904094152909651">"ਵਾਈ‑ਫਾਈ ਆਪਣੇ ਆਪ ਦੁਬਾਰਾ ਚਾਲੂ ਨਹੀਂ ਹੁੰਦਾ ਹੈ"</string>
+    <string name="wifi_configure_settings_preference_summary_wakeup_off" msgid="286904094152909651">"ਵਾਈ‑ਫਾਈ ਸਵੈਚਲਿਤ ਤੌਰ \'ਤੇ ਦੁਬਾਰਾ ਚਾਲੂ ਨਹੀਂ ਹੁੰਦਾ ਹੈ"</string>
     <string name="wifi_access_points" msgid="1647976498906871869">"ਵਾਈ‑ਫਾਈ ਨੈੱਟਵਰਕ"</string>
     <string name="wifi_menu_more_options" msgid="8318269834264035524">"ਹੋਰ ਚੋਣਾਂ"</string>
     <string name="wifi_menu_p2p" msgid="4945665601551289791">"ਵਾਈ‑ਫਾਈ ਡਾਇਰੈਕਟ"</string>
@@ -899,19 +898,19 @@
     <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"ਵਾਈ-ਫਾਈ ਸਕੈਨਿੰਗ ਐਪਾਂ ਅਤੇ ਸੇਵਾਵਾਂ ਨੂੰ ਕਿਸੇ ਵੇਲੇ ਵੀ ਵਾਈ-ਫਾਈ ਨੈੱਟਵਰਕਾਂ ਲਈ ਸਕੈਨ ਕਰਨ ਦਿੰਦੀ ਹੈ, ਭਾਵੇਂ ਵਾਈ-ਫਾਈ ਬੰਦ ਹੋਵੇ। ਜਿਵੇਂ ਕਿ, ਇਸਦੀ ਵਰਤੋਂ ਕਰਕੇ ਟਿਕਾਣਾ-ਆਧਾਰਿਤ ਵਿਸ਼ੇਸ਼ਤਾਵਾਂ ਅਤੇ ਸੇਵਾਵਾਂ ਵਰਗੀਆਂ ਚੀਜ਼ਾਂ ਨੂੰ ਬਿਹਤਰ ਬਣਾਇਆ ਜਾ ਸਕਦਾ ਹੈ।"</string>
     <string name="wifi_settings_scanning_required_turn_on" msgid="4327570180594277049">"ਚਾਲੂ ਕਰੋ"</string>
     <string name="wifi_settings_scanning_required_enabled" msgid="3336102100425307040">"ਵਾਈ-ਫਾਈ ਸਕੈਨਿੰਗ ਚਾਲੂ ਕੀਤੀ ਗਈ ਹੈ"</string>
-    <string name="wifi_show_advanced" msgid="8199779277168030597">"ਵਿਕਸਿਤ ਵਿਕਲਪ"</string>
+    <string name="wifi_show_advanced" msgid="8199779277168030597">"ਉਨੱਤ ਵਿਕਲਪ"</string>
     <string name="wifi_advanced_toggle_description_expanded" msgid="1506697245302596510">"ਡ੍ਰੌਪ-ਡਾਊਨ ਸੂਚੀ ਉੱਨਤ ਵਿਕਲਪ। ਸੰਖਿਪਤ ਲਈ ਡਬਲ ਟੈਪ ਕਰੋ।"</string>
     <string name="wifi_advanced_toggle_description_collapsed" msgid="3014965593695454879">"ਡ੍ਰੌਪ-ਡਾਊਨ ਸੂਚੀ ਉੱਨਤ ਵਿਕਲਪ। ਵਿਸਤਾਰ ਕਰਨ ਲਈ ਡਬਲ ਟੈਪ ਕਰੋ।"</string>
     <string name="wifi_ssid" msgid="6746270925975522641">"ਨੈੱਟਵਰਕ ਦਾ ਨਾਮ"</string>
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"SSID ਦਾਖਲ ਕਰੋ"</string>
     <string name="wifi_security" msgid="9136702039496152831">"ਸੁਰੱਖਿਆ"</string>
     <string name="wifi_hidden_network" msgid="6647772204699776833">"ਲੁਕਿਆ ਨੈੱਟਵਰਕ"</string>
-    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"ਜੇਕਰ ਤੁਹਾਡਾ ਰੂਟਰ ਕਿਸੇ ਨੈੱਟਵਰਕ ਆਈ.ਡੀ. ਦਾ ਪ੍ਰਸਾਰਣ ਨਹੀਂ ਕਰ ਰਿਹਾ ਹੈ, ਪਰ ਤੁਸੀਂ ਭਵਿੱਖ ਵਿੱਚ ਇਸ ਨਾਲ ਕਨੈਕਟ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ, ਤਾਂ ਤੁਸੀਂ ਲੁਕੇ ਹੋਏ ਵਜੋਂ ਨੈੱਟਵਰਕ ਨੂੰ ਸੈੱਟ ਕਰ ਸਕਦੇ ਹੋ।\n\nਇਹ ਇੱਕ ਸੁਰੱਖਿਆ ਖਤਰਾ ਬਣਾ ਸਕਦਾ ਹੈ ਕਿਉਂਕਿ ਤੁਹਾਡਾ ਫ਼ੋਨ ਲਗਾਤਾਰ ਨੈੱਟਵਰਕ ਲੱਭਣ ਲਈ ਉਸਦੇ ਸਿਗਨਲ ਨੂੰ ਪ੍ਰਸਾਰਿਤ ਕਰੇਗਾ।\n\nਨੈੱਟਵਰਕ ਨੂੰ ਲੁਕੇ ਵਜੋਂ ਸੈੱਟ ਕਰਨ ਨਾਲ ਤੁਹਾਡੀਆਂ ਰੂਟਰ ਸੈਟਿੰਗਾਂ ਨਹੀਂ ਬਦਲਣਗੀਆਂ।"</string>
+    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"ਜੇਕਰ ਤੁਹਾਡਾ ਰਾਊਟਰ ਕਿਸੇ ਨੈੱਟਵਰਕ ਆਈਡੀ ਦਾ ਪ੍ਰਸਾਰਣ ਨਹੀਂ ਕਰ ਰਿਹਾ ਹੈ, ਪਰ ਤੁਸੀਂ ਭਵਿੱਖ ਵਿੱਚ ਇਸ ਨਾਲ ਕਨੈਕਟ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ, ਤਾਂ ਤੁਸੀਂ ਉਸ ਨੈੱਟਵਰਕ ਨੂੰ ਲੁਕੇ ਹੋਏ ਵਜੋਂ ਸੈੱਟ ਕਰ ਸਕਦੇ ਹੋ।\n\nਇਹ ਇੱਕ ਸੁਰੱਖਿਆ ਖਤਰਾ ਬਣਾ ਸਕਦਾ ਹੈ ਕਿਉਂਕਿ ਤੁਹਾਡਾ ਫ਼ੋਨ ਲਗਾਤਾਰ ਨੈੱਟਵਰਕ ਲੱਭਣ ਲਈ ਸਿਗਨਲ ਨੂੰ ਪ੍ਰਸਾਰਿਤ ਕਰੇਗਾ।\n\nਨੈੱਟਵਰਕ ਨੂੰ ਲੁਕੇ ਵਜੋਂ ਸੈੱਟ ਕਰਨ ਨਾਲ ਤੁਹਾਡੀਆਂ ਰਾਊਟਰ ਸੈਟਿੰਗਾਂ ਨਹੀਂ ਬਦਲਣਗੀਆਂ।"</string>
     <string name="wifi_signal" msgid="696548364467704808">"ਸਿਗਨਲ ਦੀ ਤੀਬਰਤਾ"</string>
     <string name="wifi_status" msgid="3439931558930689940">"ਅਵਸਥਾ"</string>
     <string name="tx_wifi_speed" msgid="2571810085003261073">"ਭੇਜਣ ਸੰਬੰਧੀ ਲਿੰਕ ਦੀ ਗਤੀ"</string>
     <string name="rx_wifi_speed" msgid="7392873246110937187">"ਪ੍ਰਾਪਤ ਹੋਣ ਸੰਬੰਧੀ ਲਿੰਕ ਦੀ ਗਤੀ"</string>
-    <string name="wifi_frequency" msgid="6132852924995724246">"ਬਾਰੰਬਾਰਤਾ"</string>
+    <string name="wifi_frequency" msgid="6132852924995724246">"ਵਾਰਵਾਰਤਾ"</string>
     <string name="wifi_ip_address" msgid="5572539114989914831">"IP ਪਤਾ"</string>
     <string name="passpoint_label" msgid="7429247462404128615">"ਇਸ ਰਾਹੀਂ ਸੁਰੱਖਿਅਤ ਕੀਤਾ ਗਿਆ"</string>
     <string name="passpoint_content" msgid="340527524510304327">"<xliff:g id="NAME">%1$s</xliff:g> ਕ੍ਰੀਡੈਂਸ਼ੀਅਲ"</string>
@@ -1046,7 +1045,7 @@
     <string name="wifi_p2p_persist_network" msgid="1110453878886476660">"ਇਹ ਕਨੈਕਸ਼ਨ ਯਾਦ ਰੱਖੋ"</string>
     <string name="wifi_p2p_menu_search" msgid="8207638860263805291">"ਡੀਵਾਈਸਾਂ ਖੋਜੋ"</string>
     <string name="wifi_p2p_menu_searching" msgid="7443249001543208106">"ਖੋਜ ਰਿਹਾ ਹੈ..."</string>
-    <string name="wifi_p2p_menu_rename" msgid="2129974878377065488">"ਡੀਵਾਈਸ ਨੂੰ ਮੁੜ-ਨਾਮ ਦਿਓ"</string>
+    <string name="wifi_p2p_menu_rename" msgid="2129974878377065488">"ਡੀਵਾਈਸ ਦਾ ਨਾਮ ਬਦਲੋ"</string>
     <string name="wifi_p2p_peer_devices" msgid="8232126067045093382">"ਪੀਅਰ ਡੀਵਾਈਸ"</string>
     <string name="wifi_p2p_remembered_groups" msgid="1356458238836730346">"ਯਾਦ ਰੱਖੇ ਗਏ ਸਮੂਹ"</string>
     <string name="wifi_p2p_failed_connect_message" msgid="6103436959132424093">"ਕਨੈਕਟ ਨਹੀਂ ਕਰ ਸਕਿਆ।"</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"ਵਾਈ-ਫਾਈ"</item>
+    <item msgid="2271962426654621656">"ਮੋਬਾਈਲ"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"ਵਾਈ-ਫਾਈ ਉਪਲਬਧ ਨਾ ਹੋਣ \'ਤੇ ਮੋਬਾਈਲ ਨੈੱਟਵਰਕ ਵਰਤੋ"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"ਮੋਬਾਈਲ ਨੈੱਟਵਰਕ ਉਪਲਬਧ ਨਾ ਹੋਣ \'ਤੇ ਵਾਈ-ਫਾਈ ਵਰਤੋ"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"ਵਾਈ-ਫਾਈ \'ਤੇ ਕਾਲ ਕਰੋ। ਵਾਈ-ਫਾਈ ਕਨੈਕਸ਼ਨ ਟੁੱਟਣ \'ਤੇ ਕਾਲ ਸਮਾਪਤ ਹੋ ਜਾਵੇਗੀ।"</string>
@@ -1524,7 +1526,7 @@
     <string name="storage_wizard_ready_v2_internal_moved_body" msgid="4133133596316768033">"ਤੁਹਾਡੀ ਸਮੱਗਰੀ <xliff:g id="NAME_0">^1</xliff:g> ਵਿੱਚ ਲਿਜਾਈ ਗਈ। \n\nਇਸ <xliff:g id="NAME_1">^2</xliff:g> ਦਾ ਪ੍ਰਬੰਧਨ ਕਰਨ ਲਈ, "<b>"ਸੈਟਿੰਗਾਂ &gt; ਸਟੋਰੇਜ"</b>" \'ਤੇ ਜਾਓ।"</string>
     <string name="battery_status_title" msgid="8731200319740671905">"ਬੈਟਰੀ ਸਥਿਤੀ"</string>
     <string name="battery_level_title" msgid="5207775387973771646">"ਬੈਟਰੀ ਪੱਧਰ"</string>
-    <string name="apn_settings" msgid="8130776653826271664">"APNs"</string>
+    <string name="apn_settings" msgid="8130776653826271664">"APN"</string>
     <string name="apn_edit" msgid="4350571070853305357">"ਪਹੁੰਚ ਬਿੰਦੂ ਦਾ ਸੰਪਾਦਨ ਕਰੋ"</string>
     <string name="apn_not_set" msgid="5344235604466825691">"ਸੈੱਟ ਨਹੀਂ ਕੀਤਾ"</string>
     <string name="apn_name" msgid="8431432886706852226">"ਨਾਮ"</string>
@@ -1539,20 +1541,20 @@
     <string name="apn_mms_port" msgid="6606572282014819299">"MMS ਪੋਰਟ"</string>
     <string name="apn_mcc" msgid="9138301167194779180">"MCC"</string>
     <string name="apn_mnc" msgid="1276161191283274976">"MNC"</string>
-    <string name="apn_auth_type" msgid="4286147728662523362">"ਪ੍ਰਮਾਣੀਕਰਨ ਪ੍ਰਕਾਰ"</string>
+    <string name="apn_auth_type" msgid="4286147728662523362">"ਪ੍ਰਮਾਣੀਕਰਨ ਦੀ ਕਿਸਮ"</string>
     <string name="apn_auth_type_none" msgid="3679273936413404046">"ਕੋਈ ਨਹੀਂ"</string>
     <string name="apn_auth_type_pap" msgid="6155876141679480864">"PAP"</string>
     <string name="apn_auth_type_chap" msgid="5484031368454788686">"CHAP"</string>
     <string name="apn_auth_type_pap_chap" msgid="2977833804460109203">"PAP ਜਾਂ CHAP"</string>
-    <string name="apn_type" msgid="6725346490902871146">"APN ਪ੍ਰਕਾਰ"</string>
+    <string name="apn_type" msgid="6725346490902871146">"APN ਦੀ ਕਿਸਮ"</string>
     <string name="apn_protocol" msgid="1240197323563960912">"APN ਪ੍ਰੋਟੋਕੋਲ"</string>
     <string name="apn_roaming_protocol" msgid="6913336248771263497">"APN ਰੋਮਿੰਗ ਪ੍ਰੋਟੋਕੋਲ"</string>
     <string name="carrier_enabled" msgid="1819916725305365581">"APN ਚਾਲੂ/ਬੰਦ"</string>
     <string name="carrier_enabled_summaryOn" msgid="6219221535461945771">"APN ਸਮਰਥਿਤ"</string>
     <string name="carrier_enabled_summaryOff" msgid="4093019532796386622">"APN ਅਸਮਰਥਿਤ"</string>
-    <string name="bearer" msgid="4378444317087536401">"ਬੀਅਰਰ"</string>
-    <string name="mvno_type" msgid="3150755279048149624">"MVNO ਪ੍ਰਕਾਰ"</string>
-    <string name="mvno_match_data" msgid="629287305803195245">"MVNO ਵੈਲਯੂ"</string>
+    <string name="bearer" msgid="4378444317087536401">"ਧਾਰਕ"</string>
+    <string name="mvno_type" msgid="3150755279048149624">"MVNO ਦੀ ਕਿਸਮ"</string>
+    <string name="mvno_match_data" msgid="629287305803195245">"MVNO ਮੁੱਲ"</string>
     <string name="menu_delete" msgid="8646081395424055735">"APN ਮਿਟਾਓ"</string>
     <string name="menu_new" msgid="7529219814721969024">"ਨਵਾਂ APN"</string>
     <string name="menu_save" msgid="7310230314430623215">"ਰੱਖਿਅਤ ਕਰੋ"</string>
@@ -1654,7 +1656,7 @@
     </plurals>
     <string name="location_category_recent_location_access" msgid="286059523360285026">"ਹਾਲੀਆ ਟਿਕਾਣਾ ਪਹੁੰਚ"</string>
     <string name="location_recent_location_access_view_details" msgid="2051602261436245905">"ਵੇਰਵੇ ਦੇਖੋ"</string>
-    <string name="location_no_recent_apps" msgid="77502059586413278">"ਕਿਸੇ ਐਪਸ ਨੇ ਹਾਲ ਵਿੱਚ ਹੀ ਨਿਰਧਾਰਿਤ ਸਥਾਨ ਦੀ ਬੇਨਤੀ ਨਹੀਂ ਕੀਤੀ ਹੈ"</string>
+    <string name="location_no_recent_apps" msgid="77502059586413278">"ਕਿਸੇ ਐਪ ਨੇ ਵੀ ਹਾਲ ਵਿੱਚ ਟਿਕਾਣੇ ਦੀ ਬੇਨਤੀ ਨਹੀਂ ਕੀਤੀ ਹੈ"</string>
     <string name="location_no_recent_accesses" msgid="6289916310397279890">"ਟਿਕਾਣੇ ਤੱਕ ਪਹੁੰਚ ਕਰਨ ਵਾਲੀਆਂ ਕੋਈ ਐਪਾਂ ਨਹੀਂ"</string>
     <string name="location_high_battery_use" msgid="7177199869979522663">"ਉੱਚ ਬੈਟਰੀ ਵਰਤੋਂ"</string>
     <string name="location_low_battery_use" msgid="5030448574501435888">"ਘੱਟ ਬੈਟਰੀ ਵਰਤੋਂ"</string>
@@ -1744,7 +1746,7 @@
     <string name="lockpassword_confirm_your_password_header_frp" msgid="7326670978891793470">"Verify password"</string>
     <string name="lockpassword_invalid_pin" msgid="3059022215815900137">"ਗਲਤ ਪਿੰਨ"</string>
     <string name="lockpassword_invalid_password" msgid="8374331995318204099">"ਗਲਤ ਪਾਸਵਰਡ"</string>
-    <string name="lockpattern_need_to_unlock_wrong" msgid="1328670466959377948">"ਗ਼ਲਤ ਪੈਟਰਨ"</string>
+    <string name="lockpattern_need_to_unlock_wrong" msgid="1328670466959377948">"ਗਲਤ ਪੈਟਰਨ"</string>
     <string name="lock_settings_title" msgid="233657584969886812">"ਡੀਵਾਈਸ ਸੁਰੱਖਿਆ"</string>
     <string name="lockpattern_change_lock_pattern_label" msgid="333149762562581510">"ਅਣਲਾਕ ਪੈਟਰਨ ਬਦਲੋ"</string>
     <string name="lockpattern_change_lock_pin_label" msgid="3435796032210265723">"ਅਣਲਾਕ ਪਿੰਨ ਬਦਲੋ"</string>
@@ -1757,7 +1759,7 @@
     <string name="lockpattern_pattern_confirmed_header" msgid="5603156929428721407">"ਤੁਹਾਡਾ ਨਵਾਂ ਅਣਲਾਕ ਪੈਟਰਨ"</string>
     <string name="lockpattern_confirm_button_text" msgid="7059311304112902598">"ਪੁਸ਼ਟੀ ਕਰੋ"</string>
     <string name="lockpattern_restart_button_text" msgid="4322968353922529868">"ਰੀਡ੍ਰਾ ਕਰੋ"</string>
-    <string name="lockpattern_retry_button_text" msgid="5473976578241534298">"ਹਟਾਓ"</string>
+    <string name="lockpattern_retry_button_text" msgid="5473976578241534298">"ਕਲੀਅਰ ਕਰੋ"</string>
     <string name="lockpattern_continue_button_text" msgid="3328913552656376892">"ਜਾਰੀ ਰੱਖੋ"</string>
     <string name="lockpattern_settings_title" msgid="5152005866870766842">"ਪੈਟਰਨ ਅਣਲਾਕ ਕਰੋ"</string>
     <string name="lockpattern_settings_enable_title" msgid="8508410891939268080">"ਲੁੜੀਂਦਾ ਪੈਟਰਨ"</string>
@@ -1836,7 +1838,7 @@
     <string name="sort_order_alpha" msgid="6689698854460261212">"ਨਾਮ ਮੁਤਾਬਕ ਕ੍ਰਮ-ਬੱਧ ਕਰੋ"</string>
     <string name="sort_order_size" msgid="3167376197248713027">"ਆਕਾਰ ਮੁਤਾਬਕ ਕ੍ਰਮ-ਬੱਧ ਕਰੋ"</string>
     <string name="sort_order_recent_notification" msgid="5592496977404445941">"ਸਭ ਤੋਂ ਹਾਲੀਆ"</string>
-    <string name="sort_order_frequent_notification" msgid="5640245013098010347">"ਅਕਸਰ"</string>
+    <string name="sort_order_frequent_notification" msgid="5640245013098010347">"ਅਕਸਰ ਵਰਤੀਆਂ ਜਾਣ ਵਾਲੀਆਂ"</string>
     <string name="show_running_services" msgid="1895994322704667543">"ਚੱਲ ਰਹੀਆਂ ਸੇਵਾਵਾਂ ਦਿਖਾਓ"</string>
     <string name="show_background_processes" msgid="88012264528093617">"ਕੈਸ਼ ਕੀਤੀਆਂ ਪ੍ਰਕਿਰਿਆਵਾਂ ਦਿਖਾਓ"</string>
     <string name="default_emergency_app" msgid="286530070173495823">"ਆਪਾਤਕਾਲ ਐਪ"</string>
@@ -2532,7 +2534,7 @@
     <string name="user_credentials" msgid="8365731467650306757">"ਵਰਤੋਂਕਾਰ ਕ੍ਰੀਡੈਂਸ਼ੀਅਲ"</string>
     <string name="user_credentials_summary" msgid="7350223899317423252">"ਸਟੋਰ ਕੀਤੇ ਕ੍ਰੀਡੈਂਸ਼ੀਅਲ ਦੇਖੋ ਅਤੇ ਸੋਧੋ"</string>
     <string name="advanced_security_title" msgid="286883005673855845">"ਵਿਕਸਿਤ"</string>
-    <string name="credential_storage_type" msgid="2585337320206095255">"ਸਟੋਰੇਜ ਦਾ ਪ੍ਰਕਾਰ"</string>
+    <string name="credential_storage_type" msgid="2585337320206095255">"ਸਟੋਰੇਜ ਦੀ ਕਿਸਮ"</string>
     <string name="credential_storage_type_hardware" msgid="5054143224259023600">"ਹਾਰਡਵੇਅਰ-ਸਮਰਥਿਤ"</string>
     <string name="credential_storage_type_software" msgid="1335905150062717150">"ਕੇਵਲ ਸਾਫਟਵੇਅਰ"</string>
     <string name="credentials_settings_not_available" msgid="5490259681690183274">"ਇਸ ਵਰਤੋਂਕਾਰ ਲਈ ਕ੍ਰੀਡੈਂਸ਼ੀਅਲ ਉਪਲਬਧ ਨਹੀਂ ਹਨ"</string>
@@ -2570,14 +2572,14 @@
     <string name="select_device_admin_msg" msgid="4173769638399075387">"ਡੀਵਾਈਸ ਪ੍ਰਸ਼ਾਸਕ ਐਪਾਂ"</string>
     <string name="no_device_admins" msgid="4129231900385977460">"ਕੋਈ ਵੀ ਡੀਵਾਈਸ ਪ੍ਰਸ਼ਾਸਕ ਐਪਾਂ ਉਪਲਬਧ ਨਹੀਂ ਹਨ"</string>
     <string name="personal_device_admin_title" msgid="759440849188565661">"ਨਿੱਜੀ"</string>
-    <string name="managed_device_admin_title" msgid="8021522755492551726">"ਦਫ਼ਤਰ"</string>
+    <string name="managed_device_admin_title" msgid="8021522755492551726">"ਕਾਰਜ-ਸਥਾਨ"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"SMS ਅਤੇ ਕਾਲ ਲੌਗ ਤੱਕ ਪਹੁੰਚ \'ਤੇ ਪਾਬੰਦੀ ਲਗਾਓ"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"ਸਿਰਫ਼ ਪੂਰਵ-ਨਿਰਧਾਰਤ ਫ਼ੋਨ ਅਤੇ ਸੁਨੇਹੇ ਐਪਾਂ ਨੂੰ SMS ਅਤੇ ਕਾਲ ਲੌਗ ਇਜਾਜ਼ਤਾਂ ਹਨ"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"ਕੋਈ ਉਪਲਬਧ ਭਰੋਸੇਯੋਗ ਏਜੰਟ ਨਹੀਂ"</string>
-    <string name="add_device_admin_msg" msgid="3573765823476931173">"ਡੀਵਾਈਸ ਪ੍ਰਸ਼ਾਸਕ ਐਪ ਨੂੰ ਸਰਗਰਮ ਕਰੀਏ?"</string>
-    <string name="add_device_admin" msgid="1621152410207260584">"ਇਸ ਡੀਵਾਈਸ ਪ੍ਰਸ਼ਾਸਕ ਐਪ ਨੂੰ ਸਰਗਰਮ ਕਰੋ"</string>
+    <string name="add_device_admin_msg" msgid="3573765823476931173">"ਡੀਵਾਈਸ ਪ੍ਰਸ਼ਾਸਕ ਐਪ ਨੂੰ ਕਿਰਿਆਸ਼ੀਲ ਕਰੀਏ?"</string>
+    <string name="add_device_admin" msgid="1621152410207260584">"ਇਸ ਡੀਵਾਈਸ ਪ੍ਰਸ਼ਾਸਕ ਐਪ ਨੂੰ ਕਿਰਿਆਸ਼ੀਲ ਕਰੋ"</string>
     <string name="device_admin_add_title" msgid="6097881332139146897">"ਡੀਵਾਈਸ ਪ੍ਰਸ਼ਾਸਕ"</string>
-    <string name="device_admin_warning" msgid="4421817419326480449">"ਇਸ ਪ੍ਰਸ਼ਾਸਕ ਐਪ ਨੂੰ ਸਰਗਰਮ ਕਰਨ ਨਾਲ <xliff:g id="APP_NAME">%1$s</xliff:g> ਐਪ ਨੂੰ ਅੱਗੇ ਦਿੱਤੀਆਂ ਕਾਰਵਾਈਆਂ ਕਰਨ ਦੀ ਇਜਾਜ਼ਤ ਮਿਲਦੀ ਹੈ:"</string>
+    <string name="device_admin_warning" msgid="4421817419326480449">"ਇਸ ਪ੍ਰਸ਼ਾਸਕ ਐਪ ਨੂੰ ਕਿਰਿਆਸ਼ੀਲ ਕਰਨ ਨਾਲ <xliff:g id="APP_NAME">%1$s</xliff:g> ਐਪ ਨੂੰ ਅੱਗੇ ਦਿੱਤੀਆਂ ਕਾਰਵਾਈਆਂ ਕਰਨ ਦੀ ਇਜਾਜ਼ਤ ਮਿਲਦੀ ਹੈ:"</string>
     <string name="device_admin_status" msgid="5424944611789040723">"ਇਹ ਪ੍ਰਸ਼ਾਸਕ ਐਪ ਕਿਰਿਆਸ਼ੀਲ ਹੈ ਅਤੇ <xliff:g id="APP_NAME">%1$s</xliff:g> ਐਪ ਨੂੰ ਅੱਗੇ ਦਿੱਤੀਆਂ ਕਾਰਵਾਈਆਂ ਨੂੰ ਕਰਨ ਲਈ ਇਜਾਜ਼ਤ ਦਿੰਦੀ ਹੈ:"</string>
     <string name="profile_owner_add_title" msgid="735805919754362791">"ਕੀ ਪ੍ਰੋਫਾਈਲ ਮੈਨੇਜਰ ਨੂੰ ਕਿਰਿਆਸ਼ੀਲ ਬਣਾਉਣਾ ਹੈ?"</string>
     <string name="adding_profile_owner_warning" msgid="1284541194547382194">"ਜਾਰੀ ਰੱਖਣ ਦੁਆਰਾ, ਤੁਹਾਡੇ ਵਰਤੋਂਕਾਰ ਨੂੰ ਤੁਹਾਡੇ ਪ੍ਰਸ਼ਾਸਕ ਦੁਆਰਾ ਪ੍ਰਬੰਧਿਤ ਕੀਤਾ ਜਾਏਗਾ ਜੋ ਕਿ ਤੁਹਾਡੇ ਨਿੱਜੀ ਡਾਟੇ ਤੋਂ ਇਲਾਵਾ, ਸੰਬੰਧਿਤ ਡਾਟੇ ਨੂੰ ਸਟੋਰ ਕਰਨ ਦੇ ਵੀ ਯੋਗ ਹੋ ਸਕਦਾ ਹੈ।\n\n ਤੁਹਾਡਾ ਪ੍ਰਸ਼ਾਸਕ ਇਸ ਵਰਤੋਂਕਾਰ ਨਾਲ ਸੰਬੰਧਿਤ ਸੈਟਿੰਗਾਂ, ਪਹੁੰਚ, ਐਪਾਂ, ਅਤੇ ਡਾਟੇ ਦੀ ਨਿਗਰਾਨੀ ਅਤੇ ਪ੍ਰਬੰਧਨ ਕਰ ਸਕਦਾ ਹੈ, ਜਿਸ ਵਿੱਚ ਨੈੱਟਵਰਕ ਕਿਰਿਆਸ਼ੀਲਤਾ ਅਤੇ ਤੁਹਾਡੇ ਡੀਵਾਈਸ ਦੀ ਟਿਕਾਣਾ ਜਾਣਕਾਰੀ ਵੀ ਸ਼ਾਮਲ ਹੈ।"</string>
@@ -2617,7 +2619,7 @@
     <string name="sync_one_time_sync" msgid="6005174168405784256">"ਹੁਣੇ ਸਮਕਾਲੀਕਰਨ ਲਈ ਟੈਪ ਕਰੋ<xliff:g id="LAST_SYNC_TIME">
 %1$s</xliff:g>"</string>
     <string name="sync_gmail" msgid="4457967084840001296">"Gmail"</string>
-    <string name="sync_calendar" msgid="6573708019827519372">"ਕੈਲੰਡਰ"</string>
+    <string name="sync_calendar" msgid="6573708019827519372">"Calendar"</string>
     <string name="sync_contacts" msgid="5687434785723746534">"ਸੰਪਰਕ"</string>
     <string name="sync_plug" msgid="6703804441408427257"><font fgcolor="#ffffffff">"Google ਸਿੰਕ ਤੇ ਤੁਹਾਡਾ ਸੁਆਗਤ ਹੈ!"</font>" \nਤੁਸੀਂ ਜਿੱਥੇ ਵੀ ਹੋਵੋ, ਉੱਥੋਂ ਤੁਹਾਡੇ ਸੰਪਰਕਾਂ, ਮੁਲਾਕਾਤਾਂ ਆਦਿ ਤੱਕ ਪਹੁੰਚ ਦੀ ਆਗਿਆ ਦੇਣ ਲਈ ਡਾਟਾ ਸਿੰਕ ਕਰਨ ਲਈ ਇੱਕ Google ਪਹੁੰਚ।"</string>
     <string name="header_application_sync_settings" msgid="4581847153669774489">"ਐਪ ਸਿੰਕ ਸੈਟਿੰਗਾਂ"</string>
@@ -2713,7 +2715,7 @@
     <string name="data_usage_limit_editor_title" msgid="1687908662154108293">"ਡਾਟਾ ਵਰਤੋਂ ਸੀਮਾ ਸੈੱਟ ਕਰੋ"</string>
     <string name="data_usage_limit_dialog_title" msgid="8804760847110131518">"ਡਾਟਾ ਵਰਤੋਂ ਸੀਮਤ ਕਰਨਾ"</string>
     <string name="data_usage_limit_dialog_mobile" product="tablet" msgid="2000713577999830647">"ਤੁਹਾਡਾ ਟੈਬਲੈੱਟ ਤੁਹਾਡੇ ਵੱਲੋਂ ਸੈੱਟ ਕੀਤੀ ਮੋਬਾਈਲ ਡਾਟੇ ਦੀ ਸੀਮਾ ਉੱਤੇ ਪਹੁੰਚਣ \'ਤੇ ਮੋਬਾਈਲ ਡਾਟਾ ਬੰਦ ਕਰ ਦੇਵੇਗਾ।\n\nਕਿਉਂਕਿ ਡਾਟਾ ਵਰਤੋਂ ਤੁਹਾਡੇ ਟੈਬਲੈੱਟ ਵੱਲੋਂ ਮਾਪੀ ਜਾਂਦੀ ਹੈ ਅਤੇ ਹੋ ਸਕਦਾ ਹੈ ਕਿ ਤੁਹਾਡਾ ਕੈਰੀਅਰ ਵਰਤੋਂ ਦਾ ਹਿਸਾਬ ਵੱਖਰੇ ਢੰਗ ਨਾਲ ਲਗਾਵੇ, ਇਸ ਕਰਕੇ ਕੋਈ ਕੰਜੂਸੀਕਾਰੀ ਸੀਮਾ ਸੈੱਟ ਕਰਨ ਬਾਰੇ ਵਿਚਾਰ ਕਰੋ।"</string>
-    <string name="data_usage_limit_dialog_mobile" product="default" msgid="943546278705619205">"ਤੁਹਾਡਾ ਫ਼ੋਨ ਤੁਹਾਡੇ ਵੱਲੋਂ ਸੈੱਟ ਕੀਤੀ ਮੋਬਾਈਲ ਡਾਟੇ ਦੀ ਸੀਮਾ ਉੱਤੇ ਪਹੁੰਚਣ \'ਤੇ ਮੋਬਾਈਲ ਡਾਟਾ ਬੰਦ ਕਰ ਦੇਵੇਗਾ।\n\nਕਿਉਂਕਿ ਡਾਟਾ ਵਰਤੋਂ ਤੁਹਾਡੇ ਫ਼ੋਨ ਵੱਲੋਂ ਮਾਪਿਆ ਜਾਂਦਾ ਹੈ ਅਤੇ ਹੋ ਸਕਦਾ ਹੈ ਕਿ ਤੁਹਾਡਾ ਕੈਰੀਅਰ ਵਰਤੋਂ ਦਾ ਹਿਸਾਬ ਵੱਖਰੇ ਢੰਗ ਨਾਲ ਲਗਾਵੇ, ਇਸ ਕਰਕੇ ਕੋਈ ਕੰਜੂਸੀਕਾਰੀ ਸੀਮਾ ਸੈੱਟ ਕਰਨ ਬਾਰੇ ਵਿਚਾਰ ਕਰੋ।"</string>
+    <string name="data_usage_limit_dialog_mobile" product="default" msgid="943546278705619205">"ਤੁਹਾਡਾ ਫ਼ੋਨ ਤੁਹਾਡੇ ਵੱਲੋਂ ਸੈੱਟ ਕੀਤੀ ਮੋਬਾਈਲ ਡਾਟੇ ਦੀ ਸੀਮਾ ਉੱਤੇ ਪਹੁੰਚਣ \'ਤੇ ਮੋਬਾਈਲ ਡਾਟਾ ਬੰਦ ਕਰ ਦੇਵੇਗਾ।\n\nਕਿਉਂਕਿ ਡਾਟਾ ਵਰਤੋਂ ਨੂੰ ਤੁਹਾਡੇ ਫ਼ੋਨ ਵੱਲੋਂ ਮਾਪਿਆ ਜਾਂਦਾ ਹੈ ਅਤੇ ਹੋ ਸਕਦਾ ਹੈ ਕਿ ਤੁਹਾਡਾ ਕੈਰੀਅਰ ਵਰਤੋਂ ਦਾ ਹਿਸਾਬ ਵੱਖਰੇ ਢੰਗ ਨਾਲ ਲਗਾਵੇ, ਇਸ ਕਰਕੇ ਕੋਈ ਦਰਮਿਆਨੀ ਸੀਮਾ ਸੈੱਟ ਕਰਨ ਬਾਰੇ ਵਿਚਾਰ ਕਰੋ।"</string>
     <string name="data_usage_restrict_background_title" msgid="3568746530413220844">"ਕੀ ਪਿਛੋਕੜ  ਡਾਟਾ  ਤੇ ਪ੍ਰਤਿਬੰਧ ਲਾਉਣਾ ਹੈ?"</string>
     <string name="data_usage_restrict_background" msgid="995811034744808575">"ਜੇਕਰ ਤੁਸੀਂ ਬੈਕਗ੍ਰਾਊਂਡ ਮੋਬਾਈਲ ਡਾਟੇ \'ਤੇ ਪਾਬੰਦੀ ਲਗਾਉਂਦੇ ਹੋ, ਤਾਂ ਕੁਝ ਐਪਾਂ ਅਤੇ ਸੇਵਾਵਾਂ ਉਦੋਂ ਤੱਕ ਕੰਮ ਨਹੀਂ ਕਰਨਗੀਆਂ ਜਦੋਂ ਤੱਕ ਤੁਸੀਂ ਵਾਈ‑ਫਾਈ ਨਾਲ ਕਨੈਕਟ ਨਹੀਂ ਹੁੰਦੇ।"</string>
     <string name="data_usage_restrict_background_multiuser" product="tablet" msgid="6032810839234864814">"ਜੇਕਰ ਤੁਸੀਂ ਬੈਕਗ੍ਰਾਊਂਡ ਮੋਬਾਈਲ ਡਾਟੇ \'ਤੇ ਪ੍ਰਤੀਬੰਧ ਲਗਾਉਂਦੇ ਹੋ, ਤਾਂ ਕੁਝ ਐਪਾਂ ਅਤੇ ਸੇਵਾਵਾਂ ਉਦੋਂ ਤੱਕ ਕੰਮ ਨਹੀਂ ਕਰਨਗੀਆਂ ਜਦੋਂ ਤੱਕ ਤੁਸੀਂ ਵਾਈ‑ਫਾਈ ਨਾਲ ਕਨੈਕਟ ਨਹੀਂ ਹੁੰਦੇ।\n\nਇਹ ਸੈਟਿੰਗ ਇਸ ਟੈਬਲੈੱਟ \'ਤੇ ਸਾਰੇ ਵਰਤੋਂਕਾਰਾਂ ਨੂੰ ਪ੍ਰਭਾਵਿਤ ਕਰਦੀ ਹੈ।"</string>
@@ -2738,7 +2740,7 @@
     <string name="cryptkeeper_emergency_call" msgid="4625420047524693116">"ਸੰਕਟਕਾਲੀਨ ਕਾਲ"</string>
     <string name="cryptkeeper_return_to_call" msgid="4433942821196822815">"ਕਾਲ \'ਤੇ ਵਾਪਸ ਜਾਓ"</string>
     <string name="vpn_name" msgid="3538818658670774080">"ਨਾਮ"</string>
-    <string name="vpn_type" msgid="6389116710008658550">"ਪ੍ਰਕਾਰ"</string>
+    <string name="vpn_type" msgid="6389116710008658550">"ਕਿਸਮ"</string>
     <string name="vpn_server" msgid="5216559017318406820">"ਸਰਵਰ ਦਾ ਪਤਾ"</string>
     <string name="vpn_mppe" msgid="4027660356538086985">"PPP ਇਨਕ੍ਰਿਪਸ਼ਨ (MPPE)"</string>
     <string name="vpn_l2tp_secret" msgid="8500633072482638606">"L2TP ਗੁਪਤ"</string>
@@ -2750,7 +2752,7 @@
     <string name="vpn_show_options" msgid="7672984921872882859">"ਵਿਕਸਿਤ ਵਿਕਲਪ ਦਿਖਾਓ"</string>
     <string name="vpn_search_domains" msgid="8469394307693909080">"DNS ਖੋਜ ਡੋਮੇਨ"</string>
     <string name="vpn_dns_servers" msgid="3017453300909321239">"DNS ਸਰਵਰ (ਉਦਾਹਰਨ ਵਜੋਂ 8.8.8.8)"</string>
-    <string name="vpn_routes" msgid="3393989650778663742">"ਫਾਰਵਰਡਿੰਗ ਰੂਟਸ (ਉਦਾਹਰਨ ਵਜੋਂ 10.0.0.0/8)"</string>
+    <string name="vpn_routes" msgid="3393989650778663742">"ਫਾਰਵਰਡਿੰਗ ਰੂਟ (ਉਦਾਹਰਨ ਵਜੋਂ 10.0.0.0/8)"</string>
     <string name="vpn_username" msgid="5357878823189445042">"ਵਰਤੋਂਕਾਰ ਨਾਮ"</string>
     <string name="vpn_password" msgid="5325943601523662246">"ਪਾਸਵਰਡ"</string>
     <string name="vpn_save_login" msgid="6215503139606646915">"ਖਾਤਾ ਜਾਣਕਾਰੀ ਰੱਖਿਅਤ ਕਰੋ"</string>
@@ -2773,7 +2775,7 @@
     <string name="vpn_disconnect_confirm" msgid="3505111947735651082">"ਇਹ VPN ਡਿਸਕਨੈਕਟ ਕਰੀਏ?"</string>
     <string name="vpn_disconnect" msgid="4625914562388652486">"ਡਿਸਕਨੈਕਟ ਕਰੋ"</string>
     <string name="vpn_version" msgid="2006792987077940456">"ਵਰਜਨ <xliff:g id="VERSION">%s</xliff:g>"</string>
-    <string name="vpn_forget_long" msgid="8457511440635534478">"VPN ਨੂੰ ਛੱਡੋ"</string>
+    <string name="vpn_forget_long" msgid="8457511440635534478">"VPN ਨੂੰ ਭੁੱਲ ਜਾਓ"</string>
     <string name="vpn_replace_vpn_title" msgid="8517436922021598103">"ਕੀ ਮੌਜੂਦਾ VPN ਨੂੰ ਤਬਦੀਲ ਕਰਨਾ ਹੈ?"</string>
     <string name="vpn_set_vpn_title" msgid="6483554732067951052">"ਕੀ ਹਮੇਸ਼ਾ-ਚਾਲੂ VPN ਨੂੰ ਸੈੱਟ ਕਰਨਾ ਹੈ?"</string>
     <string name="vpn_first_always_on_vpn_message" msgid="7050017738816963855">"ਜਦੋਂ ਇਹ ਸੈਟਿੰਗ ਚਾਲੂ ਹੁੰਦੀ ਹੈ, ਤਾਂ ਤੁਹਾਡੇ ਕੋਲ ਇੱਕ ਇੰਟਰਨੈੱਟ ਕਨੈਕਸ਼ਨ ਤਦ ਤੱਕ ਨਹੀਂ ਹੋਵੇਗਾ ਜਦ ਤੱਕ VPN ਸਫ਼ਲਤਾਪੂਰਵਕ ਕਨੈਕਟ ਨਹੀਂ ਹੋ ਜਾਂਦਾ"</string>
@@ -3633,7 +3635,7 @@
     <string name="filter_enabled_apps" msgid="5888459261768538489">"ਸਥਾਪਤ ਐਪਾਂ"</string>
     <string name="filter_instant_apps" msgid="8087483282854072366">"ਤਤਕਾਲ ਐਪਾਂ"</string>
     <string name="filter_personal_apps" msgid="3473268022652904457">"ਨਿੱਜੀ"</string>
-    <string name="filter_work_apps" msgid="4202483998339465542">"ਦਫ਼ਤਰ"</string>
+    <string name="filter_work_apps" msgid="4202483998339465542">"ਕਾਰਜ-ਸਥਾਨ"</string>
     <string name="filter_notif_all_apps" msgid="1862666327228804896">"ਐਪਾਂ: ਸਾਰੀਆਂ"</string>
     <string name="filter_notif_blocked_apps" msgid="5694956954776028202">"ਬੰਦ ਕੀਤੀਆਂ ਗਈਆਂ"</string>
     <string name="filter_notif_urgent_channels" msgid="5000735867167027148">"ਸ਼੍ਰੇਣੀਆਂ: ਜ਼ਰੂਰੀ ਮਹੱਤਵ"</string>
@@ -3692,7 +3694,7 @@
     <string name="memory_avg_desc" msgid="1200185697910086968">"ਔਸਤ <xliff:g id="MEMORY">%1$s</xliff:g>"</string>
     <string name="memory_use_running_format" msgid="3741170402563292232">"<xliff:g id="MEMORY">%1$s</xliff:g> / <xliff:g id="RUNNING">%2$s</xliff:g>"</string>
     <string name="process_format" msgid="8575347150598564509">"<xliff:g id="APP_NAME">%1$s</xliff:g> (<xliff:g id="COUNT">%2$d</xliff:g>)"</string>
-    <string name="high_power_apps" msgid="2518319744362028920">"ਬੈਟਰੀ ਸੁਯੋਗਤਾ"</string>
+    <string name="high_power_apps" msgid="2518319744362028920">"ਬੈਟਰੀ ਸੁਯੋਗਕਰਨ"</string>
     <string name="additional_battery_info" msgid="6877663897819271203">"ਵਰਤੋਂ ਬਾਰੇ ਸੁਚੇਤਨਾਵਾਂ"</string>
     <string name="show_all_apps" msgid="5442552004569634846">"ਡੀਵਾਈਸ ਦੀ ਪੂਰੀ ਵਰਤੋਂ ਦਿਖਾਓ"</string>
     <string name="hide_extra_apps" msgid="6798261081113299441">"ਐਪ ਵਰਤੋਂ ਦਿਖਾਓ"</string>
@@ -3781,7 +3783,7 @@
       <item quantity="one"><xliff:g id="COUNT">%1$d</xliff:g> ਐਪ ਵੱਲੋਂ ਪਿਛਲੇ <xliff:g id="DURATION_1">%2$s</xliff:g> ਵਿੱਚ ਵਰਤੀ ਗਈ ਮੈਮਰੀ</item>
       <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> ਐਪਾਂ ਵੱਲੋਂ ਪਿਛਲੇ <xliff:g id="DURATION_1">%2$s</xliff:g> ਵਿੱਚ ਵਰਤੀ ਗਈ ਮੈਮਰੀ</item>
     </plurals>
-    <string name="running_frequency" msgid="7545170806968474449">"ਬਾਰੰਬਾਰਤਾ"</string>
+    <string name="running_frequency" msgid="7545170806968474449">"ਵਾਰਵਾਰਤਾ"</string>
     <string name="memory_maximum_usage" msgid="4734981118293469479">"ਅਧਿਕਤਮ ਵਰਤੋਂ"</string>
     <string name="no_data_usage" msgid="903383745620135746">"ਕੋਈ ਡਾਟਾ ਨਹੀਂ ਵਰਤਿਆ"</string>
     <string name="zen_access_warning_dialog_title" msgid="7704910289810337055">"ਕੀ <xliff:g id="APP">%1$s</xliff:g> ਨੂੰ ਪਰੇਸ਼ਾਨ ਨਾ ਕਰੋ ਤੱਕ ਪਹੁੰਚ ਦੀ ਆਗਿਆ ਦੇਣੀ ਹੈ?"</string>

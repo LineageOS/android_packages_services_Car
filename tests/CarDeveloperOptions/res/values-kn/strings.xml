@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"ಪರದೆಯ ಮೇಲೆ ಪಠ್ಯದ ಗಾತ್ರವನ್ನು ಹಿಗ್ಗಿಸಿ ಅಥವಾ ಕುಗ್ಗಿಸಿ."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"ಚಿಕ್ಕದಾಗಿಸು"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"ದೊಡ್ಡದಾಗಿಸು"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"ಮಾದರಿ ಪಠ್ಯ"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"Oz ನ ಅದ್ಭುತವಾದ ಮಾಂತ್ರಿಕ"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"ಅಧ್ಯಾಯ 11: Oz ನ ಅದ್ಭುತವಾದ ಎಮೆರಾಲ್ಡ್ ಸಿಟಿ"</string>
@@ -180,7 +179,7 @@
     <string name="connected_device_connected_title" msgid="6255107326608785482">"ಪ್ರಸ್ತುತ ಸಂಪರ್ಕಿಸಲಾಗಿದೆ"</string>
     <string name="connected_device_saved_title" msgid="8270136893488475163">"ಉಳಿಸಿರುವ ಸಾಧನಗಳು"</string>
     <string name="connected_device_add_device_summary" msgid="7960491471270158891">"ಜೋಡಿಸಲು ಬ್ಲೂಟೂತ್ ಆನ್ ಆಗುತ್ತದೆ"</string>
-    <string name="connected_device_connections_title" msgid="9205000271382018428">"ಸಂಪರ್ಕ ಆದ್ಯತೆಗಳು"</string>
+    <string name="connected_device_connections_title" msgid="9205000271382018428">"ಕನೆಕ್ಷನ್ ಆದ್ಯತೆಗಳು"</string>
     <string name="connected_device_previously_connected_title" msgid="225918223397410428">"ಹಿಂದೆ ಸಂಪರ್ಕಗೊಂಡಿದ್ದ ಸಾಧನಗಳು"</string>
     <string name="connected_device_previously_connected_screen_title" msgid="2018789662358162716">"ಹಿಂದೆ ಸಂಪರ್ಕಗೊಂಡಿದ್ದ"</string>
     <string name="connected_device_bluetooth_turned_on_toast" msgid="4652326177920814476">"ಬ್ಲೂಟೂತ್ ಆನ್ ಮಾಡಲಾಗಿದೆ"</string>
@@ -941,7 +940,7 @@
     <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"“<xliff:g id="SSID">%1$s</xliff:g>” ಗೆ ಸಂಪರ್ಕಿಸಲು QR ಕೋಡ್ ಅನ್ನು ಕೆಳಗೆ ಕೇಂದ್ರೀಕರಿಸಿ"</string>
     <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"QR ಕೋಡ್ ಸ್ಕ್ಯಾನ್ ಮಾಡುವ ಮೂಲಕ ವೈ-ಫೈ ಗೆ ಸೇರಿ"</string>
     <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"ವೈ-ಫೈ ಹಂಚಿಕೊಳ್ಳಿ"</string>
-    <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"“<xliff:g id="SSID">%1$s</xliff:g>” ಗೆ ಸಂಪರ್ಕಪಡಿಸಲು ಮತ್ತು ಪಾಸ್‌ವರ್ಡ್ ಹಂಚಿಕೊಳ್ಳಲು ಈ QR ಕೋಡ್ ಅನ್ನು ಸ್ಕ್ಯಾನ್ ಮಾಡಿ"</string>
+    <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"“<xliff:g id="SSID">%1$s</xliff:g>” ಗೆ ಕನೆಕ್ಟ್ ಮಾಡಲು ಮತ್ತು ಪಾಸ್‌ವರ್ಡ್ ಹಂಚಿಕೊಳ್ಳಲು ಈ QR ಕೋಡ್ ಅನ್ನು ಸ್ಕ್ಯಾನ್ ಮಾಡಿ"</string>
     <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"“<xliff:g id="SSID">%1$s</xliff:g>” ಗೆ ಸಂಪರ್ಕಪಡಿಸಲು ಈ QR ಕೋಡ್ ಅನ್ನು ಸ್ಕ್ಯಾನ್ ಮಾಡಿ"</string>
     <string name="wifi_dpp_could_not_detect_valid_qr_code" msgid="27667719861826438">"QR ಕೋಡ್ ಅನ್ನು ಓದಲು ಸಾಧ್ಯವಾಗುತ್ತಿಲ್ಲ. ಕೋಡ್ ಮರುನಮೂದಿಸಿ ಅಥವಾ ಪುನಃ ಪ್ರಯತ್ನಿಸಿ"</string>
     <string name="wifi_dpp_failure_authentication_or_configuration" msgid="9142051662156233679">"ಪುನಃ ಪ್ರಯತ್ನಿಸಿ. ಸಮಸ್ಯೆ ಮುಂದುವರಿದರೆ, ಸಾಧನ ತಯಾರಕರನ್ನು ಸಂಪರ್ಕಿಸಿ"</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"ವೈ-ಫೈ"</item>
+    <item msgid="2271962426654621656">"ಮೊಬೈಲ್"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"ವೈ-ಫೈ ಲಭ್ಯವಿಲ್ಲದಿದ್ದರೆ, ಮೊಬೈಲ್ ನೆಟ್‌ವರ್ಕ್ ಬಳಸಿ"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"ಮೊಬೈಲ್ ನೆಟ್‌ವರ್ಕ್ ಲಭ್ಯವಿಲ್ಲದಿದ್ದರೆ, ವೈ-ಫೈ ಬಳಸಿ"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"ವೈ-ಫೈ ಬಳಸಿ ಕರೆ ಮಾಡಿ. ವೈ-ಫೈ ಸಂಪರ್ಕ ಕಡಿತಗೊಂಡರೆ, ಕರೆ ಕೊನೆಗೊಳ್ಳುತ್ತದೆ."</string>
@@ -1744,14 +1746,14 @@
     <string name="lockpassword_confirm_your_password_header_frp" msgid="7326670978891793470">"ಪಾಸ್‌ವರ್ಡ್‌ ಪರಿಶೀಲಿಸಿ"</string>
     <string name="lockpassword_invalid_pin" msgid="3059022215815900137">"ತಪ್ಪಾದ ಪಿನ್‌"</string>
     <string name="lockpassword_invalid_password" msgid="8374331995318204099">"ತಪ್ಪು ಪಾಸ್‌ವರ್ಡ್‌"</string>
-    <string name="lockpattern_need_to_unlock_wrong" msgid="1328670466959377948">"ತಪ್ಪು ಪ್ಯಾಟರ್ನ್"</string>
+    <string name="lockpattern_need_to_unlock_wrong" msgid="1328670466959377948">"ಪ್ಯಾಟರ್ನ್ ತಪ್ಪಾಗಿದೆ"</string>
     <string name="lock_settings_title" msgid="233657584969886812">"ಸಾಧನ ಭದ್ರತೆ"</string>
     <string name="lockpattern_change_lock_pattern_label" msgid="333149762562581510">"ಅನ್‌ಲಾಕ್ ನಮೂನೆಯನ್ನು ಬದಲಾಯಿಸಿ"</string>
     <string name="lockpattern_change_lock_pin_label" msgid="3435796032210265723">"ಅನ್‌ಲಾಕ್ ಪಿನ್‌ ಬದಲಾಯಿಸಿ"</string>
     <string name="lockpattern_recording_intro_header" msgid="2262005028838969839">"ಅನ್‌ಲಾಕ್‌ ಪ್ಯಾಟರ್ನ್ ಚಿತ್ರಿಸಿ"</string>
     <string name="lockpattern_recording_intro_footer" msgid="5426745740754065099">"ಸಹಾಯಕ್ಕಾಗಿ ಮೆನು ಒತ್ತಿರಿ."</string>
     <string name="lockpattern_recording_inprogress" msgid="4060818382176523671">"ಬಳಿಕ ಬೆರಳು ತೆಗೆಯಿರಿ"</string>
-    <string name="lockpattern_recording_incorrect_too_short" msgid="6374760294545431845">"ಕನಿಷ್ಠ <xliff:g id="NUMBER">%d</xliff:g> ಡಾಟ್‌ಗಳನ್ನು ಸಂಪರ್ಕಿಸಿ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ."</string>
+    <string name="lockpattern_recording_incorrect_too_short" msgid="6374760294545431845">"ಕನಿಷ್ಠ <xliff:g id="NUMBER">%d</xliff:g> ಡಾಟ್‌ಗಳನ್ನು ಕನೆಕ್ಟ್ ಮಾಡಿ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ."</string>
     <string name="lockpattern_pattern_entered_header" msgid="2108106638322637851">"ಪ್ಯಾಟರ್ನ್ ರೆಕಾರ್ಡ್ ಆಗಿದೆ"</string>
     <string name="lockpattern_need_to_confirm" msgid="4079482507985867389">"ಖಚಿತಪಡಿಸಲು ಪ್ಯಾಟರ್ನ್ ಚಿತ್ರಿಸಿ"</string>
     <string name="lockpattern_pattern_confirmed_header" msgid="5603156929428721407">"ನಿಮ್ಮ ಹೊಸ ಅನ್‌ಲಾಕ್‌ ಪ್ಯಾಟರ್ನ್"</string>
@@ -2617,7 +2619,7 @@
     <string name="sync_one_time_sync" msgid="6005174168405784256">"ಈಗ ಸಿಂಕ್ ಮಾಡಲು ಟ್ಯಾಪ್ ಮಾಡಿ<xliff:g id="LAST_SYNC_TIME">
 %1$s</xliff:g>"</string>
     <string name="sync_gmail" msgid="4457967084840001296">"Gmail"</string>
-    <string name="sync_calendar" msgid="6573708019827519372">"ಕ್ಯಾಲೆಂಡರ್"</string>
+    <string name="sync_calendar" msgid="6573708019827519372">"Calendar"</string>
     <string name="sync_contacts" msgid="5687434785723746534">"ಸಂಪರ್ಕಗಳು"</string>
     <string name="sync_plug" msgid="6703804441408427257"><font fgcolor="#ffffffff">"Google ಸಿಂಕ್‌ಗೆ ಸ್ವಾಗತ!"</font>" \nನಿಮ್ಮ ಸಂಪರ್ಕಗಳು, ಪೂರ್ವನಿಗದಿಗಳು, ಮತ್ತು ನೀವು ಎಲ್ಲಿದ್ದೀರೋ ಅಲ್ಲಿಂದಲೇ ಇನ್ನಷ್ಟನ್ನು ಪ್ರವೇಶಿಸಲು ಅನುಮತಿಸಲು ಡೇಟಾವನ್ನು ಸಿಂಕ್‌ ಮಾಡಲು Google ನ ಒಂದು ತೊಡಗುವಿಕೆಯಾಗಿದೆ."</string>
     <string name="header_application_sync_settings" msgid="4581847153669774489">"ಅಪ್ಲಿಕೇಶನ್ ಸಿಂಕ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳು"</string>
@@ -3321,7 +3323,7 @@
     <string name="locked_work_profile_notification_title" msgid="8307025804986190658">"ಕೆಲಸದ ಪ್ರೊಫೈಲ್ ಅನ್ನು ಲಾಕ್ ಮಾಡಿದಾಗ"</string>
     <string name="lock_screen_notifications_summary_show" msgid="5788874994455257378">"ಅಧಿಸೂಚನೆ ವಿಷಯವನ್ನು ಪೂರ್ತಿ ತೋರಿಸು"</string>
     <string name="lock_screen_notifications_summary_hide" msgid="3668806866535260143">"ಸೂಕ್ಷ್ಮ ವಿಷಯವನ್ನು ಮರೆಮಾಡು"</string>
-    <string name="lock_screen_notifications_summary_disable" msgid="3259929507369817672">"ಅಧಿಸೂಚನೆಗಳನ್ನು ತೋರಿಸಲೇ ಬೇಡ"</string>
+    <string name="lock_screen_notifications_summary_disable" msgid="3259929507369817672">"ಅಧಿಸೂಚನೆಗಳನ್ನು ತೋರಿಸಬೇಡಿ"</string>
     <string name="lock_screen_notifications_interstitial_message" msgid="4230189215124387818">"ಸಾಧನ ಲಾಕ್‌ ಆದಾಗ, ಅಧಿಸೂಚನೆಗಳು ಹೇಗೆ ಕಾಣಿಸಿಕೊಳ್ಳಬೇಕು?"</string>
     <string name="lock_screen_notifications_interstitial_title" msgid="2832587379332443505">"ಅಧಿಸೂಚನೆಗಳು"</string>
     <string name="lock_screen_notifications_summary_show_profile" msgid="8908775469657073273">"ಉದ್ಯೋಗದ ಅಧಿಸೂಚನೆ ವಿಷಯವನ್ನು ಪೂರ್ತಿ ತೋರಿಸು"</string>

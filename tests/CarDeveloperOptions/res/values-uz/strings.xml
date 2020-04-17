@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Ekrandagi matnni kattalashtirish yoki kichiklashtirish."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Kichiklashtirish"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Kattalashtirish"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Namunaviy matn"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"Oz mamlakati sehrgari"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"11-bob: Oz mamlakatining zumrad shahri"</string>
@@ -484,7 +483,7 @@
     <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"PIN kod kerak emasmi?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Parol kerak emasmi?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Grafik kalit kerak emasmi?"</string>
-    <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Ekranni qulfini sozlash"</string>
+    <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Ekran qulfini sozlash"</string>
     <string name="security_settings_fingerprint_enroll_done" msgid="4111289529758845926">"Tayyor"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_title" msgid="7410398793283818609">"Obbo, bu sensor emas."</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_message" msgid="7192100314788868883">"Telefonning orqasida joylashgan sensorga tegining. Ko‘rsatkich barmog‘ingizdan foydalaning."</string>
@@ -976,7 +975,7 @@
     <string name="wifi_do_not_validate_eap_server" msgid="1892537559682474878">"Tasdiqlanmasin"</string>
     <string name="wifi_do_not_validate_eap_server_warning" msgid="3895397996759837323">"Birorta ham sertifikat ko‘rsatilmagan. Aloqangiz ochiq bo‘ladi."</string>
     <string name="wifi_ssid_too_long" msgid="34911971389775920">"Tarmoq nomi juda uzun."</string>
-    <string name="wifi_no_domain_warning" msgid="735859919311067606">"Domenni ko‘rsating."</string>
+    <string name="wifi_no_domain_warning" msgid="735859919311067606">"Domenni kiriting."</string>
     <string name="wifi_wps_available_first_item" msgid="3221671453930485243">"WPS mavjud"</string>
     <string name="wifi_wps_available_second_item" msgid="5703265526619705185">" (WPS mavjud)"</string>
     <string name="wifi_carrier_connect" msgid="7202618367339982884">"Aloqa operatorining Wi‑Fi tarmog‘i"</string>
@@ -1067,7 +1066,7 @@
     <string name="wifi_hotspot_name_summary_connecting" msgid="5176787959408511889">"<xliff:g id="WIFI_HOTSPOT_NAME">%1$s</xliff:g> yoqilmoqda…"</string>
     <string name="wifi_hotspot_name_summary_connected" msgid="8387768642326756749">"Boshqa qurilmalar <xliff:g id="WIFI_HOTSPOT_NAME">%1$s</xliff:g> tarmog‘iga ulanishi mumkin"</string>
     <string name="wifi_hotspot_password_title" msgid="4289338152595154889">"Hotspot paroli"</string>
-    <string name="wifi_hotspot_ap_band_title" msgid="3485744480410441949">"Wi-Fi chastotalari diapazoni"</string>
+    <string name="wifi_hotspot_ap_band_title" msgid="3485744480410441949">"Wi-Fi diapazoni"</string>
     <string name="wifi_hotspot_footer_info_regular" msgid="3876006922622827363">"Boshqa qurilmalaringiz uchun Wi-Fi tarmoq yaratish uchun hotspotdan foydalaning. Hotspot mobil internetingizni tarqatadi. Mobil internet uchun qo‘shimcha to‘lovlar olinishi mumkin."</string>
     <string name="wifi_hotspot_footer_info_local_only" msgid="3339582350894639261">"Ilovalar yaqin-atrofdagi qurilmalarga kontent ulashish uchun hotspot yarata oladi."</string>
     <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"Hotspotni avtomatik faolsizlantirish"</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"Mobil"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Agar Wi‑Fi ishlamasa, mobil tarmoqdan foydalaning"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Agar mobil tarmoq ishlamasa, Wi-Fi ishlating"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Wi‑Fi orqali chaqiruv. Agar Wi‑Fi oʻchsa, chaqiruv tugatiladi."</string>
@@ -1308,7 +1310,7 @@
     <string name="system_update_settings_list_item_title" msgid="1907497454722790033">"Tizimni yangilash"</string>
     <string name="system_update_settings_list_item_summary" msgid="3497456690691907873"></string>
     <string name="firmware_version" msgid="547095584029938749">"Android versiyasi"</string>
-    <string name="security_patch" msgid="483709031051932208">"Tizim xavfsizligi uchun yangilanish"</string>
+    <string name="security_patch" msgid="483709031051932208">"Android tizim xavfsizligi yangilanishi"</string>
     <string name="model_info" msgid="1729765474260797594">"Model"</string>
     <string name="model_summary" msgid="8781425868254352168">"Model: %1$s"</string>
     <string name="hardware_info" msgid="174270144950621815">"Model va qurilma"</string>
@@ -1645,7 +1647,7 @@
     <string name="mobile_insert_sim_card" msgid="7594550403454243732">"SIM karta solib, qurilmani qayta ishga tushiring"</string>
     <string name="mobile_connect_to_internet" msgid="6031886097365170913">"Iltimos, Internetga ulaning"</string>
     <string name="location_title" msgid="8664674161765477168">"Mening joylashuvim"</string>
-    <string name="managed_profile_location_switch_title" msgid="8157384427925389680">"Ishchi profil joyi"</string>
+    <string name="managed_profile_location_switch_title" msgid="8157384427925389680">"Ish profili uchun joy"</string>
     <string name="location_app_level_permissions" msgid="1298041503927632960">"Ilovalar uchun ruxsatlar"</string>
     <string name="location_app_permission_summary_location_off" msgid="541372845344796336">"Joylashuv xizmati yoqilmagan"</string>
     <plurals name="location_app_permission_summary_location_on" formatted="false" msgid="7904821382328758218">
@@ -1704,7 +1706,7 @@
     <string name="settings_safetylegal_activity_unreachable" msgid="3541894966476445833">"Qurilma internetga ulanmagan. Bu ma’lumotni ko‘rish uchun internetga ulangan istalgan kompyuterda %s sahifasini oching."</string>
     <string name="settings_safetylegal_activity_loading" msgid="7680998654145172">"Yuklanmoqda…"</string>
     <string name="confirm_device_credential_use_alternate_method" msgid="1279869272895739941">"Muqobil usuldan foydalanish"</string>
-    <string name="lockpassword_choose_your_screen_lock_header" msgid="6283518876031424798">"Ekranni qulfini sozlash"</string>
+    <string name="lockpassword_choose_your_screen_lock_header" msgid="6283518876031424798">"Ekran qulfini sozlash"</string>
     <string name="lockpassword_choose_your_password_message" msgid="2838273977481046536">"Xavfsizlik uchun parol o‘rnating"</string>
     <string name="lockpassword_choose_your_password_header_for_fingerprint" msgid="4921343500484160894">"Barmoq izidan foydalanish uchun parol o‘rnating"</string>
     <string name="lockpassword_choose_your_pattern_header_for_fingerprint" msgid="314870151462139417">"Avval grafik kalit yarating"</string>
@@ -2172,7 +2174,7 @@
     <string name="color_red" msgid="7426040122729897596">"Qizil"</string>
     <string name="color_green" msgid="3432648781089648971">"Yashil"</string>
     <string name="color_blue" msgid="4055855996393833996">"Ko‘k"</string>
-    <string name="color_cyan" msgid="7669317410901991453">"Moviy"</string>
+    <string name="color_cyan" msgid="7669317410901991453">"Zangori"</string>
     <string name="color_yellow" msgid="8847327436896180799">"Sariq"</string>
     <string name="color_magenta" msgid="721976999611563071">"Pushtirang"</string>
     <string name="enable_service_title" msgid="2746143093464928251">"<xliff:g id="SERVICE">%1$s</xliff:g> yoqilsinmi?"</string>
@@ -2642,7 +2644,7 @@
     <string name="header_account_settings" msgid="8586173964125512219">"Hisob sozlamalari"</string>
     <string name="remove_account_label" msgid="5885425720323823387">"Hisobni olib tashlash"</string>
     <string name="header_add_an_account" msgid="8482614556580804956">"Hisob kiriting"</string>
-    <string name="really_remove_account_title" msgid="4166512362915154319">"Hisobni olib tashlansinmi?"</string>
+    <string name="really_remove_account_title" msgid="4166512362915154319">"Hisob olib tashlansinmi?"</string>
     <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"Ushbu hisob bilan bog‘liq barcha xabarlar, kontaktlar va boshqa ma’lumotlar telefondan o‘chib ketadi."</string>
     <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Ushbu hisob bilan bog‘liq barcha xabarlar, kontaktlar va boshqa ma’lumotlar telefondan o‘chib ketadi."</string>
     <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"Ushbu hisob o‘chirilganda unga bog‘liq barcha xabar, kontakt va boshqa ma’lumotlar qurilmadan o‘chib ketadi."</string>
@@ -3022,7 +3024,7 @@
     <string name="sim_editor_color" msgid="373059962306191123">"SIM karta rangi"</string>
     <string name="sim_card_select_title" msgid="4925862525985187946">"SIM kartani tanlang"</string>
     <string name="color_orange" msgid="3159707916066563431">"To‘q sariq"</string>
-    <string name="color_purple" msgid="4391440966734810713">"Binafsharang"</string>
+    <string name="color_purple" msgid="4391440966734810713">"Siyohrang"</string>
     <string name="sim_no_inserted_msg" msgid="1197884607569714609">"SIM karta solinmagan"</string>
     <string name="sim_status_title" msgid="4483653750844520871">"SIM karta holati"</string>
     <string name="sim_status_title_sim_slot" msgid="416005570947546124">"SIM karta holati (%1$d-SIM uyasi)"</string>
@@ -3176,7 +3178,7 @@
     <string name="emergency_tone_vibrate" msgid="5020068066905681181">"Tebranishlar"</string>
     <string name="boot_sounds_title" msgid="7583926202411353620">"Ovozni yoqish"</string>
     <string name="live_caption_title" msgid="7926591158657997051">"Jonli izoh"</string>
-    <string name="live_caption_summary" msgid="9064771862352393125">"Avtomatik taglavha mediasi"</string>
+    <string name="live_caption_summary" msgid="9064771862352393125">"Avtomatik taglavha yaratish"</string>
     <string name="zen_mode_settings_summary_off" msgid="6929319200478424962">"Hech qachon"</string>
     <plurals name="zen_mode_settings_summary_on" formatted="false" msgid="6061723291126091396">
       <item quantity="other"><xliff:g id="ON_COUNT">%d</xliff:g> ta yoqilgan</item>
@@ -4140,7 +4142,7 @@
     <string name="swipe_up_to_switch_apps_suggestion_summary" msgid="7338653224520387852">"Ilovalarni almashtirish uchun yangi ishorani yoqing"</string>
     <string name="ambient_display_title" product="default" msgid="6785677099744344088">"Ekranga ikki marta bosib tekshirish"</string>
     <string name="ambient_display_title" product="tablet" msgid="1106285490888683613">"Ekranga ikki marta bosib tekshirish"</string>
-    <string name="ambient_display_title" product="device" msgid="5064644474876041478">"Ekranga ikki marta bosib tekshirish"</string>
+    <string name="ambient_display_title" product="device" msgid="5064644474876041478">"Ekranga ikki marta teginish"</string>
     <string name="ambient_display_summary" msgid="4882910328216411109">"Vaqt, bildirishnoma va boshqa axborotlarni tekshirish uchun ekranga ikki marta bosing."</string>
     <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"Telefonni olib tekshirish"</string>
     <string name="ambient_display_pickup_title" product="tablet" msgid="1555456400210301959">"Planshetni olib tekshirish"</string>
@@ -4153,7 +4155,7 @@
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Planshetni tekshirish uchun bosing"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Qurilmani tekshirish uchun bosing"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Vaqt, bildirishnoma va boshqa axborotni tekshirish uchun ekranni bosing."</string>
-    <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Bildirishnomalarni ochish uchun barmoq izi skaneridan foydalanish"</string>
+    <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Bildirishnomalarni barmoq izi bilan ochish"</string>
     <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"Barmoq izi skaneri"</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"Bildirishnomalarni tekshirish uchun telefon orqasidagi barmoq izi skaneri ustida pastga suring"</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="tablet" msgid="3480057984564476283">"Bildirishnomalarni tekshirish uchun planshet orqasidagi barmoq izi skaneri ustida pastga suring"</string>
