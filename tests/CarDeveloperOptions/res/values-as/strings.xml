@@ -1102,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"ৱাই-ফাই"</item>
+    <item msgid="2271962426654621656">"ম’বাইল"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"যদি ৱাই-ফাই উপলব্ধ নহয়, তেন্তে ম’বাইল নেটৱৰ্ক ব্যৱহাৰ কৰক"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"যদি ম’বাইল নেটৱৰ্ক নাথাকে তেন্তে ৱাই-ফাই ব্যৱহাৰ কৰক"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"ৱাই-ফাইৰ জৰিয়তে কল কৰক। ৱাই-ফাই সংযোগ হেৰালে কল সমাপ্ত হ’ব।"</string>
@@ -2616,7 +2619,7 @@
     <string name="sync_one_time_sync" msgid="6005174168405784256">"এতিয়াই ছিংক কৰিবলৈ টিপক<xliff:g id="LAST_SYNC_TIME">
 %1$s</xliff:g>"</string>
     <string name="sync_gmail" msgid="4457967084840001296">"Gmail"</string>
-    <string name="sync_calendar" msgid="6573708019827519372">"কেলেণ্ডাৰ"</string>
+    <string name="sync_calendar" msgid="6573708019827519372">"Calendar"</string>
     <string name="sync_contacts" msgid="5687434785723746534">"সম্পৰ্কসমূহ"</string>
     <string name="sync_plug" msgid="6703804441408427257"><font fgcolor="#ffffffff">"Google ছিংকলৈ আপোনাক স্বাগতম!"</font>" \nডেটা ছিংক কৰাৰ এইয়া Googleৰ এটা পদক্ষেপ, যাৰদ্বাৰা আপুনি য\'তেই নাথাকক ত\'তে সম্পৰ্কসূচী, সাক্ষাতৰ সময়সূচীকে ধৰি আপোনাৰ বাবে অতি দৰকাৰী তথ্যসমূহ থাওকতে পাব।"</string>
     <string name="header_application_sync_settings" msgid="4581847153669774489">"এপৰ ছিংক ছেটিংসমূহ"</string>

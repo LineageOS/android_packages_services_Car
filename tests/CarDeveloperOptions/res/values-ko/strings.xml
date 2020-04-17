@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"화면 텍스트를 축소 또는 확대합니다."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"축소"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"확대"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"샘플 텍스트"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"오즈의 마법사"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"11장: 오즈의 멋진 에메랄드 도시"</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"모바일"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Wi‑Fi를 사용할 수 없는 경우 모바일 네트워크를 사용하세요."</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"모바일 네트워크를 사용할 수 없는 경우 Wi‑Fi를 사용합니다."</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Wi‑Fi를 통해 통화합니다. Wi‑Fi 연결이 끊기면 통화가 종료됩니다."</string>
@@ -1525,7 +1527,7 @@
     <string name="battery_status_title" msgid="8731200319740671905">"배터리 상태"</string>
     <string name="battery_level_title" msgid="5207775387973771646">"배터리 수준"</string>
     <string name="apn_settings" msgid="8130776653826271664">"APN"</string>
-    <string name="apn_edit" msgid="4350571070853305357">"액세스 포인트(APN) 편집"</string>
+    <string name="apn_edit" msgid="4350571070853305357">"액세스 포인트 수정"</string>
     <string name="apn_not_set" msgid="5344235604466825691">"설정되지 않음"</string>
     <string name="apn_name" msgid="8431432886706852226">"이름"</string>
     <string name="apn_apn" msgid="190519449579357696">"APN"</string>

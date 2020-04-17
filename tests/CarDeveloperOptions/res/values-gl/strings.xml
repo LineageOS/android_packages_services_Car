@@ -80,11 +80,10 @@
     <string name="sdcard_format" product="default" msgid="4831611387627849108">"Borrar tarxeta SD"</string>
     <string name="preview_pager_content_description" msgid="5731599395893090038">"Vista previa"</string>
     <string name="preview_page_indicator_content_description" msgid="3192955679074998362">"Vista previa, páxina <xliff:g id="CURRENT_PAGE">%1$d</xliff:g> de <xliff:g id="NUM_PAGES">%2$d</xliff:g>"</string>
-    <string name="font_size_summary" msgid="9120023206321191067">"Reduce ou amplía o texto da pantalla."</string>
+    <string name="font_size_summary" msgid="9120023206321191067">"Reduce ou amplía o tamaño do texto na pantalla."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Reducir"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Ampliar"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Texto de mostra"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"O marabilloso mago de Oz"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"Capítulo 11: A marabillosa Cidade Esmeralda de Oz"</string>
@@ -396,7 +395,7 @@
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"Engadiuse a cara"</string>
     <string name="security_settings_face_preference_summary_none" msgid="8427755590493904386">"Toca e configura a autenticación facial"</string>
     <string name="security_settings_face_preference_title" msgid="2630071872604654381">"Autenticación facial"</string>
-    <string name="security_settings_face_enroll_introduction_accessibility" msgid="1563255314851533140">"Usar configur. de accesibilidade"</string>
+    <string name="security_settings_face_enroll_introduction_accessibility" msgid="1563255314851533140">"Usar axustes de accesibilidade"</string>
     <string name="security_settings_face_enroll_introduction_accessibility_diversity" msgid="1130222333285509856"></string>
     <string name="security_settings_face_enroll_introduction_accessibility_vision" msgid="356568621735811168"></string>
     <string name="security_settings_face_enroll_introduction_cancel" msgid="4190924649721437238">"Cancelar"</string>
@@ -764,7 +763,7 @@
     <string name="bluetooth_device_context_unpair" msgid="250588431708253041">"Desincronizar"</string>
     <string name="bluetooth_device_context_disconnect_unpair" msgid="4519151805677280077">"Desconectar e desincronizar"</string>
     <string name="bluetooth_device_context_connect_advanced" msgid="423463405499392444">"Opcións..."</string>
-    <string name="bluetooth_menu_advanced" msgid="7566858513372603652">"Config. avanzada"</string>
+    <string name="bluetooth_menu_advanced" msgid="7566858513372603652">"Axustes avanzada"</string>
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"Bluetooth avanzado"</string>
     <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"Co Bluetooth activado, o dispositivo pode comunicarse con outros dispositivos Bluetooth próximos."</string>
     <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"Cando o Bluetooth está activado, o dispositivo pode comunicarse con outros dispositivos Bluetooth das proximidades.\n\nPara mellorar a experiencia de uso do dispositivo, as aplicacións e os servizos poden seguir buscando dispositivos próximos en calquera momento, mesmo cando o Bluetooth está desactivado. Esta opción pode utilizarse, por exemplo, para mellorar as funcións e os servizos baseados na localización. Podes cambiar esta opción na "<annotation id="link">"configuración de busca"</annotation>"."</string>
@@ -883,7 +882,7 @@
     <string name="wifi_menu_more_options" msgid="8318269834264035524">"Máis opcións"</string>
     <string name="wifi_menu_p2p" msgid="4945665601551289791">"Wi‑Fi Direct"</string>
     <string name="wifi_menu_scan" msgid="9082691677803181629">"Explorar"</string>
-    <string name="wifi_menu_advanced" msgid="5984484498045511072">"Config. avanzada"</string>
+    <string name="wifi_menu_advanced" msgid="5984484498045511072">"Axustes avanzada"</string>
     <string name="wifi_menu_configure" msgid="52192491120701266">"Configurar"</string>
     <string name="wifi_menu_connect" msgid="3984327567173931219">"Conectar coa rede"</string>
     <string name="wifi_menu_remember" msgid="717257200269700641">"Lembrar rede"</string>
@@ -893,7 +892,7 @@
     <string name="wifi_empty_list_wifi_on" msgid="881478805041020600">"Buscando redes wifi..."</string>
     <string name="wifi_empty_list_user_restricted" msgid="2341613007817352431">"Non tes permiso para cambiar a rede wifi."</string>
     <string name="wifi_more" msgid="3538241640407382185">"Máis"</string>
-    <string name="wifi_setup_wps" msgid="6730131677695521321">"Config. automática (WPS)"</string>
+    <string name="wifi_setup_wps" msgid="6730131677695521321">"Axustes automática (WPS)"</string>
     <string name="wifi_settings_scanning_required_title" msgid="3593457187659922490">"Queres activar a busca de redes wifi?"</string>
     <string name="wifi_settings_scanning_required_summary" msgid="7469610959462708782">"Para activar a wifi automaticamente, primeiro debes activar a busca de redes wifi."</string>
     <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"A busca de redes wifi permite que as aplicacións e os servizos busquen estas redes en calquera momento, mesmo se este tipo de conexión está desactivado. Esta opción pode utilizarse, por exemplo, para mellorar as funcións e os servizos baseados na localización."</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wifi"</item>
+    <item msgid="2271962426654621656">"Datos móbiles"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Se non hai ningunha rede wifi dispoñible, utilizar a rede móbil"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Se a rede de telefonía móbil non está dispoñible, utiliza a wifi"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Chama por wifi. Se se perde a conexión wifi, a chamada rematará."</string>
@@ -1173,7 +1175,7 @@
     <string name="color_mode_option_natural" msgid="1292837781836645320">"Naturais"</string>
     <string name="color_mode_option_boosted" msgid="453557938434778933">"Realzadas"</string>
     <string name="color_mode_option_saturated" msgid="7758384943407859851">"Saturadas"</string>
-    <string name="color_mode_option_automatic" msgid="6572718611315165117">"Automática"</string>
+    <string name="color_mode_option_automatic" msgid="6572718611315165117">"Automáticas"</string>
     <string name="color_mode_summary_natural" msgid="1247153893843263340">"Utiliza só cores precisas"</string>
     <string name="color_mode_summary_automatic" msgid="6066740785261330514">"Axuste entre cores vivas e precisas"</string>
     <string name="accelerometer_summary_on" product="tablet" msgid="5750977897791656412">"Cambia a orientación automaticamente ao xirar a tableta"</string>
@@ -1210,9 +1212,9 @@
     <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"A función Pantalla adaptable utiliza a cámara dianteira para ver se alguén está mirando a pantalla. Funciona no dispositivo e as imaxes nunca se almacenan nin envían a Google."</string>
     <string name="night_display_title" msgid="1305002424893349814">"Luz nocturna"</string>
     <string name="night_display_text" msgid="5330502493684652527">"A función Luz nocturna dálle un ton ámbar á pantalla pola noite para que che resulte máis fácil mirala con pouca luz e che axude a coller o sono."</string>
-    <string name="night_display_auto_mode_title" msgid="8493573087102481588">"Planificar"</string>
+    <string name="night_display_auto_mode_title" msgid="8493573087102481588">"Planificación"</string>
     <string name="night_display_auto_mode_never" msgid="2897444637217807088">"Nunca"</string>
-    <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"Actívase en horario personalizado"</string>
+    <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"Actívase no horario escollido"</string>
     <string name="night_display_auto_mode_twilight" msgid="4000162110017520674">"Actívase do solpor ao amencer"</string>
     <string name="night_display_start_time_title" msgid="1069255169673371077">"Hora de inicio"</string>
     <string name="night_display_end_time_title" msgid="2760793157124245911">"Hora de finalización"</string>
@@ -1463,7 +1465,7 @@
     <string name="storage_wizard_init_external_summary" msgid="6993815290050489327">"Para migrar fotos e outros contidos multimedia entre dispositivos."</string>
     <string name="storage_wizard_init_internal_title" msgid="8750856962785644870">"Usar como almacenamento interno"</string>
     <string name="storage_wizard_init_internal_summary" msgid="4510546464921608029">"Para almacenar calquera cousa só neste dispositivo, incluídas as aplicacións e as fotos. É necesario formatar para evitar que funcione con outros dispositivos."</string>
-    <string name="storage_wizard_format_confirm_title" msgid="7785358616068633439">"Formatar como almacenam. interno"</string>
+    <string name="storage_wizard_format_confirm_title" msgid="7785358616068633439">"Formatar como almacenaxe interna"</string>
     <string name="storage_wizard_format_confirm_body" msgid="4107762933332992624">"Esta acción esixe que se formate a <xliff:g id="NAME_0">^1</xliff:g> para que estea protexida. \n\nDespois de formatala, esta <xliff:g id="NAME_1">^1</xliff:g> só funcionará neste dispositivo. \n\n"<b>"Ao formatar borraranse todos os datos almacenados actualmente na <xliff:g id="NAME_2">^1</xliff:g>."</b>" Para evitar perder os datos, considera a posibilidade de facer unha copia de seguranza."</string>
     <string name="storage_wizard_format_confirm_public_title" msgid="5866830103788091426">"Formatar como almacen. portátil"</string>
     <string name="storage_wizard_format_confirm_public_body" msgid="1451308701654703353">"Esta acción esixe que se formate a <xliff:g id="NAME_0">^1</xliff:g>. \n\n"<b>"O formatado borra todos os datos actualmente almacenados en <xliff:g id="NAME_1">^1</xliff:g>."</b>" Para evitar perder os datos, pensa na posibilidade de facer unha copia de seguranza."</string>
@@ -1571,7 +1573,7 @@
     <string name="reset_network_title" msgid="8944059136930806211">"Restablecer wifi, rede móbil e Bluetooth"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"Con esta selección, restableceranse todas as opcións de configuración de rede, entre elas as referentes a:\n\n"<li>"Wifi"</li>\n<li>"Datos móbiles"</li>\n<li>"Bluetooth"</li></string>
     <string name="reset_esim_title" msgid="7630781767040831893">"Borrar SIM descargadas"</string>
-    <string name="reset_esim_desc" msgid="433226911566802">"Para descargar tarxetas SIM de substitución, ponte en contacto co teu operador. Non se cancelará ningún dos plans de servizos para móbiles que teñas."</string>
+    <string name="reset_esim_desc" msgid="433226911566802">"Para descargar tarxetas SIM de substitución, ponte en contacto co teu operador. Non se cancelará ningún dos plans de servizos móbiles que teñas."</string>
     <string name="reset_network_button_text" msgid="4293271046867912819">"Restablecer configuración"</string>
     <string name="reset_network_final_desc" msgid="2463817067048751373">"Queres restablecer toda a configuración de rede? Non se pode desfacer esta acción."</string>
     <string name="reset_network_final_desc_esim" msgid="4676436976372555750">"Queres restablecer todas as opcións de configuración de rede e borrar as SIM descargadas? Non se pode desfacer esta acción."</string>
@@ -1765,7 +1767,7 @@
     <string name="lockpattern_settings_enable_visible_pattern_title" msgid="4935583222709647096">"Facer visible o padrón"</string>
     <string name="lockpattern_settings_enable_visible_pattern_title_profile" msgid="5338893138982642228">"Facer visible o padrón do perfil"</string>
     <string name="lockpattern_settings_enable_tactile_feedback_title" msgid="3203621862806531947">"Vibrar ao tocar"</string>
-    <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"Bloquear ao acender"</string>
+    <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"Bloquear co botón de acender"</string>
     <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"Excepto se <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g> mantén o dispositivo desbloqueado"</string>
     <string name="lockpattern_settings_choose_lock_pattern" msgid="9042142745571386381">"Definir padrón de desbloqueo"</string>
     <string name="lockpattern_settings_change_lock_pattern" msgid="1456643060737114885">"Cambiar padrón de desbloqueo"</string>
@@ -2447,7 +2449,7 @@
     <string name="battery_saver" msgid="3989710213758938398">"Aforro de batería"</string>
     <string name="battery_saver_auto_title" msgid="4158659069641849952">"Activar automaticamente"</string>
     <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"Sen planificación"</string>
-    <string name="battery_saver_auto_routine" msgid="886514412067906980">"Baseada na túa rutina"</string>
+    <string name="battery_saver_auto_routine" msgid="886514412067906980">"Segundo a túa rutina"</string>
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"Baseada nunha porcentaxe"</string>
     <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"A función Aforro de batería actívase se se prevé que a batería pode esgotarse antes da seguinte carga. Esta estimación realízase a partir da rutina que segues habitualmente"</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Activarase cando a batería estea ao <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
@@ -2539,7 +2541,7 @@
     <string name="credential_for_vpn_and_apps" msgid="2462642486949593841">"Instalada para a VPN e as aplicacións"</string>
     <string name="credential_for_wifi" msgid="2903295786961726388">"Instalada para a wifi"</string>
     <string name="credentials_reset_hint" msgid="3484350477764088169">"Queres eliminar todos os contidos?"</string>
-    <string name="credentials_erased" msgid="7287088033523869085">"Almacenam. credenciais borrado"</string>
+    <string name="credentials_erased" msgid="7287088033523869085">"Almacenaxe credenciais borrada"</string>
     <string name="credentials_not_erased" msgid="9137227570738627637">"Imposible borrar almacen. credenciais"</string>
     <string name="usage_access_title" msgid="7981321142726540574">"Apps con acceso de uso"</string>
     <string name="emergency_tone_title" msgid="130211364025984428">"Sinal de marcación de emerxencia"</string>
@@ -2604,8 +2606,7 @@
     <string name="background_data_summary" msgid="799640633948841990">"Aplicacións poden sincronizar, enviar e recibir datos sempre"</string>
     <string name="background_data_dialog_title" msgid="8306650658158895976">"Des. datos 2º plano?"</string>
     <string name="background_data_dialog_message" msgid="8126774244911656527">"A desactivación dos datos en segundo plano amplía a duración da batería e reduce o uso de datos. É posible que algunhas aplicacións continúen utilizando a conexión de datos en segundo plano."</string>
-    <!-- no translation found for sync_automatically (5746117156896468099) -->
-    <skip />
+    <string name="sync_automatically" msgid="5746117156896468099">"Sincronizar automat. datos das apps"</string>
     <string name="sync_enabled" msgid="535172627223336983">"Sincronización activada"</string>
     <string name="sync_disabled" msgid="713721807204805062">"Sen sincronización"</string>
     <string name="sync_error" msgid="988155155932442765">"Erro de sincronización"</string>
@@ -2915,7 +2916,7 @@
     <string name="apps_with_restrictions_settings_button" msgid="5065896213467171744">"Ampliar axustes aplicación"</string>
     <string name="nfc_payment_settings_title" msgid="5070077706735415291">"Tocar e pagar"</string>
     <string name="nfc_payment_how_it_works" msgid="7607901964687787177">"Como funciona"</string>
-    <string name="nfc_payment_no_apps" msgid="8844440783395420860">"Paga co teu teléfono nas tendas"</string>
+    <string name="nfc_payment_no_apps" msgid="8844440783395420860">"Paga co teléfono nas tendas"</string>
     <string name="nfc_payment_default" msgid="7869273092463612271">"Aplicación de pago predeterminada"</string>
     <string name="nfc_payment_default_not_set" msgid="955804193510335338">"Sen configurar"</string>
     <string name="nfc_payment_app_and_desc" msgid="102312684211458190">"<xliff:g id="APP">%1$s</xliff:g> - <xliff:g id="DESCRIPTION">%2$s</xliff:g>"</string>
@@ -3695,7 +3696,7 @@
     <string name="process_format" msgid="8575347150598564509">"<xliff:g id="APP_NAME">%1$s</xliff:g> (<xliff:g id="COUNT">%2$d</xliff:g>)"</string>
     <string name="high_power_apps" msgid="2518319744362028920">"Optimización da batería"</string>
     <string name="additional_battery_info" msgid="6877663897819271203">"Alertas de uso"</string>
-    <string name="show_all_apps" msgid="5442552004569634846">"Mostrar uso completo do dispositivo"</string>
+    <string name="show_all_apps" msgid="5442552004569634846">"Uso do dispositivo"</string>
     <string name="hide_extra_apps" msgid="6798261081113299441">"Mostrar uso das aplicacións"</string>
     <plurals name="power_high_usage_summary" formatted="false" msgid="4658343710126205199">
       <item quantity="other"><xliff:g id="NUMBER">%2$d</xliff:g> aplicacións presentan un comportamento anormal</item>
@@ -3832,7 +3833,7 @@
     <string name="screen_zoom_title" msgid="164369086350486104">"Tamaño de visualización"</string>
     <string name="screen_zoom_short_summary" msgid="5508079362742276703">"Reduce ou amplía os elementos da pantalla"</string>
     <string name="screen_zoom_keywords" msgid="8358462497896524092">"densidade de visualización, zoom da pantalla, escala, escalado"</string>
-    <string name="screen_zoom_summary" msgid="5294003755961312560">"Reduce ou amplía os elementos da pantalla. É posible que algunhas aplicacións da pantalla cambien de posición."</string>
+    <string name="screen_zoom_summary" msgid="5294003755961312560">"Reduce ou amplía o tamaño dos elementos na pantalla. É posible que algunhas aplicacións da pantalla cambien de posición."</string>
     <string name="screen_zoom_preview_title" msgid="2924312934036753091">"Vista previa"</string>
     <string name="screen_zoom_make_smaller_desc" msgid="1374501139722916729">"Facer máis pequeno"</string>
     <string name="screen_zoom_make_larger_desc" msgid="5306684807895846141">"Facer máis grande"</string>

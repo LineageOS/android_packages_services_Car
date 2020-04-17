@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"स्क्रीन पर मौजूद लेख को छोटा या बड़ा करें."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"छोटा करें"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"बड़ा करें"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"नमूना लेख"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"ओज़ का अद्भुत जादू"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"अध्याय 11: पन्ने का अद्भुत शहर ओज़"</string>
@@ -821,7 +820,7 @@
     <string name="wifi_ask_disable" msgid="2146839060110412974">"<xliff:g id="REQUESTER">%s</xliff:g> वाई-फ़ाई को बंद करना चाहता है"</string>
     <string name="art_verifier_for_debuggable_title" msgid="5223835619409464642">"डीबग वाले ऐप्लिकेशन के बाइटकोड की पुष्टि करें"</string>
     <string name="art_verifier_for_debuggable_summary" msgid="2204242476996701111">"डीबग किए जा सकने वाले ऐप्लिकेशन के लिए, ART को बाइटकोड की पुष्टि करने की मंज़ूरी दें"</string>
-    <string name="nfc_quick_toggle_title" msgid="4990697912813795002">"आस-पास के डिवाइस से संपर्क (एनएफसी)"</string>
+    <string name="nfc_quick_toggle_title" msgid="4990697912813795002">"आस-पास के डिवाइस से संपर्क (एनएफ़सी)"</string>
     <string name="nfc_quick_toggle_summary" product="tablet" msgid="983451155092850657">"जब टैबलेट अन्य डिवाइस को स्पर्श करे तो डेटा ट्रांसफर करने दें"</string>
     <string name="nfc_quick_toggle_summary" product="default" msgid="7141056939052895142">"जब फ़ोन दूसरे डिवाइस को टच करे, तो डेटा ट्रांसफर करने दें"</string>
     <string name="nfc_disclaimer_title" msgid="4860231267351602970">"NFC चालू करें"</string>
@@ -1070,7 +1069,7 @@
     <string name="wifi_hotspot_ap_band_title" msgid="3485744480410441949">"एपी बैंड"</string>
     <string name="wifi_hotspot_footer_info_regular" msgid="3876006922622827363">"अपने दूसरे डिवाइस के लिए हॉटस्पॉट का इस्तेमाल करके वाई-फ़ाई नेटवर्क बनाएं. हॉटस्पॉट आपके मोबाइल डेटा कनेक्शन के ज़रिए इंटरनेट की सुविधा देता है. मोबाइल डेटा के लिए अतिरिक्त भुगतान करना पड़ सकता है."</string>
     <string name="wifi_hotspot_footer_info_local_only" msgid="3339582350894639261">"ऐप्लिकेशन आस-पास के डिवाइस से सामग्री शेयर करने के लिए कोई हॉटस्पॉट बना सकते हैं."</string>
-    <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"हॉटस्पॉट अपने आप बंद करें"</string>
+    <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"हॉटस्पॉट अपने-आप बंद हो जाए"</string>
     <string name="wifi_hotspot_auto_off_summary" msgid="3866769400624802105">"कोई डिवाइस कनेक्ट नहीं होने पर, वाई-फ़ाई हॉटस्पॉट बंद हो जाएगा"</string>
     <string name="wifi_tether_starting" msgid="7676952148471297900">"हॉटस्‍पॉट को चालू किया जा रहा है…"</string>
     <string name="wifi_tether_stopping" msgid="7478561853791953349">"हॉटस्‍पॉट को बंद किया जा रहा है…"</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"वाई-फ़ाई"</item>
+    <item msgid="2271962426654621656">"मोबाइल"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"वाई-फ़ाई उपलब्ध न होने पर मोबाइल नेटवर्क इस्तेमाल करें"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"मोबाइल नेटवर्क न होने पर वाई-फ़ाई इस्तेमाल करें"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"वाई-फ़ाई के ज़रिए कॉल करें. वाई-फ़ाई रुक जाने पर कॉल खत्म हो जाएगी."</string>
@@ -1201,7 +1203,7 @@
     <string name="auto_brightness_off_summary" msgid="6162650416289359104">"मौजूदा रोशनी के लिए एडजस्ट न करें"</string>
     <string name="auto_brightness_very_high_summary" msgid="7202032980509583918">"बढ़ा हुआ बैटरी उपयोग"</string>
     <string name="auto_brightness_disclaimer" msgid="5416696351199148809">"मौजूदा रोशनी के लिए स्क्रीन की चमक का स्तर अनुकूलित करें. इस सुविधा के चालू होने पर, आप अब भी स्क्रीन की रोशनी कुछ समय के लिए एडजस्ट कर सकते हैं."</string>
-    <string name="auto_brightness_description" msgid="8209140379089535411">"आपकी गतिविधियों और आपके आस-पास मौजूद रोशनी के हिसाब से आपके डिवाइस की स्क्रीन की चमक अपने आप सेट हो जाएगी. आपके आस-पास मौजूद रोशनी के हिसाब से स्क्रीन की चमक अपने आप बदलने वाली इस सुविधा को आप अपनी पसंद के हिसाब से ढाल सकते हैं. ऐसा करने के लिए स्लाइडर को आगे-पीछे करें और मैन्युअल रूप से स्क्रीन की चमक सेट करें."</string>
+    <string name="auto_brightness_description" msgid="8209140379089535411">"आपकी गतिविधियों और आपके आस-पास मौजूद रोशनी के हिसाब से आपके डिवाइस की स्क्रीन की चमक अपने-आप सेट हो जाएगी. आपके आस-पास मौजूद रोशनी के हिसाब से स्क्रीन की चमक अपने-आप बदलने वाली इस सुविधा को आप अपनी पसंद के हिसाब से ढाल सकते हैं. ऐसा करने के लिए स्लाइडर को आगे-पीछे करें और मैन्युअल रूप से स्क्रीन की चमक सेट करें."</string>
     <string name="display_white_balance_title" msgid="5747260735311935143">"डिसप्ले का वाइट बैलेंस"</string>
     <string name="adaptive_sleep_title" msgid="3237620948260957018">"स्क्रीन अवेयर"</string>
     <string name="adaptive_sleep_summary_on" msgid="6670369739228487082">"चालू करें / अगर आप स्क्रीन को देख रहे हैं, तो वह बंद नहीं होगी"</string>
@@ -1835,7 +1837,7 @@
     <string name="unknown" msgid="2780743426415501227">"अज्ञात"</string>
     <string name="sort_order_alpha" msgid="6689698854460261212">"नाम के हिसाब से क्रम से लगाएं"</string>
     <string name="sort_order_size" msgid="3167376197248713027">"आकार के अनुसार क्रमित करें"</string>
-    <string name="sort_order_recent_notification" msgid="5592496977404445941">"सबसे हालिया सूचनाएं भेजने वाले ऐप्लिकेशन"</string>
+    <string name="sort_order_recent_notification" msgid="5592496977404445941">"सबसे हाल ही में सूचनाएं भेजने वाले ऐप्लिकेशन"</string>
     <string name="sort_order_frequent_notification" msgid="5640245013098010347">"अक्सर"</string>
     <string name="show_running_services" msgid="1895994322704667543">"चल रही सेवाएं दिखाएं"</string>
     <string name="show_background_processes" msgid="88012264528093617">"कैश की गई प्रक्रियाएं दिखाएं"</string>

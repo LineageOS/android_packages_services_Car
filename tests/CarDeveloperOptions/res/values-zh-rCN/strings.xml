@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"缩小或放大屏幕上的文字。"</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"缩小"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"放大"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"示例文本"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"绿野仙踪"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"第 11 章：奥兹国神奇的翡翠城"</string>
@@ -209,7 +208,7 @@
     <string name="proxy_error_empty_host_set_port" msgid="8471455809508588255">"如果主机字段为空，则端口字段必须为空。"</string>
     <string name="proxy_error_invalid_port" msgid="4046559920586100637">"您键入的端口无效。"</string>
     <string name="proxy_warning_limited_support" msgid="9026539134219095768">"浏览器会使用 HTTP 代理，但其他应用可能不会使用。"</string>
-    <string name="proxy_url_title" msgid="882042361706435904">"PAC网址： "</string>
+    <string name="proxy_url_title" msgid="882042361706435904">"PAC 网址： "</string>
     <string name="radio_info_dl_kbps" msgid="2903778264453410272">"DL 带宽 (kbps)："</string>
     <string name="radio_info_ul_kbps" msgid="3802245899811732716">"UL 带宽 (kbps)："</string>
     <string name="radio_info_signal_location_label" msgid="6788144906873498013">"移动网络位置信息（已弃用）："</string>
@@ -312,12 +311,12 @@
     <string name="roaming" msgid="8860308342135146004">"漫游"</string>
     <string name="roaming_enable" msgid="2108142024297441116">"漫游时连接到移动数据网络服务"</string>
     <string name="roaming_disable" msgid="1915440242079953809">"漫游时连接到移动数据网络服务"</string>
-    <string name="roaming_reenable_message" msgid="8388505868655113258">"移动数据网络连接已断开，因为您已离开本地网络并关闭了移动数据网络漫游功能。"</string>
+    <string name="roaming_reenable_message" msgid="8388505868655113258">"移动数据网络连接已断开，因为您已离开本地网络并关闭了数据漫游功能。"</string>
     <string name="roaming_turn_it_on_button" msgid="4370846458830537578">"将其启用"</string>
     <string name="roaming_warning" msgid="5488050911277592868">"这可能会产生高额费用。"</string>
     <string name="roaming_warning_multiuser" product="tablet" msgid="7090388691615686893">"如果允许数据漫游，您可能需要支付高昂的漫游费用！\n\n此设置会影响这部平板电脑上的所有用户。"</string>
     <string name="roaming_warning_multiuser" product="default" msgid="6999819541078827556">"如果允许数据漫游，您可能需要支付高昂的漫游费用！\n\n此设置会影响这部手机上的所有用户。"</string>
-    <string name="roaming_reenable_title" msgid="6985082191178297921">"允许移动数据网络漫游吗？"</string>
+    <string name="roaming_reenable_title" msgid="6985082191178297921">"允许数据漫游？"</string>
     <string name="networks" msgid="3073876464102136771">"运营商选择"</string>
     <string name="sum_carrier_select" msgid="8964744180598499121">"选择网络运营商"</string>
     <string name="date_and_time_settings_title" msgid="7827088656940910631">"日期和时间"</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"WLAN"</item>
+    <item msgid="2271962426654621656">"移动数据"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"如果无法连接到 WLAN，请使用移动网络"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"如果移动网络不可用，请使用 WLAN"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"通过 WLAN 进行通话。如果 WLAN 连接中断，通话将会结束。"</string>
@@ -1230,8 +1232,8 @@
     <string name="night_display_activation_off_manual" msgid="7776082151269794201">"立即关闭"</string>
     <string name="night_display_activation_on_twilight" msgid="5610294051700287249">"开启，直到日出"</string>
     <string name="night_display_activation_off_twilight" msgid="6846727701281556110">"关闭，直到日落"</string>
-    <string name="night_display_activation_on_custom" msgid="4761140206778957611">"保持开启状态，直到<xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="night_display_activation_off_custom" msgid="4207238846687792731">"保持关闭状态，直到<xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <string name="night_display_activation_on_custom" msgid="4761140206778957611">"开启，直到<xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <string name="night_display_activation_off_custom" msgid="4207238846687792731">"关闭，直到<xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="night_display_not_currently_on" msgid="1436588493764429281">"目前未开启护眼模式"</string>
     <string name="screen_timeout" msgid="1700950247634525588">"休眠"</string>
     <string name="screen_timeout_title" msgid="150117777762864112">"屏幕关闭"</string>
@@ -2080,7 +2082,7 @@
     <string name="accessibility_timeout_1min" msgid="5019003178551730551">"1 分钟"</string>
     <string name="accessibility_timeout_2mins" msgid="4124259290444829477">"2 分钟"</string>
     <string name="accessibility_content_timeout_preference_title" msgid="5160746882250939464">"阅读时间"</string>
-    <string name="accessibility_control_timeout_preference_title" msgid="2771808346038759474">"操作执行时长"</string>
+    <string name="accessibility_control_timeout_preference_title" msgid="2771808346038759474">"等待操作的时长"</string>
     <string name="accessibility_content_timeout_preference_summary" msgid="853829064617918179">"请选择您需要阅读的消息的显示时间（只会暂时显示）。\n\n只有部分应用支持这项设置。"</string>
     <string name="accessibility_control_timeout_preference_summary" msgid="8582212299606932160">"请选择提示您执行操作的消息的显示时间（只会暂时显示）。\n\n部分应用可能不支持这项设置。"</string>
     <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"轻触并按住的延迟时间"</string>
@@ -2655,7 +2657,7 @@
     <string name="data_usage_data_limit" msgid="4070740691087063670">"设置流量上限"</string>
     <string name="data_usage_cycle" msgid="1877235461828192940">"流量消耗重置周期"</string>
     <string name="data_usage_app_items_header_text" msgid="5396134508509913851">"应用数据流量"</string>
-    <string name="data_usage_menu_roaming" msgid="6933555994416977198">"移动数据网络漫游"</string>
+    <string name="data_usage_menu_roaming" msgid="6933555994416977198">"数据漫游"</string>
     <string name="data_usage_menu_restrict_background" msgid="3539289148113800518">"限制后台流量"</string>
     <string name="data_usage_menu_allow_background" msgid="2874898501715368528">"允许使用后台流量"</string>
     <string name="data_usage_menu_split_4g" msgid="2264683155484246409">"单独显示4G流量"</string>
@@ -2757,7 +2759,7 @@
     <string name="vpn_not_used" msgid="2889520789132261454">"（未使用）"</string>
     <string name="vpn_no_ca_cert" msgid="486605757354800838">"（不验证服务器）"</string>
     <string name="vpn_no_server_cert" msgid="679622228649855629">"（来自服务器）"</string>
-    <string name="vpn_always_on_invalid_reason_type" msgid="165810330614905489">"此 VPN 类型无法随时保持连接"</string>
+    <string name="vpn_always_on_invalid_reason_type" msgid="165810330614905489">"此类型的 VPN 无法随时保持连接"</string>
     <string name="vpn_always_on_invalid_reason_server" msgid="3864424127328210700">"始终开启的 VPN 仅支持数字格式的服务器地址"</string>
     <string name="vpn_always_on_invalid_reason_no_dns" msgid="3814114757059738225">"必须为始终开启的 VPN 指定 DNS 服务器"</string>
     <string name="vpn_always_on_invalid_reason_dns" msgid="501388894176868973">"DNS 服务器地址必须为数字才能使用始终开启的 VPN"</string>
@@ -2790,7 +2792,7 @@
     <string name="vpn_menu_lockdown" msgid="6951452279924808089">"始终开启的 VPN"</string>
     <string name="vpn_no_vpns_added" msgid="6616183541896197147">"尚未添加任何 VPN"</string>
     <string name="vpn_always_on_summary" msgid="3639994551631437397">"随时和 VPN 保持连接"</string>
-    <string name="vpn_always_on_summary_not_supported" msgid="9077720997795965133">"不受此应用支持"</string>
+    <string name="vpn_always_on_summary_not_supported" msgid="9077720997795965133">"此应用不支持"</string>
     <string name="vpn_always_on_summary_active" msgid="8962619701962239088">"已启用“始终开启”模式"</string>
     <string name="vpn_require_connection" msgid="5413746839457797350">"屏蔽未使用 VPN 的所有连接"</string>
     <string name="vpn_require_connection_title" msgid="8361434328767853717">"需要连接 VPN？"</string>
@@ -2848,7 +2850,7 @@
     <string name="user_settings_title" msgid="7917598650933179545">"多用户"</string>
     <string name="user_settings_footer_text" product="device" msgid="4573858247439190545">"通过添加新用户来共享您的设备。每个用户都将在您的设备上拥有个人空间，以便使用自定义的主屏幕、帐号、应用和设置等。"</string>
     <string name="user_settings_footer_text" product="tablet" msgid="780018221428132918">"通过添加新用户来共享您的平板电脑。每个用户都将在您的平板电脑上拥有个人空间，以便使用自定义的主屏幕、帐号、应用和设置等。"</string>
-    <string name="user_settings_footer_text" product="default" msgid="1470859614968237491">"通过添加新用户来共享您的手机。每个用户都将在您的手机上拥有个人空间，以便使用自定义的主屏幕、帐号、应用和设置等。"</string>
+    <string name="user_settings_footer_text" product="default" msgid="1470859614968237491">"通过添加新用户，您可以与他人共用一部手机。每个用户都将在您的手机上拥有个人空间，并可自行设定主屏幕、帐号、应用和设置等。"</string>
     <string name="user_list_title" msgid="6670258645246192324">"用户和个人资料"</string>
     <string name="user_add_user_or_profile_menu" msgid="4220679989900149336">"添加用户或个人资料"</string>
     <string name="user_add_user_menu" msgid="9006572936456324794">"添加用户"</string>
@@ -2913,7 +2915,7 @@
     <string name="apps_with_restrictions_header" msgid="8656739605673756176">"受限应用"</string>
     <string name="apps_with_restrictions_settings_button" msgid="5065896213467171744">"展开应用设置"</string>
     <string name="nfc_payment_settings_title" msgid="5070077706735415291">"触碰付款"</string>
-    <string name="nfc_payment_how_it_works" msgid="7607901964687787177">"工作原理"</string>
+    <string name="nfc_payment_how_it_works" msgid="7607901964687787177">"工作方式"</string>
     <string name="nfc_payment_no_apps" msgid="8844440783395420860">"使用手机在商店内付款"</string>
     <string name="nfc_payment_default" msgid="7869273092463612271">"默认付款应用"</string>
     <string name="nfc_payment_default_not_set" msgid="955804193510335338">"未设置"</string>
@@ -3143,7 +3145,7 @@
     <string name="notification_unknown_sound_title" msgid="8043718667804838398">"应用提供的提示音"</string>
     <string name="notification_sound_default" msgid="2664544380802426260">"默认通知提示音"</string>
     <string name="alarm_ringtone_title" msgid="6411326147408635902">"默认闹钟提示音"</string>
-    <string name="vibrate_when_ringing_title" msgid="2757996559847126952">"有来电时振动"</string>
+    <string name="vibrate_when_ringing_title" msgid="2757996559847126952">"来电振动"</string>
     <string name="other_sound_settings" msgid="5250376066099818676">"其他提示音"</string>
     <string name="dial_pad_tones_title" msgid="8877212139988655769">"拨号键盘提示音"</string>
     <string name="screen_locking_sounds_title" msgid="4407110895465866809">"屏幕锁定提示音"</string>
@@ -3160,7 +3162,7 @@
     <string name="emergency_tone_vibrate" msgid="5020068066905681181">"振动"</string>
     <string name="boot_sounds_title" msgid="7583926202411353620">"开机音效"</string>
     <string name="live_caption_title" msgid="7926591158657997051">"实时字幕"</string>
-    <string name="live_caption_summary" msgid="9064771862352393125">"自动字幕媒体"</string>
+    <string name="live_caption_summary" msgid="9064771862352393125">"自动生成媒体字幕"</string>
     <string name="zen_mode_settings_summary_off" msgid="6929319200478424962">"永不"</string>
     <plurals name="zen_mode_settings_summary_on" formatted="false" msgid="6061723291126091396">
       <item quantity="other">已启用 <xliff:g id="ON_COUNT">%d</xliff:g> 个</item>
@@ -4437,7 +4439,7 @@
     <string name="cdma_subscription_summary" msgid="2298861419202726628">"在 RUIM/SIM 和 NV 之间切换"</string>
     <string name="cdma_subscription_dialogtitle" msgid="232485231569225126">"订阅"</string>
     <string name="register_automatically" msgid="1858081641661493109">"自动注册…"</string>
-    <string name="roaming_alert_title" msgid="1849237823113454475">"要允许数据网络漫游吗？"</string>
+    <string name="roaming_alert_title" msgid="1849237823113454475">"允许数据漫游？"</string>
     <string name="roaming_check_price_warning" msgid="5883499714594419439">"请与您的网络服务提供商联系以了解定价。"</string>
     <string name="mobile_data_usage_title" msgid="2376358672434990037">"应用的流量使用情况"</string>
     <string name="mobile_network_mode_error" msgid="6818434186286086554">"无效的网络模式<xliff:g id="NETWORKMODEID">%1$d</xliff:g>。忽略。"</string>

@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"స్క్రీన్‌పై ఉండే వచనాన్ని చిన్నదిగా లేదా పెద్దదిగా చేస్తుంది."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"చిన్నదిగా చేస్తుంది"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"పెద్దదిగా చేస్తుంది"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"నమూనా వచనం"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"ది వండర్‌ఫుల్ విజర్డ్ ఆఫ్ ఆజ్"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"అధ్యాయం 11: ది వండర్‌ఫుల్ ఎమరాల్డ్ సిటీ ఆఫ్ ఆజ్"</string>
@@ -414,7 +413,7 @@
     <string name="security_settings_face_enroll_error_dialog_title" msgid="3933492758701563051">"నమోదు పూర్తి కాలేదు"</string>
     <string name="security_settings_face_enroll_dialog_ok" msgid="1078348922734845090">"సరే"</string>
     <string name="security_settings_face_enroll_error_timeout_dialog_message" msgid="4917894418448325405">"ముఖ నమోదు సమయ పరిమితి చేరుకుంది. మళ్లీ ప్రయత్నించండి."</string>
-    <string name="security_settings_face_enroll_error_generic_dialog_message" msgid="5160473187142616862">"ముఖ నమోదు పని చేయలేదు."</string>
+    <string name="security_settings_face_enroll_error_generic_dialog_message" msgid="5160473187142616862">"ఫేస్ నమోదు పని చేయలేదు."</string>
     <string name="security_settings_face_enroll_finish_title" msgid="6800717857394410769">"మొత్తం పూర్తయింది. చూడడానికి భాగుంది."</string>
     <string name="security_settings_face_enroll_done" msgid="5409739233373490971">"పూర్తయింది"</string>
     <string name="security_settings_face_settings_use_face_category" msgid="1586532139528115416">"ముఖాన్ని వాడండి"</string>
@@ -1070,7 +1069,7 @@
     <string name="wifi_hotspot_ap_band_title" msgid="3485744480410441949">"AP బ్యాండ్"</string>
     <string name="wifi_hotspot_footer_info_regular" msgid="3876006922622827363">"మీ ఇతర పరికరాల కోసం Wi-Fi నెట్‌వర్క్‌ని సృష్టించడానికి హాట్‌స్పాట్‌ని ఉపయోగించండి. హాట్‌స్పాట్ అనేది మీ మొబైల్ డేటా కనెక్షన్‌ని ఉపయోగించి ఇంటర్నెట్‌ని అందిస్తుంది. అదనపు మొబైల్ డేటా ఛార్జీలు చెల్లించాల్సి రావచ్చు."</string>
     <string name="wifi_hotspot_footer_info_local_only" msgid="3339582350894639261">"యాప్‌లు సమీప పరికరాలతో కంటెంట్‌ని షేర్ చేయడం కోసం హాట్‌స్పాట్‌ని సృష్టించవచ్చు."</string>
-    <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"హాట్‌స్పాట్‌ని ఆటోమేటిక్‌గా ఆఫ్ చేయి"</string>
+    <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"హాట్‌స్పాట్‌ను ఆటోమేటిక్‌గా ఆఫ్ చేయి"</string>
     <string name="wifi_hotspot_auto_off_summary" msgid="3866769400624802105">"పరికరాలు ఏవీ కనెక్ట్ కాకపోతే Wi‑Fi హాట్‌స్పాట్‌ ఆఫ్ అవుతుంది"</string>
     <string name="wifi_tether_starting" msgid="7676952148471297900">"హాట్‌స్పాట్‌ను ప్రారంభిస్తోంది…"</string>
     <string name="wifi_tether_stopping" msgid="7478561853791953349">"హాట్‌స్పాట్‌ను ఆపివేస్తోంది…"</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"మొబైల్"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Wi‑Fi అందుబాటులో లేకుంటే, మొబైల్ నెట్‌వర్క్‌ను ఉపయోగిస్తుంది"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"మొబైల్ నెట్‌వర్క్ అందుబాటులో లేకపోతే, Wi‑Fiని ఉపయోగించు"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Wi‑Fi ద్వారా కాల్ చేయగలరు. Wi‑Fiని కోల్పోతే, కాల్ ముగిసిపోతుంది."</string>
@@ -1567,7 +1569,7 @@
     <string name="menu_restore" msgid="3799288817317293115">"డిఫాల్ట్‌కు రీసెట్ చేయి"</string>
     <string name="restore_default_apn_completed" msgid="5671734152740058937">"డిఫాల్ట్ APN సెట్టింగ్‌లను రీసెట్ చేయడం పూర్తయింది."</string>
     <string name="reset_dashboard_title" msgid="7084966342252178530">"రీసెట్ ఎంపికలు"</string>
-    <string name="reset_dashboard_summary" msgid="8778383341461126642">"నెట్‌వర్క్, యాప్‌లు లేదా పరికరాన్ని రీసెట్ చేయవచ్చు"</string>
+    <string name="reset_dashboard_summary" msgid="8778383341461126642">"నెట్‌వర్క్, యాప్‌లు లేదా డివైజ్‌ను రీసెట్ చేయవచ్చు"</string>
     <string name="reset_network_title" msgid="8944059136930806211">"Wi-Fi, మొబైల్ &amp; బ్లూటూత్‌ని రీసెట్ చేయండి"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"ఇది అన్ని నెట్‌వర్క్ సెట్టింగ్‌లను రీసెట్ చేస్తుంది, వీటితో సహా:\n\n"<li>"Wi‑Fi"</li>\n<li>"మొబైల్ డేటా"</li>\n<li>"బ్లూటూత్"</li></string>
     <string name="reset_esim_title" msgid="7630781767040831893">"డౌన్‌లోడ్ చేసిన SIMలు తొలగించు"</string>
@@ -1645,7 +1647,7 @@
     <string name="mobile_insert_sim_card" msgid="7594550403454243732">"దయచేసి సిమ్ కార్డును చొప్పించి, పునఃప్రారంభించండి"</string>
     <string name="mobile_connect_to_internet" msgid="6031886097365170913">"దయచేసి ఇంటర్నెట్‌కు కనెక్ట్ చేయండి"</string>
     <string name="location_title" msgid="8664674161765477168">"నా స్థానం"</string>
-    <string name="managed_profile_location_switch_title" msgid="8157384427925389680">"కార్యాలయ ప్రొఫైల్ యొక్క స్థానం"</string>
+    <string name="managed_profile_location_switch_title" msgid="8157384427925389680">"ఆఫీస్ ప్రొఫైల్ కోసం లొకేషన్"</string>
     <string name="location_app_level_permissions" msgid="1298041503927632960">"యాప్ అనుమతి"</string>
     <string name="location_app_permission_summary_location_off" msgid="541372845344796336">"స్థానం ఆఫ్‌లో ఉంది"</string>
     <plurals name="location_app_permission_summary_location_on" formatted="false" msgid="7904821382328758218">
@@ -1654,7 +1656,7 @@
     </plurals>
     <string name="location_category_recent_location_access" msgid="286059523360285026">"ఇటీవలి స్థాన యాక్సెస్"</string>
     <string name="location_recent_location_access_view_details" msgid="2051602261436245905">"వివరాలను చూడండి"</string>
-    <string name="location_no_recent_apps" msgid="77502059586413278">"స్థానాన్ని ఇటీవల అనువర్తనాలు ఏవీ అభ్యర్థించలేదు"</string>
+    <string name="location_no_recent_apps" msgid="77502059586413278">"యాప్‌లు ఏవీ లొకేషన్‌ను ఇటీవల అభ్యర్థించలేదు"</string>
     <string name="location_no_recent_accesses" msgid="6289916310397279890">"యాప్‌లు ఏవీ స్థానాన్ని ఇటీవల యాక్సెస్ చేయలేదు"</string>
     <string name="location_high_battery_use" msgid="7177199869979522663">"అధిక బ్యాటరీ వినియోగం"</string>
     <string name="location_low_battery_use" msgid="5030448574501435888">"తక్కువ బ్యాటరీ వినియోగం"</string>
@@ -2574,7 +2576,7 @@
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"SMS &amp; కాల్ లాగ్ యాక్సెస్‌ను పరిమితం చేయండి"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"కేవలం డిఫాల్ట్ ఫోన్ మరియు సందేశ యాప్‌లు మాత్రమే SMS &amp; లాగ్ అనుమతులను కలిగి ఉన్నాయి"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"విశ్వసనీయ ఏజెంట్‌లు అందుబాటులో లేరు"</string>
-    <string name="add_device_admin_msg" msgid="3573765823476931173">"పరికర నిర్వాహకుల యాప్‌ను యాక్టివేట్‌ చేయాలా?"</string>
+    <string name="add_device_admin_msg" msgid="3573765823476931173">"డివైజ్ నిర్వాహకుల యాప్‌ను యాక్టివేట్‌ చేయాలా?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"ఈ పరికరం నిర్వాహకుల యాప్‌ను యాక్టివేట్‌ చేయి"</string>
     <string name="device_admin_add_title" msgid="6097881332139146897">"పరికర నిర్వాహకులు"</string>
     <string name="device_admin_warning" msgid="4421817419326480449">"ఈ \'నిర్వాహకుల యాప్‌\'ను యాక్టివేట్‌ చేస్తే, కింది చర్యలను చేయడానికి <xliff:g id="APP_NAME">%1$s</xliff:g> యాప్ అనుమతించబడుతుంది:"</string>
@@ -2617,7 +2619,7 @@
     <string name="sync_one_time_sync" msgid="6005174168405784256">"ఇప్పుడే సమకాలీకరించడానికి నొక్కండి<xliff:g id="LAST_SYNC_TIME">
 %1$s</xliff:g>"</string>
     <string name="sync_gmail" msgid="4457967084840001296">"Gmail"</string>
-    <string name="sync_calendar" msgid="6573708019827519372">"క్యాలెండర్"</string>
+    <string name="sync_calendar" msgid="6573708019827519372">"Calendar"</string>
     <string name="sync_contacts" msgid="5687434785723746534">"పరిచయాలు"</string>
     <string name="sync_plug" msgid="6703804441408427257"><font fgcolor="#ffffffff">"Google సమకాలీకరణకు స్వాగతం!"</font>" \nమీరు ఎక్కడ ఉన్నా సరే మీ పరిచయాలు, నియామకాలు మరియు మరిన్నింటికి ప్రాప్యతను అనుమతించడం కోసం డేటాను సమకాలీకరించడానికి Google అవలంబించే విధానం."</string>
     <string name="header_application_sync_settings" msgid="4581847153669774489">"అనువర్తన సమకాలీకరణ సెట్టింగ్‌లు"</string>
@@ -3758,7 +3760,7 @@
     <string name="usb_summary_MIDI_power" msgid="7685597621357005180">"MIDI మరియు విద్యుత్తు శక్తి సరఫరా"</string>
     <string name="background_check_pref" msgid="664081406854758392">"బ్యాక్‌గ్రౌండ్ తనిఖీ"</string>
     <string name="background_check_title" msgid="4136736684290307970">"పూర్తి నేపథ్య యాక్సెస్"</string>
-    <string name="assist_access_context_title" msgid="2274614501747710439">"స్క్రీన్‌లోని వచనాన్ని ఉపయోగించండి"</string>
+    <string name="assist_access_context_title" msgid="2274614501747710439">"స్క్రీన్‌లోని టెక్స్ట్‌ను ఉపయోగించండి"</string>
     <string name="assist_access_context_summary" msgid="5867997494395842785">"స్క్రీన్ కంటెంట్‌లను వచన రూపంలో యాక్సెస్ చేయడానికి సహాయక యాప్‌ను అనుమతిస్తుంది"</string>
     <string name="assist_access_screenshot_title" msgid="1991014038776117688">"స్క్రీన్‌షాట్‌ను ఉపయోగించండి"</string>
     <string name="assist_access_screenshot_summary" msgid="3010943864000489424">"స్క్రీన్ చిత్రాన్ని యాక్సెస్ చేయడానికి సహాయక యాప్‌ను అనుమతిస్తుంది"</string>
