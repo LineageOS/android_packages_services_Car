@@ -31,4 +31,9 @@ oneway interface ICarWatchdogClient {
    * @param timeout             Final timeout given by the server based on client request.
    */
   void checkIfAlive(in int sessionId, in TimeoutLength timeout);
+
+  /**
+   * Notify the client that it will be forcedly terminated in 1 second.
+   */
+  void prepareProcessTermination();
 }

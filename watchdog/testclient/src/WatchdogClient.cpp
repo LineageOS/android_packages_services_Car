@@ -59,6 +59,11 @@ ndk::ScopedAStatus WatchdogClient::checkIfAlive(int32_t sessionId, TimeoutLength
     return ndk::ScopedAStatus::ok();
 }
 
+ndk::ScopedAStatus WatchdogClient::prepareProcessTermination() {
+    ALOGI("This process is being terminated by car watchdog");
+    return ndk::ScopedAStatus::ok();
+}
+
 bool WatchdogClient::initialize(const CommandParam& param) {
     ndk::SpAIBinder binder(
             AServiceManager_getService("android.automotive.watchdog.ICarWatchdog/default"));

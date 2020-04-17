@@ -75,6 +75,7 @@ public:
 class MockICarWatchdogClient : public ICarWatchdogClient {
 public:
     MOCK_METHOD(Status, checkIfAlive, (int32_t sessionId, TimeoutLength timeout), (override));
+    MOCK_METHOD(Status, prepareProcessTermination, (), (override));
     MOCK_METHOD(IBinder*, onAsBinder, (), (override));
     MOCK_METHOD(int32_t, getInterfaceVersion, (), (override));
     MOCK_METHOD(std::string, getInterfaceHash, (), (override));
