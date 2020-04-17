@@ -464,26 +464,31 @@ Result<void> WatchdogProcessService::startHealthCheckingLocked(TimeoutLength tim
 
 Result<void> WatchdogProcessService::dumpAndKillClientsIfNotResponding(TimeoutLength timeout) {
     std::vector<int32_t> processIds;
+    std::vector<sp<ICarWatchdogClient>> clientsToNotify;
     {
         Mutex::Autolock lock(mMutex);
         PingedClientMap& clients = mPingedClients[timeout];
         for (PingedClientMap::const_iterator it = clients.cbegin(); it != clients.cend(); it++) {
             pid_t pid = -1;
             userid_t userId = -1;
-            sp<IBinder> binder = BnCarWatchdog::asBinder(it->second.client);
+            sp<ICarWatchdogClient> client = it->second.client;
+            sp<IBinder> binder = BnCarWatchdog::asBinder(client);
             std::vector<TimeoutLength> timeouts = {timeout};
-            // Unhealthy clients are eventually removed from the list through binderDied when they
-            // are killed.
             findClientAndProcessLocked(timeouts, binder,
-                                       [&](std::vector<ClientInfo>& /*clients*/,
+                                       [&](std::vector<ClientInfo>& clients,
                                            std::vector<ClientInfo>::const_iterator it) {
                                            pid = (*it).pid;
                                            userId = (*it).userId;
+                                           clients.erase(it);
                                        });
             if (pid != -1 && mStoppedUserId.count(userId) == 0) {
+                clientsToNotify.push_back(client);
                 processIds.push_back(pid);
             }
         }
+    }
+    for (auto&& client : clientsToNotify) {
+        client->prepareProcessTermination();
     }
     return dumpAndKillAllProcesses(processIds);
 }

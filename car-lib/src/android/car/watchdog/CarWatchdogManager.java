@@ -96,8 +96,8 @@ public final class CarWatchdogManager extends CarManagerBase {
      * respond by calling {@link CarWatchdogManager.tellClientAlive} within timeout. If they don't
      * respond, car watchdog server reports the current state and kills them.
      *
-     * <p>Before car watchdog server kills the client, it calls onPrepareProcessKill to allow them
-     * to prepare the termination. They will be killed in 1 second.
+     * <p>Before car watchdog server kills the client, it calls onPrepareProcessTermination to allow
+     * them to prepare the termination. They will be killed in 1 second.
      */
     public abstract static class CarWatchdogClientCallback {
         /**
@@ -124,8 +124,6 @@ public final class CarWatchdogManager extends CarManagerBase {
          * <p>The callback method is called at the Executor which is specifed in {@link
          * #registerClient}.
          */
-        // TODO(b/150006093): After adding a callback to ICarWatchdogClient, subsequent
-        // implementation should be done in CarWatchdogService and CarWatchdogManager.
         public void onPrepareProcessTermination() {}
     }
 
@@ -305,6 +303,20 @@ public final class CarWatchdogManager extends CarManagerBase {
         }
     }
 
+    private void notifyProcessTermination() {
+        CarWatchdogClientCallback client;
+        Executor executor;
+        synchronized (mLock) {
+            if (mRegisteredClient == null) {
+                Log.w(TAG, "Cannot notify the client. The client has not been registered.");
+                return;
+            }
+            client = mRegisteredClient;
+            executor = mCallbackExecutor;
+        }
+        executor.execute(() -> client.onPrepareProcessTermination());
+    }
+
     /** @hide */
     private static final class ICarWatchdogClientImpl extends ICarWatchdogClient.Stub {
         private final WeakReference<CarWatchdogManager> mManager;
@@ -318,6 +330,14 @@ public final class CarWatchdogManager extends CarManagerBase {
             CarWatchdogManager manager = mManager.get();
             if (manager != null) {
                 manager.checkClientStatus(sessionId, timeout);
+            }
+        }
+
+        @Override
+        public void prepareProcessTermination() {
+            CarWatchdogManager manager = mManager.get();
+            if (manager != null) {
+                manager.notifyProcessTermination();
             }
         }
 
