@@ -226,6 +226,9 @@ public class CarWatchdogServiceTest {
         }
 
         @Override
+        public void prepareProcessTermination() {}
+
+        @Override
         public int getInterfaceVersion() {
             return this.VERSION;
         }
