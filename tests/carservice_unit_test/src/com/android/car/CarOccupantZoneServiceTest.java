@@ -21,6 +21,7 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.spyOn;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
@@ -309,6 +310,7 @@ public class CarOccupantZoneServiceTest {
         profileUsers.add(new UserInfo(PROFILE_USER1, "1", 0));
         profileUsers.add(new UserInfo(PROFILE_USER2, "1", 0));
         doReturn(profileUsers).when(mUserManager).getEnabledProfiles(CURRENT_USER);
+        doReturn(true).when(mUserManager).isUserRunning(anyInt());
 
         Car car = new Car(mContext, /* service= */ null, /* handler= */ null);
         mManager = new CarOccupantZoneManager(car, mService);
@@ -354,6 +356,20 @@ public class CarOccupantZoneServiceTest {
         assertPassengerDisplaysFromDefaultConfig();
         assertDisplayWhitelist(CURRENT_USER, new int[] {mDisplay4.getDisplayId()});
         assertDisplayWhitelist(PROFILE_USER1, new int[] {mDisplay2.getDisplayId()});
+    }
+
+    @Test
+    public void testAssignProfileUserFailForStoppedUser() throws Exception {
+        setUpServiceWithProfileSupportEnabled();
+        mService.init();
+        mService.setCarServiceHelper(mICarServiceHelper);
+
+        assertPassengerDisplaysFromDefaultConfig();
+
+        mICarServiceHelper.mWhitelists.clear();
+        doReturn(false).when(mUserManager).isUserRunning(PROFILE_USER1);
+        assertThat(mManager.assignProfileUserToOccupantZone(mZoneFrontPassengerLHD,
+                PROFILE_USER1)).isFalse();
     }
 
     @Test
