@@ -17,6 +17,8 @@
 package android.car;
 
 import android.content.pm.UserInfo;
+import android.car.user.UserSwitchResult;
+import com.android.internal.infra.AndroidFuture;
 import com.android.internal.os.IResultReceiver;
 
 /** @hide */
@@ -24,7 +26,8 @@ interface ICarUserService {
     UserInfo createDriver(in String name, boolean admin);
     UserInfo createPassenger(in String name, int driverId);
     boolean switchDriver(int driverId);
-    oneway void switchUser(int tagerUserId, int timeoutMs, in IResultReceiver receiver);
+    oneway void switchUser(int tagerUserId, int timeoutMs,
+        in AndroidFuture<UserSwitchResult> result);
     List<UserInfo> getAllDrivers();
     List<UserInfo> getPassengers(int driverId);
     boolean startPassenger(int passengerId, int zoneId);

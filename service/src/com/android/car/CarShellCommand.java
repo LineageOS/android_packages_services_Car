@@ -23,7 +23,7 @@ import android.car.Car;
 import android.car.input.CarInputManager;
 import android.car.input.RotaryEvent;
 import android.car.user.CarUserManager;
-import android.car.user.CarUserManager.UserSwitchResult;
+import android.car.user.UserSwitchResult;
 import android.car.userlib.HalCallback;
 import android.car.userlib.UserHalHelper;
 import android.content.ComponentName;
@@ -54,6 +54,7 @@ import com.android.car.pm.CarPackageManagerService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.trust.CarTrustedDeviceService;
 import com.android.car.user.CarUserService;
+import com.android.internal.infra.AndroidFuture;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -785,9 +786,8 @@ final class CarShellCommand extends ShellCommand {
         Log.d(TAG, "handleSwitchUser(): target=" + targetUserId + ", dryRun=" + dryRun
                 + ", timeout=" + timeout);
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         if (dryRun) {
+            CountDownLatch latch = new CountDownLatch(1);
             UserHalService userHal = mHal.getUserHal();
             // TODO(b/150413515): use UserHalHelper to populate it with current users
             UsersInfo usersInfo = new UsersInfo();
@@ -817,28 +817,29 @@ final class CarShellCommand extends ShellCommand {
                     latch.countDown();
                 }
             });
-        } else {
-            Car car = Car.createCar(mContext);
-            CarUserManager carUserManager =
-                    (CarUserManager) car.getCarManager(Car.CAR_USER_SERVICE);
-            carUserManager.switchUser(targetUserId, new CarUserManager.UserSwitchListener() {
-                @Override
-                public void onResult(UserSwitchResult result) {
-                    try {
-                        writer.printf("UserSwitchResult: status = %s\n",
-                                CarUserManager.userSwitchStatusToString(result.getStatus()));
-                        String msg = result.getErrorMessage();
-                        if (msg != null && !msg.isEmpty()) {
-                            writer.printf("UserSwitchResult: Message = %s\n", msg);
-                        }
-                    } finally {
-                        latch.countDown();
-                    }
-                }
-            });
+            waitForHal(writer, latch, timeout);
+            return;
         }
-
-        waitForHal(writer, latch, timeout);
+        Car car = Car.createCar(mContext);
+        CarUserManager carUserManager =
+                (CarUserManager) car.getCarManager(Car.CAR_USER_SERVICE);
+        AndroidFuture<UserSwitchResult> future = carUserManager.switchUser(targetUserId);
+        UserSwitchResult result = null;
+        try {
+            result = future.get(timeout, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+            Log.e(TAG, "exception calling CarUserManager.switchUser(" + targetUserId + ")", e);
+        }
+        if (result == null) {
+            writer.printf("Service didn't respond in %d ms", timeout);
+            return;
+        }
+        writer.printf("UserSwitchResult: status = %s\n",
+                UserSwitchResult.statusToString(result.getStatus()));
+        String msg = result.getErrorMessage();
+        if (msg != null && !msg.isEmpty()) {
+            writer.printf("UserSwitchResult: Message = %s\n", msg);
+        }
     }
 
     private void getInitialUser(PrintWriter writer) {
