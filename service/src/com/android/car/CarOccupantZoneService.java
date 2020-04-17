@@ -615,6 +615,10 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                 Log.w(TAG, "Invalid profile user id:" + userId);
                 return false;
             }
+            if (!mUserManager.isUserRunning(userId)) {
+                Log.w(TAG, "User is not running:" + userId);
+                return false;
+            }
             OccupantConfig config = mActiveOccupantConfigs.get(occupantZoneId);
             if (config == null) {
                 throw new IllegalArgumentException("Invalid occupantZoneId:" + occupantZoneId);
