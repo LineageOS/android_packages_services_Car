@@ -211,6 +211,9 @@ public class CarWatchdogDaemonHelperTest {
         public void checkIfAlive(int sessionId, int timeout) {}
 
         @Override
+        public void prepareProcessTermination() {}
+
+        @Override
         public int getInterfaceVersion() {
             return this.VERSION;
         }

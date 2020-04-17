@@ -16,8 +16,9 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package android.automotive.watchdog;
-@VintfStability
-interface ICarWatchdogClient {
-  oneway void checkIfAlive(in int sessionId, in android.automotive.watchdog.TimeoutLength timeout);
-  oneway void prepareProcessTermination();
+@Backing(type="int") @VintfStability
+enum StateType {
+  POWER_CYCLE = 0,
+  USER_STATE = 1,
+  BOOT_PHASE = 2,
 }
