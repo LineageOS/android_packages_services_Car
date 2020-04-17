@@ -321,7 +321,8 @@ final class FocusInteraction {
      * @return {@link FocusRequestResult} result of focus interaction
      */
     public @FocusRequestResult int evaluateRequest(@AudioContext int requestedContext,
-            FocusEntry focusHolder, List<FocusEntry> focusLosers, boolean allowDucking) {
+            FocusEntry focusHolder, List<FocusEntry> focusLosers, boolean allowDucking,
+            boolean allowsDelayedFocus) {
         @AudioContext int holderContext = focusHolder.getAudioContext();
         Preconditions.checkArgumentInRange(holderContext, 0, mInteractionMatrix.length - 1,
                 "holderContext");
@@ -332,6 +333,9 @@ final class FocusInteraction {
 
             switch (holderRow[requestedContext]) {
                 case INTERACTION_REJECT:
+                    if (allowsDelayedFocus) {
+                        return AudioManager.AUDIOFOCUS_REQUEST_DELAYED;
+                    }
                     return AudioManager.AUDIOFOCUS_REQUEST_FAILED;
                 case INTERACTION_EXCLUSIVE:
                     focusLosers.add(focusHolder);
