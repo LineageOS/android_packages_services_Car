@@ -43,6 +43,7 @@ import java.util.Objects;
  */
 class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
+    private final boolean mDelayedFocusEnabled;
     private CarAudioService mCarAudioService; // Dynamically assigned just after construction
     private AudioPolicy mAudioPolicy; // Dynamically assigned just after construction
 
@@ -51,7 +52,8 @@ class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     CarZonesAudioFocus(@NonNull AudioManager audioManager,
             @NonNull PackageManager packageManager,
             @NonNull CarAudioZone[] carAudioZones,
-            @NonNull CarAudioSettings carAudioSettings) {
+            @NonNull CarAudioSettings carAudioSettings,
+            boolean enableDelayedAudioFocus) {
         //Create the zones here, the policy will be set setOwningPolicy,
         // which is called right after this constructor.
         Objects.requireNonNull(audioManager);
@@ -70,9 +72,10 @@ class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             }
             CarAudioFocus zoneFocusListener =
                     new CarAudioFocus(audioManager, packageManager,
-                            new FocusInteraction(carAudioSettings));
+                            new FocusInteraction(carAudioSettings), enableDelayedAudioFocus);
             mFocusZones.put(audioZoneId, zoneFocusListener);
         }
+        mDelayedFocusEnabled = enableDelayedAudioFocus;
     }
 
 
@@ -195,7 +198,7 @@ class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
      */
     void dump(String indent, PrintWriter writer) {
         writer.printf("%s*CarZonesAudioFocus*\n", indent);
-
+        writer.printf("%s\tDelayed Focus Enabled: %b\n", indent, mDelayedFocusEnabled);
         writer.printf("%s\tCar Zones Audio Focus Listeners:\n", indent);
         Integer[] keys = mFocusZones.keySet().stream().sorted().toArray(Integer[]::new);
         for (Integer zoneId : keys) {
