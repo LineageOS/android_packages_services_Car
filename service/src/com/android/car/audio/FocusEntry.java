@@ -26,6 +26,7 @@ import androidx.annotation.NonNull;
 
 import com.android.car.audio.CarAudioContext.AudioContext;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -105,5 +106,13 @@ final class FocusEntry {
 
     String getUsageName() {
         return mAudioFocusInfo.getAttributes().usageToString();
+    }
+
+    public void dump(String indent, PrintWriter writer) {
+        writer.printf("%s%s - %s\n", indent, getClientId(), getUsageName());
+        // Prints in single line
+        writer.printf("%s\tReceives Duck Events: %b, ", indent, receivesDuckEvents());
+        writer.printf("Wants Pause Instead of Ducking: %b, ", wantsPauseInsteadOfDucking());
+        writer.printf("Is Ducked: %b\n", isDucked());
     }
 }

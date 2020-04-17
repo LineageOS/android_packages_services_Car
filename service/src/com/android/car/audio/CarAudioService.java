@@ -95,6 +95,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     // Search for "DUCK_VSHAPE" in PLaybackActivityMonitor.java to see where this happens.
     private static boolean sUseCarAudioFocus = true;
 
+    // Enable to allowed for delayed audio focus in car audio service.
+    private static final boolean ENABLE_DELAYED_AUDIO_FOCUS = true;
+
     static final @AttributeUsage int DEFAULT_AUDIO_USAGE = AudioAttributes.USAGE_MEDIA;
     static final @AudioContext int DEFAULT_AUDIO_CONTEXT = CarAudioContext.getContextForUsage(
             CarAudioService.DEFAULT_AUDIO_USAGE);
@@ -528,7 +531,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             mFocusHandler = new CarZonesAudioFocus(mAudioManager,
                     mContext.getPackageManager(),
                     mCarAudioZones,
-                    mCarAudioSettings);
+                    mCarAudioSettings, ENABLE_DELAYED_AUDIO_FOCUS);
             builder.setAudioPolicyFocusListener(mFocusHandler);
             builder.setIsAudioFocusPolicy(true);
         }
