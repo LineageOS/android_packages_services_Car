@@ -1565,7 +1565,8 @@ public final class Car {
     }
 
     /** @hide */
-    Handler getEventHandler() {
+    @VisibleForTesting
+    public Handler getEventHandler() {
         return mEventHandler;
     }
 
