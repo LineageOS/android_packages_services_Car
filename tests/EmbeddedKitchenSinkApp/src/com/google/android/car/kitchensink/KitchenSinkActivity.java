@@ -66,6 +66,7 @@ import com.google.android.car.kitchensink.storagelifetime.StorageLifetimeFragmen
 import com.google.android.car.kitchensink.storagevolumes.StorageVolumesFragment;
 import com.google.android.car.kitchensink.systemfeatures.SystemFeaturesFragment;
 import com.google.android.car.kitchensink.touch.TouchTestFragment;
+import com.google.android.car.kitchensink.users.ProfileUserFragment;
 import com.google.android.car.kitchensink.users.UsersFragment;
 import com.google.android.car.kitchensink.vehiclectrl.VehicleCtrlFragment;
 import com.google.android.car.kitchensink.vhal.VehicleHalFragment;
@@ -183,6 +184,7 @@ public class KitchenSinkActivity extends FragmentActivity {
             new FragmentMenuEntry("orientation test", OrientationTestFragment.class),
             new FragmentMenuEntry("package info", PackageInfoFragment.class),
             new FragmentMenuEntry("power test", PowerTestFragment.class),
+            new FragmentMenuEntry("profile_user", ProfileUserFragment.class),
             new FragmentMenuEntry("projection", ProjectionFragment.class),
             new FragmentMenuEntry("property test", PropertyTestFragment.class),
             new FragmentMenuEntry("sensors", SensorsTestFragment.class),
