@@ -107,7 +107,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     @GuardedBy("mLock")
     private final SparseArray<Boolean> mClientCheckInProgress = new SparseArray<>();
     @GuardedBy("mLock")
-    private final ArrayList<Integer> mClientsNotResponding = new ArrayList<>();
+    private final ArrayList<ClientInfo> mClientsNotResponding = new ArrayList<>();
     @GuardedBy("mMainHandler")
     private int mLastSessionId;
     @GuardedBy("mMainHandler")
@@ -324,14 +324,13 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         // and killed at the next response of CarWatchdogService to car watchdog daemon.
         SparseArray<ClientInfo> pingedClients = mPingedClientMap.get(timeout);
         synchronized (mLock) {
-            // Unhealthy clients are eventually removed from the list through binderDied when they
-            // are killed.
             for (int i = 0; i < pingedClients.size(); i++) {
                 ClientInfo clientInfo = pingedClients.valueAt(i);
                 if (mStoppedUser.get(clientInfo.userId)) {
                     continue;
                 }
-                mClientsNotResponding.add(clientInfo.pid);
+                mClientsNotResponding.add(clientInfo);
+                removeClientLocked(clientInfo.client.asBinder(), timeout);
             }
             mClientCheckInProgress.setValueAt(timeout, false);
         }
@@ -399,10 +398,22 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
     private void reportHealthCheckResult(int sessionId) {
         int[] clientsNotResponding;
+        ArrayList<ClientInfo> clientsToNotify;
         synchronized (mLock) {
             clientsNotResponding = toIntArray(mClientsNotResponding);
+            clientsToNotify = new ArrayList<>(mClientsNotResponding);
             mClientsNotResponding.clear();
         }
+        for (int i = 0; i < clientsToNotify.size(); i++) {
+            ClientInfo clientInfo = clientsToNotify.get(i);
+            try {
+                clientInfo.client.prepareProcessTermination();
+            } catch (RemoteException e) {
+                Log.w(TAG, "Notifying prepareProcessTermination to client(pid: " + clientInfo.pid
+                        + ") failed: " + e);
+            }
+        }
+
         try {
             mCarWatchdogDaemonHelper.tellMediatorAlive(mWatchdogClient, clientsNotResponding,
                     sessionId);
@@ -500,11 +511,11 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     }
 
     @NonNull
-    private int[] toIntArray(@NonNull ArrayList<Integer> list) {
+    private int[] toIntArray(@NonNull ArrayList<ClientInfo> list) {
         int size = list.size();
         int[] intArray = new int[size];
         for (int i = 0; i < size; i++) {
-            intArray[i] = list.get(i);
+            intArray[i] = list.get(i).pid;
         }
         return intArray;
     }
@@ -553,6 +564,11 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             }
             mMainHandler.sendMessage(obtainMessage(CarWatchdogService::doHealthCheck,
                     CarWatchdogService.this, sessionId));
+        }
+
+        @Override
+        public void prepareProcessTermination() {
+            Log.w(TAG, "CarWatchdogService is about to be killed by car watchdog daemon");
         }
 
         @Override

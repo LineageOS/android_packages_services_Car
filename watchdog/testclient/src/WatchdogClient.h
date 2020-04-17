@@ -51,6 +51,7 @@ public:
     explicit WatchdogClient(const ::android::sp<::android::Looper>& handlerLooper);
 
     ndk::ScopedAStatus checkIfAlive(int32_t sessionId, TimeoutLength timeout) override;
+    ndk::ScopedAStatus prepareProcessTermination() override;
 
     bool initialize(const CommandParam& param);
     void finalize();

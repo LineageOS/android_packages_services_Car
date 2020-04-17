@@ -17,7 +17,6 @@
 
 package android.automotive.watchdog;
 @VintfStability
-interface ICarWatchdogClient {
-  oneway void checkIfAlive(in int sessionId, in android.automotive.watchdog.TimeoutLength timeout);
-  oneway void prepareProcessTermination();
+interface ICarWatchdogMonitor {
+  oneway void onClientsNotResponding(in int[] pids);
 }
