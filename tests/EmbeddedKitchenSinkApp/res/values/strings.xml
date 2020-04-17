@@ -113,6 +113,10 @@
     <string name="media_play" translatable="false">Media Play</string>
     <string name="hw_audio_source_title" translatable="false">HwAudioSource</string>
     <string name="hw_audio_source_not_found" translatable="false">Not found</string>
+    <string name="media_with_delayed_focus" translatable="false">Media With Delayed Focus</string>
+    <string name="player_not_started" translatable="false">Player Not Started</string>
+    <string name="player_started" translatable="false">Player Started</string>
+    <string name="player_delayed" translatable="false">Player Delayed</string>
     <string name="nav_play" translatable="false">Nav Play</string>
     <string name="vr_play" translatable="false">VR Play</string>
     <string name="system_play" translatable="false">System Play</string>
