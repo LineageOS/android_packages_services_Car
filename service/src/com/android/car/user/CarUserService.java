@@ -56,6 +56,7 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
 import android.sysprop.CarProperties;
+import android.util.EventLog;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.TimingsTraceLog;
@@ -65,6 +66,7 @@ import com.android.car.R;
 import com.android.car.hal.UserHalService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.internal.car.EventLogTags;
 import com.android.internal.os.IResultReceiver;
 import com.android.internal.util.FunctionalUtils;
 import com.android.internal.util.Preconditions;
@@ -537,6 +539,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @Override
     public void setLifecycleListenerForUid(IResultReceiver listener) {
         int uid = Binder.getCallingUid();
+        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_SET_LIFECYCLE_LISTENER, uid);
         checkInteractAcrossUsersPermission("setLifecycleListenerForUid" + uid);
 
         try {
@@ -555,6 +558,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @Override
     public void resetLifecycleListenerForUid() {
         int uid = Binder.getCallingUid();
+        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_RESET_LIFECYCLE_LISTENER, uid);
         checkInteractAcrossUsersPermission("resetLifecycleListenerForUid-" + uid);
         mHandler.post(() -> mAppLifecycleListeners.remove(uid));
     }
@@ -562,38 +566,41 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @Override
     public void getInitialUserInfo(int requestType, int timeoutMs,
             @NonNull IResultReceiver receiver) {
+        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_INITIAL_USER_INFO_REQ, requestType,
+                timeoutMs);
         Objects.requireNonNull(receiver, "receiver cannot be null");
         checkManageUsersPermission("getInitialInfo");
         UsersInfo usersInfo = getUsersInfo();
         mHal.getInitialUserInfo(requestType, timeoutMs, usersInfo, (status, resp) -> {
-            try {
-                Bundle resultData = null;
-                if (resp != null) {
-                    switch (resp.action) {
-                        case InitialUserInfoResponseAction.SWITCH:
-                            resultData = new Bundle();
-                            resultData.putInt(BUNDLE_INITIAL_INFO_ACTION, resp.action);
-                            resultData.putInt(BUNDLE_USER_ID, resp.userToSwitchOrCreate.userId);
-                            break;
-                        case InitialUserInfoResponseAction.CREATE:
-                            resultData = new Bundle();
-                            resultData.putInt(BUNDLE_INITIAL_INFO_ACTION, resp.action);
-                            resultData.putInt(BUNDLE_USER_FLAGS, resp.userToSwitchOrCreate.flags);
-                            resultData.putString(BUNDLE_USER_NAME, resp.userNameToCreate);
-                            break;
-                        case InitialUserInfoResponseAction.DEFAULT:
-                            resultData = new Bundle();
-                            resultData.putInt(BUNDLE_INITIAL_INFO_ACTION, resp.action);
-                            break;
-                        default:
-                            // That's ok, it will be the same as DEFAULT...
-                            Log.w(TAG_USER, "invalid response action on " + resp);
-                    }
+            Bundle resultData = null;
+            if (resp != null) {
+                EventLog.writeEvent(EventLogTags.CAR_USER_SVC_INITIAL_USER_INFO_RESP,
+                        status, resp.action, resp.userToSwitchOrCreate.userId,
+                        resp.userToSwitchOrCreate.flags, resp.userNameToCreate);
+                switch (resp.action) {
+                    case InitialUserInfoResponseAction.SWITCH:
+                        resultData = new Bundle();
+                        resultData.putInt(BUNDLE_INITIAL_INFO_ACTION, resp.action);
+                        resultData.putInt(BUNDLE_USER_ID, resp.userToSwitchOrCreate.userId);
+                        break;
+                    case InitialUserInfoResponseAction.CREATE:
+                        resultData = new Bundle();
+                        resultData.putInt(BUNDLE_INITIAL_INFO_ACTION, resp.action);
+                        resultData.putInt(BUNDLE_USER_FLAGS, resp.userToSwitchOrCreate.flags);
+                        resultData.putString(BUNDLE_USER_NAME, resp.userNameToCreate);
+                        break;
+                    case InitialUserInfoResponseAction.DEFAULT:
+                        resultData = new Bundle();
+                        resultData.putInt(BUNDLE_INITIAL_INFO_ACTION, resp.action);
+                        break;
+                    default:
+                        // That's ok, it will be the same as DEFAULT...
+                        Log.w(TAG_USER, "invalid response action on " + resp);
                 }
-                receiver.send(status, resultData);
-            } catch (RemoteException e) {
-                Log.w(TAG_USER, "Could not send result back to receiver", e);
+            } else {
+                EventLog.writeEvent(EventLogTags.CAR_USER_SVC_INITIAL_USER_INFO_RESP, status);
             }
+            sendResult(receiver, status, resultData);
         });
     }
 
@@ -636,7 +643,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      * Sets the initial foreground user after the device boots or resumes from suspension.
      */
     public void setInitialUser(@Nullable UserInfo user) {
-        Log.i(TAG_USER, "setInitialUser: " + user);
+        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_SET_INITIAL_USER,
+                user == null ? UserHandle.USER_NULL : user.id);
         synchronized (mLockUser) {
             mInitialUser = user;
         }
@@ -656,6 +664,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      */
     public void getInitialUserInfo(int requestType,
             HalCallback<InitialUserInfoResponse> callback) {
+        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_INITIAL_USER_INFO_REQ, requestType,
+                mHalTimeoutMs);
         Objects.requireNonNull(callback, "callback cannot be null");
         checkManageUsersPermission("getInitialUserInfo");
         UsersInfo usersInfo = getUsersInfo();
@@ -672,18 +682,31 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @Override
     public void switchUser(@UserIdInt int targetUserId, int timeoutMs,
             @NonNull IResultReceiver receiver) {
+        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_SWITCH_USER_REQ, targetUserId,
+                timeoutMs);
         checkManageUsersPermission("switchUser");
         Objects.requireNonNull(receiver);
         UserInfo targetUser = mUserManager.getUserInfo(targetUserId);
         Preconditions.checkArgument(targetUser != null, "Invalid target user Id");
 
+        if (ActivityManager.getCurrentUser() == targetUserId) {
+            if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
+                Log.d(TAG_USER, "Current user is same as requested target user: " + targetUserId);
+            }
+            int resultStatus = CarUserManager.USER_SWITCH_STATUS_ALREADY_REQUESTED_USER;
+            sendResult(receiver, resultStatus, null);
+            return;
+        }
+
         synchronized (mLockUser) {
             if (mUserSwitchInProcess == targetUserId) {
                 if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
                     Log.d(TAG_USER,
-                            "User switch for user: " + targetUserId + " is already in process.");
+                            "A user switch request is already in process for the target user: "
+                                    + targetUserId);
                 }
-                // TODO(b/150409110): Add concurrent User Switch status and tests
+                int resultStatus = CarUserManager.USER_SWITCH_STATUS_ANOTHER_REQUEST_IN_PROCESS;
+                sendResult(receiver, resultStatus, null);
                 return;
             }
         }
@@ -698,6 +721,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             resultData = new Bundle();
             int resultStatus = CarUserManager.USER_SWITCH_STATUS_HAL_INTERNAL_FAILURE;
             if (resp != null) {
+                EventLog.writeEvent(EventLogTags.CAR_USER_SVC_SWITCH_USER_REQ, status,
+                        resp.status, resp.messageType);
                 resultData.putInt(CarUserManager.BUNDLE_USER_SWITCH_STATUS, resp.status);
                 resultData.putInt(CarUserManager.BUNDLE_USER_SWITCH_MSG_TYPE, resp.messageType);
                 if (resp.errorMessage != null) {
@@ -727,15 +752,21 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                         resultStatus = CarUserManager.USER_SWITCH_STATUS_HAL_FAILURE;
                         break;
                 }
+            } else {
+                EventLog.writeEvent(EventLogTags.CAR_USER_SVC_SWITCH_USER_REQ, status);
             }
-            try {
-                receiver.send(resultStatus, resultData);
-            } catch (RemoteException e) {
-                // ignore
-                Log.w(TAG_USER, "error while sending results", e);
-            }
-
+            sendResult(receiver, resultStatus, resultData);
         });
+    }
+
+    private void sendResult(@NonNull IResultReceiver receiver, int resultCode,
+            @Nullable Bundle resultData) {
+        try {
+            receiver.send(resultCode, resultData);
+        } catch (RemoteException e) {
+            // ignore
+            Log.w(TAG_USER, "error while sending results", e);
+        }
     }
 
     private void updateUserSwitchInProcess(@UserIdInt int targetUserId,
@@ -762,6 +793,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 new android.hardware.automotive.vehicle.V2_0.UserInfo();
         halTargetUser.userId = targetUser.id;
         halTargetUser.flags = UserHalHelper.convertFlags(targetUser);
+        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_POST_SWITCH_USER_REQ, requestId,
+                targetUserId, usersInfo.currentUser.userId);
         mHal.postSwitchResponse(requestId, halTargetUser, usersInfo);
     }
 

@@ -33,7 +33,7 @@ import java.util.Arrays;
  * Groupings of {@link AttributeUsage}s to simplify configuration of car audio routing, volume
  * groups, and focus interactions for similar usages.
  */
-final class CarAudioContext {
+public final class CarAudioContext {
     /*
      * Shouldn't be used
      * ::android::hardware::automotive::audiocontrol::V1_0::ContextNumber.INVALID
@@ -264,6 +264,6 @@ final class CarAudioContext {
             ANNOUNCEMENT
     })
     @Retention(RetentionPolicy.SOURCE)
-    @interface AudioContext {
+    public @interface AudioContext {
     }
 };
