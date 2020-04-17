@@ -33,7 +33,7 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
     private static final String TAG = "CarAudioFocus";
 
-    private static final int FOCUS_EVENT_LOGGER_QUEUE_SIZE = 100;
+    private static final int FOCUS_EVENT_LOGGER_QUEUE_SIZE = 25;
 
     private final AudioManager mAudioManager;
     private final PackageManager mPackageManager;
@@ -42,6 +42,9 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     private final LocalLog mFocusEventLogger;
 
     private final FocusInteraction mFocusInteraction;
+
+    private final boolean mEnabledDelayedFocusRequest;
+    private AudioFocusInfo mDelayedRequest;
 
 
     // We keep track of all the focus requesters in this map, with their clientId as the key.
@@ -62,11 +65,12 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
 
     CarAudioFocus(AudioManager audioManager, PackageManager packageManager,
-            FocusInteraction focusInteraction) {
+            FocusInteraction focusInteraction, boolean enableDelayedFocusRequest) {
         mAudioManager = audioManager;
         mPackageManager = packageManager;
         mFocusEventLogger = new LocalLog(FOCUS_EVENT_LOGGER_QUEUE_SIZE);
         mFocusInteraction = focusInteraction;
+        mEnabledDelayedFocusRequest = enableDelayedFocusRequest;
     }
 
 
@@ -78,8 +82,8 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
 
     // This sends a focus loss message to the targeted requester.
-    private void sendFocusLossLocked(FocusEntry loser, int lossType) {
-        int result = mAudioManager.dispatchAudioFocusChange(loser.getAudioFocusInfo(), lossType,
+    private void sendFocusLossLocked(AudioFocusInfo loser, int lossType) {
+        int result = mAudioManager.dispatchAudioFocusChange(loser, lossType,
                 mAudioPolicy);
         if (result != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
             // TODO:  Is this actually an error, or is it okay for an entry in the focus stack
@@ -89,8 +93,8 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         }
 
         logFocusEvent("sendFocusLoss for client " + loser.getClientId()
-                        + " with loss type " + focusEventToString(lossType)
-                        + " resulted in " + focusRequestResponseToString(result));
+                + " with loss type " + focusEventToString(lossType)
+                + " resulted in " + focusRequestResponseToString(result));
     }
 
 
@@ -121,6 +125,8 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         final boolean allowDucking =
                 (afi.getGainRequest() == AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
 
+        boolean delayFocusForCurrentRequest = false;
+
         final int requestedContext = CarAudioContext.getContextForUsage(
                 afi.getAttributes().getSystemUsage());
 
@@ -129,6 +135,8 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         // After we've granted audio focus to our current request, we'll abandon these requests.
         FocusEntry replacedCurrentEntry = null;
         FocusEntry replacedBlockedEntry = null;
+
+        boolean allowDelayedFocus = mEnabledDelayedFocusRequest && canReceiveDelayedFocus(afi);
 
         // Scan all active and pending focus requests.  If any should cause rejection of
         // this new request, then we're done.  Keep a list of those against whom we're exclusive
@@ -172,9 +180,13 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             }
 
             @AudioManager.FocusRequestResult int interactionResult = mFocusInteraction
-                    .evaluateRequest(requestedContext, entry, losers, allowDucking);
+                    .evaluateRequest(requestedContext, entry, losers, allowDucking,
+                            allowDelayedFocus);
             if (interactionResult == AudioManager.AUDIOFOCUS_REQUEST_FAILED) {
                 return interactionResult;
+            }
+            if (interactionResult == AudioManager.AUDIOFOCUS_REQUEST_DELAYED) {
+                delayFocusForCurrentRequest = true;
             }
         }
         Log.i(TAG, "Scanning those who've already lost focus...");
@@ -214,9 +226,13 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             }
 
             @AudioManager.FocusRequestResult int interactionResult = mFocusInteraction
-                    .evaluateRequest(requestedContext, entry, blocked, allowDucking);
+                    .evaluateRequest(requestedContext, entry, blocked, allowDucking,
+                            allowDelayedFocus);
             if (interactionResult == AudioManager.AUDIOFOCUS_REQUEST_FAILED) {
                 return interactionResult;
+            }
+            if (interactionResult == AudioManager.AUDIOFOCUS_REQUEST_DELAYED) {
+                delayFocusForCurrentRequest = true;
             }
         }
 
@@ -246,7 +262,7 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
             if (permanent) {
                 // This entry has now lost focus forever
-                sendFocusLossLocked(entry, AudioManager.AUDIOFOCUS_LOSS);
+                sendFocusLossLocked(entry.getAudioFocusInfo(), AudioManager.AUDIOFOCUS_LOSS);
                 entry.setDucked(false);
                 final FocusEntry deadEntry = mFocusLosers.remove(
                         entry.getAudioFocusInfo().getClientId());
@@ -257,7 +273,8 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
                     // This entry was previously allowed to duck, but can no longer do so.
                     Log.i(TAG, "Converting duckable loss to non-duckable for "
                             + entry.getClientId());
-                    sendFocusLossLocked(entry, AudioManager.AUDIOFOCUS_LOSS_TRANSIENT);
+                    sendFocusLossLocked(entry.getAudioFocusInfo(),
+                            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT);
                     entry.setDucked(false);
                 }
                 // Note that this new request is yet one more reason we can't (yet) have focus
@@ -279,7 +296,7 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             } else {
                 lossType = AudioManager.AUDIOFOCUS_LOSS_TRANSIENT;
             }
-            sendFocusLossLocked(entry, lossType);
+            sendFocusLossLocked(entry.getAudioFocusInfo(), lossType);
 
             // The entry no longer holds focus, so take it out of the holders list
             mFocusHolders.remove(entry.getAudioFocusInfo().getClientId());
@@ -305,6 +322,11 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         }
 
         // Finally, add the request we're granting to the focus holders' list
+        if (delayFocusForCurrentRequest) {
+            swapDelayedAudioFocusRequestLocked(afi);
+            return AudioManager.AUDIOFOCUS_REQUEST_DELAYED;
+        }
+
         mFocusHolders.put(afi.getClientId(), newEntry);
 
         Log.i(TAG, "AUDIOFOCUS_REQUEST_GRANTED");
@@ -315,10 +337,12 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     public void onAudioFocusRequest(AudioFocusInfo afi, int requestResult) {
         int response;
         AudioPolicy policy;
+        AudioFocusInfo replacedDelayedAudioFocusInfo = null;
         synchronized (mLock) {
             policy = mAudioPolicy;
             response = evaluateFocusRequestLocked(afi);
         }
+
         // Post our reply for delivery to the original focus requester
         mAudioManager.setFocusRequestResult(afi, response, policy);
         logFocusEvent("onAudioFocusRequest for client " + afi.getClientId()
@@ -326,6 +350,25 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
                 + " resulted in " + focusRequestResponseToString(response));
     }
 
+    private void swapDelayedAudioFocusRequestLocked(AudioFocusInfo afi) {
+        if (mDelayedRequest == afi) {
+            return;
+        }
+        if (mDelayedRequest != null) {
+            sendFocusLossLocked(mDelayedRequest, AudioManager.AUDIOFOCUS_LOSS);
+        }
+        mDelayedRequest = afi;
+        logFocusEvent("swapDelayedAudioFocusRequest for client " + afi.getClientId()
+                + " with gain request " + focusEventToString(afi.getGainRequest()));
+    }
+
+    private boolean canReceiveDelayedFocus(AudioFocusInfo afi) {
+        if (afi.getGainRequest() != AudioManager.AUDIOFOCUS_GAIN) {
+            return false;
+        }
+        return (afi.getFlags() & AudioManager.AUDIOFOCUS_FLAG_DELAY_OK)
+            == AudioManager.AUDIOFOCUS_FLAG_DELAY_OK;
+    }
 
     /**
      * @see AudioManager#abandonAudioFocus(AudioManager.OnAudioFocusChangeListener, AudioAttributes)
@@ -340,7 +383,15 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
             if (deadEntry != null) {
                 removeBlockerAndRestoreUnblockedWaitersLocked(deadEntry);
+            } else {
+                removeDelayedAudioFocusRequestLocked(afi);
             }
+        }
+    }
+
+    private void removeDelayedAudioFocusRequestLocked(AudioFocusInfo afi) {
+        if (mDelayedRequest != null && mDelayedRequest.equals(afi)) {
+            mDelayedRequest = null;
         }
     }
 
@@ -374,6 +425,13 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     }
 
     private void removeBlockerAndRestoreUnblockedWaitersLocked(FocusEntry deadEntry) {
+        if (mEnabledDelayedFocusRequest && mDelayedRequest != null) {
+            int delayedFocusRequestResults = evaluateFocusRequestLocked(mDelayedRequest);
+            if (delayedFocusRequestResults == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                dispatchFocusGainedLocked(mDelayedRequest);
+                mDelayedRequest = null;
+            }
+        }
         // Remove this entry from the blocking list of any pending requests
         Iterator<FocusEntry> it = mFocusLosers.values().iterator();
         while (it.hasNext()) {
@@ -467,7 +525,8 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         synchronized (mLock) {
             FocusEntry deadEntry = removeFocusEntryLocked(afi);
             if (deadEntry != null) {
-                sendFocusLossLocked(deadEntry, AudioManager.AUDIOFOCUS_LOSS_TRANSIENT);
+                sendFocusLossLocked(deadEntry.getAudioFocusInfo(),
+                        AudioManager.AUDIOFOCUS_LOSS_TRANSIENT);
                 removeBlockerAndRestoreUnblockedWaitersLocked(deadEntry);
             }
         }
@@ -499,18 +558,21 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         synchronized (mLock) {
             writer.printf("%s*CarAudioFocus*\n", indent);
             String innerIndent = indent + "\t";
+            String focusIndent = innerIndent + "\t";
             mFocusInteraction.dump(innerIndent, writer);
+
             writer.printf("%sCurrent Focus Holders:\n", innerIndent);
             for (String clientId : mFocusHolders.keySet()) {
-                writer.printf("%s\t%s - %s\n", innerIndent, clientId,
-                        mFocusHolders.get(clientId).getUsageName());
+                mFocusHolders.get(clientId).dump(focusIndent, writer);
             }
 
             writer.printf("%sTransient Focus Losers:\n", innerIndent);
             for (String clientId : mFocusLosers.keySet()) {
-                writer.printf("%s\t%s - %s\n", innerIndent, clientId,
-                        mFocusLosers.get(clientId).getUsageName());
+                mFocusLosers.get(clientId).dump(focusIndent, writer);
             }
+
+            writer.printf("%sQueued Delayed Focus: %s\n", innerIndent,
+                    mDelayedRequest == null ? "None" : mDelayedRequest.getClientId());
 
             writer.printf("%sFocus Events:\n", innerIndent);
             mFocusEventLogger.dump(innerIndent + "\t", writer);
