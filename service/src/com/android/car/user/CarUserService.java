@@ -33,6 +33,7 @@ import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleEventType;
 import android.car.user.CarUserManager.UserLifecycleListener;
+import android.car.user.UserSwitchResult;
 import android.car.userlib.CarUserManagerHelper;
 import android.car.userlib.HalCallback;
 import android.car.userlib.UserHalHelper;
@@ -67,6 +68,7 @@ import com.android.car.hal.UserHalService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.car.EventLogTags;
+import com.android.internal.infra.AndroidFuture;
 import com.android.internal.os.IResultReceiver;
 import com.android.internal.util.FunctionalUtils;
 import com.android.internal.util.Preconditions;
@@ -683,7 +685,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      */
     @Override
     public void switchUser(@UserIdInt int targetUserId, int timeoutMs,
-            @NonNull IResultReceiver receiver) {
+            @NonNull AndroidFuture<UserSwitchResult> receiver) {
         EventLog.writeEvent(EventLogTags.CAR_USER_SVC_SWITCH_USER_REQ, targetUserId,
                 timeoutMs);
         checkManageUsersPermission("switchUser");
@@ -696,8 +698,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
                 Log.d(TAG_USER, "Current user is same as requested target user: " + targetUserId);
             }
-            int resultStatus = CarUserManager.USER_SWITCH_STATUS_ALREADY_REQUESTED_USER;
-            sendResult(receiver, resultStatus, null);
+            int resultStatus = UserSwitchResult.STATUS_ALREADY_REQUESTED_USER;
+            sendResult(receiver, resultStatus);
             return;
         }
 
@@ -708,8 +710,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             }
 
             if (mUserIdForUserSwitchInProcess == targetUserId) {
-                int resultStatus = CarUserManager.USER_SWITCH_STATUS_ANOTHER_REQUEST_IN_PROCESS;
-                sendResult(receiver, resultStatus, null);
+                int resultStatus = UserSwitchResult.STATUS_ANOTHER_REQUEST_IN_PROCESS;
+                sendResult(receiver, resultStatus);
                 return;
             }
         }
@@ -725,35 +727,29 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                         + UserHalHelper.halCallbackStatusToString(status) + ", resp=" + resp);
             }
 
-            Bundle resultData = null;
-            int resultStatus = CarUserManager.USER_SWITCH_STATUS_HAL_INTERNAL_FAILURE;
+            int resultStatus = UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE;
 
             if (status != HalCallback.STATUS_OK) {
                 EventLog.writeEvent(EventLogTags.CAR_USER_SVC_SWITCH_USER_RESP, status);
                 Log.w(TAG, "invalid callback status ("
                         + UserHalHelper.halCallbackStatusToString(status) + ") for response "
                         + resp);
-                sendResult(receiver, resultStatus, resultData);
+                sendResult(receiver, resultStatus);
                 return;
             }
             EventLog.writeEvent(EventLogTags.CAR_USER_SVC_SWITCH_USER_RESP, status,
                     resp.status, resp.errorMessage);
 
-            if (resp.errorMessage != null) {
-                resultData = new Bundle();
-                resultData.putString(CarUserManager.BUNDLE_USER_SWITCH_ERROR_MSG,
-                        resp.errorMessage);
-            }
             switch (resp.status) {
                 case SwitchUserStatus.SUCCESS:
                     boolean result;
                     try {
                         result = mAm.switchUser(targetUserId);
                         if (result) {
-                            resultStatus = CarUserManager.USER_SWITCH_STATUS_SUCCESSFUL;
+                            resultStatus = UserSwitchResult.STATUS_SUCCESSFUL;
                             updateUserSwitchInProcess(targetUserId, resp);
                         } else {
-                            resultStatus = CarUserManager.USER_SWITCH_STATUS_ANDROID_FAILURE;
+                            resultStatus = UserSwitchResult.STATUS_ANDROID_FAILURE;
                             postSwitchHalResponse(resp.requestId, targetUserId);
                         }
                     } catch (RemoteException e) {
@@ -764,10 +760,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     break;
                 case SwitchUserStatus.FAILURE:
                     // HAL failed to switch user
-                    resultStatus = CarUserManager.USER_SWITCH_STATUS_HAL_FAILURE;
+                    resultStatus = UserSwitchResult.STATUS_HAL_FAILURE;
                     break;
             }
-            sendResult(receiver, resultStatus, resultData);
+            sendResult(receiver, resultStatus, resp.errorMessage);
         });
     }
 
@@ -779,6 +775,16 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             // ignore
             Log.w(TAG_USER, "error while sending results", e);
         }
+    }
+
+    private void sendResult(@NonNull AndroidFuture<UserSwitchResult> receiver,
+            @UserSwitchResult.Status int status) {
+        sendResult(receiver, status, /* errorMessage= */ null);
+    }
+
+    private void sendResult(@NonNull AndroidFuture<UserSwitchResult> receiver,
+            @UserSwitchResult.Status int status, @Nullable String errorMessage) {
+        receiver.complete(new UserSwitchResult(status, errorMessage));
     }
 
     private void updateUserSwitchInProcess(@UserIdInt int targetUserId,

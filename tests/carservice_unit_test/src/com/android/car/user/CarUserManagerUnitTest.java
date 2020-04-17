@@ -22,24 +22,27 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSess
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertThrows;
 
 import android.annotation.NonNull;
+import android.annotation.Nullable;
+import android.annotation.UserIdInt;
 import android.car.Car;
 import android.car.ICarUserService;
 import android.car.user.CarUserManager;
-import android.car.user.CarUserManager.UserSwitchListener;
-import android.car.user.CarUserManager.UserSwitchResult;
+import android.car.user.UserSwitchResult;
 import android.content.pm.UserInfo;
-import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.UserManager;
 
-import com.android.internal.os.IResultReceiver;
+import com.android.internal.infra.AndroidFuture;
 
 import org.junit.After;
 import org.junit.Before;
@@ -50,9 +53,13 @@ import org.mockito.quality.Strictness;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 public final class CarUserManagerUnitTest {
+
+    private static final long ASYNC_TIMEOUT_MS = 500;
 
     @Mock
     private Car mCar;
@@ -117,35 +124,55 @@ public final class CarUserManagerUnitTest {
     }
 
     @Test
-    public void testSwitchUser_Success() throws Exception {
-        MyUserSwitchListener listener = new MyUserSwitchListener();
-        Bundle resultData = new Bundle();
-        String errorString = "Error String";
-        resultData.putString(CarUserManager.BUNDLE_USER_SWITCH_ERROR_MSG, errorString);
-        mockCarUserServiceSwitchUser(CarUserManager.USER_SWITCH_STATUS_SUCCESSFUL, resultData);
-        mMgr.switchUser(11, listener);
-        UserSwitchResult result = listener.getResult();
-        assertThat(result.getStatus()).isEqualTo(CarUserManager.USER_SWITCH_STATUS_SUCCESSFUL);
-        assertThat(result.getErrorMessage()).isEqualTo(errorString);
+    public void testSwitchUser_success() throws Exception {
+        expectServiceSwitchUserSucceeds(11, UserSwitchResult.STATUS_SUCCESSFUL,
+                "D'OH!");
+
+        AndroidFuture<UserSwitchResult> future = mMgr.switchUser(11);
+
+        assertThat(future).isNotNull();
+        UserSwitchResult result = getResult(future);
+        assertThat(result.getStatus()).isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
+        assertThat(result.getErrorMessage()).isEqualTo("D'OH!");
     }
 
     @Test
-    public void testSwitchUser_nullListener() throws Exception {
-        MyUserSwitchListener listener = null;
-        Bundle resultData = new Bundle();
-        String errorString = "Error String";
-        resultData.putString(CarUserManager.BUNDLE_USER_SWITCH_ERROR_MSG, errorString);
-        assertThrows(NullPointerException.class, () -> mMgr.switchUser(11, listener));
+    public void testSwitchUser_remoteException() throws Exception {
+        expectServiceSwitchUserSucceeds(11);
+        expectCarHandleExceptionReturnsDefaultValue();
+
+        AndroidFuture<UserSwitchResult> future = mMgr.switchUser(11);
+
+        assertThat(future).isNotNull();
+        UserSwitchResult result = getResult(future);
+        assertThat(result.getStatus()).isEqualTo(UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE);
+        assertThat(result.getErrorMessage()).isNull();
     }
 
-    private void mockCarUserServiceSwitchUser(int userSwitchStatusSuccessful, Bundle resultData)
+    private void expectServiceSwitchUserSucceeds(@UserIdInt int userId,
+            @UserSwitchResult.Status int status, @Nullable String errorMessage)
             throws RemoteException {
-        // TODO(b/149099817): create common method to answer a IResultReceiver call
         doAnswer((invocation) -> {
-            IResultReceiver callback = (IResultReceiver) invocation.getArguments()[2];
-            callback.send(userSwitchStatusSuccessful, resultData);
+            @SuppressWarnings("unchecked")
+            AndroidFuture<UserSwitchResult> future = (AndroidFuture<UserSwitchResult>) invocation
+                    .getArguments()[2];
+            future.complete(new UserSwitchResult(status, errorMessage));
             return null;
-        }).when(mService).switchUser(anyInt(), anyInt(), notNull());
+        }).when(mService).switchUser(eq(userId), anyInt(), notNull());
+    }
+
+    private void expectServiceSwitchUserSucceeds(@UserIdInt int userId) throws RemoteException {
+        doThrow(new RemoteException("D'OH!")).when(mService)
+            .switchUser(eq(userId), anyInt(), notNull());
+    }
+
+    @NonNull
+    private static <T> T getResult(@NonNull AndroidFuture<T> future) throws Exception {
+        try {
+            return future.get(ASYNC_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        } catch (TimeoutException e) {
+            throw new IllegalStateException("not called in " + ASYNC_TIMEOUT_MS + "ms", e);
+        }
     }
 
     private void setExistingUsers(int... userIds) {
@@ -159,6 +186,8 @@ public final class CarUserManagerUnitTest {
                 .collect(Collectors.toList());
     }
 
+    // TODO(b/149099817): move to common code
+
     private static UserInfo toUserInfo(int userId) {
         UserInfo user = new UserInfo();
         user.id = userId;
@@ -169,16 +198,9 @@ public final class CarUserManagerUnitTest {
         doReturn(mode).when(() -> UserManager.isHeadlessSystemUserMode());
     }
 
-    private static final class MyUserSwitchListener implements UserSwitchListener {
-        private UserSwitchResult mResult;
-
-        @Override
-        public void onResult(@NonNull UserSwitchResult result) {
-            mResult = result;
-        }
-
-        public UserSwitchResult getResult() {
-            return mResult;
-        }
+    private void expectCarHandleExceptionReturnsDefaultValue() {
+        doAnswer((invocation) -> {
+            return invocation.getArguments()[1];
+        }).when(mCar).handleRemoteExceptionFromCarService(isA(RemoteException.class), any());
     }
 }
