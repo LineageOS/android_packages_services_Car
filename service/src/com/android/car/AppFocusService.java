@@ -51,11 +51,13 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
 
     private final Object mLock = new Object();
 
+    @VisibleForTesting
     @GuardedBy("mLock")
-    private final ClientHolder mAllChangeClients;
+    final ClientHolder mAllChangeClients;
 
+    @VisibleForTesting
     @GuardedBy("mLock")
-    private final OwnershipClientHolder mAllOwnershipClients;
+    final OwnershipClientHolder mAllOwnershipClients;
 
     /** K: appType, V: client owning it */
     @GuardedBy("mLock")
@@ -71,16 +73,19 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
             mAllBinderEventHandler = bInterface -> { /* nothing to do.*/ };
 
     @GuardedBy("mLock")
-    private DispatchHandler mDispatchHandler;
+    private final DispatchHandler mDispatchHandler;
 
     @GuardedBy("mLock")
-    private HandlerThread mHandlerThread;
+    private final HandlerThread mHandlerThread;
 
     public AppFocusService(Context context,
             SystemActivityMonitoringService systemActivityMonitoringService) {
         mSystemActivityMonitoringService = systemActivityMonitoringService;
         mAllChangeClients = new ClientHolder(mAllBinderEventHandler);
         mAllOwnershipClients = new OwnershipClientHolder(this);
+        mHandlerThread = new HandlerThread(AppFocusService.class.getSimpleName());
+        mHandlerThread.start();
+        mDispatchHandler = new DispatchHandler(mHandlerThread.getLooper());
     }
 
     @Override
@@ -230,11 +235,7 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
 
     @Override
     public void init() {
-        synchronized (mLock) {
-            mHandlerThread = new HandlerThread(AppFocusService.class.getSimpleName());
-            mHandlerThread.start();
-            mDispatchHandler = new DispatchHandler(mHandlerThread.getLooper());
-        }
+        // nothing to do
     }
 
     @VisibleForTesting
@@ -247,17 +248,6 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
     @Override
     public void release() {
         synchronized (mLock) {
-            if (mDispatchHandler == null) {
-                return;
-            }
-            mHandlerThread.quitSafely();
-            try {
-                mHandlerThread.join(1000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                Log.e(CarLog.TAG_APP_FOCUS, "Timeout while waiting for handler thread to join.");
-            }
-            mDispatchHandler = null;
             mAllChangeClients.clear();
             mAllOwnershipClients.clear();
             mFocusOwners.clear();
@@ -372,13 +362,15 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
         }
     }
 
-    private static class ClientHolder extends BinderInterfaceContainer<IAppFocusListener> {
+    @VisibleForTesting
+    static class ClientHolder extends BinderInterfaceContainer<IAppFocusListener> {
         private ClientHolder(BinderEventHandler<IAppFocusListener> holder) {
             super(holder);
         }
     }
 
-    private static class OwnershipClientHolder extends
+    @VisibleForTesting
+    static class OwnershipClientHolder extends
             BinderInterfaceContainer<IAppFocusOwnershipCallback> {
         private OwnershipClientHolder(AppFocusService service) {
             super(service);

@@ -181,9 +181,9 @@ public class BinderInterfaceContainer<T extends IInterface> {
     }
 
     private void handleBinderDeath(BinderInterface<T> bInterface) {
-        removeBinder(bInterface.binderInterface);
         if (mEventHandler != null) {
             mEventHandler.onBinderDeath(bInterface);
         }
+        removeBinder(bInterface.binderInterface);
     }
 }

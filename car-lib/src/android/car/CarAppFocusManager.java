@@ -21,6 +21,8 @@ import android.annotation.TestApi;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import com.android.internal.annotations.VisibleForTesting;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
@@ -122,7 +124,8 @@ public final class CarAppFocusManager extends CarManagerBase {
     /**
      * @hide
      */
-    CarAppFocusManager(Car car, IBinder service) {
+    @VisibleForTesting
+    public CarAppFocusManager(Car car, IBinder service) {
         super(car);
         mService = IAppFocus.Stub.asInterface(service);
     }
