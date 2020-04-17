@@ -165,20 +165,6 @@ public final class CarUserManager extends CarManagerBase {
     public static final String BUNDLE_PARAM_PREVIOUS_USER_ID = "previous_user";
 
     /**
-     * {@code int} extra used to represent the user switch status {@link IResultReceiver}
-     * response.
-     *
-     * @hide
-     */
-    public static final String BUNDLE_USER_SWITCH_STATUS = "user_switch.status";
-    /**
-     * {@code int} extra used to represent the user switch message type {@link IResultReceiver}
-     * response.
-     *
-     * @hide
-     */
-    public static final String BUNDLE_USER_SWITCH_MSG_TYPE = "user_switch.messageType";
-    /**
      * {@code string} extra used to represent the user switch error {@link IResultReceiver}
      * response.
      *
