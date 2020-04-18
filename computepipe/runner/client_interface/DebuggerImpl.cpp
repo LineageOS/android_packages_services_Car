@@ -37,7 +37,7 @@ using ::aidl::android::automotive::computepipe::runner::ProfilingData;
 
 using ::ndk::ScopedAStatus;
 
-constexpr std::chrono::milliseconds kProfilingDataReadTimeout = 10ms;
+constexpr std::chrono::milliseconds kProfilingDataReadTimeout = 50ms;
 
 proto::ProfilingType ToProtoProfilingType(PipeProfilingType type) {
     switch (type) {
