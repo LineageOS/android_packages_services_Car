@@ -51,7 +51,6 @@ import android.car.navigation.CarNavigationStatusManager;
 import android.car.occupantawareness.OccupantAwarenessManager;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
 import android.car.test.CarTestManagerBinderWrapper;
-import android.car.trust.CarTrustAgentEnrollmentManager;
 import android.car.user.CarUserManager;
 import android.car.vms.VmsClientManager;
 import android.car.vms.VmsSubscriberManager;
@@ -313,13 +312,6 @@ public final class Car {
     @OptionalFeature
     @SystemApi
     public static final String STORAGE_MONITORING_SERVICE = "storage_monitoring";
-
-    /**
-     * Service name for {@link android.car.trust.CarTrustAgentEnrollmentManager}
-     * @hide
-     */
-    @SystemApi
-    public static final String CAR_TRUST_AGENT_ENROLLMENT_SERVICE = "trust_enroll";
 
     /**
      * Service name for {@link android.car.watchdog.CarWatchdogManager}
@@ -688,15 +680,6 @@ public final class Car {
     @SystemApi
     public static final String PERMISSION_STORAGE_MONITORING =
             "android.car.permission.STORAGE_MONITORING";
-
-    /**
-     * Permission necessary to enroll a device as a trusted authenticator device.
-     *
-     * @hide
-     */
-    @SystemApi
-    public static final String PERMISSION_CAR_ENROLL_TRUST =
-            "android.car.permission.CAR_ENROLL_TRUST";
 
     /**
      * Permission necessary to dynamically enable / disable optional car features.
@@ -1710,9 +1693,6 @@ public final class Car {
                 break;
             case OCCUPANT_AWARENESS_SERVICE:
                 manager = new OccupantAwarenessManager(this, binder);
-                break;
-            case CAR_TRUST_AGENT_ENROLLMENT_SERVICE:
-                manager = new CarTrustAgentEnrollmentManager(this, binder);
                 break;
             case CAR_MEDIA_SERVICE:
                 manager = new CarMediaManager(this, binder);

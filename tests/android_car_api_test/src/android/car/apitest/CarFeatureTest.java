@@ -43,7 +43,6 @@ public class CarFeatureTest extends CarApiTestBase  {
             Car.CAR_MEDIA_SERVICE,
             Car.CAR_NAVIGATION_SERVICE,
             Car.CAR_OCCUPANT_ZONE_SERVICE,
-            Car.CAR_TRUST_AGENT_ENROLLMENT_SERVICE,
             Car.CAR_USER_SERVICE,
             Car.CAR_UX_RESTRICTION_SERVICE,
             Car.INFO_SERVICE,

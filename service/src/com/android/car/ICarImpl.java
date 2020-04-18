@@ -53,7 +53,6 @@ import com.android.car.hal.VehicleHal;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.car.stats.CarStatsService;
 import com.android.car.systeminterface.SystemInterface;
-import com.android.car.trust.CarTrustedDeviceService;
 import com.android.car.user.CarUserNoticeService;
 import com.android.car.user.CarUserService;
 import com.android.car.vms.VmsBrokerService;
@@ -106,7 +105,6 @@ public class ICarImpl extends ICar.Stub {
     private final PerUserCarServiceHelper mPerUserCarServiceHelper;
     private final CarDiagnosticService mCarDiagnosticService;
     private final CarStorageMonitoringService mCarStorageMonitoringService;
-    private final CarTrustedDeviceService mCarTrustedDeviceService;
     private final CarMediaService mCarMediaService;
     private final CarUserManagerHelper mUserManagerHelper;
     private final CarUserService mCarUserService;
@@ -239,7 +237,6 @@ public class ICarImpl extends ICar.Stub {
             mCarStorageMonitoringService = null;
         }
         mCarLocationService = new CarLocationService(serviceContext);
-        mCarTrustedDeviceService = new CarTrustedDeviceService(serviceContext);
         mCarMediaService = new CarMediaService(serviceContext, mCarUserService);
         mCarBugreportManagerService = new CarBugreportManagerService(serviceContext);
         if (!Build.IS_USER) {
@@ -257,7 +254,6 @@ public class ICarImpl extends ICar.Stub {
         CarLocalServices.addService(CarPowerManagementService.class, mCarPowerManagementService);
         CarLocalServices.addService(CarPropertyService.class, mCarPropertyService);
         CarLocalServices.addService(CarUserService.class, mCarUserService);
-        CarLocalServices.addService(CarTrustedDeviceService.class, mCarTrustedDeviceService);
         CarLocalServices.addService(CarUserNoticeService.class, mCarUserNoticeService);
         CarLocalServices.addService(SystemInterface.class, mSystemInterface);
         CarLocalServices.addService(CarDrivingStateService.class, mCarDrivingStateService);
@@ -293,7 +289,6 @@ public class ICarImpl extends ICar.Stub {
         addServiceIfNonNull(allServices, mCarDiagnosticService);
         addServiceIfNonNull(allServices, mCarStorageMonitoringService);
         addServiceIfNonNull(allServices, mVmsBrokerService);
-        allServices.add(mCarTrustedDeviceService);
         allServices.add(mCarMediaService);
         allServices.add(mCarLocationService);
         allServices.add(mCarBugreportManagerService);
@@ -509,9 +504,6 @@ public class ICarImpl extends ICar.Stub {
                 return mCarUXRestrictionsService;
             case Car.OCCUPANT_AWARENESS_SERVICE:
                 return mOccupantAwarenessService;
-            case Car.CAR_TRUST_AGENT_ENROLLMENT_SERVICE:
-                assertTrustAgentEnrollmentPermission(mContext);
-                return mCarTrustedDeviceService.getCarTrustAgentEnrollmentService();
             case Car.CAR_MEDIA_SERVICE:
                 return mCarMediaService;
             case Car.CAR_OCCUPANT_ZONE_SERVICE:
@@ -606,13 +598,6 @@ public class ICarImpl extends ICar.Stub {
 
     public static void assertVmsSubscriberPermission(Context context) {
         assertPermission(context, Car.PERMISSION_VMS_SUBSCRIBER);
-    }
-
-    /**
-     * Ensures the caller has the permission to enroll a Trust Agent.
-     */
-    public static void assertTrustAgentEnrollmentPermission(Context context) {
-        assertPermission(context, Car.PERMISSION_CAR_ENROLL_TRUST);
     }
 
     public static void assertPermission(Context context, String permission) {
@@ -750,9 +735,9 @@ public class ICarImpl extends ICar.Stub {
 
     private CarShellCommand newCarShellCommand() {
         return new CarShellCommand(mContext, mHal, mCarAudioService, mCarPackageManagerService,
-                mCarProjectionService, mCarPowerManagementService, mCarTrustedDeviceService,
-                mFixedActivityService, mFeatureController, mCarInputService, mCarNightService,
-                mSystemInterface, mGarageModeService, mCarUserService, mCarOccupantZoneService);
+                mCarProjectionService, mCarPowerManagementService, mFixedActivityService,
+                mFeatureController, mCarInputService, mCarNightService, mSystemInterface,
+                mGarageModeService, mCarUserService, mCarOccupantZoneService);
     }
 
     private void dumpListOfServices(PrintWriter writer) {
