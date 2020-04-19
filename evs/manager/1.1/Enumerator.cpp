@@ -533,17 +533,28 @@ void Enumerator::cmdDump(int fd, const hidl_vec<hidl_string>& options) {
 void Enumerator::cmdHelp(int fd) {
     dprintf(fd, "Usage: \n\n");
     dprintf(fd, "--help: shows this help.\n");
-    dprintf(fd, "--list [camera|display]: list camera or display devices "
+    dprintf(fd, "--list [all|camera|display]: list camera or display devices or both "
                 "available to EVS manager.\n");
-    dprintf(fd, "--dump [camera|display] <device id>: "
+    dprintf(fd, "--dump [all|camera|display] <device id>: "
                 "show current status of the target device or all devices "
                 "when no device is given.\n");
 }
 
 
 void Enumerator::cmdList(int fd, const hidl_vec<hidl_string>& options) {
-    const std::string option = options[1];
-    if (EqualsIgnoreCase(option, "camera")) {
+    bool listCameras = true;
+    bool listDisplays = true;
+    if (options.size() > 1) {
+        const std::string option = options[1];
+        const bool listAll = EqualsIgnoreCase(option, "all");
+        listCameras = listAll || EqualsIgnoreCase(option, "camera");
+        listDisplays = listAll || EqualsIgnoreCase(option, "display");
+        if (!listCameras && !listDisplays) {
+            dprintf(fd, "Unrecognized option, %s, is ignored.\n", option.c_str());
+        }
+    }
+
+    if (listCameras) {
         dprintf(fd, "Camera devices available to EVS service:\n");
         if (mCameraDevices.size() < 1) {
             // Camera devices may not be enumerated yet.
@@ -563,7 +574,10 @@ void Enumerator::cmdList(int fd, const hidl_vec<hidl_string>& options) {
         for (auto& [id, ptr] : mActiveCameras) {
             dprintf(fd, "\t%s\n", id.c_str());
         }
-    } else if (EqualsIgnoreCase(option, "display")) {
+        dprintf(fd, "\n");
+    }
+
+    if (listDisplays) {
         if (mHwEnumerator != nullptr) {
             dprintf(fd, "Display devices available to EVS service:\n");
             // Get an internal display identifier.
@@ -575,31 +589,40 @@ void Enumerator::cmdList(int fd, const hidl_vec<hidl_string>& options) {
                 }
             );
         }
-    } else {
-        dprintf(fd, "Invalid list command option: %s\n", option.c_str());
     }
 }
 
 
 void Enumerator::cmdDumpDevice(int fd, const hidl_vec<hidl_string>& options) {
-    const std::string category = options[1];
-    if (EqualsIgnoreCase(category, "camera")) {
-        const bool dumpAll = options.size() < 3;
+    bool dumpCameras = true;
+    bool dumpDisplays = true;
+    if (options.size() > 1) {
+        const std::string option = options[1];
+        const bool dumpAll = EqualsIgnoreCase(option, "all");
+        dumpCameras = dumpAll || EqualsIgnoreCase(option, "camera");
+        dumpDisplays = dumpAll || EqualsIgnoreCase(option, "display");
+        if (!dumpCameras && !dumpDisplays) {
+            dprintf(fd, "Unrecognized option, %s, is ignored.\n", option.c_str());
+        }
+    }
+
+    if (dumpCameras) {
+        const bool dumpAllCameras = options.size() < 3;
         std::string deviceId = "";
-        if (!dumpAll) {
+        if (!dumpAllCameras) {
             deviceId = options[2];
         }
 
         for (auto& [id, ptr] : mActiveCameras) {
-            if (!dumpAll && !EqualsIgnoreCase(id, deviceId)) {
+            if (!dumpAllCameras && !EqualsIgnoreCase(id, deviceId)) {
                 continue;
             }
             ptr->dump(fd);
         }
-    } else if (EqualsIgnoreCase(category, "display")) {
+    }
+
+    if (dumpDisplays) {
         dprintf(fd, "Not implemented yet\n");
-    } else {
-        dprintf(fd, "Invalid list command option: %s\n", category.c_str());
     }
 }
 

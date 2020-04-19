@@ -47,12 +47,12 @@ import android.util.Log;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.car.EventLogTags;
+import com.android.internal.infra.AndroidFuture;
 import com.android.internal.os.IResultReceiver;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.Executor;
 
 /**
@@ -164,81 +164,6 @@ public final class CarUserManager extends CarManagerBase {
     /** @hide */
     public static final String BUNDLE_PARAM_PREVIOUS_USER_ID = "previous_user";
 
-    /**
-     * {@code int} extra used to represent the user switch status {@link IResultReceiver}
-     * response.
-     *
-     * @hide
-     */
-    public static final String BUNDLE_USER_SWITCH_STATUS = "user_switch.status";
-    /**
-     * {@code int} extra used to represent the user switch message type {@link IResultReceiver}
-     * response.
-     *
-     * @hide
-     */
-    public static final String BUNDLE_USER_SWITCH_MSG_TYPE = "user_switch.messageType";
-    /**
-     * {@code string} extra used to represent the user switch error {@link IResultReceiver}
-     * response.
-     *
-     * @hide
-     */
-    public static final String BUNDLE_USER_SWITCH_ERROR_MSG = "user_switch.errorMessage";
-
-    /**
-     * {@link UserSwitchStatus} called when user switch is successful for both HAL and Android.
-     *
-     * @hide
-     */
-    public static final int USER_SWITCH_STATUS_SUCCESSFUL = 1;
-    /**
-     * {@link UserSwitchStatus} called when user switch is only successful for Hal but not for
-     * Android. Hal user switch rollover message have been sent.
-     *
-     * @hide
-     */
-    public static final int USER_SWITCH_STATUS_ANDROID_FAILURE = 2;
-    /**
-     * {@link UserSwitchStatus} called when user switch is failed for HAL. User switch for Android
-     * is not called.
-     *
-     * @hide
-     */
-    public static final int USER_SWITCH_STATUS_HAL_FAILURE = 3;
-    /**
-     * {@link UserSwitchStatus} called when user switch is failed for HAL for some internal error.
-     * User switch for Android is not called.
-     *
-     * @hide
-     */
-    public static final int USER_SWITCH_STATUS_HAL_INTERNAL_FAILURE = 4;
-    /**
-     * {@link UserSwitchStatus} called when target user is same as current user.
-     *
-     * @hide
-     */
-    public static final int USER_SWITCH_STATUS_ALREADY_REQUESTED_USER = 5;
-    /**
-     * {@link UserSwitchStatus} called when another user switch request for the same target user is
-     * in process.
-     *
-     * @hide
-     */
-    public static final int USER_SWITCH_STATUS_ANOTHER_REQUEST_IN_PROCESS = 6;
-
-    /** @hide */
-    @IntDef(prefix = { "USER_SWITCH_STATUS_" }, value = {
-            USER_SWITCH_STATUS_SUCCESSFUL,
-            USER_SWITCH_STATUS_ANDROID_FAILURE,
-            USER_SWITCH_STATUS_HAL_FAILURE,
-            USER_SWITCH_STATUS_HAL_INTERNAL_FAILURE,
-            USER_SWITCH_STATUS_ALREADY_REQUESTED_USER,
-            USER_SWITCH_STATUS_ANOTHER_REQUEST_IN_PROCESS,
-    })
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface UserSwitchStatus{}
-
     private final Object mLock = new Object();
     private final ICarUserService mService;
     private final UserManager mUserManager;
@@ -270,32 +195,34 @@ public final class CarUserManager extends CarManagerBase {
     }
 
     /**
-     * Switches user to the target user.
-     *
-     * @param targetUserId User id to switch to.
-     * @param listener listener to be called asynchronously with user switch results
+     * Switches the foreground user to the given target user.
      *
      * @hide
      */
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
-    public void switchUser(@UserIdInt int targetUserId, @NonNull UserSwitchListener listener) {
-        Objects.requireNonNull(listener);
+    public AndroidFuture<UserSwitchResult> switchUser(@UserIdInt int targetUserId) {
         int uid = myUid();
         try {
-            IResultReceiver callback = new IResultReceiver.Stub() {
+            AndroidFuture<UserSwitchResult> future = new AndroidFuture<UserSwitchResult>() {
                 @Override
-                public void send(@UserSwitchStatus int status, Bundle resultData)
-                        throws RemoteException {
-                    UserSwitchResult result = new UserSwitchResult(status, resultData);
-                    EventLog.writeEvent(EventLogTags.CAR_USER_MGR_SWITCH_USER_RESPONSE, uid,
-                            result.getStatus(), result.getErrorMessage());
-                    listener.onResult(result);
-                }
+                protected void onCompleted(UserSwitchResult result, Throwable err) {
+                    if (result != null) {
+                        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_SWITCH_USER_RESPONSE, uid,
+                                result.getStatus(), result.getErrorMessage());
+                    } else {
+                        Log.w(TAG, "switchUser(" + targetUserId + ") failed: " + err);
+                    }
+                    super.onCompleted(result, err);
+                };
             };
             EventLog.writeEvent(EventLogTags.CAR_USER_MGR_SWITCH_USER_REQUEST, uid, targetUserId);
-            mService.switchUser(targetUserId, HAL_TIMEOUT_MS, callback);
+            mService.switchUser(targetUserId, HAL_TIMEOUT_MS, future);
+            return future;
         } catch (RemoteException e) {
-            handleRemoteExceptionFromCarService(e);
+            AndroidFuture<UserSwitchResult> future = new AndroidFuture<>();
+            future.complete(
+                    new UserSwitchResult(UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE, null));
+            return handleRemoteExceptionFromCarService(e, future);
         }
     }
 
@@ -442,30 +369,6 @@ public final class CarUserManager extends CarManagerBase {
     @Override
     public void onCarDisconnected() {
         // nothing to do
-    }
-
-    /**
-     * Converts user switch status to string.
-     *
-     * @hide
-     */
-    public static String userSwitchStatusToString(@UserSwitchStatus int status) {
-        switch (status) {
-            case USER_SWITCH_STATUS_SUCCESSFUL:
-                return "SUCCESSFUL";
-            case USER_SWITCH_STATUS_ANDROID_FAILURE:
-                return "ANDROID_FAILURE";
-            case USER_SWITCH_STATUS_HAL_FAILURE:
-                return "HAL_FAILURE";
-            case USER_SWITCH_STATUS_HAL_INTERNAL_FAILURE:
-                return "HAL_INTERNAL_FAILURE";
-            case USER_SWITCH_STATUS_ALREADY_REQUESTED_USER:
-                return "ALREADY_REQUESTED_USER";
-            case USER_SWITCH_STATUS_ANOTHER_REQUEST_IN_PROCESS:
-                return "ANOTHER_REQUEST_IN_PROCESS";
-            default:
-                return "INVALID_STATUS";
-        }
     }
 
     /**
@@ -653,60 +556,5 @@ public final class CarUserManager extends CarManagerBase {
          * Called to notify the given {@code event}.
          */
         void onEvent(@NonNull UserLifecycleEvent event);
-    }
-
-    /**
-     * User switch results.
-     *
-     * @hide
-     */
-    public final class UserSwitchResult {
-        @UserSwitchStatus
-        private final int mStatus;
-        @Nullable
-        private final String mErrorMessage;
-
-        private UserSwitchResult(@UserSwitchStatus int status, Bundle resultData) {
-            mStatus = status;
-            mErrorMessage = resultData.getString(CarUserManager.BUNDLE_USER_SWITCH_ERROR_MSG, null);
-        }
-
-        /**
-         * Gets the user switch result status.
-         *
-         * @return either {@link CarUserManager#USER_SWITCH_STATUS_SUCCESSFUL},
-         *         {@link CarUserManager#USER_SWITCH_STATUS_ANDROID_FAILURE},
-         *         {@link CarUserManager#USER_SWITCH_STATUS_HAL_FAILURE},
-         *         {@link CarUserManager#USER_SWITCH_STATUS_HAL_INTERNAL_FAILURE},
-         *         {@link CarUserManager#USER_SWITCH_STATUS_ALREADY_REQUESTED_USER}, or
-         *         {@link CarUserManager#USER_SWITCH_STATUS_ANOTHER_REQUEST_IN_PROCESS}.
-         */
-        @UserSwitchStatus
-        public int getStatus() {
-            return mStatus;
-        }
-
-        /**
-         * Gets the error message, if any.
-         */
-        @Nullable
-        public String getErrorMessage() {
-            return mErrorMessage;
-        }
-    }
-
-    /**
-     * Listener for Android User switch results.
-     *
-     * <p>
-     * Should be passed using {@link CarUserManager#switchUser(int , UserSwitchListener)}.
-     *
-     * @hide
-     */
-    public interface UserSwitchListener {
-        /**
-         * Called to notify the user switch result.
-         */
-        void onResult(@NonNull UserSwitchResult result);
     }
 }

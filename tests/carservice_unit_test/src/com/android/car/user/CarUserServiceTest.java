@@ -43,6 +43,7 @@ import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
 
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.IActivityManager;
@@ -53,6 +54,7 @@ import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleEventType;
 import android.car.user.CarUserManager.UserLifecycleListener;
+import android.car.user.UserSwitchResult;
 import android.car.userlib.CarUserManagerHelper;
 import android.car.userlib.HalCallback;
 import android.car.userlib.UserHalHelper;
@@ -63,7 +65,6 @@ import android.graphics.drawable.Drawable;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
-import android.hardware.automotive.vehicle.V2_0.SwitchUserMessageType;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserResponse;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserStatus;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
@@ -77,11 +78,11 @@ import android.provider.Settings;
 import android.util.Log;
 import android.util.SparseArray;
 
-import androidx.annotation.Nullable;
 import androidx.test.InstrumentationRegistry;
 
 import com.android.car.hal.UserHalService;
 import com.android.internal.R;
+import com.android.internal.infra.AndroidFuture;
 import com.android.internal.os.IResultReceiver;
 import com.android.internal.util.Preconditions;
 
@@ -101,6 +102,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * This class contains unit tests for the {@link CarUserService}.
@@ -118,6 +120,8 @@ public final class CarUserServiceTest {
 
     private static final String TAG = CarUserServiceTest.class.getSimpleName();
     private static final int NO_USER_INFO_FLAGS = 0;
+
+    private static final int NON_EXISTING_USER = 55; // must not be on mExistingUsers
 
     @Mock private Context mMockContext;
     @Mock private Context mApplicationContext;
@@ -140,22 +144,24 @@ public final class CarUserServiceTest {
     private FakeCarOccupantZoneService mFakeCarOccupantZoneService;
 
     private final int mGetUserInfoRequestType = InitialUserInfoRequestType.COLD_BOOT;
+    private final AndroidFuture<UserSwitchResult> mUserSwitchFuture = new AndroidFuture<>();
     private final int mAsyncCallTimeoutMs = 100;
     private final BlockingResultReceiver mReceiver =
             new BlockingResultReceiver(mAsyncCallTimeoutMs);
     private final InitialUserInfoResponse mGetUserInfoResponse = new InitialUserInfoResponse();
     private final SwitchUserResponse mSwitchUserResponse = new SwitchUserResponse();
 
-    private final @NonNull UserInfo mSystemUser = UserInfoBuilder.newSystemUserInfo();
-    private final @NonNull UserInfo mAdminUser = new UserInfoBuilder(10)
+    private final @NonNull UserInfo mAdminUser = new UserInfoBuilder(100)
             .setAdmin(true)
             .build();
-    private final @NonNull UserInfo mGuestUser = new UserInfoBuilder(11)
+    private final @NonNull UserInfo mGuestUser = new UserInfoBuilder(111)
             .setGuest(true)
             .setEphemeral(true)
             .build();
-    private final List<UserInfo> mExistingUsers = Arrays.asList(mSystemUser, mAdminUser,
-            mGuestUser);
+    private final @NonNull UserInfo mRegularUser = new UserInfoBuilder(222)
+            .build();
+    private final List<UserInfo> mExistingUsers =
+            Arrays.asList(mAdminUser, mGuestUser, mRegularUser);
 
     /**
      * Initialize all of the objects with the @Mock annotation.
@@ -642,148 +648,129 @@ public final class CarUserServiceTest {
     }
 
     @Test
-    public void testSwitchUser_nullReceiver() throws Exception {
-        assertThrows(NullPointerException.class, () -> mCarUserService
-                .switchUser(mGuestUser.id, mAsyncCallTimeoutMs, null));
-    }
-
-    @Test
-    public void testSwitchUser_nullTarget() throws Exception {
-        mockCurrentUsers(mAdminUser);
+    public void testSwitchUser_nonExistingTarget() throws Exception {
         assertThrows(IllegalArgumentException.class, () -> mCarUserService
-                .switchUser(/*invalid user id*/15, mAsyncCallTimeoutMs, mReceiver));
+                .switchUser(NON_EXISTING_USER, mAsyncCallTimeoutMs, mUserSwitchFuture));
     }
 
     @Test
     public void testSwitchUser_targetSameAsCurrentUser() throws Exception {
         mockExistingUsers();
         doReturn(mAdminUser.id).when(() -> ActivityManager.getCurrentUser());
-        mCarUserService.switchUser(mAdminUser.id, mAsyncCallTimeoutMs, mReceiver);
-        assertThat(mReceiver.getResultCode())
-                .isEqualTo(CarUserManager.USER_SWITCH_STATUS_ALREADY_REQUESTED_USER);
+        mCarUserService.switchUser(mAdminUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture);
+        assertThat(getUserSwitchResult().getStatus())
+                .isEqualTo(UserSwitchResult.STATUS_ALREADY_REQUESTED_USER);
     }
 
     @Test
     public void testSwitchUser_HalSuccessAndroidSuccess() throws Exception {
-        mockCurrentUsers(mAdminUser);
+        mockExistingUsersAndCurrentUser(mAdminUser);
         int requestId = 42;
         mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
         mSwitchUserResponse.requestId = requestId;
         mockHalSwitchUser(mAdminUser.id, mSwitchUserResponse, mGuestUser);
         mockAmSwitchUser(mGuestUser, true);
 
-        mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mReceiver);
+        mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture);
 
-        assertThat(mReceiver.getResultCode())
-                .isEqualTo(CarUserManager.USER_SWITCH_STATUS_SUCCESSFUL);
-        Bundle resultData = mReceiver.getResultData();
-        assertThat(resultData).isNotNull();
-        assertSwitchUserStatus(resultData, mSwitchUserResponse.status);
+        assertThat(getUserSwitchResult().getStatus()).isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
 
         // update current user due to successful user switch
-        mockCurrentUsers(mGuestUser);
+        mockCurrentUser(mGuestUser);
         sendUserUnlockedEvent(mGuestUser.id);
         assertPostSwitch(requestId, mGuestUser.id, mGuestUser.id);
     }
 
     @Test
     public void testSwitchUser_HalSuccessAndroidFailure() throws Exception {
-        mockCurrentUsers(mAdminUser);
+        mockExistingUsersAndCurrentUser(mAdminUser);
         int requestId = 42;
         mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
         mSwitchUserResponse.requestId = requestId;
         mockHalSwitchUser(mAdminUser.id, mSwitchUserResponse, mGuestUser);
         mockAmSwitchUser(mGuestUser, false);
 
-        mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mReceiver);
+        mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture);
 
-        assertThat(mReceiver.getResultCode())
-                .isEqualTo(CarUserManager.USER_SWITCH_STATUS_ANDROID_FAILURE);
-        Bundle resultData = mReceiver.getResultData();
-        assertThat(resultData).isNotNull();
-        assertSwitchUserStatus(resultData, mSwitchUserResponse.status);
+        assertThat(getUserSwitchResult().getStatus())
+                .isEqualTo(UserSwitchResult.STATUS_ANDROID_FAILURE);
         assertPostSwitch(requestId, mAdminUser.id, mGuestUser.id);
     }
 
     @Test
     public void testSwitchUser_HalFailure() throws Exception {
-        mockCurrentUsers(mAdminUser);
+        mockExistingUsersAndCurrentUser(mAdminUser);
         mSwitchUserResponse.status = SwitchUserStatus.FAILURE;
-        mSwitchUserResponse.messageType = SwitchUserMessageType.VEHICLE_RESPONSE;
         mSwitchUserResponse.errorMessage = "Error Message";
         mockHalSwitchUser(mAdminUser.id, mSwitchUserResponse, mGuestUser);
 
-        mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mReceiver);
+        mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture);
 
-        assertThat(mReceiver.getResultCode())
-                .isEqualTo(CarUserManager.USER_SWITCH_STATUS_HAL_FAILURE);
-        Bundle resultData = mReceiver.getResultData();
-        assertThat(resultData).isNotNull();
-        assertSwitchUserStatus(resultData, mSwitchUserResponse.status);
-        assertSwitchUserMessageType(resultData, mSwitchUserResponse.messageType);
-        assertSwitchUserErrorMessage(resultData, mSwitchUserResponse.errorMessage);
+        UserSwitchResult result = getUserSwitchResult();
+        assertThat(result.getStatus()).isEqualTo(UserSwitchResult.STATUS_HAL_FAILURE);
+        assertThat(result.getErrorMessage()).isEqualTo(mSwitchUserResponse.errorMessage);
     }
 
     @Test
-    public void testSwitchUser_HalInternalFailure() throws Exception {
-        mockCurrentUsers(mAdminUser);
-        mockHalSwitchUser(mAdminUser.id, null, mGuestUser);
+    public void testSwitchUser_error_badCallbackStatus() throws Exception {
+        mockExistingUsersAndCurrentUser(mAdminUser);
+        mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
+        mockHalSwitchUser(mAdminUser.id, HalCallback.STATUS_WRONG_HAL_RESPONSE, mSwitchUserResponse,
+                mGuestUser);
 
-        mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mReceiver);
+        mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture);
 
-        assertThat(mReceiver.getResultCode())
-                .isEqualTo(CarUserManager.USER_SWITCH_STATUS_HAL_INTERNAL_FAILURE);
-        Bundle resultData = mReceiver.getResultData();
-        assertThat(resultData).isNotNull();
-        // 0 is default value for status
-        assertSwitchUserStatus(resultData, 0);
+        assertThat(getUserSwitchResult().getStatus())
+                .isEqualTo(UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE);
     }
 
     @Test
-    public void testSwitchUser_HalSuccessMultipleCallsDifferentUser() throws Exception {
-        mockCurrentUsers(mAdminUser);
+    public void testSwitchUser_multipleCallsDifferentUser_beforeFirstUserUnlocked()
+            throws Exception {
+        mockExistingUsersAndCurrentUser(mAdminUser);
         int requestId = 42;
         mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
         mSwitchUserResponse.requestId = requestId;
         mockHalSwitchUser(mAdminUser.id, mSwitchUserResponse, mGuestUser);
         mockAmSwitchUser(mGuestUser, true);
-        mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mReceiver);
+        mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture);
 
         // calling another user switch before unlock
         int newRequestId = 43;
         mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
         mSwitchUserResponse.requestId = newRequestId;
-        mockHalSwitchUser(mAdminUser.id, mSwitchUserResponse, mSystemUser);
-        mockAmSwitchUser(mSystemUser, true);
-        BlockingResultReceiver receiver = new BlockingResultReceiver(mAsyncCallTimeoutMs);
-        mCarUserService.switchUser(mSystemUser.id, mAsyncCallTimeoutMs, receiver);
+        mockHalSwitchUser(mAdminUser.id, mSwitchUserResponse, mRegularUser);
+        mockAmSwitchUser(mRegularUser, true);
+        AndroidFuture<UserSwitchResult> future = new AndroidFuture<>();
+        mCarUserService.switchUser(mRegularUser.id, mAsyncCallTimeoutMs, future);
+        assertThat(getResult(future).getStatus()).isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
 
         assertPostSwitch(requestId, mAdminUser.id, mGuestUser.id);
     }
 
     @Test
-    public void testSwitchUser_HalSuccessMultipleCallsSameUser() throws Exception {
-        mockCurrentUsers(mAdminUser);
+    public void testSwitchUser_multipleCallsSameUser_beforeFirstUserUnlocked() throws Exception {
+        mockExistingUsersAndCurrentUser(mAdminUser);
         int requestId = 42;
         mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
         mSwitchUserResponse.requestId = requestId;
         mockHalSwitchUser(mAdminUser.id, mSwitchUserResponse, mGuestUser);
         mockAmSwitchUser(mGuestUser, true);
 
-        mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mReceiver);
+        mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture);
         // calling another user switch before unlock
-        BlockingResultReceiver receiver = new BlockingResultReceiver(mAsyncCallTimeoutMs);
-        mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, receiver);
+        AndroidFuture<UserSwitchResult> future = new AndroidFuture<>();
+        mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, future);
 
-        assertThat(receiver.getResultCode())
-                .isEqualTo(CarUserManager.USER_SWITCH_STATUS_ANOTHER_REQUEST_IN_PROCESS);
+        assertThat(getResult(future).getStatus())
+                .isEqualTo(UserSwitchResult.STATUS_ANOTHER_REQUEST_IN_PROCESS);
     }
 
     @Test
     public void testSwitchUser_InvalidPermission() throws Exception {
         mockManageUsersPermission(android.Manifest.permission.MANAGE_USERS, false);
-        assertThrows(SecurityException.class,
-                () -> mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mReceiver));
+        assertThrows(SecurityException.class, () -> mCarUserService
+                .switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture));
     }
 
     @Test
@@ -801,7 +788,7 @@ public final class CarUserServiceTest {
 
     @Test
     public void testGetUserInfo_defaultResponse() throws Exception {
-        mockCurrentUsers(mAdminUser);
+        mockExistingUsersAndCurrentUser(mAdminUser);
 
         mGetUserInfoResponse.action = InitialUserInfoResponseAction.DEFAULT;
         mockGetInitialInfo(mAdminUser.id, mGetUserInfoResponse);
@@ -817,7 +804,7 @@ public final class CarUserServiceTest {
     @Test
     public void testGetUserInfo_switchUserResponse() throws Exception {
         int switchUserId = mGuestUser.id;
-        mockCurrentUsers(mAdminUser);
+        mockExistingUsersAndCurrentUser(mAdminUser);
 
         mGetUserInfoResponse.action = InitialUserInfoResponseAction.SWITCH;
         mGetUserInfoResponse.userToSwitchOrCreate.userId = switchUserId;
@@ -839,7 +826,7 @@ public final class CarUserServiceTest {
         int newUserFlags = 42;
         String newUserName = "TheDude";
 
-        mockCurrentUsers(mAdminUser);
+        mockExistingUsersAndCurrentUser(mAdminUser);
 
         mGetUserInfoResponse.action = InitialUserInfoResponseAction.CREATE;
         mGetUserInfoResponse.userToSwitchOrCreate.flags = newUserFlags;
@@ -863,7 +850,7 @@ public final class CarUserServiceTest {
     @Test
     public void testGetInitialUserInfo() throws Exception {
         int requestType = 42;
-        mockCurrentUsers(mAdminUser);
+        mockExistingUsersAndCurrentUser(mAdminUser);
         HalCallback<InitialUserInfoResponse> callback = (s, r) -> { };
         mCarUserService.getInitialUserInfo(requestType, callback);
         verify(mUserHal).getInitialUserInfo(eq(requestType), anyInt(), mUsersInfoCaptor.capture(),
@@ -905,13 +892,27 @@ public final class CarUserServiceTest {
         assertThat(mCarUserService.isUserHalSupported()).isTrue();
     }
 
+    @NonNull
+    private UserSwitchResult getUserSwitchResult() throws Exception {
+        return getResult(mUserSwitchFuture);
+    }
+
+    @NonNull
+    private <T> T getResult(@NonNull AndroidFuture<T> future) throws Exception {
+        try {
+            return future.get(mAsyncCallTimeoutMs, TimeUnit.MILLISECONDS);
+        } catch (TimeoutException e) {
+            throw new IllegalStateException("not called in " + mAsyncCallTimeoutMs + "ms", e);
+        }
+    }
+
     /**
      * Mock calls that generate a {@code UsersInfo}.
      */
-    private void mockCurrentUsers(@NonNull UserInfo user)
+    private void mockExistingUsersAndCurrentUser(@NonNull UserInfo user)
             throws Exception {
-        when(mMockedIActivityManager.getCurrentUser()).thenReturn(user);
         mockExistingUsers();
+        mockCurrentUser(user);
     }
 
     private void mockExistingUsers() {
@@ -919,6 +920,10 @@ public final class CarUserServiceTest {
         for (UserInfo user : mExistingUsers) {
             when(mMockedUserManager.getUserInfo(user.id)).thenReturn(user);
         }
+    }
+
+    private void mockCurrentUser(@NonNull UserInfo user) throws Exception {
+        when(mMockedIActivityManager.getCurrentUser()).thenReturn(user);
     }
 
     private void mockAmSwitchUser(@NonNull UserInfo user, boolean result) throws Exception {
@@ -940,7 +945,13 @@ public final class CarUserServiceTest {
     }
 
     private void mockHalSwitchUser(@UserIdInt int currentUserId,
-            @NonNull SwitchUserResponse response, @NonNull UserInfo androidTargetUser) {
+            @Nullable SwitchUserResponse response, @NonNull UserInfo androidTargetUser) {
+        mockHalSwitchUser(currentUserId, HalCallback.STATUS_OK, response, androidTargetUser);
+    }
+
+    private void mockHalSwitchUser(@UserIdInt int currentUserId,
+            @HalCallback.HalCallbackStatus int callbackStatus,
+            @Nullable SwitchUserResponse response, @NonNull UserInfo androidTargetUser) {
         android.hardware.automotive.vehicle.V2_0.UserInfo halTargetUser =
                 new android.hardware.automotive.vehicle.V2_0.UserInfo();
         halTargetUser.userId = androidTargetUser.id;
@@ -951,7 +962,7 @@ public final class CarUserServiceTest {
             @SuppressWarnings("unchecked")
             HalCallback<SwitchUserResponse> callback =
                     (HalCallback<SwitchUserResponse>) invocation.getArguments()[3];
-            callback.onResponse(HalCallback.STATUS_OK, response);
+            callback.onResponse(callbackStatus, response);
             return null;
         }).when(mUserHal).switchUser(eq(halTargetUser), eq(mAsyncCallTimeoutMs), eq(usersInfo),
                 notNull());
@@ -1066,27 +1077,6 @@ public final class CarUserServiceTest {
         assertWithMessage("wrong request type on bundle extra %s",
                 CarUserService.BUNDLE_INITIAL_INFO_ACTION).that(actualAction)
                 .isEqualTo(expectedAction);
-    }
-
-    private void assertSwitchUserStatus(@NonNull Bundle resultData, int expectedStatus) {
-        int actualStatus = resultData.getInt(CarUserManager.BUNDLE_USER_SWITCH_STATUS);
-        assertWithMessage("wrong status on bundle extra %s",
-                CarUserManager.BUNDLE_USER_SWITCH_STATUS).that(actualStatus)
-                .isEqualTo(expectedStatus);
-    }
-
-    private void assertSwitchUserMessageType(@NonNull Bundle resultData, int expectedType) {
-        int actualType = resultData.getInt(CarUserManager.BUNDLE_USER_SWITCH_MSG_TYPE);
-        assertWithMessage("wrong message type on bundle extra %s",
-                CarUserManager.BUNDLE_USER_SWITCH_MSG_TYPE).that(actualType)
-                .isEqualTo(expectedType);
-    }
-
-    private void assertSwitchUserErrorMessage(@NonNull Bundle resultData, String expectedMsg) {
-        String actualMsg = resultData.getString(CarUserManager.BUNDLE_USER_SWITCH_ERROR_MSG);
-        assertWithMessage("wrong error message on bundle extra %s",
-                CarUserManager.BUNDLE_USER_SWITCH_ERROR_MSG).that(actualMsg)
-                .isEqualTo(expectedMsg);
     }
 
     private void assertPostSwitch(int requestId, int currentId, int targetId) {
