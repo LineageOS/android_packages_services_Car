@@ -18,6 +18,7 @@ package com.android.car.audio;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
+import android.app.ActivityManager;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.CarOccupantZoneManager.OccupantZoneConfigChangeListener;
@@ -1133,12 +1134,26 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     private void handleOccupantZoneUserChanged() {
         synchronized (mImplLock) {
+            if (isOccupantZoneMappingAvailable()) {
+                //No occupant zone to audio zone mapping, re-adjust to settings driver.
+                int driverId = ActivityManager.getCurrentUser();
+                for (int index = 0; index < mCarAudioZones.length; index++) {
+                    CarAudioZone zone = mCarAudioZones[index];
+                    zone.updateVolumeGroupsForUser(driverId);
+                    mFocusHandler.updateUserForZoneId(zone.getId(), driverId);
+                }
+                return;
+            }
             for (int index = 0; index < mAudioZoneIdToOccupantZoneIdMapping.size(); index++) {
                 int audioZoneId = mAudioZoneIdToOccupantZoneIdMapping.keyAt(index);
                 int occupantZoneId = mAudioZoneIdToOccupantZoneIdMapping.get(audioZoneId);
                 updateUserForOccupantZoneLocked(occupantZoneId, audioZoneId);
             }
         }
+    }
+
+    private boolean isOccupantZoneMappingAvailable() {
+        return mAudioZoneIdToOccupantZoneIdMapping.size() == 0;
     }
 
     private void updateUserForOccupantZoneLocked(int occupantZoneId, int audioZoneId) {
