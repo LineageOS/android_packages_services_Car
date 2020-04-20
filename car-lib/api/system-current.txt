@@ -21,7 +21,6 @@ package android.car {
     field public static final String CAR_DRIVING_STATE_SERVICE = "drivingstate";
     field public static final String CAR_EXTRA_CLUSTER_ACTIVITY_STATE = "android.car.cluster.ClusterActivityState";
     field public static final String CAR_MEDIA_SERVICE = "car_media";
-    field public static final String CAR_TRUST_AGENT_ENROLLMENT_SERVICE = "trust_enroll";
     field public static final String CAR_USER_SERVICE = "car_user_service";
     field public static final String CAR_WATCHDOG_SERVICE = "car_watchdog";
     field public static final String DIAGNOSTIC_SERVICE = "diagnostic";
@@ -37,7 +36,6 @@ package android.car {
     field public static final String PERMISSION_CAR_DRIVING_STATE = "android.car.permission.CAR_DRIVING_STATE";
     field public static final String PERMISSION_CAR_DYNAMICS_STATE = "android.car.permission.CAR_DYNAMICS_STATE";
     field public static final String PERMISSION_CAR_ENGINE_DETAILED = "android.car.permission.CAR_ENGINE_DETAILED";
-    field public static final String PERMISSION_CAR_ENROLL_TRUST = "android.car.permission.CAR_ENROLL_TRUST";
     field public static final String PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL = "android.car.permission.CAR_INSTRUMENT_CLUSTER_CONTROL";
     field public static final String PERMISSION_CAR_POWER = "android.car.permission.CAR_POWER";
     field public static final String PERMISSION_CAR_PROJECTION = "android.car.permission.CAR_PROJECTION";
@@ -1174,56 +1172,6 @@ package android.car.storagemonitoring {
     field @NonNull public final android.car.storagemonitoring.WearEstimate newEstimate;
     field @NonNull public final android.car.storagemonitoring.WearEstimate oldEstimate;
     field public final long uptimeAtChange;
-  }
-
-}
-
-package android.car.trust {
-
-  @Deprecated public final class CarTrustAgentEnrollmentManager {
-    method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void enrollmentHandshakeAccepted(android.bluetooth.BluetoothDevice);
-    method @Deprecated @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public java.util.List<android.car.trust.TrustedDeviceInfo> getEnrolledDeviceInfoForUser(int);
-    method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public boolean isEscrowTokenActive(long, int);
-    method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void removeAllTrustedDevices(int);
-    method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void removeEscrowToken(long, int);
-    method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void setBleCallback(@Nullable android.car.trust.CarTrustAgentEnrollmentManager.CarTrustAgentBleCallback);
-    method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void setEnrollmentCallback(@Nullable android.car.trust.CarTrustAgentEnrollmentManager.CarTrustAgentEnrollmentCallback);
-    method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void setTrustedDeviceEnrollmentEnabled(boolean);
-    method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void setTrustedDeviceUnlockEnabled(boolean);
-    method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void startEnrollmentAdvertising();
-    method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void stopEnrollmentAdvertising();
-    method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_ENROLL_TRUST) public void terminateEnrollmentHandshake();
-    field @Deprecated public static final int ENROLLMENT_HANDSHAKE_FAILURE = 1; // 0x1
-    field @Deprecated public static final int ENROLLMENT_NOT_ALLOWED = 2; // 0x2
-  }
-
-  @Deprecated public static interface CarTrustAgentEnrollmentManager.CarTrustAgentBleCallback {
-    method @Deprecated public void onBleEnrollmentDeviceConnected(android.bluetooth.BluetoothDevice);
-    method @Deprecated public void onBleEnrollmentDeviceDisconnected(android.bluetooth.BluetoothDevice);
-    method @Deprecated public void onEnrollmentAdvertisingFailed();
-    method @Deprecated public void onEnrollmentAdvertisingStarted();
-  }
-
-  @Deprecated public static interface CarTrustAgentEnrollmentManager.CarTrustAgentEnrollmentCallback {
-    method @Deprecated public void onAuthStringAvailable(android.bluetooth.BluetoothDevice, String);
-    method @Deprecated public void onEnrollmentHandshakeFailure(@Nullable android.bluetooth.BluetoothDevice, int);
-    method @Deprecated public void onEscrowTokenActiveStateChanged(long, boolean);
-    method @Deprecated public void onEscrowTokenAdded(long);
-    method @Deprecated public void onEscrowTokenRemoved(long);
-  }
-
-  @Deprecated public final class TrustedDeviceInfo implements android.os.Parcelable {
-    ctor @Deprecated public TrustedDeviceInfo(long, @NonNull String, @NonNull String);
-    ctor @Deprecated public TrustedDeviceInfo(android.os.Parcel);
-    method @Deprecated public int describeContents();
-    method @Deprecated public static android.car.trust.TrustedDeviceInfo deserialize(String);
-    method @Deprecated @NonNull public String getAddress();
-    method @Deprecated public long getHandle();
-    method @Deprecated @NonNull public String getName();
-    method @Deprecated public String serialize();
-    method @Deprecated public void writeToParcel(android.os.Parcel, int);
-    field @Deprecated public static final android.os.Parcelable.Creator CREATOR;
-    field @Deprecated public static final String DEFAULT_NAME = "Default";
   }
 
 }
