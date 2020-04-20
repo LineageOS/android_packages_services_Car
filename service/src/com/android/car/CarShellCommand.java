@@ -52,7 +52,6 @@ import com.android.car.hal.UserHalService;
 import com.android.car.hal.VehicleHal;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.car.systeminterface.SystemInterface;
-import com.android.car.trust.CarTrustedDeviceService;
 import com.android.car.user.CarUserService;
 import com.android.internal.infra.AndroidFuture;
 
@@ -81,8 +80,6 @@ final class CarShellCommand extends ShellCommand {
     private static final String COMMAND_PROJECTION_UI_MODE = "projection-ui-mode";
     private static final String COMMAND_RESUME = "resume";
     private static final String COMMAND_SUSPEND = "suspend";
-    private static final String COMMAND_ENABLE_TRUSTED_DEVICE = "enable-trusted-device";
-    private static final String COMMAND_REMOVE_TRUSTED_DEVICES = "remove-trusted-devices";
     private static final String COMMAND_SET_UID_TO_ZONE = "set-audio-zone-for-uid";
     private static final String COMMAND_START_FIXED_ACTIVITY_MODE = "start-fixed-activity-mode";
     private static final String COMMAND_STOP_FIXED_ACTIVITY_MODE = "stop-fixed-activity-mode";
@@ -118,7 +115,6 @@ final class CarShellCommand extends ShellCommand {
     private final CarPackageManagerService mCarPackageManagerService;
     private final CarProjectionService mCarProjectionService;
     private final CarPowerManagementService mCarPowerManagementService;
-    private final CarTrustedDeviceService mCarTrustedDeviceService;
     private final FixedActivityService mFixedActivityService;
     private final CarFeatureController mFeatureController;
     private final CarInputService mCarInputService;
@@ -134,7 +130,6 @@ final class CarShellCommand extends ShellCommand {
             CarPackageManagerService carPackageManagerService,
             CarProjectionService carProjectionService,
             CarPowerManagementService carPowerManagementService,
-            CarTrustedDeviceService carTrustedDeviceService,
             FixedActivityService fixedActivityService,
             CarFeatureController featureController,
             CarInputService carInputService,
@@ -149,7 +144,6 @@ final class CarShellCommand extends ShellCommand {
         mCarPackageManagerService = carPackageManagerService;
         mCarProjectionService = carProjectionService;
         mCarPowerManagementService = carPowerManagementService;
-        mCarTrustedDeviceService = carTrustedDeviceService;
         mFixedActivityService = fixedActivityService;
         mFeatureController = featureController;
         mCarInputService = carInputService;
@@ -211,10 +205,6 @@ final class CarShellCommand extends ShellCommand {
         pw.println("\t  Suspend the system to Deep Sleep.");
         pw.println("\tresume");
         pw.println("\t  Wake the system up after a 'suspend.'");
-        pw.println("\tenable-trusted-device true|false");
-        pw.println("\t  Enable/Disable Trusted device feature.");
-        pw.println("\tremove-trusted-devices");
-        pw.println("\t  Remove all trusted devices for the current foreground user.");
         pw.println("\tprojection-tethering [true|false]");
         pw.println("\t  Whether tethering should be used when creating access point for"
                 + " wireless projection");
@@ -411,19 +401,6 @@ final class CarShellCommand extends ShellCommand {
                 }
                 mCarPowerManagementService.forceSuspendAndMaybeReboot(false);
                 writer.println("Resume: Simulating powering down to Deep Sleep");
-                break;
-            case COMMAND_ENABLE_TRUSTED_DEVICE:
-                if (args.length != 2) {
-                    return showInvalidArguments(writer);
-                }
-                mCarTrustedDeviceService.getCarTrustAgentEnrollmentService()
-                        .setTrustedDeviceEnrollmentEnabled(Boolean.valueOf(args[1]));
-                mCarTrustedDeviceService.getCarTrustAgentUnlockService()
-                        .setTrustedDeviceUnlockEnabled(Boolean.valueOf(args[1]));
-                break;
-            case COMMAND_REMOVE_TRUSTED_DEVICES:
-                mCarTrustedDeviceService.getCarTrustAgentEnrollmentService()
-                        .removeAllTrustedDevices(ActivityManager.getCurrentUser());
                 break;
             case COMMAND_SET_UID_TO_ZONE:
                 if (args.length != 3) {
