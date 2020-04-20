@@ -579,7 +579,9 @@ public final class UserHalServiceTest {
      * @param initialIndex first index of the info values in the property's {@code int32Values}
      */
     private void assertUsersInfo(VehiclePropValue value, UsersInfo info, int initialIndex) {
-        // TODO(b/150419600): use helper method to convert prop value to proper req to check users
+        // TODO: consider using UserHalHelper to convert the property into a specific request,
+        // and compare the request's UsersInfo.
+        // But such method is not needed in production code yet.
         ArrayList<Integer> values = value.value.int32Values;
         assertWithMessage("wrong values size").that(values)
                 .hasSize(initialIndex + 3 + info.numberUsers * 2);
