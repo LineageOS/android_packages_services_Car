@@ -83,8 +83,9 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
     private final Context mContext;
     private final Object mLock = new Object();
 
-    private HandlerThread mHandlerThread;
-    private Handler mHandler;
+    private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
+            getClass().getSimpleName());
+    private final Handler mHandler = new Handler(mHandlerThread.getLooper());
     private boolean mIsServiceRunning;
 
     /**
@@ -98,14 +99,12 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
 
     @Override
     public void init() {
-        mHandlerThread = new HandlerThread(TAG);
-        mHandlerThread.start();
-        mHandler = new Handler(mHandlerThread.getLooper());
+        // nothing to do
     }
 
     @Override
     public void release() {
-        mHandlerThread.quitSafely();
+        // nothing to do
     }
 
     @Override

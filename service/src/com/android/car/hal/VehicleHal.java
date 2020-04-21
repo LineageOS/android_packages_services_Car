@@ -46,6 +46,7 @@ import android.util.Log;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
+import com.android.car.CarServiceUtils;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -104,8 +105,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
     private static final String DATA_DELIMITER = ",";
 
     public VehicleHal(Context context, IVehicle vehicle) {
-        mHandlerThread = new HandlerThread("VEHICLE-HAL");
-        mHandlerThread.start();
+        mHandlerThread = CarServiceUtils.getHandlerThread(VehicleHal.class.getSimpleName());
         // passing this should be safe as long as it is just kept and not used in constructor
         mPowerHal = new PowerHalService(this);
         mPropertyHal = new PropertyHalService(this);
