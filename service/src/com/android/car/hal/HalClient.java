@@ -33,6 +33,7 @@ import android.util.Log;
 
 import com.android.car.CarLog;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -201,33 +202,37 @@ class  HalClient {
         }
     }
 
-    private static class CallbackHandler extends Handler {
+    private static final class CallbackHandler extends Handler {
         private static final int MSG_ON_PROPERTY_SET = 1;
         private static final int MSG_ON_PROPERTY_EVENT = 2;
         private static final int MSG_ON_SET_ERROR = 3;
 
-        private final IVehicleCallback mCallback;
+        private final WeakReference<IVehicleCallback> mCallback;
 
         CallbackHandler(Looper looper, IVehicleCallback callback) {
             super(looper);
-            mCallback = callback;
+            mCallback = new WeakReference<IVehicleCallback>(callback);
         }
 
         @Override
         public void handleMessage(Message msg) {
-            super.handleMessage(msg);
+            IVehicleCallback callback = mCallback.get();
+            if (callback == null) {
+                Log.i(CarLog.TAG_HAL, "handleMessage null callback");
+                return;
+            }
 
             try {
                 switch (msg.what) {
                     case MSG_ON_PROPERTY_EVENT:
-                        mCallback.onPropertyEvent((ArrayList<VehiclePropValue>) msg.obj);
+                        callback.onPropertyEvent((ArrayList<VehiclePropValue>) msg.obj);
                         break;
                     case MSG_ON_PROPERTY_SET:
-                        mCallback.onPropertySet((VehiclePropValue) msg.obj);
+                        callback.onPropertySet((VehiclePropValue) msg.obj);
                         break;
                     case MSG_ON_SET_ERROR:
                         PropertySetError obj = (PropertySetError) msg.obj;
-                        mCallback.onPropertySetError(obj.errorCode, obj.propId, obj.areaId);
+                        callback.onPropertySetError(obj.errorCode, obj.propId, obj.areaId);
                         break;
                     default:
                         Log.e(CarLog.TAG_HAL, "Unexpected message: " + msg.what);

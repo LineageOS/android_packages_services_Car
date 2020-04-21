@@ -42,6 +42,7 @@ import android.view.Display;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
+import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -105,8 +106,10 @@ public class SystemActivityMonitoringService implements CarServiceBase {
     private final ProcessObserver mProcessObserver;
     private final TaskListener mTaskListener;
 
-    private final HandlerThread mMonitorHandlerThread;
-    private final ActivityMonitorHandler mHandler;
+    private final HandlerThread mMonitorHandlerThread = CarServiceUtils.getHandlerThread(
+            getClass().getSimpleName());
+    private final ActivityMonitorHandler mHandler = new ActivityMonitorHandler(
+            mMonitorHandlerThread.getLooper(), this);
 
     private final Object mLock = new Object();
 
@@ -121,9 +124,6 @@ public class SystemActivityMonitoringService implements CarServiceBase {
 
     public SystemActivityMonitoringService(Context context) {
         mContext = context;
-        mMonitorHandlerThread = new HandlerThread(CarLog.TAG_AM);
-        mMonitorHandlerThread.start();
-        mHandler = new ActivityMonitorHandler(mMonitorHandlerThread.getLooper());
         mProcessObserver = new ProcessObserver();
         mTaskListener = new TaskListener();
         mAm = ActivityManager.getService();
@@ -461,14 +461,19 @@ public class SystemActivityMonitoringService implements CarServiceBase {
         }
     }
 
-    private class ActivityMonitorHandler extends Handler {
+    private static final class ActivityMonitorHandler extends Handler {
+        private  static final String TAG = ActivityMonitorHandler.class.getSimpleName();
+
         private static final int MSG_UPDATE_TASKS = 0;
         private static final int MSG_FOREGROUND_ACTIVITIES_CHANGED = 1;
         private static final int MSG_PROCESS_DIED = 2;
         private static final int MSG_BLOCK_ACTIVITY = 3;
 
-        private ActivityMonitorHandler(Looper looper) {
+        private final WeakReference<SystemActivityMonitoringService> mService;
+
+        private ActivityMonitorHandler(Looper looper, SystemActivityMonitoringService service) {
             super(looper);
+            mService = new WeakReference<SystemActivityMonitoringService>(service);
         }
 
         private void requestUpdatingTask() {
@@ -497,21 +502,27 @@ public class SystemActivityMonitoringService implements CarServiceBase {
 
         @Override
         public void handleMessage(Message msg) {
+            SystemActivityMonitoringService service = mService.get();
+            if (service == null) {
+                Log.i(TAG, "handleMessage null service");
+                return;
+            }
             switch (msg.what) {
                 case MSG_UPDATE_TASKS:
-                    updateTasks();
+                    service.updateTasks();
                     break;
                 case MSG_FOREGROUND_ACTIVITIES_CHANGED:
-                    handleForegroundActivitiesChanged(msg.arg1, msg.arg2, (Boolean) msg.obj);
-                    updateTasks();
+                    service.handleForegroundActivitiesChanged(msg.arg1, msg.arg2,
+                            (Boolean) msg.obj);
+                    service.updateTasks();
                     break;
                 case MSG_PROCESS_DIED:
-                    handleProcessDied(msg.arg1, msg.arg2);
+                    service.handleProcessDied(msg.arg1, msg.arg2);
                     break;
                 case MSG_BLOCK_ACTIVITY:
                     Pair<TopTaskInfoContainer, Intent> pair =
                         (Pair<TopTaskInfoContainer, Intent>) msg.obj;
-                    handleBlockActivity(pair.first, pair.second);
+                    service.handleBlockActivity(pair.first, pair.second);
                     break;
             }
         }

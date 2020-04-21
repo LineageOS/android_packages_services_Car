@@ -58,6 +58,7 @@ import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
+import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
@@ -103,10 +104,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private long mLastSleepEntryTime;
     @GuardedBy("mLock")
     private final LinkedList<CpmsState> mPendingPowerStates = new LinkedList<>();
-    @GuardedBy("mLock")
-    private HandlerThread mHandlerThread;
-    @GuardedBy("mLock")
-    private PowerHandler mHandler;
+    private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
+            getClass().getSimpleName());
+    private final PowerHandler mHandler = new PowerHandler(mHandlerThread.getLooper(), this);
+
     @GuardedBy("mLock")
     private boolean mTimerActive;
     @GuardedBy("mLock")
@@ -205,19 +206,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     @VisibleForTesting
     protected HandlerThread getHandlerThread() {
-        synchronized (mLock) {
-            return mHandlerThread;
-        }
+        return mHandlerThread;
     }
 
     @Override
     public void init() {
-        synchronized (mLock) {
-            mHandlerThread = new HandlerThread(CarLog.TAG_POWER);
-            mHandlerThread.start();
-            mHandler = new PowerHandler(mHandlerThread.getLooper());
-        }
-
         mHal.setListener(this);
         if (mHal.isPowerStateSupported()) {
             // Initialize CPMS in WAIT_FOR_VHAL state
@@ -231,19 +224,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     @Override
     public void release() {
-        HandlerThread handlerThread;
         synchronized (mLock) {
             releaseTimerLocked();
             mCurrentState = null;
             mHandler.cancelAll();
-            handlerThread = mHandlerThread;
             mListenersWeAreWaitingFor.clear();
-        }
-        handlerThread.quitSafely();
-        try {
-            handlerThread.join(1000);
-        } catch (InterruptedException e) {
-            Log.e(CarLog.TAG_POWER, "Timeout while joining for handler thread to join.");
         }
         mSystemInterface.stopDisplayStateMonitoring();
         mPowerManagerListeners.kill();
@@ -273,12 +258,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     @Override
     public void onApPowerStateChange(PowerState state) {
-        PowerHandler handler;
         synchronized (mLock) {
             mPendingPowerStates.addFirst(new CpmsState(state));
-            handler = mHandler;
         }
-        handler.handlePowerStateChange();
+        mHandler.handlePowerStateChange();
     }
 
     @VisibleForTesting
@@ -297,17 +280,14 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      */
     private void onApPowerStateChange(int apState, int carPowerStateListenerState) {
         CpmsState newState = new CpmsState(apState, carPowerStateListenerState);
-        PowerHandler handler;
         synchronized (mLock) {
             mPendingPowerStates.addFirst(newState);
-            handler = mHandler;
         }
-        handler.handlePowerStateChange();
+        mHandler.handlePowerStateChange();
     }
 
     private void doHandlePowerStateChange() {
         CpmsState state;
-        PowerHandler handler;
         synchronized (mLock) {
             state = mPendingPowerStates.peekFirst();
             mPendingPowerStates.clear();
@@ -321,9 +301,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             }
             // now real power change happens. Whatever was queued before should be all cancelled.
             releaseTimerLocked();
-            handler = mHandler;
         }
-        handler.cancelProcessingComplete();
+        mHandler.cancelProcessingComplete();
         Log.i(CarLog.TAG_POWER, "setCurrentState " + state.toString());
         CarStatsLogHelper.logPowerState(state.mState);
         mCurrentState = state;
@@ -719,11 +698,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         // keep holding partial wakelock to prevent entering sleep before enterDeepSleep call
         // enterDeepSleep should force sleep entry even if wake lock is kept.
         mSystemInterface.switchToPartialWakeLock();
-        PowerHandler handler;
-        synchronized (mLock) {
-            handler = mHandler;
-        }
-        handler.cancelProcessingComplete();
+        mHandler.cancelProcessingComplete();
         synchronized (mLock) {
             mLastSleepEntryTime = SystemClock.elapsedRealtime();
         }
@@ -806,11 +781,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     @Override
     public void onDisplayBrightnessChange(int brightness) {
-        PowerHandler handler;
-        synchronized (mLock) {
-            handler = mHandler;
-        }
-        handler.handleDisplayBrightnessChange(brightness);
+        mHandler.handleDisplayBrightnessChange(brightness);
     }
 
     private void doHandleDisplayBrightnessChange(int brightness) {
@@ -822,11 +793,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     public void handleMainDisplayChanged(boolean on) {
-        PowerHandler handler;
-        synchronized (mLock) {
-            handler = mHandler;
-        }
-        handler.handleMainDisplayStateChange(on);
+        mHandler.handleMainDisplayStateChange(on);
     }
 
     /**
@@ -841,9 +808,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      * Get the PowerHandler that we use to change power states
      */
     public Handler getHandler() {
-        synchronized (mLock) {
-            return mHandler;
-        }
+        return mHandler;
+
     }
 
     // Binder interface for general use.
@@ -950,7 +916,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
     }
 
-    private class PowerHandler extends Handler {
+    private static final class PowerHandler extends Handler {
+        private static final String TAG = PowerHandler.class.getSimpleName();
+
         private final int MSG_POWER_STATE_CHANGE = 0;
         private final int MSG_DISPLAY_BRIGHTNESS_CHANGE = 1;
         private final int MSG_MAIN_DISPLAY_STATE_CHANGE = 2;
@@ -960,8 +928,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         // display off due to rear view camera and delivery to here.
         private final long MAIN_DISPLAY_EVENT_DELAY_MS = 500;
 
-        private PowerHandler(Looper looper) {
+        private final WeakReference<CarPowerManagementService> mService;
+
+        private PowerHandler(Looper looper, CarPowerManagementService service) {
             super(looper);
+            mService = new WeakReference<CarPowerManagementService>(service);
         }
 
         private void handlePowerStateChange() {
@@ -999,18 +970,23 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
         @Override
         public void handleMessage(Message msg) {
+            CarPowerManagementService service = mService.get();
+            if (service == null) {
+                Log.i(TAG, "handleMessage null service");
+                return;
+            }
             switch (msg.what) {
                 case MSG_POWER_STATE_CHANGE:
-                    doHandlePowerStateChange();
+                    service.doHandlePowerStateChange();
                     break;
                 case MSG_DISPLAY_BRIGHTNESS_CHANGE:
-                    doHandleDisplayBrightnessChange(msg.arg1);
+                    service.doHandleDisplayBrightnessChange(msg.arg1);
                     break;
                 case MSG_MAIN_DISPLAY_STATE_CHANGE:
-                    doHandleMainDisplayStateChange((Boolean) msg.obj);
+                    service.doHandleMainDisplayStateChange((Boolean) msg.obj);
                     break;
                 case MSG_PROCESSING_COMPLETE:
-                    doHandleProcessingComplete();
+                    service.doHandleProcessingComplete();
                     break;
             }
         }

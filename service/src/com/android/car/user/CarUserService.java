@@ -63,6 +63,7 @@ import android.util.SparseArray;
 import android.util.TimingsTraceLog;
 
 import com.android.car.CarServiceBase;
+import com.android.car.CarServiceUtils;
 import com.android.car.R;
 import com.android.car.hal.UserHalService;
 import com.android.internal.annotations.GuardedBy;
@@ -137,8 +138,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     private final UserHalService mHal;
 
     // HandlerThread and Handler used when notifying app listeners (mAppLifecycleListeners).
-    private final HandlerThread mHandlerThread;
-    private final Handler mHandler;
+    private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
+            getClass().getSimpleName());
+    private final Handler mHandler = new Handler(mHandlerThread.getLooper());
 
     /**
      * List of listeners to be notified on new user activities events.
@@ -212,9 +214,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         mUserManager = userManager;
         mLastPassengerId = UserHandle.USER_NULL;
         mEnablePassengerSupport = context.getResources().getBoolean(R.bool.enablePassengerSupport);
-        mHandlerThread = new HandlerThread(CarUserService.class.getSimpleName());
-        mHandlerThread.start();
-        mHandler = new Handler(mHandlerThread.getLooper());
     }
 
     @Override
