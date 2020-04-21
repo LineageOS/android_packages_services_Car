@@ -45,10 +45,6 @@ Result<void> ServiceManager::startServices(const sp<Looper>& looper) {
     if (!result.ok()) {
         return result;
     }
-    result = startBinderMediator();
-    if (!result.ok()) {
-        return result;
-    }
     return {};
 }
 
