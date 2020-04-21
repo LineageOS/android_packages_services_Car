@@ -1050,7 +1050,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
 
         // ...then notify listeners.
-        UserLifecycleEvent event = new UserLifecycleEvent(eventType, userId);
+        UserLifecycleEvent event = new UserLifecycleEvent(eventType, fromUserId, userId);
 
         mHandler.post(() -> {
             handleNotifyServiceUserLifecycleListeners(event);
@@ -1102,8 +1102,12 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             IResultReceiver listener = mAppLifecycleListeners.valueAt(i);
             Bundle data = new Bundle();
             data.putInt(CarUserManager.BUNDLE_PARAM_ACTION, event.getEventType());
-            // TODO(b/144120654): should pass currentId from CarServiceHelperService so it
-            // can set BUNDLE_PARAM_PREVIOUS_USER_ID (and unit test it)
+
+            int fromUid = event.getPreviousUserId();
+            if (fromUid != UserHandle.USER_NULL) {
+                data.putInt(CarUserManager.BUNDLE_PARAM_PREVIOUS_USER_ID, fromUid);
+            }
+
             if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
                 Log.d(TAG_USER, "Notifying listener for uid " + uid);
             }
