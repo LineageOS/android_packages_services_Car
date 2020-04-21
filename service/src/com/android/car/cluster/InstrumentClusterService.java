@@ -60,6 +60,7 @@ import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
+import java.lang.ref.WeakReference;
 import java.util.Objects;
 
 /**
@@ -92,8 +93,7 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
     private IInstrumentCluster mRendererService;
     // If renderer service crashed / stopped and this class fails to rebind with it immediately,
     // we should wait some time before next attempt. This may happen during APK update for example.
-    @GuardedBy("mLock")
-    private DeferredRebinder mDeferredRebinder;
+    private final DeferredRebinder mDeferredRebinder;
     // Whether {@link android.car.cluster.renderer.InstrumentClusterRendererService} is bound
     // (although not necessarily connected)
     @GuardedBy("mLock")
@@ -175,17 +175,13 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
                 Log.d(TAG, "onServiceDisconnected, name: " + name);
             }
             mContext.unbindService(this);
-            DeferredRebinder rebinder;
             synchronized (mLock) {
                 mRendererBound = false;
                 mRendererService = null;
                 mIInstrumentClusterNavigationFromRenderer = null;
-                if (mDeferredRebinder == null) {
-                    mDeferredRebinder = new DeferredRebinder();
-                }
-                rebinder = mDeferredRebinder;
+
             }
-            rebinder.rebind();
+            mDeferredRebinder.rebind();
         }
     };
 
@@ -217,6 +213,7 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
         mAppFocusService = appFocusService;
         mCarInputService = carInputService;
         mRenderingServiceConfig = mContext.getString(R.string.instrumentClusterRendererService);
+        mDeferredRebinder = new DeferredRebinder(this);
     }
 
     @GuardedBy("mLock")
@@ -486,14 +483,27 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
         }
     }
 
-    private class DeferredRebinder extends Handler {
+    private static final class DeferredRebinder extends Handler {
+        private static final String TAG = DeferredRebinder.class.getSimpleName();
+
         private static final long NEXT_REBIND_ATTEMPT_DELAY_MS = 1000L;
         private static final int NUMBER_OF_ATTEMPTS = 10;
 
-        public void rebind() {
-            mRendererBound = bindInstrumentClusterRendererService();
+        private final WeakReference<InstrumentClusterService> mService;
 
-            if (!mRendererBound) {
+        private DeferredRebinder(InstrumentClusterService service) {
+            mService = new WeakReference<InstrumentClusterService>(service);
+        }
+
+        public void rebind() {
+            InstrumentClusterService service = mService.get();
+            if (service == null) {
+                Log.i(TAG, "rebind null service");
+                return;
+            }
+            service.mRendererBound = service.bindInstrumentClusterRendererService();
+
+            if (!service.mRendererBound) {
                 removeMessages(0);
                 sendMessageDelayed(obtainMessage(0, NUMBER_OF_ATTEMPTS, 0),
                         NEXT_REBIND_ATTEMPT_DELAY_MS);
@@ -502,9 +512,14 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
 
         @Override
         public void handleMessage(Message msg) {
-            mRendererBound = bindInstrumentClusterRendererService();
+            InstrumentClusterService service = mService.get();
+            if (service == null) {
+                Log.i(TAG, "handleMessage null service");
+                return;
+            }
+            service.mRendererBound = service.bindInstrumentClusterRendererService();
 
-            if (mRendererBound) {
+            if (service.mRendererBound) {
                 Log.w(TAG, "Failed to bound to render service, next attempt in "
                         + NEXT_REBIND_ATTEMPT_DELAY_MS + "ms.");
 
