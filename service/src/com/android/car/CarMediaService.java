@@ -125,9 +125,11 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
 
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
 
+
+    private final HandlerThread mHandlerThread  = CarServiceUtils.getHandlerThread(
+            getClass().getSimpleName());
     // Handler to receive PlaybackState callbacks from the active media controller.
-    private final Handler mHandler;
-    private final HandlerThread mHandlerThread;
+    private final Handler mHandler = new Handler(mHandlerThread.getLooper());
     private final Object mLock = new Object();
 
     /** The package name of the last media source that was removed while being primary. */
@@ -192,10 +194,6 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         mMediaSourceListeners[MEDIA_SOURCE_MODE_BROWSE] = new RemoteCallbackList();
         mIndependentPlaybackConfig = mContext.getResources().getBoolean(
                 R.bool.config_mediaSourceIndependentPlayback);
-
-        mHandlerThread = new HandlerThread(CarLog.TAG_MEDIA);
-        mHandlerThread.start();
-        mHandler = new Handler(mHandlerThread.getLooper());
 
         mPackageUpdateFilter = new IntentFilter();
         mPackageUpdateFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
