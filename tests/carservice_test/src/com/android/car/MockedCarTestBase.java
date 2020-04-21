@@ -210,13 +210,16 @@ public class MockedCarTestBase {
     public void tearDown() throws Exception {
         if (mCar != null) {
             mCar.disconnect();
+            mCar = null;
         }
         if (mCarImpl != null) {
             mCarImpl.release();
+            mCarImpl = null;
         }
         if (mMockIOInterface != null) {
             mMockIOInterface.tearDown();
         }
+        mMockedVehicleHal = null;
     }
 
     public CarPropertyService getCarPropertyService() {
