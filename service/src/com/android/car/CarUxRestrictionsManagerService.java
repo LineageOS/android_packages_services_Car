@@ -132,8 +132,9 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     private final DisplayManager mDisplayManager;
     private final CarDrivingStateService mDrivingStateService;
     private final CarPropertyService mCarPropertyService;
-    private final HandlerThread mClientDispatchThread;
-    private final Handler mClientDispatchHandler;
+    private final HandlerThread mClientDispatchThread  = CarServiceUtils.getHandlerThread(
+            getClass().getSimpleName());
+    private final Handler mClientDispatchHandler  = new Handler(mClientDispatchThread.getLooper());
     private final RemoteCallbackList<ICarUxRestrictionsChangeListener> mUxRClients =
             new RemoteCallbackList<>();
 
@@ -190,9 +191,6 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         mDisplayManager = mContext.getSystemService(DisplayManager.class);
         mDrivingStateService = drvService;
         mCarPropertyService = propertyService;
-        mClientDispatchThread = new HandlerThread("ClientDispatchThread");
-        mClientDispatchThread.start();
-        mClientDispatchHandler = new Handler(mClientDispatchThread.getLooper());
     }
 
     @Override
@@ -370,7 +368,6 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         synchronized (mLock) {
             mActivityViewDisplayInfoMap.clear();
         }
-        mClientDispatchThread.quitSafely();
     }
 
     // Binder methods
