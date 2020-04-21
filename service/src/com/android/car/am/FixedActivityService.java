@@ -230,8 +230,7 @@ public final class FixedActivityService implements CarServiceBase {
         }
     };
 
-    private final HandlerThread mHandlerThread = new HandlerThread(
-            FixedActivityService.class.getSimpleName());
+    private final HandlerThread mHandlerThread;
 
     private final Runnable mActivityCheckRunnable = () -> {
         launchIfNecessary();
@@ -271,7 +270,8 @@ public final class FixedActivityService implements CarServiceBase {
         mAm = ActivityManager.getService();
         mUm = context.getSystemService(UserManager.class);
         mDm = context.getSystemService(DisplayManager.class);
-        mHandlerThread.start();
+        mHandlerThread = CarServiceUtils.getHandlerThread(
+                FixedActivityService.class.getSimpleName());
     }
 
     @Override

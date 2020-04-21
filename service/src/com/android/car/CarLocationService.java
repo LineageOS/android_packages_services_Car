@@ -90,9 +90,10 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
     private final Object mLocationManagerProxyLock = new Object();
 
     private final Context mContext;
-    private int mTaskCount = 0;
-    private HandlerThread mHandlerThread;
-    private Handler mHandler;
+    private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
+            getClass().getSimpleName());
+    private final Handler mHandler = new Handler(mHandlerThread.getLooper());
+
     private CarPowerManager mCarPowerManager;
     private CarDrivingStateService mCarDrivingStateService;
     private PerUserCarServiceHelper mPerUserCarServiceHelper;
@@ -493,28 +494,7 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
     }
 
     private void asyncOperation(Runnable operation, long delayMillis) {
-        synchronized (mLock) {
-            // Create a new HandlerThread if this is the first task to queue.
-            if (++mTaskCount == 1) {
-                mHandlerThread = new HandlerThread("CarLocationServiceThread");
-                mHandlerThread.start();
-                mHandler = new Handler(mHandlerThread.getLooper());
-            }
-        }
-        mHandler.postDelayed(() -> {
-            try {
-                operation.run();
-            } finally {
-                synchronized (mLock) {
-                    // Quit the thread when the task queue is empty.
-                    if (--mTaskCount == 0) {
-                        mHandler.getLooper().quit();
-                        mHandler = null;
-                        mHandlerThread = null;
-                    }
-                }
-            }
-        }, delayMillis);
+        mHandler.postDelayed(() -> operation.run(), delayMillis);
     }
 
     private static void logd(String msg, Object... vals) {
