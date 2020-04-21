@@ -75,6 +75,7 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.google.android.collect.Sets;
 
 import java.io.PrintWriter;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -100,8 +101,9 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     private final ActivityManager mActivityManager;
     private final DisplayManager mDisplayManager;
 
-    private final HandlerThread mHandlerThread;
-    private final PackageHandler mHandler;
+    private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
+            getClass().getSimpleName());
+    private final PackageHandler mHandler  = new PackageHandler(mHandlerThread.getLooper(), this);
     private final Object mLock = new Object();
 
     // For dumpsys logging.
@@ -198,9 +200,6 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         mPackageManager = mContext.getPackageManager();
         mActivityManager = mContext.getSystemService(ActivityManager.class);
         mDisplayManager = mContext.getSystemService(DisplayManager.class);
-        mHandlerThread = new HandlerThread(CarLog.TAG_PACKAGE);
-        mHandlerThread.start();
-        mHandler = new PackageHandler(mHandlerThread.getLooper());
         Resources res = context.getResources();
         mEnableActivityBlocking = res.getBoolean(R.bool.enableActivityBlockingForSafety);
         String blockingActivity = res.getString(R.string.activityBlockingActivity);
@@ -1195,14 +1194,19 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     /**
      * Reading policy and setting policy can take time. Run it in a separate handler thread.
      */
-    private class PackageHandler extends Handler {
+    private static final class PackageHandler extends Handler {
+        private static final String TAG = PackageHandler.class.getSimpleName();
+
         private static final int MSG_INIT = 0;
         private static final int MSG_PARSE_PKG = 1;
         private static final int MSG_UPDATE_POLICY = 2;
         private static final int MSG_RELEASE = 3;
 
-        private PackageHandler(Looper looper) {
+        private final WeakReference<CarPackageManagerService> mService;
+
+        private PackageHandler(Looper looper, CarPackageManagerService service) {
             super(looper);
+            mService = new WeakReference<CarPackageManagerService>(service);
         }
 
         private void requestInit() {
@@ -1237,20 +1241,25 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
         @Override
         public void handleMessage(Message msg) {
+            CarPackageManagerService service = mService.get();
+            if (service == null) {
+                Log.i(TAG, "handleMessage null service");
+                return;
+            }
             switch (msg.what) {
                 case MSG_INIT:
-                    doHandleInit();
+                    service.doHandleInit();
                     break;
                 case MSG_PARSE_PKG:
-                    doParseInstalledPackages();
+                    service.doParseInstalledPackages();
                     break;
                 case MSG_UPDATE_POLICY:
                     Pair<String, CarAppBlockingPolicy> pair =
                             (Pair<String, CarAppBlockingPolicy>) msg.obj;
-                    doUpdatePolicy(pair.first, pair.second, msg.arg1);
+                    service.doUpdatePolicy(pair.first, pair.second, msg.arg1);
                     break;
                 case MSG_RELEASE:
-                    doHandleRelease();
+                    service.doHandleRelease();
                     break;
             }
         }
