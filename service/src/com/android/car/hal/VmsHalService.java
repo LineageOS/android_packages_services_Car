@@ -51,6 +51,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.VisibleForTesting;
 
 import com.android.car.CarLocalServices;
+import com.android.car.CarServiceUtils;
 import com.android.car.vms.VmsBrokerService;
 
 import java.io.FileDescriptor;
@@ -83,7 +84,9 @@ public class VmsHalService extends HalServiceBase {
     private static final byte[] DEFAULT_PUBLISHER_INFO = new byte[0];
 
     private final VehicleHal mVehicleHal;
-    private final HandlerThread mHandlerThread;
+    private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
+            getClass().getSimpleName());
+    private final Handler mHandler = new Handler(mHandlerThread.getLooper());
     private final int mCoreId;
     private final BiFunction<Handler, VmsClientCallback, VmsClient> mInitVmsClient;
     private final int mClientMetricsProperty;
@@ -96,8 +99,6 @@ public class VmsHalService extends HalServiceBase {
     private boolean mIsSupported;
     @GuardedBy("mLock")
     private VmsClient mClient;
-    @GuardedBy("mLock")
-    private Handler mHandler;
 
     private final VmsClientCallback mClientCallback = new VmsClientCallback() {
         @Override
@@ -139,7 +140,6 @@ public class VmsHalService extends HalServiceBase {
             BiFunction<Handler, VmsClientCallback, VmsClient> initVmsClient,
             boolean propagatePropertyException) {
         mVehicleHal = vehicleHal;
-        mHandlerThread = new HandlerThread(TAG);
         mCoreId = (int) (getCoreId.get() % Integer.MAX_VALUE);
         mInitVmsClient = initVmsClient;
         mClientMetricsProperty = getClientMetricsProperty(context);
@@ -193,8 +193,6 @@ public class VmsHalService extends HalServiceBase {
                 Log.i(TAG, "VmsHalService VHAL property not supported");
                 return; // Do not continue initialization
             }
-            mHandlerThread.start();
-            mHandler = new Handler(mHandlerThread.getLooper());
             connectVmsClient();
         }
 
@@ -209,7 +207,6 @@ public class VmsHalService extends HalServiceBase {
     public void release() {
         synchronized (mLock) {
             disconnectVmsClient();
-            mHandlerThread.quitSafely();
             if (!mIsSupported) {
                 return;
             }
