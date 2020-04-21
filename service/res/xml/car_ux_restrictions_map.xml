@@ -8,7 +8,7 @@ of configuration:
    <restrictionParameters> tag.
 
 Note:
-   1. The tags and attributes are declared in packages/services/Car/service/res/attrs.xml.
+   1. The tags and attributes are declared in packages/services/Car/service/res/values/attrs.xml.
    2. The driving states defined there should align with driving states (@CarDrivingState) defined in
    packages/services/Car/car-lib/src/android/car/drivingstate/CarDrivingStateEvent.java
    3. Similarly the UX restrictions should align with
