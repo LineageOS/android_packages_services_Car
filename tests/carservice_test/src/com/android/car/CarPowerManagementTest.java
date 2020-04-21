@@ -139,6 +139,21 @@ public class CarPowerManagementTest extends MockedCarTestBase {
                 VehicleApPowerStateReport.SHUTDOWN_CANCELLED);
     }
 
+    @Test
+    @UiThreadTest
+    public void testCancelShutdownFromWaitForFinish() throws Exception {
+        assertWaitForVhal();
+        mPowerStateHandler.sendStateAndCheckResponse(
+                VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                VehicleApPowerStateShutdownParam.CAN_SLEEP,
+                VehicleApPowerStateReport.DEEP_SLEEP_ENTRY);
+        // After DEEP_SLEEP_ENTRY, we're in WAIT_FOR_FINISH
+        mPowerStateHandler.sendStateAndCheckResponse(
+                VehicleApPowerStateReq.CANCEL_SHUTDOWN,
+                0,
+                VehicleApPowerStateReport.SHUTDOWN_CANCELLED);
+    }
+
     /**********************************************************************************************
      * Test for invalid state transtions
      **********************************************************************************************/
@@ -194,9 +209,6 @@ public class CarPowerManagementTest extends MockedCarTestBase {
                 VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                 VehicleApPowerStateShutdownParam.CAN_SLEEP,
                 VehicleApPowerStateReport.DEEP_SLEEP_ENTRY);
-        // Once the device has entered WAIT_FOR_FINISH, shutdown cannot be cancelled.
-        mPowerStateHandler.sendStateAndExpectNoResponse(VehicleApPowerStateReq.CANCEL_SHUTDOWN, 0);
-        mPowerStateHandler.sendStateAndExpectNoResponse(VehicleApPowerStateReq.ON, 0);
         mPowerStateHandler.sendStateAndExpectNoResponse(
                 VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                 VehicleApPowerStateShutdownParam.CAN_SLEEP);
@@ -217,9 +229,6 @@ public class CarPowerManagementTest extends MockedCarTestBase {
                 VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                 VehicleApPowerStateShutdownParam.SHUTDOWN_ONLY,
                 VehicleApPowerStateReport.SHUTDOWN_START);
-        // Once the device has entered WAIT_FOR_FINISH, shutdown cannot be cancelled.
-        mPowerStateHandler.sendStateAndExpectNoResponse(VehicleApPowerStateReq.CANCEL_SHUTDOWN, 0);
-        mPowerStateHandler.sendStateAndExpectNoResponse(VehicleApPowerStateReq.ON, 0);
         mPowerStateHandler.sendStateAndExpectNoResponse(
                 VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                 VehicleApPowerStateShutdownParam.CAN_SLEEP);
