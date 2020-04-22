@@ -65,9 +65,9 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
             VehicleProperty.PERF_VEHICLE_SPEED,
             VehicleProperty.GEAR_SELECTION,
             VehicleProperty.PARKING_BRAKE_ON};
-    private final HandlerThread mClientDispatchThread;
-    private final Handler mClientDispatchHandler;
-
+    private final HandlerThread mClientDispatchThread = CarServiceUtils.getHandlerThread(
+            getClass().getSimpleName());
+    private final Handler mClientDispatchHandler = new Handler(mClientDispatchThread.getLooper());
     private final Object mLock = new Object();
 
     // For dumpsys logging
@@ -102,9 +102,6 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
         mContext = context;
         mPropertyService = propertyService;
         mCurrentDrivingState = createDrivingStateEvent(CarDrivingStateEvent.DRIVING_STATE_UNKNOWN);
-        mClientDispatchThread = new HandlerThread("ClientDispatchThread");
-        mClientDispatchThread.start();
-        mClientDispatchHandler = new Handler(mClientDispatchThread.getLooper());
     }
 
     @Override
