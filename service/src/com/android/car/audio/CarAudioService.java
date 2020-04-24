@@ -1005,7 +1005,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
      * CarAudioManager.PRIMARY_AUDIO_ZONE if none are found
      */
     @Override
-    public int getZoneIdForDisplayPortId(byte displayPortId) {
+    public int getZoneIdForDisplayPortId(int displayPortId) {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
         synchronized (mImplLock) {
             for (int index = 0; index < mCarAudioZones.length; index++) {

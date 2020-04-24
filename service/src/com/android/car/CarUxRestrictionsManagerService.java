@@ -121,7 +121,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
 
     private static final String JSON_NAME_SCHEMA_VERSION = "schema_version";
     private static final String JSON_NAME_RESTRICTIONS = "restrictions";
-    private static final byte DEFAULT_PORT = 0;
+    private static final int DEFAULT_PORT = 0;
 
     @VisibleForTesting
     static final String CONFIG_FILENAME_PRODUCTION = "ux_restrictions_prod_config.json";
@@ -141,9 +141,9 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
      * Metadata associated with a binder callback.
      */
     private static class RemoteCallbackListCookie {
-        final Byte mPhysicalPort;
+        final Integer mPhysicalPort;
 
-        RemoteCallbackListCookie(Byte physicalPort) {
+        RemoteCallbackListCookie(Integer physicalPort) {
             mPhysicalPort = physicalPort;
         }
     }
@@ -151,17 +151,17 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     private final Object mLock = new Object();
 
     /**
-     * This lookup caches the mapping from an int display id to a byte that represents a physical
+     * This lookup caches the mapping from an int display id to an int that represents a physical
      * port. It includes mappings for virtual displays.
      */
     @GuardedBy("mLock")
-    private final Map<Integer, Byte> mPortLookup = new HashMap<>();
+    private final Map<Integer, Integer> mPortLookup = new HashMap<>();
 
     @GuardedBy("mLock")
-    private Map<Byte, CarUxRestrictionsConfiguration> mCarUxRestrictionsConfigurations;
+    private Map<Integer, CarUxRestrictionsConfiguration> mCarUxRestrictionsConfigurations;
 
     @GuardedBy("mLock")
-    private Map<Byte, CarUxRestrictions> mCurrentUxRestrictions;
+    private Map<Integer, CarUxRestrictions> mCurrentUxRestrictions;
 
     @GuardedBy("mLock")
     private String mRestrictionMode = UX_RESTRICTION_MODE_BASELINE;
@@ -169,12 +169,12 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     @GuardedBy("mLock")
     private float mCurrentMovingSpeed;
 
-    // Byte represents a physical port for display.
+    // Represents a physical port for display.
     @GuardedBy("mLock")
-    private byte mDefaultDisplayPhysicalPort;
+    private int mDefaultDisplayPhysicalPort;
 
     @GuardedBy("mLock")
-    private final List<Byte> mPhysicalPorts = new ArrayList<>();
+    private final List<Integer> mPhysicalPorts = new ArrayList<>();
 
     // Flag to disable broadcasting UXR changes - for development purposes
     @GuardedBy("mLock")
@@ -207,7 +207,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             // start
             // driving and we don't get speed or gear information, we have bigger problems.
             mCurrentUxRestrictions = new HashMap<>();
-            for (byte port : mPhysicalPorts) {
+            for (int port : mPhysicalPorts) {
                 mCurrentUxRestrictions.put(port, createUnrestrictedRestrictions());
             }
 
@@ -274,7 +274,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
 
         configs = new ArrayList<>();
         synchronized (mLock) {
-            for (byte port : mPhysicalPorts) {
+            for (int port : mPhysicalPorts) {
                 configs.add(createDefaultConfig(port));
             }
         }
@@ -389,7 +389,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             Log.e(TAG, "registerUxRestrictionsChangeListener(): listener null");
             throw new IllegalArgumentException("Listener is null");
         }
-        Byte physicalPort;
+        Integer physicalPort;
         synchronized (mLock) {
             physicalPort = getPhysicalPortLocked(displayId);
             if (physicalPort == null) {
@@ -690,7 +690,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         synchronized (mLock) {
             writer.println("*CarUxRestrictionsManagerService*");
             mUxRClients.dump(writer, "UX Restrictions Clients ");
-            for (byte port : mCurrentUxRestrictions.keySet()) {
+            for (int port : mCurrentUxRestrictions.keySet()) {
                 CarUxRestrictions restrictions = mCurrentUxRestrictions.get(port);
                 writer.printf("Port: 0x%02X UXR: %s\n", port, restrictions.toString());
             }
@@ -818,8 +818,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             return;
         }
 
-        Map<Byte, CarUxRestrictions> newUxRestrictions = new HashMap<>();
-        for (byte port : mPhysicalPorts) {
+        Map<Integer, CarUxRestrictions> newUxRestrictions = new HashMap<>();
+        for (int port : mPhysicalPorts) {
             CarUxRestrictionsConfiguration config = mCarUxRestrictionsConfigurations.get(port);
             if (config == null) {
                 continue;
@@ -839,8 +839,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         }
 
         // Ignore dispatching if the restrictions has not changed.
-        Set<Byte> displayToDispatch = new ArraySet<>();
-        for (byte port : newUxRestrictions.keySet()) {
+        Set<Integer> displayToDispatch = new ArraySet<>();
+        for (int port : newUxRestrictions.keySet()) {
             if (!mCurrentUxRestrictions.containsKey(port)) {
                 // This should never happen.
                 Log.wtf(TAG, "Unrecognized port:" + port);
@@ -855,7 +855,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             return;
         }
 
-        for (byte port : displayToDispatch) {
+        for (int port : displayToDispatch) {
             addTransitionLogLocked(
                     mCurrentUxRestrictions.get(port), newUxRestrictions.get(port));
         }
@@ -865,8 +865,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         mCurrentUxRestrictions = newUxRestrictions;
     }
 
-    private void dispatchRestrictionsToClients(Map<Byte, CarUxRestrictions> displayRestrictions,
-            Set<Byte> displayToDispatch) {
+    private void dispatchRestrictionsToClients(Map<Integer, CarUxRestrictions> displayRestrictions,
+            Set<Integer> displayToDispatch) {
         logd("dispatching to clients");
         boolean success = mClientDispatchHandler.post(() -> {
             int numClients = mUxRClients.beginBroadcast();
@@ -900,7 +900,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     }
 
     @VisibleForTesting
-    static byte getDefaultDisplayPhysicalPort(DisplayManager displayManager) {
+    static int getDefaultDisplayPhysicalPort(DisplayManager displayManager) {
         Display defaultDisplay = displayManager.getDisplay(Display.DEFAULT_DISPLAY);
         DisplayAddress.Physical address = (DisplayAddress.Physical) defaultDisplay.getAddress();
 
@@ -927,11 +927,10 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                     mPhysicalPorts.add(mDefaultDisplayPhysicalPort);
                 }
             } else if (display.getAddress() instanceof DisplayAddress.Physical) {
-                byte port = ((DisplayAddress.Physical) display.getAddress()).getPort();
+                int port = ((DisplayAddress.Physical) display.getAddress()).getPort();
                 if (Log.isLoggable(TAG, Log.INFO)) {
                     Log.i(TAG, String.format(
-                            "Display %d uses port %d", display.getDisplayId(),
-                            Byte.toUnsignedInt(port)));
+                            "Display %d uses port %d", display.getDisplayId(), port));
                 }
                 synchronized (mLock) {
                     mPhysicalPorts.add(port);
@@ -943,15 +942,15 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         }
     }
 
-    private Map<Byte, CarUxRestrictionsConfiguration> convertToMap(
+    private Map<Integer, CarUxRestrictionsConfiguration> convertToMap(
             List<CarUxRestrictionsConfiguration> configs) {
         validateConfigs(configs);
 
-        Map<Byte, CarUxRestrictionsConfiguration> result = new HashMap<>();
+        Map<Integer, CarUxRestrictionsConfiguration> result = new HashMap<>();
         if (configs.size() == 1) {
             CarUxRestrictionsConfiguration config = configs.get(0);
             synchronized (mLock) {
-                byte port = config.getPhysicalPort() == null
+                int port = config.getPhysicalPort() == null
                         ? mDefaultDisplayPhysicalPort
                         : config.getPhysicalPort();
                 result.put(port, config);
@@ -981,7 +980,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         }
 
         CarUxRestrictionsConfiguration first = configs.get(0);
-        Set<Byte> existingPorts = new ArraySet<>();
+        Set<Integer> existingPorts = new ArraySet<>();
         for (CarUxRestrictionsConfiguration config : configs) {
             if (!config.hasSameParameters(first)) {
                 // Input should have the same restriction parameters because:
@@ -991,7 +990,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                         "Configurations should have the same restrictions parameters.");
             }
 
-            Byte port = config.getPhysicalPort();
+            Integer port = config.getPhysicalPort();
             if (port == null) {
                 // Size was checked above; safe to assume there are multiple configs.
                 throw new IllegalArgumentException(
@@ -1006,26 +1005,26 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     }
 
     /**
-     * Returns the physical port byte id for the display or {@code null} if {@link
+     * Returns the physical port id for the display or {@code null} if {@link
      * DisplayManager#getDisplay(int)} is not aware of the provided id.
      */
     @Nullable
     @GuardedBy("mLock")
-    private Byte getPhysicalPortLocked(int displayId) {
+    private Integer getPhysicalPortLocked(int displayId) {
         if (!mPortLookup.containsKey(displayId)) {
             Display display = mDisplayManager.getDisplay(displayId);
             if (display == null) {
                 Log.w(TAG, "Could not retrieve display for id: " + displayId);
                 return null;
             }
-            byte port = doGetPhysicalPortLocked(display);
+            int port = doGetPhysicalPortLocked(display);
             mPortLookup.put(displayId, port);
         }
         return mPortLookup.get(displayId);
     }
 
     @GuardedBy("mLock")
-    private byte doGetPhysicalPortLocked(@NonNull Display display) {
+    private int doGetPhysicalPortLocked(@NonNull Display display) {
         if (display.getType() == Display.TYPE_VIRTUAL) {
             Log.e(TAG, "Display " + display
                     + " is a virtual display and does not have a known port.");
@@ -1058,7 +1057,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                 SystemClock.elapsedRealtimeNanos()).build();
     }
 
-    CarUxRestrictionsConfiguration createDefaultConfig(byte port) {
+    CarUxRestrictionsConfiguration createDefaultConfig(int port) {
         return new CarUxRestrictionsConfiguration.Builder()
                 .setPhysicalPort(port)
                 .setUxRestrictions(DRIVING_STATE_PARKED,
@@ -1155,7 +1154,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             mRemoteCallbackList.register(callback);
             mActivityViewDisplayInfoMap.put(virtualDisplayId,
                     new DisplayInfo(callback, physicalDisplayId));
-            mPortLookup.put(virtualDisplayId, (byte) physicalDisplayId);
+            mPortLookup.put(virtualDisplayId, physicalDisplayId & 0xFF);
         }
     }
 

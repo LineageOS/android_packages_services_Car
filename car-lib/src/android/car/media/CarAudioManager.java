@@ -540,7 +540,7 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
-    public int getZoneIdForDisplayPortId(byte displayPortId) {
+    public int getZoneIdForDisplayPortId(int displayPortId) {
         try {
             return mService.getZoneIdForDisplayPortId(displayPortId);
         } catch (RemoteException e) {

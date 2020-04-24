@@ -175,7 +175,7 @@ public final class CarUxRestrictionsConfigurationXmlParser {
             if (a.hasValue(R.styleable.UxRestrictions_RestrictionMapping_physicalPort)) {
                 int portValue = a.getInt(
                         R.styleable.UxRestrictions_RestrictionMapping_physicalPort, 0);
-                byte port = CarUxRestrictionsConfiguration.Builder.validatePort(portValue);
+                int port = CarUxRestrictionsConfiguration.Builder.validatePort(portValue);
                 getCurrentBuilder().setPhysicalPort(port);
             }
             a.recycle();

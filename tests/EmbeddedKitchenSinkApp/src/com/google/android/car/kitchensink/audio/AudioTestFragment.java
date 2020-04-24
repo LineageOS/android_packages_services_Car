@@ -551,8 +551,8 @@ public class AudioTestFragment extends Fragment {
     }
 
     private void createDisplayAudioPlayer() {
-        byte selectedDisplayPortId = mDisplayAdapter.getItem(
-                mDisplaySpinner.getSelectedItemPosition()).byteValue();
+        int selectedDisplayPortId = mDisplayAdapter.getItem(
+                mDisplaySpinner.getSelectedItemPosition());
         int zoneIdForDisplayId = mCarAudioManager.getZoneIdForDisplayPortId(selectedDisplayPortId);
         Log.d(TAG, "Setting Bundle to zone " + zoneIdForDisplayId);
         Bundle bundle = new Bundle();
