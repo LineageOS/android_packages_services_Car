@@ -17,6 +17,7 @@ package com.android.car.hal;
 
 import static android.car.VehiclePropertyIds.INITIAL_USER_INFO;
 import static android.car.VehiclePropertyIds.SWITCH_USER;
+import static android.car.VehiclePropertyIds.USER_IDENTIFICATION_ASSOCIATION;
 
 import static com.android.internal.util.function.pooled.PooledLambda.obtainMessage;
 
@@ -31,6 +32,9 @@ import android.hardware.automotive.vehicle.V2_0.SwitchUserMessageType;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserResponse;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserStatus;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
+import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType;
+import android.hardware.automotive.vehicle.V2_0.UserIdentificationGetRequest;
+import android.hardware.automotive.vehicle.V2_0.UserIdentificationResponse;
 import android.hardware.automotive.vehicle.V2_0.UserInfo;
 import android.hardware.automotive.vehicle.V2_0.UsersInfo;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
@@ -61,13 +65,14 @@ import java.util.Optional;
  */
 public final class UserHalService extends HalServiceBase {
 
-    private static final String UNSUPPORTED_MSG = "Vehicle HAL does not support user management";
-
     private static final String TAG = UserHalService.class.getSimpleName();
+
+    private static final String UNSUPPORTED_MSG = "Vehicle HAL does not support user management";
 
     private static final int[] SUPPORTED_PROPERTIES = new int[]{
             INITIAL_USER_INFO,
-            SWITCH_USER
+            SWITCH_USER,
+            USER_IDENTIFICATION_ASSOCIATION
     };
 
     // TODO(b/150413515): STOPSHIP - change to false before R is launched
@@ -139,6 +144,9 @@ public final class UserHalService extends HalServiceBase {
                 case SWITCH_USER:
                     mHandler.sendMessage(obtainMessage(
                             UserHalService::handleOnSwitchUserResponse, this, value));
+                    break;
+                case USER_IDENTIFICATION_ASSOCIATION:
+                    Slog.w(TAG, "HAL updated event for USER_IDENTIFICATION_ASSOCIATION: " + value);
                     break;
                 default:
                     Slog.w(TAG, "received unsupported event from HAL: " + value);
@@ -316,6 +324,51 @@ public final class UserHalService extends HalServiceBase {
         } catch (ServiceSpecificException e) {
             Log.w(TAG, "Failed to set ANDROID POST SWITCH", e);
         }
+    }
+
+    /**
+     * Calls HAL to get the value of the user identifications associated with the given user.
+     */
+    @NonNull
+    public UserIdentificationResponse getUserAssociation(
+            @NonNull UserIdentificationGetRequest request) {
+        Objects.requireNonNull(request, "request cannot be null");
+
+        if (DBG) Log.d(TAG, "getUserAssociation(): req=" + request);
+        VehiclePropValue requestAsPropValue = UserHalHelper.toVehiclePropValue(request);
+        EventLog.writeEvent(EventLogTags.CAR_USER_HAL_GET_USER_AUTH_REQ,
+                requestAsPropValue.value.int32Values.toArray());
+
+        VehiclePropValue responseAsPropValue = mHal.get(requestAsPropValue);
+        EventLog.writeEvent(EventLogTags.CAR_USER_HAL_GET_USER_AUTH_RESP,
+                responseAsPropValue.value.int32Values.toArray());
+
+        UserIdentificationResponse response;
+        try {
+            response = UserHalHelper.toUserIdentificationGetResponse(responseAsPropValue);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalStateException("invalid response from HAL", e);
+        }
+        if (DBG) Log.d(TAG, "getUserAssociation(): resp=" + response);
+
+        // Validate the response according to the request
+        if (response.numberAssociation != request.numberAssociationTypes) {
+            throw new IllegalStateException(
+                    "Wrong number of association types on HAL response (expected "
+                            + request.numberAssociationTypes + "): " + response);
+        }
+        for (int i = 0; i < request.numberAssociationTypes; i++) {
+            int expectedType = request.associationTypes.get(i);
+            int actualType = response.associations.get(i).type;
+            if (actualType != expectedType) {
+                throw new IllegalStateException("Wrong type on index " + i
+                        + " of HAL response (" + response + "): "
+                        + "expected " + UserIdentificationAssociationType.toString(expectedType)
+                        + ", got " + UserIdentificationAssociationType.toString(actualType));
+            }
+        }
+
+        return response;
     }
 
     @GuardedBy("mLock")
