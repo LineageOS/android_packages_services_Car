@@ -146,11 +146,16 @@ public class ICarImplTest {
      */
     @After
     public void tearDown() {
-        if (mMockIOInterface != null) {
-            mMockIOInterface.tearDown();
+        try {
+            if (mMockIOInterface != null) {
+                mMockIOInterface.tearDown();
+            }
+        } finally {
+            if (mSession != null) {
+                mSession.finishMocking();
+            }
+            CarLocalServices.removeAllServices();
         }
-        mSession.finishMocking();
-        CarLocalServices.removeAllServices();
     }
 
     @Test
