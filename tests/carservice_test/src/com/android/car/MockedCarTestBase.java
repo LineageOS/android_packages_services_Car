@@ -15,6 +15,8 @@
  */
 package com.android.car;
 
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
+
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -66,6 +68,8 @@ import com.android.car.watchdog.CarWatchdogService;
 
 import org.junit.After;
 import org.junit.Before;
+import org.mockito.MockitoSession;
+import org.mockito.quality.Strictness;
 
 import java.io.File;
 import java.io.IOException;
@@ -102,6 +106,8 @@ public class MockedCarTestBase {
             new HashMap<>();
     private final SparseArray<VehiclePropConfigBuilder> mPropToConfigBuilder = new SparseArray<>();
     private final CarWatchdogService mCarWatchdogService = mock(CarWatchdogService.class);
+
+    private MockitoSession mSession;
 
     protected synchronized MockedVehicleHal createMockedVehicleHal() {
         return new MockedVehicleHal();
@@ -162,10 +168,21 @@ public class MockedCarTestBase {
         return cn.flattenToString();
     }
 
+    /** Child class should override this to configure mocking in different way */
+    protected MockitoSession createMockingSession() {
+        return mockitoSession()
+                .initMocks(this)
+                .strictness(Strictness.LENIENT)
+                .startMocking();
+    }
+
     @Before
     @UiThreadTest
     public void setUp() throws Exception {
         Log.i(TAG, "setUp");
+
+        mSession = createMockingSession();
+
         releaseRealCarService(getContext());
 
         mMockedVehicleHal = createMockedVehicleHal();
@@ -207,19 +224,28 @@ public class MockedCarTestBase {
     }
 
     @After
+    @UiThreadTest
     public void tearDown() throws Exception {
-        if (mCar != null) {
-            mCar.disconnect();
-            mCar = null;
+        Log.i(TAG, "tearDown");
+
+        try {
+            if (mCar != null) {
+                mCar.disconnect();
+                mCar = null;
+            }
+            if (mCarImpl != null) {
+                mCarImpl.release();
+                mCarImpl = null;
+            }
+            if (mMockIOInterface != null) {
+                mMockIOInterface.tearDown();
+            }
+            mMockedVehicleHal = null;
+        } finally {
+            if (mSession != null) {
+                mSession.finishMocking();
+            }
         }
-        if (mCarImpl != null) {
-            mCarImpl.release();
-            mCarImpl = null;
-        }
-        if (mMockIOInterface != null) {
-            mMockIOInterface.tearDown();
-        }
-        mMockedVehicleHal = null;
     }
 
     public CarPropertyService getCarPropertyService() {
