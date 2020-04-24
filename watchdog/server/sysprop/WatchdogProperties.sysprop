@@ -15,6 +15,33 @@
 module: "android.automotive.watchdog.sysprop"
 owner: Platform
 
+# Interval in seconds between consecutive boot-time performance data collections.
+prop {
+    api_name: "boottimeCollectionInterval"
+    type: Integer
+    scope: Internal
+    access: Readonly
+    prop_name: "ro.carwatchdog.boottime_collection_interval"
+}
+
+# Maximum number of periodically collected records to be cached in memory.
+prop {
+    api_name: "periodicCollectionBufferSize"
+    type: Integer
+    scope: Internal
+    access: Readonly
+    prop_name: "ro.carwatchdog.periodic_collection_buffer_size"
+}
+
+# Interval in seconds between consecutive periodic performance data collections.
+prop {
+    api_name: "periodicCollectionInterval"
+    type: Integer
+    scope: Internal
+    access: Readonly
+    prop_name: "ro.carwatchdog.periodic_collection_interval"
+}
+
 # Top N per-UID statistics/category collected by the performance data collector.
 prop {
     api_name: "topNStatsPerCategory"
@@ -31,31 +58,4 @@ prop {
     scope: Internal
     access: Readonly
     prop_name: "ro.carwatchdog.top_n_stats_per_subcategory"
-}
-
-# Interval in seconds between consecutive boot-time performance data collections.
-prop {
-    api_name: "boottimeCollectionInterval"
-    type: Integer
-    scope: Internal
-    access: Readonly
-    prop_name: "ro.carwatchdog.boottime_collection_interval"
-}
-
-# Interval in seconds between consecutive periodic performance data collections.
-prop {
-    api_name: "periodicCollectionInterval"
-    type: Integer
-    scope: Internal
-    access: Readonly
-    prop_name: "ro.carwatchdog.periodic_collection_interval"
-}
-
-# Maximum number of periodically collected records to be cached in memory.
-prop {
-    api_name: "periodicCollectionBufferSize"
-    type: Integer
-    scope: Internal
-    access: Readonly
-    prop_name: "ro.carwatchdog.periodic_collection_buffer_size"
 }
