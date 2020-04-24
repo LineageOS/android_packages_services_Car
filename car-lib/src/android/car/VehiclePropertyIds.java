@@ -942,6 +942,17 @@ public final class VehiclePropertyIds {
      */
     public static final int SWITCH_USER = 299896584;
 
+    // TODO(b/150408921): add CREATE_USER = 299896585
+
+    // TODO(b/150409600): add REMOVE_USER = 299896586;
+
+    /**
+     *  TODO(b/150409351): javadoc, set pemission, etc...
+     *
+     * @hide
+     */
+    public static final int USER_IDENTIFICATION_ASSOCIATION = 299896587;
+
     /**
      * Gets a user-friendly representation of a property.
      */
@@ -1215,6 +1226,8 @@ public final class VehiclePropertyIds {
                 return "INITIAL_USER_INFO";
             case SWITCH_USER:
                 return "SWITCH_USER";
+            case USER_IDENTIFICATION_ASSOCIATION:
+                return "USER_IDENTIFICATION_ASSOCIATION";
             default:
                 return "0x" + Integer.toHexString(property);
         }
