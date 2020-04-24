@@ -32,12 +32,12 @@ namespace watchdog {
 class ServiceManager {
 public:
     static android::base::Result<void> startServices(const android::sp<Looper>& looper);
+    static android::base::Result<void> startBinderMediator();
     static void terminateServices();
 
 private:
     static android::base::Result<void> startProcessAnrMonitor(const android::sp<Looper>& looper);
     static android::base::Result<void> startIoPerfCollection();
-    static android::base::Result<void> startBinderMediator();
 
     static android::sp<WatchdogProcessService> sWatchdogProcessService;
     static android::sp<IoPerfCollection> sIoPerfCollection;
