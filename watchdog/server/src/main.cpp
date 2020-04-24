@@ -18,6 +18,8 @@
 
 #include "ServiceManager.h"
 
+#include <android-base/chrono_utils.h>
+#include <android-base/properties.h>
 #include <android-base/result.h>
 #include <binder/IPCThreadState.h>
 #include <binder/IServiceManager.h>
@@ -25,6 +27,8 @@
 #include <log/log.h>
 #include <signal.h>
 #include <utils/Looper.h>
+
+#include <thread>
 
 using android::IPCThreadState;
 using android::Looper;
@@ -66,14 +70,28 @@ int main(int /*argc*/, char** /*argv*/) {
     IPCThreadState::self()->disableBackgroundScheduling(true);
 
     // Start the services
-    const auto& result = ServiceManager::startServices(looper);
+    auto result = ServiceManager::startServices(looper);
     if (!result) {
-        ALOGE("%s", result.error().message().c_str());
+        ALOGE("Failed to start services: %s", result.error().message().c_str());
         ServiceManager::terminateServices();
         exit(result.error().code());
     }
 
     registerSigHandler();
+
+    // Wait for the service manager before starting binder mediator.
+    while (android::base::GetProperty("init.svc.servicemanager", "") != "running") {
+        // Poll frequent enough so the CarWatchdogDaemonHelper can connect to the daemon during
+        // system boot up.
+        std::this_thread::sleep_for(250ms);
+    }
+
+    result = ServiceManager::startBinderMediator();
+    if (!result) {
+        ALOGE("Failed to start binder mediator: %s", result.error().message().c_str());
+        ServiceManager::terminateServices();
+        exit(result.error().code());
+    }
 
     // Loop forever -- the health check runs on this thread in a handler, and the binder calls
     // remain responsive in their pool of threads.
