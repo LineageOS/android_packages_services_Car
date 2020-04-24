@@ -16,15 +16,32 @@
 
 package android.car.userlib;
 
+import static android.car.userlib.UserHalHelper.USER_IDENTIFICATION_ASSOCIATION_PROPERTY;
+import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType.CUSTOM_1;
+import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType.CUSTOM_2;
+import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType.CUSTOM_3;
+import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType.CUSTOM_4;
+import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType.KEY_FOB;
+import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationValue.ASSOCIATED_ANOTHER_USER;
+import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationValue.ASSOCIATED_CURRENT_USER;
+import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationValue.NOT_ASSOCIATED_ANY_USER;
+import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationValue.UNKNOWN;
+
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import static org.junit.Assert.fail;
 import static org.testng.Assert.assertThrows;
 
 import android.annotation.NonNull;
 import android.content.pm.UserInfo;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
+import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociation;
+import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType;
+import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationValue;
+import android.hardware.automotive.vehicle.V2_0.UserIdentificationGetRequest;
+import android.hardware.automotive.vehicle.V2_0.UserIdentificationResponse;
 import android.hardware.automotive.vehicle.V2_0.UsersInfo;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.os.UserHandle;
@@ -204,4 +221,173 @@ public final class UserHalHelperTest {
                 .containsExactly(99, 42, 1, 1, 43, 1)
                 .inOrder();
     }
+
+    @Test
+    public void testVsValidUserIdentificationAssociationType_valid() {
+        assertThat(UserHalHelper.isValidUserIdentificationAssociationType(KEY_FOB)).isTrue();
+        assertThat(UserHalHelper.isValidUserIdentificationAssociationType(CUSTOM_1)).isTrue();
+        assertThat(UserHalHelper.isValidUserIdentificationAssociationType(CUSTOM_2)).isTrue();
+        assertThat(UserHalHelper.isValidUserIdentificationAssociationType(CUSTOM_3)).isTrue();
+        assertThat(UserHalHelper.isValidUserIdentificationAssociationType(CUSTOM_4)).isTrue();
+    }
+
+    @Test
+    public void testIsValidUserIdentificationAssociationType_invalid() {
+        assertThat(UserHalHelper.isValidUserIdentificationAssociationType(CUSTOM_4 + 1)).isFalse();
+    }
+
+    @Test
+    public void testIsValidUserIdentificationAssociationValue_valid() {
+        assertThat(UserHalHelper.isValidUserIdentificationAssociationValue(ASSOCIATED_ANOTHER_USER))
+                .isTrue();
+        assertThat(UserHalHelper.isValidUserIdentificationAssociationValue(ASSOCIATED_CURRENT_USER))
+                .isTrue();
+        assertThat(UserHalHelper.isValidUserIdentificationAssociationValue(NOT_ASSOCIATED_ANY_USER))
+                .isTrue();
+        assertThat(UserHalHelper.isValidUserIdentificationAssociationValue(UNKNOWN)).isTrue();
+    }
+
+    @Test
+    public void testIsValidUserIdentificationAssociationValue_invalid() {
+        assertThat(UserHalHelper.isValidUserIdentificationAssociationValue(0)).isFalse();
+    }
+
+    @Test
+    public void testUserIdentificationGetRequestToVehiclePropValue_null() {
+        assertThrows(NullPointerException.class,
+                () -> UserHalHelper.toVehiclePropValue((UserIdentificationGetRequest) null));
+    }
+
+    @Test
+    public void testUserIdentificationGetRequestToVehiclePropValue_emptyRequest() {
+        UserIdentificationGetRequest request = new UserIdentificationGetRequest();
+        assertThrows(IllegalArgumentException.class,
+                () -> UserHalHelper.toVehiclePropValue(request));
+    }
+
+    @Test
+    public void testUserIdentificationGetRequestToVehiclePropValue_wrongNumberOfAssociations() {
+        UserIdentificationGetRequest request = new UserIdentificationGetRequest();
+        request.numberAssociationTypes = 1;
+        assertThrows(IllegalArgumentException.class,
+                () -> UserHalHelper.toVehiclePropValue(request));
+    }
+
+    @Test
+    public void testUserIdentificationGetRequestToVehiclePropValue_invalidType() {
+        UserIdentificationGetRequest request = new UserIdentificationGetRequest();
+        request.numberAssociationTypes = 1;
+        request.associationTypes.add(CUSTOM_4 + 1);
+        assertThrows(IllegalArgumentException.class,
+                () -> UserHalHelper.toVehiclePropValue(request));
+    }
+
+    @Test
+    public void testUserIdentificationGetRequestToVehiclePropValue_ok() {
+        UserIdentificationGetRequest request = new UserIdentificationGetRequest();
+        request.userInfo.userId = 42;
+        request.userInfo.flags = 108;
+        request.numberAssociationTypes = 2;
+        request.associationTypes.add(KEY_FOB);
+        request.associationTypes.add(CUSTOM_1);
+
+        VehiclePropValue propValue = UserHalHelper.toVehiclePropValue(request);
+        assertWithMessage("wrong prop on %s", propValue).that(propValue.prop)
+                .isEqualTo(USER_IDENTIFICATION_ASSOCIATION_PROPERTY);
+        assertWithMessage("wrong int32values on %s", propValue).that(propValue.value.int32Values)
+                .containsExactly(42, 108, 2, KEY_FOB, CUSTOM_1).inOrder();
+    }
+
+    @Test
+    public void testToUserIdentificationGetResponse_null() {
+        assertThrows(NullPointerException.class,
+                () -> UserHalHelper.toUserIdentificationGetResponse(null));
+    }
+
+    @Test
+    public void testToUserIdentificationGetResponse_invalidPropType() {
+        VehiclePropValue prop = new VehiclePropValue();
+        assertThrows(IllegalArgumentException.class,
+                () -> UserHalHelper.toUserIdentificationGetResponse(prop));
+    }
+
+    @Test
+    public void testToUserIdentificationGetResponse_invalidSize() {
+        VehiclePropValue prop = new VehiclePropValue();
+        prop.prop = UserHalHelper.USER_IDENTIFICATION_ASSOCIATION_PROPERTY;
+        prop.value.int32Values.add(0);
+        assertThrows(IllegalArgumentException.class,
+                () -> UserHalHelper.toUserIdentificationGetResponse(prop));
+    }
+
+    @Test
+    public void testToUserIdentificationGetResponse_sizeMismatch() {
+        VehiclePropValue prop = new VehiclePropValue();
+        prop.prop = UserHalHelper.USER_IDENTIFICATION_ASSOCIATION_PROPERTY;
+        prop.value.int32Values.add(1); // number of associations
+        prop.value.int32Values.add(KEY_FOB);
+        assertThrows(IllegalArgumentException.class,
+                () -> UserHalHelper.toUserIdentificationGetResponse(prop));
+    }
+
+    @Test
+    public void testToUserIdentificationGetResponse_invalidType() {
+        VehiclePropValue prop = new VehiclePropValue();
+        prop.prop = UserHalHelper.USER_IDENTIFICATION_ASSOCIATION_PROPERTY;
+        prop.value.int32Values.add(1); // number of associations
+        prop.value.int32Values.add(CUSTOM_4 + 1);
+        prop.value.int32Values.add(ASSOCIATED_ANOTHER_USER);
+        assertThrows(IllegalArgumentException.class,
+                () -> UserHalHelper.toUserIdentificationGetResponse(prop));
+    }
+
+    @Test
+    public void testToUserIdentificationGetResponse_invalidValue() {
+        VehiclePropValue prop = new VehiclePropValue();
+        prop.prop = UserHalHelper.USER_IDENTIFICATION_ASSOCIATION_PROPERTY;
+        prop.value.int32Values.add(1); // number of associations
+        prop.value.int32Values.add(KEY_FOB);
+        prop.value.int32Values.add(0);
+        assertThrows(IllegalArgumentException.class,
+                () -> UserHalHelper.toUserIdentificationGetResponse(prop));
+    }
+
+    @Test
+    public void testToUserIdentificationGetResponse_ok() {
+        VehiclePropValue prop = new VehiclePropValue();
+        prop.prop = UserHalHelper.USER_IDENTIFICATION_ASSOCIATION_PROPERTY;
+        prop.value.int32Values.add(3); // number of associations
+        prop.value.int32Values.add(KEY_FOB);
+        prop.value.int32Values.add(ASSOCIATED_ANOTHER_USER);
+        prop.value.int32Values.add(CUSTOM_1);
+        prop.value.int32Values.add(ASSOCIATED_CURRENT_USER);
+        prop.value.int32Values.add(CUSTOM_2);
+        prop.value.int32Values.add(NOT_ASSOCIATED_ANY_USER);
+        prop.value.stringValue = "D'OH!";
+        UserIdentificationResponse response = UserHalHelper.toUserIdentificationGetResponse(prop);
+        assertWithMessage("Wrong number of associations on %s", response)
+            .that(response.numberAssociation).isEqualTo(3);
+
+        assertAssociation(response, 0, KEY_FOB, ASSOCIATED_ANOTHER_USER);
+        assertAssociation(response, 1, CUSTOM_1, ASSOCIATED_CURRENT_USER);
+        assertAssociation(response, 2, CUSTOM_2, NOT_ASSOCIATED_ANY_USER);
+        assertWithMessage("Wrong error message on %s", response)
+            .that(response.errorMessage).isEqualTo("D'OH!");
+    }
+
+    private void assertAssociation(@NonNull UserIdentificationResponse response, int index,
+            int expectedType, int expectedValue) {
+        UserIdentificationAssociation actualAssociation = response.associations.get(index);
+        if (actualAssociation.type != expectedType) {
+            fail("Wrong type for association at index " + index + " on " + response + "; expected "
+                    + UserIdentificationAssociationType.toString(expectedType) + ", got "
+                    + UserIdentificationAssociationType.toString(actualAssociation.type));
+        }
+        if (actualAssociation.type != expectedType) {
+            fail("Wrong value for association at index " + index + " on " + response + "; expected "
+                    + UserIdentificationAssociationValue.toString(expectedValue) + ", got "
+                    + UserIdentificationAssociationValue.toString(actualAssociation.value));
+        }
+    }
+
 }
