@@ -44,6 +44,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public final class CarWatchdogDaemonHelper {
 
     private static final String TAG = CarWatchdogDaemonHelper.class.getSimpleName();
+    // Carwatchdog daemon polls for the service manager status once every 250 milliseconds.
+    // CAR_WATCHDOG_DAEMON_BIND_RETRY_INTERVAL_MS value should be at least twice the poll interval
+    // used by the daemon.
     private static final long CAR_WATCHDOG_DAEMON_BIND_RETRY_INTERVAL_MS = 500;
     private static final long CAR_WATCHDOG_DAEMON_FIND_MARGINAL_TIME_MS = 300;
     private static final int CAR_WATCHDOG_DAEMON_BIND_MAX_RETRY = 3;
