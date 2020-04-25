@@ -43,7 +43,6 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
-import android.hardware.automotive.vehicle.V2_0.SwitchUserResponse;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserStatus;
 import android.hardware.automotive.vehicle.V2_0.UsersInfo;
 import android.location.LocationManager;
@@ -675,8 +674,27 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         mHal.getInitialUserInfo(requestType, mHalTimeoutMs, usersInfo, callback);
     }
 
+    // TODO(b/154966308): update javadoc
     /**
-     * Calls the User HAL to switch user.
+     * Calls the {@link UserHalService} and {@link IActivityManager} for user switch.
+     *
+     * <p>
+     * First {@link UserHalService} is called for HAL user switch. If HAL user switch is successful,
+     * {@link IActivityManager} is called for Android user switch, otherwise Android user is not
+     * switched and HAL is informed about Android switch failure.
+     *
+     * <p>
+     * If target user is already the current user, no user switch is performed and receiver would
+     * receive {@code STATUS_ALREADY_REQUESTED_USER} right away.
+     *
+     * <p>
+     * If another user switch request for the same target user is received while previous request is
+     * in process, receiver would receive {@code STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO} for
+     * the new request right away.
+     *
+     * <p>
+     * If a user switch request is received while another user switch request for different target
+     * user is in process, previous request would be abandoned and new request will be processed.
      *
      * @param targetUserId - target user Id
      * @param timeoutMs - timeout for HAL to wait
@@ -685,8 +703,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @Override
     public void switchUser(@UserIdInt int targetUserId, int timeoutMs,
             @NonNull AndroidFuture<UserSwitchResult> receiver) {
-        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_SWITCH_USER_REQ, targetUserId,
-                timeoutMs);
+        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_SWITCH_USER_REQ, targetUserId, timeoutMs);
         checkManageUsersPermission("switchUser");
         Objects.requireNonNull(receiver);
         UserInfo targetUser = mUserManager.getUserInfo(targetUserId);
@@ -708,10 +725,25 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                         + ", mUserIdForUserSwitchInProcess=" + mUserIdForUserSwitchInProcess);
             }
 
+            // If there is another request for the same target user, return another request in
+            // process, else {@link mUserIdForUserSwitchInProcess} is updated and {@link
+            // mRequestIdForUserSwitchInProcess} is reset. It is possible that there may be another
+            // user switch request in process for different target user, but that request is now
+            // ignored.
             if (mUserIdForUserSwitchInProcess == targetUserId) {
-                int resultStatus = UserSwitchResult.STATUS_ANOTHER_REQUEST_IN_PROCESS;
+                if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
+                    Log.d(TAG_USER,
+                            "Another user switch request in process for the requested target user: "
+                                    + targetUserId);
+                }
+
+                int resultStatus = UserSwitchResult.STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO;
                 sendResult(receiver, resultStatus);
                 return;
+            }
+            else {
+                mUserIdForUserSwitchInProcess = targetUserId;
+                mRequestIdForUserSwitchInProcess = 0;
             }
         }
 
@@ -728,39 +760,62 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
             int resultStatus = UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE;
 
-            if (status != HalCallback.STATUS_OK) {
-                EventLog.writeEvent(EventLogTags.CAR_USER_SVC_SWITCH_USER_RESP, status);
-                Log.w(TAG, "invalid callback status ("
-                        + UserHalHelper.halCallbackStatusToString(status) + ") for response "
-                        + resp);
-                sendResult(receiver, resultStatus);
-                return;
-            }
-            EventLog.writeEvent(EventLogTags.CAR_USER_SVC_SWITCH_USER_RESP, status,
-                    resp.status, resp.errorMessage);
+            synchronized (mLockUser) {
+                if (status != HalCallback.STATUS_OK) {
+                    EventLog.writeEvent(EventLogTags.CAR_USER_SVC_SWITCH_USER_RESP, status);
+                    Log.w(TAG, "invalid callback status ("
+                            + UserHalHelper.halCallbackStatusToString(status) + ") for response "
+                            + resp);
+                    sendResult(receiver, resultStatus);
+                    mUserIdForUserSwitchInProcess = UserHandle.USER_NULL;
+                    return;
+                }
 
-            switch (resp.status) {
-                case SwitchUserStatus.SUCCESS:
-                    boolean result;
-                    try {
-                        result = mAm.switchUser(targetUserId);
-                        if (result) {
-                            resultStatus = UserSwitchResult.STATUS_SUCCESSFUL;
-                            updateUserSwitchInProcess(targetUserId, resp);
-                        } else {
-                            resultStatus = UserSwitchResult.STATUS_ANDROID_FAILURE;
-                            postSwitchHalResponse(resp.requestId, targetUserId);
-                        }
-                    } catch (RemoteException e) {
-                        // ignore
-                        Log.w(TAG_USER,
-                                "error while switching user " + targetUser.toFullString(), e);
+                EventLog.writeEvent(EventLogTags.CAR_USER_SVC_SWITCH_USER_RESP, status, resp.status,
+                        resp.errorMessage);
+
+                if (mUserIdForUserSwitchInProcess != targetUserId) {
+                    // Another user switch request received while HAL responded. No need to process
+                    // this request further
+                    if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
+                        Log.d(TAG_USER, "Another user switch received while HAL responsed. Request "
+                                + "abondoned for : " + targetUserId + ". Current user in process: "
+                                + mUserIdForUserSwitchInProcess);
                     }
-                    break;
-                case SwitchUserStatus.FAILURE:
-                    // HAL failed to switch user
-                    resultStatus = UserSwitchResult.STATUS_HAL_FAILURE;
-                    break;
+                    resultStatus =
+                            UserSwitchResult.STATUS_TARGET_USER_ABANDONED_DUE_TO_A_NEW_REQUEST;
+                    sendResult(receiver, resultStatus);
+                    mUserIdForUserSwitchInProcess = UserHandle.USER_NULL;
+                    return;
+                }
+
+                switch (resp.status) {
+                    case SwitchUserStatus.SUCCESS:
+                        boolean switched;
+                        try {
+                            switched = mAm.switchUser(targetUserId);
+                            if (switched) {
+                                resultStatus = UserSwitchResult.STATUS_SUCCESSFUL;
+                                mRequestIdForUserSwitchInProcess = resp.requestId;
+                            } else {
+                                resultStatus = UserSwitchResult.STATUS_ANDROID_FAILURE;
+                                postSwitchHalResponse(resp.requestId, targetUserId);
+                            }
+                        } catch (RemoteException e) {
+                            // ignore
+                            Log.w(TAG_USER,
+                                    "error while switching user " + targetUser.toFullString(), e);
+                        }
+                        break;
+                    case SwitchUserStatus.FAILURE:
+                        // HAL failed to switch user
+                        resultStatus = UserSwitchResult.STATUS_HAL_FAILURE;
+                        break;
+                }
+
+                if (mRequestIdForUserSwitchInProcess == 0) {
+                    mUserIdForUserSwitchInProcess = UserHandle.USER_NULL;
+                }
             }
             sendResult(receiver, resultStatus, resp.errorMessage);
         });
@@ -784,24 +839,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     private void sendResult(@NonNull AndroidFuture<UserSwitchResult> receiver,
             @UserSwitchResult.Status int status, @Nullable String errorMessage) {
         receiver.complete(new UserSwitchResult(status, errorMessage));
-    }
-
-    private void updateUserSwitchInProcess(@UserIdInt int targetUserId,
-            @NonNull SwitchUserResponse resp) {
-        synchronized (mLockUser) {
-            if (mUserIdForUserSwitchInProcess != UserHandle.USER_NULL) {
-                // Some other user switch is in process.
-                if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
-                    Log.d(TAG_USER, "User switch for user: " + mUserIdForUserSwitchInProcess
-                            + " is in process. Sending failed android post switch response for it "
-                            + " as new user switch is requested for user: " + targetUserId);
-                }
-                postSwitchHalResponse(mRequestIdForUserSwitchInProcess,
-                        mUserIdForUserSwitchInProcess);
-            }
-            mUserIdForUserSwitchInProcess = targetUserId;
-            mRequestIdForUserSwitchInProcess = resp.requestId;
-        }
     }
 
     private void postSwitchHalResponse(int requestId, @UserIdInt int targetUserId) {
@@ -1070,7 +1107,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     private void sendPostSwitchToHalLocked(@UserIdInt int userId) {
         if (mUserIdForUserSwitchInProcess == UserHandle.USER_NULL
-                || mUserIdForUserSwitchInProcess != userId) {
+                || mUserIdForUserSwitchInProcess != userId
+                || mRequestIdForUserSwitchInProcess == 0) {
             if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
                 Log.d(TAG_USER, "No user switch request Id. No android post switch sent.");
             }
@@ -1078,7 +1116,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
         postSwitchHalResponse(mRequestIdForUserSwitchInProcess, mUserIdForUserSwitchInProcess);
         mUserIdForUserSwitchInProcess = UserHandle.USER_NULL;
-        mRequestIdForUserSwitchInProcess = UserHandle.USER_NULL;
+        mRequestIdForUserSwitchInProcess = 0;
     }
 
     private void handleNotifyAppUserLifecycleListeners(UserLifecycleEvent event) {
