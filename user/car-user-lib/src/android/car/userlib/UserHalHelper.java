@@ -15,19 +15,24 @@
  */
 package android.car.userlib;
 
+import static com.android.internal.util.Preconditions.checkArgument;
+
 import android.annotation.NonNull;
 import android.car.userlib.HalCallback.HalCallbackStatus;
 import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
+import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociation;
+import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType;
+import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationValue;
+import android.hardware.automotive.vehicle.V2_0.UserIdentificationGetRequest;
+import android.hardware.automotive.vehicle.V2_0.UserIdentificationResponse;
 import android.hardware.automotive.vehicle.V2_0.UsersInfo;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.util.DebugUtils;
-
-import com.android.internal.util.Preconditions;
 
 import java.util.Objects;
 
@@ -35,6 +40,8 @@ import java.util.Objects;
  * Provides utility methods for User HAL related functionalities.
  */
 public final class UserHalHelper {
+
+    public static final int USER_IDENTIFICATION_ASSOCIATION_PROPERTY = 299896587;
 
     /**
      * Gets user-friendly representation of the status.
@@ -86,8 +93,8 @@ public final class UserHalHelper {
      * Converts Android user flags to HALs.
      */
     public static int convertFlags(@NonNull UserInfo user) {
-        Preconditions.checkArgument(user != null, "user cannot be null");
-        Preconditions.checkArgument(user != null, "user cannot be null");
+        checkArgument(user != null, "user cannot be null");
+        checkArgument(user != null, "user cannot be null");
 
         int flags = UserFlags.NONE;
         if (user.id == UserHandle.USER_SYSTEM) {
@@ -182,7 +189,7 @@ public final class UserHalHelper {
         propRequest.value.int32Values.add(usersInfo.currentUser.userId);
         propRequest.value.int32Values.add(usersInfo.currentUser.flags);
 
-        Preconditions.checkArgument(usersInfo.numberUsers == usersInfo.existingUsers.size(),
+        checkArgument(usersInfo.numberUsers == usersInfo.existingUsers.size(),
                 "Number of existing users info does not match numberUsers");
 
         propRequest.value.int32Values.add(usersInfo.numberUsers);
@@ -192,6 +199,105 @@ public final class UserHalHelper {
             propRequest.value.int32Values.add(userInfo.userId);
             propRequest.value.int32Values.add(userInfo.flags);
         }
+    }
+
+    /**
+     * Checks if the given {@code value} is a valid {@link UserIdentificationAssociationType}.
+     */
+    public static boolean isValidUserIdentificationAssociationType(int type) {
+        switch(type) {
+            case UserIdentificationAssociationType.KEY_FOB:
+            case UserIdentificationAssociationType.CUSTOM_1:
+            case UserIdentificationAssociationType.CUSTOM_2:
+            case UserIdentificationAssociationType.CUSTOM_3:
+            case UserIdentificationAssociationType.CUSTOM_4:
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * Checks if the given {@code value} is a valid {@link UserIdentificationAssociationValue}.
+     */
+    public static boolean isValidUserIdentificationAssociationValue(int value) {
+        switch(value) {
+            case UserIdentificationAssociationValue.ASSOCIATED_ANOTHER_USER:
+            case UserIdentificationAssociationValue.ASSOCIATED_CURRENT_USER:
+            case UserIdentificationAssociationValue.NOT_ASSOCIATED_ANY_USER:
+            case UserIdentificationAssociationValue.UNKNOWN:
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * Creates a {@link UserIdentificationResponse} from a generic {@link VehiclePropValue} sent by
+     * HAL.
+     */
+    @NonNull
+    public static UserIdentificationResponse toUserIdentificationGetResponse(
+            @NonNull VehiclePropValue prop) {
+        Objects.requireNonNull(prop, "prop cannot be null");
+        checkArgument(prop.prop == USER_IDENTIFICATION_ASSOCIATION_PROPERTY,
+                "invalid prop on %s", prop);
+        checkArgument(prop.value.int32Values.size() > 1,
+                "not enough int32Values on %s", prop);
+
+        int numberAssociations = prop.value.int32Values.get(0);
+        checkArgument(numberAssociations >= 1, "invalid number of items on %s", prop);
+        int numberItems = prop.value.int32Values.size() - 1;
+        checkArgument(numberItems == numberAssociations * 2, "number of items mismatch on %s",
+                prop);
+
+        UserIdentificationResponse response = new UserIdentificationResponse();
+        response.errorMessage = prop.value.stringValue;
+
+        response.numberAssociation = numberAssociations;
+        int i = 1;
+        for (int a = 0; a < numberAssociations; a++) {
+            int index;
+            UserIdentificationAssociation association = new UserIdentificationAssociation();
+            index = i++;
+            association.type = prop.value.int32Values.get(index);
+            checkArgument(isValidUserIdentificationAssociationType(association.type),
+                    "invalid type at index %d on %s", index, prop);
+            index = i++;
+            association.value = prop.value.int32Values.get(index);
+            checkArgument(isValidUserIdentificationAssociationValue(association.value),
+                    "invalid value at index %d on %s", index, prop);
+            response.associations.add(association);
+        }
+
+        return response;
+    }
+
+    /**
+     * Creates a generic {@link VehiclePropValue} (that can be sent to HAL) from a
+     * {@link UserIdentificationGetRequest}.
+     */
+    @NonNull
+    public static VehiclePropValue toVehiclePropValue(
+            @NonNull UserIdentificationGetRequest request) {
+        Objects.requireNonNull(request, "request cannot be null");
+        checkArgument(request.numberAssociationTypes > 0,
+                "invalid number of association types mismatch on %s", request);
+        checkArgument(request.numberAssociationTypes == request.associationTypes.size(),
+                "number of association types mismatch on %s", request);
+
+        VehiclePropValue propValue = new VehiclePropValue();
+        propValue.prop = USER_IDENTIFICATION_ASSOCIATION_PROPERTY;
+        propValue.value.int32Values.add(request.userInfo.userId);
+        propValue.value.int32Values.add(request.userInfo.flags);
+        propValue.value.int32Values.add(request.numberAssociationTypes);
+
+        for (int i = 0; i < request.numberAssociationTypes; i++) {
+            int type = request.associationTypes.get(i);
+            checkArgument(isValidUserIdentificationAssociationType(type),
+                    "invalid type at index %d on %s", i, request);
+            propValue.value.int32Values.add(type);
+        }
+
+        return propValue;
     }
 
     private UserHalHelper() {
