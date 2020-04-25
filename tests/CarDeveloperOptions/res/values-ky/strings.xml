@@ -2277,14 +2277,14 @@
     <string name="battery_tip_smart_battery_title" product="tablet" msgid="203494973250969040">"Планшетиңиздин батарея кубатынын мөөнөтүн узартыңыз"</string>
     <string name="battery_tip_smart_battery_title" product="device" msgid="7419448992583346364">"Түзмөгүңүздүн батарея кубатынын мөөнөтүн узартыңыз"</string>
     <string name="battery_tip_smart_battery_summary" msgid="5344821856478265778">"Battery Manager\'ди күйгүзүңүз"</string>
-    <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"Батареяны үнөмдөгүч режимин күйгүзүү"</string>
-    <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"Батарея адаттагыдан эртерээк отуруп калышы мүмкүн"</string>
+    <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"Батареяны үнөмдөгүчтү күйгүзүү"</string>
+    <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"Батарея эртерээк отуруп калышы мүмкүн"</string>
     <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"Батареяны үнөмдөгүч режими күйүк"</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"Айрым кызматтардын функциялары чектелиши мүмкүн"</string>
     <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"Телефон адаттагыдан көбүрөөк колдонулду"</string>
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"Планшет адаттагыдан көбүрөөк колдонулду"</string>
     <string name="battery_tip_high_usage_title" product="device" msgid="8304138287288309490">"Түзмөк адаттагыдан көбүрөөк колдонулду"</string>
-    <string name="battery_tip_high_usage_summary" msgid="5514749872957528189">"Батарея адаттагыдан эртерээк отуруп калышы мүмкүн"</string>
+    <string name="battery_tip_high_usage_summary" msgid="5514749872957528189">"Батарея эртерээк отуруп калышы мүмкүн"</string>
     <string name="battery_tip_dialog_message" product="default" msgid="8453700079047810964">"Телефонуңуз адаттагыдан көбүрөөк колдонулду. Батареяңыз күтүлгөндөн эртерээк отуруп калышы мүмкүн.\n\nАкыркы толук кубаттоодон бери эң көп батарея сарптаган колдонмолор:"</string>
     <string name="battery_tip_dialog_message" product="tablet" msgid="6489981050645444068">"Планшетиңиз адаттагыдан көбүрөөк колдонулду. Батареяңыз күтүлгөндөн эртерээк отуруп калышы мүмкүн.\n\nАкыркы толук кубаттоодон бери эң көп батарея сарптаган колдонмолор:"</string>
     <string name="battery_tip_dialog_message" product="device" msgid="6348123094674390337">"Түзмөгүңүз адаттагыдан көбүрөөк колдонулду. Батареяңыз күтүлгөндөн эртерээк отуруп калышы мүмкүн.\n\nАкыркы толук кубаттоодон бери эң көп батарея сарптаган колдонмолор:"</string>
@@ -2298,8 +2298,8 @@
       <item quantity="one">%1$s колдонмо жакында чектелди</item>
     </plurals>
     <plurals name="battery_tip_restrict_summary" formatted="false" msgid="984148373944071669">
-      <item quantity="other">%2$d колдонмо батареяны фондо сарптайт</item>
-      <item quantity="one">%1$s колдонмо батареяны фондо сарптайт</item>
+      <item quantity="other">%2$d батареяны бат отургузуп жатат</item>
+      <item quantity="one">%1$s батареяны бат отургузуп жатат</item>
     </plurals>
     <plurals name="battery_tip_restrict_handled_summary" formatted="false" msgid="469696766640020557">
       <item quantity="other">Бул колдонмолор фондо иштебейт</item>
@@ -3033,7 +3033,7 @@
     </plurals>
     <string name="network_dashboard_title" msgid="8288134139584687806">"Тармак жана Интернет"</string>
     <string name="network_dashboard_summary_mobile" msgid="5560545061217580626">"мобилдик"</string>
-    <string name="network_dashboard_summary_data_usage" msgid="4695629715072542102">"дайындардын колдонулушу"</string>
+    <string name="network_dashboard_summary_data_usage" msgid="4695629715072542102">"дайын-даректердин өткөрүлүшү"</string>
     <string name="network_dashboard_summary_hotspot" msgid="3928610802321995214">"байланыш түйүнү"</string>
     <string name="connected_devices_dashboard_title" msgid="7795222675849060444">"Туташкан түзмөктөр"</string>
     <string name="connected_devices_dashboard_summary" msgid="1072664369515033179">"Bluetooth, айдоо режими, NFC"</string>
@@ -3151,7 +3151,7 @@
     <string name="screen_locking_sounds_title" msgid="4407110895465866809">"Экран кулпуланганда үн чыксын"</string>
     <string name="charging_sounds_title" msgid="5070437987230894287">"Кубаттоо үндөрү жана дирилдөө"</string>
     <string name="docking_sounds_title" msgid="2573137471605541366">"Жалгаштыруу үндөрү"</string>
-    <string name="touch_sounds_title" msgid="165237488496165652">"Экранга тийгенде үн чыксын"</string>
+    <string name="touch_sounds_title" msgid="165237488496165652">"Экранга тийгенде чыккан үндөр"</string>
     <string name="vibrate_on_touch_title" msgid="6360155469279157684">"Тийгенде дирилдейт"</string>
     <string name="vibrate_on_touch_summary" msgid="5504424764028676043">"Баскычтарды басканда, баскычтопко тийгенде ж.б. учурларда дирилдейт"</string>
     <string name="dock_audio_media_title" msgid="1859521680502040781">"Док катуу сүйлөткүч ойнотот"</string>
@@ -3196,16 +3196,16 @@
     <string name="zen_mode_visual_signals_settings_subtitle" msgid="6608239691864638854">"Визуалдык сигнал иштетилсин"</string>
     <string name="zen_mode_settings_category" msgid="5601680733422424922">"\"Тынчымды алба\" режими күйүп турганда"</string>
     <string name="zen_mode_restrict_notifications_title" msgid="7486753018073540477">"Билдирмелерди чектөө"</string>
-    <string name="zen_mode_restrict_notifications_mute" msgid="2673665450311184875">"Билдирмелердин добушу чыкпайт"</string>
+    <string name="zen_mode_restrict_notifications_mute" msgid="2673665450311184875">"Билдирмелердин үнү чыкпайт"</string>
     <string name="zen_mode_restrict_notifications_mute_summary" msgid="1696217042353376674">"Билдирмелерди экранда көрөсүз"</string>
     <string name="zen_mode_restrict_notifications_mute_footer" msgid="3049522809520549054">"Билдирмелер келгенде телефонуңуздун үнү чыкпайт же дирилдебейт."</string>
     <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"Билдирмелерди көрбөйсүз да, укпайсыз"</string>
     <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"Билдирмелерди көрбөйсүз да, укпайсыз"</string>
-    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"Жаңы же учурдагы билдирмелер көрүнбөйт, телефондун үнү чыкпайт же дирилдебейт. Бирок телефондун негизги функцияларынын иштеши үчүн керектүү маанилүү билдирмелерди ала бересиңер.\n\n\"Тынчымды алба\" режими өчүрүлгөндөн кийин, жашырылган билдирмелерди көрүү үчүн экранды ылдый сүрүп коюңуз."</string>
+    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"Жаңы же учурдагы билдирмелер көрүнбөйт, телефондун үнү чыкпайт же дирилдебейт. Бирок телефондун негизги функцияларынын иштеши үчүн керектүү болгон билдирмелерди ала бересиңер.\n\n\"Тынчымды алба\" режими өчүрүлгөндөн кийин, жашырылган билдирмелерди көрүү үчүн экранды ылдый сүрүп коюңуз."</string>
     <string name="zen_mode_restrict_notifications_custom" msgid="3167252482570424133">"Ыңгайлаштырылган"</string>
     <string name="zen_mode_restrict_notifications_enable_custom" msgid="6376983315529894440">"Ыңгайлаштырылган жөндөөнү иштетүү"</string>
     <string name="zen_mode_restrict_notifications_disable_custom" msgid="8004212081465043044">"Ыңгайлаштырылган жөндөөнү алып салуу"</string>
-    <string name="zen_mode_restrict_notifications_summary_muted" msgid="1075196788469381282">"Билдирмелердин добушу чыкпайт"</string>
+    <string name="zen_mode_restrict_notifications_summary_muted" msgid="1075196788469381282">"Билдирмелердин үнү чыкпайт"</string>
     <string name="zen_mode_restrict_notifications_summary_custom" msgid="4982187708274505748">"Жарым-жартылай жашырылган"</string>
     <string name="zen_mode_restrict_notifications_summary_hidden" msgid="7637206880685474111">"Билдирмелерди көрбөйсүз да, укпайсыз"</string>
     <string name="zen_mode_what_to_block_title" msgid="2142809942549840800">"Ыңгайлаштырылган чектөөлөр"</string>
@@ -3276,7 +3276,7 @@
     <string name="zen_onboarding_ok" msgid="6403635918125323678">"Бүттү"</string>
     <string name="zen_onboarding_settings" msgid="1416466597876383322">"Жөндөөлөр"</string>
     <string name="zen_onboarding_new_setting_title" msgid="3622673375041304362">"Билдирмелерди көрбөйсүз да, укпайсыз"</string>
-    <string name="zen_onboarding_current_setting_title" msgid="2560330551761407563">"Билдирмелердин добушу чыкпайт"</string>
+    <string name="zen_onboarding_current_setting_title" msgid="2560330551761407563">"Билдирмелердин үнү чыкпайт"</string>
     <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"Билдирмелерди көрбөйсүз да, укпайсыз. Жылдызчаланган байланыштарга жана кайталап чалгандарга уруксат берилди."</string>
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(Учурдагы жөндөө)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"\"Тынчымды алба\" режиминин билдирмелеринин жөндөөлөрү өзгөртүлсүнбү?"</string>

@@ -2038,7 +2038,7 @@
     <string name="accessibility_settings_title" msgid="1687226556576913576">"Cilësimet e qasjes"</string>
     <string name="accessibility_settings_summary" msgid="5742379519336396561">"Lexues ekrani, ekran, kontrolle ndërveprimi"</string>
     <string name="vision_settings_title" msgid="7315352351051423944">"Cilësimet e shikimit"</string>
-    <string name="vision_settings_description" msgid="3476589459009287332">"Mund ta personalizosh këtë pajisje për t\'iu përshtatur nevojave të tua. Këto funksione të qasjes mund të ndryshohen më vonë te \"Cilësimet\"."</string>
+    <string name="vision_settings_description" msgid="3476589459009287332">"Mund ta personalizosh këtë pajisje për t\'iu përshtatur nevojave të tua. Këto veçori të qasshmërisë mund të ndryshohen më vonë te \"Cilësimet\"."</string>
     <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"Ndrysho madhësinë e shkrimit"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"Lexuesit e ekranit"</string>
     <string name="audio_and_captions_category_title" msgid="6140472938769619212">"Audioja dhe teksti në ekran"</string>

@@ -2360,10 +2360,10 @@
       <item quantity="one">%1$s aplikácia bola nedávno obmedzená</item>
     </plurals>
     <plurals name="battery_tip_restrict_summary" formatted="false" msgid="984148373944071669">
-      <item quantity="few">%2$d aplikácie majú vysokú spotrebu batérie na pozadí</item>
-      <item quantity="many">%2$d aplikácie má vysokú spotrebu batérie na pozadí</item>
-      <item quantity="other">%2$d aplikácií má vysokú spotrebu batérie na pozadí</item>
-      <item quantity="one">%1$s aplikácia má vysokú spotrebu batérie na pozadí</item>
+      <item quantity="few">Aplikácie (%2$d) majú vysokú spotrebu batérie na pozadí</item>
+      <item quantity="many">Aplikácie (%2$d) majú vysokú spotrebu batérie na pozadí</item>
+      <item quantity="other">Aplikácie (%2$d) majú vysokú spotrebu batérie na pozadí</item>
+      <item quantity="one">Aplikácia (%1$s) má vysokú spotrebu batérie na pozadí</item>
     </plurals>
     <plurals name="battery_tip_restrict_handled_summary" formatted="false" msgid="469696766640020557">
       <item quantity="few">Tieto aplikácie sa nedajú spustiť na pozadí</item>
@@ -3297,11 +3297,11 @@
     <string name="zen_mode_block_effects_screen_off" msgid="6380935819882837552">"Keď je obrazovka vypnutá"</string>
     <string name="zen_mode_block_effect_sound" msgid="1499243540186357631">"Stlmiť zvuk a vibrácie"</string>
     <string name="zen_mode_block_effect_intent" msgid="5666951244667422668">"Nezapínať obrazovku"</string>
-    <string name="zen_mode_block_effect_light" msgid="8679333758037487644">"Neblikať svetlom"</string>
+    <string name="zen_mode_block_effect_light" msgid="8679333758037487644">"Neblikať"</string>
     <string name="zen_mode_block_effect_peek" msgid="6075662813575910221">"Nezobrazovať upozornenia na obrazovke"</string>
-    <string name="zen_mode_block_effect_status" msgid="6516614225115681068">"Skryť ikony stavového riadka v hornej časti obrazovky"</string>
+    <string name="zen_mode_block_effect_status" msgid="6516614225115681068">"Skryť ikony stavového riadka hore na obrazovke"</string>
     <string name="zen_mode_block_effect_badge" msgid="3891743027347075136">"Skryť bodky upozornení na ikonách aplikácií"</string>
-    <string name="zen_mode_block_effect_ambient" msgid="6382013125863616197">"V prípade upozornení nebudiť"</string>
+    <string name="zen_mode_block_effect_ambient" msgid="6382013125863616197">"Pri upozorneniach nebudiť"</string>
     <string name="zen_mode_block_effect_list" msgid="6081548478844912181">"Skryť v zozname upozornení"</string>
     <string name="zen_mode_block_effect_summary_none" msgid="7166175186759564510">"Nikdy"</string>
     <string name="zen_mode_block_effect_summary_screen_off" msgid="2985086455557755722">"Keď je obrazovka vypnutá"</string>
@@ -3607,7 +3607,7 @@
     <string name="zen_mode_reminders_list" msgid="7347061314032326677">"pripomenutia"</string>
     <string name="zen_mode_events" msgid="5784076928339534984">"Povoliť udalosti"</string>
     <string name="zen_mode_bypassing_apps" msgid="3080739479028713449">"Povoľte aplikáciám prekonávať nastavenia"</string>
-    <string name="zen_mode_bypassing_apps_title" msgid="2115024664615538847">"Výnimky aplikácie"</string>
+    <string name="zen_mode_bypassing_apps_title" msgid="2115024664615538847">"Výnimky pre aplikácie"</string>
     <plurals name="zen_mode_bypassing_apps_subtext" formatted="false" msgid="8723144434730871572">
       <item quantity="few">Režim bez vyrušení môžu prekonať <xliff:g id="NUMBER">%1$d</xliff:g> aplikácie</item>
       <item quantity="many">Notifications from <xliff:g id="NUMBER">%1$d</xliff:g> apps can override Do Not Disturb</item>

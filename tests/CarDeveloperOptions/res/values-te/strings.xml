@@ -2670,8 +2670,8 @@
     <string name="data_usage_menu_sim_cards" msgid="8508154611676507088">"సిమ్ కార్డులు"</string>
     <string name="data_usage_cellular_data_summary" msgid="9162777397135709280">"పరిమితి చేరు. పాజ్ చేయబ."</string>
     <string name="account_settings_menu_auto_sync" msgid="2673669556006027506">"డేటా స్వీయ-సమకాలీకరణ"</string>
-    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"వ్యక్తిగత డేటాను స్వయంచాలకంగా సమకాలీకరించు"</string>
-    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"కార్యాలయ డేటాను స్వయంచాలకంగా సమకాలీకరించు"</string>
+    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"వ్యక్తిగత డేటా ఆటో-సింక్"</string>
+    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"ఆఫీస్ డేటాను ఆటో-సింక్ చేయి"</string>
     <string name="data_usage_change_cycle" msgid="447761920472170031">"సైకిల్‌ను మార్చు…"</string>
     <string name="data_usage_pick_cycle_day" msgid="6319750879145917066">"డేటా వినియోగ సైకిల్‌ను రీసెట్ చేయాల్సిన నెలలోని రోజు:"</string>
     <string name="data_usage_empty" msgid="7981405723435034032">"ఈ వ్యవధిలో డేటాను ఏ అనువర్తనాలు ఉపయోగించలేదు."</string>
@@ -2870,7 +2870,7 @@
     <string name="user_add_user_item_title" msgid="6835385073795492410">"వినియోగదారు"</string>
     <string name="user_add_profile_item_title" msgid="4932743891449790664">"పరిమితం చేయబడిన ప్రొఫైల్"</string>
     <string name="user_add_user_title" msgid="2320897397066676472">"కొత్త వినియోగదారుని జోడించాలా?"</string>
-    <string name="user_add_user_message_long" msgid="686637203224195465">"అదనపు వినియోగదారులను సృష్టించడం ద్వారా మీరు ఈ పరికరాన్ని ఇతరులతో షేర్ చేయవచ్చు. ప్రతి వినియోగదారుకు వారికంటూ ప్రత్యేక స్థలం ఉంటుంది, వారు ఆ స్థలాన్ని యాప్‌లు, వాల్‌పేపర్ మొదలైనవాటితో అనుకూలీకరించవచ్చు. వినియోగదారులు ప్రతి ఒక్కరిపై ప్రభావం చూపే Wi‑Fi వంటి పరికర సెట్టింగ్‌లను కూడా సర్దుబాటు చేయవచ్చు.\n\nమీరు కొత్త వినియోగదారును జోడించినప్పుడు, ఆ వ్యక్తి వారికంటూ స్వంత స్థలం సెట్ చేసుకోవాలి.\n\nఏ వినియోగదారు అయినా మిగిలిన అందరు వినియోగదారుల కోసం యాప్‌లను అప్‌డేట్ చేయవచ్చు. యాక్సెస్ సామర్ధ్యం సెట్టింగ్‌లు మరియు సేవలు కొత్త వినియోగదారుకి బదిలీ కాకపోవచ్చు."</string>
+    <string name="user_add_user_message_long" msgid="686637203224195465">"అదనపు యూజర్‌లను సృష్టించడం ద్వారా మీరు ఈ దేవైజ్‌ను ఇతరులతో షేర్ చేయవచ్చు. ప్రతి యూజర్‌కు వారికంటూ ప్రత్యేక స్థలం ఉంటుంది, వారు ఆ స్థలాన్ని యాప్‌లు, వాల్‌పేపర్ మొదలైనవాటితో అనుకూలీకరించవచ్చు. యూజర్‌లు ప్రతి ఒక్కరిపై ప్రభావం చూపే Wi‑Fi వంటి పరికర సెట్టింగ్‌లను కూడా సర్దుబాటు చేయవచ్చు.\n\nమీరు కొత్త యూజర్‌ను జోడించినప్పుడు, ఆ వ్యక్తి వారికంటూ స్వంత స్థలం సెట్ చేసుకోవాలి.\n\nఏ యూజర్‌ అయినా మిగిలిన అందరు వినియోగదారుల కోసం యాప్‌లను అప్‌డేట్ చేయవచ్చు. యాక్సెస్ సామర్ధ్యం సెట్టింగ్‌లు మరియు సేవలు కొత్త యూజర్‌కి బదిలీ కాకపోవచ్చు."</string>
     <string name="user_add_user_message_short" msgid="1802594476285458254">"మీరు కొత్త వినియోగదారుని జోడించినప్పుడు, ఆ వ్యక్తి తన స్థలాన్ని సెటప్ చేసుకోవాలి.\n\nఏ వినియోగదారు అయినా మిగతా అందరు వినియోగదారుల కోసం యాప్‌లను అప్‌డేట్‌ చేయగలరు."</string>
     <string name="user_setup_dialog_title" msgid="6748950002206392396">"ఇప్పుడు వినియోగదారుని సెటప్ చేయాలా?"</string>
     <string name="user_setup_dialog_message" msgid="2988559933258353919">"పరికరాన్ని తీసుకోవడానికి వ్యక్తి అందుబాటులో ఉన్నారని నిర్ధారించుకొని, ఆపై వారికి నిల్వ స్థలాన్ని సెటప్ చేయండి"</string>
@@ -4476,7 +4476,7 @@
     <string name="privacy_dashboard_summary" msgid="7916431309860824945">"అనుమతులు, ఖాతా కార్యకలాపం, వ్యక్తిగత డేటా"</string>
     <string name="contextual_card_dismiss_remove" msgid="1750420285615827309">"తీసివేయి"</string>
     <string name="contextual_card_dismiss_keep" msgid="3204450672928193661">"ఉంచండి"</string>
-    <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"ఈ సూచనని తీసివేయలా?"</string>
+    <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"ఈ సూచనని తీసేయాలా?"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"సూచన తీసివేయబడింది"</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"చర్యరద్దు"</string>
     <string name="low_storage_summary" msgid="4562224870189133400">"నిల్వ తక్కువగా ఉంది: <xliff:g id="PERCENTAGE">%1$s</xliff:g> వినియోగించబడింది - <xliff:g id="FREE_SPACE">%2$s</xliff:g> ఖాళీగా ఉంది"</string>

@@ -1639,7 +1639,7 @@
     <string name="sms_change_default_no_previous_dialog_text" msgid="4680224695080527907">"<xliff:g id="NEW_APP">%s</xliff:g> қолданбасы SMS қолданбасы ретінде қолданылсын ба?"</string>
     <string name="network_scorer_picker_title" msgid="1691073966560952916">"Желі рейтингісін ұсынған"</string>
     <string name="network_scorer_picker_none_preference" msgid="6448280557733231737">"Ешқандай"</string>
-    <string name="network_scorer_change_active_dialog_title" msgid="4274159562371475090">"Wi‑Fi assistant өзгерту керек пе?"</string>
+    <string name="network_scorer_change_active_dialog_title" msgid="4274159562371475090">"Wi‑Fi көмек құралын ауыстыру керек пе?"</string>
     <string name="network_scorer_change_active_dialog_text" msgid="4264089809189760730">"Желілік байланыстарды басқару үшін <xliff:g id="CURRENT_APP">%2$s</xliff:g> орнына <xliff:g id="NEW_APP">%1$s</xliff:g> қолданбасын пайдалану керек пе?"</string>
     <string name="network_scorer_change_active_no_previous_dialog_text" msgid="6394483538843474495">"Желілік байланыстарды басқару үшін <xliff:g id="NEW_APP">%s</xliff:g> қолданбасын пайдалану керек пе?"</string>
     <string name="mobile_unknown_sim_operator" msgid="872589370085135817">"Белгісіз SIM операторы"</string>
@@ -2606,7 +2606,7 @@
     <string name="background_data_summary" msgid="799640633948841990">"Қолданбалар деректерді синхрондау, жіберу жұмыстарын орындайды және кез келген уақытта қабылдай алады."</string>
     <string name="background_data_dialog_title" msgid="8306650658158895976">"Жалпы мағлұматтар дерекқоры істен шығарылсын ба?"</string>
     <string name="background_data_dialog_message" msgid="8126774244911656527">"Артқы шеп деректерін өшіру батарея жұмысын ұзартады және дерек қолданысын азайтады. Кейбір қолданбалар сонда да артқы шеп байланысын қолдануы мүмкін."</string>
-    <string name="sync_automatically" msgid="5746117156896468099">"Қолданба дерекқорын авто синхрондау"</string>
+    <string name="sync_automatically" msgid="5746117156896468099">"Қолданба дерегін автосинхрондау"</string>
     <string name="sync_enabled" msgid="535172627223336983">"Синхронизация ҚОСУЛЫ"</string>
     <string name="sync_disabled" msgid="713721807204805062">"Синх ӨШІРУЛІ"</string>
     <string name="sync_error" msgid="988155155932442765">"Синх қателігі"</string>
@@ -2666,12 +2666,12 @@
     <string name="data_usage_menu_show_ethernet" msgid="2130574690318410238">"Этернет қолданысын көрсету"</string>
     <string name="data_usage_menu_hide_ethernet" msgid="1191233197312414533">"Ethernet пайдал-ды жасыру"</string>
     <string name="data_usage_menu_metered" msgid="3087525150259956831">"Желілік шектеулер"</string>
-    <string name="data_usage_menu_auto_sync" msgid="3350154877737572146">"Дерекқорды авто-синхрондау"</string>
+    <string name="data_usage_menu_auto_sync" msgid="3350154877737572146">"Деректі автосинхрондау"</string>
     <string name="data_usage_menu_sim_cards" msgid="8508154611676507088">"SIM карталары"</string>
     <string name="data_usage_cellular_data_summary" msgid="9162777397135709280">"Шектеуде кідіртілген"</string>
     <string name="account_settings_menu_auto_sync" msgid="2673669556006027506">"Деректерді автосинхрондау"</string>
-    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"Жеке деректерді авто-синхрондау"</string>
-    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"Жұмыс деректерін авто-синхрондау"</string>
+    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"Жеке деректі автосинхрондау"</string>
+    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"Жұмыс дерегін автосинхрондау"</string>
     <string name="data_usage_change_cycle" msgid="447761920472170031">"Айналымды өзгерту…"</string>
     <string name="data_usage_pick_cycle_day" msgid="6319750879145917066">"Дерекқор қолдану айналымын қайта реттеу күні:"</string>
     <string name="data_usage_empty" msgid="7981405723435034032">"Бұл уақыт аралығында ешқандай қолданба дерек пайдаланған жоқ."</string>

@@ -127,7 +127,7 @@
     <string name="bluetooth_notif_title" msgid="5090288898529286011">"যুক্ত করার অনুরোধ"</string>
     <string name="bluetooth_notif_message" msgid="6612367890895077938">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> এর সঙ্গে যুক্ত করতে আলতো চাপুন৷"</string>
     <string name="bluetooth_show_received_files" msgid="5060846395852236652">"ফাইল গ্রহণ করা হয়েছে"</string>
-    <string name="bluetooth_show_files_received_via_bluetooth" msgid="1699095577431389560">"ব্লুটুথের মাধ্যমে পেয়ে থাকা ফাইল"</string>
+    <string name="bluetooth_show_files_received_via_bluetooth" msgid="1699095577431389560">"ব্লুটুথের মাধ্যমে পাওয়া ফাইল"</string>
     <string name="device_picker" msgid="8345264486071697705">"ব্লুটুথ ডিভাইস বাছুন"</string>
     <string name="bluetooth_ask_enablement" msgid="8716802066127746062">"<xliff:g id="APP_NAME">%1$s</xliff:g> ব্লুটুথ চালু করতে চাইছে"</string>
     <string name="bluetooth_ask_disablement" msgid="7125319551097350783">"<xliff:g id="APP_NAME">%1$s</xliff:g> ব্লুটুথ বন্ধ করতে চাইছে"</string>
@@ -1568,7 +1568,7 @@
     <string name="restore_default_apn" msgid="7195266404077471007">"ডিফল্ট APN সেটিংস পুনরুদ্ধার করা হচ্ছে।"</string>
     <string name="menu_restore" msgid="3799288817317293115">"ডিফল্টে রিসেট করুন"</string>
     <string name="restore_default_apn_completed" msgid="5671734152740058937">"ডিফল্ট APN সেটিংস রিসেট করা হয়েছে।"</string>
-    <string name="reset_dashboard_title" msgid="7084966342252178530">"রিসেটের বিকল্পগুলি"</string>
+    <string name="reset_dashboard_title" msgid="7084966342252178530">"রিসেট করার বিকল্প"</string>
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"নেটওয়ার্ক, অ্যাপ, অথবা ডিভাইস রিসেট করা যায়"</string>
     <string name="reset_network_title" msgid="8944059136930806211">"ওয়াই-ফাই, মোবাইল ও ব্লুটুথ রিসেট"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"এগুলি সহ সমস্ত নেটওয়ার্ক সেটিংস আবার সেট করবে:\n\n"<li>"ওয়াই ফাই "</li>\n<li>"সেলুলার ডাটা "</li>\n<li>"ব্লুটুথ"</li></string>
@@ -1791,7 +1791,7 @@
     <string name="applications_settings_header" msgid="3766501606045211098">"অ্যাপ সেটিংস"</string>
     <string name="install_applications" msgid="7745902974984889179">"অজানা উৎসগুলি"</string>
     <string name="install_applications_title" msgid="8164828577588659496">"সব অ্যাপ্লিকেশান উৎসকে অনুমতি দিন"</string>
-    <string name="recent_app_category_title" msgid="7688788038277126727">"সম্প্রতি চালু করা অ্যাপ"</string>
+    <string name="recent_app_category_title" msgid="7688788038277126727">"সম্প্রতি ব্যবহার করা অ্যাপ"</string>
     <string name="see_all_apps_title" msgid="6435061912110347474">"<xliff:g id="COUNT">%1$d</xliff:g>টি অ্যাপের সবকটি দেখুন"</string>
     <string name="install_all_warning" product="tablet" msgid="4580699862358542727">"অজানা অ্যাপের দ্বারা আপনার ট্যাবলেট এবং ব্যক্তিগত তথ্য আক্রান্ত হওয়ার সম্ভাবনা সবচেয়ে বেশি। এই উৎস থেকে আসা অ্যাপগুলি ইনস্টল করে আপনি সম্মত হচ্ছেন যে সেগুলি ব্যবহারের ফলে আপনার ট্যাবলেটের কোনো ক্ষতি হলে বা ডেটা হারিয়ে গেলে তার জন্য আপনিই দায়ী থাকবেন।"</string>
     <string name="install_all_warning" product="default" msgid="7445839116997296358">"অজানা অ্যাপের দ্বারা আপনার ফোন এবং ব্যক্তিগত তথ্য আক্রান্ত হওয়ার সম্ভাবনা সবচেয়ে বেশি। এই উৎস থেকে আসা অ্যাপগুলি ইনস্টল করে আপনি সম্মত হচ্ছেন যে সেগুলি ব্যবহারের ফলে আপনার ফোনের কোনো ক্ষতি হলে বা ডেটা হারিয়ে গেলে তার জন্য আপনিই দায়ী থাকবেন।"</string>
@@ -1972,7 +1972,7 @@
     <string name="show_ime" msgid="7322620473198763563">"ভার্চুয়াল কীবোর্ড দেখুন"</string>
     <string name="show_ime_summary" msgid="3246628154011464373">"ফিজিক্যাল কীবোর্ড সক্রিয় থাকার সময় এটিকে স্ক্রীনে রাখুন"</string>
     <string name="keyboard_shortcuts_helper" msgid="6574386807271399788">"কীবোর্ড শর্টকাট সাহায্যকারী"</string>
-    <string name="keyboard_shortcuts_helper_summary" msgid="8024313306403779742">"উপলব্ধ শর্টকাটগুলি দেখান"</string>
+    <string name="keyboard_shortcuts_helper_summary" msgid="8024313306403779742">"উপলভ্য শর্টকাটগুলি দেখান"</string>
     <string name="language_and_input_for_work_category_title" msgid="2053255944038892588">"অফিসের প্রোফাইলের কীবোর্ড ও টুল"</string>
     <string name="virtual_keyboards_for_work_title" msgid="3968291646938204523">"অফিসের জন্য ভার্চুয়াল কীবোর্ড"</string>
     <string name="default_keyboard_layout" msgid="9171704064451242230">"ডিফল্ট"</string>
@@ -2671,7 +2671,7 @@
     <string name="data_usage_cellular_data_summary" msgid="9162777397135709280">"সীমায় পৌঁছে বিরতি দেওয়া হয়েছে"</string>
     <string name="account_settings_menu_auto_sync" msgid="2673669556006027506">"ডেটা স্বতঃসিঙ্ক"</string>
     <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"ব্যক্তিগত ডেটা স্বতঃসিঙ্ক"</string>
-    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"কার্যের ডাটা স্বতঃ সিঙ্ক"</string>
+    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"কাজের ডেটা নিজে থেকে সিঙ্ক"</string>
     <string name="data_usage_change_cycle" msgid="447761920472170031">"চক্র পরিবর্তন করুন..."</string>
     <string name="data_usage_pick_cycle_day" msgid="6319750879145917066">"ডেটা ব্যবহারের চক্র আবার সেট করতে মাসের দিন:"</string>
     <string name="data_usage_empty" msgid="7981405723435034032">"এই সময়ের মধ্যে কোনো অ্যাপ্লিকেশান ডেট ব্যবহার করবে না।"</string>
@@ -2902,7 +2902,7 @@
     <string name="user_exit_guest_confirm_title" msgid="4767911571671099844">"অতিথি সরাবেন?"</string>
     <string name="user_exit_guest_confirm_message" msgid="6955182181145748919">"এই সেশনের সব অ্যাপ্লিকেশান ও ডেটা মুছে ফেলা হবে।"</string>
     <string name="user_exit_guest_dialog_remove" msgid="1878866060881115716">"সরান"</string>
-    <string name="user_enable_calling" msgid="864760054792249503">"ফোন কলগুলিকে চালু করুন"</string>
+    <string name="user_enable_calling" msgid="864760054792249503">"ফোন কলের সুবিধা চালু করুন"</string>
     <string name="user_enable_calling_sms" msgid="3450252891736718793">"ফোন কলগুলিকে এবং SMS চালু করবেন?"</string>
     <string name="user_remove_user" msgid="3687544420125911166">"ব্যবহারকারীর অ্যাকাউন্ট মুছে দিন"</string>
     <string name="user_enable_calling_confirm_title" msgid="1141612415529158542">"ফোন কলগুলিকে চালু করবেন?"</string>
@@ -2917,12 +2917,12 @@
     <string name="nfc_payment_settings_title" msgid="5070077706735415291">"ট্যাপ করে পে করা"</string>
     <string name="nfc_payment_how_it_works" msgid="7607901964687787177">"এটি কীভাবে কাজ করে"</string>
     <string name="nfc_payment_no_apps" msgid="8844440783395420860">"আপনার ফোন দিয়ে অর্থপ্রদান করুন"</string>
-    <string name="nfc_payment_default" msgid="7869273092463612271">"অর্থপ্রদান ডিফল্ট"</string>
+    <string name="nfc_payment_default" msgid="7869273092463612271">"পেমেন্ট ডিফল্ট"</string>
     <string name="nfc_payment_default_not_set" msgid="955804193510335338">"সেট করা নেই"</string>
     <string name="nfc_payment_app_and_desc" msgid="102312684211458190">"<xliff:g id="APP">%1$s</xliff:g> - <xliff:g id="DESCRIPTION">%2$s</xliff:g>"</string>
     <string name="nfc_payment_use_default" msgid="3098724195746409476">"ডিফল্ট ব্যবহার করুন"</string>
     <string name="nfc_payment_favor_default" msgid="7555356982142464260">"সবসময়"</string>
-    <string name="nfc_payment_favor_open" msgid="3739055715000436749">"অন্য কোনো অর্থপ্রদান অ্যাপ্লিকেশান খুলে থাকার সময় ব্যতিত"</string>
+    <string name="nfc_payment_favor_open" msgid="3739055715000436749">"অন্য কোনও পেমেন্ট অ্যাপ খোলা না থাকলে"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"ট্যাপ করে অর্থপ্রদান করুন টার্মিন্যালে, এর মাধ্যমে পেমেন্ট করুন:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"টার্মিনালে পেমেন্টের পদ্ধতি"</string>
     <string name="nfc_how_it_works_content" msgid="9174575836302449343">"একটি পেমেন্টের অ্যাপ্লিকেশান সেট-আপ করুন৷ তারপরে যোগাযোগহীন চিহ্ন সহ কোনো টার্মিনালের উপর শুধু আপনার ফোনের পিছনের দিকটি ধরুন৷"</string>
@@ -3360,7 +3360,7 @@
     <string name="notifications_sent_daily" msgid="6874886521964822824">"দৈনিক ~<xliff:g id="NUMBER">%1$s</xliff:g>"</string>
     <string name="notifications_sent_weekly" msgid="5859675428990259432">"প্রতি সপ্তাহে ~<xliff:g id="NUMBER">%1$s</xliff:g>"</string>
     <string name="notifications_sent_never" msgid="237997329598144638">"কখনও না"</string>
-    <string name="manage_notification_access_title" msgid="5348743662189787547">"বিজ্ঞপ্তির অ্যাক্সেস"</string>
+    <string name="manage_notification_access_title" msgid="5348743662189787547">"বিজ্ঞপ্তি অ্যাক্সেস"</string>
     <string name="work_profile_notification_access_blocked_summary" msgid="8148871282484870576">"কর্মস্থলের প্রোফাইলের বিজ্ঞপ্তিতে অ্যাক্সেস ব্লক করা হয়েছে"</string>
     <string name="manage_notification_access_summary_zero" msgid="236809421271593016">"অ্যাপ্লিকেশানগুলি বিজ্ঞপ্তি পড়তে পারে না"</string>
     <plurals name="manage_notification_access_summary_nonzero" formatted="false" msgid="8496218948429646792">
@@ -3677,7 +3677,7 @@
     <string name="default_app" msgid="8861276008866619872">"(ডিফল্ট)"</string>
     <string name="system_app" msgid="4111402206594443265">"(সিস্টেম)"</string>
     <string name="system_default_app" msgid="1454719098589351197">"(সিস্টেম ডিফল্ট)"</string>
-    <string name="apps_storage" msgid="5658466038269046038">"অ্যাপ্লিকেশনের স্টোরেজ"</string>
+    <string name="apps_storage" msgid="5658466038269046038">"অ্যাপ স্টোরেজ"</string>
     <string name="usage_access" msgid="2023443456361489516">"ব্যবহারের তথ্যে অ্যাক্সেস"</string>
     <string name="permit_usage_access" msgid="3321727608629752758">"ব্যবহার অ্যাক্সেসের অনুমতি"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"পছন্দের অ্যাপ্লিকেশানগুলির ব্যবহার"</string>
@@ -3712,7 +3712,7 @@
     <string name="high_power_system" msgid="739584574711292753">"ব্যাটারি অপ্টিমাইজেশান উপলভ্য নেই"</string>
     <string name="high_power_desc" msgid="333756885680362741">"ব্যাটারি অপ্টিমাইজেশান প্রয়োগ করবেন না। আরো দ্রুত আপনার ব্যাটারির চার্জ শেষ হয়ে যেতে পারে৷"</string>
     <string name="high_power_prompt_title" msgid="2805745781720454052">"অ্যাপটিকে সবসময় পটভূমিতে চালু রাখবেন?"</string>
-    <string name="high_power_prompt_body" msgid="8067395096053552289">"<xliff:g id="APP_NAME">%1$s</xliff:g> কে সবসময় পটভূমিতে চালু রাখলে ব্যাটারির ক্ষমতা কমে যেতে পারে। \n\nআপনি পরে সেটিংস &gt; অ্যাপ্স ও বিজ্ঞপ্তি থেকে এটি পরিবর্তন করতে পারেন।"</string>
+    <string name="high_power_prompt_body" msgid="8067395096053552289">"<xliff:g id="APP_NAME">%1$s</xliff:g>-কে সবসময় পটভূমিতে চালু রাখলে ব্যাটারি বেশিদিন নাও টিকতে পারে। \n\nআপনি পরে সেটিংস &gt; অ্যাপ ও বিজ্ঞপ্তি বিকল্প থেকে এটি পরিবর্তন করতে পারেন।"</string>
     <string name="battery_summary" msgid="4345690800899981339">"শেষ বার সম্পূর্ণ চার্জ করার পর থেকে <xliff:g id="PERCENTAGE">%1$s</xliff:g> ব্যবহার হয়েছে"</string>
     <string name="battery_power_management" msgid="2853925857548647969">"শক্তি পরিচালনা"</string>
     <string name="no_battery_summary" msgid="4105932628367471314">"শেষ সম্পূর্ণ চার্জ করার সময় থেকে কোনো ব্যাটারি ব্যবহার করা হয়নি"</string>
@@ -4155,7 +4155,7 @@
     <string name="instant_apps_settings" msgid="879003203555847537">"ঝটপট অ্যাপের পছন্দগুলি"</string>
     <string name="domain_url_section_title" msgid="206403507921518321">"ইনস্টল করা অ্যাপ"</string>
     <string name="automatic_storage_manager_activation_warning" msgid="2630083316417707308">"আপনার স্টোরেজ এখন স্টোরেজ ম্যানেজারের দ্বারা পরিচালিত হচ্ছে"</string>
-    <string name="account_for_section_header" msgid="5975241715840642563">"<xliff:g id="USER_NAME">%1$s</xliff:g> এর অ্যাকাউন্ট"</string>
+    <string name="account_for_section_header" msgid="5975241715840642563">"<xliff:g id="USER_NAME">%1$s</xliff:g>-এর অ্যাকাউন্ট"</string>
     <string name="configure_section_header" msgid="6988981883075615136">"কনফিগার"</string>
     <string name="auto_sync_account_title" msgid="2394463123733529506">"ডেটা অটোমেটিক সিঙ্ক হবে"</string>
     <string name="auto_sync_personal_account_title" msgid="6844465157916100655">"ব্যাক্তিগত ডেটা অটোমেটিক সিঙ্ক করুন"</string>
@@ -4238,7 +4238,7 @@
     <string name="storage_photos_videos" msgid="1890829312367477559">"ফটো এবং ভিডিওগুলি"</string>
     <string name="storage_music_audio" msgid="3661289086715297149">"মিউজিক ও অডিও"</string>
     <string name="storage_games" msgid="7740038143749092373">"গেম"</string>
-    <string name="storage_other_apps" msgid="3202407095387420842">"অন্যান্য অ্যাপ্লিকেশান"</string>
+    <string name="storage_other_apps" msgid="3202407095387420842">"অন্যান্য অ্যাপ"</string>
     <string name="storage_files" msgid="2087824267937487880">"ফাইল"</string>
     <string name="storage_size_large_alternate" msgid="1317796542509105857">"<xliff:g id="NUMBER">^1</xliff:g>"<small>" "<font size="20">"<xliff:g id="UNIT">^2</xliff:g>"</font></small>""</string>
     <string name="storage_volume_total" msgid="5021484171514159913">"<xliff:g id="TOTAL">%1$s</xliff:g> এর মধ্যে ব্যবহার হয়েছে"</string>

@@ -85,7 +85,7 @@
     <item msgid="8058143476674427024">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g>सँग जडान हुँदै..."</item>
     <item msgid="7547609081339573756">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g>का साथ प्रमाणीकरण गर्दै..."</item>
     <item msgid="5145158315060185414">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g>बाट IP ठेगाना प्राप्त गर्दै..."</item>
-    <item msgid="3283243151651124831">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g>सँग जडित"</item>
+    <item msgid="3283243151651124831">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g> मा जोडिएको छ"</item>
     <item msgid="6600156231416890902">"निलम्बित"</item>
     <item msgid="4133290864821295785">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g>बाट विच्छेदन गर्दै..."</item>
     <item msgid="3980154971187953257">"जडान विच्छेद भयो"</item>

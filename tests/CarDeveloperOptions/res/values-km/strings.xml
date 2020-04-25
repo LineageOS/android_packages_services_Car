@@ -2601,7 +2601,7 @@
     <string name="work_mode_label" msgid="6845849194740195757">"កម្រងព័ត៌មានការងារ"</string>
     <string name="work_mode_on_summary" msgid="1682781113156323592">"គ្រប់គ្រងដោយ​ស្ថាប័ន​របស់អ្នក"</string>
     <string name="work_mode_off_summary" msgid="1688885392211178315">"កម្មវិធី និង​ការ​ជូនដំណឹង​បាន​បិទ"</string>
-    <string name="remove_managed_profile_label" msgid="4625542553784793536">"លុប​ប្រវត្តិរូប​ការងារ"</string>
+    <string name="remove_managed_profile_label" msgid="4625542553784793536">"លុបកម្រងព័ត៌មានការងារ"</string>
     <string name="background_data" msgid="8275750862371471171">"ទិន្នន័យ​ផ្ទៃ​ខាង​ក្រោយ"</string>
     <string name="background_data_summary" msgid="799640633948841990">"កម្មវិធី​អាច​ធ្វើ​សម​កាល​កម្ម​ ផ្ញើ និង​ទទួល​ទិន្នន័យ​នៅ​ពេល​ណា​មួយ"</string>
     <string name="background_data_dialog_title" msgid="8306650658158895976">"បិទ​ទិន្នន័យ​ផ្ទៃ​ខាង​ក្រោយ?"</string>
@@ -2888,7 +2888,7 @@
     <string name="user_confirm_remove_self_title" msgid="6739480453680217543">"លុប​ខ្លួន​ឯង​ផ្ទាល់?"</string>
     <string name="user_confirm_remove_title" msgid="1034498514019462084">"លុបអ្នកប្រើប្រាស់​នេះ?"</string>
     <string name="user_profile_confirm_remove_title" msgid="6138684743385947063">"លុប​ប្រវត្តិ​រូប​នេះ?"</string>
-    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"លុប​ប្រវត្តិរូប​ការងារ?"</string>
+    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"លុបកម្រងព័ត៌មានការងារឬ?"</string>
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"អ្នក​នឹង​បាត់បង់​ទំហំ​ ព្រម​ទាំង​ទិន្នន័យ​របស់​អ្នក​លើ​កុំព្យូទ័រ​បន្ទះ​នេះ​។ អ្នក​មិន​អាច​ធ្វើ​សកម្មភាព​នេះ​វិញ​បាន​ទេ។"</string>
     <string name="user_confirm_remove_self_message" product="default" msgid="8441729423565705183">"អ្នក​នឹង​បាត់បង់​ទំហំ និង​ទិន្នន័យ​របស់​អ្នក​លើ​ទូរស័ព្ទ​នេះ។ អ្នក​មិន​អាច​ធ្វើ​សកម្មភាព​នេះ​វិញ​បាន​ទេ។"</string>
     <string name="user_confirm_remove_message" msgid="5202150470271756013">"កម្មវិធី និង​ទិន្នន័យ​ទាំងអស់​នឹង​ត្រូវ​បាន​លុប។"</string>
@@ -4081,7 +4081,7 @@
     <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"ប្រអប់​ការ​កំណត់​រហ័ស​សម្រាប់​អ្នកអភិវឌ្ឍន៍"</string>
     <string name="winscope_trace_quick_settings_title" msgid="940971040388411374">"ដាន Winscope"</string>
     <string name="sensors_off_quick_settings_title" msgid="3655699045300438902">"ឧបករណ៍​ចាប់សញ្ញាបានបិទ"</string>
-    <string name="managed_profile_settings_title" msgid="4340409321523532402">"ការកំណត់ប្រវត្តិរូបការងារ"</string>
+    <string name="managed_profile_settings_title" msgid="4340409321523532402">"ការកំណត់កម្រងព័ត៌មានការងារ"</string>
     <string name="managed_profile_contact_search_title" msgid="7337225196804457095">"ការស្វែងរកទំនាក់ទំនង"</string>
     <string name="managed_profile_contact_search_summary" msgid="7278267480246726951">"អនុញ្ញាតការស្វែងរកទំនាក់ទំនងដោយស្ថាប័នរបស់អ្នកដើម្បីកំណត់អត្តសញ្ញាណអ្នកហៅ និងលេខទំនាក់ទំនង"</string>
     <string name="cross_profile_calendar_title" msgid="2351605904015067145">"ប្រតិទិនអន្តរ​កម្រងព័ត៌មាន"</string>

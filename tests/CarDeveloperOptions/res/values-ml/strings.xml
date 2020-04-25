@@ -1685,7 +1685,7 @@
     <string name="about_settings" product="device" msgid="1770438316234693655">"ഉപകരണ വിവരം"</string>
     <string name="about_settings" product="emulator" msgid="4497482494770487014">"എമുലേറ്റഡ് ഉപകരണത്തെ കുറിച്ച്"</string>
     <string name="about_settings_summary" msgid="4506081667462281647">"നിയമ വിവരം, നില, സോഫ്‌റ്റ്‌വെയർ പതിപ്പ് എന്നിവ കാണുക"</string>
-    <string name="legal_information" msgid="2374267257615182139">"നിയമപരമായ വിവരം"</string>
+    <string name="legal_information" msgid="2374267257615182139">"നിയമപരമായ വിവരങ്ങൾ"</string>
     <string name="contributors_title" msgid="6800028420806884340">"സംഭാവകർ"</string>
     <string name="manual" msgid="5431859421432581357">"മാനുവൽ"</string>
     <string name="regulatory_labels" msgid="380968489247381025">"റെഗുലേറ്ററി ലേബലുകൾ"</string>
@@ -1985,7 +1985,7 @@
     <string name="keyboard_layout_dialog_switch_hint" msgid="138516114253502182">"മാറാൻ, Control-Spacebar അമർത്തുക"</string>
     <string name="keyboard_layout_default_label" msgid="8368579311667189793">"സ്ഥിരമായത്"</string>
     <string name="keyboard_layout_picker_title" msgid="6958831599253031987">"കീബോർഡ് ലേഔട്ടുകൾ"</string>
-    <string name="user_dict_settings_title" msgid="1415462066249818756">"വ്യക്തിഗത നിഘണ്ടു"</string>
+    <string name="user_dict_settings_title" msgid="1415462066249818756">"വ്യക്തിപരമായ നിഘണ്ടു"</string>
     <string name="user_dict_settings_for_work_title" msgid="3995828731001225748">"ജോലിക്കായുള്ള വ്യക്തിഗത നിഘണ്ഡു"</string>
     <string name="user_dict_settings_summary" msgid="3131259534814181196"></string>
     <string name="user_dict_settings_add_menu_title" msgid="1553743292556229909">"ചേര്‍ക്കുക"</string>
@@ -2309,7 +2309,7 @@
       <item quantity="other">%1$d ആപ്പുകളെ നിയന്ത്രിക്കണോ?</item>
       <item quantity="one">ആപ്പിനെ നിയന്ത്രിക്കണോ?</item>
     </plurals>
-    <string name="battery_tip_restrict_app_dialog_message" msgid="6905822297507947381">"ബാറ്ററി ലാഭിക്കാൻ, പശ്ചാത്തലത്തിൽ <xliff:g id="APP">%1$s</xliff:g>-ന്റെ ബാറ്ററി ഉപഭോഗം നിർത്തുക. ഈ ആപ്പ് ശരിയായ രീതിയിൽ പ്രവർത്തിക്കാതിരിക്കുകയും അറിയിപ്പുകൾ വൈകുകയും ചെയ്‌തേക്കാം."</string>
+    <string name="battery_tip_restrict_app_dialog_message" msgid="6905822297507947381">"ബാറ്ററി ലാഭിക്കാൻ, <xliff:g id="APP">%1$s</xliff:g> എന്നതിനെ പശ്ചാത്തലത്തിൽ ബാറ്ററി ഉപഭോഗിക്കുന്നതിൽ നിന്നും തടയുക. ഈ ആപ്പ് ശരിയായ രീതിയിൽ പ്രവർത്തിക്കാതിരിക്കുകയും അറിയിപ്പുകൾ വൈകുകയും ചെയ്‌തേക്കാം."</string>
     <string name="battery_tip_restrict_apps_less_than_5_dialog_message" msgid="4225881888543582456">"ബാറ്ററി ലാഭിക്കാൻ, പശ്ചാത്തലത്തിൽ ഈ ആപ്പുകളുടെ ബാറ്ററി ഉപഭോഗം നിർത്തുക. നിയന്ത്രിത ആപ്പുകൾ ശരിയായ രീതിയിൽ പ്രവർത്തിക്കാതിരിക്കുകയും അറിയിപ്പുകൾ വൈകുകയും ചെയ്‌തേക്കാം.\n\nആപ്പുകൾ:"</string>
     <string name="battery_tip_restrict_apps_more_than_5_dialog_message" msgid="1748375562539446634">"ബാറ്ററി ലാഭിക്കാൻ, പശ്ചാത്തലത്തിൽ ഈ ആപ്പുകളുടെ ബാറ്ററി ഉപഭോഗം നിർത്തുക. നിയന്ത്രിത ആപ്പുകൾ ശരിയായ രീതിയിൽ പ്രവർത്തിക്കാതിരിക്കുകയും അറിയിപ്പുകൾ വൈകുകയും ചെയ്‌തേക്കാം.\n\nആപ്പുകൾ:\n<xliff:g id="APP_LIST">%1$s</xliff:g>."</string>
     <string name="battery_tip_restrict_app_dialog_ok" msgid="2573410775701913487">"നിയന്ത്രിക്കുക"</string>
@@ -2670,7 +2670,7 @@
     <string name="data_usage_menu_sim_cards" msgid="8508154611676507088">"സിം കാർഡുകൾ"</string>
     <string name="data_usage_cellular_data_summary" msgid="9162777397135709280">"പരിധിയിൽ തൽക്കാലം നിർത്തി"</string>
     <string name="account_settings_menu_auto_sync" msgid="2673669556006027506">"ഡാറ്റ സ്വയമേ സമന്വയിപ്പിക്കൂ"</string>
-    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"വ്യക്തിഗത ഡാറ്റ സ്വയമേവ സമന്വയിപ്പിക്കുക"</string>
+    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"വ്യക്തിപരമായ ഡാറ്റ സ്വയമേവ സമന്വയിപ്പിക്കുക"</string>
     <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"ഔദ്യോഗിക ഡാറ്റ സ്വയമേവ സമന്വയിപ്പിക്കുക"</string>
     <string name="data_usage_change_cycle" msgid="447761920472170031">"സൈക്കിൾ മാറ്റുക..."</string>
     <string name="data_usage_pick_cycle_day" msgid="6319750879145917066">"ഡാറ്റ ഉപയോഗ സൈക്കിൾ പുനഃസജ്ജീകരിക്കുന്നതിനുള്ള മാസത്തിലെ ദിവസം:"</string>
@@ -3094,7 +3094,7 @@
     <string name="keywords_lockscreen" msgid="4936846554280830394">"അൺലോക്കുചെയ്യാൻ സ്ലൈഡുചെയ്യുക, പാസ്‌വേഡ്, പാറ്റേൺ, പിൻ"</string>
     <string name="keywords_profile_challenge" msgid="8653718001253979611">"ഔദ്യോഗിക വെല്ലുവിളി, ഔദ്യോഗികം, പ്രൊഫൈൽ"</string>
     <string name="keywords_unification" msgid="2020759909366983593">"ഔദ്യോഗിക പ്രൊഫൈൽ, മാനേജുചെയ്യപ്പെടുന്ന പ്രൊഫൈൽ, ഏകീകരിക്കുക, ഏകീകരിക്കൽ, ഔദ്യോഗികം, പ്രൊഫൈൽ"</string>
-    <string name="keywords_gesture" msgid="5031323247529869644">"ജെസ്‌റ്ററുകൾ"</string>
+    <string name="keywords_gesture" msgid="5031323247529869644">"ജെസ്‌ചറുകൾ"</string>
     <string name="keywords_payment_settings" msgid="4745023716567666052">"പണമടയ്ക്കുക. ടാപ്പുചെയ്യുക, പേയ്‌മെന്റുകൾ"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"ബാക്കപ്പ് ചെയ്യൂ"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"വിരൽചലനം"</string>
@@ -3589,7 +3589,7 @@
     <string name="imei_information_summary" msgid="716516316022275083">"IMEI അനുബന്ധ വിവരങ്ങൾ"</string>
     <string name="slot_number" msgid="785422579177068698">"(സ്ലോട്ട്<xliff:g id="SLOT_NUM">%1$d</xliff:g>)"</string>
     <string name="launch_by_default" msgid="6106985160202769725">"സ്ഥിരമായി തുറക്കുക"</string>
-    <string name="app_launch_domain_links_title" msgid="2987289657348349133">"ലിങ്കുകൾ തുറക്കുന്നു"</string>
+    <string name="app_launch_domain_links_title" msgid="2987289657348349133">"ലിങ്കുകൾ തുറക്കൽ"</string>
     <string name="app_launch_open_domain_urls_title" msgid="8595126859922391331">"പിന്തുണയ്‌ക്കുന്ന ലിങ്കുകൾ തുറക്കുക"</string>
     <string name="app_launch_open_domain_urls_summary" msgid="6803029846855502366">"ആവശ്യപ്പെടാതെ തുറക്കുക"</string>
     <string name="app_launch_supported_domain_urls_title" msgid="503976327533974142">"പിന്തുണയ്‌ക്കുന്ന ലിങ്കുകൾ"</string>
@@ -3649,7 +3649,7 @@
     <string name="app_permissions_summary" msgid="8785798165776061594">"<xliff:g id="APPS">%1$s</xliff:g> ഉപയോഗിക്കുന്ന ആപ്പുകൾ"</string>
     <string name="tap_to_wake" msgid="1902991239401652323">"സജീവമാക്കാൻ ടാപ്പുചെയ്യുക"</string>
     <string name="tap_to_wake_summary" msgid="8485222120721006793">"ഉപകരണം സജീവമാക്കാൻ സ്‌ക്രീനിലെവിടെയെങ്കിലും രണ്ടുതവണ ടാപ്പുചെയ്യുക"</string>
-    <string name="domain_urls_title" msgid="7939209950373945367">"ലിങ്കുകൾ തുറക്കുന്നു"</string>
+    <string name="domain_urls_title" msgid="7939209950373945367">"ലിങ്കുകൾ തുറക്കൽ"</string>
     <string name="domain_urls_summary_none" msgid="5401203416941265109">"പിന്തുണയ്‌ക്കുന്ന ലിങ്കുകൾ തുറക്കരുത്"</string>
     <string name="domain_urls_summary_one" msgid="3893975485064803435">"<xliff:g id="DOMAIN">%s</xliff:g> തുറക്കുക"</string>
     <string name="domain_urls_summary_some" msgid="2130534984153210797">"<xliff:g id="DOMAIN">%s</xliff:g> ഡൊമെയ്‌നും മറ്റ് URL-കളും തുറക്കുക"</string>
@@ -3803,7 +3803,7 @@
     <string name="system_alert_window_settings" msgid="3024330223417646567">"മറ്റ് ആപ്പുകൾക്ക് മുകളിൽ പ്രദർശിപ്പിക്കുക"</string>
     <string name="system_alert_window_apps_title" msgid="9188448296493699566">"ആപ്സ്"</string>
     <string name="system_alert_window_access_title" msgid="5187343732185369675">"മറ്റ് ആപ്പുകൾക്ക് മുകളിൽ പ്രദർശിപ്പിക്കുക"</string>
-    <string name="permit_draw_overlay" msgid="9039092257052422344">"മറ്റ് ആപ്‌സിന് മുകളിൽ പ്രദർശിക്കുന്നത് അനുവദിക്കുക"</string>
+    <string name="permit_draw_overlay" msgid="9039092257052422344">"മറ്റ് ആപ്പുകൾക്ക് മുകളിൽ പ്രദർശിക്കുന്നത് അനുവദിക്കുക"</string>
     <string name="allow_overlay_description" msgid="6669524816705082807">"നിങ്ങൾ ഉപയോഗിക്കുന്ന മറ്റ് ആപ്പുകൾക്ക് മുകളിൽ ഒരു ആപ്പിനെ ദൃശ്യമാക്കുന്നതിന് ഈ ആപ്പിനെ അനുവദിക്കുക. നിങ്ങൾ ആ ആപ്പുകൾ ഉപയോഗിക്കുന്നതിനെ ഇത് തടസ്സപ്പെടുത്തുകയോ അവ കാണപ്പെടുന്ന അല്ലെങ്കിൽ പെരുമാറുന്ന രീതിയെ മാറ്റുകയോ ചെയ്തേക്കാം."</string>
     <string name="keywords_vr_listener" msgid="5312633527788917750">"vr വെർച്വൽ റിയാലിറ്റി ലിസണർ സ്റ്റീരിയോ സഹായി സേവനം"</string>
     <string name="keywords_system_alert_window" msgid="3936658600272194599">"മറ്റ് ആപ്സിന് മുകളിൽ സിസ്റ്റം അലേർട്ട് വിൻഡോ ഡയലോഗ് പ്രദർശിപ്പിക്കുക"</string>
@@ -4052,7 +4052,7 @@
     <string name="display_cutout_emulation_keywords" msgid="6795671536772871439">"ഡിസ്പ്ലേ കട്ടൗട്ട്, നോച്ച്"</string>
     <string name="overlay_option_device_default" msgid="165508753381657697">"ഉപകരണ ഡിഫോള്‍ട്ട്"</string>
     <string name="overlay_toast_failed_to_apply" msgid="5692251825129250040">"ഓവർലേ പ്രയോഗിക്കുന്നതിൽ പരാജയപ്പെട്ടു"</string>
-    <string name="special_access" msgid="1453926335914696206">"പ്രത്യേക ആപ്പ് ആക്‌സസ്സ്"</string>
+    <string name="special_access" msgid="1453926335914696206">"പ്രത്യേക ആപ്പ് ആക്‌സസ്"</string>
     <plurals name="special_access_summary" formatted="false" msgid="5182092345063909346">
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> ആപ്പുകൾക്ക് നിയന്ത്രണമില്ലാതെ ഡാറ്റ ഉപയോഗിക്കാം</item>
       <item quantity="one">1 ആപ്പിന് നിയന്ത്രണമില്ലാതെ ഡാറ്റ ഉപയോഗിക്കാം</item>
@@ -4107,7 +4107,7 @@
     <string name="deletion_helper_automatic_title" msgid="4370975149425263205">"സ്വയമേവ"</string>
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"മാനുവൽ"</string>
     <string name="deletion_helper_preference_title" msgid="797270307034242206">"ഇപ്പോൾ ഇടം സൃഷ്ടിക്കുക"</string>
-    <string name="gesture_preference_title" msgid="583646591518373785">"ജെസ്‌റ്ററുകൾ"</string>
+    <string name="gesture_preference_title" msgid="583646591518373785">"ജെസ്‌ചറുകൾ"</string>
     <string name="gesture_preference_summary" product="default" msgid="2990736567599191163">"നിങ്ങളുടെ ഫോൺ നിയന്ത്രിക്കുന്നതിനുള്ള ദ്രുത ജെസ്റ്ററുകൾ"</string>
     <string name="gesture_preference_summary" product="tablet" msgid="8303793594714075580">"നിങ്ങളുടെ ടാബ്‌ലെറ്റ് നിയന്ത്രിക്കുന്നതിനുള്ള അതിവേഗ ജെസ്റ്ററുകൾ"</string>
     <string name="gesture_preference_summary" product="device" msgid="7792199669106960922">"നിങ്ങളുടെ ഉപകരണം നിയന്ത്രിക്കുന്നതിനുള്ള അതിവേഗ ജെസ്റ്ററുകൾ"</string>
@@ -4124,7 +4124,7 @@
     <string name="ambient_display_title" product="tablet" msgid="1106285490888683613">"ടാബ്‌ലെറ്റ് പരിശോധിക്കുന്നതിന്, രണ്ടുതവണ ടാപ്പുചെയ്യുക"</string>
     <string name="ambient_display_title" product="device" msgid="5064644474876041478">"ഉപകരണം പരിശോധിക്കുന്നതിന്, രണ്ടുതവണ ടാപ്പുചെയ്യുക"</string>
     <string name="ambient_display_summary" msgid="4882910328216411109">"സമയവും അറിയിപ്പുകളും മറ്റ് വിവരങ്ങളും പരിശോധിക്കുന്നതിന്, നിങ്ങളുടെ സ്ക്രീനിൽ രണ്ട് തവണ ടാപ്പ് ചെയ്യുക."</string>
-    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"പരിശോധിക്കാൻ ഫോണുയർത്തുക"</string>
+    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"പരിശോധിക്കാൻ ഫോണെടുക്കുക"</string>
     <string name="ambient_display_pickup_title" product="tablet" msgid="1555456400210301959">"പരിശോധിക്കുന്നതിന് ടാബ്‌ലെറ്റ് എടുത്തുയർത്തുക"</string>
     <string name="ambient_display_pickup_title" product="device" msgid="2480126522988135037">"പരിശോധിക്കുന്നതിന് ഉപകരണം എടുത്തുയർത്തുക"</string>
     <string name="ambient_display_wake_screen_title" msgid="3376988352851077102">"ഡിസ്‌പ്ലേ സജീവമാക്കുക"</string>
@@ -4155,7 +4155,7 @@
     <string name="instant_apps_settings" msgid="879003203555847537">"ഇൻസ്‌റ്റന്‍റ് ആപ്പ് മുൻഗണനകൾ"</string>
     <string name="domain_url_section_title" msgid="206403507921518321">"ഇൻസ്‌റ്റാൾ ചെയ്‍തിട്ടുള്ള ആപ്പുകൾ"</string>
     <string name="automatic_storage_manager_activation_warning" msgid="2630083316417707308">"നിങ്ങളുടെ സ്റ്റോറേജ് ഇപ്പോൾ മാനേജുചെയ്യുന്നത് സ്റ്റോറേജ് ​​മാനേജരാണ്"</string>
-    <string name="account_for_section_header" msgid="5975241715840642563">"<xliff:g id="USER_NAME">%1$s</xliff:g> എന്ന ഉപയോക്താവിന്റെ അക്കൗണ്ടുകൾ"</string>
+    <string name="account_for_section_header" msgid="5975241715840642563">"<xliff:g id="USER_NAME">%1$s</xliff:g> എന്നയാളുടെ അക്കൗണ്ടുകൾ"</string>
     <string name="configure_section_header" msgid="6988981883075615136">"ക്രമീകരിക്കുക"</string>
     <string name="auto_sync_account_title" msgid="2394463123733529506">"ഡാറ്റ സ്വയം സമന്വയിപ്പിക്കുക"</string>
     <string name="auto_sync_personal_account_title" msgid="6844465157916100655">"വ്യക്തിഗത ഡാറ്റ സ്വയം സമന്വയിപ്പിക്കുക"</string>

@@ -2673,7 +2673,7 @@
     <string name="work_mode_label" msgid="6845849194740195757">"Робочий профіль"</string>
     <string name="work_mode_on_summary" msgid="1682781113156323592">"Профілем керує ваша організація"</string>
     <string name="work_mode_off_summary" msgid="1688885392211178315">"Додатки й сповіщення вимкнено"</string>
-    <string name="remove_managed_profile_label" msgid="4625542553784793536">"Видалити службовий профіль"</string>
+    <string name="remove_managed_profile_label" msgid="4625542553784793536">"Видалити робочий профіль"</string>
     <string name="background_data" msgid="8275750862371471171">"Фонові дані"</string>
     <string name="background_data_summary" msgid="799640633948841990">"Програми можуть будь-коли синхроніз., надсил. й отрим. дані"</string>
     <string name="background_data_dialog_title" msgid="8306650658158895976">"Вимкн. фонові дані?"</string>
@@ -4240,10 +4240,10 @@
       <item quantity="other"><xliff:g id="NUMBER">%s</xliff:g> секунди</item>
     </plurals>
     <string name="automatic_storage_manager_settings" msgid="2403621409625820182">"Керувати сховищем"</string>
-    <string name="automatic_storage_manager_text" msgid="4270379105066667493">"Щоб звільнити місце, диспетчер пам’яті видаляє з пристрою резервні копії фото й відео."</string>
+    <string name="automatic_storage_manager_text" msgid="4270379105066667493">"Щоб звільнити місце, менеджер сховища видаляє з пристрою фото й відео, для яких є резервні копії."</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"Видалити фото й відео"</string>
-    <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"Диспетчер пам’яті"</string>
-    <string name="automatic_storage_manager_master_switch_title" msgid="1456978117739582562">"Використовувати диспетчер пам’яті"</string>
+    <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"Менеджер сховища"</string>
+    <string name="automatic_storage_manager_master_switch_title" msgid="1456978117739582562">"Використовувати менеджер сховища"</string>
     <string name="deletion_helper_automatic_title" msgid="4370975149425263205">"Автоматично"</string>
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"Вручну"</string>
     <string name="deletion_helper_preference_title" msgid="797270307034242206">"Звільнити місце"</string>
@@ -4294,7 +4294,7 @@
     <string name="web_action_section_title" msgid="5563229447734734662">"Додатки з миттєвим запуском"</string>
     <string name="instant_apps_settings" msgid="879003203555847537">"Параметри додатків із миттєвим запуском"</string>
     <string name="domain_url_section_title" msgid="206403507921518321">"Установлені додатки"</string>
-    <string name="automatic_storage_manager_activation_warning" msgid="2630083316417707308">"Зараз пам’яттю керує диспетчер пам’яті"</string>
+    <string name="automatic_storage_manager_activation_warning" msgid="2630083316417707308">"Пам’ять пристрою тепер керується менеджером сховища"</string>
     <string name="account_for_section_header" msgid="5975241715840642563">"Облікові записи (<xliff:g id="USER_NAME">%1$s</xliff:g>)"</string>
     <string name="configure_section_header" msgid="6988981883075615136">"Налаштування"</string>
     <string name="auto_sync_account_title" msgid="2394463123733529506">"Автоматично синхронізувати дані"</string>
@@ -4418,11 +4418,11 @@
     <string name="default_theme" msgid="5986996377385956138">"За умовчанням"</string>
     <string name="show_operator_name_title" msgid="5056163028128447308">"Назва мережі"</string>
     <string name="show_operator_name_summary" msgid="6352180285743777497">"Показувати назву мережі в рядку стану"</string>
-    <string name="storage_manager_indicator" msgid="4255140732848476875">"Диспетчер пам’яті: <xliff:g id="STATUS">^1</xliff:g>"</string>
+    <string name="storage_manager_indicator" msgid="4255140732848476875">"Менеджер сховища: <xliff:g id="STATUS">^1</xliff:g>"</string>
     <string name="storage_manager_indicator_off" msgid="6404056007102580777">"Вимкнено"</string>
     <string name="storage_manager_indicator_on" msgid="5295306384982062320">"Увімкнено"</string>
     <string name="install_type_instant" msgid="6248487669862821874">"Додаток із миттєвим запуском"</string>
-    <string name="automatic_storage_manager_deactivation_warning" msgid="7867793739491286374">"Вимкнути диспетчер пам’яті?"</string>
+    <string name="automatic_storage_manager_deactivation_warning" msgid="7867793739491286374">"Вимкнути менеджер сховища?"</string>
     <string name="storage_movies_tv" msgid="7282484273991655296">"Фільми й серіали"</string>
     <string name="carrier_provisioning" msgid="3309125279191534469">"Інформація про ініціалізацію оператора"</string>
     <string name="trigger_carrier_provisioning" msgid="6284005970057901477">"Активатор ініціалізації оператора"</string>

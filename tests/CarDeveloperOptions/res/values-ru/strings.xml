@@ -2643,8 +2643,8 @@
     <string name="remove_and_uninstall_device_admin" msgid="5607703579731496253">"Отключить и удалить"</string>
     <string name="select_device_admin_msg" msgid="4173769638399075387">"Приложения администратора"</string>
     <string name="no_device_admins" msgid="4129231900385977460">"Нет доступных приложений администратора устройства"</string>
-    <string name="personal_device_admin_title" msgid="759440849188565661">"Личный"</string>
-    <string name="managed_device_admin_title" msgid="8021522755492551726">"Рабочий"</string>
+    <string name="personal_device_admin_title" msgid="759440849188565661">"Личные"</string>
+    <string name="managed_device_admin_title" msgid="8021522755492551726">"Рабочие"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"Ограничение доступа к SMS и списку вызовов"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"Доступ к SMS и списку вызовов есть только у приложений для звонков и обмена сообщениями, используемых по умолчанию"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"Нет агентов доверия."</string>

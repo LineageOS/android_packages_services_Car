@@ -85,7 +85,7 @@
     <item msgid="8058143476674427024">"Inaunganisha kwa <xliff:g id="NETWORK_NAME">%1$s</xliff:g>…"</item>
     <item msgid="7547609081339573756">"Uhalalishaji kwa <xliff:g id="NETWORK_NAME">%1$s</xliff:g>…"</item>
     <item msgid="5145158315060185414">"Kupata anwani ya IP kutoka <xliff:g id="NETWORK_NAME">%1$s</xliff:g>…"</item>
-    <item msgid="3283243151651124831">" Umeunganishwa kwa<xliff:g id="NETWORK_NAME">%1$s</xliff:g>"</item>
+    <item msgid="3283243151651124831">"Umeunganishwa kwenye <xliff:g id="NETWORK_NAME">%1$s</xliff:g>"</item>
     <item msgid="6600156231416890902">"Imetanguliwa"</item>
     <item msgid="4133290864821295785">"inakatisha muunganisho kutoka <xliff:g id="NETWORK_NAME">%1$s</xliff:g>…"</item>
     <item msgid="3980154971187953257">"Haijaunganishwa"</item>

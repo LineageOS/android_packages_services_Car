@@ -1610,7 +1610,7 @@
     <string name="master_clear_progress_text" msgid="5418958116008976218">"Veuillez patienter..."</string>
     <string name="call_settings_title" msgid="5033906789261282752">"Paramètres d\'appel"</string>
     <string name="call_settings_summary" msgid="2119161087671450035">"Messagerie vocale, transferts d\'appel, mise en attente, numéro de l\'appelant"</string>
-    <string name="tether_settings_title_usb" msgid="4265582654602420357">"Partage connexion Bluetooth par USB"</string>
+    <string name="tether_settings_title_usb" msgid="4265582654602420357">"Partage de connexion via USB"</string>
     <string name="tether_settings_title_wifi" msgid="2060965130234484613">"Point d\'accès Wi-Fi mobile"</string>
     <string name="tether_settings_title_bluetooth" msgid="1999590158102569959">"Partage connexion Bluetooth"</string>
     <string name="tether_settings_title_usb_bluetooth" msgid="1159128764162788159">"Partage de connexion"</string>
@@ -3520,7 +3520,7 @@
     <string name="zen_mode_starred_callers" msgid="1317376207713013472">"contacts favoris"</string>
     <string name="zen_mode_repeat_callers" msgid="1435309867554692340">"Appels répétés"</string>
     <string name="zen_mode_repeat_callers_list" msgid="2750270907597457279">"appelants fréquents"</string>
-    <string name="zen_mode_repeat_callers_title" msgid="7192952181541813487">"Autoriser les appelants fréquents"</string>
+    <string name="zen_mode_repeat_callers_title" msgid="7192952181541813487">"Autoriser les appels répétés"</string>
     <string name="zen_mode_calls_summary_one" msgid="8327371053236689649">"Autoriser les appels de <xliff:g id="CALLER_TYPE">%1$s</xliff:g>"</string>
     <string name="zen_mode_calls_summary_two" msgid="9017678770532673578">"Autoriser les appels de <xliff:g id="CALLER_TYPE">%1$s</xliff:g> et <xliff:g id="CALLERT_TPYE">%2$s</xliff:g>"</string>
     <string name="zen_mode_repeat_callers_summary" msgid="1752513516040525545">"Si la même personne appelle deux fois en <xliff:g id="MINUTES">%d</xliff:g> minutes"</string>
@@ -4131,7 +4131,7 @@
     <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"Pour afficher l\'heure, les notifications et d\'autres informations, saisissez votre téléphone."</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"Pour afficher l\'heure, les notifications et d\'autres informations, saisissez votre tablette."</string>
     <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"Pour afficher l\'heure, les notifications et d\'autres informations, saisissez votre appareil."</string>
-    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Appuyer pour vérifier le téléphone"</string>
+    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Appuyer pour consulter le téléphone"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Appuyer pour vérifier la tablette"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Appuyer pour vérifier l\'appareil"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Pour afficher l\'heure, les notifications et d\'autres informations, appuyez sur l\'écran."</string>

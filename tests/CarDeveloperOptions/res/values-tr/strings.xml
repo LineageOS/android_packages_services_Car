@@ -2298,8 +2298,8 @@
       <item quantity="one">%1$s yakın zamanda kısıtlandı</item>
     </plurals>
     <plurals name="battery_tip_restrict_summary" formatted="false" msgid="984148373944071669">
-      <item quantity="other">%2$d uygulama yüksek düzeyde arka plan pil kullanımına yol açıyor</item>
-      <item quantity="one">%1$s yüksek düzeyde arka plan pil kullanımına yol açıyor</item>
+      <item quantity="other">%2$d uygulama arka planda yüksek düzeyde pil kullanıyor</item>
+      <item quantity="one">%1$s arka planda yüksek düzeyde pil kullanıyor</item>
     </plurals>
     <plurals name="battery_tip_restrict_handled_summary" formatted="false" msgid="469696766640020557">
       <item quantity="other">Bu uygulamalar arka planda çalışamaz</item>

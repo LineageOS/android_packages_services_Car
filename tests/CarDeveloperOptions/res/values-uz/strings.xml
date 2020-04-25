@@ -889,7 +889,7 @@
     <string name="wifi_menu_forget" msgid="7561140554450163075">"Tarmoqni o‘chirish"</string>
     <string name="wifi_menu_modify" msgid="4080178040721021101">"Tarmoqni o‘zgartirish"</string>
     <string name="wifi_empty_list_wifi_off" msgid="272877164691346240">"Mavjud tarmoqlarni ko‘rish uchun Wi‑Fi aloqasini yoqing."</string>
-    <string name="wifi_empty_list_wifi_on" msgid="881478805041020600">"Wi‑Fi tarmoqlarini qidirmoqda…"</string>
+    <string name="wifi_empty_list_wifi_on" msgid="881478805041020600">"Wi‑Fi tarmoqlar qidirilmoqda…"</string>
     <string name="wifi_empty_list_user_restricted" msgid="2341613007817352431">"Sizda Wi‑Fi tarmog‘ini o‘zgartirishga ruxsatingiz yo‘q."</string>
     <string name="wifi_more" msgid="3538241640407382185">"Yana"</string>
     <string name="wifi_setup_wps" msgid="6730131677695521321">"Avtomatik ravishda sozlash (WPS)"</string>
@@ -2612,7 +2612,7 @@
     <string name="sync_active" msgid="1112604707180806364">"Sinxronlash faol"</string>
     <string name="account_sync_settings_title" msgid="3344538161552327748">"Sinxronlash"</string>
     <string name="sync_is_failing" msgid="8284618104132302644">"Sinxronizatsiyada muammo bor. Tez orada qayta tiklanadi."</string>
-    <string name="add_account_label" msgid="4461298847239641874">"Hisob qo‘shish"</string>
+    <string name="add_account_label" msgid="4461298847239641874">"Hisob kiritish"</string>
     <string name="managed_profile_not_available_label" msgid="8784246681719821917">"Ishchi profil hali mavjud emas"</string>
     <string name="work_mode_label" msgid="6845849194740195757">"Ishchi profil"</string>
     <string name="work_mode_on_summary" msgid="1682781113156323592">"Tashkilotingiz tomonidan boshqariladi"</string>
@@ -4493,7 +4493,7 @@
     <string name="privacy_dashboard_title" msgid="8764930992456607513">"Maxfiylik"</string>
     <string name="privacy_dashboard_summary" msgid="7916431309860824945">"Ruxsatlar, hisobdagi harakatlar, shaxsiy axborotlar"</string>
     <string name="contextual_card_dismiss_remove" msgid="1750420285615827309">"Olib tashlansin"</string>
-    <string name="contextual_card_dismiss_keep" msgid="3204450672928193661">"Saqlansin"</string>
+    <string name="contextual_card_dismiss_keep" msgid="3204450672928193661">"Saqlab qolinsin"</string>
     <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"Bu tavsiya olib tashlansinmi?"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"Taklif olib tashlandi"</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"Qaytarish"</string>

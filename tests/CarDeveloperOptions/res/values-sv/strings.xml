@@ -2281,7 +2281,7 @@
     <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"Batteriet kan ta slut snabbare än vanligt"</string>
     <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"Batterisparläget är aktiverat"</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"Vissa funktioner kan begränsas"</string>
-    <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"Mobilen används mer än vanligt"</string>
+    <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"Telefonen används mer än vanligt"</string>
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"Surfplattan används mer än vanligt"</string>
     <string name="battery_tip_high_usage_title" product="device" msgid="8304138287288309490">"Enheten används mer än vanligt"</string>
     <string name="battery_tip_high_usage_summary" msgid="5514749872957528189">"Batteriet kan ta slut snabbare än vanligt"</string>
@@ -3201,7 +3201,7 @@
     <string name="zen_mode_restrict_notifications_mute_footer" msgid="3049522809520549054">"Inga ljud eller vibrationer används när du tar emot aviseringar på mobilen."</string>
     <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"Inga synliga eller hörbara aviseringar"</string>
     <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"Aviseringar varken syns eller hörs"</string>
-    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"Mobilen visar inte nya eller befintliga aviseringar och varken vibrerar eller låter. Viktiga aviseringar för aktivitet och status för mobilen visas fortfarande.\n\nNär du inaktiverar Stör ej kan du visa dina aviseringar genom att svepa nedåt från skärmens överkant."</string>
+    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"Telefonen visar inte nya eller befintliga aviseringar och varken vibrerar eller låter. Viktiga aviseringar för aktivitet och status för telefonen visas fortfarande.\n\nNär du inaktiverar Stör ej kan du visa dina aviseringar genom att svepa nedåt från skärmens överkant."</string>
     <string name="zen_mode_restrict_notifications_custom" msgid="3167252482570424133">"Anpassa"</string>
     <string name="zen_mode_restrict_notifications_enable_custom" msgid="6376983315529894440">"Aktivera anpassad inställning"</string>
     <string name="zen_mode_restrict_notifications_disable_custom" msgid="8004212081465043044">"Ta bort anpassad inställning"</string>

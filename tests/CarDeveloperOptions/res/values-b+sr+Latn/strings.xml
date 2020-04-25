@@ -1658,7 +1658,7 @@
     <string name="sms_change_default_no_previous_dialog_text" msgid="4680224695080527907">"Želite li da koristite <xliff:g id="NEW_APP">%s</xliff:g> kao aplikaciju za SMS?"</string>
     <string name="network_scorer_picker_title" msgid="1691073966560952916">"Dobavljač ocene mreže"</string>
     <string name="network_scorer_picker_none_preference" msgid="6448280557733231737">"Ništa"</string>
-    <string name="network_scorer_change_active_dialog_title" msgid="4274159562371475090">"Želite da promenite Wi‑Fi assistant-a?"</string>
+    <string name="network_scorer_change_active_dialog_title" msgid="4274159562371475090">"Želite da promenite Wi‑Fi pomoćnik?"</string>
     <string name="network_scorer_change_active_dialog_text" msgid="4264089809189760730">"Želite li da koristite aplikaciju <xliff:g id="NEW_APP">%1$s</xliff:g> umesto aplikacije <xliff:g id="CURRENT_APP">%2$s</xliff:g> za upravljanje mrežnim vezama?"</string>
     <string name="network_scorer_change_active_no_previous_dialog_text" msgid="6394483538843474495">"Želite li da koristite aplikaciju <xliff:g id="NEW_APP">%s</xliff:g> za upravljanje mrežnim vezama?"</string>
     <string name="mobile_unknown_sim_operator" msgid="872589370085135817">"Nepoznati SIM operater"</string>
@@ -2306,7 +2306,7 @@
     <string name="battery_tip_smart_battery_title" product="tablet" msgid="203494973250969040">"Produžite trajanje baterije tableta"</string>
     <string name="battery_tip_smart_battery_title" product="device" msgid="7419448992583346364">"Produžite trajanje baterije uređaja"</string>
     <string name="battery_tip_smart_battery_summary" msgid="5344821856478265778">"Uključite menadžer baterije"</string>
-    <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"Uključi uštedu baterije"</string>
+    <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"Uključite uštedu baterije"</string>
     <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"Baterija može da se isprazni ranije nego obično"</string>
     <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"Ušteda baterije je uključena"</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"Neke funkcije mogu da budu ograničene"</string>
@@ -3255,10 +3255,10 @@
     <string name="zen_mode_block_effects_screen_off" msgid="6380935819882837552">"Kada je ekran isključen"</string>
     <string name="zen_mode_block_effect_sound" msgid="1499243540186357631">"Isključi zvuk i vibraciju"</string>
     <string name="zen_mode_block_effect_intent" msgid="5666951244667422668">"Ne uključuj ekran"</string>
-    <string name="zen_mode_block_effect_light" msgid="8679333758037487644">"Ne koristi treperenje lampice"</string>
+    <string name="zen_mode_block_effect_light" msgid="8679333758037487644">"Ne treperi lampicom"</string>
     <string name="zen_mode_block_effect_peek" msgid="6075662813575910221">"Ne prikazuj iskačuća obaveštenja na ekranu"</string>
     <string name="zen_mode_block_effect_status" msgid="6516614225115681068">"Sakrij ikone statusne trake u vrhu"</string>
-    <string name="zen_mode_block_effect_badge" msgid="3891743027347075136">"Sakrij tačke za obav. na ikonama apl."</string>
+    <string name="zen_mode_block_effect_badge" msgid="3891743027347075136">"Sakrij tačke za obaveštenja na ikonama aplikacija"</string>
     <string name="zen_mode_block_effect_ambient" msgid="6382013125863616197">"Ne budi zbog obaveštenja"</string>
     <string name="zen_mode_block_effect_list" msgid="6081548478844912181">"Ne prikazuj na listi obaveštenja"</string>
     <string name="zen_mode_block_effect_summary_none" msgid="7166175186759564510">"Nikad"</string>
@@ -3316,7 +3316,7 @@
     <string name="zen_custom_settings_notifications_header" msgid="7469592764589354302">"Obaveštenja"</string>
     <string name="zen_custom_settings_duration_header" msgid="1806465684026300942">"Trajanje"</string>
     <string name="zen_msg_event_reminder_title" msgid="8685224436389816905">"Poruke, događaji i podsetnici"</string>
-    <string name="zen_msg_event_reminder_footer" msgid="164400918479831580">"Kada je uključen režim Ne uznemiravaj, zvukovi obaveštenja za poruke, podsetnike i događaje će biti isključeni, osim za stavke koje ste dozvolili iznad. Možete da prilagodite podešavanja da biste dozvolili prijateljima, članovima porodice ili drugim kontaktima da vas kontaktiraju."</string>
+    <string name="zen_msg_event_reminder_footer" msgid="164400918479831580">"Kada je uključen režim Ne uznemiravaj, zvukovi obaveštenja za poruke, podsetnike i događaje će biti isključeni, osim za stavke koje ste dozvolili iznad. Možete da prilagodite podešavanja i dozvolite prijateljima, članovima porodice ili drugim kontaktima da dopru do vas."</string>
     <string name="zen_onboarding_ok" msgid="6403635918125323678">"Gotovo"</string>
     <string name="zen_onboarding_settings" msgid="1416466597876383322">"Podešavanja"</string>
     <string name="zen_onboarding_new_setting_title" msgid="3622673375041304362">"Bez zvučnog signala ili vizuelnog obaveštenja"</string>
@@ -3528,7 +3528,7 @@
     <string name="zen_mode_calls" msgid="1844534357711539325">"Dozvoli pozive"</string>
     <string name="zen_mode_calls_title" msgid="2024387562355793661">"Pozivi"</string>
     <string name="zen_mode_calls_footer" msgid="6319824006810688433">"Da biste bili sigurni da će se dozvoljeni pozivi čuti, proverite da li je uređaj podešen da zvoni, vibrira ili je u nečujnom režimu."</string>
-    <string name="zen_mode_custom_calls_footer" msgid="7329231648477682337">"Dolazni pozivi su blokirani za „<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>“. Možete da prilagodite podešavanja da biste dozvolili prijateljima, članovima porodice ili drugim kontaktima da vas kontaktiraju."</string>
+    <string name="zen_mode_custom_calls_footer" msgid="7329231648477682337">"Dolazni pozivi su blokirani za „<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>“. Možete da prilagodite podešavanja i dozvolite prijateljima, članovima porodice ili drugim kontaktima da dopru do vas."</string>
     <string name="zen_mode_starred_contacts_title" msgid="7099621384597127058">"Kontakti sa zvezdicom"</string>
     <plurals name="zen_mode_starred_contacts_summary_additional_contacts" formatted="false" msgid="1904181007981570805">
       <item quantity="one">Još <xliff:g id="NUM_PEOPLE">%d</xliff:g> osoba</item>
@@ -3537,7 +3537,7 @@
     </plurals>
     <string name="zen_mode_messages" msgid="2908722562188394107">"Dozvoli poruke"</string>
     <string name="zen_mode_messages_footer" msgid="5048951937714668561">"Da biste bili sigurni da će se dozvoljene poruke čuti, proverite da li je uređaj podešen da zvoni, vibrira ili je u nečujnom režimu."</string>
-    <string name="zen_mode_custom_messages_footer" msgid="5566007423100361691">"Dolazne poruke su blokirane za „<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>“. Možete da prilagodite podešavanja da biste dozvolili prijateljima, članovima porodice ili drugim kontaktima da vas kontaktiraju."</string>
+    <string name="zen_mode_custom_messages_footer" msgid="5566007423100361691">"Dolazne poruke su blokirane za „<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>“. Možete da prilagodite podešavanja i dozvolite prijateljima, članovima porodice ili drugim kontaktima da dopru do vas."</string>
     <string name="zen_mode_messages_title" msgid="786261471294055181">"SMS, MMS i aplikacije za razmenu poruka"</string>
     <string name="zen_mode_from_anyone" msgid="7778836826814131083">"Od bilo koga"</string>
     <string name="zen_mode_from_contacts" msgid="267034158294332688">"Samo od kontakata"</string>
@@ -3545,7 +3545,7 @@
     <string name="zen_calls_summary_starred_repeat" msgid="9191394641577678207">"Od kontakata sa zvezdicom i ponovnih pozivalaca"</string>
     <string name="zen_calls_summary_contacts_repeat" msgid="7747592096431111510">"Od kontakata i ponovnih pozivalaca"</string>
     <string name="zen_calls_summary_repeat_only" msgid="8839703337232747964">"Samo od ponovnih pozivalaca"</string>
-    <string name="zen_mode_from_none" msgid="7683889985618637010">"Ni od koga"</string>
+    <string name="zen_mode_from_none" msgid="7683889985618637010">"Niko"</string>
     <string name="zen_mode_from_none_calls" msgid="2967739140346917546">"Ne dozvoli pozive"</string>
     <string name="zen_mode_from_none_messages" msgid="9069143820057833634">"Ne dozvoljavaj nikakve poruke"</string>
     <string name="zen_mode_alarms" msgid="5528707742250954290">"Dozvoli alarme"</string>

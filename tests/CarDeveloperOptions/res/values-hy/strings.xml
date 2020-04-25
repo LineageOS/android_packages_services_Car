@@ -99,7 +99,7 @@
     <string name="bluetooth_visibility_timeout" msgid="4804679276398564496">"Տեսանելիության ժամանակի սպառում"</string>
     <string name="bluetooth_lock_voice_dialing" msgid="1600385868298081015">"Կողպել ձայնային համարհավաքումը"</string>
     <string name="bluetooth_lock_voice_dialing_summary" msgid="5005776616112427980">"Կանխել Bluetooth համարհավաքչի օգտագործումը, երբ էկրանը կողպված է"</string>
-    <string name="bluetooth_devices" msgid="4143880830505625666">"Bluetooth-ով սարքեր"</string>
+    <string name="bluetooth_devices" msgid="4143880830505625666">"Bluetooth սարքեր"</string>
     <string name="bluetooth_device_name" msgid="3682016026866302981">"Սարքի անունը"</string>
     <string name="bluetooth_device_details" msgid="2500840679106321361">"Սարքի կարգավորումներ"</string>
     <string name="bluetooth_profile_details" msgid="1785505059738682493">"Պրոֆիլի կարգավորումներ"</string>
@@ -889,7 +889,7 @@
     <string name="wifi_menu_forget" msgid="7561140554450163075">"Մոռանալ ցանցը"</string>
     <string name="wifi_menu_modify" msgid="4080178040721021101">"Փոփոխել ցանցը"</string>
     <string name="wifi_empty_list_wifi_off" msgid="272877164691346240">"Հասանելի ցանցերը տեսնելու համար միացրեք Wi‑Fi-ը:"</string>
-    <string name="wifi_empty_list_wifi_on" msgid="881478805041020600">"Wi‑Fi ցանցերը փնտրվում են…"</string>
+    <string name="wifi_empty_list_wifi_on" msgid="881478805041020600">"Որոնում ենք Wi-Fi ցանցեր…"</string>
     <string name="wifi_empty_list_user_restricted" msgid="2341613007817352431">"Դուք թույլտվություն չունեք փոխելու Wi‑Fi-ի ցանցը:"</string>
     <string name="wifi_more" msgid="3538241640407382185">"Ավելին"</string>
     <string name="wifi_setup_wps" msgid="6730131677695521321">"Ավտոմատ կարգավորում (WPS)"</string>
@@ -3151,7 +3151,7 @@
     <string name="screen_locking_sounds_title" msgid="4407110895465866809">"Էկրանի կողպման ձայներ"</string>
     <string name="charging_sounds_title" msgid="5070437987230894287">"Լիցքավորման ձայներ և թրթռոց"</string>
     <string name="docking_sounds_title" msgid="2573137471605541366">"Միակցման ձայներ"</string>
-    <string name="touch_sounds_title" msgid="165237488496165652">"Հպման ձայներ"</string>
+    <string name="touch_sounds_title" msgid="165237488496165652">"Հպում"</string>
     <string name="vibrate_on_touch_title" msgid="6360155469279157684">"Թրթռոց հպելիս"</string>
     <string name="vibrate_on_touch_summary" msgid="5504424764028676043">"Թրթռալ՝ կոճակները, ստեղները սեղմելու և այլ գործողությունների դեպքում"</string>
     <string name="dock_audio_media_title" msgid="1859521680502040781">"Նվագարկել միակցիչի բարձրախոսով"</string>
@@ -3479,7 +3479,7 @@
     <string name="summary_range_verbal_combination" msgid="8799629589758200970">"<xliff:g id="START">%1$s</xliff:g>-ից <xliff:g id="END">%2$s</xliff:g>"</string>
     <string name="zen_mode_calls" msgid="1844534357711539325">"Թույլատրել զանգերը"</string>
     <string name="zen_mode_calls_title" msgid="2024387562355793661">"Զանգեր"</string>
-    <string name="zen_mode_calls_footer" msgid="6319824006810688433">"Համոզվելու, որ թույլատրված զանգերը կազդանշվեն, ստուգեք՝ արդյոք սարքում միացված է զանգը կամ թրթռոցը, թե լռեցված է:"</string>
+    <string name="zen_mode_calls_footer" msgid="6319824006810688433">"Համոզվելու, որ թույլատրված զանգերը կազդանշվեն, ստուգեք՝ արդյոք սարքում միացված է զանգի ձայնը կամ թրթռոցը, թե լռեցված է:"</string>
     <string name="zen_mode_custom_calls_footer" msgid="7329231648477682337">"«<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>» կանոնի համար մուտքային զանգերն արգելափակված են: Փոխեք կարգավորումները, որպեսզի ձեր մտերիմները և այլ կոնտակտներ կարողանան կապվել ձեզ հետ:"</string>
     <string name="zen_mode_starred_contacts_title" msgid="7099621384597127058">"Աստղանշված կոնտակտներ"</string>
     <plurals name="zen_mode_starred_contacts_summary_additional_contacts" formatted="false" msgid="1904181007981570805">
@@ -3487,7 +3487,7 @@
       <item quantity="other">Եվս <xliff:g id="NUM_PEOPLE">%d</xliff:g> կոնտակտ</item>
     </plurals>
     <string name="zen_mode_messages" msgid="2908722562188394107">"Թույլատրել SMS"</string>
-    <string name="zen_mode_messages_footer" msgid="5048951937714668561">"Համոզվելու, որ թույլատրված հաղորդագրությունները կազդանշվեն, ստուգեք՝ արդյոք սարքում միացված է զանգը կամ թրթռոցը, թե լռեցված է:"</string>
+    <string name="zen_mode_messages_footer" msgid="5048951937714668561">"Համոզվելու, որ թույլատրված հաղորդագրությունները կազդանշվեն, ստուգեք՝ արդյոք սարքում միացված է զանգի ձայնը կամ թրթռոցը, թե լռեցված է:"</string>
     <string name="zen_mode_custom_messages_footer" msgid="5566007423100361691">"«<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>» կանոնի համար մուտքային հաղորդագրություններն արգելափակված են: Փոխեք կարգավորումները, որպեսզի ձեր մտերիմները և այլ կոնտակտներ կարողանան կապվել ձեզ հետ:"</string>
     <string name="zen_mode_messages_title" msgid="786261471294055181">"SMS, MMS և հաղորդագրման հավելվածներ"</string>
     <string name="zen_mode_from_anyone" msgid="7778836826814131083">"Բոլորից"</string>
@@ -3509,7 +3509,7 @@
     <string name="zen_mode_reminders_list" msgid="7347061314032326677">"հիշեցումներ"</string>
     <string name="zen_mode_events" msgid="5784076928339534984">"Թույլատրել միջոցառումները"</string>
     <string name="zen_mode_bypassing_apps" msgid="3080739479028713449">"Թույլատրել հավելվածներին փոխել «Չանհանգստացնել» ռեժիմի կարգավորումները"</string>
-    <string name="zen_mode_bypassing_apps_title" msgid="2115024664615538847">"Հավելվածների ընդլայնումներ"</string>
+    <string name="zen_mode_bypassing_apps_title" msgid="2115024664615538847">"Հավելվածների բացառություններ"</string>
     <plurals name="zen_mode_bypassing_apps_subtext" formatted="false" msgid="8723144434730871572">
       <item quantity="one"><xliff:g id="NUMBER">%1$d</xliff:g> հավելվածի ծանուցումները կարող են փոխել «Չանհանգստացնել» ռեժիմի կարգավորումները</item>
       <item quantity="other"><xliff:g id="NUMBER">%1$d</xliff:g> հավելվածի ծանուցումները կարող են փոխել «Չանհանգստացնել» ռեժիմի կարգավորումները</item>

@@ -2299,7 +2299,7 @@
     </plurals>
     <plurals name="battery_tip_restrict_summary" formatted="false" msgid="984148373944071669">
       <item quantity="other">%2$d aplicacions consumeixen molta bateria en segon pla</item>
-      <item quantity="one">%1$s aplicació consumeix molta bateria en segon pla</item>
+      <item quantity="one">%1$s consumeix molta bateria en segon pla</item>
     </plurals>
     <plurals name="battery_tip_restrict_handled_summary" formatted="false" msgid="469696766640020557">
       <item quantity="other">Aquestes aplicacions no es poden executar en segon pla</item>
@@ -3233,7 +3233,7 @@
     <string name="zen_mode_button_turn_on" msgid="1097964136225943415">"Activa ara"</string>
     <string name="zen_mode_button_turn_off" msgid="3990967728457149454">"Desactiva ara"</string>
     <string name="zen_mode_settings_dnd_manual_end_time" msgid="4307574188962071429">"El mode No molestis està activat fins a les <xliff:g id="FORMATTED_TIME">%s</xliff:g>"</string>
-    <string name="zen_mode_settings_dnd_manual_indefinite" msgid="3701005376825238752">"El mode No molestis continuarà activat fins que no el desactivis"</string>
+    <string name="zen_mode_settings_dnd_manual_indefinite" msgid="3701005376825238752">"El mode No molestis es manté activat fins que no el desactivis"</string>
     <string name="zen_mode_settings_dnd_automatic_rule" msgid="2843297614114625408">"Una programació (<xliff:g id="RULE_NAME">%s</xliff:g>) ha activat automàticament el mode No molestis"</string>
     <string name="zen_mode_settings_dnd_automatic_rule_app" msgid="5103454923160912313">"Una aplicació (<xliff:g id="APP_NAME">%s</xliff:g>) ha activat automàticament el mode No molestis"</string>
     <string name="zen_mode_settings_dnd_custom_settings_footer" msgid="6335108298640066560">"El mode No molestis està activat per a <xliff:g id="RULE_NAMES">%s</xliff:g> amb una configuració personalitzada."</string>
@@ -3859,10 +3859,10 @@
     <string name="apps_summary" msgid="8355759446490212195">"S\'han instal·lat <xliff:g id="COUNT">%1$d</xliff:g> aplicacions"</string>
     <string name="apps_summary_example" msgid="3011143598675185269">"24 aplicacions instal·lades"</string>
     <string name="storage_summary" msgid="4835916510511133784">"<xliff:g id="PERCENTAGE">%1$s</xliff:g> utilitzat - <xliff:g id="FREE_SPACE">%2$s</xliff:g> lliures"</string>
-    <string name="storage_summary_with_sdcard" msgid="8742907204848352697">"Emmagatzematge intern: <xliff:g id="PERCENTAGE">%1$s</xliff:g> utilitzat, <xliff:g id="FREE_SPACE">%2$s</xliff:g> lliure"</string>
+    <string name="storage_summary_with_sdcard" msgid="8742907204848352697">"Emmagatzematge intern: <xliff:g id="PERCENTAGE">%1$s</xliff:g> utilitzat, <xliff:g id="FREE_SPACE">%2$s</xliff:g> lliures"</string>
     <string name="display_summary" msgid="5725269449657325797">"Entra en repòs després de <xliff:g id="TIMEOUT_DESCRIPTION">%1$s</xliff:g> d\'inactivitat"</string>
     <string name="display_dashboard_summary" msgid="7678566148167010682">"Fons de pantalla, repòs, mida de la lletra"</string>
-    <string name="display_dashboard_summary_with_style" msgid="8981059474501210956">"Estils i fons de pantalla, repòs, mida de la lletra"</string>
+    <string name="display_dashboard_summary_with_style" msgid="8981059474501210956">"Estils i fons de pantalla, repòs, mida del tipus de lletra"</string>
     <string name="display_dashboard_nowallpaper_summary" msgid="8612534364908229000">"Repòs, mida de la lletra"</string>
     <string name="display_summary_example" msgid="4555020581960719296">"Entra en repòs després de 10 minuts d\'inactivitat"</string>
     <string name="memory_summary" msgid="9121871336058042600">"Ús mitjà de memòria: <xliff:g id="USED_MEMORY">%1$s</xliff:g> de <xliff:g id="TOTAL_MEMORY">%2$s</xliff:g>"</string>
@@ -4477,7 +4477,7 @@
     <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"Vols suprimir aquest suggeriment?"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"S\'ha suprimit el suggeriment"</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"Desfés"</string>
-    <string name="low_storage_summary" msgid="4562224870189133400">"Queda poc espai d\'emmagatzematge: <xliff:g id="PERCENTAGE">%1$s</xliff:g> utilitzat; <xliff:g id="FREE_SPACE">%2$s</xliff:g> lliure"</string>
+    <string name="low_storage_summary" msgid="4562224870189133400">"Queda poc espai d\'emmagatzematge: <xliff:g id="PERCENTAGE">%1$s</xliff:g> utilitzat; <xliff:g id="FREE_SPACE">%2$s</xliff:g> lliures"</string>
     <string name="contextual_card_feedback_send" msgid="8698649023854350623">"Envia suggeriments"</string>
     <string name="contextual_card_feedback_confirm_message" msgid="3987973028353264878">"Vols enviar-nos algun comentari sobre aquest suggeriment?"</string>
     <string name="copyable_slice_toast" msgid="1357518174923789947">"S\'ha copiat <xliff:g id="COPY_CONTENT">%1$s</xliff:g> al porta-retalls."</string>

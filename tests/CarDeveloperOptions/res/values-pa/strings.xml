@@ -363,7 +363,7 @@
     <string name="owner_info_settings_summary" msgid="4208702251226725583">"ਕੋਈ ਨਹੀਂ"</string>
     <string name="owner_info_settings_status" msgid="8049975536717685126">"<xliff:g id="COUNT_0">%1$d</xliff:g> / <xliff:g id="COUNT_1">%2$d</xliff:g>"</string>
     <string name="owner_info_settings_edit_text_hint" msgid="2250029417257939706">"ਉਦਾਹਰਨ ਵਜੋਂ, ਜੋਏ ਦਾ Android."</string>
-    <string name="user_info_settings_title" msgid="1125111518759995748">"ਉਪਭੋਗਤਾ ਜਾਣਕਾਰੀ"</string>
+    <string name="user_info_settings_title" msgid="1125111518759995748">"ਵਰਤੋਂਕਾਰ ਜਾਣਕਾਰੀ"</string>
     <string name="show_profile_info_on_lockscreen_label" msgid="5204282771893683026">" ਲਾਕ  ਸਕ੍ਰੀਨ ਤੇ ਪ੍ਰੋਫਾਈਲ ਜਾਣਕਾਰੀ ਦਿਖਾਓ"</string>
     <string name="profile_info_settings_title" msgid="4855892878512562551">"ਪ੍ਰੋਫਾਈਲ ਜਾਣਕਾਰੀ"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"ਖਾਤੇ"</string>
@@ -1170,7 +1170,7 @@
     <string name="accessibility_personal_account_title" msgid="7251761883688839354">"ਨਿੱਜੀ ਖਾਤਾ - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
     <string name="search_settings" msgid="5809250790214921377">"ਖੋਜੋ"</string>
     <string name="display_settings" msgid="1045535829232307190">"ਡਿਸਪਲੇ"</string>
-    <string name="accelerometer_title" msgid="2427487734964971453">"ਸਕ੍ਰੀਨ ਆਪਣੇ-ਆਪ ਘੁੰਮਾਓ"</string>
+    <string name="accelerometer_title" msgid="2427487734964971453">"ਸਕ੍ਰੀਨ ਸਵੈ-ਘੁਮਾਓ"</string>
     <string name="color_mode_title" msgid="8164858320869449142">"ਰੰਗ"</string>
     <string name="color_mode_option_natural" msgid="1292837781836645320">"ਕੁਦਰਤੀ"</string>
     <string name="color_mode_option_boosted" msgid="453557938434778933">"ਵਧਾਇਆ ਗਿਆ"</string>
@@ -1254,7 +1254,7 @@
     <string name="screensaver_settings_summary_off" msgid="6119947316484763131">"ਬੰਦ"</string>
     <string name="screensaver_settings_disabled_prompt" msgid="1897518064782596947">"ਇਹ ਕੰਟਰੋਲ ਕਰਨ ਲਈ ਕਿ ਜਦੋਂ ਫ਼ੋਨ ਡੌਕ ਕੀਤਾ ਅਤੇ/ਜਾਂ ਸਲੀਪ ਮੋਡ ਵਿੱਚ ਹੁੰਦਾ ਹੈ ਉਦੋਂ ਕੀ ਹੁੰਦਾ ਹੈ, ਸਕ੍ਰੀਨ ਸੇਵਰ ਚਾਲੂ ਕਰੋ।"</string>
     <string name="screensaver_settings_when_to_dream" msgid="3763052013516826348">"ਕਦੋਂ ਸ਼ੁਰੂ ਕਰਨਾ ਹੈ"</string>
-    <string name="screensaver_settings_current" msgid="4017556173596361672">"ਵਰਤਮਾਨ ਸਕ੍ਰੀਨ ਸੇਵਰ"</string>
+    <string name="screensaver_settings_current" msgid="4017556173596361672">"ਮੌਜੂਦਾ ਸਕ੍ਰੀਨ ਸੇਵਰ"</string>
     <string name="screensaver_settings_dream_start" msgid="3772227299054662550">"ਹੁਣੇ ਚਾਲੂ ਕਰੋ"</string>
     <string name="screensaver_settings_button" msgid="4662384378821837589">"ਸੈਟਿੰਗਾਂ"</string>
     <string name="automatic_brightness" msgid="8663792987774126192">"ਸਵੈਚਲਿਤ ਚਮਕ"</string>
@@ -1317,7 +1317,7 @@
     <string name="hardware_revision" msgid="3315744162524354246">"ਹਾਰਡਵੇਅਰ ਵਰਜਨ"</string>
     <string name="fcc_equipment_id" msgid="8681995718533066093">"ਉਪਕਰਨ ਆਈ.ਡੀ."</string>
     <string name="baseband_version" msgid="9115560821840757786">"ਬੇਸਬੈਂਡ ਵਰਜਨ"</string>
-    <string name="kernel_version" msgid="8226014277756019297">"Kernel ਵਰਜਨ"</string>
+    <string name="kernel_version" msgid="8226014277756019297">"ਕਰਨਲ ਵਰਜਨ"</string>
     <string name="build_number" msgid="8648447688306248633">"ਬਿਲਡ ਨੰਬਰ"</string>
     <string name="module_version" msgid="1127871672527968730">"ਮੁੱਖ ਮਾਡਿਊਲ ਵਰਜਨ"</string>
     <string name="device_info_not_available" msgid="3762481874992799474">"ਉਪਲਬਧ ਨਹੀਂ ਹੈ"</string>
@@ -1360,7 +1360,7 @@
     <string name="status_wifi_mac_address" msgid="3868452167971295995">"ਵਾਈ‑ਫਾਈ MAC ਪਤਾ"</string>
     <string name="status_bt_address" msgid="460568179311735657">"ਬਲੂਟੁੱਥ ਪਤਾ"</string>
     <string name="status_serial_number" msgid="8257722124627415159">"ਸੀਰੀਅਲ ਨੰਬਰ"</string>
-    <string name="status_up_time" msgid="77128395333934087">"ਅੱਪ ਟਾਈਮ"</string>
+    <string name="status_up_time" msgid="77128395333934087">"ਚਾਲੂ ਰਹਿਣ ਦਾ ਸਮਾਂ"</string>
     <string name="status_awake_time" msgid="1251959094010776954">"ਸਕਿਰਿਆ ਸਮਾਂ"</string>
     <string name="internal_memory" msgid="8632841998435408869">"ਅੰਦਰੂਨੀ ਸਟੋਰੇਜ"</string>
     <string name="sd_memory" product="nosdcard" msgid="1377713983817298275">"USB ਸਟੋਰੇਜ"</string>
@@ -1695,7 +1695,7 @@
     <string name="terms_title" msgid="1804549588198223771">"ਨਿਯਮ ਅਤੇ ਸ਼ਰਤਾਂ"</string>
     <string name="webview_license_title" msgid="8244960025549725051">"ਸਿਸਟਮ WebView ਲਾਇਸੰਸ"</string>
     <string name="wallpaper_attributions" msgid="2941987966332943253">"ਵਾਲਪੇਪਰ"</string>
-    <string name="wallpaper_attributions_values" msgid="4461979853894606323">"ਸੈਟੇਲਾਈਟ ਇਮੇਜਰੀ ਪ੍ਰਦਾਤਾ:\n©2014 CNES / Astrium, DigitalGlobe, Bluesky"</string>
+    <string name="wallpaper_attributions_values" msgid="4461979853894606323">"ਉਪਗ੍ਰਹਿ ਇਮੇਜਰੀ ਪ੍ਰਦਾਤਾ:\n©2014 CNES / Astrium, DigitalGlobe, Bluesky"</string>
     <string name="settings_manual_activity_title" msgid="7599911755054286789">"ਮੈਨੁਅਲ"</string>
     <string name="settings_manual_activity_unavailable" msgid="4872502775018655343">"ਮੈਨੁਅਲ ਲੋਡ ਕਰਨ ਵਿੱਚ ਇੱਕ ਸਮੱਸਿਆ ਹੋਈ ਸੀ।"</string>
     <string name="settings_license_activity_title" msgid="1099045216283677608">"ਤੀਜੀ-ਧਿਰ ਦੇ ਲਾਇਸੰਸ"</string>
@@ -1805,7 +1805,7 @@
     <string name="screen_compatibility_label" msgid="3638271673726075815">"ਸਕ੍ਰੀਨ ਅਨੁਰੂਪਤਾ"</string>
     <string name="permissions_label" msgid="7341733648403464213">"ਇਜਾਜ਼ਤਾਂ"</string>
     <string name="cache_header_label" msgid="3202284481380361966">"ਕੈਸ਼ੇ"</string>
-    <string name="clear_cache_btn_text" msgid="107507684844780651">"ਕੈਸ਼ੇ ਹਟਾਓ"</string>
+    <string name="clear_cache_btn_text" msgid="107507684844780651">"ਕੈਸ਼ੇ ਕਲੀਅਰ ਕਰੋ"</string>
     <string name="cache_size_label" msgid="6205173678102220499">"ਕੈਸ਼ੇ"</string>
     <plurals name="uri_permissions_text" formatted="false" msgid="8938478333743197020">
       <item quantity="one">%d ਆਈਟਮਾਂ</item>
@@ -2670,8 +2670,8 @@
     <string name="data_usage_menu_sim_cards" msgid="8508154611676507088">"SIM ਕਾਰਡ"</string>
     <string name="data_usage_cellular_data_summary" msgid="9162777397135709280">"ਸੀਮਾ ਤੇ ਰੋਕਿਆ"</string>
     <string name="account_settings_menu_auto_sync" msgid="2673669556006027506">" ਡਾਟਾ  ਸਵੈ-ਸਮਕਾਲੀਕਿਰਤ ਕਰੋ"</string>
-    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"ਨਿੱਜੀ  ਡਾਟਾ  ਆਟੋ-ਸਿੰਕ ਕਰੋ"</string>
-    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"ਕੰਮ  ਡਾਟਾ  ਆਟੋ-ਸਿੰਕ ਕਰੋ"</string>
+    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"ਨਿੱਜੀ ਡਾਟਾ ਸਵੈ-ਸਮਕਾਲੀਕਿਰਤ ਕਰੋ"</string>
+    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"ਕੰਮ ਦਾ ਡਾਟਾ ਸਵੈ-ਸਮਕਾਲੀਕਿਰਤ ਕਰੋ"</string>
     <string name="data_usage_change_cycle" msgid="447761920472170031">"ਸਾਈਕਲ ਬਦਲੋ..."</string>
     <string name="data_usage_pick_cycle_day" msgid="6319750879145917066">"ਡਾਟਾ ਵਰਤੋਂ ਸਾਈਕਲ ਰੀਸੈੱਟ ਕਰਨ ਲਈ ਮਹੀਨੇ ਦਾ ਦਿਨ:"</string>
     <string name="data_usage_empty" msgid="7981405723435034032">"ਇਸ ਮਿਆਦ ਦੇ ਦੌਰਾਨ ਕਿਸੇ ਐਪਸ ਨੇ  ਡਾਟਾ  ਨਹੀਂ ਵਰਤਿਆ।"</string>
@@ -2924,8 +2924,8 @@
     <string name="nfc_payment_favor_default" msgid="7555356982142464260">"ਹਮੇਸ਼ਾਂ"</string>
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"ਸਿਵਾਏ ਇਸਦੇ ਜਦੋਂ ਦੂਜਾ ਭੁਗਤਾਨ ਐਪ ਖੁੱਲ੍ਹਾ ਹੋਵੇ"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"ਟੈਪ ਕਰੋ ਅਤੇ ਭੁਗਤਾਨ ਕਰੋ ਟਰਮੀਨਲ ਵਿਖੇ, ਇਸਦੇ ਨਾਲ ਭੁਗਤਾਨ ਕਰੋ:"</string>
-    <string name="nfc_how_it_works_title" msgid="6531433737926327904">"ਟਰਮੀਨਲ ਤੇ ਭੁਗਤਾਨ ਕਰ ਰਿਹਾ ਹੈ"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"ਇੱਕ ਭੁਗਤਾਨ ਐਪ ਸੈੱਟ ਅੱਪ ਕਰੋ। ਫਿਰ ਕੰਟੈਕਟਲੈਸ ਚਿੰਨ੍ਹ ਨਾਲ ਕਿਸੇ ਵੀ ਟਰਮੀਨਲ ਤੱਕ ਆਪਣੇ ਫ਼ੋਨ ਦੇ ਪਿੱਛੇ ਕੇਵਲ ਹੋਲਡ ਕਰੋ।"</string>
+    <string name="nfc_how_it_works_title" msgid="6531433737926327904">"ਟਰਮੀਨਲ \'ਤੇ ਭੁਗਤਾਨ ਕਰਨਾ"</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"ਇੱਕ ਭੁਗਤਾਨ ਐਪ ਸੈੱਟ ਅੱਪ ਕਰੋ। ਫਿਰ ਸੰਪਰਕ-ਰਹਿਤ ਚਿੰਨ੍ਹ ਵਾਲੇ ਕਿਸੇ ਵੀ ਟਰਮੀਨਲ ਵੱਲ ਨੂੰ ਆਪਣੇ ਫ਼ੋਨ ਦਾ ਪਿਛਲਾ ਪਾਸਾ ਸਿਰਫ਼ ਫੜ੍ਹ ਕੇ ਰੱਖੋ।"</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"ਸਮਝ ਲਿਆ"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"ਹੋਰ..."</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"ਕੀ ਆਪਣੀ ਤਰਜੀਹਾਂ ਦੇ ਤੌਰ ਤੇ ਸੈਟ ਕਰਨਾ ਹੈ?"</string>
@@ -3711,7 +3711,7 @@
     <string name="high_power_off" msgid="5906679734326490426">"ਬੈਟਰੀ ਵਰਤੋਂ ਨੂੰ ਸੁਯੋਗ ਕਰਨਾ"</string>
     <string name="high_power_system" msgid="739584574711292753">"ਬੈਟਰੀ ਸੁਯੋਗਤਾ ਉਪਲਬਧ ਨਹੀਂ"</string>
     <string name="high_power_desc" msgid="333756885680362741">"ਬੈਟਰੀ ਅਨੁਕੂਲਤਾ ਨੂੰ ਲਾਗੂ ਨਾ ਕਰੋ। ਤੁਹਾਡੀ ਬਟਰੀ ਨੂੰ ਹੋਰ ਵੀ ਛੇਤੀ ਖ਼ਤਮ ਕਰ ਸਕਦਾ ਹੈ।"</string>
-    <string name="high_power_prompt_title" msgid="2805745781720454052">"ਐਪ ਨੂੰ ਹਮੇਸ਼ਾ ਬੈਕਗ੍ਰਾਊਂਡ ਵਿੱਚ ਚੱਲਣ ਦੇਈਏ?"</string>
+    <string name="high_power_prompt_title" msgid="2805745781720454052">"ਕੀ ਐਪ ਨੂੰ ਹਮੇਸ਼ਾ ਬੈਕਗ੍ਰਾਊਂਡ ਵਿੱਚ ਚੱਲਣ ਦੇਣਾ ਹੈ?"</string>
     <string name="high_power_prompt_body" msgid="8067395096053552289">"<xliff:g id="APP_NAME">%1$s</xliff:g> ਨੂੰ ਬੈਕਗ੍ਰਾਊਂਡ ਵਿੱਚ ਹਮੇਸ਼ਾ ਚਾਲੂ ਰੱਖਣ ਦੀ ਇਜਾਜ਼ਤ ਦੇਣ ਨਾਲ ਬੈਟਰੀ ਦਾ ਕਾਰਜ-ਕਾਲ ਘਟ ਸਕਦਾ ਹੈ। \n\nਤੁਸੀਂ ਇਸਨੂੰ ਬਾਅਦ ਵਿੱਚ ਸੈਟਿੰਗਾਂ &gt; ਐਪਾਂ ਅਤੇ ਸੂਚਨਾਵਾਂ ਵਿੱਚੋਂ ਬਦਲ ਸਕਦੇ ਹੋ।"</string>
     <string name="battery_summary" msgid="4345690800899981339">"ਪਿਛਲੀ ਵਾਰ ਪੂਰਾ ਚਾਰਜ ਕਰਨ ਤੋਂ ਬਾਅਦ ਬੈਟਰੀ ਦੀ <xliff:g id="PERCENTAGE">%1$s</xliff:g> ਵਰਤੋਂ ਹੋਈ"</string>
     <string name="battery_power_management" msgid="2853925857548647969">"ਪਾਵਰ ਪ੍ਰਬੰਧਨ"</string>
@@ -4124,14 +4124,14 @@
     <string name="ambient_display_title" product="tablet" msgid="1106285490888683613">"ਸੂਚਨਾਵਾਂ ਦੇਖਣ ਲਈ ਟੈਬਲੈੱਟ \'ਤੇ ਦੋ ਵਾਰ ਟੈਪ ਕਰੋ"</string>
     <string name="ambient_display_title" product="device" msgid="5064644474876041478">"ਸੂਚਨਾਵਾਂ ਦੇਖਣ ਲਈ ਡੀਵਾਈਸ \'ਤੇ ਦੋ ਵਾਰ ਟੈਪ ਕਰੋ"</string>
     <string name="ambient_display_summary" msgid="4882910328216411109">"ਸਮਾਂ, ਸੂਚਨਾਵਾਂ ਅਤੇ ਹੋਰ ਜਾਣਕਾਰੀ ਦੇਖਣ ਲਈ ਆਪਣੀ ਸਕ੍ਰੀਨ \'ਤੇ ਡਬਲ ਟੈਪ ਕਰੋ।"</string>
-    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"ਫ਼ੋਨ ਚੈੱਕ ਕਰਨ ਲਈ ਚੁੱਕੋ"</string>
+    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"ਫ਼ੋਨ ਦੇਖਣ ਲਈ ਚੁੱਕੋ"</string>
     <string name="ambient_display_pickup_title" product="tablet" msgid="1555456400210301959">"ਸੂਚਨਾਵਾਂ ਦੇਖਣ ਲਈ ਟੈਬਲੈੱਟ ਨੂੰ ਚੁੱਕੋ"</string>
     <string name="ambient_display_pickup_title" product="device" msgid="2480126522988135037">"ਸੂਚਨਾਵਾਂ ਦੇਖਣ ਲਈ ਡੀਵਾਈਸ ਨੂੰ ਚੁੱਕੋ"</string>
     <string name="ambient_display_wake_screen_title" msgid="3376988352851077102">"ਡਿਸਪਲੇ ਕਿਰਿਆਸ਼ੀਲ ਕਰੋ"</string>
     <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"ਸਮਾਂ, ਸੂਚਨਾਵਾਂ ਅਤੇ ਹੋਰ ਜਾਣਕਾਰੀ ਦੇਖਣ ਲਈ ਆਪਣੇ ਫ਼ੋਨ ਨੂੰ ਚੁੱਕੋ।"</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"ਸਮਾਂ, ਸੂਚਨਾਵਾਂ ਅਤੇ ਹੋਰ ਜਾਣਕਾਰੀ ਦੇਖਣ ਲਈ ਆਪਣੇ ਟੈਬਲੈੱਟ ਨੂੰ ਚੁੱਕੋ।"</string>
     <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"ਸਮਾਂ, ਸੂਚਨਾਵਾਂ ਅਤੇ ਹੋਰ ਜਾਣਕਾਰੀ ਦੇਖਣ ਲਈ ਆਪਣੇ ਡੀਵਾਈਸ ਨੂੰ ਚੁੱਕੋ।"</string>
-    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"ਫੋਨ ਦੇਖਣ ਲਈ ਟੈਪ ਕਰੋ"</string>
+    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"ਫ਼ੋਨ ਦੇਖਣ ਲਈ ਟੈਪ ਕਰੋ"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"ਟੈਬਲੈੱਟ ਦੇਖਣ ਲਈ ਟੈਪ ਕਰੋ"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"ਡੀਵਾਈਸ ਦੇਖਣ ਲਈ ਟੈਪ ਕਰੋ"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"ਸਮਾਂ, ਸੂਚਨਾਵਾਂ ਅਤੇ ਹੋਰ ਜਾਣਕਾਰੀ ਦੇਖਣ ਲਈ ਆਪਣੀ ਸਕ੍ਰੀਨ \'ਤੇ ਟੈਪ ਕਰੋ।"</string>
