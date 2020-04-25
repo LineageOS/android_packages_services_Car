@@ -2299,7 +2299,7 @@
     </plurals>
     <plurals name="battery_tip_restrict_summary" formatted="false" msgid="984148373944071669">
       <item quantity="other">%2$d приложения използват батерията интензивно на заден план</item>
-      <item quantity="one">%1$s приложение използва батерията интензивно на заден план</item>
+      <item quantity="one">Приложението %1$s използва батерията интензивно на заден план</item>
     </plurals>
     <plurals name="battery_tip_restrict_handled_summary" formatted="false" msgid="469696766640020557">
       <item quantity="other">Тези приложения не могат да се изпълняват на заден план</item>

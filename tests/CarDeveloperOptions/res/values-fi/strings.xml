@@ -1229,7 +1229,7 @@
     <string name="night_display_summary_on_auto_mode_custom" msgid="2200631112239399233">"Sammuu automaattisesti kello <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="night_display_summary_on_auto_mode_twilight" msgid="8386769601369289561">"Sammuu automaattisesti, kun aurinko nousee"</string>
     <string name="night_display_activation_on_manual" msgid="8379477527072027346">"Ota käyttöön nyt"</string>
-    <string name="night_display_activation_off_manual" msgid="7776082151269794201">"Poista käytöstä nyt"</string>
+    <string name="night_display_activation_off_manual" msgid="7776082151269794201">"Laita pois päältä"</string>
     <string name="night_display_activation_on_twilight" msgid="5610294051700287249">"Käytössä auringonnousuun asti"</string>
     <string name="night_display_activation_off_twilight" msgid="6846727701281556110">"Pois käytöstä auringonlaskuun asti"</string>
     <string name="night_display_activation_on_custom" msgid="4761140206778957611">"Käytössä <xliff:g id="ID_1">%1$s</xliff:g> asti"</string>
@@ -2281,11 +2281,11 @@
     <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"Akku voi loppua odotettua aiemmin"</string>
     <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"Virransäästö on käytössä"</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"Joitakin toimintoja voidaan rajoittaa"</string>
-    <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"Puhelinta on käytetty tavallista enemmän"</string>
+    <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"Puhelinta käytetty tavallista enemmän"</string>
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"Tablettia on käytetty tavallista enemmän"</string>
     <string name="battery_tip_high_usage_title" product="device" msgid="8304138287288309490">"Laitetta on käytetty tavallista enemmän"</string>
     <string name="battery_tip_high_usage_summary" msgid="5514749872957528189">"Akku voi loppua odotettua aiemmin"</string>
-    <string name="battery_tip_dialog_message" product="default" msgid="8453700079047810964">"Puhelinta on käytetty tavallista enemmän. Akku voi loppua odotettua aiemmin.\n\nKäytetyimmät sovellukset edellisen latauksen jälkeen:"</string>
+    <string name="battery_tip_dialog_message" product="default" msgid="8453700079047810964">"Puhelinta käytetty tavallista enemmän. Akku voi loppua odotettua aiemmin.\n\nKäytetyimmät sovellukset edellisen latauksen jälkeen:"</string>
     <string name="battery_tip_dialog_message" product="tablet" msgid="6489981050645444068">"Tablettia on käytetty tavallista enemmän. Akku voi loppua odotettua aiemmin.\n\nKäytetyimmät sovellukset edellisen latauksen jälkeen:"</string>
     <string name="battery_tip_dialog_message" product="device" msgid="6348123094674390337">"Laitetta on käytetty tavallista enemmän. Akku voi loppua odotettua aiemmin.\n\nKäytetyimmät sovellukset edellisen latauksen jälkeen:"</string>
     <string name="battery_tip_dialog_message_footer" msgid="1118827395267487197">"Sisältää virtaa paljon kuluttavat taustatoiminnot"</string>
@@ -2299,7 +2299,7 @@
     </plurals>
     <plurals name="battery_tip_restrict_summary" formatted="false" msgid="984148373944071669">
       <item quantity="other">%2$d sovellusta käyttää paljon akkua taustalla</item>
-      <item quantity="one">%1$s sovellus käyttää paljon akkua taustalla</item>
+      <item quantity="one">%1$s käyttää paljon akkua taustalla</item>
     </plurals>
     <plurals name="battery_tip_restrict_handled_summary" formatted="false" msgid="469696766640020557">
       <item quantity="other">Nämä sovellukset eivät voi toimia taustalla</item>
@@ -3212,7 +3212,7 @@
     <string name="zen_mode_block_effects_screen_on" msgid="1042489123800404560">"Kun näyttö on päällä"</string>
     <string name="zen_mode_block_effects_screen_off" msgid="6380935819882837552">"Kun näyttö on pois päältä"</string>
     <string name="zen_mode_block_effect_sound" msgid="1499243540186357631">"Mykistä ääni ja sammuta värinä"</string>
-    <string name="zen_mode_block_effect_intent" msgid="5666951244667422668">"Älä kytke näyttöä päälle"</string>
+    <string name="zen_mode_block_effect_intent" msgid="5666951244667422668">"Älä laita näyttöä päälle"</string>
     <string name="zen_mode_block_effect_light" msgid="8679333758037487644">"Älä vilkuta merkkivaloa"</string>
     <string name="zen_mode_block_effect_peek" msgid="6075662813575910221">"Älä tuo ilmoituksia näytölle"</string>
     <string name="zen_mode_block_effect_status" msgid="6516614225115681068">"Piilota näytön yläreunan tilapalkkikuvakkeet"</string>
@@ -3231,7 +3231,7 @@
     <string name="zen_mode_add" msgid="2533484377786927366">"Lisää"</string>
     <string name="zen_mode_enable_dialog_turn_on" msgid="6396050543542026184">"Ota käyttöön"</string>
     <string name="zen_mode_button_turn_on" msgid="1097964136225943415">"Ota käyttöön nyt"</string>
-    <string name="zen_mode_button_turn_off" msgid="3990967728457149454">"Poista käytöstä nyt"</string>
+    <string name="zen_mode_button_turn_off" msgid="3990967728457149454">"Laita pois päältä"</string>
     <string name="zen_mode_settings_dnd_manual_end_time" msgid="4307574188962071429">"Älä häiritse ‑tila on käytössä <xliff:g id="FORMATTED_TIME">%s</xliff:g> asti."</string>
     <string name="zen_mode_settings_dnd_manual_indefinite" msgid="3701005376825238752">"Älä häiritse ‑tila on käytössä, kunnes poistat sen käytöstä."</string>
     <string name="zen_mode_settings_dnd_automatic_rule" msgid="2843297614114625408">"Aikataulu (<xliff:g id="RULE_NAME">%s</xliff:g>) otti Älä häiritse ‑tilan automaattisesti käyttöön."</string>
@@ -3245,7 +3245,7 @@
     <string name="zen_mode_sound_summary_off" msgid="2800265178411749309">"Pois käytöstä"</string>
     <string name="zen_mode_sound_summary_on" msgid="6964666541479146310">"Käytössä"</string>
     <string name="zen_mode_duration_summary_always_prompt" msgid="7642321938427056823">"Kysy aina (paitsi jos se käynnistyy automaattisesti)"</string>
-    <string name="zen_mode_duration_summary_forever" msgid="4563938129424903030">"Kunnes poistat sen käytöstä (paitsi jos se käynnistyy automaattisesti)"</string>
+    <string name="zen_mode_duration_summary_forever" msgid="4563938129424903030">"Kunnes laitat pois päältä (paitsi jos se käynnistyy automaattisesti)"</string>
     <plurals name="zen_mode_duration_summary_time_hours" formatted="false" msgid="8872000022033647725">
       <item quantity="other"><xliff:g id="NUM_HOURS">%d</xliff:g> tuntia (paitsi jos se käynnistyy automaattisesti)</item>
       <item quantity="one">1 tunti (paitsi jos se käynnistyy automaattisesti)</item>

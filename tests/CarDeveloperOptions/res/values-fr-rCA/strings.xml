@@ -1798,7 +1798,7 @@
     <string name="install_all_warning" product="device" msgid="9141585291103603515">"Votre appareil et vos données personnelles sont plus vulnérables aux attaques provenant d\'applications inconnues. En installant des applications provenant de cette source, vous acceptez d\'être responsable de tout dommage causé à votre appareil ou de toute perte de données pouvant découler de l\'utilisation de telles applications."</string>
     <string name="advanced_settings" msgid="6282069364060968122">"Paramètres avancés"</string>
     <string name="advanced_settings_summary" msgid="5912237062506771716">"Activer d\'autres paramètres"</string>
-    <string name="application_info_label" msgid="3886253474964599105">"Infos sur l\'application"</string>
+    <string name="application_info_label" msgid="3886253474964599105">"Infos sur les applis"</string>
     <string name="storage_label" msgid="1109537840103290384">"Stockage"</string>
     <string name="auto_launch_label" msgid="47089737922907379">"Ouvert par défaut"</string>
     <string name="auto_launch_label_generic" msgid="7865828543459493308">"Valeurs par défaut"</string>
@@ -2277,7 +2277,7 @@
     <string name="battery_tip_smart_battery_title" product="tablet" msgid="203494973250969040">"Améliorer l\'autonomie de la tablette"</string>
     <string name="battery_tip_smart_battery_title" product="device" msgid="7419448992583346364">"Améliorer l\'autonomie de l\'appareil"</string>
     <string name="battery_tip_smart_battery_summary" msgid="5344821856478265778">"Activer le gestionnaire de pile"</string>
-    <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"Activer la fonction Économiseur de pile"</string>
+    <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"Activer l\'économiseur de pile"</string>
     <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"La pile pourrait s\'épuiser plus tôt que d\'habitude"</string>
     <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"Économiseur de pile activé"</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"Certaines fonctionnalités pourraient être limitées"</string>
@@ -2318,8 +2318,8 @@
     <string name="battery_tip_unrestrict_app_dialog_ok" msgid="9154938931448151479">"Supprimer"</string>
     <string name="battery_tip_unrestrict_app_dialog_cancel" msgid="7331148618292397166">"Annuler"</string>
     <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"Vos applications utilisent une quantité normale d\'énergie. Si les applications utilisent trop d\'énergie, votre téléphone vous suggérera des actions à essayer.\n\nVous pouvez toujours activer la fonction Économiseur de pile si la pile est trop faible."</string>
-    <string name="battery_tip_dialog_summary_message" product="tablet" msgid="1721081030632329647">"Vos applications utilisent une quantité normale d\'énergie. Si les applications utilisent trop d\'énergie, votre tablette vous suggérera des actions à essayer.\n\nVous pouvez toujours activer la fonction Économiseur de pile si la pile est trop faible."</string>
-    <string name="battery_tip_dialog_summary_message" product="device" msgid="146872407040848465">"Vos applications utilisent une quantité normale d\'énergie. Si les applications utilisent trop d\'énergie, votre appareil vous suggérera des actions à essayer.\n\nVous pouvez toujours activer la fonction Économiseur de pile si la pile est trop faible."</string>
+    <string name="battery_tip_dialog_summary_message" product="tablet" msgid="1721081030632329647">"Vos applications utilisent une quantité normale d\'énergie. Si les applications utilisent trop d\'énergie, votre tablette vous suggérera des actions à essayer.\n\nVous pouvez toujours activer l\'économiseur de pile si la pile est trop faible."</string>
+    <string name="battery_tip_dialog_summary_message" product="device" msgid="146872407040848465">"Vos applications utilisent une quantité normale d\'énergie. Si les applications utilisent trop d\'énergie, votre appareil vous suggérera des actions à essayer.\n\nVous pouvez toujours activer l\'économiseur de pile si la pile est trop faible."</string>
     <string name="smart_battery_manager_title" msgid="5744035036663849515">"Gestionnaire de pile"</string>
     <string name="smart_battery_title" msgid="4919670408532804351">"Gérer les applications automatiquement"</string>
     <string name="smart_battery_summary" msgid="640027046471198174">"Restreindre l\'usage de la pile pour les applications que vous n\'utilisez pas souvent"</string>
@@ -2671,7 +2671,7 @@
     <string name="data_usage_cellular_data_summary" msgid="9162777397135709280">"Interrompues à la limite"</string>
     <string name="account_settings_menu_auto_sync" msgid="2673669556006027506">"Synchronisation auto données"</string>
     <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"Synchro auto des données perso"</string>
-    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"Synchro auto données profess."</string>
+    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"Synchro auto des données pros"</string>
     <string name="data_usage_change_cycle" msgid="447761920472170031">"Changer le cycle..."</string>
     <string name="data_usage_pick_cycle_day" msgid="6319750879145917066">"Jour du mois de réinitialisation du cycle utilisation données :"</string>
     <string name="data_usage_empty" msgid="7981405723435034032">"Aucune donnée utilisée par les applications pendant cette période."</string>

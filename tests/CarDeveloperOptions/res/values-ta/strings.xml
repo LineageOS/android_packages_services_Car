@@ -2086,7 +2086,7 @@
     <string name="accessibility_content_timeout_preference_summary" msgid="853829064617918179">"நீங்கள் வாசிக்க விரும்பும், தற்காலிகமாகத் தெரியும் மெசேஜ்கள் எவ்வளவு நேரம் காட்டப்பட வேண்டும் என்பதைத் தேர்வுசெய்யலாம்.\n\nஇந்த அமைப்பு அனைத்து ஆப்ஸிலும் ஆதரிக்கப்படாது."</string>
     <string name="accessibility_control_timeout_preference_summary" msgid="8582212299606932160">"உங்களைச் செயல்படும்படி கூறும் மெசேஜ்களை எவ்வளவு நேரம் காட்டலாம் என்பதைத் தேர்வுசெய்யவும். இவை சற்று நேரத்திற்கு மட்டுமே காட்டப்படும்.\n\nஇந்த அமைப்பு அனைத்து ஆப்ஸாலும் ஆதரிக்கப்படாது."</string>
     <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"தொட்டுப் பிடித்தல் தாமதம்"</string>
-    <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"வண்ணத்தின் நேர்மாறான முறை"</string>
+    <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"கலர் இன்வெர்ஷன்"</string>
     <string name="accessibility_display_inversion_preference_subtitle" msgid="69291255322175323">"செயல்திறனைப் பாதிக்கலாம்"</string>
     <string name="accessibility_autoclick_preference_title" msgid="9164599088410340405">"இருப்பு நேரம்"</string>
     <string name="accessibility_autoclick_description" msgid="5492414927846407499">"நீங்கள் மவுஸைப் பயன்படுத்துகிறீர்கள் எனில், ஒரு குறிப்பிட்ட நேரத்திற்குக் கர்சர் நகராமல் இருக்கும்போது, அது தானாகவே என்ன செய்யவேண்டுமென அமைத்துக்கொள்ளலாம்."</string>
@@ -3041,7 +3041,7 @@
     <string name="connected_devices_dashboard_no_driving_mode_summary" msgid="3524409078596318803">"புளூடூத், NFC"</string>
     <string name="connected_devices_dashboard_no_driving_mode_no_nfc_summary" msgid="7881286613528299400">"புளூடூத்"</string>
     <string name="app_and_notification_dashboard_title" msgid="8448096608058843730">"ஆப்ஸ் &amp; அறிவிப்புகள்"</string>
-    <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"அசிஸ்டண்ட், சமீபத்திய ஆப்ஸ், இயல்பான ஆப்ஸ்"</string>
+    <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"Assistant, சமீபத்திய ஆப்ஸ், இயல்பான ஆப்ஸ்"</string>
     <string name="notification_settings_work_profile" msgid="7190550347842400029">"பணிக் கணக்கில், ஆப்ஸுற்கான அறிவிப்பு அணுகல் இல்லை."</string>
     <string name="account_dashboard_title" msgid="4734300939532555885">"கணக்குகள்"</string>
     <string name="account_dashboard_default_summary" msgid="6822549669771936206">"கணக்குகள் எதுவும் சேர்க்கப்படவில்லை"</string>

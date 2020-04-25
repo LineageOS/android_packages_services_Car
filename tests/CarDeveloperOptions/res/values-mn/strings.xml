@@ -2277,8 +2277,8 @@
     <string name="battery_tip_smart_battery_title" product="tablet" msgid="203494973250969040">"Таблетынхаа батарейн ажиллах хугацааг нэмэгдүүлэх"</string>
     <string name="battery_tip_smart_battery_title" product="device" msgid="7419448992583346364">"Төхөөрөмжийнхөө батарейн ажиллах хугацааг нэмэгдүүлэх"</string>
     <string name="battery_tip_smart_battery_summary" msgid="5344821856478265778">"Батерейны менежерийг асаах"</string>
-    <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"Тэжээл хэмнэгчийг асаах"</string>
-    <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"Батерей ердийнхөөс хурдан дуусаж болзошгүй"</string>
+    <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"Батарей хэмнэгчийг асаах"</string>
+    <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"Батарей ердийн үеийнхээс хурдан дуусаж болзошгүй"</string>
     <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"Тэжээл хэмнэгч асаалттай байна"</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"Зарим онцлогийг хязгаарласан байж болзошгүй"</string>
     <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"Утсыг ердийнхөөс их хэмжээгээр ашигласан"</string>
@@ -2298,8 +2298,8 @@
       <item quantity="one">%1$s-г саяхан хязгаарласан</item>
     </plurals>
     <plurals name="battery_tip_restrict_summary" formatted="false" msgid="984148373944071669">
-      <item quantity="other">%2$d аппын батерейг цаана ашиглах түвшин өндөр байна</item>
-      <item quantity="one">%1$s-н батерейг цаана ашиглах түвшин өндөр байна</item>
+      <item quantity="other">%2$d аппын батарейг цаана ашиглах түвшин өндөр байна</item>
+      <item quantity="one">%1$s-н батарейг цаана ашиглах түвшин өндөр байна</item>
     </plurals>
     <plurals name="battery_tip_restrict_handled_summary" formatted="false" msgid="469696766640020557">
       <item quantity="other">Эдгээр аппыг цаана ажиллуулах боломжгүй байна</item>
@@ -2670,8 +2670,8 @@
     <string name="data_usage_menu_sim_cards" msgid="8508154611676507088">"SIM карт"</string>
     <string name="data_usage_cellular_data_summary" msgid="9162777397135709280">"Хязгаарт хүрмэгц зогсоосон"</string>
     <string name="account_settings_menu_auto_sync" msgid="2673669556006027506">"Датаг автоматаар синклэх"</string>
-    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"Хувийн датаг автоматаар синк хийх"</string>
-    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"Ажлын датаг автоматаар синк хийх"</string>
+    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"Хувийн өгөгдлийг автоматаар синк хийх"</string>
+    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"Ажлын өгөгдлийг автоматаар синк хийх"</string>
     <string name="data_usage_change_cycle" msgid="447761920472170031">"Циклийг өөрчлөх…"</string>
     <string name="data_usage_pick_cycle_day" msgid="6319750879145917066">"Дата ашиглалтын циклийг шинэчлэх сарын өдөр:"</string>
     <string name="data_usage_empty" msgid="7981405723435034032">"Энэ хугацаанд дата ашигласан апп байхгүй."</string>
@@ -4158,7 +4158,7 @@
     <string name="auto_sync_account_title" msgid="2394463123733529506">"Өгөгдлийг автоматаар синк хийх"</string>
     <string name="auto_sync_personal_account_title" msgid="6844465157916100655">"Хувийн өгөгдлийг автоматаар синк хийх"</string>
     <string name="auto_sync_work_account_title" msgid="2403222633447522376">"Ажлын өгөгдлийг автоматаар синк хийх"</string>
-    <string name="auto_sync_account_summary" msgid="6316230976974033772">"Өгөгдлийг автоматаар дахин боловсруулахыг апп-д зөвшөөрөх"</string>
+    <string name="auto_sync_account_summary" msgid="6316230976974033772">"Өгөгдлийг автоматаар дахин боловсруулахыг аппад зөвшөөрөх"</string>
     <string name="account_sync_title" msgid="1570164819114297154">"Бүртгэл синк хийх"</string>
     <string name="account_sync_summary_some_on" msgid="1934556869158274053">"<xliff:g id="ID_2">%2$d</xliff:g>-с <xliff:g id="ID_1">%1$d</xliff:g> зүйлд синк асаалттай"</string>
     <string name="account_sync_summary_all_on" msgid="3634161204232431700">"Бүх зүйлд синк асаалттай"</string>

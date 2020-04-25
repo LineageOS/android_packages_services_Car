@@ -2278,10 +2278,10 @@
     <string name="battery_tip_smart_battery_title" product="device" msgid="7419448992583346364">"ನಿಮ್ಮ ಸಾಧನದ ಬ್ಯಾಟರಿ ಬಾಳಿಕೆಯನ್ನು ಸುಧಾರಿಸಿ"</string>
     <string name="battery_tip_smart_battery_summary" msgid="5344821856478265778">"ಬ್ಯಾಟರಿ ನಿರ್ವಾಹಕರನ್ನು ಆನ್‌ ಮಾಡಿ"</string>
     <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"ಬ್ಯಾಟರಿ ಸೇವರ್‌ ಆನ್‌ ಮಾಡಿ"</string>
-    <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"ಬ್ಯಾಟರಿ ಸಾಮಾನ್ಯಕ್ಕಿಂತ ಮೊದಲೇ ರನ್ ಆಗಬಹುದು"</string>
+    <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"ಬ್ಯಾಟರಿ ಸಾಮಾನ್ಯಕ್ಕಿಂತ ಮೊದಲೇ ಖಾಲಿಯಾಗಬಹುದು"</string>
     <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"ಬ್ಯಾಟರಿ ಸೇವರ್ ಆನ್ ಆಗಿದೆ"</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"ಕೆಲವು ವೈಶಿಷ್ಟ್ಯಗಳು ಸೀಮಿತವಾಗಿರಬಹುದು"</string>
-    <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"ಫೋನ್ ಸಾಮಾನ್ಯಕ್ಕಿಂತ ಹೆಚ್ಚಿನದನ್ನು ಬಳಸಿದೆ"</string>
+    <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"ಫೋನ್ ಅನ್ನು ಸಾಮಾನ್ಯಕ್ಕಿಂತ ಹೆಚ್ಚು ಬಳಸಲಾಗಿದೆ"</string>
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"ಟ್ಯಾಬ್ಲೆಟ್ ಸಾಮಾನ್ಯಕ್ಕಿಂತ ಹೆಚ್ಚಿನದನ್ನು ಬಳಸಿದೆ"</string>
     <string name="battery_tip_high_usage_title" product="device" msgid="8304138287288309490">"ಸಾಧನವು ಸಾಮಾನ್ಯಕ್ಕಿಂತ ಹೆಚ್ಚಿನದನ್ನು ಬಳಸಿದೆ"</string>
     <string name="battery_tip_high_usage_summary" msgid="5514749872957528189">"ಬ್ಯಾಟರಿ ಸಾಮಾನ್ಯ ಅವಧಿಗಿಂತ ಮೊದಲೇ ಖಾಲಿಯಾಗಬಹುದು"</string>
@@ -4269,7 +4269,7 @@
     <string name="storage_manager_indicator_on" msgid="5295306384982062320">"ಆನ್"</string>
     <string name="install_type_instant" msgid="6248487669862821874">"ತತ್‌ಕ್ಷಣದ ಅಪ್ಲಿಕೇಶನ್"</string>
     <string name="automatic_storage_manager_deactivation_warning" msgid="7867793739491286374">"ಸಂಗ್ರಹಣೆ ನಿರ್ವಾಹಕವನ್ನು ಆಫ್ ಮಾಡುವುದೇ?"</string>
-    <string name="storage_movies_tv" msgid="7282484273991655296">"ಚಲನಚಿತ್ರ ಮತ್ತು ಟಿವಿ ಅಪ್ಲಿಕೇಶನ್‌ಗಳು"</string>
+    <string name="storage_movies_tv" msgid="7282484273991655296">"ಚಲನಚಿತ್ರ ಮತ್ತು ಟಿವಿ ಆ್ಯಪ್‍‍ಗಳು"</string>
     <string name="carrier_provisioning" msgid="3309125279191534469">"ವಾಹಕ ಪೂರೈಕೆಯ ಮಾಹಿತಿ"</string>
     <string name="trigger_carrier_provisioning" msgid="6284005970057901477">"ಟ್ರಿಗ್ಗರ್ ವಾಹಕ ಪೂರೈಕೆ"</string>
     <string name="zen_suggestion_title" msgid="2134699720214231950">"ಅಡಚಣೆ ಮಾಡಬೇಡಿ ಅನ್ನು ಅಪ್‌ಡೇಟ್‌ ಮಾಡಿ"</string>

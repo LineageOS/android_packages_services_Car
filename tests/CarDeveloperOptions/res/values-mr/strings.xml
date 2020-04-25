@@ -1254,7 +1254,7 @@
     <string name="screensaver_settings_summary_off" msgid="6119947316484763131">"बंद"</string>
     <string name="screensaver_settings_disabled_prompt" msgid="1897518064782596947">"फोन डॉक केलेला असताना आणि/किंवा निष्क्रिय असताना काय होते हे नियंत्रित करण्यासाठी स्क्रीन सेव्हर चालू करा."</string>
     <string name="screensaver_settings_when_to_dream" msgid="3763052013516826348">"कधी सुरू करायचे"</string>
-    <string name="screensaver_settings_current" msgid="4017556173596361672">"सद्य स्क्रीन सेव्हर"</string>
+    <string name="screensaver_settings_current" msgid="4017556173596361672">"सध्याचा स्क्रीन सेव्हर"</string>
     <string name="screensaver_settings_dream_start" msgid="3772227299054662550">"आता सुरू करा"</string>
     <string name="screensaver_settings_button" msgid="4662384378821837589">"सेटिंग्ज"</string>
     <string name="automatic_brightness" msgid="8663792987774126192">"स्वयंचलित चकाकी"</string>
@@ -1375,7 +1375,7 @@
     <string name="memory_dcim_usage" msgid="599009211606524732">"चित्रे, व्हिडिओ"</string>
     <string name="memory_music_usage" msgid="809605300042546279">"ऑडिओ (संगीत, रिंगटोन, पॉडकास्ट इ.)"</string>
     <string name="memory_media_misc_usage" msgid="6258827529046910705">"इतर फायली"</string>
-    <string name="memory_media_cache_usage" msgid="1307620682751377717">"कॅश केलेला डेटा"</string>
+    <string name="memory_media_cache_usage" msgid="1307620682751377717">"कॅशे  केलेला डेटा"</string>
     <string name="sd_eject" product="nosdcard" msgid="3016608823130472449">"शेअर केलेले संचयन अनमाउंट करा"</string>
     <string name="sd_eject" product="default" msgid="4943338855474925396">"SD कार्ड अनमाउंट करा"</string>
     <string name="sd_eject_summary" product="nosdcard" msgid="8571017212318899178">"अंतर्गत USB स्टोरेज अनमाउंट करा"</string>
@@ -1390,8 +1390,8 @@
     <string name="sd_format" product="default" msgid="1346245995138883960">"SD कार्ड मिटवा"</string>
     <string name="sd_format_summary" product="nosdcard" msgid="1179857727779521920">"अंतर्गत USB संचयनावरील सर्व डेटा मिटवते, जसे की संगीत आणि फोटो"</string>
     <string name="sd_format_summary" product="default" msgid="4284028411908176234">"SD कार्डवरील सर्व डेटा मिटवते, जसे की संगीत आणि फोटो"</string>
-    <string name="memory_clear_cache_title" msgid="4306793268129306684">"कॅश   केलेला डेटा साफ करायचा?"</string>
-    <string name="memory_clear_cache_message" msgid="6723120398411410031">"हे सर्व ॲप्ससाठी कॅश   केलेला डेटा साफ करेल."</string>
+    <string name="memory_clear_cache_title" msgid="4306793268129306684">"कॅशे    केलेला डेटा साफ करायचा?"</string>
+    <string name="memory_clear_cache_message" msgid="6723120398411410031">"हे सर्व ॲप्ससाठी कॅशे    केलेला डेटा साफ करेल."</string>
     <string name="mtp_ptp_mode_summary" msgid="6074099855478444183">"MTP किंवा TP कार्य सक्रिय आहे"</string>
     <string name="dlg_confirm_unmount_title" product="nosdcard" msgid="3843209947310774105">"USB स्टोरेज अनमाउंट करायचे?"</string>
     <string name="dlg_confirm_unmount_title" product="default" msgid="4400426555375434431">"SD कार्ड अनमाउंट करायचे?"</string>
@@ -1453,7 +1453,7 @@
     <string name="storage_detail_images" msgid="6996202225684468964">"इमेज"</string>
     <string name="storage_detail_videos" msgid="6030983354721080849">"व्हिडिओ"</string>
     <string name="storage_detail_audio" msgid="6011098436589663944">"ऑडिओ"</string>
-    <string name="storage_detail_cached" msgid="5761648455067920683">"कॅश केलेला डेटा"</string>
+    <string name="storage_detail_cached" msgid="5761648455067920683">"कॅशे  केलेला डेटा"</string>
     <string name="storage_detail_other" msgid="9164851767437306618">"इतर"</string>
     <string name="storage_detail_system" msgid="6784247618772153283">"सिस्टम"</string>
     <string name="storage_detail_explore" msgid="8206900269596580264">"<xliff:g id="NAME">^1</xliff:g> एक्सप्लोर करा"</string>
@@ -1805,9 +1805,9 @@
     <string name="auto_launch_label_generic" msgid="7865828543459493308">"डीफॉल्ट"</string>
     <string name="screen_compatibility_label" msgid="3638271673726075815">"स्क्रीन सुसंगतता"</string>
     <string name="permissions_label" msgid="7341733648403464213">"परवानग्या"</string>
-    <string name="cache_header_label" msgid="3202284481380361966">"कॅश"</string>
-    <string name="clear_cache_btn_text" msgid="107507684844780651">"कॅश साफ करा"</string>
-    <string name="cache_size_label" msgid="6205173678102220499">"कॅश"</string>
+    <string name="cache_header_label" msgid="3202284481380361966">"कॅशे"</string>
+    <string name="clear_cache_btn_text" msgid="107507684844780651">"कॅशे  साफ करा"</string>
+    <string name="cache_size_label" msgid="6205173678102220499">"कॅशे"</string>
     <plurals name="uri_permissions_text" formatted="false" msgid="8938478333743197020">
       <item quantity="other">%d आयटम</item>
       <item quantity="one"> 1 आयटम</item>
@@ -1841,7 +1841,7 @@
     <string name="sort_order_recent_notification" msgid="5592496977404445941">"सर्वात अलीकडील"</string>
     <string name="sort_order_frequent_notification" msgid="5640245013098010347">"सर्वाधिक"</string>
     <string name="show_running_services" msgid="1895994322704667543">"चालू सेवा दर्शवा"</string>
-    <string name="show_background_processes" msgid="88012264528093617">"कॅश   केलेल्या प्रक्रिया दर्शवा"</string>
+    <string name="show_background_processes" msgid="88012264528093617">"कॅशे    केलेल्या प्रक्रिया दर्शवा"</string>
     <string name="default_emergency_app" msgid="286530070173495823">"आणीबाणी अ‍ॅप"</string>
     <string name="reset_app_preferences" msgid="1426500030595212077">"अ‍ॅप प्राधान्ये रीसेट करा"</string>
     <string name="reset_app_preferences_title" msgid="792909865493673598">"अ‍ॅप प्राधान्ये रीसेट करायची?"</string>
@@ -1901,7 +1901,7 @@
     <string name="storageuse_settings_title" msgid="3390798597982116048">"संचयन वापर"</string>
     <string name="storageuse_settings_summary" msgid="3013328092465903687">"ॲप्सद्वारे वापरलेले संचयन पहा"</string>
     <string name="service_restarting" msgid="1190995225643385568">"रीस्टार्ट करत आहे"</string>
-    <string name="cached" msgid="4019482949725020855">"पार्श्वभूमी प्रक्रिया कॅश   केली"</string>
+    <string name="cached" msgid="4019482949725020855">"पार्श्वभूमी प्रक्रिया कॅशे    केली"</string>
     <string name="no_running_services" msgid="618823924559385173">"काहीही चालत नाही."</string>
     <string name="service_started_by_app" msgid="6906027340122215035">"अ‍ॅप द्वारे प्रारंभ केला."</string>
     <!-- no translation found for service_client_name (7083258170099389413) -->
@@ -1923,7 +1923,7 @@
     <string name="running_processes_header_apps_prefix" msgid="4024980745400903746">"अ‍ॅप्स"</string>
     <string name="running_processes_header_free_prefix" msgid="1092348393136753031">"मोकळी"</string>
     <string name="running_processes_header_used_prefix" msgid="2984090414986096084">"वापरलेली"</string>
-    <string name="running_processes_header_cached_prefix" msgid="8398315634778729026">"कॅश   केलेले"</string>
+    <string name="running_processes_header_cached_prefix" msgid="8398315634778729026">"कॅशे    केलेले"</string>
     <string name="running_processes_header_ram" msgid="3867954556214535588">"RAM चे <xliff:g id="RAM_0">%1$s</xliff:g>"</string>
     <string name="runningservicedetails_settings_title" msgid="7075556369123578372">"चालू अ‍ॅप"</string>
     <string name="no_services" msgid="2085012960886321920">"सक्रिय नाहीत"</string>
@@ -2475,12 +2475,12 @@
     <string name="process_stats_total_duration_percentage" msgid="737215062610178960">"<xliff:g id="TIMEDURATION">%2$s</xliff:g> पासून <xliff:g id="PERCENT">%1$s</xliff:g> रॅम वापरली"</string>
     <string name="process_stats_type_background" msgid="7867552451658035199">"पार्श्वभूमी"</string>
     <string name="process_stats_type_foreground" msgid="9185538008409818577">"पुरोभाग"</string>
-    <string name="process_stats_type_cached" msgid="6774816751826613732">"कॅश   केलेले"</string>
+    <string name="process_stats_type_cached" msgid="6774816751826613732">"कॅशे    केलेले"</string>
     <string name="process_stats_os_label" msgid="2866711070924260440">"Android OS"</string>
     <string name="process_stats_os_native" msgid="8971193568864959041">"मूळ"</string>
     <string name="process_stats_os_kernel" msgid="496627624157605578">"कर्नेल"</string>
     <string name="process_stats_os_zram" msgid="5654662484619165424">"Z-Ram"</string>
-    <string name="process_stats_os_cache" msgid="5662578472981137018">"कॅश"</string>
+    <string name="process_stats_os_cache" msgid="5662578472981137018">"कॅशे"</string>
     <string name="process_stats_ram_use" msgid="7064754065505886755">"RAM वापर"</string>
     <string name="process_stats_bg_ram_use" msgid="1489397892092393257">"RAM वापर (पार्श्वभूमी)"</string>
     <string name="process_stats_run_time" msgid="4961296157434073261">"चालण्याचा कालावधी"</string>
@@ -2499,7 +2499,7 @@
     <string name="menu_proc_stats_type" msgid="2680179749566186247">"आकडेवारी प्रकार"</string>
     <string name="menu_proc_stats_type_background" msgid="1898036847606845052">"पार्श्वभूमी"</string>
     <string name="menu_proc_stats_type_foreground" msgid="8244384283966204023">"पुरोभाग"</string>
-    <string name="menu_proc_stats_type_cached" msgid="8238824117399683217">"कॅश केलेले"</string>
+    <string name="menu_proc_stats_type_cached" msgid="8238824117399683217">"कॅशे  केलेले"</string>
     <string name="voice_input_output_settings" msgid="2180337183089517667">"आवाज इनपुट आणि आउटपुट"</string>
     <string name="voice_input_output_settings_title" msgid="7080213653518526025">"आवाज इनपुट आणि आउटपुट सेटिंग्ज"</string>
     <string name="voice_search_settings_title" msgid="4999026024622014272">"व्हॉइस शोध"</string>
@@ -3118,7 +3118,7 @@
     <string name="keywords_system_update_settings" msgid="4419971277998986067">"अपग्रेड करा, Android"</string>
     <string name="keywords_zen_mode_settings" msgid="4103819458182535493">"डीएनडी, शेड्यूल, सूचना, ब्लॉक, शांतता, व्हायब्रेट, झोप, काम, फोकस, ध्वनी, म्यूट, दिवस, कार्य दिवस, शनिवार व रविवार, आठवड्याची शेवटची रात्र, इव्हेंट"</string>
     <string name="keywords_screen_timeout" msgid="4328381362313993666">"स्क्रीन, लॉक टाइम, कालबाह्य, लॉकस्क्रीन"</string>
-    <string name="keywords_storage_settings" msgid="6422454520424236476">"मेमरी, कॅशे, डेटा, हटवा, साफ करा, मोकळी करा, जागा"</string>
+    <string name="keywords_storage_settings" msgid="6422454520424236476">"मेमरी, कॅशे , डेटा, हटवा, साफ करा, मोकळी करा, जागा"</string>
     <string name="keywords_bluetooth_settings" msgid="1152229891590622822">"कनेक्ट केलेले, डिव्हाइस, हेडफोन, हेडसेट, स्पीकर, वायरलेस, पेअर, इयरबड, संगीत, मीडिया"</string>
     <string name="keywords_wallpaper" msgid="7665778626293643625">"पार्श्वभूमी, स्क्रीन, लॉकस्क्रीन, थीम"</string>
     <string name="keywords_assist_input" msgid="8392362788794886564">"डीफॉल्ट, सहाय्यक"</string>
@@ -4248,7 +4248,7 @@
     <string name="clear_instant_app_confirmation" msgid="1778553115373698061">"तुम्हाला हे इन्स्टंट अ‍ॅप काढायचे आहे का?"</string>
     <string name="launch_instant_app" msgid="5251693061228352333">"उघडा"</string>
     <string name="game_storage_settings" msgid="6856911551799175914">"गेम"</string>
-    <string name="audio_files_title" msgid="3073879661731363935">"ऑडिओ फायली"</string>
+    <string name="audio_files_title" msgid="3073879661731363935">"ऑडिओ फाइल"</string>
     <string name="app_info_storage_title" msgid="6643391804949509308">"वापरलेली जागा"</string>
     <string name="webview_uninstalled_for_user" msgid="3407952144444040557">"(<xliff:g id="USER">%s</xliff:g> वापरकर्त्‍यासाठी विस्‍थापित)"</string>
     <string name="webview_disabled_for_user" msgid="8057805373224993504">"(<xliff:g id="USER">%s</xliff:g> वापरकर्त्‍यासाठी अक्षम केले)"</string>
@@ -4475,7 +4475,7 @@
     <string name="privacy_dashboard_summary" msgid="7916431309860824945">"परवानग्या, खाते अ‍ॅक्टिव्हिटी, वैयक्तिक डेटा"</string>
     <string name="contextual_card_dismiss_remove" msgid="1750420285615827309">"काढून टाका"</string>
     <string name="contextual_card_dismiss_keep" msgid="3204450672928193661">"ठेवा"</string>
-    <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"ही सुचाना काढून टाकायची आहे का?"</string>
+    <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"ही सूचना काढून टाकायची आहे का?"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"सूचना काढली"</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"पहिल्यासारखे करा"</string>
     <string name="low_storage_summary" msgid="4562224870189133400">"स्टोरेज कमी आहे. <xliff:g id="PERCENTAGE">%1$s</xliff:g> वापरले - <xliff:g id="FREE_SPACE">%2$s</xliff:g> मोकळे"</string>

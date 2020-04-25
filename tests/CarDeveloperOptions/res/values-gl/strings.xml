@@ -1798,7 +1798,7 @@
     <string name="install_all_warning" product="device" msgid="9141585291103603515">"O teu dispositivo e os datos persoais son máis vulnerables aos ataques de aplicacións descoñecidas. Ao instalar aplicacións desta fonte, aceptas que es responsable dos danos que se poidan producir no dispositivo ou da perda de datos que se poida derivar do seu uso."</string>
     <string name="advanced_settings" msgid="6282069364060968122">"Configuración avanzada"</string>
     <string name="advanced_settings_summary" msgid="5912237062506771716">"Activa máis opcións de configuración"</string>
-    <string name="application_info_label" msgid="3886253474964599105">"Info da app"</string>
+    <string name="application_info_label" msgid="3886253474964599105">"Información das aplicacións"</string>
     <string name="storage_label" msgid="1109537840103290384">"Almacenamento"</string>
     <string name="auto_launch_label" msgid="47089737922907379">"Abrir de forma predeterminada"</string>
     <string name="auto_launch_label_generic" msgid="7865828543459493308">"Valores predeterminados"</string>
@@ -2298,8 +2298,8 @@
       <item quantity="one">Restrinxiuse recentemente a aplicación %1$s</item>
     </plurals>
     <plurals name="battery_tip_restrict_summary" formatted="false" msgid="984148373944071669">
-      <item quantity="other">%2$d aplicacións utilizan moita batería en segundo plano</item>
-      <item quantity="one">A aplicación %1$s utiliza moita batería en segundo plano</item>
+      <item quantity="other">%2$d apps usan moita batería en segundo plano</item>
+      <item quantity="one">%1$s usa moita batería en segundo plano</item>
     </plurals>
     <plurals name="battery_tip_restrict_handled_summary" formatted="false" msgid="469696766640020557">
       <item quantity="other">Estas aplicacións non se poden executar en segundo plano</item>
@@ -3201,7 +3201,7 @@
     <string name="zen_mode_restrict_notifications_mute_footer" msgid="3049522809520549054">"O teléfono non vibrará nin emitirá sons cando cheguen notificacións."</string>
     <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"Notificacións sen son nin elementos visuais"</string>
     <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"Non verás nin escoitarás notificacións"</string>
-    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"O teléfono non mostrará notificacións, nin vibrará nin emitirá sons con notificacións novas ou existentes. Ten en conta que se seguirán mostrando as notificacións esenciais para o estado e a actividade do teléfono.\n\nCando desactives o modo Non molestar, poderás pasar o dedo cara abaixo desde a parte superior da pantalla para ler as notificacións que non viches."</string>
+    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"O teléfono non mostrará notificacións, vibrará nin emitirá sons con notificacións novas ou existentes. Ten en conta que se seguirán mostrando as notificacións esenciais para o estado e a actividade do teléfono.\n\nCando desactives o modo Non molestar, poderás pasar o dedo cara abaixo desde a parte superior da pantalla para ler as notificacións que non viches."</string>
     <string name="zen_mode_restrict_notifications_custom" msgid="3167252482570424133">"Configuración personalizada"</string>
     <string name="zen_mode_restrict_notifications_enable_custom" msgid="6376983315529894440">"Activar configuración personalizada"</string>
     <string name="zen_mode_restrict_notifications_disable_custom" msgid="8004212081465043044">"Quitar configuración personalizada"</string>
@@ -3496,7 +3496,7 @@
     <string name="zen_calls_summary_starred_repeat" msgid="9191394641577678207">"De contactos marcados con estrela e chamadas repetidas"</string>
     <string name="zen_calls_summary_contacts_repeat" msgid="7747592096431111510">"Dos contactos e de chamadas repetidas"</string>
     <string name="zen_calls_summary_repeat_only" msgid="8839703337232747964">"Só de chamadas repetidas"</string>
-    <string name="zen_mode_from_none" msgid="7683889985618637010">"De ninguén"</string>
+    <string name="zen_mode_from_none" msgid="7683889985618637010">"Ninguén"</string>
     <string name="zen_mode_from_none_calls" msgid="2967739140346917546">"Non permitir ningunha chamada"</string>
     <string name="zen_mode_from_none_messages" msgid="9069143820057833634">"Non permitir ningunha mensaxe"</string>
     <string name="zen_mode_alarms" msgid="5528707742250954290">"Permitir alarmas"</string>

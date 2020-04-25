@@ -2336,7 +2336,7 @@
     <string name="battery_tip_smart_battery_title" product="device" msgid="7419448992583346364">"Izboljšajte čas delovanja akumulatorja naprave"</string>
     <string name="battery_tip_smart_battery_summary" msgid="5344821856478265778">"Vklopite varčevanje z energijo akumulatorja"</string>
     <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"Vklop varčevanja z energijo akumulatorja"</string>
-    <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"Akumulator se bo morda izpraznil prej kot običajno"</string>
+    <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"Baterija se lahko izprazni prej kot običajno"</string>
     <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"Varčevanje z energijo akumulatorja je vklopljeno"</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"Nekatere funkcije bodo morda omejene"</string>
     <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"Telefon uporabljate več kot običajno"</string>

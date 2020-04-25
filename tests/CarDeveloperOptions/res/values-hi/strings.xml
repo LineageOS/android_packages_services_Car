@@ -1265,7 +1265,7 @@
     <string name="doze_summary" msgid="6762274282827831706">"आपको सूचना मिलने पर स्‍क्रीन चालू करें"</string>
     <string name="doze_always_on_title" msgid="8555184965031789941">"हमेशा चालू"</string>
     <string name="doze_always_on_summary" msgid="7654436900436328950">"समय, सूचना के आइकॉन और दूसरी जानकारी दिखाएं. इसमें ज़्यादा बैटरी का इस्तेमाल होगा."</string>
-    <string name="title_font_size" msgid="5021464556860010851">"अक्षरों का आकार"</string>
+    <string name="title_font_size" msgid="5021464556860010851">"फ़ॉन्ट साइज़"</string>
     <string name="short_summary_font_size" msgid="4141077908728522946">"लेख को छोटा या बड़ा करें"</string>
     <string name="sim_lock_settings" msgid="1986924650622642189">"सिम कार्ड लॉक सेटिंग"</string>
     <string name="sim_lock_settings_category" msgid="1126759898277681516">"सिम कार्ड लॉक"</string>
@@ -2069,7 +2069,7 @@
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_title" msgid="2466317284195934003">"स्क्रीन को बड़ा करने की सुविधा को अपने आप अपडेट करें"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_summary" msgid="6625473745911276917">"ऐप ट्रांज़िशन पर स्क्रीन को बड़ा दिखाना अपडेट करें"</string>
     <string name="accessibility_power_button_ends_call_prerefence_title" msgid="6172987104538172869">"पावर बटन से कॉल काटना"</string>
-    <string name="accessibility_toggle_large_pointer_icon_title" msgid="9127905775116570565">"बड़ा माउस सूचक"</string>
+    <string name="accessibility_toggle_large_pointer_icon_title" msgid="9127905775116570565">"बड़ा माउस पॉइंटर"</string>
     <string name="accessibility_disable_animations" msgid="8378441317115710009">"ऐनिमेशन हटाएं"</string>
     <string name="accessibility_toggle_master_mono_title" msgid="899550848196702565">"मोनो ऑडियो"</string>
     <string name="accessibility_toggle_master_mono_summary" msgid="3847052868469033235">"ऑडियो चलाते समय चैनल संयोजित करें"</string>
@@ -3635,7 +3635,7 @@
     <string name="filter_enabled_apps" msgid="5888459261768538489">"इंस्‍टॉल किए गए ऐप"</string>
     <string name="filter_instant_apps" msgid="8087483282854072366">"झटपट ऐप"</string>
     <string name="filter_personal_apps" msgid="3473268022652904457">"व्यक्तिगत"</string>
-    <string name="filter_work_apps" msgid="4202483998339465542">"कार्यस्‍थल"</string>
+    <string name="filter_work_apps" msgid="4202483998339465542">"ऑफ़िस"</string>
     <string name="filter_notif_all_apps" msgid="1862666327228804896">"ऐप्लिकेशन: सभी"</string>
     <string name="filter_notif_blocked_apps" msgid="5694956954776028202">"सूचनाएं बंद कर दी गई हैं"</string>
     <string name="filter_notif_urgent_channels" msgid="5000735867167027148">"श्रेणियां: अत्यंत महत्वपूर्ण"</string>
@@ -4128,7 +4128,7 @@
     <string name="ambient_display_pickup_title" product="tablet" msgid="1555456400210301959">"टैबलेट देखने के लिए लिफ़्ट करें"</string>
     <string name="ambient_display_pickup_title" product="device" msgid="2480126522988135037">"डिवाइस देखने के लिए लिफ़्ट करें"</string>
     <string name="ambient_display_wake_screen_title" msgid="3376988352851077102">"चालू करने का डिसप्ले"</string>
-    <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"समय, सूचनाएं और दूसरी जानकारी देखने के लिए, अपना फ़ोन इस्तेमाल करें"</string>
+    <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"समय, सूचनाएं और दूसरी जानकारी देखने के लिए, अपना फ़ोन उठाएं."</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"समय, सूचनाएं और दूसरी जानकारी देखने के लिए, अपना टैबलेट इस्तेमाल करें."</string>
     <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"समय, सूचनाएं और दूसरी जानकारी देखने के लिए, अपना डिवाइस इस्तेमाल करें."</string>
     <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"फ़ोन की स्क्रीन पर टैप करके देखें कि सूचना मिली है या नहीं"</string>
@@ -4160,7 +4160,7 @@
     <string name="auto_sync_account_title" msgid="2394463123733529506">"डेटा को अपने आप सिंक करें"</string>
     <string name="auto_sync_personal_account_title" msgid="6844465157916100655">"व्यक्तिगत डेटा अपने आप सिंक करें"</string>
     <string name="auto_sync_work_account_title" msgid="2403222633447522376">"दफ़्तर डेटा अपने आप सिंक करें"</string>
-    <string name="auto_sync_account_summary" msgid="6316230976974033772">"ऐप्लिकेशन को डेटा अपने आप रीफ्रे़श करने दें"</string>
+    <string name="auto_sync_account_summary" msgid="6316230976974033772">"ऐप्लिकेशन को डेटा अपने-आप रीफ्रे़श करने दें"</string>
     <string name="account_sync_title" msgid="1570164819114297154">"खाता सिंक"</string>
     <string name="account_sync_summary_some_on" msgid="1934556869158274053">"<xliff:g id="ID_2">%2$d</xliff:g> में से <xliff:g id="ID_1">%1$d</xliff:g> आइटम के लिए सिंक करना चालू है"</string>
     <string name="account_sync_summary_all_on" msgid="3634161204232431700">"सभी आइटम के लिए सिंक करना चालू है"</string>

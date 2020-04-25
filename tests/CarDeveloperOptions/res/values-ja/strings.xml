@@ -940,7 +940,7 @@
     <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"「<xliff:g id="SSID">%1$s</xliff:g>」に接続するには、下記の中心に QR コードを合わせてください"</string>
     <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"Wi‑Fi に接続するには、QR コードをスキャンしてください"</string>
     <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"Wi‑Fi の共有"</string>
-    <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"「<xliff:g id="SSID">%1$s</xliff:g>」に接続してパスワードを共有するには、この QR コードをスキャンしてください"</string>
+    <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"パスワードを共有して「<xliff:g id="SSID">%1$s</xliff:g>」に接続するには、この QR コードをスキャンします"</string>
     <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"「<xliff:g id="SSID">%1$s</xliff:g>」に接続するには、この QR コードをスキャンしてください"</string>
     <string name="wifi_dpp_could_not_detect_valid_qr_code" msgid="27667719861826438">"QR コードを読み取れませんでした。コードを再度中央に捉えて、もう一度お試しください"</string>
     <string name="wifi_dpp_failure_authentication_or_configuration" msgid="9142051662156233679">"もう一度お試しください。問題が解決しない場合は、デバイスのメーカーにお問い合わせください"</string>
@@ -2455,7 +2455,7 @@
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"<xliff:g id="PERCENT">%1$s</xliff:g> で ON"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"スケジュールの設定"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"フル充電で無効"</string>
-    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"スマートフォンの電池残量が <xliff:g id="PERCENT">%1$s</xliff:g> になると、バッテリー セーバーは無効になります"</string>
+    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"スマートフォンの電池が <xliff:g id="PERCENT">%1$s</xliff:g> まで充電されると、バッテリー セーバーが OFF になります"</string>
     <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"タブレットの電池残量が <xliff:g id="PERCENT">%1$s</xliff:g> になると、バッテリー セーバーは無効になります"</string>
     <string name="battery_saver_sticky_description_new" product="device" msgid="5056520668081504111">"デバイスの電池残量が <xliff:g id="PERCENT">%1$s</xliff:g> になると、バッテリー セーバーは無効になります"</string>
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
@@ -3150,7 +3150,7 @@
     <string name="dial_pad_tones_title" msgid="8877212139988655769">"ダイヤルパッドの操作音"</string>
     <string name="screen_locking_sounds_title" msgid="4407110895465866809">"画面ロック音"</string>
     <string name="charging_sounds_title" msgid="5070437987230894287">"充電時の音とバイブレーション"</string>
-    <string name="docking_sounds_title" msgid="2573137471605541366">"装着音"</string>
+    <string name="docking_sounds_title" msgid="2573137471605541366">"ドッキング音"</string>
     <string name="touch_sounds_title" msgid="165237488496165652">"タッチ操作音"</string>
     <string name="vibrate_on_touch_title" msgid="6360155469279157684">"タップ操作時のバイブ"</string>
     <string name="vibrate_on_touch_summary" msgid="5504424764028676043">"タップ、キー操作などの触覚フィードバック"</string>

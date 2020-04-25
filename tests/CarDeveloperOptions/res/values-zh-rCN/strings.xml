@@ -2278,7 +2278,7 @@
     <string name="battery_tip_smart_battery_title" product="device" msgid="7419448992583346364">"延长设备的电池续航时间"</string>
     <string name="battery_tip_smart_battery_summary" msgid="5344821856478265778">"开启电池管理器"</string>
     <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"开启省电模式"</string>
-    <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"电池电量可能会比平时更早耗尽"</string>
+    <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"电池电量可能会比平时更快耗尽"</string>
     <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"省电模式已开启"</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"部分功能可能会受到限制"</string>
     <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"手机的使用强度比平时高"</string>
@@ -3169,7 +3169,7 @@
       <item quantity="one">已启用 1 个</item>
     </plurals>
     <string name="zen_mode_settings_title" msgid="3425263414594779244">"勿扰模式"</string>
-    <string name="zen_mode_settings_turn_on_dialog_title" msgid="3062548369931058282">"开启“勿扰”模式"</string>
+    <string name="zen_mode_settings_turn_on_dialog_title" msgid="3062548369931058282">"开启勿扰模式"</string>
     <string name="zen_mode_behavior_settings_title" msgid="423125904296667490">"例外情况"</string>
     <string name="zen_mode_duration_settings_title" msgid="5522668871014735728">"默认时长"</string>
     <string name="zen_mode_behavior_allow_title" msgid="2440627647424280842">"允许以下类型的提示音和振动："</string>
@@ -3509,7 +3509,7 @@
     <string name="zen_mode_reminders_list" msgid="7347061314032326677">"提醒"</string>
     <string name="zen_mode_events" msgid="5784076928339534984">"允许活动"</string>
     <string name="zen_mode_bypassing_apps" msgid="3080739479028713449">"允许应用覆盖"</string>
-    <string name="zen_mode_bypassing_apps_title" msgid="2115024664615538847">"应用例外情况"</string>
+    <string name="zen_mode_bypassing_apps_title" msgid="2115024664615538847">"例外应用"</string>
     <plurals name="zen_mode_bypassing_apps_subtext" formatted="false" msgid="8723144434730871572">
       <item quantity="other">有 <xliff:g id="NUMBER">%1$d</xliff:g> 个应用的通知可以覆盖“勿扰”设置</item>
       <item quantity="one">有 1 个应用的通知可以覆盖“勿扰”设置</item>
@@ -3520,7 +3520,7 @@
     <string name="zen_mode_starred_callers" msgid="1317376207713013472">"已加星标的联系人"</string>
     <string name="zen_mode_repeat_callers" msgid="1435309867554692340">"重复来电者"</string>
     <string name="zen_mode_repeat_callers_list" msgid="2750270907597457279">"重复来电者"</string>
-    <string name="zen_mode_repeat_callers_title" msgid="7192952181541813487">"允许显示重复来电者"</string>
+    <string name="zen_mode_repeat_callers_title" msgid="7192952181541813487">"不屏蔽重复来电者"</string>
     <string name="zen_mode_calls_summary_one" msgid="8327371053236689649">"允许<xliff:g id="CALLER_TYPE">%1$s</xliff:g>的来电"</string>
     <string name="zen_mode_calls_summary_two" msgid="9017678770532673578">"允许下列对象来电：<xliff:g id="CALLER_TYPE">%1$s</xliff:g>和<xliff:g id="CALLERT_TPYE">%2$s</xliff:g>"</string>
     <string name="zen_mode_repeat_callers_summary" msgid="1752513516040525545">"如果同一个人在 <xliff:g id="MINUTES">%d</xliff:g> 分钟内第二次来电"</string>
@@ -4474,7 +4474,7 @@
     <string name="privacy_dashboard_summary" msgid="7916431309860824945">"权限、帐号活动、个人数据"</string>
     <string name="contextual_card_dismiss_remove" msgid="1750420285615827309">"移除"</string>
     <string name="contextual_card_dismiss_keep" msgid="3204450672928193661">"保留"</string>
-    <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"要移除这项推荐内容吗？"</string>
+    <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"要移除这项建议吗？"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"已移除建议"</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"撤消"</string>
     <string name="low_storage_summary" msgid="4562224870189133400">"存储空间不足。已使用 <xliff:g id="PERCENTAGE">%1$s</xliff:g>，还剩 <xliff:g id="FREE_SPACE">%2$s</xliff:g>"</string>

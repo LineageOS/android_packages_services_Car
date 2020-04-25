@@ -3275,7 +3275,7 @@
     <string name="zen_mode_button_turn_on" msgid="1097964136225943415">"Uključi sada"</string>
     <string name="zen_mode_button_turn_off" msgid="3990967728457149454">"Odmah isključi"</string>
     <string name="zen_mode_settings_dnd_manual_end_time" msgid="4307574188962071429">"Način Ne uznemiravaj uključen je do <xliff:g id="FORMATTED_TIME">%s</xliff:g>"</string>
-    <string name="zen_mode_settings_dnd_manual_indefinite" msgid="3701005376825238752">"Način Ne ometaj ostat će uključen dok ga ne isključite"</string>
+    <string name="zen_mode_settings_dnd_manual_indefinite" msgid="3701005376825238752">"Način Ne uznemiravaj ostat će uključen dok ga ne isključite"</string>
     <string name="zen_mode_settings_dnd_automatic_rule" msgid="2843297614114625408">"Raspored <xliff:g id="RULE_NAME">%s</xliff:g> automatski je uključio Ne uznemiravaj"</string>
     <string name="zen_mode_settings_dnd_automatic_rule_app" msgid="5103454923160912313">"Način Ne uznemiravaj automatski je uključila aplikacija (<xliff:g id="APP_NAME">%s</xliff:g>)"</string>
     <string name="zen_mode_settings_dnd_custom_settings_footer" msgid="6335108298640066560">"Način Ne uznemiravaj uključen je za <xliff:g id="RULE_NAMES">%s</xliff:g> uz prilagođene postavke."</string>

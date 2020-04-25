@@ -1798,7 +1798,7 @@
     <string name="install_all_warning" product="device" msgid="9141585291103603515">"თქვენი მოწყობილობა და პირადი მონაცემები უცნობი აპების შემოტევების წინაშე მეტად დაუცველია. აპების ამ წყაროდან ინსტალაციის შემთხვევაში თქვენ თანახმა ხართ, პასუხისმგებელი იყოთ ამ აპების გამოყენების შედეგად მოწყობილობისთვის მიყენებულ ზიანსა და მონაცემების დაკარგვაზე."</string>
     <string name="advanced_settings" msgid="6282069364060968122">"დამატებითი პარამეტრები"</string>
     <string name="advanced_settings_summary" msgid="5912237062506771716">"მეტი პარამეტრების ვარიანტების ჩართვა"</string>
-    <string name="application_info_label" msgid="3886253474964599105">"აპის მონაცემები"</string>
+    <string name="application_info_label" msgid="3886253474964599105">"აპების მონაცემები"</string>
     <string name="storage_label" msgid="1109537840103290384">"საცავი"</string>
     <string name="auto_launch_label" msgid="47089737922907379">"გახსნა ნაგულისხმევად"</string>
     <string name="auto_launch_label_generic" msgid="7865828543459493308">"ნაგულისხმევი"</string>

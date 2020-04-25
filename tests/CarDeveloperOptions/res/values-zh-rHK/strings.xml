@@ -275,7 +275,7 @@
     <string name="dlg_remove_locales_message" msgid="5179370688876343176">"文字將以其他語言顯示。"</string>
     <string name="dlg_remove_locales_error_title" msgid="9090578326002163975">"無法移除所有語言"</string>
     <string name="dlg_remove_locales_error_message" msgid="6799897638891903618">"請至少保留一種偏好語言"</string>
-    <string name="locale_not_translated" msgid="7943669576006420058">"部分應用程式可能不提供支援"</string>
+    <string name="locale_not_translated" msgid="7943669576006420058">"部分應用程式可能不支援"</string>
     <string name="action_drag_label_move_up" msgid="2074064283966078352">"向上移"</string>
     <string name="action_drag_label_move_down" msgid="1367989732445492291">"向下移"</string>
     <string name="action_drag_label_move_top" msgid="2033098833739345957">"移至頂端"</string>
@@ -2883,7 +2883,7 @@
     <string name="user_cannot_add_accounts_message" msgid="5993561303748749097">"限制存取的個人檔案無法新增帳戶"</string>
     <string name="user_remove_user_menu" msgid="3505139157217459864">"將 <xliff:g id="USER_NAME">%1$s</xliff:g> 從這部裝置中刪除"</string>
     <string name="user_lockscreen_settings" msgid="3820813814848394568">"上鎖畫面設定"</string>
-    <string name="user_add_on_lockscreen_menu" msgid="5211604808199585774">"在上鎖畫面上新增使用者"</string>
+    <string name="user_add_on_lockscreen_menu" msgid="5211604808199585774">"在上鎖畫面加入使用者"</string>
     <string name="user_new_user_name" msgid="3880395219777884838">"新使用者"</string>
     <string name="user_new_profile_name" msgid="3074939718101489937">"新個人檔案"</string>
     <string name="user_confirm_remove_self_title" msgid="6739480453680217543">"您要刪除自己嗎？"</string>
@@ -4121,18 +4121,18 @@
     <string name="swipe_up_to_switch_apps_summary" msgid="4644068184114154787">"如要切換應用程式，請在主按鈕上向上滑動。再次向上滑動即可查看所有應用程式。此操作適用於任何畫面。您的畫面右下方將不再有 [概覽] 按鈕。"</string>
     <string name="swipe_up_to_switch_apps_suggestion_title" msgid="7641846365137536128">"試按新版主按鈕"</string>
     <string name="swipe_up_to_switch_apps_suggestion_summary" msgid="7338653224520387852">"啟用新手勢即可切換應用程式"</string>
-    <string name="ambient_display_title" product="default" msgid="6785677099744344088">"輕按兩下以查看手機"</string>
+    <string name="ambient_display_title" product="default" msgid="6785677099744344088">"輕按兩下顯示畫面"</string>
     <string name="ambient_display_title" product="tablet" msgid="1106285490888683613">"輕按兩下即可查看平板電腦"</string>
     <string name="ambient_display_title" product="device" msgid="5064644474876041478">"輕按兩下即可查看裝置"</string>
     <string name="ambient_display_summary" msgid="4882910328216411109">"輕按螢幕兩下即可查看時間、通知和其他資訊。"</string>
-    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"拿起即可查看手機"</string>
+    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"拿起手機顯示畫面"</string>
     <string name="ambient_display_pickup_title" product="tablet" msgid="1555456400210301959">"拿起即可查看平板電腦"</string>
     <string name="ambient_display_pickup_title" product="device" msgid="2480126522988135037">"拿起即可查看裝置"</string>
     <string name="ambient_display_wake_screen_title" msgid="3376988352851077102">"喚醒顯示屏"</string>
     <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"拿起您的手機即可查看時間、通知和其他資訊。"</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"拿起您的平板電腦即可查看時間、通知和其他資訊。"</string>
     <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"拿起您的裝置即可查看時間、通知和其他資訊。"</string>
-    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"輕按即可查看手機"</string>
+    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"輕按一下顯示畫面"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"輕按即可查看平板電腦"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"輕按即可查看裝置"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"輕按螢幕即可查看時間、通知和其他資訊。"</string>

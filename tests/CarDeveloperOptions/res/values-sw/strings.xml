@@ -196,7 +196,7 @@
     <string name="proxy_settings_title" msgid="6014901859338211713">"Seva mbadala"</string>
     <string name="proxy_clear_text" msgid="498317431076294101">"Futa"</string>
     <string name="proxy_port_label" msgid="8285157632538848509">"Mlango wa seva mbadala"</string>
-    <string name="proxy_exclusionlist_label" msgid="8179084955547941904">"Proksi ya Bypass ya"</string>
+    <string name="proxy_exclusionlist_label" msgid="8179084955547941904">"Seva mbadala ya kando ya"</string>
     <string name="proxy_defaultView_text" msgid="5785775257042403261">"Rejesha kwa chaguo misingi"</string>
     <string name="proxy_action_text" msgid="814511434843981413">"Nimemaliza"</string>
     <string name="proxy_hostname_label" msgid="6798891831427287847">"Jina la mpangishaji wa seva mbadala"</string>
@@ -413,7 +413,7 @@
     <string name="security_settings_face_enroll_error_dialog_title" msgid="3933492758701563051">"Hukukamilisha kujiandikishaji"</string>
     <string name="security_settings_face_enroll_dialog_ok" msgid="1078348922734845090">"Sawa"</string>
     <string name="security_settings_face_enroll_error_timeout_dialog_message" msgid="4917894418448325405">"Muda wa kuandikisha uso umefikia kikomo. Jaribu tena."</string>
-    <string name="security_settings_face_enroll_error_generic_dialog_message" msgid="5160473187142616862">"Imeshindwa kuandikisha uso."</string>
+    <string name="security_settings_face_enroll_error_generic_dialog_message" msgid="5160473187142616862">"Imeshindwa kusajili uso."</string>
     <string name="security_settings_face_enroll_finish_title" msgid="6800717857394410769">"Tayari kabisa. Safi."</string>
     <string name="security_settings_face_enroll_done" msgid="5409739233373490971">"Nimemaliza"</string>
     <string name="security_settings_face_settings_use_face_category" msgid="1586532139528115416">"Tumia uso wako kwa"</string>
@@ -846,7 +846,7 @@
     <string name="wifi_error" msgid="5605801874484465557">"Hitilafu"</string>
     <string name="wifi_sap_no_channel_error" msgid="6881796988574851628">"Mitabendi ya GHz 5 haipatikani katika nchi hii"</string>
     <string name="wifi_in_airplane_mode" msgid="4729571191578262246">"Hali ya ndegeni imewashwa"</string>
-    <string name="wifi_notify_open_networks" msgid="4782239203624619655">"Fungua arifa za mtandao"</string>
+    <string name="wifi_notify_open_networks" msgid="4782239203624619655">"Arifu kuhusu mitandao wazi"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"Tuma arifa wakati mtandao wenye ubora wa juu unapatikana"</string>
     <string name="wifi_wakeup" msgid="4963732992164721548">"Washa Wi‑Fi kiotomatiki"</string>
     <string name="wifi_wakeup_summary" msgid="1152699417411690">"Wi-Fi itaanza kutumika tena mitandao iliyohifadhiwa ya ubora wa juu itakapopatikana, kama vile mtandao wa nyumbani"</string>
@@ -3953,7 +3953,7 @@
       <item quantity="other">Vizuizi <xliff:g id="COUNT">%1$d</xliff:g></item>
       <item quantity="one">Kizuizi 1</item>
     </plurals>
-    <string name="operator_warning" msgid="4676042739221117031">"Huenda hesabu ya data ya mtoa huduma ikawa tofauti na ya kifaa chako."</string>
+    <string name="operator_warning" msgid="4676042739221117031">"Huenda hesabu ya data ya mtoa huduma ikawa tofauti na ya kifaa chako"</string>
     <string name="data_used_template" msgid="761605393453849477">"<xliff:g id="ID_1">%1$s</xliff:g> zimetumika"</string>
     <string name="set_data_warning" msgid="8115980184415563941">"Weka onyo la matumizi ya data"</string>
     <string name="data_warning" msgid="2699207195535036240">"Onyo kuhusu data"</string>

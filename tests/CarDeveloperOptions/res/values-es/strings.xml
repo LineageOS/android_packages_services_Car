@@ -2281,7 +2281,7 @@
     <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"Es posible que te quedes sin batería antes de lo normal"</string>
     <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"Ahorro de batería activado"</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"Es posible que algunas funciones estén limitadas"</string>
-    <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"El teléfono se ha usado más de lo normal"</string>
+    <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"Teléfono usado más de lo normal"</string>
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"El tablet se ha usado más de lo normal"</string>
     <string name="battery_tip_high_usage_title" product="device" msgid="8304138287288309490">"El dispositivo se ha usado más de lo normal"</string>
     <string name="battery_tip_high_usage_summary" msgid="5514749872957528189">"Es posible que te quedes sin batería antes de lo normal"</string>
@@ -2298,8 +2298,8 @@
       <item quantity="one">%1$s aplicación se ha restringido recientemente</item>
     </plurals>
     <plurals name="battery_tip_restrict_summary" formatted="false" msgid="984148373944071669">
-      <item quantity="other">%2$d aplicaciones consumen mucha batería en segundo plano</item>
-      <item quantity="one">%1$s aplicación consume mucha batería en segundo plano</item>
+      <item quantity="other">%2$d apps gastan mucho en segundo plano</item>
+      <item quantity="one">%1$s gasta mucho en segundo plano</item>
     </plurals>
     <plurals name="battery_tip_restrict_handled_summary" formatted="false" msgid="469696766640020557">
       <item quantity="other">Estas aplicaciones no se pueden ejecutar en segundo plano</item>
@@ -2601,7 +2601,7 @@
     <string name="work_mode_label" msgid="6845849194740195757">"Perfil de trabajo"</string>
     <string name="work_mode_on_summary" msgid="1682781113156323592">"Administrado por tu organización"</string>
     <string name="work_mode_off_summary" msgid="1688885392211178315">"Las aplicaciones y las notificaciones están desactivadas"</string>
-    <string name="remove_managed_profile_label" msgid="4625542553784793536">"Eliminar perfil de trabajo"</string>
+    <string name="remove_managed_profile_label" msgid="4625542553784793536">"Quitar perfil de trabajo"</string>
     <string name="background_data" msgid="8275750862371471171">"Datos en segundo plano"</string>
     <string name="background_data_summary" msgid="799640633948841990">"Las aplicaciones pueden sincronizar datos, enviarlos y recibirlos."</string>
     <string name="background_data_dialog_title" msgid="8306650658158895976">"¿Inhabilitar datos en segundo plano?"</string>
@@ -2670,7 +2670,7 @@
     <string name="data_usage_menu_sim_cards" msgid="8508154611676507088">"Tarjetas SIM"</string>
     <string name="data_usage_cellular_data_summary" msgid="9162777397135709280">"En pausa al límite"</string>
     <string name="account_settings_menu_auto_sync" msgid="2673669556006027506">"Sincronización automática"</string>
-    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"Sincr. autom. datos personales"</string>
+    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"Sincronizar datos personales automáticamente"</string>
     <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"Sincr. autom. datos trabajo"</string>
     <string name="data_usage_change_cycle" msgid="447761920472170031">"Cambiar ciclo…"</string>
     <string name="data_usage_pick_cycle_day" msgid="6319750879145917066">"Día del mes para restablecer ciclo de uso de datos:"</string>
@@ -2888,7 +2888,7 @@
     <string name="user_confirm_remove_self_title" msgid="6739480453680217543">"¿Eliminarte a ti mismo?"</string>
     <string name="user_confirm_remove_title" msgid="1034498514019462084">"¿Eliminar este usuario?"</string>
     <string name="user_profile_confirm_remove_title" msgid="6138684743385947063">"¿Quitar este perfil?"</string>
-    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"¿Eliminar perfil de trabajo?"</string>
+    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"¿Quitar perfil de trabajo?"</string>
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"Perderás tu espacio y tus datos en este tablet. Esta acción no se puede deshacer."</string>
     <string name="user_confirm_remove_self_message" product="default" msgid="8441729423565705183">"Perderás tu espacio y tus datos en este teléfono. Esta acción no se puede deshacer."</string>
     <string name="user_confirm_remove_message" msgid="5202150470271756013">"Se eliminarán todas las aplicaciones y datos"</string>
@@ -3130,7 +3130,7 @@
     <string name="keywords_battery_saver_sticky" msgid="8733804259716284872">"ahorro de batería, batería fija, duradera, ahorro de batería, batería"</string>
     <string name="default_sound" msgid="6675629744816442953">"Sonido predeterminado"</string>
     <string name="sound_settings_summary" msgid="8467549670633195109">"Volumen del tono de llamada al <xliff:g id="PERCENTAGE">%1$s</xliff:g>"</string>
-    <string name="sound_dashboard_summary" msgid="5187301919242823508">"Volumen, vibración y No molestar"</string>
+    <string name="sound_dashboard_summary" msgid="5187301919242823508">"Volumen, vibración, No molestar"</string>
     <string name="sound_settings_summary_vibrate" msgid="2194491116884798590">"Timbre en vibración"</string>
     <string name="sound_settings_summary_silent" msgid="899823817462768876">"Timbre en silencio"</string>
     <string name="sound_settings_example_summary" msgid="2091822107298841827">"Volumen del tono de llamada al 80 %"</string>
@@ -3862,7 +3862,7 @@
     <string name="storage_summary_with_sdcard" msgid="8742907204848352697">"Almacenamiento interno: <xliff:g id="PERCENTAGE">%1$s</xliff:g> usado (<xliff:g id="FREE_SPACE">%2$s</xliff:g> disponible)"</string>
     <string name="display_summary" msgid="5725269449657325797">"Suspender después de <xliff:g id="TIMEOUT_DESCRIPTION">%1$s</xliff:g> de inactividad"</string>
     <string name="display_dashboard_summary" msgid="7678566148167010682">"Fondo de pantalla, suspensión, tamaño de la fuente"</string>
-    <string name="display_dashboard_summary_with_style" msgid="8981059474501210956">"Estilos y fondos de pantalla, suspensión y tamaño de fuente"</string>
+    <string name="display_dashboard_summary_with_style" msgid="8981059474501210956">"Estilos y fondos de pantalla, suspensión, tamaño de fuente"</string>
     <string name="display_dashboard_nowallpaper_summary" msgid="8612534364908229000">"Tamaño de letra en la pantalla de suspensión"</string>
     <string name="display_summary_example" msgid="4555020581960719296">"Suspender después de 10 minutos de inactividad"</string>
     <string name="memory_summary" msgid="9121871336058042600">"Se está usando una media de <xliff:g id="USED_MEMORY">%1$s</xliff:g> de <xliff:g id="TOTAL_MEMORY">%2$s</xliff:g> de memoria"</string>

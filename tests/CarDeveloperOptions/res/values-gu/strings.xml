@@ -99,7 +99,7 @@
     <string name="bluetooth_visibility_timeout" msgid="4804679276398564496">"દૃશ્યતાની સમયસમાપ્તિ"</string>
     <string name="bluetooth_lock_voice_dialing" msgid="1600385868298081015">"વૉઇસ ડાયલિંગ લૉક કરો"</string>
     <string name="bluetooth_lock_voice_dialing_summary" msgid="5005776616112427980">"જ્યારે સ્ક્રીન લૉક થયેલ હોય ત્યારે બ્લૂટૂથ ડાયલરના ઉપયોગને અટકાવો"</string>
-    <string name="bluetooth_devices" msgid="4143880830505625666">"બ્લૂટૂથ ઉપકરણો"</string>
+    <string name="bluetooth_devices" msgid="4143880830505625666">"બ્લૂટૂથ ડિવાઇસ"</string>
     <string name="bluetooth_device_name" msgid="3682016026866302981">"ડિવાઇસનું નામ"</string>
     <string name="bluetooth_device_details" msgid="2500840679106321361">"ડિવાઇસના સેટિંગ"</string>
     <string name="bluetooth_profile_details" msgid="1785505059738682493">"પ્રોફાઇલ સેટિંગ્સ"</string>
@@ -1142,7 +1142,7 @@
     <string name="volume_media_description" msgid="3659485559976891268">"સંગીત, વીડિઓ, રમતો, અને અને અન્ય મીડિયા"</string>
     <string name="volume_ring_description" msgid="1975431532517579212">"રિંગટોન અને સૂચનાઓ"</string>
     <string name="volume_notification_description" msgid="8871940450828766751">"નોટિફિકેશનો"</string>
-    <string name="volume_alarm_description" msgid="3230692343946237658">"એલાર્મ્સ"</string>
+    <string name="volume_alarm_description" msgid="3230692343946237658">"એલાર્મ"</string>
     <string name="volume_ring_mute" msgid="6022038055768721847">"રિંગટોન અને સૂચનાઓ મ્યૂટ કરો"</string>
     <string name="volume_media_mute" msgid="816848304566175614">"સંગીત અને અન્ય મીડિયાને મ્યૂટ કરો"</string>
     <string name="volume_notification_mute" msgid="7759564556421535211">"સૂચનાઓ મ્યૂટ કરો"</string>
@@ -1458,7 +1458,7 @@
     <string name="storage_detail_system" msgid="6784247618772153283">"સિસ્ટમ"</string>
     <string name="storage_detail_explore" msgid="8206900269596580264">"<xliff:g id="NAME">^1</xliff:g> નું અન્વેષણ કરો"</string>
     <string name="storage_detail_dialog_other" msgid="5073511663616043370">"ઍપ દ્વારા સાચવવામાં આવેલ શેર કરેલ ફાઇલો, ઇન્ટરનેટ અથવા બ્લૂટૂથ વડે ડાઉનલોડ કરેલ ફાઇલો, Android ફાઇલો અને આના જેવી વધુ ફાઇલો અન્યમાં શામેલ હોય છે. \n\nઆ <xliff:g id="NAME">^1</xliff:g>નું દૃશ્યક્ષમ કન્ટેન્ટ જોવા માટે શોધખોળ કરો પર ટૅપ કરો."</string>
-    <string name="storage_detail_dialog_system" msgid="1472572861360014226">"સિસ્ટમમાં Android સંસ્કરણ <xliff:g id="VERSION">%s</xliff:g> ચલાવવા માટે ઉપયોગી ફાઇલોનો સમાવેશ છે"</string>
+    <string name="storage_detail_dialog_system" msgid="1472572861360014226">"સિસ્ટમમાં Android વર્ઝન <xliff:g id="VERSION">%s</xliff:g> ચલાવવા માટે ઉપયોગી ફાઇલોનો સમાવેશ છે"</string>
     <string name="storage_detail_dialog_user" msgid="1663117417635010371">"<xliff:g id="USER_0">^1</xliff:g>એ <xliff:g id="SIZE">^2</xliff:g> સ્ટોરેજનો ઉપયોગ કરીને ફોટો, સંગીત, ઍપ્લિકેશનો અથવા અન્ય ડેટા સાચવ્યો હોઈ શકે છે.\n\nવિગતો જોવા માટે, <xliff:g id="USER_1">^1</xliff:g> પર સ્વિચ કરો."</string>
     <string name="storage_wizard_init_title" msgid="3407283236421089014">"તમારું <xliff:g id="NAME">^1</xliff:g> સેટ કરો"</string>
     <string name="storage_wizard_init_external_title" msgid="6853250619674645478">"પોર્ટેબલ સંગ્રહ તરીકે ઉપયોગ કરો"</string>
@@ -2670,7 +2670,7 @@
     <string name="data_usage_menu_sim_cards" msgid="8508154611676507088">"સિમ કાર્ડ"</string>
     <string name="data_usage_cellular_data_summary" msgid="9162777397135709280">"થોભાવવાની મર્યાદા"</string>
     <string name="account_settings_menu_auto_sync" msgid="2673669556006027506">"ડેટાને આપમેળે સિંક કરો"</string>
-    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"વ્યક્તિગત ડેટાને આપમેળે સિંક કરો"</string>
+    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"વ્યક્તિગત ડેટાને ઑટો સિંક કરો"</string>
     <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"કાર્યાલયના ડેટાને આપમેળે સિંક કરો"</string>
     <string name="data_usage_change_cycle" msgid="447761920472170031">"ચક્ર બદલો…"</string>
     <string name="data_usage_pick_cycle_day" msgid="6319750879145917066">"ડેટા વપરાશ ચક્ર ફરીથી સેટ કરવા માટે મહિનાનો દિવસ:"</string>
@@ -4081,7 +4081,7 @@
     <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"ઝપડી સેટિંગ્સ વિકાસકર્તા ટાઇલ"</string>
     <string name="winscope_trace_quick_settings_title" msgid="940971040388411374">"Winscope ટ્રેસ"</string>
     <string name="sensors_off_quick_settings_title" msgid="3655699045300438902">"સેન્સર બંધ છે"</string>
-    <string name="managed_profile_settings_title" msgid="4340409321523532402">"કાર્યાલયની પ્રોફાઇલની સેટિંગ્સ"</string>
+    <string name="managed_profile_settings_title" msgid="4340409321523532402">"કાર્યાલયની પ્રોફાઇલના સેટિંગ"</string>
     <string name="managed_profile_contact_search_title" msgid="7337225196804457095">"સંપર્ક શોધ"</string>
     <string name="managed_profile_contact_search_summary" msgid="7278267480246726951">"કૉલર્સ અને સંપર્કોને ઓળખવા માટે તમારી સંસ્થા દ્વારા સંપર્ક શોધની મંજૂરી આપો"</string>
     <string name="cross_profile_calendar_title" msgid="2351605904015067145">"ક્રૉસ-પ્રોફાઇલ કૅલેન્ડર"</string>
@@ -4160,7 +4160,7 @@
     <string name="auto_sync_account_title" msgid="2394463123733529506">"ડેટાને ઑટોમૅટિક રીતે સિંક કરો"</string>
     <string name="auto_sync_personal_account_title" msgid="6844465157916100655">"વ્યક્તિગત ડેટાનું આપમેળે સમન્વયન કરો"</string>
     <string name="auto_sync_work_account_title" msgid="2403222633447522376">"કાર્ય ડેટાનું આપમેળે સમન્વયન કરો"</string>
-    <string name="auto_sync_account_summary" msgid="6316230976974033772">"ઍપને આપમેળે ડેટાને રિફ્રેશ કરવા દો"</string>
+    <string name="auto_sync_account_summary" msgid="6316230976974033772">"ઍપને ઑટોમૅટિક રીતે ડેટાને રિફ્રેશ કરવા દો"</string>
     <string name="account_sync_title" msgid="1570164819114297154">"એકાઉન્ટ સિંક"</string>
     <string name="account_sync_summary_some_on" msgid="1934556869158274053">"<xliff:g id="ID_2">%2$d</xliff:g> માંથી <xliff:g id="ID_1">%1$d</xliff:g> આઇટમ માટે સમન્વયન ચાલુ છે"</string>
     <string name="account_sync_summary_all_on" msgid="3634161204232431700">"બધી આઇટમ માટે સમન્વયન ચાલુ છે"</string>
