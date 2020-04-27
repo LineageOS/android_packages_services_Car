@@ -66,12 +66,6 @@
         <install-in user-type="SYSTEM" />
     </install-in-user-type>
 
-    <!-- Mainline Wi-fi stack, it's needed for all users -->
-    <install-in-user-type package="com.android.wifi">
-        <install-in user-type="SYSTEM" />
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-
     <!-- Provides Settings. Secure for SYSTEM, which are used in places such as SUW -->
     <install-in-user-type package="com.android.providers.settings">
         <install-in user-type="FULL" />
@@ -120,18 +114,6 @@
 
     <!-- Needs this packages during bootup, otherwise system won't boot -->
     <install-in-user-type package="com.android.wifi.resources">
-        <install-in user-type="FULL" />
-        <install-in user-type="SYSTEM" />
-    </install-in-user-type>
-
-    <!-- Uses system user id -->
-    <install-in-user-type package="com.android.incremental.nativeadb">
-        <install-in user-type="FULL" />
-        <install-in user-type="SYSTEM" />
-    </install-in-user-type>
-
-    <!-- Uses system user id -->
-    <install-in-user-type package="com.android.networkstack.inprocess">
         <install-in user-type="FULL" />
         <install-in user-type="SYSTEM" />
     </install-in-user-type>
@@ -191,9 +173,6 @@
     <install-in-user-type package="com.android.htmlviewer">
         <install-in user-type="FULL" />
     </install-in-user-type>
-    <install-in-user-type package="com.android.protips">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
     <install-in-user-type package="com.android.inputdevices">
         <install-in user-type="FULL" />
     </install-in-user-type>
@@ -237,9 +216,6 @@
         <install-in user-type="FULL" />
     </install-in-user-type>
     <install-in-user-type package="com.android.bluetoothmidiservice">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.smspush">
         <install-in user-type="FULL" />
     </install-in-user-type>
     <install-in-user-type package="com.android.statementservice">
@@ -299,9 +275,6 @@
     <install-in-user-type package="com.android.storagemanager">
         <install-in user-type="FULL" />
     </install-in-user-type>
-    <install-in-user-type package="android.autoinstalls.config.google.car">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
     <install-in-user-type package="com.android.carrierconfig">
         <install-in user-type="FULL" />
     </install-in-user-type>
@@ -321,6 +294,9 @@
         <install-in user-type="FULL" />
     </install-in-user-type>
     <install-in-user-type package="com.android.externalstorage">
+        <install-in user-type="FULL" />
+    </install-in-user-type>
+    <install-in-user-type package="com.android.hotspot2.osulogin">
         <install-in user-type="FULL" />
     </install-in-user-type>
 </config>
