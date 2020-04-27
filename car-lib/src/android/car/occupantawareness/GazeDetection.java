@@ -21,7 +21,6 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.annotation.SystemApi;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -32,7 +31,6 @@ import java.lang.annotation.Retention;
  *
  * @hide
  */
-@SystemApi
 public final class GazeDetection implements Parcelable {
 
     /** A unknown gaze region, not otherwise specified. */

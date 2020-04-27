@@ -17,7 +17,6 @@
 package android.car.occupantawareness;
 
 import android.annotation.NonNull;
-import android.annotation.SystemApi;
 import android.car.occupantawareness.OccupantAwarenessDetection.ConfidenceLevel;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -27,7 +26,6 @@ import android.os.Parcelable;
  *
  * @hide
  */
-@SystemApi
 public final class DriverMonitoringDetection implements Parcelable {
 
     /** {@link OccupantAwarenessDetection.ConfidenceLevel} for the driver monitoring detection. */
