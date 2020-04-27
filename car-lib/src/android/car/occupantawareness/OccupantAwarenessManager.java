@@ -18,7 +18,6 @@ package android.car.occupantawareness;
 
 import android.annotation.NonNull;
 import android.annotation.RequiresPermission;
-import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.annotation.RequiredFeature;
@@ -44,7 +43,6 @@ import java.lang.ref.WeakReference;
  * @hide
  */
 @RequiredFeature(Car.OCCUPANT_AWARENESS_SERVICE)
-@SystemApi
 public class OccupantAwarenessManager extends CarManagerBase {
     private static final String TAG = "OAS.Manager";
     private static final boolean DBG = false;
