@@ -16,8 +16,6 @@
 
 package android.car.userlib;
 
-import static android.car.userlib.InitialUserSetterTest.setHeadlessSystemUserMode;
-
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 
@@ -293,7 +291,7 @@ public class CarUserManagerHelperTest extends AbstractExtendMockitoTestCase {
 
     @Test
     public void testHasInitialUser_onlyHeadlessSystemUser() {
-        setHeadlessSystemUserMode(true);
+        mockIsHeadlessSystemUserMode(true);
         mockGetUsers(mSystemUser);
 
         assertThat(mCarUserManagerHelper.hasInitialUser()).isFalse();
@@ -301,7 +299,7 @@ public class CarUserManagerHelperTest extends AbstractExtendMockitoTestCase {
 
     @Test
     public void testHasInitialUser_onlyNonHeadlessSystemUser() {
-        setHeadlessSystemUserMode(false);
+        mockIsHeadlessSystemUserMode(false);
         mockGetUsers(mSystemUser);
 
         assertThat(mCarUserManagerHelper.hasInitialUser()).isTrue();
@@ -309,7 +307,7 @@ public class CarUserManagerHelperTest extends AbstractExtendMockitoTestCase {
 
     @Test
     public void testHasInitialUser_hasNormalUser() {
-        setHeadlessSystemUserMode(true);
+        mockIsHeadlessSystemUserMode(true);
         UserInfo normalUser = createUserInfoForId(10);
         mockGetUsers(mSystemUser, normalUser);
 
@@ -318,7 +316,7 @@ public class CarUserManagerHelperTest extends AbstractExtendMockitoTestCase {
 
     @Test
     public void testHasInitialUser_hasOnlyWorkProfile() {
-        setHeadlessSystemUserMode(true);
+        mockIsHeadlessSystemUserMode(true);
         UserInfo workProfile = createUserInfoForId(10);
         workProfile.userType = UserManager.USER_TYPE_PROFILE_MANAGED;
         assertThat(workProfile.isManagedProfile()).isTrue(); // Sanity check

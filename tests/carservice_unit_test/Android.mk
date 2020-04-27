@@ -51,6 +51,7 @@ LOCAL_JAVA_LIBRARIES := \
     EncryptionRunner
 
 LOCAL_STATIC_JAVA_LIBRARIES := \
+    android.car.testapi \
     android.car.test.utils \
     androidx.test.core \
     androidx.test.ext.junit \
