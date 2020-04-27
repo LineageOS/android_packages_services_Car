@@ -17,7 +17,6 @@
 package android.car.occupantawareness;
 
 import android.annotation.NonNull;
-import android.annotation.SystemApi;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -26,7 +25,6 @@ import android.os.Parcelable;
  *
  * @hide
  */
-@SystemApi
 public final class Point3D implements Parcelable {
     /** The x-component of the point. */
     public final double x;

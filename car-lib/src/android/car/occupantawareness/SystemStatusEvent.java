@@ -20,7 +20,6 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
-import android.annotation.SystemApi;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -33,7 +32,6 @@ import java.lang.annotation.Retention;
  *
  * @hide
  */
-@SystemApi
 public final class SystemStatusEvent implements Parcelable {
     /** The system is ready to provide data. */
     public static final int SYSTEM_STATUS_READY = 0;
