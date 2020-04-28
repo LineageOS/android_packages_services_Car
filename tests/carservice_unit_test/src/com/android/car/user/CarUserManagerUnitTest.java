@@ -18,7 +18,6 @@ package com.android.car.user;
 import static android.os.UserHandle.USER_SYSTEM;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -36,6 +35,7 @@ import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.car.Car;
 import android.car.ICarUserService;
+import android.car.test.mocks.AbstractExtendMockitoTestCase;
 import android.car.user.CarUserManager;
 import android.car.user.UserSwitchResult;
 import android.content.pm.UserInfo;
@@ -44,12 +44,9 @@ import android.os.UserManager;
 
 import com.android.internal.infra.AndroidFuture;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.MockitoSession;
-import org.mockito.quality.Strictness;
 
 import java.util.Arrays;
 import java.util.List;
@@ -57,7 +54,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
-public final class CarUserManagerUnitTest {
+public final class CarUserManagerUnitTest extends AbstractExtendMockitoTestCase {
 
     private static final long ASYNC_TIMEOUT_MS = 500;
 
@@ -68,22 +65,16 @@ public final class CarUserManagerUnitTest {
     @Mock
     private ICarUserService mService;
 
-    private MockitoSession mSession;
     private CarUserManager mMgr;
+
+    @Override
+    protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
+        session.spyStatic(UserManager.class);
+    }
 
     @Before
     public void setFixtures() {
-        mSession = mockitoSession()
-                .strictness(Strictness.LENIENT)
-                .spyStatic(UserManager.class)
-                .initMocks(this)
-                .startMocking();
         mMgr = new CarUserManager(mCar, mService, mUserManager);
-    }
-
-    @After
-    public void finishSession() throws Exception {
-        mSession.finishMocking();
     }
 
     @Test
