@@ -16,9 +16,6 @@
 
 package com.android.car.pm;
 
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
-
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
@@ -28,6 +25,7 @@ import static org.mockito.Mockito.when;
 
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
+import android.car.test.mocks.AbstractExtendMockitoTestCase;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleEventType;
@@ -61,8 +59,6 @@ import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoSession;
-import org.mockito.quality.Strictness;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -71,7 +67,7 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public final class VendorServiceControllerTest {
+public final class VendorServiceControllerTest extends AbstractExtendMockitoTestCase {
     private static final String TAG = VendorServiceControllerTest.class.getSimpleName();
 
     // TODO(b/152069895): decrease value once refactored. In fact, it should not even use
@@ -99,19 +95,19 @@ public final class VendorServiceControllerTest {
     @Mock
     private UserHalService mUserHal;
 
-    private MockitoSession mSession;
     private ServiceLauncherContext mContext;
     private CarUserManagerHelper mUserManagerHelper;
     private CarUserService mCarUserService;
     private VendorServiceController mController;
 
+
+    @Override
+    protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
+        session.spyStatic(ActivityManager.class);
+    }
+
     @Before
     public void setUp() {
-        mSession = mockitoSession()
-                .initMocks(this)
-                .strictness(Strictness.LENIENT)
-                .spyStatic(ActivityManager.class)
-                .startMocking();
         mContext = new ServiceLauncherContext(ApplicationProvider.getApplicationContext());
         mUserManagerHelper = Mockito.spy(new CarUserManagerHelper(mContext));
         mCarUserService = new CarUserService(mContext, mUserHal, mUserManagerHelper, mUserManager,
@@ -130,7 +126,6 @@ public final class VendorServiceControllerTest {
     @After
     public void tearDown() {
         CarLocalServices.removeServiceForTest(CarUserService.class);
-        mSession.finishMocking();
     }
 
     @Test
@@ -181,7 +176,6 @@ public final class VendorServiceControllerTest {
 
         // Switch user to foreground
         mockGetCurrentUser(FG_USER_ID);
-        when(ActivityManager.getCurrentUser()).thenReturn(FG_USER_ID);
         sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, FG_USER_ID);
 
         // Expect only services with ASAP trigger to be started
@@ -350,11 +344,6 @@ public final class VendorServiceControllerTest {
     }
 
     // TODO(b/149099817): move stuff below to common code
-
-    // TODO(b/152069895): should not need to mock it, but rather rely on userId passed on event
-    private static void mockGetCurrentUser(@UserIdInt int userId) {
-        doReturn(userId).when(() -> ActivityManager.getCurrentUser());
-    }
 
     /**
      * Custom Mockito matcher to check if a {@link UserHandle} has the given {@code userId}.
