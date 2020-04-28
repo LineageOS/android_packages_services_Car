@@ -41,6 +41,7 @@ LOCAL_PROGUARD_ENABLED := disabled
 LOCAL_STATIC_JAVA_LIBRARIES := junit
 # testng imported to use assertThrows, we can remove it once it's ported to JUnit's.
 LOCAL_STATIC_JAVA_LIBRARIES += \
+    android.car.test.utils \
     android.car.watchdoglib \
     androidx.test.ext.junit \
     androidx.test.rules \
@@ -62,7 +63,10 @@ LOCAL_JAVA_LIBRARIES := \
     android.test.runner \
     android.test.base
 
-LOCAL_JNI_SHARED_LIBRARIES := libdexmakerjvmtiagent
+# mockito-target-inline dependency
+LOCAL_JNI_SHARED_LIBRARIES := \
+    libdexmakerjvmtiagent \
+    libstaticjvmtiagent \
 
 LOCAL_COMPATIBILITY_SUITE := general-tests
 
