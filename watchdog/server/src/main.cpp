@@ -39,6 +39,8 @@ using android::base::Result;
 
 namespace {
 
+const size_t kMaxBinderThreadCount = 16;
+
 void sigHandler(int sig) {
     IPCThreadState::self()->stopProcess();
     ServiceManager::terminateServices();
@@ -58,16 +60,8 @@ void registerSigHandler() {
 }  // namespace
 
 int main(int /*argc*/, char** /*argv*/) {
-    const size_t maxBinderThreadCount = 16;
     // Set up the looper
     sp<Looper> looper(Looper::prepare(/*opts=*/0));
-
-    // Set up the binder
-    sp<ProcessState> ps(ProcessState::self());
-    ps->setThreadPoolMaxThreadCount(maxBinderThreadCount);
-    ps->startThreadPool();
-    ps->giveThreadPoolName();
-    IPCThreadState::self()->disableBackgroundScheduling(true);
 
     // Start the services
     auto result = ServiceManager::startServices(looper);
@@ -85,6 +79,13 @@ int main(int /*argc*/, char** /*argv*/) {
         // system boot up.
         std::this_thread::sleep_for(250ms);
     }
+
+    // Set up the binder
+    sp<ProcessState> ps(ProcessState::self());
+    ps->setThreadPoolMaxThreadCount(kMaxBinderThreadCount);
+    ps->startThreadPool();
+    ps->giveThreadPoolName();
+    IPCThreadState::self()->disableBackgroundScheduling(true);
 
     result = ServiceManager::startBinderMediator();
     if (!result) {
