@@ -21,7 +21,6 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.annotation.RequiredFeature;
 import android.os.Parcel;
@@ -37,7 +36,6 @@ import java.lang.annotation.Retention;
  *
  * @hide
  */
-@SystemApi
 @RequiredFeature(Car.OCCUPANT_AWARENESS_SERVICE)
 public final class OccupantAwarenessDetection implements Parcelable {
     /** Empty occupant flag. */
