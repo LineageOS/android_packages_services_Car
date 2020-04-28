@@ -16,13 +16,11 @@
 
 package com.android.car;
 
-import static android.car.userlib.InitialUserSetterTest.expectCurrentUser;
 import static android.car.userlib.InitialUserSetterTest.isUserInfo;
 import static android.car.userlib.InitialUserSetterTest.newGuestUser;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -42,6 +40,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import android.app.ActivityManager;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.hardware.power.ICarPowerStateListener;
+import android.car.test.mocks.AbstractExtendMockitoTestCase;
 import android.car.userlib.HalCallback;
 import android.car.userlib.InitialUserSetter;
 import android.content.Context;
@@ -79,9 +78,7 @@ import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.mockito.Mock;
-import org.mockito.MockitoSession;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.quality.Strictness;
 
 import java.io.File;
 import java.io.IOException;
@@ -97,7 +94,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 @SmallTest
-public class CarPowerManagementServiceTest {
+public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase {
     private static final String TAG = CarPowerManagementServiceTest.class.getSimpleName();
     private static final long WAIT_TIMEOUT_MS = 2000;
     private static final long WAIT_TIMEOUT_LONG_MS = 5000;
@@ -113,8 +110,6 @@ public class CarPowerManagementServiceTest {
     private final MockIOInterface mIOInterface = new MockIOInterface();
     private final PowerSignalListener mPowerSignalListener = new PowerSignalListener();
     private final Context mContext = InstrumentationRegistry.getInstrumentation().getContext();
-
-    private MockitoSession mSession;
 
     private MockedPowerHalService mPowerHal;
     private SystemInterface mSystemInterface;
@@ -154,15 +149,16 @@ public class CarPowerManagementServiceTest {
         }
     };
 
+    @Override
+    protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
+        session
+            .spyStatic(ActivityManager.class)
+            .spyStatic(CarProperties.class)
+            .spyStatic(Log.class);
+    }
+
     @Before
     public void setUp() throws Exception {
-        mSession = mockitoSession()
-                .strictness(Strictness.LENIENT)
-                .spyStatic(ActivityManager.class)
-                .spyStatic(CarProperties.class)
-                .spyStatic(Log.class)
-                .initMocks(this)
-                .startMocking();
         mPowerHal = new MockedPowerHalService(true /*isPowerStateSupported*/,
                 true /*isDeepSleepAllowed*/, true /*isTimedWakeupAllowed*/);
         mSystemInterface = SystemInterface.Builder.defaultSystemInterface(mContext)
@@ -187,7 +183,6 @@ public class CarPowerManagementServiceTest {
             mService.release();
         }
         mIOInterface.tearDown();
-        mSession.finishMocking();
     }
 
 
@@ -685,7 +680,7 @@ public class CarPowerManagementServiceTest {
     }
 
     private UserInfo setCurrentUser(int userId, boolean isGuest) {
-        expectCurrentUser(userId);
+        mockGetCurrentUser(userId);
         final UserInfo userInfo = new UserInfo();
         userInfo.id = userId;
         userInfo.userType = isGuest
