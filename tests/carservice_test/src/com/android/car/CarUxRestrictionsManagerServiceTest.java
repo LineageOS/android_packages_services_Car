@@ -223,7 +223,7 @@ public class CarUxRestrictionsManagerServiceTest {
         CarUxRestrictionsConfiguration actual = mService.loadConfig().get(0);
 
         CarUxRestrictionsConfiguration expectedConfig = new Builder()
-                .setPhysicalPort((byte) 1)
+                .setPhysicalPort(1)
                 .setMaxContentDepth(2)
                 .setMaxCumulativeContentItems(20)
                 .setMaxStringLength(21)
@@ -309,7 +309,7 @@ public class CarUxRestrictionsManagerServiceTest {
 
     @Test
     public void testValidateConfigs_SingleConfigWithPort() throws Exception {
-        CarUxRestrictionsConfiguration config = createEmptyConfig((byte) 0);
+        CarUxRestrictionsConfiguration config = createEmptyConfig(0);
         mService.validateConfigs(Arrays.asList(config));
     }
 
@@ -321,7 +321,7 @@ public class CarUxRestrictionsManagerServiceTest {
     @Test(expected = IllegalArgumentException.class)
     public void testValidateConfigs_MultipleConfigsMustHaveUniquePort() throws Exception {
         mService.validateConfigs(Arrays.asList(
-                createEmptyConfig((byte) 0), createEmptyConfig((byte) 0)));
+                createEmptyConfig(0), createEmptyConfig(0)));
     }
 
     @Test
@@ -348,7 +348,7 @@ public class CarUxRestrictionsManagerServiceTest {
 
         // Setup restrictions on the default display only
         int defaultPortRestrictions = CarUxRestrictions.UX_RESTRICTIONS_NO_KEYBOARD;
-        byte defaultPort = CarUxRestrictionsManagerService.getDefaultDisplayPhysicalPort(
+        int defaultPort = CarUxRestrictionsManagerService.getDefaultDisplayPhysicalPort(
                 displayManager);
         CarUxRestrictionsConfiguration defaultPortConfig = createMovingConfig(defaultPort,
                 defaultPortRestrictions);
@@ -402,10 +402,10 @@ public class CarUxRestrictionsManagerServiceTest {
         // Setup different restrictions for each physical port
         int port2Restrictions = CarUxRestrictions.UX_RESTRICTIONS_NO_KEYBOARD;
         CarUxRestrictionsConfiguration defaultPortConfig = createMovingConfig(
-                (byte) physicalPortForFirstDisplay,
+                physicalPortForFirstDisplay,
                 CarUxRestrictions.UX_RESTRICTIONS_NO_DIALPAD);
         CarUxRestrictionsConfiguration port2Config = createMovingConfig(
-                (byte) physicalPortForSecondDisplay,
+                physicalPortForSecondDisplay,
                 port2Restrictions);
         setupMockFile(CONFIG_FILENAME_PRODUCTION, List.of(defaultPortConfig, port2Config));
 
@@ -658,7 +658,7 @@ public class CarUxRestrictionsManagerServiceTest {
         return createEmptyConfig(null);
     }
 
-    private CarUxRestrictionsConfiguration createEmptyConfig(Byte port) {
+    private CarUxRestrictionsConfiguration createEmptyConfig(Integer port) {
         Builder builder = new Builder();
         if (port != null) {
             builder.setPhysicalPort(port);
@@ -666,7 +666,7 @@ public class CarUxRestrictionsManagerServiceTest {
         return builder.build();
     }
 
-    private CarUxRestrictionsConfiguration createMovingConfig(Byte port, int restrictions) {
+    private CarUxRestrictionsConfiguration createMovingConfig(Integer port, int restrictions) {
         Builder builder = new Builder();
         if (port != null) {
             builder.setPhysicalPort(port);

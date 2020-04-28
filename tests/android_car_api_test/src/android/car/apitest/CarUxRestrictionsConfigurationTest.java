@@ -461,7 +461,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
                 + "\"passenger_moving_restrictions\":[{\"req_opt\":true,\"restrictions\":57}],"
                 + "\"passenger_unknown_restrictions\":[{\"req_opt\":true,\"restrictions\":510}]}";
         CarUxRestrictionsConfiguration expectedConfig = new Builder()
-                .setPhysicalPort((byte) 1)
+                .setPhysicalPort(1)
                 .setMaxContentDepth(2)
                 .setMaxCumulativeContentItems(20)
                 .setMaxStringLength(21)
@@ -777,7 +777,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
     @Test
     public void testParcelableConfiguration() {
         CarUxRestrictionsConfiguration config = new CarUxRestrictionsConfiguration.Builder()
-                .setPhysicalPort((byte) 1)
+                .setPhysicalPort(1)
                 .setMaxStringLength(1)
                 .setMaxCumulativeContentItems(1)
                 .setMaxContentDepth(1)
