@@ -20,7 +20,6 @@ import static android.car.settings.CarSettings.Global.DISABLE_INSTRUMENTATION_SE
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -30,9 +29,11 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import android.car.cluster.renderer.IInstrumentCluster;
 import android.car.cluster.renderer.IInstrumentClusterNavigation;
 import android.car.navigation.CarNavigationInstrumentCluster;
+import android.car.test.mocks.AbstractExtendMockitoTestCase;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Looper;
 import android.provider.Settings;
 import android.view.KeyEvent;
 
@@ -48,16 +49,10 @@ import com.android.car.user.CarUserService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoSession;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.quality.Strictness;
 import org.mockito.stubbing.Answer;
 
-
-@RunWith(MockitoJUnitRunner.class)
-public class InstrumentClusterServiceTest {
+public class InstrumentClusterServiceTest extends AbstractExtendMockitoTestCase {
 
     private static final String DEFAULT_RENDERER_SERVICE =
             "com.android.car.carservice_unittest/.FakeService";
@@ -72,8 +67,6 @@ public class InstrumentClusterServiceTest {
     private CarInputService mCarInputService;
     @Mock
     private CarUserService mCarUserService;
-
-    private MockitoSession mMockitoSession;
 
     private final IInstrumentClusterNavigationImpl mInstrumentClusterNavigation =
             new IInstrumentClusterNavigationImpl();
@@ -94,14 +87,13 @@ public class InstrumentClusterServiceTest {
         }
     };
 
+    @Override
+    protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
+        session.spyStatic(Settings.Global.class);
+    }
+
     @Before
     public void setUp() {
-        mMockitoSession = mockitoSession()
-                .spyStatic(Settings.Global.class)
-                .strictness(Strictness.LENIENT)
-                .initMocks(this)
-                .startMocking();
-
         doReturn(DEFAULT_RENDERER_SERVICE).when(mContext).getString(
                 R.string.instrumentClusterRendererService);
         doReturn(true).when(mContext).bindServiceAsUser(any(), any(), anyInt(), any());
@@ -118,7 +110,21 @@ public class InstrumentClusterServiceTest {
         CarLocalServices.removeServiceForTest(CarUserService.class);
         CarLocalServices.addService(CarUserService.class, mCarUserService);
 
+        setNewService();
+    }
+
+    private void setNewService() {
+        // Must prepare Looper (once) otherwise InstrumentClusterService constructor will fail.
+        Looper looper = Looper.myLooper();
+        if (looper == null) {
+            Looper.prepare();
+        }
         mService = new InstrumentClusterService(mContext, mAppFocusService, mCarInputService);
+    }
+
+    @After
+    public void tearDown() {
+        CarLocalServices.removeServiceForTest(CarUserService.class);
     }
 
     private void initService(boolean connect) {
@@ -131,12 +137,6 @@ public class InstrumentClusterServiceTest {
     private void notifyRendererServiceConnection() {
         mService.mRendererServiceConnection.onServiceConnected(null,
                 mInstrumentClusterRenderer.asBinder());
-    }
-
-    @After
-    public void tearDown() {
-        CarLocalServices.removeServiceForTest(CarUserService.class);
-        mMockitoSession.finishMocking();
     }
 
     @Test
@@ -162,7 +162,7 @@ public class InstrumentClusterServiceTest {
     @Test
     public void testNoConfig() throws Exception {
         doReturn("").when(mContext).getString(R.string.instrumentClusterRendererService);
-        mService = new InstrumentClusterService(mContext, mAppFocusService, mCarInputService);
+        setNewService();
         initService(/* connect= */ false);
         IInstrumentClusterNavigation navigationService = mService.getNavigationService();
         assertThat(navigationService).isNull();

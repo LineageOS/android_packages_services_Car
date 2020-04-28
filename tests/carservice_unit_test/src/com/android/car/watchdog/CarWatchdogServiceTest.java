@@ -16,8 +16,6 @@
 
 package com.android.car.watchdog;
 
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Matchers.anyString;
@@ -27,6 +25,7 @@ import static org.mockito.Mockito.when;
 import android.automotive.watchdog.ICarWatchdog;
 import android.automotive.watchdog.ICarWatchdogClient;
 import android.automotive.watchdog.TimeoutLength;
+import android.car.test.mocks.AbstractExtendMockitoTestCase;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.os.Binder;
@@ -38,15 +37,10 @@ import android.os.ServiceManager;
 import android.os.SystemClock;
 import android.os.UserManager;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoSession;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.quality.Strictness;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -58,10 +52,8 @@ import java.util.concurrent.TimeoutException;
 /**
  * <p>This class contains unit tests for the {@link CarWatchdogService}.
  */
-@RunWith(MockitoJUnitRunner.class)
-public class CarWatchdogServiceTest {
+public class CarWatchdogServiceTest extends AbstractExtendMockitoTestCase {
 
-    private static final String TAG = CarWatchdogServiceTest.class.getSimpleName();
     private static final String CAR_WATCHDOG_DAEMON_INTERFACE =
             "android.automotive.watchdog.ICarWatchdog/default";
 
@@ -71,28 +63,23 @@ public class CarWatchdogServiceTest {
 
     private FakeCarWatchdog mFakeCarWatchdog;
     private CarWatchdogService mCarWatchdogService;
-    private MockitoSession mMockSession;
+
+    @Override
+    protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
+        session
+            .spyStatic(ServiceManager.class)
+            .spyStatic(UserManager.class);
+    }
 
     /**
      * Initialize all of the objects with the @Mock annotation.
      */
     @Before
     public void setUpMocks() {
-        mMockSession = mockitoSession()
-                .initMocks(this)
-                .strictness(Strictness.LENIENT)
-                .spyStatic(ServiceManager.class)
-                .spyStatic(UserManager.class)
-                .startMocking();
         mFakeCarWatchdog = new FakeCarWatchdog();
         mCarWatchdogService = new CarWatchdogService(mMockContext);
         expectLocalWatchdogDaemon();
         expectNoUsers();
-    }
-
-    @After
-    public void tearDown() {
-        mMockSession.finishMocking();
     }
 
     /**
