@@ -18,6 +18,8 @@ package com.android.car.bugreport;
 import static android.car.CarBugreportManager.CarBugreportManagerCallback.CAR_BUGREPORT_DUMPSTATE_CONNECTION_FAILED;
 import static android.car.CarBugreportManager.CarBugreportManagerCallback.CAR_BUGREPORT_DUMPSTATE_FAILED;
 import static android.car.CarBugreportManager.CarBugreportManagerCallback.CAR_BUGREPORT_SERVICE_NOT_AVAILABLE;
+import static android.view.Display.DEFAULT_DISPLAY;
+import static android.view.WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
 
 import static com.android.car.bugreport.PackageUtils.getPackageVersion;
 
@@ -33,6 +35,7 @@ import android.car.CarBugreportManager;
 import android.car.CarNotConnectedException;
 import android.content.Context;
 import android.content.Intent;
+import android.hardware.display.DisplayManager;
 import android.media.AudioManager;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -45,6 +48,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
+import android.view.Display;
 import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
@@ -143,6 +147,7 @@ public class BugReportService extends Service {
     private CarBugreportManager mBugreportManager;
     private CarBugreportManager.CarBugreportManagerCallback mCallback;
     private Config mConfig;
+    private Context mWindowContext;
 
     /** A handler on the main thread. */
     private Handler mHandler;
@@ -193,6 +198,11 @@ public class BugReportService extends Service {
     public void onCreate() {
         Preconditions.checkState(Config.isBugReportEnabled(), "BugReport is disabled.");
 
+        DisplayManager dm = getSystemService(DisplayManager.class);
+        Display primaryDisplay = dm.getDisplay(DEFAULT_DISPLAY);
+        mWindowContext = createDisplayContext(primaryDisplay)
+                .createWindowContext(TYPE_APPLICATION_OVERLAY, null);
+
         mNotificationManager = getSystemService(NotificationManager.class);
         mNotificationManager.createNotificationChannel(new NotificationChannel(
                 PROGRESS_CHANNEL_ID,
@@ -221,7 +231,8 @@ public class BugReportService extends Service {
     public int onStartCommand(final Intent intent, int flags, int startId) {
         if (mIsCollectingBugReport.getAndSet(true)) {
             Log.w(TAG, "bug report is already being collected, ignoring");
-            Toast.makeText(this, R.string.toast_bug_report_in_progress, Toast.LENGTH_SHORT).show();
+            Toast.makeText(mWindowContext,
+                    R.string.toast_bug_report_in_progress, Toast.LENGTH_SHORT).show();
             return START_NOT_STICKY;
         }
 
@@ -245,7 +256,7 @@ public class BugReportService extends Service {
 
         // Show a short lived "bugreport started" toast message after a short delay.
         mHandlerStartedToast.postDelayed(() -> {
-            Toast.makeText(this,
+            Toast.makeText(mWindowContext,
                     getText(R.string.toast_bug_report_started), Toast.LENGTH_LONG).show();
         }, BUGREPORT_STARTED_TOAST_DELAY_MILLIS);
 
@@ -322,7 +333,8 @@ public class BugReportService extends Service {
 
     private void showToast(@StringRes int resId) {
         // run on ui thread.
-        mHandler.post(() -> Toast.makeText(this, getText(resId), Toast.LENGTH_LONG).show());
+        mHandler.post(
+                () -> Toast.makeText(mWindowContext, getText(resId), Toast.LENGTH_LONG).show());
     }
 
     private void disconnectFromCarService() {
@@ -426,7 +438,7 @@ public class BugReportService extends Service {
             }
         };
         if (mBugreportManager == null) {
-            mHandler.post(() -> Toast.makeText(this,
+            mHandler.post(() -> Toast.makeText(mWindowContext,
                     "Car service is not ready", Toast.LENGTH_LONG).show());
             Log.e(TAG, "CarBugReportManager is not ready");
             return;
