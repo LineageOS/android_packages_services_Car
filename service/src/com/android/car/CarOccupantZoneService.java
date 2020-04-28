@@ -502,12 +502,11 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             if (display == null) {
                 continue;
             }
-            Byte portAddress = getPortAddress(display);
+            Integer portAddress = getPortAddress(display);
             if (portAddress == null) {
                 continue;
             }
-            DisplayConfig config =
-                    mDisplayConfigs.get(Byte.toUnsignedInt(portAddress));
+            DisplayConfig config = mDisplayConfigs.get(portAddress);
             return config;
         }
         return null;
@@ -942,7 +941,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
     }
 
-    private Byte getPortAddress(Display display) {
+    private Integer getPortAddress(Display display) {
         DisplayAddress address = display.getAddress();
         if (address instanceof DisplayAddress.Physical) {
             DisplayAddress.Physical physicalAddress = (DisplayAddress.Physical) address;
@@ -966,16 +965,15 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         mActiveOccupantConfigs.clear();
         boolean hasDefaultDisplayConfig = false;
         for (Display display : mDisplayManager.getDisplays()) {
-            Byte rawPortAddress = getPortAddress(display);
+            Integer rawPortAddress = getPortAddress(display);
             if (rawPortAddress == null) {
                 continue;
             }
 
-            int portAddress = Byte.toUnsignedInt(rawPortAddress);
-            DisplayConfig displayConfig = mDisplayConfigs.get(portAddress);
+            DisplayConfig displayConfig = mDisplayConfigs.get(rawPortAddress);
             if (displayConfig == null) {
                 Log.w(TAG,
-                        "Display id:" + display.getDisplayId() + " port:" + portAddress
+                        "Display id:" + display.getDisplayId() + " port:" + rawPortAddress
                                 + " does not have configurations");
                 continue;
             }

@@ -303,8 +303,8 @@ public class CarAudioZonesHelperTest {
         CarAudioZone primaryZone = zones[0];
         List<DisplayAddress.Physical> primaryPhysicals = primaryZone.getPhysicalDisplayAddresses();
         assertEquals(2, primaryPhysicals.size());
-        assertEquals(1, (long) primaryPhysicals.get(0).getPort());
-        assertEquals(2, (long) primaryPhysicals.get(1).getPort());
+        assertEquals(1, primaryPhysicals.get(0).getPort());
+        assertEquals(2, primaryPhysicals.get(1).getPort());
     }
 
     @Test
