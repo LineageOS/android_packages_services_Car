@@ -367,7 +367,7 @@
     <string name="owner_info_settings_summary" msgid="4208702251226725583">"Brak"</string>
     <string name="owner_info_settings_status" msgid="8049975536717685126">"<xliff:g id="COUNT_0">%1$d</xliff:g> / <xliff:g id="COUNT_1">%2$d</xliff:g>"</string>
     <string name="owner_info_settings_edit_text_hint" msgid="2250029417257939706">"Np. Android Jurka."</string>
-    <string name="user_info_settings_title" msgid="1125111518759995748">"Użytkownik – informacje"</string>
+    <string name="user_info_settings_title" msgid="1125111518759995748">"Informacje o użytkowniku"</string>
     <string name="show_profile_info_on_lockscreen_label" msgid="5204282771893683026">"Pokaż informacje o profilu na ekranie blokady"</string>
     <string name="profile_info_settings_title" msgid="4855892878512562551">"Informacje o profilu"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"Konta"</string>
@@ -1295,7 +1295,7 @@
     <string name="screensaver_settings_button" msgid="4662384378821837589">"Ustawienia"</string>
     <string name="automatic_brightness" msgid="8663792987774126192">"Automatyczna"</string>
     <string name="lift_to_wake_title" msgid="5523752279947392868">"Podnieś, by wybudzić"</string>
-    <string name="ambient_display_screen_title" msgid="2632871676917956691">"Ekran zgodny z otoczeniem"</string>
+    <string name="ambient_display_screen_title" msgid="2632871676917956691">"Wygaszacz z powiadomieniami"</string>
     <string name="ambient_display_category_triggers" msgid="3496111745340047504">"Kiedy wyświetlać"</string>
     <string name="doze_title" msgid="235269029233857546">"Nowe powiadomienia"</string>
     <string name="doze_summary" msgid="6762274282827831706">"Włącz ekran po otrzymaniu powiadomień"</string>
@@ -1608,7 +1608,7 @@
     <string name="restore_default_apn_completed" msgid="5671734152740058937">"Przywrócono domyślne ustawienia APN."</string>
     <string name="reset_dashboard_title" msgid="7084966342252178530">"Opcje resetowania"</string>
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"Można zresetować sieć, aplikacje lub urządzenie"</string>
-    <string name="reset_network_title" msgid="8944059136930806211">"Reset Wi-Fi, transmisji i Bluetootha"</string>
+    <string name="reset_network_title" msgid="8944059136930806211">"Resetuj Wi-Fi, transmisję i Bluetootha"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"Spowoduje to usunięcie wszystkich ustawień sieciowych, w tym:\n\n"<li>"Wi‑Fi"</li>\n<li>"mobilnej transmisji danych"</li>\n<li>"Bluetooth"</li></string>
     <string name="reset_esim_title" msgid="7630781767040831893">"Usuń pobrane karty SIM"</string>
     <string name="reset_esim_desc" msgid="433226911566802">"Aby pobrać zastępczą kartę SIM, skontaktuj się z operatorem. Nie anuluje to Twoich abonamentów."</string>
@@ -2953,7 +2953,7 @@
     <string name="user_add_user_message_long" msgid="686637203224195465">"Z tego urządzenia możesz korzystać wraz z innymi osobami, dodając na nim konta użytkowników. Każdy użytkownik ma własne miejsce na swoje aplikacje, tapety i inne dane. Może też zmieniać ustawienia, które wpływają na wszystkich użytkowników urządzenia (np. Wi‑Fi).\n\nGdy dodasz nowego użytkownika, musi on skonfigurować swoje miejsce na dane.\n\nKażdy użytkownik może aktualizować aplikacje w imieniu wszystkich pozostałych użytkowników. Ułatwienia dostępu i usługi mogą nie zostać przeniesione na konto nowego użytkownika."</string>
     <string name="user_add_user_message_short" msgid="1802594476285458254">"Gdy dodasz nowego użytkownika, musi on skonfigurować swoją przestrzeń.\n\nKażdy użytkownik może aktualizować aplikacje wszystkich innych użytkowników."</string>
     <string name="user_setup_dialog_title" msgid="6748950002206392396">"Skonfigurować ustawienia dla użytkownika?"</string>
-    <string name="user_setup_dialog_message" msgid="2988559933258353919">"Upewnij się, że ta osoba jest w pobliżu i może skonfigurować swój profil."</string>
+    <string name="user_setup_dialog_message" msgid="2988559933258353919">"Upewnij się, że ta osoba jest w pobliżu i może skonfigurować swój profil"</string>
     <string name="user_setup_profile_dialog_message" msgid="7611900802824048526">"Skonfigurować teraz profil?"</string>
     <string name="user_setup_button_setup_now" msgid="4941459406266856176">"Skonfiguruj"</string>
     <string name="user_setup_button_setup_later" msgid="6596031428556518752">"Nie teraz"</string>
@@ -3005,7 +3005,7 @@
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Z wyjątkiem, gdy jest otwarta inna aplikacja płatnicza"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"Na terminalu „Zbliż i zapłać” płać przy użyciu:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Płacenie przy terminalu"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Skonfiguruj aplikację płatniczą, a później przyłóż tylną część telefonu do terminala z symbolem płatności zbliżeniowej."</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Skonfiguruj aplikację płatniczą, a później przyłóż tylną część telefonu do terminala z symbolem płatności zbliżeniowej."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"OK"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"Więcej..."</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"Ustawić jako Twoją preferencję?"</string>
@@ -3790,7 +3790,7 @@
     <string name="roles_title" msgid="2825063787446244357">"Role"</string>
     <string name="default_app" msgid="8861276008866619872">"(Domyślna)"</string>
     <string name="system_app" msgid="4111402206594443265">"(Systemowa)"</string>
-    <string name="system_default_app" msgid="1454719098589351197">"(Domyślna aplikacja systemu)"</string>
+    <string name="system_default_app" msgid="1454719098589351197">"(Domyślna aplikacja systemowa)"</string>
     <string name="apps_storage" msgid="5658466038269046038">"Magazyn aplikacji"</string>
     <string name="usage_access" msgid="2023443456361489516">"Dostęp do danych o użyciu"</string>
     <string name="permit_usage_access" msgid="3321727608629752758">"Zezwól na dostęp do danych o użyciu"</string>
@@ -4295,7 +4295,7 @@
     <string name="instant_apps_settings" msgid="879003203555847537">"Ustawienia aplikacji błyskawicznych"</string>
     <string name="domain_url_section_title" msgid="206403507921518321">"Zainstalowane aplikacje"</string>
     <string name="automatic_storage_manager_activation_warning" msgid="2630083316417707308">"Pamięcią zarządza teraz menedżer miejsca"</string>
-    <string name="account_for_section_header" msgid="5975241715840642563">"Konta użytkownika <xliff:g id="USER_NAME">%1$s</xliff:g>"</string>
+    <string name="account_for_section_header" msgid="5975241715840642563">"Konta użytkownika: <xliff:g id="USER_NAME">%1$s</xliff:g>"</string>
     <string name="configure_section_header" msgid="6988981883075615136">"Konfiguracja"</string>
     <string name="auto_sync_account_title" msgid="2394463123733529506">"Automatycznie synchronizuj dane"</string>
     <string name="auto_sync_personal_account_title" msgid="6844465157916100655">"Automatycznie synchronizuj dane osobiste"</string>

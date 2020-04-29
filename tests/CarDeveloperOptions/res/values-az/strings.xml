@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Ekrandakı mətni kiçildin və ya böyüdün."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Kiçildin"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Böyüdün"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Mətn nümunəsi"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"Ozlu Heyrətamiz Sehrbaz"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"Fəsil 11: Məftunedici Zümrüd Şəhəri Oz"</string>
@@ -906,7 +905,7 @@
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"SSID daxil edin"</string>
     <string name="wifi_security" msgid="9136702039496152831">"Təhlükəsizlik"</string>
     <string name="wifi_hidden_network" msgid="6647772204699776833">"Gizlədilmiş şəbəkə"</string>
-    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Yönləndirici şəbəkə ID-sini yayımlamırsa, lakin ona gələcəkdə qoşulmaq istəyirsinizsə, şəbəkəni gizlədə bilərsiniz.\n\nBu təhlükəsizliyinizi riskə ata bilər çünki telefon şəbəkəni tapmaq üçün daima siqnal yayımlayacaq.\n\nŞəbəkəini gizlətmək yönləndirici ayarlarını dəyişməyəcək."</string>
+    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Yönləndirici şəbəkə ID-sini yayımlamırsa, lakin ona gələcəkdə qoşulmaq istəyirsinizsə, şəbəkəni gizlədə bilərsiniz.\n\nBu təhlükəsizliyinizi riskə ata bilər, çünki telefon şəbəkəni tapmaq üçün daima siqnal yayımlayacaq.\n\nŞəbəkəini gizlətmək yönləndirici ayarlarını dəyişməyəcək."</string>
     <string name="wifi_signal" msgid="696548364467704808">"Siqnal gücü"</string>
     <string name="wifi_status" msgid="3439931558930689940">"Status"</string>
     <string name="tx_wifi_speed" msgid="2571810085003261073">"Link sürətini ötürün"</string>
@@ -1047,7 +1046,7 @@
     <string name="wifi_p2p_menu_search" msgid="8207638860263805291">"Cihaz axtarışı"</string>
     <string name="wifi_p2p_menu_searching" msgid="7443249001543208106">"Axtarır..."</string>
     <string name="wifi_p2p_menu_rename" msgid="2129974878377065488">"Cihazı yenidən adlandır"</string>
-    <string name="wifi_p2p_peer_devices" msgid="8232126067045093382">"Peer cihazlar"</string>
+    <string name="wifi_p2p_peer_devices" msgid="8232126067045093382">"Əlçatımlı cihazlar"</string>
     <string name="wifi_p2p_remembered_groups" msgid="1356458238836730346">"Qrupları yadda saxla"</string>
     <string name="wifi_p2p_failed_connect_message" msgid="6103436959132424093">"Bağlana bilmədi."</string>
     <string name="wifi_p2p_failed_rename_message" msgid="638656605352538706">"Cihazın adı dəyişə bilmədi."</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"Mobil"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Wi‑Fi əlçatan olmasa, mobil şəbəkədən istifadə edin"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Mobil şəbəkə əlçatan olmasa, Wi‑Fi istifadə edin"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Wi‑Fi ilə zəng edin. Wi‑Fi itsə, zəng sonlandırılacaq."</string>
@@ -3692,7 +3694,7 @@
     <string name="memory_avg_desc" msgid="1200185697910086968">"Orta <xliff:g id="MEMORY">%1$s</xliff:g>"</string>
     <string name="memory_use_running_format" msgid="3741170402563292232">"<xliff:g id="MEMORY">%1$s</xliff:g> / <xliff:g id="RUNNING">%2$s</xliff:g>"</string>
     <string name="process_format" msgid="8575347150598564509">"<xliff:g id="APP_NAME">%1$s</xliff:g> (<xliff:g id="COUNT">%2$d</xliff:g>)"</string>
-    <string name="high_power_apps" msgid="2518319744362028920">"Batareya optimallaşdırılması"</string>
+    <string name="high_power_apps" msgid="2518319744362028920">"Batareya optimallaşması"</string>
     <string name="additional_battery_info" msgid="6877663897819271203">"İstifadə siqnalları"</string>
     <string name="show_all_apps" msgid="5442552004569634846">"Tam cihaz istifadəsini göstərin"</string>
     <string name="hide_extra_apps" msgid="6798261081113299441">"Tətbiq istifadəsini göstərin"</string>
@@ -3802,7 +3804,7 @@
     <string name="system_alert_window_apps_title" msgid="9188448296493699566">"Tətbiqlər"</string>
     <string name="system_alert_window_access_title" msgid="5187343732185369675">"Tətbiqlər üzərindən görüntüləmə"</string>
     <string name="permit_draw_overlay" msgid="9039092257052422344">"Digər tətbiq üzərindən görüntüləmək icazəsi"</string>
-    <string name="allow_overlay_description" msgid="6669524816705082807">"Bu tətbiqə istifadə etdiyiniz digər tətbiqlərin üzərində göstərilmək icazəsi verin. Bu tətbiq həmin tətbiqlərin istifadəsinə müdaxilə edə və ya tətbiqlərin görünüş və davranışını dəyişə bilər."</string>
+    <string name="allow_overlay_description" msgid="6669524816705082807">"Bu tətbiqə işlətdiyiniz digər tətbiqlərin üzərində göstərilmək icazəsi verin. Bu tətbiq həmin tətbiqlərin istifadəsinə müdaxilə edə və ya tətbiqlərin görünüş və davranışını dəyişə bilər."</string>
     <string name="keywords_vr_listener" msgid="5312633527788917750">"vr virtual reallıq dinləyici stereo köməkçi xidməti"</string>
     <string name="keywords_system_alert_window" msgid="3936658600272194599">"digər tətbiqlərin üzərində sistem siqnalının pəncərə dialoq görüntüsü"</string>
     <string name="overlay_settings" msgid="3325154759946433666">"Tətbiqlər üzərindən görüntüləmə"</string>

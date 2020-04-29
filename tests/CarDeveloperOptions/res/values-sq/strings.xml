@@ -23,8 +23,8 @@
     <string name="deny" msgid="3998166389989144025">"Refuzo"</string>
     <string name="device_info_default" msgid="1548919563979154348">"I panjohur"</string>
     <plurals name="show_dev_countdown" formatted="false" msgid="3953785659137161981">
-      <item quantity="other">Tani je <xliff:g id="STEP_COUNT_1">%1$d</xliff:g> hapa larg të qenët programues.</item>
-      <item quantity="one">Tani je <xliff:g id="STEP_COUNT_0">%1$d</xliff:g> hap larg të qenët programues.</item>
+      <item quantity="other">Tani të duhen edhe <xliff:g id="STEP_COUNT_1">%1$d</xliff:g> hapa për t\'u bërë zhvillues.</item>
+      <item quantity="one">Tani të duhet edhe <xliff:g id="STEP_COUNT_0">%1$d</xliff:g> hap për t\'u bërë zhvillues.</item>
     </plurals>
     <string name="show_dev_on" msgid="9075712234786224065">"Tani je zhvillues!"</string>
     <string name="show_dev_already" msgid="7665948832405148689">"Nuk ka nevojë, ti je programues tashmë!"</string>
@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Bëje tekstin në ekran më të vogël ose më të madh."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Zvogëlo"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Zmadho"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Teksti shembull"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"Magjistari i mrekullueshëm i Ozit"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"Kapitulli 11: Qyteti i mrekullueshëm i smeraldtë i Ozit"</string>
@@ -419,7 +418,7 @@
     <string name="security_settings_face_enroll_done" msgid="5409739233373490971">"U krye"</string>
     <string name="security_settings_face_settings_use_face_category" msgid="1586532139528115416">"Përdor fytyrën për"</string>
     <string name="security_settings_face_settings_use_face_unlock_phone" msgid="318274519126401671">"Shkyçja e pajisjes"</string>
-    <string name="security_settings_face_settings_use_face_for_apps" msgid="5479369083370664351">"Identifikimi dhe pagesat e aplikacionit"</string>
+    <string name="security_settings_face_settings_use_face_for_apps" msgid="5479369083370664351">"Identifikim në aplikacion dhe pagesa"</string>
     <string name="security_settings_face_settings_require_attention" msgid="2755140150841557225">"Hap sytë për të shkyçur"</string>
     <string name="security_settings_face_settings_require_attention_details" msgid="2557060433599942587">"Kur përdor vërtetimin me fytyrë, sytë duhet të jenë të hapur"</string>
     <string name="security_settings_face_settings_require_confirmation" msgid="7312024271060416438">"Kërko gjithmonë konfirmimin"</string>
@@ -906,7 +905,7 @@
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"Fut SSID-në"</string>
     <string name="wifi_security" msgid="9136702039496152831">"Siguria"</string>
     <string name="wifi_hidden_network" msgid="6647772204699776833">"Rrjet i fshehur"</string>
-    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Nëse rrugëzuesi nuk po transmeton një ID rrjeti, por dëshiron të lidhesh me të në të ardhmen, mund ta caktosh rrjetin si të fshehur.\n\nKjo mund të krijojë një rrezik për sigurinë pasi telefoni yt do të transmetojë rregullisht sinjalin e tij për të gjetur rrjetin.\n\nCaktimi i rrjetit si të fshehur nuk do të ndryshojë cilësimet e router-it."</string>
+    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Nëse router-i nuk po transmeton një ID rrjeti, por dëshiron të lidhesh me të në të ardhmen, mund ta caktosh rrjetin si të fshehur.\n\nKjo mund të krijojë një rrezik për sigurinë pasi telefoni yt do të transmetojë rregullisht sinjalin e tij për të gjetur rrjetin.\n\nCaktimi i rrjetit si të fshehur nuk do të ndryshojë cilësimet e router-it."</string>
     <string name="wifi_signal" msgid="696548364467704808">"Fuqia e sinjalit"</string>
     <string name="wifi_status" msgid="3439931558930689940">"Statusi"</string>
     <string name="tx_wifi_speed" msgid="2571810085003261073">"Shpejtësia e lidhjes së transmetimit"</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"Celular"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Nëse Wi‑Fi nuk ofrohet, përdor rrjetin celular"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Nëse rrjeti celular nuk ofrohet, përdor Wi‑Fi"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Telefono nëpërmjet Wi-Fi. Nëse humb Wi‑Fi, telefonata do të mbyllet."</string>
@@ -1942,9 +1944,9 @@
     <string name="language_input_gesture_summary_on_with_assist" msgid="315262339899294132"></string>
     <string name="language_input_gesture_summary_on_non_assist" msgid="6054599939153669225"></string>
     <string name="language_input_gesture_summary_off" msgid="4108509077072348546"></string>
-    <string name="language_settings" msgid="3551012802762495835">"Gjuhët dhe të dhënat"</string>
+    <string name="language_settings" msgid="3551012802762495835">"Gjuhët dhe metodat e hyrjes"</string>
     <string name="language_empty_list_user_restricted" msgid="3837176532474949716">"Nuk ke leje të ndryshosh gjuhën e pajisjes."</string>
-    <string name="language_keyboard_settings_title" msgid="2672573191605298938">"Gjuhët dhe të dhënat"</string>
+    <string name="language_keyboard_settings_title" msgid="2672573191605298938">"Gjuhët dhe metodat e hyrjes"</string>
     <string name="input_assistance" msgid="6442646949054057707">"Veglat"</string>
     <string name="keyboard_settings_category" msgid="5857591390023852850">"Tastiera dhe metodat e hyrjes"</string>
     <string name="phone_language" msgid="8471728119195198790">"Gjuhët"</string>
@@ -2036,7 +2038,7 @@
     <string name="accessibility_settings_title" msgid="1687226556576913576">"Cilësimet e qasjes"</string>
     <string name="accessibility_settings_summary" msgid="5742379519336396561">"Lexues ekrani, ekran, kontrolle ndërveprimi"</string>
     <string name="vision_settings_title" msgid="7315352351051423944">"Cilësimet e shikimit"</string>
-    <string name="vision_settings_description" msgid="3476589459009287332">"Mund ta personalizosh këtë pajisje për t\'iu përshtatur nevojave të tua. Këto funksione të qasjes mund të ndryshohen më vonë te \"Cilësimet\"."</string>
+    <string name="vision_settings_description" msgid="3476589459009287332">"Mund ta personalizosh këtë pajisje për t\'iu përshtatur nevojave të tua. Këto veçori të qasshmërisë mund të ndryshohen më vonë te \"Cilësimet\"."</string>
     <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"Ndrysho madhësinë e shkrimit"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"Lexuesit e ekranit"</string>
     <string name="audio_and_captions_category_title" msgid="6140472938769619212">"Audioja dhe teksti në ekran"</string>

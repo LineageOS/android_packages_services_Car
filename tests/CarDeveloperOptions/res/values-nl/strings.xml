@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Maak de tekst op het scherm kleiner of groter."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Verkleinen"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Vergroten"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Voorbeeldtekst"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"De tovenaar van Oz"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"Hoofdstuk 11: De prachtige Smaragden Stad van Oz"</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wifi"</item>
+    <item msgid="2271962426654621656">"Mobiel"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Mobiel netwerk gebruiken als er geef wifi beschikbaar is"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Gebruik wifi als er geen mobiel netwerk beschikbaar is"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Bellen via wifi. Zonder wifi-signaal wordt het gesprek beëindigd."</string>
@@ -1568,8 +1570,8 @@
     <string name="restore_default_apn_completed" msgid="5671734152740058937">"Herstellen van standaard-APN-instellingen voltooid."</string>
     <string name="reset_dashboard_title" msgid="7084966342252178530">"Opties voor resetten"</string>
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"Netwerk, apps of apparaat kunnen worden gereset"</string>
-    <string name="reset_network_title" msgid="8944059136930806211">"Wifi, mobiel en Bluetooth resetten"</string>
-    <string name="reset_network_desc" msgid="4982633363916261109">"Hiermee worden alle netwerkinstellingen gereset, waaronder:\n\n"<li>"wifi"</li>\n<li>"mobiele data"</li>\n<li>"Bluetooth"</li></string>
+    <string name="reset_network_title" msgid="8944059136930806211">"Wifi, mobiel en bluetooth resetten"</string>
+    <string name="reset_network_desc" msgid="4982633363916261109">"Hiermee worden alle netwerkinstellingen gereset, waaronder:\n\n"<li>"wifi"</li>\n<li>"mobiele data"</li>\n<li>"bluetooth"</li></string>
     <string name="reset_esim_title" msgid="7630781767040831893">"Gedownloade simkaarten wissen"</string>
     <string name="reset_esim_desc" msgid="433226911566802">"Neem contact op met je provider als je vervangende simkaarten wilt downloaden. Hiermee worden geen mobiele abonnementen opgezegd."</string>
     <string name="reset_network_button_text" msgid="4293271046867912819">"Instellingen resetten"</string>

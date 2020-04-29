@@ -85,8 +85,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Zväčšite alebo zmenšite text na obrazovke."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Zmenšiť"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Zväčšiť"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Ukážkový text"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"Čarodejník z krajiny Oz"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"11. kapitola: Nádherné smaragdové mesto"</string>
@@ -1139,7 +1138,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi‑Fi"</item>
+    <item msgid="2271962426654621656">"Mobilné dáta"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"V prípade nedostupnosti siete Wi‑Fi použiť mobilnú sieť"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"V prípade nedostupnosti mobilnej siete použiť Wi‑Fi"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Volanie cez Wi‑Fi. Keď sa Wi‑Fi preruší, hovor sa ukončí."</string>
@@ -2358,10 +2360,10 @@
       <item quantity="one">%1$s aplikácia bola nedávno obmedzená</item>
     </plurals>
     <plurals name="battery_tip_restrict_summary" formatted="false" msgid="984148373944071669">
-      <item quantity="few">%2$d aplikácie majú vysokú spotrebu batérie na pozadí</item>
-      <item quantity="many">%2$d aplikácie má vysokú spotrebu batérie na pozadí</item>
-      <item quantity="other">%2$d aplikácií má vysokú spotrebu batérie na pozadí</item>
-      <item quantity="one">%1$s aplikácia má vysokú spotrebu batérie na pozadí</item>
+      <item quantity="few">Aplikácie (%2$d) majú vysokú spotrebu batérie na pozadí</item>
+      <item quantity="many">Aplikácie (%2$d) majú vysokú spotrebu batérie na pozadí</item>
+      <item quantity="other">Aplikácie (%2$d) majú vysokú spotrebu batérie na pozadí</item>
+      <item quantity="one">Aplikácia (%1$s) má vysokú spotrebu batérie na pozadí</item>
     </plurals>
     <plurals name="battery_tip_restrict_handled_summary" formatted="false" msgid="469696766640020557">
       <item quantity="few">Tieto aplikácie sa nedajú spustiť na pozadí</item>
@@ -3241,7 +3243,7 @@
     <string name="emergency_tone_alert" msgid="907868135091891015">"Tóny"</string>
     <string name="emergency_tone_vibrate" msgid="5020068066905681181">"Vibrovanie"</string>
     <string name="boot_sounds_title" msgid="7583926202411353620">"Zvuky pri spustení"</string>
-    <string name="live_caption_title" msgid="7926591158657997051">"Okamžité titulky"</string>
+    <string name="live_caption_title" msgid="7926591158657997051">"Živý prepis"</string>
     <string name="live_caption_summary" msgid="9064771862352393125">"Automaticky pridávať titulky k médiám"</string>
     <string name="zen_mode_settings_summary_off" msgid="6929319200478424962">"Nikdy"</string>
     <plurals name="zen_mode_settings_summary_on" formatted="false" msgid="6061723291126091396">
@@ -3295,11 +3297,11 @@
     <string name="zen_mode_block_effects_screen_off" msgid="6380935819882837552">"Keď je obrazovka vypnutá"</string>
     <string name="zen_mode_block_effect_sound" msgid="1499243540186357631">"Stlmiť zvuk a vibrácie"</string>
     <string name="zen_mode_block_effect_intent" msgid="5666951244667422668">"Nezapínať obrazovku"</string>
-    <string name="zen_mode_block_effect_light" msgid="8679333758037487644">"Neblikať svetlom"</string>
+    <string name="zen_mode_block_effect_light" msgid="8679333758037487644">"Neblikať"</string>
     <string name="zen_mode_block_effect_peek" msgid="6075662813575910221">"Nezobrazovať upozornenia na obrazovke"</string>
-    <string name="zen_mode_block_effect_status" msgid="6516614225115681068">"Skryť ikony stavového riadka v hornej časti obrazovky"</string>
+    <string name="zen_mode_block_effect_status" msgid="6516614225115681068">"Skryť ikony stavového riadka hore na obrazovke"</string>
     <string name="zen_mode_block_effect_badge" msgid="3891743027347075136">"Skryť bodky upozornení na ikonách aplikácií"</string>
-    <string name="zen_mode_block_effect_ambient" msgid="6382013125863616197">"V prípade upozornení nebudiť"</string>
+    <string name="zen_mode_block_effect_ambient" msgid="6382013125863616197">"Pri upozorneniach nebudiť"</string>
     <string name="zen_mode_block_effect_list" msgid="6081548478844912181">"Skryť v zozname upozornení"</string>
     <string name="zen_mode_block_effect_summary_none" msgid="7166175186759564510">"Nikdy"</string>
     <string name="zen_mode_block_effect_summary_screen_off" msgid="2985086455557755722">"Keď je obrazovka vypnutá"</string>
@@ -3605,7 +3607,7 @@
     <string name="zen_mode_reminders_list" msgid="7347061314032326677">"pripomenutia"</string>
     <string name="zen_mode_events" msgid="5784076928339534984">"Povoliť udalosti"</string>
     <string name="zen_mode_bypassing_apps" msgid="3080739479028713449">"Povoľte aplikáciám prekonávať nastavenia"</string>
-    <string name="zen_mode_bypassing_apps_title" msgid="2115024664615538847">"Výnimky aplikácie"</string>
+    <string name="zen_mode_bypassing_apps_title" msgid="2115024664615538847">"Výnimky pre aplikácie"</string>
     <plurals name="zen_mode_bypassing_apps_subtext" formatted="false" msgid="8723144434730871572">
       <item quantity="few">Režim bez vyrušení môžu prekonať <xliff:g id="NUMBER">%1$d</xliff:g> aplikácie</item>
       <item quantity="many">Notifications from <xliff:g id="NUMBER">%1$d</xliff:g> apps can override Do Not Disturb</item>
@@ -4273,7 +4275,7 @@
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Klepnutím skontrolujete tablet"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Klepnutím skontrolujete zariadenie"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Ak chcete zistiť čas, skontrolovať upozornenia a získať ďalšie informácie, klepnite na obrazovku."</string>
-    <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Upozornenia potiahnutím prsta"</string>
+    <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Upozornenia odtlačkom prsta"</string>
     <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"Potiahnutie prstom"</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"Upozornenia zobrazíte potiahnutím nadol po senzore odtlačkov prstov na zadnej strane telefónu."</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="tablet" msgid="3480057984564476283">"Upozornenia zobrazíte potiahnutím nadol po senzore odtlačkov prstov na zadnej strane tabletu."</string>
@@ -4475,7 +4477,7 @@
     <string name="battery_suggestion_title" product="device" msgid="765005476863631528">"Predĺženie výdrže batérie zariadenia"</string>
     <string name="battery_suggestion_title" product="default" msgid="3295786171830183688">"Predĺženie výdrže batérie telefónu"</string>
     <string name="battery_suggestion_summary" msgid="2669070349482656490"></string>
-    <string name="gesture_prevent_ringing_screen_title" msgid="4173494225145223638">"Blokovanie zvonenia"</string>
+    <string name="gesture_prevent_ringing_screen_title" msgid="4173494225145223638">"Vypnutie zvonenia"</string>
     <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"Stlačením vypínača a tlač. zvýšenia hlas. zapnete možnosť:"</string>
     <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"Skratka na vypnutie zvonenia"</string>
     <string name="prevent_ringing_option_vibrate" msgid="6456505293904544108">"Vibrovať"</string>

@@ -23,8 +23,8 @@
     <string name="deny" msgid="3998166389989144025">"拒絕"</string>
     <string name="device_info_default" msgid="1548919563979154348">"未知"</string>
     <plurals name="show_dev_countdown" formatted="false" msgid="3953785659137161981">
-      <item quantity="other">您只需完成 <xliff:g id="STEP_COUNT_1">%1$d</xliff:g> 個步驟，即可成為開發人員。</item>
-      <item quantity="one">您只需完成 <xliff:g id="STEP_COUNT_0">%1$d</xliff:g> 個步驟，即可成為開發人員。</item>
+      <item quantity="other">尚餘 <xliff:g id="STEP_COUNT_1">%1$d</xliff:g> 個步驟，您就可以成為開發人員。</item>
+      <item quantity="one">尚餘 <xliff:g id="STEP_COUNT_0">%1$d</xliff:g> 個步驟，您就可以成為開發人員。</item>
     </plurals>
     <string name="show_dev_on" msgid="9075712234786224065">"您現已成為開發人員！"</string>
     <string name="show_dev_already" msgid="7665948832405148689">"不需要了，您已經是開發人員。"</string>
@@ -275,7 +275,7 @@
     <string name="dlg_remove_locales_message" msgid="5179370688876343176">"文字將以其他語言顯示。"</string>
     <string name="dlg_remove_locales_error_title" msgid="9090578326002163975">"無法移除所有語言"</string>
     <string name="dlg_remove_locales_error_message" msgid="6799897638891903618">"請至少保留一種偏好語言"</string>
-    <string name="locale_not_translated" msgid="7943669576006420058">"部分應用程式可能不提供支援"</string>
+    <string name="locale_not_translated" msgid="7943669576006420058">"部分應用程式可能不支援"</string>
     <string name="action_drag_label_move_up" msgid="2074064283966078352">"向上移"</string>
     <string name="action_drag_label_move_down" msgid="1367989732445492291">"向下移"</string>
     <string name="action_drag_label_move_top" msgid="2033098833739345957">"移至頂端"</string>
@@ -425,7 +425,7 @@
     <string name="security_settings_face_settings_require_confirmation_details" msgid="8740564864091803429">"在應用程式內驗證時，每次都要確認"</string>
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"移除臉容資料"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"您的臉容可以用來解鎖裝置和存取應用程式。"<annotation id="url">"瞭解詳情"</annotation></string>
-    <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"是否刪除臉容資料？"</string>
+    <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"是否刪除臉孔資料？"</string>
     <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"臉孔解鎖功能記錄的資料將以安全方式永久刪除。移除後，您將需使用 PIN、圖案或密碼解鎖手機、登入應用程式及確認付款。"</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"指紋"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"管理指紋"</string>
@@ -895,7 +895,7 @@
     <string name="wifi_setup_wps" msgid="6730131677695521321">"自動設定 (WPS)"</string>
     <string name="wifi_settings_scanning_required_title" msgid="3593457187659922490">"要開啟 Wi-Fi 掃瞄功能嗎？"</string>
     <string name="wifi_settings_scanning_required_summary" msgid="7469610959462708782">"您必須先開啟 Wi-Fi 掃瞄功能，才能自動開啟 Wi-Fi。"</string>
-    <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"Wi-Fi 掃瞄功能允許應用程式和服務隨時掃瞄 Wi-Fi 網絡 (即使 Wi-Fi 已關閉)。此功能可用作改善行動定位功能和服務"</string>
+    <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"Wi-Fi 掃瞄功能允許應用程式和服務隨時掃瞄 Wi-Fi 網絡 (即使 Wi-Fi 已關閉)。此功能可用於改善根據位置運作的功能和服務等等。"</string>
     <string name="wifi_settings_scanning_required_turn_on" msgid="4327570180594277049">"開啟"</string>
     <string name="wifi_settings_scanning_required_enabled" msgid="3336102100425307040">"已開啟 Wi‑Fi 掃瞄功能"</string>
     <string name="wifi_show_advanced" msgid="8199779277168030597">"進階選項"</string>
@@ -2318,7 +2318,7 @@
     <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"此應用程式會在背景使用電量。您的電池電量可能會比預期更快耗盡。"</string>
     <string name="battery_tip_unrestrict_app_dialog_ok" msgid="9154938931448151479">"移除"</string>
     <string name="battery_tip_unrestrict_app_dialog_cancel" msgid="7331148618292397166">"取消"</string>
-    <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"您的應用程式目前的耗電量正常。如果應用程式耗電過多，手機會建議您進行一些操作。\n\n如果電量不足，您隨時都可以開啟「省電模式」。"</string>
+    <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"您的應用程式目前的耗電量正常。如果應用程式耗電過多，手機會建議您執行一些操作。\n\n如果電量不足，您隨時都可以開啟「省電模式」。"</string>
     <string name="battery_tip_dialog_summary_message" product="tablet" msgid="1721081030632329647">"您的應用程式目前的耗電量正常。如果應用程式耗電過多，平板電腦將會為您提供操作建議。\n\n如果電量較低，您可以隨時開啟省電模式。"</string>
     <string name="battery_tip_dialog_summary_message" product="device" msgid="146872407040848465">"您的應用程式目前的耗電量正常。如果應用程式耗電過多，裝置將會為您提供操作建議。\n\n如果電量較低，您可以隨時開啟省電模式。"</string>
     <string name="smart_battery_manager_title" msgid="5744035036663849515">"電池管理工具"</string>
@@ -2454,7 +2454,7 @@
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"根據百分比"</string>
     <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"如果電量很可能在下次慣常充電時間之前耗盡，「省電模式」就會自動開啟"</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"將會在電量剩餘 <xliff:g id="PERCENT">%1$s</xliff:g> 時開啟"</string>
-    <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"設定時間"</string>
+    <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"設定時間表"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"充滿電後關閉"</string>
     <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"當您的手機電量達到 <xliff:g id="PERCENT">%1$s</xliff:g> 時，省電模式會關閉"</string>
     <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"當您的平板電腦電量達到 <xliff:g id="PERCENT">%1$s</xliff:g> 時，省電模式會關閉"</string>
@@ -2848,7 +2848,7 @@
       <item quantity="other">檢查憑證</item>
       <item quantity="one">檢查憑證</item>
     </plurals>
-    <string name="user_settings_title" msgid="7917598650933179545">"多個使用者"</string>
+    <string name="user_settings_title" msgid="7917598650933179545">"複數使用者"</string>
     <string name="user_settings_footer_text" product="device" msgid="4573858247439190545">"新增使用者即可分享您的裝置。每位使用者在您的裝置上都有個人空間，以自訂主畫面、帳戶、應用程式、設定等。"</string>
     <string name="user_settings_footer_text" product="tablet" msgid="780018221428132918">"新增使用者即可分享您的平板電腦。每位使用者在您的平板電腦上都有個人空間，以自訂主畫面、帳戶、應用程式、設定等。"</string>
     <string name="user_settings_footer_text" product="default" msgid="1470859614968237491">"您可以新增使用者來分享這部手機。每位使用者在您的手機上都有個人空間，可以自訂主畫面、帳戶、應用程式、設定等等。"</string>
@@ -2883,7 +2883,7 @@
     <string name="user_cannot_add_accounts_message" msgid="5993561303748749097">"限制存取的個人檔案無法新增帳戶"</string>
     <string name="user_remove_user_menu" msgid="3505139157217459864">"將 <xliff:g id="USER_NAME">%1$s</xliff:g> 從這部裝置中刪除"</string>
     <string name="user_lockscreen_settings" msgid="3820813814848394568">"上鎖畫面設定"</string>
-    <string name="user_add_on_lockscreen_menu" msgid="5211604808199585774">"在上鎖畫面上新增使用者"</string>
+    <string name="user_add_on_lockscreen_menu" msgid="5211604808199585774">"在上鎖畫面加入使用者"</string>
     <string name="user_new_user_name" msgid="3880395219777884838">"新使用者"</string>
     <string name="user_new_profile_name" msgid="3074939718101489937">"新個人檔案"</string>
     <string name="user_confirm_remove_self_title" msgid="6739480453680217543">"您要刪除自己嗎？"</string>
@@ -3834,7 +3834,7 @@
     <string name="screen_zoom_title" msgid="164369086350486104">"顯示大小"</string>
     <string name="screen_zoom_short_summary" msgid="5508079362742276703">"放大或縮小畫面上的項目"</string>
     <string name="screen_zoom_keywords" msgid="8358462497896524092">"顯示密度, 螢幕縮放, 比例, 按比例"</string>
-    <string name="screen_zoom_summary" msgid="5294003755961312560">"縮小或放大畫面上的項目。畫面上部分應用程式可能會移位。"</string>
+    <string name="screen_zoom_summary" msgid="5294003755961312560">"縮小或放大畫面上的項目。畫面上有部分應用程式可能會移位。"</string>
     <string name="screen_zoom_preview_title" msgid="2924312934036753091">"預覽"</string>
     <string name="screen_zoom_make_smaller_desc" msgid="1374501139722916729">"縮小"</string>
     <string name="screen_zoom_make_larger_desc" msgid="5306684807895846141">"放大"</string>
@@ -3955,7 +3955,7 @@
       <item quantity="one">1 個限制</item>
     </plurals>
     <string name="operator_warning" msgid="4676042739221117031">"流動網絡供應商的數據計算方式可能與裝置有所不同"</string>
-    <string name="data_used_template" msgid="761605393453849477">"已用 <xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <string name="data_used_template" msgid="761605393453849477">"已使用 <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="set_data_warning" msgid="8115980184415563941">"設定數據用量警告"</string>
     <string name="data_warning" msgid="2699207195535036240">"數據用量警告"</string>
     <string name="data_warning_footnote" msgid="965724845580257305">"您的裝置會自行計算數據用量警告和數據用量上限。這可能會與流動網絡供應商的計算結果不同。"</string>
@@ -3987,7 +3987,7 @@
     <string name="launch_mdp_app_text" msgid="9186559496664208252">"查看數據計劃"</string>
     <string name="launch_wifi_text" msgid="317820210431682605">"查看詳情"</string>
     <string name="data_saver_title" msgid="7903308134514179256">"數據節省模式"</string>
-    <string name="unrestricted_data_saver" msgid="9139401849550738720">"無限制數據用量"</string>
+    <string name="unrestricted_data_saver" msgid="9139401849550738720">"不限制數據用量"</string>
     <string name="restrict_background_blacklisted" msgid="7158991683849067124">"背景數據已關閉"</string>
     <string name="data_saver_on" msgid="7281809065420480881">"開啟"</string>
     <string name="data_saver_off" msgid="7439439787358504018">"關閉"</string>
@@ -4121,18 +4121,18 @@
     <string name="swipe_up_to_switch_apps_summary" msgid="4644068184114154787">"如要切換應用程式，請在主按鈕上向上滑動。再次向上滑動即可查看所有應用程式。此操作適用於任何畫面。您的畫面右下方將不再有 [概覽] 按鈕。"</string>
     <string name="swipe_up_to_switch_apps_suggestion_title" msgid="7641846365137536128">"試按新版主按鈕"</string>
     <string name="swipe_up_to_switch_apps_suggestion_summary" msgid="7338653224520387852">"啟用新手勢即可切換應用程式"</string>
-    <string name="ambient_display_title" product="default" msgid="6785677099744344088">"輕按兩下以查看手機"</string>
+    <string name="ambient_display_title" product="default" msgid="6785677099744344088">"輕按兩下顯示畫面"</string>
     <string name="ambient_display_title" product="tablet" msgid="1106285490888683613">"輕按兩下即可查看平板電腦"</string>
     <string name="ambient_display_title" product="device" msgid="5064644474876041478">"輕按兩下即可查看裝置"</string>
     <string name="ambient_display_summary" msgid="4882910328216411109">"輕按螢幕兩下即可查看時間、通知和其他資訊。"</string>
-    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"拿起即可查看手機"</string>
+    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"拿起手機顯示畫面"</string>
     <string name="ambient_display_pickup_title" product="tablet" msgid="1555456400210301959">"拿起即可查看平板電腦"</string>
     <string name="ambient_display_pickup_title" product="device" msgid="2480126522988135037">"拿起即可查看裝置"</string>
     <string name="ambient_display_wake_screen_title" msgid="3376988352851077102">"喚醒顯示屏"</string>
     <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"拿起您的手機即可查看時間、通知和其他資訊。"</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"拿起您的平板電腦即可查看時間、通知和其他資訊。"</string>
     <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"拿起您的裝置即可查看時間、通知和其他資訊。"</string>
-    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"輕按即可查看手機"</string>
+    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"輕按一下顯示畫面"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"輕按即可查看平板電腦"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"輕按即可查看裝置"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"輕按螢幕即可查看時間、通知和其他資訊。"</string>

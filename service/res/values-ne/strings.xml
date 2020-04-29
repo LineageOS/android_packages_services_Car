@@ -57,7 +57,7 @@
     <string name="car_permission_car_display_in_cluster" msgid="4005987646292458684">"उपकरणको क्लस्टरमा प्रत्यक्ष रेन्डर गर्ने प्रक्रिया"</string>
     <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"कुनै अनुप्रयोगलाई उपकरणको क्लस्टरमा देखाइने क्रियाकलापहरूको घोषणा गर्न दिनुहोस्‌"</string>
     <string name="car_permission_car_cluster_control" msgid="1382247204230165674">"उपकरणको क्लस्टरको नियन्त्रण"</string>
-    <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"उपकरणको क्लस्टरमा अनुप्रयोगहरू सुरु गर्नुहोस्"</string>
+    <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"उपकरणको क्लस्टरमा एपहरू सुरु गर्नुहोस्"</string>
     <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"उपकरणको क्लस्टर रेन्डर गर्ने प्रक्रिया"</string>
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"उपकरणको क्लस्टरको डेटा प्राप्त गर्नुहोस्‌"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"UX सम्बन्धी प्रतिबन्धहरूको कन्फिगुरेसन"</string>
@@ -75,7 +75,7 @@
     <string name="activity_blocked_text" msgid="8088902789540147995">"तपाईं सवारी साधन चलाइरहेका बेला यो सुविधा प्रयोग गर्न सक्नुहुन्न"</string>
     <string name="exit_button_message" msgid="8554690915924055685">"अनुप्रयोगका सुरक्षित सुविधाहरूको प्रयोग गरी फेरि सुरु गर्न <xliff:g id="EXIT_BUTTON">%s</xliff:g> चयन गर्नुहोस्‌।"</string>
     <string name="exit_button" msgid="5829638404777671253">"पछाडि"</string>
-    <string name="exit_button_close_application" msgid="8824289547809332460">"अनुप्रयोग बन्द गर्नुहोस्"</string>
+    <string name="exit_button_close_application" msgid="8824289547809332460">"एप बन्द गर्नुहोस्"</string>
     <string name="exit_button_go_back" msgid="3469083862100560326">"पछाडि"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"निदानसम्बन्धी डेटा पढ्ने"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"कारको निदानसम्बन्धी डेटा पढ्ने।"</string>

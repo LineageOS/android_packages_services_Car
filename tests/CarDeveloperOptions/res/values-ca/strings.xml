@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Amplia o redueix la mida del text de la pantalla."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Redueix"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Amplia"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Text de mostra"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"El meravellós mag d\'Oz"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"Capítol 11: La meravellosa Ciutat Maragda d\'Oz"</string>
@@ -364,7 +363,7 @@
     <string name="owner_info_settings_summary" msgid="4208702251226725583">"Cap"</string>
     <string name="owner_info_settings_status" msgid="8049975536717685126">"<xliff:g id="COUNT_0">%1$d</xliff:g>/<xliff:g id="COUNT_1">%2$d</xliff:g>"</string>
     <string name="owner_info_settings_edit_text_hint" msgid="2250029417257939706">"P. ex., Android del Lluís"</string>
-    <string name="user_info_settings_title" msgid="1125111518759995748">"Info. de l\'usuari"</string>
+    <string name="user_info_settings_title" msgid="1125111518759995748">"Informació de l\'usuari"</string>
     <string name="show_profile_info_on_lockscreen_label" msgid="5204282771893683026">"Mostra la inf. de perfil a la pantalla de bloqueig"</string>
     <string name="profile_info_settings_title" msgid="4855892878512562551">"Informació de perfil"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"Comptes"</string>
@@ -928,7 +927,7 @@
     <string name="wifi_ap_choose_auto" msgid="7927637960569365785">"Automàtica"</string>
     <string name="wifi_ap_choose_2G" msgid="43198403259714736">"Banda de 2,4 GHz"</string>
     <string name="wifi_ap_choose_5G" msgid="2624859713183683146">"Banda de 5,0 GHz"</string>
-    <string name="wifi_ap_prefer_5G" msgid="8339172330471170142">"Preferència per la banda de 5,0 GHz"</string>
+    <string name="wifi_ap_prefer_5G" msgid="8339172330471170142">"Banda de 5,0 GHz preferida"</string>
     <string name="wifi_ap_2G" msgid="5793110086517338494">"2,4 GHz"</string>
     <string name="wifi_ap_5G" msgid="4584892544393675403">"5,0 GHz"</string>
     <string name="wifi_ap_band_select_one" msgid="4409754936554360355">"Tria almenys una banda per al punt d\'accés Wi-Fi:"</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi‑Fi"</item>
+    <item msgid="2271962426654621656">"Dades mòbils"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Si no pots fer servir la Wi‑Fi, utilitza la xarxa mòbil"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Si no pots fer servir la xarxa mòbil, utilitza la Wi‑Fi"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Trucades per Wi‑Fi. Si perds la connexió, la trucada finalitzarà."</string>
@@ -1428,7 +1430,7 @@
     <string name="storage_other_users" msgid="1055693465220962928">"Altres usuaris"</string>
     <string name="storage_internal_title" msgid="7969898703086593200">"Emmagatzematge del dispositiu"</string>
     <string name="storage_external_title" msgid="3308178326521953306">"Emmagatzematge portàtil"</string>
-    <string name="storage_volume_summary" msgid="3938298080954984809">"S\'han utilitzat <xliff:g id="USED">%1$s</xliff:g> d\'un total de <xliff:g id="TOTAL">%2$s</xliff:g>"</string>
+    <string name="storage_volume_summary" msgid="3938298080954984809">"<xliff:g id="USED">%1$s</xliff:g> en ús de <xliff:g id="TOTAL">%2$s</xliff:g>"</string>
     <string name="storage_size_large" msgid="2252229139037320440">"<xliff:g id="NUMBER">^1</xliff:g>"<small><small>" <xliff:g id="UNIT">^2</xliff:g>"</small></small>""</string>
     <string name="storage_volume_used" msgid="6762683251427947210">"En ús de: <xliff:g id="TOTAL">%1$s</xliff:g>"</string>
     <string name="storage_volume_used_total" msgid="1915664465366569853">"Total utilitzat de: <xliff:g id="TOTAL">%1$s</xliff:g>"</string>
@@ -1584,7 +1586,7 @@
     <string name="master_clear_title" msgid="1560712943955904673">"Esborra totes les dades (restabliment de les dades de fàbrica)"</string>
     <string name="master_clear_short_title" msgid="919098101581335101">"Esborra totes les dades"</string>
     <string name="master_clear_desc" product="tablet" msgid="3432373610755760899">"Aquesta acció esborrarà totes les dades de l\'"<b>"emmagatzematge intern"</b>" de la tauleta, com ara:\n\n"<li>"el teu Compte de Google"</li>\n<li>"les dades i la configuració del sistema i de les aplicacions"</li>\n<li>"les aplicacions baixades"</li></string>
-    <string name="master_clear_desc" product="default" msgid="8765543541962866697">"Aquesta acció esborrarà totes les dades de l\'"<b>"emmagatzematge intern"</b>" del telèfon, com ara:\n\n"<li>"El teu Compte de Google"</li>\n<li>"Les dades i la configuració del sistema i de les aplicacions"</li>\n<li>"Les aplicacions baixades"</li></string>
+    <string name="master_clear_desc" product="default" msgid="8765543541962866697">"S\'esborraran totes les dades de l\'"<b>"emmagatzematge intern"</b>" del telèfon, inclosos:\n\n"<li>"El teu Compte de Google"</li>\n<li>"Les dades i la configuració del sistema i de les aplicacions"</li>\n<li>"Les aplicacions baixades"</li></string>
     <string name="master_clear_accounts" product="default" msgid="3432884235445405376">\n\n"Tens la sessió iniciada als comptes següents:\n"</string>
     <string name="master_clear_other_users_present" product="default" msgid="5993259656117566767">\n\n"En aquest dispositiu hi ha altres usuaris.\n"</string>
     <string name="master_clear_desc_also_erases_external" msgid="3947303501615091903"><li>"Música"</li>\n<li>"Fotos"</li>\n<li>"Altres dades de l\'usuari"</li></string>
@@ -1679,7 +1681,7 @@
     <string name="location_access_summary" msgid="6919495149026354355">"Permet que les aplicacions que hagin demanat permís utilitzin la informació sobre la ubicació"</string>
     <string name="location_sources_heading" msgid="8526658357120282741">"Fonts d\'ubicació"</string>
     <string name="about_settings" product="tablet" msgid="4869626690708456341">"Informació sobre la tauleta"</string>
-    <string name="about_settings" product="default" msgid="6019547763377294261">"Informació sobre el telèfon"</string>
+    <string name="about_settings" product="default" msgid="6019547763377294261">"Informació del telèfon"</string>
     <string name="about_settings" product="device" msgid="1770438316234693655">"Informació sobre el dispositiu"</string>
     <string name="about_settings" product="emulator" msgid="4497482494770487014">"Sobre el dispositiu emulat"</string>
     <string name="about_settings_summary" msgid="4506081667462281647">"Mostra informació legal, estat, versió de programari"</string>
@@ -1842,7 +1844,7 @@
     <string name="default_emergency_app" msgid="286530070173495823">"Aplicació en casos d\'emergència"</string>
     <string name="reset_app_preferences" msgid="1426500030595212077">"Restableix les preferències d\'aplicacions"</string>
     <string name="reset_app_preferences_title" msgid="792909865493673598">"Restablir les preferències d\'aplicacions?"</string>
-    <string name="reset_app_preferences_desc" msgid="7935273005301096031">"Es restabliran les preferències de:\n\n "<li>"Aplicacions desactivades"</li>\n" "<li>"Notificacions d\'aplicacions desactivades"</li>\n" "<li>"Aplicacions predeterminades per a accions"</li>\n" "<li>"Restriccions de dades en segon pla per a aplicacions"</li>\n" "<li>"Restriccions de permisos"</li>\n\n" No es perdran les dades de les aplicacions."</string>
+    <string name="reset_app_preferences_desc" msgid="7935273005301096031">"Es restabliran totes les preferències de:\n\n "<li>"Aplicacions desactivades"</li>\n" "<li>"Notificacions d\'aplicacions desactivades"</li>\n" "<li>"Aplicacions predeterminades per a accions"</li>\n" "<li>"Restriccions de dades en segon pla per a aplicacions"</li>\n" "<li>"Restriccions de permisos"</li>\n\n" No es perdran les dades de les aplicacions."</string>
     <string name="reset_app_preferences_button" msgid="2041894727477934656">"Restableix aplicacions"</string>
     <string name="manage_space_text" msgid="6166469422303124302">"Gestiona l\'espai"</string>
     <string name="filter" msgid="2426943916212457962">"Filtra"</string>
@@ -2084,7 +2086,7 @@
     <string name="accessibility_content_timeout_preference_summary" msgid="853829064617918179">"Tria el temps que necessites per llegir els missatges que es mostren temporalment.\n\nNo totes les aplicacions admeten aquesta opció de configuració."</string>
     <string name="accessibility_control_timeout_preference_summary" msgid="8582212299606932160">"Selecciona el temps que vols tenir per llegir els missatges que es mostren temporalment i et demanen que duguis a terme una acció.\n\nAquesta opció no és compatible amb totes les aplicacions."</string>
     <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"Retard en mantenir premut"</string>
-    <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"Inversió dels colors"</string>
+    <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"Inversió de colors"</string>
     <string name="accessibility_display_inversion_preference_subtitle" msgid="69291255322175323">"Pot afectar el rendiment"</string>
     <string name="accessibility_autoclick_preference_title" msgid="9164599088410340405">"Temps de permanència"</string>
     <string name="accessibility_autoclick_description" msgid="5492414927846407499">"Si utilitzes un ratolí, pots configurar-lo perquè el cursor faci accions automàticament quan deixi de moure\'s durant un determinat període de temps."</string>
@@ -2094,7 +2096,7 @@
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"Vibració de les trucades"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"Vibració en tocar"</string>
     <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"Utilitza el servei"</string>
-    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"Utilitza la correcció del color"</string>
+    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"Utilitza la correcció de color"</string>
     <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"Utilitza subtítols"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"Continua"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"Audiòfons"</string>
@@ -2297,7 +2299,7 @@
     </plurals>
     <plurals name="battery_tip_restrict_summary" formatted="false" msgid="984148373944071669">
       <item quantity="other">%2$d aplicacions consumeixen molta bateria en segon pla</item>
-      <item quantity="one">%1$s aplicació consumeix molta bateria en segon pla</item>
+      <item quantity="one">%1$s consumeix molta bateria en segon pla</item>
     </plurals>
     <plurals name="battery_tip_restrict_handled_summary" formatted="false" msgid="469696766640020557">
       <item quantity="other">Aquestes aplicacions no es poden executar en segon pla</item>
@@ -2868,10 +2870,10 @@
     <string name="user_add_user_item_title" msgid="6835385073795492410">"Usuari"</string>
     <string name="user_add_profile_item_title" msgid="4932743891449790664">"Perfil restringit"</string>
     <string name="user_add_user_title" msgid="2320897397066676472">"Vols afegir un usuari nou?"</string>
-    <string name="user_add_user_message_long" msgid="686637203224195465">"Pots compartir aquest dispositiu amb altres usuaris creant usuaris addicionals. Cada usuari té el seu propi espai, que pot personalitzar amb aplicacions i fons de pantalla, entre d\'altres. Els usuaris també poden ajustar opcions de configuració del dispositiu, com ara la Wi-Fi, que afecten els altres usuaris.\n\nQuan afegeixis un usuari nou, haurà de configurar el seu espai.\n\nTots els usuaris poden actualitzar les aplicacions de la resta. És possible que la configuració i els serveis d\'accessibilitat no es transfereixin a l\'usuari nou."</string>
+    <string name="user_add_user_message_long" msgid="686637203224195465">"Pots compartir aquest dispositiu amb altres persones creant usuaris addicionals. Cada usuari té el seu propi espai, que pot personalitzar amb aplicacions i fons de pantalla, entre d\'altres. Els usuaris també poden ajustar opcions de configuració del dispositiu, com ara la Wi-Fi, que afecten els altres usuaris.\n\nQuan afegeixis un usuari nou, haurà de configurar el seu espai.\n\nTots els usuaris poden actualitzar les aplicacions de la resta. És possible que la configuració i els serveis d\'accessibilitat no es transfereixin a l\'usuari nou."</string>
     <string name="user_add_user_message_short" msgid="1802594476285458254">"Quan s\'afegeix un usuari nou, aquest usuari ha de configurar el seu espai.\n\nQualsevol usuari pot actualitzar les aplicacions dels altres usuaris."</string>
     <string name="user_setup_dialog_title" msgid="6748950002206392396">"Vols configurar l\'usuari ara?"</string>
-    <string name="user_setup_dialog_message" msgid="2988559933258353919">"Comprova que l\'usuari pugui accedir al dispositiu i configurar el seu espai."</string>
+    <string name="user_setup_dialog_message" msgid="2988559933258353919">"Assegura\'t que la persona estigui disponible per accedir al dispositiu i configurar el seu espai."</string>
     <string name="user_setup_profile_dialog_message" msgid="7611900802824048526">"Vols configurar el perfil ara?"</string>
     <string name="user_setup_button_setup_now" msgid="4941459406266856176">"Configura ara"</string>
     <string name="user_setup_button_setup_later" msgid="6596031428556518752">"Ara no"</string>
@@ -2920,10 +2922,10 @@
     <string name="nfc_payment_app_and_desc" msgid="102312684211458190">"<xliff:g id="APP">%1$s</xliff:g> - <xliff:g id="DESCRIPTION">%2$s</xliff:g>"</string>
     <string name="nfc_payment_use_default" msgid="3098724195746409476">"Utilitza l\'aplicació predeterminada"</string>
     <string name="nfc_payment_favor_default" msgid="7555356982142464260">"Sempre"</string>
-    <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Excepte quan hi hagi oberta una altra aplicació de pagament"</string>
+    <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Excepte quan hi hagi oberta una altra aplicació per pagar"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"En un terminal que tingui la funció Toca i paga, paga amb:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Pagar a la terminal"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Configura una aplicació de pagament. A continuació, apropa la part posterior del telèfon a un terminal amb el símbol de pagament sense contacte."</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Configura una aplicació per pagar. A continuació, apropa la part posterior del telèfon a un terminal amb el símbol de pagament sense contacte."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"Entesos"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"Més..."</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"Vols establir-ho com a preferència?"</string>
@@ -3231,7 +3233,7 @@
     <string name="zen_mode_button_turn_on" msgid="1097964136225943415">"Activa ara"</string>
     <string name="zen_mode_button_turn_off" msgid="3990967728457149454">"Desactiva ara"</string>
     <string name="zen_mode_settings_dnd_manual_end_time" msgid="4307574188962071429">"El mode No molestis està activat fins a les <xliff:g id="FORMATTED_TIME">%s</xliff:g>"</string>
-    <string name="zen_mode_settings_dnd_manual_indefinite" msgid="3701005376825238752">"El mode No molestis continuarà activat fins que no el desactivis"</string>
+    <string name="zen_mode_settings_dnd_manual_indefinite" msgid="3701005376825238752">"El mode No molestis es manté activat fins que no el desactivis"</string>
     <string name="zen_mode_settings_dnd_automatic_rule" msgid="2843297614114625408">"Una programació (<xliff:g id="RULE_NAME">%s</xliff:g>) ha activat automàticament el mode No molestis"</string>
     <string name="zen_mode_settings_dnd_automatic_rule_app" msgid="5103454923160912313">"Una aplicació (<xliff:g id="APP_NAME">%s</xliff:g>) ha activat automàticament el mode No molestis"</string>
     <string name="zen_mode_settings_dnd_custom_settings_footer" msgid="6335108298640066560">"El mode No molestis està activat per a <xliff:g id="RULE_NAMES">%s</xliff:g> amb una configuració personalitzada."</string>
@@ -3857,10 +3859,10 @@
     <string name="apps_summary" msgid="8355759446490212195">"S\'han instal·lat <xliff:g id="COUNT">%1$d</xliff:g> aplicacions"</string>
     <string name="apps_summary_example" msgid="3011143598675185269">"24 aplicacions instal·lades"</string>
     <string name="storage_summary" msgid="4835916510511133784">"<xliff:g id="PERCENTAGE">%1$s</xliff:g> utilitzat - <xliff:g id="FREE_SPACE">%2$s</xliff:g> lliures"</string>
-    <string name="storage_summary_with_sdcard" msgid="8742907204848352697">"Emmagatzematge intern: <xliff:g id="PERCENTAGE">%1$s</xliff:g> utilitzat, <xliff:g id="FREE_SPACE">%2$s</xliff:g> lliure"</string>
+    <string name="storage_summary_with_sdcard" msgid="8742907204848352697">"Emmagatzematge intern: <xliff:g id="PERCENTAGE">%1$s</xliff:g> utilitzat, <xliff:g id="FREE_SPACE">%2$s</xliff:g> lliures"</string>
     <string name="display_summary" msgid="5725269449657325797">"Entra en repòs després de <xliff:g id="TIMEOUT_DESCRIPTION">%1$s</xliff:g> d\'inactivitat"</string>
     <string name="display_dashboard_summary" msgid="7678566148167010682">"Fons de pantalla, repòs, mida de la lletra"</string>
-    <string name="display_dashboard_summary_with_style" msgid="8981059474501210956">"Estils i fons de pantalla, repòs, mida de la lletra"</string>
+    <string name="display_dashboard_summary_with_style" msgid="8981059474501210956">"Estils i fons de pantalla, repòs, mida del tipus de lletra"</string>
     <string name="display_dashboard_nowallpaper_summary" msgid="8612534364908229000">"Repòs, mida de la lletra"</string>
     <string name="display_summary_example" msgid="4555020581960719296">"Entra en repòs després de 10 minuts d\'inactivitat"</string>
     <string name="memory_summary" msgid="9121871336058042600">"Ús mitjà de memòria: <xliff:g id="USED_MEMORY">%1$s</xliff:g> de <xliff:g id="TOTAL_MEMORY">%2$s</xliff:g>"</string>
@@ -4119,12 +4121,12 @@
     <string name="swipe_up_to_switch_apps_suggestion_title" msgid="7641846365137536128">"Prova el botó d\'inici nou"</string>
     <string name="swipe_up_to_switch_apps_suggestion_summary" msgid="7338653224520387852">"Activa el gest nou per canviar d\'aplicació"</string>
     <string name="ambient_display_title" product="default" msgid="6785677099744344088">"Doble toc per consultar el telèfon"</string>
-    <string name="ambient_display_title" product="tablet" msgid="1106285490888683613">"Per consultar la tauleta, fes-hi doble toc"</string>
-    <string name="ambient_display_title" product="device" msgid="5064644474876041478">"Per consultar el dispositiu, fes-hi doble toc"</string>
+    <string name="ambient_display_title" product="tablet" msgid="1106285490888683613">"Doble toc per consultar la tauleta"</string>
+    <string name="ambient_display_title" product="device" msgid="5064644474876041478">"Doble toc per consultar el dispositiu"</string>
     <string name="ambient_display_summary" msgid="4882910328216411109">"Per veure l\'hora, les notificacions i altres dades, fes doble toc a la pantalla."</string>
-    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"Aixeca per consultar-lo"</string>
-    <string name="ambient_display_pickup_title" product="tablet" msgid="1555456400210301959">"Per consultar la tauleta, aixeca-la"</string>
-    <string name="ambient_display_pickup_title" product="device" msgid="2480126522988135037">"Aixeca el dispositiu per consultar-lo"</string>
+    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"Aixeca per consultar el telèfon"</string>
+    <string name="ambient_display_pickup_title" product="tablet" msgid="1555456400210301959">"Aixeca per consultar la tauleta"</string>
+    <string name="ambient_display_pickup_title" product="device" msgid="2480126522988135037">"Aixeca per consultar el dispositiu"</string>
     <string name="ambient_display_wake_screen_title" msgid="3376988352851077102">"Activa la pantalla"</string>
     <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"Per veure l\'hora, les notificacions i altres dades, agafa el telèfon."</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"Per veure l\'hora, les notificacions i altres dades, agafa la tauleta."</string>
@@ -4308,7 +4310,7 @@
     <string name="change_wifi_state_title" msgid="5140754955787584174">"Control de la Wi-Fi"</string>
     <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"Permet que l\'aplicació controli la Wi-Fi"</string>
     <string name="change_wifi_state_app_detail_summary" msgid="614854822469259860">"Permet que aquesta aplicació activi o desactivi la Wi-Fi, cerqui xarxes Wi-Fi, s\'hi connecti, n\'afegeixi o en suprimeixi, o que iniciï un punt d\'accés Wi-Fi només local"</string>
-    <string name="media_output_title" msgid="8710632337456601848">"Reprodueix el contingut multimèdia a"</string>
+    <string name="media_output_title" msgid="8710632337456601848">"Reprodueix contingut multimèdia a"</string>
     <string name="media_output_default_summary" msgid="3159237976830415584">"Aquest dispositiu"</string>
     <string name="media_output_summary" product="default" msgid="6294261435613551178">"Telèfon"</string>
     <string name="media_output_summary" product="tablet" msgid="6672024060360538526">"Tauleta"</string>
@@ -4475,7 +4477,7 @@
     <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"Vols suprimir aquest suggeriment?"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"S\'ha suprimit el suggeriment"</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"Desfés"</string>
-    <string name="low_storage_summary" msgid="4562224870189133400">"Queda poc espai d\'emmagatzematge: <xliff:g id="PERCENTAGE">%1$s</xliff:g> utilitzat; <xliff:g id="FREE_SPACE">%2$s</xliff:g> lliure"</string>
+    <string name="low_storage_summary" msgid="4562224870189133400">"Queda poc espai d\'emmagatzematge: <xliff:g id="PERCENTAGE">%1$s</xliff:g> utilitzat; <xliff:g id="FREE_SPACE">%2$s</xliff:g> lliures"</string>
     <string name="contextual_card_feedback_send" msgid="8698649023854350623">"Envia suggeriments"</string>
     <string name="contextual_card_feedback_confirm_message" msgid="3987973028353264878">"Vols enviar-nos algun comentari sobre aquest suggeriment?"</string>
     <string name="copyable_slice_toast" msgid="1357518174923789947">"S\'ha copiat <xliff:g id="COPY_CONTENT">%1$s</xliff:g> al porta-retalls."</string>

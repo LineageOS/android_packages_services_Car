@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Gjør teksten på skjermen større eller mindre."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Gjør mindre"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Gjør større"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Eksempeltekst"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"Trollmannen fra Oz"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"Kapittel 11: Den vidunderlige smaragdbyen Oz"</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"Mobil"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Bruk mobilnettverk hvis Wi-Fi er utilgjengelig"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Bruk Wi-Fi hvis mobilnettverket er utilgjengelig"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Ring via Wi‑Fi. Samtalen avsluttes hvis du mister Wi‑Fi-tilkoblingen."</string>
@@ -2087,7 +2089,7 @@
     <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"Fargeinvertering"</string>
     <string name="accessibility_display_inversion_preference_subtitle" msgid="69291255322175323">"Kan påvirke ytelsen"</string>
     <string name="accessibility_autoclick_preference_title" msgid="9164599088410340405">"Holdetid"</string>
-    <string name="accessibility_autoclick_description" msgid="5492414927846407499">"Hvis du bruker en mus, kan du stille musepekeren til å klikke automatisk når den slutter å bevege seg i en bestemt periode."</string>
+    <string name="accessibility_autoclick_description" msgid="5492414927846407499">"Hvis du bruker en mus, kan du stille musepekeren til å klikke automatisk etter at den har stått i ro en viss tid."</string>
     <string name="accessibility_autoclick_delay_preference_title" msgid="8303022510942147049">"Forsinkelse før klikk"</string>
     <string name="accessibility_vibration_settings_title" msgid="1902649657883159406">"Vibrasjon"</string>
     <string name="accessibility_notification_vibration_title" msgid="1005799039440510298">"Varselvibrering"</string>
@@ -2792,7 +2794,7 @@
     <string name="vpn_always_on_summary" msgid="3639994551631437397">"La enheten være tilkoblet VPN hele tiden"</string>
     <string name="vpn_always_on_summary_not_supported" msgid="9077720997795965133">"Støttes ikke av denne appen"</string>
     <string name="vpn_always_on_summary_active" msgid="8962619701962239088">"Alltid på er aktiv"</string>
-    <string name="vpn_require_connection" msgid="5413746839457797350">"Blokker tilkoblinger uten VPN"</string>
+    <string name="vpn_require_connection" msgid="5413746839457797350">"Blokkér tilkoblinger uten VPN"</string>
     <string name="vpn_require_connection_title" msgid="8361434328767853717">"Vil du kreve VPN-tilkobling?"</string>
     <string name="vpn_lockdown_summary" msgid="6770030025737770861">"Velg en VPN-profil du vil forbli tilkoblet til. Nettverkstrafikk blir bare tillatt når du er tilkoblet denne VPN-en."</string>
     <string name="vpn_lockdown_none" msgid="3789288793603394679">"Ingen"</string>
@@ -2914,7 +2916,7 @@
     <string name="apps_with_restrictions_settings_button" msgid="5065896213467171744">"Utvidelsesinnstillinger for appen"</string>
     <string name="nfc_payment_settings_title" msgid="5070077706735415291">"Berøringsbetaling"</string>
     <string name="nfc_payment_how_it_works" msgid="7607901964687787177">"Slik fungerer det"</string>
-    <string name="nfc_payment_no_apps" msgid="8844440783395420860">"Betal med telefonen din i butikker"</string>
+    <string name="nfc_payment_no_apps" msgid="8844440783395420860">"Betal med telefonen i butikker"</string>
     <string name="nfc_payment_default" msgid="7869273092463612271">"Standardapp for betaling"</string>
     <string name="nfc_payment_default_not_set" msgid="955804193510335338">"Ikke angitt"</string>
     <string name="nfc_payment_app_and_desc" msgid="102312684211458190">"<xliff:g id="APP">%1$s</xliff:g> – <xliff:g id="DESCRIPTION">%2$s</xliff:g>"</string>
@@ -2923,7 +2925,7 @@
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Unntatt når en annen betalingsapp er åpen"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"På betalingsterminaler med berøringsfunksjonalitet vil du betale med"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Betaling ved terminaler"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Konfigurer en betalingsapp. Deretter holder du baksiden av telefonen din mot en terminal som har symbolet for kontaktløs betaling."</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Konfigurer en betalingsapp. Deretter holder du baksiden av telefonen mot en terminal som har symbolet for kontaktløs betaling."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"Skjønner"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"Mr"</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"Angi som foretrukket?"</string>
@@ -3160,7 +3162,7 @@
     <string name="emergency_tone_vibrate" msgid="5020068066905681181">"Vibrasjoner"</string>
     <string name="boot_sounds_title" msgid="7583926202411353620">"Lyder ved oppstart"</string>
     <string name="live_caption_title" msgid="7926591158657997051">"Liveteksting"</string>
-    <string name="live_caption_summary" msgid="9064771862352393125">"Automatisk teksting av media"</string>
+    <string name="live_caption_summary" msgid="9064771862352393125">"Automatisk medieteksting"</string>
     <string name="zen_mode_settings_summary_off" msgid="6929319200478424962">"Aldri"</string>
     <plurals name="zen_mode_settings_summary_on" formatted="false" msgid="6061723291126091396">
       <item quantity="other"><xliff:g id="ON_COUNT">%d</xliff:g> er slått på</item>

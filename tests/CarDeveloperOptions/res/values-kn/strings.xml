@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"ಪರದೆಯ ಮೇಲೆ ಪಠ್ಯದ ಗಾತ್ರವನ್ನು ಹಿಗ್ಗಿಸಿ ಅಥವಾ ಕುಗ್ಗಿಸಿ."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"ಚಿಕ್ಕದಾಗಿಸು"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"ದೊಡ್ಡದಾಗಿಸು"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"ಮಾದರಿ ಪಠ್ಯ"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"Oz ನ ಅದ್ಭುತವಾದ ಮಾಂತ್ರಿಕ"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"ಅಧ್ಯಾಯ 11: Oz ನ ಅದ್ಭುತವಾದ ಎಮೆರಾಲ್ಡ್ ಸಿಟಿ"</string>
@@ -180,7 +179,7 @@
     <string name="connected_device_connected_title" msgid="6255107326608785482">"ಪ್ರಸ್ತುತ ಸಂಪರ್ಕಿಸಲಾಗಿದೆ"</string>
     <string name="connected_device_saved_title" msgid="8270136893488475163">"ಉಳಿಸಿರುವ ಸಾಧನಗಳು"</string>
     <string name="connected_device_add_device_summary" msgid="7960491471270158891">"ಜೋಡಿಸಲು ಬ್ಲೂಟೂತ್ ಆನ್ ಆಗುತ್ತದೆ"</string>
-    <string name="connected_device_connections_title" msgid="9205000271382018428">"ಸಂಪರ್ಕ ಆದ್ಯತೆಗಳು"</string>
+    <string name="connected_device_connections_title" msgid="9205000271382018428">"ಕನೆಕ್ಷನ್ ಆದ್ಯತೆಗಳು"</string>
     <string name="connected_device_previously_connected_title" msgid="225918223397410428">"ಹಿಂದೆ ಸಂಪರ್ಕಗೊಂಡಿದ್ದ ಸಾಧನಗಳು"</string>
     <string name="connected_device_previously_connected_screen_title" msgid="2018789662358162716">"ಹಿಂದೆ ಸಂಪರ್ಕಗೊಂಡಿದ್ದ"</string>
     <string name="connected_device_bluetooth_turned_on_toast" msgid="4652326177920814476">"ಬ್ಲೂಟೂತ್ ಆನ್ ಮಾಡಲಾಗಿದೆ"</string>
@@ -941,7 +940,7 @@
     <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"“<xliff:g id="SSID">%1$s</xliff:g>” ಗೆ ಸಂಪರ್ಕಿಸಲು QR ಕೋಡ್ ಅನ್ನು ಕೆಳಗೆ ಕೇಂದ್ರೀಕರಿಸಿ"</string>
     <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"QR ಕೋಡ್ ಸ್ಕ್ಯಾನ್ ಮಾಡುವ ಮೂಲಕ ವೈ-ಫೈ ಗೆ ಸೇರಿ"</string>
     <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"ವೈ-ಫೈ ಹಂಚಿಕೊಳ್ಳಿ"</string>
-    <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"“<xliff:g id="SSID">%1$s</xliff:g>” ಗೆ ಸಂಪರ್ಕಪಡಿಸಲು ಮತ್ತು ಪಾಸ್‌ವರ್ಡ್ ಹಂಚಿಕೊಳ್ಳಲು ಈ QR ಕೋಡ್ ಅನ್ನು ಸ್ಕ್ಯಾನ್ ಮಾಡಿ"</string>
+    <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"“<xliff:g id="SSID">%1$s</xliff:g>” ಗೆ ಕನೆಕ್ಟ್ ಮಾಡಲು ಮತ್ತು ಪಾಸ್‌ವರ್ಡ್ ಹಂಚಿಕೊಳ್ಳಲು ಈ QR ಕೋಡ್ ಅನ್ನು ಸ್ಕ್ಯಾನ್ ಮಾಡಿ"</string>
     <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"“<xliff:g id="SSID">%1$s</xliff:g>” ಗೆ ಸಂಪರ್ಕಪಡಿಸಲು ಈ QR ಕೋಡ್ ಅನ್ನು ಸ್ಕ್ಯಾನ್ ಮಾಡಿ"</string>
     <string name="wifi_dpp_could_not_detect_valid_qr_code" msgid="27667719861826438">"QR ಕೋಡ್ ಅನ್ನು ಓದಲು ಸಾಧ್ಯವಾಗುತ್ತಿಲ್ಲ. ಕೋಡ್ ಮರುನಮೂದಿಸಿ ಅಥವಾ ಪುನಃ ಪ್ರಯತ್ನಿಸಿ"</string>
     <string name="wifi_dpp_failure_authentication_or_configuration" msgid="9142051662156233679">"ಪುನಃ ಪ್ರಯತ್ನಿಸಿ. ಸಮಸ್ಯೆ ಮುಂದುವರಿದರೆ, ಸಾಧನ ತಯಾರಕರನ್ನು ಸಂಪರ್ಕಿಸಿ"</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"ವೈ-ಫೈ"</item>
+    <item msgid="2271962426654621656">"ಮೊಬೈಲ್"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"ವೈ-ಫೈ ಲಭ್ಯವಿಲ್ಲದಿದ್ದರೆ, ಮೊಬೈಲ್ ನೆಟ್‌ವರ್ಕ್ ಬಳಸಿ"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"ಮೊಬೈಲ್ ನೆಟ್‌ವರ್ಕ್ ಲಭ್ಯವಿಲ್ಲದಿದ್ದರೆ, ವೈ-ಫೈ ಬಳಸಿ"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"ವೈ-ಫೈ ಬಳಸಿ ಕರೆ ಮಾಡಿ. ವೈ-ಫೈ ಸಂಪರ್ಕ ಕಡಿತಗೊಂಡರೆ, ಕರೆ ಕೊನೆಗೊಳ್ಳುತ್ತದೆ."</string>
@@ -2276,10 +2278,10 @@
     <string name="battery_tip_smart_battery_title" product="device" msgid="7419448992583346364">"ನಿಮ್ಮ ಸಾಧನದ ಬ್ಯಾಟರಿ ಬಾಳಿಕೆಯನ್ನು ಸುಧಾರಿಸಿ"</string>
     <string name="battery_tip_smart_battery_summary" msgid="5344821856478265778">"ಬ್ಯಾಟರಿ ನಿರ್ವಾಹಕರನ್ನು ಆನ್‌ ಮಾಡಿ"</string>
     <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"ಬ್ಯಾಟರಿ ಸೇವರ್‌ ಆನ್‌ ಮಾಡಿ"</string>
-    <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"ಬ್ಯಾಟರಿ ಸಾಮಾನ್ಯಕ್ಕಿಂತ ಮೊದಲೇ ರನ್ ಆಗಬಹುದು"</string>
+    <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"ಬ್ಯಾಟರಿ ಸಾಮಾನ್ಯಕ್ಕಿಂತ ಮೊದಲೇ ಖಾಲಿಯಾಗಬಹುದು"</string>
     <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"ಬ್ಯಾಟರಿ ಸೇವರ್ ಆನ್ ಆಗಿದೆ"</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"ಕೆಲವು ವೈಶಿಷ್ಟ್ಯಗಳು ಸೀಮಿತವಾಗಿರಬಹುದು"</string>
-    <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"ಫೋನ್ ಸಾಮಾನ್ಯಕ್ಕಿಂತ ಹೆಚ್ಚಿನದನ್ನು ಬಳಸಿದೆ"</string>
+    <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"ಫೋನ್ ಅನ್ನು ಸಾಮಾನ್ಯಕ್ಕಿಂತ ಹೆಚ್ಚು ಬಳಸಲಾಗಿದೆ"</string>
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"ಟ್ಯಾಬ್ಲೆಟ್ ಸಾಮಾನ್ಯಕ್ಕಿಂತ ಹೆಚ್ಚಿನದನ್ನು ಬಳಸಿದೆ"</string>
     <string name="battery_tip_high_usage_title" product="device" msgid="8304138287288309490">"ಸಾಧನವು ಸಾಮಾನ್ಯಕ್ಕಿಂತ ಹೆಚ್ಚಿನದನ್ನು ಬಳಸಿದೆ"</string>
     <string name="battery_tip_high_usage_summary" msgid="5514749872957528189">"ಬ್ಯಾಟರಿ ಸಾಮಾನ್ಯ ಅವಧಿಗಿಂತ ಮೊದಲೇ ಖಾಲಿಯಾಗಬಹುದು"</string>
@@ -4267,7 +4269,7 @@
     <string name="storage_manager_indicator_on" msgid="5295306384982062320">"ಆನ್"</string>
     <string name="install_type_instant" msgid="6248487669862821874">"ತತ್‌ಕ್ಷಣದ ಅಪ್ಲಿಕೇಶನ್"</string>
     <string name="automatic_storage_manager_deactivation_warning" msgid="7867793739491286374">"ಸಂಗ್ರಹಣೆ ನಿರ್ವಾಹಕವನ್ನು ಆಫ್ ಮಾಡುವುದೇ?"</string>
-    <string name="storage_movies_tv" msgid="7282484273991655296">"ಚಲನಚಿತ್ರ ಮತ್ತು ಟಿವಿ ಅಪ್ಲಿಕೇಶನ್‌ಗಳು"</string>
+    <string name="storage_movies_tv" msgid="7282484273991655296">"ಚಲನಚಿತ್ರ ಮತ್ತು ಟಿವಿ ಆ್ಯಪ್‍‍ಗಳು"</string>
     <string name="carrier_provisioning" msgid="3309125279191534469">"ವಾಹಕ ಪೂರೈಕೆಯ ಮಾಹಿತಿ"</string>
     <string name="trigger_carrier_provisioning" msgid="6284005970057901477">"ಟ್ರಿಗ್ಗರ್ ವಾಹಕ ಪೂರೈಕೆ"</string>
     <string name="zen_suggestion_title" msgid="2134699720214231950">"ಅಡಚಣೆ ಮಾಡಬೇಡಿ ಅನ್ನು ಅಪ್‌ಡೇಟ್‌ ಮಾಡಿ"</string>
