@@ -16,20 +16,20 @@
 
 package com.android.car.pm;
 
+import static android.car.test.mocks.CarArgumentMatchers.isUserHandle;
+
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
 
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.test.mocks.AbstractExtendMockitoTestCase;
+import android.car.testapi.OneEventUserLifecycleListener;
 import android.car.user.CarUserManager;
-import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleEventType;
-import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.userlib.CarUserManagerHelper;
 import android.content.ComponentName;
 import android.content.Context;
@@ -44,7 +44,6 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.Log;
 
-import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.android.car.CarLocalServices;
@@ -56,7 +55,6 @@ import com.android.internal.util.Preconditions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
@@ -197,7 +195,7 @@ public final class VendorServiceControllerTest extends AbstractExtendMockitoTest
     }
 
     private void mockUserUnlock(@UserIdInt int userId) {
-        when(mUserManager.isUserUnlockingOrUnlocked(isUser(userId))).thenReturn(true);
+        when(mUserManager.isUserUnlockingOrUnlocked(isUserHandle(userId))).thenReturn(true);
         when(mUserManager.isUserUnlockingOrUnlocked(userId)).thenReturn(true);
     }
 
@@ -213,7 +211,7 @@ public final class VendorServiceControllerTest extends AbstractExtendMockitoTest
             @UserIdInt int userId) throws InterruptedException {
         // Adding a blocking listener to ensure CarUserService event notification is completed
         // before proceeding with test execution.
-        BlockingUserLifecycleListener blockingListener = new BlockingUserLifecycleListener();
+        OneEventUserLifecycleListener blockingListener = new OneEventUserLifecycleListener();
         mCarUserService.addUserLifecycleListener(blockingListener);
 
         runOnMainThreadAndWaitForIdle(() -> mCarUserService.onUserLifecycleEvent(eventType,
@@ -340,65 +338,6 @@ public final class VendorServiceControllerTest extends AbstractExtendMockitoTest
                 return mUserManager;
             }
             return super.getSystemService(name);
-        }
-    }
-
-    // TODO(b/149099817): move stuff below to common code
-
-    /**
-     * Custom Mockito matcher to check if a {@link UserHandle} has the given {@code userId}.
-     */
-    public static UserHandle isUser(@UserIdInt int userId) {
-        return argThat(new UserHandleMatcher(userId));
-    }
-
-    private static class UserHandleMatcher implements ArgumentMatcher<UserHandle> {
-
-        public final @UserIdInt int userId;
-
-        private UserHandleMatcher(@UserIdInt int userId) {
-            this.userId = userId;
-        }
-
-        @Override
-        public boolean matches(UserHandle argument) {
-            return argument != null && argument.getIdentifier() == userId;
-        }
-    }
-
-    /**
-     * CarUserService now notifies listener in its own handler thread. This wrapper is used to
-     * block test thread until listener is notified.
-     */
-    // TODO(b/149099817): Move this class to a common place
-    private static final class BlockingUserLifecycleListener implements UserLifecycleListener {
-
-        public static final int USER_LIFECYCLE_LISTENER_ON_EVENT_TIMEOUT_SECONDS = 2;
-
-        private final CountDownLatch mLatch = new CountDownLatch(1);
-
-        @Nullable
-        private UserLifecycleEvent mReceivedEvent;
-
-        @Override
-        public void onEvent(UserLifecycleEvent event) {
-            this.mReceivedEvent = event;
-            mLatch.countDown();
-        }
-
-        /**
-         * Blocks until onEvent is invoked.
-         */
-        @Nullable
-        public UserLifecycleEvent waitForEvent() throws InterruptedException {
-            if (!mLatch.await(USER_LIFECYCLE_LISTENER_ON_EVENT_TIMEOUT_SECONDS,
-                    TimeUnit.SECONDS)) {
-                String errorMessage = "mUserLifecycleListenerWrapper.onEvent not called in "
-                        + USER_LIFECYCLE_LISTENER_ON_EVENT_TIMEOUT_SECONDS + " seconds";
-                Log.e(TAG, errorMessage);
-                fail(errorMessage);
-            }
-            return mReceivedEvent;
         }
     }
 }

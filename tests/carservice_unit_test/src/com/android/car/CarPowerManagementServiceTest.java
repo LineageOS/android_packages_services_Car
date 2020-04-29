@@ -16,7 +16,7 @@
 
 package com.android.car;
 
-import static android.car.userlib.InitialUserSetterTest.isUserInfo;
+import static android.car.test.mocks.CarArgumentMatchers.isUserInfo;
 import static android.car.userlib.InitialUserSetterTest.newGuestUser;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
@@ -878,7 +878,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
         int value();
     }
 
-    // TODO(b/149099817): move to common code
     private interface Visitor<T> {
         void visit(T t);
     }
