@@ -19,6 +19,8 @@ import static android.car.VehiclePropertyIds.CURRENT_GEAR;
 import static android.car.VehiclePropertyIds.INITIAL_USER_INFO;
 import static android.car.VehiclePropertyIds.SWITCH_USER;
 import static android.car.VehiclePropertyIds.USER_IDENTIFICATION_ASSOCIATION;
+import static android.car.test.mocks.CarArgumentMatchers.isProperty;
+import static android.car.test.mocks.CarArgumentMatchers.isPropertyWithValues;
 import static android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType.COLD_BOOT;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType.CUSTOM_1;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType.KEY_FOB;
@@ -28,7 +30,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -63,7 +64,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -825,61 +825,6 @@ public final class UserHalServiceTest {
     }
 
     // TODO(b/149099817): move stuff below to common code
-
-    /**
-     * Custom Mockito matcher to check if a {@link VehiclePropValue} has the given {@code prop}.
-     */
-    public static VehiclePropValue isProperty(int prop) {
-        return argThat(new PropertyIdMatcher(prop));
-    }
-
-    /**
-     * Custom Mockito matcher to check if a {@link VehiclePropValue} has the given {@code prop} and
-     * {@code int32} values.
-     */
-    public static VehiclePropValue isPropertyWithValues(int prop, int...values) {
-        return argThat(new PropertyIdMatcher(prop, values));
-    }
-
-    private static class PropertyIdMatcher implements ArgumentMatcher<VehiclePropValue> {
-
-        final int mProp;
-        private final int[] mValues;
-
-        private PropertyIdMatcher(int prop) {
-            this(prop, null);
-        }
-
-        private PropertyIdMatcher(int prop, int[] values) {
-            mProp = prop;
-            mValues = values;
-        }
-
-        @Override
-        public boolean matches(VehiclePropValue argument) {
-            Log.v(TAG, "PropertyIdMatcher: argument=" + argument);
-            if (argument.prop != mProp) {
-                Log.w(TAG, "PropertyIdMatcher: Invalid prop on " + argument);
-                return false;
-            }
-            if (mValues == null) return true;
-            // Make sure values match
-            if (mValues.length != argument.value.int32Values.size()) {
-                Log.w(TAG, "PropertyIdMatcher: number of values (expected " + mValues.length
-                        + ") mismatch on " + argument);
-                return false;
-            }
-
-            for (int i = 0; i < mValues.length; i++) {
-                if (mValues[i] != argument.value.int32Values.get(i)) {
-                    Log.w(TAG, "PropertyIdMatcher: value mismatch at index " + i + " on " + argument
-                            + ": expected " + Arrays.toString(mValues));
-                    return false;
-                }
-            }
-            return true;
-        }
-    }
 
     /**
      * Creates an empty config for the given property.
