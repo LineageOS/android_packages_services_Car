@@ -16,6 +16,8 @@
 package android.car.userlib;
 
 import static android.car.test.mocks.CarArgumentMatchers.isUserInfo;
+import static android.car.test.util.UserTestingHelper.newGuestUser;
+import static android.car.test.util.UserTestingHelper.newSecondaryUser;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
@@ -38,7 +40,7 @@ import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.IActivityManager;
-import android.car.test.mocks.AbstractExtendMockitoTestCase;
+import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
@@ -54,7 +56,7 @@ import org.mockito.Mock;
 
 import java.util.function.Consumer;
 
-public final class InitialUserSetterTest extends AbstractExtendMockitoTestCase {
+public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase {
 
     @UserInfoFlag
     private static final int NO_FLAGS = 0;
@@ -757,26 +759,5 @@ public final class InitialUserSetterTest extends AbstractExtendMockitoTestCase {
             this.initialUser = initialUser;
             numberCalls++;
         }
-    }
-
-    // TODO(b/149099817): move stuff below (and some from above) to common testing code
-
-    @NonNull
-    public static UserInfo newSecondaryUser(@UserIdInt int userId) {
-        UserInfo userInfo = new UserInfo();
-        userInfo.userType = UserManager.USER_TYPE_FULL_SECONDARY;
-        userInfo.id = userId;
-        return userInfo;
-    }
-
-    @NonNull
-    public static UserInfo newGuestUser(@UserIdInt int userId, boolean ephemeral) {
-        UserInfo userInfo = new UserInfo();
-        userInfo.userType = UserManager.USER_TYPE_FULL_GUEST;
-        userInfo.id = userId;
-        if (ephemeral) {
-            userInfo.flags = UserInfo.FLAG_EPHEMERAL;
-        }
-        return userInfo;
     }
 }
