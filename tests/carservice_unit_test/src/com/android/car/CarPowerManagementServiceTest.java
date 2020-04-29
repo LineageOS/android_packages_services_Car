@@ -17,7 +17,7 @@
 package com.android.car;
 
 import static android.car.test.mocks.CarArgumentMatchers.isUserInfo;
-import static android.car.userlib.InitialUserSetterTest.newGuestUser;
+import static android.car.test.util.UserTestingHelper.newGuestUser;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
@@ -28,7 +28,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.never;
@@ -40,7 +39,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import android.app.ActivityManager;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.hardware.power.ICarPowerStateListener;
-import android.car.test.mocks.AbstractExtendMockitoTestCase;
+import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.test.util.Visitor;
 import android.car.userlib.HalCallback;
 import android.car.userlib.InitialUserSetter;
 import android.content.Context;
@@ -78,7 +78,6 @@ import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 
 import java.io.File;
 import java.io.IOException;
@@ -86,15 +85,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 @SmallTest
-public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase {
+public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCase {
     private static final String TAG = CarPowerManagementServiceTest.class.getSimpleName();
     private static final long WAIT_TIMEOUT_MS = 2000;
     private static final long WAIT_TIMEOUT_LONG_MS = 5000;
@@ -128,10 +125,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
     // Wakeup time for the test; it's automatically set based on @WakeupTime annotation
     private int mWakeupTime;
 
-    // Tracks Log.wtf() calls made during code execution / used on verifyWtfNeverLogged()
-    // TODO: move mechanism to common code / custom Rule
-    private final List<UnsupportedOperationException> mWtfs = new ArrayList<>();
-
     @Rule
     public final TestRule setWakeupTimeRule = new TestWatcher() {
         protected void starting(Description description) {
@@ -153,8 +146,7 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
         session
             .spyStatic(ActivityManager.class)
-            .spyStatic(CarProperties.class)
-            .spyStatic(Log.class);
+            .spyStatic(CarProperties.class);
     }
 
     @Before
@@ -166,12 +158,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
             .withSystemStateInterface(mSystemStateInterface)
             .withWakeLockInterface(mWakeLockInterface)
             .withIOInterface(mIOInterface).build();
-        doAnswer((invocation) -> {
-            return addWtf(invocation);
-        }).when(() -> Log.wtf(anyString(), anyString()));
-        doAnswer((invocation) -> {
-            return addWtf(invocation);
-        }).when(() -> Log.wtf(anyString(), anyString(), notNull()));
 
         setCurrentUser(CURRENT_USER_ID, /* isGuest= */ false);
         setService();
@@ -183,14 +169,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
             mService.release();
         }
         mIOInterface.tearDown();
-    }
-
-
-    private Object addWtf(InvocationOnMock invocation) {
-        String message = "Called " + invocation;
-        Log.d(TAG, message); // Log always, as some test expect it
-        mWtfs.add(new UnsupportedOperationException(message));
-        return null;
     }
 
     /**
@@ -226,8 +204,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
 
         // display should be turned on as it started with off state.
         assertThat(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS)).isTrue();
-
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -246,8 +222,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
         assertThat(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS)).isFalse();
         mPowerSignalListener.waitForShutdown(WAIT_TIMEOUT_MS);
         mSystemStateInterface.waitForShutdown(WAIT_TIMEOUT_MS);
-
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -263,8 +237,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
         // Verify suspend
         assertStateReceivedForShutdownOrSleepWithPostpone(
                 PowerHalService.SET_DEEP_SLEEP_ENTRY, WAIT_TIMEOUT_LONG_MS, mWakeupTime);
-
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -299,7 +271,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
         // Verify suspend
         assertStateReceivedForShutdownOrSleepWithPostpone(
                 PowerHalService.SET_DEEP_SLEEP_ENTRY, WAIT_TIMEOUT_LONG_MS, mWakeupTime);
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -325,7 +296,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
                         VehicleApPowerStateShutdownParam.CAN_SLEEP));
         assertStateReceivedForShutdownOrSleepWithPostpone(
                 PowerHalService.SET_DEEP_SLEEP_ENTRY, WAIT_TIMEOUT_LONG_MS, mWakeupTime);
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -344,7 +314,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
         assertThat(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS)).isFalse();
         mPowerSignalListener.waitForShutdown(WAIT_TIMEOUT_MS);
         mSystemStateInterface.waitForShutdown(WAIT_TIMEOUT_MS);
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -358,7 +327,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
         // Send the finished signal
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.FINISHED, 0));
         mSystemStateInterface.waitForShutdown(WAIT_TIMEOUT_MS);
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -374,7 +342,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
         mSystemStateInterface.waitForSleepEntryAndWakeup(WAIT_TIMEOUT_MS);
         assertStateReceived(PowerHalService.SET_DEEP_SLEEP_EXIT, 0);
         mPowerSignalListener.waitForSleepExit(WAIT_TIMEOUT_MS);
-        verifyWtfNeverLogged();
     }
 
     /**
@@ -397,7 +364,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
         suspendAndResumeForUserSwitchingTests();
 
         verifyDefaultInitialUserBehaviorCalled();
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -408,7 +374,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
         suspendAndResumeForUserSwitchingTestsWhileDisabledByOem();
 
         verifyUserNotSwitched();
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -420,7 +385,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
         suspendAndResumeForUserSwitchingTestsWhileDisabledByOem();
 
         verifyUserSwitched(NEW_GUEST_ID);
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -432,7 +396,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
 
         verifyUserNotSwitched();
         verifyDefaultInitialUserBehaviorCalled();
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -472,7 +435,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
         suspendAndResumeForUserSwitchingTests();
 
         verifyDefaultInitialUserBehaviorCalled();
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -486,7 +448,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
         suspendAndResumeForUserSwitchingTests();
 
         verifyDefaultInitialUserBehaviorCalled();
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -497,7 +458,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
         suspendAndResumeForUserSwitchingTests();
 
         verifyDefaultInitialUserBehaviorCalled();
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -511,7 +471,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
         suspendAndResumeForUserSwitchingTests();
 
         verifyDefaultInitialUserBehaviorCalled();
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -527,7 +486,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
 
         verifyUserSwitched(10);
         verifyDefaultInitilUserBehaviorNeverCalled();
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -544,7 +502,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
 
         verifyUserCreated("Duffman", 42);
         verifyDefaultInitilUserBehaviorNeverCalled();
-        verifyWtfNeverLogged();
     }
 
     private void setGetUserInfoResponse(Visitor<HalCallback<InitialUserInfoResponse>> visitor) {
@@ -649,27 +606,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
                 return;
             }
         }
-    }
-
-    // TODO: should be part of @After, but then it would hide the real test failure (if any). We'd
-    // need a custom rule (like CTS's SafeCleaner) for it...
-    private void verifyWtfNeverLogged() {
-        int size = mWtfs.size();
-
-        switch (size) {
-            case 0:
-                return;
-            case 1:
-                throw mWtfs.get(0);
-            default:
-                StringBuilder msg = new StringBuilder("wtf called ").append(size).append(" times")
-                        .append(": ").append(mWtfs);
-                fail(msg.toString());
-        }
-    }
-
-    private void verifyWtfLogged() {
-        assertThat(mWtfs).isNotEmpty();
     }
 
     private static void waitForSemaphore(Semaphore semaphore, long timeoutMs)
@@ -876,9 +812,5 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
     @Target({METHOD})
     private @interface WakeupTime {
         int value();
-    }
-
-    private interface Visitor<T> {
-        void visit(T t);
     }
 }

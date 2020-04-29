@@ -18,13 +18,13 @@ package android.car.userlib;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.car.test.mocks.AbstractExtendMockitoTestCase;
+import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.os.UserHandle;
 import android.os.UserManager;
 
 import org.junit.Test;
 
-public final class UserHelperTest extends AbstractExtendMockitoTestCase {
+public final class UserHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {

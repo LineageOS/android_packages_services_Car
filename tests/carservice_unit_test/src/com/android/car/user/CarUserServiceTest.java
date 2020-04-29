@@ -16,6 +16,7 @@
 
 package com.android.car.user;
 
+import static android.car.test.util.UserTestingHelper.UserInfoBuilder;
 import static android.content.pm.UserInfo.FLAG_EPHEMERAL;
 import static android.content.pm.UserInfo.FLAG_GUEST;
 
@@ -49,7 +50,8 @@ import android.app.IActivityManager;
 import android.car.CarOccupantZoneManager.OccupantTypeEnum;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.settings.CarSettings;
-import android.car.test.mocks.AbstractExtendMockitoTestCase;
+import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.test.util.BlockingResultReceiver;
 import android.car.testapi.OneEventUserLifecycleListener;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
@@ -85,7 +87,6 @@ import androidx.test.InstrumentationRegistry;
 import com.android.car.hal.UserHalService;
 import com.android.internal.R;
 import com.android.internal.infra.AndroidFuture;
-import com.android.internal.os.IResultReceiver;
 import com.android.internal.util.Preconditions;
 
 import org.junit.Before;
@@ -99,7 +100,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -115,7 +115,7 @@ import java.util.concurrent.TimeoutException;
  * <li> {@link Drawable} provides bitmap of user icon.
  * <ol/>
  */
-public final class CarUserServiceTest extends AbstractExtendMockitoTestCase {
+public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
     private static final String TAG = CarUserServiceTest.class.getSimpleName();
     private static final int NO_USER_INFO_FLAGS = 0;
@@ -1361,151 +1361,5 @@ public final class CarUserServiceTest extends AbstractExtendMockitoTestCase {
 
     private void sendUserSwitchingEvent(@UserIdInt int userId) {
         sendUserLifecycleEvent(userId, CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING);
-    }
-
-    // TODO(b/149099817): move stuff below to common code
-
-    /**
-     * Builder for {@link UserInfo} objects.
-     *
-     */
-    public static final class UserInfoBuilder {
-
-        @UserIdInt
-        private final int mUserId;
-
-        @Nullable
-        private String mName;
-
-        private boolean mGuest;
-        private boolean mEphemeral;
-        private boolean mAdmin;
-
-        /**
-         * Default constructor.
-         */
-        public UserInfoBuilder(@UserIdInt int userId) {
-            mUserId = userId;
-        }
-
-        /**
-         * Sets the user name.
-         */
-        @NonNull
-        public UserInfoBuilder setName(@Nullable String name) {
-            mName = name;
-            return this;
-        }
-
-        /**
-         * Sets whether the user is a guest.
-         */
-        @NonNull
-        public UserInfoBuilder setGuest(boolean guest) {
-            mGuest = guest;
-            return this;
-        }
-
-        /**
-         * Sets whether the user is ephemeral.
-         */
-        @NonNull
-        public UserInfoBuilder setEphemeral(boolean ephemeral) {
-            mEphemeral = ephemeral;
-            return this;
-        }
-
-        /**
-         * Sets whether the user is an admin.
-         */
-        @NonNull
-        public UserInfoBuilder setAdmin(boolean admin) {
-            mAdmin = admin;
-            return this;
-        }
-
-        /**
-         * Creates a new {@link UserInfo}.
-         */
-        @NonNull
-        public UserInfo build() {
-            int flags = 0;
-            if (mEphemeral) {
-                flags |= UserInfo.FLAG_EPHEMERAL;
-            }
-            if (mAdmin) {
-                flags |= UserInfo.FLAG_ADMIN;
-            }
-            UserInfo info = new UserInfo(mUserId, mName, flags);
-            if (mGuest) {
-                info.userType = UserManager.USER_TYPE_FULL_GUEST;
-            }
-            return info;
-        }
-
-        /**
-         * Creates a new {@link UserInfo} for a system user.
-         */
-        @NonNull
-        public static UserInfo newSystemUserInfo() {
-            UserInfo info = new UserInfo();
-            info.id = UserHandle.USER_SYSTEM;
-            return info;
-        }
-    }
-
-    /**
-     * Implementation of {@link IResultReceiver} that blocks waiting for the result.
-     */
-    public static final class BlockingResultReceiver extends IResultReceiver.Stub {
-
-        private final CountDownLatch mLatch = new CountDownLatch(1);
-        private final long mTimeoutMs;
-
-        private int mResultCode;
-        @Nullable private Bundle mResultData;
-
-        /**
-         * Default constructor.
-         *
-         * @param timeoutMs how long to wait for before failing.
-         */
-        public BlockingResultReceiver(long timeoutMs) {
-            mTimeoutMs = timeoutMs;
-        }
-
-        @Override
-        public void send(int resultCode, Bundle resultData) {
-            Log.d(TAG, "send() received: code=" + resultCode + ", data=" + resultData + ", count="
-                    + mLatch.getCount());
-            Preconditions.checkState(mLatch.getCount() == 1,
-                    "send() already called (code=" + mResultCode + ", data=" + mResultData);
-            mResultCode = resultCode;
-            mResultData = resultData;
-            mLatch.countDown();
-        }
-
-        private void assertCalled() throws InterruptedException {
-            boolean called = mLatch.await(mTimeoutMs, TimeUnit.MILLISECONDS);
-            Log.d(TAG, "assertCalled(): " + called);
-            assertWithMessage("receiver not called in %sms", mTimeoutMs).that(called).isTrue();
-        }
-
-        /**
-         * Gets the {@code resultCode} or fails if it times out before {@code send()} is called.
-         */
-        public int getResultCode() throws InterruptedException {
-            assertCalled();
-            return mResultCode;
-        }
-
-        /**
-         * Gets the {@code resultData} or fails if it times out before {@code send()} is called.
-         */
-        @Nullable
-        public Bundle getResultData() throws InterruptedException {
-            assertCalled();
-            return mResultData;
-        }
     }
 }
