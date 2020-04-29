@@ -27,7 +27,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
 import android.car.Car;
-import android.car.test.mocks.AbstractExtendMockitoTestCase;
+import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
 import android.content.res.Resources;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
@@ -75,7 +75,7 @@ import java.io.IOException;
  * 7. {@link TimeInterface} provides access to wake lock operations.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ICarImplTest extends AbstractExtendMockitoTestCase {
+public class ICarImplTest extends AbstractExtendedMockitoTestCase {
     private static final String TAG = ICarImplTest.class.getSimpleName();
 
     @Mock private ActivityManagerInterface mMockActivityManagerInterface;
