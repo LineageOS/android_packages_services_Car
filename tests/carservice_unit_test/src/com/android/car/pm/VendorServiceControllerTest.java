@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
-import android.car.test.mocks.AbstractExtendMockitoTestCase;
+import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.testapi.OneEventUserLifecycleListener;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEventType;
@@ -65,7 +65,7 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public final class VendorServiceControllerTest extends AbstractExtendMockitoTestCase {
+public final class VendorServiceControllerTest extends AbstractExtendedMockitoTestCase {
     private static final String TAG = VendorServiceControllerTest.class.getSimpleName();
 
     // TODO(b/152069895): decrease value once refactored. In fact, it should not even use
