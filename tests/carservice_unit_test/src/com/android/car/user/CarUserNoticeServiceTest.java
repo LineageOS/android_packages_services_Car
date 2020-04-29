@@ -101,7 +101,7 @@ public class CarUserNoticeServiceTest extends AbstractExtendMockitoTestCase {
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
         session
-            .mockStatic(CarLocalServices.class)
+            .spyStatic(CarLocalServices.class)
             .mockStatic(Settings.Secure.class);
     }
 
@@ -113,7 +113,6 @@ public class CarUserNoticeServiceTest extends AbstractExtendMockitoTestCase {
         doReturn(mCarPowerManager).when(() -> CarLocalServices.createCarPowerManager(mMockContext));
         doReturn(mMockCarPowerManagementService)
                 .when(() -> CarLocalServices.getService(CarPowerManagementService.class));
-        doReturn(mCarPowerManager).when(() -> CarLocalServices.createCarPowerManager(mMockContext));
         doReturn(mMockCarUserService)
                 .when(() -> CarLocalServices.getService(CarUserService.class));
 
@@ -251,7 +250,7 @@ public class CarUserNoticeServiceTest extends AbstractExtendMockitoTestCase {
         return latch;
     }
 
-    private CountDownLatch mockKeySettings(String key, int value) {
+    private static CountDownLatch mockKeySettings(String key, int value) {
         CountDownLatch latch = new CountDownLatch(1);
         when(Settings.Secure.getIntForUser(any(),
                 eq(key), anyInt(),
