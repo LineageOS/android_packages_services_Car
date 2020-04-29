@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"સ્ક્રીન પરની ટેક્સ્ટને નાની અથવા મોટી કરો."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"વધુ નાનું બનાવો"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"વધુ મોટું બનાવો"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"ટેક્સ્ટની સાઇઝનો નમૂનો"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"અદ્ભુત Wizard of Oz"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"પ્રકરણ 11: ધ વન્ડરફૂલ એમરલ્ડ સીટી ઓફ ઓઝ"</string>
@@ -100,9 +99,9 @@
     <string name="bluetooth_visibility_timeout" msgid="4804679276398564496">"દૃશ્યતાની સમયસમાપ્તિ"</string>
     <string name="bluetooth_lock_voice_dialing" msgid="1600385868298081015">"વૉઇસ ડાયલિંગ લૉક કરો"</string>
     <string name="bluetooth_lock_voice_dialing_summary" msgid="5005776616112427980">"જ્યારે સ્ક્રીન લૉક થયેલ હોય ત્યારે બ્લૂટૂથ ડાયલરના ઉપયોગને અટકાવો"</string>
-    <string name="bluetooth_devices" msgid="4143880830505625666">"બ્લૂટૂથ ઉપકરણો"</string>
+    <string name="bluetooth_devices" msgid="4143880830505625666">"બ્લૂટૂથ ડિવાઇસ"</string>
     <string name="bluetooth_device_name" msgid="3682016026866302981">"ડિવાઇસનું નામ"</string>
-    <string name="bluetooth_device_details" msgid="2500840679106321361">"ઉપકરણ સેટિંગ્સ"</string>
+    <string name="bluetooth_device_details" msgid="2500840679106321361">"ડિવાઇસના સેટિંગ"</string>
     <string name="bluetooth_profile_details" msgid="1785505059738682493">"પ્રોફાઇલ સેટિંગ્સ"</string>
     <string name="bluetooth_name_not_set" msgid="1886067683138385142">"કોઈ નામ સેટ નથી, એકાઉન્ટ નામનો ઉપયોગ કરીને"</string>
     <string name="bluetooth_scan_for_devices" msgid="3215740768422735880">"ઉપકરણો માટે સ્કૅન કરો"</string>
@@ -747,7 +746,7 @@
     <string name="bluetooth_preference_scan_title" msgid="457781003962324807">"ઉપકરણો માટે સ્કૅન કરો"</string>
     <string name="bluetooth_search_for_devices" msgid="6796307228261078451">"તાજું કરો"</string>
     <string name="bluetooth_searching_for_devices" msgid="7820814625522702494">"શોધી રહ્યું છે..."</string>
-    <string name="bluetooth_preference_device_settings" msgid="4247085616427015908">"ઉપકરણ સેટિંગ્સ"</string>
+    <string name="bluetooth_preference_device_settings" msgid="4247085616427015908">"ડિવાઇસના સેટિંગ"</string>
     <string name="bluetooth_preference_paired_dialog_title" msgid="3567187438908143693">"જોડી કરેલ ઉપકરણ"</string>
     <string name="bluetooth_preference_paired_dialog_internet_option" msgid="3693599743477470469">"ઇન્ટરનેટ કનેક્શન"</string>
     <string name="bluetooth_preference_paired_dialog_keyboard_option" msgid="4627309436489645755">"કીબોર્ડ"</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"વાઇ-ફાઇ"</item>
+    <item msgid="2271962426654621656">"મોબાઇલ"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"વાઇ-ફાઇ ઉપલબ્ધ ન હોય, તો મોબાઇલ નેટવર્કનો ઉપયોગ કરો"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"મોબાઇલ નેટવર્ક ઉપલબ્ધ ન હોય, તો વાઇ-ફાઇનો ઉપયોગ કરો"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"વાઇ-ફાઇ પરથી કૉલ કરો. વાઇ-ફાઇ જતું રહેશે, તો કૉલ સમાપ્ત થઈ જશે."</string>
@@ -1140,7 +1142,7 @@
     <string name="volume_media_description" msgid="3659485559976891268">"સંગીત, વીડિઓ, રમતો, અને અને અન્ય મીડિયા"</string>
     <string name="volume_ring_description" msgid="1975431532517579212">"રિંગટોન અને સૂચનાઓ"</string>
     <string name="volume_notification_description" msgid="8871940450828766751">"નોટિફિકેશનો"</string>
-    <string name="volume_alarm_description" msgid="3230692343946237658">"એલાર્મ્સ"</string>
+    <string name="volume_alarm_description" msgid="3230692343946237658">"એલાર્મ"</string>
     <string name="volume_ring_mute" msgid="6022038055768721847">"રિંગટોન અને સૂચનાઓ મ્યૂટ કરો"</string>
     <string name="volume_media_mute" msgid="816848304566175614">"સંગીત અને અન્ય મીડિયાને મ્યૂટ કરો"</string>
     <string name="volume_notification_mute" msgid="7759564556421535211">"સૂચનાઓ મ્યૂટ કરો"</string>
@@ -1456,7 +1458,7 @@
     <string name="storage_detail_system" msgid="6784247618772153283">"સિસ્ટમ"</string>
     <string name="storage_detail_explore" msgid="8206900269596580264">"<xliff:g id="NAME">^1</xliff:g> નું અન્વેષણ કરો"</string>
     <string name="storage_detail_dialog_other" msgid="5073511663616043370">"ઍપ દ્વારા સાચવવામાં આવેલ શેર કરેલ ફાઇલો, ઇન્ટરનેટ અથવા બ્લૂટૂથ વડે ડાઉનલોડ કરેલ ફાઇલો, Android ફાઇલો અને આના જેવી વધુ ફાઇલો અન્યમાં શામેલ હોય છે. \n\nઆ <xliff:g id="NAME">^1</xliff:g>નું દૃશ્યક્ષમ કન્ટેન્ટ જોવા માટે શોધખોળ કરો પર ટૅપ કરો."</string>
-    <string name="storage_detail_dialog_system" msgid="1472572861360014226">"સિસ્ટમમાં Android સંસ્કરણ <xliff:g id="VERSION">%s</xliff:g> ચલાવવા માટે ઉપયોગી ફાઇલોનો સમાવેશ છે"</string>
+    <string name="storage_detail_dialog_system" msgid="1472572861360014226">"સિસ્ટમમાં Android વર્ઝન <xliff:g id="VERSION">%s</xliff:g> ચલાવવા માટે ઉપયોગી ફાઇલોનો સમાવેશ છે"</string>
     <string name="storage_detail_dialog_user" msgid="1663117417635010371">"<xliff:g id="USER_0">^1</xliff:g>એ <xliff:g id="SIZE">^2</xliff:g> સ્ટોરેજનો ઉપયોગ કરીને ફોટો, સંગીત, ઍપ્લિકેશનો અથવા અન્ય ડેટા સાચવ્યો હોઈ શકે છે.\n\nવિગતો જોવા માટે, <xliff:g id="USER_1">^1</xliff:g> પર સ્વિચ કરો."</string>
     <string name="storage_wizard_init_title" msgid="3407283236421089014">"તમારું <xliff:g id="NAME">^1</xliff:g> સેટ કરો"</string>
     <string name="storage_wizard_init_external_title" msgid="6853250619674645478">"પોર્ટેબલ સંગ્રહ તરીકે ઉપયોગ કરો"</string>
@@ -1569,7 +1571,7 @@
     <string name="reset_dashboard_title" msgid="7084966342252178530">"રીસેટ માટેના વિકલ્પો"</string>
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"નેટવર્ક, ઍપ અથવા ડિવાઇસ રીસેટ કરી શકાય છે"</string>
     <string name="reset_network_title" msgid="8944059136930806211">"વાઇ-ફાઇ, મોબાઇલ અને બ્લૂટૂથ રીસેટ કરો"</string>
-    <string name="reset_network_desc" msgid="4982633363916261109">"આ બધી નેટવર્ક સેટિંગ્સ ફરીથી સેટ કરશે, જેમાં સમાવિષ્ટ છે: \n\n"<li>"Wi‑Fi"</li>\n<li>"મોબાઇલ ડેટા"</li>\n<li>"Bluetooth"</li></string>
+    <string name="reset_network_desc" msgid="4982633363916261109">"આ બધા નેટવર્ક સેટિંગ રીસેટ કરશે, જેમાં આનો સમાવેશ છે: \n\n"<li>"Wi‑Fi"</li>\n<li>"મોબાઇલ ડેટા"</li>\n<li>"Bluetooth"</li></string>
     <string name="reset_esim_title" msgid="7630781767040831893">"ડાઉનલોડ કરેલાં સિમ કાઢી નખાશે"</string>
     <string name="reset_esim_desc" msgid="433226911566802">"બદલીને લેવાના સિમ ડાઉનલોડ કરવા માટે, તમારા કૅરિઅરનો સંપર્ક કરો. આનાથી કોઈપણ મોબાઇલ સેવા પ્લાન રદ થશે નહીં."</string>
     <string name="reset_network_button_text" msgid="4293271046867912819">"સેટિંગ્સ ફરીથી સેટ કરો"</string>
@@ -1581,7 +1583,7 @@
     <string name="reset_network_complete_toast" msgid="128225929536005495">"નેટવર્ક સેટિંગ્સ ફરીથી સેટ કરવામાં આવી છે"</string>
     <string name="reset_esim_error_title" msgid="4728931209471875632">"સિમ કાઢી નાખી શકાતાં નથી"</string>
     <string name="reset_esim_error_msg" msgid="4716366079119742235">"ડાઉનલોડ કરેલાં સિમ ભૂલને કારણે કાઢી નાખી શકાતાં નથી.\n\nતમારું ડિવાઇસ ફરી શરૂ કરો અને ફરી પ્રયાસ કરો."</string>
-    <string name="master_clear_title" msgid="1560712943955904673">"બધો ડેટા ભૂંસી નાખો (ફેક્ટરી રીસેટ)"</string>
+    <string name="master_clear_title" msgid="1560712943955904673">"બધો ડેટા કાઢી નાખો (ફેક્ટરી રીસેટ)"</string>
     <string name="master_clear_short_title" msgid="919098101581335101">"બધો ડેટા કાઢી નાખો (ફેક્ટરી રીસેટ)"</string>
     <string name="master_clear_desc" product="tablet" msgid="3432373610755760899">"આ ક્રિયા તમારા ટૅબ્લેટના "<b>"આંતરિક સ્ટોરેજ"</b>"માંથી બધો ડેટા કાઢી નાખશે, જેમાં આનો સમાવેશ થાય છે:\n\n"<li>"તમારું Google એકાઉન્ટ"</li>\n<li>"સિસ્ટમ તેમજ ઍપ ડેટા અને સેટિંગ"</li>\n<li>"ડાઉનલોડ કરેલી ઍપ"</li></string>
     <string name="master_clear_desc" product="default" msgid="8765543541962866697">"આ ક્રિયા તમારા ફોનના "<b>"આંતરિક સ્ટોરેજ"</b>"માંથી બધો ડેટા કાઢી નાખશે, જેમાં આનો સમાવેશ થાય છે:\n\n"<li>"તમારું Google એકાઉન્ટ"</li>\n<li>"સિસ્ટમ તેમજ ઍપ ડેટા અને સેટિંગ"</li>\n<li>"ડાઉનલોડ કરેલી ઍપ"</li></string>
@@ -1998,7 +2000,7 @@
     <string name="user_dict_settings_add_word_hint" msgid="4184010899351180735">"એક શબ્દ લખો"</string>
     <string name="user_dict_settings_add_shortcut_hint" msgid="2212771507741334156">"વૈકલ્પિક શોર્ટકટ"</string>
     <string name="user_dict_settings_edit_dialog_title" msgid="6492621665762797309">"શબ્દ સંપાદિત કરો"</string>
-    <string name="user_dict_settings_context_menu_edit_title" msgid="4577283176672181497">"સંપાદિત કરો"</string>
+    <string name="user_dict_settings_context_menu_edit_title" msgid="4577283176672181497">"ફેરફાર કરો"</string>
     <string name="user_dict_settings_context_menu_delete_title" msgid="670470172230144069">"ડિલીટ કરો"</string>
     <string name="user_dict_settings_empty_text" msgid="2774939221998982609">"તમારી પાસે વપરાશકર્તા શબ્દકોશમાં કોઈપણ શબ્દ નથી. શબ્દને ઉમેરવા માટે, ઉમેરો (+) બટન ટૅપ કરો."</string>
     <string name="user_dict_settings_all_languages" msgid="8839702015353418176">"તમામ ભાષાઓ માટે"</string>
@@ -2668,7 +2670,7 @@
     <string name="data_usage_menu_sim_cards" msgid="8508154611676507088">"સિમ કાર્ડ"</string>
     <string name="data_usage_cellular_data_summary" msgid="9162777397135709280">"થોભાવવાની મર્યાદા"</string>
     <string name="account_settings_menu_auto_sync" msgid="2673669556006027506">"ડેટાને આપમેળે સિંક કરો"</string>
-    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"વ્યક્તિગત ડેટાને આપમેળે સિંક કરો"</string>
+    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"વ્યક્તિગત ડેટાને ઑટો સિંક કરો"</string>
     <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"કાર્યાલયના ડેટાને આપમેળે સિંક કરો"</string>
     <string name="data_usage_change_cycle" msgid="447761920472170031">"ચક્ર બદલો…"</string>
     <string name="data_usage_pick_cycle_day" msgid="6319750879145917066">"ડેટા વપરાશ ચક્ર ફરીથી સેટ કરવા માટે મહિનાનો દિવસ:"</string>
@@ -2868,7 +2870,7 @@
     <string name="user_add_user_item_title" msgid="6835385073795492410">"વપરાશકર્તા"</string>
     <string name="user_add_profile_item_title" msgid="4932743891449790664">"પ્રતિબંધિત પ્રોફાઇલ"</string>
     <string name="user_add_user_title" msgid="2320897397066676472">"નવા વપરાશકર્તાને ઉમેરીએ?"</string>
-    <string name="user_add_user_message_long" msgid="686637203224195465">"તમે વધારાના વપરાશકર્તાઓ બનાવીને અન્ય લોકો સાથે આ ઉપકરણને શેર કરી શકો છો. દરેક વપરાશકર્તા પાસે તેમની પોતાની સ્પેસ છે, જેને તેઓ ઍપ, વૉલપેપર, વગેરે સાથે કસ્ટમાઇઝ કરી શકે છે. વપરાશકર્તાઓ પ્રત્યેક વ્યક્તિને અસર કરતી હોય તેવી ઉપકરણ સેટિંગ જેમ કે વાઇ-ફાઇને પણ સમાયોજિત કરી શકે છે.\n\nજ્યારે તમે કોઈ નવા વપરાશકર્તાને ઉમેરો છો, ત્યારે તે વ્યક્તિને તેમની સ્પેસ સેટ કરવાની જરૂર પડે છે.\n\nકોઈપણ વપરાશકર્તા અન્ય બધા વપરાશકર્તાઓ માટે ઍપને અપડેટ કરી શકે છે. નવા વપરાશકર્તાને ઍક્સેસિબિલિટી સેટિંગ અને સેવાઓ ટ્રાન્સફર ન પણ થાય."</string>
+    <string name="user_add_user_message_long" msgid="686637203224195465">"તમે વધારાના વપરાશકર્તાઓ બનાવીને અન્ય લોકો સાથે આ ડિવાઇસને શેર કરી શકો છો. દરેક વપરાશકર્તા પાસે તેમની પોતાની સ્પેસ છે, જેને તેઓ ઍપ, વૉલપેપર, વગેરે સાથે કસ્ટમાઇઝ કરી શકે છે. વપરાશકર્તાઓ પ્રત્યેક વ્યક્તિને અસર કરતી હોય તેવી ડિવાઇસ સેટિંગ જેમ કે વાઇ-ફાઇને પણ સમાયોજિત કરી શકે છે.\n\nજ્યારે તમે કોઈ નવા વપરાશકર્તાને ઉમેરો છો, ત્યારે તે વ્યક્તિને તેમની સ્પેસ સેટ કરવાની જરૂર પડે છે.\n\nકોઈપણ વપરાશકર્તા અન્ય બધા વપરાશકર્તાઓ માટે ઍપને અપડેટ કરી શકે છે. નવા વપરાશકર્તાને ઍક્સેસિબિલિટી સેટિંગ અને સેવાઓ ટ્રાન્સફર ન પણ થાય."</string>
     <string name="user_add_user_message_short" msgid="1802594476285458254">"જ્યારે તમે કોઈ નવા વપરાશકર્તાને ઉમેરો છો, ત્યારે તે વ્યક્તિને તેમનું સ્થાન સેટ અપ કરવાની જરૂર પડે છે.\n\nકોઈપણ વપરાશકર્તા બધા અન્ય વપરાશકર્તાઓ માટે એપ્લિકેશન્સને અપડેટ કરી શકે છે."</string>
     <string name="user_setup_dialog_title" msgid="6748950002206392396">"અત્યારે જ વપરાશકર્તાને સેટ અપ કરીએ?"</string>
     <string name="user_setup_dialog_message" msgid="2988559933258353919">"ખાતરી કરો કે વ્યક્તિ ઉપકરણ લેવા અને તેમના સ્થાનનું સેટ અપ કરવા માટે ઉપલબ્ધ છે"</string>
@@ -2900,7 +2902,7 @@
     <string name="user_exit_guest_confirm_title" msgid="4767911571671099844">"અતિથિ દૂર કરીએ?"</string>
     <string name="user_exit_guest_confirm_message" msgid="6955182181145748919">"આ સત્રમાંની તમામ ઍપ્લિકેશનો અને ડેટા કાઢી નાખવામાં આવશે."</string>
     <string name="user_exit_guest_dialog_remove" msgid="1878866060881115716">"દૂર કરો"</string>
-    <string name="user_enable_calling" msgid="864760054792249503">"ફોન કોલ્સ ચાલુ કરો"</string>
+    <string name="user_enable_calling" msgid="864760054792249503">"ફોન કૉલ ચાલુ કરો"</string>
     <string name="user_enable_calling_sms" msgid="3450252891736718793">"ફોન કૉલ્સ અને SMS ચાલુ કરો"</string>
     <string name="user_remove_user" msgid="3687544420125911166">"વપરાશકર્તાને ડિલીટ કરો"</string>
     <string name="user_enable_calling_confirm_title" msgid="1141612415529158542">"ફોન કૉલ્સ ચાલુ કરીએ?"</string>
@@ -4079,7 +4081,7 @@
     <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"ઝપડી સેટિંગ્સ વિકાસકર્તા ટાઇલ"</string>
     <string name="winscope_trace_quick_settings_title" msgid="940971040388411374">"Winscope ટ્રેસ"</string>
     <string name="sensors_off_quick_settings_title" msgid="3655699045300438902">"સેન્સર બંધ છે"</string>
-    <string name="managed_profile_settings_title" msgid="4340409321523532402">"કાર્યાલયની પ્રોફાઇલની સેટિંગ્સ"</string>
+    <string name="managed_profile_settings_title" msgid="4340409321523532402">"કાર્યાલયની પ્રોફાઇલના સેટિંગ"</string>
     <string name="managed_profile_contact_search_title" msgid="7337225196804457095">"સંપર્ક શોધ"</string>
     <string name="managed_profile_contact_search_summary" msgid="7278267480246726951">"કૉલર્સ અને સંપર્કોને ઓળખવા માટે તમારી સંસ્થા દ્વારા સંપર્ક શોધની મંજૂરી આપો"</string>
     <string name="cross_profile_calendar_title" msgid="2351605904015067145">"ક્રૉસ-પ્રોફાઇલ કૅલેન્ડર"</string>
@@ -4158,7 +4160,7 @@
     <string name="auto_sync_account_title" msgid="2394463123733529506">"ડેટાને ઑટોમૅટિક રીતે સિંક કરો"</string>
     <string name="auto_sync_personal_account_title" msgid="6844465157916100655">"વ્યક્તિગત ડેટાનું આપમેળે સમન્વયન કરો"</string>
     <string name="auto_sync_work_account_title" msgid="2403222633447522376">"કાર્ય ડેટાનું આપમેળે સમન્વયન કરો"</string>
-    <string name="auto_sync_account_summary" msgid="6316230976974033772">"ઍપને આપમેળે ડેટાને રિફ્રેશ કરવા દો"</string>
+    <string name="auto_sync_account_summary" msgid="6316230976974033772">"ઍપને ઑટોમૅટિક રીતે ડેટાને રિફ્રેશ કરવા દો"</string>
     <string name="account_sync_title" msgid="1570164819114297154">"એકાઉન્ટ સિંક"</string>
     <string name="account_sync_summary_some_on" msgid="1934556869158274053">"<xliff:g id="ID_2">%2$d</xliff:g> માંથી <xliff:g id="ID_1">%1$d</xliff:g> આઇટમ માટે સમન્વયન ચાલુ છે"</string>
     <string name="account_sync_summary_all_on" msgid="3634161204232431700">"બધી આઇટમ માટે સમન્વયન ચાલુ છે"</string>
@@ -4233,8 +4235,8 @@
     </plurals>
     <string name="app_names_concatenation_template_2" msgid="8267577900046506189">"<xliff:g id="FIRST_APP_NAME">%1$s</xliff:g>, <xliff:g id="SECOND_APP_NAME">%2$s</xliff:g>"</string>
     <string name="app_names_concatenation_template_3" msgid="5129064036161862327">"<xliff:g id="FIRST_APP_NAME">%1$s</xliff:g>, <xliff:g id="SECOND_APP_NAME">%2$s</xliff:g>, <xliff:g id="THIRD_APP_NAME">%3$s</xliff:g>"</string>
-    <string name="storage_photos_videos" msgid="1890829312367477559">"ફોટો અને વીડિઓ"</string>
-    <string name="storage_music_audio" msgid="3661289086715297149">"સંગીત અને ઑડિઓ"</string>
+    <string name="storage_photos_videos" msgid="1890829312367477559">"ફોટો અને વીડિયો"</string>
+    <string name="storage_music_audio" msgid="3661289086715297149">"સંગીત અને ઑડિયો"</string>
     <string name="storage_games" msgid="7740038143749092373">"રમતો"</string>
     <string name="storage_other_apps" msgid="3202407095387420842">"અન્ય ઍપ્લિકેશનો"</string>
     <string name="storage_files" msgid="2087824267937487880">"ફાઇલો"</string>
@@ -4245,7 +4247,7 @@
     <string name="clear_instant_app_confirmation" msgid="1778553115373698061">"શું તમે આ ઝટપટ ઍપ્લિકેશન દૂર કરવા માંગો છો?"</string>
     <string name="launch_instant_app" msgid="5251693061228352333">"ખોલો"</string>
     <string name="game_storage_settings" msgid="6856911551799175914">"રમતો"</string>
-    <string name="audio_files_title" msgid="3073879661731363935">"ઑડિઓ ફાઇલો"</string>
+    <string name="audio_files_title" msgid="3073879661731363935">"ઑડિયો ફાઇલો"</string>
     <string name="app_info_storage_title" msgid="6643391804949509308">"જગ્યા વપરાઈ"</string>
     <string name="webview_uninstalled_for_user" msgid="3407952144444040557">"(<xliff:g id="USER">%s</xliff:g> માટે અનઇન્સ્ટૉલ કરેલ)"</string>
     <string name="webview_disabled_for_user" msgid="8057805373224993504">"(વપરાશકર્તા <xliff:g id="USER">%s</xliff:g> માટે અક્ષમ કરેલ)"</string>

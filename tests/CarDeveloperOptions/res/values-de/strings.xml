@@ -80,7 +80,7 @@
     <string name="sdcard_format" product="default" msgid="4831611387627849108">"SD-Karte löschen"</string>
     <string name="preview_pager_content_description" msgid="5731599395893090038">"Vorschau"</string>
     <string name="preview_page_indicator_content_description" msgid="3192955679074998362">"Vorschau, Seite <xliff:g id="CURRENT_PAGE">%1$d</xliff:g> von <xliff:g id="NUM_PAGES">%2$d</xliff:g>"</string>
-    <string name="font_size_summary" msgid="9120023206321191067">"Text auf dem Display verkleinern oder vergrößern."</string>
+    <string name="font_size_summary" msgid="9120023206321191067">"Lege fest, wie groß Text angezeigt wird."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Verkleinern"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Vergrößern"</string>
     <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
@@ -741,7 +741,7 @@
 )  -->
     <string name="bluetooth_incoming_pairing_msg" msgid="940451919337185024">"Von:&lt;br&gt;&lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt;&lt;br&gt;&lt;br&gt; Mit diesem Gerät koppeln?"</string>
     <string name="bluetooth_display_passkey_pin_msg" msgid="5909423849232791647">"Gib zur Kopplung mit <xliff:g id="BOLD1_0">&lt;br&gt;&lt;b&gt;</xliff:g><xliff:g id="DEVICE_NAME">%1$s</xliff:g><xliff:g id="END_BOLD1">&lt;/b&gt;&lt;br&gt;&lt;br&gt;</xliff:g> <xliff:g id="BOLD2_1">&lt;br&gt;&lt;b&gt;</xliff:g><xliff:g id="PASSKEY">%2$s</xliff:g><xliff:g id="END_BOLD2">&lt;/b&gt;</xliff:g> ein und drücke anschließend die Eingabetaste."</string>
-    <string name="bluetooth_pairing_shares_phonebook" msgid="7474404818877079813">"Zugriff auf deine Kontakte und deine Anrufliste zulassen"</string>
+    <string name="bluetooth_pairing_shares_phonebook" msgid="7474404818877079813">"Zugriff auf meine Kontakte und meine Anrufliste zulassen"</string>
     <string name="bluetooth_error_title" msgid="5718761586633101960"></string>
     <string name="bluetooth_connecting_error_message" msgid="8473359363469518478">"Keine Verbindung zu <xliff:g id="DEVICE_NAME">%1$s</xliff:g> möglich"</string>
     <string name="bluetooth_preference_scan_title" msgid="457781003962324807">"Scan nach Geräten"</string>
@@ -1204,7 +1204,7 @@
     <string name="auto_brightness_off_summary" msgid="6162650416289359104">"Nicht an Lichtverhältnisse anpassen"</string>
     <string name="auto_brightness_very_high_summary" msgid="7202032980509583918">"Erhöhter Akkuverbrauch"</string>
     <string name="auto_brightness_disclaimer" msgid="5416696351199148809">"\"Helligkeit an Lichtverhältnisse anpassen\": Ist diese Funktion aktiviert, kannst du die Helligkeit dennoch vorübergehend ändern."</string>
-    <string name="auto_brightness_description" msgid="8209140379089535411">"Die Helligkeit des Displays passt sich automatisch an deine Umgebung und deine Aktivitäten an. Mit dem Schieberegler kannst du manuell nachjustieren und \"Automatische Helligkeit\" merkt sich deine Präferenz."</string>
+    <string name="auto_brightness_description" msgid="8209140379089535411">"Die Helligkeit des Displays passt sich automatisch an deine Umgebung und deine Aktivitäten an. Mit dem Schieberegler kannst du manuell nachjustieren und die Funktion \"Automatische Helligkeit\" merkt sich deine Präferenz."</string>
     <string name="display_white_balance_title" msgid="5747260735311935143">"Weißabgleich des Bildschirms"</string>
     <string name="adaptive_sleep_title" msgid="3237620948260957018">"Screen Aware"</string>
     <string name="adaptive_sleep_summary_on" msgid="6670369739228487082">"An/Der Bildschirm wird nicht ausgeschaltet, wenn du ihn ansiehst"</string>
@@ -1568,7 +1568,7 @@
     <string name="error_adding_apn_type" msgid="671634520340569678">"Der Anbieter erlaubt das Hinzufügen von APNs des Typs %s nicht."</string>
     <string name="restore_default_apn" msgid="7195266404077471007">"Standard-APN-Einstellungen werden wiederhergestellt"</string>
     <string name="menu_restore" msgid="3799288817317293115">"Auf Standard zurücksetzen"</string>
-    <string name="restore_default_apn_completed" msgid="5671734152740058937">"Zurücksetzen auf Standard-APN-Einstellungen abgeschlossen"</string>
+    <string name="restore_default_apn_completed" msgid="5671734152740058937">"Zurücksetzen auf Standard-APN-Einstellungen abgeschlossen."</string>
     <string name="reset_dashboard_title" msgid="7084966342252178530">"Optionen zum Zurücksetzen"</string>
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"Zurückgesetzt werden können das Netzwerk, Apps und das Gerät"</string>
     <string name="reset_network_title" msgid="8944059136930806211">"WLAN, mobile Daten &amp; Bluetooth zurücksetzen"</string>
@@ -1584,7 +1584,7 @@
     <string name="reset_network_complete_toast" msgid="128225929536005495">"Die Netzwerkeinstellungen wurden zurückgesetzt."</string>
     <string name="reset_esim_error_title" msgid="4728931209471875632">"SIMs können nicht gelöscht werden"</string>
     <string name="reset_esim_error_msg" msgid="4716366079119742235">"Heruntergeladene SIMs können aufgrund eines Fehlers nicht gelöscht werden.\n\nStarte das Gerät neu und versuche es noch einmal."</string>
-    <string name="master_clear_title" msgid="1560712943955904673">"Alle Daten löschen (Auslieferungszustand)"</string>
+    <string name="master_clear_title" msgid="1560712943955904673">"Alle Daten löschen (auf Werkseinstellungen zurücksetzen)"</string>
     <string name="master_clear_short_title" msgid="919098101581335101">"Alle Daten löschen"</string>
     <string name="master_clear_desc" product="tablet" msgid="3432373610755760899">"Hierdurch werden alle Daten aus dem "<b>"internen Speicher"</b>" deines Tablets gelöscht, wie z. B. die Folgenden:\n\n"<li>"Dein Google-Konto"</li>\n<li>"System- und App-Daten sowie entsprechende Einstellungen"</li>\n<li>"Heruntergeladene Apps"</li></string>
     <string name="master_clear_desc" product="default" msgid="8765543541962866697">"Hierdurch werden alle Daten aus dem "<b>"internen Speicher"</b>" deines Smartphones gelöscht, wie z. B. die Folgenden:\n\n"<li>"Dein Google-Konto"</li>\n<li>"System- und App-Daten sowie entsprechende Einstellungen"</li>\n<li>"Heruntergeladene Apps"</li></string>
@@ -2234,7 +2234,7 @@
     <string name="power_usage_level_and_status" msgid="8873534076894160727">"<xliff:g id="LEVEL">%1$s</xliff:g> - <xliff:g id="STATUS">%2$s</xliff:g>"</string>
     <string name="power_discharge_remaining" msgid="3461915627093471868">"Noch <xliff:g id="REMAIN">%1$s</xliff:g>"</string>
     <string name="power_charge_remaining" msgid="2730510256218879651">"Verbleibende Ladezeit: <xliff:g id="UNTIL_CHARGED">%1$s</xliff:g>"</string>
-    <string name="background_activity_title" msgid="7207836362312111483">"Hintergrundnutzung einschränken"</string>
+    <string name="background_activity_title" msgid="7207836362312111483">"Einschränkung der Hintergrundnutzung"</string>
     <string name="background_activity_summary" msgid="582372194738538145">"App darf im Hintergrund ausgeführt werden"</string>
     <string name="background_activity_summary_disabled" msgid="457944930942085876">"App darf nicht im Hintergrund ausgeführt werden"</string>
     <string name="background_activity_summary_whitelisted" msgid="4713321059375873828">"Hintergrundnutzung kann nicht eingeschränkt werden"</string>
@@ -2310,12 +2310,12 @@
       <item quantity="other">%1$d Apps einschränken?</item>
       <item quantity="one">App einschränken?</item>
     </plurals>
-    <string name="battery_tip_restrict_app_dialog_message" msgid="6905822297507947381">"Um den Akku zu schonen, verhindere, dass <xliff:g id="APP">%1$s</xliff:g> im Hintergrund Strom verbraucht. Eventuell funktioniert die App dann nicht mehr richtig und Benachrichtigungen werden verzögert angezeigt."</string>
-    <string name="battery_tip_restrict_apps_less_than_5_dialog_message" msgid="4225881888543582456">"Um den Akku zu schonen, verhindere, dass diese Apps im Hintergrund Strom verbrauchen. Eventuell funktionieren sie dann nicht mehr richtig und Benachrichtigungen werden verzögert angezeigt.\n\nApps:"</string>
-    <string name="battery_tip_restrict_apps_more_than_5_dialog_message" msgid="1748375562539446634">"Um den Akku zu schonen, verhindere, dass diese Apps im Hintergrund Strom verbrauchen. Eventuell funktionieren sie dann nicht mehr richtig und Benachrichtigungen werden verzögert angezeigt.\n\nApps:\n<xliff:g id="APP_LIST">%1$s</xliff:g>."</string>
+    <string name="battery_tip_restrict_app_dialog_message" msgid="6905822297507947381">"Um den Akku zu schonen, kannst du verhindern, dass <xliff:g id="APP">%1$s</xliff:g> im Hintergrund Strom verbraucht. Eventuell funktioniert die App dann nicht mehr richtig und Benachrichtigungen werden verzögert angezeigt."</string>
+    <string name="battery_tip_restrict_apps_less_than_5_dialog_message" msgid="4225881888543582456">"Um den Akku zu schonen, kannst du verhindern, dass diese Apps im Hintergrund Strom verbrauchen. Eventuell funktionieren sie dann nicht mehr richtig und Benachrichtigungen werden verzögert angezeigt.\n\nApps:"</string>
+    <string name="battery_tip_restrict_apps_more_than_5_dialog_message" msgid="1748375562539446634">"Um den Akku zu schonen, kannst du verhindern, dass diese Apps im Hintergrund Strom verbrauchen. Eventuell funktionieren sie dann nicht mehr richtig und Benachrichtigungen werden verzögert angezeigt.\n\nApps:\n<xliff:g id="APP_LIST">%1$s</xliff:g>."</string>
     <string name="battery_tip_restrict_app_dialog_ok" msgid="2573410775701913487">"Einschränken"</string>
     <string name="battery_tip_unrestrict_app_dialog_title" msgid="812458516399125710">"Beschränkung entfernen?"</string>
-    <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"Diese App läuft im Hintergrund und beansprucht dabei den Akku. Er könnte deshalb früher als erwartet leer sein."</string>
+    <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"Diese App kann dann im Hintergrund laufen und beansprucht dabei den Akku. Er könnte deshalb früher als erwartet leer sein."</string>
     <string name="battery_tip_unrestrict_app_dialog_ok" msgid="9154938931448151479">"Entfernen"</string>
     <string name="battery_tip_unrestrict_app_dialog_cancel" msgid="7331148618292397166">"Abbrechen"</string>
     <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"Der Akkuverbrauch durch Apps ist zurzeit normal. Falls der Akku zu stark beansprucht wird, werden dir mögliche Maßnahmen vorgeschlagen.\n\nBei niedrigem Akkustand kannst du jederzeit den Energiesparmodus aktivieren."</string>
@@ -2450,9 +2450,9 @@
     <string name="battery_saver" msgid="3989710213758938398">"Energiesparmodus"</string>
     <string name="battery_saver_auto_title" msgid="4158659069641849952">"Automatisch aktivieren"</string>
     <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"Keine Aktivierung nach Zeitplan"</string>
-    <string name="battery_saver_auto_routine" msgid="886514412067906980">"Anhand deiner üblichen Abläufe"</string>
+    <string name="battery_saver_auto_routine" msgid="886514412067906980">"Anhand meiner üblichen Abläufe"</string>
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"Anhand des Ladestands"</string>
-    <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Der Energiesparmodus wird automatisch aktiviert, wenn offenbar wird, dass der Akku wahrscheinlich nicht bis zum nächsten Aufladen hält (ermittelt anhand deines üblichen Aufladezeitpunkts)."</string>
+    <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Der Energiesparmodus wird automatisch aktiviert, wenn der Akku wahrscheinlich nicht bis zum nächsten Aufladen hält (ermittelt anhand deines üblichen Aufladezeitpunkts)."</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Wird bei <xliff:g id="PERCENT">%1$s</xliff:g> aktiviert"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Zeitplan festlegen"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Bei vollem Akku ausschalten"</string>
@@ -2713,7 +2713,7 @@
     <string name="data_usage_cycle_editor_subtitle" msgid="6043098041946166597">"Jeden Monat zurücksetzen am:"</string>
     <string name="data_usage_cycle_editor_positive" msgid="9155752056537811646">"Übernehmen"</string>
     <string name="data_usage_warning_editor_title" msgid="1431385383278389290">"Warnung für Datenverbrauch festlegen"</string>
-    <string name="data_usage_limit_editor_title" msgid="1687908662154108293">"Limit festlegen"</string>
+    <string name="data_usage_limit_editor_title" msgid="1687908662154108293">"Datenlimit festlegen"</string>
     <string name="data_usage_limit_dialog_title" msgid="8804760847110131518">"Datennutzung begrenzen"</string>
     <string name="data_usage_limit_dialog_mobile" product="tablet" msgid="2000713577999830647">"Mobile Daten werden deaktiviert, sobald das von dir festgelegte Limit erreicht wurde.\n\nDer dabei angesetzte Wert wird von deinem Tablet berechnet und kann von der Messung des genutzten Datenvolumens durch deinen Mobilfunkanbieter abweichen. Daher empfiehlt es sich, einen eher etwas niedrigeren Limitwert anzugeben."</string>
     <string name="data_usage_limit_dialog_mobile" product="default" msgid="943546278705619205">"Mobile Daten werden deaktiviert, sobald das von dir festgelegte Limit erreicht wurde.\n\nDer dabei angesetzte Wert wird von deinem Smartphone berechnet und kann von der Messung des genutzten Datenvolumens durch deinen Mobilfunkanbieter abweichen. Daher empfiehlt es sich, einen eher etwas niedrigeren Limitwert anzugeben."</string>
@@ -3100,7 +3100,7 @@
     <string name="keywords_backup" msgid="7433356270034921627">"Sicherung, sicherung"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"bewegung, geste, touch-geste"</string>
     <string name="keywords_face_unlock" msgid="651615819291927262">"Face, Unlock, Gesichtserkennung, Anmeldung"</string>
-    <string name="keywords_imei_info" msgid="4325847870422053408">"imei, meid, min, prl version, imei sv"</string>
+    <string name="keywords_imei_info" msgid="4325847870422053408">"imei, meid, Min., prl version, imei sv"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"netzwerk, status des mobilfunknetz, servicestatus, signalstärke, art des mobilfunknetzes, roaming, iccid"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"seriennummer, hardwareversion"</string>
     <string name="keywords_android_version" msgid="4842749998088987740">"stand der sicherheitsupdates android, baseband version, kernel version"</string>
@@ -3234,7 +3234,7 @@
     <string name="zen_mode_button_turn_on" msgid="1097964136225943415">"Jetzt aktivieren"</string>
     <string name="zen_mode_button_turn_off" msgid="3990967728457149454">"Jetzt deaktivieren"</string>
     <string name="zen_mode_settings_dnd_manual_end_time" msgid="4307574188962071429">"\"Bitte nicht stören\" ist aktiviert bis <xliff:g id="FORMATTED_TIME">%s</xliff:g>"</string>
-    <string name="zen_mode_settings_dnd_manual_indefinite" msgid="3701005376825238752">"\"Bitte nicht stören\" bleibt aktiviert, bis du es deaktivierst"</string>
+    <string name="zen_mode_settings_dnd_manual_indefinite" msgid="3701005376825238752">"\"Bitte nicht stören\" bleibt aktiviert, bis du es deaktivierst."</string>
     <string name="zen_mode_settings_dnd_automatic_rule" msgid="2843297614114625408">"\"Bitte nicht stören\" wurde automatisch durch einen Zeitplan (<xliff:g id="RULE_NAME">%s</xliff:g>) aktiviert"</string>
     <string name="zen_mode_settings_dnd_automatic_rule_app" msgid="5103454923160912313">"\"Bitte nicht stören\" wurde automatisch durch eine App (<xliff:g id="APP_NAME">%s</xliff:g>) aktiviert"</string>
     <string name="zen_mode_settings_dnd_custom_settings_footer" msgid="6335108298640066560">"\"Bitte nicht stören\" ist mit benutzerdefinierten Einstellungen für \"<xliff:g id="RULE_NAMES">%s</xliff:g>\" aktiviert."</string>
@@ -3322,7 +3322,7 @@
     <string name="notification_pulse_title" msgid="4861418327614907116">"Benachrichtigungslicht blinkt"</string>
     <string name="lock_screen_notifications_title" msgid="6889072265118747835">"Auf dem Sperrbildschirm"</string>
     <string name="locked_work_profile_notification_title" msgid="8307025804986190658">"Wenn das Arbeitsprofil gesperrt ist"</string>
-    <string name="lock_screen_notifications_summary_show" msgid="5788874994455257378">"Alle Benachrichtigungen anzeigen"</string>
+    <string name="lock_screen_notifications_summary_show" msgid="5788874994455257378">"Gesamten Benachrichtigungsinhalt anzeigen"</string>
     <string name="lock_screen_notifications_summary_hide" msgid="3668806866535260143">"Vertrauliche Inhalte ausblenden"</string>
     <string name="lock_screen_notifications_summary_disable" msgid="3259929507369817672">"Keine Benachrichtigungen anzeigen"</string>
     <string name="lock_screen_notifications_interstitial_message" msgid="4230189215124387818">"Wie sollen Benachrichtigungen angezeigt werden, wenn dein Gerät gesperrt ist?"</string>
@@ -3713,7 +3713,7 @@
     <string name="high_power_system" msgid="739584574711292753">"Akku-Optimierung nicht verfügbar"</string>
     <string name="high_power_desc" msgid="333756885680362741">"Keine Optimierung bezüglich der Akkuleistung anwenden. Dein Akku entleert sich hierdurch möglicherweise schneller."</string>
     <string name="high_power_prompt_title" msgid="2805745781720454052">"Soll die App immer im Hintergrund ausgeführt werden?"</string>
-    <string name="high_power_prompt_body" msgid="8067395096053552289">"Wenn du erlaubst, dass \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" dauerhaft im Hintergrund ausgeführt wird, kann dies die  Akkulaufzeit verringern. \n\nDu kannst diese Einstellung jederzeit unter \"Einstellungen\" &gt; \"Apps &amp; Benachrichtigungen\" ändern."</string>
+    <string name="high_power_prompt_body" msgid="8067395096053552289">"Wenn du erlaubst, dass die App \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" dauerhaft im Hintergrund ausgeführt wird, kann dies die  Akkulaufzeit verringern. \n\nDu kannst diese Einstellung jederzeit unter \"Einstellungen\" &gt; \"Apps &amp; Benachrichtigungen\" ändern."</string>
     <string name="battery_summary" msgid="4345690800899981339">"<xliff:g id="PERCENTAGE">%1$s</xliff:g> Verbrauch seit der letzten vollständigen Aufladung"</string>
     <string name="battery_power_management" msgid="2853925857548647969">"Energiespareinstellungen"</string>
     <string name="no_battery_summary" msgid="4105932628367471314">"Kein Verbrauch seit dem letzten vollen Aufladen"</string>
@@ -3765,7 +3765,7 @@
     <string name="assist_access_screenshot_summary" msgid="3010943864000489424">"Der Assistent-App den Zugriff auf eine Aufnahme deines Bildschirms gestatten"</string>
     <string name="assist_flash_title" msgid="8852484250748551092">"Bildschirm kurz aufleuchten lassen"</string>
     <string name="assist_flash_summary" msgid="6697095786317559129">"Bildschirmränder kurz aufleuchten lassen, wenn Assistent-App auf Bildschirm-Text oder Screenshot zugreift"</string>
-    <string name="assist_footer" msgid="7030121180457472165">"Assistent-Apps können dir bei bestimmten Dingen helfen. Dazu greifen sie auf die Informationen zu, die aktuell auf deinem Bildschirm angezeigt werden. Für eine integrierte Unterstützung unterstützen einige Apps sowohl Launcher- als auch Spracheingabedienste."</string>
+    <string name="assist_footer" msgid="7030121180457472165">"Assistent-Apps können dir bei bestimmten Dingen helfen. Dazu greifen sie auf die Informationen zu, die aktuell auf deinem Bildschirm angezeigt werden. Damit sie dir eine umfassende Hilfe sind, unterstützen einige Apps sowohl Launcher- als auch Spracheingabedienste."</string>
     <string name="average_memory_use" msgid="5333366040118953945">"Durchschnittl. Speicherverbrauch"</string>
     <string name="maximum_memory_use" msgid="6509872438499846077">"Maximaler Speicherverbrauch"</string>
     <string name="memory_usage" msgid="7963253555330830906">"Speicherverbrauch"</string>
@@ -4129,13 +4129,13 @@
     <string name="ambient_display_pickup_title" product="tablet" msgid="1555456400210301959">"Tablet hochnehmen, um das Display anzusehen"</string>
     <string name="ambient_display_pickup_title" product="device" msgid="2480126522988135037">"Gerät hochnehmen, um das Display anzusehen"</string>
     <string name="ambient_display_wake_screen_title" msgid="3376988352851077102">"Bildschirm aktivieren"</string>
-    <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"Wenn das Smartphone in die Hand genommen wird, werden die Uhrzeit, Benachrichtigungen und andere Informationen angezeigt"</string>
+    <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"Wenn das Smartphone in die Hand genommen wird, werden die Uhrzeit, Benachrichtigungen und andere Informationen angezeigt."</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"Wenn das Tablet in die Hand genommen wird, werden die Uhrzeit, Benachrichtigungen und andere Informationen angezeigt"</string>
     <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"Wenn das Gerät in die Hand genommen wird, werden die Uhrzeit, Benachrichtigungen und andere Informationen angezeigt"</string>
     <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Tippen, um Informationen auf dem Smartphone anzusehen"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Tippen, um Informationen auf dem Tablet anzusehen"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Tippen, um Informationen auf dem Gerät anzusehen"</string>
-    <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Wenn auf den Bildschirm getippt wird, werden die Uhrzeit, Benachrichtigungen und andere Informationen angezeigt"</string>
+    <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Wenn auf den Bildschirm getippt wird, werden die Uhrzeit, Benachrichtigungen und andere Informationen angezeigt."</string>
     <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Benachrichtigungen durch Wischen über Fingerabdrucksensor öffnen"</string>
     <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"Fingerabdrucksensor verwenden"</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"Zum Lesen von Benachrichtigungen über den Fingerabdrucksensor auf der Rückseite des Smartphones nach unten wischen"</string>
@@ -4311,7 +4311,7 @@
     <string name="change_wifi_state_title" msgid="5140754955787584174">"WLAN-Steuerung"</string>
     <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"App darf WLAN steuern"</string>
     <string name="change_wifi_state_app_detail_summary" msgid="614854822469259860">"Erlaubt der App das WLAN zu aktivieren oder zu deaktivieren, nach WLANs zu scannen und eine Verbindung zu ihnen herstellen, Netzwerke hinzuzufügen oder zu entfernen oder einen lokal beschränkten Hotspot zu starten"</string>
-    <string name="media_output_title" msgid="8710632337456601848">"Medien hier abspielen"</string>
+    <string name="media_output_title" msgid="8710632337456601848">"Medien hier abspielen:"</string>
     <string name="media_output_default_summary" msgid="3159237976830415584">"Dieses Gerät"</string>
     <string name="media_output_summary" product="default" msgid="6294261435613551178">"Smartphone"</string>
     <string name="media_output_summary" product="tablet" msgid="6672024060360538526">"Tablet"</string>

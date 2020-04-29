@@ -85,7 +85,7 @@
     <item msgid="8058143476674427024">"Inaunganisha kwa <xliff:g id="NETWORK_NAME">%1$s</xliff:g>…"</item>
     <item msgid="7547609081339573756">"Uhalalishaji kwa <xliff:g id="NETWORK_NAME">%1$s</xliff:g>…"</item>
     <item msgid="5145158315060185414">"Kupata anwani ya IP kutoka <xliff:g id="NETWORK_NAME">%1$s</xliff:g>…"</item>
-    <item msgid="3283243151651124831">" Umeunganishwa kwa<xliff:g id="NETWORK_NAME">%1$s</xliff:g>"</item>
+    <item msgid="3283243151651124831">"Umeunganishwa kwenye <xliff:g id="NETWORK_NAME">%1$s</xliff:g>"</item>
     <item msgid="6600156231416890902">"Imetanguliwa"</item>
     <item msgid="4133290864821295785">"inakatisha muunganisho kutoka <xliff:g id="NETWORK_NAME">%1$s</xliff:g>…"</item>
     <item msgid="3980154971187953257">"Haijaunganishwa"</item>
@@ -276,7 +276,7 @@
     <item msgid="7692440726415391408">"tumia sip"</item>
     <item msgid="8572453398128326267">"chakata simu uliyopiga"</item>
     <item msgid="7775674394089376306">"alama ya kidole"</item>
-    <item msgid="3182815133441738779">"vihisi vya mwili"</item>
+    <item msgid="3182815133441738779">"vitambua shughuli za mwili"</item>
     <item msgid="2793100005496829513">"soma matangazo ya simu"</item>
     <item msgid="2633626056029384366">"eneo la jaribio"</item>
     <item msgid="8356842191824684631">"soma hifadhi"</item>
@@ -343,7 +343,7 @@
     <item msgid="9186411956086478261">"Tumia sip"</item>
     <item msgid="6884763100104539558">"Chakata simu uliyopiga"</item>
     <item msgid="125513972170580692">"Alama ya kidole"</item>
-    <item msgid="2556071024281275619">"Vihisi vya mwili"</item>
+    <item msgid="2556071024281275619">"Vitambua shughuli za mwili"</item>
     <item msgid="617168514928339387">"Soma matangazo ya simu"</item>
     <item msgid="7134693570516523585">"Eneo la jaribio"</item>
     <item msgid="7224489175375229399">"Soma hifadhi"</item>
@@ -477,7 +477,7 @@
     <item msgid="1008268820118852416">"Tumia kama mtandao usiopima data"</item>
   </string-array>
   <string-array name="wifi_privacy_entries">
-    <item msgid="6545683814310036454">"Anwani ya MAC bila utaratibu wowote (chaguomsingi)"</item>
+    <item msgid="6545683814310036454">"Anwani ya MAC ya nasibu (chaguomsingi)"</item>
     <item msgid="214234417308375326">"Tumia anwani ya MAC ya kifaa"</item>
   </string-array>
   <string-array name="wifi_hidden_entries">

@@ -1273,7 +1273,7 @@
     <string name="auto_brightness_very_high_title" msgid="6649896560889239565">"مرتفع جدًا"</string>
     <string name="auto_brightness_subtitle" msgid="8516999348793100665">"مستوى السطوع المفضل بالنسبة لك"</string>
     <string name="auto_brightness_off_summary" msgid="6162650416289359104">"عدم ضبط السطوع بحسب الإضاءة المتاحة"</string>
-    <string name="auto_brightness_very_high_summary" msgid="7202032980509583918">"زيادة استخدام البطارية"</string>
+    <string name="auto_brightness_very_high_summary" msgid="7202032980509583918">"يزيد استخدام البطارية"</string>
     <string name="auto_brightness_disclaimer" msgid="5416696351199148809">"يمكنك تحسين مستوى السطوع حسب الإضاءة. وعند تفعيل هذه الميزة، سيظل بإمكانك ضبط السطوع مؤقتًا."</string>
     <string name="auto_brightness_description" msgid="8209140379089535411">"سيتم ضبط سطوع الشاشة تلقائيًا حسب البيئة المحيطة والأنشطة. ويمكنك تحريك شريط التمرير يدويًا لضبط السطوع التكيُّفي حسبما تفضّل."</string>
     <string name="display_white_balance_title" msgid="5747260735311935143">"موازنة اللون الأبيض للشاشة"</string>
@@ -2397,7 +2397,7 @@
     <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"قد تنفد البطارية قبل الوقت المعتاد."</string>
     <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"تم تفعيل \"ميزة توفير شحن البطارية\"."</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"قد تكون بعض الميزات مقيّدة."</string>
-    <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"الهاتف المستخدَم أكثر من المعتاد"</string>
+    <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"مقدار استخدام الهاتف أكثر من المعتاد"</string>
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"الجهاز اللوحي المستخدَم أكثر من المعتاد"</string>
     <string name="battery_tip_high_usage_title" product="device" msgid="8304138287288309490">"الجهاز المستخدَم أكثر من المعتاد"</string>
     <string name="battery_tip_high_usage_summary" msgid="5514749872957528189">"قد تنفد البطارية قبل الوقت المعتاد."</string>
@@ -2427,7 +2427,7 @@
       <item quantity="few">هناك %2$d تطبيقات تستخدم البطارية في الخلفية بدرجة عالية</item>
       <item quantity="many">هناك %2$d تطبيقًا يستخدم البطارية في الخلفية بدرجة عالية</item>
       <item quantity="other">هناك %2$d تطبيق يستخدم البطارية في الخلفية بدرجة عالية</item>
-      <item quantity="one">يستخدم تطبيق %1$s البطارية في الخلفية بدرجة عالية</item>
+      <item quantity="one">هناك تطبيق واحد (%1$s) يستخدم البطارية في الخلفية بدرجة عالية</item>
     </plurals>
     <plurals name="battery_tip_restrict_handled_summary" formatted="false" msgid="469696766640020557">
       <item quantity="zero">يتعذّر تشغيل هذه التطبيقات في الخلفية.</item>
@@ -2789,7 +2789,7 @@
     <string name="starting_android" msgid="4774187626261253089">"جارٍ تشغيل Android…"</string>
     <string name="delete" msgid="2325292565700865366">"حذف"</string>
     <string name="misc_files" msgid="1012397035001764693">"ملفات متنوعة"</string>
-    <string name="misc_files_selected_count" msgid="1434146080729502726">"تم تحديد <xliff:g id="NUMBER">%1$d</xliff:g> من إجمالي <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
+    <string name="misc_files_selected_count" msgid="1434146080729502726">"تم اختيار <xliff:g id="NUMBER">%1$d</xliff:g> من إجمالي <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="misc_files_selected_count_bytes" msgid="3752262902203465861">"<xliff:g id="NUMBER">%1$s</xliff:g> من إجمالي <xliff:g id="TOTAL">%2$s</xliff:g>"</string>
     <string name="select_all" msgid="452240217913675728">"اختيار الكل"</string>
     <string name="data_usage_summary_title" msgid="7288431048564861043">"استخدام البيانات"</string>
@@ -3085,7 +3085,7 @@
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"إلا إذا كان هناك تطبيق دفع آخر مفتوحًا"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"عند أحد أجهزة انقر وادفع الطرفية، يمكنك الدفع باستخدام:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"الدفع عند الجهاز الطرفي"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"يمكنك إعداد تطبيق للدفع، وبعد ذلك لن يلزمك سوى توصيل الجزء الخلفي من الهاتف بأي جهاز طرفي يحتوي على رمز عدم لمس الجهاز."</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"يمكنك إعداد تطبيق للدفع، وبعد ذلك لن يلزمك سوى الإمساك بالجزء الخلفي من الهاتف أعلى جهاز طرفي يحتوي على رمز الدفع بدون تلامس الأجهزة."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"حسنًا"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"المزيد..."</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"هل تريد تعيينه كتفضيل؟"</string>
@@ -3143,7 +3143,7 @@
     <string name="wizard_finish" msgid="3742102879981212094">"إنهاء"</string>
     <string name="user_image_take_photo" msgid="2000247510236178111">"التقاط صورة"</string>
     <string name="user_image_choose_photo" msgid="4920315415203051898">"اختيار صورة"</string>
-    <string name="user_image_photo_selector" msgid="8429694590849882411">"تحديد صورة"</string>
+    <string name="user_image_photo_selector" msgid="8429694590849882411">"اختيار صورة"</string>
     <string name="regulatory_info_text" msgid="9112993912873512834"></string>
     <string name="sim_setup_wizard_title" msgid="77627575294867180">"بطاقات SIM"</string>
     <string name="sim_settings_title" msgid="8818243954752261922">"بطاقات SIM"</string>
@@ -3151,7 +3151,7 @@
     <string name="sim_cards_changed_message" msgid="1012486903583092731">"تم تغيير بطاقات SIM"</string>
     <string name="sim_cards_changed_message_summary" msgid="5753692480107865077">"انقر لتعيين الأنشطة."</string>
     <string name="sim_cellular_data_unavailable" msgid="1832472508352891641">"بيانات الجوّال غير متاحة"</string>
-    <string name="sim_cellular_data_unavailable_summary" msgid="3093797406601964131">"انقر لتحديد شريحة SIM للبيانات."</string>
+    <string name="sim_cellular_data_unavailable_summary" msgid="3093797406601964131">"انقر لاختيار شريحة SIM للبيانات."</string>
     <string name="sim_calls_always_use" msgid="5322696995795851734">"استخدام هذا للمكالمات دائمًا"</string>
     <string name="select_sim_for_data" msgid="2099705792885526394">"تحديد شريحة SIM للبيانات"</string>
     <string name="select_sim_for_sms" msgid="2481682560233370731">"اختيار شريحة SIM للرسائل القصيرة SMS"</string>
@@ -4008,8 +4008,8 @@
     <string name="memory_details" msgid="5165105904103664110">"التفاصيل"</string>
     <string name="memory_use_summary" msgid="7676311343819965850">"متوسط الذاكرة المستخدمة خلال آخر ٣ ساعات: <xliff:g id="SIZE">%1$s</xliff:g>"</string>
     <string name="no_memory_use_summary" msgid="3966550113388917978">"لم يتم استخدام الذاكرة خلال آخر ٣ ساعات"</string>
-    <string name="sort_avg_use" msgid="78428601253054298">"الترتيب بحسب متوسط الاستخدام"</string>
-    <string name="sort_max_use" msgid="322772647893307413">"الترتيب بحسب الاستخدام الأقصى"</string>
+    <string name="sort_avg_use" msgid="78428601253054298">"الترتيب حسب متوسط الاستخدام"</string>
+    <string name="sort_max_use" msgid="322772647893307413">"الترتيب حسب الاستخدام الأقصى"</string>
     <string name="memory_performance" msgid="3506743771947250453">"الأداء"</string>
     <string name="total_memory" msgid="7352192982476976453">"إجمالي الذاكرة"</string>
     <string name="average_used" msgid="3022736210190754669">"متوسط استخدام الذاكرة (%)"</string>

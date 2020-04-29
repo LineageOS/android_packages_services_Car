@@ -418,7 +418,7 @@
     <string name="security_settings_face_enroll_done" msgid="5409739233373490971">"Terminé"</string>
     <string name="security_settings_face_settings_use_face_category" msgid="1586532139528115416">"Util. votre visage pour"</string>
     <string name="security_settings_face_settings_use_face_unlock_phone" msgid="318274519126401671">"Déverr. l\'appareil"</string>
-    <string name="security_settings_face_settings_use_face_for_apps" msgid="5479369083370664351">"Connex. et paiements dans applis"</string>
+    <string name="security_settings_face_settings_use_face_for_apps" msgid="5479369083370664351">"Connexion applis et paiements"</string>
     <string name="security_settings_face_settings_require_attention" msgid="2755140150841557225">"Yeux ouverts pour déverrouillage"</string>
     <string name="security_settings_face_settings_require_attention_details" msgid="2557060433599942587">"Lorsque vous utilisez l\'authent. visage, vos yeux doivent être ouverts"</string>
     <string name="security_settings_face_settings_require_confirmation" msgid="7312024271060416438">"Toujours demander une confirmation"</string>
@@ -1798,7 +1798,7 @@
     <string name="install_all_warning" product="device" msgid="9141585291103603515">"Votre appareil et vos données personnelles sont plus vulnérables aux attaques provenant d\'applications inconnues. En installant des applications provenant de cette source, vous acceptez d\'être responsable de tout dommage causé à votre appareil ou de toute perte de données pouvant découler de l\'utilisation de telles applications."</string>
     <string name="advanced_settings" msgid="6282069364060968122">"Paramètres avancés"</string>
     <string name="advanced_settings_summary" msgid="5912237062506771716">"Activer d\'autres paramètres"</string>
-    <string name="application_info_label" msgid="3886253474964599105">"Infos sur l\'application"</string>
+    <string name="application_info_label" msgid="3886253474964599105">"Infos sur les applis"</string>
     <string name="storage_label" msgid="1109537840103290384">"Stockage"</string>
     <string name="auto_launch_label" msgid="47089737922907379">"Ouvert par défaut"</string>
     <string name="auto_launch_label_generic" msgid="7865828543459493308">"Valeurs par défaut"</string>
@@ -2277,9 +2277,9 @@
     <string name="battery_tip_smart_battery_title" product="tablet" msgid="203494973250969040">"Améliorer l\'autonomie de la tablette"</string>
     <string name="battery_tip_smart_battery_title" product="device" msgid="7419448992583346364">"Améliorer l\'autonomie de l\'appareil"</string>
     <string name="battery_tip_smart_battery_summary" msgid="5344821856478265778">"Activer le gestionnaire de pile"</string>
-    <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"Activer la fonction Économie d\'énergie"</string>
+    <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"Activer l\'économiseur de pile"</string>
     <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"La pile pourrait s\'épuiser plus tôt que d\'habitude"</string>
-    <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"La fonction Économie d\'énergie est activée"</string>
+    <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"Économiseur de pile activé"</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"Certaines fonctionnalités pourraient être limitées"</string>
     <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"Le téléphone a été sollicité plus que d\'habitude"</string>
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"La tablette a été sollicitée plus que d\'habitude"</string>
@@ -2317,9 +2317,9 @@
     <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"Cette application pourra utiliser la pile en arrière-plan. Cela pourrait épuiser la pile plus rapidement."</string>
     <string name="battery_tip_unrestrict_app_dialog_ok" msgid="9154938931448151479">"Supprimer"</string>
     <string name="battery_tip_unrestrict_app_dialog_cancel" msgid="7331148618292397166">"Annuler"</string>
-    <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"Vos applications utilisent une quantité normale d\'énergie. Si les applications utilisent trop d\'énergie, votre téléphone vous suggérera des actions à essayer.\n\nVous pouvez toujours activer la fonction Économie d\'énergie si la pile est trop faible."</string>
-    <string name="battery_tip_dialog_summary_message" product="tablet" msgid="1721081030632329647">"Vos applications utilisent une quantité normale d\'énergie. Si les applications utilisent trop d\'énergie, votre tablette vous suggérera des actions à essayer.\n\nVous pouvez toujours activer la fonction Économie d\'énergie si la pile est trop faible."</string>
-    <string name="battery_tip_dialog_summary_message" product="device" msgid="146872407040848465">"Vos applications utilisent une quantité normale d\'énergie. Si les applications utilisent trop d\'énergie, votre appareil vous suggérera des actions à essayer.\n\nVous pouvez toujours activer la fonction Économie d\'énergie si la pile est trop faible."</string>
+    <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"Vos applications utilisent une quantité normale d\'énergie. Si les applications utilisent trop d\'énergie, votre téléphone vous suggérera des actions à essayer.\n\nVous pouvez toujours activer la fonction Économiseur de pile si la pile est trop faible."</string>
+    <string name="battery_tip_dialog_summary_message" product="tablet" msgid="1721081030632329647">"Vos applications utilisent une quantité normale d\'énergie. Si les applications utilisent trop d\'énergie, votre tablette vous suggérera des actions à essayer.\n\nVous pouvez toujours activer l\'économiseur de pile si la pile est trop faible."</string>
+    <string name="battery_tip_dialog_summary_message" product="device" msgid="146872407040848465">"Vos applications utilisent une quantité normale d\'énergie. Si les applications utilisent trop d\'énergie, votre appareil vous suggérera des actions à essayer.\n\nVous pouvez toujours activer l\'économiseur de pile si la pile est trop faible."</string>
     <string name="smart_battery_manager_title" msgid="5744035036663849515">"Gestionnaire de pile"</string>
     <string name="smart_battery_title" msgid="4919670408532804351">"Gérer les applications automatiquement"</string>
     <string name="smart_battery_summary" msgid="640027046471198174">"Restreindre l\'usage de la pile pour les applications que vous n\'utilisez pas souvent"</string>
@@ -2446,7 +2446,7 @@
     <string name="process_kernel_label" msgid="4175060316414593760">"Système d\'exploitation Android"</string>
     <string name="process_mediaserver_label" msgid="8591722404282619153">"Serveur multimédia"</string>
     <string name="process_dex2oat_label" msgid="8249082119748556085">"Optimisation des applications"</string>
-    <string name="battery_saver" msgid="3989710213758938398">"Économie d\'énergie"</string>
+    <string name="battery_saver" msgid="3989710213758938398">"Économiseur de pile"</string>
     <string name="battery_saver_auto_title" msgid="4158659069641849952">"Activer automatiquement"</string>
     <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"Aucun horaire"</string>
     <string name="battery_saver_auto_routine" msgid="886514412067906980">"Selon votre routine"</string>
@@ -2671,7 +2671,7 @@
     <string name="data_usage_cellular_data_summary" msgid="9162777397135709280">"Interrompues à la limite"</string>
     <string name="account_settings_menu_auto_sync" msgid="2673669556006027506">"Synchronisation auto données"</string>
     <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"Synchro auto des données perso"</string>
-    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"Synchro auto données profess."</string>
+    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"Synchro auto des données pros"</string>
     <string name="data_usage_change_cycle" msgid="447761920472170031">"Changer le cycle..."</string>
     <string name="data_usage_pick_cycle_day" msgid="6319750879145917066">"Jour du mois de réinitialisation du cycle utilisation données :"</string>
     <string name="data_usage_empty" msgid="7981405723435034032">"Aucune donnée utilisée par les applications pendant cette période."</string>
@@ -2751,8 +2751,8 @@
     <string name="vpn_ipsec_server_cert" msgid="3066696943831527934">"Certificat de serveur IPSec"</string>
     <string name="vpn_show_options" msgid="7672984921872882859">"Afficher les options avancées"</string>
     <string name="vpn_search_domains" msgid="8469394307693909080">"Domaines de recherche DNS"</string>
-    <string name="vpn_dns_servers" msgid="3017453300909321239">"Serveurs DNS (Ex. 8.8.8.8)"</string>
-    <string name="vpn_routes" msgid="3393989650778663742">"Itinéraires transfert (Ex. 10.0.0.0/8)"</string>
+    <string name="vpn_dns_servers" msgid="3017453300909321239">"Serveurs DNS (p. ex. 8.8.8.8)"</string>
+    <string name="vpn_routes" msgid="3393989650778663742">"Itinéraires transfert (p. ex. 10.0.0.0/8)"</string>
     <string name="vpn_username" msgid="5357878823189445042">"Nom d\'utilisateur"</string>
     <string name="vpn_password" msgid="5325943601523662246">"Mot de passe"</string>
     <string name="vpn_save_login" msgid="6215503139606646915">"Enregistrer les informations de compte"</string>
@@ -3893,7 +3893,7 @@
     <string name="condition_zen_title" msgid="2128184708916052585">"Mode Ne pas déranger activé"</string>
     <string name="condition_zen_summary_phone_muted" msgid="4396050395522974654">"Téléphone en sourdine"</string>
     <string name="condition_zen_summary_with_exceptions" msgid="3435216391993785818">"Avec des exceptions"</string>
-    <string name="condition_battery_title" msgid="6704870010912986274">"Économie d\'énergie activée"</string>
+    <string name="condition_battery_title" msgid="6704870010912986274">"Économiseur de pile activé"</string>
     <string name="condition_battery_summary" msgid="1236078243905690620">"Fonctionnalités restreintes"</string>
     <string name="condition_cellular_title" msgid="6605277435894307935">"Données cellulaires désactivées"</string>
     <string name="condition_cellular_summary" msgid="3607459310548343777">"Internet est uniquement accessible par Wi‑Fi"</string>
@@ -3942,7 +3942,7 @@
     <string name="cell_data_template" msgid="5473177306229738078">"Données cellulaires utilisées : <xliff:g id="AMOUNT">^1</xliff:g>"</string>
     <string name="wifi_data_template" msgid="3146090439147042068">"Données Wi-Fi : <xliff:g id="AMOUNT">^1</xliff:g>"</string>
     <string name="ethernet_data_template" msgid="6414118030827090119">"Données Ethernet : <xliff:g id="AMOUNT">^1</xliff:g>"</string>
-    <string name="billing_cycle" msgid="5740717948341713190">"Avertissement et limites données"</string>
+    <string name="billing_cycle" msgid="5740717948341713190">"Avertissement et limites de données"</string>
     <string name="app_usage_cycle" msgid="213483325132959663">"Cycle d\'util. données d\'appli."</string>
     <string name="cell_data_warning" msgid="8902740337286652689">"Seuil à partir duquel un avertissement relatif à la consommation des données est envoyé : <xliff:g id="ID_1">^1</xliff:g>"</string>
     <string name="cell_data_limit" msgid="3175933829235314233">"Limite d\'utilisation de données : <xliff:g id="ID_1">^1</xliff:g>"</string>
@@ -4310,7 +4310,7 @@
     <string name="change_wifi_state_title" msgid="5140754955787584174">"Gestion du Wi-Fi"</string>
     <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"Autoriser l\'application à gérer le Wi-Fi"</string>
     <string name="change_wifi_state_app_detail_summary" msgid="614854822469259860">"Autorisez cette application à activer ou à désactiver le Wi-Fi, à rechercher les réseaux Wi-Fi et à s\'y connecter, à ajouter et à supprimer des réseaux ou à créer un point d\'accès local uniquement"</string>
-    <string name="media_output_title" msgid="8710632337456601848">"Faire jouer les médias vers"</string>
+    <string name="media_output_title" msgid="8710632337456601848">"Faire jouer les contenus multimédias sur"</string>
     <string name="media_output_default_summary" msgid="3159237976830415584">"Cet appareil"</string>
     <string name="media_output_summary" product="default" msgid="6294261435613551178">"Téléphone"</string>
     <string name="media_output_summary" product="tablet" msgid="6672024060360538526">"Tablette"</string>

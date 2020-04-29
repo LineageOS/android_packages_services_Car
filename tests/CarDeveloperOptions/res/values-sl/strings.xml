@@ -85,8 +85,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Pomanjšava ali povečava besedila na zaslonu"</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Pomanjšanje"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Povečanje"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Vzorčno besedilo"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"Čudoviti čarovnik iz Oza"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"11. poglavje: Čudovito Smaragdno mesto"</string>
@@ -1139,7 +1138,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"Mobilno"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Uporaba mobilnega omrežja, če omrežje Wi-Fi ni dosegljivo"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Uporaba omrežja Wi-Fi, če mobilno omrežje ni dosegljivo"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Klic prek omrežja Wi-Fi. Če izgubite povezavo Wi-Fi, bo klic končan."</string>
@@ -2334,7 +2336,7 @@
     <string name="battery_tip_smart_battery_title" product="device" msgid="7419448992583346364">"Izboljšajte čas delovanja akumulatorja naprave"</string>
     <string name="battery_tip_smart_battery_summary" msgid="5344821856478265778">"Vklopite varčevanje z energijo akumulatorja"</string>
     <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"Vklop varčevanja z energijo akumulatorja"</string>
-    <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"Akumulator se bo morda izpraznil prej kot običajno"</string>
+    <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"Baterija se lahko izprazni prej kot običajno"</string>
     <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"Varčevanje z energijo akumulatorja je vklopljeno"</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"Nekatere funkcije bodo morda omejene"</string>
     <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"Telefon uporabljate več kot običajno"</string>

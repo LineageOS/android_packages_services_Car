@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Экрандағы мәтінді кішірейтеді немесе үлкейтеді."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Кішірек ету"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Үлкенірек ету"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Мәтін үлгісі"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"Оз қаласының ғажап сиқыршысы"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"11-тарау: Ғажайып жасыл қала Оз"</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"Мобильдік"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Егер Wi‑Fi қолжетімді болмаса, мобильдік желі пайдаланылады."</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Мобильдік желі қолжетімді болмаса, Wi‑Fi пайдалану"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Wi‑Fi арқылы қоңырау шалу. Wi‑Fi байланысы жоғалса, қоңырау аяқталады."</string>
@@ -1456,7 +1458,7 @@
     <string name="storage_detail_system" msgid="6784247618772153283">"Жүйе"</string>
     <string name="storage_detail_explore" msgid="8206900269596580264">"<xliff:g id="NAME">^1</xliff:g> ашу"</string>
     <string name="storage_detail_dialog_other" msgid="5073511663616043370">"Басқаларында қолданбалар сақтаған файлдар, интернет немесе Bluetooth арқылы жүктелген файлдар, Android файлдары, т.б. қамтылады. \n\n<xliff:g id="NAME">^1</xliff:g> құрылғысындағы мазмұндарды көру үшін \"Зерттеу\" түймесін түртіңіз."</string>
-    <string name="storage_detail_dialog_system" msgid="1472572861360014226">"Жүйе Android <xliff:g id="VERSION">%s</xliff:g> нұсқасын іске қосуға пайдаланылатын файлдарды қамтиды"</string>
+    <string name="storage_detail_dialog_system" msgid="1472572861360014226">"\"Жүйе\" қалтасында Android <xliff:g id="VERSION">%s</xliff:g> жұмысына қажетті файлдар орналасқан."</string>
     <string name="storage_detail_dialog_user" msgid="1663117417635010371">"<xliff:g id="USER_0">^1</xliff:g> жадта <xliff:g id="SIZE">^2</xliff:g> орын алатын суреттерді, музыка файлдарын, қолданбаларды не басқа деректерді сақтаған болуы керек. \n\nМәліметтерді көру үшін <xliff:g id="USER_1">^1</xliff:g> есептік жазбасына кіріңіз."</string>
     <string name="storage_wizard_init_title" msgid="3407283236421089014">"<xliff:g id="NAME">^1</xliff:g> орнату"</string>
     <string name="storage_wizard_init_external_title" msgid="6853250619674645478">"Портативті жад ретінде пайдалану"</string>
@@ -1637,7 +1639,7 @@
     <string name="sms_change_default_no_previous_dialog_text" msgid="4680224695080527907">"<xliff:g id="NEW_APP">%s</xliff:g> қолданбасы SMS қолданбасы ретінде қолданылсын ба?"</string>
     <string name="network_scorer_picker_title" msgid="1691073966560952916">"Желі рейтингісін ұсынған"</string>
     <string name="network_scorer_picker_none_preference" msgid="6448280557733231737">"Ешқандай"</string>
-    <string name="network_scorer_change_active_dialog_title" msgid="4274159562371475090">"Wi‑Fi assistant өзгерту керек пе?"</string>
+    <string name="network_scorer_change_active_dialog_title" msgid="4274159562371475090">"Wi‑Fi көмек құралын ауыстыру керек пе?"</string>
     <string name="network_scorer_change_active_dialog_text" msgid="4264089809189760730">"Желілік байланыстарды басқару үшін <xliff:g id="CURRENT_APP">%2$s</xliff:g> орнына <xliff:g id="NEW_APP">%1$s</xliff:g> қолданбасын пайдалану керек пе?"</string>
     <string name="network_scorer_change_active_no_previous_dialog_text" msgid="6394483538843474495">"Желілік байланыстарды басқару үшін <xliff:g id="NEW_APP">%s</xliff:g> қолданбасын пайдалану керек пе?"</string>
     <string name="mobile_unknown_sim_operator" msgid="872589370085135817">"Белгісіз SIM операторы"</string>
@@ -1840,8 +1842,8 @@
     <string name="show_running_services" msgid="1895994322704667543">"Қосылған қызметтерді көрсету"</string>
     <string name="show_background_processes" msgid="88012264528093617">"Кэштелген үрдістерді көрсету"</string>
     <string name="default_emergency_app" msgid="286530070173495823">"Төтенше жағдай қолданбасы"</string>
-    <string name="reset_app_preferences" msgid="1426500030595212077">"Қолданба реттеуін бастапқы күйге қайтару"</string>
-    <string name="reset_app_preferences_title" msgid="792909865493673598">"Қолданба реттеулері бастапқы күйге қайтарылсын ба?"</string>
+    <string name="reset_app_preferences" msgid="1426500030595212077">"Қолданба параметрлерін бастапқы күйге қайтару"</string>
+    <string name="reset_app_preferences_title" msgid="792909865493673598">"Қолданба параметрлері бастапқы күйге қайтарылсын ба?"</string>
     <string name="reset_app_preferences_desc" msgid="7935273005301096031">"Төмендегі реттеулер бастапқы күйге қайтарылады: \n\n "<li>"Өшірілген қолданбалар"</li>\n" "<li>"Өшірілген қолданба хабарландырулары"</li>\n" "<li>"Әрекеттерге арналған әдепкі қолданбалар"</li>\n" "<li>"Фондық режимдегі дерек тасымалын шектеу"</li>\n" "<li>"Қандай да бір рұқсат шектеулері"</li>\n\n" Қолданба деректері жоғалмайды."</string>
     <string name="reset_app_preferences_button" msgid="2041894727477934656">"Бастапқы күйге қайтару"</string>
     <string name="manage_space_text" msgid="6166469422303124302">"Кеңістікті басқару"</string>
@@ -2039,7 +2041,7 @@
     <string name="vision_settings_description" msgid="3476589459009287332">"Бұл құрылғыны қажеттіліктерге сай реттей аласыз. Бұл арнайы мүмкіндіктерді кейінірек \"Параметрлер\" тармағында өзгертуге болады."</string>
     <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"Қаріп өлшемін өзгерту"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"Экранды оқу құралдары"</string>
-    <string name="audio_and_captions_category_title" msgid="6140472938769619212">"Аудиомазмұн және экранға шығатын мәтін"</string>
+    <string name="audio_and_captions_category_title" msgid="6140472938769619212">"Аудио және экранға шығатын мәтін"</string>
     <string name="display_category_title" msgid="545168481672250195">"Дисплей"</string>
     <string name="interaction_control_category_title" msgid="8775039211811947683">"Өзара әрекеттестікті басқару элементтері"</string>
     <string name="user_installed_services_category_title" msgid="4288689493753221319">"Жүктеп алынған қызметтер"</string>
@@ -2604,7 +2606,7 @@
     <string name="background_data_summary" msgid="799640633948841990">"Қолданбалар деректерді синхрондау, жіберу жұмыстарын орындайды және кез келген уақытта қабылдай алады."</string>
     <string name="background_data_dialog_title" msgid="8306650658158895976">"Жалпы мағлұматтар дерекқоры істен шығарылсын ба?"</string>
     <string name="background_data_dialog_message" msgid="8126774244911656527">"Артқы шеп деректерін өшіру батарея жұмысын ұзартады және дерек қолданысын азайтады. Кейбір қолданбалар сонда да артқы шеп байланысын қолдануы мүмкін."</string>
-    <string name="sync_automatically" msgid="5746117156896468099">"Қолданба дерекқорын авто синхрондау"</string>
+    <string name="sync_automatically" msgid="5746117156896468099">"Қолданба дерегін автосинхрондау"</string>
     <string name="sync_enabled" msgid="535172627223336983">"Синхронизация ҚОСУЛЫ"</string>
     <string name="sync_disabled" msgid="713721807204805062">"Синх ӨШІРУЛІ"</string>
     <string name="sync_error" msgid="988155155932442765">"Синх қателігі"</string>
@@ -2664,12 +2666,12 @@
     <string name="data_usage_menu_show_ethernet" msgid="2130574690318410238">"Этернет қолданысын көрсету"</string>
     <string name="data_usage_menu_hide_ethernet" msgid="1191233197312414533">"Ethernet пайдал-ды жасыру"</string>
     <string name="data_usage_menu_metered" msgid="3087525150259956831">"Желілік шектеулер"</string>
-    <string name="data_usage_menu_auto_sync" msgid="3350154877737572146">"Дерекқорды авто-синхрондау"</string>
+    <string name="data_usage_menu_auto_sync" msgid="3350154877737572146">"Деректі автосинхрондау"</string>
     <string name="data_usage_menu_sim_cards" msgid="8508154611676507088">"SIM карталары"</string>
     <string name="data_usage_cellular_data_summary" msgid="9162777397135709280">"Шектеуде кідіртілген"</string>
     <string name="account_settings_menu_auto_sync" msgid="2673669556006027506">"Деректерді автосинхрондау"</string>
-    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"Жеке деректерді авто-синхрондау"</string>
-    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"Жұмыс деректерін авто-синхрондау"</string>
+    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"Жеке деректі автосинхрондау"</string>
+    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"Жұмыс дерегін автосинхрондау"</string>
     <string name="data_usage_change_cycle" msgid="447761920472170031">"Айналымды өзгерту…"</string>
     <string name="data_usage_pick_cycle_day" msgid="6319750879145917066">"Дерекқор қолдану айналымын қайта реттеу күні:"</string>
     <string name="data_usage_empty" msgid="7981405723435034032">"Бұл уақыт аралығында ешқандай қолданба дерек пайдаланған жоқ."</string>
@@ -2848,7 +2850,7 @@
     <string name="user_settings_title" msgid="7917598650933179545">"Бірнеше пайдаланушы"</string>
     <string name="user_settings_footer_text" product="device" msgid="4573858247439190545">"Жаңа пайдаланушыларды енгізу арқылы құрылғыны ортақ пайдаланыңыз. Әр пайдаланушының құрылғыда арнаулы негізгі экрандар, есептік жазбалар, қолданбалар, параметрлер, т.б. үшін жеке профилі болады."</string>
     <string name="user_settings_footer_text" product="tablet" msgid="780018221428132918">"Жаңа пайдаланушыларды енгізу арқылы планшетті ортақ пайдаланыңыз. Әр пайдаланушының планшетте арнаулы негізгі экрандар, есептік жазбалар, қолданбалар, параметрлер, т.б. үшін жеке профилі болады."</string>
-    <string name="user_settings_footer_text" product="default" msgid="1470859614968237491">"Жаңа пайдаланушыларды енгізу арқылы телефонды ортақ пайдаланыңыз. Әр пайдаланушының телефонда арнаулы негізгі экрандар, есептік жазбалар, қолданбалар, параметрлер, т.б. үшін жеке профилі болады."</string>
+    <string name="user_settings_footer_text" product="default" msgid="1470859614968237491">"Басқа пайдаланушыларды қосу арқылы телефонды бөлісіп пайдалануға болады. Әр пайдаланушының өз негізгі экраны, есептік жазбалары, қолданбалары, параметрлері, т.б. үшін жеке профилі болады."</string>
     <string name="user_list_title" msgid="6670258645246192324">"Пайдаланушылар мен профайлдар"</string>
     <string name="user_add_user_or_profile_menu" msgid="4220679989900149336">"Пайдаланушы немесе профиль қосу"</string>
     <string name="user_add_user_menu" msgid="9006572936456324794">"Пайдаланушы қосу"</string>
@@ -2871,7 +2873,7 @@
     <string name="user_add_user_message_long" msgid="686637203224195465">"Қосымша профильдер жасай отырып, бұл құрылғыны басқалармен ортақ пайдалануға болады. Әр пайдаланушы қолданбаларды, тұсқағаздарды орнатып, профилін өз қалауынша реттей алады. Сондай-ақ барлығы ортақ қолданатын Wi‑Fi сияқты параметрлерді де реттеуге болады.\n\nЖаңа пайдаланушы енгізілгенде, ол өз профилін реттеуі керек болады.\n\nКез келген пайдаланушы барлық басқа пайдаланушылар үшін қолданбаларды жаңарта алады. Арнайы мүмкіндіктерге қатысты параметрлер мен қызметтер жаңа пайдаланушыға өтпейді."</string>
     <string name="user_add_user_message_short" msgid="1802594476285458254">"Жаңа пайдаланушыны қосқанда сол адам өз кеңістігін реттеуі керек.\n\nКез келген пайдаланушы барлық басқа пайдаланушылар үшін қолданбаларды жаңарта алады."</string>
     <string name="user_setup_dialog_title" msgid="6748950002206392396">"Профиль құру керек пе?"</string>
-    <string name="user_setup_dialog_message" msgid="2988559933258353919">"Пайдаланушы құрылығыны алып, өз профилін реттеуі керек."</string>
+    <string name="user_setup_dialog_message" msgid="2988559933258353919">"Пайдаланушы құрылғыны алып, өз профилін реттеуі керек."</string>
     <string name="user_setup_profile_dialog_message" msgid="7611900802824048526">"Профайл қазір жасақталсын ба?"</string>
     <string name="user_setup_button_setup_now" msgid="4941459406266856176">"Қазір құру"</string>
     <string name="user_setup_button_setup_later" msgid="6596031428556518752">"Қазір емес"</string>
@@ -2923,7 +2925,7 @@
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Басқа төлем қолданбасы ашық кезді қоспағанда"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"\"Tap &amp; pay\" терминалында төлеу жолы:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Терминалда төлеу"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Төлем қолданбасын орнатыңыз. Содан кейін жай телефонның артқы жағын тигізбейтін таңбасы бар кез келген терминал жанында ұстап тұрыңыз."</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Төлем қолданбасын реттеңіз. Содан кейін телефонның артқы жағын контактісіз төлем таңбасы бар терминалға жақындатыңыз."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"Түсінікті"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"Қосымша…"</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"Қалаулы ретінде реттеу қажет пе?"</string>
@@ -3005,8 +3007,8 @@
     <string name="sim_editor_number" msgid="1757338150165234970">"Нөмір"</string>
     <string name="sim_editor_color" msgid="373059962306191123">"SIM түсі"</string>
     <string name="sim_card_select_title" msgid="4925862525985187946">"SIM картасын таңдау"</string>
-    <string name="color_orange" msgid="3159707916066563431">"Сарғылт"</string>
-    <string name="color_purple" msgid="4391440966734810713">"Қызылкүрең"</string>
+    <string name="color_orange" msgid="3159707916066563431">"Қызғылт сары"</string>
+    <string name="color_purple" msgid="4391440966734810713">"Күлгін"</string>
     <string name="sim_no_inserted_msg" msgid="1197884607569714609">"SIM карталары салынбаған"</string>
     <string name="sim_status_title" msgid="4483653750844520871">"SIM күйі"</string>
     <string name="sim_status_title_sim_slot" msgid="416005570947546124">"SIM картасының күйі (sim ұясы: %1$d)"</string>
@@ -3135,7 +3137,7 @@
     <string name="media_volume_option_title" msgid="3553411883305505682">"Mультимeдиа дыбыс деңгейі"</string>
     <string name="remote_media_volume_option_title" msgid="6355710054191873836">"Трансляцияның дыбыс деңгейі"</string>
     <string name="call_volume_option_title" msgid="5028003296631037334">"Сөйлескендегі дыбыс деңгейі"</string>
-    <string name="alarm_volume_option_title" msgid="3184076022438477047">"Дабылдың дыбыс деңгейі"</string>
+    <string name="alarm_volume_option_title" msgid="3184076022438477047">"Оятқыштың дыбыс деңгейі"</string>
     <string name="ring_volume_option_title" msgid="2038924918468372264">"Қоңыраудың дыбыс деңгейі"</string>
     <string name="notification_volume_option_title" msgid="1358512611511348260">"Хабарландырудың дыбыс деңгейі"</string>
     <string name="ringtone_title" msgid="1409086028485922583">"Телефон әуені"</string>
@@ -3675,7 +3677,7 @@
     <string name="default_app" msgid="8861276008866619872">"(Әдепкі)"</string>
     <string name="system_app" msgid="4111402206594443265">"(Жүйе)"</string>
     <string name="system_default_app" msgid="1454719098589351197">"(Жүйенің әдепкі мәні)"</string>
-    <string name="apps_storage" msgid="5658466038269046038">"Қолданбалар қоймасы"</string>
+    <string name="apps_storage" msgid="5658466038269046038">"Қолданбалар жады"</string>
     <string name="usage_access" msgid="2023443456361489516">"Пайдалану тарихын көру"</string>
     <string name="permit_usage_access" msgid="3321727608629752758">"Пайдалануға рұқсат беру"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"Қолданба пайдалану параметрлері"</string>
@@ -4234,7 +4236,7 @@
     <string name="app_names_concatenation_template_2" msgid="8267577900046506189">"<xliff:g id="FIRST_APP_NAME">%1$s</xliff:g>, <xliff:g id="SECOND_APP_NAME">%2$s</xliff:g>"</string>
     <string name="app_names_concatenation_template_3" msgid="5129064036161862327">"<xliff:g id="FIRST_APP_NAME">%1$s</xliff:g>, <xliff:g id="SECOND_APP_NAME">%2$s</xliff:g>, <xliff:g id="THIRD_APP_NAME">%3$s</xliff:g>"</string>
     <string name="storage_photos_videos" msgid="1890829312367477559">"Суреттер және бейнелер"</string>
-    <string name="storage_music_audio" msgid="3661289086715297149">"Музыка және аудиомазмұн"</string>
+    <string name="storage_music_audio" msgid="3661289086715297149">"Музыка және аудио"</string>
     <string name="storage_games" msgid="7740038143749092373">"Ойындар"</string>
     <string name="storage_other_apps" msgid="3202407095387420842">"Басқа қолданбалар"</string>
     <string name="storage_files" msgid="2087824267937487880">"Файлдар"</string>

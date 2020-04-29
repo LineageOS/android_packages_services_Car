@@ -1610,7 +1610,7 @@
     <string name="master_clear_progress_text" msgid="5418958116008976218">"Veuillez patienter..."</string>
     <string name="call_settings_title" msgid="5033906789261282752">"Paramètres d\'appel"</string>
     <string name="call_settings_summary" msgid="2119161087671450035">"Messagerie vocale, transferts d\'appel, mise en attente, numéro de l\'appelant"</string>
-    <string name="tether_settings_title_usb" msgid="4265582654602420357">"Partage connexion Bluetooth par USB"</string>
+    <string name="tether_settings_title_usb" msgid="4265582654602420357">"Partage de connexion via USB"</string>
     <string name="tether_settings_title_wifi" msgid="2060965130234484613">"Point d\'accès Wi-Fi mobile"</string>
     <string name="tether_settings_title_bluetooth" msgid="1999590158102569959">"Partage connexion Bluetooth"</string>
     <string name="tether_settings_title_usb_bluetooth" msgid="1159128764162788159">"Partage de connexion"</string>
@@ -2096,7 +2096,7 @@
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"Vibreur de la sonnerie"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"Vibration au toucher"</string>
     <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"Utiliser le service"</string>
-    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"Corriger les couleurs"</string>
+    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"Utiliser la correction des couleurs"</string>
     <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"Utiliser les sous-titres"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"Continuer"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"Appareils auditifs"</string>
@@ -2466,7 +2466,7 @@
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"Jamais"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"niveau de la batterie : <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_percentage" msgid="7782252476471033843">"Pourcentage de la batterie"</string>
-    <string name="battery_percentage_description" msgid="9219875229166700610">"Afficher le pourcentage de la batterie dans la barre d\'état"</string>
+    <string name="battery_percentage_description" msgid="9219875229166700610">"Afficher dans la barre d\'état"</string>
     <string name="process_stats_summary_title" msgid="9189588417488537954">"Statistiques relatives aux processus"</string>
     <string name="process_stats_summary" msgid="8077998499161221885">"Statistiques détaillées relatives aux processus en cours d\'exécution"</string>
     <string name="app_memory_use" msgid="5126237308545653706">"Utilisation de la mémoire"</string>
@@ -2925,7 +2925,7 @@
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Sauf si une autre application de paiement est ouverte"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"Application à utiliser pour le paiement sans contact :"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Paiement à un terminal"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Configurez une application de paiement. Il suffit ensuite de poser l\'arrière de votre téléphone sur n\'importe quel terminal disposant du symbole Sans contact."</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Configurez une application de paiement. Il suffit ensuite d\'approcher l\'arrière de votre appareil de n\'importe quel terminal disposant du symbole Sans contact."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"OK"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"Plus..."</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"Définir comme mode de paiement prioritaire ?"</string>
@@ -3308,11 +3308,11 @@
     <string name="notification_badging_title" msgid="6311699476970264712">"Autoriser les pastilles de notification"</string>
     <string name="notification_bubbles_title" msgid="9196562435741861317">"Bulles"</string>
     <string name="notification_bubbles_summary" msgid="4624512775901949578">"Accéder rapidement au contenu des applications grâce aux raccourcis flottants"</string>
-    <string name="bubbles_feature_education" msgid="8979109826818881018">"Certaines notifications ainsi que d\'autres contenus peuvent s\'afficher à l\'écran sous forme de bulles. Pour ouvrir une bulle, appuyez dessus. Pour l\'ignorer, faites-la glisser vers le bas de l\'écran."</string>
+    <string name="bubbles_feature_education" msgid="8979109826818881018">"Certaines notifications et d\'autres contenus peuvent s\'afficher à l\'écran sous forme de bulles. Pour ouvrir une bulle, appuyez dessus. Pour l\'ignorer, faites-la glisser vers le bas de l\'écran."</string>
     <string name="bubbles_app_toggle_title" msgid="6401217027603326439">"Bulles"</string>
     <string name="bubbles_app_toggle_summary" msgid="7707611139796553855">"Autoriser <xliff:g id="APP_NAME">%1$s</xliff:g> à afficher certaines notifications sous forme de bulles"</string>
     <string name="bubbles_feature_disabled_dialog_title" msgid="3375452386012079293">"Activer les bulles"</string>
-    <string name="bubbles_feature_disabled_dialog_text" msgid="326945485806386477">"Avant d\'activer les bulles pour cette application, vous devez les activer pour votre appareil. Ceci a une incidence sur les autres applications dans lesquelles vous avez déjà activé les bulles."</string>
+    <string name="bubbles_feature_disabled_dialog_text" msgid="326945485806386477">"Pour activer les bulles dans cette application, vous devez d\'abord les activer pour votre appareil. Ceci a une incidence sur les autres applications dans lesquelles vous avez déjà activé les bulles."</string>
     <string name="bubbles_feature_disabled_button_approve" msgid="6661464849674493351">"Activer pour l\'appareil"</string>
     <string name="bubbles_feature_disabled_button_cancel" msgid="4807286844588486198">"Annuler"</string>
     <string name="swipe_direction_title" msgid="7535031630668873009">"Actions associées au balayage"</string>
@@ -3520,7 +3520,7 @@
     <string name="zen_mode_starred_callers" msgid="1317376207713013472">"contacts favoris"</string>
     <string name="zen_mode_repeat_callers" msgid="1435309867554692340">"Appels répétés"</string>
     <string name="zen_mode_repeat_callers_list" msgid="2750270907597457279">"appelants fréquents"</string>
-    <string name="zen_mode_repeat_callers_title" msgid="7192952181541813487">"Autoriser les appelants fréquents"</string>
+    <string name="zen_mode_repeat_callers_title" msgid="7192952181541813487">"Autoriser les appels répétés"</string>
     <string name="zen_mode_calls_summary_one" msgid="8327371053236689649">"Autoriser les appels de <xliff:g id="CALLER_TYPE">%1$s</xliff:g>"</string>
     <string name="zen_mode_calls_summary_two" msgid="9017678770532673578">"Autoriser les appels de <xliff:g id="CALLER_TYPE">%1$s</xliff:g> et <xliff:g id="CALLERT_TPYE">%2$s</xliff:g>"</string>
     <string name="zen_mode_repeat_callers_summary" msgid="1752513516040525545">"Si la même personne appelle deux fois en <xliff:g id="MINUTES">%d</xliff:g> minutes"</string>
@@ -4131,7 +4131,7 @@
     <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"Pour afficher l\'heure, les notifications et d\'autres informations, saisissez votre téléphone."</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"Pour afficher l\'heure, les notifications et d\'autres informations, saisissez votre tablette."</string>
     <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"Pour afficher l\'heure, les notifications et d\'autres informations, saisissez votre appareil."</string>
-    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Appuyer pour vérifier le téléphone"</string>
+    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Appuyer pour consulter le téléphone"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Appuyer pour vérifier la tablette"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Appuyer pour vérifier l\'appareil"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Pour afficher l\'heure, les notifications et d\'autres informations, appuyez sur l\'écran."</string>

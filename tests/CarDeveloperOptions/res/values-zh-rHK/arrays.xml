@@ -434,7 +434,7 @@
     <item msgid="3474232046138139454">"正常"</item>
     <item msgid="6107138933849816768">"中"</item>
     <item msgid="182695359839047859">"低"</item>
-    <item msgid="8577246509202964244">"嚴重"</item>
+    <item msgid="8577246509202964244">"嚴重不足"</item>
   </string-array>
   <string-array name="proc_stats_process_states">
     <item msgid="7560955722349181440">"持續"</item>

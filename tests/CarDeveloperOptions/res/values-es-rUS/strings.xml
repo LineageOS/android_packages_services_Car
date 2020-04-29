@@ -826,7 +826,7 @@
     <string name="nfc_disclaimer_title" msgid="4860231267351602970">"Activa NFC"</string>
     <string name="nfc_disclaimer_content" msgid="3066113577854565782">"NFC intercambia datos entre este dispositivo y otras orientaciones o dispositivos cercanos, como terminales de pago, lectores de acceso o etiquetas."</string>
     <string name="nfc_secure_settings_title" msgid="5153751163174916581">"Proteger NFC"</string>
-    <string name="nfc_secure_toggle_summary" product="default" msgid="7631183023440112192">"Permitir uso de pagos NFC y Transit solo cuando la pantalla está desbloqueada"</string>
+    <string name="nfc_secure_toggle_summary" product="default" msgid="7631183023440112192">"Permitir el uso de NFC en pagos y transporte público solo cuando la pantalla está desbloqueada"</string>
     <string name="android_beam_settings_title" msgid="3083436415873738389">"Android Beam"</string>
     <string name="android_beam_on_summary" msgid="8068287225180474199">"Listo para transmitir contenido de aplicaciones por NFC"</string>
     <string name="android_beam_off_summary" msgid="7365818039159364600">"Desactivada"</string>
@@ -1586,7 +1586,7 @@
     <string name="master_clear_title" msgid="1560712943955904673">"Borrar todos los datos (restablecer la configuración de fábrica)"</string>
     <string name="master_clear_short_title" msgid="919098101581335101">"Borrar todos los datos"</string>
     <string name="master_clear_desc" product="tablet" msgid="3432373610755760899">"Esta acción borrará todos los datos del "<b>"almacenamiento interno"</b>" de tu tablet, como\n\n"<li>"Tu Cuenta de Google"</li>\n<li>"Los datos y la configuración del sistema y de las apps"</li>\n<li>"Las apps descargadas"</li></string>
-    <string name="master_clear_desc" product="default" msgid="8765543541962866697">"Esta acción borrará todos los datos del "<b>"almacenamiento interno"</b>" de tu teléfono, como\n\n"<li>"Tu Cuenta de Google"</li>\n<li>"Los datos y la configuración del sistema y de las apps"</li>\n<li>"Las apps descargadas"</li></string>
+    <string name="master_clear_desc" product="default" msgid="8765543541962866697">"Se borrarán todos los datos del "<b>"almacenamiento interno"</b>" del teléfono, por ejemplo:\n\n"<li>"Tu Cuenta de Google"</li>\n<li>"Los datos y la configuración del sistema y de las apps"</li>\n<li>"Las apps descargadas"</li></string>
     <string name="master_clear_accounts" product="default" msgid="3432884235445405376">\n\n"Accediste a las siguientes cuentas:\n"</string>
     <string name="master_clear_other_users_present" product="default" msgid="5993259656117566767">\n\n"Hay otros usuarios presentes en este dispositivo.\n"</string>
     <string name="master_clear_desc_also_erases_external" msgid="3947303501615091903"><li>"Música"</li>\n<li>"Fotos"</li>\n<li>"Otros datos de usuario"</li></string>
