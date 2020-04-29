@@ -16,7 +16,6 @@
 package android.car.userlib;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -38,6 +37,7 @@ import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.IActivityManager;
+import android.car.test.mocks.AbstractExtendMockitoTestCase;
 import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
@@ -47,17 +47,14 @@ import android.os.UserManager;
 
 import com.android.internal.widget.LockPatternUtils;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
-import org.mockito.MockitoSession;
-import org.mockito.quality.Strictness;
 
 import java.util.function.Consumer;
 
-public final class InitialUserSetterTest {
+public final class InitialUserSetterTest extends AbstractExtendMockitoTestCase {
 
     @UserInfoFlag
     private static final int NO_FLAGS = 0;
@@ -84,29 +81,23 @@ public final class InitialUserSetterTest {
     // Spy used in tests that need to verify the default behavior as fallback
     private InitialUserSetter mSetter;
 
-    private MockitoSession mSession;
-
     private final MyListener mListener = new MyListener();
+
+    @Override
+    protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
+        session
+            .spyStatic(ActivityManager.class)
+            .spyStatic(UserManager.class);
+    }
 
     @Before
     public void setFixtures() {
-        mSession = mockitoSession()
-                .strictness(Strictness.LENIENT)
-                .spyStatic(ActivityManager.class)
-                .spyStatic(UserManager.class)
-                .initMocks(this)
-                .startMocking();
         mSetter = spy(new InitialUserSetter(mHelper, mUm, mListener,
                 mLockPatternUtils, OWNER_NAME, GUEST_NAME,
                 /* supportsOverrideUserIdProperty= */ false));
 
         doReturn(mIActivityManager).when(() -> ActivityManager.getService());
-        expectCurrentUser(CURRENT_USER_ID);
-    }
-
-    @After
-    public void finishSession() throws Exception {
-        mSession.finishMocking();
+        mockGetCurrentUser(CURRENT_USER_ID);
     }
 
     @Test
@@ -138,7 +129,7 @@ public final class InitialUserSetterTest {
     @Test
     public void testSwitchUser_ok_guestReplaced() throws Exception {
         boolean ephemeral = true; // ephemeral doesn't really matter in this test
-        expectCurrentUser(CURRENT_USER_ID);
+        mockGetCurrentUser(CURRENT_USER_ID);
         expectGuestExists(USER_ID, ephemeral); // ephemeral doesn't matter
         UserInfo newGuest = newGuestUser(NEW_USER_ID, ephemeral);
         expectGuestReplaced(USER_ID, newGuest);
@@ -217,7 +208,7 @@ public final class InitialUserSetterTest {
 
     @Test
     public void testSwitchUser_ok_targetIsCurrentUser() throws Exception {
-        expectCurrentUser(CURRENT_USER_ID);
+        mockGetCurrentUser(CURRENT_USER_ID);
         UserInfo currentUser = expectUserExists(CURRENT_USER_ID);
 
         mSetter.switchUser(CURRENT_USER_ID, true);
@@ -769,10 +760,6 @@ public final class InitialUserSetterTest {
     }
 
     // TODO(b/149099817): move stuff below (and some from above) to common testing code
-
-    public static void expectCurrentUser(@UserIdInt int userId) {
-        doReturn(userId).when(() -> ActivityManager.getCurrentUser());
-    }
 
     public static void setHeadlessSystemUserMode(boolean mode) {
         doReturn(mode).when(() -> UserManager.isHeadlessSystemUserMode());

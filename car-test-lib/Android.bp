@@ -15,7 +15,7 @@
 java_library {
     name: "android.car.testapi",
     srcs: [
-        "src/**/*.java",
+        "src/android/car/testapi/*.java",
     ],
     product_variables: {
         pdk: {
@@ -33,4 +33,14 @@ java_library {
     dist: {
         targets: ["dist_files"],
     }
+}
+
+java_library {
+    name: "android.car.test.utils",
+    srcs: [
+        "src/android/car/test/**/*.java",
+    ],
+    libs: [
+        "mockito-target-extended",
+    ],
 }
