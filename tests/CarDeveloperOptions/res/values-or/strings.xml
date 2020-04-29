@@ -3168,7 +3168,7 @@
       <item quantity="other"><xliff:g id="ON_COUNT">%d</xliff:g>ଥର ସକ୍ଷମ କରାଯାଇଛି</item>
       <item quantity="one">1ଟି ସକ୍ଷମ କରାଯାଇଛି</item>
     </plurals>
-    <string name="zen_mode_settings_title" msgid="3425263414594779244">"ବିରକ୍ତ କର ନାହିଁ"</string>
+    <string name="zen_mode_settings_title" msgid="3425263414594779244">"ବିରକ୍ତ କରନ୍ତୁ ନାହିଁ"</string>
     <string name="zen_mode_settings_turn_on_dialog_title" msgid="3062548369931058282">"\"ବିରକ୍ତ କରନ୍ତୁ ନାହିଁ\" ଅନ୍ କରନ୍ତୁ"</string>
     <string name="zen_mode_behavior_settings_title" msgid="423125904296667490">"ବ୍ୟତିକ୍ରମ"</string>
     <string name="zen_mode_duration_settings_title" msgid="5522668871014735728">"ଡିଫଲ୍ଟ୍ ଅବଧି"</string>
@@ -3201,22 +3201,22 @@
     <string name="zen_mode_restrict_notifications_mute_footer" msgid="3049522809520549054">"ଯେତେବେଳେ ବିଜ୍ଞପ୍ତି ଦେଖାଦେବ, ଆପଣଙ୍କର ଫୋନରେ ସାଉଣ୍ଡ କିମ୍ବା ଭାଇବ୍ରେଟ୍ ହେବନାହିଁ।"</string>
     <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"ବିଜ୍ଞପ୍ତି ଆସିଲେ କୌଣସି ଭିଜୁଆଲ୍ ଦେଖାଯିବ ନାହିଁ କିମ୍ବା ସାଉଣ୍ଡ୍‍ ବାହାରିବ ନାହିଁ"</string>
     <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"ଆପଣ ବିଜ୍ଞପ୍ତିଗୁଡିକୁ ଦେଖିପାରିବେ ନାହିଁ କିମ୍ବା ଶୁଣିପାରିବେ ନାହିଁ"</string>
-    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"ଆପଣଙ୍କର ଫୋନ୍ ନୂଆ କିମ୍ବା ବିଦ୍ୟମାନ ଥିବା ବିଜ୍ଞପ୍ତିକୁ ପ୍ରଦର୍ଶନ କରିବ ନାହିଁ ତଥା ସେଥିପାଇଁ ଭାଇବ୍ରେଟ୍ ହେବ ନାହିଁ କିମ୍ବା ସାଉଣ୍ଡ କରିବ ନାହିଁ । ମନେରଖନ୍ତୁ ଯେ, ଫୋନ୍ କାର୍ଯ୍ୟକଳାପ ଏବଂ ସ୍ଥିତି ପାଇଁ ଗୁରୁତର ବିଜ୍ଞପ୍ତି ତଥାପି ଦୃଶ୍ୟମାନ ହେଉଥିବ।\n\nଆପଣ \'ବିରକ୍ତ କରନ୍ତୁ ନାହିଁ\' ବନ୍ଦ କରିବା ସମୟରେ ସ୍କ୍ରିନ୍‌ର ଉପରୁ ତଳକୁ ସ୍ୱାଇପ୍‍ କରି ଛାଡ଼ି ଯାଇଥିବା ବିଜ୍ଞପ୍ତିଗୁଡ଼ିକୁ ଦେଖିପାରିବେ।"</string>
+    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"ଆପଣଙ୍କର ଫୋନ୍ ନୂଆ କିମ୍ବା ବିଦ୍ୟମାନ ଥିବା ବିଜ୍ଞପ୍ତିକୁ ପ୍ରଦର୍ଶନ କରିବ ନାହିଁ ତଥା ସେଥିପାଇଁ ଭାଇବ୍ରେଟ୍ ହେବ ନାହିଁ କିମ୍ବା ସାଉଣ୍ଡ କରିବ ନାହିଁ । ମନେରଖନ୍ତୁ ଯେ, ଫୋନ୍ କାର୍ଯ୍ୟକଳାପ ଏବଂ ସ୍ଥିତି ପାଇଁ ଗୁରୁତ୍ୱପୂର୍ଣ୍ଣ ବିଜ୍ଞପ୍ତି ତଥାପି ଦେଖାଯିବ।\n\nଆପଣ \'ବିରକ୍ତ କରନ୍ତୁ ନାହିଁ\' ବନ୍ଦ କରିବା ସମୟରେ ସ୍କ୍ରିନ୍‌ର ଉପରୁ ତଳକୁ ସ୍ୱାଇପ୍‍ କରି ଛାଡ଼ି ଯାଇଥିବା ବିଜ୍ଞପ୍ତିଗୁଡ଼ିକୁ ଦେଖିପାରିବେ।"</string>
     <string name="zen_mode_restrict_notifications_custom" msgid="3167252482570424133">"କଷ୍ଟମ"</string>
     <string name="zen_mode_restrict_notifications_enable_custom" msgid="6376983315529894440">"କଷ୍ଟମ ସେଟିଙ୍ଗକୁ ସକ୍ଷମ କରନ୍ତୁ"</string>
     <string name="zen_mode_restrict_notifications_disable_custom" msgid="8004212081465043044">"କଷ୍ଟମ ସେଟିଙ୍ଗକୁ କାଢ଼ିଦିଅନ୍ତୁ"</string>
     <string name="zen_mode_restrict_notifications_summary_muted" msgid="1075196788469381282">"ବିଜ୍ଞପ୍ତି ଆସିଲେ କୌଣସି ସାଉଣ୍ଡ ନାହିଁ"</string>
     <string name="zen_mode_restrict_notifications_summary_custom" msgid="4982187708274505748">"ଆଶିଂକ ଭାବେ ଲୁଚିଯାଇଛି"</string>
     <string name="zen_mode_restrict_notifications_summary_hidden" msgid="7637206880685474111">"ବିଜ୍ଞପ୍ତି ଆସିଲେ କୌଣସି ଭିଜୁଆଲ୍ ଦେଖାଯିବ ନାହିଁ କିମ୍ବା ସାଉଣ୍ଡ୍‍ ବାହାରିବ ନାହିଁ"</string>
-    <string name="zen_mode_what_to_block_title" msgid="2142809942549840800">"କଷ୍ଟମ୍ ସୀମାବଦ୍ଧତା"</string>
-    <string name="zen_mode_block_effects_screen_on" msgid="1042489123800404560">"ସ୍କ୍ରୀନ୍‌ ଅନ୍ ଥିବାବେଳେ"</string>
-    <string name="zen_mode_block_effects_screen_off" msgid="6380935819882837552">"ସ୍କ୍ରୀନ୍‌ ଅଫ୍ ଥିବାବେଳେ"</string>
+    <string name="zen_mode_what_to_block_title" msgid="2142809942549840800">"କଷ୍ଟମ୍ ରେଷ୍ଟ୍ରିକସନ୍"</string>
+    <string name="zen_mode_block_effects_screen_on" msgid="1042489123800404560">"ସ୍କ୍ରିନ୍‌ ଚାଲୁଥିବା ବେଳେ"</string>
+    <string name="zen_mode_block_effects_screen_off" msgid="6380935819882837552">"ସ୍କ୍ରିନ୍‌ ବନ୍ଦ ଥିବାବେଳେ"</string>
     <string name="zen_mode_block_effect_sound" msgid="1499243540186357631">"ସାଉଣ୍ଡ ଓ ଭାଇବ୍ରେଶନ୍‌କୁ ମ୍ୟୁଟ୍ କରନ୍ତୁ"</string>
-    <string name="zen_mode_block_effect_intent" msgid="5666951244667422668">"ସ୍କ୍ରୀନ୍ ଚାଲୁ କରନ୍ତୁ ନାହିଁ"</string>
+    <string name="zen_mode_block_effect_intent" msgid="5666951244667422668">"ସ୍କ୍ରିନ୍ ଚାଲୁ କରନ୍ତୁ ନାହିଁ"</string>
     <string name="zen_mode_block_effect_light" msgid="8679333758037487644">"ଆଲୋକ ଧପଧପ କରନ୍ତୁ ନାହିଁ"</string>
-    <string name="zen_mode_block_effect_peek" msgid="6075662813575910221">"ସ୍କ୍ରୀନ୍ ଉପରେ ବିଜ୍ଞପ୍ତି ଦେଖାନ୍ତୁ ନାହିଁ"</string>
+    <string name="zen_mode_block_effect_peek" msgid="6075662813575910221">"ସ୍କ୍ରିନ୍ ଉପରେ ବିଜ୍ଞପ୍ତି ଦେଖାନ୍ତୁ ନାହିଁ"</string>
     <string name="zen_mode_block_effect_status" msgid="6516614225115681068">"ସ୍କ୍ରିନ୍‌ର ଉପର ପାର୍ଶ୍ୱରେ ଦିଆଯାଇଥିବା ଷ୍ଟାଟସ୍‌ ବାର୍‌ ଆଇକନ୍‌ଗୁଡ଼ିକୁ ଲୁଚାନ୍ତୁ"</string>
-    <string name="zen_mode_block_effect_badge" msgid="3891743027347075136">"ଆପ୍‌ ଆଇକନ୍‌ଗୁଡ଼ିକରେ ବିନ୍ଦୁଗୁଡ଼ିକ ଦ୍ୱାରା ଚିହ୍ନିତ ବିଜ୍ଞପ୍ତିକୁ ଲୁଚାନ୍ତୁ"</string>
+    <string name="zen_mode_block_effect_badge" msgid="3891743027347075136">"ଆପ୍‌ ଆଇକନ୍‌ଗୁଡ଼ିକରେ ବିଜ୍ଞପ୍ତି ବିନ୍ଦୁଗୁଡ଼ିକୁ ଲୁଚାନ୍ତୁ"</string>
     <string name="zen_mode_block_effect_ambient" msgid="6382013125863616197">"ବିଜ୍ଞପ୍ତି ପାଇଁ ଜଗାନ୍ତୁ ନାହିଁ"</string>
     <string name="zen_mode_block_effect_list" msgid="6081548478844912181">"ବିଜ୍ଞପ୍ତି ତାଲିକାଠାରୁ ଲୁଚାନ୍ତୁ"</string>
     <string name="zen_mode_block_effect_summary_none" msgid="7166175186759564510">"ଆଦୌ ନୁହେଁ"</string>
@@ -3225,7 +3225,7 @@
     <string name="zen_mode_block_effect_summary_sound" msgid="4907185880913861880">"ଶବ୍ଦ ଓ କମ୍ପନ"</string>
     <string name="zen_mode_block_effect_summary_some" msgid="6035118904496072665">"ବିଜ୍ଞପ୍ତିଗୁଡ଼ିକର ଶବ୍ଦ, କମ୍ପନ ଓ ଦୃଶ୍ୟ ସଂକେତ"</string>
     <string name="zen_mode_block_effect_summary_all" msgid="2830443565687247759">"ବିଜ୍ଞପ୍ତିଗୁଡ଼ିକର ଶବ୍ଦ, ଦୃଶ୍ୟ ସଂକେତ"</string>
-    <string name="zen_mode_blocked_effects_footer" msgid="4375156159613413924">"ମୌଳିକ ଫୋନ୍ କାର୍ଯ୍ୟ ପାଇଁ ବିଜ୍ଞପ୍ତି ଆବଶ୍ୟକ ଏବଂ ଷ୍ଟାଟସ୍‌କୁ ଆଦୌ ଲୁଚାଇହେବ ନାହିଁ"</string>
+    <string name="zen_mode_blocked_effects_footer" msgid="4375156159613413924">"ମୌଳିକ ଫୋନ୍ କାର୍ଯ୍ୟ ଏବଂ ସ୍ଥିତି ପାଇଁ ଆବଶ୍ୟକ ବିଜ୍ଞପ୍ତି ଆଦୌ ଲୁଚାଇହେବ ନାହିଁ"</string>
     <string name="zen_mode_no_exceptions" msgid="3099578343994492857">"କିଛି ନୁହେଁ"</string>
     <string name="zen_mode_other_options" msgid="7216192179063769057">"ଅନ୍ୟାନ୍ୟ ବିକଲ୍ପ"</string>
     <string name="zen_mode_add" msgid="2533484377786927366">"ଯୋଡନ୍ତୁ"</string>
@@ -3233,7 +3233,7 @@
     <string name="zen_mode_button_turn_on" msgid="1097964136225943415">"ଏବେ ଅନ୍‌ କରନ୍ତୁ"</string>
     <string name="zen_mode_button_turn_off" msgid="3990967728457149454">"ବର୍ତ୍ତମାନ ବନ୍ଦ କରନ୍ତୁ"</string>
     <string name="zen_mode_settings_dnd_manual_end_time" msgid="4307574188962071429">"<xliff:g id="FORMATTED_TIME">%s</xliff:g> ପର୍ଯ୍ୟନ୍ତ \"ବିରକ୍ତ କରନ୍ତୁ ନାହିଁ\" ଅନ୍‌ ରହିବ"</string>
-    <string name="zen_mode_settings_dnd_manual_indefinite" msgid="3701005376825238752">"ଆପଣ ବନ୍ଦ ନକକରିବା ପର୍ଯ୍ୟନ୍ତ \'ବିରକ୍ତ କରନ୍ତୁ ନାହିଁ\' ଅନ୍‌ ରହିବ"</string>
+    <string name="zen_mode_settings_dnd_manual_indefinite" msgid="3701005376825238752">"ଆପଣ ବନ୍ଦ ନକରିବା ପର୍ଯ୍ୟନ୍ତ \'ବିରକ୍ତ କରନ୍ତୁ ନାହିଁ\' ଚାଲୁ‌ ରହିବ"</string>
     <string name="zen_mode_settings_dnd_automatic_rule" msgid="2843297614114625408">"ଏକ (<xliff:g id="RULE_NAME">%s</xliff:g>) ନିୟମ ଦ୍ୱାରା ବିରକ୍ତ କର ନାହିଁ ସ୍ୱଚାଳିତ ଭାବେ ଚାଲୁ ହୋଇଗଲା"</string>
     <string name="zen_mode_settings_dnd_automatic_rule_app" msgid="5103454923160912313">"ଏକ ଆପ୍‌ (<xliff:g id="APP_NAME">%s</xliff:g>) ଦ୍ୱାରା ବିରକ୍ତ କରନ୍ତୁ ନାହିଁ ସ୍ୱଚାଳିତ ଭାବେ ଅନ୍‌ ହେଲା"</string>
     <string name="zen_mode_settings_dnd_custom_settings_footer" msgid="6335108298640066560">"କଷ୍ଟମ୍ ସେଟିଂସ୍ ଥିବା <xliff:g id="RULE_NAMES">%s</xliff:g> ପାଇଁଁ ବିରକ୍ତ କରନ୍ତୁ ନାହିଁ\" ଚାଲୁ ଅଛି।"</string>

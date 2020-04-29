@@ -127,7 +127,7 @@
     <string name="bluetooth_notif_title" msgid="5090288898529286011">"జత చేయడానికి అభ్యర్థన"</string>
     <string name="bluetooth_notif_message" msgid="6612367890895077938">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g>తో జత చేయడానికి నొక్కండి."</string>
     <string name="bluetooth_show_received_files" msgid="5060846395852236652">"స్వీకరించిన ఫైల్‌లు"</string>
-    <string name="bluetooth_show_files_received_via_bluetooth" msgid="1699095577431389560">"బ్లూటూత్ ద్వారా ఫైల్‌లు స్వీకరించబడ్డాయి"</string>
+    <string name="bluetooth_show_files_received_via_bluetooth" msgid="1699095577431389560">"బ్లూటూత్ ద్వారా అందుకున్న ఫైల్‌లు"</string>
     <string name="device_picker" msgid="8345264486071697705">"బ్లూటూత్ పరికరాన్ని ఎంచుకోండి"</string>
     <string name="bluetooth_ask_enablement" msgid="8716802066127746062">"<xliff:g id="APP_NAME">%1$s</xliff:g> బ్లూటూత్‌ను ఆన్ చేయాలనుకుంటోంది"</string>
     <string name="bluetooth_ask_disablement" msgid="7125319551097350783">"<xliff:g id="APP_NAME">%1$s</xliff:g> బ్లూటూత్‌ను ఆఫ్ చేయాలనుకుంటోంది"</string>
@@ -3382,7 +3382,7 @@
     <string name="vr_listener_security_warning_title" msgid="7019322246707645361">"<xliff:g id="SERVICE">%1$s</xliff:g> కోసం VR సేవ ప్రాప్యతను అనుమతించాలా?"</string>
     <string name="vr_listener_security_warning_summary" msgid="5093225583584522067">"మీరు వర్చువల్ రియాలిటీ మోడ్‌లో అనువర్తనాలను ఉపయోగిస్తున్నప్పుడు <xliff:g id="VR_LISTENER_NAME">%1$s</xliff:g> అమలు కాగలదు."</string>
     <string name="display_vr_pref_title" msgid="1088464812293416981">"పరికరం VRలో ఉన్నప్పుడు"</string>
-    <string name="display_vr_pref_low_persistence" msgid="3132583929174794245">"అస్పష్టతను తగ్గించు (సిఫార్సు చేయబడింది)"</string>
+    <string name="display_vr_pref_low_persistence" msgid="3132583929174794245">"బ్లర్ తగ్గించు (సిఫార్సు చేయబడింది)"</string>
     <string name="display_vr_pref_off" msgid="4681320968818852691">"ప్ర‌కాశంలో అస్థిర‌త‌ను త‌గ్గించు"</string>
     <string name="picture_in_picture_title" msgid="4960733106166035448">"చిత్రంలో చిత్రం"</string>
     <string name="picture_in_picture_empty_text" msgid="8664071475324685241">"చిత్రంలో చిత్రానికి మద్దతిచ్చే అనువర్తనాలు ఏవీ ఇన్‌స్టాల్ చేయబడలేదు"</string>

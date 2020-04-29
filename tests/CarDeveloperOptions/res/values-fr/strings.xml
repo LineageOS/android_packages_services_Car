@@ -2466,7 +2466,7 @@
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"Jamais"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"niveau de la batterie : <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_percentage" msgid="7782252476471033843">"Pourcentage de la batterie"</string>
-    <string name="battery_percentage_description" msgid="9219875229166700610">"Afficher le pourcentage de la batterie dans la barre d\'état"</string>
+    <string name="battery_percentage_description" msgid="9219875229166700610">"Afficher dans la barre d\'état"</string>
     <string name="process_stats_summary_title" msgid="9189588417488537954">"Statistiques relatives aux processus"</string>
     <string name="process_stats_summary" msgid="8077998499161221885">"Statistiques détaillées relatives aux processus en cours d\'exécution"</string>
     <string name="app_memory_use" msgid="5126237308545653706">"Utilisation de la mémoire"</string>
@@ -3308,11 +3308,11 @@
     <string name="notification_badging_title" msgid="6311699476970264712">"Autoriser les pastilles de notification"</string>
     <string name="notification_bubbles_title" msgid="9196562435741861317">"Bulles"</string>
     <string name="notification_bubbles_summary" msgid="4624512775901949578">"Accéder rapidement au contenu des applications grâce aux raccourcis flottants"</string>
-    <string name="bubbles_feature_education" msgid="8979109826818881018">"Certaines notifications ainsi que d\'autres contenus peuvent s\'afficher à l\'écran sous forme de bulles. Pour ouvrir une bulle, appuyez dessus. Pour l\'ignorer, faites-la glisser vers le bas de l\'écran."</string>
+    <string name="bubbles_feature_education" msgid="8979109826818881018">"Certaines notifications et d\'autres contenus peuvent s\'afficher à l\'écran sous forme de bulles. Pour ouvrir une bulle, appuyez dessus. Pour l\'ignorer, faites-la glisser vers le bas de l\'écran."</string>
     <string name="bubbles_app_toggle_title" msgid="6401217027603326439">"Bulles"</string>
     <string name="bubbles_app_toggle_summary" msgid="7707611139796553855">"Autoriser <xliff:g id="APP_NAME">%1$s</xliff:g> à afficher certaines notifications sous forme de bulles"</string>
     <string name="bubbles_feature_disabled_dialog_title" msgid="3375452386012079293">"Activer les bulles"</string>
-    <string name="bubbles_feature_disabled_dialog_text" msgid="326945485806386477">"Avant d\'activer les bulles pour cette application, vous devez les activer pour votre appareil. Ceci a une incidence sur les autres applications dans lesquelles vous avez déjà activé les bulles."</string>
+    <string name="bubbles_feature_disabled_dialog_text" msgid="326945485806386477">"Pour activer les bulles dans cette application, vous devez d\'abord les activer pour votre appareil. Ceci a une incidence sur les autres applications dans lesquelles vous avez déjà activé les bulles."</string>
     <string name="bubbles_feature_disabled_button_approve" msgid="6661464849674493351">"Activer pour l\'appareil"</string>
     <string name="bubbles_feature_disabled_button_cancel" msgid="4807286844588486198">"Annuler"</string>
     <string name="swipe_direction_title" msgid="7535031630668873009">"Actions associées au balayage"</string>
