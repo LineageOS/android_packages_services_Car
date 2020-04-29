@@ -21,6 +21,8 @@ import static android.car.VehiclePropertyIds.SWITCH_USER;
 import static android.car.VehiclePropertyIds.USER_IDENTIFICATION_ASSOCIATION;
 import static android.car.test.mocks.CarArgumentMatchers.isProperty;
 import static android.car.test.mocks.CarArgumentMatchers.isPropertyWithValues;
+import static android.car.test.util.VehicleHalTestingHelper.newConfig;
+import static android.car.test.util.VehicleHalTestingHelper.newSubscribableConfig;
 import static android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType.COLD_BOOT;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType.CUSTOM_1;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType.KEY_FOB;
@@ -52,8 +54,6 @@ import android.hardware.automotive.vehicle.V2_0.UserInfo;
 import android.hardware.automotive.vehicle.V2_0.UsersInfo;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 import android.os.UserHandle;
@@ -822,27 +822,5 @@ public final class UserHalServiceTest {
             throw new AssertionError("Called " + mExtraCalls.size() + " times more than expected: "
                     + mExtraCalls);
         }
-    }
-
-    // TODO(b/149099817): move stuff below to common code
-
-    /**
-     * Creates an empty config for the given property.
-     */
-    private static VehiclePropConfig newConfig(int prop) {
-        VehiclePropConfig config = new VehiclePropConfig();
-        config.prop = prop;
-        return config;
-    }
-
-    /**
-     * Creates a config for the given property that passes the
-     * {@link VehicleHal#isPropertySubscribable(VehiclePropConfig)} criteria.
-     */
-    private static VehiclePropConfig newSubscribableConfig(int prop) {
-        VehiclePropConfig config = newConfig(prop);
-        config.access = VehiclePropertyAccess.READ_WRITE;
-        config.changeMode = VehiclePropertyChangeMode.ON_CHANGE;
-        return config;
     }
 }
