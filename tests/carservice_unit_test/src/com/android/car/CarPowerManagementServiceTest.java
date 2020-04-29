@@ -146,8 +146,7 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
         session
             .spyStatic(ActivityManager.class)
-            .spyStatic(CarProperties.class)
-            .spyStatic(Log.class);
+            .spyStatic(CarProperties.class);
     }
 
     @Before
@@ -159,8 +158,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
             .withSystemStateInterface(mSystemStateInterface)
             .withWakeLockInterface(mWakeLockInterface)
             .withIOInterface(mIOInterface).build();
-
-        interceptLogWtfCalls();
 
         setCurrentUser(CURRENT_USER_ID, /* isGuest= */ false);
         setService();
@@ -207,8 +204,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
 
         // display should be turned on as it started with off state.
         assertThat(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS)).isTrue();
-
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -227,8 +222,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
         assertThat(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS)).isFalse();
         mPowerSignalListener.waitForShutdown(WAIT_TIMEOUT_MS);
         mSystemStateInterface.waitForShutdown(WAIT_TIMEOUT_MS);
-
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -244,8 +237,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
         // Verify suspend
         assertStateReceivedForShutdownOrSleepWithPostpone(
                 PowerHalService.SET_DEEP_SLEEP_ENTRY, WAIT_TIMEOUT_LONG_MS, mWakeupTime);
-
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -280,7 +271,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
         // Verify suspend
         assertStateReceivedForShutdownOrSleepWithPostpone(
                 PowerHalService.SET_DEEP_SLEEP_ENTRY, WAIT_TIMEOUT_LONG_MS, mWakeupTime);
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -306,7 +296,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
                         VehicleApPowerStateShutdownParam.CAN_SLEEP));
         assertStateReceivedForShutdownOrSleepWithPostpone(
                 PowerHalService.SET_DEEP_SLEEP_ENTRY, WAIT_TIMEOUT_LONG_MS, mWakeupTime);
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -325,7 +314,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
         assertThat(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS)).isFalse();
         mPowerSignalListener.waitForShutdown(WAIT_TIMEOUT_MS);
         mSystemStateInterface.waitForShutdown(WAIT_TIMEOUT_MS);
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -339,7 +327,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
         // Send the finished signal
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.FINISHED, 0));
         mSystemStateInterface.waitForShutdown(WAIT_TIMEOUT_MS);
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -355,7 +342,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
         mSystemStateInterface.waitForSleepEntryAndWakeup(WAIT_TIMEOUT_MS);
         assertStateReceived(PowerHalService.SET_DEEP_SLEEP_EXIT, 0);
         mPowerSignalListener.waitForSleepExit(WAIT_TIMEOUT_MS);
-        verifyWtfNeverLogged();
     }
 
     /**
@@ -378,7 +364,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
         suspendAndResumeForUserSwitchingTests();
 
         verifyDefaultInitialUserBehaviorCalled();
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -389,7 +374,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
         suspendAndResumeForUserSwitchingTestsWhileDisabledByOem();
 
         verifyUserNotSwitched();
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -401,7 +385,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
         suspendAndResumeForUserSwitchingTestsWhileDisabledByOem();
 
         verifyUserSwitched(NEW_GUEST_ID);
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -413,7 +396,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
 
         verifyUserNotSwitched();
         verifyDefaultInitialUserBehaviorCalled();
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -453,7 +435,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
         suspendAndResumeForUserSwitchingTests();
 
         verifyDefaultInitialUserBehaviorCalled();
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -467,7 +448,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
         suspendAndResumeForUserSwitchingTests();
 
         verifyDefaultInitialUserBehaviorCalled();
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -478,7 +458,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
         suspendAndResumeForUserSwitchingTests();
 
         verifyDefaultInitialUserBehaviorCalled();
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -492,7 +471,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
         suspendAndResumeForUserSwitchingTests();
 
         verifyDefaultInitialUserBehaviorCalled();
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -508,7 +486,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
 
         verifyUserSwitched(10);
         verifyDefaultInitilUserBehaviorNeverCalled();
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -525,7 +502,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
 
         verifyUserCreated("Duffman", 42);
         verifyDefaultInitilUserBehaviorNeverCalled();
-        verifyWtfNeverLogged();
     }
 
     private void setGetUserInfoResponse(Visitor<HalCallback<InitialUserInfoResponse>> visitor) {
