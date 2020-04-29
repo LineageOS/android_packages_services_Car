@@ -27,7 +27,6 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
@@ -51,6 +50,7 @@ import android.car.CarOccupantZoneManager.OccupantTypeEnum;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.settings.CarSettings;
 import android.car.test.mocks.AbstractExtendMockitoTestCase;
+import android.car.testapi.OneEventUserLifecycleListener;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleEventType;
@@ -132,8 +132,8 @@ public final class CarUserServiceTest extends AbstractExtendMockitoTestCase {
     @Mock private Resources mMockedResources;
     @Mock private Drawable mMockedDrawable;
 
-    private final BlockingUserLifecycleListener mUserLifecycleListener =
-            new BlockingUserLifecycleListener();
+    private final OneEventUserLifecycleListener mUserLifecycleListener =
+            new OneEventUserLifecycleListener();
 
     @Captor private ArgumentCaptor<UsersInfo> mUsersInfoCaptor;
 
@@ -1506,42 +1506,6 @@ public final class CarUserServiceTest extends AbstractExtendMockitoTestCase {
         public Bundle getResultData() throws InterruptedException {
             assertCalled();
             return mResultData;
-        }
-    }
-
-    /**
-     * CarUserService now notifies listener in its own handler thread. This wrapper is used to
-     * block test thread until listener is notified.
-     */
-    // TODO(b/149099817): Move this class to a common place
-    private static final class BlockingUserLifecycleListener implements UserLifecycleListener {
-
-        public static final int USER_LIFECYCLE_LISTENER_ON_EVENT_TIMEOUT_SECONDS = 2;
-
-        private final CountDownLatch mLatch = new CountDownLatch(1);
-
-        @Nullable
-        private UserLifecycleEvent mReceivedEvent;
-
-        @Override
-        public void onEvent(UserLifecycleEvent event) {
-            this.mReceivedEvent = event;
-            mLatch.countDown();
-        }
-
-        /**
-         * Blocks until onEvent is invoked.
-         */
-        @Nullable
-        public UserLifecycleEvent waitForEvent() throws InterruptedException {
-            if (!mLatch.await(USER_LIFECYCLE_LISTENER_ON_EVENT_TIMEOUT_SECONDS,
-                    TimeUnit.SECONDS)) {
-                String errorMessage = "mUserLifecycleListenerWrapper.onEvent not called in "
-                        + USER_LIFECYCLE_LISTENER_ON_EVENT_TIMEOUT_SECONDS + " seconds";
-                Log.e(TAG, errorMessage);
-                fail(errorMessage);
-            }
-            return mReceivedEvent;
         }
     }
 }

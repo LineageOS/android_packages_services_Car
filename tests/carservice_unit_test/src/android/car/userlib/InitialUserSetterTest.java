@@ -15,6 +15,8 @@
  */
 package android.car.userlib;
 
+import static android.car.test.mocks.CarArgumentMatchers.isUserInfo;
+
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -23,7 +25,6 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
@@ -49,7 +50,6 @@ import com.android.internal.widget.LockPatternUtils;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 
 import java.util.function.Consumer;
@@ -567,7 +567,7 @@ public final class InitialUserSetterTest extends AbstractExtendMockitoTestCase {
 
     @Test
     public void testStartForegroundUser_nonHeadlessSystemUser() throws Exception {
-        setHeadlessSystemUserMode(false);
+        mockIsHeadlessSystemUserMode(false);
         expectAmStartFgUser(UserHandle.USER_SYSTEM);
 
         assertThat(mSetter.startForegroundUser(UserHandle.USER_SYSTEM)).isTrue();
@@ -575,7 +575,7 @@ public final class InitialUserSetterTest extends AbstractExtendMockitoTestCase {
 
     @Test
     public void testStartForegroundUser_headlessSystemUser() throws Exception {
-        setHeadlessSystemUserMode(true);
+        mockIsHeadlessSystemUserMode(true);
 
         assertThat(mSetter.startForegroundUser(UserHandle.USER_SYSTEM)).isFalse();
 
@@ -761,10 +761,6 @@ public final class InitialUserSetterTest extends AbstractExtendMockitoTestCase {
 
     // TODO(b/149099817): move stuff below (and some from above) to common testing code
 
-    public static void setHeadlessSystemUserMode(boolean mode) {
-        doReturn(mode).when(() -> UserManager.isHeadlessSystemUserMode());
-    }
-
     @NonNull
     public static UserInfo newSecondaryUser(@UserIdInt int userId) {
         UserInfo userInfo = new UserInfo();
@@ -783,31 +779,4 @@ public final class InitialUserSetterTest extends AbstractExtendMockitoTestCase {
         }
         return userInfo;
     }
-
-    /**
-     * Custom Mockito matcher to check if a {@link UserInfo} has the given {@code userId}.
-     */
-    public static UserInfo isUserInfo(@UserIdInt int userId) {
-        return argThat(new UserInfoMatcher(userId));
-    }
-
-    private static class UserInfoMatcher implements ArgumentMatcher<UserInfo> {
-
-        public final @UserIdInt int userId;
-
-        private UserInfoMatcher(@UserIdInt int userId) {
-            this.userId = userId;
-        }
-
-        @Override
-        public boolean matches(@Nullable UserInfo argument) {
-            return argument != null && argument.id == userId;
-        }
-
-        @Override
-        public String toString() {
-            return "UserInfo(userId=" + userId + ")";
-        }
-    }
-
 }
