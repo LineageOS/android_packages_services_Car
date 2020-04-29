@@ -138,6 +138,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Mock private UserManager mMockedUserManager;
     @Mock private Resources mMockedResources;
     @Mock private Drawable mMockedDrawable;
+    @Mock private UserMetrics mUserMetrics;
 
     private final OneEventUserLifecycleListener mUserLifecycleListener =
             new OneEventUserLifecycleListener();
@@ -198,7 +199,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                         mMockedCarUserManagerHelper,
                         mMockedUserManager,
                         mMockedIActivityManager,
-                        3);
+                        3, mUserMetrics);
 
         mFakeCarOccupantZoneService = new FakeCarOccupantZoneService(mCarUserService);
         // Restore default value at the beginning of each test.
@@ -1101,6 +1102,26 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         assertThat(response.getValues()).asList().containsExactly(10, 20, 30)
                 .inOrder();
         assertThat(response.getErrorMessage()).isEqualTo("D'OH!");
+    }
+
+    @Test
+    public void testUserMetric_SendEvent() {
+        int userId = 99;
+        sendUserSwitchingEvent(userId);
+
+        verify(mUserMetrics).onEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING,
+                0, UserHandle.USER_NULL, userId);
+    }
+
+    @Test
+    public void testUserMetric_FirstUnlock() {
+        int userId = 99;
+        long timestampMs = 0;
+        long duration = 153;
+        int halResponseTime = 5;
+        mCarUserService.onFirstUserUnlocked(userId, timestampMs, duration, halResponseTime);
+
+        verify(mUserMetrics).logFirstUnlockedUser(userId, timestampMs, duration, halResponseTime);
     }
 
     @NonNull
