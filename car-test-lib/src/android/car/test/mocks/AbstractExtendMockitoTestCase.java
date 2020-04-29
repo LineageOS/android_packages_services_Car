@@ -21,6 +21,7 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSess
 import android.annotation.NonNull;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
+import android.os.UserManager;
 import android.util.Log;
 
 import com.android.dx.mockito.inline.extended.StaticMockitoSessionBuilder;
@@ -110,6 +111,20 @@ public abstract class AbstractExtendMockitoTestCase {
         doReturn(userId).when(() -> ActivityManager.getCurrentUser());
     }
 
+    /**
+     * Mocks a call to {@link UserManager#isHeadlessSystemUserMode()}.
+     *
+     * @param mode result of such call
+     *
+     * @throws IllegalStateException if class didn't override {@link #newSessionBuilder()} and
+     * called {@code spyStatic(UserManager.class)} on the session passed to it.
+     */
+    protected final void mockIsHeadlessSystemUserMode(boolean mode) {
+        if (VERBOSE) Log.v(TAG, getLogPrefix() + "mockIsHeadlessSystemUserMode(" + mode + ")");
+        assertSpied(UserManager.class);
+        doReturn(mode).when(() -> UserManager.isHeadlessSystemUserMode());
+    }
+
     @NonNull
     private MockitoSessionBuilder newSessionBuilder() {
         StaticMockitoSessionBuilder builder = mockitoSession()
@@ -149,6 +164,9 @@ public abstract class AbstractExtendMockitoTestCase {
             mStaticMockedClasses = staticMockedClasses;
         }
 
+        // TODO(b/148403316): this is only used to mock Settings.Global / Settings.Secure, and using
+        // spy on such occurrence doesn't work - hopefully we can get rid of this method by
+        // refactoring how Settings are mocked.
         /**
          * Same as {@link StaticMockitoSessionBuilder#mockStatic(Class)}.
          */
