@@ -25,7 +25,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 
 import android.car.settings.CarSettings;
-import android.car.test.mocks.AbstractExtendMockitoTestCase;
+import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.ContentResolver;
 import android.provider.Settings;
 
@@ -37,7 +37,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 @RunWith(AndroidJUnit4.class)
-public class CarAudioSettingsUnitTest extends AbstractExtendMockitoTestCase {
+public class CarAudioSettingsUnitTest extends AbstractExtendedMockitoTestCase {
 
     private static final int TEST_USER_ID_1 = 11;
 

@@ -35,7 +35,7 @@ import android.app.AppOpsManager;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.settings.CarSettings;
-import android.car.test.mocks.AbstractExtendMockitoTestCase;
+import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleListener;
@@ -66,7 +66,7 @@ import org.mockito.Mock;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class CarUserNoticeServiceTest extends AbstractExtendMockitoTestCase {
+public class CarUserNoticeServiceTest extends AbstractExtendedMockitoTestCase {
 
     @Mock
     private Context mMockContext;

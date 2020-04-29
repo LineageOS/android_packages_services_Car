@@ -15,14 +15,19 @@
  */
 package android.car.test.mocks;
 
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
+
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.notNull;
 
 import android.annotation.NonNull;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.os.UserManager;
 import android.util.Log;
+import android.util.Slog;
 
 import com.android.dx.mockito.inline.extended.StaticMockitoSessionBuilder;
 import com.android.internal.util.Preconditions;
@@ -30,6 +35,7 @@ import com.android.internal.util.Preconditions;
 import org.junit.After;
 import org.junit.Before;
 import org.mockito.MockitoSession;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.quality.Strictness;
 import org.mockito.session.MockitoSessionBuilder;
 
@@ -53,13 +59,16 @@ import java.util.List;
       libstaticjvmtiagent \
  *  </code></pre>
  */
-public abstract class AbstractExtendMockitoTestCase {
+public abstract class AbstractExtendedMockitoTestCase {
 
     private static final boolean VERBOSE = false;
-    private static final String TAG = AbstractExtendMockitoTestCase.class.getSimpleName();
+    private static final String TAG = AbstractExtendedMockitoTestCase.class.getSimpleName();
 
     private final List<Class<?>> mStaticSpiedClasses = new ArrayList<>();
     private final List<Class<?>> mStaticMockedClasses = new ArrayList<>();
+
+    // Tracks (S)Log.wtf() calls made during code execution, then used on verifyWtfNeverLogged()
+    private final List<RuntimeException> mWtfs = new ArrayList<>();
 
     private MockitoSession mSession;
 
@@ -125,6 +134,82 @@ public abstract class AbstractExtendMockitoTestCase {
         doReturn(mode).when(() -> UserManager.isHeadlessSystemUserMode());
     }
 
+    /**
+     * Spy calls to {@code Log.wtf}, so they can be verified with {@link #verifyWtfNeverLogged()}
+     * or {@link #verifyWtfLogged()}.
+     *
+     * @throws IllegalStateException if class didn't override {@link #newSessionBuilder()} and
+     * called {@code spyStatic(Log.class)} on the session passed to it.
+     */
+    protected final void interceptLogWtfCalls() {
+        if (VERBOSE) Log.v(TAG, getLogPrefix() + "interceptLogWtfCalls()");
+        assertSpied(Log.class);
+        doAnswer((invocation) -> {
+            return addWtf(invocation);
+        }).when(() -> Log.wtf(anyString(), anyString()));
+        doAnswer((invocation) -> {
+            return addWtf(invocation);
+        }).when(() -> Log.wtf(anyString(), anyString(), notNull()));
+    }
+
+    /**
+     * Spy calls to {@code Slog.wtf}, so they can be verified with {@link #verifyWtfNeverLogged()}
+     * or {@link #verifyWtfLogged()}.
+     *
+     * @throws IllegalStateException if class didn't override {@link #newSessionBuilder()} and
+     * called {@code spyStatic(Slog.class)} on the session passed to it.
+     */
+    protected final void interceptSlogWtfCalls() {
+        if (VERBOSE) Log.v(TAG, getLogPrefix() + "interceptSlogWtfCalls()");
+        assertSpied(Slog.class);
+        doAnswer((invocation) -> {
+            return addWtf(invocation);
+        }).when(() -> Slog.wtf(anyString(), anyString()));
+        doAnswer((invocation) -> {
+            return addWtf(invocation);
+        }).when(() -> Slog.wtf(anyString(), anyString(), notNull()));
+    }
+
+    private Object addWtf(InvocationOnMock invocation) {
+        String message = "Called " + invocation;
+        Log.d(TAG, message); // Log always, as some test expect it
+        mWtfs.add(new IllegalStateException(message));
+        return null;
+    }
+
+    /**
+     * Asserts that at least one {@code log.wtf()} call was made.
+     *
+     * <p>Subclass must call {@link #interceptLogWtfCalls()} or {@link #interceptSlogWtfCalls()}
+     * first.
+     */
+    protected final void verifyWtfLogged() {
+        Preconditions.checkState(mWtfs.isEmpty(), "no wtf() called");
+    }
+
+    // TODO(b/155231960): should be part of @After, but then it would hide the real test failure
+    // (if any). We'd need a custom rule (like CTS's SafeCleaner or an internal one) for it...
+    /**
+     * Asserts that no {@code log.wtf()} call was made.
+     *
+     * <p>Subclass must call {@link #interceptLogWtfCalls()} or {@link #interceptSlogWtfCalls()}
+     * first.
+     */
+    protected final void verifyWtfNeverLogged() {
+        int size = mWtfs.size();
+
+        switch (size) {
+            case 0:
+                return;
+            case 1:
+                throw mWtfs.get(0);
+            default:
+                StringBuilder msg = new StringBuilder("wtf called ").append(size).append(" times")
+                        .append(": ").append(mWtfs);
+                throw new AssertionError(msg.toString());
+        }
+    }
+
     @NonNull
     private MockitoSessionBuilder newSessionBuilder() {
         StaticMockitoSessionBuilder builder = mockitoSession()
@@ -145,7 +230,7 @@ public abstract class AbstractExtendMockitoTestCase {
 
     /**
      * Custom {@code MockitoSessionBuilder} used to make sure some pre-defined mock stations
-     * (like {@link AbstractExtendMockitoTestCase#mockGetCurrentUser(int)} fail if the test case
+     * (like {@link AbstractExtendedMockitoTestCase#mockGetCurrentUser(int)} fail if the test case
      * didn't explicitly set it to spy / mock the required classes.
      *
      * <p><b>NOTE: </b>for now it only provides simple {@link #mockStatic(Class)} and

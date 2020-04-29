@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 import android.automotive.watchdog.ICarWatchdog;
 import android.automotive.watchdog.ICarWatchdogClient;
 import android.automotive.watchdog.TimeoutLength;
-import android.car.test.mocks.AbstractExtendMockitoTestCase;
+import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.os.Binder;
@@ -52,7 +52,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * <p>This class contains unit tests for the {@link CarWatchdogService}.
  */
-public class CarWatchdogServiceTest extends AbstractExtendMockitoTestCase {
+public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
 
     private static final String CAR_WATCHDOG_DAEMON_INTERFACE =
             "android.automotive.watchdog.ICarWatchdog/default";
