@@ -678,10 +678,8 @@ public class ICarImpl extends ICar.Stub {
             mCarUserService.dumpFirstUserUnlockDuration(writer);
         } else if ("--help".equals(args[0])) {
             showDumpHelp(writer);
-        } else if (Build.IS_USERDEBUG || Build.IS_ENG) {
-            execShellCmd(args, writer);
         } else {
-            writer.println("Commands not supported in " + Build.TYPE);
+            execShellCmd(args, writer);
         }
     }
 
