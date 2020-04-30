@@ -81,7 +81,6 @@ import android.hardware.automotive.vehicle.V2_0.UsersInfo;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.RemoteException;
-import android.os.SystemClock;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
@@ -107,6 +106,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -832,8 +832,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         int requestId = 42;
         mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
         mSwitchUserResponse.requestId = requestId;
-        int waitTime = 2500;
-        mockHalSwitchLateResponse(mAdminUser.id, mGuestUser, mSwitchUserResponse, waitTime);
+        CountDownLatch halCallbackLatch = new CountDownLatch(1);
+        mockHalSwitchLateResponse(mAdminUser.id, mGuestUser, mSwitchUserResponse, halCallbackLatch);
         mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture);
 
         // calling another user switch before unlock
@@ -847,7 +847,10 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mCarUserService.switchUser(mRegularUser.id, mAsyncCallTimeoutMs, futureNewRequest);
         mockCurrentUser(mRegularUser);
         sendUserUnlockedEvent(mRegularUser.id);
-        assertThat(mUserSwitchFuture.get(waitTime + 100, TimeUnit.MILLISECONDS).getStatus())
+        halCallbackLatch.countDown();
+
+        UserSwitchResult result = getUserSwitchResult();
+        assertThat(result.getStatus())
                 .isEqualTo(UserSwitchResult.STATUS_TARGET_USER_ABANDONED_DUE_TO_A_NEW_REQUEST);
         assertPostSwitch(newRequestId, mRegularUser.id, mRegularUser.id);
         assertHalSwitch(mAdminUser.id, mGuestUser.id, mAdminUser.id, mRegularUser.id);
@@ -1135,6 +1138,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
     private void mockCurrentUser(@NonNull UserInfo user) throws Exception {
         when(mMockedIActivityManager.getCurrentUser()).thenReturn(user);
+        mockGetCurrentUser(user.id);
     }
 
     private void mockAmSwitchUser(@NonNull UserInfo user, boolean result) throws Exception {
@@ -1162,7 +1166,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
     private void mockHalSwitchLateResponse(@UserIdInt int currentUserId,
             @NonNull UserInfo androidTargetUser, @Nullable SwitchUserResponse response,
-            int waitTime) {
+            CountDownLatch latch) {
         android.hardware.automotive.vehicle.V2_0.UserInfo halTargetUser =
                 new android.hardware.automotive.vehicle.V2_0.UserInfo();
         halTargetUser.userId = androidTargetUser.id;
@@ -1174,7 +1178,11 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
             HalCallback<SwitchUserResponse> callback =
                     (HalCallback<SwitchUserResponse>) invocation.getArguments()[3];
             new Thread(() -> {
-                SystemClock.sleep(waitTime);
+                // TODO(149099817): Create a silent await helper method
+                try {
+                    latch.await(10000, TimeUnit.MILLISECONDS);
+                } catch (Exception e) {
+                }
                 callback.onResponse(HalCallback.STATUS_OK, response);
             }).start();
             return null;
