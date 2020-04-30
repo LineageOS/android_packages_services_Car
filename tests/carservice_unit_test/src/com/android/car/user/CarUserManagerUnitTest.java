@@ -15,16 +15,14 @@
  */
 package com.android.car.user;
 
+import static android.car.test.util.UserTestingHelper.newUsers;
+import static android.car.testapi.CarMockitoHelper.mockHandleRemoteExceptionFromCarServiceWithDefaultValue;
 import static android.os.UserHandle.USER_SYSTEM;
-
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
@@ -35,7 +33,7 @@ import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.car.Car;
 import android.car.ICarUserService;
-import android.car.test.mocks.AbstractExtendMockitoTestCase;
+import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.user.CarUserManager;
 import android.car.user.UserSwitchResult;
 import android.content.pm.UserInfo;
@@ -48,13 +46,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
 
-public final class CarUserManagerUnitTest extends AbstractExtendMockitoTestCase {
+public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCase {
 
     private static final long ASYNC_TIMEOUT_MS = 500;
 
@@ -79,7 +75,7 @@ public final class CarUserManagerUnitTest extends AbstractExtendMockitoTestCase 
 
     @Test
     public void testIsValidUser_headlessSystemUser() {
-        setHeadlessSystemUserMode(true);
+        mockIsHeadlessSystemUserMode(true);
         setExistingUsers(USER_SYSTEM);
 
         assertThat(mMgr.isValidUser(USER_SYSTEM)).isFalse();
@@ -87,7 +83,7 @@ public final class CarUserManagerUnitTest extends AbstractExtendMockitoTestCase 
 
     @Test
     public void testIsValidUser_nonHeadlessSystemUser() {
-        setHeadlessSystemUserMode(false);
+        mockIsHeadlessSystemUserMode(false);
         setExistingUsers(USER_SYSTEM);
 
         assertThat(mMgr.isValidUser(USER_SYSTEM)).isTrue();
@@ -130,7 +126,7 @@ public final class CarUserManagerUnitTest extends AbstractExtendMockitoTestCase 
     @Test
     public void testSwitchUser_remoteException() throws Exception {
         expectServiceSwitchUserSucceeds(11);
-        expectCarHandleExceptionReturnsDefaultValue();
+        mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
 
         AndroidFuture<UserSwitchResult> future = mMgr.switchUser(11);
 
@@ -167,31 +163,7 @@ public final class CarUserManagerUnitTest extends AbstractExtendMockitoTestCase 
     }
 
     private void setExistingUsers(int... userIds) {
-        List<UserInfo> users = toUserInfoList(userIds);
+        List<UserInfo> users = newUsers(userIds);
         when(mUserManager.getUsers()).thenReturn(users);
-    }
-
-    private static List<UserInfo> toUserInfoList(int... userIds) {
-        return Arrays.stream(userIds)
-                .mapToObj(id -> toUserInfo(id))
-                .collect(Collectors.toList());
-    }
-
-    // TODO(b/149099817): move to common code
-
-    private static UserInfo toUserInfo(int userId) {
-        UserInfo user = new UserInfo();
-        user.id = userId;
-        return user;
-    }
-
-    private static void setHeadlessSystemUserMode(boolean mode) {
-        doReturn(mode).when(() -> UserManager.isHeadlessSystemUserMode());
-    }
-
-    private void expectCarHandleExceptionReturnsDefaultValue() {
-        doAnswer((invocation) -> {
-            return invocation.getArguments()[1];
-        }).when(mCar).handleRemoteExceptionFromCarService(isA(RemoteException.class), any());
     }
 }

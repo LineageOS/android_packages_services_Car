@@ -80,11 +80,10 @@
     <string name="sdcard_format" product="default" msgid="4831611387627849108">"Borrar tarxeta SD"</string>
     <string name="preview_pager_content_description" msgid="5731599395893090038">"Vista previa"</string>
     <string name="preview_page_indicator_content_description" msgid="3192955679074998362">"Vista previa, páxina <xliff:g id="CURRENT_PAGE">%1$d</xliff:g> de <xliff:g id="NUM_PAGES">%2$d</xliff:g>"</string>
-    <string name="font_size_summary" msgid="9120023206321191067">"Reduce ou amplía o texto da pantalla."</string>
+    <string name="font_size_summary" msgid="9120023206321191067">"Reduce ou amplía o tamaño do texto na pantalla."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Reducir"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Ampliar"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Texto de mostra"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"O marabilloso mago de Oz"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"Capítulo 11: A marabillosa Cidade Esmeralda de Oz"</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wifi"</item>
+    <item msgid="2271962426654621656">"Datos móbiles"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Se non hai ningunha rede wifi dispoñible, utilizar a rede móbil"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Se a rede de telefonía móbil non está dispoñible, utiliza a wifi"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Chama por wifi. Se se perde a conexión wifi, a chamada rematará."</string>
@@ -1173,7 +1175,7 @@
     <string name="color_mode_option_natural" msgid="1292837781836645320">"Naturais"</string>
     <string name="color_mode_option_boosted" msgid="453557938434778933">"Realzadas"</string>
     <string name="color_mode_option_saturated" msgid="7758384943407859851">"Saturadas"</string>
-    <string name="color_mode_option_automatic" msgid="6572718611315165117">"Automática"</string>
+    <string name="color_mode_option_automatic" msgid="6572718611315165117">"Automáticas"</string>
     <string name="color_mode_summary_natural" msgid="1247153893843263340">"Utiliza só cores precisas"</string>
     <string name="color_mode_summary_automatic" msgid="6066740785261330514">"Axuste entre cores vivas e precisas"</string>
     <string name="accelerometer_summary_on" product="tablet" msgid="5750977897791656412">"Cambia a orientación automaticamente ao xirar a tableta"</string>
@@ -1210,9 +1212,9 @@
     <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"A función Pantalla adaptable utiliza a cámara dianteira para ver se alguén está mirando a pantalla. Funciona no dispositivo e as imaxes nunca se almacenan nin envían a Google."</string>
     <string name="night_display_title" msgid="1305002424893349814">"Luz nocturna"</string>
     <string name="night_display_text" msgid="5330502493684652527">"A función Luz nocturna dálle un ton ámbar á pantalla pola noite para que che resulte máis fácil mirala con pouca luz e che axude a coller o sono."</string>
-    <string name="night_display_auto_mode_title" msgid="8493573087102481588">"Planificar"</string>
+    <string name="night_display_auto_mode_title" msgid="8493573087102481588">"Planificación"</string>
     <string name="night_display_auto_mode_never" msgid="2897444637217807088">"Nunca"</string>
-    <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"Actívase en horario personalizado"</string>
+    <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"Actívase no horario escollido"</string>
     <string name="night_display_auto_mode_twilight" msgid="4000162110017520674">"Actívase do solpor ao amencer"</string>
     <string name="night_display_start_time_title" msgid="1069255169673371077">"Hora de inicio"</string>
     <string name="night_display_end_time_title" msgid="2760793157124245911">"Hora de finalización"</string>
@@ -1796,7 +1798,7 @@
     <string name="install_all_warning" product="device" msgid="9141585291103603515">"O teu dispositivo e os datos persoais son máis vulnerables aos ataques de aplicacións descoñecidas. Ao instalar aplicacións desta fonte, aceptas que es responsable dos danos que se poidan producir no dispositivo ou da perda de datos que se poida derivar do seu uso."</string>
     <string name="advanced_settings" msgid="6282069364060968122">"Configuración avanzada"</string>
     <string name="advanced_settings_summary" msgid="5912237062506771716">"Activa máis opcións de configuración"</string>
-    <string name="application_info_label" msgid="3886253474964599105">"Info da app"</string>
+    <string name="application_info_label" msgid="3886253474964599105">"Información das aplicacións"</string>
     <string name="storage_label" msgid="1109537840103290384">"Almacenamento"</string>
     <string name="auto_launch_label" msgid="47089737922907379">"Abrir de forma predeterminada"</string>
     <string name="auto_launch_label_generic" msgid="7865828543459493308">"Valores predeterminados"</string>
@@ -2296,8 +2298,8 @@
       <item quantity="one">Restrinxiuse recentemente a aplicación %1$s</item>
     </plurals>
     <plurals name="battery_tip_restrict_summary" formatted="false" msgid="984148373944071669">
-      <item quantity="other">%2$d aplicacións utilizan moita batería en segundo plano</item>
-      <item quantity="one">A aplicación %1$s utiliza moita batería en segundo plano</item>
+      <item quantity="other">%2$d apps usan moita batería en segundo plano</item>
+      <item quantity="one">%1$s usa moita batería en segundo plano</item>
     </plurals>
     <plurals name="battery_tip_restrict_handled_summary" formatted="false" msgid="469696766640020557">
       <item quantity="other">Estas aplicacións non se poden executar en segundo plano</item>
@@ -2447,7 +2449,7 @@
     <string name="battery_saver" msgid="3989710213758938398">"Aforro de batería"</string>
     <string name="battery_saver_auto_title" msgid="4158659069641849952">"Activar automaticamente"</string>
     <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"Sen planificación"</string>
-    <string name="battery_saver_auto_routine" msgid="886514412067906980">"Baseada na túa rutina"</string>
+    <string name="battery_saver_auto_routine" msgid="886514412067906980">"Segundo a túa rutina"</string>
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"Baseada nunha porcentaxe"</string>
     <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"A función Aforro de batería actívase se se prevé que a batería pode esgotarse antes da seguinte carga. Esta estimación realízase a partir da rutina que segues habitualmente"</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Activarase cando a batería estea ao <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
@@ -2604,8 +2606,7 @@
     <string name="background_data_summary" msgid="799640633948841990">"Aplicacións poden sincronizar, enviar e recibir datos sempre"</string>
     <string name="background_data_dialog_title" msgid="8306650658158895976">"Des. datos 2º plano?"</string>
     <string name="background_data_dialog_message" msgid="8126774244911656527">"A desactivación dos datos en segundo plano amplía a duración da batería e reduce o uso de datos. É posible que algunhas aplicacións continúen utilizando a conexión de datos en segundo plano."</string>
-    <!-- no translation found for sync_automatically (5746117156896468099) -->
-    <skip />
+    <string name="sync_automatically" msgid="5746117156896468099">"Sincronizar automat. datos das apps"</string>
     <string name="sync_enabled" msgid="535172627223336983">"Sincronización activada"</string>
     <string name="sync_disabled" msgid="713721807204805062">"Sen sincronización"</string>
     <string name="sync_error" msgid="988155155932442765">"Erro de sincronización"</string>
@@ -2915,7 +2916,7 @@
     <string name="apps_with_restrictions_settings_button" msgid="5065896213467171744">"Ampliar axustes aplicación"</string>
     <string name="nfc_payment_settings_title" msgid="5070077706735415291">"Tocar e pagar"</string>
     <string name="nfc_payment_how_it_works" msgid="7607901964687787177">"Como funciona"</string>
-    <string name="nfc_payment_no_apps" msgid="8844440783395420860">"Paga co teu teléfono nas tendas"</string>
+    <string name="nfc_payment_no_apps" msgid="8844440783395420860">"Paga co teléfono nas tendas"</string>
     <string name="nfc_payment_default" msgid="7869273092463612271">"Aplicación de pago predeterminada"</string>
     <string name="nfc_payment_default_not_set" msgid="955804193510335338">"Sen configurar"</string>
     <string name="nfc_payment_app_and_desc" msgid="102312684211458190">"<xliff:g id="APP">%1$s</xliff:g> - <xliff:g id="DESCRIPTION">%2$s</xliff:g>"</string>
@@ -3200,7 +3201,7 @@
     <string name="zen_mode_restrict_notifications_mute_footer" msgid="3049522809520549054">"O teléfono non vibrará nin emitirá sons cando cheguen notificacións."</string>
     <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"Notificacións sen son nin elementos visuais"</string>
     <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"Non verás nin escoitarás notificacións"</string>
-    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"O teléfono non mostrará notificacións, nin vibrará nin emitirá sons con notificacións novas ou existentes. Ten en conta que se seguirán mostrando as notificacións esenciais para o estado e a actividade do teléfono.\n\nCando desactives o modo Non molestar, poderás pasar o dedo cara abaixo desde a parte superior da pantalla para ler as notificacións que non viches."</string>
+    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"O teléfono non mostrará notificacións, vibrará nin emitirá sons con notificacións novas ou existentes. Ten en conta que se seguirán mostrando as notificacións esenciais para o estado e a actividade do teléfono.\n\nCando desactives o modo Non molestar, poderás pasar o dedo cara abaixo desde a parte superior da pantalla para ler as notificacións que non viches."</string>
     <string name="zen_mode_restrict_notifications_custom" msgid="3167252482570424133">"Configuración personalizada"</string>
     <string name="zen_mode_restrict_notifications_enable_custom" msgid="6376983315529894440">"Activar configuración personalizada"</string>
     <string name="zen_mode_restrict_notifications_disable_custom" msgid="8004212081465043044">"Quitar configuración personalizada"</string>
@@ -3495,7 +3496,7 @@
     <string name="zen_calls_summary_starred_repeat" msgid="9191394641577678207">"De contactos marcados con estrela e chamadas repetidas"</string>
     <string name="zen_calls_summary_contacts_repeat" msgid="7747592096431111510">"Dos contactos e de chamadas repetidas"</string>
     <string name="zen_calls_summary_repeat_only" msgid="8839703337232747964">"Só de chamadas repetidas"</string>
-    <string name="zen_mode_from_none" msgid="7683889985618637010">"De ninguén"</string>
+    <string name="zen_mode_from_none" msgid="7683889985618637010">"Ninguén"</string>
     <string name="zen_mode_from_none_calls" msgid="2967739140346917546">"Non permitir ningunha chamada"</string>
     <string name="zen_mode_from_none_messages" msgid="9069143820057833634">"Non permitir ningunha mensaxe"</string>
     <string name="zen_mode_alarms" msgid="5528707742250954290">"Permitir alarmas"</string>
@@ -3695,7 +3696,7 @@
     <string name="process_format" msgid="8575347150598564509">"<xliff:g id="APP_NAME">%1$s</xliff:g> (<xliff:g id="COUNT">%2$d</xliff:g>)"</string>
     <string name="high_power_apps" msgid="2518319744362028920">"Optimización da batería"</string>
     <string name="additional_battery_info" msgid="6877663897819271203">"Alertas de uso"</string>
-    <string name="show_all_apps" msgid="5442552004569634846">"Mostrar uso completo do dispositivo"</string>
+    <string name="show_all_apps" msgid="5442552004569634846">"Uso do dispositivo"</string>
     <string name="hide_extra_apps" msgid="6798261081113299441">"Mostrar uso das aplicacións"</string>
     <plurals name="power_high_usage_summary" formatted="false" msgid="4658343710126205199">
       <item quantity="other"><xliff:g id="NUMBER">%2$d</xliff:g> aplicacións presentan un comportamento anormal</item>
@@ -3832,7 +3833,7 @@
     <string name="screen_zoom_title" msgid="164369086350486104">"Tamaño de visualización"</string>
     <string name="screen_zoom_short_summary" msgid="5508079362742276703">"Reduce ou amplía os elementos da pantalla"</string>
     <string name="screen_zoom_keywords" msgid="8358462497896524092">"densidade de visualización, zoom da pantalla, escala, escalado"</string>
-    <string name="screen_zoom_summary" msgid="5294003755961312560">"Reduce ou amplía os elementos da pantalla. É posible que algunhas aplicacións da pantalla cambien de posición."</string>
+    <string name="screen_zoom_summary" msgid="5294003755961312560">"Reduce ou amplía o tamaño dos elementos na pantalla. É posible que algunhas aplicacións da pantalla cambien de posición."</string>
     <string name="screen_zoom_preview_title" msgid="2924312934036753091">"Vista previa"</string>
     <string name="screen_zoom_make_smaller_desc" msgid="1374501139722916729">"Facer máis pequeno"</string>
     <string name="screen_zoom_make_larger_desc" msgid="5306684807895846141">"Facer máis grande"</string>

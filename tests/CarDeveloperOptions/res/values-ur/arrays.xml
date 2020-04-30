@@ -38,7 +38,16 @@
     <item msgid="5827960506924849753">"10 منٹ"</item>
     <item msgid="6677424950124253938">"30 منٹ"</item>
   </string-array>
-    <!-- no translation found for dream_timeout_entries:7 (8271452751594598661) -->
+  <string-array name="dream_timeout_entries">
+    <item msgid="6487043225269853023">"کبھی نہیں"</item>
+    <item msgid="2517785806387977252">"15 سیکنڈ"</item>
+    <item msgid="6347954399441173672">"30 سیکنڈ"</item>
+    <item msgid="4858305253279921789">"1 منٹ"</item>
+    <item msgid="8109273437140044073">"2 منٹ"</item>
+    <item msgid="2788593551142462622">"5 منٹ"</item>
+    <item msgid="8012672183888404961">"10 منٹ"</item>
+    <item msgid="8271452751594598661">"30 منٹ"</item>
+  </string-array>
   <string-array name="lock_after_timeout_entries">
     <item msgid="2232921187970351881">"فوری طور پر"</item>
     <item msgid="2038544972632026612">"5 سیکنڈ"</item>
@@ -50,17 +59,47 @@
     <item msgid="811192536981678974">"10 منٹ"</item>
     <item msgid="7258394417241706272">"30 منٹ"</item>
   </string-array>
-    <!-- no translation found for entries_font_size:0 (2340391964816059553) -->
-    <!-- no translation found for entries_font_size:0 (6490061470416867723) -->
-    <!-- no translation found for entries_font_size:2 (1714184661981538355) -->
-    <!-- no translation found for entries_font_size:2 (1678068858001018666) -->
-    <!-- no translation found for wifi_status:3 (5848277343965362748) -->
-    <!-- no translation found for wifi_status_with_ssid:1 (6816207058895999545) -->
-    <!-- no translation found for wifi_status_with_ssid:3 (7547609081339573756) -->
-    <!-- no translation found for wifi_status_with_ssid:4 (5145158315060185414) -->
+  <string-array name="entries_font_size">
+    <item msgid="2340391964816059553">"چھوٹا"</item>
+    <item msgid="591935967183159581">"ڈیفالٹ"</item>
+    <item msgid="1714184661981538355">"بڑا"</item>
+    <item msgid="6195563047686707484">"سب سے بڑا"</item>
+  </string-array>
+  <string-array name="wifi_status">
+    <item msgid="1304883790721412351"></item>
+    <item msgid="4157625910392775808">"اسکین کر رہا ہے…"</item>
+    <item msgid="5597394826455877834">"مربوط ہو رہا ہے…"</item>
+    <item msgid="5848277343965362748">"توثیق ہو رہی ہے…"</item>
+    <item msgid="3391238031431440676">"IP پتہ حاصل کر رہا ہے…"</item>
+    <item msgid="5257597310494000224">"منسلک"</item>
+    <item msgid="8472497592913050396">"معطل شدہ"</item>
+    <item msgid="1228072488815999109">"منقطع کیا جارہا ہے…"</item>
+    <item msgid="7253087004422991731">"منقطع"</item>
+    <item msgid="4169850917304751227">"ناکام"</item>
+    <item msgid="6266658166690831131">"مسدود ہے"</item>
+    <item msgid="4517230805854909775">"عارضی طور پر خراب کنکشن سے اجتناب کر رہا ہے"</item>
+  </string-array>
+  <string-array name="wifi_status_with_ssid">
+    <item msgid="4853670665485437464"></item>
+    <item msgid="6816207058895999545">"اسکین ہو رہا ہے…"</item>
+    <item msgid="8058143476674427024">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g> سے مربوط ہو رہا ہے…"</item>
+    <item msgid="7547609081339573756">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g> کے ساتھ توثیق ہو رہی ہے…"</item>
+    <item msgid="5145158315060185414">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g> سے IP پتہ حاصل کر رہا ہے…"</item>
+    <item msgid="3283243151651124831">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g> سے مربوط ہو گیا"</item>
+    <item msgid="6600156231416890902">"معطل شدہ"</item>
+    <item msgid="4133290864821295785">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g> سے منقطع ہو رہا ہے…"</item>
+    <item msgid="3980154971187953257">"منقطع"</item>
+    <item msgid="2847316776634969068">"ناکام"</item>
+    <item msgid="4390990424746035383">"مسدود ہے"</item>
+    <item msgid="3618248791367063949">"عارضی طور پر خراب کنکشن سے اجتناب کر رہا ہے"</item>
+  </string-array>
     <!-- no translation found for wifi_tether_security:0 (5586343370515598801) -->
     <!-- no translation found for wifi_tether_security:1 (6136336549994615745) -->
-    <!-- no translation found for wifi_p2p_wps_setup:0 (5390235347963255303) -->
+  <string-array name="wifi_p2p_wps_setup">
+    <item msgid="5390235347963255303">"پش بٹن"</item>
+    <item msgid="7401896200768713930">"ہمسر آلہ سے PIN"</item>
+    <item msgid="4526848028011846710">"اس آلہ سے PIN"</item>
+  </string-array>
   <string-array name="wifi_p2p_status">
     <item msgid="8741947238021758201">"منسلک"</item>
     <item msgid="983792611851499732">"مدعو"</item>
@@ -82,8 +121,13 @@
     <item msgid="1644506614010085798">"4"</item>
     <item msgid="3132506679404897150">"5"</item>
   </string-array>
-    <!-- no translation found for wifi_signal:1 (7882129634982603782) -->
-    <!-- no translation found for wifi_signal:4 (999948812884919584) -->
+  <string-array name="wifi_signal">
+    <item msgid="1709949377823900951">"ناقص"</item>
+    <item msgid="7882129634982603782">"کمزور"</item>
+    <item msgid="6457357501905996224">"مناسب"</item>
+    <item msgid="405271628162918841">"اچھا"</item>
+    <item msgid="999948812884919584">"عمدہ"</item>
+  </string-array>
   <string-array name="data_usage_data_range">
     <item msgid="8986775481492954015">"آخری 30 دن"</item>
     <item msgid="3211287705232736964">"استعمال کا دور سیٹ کریں…"</item>
@@ -119,7 +163,10 @@
     <item msgid="7330627471456865502">"MSCHAPV2"</item>
     <item msgid="6255179395132581882">"GTC"</item>
   </string-array>
-    <!-- no translation found for wifi_ip_settings:1 (4377002609760712163) -->
+  <string-array name="wifi_ip_settings">
+    <item msgid="2717196390555072244">"DHCP"</item>
+    <item msgid="4377002609760712163">"جامد"</item>
+  </string-array>
   <string-array name="wifi_proxy_settings">
     <item msgid="9032900195127165132">"کوئی نہیں"</item>
     <item msgid="1464741437353223198">"مینوئل"</item>
@@ -239,11 +286,73 @@
     <item msgid="1165623660533024666">"پس منظر میں چلائیں"</item>
     <item msgid="6423861043647911030">"ایکسیسبیلٹی والیوم"</item>
   </string-array>
-    <!-- no translation found for app_ops_labels:3 (7836406246005211990) -->
-    <!-- no translation found for app_ops_labels:4 (3951439024549922598) -->
-    <!-- no translation found for app_ops_labels:8 (3597797992398484655) -->
-    <!-- no translation found for app_ops_labels:20 (3037159047591081136) -->
-    <!-- no translation found for app_ops_labels:41 (2464189519136248621) -->
+  <string-array name="app_ops_labels">
+    <item msgid="7892361636570580123">"مقام"</item>
+    <item msgid="6656077694190491067">"مقام"</item>
+    <item msgid="8790228218278477369">"مقام"</item>
+    <item msgid="7836406246005211990">"وائبریٹ"</item>
+    <item msgid="3951439024549922598">"رابطوں کو پڑھیں"</item>
+    <item msgid="8802152411647068">"رابطوں میں ترمیم کریں"</item>
+    <item msgid="229544934599698735">"کال لاگ پڑھیں"</item>
+    <item msgid="7396102294405899613">"کال لاگ میں ترمیم کریں"</item>
+    <item msgid="3597797992398484655">"کیلنڈر پڑھیں"</item>
+    <item msgid="2705975774250907343">"کیلنڈر میں ترمیم کریں"</item>
+    <item msgid="4668747371441932697">"مقام"</item>
+    <item msgid="1487578921720243646">"اطلاع شائع کریں"</item>
+    <item msgid="4636080349724146638">"مقام"</item>
+    <item msgid="673510900286463926">"فون پر کال کریں"</item>
+    <item msgid="542083422784609790">"SMS/MMS پڑھیں"</item>
+    <item msgid="1033780373029588436">"SMS/MMS لکھیں"</item>
+    <item msgid="5647111115517787488">"SMS/MMS وصول کریں"</item>
+    <item msgid="8591105601108455893">"SMS/MMS وصول کریں"</item>
+    <item msgid="7730995008517841903">"SMS/MMS وصول کریں"</item>
+    <item msgid="2613033109026626086">"SMS/MMS وصول کریں"</item>
+    <item msgid="3037159047591081136">"SMS/MMS بھیجیں"</item>
+    <item msgid="4726682243833913568">"SMS/MMS پڑھیں"</item>
+    <item msgid="6555678522277865572">"SMS/MMS لکھیں"</item>
+    <item msgid="6981734935578130884">"ترتیبات میں ترمیم کریں"</item>
+    <item msgid="8705854389991425629">"سب سے اوپر ڈرا کریں"</item>
+    <item msgid="5861356020344153651">"اطلاعات تک رسائی حاصل کریں"</item>
+    <item msgid="78432174621628659">"کیمرا"</item>
+    <item msgid="3986116419882154794">"آڈیو ریکارڈ کریں"</item>
+    <item msgid="4516840825756409490">"آڈیو چلائیں"</item>
+    <item msgid="6811712502798183957">"کلپ بورڈ پڑھیں"</item>
+    <item msgid="2780369012602289114">"کلپ بورڈ میں ترمیم کریں"</item>
+    <item msgid="2331359440170850868">"میڈیا بٹنز"</item>
+    <item msgid="6133599737122751231">"آڈیو فوکس"</item>
+    <item msgid="6844485713404805301">"ماسٹر والیوم"</item>
+    <item msgid="1600379420669104929">"صوتی والیوم"</item>
+    <item msgid="6296768210470214866">"رنگ والیوم"</item>
+    <item msgid="510690696071629241">"میڈیا والیوم"</item>
+    <item msgid="406861638631430109">"الارم والیوم"</item>
+    <item msgid="4715864795872233884">"اطلاع کا والیوم"</item>
+    <item msgid="2311478519251301183">"بلوٹوتھ کا والیوم"</item>
+    <item msgid="5133991377896747027">"بیدار رکھیں"</item>
+    <item msgid="2464189519136248621">"مقام"</item>
+    <item msgid="2062677934050803037">"مقام"</item>
+    <item msgid="1735171933192715957">"استعمال کے اعداد و شمار حاصل کریں"</item>
+    <item msgid="1014093788778383554">"مائیکروفون کو خاموش کریں/اس کی آواز چلائیں"</item>
+    <item msgid="4199297950608622850">"ٹوسٹ دکھائیں"</item>
+    <item msgid="2527962435313398821">"میڈیا پروجیکٹ کریں"</item>
+    <item msgid="5117506254221861929">"VPN کو فعال کریں"</item>
+    <item msgid="8291198322681891160">"لکھنے کا وال پیپر"</item>
+    <item msgid="7106921284621230961">"اسٹرکچر اسسٹ کریں"</item>
+    <item msgid="4496533640894624799">"اسکرین شاٹ اسسٹ کریں"</item>
+    <item msgid="2598847264853993611">"فون اسٹیٹ پڑھیں"</item>
+    <item msgid="9215610846802973353">"صوتی میل شامل کریں"</item>
+    <item msgid="9186411956086478261">"سِپ استعمال کریں"</item>
+    <item msgid="6884763100104539558">"باہر جانے والی کال پر کاروائی کریں"</item>
+    <item msgid="125513972170580692">"فنگر پرنٹ"</item>
+    <item msgid="2556071024281275619">"باڈی سینسرز"</item>
+    <item msgid="617168514928339387">"سیل نشریات پڑھیں"</item>
+    <item msgid="7134693570516523585">"مقام فرضی بنائیں"</item>
+    <item msgid="7224489175375229399">"اسٹوریج پڑھیں"</item>
+    <item msgid="8472735063903258202">"اسٹوریج لکھیں"</item>
+    <item msgid="4069276819909595110">"اسکرین آن کریں"</item>
+    <item msgid="1228338896751121025">"اکاؤنٹس حاصل کریں"</item>
+    <item msgid="3181581793459233672">"پس منظر میں چلائیں"</item>
+    <item msgid="2340936043025374076">"ایکسیسبیلٹی والیوم"</item>
+  </string-array>
   <string-array name="long_press_timeout_selector_titles">
     <item msgid="8950313530602254787">"مختصر"</item>
     <item msgid="4816511817309094890">"متوسط"</item>
@@ -260,7 +369,13 @@
     <item msgid="4627069151979553527">"Cursive"</item>
     <item msgid="6896773537705206194">"بڑے حروف چھوٹے سائز میں"</item>
   </string-array>
-    <!-- no translation found for captioning_font_size_selector_titles:3 (2784236342175159295) -->
+  <string-array name="captioning_font_size_selector_titles">
+    <item msgid="1680223634161592855">"بہت چھوٹا"</item>
+    <item msgid="5091603983404027034">"چھوٹا"</item>
+    <item msgid="176844712416932112">"عام"</item>
+    <item msgid="2784236342175159295">"بڑا"</item>
+    <item msgid="218913203203160606">"بہت بڑا"</item>
+  </string-array>
   <string-array name="captioning_edge_type_selector_titles">
     <item msgid="3865198759294188069">"ڈیفالٹ"</item>
     <item msgid="6488643537808152001">"کوئی نہیں"</item>
@@ -275,7 +390,14 @@
     <item msgid="1874668269931014581">"75%"</item>
     <item msgid="6462911487571123954">"100%"</item>
   </string-array>
-    <!-- no translation found for captioning_preset_selector_titles:2 (5891360837786277638) -->
+  <string-array name="captioning_preset_selector_titles">
+    <item msgid="326819345272910536">"ایپ کے ڈیفالٹس استعمال کریں"</item>
+    <item msgid="8611890312638868524">"سیاہ پر سفید"</item>
+    <item msgid="5891360837786277638">"سفید پر سیاہ"</item>
+    <item msgid="2798457065945456853">"سیاہ پر پیلا"</item>
+    <item msgid="5799049811524553967">"نیلے پر پیلا"</item>
+    <item msgid="3673930830658169860">"حسب ضرورت"</item>
+  </string-array>
   <string-array name="vpn_types_long">
     <item msgid="6566768880689730097">"PPTP VPN"</item>
     <item msgid="1349760781118368659">"پہلے سے اشتراک کردہ کلیدوں کے ساتھ L2TP/IPSec VPN"</item>
@@ -288,15 +410,32 @@
     <item msgid="2958623927055120839">"کوئی نہیں"</item>
     <item msgid="1157046369795346308">"مینوئل"</item>
   </string-array>
-    <!-- no translation found for vpn_states:4 (9135049670787351881) -->
+  <string-array name="vpn_states">
+    <item msgid="5408915841694583740">"منقطع"</item>
+    <item msgid="8754480102834556765">"آغاز کیا جا رہا ہے…"</item>
+    <item msgid="3351334355574270250">"مربوط ہو رہا ہے…"</item>
+    <item msgid="8303882153995748352">"منسلک"</item>
+    <item msgid="9135049670787351881">"ٹائم آؤٹ"</item>
+    <item msgid="2124868417182583926">"ناکام"</item>
+  </string-array>
   <string-array name="security_settings_premium_sms_values">
     <item msgid="1164265643455394443">"پوچھیں"</item>
     <item msgid="7718817231348607934">"کبھی اجازت نہ دیں"</item>
     <item msgid="8184570120217958741">"ہمیشہ اجازت دیں"</item>
   </string-array>
-    <!-- no translation found for ram_states:0 (708247372474061274) -->
-    <!-- no translation found for ram_states:4 (1567326459340152525) -->
-    <!-- no translation found for proc_stats_memory_states:3 (8577246509202964244) -->
+  <string-array name="ram_states">
+    <item msgid="708247372474061274">"عام"</item>
+    <item msgid="5101233285497327432">"معتدل"</item>
+    <item msgid="1555861583162930714">"کم"</item>
+    <item msgid="1719683776264798117">"انتہائی کم"</item>
+    <item msgid="1567326459340152525">"؟"</item>
+  </string-array>
+  <string-array name="proc_stats_memory_states">
+    <item msgid="3474232046138139454">"عام"</item>
+    <item msgid="6107138933849816768">"متوسط"</item>
+    <item msgid="182695359839047859">"کم"</item>
+    <item msgid="8577246509202964244">"انتہائی کم"</item>
+  </string-array>
   <string-array name="proc_stats_process_states">
     <item msgid="7560955722349181440">"استقلال پذیر"</item>
     <item msgid="167418068739176448">"سرفہرست سرگرمی"</item>

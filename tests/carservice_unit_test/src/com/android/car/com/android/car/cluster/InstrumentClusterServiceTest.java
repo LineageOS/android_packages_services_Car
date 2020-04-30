@@ -29,7 +29,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import android.car.cluster.renderer.IInstrumentCluster;
 import android.car.cluster.renderer.IInstrumentClusterNavigation;
 import android.car.navigation.CarNavigationInstrumentCluster;
-import android.car.test.mocks.AbstractExtendMockitoTestCase;
+import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.os.Bundle;
@@ -52,7 +52,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.stubbing.Answer;
 
-public class InstrumentClusterServiceTest extends AbstractExtendMockitoTestCase {
+public class InstrumentClusterServiceTest extends AbstractExtendedMockitoTestCase {
 
     private static final String DEFAULT_RENDERER_SERVICE =
             "com.android.car.carservice_unittest/.FakeService";

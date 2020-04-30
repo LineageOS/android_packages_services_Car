@@ -2309,9 +2309,9 @@
       <item quantity="other">Beperk %1$d programme?</item>
       <item quantity="one">Beperk program?</item>
     </plurals>
-    <string name="battery_tip_restrict_app_dialog_message" msgid="6905822297507947381">"Om batterykrag te bespaar, keer <xliff:g id="APP">%1$s</xliff:g> om die battery op die agtergrond te gebruik. Hierdie program sal dalk nie behoorlik werk nie en kennisgewings sal dalk vertraag word."</string>
-    <string name="battery_tip_restrict_apps_less_than_5_dialog_message" msgid="4225881888543582456">"Om batterykrag te bespaar, keer hierdie programme om die battery op die agtergrond te gebruik. Beperkte programme sal dalk nie behoorlik werk nie en kennisgewings sal dalk vertraag word.\n\nProgramme:"</string>
-    <string name="battery_tip_restrict_apps_more_than_5_dialog_message" msgid="1748375562539446634">"Om batterykrag te bespaar, keer hierdie programme om die battery op die agtergrond te gebruik. Beperkte programme sal dalk nie behoorlik werk nie en kennisgewings sal dalk vertraag word.\n\nProgramme:\n<xliff:g id="APP_LIST">%1$s</xliff:g>."</string>
+    <string name="battery_tip_restrict_app_dialog_message" msgid="6905822297507947381">"Verhoed <xliff:g id="APP">%1$s</xliff:g> om die battery op die agtergrond te gebruik om so batterykrag te bespaar. Hierdie program sal dalk nie behoorlik werk nie en kennisgewings sal dalk vertraag word."</string>
+    <string name="battery_tip_restrict_apps_less_than_5_dialog_message" msgid="4225881888543582456">"Verhoed hierdie programme om die battery op die agtergrond te gebruik om so batterykrag te bespaar. Beperkte programme sal dalk nie behoorlik werk nie en kennisgewings sal dalk vertraag word.\n\nProgramme:"</string>
+    <string name="battery_tip_restrict_apps_more_than_5_dialog_message" msgid="1748375562539446634">"Verhoed hierdie programme om die battery op die agtergrond te gebruik om so batterykrag te bespaar. Beperkte programme sal dalk nie behoorlik werk nie en kennisgewings sal dalk vertraag word.\n\nProgramme:\n<xliff:g id="APP_LIST">%1$s</xliff:g>."</string>
     <string name="battery_tip_restrict_app_dialog_ok" msgid="2573410775701913487">"Beperk"</string>
     <string name="battery_tip_unrestrict_app_dialog_title" msgid="812458516399125710">"Verwyder beperking?"</string>
     <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"Hierdie program sal batterykrag op die agtergrond kan gebruik. Jou battery sal dalk gouer as verwag afloop."</string>
@@ -2629,8 +2629,8 @@
     <string name="remove_account_label" msgid="5885425720323823387">"Verwyder rekening"</string>
     <string name="header_add_an_account" msgid="8482614556580804956">"Voeg \'n rekening by"</string>
     <string name="really_remove_account_title" msgid="4166512362915154319">"Verwyder rekening?"</string>
-    <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"Verwydering van hierdie rekening sal ook al sy boodskappe, kontakte en ander data van die tablet uitvee."</string>
-    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Verwydering van hierdie rekening sal ook al sy boodskappe, kontakte en ander data van die foon uitvee."</string>
+    <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"Verwydering van hierdie rekening sal ook al sy boodskappe, kontakte en ander data van die tablet af uitvee."</string>
+    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Verwydering van hierdie rekening sal ook al sy boodskappe, kontakte en ander data van die foon af uitvee."</string>
     <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"As hierdie rekening verwyder word, sal al sy boodskappe, kontakte en ander data van die toestel af uitgevee word!"</string>
     <string name="remove_account_failed" msgid="491458185327106966">"Hierdie verandering word nie deur jou administrateur toegelaat nie"</string>
     <string name="cant_sync_dialog_title" msgid="5483419398223189881">"Kan nie handmatig sinkroniseer nie"</string>
@@ -3708,7 +3708,7 @@
     </plurals>
     <string name="high_power_filter_on" msgid="5294209328473386403">"Nie geoptimeer nie"</string>
     <string name="high_power_on" msgid="3573501822510580334">"Nie geoptimeer nie"</string>
-    <string name="high_power_off" msgid="5906679734326490426">"Optimaliseer batterygebruik"</string>
+    <string name="high_power_off" msgid="5906679734326490426">"Optimeer batterygebruik"</string>
     <string name="high_power_system" msgid="739584574711292753">"Batteryoptimering is nie beskikbaar nie"</string>
     <string name="high_power_desc" msgid="333756885680362741">"Moenie batteryoptimering toepas nie. Dit kan jou battery dalk vinniger pap maak."</string>
     <string name="high_power_prompt_title" msgid="2805745781720454052">"Laat program altyd in die agtergrond loop?"</string>

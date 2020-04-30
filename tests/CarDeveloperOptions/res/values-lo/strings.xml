@@ -1798,7 +1798,7 @@
     <string name="install_all_warning" product="device" msgid="9141585291103603515">"ອຸປະກອນ ແລະ ຂໍ້ມູນສ່ວນຕົວຂອງທ່ານຈະສາມາດຖືກແອັບທີ່ບໍ່ຮູ້ຈັກໂຈມຕີໄດ້ງ່າຍຂຶ້ນ. ໂດຍການຕິດຕັ້ງແອັບຕ່າງໆຈາກແຫລ່ງທີ່ມາເຫຼົ່ານີ້, ແມ່ນທ່ານຍອມຮັບວ່າຈະຮັບຜິດຊອບຕໍ່ຄວາມເສຍຫາຍທີ່ເກີດຂຶ້ນກັບອຸປະກອນຂອງທ່ານ ຫຼື ການສູນເສຍຂໍ້ມູນທີ່ອາດເກີດຂຶ້ນຈາກການນຳໃຊ້ແອັບເຫຼົ່ານັ້ນ."</string>
     <string name="advanced_settings" msgid="6282069364060968122">"ການຕັ້ງຄ່າຂັ້ນສູງ"</string>
     <string name="advanced_settings_summary" msgid="5912237062506771716">"ເປີດໃຊ້ໂຕເລືອກການຕັ້ງຄ່າເພີ່ມເຕີມ."</string>
-    <string name="application_info_label" msgid="3886253474964599105">"ຂໍ້ມູນແອັບຯ"</string>
+    <string name="application_info_label" msgid="3886253474964599105">"ຂໍ້ມູນແອັບ"</string>
     <string name="storage_label" msgid="1109537840103290384">"ພື້ນທີ່ຈັດເກັບຂໍ້ມູນ"</string>
     <string name="auto_launch_label" msgid="47089737922907379">"ເປີດ​ຕາມຄ່າເລີ່ມຕົ້ນ"</string>
     <string name="auto_launch_label_generic" msgid="7865828543459493308">"ຄ່າເລີ່ມຕົ້ນ"</string>
@@ -2096,7 +2096,7 @@
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"ສຽງພ້ອມການສັ່ນເຕືອນ"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"ການສັ່ນເມື່ອສຳຜັດ"</string>
     <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"ໃຊ້ບໍລິການ"</string>
-    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"ໃຊ້ການແກ້ໄຂສີ"</string>
+    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"ໃຊ້ການປັບແຕ່ງສີ"</string>
     <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"ໃຊ້ຄຳບັນຍາຍ"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"ສືບຕໍ່"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"ເຄື່ອງຊ່ວຍຟັງ"</string>
@@ -2393,7 +2393,7 @@
     <string name="usage_type_computed_power" msgid="2594890316149868151">"​ການ​ນຳ​ໃຊ້​ພະ​ລັງ​ງານ​ທີ່​ຄຳ​ນວນ​​ໄວ້"</string>
     <string name="usage_type_actual_power" msgid="8067253427718526111">"ການ​ນຳ​ໃຊ້​ພະ​ລັງ​ງານ​ທີ່​ຕິດ​ຕາມ"</string>
     <string name="battery_action_stop" msgid="1866624019460630143">"ບັງ​ຄັບ​ປິດ"</string>
-    <string name="battery_action_app_details" msgid="1077011181969550402">"ຂໍ້ມູນແອັບຯ"</string>
+    <string name="battery_action_app_details" msgid="1077011181969550402">"ຂໍ້ມູນແອັບ"</string>
     <string name="battery_action_app_settings" msgid="587998773852488539">"ການຕັ້ງຄ່າແອັບຯ"</string>
     <string name="battery_action_display" msgid="4887913003634317465">"ການຕັ້ງຄ່າໜ້າຈໍ"</string>
     <string name="battery_action_wifi" msgid="7123520587925323824">"ການຕັ້ງຄ່າ Wi-Fi"</string>
@@ -4137,9 +4137,9 @@
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"ເພື່ອກວດສອບເວລາ, ການແຈ້ງເຕືອນ ແລະ ຂໍ້ມູນອື່ນໆ, ໃຫ້ແຕະໃສ່ໜ້າຈໍຂອງທ່ານ."</string>
     <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"ປັດລາຍນິ້ວມືສຳລັບການແຈ້ງເຕືອນ"</string>
     <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"ປັດລາຍນິ້ວມື"</string>
-    <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"ເພື່ອກວດເບິ່ງການແຈ້ງເຕືອນຂອງທ່ານ, ໃຫ້ເລື່ອນລົງໃສ່ເຊັນເຊີນລາຍນິ້ວມືທີ່ຢູ່ຫຼັງໂທລະສັບຂອງທ່ານ"</string>
-    <string name="fingerprint_swipe_for_notifications_summary" product="tablet" msgid="3480057984564476283">"ເພື່ອກວດເບິ່ງການແຈ້ງເຕືອນຂອງທ່ານ, ໃຫ້ເລື່ອນລົງໃສ່ເຊັນເຊີນລາຍນິ້ວມືທີ່ຢູ່ຫຼັງແທັບເລັດຂອງທ່ານ"</string>
-    <string name="fingerprint_swipe_for_notifications_summary" product="device" msgid="7950264130913070035">"ເພື່ອກວດເບິ່ງການແຈ້ງເຕືອນຂອງທ່ານ, ໃຫ້ເລື່ອນລົງໃສ່ເຊັນເຊີນລາຍນິ້ວມືທີ່ຢູ່ຫຼັງອຸປະກອນຂອງທ່ານ"</string>
+    <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"ເພື່ອກວດເບິ່ງການແຈ້ງເຕືອນຂອງທ່ານ, ໃຫ້ເລື່ອນລົງໃສ່ເຊັນເຊີນລາຍນິ້ວມືທີ່ຢູ່ຫຼັງໂທລະສັບຂອງທ່ານ."</string>
+    <string name="fingerprint_swipe_for_notifications_summary" product="tablet" msgid="3480057984564476283">"ເພື່ອກວດເບິ່ງການແຈ້ງເຕືອນຂອງທ່ານ, ໃຫ້ເລື່ອນລົງໃສ່ເຊັນເຊີນລາຍນິ້ວມືທີ່ຢູ່ຫຼັງແທັບເລັດຂອງທ່ານ."</string>
+    <string name="fingerprint_swipe_for_notifications_summary" product="device" msgid="7950264130913070035">"ເພື່ອກວດເບິ່ງການແຈ້ງເຕືອນຂອງທ່ານ, ໃຫ້ເລື່ອນລົງໃສ່ເຊັນເຊີນລາຍນິ້ວມືທີ່ຢູ່ຫຼັງອຸປະກອນຂອງທ່ານ."</string>
     <string name="fingerprint_swipe_for_notifications_suggestion_title" msgid="948946491233738823">"ເບິ່ງການແຈ້ງເຕືອນແບບດ່ວນ"</string>
     <string name="gesture_setting_on" msgid="7573680730101327866">"ເປີດ"</string>
     <string name="gesture_setting_off" msgid="2540159841716890511">"ປິດ"</string>

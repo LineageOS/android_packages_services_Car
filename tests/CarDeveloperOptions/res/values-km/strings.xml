@@ -905,7 +905,7 @@
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"បញ្ចូល SSID"</string>
     <string name="wifi_security" msgid="9136702039496152831">"សុវត្ថិភាព"</string>
     <string name="wifi_hidden_network" msgid="6647772204699776833">"បណ្តាញ​ដែល​បាន​លាក់"</string>
-    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"ប្រសិនបើ​រូតទ័រ​របស់អ្នក​មិន​បង្ហាញ​លេខសម្គាល់​បណ្តាញ ប៉ុន្តែ​អ្នក​ចង់​ភ្ជាប់វា​នៅ​ពេល​អនាគត អ្នក​អាច​កំណត់​បណ្តាញ​ដូច​ដែល​បានលាក់។\n\nសកម្មភាព​នេះ​អាច​បង្កើតឱ្យមាន​ហានិភ័យ​ផ្នែក​សុវត្ថិភាព ដោយសារ​ទូរសព្ទ​របស់អ្នក​នឹងបង្ហាញ​រលកសញ្ញា​របស់វា​ជាប្រចាំ ដើម្បី​ស្វែងរក​បណ្តាញ។\n\nការកំណត់​បណ្តាញ​ដូច​ដែល​បាន​លាក់​នឹង​មិន​ប្តូរ​ការកំណត់​រូតទ័រ​របស់អ្នក​នោះទេ។"</string>
+    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"ប្រសិនបើ​រូតទ័រ​របស់អ្នក​មិន​ផ្សាយ​លេខសម្គាល់​បណ្តាញ ប៉ុន្តែ​អ្នក​ចង់​ភ្ជាប់វា​នៅ​ពេល​អនាគត អ្នក​អាច​កំណត់​បណ្តាញ​ថា​បានលាក់។\n\nសកម្មភាព​នេះ​អាច​បង្កើតឱ្យមាន​ហានិភ័យ​ផ្នែក​សុវត្ថិភាព ដោយសារ​ទូរសព្ទ​របស់អ្នក​នឹងផ្សាយ​រលកសញ្ញា​របស់វា​ជាប្រចាំ ដើម្បី​ស្វែងរក​បណ្តាញ។\n\nការកំណត់​បណ្តាញ​ថា​បាន​លាក់​នឹង​មិន​ប្តូរ​ការកំណត់​រូតទ័រ​របស់អ្នក​នោះទេ។"</string>
     <string name="wifi_signal" msgid="696548364467704808">"កម្លាំង​សញ្ញា"</string>
     <string name="wifi_status" msgid="3439931558930689940">"ស្ថានភាព"</string>
     <string name="tx_wifi_speed" msgid="2571810085003261073">"ល្បឿនតភ្ជាប់​សម្រាប់​ការផ្ទេរ"</string>
@@ -915,7 +915,7 @@
     <string name="passpoint_label" msgid="7429247462404128615">"បានរក្សាទុកតាមរយៈ"</string>
     <string name="passpoint_content" msgid="340527524510304327">"អត្តសញ្ញាណ <xliff:g id="NAME">%1$s</xliff:g>"</string>
     <string name="wifi_eap_method" msgid="3752116941487485859">"វិធីសាស្ត្រ EAP"</string>
-    <string name="please_select_phase2" msgid="5848080896810435677">"ជំហាន​ ២ ផ្ទៀងផ្ទាត់"</string>
+    <string name="please_select_phase2" msgid="5848080896810435677">"ការផ្ទៀងផ្ទាត់ជំហាន​ទី 2"</string>
     <string name="wifi_eap_ca_cert" msgid="1496395241849383785">"វិញ្ញាបនបត្រ CA"</string>
     <string name="wifi_eap_domain" msgid="3298302320003640130">"Domain"</string>
     <string name="wifi_eap_user_cert" msgid="6786839531765719173">"វិញ្ញាបនបត្រ​អ្នក​ប្រើ"</string>
@@ -1024,7 +1024,7 @@
     <string name="wifi_details_subnet_mask" msgid="53396707004763012">"របាំងបណ្តាញរង"</string>
     <string name="wifi_details_dns" msgid="1118251455740116559">"DNS"</string>
     <string name="wifi_details_ipv6_address_header" msgid="1642310137145363299">"អាសយដ្ឋាន IPv6"</string>
-    <string name="wifi_saved_access_points_label" msgid="3790693285928292563">"បណ្ដាញ​បាន​រក្សាទុក"</string>
+    <string name="wifi_saved_access_points_label" msgid="3790693285928292563">"បណ្ដាញ​ដែលបាន​រក្សាទុក"</string>
     <string name="wifi_subscribed_access_points_tab" msgid="7498765485953257229">"ការ​ជាវ"</string>
     <!-- no translation found for wifi_saved_access_points_tab (4677730543624191122) -->
     <skip />
@@ -1647,7 +1647,7 @@
     <string name="mobile_insert_sim_card" msgid="7594550403454243732">"សូម​បញ្ចូល​ស៊ីមកាត និង​ចាប់ផ្ដើម​ឡើង​វិញ"</string>
     <string name="mobile_connect_to_internet" msgid="6031886097365170913">"សូម​ភ្ជាប់​អ៊ីនធឺណិត"</string>
     <string name="location_title" msgid="8664674161765477168">"ទីតាំង​ខ្ញុំ"</string>
-    <string name="managed_profile_location_switch_title" msgid="8157384427925389680">"ទីតាំងសម្រាប់ប្រវត្តិរូបការងាររបស់អ្នក"</string>
+    <string name="managed_profile_location_switch_title" msgid="8157384427925389680">"ទីតាំងសម្រាប់កម្រងព័ត៌មានការងារ"</string>
     <string name="location_app_level_permissions" msgid="1298041503927632960">"ការអនុញ្ញាតកម្មវិធី"</string>
     <string name="location_app_permission_summary_location_off" msgid="541372845344796336">"ទីតាំង​បាន​បិទ"</string>
     <plurals name="location_app_permission_summary_location_on" formatted="false" msgid="7904821382328758218">
@@ -2601,7 +2601,7 @@
     <string name="work_mode_label" msgid="6845849194740195757">"កម្រងព័ត៌មានការងារ"</string>
     <string name="work_mode_on_summary" msgid="1682781113156323592">"គ្រប់គ្រងដោយ​ស្ថាប័ន​របស់អ្នក"</string>
     <string name="work_mode_off_summary" msgid="1688885392211178315">"កម្មវិធី និង​ការ​ជូនដំណឹង​បាន​បិទ"</string>
-    <string name="remove_managed_profile_label" msgid="4625542553784793536">"លុប​ប្រវត្តិរូប​ការងារ"</string>
+    <string name="remove_managed_profile_label" msgid="4625542553784793536">"លុបកម្រងព័ត៌មានការងារ"</string>
     <string name="background_data" msgid="8275750862371471171">"ទិន្នន័យ​ផ្ទៃ​ខាង​ក្រោយ"</string>
     <string name="background_data_summary" msgid="799640633948841990">"កម្មវិធី​អាច​ធ្វើ​សម​កាល​កម្ម​ ផ្ញើ និង​ទទួល​ទិន្នន័យ​នៅ​ពេល​ណា​មួយ"</string>
     <string name="background_data_dialog_title" msgid="8306650658158895976">"បិទ​ទិន្នន័យ​ផ្ទៃ​ខាង​ក្រោយ?"</string>
@@ -2888,7 +2888,7 @@
     <string name="user_confirm_remove_self_title" msgid="6739480453680217543">"លុប​ខ្លួន​ឯង​ផ្ទាល់?"</string>
     <string name="user_confirm_remove_title" msgid="1034498514019462084">"លុបអ្នកប្រើប្រាស់​នេះ?"</string>
     <string name="user_profile_confirm_remove_title" msgid="6138684743385947063">"លុប​ប្រវត្តិ​រូប​នេះ?"</string>
-    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"លុប​ប្រវត្តិរូប​ការងារ?"</string>
+    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"លុបកម្រងព័ត៌មានការងារឬ?"</string>
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"អ្នក​នឹង​បាត់បង់​ទំហំ​ ព្រម​ទាំង​ទិន្នន័យ​របស់​អ្នក​លើ​កុំព្យូទ័រ​បន្ទះ​នេះ​។ អ្នក​មិន​អាច​ធ្វើ​សកម្មភាព​នេះ​វិញ​បាន​ទេ។"</string>
     <string name="user_confirm_remove_self_message" product="default" msgid="8441729423565705183">"អ្នក​នឹង​បាត់បង់​ទំហំ និង​ទិន្នន័យ​របស់​អ្នក​លើ​ទូរស័ព្ទ​នេះ។ អ្នក​មិន​អាច​ធ្វើ​សកម្មភាព​នេះ​វិញ​បាន​ទេ។"</string>
     <string name="user_confirm_remove_message" msgid="5202150470271756013">"កម្មវិធី និង​ទិន្នន័យ​ទាំងអស់​នឹង​ត្រូវ​បាន​លុប។"</string>
@@ -4081,7 +4081,7 @@
     <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"ប្រអប់​ការ​កំណត់​រហ័ស​សម្រាប់​អ្នកអភិវឌ្ឍន៍"</string>
     <string name="winscope_trace_quick_settings_title" msgid="940971040388411374">"ដាន Winscope"</string>
     <string name="sensors_off_quick_settings_title" msgid="3655699045300438902">"ឧបករណ៍​ចាប់សញ្ញាបានបិទ"</string>
-    <string name="managed_profile_settings_title" msgid="4340409321523532402">"ការកំណត់ប្រវត្តិរូបការងារ"</string>
+    <string name="managed_profile_settings_title" msgid="4340409321523532402">"ការកំណត់កម្រងព័ត៌មានការងារ"</string>
     <string name="managed_profile_contact_search_title" msgid="7337225196804457095">"ការស្វែងរកទំនាក់ទំនង"</string>
     <string name="managed_profile_contact_search_summary" msgid="7278267480246726951">"អនុញ្ញាតការស្វែងរកទំនាក់ទំនងដោយស្ថាប័នរបស់អ្នកដើម្បីកំណត់អត្តសញ្ញាណអ្នកហៅ និងលេខទំនាក់ទំនង"</string>
     <string name="cross_profile_calendar_title" msgid="2351605904015067145">"ប្រតិទិនអន្តរ​កម្រងព័ត៌មាន"</string>

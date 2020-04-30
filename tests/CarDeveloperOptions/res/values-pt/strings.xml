@@ -1583,7 +1583,7 @@
     <string name="reset_network_complete_toast" msgid="128225929536005495">"As configurações de rede foram redefinidas"</string>
     <string name="reset_esim_error_title" msgid="4728931209471875632">"Não é possível limpar chips"</string>
     <string name="reset_esim_error_msg" msgid="4716366079119742235">"Os chips transferidos por download não podem ser limpos devido a um erro.\n\nReinicie o dispositivo e tente novamente."</string>
-    <string name="master_clear_title" msgid="1560712943955904673">"Limpar todos os dados (redefinição para configuração original)"</string>
+    <string name="master_clear_title" msgid="1560712943955904673">"Limpar todos os dados (redefinir para a configuração original)"</string>
     <string name="master_clear_short_title" msgid="919098101581335101">"Limpar todos os dados"</string>
     <string name="master_clear_desc" product="tablet" msgid="3432373610755760899">"Essa ação limpará todos os dados do "<b>"armazenamento interno"</b>" do seu tablet, incluindo:\n\n"<li>"sua Conta do Google;"</li>\n<li>"configurações e dados do sistema e dos apps;"</li>\n<li>"apps transferidos."</li></string>
     <string name="master_clear_desc" product="default" msgid="8765543541962866697">"Essa ação limpará todos os dados do "<b>"armazenamento interno"</b>" do seu smartphone, incluindo:\n\n"<li>"Sua Conta do Google"</li>\n<li>"Configurações e dados do sistema e dos apps"</li>\n<li>"Apps transferidos"</li></string>
@@ -3161,7 +3161,7 @@
     <string name="emergency_tone_alert" msgid="907868135091891015">"Tons"</string>
     <string name="emergency_tone_vibrate" msgid="5020068066905681181">"Vibrações"</string>
     <string name="boot_sounds_title" msgid="7583926202411353620">"Ativar sons"</string>
-    <string name="live_caption_title" msgid="7926591158657997051">"Transcrição Instantânea"</string>
+    <string name="live_caption_title" msgid="7926591158657997051">"Legenda Instantânea"</string>
     <string name="live_caption_summary" msgid="9064771862352393125">"Transcrição automática"</string>
     <string name="zen_mode_settings_summary_off" msgid="6929319200478424962">"Nunca"</string>
     <plurals name="zen_mode_settings_summary_on" formatted="false" msgid="6061723291126091396">
@@ -3711,7 +3711,7 @@
     <string name="high_power_off" msgid="5906679734326490426">"Utilização otimizada da bateria"</string>
     <string name="high_power_system" msgid="739584574711292753">"A otimização de bateria não está disponível"</string>
     <string name="high_power_desc" msgid="333756885680362741">"Não aplicar a otimização de bateria. Isso pode esgotar sua bateria mais rapidamente."</string>
-    <string name="high_power_prompt_title" msgid="2805745781720454052">"Permitir que o app sempre esteja em execução em segundo plano?"</string>
+    <string name="high_power_prompt_title" msgid="2805745781720454052">"Permitir execução contínua do app em segundo plano?"</string>
     <string name="high_power_prompt_body" msgid="8067395096053552289">"A execução contínua do app <xliff:g id="APP_NAME">%1$s</xliff:g> em segundo plano pode reduzir a duração da bateria. \n\nVocê poderá alterar essa opção mais tarde em \"Configurar\" &gt; \"Apps e notificações\"."</string>
     <string name="battery_summary" msgid="4345690800899981339">"<xliff:g id="PERCENTAGE">%1$s</xliff:g> de uso desde a última carga completa"</string>
     <string name="battery_power_management" msgid="2853925857548647969">"Gerenciamento de energia"</string>
@@ -4150,7 +4150,7 @@
     <string name="oem_lock_info_message" msgid="5090850412279403901">"Reinicie o dispositivo para ativar o recurso de proteção para dispositivo."</string>
     <string name="automatic_storage_manager_freed_bytes" msgid="7360443072390107772">"Total de <xliff:g id="SIZE">%1$s</xliff:g> disponibilizado\n\nÚltima execução em <xliff:g id="DATE">%2$s</xliff:g>"</string>
     <string name="web_action_enable_title" msgid="4462106633708675959">"Apps instantâneos"</string>
-    <string name="web_action_enable_summary" msgid="1729016644691793085">"Abrir links em apps, mesmo que eles não estejam instalados"</string>
+    <string name="web_action_enable_summary" msgid="1729016644691793085">"Abre links de apps, mesmo que eles não estejam instalados"</string>
     <string name="web_action_section_title" msgid="5563229447734734662">"Apps instantâneos"</string>
     <string name="instant_apps_settings" msgid="879003203555847537">"Preferências do Instant Apps"</string>
     <string name="domain_url_section_title" msgid="206403507921518321">"Apps instalados"</string>

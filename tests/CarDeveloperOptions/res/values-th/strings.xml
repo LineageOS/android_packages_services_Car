@@ -1570,8 +1570,8 @@
     <string name="restore_default_apn_completed" msgid="5671734152740058937">"รีเซ็ตการตั้งค่า APN กลับเป็นค่าเริ่มต้นเรียบร้อยแล้ว"</string>
     <string name="reset_dashboard_title" msgid="7084966342252178530">"ตัวเลือกการรีเซ็ต"</string>
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"สามารถรีเซ็ตเครือข่าย แอป หรืออุปกรณ์ได้"</string>
-    <string name="reset_network_title" msgid="8944059136930806211">"รีเซ็ต Wi-Fi, เน็ตมือถือ และบลูทูธ"</string>
-    <string name="reset_network_desc" msgid="4982633363916261109">"การดำเนินการนี้จะรีเซ็ตการตั้งค่าเครือข่ายทั้งหมด รวมถึง:\n\n"<li>"Wi‑Fi"</li>\n<li>"อินเทอร์เน็ตมือถือ"</li>\n<li>"บลูทูธ"</li></string>
+    <string name="reset_network_title" msgid="8944059136930806211">"รีเซ็ต Wi-Fi เน็ตมือถือ และบลูทูธ"</string>
+    <string name="reset_network_desc" msgid="4982633363916261109">"การดำเนินการนี้จะรีเซ็ตการตั้งค่าเครือข่ายทั้งหมด ได้แก่\n\n"<li>"Wi‑Fi"</li>\n<li>"อินเทอร์เน็ตมือถือ"</li>\n<li>"บลูทูธ"</li></string>
     <string name="reset_esim_title" msgid="7630781767040831893">"ลบซิมที่ดาวน์โหลด"</string>
     <string name="reset_esim_desc" msgid="433226911566802">"โปรดติดต่อผู้ให้บริการเพื่อดาวน์โหลดซิมทดแทน การดำเนินการนี้จะไม่ยกเลิกแพ็กเกจอินเทอร์เน็ตมือถือของคุณ"</string>
     <string name="reset_network_button_text" msgid="4293271046867912819">"รีเซ็ตการตั้งค่า"</string>
@@ -2088,7 +2088,7 @@
     <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"การหน่วงเวลาด้วยการแตะค้างไว้"</string>
     <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"การกลับสี"</string>
     <string name="accessibility_display_inversion_preference_subtitle" msgid="69291255322175323">"อาจส่งผลกระทบต่อประสิทธิภาพ"</string>
-    <string name="accessibility_autoclick_preference_title" msgid="9164599088410340405">"ระยะเวลาที่ไม่ขยับเมาส์"</string>
+    <string name="accessibility_autoclick_preference_title" msgid="9164599088410340405">"เวลาที่ไม่มีการขยับเมาส์"</string>
     <string name="accessibility_autoclick_description" msgid="5492414927846407499">"หากใช้เมาส์อยู่ คุณตั้งค่าเคอร์เซอร์ให้ดำเนินการโดยอัตโนมัติเมื่อเมาส์หยุดเคลื่อนที่ครู่หนึ่งได้"</string>
     <string name="accessibility_autoclick_delay_preference_title" msgid="8303022510942147049">"หน่วงเวลาก่อนคลิก"</string>
     <string name="accessibility_vibration_settings_title" msgid="1902649657883159406">"การสั่น"</string>
@@ -2099,15 +2099,15 @@
     <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"ใช้การแก้สี"</string>
     <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"ใช้คำบรรยาย"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"ต่อไป"</string>
-    <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"เครื่องช่วยการได้ยิน"</string>
-    <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"ไม่ได้เชื่อมต่อเครื่องช่วยการได้ยิน"</string>
-    <string name="accessibility_hearingaid_adding_summary" msgid="4139031880828714300">"เพิ่มเครื่องช่วยการได้ยิน"</string>
-    <string name="accessibility_hearingaid_pair_instructions_first_message" msgid="2671518890909750740">"หากต้องการจับคู่กับเครื่องช่วยการได้ยิน ให้ค้นหาและแตะอุปกรณ์ในหน้าจอถัดไป"</string>
-    <string name="accessibility_hearingaid_pair_instructions_second_message" msgid="1584538735488464991">"ตรวจสอบว่าเครื่องช่วยการได้ยินอยู่ในโหมดการจับคู่"</string>
+    <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"เครื่องช่วยฟัง"</string>
+    <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"ไม่ได้เชื่อมต่อเครื่องช่วยฟัง"</string>
+    <string name="accessibility_hearingaid_adding_summary" msgid="4139031880828714300">"เพิ่มเครื่องช่วยฟัง"</string>
+    <string name="accessibility_hearingaid_pair_instructions_first_message" msgid="2671518890909750740">"หากต้องการจับคู่กับเครื่องช่วยฟัง ให้ค้นหาและแตะอุปกรณ์ในหน้าจอถัดไป"</string>
+    <string name="accessibility_hearingaid_pair_instructions_second_message" msgid="1584538735488464991">"ตรวจสอบว่าเครื่องช่วยฟังอยู่ในโหมดการจับคู่"</string>
     <string name="accessibility_hearingaid_active_device_summary" msgid="6081382497207168885">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> ใช้งานอยู่"</string>
     <plurals name="show_number_hearingaid_count" formatted="false" msgid="7906547154695855096">
-      <item quantity="other">บันทึกเครื่องช่วยการได้ยิน <xliff:g id="NUMBER_DEVICE_COUNT_1">%1$d</xliff:g> เครื่องแล้ว</item>
-      <item quantity="one">บันทึกเครื่องช่วยการได้ยิน <xliff:g id="NUMBER_DEVICE_COUNT_0">%1$d</xliff:g> เครื่องแล้ว</item>
+      <item quantity="other">บันทึกเครื่องช่วยฟัง <xliff:g id="NUMBER_DEVICE_COUNT_1">%1$d</xliff:g> เครื่องแล้ว</item>
+      <item quantity="one">บันทึกเครื่องช่วยฟัง <xliff:g id="NUMBER_DEVICE_COUNT_0">%1$d</xliff:g> เครื่องแล้ว</item>
     </plurals>
     <string name="accessibility_summary_state_enabled" msgid="7357731696603247963">"เปิด"</string>
     <string name="accessibility_summary_state_disabled" msgid="9197369047683087620">"ปิด"</string>
@@ -2151,7 +2151,7 @@
     <string name="captioning_standard_options_title" msgid="4124898413348084226">"ตัวเลือกมาตรฐาน"</string>
     <string name="captioning_locale" msgid="4734464353806207943">"ภาษา"</string>
     <string name="captioning_text_size" msgid="1707122517246408084">"ขนาดข้อความ"</string>
-    <string name="captioning_preset" msgid="7429888317480872337">"รูปแบบคำบรรยายภาพ"</string>
+    <string name="captioning_preset" msgid="7429888317480872337">"รูปแบบคำบรรยาย"</string>
     <string name="captioning_custom_options_title" msgid="4530479671071326732">"ตัวเลือกที่กำหนดเอง"</string>
     <string name="captioning_background_color" msgid="2434458880326292180">"สีพื้นหลัง"</string>
     <string name="captioning_background_opacity" msgid="8178926599201811936">"ความทึบแสงของพื้นหลัง"</string>
@@ -2162,7 +2162,7 @@
     <string name="captioning_edge_color" msgid="4330622137047993780">"สีขอบ"</string>
     <string name="captioning_edge_type" msgid="4414946407430588162">"ชนิดขอบ"</string>
     <string name="captioning_typeface" msgid="7893208796949341767">"ชุดแบบอักษร"</string>
-    <string name="captioning_preview_text" msgid="4877753964772618049">"คำอธิบายภาพจะมีหน้าตาแบบนี้"</string>
+    <string name="captioning_preview_text" msgid="4877753964772618049">"คำบรรยายจะมีหน้าตาแบบนี้"</string>
     <string name="captioning_preview_characters" msgid="6469599599352973561">"Aa"</string>
     <string name="locale_default" msgid="910074908458214054">"ค่าเริ่มต้น"</string>
     <string name="color_title" msgid="132875486061816584">"สี"</string>
@@ -2924,8 +2924,8 @@
     <string name="nfc_payment_favor_default" msgid="7555356982142464260">"ทุกครั้ง"</string>
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"ยกเว้นเมื่อแอปการชำระเงินอื่นเปิดอยู่"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"ที่เครื่องแตะและจ่าย ให้ชำระเงินด้วย:"</string>
-    <string name="nfc_how_it_works_title" msgid="6531433737926327904">"การชำระเงินที่เครื่องเทอร์มินัล"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"ตั้งค่าแอปการชำระเงิน แล้วแตะด้านหลังของโทรศัพท์กับเทอร์มินัลเครื่องใดก็ได้ที่มีสัญลักษณ์ \"ไร้สัมผัส\""</string>
+    <string name="nfc_how_it_works_title" msgid="6531433737926327904">"การชำระเงินที่เครื่องชำระเงิน"</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"ตั้งค่าแอปการชำระเงิน แล้วแตะด้านหลังของโทรศัพท์กับเครื่องชำระเงินเครื่องใดก็ได้ที่มีสัญลักษณ์ \"ไม่ต้องสัมผัส\""</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"รับทราบ"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"เพิ่มเติม..."</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"ตั้งเป็นค่ากำหนดของคุณไหม"</string>
@@ -3161,7 +3161,7 @@
     <string name="emergency_tone_alert" msgid="907868135091891015">"มีเสียง"</string>
     <string name="emergency_tone_vibrate" msgid="5020068066905681181">"การสั่น"</string>
     <string name="boot_sounds_title" msgid="7583926202411353620">"เสียงเปิดเครื่อง"</string>
-    <string name="live_caption_title" msgid="7926591158657997051">"คำบรรยายภาพสด"</string>
+    <string name="live_caption_title" msgid="7926591158657997051">"คำบรรยายสด"</string>
     <string name="live_caption_summary" msgid="9064771862352393125">"แสดงคำบรรยายสื่อโดยอัตโนมัติ"</string>
     <string name="zen_mode_settings_summary_off" msgid="6929319200478424962">"ไม่เลย"</string>
     <plurals name="zen_mode_settings_summary_on" formatted="false" msgid="6061723291126091396">

@@ -38,7 +38,16 @@
     <item msgid="5827960506924849753">"10 mínútur"</item>
     <item msgid="6677424950124253938">"30 mínútur"</item>
   </string-array>
-    <!-- no translation found for dream_timeout_entries:7 (8271452751594598661) -->
+  <string-array name="dream_timeout_entries">
+    <item msgid="6487043225269853023">"Aldrei"</item>
+    <item msgid="2517785806387977252">"15 sekúndur"</item>
+    <item msgid="6347954399441173672">"30 sekúndur"</item>
+    <item msgid="4858305253279921789">"1 mínúta"</item>
+    <item msgid="8109273437140044073">"2 mínútur"</item>
+    <item msgid="2788593551142462622">"5 mínútur"</item>
+    <item msgid="8012672183888404961">"10 mínútur"</item>
+    <item msgid="8271452751594598661">"30 mínútur"</item>
+  </string-array>
   <string-array name="lock_after_timeout_entries">
     <item msgid="2232921187970351881">"Strax"</item>
     <item msgid="2038544972632026612">"5 sekúndur"</item>
@@ -50,17 +59,47 @@
     <item msgid="811192536981678974">"10 mínútur"</item>
     <item msgid="7258394417241706272">"30 mínútur"</item>
   </string-array>
-    <!-- no translation found for entries_font_size:0 (2340391964816059553) -->
-    <!-- no translation found for entries_font_size:0 (6490061470416867723) -->
-    <!-- no translation found for entries_font_size:2 (1714184661981538355) -->
-    <!-- no translation found for entries_font_size:2 (1678068858001018666) -->
-    <!-- no translation found for wifi_status:3 (5848277343965362748) -->
-    <!-- no translation found for wifi_status_with_ssid:1 (6816207058895999545) -->
-    <!-- no translation found for wifi_status_with_ssid:3 (7547609081339573756) -->
-    <!-- no translation found for wifi_status_with_ssid:4 (5145158315060185414) -->
+  <string-array name="entries_font_size">
+    <item msgid="2340391964816059553">"Lítil"</item>
+    <item msgid="591935967183159581">"Sjálfgefið"</item>
+    <item msgid="1714184661981538355">"Stór"</item>
+    <item msgid="6195563047686707484">"Stærst"</item>
+  </string-array>
+  <string-array name="wifi_status">
+    <item msgid="1304883790721412351"></item>
+    <item msgid="4157625910392775808">"Leitar…"</item>
+    <item msgid="5597394826455877834">"Tengist…"</item>
+    <item msgid="5848277343965362748">"Auðkennir…"</item>
+    <item msgid="3391238031431440676">"Sækir IP-tölu…"</item>
+    <item msgid="5257597310494000224">"Tengt"</item>
+    <item msgid="8472497592913050396">"Í bið"</item>
+    <item msgid="1228072488815999109">"Aftengist…"</item>
+    <item msgid="7253087004422991731">"Aftengt"</item>
+    <item msgid="4169850917304751227">"Mistókst"</item>
+    <item msgid="6266658166690831131">"Á bannlista"</item>
+    <item msgid="4517230805854909775">"Forðast lélega tengingu tímabundið"</item>
+  </string-array>
+  <string-array name="wifi_status_with_ssid">
+    <item msgid="4853670665485437464"></item>
+    <item msgid="6816207058895999545">"Leitar…"</item>
+    <item msgid="8058143476674427024">"Tengist <xliff:g id="NETWORK_NAME">%1$s</xliff:g>…"</item>
+    <item msgid="7547609081339573756">"Auðkennir á <xliff:g id="NETWORK_NAME">%1$s</xliff:g>…"</item>
+    <item msgid="5145158315060185414">"Sækir IP-tölu frá <xliff:g id="NETWORK_NAME">%1$s</xliff:g>…"</item>
+    <item msgid="3283243151651124831">"Tengt við <xliff:g id="NETWORK_NAME">%1$s</xliff:g>"</item>
+    <item msgid="6600156231416890902">"Í bið"</item>
+    <item msgid="4133290864821295785">"Aftengist <xliff:g id="NETWORK_NAME">%1$s</xliff:g>…"</item>
+    <item msgid="3980154971187953257">"Aftengt"</item>
+    <item msgid="2847316776634969068">"Mistókst"</item>
+    <item msgid="4390990424746035383">"Á bannlista"</item>
+    <item msgid="3618248791367063949">"Forðast lélega tengingu tímabundið"</item>
+  </string-array>
     <!-- no translation found for wifi_tether_security:0 (5586343370515598801) -->
     <!-- no translation found for wifi_tether_security:1 (6136336549994615745) -->
-    <!-- no translation found for wifi_p2p_wps_setup:0 (5390235347963255303) -->
+  <string-array name="wifi_p2p_wps_setup">
+    <item msgid="5390235347963255303">"Hnappur"</item>
+    <item msgid="7401896200768713930">"PIN-númer úr tengdu tæki"</item>
+    <item msgid="4526848028011846710">"PIN frá þessu tæki"</item>
+  </string-array>
   <string-array name="wifi_p2p_status">
     <item msgid="8741947238021758201">"Tengt"</item>
     <item msgid="983792611851499732">"Boðið"</item>
@@ -82,8 +121,13 @@
     <item msgid="1644506614010085798">"4"</item>
     <item msgid="3132506679404897150">"5"</item>
   </string-array>
-    <!-- no translation found for wifi_signal:1 (7882129634982603782) -->
-    <!-- no translation found for wifi_signal:4 (999948812884919584) -->
+  <string-array name="wifi_signal">
+    <item msgid="1709949377823900951">"Lélegt"</item>
+    <item msgid="7882129634982603782">"Lélegt"</item>
+    <item msgid="6457357501905996224">"Sæmilegt"</item>
+    <item msgid="405271628162918841">"Góður"</item>
+    <item msgid="999948812884919584">"Frábært"</item>
+  </string-array>
   <string-array name="data_usage_data_range">
     <item msgid="8986775481492954015">"Síðustu 30 dagar"</item>
     <item msgid="3211287705232736964">"Velja notkunartímabil..."</item>
@@ -119,7 +163,10 @@
     <item msgid="7330627471456865502">"MSCHAPV2"</item>
     <item msgid="6255179395132581882">"GTC"</item>
   </string-array>
-    <!-- no translation found for wifi_ip_settings:1 (4377002609760712163) -->
+  <string-array name="wifi_ip_settings">
+    <item msgid="2717196390555072244">"DHCP"</item>
+    <item msgid="4377002609760712163">"Föst"</item>
+  </string-array>
   <string-array name="wifi_proxy_settings">
     <item msgid="9032900195127165132">"Ekkert"</item>
     <item msgid="1464741437353223198">"Handbók"</item>
@@ -239,11 +286,73 @@
     <item msgid="1165623660533024666">"keyra í bakgrunni"</item>
     <item msgid="6423861043647911030">"hljóðstyrkur aðgengis"</item>
   </string-array>
-    <!-- no translation found for app_ops_labels:3 (7836406246005211990) -->
-    <!-- no translation found for app_ops_labels:4 (3951439024549922598) -->
-    <!-- no translation found for app_ops_labels:8 (3597797992398484655) -->
-    <!-- no translation found for app_ops_labels:20 (3037159047591081136) -->
-    <!-- no translation found for app_ops_labels:41 (2464189519136248621) -->
+  <string-array name="app_ops_labels">
+    <item msgid="7892361636570580123">"Staðsetning"</item>
+    <item msgid="6656077694190491067">"Staðsetning"</item>
+    <item msgid="8790228218278477369">"Staðsetning"</item>
+    <item msgid="7836406246005211990">"Titringur"</item>
+    <item msgid="3951439024549922598">"Lesa tengiliði"</item>
+    <item msgid="8802152411647068">"Breyta tengiliðum"</item>
+    <item msgid="229544934599698735">"Lesa símtalaskrá"</item>
+    <item msgid="7396102294405899613">"Breyta símtalaskrá"</item>
+    <item msgid="3597797992398484655">"Lesa dagatal"</item>
+    <item msgid="2705975774250907343">"Breyta dagatali"</item>
+    <item msgid="4668747371441932697">"Staðsetning"</item>
+    <item msgid="1487578921720243646">"Færslutilkynning"</item>
+    <item msgid="4636080349724146638">"Staðsetning"</item>
+    <item msgid="673510900286463926">"Hringja í síma"</item>
+    <item msgid="542083422784609790">"Lesa SMS/MMS"</item>
+    <item msgid="1033780373029588436">"Skrifa SMS/MMS"</item>
+    <item msgid="5647111115517787488">"Taka á móti SMS/MMS"</item>
+    <item msgid="8591105601108455893">"Taka á móti SMS/MMS"</item>
+    <item msgid="7730995008517841903">"Taka á móti SMS/MMS"</item>
+    <item msgid="2613033109026626086">"Taka á móti SMS/MMS"</item>
+    <item msgid="3037159047591081136">"Senda SMS/MMS"</item>
+    <item msgid="4726682243833913568">"Lesa SMS/MMS"</item>
+    <item msgid="6555678522277865572">"Skrifa SMS/MMS"</item>
+    <item msgid="6981734935578130884">"Breyta stillingum"</item>
+    <item msgid="8705854389991425629">"Teikna yfir"</item>
+    <item msgid="5861356020344153651">"Opna tilkynningar"</item>
+    <item msgid="78432174621628659">"Myndavél"</item>
+    <item msgid="3986116419882154794">"Taka upp hljóð"</item>
+    <item msgid="4516840825756409490">"Spila hljóð"</item>
+    <item msgid="6811712502798183957">"Lesa klippiborð"</item>
+    <item msgid="2780369012602289114">"Breyta klippiborði"</item>
+    <item msgid="2331359440170850868">"Margmiðlunarhnappar"</item>
+    <item msgid="6133599737122751231">"Fókus hljóðs"</item>
+    <item msgid="6844485713404805301">"Meginhljóðstyrkur"</item>
+    <item msgid="1600379420669104929">"Hljóðstyrkur raddar"</item>
+    <item msgid="6296768210470214866">"Hljóðstyrkur hringingar"</item>
+    <item msgid="510690696071629241">"Hljóðstyrkur margmiðlunarefnis"</item>
+    <item msgid="406861638631430109">"Hljóðstyrkur vekjara"</item>
+    <item msgid="4715864795872233884">"Hljóðstyrkur tilkynninga"</item>
+    <item msgid="2311478519251301183">"Hljóðstyrkur Bluetooth"</item>
+    <item msgid="5133991377896747027">"Halda vakandi"</item>
+    <item msgid="2464189519136248621">"Staður"</item>
+    <item msgid="2062677934050803037">"Staðsetning"</item>
+    <item msgid="1735171933192715957">"Fá talnagögn um notkun"</item>
+    <item msgid="1014093788778383554">"Kveikja/slökkva á hljóðnema"</item>
+    <item msgid="4199297950608622850">"Sýna tilkynningu"</item>
+    <item msgid="2527962435313398821">"Margmiðlunarefni verkefnis"</item>
+    <item msgid="5117506254221861929">"Virkja VPN"</item>
+    <item msgid="8291198322681891160">"Skrifa veggfóður"</item>
+    <item msgid="7106921284621230961">"Aðstoða við uppbyggingu"</item>
+    <item msgid="4496533640894624799">"Aðstoða við skjámynd"</item>
+    <item msgid="2598847264853993611">"Lesa stöðu síma"</item>
+    <item msgid="9215610846802973353">"Bæta við talhólfi"</item>
+    <item msgid="9186411956086478261">"Nota SIP"</item>
+    <item msgid="6884763100104539558">"Vinna úr hringdu símtali"</item>
+    <item msgid="125513972170580692">"Fingrafar"</item>
+    <item msgid="2556071024281275619">"Líkamsskynjarar"</item>
+    <item msgid="617168514928339387">"Lesa skilaboð frá endurvarpa"</item>
+    <item msgid="7134693570516523585">"Gervistaðsetning"</item>
+    <item msgid="7224489175375229399">"Lesa geymslu"</item>
+    <item msgid="8472735063903258202">"Skrifa í geymslu"</item>
+    <item msgid="4069276819909595110">"Kveikja á skjánum"</item>
+    <item msgid="1228338896751121025">"Fá reikninga"</item>
+    <item msgid="3181581793459233672">"Keyra í bakgrunni"</item>
+    <item msgid="2340936043025374076">"Hljóðstyrkur aðgengis"</item>
+  </string-array>
   <string-array name="long_press_timeout_selector_titles">
     <item msgid="8950313530602254787">"Stutt"</item>
     <item msgid="4816511817309094890">"Í meðallagi"</item>
@@ -260,7 +369,13 @@
     <item msgid="4627069151979553527">"Tengt"</item>
     <item msgid="6896773537705206194">"Litlir hástafir"</item>
   </string-array>
-    <!-- no translation found for captioning_font_size_selector_titles:3 (2784236342175159295) -->
+  <string-array name="captioning_font_size_selector_titles">
+    <item msgid="1680223634161592855">"Mjög lítið"</item>
+    <item msgid="5091603983404027034">"Lítið"</item>
+    <item msgid="176844712416932112">"Venjulegt"</item>
+    <item msgid="2784236342175159295">"Stór"</item>
+    <item msgid="218913203203160606">"Mjög stórt"</item>
+  </string-array>
   <string-array name="captioning_edge_type_selector_titles">
     <item msgid="3865198759294188069">"Sjálfgefið"</item>
     <item msgid="6488643537808152001">"Ekkert"</item>
@@ -275,7 +390,14 @@
     <item msgid="1874668269931014581">"75%"</item>
     <item msgid="6462911487571123954">"100%"</item>
   </string-array>
-    <!-- no translation found for captioning_preset_selector_titles:2 (5891360837786277638) -->
+  <string-array name="captioning_preset_selector_titles">
+    <item msgid="326819345272910536">"Nota sjálfgildi forrits"</item>
+    <item msgid="8611890312638868524">"Hvítt á svörtu"</item>
+    <item msgid="5891360837786277638">"Svart á hvítu"</item>
+    <item msgid="2798457065945456853">"Gult á svörtu"</item>
+    <item msgid="5799049811524553967">"Gult á bláu"</item>
+    <item msgid="3673930830658169860">"Sérstillt"</item>
+  </string-array>
   <string-array name="vpn_types_long">
     <item msgid="6566768880689730097">"PPTP VPN"</item>
     <item msgid="1349760781118368659">"L2TP/IPSec VPN með lyklum sem hefur verið deilt"</item>
@@ -288,15 +410,32 @@
     <item msgid="2958623927055120839">"Ekkert"</item>
     <item msgid="1157046369795346308">"Handbók"</item>
   </string-array>
-    <!-- no translation found for vpn_states:4 (9135049670787351881) -->
+  <string-array name="vpn_states">
+    <item msgid="5408915841694583740">"Aftengt"</item>
+    <item msgid="8754480102834556765">"Frumstillir…"</item>
+    <item msgid="3351334355574270250">"Tengist…"</item>
+    <item msgid="8303882153995748352">"Tengt"</item>
+    <item msgid="9135049670787351881">"Tímamörk"</item>
+    <item msgid="2124868417182583926">"Mistókst"</item>
+  </string-array>
   <string-array name="security_settings_premium_sms_values">
     <item msgid="1164265643455394443">"Spyrja"</item>
     <item msgid="7718817231348607934">"Leyfa aldrei"</item>
     <item msgid="8184570120217958741">"Leyfa alltaf"</item>
   </string-array>
-    <!-- no translation found for ram_states:0 (708247372474061274) -->
-    <!-- no translation found for ram_states:4 (1567326459340152525) -->
-    <!-- no translation found for proc_stats_memory_states:3 (8577246509202964244) -->
+  <string-array name="ram_states">
+    <item msgid="708247372474061274">"Venjuleg"</item>
+    <item msgid="5101233285497327432">"Í meðallagi"</item>
+    <item msgid="1555861583162930714">"Lítið"</item>
+    <item msgid="1719683776264798117">"Alvarlegt"</item>
+    <item msgid="1567326459340152525">"?"</item>
+  </string-array>
+  <string-array name="proc_stats_memory_states">
+    <item msgid="3474232046138139454">"Venjulegt"</item>
+    <item msgid="6107138933849816768">"Í meðallagi"</item>
+    <item msgid="182695359839047859">"Lítið"</item>
+    <item msgid="8577246509202964244">"Á þrotum"</item>
+  </string-array>
   <string-array name="proc_stats_process_states">
     <item msgid="7560955722349181440">"Viðvarandi"</item>
     <item msgid="167418068739176448">"Mesta virkni"</item>

@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"缩小或放大屏幕上的文字。"</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"缩小"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"放大"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"示例文本"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"绿野仙踪"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"第 11 章：奥兹国神奇的翡翠城"</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"WLAN"</item>
+    <item msgid="2271962426654621656">"移动数据"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"如果无法连接到 WLAN，请使用移动网络"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"如果移动网络不可用，请使用 WLAN"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"通过 WLAN 进行通话。如果 WLAN 连接中断，通话将会结束。"</string>
@@ -2080,7 +2082,7 @@
     <string name="accessibility_timeout_1min" msgid="5019003178551730551">"1 分钟"</string>
     <string name="accessibility_timeout_2mins" msgid="4124259290444829477">"2 分钟"</string>
     <string name="accessibility_content_timeout_preference_title" msgid="5160746882250939464">"阅读时间"</string>
-    <string name="accessibility_control_timeout_preference_title" msgid="2771808346038759474">"操作执行时长"</string>
+    <string name="accessibility_control_timeout_preference_title" msgid="2771808346038759474">"等待操作的时长"</string>
     <string name="accessibility_content_timeout_preference_summary" msgid="853829064617918179">"请选择您需要阅读的消息的显示时间（只会暂时显示）。\n\n只有部分应用支持这项设置。"</string>
     <string name="accessibility_control_timeout_preference_summary" msgid="8582212299606932160">"请选择提示您执行操作的消息的显示时间（只会暂时显示）。\n\n部分应用可能不支持这项设置。"</string>
     <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"轻触并按住的延迟时间"</string>
@@ -2276,7 +2278,7 @@
     <string name="battery_tip_smart_battery_title" product="device" msgid="7419448992583346364">"延长设备的电池续航时间"</string>
     <string name="battery_tip_smart_battery_summary" msgid="5344821856478265778">"开启电池管理器"</string>
     <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"开启省电模式"</string>
-    <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"电池电量可能会比平时更早耗尽"</string>
+    <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"电池电量可能会比平时更快耗尽"</string>
     <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"省电模式已开启"</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"部分功能可能会受到限制"</string>
     <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"手机的使用强度比平时高"</string>
@@ -2848,7 +2850,7 @@
     <string name="user_settings_title" msgid="7917598650933179545">"多用户"</string>
     <string name="user_settings_footer_text" product="device" msgid="4573858247439190545">"通过添加新用户来共享您的设备。每个用户都将在您的设备上拥有个人空间，以便使用自定义的主屏幕、帐号、应用和设置等。"</string>
     <string name="user_settings_footer_text" product="tablet" msgid="780018221428132918">"通过添加新用户来共享您的平板电脑。每个用户都将在您的平板电脑上拥有个人空间，以便使用自定义的主屏幕、帐号、应用和设置等。"</string>
-    <string name="user_settings_footer_text" product="default" msgid="1470859614968237491">"通过添加新用户来共享您的手机。每个用户都将在您的手机上拥有个人空间，以便使用自定义的主屏幕、帐号、应用和设置等。"</string>
+    <string name="user_settings_footer_text" product="default" msgid="1470859614968237491">"通过添加新用户，您可以与他人共用一部手机。每个用户都将在您的手机上拥有个人空间，并可自行设定主屏幕、帐号、应用和设置等。"</string>
     <string name="user_list_title" msgid="6670258645246192324">"用户和个人资料"</string>
     <string name="user_add_user_or_profile_menu" msgid="4220679989900149336">"添加用户或个人资料"</string>
     <string name="user_add_user_menu" msgid="9006572936456324794">"添加用户"</string>
@@ -2913,7 +2915,7 @@
     <string name="apps_with_restrictions_header" msgid="8656739605673756176">"受限应用"</string>
     <string name="apps_with_restrictions_settings_button" msgid="5065896213467171744">"展开应用设置"</string>
     <string name="nfc_payment_settings_title" msgid="5070077706735415291">"触碰付款"</string>
-    <string name="nfc_payment_how_it_works" msgid="7607901964687787177">"工作原理"</string>
+    <string name="nfc_payment_how_it_works" msgid="7607901964687787177">"工作方式"</string>
     <string name="nfc_payment_no_apps" msgid="8844440783395420860">"使用手机在商店内付款"</string>
     <string name="nfc_payment_default" msgid="7869273092463612271">"默认付款应用"</string>
     <string name="nfc_payment_default_not_set" msgid="955804193510335338">"未设置"</string>
@@ -3167,7 +3169,7 @@
       <item quantity="one">已启用 1 个</item>
     </plurals>
     <string name="zen_mode_settings_title" msgid="3425263414594779244">"勿扰模式"</string>
-    <string name="zen_mode_settings_turn_on_dialog_title" msgid="3062548369931058282">"开启“勿扰”模式"</string>
+    <string name="zen_mode_settings_turn_on_dialog_title" msgid="3062548369931058282">"开启勿扰模式"</string>
     <string name="zen_mode_behavior_settings_title" msgid="423125904296667490">"例外情况"</string>
     <string name="zen_mode_duration_settings_title" msgid="5522668871014735728">"默认时长"</string>
     <string name="zen_mode_behavior_allow_title" msgid="2440627647424280842">"允许以下类型的提示音和振动："</string>
@@ -3507,7 +3509,7 @@
     <string name="zen_mode_reminders_list" msgid="7347061314032326677">"提醒"</string>
     <string name="zen_mode_events" msgid="5784076928339534984">"允许活动"</string>
     <string name="zen_mode_bypassing_apps" msgid="3080739479028713449">"允许应用覆盖"</string>
-    <string name="zen_mode_bypassing_apps_title" msgid="2115024664615538847">"应用例外情况"</string>
+    <string name="zen_mode_bypassing_apps_title" msgid="2115024664615538847">"例外应用"</string>
     <plurals name="zen_mode_bypassing_apps_subtext" formatted="false" msgid="8723144434730871572">
       <item quantity="other">有 <xliff:g id="NUMBER">%1$d</xliff:g> 个应用的通知可以覆盖“勿扰”设置</item>
       <item quantity="one">有 1 个应用的通知可以覆盖“勿扰”设置</item>
@@ -3518,7 +3520,7 @@
     <string name="zen_mode_starred_callers" msgid="1317376207713013472">"已加星标的联系人"</string>
     <string name="zen_mode_repeat_callers" msgid="1435309867554692340">"重复来电者"</string>
     <string name="zen_mode_repeat_callers_list" msgid="2750270907597457279">"重复来电者"</string>
-    <string name="zen_mode_repeat_callers_title" msgid="7192952181541813487">"允许显示重复来电者"</string>
+    <string name="zen_mode_repeat_callers_title" msgid="7192952181541813487">"不屏蔽重复来电者"</string>
     <string name="zen_mode_calls_summary_one" msgid="8327371053236689649">"允许<xliff:g id="CALLER_TYPE">%1$s</xliff:g>的来电"</string>
     <string name="zen_mode_calls_summary_two" msgid="9017678770532673578">"允许下列对象来电：<xliff:g id="CALLER_TYPE">%1$s</xliff:g>和<xliff:g id="CALLERT_TPYE">%2$s</xliff:g>"</string>
     <string name="zen_mode_repeat_callers_summary" msgid="1752513516040525545">"如果同一个人在 <xliff:g id="MINUTES">%d</xliff:g> 分钟内第二次来电"</string>
@@ -4472,7 +4474,7 @@
     <string name="privacy_dashboard_summary" msgid="7916431309860824945">"权限、帐号活动、个人数据"</string>
     <string name="contextual_card_dismiss_remove" msgid="1750420285615827309">"移除"</string>
     <string name="contextual_card_dismiss_keep" msgid="3204450672928193661">"保留"</string>
-    <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"要移除这项推荐内容吗？"</string>
+    <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"要移除这项建议吗？"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"已移除建议"</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"撤消"</string>
     <string name="low_storage_summary" msgid="4562224870189133400">"存储空间不足。已使用 <xliff:g id="PERCENTAGE">%1$s</xliff:g>，还剩 <xliff:g id="FREE_SPACE">%2$s</xliff:g>"</string>

@@ -4269,7 +4269,7 @@
     <string name="storage_manager_indicator_on" msgid="5295306384982062320">"Attiva"</string>
     <string name="install_type_instant" msgid="6248487669862821874">"App istantanea"</string>
     <string name="automatic_storage_manager_deactivation_warning" msgid="7867793739491286374">"Disattivare la gestione della memoria?"</string>
-    <string name="storage_movies_tv" msgid="7282484273991655296">"App per film e programmi televisivi"</string>
+    <string name="storage_movies_tv" msgid="7282484273991655296">"App per film e programmi TV"</string>
     <string name="carrier_provisioning" msgid="3309125279191534469">"Informazioni sul provisioning operatore"</string>
     <string name="trigger_carrier_provisioning" msgid="6284005970057901477">"Attiva provisioning operatore"</string>
     <string name="zen_suggestion_title" msgid="2134699720214231950">"Aggiorna modalità Non disturbare"</string>

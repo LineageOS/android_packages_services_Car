@@ -23,10 +23,10 @@
     <string name="deny" msgid="3998166389989144025">"拒絕"</string>
     <string name="device_info_default" msgid="1548919563979154348">"不明"</string>
     <plurals name="show_dev_countdown" formatted="false" msgid="3953785659137161981">
-      <item quantity="other">你只需完成剩餘的 <xliff:g id="STEP_COUNT_1">%1$d</xliff:g> 個步驟，即可成為開發人員。</item>
-      <item quantity="one">你只需完成剩餘的 <xliff:g id="STEP_COUNT_0">%1$d</xliff:g> 個步驟，即可成為開發人員。</item>
+      <item quantity="other">只要再 <xliff:g id="STEP_COUNT_1">%1$d</xliff:g> 個步驟即可啟用開發人員設定。</item>
+      <item quantity="one">只要再 <xliff:g id="STEP_COUNT_0">%1$d</xliff:g> 個步驟即可啟用開發人員設定。</item>
     </plurals>
-    <string name="show_dev_on" msgid="9075712234786224065">"你現在已成為開發人員！"</string>
+    <string name="show_dev_on" msgid="9075712234786224065">"開發人員設定已啟用！"</string>
     <string name="show_dev_already" msgid="7665948832405148689">"不需要了，你已經是開發人員。"</string>
     <string name="dev_settings_disabled_warning" msgid="3198732189395396721">"請先啟用開發人員選項。"</string>
     <string name="header_category_wireless_networks" msgid="8968405993937795898">"無線與網路"</string>
@@ -895,7 +895,7 @@
     <string name="wifi_setup_wps" msgid="6730131677695521321">"自動設定 (WPS)"</string>
     <string name="wifi_settings_scanning_required_title" msgid="3593457187659922490">"要開啟掃描 Wi-Fi 功能嗎？"</string>
     <string name="wifi_settings_scanning_required_summary" msgid="7469610959462708782">"必須先開啟掃描 Wi-Fi 功能，才能自動開啟 Wi‑Fi。"</string>
-    <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"掃描 Wi-Fi 功能可讓應用程式和服務隨時掃描 Wi‑Fi 網路 (即使 Wi‑Fi 功能處於關閉狀態)。這可以用來改善適地性功能和服務。"</string>
+    <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"掃描 Wi-Fi 功能可在 Wi‑Fi 關閉時，讓應用程式和服務隨時掃描 Wi‑Fi 網路。此功能可用來改善適地性等功能和服務。"</string>
     <string name="wifi_settings_scanning_required_turn_on" msgid="4327570180594277049">"開啟"</string>
     <string name="wifi_settings_scanning_required_enabled" msgid="3336102100425307040">"已開啟掃描 Wi-Fi 功能"</string>
     <string name="wifi_show_advanced" msgid="8199779277168030597">"進階選項"</string>
@@ -2082,7 +2082,7 @@
     <string name="accessibility_timeout_1min" msgid="5019003178551730551">"1 分鐘"</string>
     <string name="accessibility_timeout_2mins" msgid="4124259290444829477">"2 分鐘"</string>
     <string name="accessibility_content_timeout_preference_title" msgid="5160746882250939464">"可閱讀的時間"</string>
-    <string name="accessibility_control_timeout_preference_title" msgid="2771808346038759474">"操作等待時間"</string>
+    <string name="accessibility_control_timeout_preference_title" msgid="2771808346038759474">"提示顯示時間"</string>
     <string name="accessibility_content_timeout_preference_summary" msgid="853829064617918179">"選擇你需要閱讀的訊息會暫時顯示多久。\n\n只有部分應用程式支援這項設定。"</string>
     <string name="accessibility_control_timeout_preference_summary" msgid="8582212299606932160">"選擇提示你進行操作的訊息會暫時顯示多久。\n\n只有部分應用程式支援這項設定。"</string>
     <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"輕觸並按住的延遲時間"</string>
@@ -3733,7 +3733,7 @@
     <string name="usb_use_file_transfers_desc" msgid="6953866660041189580">"將檔案轉移到另一個裝置"</string>
     <string name="usb_use_photo_transfers" msgid="5974236250197451257">"PTP"</string>
     <string name="usb_use_photo_transfers_desc" msgid="2325112887316125320">"如果 MTP 不受支援，則轉移相片或檔案 (PTP)"</string>
-    <string name="usb_use_tethering" msgid="4250626730173163846">"USB 數據連線"</string>
+    <string name="usb_use_tethering" msgid="4250626730173163846">"USB 網路共用"</string>
     <string name="usb_use_MIDI" msgid="4710632870781041401">"MIDI"</string>
     <string name="usb_use_MIDI_desc" msgid="1770966187150010947">"將這個裝置用做 MIDI"</string>
     <string name="usb_use" msgid="8940500223316278632">"USB 用途"</string>
@@ -3753,7 +3753,7 @@
     <string name="usb_summary_photo_transfers" msgid="4743028167400644354">"PTP"</string>
     <string name="usb_summary_MIDI" msgid="5540604166270861247">"MIDI"</string>
     <string name="usb_summary_file_transfers_power" msgid="1684501026426766867">"檔案傳輸和供電"</string>
-    <string name="usb_summary_tether_power" msgid="5684170912136320002">"USB 數據連線和供電"</string>
+    <string name="usb_summary_tether_power" msgid="5684170912136320002">"USB 網路共用和供電"</string>
     <string name="usb_summary_photo_transfers_power" msgid="4424106272137720464">"PTP 和供電"</string>
     <string name="usb_summary_MIDI_power" msgid="7685597621357005180">"MIDI 模式和供電"</string>
     <string name="background_check_pref" msgid="664081406854758392">"背景檢查"</string>

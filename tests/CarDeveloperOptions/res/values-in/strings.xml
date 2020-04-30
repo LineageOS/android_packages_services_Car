@@ -179,7 +179,7 @@
     <string name="connected_device_connected_title" msgid="6255107326608785482">"Tersambung saat ini"</string>
     <string name="connected_device_saved_title" msgid="8270136893488475163">"Perangkat yang tersimpan"</string>
     <string name="connected_device_add_device_summary" msgid="7960491471270158891">"Bluetooth akan diaktifkan untuk menyambungkan"</string>
-    <string name="connected_device_connections_title" msgid="9205000271382018428">"Preferensi sambungan"</string>
+    <string name="connected_device_connections_title" msgid="9205000271382018428">"Preferensi koneksi"</string>
     <string name="connected_device_previously_connected_title" msgid="225918223397410428">"Perangkat yang sebelumnya tersambung"</string>
     <string name="connected_device_previously_connected_screen_title" msgid="2018789662358162716">"Perangkat yang terhubung sebelumnya"</string>
     <string name="connected_device_bluetooth_turned_on_toast" msgid="4652326177920814476">"Bluetooth diaktifkan"</string>
@@ -826,7 +826,7 @@
     <string name="nfc_disclaimer_title" msgid="4860231267351602970">"Aktifkan NFC"</string>
     <string name="nfc_disclaimer_content" msgid="3066113577854565782">"NFC mempertukarkan data antara perangkat ini dan perangkat atau target lain di sekitar, seperti terminal pembayaran, pembaca akses, dan iklan atau tag interaktif."</string>
     <string name="nfc_secure_settings_title" msgid="5153751163174916581">"Amankan NFC"</string>
-    <string name="nfc_secure_toggle_summary" product="default" msgid="7631183023440112192">"Izinkan penggunaan Pembayaran NFC dan Transit hanya jika layar terbuka kuncinya"</string>
+    <string name="nfc_secure_toggle_summary" product="default" msgid="7631183023440112192">"Izinkan penggunaan Pembayaran NFC dan Transportasi Umum hanya jika layar terbuka kuncinya"</string>
     <string name="android_beam_settings_title" msgid="3083436415873738389">"Android Beam"</string>
     <string name="android_beam_on_summary" msgid="8068287225180474199">"Siap mentransmisikan konten apl melalui NFC"</string>
     <string name="android_beam_off_summary" msgid="7365818039159364600">"Mati"</string>
@@ -925,7 +925,7 @@
     <string name="wifi_show_password" msgid="7878398590772942202">"Tampilkan sandi"</string>
     <string name="wifi_ap_band_config" msgid="6565016368079288433">"Pilih AP Band"</string>
     <string name="wifi_ap_choose_auto" msgid="7927637960569365785">"Otomatis"</string>
-    <string name="wifi_ap_choose_2G" msgid="43198403259714736">"Pita frekuensi 2,4 GHz"</string>
+    <string name="wifi_ap_choose_2G" msgid="43198403259714736">"Band 2,4 GHz"</string>
     <string name="wifi_ap_choose_5G" msgid="2624859713183683146">"Pita frekuensi 5,0 GHz"</string>
     <string name="wifi_ap_prefer_5G" msgid="8339172330471170142">"Disarankan Band 5.0 GHz"</string>
     <string name="wifi_ap_2G" msgid="5793110086517338494">"2,4 GHz"</string>
@@ -938,7 +938,7 @@
     <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"Posisikan kode QR di tengah jendela kamera untuk menambahkan perangkat ke “<xliff:g id="SSID">%1$s</xliff:g>”"</string>
     <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"Pindai kode QR"</string>
     <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"Posisikan kode QR di tengah jendela kamera untuk menyambungkan ke “<xliff:g id="SSID">%1$s</xliff:g>”"</string>
-    <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"Hubungkan ke Wi‑Fi dengan meminta kode QR"</string>
+    <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"Hubungkan ke Wi‑Fi dengan memindai kode QR"</string>
     <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"Bagikan Wi‑Fi"</string>
     <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"Pindai kode QR ini untuk terhubung ke “<xliff:g id="SSID">%1$s</xliff:g>” dan membagikan sandi"</string>
     <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"Pindai kode QR ini untuk terhubung ke “<xliff:g id="SSID">%1$s</xliff:g>”"</string>
@@ -975,7 +975,7 @@
     <string name="wifi_do_not_validate_eap_server" msgid="1892537559682474878">"Jangan validasi"</string>
     <string name="wifi_do_not_validate_eap_server_warning" msgid="3895397996759837323">"Sertifikat tidak ditentukan. Sambungan tidak bersifat pribadi."</string>
     <string name="wifi_ssid_too_long" msgid="34911971389775920">"Nama jaringan terlalu panjang."</string>
-    <string name="wifi_no_domain_warning" msgid="735859919311067606">"Harus menentukan domain."</string>
+    <string name="wifi_no_domain_warning" msgid="735859919311067606">"Domain harus ditentukan."</string>
     <string name="wifi_wps_available_first_item" msgid="3221671453930485243">"WPS tersedia"</string>
     <string name="wifi_wps_available_second_item" msgid="5703265526619705185">" (WPS tersedia)"</string>
     <string name="wifi_carrier_connect" msgid="7202618367339982884">"Jaringan Wi‑Fi operator"</string>
@@ -1568,7 +1568,7 @@
     <string name="restore_default_apn" msgid="7195266404077471007">"Memulihkan setelan APN default."</string>
     <string name="menu_restore" msgid="3799288817317293115">"Setel ulang ke default"</string>
     <string name="restore_default_apn_completed" msgid="5671734152740058937">"Penyetelan ulang setelan APN default selesai."</string>
-    <string name="reset_dashboard_title" msgid="7084966342252178530">"Opsi setel ulang"</string>
+    <string name="reset_dashboard_title" msgid="7084966342252178530">"Opsi reset"</string>
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"Jaringan, aplikasi, atau perangkat dapat disetel ulang"</string>
     <string name="reset_network_title" msgid="8944059136930806211">"Setel ulang Wi-Fi, kuota seluler &amp; Bluetooth"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"Tindakan ini akan menyetel ulang semua setelan jaringan, termasuk:\n\n"<li>"Wi‑Fi"</li>\n<li>"Kuota seluler"</li>\n<li>"Bluetooth"</li></string>
@@ -2309,12 +2309,12 @@
       <item quantity="other">Batasi %1$d aplikasi?</item>
       <item quantity="one">Batasi aplikasi?</item>
     </plurals>
-    <string name="battery_tip_restrict_app_dialog_message" msgid="6905822297507947381">"Untuk menghemat baterai, hentikan <xliff:g id="APP">%1$s</xliff:g> menggunakan baterai di background. Aplikasi ini mungkin tidak berfungsi dengan baik dan notifikasi dapat tertunda."</string>
-    <string name="battery_tip_restrict_apps_less_than_5_dialog_message" msgid="4225881888543582456">"Untuk menghemat baterai, hentikan aplikasi ini menggunakan baterai di background. Aplikasi yang dibatasi mungkin tidak berfungsi dengan baik dan notifikasi dapat tertunda.\n\nAplikasi:"</string>
-    <string name="battery_tip_restrict_apps_more_than_5_dialog_message" msgid="1748375562539446634">"Untuk menghemat baterai, hentikan aplikasi ini menggunakan baterai di background. Aplikasi yang dibatasi mungkin tidak berfungsi dengan baik dan notifikasi dapat tertunda.\n\nAplikasi:\n<xliff:g id="APP_LIST">%1$s</xliff:g>."</string>
+    <string name="battery_tip_restrict_app_dialog_message" msgid="6905822297507947381">"Untuk menghemat baterai, hentikan <xliff:g id="APP">%1$s</xliff:g> menggunakan baterai di latar belakang. Aplikasi ini mungkin tidak berfungsi dengan baik dan notifikasi dapat tertunda."</string>
+    <string name="battery_tip_restrict_apps_less_than_5_dialog_message" msgid="4225881888543582456">"Untuk menghemat baterai, hentikan aplikasi ini menggunakan baterai di latar belakang. Aplikasi yang dibatasi mungkin tidak berfungsi dengan baik dan notifikasi dapat tertunda.\n\nAplikasi:"</string>
+    <string name="battery_tip_restrict_apps_more_than_5_dialog_message" msgid="1748375562539446634">"Untuk menghemat baterai, hentikan aplikasi ini menggunakan baterai di latar belakang. Aplikasi yang dibatasi mungkin tidak berfungsi dengan baik dan notifikasi dapat tertunda.\n\nAplikasi:\n<xliff:g id="APP_LIST">%1$s</xliff:g>."</string>
     <string name="battery_tip_restrict_app_dialog_ok" msgid="2573410775701913487">"Batasi"</string>
     <string name="battery_tip_unrestrict_app_dialog_title" msgid="812458516399125710">"Hapus batasan?"</string>
-    <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"Aplikasi ini dapat menggunakan baterai di background. Baterai mungkin lebih cepat habis dari biasanya."</string>
+    <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"Aplikasi ini dapat menggunakan baterai di latar belakang. Baterai mungkin lebih cepat habis dari biasanya."</string>
     <string name="battery_tip_unrestrict_app_dialog_ok" msgid="9154938931448151479">"Hapus"</string>
     <string name="battery_tip_unrestrict_app_dialog_cancel" msgid="7331148618292397166">"Batal"</string>
     <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"Aplikasi Anda menggunakan baterai secara normal. Jika aplikasi terlalu banyak menggunakan daya baterai, ponsel Anda akan menyarankan beberapa tindakan.\n\nAnda selalu dapat mengaktifkan Penghemat Baterai jika daya baterai hampir habis."</string>
@@ -2332,7 +2332,7 @@
       <item quantity="one">Membatasi penggunaan baterai untuk %1$d aplikasi</item>
     </plurals>
     <string name="restricted_app_time_summary" msgid="5205881852523135226">"Dibatasi <xliff:g id="TIME">%1$s</xliff:g>"</string>
-    <string name="restricted_app_detail_footer" msgid="482460517275754465">"Aplikasi ini telah menggunakan daya baterai di background. Aplikasi yang dibatasi mungkin tidak berfungsi dengan baik dan notifikasi dapat tertunda."</string>
+    <string name="restricted_app_detail_footer" msgid="482460517275754465">"Aplikasi ini telah menggunakan daya baterai di latar belakang. Aplikasi yang dibatasi mungkin tidak berfungsi dengan baik dan notifikasi dapat tertunda."</string>
     <string name="battery_auto_restriction_title" msgid="488905332794794076">"Gunakan Pengelola Baterai"</string>
     <string name="battery_auto_restriction_summary" msgid="1638072655581821837">"Mendeteksi jika aplikasi menghabiskan baterai"</string>
     <string name="battery_manager_on" msgid="5626982529932239656">"Aktif / Mendeteksi jika aplikasi menghabiskan baterai"</string>
@@ -2601,7 +2601,7 @@
     <string name="work_mode_label" msgid="6845849194740195757">"Profil kerja"</string>
     <string name="work_mode_on_summary" msgid="1682781113156323592">"Dikelola oleh organisasi"</string>
     <string name="work_mode_off_summary" msgid="1688885392211178315">"Aplikasi dan notifikasi dinonaktifkan"</string>
-    <string name="remove_managed_profile_label" msgid="4625542553784793536">"Buang profil kerja"</string>
+    <string name="remove_managed_profile_label" msgid="4625542553784793536">"Hapus profil kerja"</string>
     <string name="background_data" msgid="8275750862371471171">"Data latar belakang"</string>
     <string name="background_data_summary" msgid="799640633948841990">"Apl dapat menyinkronkan, mengirimkan, dan menerima data kapan saja"</string>
     <string name="background_data_dialog_title" msgid="8306650658158895976">"Matikn data ltr blkg?"</string>
@@ -2630,7 +2630,7 @@
     <string name="header_add_an_account" msgid="8482614556580804956">"Tambahkan akun"</string>
     <string name="really_remove_account_title" msgid="4166512362915154319">"Hapus akun?"</string>
     <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"Menghapus akun ini akan menghapus semua pesan, kontak, dan data lain akun tersebut dari tablet!"</string>
-    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Menghapus akun ini akan menghapus semua pesan, kontak, dan data lainnya akun tersebut dari ponsel!"</string>
+    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Menghapus akun ini akan menghapus semua pesan, kontak, dan data lain akun tersebut dari ponsel."</string>
     <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"Menghapus akun ini akan menghapus semua pesan, kontak, dan data lain akun tersebut dari perangkat."</string>
     <string name="remove_account_failed" msgid="491458185327106966">"Perubahan ini tidak diizinkan oleh admin"</string>
     <string name="cant_sync_dialog_title" msgid="5483419398223189881">"Tidak dapat menyinkronkan secara manual"</string>
@@ -2870,7 +2870,7 @@
     <string name="user_add_user_item_title" msgid="6835385073795492410">"Pengguna"</string>
     <string name="user_add_profile_item_title" msgid="4932743891449790664">"Profil dibatasi"</string>
     <string name="user_add_user_title" msgid="2320897397066676472">"Tambahkan pengguna baru?"</string>
-    <string name="user_add_user_message_long" msgid="686637203224195465">"Anda dapat berbagi penggunaan perangkat ini dengan orang lain dengan membuat pengguna tambahan. Setiap pengguna memiliki ruang sendiri, yang dapat disesuaikan dengan aplikasi, wallpaper, dan lainnya.\n\nSaat Anda menambahkan pengguna baru, pengguna tersebut perlu menyiapkan ruangnya.\n\nPengguna mana pun dapat mengupdate aplikasi untuk semua pengguna lainnya. Layanan dan setelan aksesibilitas mungkin tidak ditransfer ke pengguna baru."</string>
+    <string name="user_add_user_message_long" msgid="686637203224195465">"Anda dapat berbagi penggunaan perangkat ini dengan orang lain dengan membuat pengguna tambahan. Setiap pengguna memiliki ruang sendiri, yang dapat disesuaikan dengan aplikasi, wallpaper, dan lainnya. Pengguna juga dapat menyesuaikan setelan perangkat seperti Wi-Fi yang dapat memengaruhi semua pengguna lain.\n\nSaat Anda menambahkan pengguna baru, pengguna tersebut perlu menyiapkan ruangnya.\n\nPengguna mana pun dapat mengupdate aplikasi untuk semua pengguna lainnya. Layanan dan setelan aksesibilitas mungkin tidak ditransfer ke pengguna baru."</string>
     <string name="user_add_user_message_short" msgid="1802594476285458254">"Saat Anda menambahkan pengguna baru, orang tersebut perlu menyiapkan ruang mereka sendiri.\n\nPengguna mana pun dapat memperbarui aplikasi untuk semua pengguna lain."</string>
     <string name="user_setup_dialog_title" msgid="6748950002206392396">"Siapkan pengguna sekarang?"</string>
     <string name="user_setup_dialog_message" msgid="2988559933258353919">"Pastikan orang tersebut ada untuk mengambil perangkat dan menyiapkan ruangnya"</string>
@@ -2888,7 +2888,7 @@
     <string name="user_confirm_remove_self_title" msgid="6739480453680217543">"Hapus diri Anda sendiri?"</string>
     <string name="user_confirm_remove_title" msgid="1034498514019462084">"Hapus pengguna ini?"</string>
     <string name="user_profile_confirm_remove_title" msgid="6138684743385947063">"Buang profil ini?"</string>
-    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"Buang profil kerja?"</string>
+    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"Hapus profil kerja?"</string>
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"Ruang dan data Anda akan hilang dari tablet ini. Anda tidak dapat mengurungkan tindakan ini."</string>
     <string name="user_confirm_remove_self_message" product="default" msgid="8441729423565705183">"Ruang dan data Anda akan hilang dari ponsel ini. Anda tidak dapat mengurungkan tindakan ini."</string>
     <string name="user_confirm_remove_message" msgid="5202150470271756013">"Semua aplikasi dan data akan dihapus."</string>
@@ -3711,8 +3711,8 @@
     <string name="high_power_off" msgid="5906679734326490426">"Mengoptimalkan penggunaan baterai"</string>
     <string name="high_power_system" msgid="739584574711292753">"Pengoptimalan baterai tidak tersedia"</string>
     <string name="high_power_desc" msgid="333756885680362741">"Jangan terapkan pengoptimalan baterai. Baterai akan lebih cepat habis."</string>
-    <string name="high_power_prompt_title" msgid="2805745781720454052">"Izinkan aplikasi selalu berjalan di background?"</string>
-    <string name="high_power_prompt_body" msgid="8067395096053552289">"Mengizinkan <xliff:g id="APP_NAME">%1$s</xliff:g> untuk selalu berjalan di background dapat mengurangi masa pakai baterai. \n\nAnda dapat mengubah ini nanti dari Setelan &gt; Aplikasi &amp; notifikasi."</string>
+    <string name="high_power_prompt_title" msgid="2805745781720454052">"Izinkan aplikasi selalu berjalan di latar belakang?"</string>
+    <string name="high_power_prompt_body" msgid="8067395096053552289">"Mengizinkan <xliff:g id="APP_NAME">%1$s</xliff:g> untuk selalu berjalan di latar belakang dapat mengurangi masa pakai baterai. \n\nAnda dapat mengubah ini nanti dari Setelan &gt; Aplikasi &amp; notifikasi."</string>
     <string name="battery_summary" msgid="4345690800899981339">"<xliff:g id="PERCENTAGE">%1$s</xliff:g> digunakan sejak terakhir kali baterai diisi penuh"</string>
     <string name="battery_power_management" msgid="2853925857548647969">"Pengelolaan daya"</string>
     <string name="no_battery_summary" msgid="4105932628367471314">"Tidak ada penggunaan baterai sejak isi daya penuh terakhir"</string>
@@ -3897,7 +3897,7 @@
     <string name="condition_battery_summary" msgid="1236078243905690620">"Fitur dibatasi"</string>
     <string name="condition_cellular_title" msgid="6605277435894307935">"Kuota tidak aktif"</string>
     <string name="condition_cellular_summary" msgid="3607459310548343777">"Internet hanya tersedia melalui Wi‑Fi"</string>
-    <string name="condition_bg_data_title" msgid="184684435298857712">"Penghemat Kuota"</string>
+    <string name="condition_bg_data_title" msgid="184684435298857712">"Penghemat Data"</string>
     <string name="condition_bg_data_summary" msgid="5194942860807136682">"Fitur dibatasi"</string>
     <string name="condition_work_title" msgid="9046811302347490371">"Profil kerja nonaktif"</string>
     <string name="condition_work_summary" msgid="5586134491975748565">"Untuk aplikasi &amp; notifikasi"</string>
@@ -3953,7 +3953,7 @@
       <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> pembatasan</item>
       <item quantity="one">1 pembatasan</item>
     </plurals>
-    <string name="operator_warning" msgid="4676042739221117031">"Perhitungan kuota operator dapat berbeda dengan perhitungan perangkat"</string>
+    <string name="operator_warning" msgid="4676042739221117031">"Perhitungan data oleh operator dapat berbeda dengan perhitungan perangkat"</string>
     <string name="data_used_template" msgid="761605393453849477">"<xliff:g id="ID_1">%1$s</xliff:g> digunakan"</string>
     <string name="set_data_warning" msgid="8115980184415563941">"Setel peringatan kuota"</string>
     <string name="data_warning" msgid="2699207195535036240">"Peringatan kuota"</string>
@@ -3964,8 +3964,8 @@
     <string name="configure" msgid="8232696842838580549">"Konfigurasi"</string>
     <string name="data_usage_other_apps" msgid="7002491980141402084">"Aplikasi lain yang disertakan dalam penggunaan"</string>
     <plurals name="data_saver_unrestricted_summary" formatted="false" msgid="6046013861315713697">
-      <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> aplikasi diizinkan untuk menggunakan kuota tak terbatas saat Penghemat Kuota Internet aktif</item>
-      <item quantity="one">1 aplikasi diizinkan untuk menggunakan kuota tak terbatas saat Penghemat Kuota Internet aktif</item>
+      <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> aplikasi diizinkan untuk menggunakan data tak terbatas saat Penghemat Data aktif</item>
+      <item quantity="one">1 aplikasi diizinkan untuk menggunakan data tak terbatas saat Penghemat Data aktif</item>
     </plurals>
     <string name="data_usage_title" msgid="7874606430902201083">"Kuota utama"</string>
     <string name="data_usage_wifi_title" msgid="7161828479387766556">"Data Wi-Fi"</string>
@@ -3985,14 +3985,14 @@
     <string name="no_carrier_update_now_text" msgid="4405472895804759042">"Baru saja diupdate"</string>
     <string name="launch_mdp_app_text" msgid="9186559496664208252">"Lihat paket"</string>
     <string name="launch_wifi_text" msgid="317820210431682605">"Lihat detail"</string>
-    <string name="data_saver_title" msgid="7903308134514179256">"Penghemat Kuota"</string>
-    <string name="unrestricted_data_saver" msgid="9139401849550738720">"Kuota tidak dibatasi"</string>
+    <string name="data_saver_title" msgid="7903308134514179256">"Penghemat Data"</string>
+    <string name="unrestricted_data_saver" msgid="9139401849550738720">"Data tidak dibatasi"</string>
     <string name="restrict_background_blacklisted" msgid="7158991683849067124">"Data latar belakang nonaktif"</string>
     <string name="data_saver_on" msgid="7281809065420480881">"Aktif"</string>
     <string name="data_saver_off" msgid="7439439787358504018">"Nonaktif"</string>
-    <string name="data_saver_switch_title" msgid="8244008132112735207">"Gunakan Penghemat Kuota"</string>
-    <string name="unrestricted_app_title" msgid="4390661122069905122">"Penggunaan kuota tidak dibatasi"</string>
-    <string name="unrestricted_app_summary" msgid="2829141815077800483">"Izinkan akses kuota tak terbatas saat Penghemat Kuota Internet aktif"</string>
+    <string name="data_saver_switch_title" msgid="8244008132112735207">"Gunakan Penghemat Data"</string>
+    <string name="unrestricted_app_title" msgid="4390661122069905122">"Penggunaan data tidak dibatasi"</string>
+    <string name="unrestricted_app_summary" msgid="2829141815077800483">"Izinkan akses data tak terbatas saat Penghemat Data aktif"</string>
     <string name="home_app" msgid="3695063566006954160">"Aplikasi layar utama"</string>
     <string name="no_default_home" msgid="1518949210961918497">"Tidak ada Layar Utama default"</string>
     <string name="lockpattern_settings_require_cred_before_startup" msgid="63693894094570367">"Proses memulai dengan aman"</string>
@@ -4002,7 +4002,7 @@
     <string name="suggestion_additional_fingerprints" msgid="3434467207282466411">"Tambahkan sidik jari lain"</string>
     <string name="suggestion_additional_fingerprints_summary" msgid="1916547587832484196">"Buka kunci dengan jari lain"</string>
     <string name="battery_saver_on_summary" msgid="6841062406467435672">"Aktif"</string>
-    <string name="battery_saver_off_scheduled_summary" msgid="3740414764069188669">"Akan aktif jika <xliff:g id="BATTERY_PERCENTAGE">%1$s</xliff:g>"</string>
+    <string name="battery_saver_off_scheduled_summary" msgid="3740414764069188669">"Akan aktif pada <xliff:g id="BATTERY_PERCENTAGE">%1$s</xliff:g>"</string>
     <string name="battery_saver_off_summary" msgid="8736555723004299721">"Nonaktif"</string>
     <string name="battery_saver_button_turn_on" msgid="3748696527267573793">"Aktifkan sekarang"</string>
     <string name="battery_saver_button_turn_off" msgid="2912950982503267828">"Nonaktifkan sekarang"</string>
@@ -4112,7 +4112,7 @@
     <string name="gesture_preference_summary" product="tablet" msgid="8303793594714075580">"Isyarat cepat untuk mengontrol tablet"</string>
     <string name="gesture_preference_summary" product="device" msgid="7792199669106960922">"Isyarat cepat untuk mengontrol perangkat"</string>
     <string name="double_tap_power_for_camera_title" msgid="5480829329052517484">"Buka kamera"</string>
-    <string name="double_tap_power_for_camera_summary" msgid="6591026425496323965">"Untuk membuka kamera dengan cepat, tekan tombol power 2 kali. Berfungsi di layar mana pun."</string>
+    <string name="double_tap_power_for_camera_summary" msgid="6591026425496323965">"Untuk membuka kamera dengan cepat, tekan tombol daya 2 kali. Berfungsi di layar mana pun."</string>
     <string name="double_tap_power_for_camera_suggestion_title" msgid="509078029429865036">"Buka kamera dengan cepat"</string>
     <string name="double_twist_for_camera_mode_title" msgid="2606032140297556018">"Balik kamera"</string>
     <string name="double_twist_for_camera_mode_summary" msgid="8979914206876018137"></string>
@@ -4324,7 +4324,7 @@
     <string name="battery_suggestion_title" product="default" msgid="3295786171830183688">"Tingkatkan masa pakai baterai ponsel"</string>
     <string name="battery_suggestion_summary" msgid="2669070349482656490"></string>
     <string name="gesture_prevent_ringing_screen_title" msgid="4173494225145223638">"Cegah berdering"</string>
-    <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"Tekan tombol Power &amp; Keraskan Volume secara bersamaan untuk"</string>
+    <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"Tekan tombol Daya &amp; Naikkan Volume secara bersamaan untuk"</string>
     <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"Pintasan untuk mencegah berdering"</string>
     <string name="prevent_ringing_option_vibrate" msgid="6456505293904544108">"Getar"</string>
     <string name="prevent_ringing_option_mute" msgid="53662688921253613">"Nonaktifkan suara"</string>

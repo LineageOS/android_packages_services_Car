@@ -35,7 +35,7 @@ import android.app.AppOpsManager;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.settings.CarSettings;
-import android.car.test.mocks.AbstractExtendMockitoTestCase;
+import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleListener;
@@ -66,7 +66,7 @@ import org.mockito.Mock;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class CarUserNoticeServiceTest extends AbstractExtendMockitoTestCase {
+public class CarUserNoticeServiceTest extends AbstractExtendedMockitoTestCase {
 
     @Mock
     private Context mMockContext;
@@ -101,7 +101,7 @@ public class CarUserNoticeServiceTest extends AbstractExtendMockitoTestCase {
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
         session
-            .mockStatic(CarLocalServices.class)
+            .spyStatic(CarLocalServices.class)
             .mockStatic(Settings.Secure.class);
     }
 
@@ -113,7 +113,6 @@ public class CarUserNoticeServiceTest extends AbstractExtendMockitoTestCase {
         doReturn(mCarPowerManager).when(() -> CarLocalServices.createCarPowerManager(mMockContext));
         doReturn(mMockCarPowerManagementService)
                 .when(() -> CarLocalServices.getService(CarPowerManagementService.class));
-        doReturn(mCarPowerManager).when(() -> CarLocalServices.createCarPowerManager(mMockContext));
         doReturn(mMockCarUserService)
                 .when(() -> CarLocalServices.getService(CarUserService.class));
 
@@ -251,7 +250,7 @@ public class CarUserNoticeServiceTest extends AbstractExtendMockitoTestCase {
         return latch;
     }
 
-    private CountDownLatch mockKeySettings(String key, int value) {
+    private static CountDownLatch mockKeySettings(String key, int value) {
         CountDownLatch latch = new CountDownLatch(1);
         when(Settings.Secure.getIntForUser(any(),
                 eq(key), anyInt(),

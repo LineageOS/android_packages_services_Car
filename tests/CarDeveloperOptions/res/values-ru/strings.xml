@@ -85,8 +85,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Сделайте текст на экране мельче или крупнее."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Уменьшить"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Увеличить"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Принесите мне, пожалуйста, чашку кофе."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Пример текста"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"Удивительный волшебник из страны Оз"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"Глава 11. Изумрудный город страны Оз"</string>
@@ -1139,7 +1138,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"Мобильный Интернет"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Использовать мобильную сеть, если сеть Wi‑Fi недоступна."</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Использовать Wi‑Fi, если мобильная сеть недоступна."</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Звонки по Wi‑Fi. Если подключение прервется, звонок будет завершен."</string>
@@ -1283,7 +1285,7 @@
     <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"Во время зарядки или при подключении к док-станции"</string>
     <string name="screensaver_settings_summary_either_short" msgid="2453772128682850053">"Всегда"</string>
     <string name="screensaver_settings_summary_sleep" msgid="6097363596749362692">"Во время зарядки"</string>
-    <string name="screensaver_settings_summary_dock" msgid="6297808146601570196">"В док-станции"</string>
+    <string name="screensaver_settings_summary_dock" msgid="6297808146601570196">"На док-станции"</string>
     <string name="screensaver_settings_summary_never" msgid="3995259444981620707">"Никогда"</string>
     <string name="screensaver_settings_summary_off" msgid="6119947316484763131">"Отключено"</string>
     <string name="screensaver_settings_disabled_prompt" msgid="1897518064782596947">"Чтобы настроить поведение телефона при подключении к док-станции и в спящем режиме, включите заставку."</string>
@@ -1349,7 +1351,7 @@
     <string name="security_patch" msgid="483709031051932208">"Последнее обновление системы безопасности"</string>
     <string name="model_info" msgid="1729765474260797594">"Модель"</string>
     <string name="model_summary" msgid="8781425868254352168">"Модель: %1$s"</string>
-    <string name="hardware_info" msgid="174270144950621815">"Модель и оборудование"</string>
+    <string name="hardware_info" msgid="174270144950621815">"Модель и аппаратное обеспечение"</string>
     <string name="hardware_revision" msgid="3315744162524354246">"Версия аппаратного обеспечения"</string>
     <string name="fcc_equipment_id" msgid="8681995718533066093">"Идентификатор оборудования"</string>
     <string name="baseband_version" msgid="9115560821840757786">"Прошивка модуля связи"</string>
@@ -2641,8 +2643,8 @@
     <string name="remove_and_uninstall_device_admin" msgid="5607703579731496253">"Отключить и удалить"</string>
     <string name="select_device_admin_msg" msgid="4173769638399075387">"Приложения администратора"</string>
     <string name="no_device_admins" msgid="4129231900385977460">"Нет доступных приложений администратора устройства"</string>
-    <string name="personal_device_admin_title" msgid="759440849188565661">"Личный"</string>
-    <string name="managed_device_admin_title" msgid="8021522755492551726">"Рабочий"</string>
+    <string name="personal_device_admin_title" msgid="759440849188565661">"Личные"</string>
+    <string name="managed_device_admin_title" msgid="8021522755492551726">"Рабочие"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"Ограничение доступа к SMS и списку вызовов"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"Доступ к SMS и списку вызовов есть только у приложений для звонков и обмена сообщениями, используемых по умолчанию"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"Нет агентов доверия."</string>
@@ -4184,10 +4186,10 @@
     <string name="overlay_toast_failed_to_apply" msgid="5692251825129250040">"Не удалось применить наложение"</string>
     <string name="special_access" msgid="1453926335914696206">"Специальный доступ"</string>
     <plurals name="special_access_summary" formatted="false" msgid="5182092345063909346">
-      <item quantity="one"><xliff:g id="COUNT">%d</xliff:g> приложение без ограничений мобильного Интернета</item>
-      <item quantity="few"><xliff:g id="COUNT">%d</xliff:g> приложения без ограничений мобильного Интернета</item>
-      <item quantity="many"><xliff:g id="COUNT">%d</xliff:g> приложений без ограничений мобильного Интернета</item>
-      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> приложения без ограничений мобильного Интернета</item>
+      <item quantity="one"><xliff:g id="COUNT">%d</xliff:g> приложение без ограничений на мобильный Интернет</item>
+      <item quantity="few"><xliff:g id="COUNT">%d</xliff:g> приложения без ограничений на мобильный Интернет</item>
+      <item quantity="many"><xliff:g id="COUNT">%d</xliff:g> приложений без ограничений на мобильный Интернет</item>
+      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> приложения без ограничений на мобильный Интернет</item>
     </plurals>
     <string name="special_access_more" msgid="7086690625048471400">"Ещё"</string>
     <string name="confirm_convert_to_fbe_warning" msgid="4972595831034280189">"Удалить пользовательские данные и перейти к шифрованию?"</string>

@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"اسکرین پر موجود متن کو چھوٹا یا بڑا کریں۔"</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"چھوٹا کریں"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"بڑا کریں"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis.‎"</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"نمونہ متن"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"اوز کا شاندار جادوگر"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"گیارھواں باب: اوز کا شاندار زمردی شہر"</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"‎@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"‎@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"موبائل"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"اگر Wi‑Fi دستیاب نہیں ہے تو موبائل نیٹ ورک استعمال کریں"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"اگر موبائل نیٹ ورک دستیاب نہ ہو تو Wi‑Fi استعمال کریں"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Wi‑Fi پر کال کریں۔ اگر Wi‑Fi منقطع ہو جاتا ہے تو کال ختم ہو جائے گی۔"</string>
@@ -1843,7 +1845,7 @@
     <string name="reset_app_preferences" msgid="1426500030595212077">"ایپ کی ترجیحات کو ری سیٹ کریں"</string>
     <string name="reset_app_preferences_title" msgid="792909865493673598">"ایپ کی ترجیحات کو ری سیٹ کریں؟"</string>
     <string name="reset_app_preferences_desc" msgid="7935273005301096031">"اس سے مندرجہ ذیل کیلئے تمام ترجیحات ری سیٹ ہو جائیں گی:\n\n "<li>"غیر فعال ایپس"</li>\n" "<li>"غیر فعال ایپس کی اطلاعات"</li>\n" "<li>"کارروائیوں کیلئے ڈیفالٹ ایپلیکیشنز"</li>\n" "<li>"ایپس کیلئے پس منظر کے ڈیٹا کی پابندیاں"</li>\n" "<li>"کوئی اجازتی پابندیاں"</li>\n\n" آپ کسی ایپ کے ڈیٹا سے محروم نہیں ہوں گے۔"</string>
-    <string name="reset_app_preferences_button" msgid="2041894727477934656">"ایپس کو دوبارہ ترتیب دیں"</string>
+    <string name="reset_app_preferences_button" msgid="2041894727477934656">"ایپس کو ری سیٹ کریں"</string>
     <string name="manage_space_text" msgid="6166469422303124302">"خالی جگہ کا نظم کریں"</string>
     <string name="filter" msgid="2426943916212457962">"فلٹر"</string>
     <string name="filter_dlg_title" msgid="115313222190512670">"فلٹر کے اختیارات منتخب کریں"</string>
@@ -2873,7 +2875,7 @@
     <string name="user_setup_dialog_title" msgid="6748950002206392396">"صارف کو ابھی سیٹ اپ کریں؟"</string>
     <string name="user_setup_dialog_message" msgid="2988559933258353919">"یقینی بنائیں کہ وہ شخص آلہ لینے اور اپنی جگہ کو سیٹ اپ کرنے کیلئے دستیاب ہے"</string>
     <string name="user_setup_profile_dialog_message" msgid="7611900802824048526">"پروفائل کو ابھی ترتیب دیں؟"</string>
-    <string name="user_setup_button_setup_now" msgid="4941459406266856176">"ابھی ترتیب دیں"</string>
+    <string name="user_setup_button_setup_now" msgid="4941459406266856176">"ابھی سیٹ اپ کریں"</string>
     <string name="user_setup_button_setup_later" msgid="6596031428556518752">"ابھی نہیں"</string>
     <string name="user_cannot_manage_message" product="tablet" msgid="7108992906553210763">"صرف ٹیبلٹ کا مالک صارفین کا نظم کر سکتا ہے۔"</string>
     <string name="user_cannot_manage_message" product="default" msgid="915260531390608092">"صرف فون کا مالک صارفین کا نظم کر سکتا ہے۔"</string>
@@ -2923,7 +2925,7 @@
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"علاوہ اس کے کہ کوئی دوسری ادائیگی ایپ کھلی ہو"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"تھپتھپائیں اور ادائیگی کریں ٹرمینل پر، اس کے ساتھ ادائیگی کریں:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"ٹرمینل پر ادا کرنا"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"ادائیگی ایپ سیٹ اپ کریں۔ پھر بس اپنے فون کے پچھلے حصے کو کسی بھی بغیر رابطے والی علامت کے ٹرمینل سے لگائیں۔"</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"ادائیگی کی ایپ سیٹ اپ کریں۔ پھر بس اپنے فون کے پچھلے حصے کو کسی بھی بغیر رابطے والی علامت کے ٹرمینل کے پاس پکڑ کر رکھیں۔"</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"سمجھ آ گئی"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"مزید…"</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"اپنی ترجیح کے بطور سیٹ کریں؟"</string>

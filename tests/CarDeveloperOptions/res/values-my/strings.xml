@@ -363,7 +363,7 @@
     <string name="owner_info_settings_summary" msgid="4208702251226725583">"မရှိ"</string>
     <string name="owner_info_settings_status" msgid="8049975536717685126">"<xliff:g id="COUNT_0">%1$d</xliff:g> / <xliff:g id="COUNT_1">%2$d</xliff:g>"</string>
     <string name="owner_info_settings_edit_text_hint" msgid="2250029417257939706">"ဥပမာ၊ Joe ၏ Android"</string>
-    <string name="user_info_settings_title" msgid="1125111518759995748">"သုံးစွဲသူအကြောင်း"</string>
+    <string name="user_info_settings_title" msgid="1125111518759995748">"အသုံးပြုသူအကြောင်း"</string>
     <string name="show_profile_info_on_lockscreen_label" msgid="5204282771893683026">"သော့ခတ်ထားသောမျက်နှာပြင်ပေါ်သုံးစွဲသူ၏အကြောင်းပြရန်"</string>
     <string name="profile_info_settings_title" msgid="4855892878512562551">"ကိုယ်ရေးအချက်အလက်"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"အကောင့်များ"</string>
@@ -1325,7 +1325,7 @@
     <string name="device_status" msgid="395318738663800026">"အခြေအနေ"</string>
     <string name="device_status_summary" product="tablet" msgid="8975790197766171710">"ဘက်ထရီ၊ ကွန်ယက်နှင့် တစ်ခြားအချက်အလက်၏ အခြေအနေများ"</string>
     <string name="device_status_summary" product="default" msgid="8282235230720651642">"ဖုန်းနံပါတ်၊ ထုတ်လွင့်မှု စသည်"</string>
-    <string name="storage_settings" msgid="7009733301485139652">"သိုလှောင်မှုများ"</string>
+    <string name="storage_settings" msgid="7009733301485139652">"သိုလှောင်ခန်း"</string>
     <string name="storage_settings_for_app" msgid="3028887232073069965">"သိုလှောင်ခန်းနှင့် ကက်ရှ်"</string>
     <string name="storage_usb_settings" msgid="4470138799276333403">"သိုလှောင်ခန်း"</string>
     <string name="storage_settings_title" msgid="7348362600789024415">"သိုလှောင်မှု ဆက်တင်များ"</string>
@@ -1799,7 +1799,7 @@
     <string name="advanced_settings" msgid="6282069364060968122">"အဆင့်မြင့်အပြင်အဆင်များ"</string>
     <string name="advanced_settings_summary" msgid="5912237062506771716">"ပိုမိုပြီးရွေးချယ်နိုင်သော အပြင်အဆင်များ ရရှိခြင်း"</string>
     <string name="application_info_label" msgid="3886253474964599105">"အက်ပ်အချက်အလက်များ"</string>
-    <string name="storage_label" msgid="1109537840103290384">"သိုလှောင်မှုများ"</string>
+    <string name="storage_label" msgid="1109537840103290384">"သိုလှောင်ခန်း"</string>
     <string name="auto_launch_label" msgid="47089737922907379">"မူရင်းအတိုင်းဖွင့်ရန်"</string>
     <string name="auto_launch_label_generic" msgid="7865828543459493308">"မူရင်းအတိုင်း"</string>
     <string name="screen_compatibility_label" msgid="3638271673726075815">"ဖန်သားပြင် လိုက်ဖက်မှု"</string>
@@ -2082,7 +2082,7 @@
     <string name="accessibility_timeout_1min" msgid="5019003178551730551">"၁ မိနစ်"</string>
     <string name="accessibility_timeout_2mins" msgid="4124259290444829477">"၂ မိနစ်"</string>
     <string name="accessibility_content_timeout_preference_title" msgid="5160746882250939464">"ဖတ်ရန် အချိန်"</string>
-    <string name="accessibility_control_timeout_preference_title" msgid="2771808346038759474">"တစ်ခုခုလုပ်ဆောင်ရန် အချိန်"</string>
+    <string name="accessibility_control_timeout_preference_title" msgid="2771808346038759474">"လုပ်ဆောင်ရန် အချိန်"</string>
     <string name="accessibility_content_timeout_preference_summary" msgid="853829064617918179">"သင် ဖတ်ရှုရမည့် မက်ဆေ့ဂျ်များအား ပြရမည့် ကြာချိန် ရွေးပါ။ သို့သော်လည်း ယာယီသာ မြင်ရပါမည်။\n\nဤဆက်တင်ကို အက်ပ်အားလုံးတွင် အသုံးမပြုနိုင်ပါ။"</string>
     <string name="accessibility_control_timeout_preference_summary" msgid="8582212299606932160">"တစ်ခုခုလုပ်ဆောင်ရန် မေးသည့် မက်ဆေ့ဂျ်များ ပြရမည့်ကြာချိန် ရွေးပါ၊ သို့သော်လည်း ယာယီသာ မြင်ရပါမည်။\n\nအက်ပ်အားလုံးတွင် ဤဆက်တင် အသုံးမပြုနိုင်ပါ။"</string>
     <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"ထိထားရန် လိုအပ်ချိန်"</string>
@@ -2924,8 +2924,8 @@
     <string name="nfc_payment_favor_default" msgid="7555356982142464260">"အမြဲတမ်း"</string>
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"အခြား ငွေပေးချေရေး အက်ပ်ပွင့်နေချိန်မှ လွဲပြီး"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"တို့ထိပြီးပေးရန် နေရာတွင် အောက်ပါနည်းဖြင့် ပေးပါ-"</string>
-    <string name="nfc_how_it_works_title" msgid="6531433737926327904">"မှတ်တိုင်တွင် ငွေချေခြင်း"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"ငွေပေးချေရေး အက်ပ်ကို သတ်မှတ်ပေးပါ။ ၎င်းနောက်မှာ သင့်ဖုန်း၏ နောက်ကျောကို ချိတ်ဆက်ရန် မလိုသည့် သင်္ကေတ ပါရှိသော တာမီနယ် တခုခုဆီသို့ ကပ်ပေးလိုက်ရုံပါပဲ။"</string>
+    <string name="nfc_how_it_works_title" msgid="6531433737926327904">"ငွေချေစက်တွင် ငွေပေးချေခြင်း"</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"ငွေပေးချေရေး အက်ပ်ကို သတ်မှတ်ပါ။ ၎င်းနောက် သင့်ဖုန်း၏ ကျောဘက်ကို ချိတ်ဆက်ရန် မလိုသင်္ကေတပါ ငွေချေစက် တစ်ခုဆီသို့ ကပ်လိုက်ပါ။"</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"ရပါပြီ"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"နောက်ထပ်..."</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"သင်၏ ဦးစားပေးချက်များ သတ်မှတ်မည်လား?"</string>
@@ -3162,7 +3162,7 @@
     <string name="emergency_tone_vibrate" msgid="5020068066905681181">"တုန်ခါမှုများ"</string>
     <string name="boot_sounds_title" msgid="7583926202411353620">"အသံများ ဖွင့်ထားပါ"</string>
     <string name="live_caption_title" msgid="7926591158657997051">"တိုက်ရိုက်စာတန်းထိုး"</string>
-    <string name="live_caption_summary" msgid="9064771862352393125">"အလိုလို မီဒီယာ စာတန်းထိုးရန်"</string>
+    <string name="live_caption_summary" msgid="9064771862352393125">"အလိုအလျောက် စာတန်းထိုးရန်"</string>
     <string name="zen_mode_settings_summary_off" msgid="6929319200478424962">"ဘယ်တော့မှ"</string>
     <plurals name="zen_mode_settings_summary_on" formatted="false" msgid="6061723291126091396">
       <item quantity="other"><xliff:g id="ON_COUNT">%d</xliff:g> ခု ဖွင့်ထားသည်</item>
@@ -3677,7 +3677,7 @@
     <string name="default_app" msgid="8861276008866619872">"(မူသေ)"</string>
     <string name="system_app" msgid="4111402206594443265">"(စနစ်)"</string>
     <string name="system_default_app" msgid="1454719098589351197">"(စနစ်မူလ)"</string>
-    <string name="apps_storage" msgid="5658466038269046038">"အက်ပ်များ သိုလှောင်မှု"</string>
+    <string name="apps_storage" msgid="5658466038269046038">"အက်ပ်များ သိုလှောင်ခန်း"</string>
     <string name="usage_access" msgid="2023443456361489516">"သုံးစွဲမှုကို ကြည့်ရှုနိုင်ခြင်း"</string>
     <string name="permit_usage_access" msgid="3321727608629752758">"ဝင်ရောက်သုံးစွဲမှုအား ခွင့့်ပြုရန်"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"အက်ပ်သုံးစွဲမှု ရွေးချယ်စရာများ"</string>

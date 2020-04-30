@@ -23,8 +23,8 @@
     <string name="deny" msgid="3998166389989144025">"Denegar"</string>
     <string name="device_info_default" msgid="1548919563979154348">"Desconocido"</string>
     <plurals name="show_dev_countdown" formatted="false" msgid="3953785659137161981">
-      <item quantity="other">Solo te quedan <xliff:g id="STEP_COUNT_1">%1$d</xliff:g> pasos de ser un desarrollador.</item>
-      <item quantity="one">Solo te queda <xliff:g id="STEP_COUNT_0">%1$d</xliff:g> paso de ser un desarrollador.</item>
+      <item quantity="other">Estás a <xliff:g id="STEP_COUNT_1">%1$d</xliff:g> pasos de ser desarrollador.</item>
+      <item quantity="one">Estás a <xliff:g id="STEP_COUNT_0">%1$d</xliff:g> paso de ser desarrollador.</item>
     </plurals>
     <string name="show_dev_on" msgid="9075712234786224065">"¡Ahora están activadas las opciones para desarrolladores!"</string>
     <string name="show_dev_already" msgid="7665948832405148689">"Las opciones para desarrolladores ya están activadas."</string>
@@ -826,7 +826,7 @@
     <string name="nfc_disclaimer_title" msgid="4860231267351602970">"Activar NFC"</string>
     <string name="nfc_disclaimer_content" msgid="3066113577854565782">"La tecnología NFC permite intercambiar datos entre este dispositivo y otros dispositivos u objetivos cercanos, como terminales de pago, lectores de acceso y etiquetas o anuncios interactivos."</string>
     <string name="nfc_secure_settings_title" msgid="5153751163174916581">"Proteger NFC"</string>
-    <string name="nfc_secure_toggle_summary" product="default" msgid="7631183023440112192">"Permitir uso de NFC en pagos y transporte público solo con la pantalla desbloqueada"</string>
+    <string name="nfc_secure_toggle_summary" product="default" msgid="7631183023440112192">"Permite usar NFC en pagos y transporte público solo con la pantalla desbloqueada"</string>
     <string name="android_beam_settings_title" msgid="3083436415873738389">"Android Beam"</string>
     <string name="android_beam_on_summary" msgid="8068287225180474199">"Listo para compartir contenido de aplicaciones por NFC"</string>
     <string name="android_beam_off_summary" msgid="7365818039159364600">"Desactivado"</string>
@@ -893,11 +893,11 @@
     <string name="wifi_empty_list_user_restricted" msgid="2341613007817352431">"No tienes permiso para cambiar la red Wi‑Fi."</string>
     <string name="wifi_more" msgid="3538241640407382185">"Más"</string>
     <string name="wifi_setup_wps" msgid="6730131677695521321">"Configuración automática (WPS)"</string>
-    <string name="wifi_settings_scanning_required_title" msgid="3593457187659922490">"¿Quieres activar la búsqueda de redes Wi‑Fi?"</string>
+    <string name="wifi_settings_scanning_required_title" msgid="3593457187659922490">"¿Activar la búsqueda de redes Wi‑Fi?"</string>
     <string name="wifi_settings_scanning_required_summary" msgid="7469610959462708782">"Para que la conexión Wi‑Fi se active automáticamente, es necesario activar la búsqueda de redes Wi‑Fi."</string>
     <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"La búsqueda de redes Wi‑Fi permite que las aplicaciones y los servicios busquen redes Wi‑Fi en cualquier momento aunque la conexión Wi‑Fi esté desactivada. Se utiliza, por ejemplo, para mejorar los servicios y funciones basados en la ubicación."</string>
     <string name="wifi_settings_scanning_required_turn_on" msgid="4327570180594277049">"Activar"</string>
-    <string name="wifi_settings_scanning_required_enabled" msgid="3336102100425307040">"Se ha activado la búsqueda de redes Wi‑Fi"</string>
+    <string name="wifi_settings_scanning_required_enabled" msgid="3336102100425307040">"Búsqueda de redes Wi‑Fi activada"</string>
     <string name="wifi_show_advanced" msgid="8199779277168030597">"Opciones avanzadas"</string>
     <string name="wifi_advanced_toggle_description_expanded" msgid="1506697245302596510">"Lista desplegable Opciones Avanzadas. Tócala dos veces para ocultarla."</string>
     <string name="wifi_advanced_toggle_description_collapsed" msgid="3014965593695454879">"Lista desplegable Opciones Avanzadas. Tócala dos veces para mostrarla."</string>
@@ -1224,7 +1224,7 @@
     <string name="night_display_summary_off_auto_mode_never" msgid="8618824386434992487">"No se activará nunca automáticamente"</string>
     <string name="night_display_summary_off_auto_mode_custom" msgid="596847003171394411">"Se activará automáticamente a esta hora: <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="night_display_summary_off_auto_mode_twilight" msgid="4071750976585359952">"Se activará automáticamente al anochecer"</string>
-    <string name="night_display_summary_on" msgid="6580571388791426596">"Activado/<xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <string name="night_display_summary_on" msgid="6580571388791426596">"Activado / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="night_display_summary_on_auto_mode_never" msgid="5461580863060506687">"No se desactivará nunca automáticamente"</string>
     <string name="night_display_summary_on_auto_mode_custom" msgid="2200631112239399233">"Se desactivará automáticamente a esta hora: <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="night_display_summary_on_auto_mode_twilight" msgid="8386769601369289561">"Se desactivará automáticamente al amanecer"</string>
@@ -1573,7 +1573,7 @@
     <string name="reset_network_title" msgid="8944059136930806211">"Recuperar Wi-Fi, red móvil y Bluetooth"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"Se recuperarán todos los ajustes de red, como:\n\n"<li>"Wi‑Fi"</li>\n<li>"Datos móviles"</li>\n<li>"Bluetooth"</li></string>
     <string name="reset_esim_title" msgid="7630781767040831893">"Borrar las SIM descargadas"</string>
-    <string name="reset_esim_desc" msgid="433226911566802">"Para descargar SIMs de sustitución, ponte en contacto con tu operador. Esta acción no cancelará ninguno de los planes de servicios móviles."</string>
+    <string name="reset_esim_desc" msgid="433226911566802">"Para descargar SIM de sustitución, ponte en contacto con tu operador. Esta acción no cancelará ningún plan de servicios móviles."</string>
     <string name="reset_network_button_text" msgid="4293271046867912819">"Recuperar ajustes"</string>
     <string name="reset_network_final_desc" msgid="2463817067048751373">"¿Quieres restablecer la configuración de red? No podrás deshacer esta acción."</string>
     <string name="reset_network_final_desc_esim" msgid="4676436976372555750">"¿Quieres recuperar todos los ajustes de red y borrar todas las SIM descargadas? No podrás deshacer esta acción."</string>
@@ -1591,7 +1591,7 @@
     <string name="master_clear_other_users_present" product="default" msgid="5993259656117566767">\n\n"Hay otros usuarios presentes en este dispositivo.\n"</string>
     <string name="master_clear_desc_also_erases_external" msgid="3947303501615091903"><li>"Música"</li>\n<li>"Fotos"</li>\n<li>"Otros datos de usuario"</li></string>
     <string name="master_clear_desc_also_erases_esim" msgid="4497260499055258773"><li>"eSIMs"</li></string>
-    <string name="master_clear_desc_no_cancel_mobile_plan" msgid="6072668588881679461">\n\n"Tu plan de servicios móviles no se cancelará."</string>
+    <string name="master_clear_desc_no_cancel_mobile_plan" msgid="6072668588881679461">\n\n"Esta acción no cancelará tu plan de servicios móviles."</string>
     <string name="master_clear_desc_erase_external_storage" product="nosdcard" msgid="2723272952715259307">\n\n"Para eliminar la música, las imágenes y otros datos de usuario, debes borrar el "<b>"almacenamiento USB"</b>"."</string>
     <string name="master_clear_desc_erase_external_storage" product="default" msgid="9003555775524798797">\n\n"Para eliminar la música, las imágenes y otros datos de usuario, debes borrar la "<b>"tarjeta SD"</b>"."</string>
     <string name="erase_external_storage" product="nosdcard" msgid="8989746770347525207">"Borrar almacenamiento USB"</string>
@@ -2072,7 +2072,7 @@
     <string name="accessibility_toggle_large_pointer_icon_title" msgid="9127905775116570565">"Puntero del ratón grande"</string>
     <string name="accessibility_disable_animations" msgid="8378441317115710009">"Quitar animaciones"</string>
     <string name="accessibility_toggle_master_mono_title" msgid="899550848196702565">"Audio en mono"</string>
-    <string name="accessibility_toggle_master_mono_summary" msgid="3847052868469033235">"Combinar canales al reproducir audio"</string>
+    <string name="accessibility_toggle_master_mono_summary" msgid="3847052868469033235">"Combina canales al reproducir audio"</string>
     <string name="accessibility_toggle_master_balance_title" msgid="8723492001092647562">"Balance de audio"</string>
     <string name="accessibility_toggle_master_balance_left_label" msgid="8531986342666527970">"Izquierdo"</string>
     <string name="accessibility_toggle_master_balance_right_label" msgid="7757024572140589558">"Derecho"</string>
@@ -2096,7 +2096,7 @@
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"Vibración del tono"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"Vibración al tocar la pantalla"</string>
     <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"Usar servicio"</string>
-    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"Utilizar la corrección de color"</string>
+    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"Usar corrección de color"</string>
     <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"Utilizar subtítulos"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"Continuar"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"Audífonos"</string>
@@ -2281,7 +2281,7 @@
     <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"Es posible que te quedes sin batería antes de lo normal"</string>
     <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"Ahorro de batería activado"</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"Es posible que algunas funciones estén limitadas"</string>
-    <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"El teléfono se ha usado más de lo normal"</string>
+    <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"Teléfono usado más de lo normal"</string>
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"El tablet se ha usado más de lo normal"</string>
     <string name="battery_tip_high_usage_title" product="device" msgid="8304138287288309490">"El dispositivo se ha usado más de lo normal"</string>
     <string name="battery_tip_high_usage_summary" msgid="5514749872957528189">"Es posible que te quedes sin batería antes de lo normal"</string>
@@ -2298,8 +2298,8 @@
       <item quantity="one">%1$s aplicación se ha restringido recientemente</item>
     </plurals>
     <plurals name="battery_tip_restrict_summary" formatted="false" msgid="984148373944071669">
-      <item quantity="other">%2$d aplicaciones consumen mucha batería en segundo plano</item>
-      <item quantity="one">%1$s aplicación consume mucha batería en segundo plano</item>
+      <item quantity="other">%2$d apps gastan mucho en segundo plano</item>
+      <item quantity="one">%1$s gasta mucho en segundo plano</item>
     </plurals>
     <plurals name="battery_tip_restrict_handled_summary" formatted="false" msgid="469696766640020557">
       <item quantity="other">Estas aplicaciones no se pueden ejecutar en segundo plano</item>
@@ -2601,7 +2601,7 @@
     <string name="work_mode_label" msgid="6845849194740195757">"Perfil de trabajo"</string>
     <string name="work_mode_on_summary" msgid="1682781113156323592">"Administrado por tu organización"</string>
     <string name="work_mode_off_summary" msgid="1688885392211178315">"Las aplicaciones y las notificaciones están desactivadas"</string>
-    <string name="remove_managed_profile_label" msgid="4625542553784793536">"Eliminar perfil de trabajo"</string>
+    <string name="remove_managed_profile_label" msgid="4625542553784793536">"Quitar perfil de trabajo"</string>
     <string name="background_data" msgid="8275750862371471171">"Datos en segundo plano"</string>
     <string name="background_data_summary" msgid="799640633948841990">"Las aplicaciones pueden sincronizar datos, enviarlos y recibirlos."</string>
     <string name="background_data_dialog_title" msgid="8306650658158895976">"¿Inhabilitar datos en segundo plano?"</string>
@@ -2670,7 +2670,7 @@
     <string name="data_usage_menu_sim_cards" msgid="8508154611676507088">"Tarjetas SIM"</string>
     <string name="data_usage_cellular_data_summary" msgid="9162777397135709280">"En pausa al límite"</string>
     <string name="account_settings_menu_auto_sync" msgid="2673669556006027506">"Sincronización automática"</string>
-    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"Sincr. autom. datos personales"</string>
+    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"Sincronizar datos personales automáticamente"</string>
     <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"Sincr. autom. datos trabajo"</string>
     <string name="data_usage_change_cycle" msgid="447761920472170031">"Cambiar ciclo…"</string>
     <string name="data_usage_pick_cycle_day" msgid="6319750879145917066">"Día del mes para restablecer ciclo de uso de datos:"</string>
@@ -2678,7 +2678,7 @@
     <string name="data_usage_label_foreground" msgid="2471091128648754601">"Primer plano"</string>
     <string name="data_usage_label_background" msgid="1618794447370396845">"Segundo plano"</string>
     <string name="data_usage_app_restricted" msgid="7569077654579299326">"con restricción"</string>
-    <string name="data_usage_disable_mobile" msgid="4125335076749119451">"¿Desactivar los datos móviles?"</string>
+    <string name="data_usage_disable_mobile" msgid="4125335076749119451">"¿Desactivar datos móviles?"</string>
     <string name="data_usage_disable_mobile_limit" msgid="1937796699758613667">"Limitar datos móviles"</string>
     <string name="data_usage_disable_4g_limit" msgid="7131367986548147266">"Limitar datos 4G"</string>
     <string name="data_usage_disable_3g_limit" msgid="6746819313032692220">"Limitar datos 2G-3G"</string>
@@ -2873,7 +2873,7 @@
     <string name="user_add_user_message_long" msgid="686637203224195465">"Puedes compartir este dispositivo si creas más usuarios. Cada uno tendrá su propio espacio y podrá personalizarlo con aplicaciones, un fondo de pantalla y mucho más. Los usuarios también pueden ajustar opciones del dispositivo, como la conexión Wi‑Fi, que afectan a todos los usuarios.\n\nCuando añadas un usuario, tendrá que configurar su espacio.\n\nCualquier usuario puede actualizar aplicaciones de todos los usuarios. Es posible que no se transfieran los servicios y opciones de accesibilidad al nuevo usuario."</string>
     <string name="user_add_user_message_short" msgid="1802594476285458254">"Al añadir un usuario nuevo, este debe configurar su espacio.\n\nCualquier usuario puede actualizar las aplicaciones del resto de usuarios."</string>
     <string name="user_setup_dialog_title" msgid="6748950002206392396">"¿Configurar usuario ahora?"</string>
-    <string name="user_setup_dialog_message" msgid="2988559933258353919">"Asegúrate de que la persona pueda acceder al dispositivo y configurar su espacio."</string>
+    <string name="user_setup_dialog_message" msgid="2988559933258353919">"Asegúrate de que la persona está disponible en este momento para usar el dispositivo y configurar su espacio."</string>
     <string name="user_setup_profile_dialog_message" msgid="7611900802824048526">"¿Quieres configurar un perfil ahora?"</string>
     <string name="user_setup_button_setup_now" msgid="4941459406266856176">"Configurar ahora"</string>
     <string name="user_setup_button_setup_later" msgid="6596031428556518752">"Ahora no"</string>
@@ -2888,7 +2888,7 @@
     <string name="user_confirm_remove_self_title" msgid="6739480453680217543">"¿Eliminarte a ti mismo?"</string>
     <string name="user_confirm_remove_title" msgid="1034498514019462084">"¿Eliminar este usuario?"</string>
     <string name="user_profile_confirm_remove_title" msgid="6138684743385947063">"¿Quitar este perfil?"</string>
-    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"¿Eliminar perfil de trabajo?"</string>
+    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"¿Quitar perfil de trabajo?"</string>
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"Perderás tu espacio y tus datos en este tablet. Esta acción no se puede deshacer."</string>
     <string name="user_confirm_remove_self_message" product="default" msgid="8441729423565705183">"Perderás tu espacio y tus datos en este teléfono. Esta acción no se puede deshacer."</string>
     <string name="user_confirm_remove_message" msgid="5202150470271756013">"Se eliminarán todas las aplicaciones y datos"</string>
@@ -2924,7 +2924,7 @@
     <string name="nfc_payment_favor_default" msgid="7555356982142464260">"Siempre"</string>
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Excepto si hay otra aplicación de pago abierta"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"En terminales Toca y paga, pagar con:"</string>
-    <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Pago en terminal"</string>
+    <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Cómo pagar en el terminal"</string>
     <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Configura una aplicación de pago. A continuación, solo tienes que sostener la parte trasera del teléfono sobre cualquier terminal con el símbolo de pago sin contacto."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"Entendido"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"Más..."</string>
@@ -3130,7 +3130,7 @@
     <string name="keywords_battery_saver_sticky" msgid="8733804259716284872">"ahorro de batería, batería fija, duradera, ahorro de batería, batería"</string>
     <string name="default_sound" msgid="6675629744816442953">"Sonido predeterminado"</string>
     <string name="sound_settings_summary" msgid="8467549670633195109">"Volumen del tono de llamada al <xliff:g id="PERCENTAGE">%1$s</xliff:g>"</string>
-    <string name="sound_dashboard_summary" msgid="5187301919242823508">"Volumen, vibración y No molestar"</string>
+    <string name="sound_dashboard_summary" msgid="5187301919242823508">"Volumen, vibración, No molestar"</string>
     <string name="sound_settings_summary_vibrate" msgid="2194491116884798590">"Timbre en vibración"</string>
     <string name="sound_settings_summary_silent" msgid="899823817462768876">"Timbre en silencio"</string>
     <string name="sound_settings_example_summary" msgid="2091822107298841827">"Volumen del tono de llamada al 80 %"</string>
@@ -3240,8 +3240,8 @@
     <string name="zen_mode_settings_dnd_custom_settings_footer_link" msgid="4007974052885089379"><annotation id="link">" Ver ajustes personalizados"</annotation></string>
     <string name="zen_interruption_level_priority" msgid="9178419297408319234">"Solo interrupciones prioritarias"</string>
     <string name="zen_mode_and_condition" msgid="4123722186007123567">"<xliff:g id="ZEN_MODE">%1$s</xliff:g>. <xliff:g id="EXIT_CONDITION">%2$s</xliff:g>"</string>
-    <string name="zen_mode_sound_summary_on_with_info" msgid="2539952366467518398">"Activado/<xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="zen_mode_sound_summary_off_with_info" msgid="3910718455243440265">"Desactivado/<xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <string name="zen_mode_sound_summary_on_with_info" msgid="2539952366467518398">"Activado / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <string name="zen_mode_sound_summary_off_with_info" msgid="3910718455243440265">"Desactivado / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="zen_mode_sound_summary_off" msgid="2800265178411749309">"Desactivado"</string>
     <string name="zen_mode_sound_summary_on" msgid="6964666541479146310">"Activado"</string>
     <string name="zen_mode_duration_summary_always_prompt" msgid="7642321938427056823">"Preguntar siempre (a menos que se haya activado automáticamente)"</string>
@@ -3862,7 +3862,7 @@
     <string name="storage_summary_with_sdcard" msgid="8742907204848352697">"Almacenamiento interno: <xliff:g id="PERCENTAGE">%1$s</xliff:g> usado (<xliff:g id="FREE_SPACE">%2$s</xliff:g> disponible)"</string>
     <string name="display_summary" msgid="5725269449657325797">"Suspender después de <xliff:g id="TIMEOUT_DESCRIPTION">%1$s</xliff:g> de inactividad"</string>
     <string name="display_dashboard_summary" msgid="7678566148167010682">"Fondo de pantalla, suspensión, tamaño de la fuente"</string>
-    <string name="display_dashboard_summary_with_style" msgid="8981059474501210956">"Estilos y fondos de pantalla, suspensión y tamaño de fuente"</string>
+    <string name="display_dashboard_summary_with_style" msgid="8981059474501210956">"Estilos y fondos de pantalla, suspensión, tamaño de fuente"</string>
     <string name="display_dashboard_nowallpaper_summary" msgid="8612534364908229000">"Tamaño de letra en la pantalla de suspensión"</string>
     <string name="display_summary_example" msgid="4555020581960719296">"Suspender después de 10 minutos de inactividad"</string>
     <string name="memory_summary" msgid="9121871336058042600">"Se está usando una media de <xliff:g id="USED_MEMORY">%1$s</xliff:g> de <xliff:g id="TOTAL_MEMORY">%2$s</xliff:g> de memoria"</string>
