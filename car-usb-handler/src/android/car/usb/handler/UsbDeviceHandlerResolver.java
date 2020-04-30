@@ -30,6 +30,7 @@ import android.content.res.XmlResourceParser;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -41,6 +42,8 @@ import com.android.internal.util.XmlUtils;
 import org.xmlpull.v1.XmlPullParser;
 
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -195,7 +198,9 @@ public final class UsbDeviceHandlerResolver {
             Log.e(TAG, "Failed to connect to usb device.");
             return;
         }
+
         try {
+            String hashedSerial =  getHashed(Build.getSerial());
             UsbUtil.sendAoapAccessoryStart(
                     connection,
                     filter.mAoapManufacturer,
@@ -203,11 +208,21 @@ public final class UsbDeviceHandlerResolver {
                     filter.mAoapDescription,
                     filter.mAoapVersion,
                     filter.mAoapUri,
-                    filter.mAoapSerial);
+                    hashedSerial);
         } catch (IOException e) {
             Log.w(TAG, "Failed to switch device into AOAP mode", e);
         }
+
         connection.close();
+    }
+
+    private String getHashed(String serial) {
+        try {
+            return MessageDigest.getInstance("MD5").digest(serial.getBytes()).toString();
+        } catch (NoSuchAlgorithmException e) {
+            Log.w(TAG, "could not create MD5 for serial number: " + serial);
+            return Integer.toString(serial.hashCode());
+        }
     }
 
     private void deviceProbingComplete(UsbDevice device, List<UsbDeviceSettings> settings) {
