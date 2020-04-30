@@ -53,6 +53,7 @@ import android.car.CarOccupantZoneManager.OccupantTypeEnum;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.settings.CarSettings;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.test.mocks.BlockingAnswer;
 import android.car.test.util.BlockingResultReceiver;
 import android.car.testapi.OneEventUserLifecycleListener;
 import android.car.user.CarUserManager;
@@ -106,7 +107,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -833,8 +833,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         int requestId = 42;
         mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
         mSwitchUserResponse.requestId = requestId;
-        CountDownLatch halCallbackLatch = new CountDownLatch(1);
-        mockHalSwitchLateResponse(mAdminUser.id, mGuestUser, mSwitchUserResponse, halCallbackLatch);
+        BlockingAnswer<Void> blockingAnswer = mockHalSwitchLateResponse(mAdminUser.id, mGuestUser,
+                mSwitchUserResponse);
         mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture);
 
         // calling another user switch before unlock
@@ -848,7 +848,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mCarUserService.switchUser(mRegularUser.id, mAsyncCallTimeoutMs, futureNewRequest);
         mockCurrentUser(mRegularUser);
         sendUserUnlockedEvent(mRegularUser.id);
-        halCallbackLatch.countDown();
+        blockingAnswer.unblock();
 
         UserSwitchResult result = getUserSwitchResult();
         assertThat(result.getStatus())
@@ -1187,30 +1187,25 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockHalSwitch(currentUserId, HalCallback.STATUS_OK, response, androidTargetUser);
     }
 
-    private void mockHalSwitchLateResponse(@UserIdInt int currentUserId,
-            @NonNull UserInfo androidTargetUser, @Nullable SwitchUserResponse response,
-            CountDownLatch latch) {
+    private BlockingAnswer<Void> mockHalSwitchLateResponse(@UserIdInt int currentUserId,
+            @NonNull UserInfo androidTargetUser, @Nullable SwitchUserResponse response) {
         android.hardware.automotive.vehicle.V2_0.UserInfo halTargetUser =
                 new android.hardware.automotive.vehicle.V2_0.UserInfo();
         halTargetUser.userId = androidTargetUser.id;
         halTargetUser.flags = UserHalHelper.convertFlags(androidTargetUser);
         UsersInfo usersInfo = newUsersInfo(currentUserId);
-        doAnswer((invocation) -> {
+
+        BlockingAnswer<Void> blockingAnswer = BlockingAnswer.forVoidReturn(10_000, (invocation) -> {
             Log.d(TAG, "Answering " + invocation + " with " + response);
             @SuppressWarnings("unchecked")
-            HalCallback<SwitchUserResponse> callback =
-                    (HalCallback<SwitchUserResponse>) invocation.getArguments()[3];
-            new Thread(() -> {
-                // TODO(149099817): Create a silent await helper method
-                try {
-                    latch.await(10000, TimeUnit.MILLISECONDS);
-                } catch (Exception e) {
-                }
-                callback.onResponse(HalCallback.STATUS_OK, response);
-            }).start();
-            return null;
-        }).when(mUserHal).switchUser(eq(halTargetUser), eq(mAsyncCallTimeoutMs), eq(usersInfo),
-                notNull());
+            HalCallback<SwitchUserResponse> callback = (HalCallback<SwitchUserResponse>) invocation
+                    .getArguments()[3];
+            callback.onResponse(HalCallback.STATUS_OK, response);
+        });
+        doAnswer(blockingAnswer).when(mUserHal).switchUser(eq(halTargetUser),
+                eq(mAsyncCallTimeoutMs), eq(usersInfo), notNull());
+        return blockingAnswer;
+
     }
 
     private void mockHalSwitch(@UserIdInt int currentUserId,
