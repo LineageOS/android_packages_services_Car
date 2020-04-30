@@ -325,4 +325,7 @@
     <!-- Enable profile user assignment per each CarOccupantZone for per display android user
          assignments. This feature is still experimental. -->
     <bool name="enableProfileUserAssignmentForMultiDisplay" translatable="false">false</bool>
+
+    <!-- The ComponentName of the media source that will be selected as the default -->
+    <string name="config_defaultMediaSource">com.android.bluetooth/com.android.bluetooth.avrcpcontroller.BluetoothMediaBrowserService</string>
 </resources>
