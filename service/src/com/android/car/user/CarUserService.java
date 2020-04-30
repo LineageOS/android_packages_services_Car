@@ -33,6 +33,7 @@ import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleEventType;
 import android.car.user.CarUserManager.UserLifecycleListener;
+import android.car.user.GetUserIdentificationAssociationResponse;
 import android.car.user.UserSwitchResult;
 import android.car.userlib.CarUserManagerHelper;
 import android.car.userlib.HalCallback;
@@ -44,6 +45,8 @@ import android.graphics.Bitmap;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserStatus;
+import android.hardware.automotive.vehicle.V2_0.UserIdentificationGetRequest;
+import android.hardware.automotive.vehicle.V2_0.UserIdentificationResponse;
 import android.hardware.automotive.vehicle.V2_0.UsersInfo;
 import android.location.LocationManager;
 import android.os.Binder;
@@ -70,6 +73,7 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.car.EventLogTags;
 import com.android.internal.infra.AndroidFuture;
 import com.android.internal.os.IResultReceiver;
+import com.android.internal.util.ArrayUtils;
 import com.android.internal.util.FunctionalUtils;
 import com.android.internal.util.Preconditions;
 import com.android.internal.util.UserIcons;
@@ -819,6 +823,51 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             }
             sendResult(receiver, resultStatus, resp.errorMessage);
         });
+    }
+
+    @Override
+    public GetUserIdentificationAssociationResponse getUserIdentificationAssociation(int[] types) {
+        Preconditions.checkArgument(!ArrayUtils.isEmpty(types), "must have at least one type");
+        checkManageUsersPermission("getUserIdentificationAssociation");
+
+        int uid = getCallingUid();
+        int userId = UserHandle.getUserId(uid);
+        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_GET_USER_AUTH_REQ, uid, userId);
+
+        UserIdentificationGetRequest request = new UserIdentificationGetRequest();
+        request.userInfo.userId = userId;
+        request.userInfo.flags = getHalUserInfoFlags(userId);
+
+        request.numberAssociationTypes = types.length;
+        for (int i = 0; i < types.length; i++) {
+            request.associationTypes.add(types[i]);
+        }
+
+        UserIdentificationResponse halResponse = mHal.getUserAssociation(request);
+        if (halResponse == null) {
+            Log.w(TAG, "getUserIdentificationAssociation(): HAL returned null for "
+                    + Arrays.toString(types));
+            return null;
+        }
+
+        int[] values = new int[halResponse.associations.size()];
+        for (int i = 0; i < values.length; i++) {
+            values[i] = halResponse.associations.get(i).value;
+        }
+        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_GET_USER_AUTH_RESP, values.length);
+
+        return new GetUserIdentificationAssociationResponse(halResponse.errorMessage, values);
+    }
+
+    /**
+     * Gets the User HAL flags for the given user.
+     *
+     * @throws IllegalArgumentException if the user does not exist.
+     */
+    private int getHalUserInfoFlags(@UserIdInt int userId) {
+        UserInfo user = mUserManager.getUserInfo(userId);
+        Preconditions.checkArgument(user != null, "no user for id %d", userId);
+        return UserHalHelper.convertFlags(user);
     }
 
     private void sendResult(@NonNull IResultReceiver receiver, int resultCode,

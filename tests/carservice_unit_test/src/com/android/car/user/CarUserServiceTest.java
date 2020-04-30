@@ -30,6 +30,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.ArgumentMatchers.same;
@@ -57,12 +58,14 @@ import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleEventType;
 import android.car.user.CarUserManager.UserLifecycleListener;
+import android.car.user.GetUserIdentificationAssociationResponse;
 import android.car.user.UserSwitchResult;
 import android.car.userlib.CarUserManagerHelper;
 import android.car.userlib.HalCallback;
 import android.car.userlib.UserHalHelper;
 import android.content.Context;
 import android.content.pm.UserInfo;
+import android.content.pm.UserInfo.UserInfoFlag;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
@@ -71,6 +74,9 @@ import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserResponse;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserStatus;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
+import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociation;
+import android.hardware.automotive.vehicle.V2_0.UserIdentificationGetRequest;
+import android.hardware.automotive.vehicle.V2_0.UserIdentificationResponse;
 import android.hardware.automotive.vehicle.V2_0.UsersInfo;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -92,6 +98,7 @@ import com.android.internal.util.Preconditions;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatcher;
 import org.mockito.Captor;
 import org.mockito.Mock;
 
@@ -1034,6 +1041,68 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         assertThat(mCarUserService.isUserHalSupported()).isTrue();
     }
 
+    @Test
+    public void testGetUserIdentificationAssociation_nullTypes() throws Exception {
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarUserService.getUserIdentificationAssociation(null));
+    }
+
+    @Test
+    public void testGetUserIdentificationAssociation_emptyTypes() throws Exception {
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarUserService.getUserIdentificationAssociation(new int[] {}));
+    }
+
+    @Test
+    public void testGetUserIdentificationAssociation_noPermission() throws Exception {
+        mockManageUsersPermission(android.Manifest.permission.MANAGE_USERS, false);
+        assertThrows(SecurityException.class,
+                () -> mCarUserService.getUserIdentificationAssociation(new int[] { 42 }));
+    }
+
+    @Test
+    public void testGetUserIdentificationAssociation_noSuchUser() throws Exception {
+        // Should fail because we're not mocking UserManager.getUserInfo() to set the flag
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarUserService.getUserIdentificationAssociation(new int[] { 42 }));
+    }
+
+    @Test
+    public void testGetUserIdentificationAssociation_service_returnNull() throws Exception {
+        // Must use the real user id - and not mock it - as the service will infer the id from
+        // the Binder call - it's not worth the effort of mocking that.
+        int currentUserId = ActivityManager.getCurrentUser();
+        Log.d(TAG, "testGetUserIdentificationAssociation_ok(): current user is " + currentUserId);
+        UserInfo currentUser = mockGetUserInfo(currentUserId, UserInfo.FLAG_ADMIN);
+
+        // Not mocking service call, so it will return null
+
+        GetUserIdentificationAssociationResponse response = mCarUserService
+                .getUserIdentificationAssociation(new int[] { 108 });
+
+        assertThat(response).isNull();
+    }
+
+    @Test
+    public void testGetUserIdentificationAssociation_ok() throws Exception {
+        // Must use the real user id - and not mock it - as the service will infer the id from
+        // the Binder call - it's not worth the effort of mocking that.
+        int currentUserId = ActivityManager.getCurrentUser();
+        Log.d(TAG, "testGetUserIdentificationAssociation_ok(): current user is " + currentUserId);
+        UserInfo currentUser = mockGetUserInfo(currentUserId, UserInfo.FLAG_ADMIN);
+
+        int[] types = new int[] { 1, 2, 3 };
+        mockHalGetUserIdentificationAssociation(currentUser, types, new int[] { 10, 20, 30 },
+                "D'OH!");
+
+        GetUserIdentificationAssociationResponse response = mCarUserService
+                .getUserIdentificationAssociation(types);
+
+        assertThat(response.getValues()).asList().containsExactly(10, 20, 30)
+                .inOrder();
+        assertThat(response.getErrorMessage()).isEqualTo("D'OH!");
+    }
+
     @NonNull
     private UserSwitchResult getUserSwitchResult() throws Exception {
         return getResult(mUserSwitchFuture);
@@ -1130,6 +1199,25 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
             return null;
         }).when(mUserHal).switchUser(eq(halTargetUser), eq(mAsyncCallTimeoutMs), eq(usersInfo),
                 notNull());
+    }
+
+    private void mockHalGetUserIdentificationAssociation(@NonNull UserInfo user,
+            @NonNull int[] types, @NonNull int[] values,  @Nullable String errorMessage) {
+        assertWithMessage("mismatch on number of types and values").that(types.length)
+                .isEqualTo(values.length);
+
+        UserIdentificationResponse response = new UserIdentificationResponse();
+        response.numberAssociation = types.length;
+        response.errorMessage = errorMessage;
+        for (int i = 0; i < types.length; i++) {
+            UserIdentificationAssociation association = new UserIdentificationAssociation();
+            association.type = types[i];
+            association.value = values[i];
+            response.associations.add(association);
+        }
+
+        when(mUserHal.getUserAssociation(isUserIdentificationGetRequest(user, types)))
+                .thenReturn(response);
     }
 
     private void mockManageUsersPermission(String permission, boolean granted) {
@@ -1361,5 +1449,86 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
     private void sendUserSwitchingEvent(@UserIdInt int userId) {
         sendUserLifecycleEvent(userId, CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING);
+    }
+
+    @NonNull
+    private static UserIdentificationGetRequest isUserIdentificationGetRequest(
+            @NonNull UserInfo user, @NonNull int[] types) {
+        return argThat(new UserIdentificationGetRequestMatcher(user, types));
+    }
+
+    private static class UserIdentificationGetRequestMatcher implements
+            ArgumentMatcher<UserIdentificationGetRequest> {
+
+        private static final String MY_TAG =
+                UserIdentificationGetRequestMatcher.class.getSimpleName();
+
+        private final @UserIdInt int mUserId;
+        private final int mHalFlags;
+        private final @NonNull int[] mTypes;
+
+        private UserIdentificationGetRequestMatcher(@NonNull UserInfo user, @NonNull int[] types) {
+            mUserId = user.id;
+            mHalFlags = UserHalHelper.convertFlags(user);
+            mTypes = types;
+        }
+
+        @Override
+        public boolean matches(UserIdentificationGetRequest argument) {
+            if (argument == null) {
+                Log.w(MY_TAG, "null argument");
+                return false;
+            }
+            if (argument.userInfo.userId != mUserId) {
+                Log.w(MY_TAG, "wrong user id on " + argument + "; expected " + mUserId);
+                return false;
+            }
+            if (argument.userInfo.flags != mHalFlags) {
+                Log.w(MY_TAG, "wrong flags on " + argument + "; expected " + mHalFlags);
+                return false;
+            }
+            if (argument.numberAssociationTypes != mTypes.length) {
+                Log.w(MY_TAG, "wrong numberAssociationTypes on " + argument + "; expected "
+                        + mTypes.length);
+                return false;
+            }
+            if (argument.associationTypes.size() != mTypes.length) {
+                Log.w(MY_TAG, "wrong associationTypes size on " + argument + "; expected "
+                        + mTypes.length);
+                return false;
+            }
+            for (int i = 0; i < mTypes.length; i++) {
+                if (argument.associationTypes.get(i) != mTypes[i]) {
+                    Log.w(MY_TAG, "wrong association type on index " + i + " on " + argument
+                            + "; expected types: " + Arrays.toString(mTypes));
+                    return false;
+                }
+            }
+            Log.d(MY_TAG, "Good News, Everyone! " + argument + " matches " + this);
+            return true;
+        }
+
+        @Override
+        public String toString() {
+            return "isUserIdentificationGetRequest(userId=" + mUserId + ", flags="
+                    + UserHalHelper.userFlagsToString(mHalFlags) + ", types="
+                    + Arrays.toString(mTypes) + ")";
+        }
+    }
+
+    // TODO(b/149099817): Move code below to common place
+
+    /**
+     * Mocks {@code UserManager.getuserInfo(userId)} to return a {@link UserInfo} with the given
+     * {@code flags}.
+     */
+    @NonNull
+    private UserInfo mockGetUserInfo(@UserIdInt int userId, @UserInfoFlag int flags) {
+        UserInfo userInfo = new UserInfo();
+        userInfo.id = userId;
+        userInfo.flags = flags;
+        when(mMockedUserManager.getUserInfo(userId)).thenReturn(userInfo);
+
+        return userInfo;
     }
 }
