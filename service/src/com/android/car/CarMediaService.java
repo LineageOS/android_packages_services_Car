@@ -132,16 +132,15 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     private final Handler mHandler = new Handler(mHandlerThread.getLooper());
     private final Object mLock = new Object();
 
-    /** The package name of the last media source that was removed while being primary. */
-    private String mRemovedMediaSourcePackage;
+    /** The component name of the last media source that was removed while being primary. */
+    private ComponentName[] mRemovedMediaSourceComponents = new ComponentName[MEDIA_SOURCE_MODES];
 
     private final IntentFilter mPackageUpdateFilter;
     private boolean mIsPackageUpdateReceiverRegistered;
 
     /**
-     * Listens to {@link Intent#ACTION_PACKAGE_REMOVED}, {@link Intent#ACTION_PACKAGE_REPLACED} and
-     * {@link Intent#ACTION_PACKAGE_ADDED} so we can reset the media source to null when its
-     * application is uninstalled, and restore it when the application is reinstalled.
+     * Listens to {@link Intent#ACTION_PACKAGE_REMOVED}, so we can fall back to a previously used
+     * media source when the active source is uninstalled.
      */
     private final BroadcastReceiver mPackageUpdateReceiver = new BroadcastReceiver() {
         @Override
@@ -156,19 +155,50 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
                         if (mPrimaryMediaComponents[i] != null
                                 && mPrimaryMediaComponents[i].getPackageName().equals(
                                 intentPackage)) {
-                            mRemovedMediaSourcePackage = intentPackage;
-                            setPrimaryMediaSource(null, i);
+                            if (intent.getBooleanExtra(Intent.EXTRA_REPLACING, false)) {
+                                // If package is being replaced, it may not be removed from
+                                // PackageManager queries  when we check for available
+                                // MediaBrowseServices, so we iterate to find the next available
+                                // source.
+                                for (ComponentName component : getLastMediaSources(i)) {
+                                    if (!mPrimaryMediaComponents[i].getPackageName()
+                                            .equals(component.getPackageName())) {
+                                        mRemovedMediaSourceComponents[i] =
+                                                mPrimaryMediaComponents[i];
+                                        if (Log.isLoggable(CarLog.TAG_MEDIA, Log.DEBUG)) {
+                                            Log.d(CarLog.TAG_MEDIA,
+                                                    "temporarily replacing updated media source "
+                                                            + mPrimaryMediaComponents[i]
+                                                            + "with backup source: "
+                                                            + component);
+                                        }
+                                        setPrimaryMediaSource(component, i);
+                                        return;
+                                    }
+                                }
+                                Log.e(CarLog.TAG_MEDIA, "No available backup media source");
+                            } else {
+                                if (Log.isLoggable(CarLog.TAG_MEDIA, Log.DEBUG)) {
+                                    Log.d(CarLog.TAG_MEDIA, "replacing removed media source "
+                                            + mPrimaryMediaComponents[i] + "with backup source: "
+                                            + getLastMediaSource(i));
+                                }
+                                mRemovedMediaSourceComponents[i] = null;
+                                setPrimaryMediaSource(getLastMediaSource(i), i);
+                            }
                         }
                     }
                 }
             } else if (Intent.ACTION_PACKAGE_REPLACED.equals(intent.getAction())
                     || Intent.ACTION_PACKAGE_ADDED.equals(intent.getAction())) {
-                if (mRemovedMediaSourcePackage != null
-                        && mRemovedMediaSourcePackage.equals(intentPackage)) {
-                    ComponentName mediaSource = getMediaSource(intentPackage, "");
-                    if (mediaSource != null) {
-                        setPrimaryMediaSource(mediaSource, MEDIA_SOURCE_MODE_PLAYBACK);
-                        setPrimaryMediaSource(mediaSource, MEDIA_SOURCE_MODE_BROWSE);
+                for (int i = 0; i < MEDIA_SOURCE_MODES; i++) {
+                    if (mRemovedMediaSourceComponents[i] != null && mRemovedMediaSourceComponents[i]
+                            .getPackageName().equals(intentPackage)) {
+                        if (Log.isLoggable(CarLog.TAG_MEDIA, Log.DEBUG)) {
+                            Log.d(CarLog.TAG_MEDIA, "restoring removed source: "
+                                    + mRemovedMediaSourceComponents[i]);
+                        }
+                        setPrimaryMediaSource(mRemovedMediaSourceComponents[i], i);
                     }
                 }
             }
@@ -315,6 +345,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         }
         writer.println("\tNumber of active media sessions: " + mMediaSessionManager
                 .getActiveSessionsForUser(null, ActivityManager.getCurrentUser()).size());
+
         writer.println("\tPlayback media source history: ");
         for (ComponentName name : getLastMediaSources(MEDIA_SOURCE_MODE_PLAYBACK)) {
             writer.println("\t" + name.flattenToString());
@@ -567,7 +598,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
      * Updates the primary media source, then notifies content observers of the change
      * Will update both the playback and browse sources if independent playback is not supported
      */
-    private void setPrimaryMediaSource(@Nullable ComponentName componentName,
+    private void setPrimaryMediaSource(@NonNull ComponentName componentName,
             @CarMediaManager.MediaSourceMode int mode) {
         synchronized (mLock) {
             if (mPrimaryMediaComponents[mode] != null
@@ -599,7 +630,10 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
             if (!isCurrentUserEphemeral()) {
                 saveLastMediaSource(playbackMediaSource, MEDIA_SOURCE_MODE_PLAYBACK);
             }
-            mRemovedMediaSourcePackage = null;
+            if (playbackMediaSource
+                    .equals(mRemovedMediaSourceComponents[MEDIA_SOURCE_MODE_PLAYBACK])) {
+                mRemovedMediaSourceComponents[MEDIA_SOURCE_MODE_PLAYBACK] = null;
+            }
         }
 
         notifyListeners(MEDIA_SOURCE_MODE_PLAYBACK);
@@ -623,7 +657,10 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
             if (!isCurrentUserEphemeral()) {
                 saveLastMediaSource(browseMediaSource, MEDIA_SOURCE_MODE_BROWSE);
             }
-            mRemovedMediaSourcePackage = null;
+            if (browseMediaSource
+                    .equals(mRemovedMediaSourceComponents[MEDIA_SOURCE_MODE_BROWSE])) {
+                mRemovedMediaSourceComponents[MEDIA_SOURCE_MODE_BROWSE] = null;
+            }
         }
 
         notifyListeners(MEDIA_SOURCE_MODE_BROWSE);
@@ -769,7 +806,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         }
     }
 
-    private ComponentName getLastMediaSource(int mode) {
+    private @NonNull ComponentName getLastMediaSource(int mode) {
         if (sharedPrefsInitialized()) {
             String key = getMediaSourceKey(mode);
             String serialized = mSharedPrefs.getString(key, null);
@@ -786,7 +823,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     }
 
     private ComponentName getDefaultMediaSource() {
-        String defaultMediaSource = mContext.getString(R.string.default_media_source);
+        String defaultMediaSource = mContext.getString(R.string.config_defaultMediaSource);
         ComponentName defaultComponent = ComponentName.unflattenFromString(defaultMediaSource);
         if (isMediaService(defaultComponent)) {
             return defaultComponent;
