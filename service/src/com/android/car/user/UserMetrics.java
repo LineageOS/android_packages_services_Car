@@ -35,6 +35,7 @@ import android.util.SparseLongArray;
 import android.util.TimeUtils;
 
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -128,6 +129,20 @@ final class UserMetrics {
         }
     }
 
+    @VisibleForTesting
+    SparseArray<UserStartingMetric> getUserStartMetrics() {
+        synchronized (mLock) {
+            return mUserStartingMetrics;
+        }
+    }
+
+    @VisibleForTesting
+    SparseArray<UserStoppingMetric> getUserStopMetrics() {
+        synchronized (mLock) {
+            return mUserStoppingMetrics;
+        }
+    }
+
     private void onUserStartingEventLocked(long timestampMs, @UserIdInt int userId) {
         if (mUserStartingMetrics == null) {
             mUserStartingMetrics = new SparseArray<>(INITIAL_CAPACITY);
@@ -136,7 +151,7 @@ final class UserMetrics {
         UserStartingMetric existingMetrics = mUserStartingMetrics.get(userId);
         if (existingMetrics != null) {
             Slog.w(TAG, "user re-started: " + existingMetrics);
-            finishUserStartingLocked(existingMetrics);
+            finishUserStartingLocked(existingMetrics, /* removeMetric= */ false);
         }
 
         mUserStartingMetrics.put(userId, new UserStartingMetric(userId, timestampMs));
@@ -164,7 +179,7 @@ final class UserMetrics {
 
         metrics.unlockedTime = timestampMs;
 
-        finishUserStartingLocked(metrics);
+        finishUserStartingLocked(metrics, /* removeMetric= */ true);
     }
 
     private void onUserStoppingEventLocked(long timestampMs, @UserIdInt int userId) {
@@ -174,7 +189,7 @@ final class UserMetrics {
         UserStoppingMetric existingMetrics = mUserStoppingMetrics.get(userId);
         if (existingMetrics != null) {
             Slog.w(TAG, "user re-stopped: " + existingMetrics);
-            finishUserStoppingLocked(existingMetrics);
+            finishUserStoppingLocked(existingMetrics, /* removeMetric= */ false);
         }
         mUserStoppingMetrics.put(userId, new UserStoppingMetric(userId, timestampMs));
     }
@@ -184,7 +199,7 @@ final class UserMetrics {
         if (metrics == null) return;
 
         metrics.shutdownTime = timestampMs;
-        finishUserStoppingLocked(metrics);
+        finishUserStoppingLocked(metrics, /* removeMetric= */ true);
     }
 
     @Nullable
@@ -215,14 +230,20 @@ final class UserMetrics {
         }
     }
 
-    private void finishUserStartingLocked(@NonNull UserStartingMetric metrics) {
+    private void finishUserStartingLocked(@NonNull UserStartingMetric metrics,
+            boolean removeMetric) {
         mUserStartedLogs.log(metrics.toString());
-        removeExistingMetricsLogged(mUserStartingMetrics, metrics.userId);
+        if (removeMetric) {
+            removeExistingMetricsLogged(mUserStartingMetrics, metrics.userId);
+        }
     }
 
-    private void finishUserStoppingLocked(@NonNull UserStoppingMetric metrics) {
+    private void finishUserStoppingLocked(@NonNull UserStoppingMetric metrics,
+            boolean removeMetric) {
         mUserStoppedLogs.log(metrics.toString());
-        removeExistingMetricsLogged(mUserStoppingMetrics, metrics.userId);
+        if (removeMetric) {
+            removeExistingMetricsLogged(mUserStoppingMetrics, metrics.userId);
+        }
     }
 
     /**
@@ -311,7 +332,8 @@ final class UserMetrics {
         abstract void dump(@NonNull PrintWriter pw);
     }
 
-    private final class UserStartingMetric extends BaseUserMetric {
+    @VisibleForTesting
+    final class UserStartingMetric extends BaseUserMetric {
         public final long startTime;
         public long switchTime;
         public long unlockingTime;
@@ -351,7 +373,8 @@ final class UserMetrics {
         }
     }
 
-    private final class UserStoppingMetric extends BaseUserMetric {
+    @VisibleForTesting
+    final class UserStoppingMetric extends BaseUserMetric {
         public final long stopTime;
         public long shutdownTime;
 
