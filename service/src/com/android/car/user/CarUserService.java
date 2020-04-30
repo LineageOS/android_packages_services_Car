@@ -176,7 +176,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @GuardedBy("mLockUser")
     private UserInfo mInitialUser;
 
-    private final UserMetrics mUserMetrics = new UserMetrics();
+    private UserMetrics mUserMetrics;
 
     /** Interface for callbaks related to passenger activities. */
     public interface PassengerCallback {
@@ -204,8 +204,16 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     private ZoneUserBindingHelper mZoneUserBindingHelper;
 
     public CarUserService(@NonNull Context context, @NonNull UserHalService hal,
-            @NonNull CarUserManagerHelper carUserManagerHelper,
-            @NonNull UserManager userManager, @NonNull IActivityManager am, int maxRunningUsers) {
+            @NonNull CarUserManagerHelper carUserManagerHelper, @NonNull UserManager userManager,
+            @NonNull IActivityManager am, int maxRunningUsers) {
+        this(context, hal, carUserManagerHelper, userManager, am, maxRunningUsers,
+                new UserMetrics());
+    }
+
+    @VisibleForTesting
+    CarUserService(@NonNull Context context, @NonNull UserHalService hal,
+            @NonNull CarUserManagerHelper carUserManagerHelper, @NonNull UserManager userManager,
+            @NonNull IActivityManager am, int maxRunningUsers, UserMetrics userMetrics) {
         if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
             Log.d(TAG_USER, "constructed");
         }
@@ -217,6 +225,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         mUserManager = userManager;
         mLastPassengerId = UserHandle.USER_NULL;
         mEnablePassengerSupport = context.getResources().getBoolean(R.bool.enablePassengerSupport);
+        mUserMetrics = userMetrics;
     }
 
     @Override
