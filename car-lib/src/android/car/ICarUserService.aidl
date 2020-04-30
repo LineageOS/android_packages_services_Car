@@ -17,6 +17,7 @@
 package android.car;
 
 import android.content.pm.UserInfo;
+import android.car.user.GetUserIdentificationAssociationResponse;
 import android.car.user.UserSwitchResult;
 import com.android.internal.infra.AndroidFuture;
 import com.android.internal.os.IResultReceiver;
@@ -35,4 +36,5 @@ interface ICarUserService {
     oneway void setLifecycleListenerForUid(in IResultReceiver listener);
     oneway void resetLifecycleListenerForUid();
     oneway void getInitialUserInfo(int requestType, int timeoutMs, in IResultReceiver receiver);
+    GetUserIdentificationAssociationResponse getUserIdentificationAssociation(in int[] types);
 }
