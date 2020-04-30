@@ -16,6 +16,7 @@
 
 package com.android.car.user;
 
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserInfo;
 import static android.car.test.util.UserTestingHelper.UserInfoBuilder;
 import static android.content.pm.UserInfo.FLAG_EPHEMERAL;
 import static android.content.pm.UserInfo.FLAG_GUEST;
@@ -65,7 +66,6 @@ import android.car.userlib.HalCallback;
 import android.car.userlib.UserHalHelper;
 import android.content.Context;
 import android.content.pm.UserInfo;
-import android.content.pm.UserInfo.UserInfoFlag;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
@@ -1074,7 +1074,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         // the Binder call - it's not worth the effort of mocking that.
         int currentUserId = ActivityManager.getCurrentUser();
         Log.d(TAG, "testGetUserIdentificationAssociation_ok(): current user is " + currentUserId);
-        UserInfo currentUser = mockGetUserInfo(currentUserId, UserInfo.FLAG_ADMIN);
+        UserInfo currentUser = mockUmGetUserInfo(mMockedUserManager, currentUserId,
+                UserInfo.FLAG_ADMIN);
 
         // Not mocking service call, so it will return null
 
@@ -1090,7 +1091,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         // the Binder call - it's not worth the effort of mocking that.
         int currentUserId = ActivityManager.getCurrentUser();
         Log.d(TAG, "testGetUserIdentificationAssociation_ok(): current user is " + currentUserId);
-        UserInfo currentUser = mockGetUserInfo(currentUserId, UserInfo.FLAG_ADMIN);
+        UserInfo currentUser = mockUmGetUserInfo(mMockedUserManager, currentUserId,
+                UserInfo.FLAG_ADMIN);
 
         int[] types = new int[] { 1, 2, 3 };
         mockHalGetUserIdentificationAssociation(currentUser, types, new int[] { 10, 20, 30 },
@@ -1535,21 +1537,5 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                     + UserHalHelper.userFlagsToString(mHalFlags) + ", types="
                     + Arrays.toString(mTypes) + ")";
         }
-    }
-
-    // TODO(b/149099817): Move code below to common place
-
-    /**
-     * Mocks {@code UserManager.getuserInfo(userId)} to return a {@link UserInfo} with the given
-     * {@code flags}.
-     */
-    @NonNull
-    private UserInfo mockGetUserInfo(@UserIdInt int userId, @UserInfoFlag int flags) {
-        UserInfo userInfo = new UserInfo();
-        userInfo.id = userId;
-        userInfo.flags = flags;
-        when(mMockedUserManager.getUserInfo(userId)).thenReturn(userInfo);
-
-        return userInfo;
     }
 }
