@@ -30,9 +30,10 @@ android_test {
         "androidx.test.core",
         "androidx.test.ext.junit",
         "androidx.test.rules",
-        "truth-prebuilt",
         "car-frameworks-service",
+        "mockito-target-minus-junit4",
         "testng",
+        "truth-prebuilt",
     ],
 
     platform_apis: true,
