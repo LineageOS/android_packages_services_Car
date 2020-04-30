@@ -44,11 +44,13 @@ import android.os.Looper;
 import android.os.ServiceSpecificException;
 import android.os.UserHandle;
 import android.sysprop.CarProperties;
+import android.text.TextUtils;
 import android.util.EventLog;
 import android.util.Log;
 import android.util.Pair;
 import android.util.Slog;
 import android.util.SparseArray;
+import android.util.SparseBooleanArray;
 
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.car.EventLogTags;
@@ -328,11 +330,26 @@ public final class UserHalService extends HalServiceBase {
 
     /**
      * Calls HAL to get the value of the user identifications associated with the given user.
+     *
+     * @return HAL response or {@code null} if it was invalid (for example, mismatch on the
+     * requested number of associations).
+     *
+     * @throws IllegalArgumentException if request is invalid (mismatch on number of associations,
+     *   duplicated association, invalid association type values, etc).
      */
-    @NonNull
+    @Nullable
     public UserIdentificationResponse getUserAssociation(
             @NonNull UserIdentificationGetRequest request) {
         Objects.requireNonNull(request, "request cannot be null");
+
+        // Check that it doesn't have dupes
+        SparseBooleanArray types = new SparseBooleanArray(request.numberAssociationTypes);
+        for (int i = 0; i < request.numberAssociationTypes; i++) {
+            int type = request.associationTypes.get(i);
+            Preconditions.checkArgument(!types.get(type), "type %s found more than once on %s",
+                    UserIdentificationAssociationType.toString(type), request);
+            types.put(type, true);
+        }
 
         if (DBG) Log.d(TAG, "getUserAssociation(): req=" + request);
         VehiclePropValue requestAsPropValue = UserHalHelper.toVehiclePropValue(request);
@@ -340,31 +357,49 @@ public final class UserHalService extends HalServiceBase {
                 requestAsPropValue.value.int32Values.toArray());
 
         VehiclePropValue responseAsPropValue = mHal.get(requestAsPropValue);
-        EventLog.writeEvent(EventLogTags.CAR_USER_HAL_GET_USER_AUTH_RESP,
-                responseAsPropValue.value.int32Values.toArray());
+        if (responseAsPropValue == null) {
+            Log.w(TAG, "HAL returned null for request " + requestAsPropValue);
+            return null;
+        }
+
+        if (TextUtils.isEmpty(responseAsPropValue.value.stringValue)) {
+            EventLog.writeEvent(EventLogTags.CAR_USER_HAL_GET_USER_AUTH_RESP,
+                    responseAsPropValue.value.int32Values.toArray());
+        } else {
+            // Must manually append the error message to the array of values
+            int size = responseAsPropValue.value.int32Values.size();
+            Object[] list = new Object[size + 1];
+            responseAsPropValue.value.int32Values.toArray(list);
+            list[list.length - 1] = responseAsPropValue.value.stringValue;
+            EventLog.writeEvent(EventLogTags.CAR_USER_HAL_GET_USER_AUTH_RESP, list);
+        }
+        if (DBG) Log.d(TAG, "getUserAssociation(): responseAsPropValue=" + responseAsPropValue);
 
         UserIdentificationResponse response;
         try {
             response = UserHalHelper.toUserIdentificationGetResponse(responseAsPropValue);
         } catch (IllegalArgumentException e) {
-            throw new IllegalStateException("invalid response from HAL", e);
+            Log.w(TAG, "invalid response from HAL for " + requestAsPropValue, e);
+            return null;
         }
-        if (DBG) Log.d(TAG, "getUserAssociation(): resp=" + response);
+        if (DBG) Log.d(TAG, "getUserAssociation(): response=" + response);
 
         // Validate the response according to the request
         if (response.numberAssociation != request.numberAssociationTypes) {
-            throw new IllegalStateException(
-                    "Wrong number of association types on HAL response (expected "
-                            + request.numberAssociationTypes + "): " + response);
+            Log.w(TAG, "Wrong number of association types on HAL response (expected "
+                    + request.numberAssociationTypes + ") for request " + requestAsPropValue
+                    + ": " + response);
+            return null;
         }
         for (int i = 0; i < request.numberAssociationTypes; i++) {
             int expectedType = request.associationTypes.get(i);
             int actualType = response.associations.get(i).type;
             if (actualType != expectedType) {
-                throw new IllegalStateException("Wrong type on index " + i
-                        + " of HAL response (" + response + "): "
-                        + "expected " + UserIdentificationAssociationType.toString(expectedType)
+                Log.w(TAG, "Wrong type on index " + i + " of HAL response (" + response + ") for "
+                        + "request " + requestAsPropValue + " : expected "
+                        + UserIdentificationAssociationType.toString(expectedType)
                         + ", got " + UserIdentificationAssociationType.toString(actualType));
+                return null;
             }
         }
 
