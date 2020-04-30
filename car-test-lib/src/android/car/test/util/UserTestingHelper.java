@@ -19,6 +19,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.content.pm.UserInfo;
+import android.content.pm.UserInfo.UserInfoFlag;
 import android.os.UserManager;
 
 import com.android.internal.util.Preconditions;
@@ -74,6 +75,9 @@ public final class UserTestingHelper {
         @UserIdInt
         private final int mUserId;
 
+        @UserInfoFlag
+        private int mFlags;
+
         @Nullable
         private String mName;
 
@@ -123,6 +127,15 @@ public final class UserTestingHelper {
         }
 
         /**
+         * Sets the user flags
+         */
+        @NonNull
+        public UserInfoBuilder setFlags(@UserInfoFlag int flags) {
+            mFlags = flags;
+            return this;
+        }
+
+        /**
          * Sets whether the user is ephemeral.
          */
         @NonNull
@@ -145,7 +158,7 @@ public final class UserTestingHelper {
          */
         @NonNull
         public UserInfo build() {
-            int flags = 0;
+            int flags = mFlags;
             if (mEphemeral) {
                 flags |= UserInfo.FLAG_EPHEMERAL;
             }
