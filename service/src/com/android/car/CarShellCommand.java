@@ -84,6 +84,7 @@ final class CarShellCommand extends ShellCommand {
     private static final String NO_INITIAL_USER = "N/A";
 
     private static final String TAG = CarShellCommand.class.getSimpleName();
+    private static final boolean VERBOSE = false;
 
     private static final String COMMAND_HELP = "-h";
     private static final String COMMAND_DAY_NIGHT_MODE = "day-night-mode";
@@ -130,6 +131,14 @@ final class CarShellCommand extends ShellCommand {
                 android.Manifest.permission.DEVICE_POWER);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_SUSPEND,
                 android.Manifest.permission.DEVICE_POWER);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_GET_INITIAL_USER,
+                android.Manifest.permission.INTERACT_ACROSS_USERS_FULL);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_GET_INITIAL_USER_INFO,
+                android.Manifest.permission.MANAGE_USERS);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_SWITCH_USER,
+                android.Manifest.permission.MANAGE_USERS);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_GET_USER_AUTH_ASSOCIATION,
+                android.Manifest.permission.MANAGE_USERS);
     }
 
     private static final String DEVICE_POWER_PERMISSION = "android.permission.DEVICE_POWER";
@@ -371,6 +380,9 @@ final class CarShellCommand extends ShellCommand {
     int exec(String[] args, PrintWriter writer) {
         String cmd = args[0];
         String requiredPermission = USER_BUILD_COMMAND_TO_PERMISSION_MAP.get(cmd);
+        if (VERBOSE) {
+            Log.v(TAG, "cmd: " + cmd + ", requiredPermission: " + requiredPermission);
+        }
         if (Build.IS_USER && requiredPermission == null) {
             throw new SecurityException("The command " + cmd + "requires non-user build");
         }
