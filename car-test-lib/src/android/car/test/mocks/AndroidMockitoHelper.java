@@ -27,6 +27,11 @@ import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
 import android.os.UserManager;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 /**
  * Provides common Mockito calls for core Android classes.
  */
@@ -59,16 +64,36 @@ public final class AndroidMockitoHelper {
     }
 
     /**
-     * Mocks {@code UserManager.getuserInfo(userId)} to return a {@link UserInfo} with the given
+     * Mocks {@code UserManager.getUserInfo(userId)} to return a {@link UserInfo} with the given
      * {@code flags}.
      */
     @NonNull
     public static UserInfo mockUmGetUserInfo(@NonNull UserManager um, @UserIdInt int userId,
             @UserInfoFlag int flags) {
+        Objects.requireNonNull(um);
         UserInfo userInfo = new UserTestingHelper.UserInfoBuilder(userId).setFlags(flags).build();
         when(um.getUserInfo(userId)).thenReturn(userInfo);
 
         return userInfo;
+    }
+
+    /**
+     * Mocks {@code UserManager.getUsers(excludeDying)} to return the given users.
+     */
+    @NonNull
+    public static void mockUmGetUsers(@NonNull UserManager um, @NonNull UserInfo... users) {
+        Objects.requireNonNull(um);
+        List<UserInfo> testUsers = Arrays.stream(users).collect(Collectors.toList());
+        when(um.getUsers(/* excludeDying= */ true)).thenReturn(testUsers);
+    }
+
+    /**
+     * Mocks {@code UserManager.getUsers(excludeDying)} to return simple users with the given ids.
+     */
+    @NonNull
+    public static void mockUmGetUsers(@NonNull UserManager um, @NonNull @UserIdInt int... userIds) {
+        List<UserInfo> users = UserTestingHelper.newUsers(userIds);
+        when(um.getUsers(/* excludeDying= */ true)).thenReturn(users);
     }
 
     private AndroidMockitoHelper() {
