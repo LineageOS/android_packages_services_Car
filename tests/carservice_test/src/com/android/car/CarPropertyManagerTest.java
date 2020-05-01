@@ -98,6 +98,11 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
     private static final int CUSTOM_GLOBAL_MIXED_PROP_ID_2 =
             0x1102 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.MIXED | VehicleArea.GLOBAL;
 
+    private static final int CUSTOM_GLOBAL_INT_ARRAY_PROP =
+            0x1103 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.INT32_VEC
+                    | VehicleArea.GLOBAL;
+    private static final Integer[] FAKE_INT_ARRAY_VALUE = {1, 2};
+
     // Vendor properties for testing exceptions.
     private static final int PROP_CAUSE_STATUS_CODE_TRY_AGAIN =
             0x1201 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.INT32 | VehicleArea.GLOBAL;
@@ -164,6 +169,8 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                 case PROP_CAUSE_STATUS_CODE_INVALID_ARG:
                 case CUSTOM_SEAT_INT_PROP_1:
                 case CUSTOM_SEAT_INT_PROP_2:
+                case CUSTOM_GLOBAL_INT_ARRAY_PROP:
+                case VehiclePropertyIds.INFO_VIN:
                     break;
                 default:
                     Assert.fail("Unexpected CarPropertyConfig: " + cfg.toString());
@@ -183,6 +190,62 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         result = mManager.getProperty(
                 CUSTOM_GLOBAL_MIXED_PROP_ID_2, 0);
         assertThat(result.getValue()).isEqualTo(EXPECTED_VALUE_2);
+    }
+
+    /**
+     * Test {@link android.car.hardware.property.CarPropertyManager#getIntArrayProperty(int, int)}
+     */
+    @Test
+    public void testGetIntArrayProperty() {
+        mManager.setProperty(Integer[].class, CUSTOM_GLOBAL_INT_ARRAY_PROP, VehicleArea.GLOBAL,
+                FAKE_INT_ARRAY_VALUE);
+
+        int[] result = mManager.getIntArrayProperty(CUSTOM_GLOBAL_INT_ARRAY_PROP,
+                VehicleArea.GLOBAL);
+        assertThat(result).asList().containsExactlyElementsIn(FAKE_INT_ARRAY_VALUE);
+    }
+
+    /**
+     * Test {@link CarPropertyManager#getProperty(Class, int, int)}
+     */
+    @Test
+    public void testGetPropertyWithClass() {
+        mManager.setProperty(Integer[].class, CUSTOM_GLOBAL_INT_ARRAY_PROP, VehicleArea.GLOBAL,
+                FAKE_INT_ARRAY_VALUE);
+
+        CarPropertyValue<Integer[]> result = mManager.getProperty(Integer[].class,
+                CUSTOM_GLOBAL_INT_ARRAY_PROP, VehicleArea.GLOBAL);
+        assertThat(result.getValue()).asList().containsExactlyElementsIn(FAKE_INT_ARRAY_VALUE);
+    }
+
+    /**
+     * Test {@link CarPropertyManager#isPropertyAvailable(int, int)}
+     */
+    @Test
+    public void testIsPropertyAvailable() {
+        assertThat(mManager.isPropertyAvailable(FAKE_PROPERTY_ID, VehicleArea.GLOBAL)).isFalse();
+        assertThat(mManager.isPropertyAvailable(CUSTOM_GLOBAL_INT_ARRAY_PROP, VehicleArea.GLOBAL))
+                .isTrue();
+    }
+
+    /**
+     * Test {@link CarPropertyManager#getWritePermission(int)}
+     * and {@link CarPropertyManager#getWritePermission(int)}
+     */
+    @Test
+    public void testGetPermission() {
+        String hvacReadPermission = mManager.getReadPermission(
+                VehiclePropertyIds.HVAC_TEMPERATURE_SET);
+        assertThat(hvacReadPermission).isEqualTo(Car.PERMISSION_CONTROL_CAR_CLIMATE);
+        String hvacWritePermission = mManager.getWritePermission(
+                VehiclePropertyIds.HVAC_TEMPERATURE_SET);
+        assertThat(hvacWritePermission).isEqualTo(Car.PERMISSION_CONTROL_CAR_CLIMATE);
+
+        // For read-only property
+        String vinReadPermission = mManager.getReadPermission(VehiclePropertyIds.INFO_VIN);
+        assertThat(vinReadPermission).isEqualTo(Car.PERMISSION_IDENTIFICATION);
+        String vinWritePermission = mManager.getWritePermission(VehiclePropertyIds.INFO_VIN);
+        assertThat(vinWritePermission).isNull();
     }
 
     @Test
@@ -413,12 +476,14 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         addProperty(CUSTOM_SEAT_MIXED_PROP_ID_1, handler).setConfigArray(CONFIG_ARRAY_1)
                 .addAreaConfig(DRIVER_SIDE_AREA_ID).addAreaConfig(PASSENGER_SIDE_AREA_ID);
         addProperty(CUSTOM_GLOBAL_MIXED_PROP_ID_2, handler).setConfigArray(CONFIG_ARRAY_2);
+        addProperty(CUSTOM_GLOBAL_INT_ARRAY_PROP, handler);
 
         VehiclePropValue tempValue = new VehiclePropValue();
         tempValue.value.floatValues.add(INIT_TEMP_VALUE);
         tempValue.prop = VehiclePropertyIds.HVAC_TEMPERATURE_SET;
         addProperty(VehiclePropertyIds.HVAC_TEMPERATURE_SET, tempValue)
                 .addAreaConfig(DRIVER_SIDE_AREA_ID).addAreaConfig(PASSENGER_SIDE_AREA_ID);
+        addProperty(VehiclePropertyIds.INFO_VIN);
 
         addProperty(PROP_CAUSE_STATUS_CODE_ACCESS_DENIED, handler);
         addProperty(PROP_CAUSE_STATUS_CODE_TRY_AGAIN, handler);
