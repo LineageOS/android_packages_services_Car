@@ -68,6 +68,22 @@ public final class UserTestingHelper {
     }
 
     /**
+     * Creates a new guest with the given {@code userId} and without any flag..
+     */
+    @NonNull
+    public static UserInfo newGuestUser(@UserIdInt int userId) {
+        return new UserInfoBuilder(userId).setGuest(true).build();
+    }
+
+    /**
+     * Gets the default {@link UserInfo#userType} for a guest / regular user.
+     */
+    @NonNull
+    public static String getDefaultUserType(boolean isGuest) {
+        return isGuest ? UserManager.USER_TYPE_FULL_GUEST : UserManager.USER_TYPE_FULL_SECONDARY;
+    }
+
+    /**
      * Builder for {@link UserInfo} objects.
      */
     public static final class UserInfoBuilder {
@@ -87,6 +103,8 @@ public final class UserTestingHelper {
         private boolean mGuest;
         private boolean mEphemeral;
         private boolean mAdmin;
+        private boolean mPreCreated;
+        private boolean mInitialized;
 
         /**
          * Default constructor.
@@ -154,6 +172,24 @@ public final class UserTestingHelper {
         }
 
         /**
+         * Sets whether the user is an pre-created.
+         */
+        @NonNull
+        public UserInfoBuilder setPreCreated(boolean preCreated) {
+            mPreCreated = preCreated;
+            return this;
+        }
+
+        /**
+         * Sets whether the user is initialized.
+         */
+        @NonNull
+        public UserInfoBuilder setInitialized(boolean initialized) {
+            mInitialized = initialized;
+            return this;
+        }
+
+        /**
          * Creates a new {@link UserInfo}.
          */
         @NonNull
@@ -165,10 +201,14 @@ public final class UserTestingHelper {
             if (mAdmin) {
                 flags |= UserInfo.FLAG_ADMIN;
             }
+            if (mInitialized) {
+                flags |= UserInfo.FLAG_INITIALIZED;
+            }
             if (mGuest) {
                 mType = UserManager.USER_TYPE_FULL_GUEST;
             }
             UserInfo info = new UserInfo(mUserId, mName, /* iconPath= */ null, flags, mType);
+            info.preCreated = mPreCreated;
             return info;
         }
     }
