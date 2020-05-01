@@ -161,7 +161,7 @@ public final class Car {
     public static final String AUDIO_SERVICE = "audio";
 
     /** Service name for {@link CarNavigationStatusManager} */
-    @MandatoryFeature
+    @OptionalFeature
     public static final String CAR_NAVIGATION_SERVICE = "car_navigation_service";
 
     /** Service name for {@link CarOccupantZoneManager} */
