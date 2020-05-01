@@ -26,7 +26,7 @@ import org.junit.After;
 /**
  * Base class to test {@link CarPropertyConfig} and {@link CarPropertyValue}.
  */
-public class CarPropertyTestBase extends TestBase {
+public class CarPropertyTestBase {
 
     protected static final int FLOAT_PROPERTY_ID        = 0x1160BEEF;
     protected static final int INT_ARRAY_PROPERTY_ID    = 0x0041BEEF;

@@ -20,6 +20,8 @@ import android.car.Car;
 import android.car.content.pm.CarPackageManager;
 import android.test.suitebuilder.annotation.MediumTest;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import org.junit.Test;
 
 @MediumTest
@@ -29,6 +31,6 @@ public class CarPackageManagerTest extends CarApiTestBase {
     public void testCreate() throws Exception {
         CarPackageManager carPackageManager = (CarPackageManager) getCar()
                 .getCarManager(Car.PACKAGE_SERVICE);
-        assertNotNull(carPackageManager);
+        assertThat(carPackageManager).isNotNull();
     }
 }
