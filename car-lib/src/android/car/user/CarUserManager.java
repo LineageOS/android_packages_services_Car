@@ -73,6 +73,13 @@ public final class CarUserManager extends CarManagerBase {
     private static final boolean DBG = true;
 
     /**
+     * Used by tests only.
+     *
+     * @hide
+     */
+    public static final int INVALID_USER_LIFECYCLE_EVENT_TYPE = -1;
+
+    /**
      * {@link UserLifecycleEvent} called when the user is starting, for components to initialize
      * any per-user state they maintain for running users.
      *
