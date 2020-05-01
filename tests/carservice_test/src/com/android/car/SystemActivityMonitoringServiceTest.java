@@ -68,6 +68,7 @@ public class SystemActivityMonitoringServiceTest {
     @After
     public void tearDown() throws Exception {
         mService.registerActivityLaunchListener(null);
+        mService.release();
         mService = null;
     }
 

@@ -37,54 +37,98 @@ public class EncryptionRunnerTest {
         EncryptionRunner newRunner();
     }
 
+    private interface HandshakeVerifier {
+        void verifyHandshake(EncryptionRunner clientRunner, EncryptionRunner serverRunner)
+                throws Exception;
+    }
+
     @Test
     public void happyFlow_dummyRunner() throws Exception {
-        verifyRunners(EncryptionRunnerFactory::newDummyRunner);
+        verifyRunners(EncryptionRunnerFactory::newDummyRunner,
+                EncryptionRunnerTest::verifyHandshake);
     }
 
     @Test
     public void happyFlow_ukey2Runner() throws Exception {
-        verifyRunners(EncryptionRunnerFactory::newRunner);
+        verifyRunners(EncryptionRunnerTest::newRunner, EncryptionRunnerTest::verifyHandshake);
+    }
+
+    @Test
+    public void happyFlow_oobUkey2Runner() throws Exception {
+        verifyRunners(EncryptionRunnerTest::newOobRunner, EncryptionRunnerTest::verifyOobHandshake);
     }
 
     @Test
     public void happyFlow_dummyRunner_reconnect() throws Exception {
-        setUpFirstConnection(EncryptionRunnerFactory::newDummyRunner);
+        setUpFirstConnection(EncryptionRunnerFactory::newDummyRunner,
+                EncryptionRunnerTest::verifyHandshake);
         verifyRunnersReconnect(EncryptionRunnerFactory::newDummyRunner);
     }
 
     @Test
     public void happyFlow_uKey2Runner_reconnect() throws Exception {
-        setUpFirstConnection(EncryptionRunnerFactory::newRunner);
-        verifyRunnersReconnect(EncryptionRunnerFactory::newRunner);
+        setUpFirstConnection(EncryptionRunnerTest::newRunner,
+                EncryptionRunnerTest::verifyHandshake);
+        verifyRunnersReconnect(EncryptionRunnerTest::newRunner);
+    }
+
+    @Test
+    public void happyFlow_oobUey2Runner_reconnect() throws Exception {
+        setUpFirstConnection(EncryptionRunnerTest::newOobRunner,
+                EncryptionRunnerTest::verifyOobHandshake);
+        verifyRunnersReconnect(EncryptionRunnerTest::newOobRunner);
     }
 
     @Test
     public void uKey2Runner_reconnect_encrypt_and_decrypt() throws Exception {
-        setUpFirstConnection(EncryptionRunnerFactory::newRunner);
-        setUpReconnection(EncryptionRunnerFactory::newRunner);
+        setUpFirstConnection(EncryptionRunnerTest::newRunner,
+                EncryptionRunnerTest::verifyHandshake);
+        setUpReconnection(EncryptionRunnerTest::newRunner, EncryptionRunnerTest::verifyHandshake);
         assertThat(mClientKey.decryptData(mServerKey.encryptData(mData))).isEqualTo(mData);
     }
 
     @Test
     public void dummyRunner_reconnect_encrypt_and_decrypt() throws Exception {
-        setUpFirstConnection(EncryptionRunnerFactory::newDummyRunner);
-        setUpReconnection(EncryptionRunnerFactory::newDummyRunner);
+        setUpFirstConnection(EncryptionRunnerFactory::newDummyRunner,
+                EncryptionRunnerTest::verifyHandshake);
+        setUpReconnection(EncryptionRunnerFactory::newDummyRunner,
+                EncryptionRunnerTest::verifyHandshake);
         assertThat(mClientKey.decryptData(mServerKey.encryptData(mData))).isEqualTo(mData);
     }
 
-    private void setUpFirstConnection(RunnerFactory runnerFactory) throws Exception {
+    @Test
+    public void oobUkey2Runner_reconnect_encrypt_and_decrypt() throws Exception {
+        setUpFirstConnection(EncryptionRunnerTest::newOobRunner,
+                EncryptionRunnerTest::verifyOobHandshake);
+        setUpReconnection(EncryptionRunnerTest::newOobRunner,
+                EncryptionRunnerTest::verifyOobHandshake);
+        assertThat(mClientKey.decryptData(mServerKey.encryptData(mData))).isEqualTo(mData);
+    }
+
+    private static EncryptionRunner newRunner() {
+        return EncryptionRunnerFactory.newRunner(
+                EncryptionRunnerFactory.EncryptionRunnerType.UKEY2);
+    }
+
+    private static EncryptionRunner newOobRunner() {
+        return EncryptionRunnerFactory.newRunner(
+                EncryptionRunnerFactory.EncryptionRunnerType.OOB_UKEY2);
+    }
+
+    private void setUpFirstConnection(RunnerFactory runnerFactory,
+            HandshakeVerifier handshakeVerifier) throws Exception {
         EncryptionRunner clientRunner = runnerFactory.newRunner();
         EncryptionRunner serverRunner = runnerFactory.newRunner();
-        verifyHandshake(clientRunner, serverRunner);
+        handshakeVerifier.verifyHandshake(clientRunner, serverRunner);
         HandshakeMessage finalServerMessage = serverRunner.verifyPin();
         HandshakeMessage finalClientMessage = clientRunner.verifyPin();
         mServerKey = finalServerMessage.getKey();
         mClientKey = finalClientMessage.getKey();
     }
 
-    private void setUpReconnection(RunnerFactory runnerFactory) throws Exception {
-        setUpFirstConnection(runnerFactory);
+    private void setUpReconnection(RunnerFactory runnerFactory, HandshakeVerifier handshakeVerifier)
+            throws Exception {
+        setUpFirstConnection(runnerFactory, handshakeVerifier);
         EncryptionRunner clientRunner = runnerFactory.newRunner();
         EncryptionRunner serverRunner = runnerFactory.newRunner();
         verifyHandshakeReconnect(clientRunner, serverRunner);
@@ -103,11 +147,12 @@ public class EncryptionRunnerTest {
      * Some * of the test is implementation specific because the interface doesn't specify how many
      * round * trips may be needed but this test makes assumptions( i.e. white box testing).
      */
-    private void verifyRunners(RunnerFactory runnerFactory) throws Exception {
+    private void verifyRunners(RunnerFactory runnerFactory, HandshakeVerifier handshakeVerifier)
+            throws Exception {
         EncryptionRunner clientRunner = runnerFactory.newRunner();
         EncryptionRunner serverRunner = runnerFactory.newRunner();
 
-        verifyHandshake(clientRunner, serverRunner);
+        handshakeVerifier.verifyHandshake(clientRunner, serverRunner);
 
         HandshakeMessage finalServerMessage = serverRunner.verifyPin();
         assertThat(finalServerMessage.getHandshakeState())
@@ -156,7 +201,8 @@ public class EncryptionRunnerTest {
         assertThat(finalClientMessage.getNextMessage()).isNull();
     }
 
-    private void verifyHandshake(EncryptionRunner clientRunner, EncryptionRunner serverRunner)
+    private static void verifyHandshake(EncryptionRunner clientRunner,
+            EncryptionRunner serverRunner)
             throws Exception {
         HandshakeMessage initialClientMessage = clientRunner.initHandshake();
 
@@ -204,6 +250,40 @@ public class EncryptionRunnerTest {
                 "last server message size:" + clientMessage.getNextMessage().length);
     }
 
+    private static void verifyOobHandshake(
+            EncryptionRunner clientRunner, EncryptionRunner serverRunner) throws Exception {
+        HandshakeMessage initialClientMessage = clientRunner.initHandshake();
+
+        assertThat(initialClientMessage.getHandshakeState())
+                .isEqualTo(HandshakeMessage.HandshakeState.IN_PROGRESS);
+        assertThat(initialClientMessage.getKey()).isNull();
+        assertThat(initialClientMessage.getNextMessage()).isNotNull();
+
+        HandshakeMessage initialServerMessage =
+                serverRunner.respondToInitRequest(initialClientMessage.getNextMessage());
+
+        assertThat(initialServerMessage.getHandshakeState())
+                .isEqualTo(HandshakeMessage.HandshakeState.IN_PROGRESS);
+        assertThat(initialServerMessage.getKey()).isNull();
+        assertThat(initialServerMessage.getNextMessage()).isNotNull();
+
+        HandshakeMessage clientMessage =
+                clientRunner.continueHandshake(initialServerMessage.getNextMessage());
+
+        assertThat(clientMessage.getHandshakeState())
+                .isEqualTo(HandshakeMessage.HandshakeState.OOB_VERIFICATION_NEEDED);
+        assertThat(clientMessage.getKey()).isNull();
+        assertThat(clientMessage.getOobVerificationCode()).isNotEmpty();
+        assertThat(clientMessage.getNextMessage()).isNotNull();
+
+        HandshakeMessage serverMessage = serverRunner.continueHandshake(
+                clientMessage.getNextMessage());
+        assertThat(serverMessage.getHandshakeState())
+                .isEqualTo(HandshakeMessage.HandshakeState.OOB_VERIFICATION_NEEDED);
+        assertThat(serverMessage.getKey()).isNull();
+        assertThat(serverMessage.getNextMessage()).isNull();
+    }
+
     private void verifyHandshakeReconnect(
             EncryptionRunner clientRunner, EncryptionRunner serverRunner)
             throws HandshakeException {
@@ -249,19 +329,27 @@ public class EncryptionRunnerTest {
 
     @Test
     public void invalidPin_ukey2() throws Exception {
-        invalidPinTest(EncryptionRunnerFactory::newRunner);
+        invalidPinTest(EncryptionRunnerTest::newRunner, EncryptionRunnerTest::verifyHandshake);
     }
 
     @Test
     public void invalidPin_dummy() throws Exception {
-        invalidPinTest(EncryptionRunnerFactory::newDummyRunner);
+        invalidPinTest(EncryptionRunnerFactory::newDummyRunner,
+                EncryptionRunnerTest::verifyHandshake);
     }
 
-    private void invalidPinTest(RunnerFactory runnerFactory) throws Exception {
+    @Test
+    public void invalidPin_oobUkey2() throws Exception {
+        invalidPinTest(EncryptionRunnerTest::newOobRunner,
+                EncryptionRunnerTest::verifyOobHandshake);
+    }
+
+    private void invalidPinTest(RunnerFactory runnerFactory, HandshakeVerifier handshakeVerifier)
+            throws Exception {
         EncryptionRunner clientRunner = runnerFactory.newRunner();
         EncryptionRunner serverRunner = runnerFactory.newRunner();
 
-        verifyHandshake(clientRunner, serverRunner);
+        handshakeVerifier.verifyHandshake(clientRunner, serverRunner);
         clientRunner.invalidPin();
         serverRunner.invalidPin();
 

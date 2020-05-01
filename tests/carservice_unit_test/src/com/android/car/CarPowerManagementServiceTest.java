@@ -16,8 +16,8 @@
 
 package com.android.car;
 
-import static android.car.userlib.InitialUserSetterTest.isUserInfo;
-import static android.car.userlib.InitialUserSetterTest.newGuestUser;
+import static android.car.test.mocks.CarArgumentMatchers.isUserInfo;
+import static android.car.test.util.UserTestingHelper.newGuestUser;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
@@ -28,19 +28,16 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
 
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
 import android.app.ActivityManager;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.hardware.power.ICarPowerStateListener;
-import android.car.test.mocks.AbstractExtendMockitoTestCase;
+import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.test.util.Visitor;
 import android.car.userlib.HalCallback;
 import android.car.userlib.InitialUserSetter;
 import android.content.Context;
@@ -57,7 +54,6 @@ import android.sysprop.CarProperties;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
 
-import androidx.test.filters.FlakyTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.hal.PowerHalService;
@@ -72,33 +68,24 @@ import com.android.car.user.CarUserService;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestRule;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-import java.lang.reflect.Method;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 @SmallTest
-public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase {
+public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCase {
     private static final String TAG = CarPowerManagementServiceTest.class.getSimpleName();
     private static final long WAIT_TIMEOUT_MS = 2000;
     private static final long WAIT_TIMEOUT_LONG_MS = 5000;
     private static final int NO_USER_INFO_FLAGS = 0;
+    private static final int WAKE_UP_DELAY = 100;
 
     private static final int CURRENT_USER_ID = 42;
     private static final int CURRENT_GUEST_ID = 108; // must be different than CURRENT_USER_ID;
@@ -125,36 +112,11 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
     @Mock
     private InitialUserSetter mInitialUserSetter;
 
-    // Wakeup time for the test; it's automatically set based on @WakeupTime annotation
-    private int mWakeupTime;
-
-    // Tracks Log.wtf() calls made during code execution / used on verifyWtfNeverLogged()
-    // TODO: move mechanism to common code / custom Rule
-    private final List<UnsupportedOperationException> mWtfs = new ArrayList<>();
-
-    @Rule
-    public final TestRule setWakeupTimeRule = new TestWatcher() {
-        protected void starting(Description description) {
-            final String testName = description.getMethodName();
-            try {
-                Method testMethod = CarPowerManagementServiceTest.class.getMethod(testName);
-                WakeupTime wakeupAnnotation = testMethod.getAnnotation(WakeupTime.class);
-                if (wakeupAnnotation != null) {
-                    mWakeupTime = wakeupAnnotation.value();
-                    Log.d(TAG, "Using annotated wakeup time: " + mWakeupTime);
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "Could not infer wakeupTime for " + testName, e);
-            }
-        }
-    };
-
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
         session
             .spyStatic(ActivityManager.class)
-            .spyStatic(CarProperties.class)
-            .spyStatic(Log.class);
+            .spyStatic(CarProperties.class);
     }
 
     @Before
@@ -166,12 +128,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
             .withSystemStateInterface(mSystemStateInterface)
             .withWakeLockInterface(mWakeLockInterface)
             .withIOInterface(mIOInterface).build();
-        doAnswer((invocation) -> {
-            return addWtf(invocation);
-        }).when(() -> Log.wtf(anyString(), anyString()));
-        doAnswer((invocation) -> {
-            return addWtf(invocation);
-        }).when(() -> Log.wtf(anyString(), anyString(), notNull()));
 
         setCurrentUser(CURRENT_USER_ID, /* isGuest= */ false);
         setService();
@@ -183,14 +139,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
             mService.release();
         }
         mIOInterface.tearDown();
-    }
-
-
-    private Object addWtf(InvocationOnMock invocation) {
-        String message = "Called " + invocation;
-        Log.d(TAG, message); // Log always, as some test expect it
-        mWtfs.add(new UnsupportedOperationException(message));
-        return null;
     }
 
     /**
@@ -209,10 +157,7 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
         mService.init();
         mService.setShutdownTimersForTest(0, 0);
         mPowerHal.setSignalListener(mPowerSignalListener);
-        if (mWakeupTime > 0) {
-            registerListenerToService();
-            mService.scheduleNextWakeupTime(mWakeupTime);
-        }
+        mService.scheduleNextWakeupTime(WAKE_UP_DELAY);
         assertStateReceived(MockedPowerHalService.SET_WAIT_FOR_VHAL, 0);
     }
 
@@ -226,8 +171,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
 
         // display should be turned on as it started with off state.
         assertThat(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS)).isTrue();
-
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -246,8 +189,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
         assertThat(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS)).isFalse();
         mPowerSignalListener.waitForShutdown(WAIT_TIMEOUT_MS);
         mSystemStateInterface.waitForShutdown(WAIT_TIMEOUT_MS);
-
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -261,10 +202,7 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
                         VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                         VehicleApPowerStateShutdownParam.CAN_SLEEP));
         // Verify suspend
-        assertStateReceivedForShutdownOrSleepWithPostpone(
-                PowerHalService.SET_DEEP_SLEEP_ENTRY, WAIT_TIMEOUT_LONG_MS, mWakeupTime);
-
-        verifyWtfNeverLogged();
+        assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_DEEP_SLEEP_ENTRY);
     }
 
     @Test
@@ -280,16 +218,14 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
                         VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                         VehicleApPowerStateShutdownParam.CAN_SLEEP));
         // Verify shutdown
-        assertStateReceivedForShutdownOrSleepWithPostpone(
-                PowerHalService.SET_SHUTDOWN_START, WAIT_TIMEOUT_LONG_MS, mWakeupTime);
+        assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_SHUTDOWN_START);
         mPowerSignalListener.waitForShutdown(WAIT_TIMEOUT_MS);
         // Send the finished signal
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.FINISHED, 0));
         mSystemStateInterface.waitForShutdown(WAIT_TIMEOUT_MS);
         // Cancel the shutdown
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.CANCEL_SHUTDOWN, 0));
-        assertStateReceivedForShutdownOrSleepWithPostpone(
-                PowerHalService.SET_SHUTDOWN_CANCELLED, WAIT_TIMEOUT_LONG_MS, 0);
+        assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_SHUTDOWN_CANCELLED);
 
         // Request suspend again
         mPowerHal.setCurrentPowerState(
@@ -297,9 +233,7 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
                         VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                         VehicleApPowerStateShutdownParam.CAN_SLEEP));
         // Verify suspend
-        assertStateReceivedForShutdownOrSleepWithPostpone(
-                PowerHalService.SET_DEEP_SLEEP_ENTRY, WAIT_TIMEOUT_LONG_MS, mWakeupTime);
-        verifyWtfNeverLogged();
+        assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_DEEP_SLEEP_ENTRY);
     }
 
     @Test
@@ -312,20 +246,16 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
                 new PowerState(
                         VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                         VehicleApPowerStateShutdownParam.SHUTDOWN_IMMEDIATELY));
-        assertStateReceivedForShutdownOrSleepWithPostpone(
-                PowerHalService.SET_SHUTDOWN_START, WAIT_TIMEOUT_LONG_MS, 0);
+        assertStateReceived(PowerHalService.SET_SHUTDOWN_START, 0);
         // Cancel the shutdown
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.CANCEL_SHUTDOWN, 0));
-        assertStateReceivedForShutdownOrSleepWithPostpone(
-                PowerHalService.SET_SHUTDOWN_CANCELLED, WAIT_TIMEOUT_LONG_MS, 0);
+        assertStateReceived(PowerHalService.SET_SHUTDOWN_CANCELLED, 0);
         // Go to suspend
         mPowerHal.setCurrentPowerState(
                 new PowerState(
                         VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                         VehicleApPowerStateShutdownParam.CAN_SLEEP));
-        assertStateReceivedForShutdownOrSleepWithPostpone(
-                PowerHalService.SET_DEEP_SLEEP_ENTRY, WAIT_TIMEOUT_LONG_MS, mWakeupTime);
-        verifyWtfNeverLogged();
+        assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_DEEP_SLEEP_ENTRY);
     }
 
     @Test
@@ -344,37 +274,29 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
         assertThat(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS)).isFalse();
         mPowerSignalListener.waitForShutdown(WAIT_TIMEOUT_MS);
         mSystemStateInterface.waitForShutdown(WAIT_TIMEOUT_MS);
-        verifyWtfNeverLogged();
     }
 
     @Test
-    @WakeupTime(100)
-    @FlakyTest
     public void testShutdownWithProcessing() throws Exception {
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE, 0));
-        assertStateReceivedForShutdownOrSleepWithPostpone(
-                PowerHalService.SET_SHUTDOWN_START, WAIT_TIMEOUT_LONG_MS, mWakeupTime);
+        assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_SHUTDOWN_START);
         mPowerSignalListener.waitForShutdown(WAIT_TIMEOUT_MS);
         // Send the finished signal
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.FINISHED, 0));
         mSystemStateInterface.waitForShutdown(WAIT_TIMEOUT_MS);
-        verifyWtfNeverLogged();
     }
 
     @Test
-    @WakeupTime(100)
     public void testSleepEntryAndWakeup() throws Exception {
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                 VehicleApPowerStateShutdownParam.CAN_SLEEP));
-        assertStateReceivedForShutdownOrSleepWithPostpone(
-                PowerHalService.SET_DEEP_SLEEP_ENTRY, WAIT_TIMEOUT_LONG_MS, mWakeupTime);
+        assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_DEEP_SLEEP_ENTRY);
         mPowerSignalListener.waitForSleepEntry(WAIT_TIMEOUT_MS);
         // Send the finished signal from HAL to CPMS
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.FINISHED, 0));
         mSystemStateInterface.waitForSleepEntryAndWakeup(WAIT_TIMEOUT_MS);
         assertStateReceived(PowerHalService.SET_DEEP_SLEEP_EXIT, 0);
         mPowerSignalListener.waitForSleepExit(WAIT_TIMEOUT_MS);
-        verifyWtfNeverLogged();
     }
 
     /**
@@ -397,7 +319,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
         suspendAndResumeForUserSwitchingTests();
 
         verifyDefaultInitialUserBehaviorCalled();
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -408,7 +329,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
         suspendAndResumeForUserSwitchingTestsWhileDisabledByOem();
 
         verifyUserNotSwitched();
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -420,7 +340,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
         suspendAndResumeForUserSwitchingTestsWhileDisabledByOem();
 
         verifyUserSwitched(NEW_GUEST_ID);
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -432,7 +351,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
 
         verifyUserNotSwitched();
         verifyDefaultInitialUserBehaviorCalled();
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -472,7 +390,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
         suspendAndResumeForUserSwitchingTests();
 
         verifyDefaultInitialUserBehaviorCalled();
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -486,7 +403,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
         suspendAndResumeForUserSwitchingTests();
 
         verifyDefaultInitialUserBehaviorCalled();
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -497,7 +413,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
         suspendAndResumeForUserSwitchingTests();
 
         verifyDefaultInitialUserBehaviorCalled();
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -511,7 +426,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
         suspendAndResumeForUserSwitchingTests();
 
         verifyDefaultInitialUserBehaviorCalled();
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -527,7 +441,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
 
         verifyUserSwitched(10);
         verifyDefaultInitilUserBehaviorNeverCalled();
-        verifyWtfNeverLogged();
     }
 
     @Test
@@ -544,7 +457,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
 
         verifyUserCreated("Duffman", 42);
         verifyDefaultInitilUserBehaviorNeverCalled();
-        verifyWtfNeverLogged();
     }
 
     private void setGetUserInfoResponse(Visitor<HalCallback<InitialUserInfoResponse>> visitor) {
@@ -565,8 +477,7 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                 VehicleApPowerStateShutdownParam.CAN_SLEEP));
         assertThat(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS)).isFalse();
-        assertStateReceivedForShutdownOrSleepWithPostpone(
-                PowerHalService.SET_DEEP_SLEEP_ENTRY, WAIT_TIMEOUT_LONG_MS, mWakeupTime);
+        assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_DEEP_SLEEP_ENTRY);
         mPowerSignalListener.waitForSleepEntry(WAIT_TIMEOUT_MS);
 
         // Send the finished signal
@@ -576,7 +487,7 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
         mSystemStateInterface.waitForSleepEntryAndWakeup(WAIT_TIMEOUT_MS);
         assertStateReceived(PowerHalService.SET_DEEP_SLEEP_EXIT, 0);
         mPowerSignalListener.waitForSleepExit(WAIT_TIMEOUT_MS);
-        mService.scheduleNextWakeupTime(mWakeupTime);
+        mService.scheduleNextWakeupTime(WAKE_UP_DELAY);
         // second processing after wakeup
         assertThat(mDisplayInterface.getDisplayState()).isFalse();
 
@@ -588,8 +499,7 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
         CarServiceUtils.runOnLooperSync(mService.getHandlerThread().getLooper(), () -> { });
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                 VehicleApPowerStateShutdownParam.CAN_SLEEP));
-        assertStateReceivedForShutdownOrSleepWithPostpone(
-                PowerHalService.SET_DEEP_SLEEP_ENTRY, WAIT_TIMEOUT_LONG_MS, mWakeupTime);
+        assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_DEEP_SLEEP_ENTRY);
         mPowerSignalListener.waitForSleepEntry(WAIT_TIMEOUT_MS);
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.FINISHED, 0));
         // PM will shutdown system as it was not woken-up due timer and it is not power on.
@@ -634,42 +544,24 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
         assertThat(state[1]).isEqualTo(expectedParam);
     }
 
-    private void assertStateReceivedForShutdownOrSleepWithPostpone(
-            int lastState, long timeoutMs, int expectedParamForShutdownOrSuspend) throws Exception {
+    private void assertStateReceivedForShutdownOrSleepWithPostpone(int lastState) throws Exception {
         while (true) {
             if (mFuture != null && !mFuture.isDone()) {
                 mFuture.complete(null);
             }
-            int[] state = mPowerHal.waitForSend(timeoutMs);
+            int[] state = mPowerHal.waitForSend(WAIT_TIMEOUT_LONG_MS);
             if (state[0] == PowerHalService.SET_SHUTDOWN_POSTPONE) {
                 continue;
             }
             if (state[0] == lastState) {
-                assertThat(state[1]).isEqualTo(expectedParamForShutdownOrSuspend);
+                int expectedSecondParameter =
+                        (lastState == MockedPowerHalService.SET_DEEP_SLEEP_ENTRY
+                        || lastState == MockedPowerHalService.SET_SHUTDOWN_START)
+                                ? WAKE_UP_DELAY : 0;
+                assertThat(state[1]).isEqualTo(expectedSecondParameter);
                 return;
             }
         }
-    }
-
-    // TODO: should be part of @After, but then it would hide the real test failure (if any). We'd
-    // need a custom rule (like CTS's SafeCleaner) for it...
-    private void verifyWtfNeverLogged() {
-        int size = mWtfs.size();
-
-        switch (size) {
-            case 0:
-                return;
-            case 1:
-                throw mWtfs.get(0);
-            default:
-                StringBuilder msg = new StringBuilder("wtf called ").append(size).append(" times")
-                        .append(": ").append(mWtfs);
-                fail(msg.toString());
-        }
-    }
-
-    private void verifyWtfLogged() {
-        assertThat(mWtfs).isNotEmpty();
     }
 
     private static void waitForSemaphore(Semaphore semaphore, long timeoutMs)
@@ -870,16 +762,5 @@ public class CarPowerManagementServiceTest extends AbstractExtendMockitoTestCase
                 return;
             }
         }
-    }
-
-    @Retention(RUNTIME)
-    @Target({METHOD})
-    private @interface WakeupTime {
-        int value();
-    }
-
-    // TODO(b/149099817): move to common code
-    private interface Visitor<T> {
-        void visit(T t);
     }
 }

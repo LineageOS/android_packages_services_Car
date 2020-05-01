@@ -19,6 +19,10 @@ import static android.car.VehiclePropertyIds.CURRENT_GEAR;
 import static android.car.VehiclePropertyIds.INITIAL_USER_INFO;
 import static android.car.VehiclePropertyIds.SWITCH_USER;
 import static android.car.VehiclePropertyIds.USER_IDENTIFICATION_ASSOCIATION;
+import static android.car.test.mocks.CarArgumentMatchers.isProperty;
+import static android.car.test.mocks.CarArgumentMatchers.isPropertyWithValues;
+import static android.car.test.util.VehicleHalTestingHelper.newConfig;
+import static android.car.test.util.VehicleHalTestingHelper.newSubscribableConfig;
 import static android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType.COLD_BOOT;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType.CUSTOM_1;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType.KEY_FOB;
@@ -28,7 +32,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -51,8 +54,6 @@ import android.hardware.automotive.vehicle.V2_0.UserInfo;
 import android.hardware.automotive.vehicle.V2_0.UsersInfo;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 import android.os.UserHandle;
@@ -63,7 +64,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -83,7 +83,7 @@ public final class UserHalServiceTest {
     /**
      * Timeout passed to {@link UserHalService} methods
      */
-    private static final int TIMEOUT_MS = 20;
+    private static final int TIMEOUT_MS = 50;
 
     /**
      * Timeout for {@link GenericHalCallback#assertCalled()} for tests where the HAL is supposed to
@@ -95,7 +95,7 @@ public final class UserHalServiceTest {
      * Timeout for {@link GenericHalCallback#assertCalled()} for tests where the HAL is not supposed
      * to return anything - it's a slightly longer to make sure the test doesn't fail prematurely.
      */
-    private static final int CALLBACK_TIMEOUT_TIMEOUT = TIMEOUT_MS + 500;
+    private static final int CALLBACK_TIMEOUT_TIMEOUT = TIMEOUT_MS + 450;
 
     // Used when crafting a request property - the real value will be set by the mock.
     private static final int REQUEST_ID_PLACE_HOLDER = 42;
@@ -586,6 +586,17 @@ public final class UserHalServiceTest {
     }
 
     @Test
+    public void testGetUserAssociation_requestWithDuplicatedTypes() {
+        UserIdentificationGetRequest request = new UserIdentificationGetRequest();
+        request.numberAssociationTypes = 2;
+        request.associationTypes.add(KEY_FOB);
+        request.associationTypes.add(KEY_FOB);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mUserHalService.getUserAssociation(request));
+    }
+
+    @Test
     public void testGetUserAssociation_invalidResponse() {
         VehiclePropValue mockedResponse = new VehiclePropValue();
         mockedResponse.prop = USER_IDENTIFICATION_ASSOCIATION;
@@ -600,8 +611,28 @@ public final class UserHalServiceTest {
         request.userInfo.flags = 108;
         request.numberAssociationTypes = 1;
         request.associationTypes.add(KEY_FOB);
-        assertThrows(IllegalStateException.class,
-                () -> mUserHalService.getUserAssociation(request));
+
+        assertThat(mUserHalService.getUserAssociation(request)).isNull();
+    }
+
+    @Test
+    public void testGetUserAssociation_nullResponse() {
+        VehiclePropValue mockedResponse = new VehiclePropValue();
+        mockedResponse.prop = USER_IDENTIFICATION_ASSOCIATION;
+        mockedResponse.value.int32Values.add(1); // 1 association
+        mockedResponse.value.int32Values.add(KEY_FOB);
+        mockedResponse.value.int32Values.add(ASSOCIATED_CURRENT_USER);
+        when(mVehicleHal.get(
+                isPropertyWithValues(USER_IDENTIFICATION_ASSOCIATION, 42, 108, 1, KEY_FOB)))
+                        .thenReturn(null);
+
+        UserIdentificationGetRequest request = new UserIdentificationGetRequest();
+        request.userInfo.userId = 42;
+        request.userInfo.flags = 108;
+        request.numberAssociationTypes = 1;
+        request.associationTypes.add(KEY_FOB);
+
+        assertThat(mUserHalService.getUserAssociation(request)).isNull();
     }
 
     @Test
@@ -622,8 +653,8 @@ public final class UserHalServiceTest {
         request.userInfo.flags = 108;
         request.numberAssociationTypes = 1;
         request.associationTypes.add(KEY_FOB);
-        assertThrows(IllegalStateException.class,
-                () -> mUserHalService.getUserAssociation(request));
+
+        assertThat(mUserHalService.getUserAssociation(request)).isNull();
     }
 
     @Test
@@ -642,8 +673,8 @@ public final class UserHalServiceTest {
         request.userInfo.flags = 108;
         request.numberAssociationTypes = 1;
         request.associationTypes.add(KEY_FOB);
-        assertThrows(IllegalStateException.class,
-                () -> mUserHalService.getUserAssociation(request));
+
+        assertThat(mUserHalService.getUserAssociation(request)).isNull();
     }
 
     @Test
@@ -653,7 +684,6 @@ public final class UserHalServiceTest {
         mockedResponse.value.int32Values.add(1); // 1 association
         mockedResponse.value.int32Values.add(KEY_FOB);
         mockedResponse.value.int32Values.add(ASSOCIATED_CURRENT_USER);
-
         when(mVehicleHal.get(
                 isPropertyWithValues(USER_IDENTIFICATION_ASSOCIATION, 42, 108, 1, KEY_FOB)))
                         .thenReturn(mockedResponse);
@@ -663,6 +693,7 @@ public final class UserHalServiceTest {
         request.userInfo.flags = 108;
         request.numberAssociationTypes = 1;
         request.associationTypes.add(KEY_FOB);
+
         UserIdentificationResponse actualResponse = mUserHalService.getUserAssociation(request);
 
         assertThat(actualResponse.numberAssociation).isEqualTo(1);
@@ -822,82 +853,5 @@ public final class UserHalServiceTest {
             throw new AssertionError("Called " + mExtraCalls.size() + " times more than expected: "
                     + mExtraCalls);
         }
-    }
-
-    // TODO(b/149099817): move stuff below to common code
-
-    /**
-     * Custom Mockito matcher to check if a {@link VehiclePropValue} has the given {@code prop}.
-     */
-    public static VehiclePropValue isProperty(int prop) {
-        return argThat(new PropertyIdMatcher(prop));
-    }
-
-    /**
-     * Custom Mockito matcher to check if a {@link VehiclePropValue} has the given {@code prop} and
-     * {@code int32} values.
-     */
-    public static VehiclePropValue isPropertyWithValues(int prop, int...values) {
-        return argThat(new PropertyIdMatcher(prop, values));
-    }
-
-    private static class PropertyIdMatcher implements ArgumentMatcher<VehiclePropValue> {
-
-        final int mProp;
-        private final int[] mValues;
-
-        private PropertyIdMatcher(int prop) {
-            this(prop, null);
-        }
-
-        private PropertyIdMatcher(int prop, int[] values) {
-            mProp = prop;
-            mValues = values;
-        }
-
-        @Override
-        public boolean matches(VehiclePropValue argument) {
-            Log.v(TAG, "PropertyIdMatcher: argument=" + argument);
-            if (argument.prop != mProp) {
-                Log.w(TAG, "PropertyIdMatcher: Invalid prop on " + argument);
-                return false;
-            }
-            if (mValues == null) return true;
-            // Make sure values match
-            if (mValues.length != argument.value.int32Values.size()) {
-                Log.w(TAG, "PropertyIdMatcher: number of values (expected " + mValues.length
-                        + ") mismatch on " + argument);
-                return false;
-            }
-
-            for (int i = 0; i < mValues.length; i++) {
-                if (mValues[i] != argument.value.int32Values.get(i)) {
-                    Log.w(TAG, "PropertyIdMatcher: value mismatch at index " + i + " on " + argument
-                            + ": expected " + Arrays.toString(mValues));
-                    return false;
-                }
-            }
-            return true;
-        }
-    }
-
-    /**
-     * Creates an empty config for the given property.
-     */
-    private static VehiclePropConfig newConfig(int prop) {
-        VehiclePropConfig config = new VehiclePropConfig();
-        config.prop = prop;
-        return config;
-    }
-
-    /**
-     * Creates a config for the given property that passes the
-     * {@link VehicleHal#isPropertySubscribable(VehiclePropConfig)} criteria.
-     */
-    private static VehiclePropConfig newSubscribableConfig(int prop) {
-        VehiclePropConfig config = newConfig(prop);
-        config.access = VehiclePropertyAccess.READ_WRITE;
-        config.changeMode = VehiclePropertyChangeMode.ON_CHANGE;
-        return config;
     }
 }

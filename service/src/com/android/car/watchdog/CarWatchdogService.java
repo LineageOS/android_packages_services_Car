@@ -48,13 +48,12 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
-import androidx.annotation.VisibleForTesting;
-
 import com.android.car.CarLocalServices;
 import com.android.car.CarPowerManagementService;
 import com.android.car.CarServiceBase;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
@@ -113,14 +112,10 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     @GuardedBy("mMainHandler")
     private final SparseBooleanArray mStoppedUser = new SparseBooleanArray();
 
-    public CarWatchdogService(Context context) {
-        this(context, new CarWatchdogDaemonHelper(TAG_WATCHDOG));
-    }
-
     @VisibleForTesting
-    public CarWatchdogService(Context context, CarWatchdogDaemonHelper carWatchdogDaemonHelper) {
+    public CarWatchdogService(Context context) {
         mContext = context;
-        mCarWatchdogDaemonHelper = carWatchdogDaemonHelper;
+        mCarWatchdogDaemonHelper = new CarWatchdogDaemonHelper(TAG_WATCHDOG);
         mWatchdogClient = new ICarWatchdogClientImpl(this);
     }
 
@@ -262,6 +257,14 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         }
     }
 
+    @VisibleForTesting
+    protected int getClientCount(int timeout) {
+        synchronized (mLock) {
+            ArrayList<ClientInfo> clients = mClientMap.get(timeout);
+            return clients != null ? clients.size() : 0;
+        }
+    }
+
     private void registerToDaemon() {
         try {
             mCarWatchdogDaemonHelper.registerMediator(mWatchdogClient);
@@ -306,6 +309,10 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         synchronized (mLock) {
             removeClientLocked(client.asBinder(), timeout);
         }
+    }
+
+    private void postHealthCheckMessage(int sessionId) {
+        mMainHandler.sendMessage(obtainMessage(CarWatchdogService::doHealthCheck, this, sessionId));
     }
 
     private void doHealthCheck(int sessionId) {
@@ -548,7 +555,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         }
     }
 
-    private final class ICarWatchdogClientImpl extends ICarWatchdogClient.Stub {
+    private static final class ICarWatchdogClientImpl extends ICarWatchdogClient.Stub {
         private final WeakReference<CarWatchdogService> mService;
 
         private ICarWatchdogClientImpl(CarWatchdogService service) {
@@ -562,8 +569,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 Log.w(TAG, "CarWatchdogService is not available");
                 return;
             }
-            mMainHandler.sendMessage(obtainMessage(CarWatchdogService::doHealthCheck,
-                    CarWatchdogService.this, sessionId));
+            service.postHealthCheckMessage(sessionId);
         }
 
         @Override
@@ -596,18 +602,18 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             this.timeout = timeout;
         }
 
+        @Override
+        public void binderDied() {
+            Log.w(TAG, "Client(pid: " + pid + ") died");
+            onClientDeath(client, timeout);
+        }
+
         private void linkToDeath() throws RemoteException {
             client.asBinder().linkToDeath(this, 0);
         }
 
         private void unlinkToDeath() {
             client.asBinder().unlinkToDeath(this, 0);
-        }
-
-        @Override
-        public void binderDied() {
-            Log.w(TAG, "Client(pid: " + pid + ") died");
-            onClientDeath(client, timeout);
         }
     }
 }

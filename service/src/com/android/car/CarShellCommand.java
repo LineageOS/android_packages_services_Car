@@ -30,6 +30,7 @@ import android.car.Car;
 import android.car.input.CarInputManager;
 import android.car.input.RotaryEvent;
 import android.car.user.CarUserManager;
+import android.car.user.GetUserIdentificationAssociationResponse;
 import android.car.user.UserSwitchResult;
 import android.car.userlib.HalCallback;
 import android.car.userlib.UserHalHelper;
@@ -41,17 +42,20 @@ import android.hardware.automotive.vehicle.V2_0.SwitchUserMessageType;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserStatus;
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociation;
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType;
+import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationValue;
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationGetRequest;
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationResponse;
 import android.hardware.automotive.vehicle.V2_0.UserInfo;
 import android.hardware.automotive.vehicle.V2_0.UsersInfo;
 import android.hardware.automotive.vehicle.V2_0.VehicleArea;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Process;
 import android.os.ShellCommand;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.text.TextUtils;
+import android.util.ArrayMap;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.KeyEvent;
@@ -80,6 +84,7 @@ final class CarShellCommand extends ShellCommand {
     private static final String NO_INITIAL_USER = "N/A";
 
     private static final String TAG = CarShellCommand.class.getSimpleName();
+    private static final boolean VERBOSE = false;
 
     private static final String COMMAND_HELP = "-h";
     private static final String COMMAND_DAY_NIGHT_MODE = "day-night-mode";
@@ -112,6 +117,29 @@ final class CarShellCommand extends ShellCommand {
             "reset-user-in-occupant-zone";
     private static final String COMMAND_GET_USER_AUTH_ASSOCIATION =
             "get-user-auth-association";
+
+    // Whitelist of commands allowed in user build. All these command should be protected with
+    // a permission. K: command, V: required permission.
+    // Only commands with permission already granted to shell user should be allowed.
+    // Commands that can affect safety should be never allowed in user build.
+    private static final ArrayMap<String, String> USER_BUILD_COMMAND_TO_PERMISSION_MAP;
+    static {
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP = new ArrayMap<>();
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_GARAGE_MODE,
+                android.Manifest.permission.DEVICE_POWER);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_RESUME,
+                android.Manifest.permission.DEVICE_POWER);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_SUSPEND,
+                android.Manifest.permission.DEVICE_POWER);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_GET_INITIAL_USER,
+                android.Manifest.permission.INTERACT_ACROSS_USERS_FULL);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_GET_INITIAL_USER_INFO,
+                android.Manifest.permission.MANAGE_USERS);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_SWITCH_USER,
+                android.Manifest.permission.MANAGE_USERS);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_GET_USER_AUTH_ASSOCIATION,
+                android.Manifest.permission.MANAGE_USERS);
+    }
 
     private static final String DEVICE_POWER_PERMISSION = "android.permission.DEVICE_POWER";
 
@@ -350,8 +378,21 @@ final class CarShellCommand extends ShellCommand {
     }
 
     int exec(String[] args, PrintWriter writer) {
-        String arg = args[0];
-        switch (arg) {
+        String cmd = args[0];
+        String requiredPermission = USER_BUILD_COMMAND_TO_PERMISSION_MAP.get(cmd);
+        if (VERBOSE) {
+            Log.v(TAG, "cmd: " + cmd + ", requiredPermission: " + requiredPermission);
+        }
+        if (Build.IS_USER && requiredPermission == null) {
+            throw new SecurityException("The command " + cmd + "requires non-user build");
+        }
+        if (requiredPermission != null) {
+            if (!ICarImpl.hasPermission(mContext, requiredPermission)) {
+                throw new SecurityException("The command " + cmd + "requires permission:"
+                        + requiredPermission);
+            }
+        }
+        switch (cmd) {
             case COMMAND_HELP:
                 showHelp(writer);
                 break;
@@ -361,10 +402,6 @@ final class CarShellCommand extends ShellCommand {
                 break;
             }
             case COMMAND_GARAGE_MODE: {
-                if (!ICarImpl.hasPermission(mContext, DEVICE_POWER_PERMISSION)) {
-                    writer.println("This command requires " + DEVICE_POWER_PERMISSION);
-                    return RESULT_ERROR;
-                }
                 String value = args.length < 2 ? "" : args[1];
                 forceGarageMode(value, writer);
                 break;
@@ -442,18 +479,10 @@ final class CarShellCommand extends ShellCommand {
                 mCarProjectionService.setAccessPointTethering(Boolean.valueOf(args[1]));
                 break;
             case COMMAND_RESUME:
-                if (!ICarImpl.hasPermission(mContext, DEVICE_POWER_PERMISSION)) {
-                    writer.println("This command requires " + DEVICE_POWER_PERMISSION);
-                    return RESULT_ERROR;
-                }
                 mCarPowerManagementService.forceSimulatedResume();
                 writer.println("Resume: Simulating resuming from Deep Sleep");
                 break;
             case COMMAND_SUSPEND:
-                if (!ICarImpl.hasPermission(mContext, DEVICE_POWER_PERMISSION)) {
-                    writer.println("This command requires " + DEVICE_POWER_PERMISSION);
-                    return RESULT_ERROR;
-                }
                 mCarPowerManagementService.forceSuspendAndMaybeReboot(false);
                 writer.println("Resume: Simulating powering down to Deep Sleep");
                 break;
@@ -531,7 +560,7 @@ final class CarShellCommand extends ShellCommand {
                 getUserAuthAssociation(args, writer);
                 break;
             default:
-                writer.println("Unknown command: \"" + arg + "\"");
+                writer.println("Unknown command: \"" + cmd + "\"");
                 showHelp(writer);
                 return RESULT_ERROR;
         }
@@ -929,32 +958,69 @@ final class CarShellCommand extends ShellCommand {
             }
 
         }
-        int requestSize = request.associationTypes.size();
-        request.numberAssociationTypes = requestSize;
         if (userId == UserHandle.USER_CURRENT) {
             userId = ActivityManager.getCurrentUser();
         }
-        // TODO(b/150413515): use UserHalHelper to set user flags
-        request.userInfo.userId = userId;
+        int requestSize = request.associationTypes.size();
+        if (halOnly) {
+            request.numberAssociationTypes = requestSize;
+            // TODO(b/150413515): use UserHalHelper to set user flags
+            request.userInfo.userId = userId;
 
-        if (!halOnly) {
-            // TODO(b/150409351): temporary restriction until CarUserManager implements it
-            throw new IllegalArgumentException("only --hal-only is supported for now");
+            Log.d(TAG, "getUserAuthAssociation(): user=" + userId + ", halOnly=" + halOnly
+                    + ", request=" + request);
+            UserIdentificationResponse response = mHal.getUserHal().getUserAssociation(request);
+            Log.d(TAG, "getUserAuthAssociation(): response=" + response);
+
+            if (response == null) {
+                writer.println("null response");
+                return;
+            }
+
+            if (!TextUtils.isEmpty(response.errorMessage)) {
+                writer.printf("Error message: %s\n", response.errorMessage);
+            }
+            int numberAssociations = response.associations.size();
+            writer.printf("%d associations:\n", numberAssociations);
+            for (int i = 0; i < numberAssociations; i++) {
+                UserIdentificationAssociation association = response.associations.get(i);
+                writer.printf("  %s\n", association);
+            }
+            return;
         }
 
-        Log.d(TAG, "getUserAuthAssociation(): user=" + userId + ", halOnly=" + halOnly
-                + ", request=" + request);
-        UserIdentificationResponse response = mHal.getUserHal().getUserAssociation(request);
-        Log.d(TAG, "getUserAuthAssociation(): response=" + response);
-
-        if (!TextUtils.isEmpty(response.errorMessage)) {
-            writer.printf("Error message: %s\n", response.errorMessage);
+        Context context;
+        if (userId == mContext.getUserId()) {
+            context = mContext;
+        } else {
+            context = mContext.createContextAsUser(UserHandle.of(userId), /* flags= */ 0);
         }
-        int numberAssociations = response.associations.size();
-        writer.printf("%d associations:\n", numberAssociations);
-        for (int i = 0; i < numberAssociations; i++) {
-            UserIdentificationAssociation association = response.associations.get(i);
-            writer.printf("  %s\n", association);
+        int actualUserId = Binder.getCallingUid();
+        if (actualUserId != userId) {
+            writer.printf("Emulating call for user id %d, but caller's user id is %d, so that's "
+                    + "what CarUserService will use when calling HAL.\n", userId, actualUserId);
+        }
+
+        Car car = Car.createCar(context);
+        CarUserManager carUserManager = (CarUserManager) car.getCarManager(Car.CAR_USER_SERVICE);
+        int[] types = new int[requestSize];
+        for (int i = 0; i < types.length; i++) {
+            types[i] = request.associationTypes.get(i);
+        }
+        GetUserIdentificationAssociationResponse response = carUserManager
+                .getUserIdentificationAssociation(types);
+        if (response == null) {
+            writer.println("null response");
+            return;
+        }
+        String errorMessage = response.getErrorMessage();
+        if (!TextUtils.isEmpty(errorMessage)) {
+            writer.printf("Error message: %s\n", errorMessage);
+        }
+        int[] values = response.getValues();
+        writer.printf("%d associations:\n", values.length);
+        for (int i = 0; i < values.length; i++) {
+            writer.printf("  %s\n", UserIdentificationAssociationValue.toString(values[i]));
         }
     }
 

@@ -17,6 +17,7 @@
 package android.car.encryptionrunner;
 
 import android.annotation.IntDef;
+import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.text.TextUtils;
 
@@ -34,7 +35,8 @@ public class HandshakeMessage {
      */
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({HandshakeState.UNKNOWN, HandshakeState.IN_PROGRESS, HandshakeState.VERIFICATION_NEEDED,
-            HandshakeState.FINISHED, HandshakeState.INVALID, HandshakeState.RESUMING_SESSION,})
+            HandshakeState.FINISHED, HandshakeState.INVALID, HandshakeState.RESUMING_SESSION,
+            HandshakeState.OOB_VERIFICATION_NEEDED})
     public @interface HandshakeState {
         /**
          * The initial state, this value is not expected to be returned.
@@ -60,6 +62,10 @@ public class HandshakeMessage {
          * The handshake is complete, but extra verification is needed.
          */
         int RESUMING_SESSION = 5;
+        /**
+         * The handshake is complete, but out of band verification of the code is needed.
+         */
+        int OOB_VERIFICATION_NEEDED = 6;
     }
 
     @HandshakeState
@@ -67,6 +73,7 @@ public class HandshakeMessage {
     private final Key mKey;
     private final byte[] mNextMessage;
     private final String mVerificationCode;
+    private final byte[] mOobVerificationCode;
 
     /**
      * @return Returns a builder for {@link HandshakeMessage}.
@@ -82,11 +89,13 @@ public class HandshakeMessage {
             @HandshakeState int handshakeState,
             @Nullable Key key,
             @Nullable byte[] nextMessage,
-            @Nullable String verificationCode) {
+            @Nullable String verificationCode,
+            @Nullable byte[] oobVerificationCode) {
         mHandshakeState = handshakeState;
         mKey = key;
         mNextMessage = nextMessage;
         mVerificationCode = verificationCode;
+        mOobVerificationCode = oobVerificationCode;
     }
 
     /**
@@ -121,12 +130,22 @@ public class HandshakeMessage {
         return mVerificationCode;
     }
 
+    /**
+     * Returns a verification code to be encrypted using an out-of-band key and sent to the remote
+     * device.
+     */
+    @Nullable
+    public byte[] getOobVerificationCode() {
+        return mOobVerificationCode;
+    }
+
     static class Builder {
         @HandshakeState
         int mHandshakeState;
         Key mKey;
         byte[] mNextMessage;
         String mVerificationCode;
+        byte[] mOobVerificationCode;
 
         Builder setHandshakeState(@HandshakeState int handshakeState) {
             mHandshakeState = handshakeState;
@@ -148,6 +167,11 @@ public class HandshakeMessage {
             return this;
         }
 
+        Builder setOobVerificationCode(@NonNull byte[] oobVerificationCode) {
+            mOobVerificationCode = oobVerificationCode;
+            return this;
+        }
+
         HandshakeMessage build() {
             if (mHandshakeState == HandshakeState.UNKNOWN) {
                 throw new IllegalStateException("must set handshake state before calling build");
@@ -155,9 +179,15 @@ public class HandshakeMessage {
             if (mHandshakeState == HandshakeState.VERIFICATION_NEEDED
                     && TextUtils.isEmpty(mVerificationCode)) {
                 throw new IllegalStateException(
-                        "if state is verification needed, must have verification code");
+                        "State is verification needed, but verification code null.");
             }
-            return new HandshakeMessage(mHandshakeState, mKey, mNextMessage, mVerificationCode);
+            if (mHandshakeState == HandshakeState.OOB_VERIFICATION_NEEDED
+                    && (mOobVerificationCode == null || mOobVerificationCode.length == 0)) {
+                throw new IllegalStateException(
+                        "State is OOB verification needed, but OOB verification code null.");
+            }
+            return new HandshakeMessage(mHandshakeState, mKey, mNextMessage, mVerificationCode,
+                    mOobVerificationCode);
         }
 
     }

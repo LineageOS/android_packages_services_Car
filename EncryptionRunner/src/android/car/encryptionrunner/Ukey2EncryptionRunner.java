@@ -323,6 +323,14 @@ public class Ukey2EncryptionRunner implements EncryptionRunner {
         }
     }
 
+    protected final Ukey2Handshake getUkey2Client() {
+        return mUkey2client;
+    }
+
+    protected final boolean isReconnect() {
+        return mIsReconnect;
+    }
+
     @HandshakeMessage.HandshakeState
     private int getHandshakeState() {
         checkInitialized();
@@ -362,7 +370,7 @@ public class Ukey2EncryptionRunner implements EncryptionRunner {
         return (UKey2Key) key;
     }
 
-    private void checkInitialized() {
+    protected void checkInitialized() {
         if (mUkey2client == null) {
             throw new IllegalStateException("runner not initialized");
         }

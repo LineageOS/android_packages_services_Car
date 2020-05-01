@@ -15,6 +15,10 @@
  */
 package android.car.userlib;
 
+import static android.car.test.mocks.CarArgumentMatchers.isUserInfo;
+import static android.car.test.util.UserTestingHelper.newGuestUser;
+import static android.car.test.util.UserTestingHelper.newSecondaryUser;
+
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -23,7 +27,6 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
@@ -37,7 +40,7 @@ import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.IActivityManager;
-import android.car.test.mocks.AbstractExtendMockitoTestCase;
+import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
@@ -49,12 +52,11 @@ import com.android.internal.widget.LockPatternUtils;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 
 import java.util.function.Consumer;
 
-public final class InitialUserSetterTest extends AbstractExtendMockitoTestCase {
+public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase {
 
     @UserInfoFlag
     private static final int NO_FLAGS = 0;
@@ -567,7 +569,7 @@ public final class InitialUserSetterTest extends AbstractExtendMockitoTestCase {
 
     @Test
     public void testStartForegroundUser_nonHeadlessSystemUser() throws Exception {
-        setHeadlessSystemUserMode(false);
+        mockIsHeadlessSystemUserMode(false);
         expectAmStartFgUser(UserHandle.USER_SYSTEM);
 
         assertThat(mSetter.startForegroundUser(UserHandle.USER_SYSTEM)).isTrue();
@@ -575,7 +577,7 @@ public final class InitialUserSetterTest extends AbstractExtendMockitoTestCase {
 
     @Test
     public void testStartForegroundUser_headlessSystemUser() throws Exception {
-        setHeadlessSystemUserMode(true);
+        mockIsHeadlessSystemUserMode(true);
 
         assertThat(mSetter.startForegroundUser(UserHandle.USER_SYSTEM)).isFalse();
 
@@ -758,56 +760,4 @@ public final class InitialUserSetterTest extends AbstractExtendMockitoTestCase {
             numberCalls++;
         }
     }
-
-    // TODO(b/149099817): move stuff below (and some from above) to common testing code
-
-    public static void setHeadlessSystemUserMode(boolean mode) {
-        doReturn(mode).when(() -> UserManager.isHeadlessSystemUserMode());
-    }
-
-    @NonNull
-    public static UserInfo newSecondaryUser(@UserIdInt int userId) {
-        UserInfo userInfo = new UserInfo();
-        userInfo.userType = UserManager.USER_TYPE_FULL_SECONDARY;
-        userInfo.id = userId;
-        return userInfo;
-    }
-
-    @NonNull
-    public static UserInfo newGuestUser(@UserIdInt int userId, boolean ephemeral) {
-        UserInfo userInfo = new UserInfo();
-        userInfo.userType = UserManager.USER_TYPE_FULL_GUEST;
-        userInfo.id = userId;
-        if (ephemeral) {
-            userInfo.flags = UserInfo.FLAG_EPHEMERAL;
-        }
-        return userInfo;
-    }
-
-    /**
-     * Custom Mockito matcher to check if a {@link UserInfo} has the given {@code userId}.
-     */
-    public static UserInfo isUserInfo(@UserIdInt int userId) {
-        return argThat(new UserInfoMatcher(userId));
-    }
-
-    private static class UserInfoMatcher implements ArgumentMatcher<UserInfo> {
-
-        public final @UserIdInt int userId;
-
-        private UserInfoMatcher(@UserIdInt int userId) {
-            this.userId = userId;
-        }
-
-        @Override
-        public boolean matches(@Nullable UserInfo argument) {
-            return argument != null && argument.id == userId;
-        }
-
-        @Override
-        public String toString() {
-            return "UserInfo(userId=" + userId + ")";
-        }
-    }
-
 }

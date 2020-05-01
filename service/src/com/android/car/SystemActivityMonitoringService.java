@@ -127,6 +127,10 @@ public class SystemActivityMonitoringService implements CarServiceBase {
         mProcessObserver = new ProcessObserver();
         mTaskListener = new TaskListener();
         mAm = ActivityManager.getService();
+    }
+
+    @Override
+    public void init() {
         // Monitoring both listeners are necessary as there are cases where one listener cannot
         // monitor activity change.
         try {
@@ -140,11 +144,13 @@ public class SystemActivityMonitoringService implements CarServiceBase {
     }
 
     @Override
-    public void init() {
-    }
-
-    @Override
     public void release() {
+        try {
+            mAm.unregisterProcessObserver(mProcessObserver);
+            mAm.unregisterTaskStackListener(mTaskListener);
+        } catch (RemoteException e) {
+            Log.e(CarLog.TAG_AM, "Failed to unregister listeners", e);
+        }
     }
 
     @Override

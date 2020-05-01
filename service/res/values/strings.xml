@@ -478,10 +478,6 @@
     <!-- The default name of device enrolled as trust device [CHAR LIMIT=NONE] -->
     <string name="trust_device_default_name">My Device</string>
 
-    <!-- The ComponentName of the media source that will be selected as the default [CHAR LIMIT=NONE] -->
-    <string name="default_media_source" translatable="false">com.android.bluetooth/com.android.bluetooth.avrcpcontroller.BluetoothMediaBrowserService</string>
-
     <!-- Default name for new guest users [CHAR LIMIT=20] -->
     <string name="default_guest_name">Guest</string>
-
 </resources>
