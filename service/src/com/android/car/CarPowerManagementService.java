@@ -15,6 +15,7 @@
  */
 package com.android.car;
 
+import android.annotation.NonNull;
 import android.app.ActivityManager;
 import android.car.Car;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
@@ -292,11 +293,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             state = mPendingPowerStates.peekFirst();
             mPendingPowerStates.clear();
             if (state == null) {
+                Log.e(CarLog.TAG_POWER, "Null power state was requested");
                 return;
             }
             Log.i(CarLog.TAG_POWER, "doHandlePowerStateChange: newState=" + state.name());
             if (!needPowerStateChangeLocked(state)) {
-                Log.d(CarLog.TAG_POWER, "doHandlePowerStateChange no change needed");
                 return;
             }
             // now real power change happens. Whatever was queued before should be all cancelled.
@@ -726,41 +727,54 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         onApPowerStateChange(CpmsState.WAIT_FOR_VHAL, nextListenerState);
     }
 
-    private boolean needPowerStateChangeLocked(CpmsState newState) {
-        if (newState == null) {
-            return false;
-        } else if (mCurrentState == null) {
+    private boolean needPowerStateChangeLocked(@NonNull CpmsState newState) {
+        if (mCurrentState == null) {
             return true;
         } else if (mCurrentState.equals(newState)) {
+            Log.d(CarLog.TAG_POWER, "Requested state is already in effect: "
+                    + newState.name());
             return false;
         }
 
         // The following switch/case enforces the allowed state transitions.
+        boolean transitionAllowed = false;
         switch (mCurrentState.mState) {
             case CpmsState.WAIT_FOR_VHAL:
-                return (newState.mState == CpmsState.ON)
+                transitionAllowed = (newState.mState == CpmsState.ON)
                     || (newState.mState == CpmsState.SHUTDOWN_PREPARE);
+                break;
             case CpmsState.SUSPEND:
-                return newState.mState == CpmsState.WAIT_FOR_VHAL;
+                transitionAllowed =  newState.mState == CpmsState.WAIT_FOR_VHAL;
+                break;
             case CpmsState.ON:
-                return (newState.mState == CpmsState.SHUTDOWN_PREPARE)
+                transitionAllowed = (newState.mState == CpmsState.SHUTDOWN_PREPARE)
                     || (newState.mState == CpmsState.SIMULATE_SLEEP);
+                break;
             case CpmsState.SHUTDOWN_PREPARE:
                 // If VHAL sends SHUTDOWN_IMMEDIATELY or SLEEP_IMMEDIATELY while in
                 // SHUTDOWN_PREPARE state, do it.
-                return ((newState.mState == CpmsState.SHUTDOWN_PREPARE) && !newState.mCanPostpone)
-                    || (newState.mState == CpmsState.WAIT_FOR_FINISH)
-                    || (newState.mState == CpmsState.WAIT_FOR_VHAL);
+                transitionAllowed =
+                        ((newState.mState == CpmsState.SHUTDOWN_PREPARE) && !newState.mCanPostpone)
+                                || (newState.mState == CpmsState.WAIT_FOR_FINISH)
+                                || (newState.mState == CpmsState.WAIT_FOR_VHAL);
+                break;
             case CpmsState.SIMULATE_SLEEP:
-                return true;
+                transitionAllowed = true;
+                break;
             case CpmsState.WAIT_FOR_FINISH:
-                return (newState.mState == CpmsState.SUSPEND
+                transitionAllowed = (newState.mState == CpmsState.SUSPEND
                         || newState.mState == CpmsState.WAIT_FOR_VHAL);
+                break;
             default:
                 Log.e(CarLog.TAG_POWER, "Unexpected current state:  currentState="
                         + mCurrentState.name() + ", newState=" + newState.name());
-                return true;
+                transitionAllowed = true;
         }
+        if (!transitionAllowed) {
+            Log.e(CarLog.TAG_POWER, "Requested power transition is not allowed: "
+                    + mCurrentState.name() + " --> " + newState.name());
+        }
+        return transitionAllowed;
     }
 
     private void doHandleProcessingComplete() {
