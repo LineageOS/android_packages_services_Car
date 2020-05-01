@@ -34,7 +34,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Looper;
-import android.provider.Settings;
 import android.view.KeyEvent;
 
 import androidx.test.InstrumentationRegistry;
@@ -87,11 +86,6 @@ public class InstrumentClusterServiceTest extends AbstractExtendedMockitoTestCas
         }
     };
 
-    @Override
-    protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
-        session.spyStatic(Settings.Global.class);
-    }
-
     @Before
     public void setUp() {
         doReturn(DEFAULT_RENDERER_SERVICE).when(mContext).getString(
@@ -99,8 +93,7 @@ public class InstrumentClusterServiceTest extends AbstractExtendedMockitoTestCas
         doReturn(true).when(mContext).bindServiceAsUser(any(), any(), anyInt(), any());
         ContentResolver cr = InstrumentationRegistry.getTargetContext().getContentResolver();
         doReturn(cr).when(mContext).getContentResolver();
-        doReturn("false").when(
-                () -> Settings.Global.getString(cr, DISABLE_INSTRUMENTATION_SERVICE));
+        putSettingsString(DISABLE_INSTRUMENTATION_SERVICE, "false");
         doAnswer((Answer<Void>) invocationOnMock -> {
                     Runnable r = invocationOnMock.getArgument(0);
                     r.run();
