@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
-import android.car.testapi.OneEventUserLifecycleListener;
+import android.car.testapi.BlockingUserLifecycleListener;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEventType;
 import android.car.userlib.CarUserManagerHelper;
@@ -211,7 +211,8 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
             @UserIdInt int userId) throws InterruptedException {
         // Adding a blocking listener to ensure CarUserService event notification is completed
         // before proceeding with test execution.
-        OneEventUserLifecycleListener blockingListener = new OneEventUserLifecycleListener();
+        BlockingUserLifecycleListener blockingListener = BlockingUserLifecycleListener
+                .newDefaultListener();
         mCarUserService.addUserLifecycleListener(blockingListener);
 
         runOnMainThreadAndWaitForIdle(() -> mCarUserService.onUserLifecycleEvent(eventType,

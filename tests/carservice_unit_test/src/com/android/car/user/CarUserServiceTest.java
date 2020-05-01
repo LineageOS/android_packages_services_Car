@@ -54,7 +54,7 @@ import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.settings.CarSettings;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.util.BlockingResultReceiver;
-import android.car.testapi.OneEventUserLifecycleListener;
+import android.car.testapi.BlockingUserLifecycleListener;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleEventType;
@@ -140,8 +140,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Mock private Drawable mMockedDrawable;
     @Mock private UserMetrics mUserMetrics;
 
-    private final OneEventUserLifecycleListener mUserLifecycleListener =
-            new OneEventUserLifecycleListener();
+    private final BlockingUserLifecycleListener mUserLifecycleListener =
+            BlockingUserLifecycleListener.newDefaultListener();
 
     @Captor private ArgumentCaptor<UsersInfo> mUsersInfoCaptor;
 
