@@ -42,7 +42,6 @@ LOCAL_STATIC_JAVA_LIBRARIES := junit
 # testng imported to use assertThrows, we can remove it once it's ported to JUnit's.
 LOCAL_STATIC_JAVA_LIBRARIES += \
     android.car.test.utils \
-    android.car.watchdoglib \
     androidx.test.ext.junit \
     androidx.test.rules \
     android.hardware.automotive.vehicle-V2.0-java \
@@ -56,17 +55,17 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
     vehicle-hal-support-lib-for-test \
     compatibility-device-util-axt
 
-
 LOCAL_JAVA_LIBRARIES := \
     android.car \
     android.car.userlib \
+    android.car.watchdoglib \
     android.test.runner \
     android.test.base
 
 # mockito-target-inline dependency
 LOCAL_JNI_SHARED_LIBRARIES := \
     libdexmakerjvmtiagent \
-    libstaticjvmtiagent \
+    libstaticjvmtiagent
 
 LOCAL_COMPATIBILITY_SUITE := general-tests
 

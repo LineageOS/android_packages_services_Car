@@ -586,6 +586,17 @@ public final class UserHalServiceTest {
     }
 
     @Test
+    public void testGetUserAssociation_requestWithDuplicatedTypes() {
+        UserIdentificationGetRequest request = new UserIdentificationGetRequest();
+        request.numberAssociationTypes = 2;
+        request.associationTypes.add(KEY_FOB);
+        request.associationTypes.add(KEY_FOB);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mUserHalService.getUserAssociation(request));
+    }
+
+    @Test
     public void testGetUserAssociation_invalidResponse() {
         VehiclePropValue mockedResponse = new VehiclePropValue();
         mockedResponse.prop = USER_IDENTIFICATION_ASSOCIATION;
@@ -600,8 +611,28 @@ public final class UserHalServiceTest {
         request.userInfo.flags = 108;
         request.numberAssociationTypes = 1;
         request.associationTypes.add(KEY_FOB);
-        assertThrows(IllegalStateException.class,
-                () -> mUserHalService.getUserAssociation(request));
+
+        assertThat(mUserHalService.getUserAssociation(request)).isNull();
+    }
+
+    @Test
+    public void testGetUserAssociation_nullResponse() {
+        VehiclePropValue mockedResponse = new VehiclePropValue();
+        mockedResponse.prop = USER_IDENTIFICATION_ASSOCIATION;
+        mockedResponse.value.int32Values.add(1); // 1 association
+        mockedResponse.value.int32Values.add(KEY_FOB);
+        mockedResponse.value.int32Values.add(ASSOCIATED_CURRENT_USER);
+        when(mVehicleHal.get(
+                isPropertyWithValues(USER_IDENTIFICATION_ASSOCIATION, 42, 108, 1, KEY_FOB)))
+                        .thenReturn(null);
+
+        UserIdentificationGetRequest request = new UserIdentificationGetRequest();
+        request.userInfo.userId = 42;
+        request.userInfo.flags = 108;
+        request.numberAssociationTypes = 1;
+        request.associationTypes.add(KEY_FOB);
+
+        assertThat(mUserHalService.getUserAssociation(request)).isNull();
     }
 
     @Test
@@ -622,8 +653,8 @@ public final class UserHalServiceTest {
         request.userInfo.flags = 108;
         request.numberAssociationTypes = 1;
         request.associationTypes.add(KEY_FOB);
-        assertThrows(IllegalStateException.class,
-                () -> mUserHalService.getUserAssociation(request));
+
+        assertThat(mUserHalService.getUserAssociation(request)).isNull();
     }
 
     @Test
@@ -642,8 +673,8 @@ public final class UserHalServiceTest {
         request.userInfo.flags = 108;
         request.numberAssociationTypes = 1;
         request.associationTypes.add(KEY_FOB);
-        assertThrows(IllegalStateException.class,
-                () -> mUserHalService.getUserAssociation(request));
+
+        assertThat(mUserHalService.getUserAssociation(request)).isNull();
     }
 
     @Test
@@ -653,7 +684,6 @@ public final class UserHalServiceTest {
         mockedResponse.value.int32Values.add(1); // 1 association
         mockedResponse.value.int32Values.add(KEY_FOB);
         mockedResponse.value.int32Values.add(ASSOCIATED_CURRENT_USER);
-
         when(mVehicleHal.get(
                 isPropertyWithValues(USER_IDENTIFICATION_ASSOCIATION, 42, 108, 1, KEY_FOB)))
                         .thenReturn(mockedResponse);
@@ -663,6 +693,7 @@ public final class UserHalServiceTest {
         request.userInfo.flags = 108;
         request.numberAssociationTypes = 1;
         request.associationTypes.add(KEY_FOB);
+
         UserIdentificationResponse actualResponse = mUserHalService.getUserAssociation(request);
 
         assertThat(actualResponse.numberAssociation).isEqualTo(1);

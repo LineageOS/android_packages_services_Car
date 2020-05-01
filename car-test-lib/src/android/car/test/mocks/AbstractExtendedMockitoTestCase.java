@@ -16,7 +16,6 @@
 package android.car.test.mocks;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 
 import static org.mockito.ArgumentMatchers.anyString;
@@ -138,7 +137,7 @@ public abstract class AbstractExtendedMockitoTestCase {
     protected final void mockGetCurrentUser(@UserIdInt int userId) {
         if (VERBOSE) Log.v(TAG, getLogPrefix() + "mockGetCurrentUser(" + userId + ")");
         assertSpied(ActivityManager.class);
-        doReturn(userId).when(() -> ActivityManager.getCurrentUser());
+        AndroidMockitoHelper.mockAmGetCurrentUser(userId);
     }
 
     /**
@@ -152,7 +151,7 @@ public abstract class AbstractExtendedMockitoTestCase {
     protected final void mockIsHeadlessSystemUserMode(boolean mode) {
         if (VERBOSE) Log.v(TAG, getLogPrefix() + "mockIsHeadlessSystemUserMode(" + mode + ")");
         assertSpied(UserManager.class);
-        doReturn(mode).when(() -> UserManager.isHeadlessSystemUserMode());
+        AndroidMockitoHelper.mockUmIsHeadlessSystemUserMode(mode);
     }
 
     protected void interceptWtfCalls() {

@@ -27,6 +27,7 @@ import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertThrows;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -35,6 +36,7 @@ import android.car.Car;
 import android.car.ICarUserService;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.user.CarUserManager;
+import android.car.user.GetUserIdentificationAssociationResponse;
 import android.car.user.UserSwitchResult;
 import android.content.pm.UserInfo;
 import android.os.RemoteException;
@@ -134,6 +136,38 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
         UserSwitchResult result = getResult(future);
         assertThat(result.getStatus()).isEqualTo(UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE);
         assertThat(result.getErrorMessage()).isNull();
+    }
+
+    @Test
+    public void testGetUserIdentificationAssociation_nullTypes() throws Exception {
+        assertThrows(IllegalArgumentException.class,
+                () -> mMgr.getUserIdentificationAssociation(null));
+    }
+
+    @Test
+    public void testGetUserIdentificationAssociation_emptyTypes() throws Exception {
+        assertThrows(IllegalArgumentException.class,
+                () -> mMgr.getUserIdentificationAssociation(new int[] {}));
+    }
+
+    @Test
+    public void testGetUserIdentificationAssociation_remoteException() throws Exception {
+        mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
+        assertThrows(IllegalArgumentException.class,
+                () -> mMgr.getUserIdentificationAssociation(new int[] {}));
+    }
+
+    @Test
+    public void testGetUserIdentificationAssociation_ok() throws Exception {
+        int[] types = new int[] { 4, 8, 15, 16, 23, 42 };
+        GetUserIdentificationAssociationResponse expectedResponse =
+                new GetUserIdentificationAssociationResponse(null, new int[] {});
+        when(mService.getUserIdentificationAssociation(types)).thenReturn(expectedResponse);
+
+        GetUserIdentificationAssociationResponse actualResponse =
+                mMgr.getUserIdentificationAssociation(types);
+
+        assertThat(actualResponse).isSameAs(expectedResponse);
     }
 
     private void expectServiceSwitchUserSucceeds(@UserIdInt int userId,

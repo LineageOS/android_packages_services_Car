@@ -49,6 +49,8 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.car.EventLogTags;
 import com.android.internal.infra.AndroidFuture;
 import com.android.internal.os.IResultReceiver;
+import com.android.internal.util.ArrayUtils;
+import com.android.internal.util.Preconditions;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -308,6 +310,30 @@ public final class CarUserManager extends CarManagerBase {
             } catch (RemoteException e) {
                 handleRemoteExceptionFromCarService(e);
             }
+        }
+    }
+
+    /**
+     * Gets the user authentication types associated with this manager's user.
+     *
+     * @hide
+     */
+    @Nullable
+    @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
+    public GetUserIdentificationAssociationResponse getUserIdentificationAssociation(
+            @NonNull int... types) {
+        Preconditions.checkArgument(!ArrayUtils.isEmpty(types), "must have at least one type");
+        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_GET_USER_AUTH_REQ, types.length);
+        try {
+            GetUserIdentificationAssociationResponse response =
+                    mService.getUserIdentificationAssociation(types);
+            if (response != null) {
+                EventLog.writeEvent(EventLogTags.CAR_USER_MGR_GET_USER_AUTH_RESP,
+                        response.getValues().length);
+            }
+            return response;
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, null);
         }
     }
 

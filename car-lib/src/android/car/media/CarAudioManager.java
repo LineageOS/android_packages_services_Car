@@ -39,7 +39,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * APIs for handling audio in a car.
@@ -100,7 +102,7 @@ public final class CarAudioManager extends CarManagerBase {
             "android.car.media.AUDIOFOCUS_EXTRA_REQUEST_ZONE_ID";
 
     private final ICarAudio mService;
-    private final List<CarVolumeCallback> mCarVolumeCallbacks;
+    private final CopyOnWriteArrayList<CarVolumeCallback> mCarVolumeCallbacks;
     private final AudioManager mAudioManager;
 
     private final ICarVolumeCallback mCarVolumeCallbackImpl = new ICarVolumeCallback.Stub() {
@@ -441,6 +443,24 @@ public final class CarAudioManager extends CarManagerBase {
     }
 
     /**
+     * Gets array of {@link AudioAttributes} usages for a volume group in a zone.
+     *
+     * @param zoneId The zone id whose volume group is queried.
+     * @param groupId The volume group id whose associated audio usages is returned.
+     * @return Array of {@link AudioAttributes} usages for a given volume group id
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
+    public @NonNull int[] getUsagesForVolumeGroupId(int zoneId, int groupId) {
+        try {
+            return mService.getUsagesForVolumeGroupId(zoneId, groupId);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, new int[0]);
+        }
+    }
+
+    /**
      * Gets the audio zones currently available
      *
      * @return audio zone ids
@@ -549,24 +569,6 @@ public final class CarAudioManager extends CarManagerBase {
     }
 
     /**
-     * Gets array of {@link AudioAttributes} usages for a volume group in a zone.
-     *
-     * @param zoneId The zone id whose volume group is queried.
-     * @param groupId The volume group id whose associated audio usages is returned.
-     * @return Array of {@link AudioAttributes} usages for a given volume group id
-     * @hide
-     */
-    @SystemApi
-    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
-    public @NonNull int[] getUsagesForVolumeGroupId(int zoneId, int groupId) {
-        try {
-            return mService.getUsagesForVolumeGroupId(zoneId, groupId);
-        } catch (RemoteException e) {
-            return handleRemoteExceptionFromCarService(e, new int[0]);
-        }
-    }
-
-    /**
      * Gets the output device for a given {@link AudioAttributes} usage in zoneId.
      *
      * <p><b>Note:</b> To be used for routing to a specific device. Most applications should
@@ -627,11 +629,7 @@ public final class CarAudioManager extends CarManagerBase {
     @Override
     public void onCarDisconnected() {
         if (mService != null) {
-            try {
-                mService.unregisterVolumeCallback(mCarVolumeCallbackImpl.asBinder());
-            } catch (RemoteException e) {
-                handleRemoteExceptionFromCarService(e);
-            }
+            unregisterVolumeCallback();
         }
     }
 
@@ -640,7 +638,39 @@ public final class CarAudioManager extends CarManagerBase {
         super(car);
         mService = ICarAudio.Stub.asInterface(service);
         mAudioManager = getContext().getSystemService(AudioManager.class);
-        mCarVolumeCallbacks = new ArrayList<>();
+        mCarVolumeCallbacks = new CopyOnWriteArrayList<>();
+    }
+
+    /**
+     * Registers a {@link CarVolumeCallback} to receive volume change callbacks
+     * @param callback {@link CarVolumeCallback} instance, can not be null
+     * <p>
+     * Requires permission Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME
+     */
+    public void registerCarVolumeCallback(@NonNull CarVolumeCallback callback) {
+        Objects.requireNonNull(callback);
+
+        if (mCarVolumeCallbacks.isEmpty()) {
+            registerVolumeCallback();
+        }
+
+        mCarVolumeCallbacks.add(callback);
+    }
+
+    /**
+     * Unregisters a {@link CarVolumeCallback} from receiving volume change callbacks
+     * @param callback {@link CarVolumeCallback} instance previously registered, can not be null
+     * <p>
+     * Requires permission Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME
+     */
+    public void unregisterCarVolumeCallback(@NonNull CarVolumeCallback callback) {
+        Objects.requireNonNull(callback);
+        if (mCarVolumeCallbacks.remove(callback) && mCarVolumeCallbacks.isEmpty()) {
+            unregisterVolumeCallback();
+        }
+    }
+
+    private void registerVolumeCallback() {
         try {
             mService.registerVolumeCallback(mCarVolumeCallbackImpl.asBinder());
         } catch (RemoteException e) {
@@ -648,20 +678,12 @@ public final class CarAudioManager extends CarManagerBase {
         }
     }
 
-    /**
-     * Registers a {@link CarVolumeCallback} to receive volume change callbacks
-     * @param callback {@link CarVolumeCallback} instance, can not be null
-     */
-    public void registerCarVolumeCallback(@NonNull CarVolumeCallback callback) {
-        mCarVolumeCallbacks.add(callback);
-    }
-
-    /**
-     * Unregisters a {@link CarVolumeCallback} from receiving volume change callbacks
-     * @param callback {@link CarVolumeCallback} instance previously registered, can not be null
-     */
-    public void unregisterCarVolumeCallback(@NonNull CarVolumeCallback callback) {
-        mCarVolumeCallbacks.remove(callback);
+    private void unregisterVolumeCallback() {
+        try {
+            mService.unregisterVolumeCallback(mCarVolumeCallbackImpl.asBinder());
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
     }
 
     private List<AudioDeviceInfo> convertInputDevicesToDeviceInfos(
