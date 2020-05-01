@@ -20,15 +20,13 @@ import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.test.AndroidTestCase;
 
 import org.junit.After;
-import org.junit.Before;
 
 /**
  * Base class to test {@link CarPropertyConfig} and {@link CarPropertyValue}.
  */
-public class CarPropertyTestBase extends AndroidTestCase {
+public class CarPropertyTestBase extends TestBase {
 
     protected static final int FLOAT_PROPERTY_ID        = 0x1160BEEF;
     protected static final int INT_ARRAY_PROPERTY_ID    = 0x0041BEEF;
@@ -40,20 +38,11 @@ public class CarPropertyTestBase extends AndroidTestCase {
     protected static final int WINDOW_DRIVER    = 0x00000001;
     protected static final int WINDOW_PASSENGER = 0x00000002;
 
-    private Parcel mParcel;
-
-    @Before
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-        mParcel = Parcel.obtain();
-    }
+    private final Parcel mParcel = Parcel.obtain();
 
     @After
-    @Override
-    public void tearDown() throws Exception {
+    public void recycleParcel() throws Exception {
         mParcel.recycle();
-        super.tearDown();
     }
 
     protected  <T extends Parcelable> T readFromParcel() {

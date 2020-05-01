@@ -15,6 +15,8 @@
  */
 package android.car.apitest;
 
+import static org.junit.Assert.fail;
+
 import android.car.Car;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.hvac.CarHvacManager;
@@ -22,18 +24,14 @@ import android.hardware.automotive.vehicle.V2_0.VehicleHvacFanDirection;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
-import androidx.test.runner.AndroidJUnit4;
-
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@RunWith(AndroidJUnit4.class)
 @MediumTest
 public class CarHvacManagerTest extends CarApiTestBase {
     private static final String TAG = CarHvacManagerTest.class.getSimpleName();
@@ -41,9 +39,7 @@ public class CarHvacManagerTest extends CarApiTestBase {
     private CarHvacManager mHvacManager;
 
     @Before
-    @Override
     public void setUp() throws Exception {
-        super.setUp();
         mHvacManager = (CarHvacManager) getCar().getCarManager(Car.HVAC_SERVICE);
         assertNotNull(mHvacManager);
     }
