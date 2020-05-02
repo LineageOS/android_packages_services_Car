@@ -16,15 +16,20 @@
 
 package android.car.apitest;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.testng.Assert.assertThrows;
 
 import android.car.Car;
 import android.car.ICar;
 import android.car.hardware.CarSensorManager;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.test.suitebuilder.annotation.SmallTest;
+
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Test;
 
@@ -32,8 +37,11 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 @SmallTest
-public class CarTest extends TestBase {
+public class CarTest {
     private static final long DEFAULT_WAIT_TIMEOUT_MS = 3000;
+
+    private final Context mContext = InstrumentationRegistry.getInstrumentation()
+            .getTargetContext();
 
     private final Semaphore mConnectionWait = new Semaphore(0);
 
@@ -60,35 +68,35 @@ public class CarTest extends TestBase {
 
     @Test
     public void testCarConnection() throws Exception {
-        Car car = Car.createCar(getContext(), mConnectionListener);
-        assertFalse(car.isConnected());
-        assertFalse(car.isConnecting());
+        Car car = Car.createCar(mContext, mConnectionListener);
+        assertThat(car.isConnected()).isFalse();
+        assertThat(car.isConnecting()).isFalse();
         car.connect();
         // TODO fix race here
         // assertTrue(car.isConnecting()); // This makes test flaky.
         waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
-        assertTrue(car.isConnected());
-        assertFalse(car.isConnecting());
+        assertThat(car.isConnected()).isTrue();
+        assertThat(car.isConnecting()).isFalse();
         CarSensorManager carSensorManager =
                 (CarSensorManager) car.getCarManager(Car.SENSOR_SERVICE);
-        assertNotNull(carSensorManager);
+        assertThat(carSensorManager).isNotNull();
         CarSensorManager carSensorManager2 =
                 (CarSensorManager) car.getCarManager(Car.SENSOR_SERVICE);
-        assertEquals(carSensorManager, carSensorManager2);
+        assertThat(carSensorManager2).isSameAs(carSensorManager);
         Object noSuchService = car.getCarManager("No such service");
-        assertNull(noSuchService);
+        assertThat(noSuchService).isNull();
         // double disconnect should be safe.
         car.disconnect();
         car.disconnect();
-        assertFalse(car.isConnected());
-        assertFalse(car.isConnecting());
+        assertThat(car.isConnected()).isFalse();
+        assertThat(car.isConnecting()).isFalse();
     }
 
     @Test
     public void testDoubleConnect() throws Exception {
-        Car car = Car.createCar(getContext(), mConnectionListener);
-        assertFalse(car.isConnected());
-        assertFalse(car.isConnecting());
+        Car car = Car.createCar(mContext, mConnectionListener);
+        assertThat(car.isConnected()).isFalse();
+        assertThat(car.isConnecting()).isFalse();
         car.connect();
         assertThrows(IllegalStateException.class, () -> car.connect());
         car.disconnect();
@@ -96,11 +104,11 @@ public class CarTest extends TestBase {
 
     @Test
     public void testConstructorWithICar() throws Exception {
-        Car car = Car.createCar(getContext(), mConnectionListener);
+        Car car = Car.createCar(mContext, mConnectionListener);
         car.connect();
         waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
-        assertNotNull(mICar);
-        Car car2 = new Car(getContext(), mICar, null);
-        assertTrue(car2.isConnected());
+        assertThat(mICar).isNotNull();
+        Car car2 = new Car(mContext, mICar, null);
+        assertThat(car2.isConnected()).isTrue();
     }
 }

@@ -26,6 +26,8 @@ import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_VIDE
 import static android.car.drivingstate.CarUxRestrictionsConfiguration.Builder.SpeedRange.MAX_SPEED;
 import static android.car.drivingstate.CarUxRestrictionsManager.UX_RESTRICTION_MODE_BASELINE;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.testng.Assert.assertThrows;
 
 import android.car.drivingstate.CarUxRestrictions;
@@ -51,7 +53,7 @@ import java.io.StringReader;
  * Unit test for UXR config and its subclasses.
  */
 @SmallTest
-public class CarUxRestrictionsConfigurationTest extends TestBase {
+public class CarUxRestrictionsConfigurationTest {
 
     private static final String UX_RESTRICTION_MODE_PASSENGER = "passenger";
 
@@ -96,12 +98,14 @@ public class CarUxRestrictionsConfigurationTest extends TestBase {
         CarUxRestrictionsConfiguration config = new Builder().build();
 
         CarUxRestrictions parkedRestrictions = config.getUxRestrictions(DRIVING_STATE_PARKED, 0f);
-        assertTrue(parkedRestrictions.isRequiresDistractionOptimization());
-        assertEquals(parkedRestrictions.getActiveRestrictions(), UX_RESTRICTIONS_FULLY_RESTRICTED);
+        assertThat(parkedRestrictions.isRequiresDistractionOptimization()).isTrue();
+        assertThat(UX_RESTRICTIONS_FULLY_RESTRICTED)
+                .isEqualTo(parkedRestrictions.getActiveRestrictions());
 
         CarUxRestrictions movingRestrictions = config.getUxRestrictions(DRIVING_STATE_MOVING, 1f);
-        assertTrue(movingRestrictions.isRequiresDistractionOptimization());
-        assertEquals(movingRestrictions.getActiveRestrictions(), UX_RESTRICTIONS_FULLY_RESTRICTED);
+        assertThat(movingRestrictions.isRequiresDistractionOptimization()).isTrue();
+        assertThat(UX_RESTRICTIONS_FULLY_RESTRICTED)
+                .isEqualTo(movingRestrictions.getActiveRestrictions());
     }
 
     @Test
@@ -109,10 +113,10 @@ public class CarUxRestrictionsConfigurationTest extends TestBase {
         CarUxRestrictionsConfiguration config = new Builder()
                 .setUxRestrictions(DRIVING_STATE_MOVING, true, UX_RESTRICTIONS_FULLY_RESTRICTED)
                 .build();
-        assertTrue(config.getUxRestrictions(DRIVING_STATE_PARKED, 0f)
-                .isRequiresDistractionOptimization());
-        assertTrue(config.getUxRestrictions(DRIVING_STATE_IDLING, 0f)
-                .isRequiresDistractionOptimization());
+        assertThat(config.getUxRestrictions(DRIVING_STATE_PARKED, 0f)
+        .isRequiresDistractionOptimization()).isTrue();
+        assertThat(config.getUxRestrictions(DRIVING_STATE_IDLING, 0f)
+        .isRequiresDistractionOptimization()).isTrue();
     }
 
     @Test
@@ -150,8 +154,8 @@ public class CarUxRestrictionsConfigurationTest extends TestBase {
                         .setSpeedRange(new Builder.SpeedRange(1f, 2f)))
                 .build();
 
-        assertTrue(config.getUxRestrictions(DRIVING_STATE_MOVING, 1f, UX_RESTRICTION_MODE_PASSENGER)
-                .isRequiresDistractionOptimization());
+        assertThat(config.getUxRestrictions(DRIVING_STATE_MOVING, 1f, UX_RESTRICTION_MODE_PASSENGER)
+                .isRequiresDistractionOptimization()).isTrue();
     }
 
     @Test
@@ -252,8 +256,8 @@ public class CarUxRestrictionsConfigurationTest extends TestBase {
                 new Builder.SpeedRange(1f);
         Builder.SpeedRange s2 =
                 new Builder.SpeedRange(2f);
-        assertTrue(s1.compareTo(s2) < 0);
-        assertTrue(s2.compareTo(s1) > 0);
+        assertThat(s1.compareTo(s2)).isLessThan(0);
+        assertThat(s2.compareTo(s1)).isGreaterThan(0);
     }
 
     @Test
@@ -262,7 +266,7 @@ public class CarUxRestrictionsConfigurationTest extends TestBase {
                 new Builder.SpeedRange(1f);
         Builder.SpeedRange s2 =
                 new Builder.SpeedRange(1f);
-        assertEquals(0, s1.compareTo(s2));
+        assertThat(s1.compareTo(s2)).isEqualTo(0);
     }
 
     @Test
@@ -271,8 +275,8 @@ public class CarUxRestrictionsConfigurationTest extends TestBase {
                 new Builder.SpeedRange(0f, 1f);
         Builder.SpeedRange s2 =
                 new Builder.SpeedRange(0f, 2f);
-        assertTrue(s1.compareTo(s2) < 0);
-        assertTrue(s2.compareTo(s1) > 0);
+        assertThat(s1.compareTo(s2)).isLessThan(0);
+        assertThat(s2.compareTo(s1)).isGreaterThan(0);
     }
 
     @Test
@@ -281,8 +285,8 @@ public class CarUxRestrictionsConfigurationTest extends TestBase {
                 new Builder.SpeedRange(0f, 1f);
         Builder.SpeedRange s2 =
                 new Builder.SpeedRange(0f);
-        assertTrue(s1.compareTo(s2) < 0);
-        assertTrue(s2.compareTo(s1) > 0);
+        assertThat(s1.compareTo(s2)).isLessThan(0);
+        assertThat(s2.compareTo(s1)).isGreaterThan(0);
     }
 
     @Test
@@ -290,28 +294,28 @@ public class CarUxRestrictionsConfigurationTest extends TestBase {
         Builder.SpeedRange s1, s2;
 
         s1 = new Builder.SpeedRange(0f);
-        assertEquals(s1, s1);
+        assertThat(s1).isEqualTo(s1);
 
         s1 = new Builder.SpeedRange(1f);
         s2 = new Builder.SpeedRange(1f);
-        assertEquals(0, s1.compareTo(s2));
-        assertEquals(s1, s2);
+        assertThat(s1.compareTo(s2)).isEqualTo(0);
+        assertThat(s2).isEqualTo(s1);
 
         s1 = new Builder.SpeedRange(0f, 1f);
         s2 = new Builder.SpeedRange(0f, 1f);
-        assertEquals(s1, s2);
+        assertThat(s2).isEqualTo(s1);
 
         s1 = new Builder.SpeedRange(0f, MAX_SPEED);
         s2 = new Builder.SpeedRange(0f, MAX_SPEED);
-        assertEquals(s1, s2);
+        assertThat(s2).isEqualTo(s1);
 
         s1 = new Builder.SpeedRange(0f);
         s2 = new Builder.SpeedRange(1f);
-        assertFalse(s1.equals(s2));
+        assertThat(s1).isNotEqualTo(s2);
 
         s1 = new Builder.SpeedRange(0f, 1f);
         s2 = new Builder.SpeedRange(0f, 2f);
-        assertFalse(s1.equals(s2));
+        assertThat(s1).isNotEqualTo(s2);
     }
 
     @Test
@@ -442,7 +446,7 @@ public class CarUxRestrictionsConfigurationTest extends TestBase {
 
         CarUxRestrictionsConfiguration deserialized = CarUxRestrictionsConfiguration.readJson(
                 new JsonReader(new StringReader(v1LegacyJsonFormat)), /* schemaVersion= */ 1);
-        assertEquals(expectedConfig, deserialized);
+        assertThat(deserialized).isEqualTo(expectedConfig);
     }
 
 
@@ -526,15 +530,15 @@ public class CarUxRestrictionsConfigurationTest extends TestBase {
         }
 
         String dump = new String(output.toByteArray());
-        assertTrue(dump.contains("Max String length"));
-        assertTrue(dump.contains("Max Cumulative Content Items"));
-        assertTrue(dump.contains("Max Content depth"));
-        assertTrue(dump.contains("State:moving"));
-        assertTrue(dump.contains("Speed Range"));
-        assertTrue(dump.contains("Requires DO?"));
-        assertTrue(dump.contains("Restrictions"));
-        assertTrue(dump.contains("passenger mode"));
-        assertTrue(dump.contains("baseline mode"));
+        assertThat(dump).contains("Max String length");
+        assertThat(dump).contains("Max Cumulative Content Items");
+        assertThat(dump).contains("Max Content depth");
+        assertThat(dump).contains("State:moving");
+        assertThat(dump).contains("Speed Range");
+        assertThat(dump).contains("Requires DO?");
+        assertThat(dump).contains("Restrictions");
+        assertThat(dump).contains("passenger mode");
+        assertThat(dump).contains("baseline mode");
     }
 
     @Test
@@ -546,11 +550,11 @@ public class CarUxRestrictionsConfigurationTest extends TestBase {
                 .build();
 
         CarUxRestrictions restrictions = config.getUxRestrictions(DRIVING_STATE_PARKED, 0f);
-        assertTrue(restrictions.isRequiresDistractionOptimization());
-        assertEquals(UX_RESTRICTIONS_NO_VIDEO, restrictions.getActiveRestrictions());
+        assertThat(restrictions.isRequiresDistractionOptimization()).isTrue();
+        assertThat(restrictions.getActiveRestrictions()).isEqualTo(UX_RESTRICTIONS_NO_VIDEO);
 
-        assertTrue(restrictions.isSameRestrictions(
-                config.getUxRestrictions(DRIVING_STATE_PARKED, 0f, UX_RESTRICTION_MODE_BASELINE)));
+        assertThat(restrictions.isSameRestrictions(
+        config.getUxRestrictions(DRIVING_STATE_PARKED, 0f, UX_RESTRICTION_MODE_BASELINE))).isTrue();
     }
 
     @Test
@@ -567,12 +571,12 @@ public class CarUxRestrictionsConfigurationTest extends TestBase {
 
         CarUxRestrictions passenger = config.getUxRestrictions(
                 DRIVING_STATE_PARKED, 0f, UX_RESTRICTION_MODE_PASSENGER);
-        assertFalse(passenger.isRequiresDistractionOptimization());
+        assertThat(passenger.isRequiresDistractionOptimization()).isFalse();
 
         CarUxRestrictions baseline = config.getUxRestrictions(
                 DRIVING_STATE_PARKED, 0f, UX_RESTRICTION_MODE_BASELINE);
-        assertTrue(baseline.isRequiresDistractionOptimization());
-        assertEquals(UX_RESTRICTIONS_NO_VIDEO, baseline.getActiveRestrictions());
+        assertThat(baseline.isRequiresDistractionOptimization()).isTrue();
+        assertThat(baseline.getActiveRestrictions()).isEqualTo(UX_RESTRICTIONS_NO_VIDEO);
     }
 
     @Test
@@ -585,8 +589,8 @@ public class CarUxRestrictionsConfigurationTest extends TestBase {
 
         CarUxRestrictions passenger = config.getUxRestrictions(
                 DRIVING_STATE_PARKED, 0f, UX_RESTRICTION_MODE_PASSENGER);
-        assertTrue(passenger.isRequiresDistractionOptimization());
-        assertEquals(UX_RESTRICTIONS_NO_VIDEO, passenger.getActiveRestrictions());
+        assertThat(passenger.isRequiresDistractionOptimization()).isTrue();
+        assertThat(passenger.getActiveRestrictions()).isEqualTo(UX_RESTRICTIONS_NO_VIDEO);
     }
 
     @Test
@@ -604,8 +608,8 @@ public class CarUxRestrictionsConfigurationTest extends TestBase {
         // Retrieve with passenger mode for a moving state
         CarUxRestrictions passenger = config.getUxRestrictions(
                 DRIVING_STATE_MOVING, 1f, UX_RESTRICTION_MODE_PASSENGER);
-        assertTrue(passenger.isRequiresDistractionOptimization());
-        assertEquals(UX_RESTRICTIONS_NO_VIDEO, passenger.getActiveRestrictions());
+        assertThat(passenger.isRequiresDistractionOptimization()).isTrue();
+        assertThat(passenger.getActiveRestrictions()).isEqualTo(UX_RESTRICTIONS_NO_VIDEO);
     }
 
     @Test
@@ -624,13 +628,13 @@ public class CarUxRestrictionsConfigurationTest extends TestBase {
         // Retrieve at speed within passenger mode range.
         CarUxRestrictions passenger = config.getUxRestrictions(
                 DRIVING_STATE_MOVING, 5f, UX_RESTRICTION_MODE_PASSENGER);
-        assertFalse(passenger.isRequiresDistractionOptimization());
+        assertThat(passenger.isRequiresDistractionOptimization()).isFalse();
 
         // Retrieve with passenger mode but outside speed range
         CarUxRestrictions baseline = config.getUxRestrictions(
                 DRIVING_STATE_MOVING, 1f, UX_RESTRICTION_MODE_PASSENGER);
-        assertTrue(baseline.isRequiresDistractionOptimization());
-        assertEquals(UX_RESTRICTIONS_NO_VIDEO, baseline.getActiveRestrictions());
+        assertThat(baseline.isRequiresDistractionOptimization()).isTrue();
+        assertThat(baseline.getActiveRestrictions()).isEqualTo(UX_RESTRICTIONS_NO_VIDEO);
     }
 
     @Test
@@ -647,7 +651,7 @@ public class CarUxRestrictionsConfigurationTest extends TestBase {
                 .setMaxContentDepth(1)
                 .build();
 
-        assertTrue(one.hasSameParameters(other));
+        assertThat(one.hasSameParameters(other)).isTrue();
     }
 
     @Test
@@ -664,7 +668,7 @@ public class CarUxRestrictionsConfigurationTest extends TestBase {
                 .setMaxContentDepth(1)
                 .build();
 
-        assertFalse(one.hasSameParameters(other));
+        assertThat(one.hasSameParameters(other)).isFalse();
     }
 
     @Test
@@ -687,8 +691,8 @@ public class CarUxRestrictionsConfigurationTest extends TestBase {
                         new DrivingStateRestrictions().setRestrictions(UX_RESTRICTIONS_NO_VIDEO))
                 .build();
 
-        assertEquals(one, other);
-        assertEquals(one.hashCode(), other.hashCode());
+        assertThat(other).isEqualTo(one);
+        assertThat(other.hashCode()).isEqualTo(one.hashCode());
     }
 
     @Test
@@ -712,7 +716,7 @@ public class CarUxRestrictionsConfigurationTest extends TestBase {
                         new DrivingStateRestrictions().setRestrictions(UX_RESTRICTIONS_BASELINE))
                 .build();
 
-        assertFalse(one.equals(other));
+        assertThat(one.equals(other)).isFalse();
     }
 
     @Test
@@ -742,7 +746,7 @@ public class CarUxRestrictionsConfigurationTest extends TestBase {
 
         CarUxRestrictionsConfiguration deserialized =
                 CarUxRestrictionsConfiguration.CREATOR.createFromParcel(parcel);
-        assertEquals(deserialized, config);
+        assertThat(config).isEqualTo(deserialized);
     }
 
     @Test
@@ -765,8 +769,8 @@ public class CarUxRestrictionsConfigurationTest extends TestBase {
 
         CarUxRestrictionsConfiguration deserialized =
                 CarUxRestrictionsConfiguration.CREATOR.createFromParcel(parcel);
-        assertEquals(deserialized, config);
-        assertNull(deserialized.getPhysicalPort());
+        assertThat(config).isEqualTo(deserialized);
+        assertThat(deserialized.getPhysicalPort()).isNull();
     }
 
     /**
@@ -784,7 +788,7 @@ public class CarUxRestrictionsConfigurationTest extends TestBase {
         try (JsonReader reader = new JsonReader(new InputStreamReader(in))) {
             CarUxRestrictionsConfiguration deserialized = CarUxRestrictionsConfiguration.readJson(
                     reader, schemaVersion);
-            assertEquals(config, deserialized);
+            assertThat(deserialized).isEqualTo(config);
         }
     }
 }

@@ -15,6 +15,8 @@
  */
 package android.car.apitest;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.testng.Assert.assertThrows;
 
 import android.car.Car;
@@ -61,7 +63,7 @@ public class CarNavigationManagerTest extends CarApiTestBase {
                 (CarNavigationStatusManager) getCar().getCarManager(Car.CAR_NAVIGATION_SERVICE);
         mCarAppFocusManager =
                 (CarAppFocusManager) getCar().getCarManager(Car.APP_FOCUS_SERVICE);
-        assertNotNull(mCarAppFocusManager);
+        assertThat(mCarAppFocusManager).isNotNull();
     }
 
     @Test
@@ -80,33 +82,34 @@ public class CarNavigationManagerTest extends CarApiTestBase {
         Timestamp timestamp = Timestamp.newBuilder().build();
         NavigationStateProto navigationStateProto = NavigationStateProto.newBuilder().build();
 
-        assertNotNull(imageReference);
-        assertNotNull(distance);
-        assertNotNull(maneuver);
-        assertNotNull(lane);
-        assertNotNull(laneDirection);
-        assertNotNull(cue);
-        assertNotNull(cueElement);
-        assertNotNull(step);
-        assertNotNull(latLng);
-        assertNotNull(destination);
-        assertNotNull(road);
-        assertNotNull(timestamp);
-        assertNotNull(navigationStateProto);
+        assertThat(imageReference).isNotNull();
+        assertThat(distance).isNotNull();
+        assertThat(maneuver).isNotNull();
+        assertThat(lane).isNotNull();
+        assertThat(laneDirection).isNotNull();
+        assertThat(cue).isNotNull();
+        assertThat(cueElement).isNotNull();
+        assertThat(step).isNotNull();
+        assertThat(latLng).isNotNull();
+        assertThat(destination).isNotNull();
+        assertThat(road).isNotNull();
+        assertThat(timestamp).isNotNull();
+        assertThat(navigationStateProto).isNotNull();
 
-        assertNotNull(ImageReference.parseFrom(imageReference.toByteArray()));
-        assertNotNull(Distance.parseFrom(distance.toByteArray()));
-        assertNotNull(Maneuver.parseFrom(maneuver.toByteArray()));
-        assertNotNull(Lane.parseFrom(lane.toByteArray()));
-        assertNotNull(LaneDirection.parseFrom(laneDirection.toByteArray()));
-        assertNotNull(Cue.parseFrom(cue.toByteArray()));
-        assertNotNull(CueElement.parseFrom(cueElement.toByteArray()));
-        assertNotNull(Step.parseFrom(step.toByteArray()));
-        assertNotNull(LatLng.parseFrom(latLng.toByteArray()));
-        assertNotNull(Destination.parseFrom(destination.toByteArray()));
-        assertNotNull(Road.parseFrom(road.toByteArray()));
-        assertNotNull(Timestamp.parseFrom(timestamp.toByteArray()));
-        assertNotNull(NavigationStateProto.parseFrom(navigationStateProto.toByteArray()));
+
+        assertThat(ImageReference.parseFrom(imageReference.toByteArray())).isNotNull();
+        assertThat(Distance.parseFrom(distance.toByteArray())).isNotNull();
+        assertThat(Maneuver.parseFrom(maneuver.toByteArray())).isNotNull();
+        assertThat(Lane.parseFrom(lane.toByteArray())).isNotNull();
+        assertThat(LaneDirection.parseFrom(laneDirection.toByteArray())).isNotNull();
+        assertThat(Cue.parseFrom(cue.toByteArray())).isNotNull();
+        assertThat(CueElement.parseFrom(cueElement.toByteArray())).isNotNull();
+        assertThat(Step.parseFrom(step.toByteArray())).isNotNull();
+        assertThat(LatLng.parseFrom(latLng.toByteArray())).isNotNull();
+        assertThat(Destination.parseFrom(destination.toByteArray())).isNotNull();
+        assertThat(Road.parseFrom(road.toByteArray())).isNotNull();
+        assertThat(Timestamp.parseFrom(timestamp.toByteArray())).isNotNull();
+        assertThat(NavigationStateProto.parseFrom(navigationStateProto.toByteArray())).isNotNull();
     }
 
     @Ignore("TODO(b/15534360)")
@@ -145,8 +148,8 @@ public class CarNavigationManagerTest extends CarApiTestBase {
         };
         mCarAppFocusManager.requestAppFocus(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION,
                 ownershipCallback);
-        assertTrue(mCarAppFocusManager.isOwningFocus(ownershipCallback,
-                CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION));
+        assertThat(mCarAppFocusManager.isOwningFocus(ownershipCallback,
+                CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION)).isTrue();
 
         Log.i(TAG, "Instrument cluster: " + mCarNavigationManager.getInstrumentClusterInfo());
 
