@@ -22,15 +22,11 @@ import android.car.Car;
 import android.car.CarFeatures;
 import android.test.suitebuilder.annotation.SmallTest;
 
-import androidx.test.runner.AndroidJUnit4;
-
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 import java.util.List;
 
-@RunWith(AndroidJUnit4.class)
 @SmallTest
 public class CarFeatureTest extends CarApiTestBase  {
     // List in CarFeatureController should be inline with this.

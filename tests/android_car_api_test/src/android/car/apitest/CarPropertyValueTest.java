@@ -18,20 +18,13 @@ package android.car.apitest;
 
 import android.car.VehicleAreaType;
 import android.car.hardware.CarPropertyValue;
-
-import static org.junit.Assert.assertArrayEquals;
-
 import android.test.suitebuilder.annotation.MediumTest;
 
-import androidx.test.runner.AndroidJUnit4;
-
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 /**
  * Unit tests for {@link CarPropertyValue}
  */
-@RunWith(AndroidJUnit4.class)
 @MediumTest
 public class CarPropertyValueTest extends CarPropertyTestBase {
 

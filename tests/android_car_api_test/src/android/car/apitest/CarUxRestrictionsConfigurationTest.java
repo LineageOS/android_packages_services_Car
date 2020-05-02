@@ -26,6 +26,8 @@ import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_VIDE
 import static android.car.drivingstate.CarUxRestrictionsConfiguration.Builder.SpeedRange.MAX_SPEED;
 import static android.car.drivingstate.CarUxRestrictionsManager.UX_RESTRICTION_MODE_BASELINE;
 
+import static org.testng.Assert.assertThrows;
+
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsConfiguration;
 import android.car.drivingstate.CarUxRestrictionsConfiguration.Builder;
@@ -35,12 +37,8 @@ import android.util.JsonReader;
 import android.util.JsonWriter;
 
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
-
-import junit.framework.TestCase;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -52,14 +50,13 @@ import java.io.StringReader;
 /**
  * Unit test for UXR config and its subclasses.
  */
-@RunWith(AndroidJUnit4.class)
 @SmallTest
-public class CarUxRestrictionsConfigurationTest extends TestCase {
+public class CarUxRestrictionsConfigurationTest extends TestBase {
 
     private static final String UX_RESTRICTION_MODE_PASSENGER = "passenger";
 
-    @Test
     // This test verifies the expected way to build config would succeed.
+    @Test
     public void testConstruction() {
         new Builder().build();
 
@@ -125,12 +122,8 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
                 true, UX_RESTRICTIONS_NO_VIDEO);
         builder.setUxRestrictions(DRIVING_STATE_IDLING,
                 false, UX_RESTRICTIONS_BASELINE);
-        try {
-            builder.build();
-            fail();
-        } catch (Exception e) {
-            // Expected exception.
-        }
+
+        assertThrows(Exception.class, () -> builder.build());
     }
 
     @Test
@@ -144,12 +137,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
                 .setDistractionOptimizationRequired(true)
                 .setRestrictions(UX_RESTRICTIONS_FULLY_RESTRICTED)
                 .setSpeedRange(new Builder.SpeedRange(1f)));
-        try {
-            builder.build();
-            fail();
-        } catch (Exception e) {
-            // Expected exception.
-        }
+        assertThrows(Exception.class, () -> builder.build());
     }
 
     @Test
@@ -175,12 +163,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         builder.setUxRestrictions(DRIVING_STATE_MOVING,
                 new Builder.SpeedRange(2, MAX_SPEED),
                 true, UX_RESTRICTIONS_FULLY_RESTRICTED);
-        try {
-            builder.build();
-            fail();
-        } catch (Exception e) {
-            // Expected exception.
-        }
+        assertThrows(Exception.class, () -> builder.build());
     }
 
     @Test
@@ -189,12 +172,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         builder.setUxRestrictions(DRIVING_STATE_MOVING,
                 new Builder.SpeedRange(1, MAX_SPEED),
                 true, UX_RESTRICTIONS_FULLY_RESTRICTED);
-        try {
-            builder.build();
-            fail();
-        } catch (Exception e) {
-            // Expected exception.
-        }
+        assertThrows(Exception.class, () -> builder.build());
     }
 
     @Test
@@ -206,12 +184,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         builder.setUxRestrictions(DRIVING_STATE_MOVING,
                 new Builder.SpeedRange(4), true,
                 UX_RESTRICTIONS_FULLY_RESTRICTED);
-        try {
-            builder.build();
-            fail();
-        } catch (Exception e) {
-            // Expected exception.
-        }
+        assertThrows(Exception.class, () -> builder.build());
     }
 
     @Test
@@ -223,25 +196,14 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
         builder.setUxRestrictions(DRIVING_STATE_MOVING,
                 new Builder.SpeedRange(8), true,
                 UX_RESTRICTIONS_FULLY_RESTRICTED);
-        try {
-            builder.build();
-            fail();
-        } catch (Exception e) {
-            // Expected exception.
-        }
+        assertThrows(Exception.class, () -> builder.build());
     }
 
     @Test
     public void testBuilderValidation_NonMovingStateCannotUseSpeedRange() {
         Builder builder = new Builder();
-        try {
-            builder.setUxRestrictions(DRIVING_STATE_PARKED,
-                    new Builder.SpeedRange(0, 5), true,
-                    UX_RESTRICTIONS_FULLY_RESTRICTED);
-            fail();
-        } catch (Exception e) {
-            // Expected exception.
-        }
+        assertThrows(Exception.class, () -> builder.setUxRestrictions(DRIVING_STATE_PARKED,
+                new Builder.SpeedRange(0, 5), true, UX_RESTRICTIONS_FULLY_RESTRICTED));
     }
 
     @Test
@@ -254,12 +216,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
                 .setDistractionOptimizationRequired(true)
                 .setRestrictions(UX_RESTRICTIONS_FULLY_RESTRICTED)
                 .setSpeedRange(new Builder.SpeedRange(1f)));
-        try {
-            builder.build();
-            fail();
-        } catch (Exception e) {
-            // Expected exception.
-        }
+        assertThrows(Exception.class, () -> builder.build());
     }
 
     @Test
@@ -271,38 +228,22 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
 
     @Test
     public void testSpeedRange_NoNegativeMin() {
-        try {
-            new Builder.SpeedRange(-2f, 1f);
-        } catch (Exception e) {
-            // Expected exception.
-        }
+        assertThrows(Exception.class, () -> new Builder.SpeedRange(-2f, 1f));
     }
 
     @Test
     public void testSpeedRange_NoNegativeMax() {
-        try {
-            new Builder.SpeedRange(2f, -1f);
-        } catch (Exception e) {
-            // Expected exception.
-        }
+        assertThrows(Exception.class, () -> new Builder.SpeedRange(2f, -1f));
     }
 
     @Test
     public void testSpeedRange_MinCannotBeMaxSpeed() {
-        try {
-            new Builder.SpeedRange(MAX_SPEED, 1f);
-        } catch (Exception e) {
-            // Expected exception.
-        }
+        assertThrows(Exception.class, () -> new Builder.SpeedRange(MAX_SPEED, 1f));
     }
 
     @Test
     public void testSpeedRange_MinGreaterThanMax() {
-        try {
-            new Builder.SpeedRange(5f, 2f);
-        } catch (Exception e) {
-            // Expected exception.
-        }
+        assertThrows(Exception.class, () -> new Builder.SpeedRange(5f, 2f));
     }
 
     @Test
@@ -374,7 +315,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
     }
 
     @Test
-    public void testJsonSerialization_DefaultConstructor() {
+    public void testJsonSerialization_DefaultConstructor() throws Exception {
         CarUxRestrictionsConfiguration config =
                 new Builder().build();
 
@@ -382,7 +323,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
     }
 
     @Test
-    public void testJsonSerialization_RestrictionParameters() {
+    public void testJsonSerialization_RestrictionParameters() throws Exception {
         CarUxRestrictionsConfiguration config = new Builder()
                 .setMaxStringLength(1)
                 .setMaxCumulativeContentItems(1)
@@ -393,7 +334,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
     }
 
     @Test
-    public void testJsonSerialization_NonMovingStateRestrictions() {
+    public void testJsonSerialization_NonMovingStateRestrictions() throws Exception {
         CarUxRestrictionsConfiguration config = new Builder()
                 .setUxRestrictions(DRIVING_STATE_PARKED, false, UX_RESTRICTIONS_BASELINE)
                 .build();
@@ -402,7 +343,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
     }
 
     @Test
-    public void testJsonSerialization_MovingStateNoSpeedRange() {
+    public void testJsonSerialization_MovingStateNoSpeedRange() throws Exception {
         CarUxRestrictionsConfiguration config = new Builder()
                 .setUxRestrictions(DRIVING_STATE_MOVING, true, UX_RESTRICTIONS_FULLY_RESTRICTED)
                 .build();
@@ -411,7 +352,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
     }
 
     @Test
-    public void testJsonSerialization_MovingStateWithSpeedRange() {
+    public void testJsonSerialization_MovingStateWithSpeedRange() throws Exception {
         CarUxRestrictionsConfiguration config = new Builder()
                 .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
                         .setDistractionOptimizationRequired(true)
@@ -427,7 +368,7 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
     }
 
     @Test
-    public void testJsonSerialization_UxRestrictionMode() {
+    public void testJsonSerialization_UxRestrictionMode() throws Exception {
         CarUxRestrictionsConfiguration config = new Builder()
                 // Passenger mode
                 .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
@@ -505,11 +446,11 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
     }
 
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testJsonSerialization_ReadUnsupportedVersion_ThrowsException() throws Exception {
         int unsupportedVersion = -1;
-        CarUxRestrictionsConfiguration deserialized = CarUxRestrictionsConfiguration.readJson(
-                new JsonReader(new StringReader("")), unsupportedVersion);
+        assertThrows(IllegalArgumentException.class, () -> CarUxRestrictionsConfiguration.readJson(
+                new JsonReader(new StringReader("")), unsupportedVersion));
     }
 
     @Test
@@ -833,13 +774,10 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
      * Asserts the deserialized config is the same as input.
      */
     private void verifyConfigThroughJsonSerialization(CarUxRestrictionsConfiguration config,
-            int schemaVersion) {
+            int schemaVersion) throws Exception {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try (JsonWriter writer = new JsonWriter(new OutputStreamWriter(out))) {
             config.writeJson(writer);
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail();
         }
 
         ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
@@ -847,9 +785,6 @@ public class CarUxRestrictionsConfigurationTest extends TestCase {
             CarUxRestrictionsConfiguration deserialized = CarUxRestrictionsConfiguration.readJson(
                     reader, schemaVersion);
             assertEquals(config, deserialized);
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail();
         }
     }
 }
