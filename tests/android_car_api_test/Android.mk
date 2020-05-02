@@ -39,6 +39,8 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
         android.hidl.base-V1.0-java \
         android.hardware.automotive.vehicle-V2.0-java \
         android.car.cluster.navigation \
+        android.car.cluster.navigation \
+        android.car.testapi \
         compatibility-device-util-axt \
         testng \
         truth-prebuilt \
