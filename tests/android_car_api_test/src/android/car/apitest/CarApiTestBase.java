@@ -16,12 +16,14 @@
 
 package android.car.apitest;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import android.car.Car;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.Looper;
-import android.test.AndroidTestCase;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -31,41 +33,45 @@ import org.junit.Before;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-public class CarApiTestBase extends AndroidTestCase {
-    protected static final long DEFAULT_WAIT_TIMEOUT_MS = 1000;
+abstract class CarApiTestBase {
+
+    private static final String TAG = CarApiTestBase.class.getSimpleName();
+
+    protected static final long DEFAULT_WAIT_TIMEOUT_MS = 1_000;
+
+    protected static final Context sContext = InstrumentationRegistry.getInstrumentation()
+            .getTargetContext();
 
     private Car mCar;
 
-    private final DefaultServiceConnectionListener mConnectionListener =
+    protected final DefaultServiceConnectionListener mConnectionListener =
             new DefaultServiceConnectionListener();
 
-    protected static void assertMainThread() {
-        assertTrue(Looper.getMainLooper().isCurrentThread());
-    }
-
     @Before
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-        setContext(InstrumentationRegistry.getInstrumentation().getContext());
-        mCar = Car.createCar(
-            InstrumentationRegistry.getInstrumentation().getContext(), mConnectionListener);
+    public final void connectToCar() throws Exception {
+        mCar = Car.createCar(getContext(), mConnectionListener);
         mCar.connect();
         mConnectionListener.waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
     }
 
     @After
-    @Override
-    public void tearDown() throws Exception {
-        super.tearDown();
+    public final void disconnectFromCar() throws Exception {
         mCar.disconnect();
     }
 
-    protected synchronized Car getCar() {
+    protected Car getCar() {
         return mCar;
     }
 
-    protected static class DefaultServiceConnectionListener implements ServiceConnection {
+    protected final Context getContext() {
+        return sContext;
+    }
+
+    protected static void assertMainThread() {
+        assertThat(Looper.getMainLooper().isCurrentThread()).isTrue();
+    }
+
+    protected static final class DefaultServiceConnectionListener implements ServiceConnection {
         private final Semaphore mConnectionWait = new Semaphore(0);
 
         public void waitForConnection(long timeoutMs) throws InterruptedException {

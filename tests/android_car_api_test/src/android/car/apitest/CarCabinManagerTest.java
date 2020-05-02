@@ -15,24 +15,24 @@
  */
 package android.car.apitest;
 
+import static com.google.common.truth.Truth.assertThat;
+
+import static org.junit.Assert.fail;
+
 import android.car.Car;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.cabin.CarCabinManager;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
-import androidx.test.runner.AndroidJUnit4;
-
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@RunWith(AndroidJUnit4.class)
 @MediumTest
 public class CarCabinManagerTest extends CarApiTestBase {
     private static final String TAG = CarCabinManagerTest.class.getSimpleName();
@@ -40,11 +40,9 @@ public class CarCabinManagerTest extends CarApiTestBase {
     private CarCabinManager mCabinManager;
 
     @Before
-    @Override
     public void setUp() throws Exception {
-        super.setUp();
         mCabinManager = (CarCabinManager) getCar().getCarManager(Car.CABIN_SERVICE);
-        assertNotNull(mCabinManager);
+        assertThat(mCabinManager).isNotNull();
     }
 
     @Test
@@ -71,8 +69,8 @@ public class CarCabinManagerTest extends CarApiTestBase {
             case CarCabinManager.ID_MIRROR_FOLD:
             case CarCabinManager.ID_SEAT_BELT_BUCKLED:
             case CarCabinManager.ID_WINDOW_LOCK:
-                assertEquals(Boolean.class, property.getPropertyType());
-                assertFalse(property.isGlobalProperty());
+                assertThat(property.getPropertyType()).isAssignableTo(Boolean.class);
+                assertThat(property.isGlobalProperty()).isFalse();
                 break;
 
             // Zoned integer properties
@@ -110,13 +108,13 @@ public class CarCabinManagerTest extends CarApiTestBase {
             case CarCabinManager.ID_SEAT_HEADREST_FORE_AFT_MOVE:
             case CarCabinManager.ID_WINDOW_POS:
             case CarCabinManager.ID_WINDOW_MOVE:
-                assertEquals(Integer.class, property.getPropertyType());
-                assertFalse(property.isGlobalProperty());
+                assertThat(property.getPropertyType()).isAssignableTo(Integer.class);
+                assertThat(property.isGlobalProperty()).isFalse();
                 checkIntMinMax(property);
                 break;
             default:
                 Log.e(TAG, "Property ID not handled: " + propId);
-                assertTrue(false);
+                assertThat(false).isTrue();
                 break;
         }
     }
@@ -125,23 +123,23 @@ public class CarCabinManagerTest extends CarApiTestBase {
         Log.i(TAG, "checkIntMinMax property:" + property);
         if (!property.isGlobalProperty()) {
             int[] areaIds = property.getAreaIds();
-            assertTrue(areaIds.length > 0);
-            assertEquals(areaIds.length, property.getAreaCount());
+            assertThat(areaIds.length).isGreaterThan(0);
+            assertThat(property.getAreaCount()).isEqualTo(areaIds.length);
 
             for (int areId : areaIds) {
-                assertTrue(property.hasArea(areId));
+                assertThat(property.hasArea(areId)).isTrue();
                 int min = property.getMinValue(areId);
                 int max = property.getMaxValue(areId);
-                assertTrue(min <= max);
+                assertThat(min).isAtMost(max);
             }
         } else {
             int min = property.getMinValue();
             int max = property.getMaxValue();
-            assertTrue(min <= max);
+            assertThat(min).isAtMost(max);
             for (int i = 0; i < 32; i++) {
-                assertFalse(property.hasArea(0x1 << i));
-                assertNull(property.getMinValue(0x1 << i));
-                assertNull(property.getMaxValue(0x1 << i));
+                assertThat(property.hasArea(0x1 << i)).isFalse();
+                assertThat(property.getMinValue(0x1 << i)).isNull();
+                assertThat(property.getMaxValue(0x1 << i)).isNull();
             }
         }
     }
