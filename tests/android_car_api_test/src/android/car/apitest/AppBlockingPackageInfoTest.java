@@ -24,32 +24,39 @@ import android.os.Parcel;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
 
+import androidx.test.platform.app.InstrumentationRegistry;
+
+import static com.google.common.truth.Truth.assertThat;
+
 import org.junit.Test;
 
 @SmallTest
-public class AppBlockingPackageInfoTest extends TestBase {
+public class AppBlockingPackageInfoTest {
     private static final String TAG = AppBlockingPackageInfoTest.class.getSimpleName();
+
+    private final Context mContext = InstrumentationRegistry.getInstrumentation()
+            .getTargetContext();
 
     @Test
     public void testParcellingSystemInfo() throws Exception {
-        AppBlockingPackageInfo carServiceInfo = createInfoCarService(getContext());
+        AppBlockingPackageInfo carServiceInfo = createInfoCarService(mContext);
         Parcel dest = Parcel.obtain();
         carServiceInfo.writeToParcel(dest, 0);
         dest.setDataPosition(0);
         AppBlockingPackageInfo carServiceInfoRead = new AppBlockingPackageInfo(dest);
         Log.i(TAG, "expected:" + carServiceInfo + ",read:" + carServiceInfoRead);
-        assertEquals(carServiceInfo, carServiceInfoRead);
+        assertThat(carServiceInfoRead).isEqualTo(carServiceInfo);
     }
 
     @Test
     public void testParcellingNonSystemInfo() throws Exception {
-        AppBlockingPackageInfo selfInfo = createInfoSelf(getContext());
+        AppBlockingPackageInfo selfInfo = createInfoSelf(mContext);
         Parcel dest = Parcel.obtain();
         selfInfo.writeToParcel(dest, 0);
         dest.setDataPosition(0);
         AppBlockingPackageInfo selfInfoRead = new AppBlockingPackageInfo(dest);
         Log.i(TAG, "expected:" + selfInfo + ",read:" + selfInfoRead);
-        assertEquals(selfInfo, selfInfoRead);
+        assertThat(selfInfoRead).isEqualTo(selfInfo);
     }
 
     public static AppBlockingPackageInfo createInfoCarService(Context context) {
