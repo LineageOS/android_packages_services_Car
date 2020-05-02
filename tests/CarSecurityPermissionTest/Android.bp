@@ -15,7 +15,7 @@
 //
 
 android_test {
-    name: "SecurityPermissionTest",
+    name: "CarSecurityPermissionTest",
 
     srcs: ["src/**/*.java"],
 
