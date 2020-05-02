@@ -743,9 +743,10 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockAmSwitchUser(mRegularUser, true);
         AndroidFuture<UserSwitchResult> futureNewRequest = new AndroidFuture<>();
         mCarUserService.switchUser(mRegularUser.id, mAsyncCallTimeoutMs, futureNewRequest);
+
+        assertThat(getUserSwitchResult().getStatus()).isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
         assertThat(getResult(futureNewRequest).getStatus())
                 .isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
-
         assertNoPostSwitch();
         assertHalSwitch(mAdminUser.id, mGuestUser.id, mAdminUser.id, mRegularUser.id);
     }
@@ -773,6 +774,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockCurrentUser(mRegularUser);
         sendUserUnlockedEvent(mRegularUser.id);
 
+        assertThat(getResult(futureNewRequest).getStatus())
+                .isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
         assertPostSwitch(newRequestId, mRegularUser.id, mRegularUser.id);
         assertHalSwitch(mAdminUser.id, mGuestUser.id, mAdminUser.id, mRegularUser.id);
     }
@@ -795,9 +798,9 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockAmSwitchUser(mRegularUser, true);
         AndroidFuture<UserSwitchResult> futureNewRequest = new AndroidFuture<>();
         mCarUserService.switchUser(mRegularUser.id, mAsyncCallTimeoutMs, futureNewRequest);
+
         assertThat(getResult(futureNewRequest).getStatus())
                 .isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
-
         assertNoPostSwitch();
         assertHalSwitch(mAdminUser.id, mGuestUser.id, mAdminUser.id, mRegularUser.id);
     }
@@ -823,6 +826,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockCurrentUser(mRegularUser);
         sendUserUnlockedEvent(mRegularUser.id);
 
+        assertThat(getResult(futureNewRequest).getStatus())
+                .isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
         assertPostSwitch(newRequestId, mRegularUser.id, mRegularUser.id);
         assertHalSwitch(mAdminUser.id, mGuestUser.id, mAdminUser.id, mRegularUser.id);
     }
@@ -854,6 +859,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         UserSwitchResult result = getUserSwitchResult();
         assertThat(result.getStatus())
                 .isEqualTo(UserSwitchResult.STATUS_TARGET_USER_ABANDONED_DUE_TO_A_NEW_REQUEST);
+        assertThat(getResult(futureNewRequest).getStatus())
+                .isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
         assertPostSwitch(newRequestId, mRegularUser.id, mRegularUser.id);
         assertHalSwitch(mAdminUser.id, mGuestUser.id, mAdminUser.id, mRegularUser.id);
     }
@@ -890,6 +897,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         AndroidFuture<UserSwitchResult> futureNewRequest = new AndroidFuture<>();
         mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, futureNewRequest);
 
+        assertThat(getUserSwitchResult().getStatus()).isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
         assertThat(getResult(futureNewRequest).getStatus())
                 .isEqualTo(UserSwitchResult.STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO);
         assertNoPostSwitch();
@@ -911,11 +919,14 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mSwitchUserResponse.requestId = newRequestId;
 
         // calling another user switch before unlock
-        AndroidFuture<UserSwitchResult> future = new AndroidFuture<>();
-        mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, future);
+        AndroidFuture<UserSwitchResult> futureNewRequest = new AndroidFuture<>();
+        mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, futureNewRequest);
         mockCurrentUser(mGuestUser);
         sendUserUnlockedEvent(mGuestUser.id);
 
+        assertThat(getUserSwitchResult().getStatus()).isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
+        assertThat(getResult(futureNewRequest).getStatus())
+                .isEqualTo(UserSwitchResult.STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO);
         assertPostSwitch(requestId, mGuestUser.id, mGuestUser.id);
         assertHalSwitch(mAdminUser.id, mGuestUser.id);
     }
@@ -1396,7 +1407,6 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         assertThat(targetUser.getAllValues().get(1).userId).isEqualTo(targetId2);
         assertThat(usersInfo.getAllValues().get(1).currentUser.userId).isEqualTo(currentId2);
     }
-
 
     static final class FakeCarOccupantZoneService {
         private final SparseArray<Integer> mZoneUserMap = new SparseArray<Integer>();
