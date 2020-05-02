@@ -80,7 +80,6 @@ public final class AndroidMockitoHelper {
     /**
      * Mocks {@code UserManager.getUsers(excludeDying)} to return the given users.
      */
-    @NonNull
     public static void mockUmGetUsers(@NonNull UserManager um, @NonNull UserInfo... users) {
         Objects.requireNonNull(um);
         List<UserInfo> testUsers = Arrays.stream(users).collect(Collectors.toList());
@@ -90,10 +89,24 @@ public final class AndroidMockitoHelper {
     /**
      * Mocks {@code UserManager.getUsers(excludeDying)} to return simple users with the given ids.
      */
-    @NonNull
     public static void mockUmGetUsers(@NonNull UserManager um, @NonNull @UserIdInt int... userIds) {
         List<UserInfo> users = UserTestingHelper.newUsers(userIds);
         when(um.getUsers(/* excludeDying= */ true)).thenReturn(users);
+    }
+
+    /**
+     * Mocks a call to {@code UserManager.getUsers()}.
+     */
+    public static void mockUmGetUsers(@NonNull UserManager um, @NonNull List<UserInfo> userInfos) {
+        when(um.getUsers()).thenReturn(userInfos);
+    }
+
+    /**
+     * Mocks a call to {@code UserManager.isUserRunning(userId)}.
+     */
+    public static void mockUmIsUserRunning(@NonNull UserManager um, @UserIdInt int userId,
+            boolean isRunning) {
+        when(um.isUserRunning(userId)).thenReturn(isRunning);
     }
 
     private AndroidMockitoHelper() {
