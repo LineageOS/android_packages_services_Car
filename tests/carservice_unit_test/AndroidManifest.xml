@@ -26,5 +26,11 @@
     <application android:label="CarServiceUnitTest"
             android:debuggable="true">
         <uses-library android:name="android.test.runner" />
+        <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$ActivityA"/>
+        <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$ActivityB"/>
+        <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$ActivityC"/>
+        <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$ActivityThatFinishesImmediately"/>
+        <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$BlockingActivity"
+                  android:taskAffinity="com.android.car.carservice_unittest.block"/>
     </application>
 </manifest>
