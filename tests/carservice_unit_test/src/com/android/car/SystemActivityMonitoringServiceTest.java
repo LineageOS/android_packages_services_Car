@@ -61,6 +61,7 @@ public class SystemActivityMonitoringServiceTest {
     @Before
     public void setUp() throws Exception {
         mService = new SystemActivityMonitoringService(getContext());
+        mService.init();
         mService.registerActivityLaunchListener(
                 new FilteredLaunchListener(/* desiredComponent= */ null));
     }

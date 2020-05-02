@@ -47,12 +47,6 @@
             </intent-filter>
         </service>
 
-        <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$ActivityA"/>
-        <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$ActivityB"/>
-        <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$ActivityC"/>
-        <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$ActivityThatFinishesImmediately"/>
-        <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$BlockingActivity"
-             android:taskAffinity="com.android.car.carservicetest.block"/>
         <activity android:name="com.android.car.CarUxRestrictionsManagerServiceTest$ActivityViewTestActivity"/>
         <activity android:name="com.android.car.pm.ActivityBlockingActivityTest$NonDoNoHistoryActivity"
              android:noHistory="true"/>
