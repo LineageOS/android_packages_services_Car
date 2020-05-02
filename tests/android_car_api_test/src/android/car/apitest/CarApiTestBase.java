@@ -16,11 +16,16 @@
 
 package android.car.apitest;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import android.car.Car;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.Looper;
+
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
 import org.junit.Before;
@@ -28,7 +33,7 @@ import org.junit.Before;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-abstract class CarApiTestBase extends TestBase {
+abstract class CarApiTestBase {
     protected static final long DEFAULT_WAIT_TIMEOUT_MS = 1000;
 
     private Car mCar;
@@ -52,8 +57,12 @@ abstract class CarApiTestBase extends TestBase {
         return mCar;
     }
 
+    protected final Context getContext() {
+        return InstrumentationRegistry.getInstrumentation().getTargetContext();
+    }
+
     protected static void assertMainThread() {
-        assertTrue(Looper.getMainLooper().isCurrentThread());
+        assertThat(Looper.getMainLooper().isCurrentThread()).isTrue();
     }
 
     protected static final class DefaultServiceConnectionListener implements ServiceConnection {
