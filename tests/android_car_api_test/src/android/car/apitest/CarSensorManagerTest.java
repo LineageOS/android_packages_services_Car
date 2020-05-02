@@ -20,6 +20,8 @@ import android.car.Car;
 import android.car.hardware.CarSensorManager;
 import android.test.suitebuilder.annotation.MediumTest;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import org.junit.Test;
 
 @MediumTest
@@ -29,7 +31,7 @@ public class CarSensorManagerTest extends CarApiTestBase {
     public void testCreate() throws Exception {
         CarSensorManager carSensorManager = (CarSensorManager) getCar()
                 .getCarManager(Car.SENSOR_SERVICE);
-        assertNotNull(carSensorManager);
+        assertThat(carSensorManager).isNotNull();
     }
 
 }
