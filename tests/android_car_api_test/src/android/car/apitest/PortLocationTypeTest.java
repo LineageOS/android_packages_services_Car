@@ -17,17 +17,12 @@
 package android.car.apitest;
 
 import android.car.PortLocationType;
-import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
-import androidx.test.runner.AndroidJUnit4;
-
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-@RunWith(AndroidJUnit4.class)
 @SmallTest
-public final class PortLocationTypeTest extends AndroidTestCase {
+public final class PortLocationTypeTest extends TestBase {
     @Test
     public void testMatchWithVehicleHal() {
         assertEquals(android.hardware.automotive.vehicle.V2_0.PortLocationType.UNKNOWN,
