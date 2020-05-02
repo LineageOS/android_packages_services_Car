@@ -15,6 +15,8 @@
  */
 package android.car.apitest;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.testng.Assert.assertThrows;
 
 import android.app.Service;
@@ -71,7 +73,7 @@ public class CarProjectionManagerTest extends CarApiTestBase {
     @Before
     public void setUp() throws Exception {
         mManager = (CarProjectionManager) getCar().getCarManager(Car.PROJECTION_SERVICE);
-        assertNotNull(mManager);
+        assertThat(mManager).isNotNull();
     }
 
     @Test
@@ -91,7 +93,7 @@ public class CarProjectionManagerTest extends CarApiTestBase {
     public void testRegisterProjectionRunner() throws Exception {
         Intent intent = new Intent(
                 InstrumentationRegistry.getInstrumentation().getContext(), TestService.class);
-        assertFalse(TestService.getBound());
+        assertThat(TestService.getBound()).isFalse();
         mManager.registerProjectionRunner(intent);
         synchronized (TestService.mLock) {
             try {
@@ -100,7 +102,7 @@ public class CarProjectionManagerTest extends CarApiTestBase {
                 // Do nothing
             }
         }
-        assertTrue(TestService.getBound());
+        assertThat(TestService.getBound()).isTrue();
         mManager.unregisterProjectionRunner(intent);
     }
 
@@ -118,7 +120,7 @@ public class CarProjectionManagerTest extends CarApiTestBase {
             }
         });
 
-        assertTrue(startedLatch.await(30, TimeUnit.SECONDS));
+        assertThat(startedLatch.await(30, TimeUnit.SECONDS)).isTrue();
 
         mManager.stopProjectionAccessPoint();
     }

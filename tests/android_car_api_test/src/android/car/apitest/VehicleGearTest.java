@@ -18,92 +18,90 @@ package android.car.apitest;
 import android.car.VehicleGear;
 import android.test.suitebuilder.annotation.SmallTest;
 
-import androidx.test.runner.AndroidJUnit4;
+import static com.google.common.truth.Truth.assertThat;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-@RunWith(AndroidJUnit4.class)
 @SmallTest
-public class VehicleGearTest extends TestBase {
+public class VehicleGearTest {
 
     @Test
     public void testMatchWithVehicleHal() {
-        assertEquals(android.hardware.automotive.vehicle.V2_0.VehicleGear.GEAR_UNKNOWN,
-                VehicleGear.GEAR_UNKNOWN);
+        assertThat(VehicleGear.GEAR_UNKNOWN)
+                .isEqualTo(android.hardware.automotive.vehicle.V2_0.VehicleGear.GEAR_UNKNOWN);
 
-        assertEquals(android.hardware.automotive.vehicle.V2_0.VehicleGear.GEAR_NEUTRAL,
-                VehicleGear.GEAR_NEUTRAL);
+        assertThat(VehicleGear.GEAR_NEUTRAL)
+                .isEqualTo(android.hardware.automotive.vehicle.V2_0.VehicleGear.GEAR_NEUTRAL);
 
-        assertEquals(android.hardware.automotive.vehicle.V2_0.VehicleGear.GEAR_REVERSE,
-                VehicleGear.GEAR_REVERSE);
+        assertThat(VehicleGear.GEAR_REVERSE)
+                .isEqualTo(android.hardware.automotive.vehicle.V2_0.VehicleGear.GEAR_REVERSE);
 
-        assertEquals(android.hardware.automotive.vehicle.V2_0.VehicleGear.GEAR_PARK,
-                VehicleGear.GEAR_PARK);
+        assertThat(VehicleGear.GEAR_PARK)
+                .isEqualTo(android.hardware.automotive.vehicle.V2_0.VehicleGear.GEAR_PARK);
 
-        assertEquals(android.hardware.automotive.vehicle.V2_0.VehicleGear.GEAR_DRIVE,
-                VehicleGear.GEAR_DRIVE);
+        assertThat(VehicleGear.GEAR_DRIVE)
+                .isEqualTo(android.hardware.automotive.vehicle.V2_0.VehicleGear.GEAR_DRIVE);
 
-        assertEquals(android.hardware.automotive.vehicle.V2_0.VehicleGear.GEAR_1,
-                VehicleGear.GEAR_FIRST);
+        assertThat(VehicleGear.GEAR_FIRST)
+                .isEqualTo(android.hardware.automotive.vehicle.V2_0.VehicleGear.GEAR_1);
 
-        assertEquals(android.hardware.automotive.vehicle.V2_0.VehicleGear.GEAR_2,
-                VehicleGear.GEAR_SECOND);
+        assertThat(VehicleGear.GEAR_SECOND)
+                .isEqualTo(android.hardware.automotive.vehicle.V2_0.VehicleGear.GEAR_2);
 
-        assertEquals(android.hardware.automotive.vehicle.V2_0.VehicleGear.GEAR_3,
-                VehicleGear.GEAR_THIRD);
+        assertThat(VehicleGear.GEAR_THIRD)
+                .isEqualTo(android.hardware.automotive.vehicle.V2_0.VehicleGear.GEAR_3);
 
-        assertEquals(android.hardware.automotive.vehicle.V2_0.VehicleGear.GEAR_4,
-                VehicleGear.GEAR_FOURTH);
+        assertThat(VehicleGear.GEAR_FOURTH)
+                .isEqualTo(android.hardware.automotive.vehicle.V2_0.VehicleGear.GEAR_4);
 
-        assertEquals(android.hardware.automotive.vehicle.V2_0.VehicleGear.GEAR_5,
-                VehicleGear.GEAR_FIFTH);
+        assertThat(VehicleGear.GEAR_FIFTH)
+                .isEqualTo(android.hardware.automotive.vehicle.V2_0.VehicleGear.GEAR_5);
 
-        assertEquals(android.hardware.automotive.vehicle.V2_0.VehicleGear.GEAR_6,
-                VehicleGear.GEAR_SIXTH);
+        assertThat(VehicleGear.GEAR_SIXTH)
+                .isEqualTo(android.hardware.automotive.vehicle.V2_0.VehicleGear.GEAR_6);
 
-        assertEquals(android.hardware.automotive.vehicle.V2_0.VehicleGear.GEAR_7,
-                VehicleGear.GEAR_SEVENTH);
+        assertThat(VehicleGear.GEAR_SEVENTH)
+                .isEqualTo(android.hardware.automotive.vehicle.V2_0.VehicleGear.GEAR_7);
 
-        assertEquals(android.hardware.automotive.vehicle.V2_0.VehicleGear.GEAR_8,
-                VehicleGear.GEAR_EIGHTH);
+        assertThat(VehicleGear.GEAR_EIGHTH)
+                .isEqualTo(android.hardware.automotive.vehicle.V2_0.VehicleGear.GEAR_8);
 
-        assertEquals(android.hardware.automotive.vehicle.V2_0.VehicleGear.GEAR_9,
-                VehicleGear.GEAR_NINTH);
+        assertThat(VehicleGear.GEAR_NINTH)
+                .isEqualTo(android.hardware.automotive.vehicle.V2_0.VehicleGear.GEAR_9);
     }
 
     @Test
     public void testToString() {
-        assertEquals("GEAR_UNKNOWN", VehicleGear.toString(VehicleGear.GEAR_UNKNOWN));
+        assertThat(VehicleGear.toString(VehicleGear.GEAR_UNKNOWN)).isEqualTo("GEAR_UNKNOWN");
 
-        assertEquals("GEAR_NEUTRAL", VehicleGear.toString(VehicleGear.GEAR_NEUTRAL));
+        assertThat(VehicleGear.toString(VehicleGear.GEAR_NEUTRAL)).isEqualTo("GEAR_NEUTRAL");
 
-        assertEquals("GEAR_REVERSE", VehicleGear.toString(VehicleGear.GEAR_REVERSE));
+        assertThat(VehicleGear.toString(VehicleGear.GEAR_REVERSE)).isEqualTo("GEAR_REVERSE");
 
-        assertEquals("GEAR_PARK", VehicleGear.toString(VehicleGear.GEAR_PARK));
+        assertThat(VehicleGear.toString(VehicleGear.GEAR_PARK)).isEqualTo("GEAR_PARK");
 
-        assertEquals("GEAR_DRIVE", VehicleGear.toString(VehicleGear.GEAR_DRIVE));
+        assertThat(VehicleGear.toString(VehicleGear.GEAR_DRIVE)).isEqualTo("GEAR_DRIVE");
 
-        assertEquals("GEAR_FIRST", VehicleGear.toString(VehicleGear.GEAR_FIRST));
+        assertThat(VehicleGear.toString(VehicleGear.GEAR_FIRST)).isEqualTo("GEAR_FIRST");
 
-        assertEquals("GEAR_SECOND", VehicleGear.toString(VehicleGear.GEAR_SECOND));
+        assertThat(VehicleGear.toString(VehicleGear.GEAR_SECOND)).isEqualTo("GEAR_SECOND");
 
-        assertEquals("GEAR_THIRD", VehicleGear.toString(VehicleGear.GEAR_THIRD));
+        assertThat(VehicleGear.toString(VehicleGear.GEAR_THIRD)).isEqualTo("GEAR_THIRD");
 
-        assertEquals("GEAR_FOURTH", VehicleGear.toString(VehicleGear.GEAR_FOURTH));
+        assertThat(VehicleGear.toString(VehicleGear.GEAR_FOURTH)).isEqualTo("GEAR_FOURTH");
 
-        assertEquals("GEAR_FIFTH", VehicleGear.toString(VehicleGear.GEAR_FIFTH));
+        assertThat(VehicleGear.toString(VehicleGear.GEAR_FIFTH)).isEqualTo("GEAR_FIFTH");
 
-        assertEquals("GEAR_SIXTH", VehicleGear.toString(VehicleGear.GEAR_SIXTH));
+        assertThat(VehicleGear.toString(VehicleGear.GEAR_SIXTH)).isEqualTo("GEAR_SIXTH");
 
-        assertEquals("GEAR_SEVENTH", VehicleGear.toString(VehicleGear.GEAR_SEVENTH));
+        assertThat(VehicleGear.toString(VehicleGear.GEAR_SEVENTH)).isEqualTo("GEAR_SEVENTH");
 
-        assertEquals("GEAR_EIGHTH", VehicleGear.toString(VehicleGear.GEAR_EIGHTH));
+        assertThat(VehicleGear.toString(VehicleGear.GEAR_EIGHTH)).isEqualTo("GEAR_EIGHTH");
 
-        assertEquals("GEAR_NINTH", VehicleGear.toString(VehicleGear.GEAR_NINTH));
+        assertThat(VehicleGear.toString(VehicleGear.GEAR_NINTH)).isEqualTo("GEAR_NINTH");
 
-        assertEquals("0x3", VehicleGear.toString(3));
+        assertThat(VehicleGear.toString(3)).isEqualTo("0x3");
 
-        assertEquals("0xc", VehicleGear.toString(12));
+        assertThat(VehicleGear.toString(12)).isEqualTo("0xc");
     }
 }
