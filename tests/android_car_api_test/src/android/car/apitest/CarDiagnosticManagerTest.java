@@ -16,6 +16,8 @@
 
 package android.car.apitest;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assume.assumeTrue;
 
 import android.car.Car;
@@ -36,7 +38,7 @@ public class CarDiagnosticManagerTest extends CarApiTestBase {
         Car car = getCar();
         assumeTrue(car.isFeatureEnabled(Car.DIAGNOSTIC_SERVICE));
         mCarDiagnosticManager = (CarDiagnosticManager) car.getCarManager(Car.DIAGNOSTIC_SERVICE);
-        assertNotNull(mCarDiagnosticManager);
+        assertThat(mCarDiagnosticManager).isNotNull();
     }
 
     /**
@@ -48,8 +50,8 @@ public class CarDiagnosticManagerTest extends CarApiTestBase {
     public void testLiveFrame() throws Exception {
         CarDiagnosticEvent liveFrame = mCarDiagnosticManager.getLatestLiveFrame();
         if (null != liveFrame) {
-            assertTrue(liveFrame.isLiveFrame());
-            assertFalse(liveFrame.isEmptyFrame());
+            assertThat(liveFrame.isLiveFrame()).isTrue();
+            assertThat(liveFrame.isEmptyFrame()).isFalse();
         }
     }
 
@@ -64,11 +66,11 @@ public class CarDiagnosticManagerTest extends CarApiTestBase {
         if (null != timestamps) {
             for (long timestamp : timestamps) {
                 CarDiagnosticEvent freezeFrame = mCarDiagnosticManager.getFreezeFrame(timestamp);
-                assertNotNull(freezeFrame);
-                assertEquals(timestamp, freezeFrame.timestamp);
-                assertTrue(freezeFrame.isFreezeFrame());
-                assertFalse(freezeFrame.isEmptyFrame());
-                assertNotSame("", freezeFrame.dtc);
+                assertThat(freezeFrame).isNotNull();
+                assertThat(freezeFrame.timestamp).isEqualTo(timestamp);
+                assertThat(freezeFrame.isFreezeFrame()).isTrue();
+                assertThat(freezeFrame.isEmptyFrame()).isFalse();
+                assertThat(freezeFrame.dtc).isNotEmpty();
             }
         }
     }

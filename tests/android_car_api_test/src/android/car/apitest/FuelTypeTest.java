@@ -19,49 +19,51 @@ package android.car.apitest;
 import android.car.FuelType;
 import android.test.suitebuilder.annotation.SmallTest;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import org.junit.Test;
 
 @SmallTest
-public final class FuelTypeTest extends TestBase {
+public final class FuelTypeTest {
     @Test
     public void testMatchWithVehicleHal() {
-        assertEquals(android.hardware.automotive.vehicle.V2_0.FuelType.FUEL_TYPE_UNKNOWN,
-                FuelType.UNKNOWN);
+        assertThat(FuelType.UNKNOWN)
+                .isEqualTo(android.hardware.automotive.vehicle.V2_0.FuelType.FUEL_TYPE_UNKNOWN);
 
-        assertEquals(android.hardware.automotive.vehicle.V2_0.FuelType.FUEL_TYPE_UNLEADED,
-                FuelType.UNLEADED);
+        assertThat(FuelType.UNLEADED)
+                .isEqualTo(android.hardware.automotive.vehicle.V2_0.FuelType.FUEL_TYPE_UNLEADED);
 
-        assertEquals(android.hardware.automotive.vehicle.V2_0.FuelType.FUEL_TYPE_LEADED,
-                FuelType.LEADED);
+        assertThat(FuelType.LEADED)
+                .isEqualTo(android.hardware.automotive.vehicle.V2_0.FuelType.FUEL_TYPE_LEADED);
 
-        assertEquals(android.hardware.automotive.vehicle.V2_0.FuelType.FUEL_TYPE_DIESEL_1,
-                FuelType.DIESEL_1);
+        assertThat(FuelType.DIESEL_1)
+                .isEqualTo(android.hardware.automotive.vehicle.V2_0.FuelType.FUEL_TYPE_DIESEL_1);
 
-        assertEquals(android.hardware.automotive.vehicle.V2_0.FuelType.FUEL_TYPE_DIESEL_2,
-                FuelType.DIESEL_2);
+        assertThat(FuelType.DIESEL_2)
+                .isEqualTo(android.hardware.automotive.vehicle.V2_0.FuelType.FUEL_TYPE_DIESEL_2);
 
-        assertEquals(android.hardware.automotive.vehicle.V2_0.FuelType.FUEL_TYPE_BIODIESEL,
-                FuelType.BIODIESEL);
+        assertThat(FuelType.BIODIESEL)
+                .isEqualTo(android.hardware.automotive.vehicle.V2_0.FuelType.FUEL_TYPE_BIODIESEL);
 
-        assertEquals(android.hardware.automotive.vehicle.V2_0.FuelType.FUEL_TYPE_E85,
-                FuelType.E85);
+        assertThat(FuelType.E85)
+                .isEqualTo(android.hardware.automotive.vehicle.V2_0.FuelType.FUEL_TYPE_E85);
 
-        assertEquals(android.hardware.automotive.vehicle.V2_0.FuelType.FUEL_TYPE_LPG,
-                FuelType.LPG);
+        assertThat(FuelType.LPG)
+                .isEqualTo(android.hardware.automotive.vehicle.V2_0.FuelType.FUEL_TYPE_LPG);
 
-        assertEquals(android.hardware.automotive.vehicle.V2_0.FuelType.FUEL_TYPE_CNG,
-                FuelType.CNG);
+        assertThat(FuelType.CNG)
+                .isEqualTo(android.hardware.automotive.vehicle.V2_0.FuelType.FUEL_TYPE_CNG);
 
-        assertEquals(android.hardware.automotive.vehicle.V2_0.FuelType.FUEL_TYPE_LNG,
-                FuelType.LNG);
+        assertThat(FuelType.LNG)
+                .isEqualTo(android.hardware.automotive.vehicle.V2_0.FuelType.FUEL_TYPE_LNG);
 
-        assertEquals(android.hardware.automotive.vehicle.V2_0.FuelType.FUEL_TYPE_ELECTRIC,
-                FuelType.ELECTRIC);
+        assertThat(FuelType.ELECTRIC)
+                .isEqualTo(android.hardware.automotive.vehicle.V2_0.FuelType.FUEL_TYPE_ELECTRIC);
 
-        assertEquals(android.hardware.automotive.vehicle.V2_0.FuelType.FUEL_TYPE_HYDROGEN,
-                FuelType.HYDROGEN);
+        assertThat(FuelType.HYDROGEN)
+                .isEqualTo(android.hardware.automotive.vehicle.V2_0.FuelType.FUEL_TYPE_HYDROGEN);
 
-        assertEquals(android.hardware.automotive.vehicle.V2_0.FuelType.FUEL_TYPE_OTHER,
-                FuelType.OTHER);
+        assertThat(FuelType.OTHER)
+                .isEqualTo(android.hardware.automotive.vehicle.V2_0.FuelType.FUEL_TYPE_OTHER);
     }
 }

@@ -20,6 +20,8 @@ import android.car.VehicleAreaType;
 import android.car.hardware.CarPropertyValue;
 import android.test.suitebuilder.annotation.MediumTest;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import org.junit.Test;
 
 /**
@@ -36,20 +38,19 @@ public class CarPropertyValueTest extends CarPropertyTestBase {
         writeToParcel(floatValue);
 
         CarPropertyValue<Float> valueRead = readFromParcel();
-        assertEquals(10f, valueRead.getValue());
+        assertThat(valueRead.getValue()).isEqualTo((Object) 10f);
     }
 
     @Test
     public void testMixedValue() {
-        Object[] values = {"android", 1, 2.0};
         CarPropertyValue<Object> mixedValue =
                 new CarPropertyValue<>(MIXED_TYPE_PROPERTY_ID,
                         VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
-                        values);
+                        new Object[] { "android", 1, 2.0 });
         writeToParcel(mixedValue);
         CarPropertyValue<Object[]> valueRead = readFromParcel();
-        assertArrayEquals(values, valueRead.getValue());
-        assertEquals(MIXED_TYPE_PROPERTY_ID, valueRead.getPropertyId());
-        assertEquals(VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, valueRead.getAreaId());
+        assertThat(valueRead.getValue()).asList().containsExactly("android", 1, 2.0).inOrder();
+        assertThat(valueRead.getPropertyId()).isEqualTo(MIXED_TYPE_PROPERTY_ID);
+        assertThat(valueRead.getAreaId()).isEqualTo(VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL);
     }
 }
