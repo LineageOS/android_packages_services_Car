@@ -17,6 +17,7 @@ package android.car.test.mocks;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 import android.annotation.NonNull;
@@ -25,6 +26,9 @@ import android.app.ActivityManager;
 import android.car.test.util.UserTestingHelper;
 import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
+import android.os.IBinder;
+import android.os.IInterface;
+import android.os.ServiceManager;
 import android.os.UserManager;
 
 import java.util.Arrays;
@@ -41,7 +45,7 @@ public final class AndroidMockitoHelper {
      * Mocks a call to {@link ActivityManager#getCurrentUser()}.
      *
      * <p><b>Note: </b>it must be made inside a
-     * {@linkcom.android.dx.mockito.inline.extended.StaticMockitoSession} built with
+     * {@link com.android.dx.mockito.inline.extended.StaticMockitoSession} built with
      * {@code spyStatic(ActivityManager.class)}.
      *
      * @param userId result of such call
@@ -107,6 +111,37 @@ public final class AndroidMockitoHelper {
     public static void mockUmIsUserRunning(@NonNull UserManager um, @UserIdInt int userId,
             boolean isRunning) {
         when(um.isUserRunning(userId)).thenReturn(isRunning);
+    }
+
+    /**
+     * Mocks a call to {@link ServiceManager#getService(name)}.
+     *
+     * <p><b>Note: </b>it must be made inside a
+     * {@link com.android.dx.mockito.inline.extended.StaticMockitoSession} built with
+     * {@code spyStatic(ServiceManager.class)}.
+     *
+     * @param name interface name of the service
+     * @param binder result of such call
+     */
+    public static void mockSmGetService(@NonNull String name, @NonNull IBinder binder) {
+        doReturn(binder).when(() -> ServiceManager.getService(name));
+    }
+
+    /**
+     * Returns mocked binder implementation from the given interface name.
+     *
+     * <p><b>Note: </b>it must be made inside a
+     * {@link com.android.dx.mockito.inline.extended.StaticMockitoSession} built with
+     * {@code spyStatic(ServiceManager.class)}.
+     *
+     * @param name interface name of the service
+     * @param binder mocked return of ServiceManager.getService
+     * @param service binder implementation
+     */
+    public static <T extends IInterface> void mockQueryService(@NonNull String name,
+            @NonNull IBinder binder, @NonNull T service) {
+        doReturn(binder).when(() -> ServiceManager.getService(name));
+        when(binder.queryLocalInterface(anyString())).thenReturn(service);
     }
 
     private AndroidMockitoHelper() {

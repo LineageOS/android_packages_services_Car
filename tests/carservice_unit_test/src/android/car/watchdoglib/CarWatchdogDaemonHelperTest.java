@@ -16,13 +16,12 @@
 
 package android.car.watchdoglib;
 
+import static android.car.test.mocks.AndroidMockitoHelper.mockQueryService;
+
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
 
 import android.automotive.watchdog.ICarWatchdog;
@@ -66,7 +65,7 @@ public class CarWatchdogDaemonHelperTest {
                 .strictness(Strictness.LENIENT)
                 .spyStatic(ServiceManager.class)
                 .startMocking();
-        expectLocalWatchdogDaemonToWork();
+        mockQueryService(CAR_WATCHDOG_DAEMON_INTERFACE, mBinder, mFakeCarWatchdog);
         mCarWatchdogDaemonHelper = new CarWatchdogDaemonHelper();
         mCarWatchdogDaemonHelper.connect();
     }
@@ -171,11 +170,6 @@ public class CarWatchdogDaemonHelperTest {
         ICarWatchdogClient client = new ICarWatchdogClientImpl();
         assertThrows(IllegalArgumentException.class,
                 () -> mCarWatchdogDaemonHelper.unregisterMediator(client));
-    }
-
-    private void expectLocalWatchdogDaemonToWork() {
-        when(ServiceManager.getService(CAR_WATCHDOG_DAEMON_INTERFACE)).thenReturn(mBinder);
-        doReturn(mFakeCarWatchdog).when(mBinder).queryLocalInterface(anyString());
     }
 
     // FakeCarWatchdog mimics ICarWatchdog daemon in local process.

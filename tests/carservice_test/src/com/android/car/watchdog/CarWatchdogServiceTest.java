@@ -16,6 +16,7 @@
 
 package com.android.car.watchdog;
 
+import static android.car.test.mocks.AndroidMockitoHelper.mockQueryService;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUsers;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsUserRunning;
 import static android.car.test.util.UserTestingHelper.UserInfoBuilder;
@@ -95,9 +96,7 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
     public void setUpMocks() throws Exception {
         mCarWatchdogService = new CarWatchdogService(mMockContext);
 
-        doReturn(mDaemonBinder)
-                .when(() -> ServiceManager.getService(CAR_WATCHDOG_DAEMON_INTERFACE));
-        when(mDaemonBinder.queryLocalInterface(anyString())).thenReturn(mCarWatchdogDaemon);
+        mockQueryService(CAR_WATCHDOG_DAEMON_INTERFACE, mDaemonBinder, mCarWatchdogDaemon);
         when(mCar.getEventHandler()).thenReturn(mMainHandler);
         when(mServiceBinder.queryLocalInterface(anyString())).thenReturn(mCarWatchdogService);
         when(mMockContext.getSystemService(Context.USER_SERVICE)).thenReturn(mUserManager);
