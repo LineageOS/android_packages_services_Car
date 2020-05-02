@@ -67,7 +67,6 @@ public final class CarFeatureController implements CarServiceBase {
             Car.CAR_DRIVING_STATE_SERVICE,
             Car.CAR_INPUT_SERVICE,
             Car.CAR_MEDIA_SERVICE,
-            Car.CAR_NAVIGATION_SERVICE,
             Car.CAR_OCCUPANT_ZONE_SERVICE,
             Car.CAR_USER_SERVICE,
             Car.CAR_UX_RESTRICTION_SERVICE,
@@ -88,6 +87,7 @@ public final class CarFeatureController implements CarServiceBase {
 
     private static final HashSet<String> OPTIONAL_FEATURES = new HashSet<>(Arrays.asList(
             CarFeatures.FEATURE_CAR_USER_NOTICE_SERVICE,
+            Car.CAR_NAVIGATION_SERVICE,
             Car.DIAGNOSTIC_SERVICE,
             Car.OCCUPANT_AWARENESS_SERVICE,
             Car.STORAGE_MONITORING_SERVICE,
