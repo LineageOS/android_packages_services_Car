@@ -16,28 +16,23 @@
 
 package android.car.apitest;
 
+import static org.testng.Assert.assertThrows;
+
 import android.car.Car;
 import android.car.ICar;
 import android.car.hardware.CarSensorManager;
 import android.content.ComponentName;
 import android.content.ServiceConnection;
 import android.os.IBinder;
-import android.os.Looper;
-import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
-import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.runner.AndroidJUnit4;
-
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-@RunWith(AndroidJUnit4.class)
 @SmallTest
-public class CarTest extends AndroidTestCase {
+public class CarTest extends TestBase {
     private static final long DEFAULT_WAIT_TIMEOUT_MS = 3000;
 
     private final Semaphore mConnectionWait = new Semaphore(0);
@@ -48,20 +43,16 @@ public class CarTest extends AndroidTestCase {
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            assertMainThread();
+            CarApiTestBase.assertMainThread();
         }
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            assertMainThread();
+            CarApiTestBase.assertMainThread();
             mICar = ICar.Stub.asInterface(service);
             mConnectionWait.release();
         }
     };
-
-    private void assertMainThread() {
-        assertTrue(Looper.getMainLooper().isCurrentThread());
-    }
 
     private void waitForConnection(long timeoutMs) throws InterruptedException {
         mConnectionWait.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS);
@@ -69,8 +60,7 @@ public class CarTest extends AndroidTestCase {
 
     @Test
     public void testCarConnection() throws Exception {
-        Car car = Car.createCar(
-                InstrumentationRegistry.getInstrumentation().getContext(), mConnectionListener);
+        Car car = Car.createCar(getContext(), mConnectionListener);
         assertFalse(car.isConnected());
         assertFalse(car.isConnecting());
         car.connect();
@@ -96,28 +86,21 @@ public class CarTest extends AndroidTestCase {
 
     @Test
     public void testDoubleConnect() throws Exception {
-        Car car = Car.createCar(
-                InstrumentationRegistry.getInstrumentation().getContext(), mConnectionListener);
+        Car car = Car.createCar(getContext(), mConnectionListener);
         assertFalse(car.isConnected());
         assertFalse(car.isConnecting());
         car.connect();
-        try {
-            car.connect();
-            fail("dobule connect should throw");
-        } catch (IllegalStateException e) {
-            // expected
-        }
+        assertThrows(IllegalStateException.class, () -> car.connect());
         car.disconnect();
     }
 
     @Test
     public void testConstructorWithICar() throws Exception {
-        Car car = Car.createCar(
-                InstrumentationRegistry.getInstrumentation().getContext(), mConnectionListener);
+        Car car = Car.createCar(getContext(), mConnectionListener);
         car.connect();
         waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
         assertNotNull(mICar);
-        Car car2 = new Car(InstrumentationRegistry.getInstrumentation().getContext(), mICar, null);
+        Car car2 = new Car(getContext(), mICar, null);
         assertTrue(car2.isConnected());
     }
 }

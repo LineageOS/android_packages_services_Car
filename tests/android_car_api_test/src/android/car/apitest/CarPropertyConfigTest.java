@@ -16,16 +16,13 @@
 
 package android.car.apitest;
 
+import static org.testng.Assert.assertThrows;
+
 import android.car.VehicleAreaType;
 import android.car.hardware.CarPropertyConfig;
 import android.test.suitebuilder.annotation.MediumTest;
 
-import androidx.test.runner.AndroidJUnit4;
-
-import static org.junit.Assert.assertArrayEquals;
-
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,7 +31,6 @@ import java.util.List;
 /**
  * Unit tests for {@link CarPropertyConfig}
  */
-@RunWith(AndroidJUnit4.class)
 @MediumTest
 public class CarPropertyConfigTest extends CarPropertyTestBase {
 
@@ -160,27 +156,23 @@ public class CarPropertyConfigTest extends CarPropertyTestBase {
     @Test
     public void testWriteReadUnexpectedType() {
         CarPropertyConfig<Float> config = createFloatPropertyConfig();
-
         writeToParcel(config);
 
-        try {
-            CarPropertyConfig<Integer> integerConfig = readFromParcel();
+        CarPropertyConfig<Integer> integerConfig = readFromParcel();
+
+        // Wrote float, attempted to read integer.
+        assertThrows(ClassCastException.class, () -> {
             Integer value = integerConfig.getMinValue(WINDOW_PASSENGER);
-            fail(String.valueOf(value));
-        } catch (ClassCastException expected) {
-            // Expected. Wrote float, attempted to read integer.
-        }
+        });
 
         // Type casting from raw CarPropertyConfig should be fine, just sanity check.
-        CarPropertyConfig rawTypeConfig = readFromParcel();
+        CarPropertyConfig<?> rawTypeConfig = readFromParcel();
         assertEquals(10f, rawTypeConfig.getMinValue(WINDOW_PASSENGER));
 
-        try {
-            int intValue = (Integer) rawTypeConfig.getMinValue(WINDOW_PASSENGER);
-            fail(String.valueOf(intValue));
-        } catch (ClassCastException expected) {
-            // Expected. Wrote float, attempted to read integer.
-        }
+        // Wrote float, attempted to read integer.
+        assertThrows(ClassCastException.class, () -> {
+            int value = (Integer) rawTypeConfig.getMinValue(WINDOW_PASSENGER);
+        });
     }
 
     @Test
