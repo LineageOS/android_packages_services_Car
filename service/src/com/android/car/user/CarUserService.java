@@ -687,27 +687,39 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         mHal.getInitialUserInfo(requestType, mHalTimeoutMs, usersInfo, callback);
     }
 
-    // TODO(b/154966308): update javadoc
     /**
      * Calls the {@link UserHalService} and {@link IActivityManager} for user switch.
      *
      * <p>
-     * First {@link UserHalService} is called for HAL user switch. If HAL user switch is successful,
-     * {@link IActivityManager} is called for Android user switch, otherwise Android user is not
-     * switched and HAL is informed about Android switch failure.
+     * When everything works well, the workflow is:
+     * <ol>
+     *   <li> {@link UserHalService} is called for HAL user switch with ANDROID_SWITCH request
+     *   type, current user id, target user id, and a callback.
+     *   <li> HAL called back with SUCCESS.
+     *   <li> {@link IActivityManager} is called for Android user switch.
+     *   <li> Receiver would receive {@code STATUS_SUCCESSFUL}.
+     *   <li> Once user is unlocked, {@link UserHalService} is again called with ANDROID_POST_SWITCH
+     *   request type, current user id, and target user id. In this case, the current and target
+     *   user IDs would be same.
+     * <ol/>
      *
      * <p>
-     * If target user is already the current user, no user switch is performed and receiver would
-     * receive {@code STATUS_ALREADY_REQUESTED_USER} right away.
-     *
-     * <p>
-     * If another user switch request for the same target user is received while previous request is
-     * in process, receiver would receive {@code STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO} for
-     * the new request right away.
-     *
-     * <p>
-     * If a user switch request is received while another user switch request for different target
-     * user is in process, previous request would be abandoned and new request will be processed.
+     * Corner cases:
+     * <ul>
+     *   <li> If target user is already the current user, no user switch is performed and receiver
+     *   would receive {@code STATUS_ALREADY_REQUESTED_USER} right away.
+     *   <li> If HAL user switch call fails, no Android user switch. Receiver would receive
+     *   {@code STATUS_HAL_INTERNAL_FAILURE}.
+     *   <li> If HAL user switch call is successful, but android user switch call fails,
+     *   {@link UserHalService} is again called with request type POST_SWITCH, current user id, and
+     *   target user id, but in this case the current and target user IDs would be different.
+     *   <li> If another user switch request for the same target user is received while previous
+     *   request is in process, receiver would receive
+     *   {@code STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO} for the new request right away.
+     *   <li> If a user switch request is received while another user switch request for different
+     *   target user is in process, the previous request would be abandoned and new request will be
+     *   processed. No POST_SWITCH would be sent for the previous request.
+     * <ul/>
      *
      * @param targetUserId - target user Id
      * @param timeoutMs - timeout for HAL to wait
