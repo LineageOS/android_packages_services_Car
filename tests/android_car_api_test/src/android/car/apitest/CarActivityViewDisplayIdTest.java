@@ -85,7 +85,6 @@ public class CarActivityViewDisplayIdTest extends CarApiTestBase {
 
     @Before
     public void setUp() throws Exception {
-        super.setUp();
         mDisplayManager = getContext().getSystemService(DisplayManager.class);
         mActivityManager = getContext().getSystemService(ActivityManager.class);
         mCarUxRestrictionsManager = (CarUxRestrictionsManager)
