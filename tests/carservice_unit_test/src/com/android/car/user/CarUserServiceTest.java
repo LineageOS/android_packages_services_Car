@@ -203,24 +203,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                         3, mUserMetrics);
 
         mFakeCarOccupantZoneService = new FakeCarOccupantZoneService(mCarUserService);
-        // Restore default value at the beginning of each test.
         mockSettingsGlobal();
-        putSettingsInt(CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET, 0);
-    }
-
-    /**
-     * Test that the {@link CarUserService} does not set restrictions on user 0 if they have already
-     * been set.
-     */
-    @Test
-    public void testDoesNotSetSystemUserRestrictions_IfRestrictionsAlreadySet() {
-        putSettingsInt(CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET, 1);
-        sendUserUnlockedEvent(UserHandle.USER_SYSTEM);
-        verify(mMockedUserManager, never())
-                .setUserRestriction(
-                        UserManager.DISALLOW_MODIFY_ACCOUNTS,
-                        true,
-                        UserHandle.of(UserHandle.USER_SYSTEM));
     }
 
     @Test
@@ -308,16 +291,6 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     public void testInitializeGuestRestrictions_IfNotAlreadySet() {
         sendUserUnlockedEvent(UserHandle.USER_SYSTEM);
         assertThat(getSettingsInt(CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET)).isEqualTo(1);
-    }
-
-    /**
-     * Test that the {@link CarUserService} does not set restrictions after they have been set once.
-     */
-    @Test
-    public void test_DoesNotInitializeGuestRestrictions_IfAlreadySet() {
-        putSettingsInt(CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET, 1);
-        sendUserUnlockedEvent(UserHandle.USER_SYSTEM);
-        verify(mMockedUserManager, never()).setDefaultGuestRestrictions(any(Bundle.class));
     }
 
     @Test
@@ -1451,11 +1424,6 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                             return null;
                         }
         );
-    }
-
-    private void putSettingsInt(String key, int value) {
-        Settings.Global.putInt(InstrumentationRegistry.getTargetContext().getContentResolver(),
-                key, value);
     }
 
     private int getSettingsInt(String key) {
