@@ -41,7 +41,6 @@ public class CarFeatureTest extends CarApiTestBase  {
             Car.CAR_BUGREPORT_SERVICE,
             Car.CAR_DRIVING_STATE_SERVICE,
             Car.CAR_MEDIA_SERVICE,
-            Car.CAR_NAVIGATION_SERVICE,
             Car.CAR_OCCUPANT_ZONE_SERVICE,
             Car.CAR_USER_SERVICE,
             Car.CAR_UX_RESTRICTION_SERVICE,
@@ -61,6 +60,7 @@ public class CarFeatureTest extends CarApiTestBase  {
 
     private static final List<String> OPTIONAL_FEATURES = Arrays.asList(
             CarFeatures.FEATURE_CAR_USER_NOTICE_SERVICE,
+            Car.CAR_NAVIGATION_SERVICE,
             Car.DIAGNOSTIC_SERVICE,
             Car.STORAGE_MONITORING_SERVICE,
             Car.VEHICLE_MAP_SERVICE
