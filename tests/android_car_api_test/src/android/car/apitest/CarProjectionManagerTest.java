@@ -15,6 +15,8 @@
  */
 package android.car.apitest;
 
+import static org.testng.Assert.assertThrows;
+
 import android.app.Service;
 import android.car.Car;
 import android.car.CarProjectionManager;
@@ -24,35 +26,26 @@ import android.net.wifi.SoftApConfiguration;
 import android.os.Binder;
 import android.os.IBinder;
 import android.test.suitebuilder.annotation.LargeTest;
-import android.test.suitebuilder.annotation.Suppress;
 
 import androidx.test.filters.RequiresDevice;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-@RunWith(AndroidJUnit4.class)
 @LargeTest
 public class CarProjectionManagerTest extends CarApiTestBase {
     private static final String TAG = CarProjectionManagerTest.class.getSimpleName();
 
-    private final CarProjectionManager.CarProjectionListener mListener =
-            new CarProjectionManager.CarProjectionListener() {
-                @Override
-                public void onVoiceAssistantRequest(boolean fromLongPress) {
-                    //void
-                }
-            };
+    private final CarProjectionManager.CarProjectionListener mListener = (fromLongPress) -> { };
 
     private CarProjectionManager mManager;
 
-    public static class TestService extends Service {
+    public static final class TestService extends Service {
         public static Object mLock = new Object();
         private static boolean sBound;
         private final Binder mBinder = new Binder() {};
@@ -76,9 +69,7 @@ public class CarProjectionManagerTest extends CarApiTestBase {
     }
 
     @Before
-    @Override
     public void setUp() throws Exception {
-        super.setUp();
         mManager = (CarProjectionManager) getCar().getCarManager(Car.PROJECTION_SERVICE);
         assertNotNull(mManager);
     }
@@ -92,14 +83,11 @@ public class CarProjectionManagerTest extends CarApiTestBase {
 
     @Test
     public void testRegisterListenersHandleBadInput() throws Exception {
-        try {
-            mManager.registerProjectionListener(null, CarProjectionManager.PROJECTION_VOICE_SEARCH);
-            fail();
-        } catch (NullPointerException e) {
-            // expected.
-        }
+        assertThrows(NullPointerException.class, () -> mManager.registerProjectionListener(null,
+                CarProjectionManager.PROJECTION_VOICE_SEARCH));
     }
 
+    @Test
     public void testRegisterProjectionRunner() throws Exception {
         Intent intent = new Intent(
                 InstrumentationRegistry.getInstrumentation().getContext(), TestService.class);
@@ -116,9 +104,10 @@ public class CarProjectionManagerTest extends CarApiTestBase {
         mManager.unregisterProjectionRunner(intent);
     }
 
-    //TODO(b/120081013): move this test to CTS
-    @Suppress
+
+    @Ignore("//TODO(b/120081013): move this test to CTS")
     @RequiresDevice
+    @Test
     public void testAccessPoint() throws Exception {
         CountDownLatch startedLatch = new CountDownLatch(1);
 
