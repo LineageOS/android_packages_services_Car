@@ -21,25 +21,18 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.Signature;
 import android.os.Parcel;
-import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.Log;
 
-import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.runner.AndroidJUnit4;
-
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-@RunWith(AndroidJUnit4.class)
 @SmallTest
-public class AppBlockingPackageInfoTest extends AndroidTestCase {
+public class AppBlockingPackageInfoTest extends TestBase {
     private static final String TAG = AppBlockingPackageInfoTest.class.getSimpleName();
 
     @Test
     public void testParcellingSystemInfo() throws Exception {
-        AppBlockingPackageInfo carServiceInfo = createInfoCarService(
-                InstrumentationRegistry.getInstrumentation().getContext());
+        AppBlockingPackageInfo carServiceInfo = createInfoCarService(getContext());
         Parcel dest = Parcel.obtain();
         carServiceInfo.writeToParcel(dest, 0);
         dest.setDataPosition(0);
@@ -50,8 +43,7 @@ public class AppBlockingPackageInfoTest extends AndroidTestCase {
 
     @Test
     public void testParcellingNonSystemInfo() throws Exception {
-        AppBlockingPackageInfo selfInfo = createInfoSelf(
-                InstrumentationRegistry.getInstrumentation().getContext());
+        AppBlockingPackageInfo selfInfo = createInfoSelf(getContext());
         Parcel dest = Parcel.obtain();
         selfInfo.writeToParcel(dest, 0);
         dest.setDataPosition(0);
@@ -71,8 +63,7 @@ public class AppBlockingPackageInfoTest extends AndroidTestCase {
         PackageManager pm = context.getPackageManager();
         Signature[] signatures;
         try {
-            signatures = pm.getPackageInfo(packageName,
-                    PackageManager.GET_SIGNATURES).signatures;
+            signatures = pm.getPackageInfo(packageName, PackageManager.GET_SIGNATURES).signatures;
         } catch (NameNotFoundException e) {
             return null;
         }

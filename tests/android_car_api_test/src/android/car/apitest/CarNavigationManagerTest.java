@@ -15,6 +15,8 @@
  */
 package android.car.apitest;
 
+import static org.testng.Assert.assertThrows;
+
 import android.car.Car;
 import android.car.CarAppFocusManager;
 import android.car.CarAppFocusManager.OnAppFocusOwnershipCallback;
@@ -36,16 +38,12 @@ import android.os.Bundle;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
-import androidx.test.filters.FlakyTest;
-import androidx.test.runner.AndroidJUnit4;
-
 import com.google.android.collect.Lists;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-@RunWith(AndroidJUnit4.class)
 /**
  * Unit tests for {@link CarNavigationStatusManager}
  */
@@ -58,9 +56,7 @@ public class CarNavigationManagerTest extends CarApiTestBase {
     private CarAppFocusManager mCarAppFocusManager;
 
     @Before
-    @Override
     public void setUp() throws Exception {
-        super.setUp();
         mCarNavigationManager =
                 (CarNavigationStatusManager) getCar().getCarManager(Car.CAR_NAVIGATION_SERVICE);
         mCarAppFocusManager =
@@ -113,8 +109,8 @@ public class CarNavigationManagerTest extends CarApiTestBase {
         assertNotNull(NavigationStateProto.parseFrom(navigationStateProto.toByteArray()));
     }
 
+    @Ignore("TODO(b/15534360)")
     @Test
-    @FlakyTest
     public void testSendEvent() throws Exception {
         if (mCarNavigationManager == null) {
             Log.w(TAG, "Unable to run the test: "
@@ -128,12 +124,7 @@ public class CarNavigationManagerTest extends CarApiTestBase {
         bundle.putStringArrayList("BUNDLE_ARRAY_OF_STRINGS",
                 Lists.newArrayList("Value A", "Value B", "Value Z"));
 
-        try {
-            mCarNavigationManager.sendEvent(1, bundle);
-            fail();
-        } catch (IllegalStateException expected) {
-            // Expected. Client should acquire focus ownership for APP_FOCUS_TYPE_NAVIGATION.
-        }
+        assertThrows(IllegalStateException.class, () -> mCarNavigationManager.sendEvent(1, bundle));
 
         mCarAppFocusManager.addFocusListener(new CarAppFocusManager.OnAppFocusChangedListener() {
             @Override

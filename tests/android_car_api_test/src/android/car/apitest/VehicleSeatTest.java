@@ -16,17 +16,12 @@
 package android.car.apitest;
 
 import android.car.VehicleAreaSeat;
-import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
-import androidx.test.runner.AndroidJUnit4;
-
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-@RunWith(AndroidJUnit4.class)
 @SmallTest
-public class VehicleSeatTest extends AndroidTestCase {
+public class VehicleSeatTest extends TestBase {
 
     @Test
     public void testMatchWithVehicleHal() {

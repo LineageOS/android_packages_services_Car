@@ -16,17 +16,13 @@
 package android.car.apitest;
 
 import android.car.VehicleAreaWindow;
-import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-@RunWith(AndroidJUnit4.class)
 @SmallTest
-public class VehicleWindowTest extends AndroidTestCase {
+public class VehicleWindowTest extends TestBase {
 
     @Test
     public void testMatchWithVehicleHal() {
