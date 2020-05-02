@@ -34,7 +34,13 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 abstract class CarApiTestBase {
-    protected static final long DEFAULT_WAIT_TIMEOUT_MS = 1000;
+
+    private static final String TAG = CarApiTestBase.class.getSimpleName();
+
+    protected static final long DEFAULT_WAIT_TIMEOUT_MS = 1_000;
+
+    protected static final Context sContext = InstrumentationRegistry.getInstrumentation()
+            .getTargetContext();
 
     private Car mCar;
 
@@ -58,7 +64,7 @@ abstract class CarApiTestBase {
     }
 
     protected final Context getContext() {
-        return InstrumentationRegistry.getInstrumentation().getTargetContext();
+        return sContext;
     }
 
     protected static void assertMainThread() {

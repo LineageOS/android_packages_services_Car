@@ -73,13 +73,6 @@ public final class CarUserManager extends CarManagerBase {
     private static final boolean DBG = true;
 
     /**
-     * Used by tests only.
-     *
-     * @hide
-     */
-    public static final int INVALID_USER_LIFECYCLE_EVENT_TYPE = -1;
-
-    /**
      * {@link UserLifecycleEvent} called when the user is starting, for components to initialize
      * any per-user state they maintain for running users.
      *
@@ -342,29 +335,6 @@ public final class CarUserManager extends CarManagerBase {
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, null);
         }
-    }
-
-    /** @hide */
-    @TestApi
-    // TODO(b/144120654): temp method used by CTS; will eventually be refactored to take a listener
-    @UserIdInt
-    public int createUser(@Nullable String name, boolean isGuestUser) {
-        Log.i(TAG, "createUser()"); // name is PII
-
-        if (isGuestUser) {
-            return mUserManager.createUser(name, UserManager.USER_TYPE_FULL_GUEST, /* flags= */ 0)
-                    .id;
-        }
-
-        return mUserManager.createUser(name, /* flags= */ 0).id;
-    }
-
-    /** @hide */
-    @TestApi
-    // TODO(b/144120654): temp method used by CTS; will eventually be refactored to take a listener
-    public void removeUser(@UserIdInt int userId) {
-        Log.i(TAG, "removeUser(" + userId + ")");
-        mUserManager.removeUser(userId);
     }
 
     /**
