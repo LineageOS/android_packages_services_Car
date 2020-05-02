@@ -21,75 +21,22 @@ import static org.junit.Assume.assumeTrue;
 import android.car.Car;
 import android.car.diagnostic.CarDiagnosticEvent;
 import android.car.diagnostic.CarDiagnosticManager;
-import android.content.ComponentName;
-import android.content.ServiceConnection;
-import android.os.IBinder;
-import android.os.Looper;
-import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 
-import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.runner.AndroidJUnit4;
-
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-
-@RunWith(AndroidJUnit4.class)
 @MediumTest
-public class CarDiagnosticManagerTest extends AndroidTestCase {
-    private static final long DEFAULT_WAIT_TIMEOUT_MS = 5000;
+public class CarDiagnosticManagerTest extends CarApiTestBase {
 
-    private final Semaphore mConnectionWait = new Semaphore(0);
-
-    private Car mCar;
     private CarDiagnosticManager mCarDiagnosticManager;
 
-    private final ServiceConnection mConnectionListener =
-            new ServiceConnection() {
-
-                @Override
-                public void onServiceDisconnected(ComponentName name) {
-                    assertMainThread();
-                }
-
-                @Override
-                public void onServiceConnected(ComponentName name, IBinder service) {
-                    assertMainThread();
-                    mConnectionWait.release();
-                }
-            };
-
-    private void assertMainThread() {
-        assertTrue(Looper.getMainLooper().isCurrentThread());
-    }
-
-    private void waitForConnection(long timeoutMs) throws InterruptedException {
-        mConnectionWait.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS);
-    }
-
     @Before
-    @Override
     public void setUp() throws Exception {
-        super.setUp();
-        mCar = Car.createCar(
-            InstrumentationRegistry.getInstrumentation().getContext(), mConnectionListener);
-        mCar.connect();
-        waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
-        assumeTrue(mCar.isFeatureEnabled(Car.DIAGNOSTIC_SERVICE));
-        mCarDiagnosticManager = (CarDiagnosticManager) mCar.getCarManager(Car.DIAGNOSTIC_SERVICE);
+        Car car = getCar();
+        assumeTrue(car.isFeatureEnabled(Car.DIAGNOSTIC_SERVICE));
+        mCarDiagnosticManager = (CarDiagnosticManager) car.getCarManager(Car.DIAGNOSTIC_SERVICE);
         assertNotNull(mCarDiagnosticManager);
-    }
-
-    @After
-    @Override
-    public void tearDown() throws Exception {
-        super.tearDown();
-        mCar.disconnect();
     }
 
     /**
