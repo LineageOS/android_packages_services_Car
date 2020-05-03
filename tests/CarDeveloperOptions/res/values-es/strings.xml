@@ -951,7 +951,7 @@
     <string name="wifi_dpp_check_connection_try_again" msgid="7144663015219170999">"Comprueba la conexión y vuelve a intentarlo"</string>
     <string name="wifi_dpp_choose_network" msgid="6251424431594491691">"Elegir red"</string>
     <string name="wifi_dpp_choose_network_to_connect_device" msgid="6385259857886784285">"Elige una red para conectar tu dispositivo"</string>
-    <string name="wifi_dpp_add_device_to_wifi" msgid="6454198064645462446">"¿Quieres añadir este dispositivo a \"<xliff:g id="SSID">%1$s</xliff:g>\"?"</string>
+    <string name="wifi_dpp_add_device_to_wifi" msgid="6454198064645462446">"¿Añadir este dispositivo a \"<xliff:g id="SSID">%1$s</xliff:g>\"?"</string>
     <string name="wifi_dpp_wifi_shared_with_device" msgid="5713765471758272471">"Se ha compartido la red Wi‑Fi con el dispositivo"</string>
     <string name="wifi_dpp_add_another_device" msgid="3698441567235301565">"Añadir otro dispositivo"</string>
     <string name="wifi_dpp_choose_different_network" msgid="128515107488187050">"Elegir otra red"</string>

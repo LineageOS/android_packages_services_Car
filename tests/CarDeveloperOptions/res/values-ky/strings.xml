@@ -2623,7 +2623,7 @@
     <string name="sync_contacts" msgid="5687434785723746534">"Байланыштар"</string>
     <string name="sync_plug" msgid="6703804441408427257"><font fgcolor="#ffffffff">"Google sync\'ке кош келиңиз!"</font>" \nБайланыштарды, жолугушууларды жана башкаларды, сиз кайдан болбосун жеткидей кылуунун Google сунуштаган жолу."</string>
     <string name="header_application_sync_settings" msgid="4581847153669774489">"Колдонмонун синхрондошуу тууралоолору"</string>
-    <string name="header_data_and_synchronization" msgid="400831816068697286">"Дайындар жана шайкештирүү"</string>
+    <string name="header_data_and_synchronization" msgid="400831816068697286">"Дайын-даректер жана шайкештирүү"</string>
     <string name="preference_change_password_title" msgid="7243527448378789274">"Сызсөздү өзгөртүү"</string>
     <string name="header_account_settings" msgid="8586173964125512219">"Аккаунттун жөндөөлөрү"</string>
     <string name="remove_account_label" msgid="5885425720323823387">"Аккаунтту алып салуу"</string>
