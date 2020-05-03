@@ -29,8 +29,25 @@
     <item msgid="5194868215515664953">"Пацифик"</item>
     <item msgid="7044520255415007865">"Сите"</item>
   </string-array>
-    <!-- no translation found for screen_timeout_entries:0 (8596143519087753804) -->
-    <!-- no translation found for dream_timeout_entries:7 (8271452751594598661) -->
+  <string-array name="screen_timeout_entries">
+    <item msgid="8596143519087753804">"15 секунди"</item>
+    <item msgid="772029947136115322">"30 секунди"</item>
+    <item msgid="8743663928349474087">"1 минута"</item>
+    <item msgid="1506508631223164814">"2 минути"</item>
+    <item msgid="8664703938127907662">"5 минути"</item>
+    <item msgid="5827960506924849753">"10 минути"</item>
+    <item msgid="6677424950124253938">"30 минути"</item>
+  </string-array>
+  <string-array name="dream_timeout_entries">
+    <item msgid="6487043225269853023">"Никогаш"</item>
+    <item msgid="2517785806387977252">"15 секунди"</item>
+    <item msgid="6347954399441173672">"30 секунди"</item>
+    <item msgid="4858305253279921789">"1 минута"</item>
+    <item msgid="8109273437140044073">"2 минути"</item>
+    <item msgid="2788593551142462622">"5 минути"</item>
+    <item msgid="8012672183888404961">"10 минути"</item>
+    <item msgid="8271452751594598661">"30 минути"</item>
+  </string-array>
   <string-array name="lock_after_timeout_entries">
     <item msgid="2232921187970351881">"Веднаш"</item>
     <item msgid="2038544972632026612">"5 секунди"</item>
@@ -42,25 +59,60 @@
     <item msgid="811192536981678974">"10 минути"</item>
     <item msgid="7258394417241706272">"30 минути"</item>
   </string-array>
-    <!-- no translation found for entries_font_size:0 (2340391964816059553) -->
-    <!-- no translation found for entries_font_size:0 (6490061470416867723) -->
-    <!-- no translation found for entries_font_size:2 (1714184661981538355) -->
-    <!-- no translation found for entries_font_size:2 (1678068858001018666) -->
-    <!-- no translation found for wifi_status:3 (5848277343965362748) -->
-    <!-- no translation found for wifi_status_with_ssid:1 (6816207058895999545) -->
-    <!-- no translation found for wifi_status_with_ssid:3 (7547609081339573756) -->
-    <!-- no translation found for wifi_status_with_ssid:4 (5145158315060185414) -->
+  <string-array name="entries_font_size">
+    <item msgid="2340391964816059553">"Мал"</item>
+    <item msgid="591935967183159581">"Стандардно"</item>
+    <item msgid="1714184661981538355">"Голем"</item>
+    <item msgid="6195563047686707484">"Најголем"</item>
+  </string-array>
+  <string-array name="wifi_status">
+    <item msgid="1304883790721412351"></item>
+    <item msgid="4157625910392775808">"Скенирање..."</item>
+    <item msgid="5597394826455877834">"Се поврзува..."</item>
+    <item msgid="5848277343965362748">"Се проверува…"</item>
+    <item msgid="3391238031431440676">"Добивање ИП адреса..."</item>
+    <item msgid="5257597310494000224">"Поврзано"</item>
+    <item msgid="8472497592913050396">"Суспендирани"</item>
+    <item msgid="1228072488815999109">"Се исклучува..."</item>
+    <item msgid="7253087004422991731">"Исклучени"</item>
+    <item msgid="4169850917304751227">"Неуспешно"</item>
+    <item msgid="6266658166690831131">"Блокирана"</item>
+    <item msgid="4517230805854909775">"Привремено избегнува лоша врска"</item>
+  </string-array>
+  <string-array name="wifi_status_with_ssid">
+    <item msgid="4853670665485437464"></item>
+    <item msgid="6816207058895999545">"Се скенира…"</item>
+    <item msgid="8058143476674427024">"Поврзување на <xliff:g id="NETWORK_NAME">%1$s</xliff:g>..."</item>
+    <item msgid="7547609081339573756">"Се проверува со <xliff:g id="NETWORK_NAME">%1$s</xliff:g>…"</item>
+    <item msgid="5145158315060185414">"Се добива IP-адресата од <xliff:g id="NETWORK_NAME">%1$s</xliff:g>…"</item>
+    <item msgid="3283243151651124831">"Поврзано на <xliff:g id="NETWORK_NAME">%1$s</xliff:g>"</item>
+    <item msgid="6600156231416890902">"Суспендирани"</item>
+    <item msgid="4133290864821295785">"Исклучување од <xliff:g id="NETWORK_NAME">%1$s</xliff:g>..."</item>
+    <item msgid="3980154971187953257">"Исклучени"</item>
+    <item msgid="2847316776634969068">"Неуспешно"</item>
+    <item msgid="4390990424746035383">"Блокирана"</item>
+    <item msgid="3618248791367063949">"Привремено избегнува лоша врска"</item>
+  </string-array>
     <!-- no translation found for wifi_tether_security:0 (5586343370515598801) -->
     <!-- no translation found for wifi_tether_security:1 (6136336549994615745) -->
-    <!-- no translation found for wifi_p2p_wps_setup:0 (5390235347963255303) -->
+  <string-array name="wifi_p2p_wps_setup">
+    <item msgid="5390235347963255303">"Копче „Притисни“"</item>
+    <item msgid="7401896200768713930">"PIN од спарен уред"</item>
+    <item msgid="4526848028011846710">"PIN од овој уред"</item>
+  </string-array>
   <string-array name="wifi_p2p_status">
-    <item msgid="8741947238021758201">"Поврзана"</item>
+    <item msgid="8741947238021758201">"Поврзано"</item>
     <item msgid="983792611851499732">"Покането"</item>
     <item msgid="5438273405428201793">"Неуспешно"</item>
     <item msgid="4646663015449312554">"Достапна"</item>
     <item msgid="3230556734162006146">"Надвор од опсег"</item>
   </string-array>
-    <!-- no translation found for bluetooth_visibility_timeout_entries:1 (2759776603549270587) -->
+  <string-array name="bluetooth_visibility_timeout_entries">
+    <item msgid="8247986727324120082">"2 минути"</item>
+    <item msgid="2759776603549270587">"5 минути"</item>
+    <item msgid="167772676068860015">"1 час"</item>
+    <item msgid="5985477119043628504">"Времето никогаш да не истече"</item>
+  </string-array>
   <string-array name="bluetooth_max_connected_audio_devices">
     <item msgid="3800257971619063588">"Користи ја стандардната поставка на системот: <xliff:g id="DEFAULT_BLUETOOTH_MAX_CONNECTED_AUDIO_DEVICES">%1$d</xliff:g>"</item>
     <item msgid="8572230405241423895">"1"</item>
@@ -69,10 +121,15 @@
     <item msgid="1644506614010085798">"4"</item>
     <item msgid="3132506679404897150">"5"</item>
   </string-array>
-    <!-- no translation found for wifi_signal:1 (7882129634982603782) -->
-    <!-- no translation found for wifi_signal:4 (999948812884919584) -->
+  <string-array name="wifi_signal">
+    <item msgid="1709949377823900951">"Слаб"</item>
+    <item msgid="7882129634982603782">"Слаб"</item>
+    <item msgid="6457357501905996224">"Умерен"</item>
+    <item msgid="405271628162918841">"Добар"</item>
+    <item msgid="999948812884919584">"Одличен"</item>
+  </string-array>
   <string-array name="data_usage_data_range">
-    <item msgid="8986775481492954015">"Последните 30 дена"</item>
+    <item msgid="8986775481492954015">"Минатите 30 дена"</item>
     <item msgid="3211287705232736964">"Пост. цикл. на корист...."</item>
   </string-array>
   <string-array name="usage_stats_display_order_types">
@@ -106,11 +163,14 @@
     <item msgid="7330627471456865502">"MSCHAPV2"</item>
     <item msgid="6255179395132581882">"GTC"</item>
   </string-array>
-    <!-- no translation found for wifi_ip_settings:1 (4377002609760712163) -->
+  <string-array name="wifi_ip_settings">
+    <item msgid="2717196390555072244">"DHCP"</item>
+    <item msgid="4377002609760712163">"Статична"</item>
+  </string-array>
   <string-array name="wifi_proxy_settings">
     <item msgid="9032900195127165132">"Ниедна"</item>
     <item msgid="1464741437353223198">"Упатство"</item>
-    <item msgid="5793600062487886090">"Прокси автоконфигурација"</item>
+    <item msgid="5793600062487886090">"Прокси: автоконфигурација"</item>
   </string-array>
   <string-array name="apn_auth_entries">
     <item msgid="7099647881902405997">"Ниедна"</item>
@@ -226,11 +286,73 @@
     <item msgid="1165623660533024666">"извршувај во заднина"</item>
     <item msgid="6423861043647911030">"јачина на звук на пристапноста"</item>
   </string-array>
-    <!-- no translation found for app_ops_labels:3 (7836406246005211990) -->
-    <!-- no translation found for app_ops_labels:4 (3951439024549922598) -->
-    <!-- no translation found for app_ops_labels:8 (3597797992398484655) -->
-    <!-- no translation found for app_ops_labels:20 (3037159047591081136) -->
-    <!-- no translation found for app_ops_labels:41 (2464189519136248621) -->
+  <string-array name="app_ops_labels">
+    <item msgid="7892361636570580123">"Локација"</item>
+    <item msgid="6656077694190491067">"Локација"</item>
+    <item msgid="8790228218278477369">"Локација"</item>
+    <item msgid="7836406246005211990">"Вибрации"</item>
+    <item msgid="3951439024549922598">"Прочитај ги контактите"</item>
+    <item msgid="8802152411647068">"Измени контакти"</item>
+    <item msgid="229544934599698735">"Прочитај евиденција на повици"</item>
+    <item msgid="7396102294405899613">"Измени евиденција на повици"</item>
+    <item msgid="3597797992398484655">"Прочитај го календарот"</item>
+    <item msgid="2705975774250907343">"Измени календар"</item>
+    <item msgid="4668747371441932697">"Локација"</item>
+    <item msgid="1487578921720243646">"Објави известување"</item>
+    <item msgid="4636080349724146638">"Локација"</item>
+    <item msgid="673510900286463926">"Повикај телефонски број"</item>
+    <item msgid="542083422784609790">"Прочитај SMS/MMS порака"</item>
+    <item msgid="1033780373029588436">"Напиши SMS/MMS порака"</item>
+    <item msgid="5647111115517787488">"Прими SMS/MMS порака"</item>
+    <item msgid="8591105601108455893">"Прими SMS/MMS порака"</item>
+    <item msgid="7730995008517841903">"Прими SMS/MMS порака"</item>
+    <item msgid="2613033109026626086">"Прими SMS/MMS порака"</item>
+    <item msgid="3037159047591081136">"Испрати SMS/MMS-порака"</item>
+    <item msgid="4726682243833913568">"Прочитај SMS/MMS порака"</item>
+    <item msgid="6555678522277865572">"Напиши SMS/MMS порака"</item>
+    <item msgid="6981734935578130884">"Измени поставки"</item>
+    <item msgid="8705854389991425629">"Цртај на врвот"</item>
+    <item msgid="5861356020344153651">"Пристапи кон известувања"</item>
+    <item msgid="78432174621628659">"Камера"</item>
+    <item msgid="3986116419882154794">"Снимај аудио"</item>
+    <item msgid="4516840825756409490">"Репродуцирај аудио"</item>
+    <item msgid="6811712502798183957">"Прочитај табла со исечоци"</item>
+    <item msgid="2780369012602289114">"Измени табла со исечоци"</item>
+    <item msgid="2331359440170850868">"Копчиња за медиуми"</item>
+    <item msgid="6133599737122751231">"Аудио фокус"</item>
+    <item msgid="6844485713404805301">"Основна јачина на звук"</item>
+    <item msgid="1600379420669104929">"Јачина на звук на глас"</item>
+    <item msgid="6296768210470214866">"Јачина на звук на ѕвонење"</item>
+    <item msgid="510690696071629241">"Јачина на аудио/видео звук"</item>
+    <item msgid="406861638631430109">"Јачина на звук на аларм"</item>
+    <item msgid="4715864795872233884">"Јачина на звук на известување"</item>
+    <item msgid="2311478519251301183">"Јачина на звук на Bluetooth"</item>
+    <item msgid="5133991377896747027">"Задржи активен"</item>
+    <item msgid="2464189519136248621">"Локација"</item>
+    <item msgid="2062677934050803037">"Локација"</item>
+    <item msgid="1735171933192715957">"Добиј статистики за користење"</item>
+    <item msgid="1014093788778383554">"Вклучи/исклучи звук на микрофон"</item>
+    <item msgid="4199297950608622850">"Прикажи известување"</item>
+    <item msgid="2527962435313398821">"Прикажувај содржини"</item>
+    <item msgid="5117506254221861929">"Активирај ВПН"</item>
+    <item msgid="8291198322681891160">"Напиши тапет"</item>
+    <item msgid="7106921284621230961">"Помошна структура"</item>
+    <item msgid="4496533640894624799">"Помошна слика од екранот"</item>
+    <item msgid="2598847264853993611">"Прочитај ја состојбата на телефонот"</item>
+    <item msgid="9215610846802973353">"Додај говорна пошта"</item>
+    <item msgid="9186411956086478261">"Користи SIP"</item>
+    <item msgid="6884763100104539558">"Обработи појдовен повик"</item>
+    <item msgid="125513972170580692">"Отпечаток"</item>
+    <item msgid="2556071024281275619">"Телесни сензори"</item>
+    <item msgid="617168514928339387">"Читај пораки Cell Broadcast"</item>
+    <item msgid="7134693570516523585">"Лажна локација"</item>
+    <item msgid="7224489175375229399">"Прочитај ја меморијата"</item>
+    <item msgid="8472735063903258202">"Напиши во меморијата"</item>
+    <item msgid="4069276819909595110">"Вклучи го екранот"</item>
+    <item msgid="1228338896751121025">"Земи сметки"</item>
+    <item msgid="3181581793459233672">"Извршувај во заднина"</item>
+    <item msgid="2340936043025374076">"Јачина на звук на пристапноста"</item>
+  </string-array>
   <string-array name="long_press_timeout_selector_titles">
     <item msgid="8950313530602254787">"Кратко"</item>
     <item msgid="4816511817309094890">"Средно"</item>
@@ -247,7 +369,13 @@
     <item msgid="4627069151979553527">"Курзив"</item>
     <item msgid="6896773537705206194">"Мали големи букви"</item>
   </string-array>
-    <!-- no translation found for captioning_font_size_selector_titles:3 (2784236342175159295) -->
+  <string-array name="captioning_font_size_selector_titles">
+    <item msgid="1680223634161592855">"Многу мали"</item>
+    <item msgid="5091603983404027034">"Мали"</item>
+    <item msgid="176844712416932112">"Нормално"</item>
+    <item msgid="2784236342175159295">"Голем"</item>
+    <item msgid="218913203203160606">"Многу големи"</item>
+  </string-array>
   <string-array name="captioning_edge_type_selector_titles">
     <item msgid="3865198759294188069">"Стандардно"</item>
     <item msgid="6488643537808152001">"Ниедна"</item>
@@ -262,7 +390,14 @@
     <item msgid="1874668269931014581">"75%"</item>
     <item msgid="6462911487571123954">"100%"</item>
   </string-array>
-    <!-- no translation found for captioning_preset_selector_titles:2 (5891360837786277638) -->
+  <string-array name="captioning_preset_selector_titles">
+    <item msgid="326819345272910536">"Користи стандарди на апликација"</item>
+    <item msgid="8611890312638868524">"Бели на црно"</item>
+    <item msgid="5891360837786277638">"Црни на бело"</item>
+    <item msgid="2798457065945456853">"Жолти на црно"</item>
+    <item msgid="5799049811524553967">"Жолти на сино"</item>
+    <item msgid="3673930830658169860">"Приспособен"</item>
+  </string-array>
   <string-array name="vpn_types_long">
     <item msgid="6566768880689730097">"PPTP VPN"</item>
     <item msgid="1349760781118368659">"L2TP/IPSec VPN со претходно споделени клучеви"</item>
@@ -275,15 +410,32 @@
     <item msgid="2958623927055120839">"Ништо"</item>
     <item msgid="1157046369795346308">"Упатство"</item>
   </string-array>
-    <!-- no translation found for vpn_states:4 (9135049670787351881) -->
+  <string-array name="vpn_states">
+    <item msgid="5408915841694583740">"Исклучени"</item>
+    <item msgid="8754480102834556765">"Се иницијализира..."</item>
+    <item msgid="3351334355574270250">"Се поврзува..."</item>
+    <item msgid="8303882153995748352">"Поврзано"</item>
+    <item msgid="9135049670787351881">"Времето истече"</item>
+    <item msgid="2124868417182583926">"Неуспешно"</item>
+  </string-array>
   <string-array name="security_settings_premium_sms_values">
     <item msgid="1164265643455394443">"Прашај"</item>
     <item msgid="7718817231348607934">"Никогаш не дозволувај"</item>
     <item msgid="8184570120217958741">"Секогаш дозволувај"</item>
   </string-array>
-    <!-- no translation found for ram_states:0 (708247372474061274) -->
-    <!-- no translation found for ram_states:4 (1567326459340152525) -->
-    <!-- no translation found for proc_stats_memory_states:3 (8577246509202964244) -->
+  <string-array name="ram_states">
+    <item msgid="708247372474061274">"Нормална"</item>
+    <item msgid="5101233285497327432">"Умерена"</item>
+    <item msgid="1555861583162930714">"Ниска"</item>
+    <item msgid="1719683776264798117">"Критично"</item>
+    <item msgid="1567326459340152525">"?"</item>
+  </string-array>
+  <string-array name="proc_stats_memory_states">
+    <item msgid="3474232046138139454">"Нормално"</item>
+    <item msgid="6107138933849816768">"Умерено"</item>
+    <item msgid="182695359839047859">"Ниска"</item>
+    <item msgid="8577246509202964244">"Критична"</item>
+  </string-array>
   <string-array name="proc_stats_process_states">
     <item msgid="7560955722349181440">"Постојано"</item>
     <item msgid="167418068739176448">"Врвна активност"</item>
@@ -320,7 +472,7 @@
     <item msgid="3118234477029486741">"0"</item>
   </string-array>
   <string-array name="wifi_metered_entries">
-    <item msgid="4329206416008519163">"Откриј автоматски"</item>
+    <item msgid="4329206416008519163">"Откривај автоматски"</item>
     <item msgid="773943026484148895">"Сметај како ограничена мрежа"</item>
     <item msgid="1008268820118852416">"Сметај како неограничена мрежа"</item>
   </string-array>
