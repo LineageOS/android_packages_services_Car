@@ -2654,7 +2654,7 @@
     <string name="data_usage_app" msgid="4995297799363021198">"アプリの使用状況"</string>
     <string name="data_usage_app_info_label" msgid="5358288895158910477">"アプリ情報"</string>
     <string name="data_usage_cellular_data" msgid="3509117353455285808">"モバイルデータ"</string>
-    <string name="data_usage_data_limit" msgid="4070740691087063670">"データの上限の設定"</string>
+    <string name="data_usage_data_limit" msgid="4070740691087063670">"データ使用量を制限"</string>
     <string name="data_usage_cycle" msgid="1877235461828192940">"データ使用サイクル"</string>
     <string name="data_usage_app_items_header_text" msgid="5396134508509913851">"アプリの使用状況"</string>
     <string name="data_usage_menu_roaming" msgid="6933555994416977198">"データローミング"</string>
@@ -2714,8 +2714,8 @@
     <string name="data_usage_warning_editor_title" msgid="1431385383278389290">"データ使用量の警告の設定"</string>
     <string name="data_usage_limit_editor_title" msgid="1687908662154108293">"データ使用量の上限の設定"</string>
     <string name="data_usage_limit_dialog_title" msgid="8804760847110131518">"データ使用量の上限の設定"</string>
-    <string name="data_usage_limit_dialog_mobile" product="tablet" msgid="2000713577999830647">"タブレットで設定した上限に達するとモバイルデータが OFF になります。\n\nデータ使用量はタブレットで測定された値ですが、携帯通信会社での使用量の計算はこれと異なることがあるため、余裕をもって上限を設定することをおすすめします。"</string>
-    <string name="data_usage_limit_dialog_mobile" product="default" msgid="943546278705619205">"スマートフォンで設定した上限に達するとモバイルデータが OFF になります。\n\nデータ使用量はスマートフォンで測定された値ですが、携帯通信会社での使用量の計算はこれと異なることがあるため、余裕をもって上限を設定することをおすすめします。"</string>
+    <string name="data_usage_limit_dialog_mobile" product="tablet" msgid="2000713577999830647">"タブレットで設定した上限に達するとモバイルデータが OFF になります。\n\nデータ使用量はタブレットで測定された値ですが、携帯通信会社による測定結果とは異なることがあるため、余裕をもって上限を設定することをおすすめします。"</string>
+    <string name="data_usage_limit_dialog_mobile" product="default" msgid="943546278705619205">"スマートフォンで設定した上限に達するとモバイルデータが OFF になります。\n\nデータ使用量はスマートフォンで測定された値ですが、携帯通信会社による測定結果とは異なることがあるため、余裕をもって上限を設定することをおすすめします。"</string>
     <string name="data_usage_restrict_background_title" msgid="3568746530413220844">"バックグラウンドデータを制限しますか？"</string>
     <string name="data_usage_restrict_background" msgid="995811034744808575">"バックグラウンドのモバイルデータを制限すると、アプリやサービスによっては、Wi-Fi 未接続時に機能しない場合があります。"</string>
     <string name="data_usage_restrict_background_multiuser" product="tablet" msgid="6032810839234864814">"バックグラウンドのモバイルデータを制限すると、アプリやサービスによっては、Wi‑Fi 未接続時に機能しない場合があります。\n\nこの設定はこのタブレット上のすべてのユーザーに影響します。"</string>

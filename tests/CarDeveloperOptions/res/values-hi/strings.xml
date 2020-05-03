@@ -2775,7 +2775,7 @@
     <string name="vpn_disconnect_confirm" msgid="3505111947735651082">"इस VPN को डिसकनेक्ट करना चाहते हैं?"</string>
     <string name="vpn_disconnect" msgid="4625914562388652486">"डिसकनेक्ट करें"</string>
     <string name="vpn_version" msgid="2006792987077940456">"वर्शन <xliff:g id="VERSION">%s</xliff:g>"</string>
-    <string name="vpn_forget_long" msgid="8457511440635534478">"VPN भूल जाएं"</string>
+    <string name="vpn_forget_long" msgid="8457511440635534478">"वीपीएन भूल जाएं"</string>
     <string name="vpn_replace_vpn_title" msgid="8517436922021598103">"मौजूदा VPN को बदलें?"</string>
     <string name="vpn_set_vpn_title" msgid="6483554732067951052">"हमेशा-चालू VPN सेट करें?"</string>
     <string name="vpn_first_always_on_vpn_message" msgid="7050017738816963855">"यह सेटिंग चालू होने पर, आपके पास तब तक इंटरनेट कनेक्शन नहीं होगा, जब तक कि VPN अच्छी तरह कनेक्ट नहीं हो जाता"</string>
@@ -2794,7 +2794,7 @@
     <string name="vpn_always_on_summary" msgid="3639994551631437397">"VPN से हमेशा कनेक्ट रहें"</string>
     <string name="vpn_always_on_summary_not_supported" msgid="9077720997795965133">"यह ऐप्लिकेशन समर्थन नहीं करता"</string>
     <string name="vpn_always_on_summary_active" msgid="8962619701962239088">"हमेशा चालू"</string>
-    <string name="vpn_require_connection" msgid="5413746839457797350">"बिना VPN वाले कनेक्शन ब्लॉक करें"</string>
+    <string name="vpn_require_connection" msgid="5413746839457797350">"बिना वीपीएन वाले कनेक्शन ब्लॉक करें"</string>
     <string name="vpn_require_connection_title" msgid="8361434328767853717">"VPN कनेक्शन ज़रूरी है?"</string>
     <string name="vpn_lockdown_summary" msgid="6770030025737770861">"वह VPN प्रोफ़ाइल चुनें जिससे हमेशा कनेक्ट रहना है. नेटवर्क ट्रैफ़िक की अनुमति केवल इस VPN से कनेक्ट रहने पर ही दी जाएगी."</string>
     <string name="vpn_lockdown_none" msgid="3789288793603394679">"कोई नहीं"</string>

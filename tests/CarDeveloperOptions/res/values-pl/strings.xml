@@ -3189,7 +3189,7 @@
     <string name="keywords_financial_apps_sms_access" msgid="3236014691838121857">"aplikacja finansowa, SMS, uprawnienia"</string>
     <string name="keywords_systemui_theme" msgid="9150908170417305866">"tryb ciemny"</string>
     <string name="keywords_device_feedback" msgid="6948977907405738490">"błąd"</string>
-    <string name="keywords_ambient_display_screen" msgid="5873935693887583428">"Ekran dostosowany do otoczenia, ekran blokady"</string>
+    <string name="keywords_ambient_display_screen" msgid="5873935693887583428">"Wygaszacz z powiadomieniami, ekran blokady"</string>
     <string name="keywords_lock_screen_notif" msgid="4914337222856805463">"powiadomienia na ekranie blokady, powiadomienia"</string>
     <string name="keywords_face_settings" msgid="4117345666006836599">"twarz"</string>
     <string name="keywords_fingerprint_settings" msgid="902902368701134163">"odcisk palca, dodawanie odcisków palców"</string>

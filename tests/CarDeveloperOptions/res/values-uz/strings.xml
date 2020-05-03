@@ -1800,7 +1800,7 @@
     <string name="advanced_settings_summary" msgid="5912237062506771716">"Qo‘shimcha sozlamalar tanlamalarini yoqib qo‘yish"</string>
     <string name="application_info_label" msgid="3886253474964599105">"Ilova haqida"</string>
     <string name="storage_label" msgid="1109537840103290384">"Xotira"</string>
-    <string name="auto_launch_label" msgid="47089737922907379">"Odatiy tarzda ochish"</string>
+    <string name="auto_launch_label" msgid="47089737922907379">"Birlamchi sifatida ochish"</string>
     <string name="auto_launch_label_generic" msgid="7865828543459493308">"Birlamchi"</string>
     <string name="screen_compatibility_label" msgid="3638271673726075815">"Ekrandagi moslashuv"</string>
     <string name="permissions_label" msgid="7341733648403464213">"Ruxsatlar"</string>
@@ -2088,7 +2088,7 @@
     <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"Bosganda va bosib turganda kechikish"</string>
     <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"Ranglarni akslantirish"</string>
     <string name="accessibility_display_inversion_preference_subtitle" msgid="69291255322175323">"Unumdorligiga ta’sir qilishi mumkin"</string>
-    <string name="accessibility_autoclick_preference_title" msgid="9164599088410340405">"Kutish vaqti"</string>
+    <string name="accessibility_autoclick_preference_title" msgid="9164599088410340405">"Kechikish vaqti"</string>
     <string name="accessibility_autoclick_description" msgid="5492414927846407499">"Agar sichqoncha ishlatsangiz, muayyan vaqtdan keyin kursor harakatlanishdan to‘xtaganda u avtomatik ishlashini sozlashingiz mumkin."</string>
     <string name="accessibility_autoclick_delay_preference_title" msgid="8303022510942147049">"Bosishdan oldin biroz kuting"</string>
     <string name="accessibility_vibration_settings_title" msgid="1902649657883159406">"Tebranish"</string>
@@ -3604,7 +3604,7 @@
     <string name="imei_information_title" msgid="7666097743700170757">"IMEI kod ma’lumotlari"</string>
     <string name="imei_information_summary" msgid="716516316022275083">"IMEI raqamiga aloqador ma’lumotlar"</string>
     <string name="slot_number" msgid="785422579177068698">"(<xliff:g id="SLOT_NUM">%1$d</xliff:g>-uya)"</string>
-    <string name="launch_by_default" msgid="6106985160202769725">"Odatiy tarzda ochish"</string>
+    <string name="launch_by_default" msgid="6106985160202769725">"Birlamchi sifatida ochish"</string>
     <string name="app_launch_domain_links_title" msgid="2987289657348349133">"Havolalarni ochish"</string>
     <string name="app_launch_open_domain_urls_title" msgid="8595126859922391331">"Mos havolalarni ochish"</string>
     <string name="app_launch_open_domain_urls_summary" msgid="6803029846855502366">"Avtomatik ochilsin"</string>
