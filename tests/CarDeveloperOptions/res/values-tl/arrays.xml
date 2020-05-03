@@ -286,7 +286,73 @@
     <item msgid="1165623660533024666">"patakbuhin sa background"</item>
     <item msgid="6423861043647911030">"dami ng pagiging naa-access"</item>
   </string-array>
-    <!-- no translation found for app_ops_labels:41 (2464189519136248621) -->
+  <string-array name="app_ops_labels">
+    <item msgid="7892361636570580123">"Lokasyon"</item>
+    <item msgid="6656077694190491067">"Lokasyon"</item>
+    <item msgid="8790228218278477369">"Lokasyon"</item>
+    <item msgid="7836406246005211990">"Pag-vibrate"</item>
+    <item msgid="3951439024549922598">"Magbasa ng mga contact"</item>
+    <item msgid="8802152411647068">"Baguhin ang mga contact"</item>
+    <item msgid="229544934599698735">"Basahin ang log ng tawag"</item>
+    <item msgid="7396102294405899613">"Baguhin ang log ng tawag"</item>
+    <item msgid="3597797992398484655">"Magbasa ng kalendaryo"</item>
+    <item msgid="2705975774250907343">"Baguhin ang kalendaryo"</item>
+    <item msgid="4668747371441932697">"Lokasyon"</item>
+    <item msgid="1487578921720243646">"Mag-post ng notification"</item>
+    <item msgid="4636080349724146638">"Lokasyon"</item>
+    <item msgid="673510900286463926">"Tumawag sa telepono"</item>
+    <item msgid="542083422784609790">"Magbasa ng SMS/MMS"</item>
+    <item msgid="1033780373029588436">"Magsulat ng SMS/MMS"</item>
+    <item msgid="5647111115517787488">"Tumanggap ng SMS/MMS"</item>
+    <item msgid="8591105601108455893">"Tumanggap ng SMS/MMS"</item>
+    <item msgid="7730995008517841903">"Tumanggap ng SMS/MMS"</item>
+    <item msgid="2613033109026626086">"Tumanggap ng SMS/MMS"</item>
+    <item msgid="3037159047591081136">"Magpadala ng SMS/MMS"</item>
+    <item msgid="4726682243833913568">"Magbasa ng SMS/MMS"</item>
+    <item msgid="6555678522277865572">"Magsulat ng SMS/MMS"</item>
+    <item msgid="6981734935578130884">"Baguhin ang mga setting"</item>
+    <item msgid="8705854389991425629">"Gumuhit sa tuktok"</item>
+    <item msgid="5861356020344153651">"I-access ang mga notification"</item>
+    <item msgid="78432174621628659">"Camera"</item>
+    <item msgid="3986116419882154794">"I-record ang audio"</item>
+    <item msgid="4516840825756409490">"I-play ang audio"</item>
+    <item msgid="6811712502798183957">"Basahin ang clipboard"</item>
+    <item msgid="2780369012602289114">"Baguhin ang clipboard"</item>
+    <item msgid="2331359440170850868">"Mga media button"</item>
+    <item msgid="6133599737122751231">"Focus ng audio"</item>
+    <item msgid="6844485713404805301">"Master volume"</item>
+    <item msgid="1600379420669104929">"Volume ng boses"</item>
+    <item msgid="6296768210470214866">"Volume ng pag-ring"</item>
+    <item msgid="510690696071629241">"Volume ng media"</item>
+    <item msgid="406861638631430109">"Volume ng alarm"</item>
+    <item msgid="4715864795872233884">"Volume ng notification"</item>
+    <item msgid="2311478519251301183">"Volume ng Bluetooth"</item>
+    <item msgid="5133991377896747027">"Panatilihing bukas"</item>
+    <item msgid="2464189519136248621">"Lokasyon"</item>
+    <item msgid="2062677934050803037">"Lokasyon"</item>
+    <item msgid="1735171933192715957">"Kumuha ng stats sa paggamit"</item>
+    <item msgid="1014093788778383554">"I-mute/i-unmute ang mikropono"</item>
+    <item msgid="4199297950608622850">"Ipakita ang toast"</item>
+    <item msgid="2527962435313398821">"I-project ang media"</item>
+    <item msgid="5117506254221861929">"I-activate ang VPN"</item>
+    <item msgid="8291198322681891160">"Write wallpaper"</item>
+    <item msgid="7106921284621230961">"Assist structure"</item>
+    <item msgid="4496533640894624799">"Assist screenshot"</item>
+    <item msgid="2598847264853993611">"Basahin ang katayuan ng telepono"</item>
+    <item msgid="9215610846802973353">"Magdagdag ng voicemail"</item>
+    <item msgid="9186411956086478261">"Gamitin ang sip"</item>
+    <item msgid="6884763100104539558">"Iproseso ang papalabas na tawag"</item>
+    <item msgid="125513972170580692">"Fingerprint"</item>
+    <item msgid="2556071024281275619">"Mga sensor ng katawan"</item>
+    <item msgid="617168514928339387">"Basahin ang mga cell broadcast"</item>
+    <item msgid="7134693570516523585">"Kunwaring lokasyon"</item>
+    <item msgid="7224489175375229399">"Basahin ang storage"</item>
+    <item msgid="8472735063903258202">"I-write ang storage"</item>
+    <item msgid="4069276819909595110">"I-on ang screen"</item>
+    <item msgid="1228338896751121025">"Kunin ang mga account"</item>
+    <item msgid="3181581793459233672">"Patakbuhin sa background"</item>
+    <item msgid="2340936043025374076">"Dami ng pagiging naa-access"</item>
+  </string-array>
   <string-array name="long_press_timeout_selector_titles">
     <item msgid="8950313530602254787">"Maikli"</item>
     <item msgid="4816511817309094890">"Katamtaman"</item>
@@ -357,9 +423,19 @@
     <item msgid="7718817231348607934">"Huwag kailanman payagan"</item>
     <item msgid="8184570120217958741">"Palaging payagan"</item>
   </string-array>
-    <!-- no translation found for ram_states:0 (708247372474061274) -->
-    <!-- no translation found for ram_states:4 (1567326459340152525) -->
-    <!-- no translation found for proc_stats_memory_states:3 (8577246509202964244) -->
+  <string-array name="ram_states">
+    <item msgid="708247372474061274">"Normal"</item>
+    <item msgid="5101233285497327432">"Katamtaman"</item>
+    <item msgid="1555861583162930714">"Mababa"</item>
+    <item msgid="1719683776264798117">"Kritikal"</item>
+    <item msgid="1567326459340152525">"?"</item>
+  </string-array>
+  <string-array name="proc_stats_memory_states">
+    <item msgid="3474232046138139454">"Normal"</item>
+    <item msgid="6107138933849816768">"Katamtaman"</item>
+    <item msgid="182695359839047859">"Mababa"</item>
+    <item msgid="8577246509202964244">"Kritikal"</item>
+  </string-array>
   <string-array name="proc_stats_process_states">
     <item msgid="7560955722349181440">"Tuluy-tuloy"</item>
     <item msgid="167418068739176448">"Nangungunang gawain"</item>
