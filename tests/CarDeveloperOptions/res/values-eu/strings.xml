@@ -178,7 +178,7 @@
     <string name="connected_device_available_call_title" msgid="6774859446815858428">"Deitzeko balio duten gailu erabilgarriak"</string>
     <string name="connected_device_connected_title" msgid="6255107326608785482">"Konektatuta daudenak"</string>
     <string name="connected_device_saved_title" msgid="8270136893488475163">"Gordetako gailuak"</string>
-    <string name="connected_device_add_device_summary" msgid="7960491471270158891">"Bluetooth konexioa aktibatuko da parekatu ahal izateko"</string>
+    <string name="connected_device_add_device_summary" msgid="7960491471270158891">"Bluetooth bidezko konexioa aktibatuko da parekatu ahal izateko"</string>
     <string name="connected_device_connections_title" msgid="9205000271382018428">"Konexio-hobespenak"</string>
     <string name="connected_device_previously_connected_title" msgid="225918223397410428">"Aurrez konektatutako gailuak"</string>
     <string name="connected_device_previously_connected_screen_title" msgid="2018789662358162716">"Aurretik konektatutakoak"</string>
