@@ -99,13 +99,13 @@ public class CarUxRestrictionsConfigurationTest {
 
         CarUxRestrictions parkedRestrictions = config.getUxRestrictions(DRIVING_STATE_PARKED, 0f);
         assertThat(parkedRestrictions.isRequiresDistractionOptimization()).isTrue();
-        assertThat(UX_RESTRICTIONS_FULLY_RESTRICTED)
-                .isEqualTo(parkedRestrictions.getActiveRestrictions());
+        assertThat(parkedRestrictions.getActiveRestrictions())
+                .isEqualTo(UX_RESTRICTIONS_FULLY_RESTRICTED);
 
         CarUxRestrictions movingRestrictions = config.getUxRestrictions(DRIVING_STATE_MOVING, 1f);
         assertThat(movingRestrictions.isRequiresDistractionOptimization()).isTrue();
-        assertThat(UX_RESTRICTIONS_FULLY_RESTRICTED)
-                .isEqualTo(movingRestrictions.getActiveRestrictions());
+        assertThat(movingRestrictions.getActiveRestrictions())
+                .isEqualTo(UX_RESTRICTIONS_FULLY_RESTRICTED);
     }
 
     @Test
@@ -290,6 +290,7 @@ public class CarUxRestrictionsConfigurationTest {
     }
 
     @Test
+    @SuppressWarnings("TruthSelfEquals")
     public void testSpeedRangeEquals() {
         Builder.SpeedRange s1, s2;
 
