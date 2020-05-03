@@ -85,8 +85,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Umožňuje zvětšit nebo zmenšit text na obrazovce."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Zmenšit"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Zvětšit"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Příliš žluťoučký kůň úpěl ďábelské ódy."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Ukázkový text"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"Čaroděj ze země Oz"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"Kapitola 11: Smaragdové město v zemi Oz"</string>
@@ -804,7 +803,7 @@
     <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"Když je zapnuté připojení Bluetooth, zařízení může komunikovat s ostatními zařízeními Bluetooth v okolí.\n\nZa účelem vylepšení funkcí mohou aplikace a služby nadále vyhledávat zařízení v okolí, i když je Bluetooth vypnuté. Lze tak například vylepšit funkce založené na poloze. Toto chování můžete změnit v "<annotation id="link">"nastavení vyhledávání"</annotation>"."</string>
     <string name="ble_scan_notify_text" msgid="6290170236546386932">"Za účelem zvýšení přesnosti určování polohy mohou systémové aplikace a služby neustále vyhledávat zařízení Bluetooth. Toto chování můžete změnit v <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>nastavení vyhledávání<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"Nelze se připojit. Zkuste to znovu."</string>
-    <string name="device_details_title" msgid="726517818032923222">"Podrobnosti o zařízení"</string>
+    <string name="device_details_title" msgid="726517818032923222">"O zařízení"</string>
     <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"Adresa Bluetooth zařízení: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"Zapomenout zařízení?"</string>
     <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"Telefon již nebude spárován se zařízením <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
@@ -1139,7 +1138,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"Mobilní"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Pokud Wi-Fi není k dispozici, použít mobilní síť"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Pokud mobilní síť nebude k dispozici, použít Wi‑Fi"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Volání přes Wi‑Fi. Pokud bude signál Wi-Fi ztracen, hovor skončí."</string>
@@ -3806,7 +3808,7 @@
     <string name="memory_avg_desc" msgid="1200185697910086968">"Průměrně <xliff:g id="MEMORY">%1$s</xliff:g>"</string>
     <string name="memory_use_running_format" msgid="3741170402563292232">"<xliff:g id="MEMORY">%1$s</xliff:g> / <xliff:g id="RUNNING">%2$s</xliff:g>"</string>
     <string name="process_format" msgid="8575347150598564509">"<xliff:g id="APP_NAME">%1$s</xliff:g> (<xliff:g id="COUNT">%2$d</xliff:g>)"</string>
-    <string name="high_power_apps" msgid="2518319744362028920">"Optimalizace výdrže bat."</string>
+    <string name="high_power_apps" msgid="2518319744362028920">"Optimalizace baterie"</string>
     <string name="additional_battery_info" msgid="6877663897819271203">"Upozornění na využití"</string>
     <string name="show_all_apps" msgid="5442552004569634846">"Zobrazit úplné využití zařízení"</string>
     <string name="hide_extra_apps" msgid="6798261081113299441">"Zobrazit využití aplikací"</string>
@@ -3880,7 +3882,7 @@
     <string name="assist_access_screenshot_summary" msgid="3010943864000489424">"Asistenční aplikace bude mít přístup k obrazu na obrazovce"</string>
     <string name="assist_flash_title" msgid="8852484250748551092">"Zablikání obrazovky"</string>
     <string name="assist_flash_summary" msgid="6697095786317559129">"Když asistenční aplikace z obrazovky nebo snímku obrazovky získá text, okraje obrazovky zablikají"</string>
-    <string name="assist_footer" msgid="7030121180457472165">"Asistenční aplikace vám může pomoci na základě informací na zobrazené obrazovce. Některé aplikace podporují Launcher i hlasový vstup a nabízejí integrovanou asistenci."</string>
+    <string name="assist_footer" msgid="7030121180457472165">"Asistenční aplikace vám mohou pomoci na základě informací na zobrazené obrazovce. Některé aplikace podporují Launcher i hlasový vstup a nabízejí integrovanou asistenci."</string>
     <string name="average_memory_use" msgid="5333366040118953945">"Průměrné využití paměti"</string>
     <string name="maximum_memory_use" msgid="6509872438499846077">"Maximální využití paměti"</string>
     <string name="memory_usage" msgid="7963253555330830906">"Využití paměti"</string>
@@ -4182,7 +4184,7 @@
     <string name="display_cutout_emulation_keywords" msgid="6795671536772871439">"výřez displeje"</string>
     <string name="overlay_option_device_default" msgid="165508753381657697">"Výchozí nastavení zařízení"</string>
     <string name="overlay_toast_failed_to_apply" msgid="5692251825129250040">"Překrytí se nepodařilo použít"</string>
-    <string name="special_access" msgid="1453926335914696206">"Přístup ke spec. aplikacím"</string>
+    <string name="special_access" msgid="1453926335914696206">"Přístupy pro aplikace"</string>
     <plurals name="special_access_summary" formatted="false" msgid="5182092345063909346">
       <item quantity="few"><xliff:g id="COUNT">%d</xliff:g> aplikace mohou využívat neomezená data</item>
       <item quantity="many"><xliff:g id="COUNT">%d</xliff:g> aplikace může využívat neomezená data</item>
@@ -4273,8 +4275,8 @@
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Kontrola tabletu klepnutím"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Kontrola zařízení klepnutím"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Chcete-li zobrazit čas, oznámení a další informace, klepněte na obrazovku."</string>
-    <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Otisk prstu pro oznámení"</string>
-    <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"Přejeďte po otisku"</string>
+    <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Sejmout otisk prstu pro zobrazení oznámení"</string>
+    <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"Sejmout otisk prstu"</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"Chcete-li zkontrolovat oznámení, přejeďte prstem dolů po snímači otisků prstů na zadní straně telefonu."</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="tablet" msgid="3480057984564476283">"Chcete-li zkontrolovat oznámení, přejeďte prstem dolů po snímači otisků prstů na zadní straně tabletu."</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="device" msgid="7950264130913070035">"Chcete-li zkontrolovat oznámení, přejeďte prstem dolů po snímači otisků prstů na zadní straně zařízení."</string>
@@ -4476,7 +4478,7 @@
     <string name="battery_suggestion_title" product="default" msgid="3295786171830183688">"Zvyšte životnost baterie telefonu"</string>
     <string name="battery_suggestion_summary" msgid="2669070349482656490"></string>
     <string name="gesture_prevent_ringing_screen_title" msgid="4173494225145223638">"Blokování vyzvánění"</string>
-    <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"Stisknutí vypínače a zvýšení hlasitosti znamená:"</string>
+    <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"Současné stisknutí vypínače a tlačítka zvýšení hlasitosti umožní:"</string>
     <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"Zkratka k vypnutí vyzvánění"</string>
     <string name="prevent_ringing_option_vibrate" msgid="6456505293904544108">"Vibrovat"</string>
     <string name="prevent_ringing_option_mute" msgid="53662688921253613">"Ztlumit"</string>
