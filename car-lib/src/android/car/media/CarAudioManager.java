@@ -77,6 +77,12 @@ public final class CarAudioManager extends CarManagerBase {
     public static final int INVALID_AUDIO_ZONE = 0xffffffff;
 
     /**
+     * Volume Group ID when volume group not found.
+     * @hide
+     */
+    public static final int INVALID_VOLUME_GROUP_ID = -1;
+
+    /**
      * Extra for {@link android.media.AudioAttributes.Builder#addBundle(Bundle)}: when used in an
      * {@link android.media.AudioFocusRequest}, the requester should receive all audio focus events,
      * including {@link android.media.AudioManager#AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK}.

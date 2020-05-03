@@ -51,7 +51,6 @@ import android.os.Looper;
 import android.os.RemoteException;
 
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.FlakyTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -246,7 +245,6 @@ public class CarProjectionServiceTest {
     }
 
     @Test
-    @FlakyTest
     public void getWifiChannels() {
         List<Integer> expectedWifiChannels = Arrays.asList(2400, 5600);
         when(mWifiScanner.getAvailableChannels(anyInt())).thenReturn(expectedWifiChannels);

@@ -22,15 +22,11 @@ import android.car.Car;
 import android.car.CarFeatures;
 import android.test.suitebuilder.annotation.SmallTest;
 
-import androidx.test.runner.AndroidJUnit4;
-
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 import java.util.List;
 
-@RunWith(AndroidJUnit4.class)
 @SmallTest
 public class CarFeatureTest extends CarApiTestBase  {
     // List in CarFeatureController should be inline with this.
@@ -42,7 +38,6 @@ public class CarFeatureTest extends CarApiTestBase  {
             Car.CAR_CONFIGURATION_SERVICE,
             Car.CAR_DRIVING_STATE_SERVICE,
             Car.CAR_MEDIA_SERVICE,
-            Car.CAR_NAVIGATION_SERVICE,
             Car.CAR_OCCUPANT_ZONE_SERVICE,
             Car.CAR_TRUST_AGENT_ENROLLMENT_SERVICE,
             Car.CAR_USER_SERVICE,
@@ -63,6 +58,7 @@ public class CarFeatureTest extends CarApiTestBase  {
 
     private static final List<String> OPTIONAL_FEATURES = Arrays.asList(
             CarFeatures.FEATURE_CAR_USER_NOTICE_SERVICE,
+            Car.CAR_NAVIGATION_SERVICE,
             Car.DIAGNOSTIC_SERVICE,
             Car.STORAGE_MONITORING_SERVICE,
             Car.VEHICLE_MAP_SERVICE

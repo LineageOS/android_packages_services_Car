@@ -337,29 +337,6 @@ public final class CarUserManager extends CarManagerBase {
         }
     }
 
-    /** @hide */
-    @TestApi
-    // TODO(b/144120654): temp method used by CTS; will eventually be refactored to take a listener
-    @UserIdInt
-    public int createUser(@Nullable String name, boolean isGuestUser) {
-        Log.i(TAG, "createUser()"); // name is PII
-
-        if (isGuestUser) {
-            return mUserManager.createUser(name, UserManager.USER_TYPE_FULL_GUEST, /* flags= */ 0)
-                    .id;
-        }
-
-        return mUserManager.createUser(name, /* flags= */ 0).id;
-    }
-
-    /** @hide */
-    @TestApi
-    // TODO(b/144120654): temp method used by CTS; will eventually be refactored to take a listener
-    public void removeUser(@UserIdInt int userId) {
-        Log.i(TAG, "removeUser(" + userId + ")");
-        mUserManager.removeUser(userId);
-    }
-
     /**
      * {@code IResultReceiver} used to receive lifecycle events and dispatch to the proper listener.
      */
