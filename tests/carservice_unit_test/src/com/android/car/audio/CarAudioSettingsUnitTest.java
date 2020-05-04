@@ -16,18 +16,11 @@
 
 package com.android.car.audio;
 
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
-
 import static com.google.common.truth.Truth.assertThat;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
 
 import android.car.settings.CarSettings;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.ContentResolver;
-import android.provider.Settings;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -46,11 +39,6 @@ public class CarAudioSettingsUnitTest extends AbstractExtendedMockitoTestCase {
     private ContentResolver mMockContentResolver;
 
     private CarAudioSettings mCarAudioSettings;
-
-    @Override
-    protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
-        session.spyStatic(Settings.Secure.class);
-    }
 
     @Before
     public void setUp() {
@@ -74,8 +62,7 @@ public class CarAudioSettingsUnitTest extends AbstractExtendedMockitoTestCase {
     }
 
     private void setRejectNavigationOnCallSettingsValues(int settingsValue) {
-        doReturn(settingsValue).when(()->Settings.Secure.getIntForUser(any(),
-                eq(CarSettings.Secure.KEY_AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL), anyInt(),
-                anyInt()));
+        putSettingsInt(CarSettings.Secure.KEY_AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL,
+                settingsValue);
     }
 }

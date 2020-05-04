@@ -101,8 +101,7 @@ public class CarUserNoticeServiceTest extends AbstractExtendedMockitoTestCase {
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
         session
-            .spyStatic(CarLocalServices.class)
-            .mockStatic(Settings.Secure.class);
+            .spyStatic(CarLocalServices.class);
     }
 
     /**
@@ -116,9 +115,7 @@ public class CarUserNoticeServiceTest extends AbstractExtendedMockitoTestCase {
         doReturn(mMockCarUserService)
                 .when(() -> CarLocalServices.getService(CarUserService.class));
 
-        doReturn(1).when(() -> Settings.Secure.getIntForUser(any(),
-                eq(CarSettings.Secure.KEY_ENABLE_INITIAL_NOTICE_SCREEN_TO_USER), anyInt(),
-                anyInt()));
+        putSettingsInt(CarSettings.Secure.KEY_ENABLE_INITIAL_NOTICE_SCREEN_TO_USER, 1);
 
         doReturn(mMockedResources).when(mMockContext).getResources();
         doReturn(InstrumentationRegistry.getInstrumentation().getTargetContext()
