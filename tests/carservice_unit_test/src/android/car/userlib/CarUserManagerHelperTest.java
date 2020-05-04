@@ -80,8 +80,7 @@ public class CarUserManagerHelperTest extends AbstractExtendedMockitoTestCase {
         session
             .spyStatic(ActivityManager.class)
             .spyStatic(CarProperties.class)
-            .spyStatic(UserManager.class)
-            .spyStatic(Settings.Global.class);
+            .spyStatic(UserManager.class);
     }
 
     @Before
@@ -299,8 +298,7 @@ public class CarUserManagerHelperTest extends AbstractExtendedMockitoTestCase {
     }
 
     private void setLastActiveUser(@UserIdInt int userId) {
-        doReturn(userId).when(() -> Settings.Global.getInt(mContentResolver,
-                Settings.Global.LAST_ACTIVE_USER_ID, UserHandle.USER_SYSTEM));
+        putSettingsInt(Settings.Global.LAST_ACTIVE_USER_ID, userId);
     }
 
     private void setDefaultBootUserOverride(@UserIdInt int userId) {

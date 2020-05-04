@@ -85,7 +85,6 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
-import android.provider.Settings;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -173,8 +172,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
         builder
-            .spyStatic(ActivityManager.class)
-            .mockStatic(Settings.Global.class);
+            .spyStatic(ActivityManager.class);
     }
 
     /**
@@ -203,7 +201,6 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                         3, mUserMetrics);
 
         mFakeCarOccupantZoneService = new FakeCarOccupantZoneService(mCarUserService);
-        mockSettingsGlobal();
     }
 
     @Test
@@ -278,7 +275,6 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         UserInfo persistentUser = new UserInfo(lastActiveUserId, "persistent user",
                 NO_USER_INFO_FLAGS);
         doReturn(persistentUser).when(mMockedUserManager).getUserInfo(lastActiveUserId);
-
         sendUserSwitchingEvent(lastActiveUserId);
 
         verify(mMockedCarUserManagerHelper).setLastActiveUser(lastActiveUserId);
@@ -1421,25 +1417,6 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         FakeCarOccupantZoneService(CarUserService carUserService) {
             carUserService.setZoneUserBindingHelper(mZoneUserBindigHelper);
         }
-    }
-
-    // TODO(b/148403316): Refactor to use common fake settings provider
-    private void mockSettingsGlobal() {
-        when(Settings.Global.putInt(any(), eq(CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET),
-                anyInt())).thenAnswer(invocation -> {
-                            int value = (int) invocation.getArguments()[2];
-                            when(Settings.Global.getInt(any(),
-                                    eq(CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET), anyInt()))
-                                    .thenReturn(value);
-                            return null;
-                        }
-        );
-    }
-
-    private int getSettingsInt(String key) {
-        return Settings.Global.getInt(
-                InstrumentationRegistry.getTargetContext().getContentResolver(),
-                key, /* default= */ 0);
     }
 
     private void sendUserLifecycleEvent(@UserIdInt int userId,
