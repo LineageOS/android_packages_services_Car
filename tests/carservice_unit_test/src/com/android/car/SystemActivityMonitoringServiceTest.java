@@ -15,24 +15,25 @@
  */
 package com.android.car;
 
-import static org.junit.Assert.assertEquals;
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
+
 import static org.junit.Assert.assertTrue;
 
-import android.annotation.Nullable;
+import android.annotation.NonNull;
 import android.app.Activity;
 import android.app.ActivityOptions;
+import android.app.Instrumentation.ActivityMonitor;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.Display;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
-import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.SystemActivityMonitoringService.TopTaskInfoContainer;
 
@@ -41,7 +42,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
 
@@ -51,44 +52,40 @@ public class SystemActivityMonitoringServiceTest {
     private static final String TAG = "SystemActivityMonitoringServiceTest";
 
     private static final long ACTIVITY_TIMEOUT_MS = 5000;
-    private static final long DEFAULT_TIMEOUT_SECONDS = 2;
+    private static final long DEFAULT_TIMEOUT_MS = 10_000;
+    private static final int SLEEP_MS = 50;
 
     private SystemActivityMonitoringService mService;
-    private Semaphore mActivityLaunchSemaphore = new Semaphore(0);
-
-    private final TopTaskInfoContainer[] mTopTaskInfo = new TopTaskInfoContainer[1];
 
     @Before
     public void setUp() throws Exception {
         mService = new SystemActivityMonitoringService(getContext());
         mService.init();
-        mService.registerActivityLaunchListener(
-                new FilteredLaunchListener(/* desiredComponent= */ null));
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         mService.registerActivityLaunchListener(null);
         mService.release();
         mService = null;
     }
 
     @Test
-    @FlakyTest
     public void testActivityLaunch() throws Exception {
         ComponentName activityA = toComponentName(getTestContext(), ActivityA.class);
-        mService.registerActivityLaunchListener(new FilteredLaunchListener(activityA));
-        startActivity(getContext(), activityA);
-        assertTopTaskActivity(activityA);
+        FilteredLaunchListener listenerA = new FilteredLaunchListener(activityA);
+        mService.registerActivityLaunchListener(listenerA);
+        startActivity(activityA);
+        listenerA.assertTopTaskActivityLaunched();
 
         ComponentName activityB = toComponentName(getTestContext(), ActivityB.class);
-        mService.registerActivityLaunchListener(new FilteredLaunchListener(activityB));
-        startActivity(getContext(), activityB);
-        assertTopTaskActivity(activityB);
+        FilteredLaunchListener listenerB = new FilteredLaunchListener(activityB);
+        mService.registerActivityLaunchListener(listenerB);
+        startActivity(activityB);
+        listenerB.assertTopTaskActivityLaunched();
     }
 
     @Test
-    @FlakyTest
     public void testActivityBlocking() throws Exception {
         ComponentName blackListedActivity = toComponentName(getTestContext(), ActivityC.class);
         ComponentName blockingActivity = toComponentName(getTestContext(), BlockingActivity.class);
@@ -96,28 +93,33 @@ public class SystemActivityMonitoringServiceTest {
         blockingIntent.setComponent(blockingActivity);
 
         // start a black listed activity
-        mService.registerActivityLaunchListener(new FilteredLaunchListener(blackListedActivity));
-        startActivity(getContext(), blackListedActivity);
-        assertTopTaskActivity(blackListedActivity);
+        FilteredLaunchListener listenerBlackListed =
+                new FilteredLaunchListener(blackListedActivity);
+        mService.registerActivityLaunchListener(listenerBlackListed);
+        startActivity(blackListedActivity);
+        listenerBlackListed.assertTopTaskActivityLaunched();
 
         // Instead of start activity, invoke blockActivity.
-        mService.registerActivityLaunchListener(new FilteredLaunchListener(blockingActivity));
-        mService.blockActivity(mTopTaskInfo[0], blockingIntent);
-        assertTopTaskActivity(blockingActivity);
+        FilteredLaunchListener listenerBlocking = new FilteredLaunchListener(blockingActivity);
+        mService.registerActivityLaunchListener(listenerBlocking);
+        mService.blockActivity(listenerBlackListed.mTopTask, blockingIntent);
+        listenerBlocking.assertTopTaskActivityLaunched();
     }
 
     @Test
-    @FlakyTest
     public void testRemovesFromTopTasks() throws Exception {
-        ComponentName activityThatFinishesImmediately =
-                toComponentName(getTestContext(), ActivityThatFinishesImmediately.class);
-        startActivity(getContext(), activityThatFinishesImmediately);
-        waitUntil(() -> topTasksHasComponent(activityThatFinishesImmediately));
-        waitUntil(() -> !topTasksHasComponent(activityThatFinishesImmediately));
+        ComponentName activityA = toComponentName(getTestContext(), ActivityA.class);
+        FilteredLaunchListener listenerA = new FilteredLaunchListener(activityA);
+        mService.registerActivityLaunchListener(listenerA);
+        Activity launchedActivity = startActivity(activityA);
+        listenerA.assertTopTaskActivityLaunched();
+        assertTrue(topTasksHasComponent(activityA));
+
+        getInstrumentation().runOnMainSync(launchedActivity::finish);
+        waitUntil(() -> !topTasksHasComponent(activityA));
     }
 
     @Test
-    @FlakyTest
     public void testGetTopTasksOnMultiDisplay() throws Exception {
         String virtualDisplayName = "virtual_display";
         DisplayManager displayManager = getContext().getSystemService(DisplayManager.class);
@@ -125,23 +127,28 @@ public class SystemActivityMonitoringServiceTest {
                 virtualDisplayName, 10, 10, 10, null, 0);
 
         ComponentName activityA = toComponentName(getTestContext(), ActivityA.class);
-        startActivity(getContext(), activityA, Display.DEFAULT_DISPLAY);
-        waitUntil(() -> topTasksHasComponent(activityA));
+        FilteredLaunchListener listenerA = new FilteredLaunchListener(activityA);
+        mService.registerActivityLaunchListener(listenerA);
+        startActivity(activityA, Display.DEFAULT_DISPLAY);
+        listenerA.assertTopTaskActivityLaunched();
+        assertTrue(topTasksHasComponent(activityA));
 
         ComponentName activityB = toComponentName(getTestContext(), ActivityB.class);
-        startActivity(getContext(), activityB, virtualDisplay.getDisplay().getDisplayId());
-        waitUntil(() -> topTasksHasComponent(activityB));
+        FilteredLaunchListener listenerB = new FilteredLaunchListener(activityB);
+        mService.registerActivityLaunchListener(listenerB);
+        startActivity(activityB, virtualDisplay.getDisplay().getDisplayId());
+        listenerB.assertTopTaskActivityLaunched();
+        assertTrue(topTasksHasComponent(activityB));
 
         virtualDisplay.release();
     }
 
-    private void waitUntil(BooleanSupplier condition) throws Exception {
-        while (!condition.getAsBoolean()) {
-            boolean didAquire =
-                    mActivityLaunchSemaphore.tryAcquire(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-            if (!didAquire && !condition.getAsBoolean()) {
-                throw new RuntimeException("failed while waiting for condition to become true");
-            }
+    private void waitUntil(BooleanSupplier condition) {
+        for (long i = DEFAULT_TIMEOUT_MS / SLEEP_MS; !condition.getAsBoolean() && i > 0; --i) {
+            SystemClock.sleep(SLEEP_MS);
+        }
+        if (!condition.getAsBoolean()) {
+            throw new RuntimeException("failed while waiting for condition to become true");
         }
     }
 
@@ -169,41 +176,28 @@ public class SystemActivityMonitoringServiceTest {
 
     public static class ActivityC extends TempActivity {}
 
-    public static class ActivityThatFinishesImmediately extends Activity {
-
-        @Override
-        protected void onResume() {
-            super.onResume();
-            finish();
-        }
-    }
-
     public static class BlockingActivity extends TempActivity {}
 
-    private void assertTopTaskActivity(ComponentName activity) throws Exception {
-        assertTrue(mActivityLaunchSemaphore.tryAcquire(DEFAULT_TIMEOUT_SECONDS, TimeUnit.SECONDS));
-        synchronized (mTopTaskInfo) {
-            assertEquals(activity, mTopTaskInfo[0].topActivity);
-        }
-    }
-
     private Context getContext() {
-        return InstrumentationRegistry.getInstrumentation().getTargetContext();
+        return getInstrumentation().getTargetContext();
     }
 
     private Context getTestContext() {
-        return InstrumentationRegistry.getInstrumentation().getContext();
+        return getInstrumentation().getContext();
     }
 
     private static ComponentName toComponentName(Context ctx, Class<?> cls) {
         return ComponentName.createRelative(ctx, cls.getName());
     }
 
-    private static void startActivity(Context ctx, ComponentName name) {
-        startActivity(ctx, name, Display.DEFAULT_DISPLAY);
+    private Activity startActivity(ComponentName name) {
+        return startActivity(name, Display.DEFAULT_DISPLAY);
     }
 
-    private static void startActivity(Context ctx, ComponentName name, int displayId) {
+    private Activity startActivity(ComponentName name, int displayId) {
+        ActivityMonitor monitor = new ActivityMonitor(name.getClassName(), null, false);
+        getInstrumentation().addMonitor(monitor);
+
         Intent intent = new Intent();
         intent.setComponent(name);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -211,21 +205,23 @@ public class SystemActivityMonitoringServiceTest {
         ActivityOptions options = ActivityOptions.makeBasic();
         options.setLaunchDisplayId(displayId);
 
-        ctx.startActivity(intent, options.toBundle());
+        getContext().startActivity(intent, options.toBundle());
+        return monitor.waitForActivityWithTimeout(ACTIVITY_TIMEOUT_MS);
     }
 
     private class FilteredLaunchListener
             implements SystemActivityMonitoringService.ActivityLaunchListener {
 
-        @Nullable
         private final ComponentName mDesiredComponent;
+        private final CountDownLatch mActivityLaunched = new CountDownLatch(1);
+        private TopTaskInfoContainer mTopTask;
 
         /**
          * Creates an instance of an
          * {@link com.android.car.SystemActivityMonitoringService.ActivityLaunchListener}
          * that filters based on the component name or does not filter if component name is null.
          */
-        FilteredLaunchListener(@Nullable ComponentName desiredComponent) {
+        FilteredLaunchListener(@NonNull ComponentName desiredComponent) {
             mDesiredComponent = desiredComponent;
         }
 
@@ -237,16 +233,19 @@ public class SystemActivityMonitoringServiceTest {
                         + topTask.topActivity.getClassName());
                 return;
             }
-            if (mDesiredComponent != null && !topTask.topActivity.equals(mDesiredComponent)) {
+            if (!topTask.topActivity.equals(mDesiredComponent)) {
                 Log.d(TAG, String.format("Unexpected component: %s. Expected: %s",
                         topTask.topActivity.getClassName(), mDesiredComponent));
                 return;
             }
-
-            synchronized (mTopTaskInfo) {
-                mTopTaskInfo[0] = topTask;
+            if (mTopTask == null) {  // We are interested in the first one only.
+                mTopTask = topTask;
             }
-            mActivityLaunchSemaphore.release();
+            mActivityLaunched.countDown();
+        }
+
+        void assertTopTaskActivityLaunched() throws InterruptedException {
+            assertTrue(mActivityLaunched.await(DEFAULT_TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
 }
