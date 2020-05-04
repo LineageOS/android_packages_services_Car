@@ -18,8 +18,11 @@ package android.car.test.mocks;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.notNull;
+import static org.mockito.Mockito.when;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -28,6 +31,7 @@ import android.annotation.NonNull;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.os.UserManager;
+import android.provider.Settings;
 import android.util.Log;
 import android.util.Slog;
 
@@ -49,6 +53,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -78,12 +83,12 @@ public abstract class AbstractExtendedMockitoTestCase {
     private static final String TAG = AbstractExtendedMockitoTestCase.class.getSimpleName();
 
     private final List<Class<?>> mStaticSpiedClasses = new ArrayList<>();
-    private final List<Class<?>> mStaticMockedClasses = new ArrayList<>();
 
     // Tracks (S)Log.wtf() calls made during code execution, then used on verifyWtfNeverLogged()
     private final List<RuntimeException> mWtfs = new ArrayList<>();
 
     private MockitoSession mSession;
+    private MockSettings mSettings;
 
     @Rule
     public final WtfCheckerRule mWtfCheckerRule = new WtfCheckerRule();
@@ -92,7 +97,7 @@ public abstract class AbstractExtendedMockitoTestCase {
     public final void startSession() {
         if (VERBOSE) Log.v(TAG, getLogPrefix() + "startSession()");
         mSession = newSessionBuilder().startMocking();
-
+        mSettings = new MockSettings();
         interceptWtfCalls();
     }
 
@@ -102,6 +107,34 @@ public abstract class AbstractExtendedMockitoTestCase {
         if (mSession != null) {
             mSession.finishMocking();
         }
+    }
+
+    /**
+     * Adds key-value(int) pair in mocked Settings.Global and Settings.Secure
+     */
+    protected void putSettingsInt(@NonNull String key, int value) {
+        mSettings.insertInt(key, value);
+    }
+
+    /**
+     * Gets value(int) from mocked Settings.Global and Settings.Secure
+     */
+    protected int getSettingsInt(@NonNull String key) {
+        return mSettings.getInt(key);
+    }
+
+    /**
+     * Adds key-value(String) pair in mocked Settings.Global and Settings.Secure
+     */
+    protected void putSettingsString(@NonNull String key, @NonNull String value) {
+        mSettings.insertString(key, value);
+    }
+
+    /**
+     * Gets value(String) from mocked Settings.Global and Settings.Secure
+     */
+    protected String getSettingsString(@NonNull String key) {
+        return mSettings.getString(key);
     }
 
     /**
@@ -197,12 +230,17 @@ public abstract class AbstractExtendedMockitoTestCase {
 
     @NonNull
     private MockitoSessionBuilder newSessionBuilder() {
+        // TODO (b/155523104): change from mock to spy
         StaticMockitoSessionBuilder builder = mockitoSession()
-                .strictness(getSessionStrictness());
+                .strictness(getSessionStrictness())
+                .mockStatic(Settings.Global.class)
+                .mockStatic(Settings.Secure.class);
+
         CustomMockitoSessionBuilder customBuilder =
-                new CustomMockitoSessionBuilder(builder, mStaticSpiedClasses, mStaticMockedClasses)
+                new CustomMockitoSessionBuilder(builder, mStaticSpiedClasses)
                     .spyStatic(Log.class)
                     .spyStatic(Slog.class);
+
         onSessionBuilder(customBuilder);
         return builder.initMocks(this);
     }
@@ -221,34 +259,17 @@ public abstract class AbstractExtendedMockitoTestCase {
      * (like {@link AbstractExtendedMockitoTestCase#mockGetCurrentUser(int)} fail if the test case
      * didn't explicitly set it to spy / mock the required classes.
      *
-     * <p><b>NOTE: </b>for now it only provides simple {@link #mockStatic(Class)} and
-     * {@link #spyStatic(Class)}, but more methods (as provided by
-     * {@link StaticMockitoSessionBuilder}) could be provided as needed.
+     * <p><b>NOTE: </b>for now it only provides simple {@link #spyStatic(Class)}, but more methods
+     * (as provided by {@link StaticMockitoSessionBuilder}) could be provided as needed.
      */
     public static final class CustomMockitoSessionBuilder {
         private final StaticMockitoSessionBuilder mBuilder;
         private final List<Class<?>> mStaticSpiedClasses;
-        private final List<Class<?>> mStaticMockedClasses;
 
         private CustomMockitoSessionBuilder(StaticMockitoSessionBuilder builder,
-                List<Class<?>> staticSpiedClasses, List<Class<?>> staticMockedClasses) {
+                List<Class<?>> staticSpiedClasses) {
             mBuilder = builder;
             mStaticSpiedClasses = staticSpiedClasses;
-            mStaticMockedClasses = staticMockedClasses;
-        }
-
-        // TODO(b/148403316): this is only used to mock Settings.Global / Settings.Secure, and using
-        // spy on such occurrence doesn't work - hopefully we can get rid of this method by
-        // refactoring how Settings are mocked.
-        /**
-         * Same as {@link StaticMockitoSessionBuilder#mockStatic(Class)}.
-         */
-        public <T> CustomMockitoSessionBuilder mockStatic(Class<T> clazz) {
-            Preconditions.checkState(!mStaticMockedClasses.contains(clazz),
-                    "already called mockStatic() on " + clazz);
-            mStaticMockedClasses.add(clazz);
-            mBuilder.mockStatic(clazz);
-            return this;
         }
 
         /**
@@ -288,6 +309,74 @@ public abstract class AbstractExtendedMockitoTestCase {
                     }
                 }
             };
+        }
+    }
+
+    // TODO (b/155523104): Add log
+    private static final class MockSettings {
+        private HashMap<String, Integer> mIntMapping = new HashMap<String, Integer>();
+        private HashMap<String, String> mStringMapping = new HashMap<String, String>();
+
+        MockSettings() {
+            when(Settings.Global.putInt(any(), any(), anyInt())).thenAnswer(invocation -> {
+                String key = (String) invocation.getArguments()[1];
+                int value = (int) invocation.getArguments()[2];
+                insertInt(key, value);
+                return null;
+            });
+
+            when(Settings.Global.getInt(any(), any(), anyInt())).thenAnswer(invocation -> {
+                String key = (String) invocation.getArguments()[1];
+                int defaultValue = (int) invocation.getArguments()[2];
+                return getInt(key, defaultValue);
+            });
+
+            when(Settings.Secure.putIntForUser(any(), any(), anyInt(), anyInt()))
+                    .thenAnswer(invocation -> {
+                        String key = (String) invocation.getArguments()[1];
+                        int value = (int) invocation.getArguments()[2];
+                        insertInt(key, value);
+                        return null;
+                    });
+
+            when(Settings.Secure.getIntForUser(any(), any(), anyInt(), anyInt()))
+                    .thenAnswer(invocation -> {
+                        String key = (String) invocation.getArguments()[1];
+                        int defaultValue = (int) invocation.getArguments()[2];
+                        return getInt(key, defaultValue);
+                    });
+
+            when(Settings.Global.putString(any(), any(), any())).thenAnswer(invocation -> {
+                String key = (String) invocation.getArguments()[1];
+                String value = (String) invocation.getArguments()[2];
+                insertString(key, value);
+                return null;
+            });
+
+            when(Settings.Global.getString(any(), any())).thenAnswer(invocation -> {
+                String key = (String) invocation.getArguments()[1];
+                return getString(key);
+            });
+        }
+
+        public void insertInt(String key, int value) {
+            mIntMapping.put(key, value);
+        }
+
+        public int getInt(String key) {
+            return mIntMapping.get(key);
+        }
+
+        public int getInt(String key, int defaultValue) {
+            return mIntMapping.getOrDefault(key, defaultValue);
+        }
+
+        public void insertString(String key, String value) {
+            mStringMapping.put(key, value);
+        }
+
+        public String getString(String key) {
+            return mStringMapping.get(key);
         }
     }
 
