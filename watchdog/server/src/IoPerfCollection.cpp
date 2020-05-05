@@ -56,8 +56,8 @@ using android::content::pm::IPackageManagerNative;
 
 namespace {
 
-const int32_t kDefaultTopNStatsPerCategory = 5;
-const int32_t kDefaultTopNStatsPerSubcategory = 3;
+const int32_t kDefaultTopNStatsPerCategory = 10;
+const int32_t kDefaultTopNStatsPerSubcategory = 5;
 const std::chrono::seconds kDefaultBoottimeCollectionInterval = 1s;
 const std::chrono::seconds kDefaultPeriodicCollectionInterval = 10s;
 // Number of periodic collection perf data snapshots to cache in memory.
