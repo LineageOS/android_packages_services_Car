@@ -19,10 +19,6 @@ import static com.android.car.audio.CarAudioService.DEFAULT_AUDIO_CONTEXT;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.expectThrows;
@@ -59,6 +55,8 @@ public class CarAudioZonesHelperTest {
     private InputStream mInputStream;
     private Context mContext;
     private CarAudioSettings mCarAudioSettings;
+
+    private static final String PRIMARY_ZONE_NAME = "primary zone";
 
     private static final String BUS_0_ADDRESS = "bus0_media_out";
     private static final String BUS_1_ADDRESS = "bus1_navigation_out";
@@ -140,9 +138,9 @@ public class CarAudioZonesHelperTest {
         CarAudioZonesHelper cazh = new CarAudioZonesHelper(mCarAudioSettings, mInputStream,
                 mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
 
-        CarAudioZone[] zones = cazh.loadAudioZones();
+        List<CarAudioZone> zoneList = Arrays.asList(cazh.loadAudioZones());
 
-        assertThat(zones.length).isEqualTo(2);
+        assertThat(zoneList).hasSize(2);
     }
 
     @Test
@@ -168,7 +166,7 @@ public class CarAudioZonesHelperTest {
         List<Integer> zoneIds = getListOfZoneIds(zones);
         assertThat(zoneIds.size()).isEqualTo(2);
         assertThat(zoneIds)
-                .containsAllOf(CarAudioManager.PRIMARY_AUDIO_ZONE, SECONDARY_ZONE_ID).inOrder();
+                .containsExactly(CarAudioManager.PRIMARY_AUDIO_ZONE, SECONDARY_ZONE_ID).inOrder();
     }
 
     @Test
@@ -178,7 +176,7 @@ public class CarAudioZonesHelperTest {
 
         CarAudioZone[] zones = cazh.loadAudioZones();
 
-        assertEquals(2, zones.length);
+        assertThat(zones.length).isEqualTo(2);
 
         SparseIntArray audioZoneIdToOccupantZoneIdMapping =
                 cazh.getCarAudioZoneIdToOccupantZoneIdMapping();
@@ -196,7 +194,7 @@ public class CarAudioZonesHelperTest {
         CarAudioZone[] zones = cazh.loadAudioZones();
 
         CarAudioZone primaryZone = zones[0];
-        assertEquals("primary zone", primaryZone.getName());
+        assertThat(primaryZone.getName()).isEqualTo(PRIMARY_ZONE_NAME);
     }
 
     @Test
@@ -207,10 +205,10 @@ public class CarAudioZonesHelperTest {
         CarAudioZone[] zones = cazh.loadAudioZones();
 
         CarAudioZone primaryZone = zones[0];
-        assertTrue(primaryZone.isPrimaryZone());
+        assertThat(primaryZone.isPrimaryZone()).isTrue();
 
         CarAudioZone rseZone = zones[1];
-        assertFalse(rseZone.isPrimaryZone());
+        assertThat(rseZone.isPrimaryZone()).isFalse();
     }
 
     @Test
@@ -221,7 +219,7 @@ public class CarAudioZonesHelperTest {
         CarAudioZone[] zones = cazh.loadAudioZones();
 
         CarAudioZone primaryZone = zones[0];
-        assertEquals(2, primaryZone.getVolumeGroupCount());
+        assertThat(primaryZone.getVolumeGroupCount()).isEqualTo(2);
     }
 
     @Test
@@ -234,9 +232,7 @@ public class CarAudioZonesHelperTest {
         CarAudioZone primaryZone = zones[0];
         CarVolumeGroup volumeGroup = primaryZone.getVolumeGroups()[0];
         List<String> addresses = volumeGroup.getAddresses();
-        assertEquals(2, addresses.size());
-        assertEquals(BUS_0_ADDRESS, addresses.get(0));
-        assertEquals(BUS_3_ADDRESS, addresses.get(1));
+        assertThat(addresses).containsExactly(BUS_0_ADDRESS, BUS_3_ADDRESS);
     }
 
     @Test
@@ -248,14 +244,17 @@ public class CarAudioZonesHelperTest {
 
         CarAudioZone primaryZone = zones[0];
         CarVolumeGroup volumeGroup = primaryZone.getVolumeGroups()[0];
-        int[] expectedContextForBus0 = {CarAudioContext.MUSIC};
-        assertArrayEquals(expectedContextForBus0, volumeGroup.getContextsForAddress(BUS_0_ADDRESS));
+        assertThat(volumeGroup.getContextsForAddress(BUS_0_ADDRESS)).asList()
+                .containsExactly(CarAudioContext.MUSIC);
 
-        int[] expectedContextForBus100 = CarAudioContext.CONTEXTS;
         CarAudioZone rearSeatEntertainmentZone = zones[1];
         CarVolumeGroup rseVolumeGroup = rearSeatEntertainmentZone.getVolumeGroups()[0];
-        int[] contextForBus100 = rseVolumeGroup.getContextsForAddress(BUS_100_ADDRESS);
-        assertArrayEquals(expectedContextForBus100, contextForBus100);
+        List<Integer> contextForBus100List =
+                Arrays.stream(rseVolumeGroup.getContextsForAddress(BUS_100_ADDRESS))
+                        .boxed().collect(Collectors.toList());
+        List<Integer> contextsList =
+                Arrays.stream(CarAudioContext.CONTEXTS).boxed().collect(Collectors.toList());
+        assertThat(contextForBus100List).containsExactlyElementsIn(contextsList);
     }
 
     @Test
@@ -285,7 +284,7 @@ public class CarAudioZonesHelperTest {
 
         CarAudioZonesHelper cazh =
                 new CarAudioZonesHelper(mCarAudioSettings, v1NonLegacyContextStream,
-                mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
+                        mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
 
         IllegalArgumentException exception = expectThrows(IllegalArgumentException.class,
                 cazh::loadAudioZones);
@@ -302,9 +301,9 @@ public class CarAudioZonesHelperTest {
 
         CarAudioZone primaryZone = zones[0];
         List<DisplayAddress.Physical> primaryPhysicals = primaryZone.getPhysicalDisplayAddresses();
-        assertEquals(2, primaryPhysicals.size());
-        assertEquals(1, primaryPhysicals.get(0).getPort());
-        assertEquals(2, primaryPhysicals.get(1).getPort());
+        assertThat(primaryPhysicals).hasSize(2);
+        assertThat(primaryPhysicals.get(0).getPort()).isEqualTo(1);
+        assertThat(primaryPhysicals.get(1).getPort()).isEqualTo(2);
     }
 
     @Test
@@ -316,7 +315,7 @@ public class CarAudioZonesHelperTest {
 
         CarAudioZone rseZone = zones[1];
         List<DisplayAddress.Physical> rsePhysicals = rseZone.getPhysicalDisplayAddresses();
-        assertTrue(rsePhysicals.isEmpty());
+        assertThat(rsePhysicals).isEmpty();
     }
 
     @Test(expected = RuntimeException.class)
@@ -325,7 +324,7 @@ public class CarAudioZonesHelperTest {
                 R.raw.car_audio_configuration_duplicate_ports)) {
             CarAudioZonesHelper cazh =
                     new CarAudioZonesHelper(mCarAudioSettings, duplicatePortStream,
-                    mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
+                            mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
 
             cazh.loadAudioZones();
         }
@@ -349,7 +348,7 @@ public class CarAudioZonesHelperTest {
                 R.raw.car_audio_configuration_no_audio_zone_id_for_primary_zone)) {
             CarAudioZonesHelper cazh =
                     new CarAudioZonesHelper(mCarAudioSettings, missingAudioZoneIdStream,
-                    mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
+                            mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
 
             CarAudioZone[] zones = cazh.loadAudioZones();
 
@@ -380,7 +379,7 @@ public class CarAudioZonesHelperTest {
                 R.raw.car_audio_configuration_V1_with_occupant_zone_id)) {
             CarAudioZonesHelper cazh =
                     new CarAudioZonesHelper(mCarAudioSettings, versionOneOccupantIdStream,
-                    mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
+                            mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
             IllegalArgumentException thrown =
                     expectThrows(IllegalArgumentException.class,
                             () -> cazh.loadAudioZones());
@@ -394,7 +393,7 @@ public class CarAudioZonesHelperTest {
                 R.raw.car_audio_configuration_with_input_devices)) {
             CarAudioZonesHelper cazh =
                     new CarAudioZonesHelper(mCarAudioSettings, inputDevicesStream,
-                    mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
+                            mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
 
             CarAudioZone[] zones = cazh.loadAudioZones();
 
@@ -406,7 +405,7 @@ public class CarAudioZonesHelperTest {
             List<String> primaryZoneInputAddresses =
                     primaryZoneInputDevices.stream().map(a -> a.getAddress()).collect(
                             Collectors.toList());
-            assertThat(primaryZoneInputAddresses).containsAllOf(PRIMARY_ZONE_FM_TUNER_ADDRESS,
+            assertThat(primaryZoneInputAddresses).containsExactly(PRIMARY_ZONE_FM_TUNER_ADDRESS,
                     PRIMARY_ZONE_MICROPHONE_ADDRESS).inOrder();
 
             CarAudioZone secondaryZone = zones[1];
@@ -415,7 +414,7 @@ public class CarAudioZonesHelperTest {
             List<String> secondaryZoneInputAddresses =
                     secondaryZoneInputDevices.stream().map(a -> a.getAddress()).collect(
                             Collectors.toList());
-            assertThat(secondaryZoneInputAddresses).containsAllOf(
+            assertThat(secondaryZoneInputAddresses).containsExactly(
                     SECONDARY_ZONE_BUS_1000_INPUT_ADDRESS,
                     SECONDARY_ZONE_BACK_MICROPHONE_ADDRESS).inOrder();
         }
@@ -441,7 +440,7 @@ public class CarAudioZonesHelperTest {
                 R.raw.car_audio_configuration_duplicate_audio_zone_id)) {
             CarAudioZonesHelper cazh =
                     new CarAudioZonesHelper(mCarAudioSettings, duplicateAudioZoneIdStream,
-                    mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
+                            mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
             IllegalArgumentException thrown =
                     expectThrows(IllegalArgumentException.class,
                             () -> cazh.loadAudioZones());
@@ -455,7 +454,7 @@ public class CarAudioZonesHelperTest {
                 R.raw.car_audio_configuration_empty_input_device)) {
             CarAudioZonesHelper cazh =
                     new CarAudioZonesHelper(mCarAudioSettings, inputDevicesStream,
-                    mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
+                            mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
 
             IllegalArgumentException thrown =
                     expectThrows(IllegalArgumentException.class,
@@ -470,7 +469,7 @@ public class CarAudioZonesHelperTest {
                 R.raw.car_audio_configuration_non_numerical_audio_zone_id)) {
             CarAudioZonesHelper cazh =
                     new CarAudioZonesHelper(mCarAudioSettings, nonNumericalStream,
-                    mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
+                            mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
             IllegalArgumentException thrown =
                     expectThrows(IllegalArgumentException.class,
                             () -> cazh.loadAudioZones());
@@ -484,7 +483,7 @@ public class CarAudioZonesHelperTest {
                 R.raw.car_audio_configuration_negative_audio_zone_id)) {
             CarAudioZonesHelper cazh =
                     new CarAudioZonesHelper(mCarAudioSettings, negativeAudioZoneIdStream,
-                    mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
+                            mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
             IllegalArgumentException thrown =
                     expectThrows(IllegalArgumentException.class,
                             () -> cazh.loadAudioZones());
@@ -498,7 +497,7 @@ public class CarAudioZonesHelperTest {
                 R.raw.car_audio_configuration_missing_address)) {
             CarAudioZonesHelper cazh =
                     new CarAudioZonesHelper(mCarAudioSettings, inputDevicesStream,
-                    mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
+                            mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
 
             NullPointerException thrown =
                     expectThrows(NullPointerException.class,
@@ -513,7 +512,7 @@ public class CarAudioZonesHelperTest {
                 R.raw.car_audio_configuration_non_numerical_occupant_zone_id)) {
             CarAudioZonesHelper cazh =
                     new CarAudioZonesHelper(mCarAudioSettings, nonNumericalStream,
-                    mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
+                            mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
             IllegalArgumentException thrown =
                     expectThrows(IllegalArgumentException.class,
                             () -> cazh.loadAudioZones());
@@ -541,7 +540,7 @@ public class CarAudioZonesHelperTest {
                 R.raw.car_audio_configuration_non_existent_input_device)) {
             CarAudioZonesHelper cazh =
                     new CarAudioZonesHelper(mCarAudioSettings, inputDevicesStream,
-                    mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
+                            mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
 
             IllegalArgumentException thrown =
                     expectThrows(IllegalArgumentException.class,
@@ -556,7 +555,7 @@ public class CarAudioZonesHelperTest {
                 R.raw.car_audio_configuration_empty_occupant_zone_id)) {
             CarAudioZonesHelper cazh =
                     new CarAudioZonesHelper(mCarAudioSettings, emptyOccupantZoneIdStream,
-                    mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
+                            mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
             IllegalArgumentException thrown =
                     expectThrows(IllegalArgumentException.class,
                             () -> cazh.loadAudioZones());
@@ -570,7 +569,7 @@ public class CarAudioZonesHelperTest {
                 R.raw.car_audio_configuration_primary_zone_with_non_zero_audio_zone_id)) {
             CarAudioZonesHelper cazh =
                     new CarAudioZonesHelper(mCarAudioSettings, nonZeroForPrimaryStream,
-                    mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
+                            mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
             IllegalArgumentException thrown =
                     expectThrows(IllegalArgumentException.class,
                             () -> cazh.loadAudioZones());
@@ -588,7 +587,7 @@ public class CarAudioZonesHelperTest {
             IllegalArgumentException thrown =
                     expectThrows(IllegalArgumentException.class,
                             () -> cazh.loadAudioZones());
-            assertThat(thrown).hasMessageThat().contains("for primary zone");
+            assertThat(thrown).hasMessageThat().contains(PRIMARY_ZONE_NAME);
         }
     }
 
@@ -598,7 +597,7 @@ public class CarAudioZonesHelperTest {
                 R.raw.car_audio_configuration_repeat_input_device)) {
             CarAudioZonesHelper cazh =
                     new CarAudioZonesHelper(mCarAudioSettings, inputDevicesStream,
-                    mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
+                            mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
 
             IllegalArgumentException thrown =
                     expectThrows(IllegalArgumentException.class,
@@ -613,7 +612,7 @@ public class CarAudioZonesHelperTest {
                 R.raw.car_audio_configuration_output_address_does_not_exist)) {
             CarAudioZonesHelper cazh =
                     new CarAudioZonesHelper(mCarAudioSettings, outputDevicesStream,
-                    mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
+                            mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
 
             IllegalStateException thrown =
                     expectThrows(IllegalStateException.class,
