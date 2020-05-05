@@ -15,13 +15,13 @@
  */
 package com.android.car.user;
 
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
+import android.annotation.UserIdInt;
 import android.car.Car;
 import android.car.ICarUserService;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
@@ -57,16 +57,16 @@ public final class ExperimentalCarUserManagerUnitTest extends AbstractExtendedMo
 
     @Test
     public void testCreateDriver_Success_Admin() throws Exception {
-        expectCreateDriverSucceed();
+        expectCreateDriverSucceed(10);
         int userId = mManager.createDriver("test driver", true);
-        assertThat(userId).isNotEqualTo(UserHandle.USER_NULL);
+        assertThat(userId).isEqualTo(10);
     }
 
     @Test
     public void testCreateDriver_Success_NonAdmin() throws Exception {
-        expectCreateDriverSucceed();
+        expectCreateDriverSucceed(10);
         int userId = mManager.createDriver("test driver", false);
-        assertThat(userId).isNotEqualTo(UserHandle.USER_NULL);
+        assertThat(userId).isEqualTo(10);
     }
 
     @Test
@@ -107,22 +107,22 @@ public final class ExperimentalCarUserManagerUnitTest extends AbstractExtendedMo
     @Test
     public void testGetAllDrivers() throws Exception {
         List<UserInfo> userInfos = UserTestingHelper.newUsers(10, 20, 30);
-        doReturn(userInfos).when(mService).getAllDrivers();
+        when(mService.getAllDrivers()).thenReturn(userInfos);
         List<Integer> drivers = mManager.getAllDrivers();
-        assertThat(drivers.equals(Arrays.asList(10, 20, 30))).isTrue();
+        assertThat(drivers).containsExactly(10, 20, 30);
     }
 
     @Test
     public void testGetAllPassengers() throws Exception {
         List<UserInfo> userInfos = UserTestingHelper.newUsers(100, 101, 102);
-        doReturn(userInfos).when(mService).getPassengers(10);
-        doReturn(Arrays.asList()).when(mService).getPassengers(20);
+        when(mService.getPassengers(10)).thenReturn(userInfos);
+        when(mService.getPassengers(20)).thenReturn(Arrays.asList());
 
         List<Integer> passengers = mManager.getPassengers(10);
-        assertThat(passengers.equals(Arrays.asList(100, 101, 102))).isTrue();
+        assertThat(passengers).containsExactly(100, 101, 102);
 
         passengers = mManager.getPassengers(20);
-        assertThat(passengers.size()).isEqualTo(0);
+        assertThat(passengers).isEmpty();
     }
 
     @Test
@@ -153,45 +153,45 @@ public final class ExperimentalCarUserManagerUnitTest extends AbstractExtendedMo
         assertThat(success).isFalse();
     }
 
-    private void expectCreateDriverSucceed() throws Exception {
-        UserInfo userInfo = UserTestingHelper.newUser(10);
-        doReturn(userInfo).when(mService).createDriver(eq("test driver"), anyBoolean());
+    private void expectCreateDriverSucceed(@UserIdInt int userId) throws Exception {
+        UserInfo userInfo = UserTestingHelper.newUser(userId);
+        when(mService.createDriver(eq("test driver"), anyBoolean())).thenReturn(userInfo);
     }
 
     private void expectCreateDriverFail() throws Exception {
-        doReturn(null).when(mService).createDriver(eq("test driver"), anyBoolean());
+        when(mService.createDriver(eq("test driver"), anyBoolean())).thenReturn(null);
     }
 
     private void expectCreatePassengerSucceed() throws Exception {
         UserInfo userInfo = UserTestingHelper.newUser(100);
-        doReturn(userInfo).when(mService).createPassenger("test passenger", 10);
+        when(mService.createPassenger("test passenger", /* driverId = */ 10)).thenReturn(userInfo);
     }
 
     private void expectCreatePassengerFail() throws Exception {
-        doReturn(null).when(mService).createPassenger("test passenger", 10);
+        when(mService.createPassenger("test passenger", /* driverId = */ 10)).thenReturn(null);
     }
 
     private void expectSwitchDriverSucceed() throws Exception {
-        doReturn(true).when(mService).switchDriver(10);
+        when(mService.switchDriver(10)).thenReturn(true);
     }
 
     private void expectSwitchDriverFail() throws Exception {
-        doReturn(false).when(mService).switchDriver(20);
+        when(mService.switchDriver(20)).thenReturn(false);
     }
 
     private void expectStartPassengerSucceed() throws Exception {
-        doReturn(true).when(mService).startPassenger(100, 1);
+        when(mService.startPassenger(100, /* zoneId = */ 1)).thenReturn(true);
     }
 
     private void expectStartPassengerFail() throws Exception {
-        doReturn(false).when(mService).startPassenger(200, 1);
+        when(mService.startPassenger(200, /* zoneId = */ 1)).thenReturn(false);
     }
 
     private void expectStopPassengerSucceed() throws Exception {
-        doReturn(true).when(mService).stopPassenger(100);
+        when(mService.stopPassenger(100)).thenReturn(true);
     }
 
     private void expectStopPassengerFail() throws Exception {
-        doReturn(false).when(mService).stopPassenger(200);
+        when(mService.stopPassenger(200)).thenReturn(false);
     }
 }
