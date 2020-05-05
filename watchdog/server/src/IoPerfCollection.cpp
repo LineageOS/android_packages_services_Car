@@ -55,6 +55,7 @@ using android::base::ParseUint;
 using android::base::Result;
 using android::base::Split;
 using android::base::StringAppendF;
+using android::base::StringPrintf;
 using android::base::WriteStringToFd;
 using android::content::pm::IPackageManagerNative;
 
@@ -75,6 +76,24 @@ const std::chrono::nanoseconds kCustomCollectionInterval = 10s;
 const std::chrono::nanoseconds kCustomCollectionDuration = 30min;
 
 const std::string kDumpMajorDelimiter = std::string(100, '-') + "\n";
+
+constexpr const char* kHelpText =
+        "\nCustom I/O performance data collection dump options:\n"
+        "%s: Starts custom I/O performance data collection. Customize the collection behavior with "
+        "the following optional arguments:\n"
+        "\t%s <seconds>: Modifies the collection interval. Default behavior is to collect once "
+        "every %lld seconds.\n"
+        "\t%s <seconds>: Modifies the maximum collection duration. Default behavior is to collect "
+        "until %ld minutes before automatically stopping the custom collection and discarding "
+        "the collected data.\n"
+        "\t%s <package name>,<package, name>,...: Comma-separated value containing package names. "
+        "When provided, the results are filtered only to the provided package names. Default "
+        "behavior is to list the results for the top %d packages.\n"
+        "%s: Stops custom I/O performance data collection and generates a dump of "
+        "the collection report.\n\n"
+        "When no options are specified, the carwatchdog report contains the I/O performance "
+        "data collected during boot-time and over the last %ld minutes before the report "
+        "generation.";
 
 double percentage(uint64_t numer, uint64_t denom) {
     return denom == 0 ? 0.0 : (static_cast<double>(numer) / static_cast<double>(denom)) * 100.0;
@@ -406,8 +425,8 @@ Result<void> IoPerfCollection::dump(int fd, const Vector<String16>& args) {
 
     if (args[0] == String16(kStartCustomCollectionFlag)) {
         if (args.size() > 7) {
-            return Error(INVALID_OPERATION) << "Number of arguments to start custom "
-                                            << "I/O performance data collection cannot exceed 7";
+            return Error(BAD_VALUE) << "Number of arguments to start custom I/O performance data "
+                                    << "collection cannot exceed 7";
         }
         std::chrono::nanoseconds interval = kCustomCollectionInterval;
         std::chrono::nanoseconds maxDuration = kCustomCollectionDuration;
@@ -416,7 +435,7 @@ Result<void> IoPerfCollection::dump(int fd, const Vector<String16>& args) {
             if (args[i] == String16(kIntervalFlag)) {
                 const auto& ret = parseSecondsFlag(args, i + 1);
                 if (!ret) {
-                    return Error(FAILED_TRANSACTION)
+                    return Error(BAD_VALUE)
                             << "Failed to parse " << kIntervalFlag << ": " << ret.error();
                 }
                 interval = std::chrono::duration_cast<std::chrono::nanoseconds>(*ret);
@@ -426,7 +445,7 @@ Result<void> IoPerfCollection::dump(int fd, const Vector<String16>& args) {
             if (args[i] == String16(kMaxDurationFlag)) {
                 const auto& ret = parseSecondsFlag(args, i + 1);
                 if (!ret) {
-                    return Error(FAILED_TRANSACTION)
+                    return Error(BAD_VALUE)
                             << "Failed to parse " << kMaxDurationFlag << ": " << ret.error();
                 }
                 maxDuration = std::chrono::duration_cast<std::chrono::nanoseconds>(*ret);
@@ -435,7 +454,7 @@ Result<void> IoPerfCollection::dump(int fd, const Vector<String16>& args) {
             }
             if (args[i] == String16(kFilterPackagesFlag)) {
                 if (args.size() < i + 1) {
-                    return Error(FAILED_TRANSACTION)
+                    return Error(BAD_VALUE)
                             << "Must provide value for '" << kFilterPackagesFlag << "' flag";
                 }
                 std::vector<std::string> packages =
@@ -447,12 +466,13 @@ Result<void> IoPerfCollection::dump(int fd, const Vector<String16>& args) {
             }
             ALOGW("Unknown flag %s provided to start custom I/O performance data collection",
                   String8(args[i]).string());
-            return Error(INVALID_OPERATION) << "Unknown flag " << String8(args[i]).string()
-                                            << " provided to start custom I/O performance data "
-                                            << "collection";
+            return Error(BAD_VALUE) << "Unknown flag " << String8(args[i]).string()
+                                    << " provided to start custom I/O performance data "
+                                    << "collection";
         }
         const auto& ret = startCustomCollection(interval, maxDuration, filterPackages);
         if (!ret) {
+            WriteStringToFd(ret.error().message(), fd);
             return ret;
         }
         return {};
@@ -460,19 +480,37 @@ Result<void> IoPerfCollection::dump(int fd, const Vector<String16>& args) {
 
     if (args[0] == String16(kEndCustomCollectionFlag)) {
         if (args.size() != 1) {
-            ALOGW("Number of arguments to end custom I/O performance data collection cannot "
-                  "exceed 1");
+            ALOGW("Number of arguments to stop custom I/O performance data collection cannot "
+                  "exceed 1. Stopping the data collection.");
+            WriteStringToFd("Number of arguments to stop custom I/O performance data collection "
+                            "cannot exceed 1. Stopping the data collection.",
+                            fd);
         }
-        const auto& ret = endCustomCollection(fd);
-        if (!ret) {
-            return ret;
-        }
-        return {};
+        return endCustomCollection(fd);
     }
 
-    return Error(INVALID_OPERATION)
-            << "Dump arguments start neither with " << kStartCustomCollectionFlag << " nor with "
-            << kEndCustomCollectionFlag << " flags";
+    return Error(BAD_VALUE) << "I/O perf collection dump arguments start neither with "
+                            << kStartCustomCollectionFlag << " nor with "
+                            << kEndCustomCollectionFlag << " flags";
+}
+
+bool IoPerfCollection::dumpHelpText(int fd) {
+    long periodicCacheMinutes =
+            (std::chrono::duration_cast<std::chrono::seconds>(mPeriodicCollection.interval)
+                     .count() *
+             mPeriodicCollection.maxCacheSize) /
+            60;
+    return WriteStringToFd(StringPrintf(kHelpText, kStartCustomCollectionFlag, kIntervalFlag,
+                                        std::chrono::duration_cast<std::chrono::seconds>(
+                                                kCustomCollectionInterval)
+                                                .count(),
+                                        kMaxDurationFlag,
+                                        std::chrono::duration_cast<std::chrono::minutes>(
+                                                kCustomCollectionDuration)
+                                                .count(),
+                                        kFilterPackagesFlag, mTopNStatsPerCategory,
+                                        kEndCustomCollectionFlag, periodicCacheMinutes),
+                           fd);
 }
 
 Result<void> IoPerfCollection::dumpCollection(int fd) {
