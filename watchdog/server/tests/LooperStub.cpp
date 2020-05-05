@@ -32,7 +32,7 @@ using android::base::Error;
 using android::base::Result;
 
 const std::chrono::milliseconds kLooperPollTimeout = 10ms;
-const std::chrono::milliseconds kStubPollCheckTimeout = 100ms;
+const std::chrono::milliseconds kStubPollCheckTimeout = 200ms;
 
 int LooperStub::pollAll(int /*timeoutMillis*/) {
     {
