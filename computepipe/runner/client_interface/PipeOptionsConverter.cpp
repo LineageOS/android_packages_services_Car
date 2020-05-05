@@ -41,66 +41,66 @@ using ::aidl::android::automotive::computepipe::runner::PipeTerminationConfigTer
 
 namespace {
 
-PipeInputConfigInputType ConvertInputType(proto::InputStreamConfig_InputType type) {
+PipeInputConfigInputType ConvertInputType(proto::InputStreamConfig::InputType type) {
     switch (type) {
-        case proto::InputStreamConfig_InputType_CAMERA:
+        case proto::InputStreamConfig::CAMERA:
             return PipeInputConfigInputType::CAMERA;
-        case proto::InputStreamConfig_InputType_VIDEO_FILE:
+        case proto::InputStreamConfig::VIDEO_FILE:
             return PipeInputConfigInputType::VIDEO_FILE;
-        case proto::InputStreamConfig_InputType_IMAGE_FILES:
+        case proto::InputStreamConfig::IMAGE_FILES:
             return PipeInputConfigInputType::IMAGE_FILES;
     }
 }
 
-PipeInputConfigCameraType ConvertCameraType(proto::CameraConfig_CameraType type) {
+PipeInputConfigCameraType ConvertCameraType(proto::CameraConfig::CameraType type) {
     switch (type) {
-        case proto::CameraConfig_CameraType_DRIVER_VIEW_CAMERA:
+        case proto::CameraConfig::DRIVER_VIEW_CAMERA:
             return PipeInputConfigCameraType::DRIVER_VIEW_CAMERA;
-        case proto::CameraConfig_CameraType_OCCUPANT_VIEW_CAMERA:
+        case proto::CameraConfig::OCCUPANT_VIEW_CAMERA:
             return PipeInputConfigCameraType::OCCUPANT_VIEW_CAMERA;
-        case proto::CameraConfig_CameraType_EXTERNAL_CAMERA:
+        case proto::CameraConfig::EXTERNAL_CAMERA:
             return PipeInputConfigCameraType::EXTERNAL_CAMERA;
-        case proto::CameraConfig_CameraType_SURROUND_VIEW_CAMERA:
+        case proto::CameraConfig::SURROUND_VIEW_CAMERA:
             return PipeInputConfigCameraType::SURROUND_VIEW_CAMERA;
     }
 }
 
-PipeInputConfigImageFileType ConvertImageFileType(proto::ImageFileConfig_ImageFileType type) {
+PipeInputConfigImageFileType ConvertImageFileType(proto::ImageFileConfig::ImageFileType type) {
     switch (type) {
-        case proto::ImageFileConfig_ImageFileType_JPEG:
+        case proto::ImageFileConfig::JPEG:
             return PipeInputConfigImageFileType::JPEG;
-        case proto::ImageFileConfig_ImageFileType_PNG:
+        case proto::ImageFileConfig::PNG:
             return PipeInputConfigImageFileType::PNG;
     }
 }
 
-PipeInputConfigVideoFileType ConvertVideoFileType(proto::VideoFileConfig_VideoFileType type) {
+PipeInputConfigVideoFileType ConvertVideoFileType(proto::VideoFileConfig::VideoFileType type) {
     switch (type) {
-        case proto::VideoFileConfig_VideoFileType_MPEG:
+        case proto::VideoFileConfig::MPEG:
             return PipeInputConfigVideoFileType::MPEG;
     }
 }
 
-PipeInputConfigFormatType ConvertInputFormat(proto::InputStreamConfig_FormatType type) {
+PipeInputConfigFormatType ConvertInputFormat(proto::InputStreamConfig::FormatType type) {
     switch (type) {
-        case proto::InputStreamConfig_FormatType_RGB:
+        case proto::InputStreamConfig::RGB:
             return PipeInputConfigFormatType::RGB;
-        case proto::InputStreamConfig_FormatType_NIR:
+        case proto::InputStreamConfig::NIR:
             return PipeInputConfigFormatType::NIR;
-        case proto::InputStreamConfig_FormatType_NIR_DEPTH:
+        case proto::InputStreamConfig::NIR_DEPTH:
             return PipeInputConfigFormatType::NIR_DEPTH;
     }
 }
 
-PipeOffloadConfigOffloadType ConvertOffloadType(proto::OffloadOption_OffloadType type) {
+PipeOffloadConfigOffloadType ConvertOffloadType(proto::OffloadOption::OffloadType type) {
     switch (type) {
-        case proto::OffloadOption_OffloadType_CPU:
+        case proto::OffloadOption::CPU:
             return PipeOffloadConfigOffloadType::CPU;
-        case proto::OffloadOption_OffloadType_GPU:
+        case proto::OffloadOption::GPU:
             return PipeOffloadConfigOffloadType::GPU;
-        case proto::OffloadOption_OffloadType_NEURAL_ENGINE:
+        case proto::OffloadOption::NEURAL_ENGINE:
             return PipeOffloadConfigOffloadType::NEURAL_ENGINE;
-        case proto::OffloadOption_OffloadType_CV_ENGINE:
+        case proto::OffloadOption::CV_ENGINE:
             return PipeOffloadConfigOffloadType::CV_ENGINE;
     }
 }
@@ -117,15 +117,15 @@ PipeOutputConfigPacketType ConvertOutputType(proto::PacketType type) {
 }
 
 PipeTerminationConfigTerminationType ConvertTerminationType(
-    proto::TerminationOption_TerminationType type) {
+    proto::TerminationOption::TerminationType type) {
     switch (type) {
-        case proto::TerminationOption_TerminationType_CLIENT_STOP:
+        case proto::TerminationOption::CLIENT_STOP:
             return PipeTerminationConfigTerminationType::CLIENT_STOP;
-        case proto::TerminationOption_TerminationType_MIN_PACKET_COUNT:
+        case proto::TerminationOption::MIN_PACKET_COUNT:
             return PipeTerminationConfigTerminationType::MIN_PACKET_COUNT;
-        case proto::TerminationOption_TerminationType_MAX_RUN_TIME:
+        case proto::TerminationOption::MAX_RUN_TIME:
             return PipeTerminationConfigTerminationType::MAX_RUN_TIME;
-        case proto::TerminationOption_TerminationType_EVENT:
+        case proto::TerminationOption::EVENT:
             return PipeTerminationConfigTerminationType::EVENT;
     }
 }
@@ -141,7 +141,8 @@ PipeInputConfig ConvertInputConfigProto(const proto::InputConfig& proto) {
         aidlInputDesc.height = inputStreamConfig.height();
         aidlInputDesc.stride = inputStreamConfig.stride();
         aidlInputDesc.camDesc.camId = inputStreamConfig.cam_config().cam_id();
-        aidlInputDesc.camDesc.type = ConvertCameraType(inputStreamConfig.cam_config().camera_type());
+        aidlInputDesc.camDesc.type =
+                ConvertCameraType(inputStreamConfig.cam_config().camera_type());
         aidlInputDesc.imageDesc.fileType =
             ConvertImageFileType(inputStreamConfig.image_config().file_type());
         aidlInputDesc.imageDesc.filePath = inputStreamConfig.image_config().image_dir();
