@@ -69,6 +69,26 @@ message InputStreamConfig {
   optional VideoFileConfig video_config = 8;
 
   optional int32 stream_id = 9;
+
+  enum PixelLayout {
+    UNKNOWN = 0;
+
+    // one byte for R, then one byte for G, then one byte for B for each pixel.
+    RGB24 = 1;
+
+    // one byte for R, one byte for G, one byte for B, one byte for alpha or
+    // unused.
+    RGBA32 = 2;
+
+    // Grayscale, one byte per pixel.
+    GRAY8 = 3;
+
+    // Grayscale, one uint16 per pixel.
+    GRAY16 = 4;
+  }
+
+  // Represent pixel layout of image expected by graph.
+  optional PixelLayout pixel_layout = 10 [default = RGB24];
 }
 
 // A graph could require streams from multiple cameras simultaneously, so each possible input
