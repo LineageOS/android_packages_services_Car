@@ -826,6 +826,169 @@ TEST(IoPerfCollectionTest, TestCollectionTerminatesOnError) {
     collector->terminate();
 }
 
+TEST(IoPerfCollectionTest, TestCustomCollectionFiltersPackageNames) {
+    sp<UidIoStatsStub> uidIoStatsStub = new UidIoStatsStub(true);
+    sp<ProcStatStub> procStatStub = new ProcStatStub(true);
+    sp<ProcPidStatStub> procPidStatStub = new ProcPidStatStub(true);
+    sp<LooperStub> looperStub = new LooperStub();
+
+    sp<IoPerfCollection> collector = new IoPerfCollection();
+    collector->mUidIoStats = uidIoStatsStub;
+    collector->mProcStat = procStatStub;
+    collector->mProcPidStat = procPidStatStub;
+    collector->mHandlerLooper = looperStub;
+    // Filter by package name should ignore this limit.
+    collector->mTopNStatsPerCategory = 1;
+
+    auto ret = collector->start();
+    ASSERT_TRUE(ret) << ret.error().message();
+
+    // Dummy boot-time collection
+    uidIoStatsStub->push({});
+    procStatStub->push(ProcStatInfo{});
+    procPidStatStub->push({});
+    ret = looperStub->pollCache();
+    ASSERT_TRUE(ret) << ret.error().message();
+
+    // Dummy Periodic collection
+    ret = collector->onBootFinished();
+    ASSERT_TRUE(ret) << ret.error().message();
+    uidIoStatsStub->push({});
+    procStatStub->push(ProcStatInfo{});
+    procPidStatStub->push({});
+    ret = looperStub->pollCache();
+    ASSERT_TRUE(ret) << ret.error().message();
+
+    // Start custom Collection
+    Vector<String16> args;
+    args.push_back(String16(kStartCustomCollectionFlag));
+    args.push_back(String16(kIntervalFlag));
+    args.push_back(String16(std::to_string(kTestCustomInterval.count()).c_str()));
+    args.push_back(String16(kMaxDurationFlag));
+    args.push_back(String16(std::to_string(kTestCustomCollectionDuration.count()).c_str()));
+    args.push_back(String16(kFilterPackagesFlag));
+    args.push_back(String16("android.car.cts,system_server"));
+
+    ret = collector->dump(-1, args);
+    ASSERT_TRUE(ret.ok()) << ret.error().message();
+
+    // Custom collection
+    collector->mUidToPackageNameMapping[1009] = "android.car.cts";
+    collector->mUidToPackageNameMapping[2001] = "system_server";
+    collector->mUidToPackageNameMapping[3456] = "random_process";
+    uidIoStatsStub->push({
+            {1009, {.uid = 1009, .ios = {0, 14000, 0, 16000, 0, 100}}},
+            {2001, {.uid = 2001, .ios = {0, 3400, 0, 6700, 0, 200}}},
+            {3456, {.uid = 3456, .ios = {0, 4200, 0, 5600, 0, 300}}},
+    });
+    procStatStub->push(ProcStatInfo{
+            /*stats=*/{2900, 7900, 4900, 8900, /*ioWaitTime=*/5900, 6966, 7980, 0, 0, 2930},
+            /*runnableCnt=*/100,
+            /*ioBlockedCnt=*/57,
+    });
+    procPidStatStub->push({{.tgid = 100,
+                            .uid = 1009,
+                            .process = {.pid = 100,
+                                        .comm = "cts_test",
+                                        .state = "D",
+                                        .ppid = 1,
+                                        .majorFaults = 50900,
+                                        .numThreads = 2,
+                                        .startTime = 234},
+                            .threads = {{100,
+                                         {.pid = 100,
+                                          .comm = "cts_test",
+                                          .state = "D",
+                                          .ppid = 1,
+                                          .majorFaults = 50900,
+                                          .numThreads = 1,
+                                          .startTime = 234}},
+                                        {200,
+                                         {.pid = 200,
+                                          .comm = "cts_test_2",
+                                          .state = "D",
+                                          .ppid = 1,
+                                          .majorFaults = 0,
+                                          .numThreads = 1,
+                                          .startTime = 290}}}},
+                           {.tgid = 1000,
+                            .uid = 2001,
+                            .process = {.pid = 1000,
+                                        .comm = "system_server",
+                                        .state = "D",
+                                        .ppid = 1,
+                                        .majorFaults = 1234,
+                                        .numThreads = 1,
+                                        .startTime = 345},
+                            .threads = {{1000,
+                                         {.pid = 1000,
+                                          .comm = "system_server",
+                                          .state = "D",
+                                          .ppid = 1,
+                                          .majorFaults = 1234,
+                                          .numThreads = 1,
+                                          .startTime = 345}}}},
+                           {.tgid = 4000,
+                            .uid = 3456,
+                            .process = {.pid = 4000,
+                                        .comm = "random_process",
+                                        .state = "D",
+                                        .ppid = 1,
+                                        .majorFaults = 3456,
+                                        .numThreads = 1,
+                                        .startTime = 890},
+                            .threads = {{4000,
+                                         {.pid = 4000,
+                                          .comm = "random_process",
+                                          .state = "D",
+                                          .ppid = 1,
+                                          .majorFaults = 50900,
+                                          .numThreads = 1,
+                                          .startTime = 890}}}}});
+    IoPerfRecord expected = {
+            .uidIoPerfData = {.topNReads = {{.userId = 0,
+                                             .packageName = "android.car.cts",
+                                             .bytes = {0, 14000},
+                                             .fsync{0, 100}},
+                                            {.userId = 0,
+                                             .packageName = "system_server",
+                                             .bytes = {0, 3400},
+                                             .fsync{0, 200}}},
+                              .topNWrites = {{.userId = 0,
+                                              .packageName = "android.car.cts",
+                                              .bytes = {0, 16000},
+                                              .fsync{0, 100}},
+                                             {.userId = 0,
+                                              .packageName = "system_server",
+                                              .bytes = {0, 6700},
+                                              .fsync{0, 200}}},
+                              .total = {{0, 21600}, {0, 28300}, {0, 600}}},
+            .systemIoPerfData = {.cpuIoWaitTime = 5900,
+                                 .totalCpuTime = 48376,
+                                 .ioBlockedProcessesCnt = 57,
+                                 .totalProcessesCnt = 157},
+            .processIoPerfData =
+                    {.topNIoBlockedUids = {{0, "android.car.cts", 2, {{"cts_test", 2}}},
+                                           {0, "system_server", 1, {{"system_server", 1}}}},
+                     .topNIoBlockedUidsTotalTaskCnt = {2, 1},
+                     .topNMajorFaultUids = {{0, "android.car.cts", 50900, {{"cts_test", 50900}}},
+                                            {0, "system_server", 1234, {{"system_server", 1234}}}},
+                     .totalMajorFaults = 55590,
+                     .majorFaultsPercentChange = 0},
+    };
+    ret = looperStub->pollCache();
+    ASSERT_TRUE(ret) << ret.error().message();
+    ASSERT_EQ(looperStub->numSecondsElapsed(), 0) << "Custom collection didn't start immediately";
+
+    ASSERT_EQ(collector->mCurrCollectionEvent, CollectionEvent::CUSTOM);
+    ASSERT_EQ(collector->mCustomCollection.records.size(), 1);
+    ASSERT_TRUE(isEqual(collector->mCustomCollection.records[0], expected))
+            << "Custom collection record doesn't match.\nExpected:\n"
+            << toString(expected) << "\nActual:\n"
+            << toString(collector->mCustomCollection.records[0]);
+    collector->terminate();
+}
+
 TEST(IoPerfCollectionTest, TestCustomCollectionTerminatesAfterMaxDuration) {
     sp<UidIoStatsStub> uidIoStatsStub = new UidIoStatsStub(true);
     sp<ProcStatStub> procStatStub = new ProcStatStub(true);
@@ -885,9 +1048,9 @@ TEST(IoPerfCollectionTest, TestCustomCollectionTerminatesAfterMaxDuration) {
 
     ASSERT_EQ(collector->mCurrCollectionEvent, CollectionEvent::CUSTOM);
     ASSERT_GT(collector->mCustomCollection.records.size(), 0);
-    // Next looper message was injected during startCustomCollectionLocked to end the custom
-    // collection after |kTestCustomCollectionDuration|. Thus on processing this message
-    // the custom collection should terminate.
+    // Next looper message was injected during startCustomCollection to end the custom collection
+    // after |kTestCustomCollectionDuration|. Thus on processing this message the custom collection
+    // should terminate.
     ret = looperStub->pollCache();
     ASSERT_TRUE(ret) << ret.error().message();
     ASSERT_EQ(looperStub->numSecondsElapsed(),
@@ -955,7 +1118,7 @@ TEST(IoPerfCollectionTest, TestValidUidIoStatFile) {
     ASSERT_TRUE(collector.mUidIoStats->enabled()) << "Temporary file is inaccessible";
 
     struct UidIoPerfData actualUidIoPerfData = {};
-    auto ret = collector.collectUidIoPerfDataLocked(&actualUidIoPerfData);
+    auto ret = collector.collectUidIoPerfDataLocked(CollectionInfo{}, &actualUidIoPerfData);
     ASSERT_RESULT_OK(ret);
     EXPECT_TRUE(isEqual(expectedUidIoPerfData, actualUidIoPerfData))
         << "First snapshot doesn't match.\nExpected:\n"
@@ -1005,7 +1168,7 @@ TEST(IoPerfCollectionTest, TestValidUidIoStatFile) {
     });
     ASSERT_TRUE(WriteStringToFile(secondSnapshot, tf.path));
     actualUidIoPerfData = {};
-    ret = collector.collectUidIoPerfDataLocked(&actualUidIoPerfData);
+    ret = collector.collectUidIoPerfDataLocked(CollectionInfo{}, &actualUidIoPerfData);
     ASSERT_RESULT_OK(ret);
     EXPECT_TRUE(isEqual(expectedUidIoPerfData, actualUidIoPerfData))
         << "Second snapshot doesn't match.\nExpected:\n"
@@ -1050,7 +1213,7 @@ TEST(IoPerfCollectionTest, TestUidIOStatsLessThanTopNStatsLimit) {
     ASSERT_TRUE(collector.mUidIoStats->enabled()) << "Temporary file is inaccessible";
 
     struct UidIoPerfData actualUidIoPerfData = {};
-    const auto& ret = collector.collectUidIoPerfDataLocked(&actualUidIoPerfData);
+    const auto& ret = collector.collectUidIoPerfDataLocked(CollectionInfo{}, &actualUidIoPerfData);
     ASSERT_RESULT_OK(ret);
     EXPECT_TRUE(isEqual(expectedUidIoPerfData, actualUidIoPerfData))
         << "Collected data doesn't match.\nExpected:\n"
@@ -1212,7 +1375,7 @@ TEST(IoPerfCollectionTest, TestValidProcPidContents) {
             << "Files under the temporary proc directory are inaccessible";
 
     struct ProcessIoPerfData actualProcessIoPerfData = {};
-    ret = collector.collectProcessIoPerfDataLocked(&actualProcessIoPerfData);
+    ret = collector.collectProcessIoPerfDataLocked(CollectionInfo{}, &actualProcessIoPerfData);
     ASSERT_TRUE(ret) << "Failed to collect first snapshot: " << ret.error();
     EXPECT_TRUE(isEqual(expectedProcessIoPerfData, actualProcessIoPerfData))
             << "First snapshot doesn't match.\nExpected:\n"
@@ -1272,7 +1435,7 @@ TEST(IoPerfCollectionTest, TestValidProcPidContents) {
     collector.mProcPidStat->mPath = secondSnapshot.path;
 
     actualProcessIoPerfData = {};
-    ret = collector.collectProcessIoPerfDataLocked(&actualProcessIoPerfData);
+    ret = collector.collectProcessIoPerfDataLocked(CollectionInfo{}, &actualProcessIoPerfData);
     ASSERT_TRUE(ret) << "Failed to collect second snapshot: " << ret.error();
     EXPECT_TRUE(isEqual(expectedProcessIoPerfData, actualProcessIoPerfData))
             << "Second snapshot doesn't match.\nExpected:\n"
@@ -1315,7 +1478,7 @@ TEST(IoPerfCollectionTest, TestProcPidContentsLessThanTopNStatsLimit) {
     collector.mTopNStatsPerSubcategory = 3;
     collector.mProcPidStat = new ProcPidStat(prodDir.path);
     struct ProcessIoPerfData actualProcessIoPerfData = {};
-    ret = collector.collectProcessIoPerfDataLocked(&actualProcessIoPerfData);
+    ret = collector.collectProcessIoPerfDataLocked(CollectionInfo{}, &actualProcessIoPerfData);
     ASSERT_TRUE(ret) << "Failed to collect proc pid contents: " << ret.error();
     EXPECT_TRUE(isEqual(expectedProcessIoPerfData, actualProcessIoPerfData))
             << "proc pid contents don't match.\nExpected:\n"
