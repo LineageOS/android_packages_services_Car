@@ -219,13 +219,14 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     public void testOnUserLifecycleEvent_nofityListener() throws Exception {
         // Arrange
         mCarUserService.addUserLifecycleListener(mUserLifecycleListener);
+        mockExistingUsers();
 
         // Act
-        int userId = 11;
-        sendUserLifecycleEvent(userId, CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING);
+        sendUserSwitchingEvent(mAdminUser.id, mRegularUser.id);
 
         // Verify
-        verifyListenerOnEventInvoked(userId, CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING);
+        verifyListenerOnEventInvoked(mRegularUser.id,
+                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING);
     }
 
     @Test
@@ -236,16 +237,17 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         doThrow(new RuntimeException("Failed onEvent invocation")).when(
                 failureListener).onEvent(any(UserLifecycleEvent.class));
         mCarUserService.addUserLifecycleListener(failureListener);
+        mockExistingUsers();
 
         // Adding the non-failure listener later.
         mCarUserService.addUserLifecycleListener(mUserLifecycleListener);
 
         // Act
-        int userId = 11;
-        sendUserLifecycleEvent(userId, CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING);
+        sendUserSwitchingEvent(mAdminUser.id, mRegularUser.id);
 
         // Verify
-        verifyListenerOnEventInvoked(userId, CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING);
+        verifyListenerOnEventInvoked(mRegularUser.id,
+                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING);
     }
 
     private void verifyListenerOnEventInvoked(int expectedNewUserId, int expectedEventType)
@@ -270,14 +272,10 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
      * Test that the {@link CarUserService} updates last active user on user switch.
      */
     @Test
-    public void testLastActiveUserUpdatedOnUserSwitch() {
-        int lastActiveUserId = 99;
-        UserInfo persistentUser = new UserInfo(lastActiveUserId, "persistent user",
-                NO_USER_INFO_FLAGS);
-        doReturn(persistentUser).when(mMockedUserManager).getUserInfo(lastActiveUserId);
-        sendUserSwitchingEvent(lastActiveUserId);
-
-        verify(mMockedCarUserManagerHelper).setLastActiveUser(lastActiveUserId);
+    public void testLastActiveUserUpdatedOnUserSwitch() throws Exception {
+        mockExistingUsers();
+        sendUserSwitchingEvent(mAdminUser.id, mRegularUser.id);
+        verify(mMockedCarUserManagerHelper).setLastActiveUser(mRegularUser.id);
     }
 
     /**
@@ -908,6 +906,35 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void testHalUserSwitchOnAndroidSwitch_successfulNoExitingUserSwitch() {
+        mockExistingUsers();
+
+        sendUserSwitchingEvent(mAdminUser.id, mRegularUser.id);
+
+        ArgumentCaptor<android.hardware.automotive.vehicle.V2_0.UserInfo> targetUser =
+                ArgumentCaptor.forClass(android.hardware.automotive.vehicle.V2_0.UserInfo.class);
+        ArgumentCaptor<UsersInfo> usersInfo = ArgumentCaptor.forClass(UsersInfo.class);
+        verify(mUserHal).legacyUserSwitch(targetUser.capture(), usersInfo.capture());
+        assertThat(targetUser.getValue().userId).isEqualTo(mRegularUser.id);
+        assertThat(usersInfo.getValue().currentUser.userId).isEqualTo(mAdminUser.id);
+    }
+
+    @Test
+    public void testHalUserSwitchOnAndroidSwitch_failureExitingUserSwitch() throws Exception {
+        mockExistingUsersAndCurrentUser(mAdminUser);
+        int requestId = 42;
+        mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
+        mSwitchUserResponse.requestId = requestId;
+        mockHalSwitch(mAdminUser.id, mGuestUser, mSwitchUserResponse);
+        mockAmSwitchUser(mGuestUser, true);
+        mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture);
+
+        sendUserSwitchingEvent(mAdminUser.id, mGuestUser.id);
+
+        verify(mUserHal, never()).legacyUserSwitch(any(), any());
+    }
+
+    @Test
     public void testGetUserInfo_nullReceiver() throws Exception {
         assertThrows(NullPointerException.class, () -> mCarUserService
                 .getInitialUserInfo(mGetUserInfoRequestType, mAsyncCallTimeoutMs, null));
@@ -1091,12 +1118,12 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testUserMetric_SendEvent() {
-        int userId = 99;
-        sendUserSwitchingEvent(userId);
+    public void testUserMetric_SendEvent() throws Exception {
+        mockExistingUsersAndCurrentUser(mAdminUser);
+        sendUserSwitchingEvent(mAdminUser.id, mRegularUser.id);
 
         verify(mUserMetrics).onEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING,
-                0, UserHandle.USER_NULL, userId);
+                0, mAdminUser.id, mRegularUser.id);
     }
 
     @Test
@@ -1419,18 +1446,19 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         }
     }
 
-    private void sendUserLifecycleEvent(@UserIdInt int userId,
+    private void sendUserLifecycleEvent(@UserIdInt int fromUserId, @UserIdInt int toUserId,
             @UserLifecycleEventType int eventType) {
-        mCarUserService.onUserLifecycleEvent(eventType, /* timestampMs= */ 0,
-                /* fromUserId= */ UserHandle.USER_NULL, userId);
+        mCarUserService.onUserLifecycleEvent(eventType, /* timestampMs= */ 0, fromUserId, toUserId);
     }
 
     private void sendUserUnlockedEvent(@UserIdInt int userId) {
-        sendUserLifecycleEvent(userId, CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED);
+        sendUserLifecycleEvent(/* fromUser */ 0, userId,
+                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED);
     }
 
-    private void sendUserSwitchingEvent(@UserIdInt int userId) {
-        sendUserLifecycleEvent(userId, CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING);
+    private void sendUserSwitchingEvent(@UserIdInt int fromUserId, @UserIdInt int toUserId) {
+        sendUserLifecycleEvent(fromUserId, toUserId,
+                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING);
     }
 
     @NonNull
