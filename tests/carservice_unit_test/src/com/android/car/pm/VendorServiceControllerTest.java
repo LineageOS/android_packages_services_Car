@@ -174,6 +174,9 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
 
         // Switch user to foreground
         mockGetCurrentUser(FG_USER_ID);
+        // TODO(b/155918094): Update this test,
+        UserInfo nullUser = new UserInfo(UserHandle.USER_NULL, "null user", 0);
+        when(mUserManager.getUserInfo(UserHandle.USER_NULL)).thenReturn(nullUser);
         sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, FG_USER_ID);
 
         // Expect only services with ASAP trigger to be started
