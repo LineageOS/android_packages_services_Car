@@ -23,7 +23,9 @@ import static com.android.internal.util.function.pooled.PooledLambda.obtainMessa
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.app.ActivityManager;
 import android.car.hardware.property.CarPropertyManager;
+import android.car.user.CarUserManager;
 import android.car.userlib.HalCallback;
 import android.car.userlib.UserHalHelper;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
@@ -272,11 +274,8 @@ public final class UserHalService extends HalServiceBase {
             requestId = mNextRequestId++;
             EventLog.writeEvent(EventLogTags.CAR_USER_HAL_SWITCH_USER_REQ, requestId,
                     targetInfo.userId, timeoutMs);
-            propRequest = UserHalHelper.createPropRequest(requestId,
-                        SwitchUserMessageType.ANDROID_SWITCH, SWITCH_USER);
-            propRequest.value.int32Values.add(targetInfo.userId);
-            propRequest.value.int32Values.add(targetInfo.flags);
-            UserHalHelper.addUsersInfo(propRequest, usersInfo);
+            propRequest = getPropRequestForSwitchUserLocked(requestId,
+                    SwitchUserMessageType.ANDROID_SWITCH, targetInfo, usersInfo);
             addPendingRequestLocked(requestId, SwitchUserResponse.class, callback);
         }
 
@@ -313,11 +312,8 @@ public final class UserHalService extends HalServiceBase {
         VehiclePropValue propRequest;
         synchronized (mLock) {
             checkSupportedLocked();
-            propRequest = UserHalHelper.createPropRequest(requestId,
-                    SwitchUserMessageType.ANDROID_POST_SWITCH, SWITCH_USER);
-            propRequest.value.int32Values.add(targetInfo.userId);
-            propRequest.value.int32Values.add(targetInfo.flags);
-            UserHalHelper.addUsersInfo(propRequest, usersInfo);
+            propRequest = getPropRequestForSwitchUserLocked(requestId,
+                    SwitchUserMessageType.ANDROID_POST_SWITCH, targetInfo, usersInfo);
         }
 
         try {
@@ -326,6 +322,47 @@ public final class UserHalService extends HalServiceBase {
         } catch (ServiceSpecificException e) {
             Log.w(TAG, "Failed to set ANDROID POST SWITCH", e);
         }
+    }
+
+    /**
+     * Calls HAL to switch user after legacy Android user switch. Legacy Android user switch means
+     * user switch is not requested by {@link CarUserManager} or OEM, and user switch is directly
+     * requested by {@link ActivityManager}
+     *
+     * @param targetInfo target user info.
+     * @param usersInfo current state of Android users.
+     */
+    public void legacyUserSwitch(@NonNull UserInfo targetInfo, @NonNull UsersInfo usersInfo) {
+        if (DBG) Log.d(TAG, "userSwitchLegacy(" + targetInfo + ")");
+        Objects.requireNonNull(usersInfo);
+        // TODO(b/150413515): use helper method to check usersInfo is valid
+
+        VehiclePropValue propRequest;
+        synchronized (mLock) {
+            checkSupportedLocked();
+            int requestId = mNextRequestId++;
+            EventLog.writeEvent(EventLogTags.CAR_USER_HAL_LEGACY_SWITCH_USER_REQ, requestId,
+                    targetInfo.userId, usersInfo.currentUser.userId);
+            propRequest = getPropRequestForSwitchUserLocked(requestId,
+                    SwitchUserMessageType.LEGACY_ANDROID_SWITCH, targetInfo, usersInfo);
+        }
+
+        try {
+            if (DBG) Log.d(TAG, "Calling hal.set(): " + propRequest);
+            mHal.set(propRequest);
+        } catch (ServiceSpecificException e) {
+            Log.w(TAG, "Failed to set LEGACY ANDROID SWITCH", e);
+        }
+    }
+
+    private VehiclePropValue getPropRequestForSwitchUserLocked(int requestId, int requestType,
+            @NonNull UserInfo targetInfo, @NonNull UsersInfo usersInfo) {
+        VehiclePropValue propRequest =
+                UserHalHelper.createPropRequest(requestId, requestType, SWITCH_USER);
+        propRequest.value.int32Values.add(targetInfo.userId);
+        propRequest.value.int32Values.add(targetInfo.flags);
+        UserHalHelper.addUsersInfo(propRequest, usersInfo);
+        return propRequest;
     }
 
     /**

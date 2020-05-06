@@ -465,7 +465,7 @@ public final class UserHalServiceTest {
         callback.assertCalled();
 
         // Make sure the arguments were properly converted
-        assertSwitchUserSetRequest(reqCaptor.get(), SwitchUserMessageType.ANDROID_SWITCH, mUser10);
+        assertHALSetRequest(reqCaptor.get(), SwitchUserMessageType.ANDROID_SWITCH, mUser10);
 
         // Assert response
         assertCallbackStatus(callback, HalCallback.STATUS_WRONG_HAL_RESPONSE);
@@ -488,7 +488,7 @@ public final class UserHalServiceTest {
         callback.assertCalled();
 
         // Make sure the arguments were properly converted
-        assertSwitchUserSetRequest(reqCaptor.get(), SwitchUserMessageType.ANDROID_SWITCH, mUser10);
+        assertHALSetRequest(reqCaptor.get(), SwitchUserMessageType.ANDROID_SWITCH, mUser10);
 
         // Assert response
         assertCallbackStatus(callback, HalCallback.STATUS_OK);
@@ -513,7 +513,7 @@ public final class UserHalServiceTest {
         callback.assertCalled();
 
         // Make sure the arguments were properly converted
-        assertSwitchUserSetRequest(reqCaptor.get(), SwitchUserMessageType.ANDROID_SWITCH, mUser10);
+        assertHALSetRequest(reqCaptor.get(), SwitchUserMessageType.ANDROID_SWITCH, mUser10);
 
         // Assert response
         assertCallbackStatus(callback, HalCallback.STATUS_OK);
@@ -556,7 +556,7 @@ public final class UserHalServiceTest {
         callback.assertCalled();
 
         // Make sure the arguments were properly converted
-        assertSwitchUserSetRequest(reqCaptor.get(), SwitchUserMessageType.ANDROID_SWITCH, mUser10);
+        assertHALSetRequest(reqCaptor.get(), SwitchUserMessageType.ANDROID_SWITCH, mUser10);
 
         // Assert response
         assertCallbackStatus(callback, HalCallback.STATUS_WRONG_HAL_RESPONSE);
@@ -576,7 +576,24 @@ public final class UserHalServiceTest {
                 ArgumentCaptor.forClass(VehiclePropValue.class);
         verify(mVehicleHal).set(propCaptor.capture());
         VehiclePropValue prop = propCaptor.getValue();
-        assertPostSwitchResponseSetRequest(prop, SwitchUserMessageType.ANDROID_POST_SWITCH,
+        assertHALSetRequest(prop, SwitchUserMessageType.ANDROID_POST_SWITCH,
+                mUser10);
+    }
+
+    @Test
+    public void testUserSwitchLegacy_noUsersInfo() {
+        assertThrows(NullPointerException.class,
+                () -> mUserHalService.legacyUserSwitch(mUser10, null));
+    }
+
+    @Test
+    public void testUserSwitchLegacy_HalCalledWithCorrectProp() {
+        mUserHalService.legacyUserSwitch(mUser10, mUsersInfo);
+        ArgumentCaptor<VehiclePropValue> propCaptor =
+                ArgumentCaptor.forClass(VehiclePropValue.class);
+        verify(mVehicleHal).set(propCaptor.capture());
+        VehiclePropValue prop = propCaptor.getValue();
+        assertHALSetRequest(prop, SwitchUserMessageType.LEGACY_ANDROID_SWITCH,
                 mUser10);
     }
 
@@ -779,17 +796,7 @@ public final class UserHalServiceTest {
         assertUsersInfo(req, mUsersInfo, 2);
     }
 
-    private void assertSwitchUserSetRequest(VehiclePropValue req, int messageType,
-            UserInfo targetUserInfo) {
-        assertThat(req.value.int32Values.get(1)).isEqualTo(messageType);
-        assertWithMessage("targetuser.id mismatch").that(req.value.int32Values.get(2))
-                .isEqualTo(targetUserInfo.userId);
-        assertWithMessage("targetuser.flags mismatch").that(req.value.int32Values.get(3))
-                .isEqualTo(targetUserInfo.flags);
-        assertUsersInfo(req, mUsersInfo, 4);
-    }
-
-    private void assertPostSwitchResponseSetRequest(VehiclePropValue req, int messageType,
+    private void assertHALSetRequest(VehiclePropValue req, int messageType,
             UserInfo targetUserInfo) {
         assertThat(req.value.int32Values.get(1)).isEqualTo(messageType);
         assertWithMessage("targetuser.id mismatch").that(req.value.int32Values.get(2))
