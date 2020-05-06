@@ -36,6 +36,7 @@ import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.user.GetUserIdentificationAssociationResponse;
 import android.car.user.UserSwitchResult;
 import android.car.userlib.CarUserManagerHelper;
+import android.car.userlib.CommonConstants.CarUserServiceConstants;
 import android.car.userlib.HalCallback;
 import android.car.userlib.UserHalHelper;
 import android.content.Context;
@@ -103,13 +104,14 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     private static final String TAG = TAG_USER;
 
     /** {@code int} extra used to represent a user id in a {@link IResultReceiver} response. */
-    public static final String BUNDLE_USER_ID = "user.id";
+    public static final String BUNDLE_USER_ID = CarUserServiceConstants.BUNDLE_USER_ID;
     /** {@code int} extra used to represent user flags in a {@link IResultReceiver} response. */
-    public static final String BUNDLE_USER_FLAGS = "user.flags";
+    public static final String BUNDLE_USER_FLAGS = CarUserServiceConstants.BUNDLE_USER_FLAGS;
     /** {@code String} extra used to represent a user name in a {@link IResultReceiver} response. */
-    public static final String BUNDLE_USER_NAME = "user.name";
+    public static final String BUNDLE_USER_NAME = CarUserServiceConstants.BUNDLE_USER_NAME;
     /** {@code int} extra used to represent the info action {@link IResultReceiver} response. */
-    public static final String BUNDLE_INITIAL_INFO_ACTION = "initial_info.action";
+    public static final String BUNDLE_INITIAL_INFO_ACTION =
+            CarUserServiceConstants.BUNDLE_INITIAL_INFO_ACTION;
 
     private final Context mContext;
     private final CarUserManagerHelper mCarUserManagerHelper;
