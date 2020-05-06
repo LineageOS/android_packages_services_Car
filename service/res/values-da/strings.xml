@@ -72,9 +72,11 @@
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Håndter input"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN-bus (Controller Area Network) mislykkedes"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN-bus (Controller Area Network) svarer ikke. Afbryd forbindelsen til bilens hovedenhed, tilslut den igen, og genstart bilen"</string>
-    <string name="activity_blocked_text" msgid="5342114426610711378">"Af hensyn til din sikkerhed kan du ikke få adgang til denne aktivitet, mens du kører.\nParkér, før du kan fortsætte."</string>
+    <string name="activity_blocked_text" msgid="8088902789540147995">"Du kan ikke bruge denne funktion, mens du kører"</string>
     <string name="exit_button_message" msgid="8554690915924055685">"Vælg <xliff:g id="EXIT_BUTTON">%s</xliff:g> for at starte forfra med sikre appfunktioner."</string>
     <string name="exit_button" msgid="5829638404777671253">"Tilbage"</string>
+    <string name="exit_button_close_application" msgid="8824289547809332460">"Luk app"</string>
+    <string name="exit_button_go_back" msgid="3469083862100560326">"Tilbage"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"tjekke diagnosticeringsdata"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Tjek diagnosticeringsdata fra bilen."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"rydde diagnosticeringsdata"</string>
@@ -140,4 +142,5 @@
     <string name="car_permission_label_use_car_watchdog" msgid="6973938293170413475">"brug bilens watchdog"</string>
     <string name="car_permission_desc_use_car_watchdog" msgid="8244592601805516086">"Brug bilens watchdog."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Min enhed"</string>
+    <string name="default_guest_name" msgid="2912812799433131476">"Gæst"</string>
 </resources>

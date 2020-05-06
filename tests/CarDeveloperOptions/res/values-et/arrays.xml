@@ -286,7 +286,73 @@
     <item msgid="1165623660533024666">"taustal käitamine"</item>
     <item msgid="6423861043647911030">"juurdepääsetavuse helitugevus"</item>
   </string-array>
-    <!-- no translation found for app_ops_labels:41 (2464189519136248621) -->
+  <string-array name="app_ops_labels">
+    <item msgid="7892361636570580123">"Asukoht"</item>
+    <item msgid="6656077694190491067">"Asukoht"</item>
+    <item msgid="8790228218278477369">"Asukoht"</item>
+    <item msgid="7836406246005211990">"Vibratsioon"</item>
+    <item msgid="3951439024549922598">"Kontaktide lugemine"</item>
+    <item msgid="8802152411647068">"Kontaktide muutmine"</item>
+    <item msgid="229544934599698735">"Kõnelogi lugemine"</item>
+    <item msgid="7396102294405899613">"Kõnelogi muutmine"</item>
+    <item msgid="3597797992398484655">"Kalendri lugemine"</item>
+    <item msgid="2705975774250907343">"Kalendri muutmine"</item>
+    <item msgid="4668747371441932697">"Asukoht"</item>
+    <item msgid="1487578921720243646">"Märguande postitamine"</item>
+    <item msgid="4636080349724146638">"Asukoht"</item>
+    <item msgid="673510900286463926">"Helistamine telefonile"</item>
+    <item msgid="542083422784609790">"SMS-i/MMS-i lugemine"</item>
+    <item msgid="1033780373029588436">"SMS-i/MMS-i kirjutamine"</item>
+    <item msgid="5647111115517787488">"SMS-i/MMS-i vastuvõtmine"</item>
+    <item msgid="8591105601108455893">"SMS-i/MMS-i vastuvõtmine"</item>
+    <item msgid="7730995008517841903">"SMS-i/MMS-i vastuvõtmine"</item>
+    <item msgid="2613033109026626086">"SMS-i/MMS-i vastuvõtmine"</item>
+    <item msgid="3037159047591081136">"SMS-i/MMS-i saatmine"</item>
+    <item msgid="4726682243833913568">"SMS-i/MMS-i lugemine"</item>
+    <item msgid="6555678522277865572">"SMS-i/MMS-i kirjutamine"</item>
+    <item msgid="6981734935578130884">"Seadete muutmine"</item>
+    <item msgid="8705854389991425629">"Peale joonistamine"</item>
+    <item msgid="5861356020344153651">"Juurdepääsumärguanded"</item>
+    <item msgid="78432174621628659">"Kaamera"</item>
+    <item msgid="3986116419882154794">"Heli salvestamine"</item>
+    <item msgid="4516840825756409490">"Heli esitamine"</item>
+    <item msgid="6811712502798183957">"Lõikelaua lugemine"</item>
+    <item msgid="2780369012602289114">"Lõikelaua muutmine"</item>
+    <item msgid="2331359440170850868">"Meedianupud"</item>
+    <item msgid="6133599737122751231">"Helifookus"</item>
+    <item msgid="6844485713404805301">"Põhihelitugevus"</item>
+    <item msgid="1600379420669104929">"Hääle helitugevus"</item>
+    <item msgid="6296768210470214866">"Helina helitugevus"</item>
+    <item msgid="510690696071629241">"Meedia helitugevus"</item>
+    <item msgid="406861638631430109">"Äratuse helitugevus"</item>
+    <item msgid="4715864795872233884">"Märguande helitugevus"</item>
+    <item msgid="2311478519251301183">"Bluetoothi helitugevus"</item>
+    <item msgid="5133991377896747027">"Hoia ärkvel"</item>
+    <item msgid="2464189519136248621">"Asukoht"</item>
+    <item msgid="2062677934050803037">"Asukoht"</item>
+    <item msgid="1735171933192715957">"Kasutusstatistika hankimine"</item>
+    <item msgid="1014093788778383554">"Mikrofoni vaigistamine või vaigistuse tühistamine"</item>
+    <item msgid="4199297950608622850">"Teatiste kuvamine"</item>
+    <item msgid="2527962435313398821">"Meediumi projitseerimine"</item>
+    <item msgid="5117506254221861929">"VPN-i aktiveerimine"</item>
+    <item msgid="8291198322681891160">"Taustapilt kirjutamiseks"</item>
+    <item msgid="7106921284621230961">"Abistruktuur"</item>
+    <item msgid="4496533640894624799">"Abistav ekraanipilt"</item>
+    <item msgid="2598847264853993611">"Telefoni oleku lugemine"</item>
+    <item msgid="9215610846802973353">"Kõneposti lisamine"</item>
+    <item msgid="9186411956086478261">"SIP kasutamine"</item>
+    <item msgid="6884763100104539558">"Väljamineva kõne töötlemine"</item>
+    <item msgid="125513972170580692">"Sõrmejälg"</item>
+    <item msgid="2556071024281275619">"Kehaandurid"</item>
+    <item msgid="617168514928339387">"Kärjeteadete lugemine"</item>
+    <item msgid="7134693570516523585">"Tehislik asukoht"</item>
+    <item msgid="7224489175375229399">"Salvestusruumi lugemine"</item>
+    <item msgid="8472735063903258202">"Salvestusruumi kirjutamine"</item>
+    <item msgid="4069276819909595110">"Ekraani sisselülitamine"</item>
+    <item msgid="1228338896751121025">"Kontode hankimine"</item>
+    <item msgid="3181581793459233672">"Taustal käitamine"</item>
+    <item msgid="2340936043025374076">"Juurdepääsetavuse helitugevus"</item>
+  </string-array>
   <string-array name="long_press_timeout_selector_titles">
     <item msgid="8950313530602254787">"Lühike"</item>
     <item msgid="4816511817309094890">"Keskmine"</item>
@@ -357,9 +423,19 @@
     <item msgid="7718817231348607934">"Ära luba kunagi"</item>
     <item msgid="8184570120217958741">"Luba alati"</item>
   </string-array>
-    <!-- no translation found for ram_states:0 (708247372474061274) -->
-    <!-- no translation found for ram_states:4 (1567326459340152525) -->
-    <!-- no translation found for proc_stats_memory_states:3 (8577246509202964244) -->
+  <string-array name="ram_states">
+    <item msgid="708247372474061274">"Tavaline"</item>
+    <item msgid="5101233285497327432">"Keskmine"</item>
+    <item msgid="1555861583162930714">"Väike"</item>
+    <item msgid="1719683776264798117">"Kriitiline"</item>
+    <item msgid="1567326459340152525">"?"</item>
+  </string-array>
+  <string-array name="proc_stats_memory_states">
+    <item msgid="3474232046138139454">"Tavaline"</item>
+    <item msgid="6107138933849816768">"Mõõdukas"</item>
+    <item msgid="182695359839047859">"Väike"</item>
+    <item msgid="8577246509202964244">"Kriitiline"</item>
+  </string-array>
   <string-array name="proc_stats_process_states">
     <item msgid="7560955722349181440">"Püsiv"</item>
     <item msgid="167418068739176448">"Sagedasim tegevus"</item>

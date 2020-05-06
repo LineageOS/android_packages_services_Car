@@ -214,7 +214,7 @@
   </string-array>
   <string-array name="app_ops_categories">
     <item msgid="1102693344156734891">"Lokacija"</item>
-    <item msgid="6842381562497597649">"Lični"</item>
+    <item msgid="6842381562497597649">"Lično"</item>
     <item msgid="3966700236695683444">"Razmena poruka"</item>
     <item msgid="8563996233342430477">"Mediji"</item>
     <item msgid="5323851085993963783">"Uređaj"</item>
@@ -286,7 +286,73 @@
     <item msgid="1165623660533024666">"rad u pozadini"</item>
     <item msgid="6423861043647911030">"jačina zvuka za pristupačnost"</item>
   </string-array>
-    <!-- no translation found for app_ops_labels:41 (2464189519136248621) -->
+  <string-array name="app_ops_labels">
+    <item msgid="7892361636570580123">"Lokacija"</item>
+    <item msgid="6656077694190491067">"Lokacija"</item>
+    <item msgid="8790228218278477369">"Lokacija"</item>
+    <item msgid="7836406246005211990">"Vibracija"</item>
+    <item msgid="3951439024549922598">"Čitanje kontakata"</item>
+    <item msgid="8802152411647068">"Menjanje kontakata"</item>
+    <item msgid="229544934599698735">"Čitanje evidencije poziva"</item>
+    <item msgid="7396102294405899613">"Menjanje evidencije poziva"</item>
+    <item msgid="3597797992398484655">"Čitanje kalendara"</item>
+    <item msgid="2705975774250907343">"Menjanje kalendara"</item>
+    <item msgid="4668747371441932697">"Lokacija"</item>
+    <item msgid="1487578921720243646">"Postavljanje obaveštenja"</item>
+    <item msgid="4636080349724146638">"Lokacija"</item>
+    <item msgid="673510900286463926">"Pozivanje telefona"</item>
+    <item msgid="542083422784609790">"Čitanje SMS/MMS poruka"</item>
+    <item msgid="1033780373029588436">"Pisanje SMS/MMS poruka"</item>
+    <item msgid="5647111115517787488">"Prijem SMS/MMS poruka"</item>
+    <item msgid="8591105601108455893">"Prijem SMS/MMS poruka"</item>
+    <item msgid="7730995008517841903">"Prijem SMS/MMS poruka"</item>
+    <item msgid="2613033109026626086">"Prijem SMS/MMS poruka"</item>
+    <item msgid="3037159047591081136">"Slanje SMS/MMS poruka"</item>
+    <item msgid="4726682243833913568">"Čitanje SMS/MMS poruka"</item>
+    <item msgid="6555678522277865572">"Pisanje SMS/MMS poruka"</item>
+    <item msgid="6981734935578130884">"Menjanje podešavanja"</item>
+    <item msgid="8705854389991425629">"Povlačenje na vrh"</item>
+    <item msgid="5861356020344153651">"Pristup obaveštenjima"</item>
+    <item msgid="78432174621628659">"Kamera"</item>
+    <item msgid="3986116419882154794">"Snimanje audio zapisa"</item>
+    <item msgid="4516840825756409490">"Puštanje audio zapisa"</item>
+    <item msgid="6811712502798183957">"Čitanje memorije"</item>
+    <item msgid="2780369012602289114">"Menjanje memorije"</item>
+    <item msgid="2331359440170850868">"Dugmad za medije"</item>
+    <item msgid="6133599737122751231">"Audio fokus"</item>
+    <item msgid="6844485713404805301">"Glavna jačina zvuka"</item>
+    <item msgid="1600379420669104929">"Jačina zvuka glasa"</item>
+    <item msgid="6296768210470214866">"Jačina zvuka zvona"</item>
+    <item msgid="510690696071629241">"Jačina zvuka medija"</item>
+    <item msgid="406861638631430109">"Jačina zvuka alarma"</item>
+    <item msgid="4715864795872233884">"Jačina zvuka za obaveštenja"</item>
+    <item msgid="2311478519251301183">"Jačina zvuka Bluetooth-a"</item>
+    <item msgid="5133991377896747027">"Zadrži van stanja spavanja"</item>
+    <item msgid="2464189519136248621">"Lokacija"</item>
+    <item msgid="2062677934050803037">"Lokacija"</item>
+    <item msgid="1735171933192715957">"Preuzmi statistiku o korišćenju"</item>
+    <item msgid="1014093788778383554">"Isključi/uključi zvuk mikrofona"</item>
+    <item msgid="4199297950608622850">"Prikazivanje iskačućih poruka"</item>
+    <item msgid="2527962435313398821">"Mediji za projekat"</item>
+    <item msgid="5117506254221861929">"Aktiviranje VPN-a"</item>
+    <item msgid="8291198322681891160">"Upis na pozadinu"</item>
+    <item msgid="7106921284621230961">"Struktura pomoći"</item>
+    <item msgid="4496533640894624799">"Snimak ekrana pomoći"</item>
+    <item msgid="2598847264853993611">"Čitanje stanja telefona"</item>
+    <item msgid="9215610846802973353">"Dodavanje govorne pošte"</item>
+    <item msgid="9186411956086478261">"Korišćenje SIP-a"</item>
+    <item msgid="6884763100104539558">"Obrada odlaznog poziva"</item>
+    <item msgid="125513972170580692">"Otisak prsta"</item>
+    <item msgid="2556071024281275619">"Senzori za telo"</item>
+    <item msgid="617168514928339387">"Čitanje poruka za mobilne uređaje na lokalitetu"</item>
+    <item msgid="7134693570516523585">"Lažna lokacija"</item>
+    <item msgid="7224489175375229399">"Čitanje memorijskog prostora"</item>
+    <item msgid="8472735063903258202">"Upis podataka u memorijski prostor"</item>
+    <item msgid="4069276819909595110">"Uključivanje ekrana"</item>
+    <item msgid="1228338896751121025">"Pristup nalozima"</item>
+    <item msgid="3181581793459233672">"Rad u pozadini"</item>
+    <item msgid="2340936043025374076">"Jačina zvuka za pristupačnost"</item>
+  </string-array>
   <string-array name="long_press_timeout_selector_titles">
     <item msgid="8950313530602254787">"Kratko"</item>
     <item msgid="4816511817309094890">"Srednji"</item>
@@ -357,9 +423,19 @@
     <item msgid="7718817231348607934">"Nikada ne dozvoli"</item>
     <item msgid="8184570120217958741">"Uvek dozvoli"</item>
   </string-array>
-    <!-- no translation found for ram_states:0 (708247372474061274) -->
-    <!-- no translation found for ram_states:4 (1567326459340152525) -->
-    <!-- no translation found for proc_stats_memory_states:3 (8577246509202964244) -->
+  <string-array name="ram_states">
+    <item msgid="708247372474061274">"Normalno"</item>
+    <item msgid="5101233285497327432">"Umereno"</item>
+    <item msgid="1555861583162930714">"Niska"</item>
+    <item msgid="1719683776264798117">"Kritična"</item>
+    <item msgid="1567326459340152525">"?"</item>
+  </string-array>
+  <string-array name="proc_stats_memory_states">
+    <item msgid="3474232046138139454">"Normalna"</item>
+    <item msgid="6107138933849816768">"Umerena"</item>
+    <item msgid="182695359839047859">"Niska"</item>
+    <item msgid="8577246509202964244">"Kritično"</item>
+  </string-array>
   <string-array name="proc_stats_process_states">
     <item msgid="7560955722349181440">"Neprekidna"</item>
     <item msgid="167418068739176448">"Najveća aktivnost"</item>

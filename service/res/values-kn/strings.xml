@@ -72,9 +72,11 @@
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"ಊಡಿಕೆ ಘಟನೆಗಳನ್ನು ನಿಯಂತ್ರಿಸಿ"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"ಸಿಎಎನ್ ಬಸ್ ಕೆಟ್ಟಿದೆ"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN ಬಸ್ ಸ್ಪಂದಿಸುತ್ತಿಲ್ಲ. ಹೆಡ್ ಯುನಿಟ್ ಪೆಟ್ಟಿಗೆಯನ್ನು ಅನ್‌ಪ್ಲಗ್ ಮಾಡಿ ಮತ್ತೆ ಪ್ಲಗ್ ಮಾಡಿ ಕಾರನ್ನು ಪುನರಾರಂಭಿಸಿ"</string>
-    <string name="activity_blocked_text" msgid="5342114426610711378">"ನಿಮ್ಮ ಸುರಕ್ಷೆಗಾಗಿ, ಈ ಚಟುವಟಿಕೆಯು ವಾಹನ ಚಲಾಯಿಸುತ್ತಿರುವಾಗ ಲಭ್ಯವಿಲ್ಲ. ಮುಂದುವರೆಯಲು \n ಮಾಡಿ, ನೀವು ಪಾರ್ಕ್ ಮಾಡುವ ತನಕ ಕಾಯಿರಿ."</string>
+    <string name="activity_blocked_text" msgid="8088902789540147995">"ಡ್ರೈವ್ ಮಾಡುವಾಗ ನೀವು ಈ ವೈಶಿಷ್ಟ್ಯವನ್ನು ಬಳಸಲಾಗುವುದಿಲ್ಲ"</string>
     <string name="exit_button_message" msgid="8554690915924055685">"ಆಪ್‌ನ ಸುರಕ್ಷೆ ಗುಣಲಕ್ಷಣಗಳನ್ನು ಒಳಗೊಂಡು ಮತ್ತೆ ಪ್ರಾರಂಭಿಸಲು, <xliff:g id="EXIT_BUTTON">%s</xliff:g> ಆಯ್ಕೆ ಮಾಡಿ."</string>
     <string name="exit_button" msgid="5829638404777671253">"ಹಿಂದಕ್ಕೆ"</string>
+    <string name="exit_button_close_application" msgid="8824289547809332460">"ಆ್ಯಪ್ ಮುಚ್ಚಿರಿ"</string>
+    <string name="exit_button_go_back" msgid="3469083862100560326">"ಹಿಂದೆ"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"ಡಯಾಗ್ನೋಸ್ಟಿಕ್ ಡೇಟಾವನ್ನು ಓದಿ"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"ಕಾರಿನಲ್ಲಿರುವ ಅದರ ಡಯಾಗ್ನೋಸ್ಟಿಕ್ ಡೇಟಾವನ್ನು ಓದಿ."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"ಡಯಾಗ್ನೋಸ್ಟಿಕ್ ಡೇಟಾವನ್ನು ತೆರವುಗೊಳಿಸಿ"</string>
@@ -140,4 +142,5 @@
     <string name="car_permission_label_use_car_watchdog" msgid="6973938293170413475">"ಕಾರ್ ಮಾನಿಟರಿಂಗ್ ಟೈಮರ್ ಬಳಸಿ"</string>
     <string name="car_permission_desc_use_car_watchdog" msgid="8244592601805516086">"ಕಾರ್ ಮಾನಿಟರಿಂಗ್ ಟೈಮರ್ ಬಳಸಿ."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"ನನ್ನ ಸಾಧನ"</string>
+    <string name="default_guest_name" msgid="2912812799433131476">"ಅತಿಥಿ"</string>
 </resources>
