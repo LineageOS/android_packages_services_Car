@@ -33,7 +33,9 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
@@ -110,11 +112,12 @@ public final class UserHalServiceTest {
 
     private final UsersInfo mUsersInfo = new UsersInfo();
 
+    // Must be a spy so we can mock getNextRequestId()
     private UserHalService mUserHalService;
 
     @Before
     public void setFixtures() {
-        mUserHalService = new UserHalService(mVehicleHal);
+        mUserHalService = spy(new UserHalService(mVehicleHal));
         mUserHalService.takeProperties(Arrays.asList(
                 newSubscribableConfig(INITIAL_USER_INFO),
                 newSubscribableConfig(SWITCH_USER)));
@@ -617,6 +620,7 @@ public final class UserHalServiceTest {
     public void testGetUserAssociation_invalidResponse() {
         VehiclePropValue mockedResponse = new VehiclePropValue();
         mockedResponse.prop = USER_IDENTIFICATION_ASSOCIATION;
+        mockedResponse.value.int32Values.add(666); // requestId
         mockedResponse.value.int32Values.add(1); // 1 associations
         mockedResponse.value.int32Values.add(KEY_FOB); // type only, it's missing value
         when(mVehicleHal.get(
@@ -636,6 +640,7 @@ public final class UserHalServiceTest {
     public void testGetUserAssociation_nullResponse() {
         VehiclePropValue mockedResponse = new VehiclePropValue();
         mockedResponse.prop = USER_IDENTIFICATION_ASSOCIATION;
+        mockedResponse.value.int32Values.add(666); // requestId
         mockedResponse.value.int32Values.add(1); // 1 association
         mockedResponse.value.int32Values.add(KEY_FOB);
         mockedResponse.value.int32Values.add(ASSOCIATED_CURRENT_USER);
@@ -656,6 +661,7 @@ public final class UserHalServiceTest {
     public void testGetUserAssociation_wrongNumberOfAssociationsOnResponse() {
         VehiclePropValue mockedResponse = new VehiclePropValue();
         mockedResponse.prop = USER_IDENTIFICATION_ASSOCIATION;
+        mockedResponse.value.int32Values.add(666); // requestId
         mockedResponse.value.int32Values.add(2); // 2 associations
         mockedResponse.value.int32Values.add(KEY_FOB);
         mockedResponse.value.int32Values.add(ASSOCIATED_CURRENT_USER);
@@ -678,7 +684,8 @@ public final class UserHalServiceTest {
     public void testGetUserAssociation_typesOnResponseMismatchTypesOnRequest() {
         VehiclePropValue mockedResponse = new VehiclePropValue();
         mockedResponse.prop = USER_IDENTIFICATION_ASSOCIATION;
-        mockedResponse.value.int32Values.add(1);
+        mockedResponse.value.int32Values.add(666); // requestId
+        mockedResponse.value.int32Values.add(1); // 1 association
         mockedResponse.value.int32Values.add(CUSTOM_1);
         mockedResponse.value.int32Values.add(ASSOCIATED_CURRENT_USER);
         when(mVehicleHal.get(
@@ -695,14 +702,38 @@ public final class UserHalServiceTest {
     }
 
     @Test
-    public void testGetUserAssociation_ok() {
+    public void testGetUserAssociation_requestIdMismatch() {
+        mockNextRequestId(666);
         VehiclePropValue mockedResponse = new VehiclePropValue();
         mockedResponse.prop = USER_IDENTIFICATION_ASSOCIATION;
+        mockedResponse.value.int32Values.add(667); // requestId
         mockedResponse.value.int32Values.add(1); // 1 association
         mockedResponse.value.int32Values.add(KEY_FOB);
         mockedResponse.value.int32Values.add(ASSOCIATED_CURRENT_USER);
         when(mVehicleHal.get(
-                isPropertyWithValues(USER_IDENTIFICATION_ASSOCIATION, 42, 108, 1, KEY_FOB)))
+                isPropertyWithValues(USER_IDENTIFICATION_ASSOCIATION, 666, 42, 108, 1, KEY_FOB)))
+                        .thenReturn(mockedResponse);
+
+        UserIdentificationGetRequest request = new UserIdentificationGetRequest();
+        request.userInfo.userId = 42;
+        request.userInfo.flags = 108;
+        request.numberAssociationTypes = 1;
+        request.associationTypes.add(KEY_FOB);
+
+        assertThat(mUserHalService.getUserAssociation(request)).isNull();
+    }
+
+    @Test
+    public void testGetUserAssociation_ok() {
+        mockNextRequestId(666);
+        VehiclePropValue mockedResponse = new VehiclePropValue();
+        mockedResponse.prop = USER_IDENTIFICATION_ASSOCIATION;
+        mockedResponse.value.int32Values.add(666); // requestId
+        mockedResponse.value.int32Values.add(1); // 1 association
+        mockedResponse.value.int32Values.add(KEY_FOB);
+        mockedResponse.value.int32Values.add(ASSOCIATED_CURRENT_USER);
+        when(mVehicleHal.get(
+                isPropertyWithValues(USER_IDENTIFICATION_ASSOCIATION, 666, 42, 108, 1, KEY_FOB)))
                         .thenReturn(mockedResponse);
 
         UserIdentificationGetRequest request = new UserIdentificationGetRequest();
@@ -713,6 +744,7 @@ public final class UserHalServiceTest {
 
         UserIdentificationResponse actualResponse = mUserHalService.getUserAssociation(request);
 
+        assertThat(actualResponse.requestId).isEqualTo(666);
         assertThat(actualResponse.numberAssociation).isEqualTo(1);
         assertThat(actualResponse.associations).hasSize(1);
         UserIdentificationAssociation actualAssociation = actualResponse.associations.get(0);
@@ -789,6 +821,10 @@ public final class UserHalServiceTest {
     private void replySetPropertyWithTimeoutException(int prop) throws Exception {
         doThrow(new ServiceSpecificException(VehicleHalStatusCode.STATUS_TRY_AGAIN,
                 "PropId: 0x" + Integer.toHexString(prop))).when(mVehicleHal).set(isProperty(prop));
+    }
+
+    private void mockNextRequestId(int requestId) {
+        doReturn(requestId).when(mUserHalService).getNextRequestId();
     }
 
     private void assertInitialUserInfoSetRequest(VehiclePropValue req, int requestType) {

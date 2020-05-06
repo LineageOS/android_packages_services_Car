@@ -55,6 +55,7 @@ import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.car.EventLogTags;
 import com.android.internal.util.Preconditions;
 
@@ -224,7 +225,7 @@ public final class UserHalService extends HalServiceBase {
         synchronized (mLock) {
             checkSupportedLocked();
             if (hasPendingRequestLocked(InitialUserInfoResponse.class, callback)) return;
-            requestId = mNextRequestId++;
+            requestId = getNextRequestId();
             EventLog.writeEvent(EventLogTags.CAR_USER_HAL_INITIAL_USER_INFO_REQ, requestId,
                     requestType, timeoutMs);
             propRequest = UserHalHelper.createPropRequest(requestId, requestType,
@@ -271,7 +272,7 @@ public final class UserHalService extends HalServiceBase {
         synchronized (mLock) {
             checkSupportedLocked();
             if (hasPendingRequestLocked(SwitchUserResponse.class, callback)) return;
-            requestId = mNextRequestId++;
+            requestId = getNextRequestId();
             EventLog.writeEvent(EventLogTags.CAR_USER_HAL_SWITCH_USER_REQ, requestId,
                     targetInfo.userId, timeoutMs);
             propRequest = getPropRequestForSwitchUserLocked(requestId,
@@ -388,7 +389,10 @@ public final class UserHalService extends HalServiceBase {
             types.put(type, true);
         }
 
+        request.requestId = getNextRequestId();
+
         if (DBG) Log.d(TAG, "getUserAssociation(): req=" + request);
+
         VehiclePropValue requestAsPropValue = UserHalHelper.toVehiclePropValue(request);
         EventLog.writeEvent(EventLogTags.CAR_USER_HAL_GET_USER_AUTH_REQ,
                 requestAsPropValue.value.int32Values.toArray());
@@ -422,6 +426,11 @@ public final class UserHalService extends HalServiceBase {
         if (DBG) Log.d(TAG, "getUserAssociation(): response=" + response);
 
         // Validate the response according to the request
+        if (response.requestId != request.requestId) {
+            Log.w(TAG, "invalid request id (should be " + request.requestId + ") on HAL response: "
+                    + response);
+            return null;
+        }
         if (response.numberAssociation != request.numberAssociationTypes) {
             Log.w(TAG, "Wrong number of association types on HAL response (expected "
                     + request.numberAssociationTypes + ") for request " + requestAsPropValue
@@ -441,6 +450,13 @@ public final class UserHalService extends HalServiceBase {
         }
 
         return response;
+    }
+
+    @VisibleForTesting
+    int getNextRequestId() {
+        synchronized (mLock) {
+            return ++mNextRequestId;
+        }
     }
 
     @GuardedBy("mLock")

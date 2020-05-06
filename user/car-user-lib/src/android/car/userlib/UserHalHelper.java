@@ -240,20 +240,25 @@ public final class UserHalHelper {
         Objects.requireNonNull(prop, "prop cannot be null");
         checkArgument(prop.prop == USER_IDENTIFICATION_ASSOCIATION_PROPERTY,
                 "invalid prop on %s", prop);
-        checkArgument(prop.value.int32Values.size() > 1,
-                "not enough int32Values on %s", prop);
+        // need at least 4: request_id, number associations, type1, value1
+        checkArgument(prop.value.int32Values.size() >= 4, "not enough int32Values on %s", prop);
 
-        int numberAssociations = prop.value.int32Values.get(0);
+        int requestId = prop.value.int32Values.get(0);
+        checkArgument(requestId > 0, "invalid request id (%d) on %s", requestId, prop);
+
+        int numberAssociations = prop.value.int32Values.get(1);
         checkArgument(numberAssociations >= 1, "invalid number of items on %s", prop);
-        int numberItems = prop.value.int32Values.size() - 1;
+        int numberOfNonItems = 2; // requestId and size
+        int numberItems = prop.value.int32Values.size() - numberOfNonItems;
         checkArgument(numberItems == numberAssociations * 2, "number of items mismatch on %s",
                 prop);
 
         UserIdentificationResponse response = new UserIdentificationResponse();
+        response.requestId = requestId;
         response.errorMessage = prop.value.stringValue;
 
         response.numberAssociation = numberAssociations;
-        int i = 1;
+        int i = numberOfNonItems;
         for (int a = 0; a < numberAssociations; a++) {
             int index;
             UserIdentificationAssociation association = new UserIdentificationAssociation();
@@ -283,9 +288,11 @@ public final class UserHalHelper {
                 "invalid number of association types mismatch on %s", request);
         checkArgument(request.numberAssociationTypes == request.associationTypes.size(),
                 "number of association types mismatch on %s", request);
+        checkArgument(request.requestId > 0, "invalid requestId on %s", request);
 
         VehiclePropValue propValue = new VehiclePropValue();
         propValue.prop = USER_IDENTIFICATION_ASSOCIATION_PROPERTY;
+        propValue.value.int32Values.add(request.requestId);
         propValue.value.int32Values.add(request.userInfo.userId);
         propValue.value.int32Values.add(request.userInfo.flags);
         propValue.value.int32Values.add(request.numberAssociationTypes);

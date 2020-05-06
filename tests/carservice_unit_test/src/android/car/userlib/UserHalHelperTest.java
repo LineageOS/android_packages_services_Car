@@ -261,6 +261,7 @@ public final class UserHalHelperTest {
     @Test
     public void testUserIdentificationGetRequestToVehiclePropValue_emptyRequest() {
         UserIdentificationGetRequest request = new UserIdentificationGetRequest();
+
         assertThrows(IllegalArgumentException.class,
                 () -> UserHalHelper.toVehiclePropValue(request));
     }
@@ -269,6 +270,7 @@ public final class UserHalHelperTest {
     public void testUserIdentificationGetRequestToVehiclePropValue_wrongNumberOfAssociations() {
         UserIdentificationGetRequest request = new UserIdentificationGetRequest();
         request.numberAssociationTypes = 1;
+
         assertThrows(IllegalArgumentException.class,
                 () -> UserHalHelper.toVehiclePropValue(request));
     }
@@ -278,6 +280,19 @@ public final class UserHalHelperTest {
         UserIdentificationGetRequest request = new UserIdentificationGetRequest();
         request.numberAssociationTypes = 1;
         request.associationTypes.add(CUSTOM_4 + 1);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> UserHalHelper.toVehiclePropValue(request));
+    }
+
+    @Test
+    public void testUserIdentificationGetRequestToVehiclePropValue_missingRequestId() {
+        UserIdentificationGetRequest request = new UserIdentificationGetRequest();
+        request.userInfo.userId = 42;
+        request.userInfo.flags = 108;
+        request.numberAssociationTypes = 1;
+        request.associationTypes.add(KEY_FOB);
+
         assertThrows(IllegalArgumentException.class,
                 () -> UserHalHelper.toVehiclePropValue(request));
     }
@@ -285,6 +300,7 @@ public final class UserHalHelperTest {
     @Test
     public void testUserIdentificationGetRequestToVehiclePropValue_ok() {
         UserIdentificationGetRequest request = new UserIdentificationGetRequest();
+        request.requestId = 1;
         request.userInfo.userId = 42;
         request.userInfo.flags = 108;
         request.numberAssociationTypes = 2;
@@ -295,7 +311,7 @@ public final class UserHalHelperTest {
         assertWithMessage("wrong prop on %s", propValue).that(propValue.prop)
                 .isEqualTo(USER_IDENTIFICATION_ASSOCIATION_PROPERTY);
         assertWithMessage("wrong int32values on %s", propValue).that(propValue.value.int32Values)
-                .containsExactly(42, 108, 2, KEY_FOB, CUSTOM_1).inOrder();
+                .containsExactly(1, 42, 108, 2, KEY_FOB, CUSTOM_1).inOrder();
     }
 
     @Test
@@ -307,6 +323,7 @@ public final class UserHalHelperTest {
     @Test
     public void testToUserIdentificationGetResponse_invalidPropType() {
         VehiclePropValue prop = new VehiclePropValue();
+
         assertThrows(IllegalArgumentException.class,
                 () -> UserHalHelper.toUserIdentificationGetResponse(prop));
     }
@@ -315,17 +332,21 @@ public final class UserHalHelperTest {
     public void testToUserIdentificationGetResponse_invalidSize() {
         VehiclePropValue prop = new VehiclePropValue();
         prop.prop = UserHalHelper.USER_IDENTIFICATION_ASSOCIATION_PROPERTY;
-        prop.value.int32Values.add(0);
+        // need at least 4: request_id, number associations, type1, value1
+        prop.value.int32Values.add(1);
+        prop.value.int32Values.add(2);
+        prop.value.int32Values.add(3);
+
         assertThrows(IllegalArgumentException.class,
                 () -> UserHalHelper.toUserIdentificationGetResponse(prop));
     }
 
     @Test
-    public void testToUserIdentificationGetResponse_sizeMismatch() {
+    public void testToUserIdentificationGetResponse_invalidRequest() {
         VehiclePropValue prop = new VehiclePropValue();
         prop.prop = UserHalHelper.USER_IDENTIFICATION_ASSOCIATION_PROPERTY;
-        prop.value.int32Values.add(1); // number of associations
-        prop.value.int32Values.add(KEY_FOB);
+        prop.value.int32Values.add(0);
+
         assertThrows(IllegalArgumentException.class,
                 () -> UserHalHelper.toUserIdentificationGetResponse(prop));
     }
@@ -334,9 +355,11 @@ public final class UserHalHelperTest {
     public void testToUserIdentificationGetResponse_invalidType() {
         VehiclePropValue prop = new VehiclePropValue();
         prop.prop = UserHalHelper.USER_IDENTIFICATION_ASSOCIATION_PROPERTY;
+        prop.value.int32Values.add(42); // request id
         prop.value.int32Values.add(1); // number of associations
         prop.value.int32Values.add(CUSTOM_4 + 1);
         prop.value.int32Values.add(ASSOCIATED_ANOTHER_USER);
+
         assertThrows(IllegalArgumentException.class,
                 () -> UserHalHelper.toUserIdentificationGetResponse(prop));
     }
@@ -345,9 +368,11 @@ public final class UserHalHelperTest {
     public void testToUserIdentificationGetResponse_invalidValue() {
         VehiclePropValue prop = new VehiclePropValue();
         prop.prop = UserHalHelper.USER_IDENTIFICATION_ASSOCIATION_PROPERTY;
+        prop.value.int32Values.add(42); // request id
         prop.value.int32Values.add(1); // number of associations
         prop.value.int32Values.add(KEY_FOB);
         prop.value.int32Values.add(0);
+
         assertThrows(IllegalArgumentException.class,
                 () -> UserHalHelper.toUserIdentificationGetResponse(prop));
     }
@@ -356,6 +381,7 @@ public final class UserHalHelperTest {
     public void testToUserIdentificationGetResponse_ok() {
         VehiclePropValue prop = new VehiclePropValue();
         prop.prop = UserHalHelper.USER_IDENTIFICATION_ASSOCIATION_PROPERTY;
+        prop.value.int32Values.add(42); // request id
         prop.value.int32Values.add(3); // number of associations
         prop.value.int32Values.add(KEY_FOB);
         prop.value.int32Values.add(ASSOCIATED_ANOTHER_USER);
@@ -364,10 +390,13 @@ public final class UserHalHelperTest {
         prop.value.int32Values.add(CUSTOM_2);
         prop.value.int32Values.add(NOT_ASSOCIATED_ANY_USER);
         prop.value.stringValue = "D'OH!";
+
         UserIdentificationResponse response = UserHalHelper.toUserIdentificationGetResponse(prop);
+
+        assertWithMessage("Wrong request id on %s", response)
+            .that(response.requestId).isEqualTo(42);
         assertWithMessage("Wrong number of associations on %s", response)
             .that(response.numberAssociation).isEqualTo(3);
-
         assertAssociation(response, 0, KEY_FOB, ASSOCIATED_ANOTHER_USER);
         assertAssociation(response, 1, CUSTOM_1, ASSOCIATED_CURRENT_USER);
         assertAssociation(response, 2, CUSTOM_2, NOT_ASSOCIATED_ANY_USER);
