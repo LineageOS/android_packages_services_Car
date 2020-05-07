@@ -49,6 +49,7 @@ constexpr const char* kStartCustomCollectionFlag = "--start_io";
 constexpr const char* kEndCustomCollectionFlag = "--stop_io";
 constexpr const char* kIntervalFlag = "--interval";
 constexpr const char* kMaxDurationFlag = "--max_duration";
+constexpr const char* kFilterPackagesFlag = "--filter_packages";
 
 // Performance data collected from the `/proc/uid_io/stats` file.
 struct UidIoPerfData {
@@ -110,6 +111,8 @@ std::string toString(const IoPerfRecord& record);
 struct CollectionInfo {
     std::chrono::nanoseconds interval = 0ns;  // Collection interval between subsequent collections.
     size_t maxCacheSize = 0;                  // Maximum cache size for the collection.
+    std::unordered_set<std::string> filterPackages;  // Filter the output only to the specified
+                                                     // packages.
     nsecs_t lastCollectionUptime = 0;         // Used to calculate the uptime for next collection.
     std::vector<IoPerfRecord> records;        // Cache of collected performance records.
 };
@@ -187,6 +190,9 @@ public:
     // Returns any error observed during the dump generation.
     virtual android::base::Result<void> dump(int fd, const Vector<String16>& args);
 
+    // Dumps the help text.
+    bool dumpHelpText(int fd);
+
 private:
     // Generates a dump from the boot-time and periodic collection events.
     android::base::Result<void> dumpCollection(int fd);
@@ -200,8 +206,11 @@ private:
     // |maxDuration| is reached, the looper receives a message to end the collection, discards the
     // collected data, and starts the periodic collection. This is needed to ensure the custom
     // collection doesn't run forever when a subsequent |endCustomCollection| call is not received.
-    android::base::Result<void> startCustomCollection(std::chrono::nanoseconds interval,
-                                                      std::chrono::nanoseconds maxDuration);
+    // When |kFilterPackagesFlag| value is provided, the results are filtered only to the specified
+    // package names.
+    android::base::Result<void> startCustomCollection(
+            std::chrono::nanoseconds interval, std::chrono::nanoseconds maxDuration,
+            const std::unordered_set<std::string>& filterPackages);
 
     // Ends the current custom collection, generates a dump, sends message to looper to start the
     // periodic collection, and returns immediately. Returns an error when there is no custom
@@ -218,7 +227,8 @@ private:
     android::base::Result<void> collectLocked(CollectionInfo* collectionInfo);
 
     // Collects performance data from the `/proc/uid_io/stats` file.
-    android::base::Result<void> collectUidIoPerfDataLocked(UidIoPerfData* uidIoPerfData);
+    android::base::Result<void> collectUidIoPerfDataLocked(const CollectionInfo& collectionInfo,
+                                                           UidIoPerfData* uidIoPerfData);
 
     // Collects performance data from the `/proc/stats` file.
     android::base::Result<void> collectSystemIoPerfDataLocked(SystemIoPerfData* systemIoPerfData);
@@ -226,7 +236,7 @@ private:
     // Collects performance data from the `/proc/[pid]/stat` and
     // `/proc/[pid]/task/[tid]/stat` files.
     android::base::Result<void> collectProcessIoPerfDataLocked(
-            ProcessIoPerfData* processIoPerfData);
+            const CollectionInfo& collectionInfo, ProcessIoPerfData* processIoPerfData);
 
     // Updates the |mUidToPackageNameMapping| for the given |uids|.
     android::base::Result<void> updateUidToPackageNameMapping(
@@ -296,6 +306,7 @@ private:
     FRIEND_TEST(IoPerfCollectionTest, TestValidProcStatFile);
     FRIEND_TEST(IoPerfCollectionTest, TestValidProcPidContents);
     FRIEND_TEST(IoPerfCollectionTest, TestProcPidContentsLessThanTopNStatsLimit);
+    FRIEND_TEST(IoPerfCollectionTest, TestCustomCollectionFiltersPackageNames);
 };
 
 }  // namespace watchdog

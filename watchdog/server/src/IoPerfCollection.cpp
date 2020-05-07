@@ -22,6 +22,7 @@
 #include <android-base/file.h>
 #include <android-base/parseint.h>
 #include <android-base/stringprintf.h>
+#include <android-base/strings.h>
 #include <binder/IServiceManager.h>
 #include <cutils/android_filesystem_config.h>
 #include <inttypes.h>
@@ -30,7 +31,9 @@
 #include <pthread.h>
 #include <pwd.h>
 
+#include <algorithm>
 #include <iomanip>
+#include <iterator>
 #include <limits>
 #include <string>
 #include <thread>
@@ -50,7 +53,9 @@ using android::String16;
 using android::base::Error;
 using android::base::ParseUint;
 using android::base::Result;
+using android::base::Split;
 using android::base::StringAppendF;
+using android::base::StringPrintf;
 using android::base::WriteStringToFd;
 using android::content::pm::IPackageManagerNative;
 
@@ -71,6 +76,24 @@ const std::chrono::nanoseconds kCustomCollectionInterval = 10s;
 const std::chrono::nanoseconds kCustomCollectionDuration = 30min;
 
 const std::string kDumpMajorDelimiter = std::string(100, '-') + "\n";
+
+constexpr const char* kHelpText =
+        "\nCustom I/O performance data collection dump options:\n"
+        "%s: Starts custom I/O performance data collection. Customize the collection behavior with "
+        "the following optional arguments:\n"
+        "\t%s <seconds>: Modifies the collection interval. Default behavior is to collect once "
+        "every %lld seconds.\n"
+        "\t%s <seconds>: Modifies the maximum collection duration. Default behavior is to collect "
+        "until %ld minutes before automatically stopping the custom collection and discarding "
+        "the collected data.\n"
+        "\t%s <package name>,<package, name>,...: Comma-separated value containing package names. "
+        "When provided, the results are filtered only to the provided package names. Default "
+        "behavior is to list the results for the top %d packages.\n"
+        "%s: Stops custom I/O performance data collection and generates a dump of "
+        "the collection report.\n\n"
+        "When no options are specified, the carwatchdog report contains the I/O performance "
+        "data collected during boot-time and over the last %ld minutes before the report "
+        "generation.";
 
 double percentage(uint64_t numer, uint64_t denom) {
     return denom == 0 ? 0.0 : (static_cast<double>(numer) / static_cast<double>(denom)) * 100.0;
@@ -401,17 +424,18 @@ Result<void> IoPerfCollection::dump(int fd, const Vector<String16>& args) {
     }
 
     if (args[0] == String16(kStartCustomCollectionFlag)) {
-        if (args.size() > 5) {
-            return Error(INVALID_OPERATION) << "Number of arguments to start custom "
-                                            << "I/O performance data collection cannot exceed 5";
+        if (args.size() > 7) {
+            return Error(BAD_VALUE) << "Number of arguments to start custom I/O performance data "
+                                    << "collection cannot exceed 7";
         }
         std::chrono::nanoseconds interval = kCustomCollectionInterval;
         std::chrono::nanoseconds maxDuration = kCustomCollectionDuration;
+        std::unordered_set<std::string> filterPackages;
         for (size_t i = 1; i < args.size(); ++i) {
             if (args[i] == String16(kIntervalFlag)) {
                 const auto& ret = parseSecondsFlag(args, i + 1);
                 if (!ret) {
-                    return Error(FAILED_TRANSACTION)
+                    return Error(BAD_VALUE)
                             << "Failed to parse " << kIntervalFlag << ": " << ret.error();
                 }
                 interval = std::chrono::duration_cast<std::chrono::nanoseconds>(*ret);
@@ -421,21 +445,34 @@ Result<void> IoPerfCollection::dump(int fd, const Vector<String16>& args) {
             if (args[i] == String16(kMaxDurationFlag)) {
                 const auto& ret = parseSecondsFlag(args, i + 1);
                 if (!ret) {
-                    return Error(FAILED_TRANSACTION)
+                    return Error(BAD_VALUE)
                             << "Failed to parse " << kMaxDurationFlag << ": " << ret.error();
                 }
                 maxDuration = std::chrono::duration_cast<std::chrono::nanoseconds>(*ret);
                 ++i;
                 continue;
             }
+            if (args[i] == String16(kFilterPackagesFlag)) {
+                if (args.size() < i + 1) {
+                    return Error(BAD_VALUE)
+                            << "Must provide value for '" << kFilterPackagesFlag << "' flag";
+                }
+                std::vector<std::string> packages =
+                        Split(std::string(String8(args[i + 1]).string()), ",");
+                std::copy(packages.begin(), packages.end(),
+                          std::inserter(filterPackages, filterPackages.end()));
+                ++i;
+                continue;
+            }
             ALOGW("Unknown flag %s provided to start custom I/O performance data collection",
                   String8(args[i]).string());
-            return Error(INVALID_OPERATION) << "Unknown flag " << String8(args[i]).string()
-                                            << " provided to start custom I/O performance data "
-                                            << "collection";
+            return Error(BAD_VALUE) << "Unknown flag " << String8(args[i]).string()
+                                    << " provided to start custom I/O performance data "
+                                    << "collection";
         }
-        const auto& ret = startCustomCollection(interval, maxDuration);
+        const auto& ret = startCustomCollection(interval, maxDuration, filterPackages);
         if (!ret) {
+            WriteStringToFd(ret.error().message(), fd);
             return ret;
         }
         return {};
@@ -443,19 +480,37 @@ Result<void> IoPerfCollection::dump(int fd, const Vector<String16>& args) {
 
     if (args[0] == String16(kEndCustomCollectionFlag)) {
         if (args.size() != 1) {
-            ALOGW("Number of arguments to end custom I/O performance data collection cannot "
-                  "exceed 1");
+            ALOGW("Number of arguments to stop custom I/O performance data collection cannot "
+                  "exceed 1. Stopping the data collection.");
+            WriteStringToFd("Number of arguments to stop custom I/O performance data collection "
+                            "cannot exceed 1. Stopping the data collection.",
+                            fd);
         }
-        const auto& ret = endCustomCollection(fd);
-        if (!ret) {
-            return ret;
-        }
-        return {};
+        return endCustomCollection(fd);
     }
 
-    return Error(INVALID_OPERATION)
-            << "Dump arguments start neither with " << kStartCustomCollectionFlag << " nor with "
-            << kEndCustomCollectionFlag << " flags";
+    return Error(BAD_VALUE) << "I/O perf collection dump arguments start neither with "
+                            << kStartCustomCollectionFlag << " nor with "
+                            << kEndCustomCollectionFlag << " flags";
+}
+
+bool IoPerfCollection::dumpHelpText(int fd) {
+    long periodicCacheMinutes =
+            (std::chrono::duration_cast<std::chrono::seconds>(mPeriodicCollection.interval)
+                     .count() *
+             mPeriodicCollection.maxCacheSize) /
+            60;
+    return WriteStringToFd(StringPrintf(kHelpText, kStartCustomCollectionFlag, kIntervalFlag,
+                                        std::chrono::duration_cast<std::chrono::seconds>(
+                                                kCustomCollectionInterval)
+                                                .count(),
+                                        kMaxDurationFlag,
+                                        std::chrono::duration_cast<std::chrono::minutes>(
+                                                kCustomCollectionDuration)
+                                                .count(),
+                                        kFilterPackagesFlag, mTopNStatsPerCategory,
+                                        kEndCustomCollectionFlag, periodicCacheMinutes),
+                           fd);
 }
 
 Result<void> IoPerfCollection::dumpCollection(int fd) {
@@ -512,8 +567,9 @@ Result<void> IoPerfCollection::dumpCollectorsStatusLocked(int fd) {
     return {};
 }
 
-Result<void> IoPerfCollection::startCustomCollection(std::chrono::nanoseconds interval,
-                                                     std::chrono::nanoseconds maxDuration) {
+Result<void> IoPerfCollection::startCustomCollection(
+        std::chrono::nanoseconds interval, std::chrono::nanoseconds maxDuration,
+        const std::unordered_set<std::string>& filterPackages) {
     if (interval < kMinCollectionInterval || maxDuration < kMinCollectionInterval) {
         return Error(INVALID_OPERATION)
                 << "Collection interval and maximum duration must be >= "
@@ -532,6 +588,7 @@ Result<void> IoPerfCollection::startCustomCollection(std::chrono::nanoseconds in
     mCustomCollection = {
             .interval = interval,
             .maxCacheSize = std::numeric_limits<std::size_t>::max(),
+            .filterPackages = filterPackages,
             .lastCollectionUptime = mHandlerLooper->now(),
             .records = {},
     };
@@ -664,11 +721,11 @@ Result<void> IoPerfCollection::collectLocked(CollectionInfo* collectionInfo) {
     if (!ret) {
         return ret;
     }
-    ret = collectProcessIoPerfDataLocked(&record.processIoPerfData);
+    ret = collectProcessIoPerfDataLocked(*collectionInfo, &record.processIoPerfData);
     if (!ret) {
         return ret;
     }
-    ret = collectUidIoPerfDataLocked(&record.uidIoPerfData);
+    ret = collectUidIoPerfDataLocked(*collectionInfo, &record.uidIoPerfData);
     if (!ret) {
         return ret;
     }
@@ -679,7 +736,8 @@ Result<void> IoPerfCollection::collectLocked(CollectionInfo* collectionInfo) {
     return {};
 }
 
-Result<void> IoPerfCollection::collectUidIoPerfDataLocked(UidIoPerfData* uidIoPerfData) {
+Result<void> IoPerfCollection::collectUidIoPerfDataLocked(const CollectionInfo& collectionInfo,
+                                                          UidIoPerfData* uidIoPerfData) {
     if (!mUidIoStats->enabled()) {
         // Don't return an error to avoid pre-mature termination. Instead, fetch data from other
         // collectors.
@@ -721,16 +779,20 @@ Result<void> IoPerfCollection::collectUidIoPerfDataLocked(UidIoPerfData* uidIoPe
         for (auto it = topNReads.begin(); it != topNReads.end(); ++it) {
             const UidIoUsage* curRead = *it;
             if (curRead->ios.sumReadBytes() < curUsage.ios.sumReadBytes()) {
-                topNReads.erase(topNReads.end() - 1);
                 topNReads.emplace(it, &curUsage);
+                if (collectionInfo.filterPackages.empty()) {
+                    topNReads.pop_back();
+                }
                 break;
             }
         }
         for (auto it = topNWrites.begin(); it != topNWrites.end(); ++it) {
             const UidIoUsage* curWrite = *it;
             if (curWrite->ios.sumWriteBytes() < curUsage.ios.sumWriteBytes()) {
-                topNWrites.erase(topNWrites.end() - 1);
                 topNWrites.emplace(it, &curUsage);
+                if (collectionInfo.filterPackages.empty()) {
+                    topNWrites.pop_back();
+                }
                 break;
             }
         }
@@ -759,6 +821,11 @@ Result<void> IoPerfCollection::collectUidIoPerfDataLocked(UidIoPerfData* uidIoPe
         if (mUidToPackageNameMapping.find(usage->uid) != mUidToPackageNameMapping.end()) {
             stats.packageName = mUidToPackageNameMapping[usage->uid];
         }
+        if (!collectionInfo.filterPackages.empty() &&
+            collectionInfo.filterPackages.find(stats.packageName) ==
+                    collectionInfo.filterPackages.end()) {
+            continue;
+        }
         uidIoPerfData->topNReads.emplace_back(stats);
     }
 
@@ -778,6 +845,11 @@ Result<void> IoPerfCollection::collectUidIoPerfDataLocked(UidIoPerfData* uidIoPe
         };
         if (mUidToPackageNameMapping.find(usage->uid) != mUidToPackageNameMapping.end()) {
             stats.packageName = mUidToPackageNameMapping[usage->uid];
+        }
+        if (!collectionInfo.filterPackages.empty() &&
+            collectionInfo.filterPackages.find(stats.packageName) ==
+                    collectionInfo.filterPackages.end()) {
+            continue;
         }
         uidIoPerfData->topNWrites.emplace_back(stats);
     }
@@ -804,7 +876,7 @@ Result<void> IoPerfCollection::collectSystemIoPerfDataLocked(SystemIoPerfData* s
 }
 
 Result<void> IoPerfCollection::collectProcessIoPerfDataLocked(
-        ProcessIoPerfData* processIoPerfData) {
+        const CollectionInfo& collectionInfo, ProcessIoPerfData* processIoPerfData) {
     if (!mProcPidStat->enabled()) {
         // Don't return an error to avoid pre-mature termination. Instead, fetch data from other
         // collectors.
@@ -832,16 +904,20 @@ Result<void> IoPerfCollection::collectProcessIoPerfDataLocked(
         for (auto it = topNIoBlockedUids.begin(); it != topNIoBlockedUids.end(); ++it) {
             const UidProcessStats* topStats = *it;
             if (topStats->ioBlockedTasksCnt < curStats.ioBlockedTasksCnt) {
-                topNIoBlockedUids.erase(topNIoBlockedUids.end() - 1);
                 topNIoBlockedUids.emplace(it, &curStats);
+                if (collectionInfo.filterPackages.empty()) {
+                    topNIoBlockedUids.pop_back();
+                }
                 break;
             }
         }
         for (auto it = topNMajorFaultUids.begin(); it != topNMajorFaultUids.end(); ++it) {
             const UidProcessStats* topStats = *it;
             if (topStats->majorFaults < curStats.majorFaults) {
-                topNMajorFaultUids.erase(topNMajorFaultUids.end() - 1);
                 topNMajorFaultUids.emplace(it, &curStats);
+                if (collectionInfo.filterPackages.empty()) {
+                    topNMajorFaultUids.pop_back();
+                }
                 break;
             }
         }
@@ -867,6 +943,11 @@ Result<void> IoPerfCollection::collectProcessIoPerfDataLocked(
         if (mUidToPackageNameMapping.find(it->uid) != mUidToPackageNameMapping.end()) {
             stats.packageName = mUidToPackageNameMapping[it->uid];
         }
+        if (!collectionInfo.filterPackages.empty() &&
+            collectionInfo.filterPackages.find(stats.packageName) ==
+                    collectionInfo.filterPackages.end()) {
+            continue;
+        }
         for (const auto& pIt : it->topNIoBlockedProcesses) {
             if (pIt.count == 0) {
                 break;
@@ -890,6 +971,11 @@ Result<void> IoPerfCollection::collectProcessIoPerfDataLocked(
         };
         if (mUidToPackageNameMapping.find(it->uid) != mUidToPackageNameMapping.end()) {
             stats.packageName = mUidToPackageNameMapping[it->uid];
+        }
+        if (!collectionInfo.filterPackages.empty() &&
+            collectionInfo.filterPackages.find(stats.packageName) ==
+                    collectionInfo.filterPackages.end()) {
+            continue;
         }
         for (const auto& pIt : it->topNMajorFaultProcesses) {
             if (pIt.count == 0) {

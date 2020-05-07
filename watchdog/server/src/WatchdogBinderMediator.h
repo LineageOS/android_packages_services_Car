@@ -83,6 +83,8 @@ private:
     void binderDied(const android::wp<IBinder>& who) override {
         return mWatchdogProcessService->binderDied(who);
     }
+    bool dumpHelpText(int fd, std::string errorMsg);
+
     android::sp<WatchdogProcessService> mWatchdogProcessService;
     android::sp<IoPerfCollection> mIoPerfCollection;
 
