@@ -18,6 +18,7 @@
 
 #include "WatchdogBinderMediator.h"
 
+#include <android-base/file.h>
 #include <android-base/parseint.h>
 #include <android-base/stringprintf.h>
 #include <android/automotive/watchdog/BootPhase.h>
@@ -38,9 +39,18 @@ using android::base::Error;
 using android::base::ParseUint;
 using android::base::Result;
 using android::base::StringPrintf;
+using android::base::WriteStringToFd;
 using android::binder::Status;
 
 namespace {
+
+constexpr const char* kHelpFlag = "--help";
+constexpr const char* kHelpShortFlag = "-h";
+constexpr const char* kHelpText =
+        "CarWatchdog daemon dumpsys help page:\n"
+        "Format: dumpsys android.automotive.watchdog.ICarWatchdog/default [options]\n\n"
+        "%s or %s: Displays this help text.\n"
+        "When no options are specified, carwatchdog report is generated.\n";
 
 Status checkSystemPermission() {
     if (IPCThreadState::self()->getCallingUid() != AID_SYSTEM) {
@@ -94,19 +104,46 @@ status_t WatchdogBinderMediator::dump(int fd, const Vector<String16>& args) {
         }
         return OK;
     }
+
+    if (args[0] == String16(kHelpFlag) || args[0] == String16(kHelpShortFlag)) {
+        if (!dumpHelpText(fd, "")) {
+            ALOGW("Failed to write help text to fd");
+            return FAILED_TRANSACTION;
+        }
+        return OK;
+    }
+
     if (args[0] == String16(kStartCustomCollectionFlag) ||
         args[0] == String16(kEndCustomCollectionFlag)) {
         auto ret = mIoPerfCollection->dump(fd, args);
-        std::string mode = args[0] == String16(kStartCustomCollectionFlag) ? "start" : "end";
         if (!ret.ok()) {
-            ALOGW("Failed to %s custom I/O perf collection: %s", mode.c_str(),
-                  ret.error().message().c_str());
+            std::string mode = args[0] == String16(kStartCustomCollectionFlag) ? "start" : "end";
+            std::string errorMsg = StringPrintf("Failed to %s custom I/O perf collection: %s",
+                                                mode.c_str(), ret.error().message().c_str());
+            if (ret.error().code() == BAD_VALUE) {
+                dumpHelpText(fd, errorMsg);
+            } else {
+                ALOGW("%s", errorMsg.c_str());
+            }
             return ret.error().code();
         }
         return OK;
     }
-    ALOGW("Invalid dump arguments");
+    dumpHelpText(fd, "Invalid dump arguments");
     return INVALID_OPERATION;
+}
+
+bool WatchdogBinderMediator::dumpHelpText(int fd, std::string errorMsg) {
+    if (!errorMsg.empty()) {
+        ALOGW("Error: %s", errorMsg.c_str());
+        if (!WriteStringToFd(StringPrintf("Error: %s\n\n", errorMsg.c_str()), fd)) {
+            ALOGW("Failed to write error message to fd");
+            return false;
+        }
+    }
+
+    return WriteStringToFd(StringPrintf(kHelpText, kHelpFlag, kHelpShortFlag), fd) &&
+            mIoPerfCollection->dumpHelpText(fd);
 }
 
 Status WatchdogBinderMediator::registerMediator(const sp<ICarWatchdogClient>& mediator) {
