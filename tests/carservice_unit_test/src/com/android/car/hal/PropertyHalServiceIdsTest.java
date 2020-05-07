@@ -17,11 +17,21 @@
 package com.android.car.hal;
 
 import android.car.Car;
+import android.car.VehicleHvacFanDirection;
 import android.car.VehiclePropertyIds;
+import android.hardware.automotive.vehicle.V2_0.VehicleGear;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.V2_0.VehicleUnit;
 import android.hardware.automotive.vehicle.V2_0.VehicleVendorPermission;
+import android.os.SystemClock;
 import android.util.Log;
 
 import androidx.test.runner.AndroidJUnit4;
+
+import com.android.car.vehiclehal.VehiclePropValueBuilder;
+
+import com.google.common.truth.Truth;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -53,6 +63,32 @@ public class PropertyHalServiceIdsTest {
             VehiclePropertyIds.HVAC_FAN_SPEED, VehiclePropertyIds.DOOR_LOCK};
     private static final List<Integer> CONFIG_ARRAY = new ArrayList<>();
     private static final List<Integer> CONFIG_ARRAY_INVALID = new ArrayList<>();
+    //payload test
+    private static final VehiclePropValue GEAR_WITH_VALID_VALUE =
+            VehiclePropValueBuilder.newBuilder(VehicleProperty.GEAR_SELECTION)
+            .addIntValue(VehicleGear.GEAR_DRIVE)
+            .setTimestamp(SystemClock.elapsedRealtimeNanos()).build();
+    private static final VehiclePropValue GEAR_WITH_EXTRA_VALUE =
+            VehiclePropValueBuilder.newBuilder(VehicleProperty.GEAR_SELECTION)
+                    .addIntValue(VehicleGear.GEAR_DRIVE)
+                    .addIntValue(VehicleGear.GEAR_1)
+                    .setTimestamp(SystemClock.elapsedRealtimeNanos()).build();
+    private static final VehiclePropValue GEAR_WITH_INVALID_VALUE =
+            VehiclePropValueBuilder.newBuilder(VehicleProperty.GEAR_SELECTION)
+                    .addIntValue(VehicleUnit.KILOPASCAL)
+                    .setTimestamp(SystemClock.elapsedRealtimeNanos()).build();
+    private static final VehiclePropValue GEAR_WITH_INVALID_TYPE_VALUE =
+            VehiclePropValueBuilder.newBuilder(VehicleProperty.GEAR_SELECTION)
+                    .addFloatValue(1.0f)
+                    .setTimestamp(SystemClock.elapsedRealtimeNanos()).build();
+    private static final VehiclePropValue HVAC_FAN_DIRECTIONS_VALID =
+            VehiclePropValueBuilder.newBuilder(VehicleProperty.HVAC_FAN_DIRECTION)
+                    .addIntValue(VehicleHvacFanDirection.FACE | VehicleHvacFanDirection.FLOOR)
+                    .setTimestamp(SystemClock.elapsedRealtimeNanos()).build();
+    private static final VehiclePropValue HVAC_FAN_DIRECTIONS_INVALID =
+            VehiclePropValueBuilder.newBuilder(VehicleProperty.HVAC_FAN_DIRECTION)
+                    .addIntValue(VehicleHvacFanDirection.FACE | 0x100)
+                    .setTimestamp(SystemClock.elapsedRealtimeNanos()).build();
     @Before
     public void setUp() {
         mPropertyHalServiceIds = new PropertyHalServiceIds();
@@ -90,7 +126,6 @@ public class PropertyHalServiceIdsTest {
         Assert.assertEquals(Car.PERMISSION_CONTROL_CAR_CLIMATE,
                 mPropertyHalServiceIds.getWritePermission(VehiclePropertyIds.HVAC_FAN_SPEED));
     }
-
     /**
      * Test {@link PropertyHalServiceIds#customizeVendorPermission(List)}
      */
@@ -143,4 +178,19 @@ public class PropertyHalServiceIdsTest {
         }
     }
 
+    /**
+     * Test {@link PropertyHalServiceIds#checkPayload(VehiclePropValue)}
+     */
+    @Test
+    public void testPayload() {
+        Truth.assertThat(mPropertyHalServiceIds.checkPayload(GEAR_WITH_VALID_VALUE)).isTrue();
+        Truth.assertThat(mPropertyHalServiceIds.checkPayload(GEAR_WITH_EXTRA_VALUE)).isFalse();
+        Truth.assertThat(mPropertyHalServiceIds.checkPayload(GEAR_WITH_INVALID_VALUE)).isFalse();
+        Truth.assertThat(mPropertyHalServiceIds.checkPayload(GEAR_WITH_INVALID_TYPE_VALUE))
+                .isFalse();
+
+        Truth.assertThat(mPropertyHalServiceIds.checkPayload(HVAC_FAN_DIRECTIONS_VALID)).isTrue();
+        Truth.assertThat(mPropertyHalServiceIds.checkPayload(HVAC_FAN_DIRECTIONS_INVALID))
+                .isFalse();
+    }
 }
