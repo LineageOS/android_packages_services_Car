@@ -45,7 +45,6 @@ common_lib_deps = [
     "blestream-protos",
     "SettingsLib",
     "androidx.preference_preference",
-    "EncryptionRunner",
 ]
 
 android_app {
