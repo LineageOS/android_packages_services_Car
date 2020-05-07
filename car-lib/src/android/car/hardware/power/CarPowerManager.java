@@ -16,6 +16,7 @@
 
 package android.car.hardware.power;
 
+import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
@@ -56,9 +57,14 @@ public class CarPowerManager extends CarManagerBase {
     public interface CarPowerStateListener {
         /**
          * onStateChanged() states.  These definitions must match the ones located in the native
-         * CarPowerManager:  packages/services/Car/car-lib/native/CarPowerManager/CarPowerManager.h
+         * CarPowerManager:  packages/services/Car/car-lib/native/include/CarPowerManager.h
          */
 
+        /**
+         * The current power state is unavailable, unknown, or invalid
+         * @hide
+         */
+        int INVALID = 0;
         /**
          * Android is up, but vendor is controlling the audio / display
          * @hide
@@ -158,6 +164,20 @@ public class CarPowerManager extends CarManagerBase {
             mService.scheduleNextWakeupTime(seconds);
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
+     * Returns the current power state
+     * @return One of the values defined in {@link CarPowerStateListener}
+     * @hide
+     */
+    @RequiresPermission(Car.PERMISSION_CAR_POWER)
+    public int getPowerState() {
+        try {
+            return mService.getPowerState();
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, CarPowerStateListener.INVALID);
         }
     }
 
