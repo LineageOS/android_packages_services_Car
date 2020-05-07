@@ -93,6 +93,7 @@ import androidx.test.InstrumentationRegistry;
 import com.android.car.hal.UserHalService;
 import com.android.internal.R;
 import com.android.internal.infra.AndroidFuture;
+import com.android.internal.os.IResultReceiver;
 import com.android.internal.util.Preconditions;
 
 import org.junit.Before;
@@ -139,6 +140,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Mock private Resources mMockedResources;
     @Mock private Drawable mMockedDrawable;
     @Mock private UserMetrics mUserMetrics;
+    @Mock IResultReceiver mSwitchUserUiReceiver;
 
     private final BlockingUserLifecycleListener mUserLifecycleListener =
             BlockingUserLifecycleListener.newDefaultListener();
@@ -932,6 +934,22 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         sendUserSwitchingEvent(mAdminUser.id, mGuestUser.id);
 
         verify(mUserHal, never()).legacyUserSwitch(any(), any());
+    }
+
+    @Test
+    public void testSetSwitchUserUI_receiverSetAndCalled() throws Exception {
+        mockExistingUsersAndCurrentUser(mAdminUser);
+        int requestId = 42;
+        mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
+        mSwitchUserResponse.requestId = requestId;
+        mockHalSwitch(mAdminUser.id, mGuestUser, mSwitchUserResponse);
+        mockAmSwitchUser(mGuestUser, true);
+
+        mCarUserService.setUserSwitchUiCallback(mSwitchUserUiReceiver);
+        mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture);
+
+        // update current user due to successful user switch
+        verify(mSwitchUserUiReceiver).send(mGuestUser.id, null);
     }
 
     @Test
