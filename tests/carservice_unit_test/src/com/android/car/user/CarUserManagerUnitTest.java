@@ -22,11 +22,13 @@ import static android.os.UserHandle.USER_SYSTEM;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
 
@@ -37,6 +39,7 @@ import android.car.Car;
 import android.car.ICarUserService;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.user.CarUserManager;
+import android.car.user.CarUserManager.UserSwitchUiCallback;
 import android.car.user.GetUserIdentificationAssociationResponse;
 import android.car.user.UserSwitchResult;
 import android.content.pm.UserInfo;
@@ -137,6 +140,20 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
         UserSwitchResult result = getResult(future);
         assertThat(result.getStatus()).isEqualTo(UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE);
         assertThat(result.getErrorMessage()).isNull();
+    }
+
+    @Test
+    public void testSetSwitchUserUICallback_success() throws Exception {
+        UserSwitchUiCallback callback = (u)-> { };
+
+        mMgr.setUserSwitchUiCallback(callback);
+
+        verify(mService).setUserSwitchUiCallback(any());
+    }
+
+    @Test
+    public void testSetSwitchUserUICallback_nullCallback() throws Exception {
+        assertThrows(IllegalArgumentException.class, () -> mMgr.setUserSwitchUiCallback(null));
     }
 
     @Test
