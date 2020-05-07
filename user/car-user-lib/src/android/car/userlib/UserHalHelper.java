@@ -24,10 +24,13 @@ import android.content.pm.UserInfo.UserInfoFlag;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociation;
+import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue;
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType;
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationValue;
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationGetRequest;
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationResponse;
+import android.hardware.automotive.vehicle.V2_0.UserIdentificationSetAssociation;
+import android.hardware.automotive.vehicle.V2_0.UserIdentificationSetRequest;
 import android.hardware.automotive.vehicle.V2_0.UsersInfo;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.os.SystemClock;
@@ -165,16 +168,26 @@ public final class UserHalHelper {
     }
 
     /**
-     * Creates VehiclePropValue from request.
+     * Creates a {@link VehiclePropValue} with the given {@code prop}, {@code requestId},
+     * and {@code requestType}.
      */
     @NonNull
-    public static VehiclePropValue createPropRequest(int requestId, int requestType,
-                int requestProp) {
+    public static VehiclePropValue createPropRequest(int prop, int requestId, int requestType) {
+        VehiclePropValue propRequest = createPropRequest(prop, requestId);
+        propRequest.value.int32Values.add(requestType);
+
+        return propRequest;
+    }
+
+    /**
+     * Creates a {@link VehiclePropValue} with the given {@code prop} and {@code requestId}.
+     */
+    @NonNull
+    public static VehiclePropValue createPropRequest(int prop, int requestId) {
         VehiclePropValue propRequest = new VehiclePropValue();
-        propRequest.prop = requestProp;
+        propRequest.prop = prop;
         propRequest.timestamp = SystemClock.elapsedRealtime();
         propRequest.value.int32Values.add(requestId);
-        propRequest.value.int32Values.add(requestType);
 
         return propRequest;
     }
@@ -184,21 +197,30 @@ public final class UserHalHelper {
      */
     public static void addUsersInfo(@NonNull VehiclePropValue propRequest,
                 @NonNull UsersInfo usersInfo) {
+        Objects.requireNonNull(propRequest, "VehiclePropValue cannot be null");
         Objects.requireNonNull(usersInfo.currentUser, "Current user cannot be null");
-
-        propRequest.value.int32Values.add(usersInfo.currentUser.userId);
-        propRequest.value.int32Values.add(usersInfo.currentUser.flags);
-
         checkArgument(usersInfo.numberUsers == usersInfo.existingUsers.size(),
                 "Number of existing users info does not match numberUsers");
 
+        addUserInfo(propRequest, usersInfo.currentUser);
         propRequest.value.int32Values.add(usersInfo.numberUsers);
         for (int i = 0; i < usersInfo.numberUsers; i++) {
             android.hardware.automotive.vehicle.V2_0.UserInfo userInfo =
                     usersInfo.existingUsers.get(i);
-            propRequest.value.int32Values.add(userInfo.userId);
-            propRequest.value.int32Values.add(userInfo.flags);
+            addUserInfo(propRequest, userInfo);
         }
+    }
+
+    /**
+     * Adds user information to prop value.
+     */
+    public static void addUserInfo(@NonNull VehiclePropValue propRequest,
+            @NonNull android.hardware.automotive.vehicle.V2_0.UserInfo userInfo) {
+        Objects.requireNonNull(propRequest, "VehiclePropValue cannot be null");
+        Objects.requireNonNull(userInfo, "UserInfo cannot be null");
+
+        propRequest.value.int32Values.add(userInfo.userId);
+        propRequest.value.int32Values.add(userInfo.flags);
     }
 
     /**
@@ -231,11 +253,24 @@ public final class UserHalHelper {
     }
 
     /**
+     * Checks if the given {@code value} is a valid {@link UserIdentificationAssociationSetValue}.
+     */
+    public static boolean isValidUserIdentificationAssociationSetValue(int value) {
+        switch(value) {
+            case UserIdentificationAssociationSetValue.ASSOCIATE_CURRENT_USER:
+            case UserIdentificationAssociationSetValue.DISASSOCIATE_CURRENT_USER:
+            case UserIdentificationAssociationSetValue.DISASSOCIATE_ALL_USERS:
+                return true;
+        }
+        return false;
+    }
+
+    /**
      * Creates a {@link UserIdentificationResponse} from a generic {@link VehiclePropValue} sent by
      * HAL.
      */
     @NonNull
-    public static UserIdentificationResponse toUserIdentificationGetResponse(
+    public static UserIdentificationResponse toUserIdentificationResponse(
             @NonNull VehiclePropValue prop) {
         Objects.requireNonNull(prop, "prop cannot be null");
         checkArgument(prop.prop == USER_IDENTIFICATION_ASSOCIATION_PROPERTY,
@@ -290,11 +325,9 @@ public final class UserHalHelper {
                 "number of association types mismatch on %s", request);
         checkArgument(request.requestId > 0, "invalid requestId on %s", request);
 
-        VehiclePropValue propValue = new VehiclePropValue();
-        propValue.prop = USER_IDENTIFICATION_ASSOCIATION_PROPERTY;
-        propValue.value.int32Values.add(request.requestId);
-        propValue.value.int32Values.add(request.userInfo.userId);
-        propValue.value.int32Values.add(request.userInfo.flags);
+        VehiclePropValue propValue = createPropRequest(USER_IDENTIFICATION_ASSOCIATION_PROPERTY,
+                request.requestId);
+        addUserInfo(propValue, request.userInfo);
         propValue.value.int32Values.add(request.numberAssociationTypes);
 
         for (int i = 0; i < request.numberAssociationTypes; i++) {
@@ -302,6 +335,38 @@ public final class UserHalHelper {
             checkArgument(isValidUserIdentificationAssociationType(type),
                     "invalid type at index %d on %s", i, request);
             propValue.value.int32Values.add(type);
+        }
+
+        return propValue;
+    }
+
+    /**
+     * Creates a generic {@link VehiclePropValue} (that can be sent to HAL) from a
+     * {@link UserIdentificationSetRequest}.
+     */
+    @NonNull
+    public static VehiclePropValue toVehiclePropValue(
+            @NonNull UserIdentificationSetRequest request) {
+        Objects.requireNonNull(request, "request cannot be null");
+        checkArgument(request.numberAssociations > 0,
+                "invalid number of associations  mismatch on %s", request);
+        checkArgument(request.numberAssociations == request.associations.size(),
+                "number of associations mismatch on %s", request);
+        checkArgument(request.requestId > 0, "invalid requestId on %s", request);
+
+        VehiclePropValue propValue = createPropRequest(USER_IDENTIFICATION_ASSOCIATION_PROPERTY,
+                request.requestId);
+        addUserInfo(propValue, request.userInfo);
+        propValue.value.int32Values.add(request.numberAssociations);
+
+        for (int i = 0; i < request.numberAssociations; i++) {
+            UserIdentificationSetAssociation association = request.associations.get(i);
+            checkArgument(isValidUserIdentificationAssociationType(association.type),
+                    "invalid type at index %d on %s", i, request);
+            propValue.value.int32Values.add(association.type);
+            checkArgument(isValidUserIdentificationAssociationSetValue(association.value),
+                    "invalid value at index %d on %s", i, request);
+            propValue.value.int32Values.add(association.value);
         }
 
         return propValue;
