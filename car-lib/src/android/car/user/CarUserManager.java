@@ -338,6 +338,40 @@ public final class CarUserManager extends CarManagerBase {
     }
 
     /**
+     * Sets a callback to be notified before user switch. It should only be used by Car System UI.
+     *
+     * @hide
+     */
+    public void setUserSwitchUiCallback(@NonNull UserSwitchUiCallback callback) {
+        Preconditions.checkArgument(callback != null, "Null callback");
+        UserSwitchUiCallbackReceiver userSwitchUiCallbackReceiver =
+                new UserSwitchUiCallbackReceiver(callback);
+        try {
+            mService.setUserSwitchUiCallback(userSwitchUiCallbackReceiver);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
+     * {@code IResultReceiver} used to receive user switch UI Callback.
+     */
+    // TODO(b/154958003): use mReceiver instead as now there are two binder objects
+    private final class UserSwitchUiCallbackReceiver extends IResultReceiver.Stub {
+
+        private final UserSwitchUiCallback mUserSwitchUiCallback;
+
+        UserSwitchUiCallbackReceiver(UserSwitchUiCallback callback) {
+            mUserSwitchUiCallback = callback;
+        }
+
+        @Override
+        public void send(int userId, Bundle unused) throws RemoteException {
+            mUserSwitchUiCallback.showUserSwitchDialog(userId);
+        }
+    }
+
+    /**
      * {@code IResultReceiver} used to receive lifecycle events and dispatch to the proper listener.
      */
     private class LifecycleResultReceiver extends IResultReceiver.Stub {
@@ -559,5 +593,21 @@ public final class CarUserManager extends CarManagerBase {
          * Called to notify the given {@code event}.
          */
         void onEvent(@NonNull UserLifecycleEvent event);
+    }
+
+    /**
+     * Callback for notifying user switch before switch started.
+     *
+     * <p> It should only be user by Car System UI. The purpose of this callback is notify the
+     * Car System UI to display the user switch UI.
+     *
+     * @hide
+     */
+    public interface UserSwitchUiCallback {
+
+        /**
+         * Called to notify that user switch dialog should be shown now.
+         */
+        void showUserSwitchDialog(@UserIdInt int userId);
     }
 }
