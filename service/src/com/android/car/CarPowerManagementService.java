@@ -878,6 +878,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     @Override
     public void scheduleNextWakeupTime(int seconds) {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
         if (seconds < 0) {
             Log.w(CarLog.TAG_POWER, "Next wake up time is negative. Ignoring!");
             return;
@@ -896,6 +897,15 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 Log.d(CarLog.TAG_POWER, "Tried to schedule next wake up, but already had shorter "
                         + "scheduled time");
             }
+        }
+    }
+
+    @Override
+    public int getPowerState() {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
+        synchronized (mLock) {
+            return (mCurrentState == null) ? CarPowerStateListener.INVALID
+                    : mCurrentState.mCarPowerStateListenerState;
         }
     }
 
