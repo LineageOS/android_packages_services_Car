@@ -190,6 +190,9 @@ public:
     // Returns any error observed during the dump generation.
     virtual android::base::Result<void> dump(int fd, const Vector<String16>& args);
 
+    // Dumps the help text.
+    bool dumpHelpText(int fd);
+
 private:
     // Generates a dump from the boot-time and periodic collection events.
     android::base::Result<void> dumpCollection(int fd);
