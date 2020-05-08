@@ -25,22 +25,21 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.android.car.kitchensink.R;
-import com.google.android.car.kitchensink.volume.VolumeTestFragment.VolumeInfo;
+import com.google.android.car.kitchensink.volume.VolumeTestFragment.CarAudioZoneVolumeInfo;
 
-
-public class VolumeAdapter extends ArrayAdapter<VolumeInfo> {
+public final class CarAudioZoneVolumeAdapter extends ArrayAdapter<CarAudioZoneVolumeInfo> {
 
     private final Context mContext;
-    private VolumeInfo[] mVolumeList;
+    private CarAudioZoneVolumeInfo[] mVolumeList;
     private final int mLayoutResourceId;
-    private VolumeTestFragment mFragment;
+    private CarAudioZoneVolumeFragment mFragment;
 
-
-    public VolumeAdapter(Context c, int layoutResourceId, VolumeInfo[] volumeList,
-            VolumeTestFragment fragment) {
-        super(c, layoutResourceId, volumeList);
+    public CarAudioZoneVolumeAdapter(Context context,
+            int layoutResourceId, CarAudioZoneVolumeInfo[] volumeList,
+            CarAudioZoneVolumeFragment fragment) {
+        super(context, layoutResourceId, volumeList);
         mFragment = fragment;
-        mContext = c;
+        mContext = context;
         this.mLayoutResourceId = layoutResourceId;
         this.mVolumeList = volumeList;
     }
@@ -95,18 +94,17 @@ public class VolumeAdapter extends ArrayAdapter<VolumeInfo> {
         return mVolumeList.length;
     }
 
-
-    public void refreshVolumes(VolumeInfo[] volumes) {
+    public void refreshVolumes(CarAudioZoneVolumeInfo[] volumes) {
         mVolumeList = volumes;
         notifyDataSetChanged();
     }
 
-    static class ViewHolder {
-        TextView id;
-        TextView maxVolume;
-        TextView currentVolume;
-        Button upButton;
-        Button downButton;
-        Button requestButton;
+    private static final class ViewHolder {
+        public TextView id;
+        public TextView maxVolume;
+        public TextView currentVolume;
+        public Button upButton;
+        public Button downButton;
+        public Button requestButton;
     }
 }
