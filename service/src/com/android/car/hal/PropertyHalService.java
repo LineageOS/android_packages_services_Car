@@ -32,6 +32,7 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyType;
+import android.os.Build;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -372,6 +373,12 @@ public class PropertyHalService extends HalServiceBase {
                 }
                 if (!isPropertySupportedInVehicle(v.prop)) {
                     Log.e(TAG, "Property is not supported: 0x" + toHexString(v.prop));
+                    continue;
+                }
+                // Check payload if it is a userdebug build.
+                if (Build.IS_DEBUGGABLE && !mPropIds.checkPayload(v)) {
+                    Log.e(TAG, "Drop event for property: " + v + " because it is failed "
+                            + "in payload checking.");
                     continue;
                 }
                 int mgrPropId = halToManagerPropId(v.prop);
