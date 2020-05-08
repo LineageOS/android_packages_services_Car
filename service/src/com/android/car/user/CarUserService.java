@@ -180,6 +180,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     private UserMetrics mUserMetrics;
 
+    private IResultReceiver mUserSwitchUiReceiver;
+
     /** Interface for callbaks related to passenger activities. */
     public interface PassengerCallback {
         /** Called when passenger is started at a certain zone. */
@@ -250,6 +252,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         writer.println("*CarUserService*");
         String indent = "  ";
         handleDumpListeners(writer, indent);
+        writer.printf("User switch UI receiver %s\n", mUserSwitchUiReceiver);
         synchronized (mLockUser) {
             writer.println("User0Unlocked: " + mUser0Unlocked);
             writer.println("BackgroundUsersToRestart: " + mBackgroundUsersToRestart);
@@ -822,6 +825,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                         try {
                             switched = mAm.switchUser(targetUserId);
                             if (switched) {
+                                sendUserSwitchUiCallback(targetUserId);
                                 resultStatus = UserSwitchResult.STATUS_SUCCESSFUL;
                                 mRequestIdForUserSwitchInProcess = resp.requestId;
                             } else {
@@ -846,6 +850,20 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             }
             sendResult(receiver, resultStatus, resp.errorMessage);
         });
+    }
+
+    private void sendUserSwitchUiCallback(@UserIdInt int targetUserId) {
+        if (mUserSwitchUiReceiver == null) {
+            Log.w(TAG_USER, "No User switch UI receiver.");
+            return;
+        }
+
+        try {
+            EventLog.writeEvent(EventLogTags.CAR_USER_SVC_SWITCH_USER_UI_REQ, targetUserId);
+            mUserSwitchUiReceiver.send(targetUserId, null);
+        } catch (RemoteException e) {
+            Log.e(TAG_USER, "Error calling user switch UI receiver.", e);
+        }
     }
 
     @Override
@@ -930,6 +948,19 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      */
     public boolean isUserHalSupported() {
         return mHal.isSupported();
+    }
+
+    /**
+     * Sets a callback which is invoked before user switch.
+     *
+     * <p>
+     * This method should only be called by the Car System UI. The purpose of this call is to notify
+     * Car System UI to show the user switch UI before the user switch.
+     */
+    @Override
+    public void setUserSwitchUiCallback(@NonNull IResultReceiver receiver) {
+        // TODO(b/154958003): check UID, only carSysUI should be allowed to set it.
+        mUserSwitchUiReceiver = receiver;
     }
 
     // TODO(b/144120654): use helper to generate UsersInfo
