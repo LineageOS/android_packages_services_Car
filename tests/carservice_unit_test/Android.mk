@@ -47,8 +47,7 @@ LOCAL_JAVA_LIBRARIES := \
     android.car.watchdoglib \
     android.test.runner \
     android.test.base \
-    android.test.mock \
-    EncryptionRunner
+    android.test.mock
 
 LOCAL_STATIC_JAVA_LIBRARIES := \
     android.car.testapi \
