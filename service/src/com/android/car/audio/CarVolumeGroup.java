@@ -17,10 +17,11 @@ package com.android.car.audio;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.app.ActivityManager;
+import android.annotation.UserIdInt;
 import android.car.media.CarAudioManager;
 import android.content.Context;
 import android.media.AudioDevicePort;
+import android.os.UserHandle;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -49,12 +50,15 @@ import java.util.Map;
     private final SparseArray<String> mContextToAddress = new SparseArray<>();
     private final Map<String, CarAudioDeviceInfo> mAddressToCarAudioDeviceInfo = new HashMap<>();
 
+    private final Object mLock = new Object();
+
     private int mDefaultGain = Integer.MIN_VALUE;
     private int mMaxGain = Integer.MIN_VALUE;
     private int mMinGain = Integer.MAX_VALUE;
     private int mStepSize = 0;
     private int mStoredGainIndex;
     private int mCurrentGainIndex = -1;
+    private @UserIdInt int mUserId = UserHandle.USER_CURRENT;
 
     /**
      * Constructs a {@link CarVolumeGroup} instance
@@ -66,8 +70,7 @@ import java.util.Map;
         mSettingsManager = settings;
         mZoneId = zoneId;
         mId = id;
-
-        updateUserId(ActivityManager.getCurrentUser());
+        mStoredGainIndex = mSettingsManager.getStoredVolumeGainIndexForUser(mUserId, mZoneId, mId);
     }
 
     /**
@@ -152,28 +155,31 @@ import java.util.Map;
                         CarAudioContext.toString(carAudioContext),
                         mContextToAddress.get(carAudioContext)));
 
-        if (mAddressToCarAudioDeviceInfo.size() == 0) {
-            mStepSize = info.getStepValue();
-        } else {
-            Preconditions.checkArgument(
-                    info.getStepValue() == mStepSize,
-                    "Gain controls within one group must have same step value");
-        }
+        synchronized (mLock) {
+            if (mAddressToCarAudioDeviceInfo.size() == 0) {
+                mStepSize = info.getStepValue();
+            } else {
+                Preconditions.checkArgument(
+                        info.getStepValue() == mStepSize,
+                        "Gain controls within one group must have same step value");
+            }
 
-        mAddressToCarAudioDeviceInfo.put(info.getAddress(), info);
-        mContextToAddress.put(carAudioContext, info.getAddress());
+            mAddressToCarAudioDeviceInfo.put(info.getAddress(), info);
+            mContextToAddress.put(carAudioContext, info.getAddress());
 
-        if (info.getDefaultGain() > mDefaultGain) {
-            // We're arbitrarily selecting the highest device default gain as the group's default.
-            mDefaultGain = info.getDefaultGain();
+            if (info.getDefaultGain() > mDefaultGain) {
+                // We're arbitrarily selecting the highest
+                // device default gain as the group's default.
+                mDefaultGain = info.getDefaultGain();
+            }
+            if (info.getMaxGain() > mMaxGain) {
+                mMaxGain = info.getMaxGain();
+            }
+            if (info.getMinGain() < mMinGain) {
+                mMinGain = info.getMinGain();
+            }
+            updateCurrentGainIndexLocked();
         }
-        if (info.getMaxGain() > mMaxGain) {
-            mMaxGain = info.getMaxGain();
-        }
-        if (info.getMinGain() < mMinGain) {
-            mMinGain = info.getMinGain();
-        }
-        updateCurrentGainIndex();
     }
 
     /**
@@ -181,42 +187,60 @@ import java.util.Map;
      * @param userId new user
      * @note also reloads the store gain index for the user
      */
-    private void updateUserId(int userId) {
-        mStoredGainIndex = mSettingsManager.getStoredVolumeGainIndexForUser(userId, mZoneId, mId);
-        Log.i(CarLog.TAG_AUDIO, "updateUserId userId " + userId
-                + " mStoredGainIndex " + mStoredGainIndex);
+    private void updateUserIdLocked(@UserIdInt int userId) {
+        mUserId = userId;
+        mStoredGainIndex = getCurrentGainIndexForUserLocked();
+    }
+
+    private int getCurrentGainIndexForUserLocked() {
+        int gainIndexForUser = mSettingsManager.getStoredVolumeGainIndexForUser(mUserId, mZoneId,
+                mId);
+        Log.i(CarLog.TAG_AUDIO, "updateUserId userId " + mUserId
+                + " gainIndexForUser " + gainIndexForUser);
+        return gainIndexForUser;
     }
 
     /**
      * Update the current gain index based on the stored gain index
      */
-    private void updateCurrentGainIndex() {
-        if (mStoredGainIndex < getMinGainIndex() || mStoredGainIndex > getMaxGainIndex()) {
-            // We expected to load a value from last boot, but if we didn't (perhaps this is the
-            // first boot ever?), then use the highest "default" we've seen to initialize
-            // ourselves.
-            mCurrentGainIndex = getIndexForGain(mDefaultGain);
-        } else {
-            // Just use the gain index we stored last time the gain was set (presumably during our
-            // last boot cycle).
-            mCurrentGainIndex = mStoredGainIndex;
+    private void updateCurrentGainIndexLocked() {
+        synchronized (mLock) {
+            if (mStoredGainIndex < getIndexForGainLocked(mMinGain)
+                    || mStoredGainIndex > getIndexForGainLocked(mMaxGain)) {
+                // We expected to load a value from last boot, but if we didn't (perhaps this is the
+                // first boot ever?), then use the highest "default" we've seen to initialize
+                // ourselves.
+                mCurrentGainIndex = getIndexForGainLocked(mDefaultGain);
+            } else {
+                // Just use the gain index we stored last time the gain was
+                // set (presumably during our last boot cycle).
+                mCurrentGainIndex = mStoredGainIndex;
+            }
         }
     }
 
     private int getDefaultGainIndex() {
-        return getIndexForGain(mDefaultGain);
+        synchronized (mLock) {
+            return getIndexForGainLocked(mDefaultGain);
+        }
     }
 
     int getMaxGainIndex() {
-        return getIndexForGain(mMaxGain);
+        synchronized (mLock) {
+            return getIndexForGainLocked(mMaxGain);
+        }
     }
 
     int getMinGainIndex() {
-        return getIndexForGain(mMinGain);
+        synchronized (mLock) {
+            return getIndexForGainLocked(mMinGain);
+        }
     }
 
     int getCurrentGainIndex() {
-        return mCurrentGainIndex;
+        synchronized (mLock) {
+            return mCurrentGainIndex;
+        }
     }
 
     /**
@@ -224,37 +248,43 @@ import java.util.Map;
      * @param gainIndex The gain index
      */
     void setCurrentGainIndex(int gainIndex) {
-        int gainInMillibels = getGainForIndex(gainIndex);
+        synchronized (mLock) {
+            int gainInMillibels = getGainForIndexLocked(gainIndex);
+            Preconditions.checkArgument(
+                    gainInMillibels >= mMinGain && gainInMillibels <= mMaxGain,
+                    "Gain out of range ("
+                            + mMinGain + ":"
+                            + mMaxGain + ") "
+                            + gainInMillibels + "index "
+                            + gainIndex);
 
-        Preconditions.checkArgument(
-                gainInMillibels >= mMinGain && gainInMillibels <= mMaxGain,
-                "Gain out of range ("
-                        + mMinGain + ":"
-                        + mMaxGain + ") "
-                        + gainInMillibels + "index "
-                        + gainIndex);
+            for (String address : mAddressToCarAudioDeviceInfo.keySet()) {
+                CarAudioDeviceInfo info = mAddressToCarAudioDeviceInfo.get(address);
+                info.setCurrentGain(gainInMillibels);
+            }
 
-        for (String address : mAddressToCarAudioDeviceInfo.keySet()) {
-            CarAudioDeviceInfo info = mAddressToCarAudioDeviceInfo.get(address);
-            info.setCurrentGain(gainInMillibels);
+            mCurrentGainIndex = gainIndex;
+
+            storeGainIndexForUserLocked(mCurrentGainIndex, mUserId);
         }
+    }
 
-        mCurrentGainIndex = gainIndex;
-        mSettingsManager.storeVolumeGainIndexForUser(ActivityManager.getCurrentUser(),
+    private void storeGainIndexForUserLocked(int gainIndex, @UserIdInt int userId) {
+        mSettingsManager.storeVolumeGainIndexForUser(userId,
                 mZoneId, mId, gainIndex);
     }
 
     // Given a group level gain index, return the computed gain in millibells
     // TODO (randolphs) If we ever want to add index to gain curves other than lock-stepped
     // linear, this would be the place to do it.
-    private int getGainForIndex(int gainIndex) {
+    private int getGainForIndexLocked(int gainIndex) {
         return mMinGain + gainIndex * mStepSize;
     }
 
     // TODO (randolphs) if we ever went to a non-linear index to gain curve mapping, we'd need to
     // revisit this as it assumes (at the least) that getGainForIndex is reversible.  Luckily,
     // this is an internal implementation details we could factor out if/when necessary.
-    private int getIndexForGain(int gainInMillibel) {
+    private int getIndexForGainLocked(int gainInMillibel) {
         return (gainInMillibel - mMinGain) / mStepSize;
     }
 
@@ -281,37 +311,41 @@ import java.util.Map;
 
     /** Writes to dumpsys output */
     void dump(String indent, PrintWriter writer) {
-        writer.printf("%sCarVolumeGroup(%d)\n", indent, mId);
-        writer.printf("%sUserId(%d)\n", indent, ActivityManager.getCurrentUser());
-        writer.printf("%sGain values (min / max / default/ current): %d %d %d %d\n",
-                indent, mMinGain, mMaxGain,
-                mDefaultGain, getGainForIndex(mCurrentGainIndex));
-        writer.printf("%sGain indexes (min / max / default / current): %d %d %d %d\n",
-                indent, getMinGainIndex(), getMaxGainIndex(),
-                getDefaultGainIndex(), mCurrentGainIndex);
-        for (int i = 0; i < mContextToAddress.size(); i++) {
-            writer.printf("%sContext: %s -> Address: %s\n", indent,
-                    CarAudioContext.toString(mContextToAddress.keyAt(i)),
-                    mContextToAddress.valueAt(i));
-        }
-        mAddressToCarAudioDeviceInfo.keySet().stream()
-                .map(mAddressToCarAudioDeviceInfo::get)
-                .forEach((info -> info.dump(indent, writer)));
+        synchronized (mLock) {
+            writer.printf("%sCarVolumeGroup(%d)\n", indent, mId);
+            writer.printf("%sUserId(%d)\n", indent, mUserId);
+            writer.printf("%sGain values (min / max / default/ current): %d %d %d %d\n",
+                    indent, mMinGain, mMaxGain,
+                    mDefaultGain, getGainForIndexLocked(mCurrentGainIndex));
+            writer.printf("%sGain indexes (min / max / default / current): %d %d %d %d\n",
+                    indent, getMinGainIndex(), getMaxGainIndex(),
+                    getDefaultGainIndex(), mCurrentGainIndex);
+            for (int i = 0; i < mContextToAddress.size(); i++) {
+                writer.printf("%sContext: %s -> Address: %s\n", indent,
+                        CarAudioContext.toString(mContextToAddress.keyAt(i)),
+                        mContextToAddress.valueAt(i));
+            }
+            mAddressToCarAudioDeviceInfo.keySet().stream()
+                    .map(mAddressToCarAudioDeviceInfo::get)
+                    .forEach((info -> info.dump(indent, writer)));
 
-        // Empty line for comfortable reading
-        writer.println();
+            // Empty line for comfortable reading
+            writer.println();
+        }
     }
 
     /**
      * Load volumes for new user
      * @param userId new user to load
      */
-    void loadVolumesForUser(int userId) {
-        //Update the volume for the new user
-        updateUserId(userId);
-        //Update the current gain index
-        updateCurrentGainIndex();
-        //Reset devices with current gain index
+    void loadVolumesForUser(@UserIdInt int userId) {
+        synchronized (mLock) {
+            //Update the volume for the new user
+            updateUserIdLocked(userId);
+            //Update the current gain index
+            updateCurrentGainIndexLocked();
+            //Reset devices with current gain index
+        }
         setCurrentGainIndex(getCurrentGainIndex());
     }
 }
