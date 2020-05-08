@@ -158,6 +158,11 @@ public final class CarArgumentMatchers {
             }
             return true;
         }
+
+        @Override
+        public String toString() {
+            return "prop: " + mProp + " values: " + Arrays.toString(mValues);
+        }
     }
 
     private CarArgumentMatchers() {
