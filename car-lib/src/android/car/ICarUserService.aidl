@@ -37,4 +37,5 @@ interface ICarUserService {
     oneway void resetLifecycleListenerForUid();
     oneway void getInitialUserInfo(int requestType, int timeoutMs, in IResultReceiver receiver);
     GetUserIdentificationAssociationResponse getUserIdentificationAssociation(in int[] types);
+    oneway void setUserSwitchUiCallback(in IResultReceiver callback);
 }
