@@ -550,6 +550,13 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     }
 
     /**
+     * returns the current driver user id.
+     */
+    public @UserIdInt int getDriverUserId() {
+        return getCurrentUser();
+    }
+
+    /**
      * Sets the mapping for audio zone id to occupant zone id.
      *
      * @param audioZoneIdToOccupantZoneMapping map for audio zone id, where key is the audio zone id
