@@ -35,6 +35,13 @@ namespace implementation {
 using ::android::base::StringAppendF;
 using ::android::base::WriteStringToFd;
 
+HalCamera::~HalCamera() {
+    // Reports the usage statistics before the destruction
+    // EvsUsageStatsReported atom is defined in
+    // frameworks/base/cmds/statsd/src/atoms.proto
+    mUsageStats->writeStats();
+}
+
 sp<VirtualCamera> HalCamera::makeVirtualCamera() {
 
     // Create the client camera interface object

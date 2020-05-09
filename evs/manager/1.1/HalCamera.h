@@ -61,16 +61,21 @@ class VirtualCamera;    // From VirtualCamera.h
 // stream from the hardware camera and distribute it to the associated VirtualCamera objects.
 class HalCamera : public IEvsCameraStream_1_1 {
 public:
-    HalCamera(sp<IEvsCamera_1_1> hwCamera, std::string deviceId = "", Stream cfg = {})
+    HalCamera(sp<IEvsCamera_1_1> hwCamera,
+              std::string deviceId = "",
+              int32_t recordId = 0,
+              Stream cfg = {})
         : mHwCamera(hwCamera),
           mId(deviceId),
           mStreamConfig(cfg),
           mSyncSupported(UniqueTimeline::Supported()),
           mTimeCreatedMs(android::uptimeMillis()),
-          mUsageStats(new CameraUsageStats()) {
+          mUsageStats(new CameraUsageStats(recordId)) {
         mCurrentRequests = &mFrameRequests[0];
         mNextRequests    = &mFrameRequests[1];
     }
+
+    virtual ~HalCamera();
 
     // Factory methods for client VirtualCameras
     sp<VirtualCamera>     makeVirtualCamera();

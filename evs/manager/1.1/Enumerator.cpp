@@ -230,7 +230,10 @@ Return<sp<IEvsCamera_1_0>> Enumerator::openCamera(const hidl_string& cameraId) {
         if (device == nullptr) {
             LOG(ERROR) << "Failed to open hardware camera " << cameraId;
         } else {
-            hwCamera = new HalCamera(device, cameraId);
+            // Calculates the usage statistics record identifier
+            auto fn = mCameraDevices.hash_function();
+            auto recordId = fn(cameraId) & 0xFF;
+            hwCamera = new HalCamera(device, cameraId, recordId);
             if (hwCamera == nullptr) {
                 LOG(ERROR) << "Failed to allocate camera wrapper object";
                 mHwEnumerator->closeCamera(device);
@@ -322,7 +325,10 @@ Return<sp<IEvsCamera_1_1>> Enumerator::openCamera_1_1(const hidl_string& cameraI
                 success = false;
                 break;
             } else {
-                hwCamera = new HalCamera(device, id, streamCfg);
+                // Calculates the usage statistics record identifier
+                auto fn = mCameraDevices.hash_function();
+                auto recordId = fn(id) & 0xFF;
+                hwCamera = new HalCamera(device, id, recordId, streamCfg);
                 if (hwCamera == nullptr) {
                     LOG(ERROR) << "Failed to allocate camera wrapper object";
                     mHwEnumerator->closeCamera(device);

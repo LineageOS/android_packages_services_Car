@@ -19,6 +19,7 @@
 
 #include <inttypes.h>
 
+#include <android-base/result.h>
 #include <android-base/stringprintf.h>
 #include <utils/Mutex.h>
 #include <utils/RefBase.h>
@@ -102,14 +103,18 @@ public:
 
 class CameraUsageStats : public RefBase {
 public:
-    CameraUsageStats()
+    CameraUsageStats(int32_t id)
         : mMutex(Mutex()),
+          mId(id),
           mTimeCreatedMs(android::uptimeMillis()),
           mStats({}) {}
 
 private:
     // Mutex to protect a collection record
     mutable Mutex mMutex;
+
+    // Unique identifier
+    int32_t mId;
 
     // Time this object was created
     int64_t mTimeCreatedMs;
@@ -126,7 +131,12 @@ public:
     int64_t getTimeCreated() const EXCLUDES(mMutex);
     int64_t getFramesReceived() const EXCLUDES(mMutex);
     int64_t getFramesReturned() const EXCLUDES(mMutex);
+
+    // Returns the statistics collected so far
     CameraUsageStatsRecord snapshot() const EXCLUDES(mMutex);
+
+    // Reports the usage statistics
+    android::base::Result<void> writeStats() const EXCLUDES(mMutex);
 
     // Generates a string with current statistics
     static std::string toString(const CameraUsageStatsRecord& record, const char* indent = "");

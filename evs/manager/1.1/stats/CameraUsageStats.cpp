@@ -16,12 +16,15 @@
 
 #include "CameraUsageStats.h"
 
+#include <statslog.h>
+
 namespace android {
 namespace automotive {
 namespace evs {
 namespace V1_1 {
 namespace implementation {
 
+using ::android::base::Result;
 using ::android::base::StringAppendF;
 
 
@@ -76,6 +79,25 @@ int64_t CameraUsageStats::getFramesReturned() const {
 CameraUsageStatsRecord CameraUsageStats::snapshot() const {
     AutoMutex lock(mMutex);
     return mStats;
+}
+
+
+Result<void> CameraUsageStats::writeStats() const {
+    AutoMutex lock(mMutex);
+    const auto duration = android::uptimeMillis() - mTimeCreatedMs;
+    // TODO(b/156131016): calculates and reports frame roundtrip latencies
+    android::util::stats_write(android::util::EVS_USAGE_STATS_REPORTED,
+                               mId,
+                               mStats.peakClientsCount,
+                               mStats.erroneousEventsCount,
+                               mStats.framesFirstRoundtripLatency,
+                               mStats.framesAvgRoundtripLatency,
+                               mStats.framesPeakRoundtripLatency,
+                               mStats.framesReceived,
+                               mStats.framesIgnored,
+                               mStats.framesSkippedToSync,
+                               duration);
+    return {};
 }
 
 
