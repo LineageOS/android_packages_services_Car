@@ -477,7 +477,7 @@
     <item msgid="1008268820118852416">"Mreža bez ograničenja prometa"</item>
   </string-array>
   <string-array name="wifi_privacy_entries">
-    <item msgid="6545683814310036454">"Koristi nasumično određen MAC (zadano)"</item>
+    <item msgid="6545683814310036454">"Koristi nasumičnu MAC adresu (zadano)"</item>
     <item msgid="214234417308375326">"Upotrijebite MAC uređaja"</item>
   </string-array>
   <string-array name="wifi_hidden_entries">
