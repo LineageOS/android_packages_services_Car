@@ -767,7 +767,7 @@
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"Ajustes avanzados de Bluetooth"</string>
     <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"Cuando el Bluetooth está activado, tu dispositivo se puede comunicar con otros dispositivos con Bluetooth cercanos"</string>
     <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"Si el Bluetooth está activado, el dispositivo se puede comunicar con otros dispositivos Bluetooth cercanos.\n\nPara mejorar la experiencia de uso del dispositivo, las aplicaciones y los servicios pueden seguir buscando dispositivos cercanos en cualquier momento, aunque el Bluetooth esté desactivado. Esta opción se puede utilizar, por ejemplo, para mejorar los servicios y funciones basados en la ubicación, y puedes cambiarla en los "<annotation id="link">"ajustes de búsqueda"</annotation>"."</string>
-    <string name="ble_scan_notify_text" msgid="6290170236546386932">"Para mejorar la precisión de la ubicación, los servicios y las aplicaciones del sistema pueden detectar dispositivos Bluetooth aunque esta conexión esté desactivada. Puedes cambiar esta opción en los <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>ajustes de búsqueda de Bluetooth<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
+    <string name="ble_scan_notify_text" msgid="6290170236546386932">"Para mejorar la precisión de la ubicación, los servicios y las aplicaciones del sistema pueden seguir detectando dispositivos Bluetooth. Puedes cambiar esta opción en los <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>ajustes de búsqueda de Bluetooth<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"No se ha podido establecer conexión. Vuelve a intentarlo."</string>
     <string name="device_details_title" msgid="726517818032923222">"Detalles del dispositivo"</string>
     <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"Dirección de Bluetooth del dispositivo: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
@@ -861,7 +861,7 @@
     <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"Para usar esta función, selecciona un proveedor de valoración de redes"</string>
     <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"Para usar esta función, selecciona un proveedor de valoración de redes compatible"</string>
     <string name="wifi_install_credentials" msgid="5650088113710858289">"Instalar certificados"</string>
-    <string name="wifi_scan_notify_text" msgid="7614101215028336927">"Para mejorar la precisión de la ubicación, las aplicaciones y los servicios pueden seguir buscando redes Wi‑Fi en cualquier momento aunque esta conexión esté desactivada. Esta opción se puede utilizar, por ejemplo, para mejorar los servicios y funciones basados en la ubicación. Puedes cambiar este ajuste en la <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>búsqueda de redes Wi-Fi<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
+    <string name="wifi_scan_notify_text" msgid="7614101215028336927">"Para mejorar la precisión de la ubicación, las aplicaciones y los servicios pueden seguir buscando redes Wi‑Fi en cualquier momento incluso si el ajuste de Wi-Fi está desactivado. Esta opción se puede utilizar, por ejemplo, para mejorar los servicios y funciones basados en la ubicación. Puedes cambiar este ajuste en la <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>búsqueda de redes Wi-Fi<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"Para mejorar la precisión de la ubicación, activa la <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>búsqueda de redes Wi-Fi<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="wifi_scan_notify_remember_choice" msgid="1235445971400237444">"No volver a mostrar"</string>
     <string name="wifi_setting_sleep_policy_title" msgid="2120785188625932076">"Usar Wi-Fi en suspensión"</string>
@@ -951,7 +951,7 @@
     <string name="wifi_dpp_check_connection_try_again" msgid="7144663015219170999">"Comprueba la conexión y vuelve a intentarlo"</string>
     <string name="wifi_dpp_choose_network" msgid="6251424431594491691">"Elegir red"</string>
     <string name="wifi_dpp_choose_network_to_connect_device" msgid="6385259857886784285">"Elige una red para conectar tu dispositivo"</string>
-    <string name="wifi_dpp_add_device_to_wifi" msgid="6454198064645462446">"¿Quieres añadir este dispositivo a \"<xliff:g id="SSID">%1$s</xliff:g>\"?"</string>
+    <string name="wifi_dpp_add_device_to_wifi" msgid="6454198064645462446">"¿Añadir este dispositivo a \"<xliff:g id="SSID">%1$s</xliff:g>\"?"</string>
     <string name="wifi_dpp_wifi_shared_with_device" msgid="5713765471758272471">"Se ha compartido la red Wi‑Fi con el dispositivo"</string>
     <string name="wifi_dpp_add_another_device" msgid="3698441567235301565">"Añadir otro dispositivo"</string>
     <string name="wifi_dpp_choose_different_network" msgid="128515107488187050">"Elegir otra red"</string>
@@ -2051,7 +2051,7 @@
     <string name="talkback_summary" msgid="6602857105831641574">"El lector de pantalla está destinado principalmente a personas ciegas y con problemas de visión"</string>
     <string name="select_to_speak_summary" msgid="7514180457557735421">"Toca cualquier elemento de la pantalla para escucharlo"</string>
     <string name="accessibility_captioning_title" msgid="5878371993023439642">"Subtítulos"</string>
-    <string name="accessibility_screen_magnification_title" msgid="7250949681883917360">"Ampliar"</string>
+    <string name="accessibility_screen_magnification_title" msgid="7250949681883917360">"Ampliación"</string>
     <string name="accessibility_screen_magnification_gestures_title" msgid="9199287875401817974">"Ampliar con tres toques"</string>
     <string name="accessibility_screen_magnification_navbar_title" msgid="400655612610761242">"Ampliar con botón"</string>
     <string name="accessibility_screen_magnification_state_navbar_gesture" msgid="1863831350878995600">"Amplía con un botón y tres toques"</string>
@@ -4106,7 +4106,7 @@
     <string name="automatic_storage_manager_master_switch_title" msgid="1456978117739582562">"Utilizar el Administrador de Almacenamiento"</string>
     <string name="deletion_helper_automatic_title" msgid="4370975149425263205">"Automático"</string>
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"Manual"</string>
-    <string name="deletion_helper_preference_title" msgid="797270307034242206">"Liberar espacio"</string>
+    <string name="deletion_helper_preference_title" msgid="797270307034242206">"Liberar espacio ahora"</string>
     <string name="gesture_preference_title" msgid="583646591518373785">"Gestos"</string>
     <string name="gesture_preference_summary" product="default" msgid="2990736567599191163">"Gestos rápidos para controlar el teléfono"</string>
     <string name="gesture_preference_summary" product="tablet" msgid="8303793594714075580">"Gestos rápidos para controlar el tablet"</string>
@@ -4325,7 +4325,7 @@
     <string name="battery_suggestion_summary" msgid="2669070349482656490"></string>
     <string name="gesture_prevent_ringing_screen_title" msgid="4173494225145223638">"Evitar sonar"</string>
     <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"Pulsa el botón de encendido y el botón para subir el volumen a la vez para"</string>
-    <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"Atajo para evitar que el dispositivo suene"</string>
+    <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"Acceso directo para evitar que el dispositivo suene"</string>
     <string name="prevent_ringing_option_vibrate" msgid="6456505293904544108">"Vibrar"</string>
     <string name="prevent_ringing_option_mute" msgid="53662688921253613">"Silenciar"</string>
     <string name="prevent_ringing_option_none" msgid="1450985763137666231">"No hacer nada"</string>
@@ -4339,7 +4339,7 @@
     <string name="homepage_personal_settings" msgid="7472638597249114564">"Sugerencias"</string>
     <string name="choose_network_title" msgid="3213314359630522396">"Elegir red"</string>
     <string name="network_disconnected" msgid="8677203031237141594">"Desconectado"</string>
-    <string name="network_connected" msgid="8197627827976712053">"Conectada"</string>
+    <string name="network_connected" msgid="8197627827976712053">"Conectado"</string>
     <string name="network_connecting" msgid="8798611458457547110">"Conectando…"</string>
     <string name="network_could_not_connect" msgid="552874922030763713">"No se ha podido conectar"</string>
     <string name="empty_networks_list" msgid="5170020017144403884">"No se ha encontrado ninguna red."</string>
@@ -4474,10 +4474,10 @@
     <string name="privacy_dashboard_summary" msgid="7916431309860824945">"Permisos, actividad de la cuenta, datos personales"</string>
     <string name="contextual_card_dismiss_remove" msgid="1750420285615827309">"Eliminar"</string>
     <string name="contextual_card_dismiss_keep" msgid="3204450672928193661">"Conservar"</string>
-    <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"¿Eliminar esta sugerencia?"</string>
+    <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"¿Quitar esta sugerencia?"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"Sugerencia eliminada"</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"Deshacer"</string>
-    <string name="low_storage_summary" msgid="4562224870189133400">"Queda poco espacio de almacenamiento. <xliff:g id="PERCENTAGE">%1$s</xliff:g> usado (disponible: <xliff:g id="FREE_SPACE">%2$s</xliff:g>)"</string>
+    <string name="low_storage_summary" msgid="4562224870189133400">"Queda poco espacio. <xliff:g id="PERCENTAGE">%1$s</xliff:g> usado - <xliff:g id="FREE_SPACE">%2$s</xliff:g> libre"</string>
     <string name="contextual_card_feedback_send" msgid="8698649023854350623">"Enviar comentarios"</string>
     <string name="contextual_card_feedback_confirm_message" msgid="3987973028353264878">"¿Te gustaría darnos tu opinión sobre esta sugerencia?"</string>
     <string name="copyable_slice_toast" msgid="1357518174923789947">"<xliff:g id="COPY_CONTENT">%1$s</xliff:g> se ha copiado en el portapapeles."</string>

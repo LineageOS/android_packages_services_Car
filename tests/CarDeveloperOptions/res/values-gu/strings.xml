@@ -354,7 +354,7 @@
     <string name="owner_info_settings_title" msgid="2537966178998339896">"લૉક સ્ક્રીન સંદેશ"</string>
     <string name="security_enable_widgets_title" msgid="1701510007926738088">"વિજેટ્સને સક્ષમ કરો"</string>
     <string name="security_enable_widgets_disabled_summary" msgid="4408176087132339331">"વ્યવસ્થાપકે અક્ષમ કરેલ"</string>
-    <string name="lockdown_settings_title" msgid="4534779922580115990">"લોકડાઉનનો વિકલ્પ બતાવો"</string>
+    <string name="lockdown_settings_title" msgid="4534779922580115990">"લૉકડાઉનનો વિકલ્પ બતાવો"</string>
     <string name="lockdown_settings_summary" msgid="7270756909878256174">"ડિસ્પ્લે પાવર બટનનો વિકલ્પ જે Smart Lock, ફિંગરપ્રિન્ટ અનલૉક કરવાનું, અને લૉક સ્ક્રીન પર નોટિફિકેશનને બંધ કરે છે"</string>
     <string name="trust_agents_extend_unlock_title" msgid="3582017561316089951">"માત્ર ટ્રસ્ટ એજન્ટ અનલૉક મોડ લંબાવી શકશે"</string>
     <string name="trust_agents_extend_unlock_summary" msgid="3543997596586078084">"જો ચાલુ કરવામાં આવે, તો ટ્રસ્ટ એજન્ટ વધુ લાંબા સમય માટે ડિવાઇસને અનલૉક રાખી શકશે, પરંતુ લૉક થયેલા ડિવાઇસને ફરી અનલૉક કરી શકશે નહીં."</string>
@@ -648,7 +648,7 @@
     <string name="lock_last_password_attempt_before_wipe_profile" msgid="1535128774464384305">"જો તમે આગલા પ્રયત્નમાં ખોટો પાસવર્ડ દાખલ કરશો, તો તમારી કાર્યાલયની પ્રોફાઇલ અને તેનો ડેટા કાઢી નાખવામાં આવશે"</string>
     <string name="lock_failed_attempts_now_wiping_device" msgid="8662360098784762828">"ઘણા બધા ખોટા પ્રયત્નો. આ ઉપકરણોનો ડેટા કાઢી નાખવામાં આવશે."</string>
     <string name="lock_failed_attempts_now_wiping_user" msgid="3793513796171561873">"ઘણા બધા ખોટા પ્રયત્નો. આ વપરાશકર્તાને કાઢી નાખવામાં આવશે."</string>
-    <string name="lock_failed_attempts_now_wiping_profile" msgid="5347108525299038285">"ઘણા બધા ખોટા પ્રયત્નો. આ કાર્યાલયની પ્રોફાઇલ અને તેનો ડેટા કાઢી નાખવામાં આવશે."</string>
+    <string name="lock_failed_attempts_now_wiping_profile" msgid="5347108525299038285">"ઘણા બધા ખોટા પ્રયત્નો. આ કાર્યાલયની પ્રોફાઇલ અને તેનો ડેટા ડિલીટ કરવામાં આવશે."</string>
     <string name="lock_failed_attempts_now_wiping_dialog_dismiss" msgid="3950582268749037318">"છોડી દો"</string>
     <plurals name="lockpassword_password_too_short" formatted="false" msgid="694091983183310827">
       <item quantity="one">ઓછામાં ઓછા <xliff:g id="COUNT_1">%d</xliff:g> અક્ષરો હોવા જરૂરી છે</item>
@@ -889,7 +889,7 @@
     <string name="wifi_menu_forget" msgid="7561140554450163075">"નેટવર્કને ભૂલી જાઓ"</string>
     <string name="wifi_menu_modify" msgid="4080178040721021101">"નેટવર્ક સંશોધિત કરો"</string>
     <string name="wifi_empty_list_wifi_off" msgid="272877164691346240">"ઉપલબ્ધ નેટવર્ક જોવા માટે, વાઇ-ફાઇ ચાલુ કરો."</string>
-    <string name="wifi_empty_list_wifi_on" msgid="881478805041020600">"વાઇ-ફાઇ નેટવર્ક્સ માટે શોધી રહ્યું છે..."</string>
+    <string name="wifi_empty_list_wifi_on" msgid="881478805041020600">"વાઇ-ફાઇ નેટવર્ક માટે શોધી રહ્યું છે..."</string>
     <string name="wifi_empty_list_user_restricted" msgid="2341613007817352431">"તમને વાઇ-ફાઇ નેટવર્ક બદલવાની પરવાનગી નથી."</string>
     <string name="wifi_more" msgid="3538241640407382185">"વધુ"</string>
     <string name="wifi_setup_wps" msgid="6730131677695521321">"ઑટોમૅટિક સેટઅપ (WPS)"</string>
@@ -1647,7 +1647,7 @@
     <string name="mobile_insert_sim_card" msgid="7594550403454243732">"કૃપા કરીને સિમ કાર્ડ શામેલ કરો અને પુનઃપ્રારંભ કરો"</string>
     <string name="mobile_connect_to_internet" msgid="6031886097365170913">"કૃપા કરીને ઇન્ટરનેટ સાથે કનેક્ટ કરો"</string>
     <string name="location_title" msgid="8664674161765477168">"મારું સ્થાન"</string>
-    <string name="managed_profile_location_switch_title" msgid="8157384427925389680">"કાર્યાલયની પ્રોફાઇલ માટે સ્થાન"</string>
+    <string name="managed_profile_location_switch_title" msgid="8157384427925389680">"ઑફિસની પ્રોફાઇલ માટે સ્થાન"</string>
     <string name="location_app_level_permissions" msgid="1298041503927632960">"ઍપ પરવાનગી"</string>
     <string name="location_app_permission_summary_location_off" msgid="541372845344796336">"સ્થાન બંધ છે"</string>
     <plurals name="location_app_permission_summary_location_on" formatted="false" msgid="7904821382328758218">
@@ -2086,7 +2086,7 @@
     <string name="accessibility_content_timeout_preference_summary" msgid="853829064617918179">"તમારે વાંચવા જરૂરી હોય, પરંતુ હંગામી રૂપે દેખાતા સંદેશાને કેટલા સમય સુધી બતાવવા તે પસંદ કરો.\n\nઆ સેટિંગની સુવિધા બધી ઍપમાં નથી હોતી."</string>
     <string name="accessibility_control_timeout_preference_summary" msgid="8582212299606932160">"તમને ક્રિયા કરવાનું કહેતાં હોય, પરંતુ હંગામી રૂપે દેખાતા સંદેશાને કેટલા સમય સુધી દેખાડવા તે પસંદ કરો.\n\nઆ સેટિંગની સુવિધા બધી ઍપમાં નથી હોતી."</string>
     <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"ટચ કરી અને પકડવા પર વિલંબ"</string>
-    <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"રંગ બદલવાની સુવિધા"</string>
+    <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"વિપરીત રંગમાં બદલવું"</string>
     <string name="accessibility_display_inversion_preference_subtitle" msgid="69291255322175323">"કાર્યપ્રદર્શનને અસર થઈ શકે છે"</string>
     <string name="accessibility_autoclick_preference_title" msgid="9164599088410340405">"જોવાયાનો સમયગાળો"</string>
     <string name="accessibility_autoclick_description" msgid="5492414927846407499">"જો તમે માઉસનો ઉપયોગ કરી રહ્યાં હોય, તો જ્યારે કર્સર અમુક ચોક્કસ સમય માટે કાર્ય કરતું રોકાઈ જાય ત્યારે તમે તેને આપમેળે ક્રિયા કરવા માટે સેટ કરી શકો છો."</string>
@@ -3711,8 +3711,8 @@
     <string name="high_power_off" msgid="5906679734326490426">"બૅટરી વપરાશને ઓપ્ટિમાઇઝ કરી રહ્યું છે"</string>
     <string name="high_power_system" msgid="739584574711292753">"બૅટરી ઓપ્ટિમાઇઝેશન ઉપલબ્ધ નથી"</string>
     <string name="high_power_desc" msgid="333756885680362741">"બૅટરી ઓપ્ટિમાઇઝેશન લાગુ કરશો નહીં. તેનાથી તમારી બૅટરી વધુ ઝડપથી ખાલી થઈ શકે છે."</string>
-    <string name="high_power_prompt_title" msgid="2805745781720454052">"ઍપ્લિકેશનને હંમેશાં પૃષ્ઠભૂમિમાં ચાલવા દઈએ?"</string>
-    <string name="high_power_prompt_body" msgid="8067395096053552289">"<xliff:g id="APP_NAME">%1$s</xliff:g>ને હંમેશાં પૃષ્ઠભૂમિમાં ચાલવાની મંજૂરી આપવાથી બૅટરી આવરદા ઓછી થઈ શકે છે. \n\nતમે આને સેટિંગ્સ &gt; ઍપ્લિકેશનો અને સૂચનાઓમાં પછીથી બદલી શકો છો."</string>
+    <string name="high_power_prompt_title" msgid="2805745781720454052">"ઍપને હંમેશાં બૅકગ્રાઉન્ડમાં ચાલવા દઈએ?"</string>
+    <string name="high_power_prompt_body" msgid="8067395096053552289">"<xliff:g id="APP_NAME">%1$s</xliff:g>ને હંમેશાં બૅકગ્રાઉન્ડમાં ચાલવાની મંજૂરી આપવાથી બૅટરી આવરદા ઓછી થઈ શકે છે. \n\nતમે આને સેટિંગ &gt; ઍપ અને નોટિફિકેશનોમાં પછીથી બદલી શકો છો."</string>
     <string name="battery_summary" msgid="4345690800899981339">"છેલ્લા પૂર્ણ ચાર્જ પછી <xliff:g id="PERCENTAGE">%1$s</xliff:g> ઉપયોગ"</string>
     <string name="battery_power_management" msgid="2853925857548647969">"પાવર સંચાલન"</string>
     <string name="no_battery_summary" msgid="4105932628367471314">"છેલ્લા પૂર્ણ ચાર્જ પછી કોઈ બૅટરી ઉપયોગ નહીં"</string>
@@ -4473,7 +4473,7 @@
     <string name="privacy_dashboard_title" msgid="8764930992456607513">"પ્રાઇવસી"</string>
     <string name="privacy_dashboard_summary" msgid="7916431309860824945">"પરવાનગીઓ, એકાઉન્ટ પ્રવૃત્તિ, વ્યક્તિગત ડેટા"</string>
     <string name="contextual_card_dismiss_remove" msgid="1750420285615827309">"કાઢી નાખો"</string>
-    <string name="contextual_card_dismiss_keep" msgid="3204450672928193661">"રાખો"</string>
+    <string name="contextual_card_dismiss_keep" msgid="3204450672928193661">"Keep"</string>
     <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"આ સુઝાવ કાઢી નાખીએ?"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"સૂચન કાઢી નાખ્યું"</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"છેલ્લો ફેરફાર રદ કરો"</string>

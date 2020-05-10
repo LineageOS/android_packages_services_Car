@@ -123,8 +123,8 @@
     <string name="bluetooth_device" msgid="3170974107364990008">"नाव नसलेले ब्लूटूथ डिव्हाइस"</string>
     <string name="progress_scanning" msgid="633923400401041181">"शोधत आहे"</string>
     <string name="bluetooth_no_devices_found" msgid="4396050022213494322">"जवळपास ब्लूटूथ डिव्हाइस आढळली नाहीत."</string>
-    <string name="bluetooth_notif_ticker" msgid="8398481099943141819">"ब्लूटूथ पेअरींग विनंती"</string>
-    <string name="bluetooth_notif_title" msgid="5090288898529286011">"पेअरींग विनंती"</string>
+    <string name="bluetooth_notif_ticker" msgid="8398481099943141819">"ब्लूटूथ पेअरिंग विनंती"</string>
+    <string name="bluetooth_notif_title" msgid="5090288898529286011">"पेअरिंग विनंती"</string>
     <string name="bluetooth_notif_message" msgid="6612367890895077938">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> सह जोडण्यासाठी टॅप करा."</string>
     <string name="bluetooth_show_received_files" msgid="5060846395852236652">"मिळालेल्या फायली"</string>
     <string name="bluetooth_show_files_received_via_bluetooth" msgid="1699095577431389560">"फायली ब्लूटूथद्वारे मिळाल्या आहेत"</string>
@@ -730,8 +730,8 @@
     <string name="bluetooth_settings_title" msgid="7261244857456521825">"ब्लूटूथ"</string>
     <string name="bluetooth_settings_summary" msgid="1221689092429277887">"कनेक्शन व्यवस्थापित करा, डिव्हाइस नाव आणि शोधयोग्यता सेट करा"</string>
     <string name="bluetooth_pairing_request" msgid="7221745525632573125">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> सह जोडायचे?"</string>
-    <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"ब्लूटूथ पेअरींग कोड"</string>
-    <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"पेअरींग कोड टाइप करा नंतर Return किंवा Enter दाबा"</string>
+    <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"ब्लूटूथ पेअरिंग कोड"</string>
+    <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"पेअरिंग कोड टाइप करा नंतर Return किंवा Enter दाबा"</string>
     <string name="bluetooth_enable_alphanumeric_pin" msgid="9138308197078115672">"पिन मध्ये अक्षरे किंवा प्रतीके आहेत"</string>
     <string name="bluetooth_pin_values_hint" msgid="8044671726261326240">"सामान्यतः 0000 किंवा 1234"</string>
     <string name="bluetooth_pin_values_hint_16_digits" msgid="2665983525706661525">"16 अंक असणे आवश्यक आहे"</string>
@@ -1648,7 +1648,7 @@
     <string name="mobile_insert_sim_card" msgid="7594550403454243732">"कृपया सिम कार्ड घाला आणि रीस्टार्ट करा"</string>
     <string name="mobile_connect_to_internet" msgid="6031886097365170913">"कृपया इंटरनेटशी कनेक्ट करा"</string>
     <string name="location_title" msgid="8664674161765477168">"माझे स्थान"</string>
-    <string name="managed_profile_location_switch_title" msgid="8157384427925389680">"कार्य प्रोफाईलसाठी स्थान"</string>
+    <string name="managed_profile_location_switch_title" msgid="8157384427925389680">"कार्य प्रोफाइलसाठी स्थान"</string>
     <string name="location_app_level_permissions" msgid="1298041503927632960">"अ‍ॅप परवानगी"</string>
     <string name="location_app_permission_summary_location_off" msgid="541372845344796336">"स्‍थान बंद आहे"</string>
     <plurals name="location_app_permission_summary_location_on" formatted="false" msgid="7904821382328758218">

@@ -383,7 +383,7 @@
     <string name="encryption_and_credential_settings_summary" product="tablet" msgid="8170667308598998791">"Seade on krüpteeritud"</string>
     <string name="decryption_settings_summary" product="tablet" msgid="7524119945312453569">"Seade ei ole krüpteeritud"</string>
     <string name="lockscreen_settings_title" msgid="1221505938891948413">"Lukustuskuva seaded"</string>
-    <string name="lockscreen_settings_what_to_show_category" msgid="3133378945821488654">"Mida näidata?"</string>
+    <string name="lockscreen_settings_what_to_show_category" msgid="3133378945821488654">"Mida kuvada?"</string>
     <string name="security_settings_summary" msgid="5210109100643223686">"Määrake Minu asukoht, ekraani avamine, SIM-kaardi lukk, mandaadi talletuslukk"</string>
     <string name="cdma_security_settings_summary" msgid="1783066617800041869">"Määrake oma asukoht, ekraani avamine, mandaadi talletuslukk"</string>
     <string name="security_passwords_title" msgid="6853942836045862315">"Privaatsus"</string>
@@ -782,7 +782,7 @@
     <string name="bluetooth_disconnect_hid_profile" msgid="6964226087090465662">"Seadme <xliff:g id="DEVICE_NAME">%1$s</xliff:g> ühendus sisendseadmega katkestatakse."</string>
     <string name="bluetooth_disconnect_pan_user_profile" msgid="5523689915196343097">"Katkestatakse Interneti-ühendus seadme <xliff:g id="DEVICE_NAME">%1$s</xliff:g> kaudu."</string>
     <string name="bluetooth_disconnect_pan_nap_profile" product="tablet" msgid="8145126793699232403">"Tahvelarvuti Interneti-ühenduse jagamine seadmega <xliff:g id="DEVICE_NAME">%1$s</xliff:g> katkestatakse."</string>
-    <string name="bluetooth_disconnect_pan_nap_profile" product="default" msgid="6040826983120279685">"Telefoni Interneti-ühenduse jagamine seadmega <xliff:g id="DEVICE_NAME">%1$s</xliff:g> katkestatakse."</string>
+    <string name="bluetooth_disconnect_pan_nap_profile" product="default" msgid="6040826983120279685">"Telefoni internetiühenduse jagamine seadmega <xliff:g id="DEVICE_NAME">%1$s</xliff:g> katkestatakse."</string>
     <string name="bluetooth_device_advanced_title" msgid="5752155558126694036">"Seotud Bluetooth-seade"</string>
     <string name="bluetooth_device_advanced_online_mode_title" msgid="7665622268007450665">"Ühenda"</string>
     <string name="bluetooth_device_advanced_online_mode_summary" msgid="4180673788239241086">"Ühenda Bluetooth-seadmega"</string>
@@ -933,11 +933,11 @@
     <string name="wifi_ap_band_select_one" msgid="4409754936554360355">"Valige WiFi-kuumkoha lubamiseks vähemalt üks sagedusriba:"</string>
     <string name="wifi_ip_settings" msgid="4636102290236116946">"IP-seaded"</string>
     <string name="wifi_privacy_settings" msgid="4462092795794247809">"Privaatsus"</string>
-    <string name="wifi_privacy_settings_ephemeral_summary" msgid="2411375348287064283">"Juhuslik MAC-aadress"</string>
+    <string name="wifi_privacy_settings_ephemeral_summary" msgid="2411375348287064283">"Juhulikustatud MAC-aadress"</string>
     <string name="wifi_dpp_add_device_to_network" msgid="8871041525483253430">"Seadme lisamine"</string>
-    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"Seadme võrku „<xliff:g id="SSID">%1$s</xliff:g>” lisamiseks paigutage allolev QR-kood aknas keskele"</string>
+    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"Seadme võrku „<xliff:g id="SSID">%1$s</xliff:g>” lisamiseks paigutage QR-kood allolevas aknas keskele"</string>
     <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"QR-koodi skannimine"</string>
-    <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"Võrguga „<xliff:g id="SSID">%1$s</xliff:g>” ühenduse loomiseks paigutage allolev QR-kood aknas keskele"</string>
+    <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"Võrguga „<xliff:g id="SSID">%1$s</xliff:g>” ühenduse loomiseks paigutage QR-kood allolevas aknas keskele"</string>
     <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"Liituge WiFi-võrguga, skannides QR-koodi"</string>
     <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"WiFi jagamine"</string>
     <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"Skannige see QR-kood, et luua ühendus võrguga „<xliff:g id="SSID">%1$s</xliff:g>” ja jagada parooli"</string>
@@ -1621,11 +1621,11 @@
     <string name="tether_settings_disabled_on_data_saver" msgid="3682544845899910726">"Kui andmemahu säästja on sisse lülitatud, siis ei saa jagada ega kasutada teisaldatavat kuumkohta"</string>
     <string name="usb_title" msgid="7480927657535578688">"USB"</string>
     <string name="usb_tethering_button_text" msgid="6242228383142012332">"USB jagamine"</string>
-    <string name="usb_tethering_subtext" product="default" msgid="1573513260339548671">"Telefoni Interneti-ühenduse jagamine USB kaudu"</string>
+    <string name="usb_tethering_subtext" product="default" msgid="1573513260339548671">"Telefoni internetiühenduse jagamine USB kaudu"</string>
     <string name="usb_tethering_subtext" product="tablet" msgid="154536000235361034">"Tahvelarvuti Interneti-ühenduse jagamine USB kaudu"</string>
     <string name="bluetooth_tether_checkbox_text" msgid="7257293066139372774">"Jagamine Bluetoothiga"</string>
     <string name="bluetooth_tethering_subtext" product="tablet" msgid="6868756914621131635">"Tahvelarvuti Interneti-ühenduse jagamine Bluetoothi kaudu"</string>
-    <string name="bluetooth_tethering_subtext" product="default" msgid="9167912297565425178">"Telefoni Interneti-ühenduse jagamine Bluetoothi kaudu"</string>
+    <string name="bluetooth_tethering_subtext" product="default" msgid="9167912297565425178">"Telefoni internetiühenduse jagamine Bluetoothi kaudu"</string>
     <string name="bluetooth_tethering_off_subtext_config" msgid="3981528184780083266">"Seadme <xliff:g id="DEVICE_NAME">%1$d</xliff:g> Interneti-ühenduse jagamine Bluetoothi kaudu"</string>
     <string name="bluetooth_tethering_overflow_error" msgid="6946561351369376943">"Ei saa jagada rohkem kui <xliff:g id="MAXCONNECTION">%1$d</xliff:g> seadmele."</string>
     <string name="bluetooth_untether_blank" msgid="5428300773782256084">"Seadme <xliff:g id="DEVICE_NAME">%1$s</xliff:g> ühenduse jagamine lõpetatakse."</string>
@@ -1647,7 +1647,7 @@
     <string name="mobile_insert_sim_card" msgid="7594550403454243732">"Sisestage SIM-kaart ja taaskäivitage"</string>
     <string name="mobile_connect_to_internet" msgid="6031886097365170913">"Looge Interneti-ühendus"</string>
     <string name="location_title" msgid="8664674161765477168">"Minu asukoht"</string>
-    <string name="managed_profile_location_switch_title" msgid="8157384427925389680">"Tööprofiili asukoht"</string>
+    <string name="managed_profile_location_switch_title" msgid="8157384427925389680">"Tööprofiili asukohaluba"</string>
     <string name="location_app_level_permissions" msgid="1298041503927632960">"Rakenduste load"</string>
     <string name="location_app_permission_summary_location_off" msgid="541372845344796336">"Asukoht on välja lülitatud"</string>
     <plurals name="location_app_permission_summary_location_on" formatted="false" msgid="7904821382328758218">
@@ -3630,7 +3630,7 @@
       <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> täiendav luba</item>
     </plurals>
     <string name="runtime_permissions_summary_no_permissions_granted" msgid="3477934429220828771">"Lube pole antud"</string>
-    <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"Lube ei taotletud"</string>
+    <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"Lube pole taotletud"</string>
     <string name="filter_all_apps" msgid="4042756539846043675">"Kõik rakendused"</string>
     <string name="filter_enabled_apps" msgid="5888459261768538489">"Installitud rakendused"</string>
     <string name="filter_instant_apps" msgid="8087483282854072366">"Installimata avat. rakendused"</string>
@@ -4052,7 +4052,7 @@
     <string name="display_cutout_emulation_keywords" msgid="6795671536772871439">"ekraani väljalõige, lõige"</string>
     <string name="overlay_option_device_default" msgid="165508753381657697">"Seadme vaikeseade"</string>
     <string name="overlay_toast_failed_to_apply" msgid="5692251825129250040">"Ülekatet ei õnnestunud rakendada"</string>
-    <string name="special_access" msgid="1453926335914696206">"Rakenduste erijuurdepääs"</string>
+    <string name="special_access" msgid="1453926335914696206">"Rakenduse erijuurdepääs"</string>
     <plurals name="special_access_summary" formatted="false" msgid="5182092345063909346">
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> rakendusel on piiranguteta juurdepääs andmesidele</item>
       <item quantity="one">1 rakendusel on piiranguteta juurdepääs andmesidele</item>
@@ -4131,7 +4131,7 @@
     <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"Kellaaja, märguannete ja muu teabe vaatamiseks võtke telefon kätte."</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"Kellaaja, märguannete ja muu teabe vaatamiseks võtke tahvelarvuti kätte."</string>
     <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"Kellaaja, märguannete ja muu teabe vaatamiseks võtke seade kätte."</string>
-    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Puudutamine telefoni kontrollimiseks"</string>
+    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Telefoni kontrollimiseks puudutamine"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Puudutamine tahvelarvuti kontrollimiseks"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Puudutamine seadme kontrollimiseks"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Kellaaja, märguannete ja muu teabe vaatamiseks puudutage oma ekraani."</string>

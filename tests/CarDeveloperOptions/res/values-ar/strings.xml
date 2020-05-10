@@ -212,7 +212,7 @@
     <string name="proxy_error_empty_host_set_port" msgid="8471455809508588255">"يجب أن يكون حقل المنفذ فارغًا إذا كان حقل المضيف فارغًا."</string>
     <string name="proxy_error_invalid_port" msgid="4046559920586100637">"المنفذ الذي كتبته غير صالح."</string>
     <string name="proxy_warning_limited_support" msgid="9026539134219095768">"يتم استخدام الخادم الوكيل HTTP على المتصفّح، ولكن قد لا تستخدمه التطبيقات الأخرى."</string>
-    <string name="proxy_url_title" msgid="882042361706435904">"عنوان URL لتهيئة PAC: "</string>
+    <string name="proxy_url_title" msgid="882042361706435904">"عنوان URL لإعداد PAC: "</string>
     <string name="radio_info_dl_kbps" msgid="2903778264453410272">"معدّل نقل بيانات DL (كيلوبت في الثانية):"</string>
     <string name="radio_info_ul_kbps" msgid="3802245899811732716">"معدّل نقل بيانات UL (كيلوبت في الثانية):"</string>
     <string name="radio_info_signal_location_label" msgid="6788144906873498013">"معلومات الموقع الخلوية (تم الإيقاف):"</string>
@@ -1246,7 +1246,7 @@
     <string name="color_mode_title" msgid="8164858320869449142">"الألوان"</string>
     <string name="color_mode_option_natural" msgid="1292837781836645320">"طبيعي"</string>
     <string name="color_mode_option_boosted" msgid="453557938434778933">"مُحسن"</string>
-    <string name="color_mode_option_saturated" msgid="7758384943407859851">"مُشبع"</string>
+    <string name="color_mode_option_saturated" msgid="7758384943407859851">"مُشبعة"</string>
     <string name="color_mode_option_automatic" msgid="6572718611315165117">"توافقي"</string>
     <string name="color_mode_summary_natural" msgid="1247153893843263340">"استخدام الألوان الدقيقة فقط"</string>
     <string name="color_mode_summary_automatic" msgid="6066740785261330514">"ضبط إلى التبديل بين الألوان الزاهية والدقيقة"</string>
@@ -1489,7 +1489,7 @@
     <string name="storage_menu_format" msgid="4285487419855632896">"تهيئة"</string>
     <string name="storage_menu_format_public" msgid="5361388353980722971">"تهيئة كوحدة تخزين محمولة"</string>
     <string name="storage_menu_format_private" msgid="5288599205435858720">"تهيئة كوحدة تخزين داخلية"</string>
-    <string name="storage_menu_migrate" msgid="1885806122515759703">"ترحيل البيانات"</string>
+    <string name="storage_menu_migrate" msgid="1885806122515759703">"نقل البيانات"</string>
     <string name="storage_menu_forget" msgid="4345021250834642640">"حذف"</string>
     <string name="storage_menu_set_up" msgid="2849170579745958513">"إعداد"</string>
     <string name="storage_menu_explore" msgid="3733439525636202662">"استكشاف"</string>
@@ -1719,7 +1719,7 @@
     <string name="network_scorer_change_active_dialog_text" msgid="4264089809189760730">"هل تريد استخدام <xliff:g id="NEW_APP">%1$s</xliff:g> بدلاً من <xliff:g id="CURRENT_APP">%2$s</xliff:g> لإدارة اتصالات الشبكة لديك؟"</string>
     <string name="network_scorer_change_active_no_previous_dialog_text" msgid="6394483538843474495">"هل تريد استخدام <xliff:g id="NEW_APP">%s</xliff:g> لإدارة اتصالات الشبكة لديك؟"</string>
     <string name="mobile_unknown_sim_operator" msgid="872589370085135817">"مشغل SIM (مشغل شبكة الجوّال) غير معروف"</string>
-    <string name="mobile_no_provisioning_url" msgid="3216517414902166131">"ليس لدى <xliff:g id="OPERATOR">%1$s</xliff:g> موقع ويب معروف لإدارة حسابات"</string>
+    <string name="mobile_no_provisioning_url" msgid="3216517414902166131">"ليس لدى <xliff:g id="OPERATOR">%1$s</xliff:g> موقع إلكتروني معروف لإدارة حسابات"</string>
     <string name="mobile_insert_sim_card" msgid="7594550403454243732">"يُرجى إدخال شريحة SIM وإعادة التشغيل"</string>
     <string name="mobile_connect_to_internet" msgid="6031886097365170913">"يُرجى الاتصال بالإنترنت"</string>
     <string name="location_title" msgid="8664674161765477168">"موقعي"</string>
@@ -1961,7 +1961,7 @@
     <string name="move_app_to_internal" product="default" msgid="1031111519418252055">"نقل إلى الهاتف"</string>
     <string name="move_app_to_sdcard" product="nosdcard" msgid="5555917755995563518">"نقل إلى وحدة تخزين USB"</string>
     <string name="move_app_to_sdcard" product="default" msgid="2348845109583354505">"نقل إلى بطاقة SD"</string>
-    <string name="another_migration_already_in_progress" msgid="3159694008286196454">"هناك عملية ترحيل أخرى قيد التقدم حاليًا."</string>
+    <string name="another_migration_already_in_progress" msgid="3159694008286196454">"هناك عملية نقل أخرى قيد التقدم حاليًا."</string>
     <string name="insufficient_storage" msgid="7089626244018569405">"ليست هناك مساحة تخزين كافية."</string>
     <string name="does_not_exist" msgid="4821267479183197109">"التطبيق غير موجود."</string>
     <string name="invalid_location" msgid="8057409982223429673">"موقع التثبيت غير صالح."</string>

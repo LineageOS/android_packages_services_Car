@@ -1210,8 +1210,8 @@
     <string name="adaptive_sleep_summary_off" msgid="2891586225954973431">"关闭"</string>
     <string name="adaptive_sleep_description" msgid="812673735459170009">"避免屏幕在您查看它时关闭。"</string>
     <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"屏幕感知功能会通过前置摄像头来确定是否有人正在看屏幕。这个功能只会在设备上运行，系统决不会存储图片或将图片发送给 Google。"</string>
-    <string name="night_display_title" msgid="1305002424893349814">"夜间模式"</string>
-    <string name="night_display_text" msgid="5330502493684652527">"夜间模式会将您的屏幕色调调为琥珀色，可让您在光线昏暗的环境下更舒适地查看屏幕或阅读文字，并有助您入睡。"</string>
+    <string name="night_display_title" msgid="1305002424893349814">"护眼模式"</string>
+    <string name="night_display_text" msgid="5330502493684652527">"护眼模式会将您的屏幕色调调为琥珀色，可让您在光线昏暗的环境下更舒适地查看屏幕或阅读文字，并有助您入睡。"</string>
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"设定时间"</string>
     <string name="night_display_auto_mode_never" msgid="2897444637217807088">"无"</string>
     <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"在设定的时间开启"</string>
@@ -1730,7 +1730,7 @@
     <string name="lockpassword_confirm_your_pin_generic" msgid="8732268389177735264">"请输入您的设备 PIN 码以继续"</string>
     <string name="lockpassword_confirm_your_password_generic" msgid="6304552647060899594">"请输入您的设备密码以继续"</string>
     <string name="lockpassword_confirm_your_pattern_generic_profile" msgid="3074250084050465513">"请绘制您的工作解锁图案以继续"</string>
-    <string name="lockpassword_confirm_your_pin_generic_profile" msgid="6037908971086439523">"请输入您的工作 PIN 码以继续"</string>
+    <string name="lockpassword_confirm_your_pin_generic_profile" msgid="6037908971086439523">"需输入您的工作资料 PIN 码才能继续"</string>
     <string name="lockpassword_confirm_your_password_generic_profile" msgid="2646162490703489685">"请输入您的工作密码以继续"</string>
     <string name="lockpassword_strong_auth_required_device_pattern" msgid="1014214190135045781">"为了提升安全性，请绘制您的设备解锁图案"</string>
     <string name="lockpassword_strong_auth_required_device_pin" msgid="24030584350601016">"为了提升安全性，请输入您的设备 PIN 码"</string>
@@ -3906,9 +3906,9 @@
     <string name="condition_device_muted_summary" msgid="3101055117680109021">"通话和通知"</string>
     <string name="condition_device_vibrate_title" msgid="5712659354868872338">"仅振动"</string>
     <string name="condition_device_vibrate_summary" msgid="9073880731894828604">"通话和通知"</string>
-    <string name="night_display_suggestion_title" msgid="4222839610992282188">"设置“夜间模式”时间安排"</string>
+    <string name="night_display_suggestion_title" msgid="4222839610992282188">"设置“护眼模式”时间表"</string>
     <string name="night_display_suggestion_summary" msgid="1754361016383576916">"每晚自动调节屏幕色调"</string>
-    <string name="condition_night_display_title" msgid="9171491784857160135">"“夜间模式”已开启"</string>
+    <string name="condition_night_display_title" msgid="9171491784857160135">"“护眼模式”已开启"</string>
     <string name="condition_night_display_summary" msgid="7885776986937527558">"已将屏幕调为琥珀色"</string>
     <string name="condition_grayscale_title" msgid="1226351649203551299">"灰度模式"</string>
     <string name="condition_grayscale_summary" msgid="749172886527349546">"仅以灰色显示"</string>

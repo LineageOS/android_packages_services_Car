@@ -178,7 +178,7 @@
     <string name="connected_device_available_call_title" msgid="6774859446815858428">"Deitzeko balio duten gailu erabilgarriak"</string>
     <string name="connected_device_connected_title" msgid="6255107326608785482">"Konektatuta daudenak"</string>
     <string name="connected_device_saved_title" msgid="8270136893488475163">"Gordetako gailuak"</string>
-    <string name="connected_device_add_device_summary" msgid="7960491471270158891">"Bluetooth konexioa aktibatuko da parekatu ahal izateko"</string>
+    <string name="connected_device_add_device_summary" msgid="7960491471270158891">"Bluetooth bidezko konexioa aktibatuko da parekatu ahal izateko"</string>
     <string name="connected_device_connections_title" msgid="9205000271382018428">"Konexio-hobespenak"</string>
     <string name="connected_device_previously_connected_title" msgid="225918223397410428">"Aurrez konektatutako gailuak"</string>
     <string name="connected_device_previously_connected_screen_title" msgid="2018789662358162716">"Aurretik konektatutakoak"</string>
@@ -203,11 +203,11 @@
     <string name="proxy_error" msgid="5036164133669802299">"Abisua"</string>
     <string name="proxy_error_dismiss" msgid="883805570485635650">"Ados"</string>
     <string name="proxy_error_invalid_host" msgid="5430640241353307223">"Idatzi duzun ostalari-izena ez da baliozkoa."</string>
-    <string name="proxy_error_invalid_exclusion_list" msgid="4314503082913856333">"Idatzi duzun salbuespen-zerrendak ez du formatu egokia. Idatzi domeinuen zerrenda, komaz bereizita."</string>
+    <string name="proxy_error_invalid_exclusion_list" msgid="4314503082913856333">"Idatzi duzun salbuespen-zerrendak ez du formatu egokia. Idatzi kanpo utzitako domeinuen zerrenda, komaz bereizita."</string>
     <string name="proxy_error_empty_port" msgid="8034561724923076215">"Atakaren eremua bete behar duzu."</string>
     <string name="proxy_error_empty_host_set_port" msgid="8471455809508588255">"Ataka eremuak hutsik egon behar du Ostalaria eremua ere hutsik badago."</string>
     <string name="proxy_error_invalid_port" msgid="4046559920586100637">"Idatzi duzun ataka ez da baliozkoa."</string>
-    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"Arakatzaileak HTTP proxya erabiltzen du baina ezin dute beste aplikazioek erabili."</string>
+    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"Arakatzaileak HTTP proxya erabiltzen du, baina ezin dute beste aplikazioek erabili."</string>
     <string name="proxy_url_title" msgid="882042361706435904">"Proxya auto. konf. URLa: "</string>
     <string name="radio_info_dl_kbps" msgid="2903778264453410272">"Deskargatzeko banda-zabalera (Kb/s):"</string>
     <string name="radio_info_ul_kbps" msgid="3802245899811732716">"Kargen banda-zabalera (Kb/s):"</string>
@@ -2649,7 +2649,7 @@
     <string name="misc_files_selected_count_bytes" msgid="3752262902203465861">"<xliff:g id="NUMBER">%1$s</xliff:g>/<xliff:g id="TOTAL">%2$s</xliff:g>"</string>
     <string name="select_all" msgid="452240217913675728">"Hautatu guztiak"</string>
     <string name="data_usage_summary_title" msgid="7288431048564861043">"Datuen erabilera"</string>
-    <string name="data_usage_app_summary_title" msgid="8277327968906074983">"Datu-konexioa eta wifi-konexioa"</string>
+    <string name="data_usage_app_summary_title" msgid="8277327968906074983">"Datu- eta wifi-konexioa"</string>
     <string name="data_usage_accounting" msgid="4681642832010140640">"Beharbada operadoreak zenbatzen duen datu kopurua eta gailuak zenbatzen duena ez datoz bat."</string>
     <string name="data_usage_app" msgid="4995297799363021198">"Aplikazioen erabilera"</string>
     <string name="data_usage_app_info_label" msgid="5358288895158910477">"APLIKAZIOARI BURUZKO INFORMAZIOA"</string>
@@ -3554,8 +3554,8 @@
     <string name="restr_pin_enter_admin_pin" msgid="8577847751493521230">"Idatzi administratzailearen PIN kodea"</string>
     <string name="switch_on_text" msgid="7100491749799298324">"Aktibatuta"</string>
     <string name="switch_off_text" msgid="3539551289454353555">"Desaktibatuta"</string>
-    <string name="screen_pinning_title" msgid="578020318289781102">"Pantaila ainguratzea"</string>
-    <string name="screen_pinning_description" msgid="3814537379086412278">"Ezarpen hau aktibatzen baduzu, pantailak aingura ditzakezu, aukeratzen duzun ikuspegi hori egon dadin ikusgai harik eta aingura kentzen diozun arte.\n\nHorretarako:\n\n1. Aktibatu pantaila ainguratzeko eginbidea.\n\n2. Ireki Ikuspegi orokorra.\n\n3. Sakatu pantailaren goialdeko aplikazio-ikonoa, eta sakatu Ainguratu."</string>
+    <string name="screen_pinning_title" msgid="578020318289781102">"Pantaila ainguratzeko aukera"</string>
+    <string name="screen_pinning_description" msgid="3814537379086412278">"Ezarpen hau aktibatzen baduzu, pantailak aingura ditzakezu, aukeratzen duzun ikuspegi hori egon dadin ikusgai harik eta aingura kentzen diozun arte.\n\nHorretarako:\n\n1. Aktibatu pantaila ainguratzeko aukera.\n\n2. Ireki Ikuspegi orokorra.\n\n3. Sakatu pantailaren goialdeko aplikazio-ikonoa, eta sakatu Ainguratu."</string>
     <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"Eskatu desblokeatzeko eredua aingura kendu aurretik"</string>
     <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"Eskatu PIN kodea aingura kendu aurretik"</string>
     <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"Eskatu pasahitza aingura kendu aurretik"</string>
@@ -3630,7 +3630,7 @@
       <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> baimen gehigarri</item>
     </plurals>
     <string name="runtime_permissions_summary_no_permissions_granted" msgid="3477934429220828771">"Ez du baimenik"</string>
-    <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"Ez du baimenik eskatu"</string>
+    <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"Ez da baimenik eskatu"</string>
     <string name="filter_all_apps" msgid="4042756539846043675">"Aplikazio guztiak"</string>
     <string name="filter_enabled_apps" msgid="5888459261768538489">"Instalatutako aplikazioak"</string>
     <string name="filter_instant_apps" msgid="8087483282854072366">"Zuzeneko aplikazioak"</string>
@@ -3715,7 +3715,7 @@
     <string name="high_power_prompt_body" msgid="8067395096053552289">"<xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioari atzeko planoan beti abiarazteko baimena emanez gero, baliteke bateriak gutxiago irautea. \n\nAukera hori aldatzeko, sakatu Ezarpenak &gt; Aplikazioak eta jakinarazpenak."</string>
     <string name="battery_summary" msgid="4345690800899981339">"Bateriaren <xliff:g id="PERCENTAGE">%1$s</xliff:g> erabili du bateria guztiz kargatu zenetik"</string>
     <string name="battery_power_management" msgid="2853925857548647969">"Bateriaren kudeaketa"</string>
-    <string name="no_battery_summary" msgid="4105932628367471314">"Ez du bateriarik erabili bateria guztiz kargatu zenetik"</string>
+    <string name="no_battery_summary" msgid="4105932628367471314">"Ez da bateriarik erabili bateria guztiz kargatu zenetik"</string>
     <string name="app_notification_preferences" msgid="5154466638524523201">"Aplikazioaren ezarpenak"</string>
     <string name="system_ui_settings" msgid="6751165163665775447">"Erakutsi sistemako erabiltzaile-interfazearen konfiguratzailea"</string>
     <string name="additional_permissions" msgid="3142290772324571654">"Baimen gehigarriak"</string>

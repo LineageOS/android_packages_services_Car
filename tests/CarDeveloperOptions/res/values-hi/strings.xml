@@ -935,13 +935,13 @@
     <string name="wifi_privacy_settings" msgid="4462092795794247809">"निजता"</string>
     <string name="wifi_privacy_settings_ephemeral_summary" msgid="2411375348287064283">"अपने आप चुना गया एमएसी"</string>
     <string name="wifi_dpp_add_device_to_network" msgid="8871041525483253430">"कोई डिवाइस जोड़ें"</string>
-    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"डिवाइस को “<xliff:g id="SSID">%1$s</xliff:g>” से जोड़ने के लिए QR कोड को कैमरा विंडो के बीच में लाएं"</string>
+    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"डिवाइस को “<xliff:g id="SSID">%1$s</xliff:g>” से जोड़ने के लिए क्यूआर कोड को कैमरा विंडो के बीच में लाएं"</string>
     <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"QR कोड स्कैन करें"</string>
     <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"डिवाइस को “<xliff:g id="SSID">%1$s</xliff:g>” से जोड़ने के लिए QR कोड को नीचे मौजूद कैमरा विंडो के बीच में लाएं"</string>
-    <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"QR कोड स्कैन करके वाई-फ़ाई से जुड़ें"</string>
+    <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"क्यूआर कोड स्कैन करके वाई-फ़ाई से जुड़ें"</string>
     <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"वाई-फ़ाई शेयर करें"</string>
     <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"“<xliff:g id="SSID">%1$s</xliff:g>” से जुड़ने के लिए इस QR कोड को स्कैन करें और पासवर्ड शेयर करें"</string>
-    <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"“<xliff:g id="SSID">%1$s</xliff:g>” से जुड़ने के लिए इस QR कोड को स्कैन करें"</string>
+    <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"“<xliff:g id="SSID">%1$s</xliff:g>” से जुड़ने के लिए इस क्यूआर कोड को स्कैन करें"</string>
     <string name="wifi_dpp_could_not_detect_valid_qr_code" msgid="27667719861826438">"QR कोड नहीं पहचाना जा सका. कोड को बीच में रखें और दोबारा कोशिश करें"</string>
     <string name="wifi_dpp_failure_authentication_or_configuration" msgid="9142051662156233679">"फिर से कोशिश करें. अगर समस्या ठीक नहीं होती है, तो डिवाइस बनाने वाली कंपनी से संपर्क करें"</string>
     <string name="wifi_dpp_failure_not_compatible" msgid="4320027179973678283">"काेई गड़बड़ी हुई"</string>
@@ -1621,7 +1621,7 @@
     <string name="tether_settings_disabled_on_data_saver" msgid="3682544845899910726">"डेटा बचाने की सेटिंग चालू होने पर इंटरनेट शेयर नहीं किया जा सकता या पोर्टेबल हॉटस्पॉट का इस्तेमाल नहीं किया जा सकता"</string>
     <string name="usb_title" msgid="7480927657535578688">"यूएसबी"</string>
     <string name="usb_tethering_button_text" msgid="6242228383142012332">"यूएसबी से टेदरिंग"</string>
-    <string name="usb_tethering_subtext" product="default" msgid="1573513260339548671">"यूएसबी के ज़रिए फ़ोन का इंटरनेट कनेक्‍शन शेयर करें"</string>
+    <string name="usb_tethering_subtext" product="default" msgid="1573513260339548671">"यूएसबी से फ़ोन का इंटरनेट कनेक्‍शन शेयर करें"</string>
     <string name="usb_tethering_subtext" product="tablet" msgid="154536000235361034">"यूएसबी के ज़रिए टैबलेट का इंटरनेट कनेक्‍शन शेयर करें"</string>
     <string name="bluetooth_tether_checkbox_text" msgid="7257293066139372774">"ब्लूटूथ टेदरिंग"</string>
     <string name="bluetooth_tethering_subtext" product="tablet" msgid="6868756914621131635">"ब्लूटूथ के ज़रिए टैबलेट का इंटरनेट कनेक्शन शेयर करें"</string>
@@ -1656,7 +1656,7 @@
     </plurals>
     <string name="location_category_recent_location_access" msgid="286059523360285026">"हाल ही में ऐक्सेस की गई जगह की जानकारी"</string>
     <string name="location_recent_location_access_view_details" msgid="2051602261436245905">"जानकारी देखें"</string>
-    <string name="location_no_recent_apps" msgid="77502059586413278">"किसी भी ऐप ने हाल में जगह का अनुरोध नहीं किया है"</string>
+    <string name="location_no_recent_apps" msgid="77502059586413278">"किसी भी ऐप्लिकेशन ने हाल में जगह की जानकारी नहीं मांगी है"</string>
     <string name="location_no_recent_accesses" msgid="6289916310397279890">"किसी भी ऐप्लिकेशन ने हाल ही में जगह की जानकारी का इस्तेमाल नहीं किया"</string>
     <string name="location_high_battery_use" msgid="7177199869979522663">"ज़्यादा बैटरी उपयोग"</string>
     <string name="location_low_battery_use" msgid="5030448574501435888">"कम बैटरी उपयोग"</string>
@@ -2429,7 +2429,7 @@
     <string name="battery_detail_since_full_charge" msgid="3814176986148084378">"पूरी तरह चार्ज होने के बाद से अब तक का विश्लेषण"</string>
     <string name="battery_last_full_charge" msgid="5624033030647170717">"पिछली बार पूरी तरह चार्ज किया गया"</string>
     <string name="battery_full_charge_last" msgid="4614554109170251301">"बैटरी पूरी चार्ज होने पर करीब इतनी देर चलती है"</string>
-    <string name="battery_footer_summary" msgid="4828444679643906943">"बैटरी के इस्तेमाल का यह डेटा अनुमान के हिसाब से है और यह इस्तेमाल करने के तरीके के मुताबिक बदल सकता है"</string>
+    <string name="battery_footer_summary" msgid="4828444679643906943">"बैटरी के इस्तेमाल का यह डेटा अनुमान के हिसाब से है. यह इस्तेमाल करने के तरीके के मुताबिक बदल सकता है"</string>
     <string name="battery_detail_foreground" msgid="6616408559186553085">"जब इस्तेमाल में हो"</string>
     <string name="battery_detail_background" msgid="7938146832943604280">"बैकग्राउंड में होने पर"</string>
     <string name="battery_detail_power_usage" msgid="3606930232257489212">"बैटरी खर्च"</string>
@@ -2775,7 +2775,7 @@
     <string name="vpn_disconnect_confirm" msgid="3505111947735651082">"इस VPN को डिसकनेक्ट करना चाहते हैं?"</string>
     <string name="vpn_disconnect" msgid="4625914562388652486">"डिसकनेक्ट करें"</string>
     <string name="vpn_version" msgid="2006792987077940456">"वर्शन <xliff:g id="VERSION">%s</xliff:g>"</string>
-    <string name="vpn_forget_long" msgid="8457511440635534478">"VPN भूल जाएं"</string>
+    <string name="vpn_forget_long" msgid="8457511440635534478">"वीपीएन भूल जाएं"</string>
     <string name="vpn_replace_vpn_title" msgid="8517436922021598103">"मौजूदा VPN को बदलें?"</string>
     <string name="vpn_set_vpn_title" msgid="6483554732067951052">"हमेशा-चालू VPN सेट करें?"</string>
     <string name="vpn_first_always_on_vpn_message" msgid="7050017738816963855">"यह सेटिंग चालू होने पर, आपके पास तब तक इंटरनेट कनेक्शन नहीं होगा, जब तक कि VPN अच्छी तरह कनेक्ट नहीं हो जाता"</string>
@@ -2794,7 +2794,7 @@
     <string name="vpn_always_on_summary" msgid="3639994551631437397">"VPN से हमेशा कनेक्ट रहें"</string>
     <string name="vpn_always_on_summary_not_supported" msgid="9077720997795965133">"यह ऐप्लिकेशन समर्थन नहीं करता"</string>
     <string name="vpn_always_on_summary_active" msgid="8962619701962239088">"हमेशा चालू"</string>
-    <string name="vpn_require_connection" msgid="5413746839457797350">"बिना VPN वाले कनेक्शन ब्लॉक करें"</string>
+    <string name="vpn_require_connection" msgid="5413746839457797350">"बिना वीपीएन वाले कनेक्शन ब्लॉक करें"</string>
     <string name="vpn_require_connection_title" msgid="8361434328767853717">"VPN कनेक्शन ज़रूरी है?"</string>
     <string name="vpn_lockdown_summary" msgid="6770030025737770861">"वह VPN प्रोफ़ाइल चुनें जिससे हमेशा कनेक्ट रहना है. नेटवर्क ट्रैफ़िक की अनुमति केवल इस VPN से कनेक्ट रहने पर ही दी जाएगी."</string>
     <string name="vpn_lockdown_none" msgid="3789288793603394679">"कोई नहीं"</string>
@@ -3878,7 +3878,7 @@
     <string name="disabled_by_policy_title_camera" msgid="3741138901926111197">"कैमरा की अनुमति नहीं है"</string>
     <string name="disabled_by_policy_title_screen_capture" msgid="1856835333536274665">"स्क्रीनशॉट की अनुमति नहीं है"</string>
     <string name="disabled_by_policy_title_suspend_packages" msgid="4254714213391802322">"इस ऐप्लिकेशन को खोला नहीं जा सकता"</string>
-    <string name="default_admin_support_msg" msgid="5789424433689798637">"अगर आपके कोई सवाल हैं तो, अपने आईटी एडमिन से संपर्क करें"</string>
+    <string name="default_admin_support_msg" msgid="5789424433689798637">"अगर आपके कोई सवाल हैं, तो अपने आईटी एडमिन से संपर्क करें"</string>
     <string name="admin_support_more_info" msgid="8737842638087863477">"ज़्यादा विवरण"</string>
     <string name="admin_profile_owner_message" msgid="3199544166281052845">"आपका एडमिन आपकी वर्क प्रोफ़ाइल से जुड़े ऐप और डेटा की निगरानी और उनका प्रबंधन कर सकता है, जिनमें सेटिंग, अनुमतियां, कॉर्पोरेट पहुंच, नेटवर्क गतिविधि और डिवाइस के जगह की जानकारी शामिल हैं."</string>
     <string name="admin_profile_owner_user_message" msgid="2991249382056855531">"आपका एडमिन इस उपयोगकर्ता से जुड़े ऐप्लिकेशन और डेटा की निगरानी और उनका प्रबंधन कर सकता है, जिनमें सेटिंग, अनुमतियां, कॉर्पोरेट पहुंच, नेटवर्क गतिविधि और डिवाइस के जगह की जानकारी शामिल है."</string>
@@ -4473,7 +4473,7 @@
     <string name="privacy_dashboard_title" msgid="8764930992456607513">"निजता"</string>
     <string name="privacy_dashboard_summary" msgid="7916431309860824945">"अनुमतियां, खाता गतिविधि, निजी डेटा"</string>
     <string name="contextual_card_dismiss_remove" msgid="1750420285615827309">"हटाएं"</string>
-    <string name="contextual_card_dismiss_keep" msgid="3204450672928193661">"रखें"</string>
+    <string name="contextual_card_dismiss_keep" msgid="3204450672928193661">"Keep"</string>
     <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"यह सुझाव हटा दें?"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"सुझाव हटाया गया"</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"पहले जैसा करें"</string>
