@@ -31,10 +31,12 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
+import android.os.Trace;
 import android.os.UserManager;
 import android.provider.Settings;
 import android.util.Log;
 import android.util.Slog;
+import android.util.TimingsTraceLog;
 
 import com.android.dx.mockito.inline.extended.StaticMockitoSessionBuilder;
 import com.android.internal.util.Preconditions;
@@ -92,23 +94,44 @@ public abstract class AbstractExtendedMockitoTestCase {
     private MockitoSession mSession;
     private MockSettings mSettings;
 
+    @Nullable
+    private final TimingsTraceLog mTracer;
+
     @Rule
     public final WtfCheckerRule mWtfCheckerRule = new WtfCheckerRule();
 
+    protected AbstractExtendedMockitoTestCase() {
+        mTracer = VERBOSE ? new TimingsTraceLog(TAG, Trace.TRACE_TAG_APP) : null;
+    }
+
     @Before
     public final void startSession() {
-        if (VERBOSE) Log.v(TAG, getLogPrefix() + "startSession()");
+        beginTrace("startSession()");
+
+        beginTrace("startMocking()");
         mSession = newSessionBuilder().startMocking();
+        endTrace();
+
+        beginTrace("MockSettings()");
         mSettings = new MockSettings();
+        endTrace();
+
+        beginTrace("interceptWtfCalls()");
         interceptWtfCalls();
+        endTrace();
+
+        endTrace(); // startSession
     }
 
     @After
     public final void finishSession() {
-        if (VERBOSE) Log.v(TAG, getLogPrefix() + "finishSession()");
+        beginTrace("finishSession()");
         if (mSession != null) {
+            beginTrace("finishMocking()");
             mSession.finishMocking();
+            endTrace();
         }
+        endTrace();
     }
 
     /**
@@ -172,7 +195,10 @@ public abstract class AbstractExtendedMockitoTestCase {
     protected final void mockGetCurrentUser(@UserIdInt int userId) {
         if (VERBOSE) Log.v(TAG, getLogPrefix() + "mockGetCurrentUser(" + userId + ")");
         assertSpied(ActivityManager.class);
+
+        beginTrace("mockAmGetCurrentUser-" + userId);
         AndroidMockitoHelper.mockAmGetCurrentUser(userId);
+        endTrace();
     }
 
     /**
@@ -186,10 +212,42 @@ public abstract class AbstractExtendedMockitoTestCase {
     protected final void mockIsHeadlessSystemUserMode(boolean mode) {
         if (VERBOSE) Log.v(TAG, getLogPrefix() + "mockIsHeadlessSystemUserMode(" + mode + ")");
         assertSpied(UserManager.class);
+
+        beginTrace("mockUmIsHeadlessSystemUserMode");
         AndroidMockitoHelper.mockUmIsHeadlessSystemUserMode(mode);
+        endTrace();
     }
 
-    protected void interceptWtfCalls() {
+    /**
+     * Starts a tracing message.
+     *
+     * <p>MUST be followed by a {@link #endTrace()} calls.
+     *
+     * <p>Ignored if {@value #VERBOSE} is {@code false}.
+     */
+    protected final void beginTrace(@NonNull String message) {
+        if (mTracer == null) return;
+
+        Log.d(TAG, getLogPrefix() + message);
+        mTracer.traceBegin(message);
+    }
+
+    /**
+     * Ends a tracing call.
+     *
+     * <p>MUST be called after {@link #beginTrace(String)}.
+     *
+     * <p>Ignored if {@value #VERBOSE} is {@code false}.
+     */
+    protected final void endTrace() {
+        if (mTracer == null) return;
+
+        mTracer.traceEnd();
+    }
+
+
+
+    private void interceptWtfCalls() {
         doAnswer((invocation) -> {
             return addWtf(invocation);
         }).when(() -> Log.wtf(anyString(), anyString()));
@@ -245,6 +303,9 @@ public abstract class AbstractExtendedMockitoTestCase {
                     .spyStatic(Slog.class);
 
         onSessionBuilder(customBuilder);
+
+        if (VERBOSE) Log.v(TAG, "spied classes" + customBuilder.mStaticSpiedClasses);
+
         return builder.initMocks(this);
     }
 
@@ -295,20 +356,26 @@ public abstract class AbstractExtendedMockitoTestCase {
                 @Override
                 public void evaluate() throws Throwable {
                     String testName = description.getMethodName();
-
                     if (VERBOSE) Log.v(TAG, "running " + testName);
+                    beginTrace("evaluate-" + testName);
                     base.evaluate();
+                    endTrace();
 
                     Method testMethod = AbstractExtendedMockitoTestCase.this.getClass()
                             .getMethod(testName);
                     ExpectWtf expectWtfAnnotation = testMethod.getAnnotation(ExpectWtf.class);
 
-                    if (expectWtfAnnotation != null) {
-                        if (VERBOSE) Log.v(TAG, "expecting wtf()");
-                        verifyWtfLogged();
-                    } else {
-                        if (VERBOSE) Log.v(TAG, "NOT expecting wtf()");
-                        verifyWtfNeverLogged();
+                    beginTrace("verify-wtfs");
+                    try {
+                        if (expectWtfAnnotation != null) {
+                            if (VERBOSE) Log.v(TAG, "expecting wtf()");
+                            verifyWtfLogged();
+                        } else {
+                            if (VERBOSE) Log.v(TAG, "NOT expecting wtf()");
+                            verifyWtfNeverLogged();
+                        }
+                    } finally {
+                        endTrace();
                     }
                 }
             };
@@ -386,14 +453,14 @@ public abstract class AbstractExtendedMockitoTestCase {
             return safeCast(value, clazz);
         }
 
-        private <T> T safeCast(Object value, Class<T> clazz) {
+        private static <T> T safeCast(Object value, Class<T> clazz) {
             if (value == null) {
                 return null;
             }
             Preconditions.checkArgument(value.getClass() == clazz,
                     "Setting value has class %s but requires class %s",
                     value.getClass(), clazz);
-            return (T) value;
+            return clazz.cast(value);
         }
 
         private String getString(String key) {
@@ -401,7 +468,7 @@ public abstract class AbstractExtendedMockitoTestCase {
         }
 
         public int getInt(String key) {
-            return (int) get(key, null, Integer.class);
+            return get(key, null, Integer.class);
         }
     }
 
