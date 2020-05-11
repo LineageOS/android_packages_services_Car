@@ -65,7 +65,7 @@
     <string name="radioInfo_phone_offhook" msgid="3186071430568806208">"Զանգն ընթանում է"</string>
     <string name="radioInfo_data_disconnected" msgid="5311119240521915279">"Անջատված է"</string>
     <string name="radioInfo_data_connecting" msgid="47095003276717745">"Միանում է"</string>
-    <string name="radioInfo_data_connected" msgid="3755289851642913750">"Կապակցված է"</string>
+    <string name="radioInfo_data_connected" msgid="3755289851642913750">"Միացված է"</string>
     <string name="radioInfo_data_suspended" msgid="5013451375409737795">"Անջատված"</string>
     <string name="radioInfo_unknown" msgid="3148839102896278859">"Անհայտ"</string>
     <string name="radioInfo_display_packets" msgid="5472652398031589527">"pkts"</string>
@@ -918,7 +918,7 @@
     <string name="please_select_phase2" msgid="5848080896810435677">"Փուլ 2-ի նույնականացում"</string>
     <string name="wifi_eap_ca_cert" msgid="1496395241849383785">"CA հավաստագիր"</string>
     <string name="wifi_eap_domain" msgid="3298302320003640130">"Տիրույթ"</string>
-    <string name="wifi_eap_user_cert" msgid="6786839531765719173">"Օգտատիրոջ վկայական"</string>
+    <string name="wifi_eap_user_cert" msgid="6786839531765719173">"Օգտատիրոջ հավաստագիր"</string>
     <string name="wifi_eap_identity" msgid="5280457017705738773">"Ինքնություն"</string>
     <string name="wifi_eap_anonymous" msgid="6352344972490839958">"Անանուն ինքնություն"</string>
     <string name="wifi_password" msgid="6942983531275177771">"Գաղտնաբառ"</string>
@@ -934,9 +934,9 @@
     <string name="wifi_ip_settings" msgid="4636102290236116946">"IP կարգավորումներ"</string>
     <string name="wifi_privacy_settings" msgid="4462092795794247809">"Գաղտնիություն"</string>
     <string name="wifi_privacy_settings_ephemeral_summary" msgid="2411375348287064283">"Պատահական ընտրված MAC"</string>
-    <string name="wifi_dpp_add_device_to_network" msgid="8871041525483253430">"Ավելացնել սարք"</string>
+    <string name="wifi_dpp_add_device_to_network" msgid="8871041525483253430">"Ավելացրեք սարք"</string>
     <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"Սարքը «<xliff:g id="SSID">%1$s</xliff:g>» ցանցին ավելացնելու համար տեսախցիկը պահեք QR կոդի վրա"</string>
-    <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"Սկանավորել QR կոդը"</string>
+    <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"Սկանավորեք QR կոդը"</string>
     <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"«<xliff:g id="SSID">%1$s</xliff:g>» ցանցին միանալու համար տեսախցիկը պահեք QR կոդի վրա"</string>
     <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"Wi‑Fi ցանցին միանալու համար սկանավորեք QR կոդը"</string>
     <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"Կիսվել Wi‑Fi-ով"</string>
@@ -951,11 +951,11 @@
     <string name="wifi_dpp_check_connection_try_again" msgid="7144663015219170999">"Ստուգեք ինտերնետ կապը և նորից փորձեք"</string>
     <string name="wifi_dpp_choose_network" msgid="6251424431594491691">"Ընտրեք ցանց"</string>
     <string name="wifi_dpp_choose_network_to_connect_device" msgid="6385259857886784285">"Սարքը միացնելու համար ընտրեք ցանցը"</string>
-    <string name="wifi_dpp_add_device_to_wifi" msgid="6454198064645462446">"Կապակցե՞լ այս սարքը «<xliff:g id="SSID">%1$s</xliff:g>» ցանցին"</string>
+    <string name="wifi_dpp_add_device_to_wifi" msgid="6454198064645462446">"Կապե՞լ այս սարքը «<xliff:g id="SSID">%1$s</xliff:g>» ցանցին"</string>
     <string name="wifi_dpp_wifi_shared_with_device" msgid="5713765471758272471">"Սարքը միացված է Wi‑Fi-ին"</string>
     <string name="wifi_dpp_add_another_device" msgid="3698441567235301565">"Կապացել այլ սարք"</string>
     <string name="wifi_dpp_choose_different_network" msgid="128515107488187050">"Ընտրել այլ ցանց"</string>
-    <string name="wifi_dpp_could_not_add_device" msgid="4966109556543584813">"Չհաջողվեց ավելացնել սարք"</string>
+    <string name="wifi_dpp_could_not_add_device" msgid="4966109556543584813">"Չհաջողվեց ավելացնել սարքը"</string>
     <string name="wifi_dpp_device_found" msgid="6488461467496850841">"Գտնվել է 1 սարք"</string>
     <string name="wifi_dpp_sharing_wifi_with_this_device" msgid="2540529164687476827">"Սարքը միանում է Wi‑Fi-ին…"</string>
     <string name="wifi_dpp_connecting" msgid="4229290407210299897">"Միացում…"</string>
@@ -3277,7 +3277,7 @@
     <string name="zen_onboarding_settings" msgid="1416466597876383322">"Կարգավորումներ"</string>
     <string name="zen_onboarding_new_setting_title" msgid="3622673375041304362">"Ամբողջությամբ անջատել ծանուցումները"</string>
     <string name="zen_onboarding_current_setting_title" msgid="2560330551761407563">"Անջատել ծանուցումների ձայնը"</string>
-    <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"Ծանուցումներն ամբողջությամբ կանջատվեն։ Դուք կստանաք միայն աստղանշված կոնտակտներից և կրկնվող զանգեր։"</string>
+    <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"Ծանուցումներն ամբողջությամբ կանջատվեն։ Զանգեր կստանաք միայն աստղանշված և հաճախակի զանգող բաժանորդներից։"</string>
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(ընթացիկ կարգավորումը)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"Փոփոխե՞լ «Չանհանգստացնել» ռեժիմի ծանուցումների կարգավորումները"</string>
     <string name="sound_work_settings" msgid="4140215240360927923">"Աշխատանքային պրոֆիլի ձայները"</string>
@@ -3493,7 +3493,7 @@
     <string name="zen_mode_from_anyone" msgid="7778836826814131083">"Բոլորից"</string>
     <string name="zen_mode_from_contacts" msgid="267034158294332688">"Միայն կոնտակտներից"</string>
     <string name="zen_mode_from_starred" msgid="7349984569117392260">"Միայն աստղանշված կոնտակտներից"</string>
-    <string name="zen_calls_summary_starred_repeat" msgid="9191394641577678207">"Աստղանշված կոնտակտներից և կրկնվող զանգեր"</string>
+    <string name="zen_calls_summary_starred_repeat" msgid="9191394641577678207">"Աստղանշված և հաճախակի զանգող բաժանորդներից"</string>
     <string name="zen_calls_summary_contacts_repeat" msgid="7747592096431111510">"Կոնտակտներից և կրկնվող զանգեր"</string>
     <string name="zen_calls_summary_repeat_only" msgid="8839703337232747964">"Միայն կրկնվող զանգեր"</string>
     <string name="zen_mode_from_none" msgid="7683889985618637010">"Ոչ ոքից"</string>
@@ -3630,7 +3630,7 @@
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> լրացուցիչ թույլտվություն</item>
     </plurals>
     <string name="runtime_permissions_summary_no_permissions_granted" msgid="3477934429220828771">"Թույլտվություններ չեն շնորհվել"</string>
-    <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"Թույլտվություններ չեն հայցվել"</string>
+    <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"Հավելվածը թույլտվություններ չի պահանջել"</string>
     <string name="filter_all_apps" msgid="4042756539846043675">"Բոլոր հավելվածները"</string>
     <string name="filter_enabled_apps" msgid="5888459261768538489">"Տեղադրված հավելվածներ"</string>
     <string name="filter_instant_apps" msgid="8087483282854072366">"Ակնթարթային հավելվածները"</string>
@@ -4071,14 +4071,14 @@
     <string name="premium_sms_warning" msgid="7604011651486294515">"Վճարովի SMS-ները կարող են լրացուցիչ ծախսեր առաջացնել: Հավելվածին թույտվություն տալու դեպքում կկարողանաք դրա միջոցով վճարովի SMS-ներ ուղարկել։"</string>
     <string name="premium_sms_access" msgid="4550027460595822851">"Վճարովի SMS"</string>
     <string name="bluetooth_disabled" msgid="6588102116819268238">"Անջատված է"</string>
-    <string name="bluetooth_connected_summary" msgid="439920840053965217">"Կապակցված է <xliff:g id="ID_1">%1$s</xliff:g>-ին"</string>
-    <string name="bluetooth_connected_multiple_devices_summary" msgid="596205630653123250">"Կապակցված է բազմակի շարժական սարքերի"</string>
+    <string name="bluetooth_connected_summary" msgid="439920840053965217">"Միացված է <xliff:g id="ID_1">%1$s</xliff:g>-ին"</string>
+    <string name="bluetooth_connected_multiple_devices_summary" msgid="596205630653123250">"Միացված է բազմակի շարժական սարքերի"</string>
     <string name="demo_mode" msgid="3831081808592541104">"Համակարգի միջերեսի ցուցադրական ռեժիմ"</string>
     <string name="dark_ui_mode" msgid="703844190192599217">"Թեմա"</string>
     <string name="dark_ui_mode_title" msgid="8774932716427742413">"Ընտրել թեմա"</string>
     <string name="dark_ui_settings_light_summary" msgid="5219102347744462812">"Այս կարգավորումը կիրառվում է նաև հավելվածների համար"</string>
     <string name="dark_ui_settings_dark_summary" msgid="7042737828943784289">"Աջակցվող հավելվածները ևս կանցնեն մուգ թեմային"</string>
-    <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"Մշակողի արագ կարգավորման սալիկներ"</string>
+    <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"Ծրագրավորողի արագ կարգավորման սալիկներ"</string>
     <string name="winscope_trace_quick_settings_title" msgid="940971040388411374">"Winscope-ի հետագծում"</string>
     <string name="sensors_off_quick_settings_title" msgid="3655699045300438902">"Տվիչներն անջատված են"</string>
     <string name="managed_profile_settings_title" msgid="4340409321523532402">"Աշխատանքային պրոֆիլի կարգավորումներ"</string>

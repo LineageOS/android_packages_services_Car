@@ -857,7 +857,7 @@
     <string name="wifi_poor_network_detection_summary" msgid="5539951465985614590">"Интернет байланысы жақсы болмаса, Wi‑Fi желісі қолданылмайды"</string>
     <string name="wifi_avoid_poor_network_detection_summary" msgid="1976503191780928104">"Тек жақсы интернет байланысы бар желілерді пайдалану"</string>
     <string name="use_open_wifi_automatically_title" msgid="3084513215481454350">"Ашық желілерге қосылу"</string>
-    <string name="use_open_wifi_automatically_summary" msgid="8338020172673161754">"Жоғары сапалы ашық желілерге автоматты қосылу"</string>
+    <string name="use_open_wifi_automatically_summary" msgid="8338020172673161754">"Жоғары сапалы қоғамдық желілерге автоматты қосылу"</string>
     <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"Пайдалану үшін желіні бағалау провайдерін таңдаңыз"</string>
     <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"Пайдалану үшін үйлесімді желіні бағалау провайдерін таңдаңыз"</string>
     <string name="wifi_install_credentials" msgid="5650088113710858289">"Сертификаттар орнату"</string>
@@ -914,13 +914,13 @@
     <string name="wifi_ip_address" msgid="5572539114989914831">"IP мекенжайы"</string>
     <string name="passpoint_label" msgid="7429247462404128615">"Сақталу жолы"</string>
     <string name="passpoint_content" msgid="340527524510304327">"<xliff:g id="NAME">%1$s</xliff:g> тіркелгі деректері"</string>
-    <string name="wifi_eap_method" msgid="3752116941487485859">"EAP (кеңейтілген растау протоколы) әдісі"</string>
-    <string name="please_select_phase2" msgid="5848080896810435677">"Фаза 2 растауы"</string>
+    <string name="wifi_eap_method" msgid="3752116941487485859">"EAP әдісі"</string>
+    <string name="please_select_phase2" msgid="5848080896810435677">"Аутентификацияның 2-сатысы"</string>
     <string name="wifi_eap_ca_cert" msgid="1496395241849383785">"Растама мекемесінің сертификаты"</string>
     <string name="wifi_eap_domain" msgid="3298302320003640130">"Домен"</string>
     <string name="wifi_eap_user_cert" msgid="6786839531765719173">"Пайдаланушы сертификаты"</string>
     <string name="wifi_eap_identity" msgid="5280457017705738773">"Бірлік"</string>
-    <string name="wifi_eap_anonymous" msgid="6352344972490839958">"Анонимді бірлік"</string>
+    <string name="wifi_eap_anonymous" msgid="6352344972490839958">"Белгісіз"</string>
     <string name="wifi_password" msgid="6942983531275177771">"Құпия сөз"</string>
     <string name="wifi_show_password" msgid="7878398590772942202">"Құпия сөзді көрсету"</string>
     <string name="wifi_ap_band_config" msgid="6565016368079288433">"Wi-Fi жиілік ауқымын таңдау"</string>
@@ -2043,7 +2043,7 @@
     <string name="screen_reader_category_title" msgid="6300714148519645544">"Экранды оқу құралдары"</string>
     <string name="audio_and_captions_category_title" msgid="6140472938769619212">"Аудио және экранға шығатын мәтін"</string>
     <string name="display_category_title" msgid="545168481672250195">"Дисплей"</string>
-    <string name="interaction_control_category_title" msgid="8775039211811947683">"Өзара әрекеттестікті басқару элементтері"</string>
+    <string name="interaction_control_category_title" msgid="8775039211811947683">"Басқару элементтері"</string>
     <string name="user_installed_services_category_title" msgid="4288689493753221319">"Жүктеп алынған қызметтер"</string>
     <string name="experimental_category_title" msgid="3797000069740110717">"Эксперименттік"</string>
     <string name="feature_flags_dashboard_title" msgid="3153034144122754381">"Функция жалаушалары"</string>
@@ -3162,7 +3162,7 @@
     <string name="emergency_tone_vibrate" msgid="5020068066905681181">"Діріл"</string>
     <string name="boot_sounds_title" msgid="7583926202411353620">"Дыбыстарды қосу"</string>
     <string name="live_caption_title" msgid="7926591158657997051">"Live Caption"</string>
-    <string name="live_caption_summary" msgid="9064771862352393125">"Автоматты субтитр мультимедиасы"</string>
+    <string name="live_caption_summary" msgid="9064771862352393125">"Автоматты субтитр қосу"</string>
     <string name="zen_mode_settings_summary_off" msgid="6929319200478424962">"Ешқашан"</string>
     <plurals name="zen_mode_settings_summary_on" formatted="false" msgid="6061723291126091396">
       <item quantity="other"><xliff:g id="ON_COUNT">%d</xliff:g> іске қосылды</item>

@@ -956,7 +956,7 @@
     <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"Skeniraj QR kôd"</string>
     <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"Centrirajte QR kôd u nastavku da biste se povezali s mrežom “<xliff:g id="SSID">%1$s</xliff:g>”"</string>
     <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"Pridružite se Wi‑Fiju tako što ćete skenirati QR kôd"</string>
-    <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"Dijeli Wi‑Fi"</string>
+    <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"Dijelite Wi‑Fi"</string>
     <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"Skenirajte ovaj QR kôd da biste se povezali s mrežom \"<xliff:g id="SSID">%1$s</xliff:g>\" i podijelili zaporku"</string>
     <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"Skenirajte ovaj QR kôd da biste se povezali s mrežom \"<xliff:g id="SSID">%1$s</xliff:g>\""</string>
     <string name="wifi_dpp_could_not_detect_valid_qr_code" msgid="27667719861826438">"Čitanje QR koda nije uspjelo. Ponovo centrirajte kôd, a zatim pokušajte opet"</string>
@@ -1038,7 +1038,7 @@
     <string name="wifi_advanced_ssid_title" msgid="4229741334913894856">"SSID"</string>
     <string name="wifi_advanced_mac_address_title" msgid="1162782083754021737">"MAC adresa"</string>
     <string name="wifi_advanced_ip_address_title" msgid="2708185994512829071">"IP adresa"</string>
-    <string name="wifi_details_title" msgid="2164042631550920157">"Pojedinosti o mreži"</string>
+    <string name="wifi_details_title" msgid="2164042631550920157">"Podaci o mreži"</string>
     <string name="wifi_details_subnet_mask" msgid="53396707004763012">"Maska podmreže"</string>
     <string name="wifi_details_dns" msgid="1118251455740116559">"DNS"</string>
     <string name="wifi_details_ipv6_address_header" msgid="1642310137145363299">"IPv6 adrese"</string>
@@ -1639,7 +1639,7 @@
     <string name="tether_settings_summary_hotspot_off_tether_on" msgid="1349909238672649877">"Modemsko povezivanje"</string>
     <string name="tether_settings_disabled_on_data_saver" msgid="3682544845899910726">"Dok je Štednja podatkovnog prometa uključena, ne možete upotrebljavati modemsko povezivanje ni prijenosne žarišne točke"</string>
     <string name="usb_title" msgid="7480927657535578688">"USB"</string>
-    <string name="usb_tethering_button_text" msgid="6242228383142012332">"Dijeljenje USB-om"</string>
+    <string name="usb_tethering_button_text" msgid="6242228383142012332">"Dijeljenje veze USB-om"</string>
     <string name="usb_tethering_subtext" product="default" msgid="1573513260339548671">"Dijelite internetsku vezu telefona putem USB-a"</string>
     <string name="usb_tethering_subtext" product="tablet" msgid="154536000235361034">"Dijelite internetsku vezu tableta putem USB-a"</string>
     <string name="bluetooth_tether_checkbox_text" msgid="7257293066139372774">"Dijeljenje veze Bluetoothom"</string>
@@ -4052,7 +4052,7 @@
     <string name="launch_mdp_app_text" msgid="9186559496664208252">"Prikaži plan"</string>
     <string name="launch_wifi_text" msgid="317820210431682605">"Prikaz pojedinosti"</string>
     <string name="data_saver_title" msgid="7903308134514179256">"Štednja podatkovnog prometa"</string>
-    <string name="unrestricted_data_saver" msgid="9139401849550738720">"Neograničena potrošnja"</string>
+    <string name="unrestricted_data_saver" msgid="9139401849550738720">"Neograničeni podaci"</string>
     <string name="restrict_background_blacklisted" msgid="7158991683849067124">"Pozadinski su podaci isključeni"</string>
     <string name="data_saver_on" msgid="7281809065420480881">"Uključeno"</string>
     <string name="data_saver_off" msgid="7439439787358504018">"Isključeno"</string>
@@ -4118,7 +4118,7 @@
     <string name="display_cutout_emulation_keywords" msgid="6795671536772871439">"obrezana slika za zaslon, urez"</string>
     <string name="overlay_option_device_default" msgid="165508753381657697">"Zadana postavka uređaja"</string>
     <string name="overlay_toast_failed_to_apply" msgid="5692251825129250040">"Primjena preklapanja nije uspjela"</string>
-    <string name="special_access" msgid="1453926335914696206">"Pristup aplikacija"</string>
+    <string name="special_access" msgid="1453926335914696206">"Poseban pristup za aplikacije"</string>
     <plurals name="special_access_summary" formatted="false" msgid="5182092345063909346">
       <item quantity="one"><xliff:g id="COUNT">%d</xliff:g> aplikacija može upotrebljavati neograničene podatke</item>
       <item quantity="few"><xliff:g id="COUNT">%d</xliff:g> aplikacije mogu upotrebljavati neograničene podatke</item>
@@ -4409,7 +4409,7 @@
     <string name="prevent_ringing_option_vibrate_summary" msgid="7961818570574683926">"Uključeno (vibracija)"</string>
     <string name="prevent_ringing_option_mute_summary" msgid="3509459199090688328">"Uključi (isključi zvuk)"</string>
     <string name="prevent_ringing_option_none_summary" msgid="5152618221093037451">"Isključi"</string>
-    <string name="pref_title_network_details" msgid="3971074015034595956">"Pojedinosti o mreži"</string>
+    <string name="pref_title_network_details" msgid="3971074015034595956">"Podaci o mreži"</string>
     <string name="about_phone_device_name_warning" msgid="9088572775969880106">"Naziv vašeg uređaja vidljiv je aplikacijama na vašem telefonu. Mogu ga vidjeti i drugi ljudi kada se povežete s Bluetooth uređajima ili postavite Wi-Fi žarišnu točku."</string>
     <string name="devices_title" msgid="4768432575951993648">"Uređaji"</string>
     <string name="homepage_all_settings" msgid="3201220879559136116">"Sve postavke"</string>

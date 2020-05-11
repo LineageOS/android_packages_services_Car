@@ -207,7 +207,7 @@
     <string name="proxy_error_empty_port" msgid="8034561724923076215">"آپ کو پورٹ فیلڈ مکمل کرنے کی ضرورت ہے۔"</string>
     <string name="proxy_error_empty_host_set_port" msgid="8471455809508588255">"اگر میزبان فیلڈ خالی ہے تو پورٹ فیلڈ لازمی طور پر خالی ہونی چاہیے۔"</string>
     <string name="proxy_error_invalid_port" msgid="4046559920586100637">"آپ کے ذریعے ٹائپ کردہ پورٹ درست نہیں ہے۔"</string>
-    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"HTTP پراکسی کا استعمال براؤزر کے ذریعے ہوتا ہے لیکن ممکن ہے دوسری ایپس اسے استعمال نہ کریں۔"</string>
+    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"براؤزر HTTP پراکسی کا استعمال کرتا ہے لیکن ممکن ہے دوسری ایپس اسے استعمال نہ کریں۔"</string>
     <string name="proxy_url_title" msgid="882042361706435904">"PAC URL:‎ "</string>
     <string name="radio_info_dl_kbps" msgid="2903778264453410272">"DL بینڈ وڈتھ (kbps):"</string>
     <string name="radio_info_ul_kbps" msgid="3802245899811732716">"UL بینڈ وڈتھ (kbps):"</string>
@@ -910,7 +910,7 @@
     <string name="wifi_status" msgid="3439931558930689940">"اسٹیٹس"</string>
     <string name="tx_wifi_speed" msgid="2571810085003261073">"ترسیل کے لنک کی رفتار"</string>
     <string name="rx_wifi_speed" msgid="7392873246110937187">"وصولی کے لنک کی رفتار"</string>
-    <string name="wifi_frequency" msgid="6132852924995724246">"تعدد"</string>
+    <string name="wifi_frequency" msgid="6132852924995724246">"فریکوئنسی"</string>
     <string name="wifi_ip_address" msgid="5572539114989914831">"IP پتہ"</string>
     <string name="passpoint_label" msgid="7429247462404128615">"محفوظ کردہ بذریعہ"</string>
     <string name="passpoint_content" msgid="340527524510304327">"<xliff:g id="NAME">%1$s</xliff:g> اسنادات"</string>
@@ -1689,7 +1689,7 @@
     <string name="contributors_title" msgid="6800028420806884340">"معاونین"</string>
     <string name="manual" msgid="5431859421432581357">"مینوئل"</string>
     <string name="regulatory_labels" msgid="380968489247381025">"ریگولیٹری لیبلز"</string>
-    <string name="safety_and_regulatory_info" msgid="7113766428000920132">"حفاظتی اور انضباطی مینوئل"</string>
+    <string name="safety_and_regulatory_info" msgid="7113766428000920132">"حفاظتی اور ریگولیٹری مینوئل"</string>
     <string name="copyright_title" msgid="3847703367689932190">"کاپی رائٹ"</string>
     <string name="license_title" msgid="7582145947873528540">"لائسنس"</string>
     <string name="terms_title" msgid="1804549588198223771">"شرائط و ضوابط"</string>
@@ -2037,7 +2037,7 @@
     <string name="accessibility_settings" msgid="9140621093888234485">"ایکسیسبیلٹی"</string>
     <string name="accessibility_settings_title" msgid="1687226556576913576">"ایکسیسبیلٹی ترتیبات"</string>
     <string name="accessibility_settings_summary" msgid="5742379519336396561">"اسکرین قارئین، ڈسپلے، تعامل کے کنٹرولز"</string>
-    <string name="vision_settings_title" msgid="7315352351051423944">"بصارتی ترتیبات"</string>
+    <string name="vision_settings_title" msgid="7315352351051423944">"بصری ترتیبات"</string>
     <string name="vision_settings_description" msgid="3476589459009287332">"آپ اس آلہ کو اپنی ضروریات کے مطابق حسب ضرورت بنا سکتے ہیں۔ یہ ایکسیسبیلٹی خصوصیات بعد میں ترتیبات میں تبدیل ہو سکتی ہیں۔"</string>
     <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"فونٹ سائز تبدیل کریں"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"اسکرین ریڈرز"</string>

@@ -4473,7 +4473,7 @@
     <string name="privacy_dashboard_title" msgid="8764930992456607513">"গোপনীয়তা"</string>
     <string name="privacy_dashboard_summary" msgid="7916431309860824945">"অনুমতি, একাউণ্টৰ কাৰ্যকলাপ, ব্যক্তিগত ডেটা"</string>
     <string name="contextual_card_dismiss_remove" msgid="1750420285615827309">"আঁতৰাওক"</string>
-    <string name="contextual_card_dismiss_keep" msgid="3204450672928193661">"ৰাখক"</string>
+    <string name="contextual_card_dismiss_keep" msgid="3204450672928193661">"Keep"</string>
     <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"এই পৰামৰ্শটো আঁতৰাবনে?"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"পৰামৰ্শ আঁতৰোৱা হ’ল"</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"আনডু কৰক"</string>
