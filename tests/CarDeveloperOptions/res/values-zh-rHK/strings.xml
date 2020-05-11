@@ -935,13 +935,13 @@
     <string name="wifi_privacy_settings" msgid="4462092795794247809">"私隱"</string>
     <string name="wifi_privacy_settings_ephemeral_summary" msgid="2411375348287064283">"隨機化處理 MAC"</string>
     <string name="wifi_dpp_add_device_to_network" msgid="8871041525483253430">"新增裝置"</string>
-    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"相機對準以下二維條碼，即可將裝置新增至「<xliff:g id="SSID">%1$s</xliff:g>」"</string>
+    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"將下方方框對準二維條碼，即可將裝置加到「<xliff:g id="SSID">%1$s</xliff:g>」"</string>
     <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"掃瞄二維條碼"</string>
     <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"將二維條碼置於下方中間，即可連接至「<xliff:g id="SSID">%1$s</xliff:g>」"</string>
     <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"掃瞄二維條碼以加入 Wi-Fi"</string>
     <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"分享 Wi‑Fi"</string>
     <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"掃瞄此二維條碼即可連線至「<xliff:g id="SSID">%1$s</xliff:g>」並分享密碼"</string>
-    <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"掃描此二維條碼即可連線至「<xliff:g id="SSID">%1$s</xliff:g>」"</string>
+    <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"掃描此二維條碼，即可連接「<xliff:g id="SSID">%1$s</xliff:g>」"</string>
     <string name="wifi_dpp_could_not_detect_valid_qr_code" msgid="27667719861826438">"無法讀取二維條碼。重新將二維條碼放在正中，然後再試一次"</string>
     <string name="wifi_dpp_failure_authentication_or_configuration" msgid="9142051662156233679">"請再試一次。如果仍有問題，請聯絡裝置製造商"</string>
     <string name="wifi_dpp_failure_not_compatible" msgid="4320027179973678283">"發生問題"</string>

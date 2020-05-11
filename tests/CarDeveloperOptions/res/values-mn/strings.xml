@@ -207,7 +207,7 @@
     <string name="proxy_error_empty_port" msgid="8034561724923076215">"Та порт талбарыг гүйцээх шаардлагатай."</string>
     <string name="proxy_error_empty_host_set_port" msgid="8471455809508588255">"Хостын талбар хоосон байгаа бол портын талбар хоосон байх шаардлагатай."</string>
     <string name="proxy_error_invalid_port" msgid="4046559920586100637">"Таны оруулсан порт буруу байна."</string>
-    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"HTTP проксиг хөтөч ашиглаж байгаа боловч бусад апп-ууд ашиглахгүй байж магадгүй."</string>
+    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"HTTP проксиг хөтөч ашиглаж байгаа боловч бусад апп ашиглахгүй байж магадгүй."</string>
     <string name="proxy_url_title" msgid="882042361706435904">"PAC URL: "</string>
     <string name="radio_info_dl_kbps" msgid="2903778264453410272">"DL Зурвасын өргөн (kbps):"</string>
     <string name="radio_info_ul_kbps" msgid="3802245899811732716">"UL Зурвасын өргөн (kbps):"</string>
@@ -1970,7 +1970,7 @@
     <string name="keyboard_assistance_category" msgid="2276351807419818125">"Гарын тусламж"</string>
     <string name="physical_keyboard_title" msgid="3508591962962814313">"Бодит гар"</string>
     <string name="show_ime" msgid="7322620473198763563">"Виртуал гарыг харуулах"</string>
-    <string name="show_ime_summary" msgid="3246628154011464373">"Бодит гар идэвхтэй үед үүнийг дэлгэцэд харуулна уу"</string>
+    <string name="show_ime_summary" msgid="3246628154011464373">"Биет гар идэвхтэй үед үүнийг дэлгэцэд харуулна уу"</string>
     <string name="keyboard_shortcuts_helper" msgid="6574386807271399788">"Гарын товчлолын туслагч"</string>
     <string name="keyboard_shortcuts_helper_summary" msgid="8024313306403779742">"Боломжтой товчлолыг харуулах"</string>
     <string name="language_and_input_for_work_category_title" msgid="2053255944038892588">"Ажлын профайлын гар &amp; хэрэгсэл"</string>
@@ -2100,7 +2100,7 @@
     <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"Тайлбар ашиглах"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"Үргэлжлүүлэх"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"Сонсголын төхөөрөмжүүд"</string>
-    <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"Холбогдсон сонсголын төхөөрөмжүүд алга"</string>
+    <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"Холбогдсон сонсголын төхөөрөмж алга"</string>
     <string name="accessibility_hearingaid_adding_summary" msgid="4139031880828714300">"Сонсголын төхөөрөмж нэмэх"</string>
     <string name="accessibility_hearingaid_pair_instructions_first_message" msgid="2671518890909750740">"Сонсголын төхөөрөмжүүдээ холбохын тулд төхөөрөмжөө дараагийн дэлгэцээс олж товшино уу."</string>
     <string name="accessibility_hearingaid_pair_instructions_second_message" msgid="1584538735488464991">"Таны сонсголын төхөөрөмжүүд холболтын горимд байгаа эсэхийг шалгана уу."</string>
@@ -3710,10 +3710,10 @@
     <string name="high_power_system" msgid="739584574711292753">"Батарейн оновчлолыг ашиглах боломжгүй байна"</string>
     <string name="high_power_desc" msgid="333756885680362741">"Тэжээлийн оновчлол ашиглах шаардлагагүй. Учир нь тэжээлийг илүү түргэн дуусгаж болох юм."</string>
     <string name="high_power_prompt_title" msgid="2805745781720454052">"Аппыг цаана тогтмол ажиллуулахыг зөвшөөрөх үү?"</string>
-    <string name="high_power_prompt_body" msgid="8067395096053552289">"<xliff:g id="APP_NAME">%1$s</xliff:g>-г цаана ажиллуулахаар зөвшөөрсөн тохиолдолд батерейны түвшинг багасгах болно. \n\nТа үүнийг дараа нь Тохиргоо, Апп, мэдэгдэл хэсэгт өөрчлөх боломжтой."</string>
+    <string name="high_power_prompt_body" msgid="8067395096053552289">"<xliff:g id="APP_NAME">%1$s</xliff:g>-г байнга цаана ажиллуулахаар зөвшөөрсөн тохиолдолд батарейны түвшинг багасгах болно. \n\nТа үүнийг дараа нь Тохиргоо, Апп, мэдэгдэл хэсэгт өөрчлөх боломжтой."</string>
     <string name="battery_summary" msgid="4345690800899981339">"Сүүлд бүрэн цэнэглэснээс хойш <xliff:g id="PERCENTAGE">%1$s</xliff:g>-г ашигласан"</string>
     <string name="battery_power_management" msgid="2853925857548647969">"Цэнэгний менежмент"</string>
-    <string name="no_battery_summary" msgid="4105932628367471314">"Сүүлийн бүрэн цэнэглэлтээс хойш тэжээл огт ашиглаагүй"</string>
+    <string name="no_battery_summary" msgid="4105932628367471314">"Сүүлийн бүрэн цэнэглэлтээс хойш батарей огт ашиглаагүй"</string>
     <string name="app_notification_preferences" msgid="5154466638524523201">"Апп-ийн тохиргоо"</string>
     <string name="system_ui_settings" msgid="6751165163665775447">"SystemUI Tuner харуулах"</string>
     <string name="additional_permissions" msgid="3142290772324571654">"Нэмэлт зөвшөөрөл"</string>
@@ -4472,7 +4472,7 @@
     <string name="privacy_dashboard_summary" msgid="7916431309860824945">"Зөвшөөрөл, бүртгэлийн үйл ажиллагаа, хувийн өгөгдөл"</string>
     <string name="contextual_card_dismiss_remove" msgid="1750420285615827309">"Хасах"</string>
     <string name="contextual_card_dismiss_keep" msgid="3204450672928193661">"Хадгалах"</string>
-    <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"Энэ саналыг устгах уу?"</string>
+    <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"Энэ саналыг хасах уу?"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"Зөвлөмжийг устгасан"</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"Болих"</string>
     <string name="low_storage_summary" msgid="4562224870189133400">"Хадгалах сангийн багтаамж бага байна. <xliff:g id="PERCENTAGE">%1$s</xliff:g>-г ашигласан - <xliff:g id="FREE_SPACE">%2$s</xliff:g> сул"</string>

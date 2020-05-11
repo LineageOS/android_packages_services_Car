@@ -358,7 +358,7 @@
     <string name="owner_info_settings_title" msgid="2537966178998339896">"Тэкст на экране блакіроўкі"</string>
     <string name="security_enable_widgets_title" msgid="1701510007926738088">"Уключыць віджэты"</string>
     <string name="security_enable_widgets_disabled_summary" msgid="4408176087132339331">"Адключана адміністратарам"</string>
-    <string name="lockdown_settings_title" msgid="4534779922580115990">"Паказаць параметр блакіроўкі"</string>
+    <string name="lockdown_settings_title" msgid="4534779922580115990">"Паказваць кнопку блакіроўкі"</string>
     <string name="lockdown_settings_summary" msgid="7270756909878256174">"Дадаць у меню кнопкі сілкавання функцыю, якая выключае разумную блакіроўку, разблакіроўку адбіткам пальца і апавяшчэнні на экране блакіроўкі"</string>
     <string name="trust_agents_extend_unlock_title" msgid="3582017561316089951">"Даверчыя агенты падаўжаюць разблакіроўку"</string>
     <string name="trust_agents_extend_unlock_summary" msgid="3543997596586078084">"Калі функцыя ўключана, даверчыя агенты будуць даўжэй трымаць прыладу разблакіраванай, аднак не змогуць разблакіраваць ужо заблакіраваную прыладу."</string>
@@ -645,13 +645,13 @@
     <string name="unlock_footer_none_complexity_requested" msgid="1669550050597044896">"<xliff:g id="APP_NAME">%1$s</xliff:g> рэкамендуе ўсталяваць новую блакіроўку экрана"</string>
     <string name="lock_failed_attempts_before_wipe" msgid="7565412834122130877">"Паўтарыце спробу. Спроба <xliff:g id="CURRENT_ATTEMPTS">%1$d</xliff:g> з дапушчальных <xliff:g id="TOTAL_ATTEMPTS">%2$d</xliff:g>."</string>
     <string name="lock_last_attempt_before_wipe_warning_title" msgid="7853820095898368793">"Вашы даныя будуць выдалены"</string>
-    <string name="lock_last_pattern_attempt_before_wipe_device" msgid="1021644947949306054">"Калі вы ўведзяце няправільны графічны ключ яшчэ раз, даныя з гэтай прылады будуць выдалены"</string>
+    <string name="lock_last_pattern_attempt_before_wipe_device" msgid="1021644947949306054">"Калі вы ўведзяце няправільны ўзор разблакіроўкі яшчэ раз, даныя з гэтай прылады будуць выдалены"</string>
     <string name="lock_last_pin_attempt_before_wipe_device" msgid="3823600293847594141">"Калі вы ўведзяце няправільны PIN-код яшчэ раз, даныя з гэтай прылады будуць выдалены"</string>
     <string name="lock_last_password_attempt_before_wipe_device" msgid="3548966006264835462">"Калі вы ўведзяце няправільны пароль яшчэ раз, даныя з гэтай прылады будуць выдалены"</string>
-    <string name="lock_last_pattern_attempt_before_wipe_user" msgid="5194192938934564218">"Калі вы яшчэ раз уведзяце няправільны графічны ключ, гэты карыстальнік будзе выдалены"</string>
+    <string name="lock_last_pattern_attempt_before_wipe_user" msgid="5194192938934564218">"Калі вы яшчэ раз уведзяце няправільны ўзор разблакіроўкі, гэты карыстальнік будзе выдалены"</string>
     <string name="lock_last_pin_attempt_before_wipe_user" msgid="7833852187363499906">"Калі вы яшчэ раз уведзяце няправільны PIN-код, гэты карыстальнік будзе выдалены"</string>
     <string name="lock_last_password_attempt_before_wipe_user" msgid="8979742220140001204">"Калі вы яшчэ раз уведзяце няправільны пароль, гэты карыстальнік будзе выдалены"</string>
-    <string name="lock_last_pattern_attempt_before_wipe_profile" msgid="3877613047631174576">"Калі вы яшчэ раз уведзяце няправільны графічны ключ, ваш рабочы профіль і звязаныя з ім даныя будуць выдалены"</string>
+    <string name="lock_last_pattern_attempt_before_wipe_profile" msgid="3877613047631174576">"Калі вы яшчэ раз уведзяце няправільны ўзор разблакіроўкі, ваш рабочы профіль і звязаныя з ім даныя будуць выдалены"</string>
     <string name="lock_last_pin_attempt_before_wipe_profile" msgid="8132438288175428168">"Калі вы яшчэ раз уведзяце няправільны PIN-код, ваш рабочы профіль і звязаныя з ім даныя будуць выдалены"</string>
     <string name="lock_last_password_attempt_before_wipe_profile" msgid="1535128774464384305">"Калі вы яшчэ раз уведзяце няправільны пароль, ваш рабочы профіль і звязаныя з ім даныя будуць выдалены"</string>
     <string name="lock_failed_attempts_now_wiping_device" msgid="8662360098784762828">"Занадта шмат няўдалых спроб. Даныя з гэтай прылады будуць выдалены."</string>
@@ -1871,7 +1871,7 @@
     <string name="app_factory_reset" msgid="8718986000278776272">"Выдаліць абнаўленні"</string>
     <string name="auto_launch_enable_text" msgid="3372898942144027341">"Вы выбралi запуск гэтага дадатку па змаўчаннi для некаторых дзеянняў."</string>
     <string name="always_allow_bind_appwidgets_text" msgid="2286211654774611037">"Вы дазволілі гэтаму дадатку ствараць віджэты і атрымліваць доступ да іх даных."</string>
-    <string name="auto_launch_disable_text" msgid="8560921288036801416">"Параметры па змаўчанні не ўсталяваныя"</string>
+    <string name="auto_launch_disable_text" msgid="8560921288036801416">"Стандартныя налады не зададзены"</string>
     <string name="clear_activities" msgid="2068014972549235347">"Скінуць налады па змаўчанні"</string>
     <string name="screen_compatibility_text" msgid="1768064020294301496">"Магчыма, гэта прыкладанне не разлічана для вашага экрана. Наладзьце яго."</string>
     <string name="ask_compatibility" msgid="6687958195768084807">"Запытваць падчас запуску"</string>
@@ -2501,7 +2501,7 @@
     <string name="battery_detail_since_full_charge" msgid="3814176986148084378">"Разбіўка з моманту апошняй поўнай зарадкі"</string>
     <string name="battery_last_full_charge" msgid="5624033030647170717">"Апошняя поўная зарадка"</string>
     <string name="battery_full_charge_last" msgid="4614554109170251301">"Прыблізны час працы пры поўным зарадзе акумулятара"</string>
-    <string name="battery_footer_summary" msgid="4828444679643906943">"Даныя аб выкарыстанні батарэі з\'яўляюцца прыблізнымі і могуць змяняцца ў залежнасці ад выкарыстання"</string>
+    <string name="battery_footer_summary" msgid="4828444679643906943">"Даныя аб выкарыстанні акумулятара з\'яўляюцца прыблізнымі і могуць змяняцца ў залежнасці ад канкрэтных умоў"</string>
     <string name="battery_detail_foreground" msgid="6616408559186553085">"У актыўным рэжыме"</string>
     <string name="battery_detail_background" msgid="7938146832943604280">"У фонавым рэжыме"</string>
     <string name="battery_detail_power_usage" msgid="3606930232257489212">"Выкарыстанне зараду"</string>
@@ -3692,7 +3692,7 @@
     <string name="imei_information_title" msgid="7666097743700170757">"Інфармацыя IMEI"</string>
     <string name="imei_information_summary" msgid="716516316022275083">"Інфармацыя, звязаная з IMEI (міжнародным ідэнтыфікатарам мабільнага абсталявання)"</string>
     <string name="slot_number" msgid="785422579177068698">"(Слот<xliff:g id="SLOT_NUM">%1$d</xliff:g>)"</string>
-    <string name="launch_by_default" msgid="6106985160202769725">"Адкрываць па змаўчанні"</string>
+    <string name="launch_by_default" msgid="6106985160202769725">"Стандартна адкрываць"</string>
     <string name="app_launch_domain_links_title" msgid="2987289657348349133">"Адкрыццё спасылак"</string>
     <string name="app_launch_open_domain_urls_title" msgid="8595126859922391331">"Адкрыць спасылкі, якія падтрымліваюцца"</string>
     <string name="app_launch_open_domain_urls_summary" msgid="6803029846855502366">"Адкрываць без запыту"</string>
@@ -3993,7 +3993,7 @@
     <string name="backup_disabled" msgid="6941165814784765643">"Рэзервовае капіраванне адключана"</string>
     <string name="android_version_summary" msgid="2192751442789395445">"Абноўлена да версіі Android <xliff:g id="VERSION">%1$s</xliff:g>"</string>
     <string name="android_version_pending_update_summary" msgid="3554543810520655076">"Ёсць абнаўленне"</string>
-    <string name="disabled_by_policy_title" msgid="1238318274952958846">"Дзеянне не дапускаецца"</string>
+    <string name="disabled_by_policy_title" msgid="1238318274952958846">"Дзеянне забаронена"</string>
     <string name="disabled_by_policy_title_adjust_volume" msgid="7094547090629203316">"Не ўдалося змяніць гучнасць"</string>
     <string name="disabled_by_policy_title_outgoing_calls" msgid="3805836913095496278">"Выклікі забаронены"</string>
     <string name="disabled_by_policy_title_sms" msgid="1453236584236681105">"Адпраўка SMS забаронена"</string>

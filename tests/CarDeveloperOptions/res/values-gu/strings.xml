@@ -354,7 +354,7 @@
     <string name="owner_info_settings_title" msgid="2537966178998339896">"લૉક સ્ક્રીન સંદેશ"</string>
     <string name="security_enable_widgets_title" msgid="1701510007926738088">"વિજેટ્સને સક્ષમ કરો"</string>
     <string name="security_enable_widgets_disabled_summary" msgid="4408176087132339331">"વ્યવસ્થાપકે અક્ષમ કરેલ"</string>
-    <string name="lockdown_settings_title" msgid="4534779922580115990">"લોકડાઉનનો વિકલ્પ બતાવો"</string>
+    <string name="lockdown_settings_title" msgid="4534779922580115990">"લૉકડાઉનનો વિકલ્પ બતાવો"</string>
     <string name="lockdown_settings_summary" msgid="7270756909878256174">"ડિસ્પ્લે પાવર બટનનો વિકલ્પ જે Smart Lock, ફિંગરપ્રિન્ટ અનલૉક કરવાનું, અને લૉક સ્ક્રીન પર નોટિફિકેશનને બંધ કરે છે"</string>
     <string name="trust_agents_extend_unlock_title" msgid="3582017561316089951">"માત્ર ટ્રસ્ટ એજન્ટ અનલૉક મોડ લંબાવી શકશે"</string>
     <string name="trust_agents_extend_unlock_summary" msgid="3543997596586078084">"જો ચાલુ કરવામાં આવે, તો ટ્રસ્ટ એજન્ટ વધુ લાંબા સમય માટે ડિવાઇસને અનલૉક રાખી શકશે, પરંતુ લૉક થયેલા ડિવાઇસને ફરી અનલૉક કરી શકશે નહીં."</string>
@@ -648,7 +648,7 @@
     <string name="lock_last_password_attempt_before_wipe_profile" msgid="1535128774464384305">"જો તમે આગલા પ્રયત્નમાં ખોટો પાસવર્ડ દાખલ કરશો, તો તમારી કાર્યાલયની પ્રોફાઇલ અને તેનો ડેટા કાઢી નાખવામાં આવશે"</string>
     <string name="lock_failed_attempts_now_wiping_device" msgid="8662360098784762828">"ઘણા બધા ખોટા પ્રયત્નો. આ ઉપકરણોનો ડેટા કાઢી નાખવામાં આવશે."</string>
     <string name="lock_failed_attempts_now_wiping_user" msgid="3793513796171561873">"ઘણા બધા ખોટા પ્રયત્નો. આ વપરાશકર્તાને કાઢી નાખવામાં આવશે."</string>
-    <string name="lock_failed_attempts_now_wiping_profile" msgid="5347108525299038285">"ઘણા બધા ખોટા પ્રયત્નો. આ કાર્યાલયની પ્રોફાઇલ અને તેનો ડેટા કાઢી નાખવામાં આવશે."</string>
+    <string name="lock_failed_attempts_now_wiping_profile" msgid="5347108525299038285">"ઘણા બધા ખોટા પ્રયત્નો. આ કાર્યાલયની પ્રોફાઇલ અને તેનો ડેટા ડિલીટ કરવામાં આવશે."</string>
     <string name="lock_failed_attempts_now_wiping_dialog_dismiss" msgid="3950582268749037318">"છોડી દો"</string>
     <plurals name="lockpassword_password_too_short" formatted="false" msgid="694091983183310827">
       <item quantity="one">ઓછામાં ઓછા <xliff:g id="COUNT_1">%d</xliff:g> અક્ષરો હોવા જરૂરી છે</item>
@@ -889,7 +889,7 @@
     <string name="wifi_menu_forget" msgid="7561140554450163075">"નેટવર્કને ભૂલી જાઓ"</string>
     <string name="wifi_menu_modify" msgid="4080178040721021101">"નેટવર્ક સંશોધિત કરો"</string>
     <string name="wifi_empty_list_wifi_off" msgid="272877164691346240">"ઉપલબ્ધ નેટવર્ક જોવા માટે, વાઇ-ફાઇ ચાલુ કરો."</string>
-    <string name="wifi_empty_list_wifi_on" msgid="881478805041020600">"વાઇ-ફાઇ નેટવર્ક્સ માટે શોધી રહ્યું છે..."</string>
+    <string name="wifi_empty_list_wifi_on" msgid="881478805041020600">"વાઇ-ફાઇ નેટવર્ક માટે શોધી રહ્યું છે..."</string>
     <string name="wifi_empty_list_user_restricted" msgid="2341613007817352431">"તમને વાઇ-ફાઇ નેટવર્ક બદલવાની પરવાનગી નથી."</string>
     <string name="wifi_more" msgid="3538241640407382185">"વધુ"</string>
     <string name="wifi_setup_wps" msgid="6730131677695521321">"ઑટોમૅટિક સેટઅપ (WPS)"</string>
@@ -1125,12 +1125,12 @@
     <string name="musicfx_title" msgid="6456079041566773649">"સંગીત પ્રભાવો"</string>
     <string name="ring_volume_title" msgid="5874791723449821646">"રિંગ વૉલ્યુમ"</string>
     <string name="vibrate_in_silent_title" msgid="2314667015729841220">"શાંત હોય ત્યારે વાઇબ્રેટ કરો"</string>
-    <string name="notification_sound_title" msgid="6812164482799723931">"નોટિફિકેશન માટે ડિફૉલ્ટ ધ્વનિ"</string>
+    <string name="notification_sound_title" msgid="6812164482799723931">"ડિફૉલ્ટ નોટિફિકેશન સાઉન્ડ"</string>
     <string name="incoming_call_volume_title" msgid="4736570528754310450">"રિંગટોન"</string>
     <string name="notification_volume_title" msgid="6022562909288085275">"નોટિફિકેશન"</string>
     <string name="checkbox_notification_same_as_incoming_call" msgid="7312942422655861175">"સૂચનાઓ માટે ઇનકમિંગ કૉલ વોલ્યુમનો ઉપયોગ કરો"</string>
     <string name="home_work_profile_not_supported" msgid="6137073723297076818">"કાર્ય પ્રોફાઇલ્સનું સમર્થન કરતું નથી"</string>
-    <string name="notification_sound_dialog_title" msgid="6653341809710423276">"નોટિફિકેશન માટે ડિફૉલ્ટ ધ્વનિ"</string>
+    <string name="notification_sound_dialog_title" msgid="6653341809710423276">"ડિફૉલ્ટ નોટિફિકેશન સાઉન્ડ"</string>
     <string name="media_volume_title" msgid="1030438549497800914">"મીડિયા"</string>
     <string name="media_volume_summary" msgid="3142433516297061652">"સંગીત અને વીડિઓ માટે વોલ્યૂમ સેટ કરો"</string>
     <string name="alarm_volume_title" msgid="8902277801531496243">"એલાર્મ"</string>
@@ -1647,7 +1647,7 @@
     <string name="mobile_insert_sim_card" msgid="7594550403454243732">"કૃપા કરીને સિમ કાર્ડ શામેલ કરો અને પુનઃપ્રારંભ કરો"</string>
     <string name="mobile_connect_to_internet" msgid="6031886097365170913">"કૃપા કરીને ઇન્ટરનેટ સાથે કનેક્ટ કરો"</string>
     <string name="location_title" msgid="8664674161765477168">"મારું સ્થાન"</string>
-    <string name="managed_profile_location_switch_title" msgid="8157384427925389680">"કાર્યાલયની પ્રોફાઇલ માટે સ્થાન"</string>
+    <string name="managed_profile_location_switch_title" msgid="8157384427925389680">"ઑફિસની પ્રોફાઇલ માટે સ્થાન"</string>
     <string name="location_app_level_permissions" msgid="1298041503927632960">"ઍપ પરવાનગી"</string>
     <string name="location_app_permission_summary_location_off" msgid="541372845344796336">"સ્થાન બંધ છે"</string>
     <plurals name="location_app_permission_summary_location_on" formatted="false" msgid="7904821382328758218">
@@ -2086,7 +2086,7 @@
     <string name="accessibility_content_timeout_preference_summary" msgid="853829064617918179">"તમારે વાંચવા જરૂરી હોય, પરંતુ હંગામી રૂપે દેખાતા સંદેશાને કેટલા સમય સુધી બતાવવા તે પસંદ કરો.\n\nઆ સેટિંગની સુવિધા બધી ઍપમાં નથી હોતી."</string>
     <string name="accessibility_control_timeout_preference_summary" msgid="8582212299606932160">"તમને ક્રિયા કરવાનું કહેતાં હોય, પરંતુ હંગામી રૂપે દેખાતા સંદેશાને કેટલા સમય સુધી દેખાડવા તે પસંદ કરો.\n\nઆ સેટિંગની સુવિધા બધી ઍપમાં નથી હોતી."</string>
     <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"ટચ કરી અને પકડવા પર વિલંબ"</string>
-    <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"રંગ બદલવાની સુવિધા"</string>
+    <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"વિપરીત રંગમાં બદલવું"</string>
     <string name="accessibility_display_inversion_preference_subtitle" msgid="69291255322175323">"કાર્યપ્રદર્શનને અસર થઈ શકે છે"</string>
     <string name="accessibility_autoclick_preference_title" msgid="9164599088410340405">"જોવાયાનો સમયગાળો"</string>
     <string name="accessibility_autoclick_description" msgid="5492414927846407499">"જો તમે માઉસનો ઉપયોગ કરી રહ્યાં હોય, તો જ્યારે કર્સર અમુક ચોક્કસ સમય માટે કાર્ય કરતું રોકાઈ જાય ત્યારે તમે તેને આપમેળે ક્રિયા કરવા માટે સેટ કરી શકો છો."</string>
@@ -2572,7 +2572,7 @@
     <string name="select_device_admin_msg" msgid="4173769638399075387">"ઉપકરણ વ્યવસ્થાપક ઍપ્લિકેશનો"</string>
     <string name="no_device_admins" msgid="4129231900385977460">"કોઈ ઉપકરણ વ્યવસ્થાપક ઍપ્લિકેશનો ઉપલબ્ધ નથી"</string>
     <string name="personal_device_admin_title" msgid="759440849188565661">"વ્યક્તિગત"</string>
-    <string name="managed_device_admin_title" msgid="8021522755492551726">"કાર્યાલય"</string>
+    <string name="managed_device_admin_title" msgid="8021522755492551726">"ઑફિસ"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"SMS અને કૉલ લૉગનો અ‍ૅક્સેસ પ્રતિબંધિત કરો"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"માત્ર ડિફૉલ્ટ ફોન અને સંદેશ માટેની અ‍ૅપ પાસે SMS અને કૉલ લૉગની પરવાનગીઓ હોય છે"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"કોઈ ઉપલબ્ધ ટ્રસ્ટ એજન્ટ્સ નથી"</string>
@@ -2601,7 +2601,7 @@
     <string name="work_mode_label" msgid="6845849194740195757">"કાર્યાલયની પ્રોફાઇલ"</string>
     <string name="work_mode_on_summary" msgid="1682781113156323592">"તમારી સંસ્થા દ્વારા મેનેજ કરેલ"</string>
     <string name="work_mode_off_summary" msgid="1688885392211178315">"ઍપ અને નોટિફિકેશન બંધ છે"</string>
-    <string name="remove_managed_profile_label" msgid="4625542553784793536">"કાર્યાલયની પ્રોફાઇલ દૂર કરો"</string>
+    <string name="remove_managed_profile_label" msgid="4625542553784793536">"ઑફિસની પ્રોફાઇલ દૂર કરો"</string>
     <string name="background_data" msgid="8275750862371471171">"બૅકગ્રાઉન્ડ ડેટા"</string>
     <string name="background_data_summary" msgid="799640633948841990">"ઍપ્લિકેશનો કોઈપણ સમયે ડેટાને સમન્વયિત, મોકલી અને પ્રાપ્ત કરી શકે છે"</string>
     <string name="background_data_dialog_title" msgid="8306650658158895976">"બૅકગ્રાઉન્ડ ડેટાને અક્ષમ કરીએ?"</string>
@@ -2671,7 +2671,7 @@
     <string name="data_usage_cellular_data_summary" msgid="9162777397135709280">"થોભાવવાની મર્યાદા"</string>
     <string name="account_settings_menu_auto_sync" msgid="2673669556006027506">"ડેટાને આપમેળે સિંક કરો"</string>
     <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"વ્યક્તિગત ડેટાને ઑટો સિંક કરો"</string>
-    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"કાર્યાલયના ડેટાને આપમેળે સિંક કરો"</string>
+    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"ઑફિસના ડેટાને ઑટો સિંક કરો"</string>
     <string name="data_usage_change_cycle" msgid="447761920472170031">"ચક્ર બદલો…"</string>
     <string name="data_usage_pick_cycle_day" msgid="6319750879145917066">"ડેટા વપરાશ ચક્ર ફરીથી સેટ કરવા માટે મહિનાનો દિવસ:"</string>
     <string name="data_usage_empty" msgid="7981405723435034032">"આ સમયગાળા દરમ્યાન કોઈ એપ્લિકેશને ડેટાનો ઉપયોગ કર્યો નથી."</string>
@@ -2888,7 +2888,7 @@
     <string name="user_confirm_remove_self_title" msgid="6739480453680217543">"તમને પોતાને કાઢી નાખીએ?"</string>
     <string name="user_confirm_remove_title" msgid="1034498514019462084">"આ વપરાશકર્તા ડિલીટ કરીએ?"</string>
     <string name="user_profile_confirm_remove_title" msgid="6138684743385947063">"આ પ્રોફાઇલ દૂર કરીએ?"</string>
-    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"કાર્યાલયની પ્રોફાઇલ દૂર કરીએ?"</string>
+    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"ઑફિસની પ્રોફાઇલ દૂર કરીએ?"</string>
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"તમ તમારું સ્થાન અને ડેટા આ ટેબ્લેટ પરથી ગુમાવશો. તમે આ ક્રિયાને પૂર્વવત્ કરી શકતા નથી."</string>
     <string name="user_confirm_remove_self_message" product="default" msgid="8441729423565705183">"તમે આ ફોન પરથી તમારું સ્થાન અને ડેટા ગુમાવશો. તમે આ ક્રિયાને પૂર્વવત્ કરી શકતા નથી."</string>
     <string name="user_confirm_remove_message" msgid="5202150470271756013">"તમામ ઍપ્લિકેશનો અને ડેટા કાઢી નાખવામાં આવશે."</string>
@@ -3141,9 +3141,9 @@
     <string name="ring_volume_option_title" msgid="2038924918468372264">"રિંગ વૉલ્યૂમ"</string>
     <string name="notification_volume_option_title" msgid="1358512611511348260">"નોટિફિકેશન વૉલ્યૂમ"</string>
     <string name="ringtone_title" msgid="1409086028485922583">"ફોન રિંગટોન"</string>
-    <string name="notification_ringtone_title" msgid="2932960620843976285">"નોટિફિકેશન માટે ડિફૉલ્ટ ધ્વનિ"</string>
+    <string name="notification_ringtone_title" msgid="2932960620843976285">"ડિફૉલ્ટ નોટિફિકેશન સાઉન્ડ"</string>
     <string name="notification_unknown_sound_title" msgid="8043718667804838398">"ઍપ્લિકેશને અવાજ પૂરો પાડ્યો"</string>
-    <string name="notification_sound_default" msgid="2664544380802426260">"નોટિફિકેશન માટે ડિફૉલ્ટ ધ્વનિ"</string>
+    <string name="notification_sound_default" msgid="2664544380802426260">"ડિફૉલ્ટ નોટિફિકેશન સાઉન્ડ"</string>
     <string name="alarm_ringtone_title" msgid="6411326147408635902">"ડિફૉલ્ટ એલાર્મ સાઉન્ડ"</string>
     <string name="vibrate_when_ringing_title" msgid="2757996559847126952">"કૉલ માટે વાઇબ્રેટ કરો"</string>
     <string name="other_sound_settings" msgid="5250376066099818676">"અન્ય ધ્વનિઓ"</string>
@@ -3635,7 +3635,7 @@
     <string name="filter_enabled_apps" msgid="5888459261768538489">"ઇન્સ્ટૉલ કરેલી ઍપ્લિકેશનો"</string>
     <string name="filter_instant_apps" msgid="8087483282854072366">"ઝટપટ ઍપ્લિકેશનો"</string>
     <string name="filter_personal_apps" msgid="3473268022652904457">"વ્યક્તિગત"</string>
-    <string name="filter_work_apps" msgid="4202483998339465542">"કાર્યાલય"</string>
+    <string name="filter_work_apps" msgid="4202483998339465542">"ઑફિસ"</string>
     <string name="filter_notif_all_apps" msgid="1862666327228804896">"ઍપ્લિકેશનો: તમામ"</string>
     <string name="filter_notif_blocked_apps" msgid="5694956954776028202">"બંધ કરેલી છે"</string>
     <string name="filter_notif_urgent_channels" msgid="5000735867167027148">"કૅટેગરી: તાત્કાલિક મહત્વની"</string>
@@ -3711,8 +3711,8 @@
     <string name="high_power_off" msgid="5906679734326490426">"બૅટરી વપરાશને ઓપ્ટિમાઇઝ કરી રહ્યું છે"</string>
     <string name="high_power_system" msgid="739584574711292753">"બૅટરી ઓપ્ટિમાઇઝેશન ઉપલબ્ધ નથી"</string>
     <string name="high_power_desc" msgid="333756885680362741">"બૅટરી ઓપ્ટિમાઇઝેશન લાગુ કરશો નહીં. તેનાથી તમારી બૅટરી વધુ ઝડપથી ખાલી થઈ શકે છે."</string>
-    <string name="high_power_prompt_title" msgid="2805745781720454052">"ઍપ્લિકેશનને હંમેશાં પૃષ્ઠભૂમિમાં ચાલવા દઈએ?"</string>
-    <string name="high_power_prompt_body" msgid="8067395096053552289">"<xliff:g id="APP_NAME">%1$s</xliff:g>ને હંમેશાં પૃષ્ઠભૂમિમાં ચાલવાની મંજૂરી આપવાથી બૅટરી આવરદા ઓછી થઈ શકે છે. \n\nતમે આને સેટિંગ્સ &gt; ઍપ્લિકેશનો અને સૂચનાઓમાં પછીથી બદલી શકો છો."</string>
+    <string name="high_power_prompt_title" msgid="2805745781720454052">"ઍપને હંમેશાં બૅકગ્રાઉન્ડમાં ચાલવા દઈએ?"</string>
+    <string name="high_power_prompt_body" msgid="8067395096053552289">"<xliff:g id="APP_NAME">%1$s</xliff:g>ને હંમેશાં બૅકગ્રાઉન્ડમાં ચાલવાની મંજૂરી આપવાથી બૅટરી આવરદા ઓછી થઈ શકે છે. \n\nતમે આને સેટિંગ &gt; ઍપ અને નોટિફિકેશનોમાં પછીથી બદલી શકો છો."</string>
     <string name="battery_summary" msgid="4345690800899981339">"છેલ્લા પૂર્ણ ચાર્જ પછી <xliff:g id="PERCENTAGE">%1$s</xliff:g> ઉપયોગ"</string>
     <string name="battery_power_management" msgid="2853925857548647969">"પાવર સંચાલન"</string>
     <string name="no_battery_summary" msgid="4105932628367471314">"છેલ્લા પૂર્ણ ચાર્જ પછી કોઈ બૅટરી ઉપયોગ નહીં"</string>
@@ -4081,7 +4081,7 @@
     <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"ઝપડી સેટિંગ્સ વિકાસકર્તા ટાઇલ"</string>
     <string name="winscope_trace_quick_settings_title" msgid="940971040388411374">"Winscope ટ્રેસ"</string>
     <string name="sensors_off_quick_settings_title" msgid="3655699045300438902">"સેન્સર બંધ છે"</string>
-    <string name="managed_profile_settings_title" msgid="4340409321523532402">"કાર્યાલયની પ્રોફાઇલના સેટિંગ"</string>
+    <string name="managed_profile_settings_title" msgid="4340409321523532402">"ઑફિસની પ્રોફાઇલના સેટિંગ"</string>
     <string name="managed_profile_contact_search_title" msgid="7337225196804457095">"સંપર્ક શોધ"</string>
     <string name="managed_profile_contact_search_summary" msgid="7278267480246726951">"કૉલર્સ અને સંપર્કોને ઓળખવા માટે તમારી સંસ્થા દ્વારા સંપર્ક શોધની મંજૂરી આપો"</string>
     <string name="cross_profile_calendar_title" msgid="2351605904015067145">"ક્રૉસ-પ્રોફાઇલ કૅલેન્ડર"</string>
@@ -4473,7 +4473,7 @@
     <string name="privacy_dashboard_title" msgid="8764930992456607513">"પ્રાઇવસી"</string>
     <string name="privacy_dashboard_summary" msgid="7916431309860824945">"પરવાનગીઓ, એકાઉન્ટ પ્રવૃત્તિ, વ્યક્તિગત ડેટા"</string>
     <string name="contextual_card_dismiss_remove" msgid="1750420285615827309">"કાઢી નાખો"</string>
-    <string name="contextual_card_dismiss_keep" msgid="3204450672928193661">"રાખો"</string>
+    <string name="contextual_card_dismiss_keep" msgid="3204450672928193661">"Keep"</string>
     <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"આ સુઝાવ કાઢી નાખીએ?"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"સૂચન કાઢી નાખ્યું"</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"છેલ્લો ફેરફાર રદ કરો"</string>

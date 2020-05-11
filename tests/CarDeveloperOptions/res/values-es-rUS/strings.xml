@@ -908,8 +908,8 @@
     <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Si el router no emite un ID de red, pero quieres conectarte a la red en el futuro, configúrala para que esté oculta.\n\nEs posible que esta acción implique riesgos de seguridad porque el teléfono emitirá la señal regularmente para buscar la red.\n\nSi configuras la red para que esté oculta, no se modificarán los ajustes del router."</string>
     <string name="wifi_signal" msgid="696548364467704808">"Potencia de la señal"</string>
     <string name="wifi_status" msgid="3439931558930689940">"Estado"</string>
-    <string name="tx_wifi_speed" msgid="2571810085003261073">"Transmitir velocidad de vínculo"</string>
-    <string name="rx_wifi_speed" msgid="7392873246110937187">"Recibir velocidad de vínculo"</string>
+    <string name="tx_wifi_speed" msgid="2571810085003261073">"Velocidad enlace de transmisión"</string>
+    <string name="rx_wifi_speed" msgid="7392873246110937187">"Velocidad enlace de recepción"</string>
     <string name="wifi_frequency" msgid="6132852924995724246">"Frecuencia"</string>
     <string name="wifi_ip_address" msgid="5572539114989914831">"Dirección IP"</string>
     <string name="passpoint_label" msgid="7429247462404128615">"Se guardó mediante"</string>

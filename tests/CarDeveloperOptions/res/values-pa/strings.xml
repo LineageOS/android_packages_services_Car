@@ -945,7 +945,7 @@
     <string name="wifi_dpp_could_not_detect_valid_qr_code" msgid="27667719861826438">"QR ਕੋਡ ਪੜ੍ਹਿਆ ਨਹੀਂ ਜਾ ਸਕਿਆ। ਕੋਡ ਮੁੜ-ਕੇਂਦਰਿਤ ਕਰਕੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ"</string>
     <string name="wifi_dpp_failure_authentication_or_configuration" msgid="9142051662156233679">"ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ। ਜੇ ਸਮੱਸਿਆ ਜਾਰੀ ਰਹਿੰਦੀ ਹੈ, ਤਾਂ ਡੀਵਾਈਸ ਉਤਪਾਦਕ ਨੂੰ ਸੰਪਰਕ ਕਰੋ"</string>
     <string name="wifi_dpp_failure_not_compatible" msgid="4320027179973678283">"ਕੋਈ ਗੜਬੜ ਹੋਈ"</string>
-    <string name="wifi_dpp_failure_timeout" msgid="5060065168142109420">"ਪੱਕਾ ਕਰੋ ਕਿ ਡੀਵਾਈਸ ਦਾ ਪਲੱਗ ਲੱਗਾ ਹੋਇਆ ਹੈ, ਚਾਰਜ ਕੀਤਾ ਹੋਇਆ ਅਤੇ ਚਾਲੂ ਹੈ"</string>
+    <string name="wifi_dpp_failure_timeout" msgid="5060065168142109420">"ਪੱਕਾ ਕਰੋ ਕਿ ਡੀਵਾਈਸ ਪਲੱਗ-ਇਨ ਕੀਤਾ ਹੋਇਆ ਹੈ, ਚਾਰਜ ਹੋ ਚੁੱਕਿਆ ਹੈ ਅਤੇ ਚਾਲੂ ਹੈ"</string>
     <string name="wifi_dpp_failure_generic" msgid="7840142544736640189">"ਪੱਕਾ ਕਰੋ ਕਿ ਡੀਵਾਈਸ ਦਾ ਪਲੱਗ ਲੱਗਾ ਹੋਇਆ ਹੈ, ਚਾਰਜ ਕੀਤਾ ਹੋਇਆ ਅਤੇ ਚਾਲੂ ਹੈ। ਜੇ ਸਮੱਸਿਆ ਜਾਰੀ ਰਹਿੰਦੀ ਹੈ, ਤਾਂ ਡੀਵਾਈਸ ਉਤਪਾਦਕ ਨੂੰ ਸੰਪਰਕ ਕਰੋ"</string>
     <string name="wifi_dpp_failure_not_supported" msgid="111779621766171626">"ਇਸ ਡੀਵਾਈਸ ਰਾਹੀਂ “<xliff:g id="SSID">%1$s</xliff:g>” ਨੂੰ ਸ਼ਾਮਲ ਕਰਨ ਦੀ ਸਹੂਲਤ ਨਹੀਂ ਹੈ"</string>
     <string name="wifi_dpp_check_connection_try_again" msgid="7144663015219170999">"ਕਨੈਕਸ਼ਨ ਦੀ ਜਾਂਚ ਕਰਕੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ"</string>
@@ -1829,7 +1829,7 @@
     <string name="app_factory_reset" msgid="8718986000278776272">"ਅੱਪਡੇਟਾਂ ਅਣਸਥਾਪਤ ਕਰੋ"</string>
     <string name="auto_launch_enable_text" msgid="3372898942144027341">"ਤੁਸੀਂ ਇਸ ਐਪ ਨੂੰ ਕੁਝ ਕਾਰਵਾਈਆਂ ਲਈ ਪੂਰਵ-ਨਿਰਧਾਰਤ ਤੌਰ \'ਤੇ ਲਾਂਚ ਕਰਨ ਦੀ ਚੋਣ ਕੀਤੀ ਹੈ।"</string>
     <string name="always_allow_bind_appwidgets_text" msgid="2286211654774611037">"ਤੁਸੀਂ ਇਸ ਐਪ ਨੂੰ ਵਿਜੇਟ ਬਣਾਉਣ ਲਈ ਅਤੇ ਉਹਨਾਂ ਦੇ ਡਾਟਾ ਤੱਕ ਪਹੁੰਚ ਦੀ ਆਗਿਆ ਦੇਣ ਦੀ ਚੋਣ ਕੀਤੀ ਹੈ।"</string>
-    <string name="auto_launch_disable_text" msgid="8560921288036801416">"ਕੋਈ ਡਿਫੌਲਟਸ ਸੈਟ ਨਹੀਂ ਕੀਤੇ"</string>
+    <string name="auto_launch_disable_text" msgid="8560921288036801416">"ਕੋਈ ਪੂਰਵ-ਨਿਰਧਾਰਤ ਸੈੱਟ ਨਹੀਂ ਕੀਤੇ"</string>
     <string name="clear_activities" msgid="2068014972549235347">"ਡਿਫੌਲਟਸ ਹਟਾਓ"</string>
     <string name="screen_compatibility_text" msgid="1768064020294301496">"ਇਹ ਐਪ ਤੁਹਾਡੀ ਸਕ੍ਰੀਨ ਲਈ ਡਿਜਾਈਨ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਦਾ। ਤੁਸੀਂ ਇਸਤੇ ਨਿਯੰਤਰਣ ਪਾ ਸਕਦੇ ਹੋ ਕਿ ਇਹ ਇੱਥੇ ਤੁਹਾਡੀ ਸਕ੍ਰੀਨ ਕਿਵੇਂ ਵਿਵਸਥਿਤ ਕਰੇ।"</string>
     <string name="ask_compatibility" msgid="6687958195768084807">"ਜਦੋਂ ਲੌਂਚ ਕੀਤਾ ਹੋਵੇ ਤਾਂ ਪੁੱਛੋ"</string>
@@ -3630,7 +3630,7 @@
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> ਵਾਧੂ ਅਨੁਮਤੀਆਂ</item>
     </plurals>
     <string name="runtime_permissions_summary_no_permissions_granted" msgid="3477934429220828771">"ਕੋਈ ਅਨੁਮਤੀਆਂ ਨਹੀਂ ਦਿੱਤੀਆਂ"</string>
-    <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"ਕਿਸੇ ਅਨੁਮਤੀਆਂ ਦੀ ਬੇਨਤੀ ਨਹੀਂ ਕੀਤੀ"</string>
+    <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"ਕਿਸੇ ਇਜਾਜ਼ਤਾਂ ਦੀ ਬੇਨਤੀ ਨਹੀਂ ਕੀਤੀ ਗਈ"</string>
     <string name="filter_all_apps" msgid="4042756539846043675">"ਸਾਰੀਆਂ ਐਪਾਂ"</string>
     <string name="filter_enabled_apps" msgid="5888459261768538489">"ਸਥਾਪਤ ਐਪਾਂ"</string>
     <string name="filter_instant_apps" msgid="8087483282854072366">"ਤਤਕਾਲ ਐਪਾਂ"</string>

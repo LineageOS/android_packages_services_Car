@@ -935,9 +935,9 @@
     <string name="wifi_privacy_settings" msgid="4462092795794247809">"Tietosuoja"</string>
     <string name="wifi_privacy_settings_ephemeral_summary" msgid="2411375348287064283">"Satunnaistettu MAC-osoite"</string>
     <string name="wifi_dpp_add_device_to_network" msgid="8871041525483253430">"Lisää laite"</string>
-    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"Lisää laite verkkoon <xliff:g id="SSID">%1$s</xliff:g> keskittämällä alla olevaan QR-koodiin."</string>
+    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"Keskitä QR-koodi alle yhdistääksesi laitteen <xliff:g id="SSID">%1$s</xliff:g>:iin"</string>
     <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"Lue QR-koodi"</string>
-    <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"Yhdistä verkkoon <xliff:g id="SSID">%1$s</xliff:g> keskittämällä alla olevaan QR-koodiin"</string>
+    <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"Keskitä QR-koodi alle yhdistääksesi <xliff:g id="SSID">%1$s</xliff:g>:iin"</string>
     <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"Yhdistä Wi-Fi-verkkoon lukemalla QR-koodi."</string>
     <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"Jaa Wi‑Fi"</string>
     <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"Yhdistä <xliff:g id="SSID">%1$s</xliff:g> ja jaa salasana lukemalla tämä QR-koodi."</string>
@@ -1069,7 +1069,7 @@
     <string name="wifi_hotspot_ap_band_title" msgid="3485744480410441949">"AP-taajuus"</string>
     <string name="wifi_hotspot_footer_info_regular" msgid="3876006922622827363">"Hotspot-ominaisuudella voit luoda muille laitteillesi Wi-Fi-verkon. Ominaisuus jakaa internetyhteyden muille laitteille mobiilidatayhteydellä. Lisämaksuja mobiilidatan käytöstä voidaan periä."</string>
     <string name="wifi_hotspot_footer_info_local_only" msgid="3339582350894639261">"Sovellukset voivat luoda hotspotin ja jakaa sisältöä lähellä olevien laitteiden kanssa."</string>
-    <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"Poista hotspot käytöstä automaattisesti"</string>
+    <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"Laita hotspot pois päältä automaattisesti"</string>
     <string name="wifi_hotspot_auto_off_summary" msgid="3866769400624802105">"Wi‑Fi-hotspot poistetaan käytöstä, jos laitteita ei ole yhdistetty."</string>
     <string name="wifi_tether_starting" msgid="7676952148471297900">"Otetaan yhteyspiste käyttöön..."</string>
     <string name="wifi_tether_stopping" msgid="7478561853791953349">"Poistetaan yhteyspiste käytöstä..."</string>
@@ -1228,7 +1228,7 @@
     <string name="night_display_summary_on_auto_mode_never" msgid="5461580863060506687">"Ei sammu automaattisesti"</string>
     <string name="night_display_summary_on_auto_mode_custom" msgid="2200631112239399233">"Sammuu automaattisesti kello <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="night_display_summary_on_auto_mode_twilight" msgid="8386769601369289561">"Sammuu automaattisesti, kun aurinko nousee"</string>
-    <string name="night_display_activation_on_manual" msgid="8379477527072027346">"Ota käyttöön nyt"</string>
+    <string name="night_display_activation_on_manual" msgid="8379477527072027346">"Laita päälle"</string>
     <string name="night_display_activation_off_manual" msgid="7776082151269794201">"Laita pois päältä"</string>
     <string name="night_display_activation_on_twilight" msgid="5610294051700287249">"Käytössä auringonnousuun asti"</string>
     <string name="night_display_activation_off_twilight" msgid="6846727701281556110">"Pois käytöstä auringonlaskuun asti"</string>
@@ -2279,7 +2279,7 @@
     <string name="battery_tip_smart_battery_summary" msgid="5344821856478265778">"Ota Virranhallinta käyttöön"</string>
     <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"Ota Virransäästö käyttöön"</string>
     <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"Akku voi loppua odotettua aiemmin"</string>
-    <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"Virransäästö on käytössä"</string>
+    <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"Virransäästö on päällä"</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"Joitakin toimintoja voidaan rajoittaa"</string>
     <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"Puhelinta käytetty tavallista enemmän"</string>
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"Tablettia on käytetty tavallista enemmän"</string>
@@ -2452,12 +2452,12 @@
     <string name="battery_saver_auto_routine" msgid="886514412067906980">"Perustuu ohjelmaasi"</string>
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"Perustuu varausprosenttiin"</string>
     <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Virransäästö käynnistyy, jos akku näyttää todennäköisesti loppuvan ennen seuraavaa tavallista lataamista"</string>
-    <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Käynnistyy, kun taso on <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
+    <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Menee päälle kun jäljellä on <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Luo aikataulu"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Poista käytöstä, kun ladattu täyteen"</string>
-    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"Virransäästö poistetaan käytöstä, kun puhelimen varaus on <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
-    <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"Virransäästö poistetaan käytöstä, kun tabletin varaus on <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
-    <string name="battery_saver_sticky_description_new" product="device" msgid="5056520668081504111">"Virransäästö poistetaan käytöstä, kun laitteen varaus on <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
+    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"Virransäästö menee pois päältä, kun puhelimen varaus on <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
+    <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"Virransäästö menee pois päältä, kun tabletin varaus on <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
+    <string name="battery_saver_sticky_description_new" product="device" msgid="5056520668081504111">"Virransäästö menee pois päältä, kun laitteen varaus on <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"Ota käyttöön"</string>
@@ -3230,7 +3230,7 @@
     <string name="zen_mode_other_options" msgid="7216192179063769057">"muut vaihtoehdot"</string>
     <string name="zen_mode_add" msgid="2533484377786927366">"Lisää"</string>
     <string name="zen_mode_enable_dialog_turn_on" msgid="6396050543542026184">"Ota käyttöön"</string>
-    <string name="zen_mode_button_turn_on" msgid="1097964136225943415">"Ota käyttöön nyt"</string>
+    <string name="zen_mode_button_turn_on" msgid="1097964136225943415">"Laita päälle"</string>
     <string name="zen_mode_button_turn_off" msgid="3990967728457149454">"Laita pois päältä"</string>
     <string name="zen_mode_settings_dnd_manual_end_time" msgid="4307574188962071429">"Älä häiritse ‑tila on käytössä <xliff:g id="FORMATTED_TIME">%s</xliff:g> asti."</string>
     <string name="zen_mode_settings_dnd_manual_indefinite" msgid="3701005376825238752">"Älä häiritse ‑tila on käytössä, kunnes poistat sen käytöstä."</string>
@@ -4002,9 +4002,9 @@
     <string name="suggestion_additional_fingerprints" msgid="3434467207282466411">"Lisää uusi sormenjälki"</string>
     <string name="suggestion_additional_fingerprints_summary" msgid="1916547587832484196">"Avaa lukitus toisella sormella."</string>
     <string name="battery_saver_on_summary" msgid="6841062406467435672">"Käytössä"</string>
-    <string name="battery_saver_off_scheduled_summary" msgid="3740414764069188669">"Käynnistyy, kun taso on <xliff:g id="BATTERY_PERCENTAGE">%1$s</xliff:g>"</string>
+    <string name="battery_saver_off_scheduled_summary" msgid="3740414764069188669">"Menee päälle kun jäljellä on <xliff:g id="BATTERY_PERCENTAGE">%1$s</xliff:g>"</string>
     <string name="battery_saver_off_summary" msgid="8736555723004299721">"Pois käytöstä"</string>
-    <string name="battery_saver_button_turn_on" msgid="3748696527267573793">"Ota käyttöön nyt"</string>
+    <string name="battery_saver_button_turn_on" msgid="3748696527267573793">"Laita päälle"</string>
     <string name="battery_saver_button_turn_off" msgid="2912950982503267828">"Sammuta nyt"</string>
     <string name="not_battery_optimizing" msgid="2616044774307734160">"Akun käytön optimointi ei käytössä"</string>
     <string name="lockscreen_remote_input" msgid="3363310613165354434">"Estä vastausten ja muun tekstin kirjoittaminen ilmoituksiin, kun laite on lukittu."</string>

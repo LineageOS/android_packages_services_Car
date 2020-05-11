@@ -418,7 +418,7 @@
     <string name="security_settings_face_enroll_done" msgid="5409739233373490971">"Concluído"</string>
     <string name="security_settings_face_settings_use_face_category" msgid="1586532139528115416">"Utilize o rosto para"</string>
     <string name="security_settings_face_settings_use_face_unlock_phone" msgid="318274519126401671">"Desbloq. dispositivo"</string>
-    <string name="security_settings_face_settings_use_face_for_apps" msgid="5479369083370664351">"Início de sessão e pagamentos na aplicação"</string>
+    <string name="security_settings_face_settings_use_face_for_apps" msgid="5479369083370664351">"Início de sessão e pagamentos na app"</string>
     <string name="security_settings_face_settings_require_attention" msgid="2755140150841557225">"Olhos abertos para desbloquear"</string>
     <string name="security_settings_face_settings_require_attention_details" msgid="2557060433599942587">"Para utilizar a autenticação facial, os olhos têm de estar abertos."</string>
     <string name="security_settings_face_settings_require_confirmation" msgid="7312024271060416438">"Solicitar sempre confirmação"</string>
@@ -493,7 +493,7 @@
     <string name="fingerprint_enroll_button_add" msgid="6335782936874996629">"Adicionar outra"</string>
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"Seguinte"</string>
     <string name="security_settings_fingerprint_enroll_disclaimer" msgid="5831834311961551423">"Para além de desbloquear o telemóvel, também pode utilizar a sua impressão digital para autorizar compras e o acesso de aplicações. "<annotation id="url">"Saiba mais"</annotation></string>
-    <string name="security_settings_fingerprint_enroll_disclaimer_lockscreen_disabled" msgid="7954742554236652690">" A opção de bloqueio do ecrã está desativada. Para saber mais, contacte o gestor da sua entidade. "<annotation id="admin_details">"Mais detalhes"</annotation>\n\n"Pode continuar a utilizar a impressão digital para autorizar compras e o acesso a aplicações. "<annotation id="url">"Saiba mais"</annotation></string>
+    <string name="security_settings_fingerprint_enroll_disclaimer_lockscreen_disabled" msgid="7954742554236652690">" A opção de bloqueio do ecrã está desativada. Para saber mais, contacte o gestor da sua entidade. "<annotation id="admin_details">"Mais detalhes"</annotation>\n\n"Pode continuar a utilizar a impressão digital para autorizar compras e o acesso a apps. "<annotation id="url">"Saiba mais"</annotation></string>
     <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"Levante o dedo e toque no sensor novamente"</string>
     <string name="fingerprint_add_max" msgid="2939393314646115661">"Pode adicionar até <xliff:g id="COUNT">%d</xliff:g> impressões digitais"</string>
     <string name="fingerprint_intro_error_max" msgid="3247720976621039437">"Adicionou o número máximo de impressões digitais"</string>
@@ -1892,7 +1892,7 @@
     <string name="app_disable_notifications_dlg_title" msgid="699530661413553928">"Desativar notificações?"</string>
     <string name="app_install_details_group_title" msgid="2909597319422976921">"Loja"</string>
     <string name="app_install_details_title" msgid="6954953384372934881">"Detalhes da aplicação"</string>
-    <string name="app_install_details_summary" msgid="6612222941121363940">"Aplicação instalada a partir da <xliff:g id="APP_STORE">%1$s</xliff:g>"</string>
+    <string name="app_install_details_summary" msgid="6612222941121363940">"App instalada a partir da <xliff:g id="APP_STORE">%1$s</xliff:g>"</string>
     <string name="instant_app_details_summary" msgid="6384264315914966114">"Mais informações sobre <xliff:g id="APP_STORE">%1$s</xliff:g>"</string>
     <string name="app_ops_running" msgid="6378418969742957805">"Em execução"</string>
     <string name="app_ops_never_used" msgid="8305262378162525813">"(Nunca utilizado)"</string>
@@ -2555,7 +2555,7 @@
     <string name="backup_data_summary" msgid="555459891017933746">"Fazer cópia de segurança de dados da aplicação, palavras-passe Wi-Fi e outras definições para os servidores da Google"</string>
     <string name="backup_configure_account_title" msgid="1534734650559070294">"Cópia de segurança da conta"</string>
     <string name="backup_data_management_title" msgid="6299288795610243508">"Gerir a conta de cópia de segurança"</string>
-    <string name="include_app_data_title" msgid="6117211611131913293">"Incluir dados de aplicações"</string>
+    <string name="include_app_data_title" msgid="6117211611131913293">"Incluir dados de apps"</string>
     <string name="auto_restore_title" msgid="8367486774010915221">"Restauro automático"</string>
     <string name="auto_restore_summary" msgid="1941047568966428377">"Ao reinstalar uma aplicação, restaurar definições e dados da cópia de segurança"</string>
     <string name="backup_inactive_title" msgid="5513496915638307750">"O serviço de cópia de segurança não está ativo"</string>
@@ -3088,7 +3088,7 @@
     <string name="keywords_all_apps" msgid="846444448435698930">"aplicações, transferência, aplicações, sistema"</string>
     <string name="keywords_app_permissions" msgid="8539841019997048500">"aplicações, autorizações, segurança"</string>
     <string name="keywords_default_apps" msgid="7435952699323965532">"aplicações, predefinição"</string>
-    <string name="keywords_ignore_optimizations" msgid="9127632532176249438">"ignorar otimizações, soneca, modo de espera das aplicações"</string>
+    <string name="keywords_ignore_optimizations" msgid="9127632532176249438">"ignorar otimizações, soneca, modo de espera das apps"</string>
     <string name="keywords_color_mode" msgid="8893345199519181751">"vibrante, RGB, sRGB, cor, natural, padrão"</string>
     <string name="keywords_color_temperature" msgid="2255253972992035046">"temperatura de cor, D65, D73, branco, amarelo, azul, quente, frio"</string>
     <string name="keywords_lockscreen" msgid="4936846554280830394">"deslizar lentamente para desbloquear, palavra-passe, padrão, PIN"</string>
@@ -3369,7 +3369,7 @@
     </plurals>
     <string name="notification_assistant_title" msgid="8216604031352764011">"Assistente de notificações"</string>
     <string name="no_notification_assistant" msgid="9140123568386413264">"Nenhum assistente"</string>
-    <string name="no_notification_listeners" msgid="1366386609506834717">"Nenhuma aplicação instalada solicitou acesso a notificações"</string>
+    <string name="no_notification_listeners" msgid="1366386609506834717">"Nenhuma app instalada solicitou acesso a notificações"</string>
     <string name="notification_assistant_security_warning_title" msgid="4190584438086738496">"Permitir o acesso a notificações do <xliff:g id="SERVICE">%1$s</xliff:g>?"</string>
     <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"O <xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> consegue ler todas as notificações, incluindo informações pessoais como nomes de contactos e o texto das mensagens recebidas. Também consegue modificar ou ignorar notificações, assim como acionar botões de ação que estas contenham. \n\nDeste modo, a aplicação também pode ativar ou desativar o modo Não incomodar e alterar as definições relacionadas."</string>
     <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"Permitir o acesso a notificações do <xliff:g id="SERVICE">%1$s</xliff:g>?"</string>
@@ -3378,21 +3378,21 @@
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"Desativar"</string>
     <string name="notification_listener_disable_warning_cancel" msgid="6264631825225298458">"Cancelar"</string>
     <string name="vr_listeners_title" msgid="511483902408792832">"Serviços de assistente de RV"</string>
-    <string name="no_vr_listeners" msgid="7675484190394450979">"Nenhuma aplicação instalada pediu para ser executada como serviço de assistente de RV."</string>
+    <string name="no_vr_listeners" msgid="7675484190394450979">"Nenhuma app instalada pediu para ser executada como serviço de assistente de RV."</string>
     <string name="vr_listener_security_warning_title" msgid="7019322246707645361">"Permitir que o serviço de RV tenha acesso a <xliff:g id="SERVICE">%1$s</xliff:g>?"</string>
     <string name="vr_listener_security_warning_summary" msgid="5093225583584522067">"Será possível executar o <xliff:g id="VR_LISTENER_NAME">%1$s</xliff:g> quando estiver a utilizar aplicações no modo de realidade virtual."</string>
     <string name="display_vr_pref_title" msgid="1088464812293416981">"Com o dispositivo no modo RV"</string>
     <string name="display_vr_pref_low_persistence" msgid="3132583929174794245">"Reduzir a desfocagem (recomendado)"</string>
     <string name="display_vr_pref_off" msgid="4681320968818852691">"Reduzir a cintilação"</string>
     <string name="picture_in_picture_title" msgid="4960733106166035448">"Imagem na imagem"</string>
-    <string name="picture_in_picture_empty_text" msgid="8664071475324685241">"Nenhuma aplicação instalada é compatível com Imagem na imagem"</string>
+    <string name="picture_in_picture_empty_text" msgid="8664071475324685241">"Nenhuma app instalada é compatível com Imagem na imagem"</string>
     <string name="picture_in_picture_keywords" msgid="7326958702002259262">"pip picture in"</string>
     <string name="picture_in_picture_app_detail_title" msgid="3916189052657425936">"Imagem na imagem"</string>
     <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"Permitir imagem na imagem"</string>
     <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"Permita que esta aplicação crie uma janela de ecrã no ecrã enquanto a aplicação está aberta ou depois de sair da mesma (por exemplo, para continuar a ver um vídeo). Esta janela é apresentada sobre as outras aplicações que estiver a utilizar."</string>
     <string name="manage_zen_access_title" msgid="3058206309728524196">"Acesso Não incomodar"</string>
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"Permitir o modo Não incomodar"</string>
-    <string name="zen_access_empty_text" msgid="7667538993781607731">"Nenhuma aplicação instalada solicitou acesso Não incomodar"</string>
+    <string name="zen_access_empty_text" msgid="7667538993781607731">"Nenhuma app instalada solicitou acesso Não incomodar"</string>
     <string name="loading_notification_apps" msgid="1978345231934072091">"A carregar aplicações..."</string>
     <string name="app_notifications_off_desc" msgid="3904090905748895146">"A seu pedido, o Android está a bloquear a apresentação das notificações desta aplicação neste dispositivo."</string>
     <string name="channel_notifications_off_desc" msgid="8005444443218306611">"A seu pedido, o Android está a bloquear a apresentação desta categoria de notificações neste dispositivo."</string>
@@ -3633,7 +3633,7 @@
     <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"Nenhuma permissão solicitada"</string>
     <string name="filter_all_apps" msgid="4042756539846043675">"Todas as aplicações"</string>
     <string name="filter_enabled_apps" msgid="5888459261768538489">"Aplicações instaladas"</string>
-    <string name="filter_instant_apps" msgid="8087483282854072366">"Aplicações instantâneas"</string>
+    <string name="filter_instant_apps" msgid="8087483282854072366">"Apps instantâneas"</string>
     <string name="filter_personal_apps" msgid="3473268022652904457">"Pessoais"</string>
     <string name="filter_work_apps" msgid="4202483998339465542">"De trabalho"</string>
     <string name="filter_notif_all_apps" msgid="1862666327228804896">"Aplicações: todas"</string>
@@ -3664,7 +3664,7 @@
     <string name="default_apps_title" msgid="3848048391400989931">"Predefinição"</string>
     <string name="default_for_work" msgid="7290411716804495366">"Predefinição para o trabalho"</string>
     <string name="assist_and_voice_input_title" msgid="324148194703846130">"Assistência e entrada por voz"</string>
-    <string name="default_assist_title" msgid="2060846994203235317">"Aplicação de assistência"</string>
+    <string name="default_assist_title" msgid="2060846994203235317">"App de assistência"</string>
     <string name="assistant_security_warning_title" msgid="8014460924169723059">"Pretende tornar <xliff:g id="ASSISTANT_APP_NAME">%s</xliff:g> o seu assistente?"</string>
     <string name="assistant_security_warning" msgid="1304057692847069938">"O assistente pode ler informações sobre aplicações utilizadas no seu sistema, incluindo informações visíveis no ecrã ou acessíveis nas aplicações."</string>
     <string name="assistant_security_warning_agree" msgid="5105692801460137289">"Aceitar"</string>
@@ -3759,9 +3759,9 @@
     <string name="background_check_pref" msgid="664081406854758392">"Verificação em segundo plano"</string>
     <string name="background_check_title" msgid="4136736684290307970">"Acesso completo em segundo plano"</string>
     <string name="assist_access_context_title" msgid="2274614501747710439">"Utilizar o texto do ecrã"</string>
-    <string name="assist_access_context_summary" msgid="5867997494395842785">"Permitir que a aplicação de assistência aceda ao conteúdo do ecrã como texto"</string>
+    <string name="assist_access_context_summary" msgid="5867997494395842785">"Permitir que a app de assistência aceda ao conteúdo do ecrã como texto"</string>
     <string name="assist_access_screenshot_title" msgid="1991014038776117688">"Utilizar captura de ecrã"</string>
-    <string name="assist_access_screenshot_summary" msgid="3010943864000489424">"Permitir que a aplicação de assistência aceda a uma imagem do ecrã"</string>
+    <string name="assist_access_screenshot_summary" msgid="3010943864000489424">"Permitir que a app de assistência aceda a uma imagem do ecrã"</string>
     <string name="assist_flash_title" msgid="8852484250748551092">"Fazer piscar o ecrã"</string>
     <string name="assist_flash_summary" msgid="6697095786317559129">"Fazer piscar os limites do ecrã quando a app de assistência acede a texto do ecrã ou de capturas de ecrã"</string>
     <string name="assist_footer" msgid="7030121180457472165">"As apps de assistência podem ajudá-lo com base em informações do ecrã que está a ver. Algumas apps são compatíveis com serviços de iniciação e de entrada de texto por voz para oferecer assistência integrada."</string>
@@ -3797,7 +3797,7 @@
     <string name="ignore_optimizations_off_desc" msgid="5598702251817814289">"Recomendado para aumentar a duração da bateria"</string>
     <string name="ignore_optimizations_title" msgid="7924345545276166305">"Permitir que <xliff:g id="APP">%s</xliff:g> ignore as otimizações da bateria?"</string>
     <string name="app_list_preference_none" msgid="7100409177446935028">"Nenhuma"</string>
-    <string name="work_profile_usage_access_warning" msgid="403208064382097510">"Se desativar o acesso de utilização desta aplicação, não impede que o gestor monitorize a utilização de dados de aplicações no seu perfil de trabalho."</string>
+    <string name="work_profile_usage_access_warning" msgid="403208064382097510">"Se desativar o acesso de utilização desta aplicação, não impede que o gestor monitorize a utilização de dados de apps no seu perfil de trabalho."</string>
     <string name="accessibility_lock_screen_progress" msgid="8242917828598820049">"<xliff:g id="COUNT_0">%1$d</xliff:g> de <xliff:g id="COUNT_1">%2$d</xliff:g> carateres utilizados"</string>
     <string name="draw_overlay" msgid="2878665072530660668">"Sobrepor a outras aplicações"</string>
     <string name="system_alert_window_settings" msgid="3024330223417646567">"Sobrepor a outras aplicações"</string>
@@ -4067,7 +4067,7 @@
     <string name="page_tab_title_summary" msgid="4824744863994538006">"Todas"</string>
     <string name="page_tab_title_support" msgid="5569262185010367870">"Sugestões e apoio técnico"</string>
     <string name="developer_smallest_width" msgid="2603134476228805075">"A menor largura"</string>
-    <string name="premium_sms_none" msgid="940723020871007898">"Nenhuma aplicação instalada solicitou acesso a SMS premium"</string>
+    <string name="premium_sms_none" msgid="940723020871007898">"Nenhuma app instalada solicitou acesso a SMS premium"</string>
     <string name="premium_sms_warning" msgid="7604011651486294515">"O serviço de SMS premium pode custar dinheiro e, nesse caso, será adicionado às faturas do seu operador. Se ativar a autorização para uma aplicação, poderá enviar SMS premium através da mesma."</string>
     <string name="premium_sms_access" msgid="4550027460595822851">"Acesso a SMS premium"</string>
     <string name="bluetooth_disabled" msgid="6588102116819268238">"Desativado"</string>
@@ -4149,10 +4149,10 @@
     <string name="oem_unlock_enable_disabled_summary_sim_locked_device" msgid="5223278198179877704">"Indisponível em dispositivos vinculados ao operador"</string>
     <string name="oem_lock_info_message" msgid="5090850412279403901">"Reinicie o dispositivo para ativar a funcionalidade de proteção do mesmo."</string>
     <string name="automatic_storage_manager_freed_bytes" msgid="7360443072390107772">"Foi disponibilizado um total de <xliff:g id="SIZE">%1$s</xliff:g>\n\nÚltima execução: <xliff:g id="DATE">%2$s</xliff:g>"</string>
-    <string name="web_action_enable_title" msgid="4462106633708675959">"Aplicações instantâneas"</string>
+    <string name="web_action_enable_title" msgid="4462106633708675959">"Apps instantâneas"</string>
     <string name="web_action_enable_summary" msgid="1729016644691793085">"Abrir links nas aplicações, mesmo que não estejam instaladas"</string>
-    <string name="web_action_section_title" msgid="5563229447734734662">"Aplicações instantâneas"</string>
-    <string name="instant_apps_settings" msgid="879003203555847537">"Preferências das Aplicações instantâneas"</string>
+    <string name="web_action_section_title" msgid="5563229447734734662">"Apps instantâneas"</string>
+    <string name="instant_apps_settings" msgid="879003203555847537">"Preferências das Apps instantâneas"</string>
     <string name="domain_url_section_title" msgid="206403507921518321">"Aplicações instaladas"</string>
     <string name="automatic_storage_manager_activation_warning" msgid="2630083316417707308">"O seu armazenamento está agora a ser gerido pelo gestor de armazenamento"</string>
     <string name="account_for_section_header" msgid="5975241715840642563">"Contas de <xliff:g id="USER_NAME">%1$s</xliff:g>"</string>
@@ -4244,7 +4244,7 @@
     <string name="storage_volume_total" msgid="5021484171514159913">"utilizados de <xliff:g id="TOTAL">%1$s</xliff:g>"</string>
     <string name="storage_percent_full" msgid="6924662861545958442">"utilizado"</string>
     <string name="clear_instant_app_data" msgid="3673669086522890405">"Limpar aplicação"</string>
-    <string name="clear_instant_app_confirmation" msgid="1778553115373698061">"Remover esta aplicação instantânea?"</string>
+    <string name="clear_instant_app_confirmation" msgid="1778553115373698061">"Remover esta app instantânea?"</string>
     <string name="launch_instant_app" msgid="5251693061228352333">"Abrir"</string>
     <string name="game_storage_settings" msgid="6856911551799175914">"Jogos"</string>
     <string name="audio_files_title" msgid="3073879661731363935">"Ficheiros de áudio"</string>
@@ -4267,7 +4267,7 @@
     <string name="storage_manager_indicator" msgid="4255140732848476875">"Gestor de armazenamento: <xliff:g id="STATUS">^1</xliff:g>"</string>
     <string name="storage_manager_indicator_off" msgid="6404056007102580777">"Desativado"</string>
     <string name="storage_manager_indicator_on" msgid="5295306384982062320">"Ativado"</string>
-    <string name="install_type_instant" msgid="6248487669862821874">"Aplicação instantânea"</string>
+    <string name="install_type_instant" msgid="6248487669862821874">"App instantânea"</string>
     <string name="automatic_storage_manager_deactivation_warning" msgid="7867793739491286374">"Pretende desativar o gestor de armazenamento?"</string>
     <string name="storage_movies_tv" msgid="7282484273991655296">"Aplicações de filmes e TV"</string>
     <string name="carrier_provisioning" msgid="3309125279191534469">"Informações de fornecimento do operador"</string>
