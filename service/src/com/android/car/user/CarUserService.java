@@ -931,6 +931,49 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         receiver.complete(new UserSwitchResult(status, errorMessage));
     }
 
+    /**
+     * Calls activity manager for user switch.
+     *
+     * <p><b>NOTE</b> This method is meant to be called just by UserHalService.
+     *
+     * @param requestId for the user switch request
+     * @param targetUserId of the target user
+     *
+     * @hide
+     */
+    public void switchAndroidUserFromHal(int requestId, @UserIdInt int targetUserId) {
+        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_SWITCH_USER_FROM_HAL_REQ, requestId,
+                targetUserId);
+        Log.i(TAG_USER, "User hal requested a user switch. Target user id " + targetUserId);
+
+        try {
+            boolean result = mAm.switchUser(targetUserId);
+            if (result) {
+                updateUserSwitchInProcess(requestId, targetUserId);
+            } else {
+                postSwitchHalResponse(requestId, targetUserId);
+            }
+        } catch (RemoteException e) {
+            // ignore
+            Log.w(TAG_USER, "error while switching user " + targetUserId, e);
+        }
+    }
+
+    private void updateUserSwitchInProcess(int requestId, @UserIdInt int targetUserId) {
+        synchronized (mLockUser) {
+            if (mUserIdForUserSwitchInProcess != UserHandle.USER_NULL) {
+                // Some other user switch is in process.
+                if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
+                    Log.d(TAG_USER, "User switch for user: " + mUserIdForUserSwitchInProcess
+                            + " is in process. Abandoning it as a new user switch is requested"
+                            + " for the target user: " + targetUserId);
+                }
+            }
+            mUserIdForUserSwitchInProcess = targetUserId;
+            mRequestIdForUserSwitchInProcess = requestId;
+        }
+    }
+
     private void postSwitchHalResponse(int requestId, @UserIdInt int targetUserId) {
         UserInfo targetUser = mUserManager.getUserInfo(targetUserId);
         UsersInfo usersInfo = getUsersInfo();
