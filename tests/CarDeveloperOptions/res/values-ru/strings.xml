@@ -954,7 +954,7 @@
     <string name="wifi_eap_domain" msgid="3298302320003640130">"Домен"</string>
     <string name="wifi_eap_user_cert" msgid="6786839531765719173">"Сертификат пользователя"</string>
     <string name="wifi_eap_identity" msgid="5280457017705738773">"Пользователь"</string>
-    <string name="wifi_eap_anonymous" msgid="6352344972490839958">"Неизвестный"</string>
+    <string name="wifi_eap_anonymous" msgid="6352344972490839958">"Анонимный пользователь"</string>
     <string name="wifi_password" msgid="6942983531275177771">"Пароль"</string>
     <string name="wifi_show_password" msgid="7878398590772942202">"Показать пароль"</string>
     <string name="wifi_ap_band_config" msgid="6565016368079288433">"Диапазон частот Wi-Fi"</string>
@@ -989,7 +989,7 @@
     <string name="wifi_dpp_wifi_shared_with_device" msgid="5713765471758272471">"Устройство подключено к Wi‑Fi"</string>
     <string name="wifi_dpp_add_another_device" msgid="3698441567235301565">"Подключить другое устройство"</string>
     <string name="wifi_dpp_choose_different_network" msgid="128515107488187050">"Выбрать другую сеть Wi-Fi"</string>
-    <string name="wifi_dpp_could_not_add_device" msgid="4966109556543584813">"Не удалось добавить устройство."</string>
+    <string name="wifi_dpp_could_not_add_device" msgid="4966109556543584813">"Не удалось добавить устройство"</string>
     <string name="wifi_dpp_device_found" msgid="6488461467496850841">"Устройство найдено"</string>
     <string name="wifi_dpp_sharing_wifi_with_this_device" msgid="2540529164687476827">"Предоставление доступа к сети Wi‑Fi…"</string>
     <string name="wifi_dpp_connecting" msgid="4229290407210299897">"Подключение…"</string>
@@ -2342,7 +2342,7 @@
     <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"Телефон используется больше, чем обычно"</string>
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"Планшет используется больше, чем обычно"</string>
     <string name="battery_tip_high_usage_title" product="device" msgid="8304138287288309490">"Устройство используется больше, чем обычно"</string>
-    <string name="battery_tip_high_usage_summary" msgid="5514749872957528189">"Заряд батареи расходуется быстрее, чем обычно."</string>
+    <string name="battery_tip_high_usage_summary" msgid="5514749872957528189">"Заряд батареи расходуется быстрее, чем обычно"</string>
     <string name="battery_tip_dialog_message" product="default" msgid="8453700079047810964">"Телефон используется больше, чем обычно. Батарея скоро разрядится.\n\nС момента последней зарядки активнее всего использовались следующие приложения с высоким потреблением энергии:"</string>
     <string name="battery_tip_dialog_message" product="tablet" msgid="6489981050645444068">"Планшет используется больше, чем обычно. Батарея скоро разрядится.\n\nС момента последней зарядки активнее всего использовались следующие приложения с высоким потреблением энергии:"</string>
     <string name="battery_tip_dialog_message" product="device" msgid="6348123094674390337">"Устройство используется больше, чем обычно. Батарея скоро разрядится.\n\nС момента последней зарядки активнее всего использовались следующие приложения с высоким потреблением энергии:"</string>
@@ -2525,7 +2525,7 @@
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"С учетом уровня заряда"</string>
     <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Включать, если высока вероятность, что уровня заряда не хватит до подзарядки"</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Включать при уровне заряда <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
-    <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Создать расписание"</string>
+    <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Задать расписание"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Выключать при полном заряде"</string>
     <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"Режим энергосбережения отключается, когда уровень заряда достигает <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"Режим энергосбережения отключается, когда уровень заряда достигает <xliff:g id="PERCENT">%1$s</xliff:g>."</string>
@@ -3833,7 +3833,7 @@
     <string name="high_power_prompt_body" msgid="8067395096053552289">"Если приложение \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" сможет запускаться в фоновом режиме, это увеличит расход заряда батареи.\n\nЭту функцию можно отключить, открыв Настройки &gt; Приложения и уведомления."</string>
     <string name="battery_summary" msgid="4345690800899981339">"Использовано с момента последней полной зарядки: <xliff:g id="PERCENTAGE">%1$s</xliff:g>"</string>
     <string name="battery_power_management" msgid="2853925857548647969">"Управление питанием"</string>
-    <string name="no_battery_summary" msgid="4105932628367471314">"Батарея с момента последней полной зарядки не расходовалась"</string>
+    <string name="no_battery_summary" msgid="4105932628367471314">"С момента последней полной зарядки батарея не использовалась"</string>
     <string name="app_notification_preferences" msgid="5154466638524523201">"Настройки приложения"</string>
     <string name="system_ui_settings" msgid="6751165163665775447">"Показать SystemUI Tuner"</string>
     <string name="additional_permissions" msgid="3142290772324571654">"Ещё разрешения"</string>

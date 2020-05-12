@@ -2280,7 +2280,7 @@
     <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"Aktivizo \"Kursyesin e baterisë\""</string>
     <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"Bateria mund të mbarojë më herët se zakonisht"</string>
     <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"\"Kursyesi i baterisë\" është i aktivizuar"</string>
-    <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"Disa funksione mund të jenë të kufizuara"</string>
+    <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"Disa veçori mund të jenë të kufizuara"</string>
     <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"Telefoni është përdorur më shumë se zakonisht"</string>
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"Tableti është përdorur më shumë se zakonisht"</string>
     <string name="battery_tip_high_usage_title" product="device" msgid="8304138287288309490">"Pajisja është përdorur më shumë se zakonisht"</string>

@@ -208,7 +208,7 @@
     <string name="proxy_error_empty_host_set_port" msgid="8471455809508588255">"Het poortveld moet leeg zijn als het hostveld leeg is."</string>
     <string name="proxy_error_invalid_port" msgid="4046559920586100637">"De poort die je hebt ingevoerd, is ongeldig."</string>
     <string name="proxy_warning_limited_support" msgid="9026539134219095768">"De HTTP-proxy wordt gebruikt door de browser, maar mogelijk niet door de andere apps."</string>
-    <string name="proxy_url_title" msgid="882042361706435904">"PAC URL: "</string>
+    <string name="proxy_url_title" msgid="882042361706435904">"PAC-URL: "</string>
     <string name="radio_info_dl_kbps" msgid="2903778264453410272">"DL-bandbreedte (kbps):"</string>
     <string name="radio_info_ul_kbps" msgid="3802245899811732716">"UL-bandbreedte (kbps):"</string>
     <string name="radio_info_signal_location_label" msgid="6788144906873498013">"Mobiele locatiegegevens (beëindigd):"</string>
@@ -1656,7 +1656,7 @@
     </plurals>
     <string name="location_category_recent_location_access" msgid="286059523360285026">"Recente locatietoegang"</string>
     <string name="location_recent_location_access_view_details" msgid="2051602261436245905">"Details weergeven"</string>
-    <string name="location_no_recent_apps" msgid="77502059586413278">"Er zijn geen apps die je locatie onlangs hebben aangevraagd"</string>
+    <string name="location_no_recent_apps" msgid="77502059586413278">"Er zijn geen apps die je locatie onlangs hebben opgevraagd"</string>
     <string name="location_no_recent_accesses" msgid="6289916310397279890">"Er zijn geen apps die recent toegang hebben gehad tot je locatie"</string>
     <string name="location_high_battery_use" msgid="7177199869979522663">"Hoog accugebruik"</string>
     <string name="location_low_battery_use" msgid="5030448574501435888">"Laag batterijgebruik"</string>
@@ -2281,7 +2281,7 @@
     <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"Batterij is mogelijk eerder leeg dan normaal"</string>
     <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"Batterijbesparing aan"</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"Sommige functies zijn mogelijk beperkt"</string>
-    <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"Telefoon heeft meer verbruikt dan normaal"</string>
+    <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"Meer verbruikt dan normaal"</string>
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"Tablet heeft meer verbruikt dan normaal"</string>
     <string name="battery_tip_high_usage_title" product="device" msgid="8304138287288309490">"Apparaat heeft meer verbruikt dan normaal"</string>
     <string name="battery_tip_high_usage_summary" msgid="5514749872957528189">"Batterij is mogelijk eerder leeg dan normaal"</string>

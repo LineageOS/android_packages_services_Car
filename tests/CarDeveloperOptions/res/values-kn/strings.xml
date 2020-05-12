@@ -207,7 +207,7 @@
     <string name="proxy_error_empty_port" msgid="8034561724923076215">"ನೀವು ಪೋರ್ಟ್‌ ಕ್ಷೇತ್ರವನ್ನು ಪೂರ್ಣಗೊಳಿಸುವ ಅಗತ್ಯವಿದೆ."</string>
     <string name="proxy_error_empty_host_set_port" msgid="8471455809508588255">"ಹೋಸ್ಟ್ ಕ್ಷೇತ್ರವು ಖಾಲಿ ಇದ್ದಲ್ಲಿ, ಪೋರ್ಟ್‌ ಕ್ಷೇತ್ರವು ಕೂಡ ಖಾಲಿ ಇರಬೇಕು."</string>
     <string name="proxy_error_invalid_port" msgid="4046559920586100637">"ನೀವು ಟೈಪ್‌ ಮಾಡಿದ ಪೋರ್ಟ್ ಮಾನ್ಯವಾಗಿಲ್ಲ."</string>
-    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"ಬ್ರೌಸರ್ HTTP ಪ್ರಾಕ್ಸಿ ಬಳಸಿಕೊಂಡಿದೆ. ಇತರೆ ಆಪ್‌ಗಳು ಬಳಸಿಕೊಳ್ಳದೆ ಇರಬಹುದು."</string>
+    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"ಬ್ರೌಸರ್ HTTP ಪ್ರಾಕ್ಸಿ ಬಳಸಿಕೊಂಡಿದೆ. ಇತರೆ ಆ್ಯಪ್‌ಗಳು ಬಳಸಿಕೊಳ್ಳದೆ ಇರಬಹುದು."</string>
     <string name="proxy_url_title" msgid="882042361706435904">"PAC URL: "</string>
     <string name="radio_info_dl_kbps" msgid="2903778264453410272">"DL ಬ್ಯಾಂಡ್‌ವಿಡ್ತ್ (kbps):"</string>
     <string name="radio_info_ul_kbps" msgid="3802245899811732716">"UL ಬ್ಯಾಂಡ್‌ವಿಡ್ತ್ (kbps):"</string>
@@ -908,8 +908,8 @@
     <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"ನಿಮ್ಮ ನೆಟ್‌ವರ್ಕ್ ID ಯನ್ನು ರೂಟರ್ ಪ್ರಸಾರ ಮಾಡದಿದ್ದಲ್ಲಿ ಆದರೆ ಭವಿಷ್ಯದಲ್ಲಿ ನೀವು ಅದಕ್ಕೆ ಸಂಪರ್ಕಿಸಲು ಬಯಸಿದರೆ, ನೀವು ನೆಟ್‌ವರ್ಕ್ ಅನ್ನು ಮರೆಮಾಡಲಾಗಿರುವುದು ಎಂದು ಹೊಂದಿಸಬಹುದು.\n\nನಿಮ್ಮ ಫೋನ್ ನಿಯಮಿತವಾಗಿ ನೆಟ್ವರ್ಕ್ ಅನ್ನು ಹುಡುಕಲು ಸಿಗ್ನಲ್ ಅನ್ನು ಪ್ರಸಾರ ಮಾಡುವುದರಿಂದ ಭದ್ರತಾ ಅಪಾಯ ಎದುರಾಗಬಹುದು.\n\nನೆಟ್‌ವರ್ಕ್‌ ಅನ್ನು ಮರೆಮಾಡಿದ ಕೂಡಲೇ ರೂಟರ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳು ಬದಲಾಗುವುದಿಲ್ಲ."</string>
     <string name="wifi_signal" msgid="696548364467704808">"ಸಿಗ್ನಲ್ ಸಾಮರ್ಥ್ಯ"</string>
     <string name="wifi_status" msgid="3439931558930689940">"ಸ್ಥಿತಿ"</string>
-    <string name="tx_wifi_speed" msgid="2571810085003261073">"ಲಿಂಕ್ ವೇಗವನ್ನು ಪ್ರಸಾರ ಮಾಡಿ"</string>
-    <string name="rx_wifi_speed" msgid="7392873246110937187">"ಲಿಂಕ್ ವೇಗವನ್ನು ಸ್ವೀಕರಿಸಿ"</string>
+    <string name="tx_wifi_speed" msgid="2571810085003261073">"ಟ್ರಾನ್ಸ್‌ಮಿಟ್ ಲಿಂಕ್ ವೇಗ"</string>
+    <string name="rx_wifi_speed" msgid="7392873246110937187">"ಸ್ವೀಕರಿಸುವ ಲಿಂಕ್ ವೇಗ"</string>
     <string name="wifi_frequency" msgid="6132852924995724246">"ಫ್ರೀಕ್ವೆನ್ಸಿ"</string>
     <string name="wifi_ip_address" msgid="5572539114989914831">"IP ವಿಳಾಸ"</string>
     <string name="passpoint_label" msgid="7429247462404128615">"ಇದರ ಮೂಲಕ ಉಳಿಸಲಾಗಿದೆ"</string>
@@ -1337,7 +1337,7 @@
     <string name="status_number_sim_slot" product="tablet" msgid="4518232285651165459">"MDN (ಸಿಮ್ ಸ್ಲಾಟ್ %1$d)"</string>
     <string name="status_number_sim_slot" product="default" msgid="3660851494421332328">"ಫೋನ್ ಸಂಖ್ಯೆ (ಸಿಮ್ ಸ್ಲಾಟ್ %1$d)"</string>
     <string name="status_number_sim_status" product="tablet" msgid="8069693515860290952">"ಸಿಮ್‌ ನಲ್ಲಿ MDN"</string>
-    <string name="status_number_sim_status" product="default" msgid="6602562692270457610">"ಸಿಮ್‌ನಲ್ಲಿ ಫೋನ್ ಸಂಖ್ಯೆ"</string>
+    <string name="status_number_sim_status" product="default" msgid="6602562692270457610">"ಸಿಮ್‌ನ ಫೋನ್ ಸಂಖ್ಯೆ"</string>
     <string name="status_min_number" msgid="8346889546673707777">"ನಿಮಿ"</string>
     <string name="status_msid_number" msgid="7808175928664357661">"MSID"</string>
     <string name="status_prl_version" msgid="5634561205739199042">"PRL ಆವೃತ್ತಿ"</string>
@@ -1614,7 +1614,7 @@
     <string name="tether_settings_title_wifi" msgid="2060965130234484613">"ಪೋರ್ಟಬಲ್ ಹಾಟ್‌ಸ್ಪಾಟ್"</string>
     <string name="tether_settings_title_bluetooth" msgid="1999590158102569959">"ಬ್ಲೂಟೂತ್‌‌ ಟೆಥರಿಂಗ್‌"</string>
     <string name="tether_settings_title_usb_bluetooth" msgid="1159128764162788159">"ಟೆಥರಿಂಗ್‌"</string>
-    <string name="tether_settings_title_all" msgid="6935843543433954181">"ಹಾಟ್‌ಸ್ಪಾಟ್ ಮತ್ತು ಟೆಥರಿಂಗ್"</string>
+    <string name="tether_settings_title_all" msgid="6935843543433954181">"ಹಾಟ್‌ಸ್ಪಾಟ್ &amp; ಟೆಥರಿಂಗ್"</string>
     <string name="tether_settings_summary_hotspot_on_tether_on" msgid="1289593649526514499">"ಹಾಟ್‌ಸ್ಪಾಟ್ ಆನ್ ಆಗಿದೆ, ಟೆಥರಿಂಗ್‌"</string>
     <string name="tether_settings_summary_hotspot_on_tether_off" msgid="8010689354668285422">"ಹಾಟ್‌ಸ್ಪಾಟ್ ಆನ್ ಆಗಿದೆ"</string>
     <string name="tether_settings_summary_hotspot_off_tether_on" msgid="1349909238672649877">"ಟೆಥರಿಂಗ್‌"</string>
@@ -4473,7 +4473,7 @@
     <string name="privacy_dashboard_title" msgid="8764930992456607513">"ಗೌಪ್ಯತೆ"</string>
     <string name="privacy_dashboard_summary" msgid="7916431309860824945">"ಅನುಮತಿಗಳು, ಖಾತೆ ಚಟುವಟಿಕೆ, ವೈಯಕ್ತಿಕ ಡೇಟಾ"</string>
     <string name="contextual_card_dismiss_remove" msgid="1750420285615827309">"ತೆಗೆದುಹಾಕಿ"</string>
-    <string name="contextual_card_dismiss_keep" msgid="3204450672928193661">"ಇರಿಸಿಕೊಳ್ಳಿ"</string>
+    <string name="contextual_card_dismiss_keep" msgid="3204450672928193661">"Keep"</string>
     <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"ಈ ಸಲಹೆಯನ್ನು ತೆಗೆದುಹಾಕುವುದೇ?"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"ಸಲಹೆಯನ್ನು ತೆಗೆದುಹಾಕಲಾಗಿದೆ"</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"ರದ್ದುಗೊಳಿಸಿ"</string>
