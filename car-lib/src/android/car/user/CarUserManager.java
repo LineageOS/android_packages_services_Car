@@ -55,6 +55,7 @@ import com.android.internal.util.Preconditions;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 
 /**
@@ -231,6 +232,8 @@ public final class CarUserManager extends CarManagerBase {
     /**
      * Adds a listener for {@link UserLifecycleEvent user lifecycle events}.
      *
+     * @throws IllegalStateException if the listener was already added.
+     *
      * @hide
      */
     @SystemApi
@@ -238,15 +241,14 @@ public final class CarUserManager extends CarManagerBase {
     @RequiresPermission(anyOf = {INTERACT_ACROSS_USERS, INTERACT_ACROSS_USERS_FULL})
     public void addListener(@NonNull @CallbackExecutor Executor executor,
             @NonNull UserLifecycleListener listener) {
+        Objects.requireNonNull(executor, "executor cannot be null");
+        Objects.requireNonNull(listener, "listener cannot be null");
         checkInteractAcrossUsersPermission();
-
-        // TODO(b/144120654): add unit tests to validate input
-        // - executor cannot be null
-        // - listener cannot be null
-        // - listener must not be added before
 
         int uid = myUid();
         synchronized (mLock) {
+            Preconditions.checkState(mListeners == null || !mListeners.containsKey(listener),
+                    "already called for this listener");
             if (mReceiver == null) {
                 mReceiver = new LifecycleResultReceiver();
                 try {
@@ -271,24 +273,21 @@ public final class CarUserManager extends CarManagerBase {
     /**
      * Removes a listener for {@link UserLifecycleEvent user lifecycle events}.
      *
+     * @throws IllegalStateException if the listener was not added beforehand.
+     *
      * @hide
      */
     @SystemApi
     @TestApi
     @RequiresPermission(anyOf = {INTERACT_ACROSS_USERS, INTERACT_ACROSS_USERS_FULL})
     public void removeListener(@NonNull UserLifecycleListener listener) {
+        Objects.requireNonNull(listener, "listener cannot be null");
         checkInteractAcrossUsersPermission();
 
-        // TODO(b/144120654): add unit tests to validate input
-        // - listener cannot be null
-        // - listener must not be added before
         int uid = myUid();
         synchronized (mLock) {
-            if (mListeners == null) {
-                Log.w(TAG, "removeListener(): no listeners for uid " + uid);
-                return;
-            }
-
+            Preconditions.checkState(mListeners != null && mListeners.containsKey(listener),
+                    "not called for this listener yet");
             mListeners.remove(listener);
 
             if (!mListeners.isEmpty()) {
