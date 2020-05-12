@@ -86,10 +86,13 @@ public final class CarDrivingStateEvent implements Parcelable {
 
     public static final Parcelable.Creator<CarDrivingStateEvent> CREATOR =
             new Parcelable.Creator<CarDrivingStateEvent>() {
+
+                @Override
                 public CarDrivingStateEvent createFromParcel(Parcel in) {
                     return new CarDrivingStateEvent(in);
                 }
 
+                @Override
                 public CarDrivingStateEvent[] newArray(int size) {
                     return new CarDrivingStateEvent[size];
                 }
