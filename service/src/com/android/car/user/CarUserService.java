@@ -33,7 +33,7 @@ import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleEventType;
 import android.car.user.CarUserManager.UserLifecycleListener;
-import android.car.user.GetUserIdentificationAssociationResponse;
+import android.car.user.UserIdentificationAssociationResponse;
 import android.car.user.UserSwitchResult;
 import android.car.userlib.CarUserManagerHelper;
 import android.car.userlib.CommonConstants.CarUserServiceConstants;
@@ -48,6 +48,8 @@ import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserStatus;
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationGetRequest;
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationResponse;
+import android.hardware.automotive.vehicle.V2_0.UserIdentificationSetAssociation;
+import android.hardware.automotive.vehicle.V2_0.UserIdentificationSetRequest;
 import android.hardware.automotive.vehicle.V2_0.UsersInfo;
 import android.location.LocationManager;
 import android.os.Binder;
@@ -60,6 +62,7 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
 import android.sysprop.CarProperties;
+import android.text.TextUtils;
 import android.util.EventLog;
 import android.util.Log;
 import android.util.SparseArray;
@@ -867,7 +870,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     @Override
-    public GetUserIdentificationAssociationResponse getUserIdentificationAssociation(int[] types) {
+    public UserIdentificationAssociationResponse getUserIdentificationAssociation(int[] types) {
         Preconditions.checkArgument(!ArrayUtils.isEmpty(types), "must have at least one type");
         checkManageUsersPermission("getUserIdentificationAssociation");
 
@@ -888,7 +891,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         if (halResponse == null) {
             Log.w(TAG, "getUserIdentificationAssociation(): HAL returned null for "
                     + Arrays.toString(types));
-            return null;
+            return UserIdentificationAssociationResponse.forFailure();
         }
 
         int[] values = new int[halResponse.associations.size()];
@@ -897,7 +900,68 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
         EventLog.writeEvent(EventLogTags.CAR_USER_MGR_GET_USER_AUTH_RESP, values.length);
 
-        return new GetUserIdentificationAssociationResponse(halResponse.errorMessage, values);
+        return UserIdentificationAssociationResponse.forSuccess(values, halResponse.errorMessage);
+    }
+
+    @Override
+    public void setUserIdentificationAssociation(int timeoutMs, int[] types, int[] values,
+            AndroidFuture<UserIdentificationAssociationResponse> result) {
+        Preconditions.checkArgument(!ArrayUtils.isEmpty(types), "must have at least one type");
+        Preconditions.checkArgument(!ArrayUtils.isEmpty(values), "must have at least one value");
+        if (types.length != values.length) {
+            throw new IllegalArgumentException("types (" + Arrays.toString(types) + ") and values ("
+                    + Arrays.toString(values) + ") should have the same length");
+        }
+        checkManageUsersPermission("setUserIdentificationAssociation");
+
+        int uid = getCallingUid();
+        int userId = UserHandle.getUserId(uid);
+        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_SET_USER_AUTH_REQ, uid, userId, types.length);
+
+        UserIdentificationSetRequest request = new UserIdentificationSetRequest();
+        request.userInfo.userId = userId;
+        request.userInfo.flags = getHalUserInfoFlags(userId);
+
+        request.numberAssociations = types.length;
+        for (int i = 0; i < types.length; i++) {
+            UserIdentificationSetAssociation association = new UserIdentificationSetAssociation();
+            association.type = types[i];
+            association.value = values[i];
+            request.associations.add(association);
+        }
+
+        mHal.setUserAssociation(timeoutMs, request, (status, resp) -> {
+            if (status != HalCallback.STATUS_OK) {
+                Log.w(TAG, "setUserIdentificationAssociation(): invalid callback status ("
+                        + UserHalHelper.halCallbackStatusToString(status) + ") for response "
+                        + resp);
+                if (resp == null || TextUtils.isEmpty(resp.errorMessage)) {
+                    EventLog.writeEvent(EventLogTags.CAR_USER_MGR_SET_USER_AUTH_RESP, 0);
+                    result.complete(UserIdentificationAssociationResponse.forFailure());
+                    return;
+                }
+                EventLog.writeEvent(EventLogTags.CAR_USER_MGR_SET_USER_AUTH_RESP, 0,
+                        resp.errorMessage);
+                result.complete(
+                        UserIdentificationAssociationResponse.forFailure(resp.errorMessage));
+                return;
+            }
+            int respSize = resp.associations.size();
+            EventLog.writeEvent(EventLogTags.CAR_USER_MGR_SET_USER_AUTH_RESP, respSize,
+                    resp.errorMessage);
+
+            int[] responseTypes = new int[respSize];
+            for (int i = 0; i < respSize; i++) {
+                responseTypes[i] = resp.associations.get(i).value;
+            }
+            UserIdentificationAssociationResponse response = UserIdentificationAssociationResponse
+                    .forSuccess(responseTypes, resp.errorMessage);
+            if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
+                Log.d(TAG, "setUserIdentificationAssociation(): resp= " + resp
+                        + ", converted=" + response);
+            }
+            result.complete(response);
+        });
     }
 
     /**
@@ -1006,7 +1070,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         mUserSwitchUiReceiver = receiver;
     }
 
-    // TODO(b/144120654): use helper to generate UsersInfo
+    // TODO(b/150413515): use helper to generate UsersInfo
     private UsersInfo getUsersInfo() {
         UserInfo currentUser;
         try {
@@ -1018,7 +1082,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         return getUsersInfo(currentUser);
     }
 
-    // TODO(b/144120654): use helper to generate UsersInfo
+    // TODO(b/150413515): use helper to generate UsersInfo
     private UsersInfo getUsersInfo(@NonNull UserInfo currentUser) {
         List<UserInfo> existingUsers = mUserManager.getUsers();
         int size = existingUsers.size();
