@@ -953,6 +953,30 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void testSwitchUser_OEMRequest_success() throws Exception {
+        mockExistingUsersAndCurrentUser(mAdminUser);
+        mockAmSwitchUser(mRegularUser, true);
+        int requestId = -1;
+
+        mCarUserService.switchAndroidUserFromHal(requestId, mRegularUser.id);
+        mockCurrentUser(mRegularUser);
+        sendUserUnlockedEvent(mRegularUser.id);
+
+        assertPostSwitch(requestId, mRegularUser.id, mRegularUser.id);
+    }
+
+    @Test
+    public void testSwitchUser_OEMRequest_failure() throws Exception {
+        mockExistingUsersAndCurrentUser(mAdminUser);
+        mockAmSwitchUser(mRegularUser, false);
+        int requestId = -1;
+
+        mCarUserService.switchAndroidUserFromHal(requestId, mRegularUser.id);
+
+        assertPostSwitch(requestId, mAdminUser.id, mRegularUser.id);
+    }
+
+    @Test
     public void testGetUserInfo_nullReceiver() throws Exception {
         assertThrows(NullPointerException.class, () -> mCarUserService
                 .getInitialUserInfo(mGetUserInfoRequestType, mAsyncCallTimeoutMs, null));
