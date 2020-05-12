@@ -63,10 +63,6 @@ cc_binary {
         "LabeledChecker.png",
     ],
 
-    strip: {
-        keep_symbols: true,
-    },
-
     init_rc: ["evs_app.rc"],
 
     cflags: ["-DLOG_TAG=\"EvsApp\""] + [
