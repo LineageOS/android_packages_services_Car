@@ -65,7 +65,7 @@ final class UserMetrics {
     // garage mode
     private static final int INITIAL_CAPACITY = 2;
 
-    // TODO(b/144120654): read from resources
+    // TODO(b/150413515): read from resources
     private static final int LOG_SIZE = 10;
 
     private final Object mLock = new Object();
