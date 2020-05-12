@@ -2337,7 +2337,7 @@
     <string name="battery_tip_smart_battery_summary" msgid="5344821856478265778">"Vklopite varčevanje z energijo akumulatorja"</string>
     <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"Vklop varčevanja z energijo akumulatorja"</string>
     <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"Baterija se lahko izprazni prej kot običajno"</string>
-    <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"Varčevanje z energijo akumulatorja je vklopljeno"</string>
+    <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"Varčevanje z energijo baterije je vklopljeno"</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"Nekatere funkcije bodo morda omejene"</string>
     <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"Telefon uporabljate več kot običajno"</string>
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"Tablični računalnik uporabljate več kot običajno"</string>
@@ -4015,7 +4015,7 @@
     <string name="condition_zen_title" msgid="2128184708916052585">"Način »ne moti« je vklopljen"</string>
     <string name="condition_zen_summary_phone_muted" msgid="4396050395522974654">"Zvok telefona je izklopljen"</string>
     <string name="condition_zen_summary_with_exceptions" msgid="3435216391993785818">"Z izjemami"</string>
-    <string name="condition_battery_title" msgid="6704870010912986274">"Varč. z energijo akum. je vkl."</string>
+    <string name="condition_battery_title" msgid="6704870010912986274">"Varč. z energijo bat. je vkl."</string>
     <string name="condition_battery_summary" msgid="1236078243905690620">"Funkcije so omejene"</string>
     <string name="condition_cellular_title" msgid="6605277435894307935">"Mobilni podatki so izklopljeni"</string>
     <string name="condition_cellular_summary" msgid="3607459310548343777">"Dostop do interneta je na voljo le prek omrežja Wi‑Fi"</string>

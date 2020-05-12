@@ -2537,7 +2537,7 @@
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"Włącz automatycznie"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"Nigdy"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"przy <xliff:g id="PERCENT">%1$s</xliff:g> baterii"</string>
-    <string name="battery_percentage" msgid="7782252476471033843">"Poziom naładowania baterii w procentach"</string>
+    <string name="battery_percentage" msgid="7782252476471033843">"Procent naładowania baterii"</string>
     <string name="battery_percentage_description" msgid="9219875229166700610">"Pokazuj procentowy poziom naładowania baterii na pasku stanu"</string>
     <string name="process_stats_summary_title" msgid="9189588417488537954">"Statystyki procesów"</string>
     <string name="process_stats_summary" msgid="8077998499161221885">"Rozbudowane statystyki uruchomionych procesów"</string>
@@ -2806,7 +2806,7 @@
     <string name="data_usage_metered_wifi" msgid="2955256408132426720">"Sieci Wi‑Fi z pomiarem"</string>
     <string name="data_usage_metered_wifi_disabled" msgid="5771083253782103415">"Aby wybrać sieci z pomiarem, włącz Wi-Fi."</string>
     <string name="data_usage_metered_auto" msgid="7924116401382629319">"Automatycznie"</string>
-    <string name="data_usage_metered_yes" msgid="7333744880035386073">"Użycie danych jest mierzone"</string>
+    <string name="data_usage_metered_yes" msgid="7333744880035386073">"Pomiar użycia danych"</string>
     <string name="data_usage_metered_no" msgid="1961524615778610008">"Użycie danych nie jest mierzone"</string>
     <string name="data_usage_disclaimer" msgid="4683321532922590425">"Operator komórkowy może obliczać ilość przesłanych danych inaczej niż urządzenie."</string>
     <string name="cryptkeeper_emergency_call" msgid="4625420047524693116">"Połączenie alarmowe"</string>
@@ -3189,7 +3189,7 @@
     <string name="keywords_financial_apps_sms_access" msgid="3236014691838121857">"aplikacja finansowa, SMS, uprawnienia"</string>
     <string name="keywords_systemui_theme" msgid="9150908170417305866">"tryb ciemny"</string>
     <string name="keywords_device_feedback" msgid="6948977907405738490">"błąd"</string>
-    <string name="keywords_ambient_display_screen" msgid="5873935693887583428">"Ekran dostosowany do otoczenia, ekran blokady"</string>
+    <string name="keywords_ambient_display_screen" msgid="5873935693887583428">"Wygaszacz z powiadomieniami, ekran blokady"</string>
     <string name="keywords_lock_screen_notif" msgid="4914337222856805463">"powiadomienia na ekranie blokady, powiadomienia"</string>
     <string name="keywords_face_settings" msgid="4117345666006836599">"twarz"</string>
     <string name="keywords_fingerprint_settings" msgid="902902368701134163">"odcisk palca, dodawanie odcisków palców"</string>

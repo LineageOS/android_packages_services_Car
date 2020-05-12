@@ -353,7 +353,7 @@
     <string name="show_owner_info_on_lockscreen_label" msgid="4510756693837171575">"Hiển thị thông tin chủ sở hữu trên màn hình khóa"</string>
     <string name="owner_info_settings_title" msgid="2537966178998339896">"Thông điệp trên màn hình khóa"</string>
     <string name="security_enable_widgets_title" msgid="1701510007926738088">"Bật tiện ích"</string>
-    <string name="security_enable_widgets_disabled_summary" msgid="4408176087132339331">"Bị quản trị viên vô hiệu hóa"</string>
+    <string name="security_enable_widgets_disabled_summary" msgid="4408176087132339331">"Đã bị quản trị viên vô hiệu hóa"</string>
     <string name="lockdown_settings_title" msgid="4534779922580115990">"Hiện tùy chọn khóa"</string>
     <string name="lockdown_settings_summary" msgid="7270756909878256174">"Hiển thị tùy chọn nút nguồn để tắt tính năng Smart Lock, mở khóa bằng vân tay, và thông báo trên màn hình khóa"</string>
     <string name="trust_agents_extend_unlock_title" msgid="3582017561316089951">"Tác nhân tin cậy chỉ kéo dài thời gian mở khóa"</string>
@@ -387,7 +387,7 @@
     <string name="security_settings_summary" msgid="5210109100643223686">"Đặt Vị trí của tôi, mở khóa màn hình, khóa thẻ SIM, khóa bộ nhớ thông tin xác thực"</string>
     <string name="cdma_security_settings_summary" msgid="1783066617800041869">"Đặt Vị trí của tôi, mở khóa màn hình, khóa bộ nhớ thông tin xác thực"</string>
     <string name="security_passwords_title" msgid="6853942836045862315">"Bảo mật"</string>
-    <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"Bị quản trị viên vô hiệu hóa"</string>
+    <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"Đã bị quản trị viên vô hiệu hóa"</string>
     <string name="security_status_title" msgid="1261960357751754428">"Trạng thái bảo mật"</string>
     <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Phương thức khóa màn hình, mở khóa bằng khuôn mặt"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"Phương thức khóa màn hình, vân tay"</string>
@@ -934,7 +934,7 @@
     <string name="wifi_ip_settings" msgid="4636102290236116946">"Cài đặt IP"</string>
     <string name="wifi_privacy_settings" msgid="4462092795794247809">"Quyền riêng tư"</string>
     <string name="wifi_privacy_settings_ephemeral_summary" msgid="2411375348287064283">"Địa chỉ MAC gán ngẫu nhiên"</string>
-    <string name="wifi_dpp_add_device_to_network" msgid="8871041525483253430">"Thêm một thiết bị"</string>
+    <string name="wifi_dpp_add_device_to_network" msgid="8871041525483253430">"Thêm thiết bị"</string>
     <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"Đưa mã QR vào giữa khung bên dưới để thêm thiết bị vào “<xliff:g id="SSID">%1$s</xliff:g>”"</string>
     <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"Quét mã QR"</string>
     <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"Căn giữa mã QR dưới đây để kết nối với “<xliff:g id="SSID">%1$s</xliff:g>”"</string>
@@ -3715,7 +3715,7 @@
     <string name="high_power_prompt_body" msgid="8067395096053552289">"Cho phép <xliff:g id="APP_NAME">%1$s</xliff:g> luôn chạy trong nền có thể làm giảm thời lượng pin. \n\nBạn có thể thay đổi tùy chọn này trong phần Cài đặt &gt; Ứng dụng và thông báo."</string>
     <string name="battery_summary" msgid="4345690800899981339">"<xliff:g id="PERCENTAGE">%1$s</xliff:g> sử dụng kể từ lần sạc đầy gần đây nhất"</string>
     <string name="battery_power_management" msgid="2853925857548647969">"Quản lý nguồn"</string>
-    <string name="no_battery_summary" msgid="4105932628367471314">"Không sử dụng pin kể từ lần sạc đầy cuối cùng"</string>
+    <string name="no_battery_summary" msgid="4105932628367471314">"Không sử dụng pin kể từ lần sạc đầy gần đây nhất"</string>
     <string name="app_notification_preferences" msgid="5154466638524523201">"Cài đặt ứng dụng"</string>
     <string name="system_ui_settings" msgid="6751165163665775447">"Hiện Bộ điều chỉnh SystemUI"</string>
     <string name="additional_permissions" msgid="3142290772324571654">"Quyền khác"</string>
@@ -4002,7 +4002,7 @@
     <string name="suggestion_additional_fingerprints" msgid="3434467207282466411">"Thêm một vân tay khác"</string>
     <string name="suggestion_additional_fingerprints_summary" msgid="1916547587832484196">"Mở khóa bằng vân tay khác"</string>
     <string name="battery_saver_on_summary" msgid="6841062406467435672">"Bật"</string>
-    <string name="battery_saver_off_scheduled_summary" msgid="3740414764069188669">"Sẽ bật lúc pin ở mức <xliff:g id="BATTERY_PERCENTAGE">%1$s</xliff:g>"</string>
+    <string name="battery_saver_off_scheduled_summary" msgid="3740414764069188669">"Sẽ bật khi pin ở mức <xliff:g id="BATTERY_PERCENTAGE">%1$s</xliff:g>"</string>
     <string name="battery_saver_off_summary" msgid="8736555723004299721">"Đang tắt"</string>
     <string name="battery_saver_button_turn_on" msgid="3748696527267573793">"Bật ngay"</string>
     <string name="battery_saver_button_turn_off" msgid="2912950982503267828">"Tắt ngay bây giờ"</string>
@@ -4078,7 +4078,7 @@
     <string name="dark_ui_mode_title" msgid="8774932716427742413">"Chọn giao diện"</string>
     <string name="dark_ui_settings_light_summary" msgid="5219102347744462812">"Tùy chọn cài đặt này cũng áp dụng cho các ứng dụng"</string>
     <string name="dark_ui_settings_dark_summary" msgid="7042737828943784289">"Các ứng dụng được hỗ trợ cũng sẽ chuyển sang giao diện tối"</string>
-    <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"Ô nhà phát triển cài đặt nhanh"</string>
+    <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"Ô cài đặt nhanh dành cho nhà phát triển"</string>
     <string name="winscope_trace_quick_settings_title" msgid="940971040388411374">"Dấu vết Winscope"</string>
     <string name="sensors_off_quick_settings_title" msgid="3655699045300438902">"Tắt cảm biến"</string>
     <string name="managed_profile_settings_title" msgid="4340409321523532402">"Cài đặt hồ sơ công việc"</string>

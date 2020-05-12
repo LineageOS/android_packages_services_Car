@@ -945,7 +945,7 @@
     <string name="wifi_dpp_could_not_detect_valid_qr_code" msgid="27667719861826438">"មិនអាច​អាន​កូដ QR បានទេ។ ដាក់កូដ​ឱ្យនៅចំកណ្ដាលវិញ រួច​ព្យាយាម​ម្ដងទៀត"</string>
     <string name="wifi_dpp_failure_authentication_or_configuration" msgid="9142051662156233679">"សូមព្យាយាមម្ដងទៀត។ ប្រសិនបើ​បញ្ហា​នៅតែបន្តកើតឡើង សូមទាក់ទង​ក្រុមហ៊ុនផលិត​ឧបករណ៍"</string>
     <string name="wifi_dpp_failure_not_compatible" msgid="4320027179973678283">"មានអ្វីមួយ​ខុសប្រក្រតី"</string>
-    <string name="wifi_dpp_failure_timeout" msgid="5060065168142109420">"សូមប្រាកដថា​ឧបករណ៍​ត្រូវបានបើក និងសាកថ្ម​ចូលហើយ"</string>
+    <string name="wifi_dpp_failure_timeout" msgid="5060065168142109420">"សូមប្រាកដថា​ឧបករណ៍​ត្រូវបានដោត សាកថ្ម និងបើក"</string>
     <string name="wifi_dpp_failure_generic" msgid="7840142544736640189">"សូមប្រាកដថា​ឧបករណ៍​ត្រូវបានបើក និងសាកថ្ម​ចូលហើយ។ ប្រសិនបើ​បញ្ហា​នៅតែបន្តកើតឡើង សូមទាក់ទង​ក្រុមហ៊ុនផលិត​ឧបករណ៍"</string>
     <string name="wifi_dpp_failure_not_supported" msgid="111779621766171626">"មិន​អាច​បញ្ចូល “<xliff:g id="SSID">%1$s</xliff:g>” ទៅក្នុងឧបករណ៍​នេះ​បាន​ទេ"</string>
     <string name="wifi_dpp_check_connection_try_again" msgid="7144663015219170999">"សូម​ពិនិត្យមើល​ការតភ្ជាប់ រួចព្យាយាម​ម្ដងទៀត"</string>
@@ -2280,7 +2280,7 @@
     <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"បើក​កម្មវិធី​សន្សំ​ថ្ម​"</string>
     <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"អាចនឹងឆាប់​អស់​ថ្ម​​ជាងធម្មតា"</string>
     <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"កម្មវិធីសន្សំថ្មបានបើក"</string>
-    <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"មុខងារ​មួយចំនួន​អាច​ត្រូវ​បាន​កម្រិត"</string>
+    <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"មុខងារ​មួយចំនួន​អាច​ត្រូវ​បាន​ដាក់កំហិត"</string>
     <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"ទូរសព្ទ​ត្រូវបានប្រើ​ប្រាស់ច្រើន​ជាង​ធម្មតា"</string>
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"ថេប្លេត​ត្រូវបានប្រើប្រាស់ច្រើន​ជាង​ធម្មតា"</string>
     <string name="battery_tip_high_usage_title" product="device" msgid="8304138287288309490">"ឧបករណ៍​ត្រូវបានប្រើប្រាស់​ច្រើន​ជាង​ធម្មតា"</string>
@@ -3630,7 +3630,7 @@
       <item quantity="one">សិទ្ធិអនុញ្ញាតបន្ថែម <xliff:g id="COUNT_0">%d</xliff:g></item>
     </plurals>
     <string name="runtime_permissions_summary_no_permissions_granted" msgid="3477934429220828771">"គ្មានការផ្តល់សិទ្ធិអនុញ្ញាតទេ"</string>
-    <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"គ្មានការស្នើសិទ្ធិអនុញ្ញាតទេ"</string>
+    <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"គ្មានការអនុញ្ញាត​ដែលបានស្នើសុំទេ"</string>
     <string name="filter_all_apps" msgid="4042756539846043675">"កម្មវិធីទាំងអស់"</string>
     <string name="filter_enabled_apps" msgid="5888459261768538489">"កម្មវិធី​ដែល​បាន​ដំឡើង"</string>
     <string name="filter_instant_apps" msgid="8087483282854072366">"កម្មវិធី​ប្រើ​ភ្លាមៗ"</string>

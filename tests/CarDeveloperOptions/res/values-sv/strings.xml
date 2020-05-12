@@ -1621,11 +1621,11 @@
     <string name="tether_settings_disabled_on_data_saver" msgid="3682544845899910726">"Det går inte att använda internetdelning eller trådlösa surfzoner när Databesparing är aktiverat."</string>
     <string name="usb_title" msgid="7480927657535578688">"USB"</string>
     <string name="usb_tethering_button_text" msgid="6242228383142012332">"Delning via USB"</string>
-    <string name="usb_tethering_subtext" product="default" msgid="1573513260339548671">"Dela mobilens internetanslutning via USB"</string>
+    <string name="usb_tethering_subtext" product="default" msgid="1573513260339548671">"Dela telefonens internetanslutning via USB"</string>
     <string name="usb_tethering_subtext" product="tablet" msgid="154536000235361034">"Dela surfplattans internetanslutning via USB"</string>
     <string name="bluetooth_tether_checkbox_text" msgid="7257293066139372774">"Delning via Bluetooth"</string>
     <string name="bluetooth_tethering_subtext" product="tablet" msgid="6868756914621131635">"Dela surfplattans internetanslutning via Bluetooth"</string>
-    <string name="bluetooth_tethering_subtext" product="default" msgid="9167912297565425178">"Dela mobilens internetanslutning via Bluetooth"</string>
+    <string name="bluetooth_tethering_subtext" product="default" msgid="9167912297565425178">"Dela telefonens internetanslutning via Bluetooth"</string>
     <string name="bluetooth_tethering_off_subtext_config" msgid="3981528184780083266">"<xliff:g id="DEVICE_NAME">%1$d</xliff:g>s internetanslutning delas via Bluetooth"</string>
     <string name="bluetooth_tethering_overflow_error" msgid="6946561351369376943">"Det går inte att dela med mer än <xliff:g id="MAXCONNECTION">%1$d</xliff:g> enheter."</string>
     <string name="bluetooth_untether_blank" msgid="5428300773782256084">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> kopplas från."</string>

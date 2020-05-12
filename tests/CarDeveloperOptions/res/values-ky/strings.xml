@@ -127,7 +127,7 @@
     <string name="bluetooth_notif_title" msgid="5090288898529286011">"Жупташтыруу өтүнүчү"</string>
     <string name="bluetooth_notif_message" msgid="6612367890895077938">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> менен жупташуу үчүн таптап коюңуз."</string>
     <string name="bluetooth_show_received_files" msgid="5060846395852236652">"Алынган файлдар"</string>
-    <string name="bluetooth_show_files_received_via_bluetooth" msgid="1699095577431389560">"Bluetooth аркылуу кабыл алынган файлдар"</string>
+    <string name="bluetooth_show_files_received_via_bluetooth" msgid="1699095577431389560">"Bluetooth аркылуу алынган файлдар"</string>
     <string name="device_picker" msgid="8345264486071697705">"Bluetooth түзмөгүн тандоо"</string>
     <string name="bluetooth_ask_enablement" msgid="8716802066127746062">"<xliff:g id="APP_NAME">%1$s</xliff:g> колдонмосу Bluetooth\'ду күйгүзгөнү жатат"</string>
     <string name="bluetooth_ask_disablement" msgid="7125319551097350783">"<xliff:g id="APP_NAME">%1$s</xliff:g> бул түзмөктө Bluetooth\'ду өчүргөнү жатат"</string>
@@ -646,9 +646,9 @@
     <string name="lock_last_pattern_attempt_before_wipe_profile" msgid="3877613047631174576">"Эгер графикалык ачкычты кийинки жолу туура эмес киргизсеңиз, жумуш профилиңиз жана анын дайындары өчүрүлөт"</string>
     <string name="lock_last_pin_attempt_before_wipe_profile" msgid="8132438288175428168">"Эгер PIN кодду кийинки жолу туура эмес киргизсеңиз, жумуш профилиңиз жана анын дайындары өчүрүлөт"</string>
     <string name="lock_last_password_attempt_before_wipe_profile" msgid="1535128774464384305">"Эгер сырсөздү кийинки жолу туура эмес киргизсеңиз, жумуш профилиңиз жана анын дайындары өчүрүлөт"</string>
-    <string name="lock_failed_attempts_now_wiping_device" msgid="8662360098784762828">"Өтө көп жолу туура эмес аракет кылынды. Бул түзмөктүн дайындары өчүрүлөт."</string>
-    <string name="lock_failed_attempts_now_wiping_user" msgid="3793513796171561873">"Өтө көп жолу туура эмес аракет кылынды. Бул колдонуучу өчүрүлөт."</string>
-    <string name="lock_failed_attempts_now_wiping_profile" msgid="5347108525299038285">"Өтө көп жолу туура эмес аракет кылынды. Бул жумуш профили жана анын дайындары өчүрүлөт."</string>
+    <string name="lock_failed_attempts_now_wiping_device" msgid="8662360098784762828">"Өтө көп жолу жаңылдыңыз. Бул түзмөктүн дайындары өчүрүлөт."</string>
+    <string name="lock_failed_attempts_now_wiping_user" msgid="3793513796171561873">"Өтө көп жолу жаңылдыңыз. Бул колдонуучу өчүрүлөт."</string>
+    <string name="lock_failed_attempts_now_wiping_profile" msgid="5347108525299038285">"Өтө көп жолу жаңылдыңыз. Бул жумуш профили жана андагы нерселер өчүрүлөт."</string>
     <string name="lock_failed_attempts_now_wiping_dialog_dismiss" msgid="3950582268749037318">"Этибарга албоо"</string>
     <plurals name="lockpassword_password_too_short" formatted="false" msgid="694091983183310827">
       <item quantity="other">Кеминде <xliff:g id="COUNT_1">%d</xliff:g> символ болушу керек</item>
@@ -915,7 +915,7 @@
     <string name="passpoint_label" msgid="7429247462404128615">"Төмөнкү аркылуу сакталган"</string>
     <string name="passpoint_content" msgid="340527524510304327">"<xliff:g id="NAME">%1$s</xliff:g> эсептик дайындары"</string>
     <string name="wifi_eap_method" msgid="3752116941487485859">"EAP ыкмасы"</string>
-    <string name="please_select_phase2" msgid="5848080896810435677">"Аныктыктын текшерүүнүн 2-этабы"</string>
+    <string name="please_select_phase2" msgid="5848080896810435677">"Аутентификациянын 2-этабы"</string>
     <string name="wifi_eap_ca_cert" msgid="1496395241849383785">"CA тастыктамасы"</string>
     <string name="wifi_eap_domain" msgid="3298302320003640130">"Домен"</string>
     <string name="wifi_eap_user_cert" msgid="6786839531765719173">"Колдонуучунун тастыктамасы"</string>
@@ -1622,7 +1622,7 @@
     <string name="usb_title" msgid="7480927657535578688">"USB"</string>
     <string name="usb_tethering_button_text" msgid="6242228383142012332">"USB модем"</string>
     <string name="usb_tethering_subtext" product="default" msgid="1573513260339548671">"Телефондун Интернетин USB аркылуу бөлүшөсүз"</string>
-    <string name="usb_tethering_subtext" product="tablet" msgid="154536000235361034">"Планшеттин Интернетин USB аркылуу бөлүшүү"</string>
+    <string name="usb_tethering_subtext" product="tablet" msgid="154536000235361034">"Планшеттин Интернетин USB аркылуу бөлүшөсүз"</string>
     <string name="bluetooth_tether_checkbox_text" msgid="7257293066139372774">"Bluetooth модем"</string>
     <string name="bluetooth_tethering_subtext" product="tablet" msgid="6868756914621131635">"Планшеттин Интернетин Bluetooth аркылуу бөлүшүү"</string>
     <string name="bluetooth_tethering_subtext" product="default" msgid="9167912297565425178">"Телефондун Интернетин Bluetooth аркылуу бөлүшөсүз"</string>
@@ -2452,7 +2452,7 @@
     <string name="battery_saver_auto_routine" msgid="886514412067906980">"Кубаттоо таржымалынын негизинде"</string>
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"Кубат деңгээлинин негизинде"</string>
     <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Кубат деңгээли кубаттала турган убакытка чейин жетпей кала турган болгондо иштетилет"</string>
-    <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"<xliff:g id="PERCENT">%1$s</xliff:g> жеткенде, күйгүзүлөт"</string>
+    <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"<xliff:g id="PERCENT">%1$s</xliff:g> жеткенде автоматтык түрдө күйөт"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Пландаштыруу"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Толук кубатталганда өчүрүү"</string>
     <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"Телефон <xliff:g id="PERCENT">%1$s</xliff:g> жеткенде, батареяны үнөмдөгүч өчүп калат"</string>
@@ -2623,7 +2623,7 @@
     <string name="sync_contacts" msgid="5687434785723746534">"Байланыштар"</string>
     <string name="sync_plug" msgid="6703804441408427257"><font fgcolor="#ffffffff">"Google sync\'ке кош келиңиз!"</font>" \nБайланыштарды, жолугушууларды жана башкаларды, сиз кайдан болбосун жеткидей кылуунун Google сунуштаган жолу."</string>
     <string name="header_application_sync_settings" msgid="4581847153669774489">"Колдонмонун синхрондошуу тууралоолору"</string>
-    <string name="header_data_and_synchronization" msgid="400831816068697286">"Дайындар жана шайкештирүү"</string>
+    <string name="header_data_and_synchronization" msgid="400831816068697286">"Дайын-даректер жана шайкештирүү"</string>
     <string name="preference_change_password_title" msgid="7243527448378789274">"Сызсөздү өзгөртүү"</string>
     <string name="header_account_settings" msgid="8586173964125512219">"Аккаунттун жөндөөлөрү"</string>
     <string name="remove_account_label" msgid="5885425720323823387">"Аккаунтту алып салуу"</string>
@@ -3871,7 +3871,7 @@
     <string name="backup_disabled" msgid="6941165814784765643">"Камдык көчүрмө өчүрүлгөн"</string>
     <string name="android_version_summary" msgid="2192751442789395445">"Android <xliff:g id="VERSION">%1$s</xliff:g> версиясына жаңырды"</string>
     <string name="android_version_pending_update_summary" msgid="3554543810520655076">"Жаңы версия бар"</string>
-    <string name="disabled_by_policy_title" msgid="1238318274952958846">"Аракетке уруксат жок"</string>
+    <string name="disabled_by_policy_title" msgid="1238318274952958846">"Аракетке тыюу салынган"</string>
     <string name="disabled_by_policy_title_adjust_volume" msgid="7094547090629203316">"Үнү өзгөртүлбөйт"</string>
     <string name="disabled_by_policy_title_outgoing_calls" msgid="3805836913095496278">"Чалууга тыюу салынган"</string>
     <string name="disabled_by_policy_title_sms" msgid="1453236584236681105">"SMS жөнөтүүгө тыюу салынган"</string>
@@ -4002,7 +4002,7 @@
     <string name="suggestion_additional_fingerprints" msgid="3434467207282466411">"Дагы бир манжа изин кошуңуз"</string>
     <string name="suggestion_additional_fingerprints_summary" msgid="1916547587832484196">"Кулпуну башка манжа менен ачуу"</string>
     <string name="battery_saver_on_summary" msgid="6841062406467435672">"Күйүк"</string>
-    <string name="battery_saver_off_scheduled_summary" msgid="3740414764069188669">"<xliff:g id="BATTERY_PERCENTAGE">%1$s</xliff:g> жеткенде, күйгүзүлөт"</string>
+    <string name="battery_saver_off_scheduled_summary" msgid="3740414764069188669">"<xliff:g id="BATTERY_PERCENTAGE">%1$s</xliff:g> жеткенде автоматтык түрдө күйөт"</string>
     <string name="battery_saver_off_summary" msgid="8736555723004299721">"Өчүк"</string>
     <string name="battery_saver_button_turn_on" msgid="3748696527267573793">"Күйгүзүү"</string>
     <string name="battery_saver_button_turn_off" msgid="2912950982503267828">"Өчүрүү"</string>
@@ -4176,7 +4176,7 @@
     <string name="enterprise_privacy_installed_packages" msgid="4376014821459811800">"Түзмөгүңүздөгү колдонмолордун тизмеси"</string>
     <string name="enterprise_privacy_usage_stats" msgid="445762931318731975">"Ар бир колдонмого сарпталган убакыт жана колдонулган дайындар"</string>
     <string name="enterprise_privacy_network_logs" msgid="5427398751599441159">"Эң акыркы тармак трафигинин таржымалы"</string>
-    <string name="enterprise_privacy_bug_reports" msgid="283443567328836380">"Эң акыркы мүчүлүштүк тууралуу кабар берүү"</string>
+    <string name="enterprise_privacy_bug_reports" msgid="283443567328836380">"Эң акыркы мүчүлүштүк тууралуу кабарлоо"</string>
     <string name="enterprise_privacy_security_logs" msgid="8936969480449604726">"Эң акыркы коопсуздук таржымалы"</string>
     <string name="enterprise_privacy_none" msgid="5990646476868794882">"Жок"</string>
     <string name="enterprise_privacy_enterprise_installed_packages" msgid="6575025134782391212">"Орнотулган колдонмолор"</string>

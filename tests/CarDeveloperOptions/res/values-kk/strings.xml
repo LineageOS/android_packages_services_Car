@@ -914,13 +914,13 @@
     <string name="wifi_ip_address" msgid="5572539114989914831">"IP мекенжайы"</string>
     <string name="passpoint_label" msgid="7429247462404128615">"Сақталу жолы"</string>
     <string name="passpoint_content" msgid="340527524510304327">"<xliff:g id="NAME">%1$s</xliff:g> тіркелгі деректері"</string>
-    <string name="wifi_eap_method" msgid="3752116941487485859">"EAP (кеңейтілген растау протоколы) әдісі"</string>
-    <string name="please_select_phase2" msgid="5848080896810435677">"Фаза 2 растауы"</string>
+    <string name="wifi_eap_method" msgid="3752116941487485859">"EAP әдісі"</string>
+    <string name="please_select_phase2" msgid="5848080896810435677">"Аутентификацияның 2-сатысы"</string>
     <string name="wifi_eap_ca_cert" msgid="1496395241849383785">"Растама мекемесінің сертификаты"</string>
     <string name="wifi_eap_domain" msgid="3298302320003640130">"Домен"</string>
     <string name="wifi_eap_user_cert" msgid="6786839531765719173">"Пайдаланушы сертификаты"</string>
     <string name="wifi_eap_identity" msgid="5280457017705738773">"Бірлік"</string>
-    <string name="wifi_eap_anonymous" msgid="6352344972490839958">"Анонимді бірлік"</string>
+    <string name="wifi_eap_anonymous" msgid="6352344972490839958">"Белгісіз"</string>
     <string name="wifi_password" msgid="6942983531275177771">"Құпия сөз"</string>
     <string name="wifi_show_password" msgid="7878398590772942202">"Құпия сөзді көрсету"</string>
     <string name="wifi_ap_band_config" msgid="6565016368079288433">"Wi-Fi жиілік ауқымын таңдау"</string>

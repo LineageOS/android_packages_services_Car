@@ -355,7 +355,7 @@
     <string name="security_enable_widgets_title" msgid="1701510007926738088">"เปิดใช้งานวิดเจ็ต"</string>
     <string name="security_enable_widgets_disabled_summary" msgid="4408176087132339331">"ปิดใช้โดยผู้ดูแลระบบ"</string>
     <string name="lockdown_settings_title" msgid="4534779922580115990">"แสดงตัวเลือกการปิดล็อก"</string>
-    <string name="lockdown_settings_summary" msgid="7270756909878256174">"แสดงตัวเลือกปุ่มเปิด/ปิดที่จะปิด Smart Lock การปลดล็อกด้วยลายนิ้วมือ และการแจ้งเตือนในหน้าจอล็อก"</string>
+    <string name="lockdown_settings_summary" msgid="7270756909878256174">"แสดงตัวเลือกปุ่มเปิด/ปิดที่จะปิด Smart Lock, การปลดล็อกด้วยลายนิ้วมือ และการแจ้งเตือนในหน้าจอล็อก"</string>
     <string name="trust_agents_extend_unlock_title" msgid="3582017561316089951">"เอเจนต์ความน่าเชื่อถือขยายเฉพาะการปลดล็อก"</string>
     <string name="trust_agents_extend_unlock_summary" msgid="3543997596586078084">"หากเปิดใช้ เอเจนต์ความน่าเชื่อถือจะปลดล็อกอุปกรณ์ค้างไว้นานขึ้น แต่จะปลดล็อกอุปกรณ์ที่ล็อกอยู่ไม่ได้อีกต่อไป"</string>
     <string name="trust_lost_locks_screen_title" msgid="3094736590690459372">"หน้าจอล็อกเมื่อสภาพแวดล้อมไม่น่าเชื่อถือ"</string>
@@ -914,7 +914,7 @@
     <string name="wifi_ip_address" msgid="5572539114989914831">"ที่อยู่ IP"</string>
     <string name="passpoint_label" msgid="7429247462404128615">"บันทึกผ่านทาง"</string>
     <string name="passpoint_content" msgid="340527524510304327">"ข้อมูลรับรองของ <xliff:g id="NAME">%1$s</xliff:g>"</string>
-    <string name="wifi_eap_method" msgid="3752116941487485859">"วิธีการ EAP"</string>
+    <string name="wifi_eap_method" msgid="3752116941487485859">"เมธอด EAP"</string>
     <string name="please_select_phase2" msgid="5848080896810435677">"การตรวจสอบสิทธิ์เฟส 2"</string>
     <string name="wifi_eap_ca_cert" msgid="1496395241849383785">"ใบรับรอง CA"</string>
     <string name="wifi_eap_domain" msgid="3298302320003640130">"โดเมน"</string>
@@ -935,10 +935,10 @@
     <string name="wifi_privacy_settings" msgid="4462092795794247809">"ความเป็นส่วนตัว"</string>
     <string name="wifi_privacy_settings_ephemeral_summary" msgid="2411375348287064283">"MAC แบบสุ่ม"</string>
     <string name="wifi_dpp_add_device_to_network" msgid="8871041525483253430">"เพิ่มอุปกรณ์"</string>
-    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"ถือให้โค้ด QR อยู่กลางช่องด้านล่างเพื่อเพิ่มอุปกรณ์ไปยัง “<xliff:g id="SSID">%1$s</xliff:g>”"</string>
+    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"ให้คิวอาร์โค้ดอยู่กลางช่องด้านล่างเพื่อเพิ่มอุปกรณ์ไปยัง “<xliff:g id="SSID">%1$s</xliff:g>”"</string>
     <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"สแกนคิวอาร์โค้ด"</string>
-    <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"ถือให้โค้ด QR อยู่กลางช่องด้านล่างเพื่อเชื่อมต่อไปยัง “<xliff:g id="SSID">%1$s</xliff:g>”"</string>
-    <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"เข้าร่วม Wi‑Fi โดยการสแกนคิวอาร์โค้ด"</string>
+    <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"ให้คิวอาร์โค้ดอยู่กลางช่องด้านล่างเพื่อเชื่อมต่อไปยัง “<xliff:g id="SSID">%1$s</xliff:g>”"</string>
+    <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"ร่วมใช้ Wi‑Fi โดยการสแกนคิวอาร์โค้ด"</string>
     <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"แชร์ Wi‑Fi"</string>
     <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"สแกนคิวอาร์โค้ดนี้เพื่อเชื่อมต่อกับ “<xliff:g id="SSID">%1$s</xliff:g>” และแชร์รหัสผ่าน"</string>
     <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"สแกนคิวอาร์โค้ดนี้เพื่อเชื่อมต่อกับ “<xliff:g id="SSID">%1$s</xliff:g>”"</string>
@@ -1337,7 +1337,7 @@
     <string name="status_number_sim_slot" product="tablet" msgid="4518232285651165459">"MDN (ช่องซิม %1$d)"</string>
     <string name="status_number_sim_slot" product="default" msgid="3660851494421332328">"หมายเลขโทรศัพท์ (ช่องซิม %1$d)"</string>
     <string name="status_number_sim_status" product="tablet" msgid="8069693515860290952">"MDN ในซิม"</string>
-    <string name="status_number_sim_status" product="default" msgid="6602562692270457610">"หมายเลขโทรศัพท์ในซิม"</string>
+    <string name="status_number_sim_status" product="default" msgid="6602562692270457610">"หมายเลขโทรศัพท์ของซิม"</string>
     <string name="status_min_number" msgid="8346889546673707777">"นาที"</string>
     <string name="status_msid_number" msgid="7808175928664357661">"MSID"</string>
     <string name="status_prl_version" msgid="5634561205739199042">"รุ่น PRL"</string>
@@ -1656,7 +1656,7 @@
     </plurals>
     <string name="location_category_recent_location_access" msgid="286059523360285026">"การเข้าถึงตำแหน่งล่าสุด"</string>
     <string name="location_recent_location_access_view_details" msgid="2051602261436245905">"ดูรายละเอียด"</string>
-    <string name="location_no_recent_apps" msgid="77502059586413278">"ไม่มีแอปใดทำการขอตำแหน่งเมื่อเร็วๆ นี้"</string>
+    <string name="location_no_recent_apps" msgid="77502059586413278">"ไม่มีแอปใดขอตำแหน่งเมื่อเร็วๆ นี้"</string>
     <string name="location_no_recent_accesses" msgid="6289916310397279890">"ไม่มีแอปที่เข้าถึงตำแหน่งเมื่อเร็วๆ นี้"</string>
     <string name="location_high_battery_use" msgid="7177199869979522663">"ใช้แบตเตอรี่มาก"</string>
     <string name="location_low_battery_use" msgid="5030448574501435888">"ใช้แบตเตอรี่น้อย"</string>
@@ -2195,8 +2195,8 @@
     <string name="print_settings" msgid="7886184656544483072">"การพิมพ์"</string>
     <string name="print_settings_summary_no_service" msgid="634173687975841526">"ปิด"</string>
     <plurals name="print_settings_summary" formatted="false" msgid="7580293760281445137">
-      <item quantity="other">บริการการพิมพ์เปิดอยู่ <xliff:g id="COUNT">%1$d</xliff:g> รายการ</item>
-      <item quantity="one">บริการการพิมพ์เปิดอยู่ 1 รายการ</item>
+      <item quantity="other">บริการพิมพ์เปิดอยู่ <xliff:g id="COUNT">%1$d</xliff:g> รายการ</item>
+      <item quantity="one">บริการพิมพ์เปิดอยู่ 1 รายการ</item>
     </plurals>
     <plurals name="print_jobs_summary" formatted="false" msgid="6180308415569432845">
       <item quantity="other">งานพิมพ์ <xliff:g id="COUNT">%1$d</xliff:g> รายการ</item>
@@ -2455,7 +2455,7 @@
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"จะเปิดเมื่อเหลือแบตเตอรี่ <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"ตั้งกำหนดการ"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"ปิดเมื่อชาร์จเต็มแล้ว"</string>
-    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"โหมดประหยัดแบตเตอรี่จะปิดเมื่อแบตเตอรี่โทรศัพท์อยู่ที่ <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
+    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"โหมดประหยัดแบตเตอรี่จะปิดเมื่อมีแบตเตอรี่โทรศัพท์อยู่ที่ <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"โหมดประหยัดแบตเตอรี่จะปิดเมื่อแบตเตอรี่แท็บเล็ตอยู่ที่ <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_sticky_description_new" product="device" msgid="5056520668081504111">"โหมดประหยัดแบตเตอรี่จะปิดเมื่อแบตเตอรี่อุปกรณ์อยู่ที่ <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->

@@ -2339,7 +2339,7 @@
     <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"Baterie se možná vybije dříve než obvykle"</string>
     <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"Spořič baterie je zapnutý"</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"Některé funkce mohou být omezeny"</string>
-    <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"Telefon byl využíván víc než obvykle"</string>
+    <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"Telefon využíván víc než obvykle"</string>
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"Tablet byl využíván víc než obvykle"</string>
     <string name="battery_tip_high_usage_title" product="device" msgid="8304138287288309490">"Zařízení bylo využíváno víc než obvykle"</string>
     <string name="battery_tip_high_usage_summary" msgid="5514749872957528189">"Baterie se možná vybije dříve než obvykle"</string>
@@ -3409,7 +3409,7 @@
     <string name="notification_pulse_title" msgid="4861418327614907116">"Blikání kontrolky"</string>
     <string name="lock_screen_notifications_title" msgid="6889072265118747835">"Na obrazovce uzamčení"</string>
     <string name="locked_work_profile_notification_title" msgid="8307025804986190658">"Když je profil uzamčen"</string>
-    <string name="lock_screen_notifications_summary_show" msgid="5788874994455257378">"Zobrazit veškerý obsah oznámení"</string>
+    <string name="lock_screen_notifications_summary_show" msgid="5788874994455257378">"Zobrazovat veškerý obsah oznámení"</string>
     <string name="lock_screen_notifications_summary_hide" msgid="3668806866535260143">"Skrýt citlivý obsah"</string>
     <string name="lock_screen_notifications_summary_disable" msgid="3259929507369817672">"Oznámení vůbec nezobrazovat"</string>
     <string name="lock_screen_notifications_interstitial_message" msgid="4230189215124387818">"Jak chcete zobrazovat oznámení, když bude zařízení uzamčeno?"</string>
@@ -4635,7 +4635,7 @@
     <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"Odstranit tento návrh?"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"Návrh byl odebrán"</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"Zpět"</string>
-    <string name="low_storage_summary" msgid="4562224870189133400">"V úložišti je málo místa. Využito <xliff:g id="PERCENTAGE">%1$s</xliff:g> – volné místo: <xliff:g id="FREE_SPACE">%2$s</xliff:g>"</string>
+    <string name="low_storage_summary" msgid="4562224870189133400">"Málo místa. Využito: <xliff:g id="PERCENTAGE">%1$s</xliff:g> – volné: <xliff:g id="FREE_SPACE">%2$s</xliff:g>"</string>
     <string name="contextual_card_feedback_send" msgid="8698649023854350623">"Odeslat zpětnou vazbu"</string>
     <string name="contextual_card_feedback_confirm_message" msgid="3987973028353264878">"Chtěli byste nám k tomuto návrhu poskytnout zpětnou vazbu?"</string>
     <string name="copyable_slice_toast" msgid="1357518174923789947">"<xliff:g id="COPY_CONTENT">%1$s</xliff:g> – zkopírováno do schránky"</string>

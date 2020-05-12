@@ -4473,7 +4473,7 @@
     <string name="privacy_dashboard_title" msgid="8764930992456607513">"ଗୋପନୀୟତା"</string>
     <string name="privacy_dashboard_summary" msgid="7916431309860824945">"ଅନୁମତିଗୁଡ଼ିକ, ଆକାଉଣ୍ଟ କାର୍ଯ୍ୟକଳାପ, ବ୍ୟକ୍ତିଗତ ଡାଟା"</string>
     <string name="contextual_card_dismiss_remove" msgid="1750420285615827309">"କାଢ଼ିଦିଅନ୍ତୁ"</string>
-    <string name="contextual_card_dismiss_keep" msgid="3204450672928193661">"ରଖନ୍ତୁ"</string>
+    <string name="contextual_card_dismiss_keep" msgid="3204450672928193661">"Keep"</string>
     <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"ଏହି ମତାମତ କାଢ଼ିଦେବେ?"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"ସୁପାରିଶକୁ କାଢ଼ି ଦିଆଯାଇଛି"</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"ପୂର୍ବବତ୍ କରନ୍ତୁ"</string>
