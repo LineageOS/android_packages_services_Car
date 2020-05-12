@@ -22,11 +22,14 @@ import static org.mockito.Mockito.doAnswer;
 import android.annotation.NonNull;
 import android.car.Car;
 import android.os.RemoteException;
+import android.util.Log;
 
 /**
  * Provides common Mockito calls for Car-specific classes.
  */
 public final class CarMockitoHelper {
+
+    private static final String TAG = CarMockitoHelper.class.getSimpleName();
 
     /**
      * Mocks a call to {@link Car#handleRemoteExceptionFromCarService(RemoteException, Object)} so
@@ -35,7 +38,9 @@ public final class CarMockitoHelper {
     public static void mockHandleRemoteExceptionFromCarServiceWithDefaultValue(
             @NonNull Car car) {
         doAnswer((invocation) -> {
-            return invocation.getArguments()[1];
+            Object returnValue = invocation.getArguments()[1];
+            Log.v(TAG, "mocking handleRemoteExceptionFromCarService(): " + returnValue);
+            return returnValue;
         }).when(car).handleRemoteExceptionFromCarService(isA(RemoteException.class), any());
     }
 

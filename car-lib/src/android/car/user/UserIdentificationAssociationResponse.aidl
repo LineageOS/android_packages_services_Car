@@ -16,4 +16,4 @@
 
 package android.car.user;
 
-parcelable GetUserIdentificationAssociationResponse;
+parcelable UserIdentificationAssociationResponse;

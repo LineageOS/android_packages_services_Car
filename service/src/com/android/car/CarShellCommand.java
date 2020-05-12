@@ -26,6 +26,7 @@ import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssocia
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.app.UiModeManager;
@@ -33,7 +34,7 @@ import android.car.Car;
 import android.car.input.CarInputManager;
 import android.car.input.RotaryEvent;
 import android.car.user.CarUserManager;
-import android.car.user.GetUserIdentificationAssociationResponse;
+import android.car.user.UserIdentificationAssociationResponse;
 import android.car.user.UserSwitchResult;
 import android.car.userlib.HalCallback;
 import android.car.userlib.UserHalHelper;
@@ -906,26 +907,30 @@ final class CarShellCommand extends ShellCommand {
             waitForHal(writer, latch, timeout);
             return;
         }
-        Car car = Car.createCar(mContext);
-        CarUserManager carUserManager =
-                (CarUserManager) car.getCarManager(Car.CAR_USER_SERVICE);
+        CarUserManager carUserManager = getCarUserManager(mContext);
         AndroidFuture<UserSwitchResult> future = carUserManager.switchUser(targetUserId);
-        UserSwitchResult result = null;
-        try {
-            result = future.get(timeout, TimeUnit.MILLISECONDS);
-        } catch (Exception e) {
-            Log.e(TAG, "exception calling CarUserManager.switchUser(" + targetUserId + ")", e);
-        }
-        if (result == null) {
-            writer.printf("Service didn't respond in %d ms", timeout);
-            return;
-        }
+        UserSwitchResult result = waitForFuture(writer, future, timeout);
+        if (result == null) return;
         writer.printf("UserSwitchResult: status = %s\n",
                 UserSwitchResult.statusToString(result.getStatus()));
         String msg = result.getErrorMessage();
         if (msg != null && !msg.isEmpty()) {
             writer.printf("UserSwitchResult: Message = %s\n", msg);
         }
+    }
+
+    private static <T> T waitForFuture(@NonNull PrintWriter writer,
+            @NonNull AndroidFuture<T> future, int timeoutMs) {
+        T result = null;
+        try {
+            result = future.get(timeoutMs, TimeUnit.MILLISECONDS);
+            if (result == null) {
+                writer.printf("Service didn't respond in %d ms", timeoutMs);
+            }
+        } catch (Exception e) {
+            writer.printf("Exception getting future: %s",  e);
+        }
+        return result;
     }
 
     private void getInitialUser(PrintWriter writer) {
@@ -981,24 +986,21 @@ final class CarShellCommand extends ShellCommand {
                     + ", request=" + request);
             UserIdentificationResponse response = mHal.getUserHal().getUserAssociation(request);
             Log.d(TAG, "getUserAuthAssociation(): response=" + response);
-
-            if (response == null) {
-                writer.println("null response");
-                return;
-            }
-
-            if (!TextUtils.isEmpty(response.errorMessage)) {
-                writer.printf("Error message: %s\n", response.errorMessage);
-            }
-            int numberAssociations = response.associations.size();
-            writer.printf("%d associations:\n", numberAssociations);
-            for (int i = 0; i < numberAssociations; i++) {
-                UserIdentificationAssociation association = response.associations.get(i);
-                writer.printf("  %s\n", association);
-            }
+            showResponse(writer, response);
             return;
         }
 
+        CarUserManager carUserManager = getCarUserManager(writer, userId);
+        int[] types = new int[requestSize];
+        for (int i = 0; i < requestSize; i++) {
+            types[i] = request.associationTypes.get(i);
+        }
+        UserIdentificationAssociationResponse response = carUserManager
+                .getUserIdentificationAssociation(types);
+        showResponse(writer, response);
+    }
+
+    private CarUserManager getCarUserManager(@NonNull PrintWriter writer, @UserIdInt int userId) {
         Context context;
         if (userId == mContext.getUserId()) {
             context = mContext;
@@ -1011,14 +1013,35 @@ final class CarShellCommand extends ShellCommand {
                     + "what CarUserService will use when calling HAL.\n", userId, actualUserId);
         }
 
+        return getCarUserManager(context);
+    }
+
+    private CarUserManager getCarUserManager(@NonNull Context context) {
         Car car = Car.createCar(context);
         CarUserManager carUserManager = (CarUserManager) car.getCarManager(Car.CAR_USER_SERVICE);
-        int[] types = new int[requestSize];
-        for (int i = 0; i < types.length; i++) {
-            types[i] = request.associationTypes.get(i);
+        return carUserManager;
+    }
+
+    private void showResponse(@NonNull PrintWriter writer,
+            @NonNull UserIdentificationResponse response) {
+        if (response == null) {
+            writer.println("null response");
+            return;
         }
-        GetUserIdentificationAssociationResponse response = carUserManager
-                .getUserIdentificationAssociation(types);
+
+        if (!TextUtils.isEmpty(response.errorMessage)) {
+            writer.printf("Error message: %s\n", response.errorMessage);
+        }
+        int numberAssociations = response.associations.size();
+        writer.printf("%d associations:\n", numberAssociations);
+        for (int i = 0; i < numberAssociations; i++) {
+            UserIdentificationAssociation association = response.associations.get(i);
+            writer.printf("  %s\n", association);
+        }
+    }
+
+    private void showResponse(@NonNull PrintWriter writer,
+            @NonNull UserIdentificationAssociationResponse response) {
         if (response == null) {
             writer.println("null response");
             return;
@@ -1035,7 +1058,7 @@ final class CarShellCommand extends ShellCommand {
     }
 
     private void setUserAuthAssociation(String[] args, PrintWriter writer) {
-        if (args.length < 4) {
+        if (args.length < 3) {
             writer.println("invalid usage, must pass at least 4 arguments");
             return;
         }
@@ -1096,20 +1119,7 @@ final class CarShellCommand extends ShellCommand {
             mHal.getUserHal().setUserAssociation(timeout, request, (status, response) -> {
                 Log.d(TAG, "setUserAuthAssociation(): response=" + response);
                 try {
-                    if (response == null) {
-                        writer.println("null response");
-                        return;
-                    }
-
-                    if (!TextUtils.isEmpty(response.errorMessage)) {
-                        writer.printf("Error message: %s\n", response.errorMessage);
-                    }
-                    int numberAssociations = response.associations.size();
-                    writer.printf("%d associations:\n", numberAssociations);
-                    for (int i = 0; i < numberAssociations; i++) {
-                        UserIdentificationAssociation association = response.associations.get(i);
-                        writer.printf("  %s\n", association);
-                    }
+                    showResponse(writer, response);
                 } finally {
                     latch.countDown();
                 }
@@ -1117,8 +1127,20 @@ final class CarShellCommand extends ShellCommand {
             waitForHal(writer, latch, timeout);
             return;
         }
-        // TODO(b/150409351): implement it...
-        throw new UnsupportedOperationException("must set --hal-only");
+        CarUserManager carUserManager = getCarUserManager(writer, userId);
+        int[] types = new int[requestSize];
+        int[] values = new int[requestSize];
+        for (int i = 0; i < requestSize; i++) {
+            UserIdentificationSetAssociation association = request.associations.get(i);
+            types[i] = association.type;
+            values[i] = association.value;
+        }
+        AndroidFuture<UserIdentificationAssociationResponse> future = carUserManager
+                .setUserIdentificationAssociation(types, values);
+        UserIdentificationAssociationResponse response = waitForFuture(writer, future, timeout);
+        if (response != null) {
+            showResponse(writer, response);
+        }
     }
 
     private static int parseAuthArg(@NonNull SparseArray<String> types, @NonNull String type) {
