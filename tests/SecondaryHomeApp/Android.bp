@@ -22,14 +22,10 @@ android_app {
     ],
 
     static_libs: [
-        "android.car.userlib",
         "androidx.appcompat_appcompat",
-        "androidx.recyclerview_recyclerview",
-        "androidx.legacy_legacy-support-v4",
         "androidx.lifecycle_lifecycle-extensions",
         "com.google.android.material_material",
         "CarNotificationLib",
-        "car-ui-lib"
     ],
 
     libs: [
