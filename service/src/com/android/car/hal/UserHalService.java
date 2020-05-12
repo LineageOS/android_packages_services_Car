@@ -336,7 +336,7 @@ public final class UserHalService extends HalServiceBase {
         VehiclePropValue propRequest;
         synchronized (mLock) {
             checkSupportedLocked();
-            int requestId = mNextRequestId++;
+            int requestId = getNextRequestId();
             EventLog.writeEvent(EventLogTags.CAR_USER_HAL_LEGACY_SWITCH_USER_REQ, requestId,
                     targetInfo.userId, usersInfo.currentUser.userId);
             propRequest = getPropRequestForSwitchUserLocked(requestId,
@@ -604,7 +604,7 @@ public final class UserHalService extends HalServiceBase {
     }
 
     private void handleCheckIfRequestTimedOut(int requestId) {
-        PendingRequest<?, ?> pendingRequest = getPendingResponse(requestId);
+        PendingRequest<?, ?> pendingRequest = getPendingRequest(requestId);
         if (pendingRequest == null) return;
 
         Log.w(TAG, "Request #" + requestId + " timed out");
@@ -613,7 +613,7 @@ public final class UserHalService extends HalServiceBase {
     }
 
     @Nullable
-    private PendingRequest<?, ?> getPendingResponse(int requestId) {
+    private PendingRequest<?, ?> getPendingRequest(int requestId) {
         synchronized (mLock) {
             return mPendingRequests.get(requestId);
         }
@@ -703,7 +703,7 @@ public final class UserHalService extends HalServiceBase {
     }
 
     private <T> HalCallback<T> handleGetPendingCallback(int requestId, Class<T> clazz) {
-        PendingRequest<?, ?> pendingRequest = getPendingResponse(requestId);
+        PendingRequest<?, ?> pendingRequest = getPendingRequest(requestId);
         if (pendingRequest == null) return null;
 
         if (pendingRequest.responseClass != clazz) {
