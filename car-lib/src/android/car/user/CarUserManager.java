@@ -54,7 +54,9 @@ import com.android.internal.util.Preconditions;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 
 /**
@@ -69,8 +71,7 @@ public final class CarUserManager extends CarManagerBase {
     private static final String TAG = CarUserManager.class.getSimpleName();
     private static final int HAL_TIMEOUT_MS = CarProperties.user_hal_timeout().orElse(5_000);
 
-    // TODO(b/144120654): STOPSHIP - set to false
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
 
     /**
      * {@link UserLifecycleEvent} called when the user is starting, for components to initialize
@@ -203,6 +204,7 @@ public final class CarUserManager extends CarManagerBase {
      */
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
     public AndroidFuture<UserSwitchResult> switchUser(@UserIdInt int targetUserId) {
+        // TODO(b/155311595): add permission check integration test
         int uid = myUid();
         try {
             AndroidFuture<UserSwitchResult> future = new AndroidFuture<UserSwitchResult>() {
@@ -231,6 +233,8 @@ public final class CarUserManager extends CarManagerBase {
     /**
      * Adds a listener for {@link UserLifecycleEvent user lifecycle events}.
      *
+     * @throws IllegalStateException if the listener was already added.
+     *
      * @hide
      */
     @SystemApi
@@ -238,15 +242,14 @@ public final class CarUserManager extends CarManagerBase {
     @RequiresPermission(anyOf = {INTERACT_ACROSS_USERS, INTERACT_ACROSS_USERS_FULL})
     public void addListener(@NonNull @CallbackExecutor Executor executor,
             @NonNull UserLifecycleListener listener) {
+        Objects.requireNonNull(executor, "executor cannot be null");
+        Objects.requireNonNull(listener, "listener cannot be null");
         checkInteractAcrossUsersPermission();
-
-        // TODO(b/144120654): add unit tests to validate input
-        // - executor cannot be null
-        // - listener cannot be null
-        // - listener must not be added before
 
         int uid = myUid();
         synchronized (mLock) {
+            Preconditions.checkState(mListeners == null || !mListeners.containsKey(listener),
+                    "already called for this listener");
             if (mReceiver == null) {
                 mReceiver = new LifecycleResultReceiver();
                 try {
@@ -271,24 +274,21 @@ public final class CarUserManager extends CarManagerBase {
     /**
      * Removes a listener for {@link UserLifecycleEvent user lifecycle events}.
      *
+     * @throws IllegalStateException if the listener was not added beforehand.
+     *
      * @hide
      */
     @SystemApi
     @TestApi
     @RequiresPermission(anyOf = {INTERACT_ACROSS_USERS, INTERACT_ACROSS_USERS_FULL})
     public void removeListener(@NonNull UserLifecycleListener listener) {
+        Objects.requireNonNull(listener, "listener cannot be null");
         checkInteractAcrossUsersPermission();
 
-        // TODO(b/144120654): add unit tests to validate input
-        // - listener cannot be null
-        // - listener must not be added before
         int uid = myUid();
         synchronized (mLock) {
-            if (mListeners == null) {
-                Log.w(TAG, "removeListener(): no listeners for uid " + uid);
-                return;
-            }
-
+            Preconditions.checkState(mListeners != null && mListeners.containsKey(listener),
+                    "not called for this listener yet");
             mListeners.remove(listener);
 
             if (!mListeners.isEmpty()) {
@@ -318,14 +318,15 @@ public final class CarUserManager extends CarManagerBase {
      *
      * @hide
      */
-    @Nullable
+    @NonNull
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
-    public GetUserIdentificationAssociationResponse getUserIdentificationAssociation(
+    public UserIdentificationAssociationResponse getUserIdentificationAssociation(
             @NonNull int... types) {
+        // TODO(b/155311595): add permission check integration test
         Preconditions.checkArgument(!ArrayUtils.isEmpty(types), "must have at least one type");
         EventLog.writeEvent(EventLogTags.CAR_USER_MGR_GET_USER_AUTH_REQ, types.length);
         try {
-            GetUserIdentificationAssociationResponse response =
+            UserIdentificationAssociationResponse response =
                     mService.getUserIdentificationAssociation(types);
             if (response != null) {
                 EventLog.writeEvent(EventLogTags.CAR_USER_MGR_GET_USER_AUTH_RESP,
@@ -334,6 +335,60 @@ public final class CarUserManager extends CarManagerBase {
             return response;
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, null);
+        }
+    }
+
+    /**
+     * Sets the user authentication types associated with this manager's user.
+     *
+     * @hide
+     */
+    @NonNull
+    public AndroidFuture<UserIdentificationAssociationResponse> setUserIdentificationAssociation(
+            @NonNull int[] types, @NonNull int[] values) {
+        // TODO(b/155311595): add permission check integration test
+        Preconditions.checkArgument(!ArrayUtils.isEmpty(types), "must have at least one type");
+        Preconditions.checkArgument(!ArrayUtils.isEmpty(values), "must have at least one value");
+        if (types.length != values.length) {
+            throw new IllegalArgumentException("types (" + Arrays.toString(types) + ") and values ("
+                    + Arrays.toString(values) + ") should have the same length");
+        }
+        // TODO(b/153900032): move this logic to a common helper
+        Object[] loggedValues = new Integer[types.length * 2];
+        for (int i = 0; i < types.length; i++) {
+            loggedValues[i * 2] = types[i];
+            loggedValues[i * 2 + 1 ] = values[i];
+        }
+        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_SET_USER_AUTH_REQ, loggedValues);
+
+        try {
+            AndroidFuture<UserIdentificationAssociationResponse> future =
+                    new AndroidFuture<UserIdentificationAssociationResponse>() {
+                @Override
+                protected void onCompleted(UserIdentificationAssociationResponse result,
+                        Throwable err) {
+                    if (result != null) {
+                        int[] rawValues = result.getValues();
+                        // TODO(b/153900032): move this logic to a common helper
+                        Object[] loggedValues = new Object[rawValues.length];
+                        for (int i = 0; i < rawValues.length; i++) {
+                            loggedValues[i] = rawValues[i];
+                        }
+                        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_SET_USER_AUTH_RESP,
+                                loggedValues);
+                    } else {
+                        Log.w(TAG, "setUserIdentificationAssociation(" + Arrays.toString(types)
+                                + ", " + Arrays.toString(values) + ") failed: " + err);
+                    }
+                    super.onCompleted(result, err);
+                };
+            };
+            mService.setUserIdentificationAssociation(HAL_TIMEOUT_MS, types, values, future);
+            return future;
+        } catch (RemoteException e) {
+            AndroidFuture<UserIdentificationAssociationResponse> future = new AndroidFuture<>();
+            future.complete(UserIdentificationAssociationResponse.forFailure());
+            return handleRemoteExceptionFromCarService(e, future);
         }
     }
 
@@ -435,6 +490,8 @@ public final class CarUserManager extends CarManagerBase {
         checkInteractAcrossUsersPermission(getContext());
     }
 
+    // TODO(b/155311595): remove once permission check is tested by integration tests (as the
+    // permission is also checked on service side, and that's enough)
     private static void checkInteractAcrossUsersPermission(Context context) {
         if (context.checkSelfPermission(INTERACT_ACROSS_USERS) != PERMISSION_GRANTED
                 && context.checkSelfPermission(INTERACT_ACROSS_USERS_FULL) != PERMISSION_GRANTED) {

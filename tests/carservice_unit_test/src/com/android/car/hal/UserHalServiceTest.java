@@ -33,9 +33,11 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -60,12 +62,18 @@ import android.hardware.automotive.vehicle.V2_0.UserInfo;
 import android.hardware.automotive.vehicle.V2_0.UsersInfo;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.util.Log;
 import android.util.Pair;
 
+import com.android.car.CarLocalServices;
+import com.android.car.user.CarUserService;
+
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -116,6 +124,10 @@ public final class UserHalServiceTest {
 
     @Mock
     private VehicleHal mVehicleHal;
+    @Mock
+    private CarUserService mCarUserService;
+
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
 
     private final UserInfo mUser0 = new UserInfo();
     private final UserInfo mUser10 = new UserInfo();
@@ -127,7 +139,7 @@ public final class UserHalServiceTest {
 
     @Before
     public void setFixtures() {
-        mUserHalService = spy(new UserHalService(mVehicleHal));
+        mUserHalService = spy(new UserHalService(mVehicleHal, mHandler));
         // Needs at least one property, otherwise isSupported() will return false
         mUserHalService.takeProperties(Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO)));
 
@@ -141,6 +153,13 @@ public final class UserHalServiceTest {
         mUsersInfo.existingUsers = new ArrayList<>(2);
         mUsersInfo.existingUsers.add(mUser0);
         mUsersInfo.existingUsers.add(mUser10);
+
+        CarLocalServices.addService(CarUserService.class, mCarUserService);
+    }
+
+    @After
+    public void clearFixtures() {
+        CarLocalServices.removeServiceForTest(CarUserService.class);
     }
 
     @Test
@@ -464,7 +483,7 @@ public final class UserHalServiceTest {
     @Test
     public void testSwitchUser_halReturnedInvalidMessageType() throws Exception {
         VehiclePropValue propResponse = UserHalHelper.createPropRequest(SWITCH_USER,
-                    REQUEST_ID_PLACE_HOLDER, SwitchUserMessageType.VEHICLE_REQUEST);
+                REQUEST_ID_PLACE_HOLDER, SwitchUserMessageType.LEGACY_ANDROID_SWITCH);
         propResponse.value.int32Values.add(SwitchUserStatus.SUCCESS);
 
         AtomicReference<VehiclePropValue> reqCaptor = replySetPropertyWithOnChangeEvent(
@@ -573,6 +592,35 @@ public final class UserHalServiceTest {
         // Assert response
         assertCallbackStatus(callback, HalCallback.STATUS_WRONG_HAL_RESPONSE);
         assertThat(callback.response).isNull();
+    }
+
+    @Test
+    public void testUserSwitch_OEMRequest_success() throws Exception {
+        int requestId = -4;
+        int targetUserId = 11;
+        VehiclePropValue propResponse = UserHalHelper.createPropRequest(SWITCH_USER,
+                requestId, SwitchUserMessageType.VEHICLE_REQUEST);
+
+        propResponse.value.int32Values.add(targetUserId);
+
+        mUserHalService.onHalEvents(Arrays.asList(propResponse));
+        waitForHandler();
+
+        verify(mCarUserService).switchAndroidUserFromHal(requestId, targetUserId);
+    }
+
+    @Test
+    public void testUserSwitch_OEMRequest_failure_positiveRequestId() throws Exception {
+        int requestId = 4;
+        int targetUserId = 11;
+        VehiclePropValue propResponse = UserHalHelper.createPropRequest(SWITCH_USER,
+                requestId, SwitchUserMessageType.VEHICLE_REQUEST);
+        propResponse.value.int32Values.add(targetUserId);
+
+        mUserHalService.onHalEvents(Arrays.asList(propResponse));
+        waitForHandler();
+
+        verify(mCarUserService, never()).switchAndroidUserFromHal(anyInt(), anyInt());
     }
 
     @Test
@@ -1050,6 +1098,13 @@ public final class UserHalServiceTest {
         association1.value = ASSOCIATE_CURRENT_USER;
         request.associations.add(association1);
         return request;
+    }
+
+    /**
+     * Run empty runnable to make sure that all posted handlers are done.
+     */
+    private void waitForHandler() {
+        mHandler.runWithScissors(() -> { }, /* Default timeout */ CALLBACK_TIMEOUT_TIMEOUT);
     }
 
     private void mockNextRequestId(int requestId) {
