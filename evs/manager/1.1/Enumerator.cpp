@@ -29,7 +29,10 @@
 namespace {
 
     const char* kSingleIndent = "\t";
-    const char* kDumpCameraOptionAllDevices = "all";
+    const char* kDumpOptionAll = "all";
+    const char* kDumpDeviceCamera = "camera";
+    const char* kDumpDeviceDisplay = "display";
+
     const char* kDumpCameraCommandCurrent = "--current";
     const char* kDumpCameraCommandCollected = "--collected";
     const char* kDumpCameraCommandCustom = "--custom";
@@ -447,7 +450,7 @@ Return<sp<IEvsDisplay_1_0>> Enumerator::openDisplay() {
     // TODO: Because of b/129284474, an additional class, HalDisplay, has been defined and
     // wraps the IEvsDisplay object the driver returns.  We may want to remove this
     // additional class when it is fixed properly.
-    sp<IEvsDisplay_1_0> pHalDisplay = new HalDisplay(pActiveDisplay);
+    sp<IEvsDisplay_1_0> pHalDisplay = new HalDisplay(pActiveDisplay, mInternalDisplayPort);
     mActiveDisplay = pHalDisplay;
 
     return pHalDisplay;
@@ -522,7 +525,7 @@ Return<sp<IEvsDisplay_1_1>> Enumerator::openDisplay_1_1(uint8_t id) {
     // TODO: Because of b/129284474, an additional class, HalDisplay, has been defined and
     // wraps the IEvsDisplay object the driver returns.  We may want to remove this
     // additional class when it is fixed properly.
-    sp<IEvsDisplay_1_1> pHalDisplay = new HalDisplay(pActiveDisplay);
+    sp<IEvsDisplay_1_1> pHalDisplay = new HalDisplay(pActiveDisplay, id);
     mActiveDisplay = pHalDisplay;
 
     return pHalDisplay;
@@ -615,9 +618,9 @@ void Enumerator::cmdList(int fd, const hidl_vec<hidl_string>& options) {
     bool listDisplays = true;
     if (options.size() > 1) {
         const std::string option = options[1];
-        const bool listAll = EqualsIgnoreCase(option, "all");
-        listCameras = listAll || EqualsIgnoreCase(option, "camera");
-        listDisplays = listAll || EqualsIgnoreCase(option, "display");
+        const bool listAll = EqualsIgnoreCase(option, kDumpOptionAll);
+        listCameras = listAll || EqualsIgnoreCase(option, kDumpDeviceCamera);
+        listDisplays = listAll || EqualsIgnoreCase(option, kDumpDeviceDisplay);
         if (!listCameras && !listDisplays) {
             WriteStringToFd(StringPrintf("Unrecognized option, %s, is ignored.\n",
                                          option.c_str()),
@@ -682,9 +685,9 @@ void Enumerator::cmdDumpDevice(int fd, const hidl_vec<hidl_string>& options) {
     const auto numOptions = options.size();
     if (numOptions > kOptionDumpDeviceTypeIndex) {
         const std::string target = options[kOptionDumpDeviceTypeIndex];
-        const bool dumpAll = EqualsIgnoreCase(target, "all");
-        dumpCameras = dumpAll || EqualsIgnoreCase(target, "camera");
-        dumpDisplays = dumpAll || EqualsIgnoreCase(target, "display");
+        const bool dumpAll = EqualsIgnoreCase(target, kDumpOptionAll);
+        dumpCameras = dumpAll || EqualsIgnoreCase(target, kDumpDeviceCamera);
+        dumpDisplays = dumpAll || EqualsIgnoreCase(target, kDumpDeviceDisplay);
         if (!dumpCameras && !dumpDisplays) {
             WriteStringToFd(StringPrintf("Unrecognized option, %s, is ignored.\n",
                                          target.c_str()),
@@ -706,7 +709,7 @@ void Enumerator::cmdDumpDevice(int fd, const hidl_vec<hidl_string>& options) {
         const std::string deviceId = options[kOptionDumpCameraTypeIndex];
         auto target = mActiveCameras.find(deviceId);
         const bool dumpAllCameras = EqualsIgnoreCase(deviceId,
-                                                     kDumpCameraOptionAllDevices);
+                                                     kDumpOptionAll);
         if (!dumpAllCameras && target == mActiveCameras.end()) {
             // Unknown camera identifier
             WriteStringToFd(StringPrintf("Given camera ID %s is unknown or not active.\n",
@@ -833,9 +836,13 @@ void Enumerator::cmdDumpDevice(int fd, const hidl_vec<hidl_string>& options) {
     }
 
     if (dumpDisplays) {
-        // TODO(b/156154880): implements a logic to show current status of EVS
-        //                    display
-        WriteStringToFd("Not implemented yet\n", fd);
+        HalDisplay* pDisplay =
+            reinterpret_cast<HalDisplay*>(mActiveDisplay.promote().get());
+        if (!pDisplay) {
+            WriteStringToFd("No active display is found.\n", fd);
+        } else {
+            WriteStringToFd(pDisplay->toString(kSingleIndent), fd);
+        }
     }
 }
 
