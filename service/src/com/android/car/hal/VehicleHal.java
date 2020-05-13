@@ -60,6 +60,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -712,14 +713,16 @@ public class VehicleHal extends IVehicleCallback.Stub {
      * @param property the Vehicle property Id as defined in the HAL
      * @param zone     Zone that this event services
      * @param value    Data value of the event
+     * @param delayTime Add a certain duration to event timestamp
      */
-    public void injectVhalEvent(String property, String zone, String value)
+    public void injectVhalEvent(String property, String zone, String value, String delayTime)
             throws NumberFormatException {
         if (value == null || zone == null || property == null) {
             return;
         }
         int propId = Integer.decode(property);
         int zoneId = Integer.decode(zone);
+        int duration = Integer.decode(delayTime);
         VehiclePropValue v = createPropValue(propId, zoneId);
         int propertyType = propId & VehiclePropertyType.MASK;
         // Values can be comma separated list
@@ -745,7 +748,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
                 Log.e(CarLog.TAG_HAL, "Property type unsupported:" + propertyType);
                 return;
         }
-        v.timestamp = SystemClock.elapsedRealtimeNanos();
+        v.timestamp = SystemClock.elapsedRealtimeNanos() + TimeUnit.SECONDS.toNanos(duration);
         onPropertyEvent(Lists.newArrayList(v));
     }
 
