@@ -281,8 +281,11 @@ final class CarShellCommand extends ShellCommand {
         pw.println("\t  Print this help text.");
         pw.println("\tday-night-mode [day|night|sensor]");
         pw.println("\t  Force into day/night mode or restore to auto.");
-        pw.println("\tinject-vhal-event property [zone] data(can be comma separated list)");
+        pw.println("\tinject-vhal-event property [zone] data(can be comma separated list) "
+                + "[-t delay_time_seconds]");
         pw.println("\t  Inject a vehicle property for testing.");
+        pw.println("\t  delay_time_seconds: the event timestamp is increased by certain second.");
+        pw.println("\t  If not specified, it will be 0.");
         pw.println("\tinject-error-event property zone errorCode");
         pw.println("\t  Inject an error event from VHAL for testing.");
         pw.println("\tenable-uxr true|false");
@@ -430,9 +433,12 @@ final class CarShellCommand extends ShellCommand {
             case COMMAND_INJECT_VHAL_EVENT:
                 String zone = PARAM_VEHICLE_PROPERTY_AREA_GLOBAL;
                 String data;
-                if (args.length != 3 && args.length != 4) {
+                int argNum = args.length;
+                if (argNum < 3 || argNum > 6) {
                     return showInvalidArguments(writer);
-                } else if (args.length == 4) {
+                }
+                String delayTime = args[argNum - 2].equals("-t") ?  args[argNum - 1] : "0";
+                if (argNum == 4 || argNum == 6) {
                     // Zoned
                     zone = args[2];
                     data = args[3];
@@ -440,7 +446,7 @@ final class CarShellCommand extends ShellCommand {
                     // Global
                     data = args[2];
                 }
-                injectVhalEvent(args[1], zone, data, false, writer);
+                injectVhalEvent(args[1], zone, data, false, delayTime, writer);
                 break;
             case COMMAND_INJECT_ERROR_EVENT:
                 if (args.length != 4) {
@@ -448,7 +454,7 @@ final class CarShellCommand extends ShellCommand {
                 }
                 String errorAreaId = args[2];
                 String errorCode = args[3];
-                injectVhalEvent(args[1], errorAreaId, errorCode, true, writer);
+                injectVhalEvent(args[1], errorAreaId, errorCode, true, "0", writer);
                 break;
             case COMMAND_ENABLE_UXR:
                 if (args.length != 2) {
@@ -1217,10 +1223,11 @@ final class CarShellCommand extends ShellCommand {
      * @param zone     Zone that this event services
      * @param isErrorEvent indicates the type of event
      * @param value    Data value of the event
+     * @param delayTime the event timestamp is increased by delayTime
      * @param writer   PrintWriter
      */
     private void injectVhalEvent(String property, String zone, String value,
-            boolean isErrorEvent, PrintWriter writer) {
+            boolean isErrorEvent, String delayTime, PrintWriter writer) {
         if (zone != null && (zone.equalsIgnoreCase(PARAM_VEHICLE_PROPERTY_AREA_GLOBAL))) {
             if (!isPropertyAreaTypeGlobal(property)) {
                 writer.println("Property area type inconsistent with given zone");
@@ -1231,7 +1238,7 @@ final class CarShellCommand extends ShellCommand {
             if (isErrorEvent) {
                 mHal.injectOnPropertySetError(property, zone, value);
             } else {
-                mHal.injectVhalEvent(property, zone, value);
+                mHal.injectVhalEvent(property, zone, value, delayTime);
             }
         } catch (NumberFormatException e) {
             writer.println("Invalid property Id zone Id or value" + e);
