@@ -169,7 +169,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     @VisibleForTesting
-    CarPowerManagementService(Context context, Resources resources, PowerHalService powerHal,
+    public CarPowerManagementService(Context context, Resources resources, PowerHalService powerHal,
             SystemInterface systemInterface, UserManager userManager,
             CarUserService carUserService, InitialUserSetter initialUserSetter) {
         mContext = context;
@@ -194,7 +194,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     @VisibleForTesting
-    protected void setShutdownTimersForTest(int pollingIntervalMs, int shutdownTimeoutMs) {
+    public void setShutdownTimersForTest(int pollingIntervalMs, int shutdownTimeoutMs) {
         // Override timers to keep testing time short
         // Passing in '0' resets the value to the default
         synchronized (mLock) {
