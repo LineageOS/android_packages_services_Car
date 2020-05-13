@@ -1068,6 +1068,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @Override
     public void setUserSwitchUiCallback(@NonNull IResultReceiver receiver) {
         // TODO(b/154958003): check UID, only carSysUI should be allowed to set it.
+        checkManageUsersPermission("setUserSwitchUiCallback");
         mUserSwitchUiReceiver = receiver;
     }
 
