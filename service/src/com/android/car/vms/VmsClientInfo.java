@@ -21,6 +21,7 @@ import android.car.vms.VmsAssociatedLayer;
 import android.car.vms.VmsLayer;
 import android.car.vms.VmsLayerDependency;
 import android.car.vms.VmsLayersOffering;
+import android.os.IBinder;
 import android.util.ArraySet;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
@@ -43,6 +44,7 @@ final class VmsClientInfo {
     private final String mPackageName;
     private final IVmsClientCallback mCallback;
     private final boolean mLegacyClient;
+    private final IBinder.DeathRecipient mDeathRecipient;
 
     private final Object mLock = new Object();
     @GuardedBy("mLock")
@@ -58,11 +60,13 @@ final class VmsClientInfo {
     @GuardedBy("mLock")
     private boolean mMonitoringEnabled;
 
-    VmsClientInfo(int uid, String packageName, IVmsClientCallback callback, boolean legacyClient) {
+    VmsClientInfo(int uid, String packageName, IVmsClientCallback callback, boolean legacyClient,
+            IBinder.DeathRecipient deathRecipient) {
         mUid = uid;
         mPackageName = packageName;
         mCallback = callback;
         mLegacyClient = legacyClient;
+        mDeathRecipient = deathRecipient;
     }
 
     int getUid() {
@@ -75,6 +79,14 @@ final class VmsClientInfo {
 
     IVmsClientCallback getCallback() {
         return mCallback;
+    }
+
+    boolean isLegacyClient() {
+        return mLegacyClient;
+    }
+
+    IBinder.DeathRecipient getDeathRecipient() {
+        return mDeathRecipient;
     }
 
     void addProviderId(int providerId) {
@@ -166,10 +178,6 @@ final class VmsClientInfo {
                     || mLayerAndProviderSubscriptions.getOrDefault(layer, Collections.emptySet())
                             .contains(providerId);
         }
-    }
-
-    boolean isLegacyClient() {
-        return mLegacyClient;
     }
 
     private static <K, V> Map<K, Set<V>> deepCopy(Map<K, Set<V>> original) {
