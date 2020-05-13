@@ -108,8 +108,8 @@ public final class CarPackageManager extends CarManagerBase {
     @SystemApi
     public void setAppBlockingPolicy(
             String packageName, CarAppBlockingPolicy policy, @SetPolicyFlags int flags) {
-        if ((flags & FLAG_SET_POLICY_WAIT_FOR_CHANGE) != 0 &&
-                Looper.getMainLooper().isCurrentThread()) {
+        if ((flags & FLAG_SET_POLICY_WAIT_FOR_CHANGE) != 0
+                && Looper.getMainLooper().isCurrentThread()) {
             throw new IllegalStateException(
                     "FLAG_SET_POLICY_WAIT_FOR_CHANGE cannot be used in main thread");
         }
