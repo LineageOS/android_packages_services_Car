@@ -18,7 +18,6 @@ package android.car.user;
 
 import static android.Manifest.permission.INTERACT_ACROSS_USERS;
 import static android.Manifest.permission.INTERACT_ACROSS_USERS_FULL;
-import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.os.Process.myUid;
 
 import android.annotation.CallbackExecutor;
@@ -32,7 +31,6 @@ import android.annotation.UserIdInt;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.ICarUserService;
-import android.content.Context;
 import android.content.pm.UserInfo;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -244,7 +242,6 @@ public final class CarUserManager extends CarManagerBase {
             @NonNull UserLifecycleListener listener) {
         Objects.requireNonNull(executor, "executor cannot be null");
         Objects.requireNonNull(listener, "listener cannot be null");
-        checkInteractAcrossUsersPermission();
 
         int uid = myUid();
         synchronized (mLock) {
@@ -283,7 +280,6 @@ public final class CarUserManager extends CarManagerBase {
     @RequiresPermission(anyOf = {INTERACT_ACROSS_USERS, INTERACT_ACROSS_USERS_FULL})
     public void removeListener(@NonNull UserLifecycleListener listener) {
         Objects.requireNonNull(listener, "listener cannot be null");
-        checkInteractAcrossUsersPermission();
 
         int uid = myUid();
         synchronized (mLock) {
@@ -483,22 +479,6 @@ public final class CarUserManager extends CarManagerBase {
                 return "STOPPED";
             default:
                 return "UNKNOWN-" + type;
-        }
-    }
-
-    private void checkInteractAcrossUsersPermission() {
-        checkInteractAcrossUsersPermission(getContext());
-    }
-
-    // TODO(b/155311595): remove once permission check is tested by integration tests (as the
-    // permission is also checked on service side, and that's enough)
-    private static void checkInteractAcrossUsersPermission(Context context) {
-        if (context.checkSelfPermission(INTERACT_ACROSS_USERS) != PERMISSION_GRANTED
-                && context.checkSelfPermission(INTERACT_ACROSS_USERS_FULL) != PERMISSION_GRANTED) {
-            throw new SecurityException(
-                    "Must have either " + android.Manifest.permission.INTERACT_ACROSS_USERS + " or "
-                            + android.Manifest.permission.INTERACT_ACROSS_USERS_FULL
-                            + " permission");
         }
     }
 
