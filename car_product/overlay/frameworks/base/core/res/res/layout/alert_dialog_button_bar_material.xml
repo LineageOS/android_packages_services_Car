@@ -31,13 +31,13 @@
         android:paddingTop="@*android:dimen/button_bar_layout_top_padding"
         android:layoutDirection="locale"
         android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:gravity="left|center_vertical">
 
         <Button
             android:id="@*android:id/button3"
             style="@*android:style/CarAction1"
             android:background="@*android:drawable/car_dialog_button_background"
-            android:layout_marginEnd="@*android:dimen/button_end_margin"
+            android:layout_marginRight="@*android:dimen/button_end_margin"
             android:layout_width="wrap_content"
             android:layout_height="@*android:dimen/button_layout_height" />
 
@@ -45,7 +45,7 @@
             android:id="@*android:id/button2"
             style="@*android:style/CarAction1"
             android:background="@*android:drawable/car_dialog_button_background"
-            android:layout_marginEnd="@*android:dimen/button_end_margin"
+            android:layout_marginRight="@*android:dimen/button_end_margin"
             android:layout_width="wrap_content"
             android:layout_height="@*android:dimen/button_layout_height" />
 
