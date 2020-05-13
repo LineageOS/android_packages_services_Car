@@ -42,12 +42,16 @@ public class CarPropertyEvent implements Parcelable {
     /**
      * @return EventType field
      */
-    public int getEventType() { return mEventType; }
+    public int getEventType() {
+        return mEventType;
+    }
 
     /**
      * Returns {@link CarPropertyValue} associated with this event.
      */
-    public CarPropertyValue<?> getCarPropertyValue() { return mCarPropertyValue; }
+    public CarPropertyValue<?> getCarPropertyValue() {
+        return mCarPropertyValue;
+    }
 
     @Override
     public int describeContents() {
@@ -61,16 +65,19 @@ public class CarPropertyEvent implements Parcelable {
         dest.writeParcelable(mCarPropertyValue, flags);
     }
 
-    public static final Parcelable.Creator<CarPropertyEvent> CREATOR
-            = new Parcelable.Creator<CarPropertyEvent>() {
+    public static final Parcelable.Creator<CarPropertyEvent> CREATOR =
+            new Parcelable.Creator<CarPropertyEvent>() {
+
+        @Override
         public CarPropertyEvent createFromParcel(Parcel in) {
             return new CarPropertyEvent(in);
         }
 
+        @Override
         public CarPropertyEvent[] newArray(int size) {
             return new CarPropertyEvent[size];
         }
-    };
+        };
 
     /**
      * Constructor for {@link CarPropertyEvent}.
