@@ -19,6 +19,7 @@ import android.annotation.NonNull;
 import android.util.Log;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -33,12 +34,26 @@ public final class JavaMockitoHelper {
      *
      * @param timeoutMs how long to wait for
      *
-     * @throws IllegalStateException} if it times out.
+     * @throws {@link IllegalStateException} if it times out.
      */
     public static void await(@NonNull CountDownLatch latch, long timeoutMs)
             throws InterruptedException {
         if (!latch.await(timeoutMs, TimeUnit.MILLISECONDS)) {
             throw new IllegalStateException(latch + " not called in " + timeoutMs + " ms");
+        }
+    }
+
+    /**
+     * Waits for a semaphore.
+     *
+     * @param timeoutMs how long to wait for
+     *
+     * @throws {@link IllegalStateException} if it times out.
+     */
+    public static void await(@NonNull Semaphore semaphore, long timeoutMs)
+            throws InterruptedException {
+        if (!semaphore.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS)) {
+            throw new IllegalStateException(semaphore + " not released in " + timeoutMs + " ms");
         }
     }
 
