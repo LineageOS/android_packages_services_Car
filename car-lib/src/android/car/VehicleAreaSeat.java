@@ -16,16 +16,26 @@
 package android.car;
 
 import android.annotation.IntDef;
-import android.car.hardware.CarPropertyValue;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * VehicleAreaSeat is an abstraction for a seat in a car. Some car APIs like
- * {@link CarPropertyValue} may provide control per seat and
- * values defined here should be used to distinguish different seats.
+ * Object used to indicate the area value for car properties which have area type
+ * {@link VehicleAreaType#VEHICLE_AREA_TYPE_SEAT}.
+ * <p>
+ * The constants defined by {@link VehicleAreaSeat} indicate the position for area type
+ * {@link VehicleAreaType#VEHICLE_AREA_TYPE_SEAT}. A property can have a single or a combination of
+ * positions. Developers can query the position using
+ * {@link android.car.hardware.property.CarPropertyManager#getAreaId(int, int)}.
+ * </p><p>
+ * Refer to {@link android.car.hardware.CarPropertyConfig#getAreaIds()} for more information about
+ * areaId.
+ * </p>
  */
+
+// This class is only designed to provide constants for VehicleAreaSeat. The constants should
+// be same as VehicleAreaSeat in /hardware/interfaces/automotive/vehicle/2.0/types.hal.
 public final class VehicleAreaSeat {
     /** List of vehicle's seats. */
     public static final int SEAT_UNKNOWN = 0;
