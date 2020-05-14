@@ -24,7 +24,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assume.assumeTrue;
 import static org.testng.Assert.assertThrows;
 
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 
 import org.junit.Test;
@@ -42,7 +41,6 @@ public class CarActivityViewDisplayIdTest extends CarActivityViewDisplayIdTestBa
     private static final int NONEXISTENT_DISPLAY_ID = Integer.MAX_VALUE;
 
     @Test
-    @FlakyTest
     public void testSingleActivityView() throws Exception {
         ActivityViewTestActivity activity = startActivityViewTestActivity(DEFAULT_DISPLAY);
         activity.waitForActivityViewReady();
@@ -65,7 +63,6 @@ public class CarActivityViewDisplayIdTest extends CarActivityViewDisplayIdTestBa
     }
 
     @Test
-    @FlakyTest
     public void testDoubleActivityView() throws Exception {
         ActivityViewTestActivity activity1 = startActivityViewTestActivity(DEFAULT_DISPLAY);
         activity1.waitForActivityViewReady();
@@ -100,7 +97,6 @@ public class CarActivityViewDisplayIdTest extends CarActivityViewDisplayIdTestBa
     }
 
     @Test
-    @FlakyTest
     public void testThrowsExceptionOnReportingNonExistingDisplay() throws Exception {
         ActivityViewTestActivity activity = startActivityViewTestActivity(DEFAULT_DISPLAY);
         activity.waitForActivityViewReady();
@@ -125,7 +121,6 @@ public class CarActivityViewDisplayIdTest extends CarActivityViewDisplayIdTestBa
 
     // TODO(b/143353546): Make the following tests not to rely on CarLauncher.
     @Test
-    @FlakyTest
     public void testThrowsExceptionOnReportingNonOwningDisplay() throws Exception {
         int displayIdOfCarLauncher = waitForActivityViewDisplayReady(CAR_LAUNCHER_PKG_NAME);
         assumeTrue(INVALID_DISPLAY != displayIdOfCarLauncher);
