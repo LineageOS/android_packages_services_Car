@@ -20,12 +20,12 @@
 #include <android/hardware/automotive/evs/1.1/types.h>
 #include <android/hardware/automotive/evs/1.1/IEvsCamera.h>
 #include <android/hardware/automotive/evs/1.1/IEvsCameraStream.h>
-#include <ui/GraphicBuffer.h>
+#include <utils/Mutex.h>
 #include <utils/SystemClock.h>
 
-#include <thread>
-#include <list>
 #include <deque>
+#include <list>
+#include <thread>
 #include <unordered_map>
 
 #include "sync/unique_fd.h"
