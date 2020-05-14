@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
+#include <android-base/logging.h>
+
 #include "HalCamera.h"
 #include "VirtualCamera.h"
 #include "Enumerator.h"
-
-#include <android-base/logging.h>
-#include <ui/GraphicBufferAllocator.h>
-#include <ui/GraphicBufferMapper.h>
-
 
 namespace android {
 namespace automotive {
