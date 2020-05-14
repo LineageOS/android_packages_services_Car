@@ -289,7 +289,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     /**
-     * Test that the {@link CarUserService} updates last active user on user switch.
+     * Test that the {@link CarUserService} updates last active user on user switch in non-headless
+     * system user mode.
      */
     @Test
     public void testLastActiveUserUpdatedOnUserSwitch_nonHeadlessSystemUser() throws Exception {
@@ -301,13 +302,17 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         verifyLastActiveUserSet(mRegularUser.id);
     }
 
+    /**
+     * Test that the {@link CarUserService} doesn't update last active user on user switch in
+     * headless system user mode.
+     */
     @Test
     public void testLastActiveUserUpdatedOnUserSwitch_headlessSystemUser() throws Exception {
         mockIsHeadlessSystemUser(mRegularUser.id, true);
         mockUmGetSystemUser(mMockedUserManager);
         mockExistingUsers();
 
-        sendUserSwitchingEvent(mAdminUser.id, UserHandle.USER_SYSTEM);
+        sendUserSwitchingEvent(mAdminUser.id, mRegularUser.id);
 
         verifyLastActiveUserNotSet();
     }
@@ -603,7 +608,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                 new UserInfo(15, "test15", UserInfo.FLAG_EPHEMERAL),
                 new UserInfo(16, "test16", UserInfo.FLAG_DISABLED),
                 new UserInfo(17, "test17", UserInfo.FLAG_MANAGED_PROFILE),
-                new UserInfo(18, "test18", UserInfo.FLAG_MANAGED_PROFILE)
+                new UserInfo(18, "test18", UserInfo.FLAG_MANAGED_PROFILE),
+                new UserInfo(19, "test19", NO_USER_INFO_FLAGS)
         ));
         // Parent: test10, child: test12
         associateParentChild(users.get(0), users.get(2));
@@ -617,12 +623,13 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testGetAllPossibleDrivers() {
         Set<Integer> expected = new HashSet<Integer>(Arrays.asList(10, 11, 13, 14));
-        doReturn(prepareUserList()).when(mMockedUserManager).getUsers(true);
+        when(mMockedUserManager.getUsers(true)).thenReturn(prepareUserList());
+        mockIsHeadlessSystemUser(19, true);
         for (UserInfo user : mCarUserService.getAllDrivers()) {
-            assertTrue(expected.contains(user.id));
+            assertThat(expected).contains(user.id);
             expected.remove(user.id);
         }
-        assertEquals(0, expected.size());
+        assertThat(expected).isEmpty();
     }
 
     @Test
@@ -632,18 +639,19 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                 put(0, new HashSet<Integer>());
                 put(10, new HashSet<Integer>(Arrays.asList(12)));
                 put(11, new HashSet<Integer>());
-                put(13, new HashSet<Integer>(Arrays.asList(17, 18)));
+                put(13, new HashSet<Integer>(Arrays.asList(17)));
             }
         };
+        mockIsHeadlessSystemUser(18, true);
         for (int i = 0; i < testCases.size(); i++) {
-            doReturn(prepareUserList()).when(mMockedUserManager).getUsers(true);
+            when(mMockedUserManager.getUsers(true)).thenReturn(prepareUserList());
             List<UserInfo> passengers = mCarUserService.getPassengers(testCases.keyAt(i));
             HashSet<Integer> expected = testCases.valueAt(i);
             for (UserInfo user : passengers) {
-                assertTrue(expected.contains(user.id));
+                assertThat(expected).contains(user.id);
                 expected.remove(user.id);
             }
-            assertEquals(0, expected.size());
+            assertThat(expected).isEmpty();
         }
     }
 
