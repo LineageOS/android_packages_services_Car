@@ -29,6 +29,7 @@ import android.content.pm.UserInfo.UserInfoFlag;
 import android.os.IBinder;
 import android.os.IInterface;
 import android.os.ServiceManager;
+import android.os.UserHandle;
 import android.os.UserManager;
 
 import java.util.Arrays;
@@ -75,10 +76,27 @@ public final class AndroidMockitoHelper {
     public static UserInfo mockUmGetUserInfo(@NonNull UserManager um, @UserIdInt int userId,
             @UserInfoFlag int flags) {
         Objects.requireNonNull(um);
-        UserInfo userInfo = new UserTestingHelper.UserInfoBuilder(userId).setFlags(flags).build();
-        when(um.getUserInfo(userId)).thenReturn(userInfo);
+        UserInfo user = new UserTestingHelper.UserInfoBuilder(userId).setFlags(flags).build();
+        mockUmGetUserInfo(um, user);
+        return user;
+    }
 
-        return userInfo;
+    /**
+     * Mocks {@code UserManager.getUserInfo(userId)} to return the given {@link UserInfo}.
+     */
+    @NonNull
+    public static void mockUmGetUserInfo(@NonNull UserManager um, @NonNull UserInfo user) {
+        when(um.getUserInfo(user.id)).thenReturn(user);
+    }
+
+    /**
+     * Mocks {@code UserManager.getUserInfo(userId)} when the {@code userId} is the system user's.
+     */
+    @NonNull
+    public static void mockUmGetSystemUser(@NonNull UserManager um) {
+        UserInfo user = new UserTestingHelper.UserInfoBuilder(UserHandle.USER_SYSTEM)
+                .setFlags(UserInfo.FLAG_SYSTEM).build();
+        when(um.getUserInfo(UserHandle.USER_SYSTEM)).thenReturn(user);
     }
 
     /**

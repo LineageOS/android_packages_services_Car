@@ -39,6 +39,7 @@ import android.car.userlib.CarUserManagerHelper;
 import android.car.userlib.CommonConstants.CarUserServiceConstants;
 import android.car.userlib.HalCallback;
 import android.car.userlib.UserHalHelper;
+import android.car.userlib.UserHelper;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.content.res.Resources;
@@ -1067,6 +1068,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @Override
     public void setUserSwitchUiCallback(@NonNull IResultReceiver receiver) {
         // TODO(b/154958003): check UID, only carSysUI should be allowed to set it.
+        checkManageUsersPermission("setUserSwitchUiCallback");
         mUserSwitchUiReceiver = receiver;
     }
 
@@ -1410,7 +1412,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         // Switch HAL users if user switch is not requested by CarUserService
         notifyHalLegacySwitch(fromUserId, toUserId);
 
-        if (!isSystemUser(toUserId)) {
+        if (!UserHelper.isHeadlessSystemUser(toUserId)) {
             mCarUserManagerHelper.setLastActiveUser(toUserId);
         }
         if (mLastPassengerId != UserHandle.USER_NULL) {
