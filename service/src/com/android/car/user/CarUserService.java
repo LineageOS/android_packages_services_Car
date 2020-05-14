@@ -450,7 +450,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @NonNull
     public List<UserInfo> getAllDrivers() {
         checkManageUsersOrDumpPermission("getAllDrivers");
-        return getUsers((user) -> !isSystemUser(user.id) && user.isEnabled()
+        return getUsers((user) -> !UserHelper.isHeadlessSystemUser(user.id) && user.isEnabled()
                 && !user.isManagedProfile() && !user.isEphemeral());
     }
 
@@ -465,8 +465,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     public List<UserInfo> getPassengers(@UserIdInt int driverId) {
         checkManageUsersOrDumpPermission("getPassengers");
         return getUsers((user) -> {
-            return !isSystemUser(user.id) && user.isEnabled() && user.isManagedProfile()
-                    && user.profileGroupId == driverId;
+            return !UserHelper.isHeadlessSystemUser(user.id) && user.isEnabled()
+                    && user.isManagedProfile() && user.profileGroupId == driverId;
         });
     }
 
@@ -1106,11 +1106,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         return usersInfo;
     }
 
-    /** Returns whether the given user is a system user. */
-    private static boolean isSystemUser(@UserIdInt int userId) {
-        return userId == UserHandle.USER_SYSTEM;
-    }
-
     private void updateDefaultUserRestriction() {
         // We want to set restrictions on system and guest users only once. These are persisted
         // onto disk, so it's sufficient to do it once + we minimize the number of disk writes.
@@ -1405,7 +1400,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     private void onUserSwitching(@UserIdInt int fromUserId, @UserIdInt int toUserId) {
-        Log.i(TAG_USER, "onSwitchUser() callback for user " + toUserId);
+        Log.i(TAG_USER, "onUserSwitching() callback for user " + toUserId);
         TimingsTraceLog t = new TimingsTraceLog(TAG_USER, Trace.TRACE_TAG_SYSTEM_SERVER);
         t.traceBegin("onUserSwitching-" + toUserId);
 
