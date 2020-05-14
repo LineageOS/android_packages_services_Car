@@ -19,8 +19,11 @@ package com.android.car.vms;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -46,6 +49,8 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.SharedMemory;
 import android.os.UserHandle;
+import android.util.ArrayMap;
+import android.util.Pair;
 
 import androidx.test.filters.SmallTest;
 
@@ -63,6 +68,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -106,14 +112,14 @@ public class VmsBrokerServiceTest {
     @Mock
     private IVmsClientCallback mClientCallback1;
     @Mock
-    private Binder mClientBinder1;
+    private IBinder mClientBinder1;
     @Mock
     private VmsClientLogger mClientLog1;
 
     @Mock
     private IVmsClientCallback mClientCallback2;
     @Mock
-    private Binder mClientBinder2;
+    private IBinder mClientBinder2;
     @Mock
     private VmsClientLogger mClientLog2;
 
@@ -126,6 +132,8 @@ public class VmsBrokerServiceTest {
 
     private VmsBrokerService mBrokerService;
     private int mCallingAppUid;
+    private Map<IBinder /* token */, Pair<IBinder /* callback */, IBinder.DeathRecipient>>
+            mDeathRecipients = new ArrayMap<>();
 
     @Before
     public void setUp() throws Exception {
@@ -160,17 +168,28 @@ public class VmsBrokerServiceTest {
     @Test
     public void testRegister() {
         VmsRegistrationInfo registrationInfo =
-                mBrokerService.registerClient(mClientToken1, mClientCallback1, false);
+                registerClient(mClientToken1, mClientCallback1, false);
 
         verify(mClientLog1).logConnectionState(VmsClientLogger.ConnectionState.CONNECTED);
         assertThat(registrationInfo.getAvailableLayers()).isEqualTo(DEFAULT_AVAILABLE_LAYERS);
         assertThat(registrationInfo.getSubscriptionState()).isEqualTo(DEFAULT_SUBSCRIPTION_STATE);
+    }
+
+    @Test
+    public void testRegister_DeadCallback() throws Exception {
+        doThrow(RemoteException.class).when(mClientBinder1).linkToDeath(any(), anyInt());
+        assertThrows(
+                IllegalStateException.class,
+                () -> registerClient(mClientToken1, mClientCallback1));
+
+        verify(mClientLog1).logConnectionState(VmsClientLogger.ConnectionState.CONNECTED);
+        verify(mClientLog1).logConnectionState(VmsClientLogger.ConnectionState.DISCONNECTED);
     }
 
     @Test
     public void testRegister_LegacyClient() {
         VmsRegistrationInfo registrationInfo =
-                mBrokerService.registerClient(mClientToken1, mClientCallback1, true);
+                registerClient(mClientToken1, mClientCallback1, true);
 
         verify(mClientLog1).logConnectionState(VmsClientLogger.ConnectionState.CONNECTED);
         assertThat(registrationInfo.getAvailableLayers()).isEqualTo(DEFAULT_AVAILABLE_LAYERS);
@@ -178,11 +197,22 @@ public class VmsBrokerServiceTest {
     }
 
     @Test
+    public void testRegister_LegacyClient_DeadCallback() throws Exception {
+        doThrow(RemoteException.class).when(mClientBinder1).linkToDeath(any(), anyInt());
+        assertThrows(
+                IllegalStateException.class,
+                () -> registerClient(mClientToken1, mClientCallback1, true));
+
+        verify(mClientLog1).logConnectionState(VmsClientLogger.ConnectionState.CONNECTED);
+        verify(mClientLog1).logConnectionState(VmsClientLogger.ConnectionState.DISCONNECTED);
+    }
+
+    @Test
     public void testRegister_TwoClients_OneProcess() {
         VmsRegistrationInfo registrationInfo =
-                mBrokerService.registerClient(mClientToken1, mClientCallback1, false);
+                registerClient(mClientToken1, mClientCallback1, false);
         VmsRegistrationInfo registrationInfo2 =
-                mBrokerService.registerClient(mClientToken2, mClientCallback2, false);
+                registerClient(mClientToken2, mClientCallback2, false);
 
         verify(mClientLog1, times(2))
                 .logConnectionState(VmsClientLogger.ConnectionState.CONNECTED);
@@ -192,10 +222,10 @@ public class VmsBrokerServiceTest {
     @Test
     public void testRegister_TwoClients_TwoProcesses() {
         VmsRegistrationInfo registrationInfo =
-                mBrokerService.registerClient(mClientToken1, mClientCallback1, false);
+                registerClient(mClientToken1, mClientCallback1, false);
         mCallingAppUid = TEST_APP_UID2;
         VmsRegistrationInfo registrationInfo2 =
-                mBrokerService.registerClient(mClientToken2, mClientCallback2, false);
+                registerClient(mClientToken2, mClientCallback2, false);
 
         verify(mClientLog1).logConnectionState(VmsClientLogger.ConnectionState.CONNECTED);
         verify(mClientLog2).logConnectionState(VmsClientLogger.ConnectionState.CONNECTED);
@@ -214,7 +244,7 @@ public class VmsBrokerServiceTest {
         ));
 
         VmsRegistrationInfo registrationInfo =
-                mBrokerService.registerClient(mClientToken2, mClientCallback2, false);
+                registerClient(mClientToken2, mClientCallback2, false);
 
         VmsAvailableLayers expectedLayers = new VmsAvailableLayers(1, asSet(
                 new VmsAssociatedLayer(LAYER1,
@@ -227,6 +257,15 @@ public class VmsBrokerServiceTest {
         VmsRegistrationInfo expectedRegistrationInfo =
                 new VmsRegistrationInfo(expectedLayers, expectedSubscriptions);
         assertThat(registrationInfo).isEqualTo(expectedRegistrationInfo);
+    }
+
+    @Test
+    public void testUnregisterClient_UnknownClient() throws Exception {
+        registerClient(mClientToken1, mClientCallback1);
+        mBrokerService.unregisterClient(mClientToken2);
+
+        verify(mClientCallback1, never()).onLayerAvailabilityChanged(any());
+        verify(mClientCallback1, never()).onSubscriptionStateChanged(any());
     }
 
     @Test
@@ -441,7 +480,7 @@ public class VmsBrokerServiceTest {
         mBrokerService.setSubscriptions(mClientToken2, asList(
                 new VmsAssociatedLayer(LAYER2, emptySet())
         ));
-        mBrokerService.unregisterClient(mClientToken2);
+        unregisterClient(mClientToken2);
 
         VmsSubscriptionState expectedSubscriptions = new VmsSubscriptionState(3,
                 asSet(LAYER1),
@@ -461,7 +500,7 @@ public class VmsBrokerServiceTest {
         mBrokerService.setSubscriptions(mClientToken2, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet())
         ));
-        mBrokerService.unregisterClient(mClientToken2);
+        unregisterClient(mClientToken2);
 
         VmsSubscriptionState expectedSubscriptions = new VmsSubscriptionState(1,
                 asSet(LAYER1),
@@ -481,7 +520,7 @@ public class VmsBrokerServiceTest {
         mBrokerService.setSubscriptions(mClientToken2, asList(
                 new VmsAssociatedLayer(LAYER2, emptySet())
         ));
-        disconnectClient(mClientCallback2);
+        disconnectClient(mClientToken2);
 
         VmsSubscriptionState expectedSubscriptions = new VmsSubscriptionState(3,
                 asSet(LAYER1),
@@ -501,7 +540,7 @@ public class VmsBrokerServiceTest {
         mBrokerService.setSubscriptions(mClientToken2, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet())
         ));
-        disconnectClient(mClientCallback2);
+        disconnectClient(mClientToken2);
 
         VmsSubscriptionState expectedSubscriptions = new VmsSubscriptionState(1,
                 asSet(LAYER1),
@@ -756,7 +795,7 @@ public class VmsBrokerServiceTest {
         mBrokerService.setSubscriptions(mClientToken2, asList(
                 new VmsAssociatedLayer(LAYER2, asSet(54321))
         ));
-        mBrokerService.unregisterClient(mClientToken2);
+        unregisterClient(mClientToken2);
 
         VmsSubscriptionState expectedSubscriptions = new VmsSubscriptionState(3,
                 emptySet(),
@@ -776,7 +815,7 @@ public class VmsBrokerServiceTest {
         mBrokerService.setSubscriptions(mClientToken2, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(54321))
         ));
-        mBrokerService.unregisterClient(mClientToken2);
+        unregisterClient(mClientToken2);
 
         VmsSubscriptionState expectedSubscriptions = new VmsSubscriptionState(3,
                 emptySet(),
@@ -796,7 +835,7 @@ public class VmsBrokerServiceTest {
         mBrokerService.setSubscriptions(mClientToken2, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(12345))
         ));
-        mBrokerService.unregisterClient(mClientToken2);
+        unregisterClient(mClientToken2);
 
         VmsSubscriptionState expectedSubscriptions = new VmsSubscriptionState(1,
                 emptySet(),
@@ -816,7 +855,7 @@ public class VmsBrokerServiceTest {
         mBrokerService.setSubscriptions(mClientToken2, asList(
                 new VmsAssociatedLayer(LAYER2, asSet(54321))
         ));
-        disconnectClient(mClientCallback2);
+        disconnectClient(mClientToken2);
 
         VmsSubscriptionState expectedSubscriptions = new VmsSubscriptionState(3,
                 emptySet(),
@@ -836,7 +875,7 @@ public class VmsBrokerServiceTest {
         mBrokerService.setSubscriptions(mClientToken2, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(54321))
         ));
-        disconnectClient(mClientCallback2);
+        disconnectClient(mClientToken2);
 
         VmsSubscriptionState expectedSubscriptions = new VmsSubscriptionState(3,
                 emptySet(),
@@ -856,7 +895,7 @@ public class VmsBrokerServiceTest {
         mBrokerService.setSubscriptions(mClientToken2, asList(
                 new VmsAssociatedLayer(LAYER1, asSet(12345))
         ));
-        disconnectClient(mClientCallback2);
+        disconnectClient(mClientToken2);
 
         VmsSubscriptionState expectedSubscriptions = new VmsSubscriptionState(1,
                 emptySet(),
@@ -1033,7 +1072,7 @@ public class VmsBrokerServiceTest {
                 new VmsAssociatedLayer(LAYER2, emptySet()),
                 new VmsAssociatedLayer(LAYER1, asSet(54321))
         ));
-        mBrokerService.unregisterClient(mClientToken2);
+        unregisterClient(mClientToken2);
 
         VmsSubscriptionState expectedSubscriptions = new VmsSubscriptionState(3,
                 asSet(LAYER1),
@@ -1055,7 +1094,7 @@ public class VmsBrokerServiceTest {
                 new VmsAssociatedLayer(LAYER2, emptySet()),
                 new VmsAssociatedLayer(LAYER1, asSet(54321))
         ));
-        disconnectClient(mClientCallback2);
+        disconnectClient(mClientToken2);
 
         VmsSubscriptionState expectedSubscriptions = new VmsSubscriptionState(3,
                 asSet(LAYER1),
@@ -1222,7 +1261,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testSetProviderOfferings_UnknownProviderId_LegacyClient() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1, true);
+        registerClient(mClientToken1, mClientCallback1, true);
 
         mBrokerService.setProviderOfferings(mClientToken1, 12345, asList(
                 new VmsLayerDependency(LAYER1)
@@ -1249,7 +1288,7 @@ public class VmsBrokerServiceTest {
     public void testSetProviderOfferings_OtherClientsProviderId_LegacyClient() throws Exception {
         registerClient(mClientToken1, mClientCallback1);
         int providerId = mBrokerService.registerProvider(mClientToken1, PROVIDER_INFO1);
-        mBrokerService.registerClient(mClientToken2, mClientCallback2, true);
+        registerClient(mClientToken2, mClientCallback2, true);
 
         mBrokerService.setProviderOfferings(mClientToken2, providerId, asList(
                 new VmsLayerDependency(LAYER1)
@@ -1610,7 +1649,7 @@ public class VmsBrokerServiceTest {
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
                 new VmsLayerDependency(LAYER1)
         ));
-        mBrokerService.unregisterClient(mClientToken1);
+        unregisterClient(mClientToken1);
 
         VmsAvailableLayers expectedLayers1 = new VmsAvailableLayers(1, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)))
@@ -1636,7 +1675,7 @@ public class VmsBrokerServiceTest {
         mBrokerService.setProviderOfferings(mClientToken1, providerId2, asList(
                 new VmsLayerDependency(LAYER1)
         ));
-        mBrokerService.unregisterClient(mClientToken1);
+        unregisterClient(mClientToken1);
 
         VmsAvailableLayers expectedLayers1 = new VmsAvailableLayers(2, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId, providerId2)))
@@ -1661,7 +1700,7 @@ public class VmsBrokerServiceTest {
         mBrokerService.setProviderOfferings(mClientToken2, providerId2, asList(
                 new VmsLayerDependency(LAYER1)
         ));
-        mBrokerService.unregisterClient(mClientToken1);
+        unregisterClient(mClientToken1);
 
         VmsAvailableLayers expectedLayers1 = new VmsAvailableLayers(2, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId, providerId2)))
@@ -1688,7 +1727,7 @@ public class VmsBrokerServiceTest {
         mBrokerService.setProviderOfferings(mClientToken2, providerId, asList(
                 new VmsLayerDependency(LAYER1)
         ));
-        disconnectClient(mClientCallback1);
+        disconnectClient(mClientToken1);
 
         VmsAvailableLayers expectedLayers1 = new VmsAvailableLayers(1, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)))
@@ -1712,7 +1751,7 @@ public class VmsBrokerServiceTest {
         mBrokerService.setProviderOfferings(mClientToken1, providerId, asList(
                 new VmsLayerDependency(LAYER1)
         ));
-        disconnectClient(mClientCallback1);
+        disconnectClient(mClientToken1);
 
         VmsAvailableLayers expectedLayers1 = new VmsAvailableLayers(1, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)))
@@ -1738,7 +1777,7 @@ public class VmsBrokerServiceTest {
         mBrokerService.setProviderOfferings(mClientToken1, providerId2, asList(
                 new VmsLayerDependency(LAYER1)
         ));
-        disconnectClient(mClientCallback1);
+        disconnectClient(mClientToken1);
 
         VmsAvailableLayers expectedLayers1 = new VmsAvailableLayers(2, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId, providerId2)))
@@ -1763,7 +1802,7 @@ public class VmsBrokerServiceTest {
         mBrokerService.setProviderOfferings(mClientToken2, providerId2, asList(
                 new VmsLayerDependency(LAYER1)
         ));
-        disconnectClient(mClientCallback1);
+        disconnectClient(mClientToken1);
 
         VmsAvailableLayers expectedLayers1 = new VmsAvailableLayers(2, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId, providerId2)))
@@ -1790,7 +1829,7 @@ public class VmsBrokerServiceTest {
         mBrokerService.setProviderOfferings(mClientToken2, providerId, asList(
                 new VmsLayerDependency(LAYER1)
         ));
-        disconnectClient(mClientCallback1);
+        disconnectClient(mClientToken1);
 
         VmsAvailableLayers expectedLayers1 = new VmsAvailableLayers(1, asSet(
                 new VmsAssociatedLayer(LAYER1, asSet(providerId)))
@@ -2506,7 +2545,7 @@ public class VmsBrokerServiceTest {
 
     @Test
     public void testPublishPacket_UnknownOffering_LegacyClient() throws Exception {
-        mBrokerService.registerClient(mClientToken1, mClientCallback1, true);
+        registerClient(mClientToken1, mClientCallback1, true);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet())
@@ -2840,7 +2879,7 @@ public class VmsBrokerServiceTest {
     @Test
     public void testPublishLargePacket_UnknownOffering_LegacyClient() throws Exception {
         setupLargePacket();
-        mBrokerService.registerClient(mClientToken1, mClientCallback1, true);
+        registerClient(mClientToken1, mClientCallback1, true);
 
         mBrokerService.setSubscriptions(mClientToken1, asList(
                 new VmsAssociatedLayer(LAYER1, emptySet())
@@ -3210,14 +3249,46 @@ public class VmsBrokerServiceTest {
     }
 
     private void registerClient(IBinder token, IVmsClientCallback callback) {
-        mBrokerService.registerClient(token, callback, false);
+        registerClient(token, callback, false);
     }
 
-    private static void disconnectClient(IVmsClientCallback callback) throws Exception {
-        ArgumentCaptor<IBinder.DeathRecipient> deathRecipient =
-                ArgumentCaptor.forClass(IBinder.DeathRecipient.class);
-        verify(callback.asBinder()).linkToDeath(deathRecipient.capture(), eq(0));
-        deathRecipient.getValue().binderDied();
+    private VmsRegistrationInfo registerClient(IBinder token, IVmsClientCallback callback,
+            boolean legacyClient) {
+        VmsRegistrationInfo registrationInfo =
+                mBrokerService.registerClient(token, callback, legacyClient);
+
+        IBinder callbackBinder = callback.asBinder();
+        try {
+            if (!mDeathRecipients.containsKey(token)) {
+                ArgumentCaptor<IBinder.DeathRecipient> deathRecipientCaptor =
+                        ArgumentCaptor.forClass(IBinder.DeathRecipient.class);
+                verify(callbackBinder).linkToDeath(deathRecipientCaptor.capture(), eq(0));
+                mDeathRecipients.put(token,
+                        Pair.create(callbackBinder, deathRecipientCaptor.getValue()));
+            } else {
+                verify(callbackBinder, never()).linkToDeath(any(), anyInt());
+            }
+        } catch (RemoteException e) {
+            e.rethrowAsRuntimeException();
+        }
+
+        return registrationInfo;
+    }
+
+    private void unregisterClient(IBinder token) {
+        mBrokerService.unregisterClient(token);
+
+        Pair<IBinder, IBinder.DeathRecipient> deathRecipientPair = mDeathRecipients.get(token);
+        assertThat(deathRecipientPair).isNotNull();
+        verify(deathRecipientPair.first).unlinkToDeath(same(deathRecipientPair.second), eq(0));
+    }
+
+    private void disconnectClient(IBinder token) {
+        Pair<IBinder, IBinder.DeathRecipient> deathRecipientPair = mDeathRecipients.get(token);
+        assertThat(deathRecipientPair).isNotNull();
+
+        deathRecipientPair.second.binderDied();
+        verify(deathRecipientPair.first).unlinkToDeath(same(deathRecipientPair.second), eq(0));
     }
 
     private static void verifyLayerAvailability(
@@ -3252,6 +3323,7 @@ public class VmsBrokerServiceTest {
             int providerId, VmsLayer layer, byte[] payload) throws RemoteException {
         verify(callback).onPacketReceived(providerId, layer, payload);
     }
+
     private static void verifyLargePacketReceived(
             IVmsClientCallback callback,
             int providerId, VmsLayer layer, SharedMemory packet) throws RemoteException {
