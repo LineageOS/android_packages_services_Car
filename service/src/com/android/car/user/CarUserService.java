@@ -40,7 +40,10 @@ import android.car.userlib.CommonConstants.CarUserServiceConstants;
 import android.car.userlib.HalCallback;
 import android.car.userlib.UserHalHelper;
 import android.car.userlib.UserHelper;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.UserInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -296,6 +299,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         writer.printf("User switch in process=%d\n", mUserIdForUserSwitchInProcess);
         writer.printf("Request Id for the user switch in process=%d\n ",
                     mRequestIdForUserSwitchInProcess);
+        writer.printf("System UI package name=%s\n", getSystemUiPackageName());
 
         dumpUserMetrics(writer);
     }
@@ -1067,9 +1071,42 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      */
     @Override
     public void setUserSwitchUiCallback(@NonNull IResultReceiver receiver) {
-        // TODO(b/154958003): check UID, only carSysUI should be allowed to set it.
         checkManageUsersPermission("setUserSwitchUiCallback");
+
+        // Confirm that caller is system UI.
+        String systemUiPackageName = getSystemUiPackageName();
+        if (systemUiPackageName == null) {
+            throw new IllegalStateException("System UI package not found.");
+        }
+
+        try {
+            int systemUiUid = mContext
+                    .createContextAsUser(UserHandle.SYSTEM, /* flags= */ 0).getPackageManager()
+                    .getPackageUid(systemUiPackageName, PackageManager.MATCH_SYSTEM_ONLY);
+            int callerUid = Binder.getCallingUid();
+            if (systemUiUid != callerUid) {
+                throw new SecurityException("Invalid caller. Only" + systemUiPackageName
+                        + " is allowed to make this call");
+            }
+        } catch (NameNotFoundException e) {
+            throw new IllegalStateException("Package " + systemUiPackageName + " not found.");
+        }
+
         mUserSwitchUiReceiver = receiver;
+    }
+
+    // TODO(157082995): This information can be taken from
+    // PackageManageInternalImpl.getSystemUiServiceComponent
+    @Nullable
+    private String getSystemUiPackageName() {
+        try {
+            ComponentName componentName = ComponentName.unflattenFromString(mContext.getResources()
+                    .getString(com.android.internal.R.string.config_systemUIServiceComponent));
+            return componentName.getPackageName();
+        } catch (RuntimeException e) {
+            Log.w(TAG_USER, "error while getting system UI package name.", e);
+            return null;
+        }
     }
 
     // TODO(b/150413515): use helper to generate UsersInfo
