@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
+#include <android/hardware_buffer.h>
+#include <android-base/logging.h>
+
 #include "VirtualCamera.h"
 #include "HalCamera.h"
 #include "Enumerator.h"
-
-#include <android-base/logging.h>
-#include <ui/GraphicBufferAllocator.h>
-#include <ui/GraphicBufferMapper.h>
 
 using ::android::hardware::automotive::evs::V1_0::DisplayState;
 
