@@ -125,18 +125,20 @@ public class VmsBrokerService extends IVmsBrokerService.Stub implements CarServi
         mStatsService.getVmsClientLogger(clientUid)
                 .logConnectionState(VmsClientLogger.ConnectionState.CONNECTED);
 
+        IBinder.DeathRecipient deathRecipient;
+        try {
+            deathRecipient = () -> unregisterClient(clientToken,
+                    VmsClientLogger.ConnectionState.DISCONNECTED);
+            callback.asBinder().linkToDeath(deathRecipient, 0);
+        } catch (RemoteException e) {
+            mStatsService.getVmsClientLogger(clientUid)
+                    .logConnectionState(VmsClientLogger.ConnectionState.DISCONNECTED);
+            throw new IllegalStateException("Client callback is already dead");
+        }
+
         synchronized (mLock) {
-            try {
-                callback.asBinder().linkToDeath(
-                        () -> unregisterClient(clientToken,
-                                VmsClientLogger.ConnectionState.DISCONNECTED), 0);
-                mClientMap.put(clientToken, new VmsClientInfo(clientUid, clientPackage, callback,
-                        legacyClient));
-            } catch (RemoteException e) {
-                Log.w(TAG, "Client process is already dead", e);
-                mStatsService.getVmsClientLogger(clientUid)
-                        .logConnectionState(VmsClientLogger.ConnectionState.DISCONNECTED);
-            }
+            mClientMap.put(clientToken, new VmsClientInfo(clientUid, clientPackage, callback,
+                    legacyClient, deathRecipient));
             return new VmsRegistrationInfo(
                     mAvailableLayers.getAvailableLayers(),
                     mSubscriptionState);
@@ -252,15 +254,17 @@ public class VmsBrokerService extends IVmsBrokerService.Stub implements CarServi
     }
 
     private void unregisterClient(IBinder clientToken, int connectionState) {
+        VmsClientInfo client;
         synchronized (mLock) {
-            VmsClientInfo client = mClientMap.remove(clientToken);
-            if (client != null) {
-                mStatsService.getVmsClientLogger(client.getUid())
-                        .logConnectionState(connectionState);
-            }
+            client = mClientMap.remove(clientToken);
         }
-        updateAvailableLayers();
-        updateSubscriptionState();
+        if (client != null) {
+            client.getCallback().asBinder().unlinkToDeath(client.getDeathRecipient(), 0);
+            mStatsService.getVmsClientLogger(client.getUid())
+                    .logConnectionState(connectionState);
+            updateAvailableLayers();
+            updateSubscriptionState();
+        }
     }
 
     private VmsClientInfo getClient(IBinder clientToken) {
