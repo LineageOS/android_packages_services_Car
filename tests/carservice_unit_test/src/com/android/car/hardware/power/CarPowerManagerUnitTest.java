@@ -54,8 +54,10 @@ import java.util.concurrent.Semaphore;
 @SmallTest
 public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
     private static final String TAG = CarPowerManagerUnitTest.class.getSimpleName();
-    private static final long WAIT_TIMEOUT_MS = 20;
-    private static final long WAIT_TIMEOUT_LONG_MS = 50;
+    private static final long WAIT_TIMEOUT_MS = 5_000;
+    private static final long WAIT_TIMEOUT_LONG_MS = 10_000;
+    // A shorter value for use when the test is expected to time out
+    private static final long WAIT_WHEN_TIMEOUT_EXPECTED_MS = 100;
 
     private final MockDisplayInterface mDisplayInterface = new MockDisplayInterface();
     private final MockSystemStateInterface mSystemStateInterface = new MockSystemStateInterface();
@@ -165,8 +167,9 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
     public void testClearListener() throws Exception {
         setPowerOn();
 
-        // Set a listener
-        WaitablePowerStateListener listener = new WaitablePowerStateListener(1);
+        // Set a listener with a short timeout, because we expect the timeout to happen
+        WaitablePowerStateListener listener =
+                new WaitablePowerStateListener(1, WAIT_WHEN_TIMEOUT_EXPECTED_MS);
 
         mCarPowerManager.clearListener();
 
@@ -285,6 +288,13 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
     private final class WaitablePowerStateListener {
         private final CountDownLatch mLatch;
         private int mListenedState = -1;
+        private long mTimeoutValue = WAIT_TIMEOUT_MS;
+
+        WaitablePowerStateListener(int initialCount, long customTimeout) {
+            this(initialCount);
+            mTimeoutValue = customTimeout;
+        }
+
         WaitablePowerStateListener(int initialCount) {
             mLatch = new CountDownLatch(initialCount);
             mCarPowerManager.setListener(
