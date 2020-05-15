@@ -65,7 +65,7 @@ public final class CarUserManagerTest extends CarApiTestBase {
      * Stopping the user takes a while, even when calling force stop - change it to false if this
      * test becomes flaky.
      */
-    private static final boolean TEST_STOP = true;
+    private static final boolean TEST_STOP = false;
 
     private static final UserManager sUserManager = UserManager.get(sContext);
 
@@ -165,10 +165,10 @@ public final class CarUserManagerTest extends CarApiTestBase {
         // Switch back to the previous user
         switchUser(oldUserId);
 
-        // Must force stop the user, otherwise it can take minutes for its process to finish
-        forceStopUser(newUserId);
-
         if (TEST_STOP) {
+            // Must force stop the user, otherwise it can take minutes for its process to finish
+            forceStopUser(newUserId);
+
             // waitForEvents() will also return events for previous user...
             List<UserLifecycleEvent> allEvents = stopListener.waitForEvents();
             Log.d(TAG, "All received events on stopListener: " + allEvents);
@@ -183,6 +183,8 @@ public final class CarUserManagerTest extends CarApiTestBase {
                 assertWithMessage("wrong userHandle on %s", event)
                     .that(event.getUserHandle().getIdentifier()).isEqualTo(newUserId);
             }
+        } else {
+            Log.w(TAG, "NOT testing user stop events");
         }
 
         // Make sure unregistered listener din't receive any more events
