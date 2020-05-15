@@ -15,7 +15,7 @@
  */
 
 #define LOG_TAG "carwatchdogd"
-#define DEBUG true  // TODO(b/151474489): stop ship if true.
+#define DEBUG false  // STOPSHIP if true.
 
 #include "WatchdogProcessService.h"
 
