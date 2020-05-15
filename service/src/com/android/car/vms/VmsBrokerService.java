@@ -53,6 +53,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -111,7 +112,17 @@ public class VmsBrokerService extends IVmsBrokerService.Stub implements CarServi
 
     @Override
     public void dump(PrintWriter writer) {
-        // TODO(b/149125079): Implement dumpsys
+        writer.println("*" + TAG + "*");
+        synchronized (mLock) {
+            writer.println("mAvailableLayers: " + mAvailableLayers.getAvailableLayers());
+            writer.println();
+            writer.println("mSubscriptionState: " + mSubscriptionState);
+            writer.println();
+            writer.println("mClientMap:");
+            mClientMap.values().stream()
+                    .sorted(Comparator.comparingInt(VmsClientInfo::getUid))
+                    .forEach(client -> client.dump(writer, "  "));
+        }
     }
 
     @Override
