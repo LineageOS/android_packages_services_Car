@@ -28,6 +28,7 @@ import android.util.SparseBooleanArray;
 
 import com.android.internal.annotations.GuardedBy;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -177,6 +178,52 @@ final class VmsClientInfo {
                     || mLayerSubscriptions.contains(layer)
                     || mLayerAndProviderSubscriptions.getOrDefault(layer, Collections.emptySet())
                             .contains(providerId);
+        }
+    }
+
+    void dump(PrintWriter writer, String indent) {
+        synchronized (mLock) {
+            String prefix = indent;
+            writer.println(prefix + "VmsClient [" + mPackageName + "]");
+
+            prefix = indent + "  ";
+            writer.println(prefix + "UID: " + mUid);
+            writer.println(prefix + "Legacy Client: " + mLegacyClient);
+            writer.println(prefix + "Monitoring: " + mMonitoringEnabled);
+
+            if (mProviderIds.size() > 0) {
+                writer.println(prefix + "Offerings:");
+                for (int i = 0; i < mProviderIds.size(); i++) {
+                    prefix = indent + "    ";
+                    int providerId = mProviderIds.keyAt(i);
+                    writer.println(prefix + "Provider [" + providerId + "]");
+
+                    for (VmsLayerDependency layerOffering : mOfferings.get(
+                            providerId, Collections.emptySet())) {
+                        prefix = indent + "      ";
+                        writer.println(prefix + layerOffering.getLayer());
+                        if (!layerOffering.getDependencies().isEmpty()) {
+                            prefix = indent + "        ";
+                            writer.println(prefix + "Dependencies: "
+                                    + layerOffering.getDependencies());
+                        }
+                    }
+                }
+            }
+
+            if (!mLayerSubscriptions.isEmpty() || !mLayerAndProviderSubscriptions.isEmpty()) {
+                prefix = indent + "  ";
+                writer.println(prefix + "Subscriptions:");
+
+                prefix = indent + "    ";
+                for (VmsLayer layer : mLayerSubscriptions) {
+                    writer.println(prefix + layer);
+                }
+                for (Map.Entry<VmsLayer, Set<Integer>> layerEntry :
+                        mLayerAndProviderSubscriptions.entrySet()) {
+                    writer.println(prefix + layerEntry.getKey() + ": " + layerEntry.getValue());
+                }
+            }
         }
     }
 
