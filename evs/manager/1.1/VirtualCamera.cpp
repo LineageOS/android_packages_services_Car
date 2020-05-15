@@ -14,13 +14,18 @@
  * limitations under the License.
  */
 
-#include <android/hardware_buffer.h>
-#include <android-base/logging.h>
-
 #include "VirtualCamera.h"
 #include "HalCamera.h"
 #include "Enumerator.h"
 
+#include <android/hardware_buffer.h>
+#include <android-base/file.h>
+#include <android-base/logging.h>
+#include <android-base/stringprintf.h>
+
+using ::android::base::StringAppendF;
+using ::android::base::StringPrintf;
+using ::android::base::WriteStringToFd;
 using ::android::hardware::automotive::evs::V1_0::DisplayState;
 
 
@@ -893,15 +898,27 @@ VirtualCamera::importExternalBuffers(const hidl_vec<BufferDesc_1_1>& buffers,
 }
 
 
-void VirtualCamera::dump(int fd, const char* prefix) const {
-    dprintf(fd, "%sLogical camera device: %s\n",
-                prefix, mHalCamera.size() > 1 ? "T" : "F");
-    dprintf(fd, "%sFramesAllowed: %u\n", prefix, mFramesAllowed);
-    dprintf(fd, "%sFrames in use:\n", prefix);
+std::string VirtualCamera::toString(const char* indent) const {
+    std::string buffer;
+    StringAppendF(&buffer, "%sLogical camera device: %s\n"
+                           "%sFramesAllowed: %u\n"
+                           "%sFrames in use:\n",
+                           indent, mHalCamera.size() > 1 ? "T" : "F",
+                           indent, mFramesAllowed,
+                           indent);
+
+    std::string next_indent(indent);
+    next_indent += "\t";
     for (auto&& [id, queue] : mFramesHeld) {
-        dprintf(fd, "%s\t%s, %d\n", prefix, id.c_str(), (int)queue.size());
+        StringAppendF(&buffer, "%s%s: %d\n",
+                               next_indent.c_str(),
+                               id.c_str(),
+                               static_cast<int>(queue.size()));
     }
-    dprintf(fd, "%sCurrent stream state: %d\n", prefix, mStreamState);
+    StringAppendF(&buffer, "%sCurrent stream state: %d\n",
+                                 indent, mStreamState);
+
+    return buffer;
 }
 
 

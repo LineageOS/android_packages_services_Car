@@ -17,6 +17,8 @@
 #ifndef ANDROID_AUTOMOTIVE_EVS_V1_1_DISPLAYPROXY_H
 #define ANDROID_AUTOMOTIVE_EVS_V1_1_DISPLAYPROXY_H
 
+#include <limits>
+
 #include <android/hardware/automotive/evs/1.1/types.h>
 #include <android/hardware/automotive/evs/1.1/IEvsDisplay.h>
 
@@ -42,7 +44,8 @@ namespace implementation {
 // manager directly to use the IEvsDisplay object the driver provides.
 class HalDisplay : public IEvsDisplay_1_1 {
 public:
-    explicit HalDisplay(sp<IEvsDisplay_1_0> display);
+    explicit HalDisplay(sp<IEvsDisplay_1_0> display,
+                        int32_t port = std::numeric_limits<int32_t>::min());
     virtual ~HalDisplay() override;
 
     inline void         shutdown();
@@ -58,8 +61,12 @@ public:
     // Methods from ::android::hardware::automotive::evs::V1_1::IEvsDisplay follow.
     Return<void>            getDisplayInfo_1_1(getDisplayInfo_1_1_cb _info_cb) override;
 
+    // Returns a string showing the current status
+    std::string toString(const char* indent = "");
+
 private:
     sp<IEvsDisplay_1_0>     mHwDisplay; // The low level display interface that backs this proxy
+    int32_t                 mId; // Display identifier
 };
 
 } // namespace implementation
