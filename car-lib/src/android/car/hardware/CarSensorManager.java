@@ -496,7 +496,7 @@ public final class CarSensorManager extends CarManagerBase {
      * A CarSensorConfig object is returned for every sensor type.  However, if there is no
      * config, the data will be empty.
      *
-     * @param sensor type to request
+     * @param type sensor type to request
      * @return CarSensorConfig object
      * @hide
      */
