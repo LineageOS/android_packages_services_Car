@@ -35,8 +35,8 @@ import java.util.concurrent.CompletableFuture;
  */
 @SystemApi
 public class CarPowerManager extends CarManagerBase {
-    private final static boolean DBG = false;
-    private final static String TAG = "CarPowerManager";
+    private static final boolean DBG = false;
+    private static final String TAG = CarPowerManager.class.getSimpleName();
 
     private final Object mLock = new Object();
     private final ICarPower mService;
@@ -215,7 +215,7 @@ public class CarPowerManager extends CarManagerBase {
      * @hide
      */
     public void setListenerWithCompletion(CarPowerStateListenerWithCompletion listener) {
-        synchronized(mLock) {
+        synchronized (mLock) {
             if (mListener != null || mListenerWithCompletion != null) {
                 throw new IllegalStateException("Listener must be cleared first");
             }
