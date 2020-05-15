@@ -43,9 +43,13 @@ bool Enumerator::init(const char* hardwareServiceName) {
         // Get an internal display identifier.
         mHwEnumerator->getDisplayIdList(
             [this](const auto& displayPorts) {
-                if (displayPorts.size() > 0) {
-                    mInternalDisplayPort = displayPorts[0];
-                } else {
+                for (auto& port : displayPorts) {
+                    mDisplayPorts.push_back(port);
+                }
+
+                // The first element is the internal display
+                mInternalDisplayPort = mDisplayPorts.front();
+                if (mDisplayPorts.size() < 1) {
                     LOG(WARNING) << "No display is available to EVS service.";
                 }
             }
@@ -441,6 +445,11 @@ Return<sp<IEvsDisplay_1_1>> Enumerator::openDisplay_1_1(uint8_t id) {
     LOG(DEBUG) << __FUNCTION__;
 
     if (!checkPermission()) {
+        return nullptr;
+    }
+
+    if (std::find(mDisplayPorts.begin(), mDisplayPorts.end(), id) == mDisplayPorts.end()) {
+        LOG(ERROR) << "No display is available on the port " << static_cast<int32_t>(id);
         return nullptr;
     }
 
