@@ -30,6 +30,7 @@ buffer_handle_t memHandle = nullptr;
 StreamHandler::StreamHandler(android::sp <IEvsCamera> pCamera,
                              uint32_t numBuffers,
                              bool useOwnBuffers,
+                             android_pixel_format_t format,
                              int32_t width,
                              int32_t height)
     : mCamera(pCamera),
@@ -46,7 +47,6 @@ StreamHandler::StreamHandler(android::sp <IEvsCamera> pCamera,
         const auto usage = GRALLOC_USAGE_HW_TEXTURE |
                            GRALLOC_USAGE_SW_READ_RARELY |
                            GRALLOC_USAGE_SW_WRITE_OFTEN;
-        const auto format = HAL_PIXEL_FORMAT_RGBA_8888;
         for (auto i = 0; i < numBuffers; ++i) {
             unsigned pixelsPerLine;
             android::status_t result = alloc.allocate(width,
@@ -64,10 +64,10 @@ StreamHandler::StreamHandler(android::sp <IEvsCamera> pCamera,
                 BufferDesc_1_1 buf;
                 AHardwareBuffer_Desc* pDesc =
                     reinterpret_cast<AHardwareBuffer_Desc *>(&buf.buffer.description);
-                pDesc->width = 640;
-                pDesc->height = 360;
+                pDesc->width = width;
+                pDesc->height = height;
                 pDesc->layers = 1;
-                pDesc->format = HAL_PIXEL_FORMAT_RGBA_8888;
+                pDesc->format = format;
                 pDesc->usage = GRALLOC_USAGE_HW_TEXTURE |
                                GRALLOC_USAGE_SW_READ_RARELY |
                                GRALLOC_USAGE_SW_WRITE_OFTEN;
