@@ -101,6 +101,11 @@
     <!-- Turn off Wallpaper service -->
     <bool name="config_enableWallpaperService">false</bool>
 
+    <!-- Flag specifying whether user-switch operations have custom UI. When false, user-switch
+         UI is handled by ActivityManagerService. On AAOS, this value should be true since the
+         UserSwitchUi is implemented by Car SystemUI.-->
+    <bool name="config_customUserSwitchUi">true</bool>
+
     <!-- Whether to only install system packages on a user if they're whitelisted for that user
          type. Override the default value in framework config file.
          0  - disable whitelist (install all system packages; no logging)
