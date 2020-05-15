@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-#include <android-base/logging.h>
-
+#include "Enumerator.h"
 #include "HalCamera.h"
 #include "VirtualCamera.h"
-#include "Enumerator.h"
+
+#include <android-base/file.h>
+#include <android-base/logging.h>
+#include <android-base/strings.h>
 
 namespace android {
 namespace automotive {
@@ -30,6 +32,15 @@ namespace implementation {
 // TODO(changyeon):
 // We need to hook up death monitoring to detect stream death so we can attempt a reconnect
 
+using ::android::base::StringAppendF;
+using ::android::base::WriteStringToFd;
+
+HalCamera::~HalCamera() {
+    // Reports the usage statistics before the destruction
+    // EvsUsageStatsReported atom is defined in
+    // frameworks/base/cmds/statsd/src/atoms.proto
+    mUsageStats->writeStats();
+}
 
 sp<VirtualCamera> HalCamera::makeVirtualCamera() {
 
@@ -310,6 +321,9 @@ Return<void> HalCamera::doneWithFrame(const BufferDesc_1_0& buffer) {
         if (mFrames[i].refCount <= 0) {
             // Since all our clients are done with this buffer, return it to the device layer
             mHwCamera->doneWithFrame(buffer);
+
+            // Counts a returned buffer
+            mUsageStats->framesReturned();
         }
     }
 
@@ -336,6 +350,9 @@ Return<void> HalCamera::doneWithFrame(const BufferDesc_1_1& buffer) {
             returnedBuffers.resize(1);
             returnedBuffers[0] = buffer;
             mHwCamera->doneWithFrame_1_1(returnedBuffers);
+
+            // Counts a returned buffer
+            mUsageStats->framesReturned();
         }
     }
 
@@ -351,6 +368,10 @@ Return<void> HalCamera::deliverFrame(const BufferDesc_1_0& buffer) {
      */
     LOG(INFO) << "A delivered frame from EVS v1.0 HW module is rejected.";
     mHwCamera->doneWithFrame(buffer);
+
+    // Reports a received and returned buffer
+    mUsageStats->framesReceived();
+    mUsageStats->framesReturned();
 
     return Void();
 }
@@ -378,7 +399,9 @@ Return<void> HalCamera::deliverFrame_1_1(const hardware::hidl_vec<BufferDesc_1_1
                 // Skip current frame because it arrives too soon.
                 LOG(DEBUG) << "Skips a frame from " << getId();
                 mNextRequests->push_back(req);
-                ++mSyncFrames;
+
+                // Reports a skipped frame
+                mUsageStats->framesSkippedToSync();
             } else if (vCam != nullptr && vCam->deliverFrame(buffer[0])) {
                 // Forward a frame and move a timeline.
                 LOG(DEBUG) << getId() << " forwarded the buffer #" << buffer[0].bufferId;
@@ -387,7 +410,9 @@ Return<void> HalCamera::deliverFrame_1_1(const hardware::hidl_vec<BufferDesc_1_1
             }
         }
     }
-    ++mFramesReceived;
+
+    // Reports the number of received buffers
+    mUsageStats->framesReceived(buffer.size());
 
     // Frames are being forwarded to active v1.0 clients and v1.1 clients if we
     // failed to create a timeline.
@@ -409,8 +434,10 @@ Return<void> HalCamera::deliverFrame_1_1(const hardware::hidl_vec<BufferDesc_1_1
         // right away.
         LOG(INFO) << "Trivially rejecting frame (" << buffer[0].bufferId
                   << ") from " << getId() << " with no acceptance";
-        ++mFramesNotUsed;
         mHwCamera->doneWithFrame_1_1(buffer);
+
+        // Reports a returned buffer
+        mUsageStats->framesReturned();
     } else {
         // Add an entry for this frame in our tracking list.
         unsigned i;
@@ -559,47 +586,68 @@ Return<EvsResult> HalCamera::getParameter(CameraParam id, int32_t& value) {
 }
 
 
-void HalCamera::dump(int fd) const {
-    dprintf(fd, "HalCamera: %s\n", mId.c_str());
-    const auto timeElapsedNano = android::elapsedRealtimeNano() - mTimeCreated;
-    dprintf(fd, "\tCreated: %ld (elapsed %ld ns)\n", (long)mTimeCreated, (long)timeElapsedNano);
-    dprintf(fd, "\tFrames received: %lu (%f fps)\n",
-                (unsigned long)mFramesReceived,
-                (double)mFramesReceived / timeElapsedNano * 1e+9);
-    dprintf(fd, "\tFrames not used: %lu\n", (unsigned long)mFramesNotUsed);
-    dprintf(fd, "\tFrames skipped to sync: %lu\n", (unsigned long)mSyncFrames);
-    dprintf(fd, "\tActive Stream Configuration:\n");
-    dprintf(fd, "\t\tid: %d\n", mStreamConfig.id);
-    dprintf(fd, "\t\twidth: %d\n", mStreamConfig.width);
-    dprintf(fd, "\t\theight: %d\n", mStreamConfig.height);
-    dprintf(fd, "\t\tformat: %d\n", mStreamConfig.width);
-    dprintf(fd, "\t\tusage: 0x%lX\n", (unsigned long)mStreamConfig.usage);
-    dprintf(fd, "\t\trotation: 0x%X\n", mStreamConfig.rotation);
+CameraUsageStatsRecord HalCamera::getStats() const {
+    return mUsageStats->snapshot();
+}
 
-    dprintf(fd, "\tActive clients:\n");
+
+Stream HalCamera::getStreamConfiguration() const {
+    return mStreamConfig;
+}
+
+
+std::string HalCamera::toString(const char* indent) const {
+    std::string buffer;
+
+    const auto timeElapsedMs = android::uptimeMillis() - mTimeCreatedMs;
+    StringAppendF(&buffer, "%sCreated: @%" PRId64 " (elapsed %" PRId64 " ms)\n",
+                           indent, mTimeCreatedMs, timeElapsedMs);
+
+    std::string double_indent(indent);
+    double_indent += indent;
+    buffer += CameraUsageStats::toString(getStats(), double_indent.c_str());
     for (auto&& client : mClients) {
         auto handle = client.promote();
         if (!handle) {
             continue;
         }
 
-        dprintf(fd, "\t\tClient %p\n", handle.get());
-        handle->dump(fd, "\t\t\t");
-        {
-            std::scoped_lock<std::mutex> lock(mFrameMutex);
-            dprintf(fd, "\t\t\tUse a fence-based delivery: %s\n",
-                    mTimelines.find((uint64_t)handle.get()) != mTimelines.end() ? "T" : "F");
-        }
+        StringAppendF(&buffer, "%sClient %p\n",
+                               indent, handle.get());
+        buffer += handle->toString(double_indent.c_str());
     }
 
-    dprintf(fd, "\tMaster client: %p\n", mMaster.promote().get());
-    dprintf(fd, "\tSynchronization support: %s\n", mSyncSupported ? "T" : "F");
+    StringAppendF(&buffer, "%sMaster client: %p\n"
+                           "%sSynchronization support: %s\n",
+                           indent, mMaster.promote().get(),
+                           indent, mSyncSupported ? "T":"F");
+
+    buffer += HalCamera::toString(mStreamConfig, indent);
+
+    return buffer;
 }
 
 
-double HalCamera::getFramerate() const {
-    const auto timeElapsed = android::elapsedRealtimeNano() - mTimeCreated;
-    return static_cast<double>(mFramesReceived) / timeElapsed;
+std::string HalCamera::toString(Stream configuration, const char* indent) {
+    std::string streamInfo;
+    std::string double_indent(indent);
+    double_indent += indent;
+    StringAppendF(&streamInfo, "%sActive Stream Configuration\n"
+                               "%sid: %d\n"
+                               "%swidth: %d\n"
+                               "%sheight: %d\n"
+                               "%sformat: 0x%X\n"
+                               "%susage: 0x%" PRIx64 "\n"
+                               "%srotation: 0x%X\n\n",
+                               indent,
+                               double_indent.c_str(), configuration.id,
+                               double_indent.c_str(), configuration.width,
+                               double_indent.c_str(), configuration.height,
+                               double_indent.c_str(), configuration.format,
+                               double_indent.c_str(), configuration.usage,
+                               double_indent.c_str(), configuration.rotation);
+
+    return streamInfo;
 }
 
 

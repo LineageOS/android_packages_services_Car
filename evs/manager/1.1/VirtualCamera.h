@@ -108,7 +108,7 @@ public:
                                             importExternalBuffers_cb _hidl_cb) override;
 
     // Dump current status to a given file descriptor
-    void              dump(int fd, const char* prefix = "") const;
+    std::string       toString(const char* indent = "") const;
 
 
 private:
