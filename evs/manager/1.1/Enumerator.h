@@ -93,6 +93,9 @@ private:
     std::unordered_map<std::string,
                        CameraDesc>    mCameraDevices;
 
+    // List of available physical display devices
+    std::list<uint8_t>                mDisplayPorts;
+
     // Display port the internal display is connected to.
     uint8_t                           mInternalDisplayPort;
 

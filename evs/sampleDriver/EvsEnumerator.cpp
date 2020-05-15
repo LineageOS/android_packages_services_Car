@@ -534,6 +534,12 @@ Return<sp<IEvsDisplay_1_1>> EvsEnumerator::openDisplay_1_1(uint8_t port) {
     }
 
     // Create a new display interface and return it
+    if (sDisplayPortList.find(port) == sDisplayPortList.end()) {
+        LOG(ERROR) << "No display is available on the port "
+                   << static_cast<int32_t>(port);
+        return nullptr;
+    }
+
     pActiveDisplay = new EvsGlDisplay(sDisplayProxy, sDisplayPortList[port]);
     sActiveDisplay = pActiveDisplay;
 
