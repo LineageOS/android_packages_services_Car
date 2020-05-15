@@ -19,6 +19,8 @@
 #include <vector>
 #include <string>
 
+#include <system/graphics-base.h>
+
 
 class ConfigManager {
 public:
@@ -91,6 +93,12 @@ public:
     const DisplayInfo& getActiveDisplay() const { return mDisplays[mActiveDisplayId]; };
     void  useExternalMemory(bool flag) { mUseExternalMemory = flag; }
     bool  getUseExternalMemory() const { return mUseExternalMemory; }
+    void  setExternalMemoryFormat(android_pixel_format_t format) {
+        mExternalMemoryFormat = format;
+    }
+    android_pixel_format_t getExternalMemoryFormat() const {
+        return mExternalMemoryFormat;
+    }
 
 private:
     // Camera information
@@ -102,6 +110,9 @@ private:
 
     // Memory management
     bool mUseExternalMemory;
+
+    // Format of external memory
+    android_pixel_format_t mExternalMemoryFormat;
 
     // Car body information (assumes front wheel steering and origin at center of rear axel)
     // Note that units aren't specified and don't matter as long as all length units are consistent

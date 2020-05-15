@@ -137,29 +137,39 @@ VideoTex* createVideoTexture(sp<IEvsEnumerator> pEnum,
                              const char* evsCameraId,
                              std::unique_ptr<Stream> streamCfg,
                              EGLDisplay glDisplay,
-                             bool useExternalMemory) {
+                             bool useExternalMemory,
+                             android_pixel_format_t format) {
     // Set up the camera to feed this texture
     sp<IEvsCamera> pCamera = nullptr;
+    sp<StreamHandler> pStreamHandler = nullptr;
     if (streamCfg != nullptr) {
         pCamera = pEnum->openCamera_1_1(evsCameraId, *streamCfg);
+
+        // Initialize the stream that will help us update this texture's contents
+        pStreamHandler = new StreamHandler(pCamera,
+                                           2,     // number of buffers
+                                           useExternalMemory,
+                                           format,
+                                           streamCfg->width,
+                                           streamCfg->height);
     } else {
         pCamera =
             IEvsCamera::castFrom(pEnum->openCamera(evsCameraId))
             .withDefault(nullptr);
+
+        // Initialize the stream with the default resolution
+        pStreamHandler = new StreamHandler(pCamera,
+                                           2,     // number of buffers
+                                           useExternalMemory,
+                                           format);
     }
 
-    if (pCamera.get() == nullptr) {
+    if (pCamera == nullptr) {
         LOG(ERROR) << "Failed to allocate new EVS Camera interface for " << evsCameraId;
         return nullptr;
     }
 
-    // Initialize the stream that will help us update this texture's contents
-    sp<StreamHandler> pStreamHandler = new StreamHandler(pCamera,
-                                                         2,     // number of buffers
-                                                         useExternalMemory,
-                                                         streamCfg->width,
-                                                         streamCfg->height);
-    if (pStreamHandler.get() == nullptr) {
+    if (pStreamHandler == nullptr) {
         LOG(ERROR) << "Failed to allocate FrameHandler";
         return nullptr;
     }
