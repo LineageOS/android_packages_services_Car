@@ -42,7 +42,6 @@ import android.util.Log;
 
 import com.android.car.CarServiceBase;
 import com.android.car.VmsLayersAvailability;
-import com.android.car.VmsPublishersInfo;
 import com.android.car.stats.CarStatsService;
 import com.android.car.stats.VmsClientLogger;
 import com.android.internal.annotations.GuardedBy;
@@ -75,7 +74,7 @@ public class VmsBrokerService extends IVmsBrokerService.Stub implements CarServi
     private final CarStatsService mStatsService;
     private final IntSupplier mGetCallingUid;
 
-    private final VmsPublishersInfo mPublishersInfo = new VmsPublishersInfo();
+    private final VmsProviderInfoStore mProviderInfoStore = new VmsProviderInfoStore();
     private final VmsLayersAvailability mAvailableLayers = new VmsLayersAvailability();
 
     private final Object mLock = new Object();
@@ -166,7 +165,7 @@ public class VmsBrokerService extends IVmsBrokerService.Stub implements CarServi
     public VmsProviderInfo getProviderInfo(IBinder clientToken, int providerId) {
         assertAnyVmsPermission(mContext);
         getClient(clientToken); // Assert that the client is registered
-        return new VmsProviderInfo(mPublishersInfo.getPublisherInfoOrNull(providerId));
+        return new VmsProviderInfo(mProviderInfoStore.getProviderInfo(providerId));
     }
 
     @Override
@@ -185,12 +184,13 @@ public class VmsBrokerService extends IVmsBrokerService.Stub implements CarServi
     @Override
     public int registerProvider(IBinder clientToken, VmsProviderInfo providerInfo) {
         assertVmsPublisherPermission(mContext);
+        VmsClientInfo client = getClient(clientToken);
+        int providerId;
         synchronized (mLock) {
-            VmsClientInfo client = getClient(clientToken);
-            int publisherId = mPublishersInfo.getIdForInfo(providerInfo.getDescription());
-            client.addProviderId(publisherId);
-            return publisherId;
+            providerId = mProviderInfoStore.getProviderId(providerInfo.getDescription());
         }
+        client.addProviderId(providerId);
+        return providerId;
     }
 
     @Override
