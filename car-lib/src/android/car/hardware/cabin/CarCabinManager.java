@@ -57,8 +57,8 @@ import java.util.List;
 @Deprecated
 @SystemApi
 public final class CarCabinManager extends CarManagerBase {
-    private final static boolean DBG = false;
-    private final static String TAG = "CarCabinManager";
+    private static final boolean DBG = false;
+    private static final String TAG = CarCabinManager.class.getSimpleName();
     private final CarPropertyManager mCarPropertyMgr;
     private final ArraySet<CarCabinEventCallback> mCallbacks = new ArraySet<>();
     private CarPropertyEventListenerToBase mListenerToBase = null;
@@ -416,7 +416,7 @@ public final class CarCabinManager extends CarManagerBase {
     private static class CarPropertyEventListenerToBase implements CarPropertyEventCallback {
         private final WeakReference<CarCabinManager> mManager;
 
-        public CarPropertyEventListenerToBase(CarCabinManager manager) {
+        CarPropertyEventListenerToBase(CarCabinManager manager) {
             mManager = new WeakReference<>(manager);
         }
 
