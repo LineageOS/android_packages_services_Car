@@ -161,16 +161,16 @@ public final class CarBugreportManager extends CarManagerBase {
      * bugreport and makes them available through a extra output file. Currently the extra
      * output contains the screenshots for all the physical displays.
      *
-     * <p>The file descriptor is closed when bugreport is written or if an exception happens.
+     * <p>It closes provided file descriptors. The callback runs on a background thread.
      *
      * <p>This method is enabled only for one bug reporting app. It can be configured using
      * {@code config_car_bugreport_application} string that is defined in
      * {@code packages/services/Car/service/res/values/config.xml}. To learn more please
      * see {@code packages/services/Car/tests/BugReportApp/README.md}.
      *
-     * @param output the zipped bugreport file
+     * @param output the zipped bugreport file.
      * @param extraOutput a zip file that contains extra files generated for automotive.
-     * @param callback  the callback for reporting dump status
+     * @param callback the callback for reporting dump status.
      */
     @RequiresPermission(android.Manifest.permission.DUMP)
     public void requestBugreport(
@@ -187,8 +187,24 @@ public final class CarBugreportManager extends CarManagerBase {
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
         } finally {
+            // Safely close the FDs on this side, because binder dups them.
             IoUtils.closeQuietly(output);
             IoUtils.closeQuietly(extraOutput);
+        }
+    }
+
+    /**
+     * Cancels the running bugreport. It doesn't guarantee immediate cancellation and after
+     * calling this method, callbacks provided in {@link #requestBugreport} might still get fired.
+     * The next {@link startBugreport} should be called after a delay to allow the system to fully
+     * complete the cancellation.
+     */
+    @RequiresPermission(android.Manifest.permission.DUMP)
+    public void cancelBugreport() {
+        try {
+            mService.cancelBugreport();
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
         }
     }
 
