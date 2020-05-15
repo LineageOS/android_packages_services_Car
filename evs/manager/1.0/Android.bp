@@ -39,10 +39,6 @@ cc_binary {
 
     init_rc: ["android.automotive.evs.manager@1.0.rc"],
 
-    strip: {
-        keep_symbols: true,
-    },
-
     cflags: ["-DLOG_TAG=\"EvsManagerV1_0\""] + [
         "-DGL_GLEXT_PROTOTYPES",
         "-DEGL_EGLEXT_PROTOTYPES",
