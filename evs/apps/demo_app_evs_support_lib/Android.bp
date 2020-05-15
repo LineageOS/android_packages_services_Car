@@ -30,10 +30,6 @@ cc_binary {
 
     include_dirs: ["packages/services/Car/evs/support_library"],
 
-    strip: {
-        keep_symbols: true,
-    },
-
     init_rc: ["evs_app_support_lib.rc"],
 
     cflags: ["-DLOG_TAG=\"EvsAppSupportLib\""] + [
