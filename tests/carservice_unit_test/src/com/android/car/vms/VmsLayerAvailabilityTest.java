@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car;
+package com.android.car.vms;
 
 import android.car.vms.VmsAssociatedLayer;
 import android.car.vms.VmsLayer;
@@ -29,7 +29,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @SmallTest
-public class VmsLayersAvailabilityTest extends AndroidTestCase {
+public class VmsLayerAvailabilityTest extends AndroidTestCase {
 
     private static final VmsLayer LAYER_X = new VmsLayer(1, 1, 2);
     private static final VmsLayer LAYER_Y = new VmsLayer(3, 2, 4);
@@ -38,38 +38,38 @@ public class VmsLayersAvailabilityTest extends AndroidTestCase {
     private static final int PUBLISHER_ID_1 = 19;
     private static final int PUBLISHER_ID_2 = 28;
 
-    private static final Set<Integer> PUBLISHERS_1 = new HashSet<>(Arrays.asList(PUBLISHER_ID_1));
-    private static final Set<Integer> PUBLISHERS_2 = new HashSet<>(Arrays.asList(PUBLISHER_ID_2));
+    private static final Set<Integer> PUBLISHERS_1 = Collections.singleton(PUBLISHER_ID_1);
+    private static final Set<Integer> PUBLISHERS_2 = Collections.singleton(PUBLISHER_ID_2);
     private static final Set<Integer> PUBLISHERS_1_AND_2 =
             new HashSet<>(Arrays.asList(PUBLISHER_ID_1, PUBLISHER_ID_2));
 
     private static final VmsLayerDependency X_DEPENDS_ON_Y =
-            new VmsLayerDependency(LAYER_X, new HashSet<VmsLayer>(Arrays.asList(LAYER_Y)));
+            new VmsLayerDependency(LAYER_X, Collections.singleton(LAYER_Y));
 
     private static final VmsLayerDependency X_DEPENDS_ON_Z =
-            new VmsLayerDependency(LAYER_X, new HashSet<VmsLayer>(Arrays.asList(LAYER_Z)));
+            new VmsLayerDependency(LAYER_X, Collections.singleton(LAYER_Z));
 
     private static final VmsLayerDependency Y_DEPENDS_ON_Z =
-            new VmsLayerDependency(LAYER_Y, new HashSet<VmsLayer>(Arrays.asList(LAYER_Z)));
+            new VmsLayerDependency(LAYER_Y, Collections.singleton(LAYER_Z));
 
     private static final VmsLayerDependency Y_DEPENDS_ON_X =
-            new VmsLayerDependency(LAYER_Y, new HashSet<VmsLayer>(Arrays.asList(LAYER_X)));
+            new VmsLayerDependency(LAYER_Y, Collections.singleton(LAYER_X));
 
     private static final VmsLayerDependency Z_DEPENDS_ON_X =
-            new VmsLayerDependency(LAYER_Z, new HashSet<VmsLayer>(Arrays.asList(LAYER_X)));
+            new VmsLayerDependency(LAYER_Z, Collections.singleton(LAYER_X));
 
     private static final VmsLayerDependency Z_DEPENDS_ON_NOTHING =
             new VmsLayerDependency(LAYER_Z);
 
     private static final VmsLayerDependency X_DEPENDS_ON_SELF =
-            new VmsLayerDependency(LAYER_X, new HashSet<VmsLayer>(Arrays.asList(LAYER_X)));
+            new VmsLayerDependency(LAYER_X, Collections.singleton(LAYER_X));
 
     private Set<VmsLayersOffering> mOfferings;
-    private VmsLayersAvailability mLayersAvailability;
+    private VmsLayerAvailability mLayersAvailability;
 
     @Override
     protected void setUp() throws Exception {
-        mLayersAvailability = new VmsLayersAvailability();
+        mLayersAvailability = new VmsLayerAvailability();
         mOfferings = new HashSet<>();
         super.setUp();
     }
@@ -79,16 +79,16 @@ public class VmsLayersAvailabilityTest extends AndroidTestCase {
     }
 
     public void testEmptyOffering() {
-        mLayersAvailability.setPublishersOffering(Collections.EMPTY_LIST);
+        mLayersAvailability.setPublishersOffering(Collections.emptyList());
         assertTrue(mLayersAvailability.getAvailableLayers().getAssociatedLayers().isEmpty());
     }
 
-    public void testSingleLayerNoDeps() throws Exception {
+    public void testSingleLayerNoDeps() {
         Set<VmsAssociatedLayer> expectedAvailableAssociatedLayers = new HashSet<>();
         expectedAvailableAssociatedLayers.add(new VmsAssociatedLayer(LAYER_X, PUBLISHERS_2));
 
         VmsLayersOffering offering =
-                new VmsLayersOffering(new HashSet<>(Arrays.asList(new VmsLayerDependency(LAYER_X))),
+                new VmsLayersOffering(Collections.singleton(new VmsLayerDependency(LAYER_X)),
                         PUBLISHER_ID_2);
 
         mOfferings.add(offering);
@@ -98,7 +98,7 @@ public class VmsLayersAvailabilityTest extends AndroidTestCase {
                 mLayersAvailability.getAvailableLayers().getAssociatedLayers());
     }
 
-    public void testChainOfDependenciesSatisfied() throws Exception {
+    public void testChainOfDependenciesSatisfied() {
         Set<VmsAssociatedLayer> expectedAvailableAssociatedLayers = new HashSet<>();
         expectedAvailableAssociatedLayers.add(new VmsAssociatedLayer(LAYER_X, PUBLISHERS_1));
         expectedAvailableAssociatedLayers.add(new VmsAssociatedLayer(LAYER_Y, PUBLISHERS_1));
@@ -114,11 +114,11 @@ public class VmsLayersAvailabilityTest extends AndroidTestCase {
         mLayersAvailability.setPublishersOffering(mOfferings);
 
         assertEquals(expectedAvailableAssociatedLayers,
-                new HashSet<VmsAssociatedLayer>(
+                new HashSet<>(
                         mLayersAvailability.getAvailableLayers().getAssociatedLayers()));
     }
 
-    public void testChainOfDependenciesSatisfiedTwoOfferings() throws Exception {
+    public void testChainOfDependenciesSatisfiedTwoOfferings() {
         Set<VmsAssociatedLayer> expectedAvailableAssociatedLayers = new HashSet<>();
         expectedAvailableAssociatedLayers.add(new VmsAssociatedLayer(LAYER_X, PUBLISHERS_1));
         expectedAvailableAssociatedLayers.add(new VmsAssociatedLayer(LAYER_Y, PUBLISHERS_1));
@@ -130,7 +130,7 @@ public class VmsLayersAvailabilityTest extends AndroidTestCase {
                         PUBLISHER_ID_1);
 
         VmsLayersOffering offering2 =
-                new VmsLayersOffering(new HashSet<>(Arrays.asList(Z_DEPENDS_ON_NOTHING)),
+                new VmsLayersOffering(Collections.singleton(Z_DEPENDS_ON_NOTHING),
                         PUBLISHER_ID_1);
 
         mOfferings.add(offering1);
@@ -138,11 +138,11 @@ public class VmsLayersAvailabilityTest extends AndroidTestCase {
         mLayersAvailability.setPublishersOffering(mOfferings);
 
         assertEquals(expectedAvailableAssociatedLayers,
-                new HashSet<VmsAssociatedLayer>(
+                new HashSet<>(
                         mLayersAvailability.getAvailableLayers().getAssociatedLayers()));
     }
 
-    public void testChainOfDependencieNotSatisfied() throws Exception {
+    public void testChainOfDependenciesNotSatisfied() {
         Set<VmsAssociatedLayer> expectedAvailableAssociatedLayers = new HashSet<>();
         VmsLayersOffering offering =
                 new VmsLayersOffering(new HashSet<>(Arrays.asList(X_DEPENDS_ON_Y, Y_DEPENDS_ON_Z)),
@@ -152,11 +152,11 @@ public class VmsLayersAvailabilityTest extends AndroidTestCase {
         mLayersAvailability.setPublishersOffering(mOfferings);
 
         assertEquals(expectedAvailableAssociatedLayers,
-                new HashSet<VmsAssociatedLayer>(
+                new HashSet<>(
                         mLayersAvailability.getAvailableLayers().getAssociatedLayers()));
     }
 
-    public void testOneOfMultipleDependencySatisfied() throws Exception {
+    public void testOneOfMultipleDependencySatisfied() {
         Set<VmsAssociatedLayer> expectedAvailableAssociatedLayers = new HashSet<>();
         expectedAvailableAssociatedLayers.add(new VmsAssociatedLayer(LAYER_X, PUBLISHERS_1));
         expectedAvailableAssociatedLayers.add(new VmsAssociatedLayer(LAYER_Z, PUBLISHERS_1));
@@ -172,11 +172,11 @@ public class VmsLayersAvailabilityTest extends AndroidTestCase {
         mLayersAvailability.setPublishersOffering(mOfferings);
 
         assertEquals(expectedAvailableAssociatedLayers,
-                new HashSet<VmsAssociatedLayer>(
+                new HashSet<>(
                         mLayersAvailability.getAvailableLayers().getAssociatedLayers()));
     }
 
-    public void testCyclicDependency() throws Exception {
+    public void testCyclicDependency() {
         Set<VmsAssociatedLayer> expectedAvailableAssociatedLayers = new HashSet<>();
 
         VmsLayersOffering offering =
@@ -189,11 +189,11 @@ public class VmsLayersAvailabilityTest extends AndroidTestCase {
         mLayersAvailability.setPublishersOffering(mOfferings);
 
         assertEquals(expectedAvailableAssociatedLayers,
-                new HashSet<VmsAssociatedLayer>(
+                new HashSet<>(
                         mLayersAvailability.getAvailableLayers().getAssociatedLayers()));
     }
 
-    public void testAlmostCyclicDependency() throws Exception {
+    public void testAlmostCyclicDependency() {
         Set<VmsAssociatedLayer> expectedAvailableAssociatedLayers = new HashSet<>();
         expectedAvailableAssociatedLayers.add(new VmsAssociatedLayer(LAYER_Z, PUBLISHERS_1_AND_2));
         expectedAvailableAssociatedLayers.add(new VmsAssociatedLayer(LAYER_X, PUBLISHERS_1));
@@ -216,7 +216,7 @@ public class VmsLayersAvailabilityTest extends AndroidTestCase {
                 mLayersAvailability.getAvailableLayers().getAssociatedLayers());
     }
 
-    public void testCyclicDependencyAndLayerWithoutDependency() throws Exception {
+    public void testCyclicDependencyAndLayerWithoutDependency() {
         Set<VmsAssociatedLayer> expectedAvailableAssociatedLayers = new HashSet<>();
         expectedAvailableAssociatedLayers.add(new VmsAssociatedLayer(LAYER_Z, PUBLISHERS_1));
 
@@ -227,29 +227,29 @@ public class VmsLayersAvailabilityTest extends AndroidTestCase {
                         PUBLISHER_ID_1);
 
         VmsLayersOffering offering2 =
-                new VmsLayersOffering(new HashSet<>(Arrays.asList(Y_DEPENDS_ON_X)), PUBLISHER_ID_2);
+                new VmsLayersOffering(Collections.singleton(Y_DEPENDS_ON_X), PUBLISHER_ID_2);
 
         mOfferings.add(offering1);
         mOfferings.add(offering2);
         mLayersAvailability.setPublishersOffering(mOfferings);
 
         assertEquals(expectedAvailableAssociatedLayers,
-                new HashSet<VmsAssociatedLayer>(
+                new HashSet<>(
                         mLayersAvailability.getAvailableLayers().getAssociatedLayers()));
     }
 
-    public void testSelfDependency() throws Exception {
+    public void testSelfDependency() {
         Set<VmsAssociatedLayer> expectedAvailableAssociatedLayers = new HashSet<>();
 
         VmsLayersOffering offering =
-                new VmsLayersOffering(new HashSet<>(Arrays.asList(X_DEPENDS_ON_SELF)),
+                new VmsLayersOffering(Collections.singleton(X_DEPENDS_ON_SELF),
                         PUBLISHER_ID_1);
 
         mOfferings.add(offering);
         mLayersAvailability.setPublishersOffering(mOfferings);
 
         assertEquals(expectedAvailableAssociatedLayers,
-                new HashSet<VmsAssociatedLayer>(
+                new HashSet<>(
                         mLayersAvailability.getAvailableLayers().getAssociatedLayers()));
     }
 }
