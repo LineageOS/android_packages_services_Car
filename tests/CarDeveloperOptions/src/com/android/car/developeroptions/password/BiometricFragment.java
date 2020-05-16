@@ -17,11 +17,10 @@
 package com.android.car.developeroptions.password;
 
 import android.app.settings.SettingsEnums;
-import android.content.DialogInterface;
-import android.hardware.biometrics.BiometricConstants;
 import android.hardware.biometrics.BiometricPrompt;
 import android.hardware.biometrics.BiometricPrompt.AuthenticationCallback;
 import android.hardware.biometrics.BiometricPrompt.AuthenticationResult;
+import android.hardware.biometrics.PromptInfo;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 
@@ -38,6 +37,8 @@ public class BiometricFragment extends InstrumentedFragment {
 
     private static final String TAG = "ConfirmDeviceCredential/BiometricFragment";
 
+    private static final String KEY_PROMPT_INFO = "prompt_info";
+
     // Re-set by the application. Should be done upon orientation changes, etc
     private Executor mClientExecutor;
     private AuthenticationCallback mClientCallback;
@@ -46,7 +47,7 @@ public class BiometricFragment extends InstrumentedFragment {
     private int mUserId;
 
     // Created/Initialized once and retained
-    private Bundle mBundle;
+    private PromptInfo mPromptInfo;
     private BiometricPrompt mBiometricPrompt;
     private CancellationSignal mCancellationSignal;
 
@@ -69,22 +70,14 @@ public class BiometricFragment extends InstrumentedFragment {
         }
     };
 
-    private final DialogInterface.OnClickListener mNegativeButtonListener =
-            new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-            mAuthenticationCallback.onAuthenticationError(
-                    BiometricConstants.BIOMETRIC_ERROR_NEGATIVE_BUTTON,
-                    mBundle.getString(BiometricPrompt.KEY_NEGATIVE_TEXT));
-        }
-    };
-
     /**
-     * @param bundle Bundle passed from {@link BiometricPrompt.Builder#buildIntent()}
+     * @param promptInfo
      * @return
      */
-    public static BiometricFragment newInstance(Bundle bundle) {
+    public static BiometricFragment newInstance(PromptInfo promptInfo) {
         BiometricFragment biometricFragment = new BiometricFragment();
+        final Bundle bundle = new Bundle();
+        bundle.putParcelable(KEY_PROMPT_INFO, promptInfo);
         biometricFragment.setArguments(bundle);
         return biometricFragment;
     }
@@ -116,16 +109,25 @@ public class BiometricFragment extends InstrumentedFragment {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
 
-        mBundle = getArguments();
-        mBiometricPrompt = new BiometricPrompt.Builder(getContext())
-            .setTitle(mBundle.getString(BiometricPrompt.KEY_TITLE))
-            .setUseDefaultTitle() // use default title if title is null/empty
-            .setDeviceCredentialAllowed(true)
-            .setSubtitle(mBundle.getString(BiometricPrompt.KEY_SUBTITLE))
-            .setDescription(mBundle.getString(BiometricPrompt.KEY_DESCRIPTION))
-            .setConfirmationRequired(
-                    mBundle.getBoolean(BiometricPrompt.KEY_REQUIRE_CONFIRMATION, true))
-            .build();
+        final Bundle bundle = getArguments();
+        final PromptInfo promptInfo = bundle.getParcelable(KEY_PROMPT_INFO);
+
+        final BiometricPrompt.Builder builder = new BiometricPrompt.Builder(getContext())
+                .setTitle(promptInfo.getTitle())
+                .setUseDefaultTitle() // use default title if title is null/empty
+                .setDeviceCredentialAllowed(true)
+                .setSubtitle(promptInfo.getSubtitle())
+                .setDescription(promptInfo.getDescription())
+                .setTextForDeviceCredential(
+                        promptInfo.getDeviceCredentialTitle(),
+                        promptInfo.getDeviceCredentialSubtitle(),
+                        promptInfo.getDeviceCredentialDescription())
+                .setConfirmationRequired(promptInfo.isConfirmationRequested())
+                .setDisallowBiometricsIfPolicyExists(
+                        promptInfo.isDisallowBiometricsIfPolicyExists())
+                .setReceiveSystemEvents(true);
+
+        mBiometricPrompt = builder.build();
         mCancellationSignal = new CancellationSignal();
 
         // TODO: CC doesn't use crypto for now
