@@ -41,7 +41,6 @@ import android.util.ArraySet;
 import android.util.Log;
 
 import com.android.car.CarServiceBase;
-import com.android.car.VmsLayersAvailability;
 import com.android.car.stats.CarStatsService;
 import com.android.car.stats.VmsClientLogger;
 import com.android.internal.annotations.GuardedBy;
@@ -75,7 +74,7 @@ public class VmsBrokerService extends IVmsBrokerService.Stub implements CarServi
     private final IntSupplier mGetCallingUid;
 
     private final VmsProviderInfoStore mProviderInfoStore = new VmsProviderInfoStore();
-    private final VmsLayersAvailability mAvailableLayers = new VmsLayersAvailability();
+    private final VmsLayerAvailability mAvailableLayers = new VmsLayerAvailability();
 
     private final Object mLock = new Object();
     @GuardedBy("mLock")
