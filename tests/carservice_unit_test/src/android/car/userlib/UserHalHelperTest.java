@@ -39,6 +39,8 @@ import static org.testng.Assert.assertThrows;
 import android.annotation.NonNull;
 import android.content.pm.UserInfo;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
+import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
+import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociation;
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType;
@@ -401,7 +403,7 @@ public final class UserHalHelperTest {
     }
 
     @Test
-    public void testToUserIdentificationGetResponse_invalidPropType() {
+    public void testToUserIdentificationResponse_invalidPropType() {
         VehiclePropValue prop = new VehiclePropValue();
 
         assertThrows(IllegalArgumentException.class,
@@ -482,6 +484,128 @@ public final class UserHalHelperTest {
         assertAssociation(response, 2, CUSTOM_2, NOT_ASSOCIATED_ANY_USER);
         assertWithMessage("Wrong error message on %s", response)
             .that(response.errorMessage).isEqualTo("D'OH!");
+    }
+
+    @Test
+    public void testToInitialUserInfoResponse_null() {
+        assertThrows(NullPointerException.class,
+                () -> UserHalHelper.toInitialUserInfoResponse(null));
+    }
+
+    @Test
+    public void testToInitialUserInfoResponse_invalidPropType() {
+        VehiclePropValue prop = new VehiclePropValue();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> UserHalHelper.toInitialUserInfoResponse(prop));
+    }
+
+    @Test
+    public void testToInitialUserInfoResponse_invalidSize() {
+        VehiclePropValue prop = new VehiclePropValue();
+        prop.prop = UserHalHelper.INITIAL_USER_INFO_PROPERTY;
+        //      need at least 2: request_id, action_type
+        prop.value.int32Values.add(42);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> UserHalHelper.toInitialUserInfoResponse(prop));
+    }
+
+    @Test
+    public void testToInitialUserInfoResponse_invalidRequest() {
+        VehiclePropValue prop = new VehiclePropValue();
+        prop.prop = UserHalHelper.INITIAL_USER_INFO_PROPERTY;
+        prop.value.int32Values.add(0);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> UserHalHelper.toInitialUserInfoResponse(prop));
+    }
+
+    @Test
+    public void testToInitialUserInfoResponse_invalidAction() {
+        VehiclePropValue prop = new VehiclePropValue();
+        prop.prop = UserHalHelper.INITIAL_USER_INFO_PROPERTY;
+        prop.value.int32Values.add(42); // request id
+        prop.value.int32Values.add(-1); // InitialUserInfoResponseAction
+
+        assertThrows(IllegalArgumentException.class,
+                () -> UserHalHelper.toInitialUserInfoResponse(prop));
+    }
+
+    @Test
+    public void testToInitialUserInfoResponse_default_ok() {
+        VehiclePropValue prop = new VehiclePropValue();
+        prop.prop = UserHalHelper.INITIAL_USER_INFO_PROPERTY;
+        prop.value.int32Values.add(42); // request id
+        prop.value.int32Values.add(InitialUserInfoResponseAction.DEFAULT);
+
+        InitialUserInfoResponse response = UserHalHelper.toInitialUserInfoResponse(prop);
+
+        assertThat(response).isNotNull();
+        assertThat(response.requestId).isEqualTo(42);
+        assertThat(response.action).isEqualTo(InitialUserInfoResponseAction.DEFAULT);
+        assertThat(response.userNameToCreate).isEmpty();
+        assertThat(response.userToSwitchOrCreate.userId).isEqualTo(UserHandle.USER_NULL);
+        assertThat(response.userToSwitchOrCreate.flags).isEqualTo(UserFlags.NONE);
+    }
+
+    @Test
+    public void testToInitialUserInfoResponse_switch_missingUserId() {
+        VehiclePropValue prop = new VehiclePropValue();
+        prop.prop = UserHalHelper.INITIAL_USER_INFO_PROPERTY;
+        prop.value.int32Values.add(42); // request id
+        prop.value.int32Values.add(InitialUserInfoResponseAction.SWITCH);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> UserHalHelper.toInitialUserInfoResponse(prop));
+    }
+
+    @Test
+    public void testToInitialUserInfoResponse_switch_ok() {
+        VehiclePropValue prop = new VehiclePropValue();
+        prop.prop = UserHalHelper.INITIAL_USER_INFO_PROPERTY;
+        prop.value.int32Values.add(42); // request id
+        prop.value.int32Values.add(InitialUserInfoResponseAction.SWITCH);
+        prop.value.int32Values.add(108); // user id
+
+        InitialUserInfoResponse response = UserHalHelper.toInitialUserInfoResponse(prop);
+
+        assertThat(response).isNotNull();
+        assertThat(response.requestId).isEqualTo(42);
+        assertThat(response.action).isEqualTo(InitialUserInfoResponseAction.SWITCH);
+        assertThat(response.userNameToCreate).isEmpty();
+        assertThat(response.userToSwitchOrCreate.userId).isEqualTo(108);
+        assertThat(response.userToSwitchOrCreate.flags).isEqualTo(UserFlags.NONE);
+    }
+
+    @Test
+    public void testToInitialUserInfoResponse_create_missingFlags() {
+        VehiclePropValue prop = new VehiclePropValue();
+        prop.prop = UserHalHelper.INITIAL_USER_INFO_PROPERTY;
+        prop.value.int32Values.add(42); // request id
+        prop.value.int32Values.add(InitialUserInfoResponseAction.CREATE);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> UserHalHelper.toInitialUserInfoResponse(prop));
+    }
+
+    @Test
+    public void testToInitialUserInfoResponse_create_ok() {
+        VehiclePropValue prop = new VehiclePropValue();
+        prop.prop = UserHalHelper.INITIAL_USER_INFO_PROPERTY;
+        prop.value.int32Values.add(42); // request id
+        prop.value.int32Values.add(InitialUserInfoResponseAction.CREATE);
+        prop.value.int32Values.add(UserFlags.GUEST);
+        prop.value.stringValue = "ElGuesto";
+
+        InitialUserInfoResponse response = UserHalHelper.toInitialUserInfoResponse(prop);
+
+        assertThat(response).isNotNull();
+        assertThat(response.requestId).isEqualTo(42);
+        assertThat(response.action).isEqualTo(InitialUserInfoResponseAction.CREATE);
+        assertThat(response.userNameToCreate).isEqualTo("ElGuesto");
+        assertThat(response.userToSwitchOrCreate.userId).isEqualTo(UserHandle.USER_NULL);
+        assertThat(response.userToSwitchOrCreate.flags).isEqualTo(UserFlags.GUEST);
     }
 
     @Test
