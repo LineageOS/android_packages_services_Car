@@ -15,6 +15,8 @@
  */
 package android.car.test.util;
 
+import static com.android.compatibility.common.util.ShellUtils.runShellCommand;
+
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
@@ -81,6 +83,27 @@ public final class UserTestingHelper {
     @NonNull
     public static String getDefaultUserType(boolean isGuest) {
         return isGuest ? UserManager.USER_TYPE_FULL_GUEST : UserManager.USER_TYPE_FULL_SECONDARY;
+    }
+
+    /**
+     * Sets the property that defines the maximum number of uses allowed in the device.
+     */
+    public static void setMaxSupportedUsers(int max) {
+        runShellCommand("setprop fw.max_users %d", max);
+    }
+
+    /**
+     * Configures the user to use PIN credentials.
+     */
+    public static void setUserLockCredentials(@UserIdInt int userId, int pin) {
+        runShellCommand("locksettings set-pin %s --user %d ", pin, userId);
+    }
+
+    /**
+     * Clears the user credentials using current PIN.
+     */
+    public static void clearUserLockCredentials(@UserIdInt int userId, int pin) {
+        runShellCommand("locksettings clear --old %d --user %d ", pin, userId);
     }
 
     /**
