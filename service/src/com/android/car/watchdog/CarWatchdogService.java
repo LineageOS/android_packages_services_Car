@@ -68,7 +68,7 @@ import java.util.List;
  */
 public final class CarWatchdogService extends ICarWatchdogService.Stub implements CarServiceBase {
 
-    private static final boolean DEBUG = true; // STOPSHIP if true (b/151474489)
+    private static final boolean DEBUG = false; // STOPSHIP if true
     private static final String TAG = TAG_WATCHDOG;
     private static final int[] ALL_TIMEOUTS =
             { TIMEOUT_CRITICAL, TIMEOUT_MODERATE, TIMEOUT_NORMAL };

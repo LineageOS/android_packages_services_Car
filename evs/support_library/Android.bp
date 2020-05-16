@@ -56,10 +56,6 @@ cc_library_shared {
         "camera_config.json",
     ],
 
-    strip: {
-        keep_symbols: true,
-    },
-
     cflags: ["-DLOG_TAG=\"libevssupport\""] + [
         "-DGL_GLEXT_PROTOTYPES",
         "-DEGL_EGLEXT_PROTOTYPES",

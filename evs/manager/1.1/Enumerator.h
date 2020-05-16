@@ -17,12 +17,13 @@
 #ifndef ANDROID_AUTOMOTIVE_EVS_V1_1_EVSCAMERAENUMERATOR_H
 #define ANDROID_AUTOMOTIVE_EVS_V1_1_EVSCAMERAENUMERATOR_H
 
+#include "HalCamera.h"
+#include "VirtualCamera.h"
+#include "stats/StatsCollector.h"
+
 #include <list>
 #include <unordered_map>
 #include <unordered_set>
-
-#include "HalCamera.h"
-#include "VirtualCamera.h"
 
 #include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
 #include <android/hardware/automotive/evs/1.1/IEvsDisplay.h>
@@ -93,8 +94,17 @@ private:
     std::unordered_map<std::string,
                        CameraDesc>    mCameraDevices;
 
+    // List of available physical display devices
+    std::list<uint8_t>                mDisplayPorts;
+
     // Display port the internal display is connected to.
     uint8_t                           mInternalDisplayPort;
+
+    // Collecting camera usage statistics from clients
+    sp<StatsCollector>                mClientsMonitor;
+
+    // Boolean flag to tell whether the camera usages are being monitored or not
+    bool                              mMonitorEnabled;
 
     // LSHAL dump
     void cmdDump(int fd, const hidl_vec<hidl_string>& options);

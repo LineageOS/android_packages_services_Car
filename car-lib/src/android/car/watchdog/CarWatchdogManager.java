@@ -51,7 +51,7 @@ import java.util.concurrent.Executor;
 public final class CarWatchdogManager extends CarManagerBase {
 
     private static final String TAG = CarWatchdogManager.class.getSimpleName();
-    private static final boolean DEBUG = true; // STOPSHIP if true (b/151474489)
+    private static final boolean DEBUG = false; // STOPSHIP if true
     private static final int INVALID_SESSION_ID = -1;
     private static final int NUMBER_OF_CONDITIONS_TO_BE_MET = 2;
     // Message ID representing main thread activeness checking.
