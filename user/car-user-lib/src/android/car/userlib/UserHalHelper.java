@@ -22,6 +22,8 @@ import android.car.userlib.HalCallback.HalCallbackStatus;
 import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
+import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
+import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociation;
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue;
@@ -44,6 +46,7 @@ import java.util.Objects;
  */
 public final class UserHalHelper {
 
+    public static final int INITIAL_USER_INFO_PROPERTY = 299896583;
     public static final int USER_IDENTIFICATION_ASSOCIATION_PROPERTY = 299896587;
 
     /**
@@ -268,6 +271,8 @@ public final class UserHalHelper {
     /**
      * Creates a {@link UserIdentificationResponse} from a generic {@link VehiclePropValue} sent by
      * HAL.
+     *
+     * @throws IllegalArgumentException if the HAL property doesn't have the proper format.
      */
     @NonNull
     public static UserIdentificationResponse toUserIdentificationResponse(
@@ -276,7 +281,7 @@ public final class UserHalHelper {
         checkArgument(prop.prop == USER_IDENTIFICATION_ASSOCIATION_PROPERTY,
                 "invalid prop on %s", prop);
         // need at least 4: request_id, number associations, type1, value1
-        checkArgument(prop.value.int32Values.size() >= 4, "not enough int32Values on %s", prop);
+        assertMinimumSize(prop, 4);
 
         int requestId = prop.value.int32Values.get(0);
         checkArgument(requestId > 0, "invalid request id (%d) on %s", requestId, prop);
@@ -312,8 +317,55 @@ public final class UserHalHelper {
     }
 
     /**
+     * Creates a {@link InitialUserInfoResponse} from a generic {@link VehiclePropValue} sent by
+     * HAL.
+     *
+     * @throws IllegalArgumentException if the HAL property doesn't have the proper format.
+     */
+    @NonNull
+    public static InitialUserInfoResponse toInitialUserInfoResponse(
+            @NonNull VehiclePropValue prop) {
+        Objects.requireNonNull(prop, "prop cannot be null");
+        checkArgument(prop.prop == INITIAL_USER_INFO_PROPERTY, "invalid prop on %s", prop);
+
+        // need at least 2: request_id, action_type
+        assertMinimumSize(prop, 2);
+
+        int requestId = prop.value.int32Values.get(0);
+        checkArgument(requestId > 0, "invalid request id (%d) on %s", requestId, prop);
+
+        InitialUserInfoResponse response = new InitialUserInfoResponse();
+        response.requestId = requestId;
+        response.action = prop.value.int32Values.get(1);
+        switch (response.action) {
+            case InitialUserInfoResponseAction.DEFAULT:
+                response.userToSwitchOrCreate.userId = UserHandle.USER_NULL;
+                response.userToSwitchOrCreate.flags = UserFlags.NONE;
+                break;
+            case InitialUserInfoResponseAction.SWITCH:
+                assertMinimumSize(prop, 3);
+                response.userToSwitchOrCreate.userId = prop.value.int32Values.get(2);
+                response.userToSwitchOrCreate.flags = UserFlags.NONE;
+                break;
+            case InitialUserInfoResponseAction.CREATE:
+                assertMinimumSize(prop, 3);
+                response.userToSwitchOrCreate.userId = UserHandle.USER_NULL;
+                response.userToSwitchOrCreate.flags = prop.value.int32Values.get(2);
+                response.userNameToCreate = prop.value.stringValue;
+                break;
+            default:
+                throw new IllegalArgumentException(
+                        "Invalid response action (" + response.action + " on " + prop);
+        }
+
+        return response;
+    }
+
+    /**
      * Creates a generic {@link VehiclePropValue} (that can be sent to HAL) from a
      * {@link UserIdentificationGetRequest}.
+     *
+     * @throws IllegalArgumentException if the request doesn't have the proper format.
      */
     @NonNull
     public static VehiclePropValue toVehiclePropValue(
@@ -343,6 +395,8 @@ public final class UserHalHelper {
     /**
      * Creates a generic {@link VehiclePropValue} (that can be sent to HAL) from a
      * {@link UserIdentificationSetRequest}.
+     *
+     * @throws IllegalArgumentException if the request doesn't have the proper format.
      */
     @NonNull
     public static VehiclePropValue toVehiclePropValue(
@@ -370,6 +424,11 @@ public final class UserHalHelper {
         }
 
         return propValue;
+    }
+
+    private static void assertMinimumSize(@NonNull VehiclePropValue prop, int minSize) {
+        checkArgument(prop.value.int32Values.size() >= minSize,
+                "not enough int32Values (minimum is %d) on %s", minSize, prop);
     }
 
     private UserHalHelper() {

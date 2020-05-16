@@ -29,11 +29,9 @@ import android.car.user.CarUserManager;
 import android.car.userlib.HalCallback;
 import android.car.userlib.UserHalHelper;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
-import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserMessageType;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserResponse;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserStatus;
-import android.hardware.automotive.vehicle.V2_0.UserFlags;
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType;
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationGetRequest;
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationResponse;
@@ -45,7 +43,6 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.ServiceSpecificException;
-import android.os.UserHandle;
 import android.sysprop.CarProperties;
 import android.text.TextUtils;
 import android.util.EventLog;
@@ -639,30 +636,16 @@ public final class UserHalService extends HalServiceBase {
             return;
         }
         handleRemovePendingRequest(requestId);
-        InitialUserInfoResponse response = new InitialUserInfoResponse();
-        // TODO(b/150413515): use helper method to convert prop value to proper response
-        response.requestId = requestId;
-        response.action = value.value.int32Values.get(1);
-        switch (response.action) {
-            case InitialUserInfoResponseAction.DEFAULT:
-                response.userToSwitchOrCreate.userId = UserHandle.USER_NULL;
-                response.userToSwitchOrCreate.flags = UserFlags.NONE;
-                break;
-            case InitialUserInfoResponseAction.SWITCH:
-                response.userToSwitchOrCreate.userId = value.value.int32Values.get(2);
-                response.userToSwitchOrCreate.flags = UserFlags.NONE;
-                break;
-            case InitialUserInfoResponseAction.CREATE:
-                response.userToSwitchOrCreate.userId = UserHandle.USER_NULL;
-                response.userToSwitchOrCreate.flags = value.value.int32Values.get(2);
-                response.userNameToCreate = value.value.stringValue;
-                break;
-            default:
-                Log.e(TAG, "invalid action (" + response.action + ") from HAL: " + value);
-                EventLog.writeEvent(EventLogTags.CAR_USER_HAL_INITIAL_USER_INFO_RESP, requestId,
-                        HalCallback.STATUS_WRONG_HAL_RESPONSE);
-                callback.onResponse(HalCallback.STATUS_WRONG_HAL_RESPONSE, null);
-                return;
+
+        InitialUserInfoResponse response;
+        try {
+            response = UserHalHelper.toInitialUserInfoResponse(value);
+        } catch (RuntimeException e) {
+            Log.e(TAG, "invalid response (" + value + ") from HAL", e);
+            EventLog.writeEvent(EventLogTags.CAR_USER_HAL_INITIAL_USER_INFO_RESP, requestId,
+                    HalCallback.STATUS_WRONG_HAL_RESPONSE);
+            callback.onResponse(HalCallback.STATUS_WRONG_HAL_RESPONSE, null);
+            return;
         }
         EventLog.writeEvent(EventLogTags.CAR_USER_HAL_INITIAL_USER_INFO_RESP, requestId,
                 HalCallback.STATUS_OK, response.action,
