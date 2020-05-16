@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
+ * Copyright (C) 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car;
+package com.android.car.vms;
 
 import android.car.vms.VmsAssociatedLayer;
 import android.car.vms.VmsAvailableLayers;
@@ -35,26 +35,22 @@ import java.util.stream.Collectors;
 
 /**
  * Manages VMS availability for layers.
- * <p>
+ *
  * Each VMS publisher sets its layers offering which are a list of layers the publisher claims
  * it might publish. VmsLayersAvailability calculates from all the offering what are the
  * available layers.
- *
- * @hide
  */
 
-public class VmsLayersAvailability {
+class VmsLayerAvailability {
     private static final boolean DBG = false;
-    private static final String TAG = "VmsLayersAvailability";
+    private static final String TAG = VmsLayerAvailability.class.getSimpleName();
 
     private final Object mLock = new Object();
     @GuardedBy("mLock")
     private final Map<VmsLayer, Set<Set<VmsLayer>>> mPotentialLayersAndDependencies =
             new HashMap<>();
     @GuardedBy("mLock")
-    private Set<VmsAssociatedLayer> mAvailableAssociatedLayers = Collections.EMPTY_SET;
-    @GuardedBy("mLock")
-    private Set<VmsAssociatedLayer> mUnavailableAssociatedLayers = Collections.EMPTY_SET;
+    private Set<VmsAssociatedLayer> mAvailableAssociatedLayers = Collections.emptySet();
     @GuardedBy("mLock")
     private Map<VmsLayer, Set<Integer>> mPotentialLayersAndPublishers = new HashMap<>();
     @GuardedBy("mLock")
@@ -63,7 +59,7 @@ public class VmsLayersAvailability {
     /**
      * Setting the current layers offerings as reported by publishers.
      */
-    public void setPublishersOffering(Collection<VmsLayersOffering> publishersLayersOfferings) {
+    void setPublishersOffering(Collection<VmsLayersOffering> publishersLayersOfferings) {
         synchronized (mLock) {
             reset();
 
@@ -72,22 +68,12 @@ public class VmsLayersAvailability {
                     VmsLayer layer = dependency.getLayer();
 
                     // Associate publishers with layers.
-                    Set<Integer> curPotentialLayerAndPublishers =
-                            mPotentialLayersAndPublishers.get(layer);
-                    if (curPotentialLayerAndPublishers == null) {
-                        curPotentialLayerAndPublishers = new HashSet<>();
-                        mPotentialLayersAndPublishers.put(layer, curPotentialLayerAndPublishers);
-                    }
-                    curPotentialLayerAndPublishers.add(offering.getPublisherId());
+                    mPotentialLayersAndPublishers.computeIfAbsent(layer, k -> new HashSet<>())
+                            .add(offering.getPublisherId());
 
                     // Add dependencies for availability calculation.
-                    Set<Set<VmsLayer>> curDependencies =
-                            mPotentialLayersAndDependencies.get(layer);
-                    if (curDependencies == null) {
-                        curDependencies = new HashSet<>();
-                        mPotentialLayersAndDependencies.put(layer, curDependencies);
-                    }
-                    curDependencies.add(dependency.getDependencies());
+                    mPotentialLayersAndDependencies.computeIfAbsent(layer, k -> new HashSet<>())
+                            .add(dependency.getDependencies());
                 }
             }
             calculateLayers();
@@ -97,7 +83,7 @@ public class VmsLayersAvailability {
     /**
      * Returns a collection of all the layers which may be published.
      */
-    public VmsAvailableLayers getAvailableLayers() {
+    VmsAvailableLayers getAvailableLayers() {
         synchronized (mLock) {
             return new VmsAvailableLayers(mAvailableAssociatedLayers, mSeq);
         }
@@ -107,8 +93,7 @@ public class VmsLayersAvailability {
         synchronized (mLock) {
             mPotentialLayersAndDependencies.clear();
             mPotentialLayersAndPublishers.clear();
-            mAvailableAssociatedLayers = Collections.EMPTY_SET;
-            mUnavailableAssociatedLayers = Collections.EMPTY_SET;
+            mAvailableAssociatedLayers = Collections.emptySet();
             mSeq += 1;
         }
     }
@@ -127,14 +112,8 @@ public class VmsLayersAvailability {
             mAvailableAssociatedLayers = Collections.unmodifiableSet(
                     availableLayersSet
                             .stream()
-                            .map(l -> new VmsAssociatedLayer(l, mPotentialLayersAndPublishers.get(l)))
-                            .collect(Collectors.toSet()));
-
-            mUnavailableAssociatedLayers = Collections.unmodifiableSet(
-                    mPotentialLayersAndDependencies.keySet()
-                            .stream()
-                            .filter(l -> !availableLayersSet.contains(l))
-                            .map(l -> new VmsAssociatedLayer(l, mPotentialLayersAndPublishers.get(l)))
+                            .map(l -> new VmsAssociatedLayer(l,
+                                    mPotentialLayersAndPublishers.get(l)))
                             .collect(Collectors.toSet()));
         }
     }
@@ -188,6 +167,5 @@ public class VmsLayersAvailability {
                 return;
             }
         }
-        return;
     }
 }
