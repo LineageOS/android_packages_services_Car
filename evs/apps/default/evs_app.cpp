@@ -14,24 +14,25 @@
  * limitations under the License.
  */
 
+#include "ConfigManager.h"
+#include "EvsStateControl.h"
+#include "EvsVehicleListener.h"
+
 #include <stdio.h>
 
+#include <android/hardware/automotive/evs/1.1/IEvsDisplay.h>
+#include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
+#include <android-base/logging.h>
+#include <android-base/macros.h>    // arraysize
+#include <android-base/strings.h>
 #include <hidl/HidlTransportSupport.h>
+#include <hwbinder/ProcessState.h>
 #include <utils/Errors.h>
 #include <utils/StrongPointer.h>
 #include <utils/Log.h>
 
-#include "android-base/macros.h"    // arraysize
-#include "android-base/logging.h"
 
-#include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
-#include <android/hardware/automotive/evs/1.1/IEvsDisplay.h>
-
-#include <hwbinder/ProcessState.h>
-
-#include "EvsStateControl.h"
-#include "EvsVehicleListener.h"
-#include "ConfigManager.h"
+using android::base::EqualsIgnoreCase;
 
 // libhidl:
 using android::hardware::configureRpcThreadpool;
@@ -66,6 +67,24 @@ static bool subscribeToVHal(sp<IVehicle> pVnet,
 }
 
 
+static bool convertStringToFormat(const char* str, android_pixel_format_t* output) {
+    bool result = true;
+    if (EqualsIgnoreCase(str, "RGBA8888")) {
+        *output = HAL_PIXEL_FORMAT_RGBA_8888;
+    } else if (EqualsIgnoreCase(str, "YV12")) {
+        *output = HAL_PIXEL_FORMAT_YV12;
+    } else if (EqualsIgnoreCase(str, "NV21")) {
+        *output = HAL_PIXEL_FORMAT_YCrCb_420_SP;
+    } else if (EqualsIgnoreCase(str, "YUYV")) {
+        *output = HAL_PIXEL_FORMAT_YCBCR_422_I;
+    } else {
+        result = false;
+    }
+
+    return result;
+}
+
+
 // Main entry point
 int main(int argc, char** argv)
 {
@@ -77,6 +96,7 @@ int main(int argc, char** argv)
     const char* evsServiceName = "default";
     int displayId = 1;
     bool useExternalMemory = false;
+    android_pixel_format_t extMemoryFormat = HAL_PIXEL_FORMAT_RGBA_8888;
     for (int i=1; i< argc; i++) {
         if (strcmp(argv[i], "--test") == 0) {
             useVehicleHal = false;
@@ -90,6 +110,19 @@ int main(int argc, char** argv)
             displayId = std::stoi(argv[++i]);
         } else if (strcmp(argv[i], "--extmem") == 0) {
             useExternalMemory = true;
+            if (i + 1 >= argc) {
+                // use RGBA8888 by default
+                LOG(INFO) << "External buffer format is not set.  "
+                          << "RGBA8888 will be used.";
+            } else {
+                if (!convertStringToFormat(argv[i + 1], &extMemoryFormat)) {
+                    LOG(WARNING) << "Color format string " << argv[i + 1]
+                                 << " is unknown or not supported.  RGBA8888 will be used.";
+                } else {
+                    // move the index
+                    ++i;
+                }
+            }
         } else {
             printf("Ignoring unrecognized command line arg '%s'\n", argv[i]);
             printHelp = true;
@@ -97,11 +130,23 @@ int main(int argc, char** argv)
     }
     if (printHelp) {
         printf("Options include:\n");
-        printf("  --test    Do not talk to Vehicle Hal, but simulate 'reverse' instead\n");
-        printf("  --hw      Bypass EvsManager by connecting directly to EvsEnumeratorHw\n");
-        printf("  --mock    Connect directly to EvsEnumeratorHw-Mock\n");
-        printf("  --display Specify the display to use\n");
-        printf("  --extmem  Application allocates buffers to capture camera frames\n");
+        printf("  --test\n\tDo not talk to Vehicle Hal, but simulate 'reverse' instead\n");
+        printf("  --hw\n\tBypass EvsManager by connecting directly to EvsEnumeratorHw\n");
+        printf("  --mock\n\tConnect directly to EvsEnumeratorHw-Mock\n");
+        printf("  --display\n\tSpecify the display to use\n");
+        printf("  --extmem  <format>\n\t"
+               "Application allocates buffers to capture camera frames.  "
+               "Available format strings are (case insensitive):\n");
+        printf("\t\tRGBA8888: 4x8-bit RGBA format.  This is the default format to be used "
+               "when no format is specified.\n");
+        printf("\t\tYV12: YUV420 planar format with a full resolution Y plane "
+               "followed by a V values, with U values last.\n");
+        printf("\t\tNV21: A biplanar format with a full resolution Y plane "
+               "followed by a single chrome plane with weaved V and U values.\n");
+        printf("\t\tYUYV: Packed format with a half horizontal chrome resolution.  "
+               "Known as YUV4:2:2.\n");
+
+        return EXIT_FAILURE;
     }
 
     // Load our configuration information
@@ -140,6 +185,7 @@ int main(int argc, char** argv)
     }
     config.setActiveDisplayId(displayId);
     config.useExternalMemory(useExternalMemory);
+    config.setExternalMemoryFormat(extMemoryFormat);
 
     // Connect to the Vehicle HAL so we can monitor state
     sp<IVehicle> pVnet;
