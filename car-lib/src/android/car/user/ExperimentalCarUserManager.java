@@ -27,6 +27,9 @@ import android.car.annotation.ExperimentalFeature;
 import android.content.pm.UserInfo;
 import android.os.RemoteException;
 import android.os.UserHandle;
+import android.util.Log;
+
+import com.android.internal.infra.AndroidFuture;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,6 +44,8 @@ import java.util.List;
  */
 @ExperimentalFeature
 public final class ExperimentalCarUserManager extends CarManagerBase {
+
+    private static final String TAG = ExperimentalCarUserManager.class.getSimpleName();
 
     /**
      *  User id representing invalid user.
@@ -108,16 +113,31 @@ public final class ExperimentalCarUserManager extends CarManagerBase {
      * Switches a driver to the given user.
      *
      * @param driverId User id of the driver to switch to.
-     * @return {@code true} if user switching succeeds, or {@code false} if it fails.
+     * @return an {@link AndroidFuture} that can be used to track operation's completion and
+     *         retrieve its result (if any).
      *
      * @hide
      */
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
-    public boolean switchDriver(@UserIdInt int driverId) {
+    public AndroidFuture<UserSwitchResult> switchDriver(@UserIdInt int driverId) {
         try {
-            return mService.switchDriver(driverId);
+            AndroidFuture<UserSwitchResult> future = new AndroidFuture<>() {
+                @Override
+                protected void onCompleted(UserSwitchResult result, Throwable err) {
+                    if (result == null) {
+                        Log.w(TAG, "switchDriver(" + driverId + ") failed: " + err);
+                    }
+                    super.onCompleted(result, err);
+                }
+            };
+            mService.switchDriver(driverId, future);
+            return future;
         } catch (RemoteException e) {
-            return handleRemoteExceptionFromCarService(e, false);
+            AndroidFuture<UserSwitchResult> future = new AndroidFuture<>();
+            future.complete(
+                    new UserSwitchResult(UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE, null));
+            handleRemoteExceptionFromCarService(e);
+            return future;
         }
     }
 
