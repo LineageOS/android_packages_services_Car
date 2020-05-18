@@ -596,8 +596,7 @@ void Enumerator::cmdDump(int fd, const hidl_vec<hidl_string>& options) {
 
 
 void Enumerator::cmdHelp(int fd) {
-    WriteStringToFd("Usage: \n\n"
-                    "--help: shows this help.\n"
+    WriteStringToFd("--help: shows this help.\n"
                     "--list [all|camera|display]: lists camera or display devices or both "
                     "available to EVS manager.\n"
                     "--dump camera [all|device_id] --[current|collected|custom] [args]\n"
@@ -680,20 +679,26 @@ void Enumerator::cmdList(int fd, const hidl_vec<hidl_string>& options) {
 
 void Enumerator::cmdDumpDevice(int fd, const hidl_vec<hidl_string>& options) {
     // Dumps both cameras and displays if the target device type is not given
-    bool dumpCameras = true;
-    bool dumpDisplays = true;
+    bool dumpCameras = false;
+    bool dumpDisplays = false;
     const auto numOptions = options.size();
     if (numOptions > kOptionDumpDeviceTypeIndex) {
         const std::string target = options[kOptionDumpDeviceTypeIndex];
-        const bool dumpAll = EqualsIgnoreCase(target, kDumpOptionAll);
-        dumpCameras = dumpAll || EqualsIgnoreCase(target, kDumpDeviceCamera);
-        dumpDisplays = dumpAll || EqualsIgnoreCase(target, kDumpDeviceDisplay);
+        dumpCameras = EqualsIgnoreCase(target, kDumpDeviceCamera);
+        dumpDisplays = EqualsIgnoreCase(target, kDumpDeviceDisplay);
         if (!dumpCameras && !dumpDisplays) {
             WriteStringToFd(StringPrintf("Unrecognized option, %s, is ignored.\n",
                                          target.c_str()),
                             fd);
+            cmdHelp(fd);
             return;
         }
+    } else {
+        WriteStringToFd(StringPrintf("Necessary arguments are missing.  "
+                                     "Please check the usages:\n"),
+                        fd);
+        cmdHelp(fd);
+        return;
     }
 
     if (dumpCameras) {
