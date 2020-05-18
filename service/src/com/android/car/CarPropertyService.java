@@ -25,6 +25,8 @@ import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarProperty;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.content.Context;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -61,6 +63,10 @@ public class CarPropertyService extends ICarProperty.Stub
     private final Object mLock = new Object();
     @GuardedBy("mLock")
     private final SparseArray<SparseArray<Client>> mSetOperationClientMap = new SparseArray<>();
+    private final HandlerThread mHandlerThread =
+            CarServiceUtils.getHandlerThread(getClass().getSimpleName());
+    private final Handler mHandler = new Handler(mHandlerThread.getLooper());
+
     public CarPropertyService(Context context, PropertyHalService hal) {
         if (DBG) {
             Log.d(TAG, "CarPropertyService started!");
@@ -169,21 +175,24 @@ public class CarPropertyService extends ICarProperty.Stub
         if (DBG) {
             Log.d(TAG, "registerListener: propId=0x" + toHexString(propId) + " rate=" + rate);
         }
-        if (mConfigs.get(propId) == null) {
-            // Do not attempt to register an invalid propId
-            Log.e(TAG, "registerListener:  propId is not in config list: 0x" + toHexString(propId));
-            return;
-        }
-        ICarImpl.assertPermission(mContext, mHal.getReadPermission(propId));
         if (listener == null) {
             Log.e(TAG, "registerListener: Listener is null.");
             throw new IllegalArgumentException("listener cannot be null.");
         }
 
         IBinder listenerBinder = listener.asBinder();
-
+        CarPropertyConfig propertyConfig;
+        Client finalClient;
         synchronized (mLock) {
-            // Get the client for this listener
+            propertyConfig = mConfigs.get(propId);
+            if (propertyConfig == null) {
+                // Do not attempt to register an invalid propId
+                Log.e(TAG, "registerListener:  propId is not in config list: 0x" + toHexString(
+                        propId));
+                return;
+            }
+            ICarImpl.assertPermission(mContext, mHal.getReadPermission(propId));
+            // Get or create the client for this listener
             Client client = mClientMap.get(listenerBinder);
             if (client == null) {
                 client = new Client(listener);
@@ -206,29 +215,36 @@ public class CarPropertyService extends ICarProperty.Stub
             if (rate > mHal.getSampleRate(propId)) {
                 mHal.subscribeProperty(propId, rate);
             }
+            finalClient = client;
         }
-        // Send the latest value(s) to the registering listener only
-        List<CarPropertyEvent> events = new LinkedList<CarPropertyEvent>();
-        if (mConfigs.get(propId).isGlobalProperty()) {
+
+        // propertyConfig and client are NonNull.
+        mHandler.post(() ->
+                getAndDispatchPropertyInitValue(propertyConfig, finalClient));
+    }
+
+    private void getAndDispatchPropertyInitValue(CarPropertyConfig config, Client client) {
+        List<CarPropertyEvent> events = new LinkedList<>();
+        int propId = config.getPropertyId();
+        if (config.isGlobalProperty()) {
             CarPropertyValue value = mHal.getProperty(propId, 0);
-            // CarPropertyEvent without a CarPropertyValue can not be used by any listeners.
             if (value != null) {
                 CarPropertyEvent event = new CarPropertyEvent(
-                    CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, value);
+                        CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, value);
                 events.add(event);
             }
         } else {
-            for (int areaId : mConfigs.get(propId).getAreaIds()) {
+            for (int areaId : config.getAreaIds()) {
                 CarPropertyValue value = mHal.getProperty(propId, areaId);
                 if (value != null) {
                     CarPropertyEvent event = new CarPropertyEvent(
-                        CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, value);
+                            CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, value);
                     events.add(event);
                 }
             }
         }
         try {
-            listener.onEvent(events);
+            client.getListener().onEvent(events);
         } catch (RemoteException ex) {
             // If we cannot send a record, its likely the connection snapped. Let the binder
             // death handle the situation.
