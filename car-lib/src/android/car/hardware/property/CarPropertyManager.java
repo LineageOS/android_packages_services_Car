@@ -176,10 +176,11 @@ public class CarPropertyManager extends CarManagerBase {
             for (CarPropertyConfig carPropertyConfig : configs) {
                 mConfigMap.put(carPropertyConfig.getPropertyId(), carPropertyConfig);
             }
-        } catch (Exception e) {
+        } catch (RemoteException e) {
             Log.e(TAG, "getPropertyList exception ", e);
             throw new RuntimeException(e);
         }
+
         Handler eventHandler = getEventHandler();
         if (eventHandler == null) {
             mHandler = null;
