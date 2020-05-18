@@ -416,29 +416,21 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      * @see CarUserManager.switchDriver
      */
     @Override
-    public boolean switchDriver(@UserIdInt int driverId) {
+    public void switchDriver(@UserIdInt int driverId, AndroidFuture<UserSwitchResult> receiver) {
         checkManageUsersPermission("switchDriver");
-        if (driverId == UserHandle.USER_SYSTEM && UserManager.isHeadlessSystemUserMode()) {
+        if (UserHelper.isHeadlessSystemUser(driverId)) {
             // System user doesn't associate with real person, can not be switched to.
             Log.w(TAG_USER, "switching to system user in headless system user mode is not allowed");
-            return false;
+            sendResult(receiver, UserSwitchResult.STATUS_INVALID_REQUEST);
+            return;
         }
         int userSwitchable = mUserManager.getUserSwitchability();
         if (userSwitchable != UserManager.SWITCHABILITY_STATUS_OK) {
             Log.w(TAG_USER, "current process is not allowed to switch user");
-            return false;
+            sendResult(receiver, UserSwitchResult.STATUS_INVALID_REQUEST);
+            return;
         }
-        if (driverId == ActivityManager.getCurrentUser()) {
-            // The current user is already the given user.
-            return true;
-        }
-        try {
-            return mAm.switchUser(driverId);
-        } catch (RemoteException e) {
-            // ignore
-            Log.w(TAG_USER, "error while switching user", e);
-        }
-        return false;
+        switchUser(driverId, mHalTimeoutMs, receiver);
     }
 
     /**
