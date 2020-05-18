@@ -32,15 +32,21 @@ import android.os.ServiceManager;
 import android.os.UserHandle;
 import android.os.UserManager;
 
+import com.android.internal.infra.AndroidFuture;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 /**
  * Provides common Mockito calls for core Android classes.
  */
 public final class AndroidMockitoHelper {
+
+    private static final long ASYNC_TIMEOUT_MS = 500;
 
     /**
      * Mocks a call to {@link ActivityManager#getCurrentUser()}.
@@ -160,6 +166,15 @@ public final class AndroidMockitoHelper {
             @NonNull IBinder binder, @NonNull T service) {
         doReturn(binder).when(() -> ServiceManager.getService(name));
         when(binder.queryLocalInterface(anyString())).thenReturn(service);
+    }
+
+    @NonNull
+    public static <T> T getResult(@NonNull AndroidFuture<T> future) throws Exception {
+        try {
+            return future.get(ASYNC_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        } catch (TimeoutException e) {
+            throw new IllegalStateException("not called in " + ASYNC_TIMEOUT_MS + "ms", e);
+        }
     }
 
     private AndroidMockitoHelper() {

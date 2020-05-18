@@ -16,6 +16,7 @@
 
 package com.android.car.user;
 
+import static android.car.test.mocks.AndroidMockitoHelper.getResult;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetSystemUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserInfo;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUsers;
@@ -89,6 +90,7 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.sysprop.CarProperties;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -111,9 +113,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * This class contains unit tests for the {@link CarUserService}.
@@ -184,7 +185,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
             // TODO(b/156299496): it cannot spy on UserManager, as it would slow down the tests
             // considerably (more than 5 minutes total, instead of just a couple seconds). So, it's
             // mocking UserHelper.isHeadlessSystemUser() (on mockIsHeadlessSystemUser()) instead...
-            .spyStatic(UserHelper.class);
+            .spyStatic(UserHelper.class)
+            .spyStatic(CarProperties.class);
     }
 
     /**
@@ -203,6 +205,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         doReturn(mMockedDrawable).when(mMockedDrawable).mutate();
         doReturn(1).when(mMockedDrawable).getIntrinsicWidth();
         doReturn(1).when(mMockedDrawable).getIntrinsicHeight();
+        doReturn(Optional.of(mAsyncCallTimeoutMs)).when(() -> CarProperties.user_hal_timeout());
         mCarUserService =
                 new CarUserService(
                         mMockContext,
@@ -526,34 +529,37 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testSwitchDriver() throws RemoteException {
-        int currentId = 11;
-        int targetId = 12;
-        mockGetCurrentUser(currentId);
-        doReturn(true).when(mMockedIActivityManager).switchUser(targetId);
-        doReturn(false).when(mMockedUserManager)
-                .hasUserRestriction(UserManager.DISALLOW_USER_SWITCH);
-        assertTrue(mCarUserService.switchDriver(targetId));
+    public void testSwitchDriver() throws Exception {
+        mockExistingUsersAndCurrentUser(mAdminUser);
+        int requestId = 42;
+        mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
+        mSwitchUserResponse.requestId = requestId;
+        mockHalSwitch(mAdminUser.id, mRegularUser, mSwitchUserResponse);
+        mockAmSwitchUser(mRegularUser, true);
+        when(mMockedUserManager.hasUserRestriction(UserManager.DISALLOW_USER_SWITCH))
+                .thenReturn(false);
+        mCarUserService.switchDriver(mRegularUser.id, mUserSwitchFuture);
+        assertThat(getUserSwitchResult().getStatus())
+                .isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
     }
 
     @Test
-    public void testSwitchDriver_IfUserSwitchIsNotAllowed() throws RemoteException {
-        int currentId = 11;
-        int targetId = 12;
-        mockGetCurrentUser(currentId);
-        doReturn(true).when(mMockedIActivityManager).switchUser(targetId);
-        doReturn(UserManager.SWITCHABILITY_STATUS_USER_SWITCH_DISALLOWED).when(mMockedUserManager)
-                .getUserSwitchability();
-        assertFalse(mCarUserService.switchDriver(targetId));
+    public void testSwitchDriver_IfUserSwitchIsNotAllowed() throws Exception {
+        when(mMockedUserManager.getUserSwitchability())
+                .thenReturn(UserManager.SWITCHABILITY_STATUS_USER_SWITCH_DISALLOWED);
+        mCarUserService.switchDriver(mRegularUser.id, mUserSwitchFuture);
+        assertThat(getUserSwitchResult().getStatus())
+                .isEqualTo(UserSwitchResult.STATUS_INVALID_REQUEST);
     }
 
     @Test
-    public void testSwitchDriver_IfSwitchedToCurrentUser() throws RemoteException {
-        int currentId = 11;
-        mockGetCurrentUser(currentId);
-        doReturn(false).when(mMockedUserManager)
-                .hasUserRestriction(UserManager.DISALLOW_USER_SWITCH);
-        assertTrue(mCarUserService.switchDriver(11));
+    public void testSwitchDriver_IfSwitchedToCurrentUser() throws Exception {
+        mockExistingUsersAndCurrentUser(mAdminUser);
+        when(mMockedUserManager.hasUserRestriction(UserManager.DISALLOW_USER_SWITCH))
+                .thenReturn(false);
+        mCarUserService.switchDriver(mAdminUser.id, mUserSwitchFuture);
+        assertThat(getUserSwitchResult().getStatus())
+                .isEqualTo(UserSwitchResult.STATUS_ALREADY_REQUESTED_USER);
     }
 
     @Test
@@ -1322,15 +1328,6 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     private UserIdentificationAssociationResponse getUserAssociationRespResult()
             throws Exception {
         return getResult(mUserAssociationRespFuture);
-    }
-
-    @NonNull
-    private <T> T getResult(@NonNull AndroidFuture<T> future) throws Exception {
-        try {
-            return future.get(mAsyncCallTimeoutMs, TimeUnit.MILLISECONDS);
-        } catch (TimeoutException e) {
-            throw new IllegalStateException("not called in " + mAsyncCallTimeoutMs + "ms", e);
-        }
     }
 
     /**

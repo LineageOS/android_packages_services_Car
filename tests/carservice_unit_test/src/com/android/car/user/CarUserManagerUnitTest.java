@@ -16,6 +16,7 @@
 package com.android.car.user;
 
 import static android.Manifest.permission.INTERACT_ACROSS_USERS;
+import static android.car.test.mocks.AndroidMockitoHelper.getResult;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUsers;
 import static android.car.test.util.UserTestingHelper.newUsers;
 import static android.car.testapi.CarMockitoHelper.mockHandleRemoteExceptionFromCarServiceWithDefaultValue;
@@ -36,7 +37,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
 
-import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.car.Car;
@@ -59,8 +59,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCase {
 
@@ -352,15 +350,6 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
     private void expectServiceSwitchUserSucceeds(@UserIdInt int userId) throws RemoteException {
         doThrow(new RemoteException("D'OH!")).when(mService)
             .switchUser(eq(userId), anyInt(), notNull());
-    }
-
-    @NonNull
-    private static <T> T getResult(@NonNull AndroidFuture<T> future) throws Exception {
-        try {
-            return future.get(ASYNC_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        } catch (TimeoutException e) {
-            throw new IllegalStateException("not called in " + ASYNC_TIMEOUT_MS + "ms", e);
-        }
     }
 
     private void setExistingUsers(int... userIds) {
