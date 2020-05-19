@@ -52,6 +52,7 @@ import android.view.KeyEvent;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.FileDescriptor;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Collection;
@@ -599,8 +600,8 @@ public abstract class InstrumentClusterRenderingService extends Service {
             if (uri.getQueryParameter(BITMAP_QUERY_WIDTH).isEmpty() || uri.getQueryParameter(
                     BITMAP_QUERY_HEIGHT).isEmpty()) {
                 throw new IllegalArgumentException(
-                        "Uri must have '" + BITMAP_QUERY_WIDTH + "' and '" + BITMAP_QUERY_HEIGHT
-                                + "' query parameters");
+                    "Uri must have '" + BITMAP_QUERY_WIDTH + "' and '" + BITMAP_QUERY_HEIGHT
+                            + "' query parameters");
             }
 
             ContextOwner contextOwner = getNavigationContextOwner();
@@ -610,7 +611,6 @@ public abstract class InstrumentClusterRenderingService extends Service {
             }
 
             String host = uri.getHost();
-
             if (!contextOwner.mAuthorities.contains(host)) {
                 Log.e(TAG, "Uri points to an authority not handled by the current context owner: "
                         + uri + " (valid authorities: " + contextOwner.mAuthorities + ")");
@@ -626,19 +626,19 @@ public abstract class InstrumentClusterRenderingService extends Service {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "Requesting bitmap: " + uri);
             }
-            ParcelFileDescriptor fileDesc = getContentResolver()
-                    .openFileDescriptor(filteredUid, "r");
-            if (fileDesc != null) {
-                Bitmap bitmap = BitmapFactory.decodeFileDescriptor(fileDesc.getFileDescriptor());
-                fileDesc.close();
-                return bitmap;
-            } else {
-                Log.e(TAG, "Failed to create pipe for uri string: " + uri);
+            try (ParcelFileDescriptor fileDesc = getContentResolver()
+                    .openFileDescriptor(filteredUid, "r")) {
+                if (fileDesc != null) {
+                    Bitmap bitmap = BitmapFactory.decodeFileDescriptor(
+                            fileDesc.getFileDescriptor());
+                    return bitmap;
+                } else {
+                    Log.e(TAG, "Failed to create pipe for uri string: " + uri);
+                }
             }
-        } catch (Throwable e) {
+        } catch (IOException e) {
             Log.e(TAG, "Unable to fetch uri: " + uri, e);
         }
-
         return null;
     }
 
@@ -708,27 +708,24 @@ public abstract class InstrumentClusterRenderingService extends Service {
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Log.d(TAG, "Requesting bitmap: " + uri);
                 }
-                ParcelFileDescriptor fileDesc = getContentResolver()
-                        .openFileDescriptor(filteredUid, "r");
-                if (fileDesc != null) {
-                    bitmap = BitmapFactory.decodeFileDescriptor(fileDesc.getFileDescriptor());
-                    fileDesc.close();
-                    return bitmap;
-                } else {
-                    Log.e(TAG, "Failed to create pipe for uri string: " + uri);
+                try (ParcelFileDescriptor fileDesc = getContentResolver()
+                        .openFileDescriptor(filteredUid, "r")) {
+                    if (fileDesc != null) {
+                        bitmap = BitmapFactory.decodeFileDescriptor(fileDesc.getFileDescriptor());
+                        return bitmap;
+                    } else {
+                        Log.e(TAG, "Failed to create pipe for uri string: " + uri);
+                    }
                 }
-
                 if (bitmap.getWidth() != width || bitmap.getHeight() != height) {
                     bitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
                 }
                 mCache.put(uri.toString(), bitmap);
             }
-
             return bitmap;
-        } catch (Throwable e) {
+        } catch (IOException e) {
             Log.e(TAG, "Unable to fetch uri: " + uri, e);
         }
-
         return null;
     }
 }
