@@ -38,15 +38,21 @@ public abstract class InstrumentClusterRenderer {
     @Nullable private NavigationRenderer mNavigationRenderer;
 
     /**
-     * Calls once when instrument cluster should be created.
+     * Called when instrument cluster renderer is created.
      */
-    abstract public void onCreate(Context context);
+    public abstract void onCreate(Context context);
 
-    abstract public void onStart();
+    /**
+     * Called when instrument cluster renderer is started.
+     */
+    public abstract void onStart();
 
-    abstract public void onStop();
+    /**
+     * Called when instrument cluster renderer is stopped.
+     */
+    public abstract void onStop();
 
-    abstract protected NavigationRenderer createNavigationRenderer();
+    protected abstract NavigationRenderer createNavigationRenderer();
 
     /** The method is thread-safe, callers should cache returned object. */
     @Nullable
