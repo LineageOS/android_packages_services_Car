@@ -37,6 +37,7 @@ import com.android.internal.infra.AndroidFuture;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
@@ -168,10 +169,24 @@ public final class AndroidMockitoHelper {
         when(binder.queryLocalInterface(anyString())).thenReturn(service);
     }
 
+    /**
+     * Gets the result of a future, or throw a {@link IllegalStateException} if it times out after
+     * {@value #ASYNC_TIMEOUT_MS} ms.
+     */
     @NonNull
-    public static <T> T getResult(@NonNull AndroidFuture<T> future) throws Exception {
+    public static <T> T getResult(@NonNull AndroidFuture<T> future)
+            throws InterruptedException, ExecutionException {
+        return getResult(future, ASYNC_TIMEOUT_MS);
+    }
+
+    /**
+     * Gets the result of a future, or throw a {@link IllegalStateException} if it times out.
+     */
+    @NonNull
+    public static <T> T getResult(@NonNull AndroidFuture<T> future, long timeoutMs)
+            throws InterruptedException, ExecutionException {
         try {
-            return future.get(ASYNC_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            return future.get(timeoutMs, TimeUnit.MILLISECONDS);
         } catch (TimeoutException e) {
             throw new IllegalStateException("not called in " + ASYNC_TIMEOUT_MS + "ms", e);
         }
