@@ -21,19 +21,15 @@ import static org.junit.Assert.fail;
 
 import android.text.TextUtils;
 
-import androidx.test.filters.FlakyTest;
-
 import org.junit.Test;
 
 public final class PreInstalledPackagesTest {
 
-    @FlakyTest // TODO(b/154112291): remove once it's passing on acloud
     @Test
     public void testNoCriticalErrors_currentMode() {
         assertNoCriticalErrors(/* enforceMode= */ false);
     }
 
-    @FlakyTest // TODO(b/154112291): remove once it's passing on acloud
     @Test
     public void testNoCriticalErrors_enforceMode() {
         assertNoCriticalErrors(/* enforceMode= */ true);
