@@ -61,8 +61,8 @@ public final class CarDrivingStateManager extends CarManagerBase {
     /** @hide */
     @Override
     public synchronized void onCarDisconnected() {
-            mListenerToService = null;
-            mDrvStateEventListener = null;
+        mListenerToService = null;
+        mDrvStateEventListener = null;
     }
 
     /**
@@ -182,7 +182,7 @@ public final class CarDrivingStateManager extends CarManagerBase {
             ICarDrivingStateChangeListener.Stub {
         private final WeakReference<CarDrivingStateManager> mDrvStateMgr;
 
-        public CarDrivingStateChangeListenerToService(CarDrivingStateManager manager) {
+        CarDrivingStateChangeListenerToService(CarDrivingStateManager manager) {
             mDrvStateMgr = new WeakReference<>(manager);
         }
 
@@ -216,7 +216,7 @@ public final class CarDrivingStateManager extends CarManagerBase {
     private static final class EventCallbackHandler extends Handler {
         private final WeakReference<CarDrivingStateManager> mDrvStateMgr;
 
-        public EventCallbackHandler(CarDrivingStateManager manager, Looper looper) {
+        EventCallbackHandler(CarDrivingStateManager manager, Looper looper) {
             super(looper);
             mDrvStateMgr = new WeakReference<>(manager);
         }
