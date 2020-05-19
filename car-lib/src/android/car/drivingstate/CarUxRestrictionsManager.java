@@ -304,7 +304,7 @@ public final class CarUxRestrictionsManager extends CarManagerBase {
             ICarUxRestrictionsChangeListener.Stub {
         private final WeakReference<CarUxRestrictionsManager> mUxRestrictionsManager;
 
-        public CarUxRestrictionsChangeListenerToService(CarUxRestrictionsManager manager) {
+        CarUxRestrictionsChangeListenerToService(CarUxRestrictionsManager manager) {
             mUxRestrictionsManager = new WeakReference<>(manager);
         }
 
@@ -337,7 +337,7 @@ public final class CarUxRestrictionsManager extends CarManagerBase {
     private static final class EventCallbackHandler extends Handler {
         private final WeakReference<CarUxRestrictionsManager> mUxRestrictionsManager;
 
-        public EventCallbackHandler(CarUxRestrictionsManager manager, Looper looper) {
+        EventCallbackHandler(CarUxRestrictionsManager manager, Looper looper) {
             super(looper);
             mUxRestrictionsManager = new WeakReference<>(manager);
         }
