@@ -245,8 +245,6 @@ public abstract class AbstractExtendedMockitoTestCase {
         mTracer.traceEnd();
     }
 
-
-
     private void interceptWtfCalls() {
         doAnswer((invocation) -> {
             return addWtf(invocation);
