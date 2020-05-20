@@ -138,7 +138,7 @@ public final class FixedActivityService implements CarServiceBase {
         }
         if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING == event.getEventType()) {
             synchronized (FixedActivityService.this.mLock) {
-                FixedActivityService.this.mRunningActivities.clear();
+                clearRunningActivitiesLocked();
             }
         }
     };
@@ -290,6 +290,25 @@ public final class FixedActivityService implements CarServiceBase {
         synchronized (mLock) {
             writer.println("mRunningActivities:" + mRunningActivities
                     + " ,mEventMonitoringActive:" + mEventMonitoringActive);
+            writer.println("mBlockingPresentations:");
+            for (int i = 0; i < mBlockingPresentations.size(); i++) {
+                Presentation p = mBlockingPresentations.valueAt(i);
+                if (p == null) {
+                    continue;
+                }
+                writer.println("display:" + mBlockingPresentations.keyAt(i)
+                        + " showing:" + p.isShowing());
+            }
+        }
+    }
+
+    private void clearRunningActivitiesLocked() {
+        int currentUser = ActivityManager.getCurrentUser();
+        for (int i = mRunningActivities.size() - 1; i >= 0; i--) {
+            RunningActivityInfo info = mRunningActivities.valueAt(i);
+            if (info == null || info.userId != currentUser) {
+                mRunningActivities.removeAt(i);
+            }
         }
     }
 
@@ -411,10 +430,15 @@ public final class FixedActivityService implements CarServiceBase {
                         Presentation p = new Presentation(mContext, display,
                                 android.R.style.Theme_Black_NoTitleBar_Fullscreen);
                         p.setContentView(R.layout.activity_continuous_blank);
-                        p.show();
                         synchronized (mLock) {
+                            RunningActivityInfo info = mRunningActivities.get(displayIdForActivity);
+                            if (info != null && info.userId == ActivityManager.getCurrentUser()) {
+                                Log.i(TAG_AM, "Do not show Presentation, new req already made");
+                                return;
+                            }
                             mBlockingPresentations.append(displayIdForActivity, p);
                         }
+                        p.show();
                     });
                 }
                 mRunningActivities.removeAt(i);
