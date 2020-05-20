@@ -101,8 +101,6 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
 
     private final String mRenderingServiceConfig;
 
-
-
     @GuardedBy("mLock")
     private IInstrumentClusterNavigation mIInstrumentClusterNavigationFromRenderer;
 
@@ -111,6 +109,7 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
         @Override
         public void onNavigationStateChanged(Bundle bundle) {
             ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_NAVIGATION_MANAGER);
+            assertNavigationFocus();
             // No retry here as new events will be sent later.
             IInstrumentClusterNavigation navigationBinder = getNavigationBinder(
                     /* retryOnFail= */ false);
@@ -321,6 +320,23 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
     @Override
     public void onFocusAbandoned(int appType, int uid, int pid) {
         changeNavContextOwner(appType, uid, pid, false);
+    }
+
+    private void assertNavigationFocus() {
+        int uid = Binder.getCallingUid();
+        int pid = Binder.getCallingPid();
+        synchronized (mLock) {
+            if (uid == mNavContextOwner.uid && pid == mNavContextOwner.pid) {
+                return;
+            }
+        }
+        // Stored one failed. There can be a delay, so check with real one again.
+        AppFocusService afs = CarLocalServices.getService(AppFocusService.class);
+        if (afs != null && afs.isFocusOwner(uid, pid,
+                CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION)) {
+            return;
+        }
+        throw new IllegalStateException("Client not owning APP_FOCUS_TYPE_NAVIGATION");
     }
 
     private void changeNavContextOwner(int appType, int uid, int pid, boolean acquire) {
