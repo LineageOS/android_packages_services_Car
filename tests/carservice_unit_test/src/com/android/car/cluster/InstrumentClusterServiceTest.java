@@ -26,6 +26,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 
+import android.car.CarAppFocusManager;
 import android.car.cluster.renderer.IInstrumentCluster;
 import android.car.cluster.renderer.IInstrumentClusterNavigation;
 import android.car.navigation.CarNavigationInstrumentCluster;
@@ -34,6 +35,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Looper;
+import android.os.Process;
 import android.view.KeyEvent;
 
 import androidx.test.InstrumentationRegistry;
@@ -125,6 +127,9 @@ public class InstrumentClusterServiceTest extends AbstractExtendedMockitoTestCas
         if (connect) {
             notifyRendererServiceConnection();
         }
+        // Give nav focus to the test
+        mService.onFocusAcquired(CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION, Process.myUid(),
+                Process.myPid());
     }
 
     private void notifyRendererServiceConnection() {

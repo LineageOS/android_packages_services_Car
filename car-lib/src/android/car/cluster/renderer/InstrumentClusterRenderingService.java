@@ -525,7 +525,6 @@ public abstract class InstrumentClusterRenderingService extends Service {
         @SuppressWarnings("deprecation")
         public void onNavigationStateChanged(@Nullable Bundle bundle) throws RemoteException {
             assertClusterManagerPermission();
-            assertContextOwnership();
             mUiHandler.post(() -> {
                 if (mNavigationRenderer != null) {
                     mNavigationRenderer.onNavigationStateChanged(bundle);
@@ -537,18 +536,6 @@ public abstract class InstrumentClusterRenderingService extends Service {
         public CarNavigationInstrumentCluster getInstrumentClusterInfo() throws RemoteException {
             assertClusterManagerPermission();
             return runAndWaitResult(() -> mNavigationRenderer.getNavigationProperties());
-        }
-
-        private void assertContextOwnership() {
-            int uid = getCallingUid();
-            int pid = getCallingPid();
-
-            synchronized (mLock) {
-                if (mNavContextOwner.mUid != uid || mNavContextOwner.mPid != pid) {
-                    throw new IllegalStateException("Client {uid:" + uid + ", pid: " + pid + "} is"
-                            + " not an owner of APP_FOCUS_TYPE_NAVIGATION " + mNavContextOwner);
-                }
-            }
         }
     }
 
