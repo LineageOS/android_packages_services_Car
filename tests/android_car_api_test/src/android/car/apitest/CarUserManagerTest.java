@@ -58,7 +58,7 @@ public final class CarUserManagerTest extends CarApiTestBase {
 
     private static final String TAG = CarUserManagerTest.class.getSimpleName();
 
-    private static final int SWITCH_TIMEOUT_MS = 40_000;
+    private static final int SWITCH_TIMEOUT_MS = 70_000;
     private static final int STOP_TIMEOUT_MS = 300_000;
 
     /**
@@ -75,7 +75,7 @@ public final class CarUserManagerTest extends CarApiTestBase {
     private CarUserManager mCarUserManager;
 
     @BeforeClass
-    public static void createUserFixture() {
+    public static void setupUsers() {
         sInitialUserId = ActivityManager.getCurrentUser();
         Log.i(TAG, "Running test as user " + sInitialUserId);
 
@@ -83,7 +83,9 @@ public final class CarUserManagerTest extends CarApiTestBase {
     }
 
     @AfterClass
-    public static void removeUserFixture() {
+    public static void cleanupUsers() {
+        switchUserDirectly(sInitialUserId);
+
         if (sNewUserId == UserHandle.USER_NULL) {
             Log.w(TAG, "No need to remove user" + sNewUserId);
             return;
@@ -108,7 +110,8 @@ public final class CarUserManagerTest extends CarApiTestBase {
         int oldUserId = sInitialUserId;
         int newUserId = sNewUserId;
 
-        BlockingUserLifecycleListener startListener = new BlockingUserLifecycleListener.Builder()
+        BlockingUserLifecycleListener startListener = BlockingUserLifecycleListener
+                .forSpecificEvents()
                 .forUser(newUserId)
                 .setTimeout(SWITCH_TIMEOUT_MS)
                 .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_STARTING)
@@ -152,7 +155,8 @@ public final class CarUserManagerTest extends CarApiTestBase {
         Log.d(TAG, "unregistering start listener: " + startListener);
         mCarUserManager.removeListener(startListener);
 
-        BlockingUserLifecycleListener stopListener = new BlockingUserLifecycleListener.Builder()
+        BlockingUserLifecycleListener stopListener = BlockingUserLifecycleListener
+                .forSpecificEvents()
                 .forUser(newUserId)
                 .setTimeout(STOP_TIMEOUT_MS)
                 .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_STOPPING)
@@ -169,12 +173,9 @@ public final class CarUserManagerTest extends CarApiTestBase {
             // Must force stop the user, otherwise it can take minutes for its process to finish
             forceStopUser(newUserId);
 
-            // waitForEvents() will also return events for previous user...
-            List<UserLifecycleEvent> allEvents = stopListener.waitForEvents();
-            Log.d(TAG, "All received events on stopListener: " + allEvents);
-            //... so we need to check for just the epected events
-            List<UserLifecycleEvent> stopEvents = stopListener.getExpectedEventsReceived();
-            Log.d(TAG, "Relevant stop events: " + stopEvents);
+            List<UserLifecycleEvent> stopEvents = stopListener.waitForEvents();
+            Log.d(TAG, "stopEvents: " + stopEvents + "; all events on stop listener: "
+                    + stopListener.getAllReceivedEvents());
 
             // Assert user ids
             for (UserLifecycleEvent event : stopEvents) {
@@ -191,7 +192,7 @@ public final class CarUserManagerTest extends CarApiTestBase {
 
         List<UserLifecycleEvent> allStartEvents = startListener.getAllReceivedEvents();
         Log.d(TAG, "All start events: " + startEvents);
-        assertThat(allStartEvents).isSameAs(startEvents);
+        assertThat(allStartEvents).containsAllIn(startEvents).inOrder();
 
         Log.d(TAG, "unregistering stop listener: " + stopListener);
         mCarUserManager.removeListener(stopListener);
