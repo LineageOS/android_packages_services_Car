@@ -650,7 +650,7 @@ public final class UserHalService extends HalServiceBase {
         EventLog.writeEvent(EventLogTags.CAR_USER_HAL_INITIAL_USER_INFO_RESP, requestId,
                 HalCallback.STATUS_OK, response.action,
                 response.userToSwitchOrCreate.userId, response.userToSwitchOrCreate.flags,
-                response.userNameToCreate);
+                response.userNameToCreate, response.userLocales);
         if (DBG) Log.d(TAG, "replying to request " + requestId + " with " + response);
         callback.onResponse(HalCallback.STATUS_OK, response);
     }
