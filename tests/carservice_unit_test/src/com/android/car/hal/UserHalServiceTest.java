@@ -378,7 +378,7 @@ public final class UserHalServiceTest {
         VehiclePropValue propResponse = UserHalHelper.createPropRequest(INITIAL_USER_INFO,
                     REQUEST_ID_PLACE_HOLDER, InitialUserInfoResponseAction.CREATE);
         propResponse.value.int32Values.add(newUserFlags);
-        propResponse.value.stringValue = newUserName;
+        propResponse.value.stringValue = "||" + newUserName;
 
         AtomicReference<VehiclePropValue> reqCaptor = replySetPropertyWithOnChangeEvent(
                 INITIAL_USER_INFO, propResponse, /* rightRequestId= */ true);
@@ -397,6 +397,7 @@ public final class UserHalServiceTest {
         assertThat(callback.status).isEqualTo(HalCallback.STATUS_OK);
         InitialUserInfoResponse actualResponse = callback.response;
         assertThat(actualResponse.action).isEqualTo(InitialUserInfoResponseAction.CREATE);
+        assertThat(actualResponse.userLocales).isEmpty();
         assertThat(actualResponse.userNameToCreate).isEqualTo(newUserName);
         UserInfo newUser = actualResponse.userToSwitchOrCreate;
         assertThat(newUser).isNotNull();
