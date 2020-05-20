@@ -533,7 +533,7 @@ public final class UserHalHelperTest {
     }
 
     @Test
-    public void testToInitialUserInfoResponse_default_ok() {
+    public void testToInitialUserInfoResponse_default_ok_noStringValue() {
         VehiclePropValue prop = new VehiclePropValue();
         prop.prop = UserHalHelper.INITIAL_USER_INFO_PROPERTY;
         prop.value.int32Values.add(42); // request id
@@ -547,6 +547,64 @@ public final class UserHalHelperTest {
         assertThat(response.userNameToCreate).isEmpty();
         assertThat(response.userToSwitchOrCreate.userId).isEqualTo(UserHandle.USER_NULL);
         assertThat(response.userToSwitchOrCreate.flags).isEqualTo(UserFlags.NONE);
+        assertThat(response.userLocales).isEmpty();
+    }
+
+    @Test
+    public void testToInitialUserInfoResponse_default_ok_stringValueWithJustSeparator() {
+        VehiclePropValue prop = new VehiclePropValue();
+        prop.prop = UserHalHelper.INITIAL_USER_INFO_PROPERTY;
+        prop.value.int32Values.add(42); // request id
+        prop.value.int32Values.add(InitialUserInfoResponseAction.DEFAULT);
+        prop.value.stringValue = "||";
+
+        InitialUserInfoResponse response = UserHalHelper.toInitialUserInfoResponse(prop);
+
+        assertThat(response).isNotNull();
+        assertThat(response.requestId).isEqualTo(42);
+        assertThat(response.action).isEqualTo(InitialUserInfoResponseAction.DEFAULT);
+        assertThat(response.userNameToCreate).isEmpty();
+        assertThat(response.userToSwitchOrCreate.userId).isEqualTo(UserHandle.USER_NULL);
+        assertThat(response.userToSwitchOrCreate.flags).isEqualTo(UserFlags.NONE);
+        assertThat(response.userLocales).isEmpty();
+    }
+
+    @Test
+    public void testToInitialUserInfoResponse_default_ok_stringValueWithLocale() {
+        VehiclePropValue prop = new VehiclePropValue();
+        prop.prop = UserHalHelper.INITIAL_USER_INFO_PROPERTY;
+        prop.value.int32Values.add(42); // request id
+        prop.value.int32Values.add(InitialUserInfoResponseAction.DEFAULT);
+        prop.value.stringValue = "esperanto,klingon";
+
+        InitialUserInfoResponse response = UserHalHelper.toInitialUserInfoResponse(prop);
+
+        assertThat(response).isNotNull();
+        assertThat(response.requestId).isEqualTo(42);
+        assertThat(response.action).isEqualTo(InitialUserInfoResponseAction.DEFAULT);
+        assertThat(response.userNameToCreate).isEmpty();
+        assertThat(response.userToSwitchOrCreate.userId).isEqualTo(UserHandle.USER_NULL);
+        assertThat(response.userToSwitchOrCreate.flags).isEqualTo(UserFlags.NONE);
+        assertThat(response.userLocales).isEqualTo("esperanto,klingon");
+    }
+
+    @Test
+    public void testToInitialUserInfoResponse_default_ok_stringValueWithLocaleWithHalfSeparator() {
+        VehiclePropValue prop = new VehiclePropValue();
+        prop.prop = UserHalHelper.INITIAL_USER_INFO_PROPERTY;
+        prop.value.int32Values.add(42); // request id
+        prop.value.int32Values.add(InitialUserInfoResponseAction.DEFAULT);
+        prop.value.stringValue = "esperanto|klingon";
+
+        InitialUserInfoResponse response = UserHalHelper.toInitialUserInfoResponse(prop);
+
+        assertThat(response).isNotNull();
+        assertThat(response.requestId).isEqualTo(42);
+        assertThat(response.action).isEqualTo(InitialUserInfoResponseAction.DEFAULT);
+        assertThat(response.userNameToCreate).isEmpty();
+        assertThat(response.userToSwitchOrCreate.userId).isEqualTo(UserHandle.USER_NULL);
+        assertThat(response.userToSwitchOrCreate.flags).isEqualTo(UserFlags.NONE);
+        assertThat(response.userLocales).isEqualTo("esperanto|klingon");
     }
 
     @Test
@@ -561,7 +619,7 @@ public final class UserHalHelperTest {
     }
 
     @Test
-    public void testToInitialUserInfoResponse_switch_ok() {
+    public void testToInitialUserInfoResponse_switch_ok_noLocale() {
         VehiclePropValue prop = new VehiclePropValue();
         prop.prop = UserHalHelper.INITIAL_USER_INFO_PROPERTY;
         prop.value.int32Values.add(42); // request id
@@ -576,6 +634,27 @@ public final class UserHalHelperTest {
         assertThat(response.userNameToCreate).isEmpty();
         assertThat(response.userToSwitchOrCreate.userId).isEqualTo(108);
         assertThat(response.userToSwitchOrCreate.flags).isEqualTo(UserFlags.NONE);
+        assertThat(response.userLocales).isEmpty();
+    }
+
+    @Test
+    public void testToInitialUserInfoResponse_switch_ok_withLocale() {
+        VehiclePropValue prop = new VehiclePropValue();
+        prop.prop = UserHalHelper.INITIAL_USER_INFO_PROPERTY;
+        prop.value.int32Values.add(42); // request id
+        prop.value.int32Values.add(InitialUserInfoResponseAction.SWITCH);
+        prop.value.int32Values.add(108); // user id
+        // add some extra | to make sure they're ignored
+        prop.value.stringValue = "esperanto,klingon|||";
+        InitialUserInfoResponse response = UserHalHelper.toInitialUserInfoResponse(prop);
+
+        assertThat(response).isNotNull();
+        assertThat(response.requestId).isEqualTo(42);
+        assertThat(response.action).isEqualTo(InitialUserInfoResponseAction.SWITCH);
+        assertThat(response.userNameToCreate).isEmpty();
+        assertThat(response.userToSwitchOrCreate.userId).isEqualTo(108);
+        assertThat(response.userToSwitchOrCreate.flags).isEqualTo(UserFlags.NONE);
+        assertThat(response.userLocales).isEqualTo("esperanto,klingon");
     }
 
     @Test
@@ -590,13 +669,13 @@ public final class UserHalHelperTest {
     }
 
     @Test
-    public void testToInitialUserInfoResponse_create_ok() {
+    public void testToInitialUserInfoResponse_create_ok_noLocale() {
         VehiclePropValue prop = new VehiclePropValue();
         prop.prop = UserHalHelper.INITIAL_USER_INFO_PROPERTY;
         prop.value.int32Values.add(42); // request id
         prop.value.int32Values.add(InitialUserInfoResponseAction.CREATE);
         prop.value.int32Values.add(UserFlags.GUEST);
-        prop.value.stringValue = "ElGuesto";
+        prop.value.stringValue = "||ElGuesto";
 
         InitialUserInfoResponse response = UserHalHelper.toInitialUserInfoResponse(prop);
 
@@ -606,6 +685,27 @@ public final class UserHalHelperTest {
         assertThat(response.userNameToCreate).isEqualTo("ElGuesto");
         assertThat(response.userToSwitchOrCreate.userId).isEqualTo(UserHandle.USER_NULL);
         assertThat(response.userToSwitchOrCreate.flags).isEqualTo(UserFlags.GUEST);
+        assertThat(response.userLocales).isEmpty();
+    }
+
+    @Test
+    public void testToInitialUserInfoResponse_create_ok_withLocale() {
+        VehiclePropValue prop = new VehiclePropValue();
+        prop.prop = UserHalHelper.INITIAL_USER_INFO_PROPERTY;
+        prop.value.int32Values.add(42); // request id
+        prop.value.int32Values.add(InitialUserInfoResponseAction.CREATE);
+        prop.value.int32Values.add(UserFlags.GUEST);
+        prop.value.stringValue = "esperanto,klingon||ElGuesto";
+
+        InitialUserInfoResponse response = UserHalHelper.toInitialUserInfoResponse(prop);
+
+        assertThat(response).isNotNull();
+        assertThat(response.requestId).isEqualTo(42);
+        assertThat(response.action).isEqualTo(InitialUserInfoResponseAction.CREATE);
+        assertThat(response.userNameToCreate).isEqualTo("ElGuesto");
+        assertThat(response.userToSwitchOrCreate.userId).isEqualTo(UserHandle.USER_NULL);
+        assertThat(response.userToSwitchOrCreate.flags).isEqualTo(UserFlags.GUEST);
+        assertThat(response.userLocales).isEqualTo("esperanto,klingon");
     }
 
     @Test
