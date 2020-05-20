@@ -1062,6 +1062,24 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         Bundle resultData = mReceiver.getResultData();
         assertThat(resultData).isNotNull();
         assertInitialInfoAction(resultData, mGetUserInfoResponse.action);
+        assertInitialInfoUserLocales(resultData, null);
+    }
+
+    @Test
+    public void testGetUserInfo_defaultResponse_withLocale() throws Exception {
+        mockExistingUsersAndCurrentUser(mAdminUser);
+
+        mGetUserInfoResponse.action = InitialUserInfoResponseAction.DEFAULT;
+        mGetUserInfoResponse.userLocales = "LOL";
+        mockGetInitialInfo(mAdminUser.id, mGetUserInfoResponse);
+
+        mCarUserService.getInitialUserInfo(mGetUserInfoRequestType, mAsyncCallTimeoutMs, mReceiver);
+
+        assertThat(mReceiver.getResultCode()).isEqualTo(HalCallback.STATUS_OK);
+        Bundle resultData = mReceiver.getResultData();
+        assertThat(resultData).isNotNull();
+        assertInitialInfoAction(resultData, mGetUserInfoResponse.action);
+        assertInitialInfoUserLocales(resultData, "LOL");
     }
 
     @Test
@@ -1634,6 +1652,13 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         assertWithMessage("wrong request type on bundle extra %s",
                 CarUserService.BUNDLE_INITIAL_INFO_ACTION).that(actualAction)
                 .isEqualTo(expectedAction);
+    }
+
+    private void assertInitialInfoUserLocales(Bundle resultData, String expectedLocales) {
+        String actualLocales = resultData.getString(CarUserService.BUNDLE_USER_LOCALES);
+        assertWithMessage("wrong locales on bundle extra %s",
+                CarUserService.BUNDLE_USER_LOCALES).that(actualLocales)
+                .isEqualTo(expectedLocales);
     }
 
     private void assertNoPostSwitch() {

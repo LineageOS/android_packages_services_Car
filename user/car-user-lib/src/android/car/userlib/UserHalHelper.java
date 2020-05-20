@@ -382,6 +382,8 @@ public final class UserHalHelper {
                         "Invalid response action (" + response.action + " on " + prop);
         }
 
+        if (DEBUG) Log.d(TAG, "returning : " + response);
+
         return response;
     }
 

@@ -44,12 +44,14 @@ import android.app.IActivityManager;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.userlib.InitialUserSetter.Builder;
 import android.car.userlib.InitialUserSetter.InitialUserInfo;
+import android.content.Context;
 import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.provider.Settings;
 
 import com.android.internal.widget.LockPatternUtils;
 
@@ -70,6 +72,9 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     private static final int USER_ID = 10;
     private static final int NEW_USER_ID = 11;
     private static final int CURRENT_USER_ID = 12;
+
+    @Mock
+    private Context mContext;
 
     @Mock
     private CarUserManagerHelper mHelper;
@@ -97,7 +102,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
 
     @Before
     public void setFixtures() {
-        mSetter = spy(new InitialUserSetter(mHelper, mUm, mListener,
+        mSetter = spy(new InitialUserSetter(mContext, mHelper, mUm, mListener,
                 mLockPatternUtils, OWNER_NAME, GUEST_NAME));
 
         doReturn(mIActivityManager).when(() -> ActivityManager.getService());
@@ -365,6 +370,25 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     }
 
     @Test
+    public void testCreateUser_ok_admin_setLocale() throws Exception {
+        UserInfo newUser = expectCreateFullUser(USER_ID, "TheDude", UserInfo.FLAG_ADMIN);
+        expectSwitchUser(USER_ID);
+
+        mSetter.set(new Builder(InitialUserSetter.TYPE_CREATE)
+                .setNewUserName("TheDude")
+                .setNewUserFlags(UserFlags.ADMIN)
+                .setUserLocales("LOL")
+                .build());
+
+        verifyUserSwitched(USER_ID);
+        verifyFallbackDefaultBehaviorNeverCalled();
+        verifySystemUserUnlocked();
+        assertInitialUserSet(newUser);
+        assertSystemLocales("LOL");
+    }
+
+
+    @Test
     public void testCreateUser_ok_ephemeralGuest() throws Exception {
         UserInfo newGuest = expectCreateGuestUser(USER_ID, "TheDude", UserInfo.FLAG_EPHEMERAL);
         expectSwitchUser(USER_ID);
@@ -476,6 +500,23 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     }
 
     @Test
+    public void testDefaultBehavior_firstBoot_ok_setLocale() throws Exception {
+        // no need to mock hasInitialUser(), it will return false by default
+        UserInfo newUser = expectCreateFullUser(USER_ID, OWNER_NAME, UserInfo.FLAG_ADMIN);
+        expectSwitchUser(USER_ID);
+
+        mSetter.set(new Builder(InitialUserSetter.TYPE_DEFAULT_BEHAVIOR)
+                .setUserLocales("LOL")
+                .build());
+
+        verifyUserSwitched(USER_ID);
+        verifyFallbackDefaultBehaviorNeverCalled();
+        verifySystemUserUnlocked();
+        assertInitialUserSet(newUser);
+        assertSystemLocales("LOL");
+    }
+
+    @Test
     public void testDefaultBehavior_firstBoot_fail_createUserFailed() throws Exception {
         // no need to mock hasInitialUser(), it will return false by default
         // no need to mock createUser(), it will return null by default
@@ -498,6 +539,22 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
         verifyFallbackDefaultBehaviorCalledFromDefaultBehavior();
         verifySystemUserUnlocked();
         verifyLastActiveUserNeverSet();
+    }
+
+    @Test
+    public void testDefaultBehavior_firstBoot_fail_switchFailed_setLocale() throws Exception {
+        // no need to mock hasInitialUser(), it will return false by default
+        expectCreateFullUser(USER_ID, OWNER_NAME, UserInfo.FLAG_ADMIN);
+        expectSwitchUserFails(USER_ID);
+
+        mSetter.set(new Builder(InitialUserSetter.TYPE_DEFAULT_BEHAVIOR)
+                .setUserLocales("LOL")
+                .build());
+
+        verifyFallbackDefaultBehaviorCalledFromDefaultBehavior();
+        verifySystemUserUnlocked();
+        verifyLastActiveUserNeverSet();
+        assertSystemLocales("LOL");
     }
 
     @Test
@@ -810,7 +867,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
                 isInitialInfo(supportsOverrideUserIdProperty), anyBoolean(), anyString());
     }
 
-    private static InitialUserInfo  isInitialInfo(boolean supportsOverrideUserIdProperty) {
+    private static InitialUserInfo isInitialInfo(boolean supportsOverrideUserIdProperty) {
         return argThat((info) -> {
             return info.supportsOverrideUserIdProperty == supportsOverrideUserIdProperty;
         });
@@ -833,6 +890,11 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
             .isEqualTo(1);
         assertWithMessage("wrong initial user set on listener").that(mListener.initialUser)
             .isSameAs(expectedUser);
+    }
+
+    private void assertSystemLocales(@NonNull String expected) {
+        // TODO(b/156033195): should test specific userId
+        assertThat(getSettingsString(Settings.System.SYSTEM_LOCALES)).isEqualTo(expected);
     }
 
     private final class MyListener implements Consumer<UserInfo> {
