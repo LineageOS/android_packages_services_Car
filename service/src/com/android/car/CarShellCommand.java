@@ -41,9 +41,11 @@ import android.car.userlib.UserHalHelper;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserMessageType;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserStatus;
+import android.hardware.automotive.vehicle.V2_0.UserFlags;
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociation;
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue;
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType;
@@ -339,12 +341,14 @@ final class CarShellCommand extends ShellCommand {
         pw.println("\t  delta_times_ms: a list of delta time (current time minus event time)");
         pw.println("\t                  in descending order. If not specified, it will be 0.");
 
-        pw.printf("\t%s <REQ_TYPE> [--timeout TIMEOUT_MS]\n", COMMAND_GET_INITIAL_USER_INFO);
+        pw.printf("\t%s <REQ_TYPE> [--hal-only] [--timeout TIMEOUT_MS]\n",
+                COMMAND_GET_INITIAL_USER_INFO);
         pw.println("\t  Calls the Vehicle HAL to get the initial boot info, passing the given");
         pw.println("\t  REQ_TYPE (which could be either FIRST_BOOT, FIRST_BOOT_AFTER_OTA, ");
         pw.println("\t  COLD_BOOT, RESUME, or any numeric value that would be passed 'as-is')");
         pw.println("\t  and an optional TIMEOUT_MS to wait for the HAL response (if not set,");
         pw.println("\t  it will use a  default value).");
+        pw.println("\t  The --hal-only option only calls HAL, without using CarUserService.");
 
         pw.printf("\t%s <USER_ID> [--hal-only] [--timeout TIMEOUT_MS]\n", COMMAND_SWITCH_USER);
         pw.println("\t  Switches to user USER_ID using the HAL integration.");
@@ -798,6 +802,7 @@ final class CarShellCommand extends ShellCommand {
         // Gets the request type
         String typeArg = args[1];
         int requestType = UserHalHelper.parseInitialUserInfoRequestType(typeArg);
+        boolean halOnly = false;
 
         int timeout = DEFAULT_HAL_TIMEOUT_MS;
         for (int i = 2; i < args.length; i++) {
@@ -805,6 +810,9 @@ final class CarShellCommand extends ShellCommand {
             switch (arg) {
                 case "--timeout":
                     timeout = Integer.parseInt(args[++i]);
+                    break;
+                case "--hal-only":
+                    halOnly = true;
                     break;
                 default:
                     writer.println("Invalid option at index " + i + ": " + arg);
@@ -816,12 +824,8 @@ final class CarShellCommand extends ShellCommand {
         Log.d(TAG, "handleGetInitialUserInfo(): type=" + requestType + " (" + typeArg
                 + "), timeout=" + timeout);
 
-        UserHalService userHal = mHal.getUserHal();
-        // TODO(b/150413515): use UserHalHelper to populate it with current users
-        UsersInfo usersInfo = new UsersInfo();
         CountDownLatch latch = new CountDownLatch(1);
-
-        userHal.getInitialUserInfo(requestType, timeout, usersInfo, (status, resp) -> {
+        HalCallback<InitialUserInfoResponse> callback = (status, resp) -> {
             try {
                 Log.d(TAG, "GetUserInfoResponse: status=" + status + ", resp=" + resp);
                 writer.printf("Call status: %s\n",
@@ -832,10 +836,30 @@ final class CarShellCommand extends ShellCommand {
                 writer.printf("Request id: %d\n", resp.requestId);
                 writer.printf("Action: %s\n",
                         InitialUserInfoResponseAction.toString(resp.action));
+                if (!TextUtils.isEmpty(resp.userNameToCreate)) {
+                    writer.printf("User name: %s\n", resp.userNameToCreate);
+                }
+                if (resp.userToSwitchOrCreate.userId != UserHandle.USER_NULL) {
+                    writer.printf("User id: %d\n", resp.userToSwitchOrCreate.userId);
+                }
+                if (resp.userToSwitchOrCreate.flags != UserFlags.NONE) {
+                    writer.printf("User flags: %s\n",
+                            UserHalHelper.userFlagsToString(resp.userToSwitchOrCreate.flags));
+                }
+                if (!TextUtils.isEmpty(resp.userLocales)) {
+                    writer.printf("User locales: %s\n", resp.userLocales);
+                }
             } finally {
                 latch.countDown();
             }
-        });
+        };
+        if (halOnly) {
+            // TODO(b/150413515): use UserHalHelper to populate it with current users
+            UsersInfo usersInfo = new UsersInfo();
+            mHal.getUserHal().getInitialUserInfo(requestType, timeout, usersInfo, callback);
+        } else {
+            mCarUserService.getInitialUserInfo(requestType, callback);
+        }
         waitForHal(writer, latch, timeout);
     }
 
