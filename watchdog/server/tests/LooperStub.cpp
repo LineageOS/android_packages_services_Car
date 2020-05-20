@@ -31,8 +31,15 @@ namespace testing {
 using android::base::Error;
 using android::base::Result;
 
-const std::chrono::milliseconds kLooperPollTimeout = 10ms;
-const std::chrono::milliseconds kStubPollCheckTimeout = 200ms;
+// As the messages, which are to be polled immediately, are enqueued in the underlying looper
+// handler before calling its poll method, the looper handler doesn't have to wait for any new
+// messages.
+const std::chrono::milliseconds kLooperPollTimeout = 0ms;
+
+// Maximum timeout before giving up on the underlying looper handler. This doesn't block the test
+// as long as the underlying looper handler processes the enqueued messages quickly and updates
+// |mShouldPoll|.
+const std::chrono::milliseconds kStubPollCheckTimeout = 3min;
 
 int LooperStub::pollAll(int /*timeoutMillis*/) {
     {
