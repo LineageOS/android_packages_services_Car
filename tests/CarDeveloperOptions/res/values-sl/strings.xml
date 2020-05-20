@@ -454,7 +454,7 @@
     <string name="security_settings_fingerprint_enroll_introduction_continue" msgid="271662150372486535">"Naprej"</string>
     <string name="security_settings_fingerprint_enroll_introduction_cancel_setup" msgid="756928427429893070">"Preskoči"</string>
     <string name="security_settings_fingerprint_enroll_introduction_continue_setup" msgid="4125977169169671144">"Naprej"</string>
-    <string name="setup_fingerprint_enroll_skip_title" msgid="763018850721691594">"Preskok nast. prstnega odtisa?"</string>
+    <string name="setup_fingerprint_enroll_skip_title" msgid="763018850721691594">"Brez prstnega odtisa?"</string>
     <string name="setup_fingerprint_enroll_skip_after_adding_lock_text" msgid="8849928362049018680">"Nastavitev prstnega odtisa vam bo vzela le minuto ali dve. Če nastavitev preskočite, lahko prstni odtis dodate pozneje v nastavitvah."</string>
     <string name="lock_screen_intro_skip_title" msgid="5307431665496346914">"Preskok zaklepanja zaslona?"</string>
     <string name="lock_screen_intro_skip_dialog_text_frp" product="tablet" msgid="7553945981266845264">"Funkcije za zaščito naprave ne bodo vklopljene. Če tablični računalnik izgubite, vam ga ukradejo ali ponastavijo na tovarniške nastavitve, drugim osebam ne boste mogli preprečiti njegove uporabe."</string>
@@ -1729,7 +1729,7 @@
     <string name="contributors_title" msgid="6800028420806884340">"Sodelavci"</string>
     <string name="manual" msgid="5431859421432581357">"Ročno"</string>
     <string name="regulatory_labels" msgid="380968489247381025">"Zakonsko predpisane oznake"</string>
-    <string name="safety_and_regulatory_info" msgid="7113766428000920132">"Priročnik z varn. in zak. predpis. inf."</string>
+    <string name="safety_and_regulatory_info" msgid="7113766428000920132">"Varnostne in zakonsko predpisane inform."</string>
     <string name="copyright_title" msgid="3847703367689932190">"Avtorska pravica"</string>
     <string name="license_title" msgid="7582145947873528540">"Licenca"</string>
     <string name="terms_title" msgid="1804549588198223771">"Določila in pogoji"</string>
@@ -3930,7 +3930,7 @@
     <string name="overlay_settings" msgid="3325154759946433666">"Prekrivanje drugih aplikacij"</string>
     <string name="system_alert_window_summary" msgid="7703582115861844158">"<xliff:g id="COUNT_0">%1$d</xliff:g> od <xliff:g id="COUNT_1">%2$d</xliff:g> aplikacij, ki lahko prekrivajo druge aplikacije"</string>
     <string name="filter_overlay_apps" msgid="6336897660213304743">"Aplikacije z dovoljenjem"</string>
-    <string name="app_permission_summary_allowed" msgid="6458476982015518778">"Dovoljene"</string>
+    <string name="app_permission_summary_allowed" msgid="6458476982015518778">"Dovoljeno"</string>
     <string name="app_permission_summary_not_allowed" msgid="1171642541675462584">"Ni dovoljeno"</string>
     <string name="keywords_install_other_apps" msgid="5383559540695847668">"nameščanje aplikacij neznani viri"</string>
     <string name="write_settings" msgid="9009040811145552108">"Spreminjanje sist. nastavitev"</string>

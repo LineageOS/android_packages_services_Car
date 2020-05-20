@@ -895,7 +895,7 @@
     <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"Чтобы использовать эту функцию, выберите источник рейтинга сетей"</string>
     <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"Чтобы использовать эту функцию, выберите поддерживаемый источник рейтинга сетей"</string>
     <string name="wifi_install_credentials" msgid="5650088113710858289">"Установка сертификатов"</string>
-    <string name="wifi_scan_notify_text" msgid="7614101215028336927">"Чтобы точнее определять ваше местонахождение, сервисы и приложения могут искать доступные беспроводные сети, даже когда Wi-Fi отключен. Этот режим позволяет улучшить работу функций, связанных с геолокацией. Отключить его можно в разделе <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>настроек поиска сетей Wi-Fi<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
+    <string name="wifi_scan_notify_text" msgid="7614101215028336927">"Чтобы точнее определять ваше местонахождение, сервисы и приложения могут искать доступные беспроводные сети, даже когда Wi-Fi отключен. Этот режим позволяет улучшить работу функций, связанных с геолокацией. Отключить его можно в <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>настройках поиска сетей Wi-Fi<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"Чтобы повысить точность определения местоположения, включите поиск сетей Wi-Fi в <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>настройках<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="wifi_scan_notify_remember_choice" msgid="1235445971400237444">"Больше не показывать"</string>
     <string name="wifi_setting_sleep_policy_title" msgid="2120785188625932076">"Wi-Fi в спящем режиме"</string>
@@ -1735,7 +1735,7 @@
     <string name="terms_title" msgid="1804549588198223771">"Условия использования"</string>
     <string name="webview_license_title" msgid="8244960025549725051">"Системная лицензия WebView"</string>
     <string name="wallpaper_attributions" msgid="2941987966332943253">"Обои"</string>
-    <string name="wallpaper_attributions_values" msgid="4461979853894606323">"Спутниковые фотографии:\n© CNES 2014/Astrium, DigitalGlobe, Bluesky"</string>
+    <string name="wallpaper_attributions_values" msgid="4461979853894606323">"Спутниковые фотографии:\n© 2014 CNES/Astrium, DigitalGlobe, Bluesky"</string>
     <string name="settings_manual_activity_title" msgid="7599911755054286789">"Руководство пользователя"</string>
     <string name="settings_manual_activity_unavailable" msgid="4872502775018655343">"Не удалось загрузить руководство пользователя."</string>
     <string name="settings_license_activity_title" msgid="1099045216283677608">"Лицензии третьих сторон"</string>
@@ -3905,7 +3905,7 @@
     </plurals>
     <string name="running_frequency" msgid="7545170806968474449">"Как часто используется"</string>
     <string name="memory_maximum_usage" msgid="4734981118293469479">"Макс. памяти использовано"</string>
-    <string name="no_data_usage" msgid="903383745620135746">"Нет использованного трафика"</string>
+    <string name="no_data_usage" msgid="903383745620135746">"Трафик не расходовался"</string>
     <string name="zen_access_warning_dialog_title" msgid="7704910289810337055">"Разрешить приложению \"<xliff:g id="APP">%1$s</xliff:g>\" доступ к настройкам режима \"Не беспокоить\"?"</string>
     <string name="zen_access_warning_dialog_summary" msgid="2717755746850874577">"Приложение сможет включать и отключать режим \"Не беспокоить\", а также изменять соответствующие настройки."</string>
     <string name="zen_access_disabled_package_warning" msgid="7086237569177576966">"Должно быть включено, поскольку разрешен доступ к уведомлениям"</string>
@@ -3967,7 +3967,7 @@
     <string name="screen_zoom_conversation_timestamp_2" msgid="816265985618121370">"Вт, 18:01"</string>
     <string name="screen_zoom_conversation_timestamp_3" msgid="7346540212221792932">"Вт, 18:02"</string>
     <string name="screen_zoom_conversation_timestamp_4" msgid="1452374487089625022">"Вт, 18:03"</string>
-    <string name="disconnected" msgid="4088439352761747084">"Нет подключения"</string>
+    <string name="disconnected" msgid="4088439352761747084">"Не подключено"</string>
     <string name="keyboard_disconnected" msgid="3068615097201531871">"Не подключено"</string>
     <string name="data_usage_summary_format" msgid="7788095271598602797">"Использовано трафика: <xliff:g id="AMOUNT">%1$s</xliff:g>"</string>
     <string name="data_usage_wifi_format" msgid="9028934101966264710">"<xliff:g id="AMOUNT">^1</xliff:g> передано через Wi‑Fi"</string>
@@ -4635,7 +4635,7 @@
     <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"Удалить эту подсказку?"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"Подсказка удалена."</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"Отменить"</string>
-    <string name="low_storage_summary" msgid="4562224870189133400">"В хранилище заканчивается пространство. Занято: <xliff:g id="PERCENTAGE">%1$s</xliff:g>, свободно: <xliff:g id="FREE_SPACE">%2$s</xliff:g>."</string>
+    <string name="low_storage_summary" msgid="4562224870189133400">"В хранилище заканчивается место. Занято: <xliff:g id="PERCENTAGE">%1$s</xliff:g>, свободно: <xliff:g id="FREE_SPACE">%2$s</xliff:g>."</string>
     <string name="contextual_card_feedback_send" msgid="8698649023854350623">"Отправить отзыв"</string>
     <string name="contextual_card_feedback_confirm_message" msgid="3987973028353264878">"Поделитесь мнением об этой подсказке."</string>
     <string name="copyable_slice_toast" msgid="1357518174923789947">"Контент (<xliff:g id="COPY_CONTENT">%1$s</xliff:g>) скопирован в буфер обмена"</string>

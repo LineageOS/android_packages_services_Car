@@ -208,7 +208,7 @@
     <string name="proxy_error_empty_host_set_port" msgid="8471455809508588255">"El campo de puerto debe estar vacío si el campo de host también lo está."</string>
     <string name="proxy_error_invalid_port" msgid="4046559920586100637">"El puerto que has introducido no es válido."</string>
     <string name="proxy_warning_limited_support" msgid="9026539134219095768">"El navegador utiliza el proxy HTTP, pero otras aplicaciones no pueden usarlo."</string>
-    <string name="proxy_url_title" msgid="882042361706435904">"URL PAC "</string>
+    <string name="proxy_url_title" msgid="882042361706435904">"URL de archivo PAC "</string>
     <string name="radio_info_dl_kbps" msgid="2903778264453410272">"Ancho de banda de bajada (Kbps):"</string>
     <string name="radio_info_ul_kbps" msgid="3802245899811732716">"Ancho de banda de subida (Kbps):"</string>
     <string name="radio_info_signal_location_label" msgid="6788144906873498013">"Información sobre la ubicación del teléfono (obsoleto):"</string>
@@ -355,7 +355,7 @@
     <string name="security_enable_widgets_title" msgid="1701510007926738088">"Habilitar widgets"</string>
     <string name="security_enable_widgets_disabled_summary" msgid="4408176087132339331">"Inhabilitado por el administrador"</string>
     <string name="lockdown_settings_title" msgid="4534779922580115990">"Mostrar opción de bloqueo de seguridad"</string>
-    <string name="lockdown_settings_summary" msgid="7270756909878256174">"Muestra la opción del botón de encendido que desactiva Smart Lock, el desbloqueo con huella digital y las notificaciones en la pantalla de bloqueo"</string>
+    <string name="lockdown_settings_summary" msgid="7270756909878256174">"Muestra una opción al pulsar el botón de encendido que desactiva Smart Lock, el desbloqueo con huella digital y las notificaciones en la pantalla de bloqueo"</string>
     <string name="trust_agents_extend_unlock_title" msgid="3582017561316089951">"Los agentes de confianza solo extienden el desbloqueo"</string>
     <string name="trust_agents_extend_unlock_summary" msgid="3543997596586078084">"Si se habilita esta opción, los agentes de confianza mantendrán el dispositivo desbloqueado durante más tiempo, pero ya no podrán desbloquear un dispositivo bloqueado"</string>
     <string name="trust_lost_locks_screen_title" msgid="3094736590690459372">"Bloquear pantalla si no hay confianza"</string>
@@ -2038,8 +2038,8 @@
     <string name="accessibility_settings_title" msgid="1687226556576913576">"Ajustes de accesibilidad"</string>
     <string name="accessibility_settings_summary" msgid="5742379519336396561">"Lectores de pantalla, pantalla, controles de interacción"</string>
     <string name="vision_settings_title" msgid="7315352351051423944">"Ajustes de visión"</string>
-    <string name="vision_settings_description" msgid="3476589459009287332">"Personaliza este dispositivo para adaptarlo a tus necesidades. Puedes modificar las funciones de accesibilidad posteriormente en Ajustes."</string>
-    <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"Cambiar el tamaño de la fuente"</string>
+    <string name="vision_settings_description" msgid="3476589459009287332">"Personaliza este dispositivo para adaptarlo a tus necesidades. Puedes modificar las funciones de accesibilidad más tarde en Ajustes."</string>
+    <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"Cambia el tamaño de la fuente"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"Lectores de pantalla"</string>
     <string name="audio_and_captions_category_title" msgid="6140472938769619212">"Audio y texto en pantalla"</string>
     <string name="display_category_title" msgid="545168481672250195">"Pantalla"</string>
@@ -2267,7 +2267,7 @@
     <string name="details_subtitle" msgid="7279638828004951382">"Detalles de uso"</string>
     <string name="controls_subtitle" msgid="6920199888882834620">"Cómo reducir el uso de la batería"</string>
     <string name="packages_subtitle" msgid="6506269487892204413">"Paquetes incluidos"</string>
-    <string name="battery_tip_summary_title" msgid="2750922152518825526">"Las aplicaciones funcionan correctamente"</string>
+    <string name="battery_tip_summary_title" msgid="2750922152518825526">"Las aplicaciones funcionan con normalidad"</string>
     <string name="battery_tip_summary_summary" product="default" msgid="6294900413896440006">"El teléfono tiene un consumo normal de batería en segundo plano"</string>
     <string name="battery_tip_summary_summary" product="tablet" msgid="5280099016800644130">"El tablet tiene un consumo normal de batería en segundo plano"</string>
     <string name="battery_tip_summary_summary" product="device" msgid="4459840492610842705">"El dispositivo tiene un consumo normal de batería en segundo plano"</string>
@@ -2449,11 +2449,11 @@
     <string name="battery_saver" msgid="3989710213758938398">"Ahorro de batería"</string>
     <string name="battery_saver_auto_title" msgid="4158659069641849952">"Activar automáticamente"</string>
     <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"Sin programación"</string>
-    <string name="battery_saver_auto_routine" msgid="886514412067906980">"Según tu rutina"</string>
+    <string name="battery_saver_auto_routine" msgid="886514412067906980">"Basado en tu rutina"</string>
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"Según el porcentaje"</string>
     <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"El modo Ahorro de batería se activa si es probable que te quedes sin batería antes de tu próxima carga normal."</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Se activará cuando llegue al <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
-    <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Definir una programación"</string>
+    <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Establecer una programación"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Desactivar con la carga al máximo"</string>
     <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"El modo Ahorro de batería se desactiva cuando el teléfono está al <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"El modo Ahorro de batería se desactiva cuando el teléfono está al <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
@@ -2768,7 +2768,7 @@
     <string name="vpn_done" msgid="6314426362224527349">"Cerrar"</string>
     <string name="vpn_save" msgid="1332625259182278316">"Guardar"</string>
     <string name="vpn_connect" msgid="772295154834334710">"Conectar"</string>
-    <string name="vpn_replace" msgid="7818130465019803404">"Sustituir"</string>
+    <string name="vpn_replace" msgid="7818130465019803404">"Reemplazar"</string>
     <string name="vpn_edit" msgid="7284861108584255618">"Editar perfil de VPN"</string>
     <string name="vpn_forget" msgid="7662717604542624887">"Olvidar"</string>
     <string name="vpn_connect_to" msgid="7926776854873218762">"Conectar a <xliff:g id="PROFILE">%s</xliff:g>"</string>
@@ -2776,7 +2776,7 @@
     <string name="vpn_disconnect" msgid="4625914562388652486">"Desconectar"</string>
     <string name="vpn_version" msgid="2006792987077940456">"Versión <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="vpn_forget_long" msgid="8457511440635534478">"Olvidar VPN"</string>
-    <string name="vpn_replace_vpn_title" msgid="8517436922021598103">"¿Sustituir VPN actual?"</string>
+    <string name="vpn_replace_vpn_title" msgid="8517436922021598103">"¿Reemplazar VPN actual?"</string>
     <string name="vpn_set_vpn_title" msgid="6483554732067951052">"¿Configurar el modo de VPN siempre activada?"</string>
     <string name="vpn_first_always_on_vpn_message" msgid="7050017738816963855">"Si esta opción está activada, no tendrás acceso a Internet hasta que se conecte la red VPN"</string>
     <string name="vpn_replace_always_on_vpn_enable_message" msgid="4149931501300203205">"La nueva red VPN sustituirá a la actual y no tendrás acceso a Internet hasta que dicha VPN se conecte"</string>
@@ -2925,7 +2925,7 @@
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Excepto si hay otra aplicación de pago abierta"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"En terminales Toca y paga, pagar con:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Cómo pagar en el terminal"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Configura una aplicación de pago. A continuación, solo tienes que sostener la parte trasera del teléfono sobre cualquier terminal con el símbolo de pago sin contacto."</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Configura una aplicación de pago. A continuación, solo tienes que sostener la parte trasera del teléfono sobre cualquier terminal con el símbolo de pago contactless."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"Entendido"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"Más..."</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"¿Establecer como preferencia?"</string>
@@ -3201,7 +3201,7 @@
     <string name="zen_mode_restrict_notifications_mute_footer" msgid="3049522809520549054">"Cuando recibas notificaciones, tu teléfono no sonará ni vibrará."</string>
     <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"Notificaciones sin sonido ni elementos visuales"</string>
     <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"No verás ni escucharás notificaciones"</string>
-    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"Las notificaciones no se mostrarán ni harán que el teléfono suene o vibre. Recuerda que las notificaciones críticas sobre la actividad y el estado del teléfono se seguirán mostrando.\n\nCuando desactives el modo No molestar, podrás deslizar el dedo desde la parte superior de la pantalla para leer las notificaciones que no hayas visto."</string>
+    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"Las notificaciones no se mostrarán ni harán que el teléfono suene o vibre. Recuerda que las notificaciones críticas sobre la actividad y el estado del teléfono se seguirán mostrando.\n\nCuando desactives el modo No molestar, desliza el dedo desde la parte superior de la pantalla para leer las notificaciones que no hayas visto."</string>
     <string name="zen_mode_restrict_notifications_custom" msgid="3167252482570424133">"Personalizado"</string>
     <string name="zen_mode_restrict_notifications_enable_custom" msgid="6376983315529894440">"Habilitar configuración personalizada"</string>
     <string name="zen_mode_restrict_notifications_disable_custom" msgid="8004212081465043044">"Quitar configuración personalizada"</string>
@@ -3214,8 +3214,8 @@
     <string name="zen_mode_block_effect_sound" msgid="1499243540186357631">"Silenciar sonido y vibración"</string>
     <string name="zen_mode_block_effect_intent" msgid="5666951244667422668">"No encender la pantalla"</string>
     <string name="zen_mode_block_effect_light" msgid="8679333758037487644">"No hacer parpadear la luz"</string>
-    <string name="zen_mode_block_effect_peek" msgid="6075662813575910221">"No mostrar notificaciones en pantalla"</string>
-    <string name="zen_mode_block_effect_status" msgid="6516614225115681068">"Ocultar iconos de la barra de estado en la parte superior de la pantalla"</string>
+    <string name="zen_mode_block_effect_peek" msgid="6075662813575910221">"No mostrar notificaciones en la pantalla"</string>
+    <string name="zen_mode_block_effect_status" msgid="6516614225115681068">"Ocultar iconos de la barra de estado superior"</string>
     <string name="zen_mode_block_effect_badge" msgid="3891743027347075136">"Ocultar puntos de notificación en los iconos de las aplicaciones"</string>
     <string name="zen_mode_block_effect_ambient" msgid="6382013125863616197">"No activar con notificaciones"</string>
     <string name="zen_mode_block_effect_list" msgid="6081548478844912181">"Ocultar de la lista de notificaciones"</string>
@@ -3287,8 +3287,8 @@
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Sonido de notificación de trabajo predeterminado"</string>
     <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"Sonido de alarma de trabajo predeterminado"</string>
     <string name="work_sound_same_as_personal" msgid="7728560881697159758">"Igual que el perfil personal"</string>
-    <string name="work_sync_dialog_title" msgid="4799120971202956837">"¿Sustituir sonidos?"</string>
-    <string name="work_sync_dialog_yes" msgid="2110726233746476066">"Sustituir"</string>
+    <string name="work_sync_dialog_title" msgid="4799120971202956837">"¿Reemplazar sonidos?"</string>
+    <string name="work_sync_dialog_yes" msgid="2110726233746476066">"Reemplazar"</string>
     <string name="work_sync_dialog_message" msgid="944233463059129156">"Se utilizarán los sonidos de tu perfil personal en tu perfil de trabajo"</string>
     <string name="ringtones_install_custom_sound_title" msgid="210551218424553671">"¿Añadir sonido personalizado?"</string>
     <string name="ringtones_install_custom_sound_content" msgid="6683649115132255452">"Este archivo se copiará en la carpeta <xliff:g id="FOLDER_NAME">%s</xliff:g>"</string>
@@ -4002,7 +4002,7 @@
     <string name="suggestion_additional_fingerprints" msgid="3434467207282466411">"Añadir otra huella digital"</string>
     <string name="suggestion_additional_fingerprints_summary" msgid="1916547587832484196">"Desbloquear con un dedo diferente"</string>
     <string name="battery_saver_on_summary" msgid="6841062406467435672">"Activado"</string>
-    <string name="battery_saver_off_scheduled_summary" msgid="3740414764069188669">"Se activará cuando esté al <xliff:g id="BATTERY_PERCENTAGE">%1$s</xliff:g>"</string>
+    <string name="battery_saver_off_scheduled_summary" msgid="3740414764069188669">"Se activará cuando la batería esté al <xliff:g id="BATTERY_PERCENTAGE">%1$s</xliff:g>"</string>
     <string name="battery_saver_off_summary" msgid="8736555723004299721">"Desactivado"</string>
     <string name="battery_saver_button_turn_on" msgid="3748696527267573793">"Activar ahora"</string>
     <string name="battery_saver_button_turn_off" msgid="2912950982503267828">"Desactivar"</string>
@@ -4062,7 +4062,7 @@
     <string name="button_confirm_convert_fbe" msgid="419832223125147297">"Borrar y convertir"</string>
     <string name="reset_shortcut_manager_throttling" msgid="1912184636360233397">"Restablecer límite de frecuencia de ShortcutManager"</string>
     <string name="reset_shortcut_manager_throttling_complete" msgid="2932990541160593632">"Se ha restablecido el límite de frecuencia de ShortcutManager"</string>
-    <string name="notification_suggestion_title" msgid="3292107671498148560">"Controlar los datos que aparecen en la pantalla de bloqueo"</string>
+    <string name="notification_suggestion_title" msgid="3292107671498148560">"Controla los datos que aparecen en la pantalla de bloqueo"</string>
     <string name="notification_suggestion_summary" msgid="6516827892359614597">"Mostrar u ocultar contenido de las notificaciones"</string>
     <string name="page_tab_title_summary" msgid="4824744863994538006">"Todo"</string>
     <string name="page_tab_title_support" msgid="5569262185010367870">"Ayuda y consejos"</string>

@@ -2743,7 +2743,7 @@
     <string name="data_usage_cellular_data_summary" msgid="9162777397135709280">"Pozastaveno při limitu"</string>
     <string name="account_settings_menu_auto_sync" msgid="2673669556006027506">"Autom. synchronizovat data"</string>
     <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"Autom. synch. osobní data"</string>
-    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"Autom. synch. pracovní data"</string>
+    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"Autosynchronizace pracovních dat"</string>
     <string name="data_usage_change_cycle" msgid="447761920472170031">"Změnit cyklus..."</string>
     <string name="data_usage_pick_cycle_day" msgid="6319750879145917066">"Den v měsíci, kdy se má obnovit počítání datových přenosů:"</string>
     <string name="data_usage_empty" msgid="7981405723435034032">"V tomto období nevyužily datové připojení žádné aplikace."</string>
@@ -3993,7 +3993,7 @@
     <string name="backup_disabled" msgid="6941165814784765643">"Zálohování bylo zakázáno"</string>
     <string name="android_version_summary" msgid="2192751442789395445">"Aktualizováno na Android <xliff:g id="VERSION">%1$s</xliff:g>"</string>
     <string name="android_version_pending_update_summary" msgid="3554543810520655076">"K dispozici je aktualizace"</string>
-    <string name="disabled_by_policy_title" msgid="1238318274952958846">"Akce není povolena."</string>
+    <string name="disabled_by_policy_title" msgid="1238318274952958846">"Akce není povolena"</string>
     <string name="disabled_by_policy_title_adjust_volume" msgid="7094547090629203316">"Hlasitost nelze změnit"</string>
     <string name="disabled_by_policy_title_outgoing_calls" msgid="3805836913095496278">"Volání není povoleno"</string>
     <string name="disabled_by_policy_title_sms" msgid="1453236584236681105">"Zprávy SMS nejsou povoleny"</string>

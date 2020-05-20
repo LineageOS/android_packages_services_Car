@@ -3134,7 +3134,7 @@
     <string name="sound_settings_summary_vibrate" msgid="2194491116884798590">"Zəng səsi vibrasiya rejimindədir"</string>
     <string name="sound_settings_summary_silent" msgid="899823817462768876">"Zəng səsi səssiz rejimdədir"</string>
     <string name="sound_settings_example_summary" msgid="2091822107298841827">"Zəng səsi 80% faizdir"</string>
-    <string name="media_volume_option_title" msgid="3553411883305505682">"Media həcmi"</string>
+    <string name="media_volume_option_title" msgid="3553411883305505682">"Media səsi"</string>
     <string name="remote_media_volume_option_title" msgid="6355710054191873836">"Yayım həcmi"</string>
     <string name="call_volume_option_title" msgid="5028003296631037334">"Zəng səsi"</string>
     <string name="alarm_volume_option_title" msgid="3184076022438477047">"Siqnal səsi həcmi"</string>
@@ -3194,7 +3194,7 @@
     <string name="zen_mode_summary_combination" msgid="6960111215170691605">"<xliff:g id="MODE">%1$s</xliff:g>: <xliff:g id="EXIT_CONDITION">%2$s</xliff:g>"</string>
     <string name="zen_mode_visual_interruptions_settings_title" msgid="8378266552787406849">"Vizual fəsadları blok edin"</string>
     <string name="zen_mode_visual_signals_settings_subtitle" msgid="6608239691864638854">"Görünən siqnallara icazə verin"</string>
-    <string name="zen_mode_settings_category" msgid="5601680733422424922">"Narahat Etməyin rejimi aktiv olduqda"</string>
+    <string name="zen_mode_settings_category" msgid="5601680733422424922">"Narahat Etmə rejimi aktiv olduqda"</string>
     <string name="zen_mode_restrict_notifications_title" msgid="7486753018073540477">"Bildirişləri məhdudlaşdırın"</string>
     <string name="zen_mode_restrict_notifications_mute" msgid="2673665450311184875">"Bildirişlər səs çıxarmır"</string>
     <string name="zen_mode_restrict_notifications_mute_summary" msgid="1696217042353376674">"Ekranda bildirişləri görəcəksiniz"</string>

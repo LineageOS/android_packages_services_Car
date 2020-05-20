@@ -455,7 +455,7 @@
     <string name="lock_screen_intro_skip_dialog_text" product="tablet" msgid="7572334562915795226">"ഉപകരണ പരിരക്ഷാ ഫീച്ചറുകൾ ഓണാക്കില്ല. ഈ ടാബ്‌ലെറ്റ് നഷ്ടപ്പെടുകയോ മോഷ്ടിക്കപ്പെടുകയോ ചെയ്താൽ, ടാബ്‌ലെറ്റ് ഉപയോഗിക്കുന്നതിൽ നിന്ന് മറ്റുള്ളവരെ തടയാൻ നിങ്ങൾക്കാവില്ല."</string>
     <string name="lock_screen_intro_skip_dialog_text" product="device" msgid="3819285334459763813">"ഉപകരണ പരിരക്ഷാ ഫീച്ചറുകൾ ഓണാക്കില്ല. ഈ ഉപകരണം നഷ്ടപ്പെടുകയോ മോഷ്ടിക്കപ്പെടുകയോ ചെയ്താൽ, ഉപകരണം ഉപയോഗിക്കുന്നതിൽ നിന്ന് മറ്റുള്ളവരെ തടയാൻ നിങ്ങൾക്കാവില്ല."</string>
     <string name="lock_screen_intro_skip_dialog_text" product="default" msgid="5361573789585652826">"ഉപകരണ പരിരക്ഷാ ഫീച്ചറുകൾ ഓണാക്കില്ല. ഈ ഫോൺ നഷ്ടപ്പെടുകയോ മോഷ്ടിക്കപ്പെടുകയോ ചെയ്താൽ, ഫോൺ ഉപയോഗിക്കുന്നതിൽ നിന്ന് മറ്റുള്ളവരെ തടയാൻ നിങ്ങൾക്കാവില്ല."</string>
-    <string name="skip_anyway_button_label" msgid="4437815969645175429">"ഏതുവിധേനയും ഒഴിവാക്കുക"</string>
+    <string name="skip_anyway_button_label" msgid="4437815969645175429">"എന്തായാലും ഒഴിവാക്കുക"</string>
     <string name="go_back_button_label" msgid="7310586887969860472">"തിരിച്ചുപോവുക"</string>
     <string name="skip_lock_screen_dialog_button_label" msgid="6706047245716780006">"ഒഴിവാക്കുക"</string>
     <string name="cancel_lock_screen_dialog_button_label" msgid="2534925227627658819">"റദ്ദാക്കുക"</string>
@@ -857,7 +857,7 @@
     <string name="wifi_poor_network_detection_summary" msgid="5539951465985614590">"മികച്ച ഇന്‍റർനെറ്റ് കണക്ഷൻ ഉണ്ടാകുന്നതുവരെ വൈഫൈ നെറ്റ്‌വർക്ക് ഉപയോഗിക്കരുത്"</string>
     <string name="wifi_avoid_poor_network_detection_summary" msgid="1976503191780928104">"മികച്ച ഇന്‍റർനെറ്റ് കണക്ഷനുള്ള നെറ്റ്‌വർക്കുകൾ മാത്രം ഉപയോഗിക്കുക"</string>
     <string name="use_open_wifi_automatically_title" msgid="3084513215481454350">"ഓപ്പൺ നെറ്റ്‌വർക്കിലേക്ക് കണക്റ്റ് ചെയ്യുക"</string>
-    <string name="use_open_wifi_automatically_summary" msgid="8338020172673161754">"ഉയർന്ന നിലവാരമുള്ള പബ്ലിക് നെറ്റ്‌വർക്കുകളിലേക്ക് സ്വയമേവ കണക്റ്റ് ചെയ്യുക"</string>
+    <string name="use_open_wifi_automatically_summary" msgid="8338020172673161754">"ഉയർന്ന നിലവാരമുള്ള പൊതു നെറ്റ്‌വർക്കുകളിലേക്ക് സ്വയമേവ കണക്റ്റ് ചെയ്യുക"</string>
     <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"ഉപയോഗിക്കാനായി, ഒരു നെറ്റ്‌വർക്ക് റേറ്റിംഗ് ദാതാവിനെ തിരഞ്ഞെടുക്കുക"</string>
     <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"ഉപയോഗിക്കാനായി, അനുയോജ്യമായ ഒരു നെറ്റ്‌വർക്ക് റേറ്റിംഗ് ദാതാവിനെ തിരഞ്ഞെടുക്കുക"</string>
     <string name="wifi_install_credentials" msgid="5650088113710858289">"സർട്ടിഫിക്കറ്റുകൾ ഇൻസ്റ്റാളുചെയ്യുക"</string>
@@ -2036,8 +2036,8 @@
     <string name="usage_time_label" msgid="5615725415876461039">"ഉപയോഗ സമയം"</string>
     <string name="accessibility_settings" msgid="9140621093888234485">"ഉപയോഗസഹായി"</string>
     <string name="accessibility_settings_title" msgid="1687226556576913576">"ഉപയോഗസഹായി ക്രമീകരണങ്ങൾ"</string>
-    <string name="accessibility_settings_summary" msgid="5742379519336396561">"സ്‌ക്രീൻ റീഡറുകൾ, ‌ഡിസ്‌പ്ലേ, ഇന്‍ററാക്ഷൻ നിയന്ത്രണങ്ങൾ"</string>
-    <string name="vision_settings_title" msgid="7315352351051423944">"വീക്ഷണ ക്രമീകരണം"</string>
+    <string name="accessibility_settings_summary" msgid="5742379519336396561">"സ്‌ക്രീൻ റീഡറുകൾ, ‌ഡിസ്‌പ്ലേ, ഇടപെടൽ നിയന്ത്രണങ്ങൾ"</string>
+    <string name="vision_settings_title" msgid="7315352351051423944">"കാഴ്‍ചാ ക്രമീകരണം"</string>
     <string name="vision_settings_description" msgid="3476589459009287332">"ആവശ്യങ്ങൾക്ക് അനുസരിച്ച് നിങ്ങൾക്ക് ഈ ഉപകരണം ഇഷ്ടാനുസൃതമാക്കാം. ഈ ഉപയോഗസഹായി ഫീച്ചറുകൾ പിന്നീട് ക്രമീകരണത്തിൽ മാറ്റാവുന്നതാണ്."</string>
     <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"ഫോണ്ട് വലുപ്പം മാറ്റുക"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"സ്‌ക്രീൻ റീഡറുകൾ"</string>
@@ -3217,7 +3217,7 @@
     <string name="zen_mode_block_effect_peek" msgid="6075662813575910221">"സ്‌ക്രീനിൽ അറിയിപ്പുകൾ പോപ്പ് ചെയ്യരുത്"</string>
     <string name="zen_mode_block_effect_status" msgid="6516614225115681068">"സ്‌ക്രീനിന്റെ മുകളിലുള്ള സ്‌റ്റാറ്റസ് ബാർ ഐക്കണുകൾ അദൃശ്യമാക്കുക"</string>
     <string name="zen_mode_block_effect_badge" msgid="3891743027347075136">"ആപ്പ് ഐക്കണുകളിൽ അറിയിപ്പ് ഡോട്ടുകൾ അദൃശ്യമാക്കുക"</string>
-    <string name="zen_mode_block_effect_ambient" msgid="6382013125863616197">"അറിയിപ്പുകൾക്കായി സജീവമാക്കരുത്"</string>
+    <string name="zen_mode_block_effect_ambient" msgid="6382013125863616197">"അറിയിപ്പുകൾ വരുമ്പോൾ സജീവമാക്കരുത്"</string>
     <string name="zen_mode_block_effect_list" msgid="6081548478844912181">"അറിയിപ്പ് ലിസ്‌റ്റിൽ നിന്നും അദൃശ്യമാക്കുക"</string>
     <string name="zen_mode_block_effect_summary_none" msgid="7166175186759564510">"ഒരിക്കലും വേണ്ട"</string>
     <string name="zen_mode_block_effect_summary_screen_off" msgid="2985086455557755722">"സ്ക്രീൻ ഓഫായിരിക്കുമ്പോൾ"</string>
@@ -3712,10 +3712,10 @@
     <string name="high_power_system" msgid="739584574711292753">"ബാറ്ററി ഓപ്റ്റിമൈസേഷൻ ലഭ്യമല്ല"</string>
     <string name="high_power_desc" msgid="333756885680362741">"ബാറ്ററി ഒപ്റ്റിമൈസേഷൻ പ്രയോഗിക്കരുത്. ഇത് ബാറ്ററിയെ വേഗത്തിൽ തീർത്തേക്കാം."</string>
     <string name="high_power_prompt_title" msgid="2805745781720454052">"ആപ്പിനെ എല്ലായ്‌പ്പോഴും പശ്ചാത്തലത്തിൽ റൺ ചെയ്യാൻ അനുവദിക്കണോ?"</string>
-    <string name="high_power_prompt_body" msgid="8067395096053552289">"<xliff:g id="APP_NAME">%1$s</xliff:g> ആപ്പിനെ എല്ലായ്‌പ്പോഴും പശ്ചാത്തലത്തിൽ റൺ ചെയ്യാൻ അനുവദിക്കുന്നത് ബാറ്ററി ലൈഫ് കുറയ്‌ക്കാനിടയാക്കും. \n\nനിങ്ങൾക്ക്, ക്രമീകരണം &gt; ആപ്പുകളും അറിയിപ്പുകളും എന്നതിൽ നിന്ന് ‌പിന്നീട് ഇത് മാറ്റാവുന്നതാണ്."</string>
+    <string name="high_power_prompt_body" msgid="8067395096053552289">"<xliff:g id="APP_NAME">%1$s</xliff:g> ആപ്പിനെ എല്ലായ്‌പ്പോഴും പശ്ചാത്തലത്തിൽ റൺ ചെയ്യാൻ അനുവദിക്കുന്നത് ബാറ്ററി ലൈഫ് കുറയ്‌ക്കാനിടയാക്കും. \n\nനിങ്ങൾക്ക്, ക്രമീകരണം &gt; ആപ്പുകളും അറിയിപ്പുകളും എന്നതിൽ പിന്നീട് ഇത് മാറ്റാവുന്നതാണ്."</string>
     <string name="battery_summary" msgid="4345690800899981339">"അവസാനം പൂർണ്ണമായി ചാർജ് ആയതിനുശേഷം <xliff:g id="PERCENTAGE">%1$s</xliff:g> ഉപയോഗം"</string>
     <string name="battery_power_management" msgid="2853925857548647969">"ഊർജ്ജ ഉപഭോഗ നിയന്ത്രണം"</string>
-    <string name="no_battery_summary" msgid="4105932628367471314">"അവസാനമായി പൂർണ്ണ ചാർജ് ആയതിനുശേഷം ബാറ്ററി ഉപയോഗമില്ല"</string>
+    <string name="no_battery_summary" msgid="4105932628367471314">"അവസാനമായി ഫുൾ ചാർജ് ചെയ്തത് മുതൽ ബാറ്ററി ഉപയോഗമൊന്നുമില്ല"</string>
     <string name="app_notification_preferences" msgid="5154466638524523201">"ആപ്പ് ക്രമീകരണം"</string>
     <string name="system_ui_settings" msgid="6751165163665775447">"SystemUI ട്യൂണർ കാണിക്കുക"</string>
     <string name="additional_permissions" msgid="3142290772324571654">"അധിക അനുമതികൾ"</string>
@@ -4239,7 +4239,7 @@
     <string name="storage_music_audio" msgid="3661289086715297149">"സംഗീതവും ഓഡിയോയും"</string>
     <string name="storage_games" msgid="7740038143749092373">"ഗെയിമുകള്‍"</string>
     <string name="storage_other_apps" msgid="3202407095387420842">"മറ്റ് ആപ്പുകൾ"</string>
-    <string name="storage_files" msgid="2087824267937487880">"ഫയലുകള്‍"</string>
+    <string name="storage_files" msgid="2087824267937487880">"Files"</string>
     <string name="storage_size_large_alternate" msgid="1317796542509105857">"<xliff:g id="NUMBER">^1</xliff:g>"<small>" "<font size="20">"<xliff:g id="UNIT">^2</xliff:g>"</font></small>""</string>
     <string name="storage_volume_total" msgid="5021484171514159913">"<xliff:g id="TOTAL">%1$s</xliff:g> ഉപയോഗിച്ചു"</string>
     <string name="storage_percent_full" msgid="6924662861545958442">"ഉപയോഗിച്ചു"</string>

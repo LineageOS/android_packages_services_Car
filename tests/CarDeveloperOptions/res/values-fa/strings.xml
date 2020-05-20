@@ -1418,7 +1418,7 @@
     <string name="storage_menu_set_up" msgid="2849170579745958513">"راه‌اندازی"</string>
     <string name="storage_menu_explore" msgid="3733439525636202662">"کاوش"</string>
     <string name="storage_menu_free" msgid="6586253660759145508">"آزاد کردن فضا"</string>
-    <string name="storage_menu_manage" msgid="461380717863926516">"مدیریت حافظه"</string>
+    <string name="storage_menu_manage" msgid="461380717863926516">"مدیریت فضای ذخیره‌سازی"</string>
     <string name="storage_title_usb" msgid="2015671467177303099">"اتصال به کامپیوتر با USB"</string>
     <string name="usb_connection_category" msgid="2888975803638116041">"اتصال به‌عنوان"</string>
     <string name="usb_mtp_title" msgid="6893938968831995500">"دستگاه رسانه‌ای (MTP)"</string>
@@ -2038,7 +2038,7 @@
     <string name="accessibility_settings_title" msgid="1687226556576913576">"تنظیمات دسترس‌پذیری"</string>
     <string name="accessibility_settings_summary" msgid="5742379519336396561">"صفحه‌خوان‌ها، نمایشگر، کنترل‌های تعامل"</string>
     <string name="vision_settings_title" msgid="7315352351051423944">"تنظیمات بینایی"</string>
-    <string name="vision_settings_description" msgid="3476589459009287332">"می‌توانید این دستگاه را متناسب با نیازهایتان سفارشی کنید. می‌توانید بعداً در «تنظیمات»، این قابلیت‌های دسترس‌پذیری را تغییر دهید."</string>
+    <string name="vision_settings_description" msgid="3476589459009287332">"می‌توانید این دستگاه را متناسب با نیازهایتان سفارشی کنید. می‌توانید بعداً در «تنظیمات»، این ویژگی‌های دسترس‌پذیری را تغییر دهید."</string>
     <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"تغییر اندازه قلم"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"صفحه‌خوان‌ها"</string>
     <string name="audio_and_captions_category_title" msgid="6140472938769619212">"صدا و نوشتار روی صفحه"</string>
@@ -4099,7 +4099,7 @@
       <item quantity="one">‏<xliff:g id="NUMBER">%s</xliff:g> ثانیه</item>
       <item quantity="other">‏<xliff:g id="NUMBER">%s</xliff:g> ثانیه</item>
     </plurals>
-    <string name="automatic_storage_manager_settings" msgid="2403621409625820182">"مدیریت حافظه"</string>
+    <string name="automatic_storage_manager_settings" msgid="2403621409625820182">"مدیریت فضای ذخیره‌سازی"</string>
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"برای کمک به خالی کردن فضای ذخیره‌سازی، مدیر ذخیره‌سازی عکس‌ها و ویدیوهای پشتیبان‌گیری‌شده را از دستگاهتان پاک می‌کند."</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"پاک کردن عکس‌ها و ویدئوها"</string>
     <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"مدیر فضای ذخیره‌سازی"</string>
@@ -4264,7 +4264,7 @@
     <string name="default_theme" msgid="5986996377385956138">"پیش‌فرض"</string>
     <string name="show_operator_name_title" msgid="5056163028128447308">"نام شبکه"</string>
     <string name="show_operator_name_summary" msgid="6352180285743777497">"نمایش نام شبکه در نوار وضعیت"</string>
-    <string name="storage_manager_indicator" msgid="4255140732848476875">"مدیریت حافظه: <xliff:g id="STATUS">^1</xliff:g>"</string>
+    <string name="storage_manager_indicator" msgid="4255140732848476875">"مدیریت فضای ذخیره‌سازی: <xliff:g id="STATUS">^1</xliff:g>"</string>
     <string name="storage_manager_indicator_off" msgid="6404056007102580777">"خاموش"</string>
     <string name="storage_manager_indicator_on" msgid="5295306384982062320">"روشن"</string>
     <string name="install_type_instant" msgid="6248487669862821874">"برنامه فوری"</string>

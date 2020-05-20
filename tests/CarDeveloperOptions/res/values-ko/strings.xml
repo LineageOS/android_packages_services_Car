@@ -3233,7 +3233,7 @@
     <string name="zen_mode_button_turn_on" msgid="1097964136225943415">"지금 사용 설정"</string>
     <string name="zen_mode_button_turn_off" msgid="3990967728457149454">"지금 사용 중지"</string>
     <string name="zen_mode_settings_dnd_manual_end_time" msgid="4307574188962071429">"<xliff:g id="FORMATTED_TIME">%s</xliff:g>까지 방해 금지 모드를 사용합니다"</string>
-    <string name="zen_mode_settings_dnd_manual_indefinite" msgid="3701005376825238752">"방해 금지 모드를 끌 때까지 계속 사용합니다"</string>
+    <string name="zen_mode_settings_dnd_manual_indefinite" msgid="3701005376825238752">"방해 금지 모드를 사용 중지할 때까지 계속 사용합니다"</string>
     <string name="zen_mode_settings_dnd_automatic_rule" msgid="2843297614114625408">"예약(<xliff:g id="RULE_NAME">%s</xliff:g>)에 따라 방해 금지 모드가 자동으로 시작되었습니다."</string>
     <string name="zen_mode_settings_dnd_automatic_rule_app" msgid="5103454923160912313">"방해 금지 모드가 앱(<xliff:g id="APP_NAME">%s</xliff:g>)에 의해 자동으로 사용 설정되었습니다"</string>
     <string name="zen_mode_settings_dnd_custom_settings_footer" msgid="6335108298640066560">"<xliff:g id="RULE_NAMES">%s</xliff:g>까지 맞춤 설정이 적용된 방해 금지 모드를 사용합니다."</string>
