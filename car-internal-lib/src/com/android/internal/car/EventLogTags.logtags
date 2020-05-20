@@ -34,9 +34,9 @@ option java_package com.android.internal.car
 150008 car_helper_svc_connected (pending_operations|1)
 150009 car_helper_hal_request (request_type|1)
 150010 car_helper_hal_response (result_code|1)
-150011 car_helper_hal_default_behavior (fallback|1)
-150012 car_helper_hal_start_user (user_id|1)
-150013 car_helper_hal_create_user (flags|1), (safe_name|3)
+150011 car_helper_hal_default_behavior (fallback|1),(user_locales|3)
+150012 car_helper_hal_start_user (user_id|1),(user_locales|3)
+150013 car_helper_hal_create_user (flags|1),(safe_name|3),(user_locales|3)
 150014 car_helper_pre_creation_requested (number_users|1),(number_guests|1)
 150015 car_helper_pre_creation_status (number_existing_users|1),(number_users_to_add|1),(number_users_to_remove|1),(number_existing_guests|1),(number_guests_to_add|1),(number_guests_to_remove|1),(number_invalid_users_to_remove|1)
 
@@ -65,7 +65,7 @@ option java_package com.android.internal.car
 #### User-related tags (range 150100 - 150199)
 
 150100 car_user_svc_initial_user_info_req (request_type|1),(timeout|1)
-150101 car_user_svc_initial_user_info_resp (status|1),(action|1),(user_id|1),(flags|1),(safe_name|3)
+150101 car_user_svc_initial_user_info_resp (status|1),(action|1),(user_id|1),(flags|1),(safe_name|3),(user_locales|3)
 150103 car_user_svc_set_initial_user (user_id|1)
 150104 car_user_svc_set_lifecycle_listener (uid|1)
 150105 car_user_svc_reset_lifecycle_listener (uid|1)
@@ -80,7 +80,7 @@ option java_package com.android.internal.car
 150114 car_user_svc_set_user_auth_resp (number_values|1),(error_message|3)
 
 150140 car_user_hal_initial_user_info_req (request_id|1),(request_type|1),(timeout|1)
-150141 car_user_hal_initial_user_info_resp (request_id|1),(status|1),(action|1),(user_id|1),(flags|1),(safe_name|3)
+150141 car_user_hal_initial_user_info_resp (request_id|1),(status|1),(action|1),(user_id|1),(flags|1),(safe_name|3),(user_locales|3)
 150142 car_user_hal_switch_user_req (request_id|1),(user_id|1),(timeout|1)
 150143 car_user_hal_switch_user_resp (request_id|1),(status|1),(result|1),(error_message|3)
 150144 car_user_hal_post_switch_user_req (request_id|1),(target_user_id|1),(current_user_id|1)
