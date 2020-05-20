@@ -46,7 +46,7 @@
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"कारका अडियो सेटिङ व्यवस्थित गर्ने"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"सवारी साधनको HAL को अनुकरण गर्ने"</string>
     <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"अडियो डकिङ कार्यक्रमहरू प्राप्त गर्नुहोस्"</string>
-    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"कारमा अन्य अडियो प्ले भइरहेका हुनाले अनुप्रयोगको भोल्युम कम भइरहेको कुराबारे एपलाई सूचित हुन दिन्छ।"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"कारमा अन्य अडियो प्ले भइरहेका हुनाले एपको भोल्युम कम भइरहेको कुराबारे एपलाई सूचित हुन दिन्छ।"</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"आन्तरिक परीक्षण गर्ने प्रयोजनका लागि तपाईंको कारको सवारी साधन HAL को अनुकरण गर्ने।"</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"तपाईंको कारको अडियोको भोल्युम नियन्त्रण गर्ने।"</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"आफ्नो कारको अडियोसम्बन्धी सेटिङहरू नियन्त्रण गर्नुहोस्।"</string>
