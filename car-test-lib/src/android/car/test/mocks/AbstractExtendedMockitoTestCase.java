@@ -83,6 +83,8 @@ import java.util.List;
  */
 public abstract class AbstractExtendedMockitoTestCase {
 
+    private static final boolean TRACE = false;
+
     private static final boolean VERBOSE = false;
     private static final String TAG = AbstractExtendedMockitoTestCase.class.getSimpleName();
 
@@ -101,7 +103,7 @@ public abstract class AbstractExtendedMockitoTestCase {
     public final WtfCheckerRule mWtfCheckerRule = new WtfCheckerRule();
 
     protected AbstractExtendedMockitoTestCase() {
-        mTracer = VERBOSE ? new TimingsTraceLog(TAG, Trace.TRACE_TAG_APP) : null;
+        mTracer = TRACE ? new TimingsTraceLog(TAG, Trace.TRACE_TAG_APP) : null;
     }
 
     @Before
@@ -416,6 +418,9 @@ public abstract class AbstractExtendedMockitoTestCase {
 
             when(Settings.System.getIntForUser(any(), any(), anyInt(), anyInt()))
                     .thenAnswer(getIntAnswer);
+
+            when(Settings.System.putStringForUser(any(), any(), anyString(), anyInt()))
+                    .thenAnswer(insertObjectAnswer);
         }
 
         private Object insertObjectFromInvocation(InvocationOnMock invocation,
@@ -443,11 +448,16 @@ public abstract class AbstractExtendedMockitoTestCase {
 
         @Nullable
         private <T> T get(String key, T defaultValue, Class<T> clazz) {
-            if (VERBOSE) Log.v(TAG, "Getting Setting " + key);
+            if (VERBOSE) {
+                Log.v(TAG, "get(): key=" + key + ", default=" + defaultValue + ", class=" + clazz);
+            }
             Object value = mSettingsMapping.get(key);
             if (value == null) {
+                if (VERBOSE) Log.v(TAG, "not found");
                 return defaultValue;
             }
+
+            if (VERBOSE) Log.v(TAG, "returning " + value);
             return safeCast(value, clazz);
         }
 
