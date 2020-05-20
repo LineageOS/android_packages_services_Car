@@ -71,6 +71,7 @@ import android.car.userlib.HalCallback;
 import android.car.userlib.UserHalHelper;
 import android.car.userlib.UserHelper;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
@@ -86,6 +87,7 @@ import android.hardware.automotive.vehicle.V2_0.UserIdentificationResponse;
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationSetRequest;
 import android.hardware.automotive.vehicle.V2_0.UsersInfo;
 import android.location.LocationManager;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.os.UserHandle;
@@ -146,6 +148,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Mock private Drawable mMockedDrawable;
     @Mock private UserMetrics mUserMetrics;
     @Mock IResultReceiver mSwitchUserUiReceiver;
+    @Mock PackageManager mPackageManager;
 
     private final BlockingUserLifecycleListener mUserLifecycleListener =
             BlockingUserLifecycleListener.newDefaultListener();
@@ -985,6 +988,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testSetSwitchUserUI_receiverSetAndCalled() throws Exception {
         mockExistingUsersAndCurrentUser(mAdminUser);
+        int callerId = Binder.getCallingUid();
+        mockCallerUid(callerId, true);
         int requestId = 42;
         mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
         mSwitchUserResponse.requestId = requestId;
@@ -996,6 +1001,15 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
         // update current user due to successful user switch
         verify(mSwitchUserUiReceiver).send(mGuestUser.id, null);
+    }
+
+    @Test
+    public void testSetSwitchUserUI_nonCarSysUiCaller() throws Exception {
+        int callerId = Binder.getCallingUid();
+        mockCallerUid(callerId, false);
+
+        assertThrows(SecurityException.class,
+                () -> mCarUserService.setUserSwitchUiCallback(mSwitchUserUiReceiver));
     }
 
     @Test
@@ -1389,6 +1403,20 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     private void mockHalSwitch(@UserIdInt int currentUserId, @NonNull UserInfo androidTargetUser,
             @Nullable SwitchUserResponse response) {
         mockHalSwitch(currentUserId, HalCallback.STATUS_OK, response, androidTargetUser);
+    }
+
+    private void mockCallerUid(int uid, boolean returnCorrectUid) throws Exception {
+        String packageName = "packageName";
+        String className = "className";
+        when(mMockedResources.getString(anyInt())).thenReturn(packageName + "/" + className);
+        when(mMockContext.createContextAsUser(any(), anyInt())).thenReturn(mMockContext);
+        when(mMockContext.getPackageManager()).thenReturn(mPackageManager);
+
+        if (returnCorrectUid) {
+            when(mPackageManager.getPackageUid(any(), anyInt())).thenReturn(uid);
+        } else {
+            when(mPackageManager.getPackageUid(any(), anyInt())).thenReturn(uid + 1);
+        }
     }
 
     private BlockingAnswer<Void> mockHalSwitchLateResponse(@UserIdInt int currentUserId,
