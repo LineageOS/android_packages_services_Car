@@ -26,11 +26,11 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.app.ActivityManager;
@@ -584,12 +584,18 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
     }
 
     private void verifyUserNotSwitched() {
-        verify(mInitialUserSetter, never()).switchUser(anyInt(), anyBoolean());
+        verify(mInitialUserSetter, never()).set(argThat((info) -> {
+            return info.type == InitialUserSetter.TYPE_SWITCH;
+        }));
     }
 
     private void verifyUserSwitched(int userId) {
         // TODO(b/153679319): pass proper value for replaceGuest
-        verify(mInitialUserSetter).switchUser(userId, true);
+        verify(mInitialUserSetter).set(argThat((info) -> {
+            return info.type == InitialUserSetter.TYPE_SWITCH
+                    && info.switchUserId == userId
+                    && info.replaceGuest;
+        }));
     }
 
     private void expectNewGuestCreated(int existingGuestId, UserInfo newGuest) {
@@ -599,15 +605,24 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
 
     private void verifyDefaultInitialUserBehaviorCalled() {
         // TODO(b/153679319): pass proper value for replaceGuest
-        verify(mInitialUserSetter).executeDefaultBehavior(true);
+        verify(mInitialUserSetter).set(argThat((info) -> {
+            return info.type == InitialUserSetter.TYPE_DEFAULT_BEHAVIOR
+                    && info.replaceGuest;
+        }));
     }
 
     private void verifyDefaultInitilUserBehaviorNeverCalled() {
-        verify(mInitialUserSetter, never()).executeDefaultBehavior(anyBoolean());
+        verify(mInitialUserSetter, never()).set(argThat((info) -> {
+            return info.type == InitialUserSetter.TYPE_DEFAULT_BEHAVIOR;
+        }));
     }
 
     private void verifyUserCreated(String name, int halFlags) {
-        verify(mInitialUserSetter).createUser(name, halFlags);
+        verify(mInitialUserSetter).set(argThat((info) -> {
+            return info.type == InitialUserSetter.TYPE_CREATE
+                    && info.newUserName == name
+                    && info.newUserFlags == halFlags;
+        }));
     }
 
     private static final class MockDisplayInterface implements DisplayInterface {
