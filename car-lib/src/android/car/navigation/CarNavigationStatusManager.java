@@ -61,6 +61,9 @@ public final class CarNavigationStatusManager extends CarManagerBase {
      * @param bundle object holding data about the navigation event. This information is
      *               generated using <a href="https://developer.android.com/reference/androidx/car/cluster/navigation/NavigationState.html#toParcelable()">
      *               androidx.car.cluster.navigation.NavigationState#toParcelable()</a>
+     *
+     * @throws IllegalStateException if the client is not holding
+     *                 {@link android.car.CarAppFocusManager#APP_FOCUS_TYPE_NAVIGATION} focus.
      */
     @RequiresPermission(Car.PERMISSION_CAR_NAVIGATION_MANAGER)
     public void sendNavigationStateChange(Bundle bundle) {
