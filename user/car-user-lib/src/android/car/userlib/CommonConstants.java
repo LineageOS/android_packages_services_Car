@@ -33,6 +33,7 @@ public final class CommonConstants {
         public static final String BUNDLE_USER_ID = "user.id";
         public static final String BUNDLE_USER_FLAGS = "user.flags";
         public static final String BUNDLE_USER_NAME = "user.name";
+        public static final String BUNDLE_USER_LOCALES = "user.locales";
         public static final String BUNDLE_INITIAL_INFO_ACTION = "initial_info.action";
 
         private CarUserServiceConstants() {

@@ -31,6 +31,7 @@ import android.os.RemoteException;
 import android.os.Trace;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.provider.Settings;
 import android.sysprop.CarProperties;
 import android.util.Log;
 import android.util.Pair;
@@ -96,6 +97,8 @@ public final class InitialUserSetter {
     @Retention(RetentionPolicy.SOURCE)
     public @interface InitialUserInfoType { }
 
+    private final Context mContext;
+
     // TODO(b/150413304): abstract AM / UM into interfaces, then provide local and remote
     // implementation (where local is implemented by ActivityManagerInternal / UserManagerInternal)
     private final CarUserManagerHelper mHelper;
@@ -113,15 +116,17 @@ public final class InitialUserSetter {
 
     public InitialUserSetter(@NonNull Context context, @NonNull Consumer<UserInfo> listener,
             @Nullable String newGuestName) {
-        this(new CarUserManagerHelper(context), UserManager.get(context), listener,
+        this(context, new CarUserManagerHelper(context), UserManager.get(context), listener,
                 new LockPatternUtils(context),
                 context.getString(com.android.internal.R.string.owner_name), newGuestName);
     }
 
     @VisibleForTesting
-    public InitialUserSetter(@NonNull CarUserManagerHelper helper, @NonNull UserManager um,
-            @NonNull Consumer<UserInfo> listener, @NonNull LockPatternUtils lockPatternUtils,
+    public InitialUserSetter(@NonNull Context context, @NonNull CarUserManagerHelper helper,
+            @NonNull UserManager um, @NonNull Consumer<UserInfo> listener,
+            @NonNull LockPatternUtils lockPatternUtils,
             @Nullable String newUserName, @Nullable String newGuestName) {
+        mContext = context;
         mHelper = helper;
         mUm = um;
         mListener = listener;
@@ -142,6 +147,7 @@ public final class InitialUserSetter {
         private @Nullable String mNewUserName;
         private int mNewUserFlags;
         private boolean mSupportsOverrideUserIdProperty;
+        private @Nullable String mUserLocales;
 
         /**
          * Constructor for the given type.
@@ -213,13 +219,21 @@ public final class InitialUserSetter {
         }
 
         /**
+         * Sets the system locales for the initial user (when it's created).
+         */
+        @NonNull
+        public Builder setUserLocales(@Nullable String userLocales) {
+            mUserLocales = userLocales;
+            return this;
+        }
+
+        /**
          * Builds the object.
          */
         @NonNull
         public InitialUserInfo build() {
             return new InitialUserInfo(this);
         }
-
     }
 
     /**
@@ -233,6 +247,7 @@ public final class InitialUserSetter {
         public final @Nullable String newUserName;
         public final int newUserFlags;
         public final boolean supportsOverrideUserIdProperty;
+        public @Nullable String userLocales;
 
         private InitialUserInfo(@NonNull Builder builder) {
             type = builder.mType;
@@ -241,6 +256,7 @@ public final class InitialUserSetter {
             newUserName = builder.mNewUserName;
             newUserFlags = builder.mNewUserFlags;
             supportsOverrideUserIdProperty = builder.mSupportsOverrideUserIdProperty;
+            userLocales = builder.mUserLocales;
         }
     }
 
@@ -285,6 +301,7 @@ public final class InitialUserSetter {
                     .setNewUserName(mNewUserName)
                     .setNewUserFlags(UserFlags.ADMIN)
                     .setSupportsOverrideUserIdProperty(info.supportsOverrideUserIdProperty)
+                    .setUserLocales(info.userLocales)
                     .build(), fallback);
         } else {
             if (DBG) Log.d(TAG, "executeDefaultBehavior(): switching to initial user");
@@ -490,6 +507,15 @@ public final class InitialUserSetter {
         }
 
         if (DBG) Log.d(TAG, "user created: " + userInfo.id);
+
+        if (info.userLocales != null) {
+            if (DBG) {
+                Log.d(TAG, "setting locale for user " + userInfo.id + " to " + info.userLocales);
+            }
+            Settings.System.putStringForUser(mContext.getContentResolver(),
+                    Settings.System.SYSTEM_LOCALES, info.userLocales, userInfo.id);
+        }
+
         return new Pair<>(userInfo, null);
     }
 

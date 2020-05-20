@@ -116,7 +116,14 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     public static final String BUNDLE_USER_FLAGS = CarUserServiceConstants.BUNDLE_USER_FLAGS;
     /** {@code String} extra used to represent a user name in a {@link IResultReceiver} response. */
     public static final String BUNDLE_USER_NAME = CarUserServiceConstants.BUNDLE_USER_NAME;
-    /** {@code int} extra used to represent the info action {@link IResultReceiver} response. */
+    /**
+     * {@code int} extra used to represent the user locales in a {@link IResultReceiver} response.
+     */
+    public static final String BUNDLE_USER_LOCALES =
+            CarUserServiceConstants.BUNDLE_USER_LOCALES;
+    /**
+     * {@code int} extra used to represent the info action in a {@link IResultReceiver} response.
+     */
     public static final String BUNDLE_INITIAL_INFO_ACTION =
             CarUserServiceConstants.BUNDLE_INITIAL_INFO_ACTION;
 
@@ -596,7 +603,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             if (resp != null) {
                 EventLog.writeEvent(EventLogTags.CAR_USER_SVC_INITIAL_USER_INFO_RESP,
                         status, resp.action, resp.userToSwitchOrCreate.userId,
-                        resp.userToSwitchOrCreate.flags, resp.userNameToCreate);
+                        resp.userToSwitchOrCreate.flags, resp.userNameToCreate, resp.userLocales);
                 switch (resp.action) {
                     case InitialUserInfoResponseAction.SWITCH:
                         resultData = new Bundle();
@@ -620,6 +627,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             } else {
                 EventLog.writeEvent(EventLogTags.CAR_USER_SVC_INITIAL_USER_INFO_RESP, status);
             }
+            if (resultData != null && !TextUtils.isEmpty(resp.userLocales)) {
+                resultData.putString(BUNDLE_USER_LOCALES, resp.userLocales);
+            }
+
             sendResult(receiver, status, resultData);
         });
     }
