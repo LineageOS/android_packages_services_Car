@@ -132,6 +132,8 @@ public abstract class AbstractExtendedMockitoTestCase {
             beginTrace("finishMocking()");
             mSession.finishMocking();
             endTrace();
+        } else {
+            Log.w(TAG, getClass().getSimpleName() + ".finishSession(): no session");
         }
         endTrace();
     }
@@ -309,11 +311,17 @@ public abstract class AbstractExtendedMockitoTestCase {
         return builder.initMocks(this);
     }
 
-    private String getLogPrefix() {
+    /**
+     * Gets a prefix for {@link Log} calls
+     */
+    protected String getLogPrefix() {
         return getClass().getSimpleName() + ".";
     }
 
-    private void assertSpied(Class<?> clazz) {
+    /**
+     * Asserts the given class is being spied in the Mockito session.
+     */
+    protected void assertSpied(Class<?> clazz) {
         Preconditions.checkArgument(mStaticSpiedClasses.contains(clazz),
                 "did not call spyStatic() on %s", clazz.getName());
     }
