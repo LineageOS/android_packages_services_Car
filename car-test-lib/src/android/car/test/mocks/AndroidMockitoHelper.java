@@ -24,6 +24,8 @@ import android.annotation.NonNull;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.test.util.UserTestingHelper;
+import android.content.Context;
+import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
 import android.os.IBinder;
@@ -167,6 +169,17 @@ public final class AndroidMockitoHelper {
             @NonNull IBinder binder, @NonNull T service) {
         doReturn(binder).when(() -> ServiceManager.getService(name));
         when(binder.queryLocalInterface(anyString())).thenReturn(service);
+    }
+
+    /**
+     * Mocks a call to {@link Context#getSystemService(Class)}.
+     */
+    public static <T> void mockContextGetService(@NonNull Context context,
+            @NonNull Class<T> serviceClass, @NonNull T service) {
+        when(context.getSystemService(serviceClass)).thenReturn(service);
+        if (serviceClass.equals(PackageManager.class)) {
+            when(context.getPackageManager()).thenReturn(PackageManager.class.cast(service));
+        }
     }
 
     /**
