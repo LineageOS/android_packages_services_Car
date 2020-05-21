@@ -214,13 +214,13 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
             @UserIdInt int userId) throws InterruptedException {
         // Adding a blocking listener to ensure CarUserService event notification is completed
         // before proceeding with test execution.
-        BlockingUserLifecycleListener blockingListener = BlockingUserLifecycleListener
-                .newDefaultListener();
+        BlockingUserLifecycleListener blockingListener =
+                BlockingUserLifecycleListener.forAnyEvent().build();
         mCarUserService.addUserLifecycleListener(blockingListener);
 
         runOnMainThreadAndWaitForIdle(() -> mCarUserService.onUserLifecycleEvent(eventType,
                 /* timestampMs= */ 0, /* fromUserId= */ UserHandle.USER_NULL, userId));
-        blockingListener.waitForEvent();
+        blockingListener.waitForAnyEvent();
     }
 
     /** Overrides framework behavior to succeed on binding/starting processes. */
