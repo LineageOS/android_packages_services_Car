@@ -345,8 +345,15 @@ bool SurroundView2dSession::initialize() {
     // description.
     mSurroundView = unique_ptr<SurroundView>(Create());
 
-    mSurroundView->SetStaticData(GetCameras(), Get2dParams(), Get3dParams(),
-                                 GetUndistortionScales(), GetBoundingBox());
+    SurroundViewStaticDataParams params =
+        SurroundViewStaticDataParams(GetCameras(),
+                                     Get2dParams(),
+                                     Get3dParams(),
+                                     GetUndistortionScales(),
+                                     GetBoundingBox(),
+                                     map<string, CarTexture>(),
+                                     map<string, CarPart>());
+    mSurroundView->SetStaticData(params);
 
     // TODO(b/150412555): remove after EVS camera is used
     mInputPointers = mSurroundView->ReadImages(
