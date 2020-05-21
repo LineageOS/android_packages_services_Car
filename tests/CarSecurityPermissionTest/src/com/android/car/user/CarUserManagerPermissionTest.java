@@ -49,7 +49,7 @@ import java.util.Objects;
  * This class contains security permission tests for the {@link CarUserManager}'s system APIs.
  */
 @RunWith(AndroidJUnit4.class)
-public final class CarUserManagerTest {
+public final class CarUserManagerPermissionTest {
     private static final int USRE_TYPE = 1;
 
     private CarUserManager mCarUserManager;
