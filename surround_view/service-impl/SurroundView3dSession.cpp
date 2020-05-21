@@ -39,6 +39,7 @@ namespace implementation {
 
 static const uint8_t kGrayColor = 128;
 static const int kNumChannels = 4;
+static const int kFrameDelayInMilliseconds = 30;
 
 SurroundView3dSession::SurroundView3dSession() :
     mStreamState(STOPPED){
@@ -347,9 +348,9 @@ void SurroundView3dSession::generateFrames() {
             }
         }
 
-        // TODO(b/150412555): use hard-coded views for now. Change view every 10
-        // frames.
-        int recViewId = sequenceId / 10 % 16;
+        // TODO(b/150412555): use hard-coded views for now. Change view every
+        // frame.
+        int recViewId = sequenceId % 16;
         for (int i=0; i<4; i++)
             for (int j=0; j<4; j++) {
                 matrix[i][j] = kRecViews[recViewId][i*4+j];
@@ -424,6 +425,11 @@ void SurroundView3dSession::generateFrames() {
                 mStream->receiveFrames(framesRecord.frames);
             }
         }
+
+        // TODO(b/150412555): adding delays explicitly. This delay should be
+        // removed when EVS camera is used.
+        this_thread::sleep_for(chrono::milliseconds(
+            kFrameDelayInMilliseconds));
     }
 
     // If we've been asked to stop, send an event to signal the actual end of stream
