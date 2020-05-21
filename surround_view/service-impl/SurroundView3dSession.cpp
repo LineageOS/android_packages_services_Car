@@ -288,6 +288,13 @@ Return<void> SurroundView3dSession::projectCameraPointsTo3dSurface(
 }
 
 void SurroundView3dSession::generateFrames() {
+    if (mSurroundView->Start3dPipeline()) {
+        LOG(INFO) << "Start3dPipeline succeeded";
+    } else {
+        LOG(ERROR) << "Start3dPipeline failed";
+        return;
+    }
+
     int sequenceId = 0;
 
     // TODO(b/150412555): do not use the setViews for frames generation
@@ -499,13 +506,6 @@ bool SurroundView3dSession::initialize() {
         LOG(INFO) << "Successfully allocated Graphic Buffer";
     } else {
         LOG(ERROR) << "Failed to allocate Graphic Buffer";
-        return false;
-    }
-
-    if (mSurroundView->Start3dPipeline()) {
-        LOG(INFO) << "Start3dPipeline succeeded";
-    } else {
-        LOG(ERROR) << "Start3dPipeline failed";
         return false;
     }
 
