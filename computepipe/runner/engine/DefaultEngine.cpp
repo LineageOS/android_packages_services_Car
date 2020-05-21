@@ -57,7 +57,8 @@ void DefaultEngine::setClientInterface(std::unique_ptr<ClientInterface>&& client
 void DefaultEngine::setPrebuiltGraph(std::unique_ptr<PrebuiltGraph>&& graph) {
     mGraph = std::move(graph);
     mGraphDescriptor = mGraph->GetSupportedGraphConfigs();
-    if (mGraph->GetGraphType() == graph::PrebuiltGraphType::REMOTE) {
+    if (mGraph->GetGraphType() == graph::PrebuiltGraphType::REMOTE ||
+        mGraphDescriptor.input_configs_size() == 0) {
         mIgnoreInputManager = true;
     }
 }
@@ -577,6 +578,7 @@ Status DefaultEngine::populateInputManagers(const ClientConfig& config) {
     if (mIgnoreInputManager) {
         return Status::SUCCESS;
     }
+
     proto::InputConfig inputDescriptor;
     int selectedId;
 
