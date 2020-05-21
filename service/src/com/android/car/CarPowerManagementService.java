@@ -16,6 +16,7 @@
 package com.android.car;
 
 import android.annotation.NonNull;
+import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.Car;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
@@ -23,6 +24,7 @@ import android.car.hardware.power.ICarPower;
 import android.car.hardware.power.ICarPowerStateListener;
 import android.car.userlib.HalCallback;
 import android.car.userlib.InitialUserSetter;
+import android.car.userlib.InitialUserSetter.InitialUserInfoType;
 import android.car.userlib.UserHalHelper;
 import android.car.userlib.UserHelper;
 import android.content.ComponentName;
@@ -164,14 +166,13 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         this(context, context.getResources(), powerHal, systemInterface, UserManager.get(context),
                 carUserService, new InitialUserSetter(context,
                         (u) -> carUserService.setInitialUser(u),
-                        context.getString(R.string.default_guest_name),
-                        !carUserService.isUserHalSupported()));
+                        context.getString(R.string.default_guest_name)));
     }
 
     @VisibleForTesting
     public CarPowerManagementService(Context context, Resources resources, PowerHalService powerHal,
-            SystemInterface systemInterface, UserManager userManager,
-            CarUserService carUserService, InitialUserSetter initialUserSetter) {
+            SystemInterface systemInterface, UserManager userManager, CarUserService carUserService,
+            InitialUserSetter initialUserSetter) {
         mContext = context;
         mHal = powerHal;
         mSystemInterface = systemInterface;
@@ -431,7 +432,13 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             return;
         }
 
-        mInitialUserSetter.executeDefaultBehavior(/* replaceGuest= */ !mSwitchGuestUserBeforeSleep);
+        executeDefaultInitialUserBehavior(!mSwitchGuestUserBeforeSleep);
+    }
+
+    private void executeDefaultInitialUserBehavior(boolean replaceGuest) {
+        mInitialUserSetter.set(newInitialUserInfoBuilder(InitialUserSetter.TYPE_DEFAULT_BEHAVIOR)
+                .setReplaceGuest(replaceGuest)
+                .build());
     }
 
     /**
@@ -447,10 +454,20 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         boolean replaceGuest = !mSwitchGuestUserBeforeSleep;
         if (newUser == null) {
             Log.w(TAG, "Failed to replace guest; falling back to default behavior");
-            mInitialUserSetter.executeDefaultBehavior(replaceGuest);
+            executeDefaultInitialUserBehavior(replaceGuest);
             return;
         }
-        mInitialUserSetter.switchUser(newUser.id, replaceGuest);
+        switchUser(newUser.id, replaceGuest);
+    }
+
+    private void switchUser(@UserIdInt int userId, boolean replaceGuest) {
+        mInitialUserSetter.set(newInitialUserInfoBuilder(InitialUserSetter.TYPE_SWITCH)
+                .setSwitchUserId(userId).setReplaceGuest(replaceGuest).build());
+    }
+
+    private InitialUserSetter.Builder newInitialUserInfoBuilder(@InitialUserInfoType int type) {
+        return new InitialUserSetter.Builder(type)
+                .setSupportsOverrideUserIdProperty(!mUserService.isUserHalSupported());
     }
 
     /**
@@ -479,14 +496,14 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     switch (response.action) {
                         case InitialUserInfoResponseAction.DEFAULT:
                             Log.i(TAG, "HAL requested default initial user behavior");
-                            mInitialUserSetter.executeDefaultBehavior(replaceGuest);
+                            executeDefaultInitialUserBehavior(replaceGuest);
                             return;
                         case InitialUserInfoResponseAction.SWITCH:
                             int userId = response.userToSwitchOrCreate.userId;
                             Log.i(TAG, "HAL requested switch to user " + userId);
                             // If guest was replaced on shutdown, it doesn't need to be replaced
                             // again
-                            mInitialUserSetter.switchUser(userId, replaceGuest);
+                            switchUser(userId, replaceGuest);
                             return;
                         case InitialUserInfoResponseAction.CREATE:
                             int halFlags = response.userToSwitchOrCreate.flags;
@@ -494,7 +511,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                             Log.i(TAG, "HAL requested new user (name="
                                     + UserHelper.safeName(name) + ", flags="
                                     + UserHalHelper.userFlagsToString(halFlags) + ")");
-                            mInitialUserSetter.createUser(name, halFlags);
+                            mInitialUserSetter
+                                    .set(newInitialUserInfoBuilder(InitialUserSetter.TYPE_CREATE)
+                                            .setNewUserName(name)
+                                            .setNewUserFlags(halFlags)
+                                            .build());
                             return;
                         default:
                             switchUserOnResumeUserHalFallback(
@@ -513,7 +534,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private void switchUserOnResumeUserHalFallback(String reason) {
         Log.w(TAG, "Failed to set initial user based on User Hal (" + reason
                 + "); falling back to default behavior");
-        mInitialUserSetter.executeDefaultBehavior(/* replaceGuest= */ !mSwitchGuestUserBeforeSleep);
+        executeDefaultInitialUserBehavior(!mSwitchGuestUserBeforeSleep);
     }
 
     private void handleShutdownPrepare(CpmsState newState) {

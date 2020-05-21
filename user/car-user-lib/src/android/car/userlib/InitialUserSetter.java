@@ -18,6 +18,7 @@ package android.car.userlib;
 import static android.car.userlib.UserHalHelper.userFlagsToString;
 import static android.car.userlib.UserHelper.safeName;
 
+import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
@@ -30,6 +31,8 @@ import android.os.RemoteException;
 import android.os.Trace;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.provider.Settings;
+import android.sysprop.CarProperties;
 import android.util.Log;
 import android.util.Pair;
 import android.util.Slog;
@@ -40,6 +43,8 @@ import com.android.internal.util.Preconditions;
 import com.android.internal.widget.LockPatternUtils;
 
 import java.io.PrintWriter;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.function.Consumer;
 
 /**
@@ -49,8 +54,50 @@ public final class InitialUserSetter {
 
     private static final String TAG = InitialUserSetter.class.getSimpleName();
 
-    // TODO(b/151758646): STOPSHIP if not false
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
+
+    /**
+     * Sets the initial user using the default behavior.
+     *
+     * <p>The default behavior is:
+     *
+     * <ol>
+     *  <li>On first boot, it creates and switches to a new user.
+     *  <li>Otherwise, it will switch to either:
+     *  <ol>
+     *   <li>User defined by {@code android.car.systemuser.bootuseroverrideid} (when it was
+     * constructed with such option enabled).
+     *   <li>Last active user (as defined by
+     * {@link android.provider.Settings.Global.LAST_ACTIVE_USER_ID}.
+     *  </ol>
+     * </ol>
+     */
+    public static final int TYPE_DEFAULT_BEHAVIOR = 0;
+
+    /**
+     * Switches to the given user, falling back to {@link #fallbackDefaultBehavior(String)} if it
+     * fails.
+     */
+    public static final int TYPE_SWITCH = 1;
+
+    /**
+     * Creates a new user and switches to it, falling back to
+     * {@link #fallbackDefaultBehavior(String) if any of these steps fails.
+     *
+     * @param name (optional) name of the new user
+     * @param halFlags user flags as defined by Vehicle HAL ({@code UserFlags} enum).
+     */
+    public static final int TYPE_CREATE = 2;
+
+    @IntDef(prefix = { "TYPE_" }, value = {
+            TYPE_DEFAULT_BEHAVIOR,
+            TYPE_SWITCH,
+            TYPE_CREATE,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface InitialUserInfoType { }
+
+    private final Context mContext;
 
     // TODO(b/150413304): abstract AM / UM into interfaces, then provide local and remote
     // implementation (where local is implemented by ActivityManagerInternal / UserManagerInternal)
@@ -58,74 +105,218 @@ public final class InitialUserSetter {
     private final UserManager mUm;
     private final LockPatternUtils mLockPatternUtils;
 
-    // TODO(b/151758646): make sure it's unit tested
-    private final boolean mSupportsOverrideUserIdProperty;
-
     private final String mNewUserName;
     private final String mNewGuestName;
 
     private final Consumer<UserInfo> mListener;
 
-    public InitialUserSetter(@NonNull Context context, @NonNull Consumer<UserInfo> listener,
-            boolean supportsOverrideUserIdProperty) {
-        this(context, listener, /* newGuestName= */ null, supportsOverrideUserIdProperty);
+    public InitialUserSetter(@NonNull Context context, @NonNull Consumer<UserInfo> listener) {
+        this(context, listener, /* newGuestName= */ null);
     }
 
     public InitialUserSetter(@NonNull Context context, @NonNull Consumer<UserInfo> listener,
-            @Nullable String newGuestName, boolean supportsOverrideUserIdProperty) {
-        this(new CarUserManagerHelper(context), UserManager.get(context), listener,
+            @Nullable String newGuestName) {
+        this(context, new CarUserManagerHelper(context), UserManager.get(context), listener,
                 new LockPatternUtils(context),
-                context.getString(com.android.internal.R.string.owner_name), newGuestName,
-                supportsOverrideUserIdProperty);
+                context.getString(com.android.internal.R.string.owner_name), newGuestName);
     }
 
     @VisibleForTesting
-    public InitialUserSetter(@NonNull CarUserManagerHelper helper, @NonNull UserManager um,
-            @NonNull Consumer<UserInfo> listener, @NonNull LockPatternUtils lockPatternUtils,
-            @Nullable String newUserName, @Nullable String newGuestName,
-            boolean supportsOverrideUserIdProperty) {
+    public InitialUserSetter(@NonNull Context context, @NonNull CarUserManagerHelper helper,
+            @NonNull UserManager um, @NonNull Consumer<UserInfo> listener,
+            @NonNull LockPatternUtils lockPatternUtils,
+            @Nullable String newUserName, @Nullable String newGuestName) {
+        mContext = context;
         mHelper = helper;
         mUm = um;
         mListener = listener;
         mLockPatternUtils = lockPatternUtils;
         mNewUserName = newUserName;
         mNewGuestName = newGuestName;
-        mSupportsOverrideUserIdProperty = supportsOverrideUserIdProperty;
     }
 
     /**
-     * Sets the initial user using the default behavior.
+     * Builder for {@link InitialUserInfo} objects.
      *
-     * <p>The default behavior is:
-     * <ol>
-     *   <li>On first boot, it creates and switches to a new user.
-     *   <li>Otherwise, it will switch to either:
-     *   <ol>
-     *     <li>User defined by {@code android.car.systemuser.bootuseroverrideid} (when it was
-     *       constructed with such option enabled).
-     *     <li>Last active user (as defined by
-     *       {@link android.provider.Settings..Global.LAST_ACTIVE_USER_ID}.
-     *   </ol>
-     * </ol>
      */
-    public void executeDefaultBehavior(boolean replaceGuest) {
-        executeDefaultBehavior(replaceGuest, /* fallback= */ false);
-    }
+    public static final class Builder {
 
-    private void executeDefaultBehavior(boolean replaceGuest, boolean fallback) {
-        if (!mHelper.hasInitialUser()) {
-            if (DBG) Log.d(TAG, "executeDefaultBehavior(): no initial user, creating it");
-            createAndSwitchUser(mNewUserName, UserFlags.ADMIN, fallback);
-        } else {
-            if (DBG) Log.d(TAG, "executeDefaultBehavior(): switching to initial user");
-            int userId = mHelper.getInitialUser(mSupportsOverrideUserIdProperty);
-            switchUser(userId, replaceGuest, fallback);
+        private final @InitialUserInfoType int mType;
+        private boolean mReplaceGuest;
+        private @UserIdInt int mSwitchUserId;
+        private @Nullable String mNewUserName;
+        private int mNewUserFlags;
+        private boolean mSupportsOverrideUserIdProperty;
+        private @Nullable String mUserLocales;
+
+        /**
+         * Constructor for the given type.
+         *
+         * @param type {@link #TYPE_DEFAULT_BEHAVIOR}, {@link #TYPE_SWITCH},
+         * or {@link #TYPE_CREATE}.
+         */
+        public Builder(@InitialUserInfoType int type) {
+            Preconditions.checkArgument(
+                    type == TYPE_DEFAULT_BEHAVIOR || type == TYPE_SWITCH || type == TYPE_CREATE,
+                    "invalid builder type");
+            mType = type;
+        }
+
+        /**
+         * Sets the id of the user to be switched to.
+         *
+         * @throws IllegalArgumentException if builder is not for {@link #TYPE_SWITCH}.
+         */
+        @NonNull
+        public Builder setSwitchUserId(@UserIdInt int userId) {
+            Preconditions.checkArgument(mType == TYPE_SWITCH, "invalid builder type: " + mType);
+            mSwitchUserId = userId;
+            return this;
+        }
+
+        /**
+         * Sets whether the current user should be replaced when it's a guest.
+         */
+        @NonNull
+        public Builder setReplaceGuest(boolean value) {
+            mReplaceGuest = value;
+            return this;
+        }
+
+        /**
+         * Sets the name of the new user being created.
+         *
+         * @throws IllegalArgumentException if builder is not for {@link #TYPE_CREATE}.
+         */
+        @NonNull
+        public Builder setNewUserName(@Nullable String name) {
+            Preconditions.checkArgument(mType == TYPE_CREATE, "invalid builder type: " + mType);
+            mNewUserName = name;
+            return this;
+        }
+
+        /**
+         * Sets the flags (as defined by {@link android.hardware.automotive.vehicle.V2_0.UserFlags})
+         * of the new user being created.
+         *
+         * @throws IllegalArgumentException if builder is not for {@link #TYPE_CREATE}.
+         */
+        @NonNull
+        public Builder setNewUserFlags(int flags) {
+            Preconditions.checkArgument(mType == TYPE_CREATE, "invalid builder type: " + mType);
+            mNewUserFlags = flags;
+            return this;
+        }
+
+        /**
+         * Sets whether the {@link CarProperties#boot_user_override_id()} should be taking in
+         * account when using the default behavior.
+         */
+        @NonNull
+        public Builder setSupportsOverrideUserIdProperty(boolean value) {
+            mSupportsOverrideUserIdProperty = value;
+            return this;
+        }
+
+        /**
+         * Sets the system locales for the initial user (when it's created).
+         */
+        @NonNull
+        public Builder setUserLocales(@Nullable String userLocales) {
+            mUserLocales = userLocales;
+            return this;
+        }
+
+        /**
+         * Builds the object.
+         */
+        @NonNull
+        public InitialUserInfo build() {
+            return new InitialUserInfo(this);
         }
     }
 
+    /**
+     * Object used to define the properties of the initial user (which can then be set by
+     * {@link InitialUserSetter#set(InitialUserInfo)});
+     */
+    public static final class InitialUserInfo {
+        public final @InitialUserInfoType int type;
+        public final boolean replaceGuest;
+        public final @UserIdInt int switchUserId;
+        public final @Nullable String newUserName;
+        public final int newUserFlags;
+        public final boolean supportsOverrideUserIdProperty;
+        public @Nullable String userLocales;
+
+        private InitialUserInfo(@NonNull Builder builder) {
+            type = builder.mType;
+            switchUserId = builder.mSwitchUserId;
+            replaceGuest = builder.mReplaceGuest;
+            newUserName = builder.mNewUserName;
+            newUserFlags = builder.mNewUserFlags;
+            supportsOverrideUserIdProperty = builder.mSupportsOverrideUserIdProperty;
+            userLocales = builder.mUserLocales;
+        }
+    }
+
+    /**
+     * Sets the initial user.
+     */
+    public void set(@NonNull InitialUserInfo info) {
+        Preconditions.checkArgument(info != null, "info cannot be null");
+
+        switch (info.type) {
+            case TYPE_DEFAULT_BEHAVIOR:
+                executeDefaultBehavior(info, /* fallback= */ false);
+                break;
+            case TYPE_SWITCH:
+                try {
+                    switchUser(info, /* fallback= */ true);
+                } catch (Exception e) {
+                    fallbackDefaultBehavior(info, /* fallback= */ true,
+                            "Exception switching user: " + e);
+                }
+                break;
+            case TYPE_CREATE:
+                try {
+                    createAndSwitchUser(info, /* fallback= */ true);
+                } catch (Exception e) {
+                    fallbackDefaultBehavior(info, /* fallback= */ true,
+                            "Exception createUser user with name "
+                                    + UserHelper.safeName(info.newUserName) + " and flags "
+                                    + UserHalHelper.userFlagsToString(info.newUserFlags) + ": "
+                                    + e);
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("invalid InitialUserInfo type: " + info.type);
+        }
+    }
+
+    private void executeDefaultBehavior(@NonNull InitialUserInfo info, boolean fallback) {
+        if (!mHelper.hasInitialUser()) {
+            if (DBG) Log.d(TAG, "executeDefaultBehavior(): no initial user, creating it");
+            createAndSwitchUser(new Builder(TYPE_CREATE)
+                    .setNewUserName(mNewUserName)
+                    .setNewUserFlags(UserFlags.ADMIN)
+                    .setSupportsOverrideUserIdProperty(info.supportsOverrideUserIdProperty)
+                    .setUserLocales(info.userLocales)
+                    .build(), fallback);
+        } else {
+            if (DBG) Log.d(TAG, "executeDefaultBehavior(): switching to initial user");
+            int userId = mHelper.getInitialUser(info.supportsOverrideUserIdProperty);
+            switchUser(new Builder(TYPE_SWITCH)
+                    .setSwitchUserId(userId)
+                    .setSupportsOverrideUserIdProperty(info.supportsOverrideUserIdProperty)
+                    .setReplaceGuest(info.replaceGuest)
+                    .build(), fallback);
+        }
+    }
 
     @VisibleForTesting
-    void fallbackDefaultBehavior(boolean fallback, @NonNull String reason) {
+    void fallbackDefaultBehavior(@NonNull InitialUserInfo info, boolean fallback,
+            @NonNull String reason) {
         if (!fallback) {
             // Only log the error
             Log.w(TAG, reason);
@@ -134,22 +325,13 @@ public final class InitialUserSetter {
             return;
         }
         Log.w(TAG, "Falling back to default behavior. Reason: " + reason);
-        executeDefaultBehavior(/* replaceGuest= */ true, /* fallback= */ false);
+        executeDefaultBehavior(info, /* fallback= */ false);
     }
 
-    /**
-     * Switches to the given user, falling back to {@link #fallbackDefaultBehavior(String)} if it
-     * fails.
-     */
-    public void switchUser(@UserIdInt int userId, boolean replaceGuest) {
-        try {
-            switchUser(userId, replaceGuest, /* fallback= */ true);
-        } catch (Exception e) {
-            fallbackDefaultBehavior(/* fallback= */ true, "Exception switching user: " + e);
-        }
-    }
+    private void switchUser(@NonNull InitialUserInfo info, boolean fallback) {
+        int userId = info.switchUserId;
+        boolean replaceGuest = info.replaceGuest;
 
-    private void switchUser(@UserIdInt int userId, boolean replaceGuest, boolean fallback) {
         if (DBG) {
             Log.d(TAG, "switchUser(): userId=" + userId + ", replaceGuest=" + replaceGuest
                     + ", fallback=" + fallback);
@@ -157,7 +339,7 @@ public final class InitialUserSetter {
 
         UserInfo user = mUm.getUserInfo(userId);
         if (user == null) {
-            fallbackDefaultBehavior(fallback, "user with id " + userId + " doesn't exist");
+            fallbackDefaultBehavior(info, fallback, "user with id " + userId + " doesn't exist");
             return;
         }
 
@@ -167,7 +349,8 @@ public final class InitialUserSetter {
             actualUser = replaceGuestIfNeeded(user);
 
             if (actualUser == null) {
-                fallbackDefaultBehavior(fallback, "could not replace guest " + user.toFullString());
+                fallbackDefaultBehavior(info, fallback, "could not replace guest "
+                        + user.toFullString());
                 return;
             }
         }
@@ -179,7 +362,8 @@ public final class InitialUserSetter {
         int currentUserId = ActivityManager.getCurrentUser();
         if (actualUserId != currentUserId) {
             if (!startForegroundUser(actualUserId)) {
-                fallbackDefaultBehavior(fallback, "am.switchUser(" + actualUserId + ") failed");
+                fallbackDefaultBehavior(info, fallback,
+                        "am.switchUser(" + actualUserId + ") failed");
                 return;
             }
             mHelper.setLastActiveUser(actualUserId);
@@ -242,7 +426,10 @@ public final class InitialUserSetter {
             Log.w(TAG, "failed to mark guest " + user.id + " for deletion");
         }
 
-        Pair<UserInfo, String> result = createNewUser(mNewGuestName, halFlags);
+        Pair<UserInfo, String> result = createNewUser(new Builder(TYPE_CREATE)
+                .setNewUserName(mNewGuestName)
+                .setNewUserFlags(halFlags)
+                .build());
 
         String errorMessage = result.second;
         if (errorMessage != null) {
@@ -253,31 +440,18 @@ public final class InitialUserSetter {
         return result.first;
     }
 
-    /**
-     * Creates a new user and switches to it, falling back to
-     * {@link #fallbackDefaultBehavior(String) if any of these steps fails.
-     *
-     * @param name (optional) name of the new user
-     * @param halFlags user flags as defined by Vehicle HAL ({@code UserFlags} enum).
-     */
-    public void createUser(@Nullable String name, int halFlags) {
-        try {
-            createAndSwitchUser(name, halFlags, /* fallback= */ true);
-        } catch (Exception e) {
-            fallbackDefaultBehavior(/* fallback= */ true, "Exception createUser user with flags "
-                    + UserHalHelper.userFlagsToString(halFlags) + ": " + e);
-        }
-    }
-
-    private void createAndSwitchUser(@Nullable String name, int halFlags, boolean fallback) {
-        Pair<UserInfo, String> result = createNewUser(name, halFlags);
+    private void createAndSwitchUser(@NonNull InitialUserInfo info, boolean fallback) {
+        Pair<UserInfo, String> result = createNewUser(info);
         String reason = result.second;
         if (reason != null) {
-            fallbackDefaultBehavior(fallback, reason);
+            fallbackDefaultBehavior(info, fallback, reason);
             return;
         }
 
-        switchUser(result.first.id, /* replaceGuest= */ false, fallback);
+        switchUser(new Builder(TYPE_SWITCH)
+                .setSwitchUserId(result.first.id)
+                .setSupportsOverrideUserIdProperty(info.supportsOverrideUserIdProperty)
+                .build(), fallback);
     }
 
     /**
@@ -287,7 +461,10 @@ public final class InitialUserSetter {
      * error message.
      */
     @NonNull
-    private Pair<UserInfo, String> createNewUser(@Nullable String name, int halFlags) {
+    private Pair<UserInfo, String> createNewUser(@NonNull InitialUserInfo info) {
+        String name = info.newUserName;
+        int halFlags = info.newUserFlags;
+
         if (DBG) {
             Log.d(TAG, "createUser(name=" + safeName(name) + ", flags="
                     + userFlagsToString(halFlags) + ")");
@@ -330,6 +507,15 @@ public final class InitialUserSetter {
         }
 
         if (DBG) Log.d(TAG, "user created: " + userInfo.id);
+
+        if (info.userLocales != null) {
+            if (DBG) {
+                Log.d(TAG, "setting locale for user " + userInfo.id + " to " + info.userLocales);
+            }
+            Settings.System.putStringForUser(mContext.getContentResolver(),
+                    Settings.System.SYSTEM_LOCALES, info.userLocales, userInfo.id);
+        }
+
         return new Pair<>(userInfo, null);
     }
 
@@ -390,8 +576,6 @@ public final class InitialUserSetter {
     public void dump(@NonNull PrintWriter writer) {
         writer.println("InitialUserSetter");
         String indent = "  ";
-        writer.printf("%smSupportsOverrideUserIdProperty: %s\n", indent,
-                mSupportsOverrideUserIdProperty);
         writer.printf("%smNewUserName: %s\n", indent, mNewUserName);
         writer.printf("%smNewGuestName: %s\n", indent, mNewGuestName);
     }
