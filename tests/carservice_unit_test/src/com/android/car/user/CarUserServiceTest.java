@@ -151,7 +151,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Mock PackageManager mPackageManager;
 
     private final BlockingUserLifecycleListener mUserLifecycleListener =
-            BlockingUserLifecycleListener.newDefaultListener();
+            BlockingUserLifecycleListener.forAnyEvent().build();
 
     @Captor private ArgumentCaptor<UsersInfo> mUsersInfoCaptor;
 
@@ -270,7 +270,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
     private void verifyListenerOnEventInvoked(int expectedNewUserId, int expectedEventType)
             throws Exception {
-        UserLifecycleEvent actualEvent = mUserLifecycleListener.waitForEvent();
+        UserLifecycleEvent actualEvent = mUserLifecycleListener.waitForAnyEvent();
         assertThat(actualEvent.getEventType()).isEqualTo(expectedEventType);
         assertThat(actualEvent.getUserId()).isEqualTo(expectedNewUserId);
     }
