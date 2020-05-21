@@ -37,8 +37,11 @@ import android.hardware.automotive.vehicle.V2_0.UsersInfo;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.os.SystemClock;
 import android.os.UserHandle;
+import android.text.TextUtils;
 import android.util.DebugUtils;
+import android.util.Log;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -46,8 +49,13 @@ import java.util.Objects;
  */
 public final class UserHalHelper {
 
+    private static final String TAG = UserHalHelper.class.getSimpleName();
+    private static final boolean DEBUG = false;
+
     public static final int INITIAL_USER_INFO_PROPERTY = 299896583;
     public static final int USER_IDENTIFICATION_ASSOCIATION_PROPERTY = 299896587;
+
+    private static final String STRING_SEPARATOR = "\\|\\|";
 
     /**
      * Gets user-friendly representation of the status.
@@ -325,6 +333,7 @@ public final class UserHalHelper {
     @NonNull
     public static InitialUserInfoResponse toInitialUserInfoResponse(
             @NonNull VehiclePropValue prop) {
+        if (DEBUG) Log.d(TAG, "toInitialUserInfoResponse(): " + prop);
         Objects.requireNonNull(prop, "prop cannot be null");
         checkArgument(prop.prop == INITIAL_USER_INFO_PROPERTY, "invalid prop on %s", prop);
 
@@ -337,6 +346,19 @@ public final class UserHalHelper {
         InitialUserInfoResponse response = new InitialUserInfoResponse();
         response.requestId = requestId;
         response.action = prop.value.int32Values.get(1);
+
+        String[] stringValues = null;
+        if (!TextUtils.isEmpty(prop.value.stringValue)) {
+            stringValues = TextUtils.split(prop.value.stringValue, STRING_SEPARATOR);
+            if (DEBUG) {
+                Log.d(TAG, "toInitialUserInfoResponse(): values=" + Arrays.toString(stringValues)
+                        + " length: " + stringValues.length);
+            }
+        }
+        if (stringValues != null && stringValues.length > 0) {
+            response.userLocales = stringValues[0];
+        }
+
         switch (response.action) {
             case InitialUserInfoResponseAction.DEFAULT:
                 response.userToSwitchOrCreate.userId = UserHandle.USER_NULL;
@@ -351,12 +373,16 @@ public final class UserHalHelper {
                 assertMinimumSize(prop, 3);
                 response.userToSwitchOrCreate.userId = UserHandle.USER_NULL;
                 response.userToSwitchOrCreate.flags = prop.value.int32Values.get(2);
-                response.userNameToCreate = prop.value.stringValue;
+                if (stringValues.length > 1) {
+                    response.userNameToCreate = stringValues[1];
+                }
                 break;
             default:
                 throw new IllegalArgumentException(
                         "Invalid response action (" + response.action + " on " + prop);
         }
+
+        if (DEBUG) Log.d(TAG, "returning : " + response);
 
         return response;
     }

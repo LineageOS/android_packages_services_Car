@@ -43,7 +43,6 @@ import android.util.Log;
 import com.google.android.collect.Lists;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -112,7 +111,6 @@ public class CarNavigationManagerTest extends CarApiTestBase {
         assertThat(NavigationStateProto.parseFrom(navigationStateProto.toByteArray())).isNotNull();
     }
 
-    @Ignore("TODO(b/15534360)")
     @Test
     public void testSendEvent() throws Exception {
         if (mCarNavigationManager == null) {
