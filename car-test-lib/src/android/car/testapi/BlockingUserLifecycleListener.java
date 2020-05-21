@@ -23,17 +23,30 @@ import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleEventType;
 import android.car.user.CarUserManager.UserLifecycleListener;
-import android.os.UserHandle;
 import android.util.Log;
 
+import com.android.internal.annotations.GuardedBy;
+import com.android.internal.util.Preconditions;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
- * UserLifecycleListener that blocks until an event is received.
+ * {@link UserLifecycleListener} that blocks until the proper events are received.
+ *
+ * <p>It can be used in 2 "modes":
+ *
+ * <ul>
+ *   <li>{@link #forAnyEvent()}: it blocks (through the {@link #waitForAnyEvent()} call) until any
+ *   any event is received. It doesn't allow any customization (other than
+ *   {@link Builder#setTimeout(long)}).
+ *   <li>{@link #forSpecificEvents()}: it blocks (through the {@link #waitForEvents()} call) until
+ *   all events specified by the {@link Builder} are received.
+ * </ul>
  */
 public final class BlockingUserLifecycleListener implements UserLifecycleListener {
 
@@ -41,31 +54,55 @@ public final class BlockingUserLifecycleListener implements UserLifecycleListene
 
     private static final long DEFAULT_TIMEOUT_MS = 2_000;
 
+    private final Object mLock = new Object();
+
     private final CountDownLatch mLatch = new CountDownLatch(1);
+
+    @GuardedBy("mLock")
     private final List<UserLifecycleEvent> mAllReceivedEvents = new ArrayList<>();
+    @GuardedBy("mLock")
     private final List<UserLifecycleEvent> mExpectedEventsReceived = new ArrayList<>();
 
     @UserLifecycleEventType
     private final List<Integer> mExpectedEventTypes;
 
+    @UserLifecycleEventType
+    private final List<Integer> mExpectedEventTypesLeft;
+
     @UserIdInt
-    private final int mForUserId;
+    @Nullable
+    private final Integer mForUserId;
+
+    @UserIdInt
+    @Nullable
+    private final Integer mForPreviousUserId;
 
     private final long mTimeoutMs;
 
     private BlockingUserLifecycleListener(Builder builder) {
-        mExpectedEventTypes = builder.mExpectedEventTypes;
+        mExpectedEventTypes = Collections
+                .unmodifiableList(new ArrayList<>(builder.mExpectedEventTypes));
+        mExpectedEventTypesLeft = builder.mExpectedEventTypes;
         mTimeoutMs = builder.mTimeoutMs;
         mForUserId = builder.mForUserId;
+        mForPreviousUserId = builder.mForPreviousUserId;
+        Log.d(TAG, "constructor: " + this);
     }
 
     /**
-     * Builds a new instance with default timeout of {@value #DEFAULT_TIMEOUT_MS} and
-     * which waits for one - and any one - event.
+     * Creates a builder for tests that need to wait for an arbitrary event.
      */
     @NonNull
-    public static BlockingUserLifecycleListener newDefaultListener() {
-        return new Builder().build();
+    public static Builder forAnyEvent() {
+        return new Builder(/* forAnyEvent= */ true);
+    }
+
+    /**
+     * Creates a builder for tests that need to wait for specific events.
+     */
+    @NonNull
+    public static Builder forSpecificEvents() {
+        return new Builder(/* forAnyEvent= */ false);
     }
 
     /**
@@ -73,12 +110,22 @@ public final class BlockingUserLifecycleListener implements UserLifecycleListene
      */
     public static final class Builder {
         private long mTimeoutMs = DEFAULT_TIMEOUT_MS;
+        private final boolean mForAnyEvent;
+
+        private Builder(boolean forAnyEvent) {
+            mForAnyEvent = forAnyEvent;
+        }
 
         @UserLifecycleEventType
-        private List<Integer> mExpectedEventTypes = new ArrayList<>();
+        private final List<Integer> mExpectedEventTypes = new ArrayList<>();
 
         @UserIdInt
-        private int mForUserId = UserHandle.USER_NULL;
+        @Nullable
+        private Integer mForUserId;
+
+        @UserIdInt
+        @Nullable
+        private Integer mForPreviousUserId;
 
         /**
          * Sets the timeout.
@@ -90,8 +137,12 @@ public final class BlockingUserLifecycleListener implements UserLifecycleListene
 
         /**
          * Sets the expected type - once the given event is received, the listener will unblock.
+         *
+         * @throws IllegalStateException if builder is {@link #forAnyEvent}.
+         * @throws IllegalArgumentException if the expected type was already added.
          */
         public Builder addExpectedEvent(@UserLifecycleEventType int eventType) {
+            assertNotForAnyEvent();
             mExpectedEventTypes.add(eventType);
             return this;
         }
@@ -100,7 +151,17 @@ public final class BlockingUserLifecycleListener implements UserLifecycleListene
          * Filters received events just for the given user.
          */
         public Builder forUser(@UserIdInt int userId) {
+            assertNotForAnyEvent();
             mForUserId = userId;
+            return this;
+        }
+
+        /**
+         * Filters received events just for the given previous user.
+         */
+        public Builder forPreviousUser(@UserIdInt int userId) {
+            assertNotForAnyEvent();
+            mForPreviousUserId = userId;
             return this;
         }
 
@@ -112,114 +173,144 @@ public final class BlockingUserLifecycleListener implements UserLifecycleListene
             return new BlockingUserLifecycleListener(Builder.this);
         }
 
+        private void assertNotForAnyEvent() {
+            Preconditions.checkState(!mForAnyEvent, "not allowed forAnyEvent()");
+        }
     }
 
     @Override
     public void onEvent(UserLifecycleEvent event) {
-        Log.d(TAG, "onEvent(): expecting=" + expectedEventsToString()
-                + ", received=" + event);
-        mAllReceivedEvents.add(event);
+        synchronized (mLock) {
+            Log.d(TAG, "onEvent(): expecting=" + mExpectedEventTypesLeft + ", received=" + event);
 
-        if (expectingSpecificUser() && event.getUserId() != mForUserId) {
-            Log.w(TAG, "ignoring event for different user");
-            return;
-        }
+            mAllReceivedEvents.add(event);
 
-        Integer actualType = event.getEventType();
-        boolean removed = mExpectedEventTypes.remove(actualType);
-        if (removed) {
-            Log.v(TAG, "event removed; still expecting for " + expectedEventsToString());
-            mExpectedEventsReceived.add(event);
-        } else {
-            Log.v(TAG, "event not removed");
-        }
+            if (expectingSpecificUser() && event.getUserId() != mForUserId) {
+                Log.w(TAG, "ignoring event for different user (expecting " + mForUserId + ")");
+                return;
+            }
 
-        if (mExpectedEventTypes.isEmpty()) {
-            Log.d(TAG, "all expected events received, counting down " + mLatch);
-            mLatch.countDown();
+            if (expectingSpecificPreviousUser()
+                    && event.getPreviousUserId() != mForPreviousUserId) {
+                Log.w(TAG, "ignoring event for different previous user (expecting "
+                        + mForPreviousUserId + ")");
+                return;
+            }
+
+            Integer actualType = event.getEventType();
+            boolean removed = mExpectedEventTypesLeft.remove(actualType);
+            if (removed) {
+                Log.v(TAG, "event removed; still expecting for "
+                        + toString(mExpectedEventTypesLeft));
+                mExpectedEventsReceived.add(event);
+            } else {
+                Log.v(TAG, "event not removed");
+            }
+
+            if (mExpectedEventTypesLeft.isEmpty() && mLatch.getCount() == 1) {
+                Log.d(TAG, "all expected events received, counting down " + mLatch);
+                mLatch.countDown();
+            }
         }
     }
 
     /**
-     * Helper method for {@link #waitForEvents()} when caller is expecting just one event.
+     * Blocks until any event is received, and returns it.
+     *
+     * @throws IllegalStateException if listener was built using {@link #forSpecificEvents()}.
+     * @throws IllegalStateException if it times out before any event is received.
+     * @throws InterruptedException if interrupted before any event is received.
      */
     @Nullable
-    public UserLifecycleEvent waitForEvent() throws InterruptedException {
-        List<UserLifecycleEvent> receivedEvents = waitForEvents();
-        UserLifecycleEvent event = receivedEvents.isEmpty() ? null : receivedEvents.get(0);
-        Log.v(TAG, "waitForEvent(): returning " + event);
+    public UserLifecycleEvent waitForAnyEvent() throws InterruptedException {
+        Preconditions.checkState(isForAnyEvent(),
+                "cannot call waitForEvent() when built with expected events");
+        waitForExpectedEvents();
+
+        UserLifecycleEvent event;
+        synchronized (mLock) {
+            event = mAllReceivedEvents.isEmpty() ? null : mAllReceivedEvents.get(0);
+            Log.v(TAG, "waitForAnyEvent(): returning " + event);
+        }
         return event;
     }
 
     /**
-     * Blocks until all expected {@link #onEvent(UserLifecycleEvent)} are received.
+     * Blocks until the events specified in the {@link Builder} are received, and returns them.
      *
-     * @throws IllegalStateException if it times out before all events are received.
-     * @throws InterruptedException if interrupted before all events are received.
+     * @throws IllegalStateException if listener was built without any call to
+     * {@link Builder#addExpectedEvent(int)} or using {@link #forAnyEvent().
+     * @throws IllegalStateException if it times out before all specified events are received.
+     * @throws InterruptedException if interrupted before all specified events are received.
      */
     @NonNull
     public List<UserLifecycleEvent> waitForEvents() throws InterruptedException {
-        if (!mLatch.await(mTimeoutMs, TimeUnit.MILLISECONDS)) {
-            String errorMessage = "did not receive all events in " + mTimeoutMs + " seconds; "
-                    + "received only " + allReceivedEventsToString() + ", still waiting for "
-                    + expectedEventsToString();
-            Log.e(TAG, errorMessage);
-            throw new IllegalStateException(errorMessage);
+        Preconditions.checkState(!isForAnyEvent(),
+                "cannot call waitForEvents() when built without specific expected events");
+        waitForExpectedEvents();
+        List<UserLifecycleEvent> events;
+        synchronized (mLock) {
+            events = mExpectedEventsReceived;
         }
-        Log.v(TAG, "waitForEvents(): returning " + mAllReceivedEvents);
-        return getAllReceivedEvents();
+        Log.v(TAG, "waitForEvents(): returning " + events);
+        return events;
     }
 
     /**
-     * Gets a list with all received events.
+     * Gets a list with all received events until now.
      */
     @NonNull
     public List<UserLifecycleEvent> getAllReceivedEvents() {
-        return mAllReceivedEvents;
-    }
-
-    /**
-     * Gets a list with just the received events set by the builder.
-     */
-    @NonNull
-    public List<UserLifecycleEvent> getExpectedEventsReceived() {
-        return mExpectedEventsReceived;
+        Preconditions.checkState(!isForAnyEvent(),
+                "cannot call getAllReceivedEvents() when built without specific expected events");
+        synchronized (mLock) {
+            return Collections.unmodifiableList(new ArrayList<>(mAllReceivedEvents));
+        }
     }
 
     @Override
     public String toString() {
-        return "[" + getClass().getSimpleName() + ": "
-                + "timeout=" + mTimeoutMs + "ms, "
-                + (expectingSpecificUser() ? "forUser=" + mForUserId : "")
-                + ",received=" + allReceivedEventsToString()
-                + ", waiting=" + expectedEventsToString()
-                + "]";
+        return "[" + getClass().getSimpleName() + ": " + stateToString() + "]";
     }
 
-    private String allReceivedEventsToString() {
-        String receivedEvents = mAllReceivedEvents
-                .stream()
-                .map((e) -> CarUserManager.lifecycleEventTypeToString(e.getEventType()))
-                .collect(Collectors.toList())
-                .toString();
-        return expectingSpecificUser()
-                ? "{user=" + mForUserId + ", events=" + receivedEvents + "}"
-                : receivedEvents;
+    @NonNull
+    private String stateToString() {
+        synchronized (mLock) {
+            return "timeout=" + mTimeoutMs + "ms"
+                    + ",expectedEventTypes=" + toString(mExpectedEventTypes)
+                    + ",expectedEventTypesLeft=" + toString(mExpectedEventTypesLeft)
+                    + (expectingSpecificUser() ? ",forUser=" + mForUserId : "")
+                    + (expectingSpecificPreviousUser() ? ",forPrevUser=" + mForPreviousUserId : "")
+                    + ",received=" + mAllReceivedEvents
+                    + ",waiting=" + mExpectedEventTypesLeft;
+        }
     }
 
-    private String expectedEventsToString() {
-        String expectedTypes = mExpectedEventTypes
-                .stream()
-                .map((type) -> CarUserManager.lifecycleEventTypeToString(type))
+    private void waitForExpectedEvents() throws InterruptedException {
+        if (!mLatch.await(mTimeoutMs, TimeUnit.MILLISECONDS)) {
+            String errorMessage = "did not receive all expected events (" + stateToString() + ")";
+            Log.e(TAG, errorMessage);
+            throw new IllegalStateException(errorMessage);
+        }
+    }
+
+    @NonNull
+    private static String toString(@NonNull List<Integer> eventTypes) {
+        return eventTypes.stream()
+                .map((i) -> CarUserManager.lifecycleEventTypeToString(i))
                 .collect(Collectors.toList())
                 .toString();
-        return expectingSpecificUser()
-                ? "{user=" + mForUserId + ", types=" + expectedTypes + "}"
-                : expectedTypes;
+    }
+
+    private boolean isForAnyEvent() {
+        return mExpectedEventTypes.isEmpty();
     }
 
     private boolean expectingSpecificUser() {
-        return mForUserId != UserHandle.USER_NULL;
+        return mForUserId != null;
     }
 
+    private boolean expectingSpecificPreviousUser() {
+        return mForPreviousUserId != null;
+    }
 }
