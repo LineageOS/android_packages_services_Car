@@ -440,13 +440,13 @@
     <string name="security_settings_fingerprint_enroll_introduction_title" msgid="889558002683900544">"Lås upp med fingeravtryck"</string>
     <string name="security_settings_fingerprint_enroll_introduction_title_unlock_disabled" msgid="7915504118657864429">"Använda ditt fingeravtryck"</string>
     <string name="security_settings_fingerprint_enroll_introduction_message" msgid="5586198131986682472">"Tryck bara på fingeravtryckssensorn när du vill låsa upp mobilen, auktorisera köp eller logga in i appar. Tänk efter innan du lägger till någons fingeravtryck, eftersom alla som du lägger till kan utföra alla dessa åtgärder.\n\nObs! Fingeravtryck kan vara mindre säkra än ett säkert grafiskt lösenord eller en pinkod."</string>
-    <string name="security_settings_fingerprint_enroll_introduction_message_unlock_disabled" msgid="1640839304679275468">"Använd fingeravtrycket för att låsa upp mobilen eller godkänna köp.\n\nObs! Du kan inte använda fingeravtrycket för att låsa upp den här enheten. Kontakta organisationens administratör om du vill veta mer."</string>
+    <string name="security_settings_fingerprint_enroll_introduction_message_unlock_disabled" msgid="1640839304679275468">"Använd ditt fingeravtryck för att låsa upp telefonen eller godkänna köp.\n\nObs! Du kan inte använda fingeravtrycket för att låsa upp den här enheten. Kontakta organisationens administratör om du vill veta mer."</string>
     <string name="security_settings_fingerprint_enroll_introduction_message_setup" msgid="6734490666593320711">"Använd fingeravtrycket för att låsa upp mobilen eller godkänna köp.\n\nObs! Fingeravtrycket kan vara mindre säkert än ett starkt grafiskt lösenord eller en bra pinkod."</string>
     <string name="security_settings_fingerprint_enroll_introduction_cancel" msgid="9168637333731599827">"Avbryt"</string>
     <string name="security_settings_fingerprint_enroll_introduction_continue" msgid="271662150372486535">"Fortsätt"</string>
     <string name="security_settings_fingerprint_enroll_introduction_cancel_setup" msgid="756928427429893070">"Hoppa över"</string>
     <string name="security_settings_fingerprint_enroll_introduction_continue_setup" msgid="4125977169169671144">"Nästa"</string>
-    <string name="setup_fingerprint_enroll_skip_title" msgid="763018850721691594">"Ska fingeravtryck hoppas över?"</string>
+    <string name="setup_fingerprint_enroll_skip_title" msgid="763018850721691594">"Vill du hoppa över fingeravtryck?"</string>
     <string name="setup_fingerprint_enroll_skip_after_adding_lock_text" msgid="8849928362049018680">"Det tar bara ett par minuter att konfigurera fingeravtrycket. Hoppar du över det kan du lägga till fingeravtryck i inställningarna senare."</string>
     <string name="lock_screen_intro_skip_title" msgid="5307431665496346914">"Vill du hoppa över skärmlås?"</string>
     <string name="lock_screen_intro_skip_dialog_text_frp" product="tablet" msgid="7553945981266845264">"Enhetens skyddsfunktioner aktiveras inte. Du kan inte hindra andra från att använda surfplattan om den blir stulen, tappas bort eller återställs."</string>
@@ -460,13 +460,13 @@
     <string name="skip_lock_screen_dialog_button_label" msgid="6706047245716780006">"Hoppa över"</string>
     <string name="cancel_lock_screen_dialog_button_label" msgid="2534925227627658819">"Avbryt"</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_title" msgid="8909829699273726469">"Tryck på sensorn"</string>
-    <string name="security_settings_fingerprint_enroll_find_sensor_message" msgid="581120963079780740">"Den sitter på mobilens baksida. Använd pekfingret."</string>
+    <string name="security_settings_fingerprint_enroll_find_sensor_message" msgid="581120963079780740">"Den sitter på telefonens baksida. Använd pekfingret."</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_content_description" msgid="7835824123269738540">"Illustration med enheten och fingeravtryckssensorns plats"</string>
     <string name="security_settings_fingerprint_enroll_dialog_name_label" msgid="3519748398694308901">"Namn"</string>
     <string name="security_settings_fingerprint_enroll_dialog_ok" msgid="3428927518029038956">"OK"</string>
     <string name="security_settings_fingerprint_enroll_dialog_delete" msgid="4312297515772004580">"Radera"</string>
     <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"Tryck på sensorn"</string>
-    <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"Lägg fingret på sensorn och ta bort det när den vibrerar till"</string>
+    <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"Lägg fingret på sensorn och ta bort det när du känner en vibration"</string>
     <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"Lyft och tryck sedan igen"</string>
     <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"Lyft fingret flera gånger för att lägga till hela fingeravtrycket"</string>
     <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"Fingeravtrycket är tillagt"</string>
@@ -3635,7 +3635,7 @@
     <string name="filter_enabled_apps" msgid="5888459261768538489">"Installerade appar"</string>
     <string name="filter_instant_apps" msgid="8087483282854072366">"Snabbappar"</string>
     <string name="filter_personal_apps" msgid="3473268022652904457">"Personligt"</string>
-    <string name="filter_work_apps" msgid="4202483998339465542">"Arbetet"</string>
+    <string name="filter_work_apps" msgid="4202483998339465542">"Arbete"</string>
     <string name="filter_notif_all_apps" msgid="1862666327228804896">"Appar: alla"</string>
     <string name="filter_notif_blocked_apps" msgid="5694956954776028202">"Inaktiverade"</string>
     <string name="filter_notif_urgent_channels" msgid="5000735867167027148">"Kategorier: brådskande avisering"</string>
@@ -4052,7 +4052,7 @@
     <string name="display_cutout_emulation_keywords" msgid="6795671536772871439">"urklipp av skärm, flärp"</string>
     <string name="overlay_option_device_default" msgid="165508753381657697">"Enhetens standardinställning"</string>
     <string name="overlay_toast_failed_to_apply" msgid="5692251825129250040">"Det gick inte att använda överlagring"</string>
-    <string name="special_access" msgid="1453926335914696206">"Särskild åtkomst för app"</string>
+    <string name="special_access" msgid="1453926335914696206">"Särskild appåtkomst"</string>
     <plurals name="special_access_summary" formatted="false" msgid="5182092345063909346">
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> appar får använda obegränsad data</item>
       <item quantity="one">1 app får använda obegränsad data</item>

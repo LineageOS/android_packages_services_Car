@@ -466,7 +466,7 @@
     <string name="security_settings_fingerprint_enroll_dialog_ok" msgid="3428927518029038956">"ठीक है"</string>
     <string name="security_settings_fingerprint_enroll_dialog_delete" msgid="4312297515772004580">"मिटाएं"</string>
     <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"सेंसर को छुएं"</string>
-    <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"अपनी उंगली सेंसर पर रखें और कंपन (वाइब्रेशन) महसूस होने पर उठा लें"</string>
+    <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"अपनी उंगली सेंसर पर रखें और कंपन (वाइब्रेशन) महसूस होने पर हटा लें"</string>
     <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"उठाएं, फिर दोबारा छुएं"</string>
     <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"अपने फ़िंगरप्रिंट के अलग-अलग भागों को जोड़ने के लिए अपनी उंगली को उठाते रहें"</string>
     <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"फ़िंगरप्रिंट जोड़ा गया"</string>
@@ -2072,7 +2072,7 @@
     <string name="accessibility_toggle_large_pointer_icon_title" msgid="9127905775116570565">"बड़ा माउस पॉइंटर"</string>
     <string name="accessibility_disable_animations" msgid="8378441317115710009">"ऐनिमेशन हटाएं"</string>
     <string name="accessibility_toggle_master_mono_title" msgid="899550848196702565">"मोनो ऑडियो"</string>
-    <string name="accessibility_toggle_master_mono_summary" msgid="3847052868469033235">"ऑडियो चलाते समय चैनल संयोजित करें"</string>
+    <string name="accessibility_toggle_master_mono_summary" msgid="3847052868469033235">"ऑडियो चलाते समय कई चैनल को एकसाथ जोड़ें"</string>
     <string name="accessibility_toggle_master_balance_title" msgid="8723492001092647562">"ऑडियो बैलेंस"</string>
     <string name="accessibility_toggle_master_balance_left_label" msgid="8531986342666527970">"बायां"</string>
     <string name="accessibility_toggle_master_balance_right_label" msgid="7757024572140589558">"दायां"</string>
@@ -2086,7 +2086,7 @@
     <string name="accessibility_content_timeout_preference_summary" msgid="853829064617918179">"चुनें कि कुछ समय तक दिखाई देने वाले ऐसे मैसेज जो आपको पढ़ने हैं वे कितनी देर तक दिखाई दें.\n\nयह सेटिंग सभी ऐप्लिकेशन में काम नहीं करती."</string>
     <string name="accessibility_control_timeout_preference_summary" msgid="8582212299606932160">"चुनें कि आपको कार्रवाई करने के लिए कहने वाले मैसेज कितनी देर तक दिखाने हैं, लेकिन वे सिर्फ़ कुछ समय के लिए ही दिखाई देते हैं.\n\nयह सेटिंग सभी ऐप्लिकेशन पर काम नहीं करती है."</string>
     <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"दबाकर रखने की अवधि"</string>
-    <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"रंग बदलें"</string>
+    <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"रंग बदलने की सुविधा"</string>
     <string name="accessibility_display_inversion_preference_subtitle" msgid="69291255322175323">"डिसप्ले पर असर पड़ सकता है"</string>
     <string name="accessibility_autoclick_preference_title" msgid="9164599088410340405">"कर्सर रुकने की अवधि"</string>
     <string name="accessibility_autoclick_description" msgid="5492414927846407499">"अगर आप माउस इस्तेमाल कर रहे हैं तो, सेट कर सकते हैं कि किसी जगह पर एक तय समय तक रुकने के बाद कर्सर अपने आप कार्रवाई करे."</string>
@@ -2100,7 +2100,7 @@
     <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"कैप्शन इस्तेमाल करें"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"जारी रखें"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"सुनने में मदद करने वाला डिवाइस"</string>
-    <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"सुनने में मददगार कोई भी डिवाइस जुड़ा हुआ नहीं है"</string>
+    <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"कान की कोई भी मशीन नहीं जुड़ी है"</string>
     <string name="accessibility_hearingaid_adding_summary" msgid="4139031880828714300">"सुनने में मदद करने वाले डिवाइस जोड़ें"</string>
     <string name="accessibility_hearingaid_pair_instructions_first_message" msgid="2671518890909750740">"सुनने में मदद करने वाला डिवाइस जोड़ने के लिए, अगली स्क्रीन पर अपना डिवाइस ढूंढें और टैप करें."</string>
     <string name="accessibility_hearingaid_pair_instructions_second_message" msgid="1584538735488464991">"यह देख लें कि सुनने में आपकी मदद करने वाला डिवाइस दूसरे डिवाइस से जुड़ने वाले मोड में है."</string>
@@ -2601,7 +2601,7 @@
     <string name="work_mode_label" msgid="6845849194740195757">"वर्क प्रोफ़ाइल"</string>
     <string name="work_mode_on_summary" msgid="1682781113156323592">"आपका संगठन प्रबंधित कर रहा है"</string>
     <string name="work_mode_off_summary" msgid="1688885392211178315">"ऐप्लिकेशन और सूचनाएं बंद हैं"</string>
-    <string name="remove_managed_profile_label" msgid="4625542553784793536">"वर्क प्रोफ़ाइल निकालें"</string>
+    <string name="remove_managed_profile_label" msgid="4625542553784793536">"वर्क प्रोफ़ाइल हटाएं"</string>
     <string name="background_data" msgid="8275750862371471171">"पृष्ठभूमि डेटा"</string>
     <string name="background_data_summary" msgid="799640633948841990">"ऐप्लिकेशन किसी भी समय डेटा सिंक करना, भेज, और पा सकते हैं"</string>
     <string name="background_data_dialog_title" msgid="8306650658158895976">"पृष्ठभू. डेटा अक्षम करें?"</string>
@@ -2670,8 +2670,8 @@
     <string name="data_usage_menu_sim_cards" msgid="8508154611676507088">"सिम कार्ड"</string>
     <string name="data_usage_cellular_data_summary" msgid="9162777397135709280">"सीमा पर रोका गया"</string>
     <string name="account_settings_menu_auto_sync" msgid="2673669556006027506">"अपने आप डेटा समन्वयन"</string>
-    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"निजी डेटा अपने आप सिंक करें"</string>
-    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"काम से जुड़ा डेटा अपने आप सिंक करें"</string>
+    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"निजी डेटा अपने-आप सिंक हो जाए"</string>
+    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"काम से जुड़ा डेटा अपने-आप सिंक हो"</string>
     <string name="data_usage_change_cycle" msgid="447761920472170031">"चक्र बदलें ..."</string>
     <string name="data_usage_pick_cycle_day" msgid="6319750879145917066">"डेटा खर्च की अवधि रीसेट करने के लिए महीने का दिन:"</string>
     <string name="data_usage_empty" msgid="7981405723435034032">"इस दौरान कि‍सी भी ऐप्लिकेशन ने डेटा का उपयोग नहीं कि‍या."</string>
@@ -3763,7 +3763,7 @@
     <string name="assist_access_screenshot_title" msgid="1991014038776117688">"स्क्रीनशॉट का उपयोग करना"</string>
     <string name="assist_access_screenshot_summary" msgid="3010943864000489424">"सहायक ऐप्लिकेशन को स्क्रीन की इमेज तक पहुंचने दें"</string>
     <string name="assist_flash_title" msgid="8852484250748551092">"स्क्रीन फ़्लैश करें"</string>
-    <string name="assist_flash_summary" msgid="6697095786317559129">"जब सहायक ऐप्लिकेशन स्क्रीन पर मौजूद लेख या स्क्रीनशॉट को ऐक्सेस करे तो स्क्रीन के किनारों पर रोशनी चमकाएं"</string>
+    <string name="assist_flash_summary" msgid="6697095786317559129">"जब सहायक ऐप्लिकेशन स्क्रीन पर मौजूद लेख या स्क्रीनशॉट को ऐक्सेस करे, तो स्क्रीन के किनारों पर रोशनी चमकाएं"</string>
     <string name="assist_footer" msgid="7030121180457472165">"आप जो स्क्रीन देख रहे हैं, उसकी जानकारी के आधार पर सहायक ऐप्लिकेशन आपकी मदद कर सकते हैं. कुछ ऐप्लिकेशन पर, आपकी पूरी मदद करने के लिए लॉन्चर और बोलकर फ़ोन को निर्देश देना, ये दोनों सेवाएं काम करती हैं."</string>
     <string name="average_memory_use" msgid="5333366040118953945">"औसत मेमोरी उपयोग"</string>
     <string name="maximum_memory_use" msgid="6509872438499846077">"अधिकतम मेमोरी उपयोग"</string>

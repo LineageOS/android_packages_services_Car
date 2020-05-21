@@ -488,7 +488,7 @@
     <string name="security_settings_fingerprint_enroll_touch_dialog_title" msgid="7410398793283818609">"Ups, bukan itu sensornya"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_message" msgid="7192100314788868883">"Sentuh sensor di bagian belakang ponsel. Gunakan jari telunjuk Anda."</string>
     <string name="security_settings_fingerprint_enroll_error_dialog_title" msgid="1415709674142168770">"Pendaftaran tidak selesai"</string>
-    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"Batas waktu pendaftaran sidik jari tercapai. Coba lagi."</string>
+    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"Waktu pendaftaran sidik jari habis. Coba lagi."</string>
     <string name="security_settings_fingerprint_enroll_error_generic_dialog_message" msgid="7896295829530444810">"Pendaftaran sidik jari tidak berhasil. Coba lagi atau gunakan jari lain."</string>
     <string name="fingerprint_enroll_button_add" msgid="6335782936874996629">"Tambahkan yang lain"</string>
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"Berikutnya"</string>
@@ -4135,7 +4135,7 @@
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Ketuk untuk memeriksa tablet"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Ketuk untuk memeriksa perangkat"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Untuk memeriksa waktu, notifikasi, dan info lainnya, ketuk layar Anda."</string>
-    <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Usapkan sidik jari untuk melihat notifikasi"</string>
+    <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Geserkan sidik jari untuk melihat notifikasi"</string>
     <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"Usapkan sidik jari"</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"Untuk memeriksa notifikasi, usapkan jari ke bawah pada sensor sidik jari di bagian belakang ponsel."</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="tablet" msgid="3480057984564476283">"Untuk memeriksa notifikasi, usapkan jari ke bawah pada sensor sidik jari di bagian belakang tablet."</string>

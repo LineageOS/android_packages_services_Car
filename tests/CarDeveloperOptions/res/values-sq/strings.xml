@@ -1125,7 +1125,7 @@
     <string name="musicfx_title" msgid="6456079041566773649">"Efektet e muzikës"</string>
     <string name="ring_volume_title" msgid="5874791723449821646">"Volumi i ziles"</string>
     <string name="vibrate_in_silent_title" msgid="2314667015729841220">"Dridhje kur është \"në heshtje\""</string>
-    <string name="notification_sound_title" msgid="6812164482799723931">"Zëri i parazgjedhur i njoftimit"</string>
+    <string name="notification_sound_title" msgid="6812164482799723931">"Tingulli i parazgjedhur i njoftimit"</string>
     <string name="incoming_call_volume_title" msgid="4736570528754310450">"Toni i ziles"</string>
     <string name="notification_volume_title" msgid="6022562909288085275">"Njoftimi"</string>
     <string name="checkbox_notification_same_as_incoming_call" msgid="7312942422655861175">"Përdor volumin e telefonatës hyrëse për njoftime"</string>
@@ -1309,7 +1309,7 @@
     <string name="pin_failed" msgid="4877356137480446727">"Operac. kodit PIN të kartës SIM dështoi!"</string>
     <string name="system_update_settings_list_item_title" msgid="1907497454722790033">"Përditësimet e sistemit"</string>
     <string name="system_update_settings_list_item_summary" msgid="3497456690691907873"></string>
-    <string name="firmware_version" msgid="547095584029938749">"Versioni i Android-it"</string>
+    <string name="firmware_version" msgid="547095584029938749">"Versioni i Android"</string>
     <string name="security_patch" msgid="483709031051932208">"Niveli i korrigjimit të sigurisë së Android"</string>
     <string name="model_info" msgid="1729765474260797594">"Modeli"</string>
     <string name="model_summary" msgid="8781425868254352168">"Modeli: %1$s"</string>
@@ -2921,11 +2921,11 @@
     <string name="nfc_payment_default_not_set" msgid="955804193510335338">"Nuk është caktuar"</string>
     <string name="nfc_payment_app_and_desc" msgid="102312684211458190">"<xliff:g id="APP">%1$s</xliff:g> - <xliff:g id="DESCRIPTION">%2$s</xliff:g>"</string>
     <string name="nfc_payment_use_default" msgid="3098724195746409476">"Përdor opsionin e parazgjedhur"</string>
-    <string name="nfc_payment_favor_default" msgid="7555356982142464260">"Gjithmonë!"</string>
+    <string name="nfc_payment_favor_default" msgid="7555356982142464260">"Gjithmonë"</string>
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Përveçse kur është i hapur një aplikacion tjetër pagese"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"Në terminalin \"Prek dhe paguaj\", paguaj me:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Pagesa në terminal"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Konfiguro një aplikacion pagese. Më pas thjesht mbaj shtypur pjesën e pasme të telefonit me një terminal me simbolin e pagesave pa kontakt."</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Konfiguro një aplikacion pagese. Më pas thjesht mbaje pjesën e pasme të telefonit te një terminal me simbolin e pagesave pa kontakt."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"E kuptova!"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"Më shumë..."</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"Të caktohet si preferencë?"</string>
@@ -3007,7 +3007,7 @@
     <string name="sim_editor_number" msgid="1757338150165234970">"Numri"</string>
     <string name="sim_editor_color" msgid="373059962306191123">"Ngjyra e kartës SIM"</string>
     <string name="sim_card_select_title" msgid="4925862525985187946">"Zgjidh kartën SIM"</string>
-    <string name="color_orange" msgid="3159707916066563431">"portokalli"</string>
+    <string name="color_orange" msgid="3159707916066563431">"Portokalli"</string>
     <string name="color_purple" msgid="4391440966734810713">"Vjollcë"</string>
     <string name="sim_no_inserted_msg" msgid="1197884607569714609">"Nuk janë futur karta SIM"</string>
     <string name="sim_status_title" msgid="4483653750844520871">"Statusi i kartës SIM"</string>
@@ -3128,7 +3128,7 @@
     <string name="keywords_ring_vibration" msgid="4210509151866460210">"prekje, dridhje, telefon, telefonatë, ndjeshmëri, zile"</string>
     <string name="keywords_notification_vibration" msgid="1077515502086745166">"prekje, dridhje, ndjeshmëri"</string>
     <string name="keywords_battery_saver_sticky" msgid="8733804259716284872">"kursyesi i baterisë, i ngjitur, vazhdoj, kursyesi i energjisë, bateria"</string>
-    <string name="default_sound" msgid="6675629744816442953">"Zëri i parazgjedhur"</string>
+    <string name="default_sound" msgid="6675629744816442953">"Tingulli i parazgjedhur"</string>
     <string name="sound_settings_summary" msgid="8467549670633195109">"Volumi i ziles në <xliff:g id="PERCENTAGE">%1$s</xliff:g>"</string>
     <string name="sound_dashboard_summary" msgid="5187301919242823508">"Volum, dridhje, \"Mos shqetëso\""</string>
     <string name="sound_settings_summary_vibrate" msgid="2194491116884798590">"Zilja u caktua me dridhje"</string>
@@ -3141,7 +3141,7 @@
     <string name="ring_volume_option_title" msgid="2038924918468372264">"Volumi i ziles"</string>
     <string name="notification_volume_option_title" msgid="1358512611511348260">"Volumi i njoftimit"</string>
     <string name="ringtone_title" msgid="1409086028485922583">"Zilja e telefonit"</string>
-    <string name="notification_ringtone_title" msgid="2932960620843976285">"Zëri i parazgjedhur i njoftimit"</string>
+    <string name="notification_ringtone_title" msgid="2932960620843976285">"Tingulli i parazgjedhur i njoftimit"</string>
     <string name="notification_unknown_sound_title" msgid="8043718667804838398">"Tingulli i dhënë nga aplikacioni"</string>
     <string name="notification_sound_default" msgid="2664544380802426260">"Tingulli i parazgjedhur i njoftimit"</string>
     <string name="alarm_ringtone_title" msgid="6411326147408635902">"Tingulli i parazgjedhur i alarmit"</string>

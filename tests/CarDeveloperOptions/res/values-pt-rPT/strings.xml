@@ -466,11 +466,11 @@
     <string name="security_settings_fingerprint_enroll_dialog_ok" msgid="3428927518029038956">"OK"</string>
     <string name="security_settings_fingerprint_enroll_dialog_delete" msgid="4312297515772004580">"Eliminar"</string>
     <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"Toque no sensor"</string>
-    <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"Coloque o dedo sobre o sensor e levante-o depois de sentir uma vibração"</string>
+    <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"Coloque o dedo sobre o sensor e levante-o depois de sentir uma vibração."</string>
     <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"Levante e toque novamente"</string>
-    <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"Vá levantando o dedo para adicionar as diferentes partes da sua impressão digital"</string>
+    <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"Vá levantando o dedo para adicionar as diferentes partes da sua impressão digital."</string>
     <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"Impressão digital adicionada"</string>
-    <string name="security_settings_fingerprint_enroll_finish_message" msgid="5862643337893923347">"Quando vir este ícone, pode utilizar a sua impressão digital para identificação ou para autorizar compras"</string>
+    <string name="security_settings_fingerprint_enroll_finish_message" msgid="5862643337893923347">"Quando vir este ícone, pode utilizar a sua impressão digital para identificação ou para autorizar compras."</string>
     <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"Fazer isto mais tarde"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_title" msgid="2816424026528101690">"Ignorar configur. de impressão digital?"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_message" msgid="8139299964344809780">"Optou por utilizar a sua impressão digital como uma forma de desbloquear o telemóvel. Se ignorar agora, terá de configurar esta opção mais tarde. A configuração demora apenas alguns minutos."</string>
@@ -861,7 +861,7 @@
     <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"Para utilizar, selecionar um fornecedor de classificação de rede"</string>
     <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"Para utilizar, selecionar um fornecedor de classificação de rede compatível"</string>
     <string name="wifi_install_credentials" msgid="5650088113710858289">"Instalar certificados"</string>
-    <string name="wifi_scan_notify_text" msgid="7614101215028336927">"Para melhorar a precisão da localização, as aplicações e os serviços podem continuar a procurar redes Wi-Fi em qualquer altura, mesmo quando o Wi-Fi está desativado. Pode utilizar esta opção, por exemplo, para melhorar as funcionalidades e os serviços baseados na localização. Pode alterar esta opção nas <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>definições de análise<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
+    <string name="wifi_scan_notify_text" msgid="7614101215028336927">"Para melhorar a precisão da localização, as apps e os serviços podem continuar a procurar redes Wi-Fi em qualquer altura, mesmo quando o Wi-Fi está desativado. Pode utilizar esta opção, por exemplo, para melhorar as funcionalidades e os serviços baseados na localização. Pode alterar esta opção nas <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>definições de análise<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"Para melhorar a precisão da localização, ative a procura de redes Wi-Fi nas <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>definições de análise<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="wifi_scan_notify_remember_choice" msgid="1235445971400237444">"Não mostrar de novo"</string>
     <string name="wifi_setting_sleep_policy_title" msgid="2120785188625932076">"Manter Wi-Fi ligada durante suspensão"</string>
@@ -2072,7 +2072,7 @@
     <string name="accessibility_toggle_large_pointer_icon_title" msgid="9127905775116570565">"Ponteiro do rato grande"</string>
     <string name="accessibility_disable_animations" msgid="8378441317115710009">"Remover animações"</string>
     <string name="accessibility_toggle_master_mono_title" msgid="899550848196702565">"Áudio mono"</string>
-    <string name="accessibility_toggle_master_mono_summary" msgid="3847052868469033235">"Combinar canais ao reproduzir áudio"</string>
+    <string name="accessibility_toggle_master_mono_summary" msgid="3847052868469033235">"Combine canais ao reproduzir áudio"</string>
     <string name="accessibility_toggle_master_balance_title" msgid="8723492001092647562">"Equilíbrio de áudio"</string>
     <string name="accessibility_toggle_master_balance_left_label" msgid="8531986342666527970">"Esquerda"</string>
     <string name="accessibility_toggle_master_balance_right_label" msgid="7757024572140589558">"Direita"</string>
@@ -3041,7 +3041,7 @@
     <string name="connected_devices_dashboard_no_driving_mode_summary" msgid="3524409078596318803">"Bluetooth, NFC"</string>
     <string name="connected_devices_dashboard_no_driving_mode_no_nfc_summary" msgid="7881286613528299400">"Bluetooth"</string>
     <string name="app_and_notification_dashboard_title" msgid="8448096608058843730">"Apps e notificações"</string>
-    <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"Assistente, aplicações recentes, aplicações predefinidas"</string>
+    <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"Assistente, apps recentes, apps predefinidas"</string>
     <string name="notification_settings_work_profile" msgid="7190550347842400029">"O acesso às notificações não está disponível para aplicações no perfil de trabalho."</string>
     <string name="account_dashboard_title" msgid="4734300939532555885">"Contas"</string>
     <string name="account_dashboard_default_summary" msgid="6822549669771936206">"Nenhuma conta adicionada"</string>
@@ -3550,7 +3550,7 @@
     <string name="zen_mode_screen_off_summary_no_led" msgid="7255874108150630145">"Permitir que as notificações silenciadas pelo modo Não incomodar liguem o ecrã"</string>
     <string name="notification_app_settings_button" msgid="3651180424198580907">"Definições de notificações"</string>
     <string name="suggestion_button_text" msgid="5783566542423813847">"Ok"</string>
-    <string name="device_feedback" msgid="4042352891448769818">"Enviar comentários do dispositivo"</string>
+    <string name="device_feedback" msgid="4042352891448769818">"Enviar feedback do dispositivo"</string>
     <string name="restr_pin_enter_admin_pin" msgid="8577847751493521230">"Introduzir o PIN do gestor"</string>
     <string name="switch_on_text" msgid="7100491749799298324">"Ativado"</string>
     <string name="switch_off_text" msgid="3539551289454353555">"Desativado"</string>
@@ -4478,7 +4478,7 @@
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"Sugestão removida"</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"Anular"</string>
     <string name="low_storage_summary" msgid="4562224870189133400">"Tem pouco espaço de armazenamento. <xliff:g id="PERCENTAGE">%1$s</xliff:g> utilizados – <xliff:g id="FREE_SPACE">%2$s</xliff:g> livres."</string>
-    <string name="contextual_card_feedback_send" msgid="8698649023854350623">"Enviar comentários"</string>
+    <string name="contextual_card_feedback_send" msgid="8698649023854350623">"Enviar feedback"</string>
     <string name="contextual_card_feedback_confirm_message" msgid="3987973028353264878">"Pretende enviar-nos comentários acerca desta sugestão?"</string>
     <string name="copyable_slice_toast" msgid="1357518174923789947">"<xliff:g id="COPY_CONTENT">%1$s</xliff:g> copiado para a área de transferência."</string>
     <string name="search_bar_account_avatar_content_description" msgid="947628881535053409"></string>

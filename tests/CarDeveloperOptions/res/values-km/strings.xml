@@ -56,7 +56,7 @@
     <string name="radio_info_ims_reg_status" msgid="4771711884059371514">"ការចុះឈ្មោះ IMS៖ <xliff:g id="STATUS">%1$s</xliff:g>\nសំឡេងតាមរយៈ LTE៖ <xliff:g id="AVAILABILITY_0">%2$s</xliff:g>\nសំឡេងតាមរយៈ WiFi៖ <xliff:g id="AVAILABILITY_1">%3$s</xliff:g>\nការហៅជាវីដេអូ៖ <xliff:g id="AVAILABILITY_2">%4$s</xliff:g>\nចំណុចប្រទាក់ UT៖ <xliff:g id="AVAILABILITY_3">%5$s</xliff:g>"</string>
     <string name="radioInfo_service_in" msgid="1297020186765943857">"កំពុងដំណើរការ"</string>
     <string name="radioInfo_service_out" msgid="8460363463722476510">"មិនដំណើរការ"</string>
-    <string name="radioInfo_service_emergency" msgid="7674989004735662599">"សម្រាប់តែការហៅពេលអាសន្នប៉ុណ្ណោះ"</string>
+    <string name="radioInfo_service_emergency" msgid="7674989004735662599">"ការហៅទៅលេខសង្គ្រោះបន្ទាន់​តែប៉ុណ្ណោះ"</string>
     <string name="radioInfo_service_off" msgid="1873939869994136791">"បិទវិទ្យុ"</string>
     <string name="radioInfo_roaming_in" msgid="7059350234710947417">"រ៉ូមីង"</string>
     <string name="radioInfo_roaming_not" msgid="7733269160603599835">"មិនរ៉ូមីងទេ"</string>
@@ -455,7 +455,7 @@
     <string name="lock_screen_intro_skip_dialog_text" product="tablet" msgid="7572334562915795226">"មុខងារការពារឧបករណ៍នឹងមិនត្រូវបានបើកទេ។ អ្នកនឹងមិនអាច​រារាំង​អ្នកផ្សេង​មិនឲ្យប្រើប្រាស់ថេប្លេតនេះបានទេ ប្រសិនបើវាបាត់ ឬត្រូវបានគេលួច។"</string>
     <string name="lock_screen_intro_skip_dialog_text" product="device" msgid="3819285334459763813">"មុខងារការពារឧបករណ៍នឹងមិនត្រូវបានបើកទេ។ អ្នកនឹងមិនអាច​រារាំង​អ្នកផ្សេង​មិនឲ្យប្រើប្រាស់ឧបករណ៍នេះបានទេ ប្រសិនបើវាបាត់ ឬត្រូវបានគេលួច។"</string>
     <string name="lock_screen_intro_skip_dialog_text" product="default" msgid="5361573789585652826">"មុខងារការពារឧបករណ៍នឹងមិនត្រូវបានបើកទេ។ អ្នកនឹងមិនអាច​រារាំង​អ្នកផ្សេង​មិនឲ្យប្រើប្រាស់ទូរសព្ទនេះបានទេ ប្រសិនបើវាបាត់ ឬត្រូវបានគេលួច។"</string>
-    <string name="skip_anyway_button_label" msgid="4437815969645175429">"រំលងទោះបីយ៉ាងណាក៏ដោយ"</string>
+    <string name="skip_anyway_button_label" msgid="4437815969645175429">"មិនអីទេ រំលង​ចុះ"</string>
     <string name="go_back_button_label" msgid="7310586887969860472">"ថយ​ក្រោយ"</string>
     <string name="skip_lock_screen_dialog_button_label" msgid="6706047245716780006">"រំលង"</string>
     <string name="cancel_lock_screen_dialog_button_label" msgid="2534925227627658819">"បោះបង់"</string>
@@ -573,7 +573,7 @@
     <string name="unlock_set_unlock_pin_summary" msgid="8076921768675948228">"សុវត្ថិភាព​ពី​មធ្យម​ទៅ​ខ្ពស់"</string>
     <string name="unlock_set_unlock_password_title" msgid="2092949379238466560">"ពាក្យសម្ងាត់​"</string>
     <string name="unlock_set_unlock_password_summary" msgid="7042787631866059147">"សុវត្ថិភាព​ខ្ពស់"</string>
-    <string name="unlock_set_do_later_title" msgid="2939110070503695956">"កុំអាល"</string>
+    <string name="unlock_set_do_later_title" msgid="2939110070503695956">"កុំទាន់"</string>
     <string name="current_screen_lock" msgid="398328543694154510">"ការចាក់សោអេក្រង់បច្ចុប្បន្ន"</string>
     <string name="fingerprint_unlock_set_unlock_pattern" msgid="132337696546315927">"ស្នាមម្រាមដៃ + លំនាំ"</string>
     <string name="fingerprint_unlock_set_unlock_pin" msgid="886426673328906002">"ស្នាមម្រាមដៃ + កូដ PIN"</string>
@@ -1695,7 +1695,7 @@
     <string name="terms_title" msgid="1804549588198223771">"លក្ខខណ្ឌ​ប្រើប្រាស់"</string>
     <string name="webview_license_title" msgid="8244960025549725051">"អាជ្ញាប័ណ្ណ System WebView"</string>
     <string name="wallpaper_attributions" msgid="2941987966332943253">"ផ្ទាំង​រូបភាព"</string>
-    <string name="wallpaper_attributions_values" msgid="4461979853894606323">"កម្មវិធី​ផ្ដល់​សេវា​រូបភាព​ផ្កាយ​រណប​៖\n©2014 CNES / Astrium, DigitalGlobe, Bluesky"</string>
+    <string name="wallpaper_attributions_values" msgid="4461979853894606323">"ក្រុមហ៊ុន​ផ្ដល់​សេវា​រូបភាព​ផ្កាយ​រណប​៖\n©2014 CNES / Astrium, DigitalGlobe, Bluesky"</string>
     <string name="settings_manual_activity_title" msgid="7599911755054286789">"ឯកសារណែនាំ"</string>
     <string name="settings_manual_activity_unavailable" msgid="4872502775018655343">"មានបញ្ហាក្នុងការបើកឯកសារណែនាំ"</string>
     <string name="settings_license_activity_title" msgid="1099045216283677608">"អាជ្ញាបណ្ណភាគីទីបី"</string>
@@ -2876,7 +2876,7 @@
     <string name="user_setup_dialog_message" msgid="2988559933258353919">"សូម​ប្រាកដ​ថា​​អ្នក​ប្រើ​ប្រាស់នេះ​អាច​យក​​ឧបករណ៍ ​និង​រៀបចំ​​ទំហំ​ផ្ទុករបស់​គេបាន"</string>
     <string name="user_setup_profile_dialog_message" msgid="7611900802824048526">"រៀបចំ​ប្រវត្តិរូប​ឥឡូវ?"</string>
     <string name="user_setup_button_setup_now" msgid="4941459406266856176">"រៀបចំ​ឥឡូវ"</string>
-    <string name="user_setup_button_setup_later" msgid="6596031428556518752">"កុំអាល"</string>
+    <string name="user_setup_button_setup_later" msgid="6596031428556518752">"កុំទាន់"</string>
     <string name="user_cannot_manage_message" product="tablet" msgid="7108992906553210763">"មាន​តែ​ម្ចាស់​កុំព្យូទ័រ​បន្ទះ​ប៉ុណ្ណោះ​អាច​គ្រប់គ្រង​អ្នកប្រើ"</string>
     <string name="user_cannot_manage_message" product="default" msgid="915260531390608092">"មាន​តែ​ម្ចាស់​ទូរស័ព្ទ​ប៉ុណ្ណោះ​អាច​គ្រប់គ្រង​អ្នកប្រើ។"</string>
     <string name="user_cannot_add_accounts_message" msgid="5993561303748749097">"ប្រវត្តិរូប​បាន​ដាក់កម្រិត​មិន​អាច​បន្ថែម​គណនី"</string>

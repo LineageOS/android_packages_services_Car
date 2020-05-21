@@ -849,7 +849,7 @@
     <string name="wifi_notify_open_networks" msgid="4782239203624619655">"Сүлжээний мэдэгдлийг нээх"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"Өндөр чанарын нийтийн сүлжээ боломжтой үед мэдэгдэх"</string>
     <string name="wifi_wakeup" msgid="4963732992164721548">"Wi‑Fi-г автоматаар асаах"</string>
-    <string name="wifi_wakeup_summary" msgid="1152699417411690">"Wi‑Fi таны гэрийн сүлжээ зэрэг ойролцоох хадгалсан өндөр чанарын сүлжээнд буцаж асах болно."</string>
+    <string name="wifi_wakeup_summary" msgid="1152699417411690">"Wi‑Fi таны гэрийн сүлжээ зэрэг ойролцоох хадгалсан өндөр чанартай сүлжээнд буцаж асах болно."</string>
     <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"Байршил унтраалттай байгаа тул боломжгүй байна. "<annotation id="link">"Байршлыг"</annotation>" асаана уу."</string>
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"Wi‑Fi сканыг унтраасан тул боломжгүй байна"</string>
     <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"Ашиглахын тулд сүлжээний үнэлгээ үзүүлэгчийг сонгоно уу"</string>
@@ -945,8 +945,8 @@
     <string name="wifi_dpp_could_not_detect_valid_qr_code" msgid="27667719861826438">"Хурдан хариу үйлдлийн кодыг уншиж чадсангүй. Кодыг дахин голлуулаад дахин оролдоно уу"</string>
     <string name="wifi_dpp_failure_authentication_or_configuration" msgid="9142051662156233679">"Дахин оролдоно уу. Хэрэв асуудал үргэлжилсээр байвал төхөөрөмжийн үйлдвэрлэгчтэй холбогдоно уу"</string>
     <string name="wifi_dpp_failure_not_compatible" msgid="4320027179973678283">"Алдаа гарлаа"</string>
-    <string name="wifi_dpp_failure_timeout" msgid="5060065168142109420">"Төхөөрөмжийг залгасан, цэнэглэсэн бөгөөд асаасан эсэхийг шалгана уу"</string>
-    <string name="wifi_dpp_failure_generic" msgid="7840142544736640189">"Төхөөрөмжийг залгасан, цэнэглэсэн бөгөөд асаасан эсэхийг шалгана уу. Хэрэв асуудал үргэлжилсээр байвал төхөөрөмжийн үйлдвэрлэгчтэй холбогдоно уу"</string>
+    <string name="wifi_dpp_failure_timeout" msgid="5060065168142109420">"Төхөөрөмжийг залгасан, цэнэглэсэн, асаасан эсэхийг шалгана уу"</string>
+    <string name="wifi_dpp_failure_generic" msgid="7840142544736640189">"Төхөөрөмжийг залгасан, цэнэглэсэн, асаасан эсэхийг шалгана уу. Хэрэв асуудал үргэлжилсээр байвал төхөөрөмжийн үйлдвэрлэгчтэй холбогдоно уу"</string>
     <string name="wifi_dpp_failure_not_supported" msgid="111779621766171626">"Энэ төхөөрөмж “<xliff:g id="SSID">%1$s</xliff:g>”-г нэмэхийг дэмжээгүй байна"</string>
     <string name="wifi_dpp_check_connection_try_again" msgid="7144663015219170999">"Холболтыг шалгаад дахин оролдоно уу"</string>
     <string name="wifi_dpp_choose_network" msgid="6251424431594491691">"Сүлжээ сонгох"</string>
@@ -1800,7 +1800,7 @@
     <string name="advanced_settings_summary" msgid="5912237062506771716">"Өөр тохиргоо сонголтыг идэвхжүүлнэ үү"</string>
     <string name="application_info_label" msgid="3886253474964599105">"Апп мэдээлэл"</string>
     <string name="storage_label" msgid="1109537840103290384">"Хадгалах сан"</string>
-    <string name="auto_launch_label" msgid="47089737922907379">"Стандарт нээх утга"</string>
+    <string name="auto_launch_label" msgid="47089737922907379">"Өгөгдмөлөөр нээх"</string>
     <string name="auto_launch_label_generic" msgid="7865828543459493308">"Үндсэн тохиргоо"</string>
     <string name="screen_compatibility_label" msgid="3638271673726075815">"Дэлгэцийн нийцэл"</string>
     <string name="permissions_label" msgid="7341733648403464213">"Зөвшөөрөл"</string>
@@ -1956,7 +1956,7 @@
     <string name="auto_caps" msgid="5566082723106296847">"Автоматаар томруулах"</string>
     <string name="auto_caps_summary" msgid="8505254799874525084">"Өгүүлбэрийн эхний үсгийг томруулах"</string>
     <string name="auto_punctuate" msgid="8386007107100525931">"Авто-цэг таслал"</string>
-    <string name="hardkeyboard_category" msgid="5937171470391551627">"Бодит гарын тохиргоо"</string>
+    <string name="hardkeyboard_category" msgid="5937171470391551627">"Биет гарын тохиргоо"</string>
     <string name="auto_punctuate_summary" msgid="245694025030386370">"Зай авах товчийг хоёр удаа дарж \".\" оруулна"</string>
     <string name="show_password" msgid="620964020348073739">"Нууц үг харуулах"</string>
     <string name="show_password_summary" msgid="1403805089582258620">"Бичих явцад тэмдэгтийг товчхон харуулах"</string>
@@ -1968,9 +1968,9 @@
     <string name="available_virtual_keyboard_category" msgid="2211375533762470875">"Боломжит виртуал гар"</string>
     <string name="add_virtual_keyboard" msgid="490638727157806209">"Гарыг удирдах"</string>
     <string name="keyboard_assistance_category" msgid="2276351807419818125">"Гарын тусламж"</string>
-    <string name="physical_keyboard_title" msgid="3508591962962814313">"Бодит гар"</string>
+    <string name="physical_keyboard_title" msgid="3508591962962814313">"Биет гар"</string>
     <string name="show_ime" msgid="7322620473198763563">"Виртуал гарыг харуулах"</string>
-    <string name="show_ime_summary" msgid="3246628154011464373">"Бодит гар идэвхтэй үед үүнийг дэлгэцэд харуулна уу"</string>
+    <string name="show_ime_summary" msgid="3246628154011464373">"Биет гар идэвхтэй үед үүнийг дэлгэцэд харуулна уу"</string>
     <string name="keyboard_shortcuts_helper" msgid="6574386807271399788">"Гарын товчлолын туслагч"</string>
     <string name="keyboard_shortcuts_helper_summary" msgid="8024313306403779742">"Боломжтой товчлолыг харуулах"</string>
     <string name="language_and_input_for_work_category_title" msgid="2053255944038892588">"Ажлын профайлын гар &amp; хэрэгсэл"</string>
@@ -2021,8 +2021,8 @@
     <string name="input_methods_settings_label_format" msgid="5927400388781960176">"<xliff:g id="IME_NAME">%1$s</xliff:g> тохиргоо"</string>
     <string name="input_methods_and_subtype_enabler_title" msgid="75557930915149416">"Идэвхтэй оруулах аргыг сонгоно уу"</string>
     <string name="onscreen_keyboard_settings_summary" msgid="148763210673670769">"Дэлгэцэн дээрх гарын тохиргоо"</string>
-    <string name="builtin_keyboard_settings_title" msgid="3683883402326039724">"Бодит гар"</string>
-    <string name="builtin_keyboard_settings_summary" msgid="6498739864479285932">"Бодит гарын тохиргоо"</string>
+    <string name="builtin_keyboard_settings_title" msgid="3683883402326039724">"Биет гар"</string>
+    <string name="builtin_keyboard_settings_summary" msgid="6498739864479285932">"Биет гарын тохиргоо"</string>
     <string name="gadget_picker_title" msgid="9146981887780645322">"Гаджет сонгоно уу"</string>
     <string name="widget_picker_title" msgid="5424689728810684439">"Виджет сонгох"</string>
     <string name="allow_bind_app_widget_activity_allow_bind_title" msgid="8168110035319637326">"Виджэт үүсгээд хандалт хийхийг зөвшөөрөх үү?"</string>
@@ -2048,7 +2048,7 @@
     <string name="experimental_category_title" msgid="3797000069740110717">"Туршилтын"</string>
     <string name="feature_flags_dashboard_title" msgid="3153034144122754381">"Онцлогийн дарцаг"</string>
     <string name="talkback_title" msgid="3717960404234260050">"Talkback"</string>
-    <string name="talkback_summary" msgid="6602857105831641574">"Дэлгэц уншигчийг ерөнхийдөө сохор буюу харааны гажигтай хүмүүст зориулсан"</string>
+    <string name="talkback_summary" msgid="6602857105831641574">"Дэлгэц уншигчийг ерөнхийдөө хараагүй болон сул хараатай хүмүүст зориулсан"</string>
     <string name="select_to_speak_summary" msgid="7514180457557735421">"Дэлгэц дээрх зүйлсийг чанга уншуулахын тулд дарна уу"</string>
     <string name="accessibility_captioning_title" msgid="5878371993023439642">"Тайлбар"</string>
     <string name="accessibility_screen_magnification_title" msgid="7250949681883917360">"Томруулах"</string>
@@ -2086,7 +2086,7 @@
     <string name="accessibility_content_timeout_preference_summary" msgid="853829064617918179">"Та унших шаардлагатай хэдий ч зөвхөн түр хугацаанд харагддаг мессежийг хэр удаан харуулахыг сонгоно уу.\n\nЗарим апп энэ тохиргоог дэмждэггүй."</string>
     <string name="accessibility_control_timeout_preference_summary" msgid="8582212299606932160">"Танаас үйлдэл хийхийг шаарддаг хэдий ч зөвхөн түр хугацаанд харагддаг зурвасыг хэр удаан хугацаагаар харуулахыг сонгоно уу.\n\nЗарим апп энэ тохиргоог дэмждэггүй."</string>
     <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"Хүрээд &amp; барьж хүлээх"</string>
-    <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"Өнгө урвуулалт"</string>
+    <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"Өнгө хувиргалт"</string>
     <string name="accessibility_display_inversion_preference_subtitle" msgid="69291255322175323">"Үзүүлбэрт нөлөөлж болзошгүй"</string>
     <string name="accessibility_autoclick_preference_title" msgid="9164599088410340405">"Тодорхой хугацаа"</string>
     <string name="accessibility_autoclick_description" msgid="5492414927846407499">"Хэрэв та хулгана ашиглаж байвал тодорхой хугацааны туршид хөдлөхөө болсон үед нь автоматаар үйлдэл хийхийн тулд курсорыг тохируулах боломжтой."</string>
@@ -2100,7 +2100,7 @@
     <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"Тайлбар ашиглах"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"Үргэлжлүүлэх"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"Сонсголын төхөөрөмжүүд"</string>
-    <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"Холбогдсон сонсголын төхөөрөмжүүд алга"</string>
+    <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"Холбогдсон сонсголын төхөөрөмж алга"</string>
     <string name="accessibility_hearingaid_adding_summary" msgid="4139031880828714300">"Сонсголын төхөөрөмж нэмэх"</string>
     <string name="accessibility_hearingaid_pair_instructions_first_message" msgid="2671518890909750740">"Сонсголын төхөөрөмжүүдээ холбохын тулд төхөөрөмжөө дараагийн дэлгэцээс олж товшино уу."</string>
     <string name="accessibility_hearingaid_pair_instructions_second_message" msgid="1584538735488464991">"Таны сонсголын төхөөрөмжүүд холболтын горимд байгаа эсэхийг шалгана уу."</string>
@@ -2601,7 +2601,7 @@
     <string name="work_mode_label" msgid="6845849194740195757">"Ажлын профайл"</string>
     <string name="work_mode_on_summary" msgid="1682781113156323592">"Танай байгууллагаас удирддаг"</string>
     <string name="work_mode_off_summary" msgid="1688885392211178315">"Апп болон мэдэгдэл унтраалттай байна"</string>
-    <string name="remove_managed_profile_label" msgid="4625542553784793536">"Ажлын профайлыг арилгах"</string>
+    <string name="remove_managed_profile_label" msgid="4625542553784793536">"Ажлын профайлыг хасах"</string>
     <string name="background_data" msgid="8275750862371471171">"Далд өгөгдөл"</string>
     <string name="background_data_summary" msgid="799640633948841990">"Аппууд өгөгдлийг ямар ч үед синк хийж, илгээж, хүлээж авч болно"</string>
     <string name="background_data_dialog_title" msgid="8306650658158895976">"Далд өгөгдлийг идэвхгүйжүүлэх үү?"</string>
@@ -2888,7 +2888,7 @@
     <string name="user_confirm_remove_self_title" msgid="6739480453680217543">"Өөрийгөө устгах уу?"</string>
     <string name="user_confirm_remove_title" msgid="1034498514019462084">"Энэ хэрэглэгчийг устгах уу?"</string>
     <string name="user_profile_confirm_remove_title" msgid="6138684743385947063">"Энэ профайлыг устгах уу?"</string>
-    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"Ажлын профайлыг арилгах"</string>
+    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"Ажлын профайлыг хасах уу?"</string>
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"Та энэ таблет дээрх өөрийн зай болон өгөгдлийг алдах болно. Та энэ үйлдлийг буцаах боломжгүй."</string>
     <string name="user_confirm_remove_self_message" product="default" msgid="8441729423565705183">"Та энэ утсан дээрх өөрийн зай болон өгөгдлийг алдах болно. Та энэ үйлдлийг буцаах боломжгүй."</string>
     <string name="user_confirm_remove_message" msgid="5202150470271756013">"Бүх апп болон дата устах болно."</string>
@@ -2925,7 +2925,7 @@
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Өөр төлбөрийн апп нээлттэй байхаас бусад үед"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"\"Товшиж төлөх\" дээр төлөх:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Tерминалаар тооцоо хийж байна"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Төлбөрийн аппыг тохируулаарай. Зайнаас уншуулах тэмдэг бүхий терминалд утасныхаа ард талыг бариарай."</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Төлбөрийн аппыг тохируулаарай. Зайнаас уншуулах тэмдэг бүхий терминалд утасныхаа ар талыг бариарай."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"Ойлголоо"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"Илүү..."</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"Таны тохируулга болгох уу?"</string>
@@ -3201,7 +3201,7 @@
     <string name="zen_mode_restrict_notifications_mute_footer" msgid="3049522809520549054">"Мэдэгдэл ирэх үед таны утас ямар нэгэн дуу гаргахгүй буюу эсвэл чичрэхгүй."</string>
     <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"Мэдэгдэл харагдахгүй бөгөөд дуугарахгүй"</string>
     <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"Та мэдэгдлийг харахгүй бөгөөд сонсохгүй"</string>
-    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"Таны утас шинэ эсвэл хуучин мэдэгдлийг харуулахгүйгээс гадна чичрэхгүй бөгөөд дуугарахгүй. Утасны үйл ажиллагаа болон статусын чухал шинэчлэлт гарч ирсэн хэвээр байх болно гэдгийг анхаарна уу.\n\nТа Бүү саад бол горимыг унтраасан үедээ дэлгэцийнхээ дээд хэсгээс доош шударч, аваагүй мэдэгдлээ олоорой."</string>
+    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"Таны утас шинэ эсвэл хуучин мэдэгдлийг харуулахгүйгээс гадна чичрэхгүй, дуугарахгүй. Утасны үйл ажиллагаа болон статустай холбоотой чухал мэдэгдлүүд харагдсан хэвээр байх болно гэдгийг анхаарна уу.\n\nТа Бүү саад бол горимыг унтраасан үедээ дэлгэцийнхээ дээд хэсгээс доош шударч, аваагүй мэдэгдлээ олоорой."</string>
     <string name="zen_mode_restrict_notifications_custom" msgid="3167252482570424133">"Захиалгат"</string>
     <string name="zen_mode_restrict_notifications_enable_custom" msgid="6376983315529894440">"Захиалгат тохиргоог идэвхжүүлэх"</string>
     <string name="zen_mode_restrict_notifications_disable_custom" msgid="8004212081465043044">"Захиалгат тохиргоог устгах"</string>
@@ -3586,7 +3586,7 @@
     <string name="imei_information_title" msgid="7666097743700170757">"IMEI мэдээлэл"</string>
     <string name="imei_information_summary" msgid="716516316022275083">"IMEI хамаарах мэдээлэл"</string>
     <string name="slot_number" msgid="785422579177068698">"(Слот<xliff:g id="SLOT_NUM">%1$d</xliff:g>)"</string>
-    <string name="launch_by_default" msgid="6106985160202769725">"Стандарт нээх утга"</string>
+    <string name="launch_by_default" msgid="6106985160202769725">"Өгөгдмөлөөр нээх"</string>
     <string name="app_launch_domain_links_title" msgid="2987289657348349133">"Холбоосыг нээх"</string>
     <string name="app_launch_open_domain_urls_title" msgid="8595126859922391331">"Дэмждэг холбоосыг нээх"</string>
     <string name="app_launch_open_domain_urls_summary" msgid="6803029846855502366">"Асуулгүйгээр нээх"</string>
@@ -3710,7 +3710,7 @@
     <string name="high_power_system" msgid="739584574711292753">"Батарейн оновчлолыг ашиглах боломжгүй байна"</string>
     <string name="high_power_desc" msgid="333756885680362741">"Тэжээлийн оновчлол ашиглах шаардлагагүй. Учир нь тэжээлийг илүү түргэн дуусгаж болох юм."</string>
     <string name="high_power_prompt_title" msgid="2805745781720454052">"Аппыг цаана тогтмол ажиллуулахыг зөвшөөрөх үү?"</string>
-    <string name="high_power_prompt_body" msgid="8067395096053552289">"<xliff:g id="APP_NAME">%1$s</xliff:g>-г цаана ажиллуулахаар зөвшөөрсөн тохиолдолд батерейны түвшинг багасгах болно. \n\nТа үүнийг дараа нь Тохиргоо, Апп, мэдэгдэл хэсэгт өөрчлөх боломжтой."</string>
+    <string name="high_power_prompt_body" msgid="8067395096053552289">"<xliff:g id="APP_NAME">%1$s</xliff:g>-г байнга цаана ажиллуулахаар зөвшөөрсөн тохиолдолд батарейны түвшинг багасгах болно. \n\nТа үүнийг дараа нь Тохиргоо, Апп, мэдэгдэл хэсэгт өөрчлөх боломжтой."</string>
     <string name="battery_summary" msgid="4345690800899981339">"Сүүлд бүрэн цэнэглэснээс хойш <xliff:g id="PERCENTAGE">%1$s</xliff:g>-г ашигласан"</string>
     <string name="battery_power_management" msgid="2853925857548647969">"Цэнэгний менежмент"</string>
     <string name="no_battery_summary" msgid="4105932628367471314">"Сүүлийн бүрэн цэнэглэлтээс хойш батарей огт ашиглаагүй"</string>
@@ -4472,7 +4472,7 @@
     <string name="privacy_dashboard_summary" msgid="7916431309860824945">"Зөвшөөрөл, бүртгэлийн үйл ажиллагаа, хувийн өгөгдөл"</string>
     <string name="contextual_card_dismiss_remove" msgid="1750420285615827309">"Хасах"</string>
     <string name="contextual_card_dismiss_keep" msgid="3204450672928193661">"Хадгалах"</string>
-    <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"Энэ саналыг устгах уу?"</string>
+    <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"Энэ саналыг хасах уу?"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"Зөвлөмжийг устгасан"</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"Болих"</string>
     <string name="low_storage_summary" msgid="4562224870189133400">"Хадгалах сангийн багтаамж бага байна. <xliff:g id="PERCENTAGE">%1$s</xliff:g>-г ашигласан - <xliff:g id="FREE_SPACE">%2$s</xliff:g> сул"</string>

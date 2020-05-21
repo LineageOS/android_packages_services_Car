@@ -80,7 +80,7 @@
     <string name="sdcard_format" product="default" msgid="4831611387627849108">"Futa kadi ya SD"</string>
     <string name="preview_pager_content_description" msgid="5731599395893090038">"Kagua kwanza"</string>
     <string name="preview_page_indicator_content_description" msgid="3192955679074998362">"Onyesho la kuchungulia, ukurasa wa <xliff:g id="CURRENT_PAGE">%1$d</xliff:g> kati ya <xliff:g id="NUM_PAGES">%2$d</xliff:g>"</string>
-    <string name="font_size_summary" msgid="9120023206321191067">"Kuongeza au kupunguza ukubwa wa maandishi kwenye skrini."</string>
+    <string name="font_size_summary" msgid="9120023206321191067">"Ongeza au upunguze ukubwa wa maandishi kwenye skrini."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Punguza"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Kuza"</string>
     <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
@@ -466,7 +466,7 @@
     <string name="security_settings_fingerprint_enroll_dialog_ok" msgid="3428927518029038956">"SAWA"</string>
     <string name="security_settings_fingerprint_enroll_dialog_delete" msgid="4312297515772004580">"Futa"</string>
     <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"Gusa kitambua alama ya kidole"</string>
-    <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"Weka kidole chako juu ya kitambuzi kisha ukiinue baada ya kuhisi mtetemo"</string>
+    <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"Weka kidole chako juu ya kitambua alama kisha ukiinue baada ya kuhisi mtetemo"</string>
     <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"Inua, kisha uguse tena"</string>
     <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"Endelea kuinua kidole chako ili uongeze sehemu tofauti za alama ya kidole chako"</string>
     <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"Alama ya kidole imeongezwa"</string>
@@ -945,8 +945,8 @@
     <string name="wifi_dpp_could_not_detect_valid_qr_code" msgid="27667719861826438">"Imeshindwa kusoma msimbo wa QR. Weka msimbo upya kisha ujaribu tena"</string>
     <string name="wifi_dpp_failure_authentication_or_configuration" msgid="9142051662156233679">"Jaribu tena. Tatizo hili likiendelea, wasiliana na kampuni iliyotengeneza kifaa"</string>
     <string name="wifi_dpp_failure_not_compatible" msgid="4320027179973678283">"Hitilafu fulani imetokea"</string>
-    <string name="wifi_dpp_failure_timeout" msgid="5060065168142109420">"Hakikisha kuwa umechomeka kifaa, umechaji na umekiwasha"</string>
-    <string name="wifi_dpp_failure_generic" msgid="7840142544736640189">"Hakikisha kuwa umechomeka kifaa, umechaji na umekiwasha. Tatizo hili likiendelea, wasiliana na kampuni iliyotengeneza kifaa"</string>
+    <string name="wifi_dpp_failure_timeout" msgid="5060065168142109420">"Hakikisha kuwa umechomeka kifaa, umekichaji na umekiwasha"</string>
+    <string name="wifi_dpp_failure_generic" msgid="7840142544736640189">"Hakikisha kuwa umechomeka kifaa, umekichaji na umekiwasha. Tatizo hili likiendelea, wasiliana na kampuni iliyotengeneza kifaa"</string>
     <string name="wifi_dpp_failure_not_supported" msgid="111779621766171626">"Huwezi kuongeza “<xliff:g id="SSID">%1$s</xliff:g>” kwenye kifaa hiki"</string>
     <string name="wifi_dpp_check_connection_try_again" msgid="7144663015219170999">"Angalia muunganisho na ujaribu tena"</string>
     <string name="wifi_dpp_choose_network" msgid="6251424431594491691">"Chagua mtandao"</string>
@@ -1266,7 +1266,7 @@
     <string name="doze_always_on_title" msgid="8555184965031789941">"Ikae ikiwa imewashwa"</string>
     <string name="doze_always_on_summary" msgid="7654436900436328950">"Onyesha saa, aikoni za arifa na maelezo mengine. Inatumia chaji nyingi."</string>
     <string name="title_font_size" msgid="5021464556860010851">"Ukubwa wa fonti"</string>
-    <string name="short_summary_font_size" msgid="4141077908728522946">"Kuongeza au kupunguza ukubwa wa maandishi"</string>
+    <string name="short_summary_font_size" msgid="4141077908728522946">"Ongeza au upunguze ukubwa wa maandishi"</string>
     <string name="sim_lock_settings" msgid="1986924650622642189">"Mipangilio ya kufunga SIM"</string>
     <string name="sim_lock_settings_category" msgid="1126759898277681516">"Kufunga SIM kadi"</string>
     <string name="sim_lock_settings_summary_off" msgid="348656447968142307">"Imezimwa"</string>
@@ -2820,7 +2820,7 @@
     <string name="user_credential_title" msgid="6237611303219831419">"Maelezo ya kitambulisho"</string>
     <string name="user_credential_removed" msgid="6243576567538844852">"Imeondoa kitambulisho: <xliff:g id="CREDENTIAL_NAME">%s</xliff:g>"</string>
     <string name="user_credential_none_installed" msgid="4129252817676332368">"Hakuna kitambulisho cha mtumiaji kilichowekwa"</string>
-    <string name="spellcheckers_settings_title" msgid="1687210427248364327">"Kikagua tahajia"</string>
+    <string name="spellcheckers_settings_title" msgid="1687210427248364327">"Kikagua maendelezo"</string>
     <string name="spellcheckers_settings_for_work_title" msgid="7461318390801573022">"Kikagua tahajia cha kazini"</string>
     <string name="current_backup_pw_prompt" msgid="8914812770233159610">"Andika nenosiri unalotumia kuhifadhi nakala kamili"</string>
     <string name="new_backup_pw_prompt" msgid="4949729756223335850">"Andika nenosiri jipya la kuhifadhi nakala kamili"</string>
@@ -2925,7 +2925,7 @@
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Isipokuwa wakati programu nyingine ya malipo imefunguliwa"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"Unapolipa ukitumia chaguo la Gusisha ili ulipe, tumia:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Kulipa katika kituo"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Sanidi programu ya malipo. Shikilia tu upande wa nyuma wa simu yako kwenye kituo chochote cha malipo chenye alama ya kulipa bila kugusa."</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Sanidi programu ya malipo. Kisha elekeza upande wa nyuma wa simu yako kwenye kituo chochote cha malipo chenye alama ya kulipa kwa njia za kielektroniki."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"Nimeelewa"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"Zaidi..."</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"Ungependa kuweka kama mapendeleo yako?"</string>
@@ -3161,7 +3161,7 @@
     <string name="emergency_tone_alert" msgid="907868135091891015">"Milio"</string>
     <string name="emergency_tone_vibrate" msgid="5020068066905681181">"Mitetemo"</string>
     <string name="boot_sounds_title" msgid="7583926202411353620">"Washa sauti"</string>
-    <string name="live_caption_title" msgid="7926591158657997051">"Nukuu Papo Hapo"</string>
+    <string name="live_caption_title" msgid="7926591158657997051">"Manukuu Papo Hapo"</string>
     <string name="live_caption_summary" msgid="9064771862352393125">"Wekea maudhui manukuu kiotomatiki"</string>
     <string name="zen_mode_settings_summary_off" msgid="6929319200478424962">"Kamwe usiwashe"</string>
     <plurals name="zen_mode_settings_summary_on" formatted="false" msgid="6061723291126091396">
@@ -3715,7 +3715,7 @@
     <string name="high_power_prompt_body" msgid="8067395096053552289">"Ukiruhusu <xliff:g id="APP_NAME">%1$s</xliff:g> kutumika chini chini, unaweza kupunguza muda wa matumizi ya betri. \n\nUnaweza kubadilisha hali hii baadaye katika Mipangilio &gt; Programu na arifa."</string>
     <string name="battery_summary" msgid="4345690800899981339">"Imetumia <xliff:g id="PERCENTAGE">%1$s</xliff:g> tangu mwisho ilipojazwa chaji"</string>
     <string name="battery_power_management" msgid="2853925857548647969">"Udhibiti wa betri"</string>
-    <string name="no_battery_summary" msgid="4105932628367471314">"Hakuna matumizi ya betri tangu ijazwe chaji mara ya mwisho"</string>
+    <string name="no_battery_summary" msgid="4105932628367471314">"Betri haijatumika tangu mwisho ilipojazwa chaji"</string>
     <string name="app_notification_preferences" msgid="5154466638524523201">"Mipangilio ya programu"</string>
     <string name="system_ui_settings" msgid="6751165163665775447">"Onyesha Kipokea Ishara cha SystemUI"</string>
     <string name="additional_permissions" msgid="3142290772324571654">"Ruhusa za ziada"</string>
@@ -3831,7 +3831,7 @@
     <string name="camera_double_tap_power_gesture_title" msgid="8874747801078147525">"Bonyeza kitufe cha kuwasha/kuzima mara mbili ili utumie kamera"</string>
     <string name="camera_double_tap_power_gesture_desc" msgid="6166349645433682873">"Fungua kamera kwa haraka bila kufungua skrini yako"</string>
     <string name="screen_zoom_title" msgid="164369086350486104">"Ukubwa wa vipengee"</string>
-    <string name="screen_zoom_short_summary" msgid="5508079362742276703">"Kuongeza au kupunguza ukubwa wa vipengee kwenye skrini"</string>
+    <string name="screen_zoom_short_summary" msgid="5508079362742276703">"Ongeza au upunguze ukubwa wa vipengee kwenye skrini"</string>
     <string name="screen_zoom_keywords" msgid="8358462497896524092">"onyesha uzito, kukuza skrini, kipimo, kupima"</string>
     <string name="screen_zoom_summary" msgid="5294003755961312560">"Ongeza au upunguze ukubwa wa vipengee kwenye skrini yako. Huenda baadhi ya programu kwenye skrini yako zikabadilisha mahali zilipo."</string>
     <string name="screen_zoom_preview_title" msgid="2924312934036753091">"Kagua kwanza"</string>

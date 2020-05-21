@@ -447,7 +447,7 @@
     <string name="security_settings_fingerprint_enroll_introduction_cancel_setup" msgid="756928427429893070">"Omitir"</string>
     <string name="security_settings_fingerprint_enroll_introduction_continue_setup" msgid="4125977169169671144">"Seguinte"</string>
     <string name="setup_fingerprint_enroll_skip_title" msgid="763018850721691594">"Omitir a impresión dixital?"</string>
-    <string name="setup_fingerprint_enroll_skip_after_adding_lock_text" msgid="8849928362049018680">"Configurar a impresión dixital só leva un ou dous minutos, pero tamén podes facelo más tarde en Configuración."</string>
+    <string name="setup_fingerprint_enroll_skip_after_adding_lock_text" msgid="8849928362049018680">"Configurar a impresión dixital só leva un ou dous minutos, pero tamén podes facelo máis tarde en Configuración."</string>
     <string name="lock_screen_intro_skip_title" msgid="5307431665496346914">"Omitir o bloqueo de pantalla?"</string>
     <string name="lock_screen_intro_skip_dialog_text_frp" product="tablet" msgid="7553945981266845264">"As funcións de protección do dispositivo non se activarán. Non poderás evitar que outros usuarios utilicen a tableta en caso de perda, roubo ou restablecemento"</string>
     <string name="lock_screen_intro_skip_dialog_text_frp" product="device" msgid="1378243257238015603">"As funcións de protección do dispositivo non se activarán. Non poderás evitar que outros usuarios o utilicen en caso de perda, roubo ou restablecemento."</string>
@@ -2162,7 +2162,7 @@
     <string name="captioning_edge_color" msgid="4330622137047993780">"Cor do bordo"</string>
     <string name="captioning_edge_type" msgid="4414946407430588162">"Tipo de bordo"</string>
     <string name="captioning_typeface" msgid="7893208796949341767">"Familia do tipo de letra"</string>
-    <string name="captioning_preview_text" msgid="4877753964772618049">"Os subtítulos terán un aspecto similar ao seguinte"</string>
+    <string name="captioning_preview_text" msgid="4877753964772618049">"Os subtítulos veranse así"</string>
     <string name="captioning_preview_characters" msgid="6469599599352973561">"Aa"</string>
     <string name="locale_default" msgid="910074908458214054">"Predeterminado"</string>
     <string name="color_title" msgid="132875486061816584">"Cor"</string>
@@ -3711,7 +3711,7 @@
     <string name="high_power_off" msgid="5906679734326490426">"Optimizando o uso da batería"</string>
     <string name="high_power_system" msgid="739584574711292753">"A optimización da batería non está dispoñible"</string>
     <string name="high_power_desc" msgid="333756885680362741">"Non aplicar a optimización da batería, xa que esta pode esgotarse máis rápido."</string>
-    <string name="high_power_prompt_title" msgid="2805745781720454052">"Queres permitir que esta aplicación se execute sempre en segundo plano?"</string>
+    <string name="high_power_prompt_title" msgid="2805745781720454052">"Permitir que se execute sempre en segundo plano?"</string>
     <string name="high_power_prompt_body" msgid="8067395096053552289">"Se permites que <xliff:g id="APP_NAME">%1$s</xliff:g> estea executándose sempre en segundo plano, é posible que se  reduza a duración da batería. \n\nPodes cambiar esta opción máis tarde en Configuración &gt; Aplicacións e notificacións."</string>
     <string name="battery_summary" msgid="4345690800899981339">"Uso do <xliff:g id="PERCENTAGE">%1$s</xliff:g> desde a última carga completa"</string>
     <string name="battery_power_management" msgid="2853925857548647969">"Xestión da batería"</string>

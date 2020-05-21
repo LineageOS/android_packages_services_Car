@@ -888,7 +888,7 @@
     <string name="wifi_menu_remember" msgid="717257200269700641">"Recordar red"</string>
     <string name="wifi_menu_forget" msgid="7561140554450163075">"Olvidar red"</string>
     <string name="wifi_menu_modify" msgid="4080178040721021101">"Modificar red"</string>
-    <string name="wifi_empty_list_wifi_off" msgid="272877164691346240">"Para ver las redes disponibles, activa Wi-Fi."</string>
+    <string name="wifi_empty_list_wifi_off" msgid="272877164691346240">"Para ver las redes disponibles, activa el Wi-Fi."</string>
     <string name="wifi_empty_list_wifi_on" msgid="881478805041020600">"Buscando redes Wi-Fi…"</string>
     <string name="wifi_empty_list_user_restricted" msgid="2341613007817352431">"No tienes permiso para cambiar la red Wi‑Fi."</string>
     <string name="wifi_more" msgid="3538241640407382185">"Más"</string>
@@ -3709,7 +3709,7 @@
     <string name="high_power_off" msgid="5906679734326490426">"Optimizando el uso de la batería"</string>
     <string name="high_power_system" msgid="739584574711292753">"Optimización de la batería no disponible"</string>
     <string name="high_power_desc" msgid="333756885680362741">"No se aplica la optimización de la batería, por lo que se puede agotar más rápido."</string>
-    <string name="high_power_prompt_title" msgid="2805745781720454052">"¿Deseas permitir que la app se ejecute siempre en segundo plano?"</string>
+    <string name="high_power_prompt_title" msgid="2805745781720454052">"¿Permitir que la app se ejecute siempre en segundo plano?"</string>
     <string name="high_power_prompt_body" msgid="8067395096053552289">"Si permites que <xliff:g id="APP_NAME">%1$s</xliff:g> se ejecute siempre en segundo plano, es posible que se reduzca la duración de la batería. \n\nPuedes cambiar esta opción más tarde en Configuración &gt; Apps y notificaciones."</string>
     <string name="battery_summary" msgid="4345690800899981339">"Se usó el <xliff:g id="PERCENTAGE">%1$s</xliff:g> desde la última carga completa"</string>
     <string name="battery_power_management" msgid="2853925857548647969">"Administración de energía"</string>

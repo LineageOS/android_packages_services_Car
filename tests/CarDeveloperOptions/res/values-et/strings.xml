@@ -80,7 +80,7 @@
     <string name="sdcard_format" product="default" msgid="4831611387627849108">"Kustuta SD-kaart"</string>
     <string name="preview_pager_content_description" msgid="5731599395893090038">"Eelvaade"</string>
     <string name="preview_page_indicator_content_description" msgid="3192955679074998362">"Eelvaade, <xliff:g id="CURRENT_PAGE">%1$d</xliff:g>. leht <xliff:g id="NUM_PAGES">%2$d</xliff:g>-st"</string>
-    <string name="font_size_summary" msgid="9120023206321191067">"Muutke ekraanil kuvatavat tekst suuremaks või väiksemaks."</string>
+    <string name="font_size_summary" msgid="9120023206321191067">"Muutke ekraanil kuvatavat teksti suuremaks või väiksemaks."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Vähendamine"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Suurendamine"</string>
     <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
@@ -466,11 +466,11 @@
     <string name="security_settings_fingerprint_enroll_dialog_ok" msgid="3428927518029038956">"OK"</string>
     <string name="security_settings_fingerprint_enroll_dialog_delete" msgid="4312297515772004580">"Kustuta"</string>
     <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"Puudutage andurit"</string>
-    <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"Asetage oma sõrm andurile ja kui tunnete värinat, siis tõstke see üles"</string>
+    <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"Asetage oma sõrm andurile ja kui tunnete värinat, siis tõstke see üles."</string>
     <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"Tõstke, seejärel puudutage uuesti"</string>
-    <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"Tõstke sõrme, et lisada sõrmejälje eri osad"</string>
+    <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"Tõstke sõrme, et lisada sõrmejälje eri osad."</string>
     <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"Sõrmejälg on lisatud"</string>
-    <string name="security_settings_fingerprint_enroll_finish_message" msgid="5862643337893923347">"Kui näete seda ikooni, kasutage tuvastamiseks või ostude kinnitamiseks oma sõrmejälge"</string>
+    <string name="security_settings_fingerprint_enroll_finish_message" msgid="5862643337893923347">"Kui näete seda ikooni, kasutage tuvastamiseks või ostude kinnitamiseks oma sõrmejälge."</string>
     <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"Teen seda hiljem"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_title" msgid="2816424026528101690">"Kas jätta sõrmejälje seadistus vahele?"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_message" msgid="8139299964344809780">"Valisite telefoni avamise üheks viisiks sõrmejälje kasutamise. Kui seadistamise praegu vahele jätate, peate seda tegema hiljem. See võtab ainult umbes minuti."</string>
@@ -2039,7 +2039,7 @@
     <string name="accessibility_settings_summary" msgid="5742379519336396561">"Ekraanilugejad, ekraan, interaktsiooni juhtnupud"</string>
     <string name="vision_settings_title" msgid="7315352351051423944">"Nähtavuse seaded"</string>
     <string name="vision_settings_description" msgid="3476589459009287332">"Seadet saab kohandada vastavalt oma vajadustele. Neid juurdepääsetavuse funktsioone saab hiljem muuta menüüs Seaded."</string>
-    <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"Fondi suuruse muutmine"</string>
+    <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"Muutke fondi suurust"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"Ekraanilugejad"</string>
     <string name="audio_and_captions_category_title" msgid="6140472938769619212">"Heli ja ekraanil kuvatud tekst"</string>
     <string name="display_category_title" msgid="545168481672250195">"Ekraan"</string>

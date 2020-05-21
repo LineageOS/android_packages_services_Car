@@ -447,7 +447,7 @@
     <string name="security_settings_fingerprint_enroll_introduction_cancel_setup" msgid="756928427429893070">"Bỏ qua"</string>
     <string name="security_settings_fingerprint_enroll_introduction_continue_setup" msgid="4125977169169671144">"Tiếp theo"</string>
     <string name="setup_fingerprint_enroll_skip_title" msgid="763018850721691594">"Bạn muốn bỏ qua vân tay?"</string>
-    <string name="setup_fingerprint_enroll_skip_after_adding_lock_text" msgid="8849928362049018680">"Bạn chỉ mất một hoặc hai phút để thiết lập vân tay. Nếu bỏ qua bước này, bạn có thể thêm vân tay vào lúc khác trong cài đặt."</string>
+    <string name="setup_fingerprint_enroll_skip_after_adding_lock_text" msgid="8849928362049018680">"Bạn chỉ mất một hoặc hai phút để thiết lập vân tay. Nếu bỏ qua bước này, bạn có thể thêm vân tay vào lúc khác trong phần cài đặt."</string>
     <string name="lock_screen_intro_skip_title" msgid="5307431665496346914">"Bạn muốn bỏ qua phương thức khóa màn hình?"</string>
     <string name="lock_screen_intro_skip_dialog_text_frp" product="tablet" msgid="7553945981266845264">"Các tính năng bảo vệ thiết bị sẽ không được bật. Bạn sẽ không thể ngăn người khác sử dụng máy tính bảng này nếu máy tính bảng bị mất, bị đánh cắp hoặc bị đặt lại."</string>
     <string name="lock_screen_intro_skip_dialog_text_frp" product="device" msgid="1378243257238015603">"Các tính năng bảo vệ thiết bị sẽ không được bật. Bạn sẽ không thể ngăn người khác sử dụng thiết bị này nếu thiết bị bị mất, bị đánh cắp hoặc bị đặt lại."</string>
@@ -861,7 +861,7 @@
     <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"Để sử dụng, hãy chọn một nhà cung cấp dịch vụ xếp hạng mạng"</string>
     <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"Để sử dụng, hãy chọn một nhà cung cấp dịch vụ xếp hạng mạng tương thích"</string>
     <string name="wifi_install_credentials" msgid="5650088113710858289">"Cài đặt chứng chỉ"</string>
-    <string name="wifi_scan_notify_text" msgid="7614101215028336927">"Để nâng cao độ chính xác của vị trí, các ứng dụng và dịch vụ có thể vẫn quét tìm mạng Wi‑Fi bất kỳ lúc nào, ngay cả khi Wi-Fi bị tắt. Chẳng hạn, bạn có thể sử dụng cài đặt này để cải thiện các tính năng và dịch vụ dựa trên vị trí. Bạn có thể thay đổi cài đặt này trong phần <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>cài đặt quét<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
+    <string name="wifi_scan_notify_text" msgid="7614101215028336927">"Để nâng cao độ chính xác của vị trí, các ứng dụng và dịch vụ có thể vẫn quét tìm mạng Wi‑Fi bất kỳ lúc nào, ngay cả khi Wi-Fi bị tắt. Chẳng hạn, bạn có thể sử dụng tùy chọn cài đặt này để cải thiện các tính năng và dịch vụ dựa trên vị trí. Bạn có thể thay đổi tùy chọn này trong phần <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>cài đặt quét<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"Để nâng cao độ chính xác về vị trí, hãy bật tính năng quét tìm Wi-Fi trong phần <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>cài đặt quét<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="wifi_scan_notify_remember_choice" msgid="1235445971400237444">"Không hiển thị nữa"</string>
     <string name="wifi_setting_sleep_policy_title" msgid="2120785188625932076">"Bật Wi-Fi khi ở chế độ ngủ"</string>
@@ -2037,8 +2037,8 @@
     <string name="accessibility_settings" msgid="9140621093888234485">"Hỗ trợ tiếp cận"</string>
     <string name="accessibility_settings_title" msgid="1687226556576913576">"Cài đặt hỗ trợ tiếp cận"</string>
     <string name="accessibility_settings_summary" msgid="5742379519336396561">"Trình đọc màn hình, hiển thị, điều khiển tương tác"</string>
-    <string name="vision_settings_title" msgid="7315352351051423944">"Cài đặt hiển thị"</string>
-    <string name="vision_settings_description" msgid="3476589459009287332">"Bạn có thể tùy chỉnh thiết bị này cho phù hợp với nhu cầu của mình. Bạn có thể thay đổi các tính năng hỗ trợ tiếp cận trong Cài đặt."</string>
+    <string name="vision_settings_title" msgid="7315352351051423944">"Cài đặt thị giác"</string>
+    <string name="vision_settings_description" msgid="3476589459009287332">"Bạn có thể tùy chỉnh thiết bị này cho phù hợp với nhu cầu của mình. Bạn có thể thay đổi các tính năng hỗ trợ tiếp cận này trong phần Cài đặt."</string>
     <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"Thay đổi cỡ chữ"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"Trình đọc màn hình"</string>
     <string name="audio_and_captions_category_title" msgid="6140472938769619212">"Âm thanh và văn bản trên màn hình"</string>
@@ -2049,7 +2049,7 @@
     <string name="feature_flags_dashboard_title" msgid="3153034144122754381">"Cờ tính năng"</string>
     <string name="talkback_title" msgid="3717960404234260050">"Talkback"</string>
     <string name="talkback_summary" msgid="6602857105831641574">"Trình đọc màn hình chủ yếu dành cho những người khiếm thị và thị lực kém"</string>
-    <string name="select_to_speak_summary" msgid="7514180457557735421">"Nhấn vào mục trên màn hình của bạn để nghe mục được đọc to"</string>
+    <string name="select_to_speak_summary" msgid="7514180457557735421">"Nhấn vào các mục trên màn hình để nghe hệ thống đọc to những mục đó"</string>
     <string name="accessibility_captioning_title" msgid="5878371993023439642">"Phụ đề"</string>
     <string name="accessibility_screen_magnification_title" msgid="7250949681883917360">"Phóng to"</string>
     <string name="accessibility_screen_magnification_gestures_title" msgid="9199287875401817974">"Phóng to bằng cách nhấn 3 lần"</string>
@@ -2085,7 +2085,7 @@
     <string name="accessibility_control_timeout_preference_title" msgid="2771808346038759474">"Thời gian thực hiện hành động"</string>
     <string name="accessibility_content_timeout_preference_summary" msgid="853829064617918179">"Chọn thời lượng hiển thị thông báo mà bạn cần đọc nhưng chỉ hiển thị tạm thời.\n\nKhông phải tất cả ứng dụng đều hỗ trợ tùy chọn cài đặt này."</string>
     <string name="accessibility_control_timeout_preference_summary" msgid="8582212299606932160">"Chọn thời lượng hiển thị thông báo yêu cầu bạn thực hiện hành động nhưng chỉ hiển thị tạm thời.\n\nKhông phải tất cả ứng dụng đều hỗ trợ tùy chọn cài đặt này."</string>
-    <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"Thời gian chờ cho chạm và giữ"</string>
+    <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"Thời gian chờ cho cử chỉ chạm và giữ"</string>
     <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"Đảo màu"</string>
     <string name="accessibility_display_inversion_preference_subtitle" msgid="69291255322175323">"Có thể ảnh hưởng đến hiệu suất"</string>
     <string name="accessibility_autoclick_preference_title" msgid="9164599088410340405">"Thời gian dừng"</string>
@@ -2114,7 +2114,7 @@
     <string name="accessibility_summary_state_stopped" msgid="3170264683616172746">"Dịch vụ không hoạt động. Hãy nhấn để xem thông tin."</string>
     <string name="accessibility_description_state_stopped" msgid="7666178628053039493">"Dịch vụ này đang hoạt động không bình thường."</string>
     <string name="enable_quick_setting" msgid="1580451877998661255">"Hiển thị trong Cài đặt nhanh"</string>
-    <string name="daltonizer_type" msgid="6890356081036026791">"Chế độ sửa"</string>
+    <string name="daltonizer_type" msgid="6890356081036026791">"Chế độ chỉnh"</string>
     <plurals name="accessibilty_autoclick_preference_subtitle_extremely_short_delay" formatted="false" msgid="3810676455925024813">
       <item quantity="other">Độ trễ cực kỳ ngắn (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> mili giây)</item>
       <item quantity="one">Độ trễ cực kỳ ngắn (<xliff:g id="CLICK_DELAY_LABEL_0">%1$d</xliff:g> mili giây)</item>
@@ -2299,7 +2299,7 @@
     </plurals>
     <plurals name="battery_tip_restrict_summary" formatted="false" msgid="984148373944071669">
       <item quantity="other">%2$d ứng dụng có mức sử dụng pin nền cao</item>
-      <item quantity="one">%1$s có mức sử dụng pin nền cao</item>
+      <item quantity="one">%1$s ứng dụng có mức sử dụng pin nền cao</item>
     </plurals>
     <plurals name="battery_tip_restrict_handled_summary" formatted="false" msgid="469696766640020557">
       <item quantity="other">Những ứng dụng này không thể chạy trong nền</item>
@@ -2671,7 +2671,7 @@
     <string name="data_usage_cellular_data_summary" msgid="9162777397135709280">"Tạm dừng khi đạt giới hạn"</string>
     <string name="account_settings_menu_auto_sync" msgid="2673669556006027506">"Tự động đồng bộ hóa dữ liệu"</string>
     <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"T.động ĐB hóa dữ liệu cá nhân"</string>
-    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"T.động ĐB hóa d.liệu công việc"</string>
+    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"Tự động đồng bộ hóa dữ liệu công việc"</string>
     <string name="data_usage_change_cycle" msgid="447761920472170031">"Thay đổi chu kỳ..."</string>
     <string name="data_usage_pick_cycle_day" msgid="6319750879145917066">"Ngày trong tháng để đặt lại chu kỳ sử dụng dữ liệu:"</string>
     <string name="data_usage_empty" msgid="7981405723435034032">"Không ứng dụng nào sử dụng dữ liệu lúc này."</string>
@@ -2924,7 +2924,7 @@
     <string name="nfc_payment_favor_default" msgid="7555356982142464260">"Luôn luôn"</string>
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Trừ khi một ứng dụng thanh toán khác đang mở"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"Ở một cổng Nhấn và thanh toán, thanh toán bằng:"</string>
-    <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Thanh toán tại thiết bị thanh toán"</string>
+    <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Thanh toán trên thiết bị thanh toán"</string>
     <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Thiết lập ứng dụng thanh toán. Sau đó chỉ cần hướng mặt sau của điện thoại vào thiết bị thanh toán có biểu tượng không tiếp xúc."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"OK"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"Thêm..."</string>
@@ -3137,7 +3137,7 @@
     <string name="media_volume_option_title" msgid="3553411883305505682">"Âm lượng nội dung nghe nhìn"</string>
     <string name="remote_media_volume_option_title" msgid="6355710054191873836">"Âm lượng truyền"</string>
     <string name="call_volume_option_title" msgid="5028003296631037334">"Âm lượng cuộc gọi"</string>
-    <string name="alarm_volume_option_title" msgid="3184076022438477047">"Âm lượng báo thức"</string>
+    <string name="alarm_volume_option_title" msgid="3184076022438477047">"Âm lượng chuông báo"</string>
     <string name="ring_volume_option_title" msgid="2038924918468372264">"Âm lượng chuông"</string>
     <string name="notification_volume_option_title" msgid="1358512611511348260">"Âm lượng thông báo"</string>
     <string name="ringtone_title" msgid="1409086028485922583">"Nhạc chuông điện thoại"</string>
@@ -3758,7 +3758,7 @@
     <string name="usb_summary_MIDI_power" msgid="7685597621357005180">"MIDI và cấp điện"</string>
     <string name="background_check_pref" msgid="664081406854758392">"Kiểm tra nền"</string>
     <string name="background_check_title" msgid="4136736684290307970">"Toàn quyền truy cập nền"</string>
-    <string name="assist_access_context_title" msgid="2274614501747710439">"Sử dụng văn bản từ màn hình"</string>
+    <string name="assist_access_context_title" msgid="2274614501747710439">"Sử dụng văn bản trên màn hình"</string>
     <string name="assist_access_context_summary" msgid="5867997494395842785">"Cho phép ứng dụng trợ lý truy cập nội dung trên màn hình dưới dạng văn bản"</string>
     <string name="assist_access_screenshot_title" msgid="1991014038776117688">"Sử dụng ảnh chụp màn hình"</string>
     <string name="assist_access_screenshot_summary" msgid="3010943864000489424">"Cho phép ứng dụng trợ lý truy cập hình ảnh màn hình"</string>

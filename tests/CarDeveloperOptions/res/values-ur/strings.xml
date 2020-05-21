@@ -439,7 +439,7 @@
     <string name="security_settings_fingerprint_preference_summary_none" msgid="3613424536269750172"></string>
     <string name="security_settings_fingerprint_enroll_introduction_title" msgid="889558002683900544">"فنگر پرنٹ کے ساتھ غیر مقفل کریں"</string>
     <string name="security_settings_fingerprint_enroll_introduction_title_unlock_disabled" msgid="7915504118657864429">"اپنا فنگر پرنٹ استعمال کریں"</string>
-    <string name="security_settings_fingerprint_enroll_introduction_message" msgid="5586198131986682472">"اپنا فون غیر مقفل کرنے، خریداریوں کی اجازت دینے یا ایپس میں سائن ان کرنے کیلئے بس فنگر پرنٹ سنسر کو ٹچ کریں۔ کسی کے فنگر پرنٹس شامل کرتے وقت احتیاط برتیں۔ بس ایک شامل کردہ فنگر پرنٹ سے یہ سارے کام کئے جا سکتے ہیں۔\n\nنوٹ: ایک طاقتور پیٹرن یا PIN کی نسبت آپ کا فنگر پرنٹ شاید کم محفوظ ہو۔"</string>
+    <string name="security_settings_fingerprint_enroll_introduction_message" msgid="5586198131986682472">"اپنا فون غیر مقفل کرنے، خریداریوں کی اجازت دینے یا ایپس میں سائن ان کرنے کیلئے بس فنگر پرنٹ سینسر کو ٹچ کریں۔ کسی کے فنگر پرنٹس شامل کرتے وقت احتیاط برتیں۔ بس ایک شامل کردہ فنگر پرنٹ سے یہ سارے کام کئے جا سکتے ہیں۔\n\nنوٹ: ایک طاقتور پیٹرن یا PIN کی نسبت آپ کا فنگر پرنٹ شاید کم محفوظ ہو۔"</string>
     <string name="security_settings_fingerprint_enroll_introduction_message_unlock_disabled" msgid="1640839304679275468">"اپنا فون غیرمقفل کرنے یا خریداریاں منظور کرنے کے لیے اپنے فنگرپرنٹ کا استعمال کریں۔\n\nنوٹ: آپ اس آلہ کو غیرمقفل کرنے کے لیے اپنا فنگرپرنٹ استعمال نہیں کر سکتے۔ مزید معلومات کے لیے، اپنی تنظیم کے منتظم سے رابطہ کریں۔"</string>
     <string name="security_settings_fingerprint_enroll_introduction_message_setup" msgid="6734490666593320711">"اپنا فون غیرمقفل کرنے یا خریداریاں منظور کرنے کے لیے اپنے فنگرپرنٹ کا استعمال کریں۔\n\nنوٹ: ایک طاقتور پیٹرن یا PIN کی بنسبت آپ کا فنگر پرنٹ شاید کم محفوظ ہو۔"</string>
     <string name="security_settings_fingerprint_enroll_introduction_cancel" msgid="9168637333731599827">"منسوخ کریں"</string>
@@ -459,14 +459,14 @@
     <string name="go_back_button_label" msgid="7310586887969860472">"پیچھے جائیں"</string>
     <string name="skip_lock_screen_dialog_button_label" msgid="6706047245716780006">"نظر انداز کریں"</string>
     <string name="cancel_lock_screen_dialog_button_label" msgid="2534925227627658819">"منسوخ کریں"</string>
-    <string name="security_settings_fingerprint_enroll_find_sensor_title" msgid="8909829699273726469">"سنسر کو ٹچ کریں"</string>
+    <string name="security_settings_fingerprint_enroll_find_sensor_title" msgid="8909829699273726469">"سینسر کو ٹچ کریں"</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_message" msgid="581120963079780740">"یہ آپ کے فون کے پشت پر ہے۔ اپنی انڈیکس فنگر کا استعمال کریں۔"</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_content_description" msgid="7835824123269738540">"آلہ اور فنگر پرنٹ سینسر کے مقام کا خاکہ"</string>
     <string name="security_settings_fingerprint_enroll_dialog_name_label" msgid="3519748398694308901">"نام"</string>
     <string name="security_settings_fingerprint_enroll_dialog_ok" msgid="3428927518029038956">"ٹھیک ہے"</string>
     <string name="security_settings_fingerprint_enroll_dialog_delete" msgid="4312297515772004580">"حذف کریں"</string>
-    <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"سنسر کو ٹچ کریں"</string>
-    <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"اپنی انگلی سنسر پر رکھیں اور ارتعاش محسوس ہونے کے بعد اٹھا لیں"</string>
+    <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"سینسر کو ٹچ کریں"</string>
+    <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"اپنی انگلی سینسر پر رکھیں اور ارتعاش محسوس ہونے کے بعد اٹھا لیں"</string>
     <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"اٹھائیں، پھر دوبارہ ٹچ کریں"</string>
     <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"اپنے فنگرپرنٹ کے مختلف حصوں کو شامل کرنے کے لیے اپنی انگلی کو اٹھاتے رہیں"</string>
     <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"فنگر پرنٹ شامل ہو گیا"</string>
@@ -2072,7 +2072,7 @@
     <string name="accessibility_toggle_large_pointer_icon_title" msgid="9127905775116570565">"بڑا ماؤس پوائنٹر"</string>
     <string name="accessibility_disable_animations" msgid="8378441317115710009">"اینیمیشنز ہٹائیں"</string>
     <string name="accessibility_toggle_master_mono_title" msgid="899550848196702565">"مونو آڈیو"</string>
-    <string name="accessibility_toggle_master_mono_summary" msgid="3847052868469033235">"آڈیو چلاتے وقت چینلز آپس میں ملائیں"</string>
+    <string name="accessibility_toggle_master_mono_summary" msgid="3847052868469033235">"آڈیو چلاتے وقت چینلز یکجا کریں"</string>
     <string name="accessibility_toggle_master_balance_title" msgid="8723492001092647562">"آڈیو بیلنس"</string>
     <string name="accessibility_toggle_master_balance_left_label" msgid="8531986342666527970">"بائیں"</string>
     <string name="accessibility_toggle_master_balance_right_label" msgid="7757024572140589558">"دائیں"</string>
@@ -3160,7 +3160,7 @@
     <string name="emergency_tone_vibrate" msgid="5020068066905681181">"وائبریشنز"</string>
     <string name="boot_sounds_title" msgid="7583926202411353620">"آوازیں آن کریں"</string>
     <string name="live_caption_title" msgid="7926591158657997051">"لائیو کیپشن"</string>
-    <string name="live_caption_summary" msgid="9064771862352393125">"خودکار طور پر کیپشن میڈیا"</string>
+    <string name="live_caption_summary" msgid="9064771862352393125">"خودکار طور پر میڈیا پر کیپشن لگائیں"</string>
     <string name="zen_mode_settings_summary_off" msgid="6929319200478424962">"کبھی نہیں"</string>
     <plurals name="zen_mode_settings_summary_on" formatted="false" msgid="6061723291126091396">
       <item quantity="other"><xliff:g id="ON_COUNT">%d</xliff:g> فعال ہے</item>

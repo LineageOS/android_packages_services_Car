@@ -1242,7 +1242,7 @@
     <string name="style_and_wallpaper_settings_title" msgid="8898539141152705754">"Mavzu va fon rasmlari"</string>
     <string name="wallpaper_settings_summary_default" msgid="2626880032742784599">"Standart"</string>
     <string name="wallpaper_settings_summary_custom" msgid="8950504698015331202">"Maxsus"</string>
-    <string name="wallpaper_suggestion_title" msgid="3012130414886743201">"Fon rasmini o‘zgartirish"</string>
+    <string name="wallpaper_suggestion_title" msgid="3012130414886743201">"Fon rasmini almashtiring"</string>
     <string name="wallpaper_suggestion_summary" msgid="4247262938988875842">"Ekran uchun fon rasmini tanlang"</string>
     <string name="wallpaper_settings_fragment_title" msgid="1503701065297188901">"Fon rasmi qayerdan tanlansin"</string>
     <string name="screensaver_settings_title" msgid="7720091234133721021">"Ekran lavhasi"</string>
@@ -1689,7 +1689,7 @@
     <string name="contributors_title" msgid="6800028420806884340">"Hissa qo‘shganlar"</string>
     <string name="manual" msgid="5431859421432581357">"Qo‘llanma"</string>
     <string name="regulatory_labels" msgid="380968489247381025">"Sertifikat yorliqlari"</string>
-    <string name="safety_and_regulatory_info" msgid="7113766428000920132">"Xavfsizlik va sertifikat qo‘llanmasi"</string>
+    <string name="safety_and_regulatory_info" msgid="7113766428000920132">"Xavfsizlik va standartlarga muvofiqlik"</string>
     <string name="copyright_title" msgid="3847703367689932190">"Mualliflik huquqi"</string>
     <string name="license_title" msgid="7582145947873528540">"Litsenziya"</string>
     <string name="terms_title" msgid="1804549588198223771">"Foydalanish shartlari"</string>
@@ -2039,7 +2039,7 @@
     <string name="accessibility_settings_summary" msgid="5742379519336396561">"Ekran suxandoni, displey, boshqaruv elementlari"</string>
     <string name="vision_settings_title" msgid="7315352351051423944">"Maxsus imkoniyatlar"</string>
     <string name="vision_settings_description" msgid="3476589459009287332">"Qurilmangizdan qulay foydalanish uchun maxsus imkoniyatlardan foydalaning. Bu parametrlarni keyinroq sozlamalar orqali o‘zgartirish mumkin."</string>
-    <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"Shrift o‘lchamini o‘zgartirish"</string>
+    <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"Shrift o‘lchamini o‘zgartiring"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"Ekrandan o‘qish vositalari"</string>
     <string name="audio_and_captions_category_title" msgid="6140472938769619212">"Audio va ekrandagi matn"</string>
     <string name="display_category_title" msgid="545168481672250195">"Ekran"</string>
@@ -2096,7 +2096,7 @@
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"Jiringlaganda tebranish"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"Sensor tebranishi"</string>
     <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"Xizmatdan foydalanish"</string>
-    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"Rangni tuzatish funksiyasidan foydalanish"</string>
+    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"Rangni tuzatishdan foydalanish"</string>
     <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"Taglavhalardan foydalanish"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"Davom etish"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"Eshitish apparatlari"</string>
@@ -2151,7 +2151,7 @@
     <string name="captioning_standard_options_title" msgid="4124898413348084226">"Standart sozlamalar"</string>
     <string name="captioning_locale" msgid="4734464353806207943">"Til"</string>
     <string name="captioning_text_size" msgid="1707122517246408084">"Matn o‘lchami"</string>
-    <string name="captioning_preset" msgid="7429888317480872337">"Taglavhalar ko‘rinishi"</string>
+    <string name="captioning_preset" msgid="7429888317480872337">"Taglavhalar uslubi"</string>
     <string name="captioning_custom_options_title" msgid="4530479671071326732">"Buyurtmali tanlamalar"</string>
     <string name="captioning_background_color" msgid="2434458880326292180">"Fon rangi"</string>
     <string name="captioning_background_opacity" msgid="8178926599201811936">"Fon yarim tiniqligi"</string>
@@ -2162,7 +2162,7 @@
     <string name="captioning_edge_color" msgid="4330622137047993780">"Qirra rangi"</string>
     <string name="captioning_edge_type" msgid="4414946407430588162">"Qirra turi"</string>
     <string name="captioning_typeface" msgid="7893208796949341767">"Shriftlar oilasi"</string>
-    <string name="captioning_preview_text" msgid="4877753964772618049">"Taglavlahar shunday ko‘rinadi"</string>
+    <string name="captioning_preview_text" msgid="4877753964772618049">"Taglavhalar shunday chiqadi"</string>
     <string name="captioning_preview_characters" msgid="6469599599352973561">"Aa"</string>
     <string name="locale_default" msgid="910074908458214054">"Birlamchi"</string>
     <string name="color_title" msgid="132875486061816584">"Rang"</string>
@@ -2617,7 +2617,7 @@
     <string name="work_mode_label" msgid="6845849194740195757">"Ish profili"</string>
     <string name="work_mode_on_summary" msgid="1682781113156323592">"Tashkilotingiz tomonidan boshqariladi"</string>
     <string name="work_mode_off_summary" msgid="1688885392211178315">"Ilovalar va bildirishnomalar o‘chiq"</string>
-    <string name="remove_managed_profile_label" msgid="4625542553784793536">"Ishchi profilni o‘chirish"</string>
+    <string name="remove_managed_profile_label" msgid="4625542553784793536">"Ish profilini olib tashlash"</string>
     <string name="background_data" msgid="8275750862371471171">"Ma’lumotlarni fonda yuklash"</string>
     <string name="background_data_summary" msgid="799640633948841990">"Ilovalar sinxronlanishi, ma’lumotlarni istalgan paytda jo‘natishi va qabul qilishi mumkin"</string>
     <string name="background_data_dialog_title" msgid="8306650658158895976">"Ma’lumotlarni fonda yuklash to‘xtatilsinmi?"</string>
@@ -2686,8 +2686,8 @@
     <string name="data_usage_menu_sim_cards" msgid="8508154611676507088">"SIM kartalar"</string>
     <string name="data_usage_cellular_data_summary" msgid="9162777397135709280">"To‘xtatildi (limit)"</string>
     <string name="account_settings_menu_auto_sync" msgid="2673669556006027506">"Avto-sinxronizatsiya"</string>
-    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"Avto-sinxronizatsiya (shaxsiy)"</string>
-    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"Avto-sinxronizatsiya (ishchi)"</string>
+    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"Avtomatik sinxronlash (shaxsiy)"</string>
+    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"Avtomatik sinxronlash (ish)"</string>
     <string name="data_usage_change_cycle" msgid="447761920472170031">"O‘zgartirish…"</string>
     <string name="data_usage_pick_cycle_day" msgid="6319750879145917066">"Oyning qaysi kunida trafik sarfi davri yangilansin:"</string>
     <string name="data_usage_empty" msgid="7981405723435034032">"Ushbu vaqt oralig‘ida hech qanday ilova trafik sarflamadi."</string>
@@ -2904,7 +2904,7 @@
     <string name="user_confirm_remove_self_title" msgid="6739480453680217543">"Profilingiz o‘chirilsinmi?"</string>
     <string name="user_confirm_remove_title" msgid="1034498514019462084">"Olib tashlansinmi?"</string>
     <string name="user_profile_confirm_remove_title" msgid="6138684743385947063">"Profil o‘chirilsinmi?"</string>
-    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"Profil o‘chirilsinmi?"</string>
+    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"Ish profili olib tashlansinmi?"</string>
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"Ushbu planshetda saqlangan ma’lumotlaringiz o‘chib ketadi. Bu amalni ortga qaytarib bo‘lmaydi."</string>
     <string name="user_confirm_remove_self_message" product="default" msgid="8441729423565705183">"Ushbu telefonda saqlangan ma’lumotlaringiz o‘chib ketadi. Bu amalni ortga qaytarib bo‘lmaydi."</string>
     <string name="user_confirm_remove_message" msgid="5202150470271756013">"Barcha ilovalar va ma’lumotlar o‘chirib tashlanadi."</string>
@@ -2936,11 +2936,11 @@
     <string name="nfc_payment_default" msgid="7869273092463612271">"Birlamchi to‘lov vositasi"</string>
     <string name="nfc_payment_default_not_set" msgid="955804193510335338">"Tanlanmagan"</string>
     <string name="nfc_payment_app_and_desc" msgid="102312684211458190">"<xliff:g id="APP">%1$s</xliff:g> – <xliff:g id="DESCRIPTION">%2$s</xliff:g>"</string>
-    <string name="nfc_payment_use_default" msgid="3098724195746409476">"Birlamchi ilovadan foydalanilsin"</string>
+    <string name="nfc_payment_use_default" msgid="3098724195746409476">"Birlamchi ilovadan foydalanish"</string>
     <string name="nfc_payment_favor_default" msgid="7555356982142464260">"Har doim"</string>
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Boshqa to‘lov ilovasi ochiq holat bundan mustasno"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"Kontaktsiz to‘lovda bundan foydalanilsin:"</string>
-    <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Terminal orqali to‘lash"</string>
+    <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Qanday toʻlanadi"</string>
     <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Avval to‘lov ilovasini sozlang. Keyin telefoningiz orqa tomonini kontaktsiz to‘lov belgisi tushirilgan terminalga yaqinlashtiring."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"OK"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"Yana…"</string>
@@ -3023,7 +3023,7 @@
     <string name="sim_editor_number" msgid="1757338150165234970">"Raqam"</string>
     <string name="sim_editor_color" msgid="373059962306191123">"SIM karta rangi"</string>
     <string name="sim_card_select_title" msgid="4925862525985187946">"SIM kartani tanlang"</string>
-    <string name="color_orange" msgid="3159707916066563431">"To‘q sariq"</string>
+    <string name="color_orange" msgid="3159707916066563431">"Apelsinrang"</string>
     <string name="color_purple" msgid="4391440966734810713">"Siyohrang"</string>
     <string name="sim_no_inserted_msg" msgid="1197884607569714609">"SIM karta solinmagan"</string>
     <string name="sim_status_title" msgid="4483653750844520871">"SIM karta holati"</string>
@@ -3153,7 +3153,7 @@
     <string name="media_volume_option_title" msgid="3553411883305505682">"Multimedia tovushi"</string>
     <string name="remote_media_volume_option_title" msgid="6355710054191873836">"Translatsiya tovushi balandligi"</string>
     <string name="call_volume_option_title" msgid="5028003296631037334">"Suhbat tovushi"</string>
-    <string name="alarm_volume_option_title" msgid="3184076022438477047">"Signal balandligi"</string>
+    <string name="alarm_volume_option_title" msgid="3184076022438477047">"Signal tovushi"</string>
     <string name="ring_volume_option_title" msgid="2038924918468372264">"Jiringlash tovushi"</string>
     <string name="notification_volume_option_title" msgid="1358512611511348260">"Bildirishnomalar ovozi"</string>
     <string name="ringtone_title" msgid="1409086028485922583">"Telefon ringtoni"</string>
@@ -3651,7 +3651,7 @@
     <string name="filter_enabled_apps" msgid="5888459261768538489">"Oʻrnatilgan ilovalar"</string>
     <string name="filter_instant_apps" msgid="8087483282854072366">"Darhol ochiladigan ilovalar"</string>
     <string name="filter_personal_apps" msgid="3473268022652904457">"Shaxsiy"</string>
-    <string name="filter_work_apps" msgid="4202483998339465542">"Ishga oid"</string>
+    <string name="filter_work_apps" msgid="4202483998339465542">"Ish"</string>
     <string name="filter_notif_all_apps" msgid="1862666327228804896">"Ilovalar: hammasi"</string>
     <string name="filter_notif_blocked_apps" msgid="5694956954776028202">"Bildirishnoma kelmaydigan"</string>
     <string name="filter_notif_urgent_channels" msgid="5000735867167027148">"Turkumlar: favqulodda muhim"</string>
