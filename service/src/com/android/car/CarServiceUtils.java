@@ -27,6 +27,9 @@ import android.os.SystemClock;
 import android.util.ArrayMap;
 import android.util.Log;
 
+import com.android.internal.annotations.VisibleForTesting;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /** Utility class */
@@ -212,6 +215,28 @@ public final class CarServiceUtils {
                 sHandlerThreads.put(name, thread);
             }
             return thread;
+        }
+    }
+
+    /**
+     * Finishes all queued {@code Handler} tasks for {@code HandlerThread} created via
+     * {@link #getHandlerThread(String)}. This is useful only for testing.
+     */
+    @VisibleForTesting
+    public static void finishAllHandlerTasks() {
+        ArrayList<HandlerThread> threads;
+        synchronized (sHandlerThreads) {
+            threads = new ArrayList<>(sHandlerThreads.values());
+        }
+        ArrayList<SyncRunnable> syncs = new ArrayList<>(threads.size());
+        for (int i = 0; i < threads.size(); i++) {
+            Handler handler = new Handler(threads.get(i).getLooper());
+            SyncRunnable sr = new SyncRunnable(() -> { });
+            handler.post(sr);
+            syncs.add(sr);
+        }
+        for (int i = 0; i < syncs.size(); i++) {
+            syncs.get(i).waitForComplete();
         }
     }
 }
