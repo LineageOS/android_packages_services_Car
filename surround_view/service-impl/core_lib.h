@@ -1,7 +1,10 @@
 #ifndef WIRELESS_ANDROID_AUTOMOTIVE_CAML_SURROUND_VIEW_CORE_LIB_H_
 #define WIRELESS_ANDROID_AUTOMOTIVE_CAML_SURROUND_VIEW_CORE_LIB_H_
 
+#include <array>
 #include <cstdint>
+#include <map>
+#include <string>
 #include <vector>
 
 namespace android_auto {
@@ -341,25 +344,14 @@ struct OverlayVertex {
   // RGBA values, A is used for transparency.
   uint8_t rgba[4];
 
-  // normalized texture coordinates, in width and height direction. Range [0,
-  // 1].
-  float tex[2];
-
-  // normalized vertex normal.
-  float nor[3];
-
   bool operator==(const OverlayVertex& rhs) const {
     return (0 == std::memcmp(pos, rhs.pos, 3 * sizeof(float))) &&
-           (0 == std::memcmp(rgba, rhs.rgba, 4 * sizeof(uint8_t))) &&
-           (0 == std::memcmp(tex, rhs.tex, 2 * sizeof(float))) &&
-           (0 == std::memcmp(nor, rhs.nor, 3 * sizeof(float)));
+           (0 == std::memcmp(rgba, rhs.rgba, 4 * sizeof(uint8_t)));
   }
 
   OverlayVertex& operator=(const OverlayVertex& rhs) {
     std::memcpy(pos, rhs.pos, 3 * sizeof(float));
     std::memcpy(rgba, rhs.rgba, 4 * sizeof(uint8_t));
-    std::memcpy(tex, rhs.tex, 2 * sizeof(float));
-    std::memcpy(nor, rhs.nor, 3 * sizeof(float));
     return *this;
   }
 };
@@ -386,10 +378,251 @@ struct Overlay {
   }
 };
 
+// -----------   Structs related to car model  ---------------
+
+// 3D Vertex of a car model with normal and optionally texture coordinates.
+struct CarVertex {
+  // 3d position in (x, y, z).
+  std::array<float, 3> pos;
+
+  // unit normal at vertex, used for diffuse shading.
+  std::array<float, 3> normal;
+
+  // texture coordinates, valid in range [0, 1]. (-1, -1) implies no
+  // texture sampling. Note: only a single texture coordinate is currently
+  // supported per vertex. This struct will need to be extended with another
+  // tex_coord if multiple textures are needed per vertex.
+  std::array<float, 2> tex_coord;
+
+  // Default constructor.
+  CarVertex() {
+    pos = {0, 0, 0};
+    normal = {1, 0, 0};
+    tex_coord = {-1.0f, -1.0f};
+  }
+
+  CarVertex(const std::array<float, 3>& _pos,
+            const std::array<float, 3>& _normal,
+            const std::array<float, 2> _tex_coord)
+      : pos(_pos), normal(_normal), tex_coord(_tex_coord) {}
+};
+
+// Type of texture (color, bump, procedural etc.)
+// Currently only color is supported.
+enum CarTextureType : uint32_t {
+  // Texture map is applied to all color parameters: Ka, Kd and Ks.
+  // Data type of texture is RGB with each channel a uint8_t.
+  kKa = 0,
+  kKd,
+  kKs,
+
+  // Texture for bump maps. Data type is 3 channel float.
+  kBumpMap
+};
+
+// Textures to be used for rendering car model.
+struct CarTexture {
+  // Type and number of channels are dependant on each car texture type.
+  int width;
+  int height;
+  int channels;
+  int bytes_per_channel;
+  uint8_t* data;
+
+  CarTexture() {
+    width = 0;
+    height = 0;
+    channels = 0;
+    bytes_per_channel = 0;
+    data = nullptr;
+  }
+};
+
+// Material parameters for a car part.
+// Refer to MTL properties: http://paulbourke.net/dataformats/mtl/
+struct CarMaterial {
+  // Illumination model - 0, 1, 2 currently supported
+  // 0 = Color on and Ambient off
+  // 1 = Color on and Ambient on
+  // 2 = Highlight on
+  // 3 = Reflection on and Ray trace on
+  // 4 - 10 = Reflection/Transparency options not supported,
+  //          Will default to option 3.
+  uint8_t illum;
+
+  std::array<float, 3> ka;  // Ambient RGB [0, 1]
+  std::array<float, 3> kd;  // Diffuse RGB [0, 1]
+  std::array<float, 3> ks;  // Specular RGB [0, 1]
+
+  // Dissolve factor [0, 1], 0 = full transparent, 1 = full opaque.
+  float d;
+
+  // Specular exponent typically range from 0 to 1000.
+  // A high exponent results in a tight, concentrated highlight.
+  float ns;
+
+  // Set default values of material.
+  CarMaterial() {
+    illum = 0;                // Color on, ambient off
+    ka = {0.0f, 0.0f, 0.0f};  // No ambient.
+    kd = {0.0f, 0.0f, 0.0f};  // No dissolve.
+    ks = {0.0f, 0.0f, 0.0f};  // No specular.
+    d = 1.0f;                 // Fully opaque.
+    ns = 0;                   // No specular exponent.
+  }
+
+  // Map for texture type to a string id of a texture.
+  std::map<CarTextureType, std::string> textures;
+};
+
+// Type alias for 4x4 homogenous matrix, in row-major order.
+using Mat4x4 = std::array<float, 16>;
+
+// Represents a part of a car model.
+// Each car part is a object in the car that is individually animated and
+// has the same illumination properties. A car part may contain sub parts.
+struct CarPart {
+  // Car part vertices.
+  std::vector<CarVertex> vertices;
+
+  // Properties/attributes describing car material.
+  CarMaterial material;
+
+  // Model matrix to transform the car part from object space to its parent's
+  // coordinate space.
+  // The car's vertices are transformed by performing:
+  // parent_model_mat * model_mat * car_part_vertices to transform them to the
+  // global coordinate space.
+  // Model matrix must be a homogenous matrix with orthogonal rotation matrix.
+  Mat4x4 model_mat;
+
+  // Id of parent part. Parent part's model matrix is used to animate this part.
+  // empty string implies the part has no parent.
+  std::string parent_part_id;
+
+  // Ids of child parts. If current part is animated all its child parts
+  // are animated as well. Empty vector implies part has not children.
+  std::vector<std::string> child_part_ids;
+
+  CarPart(const std::vector<CarVertex>& car_vertices,
+          const CarMaterial& car_material, const Mat4x4& car_model_mat,
+          std::string car_parent_part_id,
+          const std::vector<std::string>& car_child_part_ids)
+      : vertices(car_vertices),
+        material(car_material),
+        model_mat(car_model_mat),
+        parent_part_id(car_parent_part_id),
+        child_part_ids(car_child_part_ids) {}
+
+  CarPart& operator=(const CarPart& car_part) {
+    this->vertices = car_part.vertices;
+    this->material = car_part.material;
+    this->model_mat = car_part.model_mat;
+    this->parent_part_id = car_part.parent_part_id;
+    this->child_part_ids = car_part.child_part_ids;
+    return *this;
+  }
+};
+
+struct AnimationParam {
+  // part id
+  std::string part_id;
+
+  // model matrix.
+  Mat4x4 model_matrix;
+
+  // bool flag indicating if the model matrix is updated from last
+  // SetAnimations() call.
+  bool is_model_update;
+
+  // gamma.
+  float gamma;
+
+  // bool flag indicating if gamma is updated from last
+  // SetAnimations() call.
+  bool is_gamma_update;
+
+  // texture id.
+  std::string texture_id;
+
+  // bool flag indicating if texture is updated from last
+  // SetAnimations() call.
+  bool is_texture_update;
+
+  // Default constructor, no animations are updated.
+  AnimationParam() {
+    is_model_update = false;
+    is_gamma_update = false;
+    is_texture_update = false;
+  }
+
+  // Constructor with car part name.
+  explicit AnimationParam(const std::string& _part_id)
+      : part_id(_part_id),
+        is_model_update(false),
+        is_gamma_update(false),
+        is_texture_update(false) {}
+
+  void SetModelMatrix(const Mat4x4& model_mat) {
+    is_model_update = true;
+    model_matrix = model_mat;
+  }
+
+  void SetGamma(float gamma_value) {
+    is_gamma_update = true;
+    gamma = gamma_value;
+  }
+
+  void SetTexture(const std::string& tex_id) {
+    is_texture_update = true;
+    texture_id = tex_id;
+  }
+};
+
 enum Format {
   GRAY = 0,
   RGB = 1,
   RGBA = 2,
+};
+
+// collection of surround view static data params.
+struct SurroundViewStaticDataParams {
+  std::vector<SurroundViewCameraParams> cameras_params;
+
+  // surround view 2d parameters.
+  SurroundView2dParams surround_view_2d_params;
+
+  // surround view 3d parameters.
+  SurroundView3dParams surround_view_3d_params;
+
+  // undistortion focal length scales.
+  std::vector<float> undistortion_focal_length_scales;
+
+  // car model bounding box for 2d surround view.
+  BoundingBox car_model_bb;
+
+  // map of texture name to a car texture. Lists all textures to be
+  // used for car model rendering.
+  std::map<std::string, CarTexture> car_textures;
+
+  // map of car id to a car part. Lists all car parts to be used
+  // for car model rendering.
+  std::map<std::string, CarPart> car_parts;
+
+  SurroundViewStaticDataParams(
+      const std::vector<SurroundViewCameraParams>& sv_cameras_params,
+      const SurroundView2dParams& sv_2d_params,
+      const SurroundView3dParams& sv_3d_params,
+      const std::vector<float>& scales, const BoundingBox& bb,
+      const std::map<std::string, CarTexture>& textures,
+      const std::map<std::string, CarPart>& parts)
+      : cameras_params(sv_cameras_params),
+        surround_view_2d_params(sv_2d_params),
+        surround_view_3d_params(sv_3d_params),
+        undistortion_focal_length_scales(scales),
+        car_model_bb(bb),
+        car_textures(textures),
+        car_parts(parts) {}
 };
 
 struct SurroundViewInputBufferPointers {
@@ -418,17 +651,41 @@ struct SurroundViewResultPointer {
   Format format;
   int width;
   int height;
-  SurroundViewResultPointer() : data_pointer(nullptr), width(0), height(0) {}
+  bool is_data_preallocated;
+  SurroundViewResultPointer()
+      : data_pointer(nullptr),
+        width(0),
+        height(0),
+        is_data_preallocated(false) {}
+
+  // Constructor with result data pointer being allocated within core lib.
+  // Use for cases when no already existing buffer is available.
   SurroundViewResultPointer(Format format_, int width_, int height_)
       : format(format_), width(width_), height(height_) {
     // default formate is gray.
     const int byte_per_pixel = format_ == RGB ? 3 : format_ == RGBA ? 4 : 1;
     data_pointer =
         static_cast<void*>(new char[width * height * byte_per_pixel]);
+    is_data_preallocated = false;
   }
+
+  // Constructor with pre-allocated data.
+  // Use for cases when results must be added to an existing allocated buffer.
+  // Example, pre-allocated buffer of a display.
+  SurroundViewResultPointer(void* data_pointer_, Format format_, int width_,
+                            int height_)
+      : data_pointer(data_pointer_),
+        format(format_),
+        width(width_),
+        height(height_),
+        is_data_preallocated(true) {}
+
   ~SurroundViewResultPointer() {
     if (data_pointer) {
-      // delete[] static_cast<char*>(data_pointer);
+      // TODO(b/154365307): Fix freeing up of pre-allocated memory.
+      // if (!is_data_preallocated) {
+      //   delete[] static_cast<char*>(data_pointer);
+      // }
       data_pointer = nullptr;
     }
   }
@@ -439,13 +696,10 @@ class SurroundView {
   virtual ~SurroundView() = default;
 
   // Sets SurroundView static data.
-  // For each input, please refer to the definition.
+  // For details of SurroundViewStaticDataParams, please refer to the
+  // definition.
   virtual bool SetStaticData(
-      const std::vector<SurroundViewCameraParams>& cameras_params,
-      const SurroundView2dParams& surround_view_2d_params,
-      const SurroundView3dParams& surround_view_3d_params,
-      const std::vector<float>& undistortion_focal_length_scales,
-      const BoundingBox& car_model_bb) = 0;
+      const SurroundViewStaticDataParams& static_data_params) = 0;
 
   // Starts 2d pipeline. Returns false if error occurs.
   virtual bool Start2dPipeline() = 0;
@@ -461,29 +715,29 @@ class SurroundView {
   virtual void Stop3dPipeline() = 0;
 
   // Updates 2d output resolution on-the-fly. Starts2dPipeline() must be called
-  // before this can be called. For quality assurance, the resolution should not
-  // be larger than the original one. This call is not thread safe and there is
-  // no sync between Get2dSurroundView() and this call.
+  // before this can be called. For quality assurance, the |resolution| should
+  // not be larger than the original one. This call is not thread safe and there
+  // is no sync between Get2dSurroundView() and this call.
   virtual bool Update2dOutputResolution(const Size2dInteger& resolution) = 0;
 
   // Updates 3d output resolution on-the-fly. Starts3dPipeline() must be called
-  // before this can be called. For quality assurance, the resolution should not
-  // be larger than the original one. This call is not thread safe and there is
-  // no sync between Get3dSurroundView() and this call.
+  // before this can be called. For quality assurance, the |resolution| should
+  // not be larger than the original one. This call is not thread safe and there
+  // is no sync between Get3dSurroundView() and this call.
   virtual bool Update3dOutputResolution(const Size2dInteger& resolution) = 0;
 
   // Projects camera's pixel location to surround view 2d image location.
-  // camera_point is the pixel location in raw camera's space.
-  // camera_index is the camera's index.
-  // surround_view_2d_point is the surround view 2d image pixel location.
+  // |camera_point| is the pixel location in raw camera's space.
+  // |camera_index| is the camera's index.
+  // |surround_view_2d_point| is the surround view 2d image pixel location.
   virtual bool GetProjectionPointFromRawCameraToSurroundView2d(
       const Coordinate2dInteger& camera_point, int camera_index,
       Coordinate2dFloat* surround_view_2d_point) = 0;
 
   // Projects camera's pixel location to surround view 3d bowl coordinate.
-  // camera_point is the pixel location in raw camera's space.
-  // camera_index is the camera's index.
-  // surround_view_3d_point is the surround view 3d vertex.
+  // |camera_point| is the pixel location in raw camera's space.
+  // |camera_index| is the camera's index.
+  // |surround_view_3d_point| is the surround view 3d vertex.
   virtual bool GetProjectionPointFromRawCameraToSurroundView3d(
       const Coordinate2dInteger& camera_point, int camera_index,
       Coordinate3dFloat* surround_view_3d_point) = 0;
@@ -497,18 +751,40 @@ class SurroundView {
       SurroundViewResultPointer* result_pointer) = 0;
 
   // Gets 3d surround view image.
-  // It takes input_pointers and view_matrix as input, and output is
-  // result_pointer. view_matrix is 4 x 4 matrix.
+  // It takes |input_pointers| and |view_matrix| as input, and output is
+  // |result_pointer|. |view_matrix| is 4 x 4 matrix.
   // Please refer to the definition of
   // SurroundViewInputBufferPointers and
   // SurroundViewResultPointer.
   virtual bool Get3dSurroundView(
       const std::vector<SurroundViewInputBufferPointers>& input_pointers,
-      const std::vector<std::vector<float>> view_matrix,
+      const std::array<std::array<float, 4>, 4>& view_matrix,
+      SurroundViewResultPointer* result_pointer) = 0;
+
+  // Gets 3d surround view image overload.
+  // It takes |input_pointers|, |quaternion| and |translation| as input,
+  // and output is |result_pointer|.
+  // |quaternion| is 4 x 1 array (X, Y, Z, W).
+  // It is required to be unit quaternion as rotation quaternion.
+  // |translation| is 3 X 1 array (x, y, z).
+  // Please refer to the definition of
+  // SurroundViewInputBufferPointers and
+  // SurroundViewResultPointer.
+  virtual bool Get3dSurroundView(
+      const std::vector<SurroundViewInputBufferPointers>& input_pointers,
+      const std::array<float, 4>& quaternion,
+      const std::array<float, 3>& translation,
       SurroundViewResultPointer* result_pointer) = 0;
 
   // Sets 3d overlays.
   virtual bool Set3dOverlay(const std::vector<Overlay>& overlays) = 0;
+
+  // Animates a set of car parts.
+  // Only updated car parts are included.
+  // |car_animations| is a vector of AnimationParam specifying updated
+  // car parts with updated animation parameters.
+  virtual bool SetAnimations(
+      const std::vector<AnimationParam>& car_animations) = 0;
 
   // for test only.
   // TODO(xxqian): remove thest two fns.
