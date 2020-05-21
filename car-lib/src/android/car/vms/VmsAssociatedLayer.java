@@ -24,7 +24,9 @@ import android.util.ArraySet;
 
 import com.android.internal.util.DataClass;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * A Vehicle Map Service layer with a list of publisher IDs it is associated with.
