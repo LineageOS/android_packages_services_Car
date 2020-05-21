@@ -138,8 +138,7 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
         if (mService != null) {
             mService.release();
         }
-        CarServiceUtils.runOnLooperSync(CarServiceUtils.getHandlerThread(
-                CarPowerManagementService.class.getSimpleName()).getLooper(), () -> { });
+        CarServiceUtils.finishAllHandlerTasks();
         mIOInterface.tearDown();
     }
 
