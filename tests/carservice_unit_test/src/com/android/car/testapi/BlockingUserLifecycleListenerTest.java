@@ -16,6 +16,7 @@
 
 package com.android.car.testapi;
 
+import static android.car.test.mocks.JavaMockitoHelper.await;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPED;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPING;
@@ -41,11 +42,13 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 public final class BlockingUserLifecycleListenerTest {
 
     private static final String TAG = BlockingUserLifecycleListenerTest.class.getSimpleName();
+    private static final long TIMEOUT_MS = 500;
 
     @Test
     public void testListener_forAnyEvent_invalidBuilderMethods() throws Exception {
@@ -120,7 +123,7 @@ public final class BlockingUserLifecycleListenerTest {
                 .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_UNLOCKING)
                 .build();
 
-        sendAsyncEvents(listener, 10,
+        CountDownLatch latch = sendAsyncEvents(listener, 10,
                 USER_LIFECYCLE_EVENT_TYPE_STARTING,
                 USER_LIFECYCLE_EVENT_TYPE_SWITCHING,
                 USER_LIFECYCLE_EVENT_TYPE_UNLOCKING,
@@ -131,6 +134,7 @@ public final class BlockingUserLifecycleListenerTest {
                 USER_LIFECYCLE_EVENT_TYPE_STARTING,
                 USER_LIFECYCLE_EVENT_TYPE_UNLOCKING);
 
+        await(latch, TIMEOUT_MS);
         List<UserLifecycleEvent> allReceivedEvents = listener.getAllReceivedEvents();
         assertEvents(allReceivedEvents, 10,
                 USER_LIFECYCLE_EVENT_TYPE_STARTING,
@@ -151,11 +155,13 @@ public final class BlockingUserLifecycleListenerTest {
         UserLifecycleEvent right1 = new UserLifecycleEvent(USER_LIFECYCLE_EVENT_TYPE_STARTING, 10);
         UserLifecycleEvent right2 = new UserLifecycleEvent(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED, 10);
 
-        sendAsyncEvents(listener, Arrays.asList(wrong1, right1, right2, wrong2));
+        CountDownLatch latch = sendAsyncEvents(listener,
+                Arrays.asList(wrong1, right1, right2, wrong2));
 
         List<UserLifecycleEvent> events = listener.waitForEvents();
         assertThat(events).containsExactly(right1, right2).inOrder();
 
+        await(latch, TIMEOUT_MS);
         List<UserLifecycleEvent> allReceivedEvents = listener.getAllReceivedEvents();
         assertThat(allReceivedEvents)
                 .containsExactly(wrong1, right1, right2, wrong2)
@@ -177,11 +183,13 @@ public final class BlockingUserLifecycleListenerTest {
         UserLifecycleEvent right2 = new UserLifecycleEvent(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED, 10);
         UserLifecycleEvent right3 = new UserLifecycleEvent(USER_LIFECYCLE_EVENT_TYPE_STARTING, 10);
 
-        sendAsyncEvents(listener, Arrays.asList(wrong1, right1, wrong2, right2, right3, wrong3));
+        CountDownLatch latch = sendAsyncEvents(listener,
+                Arrays.asList(wrong1, right1, wrong2, right2, right3, wrong3));
 
         List<UserLifecycleEvent> events = listener.waitForEvents();
         assertThat(events).containsExactly(right1, right2, right3).inOrder();
 
+        await(latch, TIMEOUT_MS);
         List<UserLifecycleEvent> allReceivedEvents = listener.getAllReceivedEvents();
         assertThat(allReceivedEvents)
                 .containsExactly(wrong1, right1, wrong2, right2, right3, wrong3)
@@ -206,11 +214,13 @@ public final class BlockingUserLifecycleListenerTest {
         UserLifecycleEvent right2 =
                 new UserLifecycleEvent(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED, 10, 12);
 
-        sendAsyncEvents(listener, Arrays.asList(wrong1, right1, wrong2, right2, wrong3));
+        CountDownLatch latch = sendAsyncEvents(listener,
+                Arrays.asList(wrong1, right1, wrong2, right2, wrong3));
 
         List<UserLifecycleEvent> events = listener.waitForEvents();
         assertThat(events).containsExactly(right1, right2).inOrder();
 
+        await(latch, TIMEOUT_MS);
         List<UserLifecycleEvent> allReceivedEvents = listener.getAllReceivedEvents();
         assertThat(allReceivedEvents)
                 .containsExactly(wrong1, right1, wrong2, right2, wrong3)
@@ -236,29 +246,40 @@ public final class BlockingUserLifecycleListenerTest {
         UserLifecycleEvent right2 =
                 new UserLifecycleEvent(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED, 10, 11);
 
-        sendAsyncEvents(listener, Arrays.asList(wrong1, right1, wrong2, right2, wrong3));
+        CountDownLatch latch = sendAsyncEvents(listener,
+                Arrays.asList(wrong1, right1, wrong2, right2, wrong3));
 
         List<UserLifecycleEvent> events = listener.waitForEvents();
         assertThat(events).containsExactly(right1, right2).inOrder();
 
+        await(latch, TIMEOUT_MS);
         List<UserLifecycleEvent> allReceivedEvents = listener.getAllReceivedEvents();
         assertThat(allReceivedEvents)
                 .containsExactly(wrong1, right1, wrong2, right2, wrong3)
                 .inOrder();
     }
 
-    private static void sendAsyncEvents(@NonNull BlockingUserLifecycleListener listener,
+    @NonNull
+    private static CountDownLatch sendAsyncEvents(@NonNull BlockingUserLifecycleListener listener,
             @UserIdInt int userId, @UserLifecycleEventType int... eventTypes) {
         List<UserLifecycleEvent> events = Arrays.stream(eventTypes)
                 .mapToObj((type) -> new UserLifecycleEvent(type, userId))
                 .collect(Collectors.toList());
-        sendAsyncEvents(listener, events);
+        return sendAsyncEvents(listener, events);
     }
 
-    private static void sendAsyncEvents(@NonNull BlockingUserLifecycleListener listener,
+    @NonNull
+    private static CountDownLatch sendAsyncEvents(@NonNull BlockingUserLifecycleListener listener,
             @NonNull List<UserLifecycleEvent> events) {
-        Log.d(TAG, "sendAsyncEvents(): " + events);
-        new Thread(() -> events.forEach((e) -> listener.onEvent(e)), "AsyncEventsThread").start();
+        Log.d(TAG, "sendAsyncEvents(" + events + "): called on thread " + Thread.currentThread());
+        CountDownLatch latch = new CountDownLatch(1);
+        new Thread(() -> {
+            Log.d(TAG, "sending " + events.size() + " on thread " + Thread.currentThread());
+            events.forEach((e) -> listener.onEvent(e));
+            Log.d(TAG, "sent");
+            latch.countDown();
+        }, "AsyncEventsThread").start();
+        return latch;
     }
 
     private static void assertEvent(UserLifecycleEvent event, @UserIdInt int expectedUserId,
