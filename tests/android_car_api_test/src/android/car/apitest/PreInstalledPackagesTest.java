@@ -21,6 +21,7 @@ import static org.junit.Assert.fail;
 
 import android.text.TextUtils;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 public final class PreInstalledPackagesTest {
@@ -31,6 +32,7 @@ public final class PreInstalledPackagesTest {
     }
 
     @Test
+    @Ignore("b/157271963")
     public void testNoCriticalErrors_enforceMode() {
         assertNoCriticalErrors(/* enforceMode= */ true);
     }
