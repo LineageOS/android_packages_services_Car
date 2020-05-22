@@ -30,7 +30,10 @@ import java.io.PrintWriter;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
-final class AudioControlWrapperV2 implements AudioControlWrapper {
+/**
+ * Wrapper for IAudioControl@2.0.
+ */
+public final class AudioControlWrapperV2 implements AudioControlWrapper {
     private static final String TAG = AudioControlWrapperV2.class.getSimpleName();
 
     private IAudioControl mAudioControlV2;
