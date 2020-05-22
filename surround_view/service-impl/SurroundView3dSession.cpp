@@ -19,8 +19,10 @@
 #include <android/hardware_buffer.h>
 #include <android/hidl/memory/1.0/IMemory.h>
 #include <hidlmemory/mapping.h>
-#include <set>
 #include <utils/SystemClock.h>
+
+#include <array>
+#include <set>
 
 #include "SurroundView3dSession.h"
 #include "sv_3d_params.h"
@@ -37,6 +39,7 @@ namespace implementation {
 
 static const uint8_t kGrayColor = 128;
 static const int kNumChannels = 4;
+static const int kFrameDelayInMilliseconds = 30;
 
 SurroundView3dSession::SurroundView3dSession() :
     mStreamState(STOPPED){
@@ -285,15 +288,18 @@ Return<void> SurroundView3dSession::projectCameraPointsTo3dSurface(
 }
 
 void SurroundView3dSession::generateFrames() {
+    if (mSurroundView->Start3dPipeline()) {
+        LOG(INFO) << "Start3dPipeline succeeded";
+    } else {
+        LOG(ERROR) << "Start3dPipeline failed";
+        return;
+    }
+
     int sequenceId = 0;
 
     // TODO(b/150412555): do not use the setViews for frames generation
     // since there is a discrepancy between the HIDL APIs and core lib APIs.
-    vector<vector<float>> matrix;
-    matrix.resize(4);
-    for (int i=0; i<4; i++) {
-        matrix[i].resize(4);
-    }
+    array<array<float, 4>, 4> matrix;
 
     while(true) {
         {
@@ -349,9 +355,9 @@ void SurroundView3dSession::generateFrames() {
             }
         }
 
-        // TODO(b/150412555): use hard-coded views for now. Change view every 10
-        // frames.
-        int recViewId = sequenceId / 10 % 16;
+        // TODO(b/150412555): use hard-coded views for now. Change view every
+        // frame.
+        int recViewId = sequenceId % 16;
         for (int i=0; i<4; i++)
             for (int j=0; j<4; j++) {
                 matrix[i][j] = kRecViews[recViewId][i*4+j];
@@ -426,6 +432,11 @@ void SurroundView3dSession::generateFrames() {
                 mStream->receiveFrames(framesRecord.frames);
             }
         }
+
+        // TODO(b/150412555): adding delays explicitly. This delay should be
+        // removed when EVS camera is used.
+        this_thread::sleep_for(chrono::milliseconds(
+            kFrameDelayInMilliseconds));
     }
 
     // If we've been asked to stop, send an event to signal the actual end of stream
@@ -442,8 +453,15 @@ bool SurroundView3dSession::initialize() {
     // description.
     mSurroundView = unique_ptr<SurroundView>(Create());
 
-    mSurroundView->SetStaticData(GetCameras(), Get2dParams(), Get3dParams(),
-                                 GetUndistortionScales(), GetBoundingBox());
+    SurroundViewStaticDataParams params =
+        SurroundViewStaticDataParams(GetCameras(),
+                                     Get2dParams(),
+                                     Get3dParams(),
+                                     GetUndistortionScales(),
+                                     GetBoundingBox(),
+                                     map<string, CarTexture>(),
+                                     map<string, CarPart>());
+    mSurroundView->SetStaticData(params);
 
     // TODO(b/150412555): remove after EVS camera is used
     mInputPointers = mSurroundView->ReadImages(
@@ -488,13 +506,6 @@ bool SurroundView3dSession::initialize() {
         LOG(INFO) << "Successfully allocated Graphic Buffer";
     } else {
         LOG(ERROR) << "Failed to allocate Graphic Buffer";
-        return false;
-    }
-
-    if (mSurroundView->Start3dPipeline()) {
-        LOG(INFO) << "Start3dPipeline succeeded";
-    } else {
-        LOG(ERROR) << "Start3dPipeline failed";
         return false;
     }
 
