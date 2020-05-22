@@ -29,6 +29,7 @@ import android.media.AudioAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
+import android.media.AudioManager.OnAudioFocusChangeListener;
 import android.media.HwAudioSource;
 import android.os.Build;
 import android.os.Bundle;
@@ -77,6 +78,7 @@ public class AudioTestFragment extends Fragment {
     private AudioPlayer mMusicPlayerWithDelayedFocus;
     private AudioPlayer mMusicPlayerShort;
     private AudioPlayer mNavGuidancePlayer;
+    private AudioPlayer mPhoneAudioPlayer;
     private AudioPlayer mVrPlayer;
     private AudioPlayer mSystemPlayer;
     private AudioPlayer mWavPlayer;
@@ -91,6 +93,7 @@ public class AudioTestFragment extends Fragment {
     private CarAppFocusManager mAppFocusManager;
     private AudioAttributes mMusicAudioAttrib;
     private AudioAttributes mNavAudioAttrib;
+    private AudioAttributes mPhoneAudioAttrib;
     private AudioAttributes mVrAudioAttrib;
     private AudioAttributes mRadioAudioAttrib;
     private AudioAttributes mSystemSoundAudioAttrib;
@@ -108,42 +111,19 @@ public class AudioTestFragment extends Fragment {
 
     @GuardedBy("mLock")
     private AudioFocusRequest mDelayedFocusRequest;
+    private OnAudioFocusChangeListener mMediaWithDelayedFocusListener;
     private TextView mDelayedStatusText;
 
     private static int sDefaultExtraTestScreenPortId = 1;
 
-    private final AudioManager.OnAudioFocusChangeListener mNavFocusListener = (focusChange) -> {
+    private final OnAudioFocusChangeListener mNavFocusListener = (focusChange) -> {
         Log.i(TAG, "Nav focus change:" + focusChange);
     };
-    private final AudioManager.OnAudioFocusChangeListener mVrFocusListener = (focusChange) -> {
+    private final OnAudioFocusChangeListener mVrFocusListener = (focusChange) -> {
         Log.i(TAG, "VR focus change:" + focusChange);
     };
-    private final AudioManager.OnAudioFocusChangeListener mRadioFocusListener = (focusChange) -> {
+    private final OnAudioFocusChangeListener mRadioFocusListener = (focusChange) -> {
         Log.i(TAG, "Radio focus change:" + focusChange);
-    };
-    private final AudioManager.OnAudioFocusChangeListener mMediaDelayedFocusListener =
-            new AudioManager.OnAudioFocusChangeListener() {
-        @Override
-        public void onAudioFocusChange(int focusChange) {
-            if (DBG) Log.d(TAG, "Media With Delayed Focus focus change:" + focusChange);
-            synchronized (mLock) {
-                switch (focusChange) {
-                    case AudioManager.AUDIOFOCUS_GAIN:
-                    case AudioManager.AUDIOFOCUS_GAIN_TRANSIENT:
-                    case AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE:
-                    case AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK:
-                        startDelayedMediaPlayerLocked();
-                        break;
-                    case AudioManager.AUDIOFOCUS_LOSS:
-                        mDelayedFocusRequest = null;
-                        // Fall through to stop
-                    case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
-                    case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-                    default:
-                        stopDelayedMediaPlayerLocked();
-                }
-            }
-        }
     };
 
     private final CarAppFocusManager.OnAppFocusOwnershipCallback mOwnershipCallbacks =
@@ -195,6 +175,9 @@ public class AudioTestFragment extends Fragment {
         mNavAudioAttrib = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
             .build();
+        mPhoneAudioAttrib = new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+                .build();
         mVrAudioAttrib = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_ASSISTANT)
             .build();
@@ -220,6 +203,8 @@ public class AudioTestFragment extends Fragment {
             mMusicAudioAttrib);
         mNavGuidancePlayer = new AudioPlayer(mContext, R.raw.turnright,
             mNavAudioAttrib);
+        mPhoneAudioPlayer = new AudioPlayer(mContext, R.raw.free_flight,
+                mPhoneAudioAttrib);
         mVrPlayer = new AudioPlayer(mContext, R.raw.one2six,
             mVrAudioAttrib);
         mSystemPlayer = new AudioPlayer(mContext, R.raw.ring_classic_01,
@@ -388,6 +373,12 @@ public class AudioTestFragment extends Fragment {
         view.findViewById(R.id.media_delayed_focus_stop)
                 .setOnClickListener(v -> handleDelayedMediaStop());
 
+        view.findViewById(R.id.phone_audio_focus_start)
+                .setOnClickListener(v -> mPhoneAudioPlayer.start(true, true,
+                        AudioManager.AUDIOFOCUS_GAIN_TRANSIENT));
+        view.findViewById(R.id.phone_audio_focus_stop)
+                .setOnClickListener(v -> mPhoneAudioPlayer.stop());
+
         mDelayedStatusText = view.findViewById(R.id.media_delayed_player_status);
 
         return view;
@@ -407,18 +398,20 @@ public class AudioTestFragment extends Fragment {
     }
 
     private void handleDelayedMediaStart() {
-        handleDelayedMediaStop();
-        int delayedFocusRequestResults;
         synchronized (mLock) {
+            if (mDelayedFocusRequest != null) {
+                return;
+            }
+            mMediaWithDelayedFocusListener = new MediaWithDelayedFocusListener();
             mDelayedFocusRequest = new AudioFocusRequest
                     .Builder(AudioManager.AUDIOFOCUS_GAIN)
                     .setAudioAttributes(mMusicAudioAttrib)
-                    .setOnAudioFocusChangeListener(mMediaDelayedFocusListener)
+                    .setOnAudioFocusChangeListener(mMediaWithDelayedFocusListener)
                     .setForceDucking(false)
                     .setWillPauseWhenDucked(false)
                     .setAcceptsDelayedFocusGain(true)
                     .build();
-            delayedFocusRequestResults = mAudioManager.requestAudioFocus(mDelayedFocusRequest);
+            int delayedFocusRequestResults = mAudioManager.requestAudioFocus(mDelayedFocusRequest);
             if (delayedFocusRequestResults == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
                 startDelayedMediaPlayerLocked();
                 return;
@@ -428,6 +421,9 @@ public class AudioTestFragment extends Fragment {
                 mDelayedStatusText.setText(R.string.player_delayed);
                 return;
             }
+            mMediaWithDelayedFocusListener = null;
+            mDelayedFocusRequest = null;
+            mDelayedStatusText.setText(R.string.player_not_started);
         }
         if (DBG) Log.d(TAG, "Media With Delayed Focus focus rejected");
     }
@@ -445,21 +441,33 @@ public class AudioTestFragment extends Fragment {
 
     private void handleDelayedMediaStop() {
         synchronized (mLock) {
-            if (mDelayedFocusRequest != null) {
-                stopDelayedMediaPlayerLocked();
-                mAudioManager.abandonAudioFocusRequest(mDelayedFocusRequest);
+            if (mDelayedFocusRequest != null)  {
+                int requestResults = mAudioManager.abandonAudioFocusRequest(mDelayedFocusRequest);
+                if (DBG) {
+                    Log.d(TAG, "Media With Delayed Focus abandon focus " + requestResults);
+                }
                 mDelayedFocusRequest = null;
-                return;
+                mMediaWithDelayedFocusListener = null;
+                stopDelayedMediaPlayerLocked();
             }
         }
-        if (DBG) Log.d(TAG, "Media With Delayed Focus nothing to stop");
     }
 
     private void stopDelayedMediaPlayerLocked() {
+        mDelayedStatusText.setText(R.string.player_not_started);
         if (mMusicPlayerWithDelayedFocus.isPlaying()) {
             if (DBG) Log.d(TAG, "Media With Delayed Focus stopping player");
             mMusicPlayerWithDelayedFocus.stop();
-            mDelayedStatusText.setText(R.string.player_not_started);
+            return;
+        }
+        if (DBG) Log.d(TAG, "Media With Delayed Focus already stopped");
+    }
+
+    private void pauseDelayedMediaPlayerLocked() {
+        mDelayedStatusText.setText(R.string.player_paused);
+        if (mMusicPlayerWithDelayedFocus.isPlaying()) {
+            if (DBG) Log.d(TAG, "Media With Delayed Focus pausing player");
+            mMusicPlayerWithDelayedFocus.stop();
             return;
         }
         if (DBG) Log.d(TAG, "Media With Delayed Focus already stopped");
@@ -786,7 +794,7 @@ public class AudioTestFragment extends Fragment {
             mText.setText("focus state:" + msg);
         }
 
-        private class AudioFocusListener implements AudioManager.OnAudioFocusChangeListener {
+        private class AudioFocusListener implements OnAudioFocusChangeListener {
             @Override
             public void onAudioFocusChange(int focusChange) {
                 Log.i(TAG, "onAudioFocusChange " + focusChange);
@@ -798,6 +806,33 @@ public class AudioTestFragment extends Fragment {
                     setFocusText("loss,transient");
                 } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
                     setFocusText("loss,transient,duck");
+                }
+            }
+        }
+    }
+
+    private final class MediaWithDelayedFocusListener implements OnAudioFocusChangeListener {
+        @Override
+        public void onAudioFocusChange(int focusChange) {
+            if (DBG) Log.d(TAG, "Media With Delayed Focus focus change:" + focusChange);
+            synchronized (mLock) {
+                switch (focusChange) {
+                    case AudioManager.AUDIOFOCUS_GAIN:
+                    case AudioManager.AUDIOFOCUS_GAIN_TRANSIENT:
+                    case AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE:
+                    case AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK:
+                        startDelayedMediaPlayerLocked();
+                        break;
+                    case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+                    case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                        pauseDelayedMediaPlayerLocked();
+                        break;
+                    case AudioManager.AUDIOFOCUS_LOSS:
+                    default:
+                        stopDelayedMediaPlayerLocked();
+                        mDelayedFocusRequest = null;
+                        mMediaWithDelayedFocusListener = null;
+                        break;
                 }
             }
         }
