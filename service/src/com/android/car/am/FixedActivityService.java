@@ -571,6 +571,11 @@ public final class FixedActivityService implements CarServiceBase {
             return true;
         }
         int[] profileIds = mUm.getEnabledProfileIds(currentUser);
+        // null can happen in test env when UserManager is mocked. So this check is not necessary
+        // in real env but add it to make test impl easier.
+        if (profileIds == null) {
+            return false;
+        }
         for (int id : profileIds) {
             if (id == userId) {
                 return true;
