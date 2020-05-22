@@ -115,6 +115,7 @@
     <string name="hw_audio_source_not_found" translatable="false">Not found</string>
     <string name="media_with_delayed_focus" translatable="false">Media With Delayed Focus</string>
     <string name="player_not_started" translatable="false">Player Not Started</string>
+    <string name="player_paused" translatable="false">Player Paused</string>
     <string name="player_started" translatable="false">Player Started</string>
     <string name="player_delayed" translatable="false">Player Delayed</string>
     <string name="nav_play" translatable="false">Nav Play</string>
@@ -139,6 +140,7 @@
     <string name="select_display" translatable="false">Select Display</string>
     <string name="activity_current_zone_id" translatable="false">Activity\'s current audio zone id</string>
     <string name="no_zone" translatable="false">none</string>
+    <string name="phone_audio_player" translatable="false">Phone Player</string>
 
     <!-- keyboard test fragment -->
     <string name="keyboard_test_title" translatable="false">Keyboard Test</string>
