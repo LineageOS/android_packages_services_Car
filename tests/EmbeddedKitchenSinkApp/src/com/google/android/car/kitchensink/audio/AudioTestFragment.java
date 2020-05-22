@@ -178,15 +178,9 @@ public class AudioTestFragment extends Fragment {
 
                     mCarAudioManager = (CarAudioManager) car.getCarManager(Car.AUDIO_SERVICE);
 
-                    //take care of zone selection
-                    List<Integer> zoneList = mCarAudioManager.getAudioZoneIds();
-                    Integer[] zoneArray = zoneList.stream().toArray(Integer[]::new);
-                    mZoneAdapter = new ArrayAdapter<>(mContext,
-                            android.R.layout.simple_spinner_item, zoneArray);
-                    mZoneAdapter.setDropDownViewResource(
-                            android.R.layout.simple_spinner_dropdown_item);
-                    mZoneSpinner.setAdapter(mZoneAdapter);
-                    mZoneSpinner.setEnabled(true);
+
+
+                    handleSetUpZoneSelection();
 
                     if (mCarAudioManager.isDynamicRoutingEnabled()) {
                         setUpDisplayPlayer();
@@ -262,6 +256,9 @@ public class AudioTestFragment extends Fragment {
 
         connectCar();
         initializePlayers();
+
+        TextView currentZoneIdTextView = view.findViewById(R.id.activity_current_zone);
+        setActivityCurrentZoneId(currentZoneIdTextView);
 
         mAudioManager = (AudioManager) mContext.getSystemService(
                 Context.AUDIO_SERVICE);
@@ -396,6 +393,19 @@ public class AudioTestFragment extends Fragment {
         return view;
     }
 
+    private void setActivityCurrentZoneId(TextView currentZoneIdTextView) {
+        if (mCarAudioManager.isDynamicRoutingEnabled()) {
+            try {
+                ApplicationInfo info = mContext.getPackageManager().getApplicationInfo(
+                        mContext.getPackageName(), 0);
+                int audioZoneId = mCarAudioManager.getZoneIdForUid(info.uid);
+                currentZoneIdTextView.setText(Integer.toString(audioZoneId));
+            } catch (PackageManager.NameNotFoundException e) {
+                Log.e(TAG, "setActivityCurrentZoneId Failed to find name: " , e);
+            }
+        }
+    }
+
     private void handleDelayedMediaStart() {
         handleDelayedMediaStop();
         int delayedFocusRequestResults;
@@ -490,26 +500,25 @@ public class AudioTestFragment extends Fragment {
         int position = mZoneSpinner.getSelectedItemPosition();
         int zone = mZoneAdapter.getItem(position);
         Log.d(TAG, "Zone Selected: " + zone);
-        try {
-            ApplicationInfo info = mContext.getPackageManager().getApplicationInfo(
-                    mContext.getPackageName(), 0);
-            int uid = info.uid;
-            Log.d(TAG, "handleZoneSelection App uid: " + uid);
-            if (mCarAudioManager.setZoneIdForUid(zone, uid)) {
-                Log.d(TAG, "Changed uid " + uid + " sound to zone " + zone);
-                mOldZonePosition = position;
-
-                // For non primary zone set the correct speaker to route
-                if (Build.IS_EMULATOR && zone != CarAudioManager.PRIMARY_AUDIO_ZONE) {
-                    setZoneToPlayOnSpeaker(zone);
-                }
-            } else {
-                Log.d(TAG, "Filed to changed uid " + uid + " sound to zone " + zone);
-                mZoneSpinner.setSelection(mOldZonePosition);
-            }
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.e(TAG, "handleZoneSelection Failed to find name: " , e);
+        if (Build.IS_EMULATOR && zone != CarAudioManager.PRIMARY_AUDIO_ZONE) {
+            setZoneToPlayOnSpeaker(zone);
         }
+    }
+
+    private void handleSetUpZoneSelection() {
+        if (!Build.IS_EMULATOR || !mCarAudioManager.isDynamicRoutingEnabled()) {
+            return;
+        }
+        //take care of zone selection
+        List<Integer> zoneList = mCarAudioManager.getAudioZoneIds();
+        Integer[] zoneArray = zoneList.stream()
+                .filter(i -> i != CarAudioManager.PRIMARY_AUDIO_ZONE).toArray(Integer[]::new);
+        mZoneAdapter = new ArrayAdapter<>(mContext,
+                android.R.layout.simple_spinner_item, zoneArray);
+        mZoneAdapter.setDropDownViewResource(
+                android.R.layout.simple_spinner_dropdown_item);
+        mZoneSpinner.setAdapter(mZoneAdapter);
+        mZoneSpinner.setEnabled(true);
     }
 
     @Override
