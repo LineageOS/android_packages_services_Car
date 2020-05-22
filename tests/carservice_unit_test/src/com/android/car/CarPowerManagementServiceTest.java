@@ -138,6 +138,7 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
         if (mService != null) {
             mService.release();
         }
+        CarServiceUtils.finishAllHandlerTasks();
         mIOInterface.tearDown();
     }
 

@@ -16,26 +16,25 @@
 
 package com.android.car.user;
 
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
+import static android.car.test.mocks.AndroidMockitoHelper.mockContextGetService;
 
-import static com.google.common.truth.Truth.assertThat;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.app.AppOpsManager;
+import android.car.AbstractExtendedMockitoCarServiceTestCase;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.settings.CarSettings;
-import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.test.mocks.JavaMockitoHelper;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleListener;
@@ -64,12 +63,15 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
-public class CarUserNoticeServiceTest extends AbstractExtendedMockitoTestCase {
+public class CarUserNoticeServiceTest extends AbstractExtendedMockitoCarServiceTestCase {
+
+    private static final long TIMEOUT_MS = 10_000;
 
     @Mock
     private Context mMockContext;
+    @Mock
+    private Context mOtherMockContext;
     @Mock
     private Resources mMockedResources;
     @Mock
@@ -110,22 +112,21 @@ public class CarUserNoticeServiceTest extends AbstractExtendedMockitoTestCase {
     @Before
     public void setUpMocks() throws Exception {
         doReturn(mCarPowerManager).when(() -> CarLocalServices.createCarPowerManager(mMockContext));
-        doReturn(mMockCarPowerManagementService)
-                .when(() -> CarLocalServices.getService(CarPowerManagementService.class));
-        doReturn(mMockCarUserService)
-                .when(() -> CarLocalServices.getService(CarUserService.class));
+        mockGetCarLocalService(CarPowerManagementService.class, mMockCarPowerManagementService);
+        mockGetCarLocalService(CarUserService.class, mMockCarUserService);
 
         putSettingsInt(CarSettings.Secure.KEY_ENABLE_INITIAL_NOTICE_SCREEN_TO_USER, 1);
 
-        doReturn(mMockedResources).when(mMockContext).getResources();
-        doReturn(InstrumentationRegistry.getInstrumentation().getTargetContext()
-                .getContentResolver())
-                        .when(mMockContext).getContentResolver();
-        doReturn("com.foo/.Blah").when(mMockedResources).getString(anyInt());
-        doReturn(mMockPowerManager).when(mMockContext).getSystemService(PowerManager.class);
-        doReturn(mMockAppOpsManager).when(mMockContext).getSystemService(AppOpsManager.class);
-        doReturn(mMockPackageManager).when(mMockContext).getPackageManager();
-        doReturn(1).when(mMockPackageManager).getPackageUidAsUser(any(), anyInt());
+        when(mMockContext.getResources()).thenReturn(mMockedResources);
+        when(mMockContext.getContentResolver())
+                .thenReturn(InstrumentationRegistry.getInstrumentation().getTargetContext()
+                        .getContentResolver());
+        when(mMockedResources.getString(anyInt())).thenReturn("com.foo/.Blah");
+
+        mockContextGetService(mMockContext, PowerManager.class, mMockPowerManager);
+        mockContextGetService(mMockContext, AppOpsManager.class, mMockAppOpsManager);
+        mockContextGetService(mMockContext, PackageManager.class, mMockPackageManager);
+        when(mMockPackageManager.getPackageUidAsUser(any(), anyInt())).thenReturn(1);
         mCarUserNoticeService = new CarUserNoticeService(mMockContext, mHandler);
         mCarUserNoticeService.init();
         verify(mMockCarUserService).addUserLifecycleListener(
@@ -137,14 +138,14 @@ public class CarUserNoticeServiceTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void featureDisabledTest() {
-        Context mockContext = mock(Context.class);
-        // if feature is disabled, Resources.getString will return an
-        // empty string
-        doReturn("").when(mMockedResources).getString(R.string.config_userNoticeUiService);
-        doReturn(mMockedResources).when(mockContext).getResources();
-        CarUserNoticeService carUserNoticeService = new CarUserNoticeService(mockContext);
-        carUserNoticeService.init();
-        verify(mockContext, never()).registerReceiver(any(), any());
+        // Feature is disabled when the string is empty
+        when(mMockedResources.getString(R.string.config_userNoticeUiService)).thenReturn("");
+        when(mOtherMockContext.getResources()).thenReturn(mMockedResources);
+
+        CarUserNoticeService otherService = new CarUserNoticeService(mOtherMockContext);
+        otherService.init();
+
+        verify(mOtherMockContext, never()).registerReceiver(any(), any());
     }
 
     @Test
@@ -154,7 +155,7 @@ public class CarUserNoticeServiceTest extends AbstractExtendedMockitoTestCase {
         setDisplayOff();
         CountDownLatch latch = mockUnbindService();
         sendBroadcast(Intent.ACTION_SCREEN_OFF);
-        assetLatchCalled(latch);
+        assertLatchCalled(latch);
     }
 
     @Test
@@ -164,13 +165,13 @@ public class CarUserNoticeServiceTest extends AbstractExtendedMockitoTestCase {
         setDisplayOff();
         CountDownLatch latch = mockUnbindService();
         sendBroadcast(Intent.ACTION_SCREEN_OFF);
-        assetLatchCalled(latch);
+        assertLatchCalled(latch);
 
         // send screen on broadcast
         setDisplayOn();
         latch = mockBindService();
         sendBroadcast(Intent.ACTION_SCREEN_ON);
-        assetLatchCalled(latch);
+        assertLatchCalled(latch);
     }
 
     @Test
@@ -180,7 +181,7 @@ public class CarUserNoticeServiceTest extends AbstractExtendedMockitoTestCase {
         setDisplayOff();
         CountDownLatch latch = mockUnbindService();
         sendPowerStateChange(CarPowerManager.CarPowerStateListener.SHUTDOWN_PREPARE);
-        assetLatchCalled(latch);
+        assertLatchCalled(latch);
     }
 
     @Test
@@ -190,13 +191,13 @@ public class CarUserNoticeServiceTest extends AbstractExtendedMockitoTestCase {
         setDisplayOff();
         CountDownLatch latch = mockUnbindService();
         sendPowerStateChange(CarPowerManager.CarPowerStateListener.SHUTDOWN_PREPARE);
-        assetLatchCalled(latch);
+        assertLatchCalled(latch);
 
         // send Power On
         setDisplayOn();
         latch = mockBindService();
         sendPowerStateChange(CarPowerManager.CarPowerStateListener.ON);
-        assetLatchCalled(latch);
+        assertLatchCalled(latch);
     }
 
     @Test
@@ -206,20 +207,20 @@ public class CarUserNoticeServiceTest extends AbstractExtendedMockitoTestCase {
         setDisplayOff();
         CountDownLatch latch = mockUnbindService();
         sendBroadcast(Intent.ACTION_SCREEN_OFF);
-        assetLatchCalled(latch);
+        assertLatchCalled(latch);
 
         // UI not shown if key is disabled
         setDisplayOn();
         latch = mockKeySettings(
                 CarSettings.Secure.KEY_ENABLE_INITIAL_NOTICE_SCREEN_TO_USER, 0);
         sendBroadcast(Intent.ACTION_SCREEN_ON);
-        assetLatchCalled(latch);
+        assertLatchCalled(latch);
         // invoked only once, when user switched
         verify(mMockContext, times(1)).bindServiceAsUser(any(), any(), anyInt(), any());
     }
 
-    private void assetLatchCalled(CountDownLatch latch) throws Exception {
-        assertThat(latch.await(10, TimeUnit.SECONDS)).isTrue();
+    private static void assertLatchCalled(CountDownLatch latch) throws Exception {
+        JavaMockitoHelper.await(latch, TIMEOUT_MS);
     }
 
     private void switchUser(int userId) throws Exception {
@@ -260,11 +261,11 @@ public class CarUserNoticeServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     private void setDisplayOn() {
-        doReturn(true).when(mMockPowerManager).isInteractive();
+        when(mMockPowerManager.isInteractive()).thenReturn(true);
     }
 
     private void setDisplayOff() {
-        doReturn(false).when(mMockPowerManager).isInteractive();
+        when(mMockPowerManager.isInteractive()).thenReturn(false);
     }
 
     private void sendBroadcast(String action) {
@@ -282,6 +283,6 @@ public class CarUserNoticeServiceTest extends AbstractExtendedMockitoTestCase {
         setDisplayOn();
         CountDownLatch latch = mockBindService();
         switchUser(UserHandle.MIN_SECONDARY_USER_ID);
-        assetLatchCalled(latch);
+        assertLatchCalled(latch);
     }
 }

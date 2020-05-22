@@ -237,6 +237,7 @@ public class MockedCarTestBase {
                 mCarImpl.release();
                 mCarImpl = null;
             }
+            CarServiceUtils.finishAllHandlerTasks();
             if (mMockIOInterface != null) {
                 mMockIOInterface.tearDown();
             }
