@@ -496,7 +496,7 @@
     <string name="security_settings_fingerprint_enroll_touch_dialog_title" msgid="7410398793283818609">"Мимо! Это не сканер отпечатков пальцев..."</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_message" msgid="7192100314788868883">"Найдите сканер на задней панели и коснитесь его указательным пальцем."</string>
     <string name="security_settings_fingerprint_enroll_error_dialog_title" msgid="1415709674142168770">"Отпечаток не добавлен"</string>
-    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"Превышен срок ожидания. Повторите попытку"</string>
+    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"Превышен срок ожидания. Повторите попытку."</string>
     <string name="security_settings_fingerprint_enroll_error_generic_dialog_message" msgid="7896295829530444810">"Не удалось добавить отпечаток. Повторите попытку или попробуйте сохранить отпечаток другого пальца."</string>
     <string name="fingerprint_enroll_button_add" msgid="6335782936874996629">"Добавить ещё"</string>
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"Далее"</string>

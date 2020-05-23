@@ -410,7 +410,7 @@
     <string name="face_add_max" msgid="8870899421165189413">"آپ <xliff:g id="COUNT">%d</xliff:g> چہروں تک شامل کر سکتے ہیں"</string>
     <string name="face_intro_error_max" msgid="4024147799079828937">"آپ چہروں کی زیادہ سے زیادہ تعداد شامل کر چکے ہیں"</string>
     <string name="face_intro_error_unknown" msgid="3241592604198351134">"مزید چہرے شامل نہیں کر سکتے"</string>
-    <string name="security_settings_face_enroll_error_dialog_title" msgid="3933492758701563051">"اندراج مکمل نہیں ہوا تھا"</string>
+    <string name="security_settings_face_enroll_error_dialog_title" msgid="3933492758701563051">"اندراج مکمل نہیں ہوا"</string>
     <string name="security_settings_face_enroll_dialog_ok" msgid="1078348922734845090">"ٹھیک ہے"</string>
     <string name="security_settings_face_enroll_error_timeout_dialog_message" msgid="4917894418448325405">"چہرے کے اندراج کی حدِ وقت پوری ہو گئی۔ دوبارہ کوشش کریں۔"</string>
     <string name="security_settings_face_enroll_error_generic_dialog_message" msgid="5160473187142616862">"چہرے کا اندراج نہیں ہوا۔"</string>
@@ -487,8 +487,8 @@
     <string name="security_settings_fingerprint_enroll_done" msgid="4111289529758845926">"ہوگیا"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_title" msgid="7410398793283818609">"افوہ، یہ سینسر نہیں ہے"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_message" msgid="7192100314788868883">"اپنے فون کے پشت پر سینسر کو ٹچ کریں۔ اپنی انڈیکس فنگر کا استعمال کریں۔"</string>
-    <string name="security_settings_fingerprint_enroll_error_dialog_title" msgid="1415709674142168770">"اندراج مکمل نہیں ہوا تھا"</string>
-    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"فنگر پرنٹ اندراج کی حدِ وقت پوری ہو گئی۔ دوبارہ کوشش کریں۔"</string>
+    <string name="security_settings_fingerprint_enroll_error_dialog_title" msgid="1415709674142168770">"اندراج مکمل نہیں ہوا"</string>
+    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"فنگر پرنٹ اندراج کی وقت کی حد پوری ہو گئی۔ دوبارہ کوشش کریں۔"</string>
     <string name="security_settings_fingerprint_enroll_error_generic_dialog_message" msgid="7896295829530444810">"فنگر پرنٹ اندراج نہیں ہوا۔ دوبارہ کوشش کریں یا مختلف انگلی استعمال کریں۔"</string>
     <string name="fingerprint_enroll_button_add" msgid="6335782936874996629">"کوئی دوسرا شامل کریں"</string>
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"آگے جائیں"</string>

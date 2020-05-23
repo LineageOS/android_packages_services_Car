@@ -488,7 +488,7 @@
     <string name="security_settings_fingerprint_enroll_touch_dialog_title" msgid="7410398793283818609">"糟糕，這不是感應器"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_message" msgid="7192100314788868883">"請使用食指輕觸位於手機背面的感應器。"</string>
     <string name="security_settings_fingerprint_enroll_error_dialog_title" msgid="1415709674142168770">"尚未完成註冊"</string>
-    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"已達到指紋註冊次數上限，請重試。"</string>
+    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"註冊指紋過程逾時，請重新嘗試。"</string>
     <string name="security_settings_fingerprint_enroll_error_generic_dialog_message" msgid="7896295829530444810">"無法註冊指紋，請重試或使用另一隻手指。"</string>
     <string name="fingerprint_enroll_button_add" msgid="6335782936874996629">"新增其他"</string>
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"下一步"</string>

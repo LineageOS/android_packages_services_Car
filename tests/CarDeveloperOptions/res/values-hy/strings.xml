@@ -466,7 +466,7 @@
     <string name="security_settings_fingerprint_enroll_dialog_ok" msgid="3428927518029038956">"Հաստատել"</string>
     <string name="security_settings_fingerprint_enroll_dialog_delete" msgid="4312297515772004580">"Ջնջել"</string>
     <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"Հպեք սենսորին"</string>
-    <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"Դրեք ձեր մատը սենսորի վրա և բարձրացրեք թրթռոց զգալուց հետո"</string>
+    <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"Մատը դրենք սենսորի վրա և բարձրացրեք թրթռոց զգալուց հետո"</string>
     <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"Բարձրացրեք, ապա կրկին հպեք"</string>
     <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"Փոքր-ինչ տեղաշարժեք մատը՝ մատնահետքի տարբեր հատվածներ ավելացնելու համար"</string>
     <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"Մատնահետքն ավելացվեց"</string>
