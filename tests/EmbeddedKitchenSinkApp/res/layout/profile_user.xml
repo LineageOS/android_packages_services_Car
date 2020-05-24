@@ -129,5 +129,20 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:text="Start App For Display And User"/>
     </LinearLayout>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal" >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/status_message_title"/>
+        <TextView
+            android:id="@+id/status_message_text_view"
+            android:paddingLeft="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""/>
+    </LinearLayout>
 
 </LinearLayout>
