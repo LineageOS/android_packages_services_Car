@@ -16,10 +16,10 @@
 PRODUCT_PACKAGES += carwatchdogd
 
 # SELinux public policies for car watchdog services
-BOARD_PLAT_PUBLIC_SEPOLICY_DIR += packages/services/Car/watchdog/sepolicy/public
+PRODUCT_PUBLIC_SEPOLICY_DIRS += packages/services/Car/watchdog/sepolicy/public
 
 # SELinux private policies for car watchdog services
-BOARD_PLAT_PRIVATE_SEPOLICY_DIR += packages/services/Car/watchdog/sepolicy/private
+PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/watchdog/sepolicy/private
 
 # Include carwatchdog testclient if the build is userdebug or eng
 ifneq (,$(filter userdebug eng, $(TARGET_BUILD_VARIANT)))

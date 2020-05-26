@@ -29,7 +29,7 @@ PRODUCT_PACKAGES += computepipe_prebuilt_graph
 
 
 # Selinux public policies for computepipe services
-BOARD_PLAT_PUBLIC_SEPOLICY_DIR += packages/services/Car/computepipe/sepolicy/public
+PRODUCT_PUBLIC_SEPOLICY_DIRS += packages/services/Car/computepipe/sepolicy/public
 
 # Selinux private policies for computepipe services
-BOARD_PLAT_PRIVATE_SEPOLICY_DIR += packages/services/Car/computepipe/sepolicy/private
+PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/computepipe/sepolicy/private
