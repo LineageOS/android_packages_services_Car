@@ -21,7 +21,8 @@ import static org.junit.Assert.fail;
 
 import android.text.TextUtils;
 
-import org.junit.Ignore;
+import androidx.test.filters.FlakyTest;
+
 import org.junit.Test;
 
 public final class PreInstalledPackagesTest {
@@ -32,7 +33,7 @@ public final class PreInstalledPackagesTest {
     }
 
     @Test
-    @Ignore("b/157271963")
+    @FlakyTest // TODO(b/157271963): failing on cuttlefish
     public void testNoCriticalErrors_enforceMode() {
         assertNoCriticalErrors(/* enforceMode= */ true);
     }
@@ -42,7 +43,7 @@ public final class PreInstalledPackagesTest {
         String mode =  enforceMode ? " --mode 1" : "";
         String result = runShellCommand(cmd, mode);
         if (!TextUtils.isEmpty(result)) {
-            fail("Command '" + cmd + " reported errors:\n" + result);
+            fail("Command '" + String.format(cmd, mode) + "' reported errors:\n" + result);
         }
     }
 }
