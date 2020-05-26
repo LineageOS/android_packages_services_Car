@@ -71,6 +71,16 @@ public class CarSettings {
          */
         public static final String ENABLE_USER_SWITCH_DEVELOPER_MESSAGE =
                 "android.car.ENABLE_USER_SWITCH_DEVELOPER_MESSAGE";
+
+        /**
+         * Defines global runtime overrides to system bar policy.
+         *
+         * See {@link com.android.systemui.wm.BarControlPolicy} for value format.
+         *
+         * @hide
+         */
+        public static final String SYSTEM_BAR_VISIBILITY_OVERRIDE =
+                "android.car.SYSTEM_BAR_VISIBILITY_OVERRIDE";
     }
 
     /**
