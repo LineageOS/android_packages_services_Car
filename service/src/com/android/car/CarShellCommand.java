@@ -63,6 +63,7 @@ import android.os.Process;
 import android.os.ShellCommand;
 import android.os.SystemClock;
 import android.os.UserHandle;
+import android.os.UserManager;
 import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.Log;
@@ -854,13 +855,20 @@ final class CarShellCommand extends ShellCommand {
             }
         };
         if (halOnly) {
-            // TODO(b/150413515): use UserHalHelper to populate it with current users
-            UsersInfo usersInfo = new UsersInfo();
+            UsersInfo usersInfo = generateUsersInfo();
             mHal.getUserHal().getInitialUserInfo(requestType, timeout, usersInfo, callback);
         } else {
             mCarUserService.getInitialUserInfo(requestType, callback);
         }
         waitForHal(writer, latch, timeout);
+    }
+
+    private UsersInfo generateUsersInfo() {
+        return UserHalHelper.newUsersInfo(UserManager.get(mContext));
+    }
+
+    private int getUserHalFlags(@UserIdInt int userId) {
+        return UserHalHelper.getFlags(UserManager.get(mContext), userId);
     }
 
     private static void waitForHal(PrintWriter writer, CountDownLatch latch, int timeoutMs) {
@@ -906,11 +914,10 @@ final class CarShellCommand extends ShellCommand {
         if (halOnly) {
             CountDownLatch latch = new CountDownLatch(1);
             UserHalService userHal = mHal.getUserHal();
-            // TODO(b/150413515): use UserHalHelper to populate it with current users
-            UsersInfo usersInfo = new UsersInfo();
+            UsersInfo usersInfo = generateUsersInfo();
             UserInfo targetUserInfo = new UserInfo();
             targetUserInfo.userId = targetUserId;
-            // TODO(b/150413515): use UserHalHelper to set user flags
+            targetUserInfo.flags = getUserHalFlags(targetUserId);
 
             userHal.switchUser(targetUserInfo, timeout, usersInfo, (status, resp) -> {
                 try {
@@ -1009,8 +1016,8 @@ final class CarShellCommand extends ShellCommand {
         int requestSize = request.associationTypes.size();
         if (halOnly) {
             request.numberAssociationTypes = requestSize;
-            // TODO(b/150413515): use UserHalHelper to set user flags
             request.userInfo.userId = userId;
+            request.userInfo.flags = getUserHalFlags(userId);
 
             Log.d(TAG, "getUserAuthAssociation(): user=" + userId + ", halOnly=" + halOnly
                     + ", request=" + request);
@@ -1140,8 +1147,8 @@ final class CarShellCommand extends ShellCommand {
         int requestSize = request.associations.size();
         if (halOnly) {
             request.numberAssociations = requestSize;
-            // TODO(b/150413515): use UserHalHelper to set user flags
             request.userInfo.userId = userId;
+            request.userInfo.flags = getUserHalFlags(userId);
 
             Log.d(TAG, "setUserAuthAssociation(): user=" + userId + ", halOnly=" + halOnly
                     + ", request=" + request);
