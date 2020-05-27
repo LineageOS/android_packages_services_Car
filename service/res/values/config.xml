@@ -256,6 +256,20 @@
     <string-array translatable="false" name="config_occupant_display_mapping">
     </string-array>
 
+    <!--
+        Specifies whether CarLaunchParamControl prefers source. If prefer-source is enabled,
+        CarLaunchParamControl tries to launch Activities without any desiganted display to
+        the display where the source is located.
+
+        This can be configured 3 ways:
+        A. No items - don't prefer source for any components.
+        B. 1 items with "*" - prefer source for all components.
+        C. enumerate items of "packageName/activityName" - prefer source for the specified ones.
+    -->
+    <string-array translatable="false" name="config_sourcePreferredComponents">
+        <item>*</item>
+    </string-array>
+
     <!-- Specifies notice UI that will be launched when user starts a car or do user
          switching. It is recommended to use dialog with at least TYPE_APPLICATION_OVERLAY window
          type to show the UI regardless of activity launches. Target package will be auto-granted
