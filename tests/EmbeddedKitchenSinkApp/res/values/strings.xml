@@ -358,4 +358,7 @@
 
     <!-- ExperimentalFeatureTest -->
     <string name="experimental_ping" translatable="false">Ping Service</string>
+
+    <!-- User Profile -->
+    <string name="status_message_title">Status Message</string>
 </resources>
