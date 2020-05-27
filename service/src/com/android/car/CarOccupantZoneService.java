@@ -31,6 +31,7 @@ import android.car.VehicleAreaSeat;
 import android.car.media.CarAudioManager;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleListener;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
@@ -69,6 +70,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         implements CarServiceBase {
 
     private static final String TAG = CarLog.TAG_OCCUPANT;
+    private static final String ALL_COMPONENTS = "*";
 
     private final Object mLock = new Object();
     private final Context mContext;
@@ -76,6 +78,9 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     private final UserManager mUserManager;
 
     private final boolean mEnableProfileUserAssignmentForMultiDisplay;
+
+    private boolean mEnableSourcePreferred;
+    private ArrayList<ComponentName> mSourcePreferredComponents;
 
     /**
      * Stores android user id of profile users for the current user.
@@ -408,6 +413,16 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             }
             writer.println("mEnableProfileUserAssignmentForMultiDisplay:"
                     + mEnableProfileUserAssignmentForMultiDisplay);
+            writer.println("mEnableSourcePreferred:"
+                    + mEnableSourcePreferred);
+            writer.append("mSourcePreferredComponents: [");
+            if (mSourcePreferredComponents != null) {
+                for (int i = 0; i < mSourcePreferredComponents.size(); ++i) {
+                    if (i > 0) writer.append(' ');
+                    writer.append(mSourcePreferredComponents.get(i).toString());
+                }
+            }
+            writer.println(']');
         }
     }
 
@@ -648,11 +663,12 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
      * Sets {@code ICarServiceHelper}.
      */
     public void setCarServiceHelper(ICarServiceHelper helper) {
-        doSyncWithCarServiceHelper(helper, /* updateDisplay= */ true, /* updateUser= */ true);
+        doSyncWithCarServiceHelper(helper, /* updateDisplay= */ true, /* updateUser= */ true,
+                /* updateConfig= */ true);
     }
 
     private void doSyncWithCarServiceHelper(@Nullable ICarServiceHelper helper,
-            boolean updateDisplay, boolean updateUser) {
+            boolean updateDisplay, boolean updateUser, boolean updateConfig) {
         int[] passengerDisplays = null;
         ArrayMap<Integer, IntArray> whitelists = null;
         ICarServiceHelper helperToUse = helper;
@@ -677,6 +693,11 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
         if (updateUser) {
             updateUserAssignmentForDisplays(helperToUse, whitelists);
+        }
+        if (updateConfig) {
+            Resources res = mContext.getResources();
+            String[] components = res.getStringArray(R.array.config_sourcePreferredComponents);
+            updateSourcePreferredComponents(helperToUse, components);
         }
     }
 
@@ -703,6 +724,36 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             helper.setPassengerDisplays(passengerDisplayIds);
         } catch (RemoteException e) {
             Log.e(TAG, "ICarServiceHelper.setPassengerDisplays failed");
+        }
+    }
+
+    private void updateSourcePreferredComponents(ICarServiceHelper helper, String[] components) {
+        boolean enableSourcePreferred;
+        ArrayList<ComponentName> componentNames = null;
+        if (components == null || components.length == 0) {
+            enableSourcePreferred = false;
+            Log.i(TAG, "CarLaunchParamsModifier: disable source-preferred");
+        } else if (components.length == 1 && components[0].equals(ALL_COMPONENTS)) {
+            enableSourcePreferred = true;
+            Log.i(TAG, "CarLaunchParamsModifier: enable source-preferred for all Components");
+        } else {
+            componentNames = new ArrayList<>((components.length));
+            for (String item : components) {
+                ComponentName name = ComponentName.unflattenFromString(item);
+                if (name == null) {
+                    Log.e(TAG, "CarLaunchParamsModifier: Wrong ComponentName=" + item);
+                    return;
+                }
+                componentNames.add(name);
+            }
+            enableSourcePreferred = true;
+        }
+        try {
+            helper.setSourcePreferredComponents(enableSourcePreferred, componentNames);
+            mEnableSourcePreferred = enableSourcePreferred;
+            mSourcePreferredComponents = componentNames;
+        } catch (RemoteException e) {
+            Log.e(TAG, "ICarServiceHelper.setSourcePreferredComponents failed");
         }
     }
 
@@ -1062,7 +1113,8 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         } else if ((changeFlags & CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER) != 0) {
             updateUser = true;
         }
-        doSyncWithCarServiceHelper(/* helper= */ null, updateDisplay, updateUser);
+        doSyncWithCarServiceHelper(/* helper= */ null, updateDisplay, updateUser,
+                /* updateConfig= */ false);
 
         final int n = mClientCallbacks.beginBroadcast();
         for (int i = 0; i < n; i++) {
