@@ -18,6 +18,8 @@ package android.car.userlib;
 import static com.android.internal.util.Preconditions.checkArgument;
 
 import android.annotation.NonNull;
+import android.annotation.UserIdInt;
+import android.app.ActivityManager;
 import android.car.userlib.HalCallback.HalCallbackStatus;
 import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
@@ -37,11 +39,15 @@ import android.hardware.automotive.vehicle.V2_0.UsersInfo;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.os.SystemClock;
 import android.os.UserHandle;
+import android.os.UserManager;
 import android.text.TextUtils;
 import android.util.DebugUtils;
 import android.util.Log;
 
+import com.android.internal.util.Preconditions;
+
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -125,6 +131,16 @@ public final class UserHalHelper {
         }
 
         return flags;
+    }
+
+    /**
+     * Converts Android user flags to HALs.
+     */
+    public static int getFlags(@NonNull UserManager um, @UserIdInt int userId) {
+        Preconditions.checkArgument(um != null, "UserManager cannot be null");
+        UserInfo user = um.getUserInfo(userId);
+        Preconditions.checkArgument(user != null, "No user with id %d", userId);
+        return convertFlags(user);
     }
 
     /**
@@ -450,6 +466,55 @@ public final class UserHalHelper {
         }
 
         return propValue;
+    }
+
+    /**
+     * Creates a {@link UsersInfo} instance populated with the current users.
+     */
+    @NonNull
+    public static UsersInfo newUsersInfo(@NonNull UserManager um) {
+        Preconditions.checkArgument(um != null, "UserManager cannot be null");
+
+        List<UserInfo> users = um.getUsers(/*excludeDying= */ true);
+
+        if (users == null || users.isEmpty()) {
+            Log.w(TAG, "newUsersInfo(): no users");
+            return emptyUsersInfo();
+        }
+
+        UsersInfo usersInfo = new UsersInfo();
+        usersInfo.currentUser.userId = ActivityManager.getCurrentUser();
+        UserInfo currentUser = null;
+        usersInfo.numberUsers = users.size();
+
+        for (int i = 0; i < usersInfo.numberUsers; i++) {
+            UserInfo user = users.get(i);
+            if (user.id == usersInfo.currentUser.userId) {
+                currentUser = user;
+            }
+            android.hardware.automotive.vehicle.V2_0.UserInfo halUser =
+                    new android.hardware.automotive.vehicle.V2_0.UserInfo();
+            halUser.userId = user.id;
+            halUser.flags = convertFlags(user);
+            usersInfo.existingUsers.add(halUser);
+        }
+
+        if (currentUser != null) {
+            usersInfo.currentUser.flags = convertFlags(currentUser);
+        } else {
+            Log.w(TAG, "newUsersInfo(): could not get flags for current user ("
+                    + usersInfo.currentUser.userId + ")");
+        }
+
+        return usersInfo;
+    }
+
+    @NonNull
+    private static UsersInfo emptyUsersInfo() {
+        UsersInfo usersInfo = new UsersInfo();
+        usersInfo.currentUser.userId = UserHandle.USER_NULL;
+        usersInfo.currentUser.flags = UserFlags.NONE;
+        return usersInfo;
     }
 
     private static void assertMinimumSize(@NonNull VehiclePropValue prop, int minSize) {
