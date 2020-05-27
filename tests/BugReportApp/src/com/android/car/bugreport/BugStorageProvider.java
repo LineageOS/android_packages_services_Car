@@ -208,8 +208,9 @@ public class BugStorageProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        Preconditions.checkState(Config.isBugReportEnabled(), "BugReport is disabled.");
-
+        if (!Config.isBugReportEnabled()) {
+            return false;
+        }
         mDatabaseHelper = new DatabaseHelper(getContext());
         mConfig = new Config();
         mConfig.start();
@@ -235,6 +236,7 @@ public class BugStorageProvider extends ContentProvider {
             @Nullable String[] selectionArgs,
             @Nullable String sortOrder,
             @Nullable CancellationSignal cancellationSignal) {
+        Preconditions.checkState(Config.isBugReportEnabled(), "BugReport is disabled.");
         String table;
         switch (mUriMatcher.match(uri)) {
             // returns the list of bugreports that match the selection criteria.
@@ -264,6 +266,7 @@ public class BugStorageProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
+        Preconditions.checkState(Config.isBugReportEnabled(), "BugReport is disabled.");
         String table;
         if (values == null) {
             throw new IllegalArgumentException("values cannot be null");
@@ -303,6 +306,7 @@ public class BugStorageProvider extends ContentProvider {
     @Override
     public int delete(
             @NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
+        Preconditions.checkState(Config.isBugReportEnabled(), "BugReport is disabled.");
         SQLiteDatabase db = mDatabaseHelper.getReadableDatabase();
         switch (mUriMatcher.match(uri)) {
             case URL_MATCHED_DELETE_FILES:
@@ -337,6 +341,7 @@ public class BugStorageProvider extends ContentProvider {
             @Nullable ContentValues values,
             @Nullable String selection,
             @Nullable String[] selectionArgs) {
+        Preconditions.checkState(Config.isBugReportEnabled(), "BugReport is disabled.");
         if (values == null) {
             throw new IllegalArgumentException("values cannot be null");
         }
@@ -373,6 +378,7 @@ public class BugStorageProvider extends ContentProvider {
     @Override
     public ParcelFileDescriptor openFile(@NonNull Uri uri, @NonNull String mode)
             throws FileNotFoundException {
+        Preconditions.checkState(Config.isBugReportEnabled(), "BugReport is disabled.");
         Function<MetaBugReport, String> fileNameExtractor;
         switch (mUriMatcher.match(uri)) {
             case URL_MATCHED_OPEN_BUGREPORT_FILE:
