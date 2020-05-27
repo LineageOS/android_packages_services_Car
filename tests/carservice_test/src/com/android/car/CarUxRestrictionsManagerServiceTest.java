@@ -328,7 +328,10 @@ public class CarUxRestrictionsManagerServiceTest {
     public void testGetCurrentUxRestrictions_UnknownDisplayId_ReturnsFullRestrictions()
             throws Exception {
         mService.init();
-        CarUxRestrictions restrictions = mService.getCurrentUxRestrictions(/* displayId= */ 10);
+        // there would never actually be a display id of 100,000 - this is just an example of an id
+        // that doesn't exist on the device
+        int unknownDisplayId = 100_000;
+        CarUxRestrictions restrictions = mService.getCurrentUxRestrictions(unknownDisplayId);
         CarUxRestrictions expected = new CarUxRestrictions.Builder(
                 /*reqOpt= */ true,
                 CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED,
