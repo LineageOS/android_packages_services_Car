@@ -244,7 +244,7 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
         int anotherValidDisplayId = mValidDisplayId + 1;
         ret = mFixedActivityService.startFixedActivityModeForDisplayAndUser(anotherIntent,
                 options, anotherValidDisplayId, userId);
-        verify(mContext).startActivityAsUser(eq(intent), any(Bundle.class),
+        verify(mContext).startActivityAsUser(eq(anotherIntent), any(Bundle.class),
                 eq(UserHandle.of(userId)));
         assertThat(ret).isTrue();
     }
