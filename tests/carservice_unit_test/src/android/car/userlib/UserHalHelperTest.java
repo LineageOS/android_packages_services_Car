@@ -34,9 +34,15 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
 
 import android.annotation.NonNull;
+import android.app.ActivityManager;
+import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.test.mocks.AbstractExtendedMockitoTestCase.CustomMockitoSessionBuilder;
+import android.car.test.mocks.AndroidMockitoHelper;
+import android.car.test.util.UserTestingHelper.UserInfoBuilder;
 import android.content.pm.UserInfo;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
@@ -58,8 +64,20 @@ import android.os.UserManager;
 import com.google.common.collect.Range;
 
 import org.junit.Test;
+import org.mockito.Mock;
 
-public final class UserHalHelperTest {
+import java.util.ArrayList;
+import java.util.List;
+
+public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
+
+    @Mock
+    private UserManager mUm;
+
+    @Override
+    protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
+        session.spyStatic(ActivityManager.class);
+    }
 
     @Test
     public void testHalCallbackStatusToString() {
@@ -119,6 +137,41 @@ public final class UserHalHelperTest {
     }
 
     @Test
+    public void testGetFlags_nullUserManager() {
+        assertThrows(IllegalArgumentException.class, () -> UserHalHelper.getFlags(null, 10));
+    }
+
+    @Test
+    public void testGetFlags_noUser() {
+        // No need to set anythin as mUm call will return null
+        assertThrows(IllegalArgumentException.class, () -> UserHalHelper.getFlags(mUm, 10));
+    }
+
+    @Test
+    public void testGetFlags_ok() {
+        UserInfo user = new UserInfo();
+
+        user.id = UserHandle.USER_SYSTEM;
+        assertGetFlags(UserFlags.SYSTEM, user);
+
+        user.id = 10;
+        assertGetFlags(UserFlags.NONE, user);
+
+        user.flags = UserInfo.FLAG_ADMIN;
+        assertThat(user.isAdmin()).isTrue(); // sanity check
+        assertGetFlags(UserFlags.ADMIN, user);
+
+        user.flags = UserInfo.FLAG_EPHEMERAL;
+        assertThat(user.isEphemeral()).isTrue(); // sanity check
+        assertGetFlags(UserFlags.EPHEMERAL, user);
+
+        user.userType = UserManager.USER_TYPE_FULL_GUEST;
+        assertThat(user.isEphemeral()).isTrue(); // sanity check
+        assertThat(user.isGuest()).isTrue(); // sanity check
+        assertGetFlags(UserFlags.GUEST | UserFlags.EPHEMERAL, user);
+    }
+
+    @Test
     public void testIsSystem() {
         assertThat(UserHalHelper.isSystem(UserFlags.SYSTEM)).isTrue();
         assertThat(UserHalHelper.isSystem(UserFlags.SYSTEM | 666)).isTrue();
@@ -166,6 +219,13 @@ public final class UserHalHelperTest {
         assertWithMessage("flags mismatch: user=%s, flags=%s",
                 user.toFullString(), UserHalHelper.userFlagsToString(expectedFlags))
                         .that(UserHalHelper.convertFlags(user)).isEqualTo(expectedFlags);
+    }
+
+    private void assertGetFlags(int expectedFlags, @NonNull UserInfo user) {
+        when(mUm.getUserInfo(user.id)).thenReturn(user);
+        assertWithMessage("flags mismatch: user=%s, flags=%s",
+                user.toFullString(), UserHalHelper.userFlagsToString(expectedFlags))
+                        .that(UserHalHelper.getFlags(mUm, user.id)).isEqualTo(expectedFlags);
     }
 
     @Test
@@ -798,7 +858,83 @@ public final class UserHalHelperTest {
                 .inOrder();
     }
 
-    private void assertAssociation(@NonNull UserIdentificationResponse response, int index,
+    @Test
+    public void testNewUsersInfo_nullUm() {
+        assertThrows(IllegalArgumentException.class, () -> UserHalHelper.newUsersInfo(null));
+    }
+
+    @Test
+    public void testNewUsersInfo_nullUsers() {
+        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUm);
+
+        assertEmptyUsersInfo(usersInfo);
+    }
+
+    @Test
+    public void testNewUsersInfo_noUsers() {
+        List<UserInfo> users = new ArrayList<>();
+        AndroidMockitoHelper.mockUmGetUsers(mUm, users);
+
+        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUm);
+
+        assertEmptyUsersInfo(usersInfo);
+    }
+
+    @Test
+    public void testNewUsersInfo_noCurrentUser() {
+        UserInfo user100 = new UserInfoBuilder(100).setFlags(UserInfo.FLAG_ADMIN).build();
+        UserInfo user200 = new UserInfoBuilder(200).build();
+
+        AndroidMockitoHelper.mockUmGetUsers(mUm, user100, user200);
+        AndroidMockitoHelper.mockAmGetCurrentUser(300);
+
+        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUm);
+
+        assertThat(usersInfo).isNotNull();
+        assertThat(usersInfo.currentUser.userId).isEqualTo(300);
+        assertThat(usersInfo.currentUser.flags).isEqualTo(UserFlags.NONE);
+
+        assertThat(usersInfo.numberUsers).isEqualTo(2);
+        assertThat(usersInfo.existingUsers).hasSize(2);
+
+        assertThat(usersInfo.existingUsers.get(0).userId).isEqualTo(100);
+        assertThat(usersInfo.existingUsers.get(0).flags).isEqualTo(UserFlags.ADMIN);
+        assertThat(usersInfo.existingUsers.get(1).userId).isEqualTo(200);
+        assertThat(usersInfo.existingUsers.get(1).flags).isEqualTo(UserFlags.NONE);
+    }
+
+    @Test
+    public void testNewUsersInfo_ok() {
+        UserInfo user100 = new UserInfoBuilder(100).setFlags(UserInfo.FLAG_ADMIN).build();
+        UserInfo user200 = new UserInfoBuilder(200).build();
+
+        AndroidMockitoHelper.mockUmGetUsers(mUm, user100, user200);
+        AndroidMockitoHelper.mockAmGetCurrentUser(100);
+
+        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUm);
+
+        assertThat(usersInfo).isNotNull();
+        assertThat(usersInfo.currentUser.userId).isEqualTo(100);
+        assertThat(usersInfo.currentUser.flags).isEqualTo(UserFlags.ADMIN);
+
+        assertThat(usersInfo.numberUsers).isEqualTo(2);
+        assertThat(usersInfo.existingUsers).hasSize(2);
+
+        assertThat(usersInfo.existingUsers.get(0).userId).isEqualTo(100);
+        assertThat(usersInfo.existingUsers.get(0).flags).isEqualTo(UserFlags.ADMIN);
+        assertThat(usersInfo.existingUsers.get(1).userId).isEqualTo(200);
+        assertThat(usersInfo.existingUsers.get(1).flags).isEqualTo(UserFlags.NONE);
+    }
+
+    private static void assertEmptyUsersInfo(UsersInfo usersInfo) {
+        assertThat(usersInfo).isNotNull();
+        assertThat(usersInfo.currentUser.userId).isEqualTo(UserHandle.USER_NULL);
+        assertThat(usersInfo.currentUser.flags).isEqualTo(UserFlags.NONE);
+        assertThat(usersInfo.numberUsers).isEqualTo(0);
+        assertThat(usersInfo.existingUsers).isEmpty();
+    }
+
+    private static void assertAssociation(@NonNull UserIdentificationResponse response, int index,
             int expectedType, int expectedValue) {
         UserIdentificationAssociation actualAssociation = response.associations.get(index);
         if (actualAssociation.type != expectedType) {
