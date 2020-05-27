@@ -25,6 +25,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.UserInfo;
+import android.graphics.Color;
 import android.hardware.display.DisplayManager;
 import android.os.Bundle;
 import android.os.Process;
@@ -54,6 +55,10 @@ public class ProfileUserFragment extends Fragment {
 
     private static final String TAG = ProfileUserFragment.class.getSimpleName();
 
+    private static final int ERROR_MESSAGE = 0;
+    private static final int WARN_MESSAGE = 1;
+    private static final int INFO_MESSAGE = 2;
+
     private SpinnerWrapper mUsersSpinner;
     private SpinnerWrapper mZonesSpinner;
     private SpinnerWrapper mDisplaysSpinner;
@@ -71,6 +76,7 @@ public class ProfileUserFragment extends Fragment {
     private TextView mUserIdText;
     private TextView mZoneInfoText;
     private TextView mUserStateText;
+    private TextView mErrorMessageText;
 
     private UserManager mUserManager;
     private DisplayManager mDisplayManager;
@@ -118,11 +124,11 @@ public class ProfileUserFragment extends Fragment {
         });
         mStartUserButton = view.findViewById(R.id.profile_button_start_user);
         mStartUserButton.setOnClickListener(v -> {
-            startOrStopUser(/* start= */ true);
+            startUser();
         });
         mStopUserButton = view.findViewById(R.id.profile_button_stop_user);
         mStopUserButton.setOnClickListener(v -> {
-            startOrStopUser(/* start= */ false);
+            stopUser();
         });
         mAssignUserToZoneButton = view.findViewById(R.id.profile_button_assign_user_to_zone);
         mAssignUserToZoneButton.setOnClickListener(v -> {
@@ -137,6 +143,8 @@ public class ProfileUserFragment extends Fragment {
         mLaunchAppForDisplayAndUserButton.setOnClickListener(v -> {
             launchAppForDisplayAndUser();
         });
+
+        mErrorMessageText = view.findViewById(R.id.status_message_text_view);
     }
 
     private void updateTextInfo() {
@@ -175,65 +183,99 @@ public class ProfileUserFragment extends Fragment {
     }
 
     private void createUser(boolean restricted) {
-        UserInfo user;
-        if (restricted) {
-            user = mUserManager.createRestrictedProfile("RestrictedProfile");
-        } else {
-            user = mUserManager.createProfileForUser("ManagedProfile",
-                UserManager.USER_TYPE_PROFILE_MANAGED, /* flags= */ 0,
-                ActivityManager.getCurrentUser());
+        try {
+            UserInfo user;
+            if (restricted) {
+                user = mUserManager.createRestrictedProfile("RestrictedProfile");
+            } else {
+                user = mUserManager.createProfileForUser("ManagedProfile",
+                        UserManager.USER_TYPE_PROFILE_MANAGED, /* flags= */ 0,
+                        ActivityManager.getCurrentUser());
+            }
+            setMessage(INFO_MESSAGE, "Created User " + user);
+            mUsersSpinner.updateEntries(getUsers());
+            updateTextInfo();
+        } catch (Exception e) {
+            setMessage(ERROR_MESSAGE, e);
         }
-        Log.i(TAG, "created User:" + user);
-        mUsersSpinner.updateEntries(getUsers());
-        updateTextInfo();
     }
 
     private void removeUser() {
         int userToRemove = getSelectedUser();
         if (userToRemove == UserHandle.USER_NULL) {
+            setMessage(INFO_MESSAGE, "Cannot remove null user");
             return;
         }
         int currentUser = ActivityManager.getCurrentUser();
         if (userToRemove == currentUser) {
-            Log.w(TAG, "cannot remove current user");
+            setMessage(WARN_MESSAGE, "Cannot remove current user");
             return;
         }
         Log.i(TAG, "removing user:" + userToRemove);
-        mUserManager.removeUser(userToRemove);
-        mUsersSpinner.updateEntries(getUsers());
-        updateTextInfo();
+        try {
+            mUserManager.removeUser(userToRemove);
+            mUsersSpinner.updateEntries(getUsers());
+            updateTextInfo();
+            setMessage(INFO_MESSAGE, "Removed user " + userToRemove);
+        } catch (Exception e) {
+            setMessage(ERROR_MESSAGE, e);
+        }
     }
 
-    private void startOrStopUser(boolean start) {
+    private void stopUser() {
         int userToUpdate = getSelectedUser();
-        if (userToUpdate == UserHandle.USER_NULL) {
+        if (!canChangeUser(userToUpdate)) {
             return;
         }
-        int currentUser = ActivityManager.getCurrentUser();
-        if (userToUpdate == currentUser) {
-            Log.w(TAG, "cannot change current user");
-            return;
-        }
-        if (start == mUserManager.isUserRunning(userToUpdate)) {
+
+        if (!mUserManager.isUserRunning(userToUpdate)) {
+            setMessage(WARN_MESSAGE, "User " + userToUpdate + " is already stopped");
             return;
         }
         IActivityManager am = ActivityManager.getService();
-        if (start) {
-            Log.i(TAG, "start user:" + userToUpdate);
-            try {
-                am.startUserInBackground(userToUpdate);
-            } catch (RemoteException e) {
-                Log.w(TAG, "cannot start user", e);
-            }
-        } else {
-            Log.i(TAG, "stop user:" + userToUpdate);
-            try {
-                am.stopUser(userToUpdate, /* force= */ false, /* callback= */ null);
-            } catch (RemoteException e) {
-                Log.w(TAG, "cannot stop user", e);
-            }
+        Log.i(TAG, "stop user:" + userToUpdate);
+        try {
+            am.stopUser(userToUpdate, /* force= */ false, /* callback= */ null);
+        } catch (RemoteException e) {
+            setMessage(WARN_MESSAGE, "Cannot stop user", e);
+            return;
         }
+        setMessage(INFO_MESSAGE, "Stopped user " + userToUpdate);
         updateTextInfo();
+    }
+
+    private void startUser() {
+        int userToUpdate = getSelectedUser();
+        if (!canChangeUser(userToUpdate)) {
+            return;
+        }
+
+        if (mUserManager.isUserRunning(userToUpdate)) {
+            setMessage(WARN_MESSAGE, "User " + userToUpdate + " is already running");
+            return;
+        }
+        IActivityManager am = ActivityManager.getService();
+        Log.i(TAG, "start user:" + userToUpdate);
+        try {
+            am.startUserInBackground(userToUpdate);
+        } catch (RemoteException e) {
+            setMessage(WARN_MESSAGE, "Cannot start user", e);
+            return;
+        }
+        setMessage(INFO_MESSAGE, "Started user " + userToUpdate);
+        updateTextInfo();
+    }
+
+    private boolean canChangeUser(int userToUpdate) {
+        if (userToUpdate == UserHandle.USER_NULL) {
+            return false;
+        }
+        int currentUser = ActivityManager.getCurrentUser();
+        if (userToUpdate == currentUser) {
+            setMessage(WARN_MESSAGE, "Can not change current user");
+            return false;
+        }
+        return true;
     }
 
     private void assignUserToZone() {
@@ -246,10 +288,54 @@ public class ProfileUserFragment extends Fragment {
             return;
         }
         Log.i(TAG, "assigning user:" + userId + " to zone:" + zoneId);
-        if (!mZoneManager.assignProfileUserToOccupantZone(getZoneInfoForId(zoneId), userId)) {
-            Log.e(TAG, "assignment failed");
+        boolean assignUserToZoneResults;
+        try {
+            assignUserToZoneResults =
+                    mZoneManager.assignProfileUserToOccupantZone(getZoneInfoForId(zoneId), userId);
+        } catch (IllegalArgumentException e) {
+            setMessage(ERROR_MESSAGE, e.getMessage());
+            return;
         }
+        if (!assignUserToZoneResults) {
+            Log.e(TAG, "Assignment failed");
+            setMessage(ERROR_MESSAGE, "Failed to assign user " + userId + " to zone "
+                    + zoneId);
+            return;
+        }
+        setMessage(INFO_MESSAGE, "Assigned user " + userId + " to zone " + zoneId);
         updateTextInfo();
+    }
+
+    private void setMessage(int messageType, String title, Exception e) {
+        StringBuilder messageTextBuilder = new StringBuilder();
+        messageTextBuilder.append(title);
+        messageTextBuilder.append(": ");
+        messageTextBuilder.append(e.getMessage());
+        setMessage(messageType, messageTextBuilder.toString());
+    }
+
+    private void setMessage(int messageType, Exception e) {
+        setMessage(messageType, e.getMessage());
+    }
+
+    private void setMessage(int messageType, String message) {
+        int textColor;
+        switch (messageType) {
+            case ERROR_MESSAGE:
+                Log.e(TAG, message);
+                textColor = Color.RED;
+                break;
+            case WARN_MESSAGE:
+                Log.w(TAG, message);
+                textColor = Color.GREEN;
+                break;
+            case INFO_MESSAGE:
+            default:
+                Log.i(TAG, message);
+                textColor = Color.WHITE;
+        }
+        mErrorMessageText.setTextColor(textColor);
+        mErrorMessageText.setText(message);
     }
 
     private void launchAppForZone() {

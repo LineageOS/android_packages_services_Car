@@ -266,10 +266,16 @@ public final class FixedActivityService implements CarServiceBase {
     };
 
     public FixedActivityService(Context context) {
+        this(context, ActivityManager.getService(), context.getSystemService(UserManager.class),
+                context.getSystemService(DisplayManager.class));
+    }
+
+    FixedActivityService(Context context, IActivityManager activityManager,
+            UserManager userManager, DisplayManager displayManager) {
         mContext = context;
-        mAm = ActivityManager.getService();
-        mUm = context.getSystemService(UserManager.class);
-        mDm = context.getSystemService(DisplayManager.class);
+        mAm = activityManager;
+        mUm = userManager;
+        mDm = displayManager;
         mHandlerThread = CarServiceUtils.getHandlerThread(
                 FixedActivityService.class.getSimpleName());
     }
