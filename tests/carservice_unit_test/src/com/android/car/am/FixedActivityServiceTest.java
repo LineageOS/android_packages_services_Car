@@ -53,8 +53,10 @@ import android.os.UserManager;
 import android.view.Display;
 
 import com.android.car.CarLocalServices;
+import com.android.car.CarServiceUtils;
 import com.android.car.user.CarUserService;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -102,6 +104,14 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
         doReturn(mCarPowerManager).when(() -> CarLocalServices.createCarPowerManager(mContext));
         mFixedActivityService = new FixedActivityService(mContext, mActivityManager, mUserManager,
                 mDisplayManager);
+    }
+
+    @After
+    public void tearDown() {
+        if (mFixedActivityService != null) {
+            mFixedActivityService.release();
+        }
+        CarServiceUtils.finishAllHandlerTasks();
     }
 
     @Test
