@@ -191,8 +191,6 @@ public class BugReportActivity extends Activity {
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
-
         if (mRecorder != null) {
             mHandler.removeCallbacksAndMessages(/* token= */ mRecorder);
         }
@@ -204,6 +202,7 @@ public class BugReportActivity extends Activity {
             mCar.disconnect();
             mCar = null;
         }
+        super.onDestroy();
     }
 
     private void onCarDrivingStateChanged(CarDrivingStateEvent event) {
