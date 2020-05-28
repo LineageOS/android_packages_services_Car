@@ -42,7 +42,6 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
@@ -766,7 +765,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         assertThat(getResult(futureNewRequest).getStatus())
                 .isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
         assertNoPostSwitch();
-        assertHalSwitch(mAdminUser.id, mGuestUser.id, mAdminUser.id, mRegularUser.id);
+        assertHalSwitch(mAdminUser.id, mGuestUser.id);
+        assertHalSwitch(mAdminUser.id, mRegularUser.id);
     }
 
     @Test
@@ -795,7 +795,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         assertThat(getResult(futureNewRequest).getStatus())
                 .isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
         assertPostSwitch(newRequestId, mRegularUser.id, mRegularUser.id);
-        assertHalSwitch(mAdminUser.id, mGuestUser.id, mAdminUser.id, mRegularUser.id);
+        assertHalSwitch(mAdminUser.id, mGuestUser.id);
+        assertHalSwitch(mAdminUser.id, mRegularUser.id);
     }
 
     @Test
@@ -820,7 +821,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         assertThat(getResult(futureNewRequest).getStatus())
                 .isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
         assertNoPostSwitch();
-        assertHalSwitch(mAdminUser.id, mGuestUser.id, mAdminUser.id, mRegularUser.id);
+        assertHalSwitch(mAdminUser.id, mGuestUser.id);
+        assertHalSwitch(mAdminUser.id, mRegularUser.id);
     }
 
     @Test
@@ -847,7 +849,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         assertThat(getResult(futureNewRequest).getStatus())
                 .isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
         assertPostSwitch(newRequestId, mRegularUser.id, mRegularUser.id);
-        assertHalSwitch(mAdminUser.id, mGuestUser.id, mAdminUser.id, mRegularUser.id);
+        assertHalSwitch(mAdminUser.id, mGuestUser.id);
+        assertHalSwitch(mAdminUser.id, mRegularUser.id);
     }
 
     @Test
@@ -880,7 +883,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         assertThat(getResult(futureNewRequest).getStatus())
                 .isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
         assertPostSwitch(newRequestId, mRegularUser.id, mRegularUser.id);
-        assertHalSwitch(mAdminUser.id, mGuestUser.id, mAdminUser.id, mRegularUser.id);
+        assertHalSwitch(mAdminUser.id, mGuestUser.id);
+        assertHalSwitch(mAdminUser.id, mRegularUser.id);
     }
 
     @Test
@@ -1676,28 +1680,20 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         assertThat(usersInfo.getValue().currentUser.userId).isEqualTo(currentId);
     }
 
-    // TODO(b/154966308): Refactor to use argument matcher
     private void assertHalSwitch(int currentId, int targetId) {
-        ArgumentCaptor<android.hardware.automotive.vehicle.V2_0.UserInfo> targetUser =
-                ArgumentCaptor.forClass(android.hardware.automotive.vehicle.V2_0.UserInfo.class);
-        ArgumentCaptor<UsersInfo> usersInfo = ArgumentCaptor.forClass(UsersInfo.class);
-        verify(mUserHal).switchUser(targetUser.capture(), eq(mAsyncCallTimeoutMs),
-                usersInfo.capture(), any());
-        assertThat(targetUser.getValue().userId).isEqualTo(targetId);
-        assertThat(usersInfo.getValue().currentUser.userId).isEqualTo(currentId);
+        verify(mUserHal).switchUser(isHalUser(targetId), eq(mAsyncCallTimeoutMs),
+                isHalCurrentUser(currentId), any());
     }
 
-    // TODO(b/154966308): Refactor to use argument matcher
-    private void assertHalSwitch(int currentId1, int targetId1, int currentId2, int targetId2) {
-        ArgumentCaptor<android.hardware.automotive.vehicle.V2_0.UserInfo> targetUser =
-                ArgumentCaptor.forClass(android.hardware.automotive.vehicle.V2_0.UserInfo.class);
-        ArgumentCaptor<UsersInfo> usersInfo = ArgumentCaptor.forClass(UsersInfo.class);
-        verify(mUserHal, times(2)).switchUser(targetUser.capture(), eq(mAsyncCallTimeoutMs),
-                usersInfo.capture(), any());
-        assertThat(targetUser.getAllValues().get(0).userId).isEqualTo(targetId1);
-        assertThat(usersInfo.getAllValues().get(0).currentUser.userId).isEqualTo(currentId1);
-        assertThat(targetUser.getAllValues().get(1).userId).isEqualTo(targetId2);
-        assertThat(usersInfo.getAllValues().get(1).currentUser.userId).isEqualTo(currentId2);
+    @NonNull
+    private static android.hardware.automotive.vehicle.V2_0.UserInfo isHalUser(
+            @UserIdInt int userId) {
+        return argThat(new UserInfoMatcher(userId));
+    }
+
+    @NonNull
+    private static UsersInfo isHalCurrentUser(@UserIdInt int userId) {
+        return argThat(new UsersInfoCurrentUserIdMatcher(userId));
     }
 
     static final class FakeCarOccupantZoneService {
@@ -1819,6 +1815,58 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
             return "isUserIdentificationGetRequest(userId=" + mUserId + ", flags="
                     + UserHalHelper.userFlagsToString(mHalFlags) + ", types="
                     + Arrays.toString(mTypes) + ")";
+        }
+    }
+
+    private static final class UserInfoMatcher
+            implements ArgumentMatcher<android.hardware.automotive.vehicle.V2_0.UserInfo> {
+
+        private static final String MY_TAG =
+                android.hardware.automotive.vehicle.V2_0.UserInfo.class.getSimpleName();
+
+        private final @UserIdInt int mUserId;
+
+        private UserInfoMatcher(@UserIdInt int userId) {
+            mUserId = userId;
+        }
+
+        @Override
+        public boolean matches(android.hardware.automotive.vehicle.V2_0.UserInfo argument) {
+            if (argument == null) {
+                Log.w(MY_TAG, "null argument");
+                return false;
+            }
+            if (argument.userId != mUserId) {
+                Log.w(MY_TAG, "wrong user id on " + argument + "; expected " + mUserId);
+                return false;
+            }
+            Log.d(MY_TAG, "Good News, Everyone! " + argument + " matches " + this);
+            return true;
+        }
+    }
+
+    private static final class UsersInfoCurrentUserIdMatcher implements ArgumentMatcher<UsersInfo> {
+
+        private static final String MY_TAG = UsersInfo.class.getSimpleName();
+
+        private final @UserIdInt int mUserId;
+
+        private UsersInfoCurrentUserIdMatcher(@UserIdInt int userId) {
+            mUserId = userId;
+        }
+
+        @Override
+        public boolean matches(UsersInfo argument) {
+            if (argument == null) {
+                Log.w(MY_TAG, "null argument");
+                return false;
+            }
+            if (argument.currentUser.userId != mUserId) {
+                Log.w(MY_TAG, "wrong user id on " + argument + "; expected " + mUserId);
+                return false;
+            }
+            Log.d(MY_TAG, "Good News, Everyone! " + argument + " matches " + this);
+            return true;
         }
     }
 }
