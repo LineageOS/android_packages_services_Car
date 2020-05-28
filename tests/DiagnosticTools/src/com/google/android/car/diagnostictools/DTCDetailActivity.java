@@ -47,6 +47,7 @@ public class DTCDetailActivity extends Activity {
 
     private static final String TAG = "DTCDetailActivity";
     private final Handler mHandler = new Handler();
+    private Car mCar;
     private Toolbar mDTCTitle;
     private TextView mDTCDetails;
     private DTC mDTC;
@@ -92,8 +93,8 @@ public class DTCDetailActivity extends Activity {
 
         loadingFreezeFrame();
 
-        mCarDiagnosticManager =
-                (CarDiagnosticManager) Car.createCar(this).getCarManager(Car.DIAGNOSTIC_SERVICE);
+        mCar = Car.createCar(this);
+        mCarDiagnosticManager = (CarDiagnosticManager) mCar.getCarManager(Car.DIAGNOSTIC_SERVICE);
 
         // Runnable function that checks to see if there is a Freeze Frame available or not.
         // Repeats
@@ -124,6 +125,19 @@ public class DTCDetailActivity extends Activity {
                 0);
 
         getIncomingIntent();
+    }
+
+    /** Removes all callbacks from mHandler when DTCDetailActivity is destroyed */
+    @Override
+    protected void onDestroy() {
+        if (mHandler != null) {
+            mHandler.removeCallbacksAndMessages(null);
+        }
+        if (mCar != null && mCar.isConnected()) {
+            mCar.disconnect();
+            mCar = null;
+        }
+        super.onDestroy();
     }
 
     /** Handle incoming intent to extract extras. */
@@ -205,14 +219,5 @@ public class DTCDetailActivity extends Activity {
                         })
                 .setNegativeButton(android.R.string.no, null)
                 .show();
-    }
-
-    /** Removes all callbacks from mHandler when DTCDetailActivity is destroyed */
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mHandler != null) {
-            mHandler.removeCallbacksAndMessages(null);
-        }
     }
 }
