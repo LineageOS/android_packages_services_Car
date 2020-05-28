@@ -41,6 +41,33 @@ static const uint8_t kGrayColor = 128;
 static const int kNumChannels = 4;
 static const int kFrameDelayInMilliseconds = 30;
 
+void SurroundView3dSession::processFrames() {
+    if (mSurroundView->Start3dPipeline()) {
+        LOG(INFO) << "Start3dPipeline succeeded";
+    } else {
+        LOG(ERROR) << "Start3dPipeline failed";
+        return;
+    }
+
+    while(mStreamState == RUNNING) {
+        {
+            unique_lock<mutex> lock(mAccessLock);
+
+            mSignal.wait(lock, [this]() {
+                return framesAvailable;
+            });
+        }
+
+        handleFrames(sequenceId);
+
+        {
+            // Set the boolean to false to receive the next set of frames.
+            unique_lock<mutex> lock(mAccessLock);
+            framesAvailable = false;
+        }
+    }
+}
+
 SurroundView3dSession::SurroundView3dSession() :
     mStreamState(STOPPED){
     mEvsCameraIds = {"0" , "1", "2", "3"};
@@ -84,6 +111,10 @@ Return<SvResult> SurroundView3dSession::startStream(
     mStreamState = RUNNING;
     mCaptureThread = thread([this](){
         generateFrames();
+    });
+
+    mProcessThread = thread([this]() {
+        processFrames();
     });
 
     return SvResult::OK;
@@ -288,18 +319,7 @@ Return<void> SurroundView3dSession::projectCameraPointsTo3dSurface(
 }
 
 void SurroundView3dSession::generateFrames() {
-    if (mSurroundView->Start3dPipeline()) {
-        LOG(INFO) << "Start3dPipeline succeeded";
-    } else {
-        LOG(ERROR) << "Start3dPipeline failed";
-        return;
-    }
-
-    int sequenceId = 0;
-
-    // TODO(b/150412555): do not use the setViews for frames generation
-    // since there is a discrepancy between the HIDL APIs and core lib APIs.
-    array<array<float, 4>, 4> matrix;
+    sequenceId = 0;
 
     while(true) {
         {
@@ -355,82 +375,106 @@ void SurroundView3dSession::generateFrames() {
             }
         }
 
-        // TODO(b/150412555): use hard-coded views for now. Change view every
-        // frame.
-        int recViewId = sequenceId % 16;
-        for (int i=0; i<4; i++)
-            for (int j=0; j<4; j++) {
-                matrix[i][j] = kRecViews[recViewId][i*4+j];
-        }
+        LOG(INFO) << "Notify all. SequenceId " << sequenceId << " is ready";
+        framesAvailable = true;
+        mSignal.notify_all();
 
-        if (mSurroundView->Get3dSurroundView(
-            mInputPointers, matrix, &mOutputPointer)) {
-            LOG(INFO) << "Get3dSurroundView succeeded";
+        // TODO(b/150412555): adding delays explicitly. This delay should be
+        // removed when EVS camera is used.
+        this_thread::sleep_for(chrono::milliseconds(
+            kFrameDelayInMilliseconds));
+
+        sequenceId++;
+    }
+
+    // If we've been asked to stop, send an event to signal the actual end of stream
+    LOG(DEBUG) << "Notify SvEvent::STREAM_STOPPED";
+    mStream->notify(SvEvent::STREAM_STOPPED);
+}
+
+bool SurroundView3dSession::handleFrames(int sequenceId) {
+
+    LOG(INFO) << __FUNCTION__ << "Handling sequenceId " << sequenceId << ".";
+
+    // TODO(b/150412555): do not use the setViews for frames generation
+    // since there is a discrepancy between the HIDL APIs and core lib APIs.
+    array<array<float, 4>, 4> matrix;
+
+    // TODO(b/150412555): use hard-coded views for now. Change view every
+    // frame.
+    int recViewId = sequenceId % 16;
+    for (int i=0; i<4; i++)
+        for (int j=0; j<4; j++) {
+            matrix[i][j] = kRecViews[recViewId][i*4+j];
+    }
+
+    if (mSurroundView->Get3dSurroundView(
+        mInputPointers, matrix, &mOutputPointer)) {
+        LOG(INFO) << "Get3dSurroundView succeeded";
+    } else {
+        LOG(ERROR) << "Get3dSurroundView failed. "
+                   << "Using memset to initialize to gray.";
+        memset(mOutputPointer.data_pointer, kGrayColor,
+               mOutputHeight * mOutputWidth * kNumChannels);
+    }
+
+    void* textureDataPtr = nullptr;
+    mSvTexture->lock(GRALLOC_USAGE_SW_WRITE_OFTEN
+                    | GRALLOC_USAGE_SW_READ_NEVER,
+                    &textureDataPtr);
+    if (!textureDataPtr) {
+        LOG(ERROR) << "Failed to gain write access to GraphicBuffer!";
+        return false;
+    }
+
+    // Note: there is a chance that the stride of the texture is not the
+    // same as the width. For example, when the input frame is 1920 * 1080,
+    // the width is 1080, but the stride is 2048. So we'd better copy the
+    // data line by line, instead of single memcpy.
+    uint8_t* writePtr = static_cast<uint8_t*>(textureDataPtr);
+    uint8_t* readPtr = static_cast<uint8_t*>(mOutputPointer.data_pointer);
+    const int readStride = mOutputWidth * kNumChannels;
+    const int writeStride = mSvTexture->getStride() * kNumChannels;
+    if (readStride == writeStride) {
+        memcpy(writePtr, readPtr, readStride * mSvTexture->getHeight());
+    } else {
+        for (int i=0; i<mSvTexture->getHeight(); i++) {
+            memcpy(writePtr, readPtr, readStride);
+            writePtr = writePtr + writeStride;
+            readPtr = readPtr + readStride;
+        }
+    }
+    LOG(INFO) << "memcpy finished!";
+    mSvTexture->unlock();
+
+    ANativeWindowBuffer* buffer = mSvTexture->getNativeBuffer();
+    LOG(DEBUG) << "ANativeWindowBuffer->handle: " << buffer->handle;
+
+    framesRecord.frames.svBuffers.resize(1);
+    SvBuffer& svBuffer = framesRecord.frames.svBuffers[0];
+    svBuffer.viewId = 0;
+    svBuffer.hardwareBuffer.nativeHandle = buffer->handle;
+    AHardwareBuffer_Desc* pDesc =
+        reinterpret_cast<AHardwareBuffer_Desc *>(
+            &svBuffer.hardwareBuffer.description);
+    pDesc->width = mOutputWidth;
+    pDesc->height = mOutputHeight;
+    pDesc->layers = 1;
+    pDesc->usage = GRALLOC_USAGE_HW_TEXTURE;
+    pDesc->stride = mSvTexture->getStride();
+    pDesc->format = HAL_PIXEL_FORMAT_RGBA_8888;
+    framesRecord.frames.timestampNs = elapsedRealtimeNano();
+    framesRecord.frames.sequenceId = sequenceId;
+
+    {
+        scoped_lock<mutex> lock(mAccessLock);
+
+        if (framesRecord.inUse) {
+            LOG(DEBUG) << "Notify SvEvent::FRAME_DROPPED";
+            mStream->notify(SvEvent::FRAME_DROPPED);
         } else {
-            LOG(ERROR) << "Get3dSurroundView failed. "
-                       << "Using memset to initialize to gray.";
-            memset(mOutputPointer.data_pointer, kGrayColor,
-                   mOutputHeight * mOutputWidth * kNumChannels);
-        }
-
-        void* textureDataPtr = nullptr;
-        mSvTexture->lock(GRALLOC_USAGE_SW_WRITE_OFTEN
-                        | GRALLOC_USAGE_SW_READ_NEVER,
-                        &textureDataPtr);
-        if (!textureDataPtr) {
-            LOG(ERROR) << "Failed to gain write access to GraphicBuffer!";
-            break;
-        }
-
-        // Note: there is a chance that the stride of the texture is not the
-        // same as the width. For example, when the input frame is 1920 * 1080,
-        // the width is 1080, but the stride is 2048. So we'd better copy the
-        // data line by line, instead of single memcpy.
-        uint8_t* writePtr = static_cast<uint8_t*>(textureDataPtr);
-        uint8_t* readPtr = static_cast<uint8_t*>(mOutputPointer.data_pointer);
-        const int readStride = mOutputWidth * kNumChannels;
-        const int writeStride = mSvTexture->getStride() * kNumChannels;
-        if (readStride == writeStride) {
-            memcpy(writePtr, readPtr, readStride * mSvTexture->getHeight());
-        } else {
-            for (int i=0; i<mSvTexture->getHeight(); i++) {
-                memcpy(writePtr, readPtr, readStride);
-                writePtr = writePtr + writeStride;
-                readPtr = readPtr + readStride;
-            }
-        }
-        LOG(INFO) << "memcpy finished!";
-        mSvTexture->unlock();
-
-        ANativeWindowBuffer* buffer = mSvTexture->getNativeBuffer();
-        LOG(DEBUG) << "ANativeWindowBuffer->handle: " << buffer->handle;
-
-        framesRecord.frames.svBuffers.resize(1);
-        SvBuffer& svBuffer = framesRecord.frames.svBuffers[0];
-        svBuffer.viewId = 0;
-        svBuffer.hardwareBuffer.nativeHandle = buffer->handle;
-        AHardwareBuffer_Desc* pDesc =
-            reinterpret_cast<AHardwareBuffer_Desc *>(
-                &svBuffer.hardwareBuffer.description);
-        pDesc->width = mOutputWidth;
-        pDesc->height = mOutputHeight;
-        pDesc->layers = 1;
-        pDesc->usage = GRALLOC_USAGE_HW_TEXTURE;
-        pDesc->stride = mSvTexture->getStride();
-        pDesc->format = HAL_PIXEL_FORMAT_RGBA_8888;
-        framesRecord.frames.timestampNs = elapsedRealtimeNano();
-        framesRecord.frames.sequenceId = sequenceId++;
-
-        {
-            scoped_lock<mutex> lock(mAccessLock);
-
-            if (framesRecord.inUse) {
-                LOG(DEBUG) << "Notify SvEvent::FRAME_DROPPED";
-                mStream->notify(SvEvent::FRAME_DROPPED);
-            } else {
-                framesRecord.inUse = true;
-                mStream->receiveFrames(framesRecord.frames);
-            }
+            framesRecord.inUse = true;
+            mStream->receiveFrames(framesRecord.frames);
         }
 
         // TODO(b/150412555): adding delays explicitly. This delay should be
@@ -439,9 +483,7 @@ void SurroundView3dSession::generateFrames() {
             kFrameDelayInMilliseconds));
     }
 
-    // If we've been asked to stop, send an event to signal the actual end of stream
-    LOG(DEBUG) << "Notify SvEvent::STREAM_STOPPED";
-    mStream->notify(SvEvent::STREAM_STOPPED);
+    return true;
 }
 
 bool SurroundView3dSession::initialize() {
