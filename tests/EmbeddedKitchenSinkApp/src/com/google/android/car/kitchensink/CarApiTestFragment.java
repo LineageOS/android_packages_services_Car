@@ -71,17 +71,20 @@ public class CarApiTestFragment extends Fragment {
                 R.id.carapi_createcar_with_status_change);
         view.findViewById(R.id.button_carapi_createandconnect).setOnClickListener(
                 (View v) -> {
+                    disconnectCar(mCarForCreateAndConnect);
                     mCarForCreateAndConnect = Car.createCar(getContext(),
                             mServiceConnectionForCreateAndConnect);
                     mCarForCreateAndConnect.connect();
                 });
         view.findViewById(R.id.button_carapi_createcar).setOnClickListener(
                 (View v) -> {
+                    disconnectCar(mCarForCreateCar);
                     mCarForCreateCar = Car.createCar(getContext());
                     mTextForCreateCar.setText("isConnected:" + mCarForCreateCar.isConnected());
                 });
         view.findViewById(R.id.button_carapi_createcar_with_status_change).setOnClickListener(
                 (View v) -> {
+                    disconnectCar(mCarForStatusChange);
                     mCarForStatusChange = Car.createCar(getContext(), null,
                             Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER,
                             (Car car, boolean ready) -> {
@@ -100,5 +103,22 @@ public class CarApiTestFragment extends Fragment {
                             });
                 });
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        disconnectCar(mCarForCreateAndConnect);
+        mCarForCreateAndConnect = null;
+        disconnectCar(mCarForCreateCar);
+        mCarForCreateCar = null;
+        disconnectCar(mCarForStatusChange);
+        mCarForStatusChange = null;
+        super.onDestroyView();
+    }
+
+    private void disconnectCar(Car car) {
+        if (car != null && car.isConnected()) {
+            car.disconnect();
+        }
     }
 }

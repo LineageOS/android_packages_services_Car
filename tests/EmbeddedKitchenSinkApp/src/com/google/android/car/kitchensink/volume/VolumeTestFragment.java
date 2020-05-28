@@ -149,6 +149,15 @@ public final class VolumeTestFragment extends Fragment {
         return v;
     }
 
+    @Override
+    public void onDestroyView() {
+        if (mCar != null && mCar.isConnected()) {
+            mCar.disconnect();
+            mCar = null;
+        }
+        super.onDestroyView();
+    }
+
     private void initVolumeInfo() {
         synchronized (mLock) {
             List<Integer> audioZoneIds = mCarAudioManager.getAudioZoneIds();

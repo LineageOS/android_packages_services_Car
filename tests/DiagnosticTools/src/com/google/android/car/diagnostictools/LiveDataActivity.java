@@ -145,6 +145,15 @@ public class LiveDataActivity extends Activity {
                         mRecyclerView.getContext(), DividerItemDecoration.VERTICAL));
     }
 
+    @Override
+    public void onDestroy() {
+        if (mCar != null && mCar.isConnected()) {
+            mCar.disconnect();
+            mCar = null;
+        }
+        super.onDestroy();
+    }
+
     /** Listener which updates live frame data when it is available */
     private class CarDiagnosticListener implements CarDiagnosticManager.OnDiagnosticEventListener {
 
