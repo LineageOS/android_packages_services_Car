@@ -25,6 +25,7 @@ import android.os.UserHandle;
 import android.util.ArraySet;
 
 import com.android.car.CarLocalServices;
+import com.android.car.CarPowerManagementService;
 import com.android.car.CarStatsLogHelper;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
@@ -69,6 +70,7 @@ class GarageMode {
     private final Object mLock = new Object();
     private final Handler mHandler;
 
+    private CarPowerManagementService mCarPowerManagementService;
     @GuardedBy("mLock")
     private boolean mGarageModeActive;
     @GuardedBy("mLock")
@@ -202,6 +204,20 @@ class GarageMode {
 
     void enterGarageMode(CompletableFuture<Void> future) {
         LOG.d("Entering GarageMode");
+        if (mCarPowerManagementService == null) {
+            mCarPowerManagementService = CarLocalServices.getService(
+                    CarPowerManagementService.class);
+        }
+        if (mCarPowerManagementService != null
+                && mCarPowerManagementService.garageModeShouldExitImmediately()) {
+            if (future != null && !future.isDone()) {
+                future.complete(null);
+            }
+            synchronized (mLock) {
+                mGarageModeActive = false;
+            }
+            return;
+        }
         synchronized (mLock) {
             mGarageModeActive = true;
         }
