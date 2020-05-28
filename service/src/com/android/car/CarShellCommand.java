@@ -935,8 +935,12 @@ final class CarShellCommand extends ShellCommand {
                     if (!TextUtils.isEmpty(errorMessage)) {
                         writer.printf("Error message: %s", errorMessage);
                     }
-                    // TODO(b/150409110): If HAL returned OK, make a "post-switch" call to the HAL
-                    // indicating an Android error. This is to "rollback" the HAL switch.
+                    // If HAL returned OK, make a "post-switch" call to the HAL indicating an
+                    // Android error. This is to "rollback" the HAL switch.
+                    if (status == HalCallback.STATUS_OK
+                            && resp.status == SwitchUserStatus.SUCCESS) {
+                        userHal.postSwitchResponse(resp.requestId, targetUserInfo, usersInfo);
+                    }
                 } finally {
                     latch.countDown();
                 }
