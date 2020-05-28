@@ -87,6 +87,16 @@ public class GazeDriverAwarenessSupplier extends DriverAwarenessSupplierService 
         }
     }
 
+    @Override
+    public void onDestroy() {
+        synchronized (mLock) {
+            if (mCar != null && mCar.isConnected()) {
+                mCar.disconnect();
+            }
+        }
+        super.onDestroy();
+    }
+
     /**
      * Gets the self-reported maximum allowable staleness before the supplier should be considered
      * failed, in milliseconds.
