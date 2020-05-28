@@ -224,11 +224,17 @@ public final class CarUserManagerTest extends CarApiTestBase {
 
     // TODO: ideally should use switchUser(), but that requires CarUserManager, which is not static.
     private static void switchUserDirectly(@UserIdInt int userId) {
-        Log.i(TAG, "Switching to user " + userId + " using AM");
-
         ActivityManager am = sContext.getSystemService(ActivityManager.class);
-        if (!am.switchUser(UserHandle.of(userId))) {
-            fail("Could not switch to user " + userId + " using ActivityManager");
+        int currentUserId = am.getCurrentUser();
+        Log.i(TAG, "Switching to user " + userId + " using AM, when current is " + currentUserId);
+
+        if (currentUserId == userId) {
+            Log.v(TAG, "current user is already " + userId);
+            return;
+        }
+        if (!am.switchUser(userId)) {
+            fail("Could not switch to user " + userId + " using ActivityManager (current user is "
+                    + currentUserId + ")");
         }
     }
 
