@@ -54,27 +54,33 @@ public final class UserSwitchMonitorService extends Service {
         }
     };
 
+    private Context mContext;
+    private Car mCar;
     private CarUserManager mCarUserManager;
+    private NotificationManager mNotificationManager;
+
+    @Override
+    public void onCreate() {
+        mContext = getApplicationContext();
+        mCar = Car.createCar(mContext);
+        mCarUserManager = (CarUserManager) mCar.getCarManager(Car.CAR_USER_SERVICE);
+        mCarUserManager.addListener((r)-> r.run(), mListener);
+
+        mNotificationManager = mContext.getSystemService(NotificationManager.class);
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand(" + mUserId + "): " + intent);
 
-        Context context = getApplicationContext();
-        Car car = Car.createCar(context);
-        mCarUserManager = (CarUserManager) car.getCarManager(Car.CAR_USER_SERVICE);
-        mCarUserManager.addListener((r)-> r.run(), mListener);
-
-        NotificationManager notificationMgr = context.getSystemService(NotificationManager.class);
-
         String channelId = "4815162342";
         String name = "UserSwitchMonitor";
         NotificationChannel channel = new NotificationChannel(channelId, name,
                 NotificationManager.IMPORTANCE_MIN);
-        notificationMgr.createNotificationChannel(channel);
+        mNotificationManager.createNotificationChannel(channel);
 
         startForeground(startId,
-                new Notification.Builder(context, channelId)
+                new Notification.Builder(mContext, channelId)
                         .setContentText(name)
                         .setContentTitle(name)
                         .setSmallIcon(R.drawable.ic_launcher)
@@ -92,7 +98,9 @@ public final class UserSwitchMonitorService extends Service {
         } else {
             Log.w(TAG, "Cannot remove listener because manager is null");
         }
-
+        if (mCar != null && mCar.isConnected()) {
+            mCar.disconnect();
+        }
         super.onDestroy();
     }
 

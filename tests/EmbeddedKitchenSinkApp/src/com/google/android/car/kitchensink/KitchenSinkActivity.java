@@ -361,11 +361,11 @@ public class KitchenSinkActivity extends FragmentActivity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         if (mCarApi != null) {
             mCarApi.disconnect();
         }
         Log.i(TAG, "onDestroy");
+        super.onDestroy();
     }
 
     private void showFragment(Fragment fragment) {

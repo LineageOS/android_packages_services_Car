@@ -42,6 +42,10 @@ public class ExperimentalCarService extends Service {
     @Override
     public void onDestroy() {
         mIExperimentalCarImpl.release();
+        if (mCar != null && mCar.isConnected()) {
+            mCar.disconnect();
+            mCar = null;
+        }
         super.onDestroy();
     }
 

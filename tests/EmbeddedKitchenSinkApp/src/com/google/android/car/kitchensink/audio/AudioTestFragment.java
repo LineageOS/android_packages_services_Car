@@ -158,75 +158,12 @@ public class AudioTestFragment extends Fragment {
 
                     mCarAudioManager = (CarAudioManager) car.getCarManager(Car.AUDIO_SERVICE);
 
-
-
                     handleSetUpZoneSelection();
 
                     if (mCarAudioManager.isDynamicRoutingEnabled()) {
                         setUpDisplayPlayer();
                     }
                 });
-    }
-
-    private void initializePlayers() {
-        mMusicAudioAttrib = new AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_MEDIA)
-            .build();
-        mNavAudioAttrib = new AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
-            .build();
-        mPhoneAudioAttrib = new AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
-                .build();
-        mVrAudioAttrib = new AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_ASSISTANT)
-            .build();
-        mRadioAudioAttrib = new AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_MEDIA)
-            .build();
-        mSystemSoundAudioAttrib = new AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
-            .build();
-        // Create a display audio attribute
-        mMusicAudioAttribForDisplay = new AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_MEDIA)
-                .build();
-
-
-        mMusicPlayerForSelectedDisplay = new AudioPlayer(mContext, R.raw.well_worth_the_wait,
-                mMusicAudioAttribForDisplay);
-        mMusicPlayer = new AudioPlayer(mContext, R.raw.well_worth_the_wait,
-            mMusicAudioAttrib);
-        mMusicPlayerWithDelayedFocus = new AudioPlayer(mContext, R.raw.well_worth_the_wait,
-                mMusicAudioAttrib);
-        mMusicPlayerShort = new AudioPlayer(mContext, R.raw.ring_classic_01,
-            mMusicAudioAttrib);
-        mNavGuidancePlayer = new AudioPlayer(mContext, R.raw.turnright,
-            mNavAudioAttrib);
-        mPhoneAudioPlayer = new AudioPlayer(mContext, R.raw.free_flight,
-                mPhoneAudioAttrib);
-        mVrPlayer = new AudioPlayer(mContext, R.raw.one2six,
-            mVrAudioAttrib);
-        mSystemPlayer = new AudioPlayer(mContext, R.raw.ring_classic_01,
-            mSystemSoundAudioAttrib);
-        mWavPlayer = new AudioPlayer(mContext, R.raw.free_flight,
-            mMusicAudioAttrib);
-        final AudioDeviceInfo tuner = findTunerDevice(mContext);
-        if (tuner != null) {
-            mHwAudioSource = new HwAudioSource.Builder()
-                .setAudioAttributes(mMusicAudioAttrib)
-                .setAudioDeviceInfo(findTunerDevice(mContext))
-                .build();
-        }
-        mAllPlayers = new AudioPlayer[] {
-            mMusicPlayer,
-            mMusicPlayerShort,
-            mNavGuidancePlayer,
-            mVrPlayer,
-            mSystemPlayer,
-            mWavPlayer,
-            mMusicPlayerWithDelayedFocus
-        };
     }
 
     @Override
@@ -384,6 +321,90 @@ public class AudioTestFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onDestroyView() {
+        Log.i(TAG, "onDestroyView");
+        if (mCarEmulator != null) {
+            mCarEmulator.stop();
+        }
+        for (AudioPlayer p : mAllPlayers) {
+            p.stop();
+        }
+        handleHwAudioSourceStop();
+        if (mAudioFocusHandler != null) {
+            mAudioFocusHandler.release();
+            mAudioFocusHandler = null;
+        }
+        if (mAppFocusManager != null) {
+            mAppFocusManager.abandonAppFocus(mOwnershipCallbacks);
+        }
+        if (mCar != null && mCar.isConnected()) {
+            mCar.disconnect();
+            mCar = null;
+        }
+        super.onDestroyView();
+    }
+
+    private void initializePlayers() {
+        mMusicAudioAttrib = new AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_MEDIA)
+            .build();
+        mNavAudioAttrib = new AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
+            .build();
+        mPhoneAudioAttrib = new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+                .build();
+        mVrAudioAttrib = new AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_ASSISTANT)
+            .build();
+        mRadioAudioAttrib = new AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_MEDIA)
+            .build();
+        mSystemSoundAudioAttrib = new AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+            .build();
+        // Create a display audio attribute
+        mMusicAudioAttribForDisplay = new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_MEDIA)
+                .build();
+
+        mMusicPlayerForSelectedDisplay = new AudioPlayer(mContext, R.raw.well_worth_the_wait,
+                mMusicAudioAttribForDisplay);
+        mMusicPlayer = new AudioPlayer(mContext, R.raw.well_worth_the_wait,
+            mMusicAudioAttrib);
+        mMusicPlayerWithDelayedFocus = new AudioPlayer(mContext, R.raw.well_worth_the_wait,
+                mMusicAudioAttrib);
+        mMusicPlayerShort = new AudioPlayer(mContext, R.raw.ring_classic_01,
+            mMusicAudioAttrib);
+        mNavGuidancePlayer = new AudioPlayer(mContext, R.raw.turnright,
+            mNavAudioAttrib);
+        mPhoneAudioPlayer = new AudioPlayer(mContext, R.raw.free_flight,
+                mPhoneAudioAttrib);
+        mVrPlayer = new AudioPlayer(mContext, R.raw.one2six,
+            mVrAudioAttrib);
+        mSystemPlayer = new AudioPlayer(mContext, R.raw.ring_classic_01,
+            mSystemSoundAudioAttrib);
+        mWavPlayer = new AudioPlayer(mContext, R.raw.free_flight,
+            mMusicAudioAttrib);
+        final AudioDeviceInfo tuner = findTunerDevice(mContext);
+        if (tuner != null) {
+            mHwAudioSource = new HwAudioSource.Builder()
+                .setAudioAttributes(mMusicAudioAttrib)
+                .setAudioDeviceInfo(findTunerDevice(mContext))
+                .build();
+        }
+        mAllPlayers = new AudioPlayer[] {
+            mMusicPlayer,
+            mMusicPlayerShort,
+            mNavGuidancePlayer,
+            mVrPlayer,
+            mSystemPlayer,
+            mWavPlayer,
+            mMusicPlayerWithDelayedFocus
+        };
+    }
+
     private void setActivityCurrentZoneId(TextView currentZoneIdTextView) {
         if (mCarAudioManager.isDynamicRoutingEnabled()) {
             try {
@@ -527,26 +548,6 @@ public class AudioTestFragment extends Fragment {
                 android.R.layout.simple_spinner_dropdown_item);
         mZoneSpinner.setAdapter(mZoneAdapter);
         mZoneSpinner.setEnabled(true);
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        Log.i(TAG, "onDestroyView");
-        if (mCarEmulator != null) {
-            mCarEmulator.stop();
-        }
-        for (AudioPlayer p : mAllPlayers) {
-            p.stop();
-        }
-        handleHwAudioSourceStop();
-        if (mAudioFocusHandler != null) {
-            mAudioFocusHandler.release();
-            mAudioFocusHandler = null;
-        }
-        if (mAppFocusManager != null) {
-            mAppFocusManager.abandonAppFocus(mOwnershipCallbacks);
-        }
     }
 
     private void handleNavStart() {
