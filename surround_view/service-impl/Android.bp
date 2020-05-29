@@ -44,6 +44,36 @@ cc_test{
 }
 
 cc_library{
+    name : "libanimation_module",
+    vendor : true,
+    srcs : [
+        "AnimationModule.cpp",
+    ],
+    shared_libs : [
+        "android.hardware.automotive.vehicle@2.0",
+        "libbase",
+        "libhidlbase",
+        "libutils",
+    ],
+}
+
+cc_test{
+    name : "animation_module_tests",
+    test_suites : ["device-tests"],
+    vendor : true,
+    srcs : ["AnimationModuleTests.cpp"],
+    shared_libs : [
+        "android.hardware.automotive.vehicle@2.0",
+        "libanimation_module",
+        "libcutils",
+        "libbase",
+        "libhidlbase",
+        "libhardware",
+        "libutils",
+    ],
+}
+
+cc_library{
     name : "libvhal_handler",
     vendor : true,
     srcs : [
