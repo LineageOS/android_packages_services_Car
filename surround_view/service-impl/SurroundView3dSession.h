@@ -32,6 +32,8 @@ using ::android::hardware::Return;
 using ::android::hardware::hidl_vec;
 using ::android::sp;
 
+using std::condition_variable;
+
 using namespace android_auto::surround_view;
 
 namespace android {
@@ -62,8 +64,12 @@ public:
         projectCameraPointsTo3dSurface_cb _hidl_cb);
 
 private:
-    void generateFrames();
     bool initialize();
+
+    void generateFrames();
+    void processFrames();
+
+    bool handleFrames(int sequenceId);
 
     enum StreamStateValues {
         STOPPED,
@@ -77,6 +83,13 @@ private:
     StreamStateValues mStreamState GUARDED_BY(mAccessLock);
 
     thread mCaptureThread; // The thread we'll use to synthesize frames
+    thread mProcessThread; // The thread we'll use to process frames
+
+    // Used to signal a set of frames is ready
+    condition_variable mSignal GUARDED_BY(mAccessLock);
+    bool framesAvailable GUARDED_BY(mAccessLock);
+
+    int sequenceId;
 
     struct FramesRecord {
         SvFramesDesc frames;
