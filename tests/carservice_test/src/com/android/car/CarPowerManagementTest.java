@@ -284,7 +284,7 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         mPowerStateHandler.sendPowerState(
                 VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                 VehicleApPowerStateShutdownParam.SLEEP_IMMEDIATELY);
-        assertResponse(VehicleApPowerStateReport.SHUTDOWN_START, 0, true);
+        assertResponseTransient(VehicleApPowerStateReport.DEEP_SLEEP_ENTRY, 0, true);
     }
 
     // Check that 'expectedState' was reached and is the current state.
