@@ -338,6 +338,7 @@ public final class CarUserManager extends CarManagerBase {
      * @hide
      */
     @NonNull
+    @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
     public AndroidFuture<UserIdentificationAssociationResponse> setUserIdentificationAssociation(
             @NonNull int[] types, @NonNull int[] values) {
         Preconditions.checkArgument(!ArrayUtils.isEmpty(types), "must have at least one type");
@@ -390,6 +391,7 @@ public final class CarUserManager extends CarManagerBase {
      *
      * @hide
      */
+    @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
     public void setUserSwitchUiCallback(@NonNull UserSwitchUiCallback callback) {
         Preconditions.checkArgument(callback != null, "Null callback");
         UserSwitchUiCallbackReceiver userSwitchUiCallbackReceiver =
