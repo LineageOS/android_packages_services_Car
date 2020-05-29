@@ -926,6 +926,63 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
         assertThat(usersInfo.existingUsers.get(1).flags).isEqualTo(UserFlags.NONE);
     }
 
+    @Test
+    public void testCheckValidUsersInfo_null() {
+        assertThrows(IllegalArgumentException.class, () -> UserHalHelper.checkValid(null));
+    }
+
+    @Test
+    public void testCheckValidUsersInfo_empty() {
+        UsersInfo usersInfo = new UsersInfo();
+        assertThrows(IllegalArgumentException.class, () -> UserHalHelper.checkValid(usersInfo));
+    }
+
+    @Test
+    public void testCheckValidUsersInfo_sizeMismatch() {
+        UsersInfo usersInfo = new UsersInfo();
+        usersInfo.numberUsers = 1;
+        assertThrows(IllegalArgumentException.class, () -> UserHalHelper.checkValid(usersInfo));
+    }
+
+    @Test
+    public void testCheckValidUsersInfo_currentUserMissing() {
+        UsersInfo usersInfo = new UsersInfo();
+        usersInfo.numberUsers = 1;
+        usersInfo.currentUser.userId = 10;
+        usersInfo.existingUsers.add(new android.hardware.automotive.vehicle.V2_0.UserInfo());
+
+        assertThrows(IllegalArgumentException.class, () -> UserHalHelper.checkValid(usersInfo));
+    }
+
+    @Test
+    public void testCheckValidUsersInfo_currentUserFlagsMismatch() {
+        UsersInfo usersInfo = new UsersInfo();
+        usersInfo.numberUsers = 1;
+        usersInfo.currentUser.userId = 10;
+        usersInfo.currentUser.flags = UserFlags.ADMIN;
+        android.hardware.automotive.vehicle.V2_0.UserInfo currentUser =
+                new android.hardware.automotive.vehicle.V2_0.UserInfo();
+        currentUser.userId = 10;
+        currentUser.flags = UserFlags.SYSTEM;
+        usersInfo.existingUsers.add(currentUser);
+
+        assertThrows(IllegalArgumentException.class, () -> UserHalHelper.checkValid(usersInfo));
+    }
+
+    @Test
+    public void testCheckValidUsersInfo_ok() {
+        UsersInfo usersInfo = new UsersInfo();
+        usersInfo.numberUsers = 1;
+        usersInfo.currentUser.userId = 10;
+
+        android.hardware.automotive.vehicle.V2_0.UserInfo currentUser =
+                new android.hardware.automotive.vehicle.V2_0.UserInfo();
+        currentUser.userId = 10;
+        usersInfo.existingUsers.add(currentUser);
+
+        UserHalHelper.checkValid(usersInfo);
+    }
+
     private static void assertEmptyUsersInfo(UsersInfo usersInfo) {
         assertThat(usersInfo).isNotNull();
         assertThat(usersInfo.currentUser.userId).isEqualTo(UserHandle.USER_NULL);

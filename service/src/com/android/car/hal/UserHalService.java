@@ -80,8 +80,7 @@ public final class UserHalService extends HalServiceBase {
             USER_IDENTIFICATION_ASSOCIATION
     };
 
-    // TODO(b/150413515): STOPSHIP - change to false before R is launched
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
 
     private final Object mLock = new Object();
 
@@ -183,8 +182,7 @@ public final class UserHalService extends HalServiceBase {
             Log.w(TAG, UNSUPPORTED_MSG);
             return;
         }
-        // TODO(b/150413515): increase capacity as more properties are added
-        SparseArray<VehiclePropConfig> supportedProperties = new SparseArray<>(2);
+        SparseArray<VehiclePropConfig> supportedProperties = new SparseArray<>(5);
         for (VehiclePropConfig config : properties) {
             supportedProperties.put(config.prop, config);
         }
@@ -224,7 +222,7 @@ public final class UserHalService extends HalServiceBase {
         if (DBG) Log.d(TAG, "getInitialInfo(" + requestType + ")");
         Preconditions.checkArgumentPositive(timeoutMs, "timeout must be positive");
         Objects.requireNonNull(usersInfo);
-        // TODO(b/150413515): use helper method to check usersInfo is valid
+        UserHalHelper.checkValid(usersInfo);
         Objects.requireNonNull(callback);
 
         VehiclePropValue propRequest;
@@ -273,11 +271,11 @@ public final class UserHalService extends HalServiceBase {
     public void switchUser(@NonNull UserInfo targetInfo, int timeoutMs,
             @NonNull UsersInfo usersInfo, @NonNull HalCallback<SwitchUserResponse> callback) {
         if (DBG) Log.d(TAG, "switchUser(" + targetInfo + ")");
-        // TODO(b/150413515): check that targetInfo is not null / add unit test
+
+        Objects.requireNonNull(targetInfo);
         Preconditions.checkArgumentPositive(timeoutMs, "timeout must be positive");
-        Objects.requireNonNull(usersInfo);
-        // TODO(b/150413515): use helper method to check usersInfo is valid
         Objects.requireNonNull(callback);
+        UserHalHelper.checkValid(usersInfo);
 
         VehiclePropValue propRequest;
         int requestId;
@@ -307,8 +305,7 @@ public final class UserHalService extends HalServiceBase {
         EventLog.writeEvent(EventLogTags.CAR_USER_HAL_POST_SWITCH_USER_REQ, requestId,
                 targetInfo.userId, usersInfo.currentUser.userId);
         if (DBG) Log.d(TAG, "postSwitchResponse(" + targetInfo + ")");
-        Objects.requireNonNull(usersInfo);
-        // TODO(b/150413515): use helper method to check usersInfo is valid
+        UserHalHelper.checkValid(usersInfo);
 
         VehiclePropValue propRequest;
         synchronized (mLock) {
@@ -335,8 +332,7 @@ public final class UserHalService extends HalServiceBase {
      */
     public void legacyUserSwitch(@NonNull UserInfo targetInfo, @NonNull UsersInfo usersInfo) {
         if (DBG) Log.d(TAG, "userSwitchLegacy(" + targetInfo + ")");
-        Objects.requireNonNull(usersInfo);
-        // TODO(b/150413515): use helper method to check usersInfo is valid
+        UserHalHelper.checkValid(usersInfo);
 
         VehiclePropValue propRequest;
         synchronized (mLock) {
@@ -356,6 +352,7 @@ public final class UserHalService extends HalServiceBase {
         }
     }
 
+    // TODO(b/157699720): move to UserHalHelper
     private static VehiclePropValue getPropRequestForSwitchUserLocked(int requestId,
             int requestType, @NonNull UserInfo targetInfo, @NonNull UsersInfo usersInfo) {
         VehiclePropValue propRequest =
@@ -625,7 +622,6 @@ public final class UserHalService extends HalServiceBase {
     }
 
     private void handleOnInitialUserInfoResponse(VehiclePropValue value) {
-        // TODO(b/150413515): record (for dumping()) the last N responses.
         int requestId = value.value.int32Values.get(0);
         HalCallback<InitialUserInfoResponse> callback = handleGetPendingCallback(requestId,
                 InitialUserInfoResponse.class);
