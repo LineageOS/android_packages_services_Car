@@ -283,7 +283,7 @@ public final class CarProjectionManager extends CarManagerBase {
      * @hide
      */
     public void unregsiterProjectionListener() {
-       unregisterProjectionListener();
+        unregisterProjectionListener();
     }
 
     /**
