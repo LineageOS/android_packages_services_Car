@@ -218,6 +218,15 @@ public class InstrumentClusterFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
+    @Override
+    public void onDestroy() {
+        if (mCarApi != null && mCarApi.isConnected()) {
+            mCarApi.disconnect();
+            mCarApi = null;
+        }
+        super.onDestroy();
+    }
+
     /**
      * Enables/disables sending turn-by-turn data through the {@link CarNavigationStatusManager}
      */
