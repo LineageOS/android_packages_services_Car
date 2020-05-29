@@ -199,20 +199,16 @@ public final class UserHalServiceTest {
 
     @Test
     public void testGetUserInfo_invalidTimeout() {
-        assertThrows(IllegalArgumentException.class,
-                () -> mUserHalService.getInitialUserInfo(COLD_BOOT, 0, mUsersInfo, (i, r) -> {
-                }));
-        assertThrows(IllegalArgumentException.class,
-                () -> mUserHalService.getInitialUserInfo(COLD_BOOT, -1, mUsersInfo, (i, r) -> {
-                }));
+        assertThrows(IllegalArgumentException.class, () ->
+                mUserHalService.getInitialUserInfo(COLD_BOOT, 0, mUsersInfo, noOpCallback()));
+        assertThrows(IllegalArgumentException.class, () ->
+                mUserHalService.getInitialUserInfo(COLD_BOOT, -1, mUsersInfo, noOpCallback()));
     }
 
     @Test
     public void testGetUserInfo_noUsersInfo() {
-        assertThrows(NullPointerException.class,
-                () -> mUserHalService.getInitialUserInfo(COLD_BOOT, TIMEOUT_MS, null,
-                        (i, r) -> {
-                        }));
+        assertThrows(NullPointerException.class, () ->
+                mUserHalService.getInitialUserInfo(COLD_BOOT, TIMEOUT_MS, null, noOpCallback()));
     }
 
     @Test
@@ -414,26 +410,27 @@ public final class UserHalServiceTest {
     @Test
     public void testSwitchUser_invalidTimeout() {
         assertThrows(IllegalArgumentException.class,
-                () -> mUserHalService.switchUser(mUser10, 0, mUsersInfo, (i, r) -> {
-                }));
+                () -> mUserHalService.switchUser(mUser10, 0, mUsersInfo, noOpCallback()));
         assertThrows(IllegalArgumentException.class,
-                () -> mUserHalService.switchUser(mUser10, -1, mUsersInfo, (i, r) -> {
-                }));
+                () -> mUserHalService.switchUser(mUser10, -1, mUsersInfo, noOpCallback()));
     }
 
     @Test
     public void testSwitchUser_noUsersInfo() {
-        assertThrows(NullPointerException.class,
-                () -> mUserHalService.switchUser(mUser10, TIMEOUT_MS, null,
-                        (i, r) -> {
-                        }));
+        assertThrows(IllegalArgumentException.class,
+                () -> mUserHalService.switchUser(mUser10, TIMEOUT_MS, null, noOpCallback()));
     }
 
     @Test
     public void testSwitchUser_noCallback() {
         assertThrows(NullPointerException.class,
-                () -> mUserHalService.switchUser(mUser10, TIMEOUT_MS,
-                        mUsersInfo, null));
+                () -> mUserHalService.switchUser(mUser10, TIMEOUT_MS, mUsersInfo, null));
+    }
+
+    @Test
+    public void testSwitchUser_noTarget() {
+        assertThrows(NullPointerException.class,
+                () -> mUserHalService.switchUser(null, TIMEOUT_MS, mUsersInfo, noOpCallback()));
     }
 
     @Test
@@ -643,7 +640,7 @@ public final class UserHalServiceTest {
 
     @Test
     public void testUserSwitchLegacy_noUsersInfo() {
-        assertThrows(NullPointerException.class,
+        assertThrows(IllegalArgumentException.class,
                 () -> mUserHalService.legacyUserSwitch(mUser10, null));
     }
 
@@ -771,15 +768,15 @@ public final class UserHalServiceTest {
     public void testSetUserAssociation_invalidTimeout() {
         UserIdentificationSetRequest request = new UserIdentificationSetRequest();
         assertThrows(IllegalArgumentException.class, () ->
-                mUserHalService.setUserAssociation(0, request, (i, r) -> { }));
+                mUserHalService.setUserAssociation(0, request, noOpCallback()));
         assertThrows(IllegalArgumentException.class, () ->
-                mUserHalService.setUserAssociation(-1, request, (i, r) -> { }));
+                mUserHalService.setUserAssociation(-1, request, noOpCallback()));
     }
 
     @Test
     public void testSetUserAssociation_nullRequest() {
         assertThrows(NullPointerException.class, () ->
-                mUserHalService.setUserAssociation(TIMEOUT_MS, null, (i, r) -> { }));
+                mUserHalService.setUserAssociation(TIMEOUT_MS, null, noOpCallback()));
     }
 
     @Test
@@ -800,7 +797,7 @@ public final class UserHalServiceTest {
         request.associations.add(association1);
 
         assertThrows(IllegalArgumentException.class, () ->
-                mUserHalService.setUserAssociation(TIMEOUT_MS, request, (i, r) -> { }));
+                mUserHalService.setUserAssociation(TIMEOUT_MS, request, noOpCallback()));
     }
 
     @Test
@@ -1155,6 +1152,10 @@ public final class UserHalServiceTest {
         assertThat(request.value.int32Values).containsExactly(DEFAULT_REQUEST_ID, DEFAULT_USER_ID,
                 DEFAULT_USER_FLAGS,
                 /* numberAssociations= */ 1, KEY_FOB, ASSOCIATE_CURRENT_USER);
+    }
+
+    private static <T> HalCallback<T> noOpCallback() {
+        return (i, r) -> { };
     }
 
     private final class GenericHalCallback<R> implements HalCallback<R> {
