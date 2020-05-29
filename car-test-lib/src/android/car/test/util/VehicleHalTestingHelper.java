@@ -35,7 +35,8 @@ public final class VehicleHalTestingHelper {
 
     /**
      * Creates a config for the given property that passes the
-     * {@link VehicleHal#isPropertySubscribable(VehiclePropConfig)} criteria.
+     * {@link com.android.car.hal.VehicleHal.VehicleHal#isPropertySubscribable(VehiclePropConfig)}
+     * criteria.
      */
     public static VehiclePropConfig newSubscribableConfig(int prop) {
         VehiclePropConfig config = newConfig(prop);
