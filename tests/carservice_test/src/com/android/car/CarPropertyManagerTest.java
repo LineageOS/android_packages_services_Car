@@ -18,6 +18,7 @@ package com.android.car;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.fail;
 import static org.testng.Assert.assertThrows;
 
 import android.car.Car;
@@ -31,6 +32,7 @@ import android.car.hardware.property.PropertyAccessDeniedSecurityException;
 import android.car.hardware.property.PropertyNotAvailableAndRetryException;
 import android.car.hardware.property.PropertyNotAvailableException;
 import android.car.hardware.property.VehicleHalStatusCode;
+import android.car.test.util.Visitor;
 import android.hardware.automotive.vehicle.V2_0.VehicleArea;
 import android.hardware.automotive.vehicle.V2_0.VehicleAreaSeat;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
@@ -39,6 +41,7 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropertyType;
 import android.os.Build;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
+import android.util.ArraySet;
 import android.util.Log;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -54,6 +57,7 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -128,6 +132,15 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
     private static final int CALLBACK_SHORT_TIMEOUT_MS = 250; // ms
     // Wait for CarPropertyManager register/unregister listener
     private static final long WAIT_FOR_NO_EVENTS = 50;
+
+    private static final List<Integer> USER_HAL_PROPERTIES = Arrays.asList(
+            VehiclePropertyIds.INITIAL_USER_INFO,
+            VehiclePropertyIds.SWITCH_USER,
+            VehiclePropertyIds.CREATE_USER,
+            VehiclePropertyIds.REMOVE_USER,
+            VehiclePropertyIds.USER_IDENTIFICATION_ASSOCIATION
+            );
+
     private CarPropertyManager mManager;
 
     @Rule public TestName mTestName = new TestName();
@@ -470,6 +483,114 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         assertThat(callback.getEventCounter()).isEqualTo(2);
     }
 
+    @Test
+    public void testUserHal_getProperty() {
+        userHalPropertiesTest("getProperty()", (prop) ->
+                mManager.getProperty(prop, /* areaId= */ 0));
+    }
+
+    @Test
+    public void testUserHal_getBooleanProperty() {
+        userHalPropertiesTest("getBooleanProperty()", (prop) ->
+                mManager.getBooleanProperty(prop, /* areaId= */ 0));
+    }
+
+    @Test
+    public void testUserHal_getIntProperty() {
+        userHalPropertiesTest("getIntProperty()", (prop) ->
+                mManager.getIntProperty(prop, /* areaId= */ 0));
+    }
+
+    @Test
+    public void testUserHal_getIntArrayProperty() {
+        userHalPropertiesTest("getIntArrayProperty()", (prop) ->
+                mManager.getIntArrayProperty(prop, /* areaId= */ 0));
+    }
+
+    @Test
+    public void testUserHal_getFloatProperty() {
+        userHalPropertiesTest("getFloatProperty()", (prop) ->
+                mManager.getFloatProperty(prop, /* areaId= */ 0));
+    }
+
+    @Test
+    public void testUserHal_getPropertyList() {
+        userHalPropertiesTest("getPropertyList()", (prop) -> {
+            ArraySet<Integer> list = new ArraySet<>();
+            list.add(prop);
+            mManager.getPropertyList(list);
+        });
+    }
+
+    @Test
+    public void testUserHal_getCarPropertyConfig() {
+        userHalPropertiesTest("getCarPropertyConfig()", (prop) ->
+                mManager.getCarPropertyConfig(prop));
+    }
+
+    @Test
+    public void testUserHal_getAreaId() {
+        userHalPropertiesTest("getAreaId()", (prop) ->
+                mManager.getAreaId(prop, /* areaId= */ 0));
+    }
+
+    @Test
+    public void testUserHal_getReadPermission() {
+        userHalPropertiesTest("getReadPermission()", (prop) ->
+                mManager.getReadPermission(prop));
+    }
+
+    @Test
+    public void testUserHal_getWritePermission() {
+        userHalPropertiesTest("getWritePermission()", (prop) ->
+                mManager.getWritePermission(prop));
+    }
+
+    @Test
+    public void testUserHal_isPropertyAvailable() {
+        userHalPropertiesTest("isPropertyAvailable()", (prop) ->
+                mManager.isPropertyAvailable(prop, /* area= */ 0));
+    }
+
+    @Test
+    public void testUserHal_setProperty() {
+        userHalPropertiesTest("setProperty()", (prop) ->
+                mManager.setProperty(Object.class, prop, /* areaId= */ 0, /* val= */ null));
+    }
+
+    @Test
+    public void testUserHal_setBooleanProperty() {
+        userHalPropertiesTest("setBooleanProperty()", (prop) ->
+                mManager.setBooleanProperty(prop, /* areaId= */ 0, /* val= */ true));
+    }
+
+    @Test
+    public void testUserHal_setFloatProperty() {
+        userHalPropertiesTest("setFloatProperty()", (prop) ->
+                mManager.setFloatProperty(prop, /* areaId= */ 0, /* val= */ 0.0F));
+    }
+
+    @Test
+    public void testUserHal_setIntProperty() {
+        userHalPropertiesTest("setIntProperty()", (prop) ->
+                mManager.setIntProperty(prop, /* areaId= */ 0, /* val= */ 0));
+    }
+
+    private void userHalPropertiesTest(String method, Visitor<Integer> visitor) {
+        List<String> failedProperties = new ArrayList<String>();
+        for (int propertyId : USER_HAL_PROPERTIES) {
+            try {
+                visitor.visit(propertyId);
+                failedProperties.add(propToString(propertyId));
+            } catch (IllegalArgumentException e) {
+                // expected
+            }
+        }
+        if (!failedProperties.isEmpty()) {
+            fail(method + " should not support these properties: " + failedProperties);
+        }
+    }
+
     @Override
     protected synchronized void configureMockedHal() {
         PropertyHandler handler = new PropertyHandler();
@@ -540,6 +661,10 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         public synchronized void onPropertyUnsubscribe(int property) {
             Log.d(TAG, "onPropertyUnSubscribe property " + property);
         }
+    }
+
+    private static String propToString(int propertyId) {
+        return VehiclePropertyIds.toString(propertyId) + " (" + propertyId + ")";
     }
 
     private static int mapPropertyToStatusCode(int propId) {
