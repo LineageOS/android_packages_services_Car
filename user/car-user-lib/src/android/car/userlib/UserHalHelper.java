@@ -509,6 +509,32 @@ public final class UserHalHelper {
         return usersInfo;
     }
 
+    /**
+     * Checks if the given {@code usersInfo} is valid.
+     *
+     * @throws IllegalArgumentException if it isn't.
+     */
+    public static void checkValid(@NonNull UsersInfo usersInfo) {
+        Preconditions.checkArgument(usersInfo != null);
+        Preconditions.checkArgument(usersInfo.numberUsers == usersInfo.existingUsers.size(),
+                "sizes mismatch: numberUsers=%d, existingUsers.size=%d", usersInfo.numberUsers,
+                usersInfo.existingUsers.size());
+        boolean hasCurrentUser = false;
+        int currentUserFlags = UserFlags.NONE;
+        for (int i = 0; i < usersInfo.numberUsers; i++) {
+            android.hardware.automotive.vehicle.V2_0.UserInfo user = usersInfo.existingUsers.get(i);
+            if (user.userId == usersInfo.currentUser.userId) {
+                hasCurrentUser = true;
+                currentUserFlags = user.flags;
+                break;
+            }
+        }
+        Preconditions.checkArgument(hasCurrentUser,
+                "current user not found on existing users on %s", usersInfo);
+        Preconditions.checkArgument(usersInfo.currentUser.flags == currentUserFlags,
+                "current user flags mismatch on existing users on %s", usersInfo);
+    }
+
     @NonNull
     private static UsersInfo emptyUsersInfo() {
         UsersInfo usersInfo = new UsersInfo();
