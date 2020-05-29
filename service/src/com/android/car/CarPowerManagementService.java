@@ -129,6 +129,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private int mShutdownPollingIntervalMs = SHUTDOWN_POLLING_INTERVAL_MS;
     @GuardedBy("mLock")
     private boolean mRebootAfterGarageMode;
+    @GuardedBy("mLock")
+    private boolean mGarageModeShouldExitImmediately;
     private final boolean mDisableUserSwitchDuringResume;
 
     private final UserManager mUserManager;
@@ -471,6 +473,18 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     /**
+     * Tells Garage Mode if it should run normally, or just
+     * exit immediately without indicating 'idle'
+     * @return True if no idle jobs should be run
+     * @hide
+     */
+    public boolean garageModeShouldExitImmediately() {
+        synchronized (mLock) {
+            return mGarageModeShouldExitImmediately;
+        }
+    }
+
+    /**
      * Switches the initial user by calling the User HAL to define the behavior.
      */
     private void switchUserOnResumeIfNecessaryUsingHal() {
@@ -545,23 +559,15 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     || !mHal.isDeepSleepAllowed()
                     || !mSystemInterface.isSystemSupportingDeepSleep()
                     || !newState.mCanSleep;
+            mGarageModeShouldExitImmediately = !newState.mCanPostpone;
         }
-        if (newState.mCanPostpone) {
-            Log.i(CarLog.TAG_POWER, "starting shutdown prepare");
-            sendPowerManagerEvent(CarPowerStateListener.SHUTDOWN_PREPARE);
-            mHal.sendShutdownPrepare();
-            doHandlePreprocessing();
-        } else {
-            Log.i(CarLog.TAG_POWER, "starting shutdown immediately");
-            synchronized (mLock) {
-                releaseTimerLocked();
-            }
-            // Notify hal that we are shutting down and since it is immediate, don't schedule next
-            // wake up
-            mHal.sendShutdownStart(0);
-            // shutdown HU
-            mSystemInterface.shutdown();
-        }
+        Log.i(CarLog.TAG_POWER,
+                (newState.mCanPostpone
+                ? "starting shutdown prepare with Garage Mode"
+                        : "starting shutdown prepare without Garage Mode"));
+        sendPowerManagerEvent(CarPowerStateListener.SHUTDOWN_PREPARE);
+        mHal.sendShutdownPrepare();
+        doHandlePreprocessing();
     }
 
     // Simulate system shutdown to Deep Sleep
@@ -577,7 +583,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         sendPowerManagerEvent(state.mCarPowerStateListenerState);
         int wakeupSec;
         synchronized (mLock) {
-            wakeupSec = mNextWakeupSec;
+            // If we're shutting down immediately, don't schedule
+            // a wakeup time.
+            wakeupSec = mGarageModeShouldExitImmediately ? 0 : mNextWakeupSec;
         }
         switch (state.mCarPowerStateListenerState) {
             case CarPowerStateListener.SUSPEND_ENTER:
@@ -931,10 +939,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     private void finishedImpl(IBinder binder) {
-        boolean allAreComplete = false;
+        boolean allAreComplete;
         synchronized (mLock) {
-            boolean oneWasRemoved = mListenersWeAreWaitingFor.remove(binder);
-            allAreComplete = oneWasRemoved && mListenersWeAreWaitingFor.isEmpty();
+            mListenersWeAreWaitingFor.remove(binder);
+            allAreComplete = mListenersWeAreWaitingFor.isEmpty();
         }
         if (allAreComplete) {
             signalComplete();
@@ -1230,6 +1238,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         synchronized (mSimulationWaitObject) {
             mInSimulatedDeepSleepMode = true;
             mWakeFromSimulatedSleep = false;
+            mGarageModeShouldExitImmediately = false;
         }
         PowerHandler handler;
         synchronized (mLock) {
