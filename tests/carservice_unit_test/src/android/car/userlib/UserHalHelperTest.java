@@ -16,6 +16,7 @@
 
 package android.car.userlib;
 
+import static android.car.userlib.UserHalHelper.CREATE_USER_PROPERTY;
 import static android.car.userlib.UserHalHelper.USER_IDENTIFICATION_ASSOCIATION_PROPERTY;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue.ASSOCIATE_CURRENT_USER;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue.DISASSOCIATE_ALL_USERS;
@@ -44,6 +45,7 @@ import android.car.test.mocks.AbstractExtendedMockitoTestCase.CustomMockitoSessi
 import android.car.test.mocks.AndroidMockitoHelper;
 import android.car.test.util.UserTestingHelper.UserInfoBuilder;
 import android.content.pm.UserInfo;
+import android.hardware.automotive.vehicle.V2_0.CreateUserRequest;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
@@ -856,6 +858,111 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
                         KEY_FOB, ASSOCIATE_CURRENT_USER,
                         CUSTOM_1, DISASSOCIATE_CURRENT_USER)
                 .inOrder();
+    }
+
+    @Test
+    public void testCreateUserRequestToVehiclePropValue_null() {
+        assertThrows(NullPointerException.class,
+                () -> UserHalHelper.toVehiclePropValue((CreateUserRequest) null));
+    }
+
+    @Test
+    public void testCreateUserRequestToVehiclePropValue_emptyRequest() {
+        CreateUserRequest request = new CreateUserRequest();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> UserHalHelper.toVehiclePropValue(request));
+    }
+
+    @Test
+    public void testCreateUserRequestToVehiclePropValue_missingRequestId() {
+        CreateUserRequest request = new CreateUserRequest();
+        request.newUserInfo.userId = 10;
+        request.usersInfo.existingUsers.add(request.newUserInfo);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> UserHalHelper.toVehiclePropValue(request));
+    }
+
+    @Test
+    public void testCreateUserRequestToVehiclePropValue_usersInfoDoesNotContainNewUser() {
+        CreateUserRequest request = new CreateUserRequest();
+        request.requestId = 42;
+        request.newUserInfo.userId = 10;
+        android.hardware.automotive.vehicle.V2_0.UserInfo user =
+                new android.hardware.automotive.vehicle.V2_0.UserInfo();
+        user.userId = 11;
+        request.usersInfo.existingUsers.add(user);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> UserHalHelper.toVehiclePropValue(request));
+    }
+
+    @Test
+    public void testCreateUserRequestToVehiclePropValue_newUserFlagsMismatch() {
+        CreateUserRequest request = new CreateUserRequest();
+        request.requestId = 42;
+        request.newUserInfo.userId = 10;
+        request.newUserInfo.flags = UserFlags.ADMIN;
+        android.hardware.automotive.vehicle.V2_0.UserInfo user =
+                new android.hardware.automotive.vehicle.V2_0.UserInfo();
+        user.userId = 10;
+        request.newUserInfo.flags = UserFlags.SYSTEM;
+        request.usersInfo.existingUsers.add(user);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> UserHalHelper.toVehiclePropValue(request));
+    }
+
+    @Test
+    public void testCreateUserRequestToVehiclePropValue_ok() {
+        CreateUserRequest request = new CreateUserRequest();
+        request.requestId = 42;
+
+        android.hardware.automotive.vehicle.V2_0.UserInfo user10 =
+                new android.hardware.automotive.vehicle.V2_0.UserInfo();
+        user10.userId = 10;
+        user10.flags = UserFlags.ADMIN;
+        android.hardware.automotive.vehicle.V2_0.UserInfo user11 =
+                new android.hardware.automotive.vehicle.V2_0.UserInfo();
+        user11.userId = 11;
+        user11.flags = UserFlags.SYSTEM;
+        android.hardware.automotive.vehicle.V2_0.UserInfo user12 =
+                new android.hardware.automotive.vehicle.V2_0.UserInfo();
+        user12.userId = 12;
+        user12.flags = UserFlags.GUEST;
+
+        // existing users
+        request.usersInfo.numberUsers = 3;
+        request.usersInfo.existingUsers.add(user10);
+        request.usersInfo.existingUsers.add(user11);
+        request.usersInfo.existingUsers.add(user12);
+
+        // current user
+        request.usersInfo.currentUser.userId = 12;
+        request.usersInfo.currentUser.flags = UserFlags.GUEST;
+
+        // new user
+        request.newUserInfo.userId = 10;
+        request.newUserInfo.flags = UserFlags.ADMIN;
+        request.newUserName = "Dude";
+
+
+        VehiclePropValue propValue = UserHalHelper.toVehiclePropValue(request);
+
+        assertWithMessage("wrong prop on %s", propValue).that(propValue.prop)
+                .isEqualTo(CREATE_USER_PROPERTY);
+        assertWithMessage("wrong int32values on %s", propValue).that(propValue.value.int32Values)
+                .containsExactly(42, // request id
+                        10, UserFlags.ADMIN, // new user
+                        12, UserFlags.GUEST, // current user
+                        3, // number of users
+                        10, UserFlags.ADMIN,  // existing user 1
+                        11, UserFlags.SYSTEM, // existing user 2
+                        12, UserFlags.GUEST   // existing user 3
+                        ).inOrder();
+        assertWithMessage("wrong name %s", propValue).that(propValue.value.stringValue)
+                .isEqualTo("Dude");
     }
 
     @Test
