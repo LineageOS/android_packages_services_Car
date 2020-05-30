@@ -15,6 +15,7 @@
  */
 package com.android.car.hal;
 
+import static android.car.VehiclePropertyIds.CREATE_USER;
 import static android.car.VehiclePropertyIds.INITIAL_USER_INFO;
 import static android.car.VehiclePropertyIds.SWITCH_USER;
 import static android.car.VehiclePropertyIds.USER_IDENTIFICATION_ASSOCIATION;
@@ -28,6 +29,10 @@ import android.car.hardware.property.CarPropertyManager;
 import android.car.user.CarUserManager;
 import android.car.userlib.HalCallback;
 import android.car.userlib.UserHalHelper;
+import android.car.userlib.UserHelper;
+import android.hardware.automotive.vehicle.V2_0.CreateUserRequest;
+import android.hardware.automotive.vehicle.V2_0.CreateUserResponse;
+import android.hardware.automotive.vehicle.V2_0.CreateUserStatus;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserMessageType;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserResponse;
@@ -77,6 +82,7 @@ public final class UserHalService extends HalServiceBase {
     private static final int[] SUPPORTED_PROPERTIES = new int[]{
             INITIAL_USER_INFO,
             SWITCH_USER,
+            CREATE_USER,
             USER_IDENTIFICATION_ASSOCIATION
     };
 
@@ -154,6 +160,10 @@ public final class UserHalService extends HalServiceBase {
                 case SWITCH_USER:
                     mHandler.sendMessage(obtainMessage(
                             UserHalService::handleOnSwitchUserResponse, this, value));
+                    break;
+                case CREATE_USER:
+                    mHandler.sendMessage(obtainMessage(
+                            UserHalService::handleOnCreateUserResponse, this, value));
                     break;
                 case USER_IDENTIFICATION_ASSOCIATION:
                     mHandler.sendMessage(obtainMessage(
@@ -291,6 +301,38 @@ public final class UserHalService extends HalServiceBase {
         }
 
         sendHalRequest(requestId, timeoutMs, propRequest, callback);
+    }
+
+    /**
+     * Calls HAL to indicate an Android user was created.
+     *
+     * @param request info agout the created user.
+     * @param timeoutMs how long to wait (in ms) for the property change event.
+     * @param callback to handle the response.
+     *
+     * @throws IllegalStateException if the HAL does not support user management (callers should
+     * call {@link #isSupported()} first to avoid this exception).
+     */
+    public void createUser(@NonNull CreateUserRequest request, int timeoutMs,
+            @NonNull HalCallback<CreateUserResponse> callback) {
+        if (DBG) Log.d(TAG, "createUser(): req=" + request + ", timeout=" + timeoutMs);
+
+        Objects.requireNonNull(request);
+        Preconditions.checkArgumentPositive(timeoutMs, "timeout must be positive");
+        Objects.requireNonNull(callback);
+
+        VehiclePropValue propRequest;
+        synchronized (mLock) {
+            checkSupportedLocked();
+            if (hasPendingRequestLocked(CreateUserResponse.class, callback)) return;
+            request.requestId = getNextRequestId();
+            propRequest = UserHalHelper.toVehiclePropValue(request);
+            EventLog.writeEvent(EventLogTags.CAR_USER_HAL_CREATE_USER_REQ, request.requestId,
+                    UserHelper.safeName(request.newUserName), request.newUserInfo.flags, timeoutMs);
+            addPendingRequestLocked(request.requestId, CreateUserResponse.class, callback);
+        }
+
+        sendHalRequest(request.requestId, timeoutMs, propRequest, callback);
     }
 
     /**
@@ -656,12 +698,12 @@ public final class UserHalService extends HalServiceBase {
         int messageType = value.value.int32Values.get(1);
 
         if (messageType == SwitchUserMessageType.VEHICLE_RESPONSE) {
-            handleVehicleResponse(value);
+            handleOnSwitchUserVehicleResponse(value);
             return;
         }
 
         if (messageType == SwitchUserMessageType.VEHICLE_REQUEST) {
-            handleVehicleRequest(value);
+            handleOnSwitchUserVehicleRequest(value);
             return;
         }
 
@@ -674,13 +716,13 @@ public final class UserHalService extends HalServiceBase {
         if (callback != null) {
             handleRemovePendingRequest(requestId);
             EventLog.writeEvent(EventLogTags.CAR_USER_HAL_SWITCH_USER_RESP, requestId,
-                    HalCallback.STATUS_WRONG_HAL_RESPONSE, SwitchUserStatus.FAILURE);
+                    HalCallback.STATUS_WRONG_HAL_RESPONSE);
             callback.onResponse(HalCallback.STATUS_WRONG_HAL_RESPONSE, null);
             return;
         }
     }
 
-    private void handleVehicleRequest(VehiclePropValue value) {
+    private void handleOnSwitchUserVehicleRequest(VehiclePropValue value) {
         int requestId = value.value.int32Values.get(0);
         // Index 1 is message type, which is not required in this call.
         int targetUserId = value.value.int32Values.get(2);
@@ -697,7 +739,7 @@ public final class UserHalService extends HalServiceBase {
         userService.switchAndroidUserFromHal(requestId, targetUserId);
     }
 
-    private void handleVehicleResponse(VehiclePropValue value) {
+    private void handleOnSwitchUserVehicleResponse(VehiclePropValue value) {
         int requestId = value.value.int32Values.get(0);
         HalCallback<SwitchUserResponse> callback =
                 handleGetPendingCallback(requestId, SwitchUserResponse.class);
@@ -712,17 +754,49 @@ public final class UserHalService extends HalServiceBase {
         response.requestId = requestId;
         response.messageType = value.value.int32Values.get(1);
         response.status = value.value.int32Values.get(2);
+        response.errorMessage = value.value.stringValue;
         if (response.status == SwitchUserStatus.SUCCESS
                 || response.status == SwitchUserStatus.FAILURE) {
             if (DBG) {
                 Log.d(TAG, "replying to request " + requestId + " with " + response);
             }
             EventLog.writeEvent(EventLogTags.CAR_USER_HAL_SWITCH_USER_RESP, requestId,
-                    HalCallback.STATUS_OK, response.status);
+                    HalCallback.STATUS_OK, response.status, response.errorMessage);
             callback.onResponse(HalCallback.STATUS_OK, response);
         } else {
             EventLog.writeEvent(EventLogTags.CAR_USER_HAL_SWITCH_USER_RESP, requestId,
-                    HalCallback.STATUS_WRONG_HAL_RESPONSE, response.status);
+                    HalCallback.STATUS_WRONG_HAL_RESPONSE, response.status, response.errorMessage);
+            Log.e(TAG, "invalid status (" + response.status + ") from HAL: " + value);
+            callback.onResponse(HalCallback.STATUS_WRONG_HAL_RESPONSE, null);
+        }
+    }
+
+    private void handleOnCreateUserResponse(VehiclePropValue value) {
+        int requestId = value.value.int32Values.get(0);
+        HalCallback<CreateUserResponse> callback =
+                handleGetPendingCallback(requestId, CreateUserResponse.class);
+        if (callback == null) {
+            EventLog.writeEvent(EventLogTags.CAR_USER_HAL_CREATE_USER_RESP, requestId,
+                    HalCallback.STATUS_INVALID);
+            Log.w(TAG, "no callback for requestId " + requestId + ": " + value);
+            return;
+        }
+        handleRemovePendingRequest(requestId);
+        CreateUserResponse response = new CreateUserResponse();
+        response.requestId = requestId;
+        response.status = value.value.int32Values.get(1);
+        response.errorMessage = value.value.stringValue;
+        if (response.status == CreateUserStatus.SUCCESS
+                || response.status == CreateUserStatus.FAILURE) {
+            if (DBG) {
+                Log.d(TAG, "replying to request " + requestId + " with " + response);
+            }
+            EventLog.writeEvent(EventLogTags.CAR_USER_HAL_CREATE_USER_RESP, requestId,
+                    HalCallback.STATUS_OK, response.status, response.errorMessage);
+            callback.onResponse(HalCallback.STATUS_OK, response);
+        } else {
+            EventLog.writeEvent(EventLogTags.CAR_USER_HAL_CREATE_USER_RESP, requestId,
+                    HalCallback.STATUS_WRONG_HAL_RESPONSE, response.status, response.errorMessage);
             Log.e(TAG, "invalid status (" + response.status + ") from HAL: " + value);
             callback.onResponse(HalCallback.STATUS_WRONG_HAL_RESPONSE, null);
         }

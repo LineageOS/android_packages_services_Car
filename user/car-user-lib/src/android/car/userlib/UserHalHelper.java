@@ -23,6 +23,7 @@ import android.app.ActivityManager;
 import android.car.userlib.HalCallback.HalCallbackStatus;
 import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
+import android.hardware.automotive.vehicle.V2_0.CreateUserRequest;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
@@ -59,6 +60,7 @@ public final class UserHalHelper {
     private static final boolean DEBUG = false;
 
     public static final int INITIAL_USER_INFO_PROPERTY = 299896583;
+    public static final int CREATE_USER_PROPERTY = 299896585;
     public static final int USER_IDENTIFICATION_ASSOCIATION_PROPERTY = 299896587;
 
     private static final String STRING_SEPARATOR = "\\|\\|";
@@ -221,6 +223,11 @@ public final class UserHalHelper {
 
     /**
      * Adds users information to prop value.
+     *
+     * <p><b>NOTE: </b>it does not validate the semantics of {@link UsersInfo} content (for example,
+     * if the current user is present in the list of users or if the flags are valid), only the
+     * basic correctness (like number of users matching existing users list size). Use
+     * {@link #checkValid(UsersInfo)} for a full check.
      */
     public static void addUsersInfo(@NonNull VehiclePropValue propRequest,
                 @NonNull UsersInfo usersInfo) {
@@ -464,6 +471,43 @@ public final class UserHalHelper {
                     "invalid value at index %d on %s", i, request);
             propValue.value.int32Values.add(association.value);
         }
+
+        return propValue;
+    }
+
+    /**
+     * Creates a generic {@link VehiclePropValue} (that can be sent to HAL) from a
+     * {@link CreateUserRequest}.
+     *
+     * @throws IllegalArgumentException if the request doesn't have the proper format.
+     */
+    @NonNull
+    public static VehiclePropValue toVehiclePropValue(@NonNull CreateUserRequest request) {
+        Objects.requireNonNull(request, "request cannot be null");
+        checkArgument(request.requestId > 0, "invalid requestId on %s", request);
+        checkValid(request.usersInfo);
+
+        boolean hasNewUser = false;
+        int newUserFlags = UserFlags.NONE;
+        for (int i = 0; i < request.usersInfo.existingUsers.size(); i++) {
+            android.hardware.automotive.vehicle.V2_0.UserInfo user =
+                    request.usersInfo.existingUsers.get(i);
+            if (user.userId == request.newUserInfo.userId) {
+                hasNewUser = true;
+                newUserFlags = user.flags;
+                break;
+            }
+        }
+        Preconditions.checkArgument(hasNewUser,
+                "new user's id not present on existing users on request %s", request);
+        Preconditions.checkArgument(request.newUserInfo.flags == newUserFlags,
+                "new user flags mismatch on existing users on %s", request);
+
+        VehiclePropValue propValue = createPropRequest(CREATE_USER_PROPERTY,
+                request.requestId);
+        propValue.value.stringValue = request.newUserName;
+        addUserInfo(propValue, request.newUserInfo);
+        addUsersInfo(propValue, request.usersInfo);
 
         return propValue;
     }
