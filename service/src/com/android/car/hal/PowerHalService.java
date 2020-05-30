@@ -142,7 +142,8 @@ public class PowerHalService extends HalServiceBase {
             if (mState != VehicleApPowerStateReq.SHUTDOWN_PREPARE) {
                 throw new IllegalStateException("wrong state");
             }
-            return (mParam == VehicleApPowerStateShutdownParam.CAN_SLEEP);
+            return (mParam == VehicleApPowerStateShutdownParam.CAN_SLEEP
+                    || mParam == VehicleApPowerStateShutdownParam.SLEEP_IMMEDIATELY);
         }
 
         /**
@@ -214,7 +215,7 @@ public class PowerHalService extends HalServiceBase {
         setPowerState(VehicleApPowerStateReport.WAIT_FOR_VHAL, 0);
     }
 
-   /**
+    /**
      * Send SleepEntry message to VHAL
      * @param wakeupTimeSec Notify VHAL when system wants to be woken from sleep.
      */
