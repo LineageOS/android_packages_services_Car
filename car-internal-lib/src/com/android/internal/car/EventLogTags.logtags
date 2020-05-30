@@ -90,6 +90,8 @@ option java_package com.android.internal.car
 150148 car_user_hal_set_user_auth_req (int32values|4)
 150149 car_user_hal_set_user_auth_resp (int32values|4),(error_message|3)
 150150 car_user_hal_oem_switch_user_req (request_id|1),(target_user_id|1)
+150151 car_user_hal_create_user_req (request_id|1),(safe_name|3),(flags|1),(timeout|1)
+150152 car_user_hal_create_user_resp (request_id|1),(status|1),(result|1),(error_message|3)
 
 150171 car_user_mgr_add_listener (uid|1)
 150172 car_user_mgr_remove_listener (uid|1)
