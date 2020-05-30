@@ -480,7 +480,7 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"ನಿಮ್ಮ ಟ್ಯಾಬ್ಲೆಟ್ ಅನ್ನು ಸ್ಕ್ರೀನ್ ಲಾಕ್ ಆಯ್ಕೆಯ ಜೊತೆಗೆ ಸುರಕ್ಷಿತಗೊಳಿಸಿ, ಆದ್ದರಿಂದ ಅದು ಕಳೆದುಹೋದಾಗ ಅಥವಾ ಅಪಹರಣವಾದಾಗ ಅದನ್ನು ಯಾರಾದರೂ ಬಳಸಲು ಸಾಧ್ಯವಾಗುವುದಿಲ್ಲ. ಮುಖ ಗುರುತಿಸುವಿಕೆಯನ್ನು ಸೆಟಪ್ ಮಾಡಲು ನಿಮಗೆ ಸ್ಕ್ರೀನ್ ಲಾಕ್‌ ಆಯ್ಕೆಯೂ ಸಹ ಅಗತ್ಯವಿದೆ. ರದ್ದುಗೊಳಿಸಿ ಟ್ಯಾಪ್ ಮಾಡಿ, ನಂತರ ಪಿನ್ ಅನ್ನು ಹೊಂದಿಸಿ ಅಥವಾ ಮತ್ತೊಂದು ಸ್ಕ್ರೀನ್ ಲಾಕ್ ಆಯ್ಕೆಯನ್ನು ಆರಿಸಿ."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"ನಿಮ್ಮ ಸಾಧನವನ್ನು ಸ್ಕ್ರೀನ್ ಲಾಕ್ ಆಯ್ಕೆಯ ಜೊತೆಗೆ ಸುರಕ್ಷಿತಗೊಳಿಸಿ, ಆದ್ದರಿಂದ ಅದು ಕಳೆದುಹೋದಾಗ ಅಥವಾ ಅಪಹರಣವಾದಾಗ ಅದನ್ನು ಯಾರಾದರೂ ಬಳಸಲು ಸಾಧ್ಯವಾಗುವುದಿಲ್ಲ. ಮುಖ ಗುರುತಿಸುವಿಕೆಯನ್ನು ಸೆಟಪ್ ಮಾಡಲು ನಿಮಗೆ ಸ್ಕ್ರೀನ್ ಲಾಕ್‌ ಆಯ್ಕೆಯೂ ಸಹ ಅಗತ್ಯವಿದೆ. ರದ್ದುಗೊಳಿಸಿ ಟ್ಯಾಪ್ ಮಾಡಿ, ನಂತರ ಪಿನ್ ಅನ್ನು ಹೊಂದಿಸಿ ಅಥವಾ ಮತ್ತೊಂದು ಸ್ಕ್ರೀನ್ ಲಾಕ್ ಆಯ್ಕೆಯನ್ನು ಆರಿಸಿ."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"ನಿಮ್ಮ ಫೋನ್ ಅನ್ನು ಸ್ಕ್ರೀನ್ ಲಾಕ್ ಆಯ್ಕೆಯ ಜೊತೆಗೆ ಸುರಕ್ಷಿತಗೊಳಿಸಿ, ಆದ್ದರಿಂದ ಅದು ಕಳೆದುಹೋದಾಗ ಅಥವಾ ಅಪಹರಣವಾದಾಗ ಅದನ್ನು ಯಾರಾದರೂ ಬಳಸಲು ಸಾಧ್ಯವಾಗುವುದಿಲ್ಲ. ಮುಖ ಗುರುತಿಸುವಿಕೆಯನ್ನು ಸೆಟಪ್ ಮಾಡಲು ನಿಮಗೆ ಸ್ಕ್ರೀನ್ ಲಾಕ್‌ ಆಯ್ಕೆಯೂ ಸಹ ಅಗತ್ಯವಿದೆ. ರದ್ದುಗೊಳಿಸಿ ಟ್ಯಾಪ್ ಮಾಡಿ, ನಂತರ ಪಿನ್ ಅನ್ನು ಹೊಂದಿಸಿ ಅಥವಾ ಮತ್ತೊಂದು ಸ್ಕ್ರೀನ್ ಲಾಕ್ ಆಯ್ಕೆಯನ್ನು ಆರಿಸಿ."</string>
-    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"ಪಿನ್ ಸೆಟಪ್ ಸ್ಕಿಪ್ ಮಾಡುವುದೇ?"</string>
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"ಪಿನ್ ಸೆಟಪ್ ಸ್ಕಿಪ್ ಮಾಡಬೇಕೇ?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"ಪಾಸ್‌ವರ್ಡ್ ಸೆಟಪ್ ಸ್ಕಿಪ್ ಮಾಡುವುದೇ?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"ಪ್ಯಾಟರ್ನ್ ಸೆಟಪ್ ಸ್ಕಿಪ್ ಮಾಡುವುದೇ?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"ಸ್ಕ್ರೀನ್ ಲಾಕ್ ಹೊಂದಿಸಿ"</string>
@@ -2925,7 +2925,7 @@
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"ಮತ್ತೊಂದು ಪಾವತಿ ಅಪ್ಲಿಕೇಶನ್ ತೆರೆದಿರುವುದನ್ನು ಹೊರತುಪಡಿಸಿ"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"ಟ್ಯಾಪ್‌ ಮಾಡಿ ಮತ್ತು ಪಾವತಿ ಟರ್ಮಿನಲ್‌ನಲ್ಲಿ, ಇದರ ಮೂಲಕ ಪಾವತಿಸಿ:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"ಟರ್ಮಿನಲ್‌ನಲ್ಲಿ ಪಾವತಿಸಲಾಗುತ್ತಿದೆ"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"ಪಾವತಿ ಅಪ್ಲಿಕೇಶನ್ ಹೊಂದಿಸಿ. ನಂತರ ಸಂಪರ್ಕವಿಲ್ಲದ ಚಿಹ್ನೆಯೊಂದಿಗೆ ಯಾವುದೇ ಟರ್ಮಿನಲ್‌ಗೆ ನಿಮ್ಮ ಫೋನ್ ಅನ್ನು ಹಿಡಿದುಕೊಳ್ಳಿ."</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"ಪಾವತಿ ಆ್ಯಪ್ ಹೊಂದಿಸಿ. ನಂತರ ಸಂಪರ್ಕವಿಲ್ಲದ ಚಿಹ್ನೆಯೊಂದಿಗೆ ಯಾವುದೇ ಟರ್ಮಿನಲ್‌ಗೆ ನಿಮ್ಮ ಫೋನ್ ಅನ್ನು ಹಿಡಿದುಕೊಳ್ಳಿ."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"ತಿಳಿಯಿತು"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"ಇನ್ನಷ್ಟು..."</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"ನಿಮ್ಮ ಪ್ರಾಶಸ್ತ್ಯವನ್ನು ಹೊಂದಿಸಬೇಕೆ?"</string>
@@ -4239,7 +4239,7 @@
     <string name="storage_music_audio" msgid="3661289086715297149">"ಸಂಗೀತ ಮತ್ತು ಆಡಿಯೋ"</string>
     <string name="storage_games" msgid="7740038143749092373">"ಗೇಮ್‌ಗಳು"</string>
     <string name="storage_other_apps" msgid="3202407095387420842">"ಇತರ ಅಪ್ಲಿಕೇಶನ್‌ಗಳು"</string>
-    <string name="storage_files" msgid="2087824267937487880">"ಫೈಲ್‌ಗಳು"</string>
+    <string name="storage_files" msgid="2087824267937487880">"Files"</string>
     <string name="storage_size_large_alternate" msgid="1317796542509105857">"<xliff:g id="NUMBER">^1</xliff:g>"<small>" "<font size="20">"<xliff:g id="UNIT">^2</xliff:g>"</font></small>""</string>
     <string name="storage_volume_total" msgid="5021484171514159913">"<xliff:g id="TOTAL">%1$s</xliff:g> ನಲ್ಲಿ ಬಳಸಿರುವುದು"</string>
     <string name="storage_percent_full" msgid="6924662861545958442">"ಬಳಕೆಯಾಗಿದೆ"</string>
@@ -4329,7 +4329,7 @@
     <string name="prevent_ringing_option_vibrate" msgid="6456505293904544108">"ವೈಬ್ರೇಟ್‌"</string>
     <string name="prevent_ringing_option_mute" msgid="53662688921253613">"ಮ್ಯೂಟ್"</string>
     <string name="prevent_ringing_option_none" msgid="1450985763137666231">"ಏನೂ ಮಾಡಬೇಡಿ"</string>
-    <string name="prevent_ringing_option_vibrate_summary" msgid="7961818570574683926">"(ವೈಬ್ರೇಟ್‌) ನಲ್ಲಿ"</string>
+    <string name="prevent_ringing_option_vibrate_summary" msgid="7961818570574683926">"ಆನ್ ಆಗಿದೆ (ವೈಬ್ರೇಟ್‌)"</string>
     <string name="prevent_ringing_option_mute_summary" msgid="3509459199090688328">"(ಮ್ಯೂಟ್) ನಲ್ಲಿ"</string>
     <string name="prevent_ringing_option_none_summary" msgid="5152618221093037451">"ಆಫ್"</string>
     <string name="pref_title_network_details" msgid="3971074015034595956">"ನೆಟ್‌ವರ್ಕ್‌ ವಿವರಗಳು"</string>

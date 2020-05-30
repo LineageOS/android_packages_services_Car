@@ -991,7 +991,7 @@
     <string name="wifi_eap_anonymous" msgid="6352344972490839958">"هوية مجهولة"</string>
     <string name="wifi_password" msgid="6942983531275177771">"كلمة المرور"</string>
     <string name="wifi_show_password" msgid="7878398590772942202">"إظهار كلمة المرور"</string>
-    <string name="wifi_ap_band_config" msgid="6565016368079288433">"تحديد نطاق AP"</string>
+    <string name="wifi_ap_band_config" msgid="6565016368079288433">"اختيار نطاق AP"</string>
     <string name="wifi_ap_choose_auto" msgid="7927637960569365785">"تلقائي"</string>
     <string name="wifi_ap_choose_2G" msgid="43198403259714736">"نطاق بتردد ٢٫٤ غيغاهرتز"</string>
     <string name="wifi_ap_choose_5G" msgid="2624859713183683146">"نطاق بتردد ٥ غيغاهرتز"</string>
@@ -1036,7 +1036,7 @@
     <string name="retry" msgid="8500839563577344702">"إعادة المحاولة"</string>
     <string name="wifi_shared" msgid="5054256778276524960">"المشاركة مع مستخدمي الجهاز الآخرين"</string>
     <string name="wifi_unchanged" msgid="6804964646942333992">"(لم يتم تغييره)"</string>
-    <string name="wifi_unspecified" msgid="893491188483500809">"يُرجى التحديد"</string>
+    <string name="wifi_unspecified" msgid="893491188483500809">"يُرجى الاختيار"</string>
     <string name="wifi_multiple_cert_added" msgid="7986200585749147204">"(تمت إضافة عدة شهادات)"</string>
     <string name="wifi_use_system_certs" msgid="4794489370929885022">"استخدام شهادات النظام"</string>
     <string name="wifi_do_not_provide_eap_user_cert" msgid="4044301449482425250">"عدم التوفير"</string>
@@ -3153,11 +3153,11 @@
     <string name="sim_cellular_data_unavailable" msgid="1832472508352891641">"بيانات الجوّال غير متاحة"</string>
     <string name="sim_cellular_data_unavailable_summary" msgid="3093797406601964131">"انقر لاختيار شريحة SIM للبيانات."</string>
     <string name="sim_calls_always_use" msgid="5322696995795851734">"استخدام هذا للمكالمات دائمًا"</string>
-    <string name="select_sim_for_data" msgid="2099705792885526394">"تحديد شريحة SIM للبيانات"</string>
+    <string name="select_sim_for_data" msgid="2099705792885526394">"اختيار شريحة SIM للبيانات"</string>
     <string name="select_sim_for_sms" msgid="2481682560233370731">"اختيار شريحة SIM للرسائل القصيرة SMS"</string>
     <string name="data_switch_started" msgid="4517966162053949265">"جارٍ تبديل شريحة SIM للبيانات؛ قد يستغرق هذا مدة تصل إلى دقيقة..."</string>
     <string name="select_sim_for_calls" msgid="131091573472832807">"الاتصال باستخدام"</string>
-    <string name="sim_select_card" msgid="5558215843972182767">"تحديد شريحة SIM"</string>
+    <string name="sim_select_card" msgid="5558215843972182767">"اختيار شريحة SIM"</string>
     <string name="sim_card_number_title" msgid="8808663374497085634">"شريحة SIM <xliff:g id="CARD_NUMBER">%1$d</xliff:g>"</string>
     <string name="sim_slot_empty" msgid="2710430326225678239">"شريحة SIM فارغة"</string>
     <string name="sim_editor_name" msgid="3367549287943555967">"اسم شريحة SIM"</string>
@@ -3166,7 +3166,7 @@
     <string name="sim_editor_carrier" msgid="8860370077829961512">"مشغل شبكة الجوّال"</string>
     <string name="sim_editor_number" msgid="1757338150165234970">"الرقم"</string>
     <string name="sim_editor_color" msgid="373059962306191123">"لون شريحة SIM"</string>
-    <string name="sim_card_select_title" msgid="4925862525985187946">"تحديد شريحة SIM"</string>
+    <string name="sim_card_select_title" msgid="4925862525985187946">"اختيار شريحة SIM"</string>
     <string name="color_orange" msgid="3159707916066563431">"برتقالي"</string>
     <string name="color_purple" msgid="4391440966734810713">"أرجواني"</string>
     <string name="sim_no_inserted_msg" msgid="1197884607569714609">"لم يتم إدراج بطاقات SIM"</string>
@@ -4000,7 +4000,7 @@
     <string name="assist_access_screenshot_summary" msgid="3010943864000489424">"السماح للتطبيق المساعد بالوصول إلى صورة للشاشة"</string>
     <string name="assist_flash_title" msgid="8852484250748551092">"إظهار وميض على الشاشة"</string>
     <string name="assist_flash_summary" msgid="6697095786317559129">"إظهار وميض على حدود الشاشة عند وصول التطبيق المساعد إلى النص من الشاشة أو لقطة الشاشة"</string>
-    <string name="assist_footer" msgid="7030121180457472165">"بإمكان التطبيقات المساعِدة تقديم المساعدة لك استنادًا إلى المعلومات على الشاشة التي تعرضها أنت. وتتوافق بعض التطبيقات مع كل من خدمة المشغّل وخدمة الإدخال الصوتي لتوفير مساعدة متكاملة لك."</string>
+    <string name="assist_footer" msgid="7030121180457472165">"بإمكان التطبيقات المساعِدة مساعدتك استنادًا إلى المعلومات على الشاشة التي تشاهدها. وتتوافق بعض التطبيقات مع كل من خدمة المشغّل وخدمة الإدخال الصوتي لتوفير مساعدة متكاملة لك."</string>
     <string name="average_memory_use" msgid="5333366040118953945">"متوسط ​​استخدام الذاكرة"</string>
     <string name="maximum_memory_use" msgid="6509872438499846077">"الاستخدام الأقصى للذاكرة"</string>
     <string name="memory_usage" msgid="7963253555330830906">"استخدام الذاكرة"</string>
@@ -4593,7 +4593,7 @@
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"السماح ببدء جميع الأنشطة في الخلفية"</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"عرض مربع حوار الأعطال دائمًا"</string>
     <string name="show_first_crash_dialog_summary" msgid="8197987550025401754">"عرض مربع الحوار في كل مرة يتعطل فيها تطبيق"</string>
-    <string name="angle_enabled_app" msgid="4359266182151708733">"تحديد التطبيق الذي يستخدم ANGLE"</string>
+    <string name="angle_enabled_app" msgid="4359266182151708733">"اختيار التطبيق الذي يستخدم ANGLE"</string>
     <string name="angle_enabled_app_not_set" msgid="7428910515748621910">"لم يتم تعيين تطبيق لاستخدام ANGLE"</string>
     <string name="angle_enabled_app_set" msgid="7313088703610569320">"التطبيق الذي يستخدم ANGLE: <xliff:g id="APP_NAME">%1$s</xliff:g>"</string>
     <string name="game_driver_dashboard_title" msgid="219443350404091201">"إعدادات Game Driver المفضّلة"</string>

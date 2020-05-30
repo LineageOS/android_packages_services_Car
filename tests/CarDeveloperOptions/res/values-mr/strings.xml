@@ -126,8 +126,8 @@
     <string name="bluetooth_notif_ticker" msgid="8398481099943141819">"ब्लूटूथ पेअरिंग विनंती"</string>
     <string name="bluetooth_notif_title" msgid="5090288898529286011">"पेअरिंग विनंती"</string>
     <string name="bluetooth_notif_message" msgid="6612367890895077938">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> सह जोडण्यासाठी टॅप करा."</string>
-    <string name="bluetooth_show_received_files" msgid="5060846395852236652">"मिळालेल्या फायली"</string>
-    <string name="bluetooth_show_files_received_via_bluetooth" msgid="1699095577431389560">"फायली ब्लूटूथद्वारे मिळाल्या आहेत"</string>
+    <string name="bluetooth_show_received_files" msgid="5060846395852236652">"मिळालेल्या फाइल"</string>
+    <string name="bluetooth_show_files_received_via_bluetooth" msgid="1699095577431389560">"फाइल ब्लूटूथद्वारे मिळाल्या आहेत"</string>
     <string name="device_picker" msgid="8345264486071697705">"ब्लूटूथ डिव्हाइस निवडा"</string>
     <string name="bluetooth_ask_enablement" msgid="8716802066127746062">"<xliff:g id="APP_NAME">%1$s</xliff:g> ब्लूटूथ सुरू करू इच्छितो"</string>
     <string name="bluetooth_ask_disablement" msgid="7125319551097350783">"<xliff:g id="APP_NAME">%1$s</xliff:g> ब्लूटूथ बंद करू इच्छितो"</string>
@@ -508,8 +508,8 @@
     <string name="crypt_keeper_encrypt_title" product="tablet" msgid="2292129135369853167">"टॅबलेट एंक्रिप्ट करा"</string>
     <string name="crypt_keeper_encrypt_title" product="default" msgid="3110852053238357832">"फोन एंक्रिप्ट करा"</string>
     <string name="crypt_keeper_encrypted_summary" msgid="2438498691741626642">"एंक्रिप्ट केले"</string>
-    <string name="crypt_keeper_desc" product="tablet" msgid="9142792050252407734">"तुम्ही तुमची खाती, सेटिंग्ज, डाउनलोड केलेले अ‍ॅप्स आणि त्यांचा डेटा, मीडिया आणि इतर फायली एंक्रिप्ट करू शकता. तुम्ही तुमचा टॅब्लेट एंक्रिप्ट केल्यानंतर, तुम्ही स्क्रीन लॉक (म्हणजे, एक पॅटर्न किंवा अंकीय पिन किंवा पासवर्ड) सेट केला आहे हे गृहित धरून, प्रत्येकवेळी तुम्ही टॅब्लेट सुरू करता तेव्हा त्याचे एंक्रिप्ट करण्‍यासाठी आपल्‍याला स्क्रीन अनलॉक करण्‍याची आवश्यकता असेल. एंक्रिप्ट करण्‍याचा अन्य एकमेव मार्ग तुमचा सर्व डेटा मिटवून, फॅक्‍टरी डेटा रीसेट करणे हा होय.\n\nएंक्रिप्शनला एक तास किंवा अधिक वेळ लागू शकतो. तुम्ही संपूर्ण प्रक्रियेत चार्ज केलेल्या बॅटरीसह प्रारंभ करणे आणि तुमचा टॅब्लेट प्लग इन केलेला ठेवणे आवश्यक आहे. तुम्ही त्यात व्यत्यय आणल्यास, तुम्ही तुमचा काही किंवा सर्व डेटा गमवाल."</string>
-    <string name="crypt_keeper_desc" product="default" msgid="1996334685607444282">"तुम्ही तुमची खाती, सेटिंग्ज, डाउनलोड केलेली अ‍ॅप्स आणि त्यांचा डेटा, मीडिया आणि इतर फायली एंक्रिप्ट करू शकता. तुम्ही तुमचा फोन एंक्रिप्ट केल्यानंतर, तुम्ही स्क्रीन लॉक (म्हणजे, एक पॅटर्न किंवा अंकीय पिन किंवा पासवर्ड) सेट केला आहे हे गृहित धरून, प्रत्येकवेळी तुम्ही फोन सुरू करता तेव्हा त्याचे एंक्रिप्ट करण्‍यासाठी आपल्‍याला स्क्रीन अनलॉक करण्‍याची आवश्यकता असेल. एंक्रिप्ट करण्‍याचा अन्य एकमेव मार्ग तुमचा सर्व डेटा मिटवून, फॅक्‍टरी डेटा रीसेट करणे हा होय.\n\nएंक्रिप्टीकरणास एक तास किंवा अधिक वेळ लागू शकतो. तुम्ही संपूर्ण प्रक्रियेत चार्ज केलेल्या बॅटरीसह प्रारंभ करणे आणि तुमचा फोन प्लग इन केलेला ठेवणे आवश्यक आहे. तुम्ही त्यात व्यत्यय आणल्यास, तुम्ही तुमचा काही किंवा सर्व डेटा गमवाल."</string>
+    <string name="crypt_keeper_desc" product="tablet" msgid="9142792050252407734">"तुम्ही तुमची खाती, सेटिंग्ज, डाउनलोड केलेले अ‍ॅप्स आणि त्यांचा डेटा, मीडिया आणि इतर फाइल एंक्रिप्ट करू शकता. तुम्ही तुमचा टॅब्लेट एंक्रिप्ट केल्यानंतर, तुम्ही स्क्रीन लॉक (म्हणजे, एक पॅटर्न किंवा अंकीय पिन किंवा पासवर्ड) सेट केला आहे हे गृहित धरून, प्रत्येकवेळी तुम्ही टॅब्लेट सुरू करता तेव्हा त्याचे एंक्रिप्ट करण्‍यासाठी आपल्‍याला स्क्रीन अनलॉक करण्‍याची आवश्यकता असेल. एंक्रिप्ट करण्‍याचा अन्य एकमेव मार्ग तुमचा सर्व डेटा मिटवून, फॅक्‍टरी डेटा रीसेट करणे हा होय.\n\nएंक्रिप्शनला एक तास किंवा अधिक वेळ लागू शकतो. तुम्ही संपूर्ण प्रक्रियेत चार्ज केलेल्या बॅटरीसह प्रारंभ करणे आणि तुमचा टॅब्लेट प्लग इन केलेला ठेवणे आवश्यक आहे. तुम्ही त्यात व्यत्यय आणल्यास, तुम्ही तुमचा काही किंवा सर्व डेटा गमवाल."</string>
+    <string name="crypt_keeper_desc" product="default" msgid="1996334685607444282">"तुम्ही तुमची खाती, सेटिंग्ज, डाउनलोड केलेली अ‍ॅप्स आणि त्यांचा डेटा, मीडिया आणि इतर फाइल एंक्रिप्ट करू शकता. तुम्ही तुमचा फोन एंक्रिप्ट केल्यानंतर, तुम्ही स्क्रीन लॉक (म्हणजे, एक पॅटर्न किंवा अंकीय पिन किंवा पासवर्ड) सेट केला आहे हे गृहित धरून, प्रत्येकवेळी तुम्ही फोन सुरू करता तेव्हा त्याचे एंक्रिप्ट करण्‍यासाठी आपल्‍याला स्क्रीन अनलॉक करण्‍याची आवश्यकता असेल. एंक्रिप्ट करण्‍याचा अन्य एकमेव मार्ग तुमचा सर्व डेटा मिटवून, फॅक्‍टरी डेटा रीसेट करणे हा होय.\n\nएंक्रिप्टीकरणास एक तास किंवा अधिक वेळ लागू शकतो. तुम्ही संपूर्ण प्रक्रियेत चार्ज केलेल्या बॅटरीसह प्रारंभ करणे आणि तुमचा फोन प्लग इन केलेला ठेवणे आवश्यक आहे. तुम्ही त्यात व्यत्यय आणल्यास, तुम्ही तुमचा काही किंवा सर्व डेटा गमवाल."</string>
     <string name="crypt_keeper_button_text" product="tablet" msgid="7918671468758813824">"टॅबलेट एंक्रिप्ट करा"</string>
     <string name="crypt_keeper_button_text" product="default" msgid="8737394386627318489">"फोन एंक्रिप्ट करा"</string>
     <string name="crypt_keeper_low_charge_text" msgid="1422879728632636311">"तुमची बॅटरी चार्ज करा आणि पुन्हा प्रयत्न करा."</string>
@@ -1374,7 +1374,7 @@
     <string name="memory_downloads_usage" msgid="7039979723012065168">"डाउनलोड"</string>
     <string name="memory_dcim_usage" msgid="599009211606524732">"चित्रे, व्हिडिओ"</string>
     <string name="memory_music_usage" msgid="809605300042546279">"ऑडिओ (संगीत, रिंगटोन, पॉडकास्ट इ.)"</string>
-    <string name="memory_media_misc_usage" msgid="6258827529046910705">"इतर फायली"</string>
+    <string name="memory_media_misc_usage" msgid="6258827529046910705">"इतर फाइल"</string>
     <string name="memory_media_cache_usage" msgid="1307620682751377717">"कॅशे  केलेला डेटा"</string>
     <string name="sd_eject" product="nosdcard" msgid="3016608823130472449">"शेअर केलेले संचयन अनमाउंट करा"</string>
     <string name="sd_eject" product="default" msgid="4943338855474925396">"SD कार्ड अनमाउंट करा"</string>
@@ -1422,9 +1422,9 @@
     <string name="storage_title_usb" msgid="2015671467177303099">"USB कॉंप्युटर कनेक्शन"</string>
     <string name="usb_connection_category" msgid="2888975803638116041">"म्हणून कनेक्ट करा"</string>
     <string name="usb_mtp_title" msgid="6893938968831995500">"मीडिया डिव्हाइस (MTP)"</string>
-    <string name="usb_mtp_summary" msgid="4427354560399094322">"Windows वरील मीडिया फायली वापरून किंवा Mac वरील Android फाईल स्थानांतरण वापरून तुम्हाला मीडिया फायली स्थानांतरण करू देते (www.android.com/filetransfer पहा)"</string>
+    <string name="usb_mtp_summary" msgid="4427354560399094322">"Windows वरील मीडिया फाइल वापरून किंवा Mac वरील Android फाईल स्थानांतरण वापरून तुम्हाला मीडिया फाइल स्थानांतरण करू देते (www.android.com/filetransfer पहा)"</string>
     <string name="usb_ptp_title" msgid="6629335976394685361">"कॅमेरा (PTP)"</string>
-    <string name="usb_ptp_summary" msgid="460425275251168189">"तुम्हाला कॅमेरा सॉफ्टवेअर वापरून फोटो स्थानांतर आणि MTP वर समर्थित नसलेल्या संगणकावर कोणत्याही फायली स्थानांतर करू देते"</string>
+    <string name="usb_ptp_summary" msgid="460425275251168189">"तुम्हाला कॅमेरा सॉफ्टवेअर वापरून फोटो स्थानांतर आणि MTP वर समर्थित नसलेल्या संगणकावर कोणत्याही फाइल स्थानांतर करू देते"</string>
     <string name="usb_midi_title" msgid="8626512517313340943">"MIDI"</string>
     <string name="usb_midi_summary" msgid="3607444815743771712">"MIDI सक्षम असलेल्या अनुप्रयोगांना आपल्या संगणकावर MIDI सॉफ्टवेअरसह USB वर कार्य करू द्या."</string>
     <string name="storage_other_users" msgid="1055693465220962928">"इतर वापरकर्ते"</string>
@@ -1444,8 +1444,8 @@
     <string name="storage_dialog_unmounted" msgid="515810851912430933">"हे <xliff:g id="NAME_0">^1</xliff:g> सुरक्षितपणे बाहेर काढले आहे परंतु अद्याप उपलब्‍ध आहे. \n\nहे <xliff:g id="NAME_1">^1</xliff:g> वापरण्यासाठी, आपल्‍याला प्रथम ते माउंट करणे आवश्‍यक आहे."</string>
     <string name="storage_dialog_unmountable" msgid="7082856306456936054">"हे <xliff:g id="NAME_0">^1</xliff:g> दूषित झाले आहे. \n\n हे <xliff:g id="NAME_1">^1</xliff:g> वापरण्‍यासाठी, आपल्‍याला प्रथम ते सेट करणे आवश्यक आहे."</string>
     <string name="storage_dialog_unsupported" msgid="8274023677580782553">"हे डिव्हाइस या <xliff:g id="NAME_0">^1</xliff:g> चे सपोर्ट करत नाही. \n\nया डिव्‍हाइससह हे <xliff:g id="NAME_1">^1</xliff:g> वापरण्‍यासाठी आपल्‍याला प्रथम ते सेट करणे आवश्‍यक आहे."</string>
-    <string name="storage_internal_format_details" msgid="2780806013122012384">"फॉर्मेट झाल्यानंतर, तुम्ही हे <xliff:g id="NAME_0">^1</xliff:g> इतर डिव्हाइसमध्‍ये वापरू शकता. \n\nया <xliff:g id="NAME_1">^1</xliff:g> वरील सर्व डेटा मिटविला जाईल. बॅकअप घेण्‍याचा प्रथम विचार करा. \n\n"<b>"फोटो आणि इतर मीडियाचा बॅकअप घ्‍या"</b>\n"या डिव्हाइस वरील पर्यायी स्टोरेजवर तुमच्या मीडिया फायली हलवा किंवा USB केबल वापरून त्या कॉंप्युटरवर ट्रान्सफर करा. \n\n"<b>"अ‍ॅप्सचा बॅकअप घ्‍या"</b>\n" <xliff:g id="NAME_6">^1</xliff:g> वर स्टोअर केलेली सर्व अ‍ॅप्स अनइंस्टॉल केली जातील आणि त्यांचा डेटा मिटविला जाईल. हे अ‍ॅप्स ठेवण्‍यासाठी, ते या डिव्हाइस वरील पर्यायी स्टोरेजवर हलवा."</string>
-    <string name="storage_internal_unmount_details" msgid="4667435317528624039"><b>"तुम्ही <xliff:g id="NAME_0">^1</xliff:g> हे बाहेर काढता तेव्‍हा, त्यावर स्टोअर केलेले अ‍ॅप्स कार्य करणे थांबवतील आणि ते पुन्हा घातले जाईपर्यंत त्यावर स्टोअर केलेल्‍या मीडिया फायली उपलब्ध असणार नाहीत."</b>" \n\nहे <xliff:g id="NAME_1">^1</xliff:g> केवळ या डिव्‍हाइसवर कार्य करण्‍यासाठी स्वरूपित केले आहे. ते इतर कशावरही कार्य करणार नाही."</string>
+    <string name="storage_internal_format_details" msgid="2780806013122012384">"फॉर्मेट झाल्यानंतर, तुम्ही हे <xliff:g id="NAME_0">^1</xliff:g> इतर डिव्हाइसमध्‍ये वापरू शकता. \n\nया <xliff:g id="NAME_1">^1</xliff:g> वरील सर्व डेटा मिटविला जाईल. बॅकअप घेण्‍याचा प्रथम विचार करा. \n\n"<b>"फोटो आणि इतर मीडियाचा बॅकअप घ्‍या"</b>\n"या डिव्हाइस वरील पर्यायी स्टोरेजवर तुमच्या मीडिया फाइल हलवा किंवा USB केबल वापरून त्या कॉंप्युटरवर ट्रान्सफर करा. \n\n"<b>"अ‍ॅप्सचा बॅकअप घ्‍या"</b>\n" <xliff:g id="NAME_6">^1</xliff:g> वर स्टोअर केलेली सर्व अ‍ॅप्स अनइंस्टॉल केली जातील आणि त्यांचा डेटा मिटविला जाईल. हे अ‍ॅप्स ठेवण्‍यासाठी, ते या डिव्हाइस वरील पर्यायी स्टोरेजवर हलवा."</string>
+    <string name="storage_internal_unmount_details" msgid="4667435317528624039"><b>"तुम्ही <xliff:g id="NAME_0">^1</xliff:g> हे बाहेर काढता तेव्‍हा, त्यावर स्टोअर केलेले अ‍ॅप्स कार्य करणे थांबवतील आणि ते पुन्हा घातले जाईपर्यंत त्यावर स्टोअर केलेल्‍या मीडिया फाइल उपलब्ध असणार नाहीत."</b>" \n\nहे <xliff:g id="NAME_1">^1</xliff:g> केवळ या डिव्‍हाइसवर कार्य करण्‍यासाठी स्वरूपित केले आहे. ते इतर कशावरही कार्य करणार नाही."</string>
     <string name="storage_internal_forget_details" msgid="5655856574682184453">"अ‍ॅप्स, फोटो किंवा या <xliff:g id="NAME">^1</xliff:g> मध्ये असलेला डेटा वापरण्यासाठी, तो पुन्हा घाला. \n\nपर्यायीपणे, डिव्हाइस उपलब्ध नसल्यास तुम्ही हे स्टोरेज विसरणे निवडू शकता. \n\nतुम्ही विसरणे निवडल्यास, डिव्हाइस मध्ये असलेला सर्व डेटा नेहमीसाठी गमावला जाईल. \n\nतुम्ही नंतर अ‍ॅप्स पुन्हा इंस्टॉल करू शकता, परंतु या डिव्हाइस वर स्टोअर केलेला त्यांचा डेटा गमावला जाईल."</string>
     <string name="storage_internal_forget_confirm_title" msgid="331032276130605241">"<xliff:g id="NAME">^1</xliff:g> ला विसरला?"</string>
     <string name="storage_internal_forget_confirm" msgid="3052483375203727176">"या <xliff:g id="NAME">^1</xliff:g> वर स्टोअर केलेले सर्व अ‍ॅप्स, फोटो आणि डेटा कायमचा गमावला जाईल."</string>
@@ -1457,7 +1457,7 @@
     <string name="storage_detail_other" msgid="9164851767437306618">"इतर"</string>
     <string name="storage_detail_system" msgid="6784247618772153283">"सिस्टम"</string>
     <string name="storage_detail_explore" msgid="8206900269596580264">"<xliff:g id="NAME">^1</xliff:g> एक्सप्लोर करा"</string>
-    <string name="storage_detail_dialog_other" msgid="5073511663616043370">"इतर गोष्टींमध्ये अ‍ॅप्सवरून सेव्ह करून शेअर केलेल्या फायली, इंटरनेट किंवा ब्लूटूथ वरून डाउनलोड केलेल्या फायली, Android फायली आणि इत्यादीचा समावेश असतो. \n\n<xliff:g id="NAME">^1</xliff:g> चा दिसणाराा आशय पाहण्यासाठी, एक्सप्लोर करा वर टॅप करा."</string>
+    <string name="storage_detail_dialog_other" msgid="5073511663616043370">"इतर गोष्टींमध्ये अ‍ॅप्सवरून सेव्ह करून शेअर केलेल्या फाइल, इंटरनेट किंवा ब्लूटूथ वरून डाउनलोड केलेल्या फाइल, Android फाइल आणि इत्यादीचा समावेश असतो. \n\n<xliff:g id="NAME">^1</xliff:g> चा दिसणाराा आशय पाहण्यासाठी, एक्सप्लोर करा वर टॅप करा."</string>
     <string name="storage_detail_dialog_system" msgid="1472572861360014226">"सिस्टममध्ये Android व्हर्जन <xliff:g id="VERSION">%s</xliff:g> रन करण्यासाठी वापरल्या जाणाऱ्या फायलींचा समावेश आहे"</string>
     <string name="storage_detail_dialog_user" msgid="1663117417635010371">"<xliff:g id="USER_0">^1</xliff:g> कडे <xliff:g id="SIZE">^2</xliff:g> स्टोरेज वापरणारे, सेव्ह केलेले फोटो, संगीत, अ‍ॅप्स किंवा इतर डेटा असू शकतो. \n\nतपशील पाहण्यासाठी, <xliff:g id="USER_1">^1</xliff:g> वर स्विच करा."</string>
     <string name="storage_wizard_init_title" msgid="3407283236421089014">"तुमचे <xliff:g id="NAME">^1</xliff:g> सेट करा"</string>
@@ -1473,7 +1473,7 @@
     <string name="storage_wizard_format_progress_title" msgid="6905902731208646436">"<xliff:g id="NAME">^1</xliff:g> फॉर्मेट करत आहे…"</string>
     <string name="storage_wizard_format_progress_body" msgid="5346709539457190419">"फॉरमॅट होत असताना <xliff:g id="NAME">^1</xliff:g> काढू टाकू नका."</string>
     <string name="storage_wizard_migrate_title" msgid="7440473364104826496">"डेटा नवीन संचयनावर हलवा"</string>
-    <string name="storage_wizard_migrate_body" msgid="4959356431201831339">"या नवीन <xliff:g id="NAME">^1</xliff:g> वर तुम्ही तुमचे फोटो, फायली आणि काही अ‍ॅप्स हलवू शकता. \n\nहलविण्‍यास सुमारे <xliff:g id="TIME">^2</xliff:g> लागेल आणि अंतर्गत संचयनावर <xliff:g id="SIZE">^3</xliff:g> मोकळे करेल. काही अ‍ॅप्स सुरू असताना कार्य करणार नाहीत."</string>
+    <string name="storage_wizard_migrate_body" msgid="4959356431201831339">"या नवीन <xliff:g id="NAME">^1</xliff:g> वर तुम्ही तुमचे फोटो, फाइल आणि काही अ‍ॅप्स हलवू शकता. \n\nहलविण्‍यास सुमारे <xliff:g id="TIME">^2</xliff:g> लागेल आणि अंतर्गत संचयनावर <xliff:g id="SIZE">^3</xliff:g> मोकळे करेल. काही अ‍ॅप्स सुरू असताना कार्य करणार नाहीत."</string>
     <string name="storage_wizard_migrate_now" msgid="9004605853000689024">"आता हलवा"</string>
     <string name="storage_wizard_migrate_later" msgid="5303070653970922924">"नंतर हलवा"</string>
     <string name="storage_wizard_migrate_confirm_title" msgid="5768497751644935313">"आता डेटा हलवा"</string>
@@ -1483,7 +1483,7 @@
     <string name="storage_wizard_migrate_details" msgid="4269509141637554985">"हलवण्‍यादरम्यान: \n• <xliff:g id="NAME">^1</xliff:g>काढू नका. \n• काही अ‍ॅप्स योग्यरीत्या कार्य करणार नाहीत. \n• डिव्हाइस चार्ज केलेले ठेवा."</string>
     <string name="storage_wizard_ready_title" msgid="4905921139763520341">"तुमचे <xliff:g id="NAME">^1</xliff:g> वापरण्यासाठी तयार आहे"</string>
     <string name="storage_wizard_ready_external_body" msgid="8785407468656286236">"तुमचे <xliff:g id="NAME">^1</xliff:g> फोटो आणि इतर मीडियासह वापरण्‍यासाठी तयार आहे."</string>
-    <string name="storage_wizard_ready_internal_body" msgid="2258287496678469217">"तुमचे नवीन <xliff:g id="NAME">^1</xliff:g> कार्य करत आहे. \n\nया डिव्‍हाइसवर फोटो, फायली आणि अ‍ॅप डेटा हलविण्‍यासाठी, सेटिंग्ज &gt; संचयनावर जा."</string>
+    <string name="storage_wizard_ready_internal_body" msgid="2258287496678469217">"तुमचे नवीन <xliff:g id="NAME">^1</xliff:g> कार्य करत आहे. \n\nया डिव्‍हाइसवर फोटो, फाइल आणि अ‍ॅप डेटा हलविण्‍यासाठी, सेटिंग्ज &gt; संचयनावर जा."</string>
     <string name="storage_wizard_move_confirm_title" msgid="7362472162039287488">"<xliff:g id="APP">^1</xliff:g> हलवा"</string>
     <string name="storage_wizard_move_confirm_body" msgid="502315190416551319">"<xliff:g id="APP">^1</xliff:g> आणि त्याचा डेटा <xliff:g id="NAME_0">^2</xliff:g> वर हलविण्‍यास केवळ काही क्षण लागतील. हलविणे पूर्ण होईपर्यंत तुम्ही अ‍ॅप वापरण्‍यास सक्षम असणार नाहीत. \n\nहलविण्‍यादरम्यान <xliff:g id="NAME_1">^2</xliff:g> काढू नका."</string>
     <string name="storage_wizard_move_unlock" msgid="7978193904519827600">"डेटा हलवण्यासाठी तुम्हाला <xliff:g id="APP">^1</xliff:g> या वापरकर्त्याला अनलॉक करावे लागेल."</string>
@@ -1493,22 +1493,22 @@
     <string name="storage_wizard_slow_body" msgid="2307974936036261069">"हे <xliff:g id="NAME_0">^1</xliff:g> धीमे असल्याचे दिसते. \n\nतुम्ही सुरू ठेवू शकता परंतु या स्थानावर हलविलेल्या अ‍ॅप्समध्‍ये अडथळा येऊ शकतो आणि डेटा स्थानांतरणास बराच वेळ लागू शकतो. \n\nअधिक चांगल्या कार्यप्रदर्शनासाठी आणखी जलद <xliff:g id="NAME_1">^1</xliff:g> वापरण्‍याचा विचार करा."</string>
     <string name="storage_wizard_init_v2_title" msgid="7408910177547901960">"तुम्ही हे <xliff:g id="NAME">^1</xliff:g> कसे वापराल?"</string>
     <string name="storage_wizard_init_v2_internal_title" product="tablet" msgid="7948795312504302810">"अतिरिक्त टॅबलेट स्टोरेजसाठी वापरा"</string>
-    <string name="storage_wizard_init_v2_internal_summary" product="tablet" msgid="6237770506398410172">"फक्त या टॅबलेटवरील अ‍ॅप्स, फायली आणि मीडियासाठी"</string>
+    <string name="storage_wizard_init_v2_internal_summary" product="tablet" msgid="6237770506398410172">"फक्त या टॅबलेटवरील अ‍ॅप्स, फाइल आणि मीडियासाठी"</string>
     <string name="storage_wizard_init_v2_internal_action" product="tablet" msgid="1016850267330050231">"टॅब्लेट स्टोरेज"</string>
     <string name="storage_wizard_init_v2_internal_title" product="default" msgid="2782907833711627804">"अतिरिक्त फोन स्टोरेजसाठी वापरा"</string>
-    <string name="storage_wizard_init_v2_internal_summary" product="default" msgid="6352521760027924000">"फक्त या फोनवरील अ‍ॅप्स, फायली आणि मीडियासाठी"</string>
+    <string name="storage_wizard_init_v2_internal_summary" product="default" msgid="6352521760027924000">"फक्त या फोनवरील अ‍ॅप्स, फाइल आणि मीडियासाठी"</string>
     <string name="storage_wizard_init_v2_internal_action" product="default" msgid="3383888882755852046">"फोन स्टोरेज"</string>
     <string name="storage_wizard_init_v2_or" msgid="883906565226069620">"किंवा"</string>
     <string name="storage_wizard_init_v2_external_title" msgid="7009571510941803101">"पोर्टेबल स्टोरेजसाठी वापरा"</string>
-    <string name="storage_wizard_init_v2_external_summary" msgid="825409811302836460">"डिव्हाइसमध्ये फायली आणि मीडिया स्थानांतरित करण्यासाठी"</string>
+    <string name="storage_wizard_init_v2_external_summary" msgid="825409811302836460">"डिव्हाइसमध्ये फाइल आणि मीडिया स्थानांतरित करण्यासाठी"</string>
     <string name="storage_wizard_init_v2_external_action" msgid="4649591913020218098">"पोर्टेबल स्टोरेज"</string>
     <string name="storage_wizard_init_v2_later" msgid="2605006907172213466">"नंतर सेट करा"</string>
     <string name="storage_wizard_format_confirm_v2_title" msgid="1884699177320256159">"<xliff:g id="NAME">^1</xliff:g> हे फॉरमॅट करायचे का?"</string>
     <string name="storage_wizard_format_confirm_v2_body" msgid="977657376082074305">"अ‍ॅप्स, फाइल्स आणि मीडिया स्टोर करण्यासाठी <xliff:g id="NAME_0">^1</xliff:g> ला फॉरमॅट करणे आवश्यक आहे. \n\nफॉरमॅट केल्यामुळे <xliff:g id="NAME_1">^2</xliff:g> वरील विद्यमान डेटा मिटवला जाईल. आशय गमावणे टाळण्यासाठी, दुसऱ्या <xliff:g id="NAME_2">^3</xliff:g> वर किंवा डिव्हाइसवर त्याचा बॅकअप घ्या."</string>
     <string name="storage_wizard_format_confirm_v2_action" msgid="5576917958786300415">"<xliff:g id="NAME">^1</xliff:g> फॉरमॅट करा"</string>
     <string name="storage_wizard_migrate_v2_title" msgid="6728034411587320249">"<xliff:g id="NAME">^1</xliff:g> वर आशय हलवायचा का?"</string>
-    <string name="storage_wizard_migrate_v2_body" product="tablet" msgid="6943007011251294950">"तुम्ही या <xliff:g id="NAME">^1</xliff:g> मध्ये फायली, मिडिया आणि विशिष्ट अ‍ॅप्स हलवू शकता. \n\nहे तुमच्या टॅबलेटच्या स्टोरेजमधून <xliff:g id="SIZE">^2</xliff:g> जागा मोकळी करेल आणि त्यासाठी अंदाजे <xliff:g id="DURATION">^3</xliff:g> कालावधी लागेल."</string>
-    <string name="storage_wizard_migrate_v2_body" product="default" msgid="3211214309775524554">"तुम्ही या <xliff:g id="NAME">^1</xliff:g> मध्ये फायली, मिडिया आणि विशिष्ट अ‍ॅप्स हलवू शकता. \n\nहे तुमच्या फोनच्या स्टोरेजमधून <xliff:g id="SIZE">^2</xliff:g> जागा मोकळी करेल आणि त्यासाठी अंदाजे <xliff:g id="DURATION">^3</xliff:g> कालावधी लागेल."</string>
+    <string name="storage_wizard_migrate_v2_body" product="tablet" msgid="6943007011251294950">"तुम्ही या <xliff:g id="NAME">^1</xliff:g> मध्ये फाइल, मिडिया आणि विशिष्ट अ‍ॅप्स हलवू शकता. \n\nहे तुमच्या टॅबलेटच्या स्टोरेजमधून <xliff:g id="SIZE">^2</xliff:g> जागा मोकळी करेल आणि त्यासाठी अंदाजे <xliff:g id="DURATION">^3</xliff:g> कालावधी लागेल."</string>
+    <string name="storage_wizard_migrate_v2_body" product="default" msgid="3211214309775524554">"तुम्ही या <xliff:g id="NAME">^1</xliff:g> मध्ये फाइल, मिडिया आणि विशिष्ट अ‍ॅप्स हलवू शकता. \n\nहे तुमच्या फोनच्या स्टोरेजमधून <xliff:g id="SIZE">^2</xliff:g> जागा मोकळी करेल आणि त्यासाठी अंदाजे <xliff:g id="DURATION">^3</xliff:g> कालावधी लागेल."</string>
     <string name="storage_wizard_migrate_v2_checklist" msgid="6283777617014793600">"हलविण्याच्या दरम्यान:"</string>
     <string name="storage_wizard_migrate_v2_checklist_media" msgid="4626548613088549096">"<xliff:g id="NAME">^1</xliff:g> काढून टाकू नका"</string>
     <string name="storage_wizard_migrate_v2_checklist_apps" msgid="6041914027863793837">"काही अ‍ॅप्स काम करू शकणार नाहीत"</string>
@@ -1862,7 +1862,7 @@
     <string name="internal_storage" msgid="7392373600013294853">"अंतर्गत स्टोरेज"</string>
     <string name="recompute_size" msgid="4290692197892743928">"आकाराचे पुनर्संगणन करत आहे…"</string>
     <string name="clear_data_dlg_title" msgid="7388024498687029597">"अ‍ॅप डेटा हटवायचा?"</string>
-    <string name="clear_data_dlg_text" msgid="6849657743695013414">"या अ‍ॅपचा सर्व डेटा कायमचा हटवला जाईल. यात सर्व फायली, सेटिंग्ज, खाती, डेटाबेस इ. समाविष्ट असेल."</string>
+    <string name="clear_data_dlg_text" msgid="6849657743695013414">"या अ‍ॅपचा सर्व डेटा कायमचा हटवला जाईल. यात सर्व फाइल, सेटिंग्ज, खाती, डेटाबेस इ. समाविष्ट असेल."</string>
     <string name="dlg_ok" msgid="4666570206507476557">"ठीक"</string>
     <string name="dlg_cancel" msgid="2434951039156262467">"रद्द करा"</string>
     <string name="app_not_found_dlg_title" msgid="394147475018718483"></string>
@@ -2563,8 +2563,8 @@
     <string name="backup_configure_account_default_summary" msgid="5718298066335006412">"कोणतेही खाते सध्या बॅक अप घेतलेला डेटा स्टोअर करत नाहीये"</string>
     <string name="backup_erase_dialog_title" msgid="8178424339104463014"></string>
     <string name="backup_erase_dialog_message" msgid="8767843355330070902">"Google सर्व्हरवरील आपल्या वाय-फाय पासवर्ड, बुकमार्क, इतर सेटिंग्ज आणि अ‍ॅप डेटाचा बॅक अप घेणे थांबवायचे तसेच सर्व प्रती मिटवायच्या?"</string>
-    <string name="fullbackup_erase_dialog_message" msgid="2588536036471144070">"डिव्हाइस डेटाचा (जसे की वाय-फाय पासवर्ड आणि कॉल इतिहास) आणि (अ‍ॅप्सद्वारे स्टोअर केलेल्या सेटिंग्ज आणि फायली यासारख्या) अ‍ॅप डेटाचा बॅकअप घेणे थांबवायचे, तसेच दूरस्थ सर्व्हर वरील सर्व प्रती मिटवायच्या?"</string>
-    <string name="fullbackup_data_summary" msgid="406274198094268556">"आपोआप डिव्हाइस डेटाचा (जसे की वाय-फाय पासवर्ड आणि कॉल इतिहास) आणि अ‍ॅप डेटाचा (जसे की अ‍ॅप्‍स द्वारे स्टोअर केलेल्या सेटिंग्ज आणि फायली) दूरस्‍थपणे बॅकअप घ्‍या.\n\nतुम्ही स्वयंचलित बॅकअप सुरू करता तेव्‍हा, डिव्हाइस आणि अ‍ॅप डेटा ठराविक कालावधीने दूरस्‍थपणे सेव्ह केला जातो. अ‍ॅप डेटा हा संपर्क, मेसेज आणि फोटो यासारख्‍या संभाव्य संवेदनशील डेटासह अ‍ॅपने सेव्ह केलेला (डेव्हलपरच्या सेटिंग्जवर आधारित) कोणताही डेटा असू शकतो."</string>
+    <string name="fullbackup_erase_dialog_message" msgid="2588536036471144070">"डिव्हाइस डेटाचा (जसे की वाय-फाय पासवर्ड आणि कॉल इतिहास) आणि (अ‍ॅप्सद्वारे स्टोअर केलेल्या सेटिंग्ज आणि फाइल यासारख्या) अ‍ॅप डेटाचा बॅकअप घेणे थांबवायचे, तसेच दूरस्थ सर्व्हर वरील सर्व प्रती मिटवायच्या?"</string>
+    <string name="fullbackup_data_summary" msgid="406274198094268556">"आपोआप डिव्हाइस डेटाचा (जसे की वाय-फाय पासवर्ड आणि कॉल इतिहास) आणि अ‍ॅप डेटाचा (जसे की अ‍ॅप्‍स द्वारे स्टोअर केलेल्या सेटिंग्ज आणि फाइल) दूरस्‍थपणे बॅकअप घ्‍या.\n\nतुम्ही स्वयंचलित बॅकअप सुरू करता तेव्‍हा, डिव्हाइस आणि अ‍ॅप डेटा ठराविक कालावधीने दूरस्‍थपणे सेव्ह केला जातो. अ‍ॅप डेटा हा संपर्क, मेसेज आणि फोटो यासारख्‍या संभाव्य संवेदनशील डेटासह अ‍ॅपने सेव्ह केलेला (डेव्हलपरच्या सेटिंग्जवर आधारित) कोणताही डेटा असू शकतो."</string>
     <string name="device_admin_settings_title" msgid="2074319456047334589">"डिव्हाइस प्रशासक सेटिंग्ज"</string>
     <string name="active_device_admin_msg" msgid="6929247869516924549">"डिव्हाइस प्रशासक अ‍ॅप"</string>
     <string name="remove_device_admin" msgid="4413438593788336400">"हे डिव्हाइस अ‍ॅडमिन अ‍ॅप बंद करा"</string>
@@ -2645,7 +2645,7 @@
     <string name="checking_decryption" msgid="5927759912073053101">"तपासत आहे..."</string>
     <string name="starting_android" msgid="4774187626261253089">"Android प्रारंभ करत आहोत..."</string>
     <string name="delete" msgid="2325292565700865366">"हटवा"</string>
-    <string name="misc_files" msgid="1012397035001764693">"संकीर्ण फायली"</string>
+    <string name="misc_files" msgid="1012397035001764693">"संकीर्ण फाइल"</string>
     <string name="misc_files_selected_count" msgid="1434146080729502726">"<xliff:g id="TOTAL">%2$d</xliff:g> पैकी <xliff:g id="NUMBER">%1$d</xliff:g> निवडले"</string>
     <string name="misc_files_selected_count_bytes" msgid="3752262902203465861">"<xliff:g id="TOTAL">%2$s</xliff:g> पैकी <xliff:g id="NUMBER">%1$s</xliff:g>"</string>
     <string name="select_all" msgid="452240217913675728">"सर्व निवडा"</string>
@@ -2923,7 +2923,7 @@
     <string name="nfc_payment_app_and_desc" msgid="102312684211458190">"<xliff:g id="APP">%1$s</xliff:g> - <xliff:g id="DESCRIPTION">%2$s</xliff:g>"</string>
     <string name="nfc_payment_use_default" msgid="3098724195746409476">"डीफॉल्ट वापरा"</string>
     <string name="nfc_payment_favor_default" msgid="7555356982142464260">"नेहमी"</string>
-    <string name="nfc_payment_favor_open" msgid="3739055715000436749">"दुसरा पेमेंट अ‍ॅप खुला असतो तेव्हा त्यास वगळून"</string>
+    <string name="nfc_payment_favor_open" msgid="3739055715000436749">"दुसरे पेमेंट अ‍ॅप खुले असते तेव्हा त्यास वगळून"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"टॅप आणि पे टर्मिनलवर, यासह पे करा:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"टर्मिनलवर पेमेंट करा"</string>
     <string name="nfc_how_it_works_content" msgid="9174575836302449343">"पेमेंट अ‍ॅप सेट करा. त्यानंतर संपर्करहित आयकन असलेल्या कोणत्याही टर्मिनलवर आपल्‍या फोनची मागील बाजू धरा."</string>
@@ -3146,11 +3146,11 @@
     <string name="notification_unknown_sound_title" msgid="8043718667804838398">"ॲपने प्रदान केलेला ध्वनी"</string>
     <string name="notification_sound_default" msgid="2664544380802426260">"डीफॉल्ट सूचना ध्वनी"</string>
     <string name="alarm_ringtone_title" msgid="6411326147408635902">"डीफॉल्ट अलार्म ध्वनी"</string>
-    <string name="vibrate_when_ringing_title" msgid="2757996559847126952">"कॉलसाठी कंपन सुरू करा"</string>
+    <string name="vibrate_when_ringing_title" msgid="2757996559847126952">"कॉलसाठी व्हायब्रेट करा"</string>
     <string name="other_sound_settings" msgid="5250376066099818676">"इतर ध्वनी"</string>
     <string name="dial_pad_tones_title" msgid="8877212139988655769">"डायल पॅड टोन"</string>
     <string name="screen_locking_sounds_title" msgid="4407110895465866809">"स्‍क्रीन लॉक करणारे ध्वनी"</string>
-    <string name="charging_sounds_title" msgid="5070437987230894287">"आवाज आणि कंपन चार्ज होत आहे"</string>
+    <string name="charging_sounds_title" msgid="5070437987230894287">"चार्जिंगचा आवाज आणि व्हायब्रेशन"</string>
     <string name="docking_sounds_title" msgid="2573137471605541366">"डॉकिंग ध्वनी"</string>
     <string name="touch_sounds_title" msgid="165237488496165652">"स्पर्श ध्वनी"</string>
     <string name="vibrate_on_touch_title" msgid="6360155469279157684">"स्पर्श व्हायब्रेट"</string>
@@ -3731,9 +3731,9 @@
     <string name="usb_use_charging_only_desc" msgid="3283518562582478950">"फक्त हे डिव्हाइस चार्ज करा"</string>
     <string name="usb_use_power_only" msgid="6595783381323810697">"कनेक्ट केलेले डिव्हाइस चार्ज करा"</string>
     <string name="usb_use_file_transfers" msgid="6153021302176151884">"फाइल ट्रान्सफर"</string>
-    <string name="usb_use_file_transfers_desc" msgid="6953866660041189580">"दुसऱ्या डिव्हाइसवर फायली स्थानांतरित करा"</string>
+    <string name="usb_use_file_transfers_desc" msgid="6953866660041189580">"दुसऱ्या डिव्हाइसवर फाइल स्थानांतरित करा"</string>
     <string name="usb_use_photo_transfers" msgid="5974236250197451257">"PTP"</string>
-    <string name="usb_use_photo_transfers_desc" msgid="2325112887316125320">"MTP (PTP) समर्थित नसल्‍यास फोटो किंवा फायली स्थानांतरित  करा"</string>
+    <string name="usb_use_photo_transfers_desc" msgid="2325112887316125320">"MTP (PTP) समर्थित नसल्‍यास फोटो किंवा फाइल स्थानांतरित  करा"</string>
     <string name="usb_use_tethering" msgid="4250626730173163846">"USB टेदरिंग"</string>
     <string name="usb_use_MIDI" msgid="4710632870781041401">"MIDI"</string>
     <string name="usb_use_MIDI_desc" msgid="1770966187150010947">"या डिव्हाइसचा MIDI म्हणून वापर करा"</string>
@@ -4240,7 +4240,7 @@
     <string name="storage_music_audio" msgid="3661289086715297149">"संगीत आणि ऑडिओ"</string>
     <string name="storage_games" msgid="7740038143749092373">"गेम"</string>
     <string name="storage_other_apps" msgid="3202407095387420842">"अन्य अ‍ॅप्स"</string>
-    <string name="storage_files" msgid="2087824267937487880">"फायली"</string>
+    <string name="storage_files" msgid="2087824267937487880">"Files"</string>
     <string name="storage_size_large_alternate" msgid="1317796542509105857">"<xliff:g id="NUMBER">^1</xliff:g>"<small>" "<font size="20">"<xliff:g id="UNIT">^2</xliff:g>"</font></small>""</string>
     <string name="storage_volume_total" msgid="5021484171514159913">"<xliff:g id="TOTAL">%1$s</xliff:g> पैकी वापरले"</string>
     <string name="storage_percent_full" msgid="6924662861545958442">"वापरली"</string>
