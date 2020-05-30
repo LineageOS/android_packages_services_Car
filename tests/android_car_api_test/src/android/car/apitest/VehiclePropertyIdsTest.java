@@ -37,22 +37,14 @@ public class VehiclePropertyIdsTest extends AndroidTestCase {
     private static final List<String> MISSING_VEHICLE_PROPERTY_IDS =
             new ArrayList<>(
                 Arrays.asList(
-                    // TODO(b/150408921): add CREATE_USER = 299896585
-                    "CREATE_USER",
                     "DISABLED_OPTIONAL_FEATURES",
                     "HW_ROTARY_INPUT",
-                    // TODO(b/150409600): add REMOVE_USER = 299896586;
-                    "REMOVE_USER",
                     "SUPPORT_CUSTOMIZE_VENDOR_PERMISSION"));
     private static final List<Integer> MISSING_VEHICLE_PROPERTY_ID_VALUES =
             new ArrayList<>(
                 Arrays.asList(
-                    // TODO(b/150408921): add CREATE_USER = 299896585
-                    /*CREATE_USER=*/299896585,
                     /*DISABLED_OPTIONAL_FEATURES=*/286265094,
                     /*HW_ROTARY_INPUT=*/289475104,
-                    // TODO(b/150409600): add REMOVE_USER = 299896586;
-                    /*REMOVE_USER=*/299896586,
                     /*SUPPORT_CUSTOMIZE_VENDOR_PERMISSION=*/287313669));
 
 
