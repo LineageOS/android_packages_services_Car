@@ -25,6 +25,7 @@ import android.annotation.Nullable;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.VehicleAreaType;
+import android.car.VehiclePropertyIds;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.os.Build;
@@ -379,6 +380,7 @@ public class CarPropertyManager extends CarManagerBase {
     public List<CarPropertyConfig> getPropertyList(@NonNull ArraySet<Integer> propertyIds) {
         List<CarPropertyConfig> configs = new ArrayList<>();
         for (int propId : propertyIds) {
+            checkSupportedProperty(propId);
             CarPropertyConfig config = mConfigMap.get(propId);
             if (config != null) {
                 configs.add(config);
@@ -396,6 +398,8 @@ public class CarPropertyManager extends CarManagerBase {
      */
     @Nullable
     public CarPropertyConfig<?> getCarPropertyConfig(int propId) {
+        checkSupportedProperty(propId);
+
         return  mConfigMap.get(propId);
     }
 
@@ -409,6 +413,8 @@ public class CarPropertyManager extends CarManagerBase {
      * @return AreaId contains the selected area for the property.
      */
     public int getAreaId(int propId, int area) {
+        checkSupportedProperty(propId);
+
         CarPropertyConfig<?> propConfig = getCarPropertyConfig(propId);
         if (propConfig == null) {
             throw new IllegalArgumentException("The property propId: 0x" + toHexString(propId)
@@ -440,6 +446,7 @@ public class CarPropertyManager extends CarManagerBase {
         if (DBG) {
             Log.d(TAG, "getReadPermission, propId: 0x" + toHexString(propId));
         }
+        checkSupportedProperty(propId);
         try {
             return mService.getReadPermission(propId);
         } catch (RemoteException e) {
@@ -459,6 +466,7 @@ public class CarPropertyManager extends CarManagerBase {
         if (DBG) {
             Log.d(TAG, "getWritePermission, propId: 0x" + toHexString(propId));
         }
+        checkSupportedProperty(propId);
         try {
             return mService.getWritePermission(propId);
         } catch (RemoteException e) {
@@ -474,6 +482,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @return true if STATUS_AVAILABLE, false otherwise (eg STATUS_UNAVAILABLE)
      */
     public boolean isPropertyAvailable(int propId, int area) {
+        checkSupportedProperty(propId);
         try {
             CarPropertyValue propValue = mService.getProperty(propId, area);
             return (propValue != null)
@@ -493,6 +502,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @return value of a bool property.
      */
     public boolean getBooleanProperty(int prop, int area) {
+        checkSupportedProperty(prop);
         CarPropertyValue<Boolean> carProp = getProperty(Boolean.class, prop, area);
         return carProp != null ? carProp.getValue() : false;
     }
@@ -507,6 +517,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @param area Area of the property to get
      */
     public float getFloatProperty(int prop, int area) {
+        checkSupportedProperty(prop);
         CarPropertyValue<Float> carProp = getProperty(Float.class, prop, area);
         return carProp != null ? carProp.getValue() : 0f;
     }
@@ -520,6 +531,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @param area Zone of the property to get
      */
     public int getIntProperty(int prop, int area) {
+        checkSupportedProperty(prop);
         CarPropertyValue<Integer> carProp = getProperty(Integer.class, prop, area);
         return carProp != null ? carProp.getValue() : 0;
     }
@@ -535,6 +547,7 @@ public class CarPropertyManager extends CarManagerBase {
      */
     @NonNull
     public int[] getIntArrayProperty(int prop, int area) {
+        checkSupportedProperty(prop);
         CarPropertyValue<Integer[]> carProp = getProperty(Integer[].class, prop, area);
         return carProp != null ? toIntArray(carProp.getValue()) : new int[0];
     }
@@ -593,6 +606,9 @@ public class CarPropertyManager extends CarManagerBase {
             Log.d(TAG, "getProperty, propId: 0x" + toHexString(propId)
                     + ", areaId: 0x" + toHexString(areaId) + ", class: " + clazz);
         }
+
+        checkSupportedProperty(propId);
+
         try {
             CarPropertyValue<E> propVal = mService.getProperty(propId, areaId);
             if (propVal != null && propVal.getValue() != null) {
@@ -659,6 +675,8 @@ public class CarPropertyManager extends CarManagerBase {
      */
     @Nullable
     public <E> CarPropertyValue<E> getProperty(int propId, int areaId) {
+        checkSupportedProperty(propId);
+
         try {
             CarPropertyValue<E> propVal = mService.getProperty(propId, areaId);
             return propVal;
@@ -728,6 +746,7 @@ public class CarPropertyManager extends CarManagerBase {
             Log.d(TAG, "setProperty, propId: 0x" + toHexString(propId)
                     + ", areaId: 0x" + toHexString(areaId) + ", class: " + clazz + ", val: " + val);
         }
+        checkSupportedProperty(propId);
         try {
             if (mCarPropertyEventToService == null) {
                 mCarPropertyEventToService = new CarPropertyEventListenerToService(this);
@@ -811,7 +830,30 @@ public class CarPropertyManager extends CarManagerBase {
         return returnValue;
     }
 
-    private class CarPropertyListeners extends CarRatedFloatListeners<CarPropertyEventCallback> {
+    /**
+     * Checks if the given property can be exposed to by this manager.
+     *
+     * <p>For example, properties related to user management should only be manipulated by
+     * {@code UserHalService}.
+     *
+     * @param propId property to be checked
+     *
+     * @throws IllegalArgumentException if the property is not supported.
+     */
+    private void checkSupportedProperty(int propId) {
+        switch (propId) {
+            case VehiclePropertyIds.INITIAL_USER_INFO:
+            case VehiclePropertyIds.SWITCH_USER:
+            case VehiclePropertyIds.CREATE_USER:
+            case VehiclePropertyIds.REMOVE_USER:
+            case VehiclePropertyIds.USER_IDENTIFICATION_ASSOCIATION:
+                throw new IllegalArgumentException("Unsupported property: "
+                        + VehiclePropertyIds.toString(propId) + " (" + propId + ")");
+        }
+    }
+
+    private final class CarPropertyListeners
+            extends CarRatedFloatListeners<CarPropertyEventCallback> {
         CarPropertyListeners(float rate) {
             super(rate);
         }
