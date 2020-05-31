@@ -2637,7 +2637,7 @@
     <string name="work_mode_label" msgid="6845849194740195757">"Poslovni profil"</string>
     <string name="work_mode_on_summary" msgid="1682781113156323592">"Ovim upravlja organizacija"</string>
     <string name="work_mode_off_summary" msgid="1688885392211178315">"Aplikacije i obaveštenja su isključeni"</string>
-    <string name="remove_managed_profile_label" msgid="4625542553784793536">"Ukloni profil za posao"</string>
+    <string name="remove_managed_profile_label" msgid="4625542553784793536">"Ukloni poslovni profil"</string>
     <string name="background_data" msgid="8275750862371471171">"Podaci o pozadini"</string>
     <string name="background_data_summary" msgid="799640633948841990">"Aplikacije uvek mogu da sinhronizuju, šalju i primaju podatke"</string>
     <string name="background_data_dialog_title" msgid="8306650658158895976">"Želite da onemogućite pozadinske podatke?"</string>
@@ -3134,7 +3134,7 @@
     <string name="keywords_color_temperature" msgid="2255253972992035046">"boja, temperatura, D65, D73, bela, žuta, plava, topla, hladna"</string>
     <string name="keywords_lockscreen" msgid="4936846554280830394">"prevlačenje za otključavanje, lozinka, šablon, PIN"</string>
     <string name="keywords_profile_challenge" msgid="8653718001253979611">"work izazov, work, profil"</string>
-    <string name="keywords_unification" msgid="2020759909366983593">"poslovni profil, profil kojim se upravlja, objedini, objedinjavanje, Work, profil"</string>
+    <string name="keywords_unification" msgid="2020759909366983593">"poslovni profil, profil kojim se upravlja, objedini, objedinjavanje, posao, profil"</string>
     <string name="keywords_gesture" msgid="5031323247529869644">"pokreti"</string>
     <string name="keywords_payment_settings" msgid="4745023716567666052">"platite, dodirnite, plaćanja"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"rezervna kopija, praviti rezervnu kopiju"</string>

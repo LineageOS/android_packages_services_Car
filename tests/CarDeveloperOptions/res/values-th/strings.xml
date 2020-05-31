@@ -2038,7 +2038,7 @@
     <string name="accessibility_settings_title" msgid="1687226556576913576">"การตั้งค่าการเข้าถึง"</string>
     <string name="accessibility_settings_summary" msgid="5742379519336396561">"โปรแกรมอ่านหน้าจอ การแสดงผล ส่วนควบคุมการโต้ตอบ"</string>
     <string name="vision_settings_title" msgid="7315352351051423944">"การตั้งค่าการมองเห็น"</string>
-    <string name="vision_settings_description" msgid="3476589459009287332">"คุณสามารถปรับแต่งอุปกรณ์นี้ให้ตรงกับความต้องการของคุณ และเปลี่ยนฟีเจอร์การเข้าถึงเหล่านี้ได้ภายหลังในการตั้งค่า"</string>
+    <string name="vision_settings_description" msgid="3476589459009287332">"คุณปรับแต่งอุปกรณ์นี้ให้ตรงกับความต้องการได้ และเปลี่ยนฟีเจอร์การช่วยเหลือพิเศษเหล่านี้ได้ภายหลังในการตั้งค่า"</string>
     <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"เปลี่ยนขนาดแบบอักษร"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"โปรแกรมอ่านหน้าจอ"</string>
     <string name="audio_and_captions_category_title" msgid="6140472938769619212">"เสียงและข้อความบนหน้าจอ"</string>
@@ -2048,7 +2048,7 @@
     <string name="experimental_category_title" msgid="3797000069740110717">"ทดสอบ"</string>
     <string name="feature_flags_dashboard_title" msgid="3153034144122754381">"แฟล็กฟีเจอร์"</string>
     <string name="talkback_title" msgid="3717960404234260050">"TalkBack"</string>
-    <string name="talkback_summary" msgid="6602857105831641574">"โปรแกรมอ่านหน้าจอที่ใช้สำหรับคนตาบอดหรือผู้มีสายตาบกพร่อง"</string>
+    <string name="talkback_summary" msgid="6602857105831641574">"โปรแกรมอ่านหน้าจอที่ใช้สำหรับคนตาบอดหรือผู้มีสายตาบกพร่องเป็นหลัก"</string>
     <string name="select_to_speak_summary" msgid="7514180457557735421">"แตะรายการบนหน้าจอเพื่อฟังการอ่านออกเสียง"</string>
     <string name="accessibility_captioning_title" msgid="5878371993023439642">"คำบรรยาย"</string>
     <string name="accessibility_screen_magnification_title" msgid="7250949681883917360">"การขยาย"</string>
@@ -2299,7 +2299,7 @@
     </plurals>
     <plurals name="battery_tip_restrict_summary" formatted="false" msgid="984148373944071669">
       <item quantity="other">แอป %2$d แอปใช้แบตเตอรี่ในเบื้องหลังเปลือง</item>
-      <item quantity="one">แอป %1$s แอปใช้แบตเตอรี่ในเบื้องหลังเปลือง</item>
+      <item quantity="one">%1$s ใช้แบตเตอรี่ในเบื้องหลังเปลือง</item>
     </plurals>
     <plurals name="battery_tip_restrict_handled_summary" formatted="false" msgid="469696766640020557">
       <item quantity="other">แอปเหล่านี้ทำงานในเบื้องหลังไม่ได้</item>
@@ -3712,7 +3712,7 @@
     <string name="high_power_system" msgid="739584574711292753">"การเพิ่มประสิทธิภาพแบตเตอรี่ไม่พร้อมใช้งาน"</string>
     <string name="high_power_desc" msgid="333756885680362741">"ไม่ใช้การเพิ่มประสิทธิภาพแบตเตอรี่ อาจทำให้แบตเตอรี่หมดเร็วยิ่งขึ้น"</string>
     <string name="high_power_prompt_title" msgid="2805745781720454052">"ให้แอปทำงานในพื้นหลังทุกครั้งไหม"</string>
-    <string name="high_power_prompt_body" msgid="8067395096053552289">"การอนุญาตให้ <xliff:g id="APP_NAME">%1$s</xliff:g> ทำงานในพื้นหลังทุกครั้งอาจลดอายุการใช้งานแบตเตอรี่ \n\nคุณสามารถเปลี่ยนการตั้งค่านี้ได้ในภายหลังจากการตั้งค่า &gt; แอปและการแจ้งเตือน"</string>
+    <string name="high_power_prompt_body" msgid="8067395096053552289">"การอนุญาตให้ \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" ทำงานอยู่เบื้องหลังทุกครั้งอาจลดอายุการใช้งานแบตเตอรี่ \n\nคุณเปลี่ยนการตั้งค่านี้ได้ในภายหลังจากการตั้งค่า &gt; แอปและการแจ้งเตือน"</string>
     <string name="battery_summary" msgid="4345690800899981339">"ใช้ <xliff:g id="PERCENTAGE">%1$s</xliff:g> ตั้งแต่ชาร์จจนเต็มครั้งล่าสุด"</string>
     <string name="battery_power_management" msgid="2853925857548647969">"การจัดการพลังงาน"</string>
     <string name="no_battery_summary" msgid="4105932628367471314">"ไม่มีการใช้แบตเตอรี่ตั้งแต่การชาร์จเต็มครั้งล่าสุด"</string>

@@ -2038,7 +2038,7 @@
     <string name="accessibility_settings_title" msgid="1687226556576913576">"Поставки на пристапност"</string>
     <string name="accessibility_settings_summary" msgid="5742379519336396561">"Читачи на екран, екран, контроли за интеракција"</string>
     <string name="vision_settings_title" msgid="7315352351051423944">"Визуелна пристапност"</string>
-    <string name="vision_settings_description" msgid="3476589459009287332">"Уредот може да го приспособите да одговара на вашите потреби. Овие карактеристики за пристапност може да ги смените подоцна во Поставки."</string>
+    <string name="vision_settings_description" msgid="3476589459009287332">"Уредот може да го приспособите да одговара на вашите потреби. Овие функции за пристапност може да ги смените подоцна во Поставки."</string>
     <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"Променете ја големината на фонтот"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"Читачи на екран"</string>
     <string name="audio_and_captions_category_title" msgid="6140472938769619212">"Аудио и текст на екранот"</string>
@@ -4113,7 +4113,7 @@
     <string name="gesture_preference_summary" product="device" msgid="7792199669106960922">"Брзи движења за контролирање на уредот"</string>
     <string name="double_tap_power_for_camera_title" msgid="5480829329052517484">"Префрли на камера"</string>
     <string name="double_tap_power_for_camera_summary" msgid="6591026425496323965">"За брзо отворање на камерата, притиснете го копчето за вклучување двапати. Работи од секој екран."</string>
-    <string name="double_tap_power_for_camera_suggestion_title" msgid="509078029429865036">"Отворајте ја камерата набрзина"</string>
+    <string name="double_tap_power_for_camera_suggestion_title" msgid="509078029429865036">"Брзо отворање на камерата"</string>
     <string name="double_twist_for_camera_mode_title" msgid="2606032140297556018">"Смени ја камерата"</string>
     <string name="double_twist_for_camera_mode_summary" msgid="8979914206876018137"></string>
     <string name="double_twist_for_camera_suggestion_title" msgid="5932411386316771246">"Направете селфи-фотографии побрзо"</string>
@@ -4124,14 +4124,14 @@
     <string name="ambient_display_title" product="tablet" msgid="1106285490888683613">"Допрете двапати за проверка на таблетот"</string>
     <string name="ambient_display_title" product="device" msgid="5064644474876041478">"Допрете двапати за проверка на уредот"</string>
     <string name="ambient_display_summary" msgid="4882910328216411109">"За да ги проверите времето, известувањата и другите информации, допрете двапати на екранот."</string>
-    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"Подигнете за проверка на телефонот"</string>
+    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"Подигни за проверка на телефонот"</string>
     <string name="ambient_display_pickup_title" product="tablet" msgid="1555456400210301959">"Подигнете за да го проверите таблетот"</string>
     <string name="ambient_display_pickup_title" product="device" msgid="2480126522988135037">"Подигнете за да го проверите уредот"</string>
     <string name="ambient_display_wake_screen_title" msgid="3376988352851077102">"Екран за будење"</string>
     <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"За да ги проверите времето, известувањата и другите информации, земете го телефонот."</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"За да ги проверите времето, известувањата и другите информации, земете го таблетот."</string>
     <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"За да ги проверите времето, известувањата и другите информации, земете го уредот."</string>
-    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Допрете за проверка на телефонот"</string>
+    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Допри за проверка на телефонот"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Допрете за да го проверите таблетот"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Допрете за да го проверите уредот"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"За да ги проверите времето, известувањата и другите информации, допрете го екранот."</string>

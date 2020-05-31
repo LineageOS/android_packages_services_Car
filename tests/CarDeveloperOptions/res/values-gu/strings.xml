@@ -860,7 +860,7 @@
     <string name="use_open_wifi_automatically_summary" msgid="8338020172673161754">"ઉચ્ચ ગુણવત્તાવાળા સાર્વજનિક નેટવર્ક સાથે આપમેળે કનેક્ટ કરો"</string>
     <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"આ સુવિધાનો ઉપયોગ કરવા માટે, નેટવર્ક રેટિંગ પ્રદાતાને પસંદ કરો"</string>
     <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"આ સુવિધાનો ઉપયોગ કરવા માટે, સુસંગત નેટવર્ક રેટિંગ પ્રદાતાને પસંદ કરો"</string>
-    <string name="wifi_install_credentials" msgid="5650088113710858289">"પ્રમાણપત્રો ઇન્સ્ટોલ કરો"</string>
+    <string name="wifi_install_credentials" msgid="5650088113710858289">"પ્રમાણપત્રો ઇન્સ્ટૉલ કરો"</string>
     <string name="wifi_scan_notify_text" msgid="7614101215028336927">"સ્થાન સચોટતાને બહેતર બનાવવા માટે, જ્યારે વાઇ-ફાઇ બંધ હોય ત્યારે પણ ઍપ અને સેવાઓ વાઇ-ફાઇ નેટવર્ક માટે ગમે ત્યારે સ્કૅન કરી શકે છે. ઉદાહરણ તરીકે, આનો ઉપયોગ સ્થાન આધારિત સુવિધાઓ અને સેવાઓને બહેતર બનાવવા માટે કરી શકાય છે. તમે આને <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>સ્કૅનીંગ સેટિંગ<xliff:g id="LINK_END_1">LINK_END</xliff:g>માં બદલી શકો છો."</string>
     <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"સ્થાનની સચોટતા સુધારવા માટે, <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>સ્કૅનિંગ સેટિંગ<xliff:g id="LINK_END_1">LINK_END</xliff:g> માં જઈને વાઇ-ફાઇ સ્કૅનિંગ ચાલુ કરો."</string>
     <string name="wifi_scan_notify_remember_choice" msgid="1235445971400237444">"ફરીથી બતાવશો નહીં"</string>
@@ -1608,7 +1608,7 @@
     <string name="master_clear_not_available" msgid="4676613348163652454">"આ વપરાશકર્તા માટે ફેક્ટરી રીસેટ ઉપલબ્ધ નથી"</string>
     <string name="master_clear_progress_title" msgid="378953167274114857">"કાઢી નાંખી રહ્યું છે"</string>
     <string name="master_clear_progress_text" msgid="5418958116008976218">"કૃપા કરીને રાહ જુઓ..."</string>
-    <string name="call_settings_title" msgid="5033906789261282752">"કૉલ સેટિંગ્સ"</string>
+    <string name="call_settings_title" msgid="5033906789261282752">"કૉલ સેટિંગ"</string>
     <string name="call_settings_summary" msgid="2119161087671450035">"વૉઇસમેઇલ, કૉલ ફોરવર્ડિંગ, કૉલ પ્રતીક્ષા, કૉલર ID સેટ કરો"</string>
     <string name="tether_settings_title_usb" msgid="4265582654602420357">"USB ટિથરિંગ"</string>
     <string name="tether_settings_title_wifi" msgid="2060965130234484613">"પોર્ટેબલ હૉટસ્પૉટ"</string>
@@ -1871,7 +1871,7 @@
     <string name="join_two_unrelated_items" msgid="8257688498236358394">"<xliff:g id="FIRST_ITEM">%1$s</xliff:g>, <xliff:g id="SECOND_ITEM">%2$s</xliff:g>"</string>
     <string name="computing_size" msgid="2234106107535318136">"ગણતરી કરી રહ્યું છે…"</string>
     <string name="invalid_size_value" msgid="1202239724000802296">"પેકેજ કદની ગણતરી કરી શક્યાં નથી."</string>
-    <string name="version_text" msgid="5421619604445758652">"સંસ્કરણ <xliff:g id="VERSION_NUM">%1$s</xliff:g>"</string>
+    <string name="version_text" msgid="5421619604445758652">"વર્ઝન <xliff:g id="VERSION_NUM">%1$s</xliff:g>"</string>
     <string name="move_app" msgid="5400135231255614785">"ખસેડો"</string>
     <string name="move_app_to_internal" product="tablet" msgid="8658767231643024635">"ટેબ્લેટ પર ખસેડો"</string>
     <string name="move_app_to_internal" product="default" msgid="1031111519418252055">"ફોન પર ખસેડો"</string>
@@ -2037,7 +2037,7 @@
     <string name="accessibility_settings" msgid="9140621093888234485">"ઍક્સેસિબિલિટી"</string>
     <string name="accessibility_settings_title" msgid="1687226556576913576">"ઍક્સેસિબિલિટી સેટિંગ્સ"</string>
     <string name="accessibility_settings_summary" msgid="5742379519336396561">"સ્ક્રીન રીડર, પ્રદર્શન, ક્રિયાપ્રતિક્રિયા સંબંધી નિયંત્રણો"</string>
-    <string name="vision_settings_title" msgid="7315352351051423944">"વિઝન સેટિંગ્સ"</string>
+    <string name="vision_settings_title" msgid="7315352351051423944">"વિઝન સેટિંગ"</string>
     <string name="vision_settings_description" msgid="3476589459009287332">"તમે તમારી જરૂરિયાતો મુજબ આ ઉપકરણને કસ્ટમાઇઝ કરી શકો છો. સેટિંગ્સમાં આ ઍક્સેસિબિલિટી સુવિધાઓ પછીથી બદલી શકાય છે."</string>
     <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"ફોન્ટનું કદ બદલો"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"સ્ક્રીન રીડર"</string>
@@ -2598,7 +2598,7 @@
     <string name="sync_is_failing" msgid="8284618104132302644">"સમન્વયનમાં હાલમાં સમસ્યા આવી રહી છે. તે ટૂંક સમયમાં પાછું આવશે."</string>
     <string name="add_account_label" msgid="4461298847239641874">"એકાઉન્ટ ઉમેરો"</string>
     <string name="managed_profile_not_available_label" msgid="8784246681719821917">"કાર્યાલયની પ્રોફાઇલ હજી સુધી ઉપલબ્ધ નથી"</string>
-    <string name="work_mode_label" msgid="6845849194740195757">"કાર્યાલયની પ્રોફાઇલ"</string>
+    <string name="work_mode_label" msgid="6845849194740195757">"ઑફિસની પ્રોફાઇલ"</string>
     <string name="work_mode_on_summary" msgid="1682781113156323592">"તમારી સંસ્થા દ્વારા મેનેજ કરેલ"</string>
     <string name="work_mode_off_summary" msgid="1688885392211178315">"ઍપ અને નોટિફિકેશન બંધ છે"</string>
     <string name="remove_managed_profile_label" msgid="4625542553784793536">"ઑફિસની પ્રોફાઇલ દૂર કરો"</string>
@@ -2774,7 +2774,7 @@
     <string name="vpn_connect_to" msgid="7926776854873218762">"<xliff:g id="PROFILE">%s</xliff:g> સાથે કનેક્ટ કરો"</string>
     <string name="vpn_disconnect_confirm" msgid="3505111947735651082">"આ VPNને ડિસ્કનેક્ટ કરીએ?"</string>
     <string name="vpn_disconnect" msgid="4625914562388652486">"ડિસ્કનેક્ટ કરો"</string>
-    <string name="vpn_version" msgid="2006792987077940456">"સંસ્કરણ <xliff:g id="VERSION">%s</xliff:g>"</string>
+    <string name="vpn_version" msgid="2006792987077940456">"વર્ઝન <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="vpn_forget_long" msgid="8457511440635534478">"VPN ભૂલી ગયાં"</string>
     <string name="vpn_replace_vpn_title" msgid="8517436922021598103">"અસ્તિત્વમાંની VPN ને બદલીએ?"</string>
     <string name="vpn_set_vpn_title" msgid="6483554732067951052">"હંમેશાં ચાલુ VPN સેટ કરીએ?"</string>
@@ -2873,7 +2873,7 @@
     <string name="user_add_user_message_long" msgid="686637203224195465">"તમે વધારાના વપરાશકર્તાઓ બનાવીને અન્ય લોકો સાથે આ ડિવાઇસને શેર કરી શકો છો. દરેક વપરાશકર્તા પાસે તેમની પોતાની સ્પેસ છે, જેને તેઓ ઍપ, વૉલપેપર, વગેરે સાથે કસ્ટમાઇઝ કરી શકે છે. વપરાશકર્તાઓ પ્રત્યેક વ્યક્તિને અસર કરતી હોય તેવી ડિવાઇસ સેટિંગ જેમ કે વાઇ-ફાઇને પણ સમાયોજિત કરી શકે છે.\n\nજ્યારે તમે કોઈ નવા વપરાશકર્તાને ઉમેરો છો, ત્યારે તે વ્યક્તિને તેમની સ્પેસ સેટ કરવાની જરૂર પડે છે.\n\nકોઈપણ વપરાશકર્તા અન્ય બધા વપરાશકર્તાઓ માટે ઍપને અપડેટ કરી શકે છે. નવા વપરાશકર્તાને ઍક્સેસિબિલિટી સેટિંગ અને સેવાઓ ટ્રાન્સફર ન પણ થાય."</string>
     <string name="user_add_user_message_short" msgid="1802594476285458254">"જ્યારે તમે કોઈ નવા વપરાશકર્તાને ઉમેરો છો, ત્યારે તે વ્યક્તિને તેમનું સ્થાન સેટ અપ કરવાની જરૂર પડે છે.\n\nકોઈપણ વપરાશકર્તા બધા અન્ય વપરાશકર્તાઓ માટે એપ્લિકેશન્સને અપડેટ કરી શકે છે."</string>
     <string name="user_setup_dialog_title" msgid="6748950002206392396">"અત્યારે જ વપરાશકર્તાને સેટ અપ કરીએ?"</string>
-    <string name="user_setup_dialog_message" msgid="2988559933258353919">"ખાતરી કરો કે વ્યક્તિ ઉપકરણ લેવા અને તેમના સ્થાનનું સેટ અપ કરવા માટે ઉપલબ્ધ છે"</string>
+    <string name="user_setup_dialog_message" msgid="2988559933258353919">"ખાતરી કરો કે વ્યક્તિ ડિવાઇસ લેવા અને તેમના સ્થાનનું સેટ અપ કરવા માટે ઉપલબ્ધ છે"</string>
     <string name="user_setup_profile_dialog_message" msgid="7611900802824048526">"હવે પ્રોફાઇલ સેટ કરીએ?"</string>
     <string name="user_setup_button_setup_now" msgid="4941459406266856176">"હવે સેટ કરો"</string>
     <string name="user_setup_button_setup_later" msgid="6596031428556518752">"હમણાં નહીં"</string>
@@ -2917,10 +2917,10 @@
     <string name="nfc_payment_settings_title" msgid="5070077706735415291">"ટેપ કરો અને ચુકવો"</string>
     <string name="nfc_payment_how_it_works" msgid="7607901964687787177">"તે કેવી રીતે કાર્ય કરે છે"</string>
     <string name="nfc_payment_no_apps" msgid="8844440783395420860">"સ્ટોર્સમાં તમારા ફોન વડે ચુકવો"</string>
-    <string name="nfc_payment_default" msgid="7869273092463612271">"ચુકવણી ડિફોલ્ટ"</string>
+    <string name="nfc_payment_default" msgid="7869273092463612271">"ચુકવણી ડિફૉલ્ટ"</string>
     <string name="nfc_payment_default_not_set" msgid="955804193510335338">"સેટ નથી"</string>
     <string name="nfc_payment_app_and_desc" msgid="102312684211458190">"<xliff:g id="APP">%1$s</xliff:g> - <xliff:g id="DESCRIPTION">%2$s</xliff:g>"</string>
-    <string name="nfc_payment_use_default" msgid="3098724195746409476">"ડિફોલ્ટનો ઉપયોગ કરો"</string>
+    <string name="nfc_payment_use_default" msgid="3098724195746409476">"ડિફૉલ્ટનો ઉપયોગ કરો"</string>
     <string name="nfc_payment_favor_default" msgid="7555356982142464260">"હંમેશા"</string>
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"જ્યારે અન્ય ચુકવણી ઍપ્લિકેશન ખુલ્લી હોય તે સિવાય"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"ટેપ કરો અને ચૂકવણી કરો ટર્મિનલ પર, આનાથી ચૂકવણી કરો:"</string>
@@ -3813,14 +3813,14 @@
     <string name="app_permission_summary_allowed" msgid="6458476982015518778">"મંજૂરી છે"</string>
     <string name="app_permission_summary_not_allowed" msgid="1171642541675462584">"મંજૂરી નથી"</string>
     <string name="keywords_install_other_apps" msgid="5383559540695847668">"ઍપ્લિકેશનો ઇન્સ્ટૉલ કરો અજાણ્યા સ્રોતો"</string>
-    <string name="write_settings" msgid="9009040811145552108">"સિસ્ટમ સેટિંગ્સ સંશોધિત કરો"</string>
+    <string name="write_settings" msgid="9009040811145552108">"સિસ્ટમ સેટિંગમાં ફેરફાર કરો"</string>
     <string name="keywords_write_settings" msgid="3450405263390246293">"સિસ્ટમ સેટિંગ્સ સંશોધિત કરો લખો"</string>
     <string name="write_settings_summary" msgid="4650251358459404247">"<xliff:g id="COUNT_1">%2$d</xliff:g> માંથી <xliff:g id="COUNT_0">%1$d</xliff:g> એપ્લિકેશનોને સિસ્ટમ સેટિંગ્સ સંશોધિત કરવાની મંજૂરી આપી"</string>
     <string name="financial_apps_sms_access_title" msgid="3422655018008259655">"નાણાકીય ઍપ sms પરવાનગી"</string>
     <string name="filter_install_sources_apps" msgid="4519839764020866701">"અન્ય ઍપ્લિકેશનો ઇન્સ્ટૉલ કરી શકે છે"</string>
     <string name="filter_write_settings_apps" msgid="6864144615530081121">"સિસ્ટમ સેટિંગ્સ સંશોધિત કરી શકે છે"</string>
     <string name="write_settings_title" msgid="5852614614193830632">"સિસ્ટમ સેટિંગ્સ સંશોધિત કરી શકે છે"</string>
-    <string name="write_system_settings" msgid="20450765210832463">"સિસ્ટમ સેટિંગ્સ સંશોધિત કરો"</string>
+    <string name="write_system_settings" msgid="20450765210832463">"સિસ્ટમ સેટિંગમાં ફેરફાર કરો"</string>
     <string name="permit_write_settings" msgid="4198491281216818756">"સિસ્ટમ સેટિંગને સંશોધિત કરવાની મંજૂરી આપો"</string>
     <string name="write_settings_description" msgid="2536706293042882500">"આ પરવાનગી એપ્લિકેશનને સિસ્ટમ સેટિંગ્સ સંશોધિત કરવાની મંજૂરી આપે છે."</string>
     <string name="write_settings_on" msgid="7328986337962635118">"હા"</string>
@@ -4239,7 +4239,7 @@
     <string name="storage_music_audio" msgid="3661289086715297149">"સંગીત અને ઑડિયો"</string>
     <string name="storage_games" msgid="7740038143749092373">"રમતો"</string>
     <string name="storage_other_apps" msgid="3202407095387420842">"અન્ય ઍપ્લિકેશનો"</string>
-    <string name="storage_files" msgid="2087824267937487880">"ફાઇલો"</string>
+    <string name="storage_files" msgid="2087824267937487880">"Files"</string>
     <string name="storage_size_large_alternate" msgid="1317796542509105857">"<xliff:g id="NUMBER">^1</xliff:g>"<small>" "<font size="20">"<xliff:g id="UNIT">^2</xliff:g>"</font></small>""</string>
     <string name="storage_volume_total" msgid="5021484171514159913">"<xliff:g id="TOTAL">%1$s</xliff:g>માંથી ઉપયોગમાં લેવાયો"</string>
     <string name="storage_percent_full" msgid="6924662861545958442">"વપરાયો"</string>

@@ -467,14 +467,14 @@
     <string name="go_back_button_label" msgid="7310586887969860472">"Назад"</string>
     <string name="skip_lock_screen_dialog_button_label" msgid="6706047245716780006">"Прапусціць"</string>
     <string name="cancel_lock_screen_dialog_button_label" msgid="2534925227627658819">"Скасаваць"</string>
-    <string name="security_settings_fingerprint_enroll_find_sensor_title" msgid="8909829699273726469">"Дакраніцеся да сэнсара"</string>
+    <string name="security_settings_fingerprint_enroll_find_sensor_title" msgid="8909829699273726469">"Дакраніцеся да сканера"</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_message" msgid="581120963079780740">"Ён на задняй панэлі тэлефона. Карыстайцеся ўказальным пальцам."</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_content_description" msgid="7835824123269738540">"Малюнак, які паказвае, дзе размяшчаецца датчык адбіткаў пальцаў на прыладзе"</string>
     <string name="security_settings_fingerprint_enroll_dialog_name_label" msgid="3519748398694308901">"Імя"</string>
     <string name="security_settings_fingerprint_enroll_dialog_ok" msgid="3428927518029038956">"ОК"</string>
     <string name="security_settings_fingerprint_enroll_dialog_delete" msgid="4312297515772004580">"Выдаліць"</string>
-    <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"Дакраніцеся да сэнсара"</string>
-    <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"Прыкладзіце палец да сэнсара і ўтрымлівайце яго, пакуль не адчуеце вібрацыю"</string>
+    <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"Дакраніцеся да сканера"</string>
+    <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"Прыкладзіце палец да сканера і ўтрымлівайце яго, пакуль не адчуеце вібрацыю"</string>
     <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"Падыміце і дакраніцеся зноў"</string>
     <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"Дакраніцеся некалькі разоў, каб адбітак быў больш дакладны"</string>
     <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"Адбітак пальца дададзены"</string>
@@ -1729,7 +1729,7 @@
     <string name="contributors_title" msgid="6800028420806884340">"Удзельнікі"</string>
     <string name="manual" msgid="5431859421432581357">"Кіраўніцтва"</string>
     <string name="regulatory_labels" msgid="380968489247381025">"Ярлыкі сертыфікацыі"</string>
-    <string name="safety_and_regulatory_info" msgid="7113766428000920132">"Кіраўніцтва па эксплуатацыі і бяспецы"</string>
+    <string name="safety_and_regulatory_info" msgid="7113766428000920132">"Інфармацыя па эксплуатацыі і бяспецы"</string>
     <string name="copyright_title" msgid="3847703367689932190">"Аўтарскія правы"</string>
     <string name="license_title" msgid="7582145947873528540">"Ліцэнзія"</string>
     <string name="terms_title" msgid="1804549588198223771">"Правілы і ўмовы"</string>
@@ -1840,7 +1840,7 @@
     <string name="advanced_settings_summary" msgid="5912237062506771716">"Уключыць дадатковыя параметры налад"</string>
     <string name="application_info_label" msgid="3886253474964599105">"Звесткі пра праграмы"</string>
     <string name="storage_label" msgid="1109537840103290384">"Сховішча"</string>
-    <string name="auto_launch_label" msgid="47089737922907379">"Стандартна адкрываць"</string>
+    <string name="auto_launch_label" msgid="47089737922907379">"Адкрываць стандартна"</string>
     <string name="auto_launch_label_generic" msgid="7865828543459493308">"Па змаўчанні"</string>
     <string name="screen_compatibility_label" msgid="3638271673726075815">"Сумяшчальнасць экрана"</string>
     <string name="permissions_label" msgid="7341733648403464213">"Дазволы"</string>
@@ -3692,7 +3692,7 @@
     <string name="imei_information_title" msgid="7666097743700170757">"Інфармацыя IMEI"</string>
     <string name="imei_information_summary" msgid="716516316022275083">"Інфармацыя, звязаная з IMEI (міжнародным ідэнтыфікатарам мабільнага абсталявання)"</string>
     <string name="slot_number" msgid="785422579177068698">"(Слот<xliff:g id="SLOT_NUM">%1$d</xliff:g>)"</string>
-    <string name="launch_by_default" msgid="6106985160202769725">"Стандартна адкрываць"</string>
+    <string name="launch_by_default" msgid="6106985160202769725">"Адкрываць стандартна"</string>
     <string name="app_launch_domain_links_title" msgid="2987289657348349133">"Адкрыццё спасылак"</string>
     <string name="app_launch_open_domain_urls_title" msgid="8595126859922391331">"Адкрыць спасылкі, якія падтрымліваюцца"</string>
     <string name="app_launch_open_domain_urls_summary" msgid="6803029846855502366">"Адкрываць без запыту"</string>
@@ -3950,7 +3950,7 @@
     <string name="camera_gesture_desc" msgid="7751841175916789527">"Адкрыйце дадатак камеры, двойчы павярнуўшы сваё запясце"</string>
     <string name="camera_double_tap_power_gesture_title" msgid="8874747801078147525">"Каб адкр. кам., двойчы кран. кнопку сіл."</string>
     <string name="camera_double_tap_power_gesture_desc" msgid="6166349645433682873">"Хутка адкрыць камеру без разблакіроўкі экрана"</string>
-    <string name="screen_zoom_title" msgid="164369086350486104">"Памер дысплэя"</string>
+    <string name="screen_zoom_title" msgid="164369086350486104">"Памер элементаў дысплэя"</string>
     <string name="screen_zoom_short_summary" msgid="5508079362742276703">"Павелічэнне або памяншэнне элементаў на экране"</string>
     <string name="screen_zoom_keywords" msgid="8358462497896524092">"шчыльнасць дысплэя, маштаб экрана, маштаб, маштабаванне"</string>
     <string name="screen_zoom_summary" msgid="5294003755961312560">"Павелічэнне або памяншэнне элементаў на экране. Размяшчэнне некаторых праграм на вашым экране можа змяніцца."</string>
