@@ -135,7 +135,7 @@
   <string-array name="usage_stats_display_order_types">
     <item msgid="1266031014388516303">"उपयोग समय"</item>
     <item msgid="2784401352592276015">"पछिल्लो समय प्रयोग गरिएको"</item>
-    <item msgid="249854287216326349">"अनुप्रयोगको नाम"</item>
+    <item msgid="249854287216326349">"एपको नाम"</item>
   </string-array>
   <string-array name="wifi_eap_entries">
     <item msgid="5538816743897530343">"PEAP"</item>
