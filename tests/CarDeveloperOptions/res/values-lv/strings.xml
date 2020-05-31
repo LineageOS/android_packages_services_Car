@@ -1687,7 +1687,7 @@
     <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"Ļauj lietotnēm un pakalpojumiem meklēt tuvumā esošas ierīces vienmēr, pat ja Bluetooth ir izslēgts. Šo iestatījumu var izmantot, piemēram, lai uzlabotu atrašanās vietas funkcijas un pakalpojumus."</string>
     <string name="managed_profile_location_services" msgid="224925483299159541">"Atrašanās vietu pakalpojumi darbam"</string>
     <string name="location_network_based" msgid="1535812159327454835">"Wi-Fi un mob. tīklu atr. vieta"</string>
-    <string name="location_neighborhood_level" msgid="8459352741296587916">"Ļaut lietotnēm izmantot Google atrašanās vietas pakalpojumu, lai ātrāk noteiktu jūsu atrašanās vietu. Tiks apkopoti un nosūtīti uz Google serveriem anonīmi atrašanās vietas dati."</string>
+    <string name="location_neighborhood_level" msgid="8459352741296587916">"Ļaut lietotnēm izmantot Google atrašanās vietas pakalpojumu, lai ātrāk noteiktu jūsu atrašanās vietu. Tiks vākti un nosūtīti uz Google serveriem anonīmi atrašanās vietas dati."</string>
     <string name="location_neighborhood_level_wifi" msgid="6120133551482003840">"Wi-Fi noteikta atrašanās vieta"</string>
     <string name="location_gps" msgid="688049341158297763">"GPS satelīti"</string>
     <string name="location_street_level" product="tablet" msgid="4459804798444296650">"Ļaut lietotnēm izmantot jūsu planšetdatorā esošo GPS, lai noteiktu jūsu atrašanās vietu."</string>
@@ -2743,7 +2743,7 @@
     <string name="data_usage_auto_sync_on_dialog" product="tablet" msgid="4935430284683238901">"Visas izmaiņas, ko veiksiet kontos tīmeklī, tiks automātiski pārkopētas planšetdatorā.\n\nDažos kontos planšetdatorā veiktās izmaiņas var automātiski pārkopēt tīmeklī. Šādi darbojas Google konts."</string>
     <string name="data_usage_auto_sync_on_dialog" product="default" msgid="5004823486046340090">"Visas izmaiņas, ko veiksiet kontos tīmeklī, tiks automātiski pārkopētas tālrunī.\n\nDažos kontos tālrunī veiktās izmaiņas var automātiski pārkopēt tīmeklī. Šādi darbojas Google konts."</string>
     <string name="data_usage_auto_sync_off_dialog_title" msgid="7105334544291643305">"Vai izslēgt datu automātisko sinhronizāciju?"</string>
-    <string name="data_usage_auto_sync_off_dialog" msgid="4057984234450947964">"Tiks saglabāti dati un akumulatora lietojums, bet jums vajadzēs manuāli sinhronizēt katru kontu, lai apkopotu jaunāko informāciju. Un jūs nesaņemsiet paziņojumus par atjauninājumiem."</string>
+    <string name="data_usage_auto_sync_off_dialog" msgid="4057984234450947964">"Tiks saglabāti dati un akumulatora lietojums, bet jums vajadzēs manuāli sinhronizēt katru kontu, lai vāktu jaunāko informāciju. Un jūs nesaņemsiet paziņojumus par atjauninājumiem."</string>
     <string name="data_usage_cycle_editor_title" msgid="4967309390043599889">"Izmantošanas cikla atiestatīšanas datums"</string>
     <string name="data_usage_cycle_editor_subtitle" msgid="6043098041946166597">"Katra mēneša datums:"</string>
     <string name="data_usage_cycle_editor_positive" msgid="9155752056537811646">"Iestatīt"</string>
@@ -4590,7 +4590,7 @@
     <string name="wfc_disclaimer_agree_button_text" msgid="4706101805260434404">"TURPINĀT"</string>
     <string name="wfc_disclaimer_disagree_text" msgid="908289420390194127">"NĒ, PALDIES"</string>
     <string name="wfc_disclaimer_location_title_text" msgid="5696194250838686019">"Atrašanās vieta"</string>
-    <string name="wfc_disclaimer_location_desc_text" msgid="3879710366995108723">"Pakalpojuma sniedzējs var apkopot jūsu atrašanās informāciju, lai nodrošinātu šo pakalpojumu.\n\nSkatiet pakalpojuma sniedzēja konfidencialitātes politiku."</string>
+    <string name="wfc_disclaimer_location_desc_text" msgid="3879710366995108723">"Pakalpojuma sniedzējs var vākt jūsu atrašanās informāciju, lai nodrošinātu šo pakalpojumu.\n\nSkatiet pakalpojuma sniedzēja konfidencialitātes politiku."</string>
     <string name="forget_passpoint_dialog_message" msgid="3337626966248310367">"Iespējams, zaudēsiet piekļuvi atlikušajam laikam vai datiem. Pirms noņemšanas sazinieties ar pakalpojuma sniedzēju."</string>
     <string name="keywords_content_capture" msgid="5401877823529928976">"satura uzņēmums, viedie ieteikumi"</string>
     <string name="content_capture" msgid="1709538093513983279">"Viedie ieteikumi"</string>

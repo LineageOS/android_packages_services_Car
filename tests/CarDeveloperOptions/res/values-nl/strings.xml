@@ -1706,7 +1706,7 @@
     <string name="settings_safetylegal_activity_unreachable" msgid="3541894966476445833">"Je hebt geen gegevensverbinding. Als je deze informatie nu wilt weergeven, ga je op een computer met internetverbinding naar %s."</string>
     <string name="settings_safetylegal_activity_loading" msgid="7680998654145172">"Laden..."</string>
     <string name="confirm_device_credential_use_alternate_method" msgid="1279869272895739941">"Andere methode gebruiken"</string>
-    <string name="lockpassword_choose_your_screen_lock_header" msgid="6283518876031424798">"Stel je schermvergrendeling in"</string>
+    <string name="lockpassword_choose_your_screen_lock_header" msgid="6283518876031424798">"Schermvergrendeling instellen"</string>
     <string name="lockpassword_choose_your_password_message" msgid="2838273977481046536">"Stel een wachtwoord in voor betere beveiliging"</string>
     <string name="lockpassword_choose_your_password_header_for_fingerprint" msgid="4921343500484160894">"Stel wachtwoord in voor gebruik van vingerafdruk"</string>
     <string name="lockpassword_choose_your_pattern_header_for_fingerprint" msgid="314870151462139417">"Stel patroon in voor gebruik van vingerafdruk"</string>

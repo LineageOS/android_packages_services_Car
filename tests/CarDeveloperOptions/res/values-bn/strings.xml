@@ -2038,7 +2038,7 @@
     <string name="accessibility_settings_title" msgid="1687226556576913576">"সহজ ব্যবহার সেটিংস"</string>
     <string name="accessibility_settings_summary" msgid="5742379519336396561">"স্ক্রিন রিডার, ডিসপ্লে, ইন্টারঅ্যাকশন নিয়ন্ত্রণগুলি"</string>
     <string name="vision_settings_title" msgid="7315352351051423944">"দৃষ্টিশক্তি সেটিংস"</string>
-    <string name="vision_settings_description" msgid="3476589459009287332">"আপনি এই ডিভাইসটি নিজের পছন্দমত সেট করতে পারেন৷ এই অ্যাক্সেসযোগ্যতার বৈশিষ্ট্যগুলি পরে সেটিংসে গিয়ে পরিবর্তন করা যাবে৷"</string>
+    <string name="vision_settings_description" msgid="3476589459009287332">"আপনি এই ডিভাইসটি নিজের পছন্দমত সেট করতে পারেন৷ এই অ্যাক্সেসিবিলিটি বৈশিষ্ট্যগুলি পরে সেটিংসে গিয়ে পরিবর্তন করা যাবে৷"</string>
     <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"হরফের মাপ পরিবর্তন করুন"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"স্ক্রিন রিডার"</string>
     <string name="audio_and_captions_category_title" msgid="6140472938769619212">"অডিও এবং অন-স্ক্রিন পাঠ্য"</string>
@@ -2096,7 +2096,7 @@
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"রিং ভাইব্রেশন"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"স্পর্শ করলে ভাইব্রেশন"</string>
     <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"পরিষেবা ব্যবহার করুন"</string>
-    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"কালার কারেকশন ব্যবহার করুন"</string>
+    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"রঙ সংশোধন ফিচারটি ব্যবহার করুন"</string>
     <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"ক্যাপশন ব্যবহার করুন"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"এগিয়ে যান"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"হিয়ারিং এড"</string>
@@ -4239,7 +4239,7 @@
     <string name="storage_music_audio" msgid="3661289086715297149">"মিউজিক ও অডিও"</string>
     <string name="storage_games" msgid="7740038143749092373">"গেম"</string>
     <string name="storage_other_apps" msgid="3202407095387420842">"অন্যান্য অ্যাপ"</string>
-    <string name="storage_files" msgid="2087824267937487880">"ফাইল"</string>
+    <string name="storage_files" msgid="2087824267937487880">"Files"</string>
     <string name="storage_size_large_alternate" msgid="1317796542509105857">"<xliff:g id="NUMBER">^1</xliff:g>"<small>" "<font size="20">"<xliff:g id="UNIT">^2</xliff:g>"</font></small>""</string>
     <string name="storage_volume_total" msgid="5021484171514159913">"<xliff:g id="TOTAL">%1$s</xliff:g> এর মধ্যে ব্যবহার হয়েছে"</string>
     <string name="storage_percent_full" msgid="6924662861545958442">"ব্যবহৃত"</string>
