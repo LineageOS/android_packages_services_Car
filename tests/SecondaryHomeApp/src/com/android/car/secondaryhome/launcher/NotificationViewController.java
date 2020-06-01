@@ -52,14 +52,18 @@ public class NotificationViewController {
      * Set handler to NotificationListener
      */
     public void enable() {
-        mCarNotificationListener.setHandler(mNotificationUpdateHandler);
+        if (mCarNotificationListener != null) {
+            mCarNotificationListener.setHandler(mNotificationUpdateHandler);
+        }
     }
 
     /**
      * Remove handler
      */
     public void disable() {
-        mCarNotificationListener.setHandler(null);
+        if (mCarNotificationListener != null) {
+            mCarNotificationListener.setHandler(null);
+        }
     }
 
     /**
