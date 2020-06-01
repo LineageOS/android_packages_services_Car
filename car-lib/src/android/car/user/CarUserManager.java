@@ -32,6 +32,7 @@ import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.ICarUserService;
 import android.content.pm.UserInfo;
+import android.content.pm.UserInfo.UserInfoFlag;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -223,6 +224,42 @@ public final class CarUserManager extends CarManagerBase {
             AndroidFuture<UserSwitchResult> future = new AndroidFuture<>();
             future.complete(
                     new UserSwitchResult(UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE, null));
+            return handleRemoteExceptionFromCarService(e, future);
+        }
+    }
+
+    /**
+     * Creates a new Android user.
+     *
+     * @hide
+     */
+    @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
+            android.Manifest.permission.CREATE_USERS})
+    public AndroidFuture<UserCreationResult> createUser(@Nullable String name,
+            @NonNull String userType, @UserInfoFlag int flags) {
+        int uid = myUid();
+        try {
+            AndroidFuture<UserCreationResult> future = new AndroidFuture<UserCreationResult>() {
+                @Override
+                protected void onCompleted(UserCreationResult result, Throwable err) {
+                    if (result != null) {
+                        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_CREATE_USER_RESP, uid,
+                                result.getStatus(), result.getErrorMessage());
+                    } else {
+                        Log.w(TAG, "createUser(" + userType + "," + UserInfo.flagsToString(flags)
+                                + ") failed: " + err);
+                    }
+                    super.onCompleted(result, err);
+                };
+            };
+            EventLog.writeEvent(EventLogTags.CAR_USER_MGR_CREATE_USER_REQ, uid,
+                    safeName(name), userType, flags);
+            mService.createUser(name, userType, flags, HAL_TIMEOUT_MS, future);
+            return future;
+        } catch (RemoteException e) {
+            AndroidFuture<UserCreationResult> future = new AndroidFuture<>();
+            future.complete(new UserCreationResult(UserCreationResult.STATUS_HAL_INTERNAL_FAILURE,
+                    null, null));
             return handleRemoteExceptionFromCarService(e, future);
         }
     }
@@ -504,7 +541,7 @@ public final class CarUserManager extends CarManagerBase {
      * @hide
      */
     public boolean isValidUser(@UserIdInt int userId) {
-        List<UserInfo> allUsers = mUserManager.getUsers();
+        List<UserInfo> allUsers = mUserManager.getUsers(/* excludeDying= */ true);
         for (int i = 0; i < allUsers.size(); i++) {
             UserInfo user = allUsers.get(i);
             if (user.id == userId && (userId != UserHandle.USER_SYSTEM
@@ -513,6 +550,13 @@ public final class CarUserManager extends CarManagerBase {
             }
         }
         return false;
+    }
+
+    // TODO(b/150413515): use from UserHelper instead (would require a new make target, otherwise it
+    // would include the whole car-user-lib)
+    @Nullable
+    private static String safeName(@Nullable String name) {
+        return name == null ? name : name.length() + "_chars";
     }
 
     /**

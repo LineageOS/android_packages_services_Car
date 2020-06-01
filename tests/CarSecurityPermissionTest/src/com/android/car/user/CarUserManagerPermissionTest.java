@@ -16,6 +16,7 @@
 
 package com.android.car.user;
 
+import static android.Manifest.permission.CREATE_USERS;
 import static android.Manifest.permission.INTERACT_ACROSS_USERS;
 import static android.Manifest.permission.INTERACT_ACROSS_USERS_FULL;
 import static android.Manifest.permission.MANAGE_USERS;
@@ -35,6 +36,7 @@ import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.content.Context;
 import android.os.Handler;
+import android.os.UserManager;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -67,10 +69,16 @@ public final class CarUserManagerPermissionTest {
 
     @Test
     public void testSwitchUserPermission() throws Exception {
-        int target_uid = 100;
-        Exception e = expectThrows(SecurityException.class,
-                () -> mCarUserManager.switchUser(target_uid));
+        Exception e = expectThrows(SecurityException.class, () -> mCarUserManager.switchUser(100));
         assertThat(e.getMessage()).contains(MANAGE_USERS);
+    }
+
+    @Test
+    public void testCreateUserPermission() throws Exception {
+        Exception e = expectThrows(SecurityException.class,
+                () -> mCarUserManager.createUser(null, UserManager.USER_TYPE_FULL_SECONDARY, 0));
+        assertThat(e.getMessage()).contains(MANAGE_USERS);
+        assertThat(e.getMessage()).contains(CREATE_USERS);
     }
 
     @Test
