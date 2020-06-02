@@ -31,6 +31,8 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.Trace;
 import android.os.UserManager;
 import android.provider.Settings;
@@ -59,6 +61,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Base class for tests that must use {@link com.android.dx.mockito.inline.extended.ExtendedMockito}
@@ -128,6 +131,7 @@ public abstract class AbstractExtendedMockitoTestCase {
     @After
     public final void finishSession() {
         beginTrace("finishSession()");
+        completeAllHandlerThreadTasks();
         if (mSession != null) {
             beginTrace("finishMocking()");
             mSession.finishMocking();
@@ -136,6 +140,38 @@ public abstract class AbstractExtendedMockitoTestCase {
             Log.w(TAG, getClass().getSimpleName() + ".finishSession(): no session");
         }
         endTrace();
+    }
+
+    /**
+     * Waits for completion of all pending Handler tasks for all HandlerThread in the process.
+     *
+     * <p>This can prevent pending Handler tasks of one test from affecting another. This does not
+     * work if the message is posted with delay.
+     */
+    protected void completeAllHandlerThreadTasks() {
+        beginTrace("completeAllHandlerThreadTasks");
+        Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
+        ArrayList<HandlerThread> handlerThreads = new ArrayList<>(threadSet.size());
+        Thread currentThread = Thread.currentThread();
+        for (Thread t : threadSet) {
+            if (t != currentThread && t instanceof HandlerThread) {
+                handlerThreads.add((HandlerThread) t);
+            }
+        }
+        ArrayList<SyncRunnable> syncs = new ArrayList<>(handlerThreads.size());
+        Log.i(TAG, "will wait for HandlerThreads:" + handlerThreads.size());
+        for (int i = 0; i < handlerThreads.size(); i++) {
+            Handler handler = new Handler(handlerThreads.get(i).getLooper());
+            SyncRunnable sr = new SyncRunnable(() -> { });
+            handler.post(sr);
+            syncs.add(sr);
+        }
+        beginTrace("waitForComplete");
+        for (int i = 0; i < syncs.size(); i++) {
+            syncs.get(i).waitForComplete();
+        }
+        endTrace(); // waitForComplete
+        endTrace(); // completeAllHandlerThreadTasks
     }
 
     /**
@@ -495,5 +531,34 @@ public abstract class AbstractExtendedMockitoTestCase {
     @Retention(RUNTIME)
     @Target({METHOD})
     public static @interface ExpectWtf {
+    }
+
+    private static final class SyncRunnable implements Runnable {
+        private final Runnable mTarget;
+        private volatile boolean mComplete = false;
+
+        private SyncRunnable(Runnable target) {
+            mTarget = target;
+        }
+
+        @Override
+        public void run() {
+            mTarget.run();
+            synchronized (this) {
+                mComplete = true;
+                notifyAll();
+            }
+        }
+
+        private void waitForComplete() {
+            synchronized (this) {
+                while (!mComplete) {
+                    try {
+                        wait();
+                    } catch (InterruptedException e) {
+                    }
+                }
+            }
+        }
     }
 }
