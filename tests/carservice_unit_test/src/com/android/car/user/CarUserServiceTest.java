@@ -136,6 +136,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
     private static final int NON_EXISTING_USER = 55; // must not be on mExistingUsers
 
+    private static final long DEFAULT_LIFECYCLE_TIMESTAMP = 1;
+
     @Mock private Context mMockContext;
     @Mock private Context mApplicationContext;
     @Mock private LocationManager mLocationManager;
@@ -1341,7 +1343,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         sendUserSwitchingEvent(mAdminUser.id, mRegularUser.id);
 
         verify(mUserMetrics).onEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING,
-                0, mAdminUser.id, mRegularUser.id);
+                DEFAULT_LIFECYCLE_TIMESTAMP, mAdminUser.id, mRegularUser.id);
     }
 
     @Test
@@ -1740,7 +1742,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
     private void sendUserLifecycleEvent(@UserIdInt int fromUserId, @UserIdInt int toUserId,
             @UserLifecycleEventType int eventType) {
-        mCarUserService.onUserLifecycleEvent(eventType, /* timestampMs= */ 0, fromUserId, toUserId);
+        mCarUserService.onUserLifecycleEvent(eventType, DEFAULT_LIFECYCLE_TIMESTAMP, fromUserId,
+                toUserId);
     }
 
     private void sendUserUnlockedEvent(@UserIdInt int userId) {
