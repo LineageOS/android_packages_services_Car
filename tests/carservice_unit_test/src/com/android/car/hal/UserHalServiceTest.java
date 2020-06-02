@@ -54,6 +54,7 @@ import android.hardware.automotive.vehicle.V2_0.CreateUserStatus;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserMessageType;
+import android.hardware.automotive.vehicle.V2_0.SwitchUserRequest;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserResponse;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserStatus;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
@@ -413,28 +414,28 @@ public final class UserHalServiceTest {
 
     @Test
     public void testSwitchUser_invalidTimeout() {
-        assertThrows(IllegalArgumentException.class,
-                () -> mUserHalService.switchUser(mUser10, 0, mUsersInfo, noOpCallback()));
-        assertThrows(IllegalArgumentException.class,
-                () -> mUserHalService.switchUser(mUser10, -1, mUsersInfo, noOpCallback()));
+        assertThrows(IllegalArgumentException.class, () -> mUserHalService
+                .switchUser(createUserSwitchRequest(mUser10, mUsersInfo), 0, noOpCallback()));
+        assertThrows(IllegalArgumentException.class, () -> mUserHalService
+                .switchUser(createUserSwitchRequest(mUser10, mUsersInfo), -1, noOpCallback()));
     }
 
     @Test
     public void testSwitchUser_noUsersInfo() {
-        assertThrows(IllegalArgumentException.class,
-                () -> mUserHalService.switchUser(mUser10, TIMEOUT_MS, null, noOpCallback()));
+        assertThrows(IllegalArgumentException.class, () -> mUserHalService
+                .switchUser(createUserSwitchRequest(mUser10, null), TIMEOUT_MS, noOpCallback()));
     }
 
     @Test
     public void testSwitchUser_noCallback() {
-        assertThrows(NullPointerException.class,
-                () -> mUserHalService.switchUser(mUser10, TIMEOUT_MS, mUsersInfo, null));
+        assertThrows(NullPointerException.class, () -> mUserHalService
+                .switchUser(createUserSwitchRequest(mUser10, mUsersInfo), TIMEOUT_MS, null));
     }
 
     @Test
     public void testSwitchUser_noTarget() {
-        assertThrows(NullPointerException.class,
-                () -> mUserHalService.switchUser(null, TIMEOUT_MS, mUsersInfo, noOpCallback()));
+        assertThrows(NullPointerException.class, () -> mUserHalService
+                .switchUser(createUserSwitchRequest(null, mUsersInfo), TIMEOUT_MS, noOpCallback()));
     }
 
     @Test
@@ -443,7 +444,8 @@ public final class UserHalServiceTest {
 
         GenericHalCallback<SwitchUserResponse> callback = new GenericHalCallback<>(
                 CALLBACK_TIMEOUT_TIMEOUT);
-        mUserHalService.switchUser(mUser10, TIMEOUT_MS, mUsersInfo, callback);
+        mUserHalService.switchUser(createUserSwitchRequest(mUser10, mUsersInfo), TIMEOUT_MS,
+                callback);
 
         callback.assertCalled();
         assertCallbackStatus(callback, HalCallback.STATUS_HAL_SET_TIMEOUT);
@@ -458,7 +460,8 @@ public final class UserHalServiceTest {
     public void testSwitchUser_halDidNotReply() throws Exception {
         GenericHalCallback<SwitchUserResponse> callback = new GenericHalCallback<>(
                 CALLBACK_TIMEOUT_TIMEOUT);
-        mUserHalService.switchUser(mUser10, TIMEOUT_MS, mUsersInfo, callback);
+        mUserHalService.switchUser(createUserSwitchRequest(mUser10, mUsersInfo), TIMEOUT_MS,
+                callback);
 
         callback.assertCalled();
         assertCallbackStatus(callback, HalCallback.STATUS_HAL_RESPONSE_TIMEOUT);
@@ -475,7 +478,8 @@ public final class UserHalServiceTest {
 
         GenericHalCallback<SwitchUserResponse> callback = new GenericHalCallback<>(
                 CALLBACK_TIMEOUT_TIMEOUT);
-        mUserHalService.switchUser(mUser10, TIMEOUT_MS, mUsersInfo, callback);
+        mUserHalService.switchUser(createUserSwitchRequest(mUser10, mUsersInfo), TIMEOUT_MS,
+                callback);
 
         callback.assertCalled();
         assertCallbackStatus(callback, HalCallback.STATUS_HAL_RESPONSE_TIMEOUT);
@@ -493,7 +497,8 @@ public final class UserHalServiceTest {
 
         GenericHalCallback<SwitchUserResponse> callback = new GenericHalCallback<>(
                 CALLBACK_TIMEOUT_SUCCESS);
-        mUserHalService.switchUser(mUser10, TIMEOUT_MS, mUsersInfo, callback);
+        mUserHalService.switchUser(createUserSwitchRequest(mUser10, mUsersInfo), TIMEOUT_MS,
+                callback);
 
         callback.assertCalled();
 
@@ -517,7 +522,8 @@ public final class UserHalServiceTest {
 
         GenericHalCallback<SwitchUserResponse> callback = new GenericHalCallback<>(
                 CALLBACK_TIMEOUT_SUCCESS);
-        mUserHalService.switchUser(mUser10, TIMEOUT_MS, mUsersInfo, callback);
+        mUserHalService.switchUser(createUserSwitchRequest(mUser10, mUsersInfo), TIMEOUT_MS,
+                callback);
 
         callback.assertCalled();
 
@@ -545,7 +551,8 @@ public final class UserHalServiceTest {
 
         GenericHalCallback<SwitchUserResponse> callback = new GenericHalCallback<>(
                 CALLBACK_TIMEOUT_SUCCESS);
-        mUserHalService.switchUser(mUser10, TIMEOUT_MS, mUsersInfo, callback);
+        mUserHalService.switchUser(createUserSwitchRequest(mUser10, mUsersInfo), TIMEOUT_MS,
+                callback);
 
         callback.assertCalled();
 
@@ -567,8 +574,10 @@ public final class UserHalServiceTest {
                 CALLBACK_TIMEOUT_TIMEOUT);
         GenericHalCallback<SwitchUserResponse> callback2 = new GenericHalCallback<>(
                 CALLBACK_TIMEOUT_TIMEOUT);
-        mUserHalService.switchUser(mUser10, TIMEOUT_MS, mUsersInfo, callback1);
-        mUserHalService.switchUser(mUser10, TIMEOUT_MS, mUsersInfo, callback2);
+        mUserHalService.switchUser(createUserSwitchRequest(mUser10, mUsersInfo), TIMEOUT_MS,
+                callback1);
+        mUserHalService.switchUser(createUserSwitchRequest(mUser10, mUsersInfo), TIMEOUT_MS,
+                callback2);
 
         callback1.assertCalled();
         assertCallbackStatus(callback1, HalCallback.STATUS_HAL_RESPONSE_TIMEOUT);
@@ -590,7 +599,8 @@ public final class UserHalServiceTest {
 
         GenericHalCallback<SwitchUserResponse> callback = new GenericHalCallback<>(
                 CALLBACK_TIMEOUT_SUCCESS);
-        mUserHalService.switchUser(mUser10, TIMEOUT_MS, mUsersInfo, callback);
+        mUserHalService.switchUser(createUserSwitchRequest(mUser10, mUsersInfo), TIMEOUT_MS,
+                callback);
 
         callback.assertCalled();
 
@@ -634,30 +644,64 @@ public final class UserHalServiceTest {
 
     @Test
     public void testPostSwitchResponse_noUsersInfo() {
-        assertThrows(NullPointerException.class,
-                () -> mUserHalService.postSwitchResponse(42, mUser10, null));
+        SwitchUserRequest request = createUserSwitchRequest(mUser10, null);
+        request.requestId = 42;
+        assertThrows(NullPointerException.class, () -> mUserHalService.postSwitchResponse(request));
     }
 
     @Test
     public void testPostSwitchResponse_HalCalledWithCorrectProp() {
-        mUserHalService.postSwitchResponse(42, mUser10, mUsersInfo);
+        SwitchUserRequest request = createUserSwitchRequest(mUser10, mUsersInfo);
+        request.requestId = 42;
+        mUserHalService.postSwitchResponse(request);
         ArgumentCaptor<VehiclePropValue> propCaptor =
                 ArgumentCaptor.forClass(VehiclePropValue.class);
         verify(mVehicleHal).set(propCaptor.capture());
         VehiclePropValue prop = propCaptor.getValue();
-        assertHalSetSwitchUserRequest(prop, SwitchUserMessageType.ANDROID_POST_SWITCH,
-                mUser10);
+        assertHalSetSwitchUserRequest(prop, SwitchUserMessageType.ANDROID_POST_SWITCH, mUser10);
+    }
+
+    @Test
+    public void testLegacyUserSwitch_nullRequest() {
+        assertThrows(NullPointerException.class, () -> mUserHalService.legacyUserSwitch(null));
+    }
+
+    @Test
+    public void testLegacyUserSwitch_noMessageType() {
+        SwitchUserRequest request = new SwitchUserRequest();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mUserHalService.legacyUserSwitch(request));
+    }
+
+    @Test
+    public void testLegacyUserSwitch_noTargetUserInfo() {
+        SwitchUserRequest request = new SwitchUserRequest();
+        request.messageType = SwitchUserMessageType.ANDROID_SWITCH;
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mUserHalService.legacyUserSwitch(request));
     }
 
     @Test
     public void testLegacyUserSwitch_noUsersInfo() {
+        SwitchUserRequest request = new SwitchUserRequest();
+        request.messageType = SwitchUserMessageType.ANDROID_SWITCH;
+        request.targetUser = mUser10;
+
         assertThrows(IllegalArgumentException.class,
-                () -> mUserHalService.legacyUserSwitch(mUser10, null));
+                () -> mUserHalService.legacyUserSwitch(request));
     }
 
     @Test
     public void testLegacyUserSwitch_HalCalledWithCorrectProp() {
-        mUserHalService.legacyUserSwitch(mUser10, mUsersInfo);
+        SwitchUserRequest request = new SwitchUserRequest();
+        request.messageType = SwitchUserMessageType.LEGACY_ANDROID_SWITCH;
+        request.requestId = 1;
+        request.targetUser = mUser10;
+        request.usersInfo = mUsersInfo;
+
+        mUserHalService.legacyUserSwitch(request);
         ArgumentCaptor<VehiclePropValue> propCaptor =
                 ArgumentCaptor.forClass(VehiclePropValue.class);
         verify(mVehicleHal).set(propCaptor.capture());
@@ -1238,6 +1282,15 @@ public final class UserHalServiceTest {
     private void replySetPropertyWithTimeoutException(int prop) throws Exception {
         doThrow(new ServiceSpecificException(VehicleHalStatusCode.STATUS_TRY_AGAIN,
                 "PropId: 0x" + Integer.toHexString(prop))).when(mVehicleHal).set(isProperty(prop));
+    }
+
+    @NonNull
+    private SwitchUserRequest createUserSwitchRequest(@NonNull UserInfo targetUser,
+            @NonNull UsersInfo usersInfo) {
+        SwitchUserRequest request = new SwitchUserRequest();
+        request.targetUser = targetUser;
+        request.usersInfo = usersInfo;
+        return request;
     }
 
     /**

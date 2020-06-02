@@ -53,6 +53,7 @@ import android.hardware.automotive.vehicle.V2_0.CreateUserRequest;
 import android.hardware.automotive.vehicle.V2_0.CreateUserStatus;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
+import android.hardware.automotive.vehicle.V2_0.SwitchUserRequest;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserStatus;
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationGetRequest;
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationResponse;
@@ -793,11 +794,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
 
         UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUserManager);
-        android.hardware.automotive.vehicle.V2_0.UserInfo halTargetUser =
-                new android.hardware.automotive.vehicle.V2_0.UserInfo();
-        halTargetUser.userId = targetUser.id;
-        halTargetUser.flags = UserHalHelper.convertFlags(targetUser);
-        mHal.switchUser(halTargetUser, timeoutMs, usersInfo, (status, resp) -> {
+        SwitchUserRequest request = createUserSwitchRequest(targetUserId, usersInfo);
+
+        mHal.switchUser(request, timeoutMs, (status, resp) -> {
             if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
                 Log.d(TAG, "switch response: status="
                         + UserHalHelper.halCallbackStatusToString(status) + ", resp=" + resp);
@@ -1166,17 +1165,26 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             mRequestIdForUserSwitchInProcess = requestId;
         }
     }
-
     private void postSwitchHalResponse(int requestId, @UserIdInt int targetUserId) {
-        UserInfo targetUser = mUserManager.getUserInfo(targetUserId);
         UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUserManager);
+        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_POST_SWITCH_USER_REQ, requestId,
+                targetUserId, usersInfo.currentUser.userId);
+        SwitchUserRequest request = createUserSwitchRequest(targetUserId, usersInfo);
+        request.requestId = requestId;
+        mHal.postSwitchResponse(request);
+    }
+
+    private SwitchUserRequest createUserSwitchRequest(@UserIdInt int targetUserId,
+            @NonNull UsersInfo usersInfo) {
+        UserInfo targetUser = mUserManager.getUserInfo(targetUserId);
         android.hardware.automotive.vehicle.V2_0.UserInfo halTargetUser =
                 new android.hardware.automotive.vehicle.V2_0.UserInfo();
         halTargetUser.userId = targetUser.id;
         halTargetUser.flags = UserHalHelper.convertFlags(targetUser);
-        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_POST_SWITCH_USER_REQ, requestId,
-                targetUserId, usersInfo.currentUser.userId);
-        mHal.postSwitchResponse(requestId, halTargetUser, usersInfo);
+        SwitchUserRequest request = new SwitchUserRequest();
+        request.targetUser = halTargetUser;
+        request.usersInfo = usersInfo;
+        return request;
     }
 
     /**
@@ -1555,13 +1563,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
 
         // switch HAL user
-        UserInfo targetUser = mUserManager.getUserInfo(toUserId);
-        android.hardware.automotive.vehicle.V2_0.UserInfo halTargetUser =
-                new android.hardware.automotive.vehicle.V2_0.UserInfo();
-        halTargetUser.userId = targetUser.id;
-        halTargetUser.flags = UserHalHelper.convertFlags(targetUser);
         UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUserManager);
-        mHal.legacyUserSwitch(halTargetUser, usersInfo);
+        SwitchUserRequest request = createUserSwitchRequest(toUserId, usersInfo);
+        mHal.legacyUserSwitch(request);
     }
 
     /**
