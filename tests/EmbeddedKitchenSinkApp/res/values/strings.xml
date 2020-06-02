@@ -137,7 +137,7 @@
     <string name="mock_audio_on" translatable="false">Audio Mocking On</string>
     <string name="mock_audio_off" translatable="false">Audio Mocking Off</string>
     <string name="select_zone_to_hear_on_speaker" translatable="false">Select Zone to hear on speaker</string>
-    <string name="select_display" translatable="false">Select Display</string>
+    <string name="select_device" translatable="false">Select Device</string>
     <string name="activity_current_zone_id" translatable="false">Activity\'s current audio zone id</string>
     <string name="no_zone" translatable="false">none</string>
     <string name="phone_audio_player" translatable="false">Phone Player</string>
