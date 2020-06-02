@@ -28,6 +28,50 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:layout_weight="1"
+                android:visibility="gone"
+                android:id="@+id/audio_select_device_address_layout">
+                <TextView
+                    android:id="@+id/select_device_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/select_device" />
+                <Space
+                    android:layout_width="3dp"
+                    android:layout_height="match_parent" />
+                <Spinner
+                    android:id="@+id/device_address_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <Space
+                    android:layout_width="3dp"
+                    android:layout_height="match_parent" />
+                <Button
+                    android:id="@+id/button_device_media_play_start"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/play" />
+                <Space
+                    android:layout_width="3dp"
+                    android:layout_height="match_parent" />
+                <Button
+                    android:id="@+id/button_device_media_play_once"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/play_pcm_once" />
+                <Space
+                    android:layout_width="3dp"
+                    android:layout_height="match_parent" />
+                <Button
+                    android:id="@+id/button_device_media_play_stop"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/stop" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
                 android:layout_weight="1" >
                 <TextView
                     android:id="@+id/zone_selection_title"
@@ -68,50 +112,6 @@
                     android:layout_height="wrap_content"
                     android:textOn="@string/mock_audio_on"
                     android:textOff="@string/mock_audio_off" />
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_weight="1"
-                android:visibility="gone"
-                android:id="@+id/audio_display_layout">
-                <TextView
-                    android:id="@+id/select_display_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/select_display" />
-                <Space
-                    android:layout_width="3dp"
-                    android:layout_height="match_parent" />
-                <Spinner
-                    android:id="@+id/display_spinner"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-                <Space
-                    android:layout_width="3dp"
-                    android:layout_height="match_parent" />
-                <Button
-                    android:id="@+id/button_display_media_play_start"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/play" />
-                <Space
-                    android:layout_width="3dp"
-                    android:layout_height="match_parent" />
-                <Button
-                    android:id="@+id/button_display_media_play_once"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/play_pcm_once" />
-                <Space
-                    android:layout_width="3dp"
-                    android:layout_height="match_parent" />
-                <Button
-                    android:id="@+id/button_display_media_play_stop"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/stop" />
             </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
