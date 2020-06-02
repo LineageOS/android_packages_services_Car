@@ -32,8 +32,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
-import android.view.Display;
-import android.view.DisplayAddress;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -534,43 +532,6 @@ public final class CarAudioManager extends CarManagerBase {
             return mService.clearZoneIdForUid(uid);
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, false);
-        }
-    }
-
-    /**
-     * Get the zone id for the display
-     *
-     * @param  display display to query
-     * @return zone id for display or
-     * CarAudioManager.PRIMARY_AUDIO_ZONE if no match is found.
-     * @hide
-     */
-    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
-    public int getZoneIdForDisplay(Display display) {
-        DisplayAddress address = display.getAddress();
-        if (address instanceof DisplayAddress.Physical) {
-            DisplayAddress.Physical physicalAddress = (DisplayAddress.Physical) address;
-            if (physicalAddress != null) {
-                return getZoneIdForDisplayPortId(physicalAddress.getPort());
-            }
-        }
-        return PRIMARY_AUDIO_ZONE;
-    }
-
-    /**
-     * Get the zone id for the display port id passed in
-     *
-     * @param  displayPortId display port id to query
-     * @return zone id for display port id or
-     * CarAudioManager.PRIMARY_AUDIO_ZONE if no match is found.
-     * @hide
-     */
-    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
-    public int getZoneIdForDisplayPortId(int displayPortId) {
-        try {
-            return mService.getZoneIdForDisplayPortId(displayPortId);
-        } catch (RemoteException e) {
-            return handleRemoteExceptionFromCarService(e, 0);
         }
     }
 

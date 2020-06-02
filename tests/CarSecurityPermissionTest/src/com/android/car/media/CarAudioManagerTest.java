@@ -25,16 +25,12 @@ import static android.media.AudioAttributes.USAGE_MEDIA;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assume.assumeNotNull;
 import static org.testng.Assert.expectThrows;
 
 import android.car.Car;
 import android.car.media.CarAudioManager;
 import android.content.Context;
-import android.hardware.display.DisplayManager;
 import android.os.Handler;
-import android.view.Display;
-import android.view.DisplayAddress;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -43,9 +39,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Arrays;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * This class contains security permission tests for the {@link CarAudioManager}'s system APIs.
@@ -220,22 +214,6 @@ public final class CarAudioManagerTest {
     }
 
     @Test
-    public void getZoneIdForDisplayPermission() {
-        Display display = getPhysicalDisplay();
-        assumeNotNull(display);
-        Exception e = expectThrows(SecurityException.class,
-                () -> mCarAudioManager.getZoneIdForDisplay(display));
-        assertThat(e.getMessage()).contains(PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
-    }
-
-    @Test
-    public void getZoneIdForDisplayPortIdPermission() {
-        Exception e = expectThrows(SecurityException.class,
-                () -> mCarAudioManager.getZoneIdForDisplayPortId(Byte.MAX_VALUE));
-        assertThat(e.getMessage()).contains(PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
-    }
-
-    @Test
     public void getOutputDeviceForUsagePermission() {
         Exception e = expectThrows(SecurityException.class,
                 () -> mCarAudioManager.getOutputDeviceForUsage(PRIMARY_AUDIO_ZONE, USAGE_MEDIA));
@@ -254,13 +232,5 @@ public final class CarAudioManagerTest {
         Exception e = expectThrows(SecurityException.class,
                 () -> mCarAudioManager.onCarDisconnected());
         assertThat(e.getMessage()).contains(PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
-    }
-
-    private Display getPhysicalDisplay() {
-        DisplayManager displayManager = (DisplayManager) mContext.getSystemService(
-                Context.DISPLAY_SERVICE);
-        Optional<Display> physical = Arrays.stream(displayManager.getDisplays()).filter(
-                display -> (display.getAddress() instanceof DisplayAddress.Physical)).findFirst();
-        return physical.orElse(null);
     }
 }
