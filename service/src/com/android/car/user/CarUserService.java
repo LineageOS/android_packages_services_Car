@@ -1345,8 +1345,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             handleNotifyAppUserLifecycleListeners(event);
         });
 
-        // Finally, update metrics.
-        mUserMetrics.onEvent(eventType, timestampMs, fromUserId, toUserId);
+        if (timestampMs != 0) {
+            // Finally, update metrics.
+            mUserMetrics.onEvent(eventType, timestampMs, fromUserId, toUserId);
+        }
     }
 
     /**
