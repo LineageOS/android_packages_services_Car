@@ -25,9 +25,13 @@ import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback;
 import android.car.hardware.property.ICarProperty;
+import android.car.hardware.property.PropertyAccessDeniedSecurityException;
+import android.car.hardware.property.PropertyNotAvailableException;
 import android.os.IBinder;
 import android.util.ArraySet;
 import android.util.Log;
+
+import com.android.internal.annotations.GuardedBy;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -45,12 +49,15 @@ import java.util.List;
 @Deprecated
 @SystemApi
 public final class CarHvacManager extends CarManagerBase {
-    private final static boolean DBG = false;
-    private final static String TAG = "CarHvacManager";
+    private static final boolean DBG = false;
+    private static final String TAG = "CarHvacManager";
     private final CarPropertyManager mCarPropertyMgr;
-    private final ArraySet<CarHvacEventCallback> mCallbacks = new ArraySet<>();
     private CarPropertyEventListenerToBase mListenerToBase = null;
 
+    private final Object mLock = new Object();
+
+    @GuardedBy("mLock")
+    private final ArraySet<CarHvacEventCallback> mCallbacks = new ArraySet<>();
 
     /**
      * HVAC property IDs for get/set methods
@@ -252,7 +259,7 @@ public final class CarHvacManager extends CarManagerBase {
     private static class CarPropertyEventListenerToBase implements CarPropertyEventCallback {
         private final WeakReference<CarHvacManager> mManager;
 
-        public CarPropertyEventListenerToBase(CarHvacManager manager) {
+        CarPropertyEventListenerToBase(CarHvacManager manager) {
             mManager = new WeakReference<>(manager);
         }
 
@@ -275,7 +282,7 @@ public final class CarHvacManager extends CarManagerBase {
 
     private void handleOnChangeEvent(CarPropertyValue value) {
         Collection<CarHvacEventCallback> callbacks;
-        synchronized (this) {
+        synchronized (mLock) {
             callbacks = new ArraySet<>(mCallbacks);
         }
         if (!callbacks.isEmpty()) {
@@ -287,7 +294,7 @@ public final class CarHvacManager extends CarManagerBase {
 
     private void handleOnErrorEvent(int propertyId, int zone) {
         Collection<CarHvacEventCallback> callbacks;
-        synchronized (this) {
+        synchronized (mLock) {
             callbacks = new ArraySet<>(mCallbacks);
         }
         if (!callbacks.isEmpty()) {
@@ -315,16 +322,18 @@ public final class CarHvacManager extends CarManagerBase {
      * Implement wrappers for contained CarPropertyManager object
      * @param callback
      */
-    public synchronized void registerCallback(CarHvacEventCallback callback) {
-        if (mCallbacks.isEmpty()) {
-            mListenerToBase = new CarPropertyEventListenerToBase(this);
-        }
-        List<CarPropertyConfig> configs = getPropertyList();
-        for (CarPropertyConfig c : configs) {
+    public void registerCallback(CarHvacEventCallback callback) {
+        synchronized (mLock) {
+            if (mCallbacks.isEmpty()) {
+                mListenerToBase = new CarPropertyEventListenerToBase(this);
+            }
+            List<CarPropertyConfig> configs = getPropertyList();
+            for (CarPropertyConfig c : configs) {
                 // Register each individual propertyId
-            mCarPropertyMgr.registerCallback(mListenerToBase, c.getPropertyId(), 0);
+                mCarPropertyMgr.registerCallback(mListenerToBase, c.getPropertyId(), 0);
+            }
+            mCallbacks.add(callback);
         }
-        mCallbacks.add(callback);
     }
 
     /**
@@ -332,21 +341,26 @@ public final class CarHvacManager extends CarManagerBase {
      * this listener, all listening will be stopped.
      * @param callback
      */
-    public synchronized void unregisterCallback(CarHvacEventCallback callback) {
-        mCallbacks.remove(callback);
-        try {
-            List<CarPropertyConfig> configs = getPropertyList();
-            for (CarPropertyConfig c : configs) {
-                // Register each individual propertyId
-                mCarPropertyMgr.unregisterCallback(mListenerToBase, c.getPropertyId());
+    public void unregisterCallback(CarHvacEventCallback callback) {
+        synchronized (mLock) {
+            mCallbacks.remove(callback);
+            try {
+                List<CarPropertyConfig> configs = getPropertyList();
+                for (CarPropertyConfig c : configs) {
+                    // Register each individual propertyId
+                    mCarPropertyMgr.unregisterCallback(mListenerToBase, c.getPropertyId());
 
+                }
+            } catch (PropertyAccessDeniedSecurityException
+                    | PropertyNotAvailableException
+                    | IllegalArgumentException e) {
+                Log.e(TAG, "getPropertyList exception ", e);
             }
-        } catch (Exception e) {
-            Log.e(TAG, "getPropertyList exception ", e);
-        }
-        if (mCallbacks.isEmpty()) {
-            mCarPropertyMgr.unregisterCallback(mListenerToBase);
-            mListenerToBase = null;
+
+            if (mCallbacks.isEmpty()) {
+                mCarPropertyMgr.unregisterCallback(mListenerToBase);
+                mListenerToBase = null;
+            }
         }
     }
 
@@ -435,7 +449,7 @@ public final class CarHvacManager extends CarManagerBase {
     /** @hide */
     public void onCarDisconnected() {
         // TODO(b/142730482) Fix synchronization to use separate mLock
-        synchronized (this) {
+        synchronized (mLock) {
             mCallbacks.clear();
         }
         mCarPropertyMgr.onCarDisconnected();
