@@ -34,6 +34,7 @@ import android.car.Car;
 import android.car.input.CarInputManager;
 import android.car.input.RotaryEvent;
 import android.car.user.CarUserManager;
+import android.car.user.UserCreationResult;
 import android.car.user.UserIdentificationAssociationResponse;
 import android.car.user.UserSwitchResult;
 import android.car.userlib.HalCallback;
@@ -89,6 +90,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 final class CarShellCommand extends ShellCommand {
 
@@ -966,12 +968,13 @@ final class CarShellCommand extends ShellCommand {
         AndroidFuture<UserSwitchResult> future = carUserManager.switchUser(targetUserId);
         UserSwitchResult result = waitForFuture(writer, future, timeout);
         if (result == null) return;
-        writer.printf("UserSwitchResult: status = %s\n",
+        writer.printf("UserSwitchResult: status=%s",
                 UserSwitchResult.statusToString(result.getStatus()));
         String msg = result.getErrorMessage();
-        if (msg != null && !msg.isEmpty()) {
-            writer.printf("UserSwitchResult: Message = %s\n", msg);
+        if (!TextUtils.isEmpty(msg)) {
+            writer.printf(", errorMessage=%s", msg);
         }
+        writer.println();
     }
 
     private void createUser(String[] args, PrintWriter writer) {
@@ -1014,8 +1017,23 @@ final class CarShellCommand extends ShellCommand {
                 + ", halOnly=" + halOnly + ", timeout=" + timeout);
 
         if (!halOnly) {
-            // TODO(b/150408921): implement it
-            throw new UnsupportedOperationException("must pass --hal-only for now");
+            CarUserManager carUserManager = getCarUserManager(mContext);
+            AndroidFuture<UserCreationResult> future = carUserManager
+                    .createUser(name, userType, flags);
+
+            UserCreationResult result = waitForFuture(writer, future, timeout);
+            if (result == null) return;
+
+            android.content.pm.UserInfo user = result.getUser();
+            writer.printf("UserCreationResult: status=%s, user=%s",
+                    UserCreationResult.statusToString(result.getStatus()),
+                    user == null ? "N/A" : user.toFullString());
+            String msg = result.getErrorMessage();
+            if (!TextUtils.isEmpty(msg)) {
+                writer.printf(", errorMessage=%s", msg);
+            }
+            writer.println();
+            return;
         }
 
         CountDownLatch latch = new CountDownLatch(1);
@@ -1024,8 +1042,11 @@ final class CarShellCommand extends ShellCommand {
         CreateUserRequest request = new CreateUserRequest();
 
         UserManager um = UserManager.get(mContext);
-        android.content.pm.UserInfo newUser =
-                um.createUser(name, userType, flags);
+        android.content.pm.UserInfo newUser = um.createUser(name, userType, flags);
+        if (newUser == null) {
+            writer.printf("Failed to create user");
+            return;
+        }
         writer.printf("New user: %s\n", newUser.toFullString());
         Log.i(TAG, "Created new user: " + newUser.toFullString());
 
@@ -1034,31 +1055,33 @@ final class CarShellCommand extends ShellCommand {
 
         request.usersInfo = generateUsersInfo();
 
-        userHal.createUser(request, timeout, (status, resp) -> {
-            Log.d(TAG, "CreateUserResponse: status=" + status + ", resp=" + resp);
-            try {
+        AtomicBoolean halOk = new AtomicBoolean(false);
+        try {
+            userHal.createUser(request, timeout, (status, resp) -> {
+                Log.d(TAG, "CreateUserResponse: status=" + status + ", resp=" + resp);
                 writer.printf("Call Status: %s\n",
                         UserHalHelper.halCallbackStatusToString(status));
-                if (status != HalCallback.STATUS_OK) {
-                    return;
+                if (status == HalCallback.STATUS_OK) {
+                    halOk.set(resp.status == CreateUserStatus.SUCCESS);
+                    writer.printf("Request id: %d\n", resp.requestId);
+                    writer.printf("Create Status: %s\n", CreateUserStatus.toString(resp.status));
+                    String errorMessage = resp.errorMessage;
+                    if (!TextUtils.isEmpty(errorMessage)) {
+                        writer.printf("Error message: %s", errorMessage);
+                    }
                 }
-                writer.printf("Request id: %d\n", resp.requestId);
-                writer.printf("Create Status: %s\n", CreateUserStatus.toString(resp.status));
-                String errorMessage = resp.errorMessage;
-                if (!TextUtils.isEmpty(errorMessage)) {
-                    writer.printf("Error message: %s", errorMessage);
-                }
-
-                if (resp.status == CreateUserStatus.FAILURE) {
-                    Log.i(TAG, "Removing new user due to HAL failure");
-                    boolean removed = um.removeUser(newUser.id);
-                    writer.printf("User removed: %b\n", removed);
-                }
-            } finally {
                 latch.countDown();
+            });
+            waitForHal(writer, latch, timeout);
+        } catch (Exception e) {
+            writer.printf("HAL failed: %s\n", e);
+        } finally {
+            if (!halOk.get()) {
+                writer.printf("Removing user %d due to HAL failure\n", newUser.id);
+                boolean removed = um.removeUser(newUser.id);
+                writer.printf("User removed: %b\n", removed);
             }
-        });
-        waitForHal(writer, latch, timeout);
+        }
     }
 
     private static <T> T waitForFuture(@NonNull PrintWriter writer,
