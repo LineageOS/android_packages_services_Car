@@ -19,7 +19,7 @@
     "rearExtent" : 40           // The extent of the car body behind the read axel
   },
   "displays" : [                // This configures the dimensions of the surround view display
-    {
+    {                           // The first display will be used as the default display
       "displayPort" : 1         // Display port number, the target display is connected to.
       "frontRange" : 100,       // How far to render the view in front of the front bumper
       "rearRange" : 100         // How far the view extends behind the rear bumper
