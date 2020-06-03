@@ -885,6 +885,24 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void testCreateUserRequestToVehiclePropValue_nullNewUserName() {
+        CreateUserRequest request = new CreateUserRequest();
+        request.requestId = 42;
+
+        request.newUserInfo.userId = 10;
+        request.newUserInfo.flags = UserFlags.ADMIN;
+        request.newUserName = null;
+
+        request.usersInfo.numberUsers = 1;
+        request.usersInfo.currentUser.userId = request.newUserInfo.userId;
+        request.usersInfo.currentUser.flags = request.newUserInfo.flags;
+        request.usersInfo.existingUsers.add(request.usersInfo.currentUser);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> UserHalHelper.toVehiclePropValue(request));
+    }
+
+    @Test
     public void testCreateUserRequestToVehiclePropValue_usersInfoDoesNotContainNewUser() {
         CreateUserRequest request = new CreateUserRequest();
         request.requestId = 42;
