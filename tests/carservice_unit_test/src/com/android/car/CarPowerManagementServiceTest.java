@@ -288,7 +288,7 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
                 new PowerState(
                         VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                         VehicleApPowerStateShutdownParam.SLEEP_IMMEDIATELY));
-        assertStateReceived(PowerHalService.SET_DEEP_SLEEP_ENTRY, 0);
+        assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_DEEP_SLEEP_ENTRY, 0);
         assertThat(mService.garageModeShouldExitImmediately()).isTrue();
         mPowerSignalListener.waitForSleepEntry(WAIT_TIMEOUT_MS);
 
