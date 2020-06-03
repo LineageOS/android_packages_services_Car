@@ -205,11 +205,6 @@ Result<void> StatsCollector::startCollection() {
             PLOG(WARNING) << "Failed to set background scheduling prioirty";
         }
 
-        auto ret = pthread_setname_np(pthread_self(), "EvsCameraUsageCollect");
-        if (ret != 0) {
-            PLOG(WARNING) << "Failed to name a collection thread";
-        }
-
         // Sets a looper for the communication
         mLooper->setLooper(Looper::prepare(/*opts=*/0));
 
@@ -226,6 +221,11 @@ Result<void> StatsCollector::startCollection() {
             }
         }
     });
+
+    auto ret = pthread_setname_np(mCollectionThread.native_handle(), "EvsUsageCollect");
+    if (ret != 0) {
+        PLOG(WARNING) << "Failed to name a collection thread";
+    }
 
     return {};
 }
