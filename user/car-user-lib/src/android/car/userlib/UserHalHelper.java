@@ -486,6 +486,8 @@ public final class UserHalHelper {
         Objects.requireNonNull(request, "request cannot be null");
         checkArgument(request.requestId > 0, "invalid requestId on %s", request);
         checkValid(request.usersInfo);
+        checkArgument(request.newUserName != null, "newUserName cannot be null (should be empty "
+                + "instead) on %s", request);
 
         boolean hasNewUser = false;
         int newUserFlags = UserFlags.NONE;
