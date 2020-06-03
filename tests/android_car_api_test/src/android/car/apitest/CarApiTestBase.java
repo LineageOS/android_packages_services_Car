@@ -16,7 +16,12 @@
 
 package android.car.apitest;
 
+import static com.android.compatibility.common.util.ShellUtils.runShellCommand;
+import static com.android.compatibility.common.util.TestUtils.BooleanSupplierWithThrow;
+
 import static com.google.common.truth.Truth.assertThat;
+
+import static org.junit.Assert.fail;
 
 import android.car.Car;
 import android.content.ComponentName;
@@ -24,6 +29,9 @@ import android.content.Context;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.PowerManager;
+import android.os.SystemClock;
+import android.util.Log;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -38,6 +46,15 @@ abstract class CarApiTestBase {
     private static final String TAG = CarApiTestBase.class.getSimpleName();
 
     protected static final long DEFAULT_WAIT_TIMEOUT_MS = 1_000;
+
+    /**
+     * Constant used to wait blindly, when there is no condition that can be checked.
+     */
+    private static final int SUSPEND_TIMEOUT_MS = 5_000;
+    /**
+     * How long to sleep (multiple times) while waiting for a condition.
+     */
+    private static final int SMALL_NAP_MS = 100;
 
     protected static final Context sContext = InstrumentationRegistry.getInstrumentation()
             .getTargetContext();
@@ -88,5 +105,37 @@ abstract class CarApiTestBase {
         public void onServiceDisconnected(ComponentName name) {
             assertMainThread();
         }
+    }
+
+    protected static void suspendToRamAndResume() throws Exception {
+        Log.d(TAG, "Emulate suspend to RAM and resume");
+        PowerManager powerManager = sContext.getSystemService(PowerManager.class);
+        runShellCommand("cmd car_service suspend");
+        // Check for suspend success
+        waitUntil("Suspsend is not successful",
+                SUSPEND_TIMEOUT_MS, () -> !powerManager.isScreenOn());
+
+        // Force turn off garage mode
+        runShellCommand("cmd car_service garage-mode off");
+        runShellCommand("cmd car_service resume");
+    }
+
+    protected static boolean waitUntil(String msg, long timeoutMs,
+            BooleanSupplierWithThrow condition) {
+        long deadline = SystemClock.elapsedRealtime() + timeoutMs;
+        do {
+            try {
+                if (condition.getAsBoolean()) {
+                    return true;
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Exception in waitUntil: " + msg);
+                throw new RuntimeException(e);
+            }
+            SystemClock.sleep(SMALL_NAP_MS);
+        } while (SystemClock.elapsedRealtime() < deadline);
+
+        fail(msg + " after: " + timeoutMs + "ms");
+        return false;
     }
 }
