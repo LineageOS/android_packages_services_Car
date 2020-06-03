@@ -35,15 +35,18 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.Process;
+import android.os.SystemClock;
 import android.os.Trace;
 import android.util.Log;
 import android.util.Slog;
 import android.util.TimingsTraceLog;
+import android.view.KeyEvent;
 
 import com.android.car.am.FixedActivityService;
 import com.android.car.audio.CarAudioService;
 import com.android.car.cluster.InstrumentClusterService;
 import com.android.car.garagemode.GarageModeService;
+import com.android.car.hal.InputHalService;
 import com.android.car.hal.VehicleHal;
 import com.android.car.internal.FeatureConfiguration;
 import com.android.car.pm.CarPackageManagerService;
@@ -185,6 +188,7 @@ public class ICarImpl extends ICar.Stub {
         CarLocalServices.addService(CarPowerManagementService.class, mCarPowerManagementService);
         CarLocalServices.addService(CarUserService.class, mCarUserService);
         CarLocalServices.addService(CarTrustedDeviceService.class, mCarTrustedDeviceService);
+        CarLocalServices.addService(CarUserNoticeService.class, mCarUserNoticeService);
         CarLocalServices.addService(SystemInterface.class, mSystemInterface);
         CarLocalServices.addService(CarDrivingStateService.class, mCarDrivingStateService);
         CarLocalServices.addService(PerUserCarServiceHelper.class, mPerUserCarServiceHelper);
@@ -556,6 +560,7 @@ public class ICarImpl extends ICar.Stub {
         private static final String COMMAND_REMOVE_TRUSTED_DEVICES = "remove-trusted-devices";
         private static final String COMMAND_START_FIXED_ACTIVITY_MODE = "start-fixed-activity-mode";
         private static final String COMMAND_STOP_FIXED_ACTIVITY_MODE = "stop-fixed-activity-mode";
+        private static final String COMMAND_INJECT_KEY = "inject-key";
 
         private static final String PARAM_DAY_MODE = "day";
         private static final String PARAM_NIGHT_MODE = "night";
@@ -564,6 +569,7 @@ public class ICarImpl extends ICar.Stub {
         private static final String PARAM_ON_MODE = "on";
         private static final String PARAM_OFF_MODE = "off";
         private static final String PARAM_QUERY_MODE = "query";
+        private static final String PARAM_REBOOT = "reboot";
 
 
         private void dumpHelp(PrintWriter pw) {
@@ -578,8 +584,9 @@ public class ICarImpl extends ICar.Stub {
             pw.println("\t  Inject an error event from VHAL for testing.");
             pw.println("\tenable-uxr true|false");
             pw.println("\t  Enable/Disable UX restrictions and App blocking.");
-            pw.println("\tgarage-mode [on|off|query]");
-            pw.println("\t  Force into garage mode or check status.");
+            pw.println("\tgarage-mode [on|off|query|reboot]");
+            pw.println("\t  Force into or out of garage mode, or check status.");
+            pw.println("\t  With 'reboot', enter garage mode, then reboot when it completes.");
             pw.println("\tget-do-activities pkgname");
             pw.println("\t  Get Distraction Optimized activities in given package.");
             pw.println("\tget-carpropertyconfig [propertyId]");
@@ -605,6 +612,12 @@ public class ICarImpl extends ICar.Stub {
             pw.println("\tstop-fixed-mode displayId");
             pw.println("\t  Stop fixed Activity mode for the given display. "
                     + "The Activity will not be restarted upon crash.");
+            pw.println("\tinject-key [-d display] [-t down_delay_ms] key_code");
+            pw.println("\t  inject key down / up event to car service");
+            pw.println("\t  display: 0 for main, 1 for cluster. If not specified, it will be 0.");
+            pw.println("\t  down_delay_ms: delay from down to up key event. If not specified,");
+            pw.println("\t                 it will be 0");
+            pw.println("\t  key_code: int key code defined in android KeyEvent");
         }
 
         public void exec(String[] args, PrintWriter writer) {
@@ -712,7 +725,7 @@ public class ICarImpl extends ICar.Stub {
                     writer.println("Resume: Simulating resuming from Deep Sleep");
                     break;
                 case COMMAND_SUSPEND:
-                    mCarPowerManagementService.forceSimulatedSuspend();
+                    mCarPowerManagementService.forceSuspendAndMaybeReboot(false);
                     writer.println("Resume: Simulating powering down to Deep Sleep");
                     break;
                 case COMMAND_ENABLE_TRUSTED_DEVICE:
@@ -736,6 +749,15 @@ public class ICarImpl extends ICar.Stub {
                     break;
                 case COMMAND_STOP_FIXED_ACTIVITY_MODE:
                     handleStopFixedMode(args, writer);
+                    break;
+
+                case COMMAND_INJECT_KEY:
+                    if (args.length < 2) {
+                        writer.println("Incorrect number of arguments");
+                        dumpHelp(writer);
+                        break;
+                    }
+                    handleInjectKey(args, writer);
                     break;
                 default:
                     writer.println("Unknown command: \"" + arg + "\"");
@@ -787,6 +809,60 @@ public class ICarImpl extends ICar.Stub {
             mFixedActivityService.stopFixedActivityMode(displayId);
         }
 
+        private void handleInjectKey(String[] args, PrintWriter writer) {
+            int i = 1; // 0 is command itself
+            int display = InputHalService.DISPLAY_MAIN;
+            int delayMs = 0;
+            int keyCode = KeyEvent.KEYCODE_UNKNOWN;
+            try {
+                while (i < args.length) {
+                    switch (args[i]) {
+                        case "-d":
+                            i++;
+                            display = Integer.parseInt(args[i]);
+                            break;
+                        case "-t":
+                            i++;
+                            delayMs = Integer.parseInt(args[i]);
+                            break;
+                        default:
+                            if (keyCode != KeyEvent.KEYCODE_UNKNOWN) {
+                                throw new IllegalArgumentException("key_code already set:"
+                                        + keyCode);
+                            }
+                            keyCode = Integer.parseInt(args[i]);
+                    }
+                    i++;
+                }
+            } catch (Exception e) {
+                writer.println("Invalid args:" + e);
+                dumpHelp(writer);
+                return;
+            }
+            if (keyCode == KeyEvent.KEYCODE_UNKNOWN) {
+                writer.println("Missing key code or invalid keycode");
+                dumpHelp(writer);
+                return;
+            }
+            if (display != InputHalService.DISPLAY_MAIN
+                    && display != InputHalService.DISPLAY_INSTRUMENT_CLUSTER) {
+                writer.println("Invalid display:" + display);
+                dumpHelp(writer);
+                return;
+            }
+            if (delayMs < 0) {
+                writer.println("Invalid delay:" + delayMs);
+                dumpHelp(writer);
+                return;
+            }
+            KeyEvent keyDown = new KeyEvent(KeyEvent.ACTION_DOWN, keyCode);
+            mCarInputService.onKeyEvent(keyDown, display);
+            SystemClock.sleep(delayMs);
+            KeyEvent keyUp = new KeyEvent(KeyEvent.ACTION_UP, keyCode);
+            mCarInputService.onKeyEvent(keyUp, display);
+            writer.println("Succeeded");
+        }
+
         private void forceDayNightMode(String arg, PrintWriter writer) {
             int mode;
             switch (arg) {
@@ -833,9 +909,13 @@ public class ICarImpl extends ICar.Stub {
                 case PARAM_QUERY_MODE:
                     mGarageModeService.dump(writer);
                     break;
+                case PARAM_REBOOT:
+                    mCarPowerManagementService.forceSuspendAndMaybeReboot(true);
+                    writer.println("Entering Garage Mode. Will reboot when it completes.");
+                    break;
                 default:
                     writer.println("Unknown value. Valid argument: " + PARAM_ON_MODE + "|"
-                            + PARAM_OFF_MODE + "|" + PARAM_QUERY_MODE);
+                            + PARAM_OFF_MODE + "|" + PARAM_QUERY_MODE + "|" + PARAM_REBOOT);
             }
         }
 

@@ -231,7 +231,7 @@ public final class CarUserManagerHelper {
      */
     @SystemApi
     public int getInitialUser() {
-        List<Integer> allUsers = userInfoListToUserIdList(getAllPersistentUsers());
+        List<Integer> allUsers = userInfoListToUserIdList(getAllUsers());
 
         int bootUserOverride = mTestableFrameworkWrapper.getBootUserOverrideId(BOOT_USER_NOT_FOUND);
 

@@ -103,12 +103,7 @@ public class CarBleTrustAgent extends TrustAgentService {
         }
         super.onDeviceLocked();
         mIsDeviceLocked = true;
-        if (BluetoothAdapter.getDefaultAdapter().getState() == BluetoothAdapter.STATE_OFF) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "Not starting Unlock Advertising yet, since Bluetooth Adapter is off");
-            }
-            return;
-        }
+
         if (!hasTrustedDevice(uid)) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "Not starting Unlock Advertising yet, since current user: "
@@ -116,7 +111,7 @@ public class CarBleTrustAgent extends TrustAgentService {
             }
             return;
         }
-        if (mCarTrustAgentUnlockService != null) {
+        if (isBluetoothAvailable() && mCarTrustAgentUnlockService != null) {
             mCarTrustAgentUnlockService.startUnlockAdvertising();
         }
     }
@@ -128,16 +123,27 @@ public class CarBleTrustAgent extends TrustAgentService {
         }
         super.onDeviceUnlocked();
         mIsDeviceLocked = false;
-        if (BluetoothAdapter.getDefaultAdapter().getState() == BluetoothAdapter.STATE_OFF) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "Not stopping Unlock Advertising, since Bluetooth Adapter is off");
-            }
-            return;
-        }
-        if (mCarTrustAgentUnlockService != null) {
-            mCarTrustAgentUnlockService.stopUnlockAdvertising();
 
+        if (isBluetoothAvailable() && mCarTrustAgentUnlockService != null) {
+            mCarTrustAgentUnlockService.stopUnlockAdvertising();
         }
+    }
+
+    private boolean isBluetoothAvailable() {
+        BluetoothAdapter defaultAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (defaultAdapter == null) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Bluetooth Adapter null.");
+            }
+            return false;
+        }
+        if (defaultAdapter.getState() == BluetoothAdapter.STATE_OFF) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Bluetooth Adapter is off");
+            }
+            return false;
+        }
+        return true;
     }
 
     @Override

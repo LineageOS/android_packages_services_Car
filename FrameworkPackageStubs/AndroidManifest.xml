@@ -79,6 +79,10 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <intent-filter android:priority="-1">
+                <action android:name="android.settings.LOCATION_SCANNING_SETTINGS" />
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter android:priority="-1">
                 <action android:name="android.settings.MANAGE_UNKNOWN_APP_SOURCES" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
