@@ -15,6 +15,9 @@
  */
 package android.car.apitest;
 
+import static android.car.test.util.UserTestingHelper.clearUserLockCredentials;
+import static android.car.test.util.UserTestingHelper.setMaxSupportedUsers;
+import static android.car.test.util.UserTestingHelper.setUserLockCredentials;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPED;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPING;
@@ -42,6 +45,8 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.Log;
 
+import androidx.test.filters.FlakyTest;
+
 import com.android.internal.infra.AndroidFuture;
 
 import org.junit.AfterClass;
@@ -49,6 +54,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -57,6 +63,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class CarUserManagerTest extends CarApiTestBase {
 
     private static final String TAG = CarUserManagerTest.class.getSimpleName();
+
+    private static final int PIN = 2345;
 
     private static final int SWITCH_TIMEOUT_MS = 70_000;
     private static final int STOP_TIMEOUT_MS = 300_000;
@@ -69,8 +77,11 @@ public final class CarUserManagerTest extends CarApiTestBase {
 
     private static final UserManager sUserManager = UserManager.get(sContext);
 
+    private static final int sMaxNumberUsersBefore = UserManager.getMaxSupportedUsers();
+
+    private static final List<Integer> sCreatedUsers = new ArrayList<>();
+
     private static int sInitialUserId = UserHandle.USER_NULL;
-    private static int sNewUserId = UserHandle.USER_NULL;
 
     private CarUserManager mCarUserManager;
 
@@ -78,25 +89,20 @@ public final class CarUserManagerTest extends CarApiTestBase {
     public static void setupUsers() {
         sInitialUserId = ActivityManager.getCurrentUser();
         Log.i(TAG, "Running test as user " + sInitialUserId);
-
-        sNewUserId = createNewUser("Main", /* isGuest= */ false).id;
+        setMaxSupportedUsers(8); // Total 6 users will be created for all tests
     }
 
     @AfterClass
     public static void cleanupUsers() {
+        setMaxSupportedUsers(sMaxNumberUsersBefore);
         switchUserDirectly(sInitialUserId);
 
-        if (sNewUserId == UserHandle.USER_NULL) {
-            Log.w(TAG, "No need to remove user" + sNewUserId);
-            return;
-        }
-
-        Log.i(TAG, "Switching back to " + sInitialUserId);
-        switchUserDirectly(sInitialUserId);
-
-        Log.i(TAG, "Removing user" + sNewUserId);
-        if (!sUserManager.removeUser(sNewUserId)) {
-            Log.wtf(TAG, "Failed to remove user " + sNewUserId);
+        for (int i = 0; i < sCreatedUsers.size(); i++) {
+            int id = sCreatedUsers.get(i);
+            Log.d(TAG, "removeCreatedUsers: " + id);
+            if (!sUserManager.removeUser(id)) {
+                Log.wtf(TAG, "Failed to remove user " + id);
+            }
         }
     }
 
@@ -107,8 +113,8 @@ public final class CarUserManagerTest extends CarApiTestBase {
 
     @Test
     public void testLifecycleListener() throws Exception {
-        int oldUserId = sInitialUserId;
-        int newUserId = sNewUserId;
+        int oldUserId = ActivityManager.getCurrentUser();
+        int newUserId = createNewUser("Test", /* isGuest= */ false).id;
 
         BlockingUserLifecycleListener startListener = BlockingUserLifecycleListener
                 .forSpecificEvents()
@@ -132,14 +138,16 @@ public final class CarUserManagerTest extends CarApiTestBase {
         // Switch while listener is registered
         switchUser(newUserId);
 
-        List<UserLifecycleEvent> startEvents = startListener.waitForEvents();
+        List<UserLifecycleEvent> startEvents  = startListener.waitForEvents();
         Log.d(TAG, "Received start events: " + startEvents);
 
         // Make sure listener callback was executed in the proper threaqd
         assertWithMessage("not executed on executor").that(executedRef.get()).isTrue();
 
         // Assert user ids
-        for (UserLifecycleEvent event : startEvents) {
+        List<UserLifecycleEvent> expectedEvents = startListener.waitForEvents();
+        Log.d(TAG, "Received expected events: " + expectedEvents);
+        for (UserLifecycleEvent event : expectedEvents) {
             assertWithMessage("wrong userId on %s", event)
                 .that(event.getUserId()).isEqualTo(newUserId);
             assertWithMessage("wrong userHandle on %s", event)
@@ -166,8 +174,8 @@ public final class CarUserManagerTest extends CarApiTestBase {
         Log.d(TAG, "registering stop listener: " + stopListener);
         mCarUserManager.addListener(mExecutor, stopListener);
 
-        // Switch back to the previous user
-        switchUser(oldUserId);
+        // Switch back to the initial user
+        switchUser(sInitialUserId);
 
         if (TEST_STOP) {
             // Must force stop the user, otherwise it can take minutes for its process to finish
@@ -188,8 +196,7 @@ public final class CarUserManagerTest extends CarApiTestBase {
             Log.w(TAG, "NOT testing user stop events");
         }
 
-        // Make sure unregistered listener din't receive any more events
-
+        // Make sure unregistered listener didn't receive any more events
         List<UserLifecycleEvent> allStartEvents = startListener.getAllReceivedEvents();
         Log.d(TAG, "All start events: " + startEvents);
         assertThat(allStartEvents).containsAllIn(startEvents).inOrder();
@@ -198,13 +205,129 @@ public final class CarUserManagerTest extends CarApiTestBase {
         mCarUserManager.removeListener(stopListener);
     }
 
+    /**
+     * Tests resume behavior when current user is ephemeral guest, a new guest user should be
+     * created and switched to.
+     */
+    @Test
+    @FlakyTest // TODO(b/158050171) remove once process is stable on user switching.
+    public void testGuestUserResumeToNewGuestUser() throws Exception {
+        // Create new guest user
+        UserInfo guestUser = createNewUser("Guest", /* isGuestUser= */ true);
+        int guestUserId = guestUser.id;
+
+        // Wait for this user to be active
+        BlockingUserLifecycleListener listener1 = BlockingUserLifecycleListener
+                .forSpecificEvents()
+                .forUser(guestUserId)
+                .setTimeout(SWITCH_TIMEOUT_MS)
+                .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED)
+                .build();
+        mCarUserManager.addListener(Runnable::run, listener1);
+        switchUser(guestUserId);
+        listener1.waitForEvents();
+        mCarUserManager.removeListener(listener1);
+
+        BlockingUserLifecycleListener listener2 = BlockingUserLifecycleListener
+                .forSpecificEvents()
+                .forPreviousUser(guestUserId)
+                .setTimeout(SWITCH_TIMEOUT_MS)
+                .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_SWITCHING)
+                .build();
+        // Make sure listener callback was executed in the proper threaqd
+        mCarUserManager.addListener(Runnable::run, listener2);
+
+        // Emulate suspend to RAM
+        suspendToRamAndResume();
+        UserLifecycleEvent event = listener2.waitForEvents().get(0);
+
+        int newGuestId = event.getUserId();
+        sCreatedUsers.add(newGuestId);
+
+        assertWithMessage("wrong user on event %s", event).that(newGuestId)
+                .isNotEqualTo(guestUserId);
+        assertWithMessage("wrong current user").that(newGuestId)
+                .isEqualTo(ActivityManager.getCurrentUser());
+        UserInfo newGuest = sUserManager.getUserInfo(newGuestId);
+        assertWithMessage("new user (%s) is not a guest", newGuest.toFullString())
+                .that(newGuest.isGuest()).isTrue();
+        assertWithMessage("wrong name on new guest(%s)", newGuest.toFullString())
+                .that(newGuest.name).isNotEqualTo(guestUser.name);
+        mCarUserManager.removeListener(listener2);
+    }
+
+    /**
+     * Tests resume behavior when current user is guest guest but with secured lock screen,
+     * resume to same guest user.
+     */
+    @Test
+    @FlakyTest // TODO(b/158050171) remove once process is stable on user switching.
+    public void testSecuredGuestUserResumeToSameUser() throws Exception {
+        // Create new guest user
+        UserInfo guestUser = createNewUser("Guest", /* isGuestUser= */ true);
+        int guestUserId = guestUser.id;
+
+        // Wait for this user to be active
+        BlockingUserLifecycleListener listener = BlockingUserLifecycleListener
+                .forSpecificEvents()
+                .forUser(guestUserId)
+                .setTimeout(SWITCH_TIMEOUT_MS)
+                .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED)
+                .build();
+        mCarUserManager.addListener(Runnable::run, listener);
+
+        switchUser(guestUserId);
+
+        listener.waitForEvents();
+        mCarUserManager.removeListener(listener);
+
+        setUserLockCredentials(guestUserId, PIN);
+        try {
+            // Emulate suspend to RAM
+            suspendToRamAndResume();
+
+            assertWithMessage("not resumed to previous user: %s", guestUser)
+                    .that(ActivityManager.getCurrentUser()).isEqualTo(guestUserId);
+        } finally {
+            clearUserLockCredentials(guestUserId, PIN);
+        }
+
+    }
+
+    /**
+     * Tests resume behavior when current user is persistent user.
+     */
+    @Test
+    @FlakyTest // TODO(b/158050171) remove once process is stable on user switching.
+    public void testPersistentUserResumeToUser() throws Exception {
+        int newUserId = createNewUser("Test", /* isGuest= */ false).id;
+        BlockingUserLifecycleListener listener = BlockingUserLifecycleListener
+                .forSpecificEvents()
+                .forUser(newUserId)
+                .setTimeout(SWITCH_TIMEOUT_MS)
+                .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED)
+                .build();
+        mCarUserManager.addListener(Runnable::run, listener);
+        switchUser(newUserId);
+        listener.waitForEvents();
+
+        // Emulate suspend to RAM
+        suspendToRamAndResume();
+
+        listener.waitForEvents();
+        assertWithMessage("not resumed to previous user: %s", newUserId)
+                .that(ActivityManager.getCurrentUser()).isEqualTo(newUserId);
+
+        mCarUserManager.removeListener(listener);
+    }
+
     @NonNull
     private static UserInfo createNewUser(String name, boolean isGuest) {
         name = "CarUserManagerTest." + name;
         Log.i(TAG, "Creating new user " + name);
         UserInfo newUser = isGuest ? sUserManager.createGuest(sContext, name)
                 : sUserManager.createUser(name, /* flags= */ 0);
-
+        sCreatedUsers.add(newUser.id);
         Log.i(TAG, "Created new user: " + newUser.toFullString());
         return newUser;
     }
