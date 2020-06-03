@@ -123,10 +123,13 @@ public final class AppBlockingPackageInfo implements Parcelable {
 
     public static final Parcelable.Creator<AppBlockingPackageInfo> CREATOR =
             new Parcelable.Creator<AppBlockingPackageInfo>() {
+
+                @Override
                 public AppBlockingPackageInfo createFromParcel(Parcel in) {
                     return new AppBlockingPackageInfo(in);
                 }
 
+                @Override
                 public AppBlockingPackageInfo[] newArray(int size) {
                     return new AppBlockingPackageInfo[size];
                 }
