@@ -17,8 +17,12 @@
 #ifndef ANDROID_AUTOMOTIVE_EVS_V1_1_CAMERAUSAGESTATS_H
 #define ANDROID_AUTOMOTIVE_EVS_V1_1_CAMERAUSAGESTATS_H
 
+#include <queue>
+#include <unordered_map>
+
 #include <inttypes.h>
 
+#include <android/hardware/automotive/evs/1.1/types.h>
 #include <android-base/result.h>
 #include <android-base/stringprintf.h>
 #include <utils/Mutex.h>
@@ -89,15 +93,43 @@ public:
                 "%sFrames Received: %" PRId64 "\n"
                 "%sFrames Returned: %" PRId64 "\n"
                 "%sFrames Ignored : %" PRId64 "\n"
-                "%sFrames Skipped To Sync: %" PRId64 "\n\n",
+                "%sFrames Skipped To Sync: %" PRId64 "\n"
+                "%sFrames First Roundtrip: %" PRId64 "\n"
+                "%sFrames Peak Roundtrip: %" PRId64 "\n"
+                "%sFrames Average Roundtrip: %f\n"
+                "%sPeak Number of Clients: %" PRId32 "\n\n",
                 indent, ns2ms(timestamp),
                 indent, framesReceived,
                 indent, framesReturned,
                 indent, framesIgnored,
-                indent, framesSkippedToSync);
+                indent, framesSkippedToSync,
+                indent, framesFirstRoundtripLatency,
+                indent, framesPeakRoundtripLatency,
+                indent, framesAvgRoundtripLatency,
+                indent, peakClientsCount);
 
         return buffer;
     }
+};
+
+
+struct BufferRecord {
+    BufferRecord(int64_t timestamp) :
+        timestamp(timestamp),
+        sum(0),
+        peak(0) {}
+
+    // Recent processing time
+    std::queue<int32_t> history;
+
+    // Timestamp on the buffer arrival
+    int64_t timestamp;
+
+    // Sum of processing times
+    int64_t sum;
+
+    // Peak processing time
+    int64_t peak;
 };
 
 
@@ -122,18 +154,34 @@ private:
     // Usage statistics to collect
     CameraUsageStatsRecord mStats GUARDED_BY(mMutex);
 
+    // Frame buffer histories
+    std::unordered_map<int, BufferRecord> mBufferHistory GUARDED_BY(mMutex);
+
 public:
     void framesReceived(int n = 1) EXCLUDES(mMutex);
     void framesReturned(int n = 1) EXCLUDES(mMutex);
+    void framesReceived(
+            const hardware::hidl_vec<::android::hardware::automotive::evs::V1_1::BufferDesc>& bufs
+        ) EXCLUDES(mMutex);
+    void framesReturned(
+            const hardware::hidl_vec<::android::hardware::automotive::evs::V1_1::BufferDesc>& bufs
+        ) EXCLUDES(mMutex);
     void framesIgnored(int n = 1) EXCLUDES(mMutex);
     void framesSkippedToSync(int n = 1) EXCLUDES(mMutex);
     void eventsReceived() EXCLUDES(mMutex);
     int64_t getTimeCreated() const EXCLUDES(mMutex);
     int64_t getFramesReceived() const EXCLUDES(mMutex);
     int64_t getFramesReturned() const EXCLUDES(mMutex);
+    void updateNumClients(size_t n) EXCLUDES(mMutex);
+    void updateFrameStatsOnArrival(
+            const hardware::hidl_vec<::android::hardware::automotive::evs::V1_1::BufferDesc>& bufs
+        ) REQUIRES(mMutex);
+    void updateFrameStatsOnReturn(
+            const hardware::hidl_vec<::android::hardware::automotive::evs::V1_1::BufferDesc>& bufs
+        ) REQUIRES(mMutex);
 
     // Returns the statistics collected so far
-    CameraUsageStatsRecord snapshot() const EXCLUDES(mMutex);
+    CameraUsageStatsRecord snapshot() EXCLUDES(mMutex);
 
     // Reports the usage statistics
     android::base::Result<void> writeStats() const EXCLUDES(mMutex);
