@@ -27,7 +27,7 @@ import android.util.StatsEvent;
 import com.android.car.CarStatsLog;
 import com.android.car.stats.VmsClientLogger.ConnectionState;
 import com.android.internal.annotations.GuardedBy;
-import com.android.internal.os.BackgroundThread;
+import com.android.internal.util.ConcurrentUtils;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -102,7 +102,7 @@ public class CarStatsService {
         mStatsManager.setPullAtomCallback(
                 CarStatsLog.VMS_CLIENT_STATS,
                 metadata,
-                BackgroundThread.getExecutor(),
+                ConcurrentUtils.DIRECT_EXECUTOR,
                 (atomTag, data) -> pullVmsClientStats(atomTag, data)
         );
     }
