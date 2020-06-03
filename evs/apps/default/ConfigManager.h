@@ -16,8 +16,9 @@
 #ifndef CONFIG_MANAGER_H
 #define CONFIG_MANAGER_H
 
-#include <vector>
+#include <cerrno>
 #include <string>
+#include <vector>
 
 #include <system/graphics-base.h>
 
@@ -78,16 +79,27 @@ public:
 
     const std::vector<CameraInfo>& getCameras() const   { return mCameras; };
 
-    bool  setActiveDisplayId(int displayId) {
-        if (displayId < 0 or displayId > mDisplays.size()) {
-            printf("Display %d is invalid.  Current active display is display %d.",
-                   displayId, mActiveDisplayId);
-            return false;
+    int  setActiveDisplayId(int displayId) {
+        if (displayId == -1) {
+            // -1 is reserved for the default display, which is the first
+            // display in config.json's display list
+            printf("Uses a display with id %d", mDisplays[0].port);
+            mActiveDisplayId = mDisplays[0].port;
+            return mActiveDisplayId;
+        } else if (displayId < 0) {
+            printf("Display %d is invalid.", displayId);
+            return -ENOENT;
+        } else {
+            for (auto display : mDisplays) {
+                if (display.port == displayId) {
+                    mActiveDisplayId = displayId;
+                    return mActiveDisplayId;
+                }
+            }
+
+            printf("Display %d does not exist.", displayId);
+            return -ENOENT;
         }
-
-        mActiveDisplayId = displayId;
-
-        return true;
     }
     const std::vector<DisplayInfo>& getDisplays() const { return mDisplays; };
     const DisplayInfo& getActiveDisplay() const { return mDisplays[mActiveDisplayId]; };

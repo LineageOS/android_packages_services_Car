@@ -94,7 +94,7 @@ int main(int argc, char** argv)
     bool useVehicleHal = true;
     bool printHelp = false;
     const char* evsServiceName = "default";
-    int displayId = 1;
+    int displayId = -1;
     bool useExternalMemory = false;
     android_pixel_format_t extMemoryFormat = HAL_PIXEL_FORMAT_RGBA_8888;
     for (int i=1; i< argc; i++) {
@@ -133,7 +133,8 @@ int main(int argc, char** argv)
         printf("  --test\n\tDo not talk to Vehicle Hal, but simulate 'reverse' instead\n");
         printf("  --hw\n\tBypass EvsManager by connecting directly to EvsEnumeratorHw\n");
         printf("  --mock\n\tConnect directly to EvsEnumeratorHw-Mock\n");
-        printf("  --display\n\tSpecify the display to use\n");
+        printf("  --display\n\tSpecify the display to use.  If this is not set, the first"
+                              "display in config.json's list will be used.\n");
         printf("  --extmem  <format>\n\t"
                "Application allocates buffers to capture camera frames.  "
                "Available format strings are (case insensitive):\n");
@@ -153,7 +154,7 @@ int main(int argc, char** argv)
     ConfigManager config;
     if (!config.initialize("/system/etc/automotive/evs/config.json")) {
         LOG(ERROR) << "Missing or improper configuration for the EVS application.  Exiting.";
-        return 1;
+        return EXIT_FAILURE;
     }
 
     // Set thread pool size to one to avoid concurrent events from the HAL.
@@ -171,19 +172,25 @@ int main(int argc, char** argv)
     if (pEvs.get() == nullptr) {
         LOG(ERROR) << "getService(" << evsServiceName
                    << ") returned NULL.  Exiting.";
-        return 1;
+        return EXIT_FAILURE;
     }
 
     // Request exclusive access to the EVS display
     LOG(INFO) << "Acquiring EVS Display";
 
     // We'll use an available display device.
+    displayId = config.setActiveDisplayId(displayId);
+    if (displayId < 0) {
+        PLOG(ERROR) << "EVS Display is unknown.  Exiting.";
+        return EXIT_FAILURE;
+    }
+
     android::sp<IEvsDisplay> pDisplay = pEvs->openDisplay_1_1(displayId);
     if (pDisplay.get() == nullptr) {
         LOG(ERROR) << "EVS Display unavailable.  Exiting.";
-        return 1;
+        return EXIT_FAILURE;
     }
-    config.setActiveDisplayId(displayId);
+
     config.useExternalMemory(useExternalMemory);
     config.setExternalMemoryFormat(extMemoryFormat);
 
@@ -194,13 +201,13 @@ int main(int argc, char** argv)
         pVnet = IVehicle::getService();
         if (pVnet.get() == nullptr) {
             LOG(ERROR) << "Vehicle HAL getService returned NULL.  Exiting.";
-            return 1;
+            return EXIT_FAILURE;
         } else {
             // Register for vehicle state change callbacks we care about
             // Changes in these values are what will trigger a reconfiguration of the EVS pipeline
             if (!subscribeToVHal(pVnet, pEvsListener, VehicleProperty::GEAR_SELECTION)) {
                 LOG(ERROR) << "Without gear notification, we can't support EVS.  Exiting.";
-                return 1;
+                return EXIT_FAILURE;
             }
             if (!subscribeToVHal(pVnet, pEvsListener, VehicleProperty::TURN_SIGNAL_STATE)) {
                 LOG(WARNING) << "Didn't get turn signal notifications, so we'll ignore those.";
@@ -215,7 +222,7 @@ int main(int argc, char** argv)
     EvsStateControl *pStateController = new EvsStateControl(pVnet, pEvs, pDisplay, config);
     if (!pStateController->startUpdateLoop()) {
         LOG(ERROR) << "Initial configuration failed.  Exiting.";
-        return 1;
+        return EXIT_FAILURE;
     }
 
     // Run forever, reacting to events as necessary
@@ -226,5 +233,5 @@ int main(int argc, char** argv)
     // One known example is if another process preempts our registration for our service name.
     LOG(ERROR) << "EVS Listener stopped.  Exiting.";
 
-    return 0;
+    return EXIT_SUCCESS;
 }
