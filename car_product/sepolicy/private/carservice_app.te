@@ -76,3 +76,9 @@ unix_socket_connect(carservice_app, dumpstate, dumpstate)
 get_prop(carservice_app, vehicle_hal_prop)
 
 carwatchdog_client_domain(carservice_app)
+
+# For ActivityBlockingActiviy
+allow carservice_app gpu_device:chr_file rw_file_perms;
+allow carservice_app gpu_device:dir r_dir_perms;
+allow carservice_app gpu_service:service_manager find;
+binder_call(carservice_app, gpuservice)
