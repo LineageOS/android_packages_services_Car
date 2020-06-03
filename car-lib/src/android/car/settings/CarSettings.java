@@ -73,6 +73,22 @@ public class CarSettings {
                 "android.car.ENABLE_USER_SWITCH_DEVELOPER_MESSAGE";
 
         /**
+         * User id of the last foreground user
+         *
+         * @hide
+         */
+        public static final String LAST_ACTIVE_USER_ID =
+                        "android.car.LAST_ACTIVE_USER_ID";
+
+        /**
+         * User id of the last persistent (i.e, not counting ephemeral guests) foreground user
+         *
+         * @hide
+         */
+        public static final String LAST_ACTIVE_PERSISTENT_USER_ID =
+                        "android.car.LAST_ACTIVE_PERSISTENT_USER_ID";
+
+        /**
          * Defines global runtime overrides to system bar policy.
          *
          * See {@link com.android.systemui.wm.BarControlPolicy} for value format.
