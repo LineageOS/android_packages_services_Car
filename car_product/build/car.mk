@@ -103,6 +103,10 @@ PRODUCT_PACKAGES += \
 # System Server components
 # Order is important: if X depends on Y, then Y should precede X on the list.
 PRODUCT_SYSTEM_SERVER_JARS += car-frameworks-service
+# TODO: make the order optimal by appending 'car-frameworks-service' at the end
+# after its dependency 'services'. Currently the order is violated because this
+# makefile is included before AOSP makefile.
+PRODUCT_BROKEN_SUBOPTIMAL_ORDER_OF_SYSTEM_SERVER_JARS := true
 
 # Boot animation
 PRODUCT_COPY_FILES += \
