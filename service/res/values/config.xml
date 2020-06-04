@@ -44,6 +44,11 @@
     <!--  Service responsible for displaying information on the car instrument cluster. -->
     <string name="instrumentClusterRendererService" translatable="false">android.car.cluster/.ClusterRenderingService</string>
 
+    <!--  Service responsible for handling the rotary controller input. This service will start
+          on boot or on user switch. Set this string to empty if you don't want to start this
+          service. -->
+    <string name="rotaryService" translatable="false">com.android.car.rotary/com.android.car.rotary.RotaryService</string>
+
     <!--  Whether to enable Activity blocking for safety. When Activity blocking is enabled,
           only whitelisted safe Activities will be allowed while car is not parked. -->
     <bool name="enableActivityBlockingForSafety">true</bool>
