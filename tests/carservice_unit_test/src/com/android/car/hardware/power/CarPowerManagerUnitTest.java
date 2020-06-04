@@ -33,9 +33,11 @@ import android.util.Log;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import com.android.car.CarLocalServices;
 import com.android.car.CarPowerManagementService;
 import com.android.car.MockedPowerHalService;
 import com.android.car.R;
+import com.android.car.SilentModeController;
 import com.android.car.hal.PowerHalService;
 import com.android.car.hal.PowerHalService.PowerState;
 import com.android.car.systeminterface.DisplayInterface;
@@ -69,6 +71,7 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
     private SystemInterface mSystemInterface;
     private CarPowerManagementService mService;
     private CarPowerManager mCarPowerManager;
+    private SilentModeController mSilentModeController;
 
     @Mock
     private Resources mResources;
@@ -91,6 +94,7 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
 
     @After
     public void tearDown() throws Exception {
+        CarLocalServices.removeServiceForTest(SilentModeController.class);
         if (mService != null) {
             mService.release();
         }
@@ -206,8 +210,11 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
                 + mResources.getBoolean(R.bool.config_disableUserSwitchDuringResume)
                 + ", maxGarageModeRunningDurationInSecs="
                 + mResources.getInteger(R.integer.maxGarageModeRunningDurationInSecs));
+        mSilentModeController = new SilentModeController(mContext, mSystemInterface,
+                mVoiceInteractionManagerService, "");
+        CarLocalServices.addService(SilentModeController.class, mSilentModeController);
         mService = new CarPowerManagementService(mContext, mResources, mPowerHal,
-                mSystemInterface, null, null, null, mVoiceInteractionManagerService);
+                mSystemInterface, null, null, null);
         mService.init();
         mService.setShutdownTimersForTest(0, 0);
         assertStateReceived(MockedPowerHalService.SET_WAIT_FOR_VHAL, 0);
@@ -223,7 +230,8 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
      */
     private void setPowerOn() throws Exception {
         setPowerState(VehicleApPowerStateReq.ON, 0);
-        assertThat(mDisplayInterface.waitForDisplayStateChange(WAIT_TIMEOUT_MS)).isTrue();
+        int[] state = mPowerHal.waitForSend(WAIT_TIMEOUT_MS);
+        assertThat(state[0]).isEqualTo(PowerHalService.SET_ON);
     }
 
     /**

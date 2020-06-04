@@ -69,6 +69,12 @@ allow carservice_app statsd:binder call;
 r_dir_file(carservice_app, sysfs_fs_ext4)
 r_dir_file(carservice_app, sysfs_fs_f2fs)
 
+# Allow reading and writing /sys/power/
+allow carservice_app sysfs_power:file rw_file_perms;
+
+# Allow reading system property sys.boot.reason
+allow carservice_app system_boot_reason_prop:file { getattr open read map };
+
 set_prop(carservice_app, ctl_start_prop)
 set_prop(carservice_app, ctl_stop_prop)
 unix_socket_connect(carservice_app, dumpstate, dumpstate)

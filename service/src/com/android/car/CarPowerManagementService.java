@@ -45,7 +45,6 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
-import android.os.ServiceManager;
 import android.os.SystemClock;
 import android.os.SystemProperties;
 import android.os.UserHandle;
@@ -62,7 +61,6 @@ import com.android.car.user.CarUserNoticeService;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.app.IVoiceInteractionManagerService;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -152,8 +150,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private final CarUserService mUserService;
     private final InitialUserSetter mInitialUserSetter;
 
-    private final IVoiceInteractionManagerService mVoiceInteractionManagerService;
-
     private final WifiManager mWifiManager;
     private final AtomicFile mWifiStateFile;
 
@@ -188,16 +184,13 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         this(context, context.getResources(), powerHal, systemInterface, UserManager.get(context),
                 carUserService, new InitialUserSetter(context,
                         (u) -> carUserService.setInitialUser(u),
-                        context.getString(R.string.default_guest_name)),
-                IVoiceInteractionManagerService.Stub.asInterface(
-                        ServiceManager.getService(Context.VOICE_INTERACTION_MANAGER_SERVICE)));
+                        context.getString(R.string.default_guest_name)));
     }
 
     @VisibleForTesting
     public CarPowerManagementService(Context context, Resources resources, PowerHalService powerHal,
             SystemInterface systemInterface, UserManager userManager, CarUserService carUserService,
-            InitialUserSetter initialUserSetter,
-            IVoiceInteractionManagerService voiceInteractionService) {
+            InitialUserSetter initialUserSetter) {
         mContext = context;
         mHal = powerHal;
         mSystemInterface = systemInterface;
@@ -217,7 +210,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
         mUserService = carUserService;
         mInitialUserSetter = initialUserSetter;
-        mVoiceInteractionManagerService = voiceInteractionService;
         mWifiManager = context.getSystemService(WifiManager.class);
         mWifiStateFile = new AtomicFile(
                 new File(mSystemInterface.getSystemCarDir(), WIFI_STATE_FILENAME));
@@ -332,11 +324,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             }
             // now real power change happens. Whatever was queued before should be all cancelled.
             releaseTimerLocked();
+            mCurrentState = state;
         }
         mHandler.cancelProcessingComplete();
         Slog.i(TAG, "setCurrentState " + state.toString());
         CarStatsLogHelper.logPowerState(state.mState);
-        mCurrentState = state;
         switch (state.mState) {
             case CpmsState.WAIT_FOR_VHAL:
                 handleWaitForVhal(state);
@@ -432,8 +424,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 }
             }
         }
-
-        mSystemInterface.setDisplayState(true);
         sendPowerManagerEvent(CarPowerStateListener.ON);
 
         mHal.sendOn();
@@ -443,8 +433,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         } catch (Exception e) {
             Slog.e(TAG, "Could not switch user on resume", e);
         }
-
-        setVoiceInteractionDisabled(false);
     }
 
     @VisibleForTesting // Ideally it should not be exposed, but it speeds up the unit tests
@@ -585,8 +573,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     private void handleShutdownPrepare(CpmsState newState) {
-        setVoiceInteractionDisabled(true);
-        mSystemInterface.setDisplayState(false);
         // Shutdown on finish if the system doesn't support deep sleep or doesn't allow it.
         synchronized (mLock) {
             mShutdownOnFinish = mShutdownOnNextSuspend
@@ -606,7 +592,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     // Simulate system shutdown to Deep Sleep
     private void simulateShutdownPrepare() {
-        mSystemInterface.setDisplayState(false);
         Slog.i(TAG, "starting shutdown prepare");
         sendPowerManagerEvent(CarPowerStateListener.SHUTDOWN_PREPARE);
         mHal.sendShutdownPrepare();
@@ -653,8 +638,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 throw new AssertionError("Should not return from PowerManager.reboot()");
             }
         }
-        setVoiceInteractionDisabled(true);
-
         // To make Kernel implementation simpler when going into sleep.
         disableWifi();
 
@@ -665,14 +648,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             doHandleDeepSleep(simulatedMode);
         }
         mShutdownOnNextSuspend = false;
-    }
-
-    private void setVoiceInteractionDisabled(boolean disabled) {
-        try {
-            mVoiceInteractionManagerService.setDisabled(disabled);
-        } catch (RemoteException e) {
-            Slog.w(TAG, "setVoiceIntefactionDisabled(" + disabled + ") failed", e);
-        }
     }
 
     private void restoreWifi() {

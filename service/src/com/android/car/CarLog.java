@@ -42,6 +42,7 @@ public class CarLog {
     public static final String TAG_PROPERTY = "CAR.PROPERTY";
     public static final String TAG_SENSOR = "CAR.SENSOR";
     public static final String TAG_SERVICE = "CAR.SERVICE";
+    public static final String TAG_SILENT = "CAR.SILENT";
     public static final String TAG_STORAGE = "CAR.STORAGE";
     public static final String TAG_SYS = "CAR.SYS";
     public static final String TAG_TEST = "CAR.TEST";
