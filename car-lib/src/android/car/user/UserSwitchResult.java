@@ -38,63 +38,50 @@ public final class UserSwitchResult implements Parcelable {
 
     /**
      * When user switch is successful for both HAL and Android.
-     *
-     * @hide
      */
-    public static final int STATUS_SUCCESSFUL = 1;
+    public static final int STATUS_SUCCESSFUL = CommonResults.STATUS_SUCCESSFUL;
 
     /**
      * When user switch is only successful for Hal but not for Android. Hal user switch rollover
      * message have been sent.
-     *
-     * @hide
      */
-    public static final int STATUS_ANDROID_FAILURE = 2;
+    public static final int STATUS_ANDROID_FAILURE = CommonResults.STATUS_ANDROID_FAILURE;
 
     /**
      * When user switch fails for HAL. User switch for Android is not called.
-     *
-     * @hide
      */
-    public static final int STATUS_HAL_FAILURE = 3;
+    public static final int STATUS_HAL_FAILURE = CommonResults.STATUS_HAL_FAILURE;
 
     /**
      * When user switch fails for HAL for some internal error. User switch for Android is not
      * called.
-     *
-     * @hide
      */
-    public static final int STATUS_HAL_INTERNAL_FAILURE = 4;
-
-    /**
-     * When target user is same as current user.
-     *
-     * @hide
-     */
-    public static final int STATUS_ALREADY_REQUESTED_USER = 5;
-
-    /**
-     * When another user switch request for the same target user is in process.
-     *
-     * @hide
-     */
-    public static final int STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO = 6;
-
-    /**
-     * When another user switch request for a new different target user is received. Previous
-     * request is abandoned.
-     *
-     * @hide
-     */
-    public static final int STATUS_TARGET_USER_ABANDONED_DUE_TO_A_NEW_REQUEST = 7;
+    public static final int STATUS_HAL_INTERNAL_FAILURE = CommonResults.STATUS_HAL_INTERNAL_FAILURE;
 
     /**
      * When given parameters or environment states are invalid for switching user. HAL or Android
      * user switch is not requested.
-     *
-     * @hide
      */
-    public static final int STATUS_INVALID_REQUEST = 8;
+    public static final int STATUS_INVALID_REQUEST = CommonResults.STATUS_INVALID_REQUEST;
+
+    /**
+     * When target user is same as current user.
+     */
+    public static final int STATUS_ALREADY_REQUESTED_USER =
+            CommonResults.LAST_COMMON_STATUS + 1;
+
+    /**
+     * When another user switch request for the same target user is in process.
+     */
+    public static final int STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO =
+            CommonResults.LAST_COMMON_STATUS + 2;
+
+    /**
+     * When another user switch request for a new different target user is received. Previous
+     * request is abandoned.
+     */
+    public static final int STATUS_TARGET_USER_ABANDONED_DUE_TO_A_NEW_REQUEST =
+            CommonResults.LAST_COMMON_STATUS + 3;
 
     /**
      * Gets the user switch result status.
