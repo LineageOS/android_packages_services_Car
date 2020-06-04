@@ -17,6 +17,7 @@
 package android.car.userlib;
 
 import static android.car.userlib.UserHalHelper.CREATE_USER_PROPERTY;
+import static android.car.userlib.UserHalHelper.SWITCH_USER_PROPERTY;
 import static android.car.userlib.UserHalHelper.USER_IDENTIFICATION_ASSOCIATION_PROPERTY;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue.ASSOCIATE_CURRENT_USER;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue.DISASSOCIATE_ALL_USERS;
@@ -49,6 +50,8 @@ import android.hardware.automotive.vehicle.V2_0.CreateUserRequest;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
+import android.hardware.automotive.vehicle.V2_0.SwitchUserMessageType;
+import android.hardware.automotive.vehicle.V2_0.SwitchUserRequest;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociation;
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType;
@@ -981,6 +984,84 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
                         ).inOrder();
         assertWithMessage("wrong name %s", propValue).that(propValue.value.stringValue)
                 .isEqualTo("Dude");
+    }
+
+    @Test
+    public void testSwitchUserRequestToVehiclePropValue_null() {
+        assertThrows(NullPointerException.class,
+                () -> UserHalHelper.toVehiclePropValue((SwitchUserRequest) null));
+    }
+
+    @Test
+    public void testSwitchUserRequestToVehiclePropValue_emptyRequest() {
+        SwitchUserRequest request = new SwitchUserRequest();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> UserHalHelper.toVehiclePropValue(request));
+    }
+
+    @Test
+    public void testSwitchUserRequestToVehiclePropValue_missingMessageType() {
+        SwitchUserRequest request = new SwitchUserRequest();
+        request.requestId = 42;
+        android.hardware.automotive.vehicle.V2_0.UserInfo user10 =
+                new android.hardware.automotive.vehicle.V2_0.UserInfo();
+        user10.userId = 10;
+        request.usersInfo.numberUsers = 1;
+        request.usersInfo.existingUsers.add(user10);
+        request.usersInfo.currentUser = user10;
+        request.targetUser = user10;
+
+        assertThrows(IllegalArgumentException.class,
+                () -> UserHalHelper.toVehiclePropValue(request));
+    }
+
+    @Test
+    public void testSwitchUserRequestToVehiclePropValue_incorrectMessageType() {
+        SwitchUserRequest request = new SwitchUserRequest();
+        request.requestId = 42;
+        request.messageType = -1;
+        android.hardware.automotive.vehicle.V2_0.UserInfo user10 =
+                new android.hardware.automotive.vehicle.V2_0.UserInfo();
+        user10.userId = 10;
+        request.usersInfo.numberUsers = 1;
+        request.usersInfo.existingUsers.add(user10);
+        request.usersInfo.currentUser = user10;
+        request.targetUser = user10;
+
+        assertThrows(IllegalArgumentException.class,
+                () -> UserHalHelper.toVehiclePropValue(request));
+    }
+
+    @Test
+    public void tesSwitchUserRequestToVehiclePropValue_ok() {
+        SwitchUserRequest request = new SwitchUserRequest();
+        request.requestId = 42;
+        android.hardware.automotive.vehicle.V2_0.UserInfo user10 =
+                new android.hardware.automotive.vehicle.V2_0.UserInfo();
+        user10.userId = 10;
+        user10.flags = UserFlags.ADMIN;
+        // existing users
+        request.usersInfo.numberUsers = 1;
+        request.usersInfo.existingUsers.add(user10);
+        // current user
+        request.usersInfo.currentUser = user10;
+        // user to remove
+        request.targetUser = user10;
+        request.messageType = SwitchUserMessageType.ANDROID_SWITCH;
+
+        VehiclePropValue propValue = UserHalHelper.toVehiclePropValue(request);
+
+        assertWithMessage("wrong prop on %s", propValue).that(propValue.prop)
+                .isEqualTo(SWITCH_USER_PROPERTY);
+        assertWithMessage("wrong int32values on %s", propValue).that(propValue.value.int32Values)
+                .containsExactly(42, // request id
+                        SwitchUserMessageType.ANDROID_SWITCH, // message type
+                        10, UserFlags.ADMIN, // target user
+                        10, UserFlags.ADMIN, // current user
+                        1, // number of users
+                        10, UserFlags.ADMIN  // existing user 1
+                        ).inOrder();
     }
 
     @Test
