@@ -15,14 +15,21 @@
  */
 #define LOG_TAG "SurroundViewService"
 
+#include "SurroundView2dSession.h"
+
 #include <android-base/logging.h>
 #include <android/hardware_buffer.h>
+#include <system/camera_metadata.h>
 #include <utils/SystemClock.h>
 
-#include "SurroundView2dSession.h"
-#include "CoreLibSetupHelper.h"
+#include <thread>
 
-using namespace android_auto::surround_view;
+#include <android/hardware/camera/device/3.2/ICameraDevice.h>
+
+using ::android::hardware::automotive::evs::V1_0::EvsResult;
+using ::android::hardware::camera::device::V3_2::Stream;
+
+using GraphicsPixelFormat = ::android::hardware::graphics::common::V1_0::PixelFormat;
 
 namespace android {
 namespace hardware {
@@ -31,9 +38,87 @@ namespace sv {
 namespace V1_0 {
 namespace implementation {
 
+// TODO(b/158479099): There are a lot of redundant code between 2d and 3d.
+// Decrease the degree of redundancy.
+typedef struct {
+    int32_t id;
+    int32_t width;
+    int32_t height;
+    int32_t format;
+    int32_t direction;
+    int32_t framerate;
+} RawStreamConfig;
+
+static const size_t kStreamCfgSz = sizeof(RawStreamConfig);
 static const uint8_t kGrayColor = 128;
 static const int kNumChannels = 3;
 static const int kSv2dViewId = 0;
+
+SurroundView2dSession::FramesHandler::FramesHandler(
+    sp<IEvsCamera> pCamera, sp<SurroundView2dSession> pSession)
+    : mCamera(pCamera),
+      mSession(pSession) {}
+
+Return<void> SurroundView2dSession::FramesHandler::deliverFrame(
+    const BufferDesc_1_0& bufDesc_1_0) {
+    LOG(INFO) << "Ignores a frame delivered from v1.0 EVS service.";
+    mCamera->doneWithFrame(bufDesc_1_0);
+
+    return Void();
+}
+
+Return<void> SurroundView2dSession::FramesHandler::deliverFrame_1_1(
+    const hidl_vec<BufferDesc_1_1>& buffers) {
+    LOG(INFO) << "Received " << buffers.size() << " frames from the camera";
+    mSession->mSequenceId++;
+
+    // TODO(b/157498592): Use EVS frames for SV stitching.
+    mCamera->doneWithFrame_1_1(buffers);
+
+    // Notify the session that a new set of frames is ready
+    {
+        scoped_lock<mutex> lock(mSession->mAccessLock);
+        mSession->mFramesAvailable = true;
+    }
+    mSession->mFramesSignal.notify_all();
+
+    return Void();
+}
+
+Return<void> SurroundView2dSession::FramesHandler::notify(const EvsEventDesc& event) {
+    switch(event.aType) {
+        case EvsEventType::STREAM_STOPPED:
+        {
+            LOG(INFO) << "Received a STREAM_STOPPED event from Evs.";
+
+            // TODO(b/158339680): There is currently an issue in EVS reference
+            // implementation that causes STREAM_STOPPED event to be delivered
+            // properly. When the bug is fixed, we should deal with this event
+            // properly in case the EVS stream is stopped unexpectly.
+            break;
+        }
+
+        case EvsEventType::PARAMETER_CHANGED:
+            LOG(INFO) << "Camera parameter " << std::hex << event.payload[0]
+                      << " is set to " << event.payload[1];
+            break;
+
+        // Below events are ignored in reference implementation.
+        case EvsEventType::STREAM_STARTED:
+        [[fallthrough]];
+        case EvsEventType::FRAME_DROPPED:
+        [[fallthrough]];
+        case EvsEventType::TIMEOUT:
+            LOG(INFO) << "Event " << std::hex << static_cast<unsigned>(event.aType)
+                      << "is received but ignored.";
+            break;
+        default:
+            LOG(ERROR) << "Unknown event id: " << static_cast<unsigned>(event.aType);
+            break;
+    }
+
+    return Void();
+}
 
 void SurroundView2dSession::processFrames() {
     while (true) {
@@ -44,22 +129,50 @@ void SurroundView2dSession::processFrames() {
                 break;
             }
 
-            mSignal.wait(lock, [this]() { return mFramesAvailable; });
+            mFramesSignal.wait(lock, [this]() {
+                return mFramesAvailable;
+            });
         }
 
         handleFrames(mSequenceId);
 
         {
             // Set the boolean to false to receive the next set of frames.
-            unique_lock<mutex> lock(mAccessLock);
+            scoped_lock<mutex> lock(mAccessLock);
             mFramesAvailable = false;
         }
     }
+
+    // Notify the SV client that no new results will be delivered.
+    LOG(DEBUG) << "Notify SvEvent::STREAM_STOPPED";
+    mStream->notify(SvEvent::STREAM_STOPPED);
+
+    {
+        scoped_lock<mutex> lock(mAccessLock);
+        mStreamState = STOPPED;
+        mStream = nullptr;
+        LOG(DEBUG) << "Stream marked STOPPED.";
+    }
 }
 
-SurroundView2dSession::SurroundView2dSession() :
-    mStreamState(STOPPED) {
+SurroundView2dSession::SurroundView2dSession(sp<IEvsEnumerator> pEvs)
+    : mEvs(pEvs),
+      mStreamState(STOPPED) {
     mEvsCameraIds = {"0", "1", "2", "3"};
+}
+
+SurroundView2dSession::~SurroundView2dSession() {
+    // In case the client did not call stopStream properly, we should stop the
+    // stream explicitly. Otherwise the process thread will take forever to
+    // join.
+    stopStream();
+
+    // Waiting for the process thread to finish the buffered frames.
+    if (mProcessThread.joinable()) {
+        mProcessThread.join();
+    }
+
+    mEvs->closeCamera(mCamera);
 }
 
 // Methods from ::android::hardware::automotive::sv::V1_0::ISurroundViewSession
@@ -86,14 +199,17 @@ Return<SvResult> SurroundView2dSession::startStream(
     }
     mStream = stream;
 
+    mSequenceId = 0;
+    startEvs();
+
+    // TODO(b/158131080): the STREAM_STARTED event is not implemented in EVS
+    // reference implementation yet. Once implemented, this logic should be
+    // moved to EVS notify callback.
     LOG(DEBUG) << "Notify SvEvent::STREAM_STARTED";
     mStream->notify(SvEvent::STREAM_STARTED);
 
     // Start the frame generation thread
     mStreamState = RUNNING;
-    mCaptureThread = thread([this](){
-        generateFrames();
-    });
 
     mProcessThread = thread([this]() {
         processFrames();
@@ -107,28 +223,12 @@ Return<void> SurroundView2dSession::stopStream() {
     unique_lock<mutex> lock(mAccessLock);
 
     if (mStreamState == RUNNING) {
-        // Tell the GenerateFrames loop we want it to stop
+        // Tell the processFrames loop to stop processing frames
         mStreamState = STOPPING;
 
-        // Block outside the mutex until the "stop" flag has been acknowledged
-        // We won't send any more frames, but the client might still get some
-        // already in flight
-        LOG(DEBUG) << __FUNCTION__ << "Waiting for stream thread to end...";
-        lock.unlock();
-
-        if (mCaptureThread.joinable()) {
-            mCaptureThread.join();
-        }
-
-        if (mProcessThread.joinable()) {
-            mProcessThread.join();
-        }
-
-        lock.lock();
-
-        mStreamState = STOPPED;
-        mStream = nullptr;
-        LOG(DEBUG) << "Stream marked STOPPED.";
+        // Stop the EVS stream asynchronizely
+        mCamera->stopVideoStream();
+        mFramesHandler = nullptr;
     }
 
     return {};
@@ -232,77 +332,49 @@ Return<void> SurroundView2dSession::projectCameraPoints(
     return {};
 }
 
-void SurroundView2dSession::generateFrames() {
-    mSequenceId = 0;
-
-    while(true) {
-        {
-            scoped_lock<mutex> lock(mAccessLock);
-
-            if (mStreamState != RUNNING) {
-                // Break out of our main thread loop
-                LOG(INFO) << "StreamState does not equal to RUNNING. "
-                          << "Exiting the loop";
-                break;
-            }
-
-            if (mOutputWidth != mConfig.width || mOutputHeight != mHeight) {
-                LOG(DEBUG) << "Config changed. Re-allocate memory."
-                           << " Old width: "
-                           << mOutputWidth
-                           << " Old height: "
-                           << mOutputHeight
-                           << " New width: "
-                           << mConfig.width
-                           << " New height: "
-                           << mHeight;
-                delete[] static_cast<char*>(mOutputPointer.data_pointer);
-                mOutputWidth = mConfig.width;
-                mOutputHeight = mHeight;
-                mOutputPointer.height = mOutputHeight;
-                mOutputPointer.width = mOutputWidth;
-                mOutputPointer.format = Format::RGB;
-                mOutputPointer.data_pointer =
-                    new char[mOutputHeight * mOutputWidth * kNumChannels];
-
-                if (!mOutputPointer.data_pointer) {
-                    LOG(ERROR) << "Memory allocation failed. Exiting.";
-                    break;
-                }
-
-                Size2dInteger size = Size2dInteger(mOutputWidth, mOutputHeight);
-                mSurroundView->Update2dOutputResolution(size);
-
-                mSvTexture = new GraphicBuffer(mOutputWidth,
-                                               mOutputHeight,
-                                               HAL_PIXEL_FORMAT_RGB_888,
-                                               1,
-                                               GRALLOC_USAGE_HW_TEXTURE,
-                                               "SvTexture");
-                if (mSvTexture->initCheck() == OK) {
-                    LOG(INFO) << "Successfully allocated Graphic Buffer";
-                } else {
-                    LOG(ERROR) << "Failed to allocate Graphic Buffer";
-                    break;
-                }
-            }
-        }
-
-        LOG(INFO) << "Notify all. SequenceId " << mSequenceId << " is ready";
-        mFramesAvailable = true;
-        mSignal.notify_all();
-
-        mSequenceId++;
-    }
-
-    // If we've been asked to stop, send an event to signal the actual
-    // end of stream
-    LOG(DEBUG) << "Notify SvEvent::STREAM_STOPPED";
-    mStream->notify(SvEvent::STREAM_STOPPED);
-}
-
 bool SurroundView2dSession::handleFrames(int sequenceId) {
     LOG(INFO) << __FUNCTION__ << "Handling sequenceId " << sequenceId << ".";
+
+    if (mOutputWidth != mConfig.width || mOutputHeight != mHeight) {
+        LOG(DEBUG) << "Config changed. Re-allocate memory."
+                   << " Old width: "
+                   << mOutputWidth
+                   << " Old height: "
+                   << mOutputHeight
+                   << " New width: "
+                   << mConfig.width
+                   << " New height: "
+                   << mHeight;
+        delete[] static_cast<char*>(mOutputPointer.data_pointer);
+        mOutputWidth = mConfig.width;
+        mOutputHeight = mHeight;
+        mOutputPointer.height = mOutputHeight;
+        mOutputPointer.width = mOutputWidth;
+        mOutputPointer.format = Format::RGB;
+        mOutputPointer.data_pointer =
+            new char[mOutputHeight * mOutputWidth * kNumChannels];
+
+        if (!mOutputPointer.data_pointer) {
+            LOG(ERROR) << "Memory allocation failed. Exiting.";
+            return false;
+        }
+
+        Size2dInteger size = Size2dInteger(mOutputWidth, mOutputHeight);
+        mSurroundView->Update2dOutputResolution(size);
+
+        mSvTexture = new GraphicBuffer(mOutputWidth,
+                                       mOutputHeight,
+                                       HAL_PIXEL_FORMAT_RGB_888,
+                                       1,
+                                       GRALLOC_USAGE_HW_TEXTURE,
+                                       "SvTexture");
+        if (mSvTexture->initCheck() == OK) {
+            LOG(INFO) << "Successfully allocated Graphic Buffer";
+        } else {
+            LOG(ERROR) << "Failed to allocate Graphic Buffer";
+            return false;
+        }
+    }
 
     if (mSurroundView->Get2dSurroundView(mInputPointers, &mOutputPointer)) {
         LOG(INFO) << "Get2dSurroundView succeeded";
@@ -456,7 +528,99 @@ bool SurroundView2dSession::initialize() {
         return false;
     }
 
+    if (!setupEvs()) {
+        LOG(ERROR) << "Failed to setup EVS components for 2d session";
+        return false;
+    }
+
     mIsInitialized = true;
+    return true;
+}
+
+bool SurroundView2dSession::setupEvs() {
+    // Setup for EVS
+    // TODO(b/157498737): We are using hard-coded camera "group0" here. It
+    // should be read from configuration file once I/O module is ready.
+    LOG(INFO) << "Requesting camera list";
+    mEvs->getCameraList_1_1([this] (hidl_vec<CameraDesc> cameraList) {
+        LOG(INFO) << "Camera list callback received " << cameraList.size();
+        for (auto&& cam : cameraList) {
+            LOG(INFO) << "Found camera " << cam.v1.cameraId;
+            if (cam.v1.cameraId == "group0") {
+                mCameraDesc = cam;
+            }
+        }
+    });
+
+    bool foundCfg = false;
+    std::unique_ptr<Stream> targetCfg(new Stream());
+
+    // This logic picks the configuration with the largest area that supports
+    // RGBA8888 format
+    int32_t maxArea = 0;
+    camera_metadata_entry_t streamCfgs;
+    if (!find_camera_metadata_entry(
+             reinterpret_cast<camera_metadata_t *>(mCameraDesc.metadata.data()),
+             ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS,
+             &streamCfgs)) {
+        // Stream configurations are found in metadata
+        RawStreamConfig *ptr = reinterpret_cast<RawStreamConfig *>(
+            streamCfgs.data.i32);
+        for (unsigned idx = 0; idx < streamCfgs.count; idx += kStreamCfgSz) {
+            if (ptr->direction ==
+                ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS_OUTPUT &&
+                ptr->format == HAL_PIXEL_FORMAT_RGBA_8888) {
+
+                if (ptr->width * ptr->height > maxArea) {
+                    targetCfg->id = ptr->id;
+                    targetCfg->width = ptr->width;
+                    targetCfg->height = ptr->height;
+
+                    // This client always wants below input data format
+                    targetCfg->format =
+                        static_cast<GraphicsPixelFormat>(
+                            HAL_PIXEL_FORMAT_RGBA_8888);
+
+                    maxArea = ptr->width * ptr->height;
+
+                    foundCfg = true;
+                }
+            }
+            ++ptr;
+        }
+    } else {
+        LOG(WARNING) << "No stream configuration data is found; "
+                     << "default parameters will be used.";
+    }
+
+    if (!foundCfg) {
+        LOG(INFO) << "No config was found";
+        targetCfg = nullptr;
+        return false;
+    }
+
+    string camId = mCameraDesc.v1.cameraId.c_str();
+    mCamera = mEvs->openCamera_1_1(camId.c_str(), *targetCfg);
+    if (mCamera == nullptr) {
+        LOG(ERROR) << "Failed to allocate EVS Camera interface for " << camId;
+        return false;
+    } else {
+        LOG(INFO) << "Camera " << camId << " is opened successfully";
+    }
+
+    return true;
+}
+
+bool SurroundView2dSession::startEvs() {
+    mFramesHandler = new FramesHandler(mCamera, this);
+    Return<EvsResult> result = mCamera->startVideoStream(mFramesHandler);
+    if (result != EvsResult::OK) {
+        LOG(ERROR) << "Failed to start video stream";
+        return false;
+    } else {
+        LOG(INFO) << "Video stream was started successfully";
+    }
+
     return true;
 }
 

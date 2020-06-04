@@ -76,8 +76,12 @@ Return<void> SurroundViewService::start2dSession(start2dSession_cb _hidl_cb) {
         LOG(WARNING) << "Only one 2d session is supported at the same time";
         _hidl_cb(nullptr, SvResult::INTERNAL_ERROR);
     } else {
-        sSurroundView2dSession = new SurroundView2dSession();
-        _hidl_cb(sSurroundView2dSession, SvResult::OK);
+        sSurroundView2dSession = new SurroundView2dSession(mEvs);
+        if (sSurroundView2dSession->initialize()) {
+            _hidl_cb(sSurroundView2dSession, SvResult::OK);
+        } else {
+            _hidl_cb(nullptr, SvResult::INTERNAL_ERROR);
+        }
     }
     return {};
 }
