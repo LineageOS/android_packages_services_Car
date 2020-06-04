@@ -47,6 +47,7 @@ import android.hardware.automotive.vehicle.V2_0.CreateUserStatus;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserMessageType;
+import android.hardware.automotive.vehicle.V2_0.SwitchUserRequest;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserStatus;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociation;
@@ -953,12 +954,15 @@ final class CarShellCommand extends ShellCommand {
         if (halOnly) {
             CountDownLatch latch = new CountDownLatch(1);
             UserHalService userHal = mHal.getUserHal();
-            UsersInfo usersInfo = generateUsersInfo();
             UserInfo targetUserInfo = new UserInfo();
             targetUserInfo.userId = targetUserId;
             targetUserInfo.flags = getUserHalFlags(targetUserId);
 
-            userHal.switchUser(targetUserInfo, timeout, usersInfo, (status, resp) -> {
+            SwitchUserRequest request = new SwitchUserRequest();
+            request.targetUser = targetUserInfo;
+            request.usersInfo = generateUsersInfo();
+
+            userHal.switchUser(request, timeout, (status, resp) -> {
                 try {
                     Log.d(TAG, "SwitchUserResponse: status=" + status + ", resp=" + resp);
                     writer.printf("Call Status: %s\n",
@@ -978,7 +982,7 @@ final class CarShellCommand extends ShellCommand {
                     // Android error. This is to "rollback" the HAL switch.
                     if (status == HalCallback.STATUS_OK
                             && resp.status == SwitchUserStatus.SUCCESS) {
-                        userHal.postSwitchResponse(resp.requestId, targetUserInfo, usersInfo);
+                        userHal.postSwitchResponse(request);
                     }
                 } finally {
                     latch.countDown();
