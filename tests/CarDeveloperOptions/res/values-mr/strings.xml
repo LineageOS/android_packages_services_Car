@@ -3146,11 +3146,11 @@
     <string name="notification_unknown_sound_title" msgid="8043718667804838398">"ॲपने प्रदान केलेला ध्वनी"</string>
     <string name="notification_sound_default" msgid="2664544380802426260">"डीफॉल्ट सूचना ध्वनी"</string>
     <string name="alarm_ringtone_title" msgid="6411326147408635902">"डीफॉल्ट अलार्म ध्वनी"</string>
-    <string name="vibrate_when_ringing_title" msgid="2757996559847126952">"कॉलसाठी कंपन सुरू करा"</string>
+    <string name="vibrate_when_ringing_title" msgid="2757996559847126952">"कॉलसाठी व्हायब्रेट करा"</string>
     <string name="other_sound_settings" msgid="5250376066099818676">"इतर ध्वनी"</string>
     <string name="dial_pad_tones_title" msgid="8877212139988655769">"डायल पॅड टोन"</string>
     <string name="screen_locking_sounds_title" msgid="4407110895465866809">"स्‍क्रीन लॉक करणारे ध्वनी"</string>
-    <string name="charging_sounds_title" msgid="5070437987230894287">"आवाज आणि कंपन चार्ज होत आहे"</string>
+    <string name="charging_sounds_title" msgid="5070437987230894287">"चार्जिंगचा आवाज आणि व्हायब्रेशन"</string>
     <string name="docking_sounds_title" msgid="2573137471605541366">"डॉकिंग ध्वनी"</string>
     <string name="touch_sounds_title" msgid="165237488496165652">"स्पर्श ध्वनी"</string>
     <string name="vibrate_on_touch_title" msgid="6360155469279157684">"स्पर्श व्हायब्रेट"</string>

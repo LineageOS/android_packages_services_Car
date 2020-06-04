@@ -3136,7 +3136,7 @@
     <string name="sound_settings_example_summary" msgid="2091822107298841827">"កម្រិតសំឡេងរោទ៍ត្រឹម 80%"</string>
     <string name="media_volume_option_title" msgid="3553411883305505682">"កម្រិត​សំឡេង​មេឌៀ"</string>
     <string name="remote_media_volume_option_title" msgid="6355710054191873836">"កម្រិតសំឡេងនៃការបញ្ជូន"</string>
-    <string name="call_volume_option_title" msgid="5028003296631037334">"កម្រិត​សំឡេង​ហៅ"</string>
+    <string name="call_volume_option_title" msgid="5028003296631037334">"កម្រិត​សំឡេង​ហៅទូរសព្ទ"</string>
     <string name="alarm_volume_option_title" msgid="3184076022438477047">"កម្រិត​សំឡេងម៉ោង​រោទ៍"</string>
     <string name="ring_volume_option_title" msgid="2038924918468372264">"កម្រិត​សំឡេង​រោទ៍"</string>
     <string name="notification_volume_option_title" msgid="1358512611511348260">"កម្រិត​សំឡេង​ការ​ជូន​ដំណឹង"</string>
@@ -3153,7 +3153,7 @@
     <string name="docking_sounds_title" msgid="2573137471605541366">"សំឡេង​​ភ្ជាប់"</string>
     <string name="touch_sounds_title" msgid="165237488496165652">"សំឡេង​ប៉ះ"</string>
     <string name="vibrate_on_touch_title" msgid="6360155469279157684">"ការ​ញ័រ​ពេល​ប៉ះ"</string>
-    <string name="vibrate_on_touch_summary" msgid="5504424764028676043">"មតិស្ថាបនា​តាម​ការប៉ះ​សម្រាប់​ការចុច ក្ដារចុច និងច្រើនទៀត"</string>
+    <string name="vibrate_on_touch_summary" msgid="5504424764028676043">"ប្រតិកម្មញ័រពេលចុច ក្ដារចុច និងច្រើនទៀត"</string>
     <string name="dock_audio_media_title" msgid="1859521680502040781">"ភ្ជាប់ការ​ចាក់​តាមអូប៉ាល័រ"</string>
     <string name="dock_audio_media_disabled" msgid="4300752306178486302">"អូឌីយ៉ូ​​ទាំងអស់"</string>
     <string name="dock_audio_media_enabled" msgid="2873275045878628153">"តែ​អូឌីយ៉ូ​​មេឌៀ​ប៉ុណ្ណោះ"</string>
@@ -4310,7 +4310,7 @@
     <string name="change_wifi_state_title" msgid="5140754955787584174">"ការ​គ្រប់គ្រង Wi-Fi"</string>
     <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"អនុញ្ញាត​ឱ្យ​កម្មវិធី​គ្រប់គ្រង Wi-Fi"</string>
     <string name="change_wifi_state_app_detail_summary" msgid="614854822469259860">"អនុញ្ញាត​ឱ្យ​កម្មវិធី​នេះ​បើក ឬបិទ Wi-Fi ស្កេន និងភ្ជាប់បណ្តាញ Wi-Fi បញ្ចូល ឬលុប​បណ្តាញ ឬចាប់ផ្តើមតែហតស្ប៉តមូលដ្ឋាន​ប៉ុណ្ណោះ"</string>
-    <string name="media_output_title" msgid="8710632337456601848">"ចាក់​មេឌៀទៅកាន់"</string>
+    <string name="media_output_title" msgid="8710632337456601848">"ចាក់​មេឌៀនៅលើ"</string>
     <string name="media_output_default_summary" msgid="3159237976830415584">"ឧបករណ៍នេះ"</string>
     <string name="media_output_summary" product="default" msgid="6294261435613551178">"ទូរសព្ទ"</string>
     <string name="media_output_summary" product="tablet" msgid="6672024060360538526">"ថេប្លេត"</string>

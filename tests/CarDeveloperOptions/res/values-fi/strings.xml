@@ -246,7 +246,7 @@
     <string name="band_mode_set" msgid="4962130364076526789">"Aseta"</string>
     <string name="band_mode_failed" msgid="8350123391471974137">"Epäonnistui"</string>
     <string name="band_mode_succeeded" msgid="5516613616395402809">"Onnistui"</string>
-    <string name="sdcard_changes_instructions" msgid="4138217393448114001">"Muutokset tulevat voimaan, kun USB-kaapeli kytketään uudelleen."</string>
+    <string name="sdcard_changes_instructions" msgid="4138217393448114001">"Muutokset tulevat voimaan, kun USB-johto kytketään uudelleen."</string>
     <string name="sdcard_settings_screen_mass_storage_text" msgid="7486030250999007641">"Ota USB-massamuisti käyttöön"</string>
     <string name="sdcard_settings_total_bytes_label" msgid="6461741874400909157">"Tavuja yhteensä:"</string>
     <string name="sdcard_settings_not_present_status" product="nosdcard" msgid="5419085128792417589">"USB-tallennustila ei käytössä."</string>

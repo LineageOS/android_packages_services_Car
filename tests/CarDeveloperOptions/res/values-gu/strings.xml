@@ -1608,7 +1608,7 @@
     <string name="master_clear_not_available" msgid="4676613348163652454">"આ વપરાશકર્તા માટે ફેક્ટરી રીસેટ ઉપલબ્ધ નથી"</string>
     <string name="master_clear_progress_title" msgid="378953167274114857">"કાઢી નાંખી રહ્યું છે"</string>
     <string name="master_clear_progress_text" msgid="5418958116008976218">"કૃપા કરીને રાહ જુઓ..."</string>
-    <string name="call_settings_title" msgid="5033906789261282752">"કૉલ સેટિંગ્સ"</string>
+    <string name="call_settings_title" msgid="5033906789261282752">"કૉલ સેટિંગ"</string>
     <string name="call_settings_summary" msgid="2119161087671450035">"વૉઇસમેઇલ, કૉલ ફોરવર્ડિંગ, કૉલ પ્રતીક્ષા, કૉલર ID સેટ કરો"</string>
     <string name="tether_settings_title_usb" msgid="4265582654602420357">"USB ટિથરિંગ"</string>
     <string name="tether_settings_title_wifi" msgid="2060965130234484613">"પોર્ટેબલ હૉટસ્પૉટ"</string>
@@ -1871,7 +1871,7 @@
     <string name="join_two_unrelated_items" msgid="8257688498236358394">"<xliff:g id="FIRST_ITEM">%1$s</xliff:g>, <xliff:g id="SECOND_ITEM">%2$s</xliff:g>"</string>
     <string name="computing_size" msgid="2234106107535318136">"ગણતરી કરી રહ્યું છે…"</string>
     <string name="invalid_size_value" msgid="1202239724000802296">"પેકેજ કદની ગણતરી કરી શક્યાં નથી."</string>
-    <string name="version_text" msgid="5421619604445758652">"સંસ્કરણ <xliff:g id="VERSION_NUM">%1$s</xliff:g>"</string>
+    <string name="version_text" msgid="5421619604445758652">"વર્ઝન <xliff:g id="VERSION_NUM">%1$s</xliff:g>"</string>
     <string name="move_app" msgid="5400135231255614785">"ખસેડો"</string>
     <string name="move_app_to_internal" product="tablet" msgid="8658767231643024635">"ટેબ્લેટ પર ખસેડો"</string>
     <string name="move_app_to_internal" product="default" msgid="1031111519418252055">"ફોન પર ખસેડો"</string>
@@ -2774,7 +2774,7 @@
     <string name="vpn_connect_to" msgid="7926776854873218762">"<xliff:g id="PROFILE">%s</xliff:g> સાથે કનેક્ટ કરો"</string>
     <string name="vpn_disconnect_confirm" msgid="3505111947735651082">"આ VPNને ડિસ્કનેક્ટ કરીએ?"</string>
     <string name="vpn_disconnect" msgid="4625914562388652486">"ડિસ્કનેક્ટ કરો"</string>
-    <string name="vpn_version" msgid="2006792987077940456">"સંસ્કરણ <xliff:g id="VERSION">%s</xliff:g>"</string>
+    <string name="vpn_version" msgid="2006792987077940456">"વર્ઝન <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="vpn_forget_long" msgid="8457511440635534478">"VPN ભૂલી ગયાં"</string>
     <string name="vpn_replace_vpn_title" msgid="8517436922021598103">"અસ્તિત્વમાંની VPN ને બદલીએ?"</string>
     <string name="vpn_set_vpn_title" msgid="6483554732067951052">"હંમેશાં ચાલુ VPN સેટ કરીએ?"</string>

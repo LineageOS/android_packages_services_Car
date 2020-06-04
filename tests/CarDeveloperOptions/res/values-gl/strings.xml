@@ -3799,7 +3799,7 @@
     <string name="app_list_preference_none" msgid="7100409177446935028">"Ningún"</string>
     <string name="work_profile_usage_access_warning" msgid="403208064382097510">"A desactivación do acceso de uso desta aplicación non impide que o teu administrador realice o seguimento do uso de datos das aplicacións no teu perfil de traballo"</string>
     <string name="accessibility_lock_screen_progress" msgid="8242917828598820049">"Uso de <xliff:g id="COUNT_0">%1$d</xliff:g> de <xliff:g id="COUNT_1">%2$d</xliff:g> caracteres"</string>
-    <string name="draw_overlay" msgid="2878665072530660668">"Superpoñer sobre aplicacións"</string>
+    <string name="draw_overlay" msgid="2878665072530660668">"Superpor a aplicacións"</string>
     <string name="system_alert_window_settings" msgid="3024330223417646567">"Mostrar sobre outras aplicacións"</string>
     <string name="system_alert_window_apps_title" msgid="9188448296493699566">"Aplicacións"</string>
     <string name="system_alert_window_access_title" msgid="5187343732185369675">"Mostrar sobre outras aplicacións"</string>
@@ -3807,7 +3807,7 @@
     <string name="allow_overlay_description" msgid="6669524816705082807">"Permite que esta aplicación se mostre enriba doutras aplicacións que estás utilizando. Pode interferir no uso desas aplicacións ou cambiar a forma na que aparecen ou se comportan."</string>
     <string name="keywords_vr_listener" msgid="5312633527788917750">"rv realidade virtual axente de escoita estéreo asistente servizo"</string>
     <string name="keywords_system_alert_window" msgid="3936658600272194599">"cadro de diálogo da ventá de alerta do sistema para mostrar sobre outras aplicacións"</string>
-    <string name="overlay_settings" msgid="3325154759946433666">"Superpoñer sobre aplicacións"</string>
+    <string name="overlay_settings" msgid="3325154759946433666">"Superpor a aplicacións"</string>
     <string name="system_alert_window_summary" msgid="7703582115861844158">"Aplicacións con permiso para superpoñerse a outras: <xliff:g id="COUNT_0">%1$d</xliff:g> de <xliff:g id="COUNT_1">%2$d</xliff:g>"</string>
     <string name="filter_overlay_apps" msgid="6336897660213304743">"Aplicacións con permiso"</string>
     <string name="app_permission_summary_allowed" msgid="6458476982015518778">"Permitido"</string>
@@ -4477,7 +4477,7 @@
     <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"Queres eliminar esta suxestión?"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"Quitouse a suxestión"</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"Desfacer"</string>
-    <string name="low_storage_summary" msgid="4562224870189133400">"Queda pouco espazo. Utilizado: <xliff:g id="PERCENTAGE">%1$s</xliff:g>. Libre: <xliff:g id="FREE_SPACE">%2$s</xliff:g>"</string>
+    <string name="low_storage_summary" msgid="4562224870189133400">"Queda pouco espazo. En uso: <xliff:g id="PERCENTAGE">%1$s</xliff:g>. Libre: <xliff:g id="FREE_SPACE">%2$s</xliff:g>"</string>
     <string name="contextual_card_feedback_send" msgid="8698649023854350623">"Enviar comentarios"</string>
     <string name="contextual_card_feedback_confirm_message" msgid="3987973028353264878">"Queres indicarnos a túa opinión sobre esta suxestión?"</string>
     <string name="copyable_slice_toast" msgid="1357518174923789947">"<xliff:g id="COPY_CONTENT">%1$s</xliff:g>: copiouse no portapapeis."</string>

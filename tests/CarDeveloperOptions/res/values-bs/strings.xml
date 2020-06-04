@@ -3190,9 +3190,9 @@
     <string name="other_sound_settings" msgid="5250376066099818676">"Drugi zvukovi"</string>
     <string name="dial_pad_tones_title" msgid="8877212139988655769">"Tonovi tastature telefona"</string>
     <string name="screen_locking_sounds_title" msgid="4407110895465866809">"Zvukovi zaključavanja ekrana"</string>
-    <string name="charging_sounds_title" msgid="5070437987230894287">"Zvukovi/vibracija pri punjenju"</string>
+    <string name="charging_sounds_title" msgid="5070437987230894287">"Zvukovi/vibracija prilikom punjenja"</string>
     <string name="docking_sounds_title" msgid="2573137471605541366">"Zvukovi priključne stanice"</string>
-    <string name="touch_sounds_title" msgid="165237488496165652">"Zvukovi pri dodiru"</string>
+    <string name="touch_sounds_title" msgid="165237488496165652">"Zvukovi dodira"</string>
     <string name="vibrate_on_touch_title" msgid="6360155469279157684">"Vibracija pri dodiru"</string>
     <string name="vibrate_on_touch_summary" msgid="5504424764028676043">"Haptičke povratne informacije za dodir, tastaturu i drugo"</string>
     <string name="dock_audio_media_title" msgid="1859521680502040781">"Zvučnik priključne stanice reprodukuje zvuk"</string>
@@ -3470,8 +3470,8 @@
     <string name="notification_content_block_summary" msgid="2743896875255591743">"Nikad ne prikazuj obavještenja u nijansi ili na perifernim uređajima"</string>
     <string name="notification_badge_title" msgid="8989086619255666442">"Dozvoli tačku za obavještenja"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"Prikaži tačku za obavještenja"</string>
-    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"Zamijeni način rada Ne ometaj"</string>
-    <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"Dozvolite da se obavještenja nastave pojavljivati kada je uključen način rada Ne ometaj"</string>
+    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"Zanemari način rada Ne ometaj"</string>
+    <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"Dozvoli da se obavještenja nastave pojavljivati kada je uključen način rada Ne ometaj"</string>
     <string name="app_notification_visibility_override_title" msgid="2349335170165637672">"Na zaključavanju ekrana"</string>
     <string name="app_notification_row_banned" msgid="2079325338122151677">"Blokirano"</string>
     <string name="app_notification_row_priority" msgid="432299064888787236">"Prioritetna"</string>
@@ -3553,7 +3553,7 @@
     <string name="zen_mode_media" msgid="3701280649874724055">"Reproduciraj zvukove medija"</string>
     <string name="zen_mode_media_list" msgid="509327580522287125">"mediji"</string>
     <string name="zen_mode_system" msgid="597437265986355038">"Dozvoli zvukove dodira"</string>
-    <string name="zen_mode_system_list" msgid="480192458506838077">"zvuci dodira"</string>
+    <string name="zen_mode_system_list" msgid="480192458506838077">"zvukovi dodira"</string>
     <string name="zen_mode_reminders" msgid="7560664194610054038">"Dozvoli podsjetnike"</string>
     <string name="zen_mode_reminders_list" msgid="7347061314032326677">"podsjetnici"</string>
     <string name="zen_mode_events" msgid="5784076928339534984">"Dozvoli događaje"</string>

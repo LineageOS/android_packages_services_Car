@@ -34,7 +34,7 @@
     <string name="radio_info_data_connection_enable" msgid="2554249462719717119">"Bật kết nối dữ liệu"</string>
     <string name="radio_info_data_connection_disable" msgid="2430609627397999371">"Tắt kết nối dữ liệu"</string>
     <string name="volte_provisioned_switch_string" msgid="6326756678226686704">"Đã cấp phép VoLTE"</string>
-    <string name="vt_provisioned_switch_string" msgid="7458479879009293613">"Đã cấp phép gọi điện video"</string>
+    <string name="vt_provisioned_switch_string" msgid="7458479879009293613">"Đã cấp phép gọi video"</string>
     <string name="wfc_provisioned_switch_string" msgid="5446697646596639516">"Đã cấp phép gọi điện qua Wi-Fi"</string>
     <string name="eab_provisioned_switch_string" msgid="3921103790584572430">"Đã cấp phép hiện diện/EAB"</string>
     <string name="cbrs_data_switch_string" msgid="9120919504831536183">"Dữ liệu Cbrs"</string>
@@ -53,7 +53,7 @@
     <string name="radio_info_ims_reg_status_not_registered" msgid="1286050699734226077">"Chưa được đăng ký"</string>
     <string name="radio_info_ims_feature_status_available" msgid="2040629393134756058">"Khả dụng"</string>
     <string name="radio_info_ims_feature_status_unavailable" msgid="3348223769202693596">"Không khả dụng"</string>
-    <string name="radio_info_ims_reg_status" msgid="4771711884059371514">"Đăng ký IMS: <xliff:g id="STATUS">%1$s</xliff:g>\nThoại trên nền LTE: <xliff:g id="AVAILABILITY_0">%2$s</xliff:g>\nThoại qua Wi-Fi: <xliff:g id="AVAILABILITY_1">%3$s</xliff:g>\nGọi điện video: <xliff:g id="AVAILABILITY_2">%4$s</xliff:g>\nGiao diện UT: <xliff:g id="AVAILABILITY_3">%5$s</xliff:g>"</string>
+    <string name="radio_info_ims_reg_status" msgid="4771711884059371514">"Đăng ký IMS: <xliff:g id="STATUS">%1$s</xliff:g>\nThoại trên nền LTE: <xliff:g id="AVAILABILITY_0">%2$s</xliff:g>\nThoại qua Wi-Fi: <xliff:g id="AVAILABILITY_1">%3$s</xliff:g>\nGọi video: <xliff:g id="AVAILABILITY_2">%4$s</xliff:g>\nGiao diện UT: <xliff:g id="AVAILABILITY_3">%5$s</xliff:g>"</string>
     <string name="radioInfo_service_in" msgid="1297020186765943857">"Đang sử dụng"</string>
     <string name="radioInfo_service_out" msgid="8460363463722476510">"Không có dịch vụ"</string>
     <string name="radioInfo_service_emergency" msgid="7674989004735662599">"Chỉ cuộc gọi khẩn cấp"</string>
@@ -3404,7 +3404,7 @@
       <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> loại</item>
     </plurals>
     <string name="no_channels" msgid="8884254729302501652">"Ứng dụng chưa đăng bất kỳ thông báo nào"</string>
-    <string name="app_settings_link" msgid="8465287765715790984">"Cài đặt bổ sung trong ứng dụng"</string>
+    <string name="app_settings_link" msgid="8465287765715790984">"Tùy chọn cài đặt bổ sung trong ứng dụng"</string>
     <string name="app_notification_listing_summary_zero" msgid="4047782719487686699">"Đang bật cho tất cả ứng dụng"</string>
     <plurals name="app_notification_listing_summary_others" formatted="false" msgid="1161774065480666519">
       <item quantity="other">Tắt cho <xliff:g id="COUNT_1">%d</xliff:g> ứng dụng</item>
@@ -3422,7 +3422,7 @@
     <string name="notification_content_block_summary" msgid="2743896875255591743">"Không bao giờ hiển thị thông báo trong ngăn thông báo hoặc trên thiết bị ngoại vi"</string>
     <string name="notification_badge_title" msgid="8989086619255666442">"Cho phép dấu chấm thông báo"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"Hiển thị dấu chấm thông báo"</string>
-    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"Ghi đè Không làm phiền"</string>
+    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"Vô hiệu hóa chế độ Không làm phiền"</string>
     <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"Cho phép những thông báo này tiếp tục làm gián đoạn khi chế độ Không làm phiền đang bật"</string>
     <string name="app_notification_visibility_override_title" msgid="2349335170165637672">"Trên màn hình khóa"</string>
     <string name="app_notification_row_banned" msgid="2079325338122151677">"Bị chặn"</string>
@@ -3511,8 +3511,8 @@
     <string name="zen_mode_bypassing_apps" msgid="3080739479028713449">"Cho phép ứng dụng ghi đè"</string>
     <string name="zen_mode_bypassing_apps_title" msgid="2115024664615538847">"Ứng dụng ngoại lệ"</string>
     <plurals name="zen_mode_bypassing_apps_subtext" formatted="false" msgid="8723144434730871572">
-      <item quantity="other">Thông báo từ <xliff:g id="NUMBER">%1$d</xliff:g> ứng dụng có thể ghi đè chế độ Không làm phiền</item>
-      <item quantity="one">Thông báo từ 1 ứng dụng có thể ghi đè chế độ Không làm phiền</item>
+      <item quantity="other">Thông báo từ <xliff:g id="NUMBER">%1$d</xliff:g> ứng dụng có thể vô hiệu hóa chế độ Không làm phiền</item>
+      <item quantity="one">Thông báo từ 1 ứng dụng có thể vô hiệu hóa chế độ Không làm phiền</item>
     </plurals>
     <string name="zen_mode_events_list" msgid="8578102701815684873">"sự kiện"</string>
     <string name="zen_mode_all_callers" msgid="4455039040077343838">"bất kỳ ai"</string>

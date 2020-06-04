@@ -3140,7 +3140,7 @@
     <string name="alarm_volume_option_title" msgid="3184076022438477047">"Volumen de alarma"</string>
     <string name="ring_volume_option_title" msgid="2038924918468372264">"Volumen del tono"</string>
     <string name="notification_volume_option_title" msgid="1358512611511348260">"Volumen de notificaciones"</string>
-    <string name="ringtone_title" msgid="1409086028485922583">"Tono del teléfono"</string>
+    <string name="ringtone_title" msgid="1409086028485922583">"Tono de llamada del teléfono"</string>
     <string name="notification_ringtone_title" msgid="2932960620843976285">"Sonido de notificación predeterminado"</string>
     <string name="notification_unknown_sound_title" msgid="8043718667804838398">"Sonido proporcionado de app"</string>
     <string name="notification_sound_default" msgid="2664544380802426260">"Sonido de notificación predeterminado"</string>
@@ -3422,7 +3422,7 @@
     <string name="notification_content_block_summary" msgid="2743896875255591743">"No mostrar nunca notificaciones en el panel de notificaciones ni en dispositivos periféricos"</string>
     <string name="notification_badge_title" msgid="8989086619255666442">"Permitir burbuja de notificación"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"Mostrar burbuja de notificación"</string>
-    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"Omitir No molestar"</string>
+    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"Ignorar modo No molestar"</string>
     <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"Permitir notificaciones cuando el modo No molestar esté activado"</string>
     <string name="app_notification_visibility_override_title" msgid="2349335170165637672">"En la pantalla de bloqueo"</string>
     <string name="app_notification_row_banned" msgid="2079325338122151677">"Bloqueada"</string>
@@ -4251,7 +4251,7 @@
     <string name="app_info_storage_title" msgid="6643391804949509308">"Espacio usado"</string>
     <string name="webview_uninstalled_for_user" msgid="3407952144444040557">"(opción desinstalada para <xliff:g id="USER">%s</xliff:g>)"</string>
     <string name="webview_disabled_for_user" msgid="8057805373224993504">"(opción inhabilitada para <xliff:g id="USER">%s</xliff:g>)"</string>
-    <string name="autofill_app" msgid="3990765434980280073">"Servicio Autocompletar"</string>
+    <string name="autofill_app" msgid="3990765434980280073">"Autocompletar"</string>
     <string name="autofill_keywords" msgid="7717726766232862218">"automático, completar, autocompletar"</string>
     <string name="autofill_confirmation_message" msgid="1385894598730361304">"&lt;b&gt;Asegúrate de que confías en esta aplicación&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=Autocompletar de Google&gt;%1$s&lt;/xliff:g&gt; utiliza el contenido que se muestra en la pantalla para determinar el texto que se puede autocompletar."</string>
     <string name="debug_autofill_category" msgid="6262526615416295645">"Autocompletar"</string>

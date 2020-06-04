@@ -2754,7 +2754,7 @@
     <string name="data_usage_metered_no" msgid="1961524615778610008">"Bepul"</string>
     <string name="data_usage_disclaimer" msgid="4683321532922590425">"Aloqa operatorining hisob-kitobi qurilmanikidan farq qilishi mumkin."</string>
     <string name="cryptkeeper_emergency_call" msgid="4625420047524693116">"Favqulodda chaqiruv"</string>
-    <string name="cryptkeeper_return_to_call" msgid="4433942821196822815">"Chaqiruvga qaytish"</string>
+    <string name="cryptkeeper_return_to_call" msgid="4433942821196822815">"Suhbatga qaytish"</string>
     <string name="vpn_name" msgid="3538818658670774080">"Tarmoq nomi"</string>
     <string name="vpn_type" msgid="6389116710008658550">"Turi"</string>
     <string name="vpn_server" msgid="5216559017318406820">"Server manzili"</string>

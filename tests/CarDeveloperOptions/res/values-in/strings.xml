@@ -34,7 +34,7 @@
     <string name="radio_info_data_connection_enable" msgid="2554249462719717119">"Aktifkan Sambungan Data"</string>
     <string name="radio_info_data_connection_disable" msgid="2430609627397999371">"Nonaktifkan Sambungan Data"</string>
     <string name="volte_provisioned_switch_string" msgid="6326756678226686704">"VoLTE Disediakan"</string>
-    <string name="vt_provisioned_switch_string" msgid="7458479879009293613">"Video Call Disediakan"</string>
+    <string name="vt_provisioned_switch_string" msgid="7458479879009293613">"Panggilan Video Disediakan"</string>
     <string name="wfc_provisioned_switch_string" msgid="5446697646596639516">"Panggilan Wi-Fi Disediakan"</string>
     <string name="eab_provisioned_switch_string" msgid="3921103790584572430">"EAB/Presence Disediakan"</string>
     <string name="cbrs_data_switch_string" msgid="9120919504831536183">"Data Cbrs"</string>
@@ -53,7 +53,7 @@
     <string name="radio_info_ims_reg_status_not_registered" msgid="1286050699734226077">"Tidak Terdaftar"</string>
     <string name="radio_info_ims_feature_status_available" msgid="2040629393134756058">"Tersedia"</string>
     <string name="radio_info_ims_feature_status_unavailable" msgid="3348223769202693596">"Tidak tersedia"</string>
-    <string name="radio_info_ims_reg_status" msgid="4771711884059371514">"Pendaftaran IMS: <xliff:g id="STATUS">%1$s</xliff:g>\nSuara melalui LTE: <xliff:g id="AVAILABILITY_0">%2$s</xliff:g>\nSuara melalui Wi-Fi: <xliff:g id="AVAILABILITY_1">%3$s</xliff:g>\nVideo Call: <xliff:g id="AVAILABILITY_2">%4$s</xliff:g>\nAntarmuka UT: <xliff:g id="AVAILABILITY_3">%5$s</xliff:g>"</string>
+    <string name="radio_info_ims_reg_status" msgid="4771711884059371514">"Pendaftaran IMS: <xliff:g id="STATUS">%1$s</xliff:g>\nSuara melalui LTE: <xliff:g id="AVAILABILITY_0">%2$s</xliff:g>\nSuara melalui Wi-Fi: <xliff:g id="AVAILABILITY_1">%3$s</xliff:g>\nPanggilan Video: <xliff:g id="AVAILABILITY_2">%4$s</xliff:g>\nAntarmuka UT: <xliff:g id="AVAILABILITY_3">%5$s</xliff:g>"</string>
     <string name="radioInfo_service_in" msgid="1297020186765943857">"Dalam Layanan"</string>
     <string name="radioInfo_service_out" msgid="8460363463722476510">"Di Luar Area Layanan"</string>
     <string name="radioInfo_service_emergency" msgid="7674989004735662599">"Panggilan Darurat Saja"</string>
@@ -4429,7 +4429,7 @@
     <string name="carrier_settings_euicc" msgid="7723199738771996732">"Operator"</string>
     <string name="carrier_settings_version" msgid="2657511289029828425">"Versi setelan"</string>
     <string name="call_category" msgid="3418535202893644015">"Memanggil"</string>
-    <string name="video_calling_settings_title" msgid="8011841542502156112">"Video call operator"</string>
+    <string name="video_calling_settings_title" msgid="8011841542502156112">"Panggilan video operator"</string>
     <string name="cdma_system_select_title" msgid="5620679296177526467">"Pilih sistem"</string>
     <string name="cdma_system_select_summary" msgid="6749131988334321244">"Mengubah mode roaming CDMA"</string>
     <string name="cdma_system_select_dialogtitle" msgid="7489000866289285390">"Pilih sistem"</string>

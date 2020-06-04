@@ -3429,11 +3429,11 @@
     <string name="notification_importance_low" msgid="7609797151662295364">"Zobrazovat tiše"</string>
     <string name="notification_importance_default" msgid="4091563759103917166">"Vydat zvukový signál"</string>
     <string name="notification_importance_high" msgid="7973764540402436656">"Vydat zvukový signál a vyskočit na obrazovku"</string>
-    <string name="notification_importance_high_silent" msgid="3177662759865661155">"Vyskočit na obrazovce"</string>
+    <string name="notification_importance_high_silent" msgid="3177662759865661155">"Vyskakování na obrazovce"</string>
     <string name="notification_importance_min_title" msgid="705872537330744154">"Minimalizovat"</string>
     <string name="notification_importance_low_title" msgid="2956199021781786232">"Střední"</string>
     <string name="notification_importance_default_title" msgid="7985549807203332482">"Vysoká"</string>
-    <string name="notification_importance_high_title" msgid="7258373094258585858">"Vyskočit na obrazovce"</string>
+    <string name="notification_importance_high_title" msgid="7258373094258585858">"Vyskakování na obrazovce"</string>
     <string name="notification_block_title" msgid="2570364198866886906">"Blok"</string>
     <string name="notification_silence_title" msgid="6959637402003838093">"Zobrazovat tiše"</string>
     <string name="notification_alert_title" msgid="750683027055192648">"Upozornění"</string>
@@ -4464,7 +4464,7 @@
     <string name="change_wifi_state_title" msgid="5140754955787584174">"Ovládání sítí Wi-Fi"</string>
     <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"Povolit aplikaci ovládat Wi-Fi"</string>
     <string name="change_wifi_state_app_detail_summary" msgid="614854822469259860">"Povolte této aplikaci zapínat a vypínat Wi-Fi, vyhledávat sítě Wi-Fi a připojovat se k nim, přidávat nebo odstraňovat sítě nebo nastavit místní hotspot"</string>
-    <string name="media_output_title" msgid="8710632337456601848">"Přehrávat média v"</string>
+    <string name="media_output_title" msgid="8710632337456601848">"Kde přehrávat média"</string>
     <string name="media_output_default_summary" msgid="3159237976830415584">"Toto zařízení"</string>
     <string name="media_output_summary" product="default" msgid="6294261435613551178">"Telefon"</string>
     <string name="media_output_summary" product="tablet" msgid="6672024060360538526">"Tablet"</string>

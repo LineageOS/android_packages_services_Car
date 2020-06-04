@@ -3193,7 +3193,7 @@
     <string name="charging_sounds_title" msgid="5070437987230894287">"Zvukovi i vibracija punjenja"</string>
     <string name="docking_sounds_title" msgid="2573137471605541366">"Zvukovi priključivanja"</string>
     <string name="touch_sounds_title" msgid="165237488496165652">"Zvukovi dodirivanja"</string>
-    <string name="vibrate_on_touch_title" msgid="6360155469279157684">"Vibracija za dodir"</string>
+    <string name="vibrate_on_touch_title" msgid="6360155469279157684">"Vibracija pri dodirivanju"</string>
     <string name="vibrate_on_touch_summary" msgid="5504424764028676043">"Haptičke povratne informacije za dodir, tipkovnicu i više"</string>
     <string name="dock_audio_media_title" msgid="1859521680502040781">"Priključna stanica reproducira"</string>
     <string name="dock_audio_media_disabled" msgid="4300752306178486302">"Sve zvukove"</string>
@@ -3470,7 +3470,7 @@
     <string name="notification_content_block_summary" msgid="2743896875255591743">"Nikad ne prikazuj obavijesti na zaslonu obavijesti ili na perifernim uređajima"</string>
     <string name="notification_badge_title" msgid="8989086619255666442">"Dopusti točku obavijesti"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"Prikaži točku obavijesti"</string>
-    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"Nadjačaj Ne ometaj"</string>
+    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"Nadjačaj način rada Ne uznemiravaj"</string>
     <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"Dopusti obavijesti u načinu Ne ometaj kad je postavljen na \"Samo prioritetno\""</string>
     <string name="app_notification_visibility_override_title" msgid="2349335170165637672">"Na zaključanom zaslonu"</string>
     <string name="app_notification_row_banned" msgid="2079325338122151677">"Blokirano"</string>

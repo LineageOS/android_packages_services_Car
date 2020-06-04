@@ -3422,7 +3422,7 @@
     <string name="notification_content_block_summary" msgid="2743896875255591743">"सूचना कभी भी शेड में या पेरिफ़ेरल डिवाइस पर ना दिखाएं"</string>
     <string name="notification_badge_title" msgid="8989086619255666442">"नई सूचनाएं बताने वाले गोल निशान की अनुमति दें"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"नई सूचनाएं बताने वाला गोल निशान दिखाएं"</string>
-    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"\'परेशान न करें\' मोड बंद करें"</string>
+    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"\'परेशान न करें\' मोड में भी सूचनाएं दिखाएं"</string>
     <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"\'परेशान न करें\' मोड चालू होने पर भी ये सूचनाएं दिखाना जारी रखें"</string>
     <string name="app_notification_visibility_override_title" msgid="2349335170165637672">"लॉक स्क्रीन पर"</string>
     <string name="app_notification_row_banned" msgid="2079325338122151677">"अवरोधित"</string>

@@ -412,7 +412,7 @@
     <string name="face_intro_error_unknown" msgid="3241592604198351134">"چهره بیشتری نمی‌توان اضافه کرد"</string>
     <string name="security_settings_face_enroll_error_dialog_title" msgid="3933492758701563051">"ثبت انجام نشد"</string>
     <string name="security_settings_face_enroll_dialog_ok" msgid="1078348922734845090">"تأیید"</string>
-    <string name="security_settings_face_enroll_error_timeout_dialog_message" msgid="4917894418448325405">"مهلت زمانی ثبت چهره به پایان رسید. دوباره امتحان کنید."</string>
+    <string name="security_settings_face_enroll_error_timeout_dialog_message" msgid="4917894418448325405">"درنگ ثبت چهره به پایان رسید. دوباره امتحان کنید."</string>
     <string name="security_settings_face_enroll_error_generic_dialog_message" msgid="5160473187142616862">"ثبت چهره کار نکرد."</string>
     <string name="security_settings_face_enroll_finish_title" msgid="6800717857394410769">"همه چیز تنظیم شد. خوب به نظر می‌رسد."</string>
     <string name="security_settings_face_enroll_done" msgid="5409739233373490971">"تمام"</string>
@@ -488,7 +488,7 @@
     <string name="security_settings_fingerprint_enroll_touch_dialog_title" msgid="7410398793283818609">"اووه، آن حسگر نیست"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_message" msgid="7192100314788868883">"با استفاده از انگشت اشاره، حسگر را در  پشت تلفن لمس کنید."</string>
     <string name="security_settings_fingerprint_enroll_error_dialog_title" msgid="1415709674142168770">"ثبت انجام نشد"</string>
-    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"مهلت زمانی ثبت اثر انگشت به پایان رسید. دوباره امتحان کنید."</string>
+    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"درنگ ثبت اثر انگشت به پایان رسید. دوباره امتحان کنید."</string>
     <string name="security_settings_fingerprint_enroll_error_generic_dialog_message" msgid="7896295829530444810">"ثبت اثر انگشت کار نمی‌کند. دوباره امتحان کنید یا از انگشت دیگری استفاده کنید."</string>
     <string name="fingerprint_enroll_button_add" msgid="6335782936874996629">"افزودن مورد دیگر"</string>
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"بعدی"</string>
@@ -3067,7 +3067,7 @@
     <string name="keywords_display_night_display" msgid="3647370193110044967">"صفحه کم‌نور، شب، رنگ‌مایه، شیفت شب، روشنایی، رنگ صفحه، رنگ، رنگ"</string>
     <string name="keywords_display_wallpaper" msgid="1202089324795933197">"پس‌زمینه، شخصی کردن، سفارشی کردن نمایشگر"</string>
     <string name="keywords_display_font_size" msgid="1496431330244040196">"اندازه نوشتار"</string>
-    <string name="keywords_display_cast_screen" msgid="5744566533025100355">"نمایش دادن، ارسال محتوا، نمایش صفحه‌نمایش روی دستگاه دیگر، اشتراک‌گذای صفحه‌نمایش، صفحه‌نمایش مشترک، ارسال محتوای صفحه‌نمایش"</string>
+    <string name="keywords_display_cast_screen" msgid="5744566533025100355">"نمایش دادن، ارسال محتوا، نمایش صفحه‌نمایش روی دستگاه دیگر، هم‌رسانیی صفحه‌نمایش، صفحه‌نمایش مشترک، ارسال محتوای صفحه‌نمایش"</string>
     <string name="keywords_storage" msgid="7704519289838065803">"فضا، دیسک، دیسک سخت، مصرف دستگاه"</string>
     <string name="keywords_battery" msgid="3860198379310375112">"مصرف نیرو، شارژ"</string>
     <string name="keywords_spell_checker" msgid="6032411442958278879">"املا، واژه‌نامه، غلط‌گیر املا، تصحیح خودکار"</string>
@@ -3112,11 +3112,11 @@
     <string name="keywords_face_settings" msgid="4117345666006836599">"چهره"</string>
     <string name="keywords_fingerprint_settings" msgid="902902368701134163">"اثر انگشت، افزودن اثر انگشت"</string>
     <string name="keywords_display_auto_brightness" msgid="1810596220466483996">"تار کردن صفحه‌نمایش، صفحه لمسی، باتری، روشنایی هوشمند، روشنایی پویا"</string>
-    <string name="keywords_display_adaptive_sleep" msgid="1695357782432822811">"کم‌نور کردن صفحه، خواب، باتری، مهلت زمانی، توجه، نمایشگر، صفحه، بی‌فعالیتی"</string>
+    <string name="keywords_display_adaptive_sleep" msgid="1695357782432822811">"کم‌نور کردن صفحه، خواب، باتری، درنگ، توجه، نمایشگر، صفحه، بی‌فعالیتی"</string>
     <string name="keywords_auto_rotate" msgid="4320791369951647513">"چرخاندن، چرخش، چرخش، پرتره، منظره، جهت، عمودی، افقی"</string>
     <string name="keywords_system_update_settings" msgid="4419971277998986067">"ارتقا دادن، Android"</string>
     <string name="keywords_zen_mode_settings" msgid="4103819458182535493">"«مزاحم نشوید»، زمان‌بندی، اعلان‌ها، مسدود کردن، سکوت، لرزش، خواب، کار، کانونی کردن، صدا، صامت کردن، روز، روز هفته، آخر هفته، شب‌های طول هفته، رویداد"</string>
-    <string name="keywords_screen_timeout" msgid="4328381362313993666">"صفحه نمایش، زمان قفل شدن، مهلت زمانی، صفحه درحالت قفل"</string>
+    <string name="keywords_screen_timeout" msgid="4328381362313993666">"صفحه نمایش، زمان قفل شدن، درنگ، صفحه درحالت قفل"</string>
     <string name="keywords_storage_settings" msgid="6422454520424236476">"حافظه، حافظه پنهان، داده، حذف، پاک کردن، آزاد، فضا"</string>
     <string name="keywords_bluetooth_settings" msgid="1152229891590622822">"متصل، دستگاه، هدفون‌ها، هدست‌ها، بلندگو، بی‌سیم، مرتبط‌سازی، هدفون‌های توگوشی، موسیقی، رسانه"</string>
     <string name="keywords_wallpaper" msgid="7665778626293643625">"پس‌زمینه، صفحه نمایش، صفحه در حالت قفل، طرح زمینه"</string>

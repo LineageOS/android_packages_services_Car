@@ -3153,7 +3153,7 @@
     <string name="charging_sounds_title" msgid="5070437987230894287">"Töne und Vibration beim Aufladen"</string>
     <string name="docking_sounds_title" msgid="2573137471605541366">"Docking-Sounds"</string>
     <string name="touch_sounds_title" msgid="165237488496165652">"Töne bei Berührung"</string>
-    <string name="vibrate_on_touch_title" msgid="6360155469279157684">"Vibration bei Displayberührung"</string>
+    <string name="vibrate_on_touch_title" msgid="6360155469279157684">"Vibration bei Berührung"</string>
     <string name="vibrate_on_touch_summary" msgid="5504424764028676043">"Haptisches Feedback beim Tippen, bei der Tastaturnutzung und mehr"</string>
     <string name="dock_audio_media_title" msgid="1859521680502040781">"Dock-Lautsprecherwiedergabe"</string>
     <string name="dock_audio_media_disabled" msgid="4300752306178486302">"Alle Audioquellen"</string>
