@@ -31,6 +31,7 @@ using namespace ::android::hardware::automotive::sv::V1_0;
 using ::android::hardware::Return;
 using ::android::hardware::hidl_vec;
 using ::android::sp;
+using ::std::condition_variable;
 
 using namespace android_auto::surround_view;
 
@@ -61,8 +62,12 @@ public:
         projectCameraPoints_cb _hidl_cb) override;
 
 private:
-    void generateFrames();
     bool initialize();
+
+    void generateFrames();
+    void processFrames();
+
+    bool handleFrames(int sequenceId);
 
     enum StreamStateValues {
         STOPPED,
@@ -70,16 +75,19 @@ private:
         STOPPING,
         DEAD,
     };
-    StreamStateValues mStreamState GUARDED_BY(mAccessLock);
 
     // Stream subscribed for the session.
     sp<ISurroundViewStream> mStream GUARDED_BY(mAccessLock);
+    StreamStateValues mStreamState GUARDED_BY(mAccessLock);
 
-    Sv2dConfig mConfig GUARDED_BY(mAccessLock);
-    int mHeight GUARDED_BY(mAccessLock);
-    Sv2dMappingInfo mInfo GUARDED_BY(mAccessLock);
+    thread mCaptureThread; // The thread we'll use to synthesize frames
+    thread mProcessThread; // The thread we'll use to process frames
 
-    thread mCaptureThread GUARDED_BY(mAccessLock);
+    // Used to signal a set of frames is ready
+    condition_variable mSignal GUARDED_BY(mAccessLock);
+    bool mFramesAvailable GUARDED_BY(mAccessLock);
+
+    int mSequenceId;
 
     struct FramesRecord {
         SvFramesDesc frames;
@@ -99,6 +107,12 @@ private:
     vector<SurroundViewInputBufferPointers>
         mInputPointers GUARDED_BY(mAccessLock);
     SurroundViewResultPointer mOutputPointer GUARDED_BY(mAccessLock);
+
+    Sv2dConfig mConfig GUARDED_BY(mAccessLock);
+    int mHeight GUARDED_BY(mAccessLock);
+
+    // TODO(b/158479099): Rename it to mMappingInfo
+    Sv2dMappingInfo mInfo GUARDED_BY(mAccessLock);
     int mOutputWidth, mOutputHeight GUARDED_BY(mAccessLock);
 
     sp<GraphicBuffer> mSvTexture GUARDED_BY(mAccessLock);
