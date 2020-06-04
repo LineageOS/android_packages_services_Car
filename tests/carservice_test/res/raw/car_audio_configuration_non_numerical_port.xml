@@ -21,9 +21,6 @@
                     </device>
                 </group>
             </volumeGroups>
-            <displays>
-                <display port="one"/>
-            </displays>
         </zone>
     </zones>
 </carAudioConfiguration>

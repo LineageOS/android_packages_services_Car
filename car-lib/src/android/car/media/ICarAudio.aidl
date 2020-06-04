@@ -48,8 +48,6 @@ interface ICarAudio {
     boolean setZoneIdForUid(int zoneId, int uid);
     boolean clearZoneIdForUid(int uid);
 
-    int getZoneIdForDisplayPortId(int displayPortId);
-
     String getOutputDeviceAddressForUsage(int zoneId, int usage);
 
     List<AudioDeviceAttributes> getInputDevicesForZoneId(int zoneId);
