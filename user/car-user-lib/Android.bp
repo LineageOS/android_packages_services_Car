@@ -18,6 +18,7 @@ java_library {
         "src/**/*.java",
     ],
     static_libs: [
+        "android.car.settings",
         "android.hardware.automotive.vehicle-V2.0-java",
     ],
     product_variables: {
