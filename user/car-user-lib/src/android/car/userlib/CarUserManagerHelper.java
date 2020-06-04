@@ -17,10 +17,12 @@
 package android.car.userlib;
 
 import android.Manifest;
+import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
+import android.car.settings.CarSettings;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.graphics.Bitmap;
@@ -30,7 +32,6 @@ import android.provider.Settings;
 import android.sysprop.CarProperties;
 import android.util.Log;
 
-import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.UserIcons;
 
 import com.google.android.collect.Sets;
@@ -57,6 +58,7 @@ import java.util.Set;
 public final class CarUserManagerHelper {
     private static final String TAG = "CarUserManagerHelper";
 
+    private static final boolean DEBUG = false;
     private static final int BOOT_USER_NOT_FOUND = -1;
 
     /**
@@ -97,14 +99,41 @@ public final class CarUserManagerHelper {
      * Sets the last active user.
      */
     public void setLastActiveUser(@UserIdInt int userId) {
-        Settings.Global.putInt(
-                mContext.getContentResolver(), Settings.Global.LAST_ACTIVE_USER_ID, userId);
+        if (UserHelper.isHeadlessSystemUser(userId)) {
+            if (DEBUG) Log.d(TAG, "setLastActiveUser(): ignoring headless system user " + userId);
+            return;
+        }
+        setUserIdGlobalProperty(CarSettings.Global.LAST_ACTIVE_USER_ID, userId);
+
+        // TODO(b/155918094): change method to receive a UserInfo instead
+        UserInfo user = mUserManager.getUserInfo(userId);
+        if (user == null) {
+            Log.w(TAG, "setLastActiveUser(): user " + userId + " doesn't exist");
+            return;
+        }
+        if (!user.isEphemeral()) {
+            setUserIdGlobalProperty(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID, userId);
+        }
     }
 
-    private int getLastActiveUser() {
-        return Settings.Global.getInt(
-            mContext.getContentResolver(), Settings.Global.LAST_ACTIVE_USER_ID,
-            /* default user id= */ UserHandle.USER_SYSTEM);
+    private void setUserIdGlobalProperty(@NonNull String name, @UserIdInt int userId) {
+        if (DEBUG) Log.d(TAG, "setting global property " + name + " to " + userId);
+
+        Settings.Global.putInt(mContext.getContentResolver(), name, userId);
+    }
+
+    private int getUserIdGlobalProperty(@NonNull String name) {
+        int userId = Settings.Global.getInt(mContext.getContentResolver(), name,
+                UserHandle.USER_NULL);
+        if (DEBUG) Log.d(TAG, "getting global property " + name + ": " + userId);
+
+        return userId;
+    }
+
+    private void resetUserIdGlobalProperty(@NonNull String name) {
+        if (DEBUG) Log.d(TAG, "resetting global property " + name);
+
+        Settings.Global.putInt(mContext.getContentResolver(), name, UserHandle.USER_NULL);
     }
 
     /**
@@ -125,7 +154,6 @@ public final class CarUserManagerHelper {
      * @return user id of the initial user to boot into on the device, or
      * {@link UserHandle#USER_NULL} if there is no user available.
      */
-    @VisibleForTesting
     int getInitialUser(boolean usesOverrideUserIdProperty) {
 
         List<Integer> allUsers = userInfoListToUserIdList(getAllUsers());
@@ -148,18 +176,29 @@ public final class CarUserManagerHelper {
         }
 
         // If the last active user is not the SYSTEM user and is a real user, return it
-        int lastActiveUser = getLastActiveUser();
-        if (lastActiveUser != UserHandle.USER_SYSTEM
-                && allUsers.contains(lastActiveUser)) {
-            Log.i(TAG, "Last active user loaded for initial user, user id: "
-                    + lastActiveUser);
+        int lastActiveUser = getUserIdGlobalProperty(CarSettings.Global.LAST_ACTIVE_USER_ID);
+        if (allUsers.contains(lastActiveUser)) {
+            Log.i(TAG, "Last active user loaded for initial user: " + lastActiveUser);
             return lastActiveUser;
         }
+        resetUserIdGlobalProperty(CarSettings.Global.LAST_ACTIVE_USER_ID);
+
+        int lastPersistentUser = getUserIdGlobalProperty(
+                CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID);
+        if (allUsers.contains(lastPersistentUser)) {
+            Log.i(TAG, "Last active, persistent user loaded for initial user: "
+                    + lastPersistentUser);
+            return lastPersistentUser;
+        }
+        resetUserIdGlobalProperty(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID);
 
         // If all else fails, return the smallest user id
         int returnId = Collections.min(allUsers);
-        Log.i(TAG, "Saved ids were invalid. Returning smallest user id, user id: "
-                + returnId);
+        // TODO(b/158101909): the smallest user id is not always the initial user; a better approach
+        // would be looking for the first ADMIN user, or keep track of all last active users (not
+        // just the very last)
+        Log.w(TAG, "Last active user (" + lastActiveUser + ") not found. Returning smallest user id"
+                + " instead: " + returnId);
         return returnId;
     }
 
