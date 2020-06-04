@@ -4464,7 +4464,7 @@
     <string name="change_wifi_state_title" msgid="5140754955787584174">"Керування Wi-Fi"</string>
     <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"Дозволити додатку керувати Wi-Fi"</string>
     <string name="change_wifi_state_app_detail_summary" msgid="614854822469259860">"Дозволити цьому додатку вмикати чи вимикати Wi-Fi, шукати мережі Wi-Fi та підключатися до них, додавати або видаляти мережі чи запускати лише локальну точку доступу"</string>
-    <string name="media_output_title" msgid="8710632337456601848">"Відтворювати медіа-вміст у додатку"</string>
+    <string name="media_output_title" msgid="8710632337456601848">"Відтворення медіаконтенту"</string>
     <string name="media_output_default_summary" msgid="3159237976830415584">"Цей пристрій"</string>
     <string name="media_output_summary" product="default" msgid="6294261435613551178">"Телефон"</string>
     <string name="media_output_summary" product="tablet" msgid="6672024060360538526">"Планшет"</string>

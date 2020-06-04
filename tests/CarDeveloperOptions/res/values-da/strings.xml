@@ -3147,13 +3147,13 @@
     <string name="alarm_ringtone_title" msgid="6411326147408635902">"Standardlyd for alarmer"</string>
     <string name="vibrate_when_ringing_title" msgid="2757996559847126952">"Vibrer ved opkald"</string>
     <string name="other_sound_settings" msgid="5250376066099818676">"Andre lyde"</string>
-    <string name="dial_pad_tones_title" msgid="8877212139988655769">"Toner for numerisk tastatur"</string>
+    <string name="dial_pad_tones_title" msgid="8877212139988655769">"Toner for tastatur"</string>
     <string name="screen_locking_sounds_title" msgid="4407110895465866809">"Lyd ved skærmlås"</string>
     <string name="charging_sounds_title" msgid="5070437987230894287">"Lyd og vibration ved opladning"</string>
     <string name="docking_sounds_title" msgid="2573137471605541366">"Lyde for dockingstation"</string>
     <string name="touch_sounds_title" msgid="165237488496165652">"Lyd ved berøring"</string>
     <string name="vibrate_on_touch_title" msgid="6360155469279157684">"Vibration ved berøring"</string>
-    <string name="vibrate_on_touch_summary" msgid="5504424764028676043">"Feedback ved berøring for tryk, tastatur og meget mere"</string>
+    <string name="vibrate_on_touch_summary" msgid="5504424764028676043">"Feedback ved berøring for tryk, tastatur og mere"</string>
     <string name="dock_audio_media_title" msgid="1859521680502040781">"Dockhøjttaler afspiller"</string>
     <string name="dock_audio_media_disabled" msgid="4300752306178486302">"Al lyd"</string>
     <string name="dock_audio_media_enabled" msgid="2873275045878628153">"Kun medielyd"</string>

@@ -3149,7 +3149,7 @@
     <string name="other_sound_settings" msgid="5250376066099818676">"Andra ljud"</string>
     <string name="dial_pad_tones_title" msgid="8877212139988655769">"Knappsatsljud"</string>
     <string name="screen_locking_sounds_title" msgid="4407110895465866809">"Ljud vid skärmlåsning"</string>
-    <string name="charging_sounds_title" msgid="5070437987230894287">"Laddningsljud- och vibration"</string>
+    <string name="charging_sounds_title" msgid="5070437987230894287">"Laddningsljud och -vibration"</string>
     <string name="docking_sounds_title" msgid="2573137471605541366">"Ljud via dockningsstationen"</string>
     <string name="touch_sounds_title" msgid="165237488496165652">"Ljud vid tryck"</string>
     <string name="vibrate_on_touch_title" msgid="6360155469279157684">"Vibration vid tryck"</string>

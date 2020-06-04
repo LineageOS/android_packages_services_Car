@@ -2094,7 +2094,7 @@
     <string name="accessibility_vibration_settings_title" msgid="1902649657883159406">"Mtetemo"</string>
     <string name="accessibility_notification_vibration_title" msgid="1005799039440510298">"Mtetemo wa arifa"</string>
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"Mtetemo wa mlio"</string>
-    <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"Mtetemo wa mguso"</string>
+    <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"Mtetemo inapoguswa"</string>
     <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"Tumia huduma"</string>
     <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"Tumia usahihishaji wa rangi"</string>
     <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"Tumia manukuu"</string>
@@ -3152,7 +3152,7 @@
     <string name="charging_sounds_title" msgid="5070437987230894287">"Sauti za kuchaji na mtetemo"</string>
     <string name="docking_sounds_title" msgid="2573137471605541366">"Kuambatisha sauti"</string>
     <string name="touch_sounds_title" msgid="165237488496165652">"Sauti inapoguswa"</string>
-    <string name="vibrate_on_touch_title" msgid="6360155469279157684">"Mtetemo wa mguso"</string>
+    <string name="vibrate_on_touch_title" msgid="6360155469279157684">"Mtetemo inapoguswa"</string>
     <string name="vibrate_on_touch_summary" msgid="5504424764028676043">"Majibu unayoweza kuhisi kwa kugusa, kibodi na mengineyo"</string>
     <string name="dock_audio_media_title" msgid="1859521680502040781">"Cheza kutumia spika ya kituo"</string>
     <string name="dock_audio_media_disabled" msgid="4300752306178486302">"Sauti zote"</string>
@@ -3345,7 +3345,7 @@
     <string name="notification_importance_min_title" msgid="705872537330744154">"Punguza"</string>
     <string name="notification_importance_low_title" msgid="2956199021781786232">"Wastani"</string>
     <string name="notification_importance_default_title" msgid="7985549807203332482">"Juu"</string>
-    <string name="notification_importance_high_title" msgid="7258373094258585858">"Ichomoze kwenye skrini"</string>
+    <string name="notification_importance_high_title" msgid="7258373094258585858">"Zionekane kwenye skrini"</string>
     <string name="notification_block_title" msgid="2570364198866886906">"Zuia"</string>
     <string name="notification_silence_title" msgid="6959637402003838093">"Ionyeshe bila kutoa sauti"</string>
     <string name="notification_alert_title" msgid="750683027055192648">"Arifa"</string>

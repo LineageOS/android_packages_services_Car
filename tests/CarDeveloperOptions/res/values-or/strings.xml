@@ -1608,7 +1608,7 @@
     <string name="master_clear_not_available" msgid="4676613348163652454">"ଏହି ଉପଯୋଗକର୍ତ୍ତାଙ୍କ ପାଇଁ ଫ୍ୟାକ୍ଟୋରୀ ରିସେଟ୍‌ ଉପଲବ୍ଧ ନାହିଁ"</string>
     <string name="master_clear_progress_title" msgid="378953167274114857">"ଲିଭାଉଛି"</string>
     <string name="master_clear_progress_text" msgid="5418958116008976218">"ଦୟାକରି ଅପେକ୍ଷା କରନ୍ତୁ..."</string>
-    <string name="call_settings_title" msgid="5033906789261282752">"କଲ୍‌ ସେଟିଙ୍ଗ"</string>
+    <string name="call_settings_title" msgid="5033906789261282752">"କଲ୍‌ ସେଟିଂସ୍"</string>
     <string name="call_settings_summary" msgid="2119161087671450035">"ଭଏସ୍‌ମେଲ୍‌, କଲ୍‌ ଫର୍‌ୱାର୍ଡିଙ୍ଗ, କଲ୍‌ ୱେଟିଙ୍ଗ, କଲର୍‌ ID ସେଟ୍‌ କରନ୍ତୁ"</string>
     <string name="tether_settings_title_usb" msgid="4265582654602420357">"USB ଟିଥରିଂ"</string>
     <string name="tether_settings_title_wifi" msgid="2060965130234484613">"ପୋର୍ଟବଲ୍‌ ହଟସ୍ପଟ୍‌"</string>
@@ -3147,13 +3147,13 @@
     <string name="alarm_ringtone_title" msgid="6411326147408635902">"ଡିଫଲ୍ଟ ଆଲାର୍ମ ସାଉଣ୍ଡ"</string>
     <string name="vibrate_when_ringing_title" msgid="2757996559847126952">"କଲ୍‍ ପାଇଁ ଭାଇବ୍ରେଟ୍‍ କରନ୍ତୁ"</string>
     <string name="other_sound_settings" msgid="5250376066099818676">"ଅନ୍ୟାନ୍ୟ ଶବ୍ଦ"</string>
-    <string name="dial_pad_tones_title" msgid="8877212139988655769">"ଡାୟଲ୍‌ ପ୍ୟାଡ୍‌ ଟୋନ୍‍"</string>
+    <string name="dial_pad_tones_title" msgid="8877212139988655769">"ଡାଏଲ୍‌ ପ୍ୟାଡ୍‌ ଟୋନ୍‍"</string>
     <string name="screen_locking_sounds_title" msgid="4407110895465866809">"ସ୍କ୍ରୀନ୍‌ ଲକ୍‌ କରିବା ସାଉଣ୍ଡ"</string>
     <string name="charging_sounds_title" msgid="5070437987230894287">"ସାଉଣ୍ଡ ଓ ଭାଇବ୍ରେସନ୍ ଚାର୍ଜ ହେଉଛି"</string>
     <string name="docking_sounds_title" msgid="2573137471605541366">"ଡକ୍‌ କରିବା ଧ୍ୱନୀ"</string>
     <string name="touch_sounds_title" msgid="165237488496165652">"ସ୍ପର୍ଶ ଶବ୍ଦ"</string>
-    <string name="vibrate_on_touch_title" msgid="6360155469279157684">"ସ୍ପର୍ଶଜନିତ ଭାଇବ୍ରେଶନ୍"</string>
-    <string name="vibrate_on_touch_summary" msgid="5504424764028676043">"ଟ୍ୟାପ୍‌, କୀ-ବୋର୍ଡ ଓ ଆହୁରି ଅଧିକ ପାଇଁ ସ୍ପର୍ଶ ମାଧ୍ୟମରେ ମତାମତ"</string>
+    <string name="vibrate_on_touch_title" msgid="6360155469279157684">"ସ୍ପର୍ଶ ଭାଇବ୍ରେସନ୍"</string>
+    <string name="vibrate_on_touch_summary" msgid="5504424764028676043">"ଟ୍ୟାପ୍‌, କୀ-ବୋର୍ଡ ଓ ଆହୁରି ଅଧିକ ପାଇଁ ହେପଟିକ୍ ମତାମତ"</string>
     <string name="dock_audio_media_title" msgid="1859521680502040781">"ଡକ୍‌ ସ୍ପିକର୍‌ ବାଜିବ"</string>
     <string name="dock_audio_media_disabled" msgid="4300752306178486302">"ସମସ୍ତ ଅଡିଓ"</string>
     <string name="dock_audio_media_enabled" msgid="2873275045878628153">"କେବଳ ମିଡିଆ ଅଡିଓ"</string>
@@ -3293,7 +3293,7 @@
     <string name="ringtones_install_custom_sound_title" msgid="210551218424553671">"କଷ୍ଟମ୍‌ ସାଉଣ୍ଡ ଯୋଡ଼ିବେ?"</string>
     <string name="ringtones_install_custom_sound_content" msgid="6683649115132255452">"<xliff:g id="FOLDER_NAME">%s</xliff:g> ଫୋଲ୍ଡର୍‌କୁ ଏହି ଫାଇଲ୍‌ କପୀ କରାଯିବ"</string>
     <string name="ringtones_category_preference_title" msgid="4491932700769815470">"ରିଙ୍ଗଟୋନ୍‌"</string>
-    <string name="other_sound_category_preference_title" msgid="2045757472469840859">"ଅନ୍ୟାନ୍ୟ ସାଉଣ୍ଡ ଓ ଭାଇବ୍ରେଶନ୍"</string>
+    <string name="other_sound_category_preference_title" msgid="2045757472469840859">"ଅନ୍ୟ ସାଉଣ୍ଡ ଓ ଭାଇବ୍ରେସନ୍"</string>
     <string name="configure_notification_settings" msgid="291914315140851270">"ବିଜ୍ଞପ୍ତି"</string>
     <string name="recent_notifications" msgid="8125865995065032049">"କିଛି ସମୟ ପୂର୍ବରୁ ବିଜ୍ଞପ୍ତି ପଠାଇଥିବା ଆପ୍"</string>
     <string name="recent_notifications_see_all_title" msgid="4089007770442871469">"ବିଗତ 7 ଦିନରୁ ସବୁଗୁଡ଼ିକୁ ଦେଖନ୍ତୁ"</string>
@@ -3423,7 +3423,7 @@
     <string name="notification_badge_title" msgid="8989086619255666442">"ବିଜ୍ଞପ୍ତି ଡଟ୍‌ର ଅନୁମତି ଦିଅନ୍ତୁ"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"ବିଜ୍ଞପ୍ତି ଡଟ୍‌ ଦେଖାନ୍ତୁ"</string>
     <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"ବିରକ୍ତ କରନାହିଁ ଓଭରରାଇଡ"</string>
-    <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"’ବିରକ୍ତ କରନ୍ତୁ ନାହିଁ’ ଅନ୍ ଥିବାବେଳେ ଏହି ବିଜ୍ଞପ୍ତିର ବାଧା ଦେବା ପ୍ରକ୍ରିୟାକୁ ଜାରି ରଖନ୍ତୁ"</string>
+    <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"\'ବିରକ୍ତ କରନ୍ତୁ ନାହିଁ\' ଚାଲୁଥିବା ବେଳେ ଏହି ବିଜ୍ଞପ୍ତିଗୁଡ଼ିକର ବାଧା ଦେବା ପ୍ରକ୍ରିୟାକୁ ଜାରି ରଖନ୍ତୁ"</string>
     <string name="app_notification_visibility_override_title" msgid="2349335170165637672">"ଲକ୍ ସ୍କ୍ରୀନ୍ ଉପରେ"</string>
     <string name="app_notification_row_banned" msgid="2079325338122151677">"ଅବରୋଧିତ"</string>
     <string name="app_notification_row_priority" msgid="432299064888787236">"ପ୍ରାଥମିକତା"</string>
@@ -4310,7 +4310,7 @@
     <string name="change_wifi_state_title" msgid="5140754955787584174">"ୱାଇ-ଫାଇର ନିୟନ୍ତ୍ରଣ"</string>
     <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"ୱାଇ-ଫାଇକୁ ନିୟନ୍ତ୍ରଣ କରିବା ପାଇଁ ଆପ୍‌କୁ ଅନୁମତି ଦିଅନ୍ତୁ"</string>
     <string name="change_wifi_state_app_detail_summary" msgid="614854822469259860">"ୱାଇ-ଫାଇକୁ ଚାଲୁ କରିବା କିମ୍ବା ବନ୍ଦ କରିବା, ୱାଇ-ଫାଇ ନେଟୱର୍କକୁ ଖୋଜିବା ଓ କନେକ୍ଟ କରିବା, ନେଟୱର୍କକୁ ଯୋଡ଼ିବା କିମ୍ବା କାଢ଼ିଦେବା କିମ୍ବା କେବଳ ସୀମିତ କ୍ଷେତ୍ରରେ କାମ କରୁଥିବା ହଟସ୍ପଟ୍‌କୁ ଚାଲୁ କରିବା ପାଇଁ ଏହି ଆପ୍‌କୁ ଅନୁମତି ଦେବା"</string>
-    <string name="media_output_title" msgid="8710632337456601848">"ମିଡିଆ ଚଲାନ୍ତୁ"</string>
+    <string name="media_output_title" msgid="8710632337456601848">"ଏଥିରେ ମିଡିଆ ଚଲାନ୍ତୁ"</string>
     <string name="media_output_default_summary" msgid="3159237976830415584">"ଏହି ଡିଭାଇସ୍‍"</string>
     <string name="media_output_summary" product="default" msgid="6294261435613551178">"ଫୋନ୍"</string>
     <string name="media_output_summary" product="tablet" msgid="6672024060360538526">"ଟାବଲେଟ୍‌"</string>
@@ -4330,7 +4330,7 @@
     <string name="prevent_ringing_option_mute" msgid="53662688921253613">"ମ୍ୟୁଟ୍ କରନ୍ତୁ"</string>
     <string name="prevent_ringing_option_none" msgid="1450985763137666231">"କିଛି କରନ୍ତୁ ନାହିଁ"</string>
     <string name="prevent_ringing_option_vibrate_summary" msgid="7961818570574683926">"ଚାଲୁ (ଭାଇବ୍ରେଟ୍)"</string>
-    <string name="prevent_ringing_option_mute_summary" msgid="3509459199090688328">"(ମ୍ୟୁଟ୍) ଅନ୍ ଅଛି"</string>
+    <string name="prevent_ringing_option_mute_summary" msgid="3509459199090688328">"ଚାଲୁ (ମ୍ୟୁଟ୍)"</string>
     <string name="prevent_ringing_option_none_summary" msgid="5152618221093037451">"ଅଫ୍"</string>
     <string name="pref_title_network_details" msgid="3971074015034595956">"ନେଟୱାର୍କ୍‌ ବିବରଣୀ"</string>
     <string name="about_phone_device_name_warning" msgid="9088572775969880106">"ଆପଣଙ୍କ ଡିଭାଇସ୍‌ରେ ଥିବା ଆପ୍‌ଗୁଡ଼ିକୁ ଆପଣଙ୍କର ଡିଭାଇସ୍‍ ନାମ ଦେଖାଯାଉଛି। ବ୍ଲୁଟୂଥ୍‍ ଡିଭାଇସ୍‍ ସହ ଯୋଡ଼ି ହେବାବେଳେ କିମ୍ୱା ଏକ ୱାଇ-ଫାଇ ହଟସ୍ପଟ୍ ସେଟ୍ କରିବା ସମୟରେ, ଏହା ଅନ୍ୟ ଲୋକମାନଙ୍କୁ ମଧ୍ୟ ଦେଖାଦେଇପାରେ।"</string>

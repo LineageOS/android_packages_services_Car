@@ -163,7 +163,7 @@
     <string name="bluetooth_sap_request" msgid="6318039677671263261">"SIM txartelerako sarbide-eskaera"</string>
     <string name="bluetooth_sap_acceptance_dialog_text" msgid="1909352413109340355">"<xliff:g id="DEVICE_NAME_0">%1$s</xliff:g> gailuak SIM txartela atzitu nahi du. SIM txartelerako sarbidea ematen badiozu, gailuaren datu-konexioa desgaituko da, txartelerako konexioak dirauen bitartean. Eman sarbidea <xliff:g id="DEVICE_NAME_1">%2$s?</xliff:g> gailuari"</string>
     <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"\"<xliff:g id="DEVICE_NAME">^1</xliff:g>\" gisa dago ikusgai beste gailuetan"</string>
-    <string name="bluetooth_off_footer" msgid="7658444560543730571">"Aktibatu Bluetooth konexioa beste gailu batzuetara konektatzeko."</string>
+    <string name="bluetooth_off_footer" msgid="7658444560543730571">"Aktibatu Bluetooth bidezko konexioa beste gailu batzuetara konektatzeko."</string>
     <string name="bluetooth_paired_device_title" msgid="8361860197780425286">"Zure gailuak"</string>
     <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"Parekatu gailu batekin"</string>
     <string name="bluetooth_pref_summary" product="tablet" msgid="3601662966604648212">"Baimendu tabletari inguruko Bluetooth bidezko gailuekin komunikatzea"</string>
