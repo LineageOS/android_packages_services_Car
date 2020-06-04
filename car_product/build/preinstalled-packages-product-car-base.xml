@@ -166,6 +166,12 @@
         <install-in user-type="SYSTEM" />
     </install-in-user-type>
 
+    <!-- Failed to pass CTS if not installed for system user -->
+    <install-in-user-type package="com.android.car.ui.sharedlibrary">
+        <install-in user-type="FULL" />
+        <install-in user-type="SYSTEM" />
+    </install-in-user-type>
+
 <!--
   Apps that do need to run on SYSTEM and evaluated by package owner.
   Here the apps will have FULL only.
@@ -258,9 +264,6 @@
         <install-in user-type="FULL" />
     </install-in-user-type>
     <install-in-user-type package="com.android.car.calendar">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.car.ui.sharedlibrary">
         <install-in user-type="FULL" />
     </install-in-user-type>
     <install-in-user-type package="com.android.wifi.inprocess.overlay.car">
