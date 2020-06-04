@@ -40,11 +40,11 @@ import java.util.HashSet;
  * This class contains security permission tests for the {@link CarPropertyManager}'s public APIs.
  */
 @RunWith(AndroidJUnit4.class)
-public class CarPropertyManagerPublicTest {
+public class CarPropertyManagerPublicPermissionTest {
     private Car mCar = null;
     private CarPropertyManager mPropertyManager;
     private HashSet<Integer> mProps = new HashSet<>();
-    private static final String TAG = CarPropertyManagerPublicTest.class.getSimpleName();
+    private static final String TAG = CarPropertyManagerPublicPermissionTest.class.getSimpleName();
     private static final Integer DUMMY_AREA_ID = VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL;
     // Dummy values for setter test.
     private static final int DUMMY_PROPERTY_VALUE_INTEGER = 1;

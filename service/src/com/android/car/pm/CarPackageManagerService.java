@@ -224,6 +224,11 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
      */
     @Override
     public void restartTask(int taskId) {
+        if (mContext.checkCallingOrSelfPermission(android.Manifest.permission.REAL_GET_TASKS)
+                != PackageManager.PERMISSION_GRANTED) {
+            throw new SecurityException(
+                    "requires permission " + android.Manifest.permission.REAL_GET_TASKS);
+        }
         mSystemActivityMonitoringService.restartTask(taskId);
     }
 
