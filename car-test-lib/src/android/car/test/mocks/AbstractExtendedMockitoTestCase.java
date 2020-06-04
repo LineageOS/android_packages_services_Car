@@ -86,10 +86,10 @@ import java.util.Set;
  */
 public abstract class AbstractExtendedMockitoTestCase {
 
-    private static final boolean TRACE = false;
-
-    private static final boolean VERBOSE = false;
     private static final String TAG = AbstractExtendedMockitoTestCase.class.getSimpleName();
+
+    private static final boolean TRACE = false;
+    private static final boolean VERBOSE = false;
 
     private final List<Class<?>> mStaticSpiedClasses = new ArrayList<>();
 
@@ -159,7 +159,7 @@ public abstract class AbstractExtendedMockitoTestCase {
             }
         }
         ArrayList<SyncRunnable> syncs = new ArrayList<>(handlerThreads.size());
-        Log.i(TAG, "will wait for HandlerThreads:" + handlerThreads.size());
+        Log.i(TAG, "will wait for " + handlerThreads.size() + " HandlerThreads");
         for (int i = 0; i < handlerThreads.size(); i++) {
             Handler handler = new Handler(handlerThreads.get(i).getLooper());
             SyncRunnable sr = new SyncRunnable(() -> { });
@@ -200,6 +200,13 @@ public abstract class AbstractExtendedMockitoTestCase {
      */
     protected String getSettingsString(@NonNull String key) {
         return mSettings.getString(key);
+    }
+
+    /**
+     * Asserts that the giving settings was not set.
+     */
+    protected void assertSettingsNotSet(String key) {
+        mSettings.assertDoesNotContainsKey(key);
     }
 
     /**
@@ -521,6 +528,13 @@ public abstract class AbstractExtendedMockitoTestCase {
 
         public int getInt(String key) {
             return get(key, null, Integer.class);
+        }
+
+        public void assertDoesNotContainsKey(String key) {
+            if (mSettingsMapping.containsKey(key)) {
+                throw new AssertionError("Should not have key " + key + ", but has: "
+                        + mSettingsMapping.get(key));
+            }
         }
     }
 

@@ -301,6 +301,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         writer.printf("EnablePassengerSupport: %s\n", mEnablePassengerSupport);
         writer.printf("User HAL timeout: %dms\n",  mHalTimeoutMs);
         writer.printf("Initial user: %s\n", mInitialUser);
+
         writer.println("Relevant overlayable properties");
         Resources res = mContext.getResources();
         writer.printf("%sowner_name=%s\n", indent,
@@ -312,7 +313,16 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     mRequestIdForUserSwitchInProcess);
         writer.printf("System UI package name=%s\n", getSystemUiPackageName());
 
+        writer.println("Relevant Global settings");
+        dumpGlobalProperty(writer, indent, CarSettings.Global.LAST_ACTIVE_USER_ID);
+        dumpGlobalProperty(writer, indent, CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID);
+
         dumpUserMetrics(writer);
+    }
+
+    private void dumpGlobalProperty(PrintWriter writer, String indent, String property) {
+        String value = Settings.Global.getString(mContext.getContentResolver(), property);
+        writer.printf("%s%s=%s\n", indent, property, value);
     }
 
     /**
@@ -1536,9 +1546,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         // Switch HAL users if user switch is not requested by CarUserService
         notifyHalLegacySwitch(fromUserId, toUserId);
 
-        if (!UserHelper.isHeadlessSystemUser(toUserId)) {
-            mCarUserManagerHelper.setLastActiveUser(toUserId);
-        }
+        mCarUserManagerHelper.setLastActiveUser(toUserId);
+
         if (mLastPassengerId != UserHandle.USER_NULL) {
             stopPassengerInternal(mLastPassengerId, false);
         }
