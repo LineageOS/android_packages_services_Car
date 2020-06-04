@@ -16,6 +16,8 @@
 
 package android.car.userlib;
 
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetSystemUser;
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserInfo;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUsers;
 import static android.car.test.util.UserTestingHelper.newUser;
 import static android.os.UserHandle.USER_SYSTEM;
@@ -31,6 +33,7 @@ import static org.mockito.Mockito.verify;
 import android.annotation.NonNull;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
+import android.car.settings.CarSettings;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -38,7 +41,6 @@ import android.content.pm.UserInfo;
 import android.content.res.Resources;
 import android.os.UserHandle;
 import android.os.UserManager;
-import android.provider.Settings;
 import android.sysprop.CarProperties;
 
 import androidx.test.InstrumentationRegistry;
@@ -192,12 +194,31 @@ public class CarUserManagerHelperTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testGetInitialUser_WithNonExistLastActiveUser_ReturnsSmallestUserId() {
-        setLastActiveUser(12);
-        mockGetUsers(USER_SYSTEM, 10, 10 + 1);
+    public void testGetInitialUser_WithNonExistLastActiveUser_ReturnsLastPersistentUser() {
+        setLastActiveUser(120);
+        setLastPersistentActiveUser(110);
+        mockGetUsers(USER_SYSTEM, 100, 110);
 
         assertThat(mCarUserManagerHelper.getInitialUser(/* usesOverrideUserIdProperty= */ true))
-                .isEqualTo(10);
+                .isEqualTo(110);
+        // should have reset last active user
+        assertThat(getSettingsInt(CarSettings.Global.LAST_ACTIVE_USER_ID))
+                .isEqualTo(UserHandle.USER_NULL);
+    }
+
+    @Test
+    public void testGetInitialUser_WithNonExistLastActiveAndPersistentUsers_ReturnsSmallestUser() {
+        setLastActiveUser(120);
+        setLastPersistentActiveUser(120);
+        mockGetUsers(USER_SYSTEM, 100, 110);
+
+        assertThat(mCarUserManagerHelper.getInitialUser(/* usesOverrideUserIdProperty= */ true))
+                .isEqualTo(100);
+        // should have reset both settions
+        assertThat(getSettingsInt(CarSettings.Global.LAST_ACTIVE_USER_ID))
+                .isEqualTo(UserHandle.USER_NULL);
+        assertThat(getSettingsInt(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID))
+                .isEqualTo(UserHandle.USER_NULL);
     }
 
     @Test
@@ -289,6 +310,65 @@ public class CarUserManagerHelperTest extends AbstractExtendedMockitoTestCase {
         assertThat(mCarUserManagerHelper.hasInitialUser()).isFalse();
     }
 
+    @Test
+    public void testSetLastActiveUser_headlessSystem() {
+        mockIsHeadlessSystemUserMode(true);
+        mockUmGetSystemUser(mUserManager);
+
+        mCarUserManagerHelper.setLastActiveUser(UserHandle.USER_SYSTEM);
+
+        assertSettingsNotSet(CarSettings.Global.LAST_ACTIVE_USER_ID);
+        assertSettingsNotSet(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID);
+    }
+
+    @Test
+    public void testSetLastActiveUser_nonHeadlessSystem() {
+        mockIsHeadlessSystemUserMode(false);
+        mockUmGetSystemUser(mUserManager);
+
+        mCarUserManagerHelper.setLastActiveUser(UserHandle.USER_SYSTEM);
+
+        assertThat(getSettingsInt(CarSettings.Global.LAST_ACTIVE_USER_ID))
+                .isEqualTo(UserHandle.USER_SYSTEM);
+        assertThat(getSettingsInt(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID))
+                .isEqualTo(UserHandle.USER_SYSTEM);
+    }
+
+    @Test
+    public void testSetLastActiveUser_nonExistingUser() {
+        // Don't need to mock um.getUser(), it will return null by default
+        mCarUserManagerHelper.setLastActiveUser(42);
+
+        assertThat(getSettingsInt(CarSettings.Global.LAST_ACTIVE_USER_ID)).isEqualTo(42);
+        assertSettingsNotSet(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID);
+    }
+
+    @Test
+    public void testSetLastActiveUser_ephemeralUser() {
+        int persistentUserId = 42;
+        int ephemeralUserid = 108;
+        mockUmGetUserInfo(mUserManager, persistentUserId, NO_FLAGS);
+        mockUmGetUserInfo(mUserManager, ephemeralUserid, UserInfo.FLAG_EPHEMERAL);
+
+        mCarUserManagerHelper.setLastActiveUser(persistentUserId);
+        mCarUserManagerHelper.setLastActiveUser(ephemeralUserid);
+
+        assertThat(getSettingsInt(CarSettings.Global.LAST_ACTIVE_USER_ID))
+                .isEqualTo(ephemeralUserid);
+        assertThat(getSettingsInt(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID))
+                .isEqualTo(persistentUserId);
+    }
+
+    @Test
+    public void testSetLastActiveUser_nonEphemeralUser() {
+        mockUmGetUserInfo(mUserManager, 42, NO_FLAGS);
+
+        mCarUserManagerHelper.setLastActiveUser(42);
+
+        assertThat(getSettingsInt(CarSettings.Global.LAST_ACTIVE_USER_ID)).isEqualTo(42);
+        assertThat(getSettingsInt(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID)).isEqualTo(42);
+    }
+
     private void mockGetUsers(@NonNull @UserIdInt int... userIds) {
         mockUmGetUsers(mUserManager, userIds);
     }
@@ -298,7 +378,11 @@ public class CarUserManagerHelperTest extends AbstractExtendedMockitoTestCase {
     }
 
     private void setLastActiveUser(@UserIdInt int userId) {
-        putSettingsInt(Settings.Global.LAST_ACTIVE_USER_ID, userId);
+        putSettingsInt(CarSettings.Global.LAST_ACTIVE_USER_ID, userId);
+    }
+
+    private void setLastPersistentActiveUser(@UserIdInt int userId) {
+        putSettingsInt(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID, userId);
     }
 
     private void setDefaultBootUserOverride(@UserIdInt int userId) {

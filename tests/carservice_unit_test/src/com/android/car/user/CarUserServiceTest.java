@@ -18,7 +18,6 @@ package com.android.car.user;
 
 import static android.car.test.mocks.AndroidMockitoHelper.getResult;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmCreateUser;
-import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetSystemUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserInfo;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUsers;
 import static android.car.test.util.UserTestingHelper.UserInfoBuilder;
@@ -314,21 +313,6 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         sendUserSwitchingEvent(mAdminUser.id, mRegularUser.id);
 
         verifyLastActiveUserSet(mRegularUser.id);
-    }
-
-    /**
-     * Test that the {@link CarUserService} doesn't update last active user on user switch in
-     * headless system user mode.
-     */
-    @Test
-    public void testLastActiveUserUpdatedOnUserSwitch_headlessSystemUser() throws Exception {
-        mockIsHeadlessSystemUser(mRegularUser.id, true);
-        mockUmGetSystemUser(mMockedUserManager);
-        mockExistingUsers();
-
-        sendUserSwitchingEvent(mAdminUser.id, mRegularUser.id);
-
-        verifyLastActiveUserNotSet();
     }
 
     /**
