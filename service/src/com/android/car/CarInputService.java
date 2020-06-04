@@ -19,6 +19,7 @@ import static android.hardware.input.InputManager.INJECT_INPUT_EVENT_MODE_ASYNC;
 import static android.service.voice.VoiceInteractionSession.SHOW_SOURCE_PUSH_TO_TALK;
 
 import android.annotation.Nullable;
+import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -32,6 +33,8 @@ import android.car.input.ICarInput;
 import android.car.input.ICarInputCallback;
 import android.car.input.ICarInputListener;
 import android.car.input.RotaryEvent;
+import android.car.user.CarUserManager;
+import android.car.userlib.UserHelper;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -58,6 +61,7 @@ import android.view.KeyEvent;
 import android.view.ViewConfiguration;
 
 import com.android.car.hal.InputHalService;
+import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.app.AssistUtils;
@@ -159,6 +163,7 @@ public class CarInputService extends ICarInput.Stub
 
     private final Context mContext;
     private final InputHalService mInputHalService;
+    private final CarUserService mUserService;
     private final TelecomManager mTelecomManager;
     private final AssistUtils mAssistUtils;
     // The ComponentName of the CarInputListener service. Can be changed via resource overlay,
@@ -175,6 +180,8 @@ public class CarInputService extends ICarInput.Stub
     // from Settings.Secure for the current user, falling back to the system-wide default
     // long-press delay defined in ViewConfiguration. May be overridden for testing.
     private final IntSupplier mLongPressDelaySupplier;
+    // ComponentName of the RotaryService.
+    private final String mRotaryServiceComponentName;
 
     private final Object mLock = new Object();
 
@@ -270,6 +277,13 @@ public class CarInputService extends ICarInput.Stub
         }
     };
 
+    private final CarUserManager.UserLifecycleListener mUserLifecycleListener = event -> {
+        Log.d(CarLog.TAG_INPUT, "CarInputService.onEvent(" + event + ")");
+        if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING == event.getEventType()) {
+            updateRotaryServiceSettings(event.getUserId());
+        }
+    };
+
     @Nullable
     private static ComponentName getDefaultInputComponent(Context context) {
         String carInputService = context.getString(R.string.inputService);
@@ -285,8 +299,9 @@ public class CarInputService extends ICarInput.Stub
                 UserHandle.USER_CURRENT);
     }
 
-    public CarInputService(Context context, InputHalService inputHalService) {
-        this(context, inputHalService, new Handler(Looper.getMainLooper()),
+    public CarInputService(Context context, InputHalService inputHalService,
+            CarUserService userService) {
+        this(context, inputHalService, userService, new Handler(Looper.getMainLooper()),
                 context.getSystemService(TelecomManager.class), new AssistUtils(context),
                 event ->
                         context.getSystemService(InputManager.class)
@@ -297,14 +312,15 @@ public class CarInputService extends ICarInput.Stub
     }
 
     @VisibleForTesting
-    CarInputService(Context context, InputHalService inputHalService, Handler handler,
-            TelecomManager telecomManager, AssistUtils assistUtils,
+    CarInputService(Context context, InputHalService inputHalService, CarUserService userService,
+            Handler handler, TelecomManager telecomManager, AssistUtils assistUtils,
             KeyEventListener mainDisplayHandler, Supplier<String> lastCalledNumberSupplier,
             @Nullable ComponentName customInputServiceComponent,
             IntSupplier longPressDelaySupplier) {
         mContext = context;
         mCaptureController = new InputCaptureClientController(context);
         mInputHalService = inputHalService;
+        mUserService = userService;
         mTelecomManager = telecomManager;
         mAssistUtils = assistUtils;
         mMainDisplayHandler = mainDisplayHandler;
@@ -317,6 +333,8 @@ public class CarInputService extends ICarInput.Stub
                         handler, longPressDelaySupplier, this::handleVoiceAssistLongPress);
         mCallKeyTimer =
                 new KeyPressTimer(handler, longPressDelaySupplier, this::handleCallLongPress);
+
+        mRotaryServiceComponentName = mContext.getString(R.string.rotaryService);
     }
 
     @VisibleForTesting
@@ -367,6 +385,9 @@ public class CarInputService extends ICarInput.Stub
             mBluetoothAdapter.getProfileProxy(
                     mContext, mBluetoothProfileServiceListener, BluetoothProfile.HEADSET_CLIENT);
         }
+        if (!TextUtils.isEmpty(mRotaryServiceComponentName)) {
+            mUserService.addUserLifecycleListener(mUserLifecycleListener);
+        }
     }
 
     @Override
@@ -384,6 +405,9 @@ public class CarInputService extends ICarInput.Stub
                         BluetoothProfile.HEADSET_CLIENT, mBluetoothHeadsetClient);
                 mBluetoothHeadsetClient = null;
             }
+        }
+        if (!TextUtils.isEmpty(mRotaryServiceComponentName)) {
+            mUserService.removeUserLifecycleListener(mUserLifecycleListener);
         }
     }
 
@@ -704,5 +728,20 @@ public class CarInputService extends ICarInput.Stub
         intent.putExtras(extras);
         intent.setComponent(mCustomInputServiceComponent);
         return mContext.bindService(intent, mInputServiceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    private void updateRotaryServiceSettings(@UserIdInt int userId) {
+        if (UserHelper.isHeadlessSystemUser(userId)) {
+            return;
+        }
+        ContentResolver contentResolver = mContext.getContentResolver();
+        Settings.Secure.putStringForUser(contentResolver,
+                Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
+                mRotaryServiceComponentName,
+                userId);
+        Settings.Secure.putStringForUser(contentResolver,
+                Settings.Secure.ACCESSIBILITY_ENABLED,
+                "1",
+                userId);
     }
 }
