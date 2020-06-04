@@ -29,10 +29,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * This class contains security permission tests for the {@link CarTest}'s public APIs.
+ * This class contains security permission tests for the {@link CarPermisisonTest}'s public APIs.
  */
 @RunWith(AndroidJUnit4.class)
-public class CarPublicTest {
+public class CarPublicPermissionTest {
     private Car mCar = null;
 
     @Before
