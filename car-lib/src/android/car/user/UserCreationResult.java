@@ -42,7 +42,7 @@ public final class UserCreationResult implements Parcelable {
      *
      * @hide
      */
-    public static final int STATUS_SUCCESSFUL = 1;
+    public static final int STATUS_SUCCESSFUL = CommonResults.STATUS_SUCCESSFUL;
 
     /**
      * {@link Status} called when user creation failed on Android - HAL is not even called in this
@@ -50,7 +50,7 @@ public final class UserCreationResult implements Parcelable {
      *
      * @hide
      */
-    public static final int STATUS_ANDROID_FAILURE = 2;
+    public static final int STATUS_ANDROID_FAILURE = CommonResults.STATUS_ANDROID_FAILURE;
 
     /**
      * {@link Status} called when user was created on Android but HAL returned a failure - the
@@ -58,7 +58,7 @@ public final class UserCreationResult implements Parcelable {
      *
      * @hide
      */
-    public static final int STATUS_HAL_FAILURE = 3;
+    public static final int STATUS_HAL_FAILURE = CommonResults.STATUS_HAL_FAILURE;
 
     /**
      * {@link Status} called when user creation is failed for HAL for some internal error - the
@@ -66,7 +66,7 @@ public final class UserCreationResult implements Parcelable {
      *
      * @hide
      */
-    public static final int STATUS_HAL_INTERNAL_FAILURE = 4;
+    public static final int STATUS_HAL_INTERNAL_FAILURE = CommonResults.STATUS_HAL_INTERNAL_FAILURE;
 
     /**
      * Gets the user switch result status.
