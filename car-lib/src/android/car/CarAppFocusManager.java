@@ -45,8 +45,11 @@ public final class CarAppFocusManager extends CarManagerBase {
         /**
          * Application focus has changed. Note that {@link CarAppFocusManager} instance
          * causing the change will not get this notification.
-         * @param appType
-         * @param active
+         *
+         * <p>Note that this call can happen for app focus grant, release, and ownership change.
+         *
+         * @param appType appType where the focus change has happened.
+         * @param active {@code true} if there is an active owner for the focus.
          */
         void onAppFocusChanged(@AppFocusType int appType, boolean active);
     }

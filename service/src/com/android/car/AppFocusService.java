@@ -161,7 +161,7 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
                             ownerInfo.binderInterface, appType);
                     if (DBG) {
                         Log.i(CarLog.TAG_APP_FOCUS, "losing app type "
-                                + appType + "," + ownerInfo.toString());
+                                + appType + "," + ownerInfo);
                     }
                 }
                 updateFocusOwner(appType, info);
@@ -169,20 +169,20 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
             info.addOwnedAppType(appType);
             mDispatchHandler.requestAppFocusOwnershipGrantDispatch(
                     info.binderInterface, appType);
-            if (mActiveAppTypes.add(appType)) {
-                if (DBG) {
-                    Log.i(CarLog.TAG_APP_FOCUS, "adding active app type " + appType + ","
-                            + info.toString());
-                }
-                for (BinderInterfaceContainer.BinderInterface<IAppFocusListener> client :
-                        mAllChangeClients.getInterfaces()) {
-                    ClientInfo clientInfo = (ClientInfo) client;
-                    // dispatch events only when there is change after filter and the listener
-                    // is not coming from the current caller.
-                    if (clientInfo.getAppTypes().contains(appType)) {
-                        mDispatchHandler.requestAppFocusChangeDispatch(clientInfo.binderInterface,
-                                appType, true);
-                    }
+            mActiveAppTypes.add(appType);
+            if (DBG) {
+                Log.i(CarLog.TAG_APP_FOCUS, "updating active app type " + appType + ","
+                        + info);
+            }
+            // Always dispatch.
+            for (BinderInterfaceContainer.BinderInterface<IAppFocusListener> client :
+                    mAllChangeClients.getInterfaces()) {
+                ClientInfo clientInfo = (ClientInfo) client;
+                // dispatch events only when there is change after filter and the listener
+                // is not coming from the current caller.
+                if (clientInfo.getAppTypes().contains(appType)) {
+                    mDispatchHandler.requestAppFocusChangeDispatch(clientInfo.binderInterface,
+                            appType, true);
                 }
             }
         }
@@ -212,8 +212,7 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
                 mActiveAppTypes.remove(appType);
                 info.removeOwnedAppType(appType);
                 if (DBG) {
-                    Log.i(CarLog.TAG_APP_FOCUS, "abandoning focus " + appType
-                            + "," + info.toString());
+                    Log.i(CarLog.TAG_APP_FOCUS, "abandoning focus " + appType + "," + info);
                 }
                 for (FocusOwnershipCallback ownershipCallback : mFocusOwnershipCallbacks) {
                     ownershipCallback.onFocusAbandoned(appType, info.mUid, info.mPid);
@@ -270,7 +269,7 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
             for (BinderInterfaceContainer.BinderInterface<IAppFocusOwnershipCallback> client :
                     mAllOwnershipClients.getInterfaces()) {
                 OwnershipClientInfo clientInfo = (OwnershipClientInfo) client;
-                writer.println(clientInfo.toString());
+                writer.println(clientInfo);
             }
         }
     }
