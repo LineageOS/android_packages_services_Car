@@ -23,6 +23,7 @@ import android.annotation.SystemApi;
  *
  * @hide
  */
+@SystemApi
 public class CarSettings {
 
     private CarSettings() {
