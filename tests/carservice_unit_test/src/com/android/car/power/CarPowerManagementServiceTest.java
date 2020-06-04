@@ -128,11 +128,11 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
 
     @After
     public void tearDown() throws Exception {
-        CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
-        CarLocalServices.removeServiceForTest(SilentModeController.class);
         if (mService != null) {
             mService.release();
         }
+        CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
+        CarLocalServices.removeServiceForTest(SilentModeController.class);
         CarServiceUtils.finishAllHandlerTasks();
         mIOInterface.tearDown();
     }

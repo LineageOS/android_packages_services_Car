@@ -18,8 +18,6 @@ package com.android.car;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.car.hardware.power.CarPowerManager;
-import android.car.hardware.power.CarPowerManager.CarPowerStateListenerWithCompletion;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -28,9 +26,11 @@ import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.Log;
 
+import com.android.car.power.SilentModeController;
+import com.android.internal.annotations.VisibleForTesting;
+
 import java.io.PrintWriter;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * A Bluetooth Device Connection policy that is specific to the use cases of a Car. Contains policy
@@ -46,54 +46,34 @@ public class BluetoothDeviceConnectionPolicy {
     private final BluetoothAdapter mBluetoothAdapter;
     private final CarBluetoothService mCarBluetoothService;
 
-    private CarPowerManager mCarPowerManager;
-    private final CarPowerStateListenerWithCompletion mCarPowerStateListener =
-            new CarPowerStateListenerWithCompletion() {
-        @Override
-        public void onStateChanged(int state, CompletableFuture<Void> future) {
-            logd("Car power state has changed to " + state);
-
-            // ON is the state when user turned on the car (it can be either ignition or
-            // door unlock) the policy for ON is defined by OEMs and we can rely on that.
-            if (state == CarPowerManager.CarPowerStateListener.ON) {
-                logd("Car is powering on. Enable Bluetooth and auto-connect to devices");
-                if (isBluetoothPersistedOn()) {
-                    enableBluetooth();
+    private final SilentModeController.SilentModeListener mSilentModeListener =
+            new SilentModeController.SilentModeListener() {
+                @Override
+                public void onModeChange(boolean isSilent) {
+                    if (isSilent) {
+                        // we'll turn off Bluetooth to disconnect devices and better the "off"
+                        // illusion
+                        logd("Car is going silent. Disable bluetooth adapter");
+                        disableBluetooth();
+                    } else {
+                        if (isBluetoothPersistedOn()) {
+                            enableBluetooth();
+                        }
+                        // The above isBluetoothPersistedOn() call is always true when the
+                        // adapter is on, but can be true or false if the adapter is off. If we
+                        // turned the adapter back on then this connectDevices() call would fail
+                        // at first here but be caught by the following adapter on broadcast
+                        // below. We'll only do this if the adapter is on.
+                        if (mBluetoothAdapter.getState() == BluetoothAdapter.STATE_ON) {
+                            connectDevices();
+                        }
+                    }
                 }
-
-                // The above isBluetoothPersistedOn() call is always true when the adapter is on and
-                // can be true or false if the adapter is off. If we are turned the adapter back on
-                // then this connectDevices() call would fail at first here but be caught by the
-                // following adapter on broadcast below. We'll only do this if the adapter is on
-                if (mBluetoothAdapter.getState() == BluetoothAdapter.STATE_ON) {
-                    connectDevices();
-                }
-                return;
-            }
-
-            // Since we're appearing to be off after shutdown prepare, but may stay on in idle mode,
-            // we'll turn off Bluetooth to disconnect devices and better the "off" illusion
-            if (state == CarPowerManager.CarPowerStateListener.SHUTDOWN_PREPARE) {
-                logd("Car is preparing for shutdown. Disable bluetooth adapter");
-                disableBluetooth();
-
-                // Let CPMS know we're ready to shutdown. Otherwise, CPMS will get stuck for
-                // up to an hour.
-                if (future != null) {
-                    future.complete(null);
-                }
-                return;
-            }
-        }
     };
 
-    /**
-     * Get the policy's CarPowerStateListenerWithCompletion object
-     *
-     * For testing purposes only
-     */
-    public CarPowerStateListenerWithCompletion getCarPowerStateListener() {
-        return mCarPowerStateListener;
+    @VisibleForTesting
+    public SilentModeController.SilentModeListener getSilentModeListener() {
+        return mSilentModeListener;
     }
 
     /**
@@ -167,12 +147,12 @@ public class BluetoothDeviceConnectionPolicy {
         profileFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         mContext.registerReceiverAsUser(mBluetoothBroadcastReceiver, UserHandle.CURRENT,
                 profileFilter, null, null);
-        mCarPowerManager = CarLocalServices.createCarPowerManager(mContext);
-        // CarLocalServices can fail to return a service.
-        if (mCarPowerManager != null) {
-            mCarPowerManager.setListenerWithCompletion(mCarPowerStateListener);
+        SilentModeController silentModeController = CarLocalServices.getService(
+                SilentModeController.class);
+        if (silentModeController != null) {
+            silentModeController.registerListener(mSilentModeListener);
         } else {
-            logd("Failed to get car power manager");
+            Log.w(TAG, "Cannot find SilentModeController");
         }
 
         // Since we do this only on start up and on user switch, it's safe to kick off a connect on
@@ -192,9 +172,10 @@ public class BluetoothDeviceConnectionPolicy {
      */
     public void release() {
         logd("release()");
-        if (mCarPowerManager != null) {
-            mCarPowerManager.clearListener();
-            mCarPowerManager = null;
+        SilentModeController silentModeController =
+                CarLocalServices.getService(SilentModeController.class);
+        if (silentModeController != null) {
+            silentModeController.unregisterListener(mSilentModeListener);
         }
         if (mBluetoothBroadcastReceiver != null) {
             mContext.unregisterReceiver(mBluetoothBroadcastReceiver);
