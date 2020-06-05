@@ -33,10 +33,6 @@
                     </device>
                 </group>
             </volumeGroups>
-            <displays>
-                <display port="1"/>
-                <display port="2"/>
-            </displays>
         </zone>
         <zone name="rear seat zone">
             <volumeGroups>
