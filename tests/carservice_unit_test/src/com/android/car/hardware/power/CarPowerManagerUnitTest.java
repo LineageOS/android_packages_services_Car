@@ -41,6 +41,7 @@ import com.android.car.hal.PowerHalService.PowerState;
 import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.systeminterface.SystemStateInterface;
+import com.android.internal.app.IVoiceInteractionManagerService;
 
 import org.junit.After;
 import org.junit.Before;
@@ -73,6 +74,8 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
     private Resources mResources;
     @Mock
     private Car mCar;
+    @Mock
+    private IVoiceInteractionManagerService mVoiceInteractionManagerService;
 
     @Before
     public void setUp() throws Exception {
@@ -204,7 +207,7 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
                 + ", maxGarageModeRunningDurationInSecs="
                 + mResources.getInteger(R.integer.maxGarageModeRunningDurationInSecs));
         mService = new CarPowerManagementService(mContext, mResources, mPowerHal,
-                mSystemInterface, null, null, null);
+                mSystemInterface, null, null, null, mVoiceInteractionManagerService);
         mService.init();
         mService.setShutdownTimersForTest(0, 0);
         assertStateReceived(MockedPowerHalService.SET_WAIT_FOR_VHAL, 0);
