@@ -194,7 +194,7 @@ droidstubs {
 droidstubs {
     name: "android.car-test-stubs-docs",
     defaults: ["android.car-docs-default"],
-    args: "--hide UnavailableSymbol --no-docs --stub-packages android.car* " +
+    args: "--hide HiddenSuperclass --hide UnavailableSymbol --no-docs --stub-packages android.car* " +
         "--show-annotation android.annotation.TestApi ",
     installable: false,
     check_api: {
@@ -217,7 +217,7 @@ droidstubs {
         "android.car",
     ],
     api_filename: "api.txt",
-    args: "--hide UnavailableSymbol --no-docs --stub-packages android.car* ",
+    args: "--hide HiddenSuperclass --hide UnavailableSymbol --no-docs --stub-packages android.car* ",
     installable: false,
     product_variables: {
         pdk: {
