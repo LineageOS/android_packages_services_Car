@@ -17,6 +17,7 @@ package com.android.car.hal;
 
 import static android.car.VehiclePropertyIds.CREATE_USER;
 import static android.car.VehiclePropertyIds.INITIAL_USER_INFO;
+import static android.car.VehiclePropertyIds.REMOVE_USER;
 import static android.car.VehiclePropertyIds.SWITCH_USER;
 import static android.car.VehiclePropertyIds.USER_IDENTIFICATION_ASSOCIATION;
 
@@ -34,6 +35,7 @@ import android.hardware.automotive.vehicle.V2_0.CreateUserRequest;
 import android.hardware.automotive.vehicle.V2_0.CreateUserResponse;
 import android.hardware.automotive.vehicle.V2_0.CreateUserStatus;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
+import android.hardware.automotive.vehicle.V2_0.RemoveUserRequest;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserMessageType;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserRequest;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserResponse;
@@ -165,6 +167,9 @@ public final class UserHalService extends HalServiceBase {
                 case CREATE_USER:
                     mHandler.sendMessage(obtainMessage(
                             UserHalService::handleOnCreateUserResponse, this, value));
+                    break;
+                case REMOVE_USER:
+                    Log.w(TAG, "Received REMOVE_USER HAL event: " + value);
                     break;
                 case USER_IDENTIFICATION_ASSOCIATION:
                     mHandler.sendMessage(obtainMessage(
@@ -299,6 +304,34 @@ public final class UserHalService extends HalServiceBase {
         }
 
         sendHalRequest(requestId, timeoutMs, propRequest, callback);
+    }
+
+    /**
+     * Calls HAL to remove user.
+     *
+     * @throws IllegalStateException if the HAL does not support user management (callers should
+     * call {@link #isSupported()} first to avoid this exception).
+     */
+    public void removeUser(@NonNull RemoveUserRequest request) {
+        Objects.requireNonNull(request, "request cannot be null");
+
+        if (DBG) Log.d(TAG, "removeUser(" + request.removedUserInfo.userId + ")");
+        EventLog.writeEvent(EventLogTags.CAR_USER_HAL_REMOVE_USER_REQ,
+                request.removedUserInfo.userId, request.usersInfo.currentUser.userId);
+
+        VehiclePropValue propRequest;
+        synchronized (mLock) {
+            checkSupportedLocked();
+            request.requestId = getNextRequestId();
+            propRequest = UserHalHelper.toVehiclePropValue(request);
+
+        }
+        try {
+            if (DBG) Log.d(TAG, "Calling hal.set(): " + propRequest);
+            mHal.set(propRequest);
+        } catch (ServiceSpecificException e) {
+            Log.w(TAG, "Failed to set REMOVE USER", e);
+        }
     }
 
     /**
