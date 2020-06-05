@@ -1626,11 +1626,17 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     private void notifyHalLegacySwitch(@UserIdInt int fromUserId, @UserIdInt int toUserId) {
         synchronized (mLockUser) {
-            if (mUserIdForUserSwitchInProcess != UserHandle.USER_NULL) return;
+            if (mUserIdForUserSwitchInProcess != UserHandle.USER_NULL) {
+                if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
+                    Log.d(TAG, "notifyHalLegacySwitch(" + fromUserId + ", " + toUserId
+                            + "): not needed, normal switch for " + mUserIdForUserSwitchInProcess);
+                }
+                return;
+            }
         }
 
         // switch HAL user
-        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUserManager);
+        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUserManager, fromUserId);
         SwitchUserRequest request = createUserSwitchRequest(toUserId, usersInfo);
         mHal.legacyUserSwitch(request);
     }
