@@ -562,10 +562,20 @@ public final class UserHalHelper {
     }
 
     /**
-     * Creates a {@link UsersInfo} instance populated with the current users.
+     * Creates a {@link UsersInfo} instance populated with the current users, using
+     * {@link ActivityManager#getCurrentUser()} as the current user.
      */
     @NonNull
     public static UsersInfo newUsersInfo(@NonNull UserManager um) {
+        return newUsersInfo(um, ActivityManager.getCurrentUser());
+    }
+
+    /**
+     * Creates a {@link UsersInfo} instance populated with the current users, using
+     * {@code userId} as the current user.
+     */
+    @NonNull
+    public static UsersInfo newUsersInfo(@NonNull UserManager um, @UserIdInt int userId) {
         Preconditions.checkArgument(um != null, "UserManager cannot be null");
 
         List<UserInfo> users = um.getUsers(/*excludeDying= */ true);
@@ -576,7 +586,7 @@ public final class UserHalHelper {
         }
 
         UsersInfo usersInfo = new UsersInfo();
-        usersInfo.currentUser.userId = ActivityManager.getCurrentUser();
+        usersInfo.currentUser.userId = userId;
         UserInfo currentUser = null;
         usersInfo.numberUsers = users.size();
 
