@@ -17,6 +17,7 @@ package com.android.car.hal;
 
 import static android.car.VehiclePropertyIds.CREATE_USER;
 import static android.car.VehiclePropertyIds.INITIAL_USER_INFO;
+import static android.car.VehiclePropertyIds.REMOVE_USER;
 import static android.car.VehiclePropertyIds.SWITCH_USER;
 import static android.car.VehiclePropertyIds.USER_IDENTIFICATION_ASSOCIATION;
 
@@ -34,7 +35,9 @@ import android.hardware.automotive.vehicle.V2_0.CreateUserRequest;
 import android.hardware.automotive.vehicle.V2_0.CreateUserResponse;
 import android.hardware.automotive.vehicle.V2_0.CreateUserStatus;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
+import android.hardware.automotive.vehicle.V2_0.RemoveUserRequest;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserMessageType;
+import android.hardware.automotive.vehicle.V2_0.SwitchUserRequest;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserResponse;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserStatus;
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType;
@@ -165,6 +168,9 @@ public final class UserHalService extends HalServiceBase {
                     mHandler.sendMessage(obtainMessage(
                             UserHalService::handleOnCreateUserResponse, this, value));
                     break;
+                case REMOVE_USER:
+                    Log.w(TAG, "Received REMOVE_USER HAL event: " + value);
+                    break;
                 case USER_IDENTIFICATION_ASSOCIATION:
                     mHandler.sendMessage(obtainMessage(
                             UserHalService::handleOnUserIdentificationAssociation, this, value));
@@ -270,37 +276,62 @@ public final class UserHalService extends HalServiceBase {
     /**
      * Calls HAL to asynchronously switch user.
      *
-     * @param targetInfo target user for user switching
+     * @param request metadata
      * @param timeoutMs how long to wait (in ms) for the property change event.
-     * @param usersInfo current state of Android users.
      * @param callback to handle the response.
      *
      * @throws IllegalStateException if the HAL does not support user management (callers should
      * call {@link #isSupported()} first to avoid this exception).
      */
-    public void switchUser(@NonNull UserInfo targetInfo, int timeoutMs,
-            @NonNull UsersInfo usersInfo, @NonNull HalCallback<SwitchUserResponse> callback) {
-        if (DBG) Log.d(TAG, "switchUser(" + targetInfo + ")");
-
-        Objects.requireNonNull(targetInfo);
+    public void switchUser(@NonNull SwitchUserRequest request, int timeoutMs,
+            @NonNull HalCallback<SwitchUserResponse> callback) {
         Preconditions.checkArgumentPositive(timeoutMs, "timeout must be positive");
-        Objects.requireNonNull(callback);
-        UserHalHelper.checkValid(usersInfo);
+        Objects.requireNonNull(callback, "callback cannot be null");
 
+        if (DBG) Log.d(TAG, "switchUser(" + request + ")");
         VehiclePropValue propRequest;
         int requestId;
         synchronized (mLock) {
             checkSupportedLocked();
             if (hasPendingRequestLocked(SwitchUserResponse.class, callback)) return;
             requestId = getNextRequestId();
+            request.requestId = requestId;
+            request.messageType = SwitchUserMessageType.ANDROID_SWITCH;
+            propRequest = UserHalHelper.toVehiclePropValue(request);
             EventLog.writeEvent(EventLogTags.CAR_USER_HAL_SWITCH_USER_REQ, requestId,
-                    targetInfo.userId, timeoutMs);
-            propRequest = getPropRequestForSwitchUserLocked(requestId,
-                    SwitchUserMessageType.ANDROID_SWITCH, targetInfo, usersInfo);
+                    request.targetUser.userId, timeoutMs);
             addPendingRequestLocked(requestId, SwitchUserResponse.class, callback);
         }
 
         sendHalRequest(requestId, timeoutMs, propRequest, callback);
+    }
+
+    /**
+     * Calls HAL to remove user.
+     *
+     * @throws IllegalStateException if the HAL does not support user management (callers should
+     * call {@link #isSupported()} first to avoid this exception).
+     */
+    public void removeUser(@NonNull RemoveUserRequest request) {
+        Objects.requireNonNull(request, "request cannot be null");
+
+        if (DBG) Log.d(TAG, "removeUser(" + request.removedUserInfo.userId + ")");
+        EventLog.writeEvent(EventLogTags.CAR_USER_HAL_REMOVE_USER_REQ,
+                request.removedUserInfo.userId, request.usersInfo.currentUser.userId);
+
+        VehiclePropValue propRequest;
+        synchronized (mLock) {
+            checkSupportedLocked();
+            request.requestId = getNextRequestId();
+            propRequest = UserHalHelper.toVehiclePropValue(request);
+
+        }
+        try {
+            if (DBG) Log.d(TAG, "Calling hal.set(): " + propRequest);
+            mHal.set(propRequest);
+        } catch (ServiceSpecificException e) {
+            Log.w(TAG, "Failed to set REMOVE USER", e);
+        }
     }
 
     /**
@@ -337,23 +368,17 @@ public final class UserHalService extends HalServiceBase {
 
     /**
      * Calls HAL after android user switch.
-     *
-     * @param requestId for which switch response is sent.
-     * @param targetInfo target user info.
-     * @param usersInfo current state of Android users.
      */
-    public void postSwitchResponse(int requestId, @NonNull UserInfo targetInfo,
-            @NonNull UsersInfo usersInfo) {
-        EventLog.writeEvent(EventLogTags.CAR_USER_HAL_POST_SWITCH_USER_REQ, requestId,
-                targetInfo.userId, usersInfo.currentUser.userId);
-        if (DBG) Log.d(TAG, "postSwitchResponse(" + targetInfo + ")");
-        UserHalHelper.checkValid(usersInfo);
+    public void postSwitchResponse(@NonNull SwitchUserRequest request) {
+        EventLog.writeEvent(EventLogTags.CAR_USER_HAL_POST_SWITCH_USER_REQ, request.requestId,
+                request.targetUser.userId, request.usersInfo.currentUser.userId);
+        if (DBG) Log.d(TAG, "postSwitchResponse(" + request.targetUser.userId + ")");
 
         VehiclePropValue propRequest;
         synchronized (mLock) {
             checkSupportedLocked();
-            propRequest = getPropRequestForSwitchUserLocked(requestId,
-                    SwitchUserMessageType.ANDROID_POST_SWITCH, targetInfo, usersInfo);
+            request.messageType = SwitchUserMessageType.ANDROID_POST_SWITCH;
+            propRequest = UserHalHelper.toVehiclePropValue(request);
         }
 
         try {
@@ -368,22 +393,18 @@ public final class UserHalService extends HalServiceBase {
      * Calls HAL to switch user after legacy Android user switch. Legacy Android user switch means
      * user switch is not requested by {@link CarUserManager} or OEM, and user switch is directly
      * requested by {@link ActivityManager}
-     *
-     * @param targetInfo target user info.
-     * @param usersInfo current state of Android users.
      */
-    public void legacyUserSwitch(@NonNull UserInfo targetInfo, @NonNull UsersInfo usersInfo) {
-        if (DBG) Log.d(TAG, "userSwitchLegacy(" + targetInfo + ")");
-        UserHalHelper.checkValid(usersInfo);
+    public void legacyUserSwitch(@NonNull SwitchUserRequest request) {
+        if (DBG) Log.d(TAG, "userSwitchLegacy(" + request + ")");
 
         VehiclePropValue propRequest;
         synchronized (mLock) {
             checkSupportedLocked();
             int requestId = getNextRequestId();
             EventLog.writeEvent(EventLogTags.CAR_USER_HAL_LEGACY_SWITCH_USER_REQ, requestId,
-                    targetInfo.userId, usersInfo.currentUser.userId);
-            propRequest = getPropRequestForSwitchUserLocked(requestId,
-                    SwitchUserMessageType.LEGACY_ANDROID_SWITCH, targetInfo, usersInfo);
+                    request.targetUser.userId, request.usersInfo.currentUser.userId);
+            request.messageType = SwitchUserMessageType.LEGACY_ANDROID_SWITCH;
+            propRequest = UserHalHelper.toVehiclePropValue(request);
         }
 
         try {

@@ -54,7 +54,7 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
         // Request all application focuses and abandon them to ensure no active context is present
         // when test starts.
         int[] activeTypes =  mManager.getActiveAppTypes();
-        FocusOwnershipCallback owner = new FocusOwnershipCallback();
+        FocusOwnershipCallback owner = new FocusOwnershipCallback(/* assertEventThread= */ false);
         for (int i = 0; i < activeTypes.length; i++) {
             mManager.requestAppFocus(activeTypes[i], owner);
             owner.waitForOwnershipGrantAndAssert(DEFAULT_WAIT_TIMEOUT_MS, activeTypes[i]);
@@ -165,9 +165,9 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
         assertThat(manager1.getActiveAppTypes()).asList().containsExactly(expectedFocus).inOrder();
         assertThat(manager2.getActiveAppTypes()).asList().containsExactly(expectedFocus).inOrder();
         assertThat(change2.waitForFocusChangeAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
-                APP_FOCUS_TYPE_NAVIGATION, true)).isFalse();
+                APP_FOCUS_TYPE_NAVIGATION, true)).isTrue();
         assertThat(change1.waitForFocusChangeAndAssert(DEFAULT_WAIT_TIMEOUT_MS,
-                APP_FOCUS_TYPE_NAVIGATION, true)).isFalse();
+                APP_FOCUS_TYPE_NAVIGATION, true)).isTrue();
 
         assertThat(manager2.requestAppFocus(APP_FOCUS_TYPE_NAVIGATION, owner2))
                 .isEqualTo(CarAppFocusManager.APP_FOCUS_REQUEST_SUCCEEDED);
@@ -337,6 +337,15 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
         private final Semaphore mLossEventWait = new Semaphore(0);
         private int mLastGrantEvent;
         private final Semaphore mGrantEventWait = new Semaphore(0);
+        private final boolean mAssertEventThread;
+
+        private FocusOwnershipCallback(boolean assertEventThread) {
+            mAssertEventThread = assertEventThread;
+        }
+
+        private FocusOwnershipCallback() {
+            this(true);
+        }
 
         boolean waitForOwnershipLossAndAssert(long timeoutMs, int expectedAppType)
                 throws Exception {
@@ -359,7 +368,9 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
         @Override
         public void onAppFocusOwnershipLost(int appType) {
             Log.i(TAG, "onAppFocusOwnershipLost " + appType);
-            assertEventThread();
+            if (mAssertEventThread) {
+                assertEventThread();
+            }
             mLastLossEvent = appType;
             mLossEventWait.release();
         }
