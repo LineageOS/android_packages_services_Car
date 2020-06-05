@@ -209,7 +209,7 @@ public final class CarUserManager extends CarManagerBase {
                 @Override
                 protected void onCompleted(UserSwitchResult result, Throwable err) {
                     if (result != null) {
-                        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_SWITCH_USER_RESPONSE, uid,
+                        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_SWITCH_USER_RESP, uid,
                                 result.getStatus(), result.getErrorMessage());
                     } else {
                         Log.w(TAG, "switchUser(" + targetUserId + ") failed: " + err);
@@ -217,7 +217,7 @@ public final class CarUserManager extends CarManagerBase {
                     super.onCompleted(result, err);
                 };
             };
-            EventLog.writeEvent(EventLogTags.CAR_USER_MGR_SWITCH_USER_REQUEST, uid, targetUserId);
+            EventLog.writeEvent(EventLogTags.CAR_USER_MGR_SWITCH_USER_REQ, uid, targetUserId);
             mService.switchUser(targetUserId, HAL_TIMEOUT_MS, future);
             return future;
         } catch (RemoteException e) {
@@ -261,6 +261,28 @@ public final class CarUserManager extends CarManagerBase {
             future.complete(new UserCreationResult(UserCreationResult.STATUS_HAL_INTERNAL_FAILURE,
                     null, null));
             return handleRemoteExceptionFromCarService(e, future);
+        }
+    }
+
+     /**
+     * Removes a user.
+     *
+     * @hide
+     */
+    @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
+    public UserRemovalResult removeUser(@UserIdInt int userId) {
+        int uid = myUid();
+        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_REMOVE_USER_REQ, uid, userId);
+        int status = UserRemovalResult.STATUS_HAL_INTERNAL_FAILURE;
+        try {
+            UserRemovalResult result = mService.removeUser(userId);
+            status = result.getStatus();
+            return result;
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e,
+                    new UserRemovalResult(UserRemovalResult.STATUS_HAL_INTERNAL_FAILURE));
+        } finally {
+            EventLog.writeEvent(EventLogTags.CAR_USER_MGR_REMOVE_USER_RESP, uid, status);
         }
     }
 
