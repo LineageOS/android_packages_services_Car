@@ -14,6 +14,35 @@
 // limitations under the License.
 //
 
+cc_library {
+    name : "libobj_reader",
+    vendor : true,
+    srcs: [
+        "MtlReader.cpp",
+        "ObjReader.cpp",
+    ],
+    shared_libs : [
+        "libbase",
+    ]
+}
+
+cc_test{
+    name : "obj_reader_tests",
+    test_suites : ["device-tests"],
+    vendor : true,
+    srcs : ["ObjReaderTests.cpp"],
+    shared_libs : [
+        "libobj_reader",
+        "libcutils",
+        "libbase",
+        "libutils",
+    ],
+    required: [
+        "VolvoXC40_low.obj",
+        "VolvoXC40_low.mtl",
+    ],
+}
+
 cc_library{
     name : "libvhal_handler",
     vendor : true,
@@ -147,4 +176,16 @@ prebuilt_etc{
 prebuilt_etc {
 name:
     "cam3.png", src : "test_data/3.png", sub_dir : "automotive/sv",
+}
+
+prebuilt_etc {
+    name: "cube.obj",
+    src: "test_data/cube.obj",
+    sub_dir: "automotive/sv",
+}
+
+prebuilt_etc {
+    name: "cube.mtl",
+    src: "test_data/cube.mtl",
+    sub_dir: "automotive/sv",
 }
