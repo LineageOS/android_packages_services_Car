@@ -748,7 +748,6 @@ public final class UserHalServiceTest {
     public void testLegacyUserSwitch_HalCalledWithCorrectProp() {
         SwitchUserRequest request = new SwitchUserRequest();
         request.messageType = SwitchUserMessageType.LEGACY_ANDROID_SWITCH;
-        request.requestId = 1;
         request.targetUser = mUser10;
         request.usersInfo = mUsersInfo;
 
