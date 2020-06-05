@@ -27,6 +27,7 @@ import android.hardware.automotive.vehicle.V2_0.CreateUserRequest;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
+import android.hardware.automotive.vehicle.V2_0.RemoveUserRequest;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserRequest;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociation;
@@ -63,7 +64,9 @@ public final class UserHalHelper {
     public static final int INITIAL_USER_INFO_PROPERTY = 299896583;
     public static final int SWITCH_USER_PROPERTY = 299896584;
     public static final int CREATE_USER_PROPERTY = 299896585;
+    public static final int REMOVE_USER_PROPERTY = 299896586;
     public static final int USER_IDENTIFICATION_ASSOCIATION_PROPERTY = 299896587;
+
 
     private static final String STRING_SEPARATOR = "\\|\\|";
 
@@ -534,6 +537,26 @@ public final class UserHalHelper {
         VehiclePropValue propValue = createPropRequest(SWITCH_USER_PROPERTY, request.requestId,
                 request.messageType);
         addUserInfo(propValue, targetInfo);
+        addUsersInfo(propValue, usersInfo);
+        return propValue;
+    }
+
+    /**
+     * Creates a generic {@link VehiclePropValue} (that can be sent to HAL) from a
+     * {@link RemoveUserRequest}.
+     *
+     * @throws IllegalArgumentException if the request doesn't have the proper format.
+     */
+    @NonNull
+    public static VehiclePropValue toVehiclePropValue(@NonNull RemoveUserRequest request) {
+        checkArgument(request.requestId > 0, "invalid requestId on %s", request);
+        android.hardware.automotive.vehicle.V2_0.UserInfo removedUserInfo = request.removedUserInfo;
+        Objects.requireNonNull(removedUserInfo);
+        UsersInfo usersInfo = request.usersInfo;
+        checkValid(usersInfo);
+
+        VehiclePropValue propValue = createPropRequest(REMOVE_USER_PROPERTY, request.requestId);
+        addUserInfo(propValue, removedUserInfo);
         addUsersInfo(propValue, usersInfo);
         return propValue;
     }
