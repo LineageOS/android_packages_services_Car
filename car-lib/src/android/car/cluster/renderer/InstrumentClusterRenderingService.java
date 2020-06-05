@@ -412,13 +412,13 @@ public abstract class InstrumentClusterRenderingService extends Service {
             startActivityAsUser(intent, mActivityOptions.toBundle(), UserHandle.CURRENT);
             Log.i(TAG, String.format("Activity launched: %s (options: %s, displayId: %d)",
                     mActivityOptions, intent, mActivityOptions.getLaunchDisplayId()));
-        } catch (ActivityNotFoundException ex) {
+        } catch (ActivityNotFoundException e) {
             Log.w(TAG, "Unable to find activity for intent: " + intent);
             return false;
-        } catch (Exception ex) {
+        } catch (RuntimeException e) {
             // Catch all other possible exception to prevent service disruption by misbehaving
             // applications.
-            Log.e(TAG, "Error trying to launch intent: " + intent + ". Ignored", ex);
+            Log.e(TAG, "Error trying to launch intent: " + intent + ". Ignored", e);
             return false;
         }
         return true;
