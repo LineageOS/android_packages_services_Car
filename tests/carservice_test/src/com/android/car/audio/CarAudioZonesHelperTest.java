@@ -28,7 +28,6 @@ import android.content.Context;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.util.SparseIntArray;
-import android.view.DisplayAddress;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -290,56 +289,6 @@ public class CarAudioZonesHelperTest {
                 cazh::loadAudioZones);
 
         assertThat(exception).hasMessageThat().contains("Non-legacy audio contexts such as");
-    }
-
-    @Test
-    public void loadAudioZones_parsesPhysicalDisplayAddresses() throws Exception {
-        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mCarAudioSettings, mInputStream,
-                mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
-
-        CarAudioZone[] zones = cazh.loadAudioZones();
-
-        CarAudioZone primaryZone = zones[0];
-        List<DisplayAddress.Physical> primaryPhysicals = primaryZone.getPhysicalDisplayAddresses();
-        assertThat(primaryPhysicals).hasSize(2);
-        assertThat(primaryPhysicals.get(0).getPort()).isEqualTo(1);
-        assertThat(primaryPhysicals.get(1).getPort()).isEqualTo(2);
-    }
-
-    @Test
-    public void loadAudioZones_defaultsDisplayAddressesToEmptyList() throws Exception {
-        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mCarAudioSettings, mInputStream,
-                mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
-
-        CarAudioZone[] zones = cazh.loadAudioZones();
-
-        CarAudioZone rseZone = zones[1];
-        List<DisplayAddress.Physical> rsePhysicals = rseZone.getPhysicalDisplayAddresses();
-        assertThat(rsePhysicals).isEmpty();
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void loadAudioZones_throwsOnDuplicatePorts() throws Exception {
-        try (InputStream duplicatePortStream = mContext.getResources().openRawResource(
-                R.raw.car_audio_configuration_duplicate_ports)) {
-            CarAudioZonesHelper cazh =
-                    new CarAudioZonesHelper(mCarAudioSettings, duplicatePortStream,
-                            mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
-
-            cazh.loadAudioZones();
-        }
-    }
-
-    @Test
-    public void loadAudioZones_throwsOnNonNumericalPort() {
-        InputStream duplicatePortStream = mContext.getResources().openRawResource(
-                R.raw.car_audio_configuration_non_numerical_port);
-        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mCarAudioSettings, duplicatePortStream,
-                mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
-
-        IllegalArgumentException exception = expectThrows(IllegalArgumentException.class,
-                cazh::loadAudioZones);
-        assertThat(exception).hasMessageThat().contains("Port one is not a number");
     }
 
     @Test
