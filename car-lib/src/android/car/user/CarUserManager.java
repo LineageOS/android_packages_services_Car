@@ -20,6 +20,8 @@ import static android.Manifest.permission.INTERACT_ACROSS_USERS;
 import static android.Manifest.permission.INTERACT_ACROSS_USERS_FULL;
 import static android.os.Process.myUid;
 
+import static com.android.internal.util.FunctionalUtils.getLambdaName;
+
 import android.annotation.CallbackExecutor;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
@@ -57,6 +59,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
 /**
  * API to manage users related to car.
@@ -320,6 +323,12 @@ public final class CarUserManager extends CarManagerBase {
 
             if (mListeners == null) {
                 mListeners = new ArrayMap<>(1); // Most likely app will have just one listener
+            } else if (DBG) {
+                Log.d(TAG, "addListener(" + getLambdaName(listener) + "): context " + getContext()
+                        + " already has " + mListeners.size() + " listeners: "
+                        + mListeners.keySet().stream()
+                                .map((l) -> getLambdaName(l))
+                                .collect(Collectors.toList()), new Exception());
             }
             if (DBG) Log.d(TAG, "Adding listener: " + listener);
             mListeners.put(listener, executor);
@@ -502,10 +511,15 @@ public final class CarUserManager extends CarManagerBase {
                 Log.w(TAG, "No listeners for event " + event);
                 return;
             }
-            for (int i = 0; i < listeners.size(); i++) {
+            int size = listeners.size();
+            EventLog.writeEvent(EventLogTags.CAR_USER_MGR_NOTIFY_LIFECYCLE_LISTENER,
+                    size, eventType, from, to);
+            for (int i = 0; i < size; i++) {
                 UserLifecycleListener listener = listeners.keyAt(i);
                 Executor executor = listeners.valueAt(i);
-                if (DBG) Log.d(TAG, "Calling listener " + listener + " for event " + event);
+                if (DBG) {
+                    Log.d(TAG, "Calling " + getLambdaName(listener) + " for event " + event);
+                }
                 executor.execute(() -> listener.onEvent(event));
             }
         }
