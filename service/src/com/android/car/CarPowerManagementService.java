@@ -44,6 +44,7 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
+import android.os.ServiceManager;
 import android.os.SystemClock;
 import android.os.SystemProperties;
 import android.os.UserHandle;
@@ -59,6 +60,7 @@ import com.android.car.user.CarUserNoticeService;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.internal.app.IVoiceInteractionManagerService;
 
 import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
@@ -137,6 +139,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private final CarUserService mUserService;
     private final InitialUserSetter mInitialUserSetter;
 
+    private final IVoiceInteractionManagerService mVoiceInteractionManagerService;
+
     // TODO:  Make this OEM configurable.
     private static final int SHUTDOWN_POLLING_INTERVAL_MS = 2000;
     private static final int SHUTDOWN_EXTEND_MAX_MS = 5000;
@@ -168,13 +172,16 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         this(context, context.getResources(), powerHal, systemInterface, UserManager.get(context),
                 carUserService, new InitialUserSetter(context,
                         (u) -> carUserService.setInitialUser(u),
-                        context.getString(R.string.default_guest_name)));
+                        context.getString(R.string.default_guest_name)),
+                IVoiceInteractionManagerService.Stub.asInterface(
+                        ServiceManager.getService(Context.VOICE_INTERACTION_MANAGER_SERVICE)));
     }
 
     @VisibleForTesting
     public CarPowerManagementService(Context context, Resources resources, PowerHalService powerHal,
             SystemInterface systemInterface, UserManager userManager, CarUserService carUserService,
-            InitialUserSetter initialUserSetter) {
+            InitialUserSetter initialUserSetter,
+            IVoiceInteractionManagerService voiceInteractionService) {
         mContext = context;
         mHal = powerHal;
         mSystemInterface = systemInterface;
@@ -194,6 +201,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
         mUserService = carUserService;
         mInitialUserSetter = initialUserSetter;
+        mVoiceInteractionManagerService = voiceInteractionService;
     }
 
     @VisibleForTesting
@@ -408,6 +416,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
         mSystemInterface.setDisplayState(true);
         sendPowerManagerEvent(CarPowerStateListener.ON);
+
         mHal.sendOn();
 
         try {
@@ -415,6 +424,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         } catch (Exception e) {
             Log.e(CarLog.TAG_POWER, "Could not switch user on resume", e);
         }
+
+        setVoiceInteractionDisabled(false);
     }
 
     @VisibleForTesting // Ideally it should not be exposed, but it speeds up the unit tests
@@ -552,6 +563,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     private void handleShutdownPrepare(CpmsState newState) {
+        setVoiceInteractionDisabled(true);
         mSystemInterface.setDisplayState(false);
         // Shutdown on finish if the system doesn't support deep sleep or doesn't allow it.
         synchronized (mLock) {
@@ -619,6 +631,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 throw new AssertionError("Should not return from PowerManager.reboot()");
             }
         }
+        setVoiceInteractionDisabled(true);
+
         if (mustShutDown) {
             // shutdown HU
             mSystemInterface.shutdown();
@@ -626,6 +640,14 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             doHandleDeepSleep(simulatedMode);
         }
         mShutdownOnNextSuspend = false;
+    }
+
+    private void setVoiceInteractionDisabled(boolean disabled) {
+        try {
+            mVoiceInteractionManagerService.setDisabled(disabled);
+        } catch (RemoteException e) {
+            Log.w(TAG, "setVoiceIntefactionDisabled(" + disabled + ") failed", e);
+        }
     }
 
     @GuardedBy("mLock")
