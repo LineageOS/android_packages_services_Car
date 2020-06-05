@@ -1124,12 +1124,12 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void testNewUsersInfo_nullUm() {
-        assertThrows(IllegalArgumentException.class, () -> UserHalHelper.newUsersInfo(null));
+        assertThrows(IllegalArgumentException.class, () -> UserHalHelper.newUsersInfo(null, 100));
     }
 
     @Test
     public void testNewUsersInfo_nullUsers() {
-        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUm);
+        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUm, 100);
 
         assertEmptyUsersInfo(usersInfo);
     }
@@ -1139,9 +1139,55 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
         List<UserInfo> users = new ArrayList<>();
         AndroidMockitoHelper.mockUmGetUsers(mUm, users);
 
-        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUm);
+        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUm, 100);
 
         assertEmptyUsersInfo(usersInfo);
+    }
+
+    @Test
+    public void testNewUsersInfo_ok() {
+        UserInfo user100 = new UserInfoBuilder(100).setFlags(UserInfo.FLAG_ADMIN).build();
+        UserInfo user200 = new UserInfoBuilder(200).build();
+
+        AndroidMockitoHelper.mockUmGetUsers(mUm, user100, user200);
+        AndroidMockitoHelper.mockAmGetCurrentUser(300); // just to make sure it's not used
+
+        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUm, 100);
+
+        assertThat(usersInfo).isNotNull();
+        assertThat(usersInfo.currentUser.userId).isEqualTo(100);
+        assertThat(usersInfo.currentUser.flags).isEqualTo(UserFlags.ADMIN);
+
+        assertThat(usersInfo.numberUsers).isEqualTo(2);
+        assertThat(usersInfo.existingUsers).hasSize(2);
+
+        assertThat(usersInfo.existingUsers.get(0).userId).isEqualTo(100);
+        assertThat(usersInfo.existingUsers.get(0).flags).isEqualTo(UserFlags.ADMIN);
+        assertThat(usersInfo.existingUsers.get(1).userId).isEqualTo(200);
+        assertThat(usersInfo.existingUsers.get(1).flags).isEqualTo(UserFlags.NONE);
+    }
+
+    @Test
+    public void testNewUsersInfo_currentUser_ok() {
+        UserInfo user100 = new UserInfoBuilder(100).setFlags(UserInfo.FLAG_ADMIN).build();
+        UserInfo user200 = new UserInfoBuilder(200).build();
+
+        AndroidMockitoHelper.mockUmGetUsers(mUm, user100, user200);
+        AndroidMockitoHelper.mockAmGetCurrentUser(100);
+
+        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUm);
+
+        assertThat(usersInfo).isNotNull();
+        assertThat(usersInfo.currentUser.userId).isEqualTo(100);
+        assertThat(usersInfo.currentUser.flags).isEqualTo(UserFlags.ADMIN);
+
+        assertThat(usersInfo.numberUsers).isEqualTo(2);
+        assertThat(usersInfo.existingUsers).hasSize(2);
+
+        assertThat(usersInfo.existingUsers.get(0).userId).isEqualTo(100);
+        assertThat(usersInfo.existingUsers.get(0).flags).isEqualTo(UserFlags.ADMIN);
+        assertThat(usersInfo.existingUsers.get(1).userId).isEqualTo(200);
+        assertThat(usersInfo.existingUsers.get(1).flags).isEqualTo(UserFlags.NONE);
     }
 
     @Test
@@ -1157,29 +1203,6 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
         assertThat(usersInfo).isNotNull();
         assertThat(usersInfo.currentUser.userId).isEqualTo(300);
         assertThat(usersInfo.currentUser.flags).isEqualTo(UserFlags.NONE);
-
-        assertThat(usersInfo.numberUsers).isEqualTo(2);
-        assertThat(usersInfo.existingUsers).hasSize(2);
-
-        assertThat(usersInfo.existingUsers.get(0).userId).isEqualTo(100);
-        assertThat(usersInfo.existingUsers.get(0).flags).isEqualTo(UserFlags.ADMIN);
-        assertThat(usersInfo.existingUsers.get(1).userId).isEqualTo(200);
-        assertThat(usersInfo.existingUsers.get(1).flags).isEqualTo(UserFlags.NONE);
-    }
-
-    @Test
-    public void testNewUsersInfo_ok() {
-        UserInfo user100 = new UserInfoBuilder(100).setFlags(UserInfo.FLAG_ADMIN).build();
-        UserInfo user200 = new UserInfoBuilder(200).build();
-
-        AndroidMockitoHelper.mockUmGetUsers(mUm, user100, user200);
-        AndroidMockitoHelper.mockAmGetCurrentUser(100);
-
-        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUm);
-
-        assertThat(usersInfo).isNotNull();
-        assertThat(usersInfo.currentUser.userId).isEqualTo(100);
-        assertThat(usersInfo.currentUser.flags).isEqualTo(UserFlags.ADMIN);
 
         assertThat(usersInfo.numberUsers).isEqualTo(2);
         assertThat(usersInfo.existingUsers).hasSize(2);
