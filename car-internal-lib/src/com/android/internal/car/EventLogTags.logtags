@@ -84,6 +84,8 @@ option java_package com.android.internal.car
 150118 car_user_svc_create_user_user_removed (user_id|1),(reason|3)
 150119 car_user_svc_remove_user_req (user_id|1)
 150120 car_user_svc_remove_user_resp (user_id|1),(result|1)
+150121 car_user_svc_notify_app_lifecycle_listener (uid|1),(event_type|1),(from_user_id|1),(to_user_id|1)
+150122 car_user_svc_notify_internal_lifecycle_listener (listener_name|3),(event_type|1),(from_user_id|1),(to_user_id|1)
 
 150140 car_user_hal_initial_user_info_req (request_id|1),(request_type|1),(timeout|1)
 150141 car_user_hal_initial_user_info_resp (request_id|1),(status|1),(action|1),(user_id|1),(flags|1),(safe_name|3),(user_locales|3)
@@ -113,3 +115,4 @@ option java_package com.android.internal.car
 150181 car_user_mgr_create_user_resp (uid|1),(status|1),(error_message|3)
 150182 car_user_mgr_remove_user_req (uid|1),(user_id|1)
 150183 car_user_mgr_remove_user_resp (uid|1),(status|1)
+150184 car_user_mgr_notify_lifecycle_listener (number_listeners|1),(event_type|1),(from_user_id|1),(to_user_id|1)

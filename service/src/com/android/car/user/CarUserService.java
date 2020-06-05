@@ -345,7 +345,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     private void handleDumpListeners(@NonNull PrintWriter writer, String indent) {
         CountDownLatch latch = new CountDownLatch(1);
         mHandler.post(() -> {
-            handleDumpUserLifecycleListeners(writer);
+            handleDumpServiceLifecycleListeners(writer);
             handleDumpAppLifecycleListeners(writer, indent);
             latch.countDown();
         });
@@ -361,28 +361,30 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
     }
 
-    private void handleDumpUserLifecycleListeners(@NonNull PrintWriter writer) {
+    private void handleDumpServiceLifecycleListeners(@NonNull PrintWriter writer) {
         if (mUserLifecycleListeners.isEmpty()) {
-            writer.println("No user lifecycle listeners");
+            writer.println("No lifecycle listeners for internal services");
             return;
         }
-        writer.printf("%d user lifecycle listeners\n", mUserLifecycleListeners.size());
+        int size = mUserLifecycleListeners.size();
+        writer.printf("%d lifecycle listener%s for services\n", size, size == 1 ? "" : "s");
+        String indent = "  ";
         for (UserLifecycleListener listener : mUserLifecycleListeners) {
-            writer.printf("Listener %s\n", listener);
+            writer.printf("%s%s\n", indent, FunctionalUtils.getLambdaName(listener));
         }
     }
 
     private void handleDumpAppLifecycleListeners(@NonNull PrintWriter writer, String indent) {
-        int numberListeners = mAppLifecycleListeners.size();
-        if (numberListeners == 0) {
-            writer.println("No lifecycle listeners");
+        int size = mAppLifecycleListeners.size();
+        if (size == 0) {
+            writer.println("No lifecycle listeners for apps");
             return;
         }
-        writer.printf("%d lifecycle listeners\n", numberListeners);
-        for (int i = 0; i < numberListeners; i++) {
+        writer.printf("%d lifecycle listener%s for apps \n", size, size == 1 ? "" : "s");
+        for (int i = 0; i < size; i++) {
             int uid = mAppLifecycleListeners.keyAt(i);
             IResultReceiver listener = mAppLifecycleListeners.valueAt(i);
-            writer.printf("%suid: %d Listener %s\n", indent, uid, listener);
+            writer.printf("%suid: %d\n", indent, uid);
         }
     }
 
@@ -1550,23 +1552,27 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
         int userId = event.getUserId();
         TimingsTraceLog t = new TimingsTraceLog(TAG_USER, Trace.TRACE_TAG_SYSTEM_SERVER);
-        t.traceBegin("notify-app-listeners-user-" + userId + "-event-" + event.getEventType());
+        int eventType = event.getEventType();
+        t.traceBegin("notify-app-listeners-user-" + userId + "-event-" + eventType);
         for (int i = 0; i < listenersSize; i++) {
             int uid = mAppLifecycleListeners.keyAt(i);
+
             IResultReceiver listener = mAppLifecycleListeners.valueAt(i);
             Bundle data = new Bundle();
-            data.putInt(CarUserManager.BUNDLE_PARAM_ACTION, event.getEventType());
+            data.putInt(CarUserManager.BUNDLE_PARAM_ACTION, eventType);
 
-            int fromUid = event.getPreviousUserId();
-            if (fromUid != UserHandle.USER_NULL) {
-                data.putInt(CarUserManager.BUNDLE_PARAM_PREVIOUS_USER_ID, fromUid);
+            int fromUserId = event.getPreviousUserId();
+            if (fromUserId != UserHandle.USER_NULL) {
+                data.putInt(CarUserManager.BUNDLE_PARAM_PREVIOUS_USER_ID, fromUserId);
             }
 
             if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
                 Log.d(TAG_USER, "Notifying listener for uid " + uid);
             }
+            EventLog.writeEvent(EventLogTags.CAR_USER_SVC_NOTIFY_APP_LIFECYCLE_LISTENER,
+                    uid, eventType, fromUserId, userId);
             try {
-                t.traceBegin("notify-app-listener-" + uid);
+                t.traceBegin("notify-app-listener-uid-" + uid);
                 listener.send(userId, data);
             } catch (RemoteException e) {
                 Log.e(TAG_USER, "Error calling lifecycle listener", e);
@@ -1587,10 +1593,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     + event);
         }
 
-        t.traceBegin("notify-listeners-user-" + event.getUserId() + "-event-"
-                + event.getEventType());
+        int userId = event.getUserId();
+        int eventType = event.getEventType();
+        t.traceBegin("notify-listeners-user-" + userId + "-event-" + eventType);
         for (UserLifecycleListener listener : mUserLifecycleListeners) {
             String listenerName = FunctionalUtils.getLambdaName(listener);
+            EventLog.writeEvent(EventLogTags.CAR_USER_SVC_NOTIFY_INTERNAL_LIFECYCLE_LISTENER,
+                    listenerName, eventType, event.getPreviousUserId(), userId);
             try {
                 t.traceBegin("notify-listener-" + listenerName);
                 listener.onEvent(event);
