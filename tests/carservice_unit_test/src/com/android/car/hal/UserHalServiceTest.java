@@ -18,6 +18,7 @@ package com.android.car.hal;
 import static android.car.VehiclePropertyIds.CREATE_USER;
 import static android.car.VehiclePropertyIds.CURRENT_GEAR;
 import static android.car.VehiclePropertyIds.INITIAL_USER_INFO;
+import static android.car.VehiclePropertyIds.REMOVE_USER;
 import static android.car.VehiclePropertyIds.SWITCH_USER;
 import static android.car.VehiclePropertyIds.USER_IDENTIFICATION_ASSOCIATION;
 import static android.car.test.mocks.CarArgumentMatchers.isProperty;
@@ -53,6 +54,7 @@ import android.hardware.automotive.vehicle.V2_0.CreateUserResponse;
 import android.hardware.automotive.vehicle.V2_0.CreateUserStatus;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
+import android.hardware.automotive.vehicle.V2_0.RemoveUserRequest;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserMessageType;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserRequest;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserResponse;
@@ -681,6 +683,55 @@ public final class UserHalServiceTest {
 
         assertThrows(IllegalArgumentException.class,
                 () -> mUserHalService.legacyUserSwitch(request));
+    }
+
+    @Test
+    public void testRemoveUser_nullRequest() {
+        RemoveUserRequest request = null;
+
+        assertThrows(NullPointerException.class,
+                () -> mUserHalService.removeUser(request));
+    }
+
+    @Test
+    public void testRemoveUser_noRequestId() {
+        RemoveUserRequest request = new RemoveUserRequest();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mUserHalService.removeUser(request));
+    }
+
+    @Test
+    public void testRemoveUser_noRemovedUserInfo() {
+        RemoveUserRequest request = new RemoveUserRequest();
+        request.requestId = 1;
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mUserHalService.removeUser(request));
+    }
+
+    @Test
+    public void testRemoveUser_noUsersInfo() {
+        RemoveUserRequest request = new RemoveUserRequest();
+        request.requestId = 1;
+        request.removedUserInfo = mUser10;
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mUserHalService.removeUser(request));
+    }
+
+    @Test
+    public void testRemoveUser_HalCalledWithCorrectProp() {
+        RemoveUserRequest request = new RemoveUserRequest();
+        request.removedUserInfo = mUser10;
+        request.usersInfo = mUsersInfo;
+        ArgumentCaptor<VehiclePropValue> propCaptor =
+                ArgumentCaptor.forClass(VehiclePropValue.class);
+
+        mUserHalService.removeUser(request);
+
+        verify(mVehicleHal).set(propCaptor.capture());
+        assertHalSetRemoveUserRequest(propCaptor.getValue(), mUser10);
     }
 
     @Test
@@ -1364,6 +1415,17 @@ public final class UserHalServiceTest {
         assertWithMessage("targetuser.flags mismatch on %s", req).that(req.value.int32Values.get(3))
                 .isEqualTo(targetUserInfo.flags);
         assertUsersInfo(req, mUsersInfo, 4);
+    }
+
+    private void assertHalSetRemoveUserRequest(VehiclePropValue req, UserInfo userInfo) {
+        assertThat(req.prop).isEqualTo(REMOVE_USER);
+        assertWithMessage("wrong request Id on %s", req).that(req.value.int32Values.get(0))
+                .isAtLeast(1);
+        assertWithMessage("user.id mismatch on %s", req).that(req.value.int32Values.get(1))
+                .isEqualTo(userInfo.userId);
+        assertWithMessage("user.flags mismatch on %s", req).that(req.value.int32Values.get(2))
+                .isEqualTo(userInfo.flags);
+        assertUsersInfo(req, mUsersInfo, 3);
     }
 
     private void assertHalSetCreateUserRequest(VehiclePropValue prop, CreateUserRequest request) {
