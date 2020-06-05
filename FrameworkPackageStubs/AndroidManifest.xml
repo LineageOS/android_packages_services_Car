@@ -99,6 +99,10 @@
                 <action android:name="android.settings.USER_DICTIONARY_SETTINGS"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
+            <intent-filter android:priority="-1">
+                <action android:name="android.settings.PICTURE_IN_PICTURE_SETTINGS" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
 
         <!-- CDD Core Application Intents Stubs -->
