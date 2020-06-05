@@ -1034,8 +1034,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testHalUserSwitchOnAndroidSwitch_successfulNoExitingUserSwitch() throws Exception {
-        mockExistingUsersAndCurrentUser(mAdminUser);
+    public void testLegacyUserSwitch_ok() throws Exception {
+        mockExistingUsers();
 
         sendUserSwitchingEvent(mAdminUser.id, mRegularUser.id);
 
@@ -1043,7 +1043,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testHalUserSwitchOnAndroidSwitch_failureExitingUserSwitch() throws Exception {
+    public void testLegacyUserSwitch_notCalledAfterNormalSwitch() throws Exception {
+        // Arrange - emulate normal switch
         mockExistingUsersAndCurrentUser(mAdminUser);
         int requestId = 42;
         mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
@@ -1052,8 +1053,10 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockAmSwitchUser(mGuestUser, true);
         mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture);
 
+        // Act - trigger legacy switch
         sendUserSwitchingEvent(mAdminUser.id, mGuestUser.id);
 
+        // Assert
         verify(mUserHal, never()).legacyUserSwitch(any());
     }
 
