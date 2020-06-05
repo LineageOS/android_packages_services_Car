@@ -18,7 +18,6 @@ package com.android.car.user;
 
 import static android.car.test.mocks.AndroidMockitoHelper.getResult;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmCreateUser;
-import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetSystemUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserInfo;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUsers;
 import static android.car.test.util.UserTestingHelper.UserInfoBuilder;
@@ -83,6 +82,7 @@ import android.hardware.automotive.vehicle.V2_0.CreateUserStatus;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
+import android.hardware.automotive.vehicle.V2_0.SwitchUserRequest;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserResponse;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserStatus;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
@@ -314,21 +314,6 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         sendUserSwitchingEvent(mAdminUser.id, mRegularUser.id);
 
         verifyLastActiveUserSet(mRegularUser.id);
-    }
-
-    /**
-     * Test that the {@link CarUserService} doesn't update last active user on user switch in
-     * headless system user mode.
-     */
-    @Test
-    public void testLastActiveUserUpdatedOnUserSwitch_headlessSystemUser() throws Exception {
-        mockIsHeadlessSystemUser(mRegularUser.id, true);
-        mockUmGetSystemUser(mMockedUserManager);
-        mockExistingUsers();
-
-        sendUserSwitchingEvent(mAdminUser.id, mRegularUser.id);
-
-        verifyLastActiveUserNotSet();
     }
 
     /**
@@ -984,12 +969,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
         sendUserSwitchingEvent(mAdminUser.id, mRegularUser.id);
 
-        ArgumentCaptor<android.hardware.automotive.vehicle.V2_0.UserInfo> targetUser =
-                ArgumentCaptor.forClass(android.hardware.automotive.vehicle.V2_0.UserInfo.class);
-        ArgumentCaptor<UsersInfo> usersInfo = ArgumentCaptor.forClass(UsersInfo.class);
-        verify(mUserHal).legacyUserSwitch(targetUser.capture(), usersInfo.capture());
-        assertThat(targetUser.getValue().userId).isEqualTo(mRegularUser.id);
-        assertThat(usersInfo.getValue().currentUser.userId).isEqualTo(mAdminUser.id);
+        verify(mUserHal).legacyUserSwitch(isSwitchUserRequest(0, mAdminUser.id, mRegularUser.id));
     }
 
     @Test
@@ -1004,7 +984,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
         sendUserSwitchingEvent(mAdminUser.id, mGuestUser.id);
 
-        verify(mUserHal, never()).legacyUserSwitch(any(), any());
+        verify(mUserHal, never()).legacyUserSwitch(any());
     }
 
     @Test
@@ -1651,18 +1631,20 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         halTargetUser.userId = androidTargetUser.id;
         halTargetUser.flags = UserHalHelper.convertFlags(androidTargetUser);
         UsersInfo usersInfo = newUsersInfo(currentUserId);
+        SwitchUserRequest request = new SwitchUserRequest();
+        request.targetUser = halTargetUser;
+        request.usersInfo = usersInfo;
 
         BlockingAnswer<Void> blockingAnswer = BlockingAnswer.forVoidReturn(10_000, (invocation) -> {
             Log.d(TAG, "Answering " + invocation + " with " + response);
             @SuppressWarnings("unchecked")
             HalCallback<SwitchUserResponse> callback = (HalCallback<SwitchUserResponse>) invocation
-                    .getArguments()[3];
+                    .getArguments()[2];
             callback.onResponse(HalCallback.STATUS_OK, response);
         });
-        doAnswer(blockingAnswer).when(mUserHal).switchUser(eq(halTargetUser),
-                eq(mAsyncCallTimeoutMs), eq(usersInfo), notNull());
+        doAnswer(blockingAnswer).when(mUserHal).switchUser(eq(request), eq(mAsyncCallTimeoutMs),
+                notNull());
         return blockingAnswer;
-
     }
 
     private void mockHalSwitch(@UserIdInt int currentUserId,
@@ -1673,15 +1655,18 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         halTargetUser.userId = androidTargetUser.id;
         halTargetUser.flags = UserHalHelper.convertFlags(androidTargetUser);
         UsersInfo usersInfo = newUsersInfo(currentUserId);
+        SwitchUserRequest request = new SwitchUserRequest();
+        request.targetUser = halTargetUser;
+        request.usersInfo = usersInfo;
+
         doAnswer((invocation) -> {
             Log.d(TAG, "Answering " + invocation + " with " + response);
             @SuppressWarnings("unchecked")
             HalCallback<SwitchUserResponse> callback =
-                    (HalCallback<SwitchUserResponse>) invocation.getArguments()[3];
+                    (HalCallback<SwitchUserResponse>) invocation.getArguments()[2];
             callback.onResponse(callbackStatus, response);
             return null;
-        }).when(mUserHal).switchUser(eq(halTargetUser), eq(mAsyncCallTimeoutMs), eq(usersInfo),
-                notNull());
+        }).when(mUserHal).switchUser(eq(request), eq(mAsyncCallTimeoutMs), notNull());
     }
 
     private void mockHalGetUserIdentificationAssociation(@NonNull UserInfo user,
@@ -1772,7 +1757,6 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         for (int i = 0; i < actual.numberUsers; i++) {
             assertSameUser(actual.existingUsers.get(i), mExistingUsers.get(i));
         }
-
     }
 
     private void assertSameUser(android.hardware.automotive.vehicle.V2_0.UserInfo halUser,
@@ -1877,23 +1861,16 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     private void assertNoPostSwitch() {
-        verify(mUserHal, never()).postSwitchResponse(anyInt(), any(), any());
+        verify(mUserHal, never()).postSwitchResponse(any());
     }
 
     private void assertPostSwitch(int requestId, int currentId, int targetId) {
-        // verify post switch response
-        ArgumentCaptor<android.hardware.automotive.vehicle.V2_0.UserInfo> targetUser =
-                ArgumentCaptor.forClass(android.hardware.automotive.vehicle.V2_0.UserInfo.class);
-        ArgumentCaptor<UsersInfo> usersInfo = ArgumentCaptor.forClass(UsersInfo.class);
-        verify(mUserHal).postSwitchResponse(eq(requestId), targetUser.capture(),
-                usersInfo.capture());
-        assertThat(targetUser.getValue().userId).isEqualTo(targetId);
-        assertThat(usersInfo.getValue().currentUser.userId).isEqualTo(currentId);
+        verify(mUserHal).postSwitchResponse(isSwitchUserRequest(requestId, currentId, targetId));
     }
 
     private void assertHalSwitch(int currentId, int targetId) {
-        verify(mUserHal).switchUser(isHalUser(targetId), eq(mAsyncCallTimeoutMs),
-                isHalCurrentUser(currentId), any());
+        verify(mUserHal).switchUser(isSwitchUserRequest(0, currentId, targetId),
+                eq(mAsyncCallTimeoutMs), any());
     }
 
     private void assertNoHalUserCreation() {
@@ -1901,14 +1878,9 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @NonNull
-    private static android.hardware.automotive.vehicle.V2_0.UserInfo isHalUser(
-            @UserIdInt int userId) {
-        return argThat(new UserInfoMatcher(userId));
-    }
-
-    @NonNull
-    private static UsersInfo isHalCurrentUser(@UserIdInt int userId) {
-        return argThat(new UsersInfoCurrentUserIdMatcher(userId));
+    private static SwitchUserRequest isSwitchUserRequest(int requestId,
+            @UserIdInt int currentUserId, @UserIdInt int targetUserId) {
+        return argThat(new SwitchUserRequestMatcher(requestId, currentUserId, targetUserId));
     }
 
     static final class FakeCarOccupantZoneService {
@@ -2034,53 +2006,46 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         }
     }
 
-    private static final class UserInfoMatcher
-            implements ArgumentMatcher<android.hardware.automotive.vehicle.V2_0.UserInfo> {
-
-        private static final String MY_TAG =
-                android.hardware.automotive.vehicle.V2_0.UserInfo.class.getSimpleName();
-
-        private final @UserIdInt int mUserId;
-
-        private UserInfoMatcher(@UserIdInt int userId) {
-            mUserId = userId;
-        }
-
-        @Override
-        public boolean matches(android.hardware.automotive.vehicle.V2_0.UserInfo argument) {
-            if (argument == null) {
-                Log.w(MY_TAG, "null argument");
-                return false;
-            }
-            if (argument.userId != mUserId) {
-                Log.w(MY_TAG, "wrong user id on " + argument + "; expected " + mUserId);
-                return false;
-            }
-            Log.d(MY_TAG, "Good News, Everyone! " + argument + " matches " + this);
-            return true;
-        }
-    }
-
-    private static final class UsersInfoCurrentUserIdMatcher implements ArgumentMatcher<UsersInfo> {
-
+    private static final class SwitchUserRequestMatcher
+            implements ArgumentMatcher<SwitchUserRequest> {
         private static final String MY_TAG = UsersInfo.class.getSimpleName();
 
-        private final @UserIdInt int mUserId;
+        private final int mRequestId;
+        private final @UserIdInt int mCurrentUserId;
+        private final @UserIdInt int mTargetUserId;
 
-        private UsersInfoCurrentUserIdMatcher(@UserIdInt int userId) {
-            mUserId = userId;
+
+        private SwitchUserRequestMatcher(int requestId, @UserIdInt int currentUserId,
+                @UserIdInt int targetUserId) {
+            mCurrentUserId = currentUserId;
+            mTargetUserId = targetUserId;
+            mRequestId = requestId;
         }
 
         @Override
-        public boolean matches(UsersInfo argument) {
+        public boolean matches(SwitchUserRequest argument) {
             if (argument == null) {
                 Log.w(MY_TAG, "null argument");
                 return false;
             }
-            if (argument.currentUser.userId != mUserId) {
-                Log.w(MY_TAG, "wrong user id on " + argument + "; expected " + mUserId);
+            if (argument.usersInfo.currentUser.userId != mCurrentUserId) {
+                Log.w(MY_TAG,
+                        "wrong current user id on " + argument + "; expected " + mCurrentUserId);
                 return false;
             }
+
+            if (argument.targetUser.userId != mTargetUserId) {
+                Log.w(MY_TAG,
+                        "wrong target user id on " + argument + "; expected " + mTargetUserId);
+                return false;
+            }
+
+            if (argument.requestId != mRequestId) {
+                Log.w(MY_TAG,
+                        "wrong request Id on " + argument + "; expected " + mTargetUserId);
+                return false;
+            }
+
             Log.d(MY_TAG, "Good News, Everyone! " + argument + " matches " + this);
             return true;
         }
