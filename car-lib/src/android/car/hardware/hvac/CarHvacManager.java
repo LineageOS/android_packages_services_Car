@@ -25,8 +25,6 @@ import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback;
 import android.car.hardware.property.ICarProperty;
-import android.car.hardware.property.PropertyAccessDeniedSecurityException;
-import android.car.hardware.property.PropertyNotAvailableException;
 import android.os.IBinder;
 import android.util.ArraySet;
 import android.util.Log;
@@ -351,12 +349,9 @@ public final class CarHvacManager extends CarManagerBase {
                     mCarPropertyMgr.unregisterCallback(mListenerToBase, c.getPropertyId());
 
                 }
-            } catch (PropertyAccessDeniedSecurityException
-                    | PropertyNotAvailableException
-                    | IllegalArgumentException e) {
+            } catch (RuntimeException e) {
                 Log.e(TAG, "getPropertyList exception ", e);
             }
-
             if (mCallbacks.isEmpty()) {
                 mCarPropertyMgr.unregisterCallback(mListenerToBase);
                 mListenerToBase = null;
