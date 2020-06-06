@@ -103,7 +103,10 @@ public class BugReportActivity extends Activity {
     private Button mSubmitButton;
 
     private boolean mBound;
+    /** Audio message recording process started (including waiting for permission). */
     private boolean mAudioRecordingStarted;
+    /** Audio recording using MIC is running (permission given). */
+    private boolean mAudioRecordingIsRunning;
     private boolean mIsNewBugReport;
     private boolean mIsOnActivityStartedWithBugReportServiceBoundCalled;
     private boolean mIsSubmitButtonClicked;
@@ -131,26 +134,6 @@ public class BugReportActivity extends Activity {
         public void onServiceDisconnected(ComponentName arg0) {
             // called when service connection breaks unexpectedly.
             mBound = false;
-        }
-    };
-
-    private final ServiceConnection mCarServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            try {
-                mDrivingStateManager = (CarDrivingStateManager) mCar.getCarManager(
-                        Car.CAR_DRIVING_STATE_SERVICE);
-                mDrivingStateManager.registerListener(
-                        BugReportActivity.this::onCarDrivingStateChanged);
-                // Call onCarDrivingStateChanged(), because it's not called when Car is connected.
-                onCarDrivingStateChanged(mDrivingStateManager.getCurrentCarDrivingState());
-            } catch (CarNotConnectedException e) {
-                Log.w(TAG, "Failed to get CarDrivingStateManager.", e);
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
         }
     };
 
@@ -199,6 +182,7 @@ public class BugReportActivity extends Activity {
         }
         // Reset variables for the next onStart().
         mAudioRecordingStarted = false;
+        mAudioRecordingIsRunning = false;
         mIsSubmitButtonClicked = false;
         mIsOnActivityStartedWithBugReportServiceBoundCalled = false;
         mMetaBugReport = null;
@@ -223,6 +207,10 @@ public class BugReportActivity extends Activity {
     }
 
     private void onCarDrivingStateChanged(CarDrivingStateEvent event) {
+        if (mShowBugReportsButton == null) {
+            Log.w(TAG, "Cannot handle driving state change, UI is not ready");
+            return;
+        }
         // When adding audio message to the existing bugreport, do not show "Show Bug Reports"
         // button, users either should explicitly Submit or Cancel.
         if (mAudioRecordingStarted && !mIsNewBugReport) {
@@ -256,8 +244,8 @@ public class BugReportActivity extends Activity {
         // We need to minimize system state change when performing SILENT bug report.
         mConfig = new Config();
         mConfig.start();
-        mCar = Car.createCar(this, mCarServiceConnection);
-        mCar.connect();
+        mCar = Car.createCar(this, /* handler= */ null,
+                Car.CAR_WAIT_TIMEOUT_DO_NOT_WAIT, this::onCarLifecycleChanged);
 
         mInProgressTitleText = findViewById(R.id.in_progress_title_text);
         mProgressBar = findViewById(R.id.progress_bar);
@@ -280,6 +268,27 @@ public class BugReportActivity extends Activity {
         } else {
             mSubmitButton.setText(mConfig.getAutoUpload()
                     ? R.string.bugreport_dialog_upload : R.string.bugreport_dialog_save);
+        }
+    }
+
+    private void onCarLifecycleChanged(Car car, boolean ready) {
+        if (!ready) {
+            mDrivingStateManager = null;
+            mCar = null;
+            Log.d(TAG, "Car service is not ready, ignoring");
+            // If car service is not ready for this activity, just ignore it - as it's only
+            // used to control UX restrictions.
+            return;
+        }
+        try {
+            mDrivingStateManager = (CarDrivingStateManager) car.getCarManager(
+                    Car.CAR_DRIVING_STATE_SERVICE);
+            mDrivingStateManager.registerListener(
+                    BugReportActivity.this::onCarDrivingStateChanged);
+            // Call onCarDrivingStateChanged(), because it's not called when Car is connected.
+            onCarDrivingStateChanged(mDrivingStateManager.getCurrentCarDrivingState());
+        } catch (CarNotConnectedException e) {
+            Log.w(TAG, "Failed to get CarDrivingStateManager", e);
         }
     }
 
@@ -411,7 +420,10 @@ public class BugReportActivity extends Activity {
      * Cancels bugreporting by stopping audio recording and deleting temp files.
      */
     private void cancelAudioMessageRecording() {
-        if (!mAudioRecordingStarted) {
+        // If audio recording is not running, most likely there were permission issues,
+        // so leave the bugreport as is without cancelling it.
+        if (!mAudioRecordingIsRunning) {
+            Log.w(TAG, "Cannot cancel, audio recording is not running.");
             return;
         }
         stopAudioRecording();
@@ -427,6 +439,7 @@ public class BugReportActivity extends Activity {
                 this, mMetaBugReport, Status.STATUS_USER_CANCELLED, "");
         Log.i(TAG, "Bug report " + mMetaBugReport.getTimestamp() + " is cancelled");
         mAudioRecordingStarted = false;
+        mAudioRecordingIsRunning = false;
     }
 
     private void buttonCancelClick(View view) {
@@ -507,8 +520,13 @@ public class BugReportActivity extends Activity {
                 + Arrays.toString(permissions);
         Log.w(TAG, text);
         Toast.makeText(this, text, Toast.LENGTH_LONG).show();
-        BugStorageUtils.setBugReportStatus(this, mMetaBugReport,
-                Status.STATUS_USER_CANCELLED, text);
+        if (mIsNewBugReport) {
+            BugStorageUtils.setBugReportStatus(this, mMetaBugReport,
+                    Status.STATUS_USER_CANCELLED, text);
+        } else {
+            BugStorageUtils.setBugReportStatus(this, mMetaBugReport,
+                    Status.STATUS_AUDIO_PENDING, text);
+        }
         finish();
     }
 
@@ -550,6 +568,7 @@ public class BugReportActivity extends Activity {
 
         mRecorder.start();
         mVoiceRecordingView.setRecorder(mRecorder);
+        mAudioRecordingIsRunning = true;
 
         // Messages with token mRecorder are cleared when the activity finishes or recording stops.
         mHandler.postDelayed(() -> {

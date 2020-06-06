@@ -65,6 +65,12 @@ java_library {
     srcs: ["src/android/car/navigation/navigation_state.proto"]
 }
 
+// library to access settings from CarSettings
+java_library {
+    name: "android.car.settings",
+    srcs: ["src/android/car/settings/CarSettings.java"]
+}
+
 java_library {
     name: "android.car",
     srcs: [
@@ -209,14 +215,12 @@ droidstubs {
     },
 }
 
-java_library_static {
+java_library {
     name: "android.car-stubs",
     srcs: [
         ":android.car-stub-docs",
     ],
-    libs: [
-        "android.car",
-    ],
+    sdk_version: "current",
     product_variables: {
         pdk: {
             enabled: false,
@@ -228,14 +232,13 @@ java_library_static {
     }
 }
 
-java_library_static {
+java_library {
     name: "android.car-system-stubs",
     srcs: [
         ":android.car-system-stubs-docs",
+        "src_stub/**/*.java",
     ],
-    libs: [
-        "android.car",
-    ],
+    sdk_version: "system_current",
     product_variables: {
         pdk: {
             enabled: false,
@@ -247,20 +250,21 @@ java_library_static {
     }
 }
 
-java_library_static {
+java_library {
     name: "android.car-test-stubs",
     srcs: [
         ":android.car-test-stubs-docs",
     ],
-    libs: [
-        "android.car",
-    ],
+    sdk_version: "test_current",
     product_variables: {
         pdk: {
             enabled: false,
         },
     },
     compile_dex: true,
+    dist: {
+        targets: ["dist_files"],
+    }
 }
 
 // Export the api/system-current.txt file.

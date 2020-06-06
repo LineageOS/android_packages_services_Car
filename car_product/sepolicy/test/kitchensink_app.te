@@ -27,6 +27,7 @@ allow kitchensink_app {
     power_service
     sensorservice_service
     surfaceflinger_service
+    telecom_service
     uimode_service
     wifi_service
 }:service_manager find;

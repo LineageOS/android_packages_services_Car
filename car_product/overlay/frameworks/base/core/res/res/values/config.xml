@@ -48,7 +48,6 @@
     <!-- Allow smart unlock immediately after boot because the user shouldn't have to enter a pin
          code to unlock their car head unit. -->
     <bool name="config_strongAuthRequiredOnBoot">false</bool>
-    <string name="config_defaultTrustAgent" translatable="false">com.android.car/com.android.car.trust.CarBleTrustAgent</string>
     <!-- Show Navigation Bar -->
     <bool name="config_showNavigationBar">true</bool>
 
@@ -97,4 +96,6 @@
     <!-- Turn off Wallpaper service -->
     <bool name="config_enableWallpaperService">false</bool>
 
+    <!-- Automotive explicitly controls when the system suspends. Do not use autoSuspend. -->
+    <bool name="config_enableAutoSuspend" translatable="false">false</bool>
 </resources>

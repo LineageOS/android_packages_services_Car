@@ -24,6 +24,7 @@ import static android.car.drivingstate.CarUxRestrictionsManager.UX_RESTRICTION_M
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
+import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
@@ -51,6 +52,7 @@ import android.os.SystemClock;
 import android.util.ArraySet;
 import android.util.AtomicFile;
 import android.util.JsonReader;
+import android.util.JsonToken;
 import android.util.JsonWriter;
 import android.util.Log;
 import android.util.Slog;
@@ -70,6 +72,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -78,6 +82,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -86,7 +91,7 @@ import java.util.Set;
  * <p>
  * <h1>UX Restrictions Configuration</h1>
  * When this service starts, it will first try reading the configuration set through
- * {@link #saveUxRestrictionsConfigurationForNextBoot(CarUxRestrictionsConfiguration)}.
+ * {@link #saveUxRestrictionsConfigurationForNextBoot(List)}.
  * If one is not available, it will try reading the configuration saved in
  * {@code R.xml.car_ux_restrictions_map}. If XML is somehow unavailable, it will
  * fall back to a hard-coded configuration.
@@ -103,6 +108,17 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     private static final int PROPERTY_UPDATE_RATE = 5; // Update rate in Hz
     private static final float SPEED_NOT_AVAILABLE = -1.0F;
     private static final byte DEFAULT_PORT = 0;
+
+    private static final int UNKNOWN_JSON_SCHEMA_VERSION = -1;
+    private static final int JSON_SCHEMA_VERSION_V1 = 1;
+    private static final int JSON_SCHEMA_VERSION_V2 = 2;
+
+    @IntDef({UNKNOWN_JSON_SCHEMA_VERSION, JSON_SCHEMA_VERSION_V1, JSON_SCHEMA_VERSION_V2})
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface JsonSchemaVersion {}
+
+    private static final String JSON_NAME_SCHEMA_VERSION = "schema_version";
+    private static final String JSON_NAME_RESTRICTIONS = "restrictions";
 
     @VisibleForTesting
     static final String CONFIG_FILENAME_PRODUCTION = "ux_restrictions_prod_config.json";
@@ -127,8 +143,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     private Map<Byte, CarUxRestrictionsConfiguration> mCarUxRestrictionsConfigurations;
     private Map<Byte, CarUxRestrictions> mCurrentUxRestrictions;
 
-    @CarUxRestrictionsManager.UxRestrictionMode
-    private int mRestrictionMode = UX_RESTRICTION_MODE_BASELINE;
+    private String mRestrictionMode = UX_RESTRICTION_MODE_BASELINE;
 
     // Flag to disable broadcasting UXR changes - for development purposes
     @GuardedBy("this")
@@ -183,8 +198,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
      *
      * <p>Reads config from the following sources in order:
      * <ol>
-     * <li>saved config set by
-     * {@link #saveUxRestrictionsConfigurationForNextBoot(CarUxRestrictionsConfiguration)};
+     * <li>saved config set by {@link #saveUxRestrictionsConfigurationForNextBoot(List)};
      * <li>XML resource config from {@code R.xml.car_ux_restrictions_map};
      * <li>hardcoded default config.
      * </ol>
@@ -434,24 +448,24 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
      *
      * <p>Defaults to {@link CarUxRestrictionsManager#UX_RESTRICTION_MODE_BASELINE}.
      *
-     * @param mode See values in {@link CarUxRestrictionsManager.UxRestrictionMode}.
+     * @param mode the restriction mode
      * @return {@code true} if mode was successfully changed; {@code false} otherwise.
      * @see CarUxRestrictionsConfiguration.DrivingStateRestrictions
      * @see CarUxRestrictionsConfiguration.Builder
      */
     @Override
-    public synchronized boolean setRestrictionMode(
-            @CarUxRestrictionsManager.UxRestrictionMode int mode) {
+    public synchronized boolean setRestrictionMode(@NonNull String mode) {
         ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION);
+        Objects.requireNonNull(mode, "mode must not be null");
 
-        if (mRestrictionMode == mode) {
+        if (mRestrictionMode.equals(mode)) {
             return true;
         }
 
         addTransitionLog(TAG, mRestrictionMode, mode, System.currentTimeMillis(),
                 "Restriction mode");
         mRestrictionMode = mode;
-        logd("Set restriction mode to: " + CarUxRestrictionsManager.modeToString(mode));
+        logd("Set restriction mode to: " + mode);
 
         handleDispatchUxRestrictions(
                 mDrivingStateService.getCurrentDrivingState().eventValue, getCurrentSpeed());
@@ -459,8 +473,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     }
 
     @Override
-    @CarUxRestrictionsManager.UxRestrictionMode
-    public synchronized int getRestrictionMode() {
+    @NonNull
+    public synchronized String getRestrictionMode() {
         ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION);
 
         return mRestrictionMode;
@@ -483,11 +497,15 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         }
         try (JsonWriter jsonWriter = new JsonWriter(
                 new OutputStreamWriter(fos, StandardCharsets.UTF_8))) {
+            jsonWriter.beginObject();
+            jsonWriter.name(JSON_NAME_SCHEMA_VERSION).value(JSON_SCHEMA_VERSION_V2);
+            jsonWriter.name(JSON_NAME_RESTRICTIONS);
             jsonWriter.beginArray();
             for (CarUxRestrictionsConfiguration config : configs) {
                 config.writeJson(jsonWriter);
             }
             jsonWriter.endArray();
+            jsonWriter.endObject();
         } catch (IOException e) {
             Log.e(TAG, "Could not persist config", e);
             stagedFile.failWrite(fos);
@@ -504,20 +522,93 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             return null;
         }
 
+        // Take one pass at the file to check the version and then a second pass to read the
+        // contents. We could assess the version and read in one pass, but we're preferring
+        // clarity over complexity here.
+        int schemaVersion = readFileSchemaVersion(file);
+
         AtomicFile configFile = new AtomicFile(file);
         try (JsonReader reader = new JsonReader(
                 new InputStreamReader(configFile.openRead(), StandardCharsets.UTF_8))) {
             List<CarUxRestrictionsConfiguration> configs = new ArrayList<>();
-            reader.beginArray();
-            while (reader.hasNext()) {
-                configs.add(CarUxRestrictionsConfiguration.readJson(reader));
+            switch (schemaVersion) {
+                case JSON_SCHEMA_VERSION_V1:
+                    readV1Json(reader, configs);
+                    break;
+                case JSON_SCHEMA_VERSION_V2:
+                    readV2Json(reader, configs);
+                    break;
+                default:
+                    Log.e(TAG, "Unable to parse schema for version " + schemaVersion);
             }
-            reader.endArray();
+
             return configs;
         } catch (IOException e) {
             Log.e(TAG, "Could not read persisted config file " + file.getName(), e);
         }
         return null;
+    }
+
+    private void readV1Json(JsonReader reader,
+            List<CarUxRestrictionsConfiguration> configs) throws IOException {
+        readRestrictionsArray(reader, configs, JSON_SCHEMA_VERSION_V1);
+    }
+
+    private void readV2Json(JsonReader reader,
+            List<CarUxRestrictionsConfiguration> configs) throws IOException {
+        reader.beginObject();
+        while (reader.hasNext()) {
+            String name = reader.nextName();
+            switch (name) {
+                case JSON_NAME_RESTRICTIONS:
+                    readRestrictionsArray(reader, configs, JSON_SCHEMA_VERSION_V2);
+                    break;
+                default:
+                    reader.skipValue();
+            }
+        }
+        reader.endObject();
+    }
+
+    private int readFileSchemaVersion(File file) {
+        AtomicFile configFile = new AtomicFile(file);
+        try (JsonReader reader = new JsonReader(
+                new InputStreamReader(configFile.openRead(), StandardCharsets.UTF_8))) {
+            List<CarUxRestrictionsConfiguration> configs = new ArrayList<>();
+            if (reader.peek() == JsonToken.BEGIN_ARRAY) {
+                // only schema V1 beings with an array - no need to keep reading
+                reader.close();
+                return JSON_SCHEMA_VERSION_V1;
+            } else {
+                reader.beginObject();
+                while (reader.hasNext()) {
+                    String name = reader.nextName();
+                    switch (name) {
+                        case JSON_NAME_SCHEMA_VERSION:
+                            int schemaVersion = reader.nextInt();
+                            // got the version, no need to continue reading
+                            reader.close();
+                            return schemaVersion;
+                        default:
+                            reader.skipValue();
+                    }
+                }
+                reader.endObject();
+            }
+        } catch (IOException e) {
+            Log.e(TAG, "Could not read persisted config file " + file.getName(), e);
+        }
+        return UNKNOWN_JSON_SCHEMA_VERSION;
+    }
+
+    private void readRestrictionsArray(JsonReader reader,
+            List<CarUxRestrictionsConfiguration> configs, @JsonSchemaVersion int schemaVersion)
+            throws IOException {
+        reader.beginArray();
+        while (reader.hasNext()) {
+            configs.add(CarUxRestrictionsConfiguration.readJson(reader, schemaVersion));
+        }
+        reader.endArray();
     }
 
     /**
@@ -940,7 +1031,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                 .build();
     }
 
-    private void addTransitionLog(String name, int from, int to, long timestamp, String extra) {
+    private void addTransitionLog(String name, String from, String to, long timestamp,
+            String extra) {
         if (mTransitionLogs.size() >= MAX_TRANSITION_LOG_SIZE) {
             mTransitionLogs.remove();
         }
