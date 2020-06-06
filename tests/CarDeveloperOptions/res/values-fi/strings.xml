@@ -246,7 +246,7 @@
     <string name="band_mode_set" msgid="4962130364076526789">"Aseta"</string>
     <string name="band_mode_failed" msgid="8350123391471974137">"Epäonnistui"</string>
     <string name="band_mode_succeeded" msgid="5516613616395402809">"Onnistui"</string>
-    <string name="sdcard_changes_instructions" msgid="4138217393448114001">"Muutokset tulevat voimaan, kun USB-kaapeli kytketään uudelleen."</string>
+    <string name="sdcard_changes_instructions" msgid="4138217393448114001">"Muutokset tulevat voimaan, kun USB-johto kytketään uudelleen."</string>
     <string name="sdcard_settings_screen_mass_storage_text" msgid="7486030250999007641">"Ota USB-massamuisti käyttöön"</string>
     <string name="sdcard_settings_total_bytes_label" msgid="6461741874400909157">"Tavuja yhteensä:"</string>
     <string name="sdcard_settings_not_present_status" product="nosdcard" msgid="5419085128792417589">"USB-tallennustila ei käytössä."</string>
@@ -849,7 +849,7 @@
     <string name="wifi_notify_open_networks" msgid="4782239203624619655">"Avaa verkkoilmoitus"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"Ilmoita, kun käytettävissä on laadukkaita julkisia verkkoja."</string>
     <string name="wifi_wakeup" msgid="4963732992164721548">"Laita Wi-Fi päälle automaattisesti"</string>
-    <string name="wifi_wakeup_summary" msgid="1152699417411690">"Wi-Fi laitetaan automaattisesti päälle, kun lähistöllä on kotiverkkosi tai muita laadukkaita tallennettuja verkkoja."</string>
+    <string name="wifi_wakeup_summary" msgid="1152699417411690">"Wi-Fi laitetaan automaattisesti päälle, kun lähistöllä on kotiverkkosi tai muita laadukkaita tallennettuja verkkoja"</string>
     <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"Ei käytettävissä, koska sijainti on poistettu käytöstä. Ota "<annotation id="link">"sijainti"</annotation>" käyttöön."</string>
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"Ei käytettävissä, koska Wi‑Fi-haku on pois päältä."</string>
     <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"Valitse verkon arviointipalvelu, jotta voit käyttää tätä."</string>

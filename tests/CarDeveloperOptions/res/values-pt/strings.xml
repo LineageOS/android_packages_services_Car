@@ -3031,7 +3031,7 @@
       <item quantity="one">Mostrar %d item oculto</item>
       <item quantity="other">Mostrar %d itens ocultos</item>
     </plurals>
-    <string name="network_dashboard_title" msgid="8288134139584687806">"Rede e internet"</string>
+    <string name="network_dashboard_title" msgid="8288134139584687806">"Rede e Internet"</string>
     <string name="network_dashboard_summary_mobile" msgid="5560545061217580626">"rede móvel"</string>
     <string name="network_dashboard_summary_data_usage" msgid="4695629715072542102">"uso de dados"</string>
     <string name="network_dashboard_summary_hotspot" msgid="3928610802321995214">"ponto de acesso"</string>
@@ -3423,7 +3423,7 @@
     <string name="notification_badge_title" msgid="8989086619255666442">"Permitir ponto de notificação"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"Mostrar ponto de notificação"</string>
     <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"Ignorar o Não perturbe"</string>
-    <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"Permitir que essas notificações sejam mostradas mesmo quando o Não perturbe estiver ativado"</string>
+    <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"Permitir que as notificações sejam mostradas mesmo quando o Não perturbe estiver ativado"</string>
     <string name="app_notification_visibility_override_title" msgid="2349335170165637672">"Na tela de bloqueio"</string>
     <string name="app_notification_row_banned" msgid="2079325338122151677">"Bloqueadas"</string>
     <string name="app_notification_row_priority" msgid="432299064888787236">"Prioridade"</string>

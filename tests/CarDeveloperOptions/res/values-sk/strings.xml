@@ -766,7 +766,7 @@
     <string name="bluetooth_pairing_request" msgid="7221745525632573125">"Spárovať so zariadením <xliff:g id="DEVICE_NAME">%1$s</xliff:g>?"</string>
     <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"Párovací kód Bluetooth"</string>
     <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"Zadajte párovací kód a potom stlačte tlačidlo Return alebo Enter"</string>
-    <string name="bluetooth_enable_alphanumeric_pin" msgid="9138308197078115672">"Kód PIN obsahuje písmená alebo symboly"</string>
+    <string name="bluetooth_enable_alphanumeric_pin" msgid="9138308197078115672">"PIN obsahuje písmená či symboly"</string>
     <string name="bluetooth_pin_values_hint" msgid="8044671726261326240">"Obvykle 0000 alebo 1234"</string>
     <string name="bluetooth_pin_values_hint_16_digits" msgid="2665983525706661525">"Musí obsahovať 16 číslic"</string>
     <string name="bluetooth_enter_pin_other_device" msgid="1727015949040507621">"Tento kód PIN bude možno treba zadať aj na druhom zariadení."</string>
