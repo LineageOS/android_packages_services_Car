@@ -17,6 +17,7 @@
 package android.car.userlib;
 
 import static android.car.userlib.UserHalHelper.CREATE_USER_PROPERTY;
+import static android.car.userlib.UserHalHelper.REMOVE_USER_PROPERTY;
 import static android.car.userlib.UserHalHelper.SWITCH_USER_PROPERTY;
 import static android.car.userlib.UserHalHelper.USER_IDENTIFICATION_ASSOCIATION_PROPERTY;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue.ASSOCIATE_CURRENT_USER;
@@ -50,6 +51,7 @@ import android.hardware.automotive.vehicle.V2_0.CreateUserRequest;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
+import android.hardware.automotive.vehicle.V2_0.RemoveUserRequest;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserMessageType;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserRequest;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
@@ -864,6 +866,62 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void testRemoveUserRequestToVehiclePropValue_null() {
+        assertThrows(NullPointerException.class,
+                () -> UserHalHelper.toVehiclePropValue((RemoveUserRequest) null));
+    }
+
+    @Test
+    public void testRemoveUserRequestToVehiclePropValue_emptyRequest() {
+        RemoveUserRequest request = new RemoveUserRequest();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> UserHalHelper.toVehiclePropValue(request));
+    }
+
+    @Test
+    public void testRemoveUserRequestToVehiclePropValue_missingRequestId() {
+        RemoveUserRequest request = new RemoveUserRequest();
+        request.removedUserInfo.userId = 11;
+        request.usersInfo.existingUsers.add(request.removedUserInfo);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> UserHalHelper.toVehiclePropValue(request));
+    }
+
+    @Test
+    public void testRemoveUserRequestToVehiclePropValue_ok() {
+        RemoveUserRequest request = new RemoveUserRequest();
+        request.requestId = 42;
+
+        android.hardware.automotive.vehicle.V2_0.UserInfo user10 =
+                new android.hardware.automotive.vehicle.V2_0.UserInfo();
+        user10.userId = 10;
+        user10.flags = UserFlags.ADMIN;
+
+        // existing users
+        request.usersInfo.numberUsers = 1;
+        request.usersInfo.existingUsers.add(user10);
+
+        // current user
+        request.usersInfo.currentUser = user10;
+        // user to remove
+        request.removedUserInfo = user10;
+
+        VehiclePropValue propValue = UserHalHelper.toVehiclePropValue(request);
+
+        assertWithMessage("wrong prop on %s", propValue).that(propValue.prop)
+                .isEqualTo(REMOVE_USER_PROPERTY);
+        assertWithMessage("wrong int32values on %s", propValue).that(propValue.value.int32Values)
+                .containsExactly(42, // request id
+                        10, UserFlags.ADMIN, // user to remove
+                        10, UserFlags.ADMIN, // current user
+                        1, // number of users
+                        10, UserFlags.ADMIN  // existing user 1
+                        ).inOrder();
+    }
+
+    @Test
     public void testCreateUserRequestToVehiclePropValue_null() {
         assertThrows(NullPointerException.class,
                 () -> UserHalHelper.toVehiclePropValue((CreateUserRequest) null));
@@ -1066,12 +1124,12 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void testNewUsersInfo_nullUm() {
-        assertThrows(IllegalArgumentException.class, () -> UserHalHelper.newUsersInfo(null));
+        assertThrows(IllegalArgumentException.class, () -> UserHalHelper.newUsersInfo(null, 100));
     }
 
     @Test
     public void testNewUsersInfo_nullUsers() {
-        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUm);
+        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUm, 100);
 
         assertEmptyUsersInfo(usersInfo);
     }
@@ -1081,9 +1139,55 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
         List<UserInfo> users = new ArrayList<>();
         AndroidMockitoHelper.mockUmGetUsers(mUm, users);
 
-        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUm);
+        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUm, 100);
 
         assertEmptyUsersInfo(usersInfo);
+    }
+
+    @Test
+    public void testNewUsersInfo_ok() {
+        UserInfo user100 = new UserInfoBuilder(100).setFlags(UserInfo.FLAG_ADMIN).build();
+        UserInfo user200 = new UserInfoBuilder(200).build();
+
+        AndroidMockitoHelper.mockUmGetUsers(mUm, user100, user200);
+        AndroidMockitoHelper.mockAmGetCurrentUser(300); // just to make sure it's not used
+
+        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUm, 100);
+
+        assertThat(usersInfo).isNotNull();
+        assertThat(usersInfo.currentUser.userId).isEqualTo(100);
+        assertThat(usersInfo.currentUser.flags).isEqualTo(UserFlags.ADMIN);
+
+        assertThat(usersInfo.numberUsers).isEqualTo(2);
+        assertThat(usersInfo.existingUsers).hasSize(2);
+
+        assertThat(usersInfo.existingUsers.get(0).userId).isEqualTo(100);
+        assertThat(usersInfo.existingUsers.get(0).flags).isEqualTo(UserFlags.ADMIN);
+        assertThat(usersInfo.existingUsers.get(1).userId).isEqualTo(200);
+        assertThat(usersInfo.existingUsers.get(1).flags).isEqualTo(UserFlags.NONE);
+    }
+
+    @Test
+    public void testNewUsersInfo_currentUser_ok() {
+        UserInfo user100 = new UserInfoBuilder(100).setFlags(UserInfo.FLAG_ADMIN).build();
+        UserInfo user200 = new UserInfoBuilder(200).build();
+
+        AndroidMockitoHelper.mockUmGetUsers(mUm, user100, user200);
+        AndroidMockitoHelper.mockAmGetCurrentUser(100);
+
+        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUm);
+
+        assertThat(usersInfo).isNotNull();
+        assertThat(usersInfo.currentUser.userId).isEqualTo(100);
+        assertThat(usersInfo.currentUser.flags).isEqualTo(UserFlags.ADMIN);
+
+        assertThat(usersInfo.numberUsers).isEqualTo(2);
+        assertThat(usersInfo.existingUsers).hasSize(2);
+
+        assertThat(usersInfo.existingUsers.get(0).userId).isEqualTo(100);
+        assertThat(usersInfo.existingUsers.get(0).flags).isEqualTo(UserFlags.ADMIN);
+        assertThat(usersInfo.existingUsers.get(1).userId).isEqualTo(200);
+        assertThat(usersInfo.existingUsers.get(1).flags).isEqualTo(UserFlags.NONE);
     }
 
     @Test
@@ -1099,29 +1203,6 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
         assertThat(usersInfo).isNotNull();
         assertThat(usersInfo.currentUser.userId).isEqualTo(300);
         assertThat(usersInfo.currentUser.flags).isEqualTo(UserFlags.NONE);
-
-        assertThat(usersInfo.numberUsers).isEqualTo(2);
-        assertThat(usersInfo.existingUsers).hasSize(2);
-
-        assertThat(usersInfo.existingUsers.get(0).userId).isEqualTo(100);
-        assertThat(usersInfo.existingUsers.get(0).flags).isEqualTo(UserFlags.ADMIN);
-        assertThat(usersInfo.existingUsers.get(1).userId).isEqualTo(200);
-        assertThat(usersInfo.existingUsers.get(1).flags).isEqualTo(UserFlags.NONE);
-    }
-
-    @Test
-    public void testNewUsersInfo_ok() {
-        UserInfo user100 = new UserInfoBuilder(100).setFlags(UserInfo.FLAG_ADMIN).build();
-        UserInfo user200 = new UserInfoBuilder(200).build();
-
-        AndroidMockitoHelper.mockUmGetUsers(mUm, user100, user200);
-        AndroidMockitoHelper.mockAmGetCurrentUser(100);
-
-        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUm);
-
-        assertThat(usersInfo).isNotNull();
-        assertThat(usersInfo.currentUser.userId).isEqualTo(100);
-        assertThat(usersInfo.currentUser.flags).isEqualTo(UserFlags.ADMIN);
 
         assertThat(usersInfo.numberUsers).isEqualTo(2);
         assertThat(usersInfo.existingUsers).hasSize(2);

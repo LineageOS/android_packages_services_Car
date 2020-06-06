@@ -36,6 +36,7 @@ import android.car.input.RotaryEvent;
 import android.car.user.CarUserManager;
 import android.car.user.UserCreationResult;
 import android.car.user.UserIdentificationAssociationResponse;
+import android.car.user.UserRemovalResult;
 import android.car.user.UserSwitchResult;
 import android.car.userlib.HalCallback;
 import android.car.userlib.UserHalHelper;
@@ -46,6 +47,7 @@ import android.hardware.automotive.vehicle.V2_0.CreateUserRequest;
 import android.hardware.automotive.vehicle.V2_0.CreateUserStatus;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
+import android.hardware.automotive.vehicle.V2_0.RemoveUserRequest;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserMessageType;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserRequest;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserStatus;
@@ -125,6 +127,7 @@ final class CarShellCommand extends ShellCommand {
     private static final String COMMAND_INJECT_ROTARY = "inject-rotary";
     private static final String COMMAND_GET_INITIAL_USER_INFO = "get-initial-user-info";
     private static final String COMMAND_SWITCH_USER = "switch-user";
+    private static final String COMMAND_REMOVE_USER = "remove-user";
     private static final String COMMAND_CREATE_USER = "create-user";
     private static final String COMMAND_GET_INITIAL_USER = "get-initial-user";
     private static final String COMMAND_SET_USER_ID_TO_OCCUPANT_ZONE =
@@ -154,6 +157,8 @@ final class CarShellCommand extends ShellCommand {
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_GET_INITIAL_USER_INFO,
                 android.Manifest.permission.MANAGE_USERS);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_SWITCH_USER,
+                android.Manifest.permission.MANAGE_USERS);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_REMOVE_USER,
                 android.Manifest.permission.MANAGE_USERS);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_CREATE_USER,
                 android.Manifest.permission.MANAGE_USERS);
@@ -373,6 +378,10 @@ final class CarShellCommand extends ShellCommand {
         pw.println("\t  Switches to user USER_ID using the HAL integration.");
         pw.println("\t  The --hal-only option only calls HAL, without switching the user,");
         pw.println("\t  while the --timeout defines how long to wait for the HAL response.");
+
+        pw.printf("\t%s <USER_ID> [--hal-only]\n", COMMAND_REMOVE_USER);
+        pw.println("\t  Removes user with USER_ID using the HAL integration.");
+        pw.println("\t  The --hal-only option only calls HAL, without removing the user,");
 
         pw.printf("\t%s [--hal-only] [--timeout TIMEOUT_MS] [--type TYPE] [--flags FLAGS] [NAME]\n",
                 COMMAND_CREATE_USER);
@@ -608,6 +617,9 @@ final class CarShellCommand extends ShellCommand {
                 break;
             case COMMAND_SWITCH_USER:
                 switchUser(args, writer);
+                break;
+            case COMMAND_REMOVE_USER:
+                removeUser(args, writer);
                 break;
             case COMMAND_CREATE_USER:
                 createUser(args, writer);
@@ -1109,6 +1121,52 @@ final class CarShellCommand extends ShellCommand {
                 writer.printf("User removed: %b\n", removed);
             }
         }
+    }
+
+    private void removeUser(String[] args, PrintWriter writer) {
+        if (args.length < 2) {
+            writer.println("Insufficient number of args");
+            return;
+        }
+
+        int userId = Integer.parseInt(args[1]);
+        boolean halOnly = false;
+
+        for (int i = 2; i < args.length; i++) {
+            String arg = args[i];
+            switch (arg) {
+                case "--hal-only":
+                    halOnly = true;
+                    break;
+                default:
+                    writer.println("Invalid option at index " + i + ": " + arg);
+                    return;
+            }
+        }
+
+        Log.d(TAG, "handleRemoveUser(): User to remove=" + userId + ", halOnly=" + halOnly);
+
+        if (halOnly) {
+            UserHalService userHal = mHal.getUserHal();
+            UsersInfo usersInfo = generateUsersInfo();
+            UserInfo userInfo = new UserInfo();
+            userInfo.userId = userId;
+            userInfo.flags = getUserHalFlags(userId);
+
+            RemoveUserRequest request = new RemoveUserRequest();
+            request.removedUserInfo = userInfo;
+            request.usersInfo = usersInfo;
+
+            userHal.removeUser(request);
+            writer.printf("User removal sent for HAL only.\n");
+            return;
+        }
+
+        CarUserManager carUserManager = getCarUserManager(mContext);
+        UserRemovalResult result = carUserManager.removeUser(userId);
+        if (result == null) return;
+        writer.printf("UserRemovalResult: status = %s\n",
+                UserRemovalResult.statusToString(result.getStatus()));
     }
 
     private static <T> T waitForFuture(@NonNull PrintWriter writer,

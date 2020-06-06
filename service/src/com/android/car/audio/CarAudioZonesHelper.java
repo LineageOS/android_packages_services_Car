@@ -22,7 +22,6 @@ import android.media.AudioDeviceInfo;
 import android.text.TextUtils;
 import android.util.SparseIntArray;
 import android.util.Xml;
-import android.view.DisplayAddress;
 
 import com.android.car.audio.CarAudioContext.AudioContext;
 import com.android.internal.util.Preconditions;
@@ -55,14 +54,11 @@ import java.util.stream.Collectors;
     private static final String TAG_VOLUME_GROUP = "group";
     private static final String TAG_AUDIO_DEVICE = "device";
     private static final String TAG_CONTEXT = "context";
-    private static final String TAG_DISPLAYS = "displays";
-    private static final String TAG_DISPLAY = "display";
     private static final String ATTR_VERSION = "version";
     private static final String ATTR_IS_PRIMARY = "isPrimary";
     private static final String ATTR_ZONE_NAME = "name";
     private static final String ATTR_DEVICE_ADDRESS = "address";
     private static final String ATTR_CONTEXT_NAME = "context";
-    private static final String ATTR_PHYSICAL_PORT = "port";
     private static final String ATTR_ZONE_ID = "audioZoneId";
     private static final String ATTR_OCCUPANT_ZONE_ID = "occupantZoneId";
     private static final String TAG_INPUT_DEVICES = "inputDevices";
@@ -132,7 +128,6 @@ import java.util.stream.Collectors;
     private final Map<String, CarAudioDeviceInfo> mAddressToCarAudioDeviceInfo;
     private final Map<String, AudioDeviceInfo> mAddressToInputAudioDeviceInfo;
     private final InputStream mInputStream;
-    private final Set<Long> mPortIds;
     private final SparseIntArray mZoneIdToOccupantZoneIdMapping;
     private final Set<Integer> mAudioZoneIds;
     private final Set<String> mInputAudioDevices;
@@ -158,7 +153,6 @@ import java.util.stream.Collectors;
         mAddressToInputAudioDeviceInfo =
                 CarAudioZonesHelper.generateAddressToInputAudioDeviceInfoMap(inputDeviceInfo);
         mNextSecondaryZoneId = CarAudioManager.PRIMARY_AUDIO_ZONE + 1;
-        mPortIds = new HashSet<>();
         mZoneIdToOccupantZoneIdMapping = new SparseIntArray();
         mAudioZoneIds = new HashSet<>();
         mInputAudioDevices = new HashSet<>();
@@ -258,8 +252,6 @@ import java.util.stream.Collectors;
             // Expect one <volumeGroups> in one audio zone
             if (TAG_VOLUME_GROUPS.equals(parser.getName())) {
                 parseVolumeGroups(parser, zone);
-            } else if (TAG_DISPLAYS.equals(parser.getName())) {
-                parseDisplays(parser, zone);
             } else if (TAG_INPUT_DEVICES.equals(parser.getName())) {
                 parseInputAudioDevices(parser, zone);
             } else {
@@ -362,37 +354,6 @@ import java.util.stream.Collectors;
                     + " repeats, " + TAG_INPUT_DEVICES + " can not repeat.");
         }
         mInputAudioDevices.add(audioDeviceAddress);
-    }
-
-    private void parseDisplays(XmlPullParser parser, CarAudioZone zone)
-            throws IOException, XmlPullParserException {
-        while (parser.next() != XmlPullParser.END_TAG) {
-            if (parser.getEventType() != XmlPullParser.START_TAG) continue;
-            if (TAG_DISPLAY.equals(parser.getName())) {
-                zone.addPhysicalDisplayAddress(parsePhysicalDisplayAddress(parser));
-            }
-            skip(parser);
-        }
-    }
-
-    private DisplayAddress.Physical parsePhysicalDisplayAddress(XmlPullParser parser) {
-        String port = parser.getAttributeValue(NAMESPACE, ATTR_PHYSICAL_PORT);
-        long portId;
-        try {
-            portId = Long.parseLong(port);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException(String.format("Port %s is not a number", port), e);
-        }
-        validatePortIsUnique(portId);
-        return DisplayAddress.fromPhysicalDisplayId(portId);
-    }
-
-    private void validatePortIsUnique(Long portId) {
-        if (mPortIds.contains(portId)) {
-            throw new IllegalArgumentException(
-                    String.format("Port Id %d is already associated with a zone", portId));
-        }
-        mPortIds.add(portId);
     }
 
     private void validateOccupantZoneIdIsUnique(int occupantZoneId) {

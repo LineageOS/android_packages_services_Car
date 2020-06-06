@@ -21,6 +21,7 @@ import static android.car.test.mocks.AndroidMockitoHelper.mockUmCreateUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserInfo;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUsers;
 import static android.car.test.util.UserTestingHelper.UserInfoBuilder;
+import static android.content.pm.UserInfo.FLAG_ADMIN;
 import static android.content.pm.UserInfo.FLAG_EPHEMERAL;
 import static android.content.pm.UserInfo.FLAG_GUEST;
 
@@ -65,6 +66,7 @@ import android.car.user.CarUserManager.UserLifecycleEventType;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.user.UserCreationResult;
 import android.car.user.UserIdentificationAssociationResponse;
+import android.car.user.UserRemovalResult;
 import android.car.user.UserSwitchResult;
 import android.car.userlib.CarUserManagerHelper;
 import android.car.userlib.HalCallback;
@@ -82,6 +84,7 @@ import android.hardware.automotive.vehicle.V2_0.CreateUserStatus;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
+import android.hardware.automotive.vehicle.V2_0.RemoveUserRequest;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserRequest;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserResponse;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserStatus;
@@ -658,6 +661,73 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void testRemoveUser_currentUserCannotBeRemoved() throws Exception {
+        mockCurrentUser(mAdminUser);
+
+        UserRemovalResult result = mCarUserService.removeUser(mAdminUser.id);
+
+        assertThat(result.getStatus())
+                .isEqualTo(UserRemovalResult.STATUS_TARGET_USER_IS_CURRENT_USER);
+    }
+
+    @Test
+    public void testRemoveUser_userNotExist() throws Exception {
+        UserRemovalResult result = mCarUserService.removeUser(15);
+
+        assertThat(result.getStatus())
+                .isEqualTo(UserRemovalResult.STATUS_USER_DOES_NOT_EXIST);
+    }
+
+    @Test
+    public void testRemoveUser_lastAdminUser() throws Exception {
+        mockCurrentUser(mRegularUser);
+        mockExistingUsers();
+
+        UserRemovalResult result = mCarUserService.removeUser(mAdminUser.id);
+
+        assertThat(result.getStatus())
+                .isEqualTo(UserRemovalResult.STATUS_TARGET_USER_IS_LAST_ADMIN_USER);
+    }
+
+    @Test
+    public void testRemoveUser_notLastAdminUser_success() throws Exception {
+        // Give admin rights to regular user.
+        UserInfo currentUser = mRegularUser;
+        currentUser.flags = currentUser.flags | FLAG_ADMIN;
+        mockExistingUsersAndCurrentUser(currentUser);
+        int removeUserId = mAdminUser.id;
+        when(mMockedUserManager.removeUser(removeUserId)).thenReturn(true);
+
+        UserRemovalResult result = mCarUserService.removeUser(removeUserId);
+
+        assertThat(result.getStatus()).isEqualTo(UserRemovalResult.STATUS_SUCCESSFUL);
+        assertHalRemove(currentUser.id, removeUserId);
+    }
+
+    @Test
+    public void testRemoveUser_success() throws Exception {
+        mockExistingUsersAndCurrentUser(mAdminUser);
+        int removeUserId = mRegularUser.id;
+        when(mMockedUserManager.removeUser(removeUserId)).thenReturn(true);
+
+        UserRemovalResult result = mCarUserService.removeUser(removeUserId);
+
+        assertThat(result.getStatus()).isEqualTo(UserRemovalResult.STATUS_SUCCESSFUL);
+        assertHalRemove(mAdminUser.id, removeUserId);
+    }
+
+    @Test
+    public void testRemoveUser_androidFailure() throws Exception {
+        mockExistingUsersAndCurrentUser(mAdminUser);
+        int targetUserId = mRegularUser.id;
+        when(mMockedUserManager.removeUser(targetUserId)).thenReturn(false);
+
+        UserRemovalResult result = mCarUserService.removeUser(targetUserId);
+
+        assertThat(result.getStatus()).isEqualTo(UserRemovalResult.STATUS_ANDROID_FAILURE);
+    }
+
+    @Test
     public void testSwitchUser_nullReceiver() throws Exception {
         mockExistingUsersAndCurrentUser(mAdminUser);
 
@@ -964,8 +1034,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testHalUserSwitchOnAndroidSwitch_successfulNoExitingUserSwitch() throws Exception {
-        mockExistingUsersAndCurrentUser(mAdminUser);
+    public void testLegacyUserSwitch_ok() throws Exception {
+        mockExistingUsers();
 
         sendUserSwitchingEvent(mAdminUser.id, mRegularUser.id);
 
@@ -973,7 +1043,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testHalUserSwitchOnAndroidSwitch_failureExitingUserSwitch() throws Exception {
+    public void testLegacyUserSwitch_notCalledAfterNormalSwitch() throws Exception {
+        // Arrange - emulate normal switch
         mockExistingUsersAndCurrentUser(mAdminUser);
         int requestId = 42;
         mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
@@ -982,8 +1053,10 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockAmSwitchUser(mGuestUser, true);
         mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture);
 
+        // Act - trigger legacy switch
         sendUserSwitchingEvent(mAdminUser.id, mGuestUser.id);
 
+        // Assert
         verify(mUserHal, never()).legacyUserSwitch(any());
     }
 
@@ -1875,6 +1948,14 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
     private void assertNoHalUserCreation() {
         verify(mUserHal, never()).createUser(any(), eq(mAsyncCallTimeoutMs), any());
+    }
+
+    private void assertHalRemove(int currentId, int removeUserId) {
+        ArgumentCaptor<RemoveUserRequest> request =
+                ArgumentCaptor.forClass(RemoveUserRequest.class);
+        verify(mUserHal).removeUser(request.capture());
+        assertThat(request.getValue().removedUserInfo.userId).isEqualTo(removeUserId);
+        assertThat(request.getValue().usersInfo.currentUser.userId).isEqualTo(currentId);
     }
 
     @NonNull

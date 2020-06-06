@@ -35,6 +35,7 @@ import android.car.user.CarUserManager.UserLifecycleEventType;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.user.UserCreationResult;
 import android.car.user.UserIdentificationAssociationResponse;
+import android.car.user.UserRemovalResult;
 import android.car.user.UserSwitchResult;
 import android.car.userlib.CarUserManagerHelper;
 import android.car.userlib.CommonConstants.CarUserServiceConstants;
@@ -53,6 +54,7 @@ import android.hardware.automotive.vehicle.V2_0.CreateUserRequest;
 import android.hardware.automotive.vehicle.V2_0.CreateUserStatus;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
+import android.hardware.automotive.vehicle.V2_0.RemoveUserRequest;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserRequest;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserStatus;
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationGetRequest;
@@ -343,7 +345,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     private void handleDumpListeners(@NonNull PrintWriter writer, String indent) {
         CountDownLatch latch = new CountDownLatch(1);
         mHandler.post(() -> {
-            handleDumpUserLifecycleListeners(writer);
+            handleDumpServiceLifecycleListeners(writer);
             handleDumpAppLifecycleListeners(writer, indent);
             latch.countDown();
         });
@@ -359,28 +361,30 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
     }
 
-    private void handleDumpUserLifecycleListeners(@NonNull PrintWriter writer) {
+    private void handleDumpServiceLifecycleListeners(@NonNull PrintWriter writer) {
         if (mUserLifecycleListeners.isEmpty()) {
-            writer.println("No user lifecycle listeners");
+            writer.println("No lifecycle listeners for internal services");
             return;
         }
-        writer.printf("%d user lifecycle listeners\n", mUserLifecycleListeners.size());
+        int size = mUserLifecycleListeners.size();
+        writer.printf("%d lifecycle listener%s for services\n", size, size == 1 ? "" : "s");
+        String indent = "  ";
         for (UserLifecycleListener listener : mUserLifecycleListeners) {
-            writer.printf("Listener %s\n", listener);
+            writer.printf("%s%s\n", indent, FunctionalUtils.getLambdaName(listener));
         }
     }
 
     private void handleDumpAppLifecycleListeners(@NonNull PrintWriter writer, String indent) {
-        int numberListeners = mAppLifecycleListeners.size();
-        if (numberListeners == 0) {
-            writer.println("No lifecycle listeners");
+        int size = mAppLifecycleListeners.size();
+        if (size == 0) {
+            writer.println("No lifecycle listeners for apps");
             return;
         }
-        writer.printf("%d lifecycle listeners\n", numberListeners);
-        for (int i = 0; i < numberListeners; i++) {
+        writer.printf("%d lifecycle listener%s for apps \n", size, size == 1 ? "" : "s");
+        for (int i = 0; i < size; i++) {
             int uid = mAppLifecycleListeners.keyAt(i);
             IResultReceiver listener = mAppLifecycleListeners.valueAt(i);
-            writer.printf("%suid: %d Listener %s\n", indent, uid, listener);
+            writer.printf("%suid: %d\n", indent, uid);
         }
     }
 
@@ -877,6 +881,62 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             }
             sendUserSwitchResult(receiver, resultStatus, resp.errorMessage);
         });
+    }
+
+    @Override
+    public UserRemovalResult removeUser(@UserIdInt int userId) {
+        checkManageUsersPermission("removeUser");
+        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_REMOVE_USER_REQ, userId);
+        // If the requested user is the current user, return error.
+        if (ActivityManager.getCurrentUser() == userId) {
+            return logAndGetResults(userId,
+                    UserRemovalResult.STATUS_TARGET_USER_IS_CURRENT_USER);
+        }
+
+        // If requested user is the only admin user, return error.
+        UserInfo userInfo = mUserManager.getUserInfo(userId);
+        if (userInfo == null) {
+            return logAndGetResults(userId, UserRemovalResult.STATUS_USER_DOES_NOT_EXIST);
+        }
+
+        android.hardware.automotive.vehicle.V2_0.UserInfo halUser =
+                new android.hardware.automotive.vehicle.V2_0.UserInfo();
+        halUser.userId = userInfo.id;
+        halUser.flags = UserHalHelper.convertFlags(userInfo);
+        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUserManager);
+
+        // Do not delete last admin user.
+        if (UserHalHelper.isAdmin(halUser.flags)) {
+            int size = usersInfo.existingUsers.size();
+            int totalAdminUsers = 0;
+            for (int i = 0; i < size; i++) {
+                if (UserHalHelper.isAdmin(usersInfo.existingUsers.get(i).flags)) {
+                    totalAdminUsers++;
+                }
+            }
+            if (totalAdminUsers == 1) {
+                return logAndGetResults(userId,
+                        UserRemovalResult.STATUS_TARGET_USER_IS_LAST_ADMIN_USER);
+            }
+        }
+
+        // First remove user from android and then remove from HAL because HAL remove user is one
+        // way call.
+        if (!mUserManager.removeUser(userId)) {
+            return logAndGetResults(userId, UserRemovalResult.STATUS_ANDROID_FAILURE);
+        }
+
+        RemoveUserRequest request = new RemoveUserRequest();
+        request.removedUserInfo = halUser;
+        request.usersInfo = usersInfo;
+        mHal.removeUser(request);
+        return logAndGetResults(userId, UserRemovalResult.STATUS_SUCCESSFUL);
+    }
+
+    private UserRemovalResult logAndGetResults(@UserIdInt int userId,
+            @UserRemovalResult.Status int result) {
+        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_REMOVE_USER_RESP, userId, result);
+        return new UserRemovalResult(result);
     }
 
     private void sendUserSwitchUiCallback(@UserIdInt int targetUserId) {
@@ -1492,23 +1552,27 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
         int userId = event.getUserId();
         TimingsTraceLog t = new TimingsTraceLog(TAG_USER, Trace.TRACE_TAG_SYSTEM_SERVER);
-        t.traceBegin("notify-app-listeners-user-" + userId + "-event-" + event.getEventType());
+        int eventType = event.getEventType();
+        t.traceBegin("notify-app-listeners-user-" + userId + "-event-" + eventType);
         for (int i = 0; i < listenersSize; i++) {
             int uid = mAppLifecycleListeners.keyAt(i);
+
             IResultReceiver listener = mAppLifecycleListeners.valueAt(i);
             Bundle data = new Bundle();
-            data.putInt(CarUserManager.BUNDLE_PARAM_ACTION, event.getEventType());
+            data.putInt(CarUserManager.BUNDLE_PARAM_ACTION, eventType);
 
-            int fromUid = event.getPreviousUserId();
-            if (fromUid != UserHandle.USER_NULL) {
-                data.putInt(CarUserManager.BUNDLE_PARAM_PREVIOUS_USER_ID, fromUid);
+            int fromUserId = event.getPreviousUserId();
+            if (fromUserId != UserHandle.USER_NULL) {
+                data.putInt(CarUserManager.BUNDLE_PARAM_PREVIOUS_USER_ID, fromUserId);
             }
 
             if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
                 Log.d(TAG_USER, "Notifying listener for uid " + uid);
             }
+            EventLog.writeEvent(EventLogTags.CAR_USER_SVC_NOTIFY_APP_LIFECYCLE_LISTENER,
+                    uid, eventType, fromUserId, userId);
             try {
-                t.traceBegin("notify-app-listener-" + uid);
+                t.traceBegin("notify-app-listener-uid-" + uid);
                 listener.send(userId, data);
             } catch (RemoteException e) {
                 Log.e(TAG_USER, "Error calling lifecycle listener", e);
@@ -1529,10 +1593,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     + event);
         }
 
-        t.traceBegin("notify-listeners-user-" + event.getUserId() + "-event-"
-                + event.getEventType());
+        int userId = event.getUserId();
+        int eventType = event.getEventType();
+        t.traceBegin("notify-listeners-user-" + userId + "-event-" + eventType);
         for (UserLifecycleListener listener : mUserLifecycleListeners) {
             String listenerName = FunctionalUtils.getLambdaName(listener);
+            EventLog.writeEvent(EventLogTags.CAR_USER_SVC_NOTIFY_INTERNAL_LIFECYCLE_LISTENER,
+                    listenerName, eventType, event.getPreviousUserId(), userId);
             try {
                 t.traceBegin("notify-listener-" + listenerName);
                 listener.onEvent(event);
@@ -1568,11 +1635,17 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     private void notifyHalLegacySwitch(@UserIdInt int fromUserId, @UserIdInt int toUserId) {
         synchronized (mLockUser) {
-            if (mUserIdForUserSwitchInProcess != UserHandle.USER_NULL) return;
+            if (mUserIdForUserSwitchInProcess != UserHandle.USER_NULL) {
+                if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
+                    Log.d(TAG, "notifyHalLegacySwitch(" + fromUserId + ", " + toUserId
+                            + "): not needed, normal switch for " + mUserIdForUserSwitchInProcess);
+                }
+                return;
+            }
         }
 
         // switch HAL user
-        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUserManager);
+        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUserManager, fromUserId);
         SwitchUserRequest request = createUserSwitchRequest(toUserId, usersInfo);
         mHal.legacyUserSwitch(request);
     }
