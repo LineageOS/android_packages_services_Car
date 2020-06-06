@@ -3105,7 +3105,7 @@
     <string name="keywords_android_version" msgid="4842749998088987740">"android സുരക്ഷാ പാച്ച് നില, ബേസ്‌ബാൻഡ് പതിപ്പ്, കെർണൽ പതിപ്പ്"</string>
     <string name="keywords_dark_ui_mode" msgid="1027966176887770318">"തീം, പ്രകാശം, ഇരുണ്ട മോഡ്"</string>
     <string name="keywords_financial_apps_sms_access" msgid="3236014691838121857">"സാമ്പത്തിക ആപ്പ്, SMS, അനുമതി"</string>
-    <string name="keywords_systemui_theme" msgid="9150908170417305866">"ഇരുണ്ട തീം"</string>
+    <string name="keywords_systemui_theme" msgid="9150908170417305866">"ഡാർക്ക് തീം"</string>
     <string name="keywords_device_feedback" msgid="6948977907405738490">"ബഗ്"</string>
     <string name="keywords_ambient_display_screen" msgid="5873935693887583428">"പാതിമയക്ക ഡിസ്‌പ്ലേ, ലോക്ക് സ്‌ക്രീൻ ഡിസ്‌പ്ലേ"</string>
     <string name="keywords_lock_screen_notif" msgid="4914337222856805463">"ലോക്ക് സ്‌ക്രീൻ അറിയിപ്പ്, അറിയിപ്പുകൾ"</string>
@@ -4310,8 +4310,8 @@
     <string name="change_wifi_state_title" msgid="5140754955787584174">"വൈഫൈ നിയന്ത്രണം"</string>
     <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"വൈഫൈയെ നിയന്ത്രിക്കാൻ ആപ്പിനെ അനുവദിക്കുക"</string>
     <string name="change_wifi_state_app_detail_summary" msgid="614854822469259860">"വൈഫൈ ഓണോ ഓഫോ ആക്കാനോ വൈഫൈ നെറ്റ്‌വർക്കുകൾ സ്കാൻ ചെയ്യാനോ അവയിലേക്ക് കണക്‌റ്റ് ചെയ്യാനോ നെറ്റ്‌വർക്കുകൾ ചേർക്കാനോ നീക്കം ചെയ്യാനോ ഉപകരണം ഉള്ളിടത്ത് മാത്രം പ്രവർത്തിക്കുന്ന ഒരു ഹോട്ട്‌സ്പോട്ട് ആരംഭിക്കാനോ ഈ ആപ്പിനെ അനുവദിക്കുക"</string>
-    <string name="media_output_title" msgid="8710632337456601848">"ഇതിലേക്ക് മീഡിയ പ്ലേ ചെയ്യുക"</string>
-    <string name="media_output_default_summary" msgid="3159237976830415584">"ഈ ഉപകരണം"</string>
+    <string name="media_output_title" msgid="8710632337456601848">"മീഡിയ പ്ലേ ചെയ്യുക:"</string>
+    <string name="media_output_default_summary" msgid="3159237976830415584">"ഈ ഉപകരണത്തിൽ"</string>
     <string name="media_output_summary" product="default" msgid="6294261435613551178">"ഫോൺ"</string>
     <string name="media_output_summary" product="tablet" msgid="6672024060360538526">"ടാബ്‌ലെറ്റ്"</string>
     <string name="media_output_summary" product="device" msgid="5132223072593052660">"ഉപകരണം"</string>

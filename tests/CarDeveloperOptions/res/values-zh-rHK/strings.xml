@@ -3423,7 +3423,7 @@
     <string name="notification_content_block_summary" msgid="2743896875255591743">"永不在通知欄或周邊裝置上顯示通知"</string>
     <string name="notification_badge_title" msgid="8989086619255666442">"允許通知圓點"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"顯示通知圓點"</string>
-    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"蓋過「請勿騷擾」設定"</string>
+    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"忽略「請勿騷擾」設定"</string>
     <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"「請勿騷擾」模式開啟時繼續接收這些通知"</string>
     <string name="app_notification_visibility_override_title" msgid="2349335170165637672">"在上鎖畫面上"</string>
     <string name="app_notification_row_banned" msgid="2079325338122151677">"已封鎖"</string>
@@ -3512,8 +3512,8 @@
     <string name="zen_mode_bypassing_apps" msgid="3080739479028713449">"允許應用程式取代「請勿騷擾」"</string>
     <string name="zen_mode_bypassing_apps_title" msgid="2115024664615538847">"應用程式例外情況"</string>
     <plurals name="zen_mode_bypassing_apps_subtext" formatted="false" msgid="8723144434730871572">
-      <item quantity="other"><xliff:g id="NUMBER">%1$d</xliff:g> 個應用程式的通知可蓋過「請勿騷擾」設定</item>
-      <item quantity="one">1 個應用程式的通知可蓋過「請勿騷擾」設定</item>
+      <item quantity="other"><xliff:g id="NUMBER">%1$d</xliff:g> 個應用程式的通知可忽略「請勿騷擾」設定</item>
+      <item quantity="one">1 個應用程式的通知可忽略「請勿騷擾」設定</item>
     </plurals>
     <string name="zen_mode_events_list" msgid="8578102701815684873">"活動"</string>
     <string name="zen_mode_all_callers" msgid="4455039040077343838">"任何人"</string>

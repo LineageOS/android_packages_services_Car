@@ -3041,7 +3041,7 @@
     <string name="connected_devices_dashboard_no_driving_mode_summary" msgid="3524409078596318803">"બ્લૂટૂથ, NFC"</string>
     <string name="connected_devices_dashboard_no_driving_mode_no_nfc_summary" msgid="7881286613528299400">"બ્લૂટૂથ"</string>
     <string name="app_and_notification_dashboard_title" msgid="8448096608058843730">"ઍપ્લિકેશનો અને નોટિફિકેશન"</string>
-    <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"આસિસ્ટંટ, તાજેતરની ઍપ, ડિફૉલ્ટ ઍપ"</string>
+    <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"Assistant, તાજેતરની ઍપ, ડિફૉલ્ટ ઍપ"</string>
     <string name="notification_settings_work_profile" msgid="7190550347842400029">"કાર્યાલયની પ્રોફાઇલમાં ઍપ માટે નોટિફિકેશન ઍક્સેસ ઉપલબ્ધ નથી."</string>
     <string name="account_dashboard_title" msgid="4734300939532555885">"એકાઉન્ટ"</string>
     <string name="account_dashboard_default_summary" msgid="6822549669771936206">"કોઈ એકાઉન્ટ ઉમેરવામાં આવ્યાં નથી"</string>

@@ -2862,7 +2862,7 @@
     <string name="user_summary_managed_profile_not_set_up" msgid="3032986082684011281">"Tidak disiapkan - Profil kerja"</string>
     <string name="user_admin" msgid="805802526361071709">"Admin"</string>
     <string name="user_you" msgid="8212549708652717106">"Anda (<xliff:g id="NAME">%s</xliff:g>)"</string>
-    <string name="user_nickname" msgid="1088216221559125529">"Nama julukan"</string>
+    <string name="user_nickname" msgid="1088216221559125529">"Nama panggilan"</string>
     <string name="user_add_user_type_title" msgid="8672326434351387845">"Tambahkan"</string>
     <string name="user_add_max_count" msgid="4524573950126500416">"Anda dapat menambahkan maksimal <xliff:g id="USER_COUNT">%1$d</xliff:g> pengguna"</string>
     <string name="user_add_user_item_summary" msgid="6114355152711455716">"Pengguna memiliki aplikasi dan konten mereka sendiri"</string>
@@ -3035,7 +3035,7 @@
     <string name="network_dashboard_summary_mobile" msgid="5560545061217580626">"seluler"</string>
     <string name="network_dashboard_summary_data_usage" msgid="4695629715072542102">"penggunaan kuota"</string>
     <string name="network_dashboard_summary_hotspot" msgid="3928610802321995214">"hotspot"</string>
-    <string name="connected_devices_dashboard_title" msgid="7795222675849060444">"Perangkat tersambung"</string>
+    <string name="connected_devices_dashboard_title" msgid="7795222675849060444">"Perangkat terhubung"</string>
     <string name="connected_devices_dashboard_summary" msgid="1072664369515033179">"Bluetooth, mode mengemudi, NFC"</string>
     <string name="connected_devices_dashboard_no_nfc_summary" msgid="2610085597733526722">"Bluetooth, mode mengemudi"</string>
     <string name="connected_devices_dashboard_no_driving_mode_summary" msgid="3524409078596318803">"Bluetooth, NFC"</string>
