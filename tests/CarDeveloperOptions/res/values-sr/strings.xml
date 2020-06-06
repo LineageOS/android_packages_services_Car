@@ -3190,7 +3190,7 @@
     <string name="other_sound_settings" msgid="5250376066099818676">"Други звукови"</string>
     <string name="dial_pad_tones_title" msgid="8877212139988655769">"Тонови нумеричке тастатуре"</string>
     <string name="screen_locking_sounds_title" msgid="4407110895465866809">"Звукови закључавања екрана"</string>
-    <string name="charging_sounds_title" msgid="5070437987230894287">"Мењајући звуци и вибрација"</string>
+    <string name="charging_sounds_title" msgid="5070437987230894287">"Звукови и вибрација пуњења"</string>
     <string name="docking_sounds_title" msgid="2573137471605541366">"Звукови монтирања"</string>
     <string name="touch_sounds_title" msgid="165237488496165652">"Звукови при додиру"</string>
     <string name="vibrate_on_touch_title" msgid="6360155469279157684">"Вибрација при додиру"</string>

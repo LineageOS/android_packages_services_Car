@@ -1608,7 +1608,7 @@
     <string name="master_clear_not_available" msgid="4676613348163652454">"Фабричкото ресетирање не е достапно за овој корисник"</string>
     <string name="master_clear_progress_title" msgid="378953167274114857">"Се брише"</string>
     <string name="master_clear_progress_text" msgid="5418958116008976218">"Почекајте..."</string>
-    <string name="call_settings_title" msgid="5033906789261282752">"Поставки на повик"</string>
+    <string name="call_settings_title" msgid="5033906789261282752">"Поставки за повици"</string>
     <string name="call_settings_summary" msgid="2119161087671450035">"Постави говорна пошта, проследување на повик, повик на чекање, ID на повикувач"</string>
     <string name="tether_settings_title_usb" msgid="4265582654602420357">"Интернет преку USB"</string>
     <string name="tether_settings_title_wifi" msgid="2060965130234484613">"Преносл. точка на пристап"</string>

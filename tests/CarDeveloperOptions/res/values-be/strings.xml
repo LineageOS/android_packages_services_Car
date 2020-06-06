@@ -3394,10 +3394,10 @@
     <string name="hide_silent_icons_title" msgid="1070905516921542662">"Хаваць значкі стану для апавяшчэнняў без гуку"</string>
     <string name="hide_silent_icons_summary" msgid="2624346914488256888">"Хаваць значкі для апавяшчэнняў без гуку на панэлі стану"</string>
     <string name="notification_badging_title" msgid="6311699476970264712">"Паказваць значкі апавяшчэнняў"</string>
-    <string name="notification_bubbles_title" msgid="9196562435741861317">"Дыялогі"</string>
+    <string name="notification_bubbles_title" msgid="9196562435741861317">"Усплывальныя апавяшчэнні"</string>
     <string name="notification_bubbles_summary" msgid="4624512775901949578">"Адусюль атрымлівайце хуткі доступ да змесціва праграмы з дапамогай зменлівых спалучэнняў клавіш"</string>
     <string name="bubbles_feature_education" msgid="8979109826818881018">"Некаторыя апавяшчэнні і іншае змесціва могуць паказвацца на экране ў выглядзе дыялогаў. Каб адкрыць дыялог, націсніце на яго. Каб закрыць дыялог, перацягніце яго ўніз экрана."</string>
-    <string name="bubbles_app_toggle_title" msgid="6401217027603326439">"Дыялогі"</string>
+    <string name="bubbles_app_toggle_title" msgid="6401217027603326439">"Усплывальныя апавяшчэнні"</string>
     <string name="bubbles_app_toggle_summary" msgid="7707611139796553855">"Дазваляе праграме \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" паказваць некаторыя апавяшчэнні ў выглядзе дыялогаў"</string>
     <string name="bubbles_feature_disabled_dialog_title" msgid="3375452386012079293">"Уключыце дыялогі"</string>
     <string name="bubbles_feature_disabled_dialog_text" msgid="326945485806386477">"Каб уключыць дыялогі для гэтай праграмы, уключыце дыялогі для прылады. Гэта паўплывае на іншыя праграмы, у якіх вы раней уключалі дыялогі."</string>

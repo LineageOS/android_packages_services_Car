@@ -3124,7 +3124,7 @@
     <string name="keywords_default_payment_app" msgid="845369409578423996">"ಪಾವತಿ, ಡಿಫಾಲ್ಟ್"</string>
     <string name="keywords_ambient_display" msgid="8835182491798487184">"ಒಳಬರುವ ಅಧಿಸೂಚನೆ"</string>
     <string name="keywords_hotspot_tethering" msgid="1723591462602613867">"usb ಟೆಥರ್, ಬ್ಲೂಟೂತ್ ಟೆಥರ್, ವೈಫೈ ಹಾಟ್‌ಸ್ಪಾಟ್"</string>
-    <string name="keywords_touch_vibration" msgid="2081175517528255224">"ಹ್ಯಾಪ್ಟಿಕ್ಸ್, ಕಂಪನ, ಪರದೆ, ಸಂವೇದನೆ"</string>
+    <string name="keywords_touch_vibration" msgid="2081175517528255224">"ಹ್ಯಾಪ್ಟಿಕ್ಸ್, ವೈಬ್ರೇಟ್‌, ಪರದೆ, ಸಂವೇದನೆ"</string>
     <string name="keywords_ring_vibration" msgid="4210509151866460210">"ಹ್ಯಾಪ್ಟಿಕ್ಸ್, ವೈಬ್ರೇಟ್‌, ಫೋನ್, ಕರೆ, ಸೂಕ್ಷ್ಮತೆ, ರಿಂಗ್"</string>
     <string name="keywords_notification_vibration" msgid="1077515502086745166">"ಹ್ಯಾಪ್ಟಿಕ್ಸ್, ವೈಬ್ರೇಟ್‌, ಸೂಕ್ಷ್ಮತೆ"</string>
     <string name="keywords_battery_saver_sticky" msgid="8733804259716284872">"ಬ್ಯಾಟರಿ ಸೇವರ್, ಸ್ಟಿಕಿ, ತಡೆ ಹಿಡಿ, ಪವರ್ ಸೇವರ್, ಬ್ಯಾಟರಿ"</string>
@@ -3149,7 +3149,7 @@
     <string name="other_sound_settings" msgid="5250376066099818676">"ಇತರ ಧ್ವನಿಗಳು"</string>
     <string name="dial_pad_tones_title" msgid="8877212139988655769">"ಡಯಲ್‌ ಪ್ಯಾಡ್‌ ಟೋನ್‌ಗಳು"</string>
     <string name="screen_locking_sounds_title" msgid="4407110895465866809">"ಸ್ಕ್ರೀನ್ ಲಾಕಿಂಗ್ ಧ್ವನಿಗಳು"</string>
-    <string name="charging_sounds_title" msgid="5070437987230894287">"ಚಾರ್ಜಿಂಗ್ ಧ್ವನಿಗಳು ಮತ್ತು ಕಂಪನ"</string>
+    <string name="charging_sounds_title" msgid="5070437987230894287">"ಚಾರ್ಜಿಂಗ್ ಧ್ವನಿಗಳು ಮತ್ತು ವೈಬ್ರೇಟ್‌"</string>
     <string name="docking_sounds_title" msgid="2573137471605541366">"ಡಾಕಿಂಗ್ ಧ್ವನಿಗಳು"</string>
     <string name="touch_sounds_title" msgid="165237488496165652">"ಸ್ಪರ್ಶ ಧ್ವನಿಗಳು"</string>
     <string name="vibrate_on_touch_title" msgid="6360155469279157684">"ಸ್ಪರ್ಶಿಸಿದಾಗ ವೈಬ್ರೇಷನ್‌"</string>
@@ -4037,7 +4037,7 @@
     <string name="notification_log_details_ashmem" msgid="4272241723105041393">"ಆಶ್ಮೆಮ್"</string>
     <string name="notification_log_details_alerted" msgid="1891749888625061319">"ಅಧಿಸೂಚನೆಯ ಎಚ್ಚರಿಕೆಯನ್ನು ನೀಡಲಾಗಿದೆ"</string>
     <string name="notification_log_details_sound" msgid="4028782443557466322">"ಶಬ್ದ"</string>
-    <string name="notification_log_details_vibrate" msgid="8372400602058888072">"ಕಂಪನ"</string>
+    <string name="notification_log_details_vibrate" msgid="8372400602058888072">"ವೈಬ್ರೇಟ್‌"</string>
     <string name="notification_log_details_vibrate_pattern" msgid="7015554755444260922">"ಪ್ಯಾಟರ್ನ್"</string>
     <string name="notification_log_details_default" msgid="455451833359888182">"ಡಿಫಾಲ್ಟ್"</string>
     <string name="notification_log_details_none" msgid="4294690532744821638">"ಯಾವುದೂ ಇಲ್ಲ"</string>
