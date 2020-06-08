@@ -389,31 +389,41 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     /**
-     * Creates a driver who is a regular user and is allowed to login to the driving occupant zone.
-     *
-     * @param name The name of the driver to be created.
-     * @param admin Whether the created driver will be an admin.
-     * @return {@link UserInfo} object of the created driver, or {@code null} if the driver could
-     *         not be created.
+     * @see ExperimentalCarUserManager.createDriver
      */
     @Override
-    @Nullable
-    public UserInfo createDriver(@NonNull String name, boolean admin) {
+    public AndroidFuture<UserCreationResult> createDriver(@NonNull String name, boolean admin) {
         checkManageUsersPermission("createDriver");
         Objects.requireNonNull(name, "name cannot be null");
+
+        AndroidFuture<UserCreationResult> future = new AndroidFuture<UserCreationResult>() {
+            @Override
+            protected void onCompleted(UserCreationResult result, Throwable err) {
+                if (result == null) {
+                    Log.w(TAG, "createDriver(" + name + "," + admin + ") failed: " + err);
+                } else {
+                    if (result.getStatus() == UserCreationResult.STATUS_SUCCESSFUL) {
+                        assignDefaultIcon(result.getUser());
+                    }
+                }
+                super.onCompleted(result, err);
+            };
+        };
+        int flags = 0;
         if (admin) {
-            return createNewAdminUser(name);
+            if (!(mUserManager.isAdminUser() || mUserManager.isSystemUser())) {
+                Log.e(TAG_USER, "Only admin users and system user can create other admins.");
+                sendUserCreationResultFailure(future, UserCreationResult.STATUS_INVALID_REQUEST);
+                return future;
+            }
+            flags = UserInfo.FLAG_ADMIN;
         }
-        return mCarUserManagerHelper.createNewNonAdminUser(name);
+        createUser(name, UserInfo.getDefaultUserType(flags), flags, mHalTimeoutMs, future);
+        return future;
     }
 
     /**
-     * Creates a passenger who is a profile of the given driver.
-     *
-     * @param name The name of the passenger to be created.
-     * @param driverId User id of the driver under whom a passenger is created.
-     * @return {@link UserInfo} object of the created passenger, or {@code null} if the passenger
-     *         could not be created.
+     * @see ExperimentalCarUserManager.createPassenger
      */
     @Override
     @Nullable
@@ -429,6 +439,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             Log.w(TAG_USER, "a guest driver cannot create a passenger");
             return null;
         }
+        // createPassenger doesn't use user HAL because user HAL doesn't support profile user yet.
         UserInfo user = mUserManager.createProfileForUser(name,
                 UserManager.USER_TYPE_PROFILE_MANAGED, /* flags */ 0, driverId);
         if (user == null) {
@@ -443,7 +454,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     /**
-     * @see CarUserManager.switchDriver
+     * @see ExperimentalCarUserManager.switchDriver
      */
     @Override
     public void switchDriver(@UserIdInt int driverId, AndroidFuture<UserSwitchResult> receiver) {
@@ -1690,42 +1701,15 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     /**
-     * Creates a new user on the system, the created user would be granted admin role.
-     *
-     * @param name Name to be given to the newly created user.
-     * @return newly created admin user, {@code null} if it fails to create a user.
-     */
-    @Nullable
-    private UserInfo createNewAdminUser(String name) {
-        if (!(mUserManager.isAdminUser() || mUserManager.isSystemUser())) {
-            // Only admins or system user can create other privileged users.
-            Log.e(TAG_USER, "Only admin users and system user can create other admins.");
-            return null;
-        }
-
-        UserInfo user = mUserManager.createUser(name, UserInfo.FLAG_ADMIN);
-        if (user == null) {
-            // Couldn't create user, most likely because there are too many.
-            Log.w(TAG_USER, "can't create admin user.");
-            return null;
-        }
-        assignDefaultIcon(user);
-
-        return user;
-    }
-
-    /**
      * Assigns a default icon to a user according to the user's id.
      *
      * @param userInfo User whose avatar is set to default icon.
-     * @return Bitmap of the user icon.
      */
-    private Bitmap assignDefaultIcon(UserInfo userInfo) {
+    private void assignDefaultIcon(UserInfo userInfo) {
         int idForIcon = userInfo.isGuest() ? UserHandle.USER_NULL : userInfo.id;
         Bitmap bitmap = UserIcons.convertToBitmap(
                 UserIcons.getDefaultUserIcon(mContext.getResources(), idForIcon, false));
         mUserManager.setUserIcon(userInfo.id, bitmap);
-        return bitmap;
     }
 
     private interface UserFilter {
