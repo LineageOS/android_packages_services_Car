@@ -123,6 +123,8 @@ public final class CarPackageManager extends CarManagerBase {
     /**
      * Restarts the requested task. If task with {@code taskId} does not exist, do nothing.
      *
+     * <p>This requires {@code android.permission.REAL_GET_TASKS} permission.
+     *
      * @hide
      */
     public void restartTask(int taskId) {

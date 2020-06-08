@@ -45,7 +45,7 @@ import java.util.Objects;
  * This class contains security permission tests for the {@link CarAudioManager}'s system APIs.
  */
 @RunWith(AndroidJUnit4.class)
-public final class CarAudioManagerTest {
+public final class CarAudioManagerPermissionTest {
     private static final int GROUP_ID = 0;
     private static final int UID = 10;
 
