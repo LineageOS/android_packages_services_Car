@@ -39,7 +39,7 @@ import org.junit.runner.RunWith;
  * This class contains security permission tests for the {@link CarAudioManager}'s public APIs.
  */
 @RunWith(AndroidJUnit4.class)
-public final class CarAudioManagerPublicTest {
+public final class CarAudioManagerPublicPermissionTest {
     private CarAudioManager mCarAudioManager;
 
     @Before
