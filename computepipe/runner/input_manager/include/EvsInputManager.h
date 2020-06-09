@@ -57,8 +57,8 @@ class EvsInputManager : public InputManager {
                              std::shared_ptr<InputEngineInterface> inputEngineInterface);
 
     static std::unique_ptr<EvsInputManager> createEvsInputManager(
-        const proto::InputConfig& inputConfig,
-        std::shared_ptr<InputEngineInterface> inputEngineInterface);
+            const proto::InputConfig& inputConfig, const proto::InputConfig& overrideConfig,
+            std::shared_ptr<InputEngineInterface> inputEngineInterface);
 
     Status initializeCameras();
 

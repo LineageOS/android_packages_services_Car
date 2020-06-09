@@ -17,10 +17,13 @@ cc_library {
     srcs: [
         "Factory.cpp",
         "EvsInputManager.cpp",
+        "VideoDecoder.cpp",
+        "VideoInputManager.cpp",
     ],
     export_include_dirs: ["include"],
     header_libs: [
         "computepipe_runner_includes",
+        "libstagefright_headers",
     ],
     static_libs: [
         "libcomputepipeprotos",
@@ -35,6 +38,7 @@ cc_library {
         "libhardware",
         "libhidlbase",
         "liblog",
+        "libmediandk",
         "libpng",
         "libprotobuf-cpp-lite",
         "libui",
