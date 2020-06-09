@@ -465,33 +465,37 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testCreateAdminDriver_IfCurrentUserIsAdminUser() {
-        doReturn(true).when(mMockedUserManager).isSystemUser();
-        String userName = "testUser";
-        UserInfo userInfo = new UserInfo();
-        doReturn(userInfo).when(mMockedUserManager).createUser(userName, UserInfo.FLAG_ADMIN);
-        assertEquals(userInfo, mCarUserService.createDriver(userName, true));
+    public void testCreateAdminDriver_IfCurrentUserIsAdminUser() throws Exception {
+        when(mMockedUserManager.isSystemUser()).thenReturn(true);
+        mockUmCreateUser(mMockedUserManager, "testUser", UserManager.USER_TYPE_FULL_SECONDARY,
+                UserInfo.FLAG_ADMIN, 10);
+        mockHalCreateUser(HalCallback.STATUS_OK, CreateUserStatus.SUCCESS);
+
+        AndroidFuture<UserCreationResult> future = mCarUserService.createDriver("testUser", true);
+
+        assertThat(getResult(future).getUser().name).isEqualTo("testUser");
+        assertThat(getResult(future).getUser().id).isEqualTo(10);
     }
 
     @Test
-    public void testCreateAdminDriver_IfCurrentUserIsNotSystemUser() {
-        doReturn(false).when(mMockedUserManager).isSystemUser();
-        assertEquals(null, mCarUserService.createDriver("testUser", true));
+    public void testCreateAdminDriver_IfCurrentUserIsNotSystemUser() throws Exception {
+        when(mMockedUserManager.isSystemUser()).thenReturn(false);
+        AndroidFuture<UserCreationResult> future = mCarUserService.createDriver("testUser", true);
+        assertThat(getResult(future).getStatus())
+                .isEqualTo(UserCreationResult.STATUS_INVALID_REQUEST);
     }
 
     @Test
-    public void testCreateNonAdminDriver() {
-        String userName = "testUser";
-        UserInfo userInfo = new UserInfo();
-        doReturn(userInfo).when(mMockedCarUserManagerHelper).createNewNonAdminUser(userName);
-        assertEquals(userInfo, mCarUserService.createDriver(userName, false));
-    }
+    public void testCreateNonAdminDriver() throws Exception {
+        mockUmCreateUser(mMockedUserManager, "testUser", UserManager.USER_TYPE_FULL_SECONDARY,
+                NO_USER_INFO_FLAGS, 10);
+        mockHalCreateUser(HalCallback.STATUS_OK, CreateUserStatus.SUCCESS);
 
-    @Test
-    public void testCreateNonAdminDriver_IfMaximumUserAlreadyCreated() {
-        String userName = "testUser";
-        doReturn(null).when(mMockedUserManager).createUser(userName, NO_USER_INFO_FLAGS);
-        assertEquals(null, mCarUserService.createDriver(userName, false));
+        AndroidFuture<UserCreationResult> future = mCarUserService.createDriver("testUser", false);
+
+        UserInfo userInfo = getResult(future).getUser();
+        assertThat(userInfo.name).isEqualTo("testUser");
+        assertThat(userInfo.id).isEqualTo(10);
     }
 
     @Test

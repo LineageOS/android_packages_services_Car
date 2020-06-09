@@ -26,7 +26,7 @@ import com.android.internal.os.IResultReceiver;
 
 /** @hide */
 interface ICarUserService {
-    UserInfo createDriver(@nullable String name, boolean admin);
+    AndroidFuture<UserCreationResult> createDriver(@nullable String name, boolean admin);
     UserInfo createPassenger(@nullable String name, int driverId);
     void switchDriver(int driverId, in AndroidFuture<UserSwitchResult> receiver);
     void switchUser(int tagerUserId, int timeoutMs, in AndroidFuture<UserSwitchResult> receiver);
