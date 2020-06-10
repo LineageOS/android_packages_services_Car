@@ -134,6 +134,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     public static final String BUNDLE_INITIAL_INFO_ACTION =
             CarUserServiceConstants.BUNDLE_INITIAL_INFO_ACTION;
 
+    public static final String VEHICLE_HAL_NOT_SUPPORTED = "Vehicle Hal not supported.";
+
     private final Context mContext;
     private final CarUserManagerHelper mCarUserManagerHelper;
     private final IActivityManager mAm;
@@ -627,6 +629,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 timeoutMs);
         Objects.requireNonNull(receiver, "receiver cannot be null");
         checkManageUsersPermission("getInitialInfo");
+        if (!isUserHalSupported()) {
+            sendResult(receiver, HalCallback.STATUS_HAL_NOT_SUPPORTED, null);
+            return;
+        }
         UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUserManager);
         mHal.getInitialUserInfo(requestType, timeoutMs, usersInfo, (status, resp) -> {
             Bundle resultData = null;
@@ -729,6 +735,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 mHalTimeoutMs);
         Objects.requireNonNull(callback, "callback cannot be null");
         checkManageUsersPermission("getInitialUserInfo");
+        if (!isUserHalSupported()) {
+            callback.onResponse(HalCallback.STATUS_HAL_NOT_SUPPORTED, null);
+            return;
+        }
         UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUserManager);
         mHal.getInitialUserInfo(requestType, mHalTimeoutMs, usersInfo, callback);
     }
@@ -787,6 +797,22 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             }
             int resultStatus = UserSwitchResult.STATUS_ALREADY_REQUESTED_USER;
             sendUserSwitchResult(receiver, resultStatus);
+            return;
+        }
+
+        // If User Hal is not supported, just android user switch.
+        if (!isUserHalSupported()) {
+            try {
+                if (mAm.switchUser(targetUserId)) {
+                    sendUserSwitchResult(receiver, UserSwitchResult.STATUS_SUCCESSFUL);
+                    return;
+                }
+            } catch (RemoteException e) {
+                // ignore
+                Log.w(TAG_USER,
+                        "error while switching user " + targetUser.toFullString(), e);
+            }
+            sendUserSwitchResult(receiver, UserSwitchResult.STATUS_ANDROID_FAILURE);
             return;
         }
 
@@ -937,10 +963,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             return logAndGetResults(userId, UserRemovalResult.STATUS_ANDROID_FAILURE);
         }
 
-        RemoveUserRequest request = new RemoveUserRequest();
-        request.removedUserInfo = halUser;
-        request.usersInfo = usersInfo;
-        mHal.removeUser(request);
+        if (isUserHalSupported()) {
+            RemoveUserRequest request = new RemoveUserRequest();
+            request.removedUserInfo = halUser;
+            request.usersInfo = usersInfo;
+            mHal.removeUser(request);
+        }
+
         return logAndGetResults(userId, UserRemovalResult.STATUS_SUCCESSFUL);
     }
 
@@ -991,6 +1020,11 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             Log.e(TAG_USER, "Error creating user of type " + userType + " and flags"
                     + UserInfo.flagsToString(flags), e);
             sendUserCreationResultFailure(receiver, UserCreationResult.STATUS_ANDROID_FAILURE);
+            return;
+        }
+
+        if (!isUserHalSupported()) {
+            sendUserCreationResult(receiver, UserCreationResult.STATUS_SUCCESSFUL, newUser, null);
             return;
         }
 
@@ -1066,6 +1100,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     @Override
     public UserIdentificationAssociationResponse getUserIdentificationAssociation(int[] types) {
+        if (!isUserHalUserAssociationSupported()) {
+            return UserIdentificationAssociationResponse.forFailure(VEHICLE_HAL_NOT_SUPPORTED);
+        }
+
         Preconditions.checkArgument(!ArrayUtils.isEmpty(types), "must have at least one type");
         checkManageUsersPermission("getUserIdentificationAssociation");
 
@@ -1101,6 +1139,12 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @Override
     public void setUserIdentificationAssociation(int timeoutMs, int[] types, int[] values,
             AndroidFuture<UserIdentificationAssociationResponse> result) {
+        if (!isUserHalUserAssociationSupported()) {
+            result.complete(
+                    UserIdentificationAssociationResponse.forFailure(VEHICLE_HAL_NOT_SUPPORTED));
+            return;
+        }
+
         Preconditions.checkArgument(!ArrayUtils.isEmpty(types), "must have at least one type");
         Preconditions.checkArgument(!ArrayUtils.isEmpty(values), "must have at least one value");
         if (types.length != values.length) {
@@ -1246,7 +1290,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             mRequestIdForUserSwitchInProcess = requestId;
         }
     }
+
     private void postSwitchHalResponse(int requestId, @UserIdInt int targetUserId) {
+        if (!isUserHalSupported()) return;
+
         UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUserManager);
         EventLog.writeEvent(EventLogTags.CAR_USER_SVC_POST_SWITCH_USER_REQ, requestId,
                 targetUserId, usersInfo.currentUser.userId);
@@ -1273,6 +1320,14 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      */
     public boolean isUserHalSupported() {
         return mHal.isSupported();
+    }
+
+    /**
+     * Checks if the User HAL user association is supported.
+     */
+    @Override
+    public boolean isUserHalUserAssociationSupported() {
+        return mHal.isUserAssociationSupported();
     }
 
     /**
@@ -1654,6 +1709,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 return;
             }
         }
+
+        if (!isUserHalSupported()) return;
 
         // switch HAL user
         UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUserManager, fromUserId);

@@ -44,4 +44,5 @@ interface ICarUserService {
     UserIdentificationAssociationResponse getUserIdentificationAssociation(in int[] types);
     void setUserIdentificationAssociation(int timeoutMs, in int[] types, in int[] values,
       in AndroidFuture<UserIdentificationAssociationResponse> result);
+    boolean isUserHalUserAssociationSupported();
 }
