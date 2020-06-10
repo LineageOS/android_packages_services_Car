@@ -95,11 +95,13 @@ cc_binary{
     ],
     init_rc : ["android.automotive.sv.service@1.0-impl.rc"],
     shared_libs : [
+        "android.hardware.automotive.evs@1.1",
         "android.hardware.automotive.sv@1.0",
         "android.hardware.automotive.vehicle@2.0",
         "android.hidl.memory@1.0",
         "libbase",
         "libbinder",
+        "libcamera_metadata",
         "libcore_lib_shared",
         "libcutils",
         "libhardware",
