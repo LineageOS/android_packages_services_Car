@@ -90,7 +90,7 @@ bool RenderPixelCopy::drawFrame(const BufferDesc& tgtBuffer) {
             if (mStreamHandler->newFrameAvailable()) {
                 const BufferDesc& srcBuffer = mStreamHandler->getNewFrame();
                 const AHardwareBuffer_Desc* pSrcDesc =
-                    reinterpret_cast<const AHardwareBuffer_Desc *>(&tgtBuffer.buffer.description);
+                    reinterpret_cast<const AHardwareBuffer_Desc *>(&srcBuffer.buffer.description);
 
                 // Lock our source buffer for reading (current expectation are for this to be NV21 format)
                 sp<android::GraphicBuffer> src = new android::GraphicBuffer(srcBuffer.buffer.nativeHandle,
@@ -101,35 +101,37 @@ bool RenderPixelCopy::drawFrame(const BufferDesc& tgtBuffer) {
                                                                             pSrcDesc->layers,
                                                                             pSrcDesc->usage,
                                                                             pSrcDesc->stride);
+
                 unsigned char* srcPixels = nullptr;
                 src->lock(GRALLOC_USAGE_SW_READ_OFTEN, (void**)&srcPixels);
-                if (!srcPixels) {
+                if (srcPixels != nullptr) {
+                    // Make sure we don't run off the end of either buffer
+                    const unsigned width  = std::min(pTgtDesc->width,
+                                                     pSrcDesc->width);
+                    const unsigned height = std::min(pTgtDesc->height,
+                                                     pSrcDesc->height);
+
+                    if (pSrcDesc->format == HAL_PIXEL_FORMAT_YCRCB_420_SP) {   // 420SP == NV21
+                        copyNV21toRGB32(width, height,
+                                        srcPixels,
+                                        tgtPixels, pTgtDesc->stride);
+                    } else if (pSrcDesc->format == HAL_PIXEL_FORMAT_YV12) { // YUV_420P == YV12
+                        copyYV12toRGB32(width, height,
+                                        srcPixels,
+                                        tgtPixels, pTgtDesc->stride);
+                    } else if (pSrcDesc->format == HAL_PIXEL_FORMAT_YCBCR_422_I) { // YUYV
+                        copyYUYVtoRGB32(width, height,
+                                        srcPixels, pSrcDesc->stride,
+                                        tgtPixels, pTgtDesc->stride);
+                    } else if (pSrcDesc->format == pTgtDesc->format) {  // 32bit RGBA
+                        copyMatchedInterleavedFormats(width, height,
+                                                      srcPixels, pSrcDesc->stride,
+                                                      tgtPixels, pTgtDesc->stride,
+                                                      tgtBuffer.pixelSize);
+                    }
+                } else {
                     LOG(ERROR) << "Failed to get pointer into src image data";
-                }
-
-                // Make sure we don't run off the end of either buffer
-                const unsigned width  = std::min(pTgtDesc->width,
-                                                 pSrcDesc->width);
-                const unsigned height = std::min(pTgtDesc->height,
-                                                 pSrcDesc->height);
-
-                if (pSrcDesc->format == HAL_PIXEL_FORMAT_YCRCB_420_SP) {   // 420SP == NV21
-                    copyNV21toRGB32(width, height,
-                                    srcPixels,
-                                    tgtPixels, pTgtDesc->stride);
-                } else if (pSrcDesc->format == HAL_PIXEL_FORMAT_YV12) { // YUV_420P == YV12
-                    copyYV12toRGB32(width, height,
-                                    srcPixels,
-                                    tgtPixels, pTgtDesc->stride);
-                } else if (pSrcDesc->format == HAL_PIXEL_FORMAT_YCBCR_422_I) { // YUYV
-                    copyYUYVtoRGB32(width, height,
-                                    srcPixels, pSrcDesc->stride,
-                                    tgtPixels, pTgtDesc->stride);
-                } else if (pSrcDesc->format == pTgtDesc->format) {  // 32bit RGBA
-                    copyMatchedInterleavedFormats(width, height,
-                                                  srcPixels, pSrcDesc->stride,
-                                                  tgtPixels, pTgtDesc->stride,
-                                                  tgtBuffer.pixelSize);
+                    success = false;
                 }
 
                 mStreamHandler->doneWithFrame(srcBuffer);

@@ -90,10 +90,10 @@ void VirtualCamera::shutdown() {
         }
 
         mFramesHeld.clear();
-    }
 
-    // Drop our reference to our associated hardware camera
-    mHalCamera.clear();
+        // Drop our reference to our associated hardware camera
+        mHalCamera.clear();
+    }
 }
 
 
