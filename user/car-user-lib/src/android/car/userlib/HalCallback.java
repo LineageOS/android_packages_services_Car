@@ -35,6 +35,7 @@ public interface HalCallback<R> {
     int STATUS_HAL_RESPONSE_TIMEOUT = 3;
     int STATUS_WRONG_HAL_RESPONSE = 4;
     int STATUS_CONCURRENT_OPERATION = 5;
+    int STATUS_HAL_NOT_SUPPORTED = 6;
 
     /** @hide */
     @IntDef(prefix = { "STATUS_" }, value = {
@@ -42,7 +43,8 @@ public interface HalCallback<R> {
             STATUS_HAL_SET_TIMEOUT,
             STATUS_HAL_RESPONSE_TIMEOUT,
             STATUS_WRONG_HAL_RESPONSE,
-            STATUS_CONCURRENT_OPERATION
+            STATUS_CONCURRENT_OPERATION,
+            STATUS_HAL_NOT_SUPPORTED
     })
     @Retention(RetentionPolicy.SOURCE)
     @interface HalCallbackStatus{}
