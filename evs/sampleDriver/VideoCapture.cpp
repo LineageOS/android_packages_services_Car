@@ -323,3 +323,26 @@ int VideoCapture::getParameter(v4l2_control& control) {
 
     return status;
 }
+
+
+std::set<uint32_t> VideoCapture::enumerateCameraControls() {
+    // Retrieve available camera controls
+    struct v4l2_queryctrl ctrl = {
+        .id = V4L2_CTRL_FLAG_NEXT_CTRL
+    };
+
+    std::set<uint32_t> ctrlIDs;
+    while (0 == ioctl(mDeviceFd, VIDIOC_QUERYCTRL, &ctrl)) {
+        if (!(ctrl.flags & V4L2_CTRL_FLAG_DISABLED)) {
+            ctrlIDs.emplace(ctrl.id);
+        }
+
+        ctrl.id |= V4L2_CTRL_FLAG_NEXT_CTRL;
+    }
+
+    if (errno != EINVAL) {
+        PLOG(WARNING) << "Failed to run VIDIOC_QUERYCTRL";
+    }
+
+    return std::move(ctrlIDs);
+}
