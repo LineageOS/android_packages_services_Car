@@ -434,8 +434,8 @@ public final class UserHalService extends HalServiceBase {
         VehiclePropValue propRequest;
         synchronized (mLock) {
             checkSupportedLocked();
-            int requestId = getNextRequestId();
-            EventLog.writeEvent(EventLogTags.CAR_USER_HAL_LEGACY_SWITCH_USER_REQ, requestId,
+            request.requestId = getNextRequestId();
+            EventLog.writeEvent(EventLogTags.CAR_USER_HAL_LEGACY_SWITCH_USER_REQ, request.requestId,
                     request.targetUser.userId, request.usersInfo.currentUser.userId);
             request.messageType = SwitchUserMessageType.LEGACY_ANDROID_SWITCH;
             propRequest = UserHalHelper.toVehiclePropValue(request);
