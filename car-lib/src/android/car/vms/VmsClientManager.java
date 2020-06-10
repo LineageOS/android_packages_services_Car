@@ -127,6 +127,7 @@ public final class VmsClientManager extends CarManagerBase {
             }
 
             client = new VmsClient(mBrokerService, executor, callback, legacyClient,
+                    /* autoCloseMemory */ true,
                     this::handleRemoteExceptionFromCarService);
             mClients.put(callback, client);
             if (DBG) Log.d(TAG, "Client count: " + mClients.size());

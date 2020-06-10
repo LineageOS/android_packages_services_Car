@@ -65,6 +65,7 @@ public final class VmsClient {
     private final Executor mExecutor;
     private final VmsClientCallback mCallback;
     private final boolean mLegacyClient;
+    private final IVmsClientCallback mClientCallback;
     private final Consumer<RemoteException> mExceptionHandler;
     private final IBinder mClientToken;
 
@@ -80,11 +81,13 @@ public final class VmsClient {
      * @hide
      */
     public VmsClient(IVmsBrokerService service, Executor executor, VmsClientCallback callback,
-            boolean legacyClient, Consumer<RemoteException> exceptionHandler) {
+            boolean legacyClient, boolean autoCloseMemory,
+            Consumer<RemoteException> exceptionHandler) {
         mService = service;
         mExecutor = executor;
         mCallback = callback;
         mLegacyClient = legacyClient;
+        mClientCallback = new IVmsClientCallbackImpl(this, autoCloseMemory);
         mExceptionHandler = exceptionHandler;
         mClientToken = new Binder();
     }
@@ -279,8 +282,8 @@ public final class VmsClient {
      * @hide
      */
     public void register() throws RemoteException {
-        VmsRegistrationInfo registrationInfo = mService.registerClient(mClientToken,
-                new IVmsClientCallbackImpl(this), mLegacyClient);
+        VmsRegistrationInfo registrationInfo = mService.registerClient(
+                mClientToken, mClientCallback, mLegacyClient);
         synchronized (mLock) {
             mAvailableLayers = registrationInfo.getAvailableLayers();
             mSubscriptionState = registrationInfo.getSubscriptionState();
@@ -298,9 +301,11 @@ public final class VmsClient {
 
     private static class IVmsClientCallbackImpl extends IVmsClientCallback.Stub {
         private final WeakReference<VmsClient> mClient;
+        private final boolean mAutoCloseMemory;
 
-        private IVmsClientCallbackImpl(VmsClient client) {
+        private IVmsClientCallbackImpl(VmsClient client, boolean autoCloseMemory) {
             mClient = new WeakReference<>(client);
+            mAutoCloseMemory = autoCloseMemory;
         }
 
         @Override
@@ -337,15 +342,20 @@ public final class VmsClient {
 
         @Override
         public void onLargePacketReceived(int providerId, VmsLayer layer, SharedMemory packet) {
-            try (SharedMemory largePacket = packet) {
-                if (DBG) {
-                    Log.d(TAG, "Received large packet from " + providerId + " for: " + layer
-                            + " (" + largePacket.getSize() + " bytes)");
-                }
-                byte[] packetData = sharedMemoryToPacket(largePacket);
-                executeCallback((client, callback) ->
-                        callback.onPacketReceived(providerId, layer, packetData));
+            if (DBG) {
+                Log.d(TAG, "Received large packet from " + providerId + " for: " + layer
+                        + " (" + packet.getSize() + " bytes)");
             }
+            byte[] largePacket;
+            if (mAutoCloseMemory) {
+                try (SharedMemory autoClosedPacket = packet) {
+                    largePacket = sharedMemoryToPacket(autoClosedPacket);
+                }
+            } else {
+                largePacket = sharedMemoryToPacket(packet);
+            }
+            executeCallback((client, callback) ->
+                    callback.onPacketReceived(providerId, layer, largePacket));
         }
 
         private void executeCallback(BiConsumer<VmsClient, VmsClientCallback> callbackOperation) {
