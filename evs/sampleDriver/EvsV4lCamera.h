@@ -135,6 +135,8 @@ private:
     unsigned mFramesAllowed;                // How many buffers are we currently using
     unsigned mFramesInUse;                  // How many buffers are currently outstanding
 
+    std::set<uint32_t> mCameraControls;     // Available camera controls
+
     // Which format specific function we need to use to move camera imagery into our output buffers
     void(*mFillBufferFromVideo)(const BufferDesc& tgtBuff, uint8_t* tgt,
                                 void* imgData, unsigned imgStride);
