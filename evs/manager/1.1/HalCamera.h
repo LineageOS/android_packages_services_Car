@@ -94,7 +94,7 @@ public:
                                         const int64_t timestamp);
 
     Return<EvsResult>   clientStreamStarting();
-    void                clientStreamEnding(sp<VirtualCamera> client);
+    void                clientStreamEnding(const VirtualCamera* client);
     Return<void>        doneWithFrame(const BufferDesc_1_0& buffer);
     Return<void>        doneWithFrame(const BufferDesc_1_1& buffer);
     Return<EvsResult>   setMaster(sp<VirtualCamera> virtualCamera);
