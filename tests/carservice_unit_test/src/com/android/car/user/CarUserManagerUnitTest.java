@@ -369,6 +369,22 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
         assertThat(result.getErrorMessage()).isEqualTo("D'OH!");
     }
 
+    @Test
+    public void testIsUserHalUserAssociation() throws Exception {
+        when(mService.isUserHalUserAssociationSupported()).thenReturn(false).thenReturn(true);
+
+        assertThat(mMgr.isUserHalUserAssociationSupported()).isFalse();
+        assertThat(mMgr.isUserHalUserAssociationSupported()).isTrue();
+    }
+
+    @Test
+    public void testIsUserHalUserAssociation_remoteException() throws Exception {
+        doThrow(new RemoteException("D'OH!")).when(mService).isUserHalUserAssociationSupported();
+        mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
+
+        assertThat(mMgr.isUserHalUserAssociationSupported()).isFalse();
+    }
+
     private void expectServiceSwitchUserSucceeds(@UserIdInt int userId,
             @UserSwitchResult.Status int status, @Nullable String errorMessage)
             throws RemoteException {
