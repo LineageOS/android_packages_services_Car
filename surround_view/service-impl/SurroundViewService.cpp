@@ -40,8 +40,25 @@ sp<SurroundViewService> SurroundViewService::getInstance() {
     std::scoped_lock<std::mutex> lock(sLock);
     if (sService == nullptr) {
         sService = new SurroundViewService();
+        if (!sService->initialize()) {
+            LOG(ERROR) << "Cannot initialize the service properly";
+            sService = nullptr;
+            return nullptr;
+        }
     }
     return sService;
+}
+
+bool SurroundViewService::initialize() {
+    // Get the EVS manager service
+    LOG(INFO) << "Acquiring EVS Enumerator";
+    mEvs = IEvsEnumerator::getService("default");
+    if (mEvs == nullptr) {
+        LOG(ERROR) << "getService returned NULL.  Exiting.";
+        return false;
+    }
+
+    return true;
 }
 
 Return<void> SurroundViewService::getCameraIds(getCameraIds_cb _hidl_cb) {
@@ -87,8 +104,12 @@ Return<void> SurroundViewService::start3dSession(start3dSession_cb _hidl_cb) {
         LOG(WARNING) << "Only one 3d session is supported at the same time";
         _hidl_cb(nullptr, SvResult::INTERNAL_ERROR);
     } else {
-        sSurroundView3dSession = new SurroundView3dSession();
-        _hidl_cb(sSurroundView3dSession, SvResult::OK);
+        sSurroundView3dSession = new SurroundView3dSession(mEvs);
+        if (sSurroundView3dSession->initialize()) {
+            _hidl_cb(sSurroundView3dSession, SvResult::OK);
+        } else {
+            _hidl_cb(nullptr, SvResult::INTERNAL_ERROR);
+        }
     }
     return {};
 }
