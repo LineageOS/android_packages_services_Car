@@ -19,6 +19,7 @@
 #include "SurroundView2dSession.h"
 #include "SurroundView3dSession.h"
 
+#include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
 #include <android/hardware/automotive/sv/1.0/types.h>
 #include <android/hardware/automotive/sv/1.0/ISurroundViewService.h>
 #include <android/hardware/automotive/sv/1.0/ISurroundViewStream.h>
@@ -29,6 +30,7 @@
 
 #include <thread>
 
+using namespace ::android::hardware::automotive::evs::V1_1;
 using namespace ::android::hardware::automotive::sv::V1_0;
 using ::android::hardware::Return;
 using ::android::sp;
@@ -55,6 +57,9 @@ public:
     static sp<SurroundViewService> getInstance();
 private:
     SurroundViewService() {};
+
+    bool initialize();
+    sp<IEvsEnumerator> mEvs;
 
     static std::mutex sLock;
     static sp<SurroundViewService> sService GUARDED_BY(sLock);
