@@ -512,6 +512,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 case HalCallback.STATUS_WRONG_HAL_RESPONSE:
                     switchUserOnResumeUserHalFallback("wrong response");
                     return;
+                case HalCallback.STATUS_HAL_NOT_SUPPORTED:
+                    switchUserOnResumeUserHalFallback("Hal not supported");
+                    return;
                 case HalCallback.STATUS_OK:
                     if (response == null) {
                         switchUserOnResumeUserHalFallback("no response");

@@ -81,12 +81,22 @@ public final class UserHalService extends HalServiceBase {
     private static final String TAG = UserHalService.class.getSimpleName();
 
     private static final String UNSUPPORTED_MSG = "Vehicle HAL does not support user management";
+    private static final String USER_ASSOCIATION_UNSUPPORTED_MSG =
+            "Vehicle HAL does not support user association";
 
     private static final int[] SUPPORTED_PROPERTIES = new int[]{
-            INITIAL_USER_INFO,
-            SWITCH_USER,
             CREATE_USER,
+            INITIAL_USER_INFO,
+            REMOVE_USER,
+            SWITCH_USER,
             USER_IDENTIFICATION_ASSOCIATION
+    };
+
+    private static final int[] CORE_PROPERTIES = new int[]{
+            CREATE_USER,
+            INITIAL_USER_INFO,
+            REMOVE_USER,
+            SWITCH_USER,
     };
 
     private static final boolean DBG = false;
@@ -208,11 +218,29 @@ public final class UserHalService extends HalServiceBase {
     }
 
     /**
-     * Checks if the Vehicle HAL supports user management.
+     * Checks if the Vehicle HAL supports core user management actions.
      */
     public boolean isSupported() {
         synchronized (mLock) {
-            return mProperties != null;
+            if (mProperties == null) return false;
+
+            for (int i = 0; i < CORE_PROPERTIES.length; i++) {
+                if (mProperties.get(CORE_PROPERTIES[i]) == null) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
+    /**
+     * Checks if the Vehicle HAL supports core user management actions.
+     */
+    public boolean isUserAssociationSupported() {
+        synchronized (mLock) {
+            if (mProperties == null) return false;
+            if (mProperties.get(USER_IDENTIFICATION_ASSOCIATION) == null) return false;
+            return true;
         }
     }
 
@@ -220,6 +248,12 @@ public final class UserHalService extends HalServiceBase {
     private void checkSupportedLocked() {
         Preconditions.checkState(isSupported(), UNSUPPORTED_MSG);
     }
+
+    @GuardedBy("mLock")
+    private void checkUserAssociationSupportedLocked() {
+        Preconditions.checkState(isUserAssociationSupported(), USER_ASSOCIATION_UNSUPPORTED_MSG);
+    }
+
 
     /**
      * Calls HAL to asynchronously get info about the initial user.
@@ -372,7 +406,7 @@ public final class UserHalService extends HalServiceBase {
     public void postSwitchResponse(@NonNull SwitchUserRequest request) {
         EventLog.writeEvent(EventLogTags.CAR_USER_HAL_POST_SWITCH_USER_REQ, request.requestId,
                 request.targetUser.userId, request.usersInfo.currentUser.userId);
-        if (DBG) Log.d(TAG, "postSwitchResponse(" + request.targetUser.userId + ")");
+        if (DBG) Log.d(TAG, "postSwitchResponse(" + request + ")");
 
         VehiclePropValue propRequest;
         synchronized (mLock) {
@@ -438,6 +472,9 @@ public final class UserHalService extends HalServiceBase {
     public UserIdentificationResponse getUserAssociation(
             @NonNull UserIdentificationGetRequest request) {
         Objects.requireNonNull(request, "request cannot be null");
+        synchronized (mLock) {
+            checkUserAssociationSupportedLocked();
+        }
 
         // Check that it doesn't have dupes
         SparseBooleanArray types = new SparseBooleanArray(request.numberAssociationTypes);
@@ -509,10 +546,10 @@ public final class UserHalService extends HalServiceBase {
      */
     public void setUserAssociation(int timeoutMs, @NonNull UserIdentificationSetRequest request,
             @NonNull HalCallback<UserIdentificationResponse> callback) {
-        if (DBG) Log.d(TAG, "setUserAssociation(" + request + ")");
         Preconditions.checkArgumentPositive(timeoutMs, "timeout must be positive");
         Objects.requireNonNull(request, "request cannot be null");
         Objects.requireNonNull(callback, "callback cannot be null");
+        if (DBG) Log.d(TAG, "setUserAssociation(" + request + ")");
 
         // Check that it doesn't have dupes
         SparseBooleanArray types = new SparseBooleanArray(request.numberAssociations);
@@ -526,7 +563,7 @@ public final class UserHalService extends HalServiceBase {
         VehiclePropValue propRequest;
         int requestId;
         synchronized (mLock) {
-            checkSupportedLocked();
+            checkUserAssociationSupportedLocked();
             if (hasPendingRequestLocked(UserIdentificationResponse.class, callback)) return;
             requestId = request.requestId = getNextRequestId();
             propRequest = UserHalHelper.toVehiclePropValue(request);
