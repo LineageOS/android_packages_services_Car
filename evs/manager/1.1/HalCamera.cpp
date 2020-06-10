@@ -257,7 +257,7 @@ Return<EvsResult> HalCamera::clientStreamStarting() {
 }
 
 
-void HalCamera::clientStreamEnding(sp<VirtualCamera> client) {
+void HalCamera::clientStreamEnding(const VirtualCamera* client) {
     {
         std::lock_guard<std::mutex> lock(mFrameMutex);
         auto itReq = mNextRequests->begin();
@@ -269,7 +269,7 @@ void HalCamera::clientStreamEnding(sp<VirtualCamera> client) {
             }
         }
 
-        const uint64_t clientId = reinterpret_cast<const uint64_t>(client.get());
+        const uint64_t clientId = reinterpret_cast<const uint64_t>(client);
         if (itReq != mNextRequests->end()) {
             mNextRequests->erase(itReq);
 
@@ -282,7 +282,7 @@ void HalCamera::clientStreamEnding(sp<VirtualCamera> client) {
 
         auto itCam = mClients.begin();
         while (itCam != mClients.end()) {
-            if (itCam->promote() == client.get()) {
+            if (itCam->promote() == client) {
                 break;
             } else {
                 ++itCam;
