@@ -863,11 +863,7 @@ bool EvsV4lCamera::convertToV4l2CID(CameraParam id, uint32_t& v4l2cid) {
             return false;
     }
 
-    if (mCameraInfo != nullptr) {
-        return mCameraInfo->controls.find(id) != mCameraInfo->controls.end();
-    } else {
-        return false;
-    }
+    return mCameraControls.find(v4l2cid) != mCameraControls.end();
 }
 
 
@@ -938,6 +934,9 @@ sp<EvsV4lCamera> EvsV4lCamera::Create(const char *deviceName,
             return nullptr;
         }
     }
+
+    // List available camera parameters
+    evsCamera->mCameraControls = evsCamera->mVideo.enumerateCameraControls();
 
     // Please note that the buffer usage flag does not come from a given stream
     // configuration.
