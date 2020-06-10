@@ -17,10 +17,11 @@
 #define ANDROID_HARDWARE_AUTOMOTIVE_EVS_V1_1_VIDEOCAPTURE_H
 
 #include <atomic>
-#include <thread>
 #include <functional>
-#include <linux/videodev2.h>
+#include <set>
+#include <thread>
 
+#include <linux/videodev2.h>
 
 typedef v4l2_buffer imageBuffer;
 
@@ -49,6 +50,7 @@ public:
 
     int setParameter(struct v4l2_control& control);
     int getParameter(struct v4l2_control& control);
+    std::set<uint32_t> enumerateCameraControls();
 
 private:
     void collectFrames();
