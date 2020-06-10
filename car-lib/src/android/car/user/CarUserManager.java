@@ -377,6 +377,19 @@ public final class CarUserManager extends CarManagerBase {
     }
 
     /**
+     * Check if user hal supports user association.
+     *
+     * @hide
+     */
+    public boolean isUserHalUserAssociationSupported() {
+        try {
+            return mService.isUserHalUserAssociationSupported();
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, false);
+        }
+    }
+
+    /**
      * Gets the user authentication types associated with this manager's user.
      *
      * @hide

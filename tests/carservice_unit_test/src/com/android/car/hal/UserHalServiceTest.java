@@ -146,8 +146,12 @@ public final class UserHalServiceTest {
     @Before
     public void setFixtures() {
         mUserHalService = spy(new UserHalService(mVehicleHal, mHandler));
-        // Needs at least one property, otherwise isSupported() will return false
-        mUserHalService.takeProperties(Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO)));
+        // Needs at least one property, otherwise isSupported() and isUserAssociationSupported()
+        // will return false
+        mUserHalService.takeProperties(Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
+                newSubscribableConfig(CREATE_USER), newSubscribableConfig(REMOVE_USER),
+                newSubscribableConfig(SWITCH_USER),
+                newSubscribableConfig(USER_IDENTIFICATION_ASSOCIATION)));
 
         mUser0.userId = 0;
         mUser0.flags = 100;
@@ -169,39 +173,88 @@ public final class UserHalServiceTest {
     }
 
     @Test
-    public void testTakeSupportedProperties_unsupportedOnly() {
+    public void testTakeSupportedProperties_supportedNoProperties() {
         // Cannot use mUserHalService because it's already set with supported properties
         UserHalService myHalService = new UserHalService(mVehicleHal);
 
-        myHalService.takeProperties(Collections.EMPTY_LIST);
+        myHalService.takeProperties(Collections.emptyList());
         assertThat(myHalService.isSupported()).isFalse();
+        assertThat(myHalService.isUserAssociationSupported()).isFalse();
+    }
+
+    @Test
+    public void testTakeSupportedProperties_supportedFewProperties() {
+        // Cannot use mUserHalService because it's already set with supported properties
+        UserHalService myHalService = new UserHalService(mVehicleHal);
+        myHalService.takeProperties(Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
+                newSubscribableConfig(CREATE_USER), newSubscribableConfig(REMOVE_USER)));
+
+        assertThat(myHalService.isSupported()).isFalse();
+        assertThat(myHalService.isUserAssociationSupported()).isFalse();
+    }
+
+    @Test
+    public void testTakeSupportedProperties_supportedAllCoreProperties() {
+        // Cannot use mUserHalService because it's already set with supported properties
+        UserHalService myHalService = new UserHalService(mVehicleHal);
+        myHalService.takeProperties(Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
+                newSubscribableConfig(CREATE_USER), newSubscribableConfig(REMOVE_USER),
+                newSubscribableConfig(SWITCH_USER)));
+
+        assertThat(myHalService.isSupported()).isTrue();
+        assertThat(myHalService.isUserAssociationSupported()).isFalse();
+    }
+
+    @Test
+    public void testTakeSupportedProperties_supportedAllProperties() {
+        // Cannot use mUserHalService because it's already set with supported properties
+        UserHalService myHalService = new UserHalService(mVehicleHal);
+        myHalService.takeProperties(Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
+                newSubscribableConfig(CREATE_USER), newSubscribableConfig(REMOVE_USER),
+                newSubscribableConfig(SWITCH_USER),
+                newSubscribableConfig(USER_IDENTIFICATION_ASSOCIATION)));
+
+        assertThat(myHalService.isSupported()).isTrue();
+        assertThat(myHalService.isUserAssociationSupported()).isTrue();
     }
 
     @Test
     public void testTakeSupportedPropertiesAndInit() {
         // Cannot use mUserHalService because it's already set with supported properties
         UserHalService myHalService = new UserHalService(mVehicleHal);
-
         VehiclePropConfig unsupportedConfig = newConfig(CURRENT_GEAR);
-        VehiclePropConfig userInfoConfig = newSubscribableConfig(INITIAL_USER_INFO);
-        List<VehiclePropConfig> input = Arrays.asList(unsupportedConfig, userInfoConfig);
-        myHalService.takeProperties(input);
-        assertThat(mUserHalService.isSupported()).isTrue();
+
+        myHalService.takeProperties(Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
+                newSubscribableConfig(CREATE_USER), newSubscribableConfig(REMOVE_USER),
+                newSubscribableConfig(SWITCH_USER), unsupportedConfig,
+                newSubscribableConfig(USER_IDENTIFICATION_ASSOCIATION)));
+
 
         // Ideally there should be 2 test methods (one for takeSupportedProperties() and one for
         // init()), but on "real life" VehicleHal calls these 2 methods in sequence, and the latter
         // depends on the properties set by the former, so it's ok to test both here...
         myHalService.init();
         verify(mVehicleHal).subscribeProperty(myHalService, INITIAL_USER_INFO);
+        verify(mVehicleHal).subscribeProperty(myHalService, CREATE_USER);
+        verify(mVehicleHal).subscribeProperty(myHalService, REMOVE_USER);
+        verify(mVehicleHal).subscribeProperty(myHalService, SWITCH_USER);
+        verify(mVehicleHal).subscribeProperty(myHalService, USER_IDENTIFICATION_ASSOCIATION);
     }
 
     @Test
     public void testSupportedProperties() {
-        assertThat(mUserHalService.getAllSupportedProperties()).asList().containsAllOf(
-                INITIAL_USER_INFO,
-                CREATE_USER,
-                SWITCH_USER,
+        assertThat(mUserHalService.getAllSupportedProperties()).asList().containsExactly(
+                INITIAL_USER_INFO, CREATE_USER, REMOVE_USER, SWITCH_USER,
                 USER_IDENTIFICATION_ASSOCIATION);
+    }
+
+    @Test
+    public void testGetUserInfo_noHalSupported() {
+        // Cannot use mUserHalService because it's already set with supported properties
+        UserHalService myHalService = new UserHalService(mVehicleHal);
+
+        assertThrows(IllegalStateException.class, () -> myHalService.getInitialUserInfo(COLD_BOOT,
+                TIMEOUT_MS, mUsersInfo, noOpCallback()));
     }
 
     @Test
@@ -412,6 +465,16 @@ public final class UserHalServiceTest {
     public void testGetUserInfo_twoSuccessfulCalls() throws Exception {
         testGetUserInfo_successDefault();
         testGetUserInfo_successDefault();
+    }
+
+    @Test
+    public void testSwitchUser_noHalSupported() {
+        // Cannot use mUserHalService because it's already set with supported properties
+        UserHalService myHalService = new UserHalService(mVehicleHal);
+
+        assertThrows(IllegalStateException.class,
+                () -> myHalService.switchUser(createUserSwitchRequest(mUser10, mUsersInfo),
+                        TIMEOUT_MS, noOpCallback()));
     }
 
     @Test
@@ -645,6 +708,15 @@ public final class UserHalServiceTest {
     }
 
     @Test
+    public void testPostSwitchResponse_noHalSupported() {
+        // Cannot use mUserHalService because it's already set with supported properties
+        UserHalService myHalService = new UserHalService(mVehicleHal);
+
+        assertThrows(IllegalStateException.class,
+                () -> myHalService.postSwitchResponse(new SwitchUserRequest()));
+    }
+
+    @Test
     public void testPostSwitchResponse_noUsersInfo() {
         SwitchUserRequest request = createUserSwitchRequest(mUser10, null);
         request.requestId = 42;
@@ -683,6 +755,15 @@ public final class UserHalServiceTest {
 
         assertThrows(IllegalArgumentException.class,
                 () -> mUserHalService.legacyUserSwitch(request));
+    }
+
+    @Test
+    public void testRemoveUser_noHalSupported() {
+        // Cannot use mUserHalService because it's already set with supported properties
+        UserHalService myHalService = new UserHalService(mVehicleHal);
+
+        assertThrows(IllegalStateException.class,
+                () -> myHalService.removeUser(new RemoveUserRequest()));
     }
 
     @Test
@@ -735,6 +816,15 @@ public final class UserHalServiceTest {
     }
 
     @Test
+    public void testLegacyUserSwitch_noHalSupported() {
+        // Cannot use mUserHalService because it's already set with supported properties
+        UserHalService myHalService = new UserHalService(mVehicleHal);
+
+        assertThrows(IllegalStateException.class,
+                () -> myHalService.legacyUserSwitch(new SwitchUserRequest()));
+    }
+
+    @Test
     public void testLegacyUserSwitch_noUsersInfo() {
         SwitchUserRequest request = new SwitchUserRequest();
         request.messageType = SwitchUserMessageType.ANDROID_SWITCH;
@@ -759,6 +849,15 @@ public final class UserHalServiceTest {
         VehiclePropValue prop = propCaptor.getValue();
         assertHalSetSwitchUserRequest(prop, SwitchUserMessageType.LEGACY_ANDROID_SWITCH,
                 mUser10);
+    }
+
+    @Test
+    public void testCreateUser_noHalSupported() {
+        // Cannot use mUserHalService because it's already set with supported properties
+        UserHalService myHalService = new UserHalService(mVehicleHal);
+
+        assertThrows(IllegalStateException.class,
+                () -> myHalService.createUser(new CreateUserRequest(), TIMEOUT_MS, noOpCallback()));
     }
 
     @Test
@@ -842,7 +941,7 @@ public final class UserHalServiceTest {
     }
 
     @Test
-    public void testUserCreate_success() throws Exception {
+    public void testCreateUser_success() throws Exception {
         VehiclePropValue propResponse =
                 UserHalHelper.createPropRequest(CREATE_USER, REQUEST_ID_PLACE_HOLDER);
         propResponse.value.int32Values.add(CreateUserStatus.SUCCESS);
@@ -870,7 +969,7 @@ public final class UserHalServiceTest {
     }
 
     @Test
-    public void testUserCreate_failure() throws Exception {
+    public void testCreateUser_failure() throws Exception {
         VehiclePropValue propResponse =
                 UserHalHelper.createPropRequest(CREATE_USER, REQUEST_ID_PLACE_HOLDER);
         propResponse.value.int32Values.add(CreateUserStatus.FAILURE);
@@ -934,6 +1033,15 @@ public final class UserHalServiceTest {
         // Assert response
         assertCallbackStatus(callback, HalCallback.STATUS_WRONG_HAL_RESPONSE);
         assertThat(callback.response).isNull();
+    }
+
+    @Test
+    public void testGetUserAssociation_noHalSupported() {
+        // Cannot use mUserHalService because it's already set with supported properties
+        UserHalService myHalService = new UserHalService(mVehicleHal);
+
+        assertThrows(IllegalStateException.class,
+                () -> myHalService.getUserAssociation(new UserIdentificationGetRequest()));
     }
 
     @Test
@@ -1043,6 +1151,15 @@ public final class UserHalServiceTest {
         UserIdentificationAssociation actualAssociation = response.associations.get(0);
         assertThat(actualAssociation.type).isEqualTo(KEY_FOB);
         assertThat(actualAssociation.value).isEqualTo(ASSOCIATED_CURRENT_USER);
+    }
+
+    @Test
+    public void testSetUserAssociation_noHalSupported() {
+        // Cannot use mUserHalService because it's already set with supported properties
+        UserHalService myHalService = new UserHalService(mVehicleHal);
+
+        assertThrows(IllegalStateException.class, () -> myHalService.setUserAssociation(TIMEOUT_MS,
+                new UserIdentificationSetRequest(), noOpCallback()));
     }
 
     @Test
