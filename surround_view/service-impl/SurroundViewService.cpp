@@ -39,10 +39,14 @@ static const int kVhalUpdateRate = 10;
 
 SurroundViewService::SurroundViewService() {
     mVhalHandler = new VhalHandler();
+    mAnimationModule = new AnimationModule(map<string, CarPart>(),
+                                           map<string, CarTexture>(),
+                                           vector<AnimationInfo>());
 }
 
 SurroundViewService::~SurroundViewService() {
     delete mVhalHandler;
+    delete mAnimationModule;
 }
 
 sp<SurroundViewService> SurroundViewService::getInstance() {
@@ -126,7 +130,9 @@ Return<void> SurroundViewService::start3dSession(start3dSession_cb _hidl_cb) {
         LOG(WARNING) << "Only one 3d session is supported at the same time";
         _hidl_cb(nullptr, SvResult::INTERNAL_ERROR);
     } else {
-        sSurroundView3dSession = new SurroundView3dSession(mEvs, mVhalHandler);
+        sSurroundView3dSession = new SurroundView3dSession(mEvs,
+                                                           mVhalHandler,
+                                                           mAnimationModule);
         if (sSurroundView3dSession->initialize()) {
             _hidl_cb(sSurroundView3dSession, SvResult::OK);
         } else {
