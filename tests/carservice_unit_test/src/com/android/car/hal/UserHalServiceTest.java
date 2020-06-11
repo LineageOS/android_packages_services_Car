@@ -498,6 +498,12 @@ public final class UserHalServiceTest {
     }
 
     @Test
+    public void testSwitchUser_nullRequest() {
+        assertThrows(NullPointerException.class, () -> mUserHalService
+                .switchUser(null, TIMEOUT_MS, noOpCallback()));
+    }
+
+    @Test
     public void testSwitchUser_noTarget() {
         assertThrows(NullPointerException.class, () -> mUserHalService
                 .switchUser(createUserSwitchRequest(null, mUsersInfo), TIMEOUT_MS, noOpCallback()));
@@ -717,10 +723,16 @@ public final class UserHalServiceTest {
     }
 
     @Test
+    public void testPostSwitchResponse_nullRequest() {
+        assertThrows(NullPointerException.class, () -> mUserHalService.postSwitchResponse(null));
+    }
+
+    @Test
     public void testPostSwitchResponse_noUsersInfo() {
         SwitchUserRequest request = createUserSwitchRequest(mUser10, null);
         request.requestId = 42;
-        assertThrows(NullPointerException.class, () -> mUserHalService.postSwitchResponse(request));
+        assertThrows(IllegalArgumentException.class,
+                () -> mUserHalService.postSwitchResponse(request));
     }
 
     @Test
@@ -838,7 +850,6 @@ public final class UserHalServiceTest {
     public void testLegacyUserSwitch_HalCalledWithCorrectProp() {
         SwitchUserRequest request = new SwitchUserRequest();
         request.messageType = SwitchUserMessageType.LEGACY_ANDROID_SWITCH;
-        request.requestId = 1;
         request.targetUser = mUser10;
         request.usersInfo = mUsersInfo;
 
