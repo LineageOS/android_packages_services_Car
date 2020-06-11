@@ -90,8 +90,8 @@ cc_binary{
         "SurroundViewService.cpp",
         "SurroundView2dSession.cpp",
         "SurroundView3dSession.cpp",
+        "VhalHandler.cpp",
         "service.cpp",
-
     ],
     init_rc : ["android.automotive.sv.service@1.0-impl.rc"],
     shared_libs : [

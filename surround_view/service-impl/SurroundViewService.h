@@ -18,6 +18,7 @@
 
 #include "SurroundView2dSession.h"
 #include "SurroundView3dSession.h"
+#include "VhalHandler.h"
 
 #include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
 #include <android/hardware/automotive/sv/1.0/types.h>
@@ -56,7 +57,10 @@ public:
 
     static sp<SurroundViewService> getInstance();
 private:
-    SurroundViewService() {};
+    SurroundViewService();
+    ~SurroundViewService();
+
+    VhalHandler* mVhalHandler;
 
     bool initialize();
     sp<IEvsEnumerator> mEvs;
