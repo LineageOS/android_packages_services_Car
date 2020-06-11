@@ -16,8 +16,6 @@
 
 #pragma once
 
-#include "CoreLibSetupHelper.h"
-
 #include <android/hardware/automotive/evs/1.1/IEvsCamera.h>
 #include <android/hardware/automotive/evs/1.1/IEvsCameraStream.h>
 #include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
@@ -28,12 +26,16 @@
 #include <hidl/MQDescriptor.h>
 #include <hidl/Status.h>
 
-#include <ui/GraphicBuffer.h>
+#include "CoreLibSetupHelper.h"
+#include "VhalHandler.h"
 
 #include <thread>
 
+#include <ui/GraphicBuffer.h>
+
 using namespace ::android::hardware::automotive::evs::V1_1;
 using namespace ::android::hardware::automotive::sv::V1_0;
+using namespace ::android::hardware::automotive::vehicle::V2_0;
 using namespace ::android_auto::surround_view;
 
 using ::android::hardware::Return;
@@ -79,7 +81,8 @@ class SurroundView3dSession : public ISurroundView3dSession {
     };
 
 public:
-    SurroundView3dSession(sp<IEvsEnumerator> pEvs);
+    // TODO(b/158479099): use strong pointer for VhalHandler
+    SurroundView3dSession(sp<IEvsEnumerator> pEvs, VhalHandler* vhalHandler);
     ~SurroundView3dSession();
     bool initialize();
 
@@ -165,6 +168,10 @@ private:
     sp<GraphicBuffer> mSvTexture GUARDED_BY(mAccessLock);
 
     bool mIsInitialized GUARDED_BY(mAccessLock) = false;
+
+    VhalHandler* mVhalHandler;
+
+    std::vector<VehiclePropValue> mPropertyValues;
 };
 
 }  // namespace implementation
