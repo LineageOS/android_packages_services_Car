@@ -188,6 +188,10 @@
         <item name="android:textAppearanceListItem">@android:style/TextAppearance.DeviceDefault.Large</item>
         <item name="android:textAppearanceListItemSmall">@android:style/TextAppearance.DeviceDefault.Large</item>
         <item name="android:textAppearanceListItemSecondary">@android:style/TextAppearance.DeviceDefault.Small</item>
+
+        <!-- Icon sizes -->
+        <item name="*android:iconfactoryIconSize">@*android:dimen/resolver_icon_size</item>
+        <item name="*android:iconfactoryBadgeSize">@*android:dimen/resolver_badge_size</item>
     </style>
 
 
