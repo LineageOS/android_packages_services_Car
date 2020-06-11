@@ -141,4 +141,9 @@
         <item name="android:layout">@*android:layout/car_preference</item>
     </style>
 
+    <!-- AlertDialog Style -->
+    <style name="AlertDialog.DeviceDefault" parent="*android:AlertDialog.Material">
+        <item name="android:layout">@*android:layout/car_alert_dialog</item>
+    </style>
+
 </resources>
