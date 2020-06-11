@@ -16,25 +16,33 @@
 
 #pragma once
 
+#include "CoreLibSetupHelper.h"
+
+#include <android/hardware/automotive/evs/1.1/IEvsCamera.h>
+#include <android/hardware/automotive/evs/1.1/IEvsCameraStream.h>
+#include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
 #include <android/hardware/automotive/sv/1.0/types.h>
 #include <android/hardware/automotive/sv/1.0/ISurroundViewStream.h>
 #include <android/hardware/automotive/sv/1.0/ISurroundView3dSession.h>
+
 #include <hidl/MQDescriptor.h>
 #include <hidl/Status.h>
 
-#include "CoreLibSetupHelper.h"
-#include <thread>
-
 #include <ui/GraphicBuffer.h>
 
+#include <thread>
+
+using namespace ::android::hardware::automotive::evs::V1_1;
 using namespace ::android::hardware::automotive::sv::V1_0;
+using namespace ::android_auto::surround_view;
+
 using ::android::hardware::Return;
 using ::android::hardware::hidl_vec;
 using ::android::sp;
+using ::std::condition_variable;
 
-using std::condition_variable;
-
-using namespace android_auto::surround_view;
+using BufferDesc_1_0  = ::android::hardware::automotive::evs::V1_0::BufferDesc;
+using BufferDesc_1_1  = ::android::hardware::automotive::evs::V1_1::BufferDesc;
 
 namespace android {
 namespace hardware {
@@ -44,8 +52,36 @@ namespace V1_0 {
 namespace implementation {
 
 class SurroundView3dSession : public ISurroundView3dSession {
+
+    /*
+     * FramesHandler:
+     * This class can be used to receive camera imagery from an IEvsCamera implementation.  It will
+     * hold onto the most recent image buffer, returning older ones.
+     * Note that the video frames are delivered on a background thread, while the control interface
+     * is actuated from the applications foreground thread.
+     */
+    class FramesHandler : public IEvsCameraStream {
+    public:
+        FramesHandler(sp<IEvsCamera> pCamera, sp<SurroundView3dSession> pSession);
+
+    private:
+        // Implementation for ::android::hardware::automotive::evs::V1_0::IEvsCameraStream
+        Return<void> deliverFrame(const BufferDesc_1_0& buffer) override;
+
+        // Implementation for ::android::hardware::automotive::evs::V1_1::IEvsCameraStream
+        Return<void> deliverFrame_1_1(const hidl_vec<BufferDesc_1_1>& buffer) override;
+        Return<void> notify(const EvsEventDesc& event) override;
+
+        // Values initialized as startup
+        sp<IEvsCamera> mCamera;
+
+        sp<SurroundView3dSession> mSession;
+    };
+
 public:
-    SurroundView3dSession();
+    SurroundView3dSession(sp<IEvsEnumerator> pEvs);
+    ~SurroundView3dSession();
+    bool initialize();
 
     // Methods from ::android::hardware::automotive::sv::V1_0::ISurroundViewSession.
     Return<SvResult> startStream(
@@ -64,10 +100,13 @@ public:
         projectCameraPointsTo3dSurface_cb _hidl_cb);
 
 private:
-    bool initialize();
-
-    void generateFrames();
     void processFrames();
+
+    // Set up and open the Evs camera(s), triggered when session is created.
+    bool setupEvs();
+
+    // Start Evs camera video stream, triggered when SV stream is started.
+    bool startEvs();
 
     bool handleFrames(int sequenceId);
 
@@ -78,16 +117,25 @@ private:
         DEAD,
     };
 
+    // EVS Enumerator to control the start/stop of the Evs Stream
+    sp<IEvsEnumerator> mEvs;
+
+    // Instance and metadata for the opened Evs Camera
+    sp<IEvsCamera> mCamera;
+    CameraDesc mCameraDesc;
+
     // Stream subscribed for the session.
     sp<ISurroundViewStream> mStream GUARDED_BY(mAccessLock);
     StreamStateValues mStreamState GUARDED_BY(mAccessLock);
 
-    thread mCaptureThread; // The thread we'll use to synthesize frames
     thread mProcessThread; // The thread we'll use to process frames
 
+    // Reference to the inner class, to handle the incoming Evs frames
+    sp<FramesHandler> mFramesHandler;
+
     // Used to signal a set of frames is ready
-    condition_variable mSignal GUARDED_BY(mAccessLock);
-    bool framesAvailable GUARDED_BY(mAccessLock);
+    condition_variable mFramesSignal GUARDED_BY(mAccessLock);
+    bool mFramesAvailable GUARDED_BY(mAccessLock);
 
     int sequenceId;
 
