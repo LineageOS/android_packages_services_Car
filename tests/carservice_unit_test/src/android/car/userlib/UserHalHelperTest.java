@@ -207,6 +207,20 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void testIsDisabled() {
+        assertThat(UserHalHelper.isDisabled(UserFlags.DISABLED)).isTrue();
+        assertThat(UserHalHelper.isDisabled(UserFlags.DISABLED | 666)).isTrue();
+        assertThat(UserHalHelper.isDisabled(UserFlags.GUEST)).isFalse();
+    }
+
+    @Test
+    public void testIsProfile() {
+        assertThat(UserHalHelper.isProfile(UserFlags.PROFILE)).isTrue();
+        assertThat(UserHalHelper.isProfile(UserFlags.PROFILE | 666)).isTrue();
+        assertThat(UserHalHelper.isProfile(UserFlags.GUEST)).isFalse();
+    }
+
+    @Test
     public void testToUserInfoFlags() {
         assertThat(UserHalHelper.toUserInfoFlags(UserFlags.NONE)).isEqualTo(0);
         assertThat(UserHalHelper.toUserInfoFlags(UserFlags.EPHEMERAL))
@@ -1191,6 +1205,7 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    @ExpectWtf
     public void testNewUsersInfo_noCurrentUser() {
         UserInfo user100 = new UserInfoBuilder(100).setFlags(UserInfo.FLAG_ADMIN).build();
         UserInfo user200 = new UserInfoBuilder(200).build();
