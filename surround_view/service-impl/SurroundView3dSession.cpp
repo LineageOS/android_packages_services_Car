@@ -165,9 +165,10 @@ void SurroundView3dSession::processFrames() {
     }
 }
 
-SurroundView3dSession::SurroundView3dSession(sp<IEvsEnumerator> pEvs)
-    : mEvs(pEvs),
-      mStreamState(STOPPED) {
+SurroundView3dSession::SurroundView3dSession(sp<IEvsEnumerator> pEvs, VhalHandler* vhalHandler) :
+      mEvs(pEvs),
+      mStreamState(STOPPED),
+      mVhalHandler(vhalHandler) {
     mEvsCameraIds = {"0" , "1", "2", "3"};
 }
 
@@ -217,6 +218,14 @@ Return<SvResult> SurroundView3dSession::startStream(
     sequenceId = 0;
     startEvs();
 
+    if (mVhalHandler != nullptr) {
+        if (!mVhalHandler->startPropertiesUpdate()) {
+            LOG(WARNING) << "VhalHandler cannot be started properly";
+        }
+    } else {
+        LOG(WARNING) << "VhalHandler is null. Ignored";
+    }
+
     // TODO(b/158131080): the STREAM_STARTED event is not implemented in EVS
     // reference implementation yet. Once implemented, this logic should be
     // moved to EVS notify callback.
@@ -236,6 +245,12 @@ Return<SvResult> SurroundView3dSession::startStream(
 Return<void> SurroundView3dSession::stopStream() {
     LOG(DEBUG) << __FUNCTION__;
     unique_lock <mutex> lock(mAccessLock);
+
+    if (mVhalHandler != nullptr) {
+        mVhalHandler->stopPropertiesUpdate();
+    } else {
+        LOG(WARNING) << "VhalHandler is null. Ignored";
+    }
 
     if (mStreamState == RUNNING) {
         // Tell the processFrames loop to stop processing frames
@@ -479,6 +494,15 @@ bool SurroundView3dSession::handleFrames(int sequenceId) {
     for (int i=0; i<4; i++)
         for (int j=0; j<4; j++) {
             matrix[i][j] = kRecViews[recViewId][i*4+j];
+    }
+
+    // Get the latest VHal property values
+    if (mVhalHandler != nullptr) {
+        if (!mVhalHandler->getPropertyValues(&mPropertyValues)) {
+            LOG(ERROR) << "Failed to get property values";
+        }
+    } else {
+        LOG(WARNING) << "VhalHandler is null. Ignored";
     }
 
     if (mSurroundView->Get3dSurroundView(
