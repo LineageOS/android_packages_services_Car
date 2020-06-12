@@ -141,16 +141,16 @@ private:
 
     // Used to signal a set of frames is ready
     condition_variable mFramesSignal GUARDED_BY(mAccessLock);
-    bool mFramesAvailable GUARDED_BY(mAccessLock);
+    bool mProcessingEvsFrames GUARDED_BY(mAccessLock);
 
-    int sequenceId;
+    int mSequenceId;
 
     struct FramesRecord {
         SvFramesDesc frames;
         bool inUse = false;
     };
 
-    FramesRecord framesRecord GUARDED_BY(mAccessLock);
+    FramesRecord mFramesRecord GUARDED_BY(mAccessLock);
 
     // Synchronization necessary to deconflict mCaptureThread from the main service thread
     mutex mAccessLock;
