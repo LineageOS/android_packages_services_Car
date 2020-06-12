@@ -165,10 +165,13 @@ void SurroundView3dSession::processFrames() {
     }
 }
 
-SurroundView3dSession::SurroundView3dSession(sp<IEvsEnumerator> pEvs, VhalHandler* vhalHandler) :
+SurroundView3dSession::SurroundView3dSession(sp<IEvsEnumerator> pEvs,
+                                             VhalHandler* vhalHandler,
+                                             AnimationModule* animationModule) :
       mEvs(pEvs),
       mStreamState(STOPPED),
-      mVhalHandler(vhalHandler) {
+      mVhalHandler(vhalHandler),
+      mAnimationModule(animationModule) {
     mEvsCameraIds = {"0" , "1", "2", "3"};
 }
 
@@ -503,6 +506,19 @@ bool SurroundView3dSession::handleFrames(int sequenceId) {
         }
     } else {
         LOG(WARNING) << "VhalHandler is null. Ignored";
+    }
+
+    vector<AnimationParam> params;
+    if (mAnimationModule != nullptr) {
+        params = mAnimationModule->getUpdatedAnimationParams(mPropertyValues);
+    } else {
+        LOG(WARNING) << "AnimationModule is null. Ignored";
+    }
+
+    if (!params.empty()) {
+        mSurroundView->SetAnimations(params);
+    } else {
+        LOG(INFO) << "AnimationParams is empty. Ignored";
     }
 
     if (mSurroundView->Get3dSurroundView(
