@@ -255,11 +255,13 @@ void SurroundView3dSession::processFrames() {
 
 SurroundView3dSession::SurroundView3dSession(sp<IEvsEnumerator> pEvs,
                                              VhalHandler* vhalHandler,
-                                             AnimationModule* animationModule) :
+                                             AnimationModule* animationModule,
+                                             IOModuleConfig* pConfig) :
       mEvs(pEvs),
       mStreamState(STOPPED),
       mVhalHandler(vhalHandler),
-      mAnimationModule(animationModule) {
+      mAnimationModule(animationModule),
+      mIOModuleConfig(pConfig) {
     mEvsCameraIds = {"0" , "1", "2", "3"};
 }
 
@@ -704,13 +706,14 @@ bool SurroundView3dSession::initialize() {
     mSurroundView = unique_ptr<SurroundView>(Create());
 
     SurroundViewStaticDataParams params =
-        SurroundViewStaticDataParams(mCameraParams,
-                                     Get2dParams(),
-                                     Get3dParams(),
-                                     GetUndistortionScales(),
-                                     GetBoundingBox(),
-                                     map<string, CarTexture>(),
-                                     map<string, CarPart>());
+            SurroundViewStaticDataParams(
+                    mCameraParams,
+                    mIOModuleConfig->sv2dConfig.sv2dParams,
+                    mIOModuleConfig->sv3dConfig.sv3dParams,
+                    GetUndistortionScales(),
+                    mIOModuleConfig->sv2dConfig.carBoundingBox,
+                    mIOModuleConfig->carModelConfig.carModel.texturesMap,
+                    mIOModuleConfig->carModelConfig.carModel.partsMap);
     mSurroundView->SetStaticData(params);
 
     mInputPointers.resize(4);
@@ -727,8 +730,8 @@ bool SurroundView3dSession::initialize() {
     }
     LOG(INFO) << "Allocated 4 input pointers";
 
-    mOutputWidth = Get3dParams().resolution.width;
-    mOutputHeight = Get3dParams().resolution.height;
+    mOutputWidth = mIOModuleConfig->sv3dConfig.sv3dParams.resolution.width;
+    mOutputHeight = mIOModuleConfig->sv3dConfig.sv3dParams.resolution.height;
 
     mConfig.width = mOutputWidth;
     mConfig.height = mOutputHeight;
@@ -765,15 +768,17 @@ bool SurroundView3dSession::initialize() {
 }
 
 bool SurroundView3dSession::setupEvs() {
+    // Reads the camera related information from the config object
+    const string evsGroupId = mIOModuleConfig->cameraConfig.evsGroupId;
+
     // Setup for EVS
-    // TODO(b/157498737): We are using hard-coded camera "group0" here. It
-    // should be read from configuration file once I/O module is ready.
     LOG(INFO) << "Requesting camera list";
-    mEvs->getCameraList_1_1([this] (hidl_vec<CameraDesc> cameraList) {
+    mEvs->getCameraList_1_1(
+            [this, evsGroupId] (hidl_vec<CameraDesc> cameraList) {
         LOG(INFO) << "Camera list callback received " << cameraList.size();
         for (auto&& cam : cameraList) {
             LOG(INFO) << "Found camera " << cam.v1.cameraId;
-            if (cam.v1.cameraId == "group0") {
+            if (cam.v1.cameraId == evsGroupId) {
                 mCameraDesc = cam;
             }
         }
@@ -835,12 +840,8 @@ bool SurroundView3dSession::setupEvs() {
         LOG(INFO) << "Camera " << camId << " is opened successfully";
     }
 
-    // TODO(b/156101189): camera position information is needed from the
-    // I/O module.
-    vector<string> cameraIds = getPhysicalCameraIds(mCamera);
     map<string, AndroidCameraParams> cameraIdToAndroidParameters;
-
-    for (auto& id : cameraIds) {
+    for (const auto& id : mIOModuleConfig->cameraConfig.evsCameraIds) {
         AndroidCameraParams params;
         if (getAndroidCameraParams(mCamera, id, params)) {
             cameraIdToAndroidParameters.emplace(id, params);
