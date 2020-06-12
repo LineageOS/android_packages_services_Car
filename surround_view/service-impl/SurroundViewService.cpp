@@ -35,6 +35,15 @@ sp<SurroundView2dSession> SurroundViewService::sSurroundView2dSession;
 sp<SurroundView3dSession> SurroundViewService::sSurroundView3dSession;
 
 const std::string kCameraIds[] = {"0", "1", "2", "3"};
+static const int kVhalUpdateRate = 10;
+
+SurroundViewService::SurroundViewService() {
+    mVhalHandler = new VhalHandler();
+}
+
+SurroundViewService::~SurroundViewService() {
+    delete mVhalHandler;
+}
 
 sp<SurroundViewService> SurroundViewService::getInstance() {
     std::scoped_lock<std::mutex> lock(sLock);
@@ -58,6 +67,15 @@ bool SurroundViewService::initialize() {
         return false;
     }
 
+    // Initialize the VHal Handler with update method and rate.
+    // TODO(b/157498592): The update rate should align with the EVS camera
+    // update rate.
+    if (mVhalHandler->initialize(VhalHandler::GET, kVhalUpdateRate)) {
+        mVhalHandler->setPropertiesToRead(vector<VehiclePropValue>());
+    } else {
+        LOG(WARNING) << "VhalHandler cannot be initialized properly";
+    }
+
     return true;
 }
 
@@ -76,8 +94,12 @@ Return<void> SurroundViewService::start2dSession(start2dSession_cb _hidl_cb) {
         LOG(WARNING) << "Only one 2d session is supported at the same time";
         _hidl_cb(nullptr, SvResult::INTERNAL_ERROR);
     } else {
-        sSurroundView2dSession = new SurroundView2dSession();
-        _hidl_cb(sSurroundView2dSession, SvResult::OK);
+        sSurroundView2dSession = new SurroundView2dSession(mEvs);
+        if (sSurroundView2dSession->initialize()) {
+            _hidl_cb(sSurroundView2dSession, SvResult::OK);
+        } else {
+            _hidl_cb(nullptr, SvResult::INTERNAL_ERROR);
+        }
     }
     return {};
 }
@@ -104,7 +126,7 @@ Return<void> SurroundViewService::start3dSession(start3dSession_cb _hidl_cb) {
         LOG(WARNING) << "Only one 3d session is supported at the same time";
         _hidl_cb(nullptr, SvResult::INTERNAL_ERROR);
     } else {
-        sSurroundView3dSession = new SurroundView3dSession(mEvs);
+        sSurroundView3dSession = new SurroundView3dSession(mEvs, mVhalHandler);
         if (sSurroundView3dSession->initialize()) {
             _hidl_cb(sSurroundView3dSession, SvResult::OK);
         } else {
