@@ -280,6 +280,10 @@ Return<sp<IEvsCamera_1_0>> EvsEnumerator::openCamera(const hidl_string& cameraId
 
     // Is this a recognized camera id?
     CameraRecord *pRecord = findCameraById(cameraId);
+    if (pRecord == nullptr) {
+        LOG(ERROR) << cameraId << " does not exist!";
+        return nullptr;
+    }
 
     // Has this camera already been instantiated by another caller?
     sp<EvsV4lCamera> pActiveCamera = pRecord->activeInstance.promote();
