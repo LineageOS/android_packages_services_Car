@@ -73,6 +73,15 @@ Return<void> SurroundView2dSession::FramesHandler::deliverFrame_1_1(
     LOG(INFO) << "Received " << buffers.size() << " frames from the camera";
     mSession->mSequenceId++;
 
+    {
+        scoped_lock<mutex> lock(mSession->mAccessLock);
+        if (mSession->mProcessingEvsFrames) {
+            LOG(WARNING) << "EVS frames are being processed. Skip frames:" << mSession->mSequenceId;
+            mCamera->doneWithFrame_1_1(buffers);
+            return {};
+        }
+    }
+
     if (buffers.size() != kNumFrames) {
         LOG(ERROR) << "The number of incoming frames is " << buffers.size()
                    << ", which is different from the number " << kNumFrames
@@ -95,7 +104,7 @@ Return<void> SurroundView2dSession::FramesHandler::deliverFrame_1_1(
     // Notify the session that a new set of frames is ready
     {
         scoped_lock<mutex> lock(mSession->mAccessLock);
-        mSession->mFramesAvailable = true;
+        mSession->mProcessingEvsFrames = true;
     }
     mSession->mFramesSignal.notify_all();
 
@@ -208,9 +217,7 @@ void SurroundView2dSession::processFrames() {
                 break;
             }
 
-            mFramesSignal.wait(lock, [this]() {
-                return mFramesAvailable;
-            });
+            mFramesSignal.wait(lock, [this]() { return mProcessingEvsFrames; });
         }
 
         handleFrames(mSequenceId);
@@ -218,7 +225,7 @@ void SurroundView2dSession::processFrames() {
         {
             // Set the boolean to false to receive the next set of frames.
             scoped_lock<mutex> lock(mAccessLock);
-            mFramesAvailable = false;
+            mProcessingEvsFrames = false;
         }
     }
 
@@ -286,6 +293,7 @@ Return<SvResult> SurroundView2dSession::startStream(
     // moved to EVS notify callback.
     LOG(DEBUG) << "Notify SvEvent::STREAM_STARTED";
     mStream->notify(SvEvent::STREAM_STARTED);
+    mProcessingEvsFrames = false;
 
     // Start the frame generation thread
     mStreamState = RUNNING;
@@ -318,7 +326,7 @@ Return<void> SurroundView2dSession::doneWithFrames(
     LOG(DEBUG) << __FUNCTION__;
     scoped_lock <mutex> lock(mAccessLock);
 
-    framesRecord.inUse = false;
+    mFramesRecord.inUse = false;
 
     (void)svFramesDesc;
     return {};
@@ -414,6 +422,18 @@ Return<void> SurroundView2dSession::projectCameraPoints(
 bool SurroundView2dSession::handleFrames(int sequenceId) {
     LOG(INFO) << __FUNCTION__ << "Handling sequenceId " << sequenceId << ".";
 
+    // TODO(b/157498592): Now only one sets of EVS input frames and one SV
+    // output frame is supported. Implement buffer queue for both of them.
+    {
+        scoped_lock<mutex> lock(mAccessLock);
+
+        if (mFramesRecord.inUse) {
+            LOG(DEBUG) << "Notify SvEvent::FRAME_DROPPED";
+            mStream->notify(SvEvent::FRAME_DROPPED);
+            return true;
+        }
+    }
+
     if (mOutputWidth != mConfig.width || mOutputHeight != mHeight) {
         LOG(DEBUG) << "Config changed. Re-allocate memory."
                    << " Old width: "
@@ -497,32 +517,27 @@ bool SurroundView2dSession::handleFrames(int sequenceId) {
     LOG(DEBUG) << "ANativeWindowBuffer->handle: "
                << buffer->handle;
 
-    framesRecord.frames.svBuffers.resize(1);
-    SvBuffer& svBuffer = framesRecord.frames.svBuffers[0];
-    svBuffer.viewId = kSv2dViewId;
-    svBuffer.hardwareBuffer.nativeHandle = buffer->handle;
-    AHardwareBuffer_Desc* pDesc =
-        reinterpret_cast<AHardwareBuffer_Desc *>(
-            &svBuffer.hardwareBuffer.description);
-    pDesc->width = mOutputWidth;
-    pDesc->height = mOutputHeight;
-    pDesc->layers = 1;
-    pDesc->usage = GRALLOC_USAGE_HW_TEXTURE;
-    pDesc->stride = mSvTexture->getStride();
-    pDesc->format = HAL_PIXEL_FORMAT_RGB_888;
-    framesRecord.frames.timestampNs = elapsedRealtimeNano();
-    framesRecord.frames.sequenceId = sequenceId;
-
     {
         scoped_lock<mutex> lock(mAccessLock);
 
-        if (framesRecord.inUse) {
-            LOG(DEBUG) << "Notify SvEvent::FRAME_DROPPED";
-            mStream->notify(SvEvent::FRAME_DROPPED);
-        } else {
-            framesRecord.inUse = true;
-            mStream->receiveFrames(framesRecord.frames);
-        }
+        mFramesRecord.frames.svBuffers.resize(1);
+        SvBuffer& svBuffer = mFramesRecord.frames.svBuffers[0];
+        svBuffer.viewId = kSv2dViewId;
+        svBuffer.hardwareBuffer.nativeHandle = buffer->handle;
+        AHardwareBuffer_Desc* pDesc =
+            reinterpret_cast<AHardwareBuffer_Desc*>(
+                &svBuffer.hardwareBuffer.description);
+        pDesc->width = mOutputWidth;
+        pDesc->height = mOutputHeight;
+        pDesc->layers = 1;
+        pDesc->usage = GRALLOC_USAGE_HW_TEXTURE;
+        pDesc->stride = mSvTexture->getStride();
+        pDesc->format = HAL_PIXEL_FORMAT_RGB_888;
+        mFramesRecord.frames.timestampNs = elapsedRealtimeNano();
+        mFramesRecord.frames.sequenceId = sequenceId;
+
+        mFramesRecord.inUse = true;
+        mStream->receiveFrames(mFramesRecord.frames);
     }
 
     return true;
