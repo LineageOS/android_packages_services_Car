@@ -116,6 +116,7 @@ cc_binary{
     name : "android.automotive.sv.service@1.0-impl",
     vendor : true,
     srcs : [
+        "AnimationModule.cpp",
         "CoreLibSetupHelper.cpp",
         "SurroundViewService.cpp",
         "SurroundView2dSession.cpp",
