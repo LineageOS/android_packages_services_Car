@@ -404,8 +404,9 @@ public final class CarUserManager extends CarManagerBase {
             UserIdentificationAssociationResponse response =
                     mService.getUserIdentificationAssociation(types);
             if (response != null) {
+                int[] values = response.getValues();
                 EventLog.writeEvent(EventLogTags.CAR_USER_MGR_GET_USER_AUTH_RESP,
-                        response.getValues().length);
+                        values != null ? values.length : 0);
             }
             return response;
         } catch (RemoteException e) {
