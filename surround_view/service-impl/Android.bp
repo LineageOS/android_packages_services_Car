@@ -117,6 +117,7 @@ cc_binary{
     vendor : true,
     srcs : [
         "AnimationModule.cpp",
+        "CameraUtils.cpp",
         "CoreLibSetupHelper.cpp",
         "SurroundViewService.cpp",
         "SurroundView2dSession.cpp",
