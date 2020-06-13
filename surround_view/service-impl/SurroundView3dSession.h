@@ -116,6 +116,9 @@ private:
 
     bool handleFrames(int sequenceId);
 
+    bool copyFromBufferToPointers(BufferDesc_1_1 buffer,
+                                  SurroundViewInputBufferPointers pointers);
+
     enum StreamStateValues {
         STOPPED,
         RUNNING,
