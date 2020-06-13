@@ -82,6 +82,7 @@
         <item name="android:textAppearanceMedium">@*android:style/TextAppearance.DeviceDefault.Medium</item>
         <item name="android:textAppearanceSmall">@*android:style/TextAppearance.DeviceDefault.Small</item>
         <item name="android:textAppearanceButton">@*android:style/Widget.DeviceDefault.Button</item>
+        <item name="android:alertDialogStyle">@*android:style/AlertDialog.DeviceDefault</item>
         <item name="android:borderlessButtonStyle">@*android:style/Widget.DeviceDefault.Button.Borderless.Colored</item>
         <item name="android:buttonBarButtonStyle">@*android:style/Widget.DeviceDefault.Button.ButtonBar.AlertDialog</item>
         <item name="android:buttonStyle">@*android:style/Widget.DeviceDefault.Button</item>

@@ -75,7 +75,16 @@ Return<void> SurroundView3dSession::FramesHandler::deliverFrame(
 Return<void> SurroundView3dSession::FramesHandler::deliverFrame_1_1(
     const hidl_vec<BufferDesc_1_1>& buffers) {
     LOG(INFO) << "Received " << buffers.size() << " frames from the camera";
-    mSession->sequenceId++;
+    mSession->mSequenceId++;
+
+    {
+        scoped_lock<mutex> lock(mSession->mAccessLock);
+        if (mSession->mProcessingEvsFrames) {
+            LOG(WARNING) << "EVS frames are being processed. Skip frames:" << mSession->mSequenceId;
+            mCamera->doneWithFrame_1_1(buffers);
+            return {};
+        }
+    }
 
     // TODO(b/157498592): Use EVS frames for SV stitching.
     mCamera->doneWithFrame_1_1(buffers);
@@ -83,7 +92,7 @@ Return<void> SurroundView3dSession::FramesHandler::deliverFrame_1_1(
     // Notify the session that a new set of frames is ready
     {
         scoped_lock<mutex> lock(mSession->mAccessLock);
-        mSession->mFramesAvailable = true;
+        mSession->mProcessingEvsFrames = true;
     }
     mSession->mFramesSignal.notify_all();
 
@@ -139,17 +148,15 @@ void SurroundView3dSession::processFrames() {
                 break;
             }
 
-            mFramesSignal.wait(lock, [this]() {
-                return mFramesAvailable;
-            });
+            mFramesSignal.wait(lock, [this]() { return mProcessingEvsFrames; });
         }
 
-        handleFrames(sequenceId);
+        handleFrames(mSequenceId);
 
         {
             // Set the boolean to false to receive the next set of frames.
             scoped_lock<mutex> lock(mAccessLock);
-            mFramesAvailable = false;
+            mProcessingEvsFrames = false;
         }
     }
 
@@ -165,10 +172,13 @@ void SurroundView3dSession::processFrames() {
     }
 }
 
-SurroundView3dSession::SurroundView3dSession(sp<IEvsEnumerator> pEvs, VhalHandler* vhalHandler) :
+SurroundView3dSession::SurroundView3dSession(sp<IEvsEnumerator> pEvs,
+                                             VhalHandler* vhalHandler,
+                                             AnimationModule* animationModule) :
       mEvs(pEvs),
       mStreamState(STOPPED),
-      mVhalHandler(vhalHandler) {
+      mVhalHandler(vhalHandler),
+      mAnimationModule(animationModule) {
     mEvsCameraIds = {"0" , "1", "2", "3"};
 }
 
@@ -215,7 +225,7 @@ Return<SvResult> SurroundView3dSession::startStream(
     }
     mStream = stream;
 
-    sequenceId = 0;
+    mSequenceId = 0;
     startEvs();
 
     if (mVhalHandler != nullptr) {
@@ -231,6 +241,7 @@ Return<SvResult> SurroundView3dSession::startStream(
     // moved to EVS notify callback.
     LOG(DEBUG) << "Notify SvEvent::STREAM_STARTED";
     mStream->notify(SvEvent::STREAM_STARTED);
+    mProcessingEvsFrames = false;
 
     // Start the frame generation thread
     mStreamState = RUNNING;
@@ -268,7 +279,7 @@ Return<void> SurroundView3dSession::doneWithFrames(
     LOG(DEBUG) << __FUNCTION__;
     scoped_lock <mutex> lock(mAccessLock);
 
-    framesRecord.inUse = false;
+    mFramesRecord.inUse = false;
 
     (void)svFramesDesc;
     return {};
@@ -438,8 +449,19 @@ Return<void> SurroundView3dSession::projectCameraPointsTo3dSurface(
 }
 
 bool SurroundView3dSession::handleFrames(int sequenceId) {
-
     LOG(INFO) << __FUNCTION__ << "Handling sequenceId " << sequenceId << ".";
+
+    // TODO(b/157498592): Now only one sets of EVS input frames and one SV
+    // output frame is supported. Implement buffer queue for both of them.
+    {
+        scoped_lock<mutex> lock(mAccessLock);
+
+        if (mFramesRecord.inUse) {
+            LOG(DEBUG) << "Notify SvEvent::FRAME_DROPPED";
+            mStream->notify(SvEvent::FRAME_DROPPED);
+            return true;
+        }
+    }
 
     // If the width/height was changed, re-allocate the data pointer.
     if (mOutputWidth != mConfig.width
@@ -505,6 +527,19 @@ bool SurroundView3dSession::handleFrames(int sequenceId) {
         LOG(WARNING) << "VhalHandler is null. Ignored";
     }
 
+    vector<AnimationParam> params;
+    if (mAnimationModule != nullptr) {
+        params = mAnimationModule->getUpdatedAnimationParams(mPropertyValues);
+    } else {
+        LOG(WARNING) << "AnimationModule is null. Ignored";
+    }
+
+    if (!params.empty()) {
+        mSurroundView->SetAnimations(params);
+    } else {
+        LOG(INFO) << "AnimationParams is empty. Ignored";
+    }
+
     if (mSurroundView->Get3dSurroundView(
         mInputPointers, matrix, &mOutputPointer)) {
         LOG(INFO) << "Get3dSurroundView succeeded";
@@ -547,32 +582,27 @@ bool SurroundView3dSession::handleFrames(int sequenceId) {
     ANativeWindowBuffer* buffer = mSvTexture->getNativeBuffer();
     LOG(DEBUG) << "ANativeWindowBuffer->handle: " << buffer->handle;
 
-    framesRecord.frames.svBuffers.resize(1);
-    SvBuffer& svBuffer = framesRecord.frames.svBuffers[0];
-    svBuffer.viewId = 0;
-    svBuffer.hardwareBuffer.nativeHandle = buffer->handle;
-    AHardwareBuffer_Desc* pDesc =
-        reinterpret_cast<AHardwareBuffer_Desc *>(
-            &svBuffer.hardwareBuffer.description);
-    pDesc->width = mOutputWidth;
-    pDesc->height = mOutputHeight;
-    pDesc->layers = 1;
-    pDesc->usage = GRALLOC_USAGE_HW_TEXTURE;
-    pDesc->stride = mSvTexture->getStride();
-    pDesc->format = HAL_PIXEL_FORMAT_RGBA_8888;
-    framesRecord.frames.timestampNs = elapsedRealtimeNano();
-    framesRecord.frames.sequenceId = sequenceId;
-
     {
         scoped_lock<mutex> lock(mAccessLock);
 
-        if (framesRecord.inUse) {
-            LOG(DEBUG) << "Notify SvEvent::FRAME_DROPPED";
-            mStream->notify(SvEvent::FRAME_DROPPED);
-        } else {
-            framesRecord.inUse = true;
-            mStream->receiveFrames(framesRecord.frames);
-        }
+        mFramesRecord.frames.svBuffers.resize(1);
+        SvBuffer& svBuffer = mFramesRecord.frames.svBuffers[0];
+        svBuffer.viewId = 0;
+        svBuffer.hardwareBuffer.nativeHandle = buffer->handle;
+        AHardwareBuffer_Desc* pDesc =
+            reinterpret_cast<AHardwareBuffer_Desc *>(
+                &svBuffer.hardwareBuffer.description);
+        pDesc->width = mOutputWidth;
+        pDesc->height = mOutputHeight;
+        pDesc->layers = 1;
+        pDesc->usage = GRALLOC_USAGE_HW_TEXTURE;
+        pDesc->stride = mSvTexture->getStride();
+        pDesc->format = HAL_PIXEL_FORMAT_RGBA_8888;
+        mFramesRecord.frames.timestampNs = elapsedRealtimeNano();
+        mFramesRecord.frames.sequenceId = sequenceId;
+
+        mFramesRecord.inUse = true;
+        mStream->receiveFrames(mFramesRecord.frames);
     }
 
     return true;

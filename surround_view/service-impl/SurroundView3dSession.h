@@ -26,6 +26,7 @@
 #include <hidl/MQDescriptor.h>
 #include <hidl/Status.h>
 
+#include "AnimationModule.h"
 #include "CoreLibSetupHelper.h"
 #include "VhalHandler.h"
 
@@ -82,7 +83,9 @@ class SurroundView3dSession : public ISurroundView3dSession {
 
 public:
     // TODO(b/158479099): use strong pointer for VhalHandler
-    SurroundView3dSession(sp<IEvsEnumerator> pEvs, VhalHandler* vhalHandler);
+    SurroundView3dSession(sp<IEvsEnumerator> pEvs,
+                          VhalHandler* vhalHandler,
+                          AnimationModule* animationModule);
     ~SurroundView3dSession();
     bool initialize();
 
@@ -138,16 +141,16 @@ private:
 
     // Used to signal a set of frames is ready
     condition_variable mFramesSignal GUARDED_BY(mAccessLock);
-    bool mFramesAvailable GUARDED_BY(mAccessLock);
+    bool mProcessingEvsFrames GUARDED_BY(mAccessLock);
 
-    int sequenceId;
+    int mSequenceId;
 
     struct FramesRecord {
         SvFramesDesc frames;
         bool inUse = false;
     };
 
-    FramesRecord framesRecord GUARDED_BY(mAccessLock);
+    FramesRecord mFramesRecord GUARDED_BY(mAccessLock);
 
     // Synchronization necessary to deconflict mCaptureThread from the main service thread
     mutex mAccessLock;
@@ -170,6 +173,7 @@ private:
     bool mIsInitialized GUARDED_BY(mAccessLock) = false;
 
     VhalHandler* mVhalHandler;
+    AnimationModule* mAnimationModule;
 
     std::vector<VehiclePropValue> mPropertyValues;
 };
