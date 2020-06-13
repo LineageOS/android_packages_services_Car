@@ -29,7 +29,7 @@
     <string name="show_dev_on" msgid="9075712234786224065">"Bạn đã là nhà phát triển!"</string>
     <string name="show_dev_already" msgid="7665948832405148689">"Không cần, bạn đã là nhà phát triển."</string>
     <string name="dev_settings_disabled_warning" msgid="3198732189395396721">"Vui lòng bật tùy chọn của nhà phát triển trước."</string>
-    <string name="header_category_wireless_networks" msgid="8968405993937795898">"Mạng không dây và mạng"</string>
+    <string name="header_category_wireless_networks" msgid="8968405993937795898">"Không dây và mạng"</string>
     <string name="header_category_system" msgid="4045988717359334410">"Hệ thống"</string>
     <string name="radio_info_data_connection_enable" msgid="2554249462719717119">"Bật kết nối dữ liệu"</string>
     <string name="radio_info_data_connection_disable" msgid="2430609627397999371">"Tắt kết nối dữ liệu"</string>
@@ -301,7 +301,7 @@
     <string name="settings_label_launcher" msgid="500627679902923496">"Cài đặt"</string>
     <string name="settings_shortcut" msgid="4503714880251502167">"Lối tắt cài đặt"</string>
     <string name="airplane_mode" msgid="4508870277398231073">"Chế độ trên máy bay"</string>
-    <string name="wireless_networks_settings_title" msgid="4298430520189173949">"Không dây &amp; mạng"</string>
+    <string name="wireless_networks_settings_title" msgid="4298430520189173949">"Không dây và mạng"</string>
     <string name="radio_controls_summary" msgid="4596981962167684814">"Quản lý Wi-Fi, Bluetooth, chế độ trên máy bay, mạng di động và VPN"</string>
     <string name="cellular_data_title" msgid="7909624119432695022">"Dữ liệu di động"</string>
     <string name="calls_title" msgid="875693497825736550">"Cho phép cuộc gọi"</string>
@@ -1826,7 +1826,7 @@
     <string name="disable_text" msgid="5065834603951474397">"Tắt"</string>
     <string name="enable_text" msgid="7179141636849225884">"Bật"</string>
     <string name="clear_user_data_text" msgid="8894073247302821764">"Xóa bộ nhớ"</string>
-    <string name="app_factory_reset" msgid="8718986000278776272">"Gỡ cài đặt cập nhật"</string>
+    <string name="app_factory_reset" msgid="8718986000278776272">"Gỡ cài đặt bản cập nhật"</string>
     <string name="auto_launch_enable_text" msgid="3372898942144027341">"Bạn đã chọn chạy ứng dụng này theo mặc định cho một số tác vụ."</string>
     <string name="always_allow_bind_appwidgets_text" msgid="2286211654774611037">"Bạn đã chọn cho phép ứng dụng này tạo các tiện ích và truy cập dữ liệu của chúng."</string>
     <string name="auto_launch_disable_text" msgid="8560921288036801416">"Chưa đặt mặc định."</string>
@@ -3468,9 +3468,9 @@
     <string name="zen_mode_schedule_rule_days" msgid="220627703673691816">"Ngày"</string>
     <string name="zen_mode_schedule_rule_days_none" msgid="6011716195119389956">"Không có"</string>
     <string name="zen_mode_schedule_rule_days_all" msgid="8814173364016139675">"Hàng ngày"</string>
-    <string name="zen_mode_schedule_alarm_title" msgid="2078194049274875023">"Báo thức có thể ghi đè thời gian kết thúc"</string>
-    <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"Lịch biểu tắt khi lịch báo thức đổ chuông"</string>
-    <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"Hành vi Không làm phiền"</string>
+    <string name="zen_mode_schedule_alarm_title" msgid="2078194049274875023">"Đồng hồ báo thức có thể vô hiệu hóa thời gian kết thúc"</string>
+    <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"Lịch biểu tắt khi một đồng hồ báo thức đổ chuông"</string>
+    <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"Hoạt động ở chế độ Không làm phiền"</string>
     <string name="zen_mode_custom_behavior_summary_default" msgid="3509865340195397447">"Sử dụng các tùy chọn cài đặt mặc định"</string>
     <string name="zen_mode_custom_behavior_summary" msgid="7206909852887332604">"Tạo các mục cài đặt tùy chỉnh cho lịch biểu này"</string>
     <string name="zen_mode_custom_behavior_category_title" msgid="7451686525113262087">"Dành cho ‘<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>’"</string>

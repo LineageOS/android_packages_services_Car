@@ -1799,7 +1799,7 @@
     <string name="lockpassword_confirm_passwords_dont_match" msgid="1783767008133345784">"كلمات المرور غير متطابقة"</string>
     <string name="lockpassword_confirm_pins_dont_match" msgid="5444357293637748942">"أرقام التعريف الشخصي غير متطابقة"</string>
     <string name="lockpassword_draw_your_pattern_again_header" msgid="9017394036814402348">"ارسم النقش مرة أخرى"</string>
-    <string name="lockpassword_choose_lock_generic_header" msgid="4418423132980560119">"تحديد طريقة فتح القفل"</string>
+    <string name="lockpassword_choose_lock_generic_header" msgid="4418423132980560119">"اختيار طريقة فتح القفل"</string>
     <string name="lockpassword_password_set_toast" msgid="601928982984489868">"تم تعيين كلمة المرور"</string>
     <string name="lockpassword_pin_set_toast" msgid="172594825722240059">"تم تعيين رمز PIN"</string>
     <string name="lockpassword_pattern_set_toast" msgid="6923260369475481406">"تم تعيين النقش"</string>

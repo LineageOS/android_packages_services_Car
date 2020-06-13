@@ -3459,8 +3459,8 @@
     <string name="zen_mode_event_rule_summary_reply_template" msgid="3917497077674876311">"នៅពេលឆ្លើយតបថា <xliff:g id="REPLY">%1$s</xliff:g>"</string>
     <string name="zen_mode_event_rule_calendar_any" msgid="155915101132859764">"ប្រតិទិនណាមួយ"</string>
     <string name="zen_mode_event_rule_reply" msgid="9100941281268256319">"នៅពេលឆ្លើយតបថា"</string>
-    <string name="zen_mode_event_rule_reply_any_except_no" msgid="3344044163641764449">"យល់ព្រម ប្រហែល ឬមិនឆ្លើយតប"</string>
-    <string name="zen_mode_event_rule_reply_yes_or_maybe" msgid="5042234361937256329">"យល់ព្រម ឬប្រហែល"</string>
+    <string name="zen_mode_event_rule_reply_any_except_no" msgid="3344044163641764449">"បាទ/ចាស ប្រហែល ឬមិនឆ្លើយតប"</string>
+    <string name="zen_mode_event_rule_reply_yes_or_maybe" msgid="5042234361937256329">"បាទ/ចាស ឬប្រហែល"</string>
     <string name="zen_mode_event_rule_reply_yes" msgid="7039756546321205552">"បាទ/ចាស"</string>
     <string name="zen_mode_rule_not_found_text" msgid="6553855397424553685">"រកមិនឃើញច្បាប់ទេ។"</string>
     <string name="zen_mode_rule_summary_enabled_combination" msgid="8269105393636454359">"បើក / <xliff:g id="MODE">%1$s</xliff:g>"</string>

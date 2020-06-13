@@ -3459,8 +3459,8 @@
     <string name="zen_mode_event_rule_summary_reply_template" msgid="3917497077674876311">"Þar sem svarið er <xliff:g id="REPLY">%1$s</xliff:g>"</string>
     <string name="zen_mode_event_rule_calendar_any" msgid="155915101132859764">"Öll dagatöl"</string>
     <string name="zen_mode_event_rule_reply" msgid="9100941281268256319">"Þar sem svarið er"</string>
-    <string name="zen_mode_event_rule_reply_any_except_no" msgid="3344044163641764449">"„Já“, „Kannski“ eða „Ekki svarað“"</string>
-    <string name="zen_mode_event_rule_reply_yes_or_maybe" msgid="5042234361937256329">"„Já“ eða „Kannski“"</string>
+    <string name="zen_mode_event_rule_reply_any_except_no" msgid="3344044163641764449">"Já, Kannski eða Ekki svarað"</string>
+    <string name="zen_mode_event_rule_reply_yes_or_maybe" msgid="5042234361937256329">"Já eða Kannski"</string>
     <string name="zen_mode_event_rule_reply_yes" msgid="7039756546321205552">"Já"</string>
     <string name="zen_mode_rule_not_found_text" msgid="6553855397424553685">"Regla fannst ekki."</string>
     <string name="zen_mode_rule_summary_enabled_combination" msgid="8269105393636454359">"Kveikt / <xliff:g id="MODE">%1$s</xliff:g>"</string>

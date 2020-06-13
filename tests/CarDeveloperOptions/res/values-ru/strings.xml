@@ -1776,7 +1776,7 @@
     <string name="lockpassword_strong_auth_required_device_pin" msgid="24030584350601016">"Введите PIN-код"</string>
     <string name="lockpassword_strong_auth_required_device_password" msgid="7746588206458754598">"Введите пароль устройства"</string>
     <string name="lockpassword_strong_auth_required_work_pattern" msgid="6861154706098327320">"Укажите графический ключ от рабочего профиля"</string>
-    <string name="lockpassword_strong_auth_required_work_pin" msgid="6306902249365524526">"Введите PIN-код рабочего профиля"</string>
+    <string name="lockpassword_strong_auth_required_work_pin" msgid="6306902249365524526">"Для дополнительной защиты введите PIN-код рабочего профиля."</string>
     <string name="lockpassword_strong_auth_required_work_password" msgid="2917338218971012776">"Введите пароль от рабочего профиля"</string>
     <string name="lockpassword_confirm_your_pattern_details_frp" msgid="1085862410379709928">"Настройки вашего телефона были сброшены. Чтобы использовать его, введите свой прежний графический ключ."</string>
     <string name="lockpassword_confirm_your_pin_details_frp" msgid="6849889353126558761">"Настройки вашего телефона были сброшены. Чтобы использовать его, введите свой прежний PIN-код."</string>
@@ -3663,7 +3663,7 @@
     <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"Запрашивать графический ключ"</string>
     <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"Запрашивать PIN-код"</string>
     <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"Запрашивать пароль"</string>
-    <string name="screen_pinning_unlock_none" msgid="9183040569733226911">"Блокировать устройство при откл. блокировки в приложении"</string>
+    <string name="screen_pinning_unlock_none" msgid="9183040569733226911">"Блокировать устройство при отключении функции"</string>
     <string name="opening_paragraph_delete_profile_unknown_company" msgid="2350380017136403670">"Профилем управляет"</string>
     <string name="managing_admin" msgid="3212584016377581608">"Управляется <xliff:g id="ADMIN_APP_LABEL">%s</xliff:g>"</string>
     <string name="experimental_preference" msgid="5903223408406906322">"(экспериментальная настройка)"</string>
