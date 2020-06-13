@@ -1152,7 +1152,13 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             mRemoteCallbackList.register(callback);
             mActivityViewDisplayInfoMap.put(virtualDisplayId,
                     new DisplayInfo(callback, physicalDisplayId));
-            mPortLookup.put(virtualDisplayId, (byte) physicalDisplayId);
+            Byte physicalPort = getPhysicalPortLocked(physicalDisplayId);
+            if (physicalPort == null) {
+                // This should not happen.
+                Log.wtf(TAG, "No known physicalPort for displayId:" + physicalDisplayId);
+                physicalPort = mDefaultDisplayPhysicalPort;
+            }
+            mPortLookup.put(virtualDisplayId, physicalPort);
         }
     }
 
