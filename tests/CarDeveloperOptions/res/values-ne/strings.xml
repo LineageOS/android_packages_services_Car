@@ -4269,7 +4269,7 @@
     <string name="storage_manager_indicator_on" msgid="5295306384982062320">"सक्रिय"</string>
     <string name="install_type_instant" msgid="6248487669862821874">"तात्कालिक एप"</string>
     <string name="automatic_storage_manager_deactivation_warning" msgid="7867793739491286374">"भण्डारण व्यवस्थापक निष्क्रिय पार्ने हो?"</string>
-    <string name="storage_movies_tv" msgid="7282484273991655296">"चलचित्र तथा TV एपहरू"</string>
+    <string name="storage_movies_tv" msgid="7282484273991655296">"चलचित्र तथा टिभी एपहरू"</string>
     <string name="carrier_provisioning" msgid="3309125279191534469">"सेवा प्रदायकको प्रावधान सम्बन्धी जानकारी"</string>
     <string name="trigger_carrier_provisioning" msgid="6284005970057901477">"सेवा प्रदायकको प्रावधानलाई ट्रिगर गर्नुहोस्"</string>
     <string name="zen_suggestion_title" msgid="2134699720214231950">"बाधा नपुर्‍याउनुहोस्‌ नामक सेवालाई अद्यावधिक गर्नुहोस्‌"</string>

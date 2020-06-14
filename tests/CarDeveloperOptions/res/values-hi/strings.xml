@@ -3442,7 +3442,7 @@
     <string name="zen_mode_add_event_rule" msgid="1398181272397489506">"इवेंट का शेड्यूल जोड़ें"</string>
     <string name="zen_mode_add_time_rule" msgid="5999467757140524729">"समय का शेड्यूल जोड़ें"</string>
     <string name="zen_mode_delete_rule" msgid="2292933835997203801">"शेड्यूल मिटाएं"</string>
-    <string name="zen_mode_choose_rule_type" msgid="8877138307319450306">"शेड्यूल का प्रकार चुनें"</string>
+    <string name="zen_mode_choose_rule_type" msgid="8877138307319450306">"किस तरह का शेड्यूल चुनना चाहते हैं"</string>
     <string name="zen_mode_delete_rule_confirmation" msgid="2646596466259025978">"<xliff:g id="RULE">%1$s</xliff:g> नियम मिटाएं?"</string>
     <string name="zen_mode_delete_rule_button" msgid="611058106279881991">"मिटाएं"</string>
     <string name="zen_mode_rule_type_unknown" msgid="2819480113355191421">"अज्ञात"</string>
