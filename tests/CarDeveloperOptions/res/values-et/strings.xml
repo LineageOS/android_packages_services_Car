@@ -2064,7 +2064,7 @@
     <string name="accessibility_global_gesture_preference_title" msgid="3842279082831426816">"Helitugevuse nupu otsetee"</string>
     <string name="accessibility_shortcut_service_title" msgid="3516052294376744060">"Otsetee teenus"</string>
     <string name="accessibility_shortcut_service_on_lock_screen_title" msgid="1279441617927949980">"Lukustuskuval lubamine"</string>
-    <string name="accessibility_shortcut_description" msgid="1427049334225166395">"Kui otsetee on sisse lülitatud, võite hõlbustusfunktsiooni käivitamiseks hoida mõlemat helitugevuse nuppu 3 sekundit all."</string>
+    <string name="accessibility_shortcut_description" msgid="1427049334225166395">"Kui otsetee on sisse lülitatud, võite hõlbustusfunktsiooni käivitamiseks hoida mõlemat helitugevuse klahvi 3 sekundit all."</string>
     <string name="accessibility_toggle_high_text_contrast_preference_title" msgid="5652244684961877255">"Suure kontrastsusega tekst"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_title" msgid="2466317284195934003">"Ekraanisuurenduse värskendus"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_summary" msgid="6625473745911276917">"Ekraanisuurenduse kasutus rakenduste vahetamisel"</string>

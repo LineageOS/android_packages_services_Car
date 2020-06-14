@@ -1742,7 +1742,7 @@
     <string name="lockpassword_confirm_your_pin_details_frp" msgid="6849889353126558761">"Телефонот е ресетиран на фабрички поставки. За да го користите, внесете го претходниот PIN."</string>
     <string name="lockpassword_confirm_your_password_details_frp" msgid="3239944795659418737">"Телефонот е ресетиран на фабрички поставки. За да го користите, внесете ја претходната лозинка."</string>
     <string name="lockpassword_confirm_your_pattern_header_frp" msgid="3290569334665839860">"Потврдете ја шемата"</string>
-    <string name="lockpassword_confirm_your_pin_header_frp" msgid="8520474869079710782">"Потврди PIN"</string>
+    <string name="lockpassword_confirm_your_pin_header_frp" msgid="8520474869079710782">"Потврдете го PIN-от"</string>
     <string name="lockpassword_confirm_your_password_header_frp" msgid="7326670978891793470">"Потврдете ја лозинката"</string>
     <string name="lockpassword_invalid_pin" msgid="3059022215815900137">"Погрешен PIN"</string>
     <string name="lockpassword_invalid_password" msgid="8374331995318204099">"Погрешна лозинка"</string>
@@ -3443,7 +3443,7 @@
     <string name="zen_mode_add_time_rule" msgid="5999467757140524729">"Додај распоред за време"</string>
     <string name="zen_mode_delete_rule" msgid="2292933835997203801">"Избришете го распоредот"</string>
     <string name="zen_mode_choose_rule_type" msgid="8877138307319450306">"Изберете тип распоред"</string>
-    <string name="zen_mode_delete_rule_confirmation" msgid="2646596466259025978">"Избриши правило за „<xliff:g id="RULE">%1$s</xliff:g>“?"</string>
+    <string name="zen_mode_delete_rule_confirmation" msgid="2646596466259025978">"Да се избрише правилото „<xliff:g id="RULE">%1$s</xliff:g>“?"</string>
     <string name="zen_mode_delete_rule_button" msgid="611058106279881991">"Избриши"</string>
     <string name="zen_mode_rule_type_unknown" msgid="2819480113355191421">"Непознато"</string>
     <string name="zen_mode_app_set_behavior" msgid="8597398780262575571">"Поставкиве не може да се променат во моментов. Дадена апликација (<xliff:g id="APP_NAME">%1$s</xliff:g>) го вклучи режимот „Не вознемирувај“ автоматски со приспособено однесување."</string>
