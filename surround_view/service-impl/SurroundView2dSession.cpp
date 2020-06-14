@@ -26,6 +26,8 @@
 
 #include <android/hardware/camera/device/3.2/ICameraDevice.h>
 
+#include "CameraUtils.h"
+
 using ::android::hardware::automotive::evs::V1_0::EvsResult;
 using ::android::hardware::camera::device::V3_2::Stream;
 
@@ -700,6 +702,24 @@ bool SurroundView2dSession::setupEvs() {
         return false;
     } else {
         LOG(INFO) << "Camera " << camId << " is opened successfully";
+    }
+
+    // TODO(b/156101189): camera position information is needed from the
+    // I/O module.
+    vector<string> cameraIds = getPhysicalCameraIds(mCamera);
+    map<string, AndroidCameraParams> cameraIdToAndroidParameters;
+
+    for (auto& id : cameraIds) {
+        AndroidCameraParams params;
+        if (getAndroidCameraParams(mCamera, id, params)) {
+            cameraIdToAndroidParameters.emplace(id, params);
+            LOG(INFO) << "Camera parameters are fetched successfully for "
+                      << "physical camera: " << id;
+        } else {
+            LOG(ERROR) << "Failed to get camera parameters for "
+                       << "physical camera: " << id;
+            return false;
+        }
     }
 
     return true;
