@@ -373,48 +373,54 @@ Return<void> SurroundView2dSession::get2dConfig(get2dConfig_cb _hidl_cb) {
     return {};
 }
 
-Return<void> SurroundView2dSession::projectCameraPoints(
-        const hidl_vec<Point2dInt>& points2dCamera,
-        const hidl_string& cameraId,
-        projectCameraPoints_cb _hidl_cb) {
+Return<void> SurroundView2dSession::projectCameraPoints(const hidl_vec<Point2dInt>& points2dCamera,
+                                                        const hidl_string& cameraId,
+                                                        projectCameraPoints_cb _hidl_cb) {
     LOG(DEBUG) << __FUNCTION__;
-    scoped_lock <mutex> lock(mAccessLock);
-
+    std::vector<Point2dFloat> outPoints;
     bool cameraIdFound = false;
+    int cameraIndex = 0;
+    // Note: mEvsCameraIds must be in the order front, right, rear, left.
     for (auto& evsCameraId : mEvsCameraIds) {
-      if (cameraId == evsCameraId) {
-          cameraIdFound = true;
-          LOG(INFO) << "Camera id found.";
-          break;
-      }
+        if (cameraId == evsCameraId) {
+            cameraIdFound = true;
+            LOG(DEBUG) << "Camera id found for projection: " << cameraId;
+            break;
+        }
+        cameraIndex++;
     }
 
     if (!cameraIdFound) {
-        LOG(ERROR) << "Camera id not found.";
-        _hidl_cb({});
+        LOG(ERROR) << "Camera id not found for projection: " << cameraId;
+        _hidl_cb(outPoints);
         return {};
     }
 
-    hidl_vec<Point2dFloat> outPoints;
-    outPoints.resize(points2dCamera.size());
-
     int width = mConfig.width;
     int height = mHeight;
-    for (int i=0; i<points2dCamera.size(); i++) {
-        // Assuming all the points in the image frame can be projected into 2d
-        // Surround View space. Otherwise cannot.
-        if (points2dCamera[i].x < 0 || points2dCamera[i].x > width-1 ||
-            points2dCamera[i].y < 0 || points2dCamera[i].y > height-1) {
-            LOG(WARNING) << __FUNCTION__
-                         << ": gets invalid 2d camera points. Ignored";
-            outPoints[i].isValid = false;
-            outPoints[i].x = 10000;
-            outPoints[i].y = 10000;
-        } else {
-            outPoints[i].isValid = true;
-            outPoints[i].x = 0;
-            outPoints[i].y = 0;
+    for (const auto& cameraPoint : points2dCamera) {
+        Point2dFloat outPoint = {false, 0.0, 0.0};
+        // Check of the camear point is within the camera resolution bounds.
+        if (cameraPoint.x < 0 || cameraPoint.x > width - 1 || cameraPoint.y < 0 ||
+            cameraPoint.y > height - 1) {
+            LOG(WARNING) << "Camera point (" << cameraPoint.x << ", " << cameraPoint.y
+                         << ") is out of camera resolution bounds.";
+            outPoint.isValid = false;
+            outPoints.push_back(outPoint);
+            continue;
         }
+
+        // Project points using mSurroundView function.
+        const Coordinate2dInteger camPoint(cameraPoint.x, cameraPoint.y);
+        Coordinate2dFloat projPoint2d(0.0, 0.0);
+
+        outPoint.isValid =
+                mSurroundView->GetProjectionPointFromRawCameraToSurroundView2d(camPoint,
+                                                                               cameraIndex,
+                                                                               &projPoint2d);
+        outPoint.x = projPoint2d.x;
+        outPoint.y = projPoint2d.y;
+        outPoints.push_back(outPoint);
     }
 
     _hidl_cb(outPoints);
@@ -744,4 +750,3 @@ bool SurroundView2dSession::startEvs() {
 }  // namespace automotive
 }  // namespace hardware
 }  // namespace android
-
