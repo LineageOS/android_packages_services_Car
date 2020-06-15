@@ -589,7 +589,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                 .thenReturn(false);
         mCarUserService.switchDriver(mAdminUser.id, mUserSwitchFuture);
         assertThat(getUserSwitchResult().getStatus())
-                .isEqualTo(UserSwitchResult.STATUS_ALREADY_REQUESTED_USER);
+                .isEqualTo(UserSwitchResult.STATUS_OK_USER_ALREADY_IN_FOREGROUND);
     }
 
     @Test
@@ -792,7 +792,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mCarUserService.switchUser(mAdminUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture);
 
         assertThat(getUserSwitchResult().getStatus())
-                .isEqualTo(UserSwitchResult.STATUS_ALREADY_REQUESTED_USER);
+                .isEqualTo(UserSwitchResult.STATUS_OK_USER_ALREADY_IN_FOREGROUND);
     }
 
     @Test
