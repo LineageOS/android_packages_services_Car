@@ -168,6 +168,29 @@ public class CarPropertyService extends ICarProperty.Stub
 
     @Override
     public void dump(PrintWriter writer) {
+        writer.println("*CarPropertyService*");
+        synchronized (mLock) {
+            writer.println("    Listener is set for PropertyHalService: " + mListenerIsSet);
+            writer.println("    There are " + mClientMap.size() + " clients "
+                    + "using CarPropertyService.");
+            writer.println("    Properties registered: ");
+            for (int propId : mPropIdClientMap.keySet()) {
+                writer.println("        propId: 0x" + toHexString(propId)
+                        + " is registered by " + mPropIdClientMap.get(propId).size()
+                        + " client(s).");
+            }
+            writer.println("    Properties changed by CarPropertyService: ");
+            for (int i = 0; i < mSetOperationClientMap.size(); i++) {
+                int propId = mSetOperationClientMap.keyAt(i);
+                SparseArray areaIdToClient = mSetOperationClientMap.valueAt(i);
+                for (int j = 0; j < areaIdToClient.size(); j++) {
+                    int areaId = areaIdToClient.keyAt(j);
+                    writer.println("        propId: 0x" + toHexString(propId)
+                            + " areaId: 0x" + toHexString(areaId)
+                            + " by client: " + areaIdToClient.valueAt(j));
+                }
+            }
+        }
     }
 
     @Override
