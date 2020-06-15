@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SurroundViewConfig>
+    <Version>1.0</Version>
+
+    <CameraConfig>
+        <EvsGroupId>group0</EvsGroupId>
+        <EvsCameraIds>
+            <Front>/dev/video0</Front>
+            <Right>/dev/video1</Right>
+            <Rear>/dev/video2</Rear>
+            <Left>/dev/video3</Left>
+        </EvsCameraIds>
+        <Masks>
+            <Front>/vendor/mask_front.png</Front>
+            <Right>/vendor/mask_right.png</Right>
+            <Rear>/vendor/mask_rear.png</Rear>
+            <Left>/vendor/mask_left.png</Left>
+        </Masks>
+    </CameraConfig>
+
+    <Sv2dEnabled>true</Sv2dEnabled>
+    <Sv2dParams>
+        <OutputResolution>
+            <Width>600</Width>
+            <Height>900</Height>
+        </OutputResolution>
+        <GroundMapping>
+            <Width>6.0</Width>
+            <Height>9.0</Height>
+            <Center>
+                <X>0.0</X>
+                <Y>0.0</Y>
+            </Center>
+        </GroundMapping>
+        <CarBoundingBox>
+            <Width>2.0</Width>
+            <Height>3.0</Height>
+            <LeftTopCorner>
+                <X>1.0</X>
+                <Y>1.5</Y>
+            </LeftTopCorner>
+        </CarBoundingBox>
+        <BlendingType>
+            <HighQuality>multiband</HighQuality>
+            <LowQuality>alpha</LowQuality>
+        </BlendingType>
+    </Sv2dParams>
+
+    <Sv3dEnabled>true</Sv3dEnabled>
+    <Sv3dAnimationsEnabled>true</Sv3dAnimationsEnabled>
+    <CarModelConfigFile>/vendor/car_model_config.xml</CarModelConfigFile>
+    <CarModelObjFile>/vendor/car.obj</CarModelObjFile>
+    <Sv3dParams>
+        <OutputResolution>
+            <Width>1920</Width>
+            <Height>1080</Height>
+        </OutputResolution>
+        <BowlParams>
+            <PlaneRadius>6.0</PlaneRadius>
+            <PlaneDivisions>20</PlaneDivisions>
+            <CurveHeight>5.0</CurveHeight>
+            <CurveDivisions>30</CurveDivisions>
+            <AngularDivisions>50</AngularDivisions>
+            <CurveCoefficient>2.0</CurveCoefficient>
+        </BowlParams>
+        <HighQualityDetails>
+            <Shadows>true</Shadows>
+            <Reflections>true</Reflections>
+        </HighQualityDetails>
+    </Sv3dParams>
+</SurroundViewConfig>
