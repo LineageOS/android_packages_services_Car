@@ -763,7 +763,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      * Corner cases:
      * <ul>
      *   <li> If target user is already the current user, no user switch is performed and receiver
-     *   would receive {@code STATUS_ALREADY_REQUESTED_USER} right away.
+     *   would receive {@code STATUS_OK_USER_ALREADY_IN_FOREGROUND} right away.
      *   <li> If HAL user switch call fails, no Android user switch. Receiver would receive
      *   {@code STATUS_HAL_INTERNAL_FAILURE}.
      *   <li> If HAL user switch call is successful, but android user switch call fails,
@@ -795,7 +795,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
                 Log.d(TAG_USER, "Current user is same as requested target user: " + targetUserId);
             }
-            int resultStatus = UserSwitchResult.STATUS_ALREADY_REQUESTED_USER;
+            int resultStatus = UserSwitchResult.STATUS_OK_USER_ALREADY_IN_FOREGROUND;
             sendUserSwitchResult(receiver, resultStatus);
             return;
         }
