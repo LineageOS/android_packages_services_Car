@@ -494,35 +494,52 @@ Return<SvResult>  SurroundView3dSession::updateOverlays(
 }
 
 Return<void> SurroundView3dSession::projectCameraPointsTo3dSurface(
-    const hidl_vec<Point2dInt>& cameraPoints,
-    const hidl_string& cameraId,
-    projectCameraPointsTo3dSurface_cb _hidl_cb) {
-
-    vector<Point3dFloat> points3d;
+        const hidl_vec<Point2dInt>& cameraPoints, const hidl_string& cameraId,
+        projectCameraPointsTo3dSurface_cb _hidl_cb) {
+    LOG(DEBUG) << __FUNCTION__;
     bool cameraIdFound = false;
+    int cameraIndex = 0;
+    std::vector<Point3dFloat> points3d;
+
+    // Note: mEvsCameraIds must be in the order front, right, rear, left.
     for (auto& evsCameraId : mEvsCameraIds) {
-      if (cameraId == evsCameraId) {
-          cameraIdFound = true;
-          LOG(INFO) << "Camera id found.";
-          break;
-      }
+        if (cameraId == evsCameraId) {
+            cameraIdFound = true;
+            LOG(DEBUG) << "Camera id found for projection: " << cameraId;
+            break;
+        }
+        cameraIndex++;
     }
 
     if (!cameraIdFound) {
-        LOG(ERROR) << "Camera id not found.";
+        LOG(ERROR) << "Camera id not found for projection: " << cameraId;
         _hidl_cb(points3d);
         return {};
     }
 
     for (const auto& cameraPoint : cameraPoints) {
-        Point3dFloat point3d;
-        point3d.isValid = (cameraPoint.x >= 0
-                           && cameraPoint.x < mConfig.width
-                           && cameraPoint.y >= 0
-                           && cameraPoint.y < mConfig.height);
+        Point3dFloat point3d = {false, 0.0, 0.0, 0.0};
+
+        // Verify if camera point is within the camera resolution bounds.
+        point3d.isValid = (cameraPoint.x >= 0 && cameraPoint.x < mConfig.width &&
+                           cameraPoint.y >= 0 && cameraPoint.y < mConfig.height);
         if (!point3d.isValid) {
-            LOG(WARNING) << "Camera point out of bounds.";
+            LOG(WARNING) << "Camera point (" << cameraPoint.x << ", " << cameraPoint.y
+                         << ") is out of camera resolution bounds.";
+            points3d.push_back(point3d);
+            continue;
         }
+
+        // Project points using mSurroundView function.
+        const Coordinate2dInteger camCoord(cameraPoint.x, cameraPoint.y);
+        Coordinate3dFloat projPoint3d(0.0, 0.0, 0.0);
+        point3d.isValid =
+                mSurroundView->GetProjectionPointFromRawCameraToSurroundView3d(camCoord,
+                                                                               cameraIndex,
+                                                                               &projPoint3d);
+        point3d.x = projPoint3d.x;
+        point3d.y = projPoint3d.y;
+        point3d.z = projPoint3d.z;
         points3d.push_back(point3d);
     }
     _hidl_cb(points3d);
@@ -886,4 +903,3 @@ bool SurroundView3dSession::startEvs() {
 }  // namespace automotive
 }  // namespace hardware
 }  // namespace android
-
