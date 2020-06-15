@@ -30,12 +30,23 @@ namespace V1_0 {
 namespace implementation {
 namespace {
 
+using vehicle::V2_0::VehicleArea;
+using vehicle::V2_0::VehicleProperty;
+
 void SetSamplePropertiesToRead(VhalHandler* vhalHandler) {
-    std::vector<vehicle::V2_0::VehiclePropValue> properties_to_read;
-    vehicle::V2_0::VehiclePropValue property_read;
-    property_read.prop = static_cast<int32_t>(vehicle::V2_0::VehicleProperty::INFO_MODEL);
-    properties_to_read.push_back(property_read);
-    ASSERT_TRUE(vhalHandler->setPropertiesToRead(properties_to_read));
+    std::vector<vehicle::V2_0::VehiclePropValue> propertiesToRead;
+    vehicle::V2_0::VehiclePropValue propertyRead;
+    propertyRead.prop = static_cast<int32_t>(VehicleProperty::INFO_MAKE);
+    propertiesToRead.push_back(propertyRead);
+    ASSERT_TRUE(vhalHandler->setPropertiesToRead(propertiesToRead));
+}
+
+void SetSamplePropertiesToReadInt64(VhalHandler* vhalHandler) {
+    std::vector<uint64_t> propertiesToRead;
+    uint64_t propertyInt64 = (static_cast<uint64_t>(VehicleProperty::INFO_MAKE) << 32) |
+            static_cast<uint64_t>(VehicleArea::GLOBAL);
+    propertiesToRead.push_back(propertyInt64);
+    ASSERT_TRUE(vhalHandler->setPropertiesToRead(propertiesToRead));
 }
 
 TEST(VhalhandlerTests, UninitializedStartFail) {
@@ -85,9 +96,24 @@ TEST(VhalhandlerTests, GetMethodSuccess) {
 
     ASSERT_TRUE(vhalHandler.startPropertiesUpdate());
     sleep(1);
-    std::vector<vehicle::V2_0::VehiclePropValue> property_values;
-    EXPECT_TRUE(vhalHandler.getPropertyValues(&property_values));
-    EXPECT_EQ(property_values.size(), 1);
+    std::vector<vehicle::V2_0::VehiclePropValue> propertyValues;
+    EXPECT_TRUE(vhalHandler.getPropertyValues(&propertyValues));
+    EXPECT_EQ(propertyValues.size(), 1);
+
+    EXPECT_TRUE(vhalHandler.stopPropertiesUpdate());
+}
+
+TEST(VhalhandlerTests, GetMethodInt64Success) {
+    VhalHandler vhalHandler;
+    ASSERT_TRUE(vhalHandler.initialize(VhalHandler::UpdateMethod::GET, 10));
+
+    SetSamplePropertiesToReadInt64(&vhalHandler);
+
+    ASSERT_TRUE(vhalHandler.startPropertiesUpdate());
+    sleep(1);
+    std::vector<vehicle::V2_0::VehiclePropValue> propertyValues;
+    EXPECT_TRUE(vhalHandler.getPropertyValues(&propertyValues));
+    EXPECT_EQ(propertyValues.size(), 1);
 
     EXPECT_TRUE(vhalHandler.stopPropertiesUpdate());
 }

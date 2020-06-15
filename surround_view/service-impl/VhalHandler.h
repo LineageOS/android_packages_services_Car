@@ -60,6 +60,10 @@ public:
     // The updated method determines if properties are updated using get or subscribe calls.
     bool setPropertiesToRead(const std::vector<vehicle::V2_0::VehiclePropValue>& propertiesToRead);
 
+    // Convenience function to set vhal properties in a format returned from IO Module.
+    // uint64_t = (32 bits vhal property id) | (32 bits area id).
+    bool setPropertiesToRead(const std::vector<uint64_t>& propertiesToRead);
+
     // Starts updating the VHAL properties with the specified rate.
     bool startPropertiesUpdate();
 
