@@ -45,6 +45,7 @@ import com.google.android.car.kitchensink.activityview.ActivityViewTestFragment;
 import com.google.android.car.kitchensink.alertdialog.AlertDialogTestFragment;
 import com.google.android.car.kitchensink.assistant.CarAssistantFragment;
 import com.google.android.car.kitchensink.audio.AudioTestFragment;
+import com.google.android.car.kitchensink.audio.CarAudioInputTestFragment;
 import com.google.android.car.kitchensink.bluetooth.BluetoothHeadsetFragment;
 import com.google.android.car.kitchensink.bluetooth.MapMceTestFragment;
 import com.google.android.car.kitchensink.carboard.KeyboardTestFragment;
@@ -167,6 +168,7 @@ public class KitchenSinkActivity extends FragmentActivity {
             new FragmentMenuEntry("alert window", AlertDialogTestFragment.class),
             new FragmentMenuEntry("assistant", CarAssistantFragment.class),
             new FragmentMenuEntry("audio", AudioTestFragment.class),
+            new FragmentMenuEntry("Audio Input", CarAudioInputTestFragment.class),
             new FragmentMenuEntry("BT headset", BluetoothHeadsetFragment.class),
             new FragmentMenuEntry("BT messaging", MapMceTestFragment.class),
             new FragmentMenuEntry("carapi", CarApiTestFragment.class),
