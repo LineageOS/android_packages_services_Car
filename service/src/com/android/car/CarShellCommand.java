@@ -398,12 +398,20 @@ final class CarShellCommand extends ShellCommand {
         pw.printf("\t%s [occupantZoneId]\n", COMMAND_RESET_USER_ID_IN_OCCUPANT_ZONE);
         pw.println("\t  Unmaps the user assigned to occupant zone id.");
 
+        pw.printf("\t%s [--hal-only] [--user USER_ID] TYPE1 [..TYPE_N]\n",
+                COMMAND_GET_USER_AUTH_ASSOCIATION);
+        pw.println("\t  Gets the N user authentication values for the N types for the given user");
+        pw.println("\t  (or current user when not specified).");
+        pw.println("\t  By defautt it calls CarUserManager, but using --hal-only will call just "
+                + "UserHalService.");
+
         pw.printf("\t%s [--hal-only] [--user USER_ID] TYPE1 VALUE1 [..TYPE_N VALUE_N]\n",
                 COMMAND_SET_USER_AUTH_ASSOCIATION);
         pw.println("\t  Sets the N user authentication types with the N values for the given user");
         pw.println("\t  (or current user when not specified).");
         pw.println("\t  By defautt it calls CarUserManager, but using --hal-only will call just "
                 + "UserHalService.");
+
         pw.printf("\t  %s\n", VALID_USER_AUTH_TYPES_HELP);
         pw.printf("\t  %s\n", VALID_USER_AUTH_SET_VALUES_HELP);
     }

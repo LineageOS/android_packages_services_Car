@@ -50,7 +50,7 @@ public final class UserSwitchResultTest {
     @Test
     public void testIUserSwitchResult_isSuccess_requestedState() {
         UserSwitchResult result =
-                new UserSwitchResult(UserSwitchResult.STATUS_ALREADY_REQUESTED_USER, null);
+                new UserSwitchResult(UserSwitchResult.STATUS_OK_USER_ALREADY_IN_FOREGROUND, null);
         assertThat(result.isSuccess()).isTrue();
     }
 }
