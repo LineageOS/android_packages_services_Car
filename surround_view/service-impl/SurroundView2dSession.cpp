@@ -548,6 +548,11 @@ bool SurroundView2dSession::handleFrames(int sequenceId) {
 bool SurroundView2dSession::initialize() {
     lock_guard<mutex> lock(mAccessLock, adopt_lock);
 
+    if (!setupEvs()) {
+        LOG(ERROR) << "Failed to setup EVS components for 2d session";
+        return false;
+    }
+
     // TODO(b/150412555): ask core-lib team to add API description for "create"
     // method in the .h file.
     // The create method will never return a null pointer based the API
@@ -555,14 +560,21 @@ bool SurroundView2dSession::initialize() {
     mSurroundView = unique_ptr<SurroundView>(Create());
 
     SurroundViewStaticDataParams params =
-        SurroundViewStaticDataParams(GetCameras(),
+        SurroundViewStaticDataParams(mCameraParams,
                                      Get2dParams(),
                                      Get3dParams(),
                                      GetUndistortionScales(),
                                      GetBoundingBox(),
                                      map<string, CarTexture>(),
                                      map<string, CarPart>());
+
     mSurroundView->SetStaticData(params);
+    if (mSurroundView->Start2dPipeline()) {
+        LOG(INFO) << "Start2dPipeline succeeded";
+    } else {
+        LOG(ERROR) << "Start2dPipeline failed";
+        return false;
+    }
 
     mInputPointers.resize(4);
     // TODO(b/157498737): the following parameters should be fed from config
@@ -614,18 +626,6 @@ bool SurroundView2dSession::initialize() {
         LOG(INFO) << "Successfully allocated Graphic Buffer";
     } else {
         LOG(ERROR) << "Failed to allocate Graphic Buffer";
-        return false;
-    }
-
-    if (mSurroundView->Start2dPipeline()) {
-        LOG(INFO) << "Start2dPipeline succeeded";
-    } else {
-        LOG(ERROR) << "Start2dPipeline failed";
-        return false;
-    }
-
-    if (!setupEvs()) {
-        LOG(ERROR) << "Failed to setup EVS components for 2d session";
         return false;
     }
 
@@ -720,6 +720,17 @@ bool SurroundView2dSession::setupEvs() {
                        << "physical camera: " << id;
             return false;
         }
+    }
+
+    mCameraParams =
+            convertToSurroundViewCameraParams(cameraIdToAndroidParameters);
+
+    // TODO((b/156101189): the following information should be read from the
+    // I/O module.
+    for (auto& camera : mCameraParams) {
+        camera.size.width = 1920;
+        camera.size.height = 1024;
+        camera.circular_fov = 179;
     }
 
     return true;

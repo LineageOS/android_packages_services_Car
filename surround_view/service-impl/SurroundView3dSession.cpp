@@ -692,6 +692,11 @@ bool SurroundView3dSession::handleFrames(int sequenceId) {
 bool SurroundView3dSession::initialize() {
     lock_guard<mutex> lock(mAccessLock, adopt_lock);
 
+    if (!setupEvs()) {
+        LOG(ERROR) << "Failed to setup EVS components for 3d session";
+        return false;
+    }
+
     // TODO(b/150412555): ask core-lib team to add API description for "create"
     // method in the .h file.
     // The create method will never return a null pointer based the API
@@ -699,7 +704,7 @@ bool SurroundView3dSession::initialize() {
     mSurroundView = unique_ptr<SurroundView>(Create());
 
     SurroundViewStaticDataParams params =
-        SurroundViewStaticDataParams(GetCameras(),
+        SurroundViewStaticDataParams(mCameraParams,
                                      Get2dParams(),
                                      Get3dParams(),
                                      GetUndistortionScales(),
@@ -754,10 +759,6 @@ bool SurroundView3dSession::initialize() {
         return false;
     }
 
-    if (!setupEvs()) {
-        LOG(ERROR) << "Failed to setup EVS components for 3d session";
-        return false;
-    }
 
     mIsInitialized = true;
     return true;
@@ -850,6 +851,17 @@ bool SurroundView3dSession::setupEvs() {
                        << "physical camera: " << id;
             return false;
         }
+    }
+
+    mCameraParams =
+            convertToSurroundViewCameraParams(cameraIdToAndroidParameters);
+
+    // TODO((b/156101189): the following information should be read from the
+    // I/O module.
+    for (auto& camera : mCameraParams) {
+        camera.size.width = 1920;
+        camera.size.height = 1024;
+        camera.circular_fov = 179;
     }
 
     return true;
