@@ -118,6 +118,7 @@
     <string name="player_paused" translatable="false">Player Paused</string>
     <string name="player_started" translatable="false">Player Started</string>
     <string name="player_delayed" translatable="false">Player Delayed</string>
+    <string name="player_stopped" translatable="false">Player Stopped</string>
     <string name="nav_play" translatable="false">Nav Play</string>
     <string name="vr_play" translatable="false">VR Play</string>
     <string name="system_play" translatable="false">System Play</string>
@@ -141,6 +142,10 @@
     <string name="activity_current_zone_id" translatable="false">Activity\'s current audio zone id</string>
     <string name="no_zone" translatable="false">none</string>
     <string name="phone_audio_player" translatable="false">Phone Player</string>
+
+    <!-- Audio Input-->
+    <string name="play_audio_input" translatable="false">Play</string>
+    <string name="stop_audio_input" translatable="false">Stop</string>
 
     <!-- keyboard test fragment -->
     <string name="keyboard_test_title" translatable="false">Keyboard Test</string>
