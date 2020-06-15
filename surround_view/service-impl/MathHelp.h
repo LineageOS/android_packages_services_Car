@@ -28,6 +28,8 @@ namespace sv {
 namespace V1_0 {
 namespace implementation {
 
+using android_auto::surround_view::Mat4x4;
+
 const int gMat4Size = 4 * 4 * sizeof(float);
 
 const Mat4x4 gMat4Identity = {1, 0, 0, /*tx=*/0.0, 0, 1, 0, /*ty=*/0,

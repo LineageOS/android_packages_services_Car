@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SurroundViewCarModelConfig>
+    <Version>1.0</Version>
+
+    <!-- Rotation animation for front left door -->
+    <Animation>
+        <PartId>front_left_door</PartId>
+        <ChildParts>
+            <PartId>left_mirror</PartId>
+            <PartId>front_left_window</PartId>
+        </ChildParts>
+        <ParentPartId>car_frame</ParentPartId>
+        <RotationOp>
+            <VhalProperty>
+                <PropertyId>0x0001</PropertyId>
+                <AreaId>0x0002</AreaId>
+            </VhalProperty>
+            <AnimationType>RotationAngle</AnimationType>
+            <AnimationTimeMs>2000</AnimationTimeMs>
+            <RotationAxis>
+                <X>1.0</X>
+                <Y>0.0</Y>
+                <Z>0.0</Z>
+            </RotationAxis>
+            <RotationPoint>
+                <X>2.0</X>
+                <Y>2.0</Y>
+                <Z>2.0</Z>
+            </RotationPoint>
+            <DefaultRotationValue>0.0</DefaultRotationValue>
+            <RotationRange>
+                <Start>0.0</Start>
+                <End>90</End>
+            </RotationRange>
+            <VhalRange>
+                <Start>0</Start>
+                <End>0xFFFF</End>
+            </VhalRange>
+        </RotationOp>
+    </Animation>
+
+    <!-- Translation animation for front left window -->
+    <Animation>
+        <PartId>front_left_window</PartId>
+        <ParentPartId>front_left_door</ParentPartId>
+        <ChildParts>
+        </ChildParts>
+        <TranslationOp>
+            <VhalProperty>
+                <PropertyId>0x0002</PropertyId>
+                <AreaId>0x0001</AreaId>
+            </VhalProperty>
+            <AnimationType>Translation</AnimationType>
+            <AnimationTimeMs>2000</AnimationTimeMs>
+            <Direction>
+                <X>0.0</X>
+                <Y>0.0</Y>
+                <Z>-1.0</Z>
+            </Direction>
+            <DefaultTranslationValue>0.0</DefaultTranslationValue>
+            <TranslationRange>
+                <Start>0.0</Start>
+                <End>5</End>
+            </TranslationRange>
+            <VhalRange>
+                <Start>0</Start>
+                <End>0xFFFF</End>
+            </VhalRange>
+        </TranslationOp>
+    </Animation>
+
+</SurroundViewCarModelConfig>
