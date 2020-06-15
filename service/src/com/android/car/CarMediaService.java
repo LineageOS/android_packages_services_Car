@@ -60,6 +60,7 @@ import androidx.annotation.Nullable;
 
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
 import java.util.ArrayDeque;
@@ -743,7 +744,11 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         return false;
     }
 
-    private boolean isMediaService(@NonNull ComponentName componentName) {
+    /**
+     * Returns {@code true} if the provided component has a valid {@link MediaBrowseService}.
+     */
+    @VisibleForTesting
+    public boolean isMediaService(@NonNull ComponentName componentName) {
         return getMediaService(componentName) != null;
     }
 
