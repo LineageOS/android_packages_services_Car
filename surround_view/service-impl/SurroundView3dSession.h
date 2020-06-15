@@ -132,6 +132,7 @@ private:
     // Instance and metadata for the opened Evs Camera
     sp<IEvsCamera> mCamera;
     CameraDesc mCameraDesc;
+    vector<SurroundViewCameraParams> mCameraParams;
 
     // Stream subscribed for the session.
     sp<ISurroundViewStream> mStream GUARDED_BY(mAccessLock);
