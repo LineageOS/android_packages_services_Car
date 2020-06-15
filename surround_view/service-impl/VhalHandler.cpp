@@ -96,18 +96,21 @@ void VhalHandler::pollProperties() {
         // Write to back property values, note lock is not needed as only this thread uses it.
         std::vector<VehiclePropValue> vehiclePropValuesUpdated;
         for (auto& propertyToRead : propertiesToRead) {
-            // VehiclePropValue vehiclePropValue;
+            StatusCode statusResult;
+            VehiclePropValue propValueResult;
             mVhalServicePtr->get(propertyToRead,
-                                 [&vehiclePropValuesUpdated](StatusCode status,
-                                                             const VehiclePropValue& propValue) {
-                                     if (status != StatusCode::OK) {
-                                         LOG(ERROR) << "Failed to read vhal property: "
-                                                    << propValue.prop << ", with status code: "
-                                                    << static_cast<int32_t>(status);
-                                     } else {
-                                         vehiclePropValuesUpdated.push_back(propValue);
-                                     }
+                                 [&statusResult,
+                                  &propValueResult](StatusCode status,
+                                                    const VehiclePropValue& propValue) {
+                                     statusResult = status;
+                                     propValueResult = propValue;
                                  });
+            if (statusResult != StatusCode::OK) {
+                LOG(WARNING) << "Failed to read vhal property: " << propertyToRead.prop
+                             << ", with status code: " << static_cast<int32_t>(statusResult);
+            } else {
+                vehiclePropValuesUpdated.push_back(propValueResult);
+            }
         }
 
         // Update property values by swapping with updated property values.
@@ -170,6 +173,19 @@ bool VhalHandler::setPropertiesToRead(const std::vector<VehiclePropValue>& prope
     mPropertiesToRead = propertiesToRead;
 
     return true;
+}
+
+bool VhalHandler::setPropertiesToRead(const std::vector<uint64_t>& propertiesToRead) {
+    LOG(DEBUG) << __FUNCTION__;
+    std::vector<VehiclePropValue> vhalPropValues;
+    for (const auto& property : propertiesToRead) {
+        VehiclePropValue propValue;
+        // Higher 32 bits = property id, lower 32 bits = area id.
+        propValue.areaId = property & 0xFFFFFFFF;
+        propValue.prop = (property >> 32) & 0xFFFFFFFF;
+        vhalPropValues.push_back(propValue);
+    }
+    return setPropertiesToRead(vhalPropValues);
 }
 
 bool VhalHandler::getPropertyValues(std::vector<VehiclePropValue>* property_values) {
