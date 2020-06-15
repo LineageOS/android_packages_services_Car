@@ -178,6 +178,7 @@ cc_binary{
         "libhardware",
         "libhidlbase",
         "libhidlmemory",
+        "libio_module",
         "libui",
         "libutils",
     ],
