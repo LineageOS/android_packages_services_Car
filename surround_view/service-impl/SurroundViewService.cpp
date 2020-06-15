@@ -39,9 +39,7 @@ static const int kVhalUpdateRate = 10;
 
 SurroundViewService::SurroundViewService() {
     mVhalHandler = new VhalHandler();
-    mAnimationModule = new AnimationModule(map<string, CarPart>(),
-                                           map<string, CarTexture>(),
-                                           vector<AnimationInfo>());
+    mIOModule = new IOModule("/etc/automotive/sv/sv_sample_config.xml");
 }
 
 SurroundViewService::~SurroundViewService() {
@@ -71,6 +69,27 @@ bool SurroundViewService::initialize() {
         return false;
     }
 
+    IOStatus status = mIOModule->initialize();
+    if (status != IOStatus::OK) {
+        LOG(ERROR) << "IO Module cannot be initialized properly";
+        return false;
+    }
+
+    if (!mIOModule->getConfig(&mConfig)) {
+        LOG(ERROR) << "Cannot parse Car Config file properly";
+        return false;
+    }
+
+    // TODO(haoxiangl): check whether 2d/3d/animation is available or not.
+
+    // Since we only keep one instance of the SurroundViewService and initialize
+    // method is always called after the constructor, it is safe to put the
+    // allocation here and the de-allocation in service's constructor.
+    mAnimationModule = new AnimationModule(
+            mConfig.carModelConfig.carModel.partsMap,
+            mConfig.carModelConfig.carModel.texturesMap,
+            mConfig.carModelConfig.animationConfig.animations);
+
     // Initialize the VHal Handler with update method and rate.
     // TODO(b/157498592): The update rate should align with the EVS camera
     // update rate.
@@ -98,7 +117,7 @@ Return<void> SurroundViewService::start2dSession(start2dSession_cb _hidl_cb) {
         LOG(WARNING) << "Only one 2d session is supported at the same time";
         _hidl_cb(nullptr, SvResult::INTERNAL_ERROR);
     } else {
-        sSurroundView2dSession = new SurroundView2dSession(mEvs);
+        sSurroundView2dSession = new SurroundView2dSession(mEvs, &mConfig);
         if (sSurroundView2dSession->initialize()) {
             _hidl_cb(sSurroundView2dSession, SvResult::OK);
         } else {
@@ -132,7 +151,8 @@ Return<void> SurroundViewService::start3dSession(start3dSession_cb _hidl_cb) {
     } else {
         sSurroundView3dSession = new SurroundView3dSession(mEvs,
                                                            mVhalHandler,
-                                                           mAnimationModule);
+                                                           mAnimationModule,
+                                                           &mConfig);
         if (sSurroundView3dSession->initialize()) {
             _hidl_cb(sSurroundView3dSession, SvResult::OK);
         } else {
