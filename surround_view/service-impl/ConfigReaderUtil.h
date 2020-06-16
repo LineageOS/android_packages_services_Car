@@ -43,16 +43,16 @@ bool ElementHasText(const tinyxml2::XMLElement* element);
 bool GetElement(const tinyxml2::XMLElement* parent, const char* elementName,
                 tinyxml2::XMLElement const** element);
 
-// Reads a boolean value from a element.
+// Reads a boolean value from a element, returns false if not found.
 bool ReadValue(const tinyxml2::XMLElement* parent, const char* elementName, bool* value);
 
-// Reads a string value from a element.
+// Reads a string value from a element, returns false if not found.
 bool ReadValue(const tinyxml2::XMLElement* parent, const char* elementName, std::string* value);
 
-// Reads a float value from a element.
+// Reads a float value from a element, returns false if not found.
 bool ReadValue(const tinyxml2::XMLElement* parent, const char* elementName, float* value);
 
-// Reads a int value from a element.
+// Reads a int value from a element, returns false if not found.
 bool ReadValue(const tinyxml2::XMLElement* parent, const char* elementName, int* value);
 
 }  // namespace implementation

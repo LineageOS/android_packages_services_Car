@@ -70,9 +70,6 @@ bool ReadValue2dBlendType(const XMLElement* parent, const char* elementName,
 }
 
 bool ReadSvConfig2d(const XMLElement* parent, SvConfig2d* sv2dConfig) {
-    LOG(INFO) << "Seraching elem:"
-              << "Sv2dEnabled"
-              << "in parent: " << parent->Name();
     RETURN_IF_FALSE(ReadValue(parent, "Sv2dEnabled", &sv2dConfig->sv2dEnabled));
     if (!sv2dConfig->sv2dEnabled) {
         return true;
@@ -234,7 +231,7 @@ bool ReadCameraConfig(const XMLElement* parent, CameraConfig* cameraConfig) {
 IOStatus ReadSurroundViewConfig(const std::string& configFile, SurroundViewConfig* svConfig) {
     XMLDocument xmlDoc;
 
-    /* load and parse a configuration file */
+    // load and parse a configuration file
     xmlDoc.LoadFile(configFile.c_str());
     if (xmlDoc.ErrorID() != XML_SUCCESS) {
         LOG(ERROR) << "Failed to load and/or parse a configuration file, " << xmlDoc.ErrorStr();
@@ -243,8 +240,7 @@ IOStatus ReadSurroundViewConfig(const std::string& configFile, SurroundViewConfi
 
     const XMLElement* rootElem = xmlDoc.RootElement();
     if (strcmp(rootElem->Name(), "SurroundViewConfig")) {
-        LOG(ERROR) << "A configuration file is not in the required format.  "
-                   << "See /etc/automotive/sv/sv_config.dtd";
+        LOG(ERROR) << "Config file is not in the required format: " << configFile;
         return IOStatus::ERROR_READ_CONFIG_FILE;
     }
 

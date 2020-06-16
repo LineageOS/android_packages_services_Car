@@ -36,19 +36,19 @@ using android_auto::surround_view::SurroundView3dParams;
 
 TEST(ConfigReaderTests, ReadConfigSuccess) {
     SurroundViewConfig svConfig;
-    EXPECT_EQ(ReadSurroundViewConfig("/etc/automotive/sv/sv_sample_config.xml", &svConfig),
+    EXPECT_EQ(ReadSurroundViewConfig("/vendor/automotive/sv/sv_sample_config.xml", &svConfig),
               IOStatus::OK);
 
     EXPECT_EQ(svConfig.version, "1.0");
 
     // Camera config
-    EXPECT_EQ(svConfig.cameraConfig.evsGroupId, "group0");
+    EXPECT_EQ(svConfig.cameraConfig.evsGroupId, "v4l2loopback_group0");
 
     // Camera Ids
-    EXPECT_EQ(svConfig.cameraConfig.evsCameraIds[0], "/dev/video0");
-    EXPECT_EQ(svConfig.cameraConfig.evsCameraIds[1], "/dev/video1");
-    EXPECT_EQ(svConfig.cameraConfig.evsCameraIds[2], "/dev/video2");
-    EXPECT_EQ(svConfig.cameraConfig.evsCameraIds[3], "/dev/video3");
+    EXPECT_EQ(svConfig.cameraConfig.evsCameraIds[0], "/dev/video90");
+    EXPECT_EQ(svConfig.cameraConfig.evsCameraIds[1], "/dev/video91");
+    EXPECT_EQ(svConfig.cameraConfig.evsCameraIds[2], "/dev/video92");
+    EXPECT_EQ(svConfig.cameraConfig.evsCameraIds[3], "/dev/video93");
 
     // Masks
     EXPECT_EQ(svConfig.cameraConfig.maskFilenames.size(), 4);
