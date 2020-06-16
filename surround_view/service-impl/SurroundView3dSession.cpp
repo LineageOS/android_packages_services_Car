@@ -255,11 +255,13 @@ void SurroundView3dSession::processFrames() {
 
 SurroundView3dSession::SurroundView3dSession(sp<IEvsEnumerator> pEvs,
                                              VhalHandler* vhalHandler,
-                                             AnimationModule* animationModule) :
+                                             AnimationModule* animationModule,
+                                             IOModuleConfig* pConfig) :
       mEvs(pEvs),
       mStreamState(STOPPED),
       mVhalHandler(vhalHandler),
-      mAnimationModule(animationModule) {
+      mAnimationModule(animationModule),
+      mIOModuleConfig(pConfig) {
     mEvsCameraIds = {"0" , "1", "2", "3"};
 }
 
@@ -494,35 +496,52 @@ Return<SvResult>  SurroundView3dSession::updateOverlays(
 }
 
 Return<void> SurroundView3dSession::projectCameraPointsTo3dSurface(
-    const hidl_vec<Point2dInt>& cameraPoints,
-    const hidl_string& cameraId,
-    projectCameraPointsTo3dSurface_cb _hidl_cb) {
-
-    vector<Point3dFloat> points3d;
+        const hidl_vec<Point2dInt>& cameraPoints, const hidl_string& cameraId,
+        projectCameraPointsTo3dSurface_cb _hidl_cb) {
+    LOG(DEBUG) << __FUNCTION__;
     bool cameraIdFound = false;
+    int cameraIndex = 0;
+    std::vector<Point3dFloat> points3d;
+
+    // Note: mEvsCameraIds must be in the order front, right, rear, left.
     for (auto& evsCameraId : mEvsCameraIds) {
-      if (cameraId == evsCameraId) {
-          cameraIdFound = true;
-          LOG(INFO) << "Camera id found.";
-          break;
-      }
+        if (cameraId == evsCameraId) {
+            cameraIdFound = true;
+            LOG(DEBUG) << "Camera id found for projection: " << cameraId;
+            break;
+        }
+        cameraIndex++;
     }
 
     if (!cameraIdFound) {
-        LOG(ERROR) << "Camera id not found.";
+        LOG(ERROR) << "Camera id not found for projection: " << cameraId;
         _hidl_cb(points3d);
         return {};
     }
 
     for (const auto& cameraPoint : cameraPoints) {
-        Point3dFloat point3d;
-        point3d.isValid = (cameraPoint.x >= 0
-                           && cameraPoint.x < mConfig.width
-                           && cameraPoint.y >= 0
-                           && cameraPoint.y < mConfig.height);
+        Point3dFloat point3d = {false, 0.0, 0.0, 0.0};
+
+        // Verify if camera point is within the camera resolution bounds.
+        point3d.isValid = (cameraPoint.x >= 0 && cameraPoint.x < mConfig.width &&
+                           cameraPoint.y >= 0 && cameraPoint.y < mConfig.height);
         if (!point3d.isValid) {
-            LOG(WARNING) << "Camera point out of bounds.";
+            LOG(WARNING) << "Camera point (" << cameraPoint.x << ", " << cameraPoint.y
+                         << ") is out of camera resolution bounds.";
+            points3d.push_back(point3d);
+            continue;
         }
+
+        // Project points using mSurroundView function.
+        const Coordinate2dInteger camCoord(cameraPoint.x, cameraPoint.y);
+        Coordinate3dFloat projPoint3d(0.0, 0.0, 0.0);
+        point3d.isValid =
+                mSurroundView->GetProjectionPointFromRawCameraToSurroundView3d(camCoord,
+                                                                               cameraIndex,
+                                                                               &projPoint3d);
+        point3d.x = projPoint3d.x;
+        point3d.y = projPoint3d.y;
+        point3d.z = projPoint3d.z;
         points3d.push_back(point3d);
     }
     _hidl_cb(points3d);
@@ -692,6 +711,11 @@ bool SurroundView3dSession::handleFrames(int sequenceId) {
 bool SurroundView3dSession::initialize() {
     lock_guard<mutex> lock(mAccessLock, adopt_lock);
 
+    if (!setupEvs()) {
+        LOG(ERROR) << "Failed to setup EVS components for 3d session";
+        return false;
+    }
+
     // TODO(b/150412555): ask core-lib team to add API description for "create"
     // method in the .h file.
     // The create method will never return a null pointer based the API
@@ -699,13 +723,14 @@ bool SurroundView3dSession::initialize() {
     mSurroundView = unique_ptr<SurroundView>(Create());
 
     SurroundViewStaticDataParams params =
-        SurroundViewStaticDataParams(GetCameras(),
-                                     Get2dParams(),
-                                     Get3dParams(),
-                                     GetUndistortionScales(),
-                                     GetBoundingBox(),
-                                     map<string, CarTexture>(),
-                                     map<string, CarPart>());
+            SurroundViewStaticDataParams(
+                    mCameraParams,
+                    mIOModuleConfig->sv2dConfig.sv2dParams,
+                    mIOModuleConfig->sv3dConfig.sv3dParams,
+                    GetUndistortionScales(),
+                    mIOModuleConfig->sv2dConfig.carBoundingBox,
+                    mIOModuleConfig->carModelConfig.carModel.texturesMap,
+                    mIOModuleConfig->carModelConfig.carModel.partsMap);
     mSurroundView->SetStaticData(params);
 
     mInputPointers.resize(4);
@@ -722,8 +747,8 @@ bool SurroundView3dSession::initialize() {
     }
     LOG(INFO) << "Allocated 4 input pointers";
 
-    mOutputWidth = Get3dParams().resolution.width;
-    mOutputHeight = Get3dParams().resolution.height;
+    mOutputWidth = mIOModuleConfig->sv3dConfig.sv3dParams.resolution.width;
+    mOutputHeight = mIOModuleConfig->sv3dConfig.sv3dParams.resolution.height;
 
     mConfig.width = mOutputWidth;
     mConfig.height = mOutputHeight;
@@ -754,25 +779,23 @@ bool SurroundView3dSession::initialize() {
         return false;
     }
 
-    if (!setupEvs()) {
-        LOG(ERROR) << "Failed to setup EVS components for 3d session";
-        return false;
-    }
 
     mIsInitialized = true;
     return true;
 }
 
 bool SurroundView3dSession::setupEvs() {
+    // Reads the camera related information from the config object
+    const string evsGroupId = mIOModuleConfig->cameraConfig.evsGroupId;
+
     // Setup for EVS
-    // TODO(b/157498737): We are using hard-coded camera "group0" here. It
-    // should be read from configuration file once I/O module is ready.
     LOG(INFO) << "Requesting camera list";
-    mEvs->getCameraList_1_1([this] (hidl_vec<CameraDesc> cameraList) {
+    mEvs->getCameraList_1_1(
+            [this, evsGroupId] (hidl_vec<CameraDesc> cameraList) {
         LOG(INFO) << "Camera list callback received " << cameraList.size();
         for (auto&& cam : cameraList) {
             LOG(INFO) << "Found camera " << cam.v1.cameraId;
-            if (cam.v1.cameraId == "group0") {
+            if (cam.v1.cameraId == evsGroupId) {
                 mCameraDesc = cam;
             }
         }
@@ -834,12 +857,8 @@ bool SurroundView3dSession::setupEvs() {
         LOG(INFO) << "Camera " << camId << " is opened successfully";
     }
 
-    // TODO(b/156101189): camera position information is needed from the
-    // I/O module.
-    vector<string> cameraIds = getPhysicalCameraIds(mCamera);
     map<string, AndroidCameraParams> cameraIdToAndroidParameters;
-
-    for (auto& id : cameraIds) {
+    for (const auto& id : mIOModuleConfig->cameraConfig.evsCameraIds) {
         AndroidCameraParams params;
         if (getAndroidCameraParams(mCamera, id, params)) {
             cameraIdToAndroidParameters.emplace(id, params);
@@ -850,6 +869,17 @@ bool SurroundView3dSession::setupEvs() {
                        << "physical camera: " << id;
             return false;
         }
+    }
+
+    mCameraParams =
+            convertToSurroundViewCameraParams(cameraIdToAndroidParameters);
+
+    // TODO((b/156101189): the following information should be read from the
+    // I/O module.
+    for (auto& camera : mCameraParams) {
+        camera.size.width = 1920;
+        camera.size.height = 1024;
+        camera.circular_fov = 179;
     }
 
     return true;
@@ -874,4 +904,3 @@ bool SurroundView3dSession::startEvs() {
 }  // namespace automotive
 }  // namespace hardware
 }  // namespace android
-

@@ -243,8 +243,10 @@ void SurroundView2dSession::processFrames() {
     }
 }
 
-SurroundView2dSession::SurroundView2dSession(sp<IEvsEnumerator> pEvs)
+SurroundView2dSession::SurroundView2dSession(sp<IEvsEnumerator> pEvs,
+                                             IOModuleConfig* pConfig)
     : mEvs(pEvs),
+      mIOModuleConfig(pConfig),
       mStreamState(STOPPED) {
     mEvsCameraIds = {"0", "1", "2", "3"};
 }
@@ -373,48 +375,54 @@ Return<void> SurroundView2dSession::get2dConfig(get2dConfig_cb _hidl_cb) {
     return {};
 }
 
-Return<void> SurroundView2dSession::projectCameraPoints(
-        const hidl_vec<Point2dInt>& points2dCamera,
-        const hidl_string& cameraId,
-        projectCameraPoints_cb _hidl_cb) {
+Return<void> SurroundView2dSession::projectCameraPoints(const hidl_vec<Point2dInt>& points2dCamera,
+                                                        const hidl_string& cameraId,
+                                                        projectCameraPoints_cb _hidl_cb) {
     LOG(DEBUG) << __FUNCTION__;
-    scoped_lock <mutex> lock(mAccessLock);
-
+    std::vector<Point2dFloat> outPoints;
     bool cameraIdFound = false;
+    int cameraIndex = 0;
+    // Note: mEvsCameraIds must be in the order front, right, rear, left.
     for (auto& evsCameraId : mEvsCameraIds) {
-      if (cameraId == evsCameraId) {
-          cameraIdFound = true;
-          LOG(INFO) << "Camera id found.";
-          break;
-      }
+        if (cameraId == evsCameraId) {
+            cameraIdFound = true;
+            LOG(DEBUG) << "Camera id found for projection: " << cameraId;
+            break;
+        }
+        cameraIndex++;
     }
 
     if (!cameraIdFound) {
-        LOG(ERROR) << "Camera id not found.";
-        _hidl_cb({});
+        LOG(ERROR) << "Camera id not found for projection: " << cameraId;
+        _hidl_cb(outPoints);
         return {};
     }
 
-    hidl_vec<Point2dFloat> outPoints;
-    outPoints.resize(points2dCamera.size());
-
     int width = mConfig.width;
     int height = mHeight;
-    for (int i=0; i<points2dCamera.size(); i++) {
-        // Assuming all the points in the image frame can be projected into 2d
-        // Surround View space. Otherwise cannot.
-        if (points2dCamera[i].x < 0 || points2dCamera[i].x > width-1 ||
-            points2dCamera[i].y < 0 || points2dCamera[i].y > height-1) {
-            LOG(WARNING) << __FUNCTION__
-                         << ": gets invalid 2d camera points. Ignored";
-            outPoints[i].isValid = false;
-            outPoints[i].x = 10000;
-            outPoints[i].y = 10000;
-        } else {
-            outPoints[i].isValid = true;
-            outPoints[i].x = 0;
-            outPoints[i].y = 0;
+    for (const auto& cameraPoint : points2dCamera) {
+        Point2dFloat outPoint = {false, 0.0, 0.0};
+        // Check of the camear point is within the camera resolution bounds.
+        if (cameraPoint.x < 0 || cameraPoint.x > width - 1 || cameraPoint.y < 0 ||
+            cameraPoint.y > height - 1) {
+            LOG(WARNING) << "Camera point (" << cameraPoint.x << ", " << cameraPoint.y
+                         << ") is out of camera resolution bounds.";
+            outPoint.isValid = false;
+            outPoints.push_back(outPoint);
+            continue;
         }
+
+        // Project points using mSurroundView function.
+        const Coordinate2dInteger camPoint(cameraPoint.x, cameraPoint.y);
+        Coordinate2dFloat projPoint2d(0.0, 0.0);
+
+        outPoint.isValid =
+                mSurroundView->GetProjectionPointFromRawCameraToSurroundView2d(camPoint,
+                                                                               cameraIndex,
+                                                                               &projPoint2d);
+        outPoint.x = projPoint2d.x;
+        outPoint.y = projPoint2d.y;
+        outPoints.push_back(outPoint);
     }
 
     _hidl_cb(outPoints);
@@ -548,6 +556,11 @@ bool SurroundView2dSession::handleFrames(int sequenceId) {
 bool SurroundView2dSession::initialize() {
     lock_guard<mutex> lock(mAccessLock, adopt_lock);
 
+    if (!setupEvs()) {
+        LOG(ERROR) << "Failed to setup EVS components for 2d session";
+        return false;
+    }
+
     // TODO(b/150412555): ask core-lib team to add API description for "create"
     // method in the .h file.
     // The create method will never return a null pointer based the API
@@ -555,14 +568,21 @@ bool SurroundView2dSession::initialize() {
     mSurroundView = unique_ptr<SurroundView>(Create());
 
     SurroundViewStaticDataParams params =
-        SurroundViewStaticDataParams(GetCameras(),
-                                     Get2dParams(),
-                                     Get3dParams(),
-                                     GetUndistortionScales(),
-                                     GetBoundingBox(),
-                                     map<string, CarTexture>(),
-                                     map<string, CarPart>());
+            SurroundViewStaticDataParams(
+                    mCameraParams,
+                    mIOModuleConfig->sv2dConfig.sv2dParams,
+                    mIOModuleConfig->sv3dConfig.sv3dParams,
+                    GetUndistortionScales(),
+                    mIOModuleConfig->sv2dConfig.carBoundingBox,
+                    mIOModuleConfig->carModelConfig.carModel.texturesMap,
+                    mIOModuleConfig->carModelConfig.carModel.partsMap);
     mSurroundView->SetStaticData(params);
+    if (mSurroundView->Start2dPipeline()) {
+        LOG(INFO) << "Start2dPipeline succeeded";
+    } else {
+        LOG(ERROR) << "Start2dPipeline failed";
+        return false;
+    }
 
     mInputPointers.resize(4);
     // TODO(b/157498737): the following parameters should be fed from config
@@ -578,8 +598,8 @@ bool SurroundView2dSession::initialize() {
     }
     LOG(INFO) << "Allocated 4 input pointers";
 
-    mOutputWidth = Get2dParams().resolution.width;
-    mOutputHeight = Get2dParams().resolution.height;
+    mOutputWidth = mIOModuleConfig->sv2dConfig.sv2dParams.resolution.width;
+    mOutputHeight = mIOModuleConfig->sv2dConfig.sv2dParams.resolution.height;
 
     mConfig.width = mOutputWidth;
     mConfig.blending = SvQuality::HIGH;
@@ -603,12 +623,11 @@ bool SurroundView2dSession::initialize() {
                                    GRALLOC_USAGE_HW_TEXTURE,
                                    "SvTexture");
 
-    //TODO(b/150412555): the 2d mapping info should be read from config file.
-    mInfo.width = 8;
-    mInfo.height = 6;
+    mInfo.width = mIOModuleConfig->sv2dConfig.sv2dParams.physical_size.width;
+    mInfo.height = mIOModuleConfig->sv2dConfig.sv2dParams.physical_size.height;
     mInfo.center.isValid = true;
-    mInfo.center.x = 0;
-    mInfo.center.y = 0;
+    mInfo.center.x = mIOModuleConfig->sv2dConfig.sv2dParams.physical_center.x;
+    mInfo.center.y = mIOModuleConfig->sv2dConfig.sv2dParams.physical_center.y;
 
     if (mSvTexture->initCheck() == OK) {
         LOG(INFO) << "Successfully allocated Graphic Buffer";
@@ -617,32 +636,22 @@ bool SurroundView2dSession::initialize() {
         return false;
     }
 
-    if (mSurroundView->Start2dPipeline()) {
-        LOG(INFO) << "Start2dPipeline succeeded";
-    } else {
-        LOG(ERROR) << "Start2dPipeline failed";
-        return false;
-    }
-
-    if (!setupEvs()) {
-        LOG(ERROR) << "Failed to setup EVS components for 2d session";
-        return false;
-    }
-
     mIsInitialized = true;
     return true;
 }
 
 bool SurroundView2dSession::setupEvs() {
+    // Reads the camera related information from the config object
+    const string evsGroupId = mIOModuleConfig->cameraConfig.evsGroupId;
+
     // Setup for EVS
-    // TODO(b/157498737): We are using hard-coded camera "group0" here. It
-    // should be read from configuration file once I/O module is ready.
     LOG(INFO) << "Requesting camera list";
-    mEvs->getCameraList_1_1([this] (hidl_vec<CameraDesc> cameraList) {
+    mEvs->getCameraList_1_1(
+            [this, evsGroupId] (hidl_vec<CameraDesc> cameraList) {
         LOG(INFO) << "Camera list callback received " << cameraList.size();
         for (auto&& cam : cameraList) {
             LOG(INFO) << "Found camera " << cam.v1.cameraId;
-            if (cam.v1.cameraId == "group0") {
+            if (cam.v1.cameraId == evsGroupId) {
                 mCameraDesc = cam;
             }
         }
@@ -704,12 +713,8 @@ bool SurroundView2dSession::setupEvs() {
         LOG(INFO) << "Camera " << camId << " is opened successfully";
     }
 
-    // TODO(b/156101189): camera position information is needed from the
-    // I/O module.
-    vector<string> cameraIds = getPhysicalCameraIds(mCamera);
     map<string, AndroidCameraParams> cameraIdToAndroidParameters;
-
-    for (auto& id : cameraIds) {
+    for (const auto& id : mIOModuleConfig->cameraConfig.evsCameraIds) {
         AndroidCameraParams params;
         if (getAndroidCameraParams(mCamera, id, params)) {
             cameraIdToAndroidParameters.emplace(id, params);
@@ -720,6 +725,17 @@ bool SurroundView2dSession::setupEvs() {
                        << "physical camera: " << id;
             return false;
         }
+    }
+
+    mCameraParams =
+            convertToSurroundViewCameraParams(cameraIdToAndroidParameters);
+
+    // TODO((b/156101189): the following information should be read from the
+    // I/O module.
+    for (auto& camera : mCameraParams) {
+        camera.size.width = 1920;
+        camera.size.height = 1024;
+        camera.circular_fov = 179;
     }
 
     return true;
@@ -744,4 +760,3 @@ bool SurroundView2dSession::startEvs() {
 }  // namespace automotive
 }  // namespace hardware
 }  // namespace android
-

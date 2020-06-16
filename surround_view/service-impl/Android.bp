@@ -38,8 +38,47 @@ cc_test{
         "libutils",
     ],
     required: [
-        "VolvoXC40_low.obj",
-        "VolvoXC40_low.mtl",
+        "cube.obj",
+        "cube.mtl",
+    ],
+}
+
+// Library for IO Module.
+cc_library {
+    name : "libio_module",
+    vendor : true,
+    srcs: [
+        "ConfigReader.cpp",
+        "CarModelConfigReader.cpp",
+        "ConfigReaderUtil.cpp",
+        "IOModule.cpp",
+    ],
+    shared_libs : [
+        "libbase",
+        "libobj_reader",
+        "libtinyxml2",
+    ]
+}
+
+cc_test{
+    name : "io_module_tests",
+    test_suites : ["device-tests"],
+    vendor : true,
+    srcs : [
+        "CarModelConfigReaderTests.cpp",
+        "ConfigReaderTests.cpp",
+    ],
+    shared_libs : [
+        "libbase",
+        "libcutils",
+        "libio_module",
+        "libobj_reader",
+        "libtinyxml2",
+        "libutils",
+    ],
+    required: [
+        "sv_sample_car_model_config.xml",
+        "sv_sample_config.xml",
     ],
 }
 
@@ -139,6 +178,7 @@ cc_binary{
         "libhardware",
         "libhidlbase",
         "libhidlmemory",
+        "libio_module",
         "libui",
         "libutils",
     ],
@@ -222,4 +262,16 @@ prebuilt_etc {
     name: "cube.mtl",
     src: "test_data/cube.mtl",
     sub_dir: "automotive/sv",
+}
+
+prebuilt_etc {
+    name: "sv_sample_config.xml",
+    src: "test_data/sv_sample_config.xml",
+    sub_dir: "automotive/sv",
+}
+
+prebuilt_etc {
+    name:"sv_sample_car_model_config.xml",
+    src : "test_data/sv_sample_car_model_config.xml",
+    sub_dir : "automotive/sv",
 }

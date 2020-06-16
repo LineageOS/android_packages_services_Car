@@ -85,7 +85,8 @@ public:
     // TODO(b/158479099): use strong pointer for VhalHandler
     SurroundView3dSession(sp<IEvsEnumerator> pEvs,
                           VhalHandler* vhalHandler,
-                          AnimationModule* animationModule);
+                          AnimationModule* animationModule,
+                          IOModuleConfig* pConfig);
     ~SurroundView3dSession();
     bool initialize();
 
@@ -132,6 +133,7 @@ private:
     // Instance and metadata for the opened Evs Camera
     sp<IEvsCamera> mCamera;
     CameraDesc mCameraDesc;
+    vector<SurroundViewCameraParams> mCameraParams;
 
     // Stream subscribed for the session.
     sp<ISurroundViewStream> mStream GUARDED_BY(mAccessLock);
@@ -177,6 +179,7 @@ private:
 
     VhalHandler* mVhalHandler;
     AnimationModule* mAnimationModule;
+    IOModuleConfig* mIOModuleConfig;
 
     std::vector<VehiclePropValue> mPropertyValues;
 };
