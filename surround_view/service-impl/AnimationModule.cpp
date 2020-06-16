@@ -119,10 +119,16 @@ void AnimationModule::mapVhalToParts() {
 
 void AnimationModule::initCarPartStatus() {
     for (const auto& part : mPartsMap) {
+        // Get child parts list from mPartsToAnimationMap.
+        std::vector<std::string> childIds;
+        if (mPartsToAnimationMap.find(part.first) != mPartsToAnimationMap.end()) {
+            childIds = mPartsToAnimationMap.at(part.first).childIds;
+        }
+
         mCarPartsStatusMap.emplace(std::make_pair(part.first,
                                                   CarPartStatus{
                                                           .partId = part.first,
-                                                          .childIds = part.second.child_part_ids,
+                                                          .childIds = childIds,
                                                           .parentModel = gMat4Identity,
                                                           .localModel = gMat4Identity,
                                                           .currentModel = gMat4Identity,
