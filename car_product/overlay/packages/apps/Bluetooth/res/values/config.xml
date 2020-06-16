@@ -32,12 +32,15 @@
 <resources>
     <!-- Disable source profiles (typically used in phone) -->
     <bool name="profile_supported_a2dp">false</bool>
+    <bool name="profile_supported_avrcp_target">false</bool>
     <bool name="profile_supported_hs_hfp">false</bool>
+    <bool name="profile_supported_hid_device">false</bool>
     <bool name="profile_supported_hid_host">false</bool>
     <bool name="profile_supported_pbap">false</bool>
     <bool name="profile_supported_map">false</bool>
     <bool name="profile_supported_hdp">false</bool>
     <bool name="profile_supported_opp">false</bool>
+    <bool name="profile_supported_sap">false</bool>
     <bool name="enable_phone_policy">false</bool>
 
     <!-- Enable sink profiles (typically used on a CarKitt) -->
