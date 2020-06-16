@@ -17,6 +17,7 @@
 #pragma once
 
 #include "CoreLibSetupHelper.h"
+#include "IOModule.h"
 
 #include <android/hardware/automotive/evs/1.1/IEvsCamera.h>
 #include <android/hardware/automotive/evs/1.1/IEvsCameraStream.h>
@@ -79,7 +80,7 @@ class SurroundView2dSession : public ISurroundView2dSession {
     };
 
 public:
-    SurroundView2dSession(sp<IEvsEnumerator> pEvs);
+    SurroundView2dSession(sp<IEvsEnumerator> pEvs, IOModuleConfig* pConfig);
     ~SurroundView2dSession();
     bool initialize();
 
@@ -122,9 +123,12 @@ private:
     // EVS Enumerator to control the start/stop of the Evs Stream
     sp<IEvsEnumerator> mEvs;
 
+    IOModuleConfig* mIOModuleConfig;
+
     // Instance and metadata for the opened Evs Camera
     sp<IEvsCamera> mCamera;
     CameraDesc mCameraDesc;
+    vector<SurroundViewCameraParams> mCameraParams;
 
     // Stream subscribed for the session.
     sp<ISurroundViewStream> mStream GUARDED_BY(mAccessLock);
