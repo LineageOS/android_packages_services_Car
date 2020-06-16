@@ -2,30 +2,31 @@
 <SurroundViewCarModelConfig>
     <Version>1.0</Version>
 
-    <!-- Rotation animation for front left door -->
+    <!-- Rotation animation for door -->
     <Animation>
-        <PartId>front_left_door</PartId>
+        <PartId>door</PartId>
         <ChildParts>
-            <PartId>left_mirror</PartId>
-            <PartId>front_left_window</PartId>
+            <PartId>window</PartId>
         </ChildParts>
         <ParentPartId>car_frame</ParentPartId>
         <RotationOp>
             <VhalProperty>
-                <PropertyId>0x0001</PropertyId>
-                <AreaId>0x0002</AreaId>
+                <!-- Uses VHAL Property DOOR_POS -->
+                <PropertyId>0x16000B00</PropertyId>
+                <!-- AreadId = VehicleAreaDoor::ROW_1_LEFT -->
+                <AreaId>0x00000001</AreaId>
             </VhalProperty>
             <AnimationType>RotationAngle</AnimationType>
             <AnimationTimeMs>2000</AnimationTimeMs>
             <RotationAxis>
-                <X>1.0</X>
+                <X>0.0</X>
                 <Y>0.0</Y>
-                <Z>0.0</Z>
+                <Z>1.0</Z>
             </RotationAxis>
             <RotationPoint>
-                <X>2.0</X>
-                <Y>2.0</Y>
-                <Z>2.0</Z>
+                <X>0.0</X>
+                <Y>0.0</Y>
+                <Z>0.0</Z>
             </RotationPoint>
             <DefaultRotationValue>0.0</DefaultRotationValue>
             <RotationRange>
@@ -33,22 +34,26 @@
                 <End>90</End>
             </RotationRange>
             <VhalRange>
-                <Start>0</Start>
-                <End>0xFFFF</End>
+                <!-- 0 => door closed -->
+                <Start>0x00000000</Start>
+                <!-- INT32_MAX => door fully open -->
+                <End>0x7FFFFFFF</End>
             </VhalRange>
         </RotationOp>
     </Animation>
 
-    <!-- Translation animation for front left window -->
+    <!-- Translation animation for window -->
     <Animation>
-        <PartId>front_left_window</PartId>
-        <ParentPartId>front_left_door</ParentPartId>
+        <PartId>window</PartId>
+        <ParentPartId>window</ParentPartId>
         <ChildParts>
         </ChildParts>
         <TranslationOp>
             <VhalProperty>
-                <PropertyId>0x0002</PropertyId>
-                <AreaId>0x0001</AreaId>
+                <!-- Uses VHAL Property WINDOW_POS -->
+                <PropertyId>0x13000BC0</PropertyId>
+                <!-- AreaId = VehicleAreaWindow::ROW_1_LEFT -->
+                <AreaId>0x00000010</AreaId>
             </VhalProperty>
             <AnimationType>Translation</AnimationType>
             <AnimationTimeMs>2000</AnimationTimeMs>
@@ -60,11 +65,13 @@
             <DefaultTranslationValue>0.0</DefaultTranslationValue>
             <TranslationRange>
                 <Start>0.0</Start>
-                <End>5</End>
+                <End>1.0</End>
             </TranslationRange>
             <VhalRange>
-                <Start>0</Start>
-                <End>0xFFFF</End>
+                <!-- 0 => window up/closed -->
+                <Start>0x00000000</Start>
+                <!-- INT32_MAX => window down/open -->
+                <End>0x7FFFFFFF</End>
             </VhalRange>
         </TranslationOp>
     </Animation>

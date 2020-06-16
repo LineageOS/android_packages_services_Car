@@ -3,12 +3,12 @@
     <Version>1.0</Version>
 
     <CameraConfig>
-        <EvsGroupId>group0</EvsGroupId>
+        <EvsGroupId>v4l2loopback_group0</EvsGroupId>
         <EvsCameraIds>
-            <Front>/dev/video0</Front>
-            <Right>/dev/video1</Right>
-            <Rear>/dev/video2</Rear>
-            <Left>/dev/video3</Left>
+            <Front>/dev/video90</Front>
+            <Right>/dev/video91</Right>
+            <Rear>/dev/video92</Rear>
+            <Left>/dev/video93</Left>
         </EvsCameraIds>
         <Masks>
             <Front>/vendor/mask_front.png</Front>
@@ -48,8 +48,8 @@
 
     <Sv3dEnabled>true</Sv3dEnabled>
     <Sv3dAnimationsEnabled>true</Sv3dAnimationsEnabled>
-    <CarModelConfigFile>/vendor/car_model_config.xml</CarModelConfigFile>
-    <CarModelObjFile>/vendor/car.obj</CarModelObjFile>
+    <CarModelConfigFile>/etc/automotive/sv/sv_sample_car_model_config.xml</CarModelConfigFile>
+    <CarModelObjFile>/etc/automotive/sv/sample_car.obj</CarModelObjFile>
     <Sv3dParams>
         <OutputResolution>
             <Width>1920</Width>

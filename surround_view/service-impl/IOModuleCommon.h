@@ -29,7 +29,7 @@ namespace V1_0 {
 namespace implementation {
 
 // Struct for camera related configurations.
-// Note: Does not camera intrinsics and extrinsics, these are specified in EVS metadata.
+// Note: Does not include camera intrinsics and extrinsics, these are specified in EVS metadata.
 struct CameraConfig {
     // Id of logical group containing surronnd view cameras.
     std::string evsGroupId;
