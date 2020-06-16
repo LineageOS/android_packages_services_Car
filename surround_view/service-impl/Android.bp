@@ -38,8 +38,8 @@ cc_test{
         "libutils",
     ],
     required: [
-        "cube.obj",
-        "cube.mtl",
+        "sample_car.obj",
+        "sample_car_material.mtl",
     ],
 }
 
@@ -231,47 +231,56 @@ cc_prebuilt_library_shared{
 
 prebuilt_etc{
     name : "cam0.png",
+    soc_specific : true,
     src : "test_data/0.png",
     sub_dir : "automotive/sv",
 }
 
 prebuilt_etc{
     name : "cam1.png",
+    soc_specific : true,
     src : "test_data/1.png",
     sub_dir : "automotive/sv",
 }
 
 prebuilt_etc{
     name : "cam2.png",
+    soc_specific : true,
     src : "test_data/2.png",
     sub_dir : "automotive/sv",
 }
 
 prebuilt_etc {
-name:
-    "cam3.png", src : "test_data/3.png", sub_dir : "automotive/sv",
+    name :"cam3.png",
+    soc_specific : true,
+    src : "test_data/3.png",
+    sub_dir : "automotive/sv",
 }
 
 prebuilt_etc {
-    name: "cube.obj",
-    src: "test_data/cube.obj",
+    name : "sample_car.obj",
+    soc_specific : true,
+    src : "test_data/sample_car.obj",
+    sub_dir : "automotive/sv",
+}
+
+prebuilt_etc {
+    name : "sample_car_material.mtl",
+    soc_specific : true,
+    src: "test_data/sample_car_material.mtl",
     sub_dir: "automotive/sv",
 }
 
 prebuilt_etc {
-    name: "cube.mtl",
-    src: "test_data/cube.mtl",
-    sub_dir: "automotive/sv",
-}
-
-prebuilt_etc {
-    name: "sv_sample_config.xml",
-    src: "test_data/sv_sample_config.xml",
-    sub_dir: "automotive/sv",
+    name : "sv_sample_config.xml",
+    soc_specific : true,
+    src : "test_data/sv_sample_config.xml",
+    sub_dir : "automotive/sv",
 }
 
 prebuilt_etc {
     name:"sv_sample_car_model_config.xml",
+    soc_specific : true,
     src : "test_data/sv_sample_car_model_config.xml",
     sub_dir : "automotive/sv",
 }

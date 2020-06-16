@@ -279,8 +279,7 @@ IOStatus ReadCarModelConfig(const std::string& carModelConfigFile,
 
     const XMLElement* rootElem = xmlDoc.RootElement();
     if (strcmp(rootElem->Name(), "SurroundViewCarModelConfig")) {
-        LOG(ERROR) << "A configuration file is not in the required format.  "
-                   << "See /etc/automotive/sv/sv_car_model_config.dtd";
+        LOG(ERROR) << "Config file is not in the required format: " << carModelConfigFile;
         return IOStatus::ERROR_READ_ANIMATION;
     }
 
