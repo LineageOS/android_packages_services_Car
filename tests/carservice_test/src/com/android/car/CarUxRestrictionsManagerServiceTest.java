@@ -388,7 +388,8 @@ public class CarUxRestrictionsManagerServiceTest {
         int displayIdForPhysicalPort1 = 0;
         int displayIdForPhysicalPort2 = 1;
         int virtualDisplayId = 2;
-        int physicalPortForFirstDisplay = 0;
+        int physicalDisplayIdForVirtualDisplayId2 = displayIdForPhysicalPort2;
+        int physicalPortForFirstDisplay = 10;
         int physicalPortForSecondDisplay = 11;
         when(mSpyContext.getSystemService(DisplayManager.class)).thenReturn(mDisplayManager);
         mockDisplay(mDisplayManager, mDisplay0, displayIdForPhysicalPort1,
@@ -418,7 +419,7 @@ public class CarUxRestrictionsManagerServiceTest {
         mService.init();
         // A CarActivityView would report this itself, but we fake the report here
         mService.reportVirtualDisplayToPhysicalDisplay(mRemoteCallback, virtualDisplayId,
-                physicalPortForSecondDisplay);
+                physicalDisplayIdForVirtualDisplayId2);
         mService.handleDrivingStateEventLocked(
                 new CarDrivingStateEvent(CarDrivingStateEvent.DRIVING_STATE_MOVING,
                         SystemClock.elapsedRealtime()));
