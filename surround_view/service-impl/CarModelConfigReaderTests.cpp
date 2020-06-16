@@ -34,7 +34,7 @@ namespace {
 
 TEST(CarModelConfigReaderTests, CarModelReadConfigSuccess) {
     AnimationConfig animationConfig;
-    EXPECT_EQ(ReadCarModelConfig("/etc/automotive/sv/sv_sample_car_model_config.xml",
+    EXPECT_EQ(ReadCarModelConfig("/vendor/automotive/sv/sv_sample_car_model_config.xml",
                                  &animationConfig),
               IOStatus::OK);
 
@@ -43,48 +43,48 @@ TEST(CarModelConfigReaderTests, CarModelReadConfigSuccess) {
     ASSERT_EQ(animationConfig.animations.size(), 2);
 
     {
-        AnimationInfo frontLeftDoorAnimation = animationConfig.animations.at(0);
-        EXPECT_EQ(frontLeftDoorAnimation.partId, "front_left_door");
-        EXPECT_EQ(frontLeftDoorAnimation.childIds.size(), 2);
-        EXPECT_EQ(frontLeftDoorAnimation.pose, gMat4Identity);
+        AnimationInfo doorAnimation = animationConfig.animations.at(0);
+        EXPECT_EQ(doorAnimation.partId, "door");
+        EXPECT_EQ(doorAnimation.childIds.size(), 2);
+        EXPECT_EQ(doorAnimation.pose, gMat4Identity);
 
-        EXPECT_EQ(frontLeftDoorAnimation.rotationOpsMap.size(), 1);
+        EXPECT_EQ(doorAnimation.rotationOpsMap.size(), 1);
         {
-            RotationOp frontLeftDoorRotationOp =
-                    (frontLeftDoorAnimation.rotationOpsMap.at(0x100000002)).at(0);
-            EXPECT_EQ(frontLeftDoorRotationOp.vhalProperty, 0x100000002);
-            EXPECT_EQ(frontLeftDoorRotationOp.type, AnimationType::ROTATION_ANGLE);
-            EXPECT_EQ(frontLeftDoorRotationOp.animationTime, 2000);
-            std::array<float, 3> axis = {1, 0, 0};
-            EXPECT_EQ(frontLeftDoorRotationOp.axis.axisVector, axis);
-            std::array<float, 3> point = {2, 2, 2};
-            EXPECT_EQ(frontLeftDoorRotationOp.axis.rotationPoint, point);
-            EXPECT_EQ(frontLeftDoorRotationOp.rotationRange.start, 0.0);
-            EXPECT_EQ(frontLeftDoorRotationOp.rotationRange.end, 90.0);
-            EXPECT_EQ(frontLeftDoorRotationOp.vhalRange.start, 0);
-            EXPECT_EQ(frontLeftDoorRotationOp.vhalRange.end, 0xFFFF);
+            RotationOp rotationOp = (doorAnimation.rotationOpsMap.at(0x16000B0000000001)).at(0);
+            EXPECT_EQ(rotationOp.vhalProperty, 0x16000B0000000001);
+            EXPECT_EQ(rotationOp.type, AnimationType::ROTATION_ANGLE);
+            EXPECT_EQ(rotationOp.animationTime, 2000);
+            std::array<float, 3> axis = {0, 0, 1};
+            EXPECT_EQ(rotationOp.axis.axisVector, axis);
+            std::array<float, 3> point = {0, 0, 0};
+            EXPECT_EQ(rotationOp.axis.rotationPoint, point);
+            EXPECT_EQ(rotationOp.rotationRange.start, 0.0);
+            EXPECT_EQ(rotationOp.rotationRange.end, 90.0);
+            EXPECT_EQ(rotationOp.vhalRange.start, 0);
+            EXPECT_EQ(rotationOp.vhalRange.end, 0x7FFFFFFF);
         }
     }
 
     {
         AnimationInfo windowAnimation = animationConfig.animations.at(1);
-        EXPECT_EQ(windowAnimation.partId, "front_left_window");
+        EXPECT_EQ(windowAnimation.partId, "window");
         EXPECT_EQ(windowAnimation.childIds.size(), 0);
         EXPECT_EQ(windowAnimation.pose, gMat4Identity);
 
         EXPECT_EQ(windowAnimation.translationOpsMap.size(), 1);
         {
-            TranslationOp translationOp = (windowAnimation.translationOpsMap.at(0x200000001)).at(0);
-            EXPECT_EQ(translationOp.vhalProperty, 0x200000001);
+            TranslationOp translationOp =
+                    (windowAnimation.translationOpsMap.at(0x13000BC000000010)).at(0);
+            EXPECT_EQ(translationOp.vhalProperty, 0x13000BC000000010);
             EXPECT_EQ(translationOp.type, AnimationType::TRANSLATION);
             EXPECT_EQ(translationOp.animationTime, 2000);
             std::array<float, 3> dir = {0.0, 0.0, -1.0};
             EXPECT_EQ(translationOp.direction, dir);
             EXPECT_EQ(translationOp.defaultTranslationValue, 0.0);
             EXPECT_EQ(translationOp.translationRange.start, 0.0);
-            EXPECT_EQ(translationOp.translationRange.end, 5.0);
+            EXPECT_EQ(translationOp.translationRange.end, 1.0);
             EXPECT_EQ(translationOp.vhalRange.start, 0);
-            EXPECT_EQ(translationOp.vhalRange.end, 0xFFFF);
+            EXPECT_EQ(translationOp.vhalRange.end, 0x7FFFFFFF);
         }
     }
 }
