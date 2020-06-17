@@ -19,7 +19,6 @@ package com.android.car.developeroptions.biometrics.fingerprint;
 import android.app.Activity;
 import android.app.settings.SettingsEnums;
 import android.hardware.fingerprint.FingerprintManager;
-import android.os.UserHandle;
 
 import com.android.car.developeroptions.Utils;
 import com.android.car.developeroptions.biometrics.BiometricEnrollSidecar;
@@ -40,9 +39,6 @@ public class FingerprintEnrollSidecar extends BiometricEnrollSidecar {
     @Override
     protected void startEnrollment() {
         super.startEnrollment();
-        if (mUserId != UserHandle.USER_NULL) {
-            mFingerprintManager.setActiveUser(mUserId);
-        }
         mFingerprintManager.enroll(mToken, mEnrollmentCancel,
                 0 /* flags */, mUserId, mEnrollmentCallback);
     }

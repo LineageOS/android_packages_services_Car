@@ -21,7 +21,6 @@ import android.app.settings.SettingsEnums;
 import android.hardware.fingerprint.Fingerprint;
 import android.hardware.fingerprint.FingerprintManager;
 import android.os.Bundle;
-import android.os.UserHandle;
 import android.util.Log;
 
 import com.android.car.developeroptions.core.InstrumentedFragment;
@@ -78,9 +77,6 @@ public class FingerprintRemoveSidecar extends InstrumentedFragment {
         if (mFingerprintRemoving != null) {
             Log.e(TAG, "Remove already in progress");
             return;
-        }
-        if (userId != UserHandle.USER_NULL) {
-            mFingerprintManager.setActiveUser(userId);
         }
         mFingerprintRemoving = fingerprint;
         mFingerprintManager.remove(fingerprint, userId, mRemoveCallback);;

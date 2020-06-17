@@ -801,7 +801,6 @@ public class ChooseLockGeneric extends SettingsActivity {
                 RemovalTracker tracker) {
             if (mFingerprintManager != null && mFingerprintManager.isHardwareDetected()) {
                 if (mFingerprintManager.hasEnrolledFingerprints(userId)) {
-                    mFingerprintManager.setActiveUser(userId);
                     // For the purposes of M and N, groupId is the same as userId.
                     final int groupId = userId;
                     Fingerprint finger = new Fingerprint(null, groupId, 0, 0);
@@ -841,9 +840,6 @@ public class ChooseLockGeneric extends SettingsActivity {
 
         private void removeManagedProfileFingerprintsAndFinishIfNecessary(final int parentUserId,
                 RemovalTracker tracker) {
-            if (mFingerprintManager != null && mFingerprintManager.isHardwareDetected()) {
-                mFingerprintManager.setActiveUser(UserHandle.myUserId());
-            }
             boolean hasChildProfile = false;
             if (!mUserManager.getUserInfo(parentUserId).isManagedProfile()) {
                 // Current user is primary profile, remove work profile fingerprints if necessary
@@ -868,7 +864,6 @@ public class ChooseLockGeneric extends SettingsActivity {
         private void removeAllFaceForUserAndFinish(final int userId, RemovalTracker tracker) {
             if (mFaceManager != null && mFaceManager.isHardwareDetected()) {
                 if (mFaceManager.hasEnrolledTemplates(userId)) {
-                    mFaceManager.setActiveUser(userId);
                     Face face = new Face(null, 0, 0);
                     mFaceManager.remove(face, userId,
                             new FaceManager.RemovalCallback() {
@@ -896,9 +891,6 @@ public class ChooseLockGeneric extends SettingsActivity {
         // TODO: figure out how to eliminate duplicated code. It's a bit hard due to the async-ness
         private void removeManagedProfileFacesAndFinishIfNecessary(final int parentUserId,
                 RemovalTracker tracker) {
-            if (mFaceManager != null && mFaceManager.isHardwareDetected()) {
-                mFaceManager.setActiveUser(UserHandle.myUserId());
-            }
             boolean hasChildProfile = false;
             if (!mUserManager.getUserInfo(parentUserId).isManagedProfile()) {
                 // Current user is primary profile, remove work profile faces if necessary

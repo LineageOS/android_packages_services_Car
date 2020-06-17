@@ -19,7 +19,6 @@ package com.android.car.developeroptions.biometrics.face;
 import android.app.Activity;
 import android.app.settings.SettingsEnums;
 import android.hardware.face.FaceManager;
-import android.os.UserHandle;
 
 import com.android.car.developeroptions.Utils;
 import com.android.car.developeroptions.biometrics.BiometricEnrollSidecar;
@@ -48,10 +47,6 @@ public class FaceEnrollSidecar extends BiometricEnrollSidecar {
     @Override
     public void startEnrollment() {
         super.startEnrollment();
-        if (mUserId != UserHandle.USER_NULL) {
-            mFaceManager.setActiveUser(mUserId);
-        }
-
         mFaceManager.enroll(mUserId, mToken, mEnrollmentCancel,
                 mEnrollmentCallback, mDisabledFeatures);
     }
