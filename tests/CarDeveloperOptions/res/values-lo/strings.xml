@@ -455,7 +455,7 @@
     <string name="lock_screen_intro_skip_dialog_text" product="tablet" msgid="7572334562915795226">"ບໍ່ສາມາດເປີດຄຸນສົມບັດການປ້ອງກັນອຸປະກອນໄດ້. ທ່ານຈະບໍ່ສາມາດປ້ອງກັນບໍ່ໃຫ້ຄົນອື່ນໃຊ້ແທັບເລັດນີ້ໄດ້ຫາກມັນເສຍ ຫຼື ຖືກລັກ."</string>
     <string name="lock_screen_intro_skip_dialog_text" product="device" msgid="3819285334459763813">"ບໍ່ສາມາດເປີດຄຸນສົມບັດການປ້ອງກັນອຸປະກອນໄດ້. ທ່ານຈະບໍ່ສາມາດປ້ອງກັນບໍ່ໃຫ້ຄົນອື່ນໃຊ້ອຸປະກອນນີ້ໄດ້ຫາກມັນເສຍ ຫຼື ຖືກລັກ."</string>
     <string name="lock_screen_intro_skip_dialog_text" product="default" msgid="5361573789585652826">"ບໍ່ສາມາດເປີດຄຸນສົມບັດການປ້ອງກັນອຸປະກອນໄດ້. ທ່ານຈະບໍ່ສາມາດປ້ອງກັນບໍ່ໃຫ້ຄົນອື່ນໃຊ້ໂທລະສັບນີ້ໄດ້ຫາກມັນເສຍ ຫຼື ຖືກລັກ."</string>
-    <string name="skip_anyway_button_label" msgid="4437815969645175429">"ແນວ​ໃດ​ກໍ​ຂ້າມ​ໄປ"</string>
+    <string name="skip_anyway_button_label" msgid="4437815969645175429">"ຢືນຢັນການຂ້າມ"</string>
     <string name="go_back_button_label" msgid="7310586887969860472">"​ກັບ​ຄືນ"</string>
     <string name="skip_lock_screen_dialog_button_label" msgid="6706047245716780006">"ຂ້າມ"</string>
     <string name="cancel_lock_screen_dialog_button_label" msgid="2534925227627658819">"ຍົກເລີກ"</string>
@@ -2924,8 +2924,8 @@
     <string name="nfc_payment_favor_default" msgid="7555356982142464260">"​ທຸກ​ເທື່ອ"</string>
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"ຍົກ​ເວັ້ນ​ເມື່ອ​ແອັບ​ການ​ຊຳ​ລະ​ເງິນ​ອື່ນ​ເປີດ"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"ຢູ່​ທີ່​ຊ່ອງ​ແຕະ ແລະ​ຈ່າຍ, ຈ່າຍ​ດ້ວຍ:"</string>
-    <string name="nfc_how_it_works_title" msgid="6531433737926327904">"ການ​ຈ່າຍ​ຢູ່​ປາຍທາງ"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"ຕັ້ງ​ແອັບ​ການ​ຊຳ​ລະ​ເງິນ. ຈາກນັ້ນ​ຈັບ​ໂທ​ລະ​ສັບ​ຂອງ​ທ່ານ​ທາງ​ດ້ານ​ຫຼັງ​ໄປ​ຈົນ​ຮອດ​ບ່ອນ​ວາງ​ໃດ​ໜຶ່ງ​ທີ່​ມີ​ສັນ​ຍາ​ລັກ​ບໍ່​ມີ​ການສຳ​ຜັດ​."</string>
+    <string name="nfc_how_it_works_title" msgid="6531433737926327904">"ການຈ່າຍເງິນຢູ່ເຄື່ອງຈ່າຍເງິນ"</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"ຕັ້ງ​ແອັບ​ການ​ຈ່າຍເງິນ. ຈາກນັ້ນ​ຈັບ​ໂທ​ລະ​ສັບ​ຂອງ​ທ່ານ​ທາງ​ດ້ານ​ຫຼັງ​ໄປ​ຈົນ​ຮອດ​ບ່ອນ​ວາງ​ໃດ​ໜຶ່ງ​ທີ່​ມີ​ສັນ​ຍາ​ລັກ contactless​."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"ໄດ້​ແລ້ວ"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"ເພີ່ມເຕີມ..."</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"ກຳນົດເປັນຄ່າທີ່ທ່ານຕ້ອງການ?"</string>
@@ -3403,7 +3403,7 @@
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> ໝວດໝູ່</item>
       <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> ໝວດໝູ່</item>
     </plurals>
-    <string name="no_channels" msgid="8884254729302501652">"This app has not posted any notifications"</string>
+    <string name="no_channels" msgid="8884254729302501652">"ແອັບນີ້ຍັງບໍ່ໄດ້ໂພສການແຈ້ງເຕືອນໃດເທື່ອ"</string>
     <string name="app_settings_link" msgid="8465287765715790984">"ການຕັ້ງຄ່າເພີ່ມເຕີມໃນແອັບ"</string>
     <string name="app_notification_listing_summary_zero" msgid="4047782719487686699">"ເປີດສຳລັບທຸກແອັບ"</string>
     <plurals name="app_notification_listing_summary_others" formatted="false" msgid="1161774065480666519">

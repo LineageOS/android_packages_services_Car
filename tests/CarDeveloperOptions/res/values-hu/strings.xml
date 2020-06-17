@@ -2037,7 +2037,7 @@
     <string name="accessibility_settings" msgid="9140621093888234485">"Kisegítő lehetőségek"</string>
     <string name="accessibility_settings_title" msgid="1687226556576913576">"Kisegítő lehetőségek beállításai"</string>
     <string name="accessibility_settings_summary" msgid="5742379519336396561">"Képernyőolvasók, megjelenítés, interakcióvezérlők"</string>
-    <string name="vision_settings_title" msgid="7315352351051423944">"Látási beállítások"</string>
+    <string name="vision_settings_title" msgid="7315352351051423944">"Vizuális beállítások"</string>
     <string name="vision_settings_description" msgid="3476589459009287332">"Eszközét saját igényeinek megfelelően testre szabhatja. Ezeket a kisegítő lehetőségeket később a Beállítások menüben módosíthatja."</string>
     <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"Betűméret módosítása"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"Képernyőolvasók"</string>
@@ -2072,7 +2072,7 @@
     <string name="accessibility_toggle_large_pointer_icon_title" msgid="9127905775116570565">"Nagy egérmutató"</string>
     <string name="accessibility_disable_animations" msgid="8378441317115710009">"Animációk eltávolítása"</string>
     <string name="accessibility_toggle_master_mono_title" msgid="899550848196702565">"Monó hang"</string>
-    <string name="accessibility_toggle_master_mono_summary" msgid="3847052868469033235">"Csatornák kombinálása hang lejátszásakor"</string>
+    <string name="accessibility_toggle_master_mono_summary" msgid="3847052868469033235">"Csatornák egyesítése hang lejátszásakor"</string>
     <string name="accessibility_toggle_master_balance_title" msgid="8723492001092647562">"Hangegyensúly"</string>
     <string name="accessibility_toggle_master_balance_left_label" msgid="8531986342666527970">"Bal"</string>
     <string name="accessibility_toggle_master_balance_right_label" msgid="7757024572140589558">"Jobb"</string>
@@ -2925,7 +2925,7 @@
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Kivéve, ha meg van nyitva egy másik alkalmazás a fizetéshez"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"Érintéses fizetésre alkalmas terminál esetén fizetés a következővel:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Fizetés a terminálnál"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Állítson be egy alkalmazást a fizetéshez. Ezután elég csak telefonja hátulját odatartani az érintés nélküli fizetést jelző szimbólummal ellátott terminálhoz."</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Állítson be egy alkalmazást a fizetéshez. Ezután elég csak telefonja hátulját odatartani az érintéses fizetést jelző szimbólummal ellátott terminálhoz."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"Értem"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"Egyebek…"</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"Beállítja előnyben részesítettként?"</string>
