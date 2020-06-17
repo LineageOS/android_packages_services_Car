@@ -207,7 +207,7 @@
     <string name="proxy_error_empty_port" msgid="8034561724923076215">"آپ کو پورٹ فیلڈ مکمل کرنے کی ضرورت ہے۔"</string>
     <string name="proxy_error_empty_host_set_port" msgid="8471455809508588255">"اگر میزبان فیلڈ خالی ہے تو پورٹ فیلڈ لازمی طور پر خالی ہونی چاہیے۔"</string>
     <string name="proxy_error_invalid_port" msgid="4046559920586100637">"آپ کے ذریعے ٹائپ کردہ پورٹ درست نہیں ہے۔"</string>
-    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"HTTP پراکسی کا استعمال براؤزر کے ذریعے ہوتا ہے لیکن ممکن ہے دوسری ایپس اسے استعمال نہ کریں۔"</string>
+    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"براؤزر HTTP پراکسی کا استعمال کرتا ہے لیکن ممکن ہے دوسری ایپس اسے استعمال نہ کریں۔"</string>
     <string name="proxy_url_title" msgid="882042361706435904">"PAC URL:‎ "</string>
     <string name="radio_info_dl_kbps" msgid="2903778264453410272">"DL بینڈ وڈتھ (kbps):"</string>
     <string name="radio_info_ul_kbps" msgid="3802245899811732716">"UL بینڈ وڈتھ (kbps):"</string>
@@ -410,7 +410,7 @@
     <string name="face_add_max" msgid="8870899421165189413">"آپ <xliff:g id="COUNT">%d</xliff:g> چہروں تک شامل کر سکتے ہیں"</string>
     <string name="face_intro_error_max" msgid="4024147799079828937">"آپ چہروں کی زیادہ سے زیادہ تعداد شامل کر چکے ہیں"</string>
     <string name="face_intro_error_unknown" msgid="3241592604198351134">"مزید چہرے شامل نہیں کر سکتے"</string>
-    <string name="security_settings_face_enroll_error_dialog_title" msgid="3933492758701563051">"اندراج مکمل نہیں ہوا تھا"</string>
+    <string name="security_settings_face_enroll_error_dialog_title" msgid="3933492758701563051">"اندراج مکمل نہیں ہوا"</string>
     <string name="security_settings_face_enroll_dialog_ok" msgid="1078348922734845090">"ٹھیک ہے"</string>
     <string name="security_settings_face_enroll_error_timeout_dialog_message" msgid="4917894418448325405">"چہرے کے اندراج کی حدِ وقت پوری ہو گئی۔ دوبارہ کوشش کریں۔"</string>
     <string name="security_settings_face_enroll_error_generic_dialog_message" msgid="5160473187142616862">"چہرے کا اندراج نہیں ہوا۔"</string>
@@ -439,7 +439,7 @@
     <string name="security_settings_fingerprint_preference_summary_none" msgid="3613424536269750172"></string>
     <string name="security_settings_fingerprint_enroll_introduction_title" msgid="889558002683900544">"فنگر پرنٹ کے ساتھ غیر مقفل کریں"</string>
     <string name="security_settings_fingerprint_enroll_introduction_title_unlock_disabled" msgid="7915504118657864429">"اپنا فنگر پرنٹ استعمال کریں"</string>
-    <string name="security_settings_fingerprint_enroll_introduction_message" msgid="5586198131986682472">"اپنا فون غیر مقفل کرنے، خریداریوں کی اجازت دینے یا ایپس میں سائن ان کرنے کیلئے بس فنگر پرنٹ سنسر کو ٹچ کریں۔ کسی کے فنگر پرنٹس شامل کرتے وقت احتیاط برتیں۔ بس ایک شامل کردہ فنگر پرنٹ سے یہ سارے کام کئے جا سکتے ہیں۔\n\nنوٹ: ایک طاقتور پیٹرن یا PIN کی نسبت آپ کا فنگر پرنٹ شاید کم محفوظ ہو۔"</string>
+    <string name="security_settings_fingerprint_enroll_introduction_message" msgid="5586198131986682472">"اپنا فون غیر مقفل کرنے، خریداریوں کی اجازت دینے یا ایپس میں سائن ان کرنے کیلئے بس فنگر پرنٹ سینسر کو ٹچ کریں۔ کسی کے فنگر پرنٹس شامل کرتے وقت احتیاط برتیں۔ بس ایک شامل کردہ فنگر پرنٹ سے یہ سارے کام کئے جا سکتے ہیں۔\n\nنوٹ: ایک طاقتور پیٹرن یا PIN کی نسبت آپ کا فنگر پرنٹ شاید کم محفوظ ہو۔"</string>
     <string name="security_settings_fingerprint_enroll_introduction_message_unlock_disabled" msgid="1640839304679275468">"اپنا فون غیرمقفل کرنے یا خریداریاں منظور کرنے کے لیے اپنے فنگرپرنٹ کا استعمال کریں۔\n\nنوٹ: آپ اس آلہ کو غیرمقفل کرنے کے لیے اپنا فنگرپرنٹ استعمال نہیں کر سکتے۔ مزید معلومات کے لیے، اپنی تنظیم کے منتظم سے رابطہ کریں۔"</string>
     <string name="security_settings_fingerprint_enroll_introduction_message_setup" msgid="6734490666593320711">"اپنا فون غیرمقفل کرنے یا خریداریاں منظور کرنے کے لیے اپنے فنگرپرنٹ کا استعمال کریں۔\n\nنوٹ: ایک طاقتور پیٹرن یا PIN کی بنسبت آپ کا فنگر پرنٹ شاید کم محفوظ ہو۔"</string>
     <string name="security_settings_fingerprint_enroll_introduction_cancel" msgid="9168637333731599827">"منسوخ کریں"</string>
@@ -459,14 +459,14 @@
     <string name="go_back_button_label" msgid="7310586887969860472">"پیچھے جائیں"</string>
     <string name="skip_lock_screen_dialog_button_label" msgid="6706047245716780006">"نظر انداز کریں"</string>
     <string name="cancel_lock_screen_dialog_button_label" msgid="2534925227627658819">"منسوخ کریں"</string>
-    <string name="security_settings_fingerprint_enroll_find_sensor_title" msgid="8909829699273726469">"سنسر کو ٹچ کریں"</string>
+    <string name="security_settings_fingerprint_enroll_find_sensor_title" msgid="8909829699273726469">"سینسر کو ٹچ کریں"</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_message" msgid="581120963079780740">"یہ آپ کے فون کے پشت پر ہے۔ اپنی انڈیکس فنگر کا استعمال کریں۔"</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_content_description" msgid="7835824123269738540">"آلہ اور فنگر پرنٹ سینسر کے مقام کا خاکہ"</string>
     <string name="security_settings_fingerprint_enroll_dialog_name_label" msgid="3519748398694308901">"نام"</string>
     <string name="security_settings_fingerprint_enroll_dialog_ok" msgid="3428927518029038956">"ٹھیک ہے"</string>
     <string name="security_settings_fingerprint_enroll_dialog_delete" msgid="4312297515772004580">"حذف کریں"</string>
-    <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"سنسر کو ٹچ کریں"</string>
-    <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"اپنی انگلی سنسر پر رکھیں اور ارتعاش محسوس ہونے کے بعد اٹھا لیں"</string>
+    <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"سینسر کو ٹچ کریں"</string>
+    <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"اپنی انگلی سینسر پر رکھیں اور ارتعاش محسوس ہونے کے بعد اٹھا لیں"</string>
     <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"اٹھائیں، پھر دوبارہ ٹچ کریں"</string>
     <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"اپنے فنگرپرنٹ کے مختلف حصوں کو شامل کرنے کے لیے اپنی انگلی کو اٹھاتے رہیں"</string>
     <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"فنگر پرنٹ شامل ہو گیا"</string>
@@ -487,8 +487,8 @@
     <string name="security_settings_fingerprint_enroll_done" msgid="4111289529758845926">"ہوگیا"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_title" msgid="7410398793283818609">"افوہ، یہ سینسر نہیں ہے"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_message" msgid="7192100314788868883">"اپنے فون کے پشت پر سینسر کو ٹچ کریں۔ اپنی انڈیکس فنگر کا استعمال کریں۔"</string>
-    <string name="security_settings_fingerprint_enroll_error_dialog_title" msgid="1415709674142168770">"اندراج مکمل نہیں ہوا تھا"</string>
-    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"فنگر پرنٹ اندراج کی حدِ وقت پوری ہو گئی۔ دوبارہ کوشش کریں۔"</string>
+    <string name="security_settings_fingerprint_enroll_error_dialog_title" msgid="1415709674142168770">"اندراج مکمل نہیں ہوا"</string>
+    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"فنگر پرنٹ اندراج کی وقت کی حد پوری ہو گئی۔ دوبارہ کوشش کریں۔"</string>
     <string name="security_settings_fingerprint_enroll_error_generic_dialog_message" msgid="7896295829530444810">"فنگر پرنٹ اندراج نہیں ہوا۔ دوبارہ کوشش کریں یا مختلف انگلی استعمال کریں۔"</string>
     <string name="fingerprint_enroll_button_add" msgid="6335782936874996629">"کوئی دوسرا شامل کریں"</string>
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"آگے جائیں"</string>
@@ -910,7 +910,7 @@
     <string name="wifi_status" msgid="3439931558930689940">"اسٹیٹس"</string>
     <string name="tx_wifi_speed" msgid="2571810085003261073">"ترسیل کے لنک کی رفتار"</string>
     <string name="rx_wifi_speed" msgid="7392873246110937187">"وصولی کے لنک کی رفتار"</string>
-    <string name="wifi_frequency" msgid="6132852924995724246">"تعدد"</string>
+    <string name="wifi_frequency" msgid="6132852924995724246">"فریکوئنسی"</string>
     <string name="wifi_ip_address" msgid="5572539114989914831">"IP پتہ"</string>
     <string name="passpoint_label" msgid="7429247462404128615">"محفوظ کردہ بذریعہ"</string>
     <string name="passpoint_content" msgid="340527524510304327">"<xliff:g id="NAME">%1$s</xliff:g> اسنادات"</string>
@@ -1128,7 +1128,7 @@
     <string name="notification_sound_title" msgid="6812164482799723931">"ڈیفالٹ اطلاع کی آواز"</string>
     <string name="incoming_call_volume_title" msgid="4736570528754310450">"رنگ ٹون"</string>
     <string name="notification_volume_title" msgid="6022562909288085275">"اطلاع"</string>
-    <string name="checkbox_notification_same_as_incoming_call" msgid="7312942422655861175">"اطلاعات کیلئے آنے والی کال کا والیوم استعمال کریں"</string>
+    <string name="checkbox_notification_same_as_incoming_call" msgid="7312942422655861175">"اطلاعات کیلئے اِن کمنگ کال کا والیوم استعمال کریں"</string>
     <string name="home_work_profile_not_supported" msgid="6137073723297076818">"کام کے پروفائلز کا تعاون نہیں کرتا ہے"</string>
     <string name="notification_sound_dialog_title" msgid="6653341809710423276">"ڈیفالٹ اطلاع کی آواز"</string>
     <string name="media_volume_title" msgid="1030438549497800914">"میڈیا"</string>
@@ -1689,7 +1689,7 @@
     <string name="contributors_title" msgid="6800028420806884340">"معاونین"</string>
     <string name="manual" msgid="5431859421432581357">"مینوئل"</string>
     <string name="regulatory_labels" msgid="380968489247381025">"ریگولیٹری لیبلز"</string>
-    <string name="safety_and_regulatory_info" msgid="7113766428000920132">"حفاظتی اور انضباطی مینوئل"</string>
+    <string name="safety_and_regulatory_info" msgid="7113766428000920132">"حفاظتی اور ریگولیٹری مینوئل"</string>
     <string name="copyright_title" msgid="3847703367689932190">"کاپی رائٹ"</string>
     <string name="license_title" msgid="7582145947873528540">"لائسنس"</string>
     <string name="terms_title" msgid="1804549588198223771">"شرائط و ضوابط"</string>
@@ -2037,7 +2037,7 @@
     <string name="accessibility_settings" msgid="9140621093888234485">"ایکسیسبیلٹی"</string>
     <string name="accessibility_settings_title" msgid="1687226556576913576">"ایکسیسبیلٹی ترتیبات"</string>
     <string name="accessibility_settings_summary" msgid="5742379519336396561">"اسکرین قارئین، ڈسپلے، تعامل کے کنٹرولز"</string>
-    <string name="vision_settings_title" msgid="7315352351051423944">"بصارتی ترتیبات"</string>
+    <string name="vision_settings_title" msgid="7315352351051423944">"بصری ترتیبات"</string>
     <string name="vision_settings_description" msgid="3476589459009287332">"آپ اس آلہ کو اپنی ضروریات کے مطابق حسب ضرورت بنا سکتے ہیں۔ یہ ایکسیسبیلٹی خصوصیات بعد میں ترتیبات میں تبدیل ہو سکتی ہیں۔"</string>
     <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"فونٹ سائز تبدیل کریں"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"اسکرین ریڈرز"</string>
@@ -2072,7 +2072,7 @@
     <string name="accessibility_toggle_large_pointer_icon_title" msgid="9127905775116570565">"بڑا ماؤس پوائنٹر"</string>
     <string name="accessibility_disable_animations" msgid="8378441317115710009">"اینیمیشنز ہٹائیں"</string>
     <string name="accessibility_toggle_master_mono_title" msgid="899550848196702565">"مونو آڈیو"</string>
-    <string name="accessibility_toggle_master_mono_summary" msgid="3847052868469033235">"آڈیو چلاتے وقت چینلز آپس میں ملائیں"</string>
+    <string name="accessibility_toggle_master_mono_summary" msgid="3847052868469033235">"آڈیو چلاتے وقت چینلز یکجا کریں"</string>
     <string name="accessibility_toggle_master_balance_title" msgid="8723492001092647562">"آڈیو بیلنس"</string>
     <string name="accessibility_toggle_master_balance_left_label" msgid="8531986342666527970">"بائیں"</string>
     <string name="accessibility_toggle_master_balance_right_label" msgid="7757024572140589558">"دائیں"</string>
@@ -3160,7 +3160,7 @@
     <string name="emergency_tone_vibrate" msgid="5020068066905681181">"وائبریشنز"</string>
     <string name="boot_sounds_title" msgid="7583926202411353620">"آوازیں آن کریں"</string>
     <string name="live_caption_title" msgid="7926591158657997051">"لائیو کیپشن"</string>
-    <string name="live_caption_summary" msgid="9064771862352393125">"خودکار طور پر کیپشن میڈیا"</string>
+    <string name="live_caption_summary" msgid="9064771862352393125">"خودکار طور پر میڈیا پر کیپشن لگائیں"</string>
     <string name="zen_mode_settings_summary_off" msgid="6929319200478424962">"کبھی نہیں"</string>
     <plurals name="zen_mode_settings_summary_on" formatted="false" msgid="6061723291126091396">
       <item quantity="other"><xliff:g id="ON_COUNT">%d</xliff:g> فعال ہے</item>
@@ -3401,7 +3401,7 @@
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> زمرے</item>
       <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> زمرہ</item>
     </plurals>
-    <string name="no_channels" msgid="8884254729302501652">"اس ایپ نے کوئی اطلاعات شائع نہیں کیا ہے"</string>
+    <string name="no_channels" msgid="8884254729302501652">"اس ایپ نے کوئی اطلاعات شائع نہیں کی ہیں"</string>
     <string name="app_settings_link" msgid="8465287765715790984">"ایپ میں اضافی ترتیبات"</string>
     <string name="app_notification_listing_summary_zero" msgid="4047782719487686699">"سبھی ایپس کے لیے آن ہے"</string>
     <plurals name="app_notification_listing_summary_others" formatted="false" msgid="1161774065480666519">
