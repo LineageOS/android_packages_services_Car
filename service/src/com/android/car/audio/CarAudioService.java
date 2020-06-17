@@ -46,7 +46,6 @@ import android.media.AudioManager;
 import android.media.AudioPatch;
 import android.media.AudioPlaybackConfiguration;
 import android.media.AudioPortConfig;
-import android.media.AudioSystem;
 import android.media.audiopolicy.AudioPolicy;
 import android.os.IBinder;
 import android.os.Looper;
@@ -741,13 +740,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     private void releaseAudioPatchLocked(CarAudioPatchHandle carPatch) {
+        Objects.requireNonNull(carPatch);
         // NOTE:  AudioPolicyService::removeNotificationClient will take care of this automatically
         //        if the client that created a patch quits.
-
-        // FIXME {@link AudioManager#listAudioPatches(ArrayList)} returns old generation of
-        // audio patches after creation
         ArrayList<AudioPatch> patches = new ArrayList<>();
-        int result = AudioSystem.listAudioPatches(patches, new int[1]);
+        int result = mAudioManager.listAudioPatches(patches);
         if (result != AudioManager.SUCCESS) {
             throw new RuntimeException("listAudioPatches failed with code " + result);
         }
