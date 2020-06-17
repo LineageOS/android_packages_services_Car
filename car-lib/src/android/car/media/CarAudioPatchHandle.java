@@ -70,9 +70,7 @@ public final class CarAudioPatchHandle implements Parcelable {
      * @hide
      */
     public boolean represents(AudioPatch patch) {
-        return patch.sources().length == 1
-                && patch.sinks().length == 1
-                && patch.id() == mHandleId;
+        return patch.id() == mHandleId;
     }
 
     @Override
