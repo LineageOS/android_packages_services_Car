@@ -1270,7 +1270,7 @@
     <string name="night_display_activation_off_twilight" msgid="6846727701281556110">"Вимкнути до заходу сонця"</string>
     <string name="night_display_activation_on_custom" msgid="4761140206778957611">"Увімкнути до <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="night_display_activation_off_custom" msgid="4207238846687792731">"Вимкнути до <xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="night_display_not_currently_on" msgid="1436588493764429281">"Нічний режим не ввімкнено"</string>
+    <string name="night_display_not_currently_on" msgid="1436588493764429281">"Нічний екран не ввімкнено"</string>
     <string name="screen_timeout" msgid="1700950247634525588">"Режим сну"</string>
     <string name="screen_timeout_title" msgid="150117777762864112">"Вимикати екран"</string>
     <string name="screen_timeout_summary" msgid="8644192861778491060">"Коли минає <xliff:g id="TIMEOUT_DESCRIPTION">%1$s</xliff:g> бездіяльності"</string>
@@ -4028,9 +4028,9 @@
     <string name="condition_device_muted_summary" msgid="3101055117680109021">"Для викликів і сповіщень"</string>
     <string name="condition_device_vibrate_title" msgid="5712659354868872338">"Лише вібрація"</string>
     <string name="condition_device_vibrate_summary" msgid="9073880731894828604">"Для викликів і сповіщень"</string>
-    <string name="night_display_suggestion_title" msgid="4222839610992282188">"Налаштувати графік нічного режиму"</string>
+    <string name="night_display_suggestion_title" msgid="4222839610992282188">"Налаштувати графік функції \"Нічний екран\""</string>
     <string name="night_display_suggestion_summary" msgid="1754361016383576916">"Автоматично відтіняти екран щовечора"</string>
-    <string name="condition_night_display_title" msgid="9171491784857160135">"Нічне освітлення ввімкнено"</string>
+    <string name="condition_night_display_title" msgid="9171491784857160135">"Нічний екран увімкнено"</string>
     <string name="condition_night_display_summary" msgid="7885776986937527558">"Відтінок екрана змінено на бурштиновий"</string>
     <string name="condition_grayscale_title" msgid="1226351649203551299">"Відтінки сірого"</string>
     <string name="condition_grayscale_summary" msgid="749172886527349546">"Відображати все в сірому кольорі"</string>

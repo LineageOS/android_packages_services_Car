@@ -1528,7 +1528,7 @@
     <string name="battery_level_title" msgid="5207775387973771646">"Nivel de batería"</string>
     <string name="apn_settings" msgid="8130776653826271664">"APNs"</string>
     <string name="apn_edit" msgid="4350571070853305357">"Editar punto de acceso"</string>
-    <string name="apn_not_set" msgid="5344235604466825691">"Sin establecer"</string>
+    <string name="apn_not_set" msgid="5344235604466825691">"Sin definir"</string>
     <string name="apn_name" msgid="8431432886706852226">"Nombre"</string>
     <string name="apn_apn" msgid="190519449579357696">"APN"</string>
     <string name="apn_http_proxy" msgid="8816906767987944465">"Proxy"</string>
