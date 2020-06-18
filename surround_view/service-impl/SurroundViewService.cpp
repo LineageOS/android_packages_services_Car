@@ -60,6 +60,30 @@ sp<SurroundViewService> SurroundViewService::getInstance() {
     return sService;
 }
 
+std::vector<uint64_t> getAnimationPropertiesToRead(const AnimationConfig& animationConfig) {
+    std::set<uint64_t> propertiesSet;
+    for(const auto& animation: animationConfig.animations) {
+        for(const auto& opPair : animation.gammaOpsMap) {
+            propertiesSet.insert(opPair.first);
+        }
+
+        for(const auto& opPair : animation.textureOpsMap) {
+            propertiesSet.insert(opPair.first);
+        }
+
+        for(const auto& opPair : animation.rotationOpsMap) {
+            propertiesSet.insert(opPair.first);
+        }
+
+        for(const auto& opPair : animation.translationOpsMap) {
+            propertiesSet.insert(opPair.first);
+        }
+    }
+    std::vector<uint64_t> propertiesToRead;
+    propertiesToRead.assign(propertiesSet.begin(), propertiesSet.end());
+    return propertiesToRead;
+}
+
 bool SurroundViewService::initialize() {
     // Get the EVS manager service
     LOG(INFO) << "Acquiring EVS Enumerator";
@@ -94,7 +118,21 @@ bool SurroundViewService::initialize() {
     // TODO(b/157498592): The update rate should align with the EVS camera
     // update rate.
     if (mVhalHandler->initialize(VhalHandler::GET, kVhalUpdateRate)) {
-        mVhalHandler->setPropertiesToRead(vector<VehiclePropValue>());
+        // Initialize the vhal handler properties to read.
+        std::vector<uint64_t> propertiesToRead;
+
+        // Add animation properties to read if 3d and animations are enabled.
+        if (mConfig.sv3dConfig.sv3dEnabled && mConfig.sv3dConfig.sv3dAnimationsEnabled) {
+            const std::vector<uint64_t> animationPropertiesToRead =
+                    getAnimationPropertiesToRead(mConfig.carModelConfig.animationConfig);
+            propertiesToRead.insert(propertiesToRead.end(), animationPropertiesToRead.begin(),
+                    animationPropertiesToRead.end());
+        }
+
+        // Call vhal handler setPropertiesToRead with all properties.
+        if (!mVhalHandler->setPropertiesToRead(propertiesToRead)) {
+            LOG(WARNING) << "VhalHandler setPropertiesToRead failed.";
+        }
     } else {
         LOG(WARNING) << "VhalHandler cannot be initialized properly";
     }
@@ -182,4 +220,3 @@ Return<SvResult> SurroundViewService::stop3dSession(
 }  // namespace automotive
 }  // namespace hardware
 }  // namespace android
-
