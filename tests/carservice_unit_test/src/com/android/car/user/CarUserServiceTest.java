@@ -249,7 +249,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testOnUserLifecycleEvent_legacyUserSwitch_halCalled() throws Exception {
         // Arrange
-        mockExistingUsers();
+        mockExistingUsers(mExistingUsers);
 
         // Act
         sendUserSwitchingEvent(mAdminUser.id, mRegularUser.id);
@@ -261,7 +261,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testOnUserLifecycleEvent_legacyUserSwitch_halnotSupported() throws Exception {
         // Arrange
-        mockExistingUsers();
+        mockExistingUsers(mExistingUsers);
         mockUserHalSupported(false);
 
         // Act
@@ -275,7 +275,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     public void testOnUserLifecycleEvent_notifyListener() throws Exception {
         // Arrange
         mCarUserService.addUserLifecycleListener(mUserLifecycleListener);
-        mockExistingUsers();
+        mockExistingUsers(mExistingUsers);
 
         // Act
         sendUserSwitchingEvent(mAdminUser.id, mRegularUser.id);
@@ -293,7 +293,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         doThrow(new RuntimeException("Failed onEvent invocation")).when(
                 failureListener).onEvent(any(UserLifecycleEvent.class));
         mCarUserService.addUserLifecycleListener(failureListener);
-        mockExistingUsers();
+        mockExistingUsers(mExistingUsers);
 
         // Adding the non-failure listener later.
         mCarUserService.addUserLifecycleListener(mUserLifecycleListener);
@@ -339,7 +339,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testLastActiveUserUpdatedOnUserSwitch_nonHeadlessSystemUser() throws Exception {
         mockIsHeadlessSystemUser(mRegularUser.id, false);
-        mockExistingUsers();
+        mockExistingUsers(mExistingUsers);
 
         sendUserSwitchingEvent(mAdminUser.id, mRegularUser.id);
 
@@ -712,7 +712,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testRemoveUser_lastAdminUser() throws Exception {
         mockCurrentUser(mRegularUser);
-        mockExistingUsers();
+        mockExistingUsers(mExistingUsers);
 
         UserRemovalResult result = mCarUserService.removeUser(mAdminUser.id);
 
@@ -722,29 +722,41 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void testRemoveUser_notLastAdminUser_success() throws Exception {
-        // Give admin rights to regular user.
+        List<UserInfo> existingUsers =
+                new ArrayList<UserInfo>(Arrays.asList(mAdminUser, mGuestUser, mRegularUser));
         UserInfo currentUser = mRegularUser;
+        // Give admin rights to current user.
         currentUser.flags = currentUser.flags | FLAG_ADMIN;
-        mockExistingUsersAndCurrentUser(currentUser);
-        int removeUserId = mAdminUser.id;
-        when(mMockedUserManager.removeUser(removeUserId)).thenReturn(true);
+        mockExistingUsersAndCurrentUser(existingUsers, currentUser);
 
-        UserRemovalResult result = mCarUserService.removeUser(removeUserId);
+        UserInfo removeUser = mAdminUser;
+        doAnswer((invocation) -> {
+            existingUsers.remove(removeUser);
+            return true;
+        }).when(mMockedUserManager).removeUser(eq(removeUser.id));
+
+        UserRemovalResult result = mCarUserService.removeUser(removeUser.id);
 
         assertThat(result.getStatus()).isEqualTo(UserRemovalResult.STATUS_SUCCESSFUL);
-        assertHalRemove(currentUser.id, removeUserId);
+        assertHalRemove(currentUser, removeUser, existingUsers);
     }
 
     @Test
     public void testRemoveUser_success() throws Exception {
-        mockExistingUsersAndCurrentUser(mAdminUser);
-        int removeUserId = mRegularUser.id;
-        when(mMockedUserManager.removeUser(removeUserId)).thenReturn(true);
+        List<UserInfo> existingUsers =
+                new ArrayList<UserInfo>(Arrays.asList(mAdminUser, mGuestUser, mRegularUser));
+        UserInfo currentUser = mAdminUser;
+        mockExistingUsersAndCurrentUser(existingUsers, currentUser);
+        UserInfo removeUser = mRegularUser;
+        doAnswer((invocation) -> {
+            existingUsers.remove(removeUser);
+            return true;
+        }).when(mMockedUserManager).removeUser(eq(removeUser.id));
 
-        UserRemovalResult result = mCarUserService.removeUser(removeUserId);
+        UserRemovalResult result = mCarUserService.removeUser(removeUser.id);
 
         assertThat(result.getStatus()).isEqualTo(UserRemovalResult.STATUS_SUCCESSFUL);
-        assertHalRemove(mAdminUser.id, removeUserId);
+        assertHalRemove(currentUser, removeUser, existingUsers);
     }
 
     @Test
@@ -1109,7 +1121,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void testLegacyUserSwitch_ok() throws Exception {
-        mockExistingUsers();
+        mockExistingUsers(mExistingUsers);
 
         sendUserSwitchingEvent(mAdminUser.id, mRegularUser.id);
 
@@ -1757,13 +1769,19 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
      */
     private void mockExistingUsersAndCurrentUser(@NonNull UserInfo user)
             throws Exception {
-        mockExistingUsers();
+        mockExistingUsers(mExistingUsers);
         mockCurrentUser(user);
     }
 
-    private void mockExistingUsers() {
-        mockUmGetUsers(mMockedUserManager, mExistingUsers);
-        for (UserInfo user : mExistingUsers) {
+    private void mockExistingUsersAndCurrentUser(@NonNull List<UserInfo> existingUsers,
+            @NonNull UserInfo currentUser) throws Exception {
+        mockExistingUsers(existingUsers);
+        mockCurrentUser(currentUser);
+    }
+
+    private void mockExistingUsers(@NonNull List<UserInfo> existingUsers) {
+        mockUmGetUsers(mMockedUserManager, existingUsers);
+        for (UserInfo user : existingUsers) {
             AndroidMockitoHelper.mockUmGetUserInfo(mMockedUserManager, user);
         }
     }
@@ -1966,7 +1984,6 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         when(mUserHal.isUserAssociationSupported()).thenReturn(result);
     }
 
-
     /**
      * Asserts a {@link UsersInfo} that was created based on {@link #mockCurrentUsers(UserInfo)}.
      */
@@ -2098,12 +2115,18 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         verify(mUserHal, never()).createUser(any(), eq(mAsyncCallTimeoutMs), any());
     }
 
-    private void assertHalRemove(int currentId, int removeUserId) {
+    private void assertHalRemove(@NonNull UserInfo currentUser, @NonNull UserInfo removeUser,
+            @NonNull List<UserInfo> existingUsers) {
         ArgumentCaptor<RemoveUserRequest> request =
                 ArgumentCaptor.forClass(RemoveUserRequest.class);
         verify(mUserHal).removeUser(request.capture());
-        assertThat(request.getValue().removedUserInfo.userId).isEqualTo(removeUserId);
-        assertThat(request.getValue().usersInfo.currentUser.userId).isEqualTo(currentId);
+        assertThat(request.getValue().removedUserInfo.userId).isEqualTo(removeUser.id);
+        assertThat(request.getValue().usersInfo.currentUser.userId).isEqualTo(currentUser.id);
+        UsersInfo receivedExistingUsers = request.getValue().usersInfo;
+        assertThat(receivedExistingUsers.numberUsers).isEqualTo(existingUsers.size());
+        for (int i = 0; i < receivedExistingUsers.numberUsers; i++) {
+            assertSameUser(receivedExistingUsers.existingUsers.get(i), existingUsers.get(i));
+        }
     }
 
     @NonNull
