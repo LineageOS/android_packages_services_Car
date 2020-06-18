@@ -40,6 +40,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.provider.Settings;
 import android.sysprop.CarProperties;
 import android.util.ArrayMap;
 import android.util.EventLog;
@@ -248,6 +249,10 @@ public final class CarUserManager extends CarManagerBase {
                     if (result != null) {
                         EventLog.writeEvent(EventLogTags.CAR_USER_MGR_CREATE_USER_RESP, uid,
                                 result.getStatus(), result.getErrorMessage());
+                        UserInfo user = result.getUser();
+                        if (result.isSuccess() && user != null && user.isGuest()) {
+                            onGuestCreated(user);
+                        }
                     } else {
                         Log.w(TAG, "createUser(" + userType + "," + UserInfo.flagsToString(flags)
                                 + ") failed: " + err);
@@ -265,6 +270,35 @@ public final class CarUserManager extends CarManagerBase {
                     null, null));
             return handleRemoteExceptionFromCarService(e, future);
         }
+    }
+
+    /**
+     * Creates a new guest Android user.
+     *
+     * @hide
+     */
+    @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
+            android.Manifest.permission.CREATE_USERS})
+    public AndroidFuture<UserCreationResult> createGuest(@Nullable String name) {
+        return createUser(name, UserManager.USER_TYPE_FULL_GUEST, /* flags= */ 0);
+    }
+
+    /**
+     * Creates a new Android user.
+     *
+     * @hide
+     */
+    @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
+            android.Manifest.permission.CREATE_USERS})
+    public AndroidFuture<UserCreationResult> createUser(@Nullable String name,
+            @UserInfoFlag int flags) {
+        return createUser(name, UserManager.USER_TYPE_FULL_SECONDARY, flags);
+    }
+
+    // TODO(b/159283854): move to UserManager
+    private void onGuestCreated(UserInfo user) {
+        Settings.Secure.putStringForUser(getContext().getContentResolver(),
+                Settings.Secure.SKIP_FIRST_USE_HINTS, "1", user.id);
     }
 
      /**
