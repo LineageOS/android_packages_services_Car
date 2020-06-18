@@ -448,7 +448,6 @@ public abstract class AbstractExtendedMockitoTestCase {
             Answer<String> getStringAnswer = invocation ->
                     getAnswer(invocation, String.class, 1, INVALID_DEFAULT_INDEX);
 
-
             when(Settings.Global.putInt(any(), any(), anyInt())).thenAnswer(insertObjectAnswer);
 
             when(Settings.Global.getInt(any(), any(), anyInt())).thenAnswer(getIntAnswer);
@@ -458,6 +457,9 @@ public abstract class AbstractExtendedMockitoTestCase {
 
             when(Settings.Secure.getIntForUser(any(), any(), anyInt(), anyInt()))
                     .thenAnswer(getIntAnswer);
+
+            when(Settings.Secure.putStringForUser(any(), anyString(), anyString(), anyInt()))
+                    .thenAnswer(insertObjectAnswer);
 
             when(Settings.Global.putString(any(), any(), any()))
                     .thenAnswer(insertObjectAnswer);

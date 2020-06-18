@@ -47,10 +47,12 @@ import android.car.user.UserCreationResult;
 import android.car.user.UserIdentificationAssociationResponse;
 import android.car.user.UserRemovalResult;
 import android.car.user.UserSwitchResult;
+import android.content.Context;
 import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
 import android.os.RemoteException;
 import android.os.UserManager;
+import android.provider.Settings;
 
 import com.android.internal.infra.AndroidFuture;
 
@@ -66,6 +68,8 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
     private UserManager mUserManager;
     @Mock
     private ICarUserService mService;
+    @Mock
+    private Context mMockContext;
 
     private CarUserManager mMgr;
 
@@ -77,6 +81,7 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
     @Before
     public void setFixtures() {
         mMgr = new CarUserManager(mCar, mService, mUserManager);
+        when(mCar.getContext()).thenReturn(mMockContext);
     }
 
     @Test
@@ -225,7 +230,7 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
     }
 
     @Test
-    public void testCreateUser_success() throws Exception {
+    public void testCreateUser_withType_success() throws Exception {
         expectServiceCreateUserSucceeds("dude", "sweet", 42, UserCreationResult.STATUS_SUCCESSFUL,
                 108);
 
@@ -246,11 +251,84 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
     }
 
     @Test
-    public void testCreateUser_remoteException() throws Exception {
+    public void testCreateUser_withType_remoteException() throws Exception {
         expectServiceCreateUserFails("dude", "sweet", 42);
         mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
 
         AndroidFuture<UserCreationResult> future = mMgr.createUser("dude", "sweet", 42);
+
+        assertThat(future).isNotNull();
+        UserCreationResult result = getResult(future);
+        assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_HAL_INTERNAL_FAILURE);
+        assertThat(result.isSuccess()).isFalse();
+        assertThat(result.getErrorMessage()).isNull();
+        assertThat(result.getUser()).isNull();
+    }
+
+    @Test
+    public void testCreateUser_success() throws Exception {
+        expectServiceCreateUserSucceeds("dude", UserManager.USER_TYPE_FULL_SECONDARY, 42,
+                UserCreationResult.STATUS_SUCCESSFUL, 108);
+
+        AndroidFuture<UserCreationResult> future = mMgr.createUser("dude", 42);
+
+        assertThat(future).isNotNull();
+        UserCreationResult result = getResult(future);
+        assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_SUCCESSFUL);
+        assertThat(result.isSuccess()).isTrue();
+        assertThat(result.getErrorMessage()).isNull();
+
+        UserInfo newUser = result.getUser();
+        assertThat(newUser).isNotNull();
+        assertThat(newUser.id).isEqualTo(108);
+        assertThat(newUser.name).isEqualTo("dude");
+        assertThat(newUser.userType).isEqualTo(UserManager.USER_TYPE_FULL_SECONDARY);
+        assertThat(newUser.flags).isEqualTo(42);
+    }
+
+    @Test
+    public void testCreateUser_remoteException() throws Exception {
+        expectServiceCreateUserFails("dude", UserManager.USER_TYPE_FULL_SECONDARY, 42);
+        mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
+
+        AndroidFuture<UserCreationResult> future = mMgr.createUser("dude", 42);
+
+        assertThat(future).isNotNull();
+        UserCreationResult result = getResult(future);
+        assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_HAL_INTERNAL_FAILURE);
+        assertThat(result.isSuccess()).isFalse();
+        assertThat(result.getErrorMessage()).isNull();
+        assertThat(result.getUser()).isNull();
+    }
+
+    @Test
+    public void testCreateGuest_success() throws Exception {
+        expectServiceCreateUserSucceeds("dudeGuest", UserManager.USER_TYPE_FULL_GUEST, 0,
+                UserCreationResult.STATUS_SUCCESSFUL, 108);
+
+        AndroidFuture<UserCreationResult> future = mMgr.createGuest("dudeGuest");
+
+        assertThat(future).isNotNull();
+        UserCreationResult result = getResult(future);
+        assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_SUCCESSFUL);
+        assertThat(result.isSuccess()).isTrue();
+        assertThat(result.getErrorMessage()).isNull();
+
+        UserInfo newUser = result.getUser();
+        assertThat(newUser).isNotNull();
+        assertThat(newUser.id).isEqualTo(108);
+        assertThat(newUser.name).isEqualTo("dudeGuest");
+        assertThat(newUser.userType).isEqualTo(UserManager.USER_TYPE_FULL_GUEST);
+        assertThat(newUser.flags).isEqualTo(0);
+        assertThat(getSettingsString(Settings.Secure.SKIP_FIRST_USE_HINTS)).isEqualTo("1");
+    }
+
+    @Test
+    public void testCreateGuest_remoteException() throws Exception {
+        expectServiceCreateUserFails("dudeGuest", UserManager.USER_TYPE_FULL_GUEST, 0);
+        mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
+
+        AndroidFuture<UserCreationResult> future = mMgr.createGuest("dudeGuest");
 
         assertThat(future).isNotNull();
         UserCreationResult result = getResult(future);
