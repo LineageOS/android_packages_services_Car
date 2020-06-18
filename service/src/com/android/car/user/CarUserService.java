@@ -966,7 +966,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         if (isUserHalSupported()) {
             RemoveUserRequest request = new RemoveUserRequest();
             request.removedUserInfo = halUser;
-            request.usersInfo = usersInfo;
+            request.usersInfo = UserHalHelper.newUsersInfo(mUserManager);
             mHal.removeUser(request);
         }
 
