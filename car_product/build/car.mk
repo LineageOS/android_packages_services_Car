@@ -25,7 +25,9 @@ PRODUCT_PACKAGES += \
     CompanionDeviceSupport \
     OneTimeInitializer \
     Provision \
+    StatementService \
     SystemUpdater
+
 
 PRODUCT_PACKAGES += \
     clatd \
