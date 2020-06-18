@@ -154,6 +154,12 @@
         <install-in user-type="SYSTEM" />
     </install-in-user-type>
 
+    <!-- Required for compatibility -->
+    <install-in-user-type package="com.android.statementservice">
+        <install-in user-type="FULL" />
+        <install-in user-type="SYSTEM" />
+    </install-in-user-type>
+
     <!-- Failed to find provider info for downloads error if not installed for system user -->
     <install-in-user-type package="com.android.providers.downloads">
         <install-in user-type="FULL" />
