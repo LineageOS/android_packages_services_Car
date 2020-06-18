@@ -1583,8 +1583,8 @@
     <string name="reset_network_complete_toast" msgid="128225929536005495">"Network settings have been reset"</string>
     <string name="reset_esim_error_title" msgid="4728931209471875632">"Can’t delete SIMs"</string>
     <string name="reset_esim_error_msg" msgid="4716366079119742235">"Downloaded SIMs can’t be deleted due to an error.\n\nRestart your device and try again."</string>
-    <string name="master_clear_title" msgid="1560712943955904673">"Erase all data (factory reset)"</string>
-    <string name="master_clear_short_title" msgid="919098101581335101">"Erase all data (factory reset)"</string>
+    <string name="master_clear_title" msgid="1560712943955904673">"Delete all data (factory reset)"</string>
+    <string name="master_clear_short_title" msgid="919098101581335101">"Delete all data (factory reset)"</string>
     <string name="master_clear_desc" product="tablet" msgid="3432373610755760899">"This will erase all data from your tablet’s "<b>"internal storage"</b>", including:\n\n"<li>"Your Google Account"</li>\n<li>"System and app data and settings"</li>\n<li>"Downloaded apps"</li></string>
     <string name="master_clear_desc" product="default" msgid="8765543541962866697">"This will erase all data from your phone’s "<b>"internal storage"</b>", including:\n\n"<li>"Your Google Account"</li>\n<li>"System and app data and settings"</li>\n<li>"Downloaded apps"</li></string>
     <string name="master_clear_accounts" product="default" msgid="3432884235445405376">\n\n"You are currently signed in to the following accounts:\n"</string>
@@ -2064,7 +2064,7 @@
     <string name="accessibility_global_gesture_preference_title" msgid="3842279082831426816">"Volume key shortcut"</string>
     <string name="accessibility_shortcut_service_title" msgid="3516052294376744060">"Shortcut service"</string>
     <string name="accessibility_shortcut_service_on_lock_screen_title" msgid="1279441617927949980">"Allow from lock screen"</string>
-    <string name="accessibility_shortcut_description" msgid="1427049334225166395">"When the shortcut is on, you can press both volume keys for 3 seconds to start an accessibility feature."</string>
+    <string name="accessibility_shortcut_description" msgid="1427049334225166395">"When the shortcut is on, you can press both volume keys for three seconds to start an accessibility feature."</string>
     <string name="accessibility_toggle_high_text_contrast_preference_title" msgid="5652244684961877255">"High-contrast text"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_title" msgid="2466317284195934003">"Auto update screen magnification"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_summary" msgid="6625473745911276917">"Update screen magnification on app transitions"</string>
@@ -2202,7 +2202,7 @@
       <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> print jobs</item>
       <item quantity="one">1 print job</item>
     </plurals>
-    <string name="print_settings_title" msgid="2886445296786932763">"Printing services"</string>
+    <string name="print_settings_title" msgid="2886445296786932763">"Print services"</string>
     <string name="print_no_services_installed" msgid="3387777739528003794">"No services installed"</string>
     <string name="print_no_printers_found" msgid="5090925427392294881">"No printers found"</string>
     <string name="print_menu_item_settings" msgid="2654804159012579508">"Settings"</string>

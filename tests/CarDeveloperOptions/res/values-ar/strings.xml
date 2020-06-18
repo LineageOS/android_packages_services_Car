@@ -1800,7 +1800,7 @@
     <string name="lockpassword_confirm_pins_dont_match" msgid="5444357293637748942">"أرقام التعريف الشخصي غير متطابقة"</string>
     <string name="lockpassword_draw_your_pattern_again_header" msgid="9017394036814402348">"ارسم النقش مرة أخرى"</string>
     <string name="lockpassword_choose_lock_generic_header" msgid="4418423132980560119">"اختيار طريقة فتح القفل"</string>
-    <string name="lockpassword_password_set_toast" msgid="601928982984489868">"تم تعيين كلمة المرور"</string>
+    <string name="lockpassword_password_set_toast" msgid="601928982984489868">"تم ضبط كلمة المرور"</string>
     <string name="lockpassword_pin_set_toast" msgid="172594825722240059">"تم تعيين رمز PIN"</string>
     <string name="lockpassword_pattern_set_toast" msgid="6923260369475481406">"تم تعيين النقش"</string>
     <string name="lockpassword_choose_your_password_header_for_face" msgid="8823110536502072216">"لاستخدام المصادقة بالوجه، اضبط كلمة المرور"</string>
@@ -4498,7 +4498,7 @@
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> شهادة CA كحد أدنى</item>
       <item quantity="one">شهادة CA واحدة (<xliff:g id="COUNT_0">%d</xliff:g>) كحد أدنى</item>
     </plurals>
-    <string name="enterprise_privacy_lock_device" msgid="1533125067038409945">"يمكن للمشرف قفل الجهاز وإعادة تعيين كلمة المرور"</string>
+    <string name="enterprise_privacy_lock_device" msgid="1533125067038409945">"يمكن للمشرف قفل الجهاز وإعادة ضبط كلمة المرور"</string>
     <string name="enterprise_privacy_wipe_device" msgid="7555287990273929922">"يمكن للمشرف حذف جميع بيانات الجهاز"</string>
     <string name="enterprise_privacy_failed_password_wipe_device" msgid="4101502079202483156">"محاولات كلمة المرور الخاطئة قبل حذف جميع بيانات الجهاز"</string>
     <string name="enterprise_privacy_failed_password_wipe_work" msgid="2881646286634693392">"محاولات كلمة المرور الخاطئة قبل حذف بيانات الملف الشخصي للعمل"</string>

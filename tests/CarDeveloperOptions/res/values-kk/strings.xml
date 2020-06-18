@@ -3306,10 +3306,10 @@
     <string name="hide_silent_icons_title" msgid="1070905516921542662">"Дыбыссыз хабарландыру күйінің белгішелерін жасыру"</string>
     <string name="hide_silent_icons_summary" msgid="2624346914488256888">"Күй жолағындағы дыбыссыз хабарландырулардың белгішелерін жасыру"</string>
     <string name="notification_badging_title" msgid="6311699476970264712">"Хабарландыру белгілеріне рұқсат беру"</string>
-    <string name="notification_bubbles_title" msgid="9196562435741861317">"Қалқымалы анықтамалар"</string>
+    <string name="notification_bubbles_title" msgid="9196562435741861317">"Қалқыма хабарлар"</string>
     <string name="notification_bubbles_summary" msgid="4624512775901949578">"Қалқымалы таңбашалар арқылы кез келген жерден қолданба мазмұнына жылдам кіру"</string>
     <string name="bubbles_feature_education" msgid="8979109826818881018">"Кейбір хабарландырулар және басқа мазмұндар экранға қалқымалы анықтамалар түрінде шығуы мүмкін. Қалқымалы анықтаманы ашу үшін оны түртіңіз. Жасыру үшін экранның төменгі жағына қарай сүйреңіз."</string>
-    <string name="bubbles_app_toggle_title" msgid="6401217027603326439">"Қалқымалы анықтамалар"</string>
+    <string name="bubbles_app_toggle_title" msgid="6401217027603326439">"Қалқыма хабарлар"</string>
     <string name="bubbles_app_toggle_summary" msgid="7707611139796553855">"<xliff:g id="APP_NAME">%1$s</xliff:g> қолданбасына кейбір хабарландыруларды қалқымалы анықтама түрінде көрсетуге рұқсат береді."</string>
     <string name="bubbles_feature_disabled_dialog_title" msgid="3375452386012079293">"Қалқымалы анықтамаларды қосу"</string>
     <string name="bubbles_feature_disabled_dialog_text" msgid="326945485806386477">"Қалқымалы анықтамаларды қолданбада қосу үшін оларды алдымен құрылғыда қосу керек. Бұл бұрын қалқымалы анықтамалар қосылған қолданбалардың жұмысына әсер етеді."</string>
