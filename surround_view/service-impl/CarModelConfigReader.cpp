@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#define LOG_TAG "IOModule"
-
 #include "CarModelConfigReader.h"
 #include "ConfigReaderUtil.h"
 #include "MathHelp.h"
