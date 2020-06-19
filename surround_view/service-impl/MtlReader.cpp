@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#define LOG_TAG "IOModule"
-
 #include "MtlReader.h"
 
 #include <android-base/logging.h>
