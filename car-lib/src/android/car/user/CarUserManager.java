@@ -208,6 +208,11 @@ public final class CarUserManager extends CarManagerBase {
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
     public AndroidFuture<UserSwitchResult> switchUser(@UserIdInt int targetUserId) {
         int uid = myUid();
+
+        if (mUserManager.getUserSwitchability() != UserManager.SWITCHABILITY_STATUS_OK) {
+            return newSwitchResuiltForFailure(UserSwitchResult.STATUS_NOT_SWITCHABLE);
+        }
+
         try {
             AndroidFuture<UserSwitchResult> future = new AndroidFuture<UserSwitchResult>() {
                 @Override
@@ -219,17 +224,23 @@ public final class CarUserManager extends CarManagerBase {
                         Log.w(TAG, "switchUser(" + targetUserId + ") failed: " + err);
                     }
                     super.onCompleted(result, err);
-                };
+                }
             };
             EventLog.writeEvent(EventLogTags.CAR_USER_MGR_SWITCH_USER_REQ, uid, targetUserId);
             mService.switchUser(targetUserId, HAL_TIMEOUT_MS, future);
             return future;
         } catch (RemoteException e) {
-            AndroidFuture<UserSwitchResult> future = new AndroidFuture<>();
-            future.complete(
-                    new UserSwitchResult(UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE, null));
+            AndroidFuture<UserSwitchResult> future =
+                    newSwitchResuiltForFailure(UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE);
             return handleRemoteExceptionFromCarService(e, future);
         }
+    }
+
+    private AndroidFuture<UserSwitchResult> newSwitchResuiltForFailure(
+            @UserSwitchResult.Status int status) {
+        AndroidFuture<UserSwitchResult> future = new AndroidFuture<>();
+        future.complete(new UserSwitchResult(status, null));
+        return future;
     }
 
     /**
@@ -634,6 +645,12 @@ public final class CarUserManager extends CarManagerBase {
             }
         }
         return false;
+    }
+
+    // TODO(b/150413515): use from UserHelper instead (would require a new make target, otherwise it
+    // would include the whole car-user-lib)
+    private boolean isHeadlessSystemUser(int targetUserId) {
+        return targetUserId == UserHandle.USER_SYSTEM && UserManager.isHeadlessSystemUserMode();
     }
 
     // TODO(b/150413515): use from UserHelper instead (would require a new make target, otherwise it
