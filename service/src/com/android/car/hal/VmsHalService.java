@@ -347,7 +347,8 @@ public class VmsHalService extends HalServiceBase {
             return null;
         }
         VmsClient client = new VmsClient(brokerService, new HandlerExecutor(handler), callback,
-                /* legacyClient= */ true, /* exceptionHandler= */ ignored -> { });
+                /* legacyClient= */ true, /* autoCloseMemory */ false,
+                /* exceptionHandler= */ ignored -> { });
         try {
             client.register();
         } catch (RemoteException e) {
