@@ -5,10 +5,10 @@
     <CameraConfig>
         <EvsGroupId>v4l2loopback_group0</EvsGroupId>
         <EvsCameraIds>
-            <Front>/dev/video90</Front>
-            <Right>/dev/video91</Right>
-            <Rear>/dev/video92</Rear>
-            <Left>/dev/video93</Left>
+            <Front>/dev/video60</Front>
+            <Right>/dev/video61</Right>
+            <Rear>/dev/video62</Rear>
+            <Left>/dev/video63</Left>
         </EvsCameraIds>
         <Masks>
             <Front>/vendor/mask_front.png</Front>
@@ -21,12 +21,12 @@
     <Sv2dEnabled>true</Sv2dEnabled>
     <Sv2dParams>
         <OutputResolution>
-            <Width>600</Width>
-            <Height>900</Height>
+            <Width>1024</Width>
+            <Height>768</Height>
         </OutputResolution>
         <GroundMapping>
-            <Width>6.0</Width>
-            <Height>9.0</Height>
+            <Width>8.0</Width>
+            <Height>6.0</Height>
             <Center>
                 <X>0.0</X>
                 <Y>0.0</Y>
@@ -48,20 +48,20 @@
 
     <Sv3dEnabled>true</Sv3dEnabled>
     <Sv3dAnimationsEnabled>true</Sv3dAnimationsEnabled>
-    <CarModelConfigFile>/etc/automotive/sv/sv_sample_car_model_config.xml</CarModelConfigFile>
-    <CarModelObjFile>/etc/automotive/sv/sample_car.obj</CarModelObjFile>
+    <CarModelConfigFile>/vendor/etc/automotive/sv/sv_sample_car_model_config.xml</CarModelConfigFile>
+    <CarModelObjFile>/vendor/etc/automotive/sv/sample_car.obj</CarModelObjFile>
     <Sv3dParams>
         <OutputResolution>
-            <Width>1920</Width>
-            <Height>1080</Height>
+            <Width>1024</Width>
+            <Height>768</Height>
         </OutputResolution>
         <BowlParams>
-            <PlaneRadius>6.0</PlaneRadius>
-            <PlaneDivisions>20</PlaneDivisions>
-            <CurveHeight>5.0</CurveHeight>
-            <CurveDivisions>30</CurveDivisions>
-            <AngularDivisions>50</AngularDivisions>
-            <CurveCoefficient>2.0</CurveCoefficient>
+            <PlaneRadius>8.0</PlaneRadius>
+            <PlaneDivisions>50</PlaneDivisions>
+            <CurveHeight>6.0</CurveHeight>
+            <CurveDivisions>50</CurveDivisions>
+            <AngularDivisions>90</AngularDivisions>
+            <CurveCoefficient>3.0</CurveCoefficient>
         </BowlParams>
         <HighQualityDetails>
             <Shadows>true</Shadows>

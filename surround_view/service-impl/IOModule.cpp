@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#define LOG_TAG "IOModule"
-
 #include <android-base/logging.h>
 
 #include "CarModelConfigReader.h"

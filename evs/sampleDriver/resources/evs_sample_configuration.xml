@@ -197,10 +197,8 @@
                 />
             </characteristics>
         </device>
-    </camera>
 
     <!-- camera device information for v4l2loopback devices -->
-    <camera>
         <!-- camera group v4l2loopback_group0 -->
         <group id='v4l2loopback_group0' synchronized='CALIBRATED'>
             <caps>
@@ -220,15 +218,15 @@
                     name='LOGICAL_MULTI_CAMERA_PHYSICAL_IDS'
                     type='byte[]'
                     size='4'
-                    value='/dev/video90,/dev/video91,/dev/video92,/dev/video93'
+                    value='/dev/video60,/dev/video61,/dev/video62,/dev/video63'
                 />
             </characteristics>
         </group>
 
         <!-- camera device starts  -->
-        <!-- /dev/video9[0-9]$ were reserved for experimental purposes with v4l2loopback devices -->
+        <!-- /dev/video6[0-3]$ were reserved for experimental purposes with v4l2loopback devices -->
         <!-- The following calibration parameters are for the sample camera images in packages/services/Car/surround_view/service-impl/test_data/ -->
-        <device id='/dev/video90' position='front'>
+        <device id='/dev/video60' position='front'>
             <caps>
                 <!-- list of supported stream configurations -->
                 <stream id='0' width='1920' height='1024' format='RGBA_8888' framerate='30'/>
@@ -274,7 +272,7 @@
                 />
             </characteristics>
         </device>
-        <device id='/dev/video91' position='right'>
+        <device id='/dev/video61' position='right'>
             <caps>
                 <!-- list of supported stream configurations -->
                 <stream id='0' width='1920' height='1024' format='RGBA_8888' framerate='30'/>
@@ -320,7 +318,7 @@
                 />
             </characteristics>
         </device>
-        <device id='/dev/video92' position='rear'>
+        <device id='/dev/video62' position='rear'>
             <caps>
                 <!-- list of supported stream configurations -->
                 <stream id='0' width='1920' height='1024' format='RGBA_8888' framerate='30'/>
@@ -366,7 +364,7 @@
                 />
             </characteristics>
         </device>
-        <device id='/dev/video93' position='left'>
+        <device id='/dev/video63' position='left'>
             <caps>
                 <!-- list of supported stream configurations -->
                 <stream id='0' width='1920' height='1024' format='RGBA_8888' framerate='30'/>

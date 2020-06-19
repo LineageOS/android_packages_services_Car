@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#define LOG_TAG "SurroundViewService"
 
 #include <android-base/logging.h>
 
@@ -39,7 +38,7 @@ static const int kVhalUpdateRate = 10;
 
 SurroundViewService::SurroundViewService() {
     mVhalHandler = new VhalHandler();
-    mIOModule = new IOModule("/etc/automotive/sv/sv_sample_config.xml");
+    mIOModule = new IOModule("/vendor/etc/automotive/sv/sv_sample_config.xml");
 }
 
 SurroundViewService::~SurroundViewService() {
