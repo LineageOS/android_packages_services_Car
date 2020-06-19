@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#define LOG_TAG "IOModule"
-
 #include "ConfigReader.h"
 #include "ConfigReaderUtil.h"
 #include "core_lib.h"
