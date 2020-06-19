@@ -208,7 +208,7 @@ public final class CarServiceUtils {
     public static HandlerThread getHandlerThread(String name) {
         synchronized (sHandlerThreads) {
             HandlerThread thread = sHandlerThreads.get(name);
-            if (thread == null) {
+            if (thread == null || !thread.isAlive()) {
                 Log.i(TAG, "Starting HandlerThread:" + name);
                 thread = new HandlerThread(name);
                 thread.start();
