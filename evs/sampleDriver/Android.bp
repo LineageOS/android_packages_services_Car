@@ -90,6 +90,26 @@ cc_binary {
     ],
 }
 
+cc_library{
+    name : "libevsconfigmanager",
+    vendor : true,
+    srcs : [
+        "ConfigManager.cpp",
+        "ConfigManagerUtil.cpp",
+    ],
+    shared_libs : [
+        "android.hardware.automotive.evs@1.0",
+        "android.hardware.automotive.evs@1.1",
+        "android.hardware.camera.device@3.2",
+        "libbase",
+        "libcamera_metadata",
+        "libcutils",
+        "libhardware",
+        "libtinyxml2",
+        "libutils",
+    ],
+}
+
 prebuilt_etc {
     name: "evs_configuration.dtd",
     soc_specific: true,
