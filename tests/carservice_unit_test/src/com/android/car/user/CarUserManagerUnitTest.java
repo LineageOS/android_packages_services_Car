@@ -181,6 +181,19 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
     }
 
     @Test
+    public void testSwitchUser_noUserSwitchability() throws Exception {
+        when(mUserManager.getUserSwitchability())
+                .thenReturn(UserManager.SWITCHABILITY_STATUS_SYSTEM_USER_LOCKED);
+
+        AndroidFuture<UserSwitchResult> future = mMgr.switchUser(11);
+
+        assertThat(future).isNotNull();
+        UserSwitchResult result = getResult(future);
+        assertThat(result.getStatus()).isEqualTo(UserSwitchResult.STATUS_NOT_SWITCHABLE);
+        assertThat(result.getErrorMessage()).isNull();
+    }
+
+    @Test
     public void testSwitchUser_remoteException() throws Exception {
         expectServiceSwitchUserFails(11);
         mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
