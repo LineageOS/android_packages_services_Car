@@ -17,6 +17,7 @@ package android.car.test.mocks;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -111,20 +112,28 @@ public final class AndroidMockitoHelper {
     }
 
     /**
-     * Mocks {@code UserManager#getUsers(excludeDying)} to return the given users.
+     * Mocks {@code UserManager#getUsers()}, {@code UserManager#getUsers(excludeDying)}, and
+     * {@code UserManager#getUsers(excludePartial, excludeDying, excludeDying)} to return the given
+     * users.
      */
     public static void mockUmGetUsers(@NonNull UserManager um, @NonNull UserInfo... users) {
         Objects.requireNonNull(um);
         List<UserInfo> testUsers = Arrays.stream(users).collect(Collectors.toList());
-        when(um.getUsers(/* excludeDying= */ true)).thenReturn(testUsers);
+        when(um.getUsers()).thenReturn(testUsers);
+        when(um.getUsers(anyBoolean())).thenReturn(testUsers);
+        when(um.getUsers(anyBoolean(), anyBoolean(), anyBoolean())).thenReturn(testUsers);
     }
 
     /**
-     * Mocks {@code UserManager#getUsers(excludeDying)} to return simple users with the given ids.
+     * Mocks {@code UserManager#getUsers()}, {@code UserManager#getUsers(excludeDying)}, and
+     * {@code UserManager#getUsers(excludePartial, excludeDying, excludeDying)} to return simple
+     * users with the given ids.
      */
     public static void mockUmGetUsers(@NonNull UserManager um, @NonNull @UserIdInt int... userIds) {
         List<UserInfo> users = UserTestingHelper.newUsers(userIds);
-        when(um.getUsers(/* excludeDying= */ true)).thenReturn(users);
+        when(um.getUsers()).thenReturn(users);
+        when(um.getUsers(anyBoolean())).thenReturn(users);
+        when(um.getUsers(anyBoolean(), anyBoolean(), anyBoolean())).thenReturn(users);
     }
 
     /**
@@ -136,10 +145,14 @@ public final class AndroidMockitoHelper {
     }
 
     /**
-     * Mocks a call to {@code UserManager#getUsers(true)}, which excludes dying users.
+     * Mocks {@code UserManager#getUsers()}, {@code UserManager#getUsers(excludeDying)}, and
+     * {@code UserManager#getUsers(excludePartial, excludeDying, excludeDying)} to return given
+     * userInfos.
      */
     public static void mockUmGetUsers(@NonNull UserManager um, @NonNull List<UserInfo> userInfos) {
-        when(um.getUsers(/* excludeDying= */ true)).thenReturn(userInfos);
+        when(um.getUsers()).thenReturn(userInfos);
+        when(um.getUsers(anyBoolean())).thenReturn(userInfos);
+        when(um.getUsers(anyBoolean(), anyBoolean(), anyBoolean())).thenReturn(userInfos);
     }
 
     /**
