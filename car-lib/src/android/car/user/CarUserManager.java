@@ -40,6 +40,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.provider.Settings;
 import android.sysprop.CarProperties;
 import android.util.ArrayMap;
 import android.util.EventLog;
@@ -207,6 +208,11 @@ public final class CarUserManager extends CarManagerBase {
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
     public AndroidFuture<UserSwitchResult> switchUser(@UserIdInt int targetUserId) {
         int uid = myUid();
+
+        if (mUserManager.getUserSwitchability() != UserManager.SWITCHABILITY_STATUS_OK) {
+            return newSwitchResuiltForFailure(UserSwitchResult.STATUS_NOT_SWITCHABLE);
+        }
+
         try {
             AndroidFuture<UserSwitchResult> future = new AndroidFuture<UserSwitchResult>() {
                 @Override
@@ -218,17 +224,23 @@ public final class CarUserManager extends CarManagerBase {
                         Log.w(TAG, "switchUser(" + targetUserId + ") failed: " + err);
                     }
                     super.onCompleted(result, err);
-                };
+                }
             };
             EventLog.writeEvent(EventLogTags.CAR_USER_MGR_SWITCH_USER_REQ, uid, targetUserId);
             mService.switchUser(targetUserId, HAL_TIMEOUT_MS, future);
             return future;
         } catch (RemoteException e) {
-            AndroidFuture<UserSwitchResult> future = new AndroidFuture<>();
-            future.complete(
-                    new UserSwitchResult(UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE, null));
+            AndroidFuture<UserSwitchResult> future =
+                    newSwitchResuiltForFailure(UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE);
             return handleRemoteExceptionFromCarService(e, future);
         }
+    }
+
+    private AndroidFuture<UserSwitchResult> newSwitchResuiltForFailure(
+            @UserSwitchResult.Status int status) {
+        AndroidFuture<UserSwitchResult> future = new AndroidFuture<>();
+        future.complete(new UserSwitchResult(status, null));
+        return future;
     }
 
     /**
@@ -248,6 +260,10 @@ public final class CarUserManager extends CarManagerBase {
                     if (result != null) {
                         EventLog.writeEvent(EventLogTags.CAR_USER_MGR_CREATE_USER_RESP, uid,
                                 result.getStatus(), result.getErrorMessage());
+                        UserInfo user = result.getUser();
+                        if (result.isSuccess() && user != null && user.isGuest()) {
+                            onGuestCreated(user);
+                        }
                     } else {
                         Log.w(TAG, "createUser(" + userType + "," + UserInfo.flagsToString(flags)
                                 + ") failed: " + err);
@@ -265,6 +281,35 @@ public final class CarUserManager extends CarManagerBase {
                     null, null));
             return handleRemoteExceptionFromCarService(e, future);
         }
+    }
+
+    /**
+     * Creates a new guest Android user.
+     *
+     * @hide
+     */
+    @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
+            android.Manifest.permission.CREATE_USERS})
+    public AndroidFuture<UserCreationResult> createGuest(@Nullable String name) {
+        return createUser(name, UserManager.USER_TYPE_FULL_GUEST, /* flags= */ 0);
+    }
+
+    /**
+     * Creates a new Android user.
+     *
+     * @hide
+     */
+    @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
+            android.Manifest.permission.CREATE_USERS})
+    public AndroidFuture<UserCreationResult> createUser(@Nullable String name,
+            @UserInfoFlag int flags) {
+        return createUser(name, UserManager.USER_TYPE_FULL_SECONDARY, flags);
+    }
+
+    // TODO(b/159283854): move to UserManager
+    private void onGuestCreated(UserInfo user) {
+        Settings.Secure.putStringForUser(getContext().getContentResolver(),
+                Settings.Secure.SKIP_FIRST_USE_HINTS, "1", user.id);
     }
 
      /**
@@ -600,6 +645,12 @@ public final class CarUserManager extends CarManagerBase {
             }
         }
         return false;
+    }
+
+    // TODO(b/150413515): use from UserHelper instead (would require a new make target, otherwise it
+    // would include the whole car-user-lib)
+    private boolean isHeadlessSystemUser(int targetUserId) {
+        return targetUserId == UserHandle.USER_SYSTEM && UserManager.isHeadlessSystemUserMode();
     }
 
     // TODO(b/150413515): use from UserHelper instead (would require a new make target, otherwise it

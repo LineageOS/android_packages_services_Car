@@ -121,7 +121,6 @@ public final class UserHalHelper {
      */
     public static int convertFlags(@NonNull UserInfo user) {
         checkArgument(user != null, "user cannot be null");
-        checkArgument(user != null, "user cannot be null");
 
         int flags = UserFlags.NONE;
         if (user.id == UserHandle.USER_SYSTEM) {
@@ -135,6 +134,12 @@ public final class UserHalHelper {
         }
         if (user.isEphemeral()) {
             flags |= UserFlags.EPHEMERAL;
+        }
+        if (!user.isEnabled()) {
+            flags |= UserFlags.DISABLED;
+        }
+        if (user.isProfile()) {
+            flags |= UserFlags.PROFILE;
         }
 
         return flags;
@@ -176,6 +181,20 @@ public final class UserHalHelper {
      */
     public static boolean isAdmin(int flags) {
         return (flags & UserFlags.ADMIN) != 0;
+    }
+
+    /**
+     * Checks if a HAL flag contains {@link UserFlags#DISABLED}.
+     */
+    public static boolean isDisabled(int flags) {
+        return (flags & UserFlags.DISABLED) != 0;
+    }
+
+    /**
+     * Checks if a HAL flag contains {@link UserFlags#PROFILE}.
+     */
+    public static boolean isProfile(int flags) {
+        return (flags & UserFlags.PROFILE) != 0;
     }
 
     /**
@@ -578,7 +597,8 @@ public final class UserHalHelper {
     public static UsersInfo newUsersInfo(@NonNull UserManager um, @UserIdInt int userId) {
         Preconditions.checkArgument(um != null, "UserManager cannot be null");
 
-        List<UserInfo> users = um.getUsers(/*excludeDying= */ true);
+        List<UserInfo> users = um.getUsers(/* excludePartial= */ false, /* excludeDying= */ false,
+                /* excludePreCreated= */ true);
 
         if (users == null || users.isEmpty()) {
             Log.w(TAG, "newUsersInfo(): no users");
@@ -605,8 +625,8 @@ public final class UserHalHelper {
         if (currentUser != null) {
             usersInfo.currentUser.flags = convertFlags(currentUser);
         } else {
-            Log.w(TAG, "newUsersInfo(): could not get flags for current user ("
-                    + usersInfo.currentUser.userId + ")");
+            // This should not happen.
+            Log.wtf(TAG, "Current user is not part of existing users. usersInfo: " + usersInfo);
         }
 
         return usersInfo;
