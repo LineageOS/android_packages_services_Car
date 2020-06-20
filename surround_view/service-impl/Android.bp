@@ -182,11 +182,16 @@ cc_binary{
         "libui",
         "libutils",
     ],
+    cflags: ["-DLOG_TAG=\"SurroundViewService\""],
     required : [
         "cam0.png",
         "cam1.png",
         "cam2.png",
         "cam3.png",
+        "sample_car.obj",
+        "sample_car_material.mtl",
+        "sv_sample_config.xml",
+        "sv_sample_car_model_config.xml",
     ],
     // Disable builds except for arm64 and emulator devices
     enabled : false,

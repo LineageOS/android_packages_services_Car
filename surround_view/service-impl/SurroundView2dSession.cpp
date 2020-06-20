@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#define LOG_TAG "SurroundViewService"
 
 #include "SurroundView2dSession.h"
 
@@ -584,19 +583,17 @@ bool SurroundView2dSession::initialize() {
         return false;
     }
 
-    mInputPointers.resize(4);
-    // TODO(b/157498737): the following parameters should be fed from config
-    // files. Remove the hard-coding values once I/O module is ready.
-    for (int i=0; i<4; i++) {
-       mInputPointers[i].width = 1920;
-       mInputPointers[i].height = 1024;
-       mInputPointers[i].format = Format::RGB;
-       mInputPointers[i].cpu_data_pointer =
-           (void*) new uint8_t[mInputPointers[i].width *
-                               mInputPointers[i].height *
-                               kNumChannels];
+    mInputPointers.resize(kNumFrames);
+    for (int i = 0; i < kNumFrames; i++) {
+        mInputPointers[i].width = mCameraParams[i].size.width;
+        mInputPointers[i].height = mCameraParams[i].size.height;
+        mInputPointers[i].format = Format::RGB;
+        mInputPointers[i].cpu_data_pointer =
+                (void*)new uint8_t[mInputPointers[i].width *
+                                   mInputPointers[i].height *
+                                   kNumChannels];
     }
-    LOG(INFO) << "Allocated 4 input pointers";
+    LOG(INFO) << "Allocated " << kNumFrames << " input pointers";
 
     mOutputWidth = mIOModuleConfig->sv2dConfig.sv2dParams.resolution.width;
     mOutputHeight = mIOModuleConfig->sv2dConfig.sv2dParams.resolution.height;
@@ -730,11 +727,9 @@ bool SurroundView2dSession::setupEvs() {
     mCameraParams =
             convertToSurroundViewCameraParams(cameraIdToAndroidParameters);
 
-    // TODO((b/156101189): the following information should be read from the
-    // I/O module.
     for (auto& camera : mCameraParams) {
-        camera.size.width = 1920;
-        camera.size.height = 1024;
+        camera.size.width = targetCfg->width;
+        camera.size.height = targetCfg->height;
         camera.circular_fov = 179;
     }
 
