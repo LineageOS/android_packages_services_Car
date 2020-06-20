@@ -1304,11 +1304,19 @@ final class CarShellCommand extends ShellCommand {
             writer.println("null response");
             return;
         }
+        if (!response.isSuccess()) {
+            writer.printf("failed response: %s\n", response);
+            return;
+        }
         String errorMessage = response.getErrorMessage();
         if (!TextUtils.isEmpty(errorMessage)) {
             writer.printf("Error message: %s\n", errorMessage);
         }
         int[] values = response.getValues();
+        if (values == null) {
+            writer.printf("no associations on %s\n", response);
+            return;
+        }
         writer.printf("%d associations:\n", values.length);
         for (int i = 0; i < values.length; i++) {
             writer.printf("  %s\n", UserIdentificationAssociationValue.toString(values[i]));
