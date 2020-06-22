@@ -122,9 +122,22 @@ bool EvsStateControl::startUpdateLoop() {
 }
 
 
-void EvsStateControl::postCommand(const Command& cmd) {
+void EvsStateControl::terminateUpdateLoop() {
+    // Join a rendering thread
+    if (mRenderThread.joinable()) {
+        mRenderThread.join();
+    }
+}
+
+
+void EvsStateControl::postCommand(const Command& cmd, bool clear) {
     // Push the command onto the queue watched by updateLoop
     mLock.lock();
+    if (clear) {
+        std::queue<Command> emptyQueue;
+        std::swap(emptyQueue, mCommandQueue);
+    }
+
     mCommandQueue.push(cmd);
     mLock.unlock();
 
@@ -185,8 +198,9 @@ void EvsStateControl::updateLoop() {
                 // Send the finished image back for display
                 mDisplay->returnTargetBufferForDisplay(tgtBuffer);
             }
-        } else {
+        } else if (run) {
             // No active renderer, so sleep until somebody wakes us with another command
+            // or exit if we received EXIT command
             std::unique_lock<std::mutex> lock(mLock);
             mWakeSignal.wait(lock);
         }
@@ -194,10 +208,13 @@ void EvsStateControl::updateLoop() {
 
     LOG(WARNING) << "EvsStateControl update loop ending";
 
-    // TODO:  Fix it so we can exit cleanly from the main thread instead
+    if (mCurrentRenderer) {
+        // Deactive the renderer
+        mCurrentRenderer->deactivate();
+    }
+
     printf("Shutting down app due to state control loop ending\n");
-    LOG(ERROR) << "KILLING THE APP FROM THE EvsStateControl LOOP ON DRAW FAILURE!!!";
-    exit(1);
+    LOG(ERROR) << "Shutting down app due to state control loop ending";
 }
 
 
