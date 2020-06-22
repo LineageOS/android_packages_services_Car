@@ -18,6 +18,7 @@
 #include "EvsStateControl.h"
 #include "EvsVehicleListener.h"
 
+#include <signal.h>
 #include <stdio.h>
 
 #include <android/hardware/automotive/evs/1.1/IEvsDisplay.h>
@@ -26,6 +27,7 @@
 #include <android-base/macros.h>    // arraysize
 #include <android-base/strings.h>
 #include <hidl/HidlTransportSupport.h>
+#include <hwbinder/IPCThreadState.h>
 #include <hwbinder/ProcessState.h>
 #include <utils/Errors.h>
 #include <utils/StrongPointer.h>
@@ -37,6 +39,37 @@ using android::base::EqualsIgnoreCase;
 // libhidl:
 using android::hardware::configureRpcThreadpool;
 using android::hardware::joinRpcThreadpool;
+
+namespace {
+
+android::sp<IEvsEnumerator> pEvs;
+android::sp<IEvsDisplay> pDisplay;
+EvsStateControl *pStateController;
+
+void sigHandler(int sig) {
+    LOG(ERROR) << "evs_app is being terminated on receiving a signal " << sig;
+    if (pEvs != nullptr) {
+        // Attempt to clean up the resources
+        pStateController->postCommand({EvsStateControl::Op::EXIT, 0, 0}, true);
+        pStateController->terminateUpdateLoop();
+        pEvs->closeDisplay(pDisplay);
+    }
+
+    android::hardware::IPCThreadState::self()->stopProcess();
+    exit(EXIT_FAILURE);
+}
+
+void registerSigHandler() {
+    struct sigaction sa;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    sa.sa_handler = sigHandler;
+    sigaction(SIGABRT, &sa, nullptr);
+    sigaction(SIGTERM, &sa, nullptr);
+    sigaction(SIGINT,  &sa, nullptr);
+}
+
+} // namespace
 
 
 // Helper to subscribe to VHal notifications
@@ -89,6 +122,9 @@ static bool convertStringToFormat(const char* str, android_pixel_format_t* outpu
 int main(int argc, char** argv)
 {
     LOG(INFO) << "EVS app starting";
+
+    // Register a signal handler
+    registerSigHandler();
 
     // Set up default behavior, then check for command line options
     bool useVehicleHal = true;
@@ -168,7 +204,7 @@ int main(int argc, char** argv)
 
     // Get the EVS manager service
     LOG(INFO) << "Acquiring EVS Enumerator";
-    android::sp<IEvsEnumerator> pEvs = IEvsEnumerator::getService(evsServiceName);
+    pEvs = IEvsEnumerator::getService(evsServiceName);
     if (pEvs.get() == nullptr) {
         LOG(ERROR) << "getService(" << evsServiceName
                    << ") returned NULL.  Exiting.";
@@ -185,7 +221,7 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    android::sp<IEvsDisplay> pDisplay = pEvs->openDisplay_1_1(displayId);
+    pDisplay = pEvs->openDisplay_1_1(displayId);
     if (pDisplay.get() == nullptr) {
         LOG(ERROR) << "EVS Display unavailable.  Exiting.";
         return EXIT_FAILURE;
@@ -219,7 +255,7 @@ int main(int argc, char** argv)
 
     // Configure ourselves for the current vehicle state at startup
     LOG(INFO) << "Constructing state controller";
-    EvsStateControl *pStateController = new EvsStateControl(pVnet, pEvs, pDisplay, config);
+    pStateController = new EvsStateControl(pVnet, pEvs, pDisplay, config);
     if (!pStateController->startUpdateLoop()) {
         LOG(ERROR) << "Initial configuration failed.  Exiting.";
         return EXIT_FAILURE;
