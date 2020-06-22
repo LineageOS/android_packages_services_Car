@@ -103,8 +103,6 @@ bool SurroundViewService::initialize() {
         return false;
     }
 
-    // TODO(haoxiangl): check whether 2d/3d/animation is available or not.
-
     // Since we only keep one instance of the SurroundViewService and initialize
     // method is always called after the constructor, it is safe to put the
     // allocation here and the de-allocation in service's constructor.
