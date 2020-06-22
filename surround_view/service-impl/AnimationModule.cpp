@@ -162,16 +162,15 @@ void AnimationModule::initCarPartStatus() {
 void AnimationModule::updateChildrenParts(const std::string& partId, const Mat4x4& parentModel) {
     for (auto& childPart : mCarPartsStatusMap.at(partId).childIds) {
         mCarPartsStatusMap.at(childPart).parentModel = parentModel;
-        appendMat(parentModel, mCarPartsStatusMap.at(childPart).parentModel);
         mCarPartsStatusMap.at(childPart).currentModel =
                 appendMat(mCarPartsStatusMap.at(childPart).localModel,
                           mCarPartsStatusMap.at(childPart).parentModel);
         if (mUpdatedPartsMap.find(childPart) == mUpdatedPartsMap.end()) {
-            AnimationParam animationParam(partId);
+            AnimationParam animationParam(childPart);
             animationParam.SetModelMatrix(mCarPartsStatusMap.at(childPart).currentModel);
-            mUpdatedPartsMap.emplace(std::make_pair(partId, animationParam));
+            mUpdatedPartsMap.emplace(std::make_pair(childPart, animationParam));
         } else {  // existing part in the map
-            mUpdatedPartsMap.at(partId).SetModelMatrix(
+            mUpdatedPartsMap.at(childPart).SetModelMatrix(
                     mCarPartsStatusMap.at(childPart).currentModel);
         }
         updateChildrenParts(childPart, mCarPartsStatusMap.at(childPart).currentModel);
