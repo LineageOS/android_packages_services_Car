@@ -664,7 +664,7 @@ public final class Car {
             "android.car.permission.READ_CAR_OCCUPANT_AWARENESS_STATE";
 
     /**
-     * Permission necessary to modify occupant awareness graph.
+     * @deprecated This permission is not used by any service.
      *
      * @hide
      */
