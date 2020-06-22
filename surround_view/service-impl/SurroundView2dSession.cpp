@@ -620,11 +620,12 @@ bool SurroundView2dSession::initialize() {
                                    GRALLOC_USAGE_HW_TEXTURE,
                                    "SvTexture");
 
-    mInfo.width = mIOModuleConfig->sv2dConfig.sv2dParams.physical_size.width;
-    mInfo.height = mIOModuleConfig->sv2dConfig.sv2dParams.physical_size.height;
+    // Note: sv2dParams is in meters while mInfo must be in milli-meters.
+    mInfo.width = mIOModuleConfig->sv2dConfig.sv2dParams.physical_size.width * 1000.0;
+    mInfo.height = mIOModuleConfig->sv2dConfig.sv2dParams.physical_size.height * 1000.0;
     mInfo.center.isValid = true;
-    mInfo.center.x = mIOModuleConfig->sv2dConfig.sv2dParams.physical_center.x;
-    mInfo.center.y = mIOModuleConfig->sv2dConfig.sv2dParams.physical_center.y;
+    mInfo.center.x = mIOModuleConfig->sv2dConfig.sv2dParams.physical_center.x * 1000.0;
+    mInfo.center.y = mIOModuleConfig->sv2dConfig.sv2dParams.physical_center.y * 1000.0;
 
     if (mSvTexture->initCheck() == OK) {
         LOG(INFO) << "Successfully allocated Graphic Buffer";
