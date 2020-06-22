@@ -75,6 +75,7 @@ void EvsGlDisplay::forceShutdown()
         alloc.free(mBuffer.memHandle);
         mBuffer.memHandle = nullptr;
 
+        mGlWrapper.hideWindow(mDisplayProxy, mDisplayId);
         mGlWrapper.shutdown();
     }
 
