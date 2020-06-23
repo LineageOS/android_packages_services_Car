@@ -42,6 +42,7 @@ PRODUCT_PACKAGES += \
     DirectRenderingCluster \
     GarageModeTestApp \
     ExperimentalCarService \
+    RotaryPlayground \
 
 
 # SEPolicy for test apps / services
