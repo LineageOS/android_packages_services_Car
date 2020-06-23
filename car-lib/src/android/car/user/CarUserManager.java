@@ -491,12 +491,14 @@ public final class CarUserManager extends CarManagerBase {
                     if (result != null) {
                         int[] rawValues = result.getValues();
                         // TODO(b/153900032): move this logic to a common helper
-                        Object[] loggedValues = new Object[rawValues.length];
-                        for (int i = 0; i < rawValues.length; i++) {
-                            loggedValues[i] = rawValues[i];
+                        if (rawValues != null) {
+                            Object[] loggedValues = new Object[rawValues.length];
+                            for (int i = 0; i < rawValues.length; i++) {
+                                loggedValues[i] = rawValues[i];
+                            }
+                            EventLog.writeEvent(EventLogTags.CAR_USER_MGR_SET_USER_AUTH_RESP,
+                                    loggedValues);
                         }
-                        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_SET_USER_AUTH_RESP,
-                                loggedValues);
                     } else {
                         Log.w(TAG, "setUserIdentificationAssociation(" + Arrays.toString(types)
                                 + ", " + Arrays.toString(values) + ") failed: " + err);
