@@ -47,9 +47,9 @@ import java.util.List;
 @Deprecated
 @SystemApi
 public final class CarHvacManager extends CarManagerBase {
-    private static final boolean DBG = false;
     private static final String TAG = "CarHvacManager";
     private final CarPropertyManager mCarPropertyMgr;
+    @GuardedBy("mLock")
     private CarPropertyEventListenerToBase mListenerToBase = null;
 
     private final Object mLock = new Object();
@@ -443,7 +443,6 @@ public final class CarHvacManager extends CarManagerBase {
 
     /** @hide */
     public void onCarDisconnected() {
-        // TODO(b/142730482) Fix synchronization to use separate mLock
         synchronized (mLock) {
             mCallbacks.clear();
         }
