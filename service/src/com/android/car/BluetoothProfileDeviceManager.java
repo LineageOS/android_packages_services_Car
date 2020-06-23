@@ -51,6 +51,7 @@ import com.android.internal.annotations.GuardedBy;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -65,6 +66,7 @@ public class BluetoothProfileDeviceManager {
     private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
     private final Context mContext;
     private final int mUserId;
+    private Set<String> mBondingDevices = new HashSet<>();
 
     private static final String SETTINGS_DELIMITER = ",";
 
@@ -217,16 +219,20 @@ public class BluetoothProfileDeviceManager {
         logd("Bond state has changed [device: " + device + ", state: "
                 + Utils.getBondStateName(state) + "]");
         if (state == BluetoothDevice.BOND_NONE) {
+            mBondingDevices.remove(device.getAddress());
             // Note: We have seen cases of unbonding events being sent without actually
             // unbonding the device.
             removeDevice(device);
+        } else if (state == BluetoothDevice.BOND_BONDING) {
+            mBondingDevices.add(device.getAddress());
         } else if (state == BluetoothDevice.BOND_BONDED) {
             addBondedDeviceIfSupported(device);
+            mBondingDevices.remove(device.getAddress());
         }
     }
 
     /**
-     * Handles an incoming device UUID set update event.
+     * Handles an incoming device UUID set update event for bonding devices.
      *
      * On BluetoothDevice.ACTION_UUID:
      *    If the UUID is one this profile cares about, set the profile priority for the device that
@@ -238,6 +244,7 @@ public class BluetoothProfileDeviceManager {
      */
     private void handleDeviceUuidEvent(BluetoothDevice device, Parcelable[] uuids) {
         logd("UUIDs found, device: " + device);
+        if (!mBondingDevices.remove(device.getAddress())) return;
         if (uuids != null) {
             ParcelUuid[] uuidsToSend = new ParcelUuid[uuids.length];
             for (int i = 0; i < uuidsToSend.length; i++) {
