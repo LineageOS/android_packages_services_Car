@@ -538,9 +538,10 @@ Return<void> SurroundView3dSession::projectCameraPointsTo3dSurface(
                 mSurroundView->GetProjectionPointFromRawCameraToSurroundView3d(camCoord,
                                                                                cameraIndex,
                                                                                &projPoint3d);
-        point3d.x = projPoint3d.x;
-        point3d.y = projPoint3d.y;
-        point3d.z = projPoint3d.z;
+        // Convert projPoint3d in meters to point3d which is in milli-meters.
+        point3d.x = projPoint3d.x * 1000.0;
+        point3d.y = projPoint3d.y * 1000.0;
+        point3d.z = projPoint3d.z * 1000.0;
         points3d.push_back(point3d);
     }
     _hidl_cb(points3d);

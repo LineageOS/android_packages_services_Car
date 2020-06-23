@@ -76,8 +76,11 @@ public:
     // This spawns a new thread that is expected to run continuously
     bool startUpdateLoop();
 
+    // This stops a rendering thread
+    void terminateUpdateLoop();
+
     // Safe to be called from other threads
-    void postCommand(const Command& cmd);
+    void postCommand(const Command& cmd, bool clear = false);
 
 private:
     void updateLoop();
