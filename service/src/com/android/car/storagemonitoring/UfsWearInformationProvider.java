@@ -18,8 +18,10 @@ package com.android.car.storagemonitoring;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.util.Log;
+
 import com.android.car.CarLog;
 import com.android.internal.annotations.VisibleForTesting;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -54,6 +56,10 @@ public class UfsWearInformationProvider implements WearInformationProvider {
     @Nullable
     @Override
     public WearInformation load() {
+        if (!mFile.exists() || !mFile.isFile()) {
+            Log.i(CarLog.TAG_STORAGE, mFile + " does not exist or is not a file");
+            return null;
+        }
         List<String> lifetimeData;
         try {
             lifetimeData = java.nio.file.Files.readAllLines(mFile.toPath());
