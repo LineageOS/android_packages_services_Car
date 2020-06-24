@@ -80,7 +80,6 @@ java_library {
     aidl: {
         include_dirs: [
             "system/bt/binder",
-            "packages/services/Car/watchdog/aidl",
         ],
     },
     exclude_srcs: [
@@ -89,7 +88,6 @@ java_library {
     ],
     static_libs: [
         "android.car.internal.event-log-tags",
-        "carwatchdog_aidl_interface-java",
     ],
     product_variables: {
         pdk: {
