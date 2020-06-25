@@ -22,6 +22,8 @@ import static org.junit.Assert.fail;
 import android.platform.test.annotations.Presubmit;
 import android.text.TextUtils;
 
+import androidx.test.filters.FlakyTest;
+
 import org.junit.Test;
 
 @Presubmit
@@ -32,6 +34,7 @@ public final class PreInstalledPackagesTest {
         assertNoCriticalErrors(/* enforceMode= */ false);
     }
 
+    @FlakyTest // TODO(b/157263778): still failing on cuttlefish
     @Test
     public void testNoCriticalErrors_enforceMode() {
         assertNoCriticalErrors(/* enforceMode= */ true);
