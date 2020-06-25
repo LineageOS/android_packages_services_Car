@@ -2904,7 +2904,7 @@
     <string name="user_exit_guest_confirm_message" msgid="6955182181145748919">"Alle Apps und Daten in dieser Sitzung werden gelöscht."</string>
     <string name="user_exit_guest_dialog_remove" msgid="1878866060881115716">"Entfernen"</string>
     <string name="user_enable_calling" msgid="864760054792249503">"Telefonieren zulassen"</string>
-    <string name="user_enable_calling_sms" msgid="3450252891736718793">"Telefonieren &amp; SMS zulassen?"</string>
+    <string name="user_enable_calling_sms" msgid="3450252891736718793">"Telefonieren &amp; SMS zulassen"</string>
     <string name="user_remove_user" msgid="3687544420125911166">"Nutzer löschen"</string>
     <string name="user_enable_calling_confirm_title" msgid="1141612415529158542">"Telefonieren zulassen?"</string>
     <string name="user_enable_calling_confirm_message" msgid="2490126715153125970">"Die Anrufliste wird für diesen Nutzer freigegeben."</string>
@@ -3471,7 +3471,7 @@
     <string name="zen_mode_schedule_rule_days_all" msgid="8814173364016139675">"Täglich"</string>
     <string name="zen_mode_schedule_alarm_title" msgid="2078194049274875023">"Wecker kann Schlusszeit außer Kraft setzen"</string>
     <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"Zeitplan wird deaktiviert, wenn ein Wecker klingelt"</string>
-    <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"\"Bitte nicht stören\"-Verhalten"</string>
+    <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"\"Bitte nicht stören\"-Modus"</string>
     <string name="zen_mode_custom_behavior_summary_default" msgid="3509865340195397447">"Standardeinstellungen verwenden"</string>
     <string name="zen_mode_custom_behavior_summary" msgid="7206909852887332604">"Benutzerdefinierte Einstellungen festlegen"</string>
     <string name="zen_mode_custom_behavior_category_title" msgid="7451686525113262087">"Für \"<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>\""</string>

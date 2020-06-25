@@ -409,7 +409,7 @@
     <string name="security_settings_face_enroll_introduction_message_setup" msgid="4533297059466270074">"Licem možete otključati telefon, autorizirati kupnje ili se prijaviti na aplikacije"</string>
     <string name="security_settings_face_enroll_introduction_footer_message" msgid="7764021721107723266"></string>
     <string name="security_settings_face_enroll_repeat_title" msgid="2507710348140837875">"Postavite lice u središte kruga"</string>
-    <string name="security_settings_face_enroll_enrolling_skip" msgid="4346077260378772613">"Budem kasnije"</string>
+    <string name="security_settings_face_enroll_enrolling_skip" msgid="4346077260378772613">"Kasnije ću"</string>
     <string name="face_add_max" msgid="8870899421165189413">"Ne možete dodati više od <xliff:g id="COUNT">%d</xliff:g> lica"</string>
     <string name="face_intro_error_max" msgid="4024147799079828937">"Dodali ste maksimalan broj lica"</string>
     <string name="face_intro_error_unknown" msgid="3241592604198351134">"Nije moguće dodati više lica"</string>
@@ -475,7 +475,7 @@
     <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"Nastavite podizati prst da biste dodali različite dijelove otiska prsta"</string>
     <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"Otisak prsta dodan"</string>
     <string name="security_settings_fingerprint_enroll_finish_message" msgid="5862643337893923347">"Kada se prikaže ta ikona, upotrijebite otisak prsta da biste se identificirali ili odobrili kupnju"</string>
-    <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"Budem kasnije"</string>
+    <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"Kasnije ću"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_title" msgid="2816424026528101690">"Preskočiti postavljanje otiska prsta?"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_message" msgid="8139299964344809780">"Odlučili ste se za otisak prsta kao jedan od načina za otključavanje telefona. Ako sad preskočite, morat ćete ga postaviti kasnije. Postavljanje traje samo otprilike jednu minutu."</string>
     <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="tablet" msgid="1384438077720821127">"Zaštitite tablet pomoću opcije zaključavanja zaslona kako se nitko ne bi mogao njime koristiti ako ga izgubite ili ga netko ukrade. Opcija zaključavanja zaslona treba vam i za postavljanje otiska prsta. Dodirnite Odustani, a zatim postavite PIN ili odaberite neku drugu opciju zaključavanja zaslona."</string>

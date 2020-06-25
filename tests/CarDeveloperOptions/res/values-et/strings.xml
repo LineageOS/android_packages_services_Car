@@ -2064,7 +2064,7 @@
     <string name="accessibility_global_gesture_preference_title" msgid="3842279082831426816">"Helitugevuse nupu otsetee"</string>
     <string name="accessibility_shortcut_service_title" msgid="3516052294376744060">"Otsetee teenus"</string>
     <string name="accessibility_shortcut_service_on_lock_screen_title" msgid="1279441617927949980">"Lukustuskuval lubamine"</string>
-    <string name="accessibility_shortcut_description" msgid="1427049334225166395">"Kui otsetee on sisse lülitatud, võite hõlbustusfunktsiooni käivitamiseks hoida mõlemat helitugevuse nuppu 3 sekundit all."</string>
+    <string name="accessibility_shortcut_description" msgid="1427049334225166395">"Kui otsetee on sisse lülitatud, võite hõlbustusfunktsiooni käivitamiseks hoida mõlemat helitugevuse klahvi 3 sekundit all."</string>
     <string name="accessibility_toggle_high_text_contrast_preference_title" msgid="5652244684961877255">"Suure kontrastsusega tekst"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_title" msgid="2466317284195934003">"Ekraanisuurenduse värskendus"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_summary" msgid="6625473745911276917">"Ekraanisuurenduse kasutus rakenduste vahetamisel"</string>
@@ -2904,7 +2904,7 @@
     <string name="user_exit_guest_dialog_remove" msgid="1878866060881115716">"Eemalda"</string>
     <string name="user_enable_calling" msgid="864760054792249503">"Lülita telefonikõned sisse"</string>
     <string name="user_enable_calling_sms" msgid="3450252891736718793">"Lülita telefonikõned ja SMS-id sisse"</string>
-    <string name="user_remove_user" msgid="3687544420125911166">"Kasutaja kustutamine"</string>
+    <string name="user_remove_user" msgid="3687544420125911166">"Kustuta kasutaja"</string>
     <string name="user_enable_calling_confirm_title" msgid="1141612415529158542">"Kas lülitada telefonikõned sisse?"</string>
     <string name="user_enable_calling_confirm_message" msgid="2490126715153125970">"Selle kasutajaga jagatakse kõneajalugu."</string>
     <string name="user_enable_calling_and_sms_confirm_title" msgid="4153856398523366976">"Kas lülitada telefonikõned ja SMS-id sisse?"</string>
