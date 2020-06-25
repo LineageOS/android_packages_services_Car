@@ -27,6 +27,18 @@
 
 #include "CameraUtils.h"
 
+using ::std::adopt_lock;
+using ::std::lock;
+using ::std::lock_guard;
+using ::std::map;
+using ::std::mutex;
+using ::std::scoped_lock;
+using ::std::string;
+using ::std::thread;
+using ::std::unique_lock;
+using ::std::unique_ptr;
+using ::std::vector;
+
 using ::android::hardware::automotive::evs::V1_0::EvsResult;
 using ::android::hardware::camera::device::V3_2::Stream;
 
@@ -55,6 +67,7 @@ static const uint8_t kGrayColor = 128;
 static const int kNumChannels = 3;
 static const int kNumFrames = 4;
 static const int kSv2dViewId = 0;
+static const float kUndistortionScales[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 
 SurroundView2dSession::FramesHandler::FramesHandler(
     sp<IEvsCamera> pCamera, sp<SurroundView2dSession> pSession)
@@ -568,7 +581,8 @@ bool SurroundView2dSession::initialize() {
                     mCameraParams,
                     mIOModuleConfig->sv2dConfig.sv2dParams,
                     mIOModuleConfig->sv3dConfig.sv3dParams,
-                    GetUndistortionScales(),
+                    vector<float>(std::begin(kUndistortionScales),
+                                  std::end(kUndistortionScales)),
                     mIOModuleConfig->sv2dConfig.carBoundingBox,
                     mIOModuleConfig->carModelConfig.carModel.texturesMap,
                     mIOModuleConfig->carModelConfig.carModel.partsMap);
