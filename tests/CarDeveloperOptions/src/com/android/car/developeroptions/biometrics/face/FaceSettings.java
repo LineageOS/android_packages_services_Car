@@ -121,7 +121,7 @@ public class FaceSettings extends DashboardFragment {
         }
 
         if (mToken == null) {
-            final long challenge = mFaceManager.generateChallenge();
+            final long challenge = mFaceManager.generateChallengeBlocking();
             ChooseLockSettingsHelper helper = new ChooseLockSettingsHelper(getActivity(), this);
             if (!helper.launchConfirmationActivity(CONFIRM_REQUEST,
                     getString(R.string.security_settings_face_preference_title),
@@ -166,10 +166,7 @@ public class FaceSettings extends DashboardFragment {
     public void onDestroy() {
         super.onDestroy();
         if (getActivity().isFinishing()) {
-            final int result = mFaceManager.revokeChallenge();
-            if (result < 0) {
-                Log.w(TAG, "revokeChallenge failed, result: " + result);
-            }
+            mFaceManager.revokeChallenge();
         }
     }
 
