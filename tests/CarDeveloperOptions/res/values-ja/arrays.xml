@@ -85,7 +85,7 @@
     <item msgid="8058143476674427024">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g>に接続中..."</item>
     <item msgid="7547609081339573756">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g>で認証しています..."</item>
     <item msgid="5145158315060185414">"IPアドレスを<xliff:g id="NETWORK_NAME">%1$s</xliff:g>から取得しています..."</item>
-    <item msgid="3283243151651124831">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g>に接続しました"</item>
+    <item msgid="3283243151651124831">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g> に接続済み"</item>
     <item msgid="6600156231416890902">"強制停止"</item>
     <item msgid="4133290864821295785">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g>から切断中..."</item>
     <item msgid="3980154971187953257">"切断"</item>
