@@ -706,6 +706,7 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
         prop.value.int32Values.add(42); // request id
         prop.value.int32Values.add(InitialUserInfoResponseAction.SWITCH);
         prop.value.int32Values.add(108); // user id
+        prop.value.int32Values.add(666); // flags - should be ignored
 
         InitialUserInfoResponse response = UserHalHelper.toInitialUserInfoResponse(prop);
 
@@ -725,6 +726,7 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
         prop.value.int32Values.add(42); // request id
         prop.value.int32Values.add(InitialUserInfoResponseAction.SWITCH);
         prop.value.int32Values.add(108); // user id
+        prop.value.int32Values.add(666); // flags - should be ignored
         // add some extra | to make sure they're ignored
         prop.value.stringValue = "esperanto,klingon|||";
         InitialUserInfoResponse response = UserHalHelper.toInitialUserInfoResponse(prop);
@@ -739,11 +741,23 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void testToInitialUserInfoResponse_create_missingUserId() {
+        VehiclePropValue prop = new VehiclePropValue();
+        prop.prop = UserHalHelper.INITIAL_USER_INFO_PROPERTY;
+        prop.value.int32Values.add(42); // request id
+        prop.value.int32Values.add(InitialUserInfoResponseAction.CREATE);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> UserHalHelper.toInitialUserInfoResponse(prop));
+    }
+
+    @Test
     public void testToInitialUserInfoResponse_create_missingFlags() {
         VehiclePropValue prop = new VehiclePropValue();
         prop.prop = UserHalHelper.INITIAL_USER_INFO_PROPERTY;
         prop.value.int32Values.add(42); // request id
         prop.value.int32Values.add(InitialUserInfoResponseAction.CREATE);
+        prop.value.int32Values.add(108); // user id
 
         assertThrows(IllegalArgumentException.class,
                 () -> UserHalHelper.toInitialUserInfoResponse(prop));
@@ -755,6 +769,7 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
         prop.prop = UserHalHelper.INITIAL_USER_INFO_PROPERTY;
         prop.value.int32Values.add(42); // request id
         prop.value.int32Values.add(InitialUserInfoResponseAction.CREATE);
+        prop.value.int32Values.add(666); // user id - not used
         prop.value.int32Values.add(UserFlags.GUEST);
         prop.value.stringValue = "||ElGuesto";
 
@@ -775,6 +790,7 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
         prop.prop = UserHalHelper.INITIAL_USER_INFO_PROPERTY;
         prop.value.int32Values.add(42); // request id
         prop.value.int32Values.add(InitialUserInfoResponseAction.CREATE);
+        prop.value.int32Values.add(666); // user id - not used
         prop.value.int32Values.add(UserFlags.GUEST);
         prop.value.stringValue = "esperanto,klingon||ElGuesto";
 
@@ -787,6 +803,27 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
         assertThat(response.userToSwitchOrCreate.userId).isEqualTo(UserHandle.USER_NULL);
         assertThat(response.userToSwitchOrCreate.flags).isEqualTo(UserFlags.GUEST);
         assertThat(response.userLocales).isEqualTo("esperanto,klingon");
+    }
+
+    @Test
+    public void testToInitialUserInfoResponse_create_ok_nameAndLocaleWithHalfDelimiter() {
+        VehiclePropValue prop = new VehiclePropValue();
+        prop.prop = UserHalHelper.INITIAL_USER_INFO_PROPERTY;
+        prop.value.int32Values.add(42); // request id
+        prop.value.int32Values.add(InitialUserInfoResponseAction.CREATE);
+        prop.value.int32Values.add(666); // user id - not used
+        prop.value.int32Values.add(UserFlags.GUEST);
+        prop.value.stringValue = "esperanto|klingon||El|Guesto";
+
+        InitialUserInfoResponse response = UserHalHelper.toInitialUserInfoResponse(prop);
+
+        assertThat(response).isNotNull();
+        assertThat(response.requestId).isEqualTo(42);
+        assertThat(response.action).isEqualTo(InitialUserInfoResponseAction.CREATE);
+        assertThat(response.userNameToCreate).isEqualTo("El|Guesto");
+        assertThat(response.userToSwitchOrCreate.userId).isEqualTo(UserHandle.USER_NULL);
+        assertThat(response.userToSwitchOrCreate.flags).isEqualTo(UserFlags.GUEST);
+        assertThat(response.userLocales).isEqualTo("esperanto|klingon");
     }
 
     @Test
