@@ -2903,11 +2903,11 @@
     <string name="user_exit_guest_confirm_message" msgid="6955182181145748919">"આ સત્રમાંની તમામ ઍપ્લિકેશનો અને ડેટા કાઢી નાખવામાં આવશે."</string>
     <string name="user_exit_guest_dialog_remove" msgid="1878866060881115716">"દૂર કરો"</string>
     <string name="user_enable_calling" msgid="864760054792249503">"ફોન કૉલ ચાલુ કરો"</string>
-    <string name="user_enable_calling_sms" msgid="3450252891736718793">"ફોન કૉલ્સ અને SMS ચાલુ કરો"</string>
+    <string name="user_enable_calling_sms" msgid="3450252891736718793">"ફોન કૉલ અને SMS ચાલુ કરો"</string>
     <string name="user_remove_user" msgid="3687544420125911166">"વપરાશકર્તાને ડિલીટ કરો"</string>
     <string name="user_enable_calling_confirm_title" msgid="1141612415529158542">"ફોન કૉલ્સ ચાલુ કરીએ?"</string>
     <string name="user_enable_calling_confirm_message" msgid="2490126715153125970">"કૉલ ઇતિહાસ આ વપરાશકર્તા સાથે શેર કરવામાં આવશે."</string>
-    <string name="user_enable_calling_and_sms_confirm_title" msgid="4153856398523366976">"ફોન કૉલ્સ અને SMS ચાલુ કરીએ?"</string>
+    <string name="user_enable_calling_and_sms_confirm_title" msgid="4153856398523366976">"ફોન કૉલ અને SMS ચાલુ કરીએ?"</string>
     <string name="user_enable_calling_and_sms_confirm_message" msgid="3278802798876095734">"કૉલ અને SMS ઇતિહાસ આ વપરાશકર્તા સાથે શેર કરવામાં આવશે."</string>
     <string name="emergency_info_title" msgid="1522609271881425375">"ઇમર્જન્સીની માહિતી"</string>
     <string name="emergency_info_summary" msgid="7280464759837387342">"<xliff:g id="USER_NAME">%1$s</xliff:g> માટે માહિતી અને સંપર્કો"</string>
@@ -3041,7 +3041,7 @@
     <string name="connected_devices_dashboard_no_driving_mode_summary" msgid="3524409078596318803">"બ્લૂટૂથ, NFC"</string>
     <string name="connected_devices_dashboard_no_driving_mode_no_nfc_summary" msgid="7881286613528299400">"બ્લૂટૂથ"</string>
     <string name="app_and_notification_dashboard_title" msgid="8448096608058843730">"ઍપ્લિકેશનો અને નોટિફિકેશન"</string>
-    <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"આસિસ્ટંટ, તાજેતરની ઍપ, ડિફૉલ્ટ ઍપ"</string>
+    <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"Assistant, તાજેતરની ઍપ, ડિફૉલ્ટ ઍપ"</string>
     <string name="notification_settings_work_profile" msgid="7190550347842400029">"કાર્યાલયની પ્રોફાઇલમાં ઍપ માટે નોટિફિકેશન ઍક્સેસ ઉપલબ્ધ નથી."</string>
     <string name="account_dashboard_title" msgid="4734300939532555885">"એકાઉન્ટ"</string>
     <string name="account_dashboard_default_summary" msgid="6822549669771936206">"કોઈ એકાઉન્ટ ઉમેરવામાં આવ્યાં નથી"</string>

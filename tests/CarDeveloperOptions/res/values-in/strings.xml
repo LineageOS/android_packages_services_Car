@@ -1109,7 +1109,7 @@
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Jika Wi-Fi tidak tersedia, gunakan jaringan seluler"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Jika jaringan seluler tidak tersedia, gunakan Wi-Fi"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Telepon melalui Wi-Fi. Jika Wi-Fi terputus, panggilan akan berakhir."</string>
-    <string name="wifi_calling_off_explanation" msgid="1653424723742898015">"Jika panggilan Wi-Fi aktif, ponsel dapat merutekan panggilan telepon melalui jaringan Wi-Fi atau jaringan operator, bergantung pada preferensi dan sinyal mana yang lebih kuat. Sebelum mengaktifkan fitur ini, sebaiknya tanyakan info biaya dan detail lainnya ke operator.<xliff:g id="ADDITIONAL_TEXT">%1$s</xliff:g>"</string>
+    <string name="wifi_calling_off_explanation" msgid="1653424723742898015">"Jika panggilan Wi-Fi aktif, ponsel dapat mengarahkan panggilan telepon melalui jaringan Wi-Fi atau jaringan operator, bergantung pada preferensi dan sinyal mana yang lebih kuat. Sebelum mengaktifkan fitur ini, sebaiknya tanyakan info biaya dan detail lainnya ke operator.<xliff:g id="ADDITIONAL_TEXT">%1$s</xliff:g>"</string>
     <string name="wifi_calling_off_explanation_2" msgid="8648609693875720408"></string>
     <string name="emergency_address_title" msgid="5779915349686787024">"Alamat Darurat"</string>
     <string name="emergency_address_summary" msgid="478668478569851714">"Digunakan sebagai lokasi Anda ketika Anda melakukan panggilan darurat melalui Wi‑Fi"</string>
@@ -1959,7 +1959,7 @@
     <string name="hardkeyboard_category" msgid="5937171470391551627">"Setelan keyboard fisik"</string>
     <string name="auto_punctuate_summary" msgid="245694025030386370">"Tekan Spasi dua kali untuk memasukkan \".\""</string>
     <string name="show_password" msgid="620964020348073739">"Tampilkan sandi"</string>
-    <string name="show_password_summary" msgid="1403805089582258620">"Tampilkan karakter secara singkat saat Anda mengetik"</string>
+    <string name="show_password_summary" msgid="1403805089582258620">"Tampilkan karakter sejenak saat Anda mengetik"</string>
     <string name="spellchecker_security_warning" msgid="792070474432612097">"Pemeriksa ejaan ini mungkin dapat mengumpulkan semua teks yang Anda ketik, termasuk data pribadi seperti sandi dan nomor kartu kredit. Pemeriksa ejaan ini berasal dari aplikasi <xliff:g id="SPELLCHECKER_APPLICATION_NAME">%1$s</xliff:g>. Gunakan pemeriksa ejaan ini?"</string>
     <string name="spellchecker_quick_settings" msgid="5193036510190696655">"Setelan"</string>
     <string name="spellchecker_language" msgid="5168501692418112444">"Bahasa"</string>
@@ -2862,7 +2862,7 @@
     <string name="user_summary_managed_profile_not_set_up" msgid="3032986082684011281">"Tidak disiapkan - Profil kerja"</string>
     <string name="user_admin" msgid="805802526361071709">"Admin"</string>
     <string name="user_you" msgid="8212549708652717106">"Anda (<xliff:g id="NAME">%s</xliff:g>)"</string>
-    <string name="user_nickname" msgid="1088216221559125529">"Nama julukan"</string>
+    <string name="user_nickname" msgid="1088216221559125529">"Nama panggilan"</string>
     <string name="user_add_user_type_title" msgid="8672326434351387845">"Tambahkan"</string>
     <string name="user_add_max_count" msgid="4524573950126500416">"Anda dapat menambahkan maksimal <xliff:g id="USER_COUNT">%1$d</xliff:g> pengguna"</string>
     <string name="user_add_user_item_summary" msgid="6114355152711455716">"Pengguna memiliki aplikasi dan konten mereka sendiri"</string>
@@ -3035,7 +3035,7 @@
     <string name="network_dashboard_summary_mobile" msgid="5560545061217580626">"seluler"</string>
     <string name="network_dashboard_summary_data_usage" msgid="4695629715072542102">"penggunaan kuota"</string>
     <string name="network_dashboard_summary_hotspot" msgid="3928610802321995214">"hotspot"</string>
-    <string name="connected_devices_dashboard_title" msgid="7795222675849060444">"Perangkat tersambung"</string>
+    <string name="connected_devices_dashboard_title" msgid="7795222675849060444">"Perangkat terhubung"</string>
     <string name="connected_devices_dashboard_summary" msgid="1072664369515033179">"Bluetooth, mode mengemudi, NFC"</string>
     <string name="connected_devices_dashboard_no_nfc_summary" msgid="2610085597733526722">"Bluetooth, mode mengemudi"</string>
     <string name="connected_devices_dashboard_no_driving_mode_summary" msgid="3524409078596318803">"Bluetooth, NFC"</string>

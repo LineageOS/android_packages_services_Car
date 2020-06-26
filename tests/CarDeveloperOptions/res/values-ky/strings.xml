@@ -113,7 +113,7 @@
     <string name="bluetooth_disconnect_all_profiles" product="device" msgid="4707569949253450208">"Түзмөгүңүз <xliff:g id="DEVICE_NAME">%1$s</xliff:g> түзмөгүнөн ажыратылат."</string>
     <string name="bluetooth_disconnect_dialog_ok" msgid="4183522987246110145">"Ажыратуу"</string>
     <string name="bluetooth_empty_list_user_restricted" msgid="3616298363281495777">"Bluetooth жөндөөлөрүн өзгөртүүгө уруксатыңыз жок."</string>
-    <string name="bluetooth_pairing_pref_title" msgid="2904954138013884029">"Жаңы түзмөктү жупташтыруу"</string>
+    <string name="bluetooth_pairing_pref_title" msgid="2904954138013884029">"Жаңы түзмөк кошуу"</string>
     <string name="bluetooth_is_visible_message" msgid="6341088682252805612">"Bluetooth жөндөөлөрү ачылып турганда <xliff:g id="DEVICE_NAME">%1$s</xliff:g> жакын арадагы түзмөктөргө көрүнөт."</string>
     <string name="bluetooth_footer_mac_message" product="default" msgid="335341476746836260">"Телефондун Bluetooth дареги: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_footer_mac_message" product="tablet" msgid="6033609611245782463">"Планшеттин Bluetooth дареги: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
@@ -165,7 +165,7 @@
     <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"Башка түзмөктөргө \"<xliff:g id="DEVICE_NAME">^1</xliff:g>\" деп көрүнөт"</string>
     <string name="bluetooth_off_footer" msgid="7658444560543730571">"Башка түзмөктөргө туташуу үчүн Bluetooth\'ду күйгүзүңүз."</string>
     <string name="bluetooth_paired_device_title" msgid="8361860197780425286">"Түзмөктөрүңүз"</string>
-    <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"Жаңы түзмөктү жупташтыруу"</string>
+    <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"Жаңы түзмөктү байланыштыруу"</string>
     <string name="bluetooth_pref_summary" product="tablet" msgid="3601662966604648212">"Планшетиңизге жакын жердеги Bluetooth түзмөктөрү менен байланышууга уруксат бериңиз"</string>
     <string name="bluetooth_pref_summary" product="device" msgid="2286727776570956969">"Түзмөгүңүзгө жакын жердеги Bluetooth түзмөктөрү менен байланышууга уруксат бериңиз"</string>
     <string name="bluetooth_pref_summary" product="default" msgid="863659221858781186">"Телефонуңузду жакын жердеги Bluetooth түзмөктөрүнө байланыштырат."</string>
@@ -180,7 +180,7 @@
     <string name="connected_device_saved_title" msgid="8270136893488475163">"Сакталган түзмөктөр"</string>
     <string name="connected_device_add_device_summary" msgid="7960491471270158891">"Bluetooth жупташтыруу үчүн күйгүзүлөт"</string>
     <string name="connected_device_connections_title" msgid="9205000271382018428">"Туташуу параметрлери"</string>
-    <string name="connected_device_previously_connected_title" msgid="225918223397410428">"Мурунтан туташкан түзмөктөр"</string>
+    <string name="connected_device_previously_connected_title" msgid="225918223397410428">"Буга чейин туташкан түзмөктөр"</string>
     <string name="connected_device_previously_connected_screen_title" msgid="2018789662358162716">"Мурда туташкан"</string>
     <string name="connected_device_bluetooth_turned_on_toast" msgid="4652326177920814476">"Bluetooth күйгүзүлдү"</string>
     <string name="previous_connected_see_all" msgid="7237095013087310923">"Баарын көрүү"</string>
@@ -994,7 +994,7 @@
     <string name="lost_internet_access_text" msgid="8962010031520731813">"Wi-Fi байланышы начар болгондо, ар дайым мобилдик тармакка өтө аласыз. Дайындардын өткөрүлгөндүгү үчүн акы алынышы мүмкүн."</string>
     <string name="lost_internet_access_switch" msgid="9218006455779873700">"Мобилдик түзмөккө которуу"</string>
     <string name="lost_internet_access_cancel" msgid="6577871064062518744">"Wi-Fi тармагында калуу"</string>
-    <string name="lost_internet_access_persist" msgid="6368659013482055611">"Кайра көрсөтүлбөсүн"</string>
+    <string name="lost_internet_access_persist" msgid="6368659013482055611">"Кайра көрүнбөсүн"</string>
     <string name="wifi_connect" msgid="5653612760223533650">"Туташуу"</string>
     <string name="wifi_turned_on_message" msgid="3377779146238242894">"Wi-Fi күйгүзүлдү"</string>
     <!-- no translation found for wifi_connected_to_message (2875589636437599620) -->
@@ -3035,7 +3035,7 @@
     <string name="network_dashboard_summary_mobile" msgid="5560545061217580626">"мобилдик"</string>
     <string name="network_dashboard_summary_data_usage" msgid="4695629715072542102">"дайын-даректердин өткөрүлүшү"</string>
     <string name="network_dashboard_summary_hotspot" msgid="3928610802321995214">"байланыш түйүнү"</string>
-    <string name="connected_devices_dashboard_title" msgid="7795222675849060444">"Туташкан түзмөктөр"</string>
+    <string name="connected_devices_dashboard_title" msgid="7795222675849060444">"Байланышкан түзмөктөр"</string>
     <string name="connected_devices_dashboard_summary" msgid="1072664369515033179">"Bluetooth, айдоо режими, NFC"</string>
     <string name="connected_devices_dashboard_no_nfc_summary" msgid="2610085597733526722">"Bluetooth, айдоо режими"</string>
     <string name="connected_devices_dashboard_no_driving_mode_summary" msgid="3524409078596318803">"Bluetooth, NFC"</string>
@@ -3417,7 +3417,7 @@
     <string name="notification_toggle_on" msgid="5119816745741139542">"Күйүк"</string>
     <string name="notification_toggle_off" msgid="5289843670514922751">"Өчүк"</string>
     <string name="app_notification_block_title" msgid="7898269373875294367">"Баарын бөгөттөө"</string>
-    <string name="app_notification_block_summary" msgid="4502146897785692336">"Бул билдирмелер эч качан көрсөтүлбөсүн"</string>
+    <string name="app_notification_block_summary" msgid="4502146897785692336">"Бул билдирмелер эч качан көрүнбөсүн"</string>
     <string name="notification_content_block_title" msgid="2805138591864484587">"Билдирмелер"</string>
     <string name="notification_content_block_summary" msgid="2743896875255591743">"Билдирмелер эч качан фондо же тышкы түзмөктөрдө көрүнбөсүн"</string>
     <string name="notification_badge_title" msgid="8989086619255666442">"Билдирмелер белгиси көрүнсүн"</string>

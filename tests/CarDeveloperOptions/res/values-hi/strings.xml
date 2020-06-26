@@ -2904,7 +2904,7 @@
     <string name="user_exit_guest_dialog_remove" msgid="1878866060881115716">"निकालें"</string>
     <string name="user_enable_calling" msgid="864760054792249503">"फ़ोन कॉल चालू करें"</string>
     <string name="user_enable_calling_sms" msgid="3450252891736718793">"फ़ोन कॉल और मैसेज (एसएमएस) चालू करें"</string>
-    <string name="user_remove_user" msgid="3687544420125911166">"उपयोगकर्ता को हटाना"</string>
+    <string name="user_remove_user" msgid="3687544420125911166">"उपयोगकर्ता को मिटाएं"</string>
     <string name="user_enable_calling_confirm_title" msgid="1141612415529158542">"फ़ोन कॉल चालू करें?"</string>
     <string name="user_enable_calling_confirm_message" msgid="2490126715153125970">"कॉल इतिहास इस उपयोगकर्ता के साथ शेयर किया जाएगा."</string>
     <string name="user_enable_calling_and_sms_confirm_title" msgid="4153856398523366976">"फ़ोन कॉल और मैसेज (एसएमएस) चालू करें?"</string>
@@ -3442,7 +3442,7 @@
     <string name="zen_mode_add_event_rule" msgid="1398181272397489506">"इवेंट का शेड्यूल जोड़ें"</string>
     <string name="zen_mode_add_time_rule" msgid="5999467757140524729">"समय का शेड्यूल जोड़ें"</string>
     <string name="zen_mode_delete_rule" msgid="2292933835997203801">"शेड्यूल मिटाएं"</string>
-    <string name="zen_mode_choose_rule_type" msgid="8877138307319450306">"शेड्यूल का प्रकार चुनें"</string>
+    <string name="zen_mode_choose_rule_type" msgid="8877138307319450306">"किस तरह का शेड्यूल चुनना चाहते हैं"</string>
     <string name="zen_mode_delete_rule_confirmation" msgid="2646596466259025978">"<xliff:g id="RULE">%1$s</xliff:g> नियम मिटाएं?"</string>
     <string name="zen_mode_delete_rule_button" msgid="611058106279881991">"मिटाएं"</string>
     <string name="zen_mode_rule_type_unknown" msgid="2819480113355191421">"अज्ञात"</string>

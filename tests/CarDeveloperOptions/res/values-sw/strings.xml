@@ -3321,7 +3321,7 @@
     <string name="notification_pulse_title" msgid="4861418327614907116">"Mwangaza umemeteke"</string>
     <string name="lock_screen_notifications_title" msgid="6889072265118747835">"Wakati skrini imefungwa"</string>
     <string name="locked_work_profile_notification_title" msgid="8307025804986190658">"Wakati umefunga wasifu wa kazini"</string>
-    <string name="lock_screen_notifications_summary_show" msgid="5788874994455257378">"Onyesha arifa za maudhui yote"</string>
+    <string name="lock_screen_notifications_summary_show" msgid="5788874994455257378">"Onyesha maudhui yote ya arifa"</string>
     <string name="lock_screen_notifications_summary_hide" msgid="3668806866535260143">"Ficha maudhui nyeti"</string>
     <string name="lock_screen_notifications_summary_disable" msgid="3259929507369817672">"Usionyeshe arifa zozote"</string>
     <string name="lock_screen_notifications_interstitial_message" msgid="4230189215124387818">"Je, ungependa arifa zipi zionyeshwe wakati kifaa kimefungwa?"</string>
@@ -3341,7 +3341,7 @@
     <string name="notification_importance_low" msgid="7609797151662295364">"Onyesha chinichini"</string>
     <string name="notification_importance_default" msgid="4091563759103917166">"Toa sauti"</string>
     <string name="notification_importance_high" msgid="7973764540402436656">"Toa sauti na ibukizi kwenye skrini"</string>
-    <string name="notification_importance_high_silent" msgid="3177662759865661155">"Ichomoze kwenye skrini"</string>
+    <string name="notification_importance_high_silent" msgid="3177662759865661155">"Zionekane kwenye skrini"</string>
     <string name="notification_importance_min_title" msgid="705872537330744154">"Punguza"</string>
     <string name="notification_importance_low_title" msgid="2956199021781786232">"Wastani"</string>
     <string name="notification_importance_default_title" msgid="7985549807203332482">"Juu"</string>
@@ -3519,7 +3519,7 @@
     <string name="zen_mode_contacts_callers" msgid="3116829245339716399">"anwani"</string>
     <string name="zen_mode_starred_callers" msgid="1317376207713013472">"anwani zenye nyota"</string>
     <string name="zen_mode_repeat_callers" msgid="1435309867554692340">"Wanaorudia kupiga simu"</string>
-    <string name="zen_mode_repeat_callers_list" msgid="2750270907597457279">"waliopiga simu mara kadhaa"</string>
+    <string name="zen_mode_repeat_callers_list" msgid="2750270907597457279">"wanaorudia kupiga simu"</string>
     <string name="zen_mode_repeat_callers_title" msgid="7192952181541813487">"Ruhusu wanaorudia kupiga simu"</string>
     <string name="zen_mode_calls_summary_one" msgid="8327371053236689649">"Ruhusu kutoka kwa <xliff:g id="CALLER_TYPE">%1$s</xliff:g>"</string>
     <string name="zen_mode_calls_summary_two" msgid="9017678770532673578">"Ruhusu kutoka kwa <xliff:g id="CALLER_TYPE">%1$s</xliff:g> na <xliff:g id="CALLERT_TPYE">%2$s</xliff:g>"</string>

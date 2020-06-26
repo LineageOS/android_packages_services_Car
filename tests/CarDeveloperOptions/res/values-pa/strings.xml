@@ -4047,10 +4047,10 @@
     <string name="theme_customization_accent_color_title" msgid="3949108608589133216">"ਐਕਸੈਂਟ ਰੰਗ"</string>
     <string name="theme_customization_font_title" msgid="309728559821356597">"ਸੁਰਖੀ / ਮੁੱਖ ਹਿੱਸੇ ਦਾ ਫੌਂਟ"</string>
     <string name="theme_customization_icon_shape_title" msgid="4603248388639328322">"ਪ੍ਰਤੀਕ ਦਾ ਆਕਾਰ"</string>
-    <string name="theme_customization_device_default" msgid="7188874258500934312">"ਪੂਰਵ-ਨਿਰਧਾਰਤ ਡੀਵਾਈਸ"</string>
+    <string name="theme_customization_device_default" msgid="7188874258500934312">"ਡੀਵਾਈਸ ਪੂਰਵ-ਨਿਰਧਾਰਤ"</string>
     <string name="display_cutout_emulation" msgid="288975763151891685">"ਡਿਸਪਲੇ ਕੱਟਆਊਟ"</string>
     <string name="display_cutout_emulation_keywords" msgid="6795671536772871439">"ਡਿਸਪਲੇ ਕੱਟਆਊਟ, ਨੌਚ"</string>
-    <string name="overlay_option_device_default" msgid="165508753381657697">"ਪੂਰਵ-ਨਿਰਧਾਰਤ ਡੀਵਾਈਸ"</string>
+    <string name="overlay_option_device_default" msgid="165508753381657697">"ਡੀਵਾਈਸ ਪੂਰਵ-ਨਿਰਧਾਰਤ"</string>
     <string name="overlay_toast_failed_to_apply" msgid="5692251825129250040">"ਓਵਰਲੇ ਨੂੰ ਲਾਗੂ ਕਰਨਾ ਅਸਫਲ ਰਿਹਾ"</string>
     <string name="special_access" msgid="1453926335914696206">"ਵਿਸ਼ੇਸ਼ ਐਪ ਪਹੁੰਚ"</string>
     <plurals name="special_access_summary" formatted="false" msgid="5182092345063909346">

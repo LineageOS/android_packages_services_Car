@@ -29,7 +29,7 @@
     <string name="show_dev_on" msgid="9075712234786224065">"Bạn đã là nhà phát triển!"</string>
     <string name="show_dev_already" msgid="7665948832405148689">"Không cần, bạn đã là nhà phát triển."</string>
     <string name="dev_settings_disabled_warning" msgid="3198732189395396721">"Vui lòng bật tùy chọn của nhà phát triển trước."</string>
-    <string name="header_category_wireless_networks" msgid="8968405993937795898">"Mạng không dây và mạng"</string>
+    <string name="header_category_wireless_networks" msgid="8968405993937795898">"Không dây và mạng"</string>
     <string name="header_category_system" msgid="4045988717359334410">"Hệ thống"</string>
     <string name="radio_info_data_connection_enable" msgid="2554249462719717119">"Bật kết nối dữ liệu"</string>
     <string name="radio_info_data_connection_disable" msgid="2430609627397999371">"Tắt kết nối dữ liệu"</string>
@@ -301,7 +301,7 @@
     <string name="settings_label_launcher" msgid="500627679902923496">"Cài đặt"</string>
     <string name="settings_shortcut" msgid="4503714880251502167">"Lối tắt cài đặt"</string>
     <string name="airplane_mode" msgid="4508870277398231073">"Chế độ trên máy bay"</string>
-    <string name="wireless_networks_settings_title" msgid="4298430520189173949">"Không dây &amp; mạng"</string>
+    <string name="wireless_networks_settings_title" msgid="4298430520189173949">"Không dây và mạng"</string>
     <string name="radio_controls_summary" msgid="4596981962167684814">"Quản lý Wi-Fi, Bluetooth, chế độ trên máy bay, mạng di động và VPN"</string>
     <string name="cellular_data_title" msgid="7909624119432695022">"Dữ liệu di động"</string>
     <string name="calls_title" msgid="875693497825736550">"Cho phép cuộc gọi"</string>
@@ -1826,7 +1826,7 @@
     <string name="disable_text" msgid="5065834603951474397">"Tắt"</string>
     <string name="enable_text" msgid="7179141636849225884">"Bật"</string>
     <string name="clear_user_data_text" msgid="8894073247302821764">"Xóa bộ nhớ"</string>
-    <string name="app_factory_reset" msgid="8718986000278776272">"Gỡ cài đặt cập nhật"</string>
+    <string name="app_factory_reset" msgid="8718986000278776272">"Gỡ cài đặt bản cập nhật"</string>
     <string name="auto_launch_enable_text" msgid="3372898942144027341">"Bạn đã chọn chạy ứng dụng này theo mặc định cho một số tác vụ."</string>
     <string name="always_allow_bind_appwidgets_text" msgid="2286211654774611037">"Bạn đã chọn cho phép ứng dụng này tạo các tiện ích và truy cập dữ liệu của chúng."</string>
     <string name="auto_launch_disable_text" msgid="8560921288036801416">"Chưa đặt mặc định."</string>
@@ -3403,7 +3403,7 @@
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> loại</item>
       <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> loại</item>
     </plurals>
-    <string name="no_channels" msgid="8884254729302501652">"Ứng dụng chưa đăng bất kỳ thông báo nào"</string>
+    <string name="no_channels" msgid="8884254729302501652">"Ứng dụng này chưa đăng bất kỳ thông báo nào"</string>
     <string name="app_settings_link" msgid="8465287765715790984">"Tùy chọn cài đặt bổ sung trong ứng dụng"</string>
     <string name="app_notification_listing_summary_zero" msgid="4047782719487686699">"Đang bật cho tất cả ứng dụng"</string>
     <plurals name="app_notification_listing_summary_others" formatted="false" msgid="1161774065480666519">
@@ -3468,9 +3468,9 @@
     <string name="zen_mode_schedule_rule_days" msgid="220627703673691816">"Ngày"</string>
     <string name="zen_mode_schedule_rule_days_none" msgid="6011716195119389956">"Không có"</string>
     <string name="zen_mode_schedule_rule_days_all" msgid="8814173364016139675">"Hàng ngày"</string>
-    <string name="zen_mode_schedule_alarm_title" msgid="2078194049274875023">"Báo thức có thể ghi đè thời gian kết thúc"</string>
-    <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"Lịch biểu tắt khi lịch báo thức đổ chuông"</string>
-    <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"Hành vi Không làm phiền"</string>
+    <string name="zen_mode_schedule_alarm_title" msgid="2078194049274875023">"Đồng hồ báo thức có thể vô hiệu hóa thời gian kết thúc"</string>
+    <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"Lịch biểu tắt khi một đồng hồ báo thức đổ chuông"</string>
+    <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"Hoạt động ở chế độ Không làm phiền"</string>
     <string name="zen_mode_custom_behavior_summary_default" msgid="3509865340195397447">"Sử dụng các tùy chọn cài đặt mặc định"</string>
     <string name="zen_mode_custom_behavior_summary" msgid="7206909852887332604">"Tạo các mục cài đặt tùy chỉnh cho lịch biểu này"</string>
     <string name="zen_mode_custom_behavior_category_title" msgid="7451686525113262087">"Dành cho ‘<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>’"</string>
@@ -4047,10 +4047,10 @@
     <string name="theme_customization_accent_color_title" msgid="3949108608589133216">"Màu nhấn"</string>
     <string name="theme_customization_font_title" msgid="309728559821356597">"Phông chữ tiêu đề / nội dung"</string>
     <string name="theme_customization_icon_shape_title" msgid="4603248388639328322">"Hình dạng biểu tượng"</string>
-    <string name="theme_customization_device_default" msgid="7188874258500934312">"Theo mặc định của thiết bị"</string>
+    <string name="theme_customization_device_default" msgid="7188874258500934312">"Theo giá trị mặc định của thiết bị"</string>
     <string name="display_cutout_emulation" msgid="288975763151891685">"Vết cắt trên màn hình"</string>
     <string name="display_cutout_emulation_keywords" msgid="6795671536772871439">"cắt hiển thị, vết cắt"</string>
-    <string name="overlay_option_device_default" msgid="165508753381657697">"Theo mặc định của thiết bị"</string>
+    <string name="overlay_option_device_default" msgid="165508753381657697">"Theo giá trị mặc định của thiết bị"</string>
     <string name="overlay_toast_failed_to_apply" msgid="5692251825129250040">"Không áp dụng được lớp phủ"</string>
     <string name="special_access" msgid="1453926335914696206">"Quyền truy cập đặc biệt"</string>
     <plurals name="special_access_summary" formatted="false" msgid="5182092345063909346">

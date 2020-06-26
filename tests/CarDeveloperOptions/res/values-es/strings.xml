@@ -1528,7 +1528,7 @@
     <string name="battery_level_title" msgid="5207775387973771646">"Nivel de batería"</string>
     <string name="apn_settings" msgid="8130776653826271664">"APNs"</string>
     <string name="apn_edit" msgid="4350571070853305357">"Editar punto de acceso"</string>
-    <string name="apn_not_set" msgid="5344235604466825691">"Sin establecer"</string>
+    <string name="apn_not_set" msgid="5344235604466825691">"Sin definir"</string>
     <string name="apn_name" msgid="8431432886706852226">"Nombre"</string>
     <string name="apn_apn" msgid="190519449579357696">"APN"</string>
     <string name="apn_http_proxy" msgid="8816906767987944465">"Proxy"</string>
@@ -3443,7 +3443,7 @@
     <string name="zen_mode_add_time_rule" msgid="5999467757140524729">"Añadir programación horaria"</string>
     <string name="zen_mode_delete_rule" msgid="2292933835997203801">"Eliminar programación"</string>
     <string name="zen_mode_choose_rule_type" msgid="8877138307319450306">"Elige un tipo de programación"</string>
-    <string name="zen_mode_delete_rule_confirmation" msgid="2646596466259025978">"¿Quieres eliminar la regla \"<xliff:g id="RULE">%1$s</xliff:g>\"?"</string>
+    <string name="zen_mode_delete_rule_confirmation" msgid="2646596466259025978">"¿Eliminar regla \"<xliff:g id="RULE">%1$s</xliff:g>\"?"</string>
     <string name="zen_mode_delete_rule_button" msgid="611058106279881991">"Eliminar"</string>
     <string name="zen_mode_rule_type_unknown" msgid="2819480113355191421">"Desconocida"</string>
     <string name="zen_mode_app_set_behavior" msgid="8597398780262575571">"Estas opciones no se pueden modificar en este momento. Una aplicación (<xliff:g id="APP_NAME">%1$s</xliff:g>) ha activado automáticamente el modo No molestar con funcionamiento personalizado."</string>
@@ -3469,10 +3469,10 @@
     <string name="zen_mode_schedule_rule_days_none" msgid="6011716195119389956">"Ninguno"</string>
     <string name="zen_mode_schedule_rule_days_all" msgid="8814173364016139675">"Todos los días"</string>
     <string name="zen_mode_schedule_alarm_title" msgid="2078194049274875023">"La alarma puede anular la hora de finalización"</string>
-    <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"La programación se desactiva cuando suena una alarma"</string>
+    <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"La programación se desactiva si suena una alarma"</string>
     <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"Comportamiento del modo No molestar"</string>
     <string name="zen_mode_custom_behavior_summary_default" msgid="3509865340195397447">"Usar configuración predeterminada"</string>
-    <string name="zen_mode_custom_behavior_summary" msgid="7206909852887332604">"Crear opciones de configuración personalizadas para esta programación"</string>
+    <string name="zen_mode_custom_behavior_summary" msgid="7206909852887332604">"Crear ajustes personalizados para esta programación"</string>
     <string name="zen_mode_custom_behavior_category_title" msgid="7451686525113262087">"En la programación \"<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>\""</string>
     <string name="summary_divider_text" msgid="4780683204694442666">", "</string>
     <string name="summary_range_symbol_combination" msgid="6038631664844488406">"<xliff:g id="START">%1$s</xliff:g>-<xliff:g id="END">%2$s</xliff:g>"</string>

@@ -826,7 +826,7 @@
     <string name="nfc_disclaimer_title" msgid="4860231267351602970">"روشن کردن NFC"</string>
     <string name="nfc_disclaimer_content" msgid="3066113577854565782">"NFC داده‌ها را میان این دستگاه و سایر دستگا‌ه‌ها یا اهداف اطراف (مانند پایانه‌های پرداخت، کارت‌خوان‌ها و آگهی‌ها یا برچسب‌های تعاملی) مبادله می‌کند."</string>
     <string name="nfc_secure_settings_title" msgid="5153751163174916581">"NFC ایمن"</string>
-    <string name="nfc_secure_toggle_summary" product="default" msgid="7631183023440112192">"استفاده از حمل‌و‌نقل عمومی و پرداخت NFC تنها وقتی قفل صفحه باز است مجاز شود"</string>
+    <string name="nfc_secure_toggle_summary" product="default" msgid="7631183023440112192">"استفاده از حمل‌و‌نقل عمومی و پرداخت «ارتباط میدان نزدیک» (NFC) تنها وقتی قفل صفحه باز است مجاز شود"</string>
     <string name="android_beam_settings_title" msgid="3083436415873738389">"Android Beam"</string>
     <string name="android_beam_on_summary" msgid="8068287225180474199">"آماده برای انتقال محتوای برنامه از طریق NFC"</string>
     <string name="android_beam_off_summary" msgid="7365818039159364600">"خاموش"</string>

@@ -1246,8 +1246,8 @@
     <string name="adaptive_sleep_summary_off" msgid="2891586225954973431">"Выключана"</string>
     <string name="adaptive_sleep_description" msgid="812673735459170009">"Не дазваляе экрану выключацца, калі на яго глядзяць"</string>
     <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"Адаптыўны рэжым з дапамогай пярэдняй камеры вызначае, калі хто-небудзь глядзіць на экран. Функцыя працуе толькі на прыладзе: відарысы не захоўваюцца і не адпраўляюцца ў Google."</string>
-    <string name="night_display_title" msgid="1305002424893349814">"Начны рэжым"</string>
-    <string name="night_display_text" msgid="5330502493684652527">"У начным рэжыме экран будзе мець бурштынавае адценне. Так вам будзе зручней глядзець на экран пры цьмяным асвятленні, а таксама лягчэй заснуць."</string>
+    <string name="night_display_title" msgid="1305002424893349814">"Начная падсветка"</string>
+    <string name="night_display_text" msgid="5330502493684652527">"У рэжыме Начной падсветкі экран будзе мець бурштынавае адценне. Так вам будзе зручней глядзець на экран пры цьмяным асвятленні, а таксама лягчэй заснуць."</string>
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"Расклад"</string>
     <string name="night_display_auto_mode_never" msgid="2897444637217807088">"Ніколі"</string>
     <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"Уключаецца ў вызначаны час"</string>
@@ -1270,7 +1270,7 @@
     <string name="night_display_activation_off_twilight" msgid="6846727701281556110">"Выключыць да вечара"</string>
     <string name="night_display_activation_on_custom" msgid="4761140206778957611">"Уключыць да <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="night_display_activation_off_custom" msgid="4207238846687792731">"Выключыць да <xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="night_display_not_currently_on" msgid="1436588493764429281">"Начны рэжым не ўключаны"</string>
+    <string name="night_display_not_currently_on" msgid="1436588493764429281">"Начная падсветка не ўключана"</string>
     <string name="screen_timeout" msgid="1700950247634525588">"Рэжым сну"</string>
     <string name="screen_timeout_title" msgid="150117777762864112">"Экран выключаецца"</string>
     <string name="screen_timeout_summary" msgid="8644192861778491060">"Пасля бяздзейнасці: <xliff:g id="TIMEOUT_DESCRIPTION">%1$s</xliff:g>"</string>
@@ -4028,9 +4028,9 @@
     <string name="condition_device_muted_summary" msgid="3101055117680109021">"Для выклікаў і апавяшчэнняў"</string>
     <string name="condition_device_vibrate_title" msgid="5712659354868872338">"Толькі вібрацыя"</string>
     <string name="condition_device_vibrate_summary" msgid="9073880731894828604">"Для выклікаў і апавяшчэнняў"</string>
-    <string name="night_display_suggestion_title" msgid="4222839610992282188">"Глядзець графік начнога рэжыму"</string>
+    <string name="night_display_suggestion_title" msgid="4222839610992282188">"Задаць расклад Начной падсветкі"</string>
     <string name="night_display_suggestion_summary" msgid="1754361016383576916">"Аўтаматычна мяняць колер экрана ўвечары"</string>
-    <string name="condition_night_display_title" msgid="9171491784857160135">"Начны рэжым уключаны"</string>
+    <string name="condition_night_display_title" msgid="9171491784857160135">"Начная падсветка ўключана"</string>
     <string name="condition_night_display_summary" msgid="7885776986937527558">"Бурштынавы колер экрана"</string>
     <string name="condition_grayscale_title" msgid="1226351649203551299">"Адценні шэрага"</string>
     <string name="condition_grayscale_summary" msgid="749172886527349546">"Паказ толькі ў шэрым колеры"</string>
