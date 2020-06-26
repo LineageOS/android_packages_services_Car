@@ -115,15 +115,11 @@ Return<void> SurroundView2dSession::FramesHandler::deliverFrame_1_1(
 Return<void> SurroundView2dSession::FramesHandler::notify(const EvsEventDesc& event) {
     switch(event.aType) {
         case EvsEventType::STREAM_STOPPED:
-        {
+            // The Surround View STREAM_STOPPED event is generated when the
+            // service finished processing the queued frames. So it does not
+            // rely on the Evs STREAM_STOPPED event.
             LOG(INFO) << "Received a STREAM_STOPPED event from Evs.";
-
-            // TODO(b/158339680): There is currently an issue in EVS reference
-            // implementation that causes STREAM_STOPPED event to be delivered
-            // properly. When the bug is fixed, we should deal with this event
-            // properly in case the EVS stream is stopped unexpectly.
             break;
-        }
 
         case EvsEventType::PARAMETER_CHANGED:
             LOG(INFO) << "Camera parameter " << std::hex << event.payload[0]
