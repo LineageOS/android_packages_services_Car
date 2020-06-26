@@ -433,6 +433,7 @@ public final class UserHalServiceTest {
         String newUserName = "Groot";
         VehiclePropValue propResponse = UserHalHelper.createPropRequest(INITIAL_USER_INFO,
                     REQUEST_ID_PLACE_HOLDER, InitialUserInfoResponseAction.CREATE);
+        propResponse.value.int32Values.add(666); // userId (not used)
         propResponse.value.int32Values.add(newUserFlags);
         propResponse.value.stringValue = "||" + newUserName;
 

@@ -412,14 +412,15 @@ public final class UserHalHelper {
                 response.userToSwitchOrCreate.flags = UserFlags.NONE;
                 break;
             case InitialUserInfoResponseAction.SWITCH:
-                assertMinimumSize(prop, 3);
+                assertMinimumSize(prop, 3); // request_id, action_type, user_id
                 response.userToSwitchOrCreate.userId = prop.value.int32Values.get(2);
                 response.userToSwitchOrCreate.flags = UserFlags.NONE;
                 break;
             case InitialUserInfoResponseAction.CREATE:
-                assertMinimumSize(prop, 3);
+                assertMinimumSize(prop, 4); // request_id, action_type, user_id, user_flags
+                // user id is set at index 2, but it's ignored
                 response.userToSwitchOrCreate.userId = UserHandle.USER_NULL;
-                response.userToSwitchOrCreate.flags = prop.value.int32Values.get(2);
+                response.userToSwitchOrCreate.flags = prop.value.int32Values.get(3);
                 if (stringValues.length > 1) {
                     response.userNameToCreate = stringValues[1];
                 }
