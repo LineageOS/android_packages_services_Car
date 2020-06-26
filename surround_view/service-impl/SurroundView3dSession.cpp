@@ -120,12 +120,10 @@ Return<void> SurroundView3dSession::FramesHandler::deliverFrame_1_1(
 Return<void> SurroundView3dSession::FramesHandler::notify(const EvsEventDesc& event) {
     switch(event.aType) {
         case EvsEventType::STREAM_STOPPED:
+            // The Surround View STREAM_STOPPED event is generated when the
+            // service finished processing the queued frames. So it does not
+            // rely on the Evs STREAM_STOPPED event.
             LOG(INFO) << "Received a STREAM_STOPPED event from Evs.";
-
-            // TODO(b/158339680): There is currently an issue in EVS reference
-            // implementation that causes STREAM_STOPPED event to be delivered
-            // properly. When the bug is fixed, we should deal with this event
-            // properly in case the EVS stream is stopped unexpectly.
             break;
 
         case EvsEventType::PARAMETER_CHANGED:
@@ -271,7 +269,9 @@ SurroundView3dSession::~SurroundView3dSession() {
     stopStream();
 
     // Waiting for the process thread to finish the buffered frames.
-    mProcessThread.join();
+    if (mProcessThread.joinable()) {
+        mProcessThread.join();
+    }
 
     mEvs->closeCamera(mCamera);
 }
