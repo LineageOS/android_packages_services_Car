@@ -2994,7 +2994,7 @@
     <string name="application_restrictions" msgid="6871981013736536763">"Дозволи для програм і вмісту"</string>
     <string name="apps_with_restrictions_header" msgid="8656739605673756176">"Програми з обмеженнями"</string>
     <string name="apps_with_restrictions_settings_button" msgid="5065896213467171744">"Розгорнути налаштув. програм"</string>
-    <string name="nfc_payment_settings_title" msgid="5070077706735415291">"Натиснути й оплатити"</string>
+    <string name="nfc_payment_settings_title" msgid="5070077706735415291">"Експрес-платежі"</string>
     <string name="nfc_payment_how_it_works" msgid="7607901964687787177">"Як це працює"</string>
     <string name="nfc_payment_no_apps" msgid="8844440783395420860">"Оплачуйте покупки за допомогою телефона"</string>
     <string name="nfc_payment_default" msgid="7869273092463612271">"Додаток для платежів за умовчанням"</string>

@@ -1264,7 +1264,7 @@
     <string name="doze_title" msgid="235269029233857546">"Nýjar tilkynningar"</string>
     <string name="doze_summary" msgid="6762274282827831706">"Vekja skjáinn þegar þú færð tilkynningar"</string>
     <string name="doze_always_on_title" msgid="8555184965031789941">"Alltaf kveikt"</string>
-    <string name="doze_always_on_summary" msgid="7654436900436328950">"Sýna tíma, tilkynningartákn og aðrar upplýsingar. Aukin rafhlöðunotkun."</string>
+    <string name="doze_always_on_summary" msgid="7654436900436328950">"Sýna klukku, tilkynningartákn og aðrar upplýsingar. Aukin rafhlöðunotkun."</string>
     <string name="title_font_size" msgid="5021464556860010851">"Leturstærð"</string>
     <string name="short_summary_font_size" msgid="4141077908728522946">"Gera texta stærri eða minni"</string>
     <string name="sim_lock_settings" msgid="1986924650622642189">"Stillingar SIM-kortaláss"</string>

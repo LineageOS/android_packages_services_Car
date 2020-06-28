@@ -3645,7 +3645,7 @@
     <string name="advanced_apps" msgid="6643869089344883537">"Lisäasetukset"</string>
     <string name="configure_apps" msgid="4066683118857400943">"Sovellusten konfigurointi"</string>
     <string name="unknown_app" msgid="2312052973570376877">"Tuntematon sovellus"</string>
-    <string name="app_permissions" msgid="3215958256821756086">"Käyttöoikeuksien ylläpitäjä"</string>
+    <string name="app_permissions" msgid="3215958256821756086">"Käyttöoikeuksien ylläpito"</string>
     <string name="app_permissions_summary" msgid="8785798165776061594">"Sovellukset, joilla on lupa käyttää seuraavia: <xliff:g id="APPS">%1$s</xliff:g>"</string>
     <string name="tap_to_wake" msgid="1902991239401652323">"Herätä napauttamalla"</string>
     <string name="tap_to_wake_summary" msgid="8485222120721006793">"Herätä laite napauttamalla näyttöä kahdesti."</string>
