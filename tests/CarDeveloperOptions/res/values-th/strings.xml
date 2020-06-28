@@ -3306,10 +3306,10 @@
     <string name="hide_silent_icons_title" msgid="1070905516921542662">"ซ่อนไอคอนสถานะการแจ้งเตือนแบบไม่มีเสียง"</string>
     <string name="hide_silent_icons_summary" msgid="2624346914488256888">"ซ่อนไอคอนสำหรับการแจ้งเตือนแบบไม่มีเสียงในแถบสถานะ"</string>
     <string name="notification_badging_title" msgid="6311699476970264712">"อนุญาตให้ใช้จุดแจ้งเตือน"</string>
-    <string name="notification_bubbles_title" msgid="9196562435741861317">"ลูกโป่ง"</string>
+    <string name="notification_bubbles_title" msgid="9196562435741861317">"บับเบิล"</string>
     <string name="notification_bubbles_summary" msgid="4624512775901949578">"เข้าถึงเนื้อหาแอปอย่างรวดเร็วได้จากทุกที่โดยใช้ทางลัดแบบลอย"</string>
     <string name="bubbles_feature_education" msgid="8979109826818881018">"การแจ้งเตือนบางรายการและเนื้อหาอื่นอาจแสดงเป็นลูกโป่งในหน้าจอได้ แตะลูกโป่งเพื่อเปิด ลากลูกโป่งลงไปที่ด้านล่างของหน้าจอเพื่อปิด"</string>
-    <string name="bubbles_app_toggle_title" msgid="6401217027603326439">"ลูกโป่ง"</string>
+    <string name="bubbles_app_toggle_title" msgid="6401217027603326439">"บับเบิล"</string>
     <string name="bubbles_app_toggle_summary" msgid="7707611139796553855">"อนุญาตให้ \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" แสดงการแจ้งเตือนบางรายการเป็นลูกโป่ง"</string>
     <string name="bubbles_feature_disabled_dialog_title" msgid="3375452386012079293">"เปิดลูกโป่ง"</string>
     <string name="bubbles_feature_disabled_dialog_text" msgid="326945485806386477">"หากต้องการเปิดลูกโป่งของแอปนี้ คุณต้องเปิดลูกโป่งของอุปกรณ์ก่อน การดำเนินการนี้จะส่งผลต่อแอปอื่นๆ ที่คุณเปิดลูกโป่งไว้ก่อนหน้านี้"</string>
@@ -3435,9 +3435,9 @@
     <string name="notification_channel_sound_title" msgid="7635366839003304745">"เสียง"</string>
     <string name="zen_mode_rule_delete_button" msgid="6763486487220471193">"ลบ"</string>
     <string name="zen_mode_rule_rename_button" msgid="1428130397306726792">"เปลี่ยนชื่อ"</string>
-    <string name="zen_mode_rule_name" msgid="8583652780885724670">"ชื่อกำหนดเวลา"</string>
+    <string name="zen_mode_rule_name" msgid="8583652780885724670">"ชื่อกำหนดการ"</string>
     <string name="zen_mode_rule_name_hint" msgid="6569877315858105901">"ระบุชื่อกำหนดการ"</string>
-    <string name="zen_mode_rule_name_warning" msgid="4773465816059587512">"มีการใช้ชื่อกำหนดเวลานี้แล้ว"</string>
+    <string name="zen_mode_rule_name_warning" msgid="4773465816059587512">"มีการใช้ชื่อกำหนดการนี้แล้ว"</string>
     <string name="zen_mode_add_rule" msgid="7200004557856029928">"เพิ่มอีก"</string>
     <string name="zen_mode_add_event_rule" msgid="1398181272397489506">"เพิ่มกำหนดการตามกิจกรรม"</string>
     <string name="zen_mode_add_time_rule" msgid="5999467757140524729">"เพิ่มกำหนดการตามเวลา"</string>
@@ -3468,11 +3468,11 @@
     <string name="zen_mode_schedule_rule_days" msgid="220627703673691816">"วัน"</string>
     <string name="zen_mode_schedule_rule_days_none" msgid="6011716195119389956">"ไม่มี"</string>
     <string name="zen_mode_schedule_rule_days_all" msgid="8814173364016139675">"ทุกวัน"</string>
-    <string name="zen_mode_schedule_alarm_title" msgid="2078194049274875023">"เวลาปลุกจะแทนที่เวลาสิ้นสุดได้"</string>
-    <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"กำหนดเวลาจะปิดเมื่อนาฬิกาปลุกดังขึ้น"</string>
+    <string name="zen_mode_schedule_alarm_title" msgid="2078194049274875023">"การปลุกจะแทนที่เวลาสิ้นสุดได้"</string>
+    <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"กำหนดการจะปิดเมื่อนาฬิกาปลุกดังขึ้น"</string>
     <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"ลักษณะการทำงานของโหมดห้ามรบกวน"</string>
     <string name="zen_mode_custom_behavior_summary_default" msgid="3509865340195397447">"ใช้การตั้งค่าเริ่มต้น"</string>
-    <string name="zen_mode_custom_behavior_summary" msgid="7206909852887332604">"สร้างการตั้งค่าที่กำหนดเองสำหรับกำหนดเวลานี้"</string>
+    <string name="zen_mode_custom_behavior_summary" msgid="7206909852887332604">"สร้างการตั้งค่าที่กำหนดเองสำหรับกำหนดการนี้"</string>
     <string name="zen_mode_custom_behavior_category_title" msgid="7451686525113262087">"สำหรับ \"<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>\""</string>
     <string name="summary_divider_text" msgid="4780683204694442666">", "</string>
     <string name="summary_range_symbol_combination" msgid="6038631664844488406">"<xliff:g id="START">%1$s</xliff:g> - <xliff:g id="END">%2$s</xliff:g>"</string>
