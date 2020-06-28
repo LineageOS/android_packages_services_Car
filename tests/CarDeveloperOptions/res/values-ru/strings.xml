@@ -1246,8 +1246,8 @@
     <string name="adaptive_sleep_summary_off" msgid="2891586225954973431">"Отключено"</string>
     <string name="adaptive_sleep_description" msgid="812673735459170009">"Экран не будет отключаться, если вы смотрите на него."</string>
     <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"Когда адаптивный спящий режим включен, устройство использует фронтальную камеру, чтобы отслеживать, смотрит ли кто-то на экран. Эта функция работает только на вашем устройстве: собранные данные не сохраняются и не отправляются в Google."</string>
-    <string name="night_display_title" msgid="1305002424893349814">"Ночной режим"</string>
-    <string name="night_display_text" msgid="5330502493684652527">"В ночном режиме экран приобретает желтоватый оттенок. Это снижает напряжение глаз при тусклом свете и может помочь вам быстрее заснуть."</string>
+    <string name="night_display_title" msgid="1305002424893349814">"Ночная подсветка"</string>
+    <string name="night_display_text" msgid="5330502493684652527">"С ночной подсветкой экран приобретает желтоватый оттенок. Это снижает напряжение глаз при тусклом свете и может помочь вам быстрее заснуть."</string>
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"Расписание"</string>
     <string name="night_display_auto_mode_never" msgid="2897444637217807088">"Нет"</string>
     <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"В выбранное время"</string>
@@ -1270,7 +1270,7 @@
     <string name="night_display_activation_off_twilight" msgid="6846727701281556110">"Отключить до заката"</string>
     <string name="night_display_activation_on_custom" msgid="4761140206778957611">"Включить до <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="night_display_activation_off_custom" msgid="4207238846687792731">"Отключить до <xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="night_display_not_currently_on" msgid="1436588493764429281">"Ночной режим сейчас выключен"</string>
+    <string name="night_display_not_currently_on" msgid="1436588493764429281">"Ночная подсветка сейчас выключена"</string>
     <string name="screen_timeout" msgid="1700950247634525588">"Спящий режим"</string>
     <string name="screen_timeout_title" msgid="150117777762864112">"Отключение экрана"</string>
     <string name="screen_timeout_summary" msgid="8644192861778491060">"После <xliff:g id="TIMEOUT_DESCRIPTION">%1$s</xliff:g> бездействия"</string>
@@ -4028,9 +4028,9 @@
     <string name="condition_device_muted_summary" msgid="3101055117680109021">"Для звонков и уведомлений"</string>
     <string name="condition_device_vibrate_title" msgid="5712659354868872338">"Только вибрация"</string>
     <string name="condition_device_vibrate_summary" msgid="9073880731894828604">"Для звонков и уведомлений"</string>
-    <string name="night_display_suggestion_title" msgid="4222839610992282188">"Расписание ночного режима"</string>
+    <string name="night_display_suggestion_title" msgid="4222839610992282188">"Расписание ночной подсветки"</string>
     <string name="night_display_suggestion_summary" msgid="1754361016383576916">"Автоматически изменять оттенок экрана по вечерам."</string>
-    <string name="condition_night_display_title" msgid="9171491784857160135">"Ночной режим включен"</string>
+    <string name="condition_night_display_title" msgid="9171491784857160135">"Ночная подсветка включена"</string>
     <string name="condition_night_display_summary" msgid="7885776986937527558">"Экран имеет желтый оттенок"</string>
     <string name="condition_grayscale_title" msgid="1226351649203551299">"Оттенки серого"</string>
     <string name="condition_grayscale_summary" msgid="749172886527349546">"Показывать только в серых тонах"</string>
