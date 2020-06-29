@@ -77,9 +77,14 @@ Return<void> SurroundView2dSession::FramesHandler::deliverFrame_1_1(
     {
         scoped_lock<mutex> lock(mSession->mAccessLock);
         if (mSession->mProcessingEvsFrames) {
-            LOG(WARNING) << "EVS frames are being processed. Skip frames:" << mSession->mSequenceId;
+            LOG(WARNING) << "EVS frames are being processed. Skip frames:"
+                         << mSession->mSequenceId;
             mCamera->doneWithFrame_1_1(buffers);
             return {};
+        } else {
+            // Sets the flag to true immediately so the new coming frames will
+            // be skipped.
+            mSession->mProcessingEvsFrames = true;
         }
     }
 
@@ -103,10 +108,6 @@ Return<void> SurroundView2dSession::FramesHandler::deliverFrame_1_1(
     mCamera->doneWithFrame_1_1(buffers);
 
     // Notify the session that a new set of frames is ready
-    {
-        scoped_lock<mutex> lock(mSession->mAccessLock);
-        mSession->mProcessingEvsFrames = true;
-    }
     mSession->mFramesSignal.notify_all();
 
     return {};
