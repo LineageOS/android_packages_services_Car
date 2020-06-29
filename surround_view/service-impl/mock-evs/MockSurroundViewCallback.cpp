@@ -18,8 +18,12 @@
 
 #include <android-base/logging.h>
 
+#include <thread>
+
 using ::android::sp;
 using ::android::hardware::Return;
+
+using ::std::thread;
 
 namespace android {
 namespace hardware {
@@ -29,9 +33,8 @@ namespace V1_0 {
 namespace implementation {
 
 MockSurroundViewCallback::MockSurroundViewCallback(
-        sp<ISurroundViewSession> pSession) {
-    (void)pSession;
-}
+        sp<ISurroundViewSession> pSession) :
+        mSession(pSession) {}
 
 Return<void> MockSurroundViewCallback::notify(SvEvent svEvent) {
     LOG(INFO) << __FUNCTION__ << "SvEvent received: " << (int)svEvent;
@@ -42,6 +45,13 @@ Return<void> MockSurroundViewCallback::receiveFrames(
         const SvFramesDesc& svFramesDesc) {
     LOG(INFO) << __FUNCTION__ << svFramesDesc.svBuffers.size()
               << " frames are received";
+
+    // Create a separate thread to return the frames to the session. This
+    // simulates the behavior of oneway HIDL method call.
+    thread mockHidlThread([this, &svFramesDesc]() {
+        mSession->doneWithFrames(svFramesDesc);
+    });
+    mockHidlThread.detach();
     return {};
 }
 

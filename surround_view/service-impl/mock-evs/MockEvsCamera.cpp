@@ -16,6 +16,8 @@
 
 #include "MockEvsCamera.h"
 
+#include <stdlib.h>
+
 namespace android {
 namespace hardware {
 namespace automotive {
@@ -23,10 +25,26 @@ namespace sv {
 namespace V1_0 {
 namespace implementation {
 
-MockEvsCamera::MockEvsCamera() {
-    mConfigManager =
-            ConfigManager::Create(
-                    "/vendor/etc/automotive/evs/evs_sample_configuration.xml");
+// TODO(b/159733690): the number should come from xml
+const int kFramesCount = 4;
+const int kFrameGenerationDelayMillis = 30;
+const char kConfigFilePath[] =
+        "/vendor/etc/automotive/evs/evs_sample_configuration.xml";
+
+MockEvsCamera::MockEvsCamera(const string& cameraId, const Stream& streamCfg) {
+    mConfigManager = ConfigManager::Create(kConfigFilePath);
+
+    mStreamCfg.height = streamCfg.height;
+    mStreamCfg.width = streamCfg.width;
+
+    mCameraDesc.v1.cameraId = cameraId;
+    unique_ptr<ConfigManager::CameraGroupInfo>& cameraGroupInfo =
+            mConfigManager->getCameraGroupInfo(mCameraDesc.v1.cameraId);
+    if (cameraGroupInfo != nullptr) {
+        mCameraDesc.metadata.setToExternal(
+                (uint8_t*)cameraGroupInfo->characteristics,
+                get_camera_metadata_size(cameraGroupInfo->characteristics));
+    }
 }
 
 Return<void> MockEvsCamera::getCameraInfo(getCameraInfo_cb _hidl_cb) {
@@ -46,8 +64,20 @@ Return<EvsResult> MockEvsCamera::setMaxFramesInFlight(uint32_t bufferCount) {
 Return<EvsResult> MockEvsCamera::startVideoStream(
         const ::android::sp<IEvsCameraStream_1_0>& stream) {
     LOG(INFO) << __FUNCTION__;
+    scoped_lock<mutex> lock(mAccessLock);
 
-    (void)stream;
+    mStream = IEvsCameraStream_1_1::castFrom(stream).withDefault(nullptr);
+
+    if (mStreamState != STOPPED) {
+        LOG(ERROR) << "Ignoring startVideoStream call when a stream is "
+                   << "already running.";
+        return EvsResult::STREAM_ALREADY_RUNNING;
+    }
+
+    // Start the frame generation thread
+    mStreamState = RUNNING;
+    mCaptureThread = thread([this]() { generateFrames(); });
+
     return EvsResult::OK;
 }
 
@@ -60,6 +90,22 @@ Return<void> MockEvsCamera::doneWithFrame(const BufferDesc_1_0& buffer) {
 
 Return<void> MockEvsCamera::stopVideoStream() {
     LOG(INFO) << __FUNCTION__;
+
+    unique_lock<mutex> lock(mAccessLock);
+    if (mStreamState == RUNNING) {
+        // Tell the GenerateFrames loop we want it to stop
+        mStreamState = STOPPING;
+        // Block outside the mutex until the "stop" flag has been acknowledged
+        // We won't send any more frames, but the client might still get some
+        // already in flight
+        LOG(DEBUG) << __FUNCTION__ << ": Waiting for stream thread to end...";
+        lock.unlock();
+        mCaptureThread.join();
+        lock.lock();
+        mStreamState = STOPPED;
+        mStream = nullptr;
+        LOG(DEBUG) << "Stream marked STOPPED.";
+    }
     return {};
 }
 
@@ -80,9 +126,7 @@ Return<EvsResult> MockEvsCamera::setExtendedInfo(uint32_t opaqueIdentifier,
 }
 
 Return<void> MockEvsCamera::getCameraInfo_1_1(getCameraInfo_1_1_cb _hidl_cb) {
-    // Not implemented.
-
-    (void)_hidl_cb;
+    _hidl_cb(mCameraDesc);
     return {};
 }
 
@@ -193,6 +237,69 @@ Return<void> MockEvsCamera::importExternalBuffers(
     (void)buffers;
     (void)_hidl_cb;
     return {};
+}
+
+void MockEvsCamera::initializeFrames(int framesCount) {
+    LOG(INFO) << "StreamCfg width: " << mStreamCfg.width
+              << " height: " << mStreamCfg.height;
+
+    string label = "EmptyBuffer_";
+    mGraphicBuffers.resize(framesCount);
+    mBufferDescs.resize(framesCount);
+    for (int i = 0; i < framesCount; i++) {
+        mGraphicBuffers[i] = new GraphicBuffer(mStreamCfg.width,
+                                               mStreamCfg.height,
+                                               HAL_PIXEL_FORMAT_RGBA_8888,
+                                               1,
+                                               GRALLOC_USAGE_HW_TEXTURE,
+                                               label + (char)(i + 48));
+        mBufferDescs[i].buffer.nativeHandle =
+                mGraphicBuffers[i]->getNativeBuffer()->handle;
+        AHardwareBuffer_Desc* pDesc =
+                reinterpret_cast<AHardwareBuffer_Desc*>(
+                        &mBufferDescs[i].buffer.description);
+        pDesc->width = mStreamCfg.width;
+        pDesc->height = mStreamCfg.height;
+        pDesc->layers = 1;
+        pDesc->usage = GRALLOC_USAGE_HW_TEXTURE;
+        pDesc->stride = mGraphicBuffers[i]->getStride();
+        pDesc->format = HAL_PIXEL_FORMAT_RGBA_8888;
+    }
+}
+
+void MockEvsCamera::generateFrames() {
+    initializeFrames(kFramesCount);
+
+    while (true) {
+        {
+            scoped_lock<mutex> lock(mAccessLock);
+            if (mStreamState != RUNNING) {
+                // Break out of our main thread loop
+                LOG(INFO) << "StreamState does not equal to RUNNING. "
+                          << "Exiting the loop";
+                break;
+            }
+        }
+
+        mStream->deliverFrame_1_1(mBufferDescs);
+        std::this_thread::sleep_for(
+                std::chrono::milliseconds(kFrameGenerationDelayMillis));
+    }
+
+    {
+        scoped_lock<mutex> lock(mAccessLock);
+
+        if (mStream != nullptr) {
+            LOG(DEBUG) << "Notify EvsEventType::STREAM_STOPPED";
+
+            EvsEventDesc evsEventDesc;
+            evsEventDesc.aType = EvsEventType::STREAM_STOPPED;
+            mStream->notify(evsEventDesc);
+        } else {
+            LOG(WARNING) << "EVS stream is not valid any more. "
+                         << "The notify call is ignored.";
+        }
+    }
 }
 
 }  // namespace implementation
