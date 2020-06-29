@@ -13,22 +13,6 @@
 // limitations under the License.
 
 java_import {
-    name: "car-br-auto-value-jar",
-    host_supported: true,
-    sdk_version: "current",
-    jars: ["auto-value-1.5.2.jar"],
-}
-
-java_plugin {
-    name: "car-br-auto-value",
-    static_libs: [
-        "car-br-auto-value-jar",
-        "guava",
-    ],
-    processor_class: "com.google.auto.value.processor.AutoValueProcessor",
-}
-
-java_import {
     name: "car-br-google-api-java-client-jar",
     jars: ["google-api-client-1.30.2.jar"],
     sdk_version: "current",
