@@ -37,11 +37,11 @@ android_app {
 
     libs: [
         "android.car",
+        "auto_value_annotations",
     ],
 
     static_libs: [
         "androidx.recyclerview_recyclerview",
-        "car-br-auto-value-jar",
         "car-br-google-api-client-android-jar",
         "car-br-google-api-java-client-jar",
         "car-br-google-http-client-android-jar",
@@ -60,5 +60,5 @@ android_app {
     required: ["privapp_whitelist_com.android.car.bugreport"],
 
     // Explicitly define annotation processors even if javac can find them from static_libs.
-    plugins: ["car-br-auto-value"],
+    plugins: ["auto_value_plugin"],
 }
