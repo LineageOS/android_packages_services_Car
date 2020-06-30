@@ -33,6 +33,7 @@ enum PixelFormat {
     RGB = 0,
     RGBA,
     GRAY,
+    YUV_420,
     PIXELFORMAT_MAX,
 };
 

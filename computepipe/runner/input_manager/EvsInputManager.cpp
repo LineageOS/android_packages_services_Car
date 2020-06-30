@@ -50,19 +50,20 @@ void AnalyzeCallback::analyze(const ::android::automotive::evs::support::Frame& 
     }
 }
 
-void AnalyzeCallback::setEngineInterface(std::shared_ptr<InputEngineInterface> inputEngineInterface) {
+void AnalyzeCallback::setEngineInterface(
+        std::shared_ptr<InputEngineInterface> inputEngineInterface) {
     std::lock_guard lock(mEngineInterfaceLock);
     mInputEngineInterface = inputEngineInterface;
 }
 
 EvsInputManager::EvsInputManager(const proto::InputConfig& inputConfig,
-                                 std::shared_ptr<InputEngineInterface> inputEngineInterface)
-    : mInputEngineInterface(inputEngineInterface), mInputConfig(inputConfig) {
-}
+                                 std::shared_ptr<InputEngineInterface> inputEngineInterface) :
+      mInputEngineInterface(inputEngineInterface),
+      mInputConfig(inputConfig) {}
 
 std::unique_ptr<EvsInputManager> EvsInputManager::createEvsInputManager(
-    const proto::InputConfig& inputConfig,
-    std::shared_ptr<InputEngineInterface> inputEngineInterface) {
+        const proto::InputConfig& inputConfig, const proto::InputConfig& /*overrideConfig*/,
+        std::shared_ptr<InputEngineInterface> inputEngineInterface) {
     auto evsManager = std::make_unique<EvsInputManager>(inputConfig, inputEngineInterface);
     if (evsManager->initializeCameras() == Status::SUCCESS) {
         return evsManager;

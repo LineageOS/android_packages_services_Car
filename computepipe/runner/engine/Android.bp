@@ -41,6 +41,7 @@ cc_library {
         "libhardware",
         "libhidlbase",
         "liblog",
+        "libmediandk",
         "libnativewindow",
         "libpng",
         "libprotobuf-cpp-lite",

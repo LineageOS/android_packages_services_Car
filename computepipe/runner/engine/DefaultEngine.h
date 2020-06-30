@@ -90,7 +90,7 @@ class DefaultEngine : public RunnerEngine {
     /**
      * Methods from Runner Engine to override
      */
-    Status setArgs(std::string engine_args) override;
+    Status setArgs(std::string engineArgs) override;
     void setClientInterface(std::unique_ptr<client_interface::ClientInterface>&& client) override;
     void setPrebuiltGraph(std::unique_ptr<graph::PrebuiltGraph>&& graph) override;
     Status activate() override;
@@ -286,6 +286,10 @@ class DefaultEngine : public RunnerEngine {
      * ignore input manager allocation
      */
     bool mIgnoreInputManager = false;
+    /**
+     * Arguments set by setArgs().
+     */
+    std::string mEngineArgs;
 };
 
 /**

@@ -40,8 +40,9 @@ class InputManager : public RunnerComponentInterface {};
  */
 class InputManagerFactory {
   public:
-    std::unique_ptr<InputManager> createInputManager(const proto::InputConfig& config,
-                                                     std::shared_ptr<InputEngineInterface> engine);
+    std::unique_ptr<InputManager> createInputManager(
+            const proto::InputConfig& config, const proto::InputConfig& overrideConfig,
+            std::shared_ptr<InputEngineInterface> engine);
     InputManagerFactory() = default;
     InputManagerFactory(const InputManagerFactory&) = delete;
     InputManagerFactory& operator=(const InputManagerFactory&) = delete;
