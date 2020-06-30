@@ -826,7 +826,7 @@
     <string name="nfc_disclaimer_title" msgid="4860231267351602970">"روشن کردن NFC"</string>
     <string name="nfc_disclaimer_content" msgid="3066113577854565782">"NFC داده‌ها را میان این دستگاه و سایر دستگا‌ه‌ها یا اهداف اطراف (مانند پایانه‌های پرداخت، کارت‌خوان‌ها و آگهی‌ها یا برچسب‌های تعاملی) مبادله می‌کند."</string>
     <string name="nfc_secure_settings_title" msgid="5153751163174916581">"NFC ایمن"</string>
-    <string name="nfc_secure_toggle_summary" product="default" msgid="7631183023440112192">"استفاده از حمل‌و‌نقل عمومی و پرداخت NFC تنها وقتی قفل صفحه باز است مجاز شود"</string>
+    <string name="nfc_secure_toggle_summary" product="default" msgid="7631183023440112192">"استفاده از حمل‌و‌نقل عمومی و پرداخت «ارتباط میدان نزدیک» (NFC) تنها وقتی قفل صفحه باز است مجاز شود"</string>
     <string name="android_beam_settings_title" msgid="3083436415873738389">"Android Beam"</string>
     <string name="android_beam_on_summary" msgid="8068287225180474199">"آماده برای انتقال محتوای برنامه از طریق NFC"</string>
     <string name="android_beam_off_summary" msgid="7365818039159364600">"خاموش"</string>
@@ -3151,7 +3151,7 @@
     <string name="screen_locking_sounds_title" msgid="4407110895465866809">"صداهای قفل شدن صفحه"</string>
     <string name="charging_sounds_title" msgid="5070437987230894287">"صدا و لرزش هنگام شارژ شدن"</string>
     <string name="docking_sounds_title" msgid="2573137471605541366">"صداهای اتصال به پایه"</string>
-    <string name="touch_sounds_title" msgid="165237488496165652">"صداهای لمس"</string>
+    <string name="touch_sounds_title" msgid="165237488496165652">"صدای لمس کردن"</string>
     <string name="vibrate_on_touch_title" msgid="6360155469279157684">"لرزش لمس کردن"</string>
     <string name="vibrate_on_touch_summary" msgid="5504424764028676043">"بازخورد لمسی برای ضربه زدن، صفحه‌کلید و موارد بیشتر"</string>
     <string name="dock_audio_media_title" msgid="1859521680502040781">"پخش بلندگوی پایه"</string>
@@ -3201,7 +3201,7 @@
     <string name="zen_mode_restrict_notifications_mute_footer" msgid="3049522809520549054">"هنگام دریافت اعلان‌، تلفنتان صدا نمی‌دهد یا نمی‌لرزد."</string>
     <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"بدون تصویر یا صدای اعلان‌ها"</string>
     <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"اعلان‌ها را نخواهید دید یا صدایشان را نخواهید شنید."</string>
-    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"تلفنتان برای اعلان‌های جدید یا موجود صدایی نمی‌کند، نمی‌لرزد، یا آن‌ها را نشان نمی‌دهد. به‌خاطر داشته باشید، اعلان‌های مهم مربوط به فعالیت و وضعیت تلفن هنوز نمایش داده می‌شود.\n\nوقتی «مزاحم نشوید» را خاموش می‌کنید، می‌توانید با تند کشیدن از بالای صفحه به پایین، اعلان‌های بررسی‌نشده را پیدا کنید."</string>
+    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"تلفنتان برای اعلان‌های جدید یا موجود صدا نمی‌دهد، نمی‌لرزد، یا آن‌ها را نشان نمی‌دهد. به‌خاطر داشته باشید که اعلان‌های مهم مربوط به فعالیت و وضعیت تلفن هنوز نمایش داده می‌شود.\n\nوقتی «مزاحم نشوید» را خاموش می‌کنید، می‌توانید با تند کشیدن از بالای صفحه به پایین، اعلان‌های بررسی‌نشده را پیدا کنید."</string>
     <string name="zen_mode_restrict_notifications_custom" msgid="3167252482570424133">"سفارشی"</string>
     <string name="zen_mode_restrict_notifications_enable_custom" msgid="6376983315529894440">"فعال کردن تنظیم سفارشی"</string>
     <string name="zen_mode_restrict_notifications_disable_custom" msgid="8004212081465043044">"حذف تنظیم سفارشی"</string>
@@ -3306,13 +3306,13 @@
     <string name="hide_silent_icons_title" msgid="1070905516921542662">"پنهان کردن نمادهای وضعیت اعلان‌ بی‌صدا"</string>
     <string name="hide_silent_icons_summary" msgid="2624346914488256888">"پنهان کردن نمادهای اعلان بی‌صدا در نوار وضعیت"</string>
     <string name="notification_badging_title" msgid="6311699476970264712">"اجازه به نقطه‌های اعلان"</string>
-    <string name="notification_bubbles_title" msgid="9196562435741861317">"ابزارک‌های اعلان"</string>
+    <string name="notification_bubbles_title" msgid="9196562435741861317">"حبابک‌ها"</string>
     <string name="notification_bubbles_summary" msgid="4624512775901949578">"دسترسی سریع به محتوای برنامه از هرجایی بااستفاده از میانبرهای شنارو"</string>
-    <string name="bubbles_feature_education" msgid="8979109826818881018">"برخی اعلان‌ها و سایر محتواها می‌تواند درقالب ابزارک اعلان روی صفحه نشان داده شود. برای باز کردن ابزارک اعلان، روی آن ضربه بزنید. برای رد کردن، آن را به پایین صفحه بکشید."</string>
-    <string name="bubbles_app_toggle_title" msgid="6401217027603326439">"ابزارک‌های اعلان"</string>
-    <string name="bubbles_app_toggle_summary" msgid="7707611139796553855">"مجاز کردن <xliff:g id="APP_NAME">%1$s</xliff:g> برای نمایش برخی اعلان‌ها درقالب ابزارک اعلان"</string>
-    <string name="bubbles_feature_disabled_dialog_title" msgid="3375452386012079293">"روشن کردن ابزارک اعلان"</string>
-    <string name="bubbles_feature_disabled_dialog_text" msgid="326945485806386477">"برای روشن کردن ابزارک‌های اعلان برای این برنامه، ابتدا باید آن‌ها را برای این دستگاه روشن کنید. این کار بر سایر برنامه‌هایی که قبلاً ابزارک‌های اعلان را در آن‌ها روشن کرده‌اید تأثیر می‌گذارد."</string>
+    <string name="bubbles_feature_education" msgid="8979109826818881018">"برخی اعلان‌ها و سایر محتواها می‌تواند درقالب حبابک روی صفحه نشان داده شود. برای باز کردن حبابک، روی آن ضربه بزنید. برای رد کردن، آن را به پایین صفحه بکشید."</string>
+    <string name="bubbles_app_toggle_title" msgid="6401217027603326439">"حبابک‌ها"</string>
+    <string name="bubbles_app_toggle_summary" msgid="7707611139796553855">"مجاز کردن <xliff:g id="APP_NAME">%1$s</xliff:g> برای نمایش برخی اعلان‌ها درقالب حبابک"</string>
+    <string name="bubbles_feature_disabled_dialog_title" msgid="3375452386012079293">"روشن کردن حبابک‌ها"</string>
+    <string name="bubbles_feature_disabled_dialog_text" msgid="326945485806386477">"برای روشن کردن حبابک‌ها برای این برنامه، ابتدا باید آن‌ها را برای این دستگاه روشن کنید. این کار روی سایر برنامه‌هایی که قبلاً حبابک‌ها را در آن‌ها روشن کرده‌اید تأثیر می‌گذارد."</string>
     <string name="bubbles_feature_disabled_button_approve" msgid="6661464849674493351">"روشن کردن برای دستگاه"</string>
     <string name="bubbles_feature_disabled_button_cancel" msgid="4807286844588486198">"لغو"</string>
     <string name="swipe_direction_title" msgid="7535031630668873009">"کنش‌های تند کشیدن"</string>
@@ -3503,8 +3503,8 @@
     <string name="zen_mode_alarms_list" msgid="9162210238533665593">"هشدارها"</string>
     <string name="zen_mode_media" msgid="3701280649874724055">"پخش صداهای رسانه"</string>
     <string name="zen_mode_media_list" msgid="509327580522287125">"رسانه‌ها"</string>
-    <string name="zen_mode_system" msgid="597437265986355038">"مجاز کردن صداهای لمس"</string>
-    <string name="zen_mode_system_list" msgid="480192458506838077">"صداهای لمس"</string>
+    <string name="zen_mode_system" msgid="597437265986355038">"مجاز کردن صدای لمس کردن"</string>
+    <string name="zen_mode_system_list" msgid="480192458506838077">"صدای لمس کردن"</string>
     <string name="zen_mode_reminders" msgid="7560664194610054038">"مجاز کردن یادآوری‌ها"</string>
     <string name="zen_mode_reminders_list" msgid="7347061314032326677">"یادآوری‌ها"</string>
     <string name="zen_mode_events" msgid="5784076928339534984">"مجاز کردن رویدادها"</string>

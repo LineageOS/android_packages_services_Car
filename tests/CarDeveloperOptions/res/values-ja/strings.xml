@@ -309,8 +309,8 @@
     <string name="cellular_data_summary" msgid="8817717603450318646">"モバイル ネットワークでのデータ使用を許可"</string>
     <string name="allow_data_usage_title" msgid="5381624105803294315">"ローミング時にデータ使用を許可"</string>
     <string name="roaming" msgid="8860308342135146004">"ローミング"</string>
-    <string name="roaming_enable" msgid="2108142024297441116">"ローミング中にデータサービスに接続する"</string>
-    <string name="roaming_disable" msgid="1915440242079953809">"ローミング中にデータサービスに接続する"</string>
+    <string name="roaming_enable" msgid="2108142024297441116">"ローミング中にデータサービスに接続"</string>
+    <string name="roaming_disable" msgid="1915440242079953809">"ローミング中にデータサービスに接続"</string>
     <string name="roaming_reenable_message" msgid="8388505868655113258">"データローミングをOFFにしたままホームネットワークの外に出たためデータ接続が切断されました。"</string>
     <string name="roaming_turn_it_on_button" msgid="4370846458830537578">"ONにする"</string>
     <string name="roaming_warning" msgid="5488050911277592868">"高額な通信料が発生することがあります。"</string>
@@ -940,7 +940,7 @@
     <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"「<xliff:g id="SSID">%1$s</xliff:g>」に接続するには、下記の中心に QR コードを合わせてください"</string>
     <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"Wi‑Fi に接続するには、QR コードをスキャンしてください"</string>
     <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"Wi‑Fi の共有"</string>
-    <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"パスワードを共有して「<xliff:g id="SSID">%1$s</xliff:g>」に接続するには、この QR コードをスキャンします"</string>
+    <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"この QR コードをスキャンすると、パスワードが共有されて「<xliff:g id="SSID">%1$s</xliff:g>」に接続できます"</string>
     <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"「<xliff:g id="SSID">%1$s</xliff:g>」に接続するには、この QR コードをスキャンしてください"</string>
     <string name="wifi_dpp_could_not_detect_valid_qr_code" msgid="27667719861826438">"QR コードを読み取れませんでした。コードを再度中央に捉えて、もう一度お試しください"</string>
     <string name="wifi_dpp_failure_authentication_or_configuration" msgid="9142051662156233679">"もう一度お試しください。問題が解決しない場合は、デバイスのメーカーにお問い合わせください"</string>
@@ -1237,7 +1237,7 @@
     <string name="night_display_not_currently_on" msgid="1436588493764429281">"夜間モードは現在 OFF です"</string>
     <string name="screen_timeout" msgid="1700950247634525588">"スリープ"</string>
     <string name="screen_timeout_title" msgid="150117777762864112">"画面がOFFになったとき"</string>
-    <string name="screen_timeout_summary" msgid="8644192861778491060">"操作が行われない状態で <xliff:g id="TIMEOUT_DESCRIPTION">%1$s</xliff:g> 経過後"</string>
+    <string name="screen_timeout_summary" msgid="8644192861778491060">"操作が行われない状態で<xliff:g id="TIMEOUT_DESCRIPTION">%1$s</xliff:g>経過後"</string>
     <string name="wallpaper_settings_title" msgid="347390905813529607">"壁紙"</string>
     <string name="style_and_wallpaper_settings_title" msgid="8898539141152705754">"スタイルと壁紙"</string>
     <string name="wallpaper_settings_summary_default" msgid="2626880032742784599">"デフォルト"</string>

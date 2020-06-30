@@ -1228,8 +1228,8 @@
     <string name="dock_audio_summary_none" product="default" msgid="2704912407397319084">"لم يتم إرساء الهاتف"</string>
     <string name="dock_audio_summary_unknown" msgid="1615958511030469507">"إعدادات الإرساء المرفق"</string>
     <string name="dock_not_found_title" msgid="2035088760477532435">"لم يتم العثور على الإرساء"</string>
-    <string name="dock_not_found_text" product="tablet" msgid="5996654431405111902">"يلزمك إرساء الجهاز اللوحي قبل تهيئة إعدادات الإرساء الصوتية."</string>
-    <string name="dock_not_found_text" product="default" msgid="8275091896320216368">"يلزمك إرساء الهاتف قبل تهيئة إعدادات الإرساء الصوتية."</string>
+    <string name="dock_not_found_text" product="tablet" msgid="5996654431405111902">"يلزمك إرساء الجهاز اللوحي قبل ضبط إعدادات الإرساء الصوتية."</string>
+    <string name="dock_not_found_text" product="default" msgid="8275091896320216368">"يلزمك إرساء الهاتف قبل ضبط إعدادات الإرساء الصوتية."</string>
     <string name="dock_sounds_enable_title" msgid="3385931465312084061">"صوت إدراج الإرساء"</string>
     <string name="dock_sounds_enable_summary_on" product="tablet" msgid="4322104626905111669">"تشغيل صوت أثناء إدراج الجهاز اللوحي أو إزالته من المرسى"</string>
     <string name="dock_sounds_enable_summary_on" product="default" msgid="2751810717801098293">"تشغيل الصوت عند إدراج أو إزالة الهاتف من الإرساء"</string>
@@ -1603,7 +1603,7 @@
     <string name="battery_status_title" msgid="8731200319740671905">"حالة البطارية"</string>
     <string name="battery_level_title" msgid="5207775387973771646">"مستوى البطارية"</string>
     <string name="apn_settings" msgid="8130776653826271664">"أسماء نقاط الوصول"</string>
-    <string name="apn_edit" msgid="4350571070853305357">"تعديل نقطة الدخول"</string>
+    <string name="apn_edit" msgid="4350571070853305357">"تعديل نقطة الوصول"</string>
     <string name="apn_not_set" msgid="5344235604466825691">"لم يتم التعيين"</string>
     <string name="apn_name" msgid="8431432886706852226">"الاسم"</string>
     <string name="apn_apn" msgid="190519449579357696">"APN"</string>
@@ -3611,7 +3611,7 @@
     <string name="app_notification_block_title" msgid="7898269373875294367">"حظر الكل"</string>
     <string name="app_notification_block_summary" msgid="4502146897785692336">"عدم عرض هذه الإشعارات"</string>
     <string name="notification_content_block_title" msgid="2805138591864484587">"عرض الإشعارات"</string>
-    <string name="notification_content_block_summary" msgid="2743896875255591743">"عدم عرض الإشعارات في مركز الإشعارات أو على الأجهزة المرتبطة بحساب Google"</string>
+    <string name="notification_content_block_summary" msgid="2743896875255591743">"عدم عرض الإشعارات في مركز الإشعارات أو على الأجهزة الملحقة"</string>
     <string name="notification_badge_title" msgid="8989086619255666442">"السماح بنقطة الإشعار"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"إظهار نقطة الإشعار"</string>
     <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"إلغاء وضع \"عدم الإزعاج\""</string>
@@ -4250,7 +4250,7 @@
     <string name="launch_mdp_app_text" msgid="9186559496664208252">"عرض الخطة"</string>
     <string name="launch_wifi_text" msgid="317820210431682605">"عرض التفاصيل"</string>
     <string name="data_saver_title" msgid="7903308134514179256">"توفير البيانات"</string>
-    <string name="unrestricted_data_saver" msgid="9139401849550738720">"الاستخدام غير المقيّد للبيانات"</string>
+    <string name="unrestricted_data_saver" msgid="9139401849550738720">"الاستخدام غير المحدود للبيانات"</string>
     <string name="restrict_background_blacklisted" msgid="7158991683849067124">"تم إيقاف بيانات الخلفية."</string>
     <string name="data_saver_on" msgid="7281809065420480881">"قيد التفعيل"</string>
     <string name="data_saver_off" msgid="7439439787358504018">"غير مفعّل"</string>

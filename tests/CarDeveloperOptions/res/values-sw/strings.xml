@@ -3321,7 +3321,7 @@
     <string name="notification_pulse_title" msgid="4861418327614907116">"Mwangaza umemeteke"</string>
     <string name="lock_screen_notifications_title" msgid="6889072265118747835">"Wakati skrini imefungwa"</string>
     <string name="locked_work_profile_notification_title" msgid="8307025804986190658">"Wakati umefunga wasifu wa kazini"</string>
-    <string name="lock_screen_notifications_summary_show" msgid="5788874994455257378">"Onyesha arifa za maudhui yote"</string>
+    <string name="lock_screen_notifications_summary_show" msgid="5788874994455257378">"Onyesha maudhui yote ya arifa"</string>
     <string name="lock_screen_notifications_summary_hide" msgid="3668806866535260143">"Ficha maudhui nyeti"</string>
     <string name="lock_screen_notifications_summary_disable" msgid="3259929507369817672">"Usionyeshe arifa zozote"</string>
     <string name="lock_screen_notifications_interstitial_message" msgid="4230189215124387818">"Je, ungependa arifa zipi zionyeshwe wakati kifaa kimefungwa?"</string>
