@@ -12,8 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <android-base/logging.h>
+
 #include "EvsInputManager.h"
 #include "InputManager.h"
+#include "VideoInputManager.h"
 
 namespace android {
 namespace automotive {
@@ -32,20 +35,44 @@ enum InputManagerType {
 // input config.
 // TODO(b/147803315): Implement the actual algorithm to determine the input manager to be
 // used. Right now, only EVS manager is enabled, so that is used.
-InputManagerType getInputManagerType(const proto::InputConfig& /* inputConfig */) {
-    return InputManagerType::EVS;
+InputManagerType getInputManagerType(const proto::InputStreamConfig& streamConfig) {
+    switch (streamConfig.type()) {
+        case proto::InputStreamConfig::CAMERA:
+            return InputManagerType::EVS;
+        case proto::InputStreamConfig::IMAGE_FILES:
+            return InputManagerType::IMAGES;
+        case proto::InputStreamConfig::VIDEO_FILE:
+            return InputManagerType::VIDEO;
+    }
 }
 
 }  // namespace
 std::unique_ptr<InputManager> InputManagerFactory::createInputManager(
-    const proto::InputConfig& config, std::shared_ptr<InputEngineInterface> inputEngineInterface) {
-    InputManagerType inputManagerType = getInputManagerType(config);
+        const proto::InputConfig& config, const proto::InputConfig& overrideConfig,
+        std::shared_ptr<InputEngineInterface> inputEngineInterface) {
+    // Check that all streams in the config have same type.
+    for (int i = 1; i < config.input_stream_size(); i++) {
+        if (config.input_stream(i).type() != config.input_stream(0).type()) {
+            LOG(ERROR) << "Invalid input configuration with config id " << config.config_id()
+                       << ". All streams must have same type.";
+            return nullptr;
+        }
+    }
+    InputManagerType inputManagerType = getInputManagerType(config.input_stream(0));
+    std::unique_ptr<InputManager> inputManager = nullptr;
     switch (inputManagerType) {
         case InputManagerType::EVS:
-            return EvsInputManager::createEvsInputManager(config, inputEngineInterface);
+            inputManager = EvsInputManager::createEvsInputManager(config, overrideConfig,
+                                                                  inputEngineInterface);
+            break;
+        case InputManagerType::VIDEO:
+            inputManager = VideoInputManager::createVideoInputManager(config, overrideConfig,
+                                                                      inputEngineInterface);
+            break;
         default:
             return nullptr;
     }
+    return inputManager;
 }
 
 }  // namespace input_manager

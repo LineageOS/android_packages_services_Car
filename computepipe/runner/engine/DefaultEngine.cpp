@@ -63,19 +63,19 @@ void DefaultEngine::setPrebuiltGraph(std::unique_ptr<PrebuiltGraph>&& graph) {
     }
 }
 
-Status DefaultEngine::setArgs(std::string engine_args) {
-    auto pos = engine_args.find(kNoInputManager);
+Status DefaultEngine::setArgs(std::string engineArgs) {
+    mEngineArgs = engineArgs;
+    auto pos = engineArgs.find(kNoInputManager);
     if (pos != std::string::npos) {
         mIgnoreInputManager = true;
     }
-    pos = engine_args.find(kDisplayStreamId);
-    if (pos == std::string::npos) {
-        return Status::SUCCESS;
+    pos = engineArgs.find(kDisplayStreamId);
+    if (pos != std::string::npos) {
+        mDisplayStream = std::stoi(engineArgs.substr(pos + strlen(kDisplayStreamId)));
+        mConfigBuilder.setDebugDisplayStream(mDisplayStream);
+        mDebugDisplayManager = std::make_unique<debug_display_manager::EvsDisplayManager>();
+        mDebugDisplayManager->setArgs(engineArgs);
     }
-    mDisplayStream = std::stoi(engine_args.substr(pos + strlen(kDisplayStreamId)));
-    mConfigBuilder.setDebugDisplayStream(mDisplayStream);
-    mDebugDisplayManager = std::make_unique<debug_display_manager::EvsDisplayManager>();
-    mDebugDisplayManager->setArgs(engine_args);
     return Status::SUCCESS;
 }
 
@@ -598,8 +598,10 @@ Status DefaultEngine::populateInputManagers(const ClientConfig& config) {
                 [this](int streamId, int64_t timestamp, const InputFrame& frame) {
                     return this->mGraph->SetInputStreamPixelData(streamId, timestamp, frame);
                 });
+            proto::InputConfig overrideConfig;
             mInputManagers.emplace(selectedId,
-                                   mInputFactory.createInputManager(inputDescriptor, cb));
+                                   mInputFactory.createInputManager(
+                                        inputDescriptor, overrideConfig, cb));
             if (mInputManagers[selectedId] == nullptr) {
                 LOG(ERROR) << "unable to create input manager for stream " << selectedId;
                 // TODO: Add print

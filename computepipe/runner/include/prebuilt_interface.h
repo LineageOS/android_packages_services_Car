@@ -39,8 +39,11 @@ enum PrebuiltComputepipeRunner_PixelDataFormat {
     RGB = 0,
     RGBA = 1,
     GRAY = 2,
-    PIXEL_DATA_FORMAT_MAX = 3,
+    YUV_420 = 3,
+    PIXEL_DATA_FORMAT_MAX = 4,
 };
+
+const char kEndOfInputStreamFlag[] = "**********EOF***********";
 
 // Gets the version of the library. The runner should check if the version of
 // the prebuilt matches the version of android runner for which it was built
