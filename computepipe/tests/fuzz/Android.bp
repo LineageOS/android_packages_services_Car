@@ -12,10 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-cc_fuzz {
-    name: "computepipe_semantic_manager_fuzzer",
+cc_library_static {
+    name: "libcomputepipeprotosfuzz",
+    proto: {        
+        export_proto_headers: true,
+    },
+    shared_libs: ["libprotobuf-cpp-full"],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-unused-parameter",
+    ],
     srcs: [
-        "SemanticManagerFuzzer.cpp",
+        "Fuzz.proto",
+    ],
+}
+
+cc_defaults {
+    name: "libcomputepipefuzz-defaults",
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-unused-parameter",
     ],
     static_libs: [
         "computepipe_runner_component",
@@ -37,5 +55,28 @@ cc_fuzz {
     include_dirs: [
         "packages/services/Car/computepipe",
         "packages/services/Car/computepipe/runner/stream_manager",
+    ],
+}
+
+cc_fuzz {
+    name: "computepipe_semantic_manager_fuzzer",
+    defaults: ["libcomputepipefuzz-defaults"],
+    srcs: [
+        "SemanticManagerFuzzer.cpp",
+    ],
+}
+
+cc_fuzz {
+    name: "computepipe_pixel_mem_handle_fuzzer",
+    defaults: ["libcomputepipefuzz-defaults"],
+    srcs: [
+        "PixelMemHandleFuzzer.cpp",
+    ],
+    shared_libs: [
+         "libprotobuf-cpp-full",
+    ],
+    static_libs: [
+        "libcomputepipeprotosfuzz",
+        "libprotobuf-mutator",
     ],
 }
