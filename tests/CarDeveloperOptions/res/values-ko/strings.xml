@@ -3252,8 +3252,8 @@
     </plurals>
     <string name="zen_mode_duration_summary_time_minutes" msgid="6988728116715208859">"<xliff:g id="NUM_MINUTES">%d</xliff:g>분(자동으로 사용 설정되지 않은 경우)"</string>
     <plurals name="zen_mode_sound_summary_summary_off_info" formatted="false" msgid="8527428833487709278">
-      <item quantity="other"><xliff:g id="ON_COUNT">%d</xliff:g>개의 예약이 자동으로 설정될 수 있습니다.</item>
-      <item quantity="one">1개의 예약이 자동으로 설정될 수 있습니다.</item>
+      <item quantity="other"><xliff:g id="ON_COUNT">%d</xliff:g>개의 예약이 자동으로 사용 설정될 수 있습니다.</item>
+      <item quantity="one">1개의 예약이 자동으로 사용 설정될 수 있습니다.</item>
     </plurals>
     <string name="zen_category_behavior" msgid="7695750848671443532">"기기를 음소거하되 예외 허용"</string>
     <string name="zen_category_exceptions" msgid="2139670640033601899">"예외"</string>
