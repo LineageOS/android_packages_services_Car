@@ -1959,7 +1959,7 @@
     <string name="hardkeyboard_category" msgid="5937171470391551627">"Setelan keyboard fisik"</string>
     <string name="auto_punctuate_summary" msgid="245694025030386370">"Tekan Spasi dua kali untuk memasukkan \".\""</string>
     <string name="show_password" msgid="620964020348073739">"Tampilkan sandi"</string>
-    <string name="show_password_summary" msgid="1403805089582258620">"Tampilkan karakter secara singkat saat Anda mengetik"</string>
+    <string name="show_password_summary" msgid="1403805089582258620">"Tampilkan karakter sejenak saat Anda mengetik"</string>
     <string name="spellchecker_security_warning" msgid="792070474432612097">"Pemeriksa ejaan ini mungkin dapat mengumpulkan semua teks yang Anda ketik, termasuk data pribadi seperti sandi dan nomor kartu kredit. Pemeriksa ejaan ini berasal dari aplikasi <xliff:g id="SPELLCHECKER_APPLICATION_NAME">%1$s</xliff:g>. Gunakan pemeriksa ejaan ini?"</string>
     <string name="spellchecker_quick_settings" msgid="5193036510190696655">"Setelan"</string>
     <string name="spellchecker_language" msgid="5168501692418112444">"Bahasa"</string>
