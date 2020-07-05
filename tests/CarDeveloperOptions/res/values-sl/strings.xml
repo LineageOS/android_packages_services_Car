@@ -85,8 +85,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Pomanjšava ali povečava besedila na zaslonu"</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Pomanjšanje"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Povečanje"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Vzorčno besedilo"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"Čudoviti čarovnik iz Oza"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"11. poglavje: Čudovito Smaragdno mesto"</string>
@@ -210,7 +209,7 @@
     <string name="proxy_error_empty_port" msgid="8034561724923076215">"Izpolniti morate polje vrat."</string>
     <string name="proxy_error_empty_host_set_port" msgid="8471455809508588255">"Če je polje za gostitelja prazno, mora biti prazno tudi polje za vrata."</string>
     <string name="proxy_error_invalid_port" msgid="4046559920586100637">"Vtipkana številka vrat je neveljavna."</string>
-    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"Proxy HTTP lahko uporablja brskalnik, druge aplikacije pa ne."</string>
+    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"Proxy za HTTP lahko uporablja brskalnik, druge aplikacije pa ne."</string>
     <string name="proxy_url_title" msgid="882042361706435904">"URL datoteke PAC: "</string>
     <string name="radio_info_dl_kbps" msgid="2903778264453410272">"Pasovna širina za prenos (kbps):"</string>
     <string name="radio_info_ul_kbps" msgid="3802245899811732716">"Pasovna širina za nalaganje (kbps):"</string>
@@ -455,7 +454,7 @@
     <string name="security_settings_fingerprint_enroll_introduction_continue" msgid="271662150372486535">"Naprej"</string>
     <string name="security_settings_fingerprint_enroll_introduction_cancel_setup" msgid="756928427429893070">"Preskoči"</string>
     <string name="security_settings_fingerprint_enroll_introduction_continue_setup" msgid="4125977169169671144">"Naprej"</string>
-    <string name="setup_fingerprint_enroll_skip_title" msgid="763018850721691594">"Preskok nast. prstnega odtisa?"</string>
+    <string name="setup_fingerprint_enroll_skip_title" msgid="763018850721691594">"Brez prstnega odtisa?"</string>
     <string name="setup_fingerprint_enroll_skip_after_adding_lock_text" msgid="8849928362049018680">"Nastavitev prstnega odtisa vam bo vzela le minuto ali dve. Če nastavitev preskočite, lahko prstni odtis dodate pozneje v nastavitvah."</string>
     <string name="lock_screen_intro_skip_title" msgid="5307431665496346914">"Preskok zaklepanja zaslona?"</string>
     <string name="lock_screen_intro_skip_dialog_text_frp" product="tablet" msgid="7553945981266845264">"Funkcije za zaščito naprave ne bodo vklopljene. Če tablični računalnik izgubite, vam ga ukradejo ali ponastavijo na tovarniške nastavitve, drugim osebam ne boste mogli preprečiti njegove uporabe."</string>
@@ -957,7 +956,7 @@
     <string name="wifi_ap_choose_auto" msgid="7927637960569365785">"Samodejno"</string>
     <string name="wifi_ap_choose_2G" msgid="43198403259714736">"2,4-GHz pas"</string>
     <string name="wifi_ap_choose_5G" msgid="2624859713183683146">"5,0-GHz pas"</string>
-    <string name="wifi_ap_prefer_5G" msgid="8339172330471170142">"Prednostno 5,0-GHz pas"</string>
+    <string name="wifi_ap_prefer_5G" msgid="8339172330471170142">"5,0-GHz pas (prednostno)"</string>
     <string name="wifi_ap_2G" msgid="5793110086517338494">"2,4 GHz"</string>
     <string name="wifi_ap_5G" msgid="4584892544393675403">"5,0 GHz"</string>
     <string name="wifi_ap_band_select_one" msgid="4409754936554360355">"Izberite vsaj en pas za dostopno točko Wi‑Fi:"</string>
@@ -969,8 +968,8 @@
     <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"Branje kode QR"</string>
     <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"Kodo QR spodaj nastavite na sredino, da vzpostavite povezavo z omrežjem »<xliff:g id="SSID">%1$s</xliff:g>«."</string>
     <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"Če se želite pridružiti omrežju Wi‑Fi, preberite kodo QR"</string>
-    <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"Skupna raba omrežja Wi‑Fi"</string>
-    <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"Če želite vzpostaviti povezavo z omrežjem »<xliff:g id="SSID">%1$s</xliff:g>« in dati geslo v skupno rabo, preberite to kodo QR"</string>
+    <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"Deljenje omrežja Wi‑Fi"</string>
+    <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"Če želite vzpostaviti povezavo z omrežjem »<xliff:g id="SSID">%1$s</xliff:g>« in deliti geslo z drugimi, preberite to kodo QR"</string>
     <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"Če želite vzpostaviti povezavo z omrežjem »<xliff:g id="SSID">%1$s</xliff:g>«, preberite to kodo QR"</string>
     <string name="wifi_dpp_could_not_detect_valid_qr_code" msgid="27667719861826438">"Kode QR ni bilo mogoče prebrati. Kodo nastavite na sredino in poskusite znova."</string>
     <string name="wifi_dpp_failure_authentication_or_configuration" msgid="9142051662156233679">"Poskusite znova. Če se težava ponavlja, se obrnite na proizvajalca naprave."</string>
@@ -989,7 +988,7 @@
     <string name="wifi_dpp_device_found" msgid="6488461467496850841">"Najdena je bila naprava"</string>
     <string name="wifi_dpp_sharing_wifi_with_this_device" msgid="2540529164687476827">"Skupna raba povezave Wi‑Fi s to napravo …"</string>
     <string name="wifi_dpp_connecting" msgid="4229290407210299897">"Povezovanje …"</string>
-    <string name="wifi_dpp_share_hotspot" msgid="847987212473038179">"Skupna raba dostopne točke"</string>
+    <string name="wifi_dpp_share_hotspot" msgid="847987212473038179">"Deljenje dostopne točke"</string>
     <string name="wifi_dpp_lockscreen_title" msgid="3910665850075275963">"Potrdite, da ste res vi"</string>
     <string name="wifi_dpp_wifi_password" msgid="8007558344032612455">"Geslo za Wi-Fi: <xliff:g id="PASSWORD">%1$s</xliff:g>"</string>
     <string name="wifi_dpp_hotspot_password" msgid="6172326289042241924">"Geslo za dostopno točko: <xliff:g id="PASSWORD">%1$s</xliff:g>"</string>
@@ -1002,7 +1001,7 @@
     <string name="wifi_multiple_cert_added" msgid="7986200585749147204">"(Dodanih je bilo več potrdil)"</string>
     <string name="wifi_use_system_certs" msgid="4794489370929885022">"Uporabi sistemska potrdila"</string>
     <string name="wifi_do_not_provide_eap_user_cert" msgid="4044301449482425250">"Ne posreduj"</string>
-    <string name="wifi_do_not_validate_eap_server" msgid="1892537559682474878">"Ne potrdi"</string>
+    <string name="wifi_do_not_validate_eap_server" msgid="1892537559682474878">"Ne preverjaj"</string>
     <string name="wifi_do_not_validate_eap_server_warning" msgid="3895397996759837323">"Ni navedenih potrdil. Povezava ne bo zasebna."</string>
     <string name="wifi_ssid_too_long" msgid="34911971389775920">"Ime omrežja je predolgo."</string>
     <string name="wifi_no_domain_warning" msgid="735859919311067606">"Določiti morate domeno."</string>
@@ -1134,7 +1133,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"Mobilno"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Uporaba mobilnega omrežja, če omrežje Wi-Fi ni dosegljivo"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Uporaba omrežja Wi-Fi, če mobilno omrežje ni dosegljivo"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Klic prek omrežja Wi-Fi. Če izgubite povezavo Wi-Fi, bo klic končan."</string>
@@ -1652,12 +1654,12 @@
     <string name="tether_settings_disabled_on_data_saver" msgid="3682544845899910726">"Dokler je vklopljeno varčevanje s podatki, ni mogoče vzpostaviti povezave z internetom prek mobilnega telefona ali uporabljati prenosnih dostopnih točk."</string>
     <string name="usb_title" msgid="7480927657535578688">"USB"</string>
     <string name="usb_tethering_button_text" msgid="6242228383142012332">"Internetna povezava prek USB-ja"</string>
-    <string name="usb_tethering_subtext" product="default" msgid="1573513260339548671">"Skupna raba internetne povezave telefona prek USB-ja"</string>
-    <string name="usb_tethering_subtext" product="tablet" msgid="154536000235361034">"Skupna raba internetne povezave tabličnega računalnika prek USB-ja"</string>
+    <string name="usb_tethering_subtext" product="default" msgid="1573513260339548671">"Deljenje internetne povezave telefona prek USB-ja"</string>
+    <string name="usb_tethering_subtext" product="tablet" msgid="154536000235361034">"Deljenje internetne povezave tabličnega računalnika prek USB-ja"</string>
     <string name="bluetooth_tether_checkbox_text" msgid="7257293066139372774">"Internet prek Bluetootha"</string>
-    <string name="bluetooth_tethering_subtext" product="tablet" msgid="6868756914621131635">"Skupna raba internetne povezave tabličnega računalnika prek Bluetootha"</string>
-    <string name="bluetooth_tethering_subtext" product="default" msgid="9167912297565425178">"Skupna raba internetne povezave telefona prek Bluetootha"</string>
-    <string name="bluetooth_tethering_off_subtext_config" msgid="3981528184780083266">"Skupna raba internetne povezave naprave <xliff:g id="DEVICE_NAME">%1$d</xliff:g> prek Bluetootha"</string>
+    <string name="bluetooth_tethering_subtext" product="tablet" msgid="6868756914621131635">"Deljenje internetne povezave tabličnega računalnika prek Bluetootha"</string>
+    <string name="bluetooth_tethering_subtext" product="default" msgid="9167912297565425178">"Deljenje internetne povezave telefona prek Bluetootha"</string>
+    <string name="bluetooth_tethering_off_subtext_config" msgid="3981528184780083266">"Deljenje internetne povezave naprave <xliff:g id="DEVICE_NAME">%1$d</xliff:g> prek Bluetootha"</string>
     <string name="bluetooth_tethering_overflow_error" msgid="6946561351369376943">"Internetna povezava ni mogoča z več kot <xliff:g id="MAXCONNECTION">%1$d</xliff:g> naprav."</string>
     <string name="bluetooth_untether_blank" msgid="5428300773782256084">"Internetna povezava z napravo <xliff:g id="DEVICE_NAME">%1$s</xliff:g> bo prekinjena."</string>
     <string name="tethering_footer_info" msgid="8019555174339154124">"Uporabite dostopno točko in povezavo z internetom prek mobilnega telefona, da zagotovite internet drugim napravam prek svoje mobilne podatkovne povezave. Tudi aplikacije lahko ustvarijo dostopno točko za skupno rabo vsebin z napravami v bližini."</string>
@@ -1678,7 +1680,7 @@
     <string name="mobile_insert_sim_card" msgid="7594550403454243732">"Vstavite SIM in znova zaženite"</string>
     <string name="mobile_connect_to_internet" msgid="6031886097365170913">"Vzpostavite internetno povezavo"</string>
     <string name="location_title" msgid="8664674161765477168">"Moja lokacija"</string>
-    <string name="managed_profile_location_switch_title" msgid="8157384427925389680">"Mesto za delovni profil"</string>
+    <string name="managed_profile_location_switch_title" msgid="8157384427925389680">"Lokacija za delovni profil"</string>
     <string name="location_app_level_permissions" msgid="1298041503927632960">"Dovoljenje za aplikacije"</string>
     <string name="location_app_permission_summary_location_off" msgid="541372845344796336">"Zaznavanje lokacije je izklopljeno"</string>
     <plurals name="location_app_permission_summary_location_on" formatted="false" msgid="7904821382328758218">
@@ -1695,7 +1697,7 @@
     <string name="location_low_battery_use" msgid="5030448574501435888">"Nizka poraba akumulatorja"</string>
     <string name="location_scanning_screen_title" msgid="7663329319689413454">"Iskanje omrežij Wi‑Fi in naprav Bluetooth"</string>
     <string name="location_scanning_wifi_always_scanning_title" msgid="6750542206763112172">"Iskanje omrežij Wi‑Fi"</string>
-    <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"Aplikacijam in storitvam omogoči, da kadar koli iščejo omrežja Wi-Fi v bližini, tudi ko je Wi-Fi izklopljen. To funkcijo lahko na primer uporabite, če želite izboljšati funkcije in storitve, ki pri delovanju uporabljajo lokacijo."</string>
+    <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"Aplikacijam in storitvam omogoči, da kadar koli iščejo omrežja Wi-Fi, tudi ko je Wi-Fi izklopljen. To funkcijo lahko na primer uporabite, če želite izboljšati funkcije in storitve, ki pri delovanju uporabljajo lokacijo."</string>
     <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"Iskanje naprav Bluetooth"</string>
     <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"Aplikacijam in storitvam omogoči, da kadar koli iščejo naprave v bližini, tudi ko je Bluetooth izklopljen. To funkcijo lahko na primer uporabite, če želite izboljšati funkcije in storitve, ki pri delovanju uporabljajo lokacijo."</string>
     <string name="managed_profile_location_services" msgid="224925483299159541">"Lokacijske storitve za službo"</string>
@@ -1722,7 +1724,7 @@
     <string name="contributors_title" msgid="6800028420806884340">"Sodelavci"</string>
     <string name="manual" msgid="5431859421432581357">"Ročno"</string>
     <string name="regulatory_labels" msgid="380968489247381025">"Zakonsko predpisane oznake"</string>
-    <string name="safety_and_regulatory_info" msgid="7113766428000920132">"Priročnik z varn. in zak. predpis. inf."</string>
+    <string name="safety_and_regulatory_info" msgid="7113766428000920132">"Varnostne in zakonsko predpisane inform."</string>
     <string name="copyright_title" msgid="3847703367689932190">"Avtorska pravica"</string>
     <string name="license_title" msgid="7582145947873528540">"Licenca"</string>
     <string name="terms_title" msgid="1804549588198223771">"Določila in pogoji"</string>
@@ -2329,8 +2331,8 @@
     <string name="battery_tip_smart_battery_title" product="device" msgid="7419448992583346364">"Izboljšajte čas delovanja akumulatorja naprave"</string>
     <string name="battery_tip_smart_battery_summary" msgid="5344821856478265778">"Vklopite varčevanje z energijo akumulatorja"</string>
     <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"Vklop varčevanja z energijo akumulatorja"</string>
-    <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"Akumulator se bo morda izpraznil prej kot običajno"</string>
-    <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"Varčevanje z energijo akumulatorja je vklopljeno"</string>
+    <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"Baterija se lahko izprazni prej kot običajno"</string>
+    <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"Varčevanje z energijo baterije je vklopljeno"</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"Nekatere funkcije bodo morda omejene"</string>
     <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"Telefon uporabljate več kot običajno"</string>
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"Tablični računalnik uporabljate več kot običajno"</string>
@@ -3215,7 +3217,7 @@
     <string name="alarm_volume_option_title" msgid="3184076022438477047">"Glasnost alarma"</string>
     <string name="ring_volume_option_title" msgid="2038924918468372264">"Glasnost zvonjenja"</string>
     <string name="notification_volume_option_title" msgid="1358512611511348260">"Glasnost obvestila"</string>
-    <string name="ringtone_title" msgid="1409086028485922583">"Melodija zvonjenja telefona"</string>
+    <string name="ringtone_title" msgid="1409086028485922583">"Ton zvonjenja telefona"</string>
     <string name="notification_ringtone_title" msgid="2932960620843976285">"Privzeti zvok obvestila"</string>
     <string name="notification_unknown_sound_title" msgid="8043718667804838398">"Zvok iz aplikacije"</string>
     <string name="notification_sound_default" msgid="2664544380802426260">"Privzeti zvok obvestila"</string>
@@ -3224,7 +3226,7 @@
     <string name="other_sound_settings" msgid="5250376066099818676">"Drugi zvoki"</string>
     <string name="dial_pad_tones_title" msgid="8877212139988655769">"Toni tipkovnice"</string>
     <string name="screen_locking_sounds_title" msgid="4407110895465866809">"Zvoki ob zaklepanju zaslona"</string>
-    <string name="charging_sounds_title" msgid="5070437987230894287">"Zvoki in vibrir. ob polnjenju"</string>
+    <string name="charging_sounds_title" msgid="5070437987230894287">"Zvoki in vibriranje ob polnjenju"</string>
     <string name="docking_sounds_title" msgid="2573137471605541366">"Zvok ob odlaganju v nosilec"</string>
     <string name="touch_sounds_title" msgid="165237488496165652">"Zvoki dotikov"</string>
     <string name="vibrate_on_touch_title" msgid="6360155469279157684">"Vibriranje ob dotiku"</string>
@@ -3512,7 +3514,7 @@
     <string name="notification_badge_title" msgid="8989086619255666442">"Dovoli obvestilno piko"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"Pokaži obvestilno piko"</string>
     <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"Preglasitev načina »Ne moti«"</string>
-    <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"Dovoli prikazovanje teh obvestil tudi, ko je vklopljen način »ne moti«"</string>
+    <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"Dovoli prikazovanje teh obvestil tudi, ko je vklopljen način »Ne moti«"</string>
     <string name="app_notification_visibility_override_title" msgid="2349335170165637672">"Na zaklenjenem zaslonu"</string>
     <string name="app_notification_row_banned" msgid="2079325338122151677">"Blokirano"</string>
     <string name="app_notification_row_priority" msgid="432299064888787236">"Prednost"</string>
@@ -3917,13 +3919,13 @@
     <string name="system_alert_window_apps_title" msgid="9188448296493699566">"Aplikacije"</string>
     <string name="system_alert_window_access_title" msgid="5187343732185369675">"Prekrivanje drugih aplikacij"</string>
     <string name="permit_draw_overlay" msgid="9039092257052422344">"Dovoli prekrivanje drugih aplikacij"</string>
-    <string name="allow_overlay_description" msgid="6669524816705082807">"Omogočite tej aplikaciji, da prekrije druge aplikacije, ki jih uporabljate. To lahko vpliva na uporabo teh aplikacij ali spremeni njihov običajen videz ali delovanje."</string>
+    <string name="allow_overlay_description" msgid="6669524816705082807">"Omogočite tej aplikaciji, da na zaslonu prekrije druge aplikacije, ki jih uporabljate. To lahko vpliva na uporabo teh aplikacij ali spremeni njihov običajen videz ali delovanje."</string>
     <string name="keywords_vr_listener" msgid="5312633527788917750">"vr navidezna resničnost poslušalec stereo storitev za pomoč"</string>
     <string name="keywords_system_alert_window" msgid="3936658600272194599">"sistemsko opozorilo pogovorno okno prikaz s prekrivanjem drugih aplikacij"</string>
     <string name="overlay_settings" msgid="3325154759946433666">"Prekrivanje drugih aplikacij"</string>
     <string name="system_alert_window_summary" msgid="7703582115861844158">"<xliff:g id="COUNT_0">%1$d</xliff:g> od <xliff:g id="COUNT_1">%2$d</xliff:g> aplikacij, ki lahko prekrivajo druge aplikacije"</string>
     <string name="filter_overlay_apps" msgid="6336897660213304743">"Aplikacije z dovoljenjem"</string>
-    <string name="app_permission_summary_allowed" msgid="6458476982015518778">"Dovoljene"</string>
+    <string name="app_permission_summary_allowed" msgid="6458476982015518778">"Dovoljeno"</string>
     <string name="app_permission_summary_not_allowed" msgid="1171642541675462584">"Ni dovoljeno"</string>
     <string name="keywords_install_other_apps" msgid="5383559540695847668">"nameščanje aplikacij neznani viri"</string>
     <string name="write_settings" msgid="9009040811145552108">"Spreminjanje sist. nastavitev"</string>
@@ -4008,7 +4010,7 @@
     <string name="condition_zen_title" msgid="2128184708916052585">"Način »ne moti« je vklopljen"</string>
     <string name="condition_zen_summary_phone_muted" msgid="4396050395522974654">"Zvok telefona je izklopljen"</string>
     <string name="condition_zen_summary_with_exceptions" msgid="3435216391993785818">"Z izjemami"</string>
-    <string name="condition_battery_title" msgid="6704870010912986274">"Varč. z energijo akum. je vkl."</string>
+    <string name="condition_battery_title" msgid="6704870010912986274">"Varč. z energijo bat. je vkl."</string>
     <string name="condition_battery_summary" msgid="1236078243905690620">"Funkcije so omejene"</string>
     <string name="condition_cellular_title" msgid="6605277435894307935">"Mobilni podatki so izklopljeni"</string>
     <string name="condition_cellular_summary" msgid="3607459310548343777">"Dostop do interneta je na voljo le prek omrežja Wi‑Fi"</string>
@@ -4065,7 +4067,7 @@
     <string name="app_usage_cycle" msgid="213483325132959663">"Cikel porabe podatkov aplikacije"</string>
     <string name="cell_data_warning" msgid="8902740337286652689">"Opozorilo ob preneseni količini podatkov <xliff:g id="ID_1">^1</xliff:g>"</string>
     <string name="cell_data_limit" msgid="3175933829235314233">"Omejitev prenosa podatkov pri <xliff:g id="ID_1">^1</xliff:g>"</string>
-    <string name="cell_data_warning_and_limit" msgid="3846150001253927594">"Opozorilo ob preneseni količini podatkov <xliff:g id="ID_1">^1</xliff:g>/omejitev prenosa podatkov pri <xliff:g id="ID_2">^2</xliff:g>"</string>
+    <string name="cell_data_warning_and_limit" msgid="3846150001253927594">"Opozorilo pri <xliff:g id="ID_1">^1</xliff:g> prenesenih podatkov/omejitev prenosa podatkov pri <xliff:g id="ID_2">^2</xliff:g>"</string>
     <string name="billing_cycle_fragment_summary" msgid="4926047002107855543">"Mesečno na dan <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="network_restrictions" msgid="196294262243618198">"Omejitve omrežja"</string>
     <plurals name="network_restrictions_summary" formatted="false" msgid="1664494781594839837">
@@ -4458,7 +4460,7 @@
     <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"Tej aplikaciji omogočite, da upravlja povezavo Wi-Fi"</string>
     <string name="change_wifi_state_app_detail_summary" msgid="614854822469259860">"Tej aplikacij omogočite, da vklopi ali izklopi povezavo Wi-Fi, išče omrežja Wi-Fi in se z njimi poveže, doda ali odstrani omrežja ali pa zažene lokalno dostopno točko"</string>
     <string name="media_output_title" msgid="8710632337456601848">"Predvajaj predstavnost v"</string>
-    <string name="media_output_default_summary" msgid="3159237976830415584">"ta naprava"</string>
+    <string name="media_output_default_summary" msgid="3159237976830415584">"Ta naprava"</string>
     <string name="media_output_summary" product="default" msgid="6294261435613551178">"Telefon"</string>
     <string name="media_output_summary" product="tablet" msgid="6672024060360538526">"Tablični računalnik"</string>
     <string name="media_output_summary" product="device" msgid="5132223072593052660">"Naprava"</string>

@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Gawing mas maliit o mas malaki ang text sa screen."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Paliitin"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Palakihin"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Sample na text"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"The Wonderful Wizard of Oz"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"Kabanata 11: The Wonderful Emerald City of Oz"</string>
@@ -489,7 +488,7 @@
     <string name="security_settings_fingerprint_enroll_touch_dialog_title" msgid="7410398793283818609">"Naku, hindi iyan ang sensor"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_message" msgid="7192100314788868883">"Pindutin ang sensor sa likod ng iyong telepono. Gamitin ang hintuturo mo."</string>
     <string name="security_settings_fingerprint_enroll_error_dialog_title" msgid="1415709674142168770">"Hindi nakumpleto ang pagpapatala"</string>
-    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"Naabot na ang limitasyon sa oras ng pagpapatala ng fingerprint. Subukang muli."</string>
+    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"Naabot na ang limitasyon sa oras ng pag-enroll ng fingerprint. Subukan ulit."</string>
     <string name="security_settings_fingerprint_enroll_error_generic_dialog_message" msgid="7896295829530444810">"Hindi gumana ang pagpapatala ng fingerprint. Subukang muli o gumamit ng ibang daliri."</string>
     <string name="fingerprint_enroll_button_add" msgid="6335782936874996629">"Magdagdag ng isa pa"</string>
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"Susunod"</string>
@@ -1100,7 +1099,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"Mobile"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Kung hindi available ang Wi‑Fi, gamitin ang mobile network"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Kung hindi available ang mobile network, gamitin ang Wi‑Fi"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Tumawag gamit ang Wi‑Fi. Kung mawawala ang Wi‑Fi, matatapos ang tawag."</string>
@@ -2091,7 +2093,7 @@
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"Pag-vibrate kapag nag-ring"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"Pag-vibrate sa pagpindot"</string>
     <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"Gamitin ang serbisyo"</string>
-    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"Gumamit ng pagwawasto ng kulay"</string>
+    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"Gumamit ng pagtatama ng kulay"</string>
     <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"Gumamit ng mga caption"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"Magpatuloy"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"Mga hearing aid"</string>

@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Κάντε το κείμενο στην οθόνη μικρότερο ή μεγαλύτερο."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Να γίνουν μικρότερα"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Να γίνουν μεγαλύτερα"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Δείγμα κειμένου"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"Ο Θαυμάσιος Μάγος του Οζ"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"Κεφάλαιο 11: Η Θαυμάσια Πόλη Έμεραλντ του Οζ"</string>
@@ -1100,7 +1099,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"Δίκτυο κινητής τηλεφωνίας"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Όταν το Wi‑Fi δεν είναι διαθέσιμο, χρήση δικτύου κινητής τηλεφωνίας."</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Εάν το δίκτυο κινητής τηλεφωνίας δεν είναι διαθέσιμο, χρήση Wi‑Fi"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Κλήση μέσω Wi‑Fi. Εάν χαθεί η σύνδεση Wi‑Fi, η κλήση τερματίζεται."</string>
@@ -1332,7 +1334,7 @@
     <string name="status_number_sim_slot" product="tablet" msgid="4518232285651165459">"MDN (υποδοχή sim %1$d)"</string>
     <string name="status_number_sim_slot" product="default" msgid="3660851494421332328">"Αριθμ. τηλ. (υποδοχή sim %1$d)"</string>
     <string name="status_number_sim_status" product="tablet" msgid="8069693515860290952">"MDN στη SIM"</string>
-    <string name="status_number_sim_status" product="default" msgid="6602562692270457610">"Αριθμός τηλεφώνουν στη SIM"</string>
+    <string name="status_number_sim_status" product="default" msgid="6602562692270457610">"Αριθμός τηλεφώνου στη SIM"</string>
     <string name="status_min_number" msgid="8346889546673707777">"ΛΕΠΤΟ"</string>
     <string name="status_msid_number" msgid="7808175928664357661">"MSID"</string>
     <string name="status_prl_version" msgid="5634561205739199042">"Έκδοση PRL"</string>
@@ -1412,7 +1414,7 @@
     <string name="storage_menu_forget" msgid="4345021250834642640">"Διαγραφή"</string>
     <string name="storage_menu_set_up" msgid="2849170579745958513">"Ρύθμιση"</string>
     <string name="storage_menu_explore" msgid="3733439525636202662">"Εξερεύνηση"</string>
-    <string name="storage_menu_free" msgid="6586253660759145508">"Ελευθερώστε χώρο"</string>
+    <string name="storage_menu_free" msgid="6586253660759145508">"Απελευθερώστε χώρο"</string>
     <string name="storage_menu_manage" msgid="461380717863926516">"Διαχείριση αποθηκευτικού χώρου"</string>
     <string name="storage_title_usb" msgid="2015671467177303099">"Σύνδεση υπολογιστή μέσω USB"</string>
     <string name="usb_connection_category" msgid="2888975803638116041">"Σύνδεση ως"</string>
@@ -1605,9 +1607,9 @@
     <string name="master_clear_progress_text" msgid="5418958116008976218">"Περιμένετε…"</string>
     <string name="call_settings_title" msgid="5033906789261282752">"Ρυθμίσεις κλήσης"</string>
     <string name="call_settings_summary" msgid="2119161087671450035">"Ορισμ.αυτόμ.τηλεφ., προώθ.κλήσης, αναμ.κλήσης, αναγν.κλήσ."</string>
-    <string name="tether_settings_title_usb" msgid="4265582654602420357">"Πρόσδεση USB"</string>
+    <string name="tether_settings_title_usb" msgid="4265582654602420357">"Σύνδεση USB"</string>
     <string name="tether_settings_title_wifi" msgid="2060965130234484613">"Φορητό σημείο πρόσβασης"</string>
-    <string name="tether_settings_title_bluetooth" msgid="1999590158102569959">"Πρόσδεση Bluetooth"</string>
+    <string name="tether_settings_title_bluetooth" msgid="1999590158102569959">"Σύνδεση με Bluetooth"</string>
     <string name="tether_settings_title_usb_bluetooth" msgid="1159128764162788159">"Πρόσδεση"</string>
     <string name="tether_settings_title_all" msgid="6935843543433954181">"Σημ. πρόσβ. Wi-Fi/σύνδεση"</string>
     <string name="tether_settings_summary_hotspot_on_tether_on" msgid="1289593649526514499">"Το σημείο πρόσβασης είναι ενεργό, σε σύνδεση"</string>
@@ -1615,10 +1617,10 @@
     <string name="tether_settings_summary_hotspot_off_tether_on" msgid="1349909238672649877">"Σύνδεση"</string>
     <string name="tether_settings_disabled_on_data_saver" msgid="3682544845899910726">"Δεν είναι δυνατή η σύνδεση σε φορητό σημείο πρόσβασης Wi-Fi, ενώ είναι ενεργοποιημένη η Εξοικονόμηση δεδομένων"</string>
     <string name="usb_title" msgid="7480927657535578688">"USB"</string>
-    <string name="usb_tethering_button_text" msgid="6242228383142012332">"Πρόσδεση USB"</string>
-    <string name="usb_tethering_subtext" product="default" msgid="1573513260339548671">"Μοιραστείτε τη σύνδεση του τηλεφώνου στο διαδίκτυο μέσω USB"</string>
+    <string name="usb_tethering_button_text" msgid="6242228383142012332">"Σύνδεση USB"</string>
+    <string name="usb_tethering_subtext" product="default" msgid="1573513260339548671">"Κοινή χρήση της σύνδεσης του τηλεφώνου στο διαδίκτυο μέσω USB"</string>
     <string name="usb_tethering_subtext" product="tablet" msgid="154536000235361034">"Μοιραστείτε τη σύνδεση του tablet στο διαδίκτυο μέσω USB"</string>
-    <string name="bluetooth_tether_checkbox_text" msgid="7257293066139372774">"Πρόσδεση Bluetooth"</string>
+    <string name="bluetooth_tether_checkbox_text" msgid="7257293066139372774">"Σύνδεση με Bluetooth"</string>
     <string name="bluetooth_tethering_subtext" product="tablet" msgid="6868756914621131635">"Κοινή χρήση της σύνδεσης του tablet στο διαδίκτυο μέσω Bluetooth"</string>
     <string name="bluetooth_tethering_subtext" product="default" msgid="9167912297565425178">"Κοινή χρήση της σύνδεσης του τηλεφώνου στο διαδίκτυο μέσω Bluetooth"</string>
     <string name="bluetooth_tethering_off_subtext_config" msgid="3981528184780083266">"Κοινή χρήση σύνδεσης της συσκευής <xliff:g id="DEVICE_NAME">%1$d</xliff:g> στο διαδίκτυο μέσω Bluetooth"</string>
@@ -2080,7 +2082,7 @@
     <string name="accessibility_control_timeout_preference_title" msgid="2771808346038759474">"Ώρα για την εκτέλεση ενεργειών"</string>
     <string name="accessibility_content_timeout_preference_summary" msgid="853829064617918179">"Επιλέξτε το χρονικό διάστημα για το οποίο θέλετε να εμφανίζονται τα μηνύματα που θα πρέπει να διαβάζετε, αλλά τα οποία είναι ορατά μόνο προσωρινά.\n\nΑυτή η ρύθμιση δεν υποστηρίζεται από όλες τις εφαρμογές."</string>
     <string name="accessibility_control_timeout_preference_summary" msgid="8582212299606932160">"Επιλέξτε το χρονικό διάστημα για το οποίο θέλετε να εμφανίζονται τα μηνύματα που σας ζητούν να προβείτε σε κάποια ενέργεια, αλλά τα οποία είναι ορατά μόνο προσωρινά.\n\nΑυτή η ρύθμιση δεν υποστηρίζεται από όλες τις εφαρμογές."</string>
-    <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"Καθυστέρηση παρατετ. αγγίγματος"</string>
+    <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"Διάρκεια παρατεταμένου αγγίγματος"</string>
     <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"Αντιστροφή χρωμάτων"</string>
     <string name="accessibility_display_inversion_preference_subtitle" msgid="69291255322175323">"Ενδέχεται να επηρεάσει την απόδοση"</string>
     <string name="accessibility_autoclick_preference_title" msgid="9164599088410340405">"Χρόνος παραμονής"</string>
@@ -2446,7 +2448,7 @@
     <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"Δεν υπάρχει πρόγραμμα"</string>
     <string name="battery_saver_auto_routine" msgid="886514412067906980">"Με βάση τη ρουτίνα σας"</string>
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"Βάσει ποσοστού"</string>
-    <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Η εξοικονόμηση μπαταρίας ενεργοποιείται όταν υπάρχει σημαντική πιθανότητα εξάντλησης της μπαταρίας σας πριν την επόμενη τυπική φόρτιση"</string>
+    <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Η εξοικονόμηση μπαταρίας ενεργοποιείται όταν υπάρχει σημαντική πιθανότητα εξάντλησης της μπαταρίας σας πριν την επόμενη κανονική φόρτιση"</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Θα ενεργοποιηθεί στο <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Ορίστε ένα πρόγραμμα"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Απενεργοποίηση κατά την πλήρη φόρτιση"</string>
@@ -2729,7 +2731,7 @@
     <string name="data_usage_metered_wifi" msgid="2955256408132426720">"Δίκτυα Wi‑Fi με βάση τη χρήση"</string>
     <string name="data_usage_metered_wifi_disabled" msgid="5771083253782103415">"Για επιλογή δικτύων με βάση τη χρήση, ενεργοποιήστε το Wi-Fi."</string>
     <string name="data_usage_metered_auto" msgid="7924116401382629319">"Αυτόματα"</string>
-    <string name="data_usage_metered_yes" msgid="7333744880035386073">"Με περιορισμούς"</string>
+    <string name="data_usage_metered_yes" msgid="7333744880035386073">"Με ογκοχρέωση"</string>
     <string name="data_usage_metered_no" msgid="1961524615778610008">"Χωρίς περιορισμούς"</string>
     <string name="data_usage_disclaimer" msgid="4683321532922590425">"Ο υπολογισμός δεδ.της εταιρείας κιν.τηλ. μπορεί να διαφέρει από τη συσκευή σας."</string>
     <string name="cryptkeeper_emergency_call" msgid="4625420047524693116">"Κλήση έκτακτης ανάγκης"</string>
@@ -2865,7 +2867,7 @@
     <string name="user_add_user_item_title" msgid="6835385073795492410">"Χρήστης"</string>
     <string name="user_add_profile_item_title" msgid="4932743891449790664">"Προφίλ περιορ. πρόσβασης"</string>
     <string name="user_add_user_title" msgid="2320897397066676472">"Προσθήκη νέου χρήστη;"</string>
-    <string name="user_add_user_message_long" msgid="686637203224195465">"Μπορείτε να μοιραστείτε αυτήν τη συσκευή με άλλα άτομα, δημιουργώντας επιπλέον χρήστες. Κάθε χρήστης θα έχει το δικό του χώρο, τον οποίο μπορεί να προσαρμόσει με τις δικές του εφαρμογές, ταπετσαρία κ.λπ. Οι χρήστες μπορούν επίσης να προσαρμόσουν ρυθμίσεις της συσκευής, όπως το Wi‑Fi, που επηρεάζουν τους πάντες.\n\nΚατά την προσθήκη ενός νέου χρήστη, αυτός θα πρέπει να ρυθμίσει τον χώρο του.\n\nΟποιοσδήποτε χρήστης μπορεί να ενημερώσει τις εφαρμογές για όλους τους άλλους χρήστες. Οι ρυθμίσεις και οι υπηρεσίες προσβασιμότητας ενδέχεται να μην μεταφερθούν στον νέο χρήστη"</string>
+    <string name="user_add_user_message_long" msgid="686637203224195465">"Μπορείτε να μοιραστείτε αυτήν τη συσκευή με άλλα άτομα, δημιουργώντας επιπλέον χρήστες. Κάθε χρήστης θα έχει το δικό του χώρο, τον οποίο μπορεί να προσαρμόσει με τις δικές του εφαρμογές, ταπετσαρία κ.λπ. Οι χρήστες μπορούν επίσης να προσαρμόσουν ρυθμίσεις της συσκευής, όπως το Wi‑Fi, που επηρεάζουν τους πάντες.\n\nΚατά την προσθήκη ενός νέου χρήστη, αυτός θα πρέπει να ρυθμίσει τον χώρο του.\n\nΟποιοσδήποτε χρήστης μπορεί να ενημερώσει τις εφαρμογές για όλους τους άλλους χρήστες. Οι ρυθμίσεις και οι υπηρεσίες προσβασιμότητας ενδέχεται να μην μεταφερθούν στον νέο χρήστη."</string>
     <string name="user_add_user_message_short" msgid="1802594476285458254">"Κατά την προσθήκη ενός νέου χρήστη, αυτός θα πρέπει να ρυθμίσει το χώρο του.\n\nΟποιοσδήποτε χρήστης μπορεί να ενημερώσει τις εφαρμογές για όλους τους άλλους χρήστες."</string>
     <string name="user_setup_dialog_title" msgid="6748950002206392396">"Να γίνει ρύθμιση χρήστη τώρα;"</string>
     <string name="user_setup_dialog_message" msgid="2988559933258353919">"Βεβαιωθείτε ότι ο χρήστης μπορεί να πάρει τη συσκευή και ρυθμίστε το χώρο του"</string>
@@ -4101,7 +4103,7 @@
     <string name="automatic_storage_manager_master_switch_title" msgid="1456978117739582562">"Χρήση Διαχείρισης αποθηκευτικού χώρου"</string>
     <string name="deletion_helper_automatic_title" msgid="4370975149425263205">"Αυτόματο"</string>
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"Εγχειρίδιο χρήσης"</string>
-    <string name="deletion_helper_preference_title" msgid="797270307034242206">"Ελευθερώστε χώρο τώρα"</string>
+    <string name="deletion_helper_preference_title" msgid="797270307034242206">"Απελευθερώστε χώρο τώρα"</string>
     <string name="gesture_preference_title" msgid="583646591518373785">"Κινήσεις"</string>
     <string name="gesture_preference_summary" product="default" msgid="2990736567599191163">"Γρήγορες κινήσεις για τον έλεγχο του τηλεφώνου σας"</string>
     <string name="gesture_preference_summary" product="tablet" msgid="8303793594714075580">"Γρήγορες κινήσεις για τον έλεγχο του tablet"</string>
@@ -4129,7 +4131,7 @@
     <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Πατήστε για έλεγχο του τηλεφώνου"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Πατήστε για έλεγχο του tablet"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Πατήστε για έλεγχο της συσκευής"</string>
-    <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Πατήστε την οθόνη για να ελέγξετε την ώρα, τις ειδοποιήσεις και άλλες πληροφορίες."</string>
+    <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Πατήστε την οθόνη για να δείτε την ώρα, τις ειδοποιήσεις και άλλες πληροφορίες."</string>
     <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Σύρετε στον αισθητήρα δακτυλικών αποτυπωμάτων για ειδοποιήσεις"</string>
     <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"Ολίσθηση δακτυλ. αποτυπ."</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"Για να ελέγξετε τις ειδοποιήσεις σας, σύρετε προς τα κάτω στον αισθητήρα δακτυλικών αποτυπωμάτων στο πίσω μέρος του τηλεφώνου."</string>

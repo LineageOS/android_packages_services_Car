@@ -23,10 +23,10 @@
     <string name="deny" msgid="3998166389989144025">"拒絕"</string>
     <string name="device_info_default" msgid="1548919563979154348">"不明"</string>
     <plurals name="show_dev_countdown" formatted="false" msgid="3953785659137161981">
-      <item quantity="other">你只需完成剩餘的 <xliff:g id="STEP_COUNT_1">%1$d</xliff:g> 個步驟，即可成為開發人員。</item>
-      <item quantity="one">你只需完成剩餘的 <xliff:g id="STEP_COUNT_0">%1$d</xliff:g> 個步驟，即可成為開發人員。</item>
+      <item quantity="other">只要再 <xliff:g id="STEP_COUNT_1">%1$d</xliff:g> 個步驟即可啟用開發人員設定。</item>
+      <item quantity="one">只要再 <xliff:g id="STEP_COUNT_0">%1$d</xliff:g> 個步驟即可啟用開發人員設定。</item>
     </plurals>
-    <string name="show_dev_on" msgid="9075712234786224065">"你現在已成為開發人員！"</string>
+    <string name="show_dev_on" msgid="9075712234786224065">"開發人員設定已啟用！"</string>
     <string name="show_dev_already" msgid="7665948832405148689">"不需要了，你已經是開發人員。"</string>
     <string name="dev_settings_disabled_warning" msgid="3198732189395396721">"請先啟用開發人員選項。"</string>
     <string name="header_category_wireless_networks" msgid="8968405993937795898">"無線與網路"</string>
@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"縮小或放大畫面上的文字。"</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"縮小"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"放大"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"範例文字"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"綠野仙蹤"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"第 11 章：奧茲國的翡翠城"</string>
@@ -893,7 +892,7 @@
     <string name="wifi_setup_wps" msgid="6730131677695521321">"自動設定 (WPS)"</string>
     <string name="wifi_settings_scanning_required_title" msgid="3593457187659922490">"要開啟掃描 Wi-Fi 功能嗎？"</string>
     <string name="wifi_settings_scanning_required_summary" msgid="7469610959462708782">"必須先開啟掃描 Wi-Fi 功能，才能自動開啟 Wi‑Fi。"</string>
-    <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"掃描 Wi-Fi 功能可讓應用程式和服務隨時掃描 Wi‑Fi 網路 (即使 Wi‑Fi 功能處於關閉狀態)。這可以用來改善適地性功能和服務。"</string>
+    <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"掃描 Wi-Fi 功能可在 Wi‑Fi 關閉時，讓應用程式和服務隨時掃描 Wi‑Fi 網路。此功能可用來改善適地性等功能和服務。"</string>
     <string name="wifi_settings_scanning_required_turn_on" msgid="4327570180594277049">"開啟"</string>
     <string name="wifi_settings_scanning_required_enabled" msgid="3336102100425307040">"已開啟掃描 Wi-Fi 功能"</string>
     <string name="wifi_show_advanced" msgid="8199779277168030597">"進階選項"</string>
@@ -933,7 +932,7 @@
     <string name="wifi_privacy_settings" msgid="4462092795794247809">"隱私權"</string>
     <string name="wifi_privacy_settings_ephemeral_summary" msgid="2411375348287064283">"已隨機化的 MAC"</string>
     <string name="wifi_dpp_add_device_to_network" msgid="8871041525483253430">"新增裝置"</string>
-    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"將 QR 圖碼置於相機正下方，即可將這個裝置新增至「<xliff:g id="SSID">%1$s</xliff:g>」"</string>
+    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"將下面的視窗對準 QR 圖碼，即可將這個裝置新增至「<xliff:g id="SSID">%1$s</xliff:g>」"</string>
     <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"掃描 QR 圖碼"</string>
     <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"將 QR 圖碼置於相機正下方即可連線到「<xliff:g id="SSID">%1$s</xliff:g>」"</string>
     <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"掃描 QR 圖碼即可加入 Wi‑Fi"</string>
@@ -1100,7 +1099,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"行動網路"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"如果無法連上 Wi‑Fi，請使用行動網路"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"如果無法連上行動網路，請使用 Wi‑Fi"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"透過 Wi-Fi 進行通話。如果 Wi‑Fi 連線中斷，通話即會結束。"</string>
@@ -2077,7 +2079,7 @@
     <string name="accessibility_timeout_1min" msgid="5019003178551730551">"1 分鐘"</string>
     <string name="accessibility_timeout_2mins" msgid="4124259290444829477">"2 分鐘"</string>
     <string name="accessibility_content_timeout_preference_title" msgid="5160746882250939464">"可閱讀的時間"</string>
-    <string name="accessibility_control_timeout_preference_title" msgid="2771808346038759474">"操作等待時間"</string>
+    <string name="accessibility_control_timeout_preference_title" msgid="2771808346038759474">"提示顯示時間"</string>
     <string name="accessibility_content_timeout_preference_summary" msgid="853829064617918179">"選擇你需要閱讀的訊息會暫時顯示多久。\n\n只有部分應用程式支援這項設定。"</string>
     <string name="accessibility_control_timeout_preference_summary" msgid="8582212299606932160">"選擇提示你進行操作的訊息會暫時顯示多久。\n\n只有部分應用程式支援這項設定。"</string>
     <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"輕觸並按住的延遲時間"</string>
@@ -3728,7 +3730,7 @@
     <string name="usb_use_file_transfers_desc" msgid="6953866660041189580">"將檔案轉移到另一個裝置"</string>
     <string name="usb_use_photo_transfers" msgid="5974236250197451257">"PTP"</string>
     <string name="usb_use_photo_transfers_desc" msgid="2325112887316125320">"如果 MTP 不受支援，則轉移相片或檔案 (PTP)"</string>
-    <string name="usb_use_tethering" msgid="4250626730173163846">"USB 數據連線"</string>
+    <string name="usb_use_tethering" msgid="4250626730173163846">"USB 網路共用"</string>
     <string name="usb_use_MIDI" msgid="4710632870781041401">"MIDI"</string>
     <string name="usb_use_MIDI_desc" msgid="1770966187150010947">"將這個裝置用做 MIDI"</string>
     <string name="usb_use" msgid="8940500223316278632">"USB 用途"</string>
@@ -3748,7 +3750,7 @@
     <string name="usb_summary_photo_transfers" msgid="4743028167400644354">"PTP"</string>
     <string name="usb_summary_MIDI" msgid="5540604166270861247">"MIDI"</string>
     <string name="usb_summary_file_transfers_power" msgid="1684501026426766867">"檔案傳輸和供電"</string>
-    <string name="usb_summary_tether_power" msgid="5684170912136320002">"USB 數據連線和供電"</string>
+    <string name="usb_summary_tether_power" msgid="5684170912136320002">"USB 網路共用和供電"</string>
     <string name="usb_summary_photo_transfers_power" msgid="4424106272137720464">"PTP 和供電"</string>
     <string name="usb_summary_MIDI_power" msgid="7685597621357005180">"MIDI 模式和供電"</string>
     <string name="background_check_pref" msgid="664081406854758392">"背景檢查"</string>
@@ -4095,10 +4097,10 @@
       <item quantity="one">1 秒</item>
     </plurals>
     <string name="automatic_storage_manager_settings" msgid="2403621409625820182">"管理儲存空間"</string>
-    <string name="automatic_storage_manager_text" msgid="4270379105066667493">"儲存空間管理員會將已備份的相片和影片從裝置中移除，藉此釋出儲存空間。"</string>
+    <string name="automatic_storage_manager_text" msgid="4270379105066667493">"儲存空間管理工具會將已備份的相片和影片從裝置中移除，藉此釋出儲存空間。"</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"移除相片和影片"</string>
-    <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"儲存空間管理員"</string>
-    <string name="automatic_storage_manager_master_switch_title" msgid="1456978117739582562">"使用儲存空間管理員"</string>
+    <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"儲存空間管理工具"</string>
+    <string name="automatic_storage_manager_master_switch_title" msgid="1456978117739582562">"使用儲存空間管理工具"</string>
     <string name="deletion_helper_automatic_title" msgid="4370975149425263205">"自動"</string>
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"手動"</string>
     <string name="deletion_helper_preference_title" msgid="797270307034242206">"立即釋出空間"</string>
@@ -4149,7 +4151,7 @@
     <string name="web_action_section_title" msgid="5563229447734734662">"免安裝應用程式"</string>
     <string name="instant_apps_settings" msgid="879003203555847537">"免安裝應用程式偏好設定"</string>
     <string name="domain_url_section_title" msgid="206403507921518321">"已安裝的應用程式"</string>
-    <string name="automatic_storage_manager_activation_warning" msgid="2630083316417707308">"你的儲存空間目前是由儲存空間管理員管理"</string>
+    <string name="automatic_storage_manager_activation_warning" msgid="2630083316417707308">"你的儲存空間目前是由儲存空間管理工具管理"</string>
     <string name="account_for_section_header" msgid="5975241715840642563">"<xliff:g id="USER_NAME">%1$s</xliff:g>的帳戶"</string>
     <string name="configure_section_header" msgid="6988981883075615136">"設定"</string>
     <string name="auto_sync_account_title" msgid="2394463123733529506">"自動同步處理資料"</string>
@@ -4259,11 +4261,11 @@
     <string name="default_theme" msgid="5986996377385956138">"預設"</string>
     <string name="show_operator_name_title" msgid="5056163028128447308">"網路名稱"</string>
     <string name="show_operator_name_summary" msgid="6352180285743777497">"在狀態列顯示網路名稱"</string>
-    <string name="storage_manager_indicator" msgid="4255140732848476875">"儲存空間管理員：<xliff:g id="STATUS">^1</xliff:g>"</string>
+    <string name="storage_manager_indicator" msgid="4255140732848476875">"儲存空間管理工具：<xliff:g id="STATUS">^1</xliff:g>"</string>
     <string name="storage_manager_indicator_off" msgid="6404056007102580777">"關閉"</string>
     <string name="storage_manager_indicator_on" msgid="5295306384982062320">"開啟"</string>
     <string name="install_type_instant" msgid="6248487669862821874">"免安裝應用程式"</string>
-    <string name="automatic_storage_manager_deactivation_warning" msgid="7867793739491286374">"要停用儲存空間管理員嗎？"</string>
+    <string name="automatic_storage_manager_deactivation_warning" msgid="7867793739491286374">"要停用儲存空間管理工具嗎？"</string>
     <string name="storage_movies_tv" msgid="7282484273991655296">"影視應用程式"</string>
     <string name="carrier_provisioning" msgid="3309125279191534469">"電信業者佈建資訊"</string>
     <string name="trigger_carrier_provisioning" msgid="6284005970057901477">"觸發電信業者佈建程序"</string>

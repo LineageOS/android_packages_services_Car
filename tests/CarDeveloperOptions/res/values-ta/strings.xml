@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"திரையில் காட்டப்படும் உரையைச் சிறிதாக்கும் அல்லது பெரிதாக்கும்."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"சிறிதாக்கு"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"பெரிதாக்கு"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"மாதிரி உரை"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"தி விசார்ட் ஆஃப் ஓஸ்"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"அத்தியாயம் 11: ஓஸின் அற்புதமான மரகத நகரம்"</string>
@@ -440,9 +439,9 @@
     <string name="security_settings_fingerprint_preference_summary_none" msgid="3613424536269750172"></string>
     <string name="security_settings_fingerprint_enroll_introduction_title" msgid="889558002683900544">"கைரேகை மூலம் திறக்கலாம்"</string>
     <string name="security_settings_fingerprint_enroll_introduction_title_unlock_disabled" msgid="7915504118657864429">"கைரேகையைப் பயன்படுத்தவும்"</string>
-    <string name="security_settings_fingerprint_enroll_introduction_message" msgid="5586198131986682472">"மொபைலைத் திறக்க, வாங்குவதை அங்கீகரிக்க அல்லது பயன்பாடுகளில் உள்நுழைய, கைரேகை சென்சாரைத் தொட்டால் போதும். கைரேகையைப் பயன்படுத்தி மேலே குறிப்பிட்டுள்ளவற்றைச் செய்ய முடியும் என்பதால், அனைவரின் கைரேகைகளையும் இதில் சேர்க்க வேண்டாம்.\n\nகுறிப்பு: எளிதில் ஊகிக்க முடியாத வடிவம் அல்லது பின்னைப் பயன்படுத்தும் போது கிடைக்கும் பாதுகாப்பை விட, கைரேகையைப் பயன்படுத்தும் போது குறைவான பாதுகாப்பே கிடைக்கும்."</string>
+    <string name="security_settings_fingerprint_enroll_introduction_message" msgid="5586198131986682472">"மொபைலைத் திறக்க, வாங்குவதை அங்கீகரிக்க அல்லது பயன்பாடுகளில் உள்நுழைய, கைரேகை சென்சாரைத் தொட்டால் போதும். கைரேகையைப் பயன்படுத்தி மேலே குறிப்பிட்டுள்ளவற்றைச் செய்ய முடியும் என்பதால், அனைவரின் கைரேகைகளையும் இதில் சேர்க்க வேண்டாம்.\n\nகுறிப்பு: எளிதில் ஊகிக்க முடியாத பேட்டர்ன் அல்லது பின்னைப் பயன்படுத்தும் போது கிடைக்கும் பாதுகாப்பை விட, கைரேகையைப் பயன்படுத்தும் போது குறைவான பாதுகாப்பே கிடைக்கும்."</string>
     <string name="security_settings_fingerprint_enroll_introduction_message_unlock_disabled" msgid="1640839304679275468">"மொபைலைத் திறக்க அல்லது வாங்குவதை அங்கீகரிக்க, உங்கள் கைரேகையைப் பயன்படுத்தவும்.\n\n குறிப்பு: இந்தச் சாதனத்தைத் திறக்க, கைரேகையைப் பயன்படுத்த முடியாது. மேலும் தகவலுக்கு, உங்கள் நிறுவனத்தின் நிர்வாகியைத் தொடர்புகொள்ளவும்."</string>
-    <string name="security_settings_fingerprint_enroll_introduction_message_setup" msgid="6734490666593320711">"மொபைலைத் திறக்க அல்லது வாங்குவதை அங்கீகரிக்க, உங்கள் கைரேகையைப் பயன்படுத்தவும்.\nகுறிப்பு: எளிதில் ஊகிக்க முடியாத வடிவம் அல்லது பின்னைப் பயன்படுத்தும் போது கிடைக்கும் பாதுகாப்பை விட, கைரேகையைப் பயன்படுத்தும் போது குறைவான பாதுகாப்பே கிடைக்கும்.\n"</string>
+    <string name="security_settings_fingerprint_enroll_introduction_message_setup" msgid="6734490666593320711">"மொபைலைத் திறக்க அல்லது வாங்குவதை அங்கீகரிக்க, உங்கள் கைரேகையைப் பயன்படுத்தவும்.\nகுறிப்பு: எளிதில் ஊகிக்க முடியாத பேட்டர்ன் அல்லது பின்னைப் பயன்படுத்தும் போது கிடைக்கும் பாதுகாப்பை விட, கைரேகையைப் பயன்படுத்தும் போது குறைவான பாதுகாப்பே கிடைக்கும்.\n"</string>
     <string name="security_settings_fingerprint_enroll_introduction_cancel" msgid="9168637333731599827">"ரத்துசெய்"</string>
     <string name="security_settings_fingerprint_enroll_introduction_continue" msgid="271662150372486535">"தொடரவும்"</string>
     <string name="security_settings_fingerprint_enroll_introduction_cancel_setup" msgid="756928427429893070">"தவிர்"</string>
@@ -509,8 +508,8 @@
     <string name="crypt_keeper_encrypt_title" product="tablet" msgid="2292129135369853167">"டேப்லெட்டை என்க்ரிப்ட் செய்"</string>
     <string name="crypt_keeper_encrypt_title" product="default" msgid="3110852053238357832">"மொபைலை என்க்ரிப்ட் செய்"</string>
     <string name="crypt_keeper_encrypted_summary" msgid="2438498691741626642">"என்க்ரிப்ட் செய்யப்பட்டது"</string>
-    <string name="crypt_keeper_desc" product="tablet" msgid="9142792050252407734">"உங்கள் கணக்குகள், அமைப்புகள், பதிவிறக்கிய ஆப்ஸ் மற்றும் அவற்றின் தரவு, மீடியா மற்றும் பிற கோப்புகள் என அனைத்தையும் என்க்ரிப்ட் செய்யலாம். உங்கள் டேப்லெட்டை என்க்ரிப்ட் செய்த பிறகு, திரைப்பூட்டை (அதாவது வடிவம் அல்லது பின் அல்லது கடவுச்சொல்) அமைத்திருந்தால், ஒவ்வொரு முறையும் டேப்லெட்டை இயக்கும்போது குறிநீக்குவதற்கு திரையைத் திறக்க வேண்டும். உங்களின் எல்லா தரவையும் அழித்து, ஆரம்ப நிலைக்கு மீட்டமைப்பதே குறிநீக்குவதற்கான மற்றொரு வழியாகும்.\n\nஎன்க்ரிப்ட் செய்வதற்கு ஒரு மணிநேரம் அல்லது அதற்கு மேல் ஆகலாம். சார்ஜ் செய்த பேட்டரியுடன் தொடங்கி, செயல் முடியும் வரை சார்ஜ் ஆகும் நிலையிலேயே வைக்கவும். செயலில் குறுக்கிட்டால், உங்கள் தரவில் சிலவற்றை அல்லது மொத்தத்தையும் இழப்பீர்கள்."</string>
-    <string name="crypt_keeper_desc" product="default" msgid="1996334685607444282">"உங்கள் கணக்குகள், அமைப்புகள், பதிவிறக்கிய ஆப்ஸ் மற்றும் அவற்றின் தரவு, மீடியா மற்றும் பிற கோப்புகள் என அனைத்தையும் என்க்ரிப்ட் செய்யலாம். உங்கள் மொபைலை என்க்ரிப்ட் செய்த பிறகு, திரைப்பூட்டை (அதாவது வடிவம் அல்லது பின் அல்லது கடவுச்சொல்) அமைத்திருந்தால், ஒவ்வொரு முறையும் மொபைலை இயக்கும்போது குறிநீக்குவதற்கு திரையைத் திறக்க வேண்டும். உங்களின் எல்லா தரவையும் அழித்து, ஆரம்ப நிலைக்கு மீட்டமைப்பதே குறிநீக்குவதற்கான மற்றொரு வழியாகும்.\n\nஎன்க்ரிப்ட் செய்வதற்கு ஒரு மணிநேரம் அல்லது அதற்கு மேல் ஆகலாம். சார்ஜ் செய்த பேட்டரியுடன் தொடங்கி, செயல் முடியும் வரை சார்ஜ் ஆகும் நிலையிலேயே வைக்கவும். செயலில் குறுக்கிட்டால், உங்கள் தரவில் சிலவற்றை அல்லது மொத்தத்தையும் இழப்பீர்கள்."</string>
+    <string name="crypt_keeper_desc" product="tablet" msgid="9142792050252407734">"உங்கள் கணக்குகள், அமைப்புகள், பதிவிறக்கிய ஆப்ஸ் மற்றும் அவற்றின் தரவு, மீடியா மற்றும் பிற கோப்புகள் என அனைத்தையும் என்க்ரிப்ட் செய்யலாம். உங்கள் டேப்லெட்டை என்க்ரிப்ட் செய்த பிறகு, திரைப்பூட்டை (அதாவது பேட்டர்ன் அல்லது பின் அல்லது கடவுச்சொல்) அமைத்திருந்தால், ஒவ்வொரு முறையும் டேப்லெட்டை இயக்கும்போது குறிநீக்குவதற்கு திரையைத் திறக்க வேண்டும். உங்களின் எல்லா தரவையும் அழித்து, ஆரம்ப நிலைக்கு மீட்டமைப்பதே குறிநீக்குவதற்கான மற்றொரு வழியாகும்.\n\nஎன்க்ரிப்ட் செய்வதற்கு ஒரு மணிநேரம் அல்லது அதற்கு மேல் ஆகலாம். சார்ஜ் செய்த பேட்டரியுடன் தொடங்கி, செயல் முடியும் வரை சார்ஜ் ஆகும் நிலையிலேயே வைக்கவும். செயலில் குறுக்கிட்டால், உங்கள் தரவில் சிலவற்றை அல்லது மொத்தத்தையும் இழப்பீர்கள்."</string>
+    <string name="crypt_keeper_desc" product="default" msgid="1996334685607444282">"உங்கள் கணக்குகள், அமைப்புகள், பதிவிறக்கிய ஆப்ஸ் மற்றும் அவற்றின் தரவு, மீடியா மற்றும் பிற கோப்புகள் என அனைத்தையும் என்க்ரிப்ட் செய்யலாம். உங்கள் மொபைலை என்க்ரிப்ட் செய்த பிறகு, திரைப்பூட்டை (அதாவது பேட்டர்ன் அல்லது பின் அல்லது கடவுச்சொல்) அமைத்திருந்தால், ஒவ்வொரு முறையும் மொபைலை இயக்கும்போது குறிநீக்குவதற்கு திரையைத் திறக்க வேண்டும். உங்களின் எல்லா தரவையும் அழித்து, ஆரம்ப நிலைக்கு மீட்டமைப்பதே குறிநீக்குவதற்கான மற்றொரு வழியாகும்.\n\nஎன்க்ரிப்ட் செய்வதற்கு ஒரு மணிநேரம் அல்லது அதற்கு மேல் ஆகலாம். சார்ஜ் செய்த பேட்டரியுடன் தொடங்கி, செயல் முடியும் வரை சார்ஜ் ஆகும் நிலையிலேயே வைக்கவும். செயலில் குறுக்கிட்டால், உங்கள் தரவில் சிலவற்றை அல்லது மொத்தத்தையும் இழப்பீர்கள்."</string>
     <string name="crypt_keeper_button_text" product="tablet" msgid="7918671468758813824">"டேப்லெட்டை என்க்ரிப்ட் செய்"</string>
     <string name="crypt_keeper_button_text" product="default" msgid="8737394386627318489">"மொபைலை என்க்ரிப்ட் செய்"</string>
     <string name="crypt_keeper_low_charge_text" msgid="1422879728632636311">"உங்கள் பேட்டரியை சார்ஜ் செய்து மீண்டும் முயற்சிக்கவும்."</string>
@@ -562,13 +561,13 @@
     <string name="unlock_set_unlock_launch_picker_summary_lock_after_timeout" msgid="3861167251234952373">"<xliff:g id="UNLOCK_METHOD">%1$s</xliff:g> / உறக்கத்திற்குப் பின் <xliff:g id="TIMEOUT_STRING">%2$s</xliff:g>"</string>
     <string name="unlock_set_unlock_launch_picker_title_profile" msgid="7976345264630422921">"பணிச் சுயவிவரப் பூட்டு"</string>
     <string name="unlock_set_unlock_launch_picker_change_title" msgid="32310692507029407">"லாக் ஸ்கிரீனை மாற்றவும்"</string>
-    <string name="unlock_set_unlock_launch_picker_change_summary" msgid="2072792784866320522">"வடிவம், பின் அல்லது கடவுச்சொல் பாதுகாப்பை மாற்றவும் அல்லது முடக்கவும்."</string>
+    <string name="unlock_set_unlock_launch_picker_change_summary" msgid="2072792784866320522">"பேட்டர்ன், பின் அல்லது கடவுச்சொல் பாதுகாப்பை மாற்றவும் அல்லது முடக்கவும்."</string>
     <string name="unlock_set_unlock_launch_picker_enable_summary" msgid="9070847611379078795">"திரையைப் பூட்டுவதற்கான முறையைத் தேர்வுசெய்யவும்"</string>
     <string name="unlock_set_unlock_off_title" msgid="5049876793411416079">"ஏதுமில்லை"</string>
     <string name="unlock_set_unlock_off_summary" msgid="3997346045783359119"></string>
     <string name="unlock_set_unlock_none_title" msgid="1922027966983146392">"ஸ்வைப்"</string>
     <string name="unlock_set_unlock_none_summary" msgid="4044529413627659031">"பாதுகாப்பு இல்லை"</string>
-    <string name="unlock_set_unlock_pattern_title" msgid="7533759994999423587">"வடிவம்"</string>
+    <string name="unlock_set_unlock_pattern_title" msgid="7533759994999423587">"பேட்டர்ன்"</string>
     <string name="unlock_set_unlock_pattern_summary" msgid="8858697834522201333">"மிதமான பாதுகாப்பு"</string>
     <string name="unlock_set_unlock_pin_title" msgid="361479901761948207">"பின்"</string>
     <string name="unlock_set_unlock_pin_summary" msgid="8076921768675948228">"மிதமானது முதல் அதிக பாதுகாப்பு"</string>
@@ -576,7 +575,7 @@
     <string name="unlock_set_unlock_password_summary" msgid="7042787631866059147">"அதிகப் பாதுகாப்பு"</string>
     <string name="unlock_set_do_later_title" msgid="2939110070503695956">"இப்போது வேண்டாம்"</string>
     <string name="current_screen_lock" msgid="398328543694154510">"தற்போதைய திரைப் பூட்டு"</string>
-    <string name="fingerprint_unlock_set_unlock_pattern" msgid="132337696546315927">"கைரேகை + வடிவம்"</string>
+    <string name="fingerprint_unlock_set_unlock_pattern" msgid="132337696546315927">"கைரேகை + பேட்டர்ன்"</string>
     <string name="fingerprint_unlock_set_unlock_pin" msgid="886426673328906002">"கைரேகை + பின்"</string>
     <string name="fingerprint_unlock_set_unlock_password" msgid="3325527833422156515">"கைரேகை + கடவுச்சொல்"</string>
     <string name="fingerprint_unlock_skip_fingerprint" msgid="2063700014903801639">"கைரேகையின்றி தொடர்க"</string>
@@ -589,14 +588,14 @@
     <string name="unlock_set_unlock_disabled_summary" msgid="1713159782896140817">"நிர்வாகி, என்கிரிப்ஷன் பாலிசி/நற்சான்று சேமிப்பகம் காரணமாக முடக்கப்பட்டது"</string>
     <string name="unlock_set_unlock_mode_off" msgid="2950701212659081973">"ஏதுமில்லை"</string>
     <string name="unlock_set_unlock_mode_none" msgid="3441605629077912292">"ஸ்வைப்"</string>
-    <string name="unlock_set_unlock_mode_pattern" msgid="8564909572968419459">"வடிவம்"</string>
+    <string name="unlock_set_unlock_mode_pattern" msgid="8564909572968419459">"பேட்டர்ன்"</string>
     <string name="unlock_set_unlock_mode_pin" msgid="7828354651668392875">"பின்"</string>
     <string name="unlock_set_unlock_mode_password" msgid="397703731925549447">"கடவுச்சொல்"</string>
     <string name="unlock_setup_wizard_fingerprint_details" msgid="6515136915205473675">"திரைப் பூட்டு அமைத்ததும், அமைப்புகள் &gt; பாதுகாப்பு என்பதற்குச் சென்று கைரேகையை அமைக்கலாம்."</string>
     <string name="unlock_disable_lock_title" msgid="3508492427073600294">"திரைப் பூட்டை முடக்கு"</string>
     <string name="unlock_disable_frp_warning_title" msgid="5858589970505254193">"சாதனப் பாதுகாப்பை அகற்றவா?"</string>
     <string name="unlock_disable_frp_warning_title_profile" msgid="3814123014295965266">"சுயவிவரப் பாதுகாப்பை அகற்றவா?"</string>
-    <string name="unlock_disable_frp_warning_content_pattern" msgid="1843950215687159135">"வடிவம் இல்லாமல் சாதனப் பாதுகாப்பு அம்சங்கள் செயல்படாது."</string>
+    <string name="unlock_disable_frp_warning_content_pattern" msgid="1843950215687159135">"பேட்டர்ன் இல்லாமல் சாதனப் பாதுகாப்பு அம்சங்கள் செயல்படாது."</string>
     <string name="unlock_disable_frp_warning_content_pattern_fingerprint" msgid="8846957650251741548">"பேட்டர்ன் இல்லாமல் சாதனப் பாதுகாப்பு அம்சங்கள் செயல்படாது.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>சேமிக்கப்பட்டிருக்கும் கைரேகைகளும் இந்தச் சாதனத்திலிருந்து அகற்றப்படும். எனவே அவற்றின் மூலம் உங்களால் மொபைலைத் திறக்கவோ, வாங்குவதை அங்கீகரிக்கவோ அல்லது பயன்பாடுகளில் உள்நுழையவோ முடியாது."</string>
@@ -612,7 +611,7 @@
     <string name="unlock_disable_frp_warning_content_unknown_fingerprint" msgid="5775815077478538855">"திரைப் பூட்டு இல்லாமல் சாதனப் பாதுகாப்பு அம்சங்கள் செயல்படாது.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>சேமிக்கப்பட்டிருக்கும் கைரேகைகளும் இந்தச் சாதனத்திலிருந்து அகற்றப்படும். எனவே அவற்றின் மூலம் உங்களால் மொபைலைத் திறக்கவோ, வாங்குவதை அங்கீகரிக்கவோ அல்லது பயன்பாடுகளில் உள்நுழையவோ முடியாது."</string>
-    <string name="unlock_disable_frp_warning_content_pattern_profile" msgid="2369992898062808499">"வடிவம் இல்லாமல் சுயவிவரப் பாதுகாப்பு அம்சங்கள் செயல்படாது."</string>
+    <string name="unlock_disable_frp_warning_content_pattern_profile" msgid="2369992898062808499">"பேட்டர்ன் இல்லாமல் சுயவிவரப் பாதுகாப்பு அம்சங்கள் செயல்படாது."</string>
     <string name="unlock_disable_frp_warning_content_pattern_fingerprint_profile" msgid="8511105093090018735">"பேட்டர்ன் இல்லாமல் சுயவிவரப் பாதுகாப்பு அம்சங்கள் செயல்படாது.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>சேமிக்கப்பட்டிருக்கும் கைரேகைகளும் இந்தச் சுயவிவரத்திலிருந்து அகற்றப்படும். எனவே அவற்றின் மூலம் உங்களால் சுயவிவரத்தைத் திறக்கவோ, வாங்குவதை அங்கீகரிக்கவோ அல்லது பயன்பாடுகளில் உள்நுழையவோ முடியாது."</string>
@@ -649,7 +648,7 @@
     <string name="lock_last_password_attempt_before_wipe_profile" msgid="1535128774464384305">"அடுத்த முறை தவறான கடவுச்சொல்லை உள்ளிட்டால், உங்கள் பணி விவரமும் அதன் தரவும் நீக்கப்படும்"</string>
     <string name="lock_failed_attempts_now_wiping_device" msgid="8662360098784762828">"பலமுறை தவறாக முயன்றதால், சாதனத்தின் தரவு நீக்கப்படும்."</string>
     <string name="lock_failed_attempts_now_wiping_user" msgid="3793513796171561873">"பலமுறை தவறாக முயன்றதால், இந்தப் பயனர் நீக்கப்படுவார்."</string>
-    <string name="lock_failed_attempts_now_wiping_profile" msgid="5347108525299038285">"பலமுறை தவறாக முயன்றதால், இந்தப் பணி விவரமும் அதன் தரவும் நீக்கப்படும்."</string>
+    <string name="lock_failed_attempts_now_wiping_profile" msgid="5347108525299038285">"பலமுறை தவறாக முயன்றதால், இந்தப் பணிக் கணக்கும் அதன் தரவும் நீக்கப்படும்"</string>
     <string name="lock_failed_attempts_now_wiping_dialog_dismiss" msgid="3950582268749037318">"நிராகரி"</string>
     <plurals name="lockpassword_password_too_short" formatted="false" msgid="694091983183310827">
       <item quantity="other">குறைந்தது <xliff:g id="COUNT_1">%d</xliff:g> எழுத்துகள் இருக்க வேண்டும்</item>
@@ -1100,7 +1099,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"வைஃபை"</item>
+    <item msgid="2271962426654621656">"மொபைல்"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"வைஃபை இணைப்பு இல்லை எனில் மொபைல் நெட்வொர்க்கைப் பயன்படுத்தும்"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"மொபைல் நெட்வொர்க் இல்லை எனில் வைஃபை இணைப்பைப் பயன்படுத்தும்"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"வைஃபை மூலம் அழை. வைஃபை இணைப்பை இழந்தால் அழைப்பும் துண்டிக்கப்படும்."</string>
@@ -1651,7 +1653,7 @@
     </plurals>
     <string name="location_category_recent_location_access" msgid="286059523360285026">"சமீபத்திய இருப்பிட அணுகல்"</string>
     <string name="location_recent_location_access_view_details" msgid="2051602261436245905">"விவரங்களைக் காட்டு"</string>
-    <string name="location_no_recent_apps" msgid="77502059586413278">"எந்தப் பயன்பாடுகளும் சமீபத்தில் இருப்பிடத்தைக் கோரவில்லை"</string>
+    <string name="location_no_recent_apps" msgid="77502059586413278">"எந்த ஆப்ஸும் சமீபத்தில் இருப்பிடத்தைக் கோரவில்லை"</string>
     <string name="location_no_recent_accesses" msgid="6289916310397279890">"சமீபத்தில் எந்த ஆப்ஸும் இருப்பிடத்தை அணுகவில்லை"</string>
     <string name="location_high_battery_use" msgid="7177199869979522663">"அதிகப் பேட்டரி பயன்பாடு"</string>
     <string name="location_low_battery_use" msgid="5030448574501435888">"குறைவான பேட்டரி பயன்பாடு"</string>
@@ -1717,7 +1719,7 @@
     <string name="lockpassword_choose_lock_generic_header" msgid="4418423132980560119">"எப்படித் திறக்க வேண்டும்?"</string>
     <string name="lockpassword_password_set_toast" msgid="601928982984489868">"கடவுச்சொல் அமைக்கப்பட்டது"</string>
     <string name="lockpassword_pin_set_toast" msgid="172594825722240059">"பின் அமைக்கப்பட்டது"</string>
-    <string name="lockpassword_pattern_set_toast" msgid="6923260369475481406">"வடிவம் அமைக்கப்பட்டது"</string>
+    <string name="lockpassword_pattern_set_toast" msgid="6923260369475481406">"பேட்டர்ன் அமைக்கப்பட்டது"</string>
     <string name="lockpassword_choose_your_password_header_for_face" msgid="8823110536502072216">"முக அங்கீகாரத்துக்கு, கடவுச்சொல்லை அமை"</string>
     <string name="lockpassword_choose_your_pattern_header_for_face" msgid="5563793748503883666">"முக அங்கீகாரத்துக்கு, பேட்டர்னை அமை"</string>
     <string name="lockpassword_choose_your_pin_header_for_face" msgid="7238352632535405068">"முக அங்கீகாரத்துக்கு, பின்னை அமை"</string>
@@ -1731,7 +1733,7 @@
     <string name="lockpassword_strong_auth_required_device_pin" msgid="24030584350601016">"கூடுதல் பாதுகாப்பிற்கு, சாதனப் பின்னை உள்ளிடவும்"</string>
     <string name="lockpassword_strong_auth_required_device_password" msgid="7746588206458754598">"கூடுதல் பாதுகாப்பிற்கு, சாதனக் கடவுச்சொல்லை உள்ளிடவும்"</string>
     <string name="lockpassword_strong_auth_required_work_pattern" msgid="6861154706098327320">"கூடுதல் பாதுகாப்பிற்கு, பணிப் பேட்டர்னை வரையவும்"</string>
-    <string name="lockpassword_strong_auth_required_work_pin" msgid="6306902249365524526">"கூடுதல் பாதுகாப்பிற்கு, பணிப் பின்னை உள்ளிடவும்"</string>
+    <string name="lockpassword_strong_auth_required_work_pin" msgid="6306902249365524526">"கூடுதல் பாதுகாப்பிற்கு, பணிக்கான பின்னை உள்ளிடவும்"</string>
     <string name="lockpassword_strong_auth_required_work_password" msgid="2917338218971012776">"கூடுதல் பாதுகாப்பிற்கு, பணிக் கடவுச்சொல்லை உள்ளிடவும்"</string>
     <string name="lockpassword_confirm_your_pattern_details_frp" msgid="1085862410379709928">"ஆரம்பநிலை அமைப்புகளுக்கு மீட்டமைக்கப்பட்டது. மொபைலைப் பயன்படுத்த, முந்தைய பேட்டர்னை உள்ளிடவும்."</string>
     <string name="lockpassword_confirm_your_pin_details_frp" msgid="6849889353126558761">"ஆரம்பநிலை அமைப்புகளுக்கு மீட்டமைக்கப்பட்டது. மொபைலைப் பயன்படுத்த, முந்தைய பின்னை உள்ளிடவும்."</string>
@@ -1741,23 +1743,23 @@
     <string name="lockpassword_confirm_your_password_header_frp" msgid="7326670978891793470">"கடவுச்சொல்லைச் சரிபார்க்கவும்"</string>
     <string name="lockpassword_invalid_pin" msgid="3059022215815900137">"தவறான பின்"</string>
     <string name="lockpassword_invalid_password" msgid="8374331995318204099">"தவறான கடவுச்சொல்"</string>
-    <string name="lockpattern_need_to_unlock_wrong" msgid="1328670466959377948">"தவறான வடிவம்"</string>
+    <string name="lockpattern_need_to_unlock_wrong" msgid="1328670466959377948">"தவறான பேட்டர்ன்"</string>
     <string name="lock_settings_title" msgid="233657584969886812">"சாதனப் பாதுகாப்பு"</string>
     <string name="lockpattern_change_lock_pattern_label" msgid="333149762562581510">"திறக்கும் வடிவத்தை மாற்று"</string>
     <string name="lockpattern_change_lock_pin_label" msgid="3435796032210265723">"திறப்பதற்கான பின்னை மாற்று"</string>
-    <string name="lockpattern_recording_intro_header" msgid="2262005028838969839">"திறப்பதற்கான வடிவத்தை வரைக"</string>
+    <string name="lockpattern_recording_intro_header" msgid="2262005028838969839">"திறப்பதற்கான பேட்டர்னை வரைக"</string>
     <string name="lockpattern_recording_intro_footer" msgid="5426745740754065099">"உதவிக்கு மெனுவை அழுத்தவும்."</string>
     <string name="lockpattern_recording_inprogress" msgid="4060818382176523671">"முடிந்ததும் விரலை எடுக்கவும்"</string>
     <string name="lockpattern_recording_incorrect_too_short" msgid="6374760294545431845">"குறைந்தது <xliff:g id="NUMBER">%d</xliff:g> புள்ளிகளை இணைக்கவும். மீண்டும் முயற்சிக்கவும்."</string>
-    <string name="lockpattern_pattern_entered_header" msgid="2108106638322637851">"வடிவம் பதிவுசெய்யப்பட்டது"</string>
+    <string name="lockpattern_pattern_entered_header" msgid="2108106638322637851">"பேட்டர்ன் பதிவுசெய்யப்பட்டது"</string>
     <string name="lockpattern_need_to_confirm" msgid="4079482507985867389">"உறுதிப்படுத்துவதற்கு வடிவத்தை மீண்டும் வரையவும்"</string>
-    <string name="lockpattern_pattern_confirmed_header" msgid="5603156929428721407">"திறப்பதற்கான புதிய வடிவம்"</string>
+    <string name="lockpattern_pattern_confirmed_header" msgid="5603156929428721407">"திறப்பதற்கான புதிய பேட்டர்ன்"</string>
     <string name="lockpattern_confirm_button_text" msgid="7059311304112902598">"உறுதிசெய்க"</string>
     <string name="lockpattern_restart_button_text" msgid="4322968353922529868">"மீண்டும் வரைக"</string>
     <string name="lockpattern_retry_button_text" msgid="5473976578241534298">"அழி"</string>
     <string name="lockpattern_continue_button_text" msgid="3328913552656376892">"தொடர்க"</string>
-    <string name="lockpattern_settings_title" msgid="5152005866870766842">"திறப்பதற்கான வடிவம்"</string>
-    <string name="lockpattern_settings_enable_title" msgid="8508410891939268080">"வடிவம் தேவை"</string>
+    <string name="lockpattern_settings_title" msgid="5152005866870766842">"திறப்பதற்கான பேட்டர்ன்"</string>
+    <string name="lockpattern_settings_enable_title" msgid="8508410891939268080">"பேட்டர்ன் தேவை"</string>
     <string name="lockpattern_settings_enable_summary" msgid="8027605503917737512">"திரையைத் திறப்பதற்கான வடிவத்தை வரைய வேண்டும்"</string>
     <string name="lockpattern_settings_enable_visible_pattern_title" msgid="4935583222709647096">"வடிவத்தைக் காணும்படி செய்"</string>
     <string name="lockpattern_settings_enable_visible_pattern_title_profile" msgid="5338893138982642228">"சுயவிவரப் பேட்டர்னை வரையும் போது காட்டு"</string>
@@ -2081,7 +2083,7 @@
     <string name="accessibility_content_timeout_preference_summary" msgid="853829064617918179">"நீங்கள் வாசிக்க விரும்பும், தற்காலிகமாகத் தெரியும் மெசேஜ்கள் எவ்வளவு நேரம் காட்டப்பட வேண்டும் என்பதைத் தேர்வுசெய்யலாம்.\n\nஇந்த அமைப்பு அனைத்து ஆப்ஸிலும் ஆதரிக்கப்படாது."</string>
     <string name="accessibility_control_timeout_preference_summary" msgid="8582212299606932160">"உங்களைச் செயல்படும்படி கூறும் மெசேஜ்களை எவ்வளவு நேரம் காட்டலாம் என்பதைத் தேர்வுசெய்யவும். இவை சற்று நேரத்திற்கு மட்டுமே காட்டப்படும்.\n\nஇந்த அமைப்பு அனைத்து ஆப்ஸாலும் ஆதரிக்கப்படாது."</string>
     <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"தொட்டுப் பிடித்தல் தாமதம்"</string>
-    <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"வண்ணத்தின் நேர்மாறான முறை"</string>
+    <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"கலர் இன்வெர்ஷன்"</string>
     <string name="accessibility_display_inversion_preference_subtitle" msgid="69291255322175323">"செயல்திறனைப் பாதிக்கலாம்"</string>
     <string name="accessibility_autoclick_preference_title" msgid="9164599088410340405">"இருப்பு நேரம்"</string>
     <string name="accessibility_autoclick_description" msgid="5492414927846407499">"நீங்கள் மவுஸைப் பயன்படுத்துகிறீர்கள் எனில், ஒரு குறிப்பிட்ட நேரத்திற்குக் கர்சர் நகராமல் இருக்கும்போது, அது தானாகவே என்ன செய்யவேண்டுமென அமைத்துக்கொள்ளலாம்."</string>
@@ -2304,7 +2306,7 @@
       <item quantity="other">%1$d ஆப்ஸைக் கட்டுப்படுத்தவா?</item>
       <item quantity="one">பயன்பாட்டைக் கட்டுப்படுத்தவா?</item>
     </plurals>
-    <string name="battery_tip_restrict_app_dialog_message" msgid="6905822297507947381">"பேட்டரியைச் சேமிக்க, பின்னணியில் பேட்டரியை உபயோகிப்பதிலிருந்து <xliff:g id="APP">%1$s</xliff:g> பயன்பாட்டைத் தடுக்கவும். இந்த ஆப்ஸ் சரியாகச் செயல்படாமல் இருக்கலாம், அத்துடன் இதற்கான அறிவிப்புகளும் தாமதமாக வரலாம்."</string>
+    <string name="battery_tip_restrict_app_dialog_message" msgid="6905822297507947381">"பேட்டரியைச் சேமிக்க, பின்னணியில் பேட்டரியை உபயோகிப்பதிலிருந்து <xliff:g id="APP">%1$s</xliff:g> ஆப்ஸைத் தடுக்கவும். இந்த ஆப்ஸ் சரியாகச் செயல்படாமல் இருக்கலாம், அத்துடன் இதற்கான அறிவிப்புகளும் தாமதமாக வரலாம்."</string>
     <string name="battery_tip_restrict_apps_less_than_5_dialog_message" msgid="4225881888543582456">"பேட்டரியைச் சேமிக்க, பின்னணியில் பேட்டரியைப் பயன்படுத்துவதிலிருந்து இந்த ஆப்ஸைத் தடுக்கவும். தடுக்கப்பட்ட ஆப்ஸ் சரியாகச் செயல்படாமல் இருக்கலாம், அத்துடன் இவற்றுக்கான அறிவிப்புகளும் தாமதமாக வரலாம்.\n\nஆப்ஸ்:"</string>
     <string name="battery_tip_restrict_apps_more_than_5_dialog_message" msgid="1748375562539446634">"பேட்டரியைச் சேமிக்க, பின்னணியில் பேட்டரியைப் பயன்படுத்துவதிலிருந்து இந்த ஆப்ஸைத் தடுக்கவும். தடுக்கப்பட்ட ஆப்ஸ் சரியாகச் செயல்படாமல் இருக்கலாம். அத்துடன் இவற்றுக்கான அறிவிப்புகளும் தாமதமாக வரலாம்.\n\nஆப்ஸ்:\n<xliff:g id="APP_LIST">%1$s</xliff:g>."</string>
     <string name="battery_tip_restrict_app_dialog_ok" msgid="2573410775701913487">"கட்டுப்படுத்து"</string>
@@ -2633,7 +2635,7 @@
     <string name="enter_password" msgid="2963496904625715235">"Androidஐத் தொடங்க, கடவுச்சொல்லை உள்ளிடவும்"</string>
     <string name="enter_pin" msgid="7140938268709546890">"Androidஐத் தொடங்க, PINஐ உள்ளிடவும்"</string>
     <string name="enter_pattern" msgid="1653841963422825336">"Androidஐத் தொடங்க, வடிவத்தை வரையவும்"</string>
-    <string name="cryptkeeper_wrong_pattern" msgid="4580105105385125467">"தவறான வடிவம்"</string>
+    <string name="cryptkeeper_wrong_pattern" msgid="4580105105385125467">"தவறான பேட்டர்ன்"</string>
     <string name="cryptkeeper_wrong_password" msgid="1709534330303983166">"தவறான கடவுச்சொல்"</string>
     <string name="cryptkeeper_wrong_pin" msgid="857757190077859245">"தவறான பின்"</string>
     <string name="checking_decryption" msgid="5927759912073053101">"சரிபார்க்கிறது..."</string>
@@ -2877,7 +2879,7 @@
     <string name="user_cannot_add_accounts_message" msgid="5993561303748749097">"வரையறுக்கப்பட்ட சுயவிவரங்களால் கணக்குகளைச் சேர்க்க முடியாது"</string>
     <string name="user_remove_user_menu" msgid="3505139157217459864">"சாதனத்திலிருந்து <xliff:g id="USER_NAME">%1$s</xliff:g> ஐ நீக்கு"</string>
     <string name="user_lockscreen_settings" msgid="3820813814848394568">"லாக் ஸ்கிரீன் அமைப்புகள்"</string>
-    <string name="user_add_on_lockscreen_menu" msgid="5211604808199585774">"லாக் ஸ்கிரீனிலிருந்து பயனர்களைச் சேர்"</string>
+    <string name="user_add_on_lockscreen_menu" msgid="5211604808199585774">"பூட்டுத் திரையிலிருந்து பயனர்களைச் சேர்"</string>
     <string name="user_new_user_name" msgid="3880395219777884838">"புதியவர்"</string>
     <string name="user_new_profile_name" msgid="3074939718101489937">"புதிய சுயவிவரம்"</string>
     <string name="user_confirm_remove_self_title" msgid="6739480453680217543">"உங்களை நீக்கவா?"</string>
@@ -3036,7 +3038,7 @@
     <string name="connected_devices_dashboard_no_driving_mode_summary" msgid="3524409078596318803">"புளூடூத், NFC"</string>
     <string name="connected_devices_dashboard_no_driving_mode_no_nfc_summary" msgid="7881286613528299400">"புளூடூத்"</string>
     <string name="app_and_notification_dashboard_title" msgid="8448096608058843730">"ஆப்ஸ் &amp; அறிவிப்புகள்"</string>
-    <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"அசிஸ்டண்ட், சமீபத்திய ஆப்ஸ், இயல்பான ஆப்ஸ்"</string>
+    <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"Assistant, சமீபத்திய ஆப்ஸ், இயல்பான ஆப்ஸ்"</string>
     <string name="notification_settings_work_profile" msgid="7190550347842400029">"பணிக் கணக்கில், ஆப்ஸுற்கான அறிவிப்பு அணுகல் இல்லை."</string>
     <string name="account_dashboard_title" msgid="4734300939532555885">"கணக்குகள்"</string>
     <string name="account_dashboard_default_summary" msgid="6822549669771936206">"கணக்குகள் எதுவும் சேர்க்கப்படவில்லை"</string>
@@ -3086,7 +3088,7 @@
     <string name="keywords_ignore_optimizations" msgid="9127632532176249438">"மேம்படுத்தல்களைத் தவிர்த்தல், பேட்டரியைக் குறைவாகப் பயன்படுத்துதல், ஆப்ஸ் காத்திருப்பு நிலை"</string>
     <string name="keywords_color_mode" msgid="8893345199519181751">"அதிர்வு, RGB, sRGB, வண்ணம், இயற்கை, நிலையானது"</string>
     <string name="keywords_color_temperature" msgid="2255253972992035046">"வண்ணம், வண்ண வெப்பநிலை, D65, D73, வெள்ளை, மஞ்சள், நீலம், அடர், வெளிர்"</string>
-    <string name="keywords_lockscreen" msgid="4936846554280830394">"திறப்பதற்கு ஸ்லைடு செய்தல், கடவுச்சொல், வடிவம், பின்"</string>
+    <string name="keywords_lockscreen" msgid="4936846554280830394">"திறப்பதற்கு ஸ்லைடு செய்தல், கடவுச்சொல், பேட்டர்ன், பின்"</string>
     <string name="keywords_profile_challenge" msgid="8653718001253979611">"பணிச்சுமை, பணி, சுயவிவரம்"</string>
     <string name="keywords_unification" msgid="2020759909366983593">"பணிக் கணக்கு, நிர்வகிக்கப்படும் சுயவிவரம், ஒருங்கிணை, ஒருங்கிணைத்தல், பணி, சுயவிவரம்"</string>
     <string name="keywords_gesture" msgid="5031323247529869644">"சைகைகள்"</string>
@@ -3564,7 +3566,7 @@
     <string name="encryption_interstitial_message_pattern" msgid="5620724295995735120">"இந்தச் சாதனத்தைத் துவக்கும் முன், பேட்டர்ன் தேவைப்படுமாறு அமைத்து, மேலும் பாதுகாக்கலாம். சாதனம் துவங்கும் வரை, அழைப்புகள், செய்திகள் அல்லது அலாரங்கள் உள்ளிட்ட அறிவிப்புகளை இதில் பெற முடியாது. \n\nஉங்கள் சாதனம் தொலைந்து போனாலோ திருடப்பட்டாலோ, அதில் உள்ள உங்கள் டேட்டாவைப் பாதுகாக்க இதைக் கடைபிடிக்கலாம். சாதனத்தைத் தொடங்கும் போது, பேட்டர்னைக் கேட்பதை அமைக்கவா?"</string>
     <string name="encryption_interstitial_message_password" msgid="7236688467386126401">"இந்தச் சாதனத்தைத் துவக்கும் முன், கடவுச்சொல் தேவைப்படுமாறு அமைத்து, மேலும் பாதுகாக்கலாம். சாதனம் துவங்கும் வரை, அழைப்புகள், செய்திகள் அல்லது அலாரங்கள் உள்ளிட்ட அறிவிப்புகளை இதில் பெற முடியாது. \n\nஉங்கள் சாதனம் தொலைந்து போனாலோ திருடப்பட்டாலோ, அதில் உள்ள உங்கள் டேட்டாவைப் பாதுகாக்க இதைக் கடைபிடிக்கலாம். சாதனத்தைத் தொடங்கும் போது, கடவுச்சொல்லைக் கேட்பதை அமைக்கவா?"</string>
     <string name="encryption_interstitial_message_pin_for_fingerprint" msgid="3706009740537484517">"சாதனத்தைத் திறக்க கைரேகையைப் பயன்படுத்துவதுடன் சேர்த்து, பின் தேவைப்படுமாறு அமைத்து உங்கள் சாதனத்திற்குக் கூடுதல் பாதுகாப்பு வழங்கிடலாம். சாதனம் துவங்கும் வரை, அழைப்புகள், செய்திகள் அல்லது அலாரங்கள் உள்ளிட்ட அறிவிப்புகளை இதில் பெற முடியாது. \n\nஉங்கள் சாதனம் தொலைந்து போனாலோ திருடப்பட்டாலோ, அதில் உள்ள உங்கள் டேட்டாவைப் பாதுகாக்க இதைக் கடைபிடிக்கலாம். சாதனத்தைத் தொடங்கும் போது, பின்னைக் கேட்பதை அமைக்கவா?"</string>
-    <string name="encryption_interstitial_message_pattern_for_fingerprint" msgid="5230877866699023998">"சாதனத்தைத் திறக்க கைரேகையைப் பயன்படுத்துவதுடன் சேர்த்து, வடிவம் தேவைப்படுமாறு அமைத்து உங்கள் சாதனத்திற்குக் கூடுதல் பாதுகாப்பு வழங்கிடலாம். சாதனம் துவங்கும் வரை, அழைப்புகள், செய்திகள் அல்லது அலாரங்கள் உள்ளிட்ட அறிவிப்புகளை இதில் பெற முடியாது. \n\nஉங்கள் சாதனம் தொலைந்து போனாலோ திருடப்பட்டாலோ, அதில் உள்ள உங்கள் டேட்டாவைப் பாதுகாக்க இதைக் கடைபிடிக்கலாம். சாதனத்தைத் தொடங்கும் போது, பேட்டர்னைக் கேட்பதை அமைக்கவா?"</string>
+    <string name="encryption_interstitial_message_pattern_for_fingerprint" msgid="5230877866699023998">"சாதனத்தைத் திறக்க கைரேகையைப் பயன்படுத்துவதுடன் சேர்த்து, பேட்டர்ன் தேவைப்படுமாறு அமைத்து உங்கள் சாதனத்திற்குக் கூடுதல் பாதுகாப்பு வழங்கிடலாம். சாதனம் துவங்கும் வரை, அழைப்புகள், செய்திகள் அல்லது அலாரங்கள் உள்ளிட்ட அறிவிப்புகளை இதில் பெற முடியாது. \n\nஉங்கள் சாதனம் தொலைந்து போனாலோ திருடப்பட்டாலோ, அதில் உள்ள உங்கள் டேட்டாவைப் பாதுகாக்க இதைக் கடைபிடிக்கலாம். சாதனத்தைத் தொடங்கும் போது, பேட்டர்னைக் கேட்பதை அமைக்கவா?"</string>
     <string name="encryption_interstitial_message_password_for_fingerprint" msgid="8451977276748128814">"சாதனத்தைத் திறக்க கைரேகையைப் பயன்படுத்துவதுடன் சேர்த்து, கடவுச்சொல் தேவைப்படுமாறு அமைத்து உங்கள் சாதனத்திற்குக் கூடுதல் பாதுகாப்பு வழங்கிடலாம். சாதனம் தொடங்கும் வரை, அழைப்புகள், செய்திகள் அல்லது அலாரங்கள் உள்ளிட்ட அறிவிப்புகளை இதில் பெற முடியாது. \n\nஉங்கள் சாதனம் தொலைந்து போனாலோ திருடப்பட்டாலோ, அதில் உள்ள உங்கள் டேட்டாவைப் பாதுகாக்க இதைக் கடைபிடிக்கலாம். சாதனத்தைத் தொடங்கும் போது, கடவுச்சொல்லைக் கேட்பதை அமைக்கவா?"</string>
     <string name="encryption_interstitial_message_pin_for_face" msgid="7469243836881325172">"சாதனத்தைத் திறப்பதற்கு உங்கள் முகத்தைப் பயன்படுத்துவது மட்டுமல்லாமல், சாதனம் தொடங்கும் முன்பாக, பின்னை உள்ளிடும்படி அமைத்து, கூடுதல் பாதுகாப்பை வழங்கலாம். சாதனம் தொடங்கும்வரை, அழைப்புகள், மெசேஜ்கள், அலாரங்கள் உள்ளிட்ட எவற்றையும் சாதனத்தால் பெற இயலாது.\n\nசாதனம் தொலைந்துவிட்டாலோ திருடப்பட்டாலோ, அதிலுள்ள தரவைப் பாதுகாக்க இது உதவும். சாதனத்தைத் தொடங்கும்போது கடவுச்சொல்லைக் கேட்குமாறு அமைக்கவா?"</string>
     <string name="encryption_interstitial_message_pattern_for_face" msgid="9221235885895441797">"சாதனத்தைத் திறப்பதற்கு உங்கள் முகத்தைப் பயன்படுத்துவது மட்டுமல்லாமல், சாதனம் தொடங்கும் முன்பாக, பேட்டர்னை உள்ளிடும்படி அமைத்து, கூடுதல் பாதுகாப்பை வழங்கலாம். சாதனம் தொடங்கும்வரை, அழைப்புகள், மெசேஜ்கள், அலாரங்கள் உள்ளிட்ட எவற்றையும் சாதனத்தால் பெற இயலாது. \n\nசாதனம் தொலைந்துவிட்டாலோ திருடப்பட்டாலோ, அதிலுள்ள தரவைப் பாதுகாக்க இது உதவும். சாதனத்தைத் தொடங்கும்போது கடவுச்சொல்லைக் கேட்குமாறு அமைக்கவா?"</string>
@@ -3574,7 +3576,7 @@
     <string name="restricted_true_label" msgid="1545180379083441282">"கட்டுப்படுத்தியது"</string>
     <string name="restricted_false_label" msgid="4512495920090068495">"ஆப்ஸ் கட்டுப்படுத்தப்படவில்லை"</string>
     <string name="encrypt_talkback_dialog_require_pin" msgid="2781758476498571031">"பின் தேவையா?"</string>
-    <string name="encrypt_talkback_dialog_require_pattern" msgid="8705104812047332411">"வடிவம் தேவையா?"</string>
+    <string name="encrypt_talkback_dialog_require_pattern" msgid="8705104812047332411">"பேட்டர்ன் தேவையா?"</string>
     <string name="encrypt_talkback_dialog_require_password" msgid="5070710417271353306">"கடவுச்சொல் தேவையா?"</string>
     <string name="encrypt_talkback_dialog_message_pin" msgid="1912533826818077891">"இந்தச் சாதனத்தைத் துவக்க பின்னை நீங்கள் பயன்படுத்தினால், <xliff:g id="SERVICE">%1$s</xliff:g> போன்ற அணுகல்தன்மை சேவைகள் கிடைக்காது."</string>
     <string name="encrypt_talkback_dialog_message_pattern" msgid="4415837749933863432">"இந்தச் சாதனத்தைத் துவக்க வடிவத்தை நீங்கள் பயன்படுத்தினால், <xliff:g id="SERVICE">%1$s</xliff:g> போன்ற அணுகல்தன்மை சேவைகள் கிடைக்காது."</string>
@@ -3758,7 +3760,7 @@
     <string name="assist_access_screenshot_title" msgid="1991014038776117688">"ஸ்கிரீன் ஷாட்டைப் பயன்படுத்து"</string>
     <string name="assist_access_screenshot_summary" msgid="3010943864000489424">"திரையின் படத்தை அணுக, அசிஸ்ட் ஆப்ஸை அனுமதிக்கும்"</string>
     <string name="assist_flash_title" msgid="8852484250748551092">"திரையில் ஃபிளாஷ்"</string>
-    <string name="assist_flash_summary" msgid="6697095786317559129">"அசிஸ்ட் பயன்பாடானது திரை அல்லது ஸ்கிரீன் ஷாட்டிலிருந்து உரையை அணுகும் போது, திரையில் ஃபிளாஷ் மின்னும்"</string>
+    <string name="assist_flash_summary" msgid="6697095786317559129">"அசிஸ்ட் ஆப்ஸானது திரை அல்லது ஸ்கிரீன் ஷாட்டிலிருந்து உரையை அணுகும் போது, திரையில் ஃபிளாஷ் மின்னும்"</string>
     <string name="assist_footer" msgid="7030121180457472165">"நீங்கள் பார்க்கும் திரையில் உள்ள தகவலின் அடிப்படையில் அசிஸ்ட் ஆப்ஸ் உங்களுக்கு உதவும். ஒருங்கிணைந்த உதவியைப் பெறுவதற்காக சில ஆப்ஸ்களில், துவக்கி மற்றும் குரல் உள்ளீட்டுச் சேவைகள் ஆகிய இரண்டையும் பயன்படுத்தலாம்."</string>
     <string name="average_memory_use" msgid="5333366040118953945">"சராசரி நினைவக உபயோகம்"</string>
     <string name="maximum_memory_use" msgid="6509872438499846077">"அதிகபட்ச நினைவக உபயோகம்"</string>
@@ -3991,7 +3993,7 @@
     <string name="home_app" msgid="3695063566006954160">"முகப்பு"</string>
     <string name="no_default_home" msgid="1518949210961918497">"இயல்பு முகப்பு இல்லை"</string>
     <string name="lockpattern_settings_require_cred_before_startup" msgid="63693894094570367">"பாதுகாப்பான தொடக்கம்"</string>
-    <string name="lockpattern_settings_require_pattern_before_startup_summary" msgid="2330543541999937953">"சாதனத்தைத் தொடங்க, வடிவம் தேவை. முடக்கப்பட்டிருக்கும் போது, இந்தச் சாதனம் அழைப்புகள், செய்திகள், அறிவிப்புகள் அல்லது அலாரங்கள் ஆகியவற்றைப் பெற முடியாது."</string>
+    <string name="lockpattern_settings_require_pattern_before_startup_summary" msgid="2330543541999937953">"சாதனத்தைத் தொடங்க, பேட்டர்ன் தேவை. முடக்கப்பட்டிருக்கும் போது, இந்தச் சாதனம் அழைப்புகள், செய்திகள், அறிவிப்புகள் அல்லது அலாரங்கள் ஆகியவற்றைப் பெற முடியாது."</string>
     <string name="lockpattern_settings_require_pin_before_startup_summary" msgid="1058173991832208485">"சாதனத்தைத் தொடங்க, பின் தேவை. முடக்கப்பட்டிருக்கும் போது, இந்தச் சாதனம் அழைப்புகள், செய்திகள், அறிவிப்புகள் அல்லது அலாரங்கள் ஆகியவற்றைப் பெற முடியாது."</string>
     <string name="lockpattern_settings_require_password_before_startup_summary" msgid="1266300087760553585">"சாதனத்தைத் தொடங்க, கடவுச்சொல் தேவை. முடக்கப்பட்டிருக்கும் போது, இந்தச் சாதனம் அழைப்புகள், செய்திகள், அறிவிப்புகள் அல்லது அலாரங்கள் ஆகியவற்றைப் பெற முடியாது."</string>
     <string name="suggestion_additional_fingerprints" msgid="3434467207282466411">"மற்றொரு கைரேகையைச் சேர்க்கவும்"</string>
