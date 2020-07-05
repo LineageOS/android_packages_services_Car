@@ -1138,7 +1138,7 @@
     <string name="dtmf_tone_enable_title" msgid="3797301105270314782">"So en marcar el número"</string>
     <string name="sound_effects_enable_title" msgid="3693756476729696246">"Toca els sons"</string>
     <string name="lock_sounds_enable_title" msgid="6456726219456531315">"So de bloqueig de pantalla"</string>
-    <string name="audio_record_proc_title" msgid="5772134576781468721">"Cancel·lació de sorolls"</string>
+    <string name="audio_record_proc_title" msgid="5772134576781468721">"Reducció del soroll"</string>
     <string name="volume_media_description" msgid="3659485559976891268">"Música, vídeos, jocs i altres fitxers multimèdia"</string>
     <string name="volume_ring_description" msgid="1975431532517579212">"So de trucada i notificacions"</string>
     <string name="volume_notification_description" msgid="8871940450828766751">"Notificacions"</string>

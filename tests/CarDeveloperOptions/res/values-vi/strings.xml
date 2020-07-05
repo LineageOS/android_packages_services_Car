@@ -960,7 +960,7 @@
     <string name="wifi_dpp_sharing_wifi_with_this_device" msgid="2540529164687476827">"Chia sẻ Wi‑Fi với thiết bị này…"</string>
     <string name="wifi_dpp_connecting" msgid="4229290407210299897">"Đang kết nối…"</string>
     <string name="wifi_dpp_share_hotspot" msgid="847987212473038179">"Chia sẻ điểm phát sóng"</string>
-    <string name="wifi_dpp_lockscreen_title" msgid="3910665850075275963">"Xác minh đó là bạn"</string>
+    <string name="wifi_dpp_lockscreen_title" msgid="3910665850075275963">"Xác minh danh tính của bạn"</string>
     <string name="wifi_dpp_wifi_password" msgid="8007558344032612455">"Mật khẩu Wi-Fi: <xliff:g id="PASSWORD">%1$s</xliff:g>"</string>
     <string name="wifi_dpp_hotspot_password" msgid="6172326289042241924">"Mật khẩu điểm phát sóng: <xliff:g id="PASSWORD">%1$s</xliff:g>"</string>
     <string name="wifi_dpp_add_device" msgid="1347056725253936358">"Thêm thiết bị"</string>

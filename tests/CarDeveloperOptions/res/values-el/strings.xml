@@ -1417,7 +1417,7 @@
     <string name="storage_menu_forget" msgid="4345021250834642640">"Διαγραφή"</string>
     <string name="storage_menu_set_up" msgid="2849170579745958513">"Ρύθμιση"</string>
     <string name="storage_menu_explore" msgid="3733439525636202662">"Εξερεύνηση"</string>
-    <string name="storage_menu_free" msgid="6586253660759145508">"Ελευθερώστε χώρο"</string>
+    <string name="storage_menu_free" msgid="6586253660759145508">"Απελευθερώστε χώρο"</string>
     <string name="storage_menu_manage" msgid="461380717863926516">"Διαχείριση αποθηκευτικού χώρου"</string>
     <string name="storage_title_usb" msgid="2015671467177303099">"Σύνδεση υπολογιστή μέσω USB"</string>
     <string name="usb_connection_category" msgid="2888975803638116041">"Σύνδεση ως"</string>
@@ -4106,7 +4106,7 @@
     <string name="automatic_storage_manager_master_switch_title" msgid="1456978117739582562">"Χρήση Διαχείρισης αποθηκευτικού χώρου"</string>
     <string name="deletion_helper_automatic_title" msgid="4370975149425263205">"Αυτόματο"</string>
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"Εγχειρίδιο χρήσης"</string>
-    <string name="deletion_helper_preference_title" msgid="797270307034242206">"Ελευθερώστε χώρο τώρα"</string>
+    <string name="deletion_helper_preference_title" msgid="797270307034242206">"Απελευθερώστε χώρο τώρα"</string>
     <string name="gesture_preference_title" msgid="583646591518373785">"Κινήσεις"</string>
     <string name="gesture_preference_summary" product="default" msgid="2990736567599191163">"Γρήγορες κινήσεις για τον έλεγχο του τηλεφώνου σας"</string>
     <string name="gesture_preference_summary" product="tablet" msgid="8303793594714075580">"Γρήγορες κινήσεις για τον έλεγχο του tablet"</string>
