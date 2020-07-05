@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Ingrandisci o riduci il testo sullo schermo."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Rimpicciolisci"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Ingrandisci"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Testo di esempio"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"Il meraviglioso mago di Oz"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"Capitolo 11: La splendida Città di smeraldo di Oz"</string>
@@ -413,7 +412,7 @@
     <string name="face_intro_error_unknown" msgid="3241592604198351134">"Impossibile aggiungere altri volti"</string>
     <string name="security_settings_face_enroll_error_dialog_title" msgid="3933492758701563051">"Registrazione non completata"</string>
     <string name="security_settings_face_enroll_dialog_ok" msgid="1078348922734845090">"OK"</string>
-    <string name="security_settings_face_enroll_error_timeout_dialog_message" msgid="4917894418448325405">"Raggiunto il tempo limite per la registrazione del volto. Riprova."</string>
+    <string name="security_settings_face_enroll_error_timeout_dialog_message" msgid="4917894418448325405">"Hai raggiunto il tempo limite per la registrazione del volto. Riprova."</string>
     <string name="security_settings_face_enroll_error_generic_dialog_message" msgid="5160473187142616862">"Registrazione del volto non riuscita."</string>
     <string name="security_settings_face_enroll_finish_title" msgid="6800717857394410769">"Fatto. Tutto OK."</string>
     <string name="security_settings_face_enroll_done" msgid="5409739233373490971">"Fine"</string>
@@ -469,7 +468,7 @@
     <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"Tocca il sensore"</string>
     <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"Appoggia il dito sul sensore e sollevalo quando senti una vibrazione"</string>
     <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"Solleva, quindi tocca di nuovo"</string>
-    <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"Solleva ripetutamente il dito per aggiungere le diverse parti dell\'impronta digitale"</string>
+    <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"Solleva ripetutamente il dito per aggiungere le varie parti dell\'impronta"</string>
     <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"Impronta aggiunta"</string>
     <string name="security_settings_fingerprint_enroll_finish_message" msgid="5862643337893923347">"Quando vedi questa icona, usa l\'impronta digitale per identificarti o autorizzare gli acquisti"</string>
     <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"Più tardi"</string>
@@ -489,7 +488,7 @@
     <string name="security_settings_fingerprint_enroll_touch_dialog_title" msgid="7410398793283818609">"Ops, questo non è il sensore"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_message" msgid="7192100314788868883">"Tocca il sensore sulla parte posteriore del telefono. Utilizza il dito indice."</string>
     <string name="security_settings_fingerprint_enroll_error_dialog_title" msgid="1415709674142168770">"Registrazione non completata"</string>
-    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"Raggiunto tempo limite per la registrazione dell\'impronta digitale. Riprova."</string>
+    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"Hai raggiunto il tempo limite per la registrazione dell\'impronta digitale. Riprova."</string>
     <string name="security_settings_fingerprint_enroll_error_generic_dialog_message" msgid="7896295829530444810">"Registrazione dell\'impronta digitale non riuscita. Riprova o utilizza un dito diverso."</string>
     <string name="fingerprint_enroll_button_add" msgid="6335782936874996629">"Aggiungine un\'altra"</string>
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"Avanti"</string>
@@ -499,10 +498,10 @@
     <string name="fingerprint_add_max" msgid="2939393314646115661">"Puoi aggiungere fino a <xliff:g id="COUNT">%d</xliff:g> impronte digitali"</string>
     <string name="fingerprint_intro_error_max" msgid="3247720976621039437">"Hai aggiunto il numero massimo di impronte digitali"</string>
     <string name="fingerprint_intro_error_unknown" msgid="3975674268256524015">"Impossibile aggiungere ulteriori impronte digitali"</string>
-    <string name="fingerprint_last_delete_title" msgid="3104596858161269635">"Rimuovere tutte le impronte digitali?"</string>
+    <string name="fingerprint_last_delete_title" msgid="3104596858161269635">"Rimuovere tutte le impronte?"</string>
     <string name="fingerprint_delete_title" msgid="3120894112324235536">"Rimuovi \"<xliff:g id="FINGERPRINT_ID">%1$s</xliff:g>\""</string>
     <string name="fingerprint_delete_message" msgid="5895802741486967970">"Vuoi eliminare questa impronta digitale?"</string>
-    <string name="fingerprint_last_delete_message" msgid="3346252479778971442">"Non potrai più utilizzare le impronte digitali per sbloccare il telefono, autorizzare gli acquisti o accedere alle app."</string>
+    <string name="fingerprint_last_delete_message" msgid="3346252479778971442">"Non potrai più utilizzare le impronte per sbloccare il telefono, autorizzare gli acquisti o accedere alle app."</string>
     <string name="fingerprint_last_delete_message_profile_challenge" msgid="5385095150532247025">"Non potrai utilizzare le impronte digitali per sbloccare il profilo di lavoro, autorizzare gli acquisti o accedere alle app di lavoro."</string>
     <string name="fingerprint_last_delete_confirm" msgid="7984595457589664004">"Sì, rimuovi"</string>
     <string name="crypt_keeper_settings_title" msgid="839783588093862748">"Crittografia"</string>
@@ -709,7 +708,7 @@
     <string name="lockpattern_tutorial_cancel_label" msgid="450401426127674369">"Annulla"</string>
     <string name="lockpattern_tutorial_continue_label" msgid="8474690922559443018">"Avanti"</string>
     <string name="lock_setup" msgid="8710689848703935088">"Impostazione completata."</string>
-    <string name="manage_device_admin" msgid="322047441168191695">"App di amministrazione dispositivo"</string>
+    <string name="manage_device_admin" msgid="322047441168191695">"App di amministrazione del dispositivo"</string>
     <string name="number_of_device_admins_none" msgid="8519193548630223132">"Nessuna app attiva"</string>
     <plurals name="number_of_device_admins" formatted="false" msgid="6445613288828151224">
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> app attive</item>
@@ -1100,7 +1099,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"Rete mobile"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Se il Wi‑Fi non è disponibile, usa la rete mobile"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Se la rete mobile non è disponibile, usa il Wi‑Fi"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Chiamata tramite Wi‑Fi. Se il Wi‑Fi viene perso, la chiamata termina."</string>
@@ -1209,7 +1211,7 @@
     <string name="night_display_text" msgid="5330502493684652527">"Con la funzione Luminosità notturna, il tuo schermo diventa color ambra. In questo modo potrai guardarlo senza sforzare la vista o leggere in condizioni di luce attenuata e potrai addormentarti più facilmente."</string>
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"Pianificazione"</string>
     <string name="night_display_auto_mode_never" msgid="2897444637217807088">"Nessuna"</string>
-    <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"Attiva in un orario personalizzato"</string>
+    <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"Attiva in orario personalizzato"</string>
     <string name="night_display_auto_mode_twilight" msgid="4000162110017520674">"Attiva dal tramonto all\'alba"</string>
     <string name="night_display_start_time_title" msgid="1069255169673371077">"Ora inizio"</string>
     <string name="night_display_end_time_title" msgid="2760793157124245911">"Ora fine"</string>
@@ -1713,7 +1715,7 @@
     <string name="lockpassword_confirm_your_pin_header" msgid="4335593948303036343">"Inserisci di nuovo il PIN"</string>
     <string name="lockpassword_confirm_passwords_dont_match" msgid="1783767008133345784">"Le password non corrispondono"</string>
     <string name="lockpassword_confirm_pins_dont_match" msgid="5444357293637748942">"I PIN non corrispondono"</string>
-    <string name="lockpassword_draw_your_pattern_again_header" msgid="9017394036814402348">"Traccia di nuovo la sequenza"</string>
+    <string name="lockpassword_draw_your_pattern_again_header" msgid="9017394036814402348">"Inserisci di nuovo la sequenza"</string>
     <string name="lockpassword_choose_lock_generic_header" msgid="4418423132980560119">"Seleziona metodo di sblocco"</string>
     <string name="lockpassword_password_set_toast" msgid="601928982984489868">"Password impostata"</string>
     <string name="lockpassword_pin_set_toast" msgid="172594825722240059">"PIN impostato"</string>
@@ -4264,7 +4266,7 @@
     <string name="storage_manager_indicator_on" msgid="5295306384982062320">"Attiva"</string>
     <string name="install_type_instant" msgid="6248487669862821874">"App istantanea"</string>
     <string name="automatic_storage_manager_deactivation_warning" msgid="7867793739491286374">"Disattivare la gestione della memoria?"</string>
-    <string name="storage_movies_tv" msgid="7282484273991655296">"App per film e programmi televisivi"</string>
+    <string name="storage_movies_tv" msgid="7282484273991655296">"App per film e programmi TV"</string>
     <string name="carrier_provisioning" msgid="3309125279191534469">"Informazioni sul provisioning operatore"</string>
     <string name="trigger_carrier_provisioning" msgid="6284005970057901477">"Attiva provisioning operatore"</string>
     <string name="zen_suggestion_title" msgid="2134699720214231950">"Aggiorna modalità Non disturbare"</string>
@@ -4320,7 +4322,7 @@
     <string name="battery_suggestion_summary" msgid="2669070349482656490"></string>
     <string name="gesture_prevent_ringing_screen_title" msgid="4173494225145223638">"Disattiva suoneria"</string>
     <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"Premi contemporaneamente i tasti di accensione e Volume su per"</string>
-    <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"Scorciatoia per impedire al telefono di suonare"</string>
+    <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"Scorciatoia per disattivare la suoneria"</string>
     <string name="prevent_ringing_option_vibrate" msgid="6456505293904544108">"Vibrazione"</string>
     <string name="prevent_ringing_option_mute" msgid="53662688921253613">"Disattiva audio"</string>
     <string name="prevent_ringing_option_none" msgid="1450985763137666231">"Non fare niente"</string>

@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"තිරය මත පෙළ වඩාත් කුඩා හෝ විශාල කරන්න."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"වඩා කුඩා කරන්න"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"වඩා විශාල කරන්න"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"ආදර්ශ පෙළ"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"The Wonderful Wizard of Oz"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"11වන පරිච්ඡේදය: The Wonderful Emerald City of Oz"</string>
@@ -378,7 +377,7 @@
     <string name="location_settings_loading_app_permission_stats" msgid="7818169326621327628">"පූරණය වේ…"</string>
     <string name="account_settings_title" msgid="7870321267198486578">"ගිණුම්"</string>
     <string name="security_settings_title" msgid="8228075165942416425">"ආරක්ෂාව"</string>
-    <string name="encryption_and_credential_settings_title" msgid="6911729638397745353">"සංකේතනය සහ අක්තපත්‍ර"</string>
+    <string name="encryption_and_credential_settings_title" msgid="6911729638397745353">"සංකේතනය, අක්තපත්‍ර"</string>
     <string name="encryption_and_credential_settings_summary" product="default" msgid="468749700109808546">"දුරකතනය සංකේතනය කර ඇත"</string>
     <string name="decryption_settings_summary" product="default" msgid="7401802133199522441">"දුරකතනය සංකේතනය කර නැත"</string>
     <string name="encryption_and_credential_settings_summary" product="tablet" msgid="8170667308598998791">"උපාංගය සංකේතිතයි"</string>
@@ -1100,7 +1099,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"ජංගම"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Wi‑Fi නොලැබේ නම්, ජංගම ජාලය භාවිත කරන්න"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"ජංගම ජාලය නොලැබේ නම්, Wi-Fi භාවිත කරන්න"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Wi‑Fi ඔස්සේ ඇමතුම. Wi‑Fi අහිමි වූයේ නම්, ඇමතුම අවසන් වෙයි."</string>
@@ -2571,7 +2573,7 @@
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"SMS සහ ඇමතුම් ලොග ප්‍රවේශය සීමා කරන්න"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"පෙරනිමි දුරකථන සහ පණිවිඩකරණ යෙදුම්වලට පමණක් SMS සහ ඇමතුම් ලොග අවසර ඇත"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"විශ්වාසනීය ඒජන්තවරුන් නැත"</string>
-    <string name="add_device_admin_msg" msgid="3573765823476931173">"උපාංගය පරිපාලක යෙදුම සක්‍රිය කරන්නද?"</string>
+    <string name="add_device_admin_msg" msgid="3573765823476931173">"උපාංග පරිපාලක යෙදුම සක්‍රිය කර.?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"මෙම උපාංගය පරිපාලක යෙදුම සක්‍රිය කරන්න"</string>
     <string name="device_admin_add_title" msgid="6097881332139146897">"උපාංග පරිපාලක"</string>
     <string name="device_admin_warning" msgid="4421817419326480449">"මෙම පරිපාලකයා සක්‍රිය කිරීමෙන් <xliff:g id="APP_NAME">%1$s</xliff:g> යෙදුමට පහත ක්‍රියාවන් සිදුකිරීමට අවස්තාව ලබාදේ:"</string>

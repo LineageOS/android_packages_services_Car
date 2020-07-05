@@ -84,8 +84,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Palieliniet vai samaziniet tekstu ekrānā."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Samazināt"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Palielināt"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Teksta paraugs"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"Brīnumainais burvis no Oza zemes"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"11. nodaļa: Oza zemes brīnumainā Smaragda pilsēta"</string>
@@ -472,7 +471,7 @@
     <string name="security_settings_fingerprint_enroll_dialog_delete" msgid="4312297515772004580">"Dzēst"</string>
     <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"Pieskarieties sensoram"</string>
     <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"Novietojiet pirkstu uz sensora un paceliet to pēc tam, kad sajūtat vibrāciju"</string>
-    <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"Paceliet un vēlreiz pieskar."</string>
+    <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"Pieskarieties vēlreiz"</string>
     <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"Atkārtoti uzlieciet pirkstu, lai pievienotu dažādas pirksta nospieduma daļas."</string>
     <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"Pirksta nospiedums pievienots"</string>
     <string name="security_settings_fingerprint_enroll_finish_message" msgid="5862643337893923347">"Kad tiek rādīta šī ikona, izmantojiet pirksta nospiedumu identifikācijai vai pirkuma autorizēšanai."</string>
@@ -1117,7 +1116,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"Mobilie dati"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Ja Wi-Fi savienojums nav pieejams, izmantot mobilo tīklu"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Ja mobilais tīkls nav pieejams, izmantot Wi‑Fi"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Zvans Wi-Fi tīklā. Ja Wi-Fi savienojums tiks zaudēts, zvans beigsies."</string>
@@ -1681,7 +1683,7 @@
     <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"Ļauj lietotnēm un pakalpojumiem meklēt tuvumā esošas ierīces vienmēr, pat ja Bluetooth ir izslēgts. Šo iestatījumu var izmantot, piemēram, lai uzlabotu atrašanās vietas funkcijas un pakalpojumus."</string>
     <string name="managed_profile_location_services" msgid="224925483299159541">"Atrašanās vietu pakalpojumi darbam"</string>
     <string name="location_network_based" msgid="1535812159327454835">"Wi-Fi un mob. tīklu atr. vieta"</string>
-    <string name="location_neighborhood_level" msgid="8459352741296587916">"Ļaut lietotnēm izmantot Google atrašanās vietas pakalpojumu, lai ātrāk noteiktu jūsu atrašanās vietu. Tiks apkopoti un nosūtīti uz Google serveriem anonīmi atrašanās vietas dati."</string>
+    <string name="location_neighborhood_level" msgid="8459352741296587916">"Ļaut lietotnēm izmantot Google atrašanās vietas pakalpojumu, lai ātrāk noteiktu jūsu atrašanās vietu. Tiks vākti un nosūtīti uz Google serveriem anonīmi atrašanās vietas dati."</string>
     <string name="location_neighborhood_level_wifi" msgid="6120133551482003840">"Wi-Fi noteikta atrašanās vieta"</string>
     <string name="location_gps" msgid="688049341158297763">"GPS satelīti"</string>
     <string name="location_street_level" product="tablet" msgid="4459804798444296650">"Ļaut lietotnēm izmantot jūsu planšetdatorā esošo GPS, lai noteiktu jūsu atrašanās vietu."</string>
@@ -2737,7 +2739,7 @@
     <string name="data_usage_auto_sync_on_dialog" product="tablet" msgid="4935430284683238901">"Visas izmaiņas, ko veiksiet kontos tīmeklī, tiks automātiski pārkopētas planšetdatorā.\n\nDažos kontos planšetdatorā veiktās izmaiņas var automātiski pārkopēt tīmeklī. Šādi darbojas Google konts."</string>
     <string name="data_usage_auto_sync_on_dialog" product="default" msgid="5004823486046340090">"Visas izmaiņas, ko veiksiet kontos tīmeklī, tiks automātiski pārkopētas tālrunī.\n\nDažos kontos tālrunī veiktās izmaiņas var automātiski pārkopēt tīmeklī. Šādi darbojas Google konts."</string>
     <string name="data_usage_auto_sync_off_dialog_title" msgid="7105334544291643305">"Vai izslēgt datu automātisko sinhronizāciju?"</string>
-    <string name="data_usage_auto_sync_off_dialog" msgid="4057984234450947964">"Tiks saglabāti dati un akumulatora lietojums, bet jums vajadzēs manuāli sinhronizēt katru kontu, lai apkopotu jaunāko informāciju. Un jūs nesaņemsiet paziņojumus par atjauninājumiem."</string>
+    <string name="data_usage_auto_sync_off_dialog" msgid="4057984234450947964">"Tiks saglabāti dati un akumulatora lietojums, bet jums vajadzēs manuāli sinhronizēt katru kontu, lai vāktu jaunāko informāciju. Un jūs nesaņemsiet paziņojumus par atjauninājumiem."</string>
     <string name="data_usage_cycle_editor_title" msgid="4967309390043599889">"Izmantošanas cikla atiestatīšanas datums"</string>
     <string name="data_usage_cycle_editor_subtitle" msgid="6043098041946166597">"Katra mēneša datums:"</string>
     <string name="data_usage_cycle_editor_positive" msgid="9155752056537811646">"Iestatīt"</string>
@@ -4584,7 +4586,7 @@
     <string name="wfc_disclaimer_agree_button_text" msgid="4706101805260434404">"TURPINĀT"</string>
     <string name="wfc_disclaimer_disagree_text" msgid="908289420390194127">"NĒ, PALDIES"</string>
     <string name="wfc_disclaimer_location_title_text" msgid="5696194250838686019">"Atrašanās vieta"</string>
-    <string name="wfc_disclaimer_location_desc_text" msgid="3879710366995108723">"Pakalpojuma sniedzējs var apkopot jūsu atrašanās informāciju, lai nodrošinātu šo pakalpojumu.\n\nSkatiet pakalpojuma sniedzēja konfidencialitātes politiku."</string>
+    <string name="wfc_disclaimer_location_desc_text" msgid="3879710366995108723">"Pakalpojuma sniedzējs var vākt jūsu atrašanās informāciju, lai nodrošinātu šo pakalpojumu.\n\nSkatiet pakalpojuma sniedzēja konfidencialitātes politiku."</string>
     <string name="forget_passpoint_dialog_message" msgid="3337626966248310367">"Iespējams, zaudēsiet piekļuvi atlikušajam laikam vai datiem. Pirms noņemšanas sazinieties ar pakalpojuma sniedzēju."</string>
     <string name="keywords_content_capture" msgid="5401877823529928976">"satura uzņēmums, viedie ieteikumi"</string>
     <string name="content_capture" msgid="1709538093513983279">"Viedie ieteikumi"</string>
