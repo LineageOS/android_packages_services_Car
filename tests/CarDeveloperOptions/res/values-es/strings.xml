@@ -500,7 +500,7 @@
     <string name="fingerprint_intro_error_unknown" msgid="3975674268256524015">"No se pueden añadir más huellas digitales"</string>
     <string name="fingerprint_last_delete_title" msgid="3104596858161269635">"¿Quitar todas las huellas?"</string>
     <string name="fingerprint_delete_title" msgid="3120894112324235536">"Eliminar \"<xliff:g id="FINGERPRINT_ID">%1$s</xliff:g>\""</string>
-    <string name="fingerprint_delete_message" msgid="5895802741486967970">"¿Quieres eliminar esta huella digital?"</string>
+    <string name="fingerprint_delete_message" msgid="5895802741486967970">"¿Eliminar esta huella digital?"</string>
     <string name="fingerprint_last_delete_message" msgid="3346252479778971442">"No podrás utilizar tus huellas digitales para desbloquear el teléfono, autorizar compras o iniciar sesión en las aplicaciones"</string>
     <string name="fingerprint_last_delete_message_profile_challenge" msgid="5385095150532247025">"No puedes utilizar tus huellas digitales para desbloquear el perfil de trabajo, autorizar compras o iniciar sesión en aplicaciones de trabajo"</string>
     <string name="fingerprint_last_delete_confirm" msgid="7984595457589664004">"Sí, quitar"</string>
@@ -594,7 +594,7 @@
     <string name="unlock_setup_wizard_fingerprint_details" msgid="6515136915205473675">"Una vez que hayas configurado un bloqueo de pantalla, podrás configurar también la huella digital en Ajustes &gt; Seguridad."</string>
     <string name="unlock_disable_lock_title" msgid="3508492427073600294">"Desactivar bloqueo pantalla"</string>
     <string name="unlock_disable_frp_warning_title" msgid="5858589970505254193">"¿Quitar protección del dispositivo?"</string>
-    <string name="unlock_disable_frp_warning_title_profile" msgid="3814123014295965266">"¿Quieres quitar la protección del perfil?"</string>
+    <string name="unlock_disable_frp_warning_title_profile" msgid="3814123014295965266">"¿Quitar la protección del perfil?"</string>
     <string name="unlock_disable_frp_warning_content_pattern" msgid="1843950215687159135">"Las funciones de protección del dispositivo no funcionarán sin tu patrón."</string>
     <string name="unlock_disable_frp_warning_content_pattern_fingerprint" msgid="8846957650251741548">"Las funciones de protección del dispositivo no funcionarán sin el patrón.<xliff:g id="EMPTY_LINE">
 
@@ -2811,7 +2811,7 @@
     <string name="trusted_credentials_trust_label" msgid="1580022708780121664">"Confiar"</string>
     <string name="trusted_credentials_enable_confirmation" msgid="936560980286792656">"¿Quieres habilitar el certificado de CA del sistema?"</string>
     <string name="trusted_credentials_disable_confirmation" msgid="643386483024801539">"¿Quieres inhabilitar el certificado de CA del sistema?"</string>
-    <string name="trusted_credentials_remove_confirmation" msgid="3731678919848637342">"¿Quieres eliminar el certificado de CA de usuario de forma permanente?"</string>
+    <string name="trusted_credentials_remove_confirmation" msgid="3731678919848637342">"¿Eliminar el certificado de CA de usuario de forma permanente?"</string>
     <string name="credential_contains" msgid="483346955378412119">"Esta entrada incluye:"</string>
     <string name="one_userkey" msgid="5349738921509013845">"una clave de usuario"</string>
     <string name="one_usercrt" msgid="856282310586987313">"un certificado de usuario"</string>
@@ -3161,7 +3161,7 @@
     <string name="emergency_tone_alert" msgid="907868135091891015">"Tonos"</string>
     <string name="emergency_tone_vibrate" msgid="5020068066905681181">"Vibraciones"</string>
     <string name="boot_sounds_title" msgid="7583926202411353620">"Sonidos de encendido"</string>
-    <string name="live_caption_title" msgid="7926591158657997051">"Subtítulos instantáneos"</string>
+    <string name="live_caption_title" msgid="7926591158657997051">"Subtítulos automáticos"</string>
     <string name="live_caption_summary" msgid="9064771862352393125">"Subtitula automáticamente el contenido multimedia"</string>
     <string name="zen_mode_settings_summary_off" msgid="6929319200478424962">"Nunca"</string>
     <plurals name="zen_mode_settings_summary_on" formatted="false" msgid="6061723291126091396">
@@ -4244,7 +4244,7 @@
     <string name="storage_volume_total" msgid="5021484171514159913">"usados de <xliff:g id="TOTAL">%1$s</xliff:g>"</string>
     <string name="storage_percent_full" msgid="6924662861545958442">"usado"</string>
     <string name="clear_instant_app_data" msgid="3673669086522890405">"Borrar aplicación"</string>
-    <string name="clear_instant_app_confirmation" msgid="1778553115373698061">"¿Quieres quitar esta aplicación instantánea?"</string>
+    <string name="clear_instant_app_confirmation" msgid="1778553115373698061">"¿Quitar esta aplicación instantánea?"</string>
     <string name="launch_instant_app" msgid="5251693061228352333">"Abrir"</string>
     <string name="game_storage_settings" msgid="6856911551799175914">"Juegos"</string>
     <string name="audio_files_title" msgid="3073879661731363935">"Archivos de audio"</string>
