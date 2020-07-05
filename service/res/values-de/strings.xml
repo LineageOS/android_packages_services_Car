@@ -71,10 +71,10 @@
     <string name="exit_button" msgid="5829638404777671253">"Zurück"</string>
     <string name="exit_button_close_application" msgid="8824289547809332460">"App schließen"</string>
     <string name="exit_button_go_back" msgid="3469083862100560326">"Zurück"</string>
-    <string name="car_permission_label_diag_read" msgid="7248894224877702604">"Diagnosedaten zu lesen"</string>
-    <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Diagnosedaten des Autos lesen."</string>
-    <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"Diagnosedaten zu löschen"</string>
-    <string name="car_permission_desc_diag_clear" msgid="7453222114866042786">"Diagnosedaten des Autos löschen."</string>
+    <string name="car_permission_label_diag_read" msgid="7248894224877702604">"Fehlerberichte zu lesen"</string>
+    <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Fehlerberichte des Autos lesen."</string>
+    <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"Fehlerberichte zu löschen"</string>
+    <string name="car_permission_desc_diag_clear" msgid="7453222114866042786">"Fehlerberichte des Autos löschen."</string>
     <string name="car_permission_label_vms_publisher" msgid="3049934078926106641">"VMS-Herausgeber"</string>
     <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"VMS-Meldungen senden"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"VMS-Abonnent"</string>
