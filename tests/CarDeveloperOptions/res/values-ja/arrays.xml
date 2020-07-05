@@ -85,7 +85,7 @@
     <item msgid="8058143476674427024">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g>に接続中..."</item>
     <item msgid="7547609081339573756">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g>で認証しています..."</item>
     <item msgid="5145158315060185414">"IPアドレスを<xliff:g id="NETWORK_NAME">%1$s</xliff:g>から取得しています..."</item>
-    <item msgid="3283243151651124831">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g>に接続しました"</item>
+    <item msgid="3283243151651124831">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g> に接続済み"</item>
     <item msgid="6600156231416890902">"強制停止"</item>
     <item msgid="4133290864821295785">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g>から切断中..."</item>
     <item msgid="3980154971187953257">"切断"</item>
@@ -170,7 +170,7 @@
   <string-array name="wifi_proxy_settings">
     <item msgid="9032900195127165132">"なし"</item>
     <item msgid="1464741437353223198">"マニュアル"</item>
-    <item msgid="5793600062487886090">"プロキシの自動設定"</item>
+    <item msgid="5793600062487886090">"プロキシを自動設定"</item>
   </string-array>
   <string-array name="apn_auth_entries">
     <item msgid="7099647881902405997">"なし"</item>
@@ -423,9 +423,19 @@
     <item msgid="7718817231348607934">"許可しない"</item>
     <item msgid="8184570120217958741">"常に許可する"</item>
   </string-array>
-    <!-- no translation found for ram_states:0 (708247372474061274) -->
-    <!-- no translation found for ram_states:4 (1567326459340152525) -->
-    <!-- no translation found for proc_stats_memory_states:3 (8577246509202964244) -->
+  <string-array name="ram_states">
+    <item msgid="708247372474061274">"標準"</item>
+    <item msgid="5101233285497327432">"やや良好"</item>
+    <item msgid="1555861583162930714">"低"</item>
+    <item msgid="1719683776264798117">"残りわずか"</item>
+    <item msgid="1567326459340152525">"不明"</item>
+  </string-array>
+  <string-array name="proc_stats_memory_states">
+    <item msgid="3474232046138139454">"標準"</item>
+    <item msgid="6107138933849816768">"やや不足"</item>
+    <item msgid="182695359839047859">"低"</item>
+    <item msgid="8577246509202964244">"重大"</item>
+  </string-array>
   <string-array name="proc_stats_process_states">
     <item msgid="7560955722349181440">"常駐"</item>
     <item msgid="167418068739176448">"上位のアクティビティ"</item>
@@ -463,11 +473,11 @@
   </string-array>
   <string-array name="wifi_metered_entries">
     <item msgid="4329206416008519163">"自動的に検出"</item>
-    <item msgid="773943026484148895">"従量制として処理"</item>
-    <item msgid="1008268820118852416">"定額制として処理"</item>
+    <item msgid="773943026484148895">"従量制として扱う"</item>
+    <item msgid="1008268820118852416">"定額制として扱う"</item>
   </string-array>
   <string-array name="wifi_privacy_entries">
-    <item msgid="6545683814310036454">"ランダムな MAC を使用する（デフォルト）"</item>
+    <item msgid="6545683814310036454">"ランダム MAC を使用（デフォルト）"</item>
     <item msgid="214234417308375326">"デバイスの MAC を使用する"</item>
   </string-array>
   <string-array name="wifi_hidden_entries">
