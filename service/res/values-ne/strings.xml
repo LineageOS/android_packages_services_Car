@@ -35,33 +35,33 @@
     <string name="car_permission_label_radio" msgid="6009465291685935112">"कारको रेडियो व्यवस्थित गर्ने"</string>
     <string name="car_permission_desc_radio" msgid="3385999027478186964">"तपाईंको कारको रेडियोमाथि पहुँच राख्ने।"</string>
     <string name="car_permission_label_projection" msgid="9107156380287576787">"फोनको इन्टरफेस कारको डिस्प्लेमा प्रोजेक्ट गर्ने"</string>
-    <string name="car_permission_desc_projection" msgid="2352178999656292944">"अनुप्रयोगलाई कुनै फोनको इन्टरफेस कारको डिस्प्लेमा प्रोजेक्ट गर्न दिन्छ।"</string>
+    <string name="car_permission_desc_projection" msgid="2352178999656292944">"एपलाई कुनै फोनको इन्टरफेस कारको डिस्प्लेमा प्रोजेक्ट गर्न दिन्छ।"</string>
     <string name="car_permission_label_access_projection_status" msgid="4231618890836627402">"प्रोजेक्सनको स्थितिमाथि पहुँच राख्ने"</string>
-    <string name="car_permission_desc_access_projection_status" msgid="8497351979100616278">"अनुप्रयोगलाई कारको डिस्प्लेमा प्रोजेक्ट गरिरहेका अन्य अनुप्रयोगहरूको स्थिति प्राप्त गर्ने अनुमति दिन्छ।"</string>
+    <string name="car_permission_desc_access_projection_status" msgid="8497351979100616278">"एपलाई कारको डिस्प्लेमा प्रोजेक्ट गरिरहेका अन्य अनुप्रयोगहरूको स्थिति प्राप्त गर्ने अनुमति दिन्छ।"</string>
     <string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"प्रोजेक्सन सेवामा सम्बद्ध हुने"</string>
     <string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"धारकलाई प्रोजेक्सन सेवाको उच्च स्तरको इन्टरफेसमा सम्बद्ध हुने अनुमति दिन्छ। साधारण अनुप्रयोगहरूको लागि कहिल्यै पनि आवश्यक पर्दैन।"</string>
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"कारको अडियोको भोल्युम नियन्त्रण गर्ने"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"कारका अडियो सेटिङ व्यवस्थित गर्ने"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"सवारी साधनको HAL को अनुकरण गर्ने"</string>
     <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"अडियो डकिङ कार्यक्रमहरू प्राप्त गर्नुहोस्"</string>
-    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"कारमा अन्य अडियो प्ले भइरहेका हुनाले अनुप्रयोगको भोल्युम कम भइरहेको कुराबारे अनुप्रयोगलाई सूचित हुन दिन्छ।"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"कारमा अन्य अडियो प्ले भइरहेका हुनाले एपको भोल्युम कम भइरहेको कुराबारे एपलाई सूचित हुन दिन्छ।"</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"आन्तरिक परीक्षण गर्ने प्रयोजनका लागि तपाईंको कारको सवारी साधन HAL को अनुकरण गर्ने।"</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"तपाईंको कारको अडियोको भोल्युम नियन्त्रण गर्ने।"</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"आफ्नो कारको अडियोसम्बन्धी सेटिङहरू नियन्त्रण गर्नुहोस्।"</string>
     <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"अनुप्रयोगमाथि रोक लगाउने कार्य"</string>
-    <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"सवारी साधन चलाइरहेका बेलामा अनुप्रयोगलाई रोक लगाउने प्रक्रिया नियन्त्रण गर्ने।"</string>
+    <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"सवारी साधन चलाइरहेका बेलामा एपलाई रोक लगाउने प्रक्रिया नियन्त्रण गर्ने।"</string>
     <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"नेभिगेसन प्रबन्धक"</string>
     <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"नेभिगेसनसम्बन्धी डेटालाई उपकरणको क्लस्टरमा रिपोर्ट गर्ने"</string>
     <string name="car_permission_car_display_in_cluster" msgid="4005987646292458684">"उपकरणको क्लस्टरमा प्रत्यक्ष रेन्डर गर्ने प्रक्रिया"</string>
-    <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"कुनै अनुप्रयोगलाई उपकरणको क्लस्टरमा देखाइने क्रियाकलापहरूको घोषणा गर्न दिनुहोस्‌"</string>
+    <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"कुनै एपलाई उपकरणको क्लस्टरमा देखाइने क्रियाकलापहरूको घोषणा गर्न दिनुहोस्‌"</string>
     <string name="car_permission_car_cluster_control" msgid="1382247204230165674">"उपकरणको क्लस्टरको नियन्त्रण"</string>
-    <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"उपकरणको क्लस्टरमा अनुप्रयोगहरू सुरु गर्नुहोस्"</string>
+    <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"उपकरणको क्लस्टरमा एपहरू सुरु गर्नुहोस्"</string>
     <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"उपकरणको क्लस्टर रेन्डर गर्ने प्रक्रिया"</string>
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"उपकरणको क्लस्टरको डेटा प्राप्त गर्नुहोस्‌"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"UX सम्बन्धी प्रतिबन्धहरूको कन्फिगुरेसन"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"UX सम्बन्धी प्रतिबन्धहरू कन्फिगर गर्नुहोस्‌"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"AOAP मोडमा USB यन्त्रसँग सञ्चार गर्नुहोस्"</string>
-    <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"AOAP मोडमा अनुप्रयोगलाई कुनै यन्त्रसँग सञ्चार गर्न दिन्छ"</string>
+    <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"AOAP मोडमा एपलाई कुनै यन्त्रसँग सञ्चार गर्न दिन्छ"</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"कारको इनपुट सेवा"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"इनपुट गरिएका कार्यक्रमहरू व्यवस्थापन गर्ने"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN bus असफल भयो"</string>
@@ -69,7 +69,7 @@
     <string name="activity_blocked_text" msgid="8088902789540147995">"तपाईं सवारी साधन चलाइरहेका बेला यो सुविधा प्रयोग गर्न सक्नुहुन्न"</string>
     <string name="exit_button_message" msgid="8554690915924055685">"अनुप्रयोगका सुरक्षित सुविधाहरूको प्रयोग गरी फेरि सुरु गर्न <xliff:g id="EXIT_BUTTON">%s</xliff:g> चयन गर्नुहोस्‌।"</string>
     <string name="exit_button" msgid="5829638404777671253">"पछाडि"</string>
-    <string name="exit_button_close_application" msgid="8824289547809332460">"अनुप्रयोग बन्द गर्नुहोस्"</string>
+    <string name="exit_button_close_application" msgid="8824289547809332460">"एप बन्द गर्नुहोस्"</string>
     <string name="exit_button_go_back" msgid="3469083862100560326">"पछाडि"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"निदानसम्बन्धी डेटा पढ्ने"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"कारको निदानसम्बन्धी डेटा पढ्ने।"</string>
