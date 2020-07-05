@@ -3601,7 +3601,7 @@
     <string name="storage_used" msgid="2457948583478332647">"સંગ્રહ ઉપયોગમાં લેવાયો"</string>
     <string name="change" msgid="41563753961948554">"બદલો"</string>
     <string name="change_storage" msgid="2064045078609862770">"સ્ટોરેજ બદલો"</string>
-    <string name="notifications_label" msgid="2792398288062643318">"સૂચનાઓ"</string>
+    <string name="notifications_label" msgid="2792398288062643318">"નોટિફિકેશન"</string>
     <string name="notifications_enabled" msgid="439339392141736137">"ચાલુ"</string>
     <string name="notifications_enabled_with_info" msgid="7706460489443809452">"<xliff:g id="NOTIFICATIONS_SENT">%1$s</xliff:g> / <xliff:g id="NOTIFICATIONS_CATEGORIES_OFF">%2$s</xliff:g>"</string>
     <string name="notifications_disabled" msgid="316658185757688983">"બંધ"</string>

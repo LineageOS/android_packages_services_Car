@@ -935,14 +935,14 @@
     <string name="wifi_privacy_settings" msgid="4462092795794247809">"Нууцлал"</string>
     <string name="wifi_privacy_settings_ephemeral_summary" msgid="2411375348287064283">"Санамсаргүй сонгосон MAC"</string>
     <string name="wifi_dpp_add_device_to_network" msgid="8871041525483253430">"Төхөөрөмж нэмэх"</string>
-    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"Энэ төхөөрөмжийг “<xliff:g id="SSID">%1$s</xliff:g>”-д нэмэхийн тулд доорх хурдан хариу үйлдлийн кодыг голлуулна уу"</string>
-    <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"Хурдан хариу үйлдлийн кодыг скан хийх"</string>
-    <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"“<xliff:g id="SSID">%1$s</xliff:g>”-д холбогдохын тулд доорх хурдан хариу үйлдлийн кодыг голлуулна уу"</string>
-    <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"Хурдан хариу үйлдлийн кодыг скан хийж, Wi‑Fi-д нэгдэнэ үү"</string>
+    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"Энэ төхөөрөмжийг “<xliff:g id="SSID">%1$s</xliff:g>”-д нэмэхийн тулд доорх QR кодыг голлуулна уу"</string>
+    <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"QR кодыг скан хийх"</string>
+    <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"“<xliff:g id="SSID">%1$s</xliff:g>”-д холбогдохын тулд доорх QR кодыг голлуулна уу"</string>
+    <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"QR кодыг скан хийж, Wi‑Fi-д нэгдэнэ үү"</string>
     <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"Wi‑Fi-г хуваалцах"</string>
-    <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"“<xliff:g id="SSID">%1$s</xliff:g>”-д холбогдохын тулд энэ хурдан хариу үйлдлийн кодыг скан хийж, нууц үгийг хуваалцана уу"</string>
-    <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"“<xliff:g id="SSID">%1$s</xliff:g>”-д холбогдохын тулд энэ хурдан хариу үйлдлийн кодыг скан хийнэ үү"</string>
-    <string name="wifi_dpp_could_not_detect_valid_qr_code" msgid="27667719861826438">"Хурдан хариу үйлдлийн кодыг уншиж чадсангүй. Кодыг дахин голлуулаад дахин оролдоно уу"</string>
+    <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"“<xliff:g id="SSID">%1$s</xliff:g>”-д холбогдохын тулд энэ QR кодыг скан хийж, нууц үгийг хуваалцана уу"</string>
+    <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"“<xliff:g id="SSID">%1$s</xliff:g>”-д холбогдохын тулд энэ QR кодыг скан хийнэ үү"</string>
+    <string name="wifi_dpp_could_not_detect_valid_qr_code" msgid="27667719861826438">"QR кодыг уншиж чадсангүй. Кодыг дахин голлуулаад дахин оролдоно уу"</string>
     <string name="wifi_dpp_failure_authentication_or_configuration" msgid="9142051662156233679">"Дахин оролдоно уу. Хэрэв асуудал үргэлжилсээр байвал төхөөрөмжийн үйлдвэрлэгчтэй холбогдоно уу"</string>
     <string name="wifi_dpp_failure_not_compatible" msgid="4320027179973678283">"Алдаа гарлаа"</string>
     <string name="wifi_dpp_failure_timeout" msgid="5060065168142109420">"Төхөөрөмжийг залгасан, цэнэглэсэн, асаасан эсэхийг шалгана уу"</string>
@@ -964,7 +964,7 @@
     <string name="wifi_dpp_wifi_password" msgid="8007558344032612455">"Wi‑Fi-н нууц үг: <xliff:g id="PASSWORD">%1$s</xliff:g>"</string>
     <string name="wifi_dpp_hotspot_password" msgid="6172326289042241924">"Сүлжээний цэгийн нууц үг: <xliff:g id="PASSWORD">%1$s</xliff:g>"</string>
     <string name="wifi_dpp_add_device" msgid="1347056725253936358">"Төхөөрөмж нэмэх"</string>
-    <string name="wifi_dpp_connect_network_using_qr_code" msgid="115993715600532357">"Энэ сүлжээнд хурдан хариу үйлдлийн кодоор холбогдох"</string>
+    <string name="wifi_dpp_connect_network_using_qr_code" msgid="115993715600532357">"Энэ сүлжээнд QR кодоор холбогдох"</string>
     <string name="retry" msgid="8500839563577344702">"Дахин оролдох"</string>
     <string name="wifi_shared" msgid="5054256778276524960">"Төхөөрөмжийн бусад хэрэглэгчтэй хуваалцах"</string>
     <string name="wifi_unchanged" msgid="6804964646942333992">"(өөрчлөгдөөгүй)"</string>
