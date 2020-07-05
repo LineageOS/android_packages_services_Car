@@ -3555,7 +3555,7 @@
     <string name="switch_on_text" msgid="7100491749799298324">"Aktivizuar"</string>
     <string name="switch_off_text" msgid="3539551289454353555">"Joaktiv"</string>
     <string name="screen_pinning_title" msgid="578020318289781102">"Gozhdimi i ekranit"</string>
-    <string name="screen_pinning_description" msgid="3814537379086412278">"Kur ky funksion është i aktivizuar, mund të përdorësh gozhdimin e ekranit për të mbajtur pamjen aktuale të ekranit deri sa ta anulosh gozhdimin.\n\nPër të përdorur gozhdimin e ekranit:\n\n1. Sigurohu që gozhdimi i ekranit është i aktivizuar\n\n2. Hap \"Përmbledhja\"\n\n3. Trokit tek ikona e aplikacionit në krye të ekranit dhe më pas trokit te \"Gozhdo\""</string>
+    <string name="screen_pinning_description" msgid="3814537379086412278">"Kur ky cilësim është i aktivizuar, mund të përdorësh gozhdimin e ekranit për të mbajtur pamjen aktuale të ekranit deri sa ta anulosh gozhdimin.\n\nPër të përdorur gozhdimin e ekranit:\n\n1. Sigurohu që gozhdimi i ekranit është i aktivizuar\n\n2. Hap \"Përmbledhja\"\n\n3. Trokit tek ikona e aplikacionit në krye të ekranit dhe më pas trokit te \"Gozhdo\""</string>
     <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"Kërko motivin e shkyçjes para anulimit të mbërthimit"</string>
     <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"Zhgozhdimi kërkon PIN-in"</string>
     <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"Kërko fjalëkalim para heqjes nga gozhdimi"</string>

@@ -875,7 +875,7 @@
     <string name="wifi_cellular_data_fallback_title" msgid="5067241930716252665">"Canvia automàticament a dades mòbils"</string>
     <string name="wifi_cellular_data_fallback_summary" msgid="2721467405851519769">"Utilitza dades mòbils quan la Wi-Fi no tingui accés a Internet. És possible que s\'hi apliquin càrrecs per ús de dades."</string>
     <string name="wifi_add_network" msgid="4094957940791876640">"Afegeix una xarxa"</string>
-    <string name="wifi_configure_settings_preference_title" msgid="2678534679408777268">"Preferències de la Wi‑Fi"</string>
+    <string name="wifi_configure_settings_preference_title" msgid="2678534679408777268">"Preferències de Wi‑Fi"</string>
     <string name="wifi_configure_settings_preference_summary_wakeup_on" msgid="5714892572614655675">"La Wi‑Fi es torna a connectar automàticament"</string>
     <string name="wifi_configure_settings_preference_summary_wakeup_off" msgid="286904094152909651">"La Wi‑Fi no es torna a activar automàticament"</string>
     <string name="wifi_access_points" msgid="1647976498906871869">"Xarxes Wi-Fi"</string>
@@ -1138,7 +1138,7 @@
     <string name="dtmf_tone_enable_title" msgid="3797301105270314782">"So en marcar el número"</string>
     <string name="sound_effects_enable_title" msgid="3693756476729696246">"Toca els sons"</string>
     <string name="lock_sounds_enable_title" msgid="6456726219456531315">"So de bloqueig de pantalla"</string>
-    <string name="audio_record_proc_title" msgid="5772134576781468721">"Cancel·lació de sorolls"</string>
+    <string name="audio_record_proc_title" msgid="5772134576781468721">"Reducció del soroll"</string>
     <string name="volume_media_description" msgid="3659485559976891268">"Música, vídeos, jocs i altres fitxers multimèdia"</string>
     <string name="volume_ring_description" msgid="1975431532517579212">"So de trucada i notificacions"</string>
     <string name="volume_notification_description" msgid="8871940450828766751">"Notificacions"</string>
@@ -3548,7 +3548,7 @@
     <string name="zen_mode_screen_off" msgid="84211490206459038">"Quan la pantalla estigui apagada"</string>
     <string name="zen_mode_screen_off_summary" msgid="8592179073243001267">"Permet que les notificacions silenciades pel mode No molestis encenguin la pantalla i facin parpellejar el llum"</string>
     <string name="zen_mode_screen_off_summary_no_led" msgid="7255874108150630145">"Permet que les notificacions silenciades pel mode No molestis encenguin la pantalla"</string>
-    <string name="notification_app_settings_button" msgid="3651180424198580907">"Configuració de les notificacions"</string>
+    <string name="notification_app_settings_button" msgid="3651180424198580907">"Configuració de notificacions"</string>
     <string name="suggestion_button_text" msgid="5783566542423813847">"D\'acord"</string>
     <string name="device_feedback" msgid="4042352891448769818">"Envia suggeriments sobre el dispositiu"</string>
     <string name="restr_pin_enter_admin_pin" msgid="8577847751493521230">"Introdueix el PIN d\'administrador"</string>

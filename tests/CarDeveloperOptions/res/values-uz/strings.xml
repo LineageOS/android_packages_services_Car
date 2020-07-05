@@ -732,7 +732,7 @@
     <string name="bluetooth_pairing_request" msgid="7221745525632573125">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> qurilmasiga ulansinmi?"</string>
     <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"Bluetooth orqali ulanish kodi"</string>
     <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"Ulanish kodini kiriting va keyin “Return” yoki “Enter” tugmasini bosing"</string>
-    <string name="bluetooth_enable_alphanumeric_pin" msgid="9138308197078115672">"PIN-kod harflar va belgilardan iborat bo‘ladi"</string>
+    <string name="bluetooth_enable_alphanumeric_pin" msgid="9138308197078115672">"Harflar yoki maxsus belgilardan iborat PIN kod"</string>
     <string name="bluetooth_pin_values_hint" msgid="8044671726261326240">"Odatda 0000 yoki 1234"</string>
     <string name="bluetooth_pin_values_hint_16_digits" msgid="2665983525706661525">"16 ta raqam bo‘lishi lozim"</string>
     <string name="bluetooth_enter_pin_other_device" msgid="1727015949040507621">"Ushbu PIN kodni boshqa qurilmada ham terish lozim bo‘lishi mumkin."</string>

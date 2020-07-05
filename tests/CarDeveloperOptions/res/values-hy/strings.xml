@@ -849,7 +849,7 @@
     <string name="wifi_notify_open_networks" msgid="4782239203624619655">"Ծանուցումներ բաց ցանցերի մասին"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"Տեղեկացնել լավ ազդանշանով բաց ցանցերի հասանելիության մասին"</string>
     <string name="wifi_wakeup" msgid="4963732992164721548">"Ավտոմատ միացնել Wi‑Fi-ը"</string>
-    <string name="wifi_wakeup_summary" msgid="1152699417411690">"Wi‑Fi-ը կրկին կմիանա պահված լավ ազդանշանով պահված ցանցերի, օրինակ, ձեր տան ցանցի մոտակայքում"</string>
+    <string name="wifi_wakeup_summary" msgid="1152699417411690">"Wi‑Fi-ը կրկին կմիանա լավ ազդանշանով պահված ցանցերի, օրինակ, ձեր տան ցանցի մոտակայքում"</string>
     <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"Անհասանելի է, քանի որ տեղորոշումն անջատված է։ Միացրեք "<annotation id="link">"տեղորոշումը"</annotation>"։"</string>
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"Անհասանելի է, քանի որ Wi‑Fi ցանցերի որոնումն անջատված է"</string>
     <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"Օգտագործելու համար ընտրեք ցանցի վարկանիշի մատակարարը"</string>

@@ -2290,8 +2290,8 @@
     <string name="battery_tip_dialog_message" product="device" msgid="6348123094674390337">"ଆପଣଙ୍କ ଡିଭାଇସ୍ ସାଧାରଣ ତୁଳନାରେ ଅଧିକ ବ୍ୟବହାର କରାଯାଇଛି। ଆଶା କରାଯାଉଥିବା ସମୟଠାରୁ ଆପଣଙ୍କ ବ୍ୟାଟେରୀ ଶୀଘ୍ର ସରି ଯାଇପାରେ।\n\nପୂର୍ଣ୍ଣ ଚାର୍ଜ ହେବା ପରଠାରୁ ଅଧିକ ବ୍ୟବହୃତ ଆପ୍ସ।"</string>
     <string name="battery_tip_dialog_message_footer" msgid="1118827395267487197">"ଉଚ୍ଚ-ଶକ୍ତି ପୃଷ୍ଟଭୂମୀ କାର୍ଯ୍ୟ ଅନ୍ତର୍ଭୁକ୍ତ କରେ"</string>
     <plurals name="battery_tip_restrict_title" formatted="false" msgid="7140926804142734420">
-      <item quantity="other">%1$dଟି ଆପ୍‌କୁ ଅବରୋଧ କରନ୍ତୁ</item>
-      <item quantity="one">%1$dଟି ଆପ୍‌କୁ ଅବରୋଧ କରନ୍ତୁ</item>
+      <item quantity="other">%1$dଟି ଆପ୍‌କୁ ପ୍ରତିବନ୍ଧିତ କରନ୍ତୁ</item>
+      <item quantity="one">%1$dଟି ଆପ୍‌କୁ ପ୍ରତିବନ୍ଧିତ କରନ୍ତୁ</item>
     </plurals>
     <plurals name="battery_tip_restrict_handled_title" formatted="false" msgid="5509363095891806748">
       <item quantity="other">%2$dଟି ଆପ୍‌କୁ ସମ୍ପ୍ରତି ପ୍ରତିବନ୍ଧିତ କରାଯାଇଛି</item>

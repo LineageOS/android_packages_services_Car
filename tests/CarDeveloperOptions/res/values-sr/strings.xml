@@ -3491,7 +3491,7 @@
     <string name="zen_mode_add_time_rule" msgid="5999467757140524729">"Додајте временски распоред"</string>
     <string name="zen_mode_delete_rule" msgid="2292933835997203801">"Избриши распоред"</string>
     <string name="zen_mode_choose_rule_type" msgid="8877138307319450306">"Одаберите тип распореда"</string>
-    <string name="zen_mode_delete_rule_confirmation" msgid="2646596466259025978">"Желите ли да избришете правило „<xliff:g id="RULE">%1$s</xliff:g>“?"</string>
+    <string name="zen_mode_delete_rule_confirmation" msgid="2646596466259025978">"Желите да избришете правило „<xliff:g id="RULE">%1$s</xliff:g>“?"</string>
     <string name="zen_mode_delete_rule_button" msgid="611058106279881991">"Избриши"</string>
     <string name="zen_mode_rule_type_unknown" msgid="2819480113355191421">"Непознато"</string>
     <string name="zen_mode_app_set_behavior" msgid="8597398780262575571">"Ова подешавања тренутно не могу да се мењају. Апликација (<xliff:g id="APP_NAME">%1$s</xliff:g>) је аутоматски укључила режим Не узнемиравај са прилагођеним понашањем."</string>

@@ -3468,7 +3468,7 @@
     <string name="zen_mode_schedule_rule_days" msgid="220627703673691816">"ദിവസം"</string>
     <string name="zen_mode_schedule_rule_days_none" msgid="6011716195119389956">"ഒന്നുമില്ല"</string>
     <string name="zen_mode_schedule_rule_days_all" msgid="8814173364016139675">"എല്ലാ ദിവസവും"</string>
-    <string name="zen_mode_schedule_alarm_title" msgid="2078194049274875023">"അലാറമിന് അവസാനിക്കുന്ന സമയം അസാധുവാക്കാൻ കഴിയും"</string>
+    <string name="zen_mode_schedule_alarm_title" msgid="2078194049274875023">"അലാറത്തിന് അവസാനിക്കുന്ന സമയം അസാധുവാക്കാൻ കഴിയും"</string>
     <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"ഒരു അലാറം റിംഗ് ചെയ്യുമ്പോൾ, ഷെഡ്യൂൾ ഓഫാകുന്നു"</string>
     <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"\'ശല്യപ്പെടുത്തരുത്\' എന്ന് അർത്ഥമാക്കുന്ന പെരുമാറ്റം"</string>
     <string name="zen_mode_custom_behavior_summary_default" msgid="3509865340195397447">"ഡിഫോൾട്ട് ക്രമീകരണം ഉപയോഗിക്കുക"</string>

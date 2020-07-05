@@ -3403,7 +3403,7 @@
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> ໝວດໝູ່</item>
       <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> ໝວດໝູ່</item>
     </plurals>
-    <string name="no_channels" msgid="8884254729302501652">"This app has not posted any notifications"</string>
+    <string name="no_channels" msgid="8884254729302501652">"ແອັບນີ້ຍັງບໍ່ໄດ້ໂພສການແຈ້ງເຕືອນໃດເທື່ອ"</string>
     <string name="app_settings_link" msgid="8465287765715790984">"ການຕັ້ງຄ່າເພີ່ມເຕີມໃນແອັບ"</string>
     <string name="app_notification_listing_summary_zero" msgid="4047782719487686699">"ເປີດສຳລັບທຸກແອັບ"</string>
     <plurals name="app_notification_listing_summary_others" formatted="false" msgid="1161774065480666519">
