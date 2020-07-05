@@ -286,7 +286,73 @@
     <item msgid="1165623660533024666">"fonctionner en arrière-plan"</item>
     <item msgid="6423861043647911030">"volume d\'accessibilité"</item>
   </string-array>
-    <!-- no translation found for app_ops_labels:41 (2464189519136248621) -->
+  <string-array name="app_ops_labels">
+    <item msgid="7892361636570580123">"Position"</item>
+    <item msgid="6656077694190491067">"Position"</item>
+    <item msgid="8790228218278477369">"Position"</item>
+    <item msgid="7836406246005211990">"Vibreur"</item>
+    <item msgid="3951439024549922598">"Lire des contacts"</item>
+    <item msgid="8802152411647068">"Modifier les contacts"</item>
+    <item msgid="229544934599698735">"Lire le journal d\'appels"</item>
+    <item msgid="7396102294405899613">"Modifier le journal d\'appels"</item>
+    <item msgid="3597797992398484655">"Accéder à l\'agenda"</item>
+    <item msgid="2705975774250907343">"Modifier l\'agenda"</item>
+    <item msgid="4668747371441932697">"Position"</item>
+    <item msgid="1487578921720243646">"Publier des notifications"</item>
+    <item msgid="4636080349724146638">"Position"</item>
+    <item msgid="673510900286463926">"Appeler"</item>
+    <item msgid="542083422784609790">"Lire des messages texte ou des messages multimédias"</item>
+    <item msgid="1033780373029588436">"Écrire des messages texte ou des messages multimédias"</item>
+    <item msgid="5647111115517787488">"Recevoir des SMS/MMS"</item>
+    <item msgid="8591105601108455893">"Recevoir des SMS/MMS"</item>
+    <item msgid="7730995008517841903">"Recevoir des SMS/MMS"</item>
+    <item msgid="2613033109026626086">"Recevoir des SMS/MMS"</item>
+    <item msgid="3037159047591081136">"Envoyer des SMS/MMS"</item>
+    <item msgid="4726682243833913568">"Lire des messages texte ou des messages multimédias"</item>
+    <item msgid="6555678522277865572">"Écrire des messages texte ou des messages multimédias"</item>
+    <item msgid="6981734935578130884">"Modifier les paramètres"</item>
+    <item msgid="8705854389991425629">"Dessiner par dessus"</item>
+    <item msgid="5861356020344153651">"Accéder aux notifications"</item>
+    <item msgid="78432174621628659">"Appareil photo"</item>
+    <item msgid="3986116419882154794">"Enregistrer des fichiers audio"</item>
+    <item msgid="4516840825756409490">"Lire le fichier audio"</item>
+    <item msgid="6811712502798183957">"Lire le presse-papiers"</item>
+    <item msgid="2780369012602289114">"Modifier le presse-papiers"</item>
+    <item msgid="2331359440170850868">"Boutons multimédias"</item>
+    <item msgid="6133599737122751231">"Priorité audio"</item>
+    <item msgid="6844485713404805301">"Volume général"</item>
+    <item msgid="1600379420669104929">"Volume de la voix"</item>
+    <item msgid="6296768210470214866">"Volume de la sonnerie"</item>
+    <item msgid="510690696071629241">"Volume du contenu multimédia"</item>
+    <item msgid="406861638631430109">"Volume de l\'alarme"</item>
+    <item msgid="4715864795872233884">"Volume des notifications"</item>
+    <item msgid="2311478519251301183">"Volume Bluetooth"</item>
+    <item msgid="5133991377896747027">"Maintenir activé"</item>
+    <item msgid="2464189519136248621">"Lieu"</item>
+    <item msgid="2062677934050803037">"Position"</item>
+    <item msgid="1735171933192715957">"Obtenir les statistiques d\'utilisation"</item>
+    <item msgid="1014093788778383554">"Activer/Désactiver le micro"</item>
+    <item msgid="4199297950608622850">"Afficher le message"</item>
+    <item msgid="2527962435313398821">"Projeter des contenus multimédias"</item>
+    <item msgid="5117506254221861929">"Activer le RPV"</item>
+    <item msgid="8291198322681891160">"Définir le fond d\'écran"</item>
+    <item msgid="7106921284621230961">"Structure d\'assistance"</item>
+    <item msgid="4496533640894624799">"Saisie d\'écran d\'assistance"</item>
+    <item msgid="2598847264853993611">"Lire l\'état du téléphone"</item>
+    <item msgid="9215610846802973353">"Ajouter des messages vocaux"</item>
+    <item msgid="9186411956086478261">"Utiliser le protocole SIP"</item>
+    <item msgid="6884763100104539558">"Traiter l\'appel sortant"</item>
+    <item msgid="125513972170580692">"Empreintes digitales"</item>
+    <item msgid="2556071024281275619">"Capteurs corporels"</item>
+    <item msgid="617168514928339387">"Lire les messages de diffusion cellulaire"</item>
+    <item msgid="7134693570516523585">"Créer une position fictive"</item>
+    <item msgid="7224489175375229399">"Lire les données de l\'espace de stockage"</item>
+    <item msgid="8472735063903258202">"Écrire dans les données de l\'espace de stockage"</item>
+    <item msgid="4069276819909595110">"Activer l\'écran"</item>
+    <item msgid="1228338896751121025">"Obtenir les comptes"</item>
+    <item msgid="3181581793459233672">"Fonctionner en arrière-plan"</item>
+    <item msgid="2340936043025374076">"Volume d\'accessibilité"</item>
+  </string-array>
   <string-array name="long_press_timeout_selector_titles">
     <item msgid="8950313530602254787">"Court"</item>
     <item msgid="4816511817309094890">"Moyenne"</item>
@@ -357,9 +423,19 @@
     <item msgid="7718817231348607934">"Ne jamais autoriser"</item>
     <item msgid="8184570120217958741">"Toujours autoriser"</item>
   </string-array>
-    <!-- no translation found for ram_states:0 (708247372474061274) -->
-    <!-- no translation found for ram_states:4 (1567326459340152525) -->
-    <!-- no translation found for proc_stats_memory_states:3 (8577246509202964244) -->
+  <string-array name="ram_states">
+    <item msgid="708247372474061274">"Normal"</item>
+    <item msgid="5101233285497327432">"Modérée"</item>
+    <item msgid="1555861583162930714">"Faible"</item>
+    <item msgid="1719683776264798117">"Critique"</item>
+    <item msgid="1567326459340152525">"?"</item>
+  </string-array>
+  <string-array name="proc_stats_memory_states">
+    <item msgid="3474232046138139454">"Normale"</item>
+    <item msgid="6107138933849816768">"Modérée"</item>
+    <item msgid="182695359839047859">"Faible"</item>
+    <item msgid="8577246509202964244">"Critique"</item>
+  </string-array>
   <string-array name="proc_stats_process_states">
     <item msgid="7560955722349181440">"Permanent"</item>
     <item msgid="167418068739176448">"Activité principale"</item>
