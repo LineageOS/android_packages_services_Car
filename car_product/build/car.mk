@@ -44,7 +44,7 @@ PRODUCT_PACKAGES += \
     GarageModeTestApp \
     ExperimentalCarService \
     RotaryPlayground \
-
+    BugReportApp \
 
 # SEPolicy for test apps / services
 BOARD_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/test
