@@ -85,6 +85,10 @@ Return<void> SurroundView3dSession::FramesHandler::deliverFrame_1_1(
                          << mSession->mSequenceId;
             mCamera->doneWithFrame_1_1(buffers);
             return {};
+        } else {
+            // Sets the flag to true immediately so the new coming frames will
+            // be skipped.
+            mSession->mProcessingEvsFrames = true;
         }
     }
 
@@ -108,10 +112,6 @@ Return<void> SurroundView3dSession::FramesHandler::deliverFrame_1_1(
     mCamera->doneWithFrame_1_1(buffers);
 
     // Notify the session that a new set of frames is ready
-    {
-        scoped_lock<mutex> lock(mSession->mAccessLock);
-        mSession->mProcessingEvsFrames = true;
-    }
     mSession->mFramesSignal.notify_all();
 
     return {};
