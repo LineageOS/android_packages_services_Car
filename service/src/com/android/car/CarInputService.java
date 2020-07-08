@@ -362,6 +362,9 @@ public class CarInputService extends ICarInput.Stub
         }
     }
 
+    /**
+     * Sets the instrument cluster key event listener.
+     */
     public void setInstrumentClusterKeyListener(KeyEventListener listener) {
         synchronized (mLock) {
             mInstrumentClusterKeyListener = listener;

@@ -43,6 +43,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.LongSupplier;
 
+/**
+ * Translates HAL input events to higher-level semantic information.
+ */
 public class InputHalService extends HalServiceBase {
 
     public static final int DISPLAY_MAIN = VehicleDisplay.MAIN;
@@ -60,6 +63,9 @@ public class InputHalService extends HalServiceBase {
      */
     private final LongSupplier mUptimeSupplier;
 
+    /**
+     * Interface used to act upon HAL incoming key events.
+     */
     public interface InputListener {
         /** Called for key event */
         void onKeyEvent(KeyEvent event, int targetDisplay);
@@ -101,6 +107,9 @@ public class InputHalService extends HalServiceBase {
         mUptimeSupplier = uptimeSupplier;
     }
 
+    /**
+     * Sets the input event listener.
+     */
     public void setInputListener(InputListener listener) {
         boolean keyInputSupported;
         boolean rotaryInputSupported;
