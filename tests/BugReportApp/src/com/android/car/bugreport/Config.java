@@ -71,7 +71,7 @@ final class Config {
      * {@link #KEY_UPLOAD_DESTINATION} flag will be used instead.
      */
     private static final ImmutableSet<String> ENABLE_FORCE_UPLOAD_TO_GCS_FOR_DEVICES =
-            ImmutableSet.of("hawk");
+            ImmutableSet.of("hawk", "seahawk");
 
     private final Object mLock = new Object();
 
