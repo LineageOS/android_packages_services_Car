@@ -45,6 +45,7 @@ import android.os.Looper;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.util.SparseArray;
 import android.util.SparseIntArray;
 import android.view.Display;
 import android.view.DisplayAddress;
@@ -248,8 +249,8 @@ public class CarOccupantZoneServiceTest {
         mService.init();
 
         // key : zone id
-        HashMap<Integer, OccupantZoneInfo> configs = mService.getOccupantsConfig();
-        assertThat(configs).hasSize(DEFAULT_OCCUPANT_ZONES.length);
+        SparseArray<OccupantZoneInfo> configs = mService.getOccupantsConfig();
+        assertThat(configs.size()).isEqualTo(DEFAULT_OCCUPANT_ZONES.length);
         assertThat(mZoneDriverLHD).isEqualTo(configs.get(0));
         assertThat(mZoneFrontPassengerLHD).isEqualTo(configs.get(1));
         assertThat(mZoneRearLeft).isEqualTo(configs.get(2));
@@ -272,8 +273,8 @@ public class CarOccupantZoneServiceTest {
         mService.init();
 
         // key : zone id
-        HashMap<Integer, OccupantZoneInfo> configs = mService.getOccupantsConfig();
-        assertThat(configs).hasSize(DEFAULT_OCCUPANT_ZONES.length);
+        SparseArray<OccupantZoneInfo> configs = mService.getOccupantsConfig();
+        assertThat(configs.size()).isEqualTo(DEFAULT_OCCUPANT_ZONES.length);
         assertThat(new OccupantZoneInfo(0, CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER,
                 VehicleAreaSeat.SEAT_ROW_1_RIGHT)).isEqualTo(configs.get(0));
         assertThat(new OccupantZoneInfo(1, CarOccupantZoneManager.OCCUPANT_TYPE_FRONT_PASSENGER,
@@ -292,8 +293,8 @@ public class CarOccupantZoneServiceTest {
         mService.init();
 
         // key: display port address
-        HashMap<Integer, DisplayConfig> configs = mService.getDisplayConfigs();
-        assertThat(configs).hasSize(DEFAULT_OCCUPANT_DISPLAY_MAPPING.length);
+        SparseArray<DisplayConfig> configs = mService.getDisplayConfigs();
+        assertThat(configs.size()).isEqualTo(DEFAULT_OCCUPANT_DISPLAY_MAPPING.length);
         assertDisplayConfig(configs.get(10), CarOccupantZoneManager.DISPLAY_TYPE_MAIN, 0);
         assertDisplayConfig(configs.get(11), CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER,
                 0);
@@ -505,7 +506,7 @@ public class CarOccupantZoneServiceTest {
         SparseIntArray audioZoneIdToOccupantZoneMapping =
                 getDefaultAudioZoneToOccupantZoneMapping();
 
-        HashMap<Integer, CarOccupantZoneManager.OccupantZoneInfo> occupantZoneConfigs =
+        SparseArray<CarOccupantZoneManager.OccupantZoneInfo> occupantZoneConfigs =
                 mService.getOccupantsConfig();
 
         mService.setAudioZoneIdsForOccupantZoneIds(audioZoneIdToOccupantZoneMapping);
@@ -557,8 +558,8 @@ public class CarOccupantZoneServiceTest {
         mService.init();
 
         // key : zone id
-        HashMap<Integer, OccupantConfig> configs = mService.getActiveOccupantConfigs();
-        assertThat(configs).hasSize(3); // driver, front passenger, one rear
+        SparseArray<OccupantConfig> configs = mService.getActiveOccupantConfigs();
+        assertThat(configs.size()).isEqualTo(3); // driver, front passenger, one rear
         assertOccupantConfig(configs.get(0), CURRENT_USER, new Display[]{mDisplay0, mDisplay1},
                 new int[]{CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
                         CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER});
@@ -584,8 +585,8 @@ public class CarOccupantZoneServiceTest {
         mService.mDisplayListener.onDisplayAdded(3);
 
         // key : zone id
-        HashMap<Integer, OccupantConfig> configs = mService.getActiveOccupantConfigs();
-        assertThat(configs).hasSize(4); // driver, front passenger, two rear
+        SparseArray<OccupantConfig> configs = mService.getActiveOccupantConfigs();
+        assertThat(configs.size()).isEqualTo(4); // driver, front passenger, two rear
         assertOccupantConfig(configs.get(0), CURRENT_USER, new Display[]{mDisplay0, mDisplay1},
                 new int[]{CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
                         CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER});
@@ -609,8 +610,8 @@ public class CarOccupantZoneServiceTest {
         mService.mDisplayListener.onDisplayRemoved(4);
 
         // key : zone id
-        HashMap<Integer, OccupantConfig> configs = mService.getActiveOccupantConfigs();
-        assertThat(configs).hasSize(2); // driver, front passenger
+        SparseArray<OccupantConfig> configs = mService.getActiveOccupantConfigs();
+        assertThat(configs.size()).isEqualTo(2); // driver, front passenger
         assertOccupantConfig(configs.get(0), CURRENT_USER, new Display[]{mDisplay0, mDisplay1},
                 new int[]{CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
                         CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER});
@@ -628,8 +629,8 @@ public class CarOccupantZoneServiceTest {
                 CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, newUserId));
 
         // key : zone id
-        HashMap<Integer, OccupantConfig> configs = mService.getActiveOccupantConfigs();
-        assertThat(configs).hasSize(3); // driver, front passenger, one rear
+        SparseArray<OccupantConfig> configs = mService.getActiveOccupantConfigs();
+        assertThat(configs.size()).isEqualTo(3); // driver, front passenger, one rear
         assertOccupantConfig(configs.get(0), newUserId, new Display[]{mDisplay0, mDisplay1},
                 new int[]{CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
                         CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER});
