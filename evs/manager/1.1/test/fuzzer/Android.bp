@@ -12,12 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-cc_fuzz {
-    name: "evs_halcamera_fuzzer",
-    srcs: [
-        "HalCameraFuzzer.cpp",
-    ],
-
+cc_defaults {
+    name: "evs_fuzz_default",
     static_libs: [
         "libgmock",
         "libgtest",
@@ -46,4 +42,20 @@ cc_fuzz {
     include_dirs: [
         "system/core/libsync",
     ],
+}
+
+cc_fuzz {
+    name: "evs_halcamera_fuzzer",
+    srcs: [
+        "HalCameraFuzzer.cpp",
+    ],
+    defaults: ["evs_fuzz_default"],
+}
+
+cc_fuzz {
+    name: "evs_virtual_camera_fuzzer",
+    srcs: [
+        "VirtualCameraFuzzer.cpp",
+    ],
+    defaults: ["evs_fuzz_default"],
 }
