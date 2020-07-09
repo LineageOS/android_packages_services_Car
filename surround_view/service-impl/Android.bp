@@ -156,7 +156,6 @@ cc_library{
     vendor : true,
     srcs : [
         "CameraUtils.cpp",
-        "CoreLibSetupHelper.cpp",
         "SurroundView2dSession.cpp",
         "SurroundView3dSession.cpp",
     ],
