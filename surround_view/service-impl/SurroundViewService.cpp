@@ -16,7 +16,6 @@
 
 #include <android-base/logging.h>
 
-#include "CoreLibSetupHelper.h"
 #include "SurroundViewService.h"
 
 using namespace android_auto::surround_view;
