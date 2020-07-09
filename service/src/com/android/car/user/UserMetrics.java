@@ -125,7 +125,6 @@ final class UserMetrics {
         synchronized (mLock) {
             mHalResponseTime = halResponseTime;
             mFirstUserUnlockDuration.put(userId, duration);
-            onUserUnlockedEventLocked(timestampMs, userId);
         }
     }
 
