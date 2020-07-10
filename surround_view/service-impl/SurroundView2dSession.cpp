@@ -102,18 +102,40 @@ Return<void> SurroundView2dSession::FramesHandler::deliverFrame_1_1(
     }
 
     if (buffers.size() != kNumFrames) {
+        scoped_lock<mutex> lock(mSession->mAccessLock);
         LOG(ERROR) << "The number of incoming frames is " << buffers.size()
                    << ", which is different from the number " << kNumFrames
                    << ", specified in config file";
+        mSession->mProcessingEvsFrames = false;
+        mCamera->doneWithFrame_1_1(buffers);
         return {};
     }
 
     {
         scoped_lock<mutex> lock(mSession->mAccessLock);
+        vector<int> indices;
+        for (const auto& id
+                : mSession->mIOModuleConfig->cameraConfig.evsCameraIds) {
+            for (int i = 0; i < kNumFrames; i++) {
+                if (buffers[i].deviceId == id) {
+                    indices.emplace_back(i);
+                    break;
+                }
+            }
+        }
+
+        if (indices.size() != kNumFrames) {
+            LOG(ERROR) << "The frames are not from the cameras we expected!";
+            mSession->mProcessingEvsFrames = false;
+            mCamera->doneWithFrame_1_1(buffers);
+            return {};
+        }
+
         for (int i = 0; i < kNumFrames; i++) {
-            LOG(DEBUG) << "Copying buffer No." << i
-                       << " to Surround View Service";
-            mSession->copyFromBufferToPointers(buffers[i],
+            LOG(DEBUG) << "Copying buffer from camera ["
+                       << buffers[indices[i]].deviceId
+                       << "] to Surround View Service";
+            mSession->copyFromBufferToPointers(buffers[indices[i]],
                                                mSession->mInputPointers[i]);
         }
     }
