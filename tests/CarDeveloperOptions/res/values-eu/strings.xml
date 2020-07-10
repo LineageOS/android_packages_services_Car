@@ -852,14 +852,14 @@
     <string name="wifi_wakeup_summary" msgid="1152699417411690">"Gordetako kalitate handiko sare batetik (adibidez, etxeko saretik) gertu zaudenean aktibatuko da berriro wifi-konexioa"</string>
     <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"Ez dago erabilgarri kokapena desaktibatuta dagoelako. Aktibatu "<annotation id="link">"kokapena"</annotation>"."</string>
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"Ez dago erabilgarri, Wifi-sareen bilaketa desaktibatuta dagoelako"</string>
-    <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"Erabiltzeko, hautatu sareen balorazioen hornitzaile bat"</string>
+    <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"Erabiltzeko, hautatu sare-balorazioen hornitzaile bat"</string>
     <string name="wifi_poor_network_detection" msgid="7193423327400703073">"Saihestu konexio ahulak"</string>
     <string name="wifi_poor_network_detection_summary" msgid="5539951465985614590">"Ez erabili Wi-Fi sareak ez badute Interneteko konexio onik"</string>
     <string name="wifi_avoid_poor_network_detection_summary" msgid="1976503191780928104">"Erabili Interneteko konexio ona duten sareak soilik"</string>
     <string name="use_open_wifi_automatically_title" msgid="3084513215481454350">"Konektatu sare irekietara"</string>
     <string name="use_open_wifi_automatically_summary" msgid="8338020172673161754">"Konektatu automatikoki kalitate handiko sare publikoetara"</string>
-    <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"Erabiltzeko, hautatu sareen balorazioen hornitzaile bat"</string>
-    <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"Erabiltzeko, hautatu sareen balorazioen hornitzaile bateragarri bat"</string>
+    <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"Erabiltzeko, hautatu sare-balorazioen hornitzaile bat"</string>
+    <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"Erabiltzeko, hautatu sare-balorazioen hornitzaile bateragarri bat"</string>
     <string name="wifi_install_credentials" msgid="5650088113710858289">"Instalatu ziurtagiriak"</string>
     <string name="wifi_scan_notify_text" msgid="7614101215028336927">"Kokapenaren zehaztasuna hobetzeko, aplikazioek eta zerbitzuek wifi-sareak bilatzen jarraituko dute, baita wifi-konexioa desaktibatuta dagoenean ere. Besteak beste, kokapenean oinarritutako eginbideak eta zerbitzuak hobetzeko erabil daiteke. Aukera hori aldatzeko, joan <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>bilatzeko ezarpenetara<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"Kokapenaren zehaztasuna hobetzeko, aktibatu Wifi-sareen bilaketa <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>bilatzeko ezarpenetan<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
@@ -1637,7 +1637,7 @@
     <string name="sms_change_default_dialog_title" msgid="6301260161969667578">"SMS mezuetarako aplikazioa aldatu?"</string>
     <string name="sms_change_default_dialog_text" msgid="8275088077930942680">"<xliff:g id="NEW_APP">%1$s</xliff:g> aplikazioaren ordez, <xliff:g id="CURRENT_APP">%2$s</xliff:g> aplikazioa erabili SMS mezuetarako?"</string>
     <string name="sms_change_default_no_previous_dialog_text" msgid="4680224695080527907">"Erabili <xliff:g id="NEW_APP">%s</xliff:g> SMS mezuetarako aplikazio gisa?"</string>
-    <string name="network_scorer_picker_title" msgid="1691073966560952916">"Sareen balorazioen hornitzailea"</string>
+    <string name="network_scorer_picker_title" msgid="1691073966560952916">"Sare-balorazioen hornitzailea"</string>
     <string name="network_scorer_picker_none_preference" msgid="6448280557733231737">"Bat ere ez"</string>
     <string name="network_scorer_change_active_dialog_title" msgid="4274159562371475090">"Wifi-laguntzailea aldatu nahi duzu?"</string>
     <string name="network_scorer_change_active_dialog_text" msgid="4264089809189760730">"Sareko konexioak kudeatzeko <xliff:g id="NEW_APP">%1$s</xliff:g> erabili nahi duzu, <xliff:g id="CURRENT_APP">%2$s</xliff:g> erabili beharrean?"</string>
