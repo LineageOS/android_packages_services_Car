@@ -35,6 +35,9 @@ public:
     // Methods from ::android::hardware::automotive::sv::V1_0::ISurroundViewStream.
     android::hardware::Return<void> notify(SvEvent svEvent) override;
     android::hardware::Return<void> receiveFrames(const SvFramesDesc& svFramesDesc) override;
+
+private:
+    android::sp<ISurroundViewSession> mSession;
 };
 
 }  // namespace implementation
