@@ -95,7 +95,7 @@
     <string name="font_size_save" msgid="8652044574655753921">"حسنًا"</string>
     <string name="sdcard_setting" product="nosdcard" msgid="1533784309105748696">"وحدة تخزين USB"</string>
     <string name="sdcard_setting" product="default" msgid="8398782065765523178">"بطاقة SD"</string>
-    <string name="bluetooth" msgid="1564520421786841227">"بلوتوث"</string>
+    <string name="bluetooth" msgid="1564520421786841227">"البلوتوث"</string>
     <string name="bluetooth_is_discoverable" msgid="6748888489356326898">"مرئي لجميع أجهزة بلوتوث القريبة (<xliff:g id="DISCOVERABLE_TIME_PERIOD">%1$s</xliff:g>)"</string>
     <string name="bluetooth_is_discoverable_always" msgid="6835934878803488274">"مرئي لجميع أجهزة بلوتوث القريبة"</string>
     <string name="bluetooth_not_visible_to_other_devices" msgid="9134284066024557293">"ليس مرئيًا لأجهزة بلوتوث الأخرى"</string>
@@ -792,10 +792,10 @@
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> خدمة ناشطة لمنح الثقة</item>
       <item quantity="one">خدمة واحدة ناشطة لمنح الثقة</item>
     </plurals>
-    <string name="bluetooth_quick_toggle_title" msgid="7410319268406112792">"بلوتوث"</string>
+    <string name="bluetooth_quick_toggle_title" msgid="7410319268406112792">"البلوتوث"</string>
     <string name="bluetooth_quick_toggle_summary" msgid="3951769568065428093">"تفعيل البلوتوث"</string>
-    <string name="bluetooth_settings" msgid="5228032727293770389">"بلوتوث"</string>
-    <string name="bluetooth_settings_title" msgid="7261244857456521825">"بلوتوث"</string>
+    <string name="bluetooth_settings" msgid="5228032727293770389">"البلوتوث"</string>
+    <string name="bluetooth_settings_title" msgid="7261244857456521825">"البلوتوث"</string>
     <string name="bluetooth_settings_summary" msgid="1221689092429277887">"إدارة الاتصالات، تعيين اسم الجهاز وقابلية الاكتشاف"</string>
     <string name="bluetooth_pairing_request" msgid="7221745525632573125">"هل تريد الإقران مع <xliff:g id="DEVICE_NAME">%1$s</xliff:g>؟"</string>
     <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"رمز إقران البلوتوث"</string>
@@ -3624,7 +3624,7 @@
     <string name="app_notification_importance_title" msgid="1902794400671001142">"الأهمية"</string>
     <string name="notification_show_lights_title" msgid="5381920725933228542">"وميض الضوء"</string>
     <string name="notification_vibrate_title" msgid="8221718258793835282">"اهتزاز"</string>
-    <string name="notification_channel_sound_title" msgid="7635366839003304745">"صوت"</string>
+    <string name="notification_channel_sound_title" msgid="7635366839003304745">"الصوت"</string>
     <string name="zen_mode_rule_delete_button" msgid="6763486487220471193">"حذف"</string>
     <string name="zen_mode_rule_rename_button" msgid="1428130397306726792">"إعادة التسمية"</string>
     <string name="zen_mode_rule_name" msgid="8583652780885724670">"اسم الجدول الزمني"</string>

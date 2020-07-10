@@ -960,7 +960,7 @@
     <string name="wifi_dpp_sharing_wifi_with_this_device" msgid="2540529164687476827">"ಈ ಸಾಧನದೊಂದಿಗೆ ವೈ-ಫೈ ಅನ್ನು ಹಂಚಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ…"</string>
     <string name="wifi_dpp_connecting" msgid="4229290407210299897">"ಸಂಪರ್ಕಿಸುತ್ತಿದೆ…"</string>
     <string name="wifi_dpp_share_hotspot" msgid="847987212473038179">"ಹಾಟ್‌ಸ್ಪಾಟ್ ಹಂಚಿಕೊಳ್ಳಿ"</string>
-    <string name="wifi_dpp_lockscreen_title" msgid="3910665850075275963">"ಇದು ನೀವೇ ಎಂಬುದನ್ನು ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಿ"</string>
+    <string name="wifi_dpp_lockscreen_title" msgid="3910665850075275963">"ಇದು ನೀವೇ ಎಂದು ದೃಢೀಕರಿಸಿ"</string>
     <string name="wifi_dpp_wifi_password" msgid="8007558344032612455">"ವೈ-ಫೈ ಪಾಸ್‌ವರ್ಡ್: <xliff:g id="PASSWORD">%1$s</xliff:g>"</string>
     <string name="wifi_dpp_hotspot_password" msgid="6172326289042241924">"ಹಾಟ್‌ಸ್ಪಾಟ್ ಪಾಸ್‌ವರ್ಡ್: <xliff:g id="PASSWORD">%1$s</xliff:g>"</string>
     <string name="wifi_dpp_add_device" msgid="1347056725253936358">"ಸಾಧನವನ್ನು ಸೇರಿಸಿ"</string>
