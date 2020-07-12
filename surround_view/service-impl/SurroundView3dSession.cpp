@@ -72,7 +72,8 @@ typedef struct {
 static const size_t kStreamCfgSz = sizeof(RawStreamConfig);
 static const uint8_t kGrayColor = 128;
 static const int kNumFrames = 4;
-static const int kNumChannels = 4;
+static const int kInputNumChannels = 4;
+static const int kOutputNumChannels = 4;
 static const float kUndistortionScales[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 
 SurroundView3dSession::FramesHandler::FramesHandler(
@@ -232,24 +233,10 @@ bool SurroundView3dSession::copyFromBufferToPointers(
         LOG(INFO) << "Managed to get read access to GraphicBuffer";
     }
 
-    int stride = pDesc->stride;
-
-    // readPtr comes from EVS, and it is with 4 channels
-    uint8_t* readPtr = static_cast<uint8_t*>(inputDataPtr);
-
-    // writePtr is with 3 channels, since that is what SV core lib expects.
-    uint8_t* writePtr = static_cast<uint8_t*>(pointers.cpu_data_pointer);
-
-    for (int i = 0; i < pDesc->width; i++)
-        for (int j = 0; j < pDesc->height; j++) {
-            writePtr[(i + j * stride) * 3 + 0] =
-                readPtr[(i + j * stride) * 4 + 0];
-            writePtr[(i + j * stride) * 3 + 1] =
-                readPtr[(i + j * stride) * 4 + 1];
-            writePtr[(i + j * stride) * 3 + 2] =
-                readPtr[(i + j * stride) * 4 + 2];
-        }
-    LOG(INFO) << "Brute force copying finished";
+    // Both source and destination are with 4 channels
+    memcpy(pointers.cpu_data_pointer, inputDataPtr,
+           pDesc->height * pDesc->width * kInputNumChannels);
+    LOG(INFO) << "Buffer copying finished";
 
     return true;
 }
@@ -641,7 +628,7 @@ bool SurroundView3dSession::handleFrames(int sequenceId) {
         mOutputPointer.width = mOutputWidth;
         mOutputPointer.format = Format::RGBA;
         mOutputPointer.data_pointer =
-            new char[mOutputHeight * mOutputWidth * kNumChannels];
+            new char[mOutputHeight * mOutputWidth * kOutputNumChannels];
 
         if (!mOutputPointer.data_pointer) {
             LOG(ERROR) << "Memory allocation failed. Exiting.";
@@ -717,7 +704,7 @@ bool SurroundView3dSession::handleFrames(int sequenceId) {
         LOG(ERROR) << "Get3dSurroundView failed. "
                    << "Using memset to initialize to gray.";
         memset(mOutputPointer.data_pointer, kGrayColor,
-               mOutputHeight * mOutputWidth * kNumChannels);
+               mOutputHeight * mOutputWidth * kOutputNumChannels);
     }
 
     void* textureDataPtr = nullptr;
@@ -735,8 +722,8 @@ bool SurroundView3dSession::handleFrames(int sequenceId) {
     // data line by line, instead of single memcpy.
     uint8_t* writePtr = static_cast<uint8_t*>(textureDataPtr);
     uint8_t* readPtr = static_cast<uint8_t*>(mOutputPointer.data_pointer);
-    const int readStride = mOutputWidth * kNumChannels;
-    const int writeStride = mSvTexture->getStride() * kNumChannels;
+    const int readStride = mOutputWidth * kOutputNumChannels;
+    const int writeStride = mSvTexture->getStride() * kOutputNumChannels;
     if (readStride == writeStride) {
         memcpy(writePtr, readPtr, readStride * mSvTexture->getHeight());
     } else {
@@ -808,11 +795,11 @@ bool SurroundView3dSession::initialize() {
     for (int i = 0; i < kNumFrames; i++) {
         mInputPointers[i].width = mCameraParams[i].size.width;
         mInputPointers[i].height = mCameraParams[i].size.height;
-        mInputPointers[i].format = Format::RGB;
+        mInputPointers[i].format = Format::RGBA;
         mInputPointers[i].cpu_data_pointer =
                 (void*)new uint8_t[mInputPointers[i].width *
                                    mInputPointers[i].height *
-                                   kNumChannels];
+                                   kInputNumChannels];
     }
     LOG(INFO) << "Allocated " << kNumFrames << " input pointers";
 
@@ -827,7 +814,7 @@ bool SurroundView3dSession::initialize() {
     mOutputPointer.width = mOutputWidth;
     mOutputPointer.format = Format::RGBA;
     mOutputPointer.data_pointer = new char[
-        mOutputHeight * mOutputWidth * kNumChannels];
+        mOutputHeight * mOutputWidth * kOutputNumChannels];
 
     if (!mOutputPointer.data_pointer) {
         LOG(ERROR) << "Memory allocation failed. Exiting.";
