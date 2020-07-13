@@ -3410,7 +3410,7 @@
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"Bezovta qilinmasin ruxsatini berish"</string>
     <string name="zen_access_empty_text" msgid="7667538993781607731">"Hech qanday ilova “Bezovta qilinmasin” funksiyasiga ruxsat so‘ramagan"</string>
     <string name="loading_notification_apps" msgid="1978345231934072091">"Ilovalar yuklanmoqda…"</string>
-    <string name="app_notifications_off_desc" msgid="3904090905748895146">"Talabingizga binoa, Android bu ilova bildirishnomalarini ekranga chiqarmaydi"</string>
+    <string name="app_notifications_off_desc" msgid="3904090905748895146">"Android ushbu ilova bildirishnomalarini ekranga chiqarmaydi"</string>
     <string name="channel_notifications_off_desc" msgid="8005444443218306611">"Talabingizga binoan, Android bu turkumdagi bildirishnomalarni bloklamoqda"</string>
     <string name="channel_group_notifications_off_desc" msgid="7154205544298672850">"Talabingizga binoan, Android bunday bildirishnomalar guruhini bloklaydi"</string>
     <string name="notification_channels" msgid="956764228116145956">"Turkumlar"</string>
