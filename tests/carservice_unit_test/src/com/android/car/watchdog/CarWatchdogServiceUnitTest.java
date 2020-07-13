@@ -33,6 +33,7 @@ import static org.mockito.Mockito.when;
 import android.automotive.watchdog.ICarWatchdog;
 import android.automotive.watchdog.ICarWatchdogClient;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.watchdog.ICarWatchdogServiceCallback;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.os.IBinder;
@@ -159,27 +160,17 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
         assertThat(notRespondingClients.getValue().length).isEqualTo(badClientCount);
     }
 
-    private class TestClient extends ICarWatchdogClient.Stub {
+    private class TestClient extends ICarWatchdogServiceCallback.Stub {
         protected int mLastSessionId = INVALID_SESSION_ID;
 
         @Override
-        public void checkIfAlive(int sessionId, int timeout) {
+        public void onCheckHealthStatus(int sessionId, int timeout) {
             mLastSessionId = sessionId;
             mCarWatchdogService.tellClientAlive(this, sessionId);
         }
 
         @Override
-        public void prepareProcessTermination() {}
-
-        @Override
-        public int getInterfaceVersion() {
-            return this.VERSION;
-        }
-
-        @Override
-        public String getInterfaceHash() {
-            return this.HASH;
-        }
+        public void onPrepareProcessTermination() {}
 
         public int getLastSessionId() {
             return mLastSessionId;
@@ -188,7 +179,7 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
 
     private final class BadTestClient extends TestClient {
         @Override
-        public void checkIfAlive(int sessionId, int timeout) {
+        public void onCheckHealthStatus(int sessionId, int timeout) {
             mLastSessionId = sessionId;
             // This client doesn't respond to CarWatchdogService.
         }

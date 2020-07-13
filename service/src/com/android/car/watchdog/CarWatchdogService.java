@@ -34,6 +34,7 @@ import android.automotive.watchdog.UserState;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.hardware.power.ICarPowerStateListener;
 import android.car.watchdog.ICarWatchdogService;
+import android.car.watchdog.ICarWatchdogServiceCallback;
 import android.car.watchdoglib.CarWatchdogDaemonHelper;
 import android.content.Context;
 import android.content.pm.UserInfo;
@@ -172,11 +173,11 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     }
 
     /**
-     * Registers {@link android.automotive.watchdog. ICarWatchdogClient} to
+     * Registers {@link android.car.watchdog.ICarWatchdogServiceCallback} to
      * {@link CarWatchdogService}.
      */
     @Override
-    public void registerClient(ICarWatchdogClient client, int timeout) {
+    public void registerClient(ICarWatchdogServiceCallback client, int timeout) {
         ArrayList<ClientInfo> clients = mClientMap.get(timeout);
         if (clients == null) {
             Log.w(TAG, "Cannot register the client: invalid timeout");
@@ -210,11 +211,11 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     }
 
     /**
-     * Unregisters {@link android.automotive.watchdog. ICarWatchdogClient} from
+     * Unregisters {@link android.car.watchdog.ICarWatchdogServiceCallback} from
      * {@link CarWatchdogService}.
      */
     @Override
-    public void unregisterClient(ICarWatchdogClient client) {
+    public void unregisterClient(ICarWatchdogServiceCallback client) {
         synchronized (mLock) {
             IBinder binder = client.asBinder();
             for (int timeout : ALL_TIMEOUTS) {
@@ -241,7 +242,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
      * Tells {@link CarWatchdogService} that the client is alive.
      */
     @Override
-    public void tellClientAlive(ICarWatchdogClient client, int sessionId) {
+    public void tellClientAlive(ICarWatchdogServiceCallback client, int sessionId) {
         synchronized (mLock) {
             for (int timeout : ALL_TIMEOUTS) {
                 if (!mClientCheckInProgress.get(timeout)) {
@@ -305,7 +306,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         }
     }
 
-    private void onClientDeath(ICarWatchdogClient client, int timeout) {
+    private void onClientDeath(ICarWatchdogServiceCallback client, int timeout) {
         synchronized (mLock) {
             removeClientLocked(client.asBinder(), timeout);
         }
@@ -363,7 +364,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         for (int i = 0; i < clientsToCheck.size(); i++) {
             ClientInfo clientInfo = clientsToCheck.get(i);
             try {
-                clientInfo.client.checkIfAlive(clientInfo.sessionId, timeout);
+                clientInfo.client.onCheckHealthStatus(clientInfo.sessionId, timeout);
             } catch (RemoteException e) {
                 Log.w(TAG, "Sending a ping message to client(pid: " +  clientInfo.pid
                         + ") failed: " + e);
@@ -414,9 +415,9 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         for (int i = 0; i < clientsToNotify.size(); i++) {
             ClientInfo clientInfo = clientsToNotify.get(i);
             try {
-                clientInfo.client.prepareProcessTermination();
+                clientInfo.client.onPrepareProcessTermination();
             } catch (RemoteException e) {
-                Log.w(TAG, "Notifying prepareProcessTermination to client(pid: " + clientInfo.pid
+                Log.w(TAG, "Notifying onPrepareProcessTermination to client(pid: " + clientInfo.pid
                         + ") failed: " + e);
             }
         }
@@ -589,13 +590,14 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     }
 
     private final class ClientInfo implements IBinder.DeathRecipient {
-        public final ICarWatchdogClient client;
+        public final ICarWatchdogServiceCallback client;
         public final int pid;
         @UserIdInt public final int userId;
         public final int timeout;
         public volatile int sessionId;
 
-        private ClientInfo(ICarWatchdogClient client, int pid, @UserIdInt int userId, int timeout) {
+        private ClientInfo(ICarWatchdogServiceCallback client, int pid, @UserIdInt int userId,
+                int timeout) {
             this.client = client;
             this.pid = pid;
             this.userId = userId;

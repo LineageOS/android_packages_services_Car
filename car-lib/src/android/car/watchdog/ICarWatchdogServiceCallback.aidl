@@ -16,12 +16,8 @@
 
 package android.car.watchdog;
 
-import android.car.watchdog.ICarWatchdogServiceCallback;
-
 /** @hide */
-interface ICarWatchdogService {
-    // registerClient needs to get callingPid, so cannot be oneway.
-    void registerClient(in ICarWatchdogServiceCallback client, in int timeout);
-    void unregisterClient(in ICarWatchdogServiceCallback client);
-    void tellClientAlive(in ICarWatchdogServiceCallback client, in int sessionId);
+oneway interface ICarWatchdogServiceCallback {
+    void onCheckHealthStatus(in int sessionId, in int timeout);
+    void onPrepareProcessTermination();
 }
