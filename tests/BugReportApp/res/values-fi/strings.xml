@@ -28,7 +28,7 @@
     <string name="bugreport_dialog_save" msgid="3291363266190644226">"Tallenna"</string>
     <string name="bugreport_dialog_show_bugreports" msgid="6964385141627170297">"Näytä virheraportit"</string>
     <string name="bugreport_dialog_close" msgid="289925437277364266">"Sulje"</string>
-    <string name="bugreport_dialog_title" msgid="3315160684205929910">"Kuvaile ongelmaa puhumalla"</string>
+    <string name="bugreport_dialog_title" msgid="3315160684205929910">"Kerro ongelmasta tarkemmin puhumalla"</string>
     <string name="bugreport_dialog_add_audio_to_existing" msgid="4958460267276935700">"Ääniviesti virheraportin kohdassa %s"</string>
     <string name="bugreport_dialog_recording_finished" msgid="3982335902169398758">"Tallennus lopetettu"</string>
     <string name="bugreport_dialog_in_progress_title" msgid="3782308141532622394">"Virheraporttia kerätään jo"</string>
