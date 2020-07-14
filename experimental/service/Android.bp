@@ -43,8 +43,6 @@ android_app {
       "car-experimental-api-static-lib",
     ],
 
-    required: ["privapp_whitelist_com.android.experimentalcar"],
-
     // Disable build in PDK, missing aidl import breaks build
     product_variables: {
         pdk: {
