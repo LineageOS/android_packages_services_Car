@@ -257,18 +257,6 @@
     <install-in-user-type package="com.android.voicetrigger">
         <install-in user-type="FULL" />
     </install-in-user-type>
-    <install-in-user-type package="com.android.internal.display.cutout.emulation.hole">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.internal.display.cutout.emulation.waterfall">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="android.auto_generated_rro_product__">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="android.auto_generated_rro_vendor__">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
     <install-in-user-type package="com.android.car.calendar">
         <install-in user-type="FULL" />
     </install-in-user-type>
