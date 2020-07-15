@@ -51,4 +51,10 @@
         <permission name="android.permission.READ_SMS" fixed="false"/>
     </exception>
 
+    <exception
+            package="android.car.cluster">
+        <permission name="android.car.permission.CAR_ENERGY" fixed="false"/>
+        <permission name="android.car.permission.CAR_SPEED" fixed="false"/>
+    </exception>
+
 </exceptions>
