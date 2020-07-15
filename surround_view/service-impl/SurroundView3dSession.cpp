@@ -417,6 +417,11 @@ Return<SvResult> SurroundView3dSession::setViews(
     LOG(DEBUG) << __FUNCTION__;
     scoped_lock <mutex> lock(mAccessLock);
 
+    if (views.size() == 0) {
+        LOG(ERROR) << "Empty view argument, at-least one view is required.";
+        return SvResult::VIEW_NOT_SET;
+    }
+
     mViews.resize(views.size());
     for (int i=0; i<views.size(); i++) {
         mViews[i] = views[i];
@@ -676,18 +681,6 @@ bool SurroundView3dSession::handleFrames(int sequenceId) {
         }
     }
 
-    // TODO(b/150412555): do not use the setViews for frames generation
-    // since there is a discrepancy between the HIDL APIs and core lib APIs.
-    array<array<float, 4>, 4> matrix;
-
-    // TODO(b/150412555): use hard-coded views for now. Change view every
-    // frame.
-    int recViewId = sequenceId % 16;
-    for (int i=0; i<4; i++)
-        for (int j=0; j<4; j++) {
-            matrix[i][j] = kRecViews[recViewId][i*4+j];
-    }
-
     // Get the latest VHal property values
     if (mVhalHandler != nullptr) {
         if (!mVhalHandler->getPropertyValues(&mPropertyValues)) {
@@ -710,8 +703,16 @@ bool SurroundView3dSession::handleFrames(int sequenceId) {
         LOG(INFO) << "AnimationParams is empty. Ignored";
     }
 
+    // Get the view.
+    // TODO(161399517): Only single view is currently supported, add support for multiple views.
+    const View3d view3d = mViews[0];
+    const RotationQuat quat = view3d.pose.rotation;
+    const Translation trans = view3d.pose.translation;
+    const std::array<float, 4> viewQuaternion = {quat.x, quat.y, quat.z, quat.w};
+    const std::array<float, 3> viewTranslation = {trans.x, trans.y, trans.z};
+
     if (mSurroundView->Get3dSurroundView(
-        mInputPointers, matrix, &mOutputPointer)) {
+            mInputPointers, viewQuaternion, viewTranslation, &mOutputPointer)) {
         LOG(INFO) << "Get3dSurroundView succeeded";
     } else {
         LOG(ERROR) << "Get3dSurroundView failed. "
