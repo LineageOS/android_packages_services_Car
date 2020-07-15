@@ -37,7 +37,7 @@ import java.util.List;
 /**
  * Manipulate users in various ways
  */
-public class UsersFragment extends Fragment {
+public class UserRestrictionsFragment extends Fragment {
 
     private static final List<String> CONFIGURABLE_USER_RESTRICTIONS =
             Arrays.asList(
@@ -57,7 +57,7 @@ public class UsersFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.users, container, false);
+        return inflater.inflate(R.layout.user_restrictions, container, false);
     }
 
     public void onViewCreated(View view, Bundle savedInstanceState) {
