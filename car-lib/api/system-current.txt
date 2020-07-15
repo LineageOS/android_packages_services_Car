@@ -289,10 +289,10 @@ package android.car.content.pm {
 
   public final class CarPackageManager {
     method public boolean isActivityBackedBySafeActivity(android.content.ComponentName);
-    method public void setAppBlockingPolicy(String, android.car.content.pm.CarAppBlockingPolicy, int);
-    field public static final int FLAG_SET_POLICY_ADD = 2; // 0x2
-    field public static final int FLAG_SET_POLICY_REMOVE = 4; // 0x4
-    field public static final int FLAG_SET_POLICY_WAIT_FOR_CHANGE = 1; // 0x1
+    method @Deprecated public void setAppBlockingPolicy(String, android.car.content.pm.CarAppBlockingPolicy, int);
+    field @Deprecated public static final int FLAG_SET_POLICY_ADD = 2; // 0x2
+    field @Deprecated public static final int FLAG_SET_POLICY_REMOVE = 4; // 0x4
+    field @Deprecated public static final int FLAG_SET_POLICY_WAIT_FOR_CHANGE = 1; // 0x1
   }
 
 }
