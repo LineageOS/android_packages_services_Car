@@ -152,7 +152,7 @@ public class CarInputServiceTest {
         mCarUserService = mock(CarUserService.class);
         mCarInputService = new CarInputService(mContext, mInputHalService, mCarUserService,
                 mHandler, mTelecomManager, mAssistUtils, mDefaultMainListener, mLastCallSupplier,
-                /* customInputServiceComponent= */ null, mLongPressDelaySupplier);
+                mLongPressDelaySupplier);
 
         when(mInputHalService.isKeyInputSupported()).thenReturn(true);
         mCarInputService.init();
@@ -608,7 +608,7 @@ public class CarInputServiceTest {
 
         mCarInputService = new CarInputService(mMockContext, mInputHalService, mCarUserService,
                 mHandler, mTelecomManager, mAssistUtils, mDefaultMainListener, mLastCallSupplier,
-                /* customInputServiceComponent= */ null, mLongPressDelaySupplier);
+                mLongPressDelaySupplier);
         mCarInputService.init();
     }
 

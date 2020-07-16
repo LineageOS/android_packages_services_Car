@@ -39,8 +39,6 @@
           connection process. Disable this default to implement your own policy. -->
     <bool name="useDefaultBluetoothConnectionPolicy">true</bool>
 
-    <string name="inputService" translatable="false">android.car.input.service/.DefaultInputService</string>
-
     <!--  Service responsible for displaying information on the car instrument cluster. -->
     <string name="instrumentClusterRendererService" translatable="false">android.car.cluster/.ClusterRenderingService</string>
 
