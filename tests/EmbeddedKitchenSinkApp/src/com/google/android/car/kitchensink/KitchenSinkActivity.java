@@ -68,7 +68,8 @@ import com.google.android.car.kitchensink.storagevolumes.StorageVolumesFragment;
 import com.google.android.car.kitchensink.systemfeatures.SystemFeaturesFragment;
 import com.google.android.car.kitchensink.touch.TouchTestFragment;
 import com.google.android.car.kitchensink.users.ProfileUserFragment;
-import com.google.android.car.kitchensink.users.UsersFragment;
+import com.google.android.car.kitchensink.users.UserFragment;
+import com.google.android.car.kitchensink.users.UserRestrictionsFragment;
 import com.google.android.car.kitchensink.vehiclectrl.VehicleCtrlFragment;
 import com.google.android.car.kitchensink.vhal.VehicleHalFragment;
 import com.google.android.car.kitchensink.volume.VolumeTestFragment;
@@ -194,7 +195,8 @@ public class KitchenSinkActivity extends FragmentActivity {
             new FragmentMenuEntry("storage volumes", StorageVolumesFragment.class),
             new FragmentMenuEntry("system features", SystemFeaturesFragment.class),
             new FragmentMenuEntry("touch test", TouchTestFragment.class),
-            new FragmentMenuEntry("users", UsersFragment.class),
+            new FragmentMenuEntry("user", UserFragment.class),
+            new FragmentMenuEntry("user restrictions", UserRestrictionsFragment.class),
             new FragmentMenuEntry("vehicle ctrl", VehicleCtrlFragment.class),
             new FragmentMenuEntry("vehicle hal", VehicleHalFragment.class),
             new FragmentMenuEntry("volume test", VolumeTestFragment.class),
