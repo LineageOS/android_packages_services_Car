@@ -1364,7 +1364,7 @@
     <string name="device_status_summary" product="tablet" msgid="8975790197766171710">"Stav batérie, siete a ďalšie informácie"</string>
     <string name="device_status_summary" product="default" msgid="8282235230720651642">"Telefónne číslo, signál atď."</string>
     <string name="storage_settings" msgid="7009733301485139652">"Úložisko"</string>
-    <string name="storage_settings_for_app" msgid="3028887232073069965">"Úložisko a vyrovnávacia pamäť"</string>
+    <string name="storage_settings_for_app" msgid="3028887232073069965">"Ukladací priestor a vyrovnávacia pamäť"</string>
     <string name="storage_usb_settings" msgid="4470138799276333403">"Úložisko"</string>
     <string name="storage_settings_title" msgid="7348362600789024415">"Nastavenia úložiska"</string>
     <string name="storage_settings_summary" product="nosdcard" msgid="600267641559698394">"Odpojiť ukladací priestor USB a zobraziť dostupný ukladací priestor"</string>
@@ -1867,7 +1867,7 @@
     <string name="install_text" msgid="2798092278891807849">"Inštalovať"</string>
     <string name="disable_text" msgid="5065834603951474397">"Deaktivovať"</string>
     <string name="enable_text" msgid="7179141636849225884">"Povoliť"</string>
-    <string name="clear_user_data_text" msgid="8894073247302821764">"Vymazať priestor"</string>
+    <string name="clear_user_data_text" msgid="8894073247302821764">"Vymazať obsah úložiska"</string>
     <string name="app_factory_reset" msgid="8718986000278776272">"Odinštalovať aktualizácie"</string>
     <string name="auto_launch_enable_text" msgid="3372898942144027341">"Pre niektoré akcie ste sa rozhodli spúšťať túto aplikáciu ako predvolenú."</string>
     <string name="always_allow_bind_appwidgets_text" msgid="2286211654774611037">"Tejto aplikácii ste povolili vytváranie miniaplikácií a pristupovanie k ich údajom."</string>
