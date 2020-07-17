@@ -104,22 +104,22 @@ bool isEqual(std::vector<ProcessStats>* lhs, std::vector<ProcessStats>* rhs) {
 }  // namespace
 
 TEST(ProcPidStatTest, TestValidStatFiles) {
-    std::unordered_map<uint32_t, std::vector<uint32_t>> pidToTids = {
+    std::unordered_map<pid_t, std::vector<pid_t>> pidToTids = {
             {1, {1, 453}},
             {1000, {1000, 1100}},
     };
 
-    std::unordered_map<uint32_t, std::string> perProcessStat = {
+    std::unordered_map<pid_t, std::string> perProcessStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 220 0 0 0 0 0 0 0 2 0 0\n"},
             {1000, "1000 (system_server) R 1 0 0 0 0 0 0 0 600 0 0 0 0 0 0 0 2 0 1000\n"},
     };
 
-    std::unordered_map<uint32_t, std::string> perProcessStatus = {
+    std::unordered_map<pid_t, std::string> perProcessStatus = {
             {1, "Pid:\t1\nTgid:\t1\nUid:\t0\t0\t0\t0\n"},
             {1000, "Pid:\t1000\nTgid:\t1000\nUid:\t10001234\t10001234\t10001234\t10001234\n"},
     };
 
-    std::unordered_map<uint32_t, std::string> perThreadStat = {
+    std::unordered_map<pid_t, std::string> perThreadStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 2 0 0\n"},
             {453, "453 (init) S 0 0 0 0 0 0 0 0 20 0 0 0 0 0 0 0 2 0 275\n"},
             {1000, "1000 (system_server) R 1 0 0 0 0 0 0 0 250 0 0 0 0 0 0 0 2 0 1000\n"},
@@ -225,7 +225,7 @@ TEST(ProcPidStatTest, TestValidStatFiles) {
 }
 
 TEST(ProcPidStatTest, TestHandlesProcessTerminationBetweenScanningAndParsing) {
-    std::unordered_map<uint32_t, std::vector<uint32_t>> pidToTids = {
+    std::unordered_map<pid_t, std::vector<pid_t>> pidToTids = {
             {1, {1}},
             {100, {100}},          // Process terminates after scanning PID directory.
             {1000, {1000}},        // Process terminates after reading stat file.
@@ -233,7 +233,7 @@ TEST(ProcPidStatTest, TestHandlesProcessTerminationBetweenScanningAndParsing) {
             {3000, {3000, 3300}},  // TID 3300 terminates after scanning task directory.
     };
 
-    std::unordered_map<uint32_t, std::string> perProcessStat = {
+    std::unordered_map<pid_t, std::string> perProcessStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 220 0 0 0 0 0 0 0 1 0 0\n"},
             // Process 100 terminated.
             {1000, "1000 (system_server) R 1 0 0 0 0 0 0 0 600 0 0 0 0 0 0 0 1 0 1000\n"},
@@ -241,14 +241,14 @@ TEST(ProcPidStatTest, TestHandlesProcessTerminationBetweenScanningAndParsing) {
             {3000, "3000 (disk I/O) R 1 0 0 0 0 0 0 0 10300 0 0 0 0 0 0 0 2 0 67890\n"},
     };
 
-    std::unordered_map<uint32_t, std::string> perProcessStatus = {
+    std::unordered_map<pid_t, std::string> perProcessStatus = {
             {1, "Pid:\t1\nTgid:\t1\nUid:\t0\t0\t0\t0\n"},
             // Process 1000 terminated.
             {2000, "Pid:\t2000\nTgid:\t2000\nUid:\t10001234\t10001234\t10001234\t10001234\n"},
             {3000, "Pid:\t3000\nTgid:\t3000\nUid:\t10001234\t10001234\t10001234\t10001234\n"},
     };
 
-    std::unordered_map<uint32_t, std::string> perThreadStat = {
+    std::unordered_map<pid_t, std::string> perThreadStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 1 0 0\n"},
             // Process 2000 terminated.
             {3000, "3000 (disk I/O) R 1 0 0 0 0 0 0 0 2400 0 0 0 0 0 0 0 2 0 67890\n"},
@@ -303,25 +303,25 @@ TEST(ProcPidStatTest, TestHandlesProcessTerminationBetweenScanningAndParsing) {
 }
 
 TEST(ProcPidStatTest, TestHandlesPidTidReuse) {
-    std::unordered_map<uint32_t, std::vector<uint32_t>> pidToTids = {
+    std::unordered_map<pid_t, std::vector<pid_t>> pidToTids = {
             {1, {1, 367, 453, 589}},
             {1000, {1000}},
             {2345, {2345}},
     };
 
-    std::unordered_map<uint32_t, std::string> perProcessStat = {
+    std::unordered_map<pid_t, std::string> perProcessStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 1200 0 0 0 0 0 0 0 4 0 0\n"},
             {1000, "1000 (system_server) R 1 0 0 0 0 0 0 0 250 0 0 0 0 0 0 0 1 0 1000\n"},
             {2345, "2345 (logd) R 1 0 0 0 0 0 0 0 54354 0 0 0 0 0 0 0 1 0 456\n"},
     };
 
-    std::unordered_map<uint32_t, std::string> perProcessStatus = {
+    std::unordered_map<pid_t, std::string> perProcessStatus = {
             {1, "Pid:\t1\nTgid:\t1\nUid:\t0\t0\t0\t0\n"},
             {1000, "Pid:\t1000\nTgid:\t1000\nUid:\t10001234\t10001234\t10001234\t10001234\n"},
             {2345, "Pid:\t2345\nTgid:\t2345\nUid:\t10001234\t10001234\t10001234\t10001234\n"},
     };
 
-    std::unordered_map<uint32_t, std::string> perThreadStat = {
+    std::unordered_map<pid_t, std::string> perThreadStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 4 0 0\n"},
             {367, "367 (init) S 0 0 0 0 0 0 0 0 400 0 0 0 0 0 0 0 4 0 100\n"},
             {453, "453 (init) S 0 0 0 0 0 0 0 0 100 0 0 0 0 0 0 0 4 0 275\n"},
@@ -453,19 +453,19 @@ TEST(ProcPidStatTest, TestHandlesPidTidReuse) {
 }
 
 TEST(ProcPidStatTest, TestErrorOnCorruptedProcessStatFile) {
-    std::unordered_map<uint32_t, std::vector<uint32_t>> pidToTids = {
+    std::unordered_map<pid_t, std::vector<pid_t>> pidToTids = {
             {1, {1}},
     };
 
-    std::unordered_map<uint32_t, std::string> perProcessStat = {
+    std::unordered_map<pid_t, std::string> perProcessStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 CORRUPTED DATA\n"},
     };
 
-    std::unordered_map<uint32_t, std::string> perProcessStatus = {
+    std::unordered_map<pid_t, std::string> perProcessStatus = {
             {1, "Pid:\t1\nTgid:\t1\nUid:\t0\t0\t0\t0\n"},
     };
 
-    std::unordered_map<uint32_t, std::string> perThreadStat = {
+    std::unordered_map<pid_t, std::string> perThreadStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 1 0 0\n"},
     };
 
@@ -483,19 +483,19 @@ TEST(ProcPidStatTest, TestErrorOnCorruptedProcessStatFile) {
 }
 
 TEST(ProcPidStatTest, TestErrorOnCorruptedProcessStatusFile) {
-    std::unordered_map<uint32_t, std::vector<uint32_t>> pidToTids = {
+    std::unordered_map<pid_t, std::vector<pid_t>> pidToTids = {
             {1, {1}},
     };
 
-    std::unordered_map<uint32_t, std::string> perProcessStat = {
+    std::unordered_map<pid_t, std::string> perProcessStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 1 0 0\n"},
     };
 
-    std::unordered_map<uint32_t, std::string> perProcessStatus = {
+    std::unordered_map<pid_t, std::string> perProcessStatus = {
             {1, "Pid:\t1\nTgid:\t1\nCORRUPTED DATA\n"},
     };
 
-    std::unordered_map<uint32_t, std::string> perThreadStat = {
+    std::unordered_map<pid_t, std::string> perThreadStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 1 0 0\n"},
     };
 
@@ -513,19 +513,19 @@ TEST(ProcPidStatTest, TestErrorOnCorruptedProcessStatusFile) {
 }
 
 TEST(ProcPidStatTest, TestErrorOnCorruptedThreadStatFile) {
-    std::unordered_map<uint32_t, std::vector<uint32_t>> pidToTids = {
+    std::unordered_map<pid_t, std::vector<pid_t>> pidToTids = {
             {1, {1}},
     };
 
-    std::unordered_map<uint32_t, std::string> perProcessStat = {
+    std::unordered_map<pid_t, std::string> perProcessStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 1 0 0\n"},
     };
 
-    std::unordered_map<uint32_t, std::string> perProcessStatus = {
+    std::unordered_map<pid_t, std::string> perProcessStatus = {
             {1, "Pid:\t1\nTgid:\t1\nUid:\t0\t0\t0\t0\n"},
     };
 
-    std::unordered_map<uint32_t, std::string> perThreadStat = {
+    std::unordered_map<pid_t, std::string> perThreadStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 CORRUPTED DATA\n"},
     };
 
@@ -543,19 +543,19 @@ TEST(ProcPidStatTest, TestErrorOnCorruptedThreadStatFile) {
 }
 
 TEST(ProcPidStatTest, TestHandlesSpaceInCommName) {
-    std::unordered_map<uint32_t, std::vector<uint32_t>> pidToTids = {
+    std::unordered_map<pid_t, std::vector<pid_t>> pidToTids = {
             {1, {1}},
     };
 
-    std::unordered_map<uint32_t, std::string> perProcessStat = {
+    std::unordered_map<pid_t, std::string> perProcessStat = {
             {1, "1 (random process name with space) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 1 0 0\n"},
     };
 
-    std::unordered_map<uint32_t, std::string> perProcessStatus = {
+    std::unordered_map<pid_t, std::string> perProcessStatus = {
             {1, "Pid:\t1\nTgid:\t1\nUid:\t0\t0\t0\t0\n"},
     };
 
-    std::unordered_map<uint32_t, std::string> perThreadStat = {
+    std::unordered_map<pid_t, std::string> perThreadStat = {
             {1, "1 (random process name with space) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 1 0 0\n"},
     };
 

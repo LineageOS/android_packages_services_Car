@@ -53,7 +53,7 @@ const std::chrono::seconds kTestCustomCollectionDuration = 11s;
 class UidIoStatsStub : public UidIoStats {
 public:
     explicit UidIoStatsStub(bool enabled = false) : mEnabled(enabled) {}
-    Result<std::unordered_map<uint32_t, UidIoUsage>> collect() override {
+    Result<std::unordered_map<uid_t, UidIoUsage>> collect() override {
         if (mCache.empty()) {
             return Error() << "Cache is empty";
         }
@@ -63,11 +63,11 @@ public:
     }
     bool enabled() override { return mEnabled; }
     std::string filePath() override { return kUidIoStatsPath; }
-    void push(const std::unordered_map<uint32_t, UidIoUsage>& entry) { mCache.push(entry); }
+    void push(const std::unordered_map<uid_t, UidIoUsage>& entry) { mCache.push(entry); }
 
 private:
     bool mEnabled;
-    std::queue<std::unordered_map<uint32_t, UidIoUsage>> mCache;
+    std::queue<std::unordered_map<uid_t, UidIoUsage>> mCache;
 };
 
 class ProcStatStub : public ProcStat {
@@ -1293,28 +1293,28 @@ TEST(IoPerfCollectionTest, TestValidProcStatFile) {
 }
 
 TEST(IoPerfCollectionTest, TestValidProcPidContents) {
-    std::unordered_map<uint32_t, std::vector<uint32_t>> pidToTids = {
+    std::unordered_map<pid_t, std::vector<pid_t>> pidToTids = {
             {1, {1, 453}},
             {2546, {2546, 3456, 4789}},
             {7890, {7890, 8978, 12890}},
             {18902, {18902, 21345, 32452}},
             {28900, {28900}},
     };
-    std::unordered_map<uint32_t, std::string> perProcessStat = {
+    std::unordered_map<pid_t, std::string> perProcessStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 220 0 0 0 0 0 0 0 2 0 0\n"},
             {2546, "2546 (system_server) R 1 0 0 0 0 0 0 0 6000 0 0 0 0 0 0 0 3 0 1000\n"},
             {7890, "7890 (logd) D 1 0 0 0 0 0 0 0 15000 0 0 0 0 0 0 0 3 0 2345\n"},
             {18902, "18902 (disk I/O) D 1 0 0 0 0 0 0 0 45678 0 0 0 0 0 0 0 3 0 897654\n"},
             {28900, "28900 (tombstoned) D 1 0 0 0 0 0 0 0 89765 0 0 0 0 0 0 0 3 0 2345671\n"},
     };
-    std::unordered_map<uint32_t, std::string> perProcessStatus = {
+    std::unordered_map<pid_t, std::string> perProcessStatus = {
             {1, "Pid:\t1\nTgid:\t1\nUid:\t0\t0\t0\t0\n"},
             {2546, "Pid:\t2546\nTgid:\t2546\nUid:\t1001000\t1001000\t1001000\t1001000\n"},
             {7890, "Pid:\t7890\nTgid:\t7890\nUid:\t1001000\t1001000\t1001000\t1001000\n"},
             {18902, "Pid:\t18902\nTgid:\t18902\nUid:\t1009\t1009\t1009\t1009\n"},
             {28900, "Pid:\t28900\nTgid:\t28900\nUid:\t1001234\t1001234\t1001234\t1001234\n"},
     };
-    std::unordered_map<uint32_t, std::string> perThreadStat = {
+    std::unordered_map<pid_t, std::string> perThreadStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 2 0 0\n"},
             {453, "453 (init) S 0 0 0 0 0 0 0 0 20 0 0 0 0 0 0 0 2 0 275\n"},
             {2546, "2546 (system_server) R 1 0 0 0 0 0 0 0 1000 0 0 0 0 0 0 0 3 0 1000\n"},
@@ -1444,16 +1444,16 @@ TEST(IoPerfCollectionTest, TestValidProcPidContents) {
 }
 
 TEST(IoPerfCollectionTest, TestProcPidContentsLessThanTopNStatsLimit) {
-    std::unordered_map<uint32_t, std::vector<uint32_t>> pidToTids = {
+    std::unordered_map<pid_t, std::vector<pid_t>> pidToTids = {
             {1, {1, 453}},
     };
-    std::unordered_map<uint32_t, std::string> perProcessStat = {
+    std::unordered_map<pid_t, std::string> perProcessStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 880 0 0 0 0 0 0 0 2 0 0\n"},
     };
-    std::unordered_map<uint32_t, std::string> perProcessStatus = {
+    std::unordered_map<pid_t, std::string> perProcessStatus = {
             {1, "Pid:\t1\nTgid:\t1\nUid:\t0\t0\t0\t0\n"},
     };
-    std::unordered_map<uint32_t, std::string> perThreadStat = {
+    std::unordered_map<pid_t, std::string> perThreadStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 800 0 0 0 0 0 0 0 2 0 0\n"},
             {453, "453 (init) S 0 0 0 0 0 0 0 0 80 0 0 0 0 0 0 0 2 0 275\n"},
     };

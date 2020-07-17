@@ -240,7 +240,7 @@ private:
 
     // Updates the |mUidToPackageNameMapping| for the given |uids|.
     android::base::Result<void> updateUidToPackageNameMapping(
-            const std::unordered_set<uint32_t>& uids);
+            const std::unordered_set<uid_t>& uids);
 
     // Retrieves package manager from the default service manager.
     android::base::Result<void> retrievePackageManager();

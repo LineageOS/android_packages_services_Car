@@ -53,7 +53,7 @@ struct IoStat {
 };
 
 struct UidIoStat {
-    uint32_t uid = 0;  // linux user id
+    uid_t uid = 0;  // linux user id
     IoStat io[UID_STATES] = {{}};
 };
 
@@ -84,7 +84,7 @@ class IoUsage {
 };
 
 struct UidIoUsage {
-    uint32_t uid = 0;
+    uid_t uid = 0;
     IoUsage ios = {};
 };
 
@@ -96,7 +96,7 @@ public:
     virtual ~UidIoStats() {}
 
     // Collects the I/O usage since the last collection.
-    virtual android::base::Result<std::unordered_map<uint32_t, UidIoUsage>> collect();
+    virtual android::base::Result<std::unordered_map<uid_t, UidIoUsage>> collect();
 
     // Returns true when the uid_io stats file is accessible. Otherwise, returns false.
     // Called by IoPerfCollection and tests.
@@ -106,13 +106,13 @@ public:
 
 private:
     // Reads the contents of |kPath|.
-    android::base::Result<std::unordered_map<uint32_t, UidIoStat>> getUidIoStatsLocked() const;
+    android::base::Result<std::unordered_map<uid_t, UidIoStat>> getUidIoStatsLocked() const;
 
     // Makes sure only one collection is running at any given time.
     Mutex mMutex;
 
     // Last dump from the file at |kPath|.
-    std::unordered_map<uint32_t, UidIoStat> mLastUidIoStats GUARDED_BY(mMutex);
+    std::unordered_map<uid_t, UidIoStat> mLastUidIoStats GUARDED_BY(mMutex);
 
     // True if kPath is accessible.
     const bool kEnabled;
