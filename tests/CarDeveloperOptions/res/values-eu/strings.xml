@@ -2925,7 +2925,7 @@
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Ordaintzeko beste aplikazio bat irekita badago izan ezik"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"\"Ukitu eta ordaindu\" terminalean, ordaindu honekin:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Terminalean ordaintzea"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Konfiguratu ordaintzeko aplikazioa. Ondoren, jarri telefonoaren atzeko aldea ukipen gabeko sistemaren ikurra duen terminalaren aurrean."</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Konfiguratu ordaintzeko aplikazioa. Ondoren, jarri telefonoaren atzeko aldea kontakturik gabeko sistemaren ikurra duen terminalaren aurrean."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"Ados"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"Gehiago…"</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"Hobespen gisa ezarri nahi duzu?"</string>
@@ -4512,7 +4512,7 @@
     <string name="forget_passpoint_dialog_message" msgid="3337626966248310367">"Denbora edo daturik geldituz gero, baliteke haiek galtzea. Kendu aurretik, galdetu hornitzaileari."</string>
     <string name="keywords_content_capture" msgid="5401877823529928976">"eduki-bilketa, iradokizun dinamikoak"</string>
     <string name="content_capture" msgid="1709538093513983279">"Iradokizun dinamikoak"</string>
-    <string name="content_capture_summary" msgid="2675659095218714681">"Baimendu Android-i pantailan ikusgai dagoen edo bideo- edo audio-edukian entzuten den informazioa gordetzea. Android-ek iradokizun lagungarriak egiten ditu gailuaren jardueretan oinarrituta."</string>
+    <string name="content_capture_summary" msgid="2675659095218714681">"Baimendu Android-i pantailan ikusgai dagoen edo bideo- edo audio-edukian entzuten den informazioa gordetzea. Android-ek iradokizun lagungarriak egiten ditu gailuko jardueretan oinarrituta."</string>
     <string name="capture_system_heap_dump_title" msgid="7417508823603305421">"Sortu memoria-iraulketaren txostena"</string>
     <string name="capturing_system_heap_dump_message" msgid="5108339625760845950">"Memoria-iraulketaren txostena sortzen"</string>
     <string name="error_capturing_system_heap_dump_message" msgid="5431592130805893098">"Ezin izan da sortu memoria-iraulketaren txostena"</string>
