@@ -113,7 +113,7 @@
     <string name="bluetooth_disconnect_all_profiles" product="device" msgid="4707569949253450208">"თქვენი მოწყობილობა გაწყვეტს კავშირს <xliff:g id="DEVICE_NAME">%1$s</xliff:g>-თან."</string>
     <string name="bluetooth_disconnect_dialog_ok" msgid="4183522987246110145">"კავშირის გაწყვეტა"</string>
     <string name="bluetooth_empty_list_user_restricted" msgid="3616298363281495777">"თქვენ არ გაქვთ Bluetooth-ის პარამეტრების შეცვლის ნებართვა."</string>
-    <string name="bluetooth_pairing_pref_title" msgid="2904954138013884029">"ახალი მოწყობილობის დაწყვილება"</string>
+    <string name="bluetooth_pairing_pref_title" msgid="2904954138013884029">"ახალი მოწყობ. დაწყვილება"</string>
     <string name="bluetooth_is_visible_message" msgid="6341088682252805612">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> ჩანს ახლომდებარე მოწყობილობებზე, როდესაც Bluetooth პარამეტრები გახსნილია."</string>
     <string name="bluetooth_footer_mac_message" product="default" msgid="335341476746836260">"ტელეფონის Bluetooth-მისამართი: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_footer_mac_message" product="tablet" msgid="6033609611245782463">"ტაბლეტის Bluetooth-მისამართი: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
@@ -165,7 +165,7 @@
     <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"სხვა მოწყობილობებისთვის ჩანს, როგორც „<xliff:g id="DEVICE_NAME">^1</xliff:g>“"</string>
     <string name="bluetooth_off_footer" msgid="7658444560543730571">"ჩართეთ Bluetooth სხვა მოწყობილობებთან დასაკავშირებლად."</string>
     <string name="bluetooth_paired_device_title" msgid="8361860197780425286">"თქვენი მოწყობილობები"</string>
-    <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"ახალი მოწყობილობის დაწყვილება"</string>
+    <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"ახალი მოწყობ. დაწყვილება"</string>
     <string name="bluetooth_pref_summary" product="tablet" msgid="3601662966604648212">"თქვენი ტაბლეტის მიერ ახლომდებარე Bluetooth მოწყობილობებთან კომუნიკაციის დაშვება"</string>
     <string name="bluetooth_pref_summary" product="device" msgid="2286727776570956969">"თქვენი მოწყობილობის მიერ ახლომდებარე Bluetooth მოწყობილობებთან კომუნიკაციის დაშვება"</string>
     <string name="bluetooth_pref_summary" product="default" msgid="863659221858781186">"თქვენი ტელეფონის მიერ ახლომდებარე Bluetooth მოწყობილობებთან კომუნიკაციის დაშვება"</string>
