@@ -113,7 +113,7 @@
     <string name="bluetooth_disconnect_all_profiles" product="device" msgid="4707569949253450208">"Votre appareil se déconnectera de <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
     <string name="bluetooth_disconnect_dialog_ok" msgid="4183522987246110145">"Déconnecter"</string>
     <string name="bluetooth_empty_list_user_restricted" msgid="3616298363281495777">"Vous n\'êtes pas autorisé à modifier les paramètres Bluetooth."</string>
-    <string name="bluetooth_pairing_pref_title" msgid="2904954138013884029">"Associer un appareil"</string>
+    <string name="bluetooth_pairing_pref_title" msgid="2904954138013884029">"Associer un autre appareil"</string>
     <string name="bluetooth_is_visible_message" msgid="6341088682252805612">"Lorsque le Bluetooth est activé, votre <xliff:g id="DEVICE_NAME">%1$s</xliff:g> est visible par les appareils à proximité."</string>
     <string name="bluetooth_footer_mac_message" product="default" msgid="335341476746836260">"Adresse Bluetooth du téléphone : <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_footer_mac_message" product="tablet" msgid="6033609611245782463">"Adresse Bluetooth de la tablette : <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
@@ -165,7 +165,7 @@
     <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"Visible comme « <xliff:g id="DEVICE_NAME">^1</xliff:g> » aux autres appareils"</string>
     <string name="bluetooth_off_footer" msgid="7658444560543730571">"Activez le Bluetooth pour vous connecter à d\'autres appareils."</string>
     <string name="bluetooth_paired_device_title" msgid="8361860197780425286">"Vos appareils"</string>
-    <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"Associer un appareil"</string>
+    <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"Associer un autre appareil"</string>
     <string name="bluetooth_pref_summary" product="tablet" msgid="3601662966604648212">"Permettre à votre tablette de communiquer avec les appareils Bluetooth à proximité"</string>
     <string name="bluetooth_pref_summary" product="device" msgid="2286727776570956969">"Permettre à votre appareil de communiquer avec les appareils Bluetooth à proximité"</string>
     <string name="bluetooth_pref_summary" product="default" msgid="863659221858781186">"Permettre à votre téléphone de communiquer avec les appareils Bluetooth à proximité"</string>

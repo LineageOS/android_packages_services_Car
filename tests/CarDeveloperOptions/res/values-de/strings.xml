@@ -806,7 +806,7 @@
     <string name="wifi_display_status_connected" msgid="85692409327461403">"Verbunden"</string>
     <string name="wifi_display_status_in_use" msgid="7646114501132773174">"In Verwendung"</string>
     <string name="wifi_display_status_not_available" msgid="5600448733204688205">"Nicht verfügbar"</string>
-    <string name="wifi_display_details" msgid="6379855523460749126">"Display-Einstellungen"</string>
+    <string name="wifi_display_details" msgid="6379855523460749126">"Displayeinstellungen"</string>
     <string name="wifi_display_options_title" msgid="4587264519668872213">"Optionen für kabellose Übertragung (WiDi)"</string>
     <string name="wifi_display_options_forget" msgid="7882982544626742073">"Entfernen"</string>
     <string name="wifi_display_options_done" msgid="5922060890309265817">"Fertig"</string>
@@ -1676,7 +1676,7 @@
     <string name="assisted_gps" msgid="5411780261117055175">"Unterstütztes GPS verwenden"</string>
     <string name="assisted_gps_enabled" msgid="2561022181775725369">"Server zur Unterstützung von GPS verwenden (zur Verringerung der Netzwerkauslastung nicht auswählen)"</string>
     <string name="assisted_gps_disabled" msgid="6448758788217415937">"Server zur Unterstützung von GPS verwenden (zur Verbesserung der GPS-Leistung deaktivieren)"</string>
-    <string name="use_location_title" msgid="7724788634359496634">"Standort &amp; Google-Suche"</string>
+    <string name="use_location_title" msgid="7724788634359496634">"Standort &amp; Google Suche"</string>
     <string name="use_location_summary" msgid="7396716606067400283">"Google darf Suchergebnisse und andere Dienste an meinen Standort anpassen"</string>
     <string name="location_access_title" msgid="8587974819606800029">"Zugriff auf meinen Standort"</string>
     <string name="location_access_summary" msgid="6919495149026354355">"Meine Standortdaten dürfen von Apps verwendet werden, die ich dazu berechtigt habe."</string>
@@ -4252,15 +4252,15 @@
     <string name="app_info_storage_title" msgid="6643391804949509308">"Belegter Speicherplatz"</string>
     <string name="webview_uninstalled_for_user" msgid="3407952144444040557">"(für Nutzer <xliff:g id="USER">%s</xliff:g> deinstalliert)"</string>
     <string name="webview_disabled_for_user" msgid="8057805373224993504">"(für Nutzer <xliff:g id="USER">%s</xliff:g> deaktiviert)"</string>
-    <string name="autofill_app" msgid="3990765434980280073">"AutoFill-Dienst"</string>
+    <string name="autofill_app" msgid="3990765434980280073">"Dienst für automatisches Ausfüllen"</string>
     <string name="autofill_keywords" msgid="7717726766232862218">"automatisch, ausfüllen, füllen, autofill"</string>
-    <string name="autofill_confirmation_message" msgid="1385894598730361304">"&lt;b&gt;Nur für vertrauenswürdige Apps&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=Google Autofill&gt;%1$s&lt;/xliff:g&gt; greift auf die Displayanzeige zu, um zu bestimmen, welche Felder automatisch ausgefüllt werden können. AutoFill sollte daher nur für vertrauenswürdige Apps zugelassen werden."</string>
-    <string name="debug_autofill_category" msgid="6262526615416295645">"AutoFill"</string>
+    <string name="autofill_confirmation_message" msgid="1385894598730361304">"&lt;b&gt;Nur für vertrauenswürdige Apps&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=Automatisches Ausfüllen von Google&gt;%1$s&lt;/xliff:g&gt; greift auf die Displayanzeige zu, um zu bestimmen, welche Felder automatisch ausgefüllt werden können. Es sollte daher nur für vertrauenswürdige Apps zugelassen werden."</string>
+    <string name="debug_autofill_category" msgid="6262526615416295645">"Automatisches Ausfüllen"</string>
     <string name="autofill_logging_level_title" msgid="2577340324541102626">"Protokollierungsebene"</string>
     <string name="autofill_max_partitions" msgid="125269645910590057">"Maximale Zahl von Anfragen pro Sitzung"</string>
     <string name="autofill_max_visible_datasets" msgid="2791081640248423492">"Maximale Zahl sichtbarer Datensätze"</string>
     <string name="autofill_reset_developer_options" msgid="7208417230269613101">"Auf Standardwerte zurücksetzen"</string>
-    <string name="autofill_reset_developer_options_complete" msgid="5686061993002179524">"Die AutoFill-Optionen für Entwickler wurden zurückgesetzt"</string>
+    <string name="autofill_reset_developer_options_complete" msgid="5686061993002179524">"Die Optionen zum automatischen Ausfüllen für Entwickler wurden zurückgesetzt"</string>
     <string name="device_theme" msgid="8992291311481135893">"Gerätedesign"</string>
     <string name="default_theme" msgid="5986996377385956138">"Standard"</string>
     <string name="show_operator_name_title" msgid="5056163028128447308">"Netzwerkname"</string>
