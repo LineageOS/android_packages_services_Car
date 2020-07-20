@@ -15,22 +15,36 @@
  */
 package com.google.android.car.kitchensink.users;
 
+import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.AlertDialog;
+import android.car.Car;
+import android.car.user.CarUserManager;
+import android.car.user.UserCreationResult;
+import android.car.user.UserRemovalResult;
+import android.car.user.UserSwitchResult;
 import android.content.pm.UserInfo;
 import android.os.Bundle;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
 import androidx.fragment.app.Fragment;
 
+import com.android.internal.infra.AndroidFuture;
+
+import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Shows information (and actions) about the current user.
@@ -48,13 +62,31 @@ public final class UserFragment extends Fragment {
 
     private static final String TAG = UserFragment.class.getSimpleName();
 
+    private static final long TIMEOUT_MS = 5_000;
+
     private final int mUserId = UserHandle.myUserId();
     private UserManager mUserManager;
+    private CarUserManager mCarUserManager;
 
+    // Current user
     private EditText mUserIdEditText;
     private EditText mUserNameEditText;
-    private EditText mUserInfoEditText;
+    private EditText mUserTypeEditText;
+    private EditText mUserFlagsEditText;
     private CheckBox mIsAdminCheckBox;
+
+    // Existing users
+    private UsersSpinner mUsersSpinner;
+    private Button mSwitchUserButton;
+    private Button mRemoveUserButton;
+    private EditText mNewUserNameText;
+    private CheckBox mNewUserIsAdminCheckBox;
+    private CheckBox mNewUserIsGuestCheckBox;
+    private EditText mNewUserExtraFlagsText;
+    private Button mCreateUserButton;
+    private EditText mSelectedUserTypeText;
+    private EditText mSelectedUserFlagsText;
+
 
     @Nullable
     @Override
@@ -65,13 +97,31 @@ public final class UserFragment extends Fragment {
 
     public void onViewCreated(View view, Bundle savedInstanceState) {
         mUserManager = UserManager.get(getContext());
+        Car car = ((KitchenSinkActivity) getHost()).getCar();
+        mCarUserManager = (CarUserManager) car.getCarManager(Car.CAR_USER_SERVICE);
 
         mUserIdEditText = view.findViewById(R.id.user_id);
         mUserNameEditText = view.findViewById(R.id.user_name);
-        mUserInfoEditText = view.findViewById(R.id.user_info);
+        mUserTypeEditText = view.findViewById(R.id.user_type);
+        mUserFlagsEditText = view.findViewById(R.id.user_flags);
         mIsAdminCheckBox = view.findViewById(R.id.is_admin);
 
+        mUsersSpinner = view.findViewById(R.id.existing_users);
+        mSwitchUserButton = view.findViewById(R.id.switch_user);
+        mRemoveUserButton = view.findViewById(R.id.remove_user);
+        mNewUserNameText = view.findViewById(R.id.new_user_name);
+        mNewUserIsAdminCheckBox = view.findViewById(R.id.new_user_is_admin);
+        mNewUserIsGuestCheckBox = view.findViewById(R.id.new_user_is_guest);
+        mNewUserExtraFlagsText = view.findViewById(R.id.new_user_flags);
+        mCreateUserButton = view.findViewById(R.id.create_user);
+        mSelectedUserTypeText = view.findViewById(R.id.selected_user_type);
+        mSelectedUserFlagsText = view.findViewById(R.id.selected_user_flags);
+
         mIsAdminCheckBox.setOnClickListener((v) -> toggleAdmin());
+        mSwitchUserButton.setOnClickListener((v) -> switchUser());
+        mRemoveUserButton.setOnClickListener((v) -> removeUser());
+        mCreateUserButton.setOnClickListener((v) -> createUser());
+
         updateState();
     }
 
@@ -88,6 +138,94 @@ public final class UserFragment extends Fragment {
         }
     }
 
+    private void createUser() {
+        String name = mNewUserNameText.getText().toString();
+        if (TextUtils.isEmpty(name)) {
+            name = null;
+        }
+        int flags = 0;
+        boolean isGuest = mNewUserIsGuestCheckBox.isChecked();
+        AndroidFuture<UserCreationResult> future;
+        if (isGuest) {
+            Log.i(TAG, "Create guest: " + name);
+            future = mCarUserManager.createGuest(name);
+        } else {
+            if (mNewUserIsAdminCheckBox.isChecked()) {
+                flags |= UserInfo.FLAG_ADMIN;
+            }
+            String extraFlags = mNewUserExtraFlagsText.getText().toString();
+            if (!TextUtils.isEmpty(extraFlags)) {
+                try {
+                    flags |= Integer.parseInt(extraFlags);
+                } catch (RuntimeException e) {
+                    Log.e(TAG, "createUser(): non-numeric flags " + extraFlags);
+                }
+            }
+            Log.v(TAG, "Create user: name=" + name + ", flags=" + UserInfo.flagsToString(flags));
+            future = mCarUserManager.createUser(name, UserManager.USER_TYPE_FULL_SECONDARY, flags);
+        }
+        UserCreationResult result = getResult(future);
+        updateState();
+        StringBuilder message = new StringBuilder();
+        if (result == null) {
+            message.append("Timed out creating user");
+        } else {
+            if (result.isSuccess()) {
+                message.append("User created: ").append(result.getUser().toFullString());
+            } else {
+                int status = result.getStatus();
+                message.append("Failed with code ").append(status).append('(')
+                        .append(UserCreationResult.statusToString(status)).append(')');
+            }
+            String error = result.getErrorMessage();
+            if (error != null) {
+                message.append("\nError message: ").append(error);
+            }
+        }
+        showMessage(message.toString());
+    }
+
+    private void removeUser() {
+        int userId = mUsersSpinner.getSelectedUserId();
+        Log.i(TAG, "Remove user: " + userId);
+        UserRemovalResult result = mCarUserManager.removeUser(userId);
+        updateState();
+
+        if (result.isSuccess()) {
+            showMessage("User %d removed", userId);
+        } else {
+            showMessage("Failed to remove user %d: %s", userId,
+                    UserRemovalResult.statusToString(result.getStatus()));
+        }
+    }
+
+    private void switchUser() {
+        int userId = mUsersSpinner.getSelectedUserId();
+        Log.i(TAG, "Switch user: " + userId);
+        AndroidFuture<UserSwitchResult> future = mCarUserManager.switchUser(userId);
+        UserSwitchResult result = getResult(future);
+        updateState();
+
+        StringBuilder message = new StringBuilder();
+        if (result == null) {
+            message.append("Timed out switching user");
+        } else {
+            int status = result.getStatus();
+            if (result.isSuccess()) {
+                message.append("Switched to user ").append(userId).append(" (status=")
+                        .append(UserSwitchResult.statusToString(status)).append(')');
+            } else {
+                message.append("Failed with code ").append(status).append('(')
+                        .append(UserSwitchResult.statusToString(status)).append(')');
+            }
+            String error = result.getErrorMessage();
+            if (error != null) {
+                message.append("\nError message: ").append(error);
+            }
+        }
+        showMessage(message.toString());
+    }
+
     private void promoteCurrentUserAsAdmin(boolean promote) {
         if (!promote) {
             Log.d(TAG, "NOT promoting user " + mUserId + " as admin");
@@ -99,23 +237,60 @@ public final class UserFragment extends Fragment {
     }
 
     private void updateState() {
+        // Current user
         int userId = UserHandle.myUserId();
         boolean isAdmin = mUserManager.isAdminUser();
         UserInfo user = mUserManager.getUserInfo(mUserId);
-        String name, userInfo;
+        String userName, userType, userFlags;
         if (user == null) {
-            userInfo = name = "N/A";
+            userName = userType = userFlags = "N/A";
         } else {
-            userInfo = user.toFullString();
-            name = user.name;
+            userName = user.name;
+            userType = user.userType;
+            userFlags = UserInfo.flagsToString(user.flags);
         }
-        Log.v(TAG, "updateState(): userId=" + mUserId + ", name=" + name + ", isAdmin=" + isAdmin
-                + ", userInfo=" + userInfo);
+        Log.v(TAG, "updateState(): userId=" + mUserId + ", name=" + userName + ", type=" + userType
+                + ", flags=" + userFlags + ", isAdmin=" + isAdmin);
         mUserIdEditText.setText(String.valueOf(mUserId));
-        mUserNameEditText.setText(name);
-        mUserInfoEditText.setText(userInfo);
+        mUserNameEditText.setText(userName);
+        mUserTypeEditText.setText(userType);
+        mUserFlagsEditText.setText(userFlags);
 
         mIsAdminCheckBox.setChecked(isAdmin);
         mIsAdminCheckBox.setEnabled(!isAdmin); // there's no API to "un-admin a user"
+
+        // Existing users
+        List<UserInfo> allUsers = mUserManager.getUsers(/* excludeDying= */ true);
+        Log.v(TAG, allUsers.size() + " users: " + allUsers);
+        mUsersSpinner.setOnUserSelectedListener((u) -> onUserSelected(u));
+        mUsersSpinner.init(allUsers);
+    }
+
+    private void onUserSelected(@NonNull UserInfo user) {
+        mSelectedUserTypeText.setText(user.userType);
+        mSelectedUserFlagsText.setText(UserInfo.flagsToString(user.flags));
+    }
+
+    private void showMessage(String pattern, Object... args) {
+        String message = String.format(pattern, args);
+        Log.v(TAG, "showMessage(): " + message);
+        new AlertDialog.Builder(getContext()).setMessage(message).show();
+    }
+
+    @Nullable
+    private static <T> T getResult(AndroidFuture<T> future) {
+        T result = null;
+        try {
+            result = future.get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            if (result == null) {
+                Log.e(TAG, "Timeout (" + TIMEOUT_MS + "ms) waiting for future " + future);
+            }
+        } catch (InterruptedException e) {
+            Log.e(TAG, "Interrupted waiting for future " + future, e);
+            Thread.currentThread().interrupt();
+        } catch (Exception e) {
+            Log.e(TAG, "Exception getting future " + future, e);
+        }
+        return result;
     }
 }
