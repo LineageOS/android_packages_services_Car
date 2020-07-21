@@ -48,9 +48,12 @@ import java.lang.ref.WeakReference;
  * <p>Also, you will need to register this service in the following configuration file:
  * {@code packages/services/Car/service/res/values/config.xml}
  *
+ * @deprecated No longer needed after the new Car Input API was introduced (see
+ *         {@link CarInputManager} for more details).
  * @hide
  */
 @SystemApi
+@Deprecated
 public abstract class CarInputHandlingService extends Service {
     private static final String TAG = CarLibLog.TAG_INPUT;
     private static final boolean DBG = false;
