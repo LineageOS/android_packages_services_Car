@@ -19,6 +19,9 @@
 
 PRODUCT_PACKAGE_OVERLAYS += packages/services/Car/car_product/overlay
 
+PRODUCT_COPY_FILES += \
+    packages/services/Car/car_product/build/component-overrides.xml:$(TARGET_COPY_OUT_VENDOR)/etc/sysconfig/component-overrides.xml \
+
 PRODUCT_PACKAGES += \
     com.android.wifi \
     Home \
