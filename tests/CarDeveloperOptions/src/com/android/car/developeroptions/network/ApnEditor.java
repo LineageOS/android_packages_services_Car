@@ -668,6 +668,9 @@ public class ApnEditor extends SettingsPreferenceFragment
                     mMvnoMatchData.setText(numeric + "x");
                 } else if (values[mvnoIndex].equals("GID")) {
                     mMvnoMatchData.setText(mTelephonyManager.getGroupIdLevel1());
+                } else {
+                    // mvno type 'none' case. At this time, mvnoIndex should be 0.
+                    mMvnoMatchData.setText("");
                 }
             }
 
@@ -719,6 +722,7 @@ public class ApnEditor extends SettingsPreferenceFragment
             }
             mMvnoType.setValue((String) newValue);
             mMvnoType.setSummary(mvno);
+            mMvnoMatchData.setSummary(checkNull(mMvnoMatchData.getText()));
         } else if (KEY_PASSWORD.equals(key)) {
             mPassword.setSummary(starify(newValue != null ? String.valueOf(newValue) : ""));
         } else if (KEY_CARRIER_ENABLED.equals(key)) {
