@@ -26,7 +26,6 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothHeadsetClient;
 import android.bluetooth.BluetoothProfile;
 import android.car.CarProjectionManager;
-import android.car.input.CarInputHandlingService;
 import android.car.input.CarInputHandlingService.InputFilter;
 import android.car.input.CarInputManager;
 import android.car.input.ICarInput;
@@ -35,20 +34,15 @@ import android.car.input.ICarInputListener;
 import android.car.input.RotaryEvent;
 import android.car.user.CarUserManager;
 import android.car.userlib.UserHelper;
-import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.res.Resources;
 import android.hardware.input.InputManager;
 import android.net.Uri;
-import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Looper;
-import android.os.Parcel;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.provider.CallLog.Calls;
@@ -166,10 +160,7 @@ public class CarInputService extends ICarInput.Stub
     private final CarUserService mUserService;
     private final TelecomManager mTelecomManager;
     private final AssistUtils mAssistUtils;
-    // The ComponentName of the CarInputListener service. Can be changed via resource overlay,
-    // or overridden directly for testing.
-    @Nullable
-    private final ComponentName mCustomInputServiceComponent;
+
     // The default handler for main-display input events. By default, injects the events into
     // the input queue via InputManager, but can be overridden for testing.
     private final KeyEventListener mMainDisplayHandler;
@@ -201,51 +192,11 @@ public class CarInputService extends ICarInput.Stub
     @VisibleForTesting
     ICarInputListener mCarInputListener;
 
-    @GuardedBy("mLock")
-    private boolean mCarInputListenerBound = false;
-
     // Maps display -> keycodes handled.
     @GuardedBy("mLock")
     private final SetMultimap<Integer, Integer> mHandledKeys = new SetMultimap<>();
 
     private final InputCaptureClientController mCaptureController;
-
-    private final Binder mCallback = new Binder() {
-        @Override
-        protected boolean onTransact(int code, Parcel data, Parcel reply, int flags) {
-            if (code == CarInputHandlingService.INPUT_CALLBACK_BINDER_CODE) {
-                data.setDataPosition(0);
-                InputFilter[] handledKeys = (InputFilter[]) data.createTypedArray(
-                        InputFilter.CREATOR);
-                if (handledKeys != null) {
-                    setHandledKeys(handledKeys);
-                }
-                return true;
-            }
-            return false;
-        }
-    };
-
-    private final ServiceConnection mInputServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder binder) {
-            if (DBG) {
-                Log.d(CarLog.TAG_INPUT, "onServiceConnected, name: "
-                        + name + ", binder: " + binder);
-            }
-            synchronized (mLock) {
-                mCarInputListener = ICarInputListener.Stub.asInterface(binder);
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            Log.d(CarLog.TAG_INPUT, "onServiceDisconnected, name: " + name);
-            synchronized (mLock) {
-                mCarInputListener = null;
-            }
-        }
-    };
 
     private final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -284,13 +235,6 @@ public class CarInputService extends ICarInput.Stub
         }
     };
 
-    @Nullable
-    private static ComponentName getDefaultInputComponent(Context context) {
-        String carInputService = context.getString(R.string.inputService);
-        return TextUtils.isEmpty(carInputService)
-                ? null : ComponentName.unflattenFromString(carInputService);
-    }
-
     private static int getViewLongPressDelay(ContentResolver cr) {
         return Settings.Secure.getIntForUser(
                 cr,
@@ -307,7 +251,6 @@ public class CarInputService extends ICarInput.Stub
                         context.getSystemService(InputManager.class)
                                 .injectInputEvent(event, INJECT_INPUT_EVENT_MODE_ASYNC),
                 () -> Calls.getLastOutgoingCall(context),
-                getDefaultInputComponent(context),
                 () -> getViewLongPressDelay(context.getContentResolver()));
     }
 
@@ -315,7 +258,6 @@ public class CarInputService extends ICarInput.Stub
     CarInputService(Context context, InputHalService inputHalService, CarUserService userService,
             Handler handler, TelecomManager telecomManager, AssistUtils assistUtils,
             KeyEventListener mainDisplayHandler, Supplier<String> lastCalledNumberSupplier,
-            @Nullable ComponentName customInputServiceComponent,
             IntSupplier longPressDelaySupplier) {
         mContext = context;
         mCaptureController = new InputCaptureClientController(context);
@@ -325,7 +267,6 @@ public class CarInputService extends ICarInput.Stub
         mAssistUtils = assistUtils;
         mMainDisplayHandler = mainDisplayHandler;
         mLastCalledNumberSupplier = lastCalledNumberSupplier;
-        mCustomInputServiceComponent = customInputServiceComponent;
         mLongPressDelaySupplier = longPressDelaySupplier;
 
         mVoiceKeyTimer =
@@ -381,9 +322,6 @@ public class CarInputService extends ICarInput.Stub
         }
 
         mInputHalService.setInputListener(this);
-        synchronized (mLock) {
-            mCarInputListenerBound = bindCarInputService();
-        }
         if (mBluetoothAdapter != null) {
             mBluetoothAdapter.getProfileProxy(
                     mContext, mBluetoothProfileServiceListener, BluetoothProfile.HEADSET_CLIENT);
@@ -399,10 +337,6 @@ public class CarInputService extends ICarInput.Stub
             mProjectionKeyEventHandler = null;
             mProjectionKeyEventsSubscribed.clear();
             mInstrumentClusterKeyListener = null;
-            if (mCarInputListenerBound) {
-                mContext.unbindService(mInputServiceConnection);
-                mCarInputListenerBound = false;
-            }
             if (mBluetoothHeadsetClient != null) {
                 mBluetoothAdapter.closeProfileProxy(
                         BluetoothProfile.HEADSET_CLIENT, mBluetoothHeadsetClient);
@@ -708,29 +642,11 @@ public class CarInputService extends ICarInput.Stub
     @Override
     public void dump(PrintWriter writer) {
         writer.println("*Input Service*");
-        writer.println("mCustomInputServiceComponent: " + mCustomInputServiceComponent);
         synchronized (mLock) {
-            writer.println("mCarInputListenerBound: " + mCarInputListenerBound);
             writer.println("mCarInputListener: " + mCarInputListener);
         }
         writer.println("Long-press delay: " + mLongPressDelaySupplier.getAsInt() + "ms");
         mCaptureController.dump(writer);
-    }
-
-    private boolean bindCarInputService() {
-        if (mCustomInputServiceComponent == null) {
-            Log.i(CarLog.TAG_INPUT, "Custom input service was not configured");
-            return false;
-        }
-
-        Log.d(CarLog.TAG_INPUT, "bindCarInputService, component: " + mCustomInputServiceComponent);
-
-        Intent intent = new Intent();
-        Bundle extras = new Bundle();
-        extras.putBinder(CarInputHandlingService.INPUT_CALLBACK_BINDER_KEY, mCallback);
-        intent.putExtras(extras);
-        intent.setComponent(mCustomInputServiceComponent);
-        return mContext.bindService(intent, mInputServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
     private void updateRotaryServiceSettings(@UserIdInt int userId) {
