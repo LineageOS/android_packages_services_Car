@@ -17,23 +17,21 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical" >
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:text="Current User"/>
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
                   android:orientation="horizontal" >
         <TextView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text="User ID: "/>
+            android:layout_height="wrap_content" android:text="ID: "/>
         <EditText
             android:id="@+id/user_id"
             android:enabled="false"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:text=""/>
-    </LinearLayout>
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:orientation="horizontal" >
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:text="Name: "/>
@@ -42,28 +40,103 @@
             android:enabled="false"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:text=""/>
-    </LinearLayout>
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:orientation="horizontal" >
         <TextView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text="Full info: "/>
+            android:layout_height="wrap_content" android:text="Type: "/>
         <EditText
-            android:id="@+id/user_info"
+            android:id="@+id/user_type"
             android:enabled="false"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:text=""/>
-    </LinearLayout>
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:orientation="horizontal" >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="Flags: "/>
+        <EditText
+            android:id="@+id/user_flags"
+            android:enabled="false"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text=""/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:text="Is admin? "/>
         <CheckBox android:layout_width="wrap_content" android:layout_height="wrap_content"
               android:id="@+id/is_admin"/>
+    </LinearLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:text="Existing Users"/>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal" >
+            <com.google.android.car.kitchensink.users.UsersSpinner
+                android:id="@+id/existing_users"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+        <Button
+            android:id="@+id/switch_user"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="Switch"/>
+        <Button
+            android:id="@+id/remove_user"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="Remove"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="Type: "/>
+        <EditText
+            android:id="@+id/selected_user_type"
+            android:enabled="false"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text=""/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="Flags: "/>
+        <EditText
+            android:id="@+id/selected_user_flags"
+            android:enabled="false"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text=""/>
+    </LinearLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:text="New User"/>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal" >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="Name: "/>
+        <EditText
+            android:id="@+id/new_user_name"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:maxLength="25"
+            android:text=""/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="Is admin? "/>
+        <CheckBox android:layout_width="wrap_content" android:layout_height="wrap_content"
+              android:id="@+id/new_user_is_admin"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="Is guest? "/>
+        <CheckBox android:layout_width="wrap_content" android:layout_height="wrap_content"
+              android:id="@+id/new_user_is_guest"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="Extra flags: "/>
+        <EditText
+            android:id="@+id/new_user_flags"
+            android:layout_width="30dp"
+            android:layout_height="wrap_content"
+            android:maxLength="3"
+            android:inputType="numberDecimal"
+            android:text=""/>
+        <Button
+            android:id="@+id/create_user"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="Create"/>
+
     </LinearLayout>
 </LinearLayout>
