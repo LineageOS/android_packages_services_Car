@@ -18,11 +18,13 @@ package com.android.car.storagemonitoring;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.util.Log;
+
 import com.android.car.CarLog;
 import com.android.internal.annotations.VisibleForTesting;
+
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.BufferedReader;
 import java.io.IOException;
 
 /**
@@ -94,8 +96,7 @@ public class EMmcWearInformationProvider implements WearInformationProvider {
             lifetimeB = Integer.decode(lifetimes[1]);
             eol = Integer.decode("0x" + eolData);
         } catch (NumberFormatException e) {
-            Log.w(CarLog.TAG_STORAGE,
-                    "lifetime data not in expected format: " + lifetimeData, e);
+            Log.w(CarLog.TAG_STORAGE, "lifetime data not in expected format: " + lifetimeData);
             return null;
         }
 
