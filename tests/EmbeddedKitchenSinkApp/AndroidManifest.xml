@@ -50,6 +50,20 @@
     <uses-permission android:name="android.car.permission.READ_CAR_STEERING"/>
     <uses-permission android:name="android.car.permission.STORAGE_MONITORING"/>
     <uses-permission android:name="android.car.permission.CAR_DYNAMICS_STATE"/>
+    <!-- Allow querying and writing to any property -->
+    <uses-permission android:name="android.car.permission.CAR_ENERGY_PORTS" />
+    <uses-permission android:name="android.car.permission.PERMISSION_CONTROL_ENERGY_PORTS" />
+    <uses-permission android:name="android.car.permission.CAR_EXTERIOR_LIGHTS" />
+    <uses-permission android:name="android.car.permission.CAR_TIRES" />
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_DOORS" />
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS" />
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_MIRRORS" />
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_SEATS" />
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_WINDOWS" />
+    <uses-permission android:name="android.car.permission.READ_CAR_DISPLAY_UNITS" />
+    <uses-permission android:name="android.car.permission.CAR_IDENTIFICATION" />
+    <uses-permission android:name="android.car.permission.PERMISSION_ADJUST_RANGE_REMAINING" />
+    <uses-permission android:name="android.car.permission.PERMISSION_CAR_ENGINE_DETAILED" />
     <!-- use for CarServiceTest -->
     <uses-permission android:name="android.car.permission.VMS_PUBLISHER"/>
     <!-- use for CarServiceTest -->
