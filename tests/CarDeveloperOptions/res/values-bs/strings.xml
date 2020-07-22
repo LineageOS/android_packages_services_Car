@@ -4243,7 +4243,7 @@
     <string name="enterprise_privacy_exposure_changes_category" msgid="1877045221796512001">"Izmjene koje je izvršio adminstrator vaše organizacije"</string>
     <string name="enterprise_privacy_device_access_category" msgid="2967602674816237833">"Vaš pristup ovom uređaju"</string>
     <string name="enterprise_privacy_enterprise_data" msgid="6551504749971424942">"Podaci koji su povezani s vašim računom, kao što su e-pošta ili kalendar"</string>
-    <string name="enterprise_privacy_installed_packages" msgid="4376014821459811800">"Spisak aplikacija na vašem uređaju"</string>
+    <string name="enterprise_privacy_installed_packages" msgid="4376014821459811800">"Lista aplikacija na vašem uređaju"</string>
     <string name="enterprise_privacy_usage_stats" msgid="445762931318731975">"Utrošeno vrijeme i podaci za svaku aplikaciju"</string>
     <string name="enterprise_privacy_network_logs" msgid="5427398751599441159">"Najskoriji zapis mrežnog saobraćaja"</string>
     <string name="enterprise_privacy_bug_reports" msgid="283443567328836380">"Najnoviji izvještaj o greškama"</string>
