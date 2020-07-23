@@ -92,7 +92,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 final class CarShellCommand extends ShellCommand {
@@ -737,7 +739,7 @@ final class CarShellCommand extends ShellCommand {
                 }
                 i++;
             }
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             writer.println("Invalid args:" + e);
             showHelp(writer);
             return;
@@ -801,7 +803,7 @@ final class CarShellCommand extends ShellCommand {
                 }
                 i++;
             }
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             writer.println("Invalid args:" + e);
             showHelp(writer);
             return;
@@ -1097,7 +1099,7 @@ final class CarShellCommand extends ShellCommand {
                 latch.countDown();
             });
             waitForHal(writer, latch, timeout);
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             writer.printf("HAL failed: %s\n", e);
         } finally {
             if (!halOk.get()) {
@@ -1162,7 +1164,9 @@ final class CarShellCommand extends ShellCommand {
             if (result == null) {
                 writer.printf("Service didn't respond in %d ms", timeoutMs);
             }
-        } catch (Exception e) {
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } catch (ExecutionException | TimeoutException e) {
             writer.printf("Exception getting future: %s",  e);
         }
         return result;
@@ -1189,7 +1193,7 @@ final class CarShellCommand extends ShellCommand {
                 case "--user":
                     try {
                         userId = Integer.parseInt(args[++i]);
-                    } catch (Exception e) {
+                    } catch (NumberFormatException e) {
                         writer.printf("Invalid user id at index %d (from %s): %s\n", i + 1,
                                 Arrays.toString(args), arg);
                     }
@@ -1317,7 +1321,7 @@ final class CarShellCommand extends ShellCommand {
                 case "--user":
                     try {
                         userId = Integer.parseInt(args[++i]);
-                    } catch (Exception e) {
+                    } catch (NumberFormatException e) {
                         writer.printf("Invalid user id at index %d (from %s): %s\n", i + 1,
                                 Arrays.toString(args), arg);
                     }
