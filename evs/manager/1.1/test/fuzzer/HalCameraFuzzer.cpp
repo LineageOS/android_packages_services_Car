@@ -17,6 +17,7 @@
 #include <fuzzer/FuzzedDataProvider.h>
 #include <sys/time.h>
 #include <iostream>
+#include "Common.h"
 #include "Enumerator.h"
 #include "HalCamera.h"
 #include "MockHWCamera.h"
@@ -33,7 +34,6 @@ enum EvsFuzzFuncs {
     EVS_FUZZ_MAKE_VIRTUAL_CAMERA = 0,    // verify makeVirtualCamera
     EVS_FUZZ_OWN_VIRTUAL_CAMERA,         // verify ownVirtualCamera
     EVS_FUZZ_DISOWN_VIRTUAL_CAMERA,      // verify disownVirtualCamera
-    EVS_FUZZ_GET_HW_CAMERA,              // verify getHwCamera
     EVS_FUZZ_GET_CLIENT_COUNT,           // verify getClientCount
     EVS_FUZZ_GET_ID,                     // verify getId
     EVS_FUZZ_GET_STREAM_CONFIG,          // verify getStreamConfig
@@ -42,19 +42,10 @@ enum EvsFuzzFuncs {
     EVS_FUZZ_REQUEST_NEW_FRAME,          // verify requestNewFrame
     EVS_FUZZ_CLIENT_STREAM_STARTING,     // verify clientStreamStarting
     EVS_FUZZ_CLIENT_STREAM_ENDING,       // verify clientStreamEnding
-    EVS_FUZZ_DONE_WITH_FRAME_1_0,        // verify doneWithFrame_1_0
-    EVS_FUZZ_DONE_WITH_FRAME_1_1,        // verify doneWithFrame_1_1
-    EVS_FUZZ_SET_PRIMARY,                // verify setPrimary
-    EVS_FUZZ_FORCE_PRIMARY,              // verify forcePrimary
-    EVS_FUZZ_UNSET_PRIMARY,              // verify unsetPrimary
-    EVS_FUZZ_SET_PARAMETER,              // verify setParameter
-    EVS_FUZZ_GET_PARAMETER,              // verify getParameter
     EVS_FUZZ_GET_STATS,                  // verify getStats
     EVS_FUZZ_GET_STREAM_CONFIGURATION,   // verify getStreamConfiguration
-    EVS_FUZZ_DELIVER_FRAME,              // verify deliverFrame
     EVS_FUZZ_DELIVER_FRAME_1_1,          // verify deliverFrame_1_1
-    EVS_FUZZ_NOTIFY,                     // verify notify
-    EVS_FUZZ_API_SUM
+    EVS_FUZZ_BASE_ENUM                   // verify common functions
 };
 
 int64_t getCurrentTimeStamp() {
