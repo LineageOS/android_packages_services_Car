@@ -35,7 +35,7 @@ import java.lang.annotation.RetentionPolicy;
         genToString = true,
         genHiddenConstructor = true,
         genHiddenConstDefs = true)
-public final class UserCreationResult implements Parcelable {
+public final class UserCreationResult implements Parcelable, OperationResult {
 
     /**
      * {@link Status} called when user creation is successful for both HAL and Android.
@@ -97,9 +97,7 @@ public final class UserCreationResult implements Parcelable {
     @Nullable
     private final String mErrorMessage;
 
-    /**
-     * Checks if this result is successful.
-     */
+    @Override
     public boolean isSuccess() {
         return mStatus == STATUS_SUCCESSFUL;
     }
