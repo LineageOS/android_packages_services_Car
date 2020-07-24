@@ -37,12 +37,11 @@ import android.os.ServiceManager;
 import android.os.UserHandle;
 import android.os.UserManager;
 
-import com.android.internal.infra.AndroidFuture;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
@@ -236,7 +235,7 @@ public final class AndroidMockitoHelper {
      * {@value #ASYNC_TIMEOUT_MS} ms.
      */
     @NonNull
-    public static <T> T getResult(@NonNull AndroidFuture<T> future)
+    public static <T> T getResult(@NonNull Future<T> future)
             throws InterruptedException, ExecutionException {
         return getResult(future, ASYNC_TIMEOUT_MS);
     }
@@ -245,12 +244,16 @@ public final class AndroidMockitoHelper {
      * Gets the result of a future, or throw a {@link IllegalStateException} if it times out.
      */
     @NonNull
-    public static <T> T getResult(@NonNull AndroidFuture<T> future, long timeoutMs)
-            throws InterruptedException, ExecutionException {
+    public static <T> T getResult(@NonNull Future<T> future, long timeoutMs) {
         try {
             return future.get(timeoutMs, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("future interrupted", e);
         } catch (TimeoutException e) {
-            throw new IllegalStateException("not called in " + ASYNC_TIMEOUT_MS + "ms", e);
+            throw new IllegalStateException("future not called in " + ASYNC_TIMEOUT_MS + "ms", e);
+        } catch (ExecutionException e) {
+            throw new IllegalStateException("failed to get future", e);
         }
     }
 

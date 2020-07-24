@@ -39,6 +39,7 @@ import android.car.testapi.BlockingUserLifecycleListener;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.UserSwitchResult;
+import android.car.util.concurrent.AsyncFuture;
 import android.content.pm.UserInfo;
 import android.os.RemoteException;
 import android.os.UserHandle;
@@ -46,8 +47,6 @@ import android.os.UserManager;
 import android.util.Log;
 
 import androidx.test.filters.FlakyTest;
-
-import com.android.internal.infra.AndroidFuture;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -335,7 +334,7 @@ public final class CarUserManagerTest extends CarApiTestBase {
     private void switchUser(@UserIdInt int userId) throws Exception {
         Log.i(TAG, "Switching to user " + userId + " using CarUserManager");
 
-        AndroidFuture<UserSwitchResult> future = mCarUserManager.switchUser(userId);
+        AsyncFuture<UserSwitchResult> future = mCarUserManager.switchUser(userId);
         UserSwitchResult result = future.get(SWITCH_TIMEOUT_MS, TimeUnit.MILLISECONDS);
         Log.d(TAG, "Result: " + result);
 
