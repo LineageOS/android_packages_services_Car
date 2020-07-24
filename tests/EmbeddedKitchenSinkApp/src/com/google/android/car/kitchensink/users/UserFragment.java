@@ -279,6 +279,14 @@ public final class UserFragment extends Fragment {
 
     @Nullable
     private static <T> T getResult(AndroidFuture<T> future) {
+        future.whenCompleteAsync((r, e) -> {
+            if (e != null) {
+                Log.e(TAG, "You have no future!", e);
+                return;
+            }
+            Log.v(TAG, "The future is here: " + r);
+        }, Runnable::run);
+
         T result = null;
         try {
             result = future.get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
