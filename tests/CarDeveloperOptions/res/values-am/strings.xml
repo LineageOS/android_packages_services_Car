@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"በማያ ገጽ ላይ ያለውን ጽሑፍ ያሳንሱ ወይም ያተልቁ።"</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"አነስ አድርግ"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"ተለቅ አድርግ"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"የናሙና ጽሑፍ"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"አስደናቂው የኦዝ ምትሃተኛ"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"ምዕራፍ 11፦ ኦዝ፣ አስደናቂዋ የኤምራልድ ከተማ"</string>
@@ -197,7 +196,7 @@
     <string name="proxy_settings_title" msgid="6014901859338211713">"ተኪ"</string>
     <string name="proxy_clear_text" msgid="498317431076294101">"አጽዳ"</string>
     <string name="proxy_port_label" msgid="8285157632538848509">"የእጅ አዙርወደብ"</string>
-    <string name="proxy_exclusionlist_label" msgid="8179084955547941904">"የእጅ አዙሩን በጎንእለፍ"</string>
+    <string name="proxy_exclusionlist_label" msgid="8179084955547941904">"የእጅ አዙሩን በጎን እለፍ"</string>
     <string name="proxy_defaultView_text" msgid="5785775257042403261">"ወደ ነባሪዎች  እነበረበት መልስ"</string>
     <string name="proxy_action_text" msgid="814511434843981413">"ተከናውኗል"</string>
     <string name="proxy_hostname_label" msgid="6798891831427287847">"የእጅ አዙር ስመ ካዳም"</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"ተንቀሳቃሽ ስልክ"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Wi‑Fi የማይገኝ ከሆነ፣ የተንቀሳቃሽ ስልክ አውታረ መረብ ተጠቀም"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"የተንቀሳቃስሽ ስልክ አውታረ መረብ የማይገኝ ከሆነ፣ Wi‑Fi ይጠቀሙ"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"በ Wi-Fi በኩል ደውል። Wi‑Fi ከጠፋ፣ ጥሪ ያበቃል።"</string>
@@ -1525,7 +1527,7 @@
     <string name="battery_status_title" msgid="8731200319740671905">"የባትሪሁኔታ"</string>
     <string name="battery_level_title" msgid="5207775387973771646">"የባትሪደረጃ፡"</string>
     <string name="apn_settings" msgid="8130776653826271664">"APNs"</string>
-    <string name="apn_edit" msgid="4350571070853305357">"የድረስ ነጥብ አርትዕ"</string>
+    <string name="apn_edit" msgid="4350571070853305357">"የመዳረሻ ነጥብ አርትዕ"</string>
     <string name="apn_not_set" msgid="5344235604466825691">"አልተዘጋጀም"</string>
     <string name="apn_name" msgid="8431432886706852226">"ስም"</string>
     <string name="apn_apn" msgid="190519449579357696">"APN"</string>
@@ -2449,7 +2451,7 @@
     <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"ምንም መርሐግብር የለም"</string>
     <string name="battery_saver_auto_routine" msgid="886514412067906980">"በዕለታዊ ተግባርዎ ላይ የተመሠረተ"</string>
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"በመቶኛ ላይ የተመሠረተ"</string>
-    <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"በተመልዶ ባትሪዎ ከሚሞሉበት ቀጣዩ ጊዜ በፊት ባትሪዎ የማለቅ ዕድሉ ከፍ ያለ ከሆነ ባትሪ ቆጣቢ ይበራል።"</string>
+    <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"በተለምዶ ባትሪዎ ከሚሞሉበት ቀጣዩ ጊዜ በፊት ባትሪዎ የማለቅ ዕድሉ ከፍ ያለ ከሆነ ባትሪ ቆጣቢ ይበራል።"</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"<xliff:g id="PERCENT">%1$s</xliff:g> ላይ ይበራል"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"መርሐግብር ያቀናብሩ"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"ሙሉ በሙሉ ኃይል ሲሞላ አጥፋ"</string>
@@ -2490,7 +2492,7 @@
     <string name="menu_duration_12h" msgid="1435242738163843797">"12 ሰዓቶች"</string>
     <string name="menu_duration_1d" msgid="6476370834372352174">"1 ቀን"</string>
     <string name="menu_show_system" msgid="6315865548558708248">"ስርዓት አሳይ"</string>
-    <string name="menu_hide_system" msgid="8457027118873733782">"የመደበቂያ ስርዓት"</string>
+    <string name="menu_hide_system" msgid="8457027118873733782">"ስርዓት ደብቅ"</string>
     <string name="menu_show_percentage" msgid="6983272380729890884">"መቶኛዎችን አሳይ"</string>
     <string name="menu_use_uss" msgid="3765054705208926803">"ዩ ኤስ ኤስ ይጠቀሙ"</string>
     <string name="menu_proc_stats_type" msgid="2680179749566186247">"የስታቲስቲክስ አይነት"</string>
@@ -3081,7 +3083,7 @@
     <string name="keywords_location" msgid="6439463166207072559">"አቅራቢያ፣ አካባቢ፣ ታሪክ፣ ሪፖርት ማድረግ"</string>
     <string name="keywords_accounts" msgid="5908945725229306088">"መለያ"</string>
     <string name="keywords_users" msgid="5880705776023155640">"ገደብ፣ ገድብ፣ የተገደበ"</string>
-    <string name="keywords_keyboard_and_ime" msgid="3327265741354129990">"የጽሑፍ እርማት፣ ትክክል፣ ድምፅ፣ ንዘር፣ ራስ-ሰር፣ ቋንቋ፣ የጣት ምልክት፣ ጠቁም፣ የአስተያየት ጥቆማ፣ ገጽታ፣ የሚያስከፋ፣ ቃል፣ ተይብ፣ ስሜት ገላጭ ምስል፣ አለምአቀፍ"</string>
+    <string name="keywords_keyboard_and_ime" msgid="3327265741354129990">"የጽሑፍ እርማት፣ ትክክል፣ ድምፅ፣ ንዘር፣ ራስ-ሰር፣ ቋንቋ፣ የጣት ምልክት፣ ጠቁም፣ የአስተያየት ጥቆማ፣ ገጽታ፣ የሚያስከፋ፣ ቃል፣ ተይብ፣ ስሜት ገላጭ ምስል፣ ዓለምአቀፍ"</string>
     <string name="keywords_reset_apps" msgid="2645701455052020435">"ዳግም አስጀምር፣ ምርጫዎች፣ ነባሪ"</string>
     <string name="keywords_all_apps" msgid="846444448435698930">"መተግበሪያዎች፣ ውርድ፣ መተግበሪያዎች፣ ስርዓት"</string>
     <string name="keywords_app_permissions" msgid="8539841019997048500">"መተግበሪያዎች፣ ፈቃዶች፣ ደህንነት"</string>
@@ -4356,7 +4358,7 @@
     <string name="preferred_network_mode_lte_summary" msgid="4281029367896990461">"ተመራጭ የአውታረ መረብ ሁነታ፦ LTE"</string>
     <string name="preferred_network_mode_lte_gsm_wcdma_summary" msgid="149627151786465701">"ተመራጭ የአውታረ መረብ ሁነታ፦ GSM/WCDMA/LTE"</string>
     <string name="preferred_network_mode_lte_cdma_evdo_summary" msgid="2892417308574212352">"ተመራጭ የአውታረ መረብ ሁነታ፦ CDMA+LTE/EVDO"</string>
-    <string name="preferred_network_mode_global_summary" msgid="487001671043476488">"ተመራጭ የአውታረ መረብ ሁነታ፦ አለምአቀፍ"</string>
+    <string name="preferred_network_mode_global_summary" msgid="487001671043476488">"ተመራጭ የአውታረ መረብ ሁነታ፦ ዓለምአቀፍ"</string>
     <string name="preferred_network_mode_lte_wcdma_summary" msgid="9029884385644299102">"ተመራጭ የአውታረ መረብ ሁነታ፦ LTE / WCDMA"</string>
     <string name="preferred_network_mode_lte_gsm_umts_summary" msgid="6583001637967763033">"ተመራጭ የአውታረ መረብ ሁነታ፦ LTE / GSM / UMTS"</string>
     <string name="preferred_network_mode_lte_cdma_summary" msgid="344294371859765484">"ተመራጭ የአውታረ መረብ ሁነታ፦ LTE / CDMA"</string>

@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Make the text on screen smaller or larger."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Make smaller"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Make larger"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Sample text"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"The Wonderful Wizard of Oz"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"Chapter 11: The Wonderful Emerald City of Oz"</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"Mobile"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"If Wi‑Fi is unavailable, use mobile network"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"If mobile network is unavailable, use Wi‑Fi"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Call over Wi‑Fi. If Wi‑Fi is lost, call will end."</string>
@@ -1568,7 +1570,7 @@
     <string name="restore_default_apn_completed" msgid="5671734152740058937">"Reset default APN settings completed"</string>
     <string name="reset_dashboard_title" msgid="7084966342252178530">"Reset options"</string>
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"Network, apps or device can be reset"</string>
-    <string name="reset_network_title" msgid="8944059136930806211">"Reset Wi-Fi, mobile &amp; Bluetooth"</string>
+    <string name="reset_network_title" msgid="8944059136930806211">"Reset Wi-Fi, mobile and Bluetooth"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"This will reset all network settings, including:\n\n"<li>"Wi‑Fi"</li>\n<li>"Mobile data"</li>\n<li>"Bluetooth"</li></string>
     <string name="reset_esim_title" msgid="7630781767040831893">"Erase downloaded SIMs"</string>
     <string name="reset_esim_desc" msgid="433226911566802">"To download replacement SIMs, contact your operator. This won’t cancel any mobile service plans."</string>
@@ -1576,13 +1578,13 @@
     <string name="reset_network_final_desc" msgid="2463817067048751373">"Reset all network settings? You can’t undo this action."</string>
     <string name="reset_network_final_desc_esim" msgid="4676436976372555750">"Reset all network settings and delete downloaded SIMs? You can’t undo this action."</string>
     <string name="reset_network_final_button_text" msgid="345255333127794393">"Reset settings"</string>
-    <string name="reset_network_confirm_title" msgid="2432145031070536008">"Reset?"</string>
+    <string name="reset_network_confirm_title" msgid="2432145031070536008">"Want to reset?"</string>
     <string name="network_reset_not_available" msgid="6146655531868016281">"Network reset is not available for this user"</string>
     <string name="reset_network_complete_toast" msgid="128225929536005495">"Network settings have been reset"</string>
     <string name="reset_esim_error_title" msgid="4728931209471875632">"Can’t delete SIMs"</string>
     <string name="reset_esim_error_msg" msgid="4716366079119742235">"Downloaded SIMs can’t be deleted due to an error.\n\nRestart your device and try again."</string>
-    <string name="master_clear_title" msgid="1560712943955904673">"Erase all data (factory reset)"</string>
-    <string name="master_clear_short_title" msgid="919098101581335101">"Erase all data (factory reset)"</string>
+    <string name="master_clear_title" msgid="1560712943955904673">"Delete all data (factory reset)"</string>
+    <string name="master_clear_short_title" msgid="919098101581335101">"Delete all data (factory reset)"</string>
     <string name="master_clear_desc" product="tablet" msgid="3432373610755760899">"This will erase all data from your tablet’s "<b>"internal storage"</b>", including:\n\n"<li>"Your Google Account"</li>\n<li>"System and app data and settings"</li>\n<li>"Downloaded apps"</li></string>
     <string name="master_clear_desc" product="default" msgid="8765543541962866697">"This will erase all data from your phone’s "<b>"internal storage"</b>", including:\n\n"<li>"Your Google Account"</li>\n<li>"System and app data and settings"</li>\n<li>"Downloaded apps"</li></string>
     <string name="master_clear_accounts" product="default" msgid="3432884235445405376">\n\n"You are currently signed in to the following accounts:\n"</string>
@@ -2039,7 +2041,7 @@
     <string name="vision_settings_description" msgid="3476589459009287332">"You can customise this device to fit your needs. These accessibility features can be changed later in Settings."</string>
     <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"Change font size"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"Screen readers"</string>
-    <string name="audio_and_captions_category_title" msgid="6140472938769619212">"Audio &amp; on-screen text"</string>
+    <string name="audio_and_captions_category_title" msgid="6140472938769619212">"Audio and on-screen text"</string>
     <string name="display_category_title" msgid="545168481672250195">"Display"</string>
     <string name="interaction_control_category_title" msgid="8775039211811947683">"Interaction controls"</string>
     <string name="user_installed_services_category_title" msgid="4288689493753221319">"Downloaded services"</string>
@@ -2062,7 +2064,7 @@
     <string name="accessibility_global_gesture_preference_title" msgid="3842279082831426816">"Volume key shortcut"</string>
     <string name="accessibility_shortcut_service_title" msgid="3516052294376744060">"Shortcut service"</string>
     <string name="accessibility_shortcut_service_on_lock_screen_title" msgid="1279441617927949980">"Allow from lock screen"</string>
-    <string name="accessibility_shortcut_description" msgid="1427049334225166395">"When the shortcut is on, you can press both volume keys for 3 seconds to start an accessibility feature."</string>
+    <string name="accessibility_shortcut_description" msgid="1427049334225166395">"When the shortcut is on, you can press both volume keys for three seconds to start an accessibility feature."</string>
     <string name="accessibility_toggle_high_text_contrast_preference_title" msgid="5652244684961877255">"High-contrast text"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_title" msgid="2466317284195934003">"Auto update screen magnification"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_summary" msgid="6625473745911276917">"Update screen magnification on app transitions"</string>
@@ -2083,7 +2085,7 @@
     <string name="accessibility_control_timeout_preference_title" msgid="2771808346038759474">"Time to take action"</string>
     <string name="accessibility_content_timeout_preference_summary" msgid="853829064617918179">"Choose how long to show messages that you need to read, but are visible only temporarily.\n\nNot all apps support this setting."</string>
     <string name="accessibility_control_timeout_preference_summary" msgid="8582212299606932160">"Choose how long to show messages that ask you to take action, but are visible only temporarily.\n\nNot all apps support this setting."</string>
-    <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"Touch &amp; hold delay"</string>
+    <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"Touch and hold delay"</string>
     <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"Colour inversion"</string>
     <string name="accessibility_display_inversion_preference_subtitle" msgid="69291255322175323">"May affect performance"</string>
     <string name="accessibility_autoclick_preference_title" msgid="9164599088410340405">"Dwell timing"</string>
@@ -2137,7 +2139,7 @@
     <string name="accessibility_vibration_summary_off" msgid="2894044066550518676">"Ring &amp; notification set to off"</string>
     <string name="accessibility_vibration_summary_low" msgid="2884160616131878204">"Ring &amp; notification set to low"</string>
     <string name="accessibility_vibration_summary_medium" msgid="3141272492346527298">"Ring &amp; notification set to medium"</string>
-    <string name="accessibility_vibration_summary_high" msgid="4188677504368202861">"Ring &amp; notification set to high"</string>
+    <string name="accessibility_vibration_summary_high" msgid="4188677504368202861">"Ring and notification set to high"</string>
     <string name="accessibility_vibration_intensity_off" msgid="4427927348723998194">"Off"</string>
     <string name="accessibility_vibration_intensity_low" msgid="8250688473513963211">"Low"</string>
     <string name="accessibility_vibration_intensity_medium" msgid="2249931147940383011">"Medium"</string>
@@ -2200,7 +2202,7 @@
       <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> print jobs</item>
       <item quantity="one">1 print job</item>
     </plurals>
-    <string name="print_settings_title" msgid="2886445296786932763">"Printing services"</string>
+    <string name="print_settings_title" msgid="2886445296786932763">"Print services"</string>
     <string name="print_no_services_installed" msgid="3387777739528003794">"No services installed"</string>
     <string name="print_no_printers_found" msgid="5090925427392294881">"No printers found"</string>
     <string name="print_menu_item_settings" msgid="2654804159012579508">"Settings"</string>
@@ -2933,7 +2935,7 @@
     <string name="restriction_menu_reset" msgid="3642252461410370554">"Remove restrictions"</string>
     <string name="restriction_menu_change_pin" msgid="592512748243421101">"Change PIN"</string>
     <string name="app_notifications_switch_label" msgid="670683308275498821">"Show notifications"</string>
-    <string name="help_label" msgid="1296484776243905646">"Help &amp; feedback"</string>
+    <string name="help_label" msgid="1296484776243905646">"Help and feedback"</string>
     <string name="support_summary" msgid="3278943815956130740">"Help articles, phone &amp; chat, getting started"</string>
     <string name="user_account_title" msgid="2108666882630552859">"Account for content"</string>
     <string name="user_picture_title" msgid="6664602422948159123">"Photo ID"</string>
@@ -3940,7 +3942,7 @@
     <string name="cell_data_template" msgid="5473177306229738078">"<xliff:g id="AMOUNT">^1</xliff:g> mobile data"</string>
     <string name="wifi_data_template" msgid="3146090439147042068">"<xliff:g id="AMOUNT">^1</xliff:g> Wi-Fi data"</string>
     <string name="ethernet_data_template" msgid="6414118030827090119">"<xliff:g id="AMOUNT">^1</xliff:g> ethernet data"</string>
-    <string name="billing_cycle" msgid="5740717948341713190">"Data warning &amp; limit"</string>
+    <string name="billing_cycle" msgid="5740717948341713190">"Data warning and limit"</string>
     <string name="app_usage_cycle" msgid="213483325132959663">"App data usage cycle"</string>
     <string name="cell_data_warning" msgid="8902740337286652689">"<xliff:g id="ID_1">^1</xliff:g> data warning"</string>
     <string name="cell_data_limit" msgid="3175933829235314233">"<xliff:g id="ID_1">^1</xliff:g> data limit"</string>
@@ -4267,7 +4269,7 @@
     <string name="storage_manager_indicator_on" msgid="5295306384982062320">"On"</string>
     <string name="install_type_instant" msgid="6248487669862821874">"Instant app"</string>
     <string name="automatic_storage_manager_deactivation_warning" msgid="7867793739491286374">"Turn off the storage manager?"</string>
-    <string name="storage_movies_tv" msgid="7282484273991655296">"Movie &amp; TV apps"</string>
+    <string name="storage_movies_tv" msgid="7282484273991655296">"Movie and TV apps"</string>
     <string name="carrier_provisioning" msgid="3309125279191534469">"Operator Provisioning Info"</string>
     <string name="trigger_carrier_provisioning" msgid="6284005970057901477">"Trigger Operator Provisioning"</string>
     <string name="zen_suggestion_title" msgid="2134699720214231950">"Update Do Not Disturb"</string>

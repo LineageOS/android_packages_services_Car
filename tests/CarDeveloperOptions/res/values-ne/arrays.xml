@@ -62,8 +62,8 @@
   <string-array name="entries_font_size">
     <item msgid="2340391964816059553">"सानो"</item>
     <item msgid="591935967183159581">"पूर्वनिर्धारित"</item>
-    <item msgid="1714184661981538355">"ठूलो"</item>
-    <item msgid="6195563047686707484">"सबैभन्दा ठूलो"</item>
+    <item msgid="1714184661981538355">"ठुलो"</item>
+    <item msgid="6195563047686707484">"सबैभन्दा ठुलो"</item>
   </string-array>
   <string-array name="wifi_status">
     <item msgid="1304883790721412351"></item>
@@ -85,7 +85,7 @@
     <item msgid="8058143476674427024">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g>सँग जडान हुँदै..."</item>
     <item msgid="7547609081339573756">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g>का साथ प्रमाणीकरण गर्दै..."</item>
     <item msgid="5145158315060185414">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g>बाट IP ठेगाना प्राप्त गर्दै..."</item>
-    <item msgid="3283243151651124831">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g>सँग जडित"</item>
+    <item msgid="3283243151651124831">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g> मा जोडिएको छ"</item>
     <item msgid="6600156231416890902">"निलम्बित"</item>
     <item msgid="4133290864821295785">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g>बाट विच्छेदन गर्दै..."</item>
     <item msgid="3980154971187953257">"जडान विच्छेद भयो"</item>
@@ -135,7 +135,7 @@
   <string-array name="usage_stats_display_order_types">
     <item msgid="1266031014388516303">"उपयोग समय"</item>
     <item msgid="2784401352592276015">"पछिल्लो समय प्रयोग गरिएको"</item>
-    <item msgid="249854287216326349">"अनुप्रयोगको नाम"</item>
+    <item msgid="249854287216326349">"एपको नाम"</item>
   </string-array>
   <string-array name="wifi_eap_entries">
     <item msgid="5538816743897530343">"PEAP"</item>
@@ -170,7 +170,7 @@
   <string-array name="wifi_proxy_settings">
     <item msgid="9032900195127165132">"कुनै पनि होइन"</item>
     <item msgid="1464741437353223198">"म्यानुअल"</item>
-    <item msgid="5793600062487886090">"प्रोक्सी स्वतः समायोजन"</item>
+    <item msgid="5793600062487886090">"प्रोक्सी अटो-कन्फिगुरेसन"</item>
   </string-array>
   <string-array name="apn_auth_entries">
     <item msgid="7099647881902405997">"कुनै पनि होइन"</item>
@@ -256,8 +256,8 @@
     <item msgid="7565226799008076833">"मास्टर ध्वनि मात्रा"</item>
     <item msgid="5420704980305018295">"वाणी मात्रा"</item>
     <item msgid="5797363115508970204">"घन्टी मात्रा"</item>
-    <item msgid="8233154098550715999">"मिडियाको आवाजको मात्रा"</item>
-    <item msgid="5196715605078153950">"अलार्मको आवाजको मात्रा"</item>
+    <item msgid="8233154098550715999">"मिडियाको भोल्युम"</item>
+    <item msgid="5196715605078153950">"अलार्मको भोल्युम"</item>
     <item msgid="394030698764284577">"सूचना मात्रा"</item>
     <item msgid="8952898972491680178">"ब्लुटुथ मात्रा"</item>
     <item msgid="8506227454543690851">"जागा रहनुहोस्"</item>
@@ -286,7 +286,73 @@
     <item msgid="1165623660533024666">"पृष्ठभूमिमा सञ्चालन गर्नुहोस्"</item>
     <item msgid="6423861043647911030">"पहुँचको मात्रा"</item>
   </string-array>
-    <!-- no translation found for app_ops_labels:41 (2464189519136248621) -->
+  <string-array name="app_ops_labels">
+    <item msgid="7892361636570580123">"स्थान"</item>
+    <item msgid="6656077694190491067">"स्थान"</item>
+    <item msgid="8790228218278477369">"स्थान"</item>
+    <item msgid="7836406246005211990">"भाइब्रेट गर्नुहोस्"</item>
+    <item msgid="3951439024549922598">"सम्पर्कहरू पढ्नुहोस्"</item>
+    <item msgid="8802152411647068">"सम्पर्कहरू परिमार्जन गर्नुहोस्"</item>
+    <item msgid="229544934599698735">"कल लग पढ्नुहोस्"</item>
+    <item msgid="7396102294405899613">"कल लग परिमार्जन गर्नुहोस्"</item>
+    <item msgid="3597797992398484655">"पात्रो पढ्नुहोस्"</item>
+    <item msgid="2705975774250907343">"पात्रो परिमार्जन गर्नुहोस्"</item>
+    <item msgid="4668747371441932697">"स्थान"</item>
+    <item msgid="1487578921720243646">"सूचना पोस्ट गर्नुहोस्"</item>
+    <item msgid="4636080349724146638">"स्थान"</item>
+    <item msgid="673510900286463926">"कल फोन"</item>
+    <item msgid="542083422784609790">"SMS/MMS पढ्नुहोस्"</item>
+    <item msgid="1033780373029588436">"SMS/MMS लेख्नुहोस्"</item>
+    <item msgid="5647111115517787488">"SMS/MMS प्राप्त गर्नुहोस्"</item>
+    <item msgid="8591105601108455893">"SMS/MMS प्राप्त गर्नुहोस्"</item>
+    <item msgid="7730995008517841903">"SMS/MMS प्राप्त गर्नुहोस्"</item>
+    <item msgid="2613033109026626086">"SMS/MMS प्राप्त गर्नुहोस्"</item>
+    <item msgid="3037159047591081136">"SMS/MMS पठाउनुहोस्"</item>
+    <item msgid="4726682243833913568">"SMS/MMS पढ्नुहोस्"</item>
+    <item msgid="6555678522277865572">"SMS/MMS लेख्नुहोस्"</item>
+    <item msgid="6981734935578130884">"सेटिङ परिमार्जन गर्नुहोस्"</item>
+    <item msgid="8705854389991425629">"शीर्षमा कोर्नुहोस्"</item>
+    <item msgid="5861356020344153651">"सूचनाहरू पहुँच गर्नुहोस्"</item>
+    <item msgid="78432174621628659">"क्यामेरा"</item>
+    <item msgid="3986116419882154794">"अडियो रेकर्ड गर्नुहोस्"</item>
+    <item msgid="4516840825756409490">"अडियो बजाउनुहोस्"</item>
+    <item msgid="6811712502798183957">"क्लिपबोर्ड पढ्नुहोस्"</item>
+    <item msgid="2780369012602289114">"क्लिपबोर्ड परिमार्जन गर्नुहोस्"</item>
+    <item msgid="2331359440170850868">"मिडिया बटनहरू"</item>
+    <item msgid="6133599737122751231">"श्रब्य फोकस"</item>
+    <item msgid="6844485713404805301">"मास्टर ध्वनि मात्रा"</item>
+    <item msgid="1600379420669104929">"वाणीको मात्रा"</item>
+    <item msgid="6296768210470214866">"घन्टीको भोल्युम"</item>
+    <item msgid="510690696071629241">"मिडियाको भोल्युम"</item>
+    <item msgid="406861638631430109">"अलार्मको भोल्युम"</item>
+    <item msgid="4715864795872233884">"ध्वनी सूचना"</item>
+    <item msgid="2311478519251301183">"ब्लुटुथ भोल्युम"</item>
+    <item msgid="5133991377896747027">"जागा रहनुहोस्"</item>
+    <item msgid="2464189519136248621">"स्थान"</item>
+    <item msgid="2062677934050803037">"स्थान"</item>
+    <item msgid="1735171933192715957">"तथ्याङ्क उपयोग प्राप्त गर्नुहोस्"</item>
+    <item msgid="1014093788778383554">"माइक्रोफोनको आवाज बन्द्/खुला गर्नुहोस्"</item>
+    <item msgid="4199297950608622850">"टोस्ट देखाउनुहोस्"</item>
+    <item msgid="2527962435313398821">"मिडिया प्रोजेक्ट गर्नुहोस्"</item>
+    <item msgid="5117506254221861929">"VPN सक्रिय पार्नुहोस्"</item>
+    <item msgid="8291198322681891160">"वालपेपर लेख्नुहोस्"</item>
+    <item msgid="7106921284621230961">"संरचनालाई मद्दत गर्नुहोस्"</item>
+    <item msgid="4496533640894624799">"स्क्रिनसटलाई मद्दत गर्नुहोस्"</item>
+    <item msgid="2598847264853993611">"फोन अवस्था पढ्नुहोस्"</item>
+    <item msgid="9215610846802973353">"भ्वाइसमेल थप्नुहोस्"</item>
+    <item msgid="9186411956086478261">"SIP प्रयोग गर्नुहोस्"</item>
+    <item msgid="6884763100104539558">"बहिर्गमन कललाई प्रशोधन गर्नुहोस्"</item>
+    <item msgid="125513972170580692">"फिंगरप्रिन्ट"</item>
+    <item msgid="2556071024281275619">"शारीरिक सेन्सर"</item>
+    <item msgid="617168514928339387">"सेल प्रसारणहरू पढ्नुहोस्"</item>
+    <item msgid="7134693570516523585">"स्थानको नक्कल गर्नुहोस्"</item>
+    <item msgid="7224489175375229399">"भण्डारण पढ्नुहोस्"</item>
+    <item msgid="8472735063903258202">"भण्डारण लेख्नहोस्"</item>
+    <item msgid="4069276819909595110">"स्क्रिन सक्रिय गर्नुहोस्"</item>
+    <item msgid="1228338896751121025">"खाताहरू प्राप्त गर्नुहोस्"</item>
+    <item msgid="3181581793459233672">"पृष्ठभूमिमा सञ्चालन गर्नुहोस्"</item>
+    <item msgid="2340936043025374076">"पहुँचको मात्रा"</item>
+  </string-array>
   <string-array name="long_press_timeout_selector_titles">
     <item msgid="8950313530602254787">"छोटो"</item>
     <item msgid="4816511817309094890">"सामान्य"</item>
@@ -307,8 +373,8 @@
     <item msgid="1680223634161592855">"ज्यादै साना"</item>
     <item msgid="5091603983404027034">"सानो"</item>
     <item msgid="176844712416932112">"सामान्य"</item>
-    <item msgid="2784236342175159295">"ठूलो"</item>
-    <item msgid="218913203203160606">"ज्यादै ठूलो"</item>
+    <item msgid="2784236342175159295">"ठुलो"</item>
+    <item msgid="218913203203160606">"ज्यादै ठुलो"</item>
   </string-array>
   <string-array name="captioning_edge_type_selector_titles">
     <item msgid="3865198759294188069">"पूर्वनिर्धारित"</item>
@@ -357,9 +423,19 @@
     <item msgid="7718817231348607934">"कहिल्यै पनि अनुमति नदिनुहोस्"</item>
     <item msgid="8184570120217958741">"सधैँ अनुमति दिनुहोस्"</item>
   </string-array>
-    <!-- no translation found for ram_states:0 (708247372474061274) -->
-    <!-- no translation found for ram_states:4 (1567326459340152525) -->
-    <!-- no translation found for proc_stats_memory_states:3 (8577246509202964244) -->
+  <string-array name="ram_states">
+    <item msgid="708247372474061274">"मेमोरीको स्थिति सामान्य छ"</item>
+    <item msgid="5101233285497327432">"मध्यम"</item>
+    <item msgid="1555861583162930714">"न्यून"</item>
+    <item msgid="1719683776264798117">"चिन्ताजनक"</item>
+    <item msgid="1567326459340152525">"?"</item>
+  </string-array>
+  <string-array name="proc_stats_memory_states">
+    <item msgid="3474232046138139454">"सामान्य"</item>
+    <item msgid="6107138933849816768">"मध्यम"</item>
+    <item msgid="182695359839047859">"न्यून"</item>
+    <item msgid="8577246509202964244">"मेमोरी अत्यन्त कम छ"</item>
+  </string-array>
   <string-array name="proc_stats_process_states">
     <item msgid="7560955722349181440">"लगातार"</item>
     <item msgid="167418068739176448">"उच्च गतिविधि"</item>
@@ -378,16 +454,16 @@
   </string-array>
   <string-array name="color_picker">
     <item msgid="3151827842194201728">"टिल"</item>
-    <item msgid="3228505970082457852">"नीलो"</item>
+    <item msgid="3228505970082457852">"निलो"</item>
     <item msgid="6590260735734795647">"इन्डिगो"</item>
     <item msgid="3521763377357218577">"बैजनी"</item>
     <item msgid="5932337981182999919">"गुलाबी"</item>
     <item msgid="5642914536624000094">"रातो"</item>
   </string-array>
   <string-array name="automatic_storage_management_days">
-    <item msgid="2860293514533486236">"३० दिनभन्दा बढी पुरानो"</item>
-    <item msgid="8699273238891265610">"६० दिनभन्दा बढी पुरानो"</item>
-    <item msgid="8346279419423837266">"९० दिनभन्दा बढी पुरानो"</item>
+    <item msgid="2860293514533486236">"कम्तीमा ३० दिन पुरानो"</item>
+    <item msgid="8699273238891265610">"कम्तीमा ६० दिन पुरानो"</item>
+    <item msgid="8346279419423837266">"कम्तीमा ९० दिन पुरानो"</item>
   </string-array>
     <!-- no translation found for swipe_direction_titles:0 (6583090603341402282) -->
     <!-- no translation found for swipe_direction_titles:1 (4965730704403236310) -->
@@ -398,7 +474,7 @@
   <string-array name="wifi_metered_entries">
     <item msgid="4329206416008519163">"स्वतः पत्ता लगाउनुहोस्"</item>
     <item msgid="773943026484148895">"शुल्क लाग्ने वाइफाइका रूपमा लिनुहोस्"</item>
-    <item msgid="1008268820118852416">"मिटर नगरिएको रूपमा व्यवहार गर्नुहोस्"</item>
+    <item msgid="1008268820118852416">"नि:शुल्क वाइफाइको रूपमा व्यवहार गर्नुहोस्"</item>
   </string-array>
   <string-array name="wifi_privacy_entries">
     <item msgid="6545683814310036454">"क्रमरहित MAC प्रयोग गर्नुहोस् (पूर्वनिर्धारित)"</item>
