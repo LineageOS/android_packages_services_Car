@@ -84,8 +84,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Măriți sau micșorați textul de pe ecran."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Micșorați"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Măriți"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Exemplu de text"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"Minunatul Vrăjitor din Oz"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"Capitolul 11: Minunatul Oraș de Smarald Oz"</string>
@@ -1121,7 +1120,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"Date mobile"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Dacă rețeaua Wi‑Fi nu este disponibilă, folosiți rețeaua mobilă"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Dacă rețeaua mobilă nu este disponibilă, folosiți Wi‑Fi"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Apelați prin Wi‑Fi. Dacă pierdeți conexiunea Wi-Fi, apelul se încheie."</string>
@@ -3234,7 +3236,7 @@
     <string name="zen_mode_summary_combination" msgid="6960111215170691605">"<xliff:g id="MODE">%1$s</xliff:g>: <xliff:g id="EXIT_CONDITION">%2$s</xliff:g>"</string>
     <string name="zen_mode_visual_interruptions_settings_title" msgid="8378266552787406849">"Blocați întreruperile vizuale"</string>
     <string name="zen_mode_visual_signals_settings_subtitle" msgid="6608239691864638854">"Permiteți semnale vizuale"</string>
-    <string name="zen_mode_settings_category" msgid="5601680733422424922">"Când funcția „Nu deranja” este activată"</string>
+    <string name="zen_mode_settings_category" msgid="5601680733422424922">"Când modul Nu deranja este activat"</string>
     <string name="zen_mode_restrict_notifications_title" msgid="7486753018073540477">"Restricționați notificările"</string>
     <string name="zen_mode_restrict_notifications_mute" msgid="2673665450311184875">"Fără sunet de la notificări"</string>
     <string name="zen_mode_restrict_notifications_mute_summary" msgid="1696217042353376674">"Veți vedea notificările pe ecran"</string>
@@ -3273,7 +3275,7 @@
     <string name="zen_mode_button_turn_on" msgid="1097964136225943415">"Activați acum"</string>
     <string name="zen_mode_button_turn_off" msgid="3990967728457149454">"Dezactivați acum"</string>
     <string name="zen_mode_settings_dnd_manual_end_time" msgid="4307574188962071429">"Funcția Nu deranja este activată până la <xliff:g id="FORMATTED_TIME">%s</xliff:g>"</string>
-    <string name="zen_mode_settings_dnd_manual_indefinite" msgid="3701005376825238752">"Funcția Nu deranja rămâne activă până când o dezactivați"</string>
+    <string name="zen_mode_settings_dnd_manual_indefinite" msgid="3701005376825238752">"Modul Nu deranja rămâne activ până îl dezactivați"</string>
     <string name="zen_mode_settings_dnd_automatic_rule" msgid="2843297614114625408">"Modul Nu deranja a fost activat automat de un program (<xliff:g id="RULE_NAME">%s</xliff:g>)"</string>
     <string name="zen_mode_settings_dnd_automatic_rule_app" msgid="5103454923160912313">"Funcția Nu deranja a fost activată automat de o aplicație (<xliff:g id="APP_NAME">%s</xliff:g>)"</string>
     <string name="zen_mode_settings_dnd_custom_settings_footer" msgid="6335108298640066560">"Modul Nu deranja este activat pentru <xliff:g id="RULE_NAMES">%s</xliff:g> cu setări personalizate."</string>
@@ -3556,7 +3558,7 @@
     <string name="zen_mode_reminders_list" msgid="7347061314032326677">"mementouri"</string>
     <string name="zen_mode_events" msgid="5784076928339534984">"Permiteți evenimente"</string>
     <string name="zen_mode_bypassing_apps" msgid="3080739479028713449">"Permiteți aplicațiilor să ignore"</string>
-    <string name="zen_mode_bypassing_apps_title" msgid="2115024664615538847">"Excepțiile aplicației"</string>
+    <string name="zen_mode_bypassing_apps_title" msgid="2115024664615538847">"Excepții de aplicații"</string>
     <plurals name="zen_mode_bypassing_apps_subtext" formatted="false" msgid="8723144434730871572">
       <item quantity="few">Notificările de la <xliff:g id="NUMBER">%1$d</xliff:g> aplicații pot modifica modul Nu deranja</item>
       <item quantity="other">Notificările de la <xliff:g id="NUMBER">%1$d</xliff:g> de aplicații pot modifica modul Nu deranja</item>
@@ -3684,7 +3686,7 @@
       <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> permisiune suplimentară</item>
     </plurals>
     <string name="runtime_permissions_summary_no_permissions_granted" msgid="3477934429220828771">"Nicio permisiune acordată"</string>
-    <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"Nicio permisiunea solicitată"</string>
+    <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"Nicio permisiune solicitată"</string>
     <string name="filter_all_apps" msgid="4042756539846043675">"Toate aplicațiile"</string>
     <string name="filter_enabled_apps" msgid="5888459261768538489">"Aplicații instalate"</string>
     <string name="filter_instant_apps" msgid="8087483282854072366">"Aplicații instantanee"</string>
@@ -3768,8 +3770,8 @@
     <string name="high_power_off" msgid="5906679734326490426">"Se optimizează utilizarea bateriei"</string>
     <string name="high_power_system" msgid="739584574711292753">"Optimizarea bateriei nu este disponibilă"</string>
     <string name="high_power_desc" msgid="333756885680362741">"Nu aplicați optimizarea bateriei. Bateria se poate descărca mai rapid."</string>
-    <string name="high_power_prompt_title" msgid="2805745781720454052">"Permiteți aplicației să ruleze continuu în fundal?"</string>
-    <string name="high_power_prompt_body" msgid="8067395096053552289">"Dacă permiteți aplicației <xliff:g id="APP_NAME">%1$s</xliff:g> să ruleze continuu în fundal, autonomia bateriei poate scădea. \n\nPuteți modifica opțiunea ulterior din Setări &gt; Aplicații și notificări."</string>
+    <string name="high_power_prompt_title" msgid="2805745781720454052">"Permiteți aplicației să ruleze încontinuu în fundal?"</string>
+    <string name="high_power_prompt_body" msgid="8067395096053552289">"Dacă permiteți aplicației <xliff:g id="APP_NAME">%1$s</xliff:g> să ruleze încontinuu în fundal, autonomia bateriei poate scădea. \n\nPuteți modifica opțiunea ulterior din Setări &gt; Aplicații și notificări."</string>
     <string name="battery_summary" msgid="4345690800899981339">"Utilizare de la ultima încărcare completă: <xliff:g id="PERCENTAGE">%1$s</xliff:g>"</string>
     <string name="battery_power_management" msgid="2853925857548647969">"Gestionarea consumului de energie"</string>
     <string name="no_battery_summary" msgid="4105932628367471314">"Bateria nu a fost folosită de la ultima încărcare completă"</string>

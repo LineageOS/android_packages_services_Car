@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Yenza umbhalo okusikrini ube mncane noma mkhulu."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Yenza kube kuncane"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Yenza kube kukhulu"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Isampuli yombhalo"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"I-The Wonderful Wizard of Oz"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"Isahluko 11: The Wonderful Emerald City of Oz"</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"I-Wi-Fi"</item>
+    <item msgid="2271962426654621656">"Iselula"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Uma i-Wi-Fi ingatholakali, sebenzisa inethiwekhi yeselula"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Uma inethiwekhi yeselula ingatholakali, sebenzisa i-Wi-Fi"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Shaya nge-Wi-Fi. Uma i-Wi-Fi ilahleka, ikholi izophela."</string>
@@ -3305,7 +3307,7 @@
     <string name="hide_silent_icons_title" msgid="1070905516921542662">"Fihla izithonjana ezithulile zesimo sokwazisa"</string>
     <string name="hide_silent_icons_summary" msgid="2624346914488256888">"Fihla izithonjana zezaziso ezithulile kubha yesimo"</string>
     <string name="notification_badging_title" msgid="6311699476970264712">"Vumela amachashazi esaziso"</string>
-    <string name="notification_bubbles_title" msgid="9196562435741861317">"Amabhamu"</string>
+    <string name="notification_bubbles_title" msgid="9196562435741861317">"Amabhamuza"</string>
     <string name="notification_bubbles_summary" msgid="4624512775901949578">"Finyelela ngokushesha okuqukethwe kohlelo lokusebenza kusuka noma yikuphi usebenzisa izinqamuleli ezintantayo"</string>
     <string name="bubbles_feature_education" msgid="8979109826818881018">"Ezinye izaziso nokunye okuqukethwe kungavela njengamabhamuza kusikrini. Ukuze uvule ibhamuza, lithephe. Ukuze ulicashise, lidonsele phansi kusikrini."</string>
     <string name="bubbles_app_toggle_title" msgid="6401217027603326439">"Amabhamuza"</string>
