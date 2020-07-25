@@ -29,8 +29,25 @@
     <item msgid="5194868215515664953">"ပစိဖိတ်"</item>
     <item msgid="7044520255415007865">"အားလုံး"</item>
   </string-array>
-    <!-- no translation found for screen_timeout_entries:0 (8596143519087753804) -->
-    <!-- no translation found for dream_timeout_entries:7 (8271452751594598661) -->
+  <string-array name="screen_timeout_entries">
+    <item msgid="8596143519087753804">"၁၅ စက္ကန့်"</item>
+    <item msgid="772029947136115322">"စက္ကန့် ၃၀"</item>
+    <item msgid="8743663928349474087">"၁ မိနစ်"</item>
+    <item msgid="1506508631223164814">"၂ မိနစ်"</item>
+    <item msgid="8664703938127907662">"၅ မိနစ်"</item>
+    <item msgid="5827960506924849753">"၁၀ မိနစ်"</item>
+    <item msgid="6677424950124253938">"၃၀ မိနစ်"</item>
+  </string-array>
+  <string-array name="dream_timeout_entries">
+    <item msgid="6487043225269853023">"ဘယ်တော့မှ"</item>
+    <item msgid="2517785806387977252">"၁၅ စက္ကန့်"</item>
+    <item msgid="6347954399441173672">"စက္ကန့် ၃၀"</item>
+    <item msgid="4858305253279921789">"၁ မိနစ်"</item>
+    <item msgid="8109273437140044073">"၂ မိနစ်"</item>
+    <item msgid="2788593551142462622">"၅ မိနစ်"</item>
+    <item msgid="8012672183888404961">"၁၀ မိနစ်"</item>
+    <item msgid="8271452751594598661">"မိနစ် ၃၀"</item>
+  </string-array>
   <string-array name="lock_after_timeout_entries">
     <item msgid="2232921187970351881">"ချက်ချင်း"</item>
     <item msgid="2038544972632026612">"၅ စက္ကန့်"</item>
@@ -42,17 +59,47 @@
     <item msgid="811192536981678974">"၁၀ မိနစ်"</item>
     <item msgid="7258394417241706272">"၃၀ မိနစ်"</item>
   </string-array>
-    <!-- no translation found for entries_font_size:0 (2340391964816059553) -->
-    <!-- no translation found for entries_font_size:0 (6490061470416867723) -->
-    <!-- no translation found for entries_font_size:2 (1714184661981538355) -->
-    <!-- no translation found for entries_font_size:2 (1678068858001018666) -->
-    <!-- no translation found for wifi_status:3 (5848277343965362748) -->
-    <!-- no translation found for wifi_status_with_ssid:1 (6816207058895999545) -->
-    <!-- no translation found for wifi_status_with_ssid:3 (7547609081339573756) -->
-    <!-- no translation found for wifi_status_with_ssid:4 (5145158315060185414) -->
+  <string-array name="entries_font_size">
+    <item msgid="2340391964816059553">"သေး"</item>
+    <item msgid="591935967183159581">"မူရင်း"</item>
+    <item msgid="1714184661981538355">"ကြီး"</item>
+    <item msgid="6195563047686707484">"အကြီးဆုံး"</item>
+  </string-array>
+  <string-array name="wifi_status">
+    <item msgid="1304883790721412351"></item>
+    <item msgid="4157625910392775808">"စကင်ပြုလုပ်နေပြီ"</item>
+    <item msgid="5597394826455877834">"ချိတ်ဆက်နေသည်"</item>
+    <item msgid="5848277343965362748">"အထောက်အထားစိစစ်နေသည်…"</item>
+    <item msgid="3391238031431440676">"အိုင်ပီလိပ်စာရယူနေသည်"</item>
+    <item msgid="5257597310494000224">"ချိတ်ဆက်ထားသည်"</item>
+    <item msgid="8472497592913050396">"ဆိုင်းငံ့ထားသည်"</item>
+    <item msgid="1228072488815999109">"အဆက်အသွယ်ဖြတ်တောက်သည်"</item>
+    <item msgid="7253087004422991731">"ချိတ်ဆက်မှုပြတ်တောက်သည်"</item>
+    <item msgid="4169850917304751227">"မအောင်မြင်ပါ"</item>
+    <item msgid="6266658166690831131">"ပိတ်ဆို့ထား"</item>
+    <item msgid="4517230805854909775">"နှေးကွေးသောဆက်သွယ်မှုကို ယာယီရှောင်ရှားထားသည်"</item>
+  </string-array>
+  <string-array name="wifi_status_with_ssid">
+    <item msgid="4853670665485437464"></item>
+    <item msgid="6816207058895999545">"ရှာဖွေနေသည်…"</item>
+    <item msgid="8058143476674427024">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g> နှင့် ဆက်သွယ်နေပါသည်"</item>
+    <item msgid="7547609081339573756">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g> ဖြင့် အထောက်အထားစိစစ်နေသည်…"</item>
+    <item msgid="5145158315060185414">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g> မှ အိုင်ပီလိပ်စာကို ရယူနေသည်…"</item>
+    <item msgid="3283243151651124831">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g> နှင့် ဆက်သွယ်ထားပြီး"</item>
+    <item msgid="6600156231416890902">"ဆိုင်းငံ့ထားသည်"</item>
+    <item msgid="4133290864821295785">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g>မှ ဆက်သွယ်မှုဖြတ်တောက်သွားသည်"</item>
+    <item msgid="3980154971187953257">"ချိတ်ဆက်မှုပြတ်တောက်သည်"</item>
+    <item msgid="2847316776634969068">"မအောင်မြင်ပါ"</item>
+    <item msgid="4390990424746035383">"ပိတ်ဆို့ထား"</item>
+    <item msgid="3618248791367063949">"နှေးကွေးသောဆက်သွယ်မှုကို ယာယီရှောင်ရှားထားသည်"</item>
+  </string-array>
     <!-- no translation found for wifi_tether_security:0 (5586343370515598801) -->
     <!-- no translation found for wifi_tether_security:1 (6136336549994615745) -->
-    <!-- no translation found for wifi_p2p_wps_setup:0 (5390235347963255303) -->
+  <string-array name="wifi_p2p_wps_setup">
+    <item msgid="5390235347963255303">"နှိပ်ရန်ခလုတ်"</item>
+    <item msgid="7401896200768713930">"တန်းတူစက်ပစ္စည်းမှပင်နံပါတ်"</item>
+    <item msgid="4526848028011846710">"ဤစက်မှပင်နံပါတ်"</item>
+  </string-array>
   <string-array name="wifi_p2p_status">
     <item msgid="8741947238021758201">"ချိတ်ဆက်ထားသည်"</item>
     <item msgid="983792611851499732">"ဖိတ်ခေါ်ထားပြီး"</item>
@@ -60,7 +107,12 @@
     <item msgid="4646663015449312554">"အသုံးပြုနိုင်သည်"</item>
     <item msgid="3230556734162006146">"စက်ကွင်းပြင်ပ"</item>
   </string-array>
-    <!-- no translation found for bluetooth_visibility_timeout_entries:1 (2759776603549270587) -->
+  <string-array name="bluetooth_visibility_timeout_entries">
+    <item msgid="8247986727324120082">"၂ မိနစ်"</item>
+    <item msgid="2759776603549270587">"၅ မိနစ်"</item>
+    <item msgid="167772676068860015">"၁ နာရီ"</item>
+    <item msgid="5985477119043628504">"ဘယ်တော့မှ ပိတ်မပစ်ရန်"</item>
+  </string-array>
   <string-array name="bluetooth_max_connected_audio_devices">
     <item msgid="3800257971619063588">"စနစ်မူရင်းကို အသုံးပြုရန်− <xliff:g id="DEFAULT_BLUETOOTH_MAX_CONNECTED_AUDIO_DEVICES">%1$d</xliff:g>"</item>
     <item msgid="8572230405241423895">"၁"</item>
@@ -69,8 +121,13 @@
     <item msgid="1644506614010085798">"၄"</item>
     <item msgid="3132506679404897150">"၅"</item>
   </string-array>
-    <!-- no translation found for wifi_signal:1 (7882129634982603782) -->
-    <!-- no translation found for wifi_signal:4 (999948812884919584) -->
+  <string-array name="wifi_signal">
+    <item msgid="1709949377823900951">"ညံ့သည်"</item>
+    <item msgid="7882129634982603782">"ညံ့သည်"</item>
+    <item msgid="6457357501905996224">"အတန်အသင့်"</item>
+    <item msgid="405271628162918841">"ကောင်းသည်"</item>
+    <item msgid="999948812884919584">"အလွန်ကောင်းသည်"</item>
+  </string-array>
   <string-array name="data_usage_data_range">
     <item msgid="8986775481492954015">"နောက်ဆုံး ရက် ၃၀"</item>
     <item msgid="3211287705232736964">"သုံးစွဲမှု စက်ဝန်း သတ်မှတ်ရန်..."</item>
@@ -106,7 +163,10 @@
     <item msgid="7330627471456865502">"MSCHAPV2"</item>
     <item msgid="6255179395132581882">"GTC"</item>
   </string-array>
-    <!-- no translation found for wifi_ip_settings:1 (4377002609760712163) -->
+  <string-array name="wifi_ip_settings">
+    <item msgid="2717196390555072244">"DHCP"</item>
+    <item msgid="4377002609760712163">"ပုံသေ"</item>
+  </string-array>
   <string-array name="wifi_proxy_settings">
     <item msgid="9032900195127165132">"မရှိ"</item>
     <item msgid="1464741437353223198">"ကိုယ်တိုင်ထည့်သွင်းခြင်း"</item>
@@ -226,11 +286,73 @@
     <item msgid="1165623660533024666">"နောက်ခံမှာ အလုပ်လုပ်ပါ"</item>
     <item msgid="6423861043647911030">"အများသုံးစွဲနိုင်မှု အသံ"</item>
   </string-array>
-    <!-- no translation found for app_ops_labels:3 (7836406246005211990) -->
-    <!-- no translation found for app_ops_labels:4 (3951439024549922598) -->
-    <!-- no translation found for app_ops_labels:8 (3597797992398484655) -->
-    <!-- no translation found for app_ops_labels:20 (3037159047591081136) -->
-    <!-- no translation found for app_ops_labels:41 (2464189519136248621) -->
+  <string-array name="app_ops_labels">
+    <item msgid="7892361636570580123">"တည်နေရာ"</item>
+    <item msgid="6656077694190491067">"တည်နေရာ"</item>
+    <item msgid="8790228218278477369">"တည်နေရာ"</item>
+    <item msgid="7836406246005211990">"တုန်ခါရန်"</item>
+    <item msgid="3951439024549922598">"အဆက်အသွယ်များ ဖတ်ရန်"</item>
+    <item msgid="8802152411647068">"အဆက်အသွယ်များပြင်ဆင်ရန်"</item>
+    <item msgid="229544934599698735">"ခေါ်ဆိုထားသော မှတ်တမ်းကိုဖတ်ရန်"</item>
+    <item msgid="7396102294405899613">"ခေါ်ဆိုထားသော မှတ်တမ်းကို ပြင်ဆင်ရန်"</item>
+    <item msgid="3597797992398484655">"ပြက္ခဒိန်ကို ဖတ်ရန်"</item>
+    <item msgid="2705975774250907343">"ပြက္ခဒိန်ပြင်ဆင်ရန်"</item>
+    <item msgid="4668747371441932697">"တည်နေရာ"</item>
+    <item msgid="1487578921720243646">"အကြောင်းကြားစာကို တင်ရန်"</item>
+    <item msgid="4636080349724146638">"တည်နေရာ"</item>
+    <item msgid="673510900286463926">"ဖုန်းခေါ်ရန်"</item>
+    <item msgid="542083422784609790">"စာတို/ရုပ်သံစာ ဖတ်ရန်"</item>
+    <item msgid="1033780373029588436">"စာတို/ရုပ်သံစာ ရေးရန်"</item>
+    <item msgid="5647111115517787488">"စာတို/ရုပ်သံစာ လက်ခံရန်"</item>
+    <item msgid="8591105601108455893">"စာတို/ရုပ်သံစာ လက်ခံရန်"</item>
+    <item msgid="7730995008517841903">"စာတို/ရုပ်သံစာ လက်ခံရန်"</item>
+    <item msgid="2613033109026626086">"စာတို/ရုပ်သံစာ လက်ခံရန်"</item>
+    <item msgid="3037159047591081136">"SMS/MMS ပို့ရန်"</item>
+    <item msgid="4726682243833913568">"စာတို/ရုပ်သံစာ ဖတ်ရန်"</item>
+    <item msgid="6555678522277865572">"စာတို/ရုပ်သံစာ ရေးရန်"</item>
+    <item msgid="6981734935578130884">"ဆက်တင်များ ပြင်ဆင်ရန်"</item>
+    <item msgid="8705854389991425629">"အပေါ်မှ ဆွဲရန်"</item>
+    <item msgid="5861356020344153651">"အကြောင်းကြားချက်များအား အသုံးပြုခွင့်"</item>
+    <item msgid="78432174621628659">"ကင်မရာ"</item>
+    <item msgid="3986116419882154794">"အသံဖမ်းရန်"</item>
+    <item msgid="4516840825756409490">"အသံဖွင့်ရန်"</item>
+    <item msgid="6811712502798183957">"နောက်ခံမှတ်တမ်း ဖတ်ရန်"</item>
+    <item msgid="2780369012602289114">"နောက်ခံမှတ်တမ်းပြင်ဆင်ရန်"</item>
+    <item msgid="2331359440170850868">"မီဒီယာခလုတ်များ"</item>
+    <item msgid="6133599737122751231">"အသံပြတ်သားအောင်ချိန်ရန်"</item>
+    <item msgid="6844485713404805301">"ပင်မအသံအတိုးအကျယ်"</item>
+    <item msgid="1600379420669104929">"စကားသံအတိုးအကျယ်"</item>
+    <item msgid="6296768210470214866">"ဖုန်းမြည်သံ အတိုးအကျယ်"</item>
+    <item msgid="510690696071629241">"မီဒီယာ အသံအတိုးအကျယ်"</item>
+    <item msgid="406861638631430109">"နှိုးစက်အသံ အတိုးအကျယ်"</item>
+    <item msgid="4715864795872233884">"အကြောင်းကြားချက်သံ ပမာဏ"</item>
+    <item msgid="2311478519251301183">"ဘလူးတုသ်သံအတိုးအကျယ်"</item>
+    <item msgid="5133991377896747027">"ဖွင့်လျှက်ထားရှိရန်"</item>
+    <item msgid="2464189519136248621">"တည်နေရာ"</item>
+    <item msgid="2062677934050803037">"တည်နေရာ"</item>
+    <item msgid="1735171933192715957">"သုံးစွဲမှု စာရင်းအင်းများကို ရယူရန်"</item>
+    <item msgid="1014093788778383554">"မိုက်ခရိုဖုန်း အသံတိတ်/မတိတ်ရန်"</item>
+    <item msgid="4199297950608622850">"အမည်ကို ပြပါ"</item>
+    <item msgid="2527962435313398821">"ပရိုဂျက် မီဒီယာ"</item>
+    <item msgid="5117506254221861929">"VPN ကို စဖွင့်သုံးပါ"</item>
+    <item msgid="8291198322681891160">"နောက်ခံရေးပါ"</item>
+    <item msgid="7106921284621230961">"ဖွဲ့စည်းပုံကို ကူညီပါ"</item>
+    <item msgid="4496533640894624799">"မျက်နှာပြင်ကို ကူညီပါ"</item>
+    <item msgid="2598847264853993611">"ဖုန်း အခြေအနေကို ဖတ်ပါ"</item>
+    <item msgid="9215610846802973353">"အသံမေးလ် ထည့်ပါ"</item>
+    <item msgid="9186411956086478261">"ငုံခြင်းကို သုံးပါ"</item>
+    <item msgid="6884763100104539558">"အထွက် ခေါ်ဆိုမှုများကို စီမံဆောင်ရွက်ပါ"</item>
+    <item msgid="125513972170580692">"လက်ဗွေ"</item>
+    <item msgid="2556071024281275619">"ခန္ဓာကိုယ် အာရုံခံကိရိယာများ"</item>
+    <item msgid="617168514928339387">"ဆဲလ် ထုတ်လွှင့်မှုများကို ဖတ်ပါ"</item>
+    <item msgid="7134693570516523585">"တည်နေရာကို အတုဖန်တီးပါ"</item>
+    <item msgid="7224489175375229399">"သိုလှောင်ခန်းကို ဖတ်ပါ"</item>
+    <item msgid="8472735063903258202">"သိုလှောင်ခန်းကို ရေးပါ"</item>
+    <item msgid="4069276819909595110">"မျက်နှာပြင်ကို ဖွင့်ပါ"</item>
+    <item msgid="1228338896751121025">"အကောင့်များကို ရယူပါ"</item>
+    <item msgid="3181581793459233672">"နောက်ခံမှာ အလုပ်လုပ်ပါ"</item>
+    <item msgid="2340936043025374076">"အများသုံးစွဲနိုင်မှု အသံ"</item>
+  </string-array>
   <string-array name="long_press_timeout_selector_titles">
     <item msgid="8950313530602254787">"အတို"</item>
     <item msgid="4816511817309094890">"အတော်အသင့်"</item>
@@ -247,7 +369,13 @@
     <item msgid="4627069151979553527">"Cursiv"</item>
     <item msgid="6896773537705206194">"စာလုံးကြီး ဆိုဒ်သေးများ"</item>
   </string-array>
-    <!-- no translation found for captioning_font_size_selector_titles:3 (2784236342175159295) -->
+  <string-array name="captioning_font_size_selector_titles">
+    <item msgid="1680223634161592855">"အလွန်သေးရန်"</item>
+    <item msgid="5091603983404027034">"သေး"</item>
+    <item msgid="176844712416932112">"ပုံမှန်"</item>
+    <item msgid="2784236342175159295">"ကြီး"</item>
+    <item msgid="218913203203160606">"အလွန်ကြီးရန်"</item>
+  </string-array>
   <string-array name="captioning_edge_type_selector_titles">
     <item msgid="3865198759294188069">"မူရင်း"</item>
     <item msgid="6488643537808152001">"မရှိ"</item>
@@ -262,7 +390,14 @@
     <item msgid="1874668269931014581">"၇၅%"</item>
     <item msgid="6462911487571123954">"၁၀၀%"</item>
   </string-array>
-    <!-- no translation found for captioning_preset_selector_titles:2 (5891360837786277638) -->
+  <string-array name="captioning_preset_selector_titles">
+    <item msgid="326819345272910536">"အက်ပ်ပုံသေများကို သုံးရန်"</item>
+    <item msgid="8611890312638868524">"အမည်းပေါ်အဖြူ"</item>
+    <item msgid="5891360837786277638">"အဖြူပေါ်အမည်း"</item>
+    <item msgid="2798457065945456853">"အမည်းပေါ်အဝါ"</item>
+    <item msgid="5799049811524553967">"အပြာပေါ်အဝါ"</item>
+    <item msgid="3673930830658169860">"စိတ်ကြိုက်"</item>
+  </string-array>
   <string-array name="vpn_types_long">
     <item msgid="6566768880689730097">"PPTP VPN"</item>
     <item msgid="1349760781118368659">"ကြိုတင် ပေးထားတဲ့ ကီးပါရှိသောL2TP/IPSec VPN"</item>
@@ -275,15 +410,32 @@
     <item msgid="2958623927055120839">"မရှိ"</item>
     <item msgid="1157046369795346308">"ကိုယ်တိုင်ထည့်သွင်းခြင်း"</item>
   </string-array>
-    <!-- no translation found for vpn_states:4 (9135049670787351881) -->
+  <string-array name="vpn_states">
+    <item msgid="5408915841694583740">"ချိတ်ဆက်မှုပြတ်တောက်သည်"</item>
+    <item msgid="8754480102834556765">"စတင်နေသည်"</item>
+    <item msgid="3351334355574270250">"ချိတ်ဆက်နေသည်"</item>
+    <item msgid="8303882153995748352">"ချိတ်ဆက်ထားသည်"</item>
+    <item msgid="9135049670787351881">"အချိန်ကုန်ပါပြီ"</item>
+    <item msgid="2124868417182583926">"မအောင်မြင်ပါ"</item>
+  </string-array>
   <string-array name="security_settings_premium_sms_values">
     <item msgid="1164265643455394443">"မေးပါ"</item>
     <item msgid="7718817231348607934">"ဘယ်တော့မှခွင့်မပြုပါ"</item>
     <item msgid="8184570120217958741">"အမြဲခွင့်ပြုပါ"</item>
   </string-array>
-    <!-- no translation found for ram_states:0 (708247372474061274) -->
-    <!-- no translation found for ram_states:4 (1567326459340152525) -->
-    <!-- no translation found for proc_stats_memory_states:3 (8577246509202964244) -->
+  <string-array name="ram_states">
+    <item msgid="708247372474061274">"ပုံမှန်"</item>
+    <item msgid="5101233285497327432">"အတော်အသင့်"</item>
+    <item msgid="1555861583162930714">"နိမ့်"</item>
+    <item msgid="1719683776264798117">"အရေးပါ"</item>
+    <item msgid="1567326459340152525">"။"</item>
+  </string-array>
+  <string-array name="proc_stats_memory_states">
+    <item msgid="3474232046138139454">"ပုံမှန်"</item>
+    <item msgid="6107138933849816768">"အတော်အသင့်"</item>
+    <item msgid="182695359839047859">"နိမ့်"</item>
+    <item msgid="8577246509202964244">"အရေးကြီး"</item>
+  </string-array>
   <string-array name="proc_stats_process_states">
     <item msgid="7560955722349181440">"တချိန်လုံး"</item>
     <item msgid="167418068739176448">"အသုံး အများဆုံး"</item>
