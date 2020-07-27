@@ -86,8 +86,8 @@ bool parsePidStatLine(const std::string& line, PidStat* pidStat) {
 
     // The required data is in the first 22 + |commEndOffset| fields so make sure there are at least
     // these many fields in the file.
-    if (fields.size() < 22 + commEndOffset || !ParseUint(fields[0], &pidStat->pid) ||
-        !ParseUint(fields[3 + commEndOffset], &pidStat->ppid) ||
+    if (fields.size() < 22 + commEndOffset || !ParseInt(fields[0], &pidStat->pid) ||
+        !ParseInt(fields[3 + commEndOffset], &pidStat->ppid) ||
         !ParseUint(fields[11 + commEndOffset], &pidStat->majorFaults) ||
         !ParseUint(fields[19 + commEndOffset], &pidStat->numThreads) ||
         !ParseUint(fields[21 + commEndOffset], &pidStat->startTime)) {
@@ -155,8 +155,8 @@ Result<std::vector<ProcessStats>> ProcPidStat::collect() {
     return delta;
 }
 
-Result<std::unordered_map<uint32_t, ProcessStats>> ProcPidStat::getProcessStatsLocked() const {
-    std::unordered_map<uint32_t, ProcessStats> processStats;
+Result<std::unordered_map<pid_t, ProcessStats>> ProcPidStat::getProcessStatsLocked() const {
+    std::unordered_map<pid_t, ProcessStats> processStats;
     auto procDirp = std::unique_ptr<DIR, int (*)(DIR*)>(opendir(mPath.c_str()), closedir);
     if (!procDirp) {
         return Error() << "Failed to open " << mPath << " directory";
@@ -164,8 +164,8 @@ Result<std::unordered_map<uint32_t, ProcessStats>> ProcPidStat::getProcessStatsL
     dirent* pidDir = nullptr;
     while ((pidDir = readdir(procDirp.get())) != nullptr) {
         // 1. Read top-level pid stats.
-        uint32_t pid = 0;
-        if (pidDir->d_type != DT_DIR || !ParseUint(pidDir->d_name, &pid)) {
+        pid_t pid = 0;
+        if (pidDir->d_type != DT_DIR || !ParseInt(pidDir->d_name, &pid)) {
             continue;
         }
         ProcessStats curStats;
@@ -221,8 +221,8 @@ Result<std::unordered_map<uint32_t, ProcessStats>> ProcPidStat::getProcessStatsL
         dirent* tidDir = nullptr;
         bool didReadMainThread = false;
         while (taskDirp != nullptr && (tidDir = readdir(taskDirp.get())) != nullptr) {
-            uint32_t tid = 0;
-            if (tidDir->d_type != DT_DIR || !ParseUint(tidDir->d_name, &tid)) {
+            pid_t tid = 0;
+            if (tidDir->d_type != DT_DIR || !ParseInt(tidDir->d_name, &tid)) {
                 continue;
             }
             if (processStats.find(tid) != processStats.end()) {

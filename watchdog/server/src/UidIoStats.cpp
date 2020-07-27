@@ -36,11 +36,11 @@ namespace automotive {
 namespace watchdog {
 
 using android::base::Error;
+using android::base::ParseUint;
 using android::base::ReadFileToString;
 using android::base::Result;
+using android::base::Split;
 using android::base::StringPrintf;
-using base::ParseUint;
-using base::Split;
 
 namespace {
 
@@ -84,7 +84,7 @@ std::string IoUsage::toString() const {
                         metrics[FSYNC_COUNT][FOREGROUND], metrics[FSYNC_COUNT][BACKGROUND]);
 }
 
-Result<std::unordered_map<uint32_t, UidIoUsage>> UidIoStats::collect() {
+Result<std::unordered_map<uid_t, UidIoUsage>> UidIoStats::collect() {
     if (!kEnabled) {
         return Error() << "Can not access " << kPath;
     }
@@ -95,7 +95,7 @@ Result<std::unordered_map<uint32_t, UidIoUsage>> UidIoStats::collect() {
         return Error() << "Failed to get UID IO stats: " << uidIoStats.error();
     }
 
-    std::unordered_map<uint32_t, UidIoUsage> usage;
+    std::unordered_map<uid_t, UidIoUsage> usage;
     for (const auto& it : *uidIoStats) {
         const UidIoStat& uidIoStat = it.second;
         usage[uidIoStat.uid] = {};
@@ -126,14 +126,14 @@ Result<std::unordered_map<uint32_t, UidIoUsage>> UidIoStats::collect() {
     return usage;
 }
 
-Result<std::unordered_map<uint32_t, UidIoStat>> UidIoStats::getUidIoStatsLocked() const {
+Result<std::unordered_map<uid_t, UidIoStat>> UidIoStats::getUidIoStatsLocked() const {
     std::string buffer;
     if (!ReadFileToString(kPath, &buffer)) {
         return Error() << "ReadFileToString failed for " << kPath;
     }
 
     std::vector<std::string> ioStats = Split(std::move(buffer), "\n");
-    std::unordered_map<uint32_t, UidIoStat> uidIoStats;
+    std::unordered_map<uid_t, UidIoStat> uidIoStats;
     UidIoStat uidIoStat;
     for (size_t i = 0; i < ioStats.size(); i++) {
         if (ioStats[i].empty() || !ioStats[i].compare(0, 4, "task")) {
