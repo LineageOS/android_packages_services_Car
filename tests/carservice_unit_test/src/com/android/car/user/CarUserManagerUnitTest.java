@@ -212,7 +212,7 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
         int status = UserRemovalResult.STATUS_SUCCESSFUL;
         when(mService.removeUser(userId)).thenReturn(new UserRemovalResult(status));
 
-        UserRemovalResult result = mMgr.removeUser(11);
+        UserRemovalResult result = mMgr.removeUser(11).get();
 
         assertThat(result.getStatus()).isEqualTo(UserRemovalResult.STATUS_SUCCESSFUL);
     }
@@ -223,7 +223,7 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
         doThrow(new RemoteException("D'OH!")).when(mService).removeUser(eq(userId));
         mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
 
-        UserRemovalResult result = mMgr.removeUser(11);
+        UserRemovalResult result = mMgr.removeUser(11).get();
 
         assertThat(result.getStatus()).isEqualTo(UserRemovalResult.STATUS_HAL_INTERNAL_FAILURE);
     }
