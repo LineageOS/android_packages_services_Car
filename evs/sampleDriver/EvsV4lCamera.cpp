@@ -728,7 +728,7 @@ void EvsV4lCamera::forwardFrame(imageBuffer* pV4lBuff, void* pData) {
 
     if (!readyForFrame) {
         // We need to return the video buffer so it can capture a new frame
-        mVideo.markFrameConsumed();
+        mVideo.markFrameConsumed(pV4lBuff->index);
     } else {
         // Assemble the buffer description we'll transmit below
         BufferDesc_1_1 bufDesc_1_1 = {};
@@ -779,7 +779,7 @@ void EvsV4lCamera::forwardFrame(imageBuffer* pV4lBuff, void* pData) {
         // Give the video frame back to the underlying device for reuse
         // Note that we do this before making the client callback to give the
         // underlying camera more time to capture the next frame
-        mVideo.markFrameConsumed();
+        mVideo.markFrameConsumed(pV4lBuff->index);
 
         // Issue the (asynchronous) callback to the client -- can't be holding
         // the lock
