@@ -43,10 +43,10 @@ constexpr const char* kTaskDirFormat = "/%" PRIu32 "/task";
 constexpr const char* kStatusFileFormat = "/%" PRIu32 "/status";
 
 struct PidStat {
-    uint32_t pid = 0;
+    pid_t pid = 0;
     std::string comm = "";
     std::string state = "";
-    uint32_t ppid = 0;
+    pid_t ppid = 0;
     uint64_t majorFaults = 0;
     uint32_t numThreads = 0;
     uint64_t startTime = 0;  // Useful when identifying PID/TID reuse
@@ -56,7 +56,7 @@ struct ProcessStats {
     int64_t tgid = -1;                              // -1 indicates a failure to read this value
     int64_t uid = -1;                               // -1 indicates a failure to read this value
     PidStat process = {};                           // Aggregated stats across all the threads
-    std::unordered_map<uint32_t, PidStat> threads;  // Per-thread stat including the main thread
+    std::unordered_map<pid_t, PidStat> threads;     // Per-thread stat including the main thread
 };
 
 // Collector/parser for `/proc/[pid]/stat`, `/proc/[pid]/task/[tid]/stat` and /proc/[pid]/status`
@@ -88,7 +88,7 @@ private:
     // Reads the contents of the below files:
     // 1. Pid stat file at |mPath| + |kStatFileFormat|
     // 2. Tid stat file at |mPath| + |kTaskDirFormat| + |kStatFileFormat|
-    android::base::Result<std::unordered_map<uint32_t, ProcessStats>> getProcessStatsLocked() const;
+    android::base::Result<std::unordered_map<pid_t, ProcessStats>> getProcessStatsLocked() const;
 
     // Reads the tgid and real UID for the given PID from |mPath| + |kStatusFileFormat|.
     android::base::Result<void> getPidStatusLocked(ProcessStats* processStats) const;
@@ -98,7 +98,7 @@ private:
 
     // Last dump of per-process stats. Useful for calculating the delta and identifying PID/TID
     // reuse.
-    std::unordered_map<uint32_t, ProcessStats> mLastProcessStats GUARDED_BY(mMutex);
+    std::unordered_map<pid_t, ProcessStats> mLastProcessStats GUARDED_BY(mMutex);
 
     // True if the below files are accessible:
     // 1. Pid stat file at |mPath| + |kTaskStatFileFormat|

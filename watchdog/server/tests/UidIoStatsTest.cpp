@@ -36,14 +36,14 @@ TEST(UidIoStatsTest, TestValidStatFile) {
         "1005678 500 100 30 50 300 400 100 200 45 60\n"
         "1009 0 0 0 0 40000 50000 20000 30000 0 300\n"
         "1001000 4000 3000 2000 1000 400 300 200 100 50 10\n";
-    std::unordered_map<uint32_t, UidIoUsage> expectedFirstUsage = {
-        {1001234,
-         {.uid = 1001234,
-          .ios = {/*fgRdBytes=*/3000, /*bgRdBytes=*/0, /*fgWrBytes=*/500,
-                  /*bgWrBytes=*/0, /*fgFsync=*/20, /*bgFsync=*/0}}},
-        {1005678, {.uid = 1005678, .ios = {30, 100, 50, 200, 45, 60}}},
-        {1009, {.uid = 1009, .ios = {0, 20000, 0, 30000, 0, 300}}},
-        {1001000, {.uid = 1001000, .ios = {2000, 200, 1000, 100, 50, 10}}},
+    std::unordered_map<uid_t, UidIoUsage> expectedFirstUsage = {
+            {1001234,
+             {.uid = 1001234,
+              .ios = {/*fgRdBytes=*/3000, /*bgRdBytes=*/0, /*fgWrBytes=*/500,
+                      /*bgWrBytes=*/0, /*fgFsync=*/20, /*bgFsync=*/0}}},
+            {1005678, {.uid = 1005678, .ios = {30, 100, 50, 200, 45, 60}}},
+            {1009, {.uid = 1009, .ios = {0, 20000, 0, 30000, 0, 300}}},
+            {1001000, {.uid = 1001000, .ios = {2000, 200, 1000, 100, 50, 10}}},
     };
     TemporaryFile tf;
     ASSERT_NE(tf.fd, -1);
@@ -72,15 +72,15 @@ TEST(UidIoStatsTest, TestValidStatFile) {
         "1005678 600 100 40 50 1000 1000 1000 600 50 70\n"
         "1003456 300 500 200 300 0 0 0 0 50 0\n"
         "1001000 400 300 200 100 40 30 20 10 5 1\n";
-    std::unordered_map<uint32_t, UidIoUsage> expectedSecondUsage = {
-        {1001234,
-         {.uid = 1001234,
-          .ios = {/*fgRdBytes=*/4000, /*bgRdBytes=*/0,
-                  /*fgWrBytes=*/450, /*bgWrBytes=*/0, /*fgFsync=*/25,
-                  /*bgFsync=*/0}}},
-        {1005678, {.uid = 1005678, .ios = {10, 900, 0, 400, 5, 10}}},
-        {1003456, {.uid = 1003456, .ios = {200, 0, 300, 0, 50, 0}}},
-        {1001000, {.uid = 1001000, .ios = {0, 0, 0, 0, 0, 0}}},
+    std::unordered_map<uid_t, UidIoUsage> expectedSecondUsage = {
+            {1001234,
+             {.uid = 1001234,
+              .ios = {/*fgRdBytes=*/4000, /*bgRdBytes=*/0,
+                      /*fgWrBytes=*/450, /*bgWrBytes=*/0, /*fgFsync=*/25,
+                      /*bgFsync=*/0}}},
+            {1005678, {.uid = 1005678, .ios = {10, 900, 0, 400, 5, 10}}},
+            {1003456, {.uid = 1003456, .ios = {200, 0, 300, 0, 50, 0}}},
+            {1001000, {.uid = 1001000, .ios = {0, 0, 0, 0, 0, 0}}},
     };
     ASSERT_TRUE(WriteStringToFile(secondSnapshot, tf.path));
     const auto& actualSecondUsage = uidIoStats.collect();

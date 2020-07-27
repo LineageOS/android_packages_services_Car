@@ -112,15 +112,15 @@ struct UidProcessStats {
     std::vector<ProcessInfo> topNMajorFaultProcesses = {};
 };
 
-std::unique_ptr<std::unordered_map<uint32_t, UidProcessStats>> getUidProcessStats(
+std::unique_ptr<std::unordered_map<uid_t, UidProcessStats>> getUidProcessStats(
         const std::vector<ProcessStats>& processStats, int topNStatsPerSubCategory) {
-    std::unique_ptr<std::unordered_map<uint32_t, UidProcessStats>> uidProcessStats(
-            new std::unordered_map<uint32_t, UidProcessStats>());
+    std::unique_ptr<std::unordered_map<uid_t, UidProcessStats>> uidProcessStats(
+            new std::unordered_map<uid_t, UidProcessStats>());
     for (const auto& stats : processStats) {
         if (stats.uid < 0) {
             continue;
         }
-        uint32_t uid = static_cast<uint32_t>(stats.uid);
+        uid_t uid = static_cast<uid_t>(stats.uid);
         if (uidProcessStats->find(uid) == uidProcessStats->end()) {
             (*uidProcessStats)[uid] = UidProcessStats{
                     .uid = uid,
@@ -367,6 +367,8 @@ Result<void> IoPerfCollection::start() {
         if (ret != 0) {
             ALOGE("Failed to set I/O perf collection thread name: %d", ret);
         }
+        ALOGI("Starting %s I/O performance data collection",
+              toString(mCurrCollectionEvent).c_str());
         bool isCollectionActive = true;
         // Loop until the collection is not active -- I/O perf collection runs on this thread in a
         // handler.
@@ -386,7 +388,7 @@ void IoPerfCollection::terminate() {
             ALOGE("I/O performance data collection was terminated already");
             return;
         }
-        ALOGE("Terminating I/O performance data collection");
+        ALOGE("Terminating I/O performance data collection as carwatchdog is terminating");
         mCurrCollectionEvent = CollectionEvent::TERMINATED;
     }
     if (mCollectionThread.joinable()) {
@@ -598,6 +600,7 @@ Result<void> IoPerfCollection::startCustomCollection(
     mHandlerLooper->sendMessageAtTime(uptime, this, SwitchEvent::END_CUSTOM_COLLECTION);
     mCurrCollectionEvent = CollectionEvent::CUSTOM;
     mHandlerLooper->sendMessage(this, CollectionEvent::CUSTOM);
+    ALOGI("Starting %s I/O performance data collection", toString(mCurrCollectionEvent).c_str());
     return {};
 }
 
@@ -642,6 +645,8 @@ void IoPerfCollection::handleMessage(const Message& message) {
                         mHandlerLooper->now() + mPeriodicCollection.interval.count();
                 mHandlerLooper->sendMessageAtTime(mPeriodicCollection.lastCollectionUptime, this,
                                                   CollectionEvent::PERIODIC);
+                ALOGI("Switching to %s I/O performance data collection",
+                      toString(mCurrCollectionEvent).c_str());
             }
             break;
         case static_cast<int>(CollectionEvent::PERIODIC):
@@ -663,6 +668,8 @@ void IoPerfCollection::handleMessage(const Message& message) {
             mCurrCollectionEvent = CollectionEvent::PERIODIC;
             mPeriodicCollection.lastCollectionUptime = mHandlerLooper->now();
             mHandlerLooper->sendMessage(this, CollectionEvent::PERIODIC);
+            ALOGI("Switching to %s I/O performance data collection",
+                  toString(mCurrCollectionEvent).c_str());
             return;
         }
         default:
@@ -744,7 +751,7 @@ Result<void> IoPerfCollection::collectUidIoPerfDataLocked(const CollectionInfo& 
         return {};
     }
 
-    const Result<std::unordered_map<uint32_t, UidIoUsage>>& usage = mUidIoStats->collect();
+    const Result<std::unordered_map<uid_t, UidIoUsage>>& usage = mUidIoStats->collect();
     if (!usage.ok()) {
         return Error() << "Failed to collect uid I/O usage: " << usage.error();
     }
@@ -753,7 +760,7 @@ Result<void> IoPerfCollection::collectUidIoPerfDataLocked(const CollectionInfo& 
     UidIoUsage tempUsage = {};
     std::vector<const UidIoUsage*> topNReads(mTopNStatsPerCategory, &tempUsage);
     std::vector<const UidIoUsage*> topNWrites(mTopNStatsPerCategory, &tempUsage);
-    std::unordered_set<uint32_t> unmappedUids;
+    std::unordered_set<uid_t> unmappedUids;
 
     for (const auto& uIt : *usage) {
         const UidIoUsage& curUsage = uIt.second;
@@ -889,7 +896,7 @@ Result<void> IoPerfCollection::collectProcessIoPerfDataLocked(
     }
 
     const auto& uidProcessStats = getUidProcessStats(*processStats, mTopNStatsPerSubcategory);
-    std::unordered_set<uint32_t> unmappedUids;
+    std::unordered_set<uid_t> unmappedUids;
     // Fetch only the top N I/O blocked UIDs and UIDs with most major page faults.
     UidProcessStats temp = {};
     std::vector<const UidProcessStats*> topNIoBlockedUids(mTopNStatsPerCategory, &temp);
@@ -998,7 +1005,7 @@ Result<void> IoPerfCollection::collectProcessIoPerfDataLocked(
 }
 
 Result<void> IoPerfCollection::updateUidToPackageNameMapping(
-    const std::unordered_set<uint32_t>& uids) {
+        const std::unordered_set<uid_t>& uids) {
     std::vector<int32_t> appUids;
 
     for (const auto& uid : uids) {
@@ -1031,7 +1038,7 @@ Result<void> IoPerfCollection::updateUidToPackageNameMapping(
         return Error() << "package_native::getNamesForUids failed: " << status.exceptionMessage();
     }
 
-    for (uint32_t i = 0; i < appUids.size(); i++) {
+    for (size_t i = 0; i < appUids.size(); i++) {
         if (!packageNames[i].empty()) {
             mUidToPackageNameMapping[appUids[i]] = packageNames[i];
         }

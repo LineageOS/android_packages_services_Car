@@ -42,12 +42,11 @@ Result<void> makeDir(std::string path) {
 
 }  // namespace
 
-Result<void> populateProcPidDir(
-        const std::string& procDirPath,
-        const std::unordered_map<uint32_t, std::vector<uint32_t>>& pidToTids,
-        const std::unordered_map<uint32_t, std::string>& processStat,
-        const std::unordered_map<uint32_t, std::string>& processStatus,
-        const std::unordered_map<uint32_t, std::string>& threadStat) {
+Result<void> populateProcPidDir(const std::string& procDirPath,
+                                const std::unordered_map<pid_t, std::vector<pid_t>>& pidToTids,
+                                const std::unordered_map<pid_t, std::string>& processStat,
+                                const std::unordered_map<pid_t, std::string>& processStatus,
+                                const std::unordered_map<pid_t, std::string>& threadStat) {
     for (const auto& it : pidToTids) {
         // 1. Create /proc/PID dir.
         const auto& pidDirRes = makeDir(StringPrintf("%s/%" PRIu32, procDirPath.c_str(), it.first));
