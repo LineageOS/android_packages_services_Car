@@ -180,6 +180,9 @@ private:
     AnimationModule* mAnimationModule;
     IOModuleConfig* mIOModuleConfig;
 
+    std::vector<Overlay> mOverlays GUARDED_BY(mAccessLock);
+    bool mOverlayIsUpdated GUARDED_BY(mAccessLock) = false;
+
     std::vector<VehiclePropValue> mPropertyValues;
 };
 
