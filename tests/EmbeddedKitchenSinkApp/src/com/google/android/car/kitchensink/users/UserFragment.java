@@ -27,6 +27,7 @@ import android.content.pm.UserInfo;
 import android.os.Bundle;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.os.storage.StorageManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -79,6 +80,7 @@ public final class UserFragment extends Fragment {
     private UsersSpinner mUsersSpinner;
     private Button mSwitchUserButton;
     private Button mRemoveUserButton;
+    private Button mLockUserDataButton;
     private EditText mNewUserNameText;
     private CheckBox mNewUserIsAdminCheckBox;
     private CheckBox mNewUserIsGuestCheckBox;
@@ -109,6 +111,7 @@ public final class UserFragment extends Fragment {
         mUsersSpinner = view.findViewById(R.id.existing_users);
         mSwitchUserButton = view.findViewById(R.id.switch_user);
         mRemoveUserButton = view.findViewById(R.id.remove_user);
+        mLockUserDataButton = view.findViewById(R.id.lock_user_data);
         mNewUserNameText = view.findViewById(R.id.new_user_name);
         mNewUserIsAdminCheckBox = view.findViewById(R.id.new_user_is_admin);
         mNewUserIsGuestCheckBox = view.findViewById(R.id.new_user_is_guest);
@@ -121,6 +124,7 @@ public final class UserFragment extends Fragment {
         mSwitchUserButton.setOnClickListener((v) -> switchUser());
         mRemoveUserButton.setOnClickListener((v) -> removeUser());
         mCreateUserButton.setOnClickListener((v) -> createUser());
+        mLockUserDataButton.setOnClickListener((v) -> lockUserData());
 
         updateState();
     }
@@ -224,6 +228,21 @@ public final class UserFragment extends Fragment {
             }
         }
         showMessage(message.toString());
+    }
+
+    private void lockUserData() {
+        int userToLock = mUsersSpinner.getSelectedUserId();
+        if (userToLock == UserHandle.USER_NULL) {
+            return;
+        }
+
+        StorageManager storageManager = getContext().getSystemService(StorageManager.class);
+
+        try {
+            storageManager.lockUserKey(userToLock);
+        } catch (Exception e) {
+            showMessage("Error: lock user data: " + e);
+        }
     }
 
     private void promoteCurrentUserAsAdmin(boolean promote) {
