@@ -318,17 +318,19 @@ public final class CarUserManager extends CarManagerBase {
      * @hide
      */
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
-    public UserRemovalResult removeUser(@UserIdInt int userId) {
+    public AndroidFuture<UserRemovalResult> removeUser(@UserIdInt int userId) {
         int uid = myUid();
         EventLog.writeEvent(EventLogTags.CAR_USER_MGR_REMOVE_USER_REQ, uid, userId);
         int status = UserRemovalResult.STATUS_HAL_INTERNAL_FAILURE;
+        AndroidFuture<UserRemovalResult> future = new AndroidFuture<>();
         try {
             UserRemovalResult result = mService.removeUser(userId);
             status = result.getStatus();
-            return result;
+            future.complete(result);
+            return future;
         } catch (RemoteException e) {
-            return handleRemoteExceptionFromCarService(e,
-                    new UserRemovalResult(UserRemovalResult.STATUS_HAL_INTERNAL_FAILURE));
+            future.complete(new UserRemovalResult(UserRemovalResult.STATUS_HAL_INTERNAL_FAILURE));
+            return handleRemoteExceptionFromCarService(e, future);
         } finally {
             EventLog.writeEvent(EventLogTags.CAR_USER_MGR_REMOVE_USER_RESP, uid, status);
         }
