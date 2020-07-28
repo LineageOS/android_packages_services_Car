@@ -470,7 +470,7 @@
     <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"Til op en raak opnieuw aan"</string>
     <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"Raak de sensor meerdere keren aan om de verschillende delen van je vingerafdruk toe te voegen."</string>
     <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"Vingerafdruk toegevoegd"</string>
-    <string name="security_settings_fingerprint_enroll_finish_message" msgid="5862643337893923347">"Wanneer je dit pictogram ziet, kun je je vingerafdruk gebruiken voor identificatie of om een aankoop goed te keuren."</string>
+    <string name="security_settings_fingerprint_enroll_finish_message" msgid="5862643337893923347">"Als je dit icoon ziet, kun je je vingerafdruk gebruiken voor identificatie of om een aankoop goed te keuren."</string>
     <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"Later doen"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_title" msgid="2816424026528101690">"Instellen van vingerafdruk overslaan?"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_message" msgid="8139299964344809780">"Je hebt ervoor gekozen je vingerafdruk te gebruiken als manier om je telefoon te ontgrendelen. Als je dit nu overslaat, moet je het later instellen. Het instellen neemt ongeveer een minuut in beslag."</string>
@@ -2679,7 +2679,7 @@
     <string name="data_usage_label_background" msgid="1618794447370396845">"Achtergrond"</string>
     <string name="data_usage_app_restricted" msgid="7569077654579299326">"beperkt"</string>
     <string name="data_usage_disable_mobile" msgid="4125335076749119451">"Mobiele data uitschakelen?"</string>
-    <string name="data_usage_disable_mobile_limit" msgid="1937796699758613667">"Mobiele gegevenslimiet instellen"</string>
+    <string name="data_usage_disable_mobile_limit" msgid="1937796699758613667">"Mobiele-datalimiet instellen"</string>
     <string name="data_usage_disable_4g_limit" msgid="7131367986548147266">"4G-gegevenslimiet instellen"</string>
     <string name="data_usage_disable_3g_limit" msgid="6746819313032692220">"2G-3G-gegevenslimiet instellen"</string>
     <string name="data_usage_disable_wifi_limit" msgid="8214267551888018353">"Wifi-datalimiet instellen"</string>
@@ -2699,7 +2699,7 @@
     <string name="data_usage_app_settings" msgid="3276444867375694809">"App-instellingen"</string>
     <string name="data_usage_app_restrict_background" msgid="649167881583859169">"Achtergrondgegevens"</string>
     <string name="data_usage_app_restrict_background_summary" msgid="2703967920234671881">"Gebruik van mobiele data op de achtergrond toestaan"</string>
-    <string name="data_usage_app_restrict_background_summary_disabled" msgid="7211921499365814638">"Als je achtergrondgegevens wilt beperken voor deze app, moet je eerst een mobiele gegevenslimiet instellen."</string>
+    <string name="data_usage_app_restrict_background_summary_disabled" msgid="7211921499365814638">"Als je achtergrondgegevens wilt beperken voor deze app, moet je eerst een mobiele-datalimiet instellen."</string>
     <string name="data_usage_app_restrict_dialog_title" msgid="750037964591673167">"Achtergrondgegevens beperken?"</string>
     <string name="data_usage_app_restrict_dialog" msgid="4022530391896478031">"Deze functie kan ervoor zorgen dat een app die afhankelijk is van achtergrondgegevens, stopt als er alleen mobiele netwerken beschikbaar zijn.\n\nJe kunt meer geschikte besturingselementen voor datagebruik vinden in de instellingen van de app."</string>
     <string name="data_usage_restrict_denied_dialog" msgid="18928292832775805">"Je kunt achtergrondgegevens alleen beperken als je een limiet voor mobiele data hebt ingesteld."</string>
@@ -3544,7 +3544,7 @@
     <string name="zen_mode_summary_alarms_only_by_time" msgid="2462898862757904560">"Wijzigen in \'Alleen wekkers\' tot <xliff:g id="FORMATTEDTIME">%1$s</xliff:g>"</string>
     <string name="zen_mode_summary_always" msgid="2703276042913200837">"Wijzigen in \'Altijd onderbreken\'"</string>
     <string name="zen_mode_screen_on" msgid="7098470659072167219">"Wanneer het scherm is ingeschakeld"</string>
-    <string name="zen_mode_screen_on_summary" msgid="8275416649295357524">"Meldingen die door \'Niet storen\' zijn gedempt, op het scherm laten weergeven en een pictogram in de statusbalk weergeven"</string>
+    <string name="zen_mode_screen_on_summary" msgid="8275416649295357524">"Meldingen die door \'Niet storen\' zijn gedempt, op het scherm laten weergeven en een icoon in de statusbalk weergeven"</string>
     <string name="zen_mode_screen_off" msgid="84211490206459038">"Wanneer het scherm is uitgeschakeld"</string>
     <string name="zen_mode_screen_off_summary" msgid="8592179073243001267">"Toestaan dat meldingen die op stil zijn gezet door \'Niet storen\', het scherm inschakelen of het meldingslampje laten knipperen"</string>
     <string name="zen_mode_screen_off_summary_no_led" msgid="7255874108150630145">"Meldingen die op stil zijn gezet door \'Niet storen\', het scherm laten inschakelen"</string>
@@ -3555,7 +3555,7 @@
     <string name="switch_on_text" msgid="7100491749799298324">"Aan"</string>
     <string name="switch_off_text" msgid="3539551289454353555">"Uit"</string>
     <string name="screen_pinning_title" msgid="578020318289781102">"Scherm vastzetten"</string>
-    <string name="screen_pinning_description" msgid="3814537379086412278">"Wanneer deze instelling is ingeschakeld, kun je \'Scherm vastzetten\' gebruiken om het scherm in beeld te houden tot je het losmaakt.\n\nZo zet je je scherm vast:\n\n1. Zorg dat \'Scherm vastzetten\' is ingeschakeld\n\n2. Open \'Overzicht\'\n\n3. Tik op het app-pictogram bovenaan en tik op de speld"</string>
+    <string name="screen_pinning_description" msgid="3814537379086412278">"Als deze instelling is ingeschakeld, kun je \'Scherm vastzetten\' gebruiken om het scherm in beeld te houden tot je het losmaakt.\n\nZo zet je je scherm vast:\n\n1. Zorg dat \'Scherm vastzetten\' is ingeschakeld\n\n2. Open \'Overzicht\'\n\n3. Tik op het app-icoon bovenaan en tik op de speld"</string>
     <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"Vraag patroon voor losmaken"</string>
     <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"Vraag pin voor losmaken"</string>
     <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"Vraag wachtwoord voor losmaken"</string>
@@ -4032,7 +4032,7 @@
     <string name="notification_log_details_remoteinput" msgid="739338559646354829">"externe invoer"</string>
     <string name="notification_log_details_content_view" msgid="6690611908715230584">"aangepaste weergave"</string>
     <string name="notification_log_details_extras" msgid="3202948662169885771">"extra\'s"</string>
-    <string name="notification_log_details_icon" msgid="8464763276104577811">"pictogram"</string>
+    <string name="notification_log_details_icon" msgid="8464763276104577811">"icoon"</string>
     <string name="notification_log_details_parcel" msgid="4024970850647594029">"pakketgrootte"</string>
     <string name="notification_log_details_ashmem" msgid="4272241723105041393">"ashmem"</string>
     <string name="notification_log_details_alerted" msgid="1891749888625061319">"waarschuwing voor melding weergegeven"</string>
