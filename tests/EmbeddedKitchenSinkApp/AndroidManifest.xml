@@ -94,6 +94,8 @@
     <!-- use for CarServiceTest -->
     <uses-permission android:name="android.permission.MONITOR_INPUT"/>
     <uses-permission android:name="android.permission.SET_ACTIVITY_WATCHER"/>
+    <!-- needed for User fragment to lock user data -->
+    <uses-permission android:name="android.permission.STORAGE_INTERNAL"/>
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"/>
     <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
     <!-- use for vendor properties -->
