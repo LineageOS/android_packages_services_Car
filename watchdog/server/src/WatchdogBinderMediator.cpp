@@ -21,6 +21,7 @@
 #include <android-base/file.h>
 #include <android-base/parseint.h>
 #include <android-base/stringprintf.h>
+#include <android-base/strings.h>
 #include <android/automotive/watchdog/BootPhase.h>
 #include <android/automotive/watchdog/PowerCycle.h>
 #include <android/automotive/watchdog/UserState.h>
@@ -36,6 +37,7 @@ namespace watchdog {
 
 using android::defaultServiceManager;
 using android::base::Error;
+using android::base::Join;
 using android::base::ParseUint;
 using android::base::Result;
 using android::base::StringPrintf;
@@ -91,31 +93,18 @@ Result<void> WatchdogBinderMediator::init(sp<WatchdogProcessService> watchdogPro
 }
 
 status_t WatchdogBinderMediator::dump(int fd, const Vector<String16>& args) {
-    if (args.empty()) {
-        auto ret = mWatchdogProcessService->dump(fd, args);
-        if (!ret.ok()) {
-            ALOGW("Failed to dump carwatchdog process service: %s", ret.error().message().c_str());
-            return ret.error().code();
-        }
-        ret = mIoPerfCollection->dump(fd, args);
-        if (!ret.ok()) {
-            ALOGW("Failed to dump I/O perf collection: %s", ret.error().message().c_str());
-            return ret.error().code();
-        }
-        return OK;
-    }
-
-    if (args[0] == String16(kHelpFlag) || args[0] == String16(kHelpShortFlag)) {
+    int numArgs = args.size();
+    if (numArgs == 1 && (args[0] == String16(kHelpFlag) || args[0] == String16(kHelpShortFlag))) {
         if (!dumpHelpText(fd, "")) {
             ALOGW("Failed to write help text to fd");
             return FAILED_TRANSACTION;
         }
         return OK;
     }
-
-    if (args[0] == String16(kStartCustomCollectionFlag) ||
-        args[0] == String16(kEndCustomCollectionFlag)) {
-        auto ret = mIoPerfCollection->dump(fd, args);
+    if (numArgs >= 1 &&
+        (args[0] == String16(kStartCustomCollectionFlag) ||
+         args[0] == String16(kEndCustomCollectionFlag))) {
+        auto ret = mIoPerfCollection->onCustomCollection(fd, args);
         if (!ret.ok()) {
             std::string mode = args[0] == String16(kStartCustomCollectionFlag) ? "start" : "end";
             std::string errorMsg = StringPrintf("Failed to %s custom I/O perf collection: %s",
@@ -129,8 +118,23 @@ status_t WatchdogBinderMediator::dump(int fd, const Vector<String16>& args) {
         }
         return OK;
     }
-    dumpHelpText(fd, "Invalid dump arguments");
-    return INVALID_OPERATION;
+
+    if (numArgs > 0) {
+        ALOGW("Car watchdog cannot recognize the given option(%s). Dumping the current state...",
+              Join(args, " ").c_str());
+    }
+
+    auto ret = mWatchdogProcessService->dump(fd, args);
+    if (!ret.ok()) {
+        ALOGW("Failed to dump carwatchdog process service: %s", ret.error().message().c_str());
+        return ret.error().code();
+    }
+    ret = mIoPerfCollection->onDump(fd);
+    if (!ret.ok()) {
+        ALOGW("Failed to dump I/O perf collection: %s", ret.error().message().c_str());
+        return ret.error().code();
+    }
+    return OK;
 }
 
 bool WatchdogBinderMediator::dumpHelpText(int fd, std::string errorMsg) {
