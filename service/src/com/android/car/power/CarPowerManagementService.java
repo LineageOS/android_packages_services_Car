@@ -293,6 +293,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     public void onApPowerStateChange(PowerState state) {
         synchronized (mLock) {
             mPendingPowerStates.addFirst(new CpmsState(state));
+            mLock.notify();
         }
         mHandler.handlePowerStateChange();
     }
@@ -315,6 +316,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         CpmsState newState = new CpmsState(apState, carPowerStateListenerState);
         synchronized (mLock) {
             mPendingPowerStates.addFirst(newState);
+            mLock.notify();
         }
         mHandler.handlePowerStateChange();
     }
@@ -1182,10 +1184,13 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     // Send the command to enter Suspend to RAM.
     // If the command is not successful, try again.
     // If it fails repeatedly, send the command to shut down.
+    // If we decide to go to a different power state, abort this
+    // retry mechanism.
     // Returns true if we successfully suspended.
     private boolean suspendWithRetries() {
-        final int maxTries = 3;
-        final long retryIntervalMs = 10;
+        final int maxTries = 9; // 0, 10, 20, ..., 1280 msec
+        final long initialRetryIntervalMs = 10;
+        long retryIntervalMs = initialRetryIntervalMs;
         int tryCount = 0;
 
         while (true) {
@@ -1199,10 +1204,20 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 break;
             }
             // We failed to suspend. Block the thread briefly and try again.
-            Slog.w(TAG, "Failed to Suspend; will retry later.");
-            try {
-                Thread.sleep(retryIntervalMs);
-            } catch (InterruptedException ignored) { }
+            synchronized (mLock) {
+                if (mPendingPowerStates.isEmpty()) {
+                    Slog.w(TAG, "Failed to Suspend; will retry later.");
+                    try {
+                        mLock.wait(retryIntervalMs);
+                    } catch (InterruptedException ignored) { }
+                    retryIntervalMs *= 2;
+                }
+                // Check for a new power state now, before going around the loop again
+                if (!mPendingPowerStates.isEmpty()) {
+                    Slog.i(TAG, "Terminating the attempt to Suspend to RAM");
+                    return false;
+                }
+            }
         }
         // Too many failures trying to suspend. Shut down.
         Slog.w(TAG, "Could not Suspend to RAM. Shutting down.");
@@ -1350,6 +1365,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             // Cancel Garage Mode in case it's running
             mPendingPowerStates.addFirst(new CpmsState(CpmsState.WAIT_FOR_VHAL,
                                                        CarPowerStateListener.SHUTDOWN_CANCELLED));
+            mLock.notify();
             handler = mHandler;
         }
         handler.handlePowerStateChange();
