@@ -33,6 +33,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.util.Pair;
 
@@ -69,25 +70,8 @@ public class CarTest {
     // It is tricky to mock this. So create dummy version instead.
     private ICar.Stub mService = new ICar.Stub() {
         @Override
-        public void setCarServiceHelper(android.os.IBinder helper) {
-        }
-
-        @Override
-        public void onUserLifecycleEvent(int eventType, long timestampMs, int fromUserId,
-                int toUserId) {
-        }
-
-        @Override
-        public void onFirstUserUnlocked(int userId, long timestampMs, long duration,
-                int halResponseTime) {
-        }
-
-        @Override
-        public void getInitialUserInfo(int requestType, int timeoutMs, IBinder binder) {
-        }
-
-        @Override
-        public void setInitialUser(int userId) {
+        public void setSystemServerConnections(IBinder helper, IBinder receiver)
+                throws RemoteException {
         }
 
         @Override
