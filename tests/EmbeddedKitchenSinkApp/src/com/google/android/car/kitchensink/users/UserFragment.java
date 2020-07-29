@@ -23,6 +23,7 @@ import android.car.user.CarUserManager;
 import android.car.user.UserCreationResult;
 import android.car.user.UserRemovalResult;
 import android.car.user.UserSwitchResult;
+import android.car.util.concurrent.AsyncFuture;
 import android.content.pm.UserInfo;
 import android.os.Bundle;
 import android.os.UserHandle;
@@ -38,8 +39,6 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 
 import androidx.fragment.app.Fragment;
-
-import com.android.internal.infra.AndroidFuture;
 
 import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
@@ -149,7 +148,7 @@ public final class UserFragment extends Fragment {
         }
         int flags = 0;
         boolean isGuest = mNewUserIsGuestCheckBox.isChecked();
-        AndroidFuture<UserCreationResult> future;
+        AsyncFuture<UserCreationResult> future;
         if (isGuest) {
             Log.i(TAG, "Create guest: " + name);
             future = mCarUserManager.createGuest(name);
@@ -206,7 +205,7 @@ public final class UserFragment extends Fragment {
     private void switchUser() {
         int userId = mUsersSpinner.getSelectedUserId();
         Log.i(TAG, "Switch user: " + userId);
-        AndroidFuture<UserSwitchResult> future = mCarUserManager.switchUser(userId);
+        AsyncFuture<UserSwitchResult> future = mCarUserManager.switchUser(userId);
         UserSwitchResult result = getResult(future);
         updateState();
 
@@ -297,7 +296,7 @@ public final class UserFragment extends Fragment {
     }
 
     @Nullable
-    private static <T> T getResult(AndroidFuture<T> future) {
+    private static <T> T getResult(AsyncFuture<T> future) {
         future.whenCompleteAsync((r, e) -> {
             if (e != null) {
                 Log.e(TAG, "You have no future!", e);

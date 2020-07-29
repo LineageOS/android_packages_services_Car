@@ -33,6 +33,8 @@ import android.annotation.UserIdInt;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.ICarUserService;
+import android.car.util.concurrent.AndroidAsyncFuture;
+import android.car.util.concurrent.AsyncFuture;
 import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
 import android.os.Bundle;
@@ -206,7 +208,7 @@ public final class CarUserManager extends CarManagerBase {
      * @hide
      */
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
-    public AndroidFuture<UserSwitchResult> switchUser(@UserIdInt int targetUserId) {
+    public AsyncFuture<UserSwitchResult> switchUser(@UserIdInt int targetUserId) {
         int uid = myUid();
 
         if (mUserManager.getUserSwitchability() != UserManager.SWITCHABILITY_STATUS_OK) {
@@ -228,19 +230,19 @@ public final class CarUserManager extends CarManagerBase {
             };
             EventLog.writeEvent(EventLogTags.CAR_USER_MGR_SWITCH_USER_REQ, uid, targetUserId);
             mService.switchUser(targetUserId, HAL_TIMEOUT_MS, future);
-            return future;
+            return new AndroidAsyncFuture<>(future);
         } catch (RemoteException e) {
-            AndroidFuture<UserSwitchResult> future =
+            AsyncFuture<UserSwitchResult> future =
                     newSwitchResuiltForFailure(UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE);
             return handleRemoteExceptionFromCarService(e, future);
         }
     }
 
-    private AndroidFuture<UserSwitchResult> newSwitchResuiltForFailure(
+    private AndroidAsyncFuture<UserSwitchResult> newSwitchResuiltForFailure(
             @UserSwitchResult.Status int status) {
         AndroidFuture<UserSwitchResult> future = new AndroidFuture<>();
         future.complete(new UserSwitchResult(status, null));
-        return future;
+        return new AndroidAsyncFuture<>(future);
     }
 
     /**
@@ -250,7 +252,7 @@ public final class CarUserManager extends CarManagerBase {
      */
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             android.Manifest.permission.CREATE_USERS})
-    public AndroidFuture<UserCreationResult> createUser(@Nullable String name,
+    public AsyncFuture<UserCreationResult> createUser(@Nullable String name,
             @NonNull String userType, @UserInfoFlag int flags) {
         int uid = myUid();
         try {
@@ -274,12 +276,12 @@ public final class CarUserManager extends CarManagerBase {
             EventLog.writeEvent(EventLogTags.CAR_USER_MGR_CREATE_USER_REQ, uid,
                     safeName(name), userType, flags);
             mService.createUser(name, userType, flags, HAL_TIMEOUT_MS, future);
-            return future;
+            return new AndroidAsyncFuture<>(future);
         } catch (RemoteException e) {
             AndroidFuture<UserCreationResult> future = new AndroidFuture<>();
             future.complete(new UserCreationResult(UserCreationResult.STATUS_HAL_INTERNAL_FAILURE,
                     null, null));
-            return handleRemoteExceptionFromCarService(e, future);
+            return handleRemoteExceptionFromCarService(e, new AndroidAsyncFuture<>(future));
         }
     }
 
@@ -290,7 +292,7 @@ public final class CarUserManager extends CarManagerBase {
      */
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             android.Manifest.permission.CREATE_USERS})
-    public AndroidFuture<UserCreationResult> createGuest(@Nullable String name) {
+    public AsyncFuture<UserCreationResult> createGuest(@Nullable String name) {
         return createUser(name, UserManager.USER_TYPE_FULL_GUEST, /* flags= */ 0);
     }
 
@@ -301,7 +303,7 @@ public final class CarUserManager extends CarManagerBase {
      */
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             android.Manifest.permission.CREATE_USERS})
-    public AndroidFuture<UserCreationResult> createUser(@Nullable String name,
+    public AsyncFuture<UserCreationResult> createUser(@Nullable String name,
             @UserInfoFlag int flags) {
         return createUser(name, UserManager.USER_TYPE_FULL_SECONDARY, flags);
     }
@@ -318,7 +320,7 @@ public final class CarUserManager extends CarManagerBase {
      * @hide
      */
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
-    public AndroidFuture<UserRemovalResult> removeUser(@UserIdInt int userId) {
+    public AsyncFuture<UserRemovalResult> removeUser(@UserIdInt int userId) {
         int uid = myUid();
         EventLog.writeEvent(EventLogTags.CAR_USER_MGR_REMOVE_USER_REQ, uid, userId);
         int status = UserRemovalResult.STATUS_HAL_INTERNAL_FAILURE;
@@ -327,10 +329,10 @@ public final class CarUserManager extends CarManagerBase {
             UserRemovalResult result = mService.removeUser(userId);
             status = result.getStatus();
             future.complete(result);
-            return future;
+            return new AndroidAsyncFuture<>(future);
         } catch (RemoteException e) {
             future.complete(new UserRemovalResult(UserRemovalResult.STATUS_HAL_INTERNAL_FAILURE));
-            return handleRemoteExceptionFromCarService(e, future);
+            return handleRemoteExceptionFromCarService(e, new AndroidAsyncFuture<>(future));
         } finally {
             EventLog.writeEvent(EventLogTags.CAR_USER_MGR_REMOVE_USER_RESP, uid, status);
         }
@@ -468,7 +470,7 @@ public final class CarUserManager extends CarManagerBase {
      */
     @NonNull
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
-    public AndroidFuture<UserIdentificationAssociationResponse> setUserIdentificationAssociation(
+    public AsyncFuture<UserIdentificationAssociationResponse> setUserIdentificationAssociation(
             @NonNull int[] types, @NonNull int[] values) {
         Preconditions.checkArgument(!ArrayUtils.isEmpty(types), "must have at least one type");
         Preconditions.checkArgument(!ArrayUtils.isEmpty(values), "must have at least one value");
@@ -509,11 +511,11 @@ public final class CarUserManager extends CarManagerBase {
                 };
             };
             mService.setUserIdentificationAssociation(HAL_TIMEOUT_MS, types, values, future);
-            return future;
+            return new AndroidAsyncFuture<>(future);
         } catch (RemoteException e) {
             AndroidFuture<UserIdentificationAssociationResponse> future = new AndroidFuture<>();
             future.complete(UserIdentificationAssociationResponse.forFailure());
-            return handleRemoteExceptionFromCarService(e, future);
+            return handleRemoteExceptionFromCarService(e, new AndroidAsyncFuture<>(future));
         }
     }
 
