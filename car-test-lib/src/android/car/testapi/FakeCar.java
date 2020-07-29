@@ -154,29 +154,8 @@ public class FakeCar {
         }
 
         @Override
-        public void setCarServiceHelper(IBinder helper) throws RemoteException {
-            // Nothing to do yet.
-        }
-
-        @Override
-        public void onUserLifecycleEvent(int eventType, long timestampMs, int fromUserId,
-                int toUserId) {
-            // Nothing to do yet.
-        }
-
-        @Override
-        public void onFirstUserUnlocked(int userId, long timestampMs, long duration,
-                int halResponseTime) {
-            // Nothing to do yet.
-        }
-
-        @Override
-        public void getInitialUserInfo(int requestType, int timeoutMs, IBinder binder) {
-            // Nothing to do yet.
-        }
-
-        @Override
-        public void setInitialUser(int userId) {
+        public void setSystemServerConnections(IBinder helper, IBinder receiver)
+                throws RemoteException {
             // Nothing to do yet.
         }
 

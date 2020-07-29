@@ -33,6 +33,7 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Process;
 import android.os.RemoteException;
@@ -61,6 +62,7 @@ import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.car.EventLogTags;
 import com.android.internal.car.ICarServiceHelper;
+import com.android.internal.car.ICarSystemServerClient;
 import com.android.internal.os.IResultReceiver;
 
 import java.io.FileDescriptor;
@@ -74,6 +76,8 @@ public class ICarImpl extends ICar.Stub {
     public static final String INTERNAL_INPUT_SERVICE = "internal_input";
     public static final String INTERNAL_SYSTEM_ACTIVITY_MONITORING_SERVICE =
             "system_activity_monitoring";
+    // TODO(b/162240867): Move this constant at a common place.
+    private static final String ICAR_SYSTEM_SERVER_CLIENT = "ICarSystemServerClient";
 
     private static final int INITIAL_VHAL_GET_RETRY = 2;
 
@@ -134,6 +138,8 @@ public class ICarImpl extends ICar.Stub {
     private ICarServiceHelper mICarServiceHelper;
 
     private final String mVehicleInterfaceName;
+
+    private final ICarSystemServerClientImpl mICarSystemServerClientImpl;
 
     public ICarImpl(Context serviceContext, IVehicle vehicle, SystemInterface systemInterface,
             CanBusErrorNotifier errorNotifier, String vehicleInterfaceName) {
@@ -297,6 +303,8 @@ public class ICarImpl extends ICar.Stub {
         // Always put mCarExperimentalFeatureServiceController in last.
         addServiceIfNonNull(allServices, mCarExperimentalFeatureServiceController);
         mAllServices = allServices.toArray(new CarServiceBase[allServices.size()]);
+
+        mICarSystemServerClientImpl = new ICarSystemServerClientImpl();
     }
 
     private void addServiceIfNonNull(List<CarServiceBase> services, CarServiceBase service) {
@@ -335,48 +343,33 @@ public class ICarImpl extends ICar.Stub {
     }
 
     @Override
-    public void setCarServiceHelper(IBinder helper) {
-        EventLog.writeEvent(EventLogTags.CAR_SERVICE_SET_CAR_SERVICE_HELPER,
-                Binder.getCallingPid());
-        assertCallingFromSystemProcess();
-        ICarServiceHelper carServiceHelper = ICarServiceHelper.Stub.asInterface(helper);
-        synchronized (mLock) {
-            mICarServiceHelper = carServiceHelper;
+    public void setSystemServerConnections(IBinder helper, IBinder receiver) {
+        Bundle bundle;
+        try {
+            EventLog.writeEvent(EventLogTags.CAR_SERVICE_SET_CAR_SERVICE_HELPER,
+                    Binder.getCallingPid());
+            assertCallingFromSystemProcess();
+            ICarServiceHelper carServiceHelper = ICarServiceHelper.Stub.asInterface(helper);
+            synchronized (mLock) {
+                mICarServiceHelper = carServiceHelper;
+            }
+            mSystemInterface.setCarServiceHelper(carServiceHelper);
+            mCarOccupantZoneService.setCarServiceHelper(carServiceHelper);
+
+            bundle = new Bundle();
+            bundle.putBinder(ICAR_SYSTEM_SERVER_CLIENT, mICarSystemServerClientImpl.asBinder());
+        } catch (Exception e) {
+            // send back a null response
+            Log.w(TAG, "Exception in setSystemServerConnections", e);
+            bundle = null;
         }
-        mSystemInterface.setCarServiceHelper(carServiceHelper);
-        mCarOccupantZoneService.setCarServiceHelper(carServiceHelper);
-    }
 
-    @Override
-    public void onUserLifecycleEvent(int eventType, long timestampMs, int fromUserId,
-            int toUserId) {
-        assertCallingFromSystemProcess();
-        EventLog.writeEvent(EventLogTags.CAR_SERVICE_ON_USER_LIFECYCLE, eventType, fromUserId,
-                toUserId);
-        if (DBG) {
-            Log.d(TAG, "onUserLifecycleEvent("
-                    + CarUserManager.lifecycleEventTypeToString(eventType) + ", " + toUserId + ")");
+        try {
+            IResultReceiver resultReceiver = IResultReceiver.Stub.asInterface(receiver);
+            resultReceiver.send(/* unused */ 0, bundle);
+        } catch (RemoteException e) {
+            Log.w(TAG, "RemoteException from CarServiceHelperService", e);
         }
-        mCarUserService.onUserLifecycleEvent(eventType, timestampMs, fromUserId, toUserId);
-    }
-
-    @Override
-    public void onFirstUserUnlocked(int userId, long timestampMs, long duration,
-            int halResponseTime) {
-        mCarUserService.onFirstUserUnlocked(userId, timestampMs, duration, halResponseTime);
-    }
-
-    @Override
-    public void getInitialUserInfo(int requestType, int timeoutMs, IBinder binder) {
-        IResultReceiver receiver = IResultReceiver.Stub.asInterface(binder);
-        mCarUserService.getInitialUserInfo(requestType, timeoutMs, receiver);
-    }
-
-    @Override
-    public void setInitialUser(int userId) {
-        EventLog.writeEvent(EventLogTags.CAR_SERVICE_SET_INITIAL_USER, userId);
-        if (DBG) Log.d(TAG, "setInitialUser(): " + userId);
-        mCarUserService.setInitialUser(userId);
     }
 
     @Override
@@ -797,5 +790,45 @@ public class ICarImpl extends ICar.Stub {
     @MainThread
     private void traceEnd() {
         mBootTiming.traceEnd();
+    }
+
+    private final class ICarSystemServerClientImpl extends ICarSystemServerClient.Stub {
+        @Override
+        public void getInitialUserInfo(int requestType, int timeoutMs, IBinder binder)
+                throws RemoteException {
+            assertCallingFromSystemProcess();
+            IResultReceiver receiver = IResultReceiver.Stub.asInterface(binder);
+            mCarUserService.getInitialUserInfo(requestType, timeoutMs, receiver);
+        }
+
+        @Override
+        public void onFirstUserUnlocked(int userId, long timestampMs, long duration,
+                int halResponseTime) throws RemoteException {
+            assertCallingFromSystemProcess();
+            mCarUserService.onFirstUserUnlocked(userId, timestampMs, duration, halResponseTime);
+        }
+
+        @Override
+        public void onUserLifecycleEvent(int eventType, long timestampMs, int fromUserId,
+                int toUserId) throws RemoteException {
+            assertCallingFromSystemProcess();
+            EventLog.writeEvent(EventLogTags.CAR_SERVICE_ON_USER_LIFECYCLE, eventType, fromUserId,
+                    toUserId);
+            if (DBG) {
+                Log.d(TAG,
+                        "onUserLifecycleEvent("
+                                + CarUserManager.lifecycleEventTypeToString(eventType) + ", "
+                                + toUserId + ")");
+            }
+            mCarUserService.onUserLifecycleEvent(eventType, timestampMs, fromUserId, toUserId);
+        }
+
+        @Override
+        public void setInitialUser(int userId) throws RemoteException {
+            assertCallingFromSystemProcess();
+            EventLog.writeEvent(EventLogTags.CAR_SERVICE_SET_INITIAL_USER, userId);
+            if (DBG) Log.d(TAG, "setInitialUser(): " + userId);
+            mCarUserService.setInitialUser(userId);
+        }
     }
 }
