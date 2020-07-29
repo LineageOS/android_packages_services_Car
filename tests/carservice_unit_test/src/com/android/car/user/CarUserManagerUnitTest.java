@@ -47,6 +47,7 @@ import android.car.user.UserCreationResult;
 import android.car.user.UserIdentificationAssociationResponse;
 import android.car.user.UserRemovalResult;
 import android.car.user.UserSwitchResult;
+import android.car.util.concurrent.AsyncFuture;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
@@ -172,7 +173,7 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
     public void testSwitchUser_success() throws Exception {
         expectServiceSwitchUserSucceeds(11, UserSwitchResult.STATUS_SUCCESSFUL, "D'OH!");
 
-        AndroidFuture<UserSwitchResult> future = mMgr.switchUser(11);
+        AsyncFuture<UserSwitchResult> future = mMgr.switchUser(11);
 
         assertThat(future).isNotNull();
         UserSwitchResult result = getResult(future);
@@ -185,7 +186,7 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
         when(mUserManager.getUserSwitchability())
                 .thenReturn(UserManager.SWITCHABILITY_STATUS_SYSTEM_USER_LOCKED);
 
-        AndroidFuture<UserSwitchResult> future = mMgr.switchUser(11);
+        AsyncFuture<UserSwitchResult> future = mMgr.switchUser(11);
 
         assertThat(future).isNotNull();
         UserSwitchResult result = getResult(future);
@@ -198,7 +199,7 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
         expectServiceSwitchUserFails(11);
         mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
 
-        AndroidFuture<UserSwitchResult> future = mMgr.switchUser(11);
+        AsyncFuture<UserSwitchResult> future = mMgr.switchUser(11);
 
         assertThat(future).isNotNull();
         UserSwitchResult result = getResult(future);
@@ -247,7 +248,7 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
         expectServiceCreateUserSucceeds("dude", "sweet", 42, UserCreationResult.STATUS_SUCCESSFUL,
                 108);
 
-        AndroidFuture<UserCreationResult> future = mMgr.createUser("dude", "sweet", 42);
+        AsyncFuture<UserCreationResult> future = mMgr.createUser("dude", "sweet", 42);
 
         assertThat(future).isNotNull();
         UserCreationResult result = getResult(future);
@@ -268,7 +269,7 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
         expectServiceCreateUserFails("dude", "sweet", 42);
         mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
 
-        AndroidFuture<UserCreationResult> future = mMgr.createUser("dude", "sweet", 42);
+        AsyncFuture<UserCreationResult> future = mMgr.createUser("dude", "sweet", 42);
 
         assertThat(future).isNotNull();
         UserCreationResult result = getResult(future);
@@ -283,7 +284,7 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
         expectServiceCreateUserSucceeds("dude", UserManager.USER_TYPE_FULL_SECONDARY, 42,
                 UserCreationResult.STATUS_SUCCESSFUL, 108);
 
-        AndroidFuture<UserCreationResult> future = mMgr.createUser("dude", 42);
+        AsyncFuture<UserCreationResult> future = mMgr.createUser("dude", 42);
 
         assertThat(future).isNotNull();
         UserCreationResult result = getResult(future);
@@ -304,7 +305,7 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
         expectServiceCreateUserFails("dude", UserManager.USER_TYPE_FULL_SECONDARY, 42);
         mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
 
-        AndroidFuture<UserCreationResult> future = mMgr.createUser("dude", 42);
+        AsyncFuture<UserCreationResult> future = mMgr.createUser("dude", 42);
 
         assertThat(future).isNotNull();
         UserCreationResult result = getResult(future);
@@ -319,7 +320,7 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
         expectServiceCreateUserSucceeds("dudeGuest", UserManager.USER_TYPE_FULL_GUEST, 0,
                 UserCreationResult.STATUS_SUCCESSFUL, 108);
 
-        AndroidFuture<UserCreationResult> future = mMgr.createGuest("dudeGuest");
+        AsyncFuture<UserCreationResult> future = mMgr.createGuest("dudeGuest");
 
         assertThat(future).isNotNull();
         UserCreationResult result = getResult(future);
@@ -341,7 +342,7 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
         expectServiceCreateUserFails("dudeGuest", UserManager.USER_TYPE_FULL_GUEST, 0);
         mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
 
-        AndroidFuture<UserCreationResult> future = mMgr.createGuest("dudeGuest");
+        AsyncFuture<UserCreationResult> future = mMgr.createGuest("dudeGuest");
 
         assertThat(future).isNotNull();
         UserCreationResult result = getResult(future);
@@ -424,7 +425,7 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
                 .setUserIdentificationAssociation(anyInt(), same(types), same(values), notNull());
         mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
 
-        AndroidFuture<UserIdentificationAssociationResponse> future =
+        AsyncFuture<UserIdentificationAssociationResponse> future =
                 mMgr.setUserIdentificationAssociation(types, values);
 
         assertThat(future).isNotNull();
@@ -450,7 +451,7 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
                 .setUserIdentificationAssociation(anyInt(), same(types), same(values), notNull());
         mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
 
-        AndroidFuture<UserIdentificationAssociationResponse> future =
+        AsyncFuture<UserIdentificationAssociationResponse> future =
                 mMgr.setUserIdentificationAssociation(types, values);
 
         assertThat(future).isNotNull();

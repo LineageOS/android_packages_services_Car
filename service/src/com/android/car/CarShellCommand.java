@@ -40,6 +40,7 @@ import android.car.user.UserRemovalResult;
 import android.car.user.UserSwitchResult;
 import android.car.userlib.HalCallback;
 import android.car.userlib.UserHalHelper;
+import android.car.util.concurrent.AsyncFuture;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -85,7 +86,6 @@ import com.android.car.hal.VehicleHal;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserService;
-import com.android.internal.infra.AndroidFuture;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -989,7 +989,7 @@ final class CarShellCommand extends ShellCommand {
             return;
         }
         CarUserManager carUserManager = getCarUserManager(mContext);
-        AndroidFuture<UserSwitchResult> future = carUserManager.switchUser(targetUserId);
+        AsyncFuture<UserSwitchResult> future = carUserManager.switchUser(targetUserId);
         UserSwitchResult result = waitForFuture(writer, future, timeout);
         if (result == null) return;
         writer.printf("UserSwitchResult: status=%s",
@@ -1042,7 +1042,7 @@ final class CarShellCommand extends ShellCommand {
 
         if (!halOnly) {
             CarUserManager carUserManager = getCarUserManager(mContext);
-            AndroidFuture<UserCreationResult> future = carUserManager
+            AsyncFuture<UserCreationResult> future = carUserManager
                     .createUser(name, userType, flags);
 
             UserCreationResult result = waitForFuture(writer, future, timeout);
@@ -1156,7 +1156,7 @@ final class CarShellCommand extends ShellCommand {
     }
 
     private static <T> T waitForFuture(@NonNull PrintWriter writer,
-            @NonNull AndroidFuture<T> future, int timeoutMs) {
+            @NonNull AsyncFuture<T> future, int timeoutMs) {
         T result = null;
         try {
             result = future.get(timeoutMs, TimeUnit.MILLISECONDS);
@@ -1379,7 +1379,7 @@ final class CarShellCommand extends ShellCommand {
             types[i] = association.type;
             values[i] = association.value;
         }
-        AndroidFuture<UserIdentificationAssociationResponse> future = carUserManager
+        AsyncFuture<UserIdentificationAssociationResponse> future = carUserManager
                 .setUserIdentificationAssociation(types, values);
         UserIdentificationAssociationResponse response = waitForFuture(writer, future, timeout);
         if (response != null) {
