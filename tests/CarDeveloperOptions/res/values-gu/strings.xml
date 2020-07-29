@@ -2737,7 +2737,7 @@
     <string name="data_usage_metered_yes" msgid="7333744880035386073">"મીટર કરેલ"</string>
     <string name="data_usage_metered_no" msgid="1961524615778610008">"મીટર કરેલ નથી"</string>
     <string name="data_usage_disclaimer" msgid="4683321532922590425">"કેરિઅર ડેટા એકાઉન્ટિંગ તમારા ઉપકરણથી અલગ હોઈ શકે છે."</string>
-    <string name="cryptkeeper_emergency_call" msgid="4625420047524693116">"કટોકટીમાં કૉલ જોડો"</string>
+    <string name="cryptkeeper_emergency_call" msgid="4625420047524693116">"ઇમર્જન્સી કૉલ"</string>
     <string name="cryptkeeper_return_to_call" msgid="4433942821196822815">"કૉલ પર પાછા ફરો"</string>
     <string name="vpn_name" msgid="3538818658670774080">"નામ"</string>
     <string name="vpn_type" msgid="6389116710008658550">"પ્રકાર"</string>

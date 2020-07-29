@@ -355,7 +355,7 @@
     <string name="security_enable_widgets_title" msgid="1701510007926738088">"Aktifkan widget"</string>
     <string name="security_enable_widgets_disabled_summary" msgid="4408176087132339331">"Dinonaktifkan oleh admin"</string>
     <string name="lockdown_settings_title" msgid="4534779922580115990">"Tampilkan opsi kunci total"</string>
-    <string name="lockdown_settings_summary" msgid="7270756909878256174">"Tampilkan opsi tombol power yang menonaktifkan Smart Lock, buka kunci dengan sidik jari, dan notifikasi di layar kunci"</string>
+    <string name="lockdown_settings_summary" msgid="7270756909878256174">"Tampilkan opsi tombol daya yang menonaktifkan Smart Lock, buka kunci dengan sidik jari, dan notifikasi di layar kunci"</string>
     <string name="trust_agents_extend_unlock_title" msgid="3582017561316089951">"Perangkat dipercaya memperpanjang buka kunci"</string>
     <string name="trust_agents_extend_unlock_summary" msgid="3543997596586078084">"Jika diaktifkan, perangkat dipercaya akan membuat perangkat tetap tidak terkunci untuk waktu yang lebih lama, namun tidak dapat lagi membuka perangkat yang terkunci."</string>
     <string name="trust_lost_locks_screen_title" msgid="3094736590690459372">"Kunci layar saat kepercayaan hilang"</string>
@@ -1767,7 +1767,7 @@
     <string name="lockpattern_settings_enable_visible_pattern_title" msgid="4935583222709647096">"Perlihatkan pola"</string>
     <string name="lockpattern_settings_enable_visible_pattern_title_profile" msgid="5338893138982642228">"Perlihatkan pola profil"</string>
     <string name="lockpattern_settings_enable_tactile_feedback_title" msgid="3203621862806531947">"Bergetar saat diketuk"</string>
-    <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"Tombol power langsung kunci"</string>
+    <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"Tombol daya langsung kunci"</string>
     <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"Kecuali jika tetap tidak dikunci oleh <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g>"</string>
     <string name="lockpattern_settings_choose_lock_pattern" msgid="9042142745571386381">"Setel pola pembuka kunci"</string>
     <string name="lockpattern_settings_change_lock_pattern" msgid="1456643060737114885">"Ubah pola pembuka kunci"</string>

@@ -2008,7 +2008,7 @@
     <string name="testing" msgid="4255916838792186365">"تست کردن"</string>
     <string name="testing_phone_info" product="tablet" msgid="2714303457408649566">"اطلاعات رایانهٔ لوحی"</string>
     <string name="testing_phone_info" product="default" msgid="1954062952628179016">"اطلاعات تلفن"</string>
-    <string name="input_methods_settings_title" msgid="880477541100103388">"ووردی متن"</string>
+    <string name="input_methods_settings_title" msgid="880477541100103388">"ورودی نوشتاری"</string>
     <string name="input_method" msgid="2426639635860376775">"روش ورودی"</string>
     <string name="current_input_method" msgid="4831870685505762355">"صفحه‌کلید کنونی"</string>
     <string name="input_method_selector" msgid="2053594139601607047">"انتخابگر روش ورودی"</string>
