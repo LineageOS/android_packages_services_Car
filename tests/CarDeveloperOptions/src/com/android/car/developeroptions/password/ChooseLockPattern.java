@@ -51,6 +51,7 @@ import com.android.internal.widget.LockPatternView;
 import com.android.internal.widget.LockPatternView.Cell;
 import com.android.internal.widget.LockPatternView.DisplayMode;
 import com.android.internal.widget.LockscreenCredential;
+import com.android.internal.widget.VerifyCredentialResponse;
 
 import com.google.android.collect.Lists;
 import com.google.android.setupcompat.template.FooterBarMixin;
@@ -861,20 +862,17 @@ public class ChooseLockPattern extends SettingsActivity {
             final boolean success = mUtils.setLockCredential(mChosenPattern, mCurrentCredential,
                     userId);
             Intent result = null;
+            // This path needs to be updated to support biometrics. See packages/apps/Settings
             if (success && mHasChallenge) {
-                byte[] token;
-                try {
-                    token = mUtils.verifyCredential(mChosenPattern, mChallenge, userId);
-                } catch (RequestThrottledException e) {
-                    token = null;
-                }
-
-                if (token == null) {
-                    Log.e(TAG, "critical: no token returned for known good pattern");
+                final VerifyCredentialResponse response = mUtils.verifyCredential(mChosenPattern,
+                        userId, 0 /* flags */);
+                if (!response.isMatched()) {
+                    Log.e(TAG, "critical: bad response for known good pattern");
                 }
 
                 result = new Intent();
-                result.putExtra(ChooseLockSettingsHelper.EXTRA_KEY_CHALLENGE_TOKEN, token);
+                result.putExtra(ChooseLockSettingsHelper.EXTRA_KEY_CHALLENGE_TOKEN,
+                        response.getGatekeeperHAT());
             }
             return Pair.create(success, result);
         }

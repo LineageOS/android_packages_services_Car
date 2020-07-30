@@ -39,6 +39,7 @@ import com.android.internal.widget.LockPatternUtils;
 import com.android.internal.widget.LockPatternView;
 import com.android.internal.widget.LockPatternView.Cell;
 import com.android.internal.widget.LockscreenCredential;
+import com.android.internal.widget.VerifyCredentialResponse;
 import com.android.settingslib.animation.AppearAnimationCreator;
 import com.android.settingslib.animation.AppearAnimationUtils;
 import com.android.settingslib.animation.DisappearAnimationUtils;
@@ -428,30 +429,28 @@ public class ConfirmLockPattern extends ConfirmDeviceCredentialBaseActivity {
                 long challenge = getActivity().getIntent().getLongExtra(
                         ChooseLockSettingsHelper.EXTRA_KEY_CHALLENGE, 0);
                 final LockPatternChecker.OnVerifyCallback onVerifyCallback =
-                    new LockPatternChecker.OnVerifyCallback() {
-                        @Override
-                        public void onVerified(byte[] token, int timeoutMs) {
-                            mPendingLockCheck = null;
-                            boolean matched = false;
-                            if (token != null) {
-                                matched = true;
-                                if (mReturnCredentials) {
-                                    intent.putExtra(
-                                            ChooseLockSettingsHelper.EXTRA_KEY_CHALLENGE_TOKEN,
-                                            token);
-                                }
+                    (response, timeoutMs) -> {
+                        mPendingLockCheck = null;
+                        final boolean matched = response.isMatched();
+                        if (matched) {
+                            // This path needs to be updated to support biometrics. See
+                            // packages/apps/Settings
+                            if (mReturnCredentials) {
+                                intent.putExtra(
+                                        ChooseLockSettingsHelper.EXTRA_KEY_CHALLENGE_TOKEN,
+                                        response.getGatekeeperHAT());
                             }
-                            mCredentialCheckResultTracker.setResult(matched, intent, timeoutMs,
-                                    localEffectiveUserId);
                         }
+                        mCredentialCheckResultTracker.setResult(matched, intent, timeoutMs,
+                                localEffectiveUserId);
                     };
                 mPendingLockCheck = (localEffectiveUserId == localUserId)
                         ? LockPatternChecker.verifyCredential(
-                                mLockPatternUtils, pattern, challenge, localUserId,
+                                mLockPatternUtils, pattern, localUserId, 0 /* flags */,
                                 onVerifyCallback)
                         : LockPatternChecker.verifyTiedProfileChallenge(
-                                mLockPatternUtils, pattern,
-                                challenge, localUserId, onVerifyCallback);
+                                mLockPatternUtils, pattern, localUserId, 0 /* flags */,
+                                onVerifyCallback);
             }
 
             private void startCheckPattern(final LockscreenCredential pattern,
