@@ -19,6 +19,7 @@
 
 #include "HalCamera.h"
 #include "VirtualCamera.h"
+#include "emul/EvsEmulatedCamera.h"
 #include "stats/StatsCollector.h"
 
 #include <list>
@@ -111,6 +112,13 @@ private:
     void cmdHelp(int fd);
     void cmdList(int fd, const hidl_vec<hidl_string>& options);
     void cmdDumpDevice(int fd, const hidl_vec<hidl_string>& options);
+
+    // List of emulated camera devices
+    std::unordered_map<std::string,
+                  EmulatedCameraDesc> mEmulatedCameraDevices;
+
+    // LSHAL command to use emulated camera device
+    void cmdConfigureEmulatedCamera(int fd, const hidl_vec<hidl_string>& options);
 };
 
 } // namespace implementation

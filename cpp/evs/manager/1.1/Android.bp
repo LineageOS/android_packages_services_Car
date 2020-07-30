@@ -73,6 +73,8 @@ filegroup {
         "HalCamera.cpp",
         "HalDisplay.cpp",
         "VirtualCamera.cpp",
+        "emul/EvsEmulatedCamera.cpp",
+        "emul/VideoCapture.cpp",
         "stats/CameraUsageStats.cpp",
         "stats/LooperWrapper.cpp",
         "stats/StatsCollector.cpp",
