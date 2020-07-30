@@ -38,8 +38,7 @@ import static org.mockito.Mockito.when;
 import android.annotation.UserIdInt;
 import android.app.IActivityManager;
 import android.car.CarProjectionManager;
-import android.car.input.CarInputHandlingService.InputFilter;
-import android.car.input.ICarInputListener;
+import android.car.input.CarInputManager;
 import android.car.testapi.BlockingUserLifecycleListener;
 import android.car.user.CarUserManager;
 import android.car.userlib.CarUserManagerHelper;
@@ -54,7 +53,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -100,6 +98,7 @@ public class CarInputServiceTest {
     @Mock CarInputService.KeyEventListener mDefaultMainListener;
     @Mock Supplier<String> mLastCallSupplier;
     @Mock IntSupplier mLongPressDelaySupplier;
+    @Mock InputCaptureClientController mCaptureController;
 
     @Spy Context mContext = ApplicationProvider.getApplicationContext();
     @Spy Handler mHandler = new Handler(Looper.getMainLooper());
@@ -152,7 +151,7 @@ public class CarInputServiceTest {
         mCarUserService = mock(CarUserService.class);
         mCarInputService = new CarInputService(mContext, mInputHalService, mCarUserService,
                 mHandler, mTelecomManager, mAssistUtils, mDefaultMainListener, mLastCallSupplier,
-                mLongPressDelaySupplier);
+                mLongPressDelaySupplier, mCaptureController);
 
         when(mInputHalService.isKeyInputSupported()).thenReturn(true);
         mCarInputService.init();
@@ -248,33 +247,52 @@ public class CarInputServiceTest {
     }
 
     @Test
-    public void customEventHandler_capturesRegisteredEvents_ignoresUnregisteredEvents()
-            throws RemoteException {
-        KeyEvent event;
-        ICarInputListener listener = registerInputListener(
-                new InputFilter(KeyEvent.KEYCODE_ENTER, InputHalService.DISPLAY_MAIN),
-                new InputFilter(KeyEvent.KEYCODE_ENTER, InputHalService.DISPLAY_INSTRUMENT_CLUSTER),
-                new InputFilter(KeyEvent.KEYCODE_MENU, InputHalService.DISPLAY_MAIN));
+    public void customEventHandler_capturesDisplayMainEvent_capturedByInputController() {
+        CarInputService.KeyEventListener instrumentClusterListener =
+                setupInstrumentClusterListener();
 
+        // Assume mCaptureController will consume every event.
+        when(mCaptureController.onKeyEvent(anyInt(), any(KeyEvent.class))).thenReturn(true);
+
+        KeyEvent event = send(Key.DOWN, KeyEvent.KEYCODE_ENTER, Display.MAIN);
+        verify(instrumentClusterListener, never()).onKeyEvent(any(KeyEvent.class));
+        verify(mCaptureController).onKeyEvent(CarInputManager.TARGET_DISPLAY_TYPE_MAIN, event);
+        verify(mDefaultMainListener, never()).onKeyEvent(any(KeyEvent.class));
+    }
+
+    @Test
+    public void customEventHandler_capturesDisplayMainEvent_missedByInputController() {
+        CarInputService.KeyEventListener instrumentClusterListener =
+                setupInstrumentClusterListener();
+
+        // Assume mCaptureController will consume every event.
+        when(mCaptureController.onKeyEvent(anyInt(), any(KeyEvent.class))).thenReturn(false);
+
+        KeyEvent event = send(Key.DOWN, KeyEvent.KEYCODE_ENTER, Display.MAIN);
+        verify(instrumentClusterListener, never()).onKeyEvent(any(KeyEvent.class));
+        verify(mCaptureController).onKeyEvent(anyInt(), any(KeyEvent.class));
+        verify(mDefaultMainListener).onKeyEvent(event);
+    }
+
+    @Test
+    public void customEventHandler_capturesClusterEvents_capturedByInstrumentCluster() {
+        CarInputService.KeyEventListener instrumentClusterListener =
+                setupInstrumentClusterListener();
+
+        // Assume mCaptureController will consume every event.
+        when(mCaptureController.onKeyEvent(anyInt(), any(KeyEvent.class))).thenReturn(true);
+
+        KeyEvent event = send(Key.DOWN, KeyEvent.KEYCODE_ENTER, Display.INSTRUMENT_CLUSTER);
+        verify(instrumentClusterListener).onKeyEvent(event);
+        verify(mCaptureController, never()).onKeyEvent(anyInt(), any(KeyEvent.class));
+        verify(mDefaultMainListener, never()).onKeyEvent(any(KeyEvent.class));
+    }
+
+    private CarInputService.KeyEventListener setupInstrumentClusterListener() {
         CarInputService.KeyEventListener instrumentClusterListener =
                 mock(CarInputService.KeyEventListener.class);
         mCarInputService.setInstrumentClusterKeyListener(instrumentClusterListener);
-
-        event = send(Key.DOWN, KeyEvent.KEYCODE_ENTER, Display.MAIN);
-        verify(listener).onKeyEvent(event, InputHalService.DISPLAY_MAIN);
-        verify(mDefaultMainListener, never()).onKeyEvent(any());
-
-        event = send(Key.DOWN, KeyEvent.KEYCODE_ENTER, Display.INSTRUMENT_CLUSTER);
-        verify(listener).onKeyEvent(event, InputHalService.DISPLAY_INSTRUMENT_CLUSTER);
-        verify(instrumentClusterListener, never()).onKeyEvent(any());
-
-        event = send(Key.DOWN, KeyEvent.KEYCODE_MENU, Display.MAIN);
-        verify(listener).onKeyEvent(event, InputHalService.DISPLAY_MAIN);
-        verify(mDefaultMainListener, never()).onKeyEvent(any());
-
-        event = send(Key.DOWN, KeyEvent.KEYCODE_MENU, Display.INSTRUMENT_CLUSTER);
-        verify(listener, never()).onKeyEvent(event, InputHalService.DISPLAY_INSTRUMENT_CLUSTER);
-        verify(instrumentClusterListener).onKeyEvent(event);
+        return instrumentClusterListener;
     }
 
     @Test
@@ -608,7 +626,7 @@ public class CarInputServiceTest {
 
         mCarInputService = new CarInputService(mMockContext, mInputHalService, mCarUserService,
                 mHandler, mTelecomManager, mAssistUtils, mDefaultMainListener, mLastCallSupplier,
-                mLongPressDelaySupplier);
+                mLongPressDelaySupplier, mCaptureController);
         mCarInputService.init();
     }
 
@@ -652,13 +670,6 @@ public class CarInputServiceTest {
                         ? InputHalService.DISPLAY_MAIN
                         : InputHalService.DISPLAY_INSTRUMENT_CLUSTER);
         return event;
-    }
-
-    private ICarInputListener registerInputListener(InputFilter... handledKeys) {
-        ICarInputListener listener = mock(ICarInputListener.class);
-        mCarInputService.mCarInputListener = listener;
-        mCarInputService.setHandledKeys(handledKeys);
-        return listener;
     }
 
     private CarProjectionManager.ProjectionKeyEventHandler registerProjectionKeyEventHandler(
