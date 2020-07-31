@@ -188,7 +188,7 @@ public class NetworkDashboardFragment extends DashboardFragment implements
                 @Override
                 public List<String> getNonIndexableKeys(Context context) {
                     List<String> keys = super.getNonIndexableKeys(context);
-                    // Remove master switch as a result
+                    // Remove global switch as a result
                     keys.add(WifiMasterSwitchPreferenceController.KEY_TOGGLE_WIFI);
                     return keys;
                 }

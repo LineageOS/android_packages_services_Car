@@ -60,8 +60,8 @@ public class LocationSwitchBarController implements SwitchBar.OnSwitchChangeList
 
     @Override
     public void onLocationModeChanged(int mode, boolean restricted) {
-        // Restricted user can't change the location mode, so disable the master switch. But in some
-        // corner cases, the location might still be enabled. In such case the master switch should
+        // Restricted user can't change the location mode, so disable the global switch. But in some
+        // corner cases, the location might still be enabled. In such case the global switch should
         // be disabled but checked.
         final boolean enabled = mLocationEnabler.isEnabled(mode);
         final int userId = UserHandle.myUserId();
@@ -90,7 +90,7 @@ public class LocationSwitchBarController implements SwitchBar.OnSwitchChangeList
     }
 
     /**
-     * Listens to the state change of the location master switch.
+     * Listens to the state change of the location global switch.
      */
     @Override
     public void onSwitchChanged(Switch switchView, boolean isChecked) {
