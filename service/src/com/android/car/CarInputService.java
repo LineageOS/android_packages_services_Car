@@ -26,11 +26,9 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothHeadsetClient;
 import android.bluetooth.BluetoothProfile;
 import android.car.CarProjectionManager;
-import android.car.input.CarInputHandlingService.InputFilter;
 import android.car.input.CarInputManager;
 import android.car.input.ICarInput;
 import android.car.input.ICarInputCallback;
-import android.car.input.ICarInputListener;
 import android.car.input.RotaryEvent;
 import android.car.user.CarUserManager;
 import android.car.userlib.UserHelper;
@@ -43,7 +41,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.RemoteException;
 import android.os.UserHandle;
 import android.provider.CallLog.Calls;
 import android.provider.Settings;
@@ -188,14 +185,6 @@ public class CarInputService extends ICarInput.Stub
     @GuardedBy("mLock")
     private KeyEventListener mInstrumentClusterKeyListener;
 
-    @GuardedBy("mLock")
-    @VisibleForTesting
-    ICarInputListener mCarInputListener;
-
-    // Maps display -> keycodes handled.
-    @GuardedBy("mLock")
-    private final SetMultimap<Integer, Integer> mHandledKeys = new SetMultimap<>();
-
     private final InputCaptureClientController mCaptureController;
 
     private final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -251,16 +240,17 @@ public class CarInputService extends ICarInput.Stub
                         context.getSystemService(InputManager.class)
                                 .injectInputEvent(event, INJECT_INPUT_EVENT_MODE_ASYNC),
                 () -> Calls.getLastOutgoingCall(context),
-                () -> getViewLongPressDelay(context.getContentResolver()));
+                () -> getViewLongPressDelay(context.getContentResolver()),
+                new InputCaptureClientController(context));
     }
 
     @VisibleForTesting
     CarInputService(Context context, InputHalService inputHalService, CarUserService userService,
             Handler handler, TelecomManager telecomManager, AssistUtils assistUtils,
             KeyEventListener mainDisplayHandler, Supplier<String> lastCalledNumberSupplier,
-            IntSupplier longPressDelaySupplier) {
+            IntSupplier longPressDelaySupplier, InputCaptureClientController captureController) {
         mContext = context;
-        mCaptureController = new InputCaptureClientController(context);
+        mCaptureController = captureController;
         mInputHalService = inputHalService;
         mUserService = userService;
         mTelecomManager = telecomManager;
@@ -276,16 +266,6 @@ public class CarInputService extends ICarInput.Stub
                 new KeyPressTimer(handler, longPressDelaySupplier, this::handleCallLongPress);
 
         mRotaryServiceComponentName = mContext.getString(R.string.rotaryService);
-    }
-
-    @VisibleForTesting
-    void setHandledKeys(InputFilter[] handledKeys) {
-        synchronized (mLock) {
-            mHandledKeys.clear();
-            for (InputFilter handledKey : handledKeys) {
-                mHandledKeys.put(handledKey.mTargetDisplay, handledKey.mKeyCode);
-            }
-        }
     }
 
     /**
@@ -350,21 +330,6 @@ public class CarInputService extends ICarInput.Stub
 
     @Override
     public void onKeyEvent(KeyEvent event, int targetDisplay) {
-        // Give a car specific input listener the opportunity to intercept any input from the car
-        ICarInputListener carInputListener;
-        synchronized (mLock) {
-            carInputListener = mCarInputListener;
-        }
-        if (carInputListener != null && isCustomEventHandler(event, targetDisplay)) {
-            try {
-                carInputListener.onKeyEvent(event, targetDisplay);
-            } catch (RemoteException e) {
-                Log.e(CarLog.TAG_INPUT, "Error while calling car input service", e);
-            }
-            // Custom input service handled the event, nothing more to do here.
-            return;
-        }
-
         // Special case key code that have special "long press" handling for automotive
         switch (event.getKeyCode()) {
             case KeyEvent.KEYCODE_VOICE_ASSIST:
@@ -454,12 +419,6 @@ public class CarInputService extends ICarInput.Stub
     @Override
     public void releaseInputEventCapture(ICarInputCallback callback, int targetDisplayType) {
         mCaptureController.releaseInputEventCapture(callback, targetDisplayType);
-    }
-
-    private boolean isCustomEventHandler(KeyEvent event, int targetDisplay) {
-        synchronized (mLock) {
-            return mHandledKeys.containsEntry(targetDisplay, event.getKeyCode());
-        }
     }
 
     private void handleVoiceAssistKey(KeyEvent event) {
@@ -642,9 +601,6 @@ public class CarInputService extends ICarInput.Stub
     @Override
     public void dump(PrintWriter writer) {
         writer.println("*Input Service*");
-        synchronized (mLock) {
-            writer.println("mCarInputListener: " + mCarInputListener);
-        }
         writer.println("Long-press delay: " + mLongPressDelaySupplier.getAsInt() + "ms");
         mCaptureController.dump(writer);
     }
