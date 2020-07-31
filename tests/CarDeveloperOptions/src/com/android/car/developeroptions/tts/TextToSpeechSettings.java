@@ -143,7 +143,7 @@ public class TextToSpeechSettings extends SettingsPreferenceFragment
 
     /**
      * The initialization listener used when we are initalizing the settings
-     * screen for the first time (as opposed to when a user changes his choice
+     * screen for the first time (as opposed to when a user changes their choice
      * of engine).
      */
     private final TextToSpeech.OnInitListener mInitListener = this::onInitEngine;

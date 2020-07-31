@@ -468,7 +468,7 @@ public class AccessibilitySettings extends SettingsPreferenceFragment implements
         mToggleDisableAnimationsPreference =
                 (SwitchPreference) findPreference(TOGGLE_DISABLE_ANIMATIONS);
 
-        // Master Mono
+        // Global Mono
         mToggleMasterMonoPreference =
                 (SwitchPreference) findPreference(TOGGLE_MASTER_MONO);
 
@@ -728,7 +728,7 @@ public class AccessibilitySettings extends SettingsPreferenceFragment implements
 
         updateDisableAnimationsToggle();
 
-        // Master mono
+        // Global Mono
         updateMasterMono();
 
         // Long press timeout.
