@@ -55,7 +55,7 @@
     <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"Nabigazio-kudeatzailea"</string>
     <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"Jakinarazi nabigazio-datuak instrumentu lukuari"</string>
     <string name="car_permission_car_display_in_cluster" msgid="4005987646292458684">"Zuzeneko errendatzea instrumentu lukuan"</string>
-    <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"Baimendu aplikazioari instrumentu lukuan bistaratu beharreko jarduerak erabakitzea"</string>
+    <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"Eman instrumentu lukuan bistaratu beharreko jarduerak azaltzeko baimena aplikazioari"</string>
     <string name="car_permission_car_cluster_control" msgid="1382247204230165674">"Instrumentu lukua kontrolatzeko aukera"</string>
     <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"Abiarazi aplikazioak instrumentu lukuan"</string>
     <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"Instrumentu lukuaren errendatzea"</string>
