@@ -39,6 +39,7 @@ using android::base::ParseUint;
 using android::base::ReadFileToString;
 using android::base::Result;
 using android::base::Split;
+using android::base::Trim;
 
 namespace {
 
@@ -113,6 +114,81 @@ Result<void> readPidStatFile(const std::string& path, PidStat* pidStat) {
     return {};
 }
 
+Result<std::unordered_map<std::string, std::string>> readKeyValueFile(
+        const std::string& path, const std::string& delimiter) {
+    std::string buffer;
+    if (!ReadFileToString(path, &buffer)) {
+        return Error(ERR_FILE_OPEN_READ) << "ReadFileToString failed for " << path;
+    }
+    std::unordered_map<std::string, std::string> contents;
+    std::vector<std::string> lines = Split(std::move(buffer), "\n");
+    for (size_t i = 0; i < lines.size(); ++i) {
+        if (lines[i].empty()) {
+            continue;
+        }
+        std::vector<std::string> elements = Split(lines[i], delimiter);
+        if (elements.size() < 2) {
+            return Error(ERR_INVALID_FILE)
+                    << "Line \"" << lines[i] << "\" doesn't contain the delimiter \"" << delimiter
+                    << "\" in file " << path;
+        }
+        std::string key = elements[0];
+        std::string value = Trim(lines[i].substr(key.length() + delimiter.length()));
+        if (contents.find(key) != contents.end()) {
+            return Error(ERR_INVALID_FILE)
+                    << "Duplicate " << key << " line: \"" << lines[i] << "\" in file " << path;
+        }
+        contents[key] = value;
+    }
+    return contents;
+}
+
+// /proc/PID/status file format(*):
+// Tgid:    <Thread group ID of the process>
+// Uid:     <Read UID>   <Effective UID>   <Saved set UID>   <Filesystem UID>
+// VmPeak:  <Peak virtual memory size> kB
+// VmSize:  <Virtual memory size> kB
+// VmHWM:   <Peak resident set size> kB
+// VmRSS:   <Resident set size> kB
+//
+// (*) - Included only the fields that are parsed from the file.
+Result<void> readPidStatusFile(const std::string& path, ProcessStats* processStats) {
+    auto ret = readKeyValueFile(path, ":\t");
+    if (!ret.ok()) {
+        return Error(ret.error().code()) << ret.error();
+    }
+    auto contents = ret.value();
+    if (contents.empty()) {
+        return Error(ERR_INVALID_FILE) << "Empty file " << path;
+    }
+    if (contents.find("Uid") == contents.end() ||
+        !ParseInt(Split(contents["Uid"], "\t")[0], &processStats->uid)) {
+        return Error(ERR_INVALID_FILE) << "Failed to read 'UIDs' from file " << path;
+    }
+    if (contents.find("Tgid") == contents.end() ||
+        !ParseInt(contents["Tgid"], &processStats->tgid)) {
+        return Error(ERR_INVALID_FILE) << "Failed to read 'Tgid' from file " << path;
+    }
+    // Below Vm* fields may not be present for some processes so don't fail when they are missing.
+    if (contents.find("VmPeak") != contents.end() &&
+        !ParseUint(Split(contents["VmPeak"], " ")[0], &processStats->vmPeakKb)) {
+        return Error(ERR_INVALID_FILE) << "Failed to parse 'VmPeak' from file " << path;
+    }
+    if (contents.find("VmSize") != contents.end() &&
+        !ParseUint(Split(contents["VmSize"], " ")[0], &processStats->vmSizeKb)) {
+        return Error(ERR_INVALID_FILE) << "Failed to parse 'VmSize' from file " << path;
+    }
+    if (contents.find("VmHWM") != contents.end() &&
+        !ParseUint(Split(contents["VmHWM"], " ")[0], &processStats->vmHwmKb)) {
+        return Error(ERR_INVALID_FILE) << "Failed to parse 'VmHWM' from file " << path;
+    }
+    if (contents.find("VmRSS") != contents.end() &&
+        !ParseUint(Split(contents["VmRSS"], " ")[0], &processStats->vmRssKb)) {
+        return Error(ERR_INVALID_FILE) << "Failed to parse 'VmRSS' from file " << path;
+    }
+    return {};
+}
+
 }  // namespace
 
 Result<std::vector<ProcessStats>> ProcPidStat::collect() {
@@ -170,7 +246,7 @@ Result<std::unordered_map<pid_t, ProcessStats>> ProcPidStat::getProcessStatsLock
         }
         ProcessStats curStats;
         std::string path = StringPrintf((mPath + kStatFileFormat).c_str(), pid);
-        const auto& ret = readPidStatFile(path, &curStats.process);
+        auto ret = readPidStatFile(path, &curStats.process);
         if (!ret.ok()) {
             // PID may disappear between scanning the directory and parsing the stat file.
             // Thus treat ERR_FILE_OPEN_READ errors as soft errors.
@@ -183,26 +259,26 @@ Result<std::unordered_map<pid_t, ProcessStats>> ProcPidStat::getProcessStatsLock
             continue;
         }
 
-        // 2. When not found in the cache, fetch tgid/UID as soon as possible because processes
-        // may terminate during scanning.
-        const auto& it = mLastProcessStats.find(curStats.process.pid);
-        if (it == mLastProcessStats.end() ||
-            it->second.process.startTime != curStats.process.startTime || it->second.tgid == -1 ||
-            it->second.uid == -1) {
-            const auto& ret = getPidStatusLocked(&curStats);
-            if (!ret.ok()) {
-                if (ret.error().code() != ERR_FILE_OPEN_READ) {
-                    return Error() << "Failed to read pid status for pid " << curStats.process.pid
-                                   << ": " << ret.error().message().c_str();
-                }
-                ALOGW("Failed to read pid status for pid %" PRIu32 ": %s", curStats.process.pid,
-                      ret.error().message().c_str());
-                // Default tgid and uid values are -1 (aka unknown).
+        // 2. Read aggregated process status.
+        path = StringPrintf((mPath + kStatusFileFormat).c_str(), curStats.process.pid);
+        ret = readPidStatusFile(path, &curStats);
+        if (!ret.ok()) {
+            if (ret.error().code() != ERR_FILE_OPEN_READ) {
+                return Error() << "Failed to read pid status for pid " << curStats.process.pid
+                               << ": " << ret.error().message().c_str();
             }
-        } else {
-            // Fetch from cache.
-            curStats.tgid = it->second.tgid;
-            curStats.uid = it->second.uid;
+            ALOGW("Failed to read pid status for pid %" PRIu32 ": %s", curStats.process.pid,
+                  ret.error().message().c_str());
+        }
+
+        // 3. When failed to read tgid or uid, copy these from the previous collection.
+        if (curStats.tgid == -1 || curStats.uid == -1) {
+            const auto& it = mLastProcessStats.find(curStats.process.pid);
+            if (it != mLastProcessStats.end() &&
+                it->second.process.startTime == curStats.process.startTime) {
+                curStats.tgid = it->second.tgid;
+                curStats.uid = it->second.uid;
+            }
         }
 
         if (curStats.tgid != -1 && curStats.tgid != curStats.process.pid) {
@@ -265,49 +341,6 @@ Result<std::unordered_map<pid_t, ProcessStats>> ProcPidStat::getProcessStatsLock
         processStats[curStats.process.pid] = curStats;
     }
     return processStats;
-}
-
-Result<void> ProcPidStat::getPidStatusLocked(ProcessStats* processStats) const {
-    std::string buffer;
-    std::string path = StringPrintf((mPath + kStatusFileFormat).c_str(), processStats->process.pid);
-    if (!ReadFileToString(path, &buffer)) {
-        return Error(ERR_FILE_OPEN_READ) << "ReadFileToString failed for " << path;
-    }
-    std::vector<std::string> lines = Split(std::move(buffer), "\n");
-    bool didReadUid = false;
-    bool didReadTgid = false;
-    for (size_t i = 0; i < lines.size(); ++i) {
-        if (lines[i].empty()) {
-            continue;
-        }
-        if (!lines[i].compare(0, 4, "Uid:")) {
-            if (didReadUid) {
-                return Error(ERR_INVALID_FILE)
-                        << "Duplicate UID line: \"" << lines[i] << "\" in file " << path;
-            }
-            std::vector<std::string> fields = Split(lines[i], "\t");
-            if (fields.size() < 2 || !ParseInt(fields[1], &processStats->uid)) {
-                return Error(ERR_INVALID_FILE)
-                        << "Invalid UID line: \"" << lines[i] << "\" in file " << path;
-            }
-            didReadUid = true;
-        } else if (!lines[i].compare(0, 5, "Tgid:")) {
-            if (didReadTgid) {
-                return Error(ERR_INVALID_FILE)
-                        << "Duplicate Tgid line: \"" << lines[i] << "\" in file" << path;
-            }
-            std::vector<std::string> fields = Split(lines[i], "\t");
-            if (fields.size() != 2 || !ParseInt(fields[1], &processStats->tgid)) {
-                return Error(ERR_INVALID_FILE)
-                        << "Invalid tgid line: \"" << lines[i] << "\" in file" << path;
-            }
-            didReadTgid = true;
-        }
-    }
-    if (!didReadUid || !didReadTgid) {
-        return Error(ERR_INVALID_FILE) << "Incomplete file " << mPath + kStatusFileFormat;
-    }
-    return {};
 }
 
 }  // namespace watchdog

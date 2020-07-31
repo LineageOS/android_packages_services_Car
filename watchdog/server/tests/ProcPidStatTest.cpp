@@ -46,8 +46,11 @@ std::string toString(const PidStat& stat) {
 
 std::string toString(const ProcessStats& stats) {
     std::string buffer;
-    StringAppendF(&buffer, "Tgid: %" PRIi64 ", UID: %" PRIi64 ", %s\n", stats.tgid, stats.uid,
-                  toString(stats.process).c_str());
+    StringAppendF(&buffer,
+                  "Tgid: %" PRIi64 ", UID: %" PRIi64 ", VmPeak: %" PRIu64 ", VmSize: %" PRIu64
+                  ", VmHWM: %" PRIu64 ", VmRSS: %" PRIu64 ", %s\n",
+                  stats.tgid, stats.uid, stats.vmPeakKb, stats.vmSizeKb, stats.vmHwmKb,
+                  stats.vmRssKb, toString(stats.process).c_str());
     StringAppendF(&buffer, "\tThread stats:\n");
     for (const auto& it : stats.threads) {
         StringAppendF(&buffer, "\t\t%s\n", toString(it.second).c_str());
@@ -83,8 +86,9 @@ bool isEqual(std::vector<ProcessStats>* lhs, std::vector<ProcessStats>* rhs) {
     });
     return std::equal(lhs->begin(), lhs->end(), rhs->begin(),
                       [&](const ProcessStats& l, const ProcessStats& r) -> bool {
-                          if (l.tgid != r.tgid || l.uid != r.uid ||
-                              !isEqual(l.process, r.process) ||
+                          if (l.tgid != r.tgid || l.uid != r.uid || l.vmPeakKb != r.vmPeakKb ||
+                              l.vmSizeKb != r.vmSizeKb || l.vmHwmKb != r.vmHwmKb ||
+                              l.vmRssKb != r.vmRssKb || !isEqual(l.process, r.process) ||
                               l.threads.size() != r.threads.size()) {
                               return false;
                           }
@@ -101,6 +105,18 @@ bool isEqual(std::vector<ProcessStats>* lhs, std::vector<ProcessStats>* rhs) {
                       });
 }
 
+std::string pidStatusStr(pid_t pid, uid_t uid) {
+    return StringPrintf("Pid:\t%" PRIu32 "\nTgid:\t%" PRIu32 "\nUid:\t%" PRIu32 "\n", pid, pid,
+                        uid);
+}
+
+std::string pidStatusStr(pid_t pid, uid_t uid, uint64_t vmPeakKb, uint64_t vmSizeKb,
+                         uint64_t vmHwmKb, uint64_t vmRssKb) {
+    return StringPrintf("%sVmPeak:\t%" PRIu64 "\nVmSize:\t%" PRIu64 "\nVmHWM:\t%" PRIu64
+                        "\nVmRSS:\t%" PRIu64 "\n",
+                        pidStatusStr(pid, uid).c_str(), vmPeakKb, vmSizeKb, vmHwmKb, vmRssKb);
+}
+
 }  // namespace
 
 TEST(ProcPidStatTest, TestValidStatFiles) {
@@ -115,8 +131,8 @@ TEST(ProcPidStatTest, TestValidStatFiles) {
     };
 
     std::unordered_map<pid_t, std::string> perProcessStatus = {
-            {1, "Pid:\t1\nTgid:\t1\nUid:\t0\t0\t0\t0\n"},
-            {1000, "Pid:\t1000\nTgid:\t1000\nUid:\t10001234\t10001234\t10001234\t10001234\n"},
+            {1, pidStatusStr(1, 0, 123, 456, 789, 345)},
+            {1000, pidStatusStr(1000, 10001234, 234, 567, 890, 123)},
     };
 
     std::unordered_map<pid_t, std::string> perThreadStat = {
@@ -130,6 +146,10 @@ TEST(ProcPidStatTest, TestValidStatFiles) {
             {
                     .tgid = 1,
                     .uid = 0,
+                    .vmPeakKb = 123,
+                    .vmSizeKb = 456,
+                    .vmHwmKb = 789,
+                    .vmRssKb = 345,
                     .process = {1, "init", "S", 0, 220, 2, 0},
                     .threads =
                             {
@@ -140,6 +160,10 @@ TEST(ProcPidStatTest, TestValidStatFiles) {
             {
                     .tgid = 1000,
                     .uid = 10001234,
+                    .vmPeakKb = 234,
+                    .vmSizeKb = 567,
+                    .vmHwmKb = 890,
+                    .vmRssKb = 123,
                     .process = {1000, "system_server", "R", 1, 600, 2, 1000},
                     .threads =
                             {
@@ -187,6 +211,10 @@ TEST(ProcPidStatTest, TestValidStatFiles) {
             {
                     .tgid = 1,
                     .uid = 0,
+                    .vmPeakKb = 123,
+                    .vmSizeKb = 456,
+                    .vmHwmKb = 789,
+                    .vmRssKb = 345,
                     .process = {1, "init", "S", 0, 700, 2, 0},
                     .threads =
                             {
@@ -197,6 +225,10 @@ TEST(ProcPidStatTest, TestValidStatFiles) {
             {
                     .tgid = 1000,
                     .uid = 10001234,
+                    .vmPeakKb = 234,
+                    .vmSizeKb = 567,
+                    .vmHwmKb = 890,
+                    .vmRssKb = 123,
                     .process = {1000, "system_server", "R", 1, 950, 2, 1000},
                     .threads =
                             {
@@ -244,8 +276,8 @@ TEST(ProcPidStatTest, TestHandlesProcessTerminationBetweenScanningAndParsing) {
     std::unordered_map<pid_t, std::string> perProcessStatus = {
             {1, "Pid:\t1\nTgid:\t1\nUid:\t0\t0\t0\t0\n"},
             // Process 1000 terminated.
-            {2000, "Pid:\t2000\nTgid:\t2000\nUid:\t10001234\t10001234\t10001234\t10001234\n"},
-            {3000, "Pid:\t3000\nTgid:\t3000\nUid:\t10001234\t10001234\t10001234\t10001234\n"},
+            {2000, pidStatusStr(2000, 10001234)},
+            {3000, pidStatusStr(3000, 10001234)},
     };
 
     std::unordered_map<pid_t, std::string> perThreadStat = {
@@ -316,9 +348,9 @@ TEST(ProcPidStatTest, TestHandlesPidTidReuse) {
     };
 
     std::unordered_map<pid_t, std::string> perProcessStatus = {
-            {1, "Pid:\t1\nTgid:\t1\nUid:\t0\t0\t0\t0\n"},
-            {1000, "Pid:\t1000\nTgid:\t1000\nUid:\t10001234\t10001234\t10001234\t10001234\n"},
-            {2345, "Pid:\t2345\nTgid:\t2345\nUid:\t10001234\t10001234\t10001234\t10001234\n"},
+            {1, pidStatusStr(1, 0)},
+            {1000, pidStatusStr(1000, 10001234)},
+            {2345, pidStatusStr(2345, 10001234)},
     };
 
     std::unordered_map<pid_t, std::string> perThreadStat = {
@@ -387,9 +419,9 @@ TEST(ProcPidStatTest, TestHandlesPidTidReuse) {
     };
 
     perProcessStatus = {
-            {1, "Pid:\t1\nTgid:\t1\nUid:\t0\t0\t0\t0\n"},
-            {367, "Pid:\t367\nTgid:\t367\nUid:\t10001234\t10001234\t10001234\t10001234\n"},
-            {1000, "Pid:\t1000\nTgid:\t1000\nUid:\t10001234\t10001234\t10001234\t10001234\n"},
+            {1, pidStatusStr(1, 0)},
+            {367, pidStatusStr(367, 10001234)},
+            {1000, pidStatusStr(1000, 10001234)},
     };
 
     perThreadStat = {
@@ -462,7 +494,7 @@ TEST(ProcPidStatTest, TestErrorOnCorruptedProcessStatFile) {
     };
 
     std::unordered_map<pid_t, std::string> perProcessStatus = {
-            {1, "Pid:\t1\nTgid:\t1\nUid:\t0\t0\t0\t0\n"},
+            {1, pidStatusStr(1, 0)},
     };
 
     std::unordered_map<pid_t, std::string> perThreadStat = {
@@ -522,7 +554,7 @@ TEST(ProcPidStatTest, TestErrorOnCorruptedThreadStatFile) {
     };
 
     std::unordered_map<pid_t, std::string> perProcessStatus = {
-            {1, "Pid:\t1\nTgid:\t1\nUid:\t0\t0\t0\t0\n"},
+            {1, pidStatusStr(1, 0)},
     };
 
     std::unordered_map<pid_t, std::string> perThreadStat = {
@@ -552,7 +584,7 @@ TEST(ProcPidStatTest, TestHandlesSpaceInCommName) {
     };
 
     std::unordered_map<pid_t, std::string> perProcessStatus = {
-            {1, "Pid:\t1\nTgid:\t1\nUid:\t0\t0\t0\t0\n"},
+            {1, pidStatusStr(1, 0)},
     };
 
     std::unordered_map<pid_t, std::string> perThreadStat = {
@@ -589,14 +621,14 @@ TEST(ProcPidStatTest, TestHandlesSpaceInCommName) {
 TEST(ProcPidStatTest, TestProcPidStatContentsFromDevice) {
     // TODO(b/148486340): Enable the test after appropriate SELinux privileges are available to
     // read the proc file.
-    /*ProcPidStat procPidStat;
+    ProcPidStat procPidStat;
     ASSERT_TRUE(procPidStat.enabled()) << "/proc/[pid]/.* files are inaccessible";
 
     const auto& processStats = procPidStat.collect();
     ASSERT_TRUE(processStats) << "Failed to collect proc pid stat: " << processStats.error();
 
     // The below check should pass because there should be at least one process.
-    EXPECT_GT(processStats->size(), 0);*/
+    EXPECT_GT(processStats->size(), 0);
 }
 
 }  // namespace watchdog
