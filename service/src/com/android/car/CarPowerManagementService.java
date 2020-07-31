@@ -35,6 +35,7 @@ import android.content.res.Resources;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -50,7 +51,8 @@ import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.sysprop.CarProperties;
-import android.util.Log;
+import android.util.AtomicFile;
+import android.util.Slog;
 
 import com.android.car.am.ContinuousBlankActivity;
 import com.android.car.hal.PowerHalService;
@@ -62,8 +64,16 @@ import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.app.IVoiceInteractionManagerService;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
@@ -79,6 +89,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     // TODO: replace all usage
     private static final String TAG = CarLog.TAG_POWER;
+    private static final String WIFI_STATE_FILENAME = "wifi_state";
+    private static final String WIFI_STATE_MODIFIED = "forcibly_disabled";
+    private static final String WIFI_STATE_ORIGINAL = "original";
 
     private final Object mLock = new Object();
     private final Object mSimulationWaitObject = new Object();
@@ -141,6 +154,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     private final IVoiceInteractionManagerService mVoiceInteractionManagerService;
 
+    private final WifiManager mWifiManager;
+    private final AtomicFile mWifiStateFile;
+
     // TODO:  Make this OEM configurable.
     private static final int SHUTDOWN_POLLING_INTERVAL_MS = 2000;
     private static final int SHUTDOWN_EXTEND_MAX_MS = 5000;
@@ -162,7 +178,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
          */
         @Override
         public void onCallbackDied(ICarPowerStateListener listener) {
-            Log.i(CarLog.TAG_POWER, "binderDied " + listener.asBinder());
+            Slog.i(TAG, "binderDied " + listener.asBinder());
             CarPowerManagementService.this.doUnregisterListener(listener);
         }
     }
@@ -193,7 +209,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         mSwitchGuestUserBeforeSleep = resources.getBoolean(
                 R.bool.config_switchGuestUserBeforeGoingSleep);
         if (mShutdownPrepareTimeMs < MIN_MAX_GARAGE_MODE_DURATION_MS) {
-            Log.w(CarLog.TAG_POWER,
+            Slog.w(TAG,
                     "maxGarageModeRunningDurationInSecs smaller than minimum required, resource:"
                     + mShutdownPrepareTimeMs + "(ms) while should exceed:"
                     +  MIN_MAX_GARAGE_MODE_DURATION_MS + "(ms), Ignore resource.");
@@ -202,6 +218,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         mUserService = carUserService;
         mInitialUserSetter = initialUserSetter;
         mVoiceInteractionManagerService = voiceInteractionService;
+        mWifiManager = context.getSystemService(WifiManager.class);
+        mWifiStateFile = new AtomicFile(
+                new File(mSystemInterface.getSystemCarDir(), WIFI_STATE_FILENAME));
     }
 
     @VisibleForTesting
@@ -228,7 +247,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             // Initialize CPMS in WAIT_FOR_VHAL state
             onApPowerStateChange(CpmsState.WAIT_FOR_VHAL, CarPowerStateListener.WAIT_FOR_VHAL);
         } else {
-            Log.w(CarLog.TAG_POWER, "Vehicle hal does not support power state yet.");
+            Slog.w(TAG, "Vehicle hal does not support power state yet.");
             onApPowerStateChange(CpmsState.ON, CarPowerStateListener.ON);
         }
         mSystemInterface.startDisplayStateMonitoring(this);
@@ -279,7 +298,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     @VisibleForTesting
     void setStateForTesting(boolean isBooting, boolean isResuming) {
         synchronized (mLock) {
-            Log.d(CarLog.TAG_POWER, "setStateForTesting():"
+            Slog.d(TAG, "setStateForTesting():"
                     + " booting(" + mIsBooting + ">" + isBooting + ")"
                     + " resuming(" + mIsResuming + ">" + isResuming + ")");
             mIsBooting = isBooting;
@@ -304,10 +323,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             state = mPendingPowerStates.peekFirst();
             mPendingPowerStates.clear();
             if (state == null) {
-                Log.e(CarLog.TAG_POWER, "Null power state was requested");
+                Slog.e(TAG, "Null power state was requested");
                 return;
             }
-            Log.i(CarLog.TAG_POWER, "doHandlePowerStateChange: newState=" + state.name());
+            Slog.i(TAG, "doHandlePowerStateChange: newState=" + state.name());
             if (!needPowerStateChangeLocked(state)) {
                 return;
             }
@@ -315,7 +334,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             releaseTimerLocked();
         }
         mHandler.cancelProcessingComplete();
-        Log.i(CarLog.TAG_POWER, "setCurrentState " + state.toString());
+        Slog.i(TAG, "setCurrentState " + state.toString());
         CarStatsLogHelper.logPowerState(state.mState);
         mCurrentState = state;
         switch (state.mState) {
@@ -361,6 +380,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 mHal.sendSleepExit();
                 break;
         }
+        restoreWifi();
     }
 
     private void updateCarUserNoticeServiceIfNecessary() {
@@ -371,8 +391,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     CarLocalServices.getService(CarUserNoticeService.class);
             if (currentUserInfo != null && currentUserInfo.isGuest()
                     && carUserNoticeService != null) {
-                Log.i(CarLog.TAG_POWER,
-                        "Car user notice service will ignore all messages before user switch.");
+                Slog.i(TAG, "Car user notice service will ignore all messages before user switch.");
                 Intent intent = new Intent();
                 intent.setComponent(new ComponentName(mContext.getPackageName(),
                         ContinuousBlankActivity.class.getName()));
@@ -381,7 +400,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 carUserNoticeService.ignoreUserNotice(currentUserId);
             }
         } catch (Exception e) {
-            Log.w(CarLog.TAG_POWER, "Cannot ignore user notice for current user", e);
+            Slog.w(TAG, "Cannot ignore user notice for current user", e);
         }
     }
 
@@ -402,14 +421,14 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 allowUserSwitch = false;
                 mIsBooting = false;
                 mIsResuming = false;
-                Log.i(CarLog.TAG_POWER, "User switch disallowed while booting");
+                Slog.i(TAG, "User switch disallowed while booting");
             } else {
                 // The system is resuming after a suspension. Optionally disable user switching.
                 allowUserSwitch = !mDisableUserSwitchDuringResume;
                 mIsBooting = false;
                 mIsResuming = false;
                 if (!allowUserSwitch) {
-                    Log.i(CarLog.TAG_POWER, "User switch disallowed while resuming");
+                    Slog.i(TAG, "User switch disallowed while resuming");
                 }
             }
         }
@@ -422,7 +441,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         try {
             switchUserOnResumeIfNecessary(allowUserSwitch);
         } catch (Exception e) {
-            Log.e(CarLog.TAG_POWER, "Could not switch user on resume", e);
+            Slog.e(TAG, "Could not switch user on resume", e);
         }
 
         setVoiceInteractionDisabled(false);
@@ -430,7 +449,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     @VisibleForTesting // Ideally it should not be exposed, but it speeds up the unit tests
     void switchUserOnResumeIfNecessary(boolean allowSwitching) {
-        Log.d(TAG, "switchUserOnResumeIfNecessary(): allowSwitching=" + allowSwitching
+        Slog.d(TAG, "switchUserOnResumeIfNecessary(): allowSwitching=" + allowSwitching
                 + ", mSwitchGuestUserBeforeSleep=" + mSwitchGuestUserBeforeSleep);
         if (!allowSwitching) {
             if (mSwitchGuestUserBeforeSleep) { // already handled
@@ -466,7 +485,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
         boolean replaceGuest = !mSwitchGuestUserBeforeSleep;
         if (newUser == null) {
-            Log.w(TAG, "Failed to replace guest; falling back to default behavior");
+            Slog.w(TAG, "Failed to replace guest; falling back to default behavior");
             executeDefaultInitialUserBehavior(replaceGuest);
             return;
         }
@@ -499,7 +518,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      * Switches the initial user by calling the User HAL to define the behavior.
      */
     private void switchUserOnResumeIfNecessaryUsingHal() {
-        Log.i(TAG, "Using User HAL to define initial user behavior");
+        Slog.i(TAG, "Using User HAL to define initial user behavior");
         mUserService.getInitialUserInfo(InitialUserInfoRequestType.RESUME, (status, response) -> {
             switch (status) {
                 case HalCallback.STATUS_HAL_RESPONSE_TIMEOUT:
@@ -523,12 +542,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     boolean replaceGuest = !mSwitchGuestUserBeforeSleep;
                     switch (response.action) {
                         case InitialUserInfoResponseAction.DEFAULT:
-                            Log.i(TAG, "HAL requested default initial user behavior");
+                            Slog.i(TAG, "HAL requested default initial user behavior");
                             executeDefaultInitialUserBehavior(replaceGuest);
                             return;
                         case InitialUserInfoResponseAction.SWITCH:
                             int userId = response.userToSwitchOrCreate.userId;
-                            Log.i(TAG, "HAL requested switch to user " + userId);
+                            Slog.i(TAG, "HAL requested switch to user " + userId);
                             // If guest was replaced on shutdown, it doesn't need to be replaced
                             // again
                             switchUser(userId, replaceGuest);
@@ -536,7 +555,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                         case InitialUserInfoResponseAction.CREATE:
                             int halFlags = response.userToSwitchOrCreate.flags;
                             String name = response.userNameToCreate;
-                            Log.i(TAG, "HAL requested new user (name="
+                            Slog.i(TAG, "HAL requested new user (name="
                                     + UserHelper.safeName(name) + ", flags="
                                     + UserHalHelper.userFlagsToString(halFlags) + ")");
                             mInitialUserSetter
@@ -560,7 +579,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      * Switches the initial user directly when the User HAL call failed.
      */
     private void switchUserOnResumeUserHalFallback(String reason) {
-        Log.w(TAG, "Failed to set initial user based on User Hal (" + reason
+        Slog.w(TAG, "Failed to set initial user based on User Hal (" + reason
                 + "); falling back to default behavior");
         executeDefaultInitialUserBehavior(!mSwitchGuestUserBeforeSleep);
     }
@@ -576,7 +595,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     || !newState.mCanSleep;
             mGarageModeShouldExitImmediately = !newState.mCanPostpone;
         }
-        Log.i(CarLog.TAG_POWER,
+        Slog.i(TAG,
                 (newState.mCanPostpone
                 ? "starting shutdown prepare with Garage Mode"
                         : "starting shutdown prepare without Garage Mode"));
@@ -588,7 +607,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     // Simulate system shutdown to Deep Sleep
     private void simulateShutdownPrepare() {
         mSystemInterface.setDisplayState(false);
-        Log.i(CarLog.TAG_POWER, "starting shutdown prepare");
+        Slog.i(TAG, "starting shutdown prepare");
         sendPowerManagerEvent(CarPowerStateListener.SHUTDOWN_PREPARE);
         mHal.sendShutdownPrepare();
         doHandlePreprocessing();
@@ -627,14 +646,17 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         if (forceReboot) {
             PowerManager powerManager = mContext.getSystemService(PowerManager.class);
             if (powerManager == null) {
-                Log.wtf(CarLog.TAG_POWER, "No PowerManager. Cannot reboot.");
+                Slog.wtf(TAG, "No PowerManager. Cannot reboot.");
             } else {
-                Log.i(CarLog.TAG_POWER, "GarageMode has completed. Forcing reboot.");
+                Slog.i(TAG, "GarageMode has completed. Forcing reboot.");
                 powerManager.reboot("GarageModeReboot");
                 throw new AssertionError("Should not return from PowerManager.reboot()");
             }
         }
         setVoiceInteractionDisabled(true);
+
+        // To make Kernel implementation simpler when going into sleep.
+        disableWifi();
 
         if (mustShutDown) {
             // shutdown HU
@@ -649,8 +671,81 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         try {
             mVoiceInteractionManagerService.setDisabled(disabled);
         } catch (RemoteException e) {
-            Log.w(TAG, "setVoiceIntefactionDisabled(" + disabled + ") failed", e);
+            Slog.w(TAG, "setVoiceIntefactionDisabled(" + disabled + ") failed", e);
         }
+    }
+
+    private void restoreWifi() {
+        boolean needToRestore = readWifiModifiedState();
+        if (needToRestore) {
+            if (!mWifiManager.isWifiEnabled()) {
+                Slog.i(TAG, "Wifi has been enabled to restore the last setting");
+                mWifiManager.setWifiEnabled(true);
+            }
+            // Update the persistent data as wifi is not modified by car framework.
+            saveWifiModifiedState(false);
+        }
+    }
+
+    private void disableWifi() {
+        boolean wifiEnabled = mWifiManager.isWifiEnabled();
+        boolean wifiModifiedState = readWifiModifiedState();
+        if (wifiEnabled != wifiModifiedState) {
+            saveWifiModifiedState(wifiEnabled);
+        }
+        if (!wifiEnabled) return;
+
+        mWifiManager.setWifiEnabled(false);
+        wifiEnabled = mWifiManager.isWifiEnabled();
+        Slog.i(TAG, "Wifi has been disabled and the last setting was saved");
+    }
+
+    private void saveWifiModifiedState(boolean forciblyDisabled) {
+        FileOutputStream fos;
+        try {
+            fos = mWifiStateFile.startWrite();
+        } catch (IOException e) {
+            Slog.e(TAG, "Cannot create " + WIFI_STATE_FILENAME, e);
+            return;
+        }
+
+        try (BufferedWriter writer = new BufferedWriter(
+                new OutputStreamWriter(fos, StandardCharsets.UTF_8))) {
+            writer.write(forciblyDisabled ? WIFI_STATE_MODIFIED : WIFI_STATE_ORIGINAL);
+            writer.newLine();
+            writer.flush();
+            mWifiStateFile.finishWrite(fos);
+        } catch (IOException e) {
+            mWifiStateFile.failWrite(fos);
+            Slog.e(TAG, "Writing " + WIFI_STATE_FILENAME + " failed", e);
+        }
+    }
+
+    private boolean readWifiModifiedState() {
+        boolean needToRestore = false;
+        boolean invalidState = false;
+
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(mWifiStateFile.openRead(), StandardCharsets.UTF_8))) {
+            String line = reader.readLine();
+            if (line == null) {
+                needToRestore = false;
+                invalidState = true;
+            } else {
+                line = line.trim();
+                needToRestore = WIFI_STATE_MODIFIED.equals(line);
+                invalidState = !(needToRestore || WIFI_STATE_ORIGINAL.equals(line));
+            }
+        } catch (IOException e) {
+            // If a file named wifi_state doesn't exist, we will not modify Wifi at system start.
+            Slog.w(TAG, "Failed to read " + WIFI_STATE_FILENAME + ": " + e);
+            return false;
+        }
+        if (invalidState) {
+            mWifiStateFile.delete();
+        }
+
+        return needToRestore;
     }
 
     @GuardedBy("mLock")
@@ -676,12 +771,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 pollingCount =
                         (shutdownPrepareTimeOverrideInSecs * 1000 / intervalMs)
                                 + 1;
-                Log.i(CarLog.TAG_POWER,
-                        "Garage mode duration overridden secs:"
-                                + shutdownPrepareTimeOverrideInSecs);
+                Slog.i(TAG, "Garage mode duration overridden secs:"
+                        + shutdownPrepareTimeOverrideInSecs);
             }
         }
-        Log.i(CarLog.TAG_POWER, "processing before shutdown expected for: "
+        Slog.i(TAG, "processing before shutdown expected for: "
                 + mShutdownPrepareTimeMs + " ms, adding polling:" + pollingCount);
         synchronized (mLock) {
             mProcessingStartTime = SystemClock.elapsedRealtime();
@@ -743,7 +837,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 listener.onStateChanged(newState);
             } catch (RemoteException e) {
                 // It's likely the connection snapped. Let binder death handle the situation.
-                Log.e(CarLog.TAG_POWER, "onStateChanged() call failed", e);
+                Slog.e(TAG, "onStateChanged() call failed", e);
             }
         }
         listenerList.finishBroadcast();
@@ -776,7 +870,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             // Any wakeup time from before is no longer valid.
             mNextWakeupSec = 0;
         }
-        Log.i(CarLog.TAG_POWER, "Resuming after suspending");
+        Slog.i(TAG, "Resuming after suspending");
         mSystemInterface.refreshDisplayBrightness();
         onApPowerStateChange(CpmsState.WAIT_FOR_VHAL, nextListenerState);
     }
@@ -785,8 +879,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         if (mCurrentState == null) {
             return true;
         } else if (mCurrentState.equals(newState)) {
-            Log.d(CarLog.TAG_POWER, "Requested state is already in effect: "
-                    + newState.name());
+            Slog.d(TAG, "Requested state is already in effect: " + newState.name());
             return false;
         }
 
@@ -820,12 +913,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                         || newState.mState == CpmsState.WAIT_FOR_VHAL);
                 break;
             default:
-                Log.e(CarLog.TAG_POWER, "Unexpected current state:  currentState="
+                Slog.e(TAG, "Unexpected current state:  currentState="
                         + mCurrentState.name() + ", newState=" + newState.name());
                 transitionAllowed = true;
         }
         if (!transitionAllowed) {
-            Log.e(CarLog.TAG_POWER, "Requested power transition is not allowed: "
+            Slog.e(TAG, "Requested power transition is not allowed: "
                     + mCurrentState.name() + " --> " + newState.name());
         }
         return transitionAllowed;
@@ -837,7 +930,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             releaseTimerLocked();
             if (!mShutdownOnFinish && mLastSleepEntryTime > mProcessingStartTime) {
                 // entered sleep after processing start. So this could be duplicate request.
-                Log.w(CarLog.TAG_POWER, "Duplicate sleep entry request, ignore");
+                Slog.w(TAG, "Duplicate sleep entry request, ignore");
                 return;
             }
             listenerState = mShutdownOnFinish
@@ -857,7 +950,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     private void doHandleMainDisplayStateChange(boolean on) {
-        Log.w(CarLog.TAG_POWER, "Unimplemented:  doHandleMainDisplayStateChange() - on = " + on);
+        Slog.w(TAG, "Unimplemented:  doHandleMainDisplayStateChange() - on = " + on);
     }
 
     public void handleMainDisplayChanged(boolean on) {
@@ -934,13 +1027,13 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     public void scheduleNextWakeupTime(int seconds) {
         ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
         if (seconds < 0) {
-            Log.w(CarLog.TAG_POWER, "Next wake up time is negative. Ignoring!");
+            Slog.w(TAG, "Next wake up time is negative. Ignoring!");
             return;
         }
         boolean timedWakeupAllowed = mHal.isTimedWakeupAllowed();
         synchronized (mLock) {
             if (!timedWakeupAllowed) {
-                Log.w(CarLog.TAG_POWER, "Setting timed wakeups are disabled in HAL. Skipping");
+                Slog.w(TAG, "Setting timed wakeups are disabled in HAL. Skipping");
                 mNextWakeupSec = 0;
                 return;
             }
@@ -948,7 +1041,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 // The new value is sooner than the old value. Take the new value.
                 mNextWakeupSec = seconds;
             } else {
-                Log.d(CarLog.TAG_POWER, "Tried to schedule next wake up, but already had shorter "
+                Slog.d(TAG, "Tried to schedule next wake up, but already had shorter "
                         + "scheduled time");
             }
         }
@@ -983,13 +1076,13 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 if (!mShutdownOnFinish) {
                     if (mLastSleepEntryTime > mProcessingStartTime
                             && mLastSleepEntryTime < SystemClock.elapsedRealtime()) {
-                        Log.i(CarLog.TAG_POWER, "signalComplete: Already slept!");
+                        Slog.i(TAG, "signalComplete: Already slept!");
                         return;
                     }
                 }
                 powerHandler = mHandler;
             }
-            Log.i(CarLog.TAG_POWER, "Apps are finished, call handleProcessingComplete()");
+            Slog.i(TAG, "Apps are finished, call handleProcessingComplete()");
             powerHandler.handleProcessingComplete();
         }
     }
@@ -1050,7 +1143,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         public void handleMessage(Message msg) {
             CarPowerManagementService service = mService.get();
             if (service == null) {
-                Log.i(TAG, "handleMessage null service");
+                Slog.i(TAG, "handleMessage null service");
                 return;
             }
             switch (msg.what) {
@@ -1109,7 +1202,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         int tryCount = 0;
 
         while (true) {
-            Log.i(CarLog.TAG_POWER, "Entering Suspend to RAM");
+            Slog.i(TAG, "Entering Suspend to RAM");
             boolean suspendSucceeded = mSystemInterface.enterDeepSleep();
             if (suspendSucceeded) {
                 return true;
@@ -1119,13 +1212,13 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 break;
             }
             // We failed to suspend. Block the thread briefly and try again.
-            Log.w(CarLog.TAG_POWER, "Failed to Suspend; will retry later.");
+            Slog.w(TAG, "Failed to Suspend; will retry later.");
             try {
                 Thread.sleep(retryIntervalMs);
             } catch (InterruptedException ignored) { }
         }
         // Too many failures trying to suspend. Shut down.
-        Log.w(CarLog.TAG_POWER, "Could not Suspend to RAM. Shutting down.");
+        Slog.w(TAG, "Could not Suspend to RAM. Shutting down.");
         mSystemInterface.shutdown();
         return false;
     }
@@ -1312,7 +1405,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     // We simulate this behavior by calling wait().
     // We continue from wait() when forceSimulatedResume() is called.
     private void simulateSleepByWaiting() {
-        Log.i(CarLog.TAG_POWER, "Starting to simulate Deep Sleep by waiting");
+        Slog.i(TAG, "Starting to simulate Deep Sleep by waiting");
         synchronized (mSimulationWaitObject) {
             while (!mWakeFromSimulatedSleep) {
                 try {
@@ -1323,6 +1416,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             }
             mInSimulatedDeepSleepMode = false;
         }
-        Log.i(CarLog.TAG_POWER, "Exit Deep Sleep simulation");
+        Slog.i(TAG, "Exit Deep Sleep simulation");
     }
 }
