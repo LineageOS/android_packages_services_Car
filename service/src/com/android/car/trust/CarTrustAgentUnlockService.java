@@ -250,7 +250,7 @@ public class CarTrustAgentUnlockService {
     }
 
     void onRemoteDeviceDisconnected(BluetoothDevice device) {
-        // sanity checking
+        // validity checking
         if (!device.equals(mRemoteUnlockDevice) && device.getAddress() != null) {
             Log.e(TAG, "Disconnected from an unknown device:" + device.getAddress());
         }

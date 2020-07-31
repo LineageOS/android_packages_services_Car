@@ -1096,7 +1096,7 @@
     <!-- Text shown when an unknown error caused the device to be unable to add fingerprints [CHAR LIMIT=NONE] -->
     <string name="fingerprint_intro_error_unknown">Can\u2019t add more fingerprints</string>
 
-    <!-- Title shown in a dialog which asks the user to confirm when the last fingerprint gets deleted by him. [CHAR LIMIT=50]-->
+    <!-- Title shown in a dialog which asks the user to confirm when the last fingerprint gets deleted by them. [CHAR LIMIT=50]-->
     <string name="fingerprint_last_delete_title">Remove all fingerprints?</string>
 
     <!-- Title shown in a dialog which asks the user to confirm when a single fingerprint gets deleted. [CHAR LIMIT=50]-->
@@ -1105,7 +1105,7 @@
     <!-- Message shown in a dialog which asks the user to confirm when a single fingerprint gets deleted. [CHAR LIMIT=NONE]-->
     <string name="fingerprint_delete_message">Do you want to delete this fingerprint?</string>
 
-    <!-- Message shown in a dialog which asks the user to confirm when the last fingerprint gets deleted by him. [CHAR LIMIT=NONE]-->
+    <!-- Message shown in a dialog which asks the user to confirm when the last fingerprint gets deleted by them. [CHAR LIMIT=NONE]-->
     <string name="fingerprint_last_delete_message">You won\'t be able to use your fingerprints to
         unlock your phone, authorize purchases, or sign in to apps with them</string>
     <string name="fingerprint_last_delete_message_profile_challenge">You won\'t be able to use your
@@ -1779,7 +1779,7 @@
     <!--  Bluetooth device details. In the confirmation dialog for unpairing a paired device, this is the label on the button that will complete the unpairing action. -->
     <string name="bluetooth_unpair_dialog_forget_confirm_button">Forget device</string>
 
-    <!-- Bluetooth settings.  The title of the screen to pick which profiles to connect to on the device.  For example, headphones may have both A2DP and headset, this allows the user to choose which one he wants to connect to. -->
+    <!-- Bluetooth settings.  The title of the screen to pick which profiles to connect to on the device.  For example, headphones may have both A2DP and headset, this allows the user to choose which one they want to connect to. -->
     <string name="bluetooth_connect_specific_profiles_title">Connect to\u2026</string>
 
     <!-- Bluetooth settings.  Message for disconnecting from the A2DP profile. [CHAR LIMIT=80] -->
@@ -3552,7 +3552,7 @@
     <string name="apn_edit">Edit access point</string>
     <!-- Edit access point label summary text when no value has been set -->
     <string name="apn_not_set">Not set</string>
-    <!-- Edit access point labels: A label the user can give to the APN to allow him to differentiate it from the others -->
+    <!-- Edit access point labels: A label the user can give to the APN to allow them to differentiate it from the others -->
     <string name="apn_name">Name</string>
     <!-- Edit access point labels: The actual access point name-->
     <string name="apn_apn">APN</string>
@@ -4001,22 +4001,22 @@
     <!-- Header on first screen of choose password/PIN as backup for face authentication flow. If this string cannot be translated in under 40 characters, please translate "Set face authentication backup" [CHAR LIMIT=40] -->
     <string name="lockpassword_choose_your_pin_header_for_face">To use face authentication, set PIN</string>
 
-    <!-- Message to be used to explain the user that he needs to enter his pattern to continue a
+    <!-- Message to be used to explain the user that they need to enter their pattern to continue a
          particular operation. [CHAR LIMIT=70]-->
     <string name="lockpassword_confirm_your_pattern_generic">Use your device pattern to continue</string>
-    <!-- Message to be used to explain the user that he needs to enter his PIN to continue a
+    <!-- Message to be used to explain the user that they need to enter their PIN to continue a
          particular operation. [CHAR LIMIT=70]-->
     <string name="lockpassword_confirm_your_pin_generic">Enter your device PIN to continue</string>
-    <!-- Message to be used to explain the user that he needs to enter his password to continue a
+    <!-- Message to be used to explain the user that they need to enter their password to continue a
          particular operation. [CHAR LIMIT=70]-->
     <string name="lockpassword_confirm_your_password_generic">Enter your device password to continue</string>
-    <!-- Message to be used to explain the user that he needs to enter his work pattern to continue a
+    <!-- Message to be used to explain the user that they need to enter their work pattern to continue a
          particular operation. [CHAR LIMIT=70]-->
     <string name="lockpassword_confirm_your_pattern_generic_profile">Use your work pattern to continue</string>
-    <!-- Message to be used to explain the user that he needs to enter his work PIN to continue a
+    <!-- Message to be used to explain the user that they need to enter their work PIN to continue a
          particular operation. [CHAR LIMIT=70]-->
     <string name="lockpassword_confirm_your_pin_generic_profile">Enter your work PIN to continue</string>
-    <!-- Message to be used to explain the user that he needs to enter his work password to continue a
+    <!-- Message to be used to explain the user that they need to enter their work password to continue a
          particular operation. [CHAR LIMIT=70]-->
     <string name="lockpassword_confirm_your_password_generic_profile">Enter your work password to continue</string>
 
@@ -4107,9 +4107,9 @@
     <string name="lockpattern_settings_enable_title">Require pattern</string>
     <!-- Security & location settings screen, setting summary for the checkbox "Require pattern" -->
     <string name="lockpattern_settings_enable_summary">Must draw pattern to unlock screen</string>
-    <!-- Security & location settings screen, setting check box title. This setting controls whether a visible green line is drawn as the user moves his finger around while drawing the unlock pattern.  If checked, this line is drawn.  If unchecked, there is nothing drawn so the user does not reveal his pattern while he unlocks the phone.-->
+    <!-- Security & location settings screen, setting check box title. This setting controls whether a visible green line is drawn as the user moves their finger around while drawing the unlock pattern.  If checked, this line is drawn.  If unchecked, there is nothing drawn so the user does not reveal their pattern while they unlock the phone.-->
     <string name="lockpattern_settings_enable_visible_pattern_title">Make pattern visible</string>
-    <!-- Security & location settings screen, setting check box title. This setting controls whether a visible green line is drawn as the user moves his finger around while drawing the profile unlock pattern.  If checked, this line is drawn.  If unchecked, there is nothing drawn so the user does not reveal his pattern while he unlocks the profile.-->
+    <!-- Security & location settings screen, setting check box title. This setting controls whether a visible green line is drawn as the user moves their finger around while drawing the profile unlock pattern.  If checked, this line is drawn.  If unchecked, there is nothing drawn so the user does not reveal their pattern while they unlock the profile.-->
     <string name="lockpattern_settings_enable_visible_pattern_title_profile">Make profile pattern visible</string>
     <!-- Security & location settings screen, setting check box title. This setting controls whether tactile feedback will be produced when the user draws the pattern.-->
     <string name="lockpattern_settings_enable_tactile_feedback_title">Vibrate on tap</string>
@@ -4548,7 +4548,7 @@
     <string name="auto_replace">Auto-replace</string>
     <!-- On Text & language settings screen, setting summary.  This is the summary for the "Auto-replace" setting. -->
     <string name="auto_replace_summary">Correct mistyped words</string>
-    <!-- On Text & language settings screen, setting option name.  title of the setting to enable autocapitalization of entered text.  for example, after the user finishes a sentence, the next letter he types will automatically be capitalizated. [CHAR LIMIT=25] -->
+    <!-- On Text & language settings screen, setting option name.  title of the setting to enable autocapitalization of entered text.  for example, after the user finishes a sentence, the next letter they type will automatically be capitalizated. [CHAR LIMIT=25] -->
     <string name="auto_caps">Auto-capitalization</string>
     <!-- On Text & language settings screen, setting summary. Summary for the Auto-cap setting. [CHAR LIMIT=100]-->
     <string name="auto_caps_summary">Capitalize first letter in sentences</string>
@@ -4819,15 +4819,15 @@
     <string name="accessibility_toggle_large_pointer_icon_title">Large mouse pointer</string>
     <!-- Title for the accessibility preference for disabling animations. [CHAR LIMIT=35] -->
     <string name="accessibility_disable_animations">Remove animations</string>
-    <!-- Title for the accessibility preference for master mono. [CHAR LIMIT=35] -->
+    <!-- Title for the accessibility preference for global mono. [CHAR LIMIT=35] -->
     <string name="accessibility_toggle_master_mono_title">Mono audio</string>
-    <!-- Summary for the accessibility preference for master mono. [CHAR LIMIT=50] -->
+    <!-- Summary for the accessibility preference for global mono. [CHAR LIMIT=50] -->
     <string name="accessibility_toggle_master_mono_summary">Combine channels when playing audio</string>
-    <!-- Title for the accessibility preference for master balance. [CHAR LIMIT=35] -->
+    <!-- Title for the accessibility preference for global balance. [CHAR LIMIT=35] -->
     <string name="accessibility_toggle_master_balance_title">Audio balance</string>
-    <!-- 'Left' balance text for the accessibility preference for master balance. [CHAR LIMIT=20] -->
+    <!-- 'Left' balance text for the accessibility preference for global balance. [CHAR LIMIT=20] -->
     <string name="accessibility_toggle_master_balance_left_label">Left</string>
-    <!-- 'Right' balance text for the accessibility preference for master balance. [CHAR LIMIT=20] -->
+    <!-- 'Right' balance text for the accessibility preference for global balance. [CHAR LIMIT=20] -->
     <string name="accessibility_toggle_master_balance_right_label">Right</string>
 
     <!-- Option heading to leave the timeout requirement for accessibility users at its default level. [CHAR LIMIT=35] -->
@@ -5058,17 +5058,17 @@
     <string name="secure_lock_encryption_warning">Because you\u2019ve turned on an accessibility service,
         your device won’t use your screen lock to enhance data encryption.</string>
 
-    <!-- Message to the user to enter his pattern before enabling an accessibility service. [CHAR LIMIT=NONE] -->
+    <!-- Message to the user to enter their pattern before enabling an accessibility service. [CHAR LIMIT=NONE] -->
     <string name="enable_service_pattern_reason">Because turning on <xliff:g id="service"
         example="TalkBack">%1$s</xliff:g> affects data encryption, you need to confirm your pattern.
     </string>
 
-    <!-- Message to the user to enter his PIN before enabling an accessibility service. [CHAR LIMIT=NONE] -->
+    <!-- Message to the user to enter their PIN before enabling an accessibility service. [CHAR LIMIT=NONE] -->
     <string name="enable_service_pin_reason">Because turning on <xliff:g id="service"
         example="TalkBack">%1$s</xliff:g> affects data encryption, you need to confirm your PIN.
     </string>
 
-    <!-- Message to the user to enter his password before enabling an accessibility service. [CHAR LIMIT=NONE] -->
+    <!-- Message to the user to enter their password before enabling an accessibility service. [CHAR LIMIT=NONE] -->
     <string name="enable_service_password_reason">Because turning on <xliff:g id="service"
         example="TalkBack">%1$s</xliff:g> affects data encryption, you need to confirm your password.
     </string>
@@ -6751,7 +6751,7 @@
     <string name="nfc_how_it_works_title">Paying at the terminal</string>
     <!-- Content for text explaning how to pay at a payment terminal in a store -->
     <string name="nfc_how_it_works_content">Set up a payment app. Then just hold the back of your phone up to any terminal with the contactless symbol.</string>
-    <!-- Button the user can click to indicate he understood and dismiss the screen -->
+    <!-- Button the user can click to indicate they understood and dismiss the screen -->
     <string name="nfc_how_it_works_got_it">Got it</string>
     <!-- NFC More... title.  [CHAR LIMIT=40] -->
     <string name="nfc_more_title">More...</string>
@@ -9660,7 +9660,7 @@
     <!-- Button that leads to list of apps with unrestricted data access [CHAR LIMIT=60] -->
     <string name="unrestricted_data_saver">Unrestricted data</string>
 
-    <!-- Description of message shown when app is blacklisted for background data access [CHAR LIMIT=NONE] -->
+    <!-- Description of message shown when app is denylisted for background data access [CHAR LIMIT=NONE] -->
     <string name="restrict_background_blacklisted">Background data is turned off</string>
 
     <!-- Summary for the Data Saver feature being on [CHAR LIMIT=NONE] -->
@@ -9734,7 +9734,7 @@
     <!-- [CHAR LIMIT=30] Title for dialog for setting to control the default spell checker -->
     <string name="choose_spell_checker">Choose spell checker</string>
 
-    <!-- [CHAR LIMIT=45] Title for the master switch for spell checker, turning off will disable entire spell check feature. -->
+    <!-- [CHAR LIMIT=45] Title for the global switch for spell checker, turning off will disable entire spell check feature. -->
     <string name="spell_checker_master_switch_title">Use spell checker</string>
 
     <!-- [CHAR LIMIT=30] Label for the placeholder of the current spell checker name.  Used when no spell checker is currently selected. -->
@@ -10142,7 +10142,7 @@
     <string name="enterprise_privacy_exposure_changes_category">Changes made by your organization\'s admin</string>
     <!-- Title for the 'Your access to this device' preference category. [CHAR LIMIT=60] -->
     <string name="enterprise_privacy_device_access_category">Your access to this device</string>
-    <!-- Label explaining that the admin can see data associated with his/her work account. [CHAR LIMIT=NONE] -->
+    <!-- Label explaining that the admin can see data associated with their work account. [CHAR LIMIT=NONE] -->
     <string name="enterprise_privacy_enterprise_data">Data associated with your work account, such as email and calendar</string>
     <!-- Label explaining that the admin can see apps installed on the device. [CHAR LIMIT=NONE] -->
     <string name="enterprise_privacy_installed_packages">List of apps on your device</string>

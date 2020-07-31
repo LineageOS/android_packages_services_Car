@@ -152,7 +152,7 @@ public class CarPropertyConfigTest extends CarPropertyTestBase {
             // Expected. Wrote float, attempted to read integer.
         }
 
-        // Type casting from raw CarPropertyConfig should be fine, just sanity check.
+        // Type casting from raw CarPropertyConfig should be fine, just validity check.
         CarPropertyConfig rawTypeConfig = readFromParcel();
         assertEquals(10f, rawTypeConfig.getMinValue(WINDOW_PASSENGER));
 

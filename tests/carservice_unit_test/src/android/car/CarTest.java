@@ -65,7 +65,7 @@ public class CarTest {
 
     private int mGetServiceCallCount;
 
-    // It is tricky to mock this. So create dummy version instead.
+    // It is tricky to mock this. So create placeholder version instead.
     private ICar.Stub mService = new ICar.Stub() {
         @Override
         public void setCarServiceHelper(android.os.IBinder helper) {
@@ -263,7 +263,7 @@ public class CarTest {
         }
     }
     private void waitForMainToBeComplete() {
-        // dispatch dummy runnable and confirm that it is done.
+        // dispatch placeholder runnable and confirm that it is done.
         runOnMainSyncSafe(() -> { });
     }
 }

@@ -804,7 +804,7 @@ public class CryptKeeper extends Activity implements TextView.OnEditorActionList
         }
 
         updateEmergencyCallButtonState();
-        // Notify the user in 120 seconds that we are waiting for him to enter the password.
+        // Notify the user in 120 seconds that we are waiting for them to enter the password.
         mHandler.removeMessages(MESSAGE_NOTIFY);
         mHandler.sendEmptyMessageDelayed(MESSAGE_NOTIFY, 120 * 1000);
 

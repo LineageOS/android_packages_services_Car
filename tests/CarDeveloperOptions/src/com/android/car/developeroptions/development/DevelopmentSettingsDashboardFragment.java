@@ -165,7 +165,7 @@ public class DevelopmentSettingsDashboardFragment extends RestrictedDashboardFra
             getPreferenceScreen().removeAll();
             return;
         }
-        // Set up master switch
+        // Set up global switch
         mSwitchBar = ((SettingsActivity) getActivity()).getSwitchBar();
         mSwitchBarController = new DevelopmentSwitchBarController(
                 this /* DevelopmentSettings */, mSwitchBar, mIsAvailable,

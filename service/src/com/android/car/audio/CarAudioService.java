@@ -86,7 +86,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     // Search for "DUCK_VSHAPE" in PLaybackActivityMonitor.java to see where this happens.
     private static boolean sUseCarAudioFocus = true;
 
-    // Key to persist master mute state in system settings
+    // Key to persist global mute state in system settings
     private static final String VOLUME_SETTINGS_KEY_MASTER_MUTE = "android.car.MASTER_MUTE";
 
     // The trailing slash forms a directory-liked hierarchy and
@@ -244,7 +244,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 setupLegacyVolumeChangedListener();
             }
 
-            // Restore master mute state if applicable
+            // Restore global mute state if applicable
             if (mPersistMasterMuteState) {
                 boolean storedMasterMute = Settings.Global.getInt(mContext.getContentResolver(),
                         VOLUME_SETTINGS_KEY_MASTER_MUTE, 0) != 0;
@@ -340,7 +340,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private void setMasterMute(boolean mute, int flags) {
         mAudioManager.setMasterMute(mute, flags);
 
-        // When the master mute is turned ON, we want the playing app to get a "pause" command.
+        // When the global mute is turned ON, we want the playing app to get a "pause" command.
         // When the volume is unmuted, we want to resume playback.
         int keycode = mute ? KeyEvent.KEYCODE_MEDIA_PAUSE : KeyEvent.KEYCODE_MEDIA_PLAY;
         mAudioManager.dispatchMediaKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, keycode));
@@ -357,7 +357,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             }
         }
 
-        // Persists master mute state if applicable
+        // Persists global mute state if applicable
         if (mPersistMasterMuteState) {
             Settings.Global.putInt(mContext.getContentResolver(),
                     VOLUME_SETTINGS_KEY_MASTER_MUTE,
