@@ -136,7 +136,7 @@ public class FingerprintEnrollIntroduction extends BiometricEnrollIntroduction {
         if (mFingerprintManager == null) {
             return 0;
         }
-        return mFingerprintManager.generateChallengeBlocking();
+        return 0L; // This path needs to be updated for auto. See packages/apps/Settings
     }
 
     @Override

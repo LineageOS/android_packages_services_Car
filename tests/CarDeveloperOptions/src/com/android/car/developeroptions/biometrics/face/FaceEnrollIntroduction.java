@@ -192,7 +192,7 @@ public class FaceEnrollIntroduction extends BiometricEnrollIntroduction {
         if (mFaceManager == null) {
             return 0;
         }
-        return mFaceManager.generateChallengeBlocking();
+        return 0L; // This path needs to be updated for auto. See packages/apps/Settings
     }
 
     @Override
