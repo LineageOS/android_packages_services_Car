@@ -58,7 +58,7 @@ import java.util.Optional;
  *
  * The following mocks are used:
  * 1. {@link Context} provides system services and resources.
- * 2. {@link UserManager} provides dummy users and user info.
+ * 2. {@link UserManager} provides placeholder users and user info.
  * 3. {@link ActivityManager} to verify user switch is invoked.
  */
 @SmallTest
