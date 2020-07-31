@@ -84,6 +84,7 @@ import com.android.car.hal.InputHalService;
 import com.android.car.hal.UserHalService;
 import com.android.car.hal.VehicleHal;
 import com.android.car.pm.CarPackageManagerService;
+import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserService;
 

@@ -52,6 +52,8 @@ import com.android.car.cluster.InstrumentClusterService;
 import com.android.car.garagemode.GarageModeService;
 import com.android.car.hal.VehicleHal;
 import com.android.car.pm.CarPackageManagerService;
+import com.android.car.power.CarPowerManagementService;
+import com.android.car.power.SilentModeController;
 import com.android.car.stats.CarStatsService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserNoticeService;
@@ -431,7 +433,7 @@ public class ICarImpl extends ICar.Stub {
      * from its own process even if it is not system. The latter can happen in test environment.
      * Note that car service runs as system user but test like car service test will not.
      */
-    static void assertCallingFromSystemProcessOrSelf() {
+    public static void assertCallingFromSystemProcessOrSelf() {
         int uid = Binder.getCallingUid();
         int pid = Binder.getCallingPid();
         if (uid != Process.SYSTEM_UID && pid != Process.myPid()) {
