@@ -547,7 +547,7 @@ final class CarShellCommand extends ShellCommand {
                 break;
             case COMMAND_SUSPEND:
                 mCarPowerManagementService.forceSuspendAndMaybeReboot(false);
-                writer.println("Resume: Simulating powering down to Deep Sleep");
+                writer.println("Suspend: Simulating powering down to Deep Sleep");
                 break;
             case COMMAND_SET_UID_TO_ZONE:
                 if (args.length != 3) {
