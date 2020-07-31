@@ -159,7 +159,7 @@ public class SetupFingerprintEnrollIntroduction extends FingerprintEnrollIntrodu
 
     /**
      * Propagate lock screen metrics if the user goes back from the fingerprint setup screen
-     * after having added lock screen to his device.
+     * after having added lock screen to their device.
      */
     @Override
     public void onBackPressed() {

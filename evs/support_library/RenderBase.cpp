@@ -90,7 +90,7 @@ bool RenderBase::prepareGL() {
     }
 
 
-    // Create a dummy pbuffer so we have a surface to bind -- we never intend to draw to this
+    // Create a placeholder pbuffer so we have a surface to bind -- we never intend to draw to this
     // because attachRenderTarget will be called first.
     EGLint surface_attribs[] = { EGL_WIDTH, 1, EGL_HEIGHT, 1, EGL_NONE };
     sDummySurface = eglCreatePbufferSurface(display, egl_config, surface_attribs);

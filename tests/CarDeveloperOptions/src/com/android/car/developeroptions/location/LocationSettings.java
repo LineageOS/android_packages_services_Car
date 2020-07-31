@@ -47,7 +47,7 @@ import java.util.List;
  * <ul>
  *     <li>Platform location controls</li>
  *     <ul>
- *         <li>In switch bar: location master switch. Used to toggle location on and off.
+ *         <li>In switch bar: location global switch. Used to toggle location on and off.
  *         </li>
  *     </ul>
  *     <li>Recent location requests: automatically populated by {@link RecentLocationAccesses}</li>

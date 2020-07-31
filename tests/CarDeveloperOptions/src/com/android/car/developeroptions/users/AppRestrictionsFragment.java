@@ -400,7 +400,7 @@ public class AppRestrictionsFragment extends SettingsPreferenceFragment implemen
                 // Get and populate the defaults, since the user is not going to be
                 // able to toggle this app ON (it's ON by default and immutable).
                 // Only do this for restricted profiles, not single-user restrictions
-                // Also don't do this for slave icons
+                // Also don't do this for child icons
                 if (app.masterEntry == null) {
                     requestRestrictionsForApp(packageName, p, false);
                 }
@@ -426,9 +426,9 @@ public class AppRestrictionsFragment extends SettingsPreferenceFragment implemen
 
     private String getPackageSummary(PackageInfo pi, AppRestrictionsHelper.SelectableAppInfo app) {
         // Check for 3 cases:
-        // - Slave entry that can see primary user accounts
-        // - Slave entry that cannot see primary user accounts
-        // - Master entry that can see primary user accounts
+        // - Child entry that can see primary user accounts
+        // - Child entry that cannot see primary user accounts
+        // - Parent entry that can see primary user accounts
         // Otherwise no summary is returned
         if (app.masterEntry != null) {
             if (mRestrictedProfile && pi.restrictedAccountType != null) {

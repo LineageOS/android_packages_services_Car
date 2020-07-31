@@ -26,7 +26,7 @@ import android.os.UserHandle;
 import android.util.Log;
 
 /**
- * Activity which acts as a proxy to the tether provisioning app for sanity checks and permission
+ * Activity which acts as a proxy to the tether provisioning app for validity checks and permission
  * restrictions. Specifically, the provisioning apps require
  * {@link android.permission.CONNECTIVITY_INTERNAL}, while this activity can be started by a caller
  * with {@link android.permission.TETHER_PRIVILEGED}.

@@ -110,7 +110,7 @@ public class TtsEnginePreferenceFragment extends SettingsPreferenceFragment
     }
 
     /**
-     * The initialization listener used when the user changes his choice of engine (as opposed to
+     * The initialization listener used when the user changes their choice of engine (as opposed to
      * when then screen is being initialized for the first time).
      */
     private final TextToSpeech.OnInitListener mUpdateListener =
