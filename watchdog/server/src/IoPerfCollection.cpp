@@ -414,13 +414,9 @@ Result<void> IoPerfCollection::onBootFinished() {
     return {};
 }
 
-Result<void> IoPerfCollection::dump(int fd, const Vector<String16>& args) {
+Result<void> IoPerfCollection::onCustomCollection(int fd, const Vector<String16>& args) {
     if (args.empty()) {
-        const auto& ret = dumpCollection(fd);
-        if (!ret) {
-            return ret;
-        }
-        return {};
+        return Error(BAD_VALUE) << "No I/O perf collection dump arguments";
     }
 
     if (args[0] == String16(kStartCustomCollectionFlag)) {
@@ -494,26 +490,7 @@ Result<void> IoPerfCollection::dump(int fd, const Vector<String16>& args) {
                             << kEndCustomCollectionFlag << " flags";
 }
 
-bool IoPerfCollection::dumpHelpText(int fd) {
-    long periodicCacheMinutes =
-            (std::chrono::duration_cast<std::chrono::seconds>(mPeriodicCollection.interval)
-                     .count() *
-             mPeriodicCollection.maxCacheSize) /
-            60;
-    return WriteStringToFd(StringPrintf(kHelpText, kStartCustomCollectionFlag, kIntervalFlag,
-                                        std::chrono::duration_cast<std::chrono::seconds>(
-                                                kCustomCollectionInterval)
-                                                .count(),
-                                        kMaxDurationFlag,
-                                        std::chrono::duration_cast<std::chrono::minutes>(
-                                                kCustomCollectionDuration)
-                                                .count(),
-                                        kFilterPackagesFlag, mTopNStatsPerCategory,
-                                        kEndCustomCollectionFlag, periodicCacheMinutes),
-                           fd);
-}
-
-Result<void> IoPerfCollection::dumpCollection(int fd) {
+Result<void> IoPerfCollection::onDump(int fd) {
     Mutex::Autolock lock(mMutex);
     if (mCurrCollectionEvent == CollectionEvent::TERMINATED) {
         ALOGW("I/O performance data collection not active. Dumping cached data");
@@ -543,6 +520,25 @@ Result<void> IoPerfCollection::dumpCollection(int fd) {
                 << "Failed to dump the boot-time and periodic collection reports.";
     }
     return {};
+}
+
+bool IoPerfCollection::dumpHelpText(int fd) {
+    long periodicCacheMinutes =
+            (std::chrono::duration_cast<std::chrono::seconds>(mPeriodicCollection.interval)
+                     .count() *
+             mPeriodicCollection.maxCacheSize) /
+            60;
+    return WriteStringToFd(StringPrintf(kHelpText, kStartCustomCollectionFlag, kIntervalFlag,
+                                        std::chrono::duration_cast<std::chrono::seconds>(
+                                                kCustomCollectionInterval)
+                                                .count(),
+                                        kMaxDurationFlag,
+                                        std::chrono::duration_cast<std::chrono::minutes>(
+                                                kCustomCollectionDuration)
+                                                .count(),
+                                        kFilterPackagesFlag, mTopNStatsPerCategory,
+                                        kEndCustomCollectionFlag, periodicCacheMinutes),
+                           fd);
 }
 
 Result<void> IoPerfCollection::dumpCollectorsStatusLocked(int fd) {

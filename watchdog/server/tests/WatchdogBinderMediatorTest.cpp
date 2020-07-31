@@ -69,7 +69,9 @@ class MockIoPerfCollection : public IoPerfCollection {
 public:
     MockIoPerfCollection() {}
     MOCK_METHOD(Result<void>, onBootFinished, (), (override));
-    MOCK_METHOD(Result<void>, dump, (int fd, const Vector<String16>& args), (override));
+    MOCK_METHOD(Result<void>, onCustomCollection, (int fd, const Vector<String16>& args),
+                (override));
+    MOCK_METHOD(Result<void>, onDump, (int fd), (override));
 };
 
 class MockICarWatchdogClient : public ICarWatchdogClient {
@@ -153,12 +155,12 @@ TEST_F(WatchdogBinderMediatorTest, TestErrorOnNullptrDuringInit) {
 
 TEST_F(WatchdogBinderMediatorTest, TestHandlesEmptyDumpArgs) {
     EXPECT_CALL(*mMockWatchdogProcessService, dump(-1, _)).WillOnce(Return(Result<void>()));
-    EXPECT_CALL(*mMockIoPerfCollection, dump(-1, _)).WillOnce(Return(Result<void>()));
+    EXPECT_CALL(*mMockIoPerfCollection, onDump(-1)).WillOnce(Return(Result<void>()));
     mWatchdogBinderMediator->dump(-1, Vector<String16>());
 }
 
 TEST_F(WatchdogBinderMediatorTest, TestHandlesStartCustomIoPerfCollection) {
-    EXPECT_CALL(*mMockIoPerfCollection, dump(-1, _)).WillOnce(Return(Result<void>()));
+    EXPECT_CALL(*mMockIoPerfCollection, onCustomCollection(-1, _)).WillOnce(Return(Result<void>()));
 
     Vector<String16> args;
     args.push_back(String16(kStartCustomCollectionFlag));
@@ -166,7 +168,7 @@ TEST_F(WatchdogBinderMediatorTest, TestHandlesStartCustomIoPerfCollection) {
 }
 
 TEST_F(WatchdogBinderMediatorTest, TestHandlesStopCustomIoPerfCollection) {
-    EXPECT_CALL(*mMockIoPerfCollection, dump(-1, _)).WillOnce(Return(Result<void>()));
+    EXPECT_CALL(*mMockIoPerfCollection, onCustomCollection(-1, _)).WillOnce(Return(Result<void>()));
 
     Vector<String16> args;
     args.push_back(String16(kEndCustomCollectionFlag));
@@ -176,7 +178,7 @@ TEST_F(WatchdogBinderMediatorTest, TestHandlesStopCustomIoPerfCollection) {
 TEST_F(WatchdogBinderMediatorTest, TestErrorOnInvalidDumpArgs) {
     Vector<String16> args;
     args.push_back(String16("--invalid_option"));
-    ASSERT_NE(mWatchdogBinderMediator->dump(-1, args), OK) << "No error on invalid args";
+    ASSERT_EQ(mWatchdogBinderMediator->dump(-1, args), OK) << "Error returned on invalid args";
 }
 
 TEST_F(WatchdogBinderMediatorTest, TestRegisterClient) {
