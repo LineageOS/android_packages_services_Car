@@ -184,19 +184,18 @@ public:
     virtual android::base::Result<void> onBootFinished();
 
     // Depending the arguments, it either:
-    // 1. Generates a dump from the boot-time and periodic collection events.
-    // 2. Starts custom collection.
-    // 3. Ends custom collection and dumps the collected data.
+    // 1. Starts custom collection.
+    // 2. Ends custom collection and dumps the collected data.
     // Returns any error observed during the dump generation.
-    virtual android::base::Result<void> dump(int fd, const Vector<String16>& args);
+    virtual android::base::Result<void> onCustomCollection(int fd, const Vector<String16>& args);
+
+    // Generates a dump from the boot-time and periodic collection events.
+    virtual android::base::Result<void> onDump(int fd);
 
     // Dumps the help text.
     bool dumpHelpText(int fd);
 
 private:
-    // Generates a dump from the boot-time and periodic collection events.
-    android::base::Result<void> dumpCollection(int fd);
-
     // Dumps the collectors' status when they are disabled.
     android::base::Result<void> dumpCollectorsStatusLocked(int fd);
 
