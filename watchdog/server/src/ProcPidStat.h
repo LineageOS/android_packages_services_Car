@@ -55,6 +55,10 @@ struct PidStat {
 struct ProcessStats {
     int64_t tgid = -1;                              // -1 indicates a failure to read this value
     int64_t uid = -1;                               // -1 indicates a failure to read this value
+    uint64_t vmPeakKb = 0;
+    uint64_t vmSizeKb = 0;
+    uint64_t vmHwmKb = 0;
+    uint64_t vmRssKb = 0;
     PidStat process = {};                           // Aggregated stats across all the threads
     std::unordered_map<pid_t, PidStat> threads;     // Per-thread stat including the main thread
 };
@@ -87,11 +91,9 @@ public:
 private:
     // Reads the contents of the below files:
     // 1. Pid stat file at |mPath| + |kStatFileFormat|
-    // 2. Tid stat file at |mPath| + |kTaskDirFormat| + |kStatFileFormat|
+    // 2. Aggregated per-process status at |mPath| + |kStatusFileFormat|
+    // 3. Tid stat file at |mPath| + |kTaskDirFormat| + |kStatFileFormat|
     android::base::Result<std::unordered_map<pid_t, ProcessStats>> getProcessStatsLocked() const;
-
-    // Reads the tgid and real UID for the given PID from |mPath| + |kStatusFileFormat|.
-    android::base::Result<void> getPidStatusLocked(ProcessStats* processStats) const;
 
     // Makes sure only one collection is running at any given time.
     Mutex mMutex;
