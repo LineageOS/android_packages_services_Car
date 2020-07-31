@@ -935,13 +935,13 @@
     <string name="wifi_privacy_settings" msgid="4462092795794247809">"Поверителност"</string>
     <string name="wifi_privacy_settings_ephemeral_summary" msgid="2411375348287064283">"Рандомизиран MAC адрес"</string>
     <string name="wifi_dpp_add_device_to_network" msgid="8871041525483253430">"Добавяне на устройство"</string>
-    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"За да добавите устройството към „<xliff:g id="SSID">%1$s</xliff:g>“, центрирайте по-долу кода за бърза реакция"</string>
+    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"За да добавите устройството към <xliff:g id="SSID">%1$s</xliff:g>, центрирайте по-долу кода за бърза реакция"</string>
     <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"Сканиране на кода за бърза реакция"</string>
-    <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"За да се свържете с „<xliff:g id="SSID">%1$s</xliff:g>“, центрирайте по-долу кода за бърза реакция"</string>
+    <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"За да се свържете към <xliff:g id="SSID">%1$s</xliff:g>, центрирайте по-долу кода за бърза реакция"</string>
     <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"Присъединете се към  Wi‑Fi мрежата, като сканирате код за бърза реакция"</string>
     <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"Споделяне на Wi‑Fi мрежата"</string>
-    <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"Сканирайте този код за бърза реакция, за да се свържете към „<xliff:g id="SSID">%1$s</xliff:g>“ и да споделите паролата"</string>
-    <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"Сканирайте този код за бърза реакция, за да се свържете към „<xliff:g id="SSID">%1$s</xliff:g>“"</string>
+    <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"Сканирайте този код за бърза реакция, за да се свържете към <xliff:g id="SSID">%1$s</xliff:g> и да споделите паролата"</string>
+    <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"Сканирайте този код за бърза реакция, за да се свържете към <xliff:g id="SSID">%1$s</xliff:g>"</string>
     <string name="wifi_dpp_could_not_detect_valid_qr_code" msgid="27667719861826438">"Кодът за бърза реакция не можа да бъде прочетен. Центрирайте го отново и опитайте пак"</string>
     <string name="wifi_dpp_failure_authentication_or_configuration" msgid="9142051662156233679">"Опитайте отново. Ако проблемът не се отстрани, свържете се с производителя на устройството."</string>
     <string name="wifi_dpp_failure_not_compatible" msgid="4320027179973678283">"Нещо се обърка"</string>
@@ -951,11 +951,11 @@
     <string name="wifi_dpp_check_connection_try_again" msgid="7144663015219170999">"Проверете връзката и опитайте отново"</string>
     <string name="wifi_dpp_choose_network" msgid="6251424431594491691">"Избиране на мрежа"</string>
     <string name="wifi_dpp_choose_network_to_connect_device" msgid="6385259857886784285">"За да свържете устройството си, изберете мрежа"</string>
-    <string name="wifi_dpp_add_device_to_wifi" msgid="6454198064645462446">"Да се добави ли това устройство към „<xliff:g id="SSID">%1$s</xliff:g>“?"</string>
+    <string name="wifi_dpp_add_device_to_wifi" msgid="6454198064645462446">"Да се добави ли това устройство към <xliff:g id="SSID">%1$s</xliff:g>?"</string>
     <string name="wifi_dpp_wifi_shared_with_device" msgid="5713765471758272471">"Wi-Fi мрежата бе споделена с устройството"</string>
     <string name="wifi_dpp_add_another_device" msgid="3698441567235301565">"Добавяне на друго устройство"</string>
     <string name="wifi_dpp_choose_different_network" msgid="128515107488187050">"Избиране на друга мрежа"</string>
-    <string name="wifi_dpp_could_not_add_device" msgid="4966109556543584813">"Устройството не можа да се добави"</string>
+    <string name="wifi_dpp_could_not_add_device" msgid="4966109556543584813">"Устройството не бе добавено"</string>
     <string name="wifi_dpp_device_found" msgid="6488461467496850841">"Открито е устройство"</string>
     <string name="wifi_dpp_sharing_wifi_with_this_device" msgid="2540529164687476827">"Wi-Fi мрежата се споделя с това устройство…"</string>
     <string name="wifi_dpp_connecting" msgid="4229290407210299897">"Свързва се…"</string>

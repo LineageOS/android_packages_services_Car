@@ -113,7 +113,7 @@
     <string name="bluetooth_disconnect_all_profiles" product="device" msgid="4707569949253450208">"Votre appareil se déconnectera de <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
     <string name="bluetooth_disconnect_dialog_ok" msgid="4183522987246110145">"Déconnecter"</string>
     <string name="bluetooth_empty_list_user_restricted" msgid="3616298363281495777">"Vous n\'êtes pas autorisé à modifier les paramètres Bluetooth."</string>
-    <string name="bluetooth_pairing_pref_title" msgid="2904954138013884029">"Associer un appareil"</string>
+    <string name="bluetooth_pairing_pref_title" msgid="2904954138013884029">"Associer un autre appareil"</string>
     <string name="bluetooth_is_visible_message" msgid="6341088682252805612">"Lorsque le Bluetooth est activé, votre <xliff:g id="DEVICE_NAME">%1$s</xliff:g> est visible par les appareils à proximité."</string>
     <string name="bluetooth_footer_mac_message" product="default" msgid="335341476746836260">"Adresse Bluetooth du téléphone : <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_footer_mac_message" product="tablet" msgid="6033609611245782463">"Adresse Bluetooth de la tablette : <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
@@ -165,7 +165,7 @@
     <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"Visible comme « <xliff:g id="DEVICE_NAME">^1</xliff:g> » aux autres appareils"</string>
     <string name="bluetooth_off_footer" msgid="7658444560543730571">"Activez le Bluetooth pour vous connecter à d\'autres appareils."</string>
     <string name="bluetooth_paired_device_title" msgid="8361860197780425286">"Vos appareils"</string>
-    <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"Associer un appareil"</string>
+    <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"Associer un autre appareil"</string>
     <string name="bluetooth_pref_summary" product="tablet" msgid="3601662966604648212">"Permettre à votre tablette de communiquer avec les appareils Bluetooth à proximité"</string>
     <string name="bluetooth_pref_summary" product="device" msgid="2286727776570956969">"Permettre à votre appareil de communiquer avec les appareils Bluetooth à proximité"</string>
     <string name="bluetooth_pref_summary" product="default" msgid="863659221858781186">"Permettre à votre téléphone de communiquer avec les appareils Bluetooth à proximité"</string>
@@ -439,15 +439,15 @@
     <string name="security_settings_fingerprint_preference_summary_none" msgid="3613424536269750172"></string>
     <string name="security_settings_fingerprint_enroll_introduction_title" msgid="889558002683900544">"Déverrouillage avec empreinte"</string>
     <string name="security_settings_fingerprint_enroll_introduction_title_unlock_disabled" msgid="7915504118657864429">"Utilisez empreinte digitale"</string>
-    <string name="security_settings_fingerprint_enroll_introduction_message" msgid="5586198131986682472">"Il vous suffit de toucher le lecteur d\'empreintes digitales pour déverrouiller votre téléphone, autoriser des achats ou vous connecter à des applications. Toutes les personnes dont les empreintes digitales sont ajoutées sur votre téléphone peuvent effectuer ces opérations. Sélectionnez donc ces personnes avec soin.\n\nRemarque : Vos empreintes digitales peuvent être moins sécurisées qu\'un schéma ou un code fiables."</string>
+    <string name="security_settings_fingerprint_enroll_introduction_message" msgid="5586198131986682472">"Il vous suffit de toucher le lecteur d\'empreintes digitales pour déverrouiller votre téléphone, autoriser des achats ou vous connecter à des applications. Toutes les personnes dont les empreintes digitales sont ajoutées sur votre téléphone peuvent effectuer ces opérations. Sélectionnez donc ces personnes avec soin.\n\nRemarque : Votre empreinte digitale peut être moins sécurisée qu\'un schéma ou un NIP fiables."</string>
     <string name="security_settings_fingerprint_enroll_introduction_message_unlock_disabled" msgid="1640839304679275468">"Utilisez votre empreinte digitale pour déverrouiller votre téléphone ou autoriser des achats.\n\nRemarque : Vous ne pouvez pas utiliser vos empreintes digitales pour déverrouiller cet appareil. Pour obtenir plus d\'information, communiquez avec l\'administrateur de votre organisation."</string>
-    <string name="security_settings_fingerprint_enroll_introduction_message_setup" msgid="6734490666593320711">"Utilisez votre empreinte digitale pour déverrouiller votre téléphone ou autoriser des achats.\n\nRemarque : Vos empreintes digitales peuvent être moins sécurisées qu\'un schéma ou un NIP fiables."</string>
+    <string name="security_settings_fingerprint_enroll_introduction_message_setup" msgid="6734490666593320711">"Utilisez votre empreinte digitale pour déverrouiller votre téléphone ou autoriser des achats.\n\nRemarque : Votre empreinte digitale peut être moins sécurisée qu\'un schéma ou un NIP fiables."</string>
     <string name="security_settings_fingerprint_enroll_introduction_cancel" msgid="9168637333731599827">"Annuler"</string>
     <string name="security_settings_fingerprint_enroll_introduction_continue" msgid="271662150372486535">"Continuer"</string>
     <string name="security_settings_fingerprint_enroll_introduction_cancel_setup" msgid="756928427429893070">"Passer"</string>
     <string name="security_settings_fingerprint_enroll_introduction_continue_setup" msgid="4125977169169671144">"Suivant"</string>
-    <string name="setup_fingerprint_enroll_skip_title" msgid="763018850721691594">"Ignorer l\'empreinte digitale?"</string>
-    <string name="setup_fingerprint_enroll_skip_after_adding_lock_text" msgid="8849928362049018680">"La configuration des empreintes digitales ne prend qu\'une minute ou deux. Si vous ignorez cette étape, vous pouvez ajouter votre empreinte digitale plus tard dans les paramètres."</string>
+    <string name="setup_fingerprint_enroll_skip_title" msgid="763018850721691594">"Ignorer configuration empreinte?"</string>
+    <string name="setup_fingerprint_enroll_skip_after_adding_lock_text" msgid="8849928362049018680">"La configuration de l\'empreinte digitale ne prend qu\'une minute ou deux. Si vous ignorez cette étape, vous pouvez ajouter votre empreinte digitale plus tard dans les paramètres."</string>
     <string name="lock_screen_intro_skip_title" msgid="5307431665496346914">"Ignorer verrouillage d\'écran?"</string>
     <string name="lock_screen_intro_skip_dialog_text_frp" product="tablet" msgid="7553945981266845264">"Les fonctionnalités de protection de l\'appareil ne seront pas activées. Vous ne pourrez pas empêcher d\'autres personnes d\'utiliser cette tablette en cas de perte, de vol ou de réinitialisation."</string>
     <string name="lock_screen_intro_skip_dialog_text_frp" product="device" msgid="1378243257238015603">"Les fonctionnalités de protection de l\'appareil ne seront pas activées. Vous ne pourrez pas empêcher d\'autres personnes d\'utiliser cet appareil en cas de perte, de vol ou de réinitialisation."</string>
@@ -3169,7 +3169,7 @@
       <item quantity="other"><xliff:g id="ON_COUNT">%d</xliff:g> règles activées</item>
     </plurals>
     <string name="zen_mode_settings_title" msgid="3425263414594779244">"Ne pas déranger"</string>
-    <string name="zen_mode_settings_turn_on_dialog_title" msgid="3062548369931058282">"Activer la fonction « Ne pas déranger »"</string>
+    <string name="zen_mode_settings_turn_on_dialog_title" msgid="3062548369931058282">"Activer le mode Ne pas déranger"</string>
     <string name="zen_mode_behavior_settings_title" msgid="423125904296667490">"Exceptions"</string>
     <string name="zen_mode_duration_settings_title" msgid="5522668871014735728">"Durée par défaut"</string>
     <string name="zen_mode_behavior_allow_title" msgid="2440627647424280842">"Autoriser sons et vibrations de"</string>
@@ -3194,7 +3194,7 @@
     <string name="zen_mode_summary_combination" msgid="6960111215170691605">"<xliff:g id="MODE">%1$s</xliff:g> : <xliff:g id="EXIT_CONDITION">%2$s</xliff:g>"</string>
     <string name="zen_mode_visual_interruptions_settings_title" msgid="8378266552787406849">"Bloquer dérangements visuels"</string>
     <string name="zen_mode_visual_signals_settings_subtitle" msgid="6608239691864638854">"Autoriser les signaux visuels"</string>
-    <string name="zen_mode_settings_category" msgid="5601680733422424922">"Quand la fonction Ne pas déranger est activée"</string>
+    <string name="zen_mode_settings_category" msgid="5601680733422424922">"Quand le mode Ne pas déranger est activé"</string>
     <string name="zen_mode_restrict_notifications_title" msgid="7486753018073540477">"Restreindre les notifications"</string>
     <string name="zen_mode_restrict_notifications_mute" msgid="2673665450311184875">"Aucun son des notifications"</string>
     <string name="zen_mode_restrict_notifications_mute_summary" msgid="1696217042353376674">"Vous verrez des notifications sur l\'écran"</string>
@@ -3371,10 +3371,10 @@
     <string name="no_notification_assistant" msgid="9140123568386413264">"Aucun assistant"</string>
     <string name="no_notification_listeners" msgid="1366386609506834717">"Aucune demande d\'accès aux notifications n\'a été envoyée pour les applications installées."</string>
     <string name="notification_assistant_security_warning_title" msgid="4190584438086738496">"Autoriser <xliff:g id="SERVICE">%1$s</xliff:g> à accéder aux notifications?"</string>
-    <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> pourra lire toutes les notifications, y compris des données personnelles, telles que des noms de contacts et le texte des messages que vous recevez. Ce service pourra également masquer des notifications ou déclencher les boutons d\'action que celles-ci contiennent. \n\nCela permettra également à l\'application d\'activer et de désactiver la fonction Ne pas déranger et de modifier les paramètres connexes."</string>
+    <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> pourra lire toutes les notifications, y compris des données personnelles, telles que des noms de contacts et le texte des messages que vous recevez. Ce service pourra également masquer des notifications ou déclencher les boutons d\'action que celles-ci contiennent. \n\nCela permettra également à l\'application d\'activer et de désactiver le mode Ne pas déranger et de modifier les paramètres connexes."</string>
     <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"Autoriser <xliff:g id="SERVICE">%1$s</xliff:g> à accéder aux notifications?"</string>
-    <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> pourra lire toutes les notifications, y compris des données personnelles, telles que des noms de contacts et le texte des messages que vous recevez. Ce service pourra également masquer des notifications ou déclencher les boutons d\'action que celles-ci contiennent. \n\nCela permettra également à l\'application d\'activer et de désactiver la fonction Ne pas déranger et de modifier les paramètres connexes."</string>
-    <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"Si vous désactivez l\'accès aux notifications pour <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g>, l\'accès à la fonction Ne pas déranger peut également être désactivé."</string>
+    <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> pourra lire toutes les notifications, y compris des données personnelles, telles que des noms de contacts et le texte des messages que vous recevez. Ce service pourra également masquer des notifications ou déclencher les boutons d\'action que celles-ci contiennent. \n\nCela permettra également à l\'application d\'activer et de désactiver le mode Ne pas déranger et de modifier les paramètres connexes."</string>
+    <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"Si vous désactivez l\'accès aux notifications pour <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g>, l\'accès au mode Ne pas déranger peut également être désactivé."</string>
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"Désactiver"</string>
     <string name="notification_listener_disable_warning_cancel" msgid="6264631825225298458">"Annuler"</string>
     <string name="vr_listeners_title" msgid="511483902408792832">"Services d\'assistance de réalité virtuelle"</string>
@@ -3813,14 +3813,14 @@
     <string name="app_permission_summary_allowed" msgid="6458476982015518778">"Autorisée"</string>
     <string name="app_permission_summary_not_allowed" msgid="1171642541675462584">"Non autorisée"</string>
     <string name="keywords_install_other_apps" msgid="5383559540695847668">"installer des applications provenant de sources inconnues"</string>
-    <string name="write_settings" msgid="9009040811145552108">"Modifier param. système"</string>
+    <string name="write_settings" msgid="9009040811145552108">"Modifier les paramètres système"</string>
     <string name="keywords_write_settings" msgid="3450405263390246293">"écrire des modifications aux paramètres du système"</string>
     <string name="write_settings_summary" msgid="4650251358459404247">"<xliff:g id="COUNT_0">%1$d</xliff:g> applis sur <xliff:g id="COUNT_1">%2$d</xliff:g> sont autorisées à modifier les param. système"</string>
     <string name="financial_apps_sms_access_title" msgid="3422655018008259655">"Accès des applications financières aux textos"</string>
     <string name="filter_install_sources_apps" msgid="4519839764020866701">"Peut installer d\'autres applications"</string>
     <string name="filter_write_settings_apps" msgid="6864144615530081121">"Peut modifier les paramètres du système"</string>
     <string name="write_settings_title" msgid="5852614614193830632">"Peut modifier les paramètres du système"</string>
-    <string name="write_system_settings" msgid="20450765210832463">"Modifier param. système"</string>
+    <string name="write_system_settings" msgid="20450765210832463">"Modifier les paramètres système"</string>
     <string name="permit_write_settings" msgid="4198491281216818756">"Autoriser la modification des paramètres du système"</string>
     <string name="write_settings_description" msgid="2536706293042882500">"Cette autorisation permet à une application de modifier les paramètres du système."</string>
     <string name="write_settings_on" msgid="7328986337962635118">"Oui"</string>

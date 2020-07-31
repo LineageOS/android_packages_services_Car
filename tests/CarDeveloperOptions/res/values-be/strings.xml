@@ -358,7 +358,7 @@
     <string name="owner_info_settings_title" msgid="2537966178998339896">"Тэкст на экране блакіроўкі"</string>
     <string name="security_enable_widgets_title" msgid="1701510007926738088">"Уключыць віджэты"</string>
     <string name="security_enable_widgets_disabled_summary" msgid="4408176087132339331">"Адключана адміністратарам"</string>
-    <string name="lockdown_settings_title" msgid="4534779922580115990">"Паказаць параметр блакіроўкі"</string>
+    <string name="lockdown_settings_title" msgid="4534779922580115990">"Паказваць кнопку блакіроўкі"</string>
     <string name="lockdown_settings_summary" msgid="7270756909878256174">"Дадаць у меню кнопкі сілкавання функцыю, якая выключае разумную блакіроўку, разблакіроўку адбіткам пальца і апавяшчэнні на экране блакіроўкі"</string>
     <string name="trust_agents_extend_unlock_title" msgid="3582017561316089951">"Даверчыя агенты падаўжаюць разблакіроўку"</string>
     <string name="trust_agents_extend_unlock_summary" msgid="3543997596586078084">"Калі функцыя ўключана, даверчыя агенты будуць даўжэй трымаць прыладу разблакіраванай, аднак не змогуць разблакіраваць ужо заблакіраваную прыладу."</string>
@@ -467,14 +467,14 @@
     <string name="go_back_button_label" msgid="7310586887969860472">"Назад"</string>
     <string name="skip_lock_screen_dialog_button_label" msgid="6706047245716780006">"Прапусціць"</string>
     <string name="cancel_lock_screen_dialog_button_label" msgid="2534925227627658819">"Скасаваць"</string>
-    <string name="security_settings_fingerprint_enroll_find_sensor_title" msgid="8909829699273726469">"Дакраніцеся да сэнсара"</string>
+    <string name="security_settings_fingerprint_enroll_find_sensor_title" msgid="8909829699273726469">"Дакраніцеся да сканера"</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_message" msgid="581120963079780740">"Ён на задняй панэлі тэлефона. Карыстайцеся ўказальным пальцам."</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_content_description" msgid="7835824123269738540">"Малюнак, які паказвае, дзе размяшчаецца датчык адбіткаў пальцаў на прыладзе"</string>
     <string name="security_settings_fingerprint_enroll_dialog_name_label" msgid="3519748398694308901">"Імя"</string>
     <string name="security_settings_fingerprint_enroll_dialog_ok" msgid="3428927518029038956">"ОК"</string>
     <string name="security_settings_fingerprint_enroll_dialog_delete" msgid="4312297515772004580">"Выдаліць"</string>
-    <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"Дакраніцеся да сэнсара"</string>
-    <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"Прыкладзіце палец да сэнсара і ўтрымлівайце яго, пакуль не адчуеце вібрацыю"</string>
+    <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"Дакраніцеся да сканера"</string>
+    <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"Прыкладзіце палец да сканера і ўтрымлівайце яго, пакуль не адчуеце вібрацыю"</string>
     <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"Падыміце і дакраніцеся зноў"</string>
     <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"Дакраніцеся некалькі разоў, каб адбітак быў больш дакладны"</string>
     <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"Адбітак пальца дададзены"</string>
@@ -645,13 +645,13 @@
     <string name="unlock_footer_none_complexity_requested" msgid="1669550050597044896">"<xliff:g id="APP_NAME">%1$s</xliff:g> рэкамендуе ўсталяваць новую блакіроўку экрана"</string>
     <string name="lock_failed_attempts_before_wipe" msgid="7565412834122130877">"Паўтарыце спробу. Спроба <xliff:g id="CURRENT_ATTEMPTS">%1$d</xliff:g> з дапушчальных <xliff:g id="TOTAL_ATTEMPTS">%2$d</xliff:g>."</string>
     <string name="lock_last_attempt_before_wipe_warning_title" msgid="7853820095898368793">"Вашы даныя будуць выдалены"</string>
-    <string name="lock_last_pattern_attempt_before_wipe_device" msgid="1021644947949306054">"Калі вы ўведзяце няправільны графічны ключ яшчэ раз, даныя з гэтай прылады будуць выдалены"</string>
+    <string name="lock_last_pattern_attempt_before_wipe_device" msgid="1021644947949306054">"Калі вы ўведзяце няправільны ўзор разблакіроўкі яшчэ раз, даныя з гэтай прылады будуць выдалены"</string>
     <string name="lock_last_pin_attempt_before_wipe_device" msgid="3823600293847594141">"Калі вы ўведзяце няправільны PIN-код яшчэ раз, даныя з гэтай прылады будуць выдалены"</string>
     <string name="lock_last_password_attempt_before_wipe_device" msgid="3548966006264835462">"Калі вы ўведзяце няправільны пароль яшчэ раз, даныя з гэтай прылады будуць выдалены"</string>
-    <string name="lock_last_pattern_attempt_before_wipe_user" msgid="5194192938934564218">"Калі вы яшчэ раз уведзяце няправільны графічны ключ, гэты карыстальнік будзе выдалены"</string>
+    <string name="lock_last_pattern_attempt_before_wipe_user" msgid="5194192938934564218">"Калі вы яшчэ раз уведзяце няправільны ўзор разблакіроўкі, гэты карыстальнік будзе выдалены"</string>
     <string name="lock_last_pin_attempt_before_wipe_user" msgid="7833852187363499906">"Калі вы яшчэ раз уведзяце няправільны PIN-код, гэты карыстальнік будзе выдалены"</string>
     <string name="lock_last_password_attempt_before_wipe_user" msgid="8979742220140001204">"Калі вы яшчэ раз уведзяце няправільны пароль, гэты карыстальнік будзе выдалены"</string>
-    <string name="lock_last_pattern_attempt_before_wipe_profile" msgid="3877613047631174576">"Калі вы яшчэ раз уведзяце няправільны графічны ключ, ваш рабочы профіль і звязаныя з ім даныя будуць выдалены"</string>
+    <string name="lock_last_pattern_attempt_before_wipe_profile" msgid="3877613047631174576">"Калі вы яшчэ раз уведзяце няправільны ўзор разблакіроўкі, ваш рабочы профіль і звязаныя з ім даныя будуць выдалены"</string>
     <string name="lock_last_pin_attempt_before_wipe_profile" msgid="8132438288175428168">"Калі вы яшчэ раз уведзяце няправільны PIN-код, ваш рабочы профіль і звязаныя з ім даныя будуць выдалены"</string>
     <string name="lock_last_password_attempt_before_wipe_profile" msgid="1535128774464384305">"Калі вы яшчэ раз уведзяце няправільны пароль, ваш рабочы профіль і звязаныя з ім даныя будуць выдалены"</string>
     <string name="lock_failed_attempts_now_wiping_device" msgid="8662360098784762828">"Занадта шмат няўдалых спроб. Даныя з гэтай прылады будуць выдалены."</string>
@@ -794,7 +794,7 @@
     <string name="bluetooth_device_context_connect" msgid="1812090541371432890">"Падключыцца"</string>
     <string name="bluetooth_device_context_disconnect" msgid="8085015949275771802">"Адключыць"</string>
     <string name="bluetooth_device_context_pair_connect" msgid="1503322591778810032">"Спарыць і падключыць"</string>
-    <string name="bluetooth_device_context_unpair" msgid="250588431708253041">"Разарваць пару"</string>
+    <string name="bluetooth_device_context_unpair" msgid="250588431708253041">"Разлучыць"</string>
     <string name="bluetooth_device_context_disconnect_unpair" msgid="4519151805677280077">"Адключыць і разарваць пару"</string>
     <string name="bluetooth_device_context_connect_advanced" msgid="423463405499392444">"Параметры..."</string>
     <string name="bluetooth_menu_advanced" msgid="7566858513372603652">"Пашыраныя налады"</string>
@@ -1246,8 +1246,8 @@
     <string name="adaptive_sleep_summary_off" msgid="2891586225954973431">"Выключана"</string>
     <string name="adaptive_sleep_description" msgid="812673735459170009">"Не дазваляе экрану выключацца, калі на яго глядзяць"</string>
     <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"Адаптыўны рэжым з дапамогай пярэдняй камеры вызначае, калі хто-небудзь глядзіць на экран. Функцыя працуе толькі на прыладзе: відарысы не захоўваюцца і не адпраўляюцца ў Google."</string>
-    <string name="night_display_title" msgid="1305002424893349814">"Начны рэжым"</string>
-    <string name="night_display_text" msgid="5330502493684652527">"У начным рэжыме экран будзе мець бурштынавае адценне. Так вам будзе зручней глядзець на экран пры цьмяным асвятленні, а таксама лягчэй заснуць."</string>
+    <string name="night_display_title" msgid="1305002424893349814">"Начная падсветка"</string>
+    <string name="night_display_text" msgid="5330502493684652527">"У рэжыме Начной падсветкі экран будзе мець бурштынавае адценне. Так вам будзе зручней глядзець на экран пры цьмяным асвятленні, а таксама лягчэй заснуць."</string>
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"Расклад"</string>
     <string name="night_display_auto_mode_never" msgid="2897444637217807088">"Ніколі"</string>
     <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"Уключаецца ў вызначаны час"</string>
@@ -1270,7 +1270,7 @@
     <string name="night_display_activation_off_twilight" msgid="6846727701281556110">"Выключыць да вечара"</string>
     <string name="night_display_activation_on_custom" msgid="4761140206778957611">"Уключыць да <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="night_display_activation_off_custom" msgid="4207238846687792731">"Выключыць да <xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="night_display_not_currently_on" msgid="1436588493764429281">"Начны рэжым не ўключаны"</string>
+    <string name="night_display_not_currently_on" msgid="1436588493764429281">"Начная падсветка не ўключана"</string>
     <string name="screen_timeout" msgid="1700950247634525588">"Рэжым сну"</string>
     <string name="screen_timeout_title" msgid="150117777762864112">"Экран выключаецца"</string>
     <string name="screen_timeout_summary" msgid="8644192861778491060">"Пасля бяздзейнасці: <xliff:g id="TIMEOUT_DESCRIPTION">%1$s</xliff:g>"</string>
@@ -1729,7 +1729,7 @@
     <string name="contributors_title" msgid="6800028420806884340">"Удзельнікі"</string>
     <string name="manual" msgid="5431859421432581357">"Кіраўніцтва"</string>
     <string name="regulatory_labels" msgid="380968489247381025">"Ярлыкі сертыфікацыі"</string>
-    <string name="safety_and_regulatory_info" msgid="7113766428000920132">"Кіраўніцтва па эксплуатацыі і бяспецы"</string>
+    <string name="safety_and_regulatory_info" msgid="7113766428000920132">"Інфармацыя па эксплуатацыі і бяспецы"</string>
     <string name="copyright_title" msgid="3847703367689932190">"Аўтарскія правы"</string>
     <string name="license_title" msgid="7582145947873528540">"Ліцэнзія"</string>
     <string name="terms_title" msgid="1804549588198223771">"Правілы і ўмовы"</string>
@@ -1840,7 +1840,7 @@
     <string name="advanced_settings_summary" msgid="5912237062506771716">"Уключыць дадатковыя параметры налад"</string>
     <string name="application_info_label" msgid="3886253474964599105">"Звесткі пра праграмы"</string>
     <string name="storage_label" msgid="1109537840103290384">"Сховішча"</string>
-    <string name="auto_launch_label" msgid="47089737922907379">"Стандартна адкрываць"</string>
+    <string name="auto_launch_label" msgid="47089737922907379">"Адкрываць стандартна"</string>
     <string name="auto_launch_label_generic" msgid="7865828543459493308">"Па змаўчанні"</string>
     <string name="screen_compatibility_label" msgid="3638271673726075815">"Сумяшчальнасць экрана"</string>
     <string name="permissions_label" msgid="7341733648403464213">"Дазволы"</string>
@@ -1871,7 +1871,7 @@
     <string name="app_factory_reset" msgid="8718986000278776272">"Выдаліць абнаўленні"</string>
     <string name="auto_launch_enable_text" msgid="3372898942144027341">"Вы выбралi запуск гэтага дадатку па змаўчаннi для некаторых дзеянняў."</string>
     <string name="always_allow_bind_appwidgets_text" msgid="2286211654774611037">"Вы дазволілі гэтаму дадатку ствараць віджэты і атрымліваць доступ да іх даных."</string>
-    <string name="auto_launch_disable_text" msgid="8560921288036801416">"Параметры па змаўчанні не ўсталяваныя"</string>
+    <string name="auto_launch_disable_text" msgid="8560921288036801416">"Стандартныя налады не зададзены"</string>
     <string name="clear_activities" msgid="2068014972549235347">"Скінуць налады па змаўчанні"</string>
     <string name="screen_compatibility_text" msgid="1768064020294301496">"Магчыма, гэта прыкладанне не разлічана для вашага экрана. Наладзьце яго."</string>
     <string name="ask_compatibility" msgid="6687958195768084807">"Запытваць падчас запуску"</string>
@@ -2501,7 +2501,7 @@
     <string name="battery_detail_since_full_charge" msgid="3814176986148084378">"Разбіўка з моманту апошняй поўнай зарадкі"</string>
     <string name="battery_last_full_charge" msgid="5624033030647170717">"Апошняя поўная зарадка"</string>
     <string name="battery_full_charge_last" msgid="4614554109170251301">"Прыблізны час працы пры поўным зарадзе акумулятара"</string>
-    <string name="battery_footer_summary" msgid="4828444679643906943">"Даныя аб выкарыстанні батарэі з\'яўляюцца прыблізнымі і могуць змяняцца ў залежнасці ад выкарыстання"</string>
+    <string name="battery_footer_summary" msgid="4828444679643906943">"Даныя аб выкарыстанні акумулятара з\'яўляюцца прыблізнымі і могуць змяняцца ў залежнасці ад канкрэтных умоў"</string>
     <string name="battery_detail_foreground" msgid="6616408559186553085">"У актыўным рэжыме"</string>
     <string name="battery_detail_background" msgid="7938146832943604280">"У фонавым рэжыме"</string>
     <string name="battery_detail_power_usage" msgid="3606930232257489212">"Выкарыстанне зараду"</string>
@@ -3394,10 +3394,10 @@
     <string name="hide_silent_icons_title" msgid="1070905516921542662">"Хаваць значкі стану для апавяшчэнняў без гуку"</string>
     <string name="hide_silent_icons_summary" msgid="2624346914488256888">"Хаваць значкі для апавяшчэнняў без гуку на панэлі стану"</string>
     <string name="notification_badging_title" msgid="6311699476970264712">"Паказваць значкі апавяшчэнняў"</string>
-    <string name="notification_bubbles_title" msgid="9196562435741861317">"Дыялогі"</string>
+    <string name="notification_bubbles_title" msgid="9196562435741861317">"Усплывальныя апавяшчэнні"</string>
     <string name="notification_bubbles_summary" msgid="4624512775901949578">"Адусюль атрымлівайце хуткі доступ да змесціва праграмы з дапамогай зменлівых спалучэнняў клавіш"</string>
     <string name="bubbles_feature_education" msgid="8979109826818881018">"Некаторыя апавяшчэнні і іншае змесціва могуць паказвацца на экране ў выглядзе дыялогаў. Каб адкрыць дыялог, націсніце на яго. Каб закрыць дыялог, перацягніце яго ўніз экрана."</string>
-    <string name="bubbles_app_toggle_title" msgid="6401217027603326439">"Дыялогі"</string>
+    <string name="bubbles_app_toggle_title" msgid="6401217027603326439">"Усплывальныя апавяшчэнні"</string>
     <string name="bubbles_app_toggle_summary" msgid="7707611139796553855">"Дазваляе праграме \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" паказваць некаторыя апавяшчэнні ў выглядзе дыялогаў"</string>
     <string name="bubbles_feature_disabled_dialog_title" msgid="3375452386012079293">"Уключыце дыялогі"</string>
     <string name="bubbles_feature_disabled_dialog_text" msgid="326945485806386477">"Каб уключыць дыялогі для гэтай праграмы, уключыце дыялогі для прылады. Гэта паўплывае на іншыя праграмы, у якіх вы раней уключалі дыялогі."</string>
@@ -3692,7 +3692,7 @@
     <string name="imei_information_title" msgid="7666097743700170757">"Інфармацыя IMEI"</string>
     <string name="imei_information_summary" msgid="716516316022275083">"Інфармацыя, звязаная з IMEI (міжнародным ідэнтыфікатарам мабільнага абсталявання)"</string>
     <string name="slot_number" msgid="785422579177068698">"(Слот<xliff:g id="SLOT_NUM">%1$d</xliff:g>)"</string>
-    <string name="launch_by_default" msgid="6106985160202769725">"Адкрываць па змаўчанні"</string>
+    <string name="launch_by_default" msgid="6106985160202769725">"Адкрываць стандартна"</string>
     <string name="app_launch_domain_links_title" msgid="2987289657348349133">"Адкрыццё спасылак"</string>
     <string name="app_launch_open_domain_urls_title" msgid="8595126859922391331">"Адкрыць спасылкі, якія падтрымліваюцца"</string>
     <string name="app_launch_open_domain_urls_summary" msgid="6803029846855502366">"Адкрываць без запыту"</string>
@@ -3950,7 +3950,7 @@
     <string name="camera_gesture_desc" msgid="7751841175916789527">"Адкрыйце дадатак камеры, двойчы павярнуўшы сваё запясце"</string>
     <string name="camera_double_tap_power_gesture_title" msgid="8874747801078147525">"Каб адкр. кам., двойчы кран. кнопку сіл."</string>
     <string name="camera_double_tap_power_gesture_desc" msgid="6166349645433682873">"Хутка адкрыць камеру без разблакіроўкі экрана"</string>
-    <string name="screen_zoom_title" msgid="164369086350486104">"Памер дысплэя"</string>
+    <string name="screen_zoom_title" msgid="164369086350486104">"Памер элементаў дысплэя"</string>
     <string name="screen_zoom_short_summary" msgid="5508079362742276703">"Павелічэнне або памяншэнне элементаў на экране"</string>
     <string name="screen_zoom_keywords" msgid="8358462497896524092">"шчыльнасць дысплэя, маштаб экрана, маштаб, маштабаванне"</string>
     <string name="screen_zoom_summary" msgid="5294003755961312560">"Павелічэнне або памяншэнне элементаў на экране. Размяшчэнне некаторых праграм на вашым экране можа змяніцца."</string>
@@ -3993,7 +3993,7 @@
     <string name="backup_disabled" msgid="6941165814784765643">"Рэзервовае капіраванне адключана"</string>
     <string name="android_version_summary" msgid="2192751442789395445">"Абноўлена да версіі Android <xliff:g id="VERSION">%1$s</xliff:g>"</string>
     <string name="android_version_pending_update_summary" msgid="3554543810520655076">"Ёсць абнаўленне"</string>
-    <string name="disabled_by_policy_title" msgid="1238318274952958846">"Дзеянне не дапускаецца"</string>
+    <string name="disabled_by_policy_title" msgid="1238318274952958846">"Дзеянне забаронена"</string>
     <string name="disabled_by_policy_title_adjust_volume" msgid="7094547090629203316">"Не ўдалося змяніць гучнасць"</string>
     <string name="disabled_by_policy_title_outgoing_calls" msgid="3805836913095496278">"Выклікі забаронены"</string>
     <string name="disabled_by_policy_title_sms" msgid="1453236584236681105">"Адпраўка SMS забаронена"</string>
@@ -4028,9 +4028,9 @@
     <string name="condition_device_muted_summary" msgid="3101055117680109021">"Для выклікаў і апавяшчэнняў"</string>
     <string name="condition_device_vibrate_title" msgid="5712659354868872338">"Толькі вібрацыя"</string>
     <string name="condition_device_vibrate_summary" msgid="9073880731894828604">"Для выклікаў і апавяшчэнняў"</string>
-    <string name="night_display_suggestion_title" msgid="4222839610992282188">"Глядзець графік начнога рэжыму"</string>
+    <string name="night_display_suggestion_title" msgid="4222839610992282188">"Задаць расклад Начной падсветкі"</string>
     <string name="night_display_suggestion_summary" msgid="1754361016383576916">"Аўтаматычна мяняць колер экрана ўвечары"</string>
-    <string name="condition_night_display_title" msgid="9171491784857160135">"Начны рэжым уключаны"</string>
+    <string name="condition_night_display_title" msgid="9171491784857160135">"Начная падсветка ўключана"</string>
     <string name="condition_night_display_summary" msgid="7885776986937527558">"Бурштынавы колер экрана"</string>
     <string name="condition_grayscale_title" msgid="1226351649203551299">"Адценні шэрага"</string>
     <string name="condition_grayscale_summary" msgid="749172886527349546">"Паказ толькі ў шэрым колеры"</string>

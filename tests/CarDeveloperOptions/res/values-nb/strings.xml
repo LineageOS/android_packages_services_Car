@@ -1637,7 +1637,7 @@
     <string name="sms_change_default_dialog_title" msgid="6301260161969667578">"Vil du bytte SMS-app?"</string>
     <string name="sms_change_default_dialog_text" msgid="8275088077930942680">"Vil du bruke <xliff:g id="NEW_APP">%1$s</xliff:g> i stedet for <xliff:g id="CURRENT_APP">%2$s</xliff:g> for SMS?"</string>
     <string name="sms_change_default_no_previous_dialog_text" msgid="4680224695080527907">"Vil du bruke <xliff:g id="NEW_APP">%s</xliff:g> som SMS-app?"</string>
-    <string name="network_scorer_picker_title" msgid="1691073966560952916">"Nettverksvurdering levert av"</string>
+    <string name="network_scorer_picker_title" msgid="1691073966560952916">"Leverandør av nettverksvurdering"</string>
     <string name="network_scorer_picker_none_preference" msgid="6448280557733231737">"Ingen"</string>
     <string name="network_scorer_change_active_dialog_title" msgid="4274159562371475090">"Vil du endre Wi-Fi-assistent?"</string>
     <string name="network_scorer_change_active_dialog_text" msgid="4264089809189760730">"Vil du bruke <xliff:g id="NEW_APP">%1$s</xliff:g> i stedet for <xliff:g id="CURRENT_APP">%2$s</xliff:g> til å administrere nettverkstilkoblingene?"</string>
@@ -3161,7 +3161,7 @@
     <string name="emergency_tone_alert" msgid="907868135091891015">"Toner"</string>
     <string name="emergency_tone_vibrate" msgid="5020068066905681181">"Vibrasjoner"</string>
     <string name="boot_sounds_title" msgid="7583926202411353620">"Lyder ved oppstart"</string>
-    <string name="live_caption_title" msgid="7926591158657997051">"Liveteksting"</string>
+    <string name="live_caption_title" msgid="7926591158657997051">"Direkteteksting"</string>
     <string name="live_caption_summary" msgid="9064771862352393125">"Automatisk medieteksting"</string>
     <string name="zen_mode_settings_summary_off" msgid="6929319200478424962">"Aldri"</string>
     <plurals name="zen_mode_settings_summary_on" formatted="false" msgid="6061723291126091396">

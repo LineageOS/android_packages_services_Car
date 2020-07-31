@@ -636,7 +636,7 @@
     <string name="unlock_footer_low_complexity_requested" msgid="513212093196833566">"<xliff:g id="APP_NAME">%1$s</xliff:g> recommande d\'utiliser un nouveau schéma, code ou mot de passe et risque de ne pas fonctionner comme prévu si vous n\'en définissez pas"</string>
     <string name="unlock_footer_none_complexity_requested" msgid="1669550050597044896">"<xliff:g id="APP_NAME">%1$s</xliff:g> recommande d\'utiliser un nouveau verrouillage d\'écran"</string>
     <string name="lock_failed_attempts_before_wipe" msgid="7565412834122130877">"Réessayez. Tentative <xliff:g id="CURRENT_ATTEMPTS">%1$d</xliff:g> sur <xliff:g id="TOTAL_ATTEMPTS">%2$d</xliff:g>."</string>
-    <string name="lock_last_attempt_before_wipe_warning_title" msgid="7853820095898368793">"Vos données seront supprimées"</string>
+    <string name="lock_last_attempt_before_wipe_warning_title" msgid="7853820095898368793">"Risque de perte des données"</string>
     <string name="lock_last_pattern_attempt_before_wipe_device" msgid="1021644947949306054">"Si vous dessinez un schéma incorrect lors de la prochaine tentative, les données de cet appareil seront supprimées"</string>
     <string name="lock_last_pin_attempt_before_wipe_device" msgid="3823600293847594141">"Si vous saisissez un code incorrect lors de la prochaine tentative, les données de cet appareil seront supprimées"</string>
     <string name="lock_last_password_attempt_before_wipe_device" msgid="3548966006264835462">"Si vous saisissez un mot de passe incorrect lors de la prochaine tentative, les données de cet appareil seront supprimées"</string>
@@ -1185,7 +1185,7 @@
     <string name="brightness" msgid="7309120144111305275">"Niveau de luminosité"</string>
     <string name="brightness_title" msgid="5660190946911149690">"Luminosité"</string>
     <string name="brightness_summary" msgid="8687101964451818730">"Régler la luminosité de l\'écran"</string>
-    <string name="auto_brightness_title" msgid="908511534369820426">"Adaptation de la luminosité"</string>
+    <string name="auto_brightness_title" msgid="908511534369820426">"Luminosité adaptative"</string>
     <string name="auto_brightness_summary_on" msgid="121488862610275737">"Activée"</string>
     <string name="auto_brightness_summary_off" msgid="8569141123211510256">"Désactivé"</string>
     <string name="auto_brightness_summary_very_low" msgid="7625647285740629347">"Niveau de luminosité préféré très faible"</string>
@@ -2452,7 +2452,7 @@
     <string name="battery_saver_auto_routine" msgid="886514412067906980">"En fonction de vos habitudes"</string>
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"En fonction du pourcentage de batterie"</string>
     <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"L\'économiseur de batterie s\'activera si l\'autonomie restante risque d\'être insuffisante pour tenir jusqu\'au moment où vous mettez généralement votre téléphone en charge"</string>
-    <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"S\'activera à <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
+    <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"S\'active à <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Paramétrer l\'économiseur de batterie"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Désactiver une fois la batterie complètement chargée"</string>
     <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"L\'économiseur de batterie se désactive lorsque votre téléphone atteint un niveau de charge de <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
@@ -4002,7 +4002,7 @@
     <string name="suggestion_additional_fingerprints" msgid="3434467207282466411">"Ajouter une empreinte digitale"</string>
     <string name="suggestion_additional_fingerprints_summary" msgid="1916547587832484196">"Déverrouiller avec un autre doigt"</string>
     <string name="battery_saver_on_summary" msgid="6841062406467435672">"Activé"</string>
-    <string name="battery_saver_off_scheduled_summary" msgid="3740414764069188669">"Activer à <xliff:g id="BATTERY_PERCENTAGE">%1$s</xliff:g>"</string>
+    <string name="battery_saver_off_scheduled_summary" msgid="3740414764069188669">"S\'active à <xliff:g id="BATTERY_PERCENTAGE">%1$s</xliff:g>"</string>
     <string name="battery_saver_off_summary" msgid="8736555723004299721">"Désactivé"</string>
     <string name="battery_saver_button_turn_on" msgid="3748696527267573793">"Activer maintenant"</string>
     <string name="battery_saver_button_turn_off" msgid="2912950982503267828">"Désactiver maintenant"</string>

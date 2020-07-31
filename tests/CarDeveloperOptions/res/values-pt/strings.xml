@@ -199,7 +199,7 @@
     <string name="proxy_exclusionlist_label" msgid="8179084955547941904">"Evitar proxy para"</string>
     <string name="proxy_defaultView_text" msgid="5785775257042403261">"Restaurar padrões"</string>
     <string name="proxy_action_text" msgid="814511434843981413">"Concluído"</string>
-    <string name="proxy_hostname_label" msgid="6798891831427287847">"Hostname do proxy"</string>
+    <string name="proxy_hostname_label" msgid="6798891831427287847">"Nome do host do proxy"</string>
     <string name="proxy_error" msgid="5036164133669802299">"Atenção"</string>
     <string name="proxy_error_dismiss" msgid="883805570485635650">"OK"</string>
     <string name="proxy_error_invalid_host" msgid="5430640241353307223">"O nome de host digitado não é válido."</string>
@@ -488,7 +488,7 @@
     <string name="security_settings_fingerprint_enroll_touch_dialog_title" msgid="7410398793283818609">"Opa, este não é o sensor"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_message" msgid="7192100314788868883">"Toque no sensor na parte traseira do smartphone. Use o dedo indicador."</string>
     <string name="security_settings_fingerprint_enroll_error_dialog_title" msgid="1415709674142168770">"O registro não foi concluído"</string>
-    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"Prazo de registro de impressões digitais atingido. Tente novamente."</string>
+    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"O tempo limite para o registro de impressões digitais foi atingido. Tente novamente."</string>
     <string name="security_settings_fingerprint_enroll_error_generic_dialog_message" msgid="7896295829530444810">"O registro da impressão digital não funcionou. Tente novamente ou use um dedo diferente."</string>
     <string name="fingerprint_enroll_button_add" msgid="6335782936874996629">"Adicionar outra"</string>
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"Próxima"</string>
@@ -893,7 +893,7 @@
     <string name="wifi_empty_list_user_restricted" msgid="2341613007817352431">"Você não tem permissão para alterar a rede Wi-Fi."</string>
     <string name="wifi_more" msgid="3538241640407382185">"Mais"</string>
     <string name="wifi_setup_wps" msgid="6730131677695521321">"Configuração automática (WPS)"</string>
-    <string name="wifi_settings_scanning_required_title" msgid="3593457187659922490">"Ativar a Busca por Wi‑Fi?"</string>
+    <string name="wifi_settings_scanning_required_title" msgid="3593457187659922490">"Ativar a \"busca por Wi‑Fi\"?"</string>
     <string name="wifi_settings_scanning_required_summary" msgid="7469610959462708782">"Para ativar o Wi‑Fi automaticamente, primeiro você precisa ativar a Busca por Wi‑Fi."</string>
     <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"A Busca por Wi-Fi permite que apps e serviços procurem redes Wi‑Fi a qualquer momento, mesmo quando o Wi‑Fi está desativado. Essa configuração pode ser usada, por exemplo, para melhorar recursos e serviços baseados na localização."</string>
     <string name="wifi_settings_scanning_required_turn_on" msgid="4327570180594277049">"Ativar"</string>
@@ -2049,7 +2049,7 @@
     <string name="feature_flags_dashboard_title" msgid="3153034144122754381">"Sinalizações de recursos"</string>
     <string name="talkback_title" msgid="3717960404234260050">"Talkback"</string>
     <string name="talkback_summary" msgid="6602857105831641574">"Leitor de tela, usado principalmente para pessoas com deficiência visual total ou parcial"</string>
-    <string name="select_to_speak_summary" msgid="7514180457557735421">"Tocar nos itens exibidos na tela para ouvir a leitura deles em voz alta"</string>
+    <string name="select_to_speak_summary" msgid="7514180457557735421">"Tocar nos itens da tela para ouvir a leitura em voz alta"</string>
     <string name="accessibility_captioning_title" msgid="5878371993023439642">"Legendas"</string>
     <string name="accessibility_screen_magnification_title" msgid="7250949681883917360">"Ampliação"</string>
     <string name="accessibility_screen_magnification_gestures_title" msgid="9199287875401817974">"Ampliar com toque triplo"</string>
@@ -2281,7 +2281,7 @@
     <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"A bateria pode acabar antes do normal"</string>
     <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"Economia de bateria ativada"</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"Alguns recursos podem ser limitados"</string>
-    <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"Smartphone usado além do normal"</string>
+    <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"Smartphone usado mais que o normal"</string>
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"Tablet usado além do normal"</string>
     <string name="battery_tip_high_usage_title" product="device" msgid="8304138287288309490">"Dispositivo usado além do normal"</string>
     <string name="battery_tip_high_usage_summary" msgid="5514749872957528189">"A bateria pode acabar antes do esperado"</string>
@@ -2671,7 +2671,7 @@
     <string name="data_usage_cellular_data_summary" msgid="9162777397135709280">"Pausa no limite"</string>
     <string name="account_settings_menu_auto_sync" msgid="2673669556006027506">"Sincron. dados automaticamente"</string>
     <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"Sinc. autom. dados pessoais"</string>
-    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"Autossincronizar dados de trabalho"</string>
+    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"Sincronizar dados de trabalho automaticamente"</string>
     <string name="data_usage_change_cycle" msgid="447761920472170031">"Alterar ciclo..."</string>
     <string name="data_usage_pick_cycle_day" msgid="6319750879145917066">"Dia do mês para redefinir o ciclo de uso dos dados:"</string>
     <string name="data_usage_empty" msgid="7981405723435034032">"Nenhum app usou dados durante o período."</string>
@@ -2873,7 +2873,7 @@
     <string name="user_add_user_message_long" msgid="686637203224195465">"Você pode compartilhar este dispositivo com outras pessoas, adicionando usuários. Cada usuário tem o próprio espaço, que pode ser personalizado com apps, planos de fundo, etc. Os usuários também podem ajustar as configurações do dispositivo, como o Wi‑Fi, que afetam a todos.\n\nQuando você adiciona um novo usuário, essa pessoa precisa configurar o próprio espaço.\n\nQualquer usuário pode atualizar apps para todos os outros. Serviços e configurações de acessibilidade podem não ser transferidos para novos usuários."</string>
     <string name="user_add_user_message_short" msgid="1802594476285458254">"Quando você adiciona um novo usuário, essa pessoa precisa configurar o próprio espaço.\n\nQualquer usuário pode atualizar apps para os demais usuários."</string>
     <string name="user_setup_dialog_title" msgid="6748950002206392396">"Configurar o usuário agora?"</string>
-    <string name="user_setup_dialog_message" msgid="2988559933258353919">"Certifique-se de que a pessoa está disponível para acessar o dispositivo e fazer as próprias configurações"</string>
+    <string name="user_setup_dialog_message" msgid="2988559933258353919">"Verifique se a pessoa está disponível para acessar o dispositivo e fazer as próprias configurações"</string>
     <string name="user_setup_profile_dialog_message" msgid="7611900802824048526">"Configurar perfil agora?"</string>
     <string name="user_setup_button_setup_now" msgid="4941459406266856176">"Configurar agora"</string>
     <string name="user_setup_button_setup_later" msgid="6596031428556518752">"Agora não"</string>
@@ -3031,7 +3031,7 @@
       <item quantity="one">Mostrar %d item oculto</item>
       <item quantity="other">Mostrar %d itens ocultos</item>
     </plurals>
-    <string name="network_dashboard_title" msgid="8288134139584687806">"Rede e internet"</string>
+    <string name="network_dashboard_title" msgid="8288134139584687806">"Rede e Internet"</string>
     <string name="network_dashboard_summary_mobile" msgid="5560545061217580626">"rede móvel"</string>
     <string name="network_dashboard_summary_data_usage" msgid="4695629715072542102">"uso de dados"</string>
     <string name="network_dashboard_summary_hotspot" msgid="3928610802321995214">"ponto de acesso"</string>
@@ -3233,7 +3233,7 @@
     <string name="zen_mode_button_turn_on" msgid="1097964136225943415">"Ativar agora"</string>
     <string name="zen_mode_button_turn_off" msgid="3990967728457149454">"Desativar agora"</string>
     <string name="zen_mode_settings_dnd_manual_end_time" msgid="4307574188962071429">"O modo \"Não perturbe\" fica ativado até <xliff:g id="FORMATTED_TIME">%s</xliff:g>"</string>
-    <string name="zen_mode_settings_dnd_manual_indefinite" msgid="3701005376825238752">"O modo Não perturbe ficará ativado até que você o desative"</string>
+    <string name="zen_mode_settings_dnd_manual_indefinite" msgid="3701005376825238752">"O modo \"Não perturbe\" ficará ativado até que você o desative"</string>
     <string name="zen_mode_settings_dnd_automatic_rule" msgid="2843297614114625408">"O \"Não perturbe\" foi ativado automaticamente por uma programação (<xliff:g id="RULE_NAME">%s</xliff:g>)"</string>
     <string name="zen_mode_settings_dnd_automatic_rule_app" msgid="5103454923160912313">"O modo \"Não perturbe\" foi ativado automaticamente por um app (<xliff:g id="APP_NAME">%s</xliff:g>)"</string>
     <string name="zen_mode_settings_dnd_custom_settings_footer" msgid="6335108298640066560">"O \"Não perturbe\" está ativado para <xliff:g id="RULE_NAMES">%s</xliff:g> com configurações personalizadas."</string>
@@ -3423,7 +3423,7 @@
     <string name="notification_badge_title" msgid="8989086619255666442">"Permitir ponto de notificação"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"Mostrar ponto de notificação"</string>
     <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"Ignorar o Não perturbe"</string>
-    <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"Permitir que essas notificações sejam mostradas mesmo quando o Não perturbe estiver ativado"</string>
+    <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"Permitir que as notificações sejam mostradas mesmo quando o Não perturbe estiver ativado"</string>
     <string name="app_notification_visibility_override_title" msgid="2349335170165637672">"Na tela de bloqueio"</string>
     <string name="app_notification_row_banned" msgid="2079325338122151677">"Bloqueadas"</string>
     <string name="app_notification_row_priority" msgid="432299064888787236">"Prioridade"</string>
@@ -4131,7 +4131,7 @@
     <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"Para verificar a hora, as notificações e outras informações, pegue o smartphone."</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"Para verificar a hora, as notificações e outras informações, pegue o tablet."</string>
     <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"Para verificar a hora, as notificações e outras informações, pegue o dispositivo."</string>
-    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Tocar para verificar o smartphone"</string>
+    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Tocar na tela para verificar smartphone"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Tocar para verificar o tablet"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Tocar para verificar o dispositivo"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Para verificar a hora, as notificações e outras informações, toque na tela."</string>
@@ -4160,7 +4160,7 @@
     <string name="auto_sync_account_title" msgid="2394463123733529506">"Sincronizar dados automaticamente"</string>
     <string name="auto_sync_personal_account_title" msgid="6844465157916100655">"Sincronizar dados pessoais automaticamente"</string>
     <string name="auto_sync_work_account_title" msgid="2403222633447522376">"Sincronizar dados de trabalho automaticamente"</string>
-    <string name="auto_sync_account_summary" msgid="6316230976974033772">"Permitir que os apps atualizem dados automaticamente"</string>
+    <string name="auto_sync_account_summary" msgid="6316230976974033772">"Permite que os apps atualizem dados automaticamente"</string>
     <string name="account_sync_title" msgid="1570164819114297154">"Sincronização da conta"</string>
     <string name="account_sync_summary_some_on" msgid="1934556869158274053">"Sincronização ativada para <xliff:g id="ID_1">%1$d</xliff:g> de <xliff:g id="ID_2">%2$d</xliff:g> itens"</string>
     <string name="account_sync_summary_all_on" msgid="3634161204232431700">"Sincronização ativada para todos os itens"</string>
