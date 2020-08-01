@@ -477,7 +477,7 @@
     <item msgid="1008268820118852416">"Považovať za nemeranú sieť"</item>
   </string-array>
   <string-array name="wifi_privacy_entries">
-    <item msgid="6545683814310036454">"Používať randomizovanú adresu MAC (predvolené)"</item>
+    <item msgid="6545683814310036454">"Použiť náhodnú MAC (predvolené)"</item>
     <item msgid="214234417308375326">"Používať adresu MAC zariadenia"</item>
   </string-array>
   <string-array name="wifi_hidden_entries">
