@@ -83,7 +83,14 @@ TEST(SurroundViewSessionTests, startAndStopSurroundView3dSession) {
     sp<MockSurroundViewCallback> sv3dCallback =
             new MockSurroundViewCallback(sv3dSession);
 
-    View3d view = {};
+    View3d view = {
+        .viewId = 0,
+        .pose = {
+            .rotation = {.x=0, .y=0, .z=0, .w=1.0f},
+            .translation = {.x=0, .y=0, .z=0},
+        },
+        .horizontalFov = 90,
+    };
     vector<View3d> views;
     views.emplace_back(view);
     sv3dSession->setViews(views);
