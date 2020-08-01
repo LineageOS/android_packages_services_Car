@@ -80,14 +80,14 @@ public class UnrestrictedDataAccessPreference extends AppSwitchPreference implem
     @Override
     protected void onClick() {
         if (mDataUsageState.isDataSaverBlacklisted) {
-            // app is blacklisted, launch App Data Usage screen
+            // app is denylisted, launch App Data Usage screen
             AppInfoDashboardFragment.startAppInfoFragment(AppDataUsage.class,
                     R.string.data_usage_app_summary_title,
                     null /* arguments */,
                     mParentFragment,
                     mEntry);
         } else {
-            // app is not blacklisted, let superclass handle toggle switch
+            // app is not denylisted, let superclass handle toggle switch
             super.onClick();
         }
     }
@@ -167,7 +167,7 @@ public class UnrestrictedDataAccessPreference extends AppSwitchPreference implem
         mHelper.setDisabledByAdmin(admin);
     }
 
-    // Sets UI state based on whitelist/blacklist status.
+    // Sets UI state based on allowlist/denylist status.
     public void updateState() {
         setTitle(mEntry.label);
         if (mDataUsageState != null) {

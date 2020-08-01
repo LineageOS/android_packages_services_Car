@@ -1119,7 +1119,7 @@ public class RunningState {
                 if (pi.mCurSeq == mSequence) {
                     pi.ensureLabel(pm);
                     if (pi.mPid == 0) {
-                        // Sanity: a non-process can't be dependent on
+                        // Validity: a non-process can't be dependent on
                         // anything.
                         pi.mDependentProcesses.clear();
                     }

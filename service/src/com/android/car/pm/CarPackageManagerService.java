@@ -102,7 +102,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     // For dumpsys logging.
     private final LinkedList<String> mBlockedActivityLogs = new LinkedList<>();
 
-    // Store the white list and black list strings from the resource file.
+    // Store the allowlist and denylist strings from the resource file.
     private String mConfiguredWhitelist;
     private String mConfiguredSystemWhitelist;
     private String mConfiguredBlacklist;
@@ -134,7 +134,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     private final VendorServiceController mVendorServiceController;
 
     // Information related to when the installed packages should be parsed for building a white and
-    // black list
+    // denylist
     private final Set<String> mPackageManagerActions = Sets.newArraySet(
             Intent.ACTION_PACKAGE_ADDED,
             Intent.ACTION_PACKAGE_CHANGED,
@@ -147,7 +147,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             new UserSwitchedEventReceiver();
 
     // To track if the packages have been parsed for building white/black lists. If we haven't had
-    // received any intents (boot complete or package changed), then the white list is null leading
+    // received any intents (boot complete or package changed), then the allowlist is null leading
     // to blocking everything.  So, no blocking until we have had a chance to parse the packages.
     private boolean mHasParsedPackages;
 
@@ -452,8 +452,8 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         synchronized (this) {
             mHasParsedPackages = true;
         }
-        // Once the activity launch listener is registered we attempt to block any non-whitelisted
-        // activities that are launched. For this reason, we need to wait until after the whitelist
+        // Once the activity launch listener is registered we attempt to block any non-allowlisted
+        // activities that are launched. For this reason, we need to wait until after the allowlist
         // has been created.
         mSystemActivityMonitoringService.registerActivityLaunchListener(mActivityLaunchListener);
         blockTopActivitiesIfNecessary();
@@ -573,14 +573,14 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     }
 
     /**
-     * Generate a map of whitelisted packages and activities of the form {pkgName, Whitelisted
-     * activities}.  The whitelist information can come from a configuration XML resource or from
+     * Generate a map of allowlisted packages and activities of the form {pkgName, Allowlisted
+     * activities}.  The allowlist information can come from a configuration XML resource or from
      * the apps marking their activities as distraction optimized.
      *
-     * @param userId Generate whitelist based on packages installed for this user.
+     * @param userId Generate allowlist based on packages installed for this user.
      */
     private void generateActivityWhitelistMap(int userId) {
-        // Get the apps/activities that are whitelisted in the configuration XML resources.
+        // Get the apps/activities that are allowlisted in the configuration XML resources.
         Map<String, Set<String>> configWhitelist = generateConfigWhitelist();
         Map<String, Set<String>> configBlacklist = generateConfigBlacklist();
 
@@ -622,7 +622,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         }
         parseConfigList(mConfiguredSystemWhitelist, configWhitelist);
 
-        // Add the blocking overlay activity to the whitelist, since that needs to run in a
+        // Add the blocking overlay activity to the allowlist, since that needs to run in a
         // restricted state to communicate the reason an app was blocked.
         Set<String> defaultActivity = new ArraySet<>();
         if (mActivityBlockingActivity != null) {
@@ -647,16 +647,16 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     }
 
     /**
-     * Generates whitelisted activities based on packages installed for system user and current
-     * user (if different). Factors affecting whitelist:
-     * - whitelist from resource config;
+     * Generates allowlisted activities based on packages installed for system user and current
+     * user (if different). Factors affecting allowlist:
+     * - allowlist from resource config;
      * - activity declared as Distraction Optimized (D.O.) in manifest;
-     * - blacklist from resource config - package/activity blacklisted will not exist
-     * in returned whitelist.
+     * - denylist from resource config - package/activity denylisted will not exist
+     * in returned allowlist.
      *
      * @param userId          Parse packages installed for user.
-     * @param configWhitelist Whitelist from config.
-     * @param configBlacklist Blacklist from config.
+     * @param configWhitelist Allowlist from config.
+     * @param configBlacklist Denylist from config.
      */
     private Map<String, AppBlockingPackageInfoWrapper> generateActivityWhitelistAsUser(int userId,
             Map<String, Set<String>> configWhitelist, Map<String, Set<String>> configBlacklist) {
@@ -688,9 +688,9 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                     Log.d(CarLog.TAG_PACKAGE, info.packageName + " whitelisted");
                 }
                 if (configActivitiesForPackage.size() == 0) {
-                    // Whole Pkg has been whitelisted
+                    // Whole Pkg has been allowlisted
                     flags |= AppBlockingPackageInfo.FLAG_WHOLE_ACTIVITY;
-                    // Add all activities to the whitelist
+                    // Add all activities to the allowlist
                     List<String> activitiesForPackage = getActivitiesInPackage(info);
                     if (activitiesForPackage != null) {
                         activities.addAll(activitiesForPackage);
@@ -755,17 +755,17 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                 continue;
             }
 
-            // Nothing to add to whitelist
+            // Nothing to add to allowlist
             if (activities.isEmpty()) {
                 continue;
             }
 
             /* 3. Check if parsed activity is in <activityBlacklist> in config.xml. Anything
-                  in blacklist should not be whitelisted, either as D.O. or by config. */
+                  in denylist should not be allowlisted, either as D.O. or by config. */
             if (configBlacklist.containsKey(info.packageName)) {
                 Set<String> configBlacklistActivities = configBlacklist.get(info.packageName);
                 if (configBlacklistActivities.isEmpty()) {
-                    // Whole package should be blacklisted.
+                    // Whole package should be denylisted.
                     continue;
                 }
                 activities.removeAll(configBlacklistActivities);
@@ -796,7 +796,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
      * When there are multiple entries regarding one package, the entry with
      * greater scope wins. Namely if there were 2 entires such that one whitelists
      * an activity, and the other whitelists the entire package of the activity,
-     * the package is whitelisted, regardless of input order.
+     * the package is allowlisted, regardless of input order.
      */
     @VisibleForTesting
     /* package */ void parseConfigList(String configList,
@@ -817,7 +817,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             if (packageActivityPair.length == 1) { // whole package
                 activities.clear();
             } else if (packageActivityPair.length == 2) {
-                // add class name only when the whole package is not whitelisted.
+                // add class name only when the whole package is not allowlisted.
                 if (newPackage || (activities.size() > 0)) {
                     activities.add(packageActivityPair[1]);
                 }

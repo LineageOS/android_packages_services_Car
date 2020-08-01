@@ -80,7 +80,7 @@ import java.util.stream.Collectors;
  * 4. {@link CarDrivingStateService} tells about driving state changes.
  * 5. {@link PerUserCarServiceHelper} provides a mocked {@link ICarUserService}.
  * 6. {@link ICarUserService} provides a mocked {@link LocationManagerProxy}.
- * 7. {@link LocationManagerProxy} provides dummy {@link Location}s.
+ * 7. {@link LocationManagerProxy} provides placeholder {@link Location}s.
  */
 @RunWith(AndroidJUnit4.class)
 public class CarLocationServiceTest {

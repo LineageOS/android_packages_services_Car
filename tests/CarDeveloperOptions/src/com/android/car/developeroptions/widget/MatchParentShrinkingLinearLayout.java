@@ -40,7 +40,7 @@ import java.lang.annotation.RetentionPolicy;
  * A LinearLayout with a twist: if the contents don't fit, it takes space away from the
  * MATCH_PARENT children, instead of taking it from the weighted ones.
  *
- * TODO: Remove once we redesign the ChooseLockPattern screen with a sane layout.
+ * TODO: Remove once we redesign the ChooseLockPattern screen with a valid layout.
  */
 public class MatchParentShrinkingLinearLayout extends ViewGroup {
     /** @hide */
@@ -836,7 +836,7 @@ public class MatchParentShrinkingLinearLayout extends ViewGroup {
 
                 // MatchParentShrinkingLinearLayout custom code starts here.
                 if (childExtra > 0 && delta > 0) {
-                    // Child said it could absorb extra space -- give him his share
+                    // Child said it could absorb extra space -- give them their share
                     int share = (int) (childExtra * delta / weightSum);
                     weightSum -= childExtra;
                     delta -= share;

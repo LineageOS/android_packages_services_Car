@@ -237,7 +237,7 @@ bool EvsStateControl::selectStateForCurrentConditions() {
             sDummyGear = int32_t(VehicleGear::GEAR_DRIVE);
         }
 
-        // Build the dummy vehicle state values (treating single values as 1 element vectors)
+        // Build the placeholder vehicle state values (treating single values as 1 element vectors)
         mGearValue.value.int32Values.setToExternal(&sDummyGear, 1);
         mTurnSignalValue.value.int32Values.setToExternal(&sDummySignal, 1);
     }

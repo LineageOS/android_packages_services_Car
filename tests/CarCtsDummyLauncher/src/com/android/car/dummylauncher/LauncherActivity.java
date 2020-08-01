@@ -21,7 +21,7 @@ import android.os.Bundle;
 import android.view.View;
 
 /**
- * A dummy launcher for CTS.
+ * A placeholder launcher for CTS.
  *
  * Current CarLauncher invokes Maps Activity in its ActivityView and it creates unexpected events
  * for CTS and they make CTS fail.

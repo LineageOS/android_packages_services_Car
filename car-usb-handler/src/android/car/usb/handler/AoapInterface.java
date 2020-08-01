@@ -100,7 +100,7 @@ final class AoapInterface {
     public static final int AOAP_TIMEOUT_MS = 2000;
 
     /**
-     * Set of VID:PID pairs blacklisted through config_AoapIncompatibleDeviceIds. Only
+     * Set of VID:PID pairs denylisted through config_AoapIncompatibleDeviceIds. Only
      * isDeviceBlacklisted() should ever access this variable.
      */
     private static Set<Pair<Integer, Integer>> sBlacklistedVidPidPairs;

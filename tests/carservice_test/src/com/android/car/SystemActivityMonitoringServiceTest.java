@@ -90,7 +90,7 @@ public class SystemActivityMonitoringServiceTest {
         Intent blockingIntent = new Intent();
         blockingIntent.setComponent(blockingActivity);
 
-        // start a black listed activity
+        // start a denylisted activity
         mService.registerActivityLaunchListener(new FilteredLaunchListener(blackListedActivity));
         startActivity(getContext(), blackListedActivity);
         assertTopTaskActivity(blackListedActivity);
