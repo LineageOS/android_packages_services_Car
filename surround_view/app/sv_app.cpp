@@ -50,6 +50,53 @@ enum DemoMode {
     DEMO_3D,
 };
 
+const float kHorizontalFov = 90;
+
+// Number of views to generate.
+const uint32_t kPoseCount = 16;
+
+// Set of pose rotations expressed in quaternions.
+// Views are generated about a circle at a height about the car, point towards the center.
+const float kPoseRot[kPoseCount][4] = {
+    {-0.251292, -0.251292, -0.660948, 0.660948},
+    {0.197439, 0.295488, 0.777193, -0.519304},
+    {0.135998, 0.328329, 0.86357, -0.357702},
+    {0.0693313, 0.348552, 0.916761, -0.182355},
+    {-7.76709e-09, 0.355381, 0.934722, 2.0429e-08},
+    {-0.0693313, 0.348552, 0.916761, 0.182355},
+    {-0.135998, 0.328329, 0.86357, 0.357702},
+    {-0.197439, 0.295488, 0.777193, 0.519304},
+    {-0.251292, 0.251292, 0.660948, 0.660948},
+    {-0.295488, 0.197439, 0.519304, 0.777193},
+    {-0.328329, 0.135998, 0.357702, 0.86357},
+    {-0.348552, 0.0693313, 0.182355, 0.916761},
+    {-0.355381, -2.11894e-09, -5.57322e-09, 0.934722},
+    {-0.348552, -0.0693313, -0.182355, 0.916761},
+    {-0.328329, -0.135998, -0.357702, 0.86357},
+    {-0.295488, -0.197439, -0.519304, 0.777193}
+};
+
+// Set of pose translations i.e. positions of the views.
+// Views are generated about a circle at a height about the car, point towards the center.
+const float kPoseTrans[kPoseCount][4] = {
+    {4, 0, 2.5},
+    {3.69552, 1.53073, 2.5},
+    {2.82843, 2.82843, 2.5},
+    {1.53073, 3.69552, 2.5},
+    {-1.74846e-07, 4, 2.5},
+    {-1.53073, 3.69552, 2.5},
+    {-2.82843, 2.82843, 2.5},
+    {-3.69552, 1.53073, 2.5},
+    {-4, -3.49691e-07, 2.5},
+    {-3.69552, -1.53073, 2.5},
+    {-2.82843, -2.82843, 2.5},
+    {-1.53073, -3.69552, 2.5},
+    {4.76995e-08, -4, 2.5},
+    {1.53073, -3.69552, 2.5},
+    {2.82843, -2.82843, 2.5},
+    {3.69552, -1.53073, 2.5}
+};
+
 bool run2dSurroundView(sp<ISurroundViewService> pSurroundViewService,
                        sp<IEvsDisplay> pDisplay) {
     LOG(INFO) << "Run 2d Surround View demo";
@@ -108,6 +155,28 @@ bool run2dSurroundView(sp<ISurroundViewService> pSurroundViewService,
     return true;
 };
 
+// Given a valid sv 3d session and pose, viewid and hfov parameters, sets the view.
+bool setView(sp<ISurroundView3dSession> surroundView3dSession, uint32_t viewId,
+        uint32_t poseIndex, float hfov)
+{
+    const View3d view3d = {
+        .viewId = viewId,
+        .pose = {
+            .rotation = {.x=kPoseRot[poseIndex][0], .y=kPoseRot[poseIndex][1],
+                    .z=kPoseRot[poseIndex][2], .w=kPoseRot[poseIndex][3]},
+            .translation = {.x=kPoseTrans[poseIndex][0], .y=kPoseTrans[poseIndex][1],
+                    .z=kPoseTrans[poseIndex][2]},
+        },
+        .horizontalFov = hfov,
+    };
+
+    const std::vector<View3d> views = {view3d};
+    if (surroundView3dSession->setViews(views) != SvResult::OK) {
+        return false;
+    }
+    return true;
+}
+
 bool run3dSurroundView(sp<ISurroundViewService> pSurroundViewService,
                        sp<IEvsDisplay> pDisplay) {
     LOG(INFO) << "Run 3d Surround View demo";
@@ -130,16 +199,6 @@ bool run3dSurroundView(sp<ISurroundViewService> pSurroundViewService,
         LOG(INFO) << "start3dSession succeeded";
     }
 
-    // TODO(b/150412555): now we have the dummy view here since the views are
-    // set in service. This should be fixed.
-    std::vector<View3d> singleView(1);
-    surroundView3dSession->setViews(singleView);
-
-    if (surroundView3dSession->setViews(singleView) != SvResult::OK) {
-        LOG(ERROR) << "Failed to setViews";
-        return false;
-    }
-
     sp<SurroundViewServiceCallback> sv3dCallback
         = new SurroundViewServiceCallback(pDisplay, surroundView3dSession);
 
@@ -150,7 +209,14 @@ bool run3dSurroundView(sp<ISurroundViewService> pSurroundViewService,
     }
 
     // Let the SV algorithm run for 10 seconds for HIGH_QUALITY
-    std::this_thread::sleep_for(std::chrono::seconds(10));
+    const int totalViewingTimeSecs = 10;
+    const std::chrono::milliseconds perPoseSleepTimeMs(totalViewingTimeSecs * 1000 / kPoseCount);
+    for(uint32_t i = 0; i < kPoseCount; i++) {
+        if (!setView(surroundView3dSession, i, i, kHorizontalFov)) {
+            LOG(WARNING) << "Failed to setView of pose index :" << i;
+        }
+        std::this_thread::sleep_for(perPoseSleepTimeMs);
+    }
 
     // Switch to low quality and lower resolution
     Sv3dConfig config;
@@ -163,7 +229,12 @@ bool run3dSurroundView(sp<ISurroundViewService> pSurroundViewService,
     }
 
     // Let the SV algorithm run for 10 seconds for LOW_QUALITY
-    std::this_thread::sleep_for(std::chrono::seconds(10));
+    for(uint32_t i = 0; i < kPoseCount; i++) {
+        if(!setView(surroundView3dSession, i + kPoseCount, i, kHorizontalFov)) {
+            LOG(WARNING) << "Failed to setView of pose index :" << i;
+        }
+        std::this_thread::sleep_for(perPoseSleepTimeMs);
+    }
 
     // TODO(b/150412555): wait for the last frame
     // Stop the 3d stream and session
