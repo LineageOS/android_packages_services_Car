@@ -24,7 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 /**
- * Activity that shows RecyclerView example with dummy data.
+ * Activity that shows RecyclerView example with placeholder data.
  */
 public class RecyclerViewSamples extends AbstractSampleActivity {
 

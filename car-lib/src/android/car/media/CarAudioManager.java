@@ -690,11 +690,11 @@ public final class CarAudioManager extends CarManagerBase {
         public void onGroupVolumeChanged(int zoneId, int groupId, int flags) {}
 
         /**
-         * This is called whenever the master mute state is changed.
-         * The changed-to master mute state is not included, the caller is encouraged to
-         * get the current master mute state via AudioManager.
+         * This is called whenever the global mute state is changed.
+         * The changed-to global mute state is not included, the caller is encouraged to
+         * get the current global mute state via AudioManager.
          *
-         * @param zoneId Id of the audio zone that master mute state change happens
+         * @param zoneId Id of the audio zone that global mute state change happens
          * @param flags see {@link android.media.AudioManager} for flag definitions
          */
         public void onMasterMuteChanged(int zoneId, int flags) {}

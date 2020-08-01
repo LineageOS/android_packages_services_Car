@@ -124,7 +124,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
         mHalClient = new HalClient(vehicle, mHandlerThread.getLooper(), this /*IVehicleCallback*/);
     }
 
-    /** Dummy version only for testing */
+    /** Placeholder version only for testing */
     @VisibleForTesting
     public VehicleHal(PowerHalService powerHal, DiagnosticHalService diagnosticHal,
             HalClient halClient, PropertyHalService propertyHal) {
