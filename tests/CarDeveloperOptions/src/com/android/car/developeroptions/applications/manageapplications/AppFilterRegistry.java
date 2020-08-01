@@ -80,7 +80,7 @@ public class AppFilterRegistry {
     private AppFilterRegistry() {
         mFilters = new AppFilterItem[17];
 
-        // High power whitelist, on
+        // High power allowlist, on
         mFilters[FILTER_APPS_POWER_WHITELIST] = new AppFilterItem(
                 new ApplicationsState.CompoundFilter(
                         AppStatePowerBridge.FILTER_POWER_WHITELISTED,

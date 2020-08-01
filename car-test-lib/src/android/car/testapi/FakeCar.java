@@ -43,7 +43,7 @@ import java.util.List;
     Car Service.  Effectively creating a fake version of Car Service that can run under Robolectric
     environment (thus running on the desktop rather than on a real device).
 
-    By default all interfaces are mocked out just to allow dummy implementation and avoid crashes.
+    By default all interfaces are mocked out just to allow placeholder implementation and avoid crashes.
     This will allow production code to call into Car*Manager w/o crashes because managers will just
     pass the call into mocked version of the interface. However, in many cases
     developers would like to have more sophisticated test cases and ability to simulate vehicle as
