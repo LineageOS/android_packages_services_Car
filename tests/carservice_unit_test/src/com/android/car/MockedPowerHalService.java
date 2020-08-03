@@ -58,8 +58,14 @@ public class MockedPowerHalService extends PowerHalService {
     }
 
     @Override
+    public void sendOn() {
+        Log.i(TAG, "sendOn");
+        doSendState(SET_ON, 0);
+    }
+
+    @Override
     public void sendWaitForVhal() {
-        Log.i(TAG, "sendBootComplete");
+        Log.i(TAG, "sendWaitForVhal");
         doSendState(SET_WAIT_FOR_VHAL, 0);
     }
 
