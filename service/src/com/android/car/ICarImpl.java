@@ -735,7 +735,8 @@ public class ICarImpl extends ICar.Stub {
         return new CarShellCommand(mContext, mHal, mCarAudioService, mCarPackageManagerService,
                 mCarProjectionService, mCarPowerManagementService, mFixedActivityService,
                 mFeatureController, mCarInputService, mCarNightService, mSystemInterface,
-                mGarageModeService, mCarUserService, mCarOccupantZoneService);
+                mGarageModeService, mCarUserService, mCarOccupantZoneService,
+                mSilentModeController);
     }
 
     private void dumpListOfServices(PrintWriter writer) {

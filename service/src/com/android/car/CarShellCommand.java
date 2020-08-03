@@ -85,6 +85,7 @@ import com.android.car.hal.UserHalService;
 import com.android.car.hal.VehicleHal;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.car.power.CarPowerManagementService;
+import com.android.car.power.SilentModeController;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserService;
 
@@ -126,6 +127,7 @@ final class CarShellCommand extends ShellCommand {
     private static final String COMMAND_INJECT_KEY = "inject-key";
     private static final String COMMAND_INJECT_ROTARY = "inject-rotary";
     private static final String COMMAND_GET_INITIAL_USER_INFO = "get-initial-user-info";
+    private static final String COMMAND_SILENT_MODE = "silent-mode";
     private static final String COMMAND_SWITCH_USER = "switch-user";
     private static final String COMMAND_REMOVE_USER = "remove-user";
     private static final String COMMAND_CREATE_USER = "create-user";
@@ -236,6 +238,7 @@ final class CarShellCommand extends ShellCommand {
     private final CarNightService mCarNightService;
     private final SystemInterface mSystemInterface;
     private final GarageModeService mGarageModeService;
+    private final SilentModeController mSilentModeController;
     private final CarUserService mCarUserService;
     private final CarOccupantZoneService mCarOccupantZoneService;
 
@@ -252,7 +255,8 @@ final class CarShellCommand extends ShellCommand {
             SystemInterface systemInterface,
             GarageModeService garageModeService,
             CarUserService carUserService,
-            CarOccupantZoneService carOccupantZoneService) {
+            CarOccupantZoneService carOccupantZoneService,
+            SilentModeController silentModeController) {
         mContext = context;
         mHal = hal;
         mCarAudioService = carAudioService;
@@ -267,6 +271,7 @@ final class CarShellCommand extends ShellCommand {
         mGarageModeService = garageModeService;
         mCarUserService = carUserService;
         mCarOccupantZoneService = carOccupantZoneService;
+        mSilentModeController = silentModeController;
     }
 
     @Override
@@ -402,11 +407,16 @@ final class CarShellCommand extends ShellCommand {
                 COMMAND_SET_USER_AUTH_ASSOCIATION);
         pw.println("\t  Sets the N user authentication types with the N values for the given user");
         pw.println("\t  (or current user when not specified).");
-        pw.println("\t  By defautt it calls CarUserManager, but using --hal-only will call just "
+        pw.println("\t  By default it calls CarUserManager, but using --hal-only will call just "
                 + "UserHalService.");
-
         pw.printf("\t  %s\n", VALID_USER_AUTH_TYPES_HELP);
         pw.printf("\t  %s\n", VALID_USER_AUTH_SET_VALUES_HELP);
+
+        pw.println("\t" + COMMAND_SILENT_MODE
+                + " [forced-silent|forced-non-silent|non-forced|query]");
+        pw.println("\t  Forces silent mode silent or non-silent. With query (or no command) "
+                + "displays the silent state");
+        pw.println("\t  and shows how many listeners are monitoring the state.");
     }
 
     private static int showInvalidArguments(PrintWriter pw) {
@@ -564,6 +574,12 @@ final class CarShellCommand extends ShellCommand {
                 }
                 runSetOccupantZoneIdForUserId(args[1], args[2]);
                 break;
+            case COMMAND_SILENT_MODE: {
+                String value = args.length < 2 ? ""
+                        : args.length == 2 ? args[1] : "too many arguments";
+                runSilentCommand(value, writer);
+                break;
+            }
             case COMMAND_RESET_USER_ID_IN_OCCUPANT_ZONE:
                 if (args.length != 2) {
                     return showInvalidArguments(writer);
@@ -1414,8 +1430,8 @@ final class CarShellCommand extends ShellCommand {
                 mode = CarNightService.FORCED_SENSOR_MODE;
                 break;
             default:
-                writer.println("Unknown value. Valid argument: " + PARAM_DAY_MODE + "|"
-                        + PARAM_NIGHT_MODE + "|" + PARAM_SENSOR_MODE);
+                writer.printf("Unknown value: %s. Valid argument: %s|%s|%s\n",
+                        arg, PARAM_DAY_MODE, PARAM_NIGHT_MODE, PARAM_SENSOR_MODE);
                 return;
         }
         int current = mCarNightService.forceDayNightMode(mode);
@@ -1454,8 +1470,33 @@ final class CarShellCommand extends ShellCommand {
                 writer.println("Entering Garage Mode. Will reboot when it completes.");
                 break;
             default:
-                writer.println("Unknown value. Valid argument: " + PARAM_ON_MODE + "|"
-                        + PARAM_OFF_MODE + "|" + PARAM_QUERY_MODE + "|" + PARAM_REBOOT);
+                writer.printf("Unknown value: %s. Valid argument: %s|%s|%s|%s\n",
+                        arg, PARAM_ON_MODE, PARAM_OFF_MODE, PARAM_QUERY_MODE, PARAM_REBOOT);
+        }
+    }
+
+    private void runSilentCommand(String arg, PrintWriter writer) {
+        switch (arg) {
+            case "forced-silent":
+                writer.println("Forcing silent mode to silent");
+                mSilentModeController.forceSilentMode(true);
+                break;
+            case "forced-non-silent":
+                writer.println("Forcing silent mode to non-silent");
+                mSilentModeController.forceSilentMode(false);
+                break;
+            case "non-forced":
+                writer.println("Not forcing silent mode");
+                mSilentModeController.unforceSilentMode();
+                break;
+            case PARAM_QUERY_MODE:
+            case "":
+                mSilentModeController.dump(writer);
+                break;
+            default:
+                writer.printf("Unknown value: %s. Valid argument: "
+                                + "forced-silent|forced-non-silent|non-forced|%s\n",
+                        arg, PARAM_QUERY_MODE);
         }
     }
 

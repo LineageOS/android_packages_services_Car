@@ -47,9 +47,9 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 /**
- * Class to handle Silent and Non-silent modes
+ * Class to handle Silent and Non-silent modes.
  *
- * <p>Notifies others when the mode changes
+ * <p>Notifies others when the mode changes.
  */
 public final class SilentModeController implements CarServiceBase {
     private static final String FORCED_NON_SILENT = "reboot,forcednonsilent";
@@ -179,6 +179,7 @@ public final class SilentModeController implements CarServiceBase {
     @Override
     public void dump(PrintWriter writer) {
         boolean isSilent;
+        boolean powerStateIsOn;
         boolean kernelAllowsSilent;
         boolean externalControlAllowsSilent;
         boolean isForced;
@@ -187,6 +188,7 @@ public final class SilentModeController implements CarServiceBase {
 
         synchronized (mLock) {
             isSilent = isModeSilentLocked();
+            powerStateIsOn = mPowerStateIsOn;
             kernelAllowsSilent = mKernelAllowsSilent;
             externalControlAllowsSilent = mExternalControlAllowsSilent;
             isForced = mIsModeForced;
@@ -194,8 +196,9 @@ public final class SilentModeController implements CarServiceBase {
             numListeners = mSilentModeListeners.size();
         }
         writer.printf("SilentMode is %s%s\n", (isSilent ? "silent" : "non-silent"),
-                (isForced ? ", forced by reboot command" : ""));
-        writer.printf("Silent indicators: kernel: %s, VHAL: %s\n",
+                (isForced ? ", forced by reboot command or test" : ""));
+        writer.printf("Silent indicators: System power: %s, Kernel: %s, VHAL: %s\n",
+                (powerStateIsOn ? "On" : "not On"),
                 (kernelAllowsSilent ? "silent" : "non-silent"),
                 (externalControlAllowsSilent ? "silent" : "non-silent"));
         writer.printf("SilentModeController %s monitoring %s\n",
@@ -204,7 +207,7 @@ public final class SilentModeController implements CarServiceBase {
     }
 
     /**
-     * Indicates whether the current mode is silent
+     * Indicates whether the current mode is silent.
      */
     public boolean isSilent() {
         verifyPermission();
@@ -214,7 +217,7 @@ public final class SilentModeController implements CarServiceBase {
     }
 
     /**
-     * Registers a listener to be called when the Silent state changes
+     * Registers a listener to be called when the Silent state changes.
      */
     public void registerListener(SilentModeListener listener) {
         verifyPermission();
@@ -229,7 +232,7 @@ public final class SilentModeController implements CarServiceBase {
     }
 
     /**
-     * Unregisters a listener for Silent mode changes
+     * Unregisters a listener for Silent mode changes.
      */
     public void unregisterListener(SilentModeListener listener) {
         verifyPermission();
@@ -298,11 +301,11 @@ public final class SilentModeController implements CarServiceBase {
     }
 
     /**
-     * Functional interface for receiving Silent mode notifications
+     * Functional interface for receiving Silent mode notifications.
      */
     public interface SilentModeListener {
         /**
-         * Called when the Silent Mode changes
+         * Called when the Silent Mode changes.
          *
          * <p>This may also be called to reiterate the current state,
          * so listeners should not assume that the state is different
@@ -312,14 +315,14 @@ public final class SilentModeController implements CarServiceBase {
     }
 
     /**
-     * Sets the Silent Mode state and notifies the listeners
+     * Indicates that Silent Mode is allowed by the Vehicle HAL.
      *
      * <p>This is intended to be used by the Vehicle HAL if it wants the
      * system to go non-silent.
      * <p>Note that the system power state and the signal from the kernel
      * both play a part in the ultimate silent/non-silent decision.
      */
-    public void setSilentModeState(boolean allowSilent) {
+    public void setSilentModeAllowed(boolean allowSilent) {
         verifyPermission();
         synchronized (mLock) {
             boolean isAChange = mIsModeForced || (mExternalControlAllowsSilent != allowSilent);
@@ -328,6 +331,38 @@ public final class SilentModeController implements CarServiceBase {
             if (isAChange) {
                 queueNotificationLocked();
             }
+        }
+    }
+
+    /**
+     * Forces Silent Mode on or off, ignoring the GPIO and VHAL.
+     *
+     * <p>Note that the system power state plays a part in the
+     * ultimate silent/non-silent decision.
+     */
+    @VisibleForTesting
+    public void forceSilentMode(boolean isSilent) {
+        verifyPermission();
+        synchronized (mLock) {
+            mIsModeForced = true;
+            mIsModeForcedSilent = isSilent;
+            queueNotificationLocked();
+        }
+    }
+
+    /**
+     * Stops forcing Silent Mode.
+     *
+     * <p>Restores the logic that considers the GPIO and VHAL in determining
+     * the ultimate silent/non-silent decision.
+     */
+    @VisibleForTesting
+    public void unforceSilentMode() {
+        verifyPermission();
+        synchronized (mLock) {
+            mIsModeForced = false;
+            // 'mIsModeForcedSilent' is unused
+            queueNotificationLocked();
         }
     }
 
