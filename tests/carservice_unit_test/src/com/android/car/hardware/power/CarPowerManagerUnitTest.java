@@ -34,12 +34,12 @@ import android.util.Log;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.CarLocalServices;
-import com.android.car.CarPowerManagementService;
-import com.android.car.MockedPowerHalService;
 import com.android.car.R;
-import com.android.car.SilentModeController;
 import com.android.car.hal.PowerHalService;
 import com.android.car.hal.PowerHalService.PowerState;
+import com.android.car.power.CarPowerManagementService;
+import com.android.car.power.MockedPowerHalService;
+import com.android.car.power.SilentModeController;
 import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.systeminterface.SystemStateInterface;

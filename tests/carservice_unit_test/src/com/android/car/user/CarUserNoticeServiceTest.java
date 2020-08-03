@@ -53,9 +53,9 @@ import android.provider.Settings;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.CarLocalServices;
-import com.android.car.CarPowerManagementService;
 import com.android.car.R;
-import com.android.car.SilentModeController;
+import com.android.car.power.CarPowerManagementService;
+import com.android.car.power.SilentModeController;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.app.IVoiceInteractionManagerService;
 

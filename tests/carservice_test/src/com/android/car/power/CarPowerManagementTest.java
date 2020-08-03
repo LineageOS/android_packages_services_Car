@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car;
+package com.android.car.power;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -33,6 +33,7 @@ import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
+import com.android.car.MockedCarTestBase;
 import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
@@ -336,8 +337,7 @@ public class CarPowerManagementTest extends MockedCarTestBase {
             mDisplayStateWait.release();
         }
 
-        boolean waitForDisplayState(boolean expectedState)
-            throws Exception {
+        boolean waitForDisplayState(boolean expectedState) throws Exception {
             if (expectedState == mDisplayOn) {
                 return true;
             }

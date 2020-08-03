@@ -23,6 +23,7 @@ import android.content.Context;
 import android.util.ArrayMap;
 import android.util.Log;
 
+import com.android.car.power.CarPowerManagementService;
 import com.android.internal.annotations.VisibleForTesting;
 
 /**

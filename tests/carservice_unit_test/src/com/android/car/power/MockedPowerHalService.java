@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car;
+package com.android.car.power;
 
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
 import android.util.Log;

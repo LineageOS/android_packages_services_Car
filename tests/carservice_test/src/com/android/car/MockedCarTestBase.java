@@ -48,6 +48,7 @@ import androidx.test.annotation.UiThreadTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.pm.CarPackageManagerService;
+import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.ActivityManagerInterface;
 import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.IOInterface;
@@ -85,8 +86,8 @@ import java.util.Map;
  * per test set up that should be done before starting.
  */
 public class MockedCarTestBase {
-    static final long DEFAULT_WAIT_TIMEOUT_MS = 3000;
-    static final long SHORT_WAIT_TIMEOUT_MS = 500;
+    protected static final long DEFAULT_WAIT_TIMEOUT_MS = 3000;
+    protected static final long SHORT_WAIT_TIMEOUT_MS = 500;
     private static final String TAG = MockedCarTestBase.class.getSimpleName();
     private static final IBinder sCarServiceToken = new Binder();
     private static boolean sRealCarServiceReleased;

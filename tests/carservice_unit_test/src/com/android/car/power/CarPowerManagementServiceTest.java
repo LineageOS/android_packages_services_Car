@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car;
+package com.android.car.power;
 
 import static android.car.test.mocks.CarArgumentMatchers.isUserInfo;
 import static android.car.test.util.UserTestingHelper.newGuestUser;
@@ -54,6 +54,9 @@ import android.util.Log;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import com.android.car.CarLocalServices;
+import com.android.car.CarServiceUtils;
+import com.android.car.R;
 import com.android.car.hal.PowerHalService;
 import com.android.car.hal.PowerHalService.PowerState;
 import com.android.car.systeminterface.DisplayInterface;

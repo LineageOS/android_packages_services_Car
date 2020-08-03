@@ -20,7 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.UserHandle;
 
-import com.android.car.CarPowerManagementService;
+import com.android.car.power.CarPowerManagementService;
 import com.android.car.procfsinspector.ProcessInfo;
 import com.android.car.storagemonitoring.LifetimeWriteInfoProvider;
 import com.android.car.storagemonitoring.UidIoStatsProvider;
