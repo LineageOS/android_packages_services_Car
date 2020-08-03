@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.dummylauncher;
+package com.android.car.fakelauncher;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -32,7 +32,7 @@ import android.widget.TextView;
  * for CTS and they make CTS fail.
  */
 public class LauncherActivity extends Activity {
-    private static final String TAG = "DummyLauncher";
+    private static final String TAG = "FakeLauncher";
 
     private int mUserId = UserHandle.USER_NULL;
 
