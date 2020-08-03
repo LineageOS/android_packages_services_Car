@@ -41,14 +41,14 @@ public final class AppListAdapter extends ArrayAdapter<AppEntry> {
     }
 
     /**
-     * Sets data for AppListAdaptor and exclude the app from  blackList
+     * Sets data for AppListAdaptor and exclude the app from  denyList
      * @param data        List of {@link AppEntry}
-     * @param blackList   A (possibly empty but not null) list of apps (package names) to hide
+     * @param denyList   A (possibly empty but not null) list of apps (package names) to hide
      */
-    void setData(@NonNull List<AppEntry> data, @NonNull Set<String> blackList) {
+    void setData(@NonNull List<AppEntry> data, @NonNull Set<String> denyList) {
         clear();
 
-        data.stream().filter(app -> !blackList.contains(app.getComponentName().getPackageName()))
+        data.stream().filter(app -> !denyList.contains(app.getComponentName().getPackageName()))
                 .forEach(app -> add(app));
 
         sort(AppEntry.AppNameComparator);
