@@ -840,7 +840,7 @@ public class PropertyHalServiceIds {
             if (f.getType() == int.class) {
                 try {
                     integerList.add(f.getInt(clazz));
-                } catch (Exception e) {
+                } catch (IllegalAccessException | RuntimeException e) {
                     Log.w(TAG, "Failed to get value");
                 }
             }

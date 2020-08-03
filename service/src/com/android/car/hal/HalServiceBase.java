@@ -39,7 +39,7 @@ public abstract class HalServiceBase {
     /** For dispatching events. Kept here to avoid alloc every time */
     private final ArrayList<VehiclePropValue> mDispatchList = new ArrayList<>(1);
 
-    final static int NOT_SUPPORTED_PROPERTY = -1;
+    static final int NOT_SUPPORTED_PROPERTY = -1;
 
     public List<VehiclePropValue> getDispatchList() {
         return mDispatchList;
@@ -94,6 +94,9 @@ public abstract class HalServiceBase {
                 + ", area=" + area + " , errorCode = " + errorCode);
     }
 
+    /**
+     * Dumps HAL service related info to the writer passed as parameter.
+     */
     public abstract void dump(PrintWriter writer);
 
     /**

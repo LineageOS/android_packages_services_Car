@@ -300,6 +300,7 @@ public class VmsHalService extends HalServiceBase {
                         break;
                     case VmsMessageType.PUBLISHER_INFORMATION_REQUEST:
                         handlePublisherInfoRequest(vec);
+                        break;
                     case VmsMessageType.OFFERING:
                         handleOfferingEvent(vec);
                         break;
