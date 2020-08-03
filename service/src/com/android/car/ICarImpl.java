@@ -90,6 +90,7 @@ public class ICarImpl extends ICar.Stub {
 
     private final SystemActivityMonitoringService mSystemActivityMonitoringService;
     private final CarPowerManagementService mCarPowerManagementService;
+    private final SilentModeController mSilentModeController;
     private final CarPackageManagerService mCarPackageManagerService;
     private final CarInputService mCarInputService;
     private final CarDrivingStateService mCarDrivingStateService;
@@ -191,6 +192,7 @@ public class ICarImpl extends ICar.Stub {
         mSystemActivityMonitoringService = new SystemActivityMonitoringService(serviceContext);
         mCarPowerManagementService = new CarPowerManagementService(mContext, mHal.getPowerHal(),
                 systemInterface, mCarUserService);
+        mSilentModeController = new SilentModeController(mContext, systemInterface);
         if (mFeatureController.isFeatureEnabled(CarFeatures.FEATURE_CAR_USER_NOTICE_SERVICE)) {
             mCarUserNoticeService = new CarUserNoticeService(serviceContext);
         } else {
@@ -258,6 +260,7 @@ public class ICarImpl extends ICar.Stub {
         }
 
         CarLocalServices.addService(CarPowerManagementService.class, mCarPowerManagementService);
+        CarLocalServices.addService(SilentModeController.class, mSilentModeController);
         CarLocalServices.addService(CarPropertyService.class, mCarPropertyService);
         CarLocalServices.addService(CarUserService.class, mCarUserService);
         CarLocalServices.addService(CarUserNoticeService.class, mCarUserNoticeService);
@@ -275,6 +278,7 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mCarUserService);
         allServices.add(mSystemActivityMonitoringService);
         allServices.add(mCarPowerManagementService);
+        allServices.add(mSilentModeController);
         allServices.add(mCarPropertyService);
         allServices.add(mCarDrivingStateService);
         allServices.add(mCarOccupantZoneService);
