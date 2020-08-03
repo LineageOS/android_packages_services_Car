@@ -14,13 +14,16 @@
 
 cc_defaults {
     name: "evs_fuzz_default",
+
+    defaults: ["android.automotive.evs.manager_defaults"],
+
     static_libs: [
+        "libevsmanager_static",
         "libgmock",
         "libgtest",
     ],
 
     shared_libs: [
-        "android.automotive.evs.manager.fuzzlib",
         "android.hardware.automotive.evs@1.0",
         "android.hardware.automotive.evs@1.1",
         "libbase",
@@ -37,10 +40,6 @@ cc_defaults {
 
     cflags: [
         "-Wno-unused-parameter",
-    ],
-
-    include_dirs: [
-        "system/core/libsync",
     ],
 }
 
