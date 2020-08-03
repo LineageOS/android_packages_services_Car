@@ -34,7 +34,7 @@ import java.lang.annotation.RetentionPolicy;
         genToString = true,
         genHiddenConstructor = true,
         genHiddenConstDefs = true)
-public final class UserSwitchResult implements Parcelable {
+public final class UserSwitchResult implements Parcelable, OperationResult {
 
     /**
      * When user switch is successful for both HAL and Android.
@@ -110,9 +110,7 @@ public final class UserSwitchResult implements Parcelable {
     @Nullable
     private final String mErrorMessage;
 
-    /**
-     * Check if {@link UserSwitchResult} is successful.
-     */
+    @Override
     public boolean isSuccess() {
         return mStatus == STATUS_SUCCESSFUL || mStatus == STATUS_OK_USER_ALREADY_IN_FOREGROUND;
     }
