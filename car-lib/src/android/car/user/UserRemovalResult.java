@@ -33,7 +33,7 @@ import java.lang.annotation.RetentionPolicy;
         genToString = true,
         genHiddenConstructor = true,
         genHiddenConstDefs = true)
-public final class UserRemovalResult implements Parcelable {
+public final class UserRemovalResult implements Parcelable, OperationResult {
 
     /**
      * When user remove is successful.
@@ -91,6 +91,7 @@ public final class UserRemovalResult implements Parcelable {
      */
     private final @Status int mStatus;
 
+    @Override
     public boolean isSuccess() {
         return mStatus == STATUS_SUCCESSFUL;
     }
