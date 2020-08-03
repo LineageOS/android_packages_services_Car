@@ -81,7 +81,7 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
     private final AppFocusService mAppFocusService;
     private final CarInputService mCarInputService;
     /**
-     * TODO: (b/121277787) Remove this on master.
+     * TODO: (b/121277787) Remove this on main.
      * @deprecated CarInstrumentClusterManager is being deprecated.
      */
     @Deprecated
@@ -476,7 +476,7 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
     }
 
     /**
-     * TODO: (b/121277787) Remove on master
+     * TODO: (b/121277787) Remove on main
      * @deprecated CarClusterManager is being deprecated.
      */
     @Deprecated
