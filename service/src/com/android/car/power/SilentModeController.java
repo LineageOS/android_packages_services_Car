@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car;
+package com.android.car.power;
 
 import android.annotation.NonNull;
 import android.car.Car;
@@ -29,6 +29,10 @@ import android.os.ServiceManager;
 import android.os.SystemProperties;
 import android.util.Slog;
 
+import com.android.car.CarLocalServices;
+import com.android.car.CarLog;
+import com.android.car.CarServiceBase;
+import com.android.car.ICarImpl;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -102,7 +106,8 @@ public final class SilentModeController implements CarServiceBase {
     @GuardedBy("mLock")
     private boolean mKernelAllowsSilent;
 
-    SilentModeController(@NonNull Context context, @NonNull SystemInterface systemInterface) {
+    public SilentModeController(@NonNull Context context,
+            @NonNull SystemInterface systemInterface) {
         this(context, systemInterface,
                 IVoiceInteractionManagerService.Stub.asInterface(
                         ServiceManager.getService(Context.VOICE_INTERACTION_MANAGER_SERVICE)),

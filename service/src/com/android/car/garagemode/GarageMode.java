@@ -25,8 +25,8 @@ import android.os.UserHandle;
 import android.util.ArraySet;
 
 import com.android.car.CarLocalServices;
-import com.android.car.CarPowerManagementService;
 import com.android.car.CarStatsLogHelper;
+import com.android.car.power.CarPowerManagementService;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;

@@ -42,7 +42,7 @@ import android.view.Display;
 import android.view.InputDevice;
 
 import com.android.car.CarLog;
-import com.android.car.CarPowerManagementService;
+import com.android.car.power.CarPowerManagementService;
 import com.android.internal.annotations.GuardedBy;
 
 /**
