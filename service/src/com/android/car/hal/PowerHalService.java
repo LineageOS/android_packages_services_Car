@@ -42,6 +42,9 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Translates HAL power events to higher-level semantic information.
+ */
 public class PowerHalService extends HalServiceBase {
     // Set display brightness from 0-100%
     public static final int MAX_BRIGHTNESS = 100;
@@ -107,12 +110,17 @@ public class PowerHalService extends HalServiceBase {
         return baseName + "(" + state + ")";
     }
 
+    /**
+     * Interface to be implemented by any object that wants to be notified by any Vehicle's power
+     * change.
+     */
     public interface PowerEventListener {
         /**
          * Received power state change event.
          * @param state One of STATE_*
          */
         void onApPowerStateChange(PowerState state);
+
         /**
          * Received display brightness change event.
          * @param brightness in percentile. 100% full.
@@ -120,6 +128,9 @@ public class PowerHalService extends HalServiceBase {
         void onDisplayBrightnessChange(int brightness);
     }
 
+    /**
+     * Contains information about the Vehicle's power state.
+     */
     public static final class PowerState {
         /**
          * One of STATE_*
@@ -192,6 +203,9 @@ public class PowerHalService extends HalServiceBase {
         mHal = hal;
     }
 
+    /**
+     * Sets the event listener to receive Vehicle's power events.
+     */
     public void setListener(PowerEventListener listener) {
         LinkedList<VehiclePropValue> eventsToDispatch = null;
         synchronized (mLock) {
@@ -308,6 +322,9 @@ public class PowerHalService extends HalServiceBase {
         }
     }
 
+    /**
+     * Returns a {@link PowerState} representing the current power state for the vehicle.
+     */
     @Nullable
     public PowerState getCurrentPowerState() {
         int[] state;
@@ -451,7 +468,7 @@ public class PowerHalService extends HalServiceBase {
     @Override
     public void dump(PrintWriter writer) {
         writer.println("*Power HAL*");
-        writer.println("isPowerStateSupported:" + isPowerStateSupported() +
-                ",isDeepSleepAllowed:" + isDeepSleepAllowed());
+        writer.printf("isPowerStateSupported:%b, isDeepSleepAllowed:%b\n",
+                isPowerStateSupported(), isDeepSleepAllowed());
     }
 }

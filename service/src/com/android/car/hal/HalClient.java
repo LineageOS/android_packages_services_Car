@@ -199,18 +199,18 @@ final class HalClient {
     }
 
     private static final class ObjectWrapper<T> {
-        T object;
+        public T object;
     }
 
     private static final class ValueResult {
-        int status;
-        VehiclePropValue propValue;
+        public int status;
+        public VehiclePropValue propValue;
     }
 
     private static final class PropertySetError {
-        final int errorCode;
-        final int propId;
-        final int areaId;
+        public final int errorCode;
+        public final int propId;
+        public final int areaId;
 
         PropertySetError(int errorCode, int propId, int areaId) {
             this.errorCode = errorCode;

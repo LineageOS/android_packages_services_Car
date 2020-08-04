@@ -264,13 +264,13 @@ import java.util.List;
                     builder.addAreaConfig(area.areaId, area.minFloatValue, area.maxFloatValue);
                 } else if (classMatched(Long.class, clazz)) {
                     builder.addAreaConfig(area.areaId, area.minInt64Value, area.maxInt64Value);
-                } else if (classMatched(Boolean.class, clazz) ||
-                           classMatched(Float[].class, clazz) ||
-                           classMatched(Integer[].class, clazz) ||
-                           classMatched(Long[].class, clazz) ||
-                           classMatched(String.class, clazz) ||
-                           classMatched(byte[].class, clazz) ||
-                           classMatched(Object[].class, clazz)) {
+                } else if (classMatched(Boolean.class, clazz)
+                        || classMatched(Float[].class, clazz)
+                        || classMatched(Integer[].class, clazz)
+                        || classMatched(Long[].class, clazz)
+                        || classMatched(String.class, clazz)
+                        || classMatched(byte[].class, clazz)
+                        || classMatched(Object[].class, clazz)) {
                     // These property types do not have min/max values
                     builder.addArea(area.areaId);
                 } else {
