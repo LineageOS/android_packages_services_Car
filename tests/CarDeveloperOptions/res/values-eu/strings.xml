@@ -113,7 +113,7 @@
     <string name="bluetooth_disconnect_all_profiles" product="device" msgid="4707569949253450208">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> gailutik deskonektatuko da gailua."</string>
     <string name="bluetooth_disconnect_dialog_ok" msgid="4183522987246110145">"Deskonektatu"</string>
     <string name="bluetooth_empty_list_user_restricted" msgid="3616298363281495777">"Ez daukazu Bluetooth-aren ezarpenak aldatzeko baimenik."</string>
-    <string name="bluetooth_pairing_pref_title" msgid="2904954138013884029">"Parekatu gailu batekin"</string>
+    <string name="bluetooth_pairing_pref_title" msgid="2904954138013884029">"Parekatu beste gailu batekin"</string>
     <string name="bluetooth_is_visible_message" msgid="6341088682252805612">"Bluetooth-aren ezarpenak irekita badaude, inguruko gailuek <xliff:g id="DEVICE_NAME">%1$s</xliff:g> ikusi ahal izango dute."</string>
     <string name="bluetooth_footer_mac_message" product="default" msgid="335341476746836260">"Telefonoa Bluetooth bidez konektatzeko helbidea: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_footer_mac_message" product="tablet" msgid="6033609611245782463">"Tableta Bluetooth bidez konektatzeko helbidea: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
@@ -165,7 +165,7 @@
     <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"\"<xliff:g id="DEVICE_NAME">^1</xliff:g>\" gisa dago ikusgai beste gailuetan"</string>
     <string name="bluetooth_off_footer" msgid="7658444560543730571">"Aktibatu Bluetooth bidezko konexioa beste gailu batzuetara konektatzeko."</string>
     <string name="bluetooth_paired_device_title" msgid="8361860197780425286">"Zure gailuak"</string>
-    <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"Parekatu gailu batekin"</string>
+    <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"Parekatu beste gailu batekin"</string>
     <string name="bluetooth_pref_summary" product="tablet" msgid="3601662966604648212">"Baimendu tabletari inguruko Bluetooth bidezko gailuekin komunikatzea"</string>
     <string name="bluetooth_pref_summary" product="device" msgid="2286727776570956969">"Eman gailuari inguruko Bluetooth bidezko gailuekin komunikatzeko baimena"</string>
     <string name="bluetooth_pref_summary" product="default" msgid="863659221858781186">"Baimendu telefonoari inguruko Bluetooth bidezko gailuekin komunikatzea"</string>
@@ -832,7 +832,7 @@
     <string name="android_beam_off_summary" msgid="7365818039159364600">"Desaktibatuta"</string>
     <string name="nfc_disabled_summary" msgid="2181777971122724361">"Ez dago erabilgarri NFC desaktibatuta dagoelako"</string>
     <string name="android_beam_label" msgid="5340299879556025708">"Android Beam"</string>
-    <string name="android_beam_explained" msgid="4501176353247859329">"Eginbide hau aktibatzen baduzu, NFC bidez parteka dezakezu aplikazioen edukia NFC gaitasuna duten beste gailu batzuekin, gailuak bata bestearengana hurbilduta. Besteak beste, web-orriak, YouTube bideoak, kontaktuak eta beste hainbat gauza parteka ditzakezu.\n\nHori egiteko, hurbildu gailuak bata bestearengana (atzealdeak elkartu behar izan ohi dira), eta sakatu zure pantaila. Aplikazioak zehaztuko du partekatu beharrekoa zer den."</string>
+    <string name="android_beam_explained" msgid="4501176353247859329">"Eginbide hau aktibatzen baduzu, NFC bidez parteka dezakezu aplikazioen edukia NFC gaitasuna duten beste gailu batzuekin, gailuak bata bestearengana hurbilduta. Besteak beste, web-orriak, YouTube-ko bideoak, kontaktuak eta beste hainbat gauza parteka ditzakezu.\n\nHori egiteko, hurbildu gailuak bata bestearengana (atzealdeak elkartu behar izan ohi dira), eta sakatu zure pantaila. Aplikazioak zehaztuko du partekatu beharrekoa zer den."</string>
     <string name="wifi_quick_toggle_title" msgid="7935778388625246184">"Wifia"</string>
     <string name="wifi_quick_toggle_summary" msgid="2879870570547594266">"Aktibatu Wi-Fia"</string>
     <string name="wifi_settings" msgid="7486492317310514109">"Wifia"</string>
@@ -852,14 +852,14 @@
     <string name="wifi_wakeup_summary" msgid="1152699417411690">"Gordetako kalitate handiko sare batetik (adibidez, etxeko saretik) gertu zaudenean aktibatuko da berriro wifi-konexioa"</string>
     <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"Ez dago erabilgarri kokapena desaktibatuta dagoelako. Aktibatu "<annotation id="link">"kokapena"</annotation>"."</string>
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"Ez dago erabilgarri, Wifi-sareen bilaketa desaktibatuta dagoelako"</string>
-    <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"Erabiltzeko, hautatu sareen balorazioen hornitzaile bat"</string>
+    <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"Erabiltzeko, hautatu sare-balorazioen hornitzaile bat"</string>
     <string name="wifi_poor_network_detection" msgid="7193423327400703073">"Saihestu konexio ahulak"</string>
     <string name="wifi_poor_network_detection_summary" msgid="5539951465985614590">"Ez erabili Wi-Fi sareak ez badute Interneteko konexio onik"</string>
     <string name="wifi_avoid_poor_network_detection_summary" msgid="1976503191780928104">"Erabili Interneteko konexio ona duten sareak soilik"</string>
     <string name="use_open_wifi_automatically_title" msgid="3084513215481454350">"Konektatu sare irekietara"</string>
     <string name="use_open_wifi_automatically_summary" msgid="8338020172673161754">"Konektatu automatikoki kalitate handiko sare publikoetara"</string>
-    <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"Erabiltzeko, hautatu sareen balorazioen hornitzaile bat"</string>
-    <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"Erabiltzeko, hautatu sareen balorazioen hornitzaile bateragarri bat"</string>
+    <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"Erabiltzeko, hautatu sare-balorazioen hornitzaile bat"</string>
+    <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"Erabiltzeko, hautatu sare-balorazioen hornitzaile bateragarri bat"</string>
     <string name="wifi_install_credentials" msgid="5650088113710858289">"Instalatu ziurtagiriak"</string>
     <string name="wifi_scan_notify_text" msgid="7614101215028336927">"Kokapenaren zehaztasuna hobetzeko, aplikazioek eta zerbitzuek wifi-sareak bilatzen jarraituko dute, baita wifi-konexioa desaktibatuta dagoenean ere. Besteak beste, kokapenean oinarritutako eginbideak eta zerbitzuak hobetzeko erabil daiteke. Aukera hori aldatzeko, joan <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>bilatzeko ezarpenetara<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"Kokapenaren zehaztasuna hobetzeko, aktibatu Wifi-sareen bilaketa <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>bilatzeko ezarpenetan<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
@@ -1637,7 +1637,7 @@
     <string name="sms_change_default_dialog_title" msgid="6301260161969667578">"SMS mezuetarako aplikazioa aldatu?"</string>
     <string name="sms_change_default_dialog_text" msgid="8275088077930942680">"<xliff:g id="NEW_APP">%1$s</xliff:g> aplikazioaren ordez, <xliff:g id="CURRENT_APP">%2$s</xliff:g> aplikazioa erabili SMS mezuetarako?"</string>
     <string name="sms_change_default_no_previous_dialog_text" msgid="4680224695080527907">"Erabili <xliff:g id="NEW_APP">%s</xliff:g> SMS mezuetarako aplikazio gisa?"</string>
-    <string name="network_scorer_picker_title" msgid="1691073966560952916">"Sareen balorazioen hornitzailea"</string>
+    <string name="network_scorer_picker_title" msgid="1691073966560952916">"Sare-balorazioen hornitzailea"</string>
     <string name="network_scorer_picker_none_preference" msgid="6448280557733231737">"Bat ere ez"</string>
     <string name="network_scorer_change_active_dialog_title" msgid="4274159562371475090">"Wifi-laguntzailea aldatu nahi duzu?"</string>
     <string name="network_scorer_change_active_dialog_text" msgid="4264089809189760730">"Sareko konexioak kudeatzeko <xliff:g id="NEW_APP">%1$s</xliff:g> erabili nahi duzu, <xliff:g id="CURRENT_APP">%2$s</xliff:g> erabili beharrean?"</string>
@@ -2925,7 +2925,7 @@
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Ordaintzeko beste aplikazio bat irekita badago izan ezik"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"\"Ukitu eta ordaindu\" terminalean, ordaindu honekin:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Terminalean ordaintzea"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Konfiguratu ordaintzeko aplikazioa. Ondoren, jarri telefonoaren atzeko aldea ukipen gabeko sistemaren ikurra duen terminalaren aurrean."</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Konfiguratu ordaintzeko aplikazioa. Ondoren, jarri telefonoaren atzeko aldea kontakturik gabeko sistemaren ikurra duen terminalaren aurrean."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"Ados"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"Gehiago…"</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"Hobespen gisa ezarri nahi duzu?"</string>
@@ -4512,7 +4512,7 @@
     <string name="forget_passpoint_dialog_message" msgid="3337626966248310367">"Denbora edo daturik geldituz gero, baliteke haiek galtzea. Kendu aurretik, galdetu hornitzaileari."</string>
     <string name="keywords_content_capture" msgid="5401877823529928976">"eduki-bilketa, iradokizun dinamikoak"</string>
     <string name="content_capture" msgid="1709538093513983279">"Iradokizun dinamikoak"</string>
-    <string name="content_capture_summary" msgid="2675659095218714681">"Baimendu Android-i pantailan ikusgai dagoen edo bideo- edo audio-edukian entzuten den informazioa gordetzea. Android-ek iradokizun lagungarriak egiten ditu gailuaren jardueretan oinarrituta."</string>
+    <string name="content_capture_summary" msgid="2675659095218714681">"Baimendu Android-i pantailan ikusgai dagoen edo bideo- edo audio-edukian entzuten den informazioa gordetzea. Android-ek iradokizun lagungarriak egiten ditu gailuko jardueretan oinarrituta."</string>
     <string name="capture_system_heap_dump_title" msgid="7417508823603305421">"Sortu memoria-iraulketaren txostena"</string>
     <string name="capturing_system_heap_dump_message" msgid="5108339625760845950">"Memoria-iraulketaren txostena sortzen"</string>
     <string name="error_capturing_system_heap_dump_message" msgid="5431592130805893098">"Ezin izan da sortu memoria-iraulketaren txostena"</string>

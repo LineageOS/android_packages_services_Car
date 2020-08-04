@@ -1676,7 +1676,7 @@
     <string name="assisted_gps" msgid="5411780261117055175">"साहाय्यक GPS वापरा"</string>
     <string name="assisted_gps_enabled" msgid="2561022181775725369">"GPS ला साहाय्य करण्यासाठी सर्व्हर वापरा (नेटवर्क वापर कमी करण्यासाठी अनचेक करा)"</string>
     <string name="assisted_gps_disabled" msgid="6448758788217415937">"GPS ला साहाय्य करण्यासाठी सर्व्हर वापरा (GPS कामगिरी सुधारण्यासाठी अनचेक करा)"</string>
-    <string name="use_location_title" msgid="7724788634359496634">"स्थान आणि Google शोध"</string>
+    <string name="use_location_title" msgid="7724788634359496634">"स्थान आणि Google Search"</string>
     <string name="use_location_summary" msgid="7396716606067400283">"Google ला शोध परिणाम आणि अन्य सेवा सुधारण्यासाठी तुमचे स्थान वापरू द्या"</string>
     <string name="location_access_title" msgid="8587974819606800029">"माझी स्थाने ॲक्सेस करा"</string>
     <string name="location_access_summary" msgid="6919495149026354355">"तुमची परवानगी विचारणार्‍या ॲप्सना तुमची स्थान माहिती वापरु द्या"</string>

@@ -56,7 +56,7 @@
     <string name="radio_info_ims_reg_status" msgid="4771711884059371514">"IMS નોંધણી: <xliff:g id="STATUS">%1$s</xliff:g>\nLTE પર વૉઇસ: <xliff:g id="AVAILABILITY_0">%2$s</xliff:g>\nWiFi પર વૉઇસ: <xliff:g id="AVAILABILITY_1">%3$s</xliff:g>\nવીડિઓ કૉલિંગ: <xliff:g id="AVAILABILITY_2">%4$s</xliff:g>\nUT ઇન્ટરફેસ: <xliff:g id="AVAILABILITY_3">%5$s</xliff:g>"</string>
     <string name="radioInfo_service_in" msgid="1297020186765943857">"સેવામાં"</string>
     <string name="radioInfo_service_out" msgid="8460363463722476510">"કાર્યરત્ નથી"</string>
-    <string name="radioInfo_service_emergency" msgid="7674989004735662599">"ફક્ત કટોકટીના કૉલ્સ"</string>
+    <string name="radioInfo_service_emergency" msgid="7674989004735662599">"ફક્ત ઇમર્જન્સી કૉલ"</string>
     <string name="radioInfo_service_off" msgid="1873939869994136791">"રેડિઓ બંધ છે"</string>
     <string name="radioInfo_roaming_in" msgid="7059350234710947417">"રોમિંગ"</string>
     <string name="radioInfo_roaming_not" msgid="7733269160603599835">"રોમિંગ નહીં"</string>
@@ -386,7 +386,7 @@
     <string name="lockscreen_settings_what_to_show_category" msgid="3133378945821488654">"શું બતાવવું છે"</string>
     <string name="security_settings_summary" msgid="5210109100643223686">"મારું સ્થાન, સ્ક્રીન અનલૉક, સિમ કાર્ડ લૉક, ક્રિડેન્શ્યલ સ્ટોરેજ લૉક સેટ કરો"</string>
     <string name="cdma_security_settings_summary" msgid="1783066617800041869">"મારું સ્થાન, સ્ક્રીન અનલૉક, ઓળખપત્ર સ્ટોરેજ લૉક સેટ કરો"</string>
-    <string name="security_passwords_title" msgid="6853942836045862315">"ગોપનીયતા"</string>
+    <string name="security_passwords_title" msgid="6853942836045862315">"પ્રાઇવસી"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"વ્યવસ્થાપકે અક્ષમ કરેલ"</string>
     <string name="security_status_title" msgid="1261960357751754428">"સુરક્ષાની સ્થિતિ"</string>
     <string name="security_dashboard_summary_face" msgid="2536136110153593745">"સ્ક્રીન લૉક, ફેસ અનલૉક"</string>
@@ -2737,7 +2737,7 @@
     <string name="data_usage_metered_yes" msgid="7333744880035386073">"મીટર કરેલ"</string>
     <string name="data_usage_metered_no" msgid="1961524615778610008">"મીટર કરેલ નથી"</string>
     <string name="data_usage_disclaimer" msgid="4683321532922590425">"કેરિઅર ડેટા એકાઉન્ટિંગ તમારા ઉપકરણથી અલગ હોઈ શકે છે."</string>
-    <string name="cryptkeeper_emergency_call" msgid="4625420047524693116">"કટોકટીમાં કૉલ જોડો"</string>
+    <string name="cryptkeeper_emergency_call" msgid="4625420047524693116">"ઇમર્જન્સી કૉલ"</string>
     <string name="cryptkeeper_return_to_call" msgid="4433942821196822815">"કૉલ પર પાછા ફરો"</string>
     <string name="vpn_name" msgid="3538818658670774080">"નામ"</string>
     <string name="vpn_type" msgid="6389116710008658550">"પ્રકાર"</string>
@@ -3394,9 +3394,9 @@
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"ખલેલ પાડશો નહીંને મંજૂરી આપો"</string>
     <string name="zen_access_empty_text" msgid="7667538993781607731">"કોઇ ઇન્સ્ટોલ કરેલ એપ્લિકેશન્સએ ખલેલ પાડશો નહીં ઍક્સેસ કરવાની વિનંતી કરી નથી"</string>
     <string name="loading_notification_apps" msgid="1978345231934072091">"ઍપ્લિકેશનો લોડ કરી રહ્યું છે..."</string>
-    <string name="app_notifications_off_desc" msgid="3904090905748895146">"તમારી વિનંતી મુજબ Android આ ઍપના નોટિફિકેશનને આ ઉપકરણ પર પ્રદર્શિત થતા બ્લૉક કરી રહ્યું છે"</string>
-    <string name="channel_notifications_off_desc" msgid="8005444443218306611">"તમારી વિનંતી મુજબ Android આ ઍપના નોટિફિકેશનની કૅટેગરીને આ ઉપકરણ પર પ્રદર્શિત થતા બ્લૉક કરી રહ્યું છે"</string>
-    <string name="channel_group_notifications_off_desc" msgid="7154205544298672850">"તમારી વિનંતી મુજબ Android આ ઍપના નોટિફિકેશનના જૂથોને આ ઉપકરણ પર પ્રદર્શિત થતા બ્લૉક કરી રહ્યું છે"</string>
+    <string name="app_notifications_off_desc" msgid="3904090905748895146">"તમારી વિનંતી મુજબ Android આ ઍપના નોટિફિકેશનને આ ડિવાઇસ પર પ્રદર્શિત થતા બ્લૉક કરી રહ્યું છે"</string>
+    <string name="channel_notifications_off_desc" msgid="8005444443218306611">"તમારી વિનંતી મુજબ Android આ ઍપના નોટિફિકેશનની કૅટેગરીને આ ડિવાઇસ પર પ્રદર્શિત થતા બ્લૉક કરી રહ્યું છે"</string>
+    <string name="channel_group_notifications_off_desc" msgid="7154205544298672850">"તમારી વિનંતી મુજબ Android આ ઍપના નોટિફિકેશનના ગ્રૂપને આ ડિવાઇસ પર પ્રદર્શિત થતા બ્લૉક કરી રહ્યું છે"</string>
     <string name="notification_channels" msgid="956764228116145956">"કૅટેગરીઓ"</string>
     <string name="notification_channels_other" msgid="1615988645667411530">"અન્ય"</string>
     <plurals name="notification_group_summary" formatted="false" msgid="3744856747513344999">

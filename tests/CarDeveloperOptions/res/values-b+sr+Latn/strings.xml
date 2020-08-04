@@ -1392,7 +1392,7 @@
     <string name="memory_media_usage" msgid="2744652206722240527">"Mediji"</string>
     <string name="memory_downloads_usage" msgid="7039979723012065168">"Preuzimanja"</string>
     <string name="memory_dcim_usage" msgid="599009211606524732">"Slike, video snimci"</string>
-    <string name="memory_music_usage" msgid="809605300042546279">"Audio (muzika, zvukovi zvona, potkasti itd.)"</string>
+    <string name="memory_music_usage" msgid="809605300042546279">"Audio (muzika, zvukovi zvona, podkasti itd.)"</string>
     <string name="memory_media_misc_usage" msgid="6258827529046910705">"Druge datoteke"</string>
     <string name="memory_media_cache_usage" msgid="1307620682751377717">"Keširani podaci"</string>
     <string name="sd_eject" product="nosdcard" msgid="3016608823130472449">"Isklj. deljene memorije"</string>

@@ -912,7 +912,7 @@
     <string name="rx_wifi_speed" msgid="7392873246110937187">"လက်ခံခြင်းလင့်ခ် အမြန်နှုန်း"</string>
     <string name="wifi_frequency" msgid="6132852924995724246">"လှိုင်းနှုန်း"</string>
     <string name="wifi_ip_address" msgid="5572539114989914831">"အိုင်ပီလိပ်စာ"</string>
-    <string name="passpoint_label" msgid="7429247462404128615">"မှတဆင့် သိမ်းရန်"</string>
+    <string name="passpoint_label" msgid="7429247462404128615">"မှတစ်ဆင့် သိမ်းရန်"</string>
     <string name="passpoint_content" msgid="340527524510304327">"<xliff:g id="NAME">%1$s</xliff:g> အထောက်အထားများ"</string>
     <string name="wifi_eap_method" msgid="3752116941487485859">"EAPနည်းလမ်း"</string>
     <string name="please_select_phase2" msgid="5848080896810435677">"အဆင့်(၂) စစ်မှန်ကြောင်းအတည်ပြုခြင်း"</string>
@@ -4519,6 +4519,6 @@
     <string name="automatic_system_heap_dump_title" msgid="2153897396923488317">"စနစ်၏ လျှပ်တစ်ပြက် မှတ်ဉာဏ်ကို အလိုအလျောက် ဖမ်းယူပါ"</string>
     <string name="automatic_system_heap_dump_summary" msgid="4962129546638974661">"မှတ်ဉာဏ် အလွန်အသုံးပြုသည့်အခါ \'Android စနစ်\' အတွက် လျှပ်တစ်ပြက် မှတ်ဉာဏ် အလိုအလျောက် ဖမ်းယူပေးသည်"</string>
     <string name="wifi_disconnect_button_text" msgid="787688024070426706">"ချိတ်ဆက်မှု ဖြုတ်ရန်"</string>
-    <string name="wfc_disclaimer_emergency_limitation_title_text" msgid="26884532087670844">"အရေးပေါ် ဖုန်းခေါ်ခြင်းများ"</string>
+    <string name="wfc_disclaimer_emergency_limitation_title_text" msgid="26884532087670844">"အရေးပေါ်ခေါ်ဆိုမှုများ"</string>
     <string name="wfc_disclaimer_emergency_limitation_desc_text" msgid="8726152486964822599">"\'Wi‑Fi ခေါ်ဆိုခြင်း\' မှတစ်ဆင့် အရေးပေါ်ဖုန်းခေါ်ခြင်းများကို သင့်ဝန်ဆောင်မှုပေးသူက ပံ့ပိုးမထားပါ။\nအရေးပေါ်ဖုန်းခေါ်ခြင်း ပြုလုပ်ရန် စက်ပစ္စည်းသည် ဆယ်လူလာကွန်ရက်သို့ အလိုအလျောက် ပြောင်းသွားပါမည်။\nဆယ်လူလာကွန်ရက် ရရှိနိုင်သည့် နယ်မြေများတွင်သာ အရေးပေါ်ဖုန်းခေါ်ခြင်းများ ပြုလုပ်နိုင်ပါသည်။"</string>
 </resources>
