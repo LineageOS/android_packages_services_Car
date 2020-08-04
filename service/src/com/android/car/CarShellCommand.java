@@ -139,7 +139,7 @@ final class CarShellCommand extends ShellCommand {
     private static final String COMMAND_SET_USER_AUTH_ASSOCIATION =
             "set-user-auth-association";
 
-    // Whitelist of commands allowed in user build. All these command should be protected with
+    // List of commands allowed in user build. All these command should be protected with
     // a permission. K: command, V: required permission.
     // Only commands with permission already granted to shell user should be allowed.
     // Commands that can affect safety should be never allowed in user build.

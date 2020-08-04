@@ -843,14 +843,14 @@ TEST(IoPerfCollectionTest, TestCustomCollectionFiltersPackageNames) {
     auto ret = collector->start();
     ASSERT_TRUE(ret) << ret.error().message();
 
-    // Dummy boot-time collection
+    // Mocked boot-time collection
     uidIoStatsStub->push({});
     procStatStub->push(ProcStatInfo{});
     procPidStatStub->push({});
     ret = looperStub->pollCache();
     ASSERT_TRUE(ret) << ret.error().message();
 
-    // Dummy Periodic collection
+    // Mocked Periodic collection
     ret = collector->onBootFinished();
     ASSERT_TRUE(ret) << ret.error().message();
     uidIoStatsStub->push({});
@@ -1004,14 +1004,14 @@ TEST(IoPerfCollectionTest, TestCustomCollectionTerminatesAfterMaxDuration) {
     auto ret = collector->start();
     ASSERT_TRUE(ret) << ret.error().message();
 
-    // Dummy boot-time collection
+    // Mocked boot-time collection
     uidIoStatsStub->push({});
     procStatStub->push(ProcStatInfo{});
     procPidStatStub->push({});
     ret = looperStub->pollCache();
     ASSERT_TRUE(ret) << ret.error().message();
 
-    // Dummy Periodic collection
+    // Mocked Periodic collection
     ret = collector->onBootFinished();
     ASSERT_TRUE(ret) << ret.error().message();
     uidIoStatsStub->push({});
