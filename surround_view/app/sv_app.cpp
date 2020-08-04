@@ -202,6 +202,12 @@ bool run3dSurroundView(sp<ISurroundViewService> pSurroundViewService,
     sp<SurroundViewServiceCallback> sv3dCallback
         = new SurroundViewServiceCallback(pDisplay, surroundView3dSession);
 
+    // A view must be set before the 3d stream is started.
+    if (!setView(surroundView3dSession, 0, 0, kHorizontalFov)) {
+        LOG(ERROR) << "Failed to setView of pose index :" << 0;
+        return false;
+    }
+
     // Start 3d stream with callback
     if (surroundView3dSession->startStream(sv3dCallback) != SvResult::OK) {
         LOG(ERROR) << "Failed to start 3d stream";
@@ -210,8 +216,9 @@ bool run3dSurroundView(sp<ISurroundViewService> pSurroundViewService,
 
     // Let the SV algorithm run for 10 seconds for HIGH_QUALITY
     const int totalViewingTimeSecs = 10;
-    const std::chrono::milliseconds perPoseSleepTimeMs(totalViewingTimeSecs * 1000 / kPoseCount);
-    for(uint32_t i = 0; i < kPoseCount; i++) {
+    const std::chrono::milliseconds
+            perPoseSleepTimeMs(totalViewingTimeSecs * 1000 / kPoseCount);
+    for(uint32_t i = 1; i < kPoseCount; i++) {
         if (!setView(surroundView3dSession, i, i, kHorizontalFov)) {
             LOG(WARNING) << "Failed to setView of pose index :" << i;
         }
