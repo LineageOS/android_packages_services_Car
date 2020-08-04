@@ -1633,10 +1633,10 @@
     <string name="tethering_help_button_text" msgid="7653022000284543996">"Օգնություն"</string>
     <string name="network_settings_title" msgid="8516526011407061679">"Բջջային ցանց"</string>
     <string name="manage_mobile_plan_title" msgid="3312016665522553062">"Բջջային փաթեթ"</string>
-    <string name="sms_application_title" msgid="7815840568119334679">"SMS-ի հավելված"</string>
-    <string name="sms_change_default_dialog_title" msgid="6301260161969667578">"Փոխե՞լ SMS հավելվածը"</string>
-    <string name="sms_change_default_dialog_text" msgid="8275088077930942680">"Որպես SMS ծրագիր` <xliff:g id="CURRENT_APP">%2$s</xliff:g>-ի փոխարեն օգտագործե՞լ <xliff:g id="NEW_APP">%1$s</xliff:g>-ը:"</string>
-    <string name="sms_change_default_no_previous_dialog_text" msgid="4680224695080527907">"Որպես SMS ծրագիր` օգտագործե՞լ <xliff:g id="NEW_APP">%s</xliff:g>-ը:"</string>
+    <string name="sms_application_title" msgid="7815840568119334679">"SMS-ների փոխանակման հավելված"</string>
+    <string name="sms_change_default_dialog_title" msgid="6301260161969667578">"Փոխե՞լ SMS-ների փոխանակման հավելվածը"</string>
+    <string name="sms_change_default_dialog_text" msgid="8275088077930942680">"Որպես SMS-ների փոխանակման հավելված <xliff:g id="CURRENT_APP">%2$s</xliff:g>-ի փոխարեն օգտագործե՞լ <xliff:g id="NEW_APP">%1$s</xliff:g>-ը:"</string>
+    <string name="sms_change_default_no_previous_dialog_text" msgid="4680224695080527907">"Որպես SMS-ների փոխանակման հավելված օգտագործե՞լ <xliff:g id="NEW_APP">%s</xliff:g>-ը:"</string>
     <string name="network_scorer_picker_title" msgid="1691073966560952916">"Ցանցերի վարկանիշի աղբյուրը"</string>
     <string name="network_scorer_picker_none_preference" msgid="6448280557733231737">"Չկա"</string>
     <string name="network_scorer_change_active_dialog_title" msgid="4274159562371475090">"Փոխե՞լ Wi-Fi օգնականին:"</string>
