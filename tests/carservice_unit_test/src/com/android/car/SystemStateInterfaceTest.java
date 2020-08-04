@@ -92,7 +92,7 @@ public class SystemStateInterfaceTest {
             return 0; // Success
         }
         @Override
-        public void setDisplayWhitelistForUser(int userId, int[] displayIds) {
+        public void setDisplayAllowlistForUser(int userId, int[] displayIds) {
         }
         @Override
         public void setPassengerDisplays(int[] displayIdsForPassenger) {
@@ -108,7 +108,7 @@ public class SystemStateInterfaceTest {
             return 1; // Failure
         }
         @Override
-        public void setDisplayWhitelistForUser(int userId, int[] displayIds) {
+        public void setDisplayAllowlistForUser(int userId, int[] displayIds) {
         }
         @Override
         public void setPassengerDisplays(int[] displayIdsForPassenger) {

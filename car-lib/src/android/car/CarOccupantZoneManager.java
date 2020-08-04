@@ -302,7 +302,7 @@ public class CarOccupantZoneManager extends CarManagerBase {
             int[] displayIds = mService.getAllDisplaysForOccupantZone(occupantZone.zoneId);
             ArrayList<Display> displays = new ArrayList<>(displayIds.length);
             for (int i = 0; i < displayIds.length; i++) {
-                // quick sanity check while getDisplay can still handle invalid display
+                // quick confidence check while getDisplay can still handle invalid display
                 if (displayIds[i] == Display.INVALID_DISPLAY) {
                     continue;
                 }
@@ -330,7 +330,7 @@ public class CarOccupantZoneManager extends CarManagerBase {
         assertNonNullOccupant(occupantZone);
         try {
             int displayId = mService.getDisplayForOccupant(occupantZone.zoneId, displayType);
-            // quick sanity check while getDisplay can still handle invalid display
+            // quick confidence check while getDisplay can still handle invalid display
             if (displayId == Display.INVALID_DISPLAY) {
                 return null;
             }
