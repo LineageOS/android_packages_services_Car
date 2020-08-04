@@ -303,7 +303,7 @@ public class CarUserManagerHelperTest extends AbstractExtendedMockitoTestCase {
 
         UserInfo workProfile = newUser(10);
         workProfile.userType = UserManager.USER_TYPE_PROFILE_MANAGED;
-        assertThat(workProfile.isManagedProfile()).isTrue(); // Sanity check
+        assertThat(workProfile.isManagedProfile()).isTrue(); // Confidence check
 
         mockGetUsers(systemUser, workProfile);
 

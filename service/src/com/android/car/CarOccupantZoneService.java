@@ -668,7 +668,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     private void doSyncWithCarServiceHelper(@Nullable ICarServiceHelper helper,
             boolean updateDisplay, boolean updateUser, boolean updateConfig) {
         int[] passengerDisplays = null;
-        ArrayMap<Integer, IntArray> whitelists = null;
+        ArrayMap<Integer, IntArray> allowlists = null;
         ICarServiceHelper helperToUse = helper;
         synchronized (mLock) {
             if (helper == null) {
@@ -683,14 +683,14 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                 passengerDisplays = getAllActivePassengerDisplaysLocked();
             }
             if (updateUser) {
-                whitelists = createDisplayWhitelistsLocked();
+                allowlists = createDisplayAllowlistsLocked();
             }
         }
         if (updateDisplay) {
             updatePassengerDisplays(helperToUse, passengerDisplays);
         }
         if (updateUser) {
-            updateUserAssignmentForDisplays(helperToUse, whitelists);
+            updateUserAssignmentForDisplays(helperToUse, allowlists);
         }
         if (updateConfig) {
             Resources res = mContext.getResources();
@@ -755,8 +755,8 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
     }
 
-    private ArrayMap<Integer, IntArray> createDisplayWhitelistsLocked() {
-        ArrayMap<Integer, IntArray> whitelists = new ArrayMap<>();
+    private ArrayMap<Integer, IntArray> createDisplayAllowlistsLocked() {
+        ArrayMap<Integer, IntArray> allowlists = new ArrayMap<>();
         for (int j = 0; j < mActiveOccupantConfigs.size(); ++j) {
             int zoneId = mActiveOccupantConfigs.keyAt(j);
             if (zoneId == mDriverZoneId) {
@@ -767,30 +767,30 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                 continue;
             }
             // user like driver can have multiple zones assigned, so add them all.
-            IntArray displays = whitelists.get(config.userId);
+            IntArray displays = allowlists.get(config.userId);
             if (displays == null) {
                 displays = new IntArray();
-                whitelists.put(config.userId, displays);
+                allowlists.put(config.userId, displays);
             }
             for (int i = 0; i < config.displayInfos.size(); i++) {
                 displays.add(config.displayInfos.get(i).display.getDisplayId());
             }
         }
-        return whitelists;
+        return allowlists;
     }
 
     private void updateUserAssignmentForDisplays(ICarServiceHelper helper,
-            ArrayMap<Integer, IntArray> whitelists) {
-        if (whitelists == null || whitelists.isEmpty()) {
+            ArrayMap<Integer, IntArray> allowlists) {
+        if (allowlists == null || allowlists.isEmpty()) {
             return;
         }
         try {
-            for (int i = 0; i < whitelists.size(); i++) {
-                int userId = whitelists.keyAt(i);
-                helper.setDisplayWhitelistForUser(userId, whitelists.valueAt(i).toArray());
+            for (int i = 0; i < allowlists.size(); i++) {
+                int userId = allowlists.keyAt(i);
+                helper.setDisplayAllowlistForUser(userId, allowlists.valueAt(i).toArray());
             }
         } catch (RemoteException e) {
-            Log.e(TAG, "ICarServiceHelper.setDisplayWhitelistForUser failed");
+            Log.e(TAG, "ICarServiceHelper.setDisplayAllowlistForUser failed");
         }
     }
 
