@@ -91,7 +91,7 @@ bool VideoCapture::open(const char* deviceName, const int32_t width, const int32
     // Set our desired output format
     v4l2_format format;
     format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    format.fmt.pix.pixelformat = V4L2_PIX_FMT_UYVY;
+    format.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
     format.fmt.pix.width = width;
     format.fmt.pix.height = height;
     LOG(INFO) << "Requesting format: "
@@ -125,7 +125,7 @@ bool VideoCapture::open(const char* deviceName, const int32_t width, const int32
 
     // Make sure we're initialized to the STOPPED state
     mRunMode = STOPPED;
-    mFrameReady = false;
+    mFrames.clear();
 
     // Ready to go!
     return true;
@@ -164,45 +164,54 @@ bool VideoCapture::startStream(std::function<void(VideoCapture*, imageBuffer*, v
         return false;
     }
 
-    // Get the information on the buffer that was created for us
-    memset(&mBufferInfo, 0, sizeof(mBufferInfo));
-    mBufferInfo.type     = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    mBufferInfo.memory   = V4L2_MEMORY_MMAP;
-    mBufferInfo.index    = 0;
-    if (ioctl(mDeviceFd, VIDIOC_QUERYBUF, &mBufferInfo) < 0) {
-        PLOG(ERROR) << "VIDIOC_QUERYBUF failed";
-        return false;
-    }
+    mNumBuffers = bufrequest.count;
+    mBufferInfos = std::make_unique<v4l2_buffer[]>(mNumBuffers);
+    mPixelBuffers = std::make_unique<void *[]>(mNumBuffers);
 
-    LOG(INFO) << "Buffer description:";
-    LOG(INFO) << "  offset: " << mBufferInfo.m.offset;
-    LOG(INFO) << "  length: " << mBufferInfo.length;
-    LOG(INFO) << "  flags : " << std::hex << mBufferInfo.flags;
+    for (int i = 0; i < mNumBuffers; ++i) {
+      // Get the information on the buffer that was created for us
+        memset(&mBufferInfos[i], 0, sizeof(v4l2_buffer));
+        mBufferInfos[i].type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+        mBufferInfos[i].memory = V4L2_MEMORY_MMAP;
+        mBufferInfos[i].index = i;
 
-    // Get a pointer to the buffer contents by mapping into our address space
-    mPixelBuffer = mmap(
-            NULL,
-            mBufferInfo.length,
-            PROT_READ | PROT_WRITE,
-            MAP_SHARED,
-            mDeviceFd,
-            mBufferInfo.m.offset
-    );
-    if( mPixelBuffer == MAP_FAILED) {
-        PLOG(ERROR) << "mmap() failed";
-        return false;
-    }
-    memset(mPixelBuffer, 0, mBufferInfo.length);
-    LOG(INFO) << "Buffer mapped at " << mPixelBuffer;
+        if (ioctl(mDeviceFd, VIDIOC_QUERYBUF, &mBufferInfos[i]) < 0) {
+            PLOG(ERROR) << "VIDIOC_QUERYBUF failed";
+            return false;
+        }
 
-    // Queue the first capture buffer
-    if (ioctl(mDeviceFd, VIDIOC_QBUF, &mBufferInfo) < 0) {
-        PLOG(ERROR) << "VIDIOC_QBUF failed";
-        return false;
+        LOG(INFO) << "Buffer description:";
+        LOG(INFO) << "  offset: " << mBufferInfos[i].m.offset;
+        LOG(INFO) << "  length: " << mBufferInfos[i].length;
+        LOG(INFO) << "  flags : " << std::hex << mBufferInfos[i].flags;
+
+        // Get a pointer to the buffer contents by mapping into our address space
+        mPixelBuffers[i] = mmap(
+                NULL,
+                mBufferInfos[i].length,
+                PROT_READ | PROT_WRITE,
+                MAP_SHARED,
+                mDeviceFd,
+                mBufferInfos[i].m.offset
+        );
+
+        if(mPixelBuffers[i] == MAP_FAILED) {
+            PLOG(ERROR) << "mmap() failed";
+            return false;
+        }
+
+        memset(mPixelBuffers[i], 0, mBufferInfos[i].length);
+        LOG(INFO) << "Buffer mapped at " << mPixelBuffers[i];
+
+        // Queue the first capture buffer
+        if (ioctl(mDeviceFd, VIDIOC_QBUF, &mBufferInfos[i]) < 0) {
+            PLOG(ERROR) << "VIDIOC_QBUF failed";
+            return false;
+        }
     }
 
     // Start the video stream
-    int type = mBufferInfo.type;
+    const int type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
     if (ioctl(mDeviceFd, VIDIOC_STREAMON, &type) < 0) {
         PLOG(ERROR) << "VIDIOC_STREAMON failed";
         return false;
@@ -236,7 +245,7 @@ void VideoCapture::stopStream() {
         }
 
         // Stop the underlying video stream (automatically empties the buffer queue)
-        int type = mBufferInfo.type;
+        const int type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         if (ioctl(mDeviceFd, VIDIOC_STREAMOFF, &type) < 0) {
             PLOG(ERROR) << "VIDIOC_STREAMOFF failed";
         }
@@ -244,8 +253,10 @@ void VideoCapture::stopStream() {
         LOG(DEBUG) << "Capture thread stopped.";
     }
 
-    // Unmap the buffers we allocated
-    munmap(mPixelBuffer, mBufferInfo.length);
+    for (int i = 0; i < mNumBuffers; ++i) {
+        // Unmap the buffers we allocated
+        munmap(mPixelBuffers[i], mBufferInfos[i].length);
+    }
 
     // Tell the L4V2 driver to release our streaming buffers
     v4l2_requestbuffers bufrequest;
@@ -256,23 +267,28 @@ void VideoCapture::stopStream() {
 
     // Drop our reference to the frame delivery callback interface
     mCallback = nullptr;
+
+    // Release capture buffers
+    mNumBuffers = 0;
+    mBufferInfos = nullptr;
+    mPixelBuffers = nullptr;
 }
 
 
-void VideoCapture::markFrameReady() {
-    mFrameReady = true;
-};
-
-
-bool VideoCapture::returnFrame() {
-    // We're giving the frame back to the system, so clear the "ready" flag
-    mFrameReady = false;
+bool VideoCapture::returnFrame(int id) {
+    if (mFrames.find(id) == mFrames.end()) {
+        LOG(WARNING) << "Invalid request to return a buffer " << id << " is ignored.";
+        return false;
+    }
 
     // Requeue the buffer to capture the next available frame
-    if (ioctl(mDeviceFd, VIDIOC_QBUF, &mBufferInfo) < 0) {
+    if (ioctl(mDeviceFd, VIDIOC_QBUF, &mBufferInfos[id]) < 0) {
         PLOG(ERROR) << "VIDIOC_QBUF failed";
         return false;
     }
+
+    // Remove ID of returned buffer from the set
+    mFrames.erase(id);
 
     return true;
 }
@@ -282,17 +298,22 @@ bool VideoCapture::returnFrame() {
 void VideoCapture::collectFrames() {
     // Run until our atomic signal is cleared
     while (mRunMode == RUN) {
+        struct v4l2_buffer buf = {
+            .type   = V4L2_BUF_TYPE_VIDEO_CAPTURE,
+            .memory = V4L2_MEMORY_MMAP
+        };
+
         // Wait for a buffer to be ready
-        if (ioctl(mDeviceFd, VIDIOC_DQBUF, &mBufferInfo) < 0) {
+        if (ioctl(mDeviceFd, VIDIOC_DQBUF, &buf) < 0) {
             PLOG(ERROR) << "VIDIOC_DQBUF failed";
             break;
         }
 
-        markFrameReady();
+        mFrames.insert(buf.index);
 
         // If a callback was requested per frame, do that now
         if (mCallback) {
-            mCallback(this, &mBufferInfo, mPixelBuffer);
+            mCallback(this, &mBufferInfos[buf.index], mPixelBuffers[buf.index]);
         }
     }
 
