@@ -144,17 +144,15 @@ bool SurroundViewServiceCallback::prepareGL() {
         return false;
     }
 
-    // Create a dummy pbuffer so we have a surface to bind -- we never intend
+    // Create a placeholder pbuffer so we have a surface to bind -- we never intend
     // to draw to this because attachRenderTarget will be called first.
     EGLint surface_attribs[] = { EGL_WIDTH, 1, EGL_HEIGHT, 1, EGL_NONE };
-    EGLSurface sDummySurface = eglCreatePbufferSurface(display, egl_config,
-                                                       surface_attribs);
-    if (sDummySurface == EGL_NO_SURFACE) {
-        LOG(ERROR) << "Failed to create OpenGL ES Dummy surface: "
-                   << getEGLError();
+    EGLSurface sPlaceholderSurface = eglCreatePbufferSurface(display, egl_config, surface_attribs);
+    if (sPlaceholderSurface == EGL_NO_SURFACE) {
+        LOG(ERROR) << "Failed to create OpenGL ES Placeholder surface: " << getEGLError();
         return false;
     } else {
-        LOG(INFO) << "Dummy surface looks good!  :)";
+        LOG(INFO) << "Placeholder surface looks good!  :)";
     }
 
     //
@@ -169,7 +167,7 @@ bool SurroundViewServiceCallback::prepareGL() {
     }
 
     // Activate our render target for drawing
-    if (!eglMakeCurrent(display, sDummySurface, sDummySurface, context)) {
+    if (!eglMakeCurrent(display, sPlaceholderSurface, sPlaceholderSurface, context)) {
         LOG(ERROR) << "Failed to make the OpenGL ES Context current: "
                    << getEGLError();
         return false;

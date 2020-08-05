@@ -103,7 +103,7 @@ public final class CarFeatureController implements CarServiceBase {
 
     private static final String FEATURE_CONFIG_FILE_NAME = "car_feature_config.txt";
 
-    // Last line starts with this with number of features for extra sanity check.
+    // Last line starts with this with number of features for extra confidence check.
     private static final String CONFIG_FILE_LAST_LINE_MARKER = ",,";
 
     // Set once in constructor and not updated. Access it without lock so that it can be accessed
