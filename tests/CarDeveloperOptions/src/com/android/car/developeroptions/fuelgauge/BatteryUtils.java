@@ -39,15 +39,15 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 
-import com.android.internal.os.BatterySipper;
-import com.android.internal.os.BatteryStatsHelper;
-import com.android.internal.util.ArrayUtils;
 import com.android.car.developeroptions.fuelgauge.batterytip.AnomalyDatabaseHelper;
 import com.android.car.developeroptions.fuelgauge.batterytip.AnomalyInfo;
 import com.android.car.developeroptions.fuelgauge.batterytip.BatteryDatabaseManager;
 import com.android.car.developeroptions.fuelgauge.batterytip.StatsManagerConfig;
 import com.android.car.developeroptions.overlay.FeatureFactory;
-import com.android.settingslib.fuelgauge.PowerWhitelistBackend;
+import com.android.internal.os.BatterySipper;
+import com.android.internal.os.BatteryStatsHelper;
+import com.android.internal.util.ArrayUtils;
+import com.android.settingslib.fuelgauge.PowerAllowlistBackend;
 import com.android.settingslib.utils.PowerUtil;
 import com.android.settingslib.utils.ThreadUtils;
 
@@ -539,7 +539,7 @@ public class BatteryUtils {
     /**
      * Return {@code true} if we should hide anomaly app represented by {@code uid}
      */
-    public boolean shouldHideAnomaly(PowerWhitelistBackend powerWhitelistBackend, int uid,
+    public boolean shouldHideAnomaly(PowerAllowlistBackend powerAllowlistBackend, int uid,
             AnomalyInfo anomalyInfo) {
         final String[] packageNames = mPackageManager.getPackagesForUid(uid);
         if (ArrayUtils.isEmpty(packageNames)) {
@@ -547,7 +547,7 @@ public class BatteryUtils {
             return true;
         }
 
-        return isSystemUid(uid) || powerWhitelistBackend.isWhitelisted(packageNames)
+        return isSystemUid(uid) || powerAllowlistBackend.isAllowlisted(packageNames)
                 || (isSystemApp(mPackageManager, packageNames) && !hasLauncherEntry(packageNames))
                 || (isExcessiveBackgroundAnomaly(anomalyInfo) && !isPreOApp(packageNames));
     }
