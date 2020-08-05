@@ -130,16 +130,16 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
         assertConvertFlags(UserFlags.NONE, user);
 
         user.flags = UserInfo.FLAG_ADMIN;
-        assertThat(user.isAdmin()).isTrue(); // sanity check
+        assertThat(user.isAdmin()).isTrue(); // Confidence check
         assertConvertFlags(UserFlags.ADMIN, user);
 
         user.flags = UserInfo.FLAG_EPHEMERAL;
-        assertThat(user.isEphemeral()).isTrue(); // sanity check
+        assertThat(user.isEphemeral()).isTrue(); // Confidence check
         assertConvertFlags(UserFlags.EPHEMERAL, user);
 
         user.userType = UserManager.USER_TYPE_FULL_GUEST;
-        assertThat(user.isEphemeral()).isTrue(); // sanity check
-        assertThat(user.isGuest()).isTrue(); // sanity check
+        assertThat(user.isEphemeral()).isTrue(); // Confidence check
+        assertThat(user.isGuest()).isTrue(); // Confidence check
         assertConvertFlags(UserFlags.GUEST | UserFlags.EPHEMERAL, user);
     }
 
@@ -165,16 +165,16 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
         assertGetFlags(UserFlags.NONE, user);
 
         user.flags = UserInfo.FLAG_ADMIN;
-        assertThat(user.isAdmin()).isTrue(); // sanity check
+        assertThat(user.isAdmin()).isTrue(); // Confidence check
         assertGetFlags(UserFlags.ADMIN, user);
 
         user.flags = UserInfo.FLAG_EPHEMERAL;
-        assertThat(user.isEphemeral()).isTrue(); // sanity check
+        assertThat(user.isEphemeral()).isTrue(); // Confidence check
         assertGetFlags(UserFlags.EPHEMERAL, user);
 
         user.userType = UserManager.USER_TYPE_FULL_GUEST;
-        assertThat(user.isEphemeral()).isTrue(); // sanity check
-        assertThat(user.isGuest()).isTrue(); // sanity check
+        assertThat(user.isEphemeral()).isTrue(); // Confidence check
+        assertThat(user.isGuest()).isTrue(); // Confidence check
         assertGetFlags(UserFlags.GUEST | UserFlags.EPHEMERAL, user);
     }
 
