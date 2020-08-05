@@ -87,4 +87,4 @@ PRODUCT_COPY_FILES += \
     packages/services/Car/car_product/init/init.car.rc:system/etc/init/init.car.rc
 
 # Enable car watchdog
-include packages/services/Car/watchdog/product/carwatchdog.mk
+include packages/services/Car/cpp/watchdog/product/carwatchdog.mk
