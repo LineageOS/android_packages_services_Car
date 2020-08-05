@@ -42,6 +42,10 @@
         <install-in user-type="FULL" />
         <install-in user-type="SYSTEM" />
     </install-in-user-type>
+        <install-in-user-type package="com.android.car.shell">
+        <install-in user-type="FULL" />
+        <install-in user-type="SYSTEM" />
+    </install-in-user-type>
     <install-in-user-type package="com.android.car.frameworkpackagestubs">
         <install-in user-type="FULL" />
         <install-in user-type="SYSTEM" />
