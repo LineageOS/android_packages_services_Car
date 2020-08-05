@@ -28,9 +28,8 @@ import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.Log;
 
-import androidx.annotation.VisibleForTesting;
-
 import com.android.car.audio.CarAudioContext.AudioContext;
+import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
 import java.io.PrintWriter;

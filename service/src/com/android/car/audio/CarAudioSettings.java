@@ -15,12 +15,11 @@
  */
 package com.android.car.audio;
 
+import android.annotation.NonNull;
 import android.annotation.UserIdInt;
 import android.car.settings.CarSettings;
 import android.content.ContentResolver;
 import android.provider.Settings;
-
-import androidx.annotation.NonNull;
 
 import java.util.Objects;
 

@@ -21,6 +21,7 @@ import static android.media.AudioManager.AUDIOFOCUS_REQUEST_DELAYED;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_FAILED;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 
+import android.annotation.NonNull;
 import android.car.media.CarAudioManager;
 import android.hardware.automotive.audiocontrol.V2_0.IFocusListener;
 import android.media.AudioAttributes;
@@ -31,8 +32,6 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
 import android.util.SparseArray;
-
-import androidx.annotation.NonNull;
 
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;

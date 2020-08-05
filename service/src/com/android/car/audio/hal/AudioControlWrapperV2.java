@@ -16,6 +16,7 @@
 
 package com.android.car.audio.hal;
 
+import android.annotation.Nullable;
 import android.hardware.automotive.audiocontrol.V2_0.IAudioControl;
 import android.hardware.automotive.audiocontrol.V2_0.ICloseHandle;
 import android.hardware.automotive.audiocontrol.V2_0.IFocusListener;
@@ -23,8 +24,6 @@ import android.media.AudioAttributes;
 import android.media.AudioAttributes.AttributeUsage;
 import android.os.RemoteException;
 import android.util.Log;
-
-import androidx.annotation.Nullable;
 
 import java.io.PrintWriter;
 import java.util.NoSuchElementException;

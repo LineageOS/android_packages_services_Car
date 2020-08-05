@@ -50,12 +50,11 @@ import android.util.Log;
 import android.view.IWindowManager;
 import android.view.WindowManagerGlobal;
 
-import androidx.annotation.VisibleForTesting;
-
 import com.android.car.CarLocalServices;
 import com.android.car.CarServiceBase;
 import com.android.car.R;
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
 
