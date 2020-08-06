@@ -460,7 +460,10 @@ Return<void> SurroundView3dSession::get3dConfig(get3dConfig_cb _hidl_cb) {
     return {};
 }
 
-bool VerifyOverlayData(const OverlaysData& overlaysData) {
+bool VerifyAndGetOverlays(const OverlaysData& overlaysData, std::vector<Overlay>* svCoreOverlays) {
+    // Clear the overlays.
+    svCoreOverlays->clear();
+
     // Check size of shared memory matches overlaysMemoryDesc.
     const int kVertexSize = 16;
     const int kIdSize = 2;
@@ -468,8 +471,8 @@ bool VerifyOverlayData(const OverlaysData& overlaysData) {
     for (auto& overlayMemDesc : overlaysData.overlaysMemoryDesc) {
         memDescSize += kIdSize + kVertexSize * overlayMemDesc.verticesCount;
     }
-    if (memDescSize != overlaysData.overlaysMemory.size()) {
-        LOG(ERROR) << "shared memory and overlaysMemoryDesc size mismatch.";
+    if (overlaysData.overlaysMemory.size() < memDescSize) {
+        LOG(ERROR) << "Allocated shared memory size is less than overlaysMemoryDesc size.";
         return false;
     }
 
@@ -494,12 +497,14 @@ bool VerifyOverlayData(const OverlaysData& overlaysData) {
 
         if (overlayIdSet.find(overlayMemDesc.id) != overlayIdSet.end()) {
             LOG(ERROR) << "Duplicate id within memory descriptor.";
+            svCoreOverlays->clear();
             return false;
         }
         overlayIdSet.insert(overlayMemDesc.id);
 
         if(overlayMemDesc.verticesCount < 3) {
             LOG(ERROR) << "Less than 3 vertices.";
+            svCoreOverlays->clear();
             return false;
         }
 
@@ -507,18 +512,26 @@ bool VerifyOverlayData(const OverlaysData& overlaysData) {
                 overlayMemDesc.verticesCount % 3 != 0) {
             LOG(ERROR) << "Triangles primitive does not have vertices "
                        << "multiple of 3.";
+            svCoreOverlays->clear();
             return false;
         }
 
         const uint16_t overlayId = *((uint16_t*)(pData + idOffset));
 
         if (overlayId != overlayMemDesc.id) {
-            LOG(ERROR) << "Overlay id mismatch "
-                       << overlayId
-                       << ", "
-                       << overlayMemDesc.id;
+            LOG(ERROR) << "Overlay id mismatch " << overlayId << ", " << overlayMemDesc.id;
+            svCoreOverlays->clear();
             return false;
         }
+
+        // Copy over shared memory data to sv core overlays.
+        Overlay svCoreOverlay;
+        svCoreOverlay.id = overlayMemDesc.id;
+        svCoreOverlay.vertices.resize(overlayMemDesc.verticesCount);
+        uint8_t* verticesDataPtr = pData + idOffset + kIdSize;
+        memcpy(svCoreOverlay.vertices.data(), verticesDataPtr,
+                kVertexSize * overlayMemDesc.verticesCount);
+        svCoreOverlays->push_back(svCoreOverlay);
 
         idOffset += kIdSize + (kVertexSize * overlayMemDesc.verticesCount);
     }
@@ -526,15 +539,16 @@ bool VerifyOverlayData(const OverlaysData& overlaysData) {
     return true;
 }
 
-// TODO(b/150412555): the overlay related methods are incomplete.
-Return<SvResult>  SurroundView3dSession::updateOverlays(
-        const OverlaysData& overlaysData) {
+Return<SvResult>  SurroundView3dSession::updateOverlays(const OverlaysData& overlaysData) {
+    LOG(DEBUG) << __FUNCTION__;
 
-    if(!VerifyOverlayData(overlaysData)) {
-        LOG(ERROR) << "VerifyOverlayData failed.";
+    scoped_lock <mutex> lock(mAccessLock);
+    if(!VerifyAndGetOverlays(overlaysData, &mOverlays)) {
+        LOG(ERROR) << "VerifyAndGetOverlays failed.";
         return SvResult::INVALID_ARG;
     }
 
+    mOverlayIsUpdated = true;
     return SvResult::OK;
 }
 
@@ -566,8 +580,9 @@ Return<void> SurroundView3dSession::projectCameraPointsTo3dSurface(
         Point3dFloat point3d = {false, 0.0, 0.0, 0.0};
 
         // Verify if camera point is within the camera resolution bounds.
-        point3d.isValid = (cameraPoint.x >= 0 && cameraPoint.x < mConfig.width &&
-                           cameraPoint.y >= 0 && cameraPoint.y < mConfig.height);
+        const Size2dInteger cameraSize = mCameraParams[cameraIndex].size;
+        point3d.isValid = (cameraPoint.x >= 0 && cameraPoint.x < cameraSize.width &&
+                           cameraPoint.y >= 0 && cameraPoint.y < cameraSize.height);
         if (!point3d.isValid) {
             LOG(WARNING) << "Camera point (" << cameraPoint.x << ", " << cameraPoint.y
                          << ") is out of camera resolution bounds.";
@@ -647,6 +662,17 @@ bool SurroundView3dSession::handleFrames(int sequenceId) {
         } else {
             LOG(ERROR) << "Failed to allocate Graphic Buffer";
             return false;
+        }
+    }
+
+    // Set 3d overlays.
+    {
+        scoped_lock<mutex> lock(mAccessLock);
+        if (mOverlayIsUpdated) {
+            if (!mSurroundView->Set3dOverlay(mOverlays)) {
+                LOG(ERROR) << "Set 3d overlays failed.";
+            }
+            mOverlayIsUpdated = false;
         }
     }
 
