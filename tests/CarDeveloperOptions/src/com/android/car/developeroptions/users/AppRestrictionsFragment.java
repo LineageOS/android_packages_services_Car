@@ -387,7 +387,7 @@ public class AppRestrictionsFragment extends SettingsPreferenceFragment implemen
             p.setChecked(false);
             p.setTitle(app.activityName);
             p.setKey(getKeyForPackage(packageName));
-            p.setSettingsEnabled(hasSettings && app.masterEntry == null);
+            p.setSettingsEnabled(hasSettings && app.primaryEntry == null);
             p.setPersistent(false);
             p.setOnPreferenceChangeListener(this);
             p.setOnPreferenceClickListener(this);
@@ -401,13 +401,13 @@ public class AppRestrictionsFragment extends SettingsPreferenceFragment implemen
                 // able to toggle this app ON (it's ON by default and immutable).
                 // Only do this for restricted profiles, not single-user restrictions
                 // Also don't do this for child icons
-                if (app.masterEntry == null) {
+                if (app.primaryEntry == null) {
                     requestRestrictionsForApp(packageName, p, false);
                 }
             } else if (!mNewUser && isAppEnabledForUser(pi)) {
                 p.setChecked(true);
             }
-            if (app.masterEntry != null) {
+            if (app.primaryEntry != null) {
                 p.setImmutable(true);
                 p.setChecked(mHelper.isPackageSelected(packageName));
             }
@@ -430,13 +430,13 @@ public class AppRestrictionsFragment extends SettingsPreferenceFragment implemen
         // - Child entry that cannot see primary user accounts
         // - Parent entry that can see primary user accounts
         // Otherwise no summary is returned
-        if (app.masterEntry != null) {
+        if (app.primaryEntry != null) {
             if (mRestrictedProfile && pi.restrictedAccountType != null) {
                 return getString(R.string.app_sees_restricted_accounts_and_controlled_by,
-                        app.masterEntry.activityName);
+                        app.primaryEntry.activityName);
             }
             return getString(R.string.user_restrictions_controlled_by,
-                    app.masterEntry.activityName);
+                    app.primaryEntry.activityName);
         } else if (pi.restrictedAccountType != null) {
             return getString(R.string.app_sees_restricted_accounts);
         }
