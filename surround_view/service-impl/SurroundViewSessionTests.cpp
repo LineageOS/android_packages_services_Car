@@ -28,6 +28,7 @@
 #include <android-base/logging.h>
 
 #include <gtest/gtest.h>
+#include <time.h>
 
 namespace android {
 namespace hardware {
@@ -39,6 +40,7 @@ namespace {
 
 const char* kSvConfigFilename = "vendor/etc/automotive/sv/sv_sample_config.xml";
 
+// TODO(b/159733690): Verify the callbacks using help/mock methods
 TEST(SurroundViewSessionTests, startAndStopSurroundView2dSession) {
     sp<IEvsEnumerator> fakeEvs = new MockEvsEnumerator();
     IOModule* ioModule = new IOModule(kSvConfigFilename);
@@ -56,6 +58,8 @@ TEST(SurroundViewSessionTests, startAndStopSurroundView2dSession) {
             new MockSurroundViewCallback(sv2dSession);
 
     EXPECT_EQ(sv2dSession->startStream(sv2dCallback), SvResult::OK);
+
+    sleep(5);
 
     sv2dSession->stopStream();
 }
@@ -79,12 +83,21 @@ TEST(SurroundViewSessionTests, startAndStopSurroundView3dSession) {
     sp<MockSurroundViewCallback> sv3dCallback =
             new MockSurroundViewCallback(sv3dSession);
 
-    View3d view = {};
+    View3d view = {
+        .viewId = 0,
+        .pose = {
+            .rotation = {.x=0, .y=0, .z=0, .w=1.0f},
+            .translation = {.x=0, .y=0, .z=0},
+        },
+        .horizontalFov = 90,
+    };
     vector<View3d> views;
     views.emplace_back(view);
     sv3dSession->setViews(views);
 
     EXPECT_EQ(sv3dSession->startStream(sv3dCallback), SvResult::OK);
+
+    sleep(5);
 
     sv3dSession->stopStream();
 }
