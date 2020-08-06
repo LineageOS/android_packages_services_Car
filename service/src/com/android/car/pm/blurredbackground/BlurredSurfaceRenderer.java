@@ -146,15 +146,15 @@ public class BlurredSurfaceRenderer implements GLSurfaceView.Renderer {
                 Log.e(TAG,
                         "Could not find display token for screenshot. Will not capture screenshot");
             } else {
+                final SurfaceControl.DisplayCaptureArgs captureArgs =
+                        new SurfaceControl.DisplayCaptureArgs.Builder(token)
+                                .setSize(mWindowRect.width(), mWindowRect.height())
+                                .setSourceCrop(mWindowRect)
+                                .setUseIdentityTransform(true)
+                                .build();
+
                 SurfaceControl.ScreenshotHardwareBuffer screenshotHardwareBuffer =
-                        SurfaceControl.screenshotToBuffer(
-                                token,
-                                mWindowRect,
-                                mWindowRect.width(),
-                                mWindowRect.height(),
-                                /* useIdentityTransform= */ false,
-                                Surface.ROTATION_0
-                        );
+                        SurfaceControl.captureDisplay(captureArgs);
                 mSurface.attachAndQueueBufferWithColorSpace(
                         screenshotHardwareBuffer.getHardwareBuffer(),
                         screenshotHardwareBuffer.getColorSpace());
