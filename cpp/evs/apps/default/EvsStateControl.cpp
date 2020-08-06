@@ -219,8 +219,8 @@ void EvsStateControl::updateLoop() {
 
 
 bool EvsStateControl::selectStateForCurrentConditions() {
-    static int32_t sDummyGear   = int32_t(VehicleGear::GEAR_REVERSE);
-    static int32_t sDummySignal = int32_t(VehicleTurnSignal::NONE);
+    static int32_t sMockGear   = int32_t(VehicleGear::GEAR_REVERSE);
+    static int32_t sMockSignal = int32_t(VehicleTurnSignal::NONE);
 
     if (mVehicle != nullptr) {
         // Query the car state
@@ -230,7 +230,7 @@ bool EvsStateControl::selectStateForCurrentConditions() {
         }
         if ((mTurnSignalValue.prop == 0) || (invokeGet(&mTurnSignalValue) != StatusCode::OK)) {
             // Silently treat missing turn signal state as no turn signal active
-            mTurnSignalValue.value.int32Values.setToExternal(&sDummySignal, 1);
+            mTurnSignalValue.value.int32Values.setToExternal(&sMockSignal, 1);
             mTurnSignalValue.prop = 0;
         }
     } else {
@@ -242,12 +242,12 @@ bool EvsStateControl::selectStateForCurrentConditions() {
         std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
         if (std::chrono::duration_cast<std::chrono::seconds>(now - start).count() > kShowTime) {
             // Switch to drive (which should turn off the reverse camera)
-            sDummyGear = int32_t(VehicleGear::GEAR_DRIVE);
+            sMockGear = int32_t(VehicleGear::GEAR_DRIVE);
         }
 
         // Build the placeholder vehicle state values (treating single values as 1 element vectors)
-        mGearValue.value.int32Values.setToExternal(&sDummyGear, 1);
-        mTurnSignalValue.value.int32Values.setToExternal(&sDummySignal, 1);
+        mGearValue.value.int32Values.setToExternal(&sMockGear, 1);
+        mTurnSignalValue.value.int32Values.setToExternal(&sMockSignal, 1);
     }
 
     // Choose our desired EVS state based on the current car state

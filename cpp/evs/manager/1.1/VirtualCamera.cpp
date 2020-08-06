@@ -77,7 +77,7 @@ void VirtualCamera::shutdown() {
                 mFramesHeld[key].clear();
             }
 
-            // Retire from a master client
+            // Retire from a primary client
             pHwCamera->unsetMaster(this);
 
             // Give the underlying hardware camera the heads up that it might be time to stop
@@ -201,7 +201,7 @@ bool VirtualCamera::notify(const EvsEventDesc& event) {
             break;
 
         case EvsEventType::MASTER_RELEASED:
-            LOG(DEBUG) << "The master client has been released";
+            LOG(DEBUG) << "The primary client has been released";
             break;
 
         default:

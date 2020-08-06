@@ -29,7 +29,7 @@ using ::android::GraphicBuffer;
 // OpenGL state shared among all renderers
 EGLDisplay   RenderBase::sDisplay = EGL_NO_DISPLAY;
 EGLContext   RenderBase::sContext = EGL_NO_CONTEXT;
-EGLSurface   RenderBase::sDummySurface = EGL_NO_SURFACE;
+EGLSurface   RenderBase::sMockSurface = EGL_NO_SURFACE;
 GLuint       RenderBase::sFrameBuffer = -1;
 GLuint       RenderBase::sColorBuffer = -1;
 GLuint       RenderBase::sDepthBuffer = -1;
@@ -85,15 +85,15 @@ bool RenderBase::prepareGL() {
     }
 
 
-    // Create a dummy pbuffer so we have a surface to bind -- we never intend to draw to this
+    // Create a temporary pbuffer so we have a surface to bind -- we never intend to draw to this
     // because attachRenderTarget will be called first.
     EGLint surface_attribs[] = { EGL_WIDTH, 1, EGL_HEIGHT, 1, EGL_NONE };
-    sDummySurface = eglCreatePbufferSurface(display, egl_config, surface_attribs);
-    if (sDummySurface == EGL_NO_SURFACE) {
-        LOG(ERROR) << "Failed to create OpenGL ES Dummy surface: " << getEGLError();
+    sMockSurface = eglCreatePbufferSurface(display, egl_config, surface_attribs);
+    if (sMockSurface == EGL_NO_SURFACE) {
+        LOG(ERROR) << "Failed to create OpenGL ES Mock surface: " << getEGLError();
         return false;
     } else {
-        LOG(INFO) << "Dummy surface looks good!  :)";
+        LOG(INFO) << "Mock surface looks good!  :)";
     }
 
 
@@ -108,7 +108,7 @@ bool RenderBase::prepareGL() {
 
 
     // Activate our render target for drawing
-    if (!eglMakeCurrent(display, sDummySurface, sDummySurface, context)) {
+    if (!eglMakeCurrent(display, sMockSurface, sMockSurface, context)) {
         LOG(ERROR) << "Failed to make the OpenGL ES Context current: " << getEGLError();
         return false;
     } else {

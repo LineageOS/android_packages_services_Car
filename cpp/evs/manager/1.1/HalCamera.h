@@ -140,7 +140,7 @@ private:
         FrameRecord(uint32_t id) : frameId(id), refCount(0) {};
     };
     std::vector<FrameRecord>        mFrames;
-    wp<VirtualCamera>               mMaster = nullptr;
+    wp<VirtualCamera>               mPrimaryClient = nullptr;
     std::string                     mId;
     Stream                          mStreamConfig;
 
