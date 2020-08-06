@@ -18,6 +18,8 @@ package com.android.car;
 import static android.car.media.CarMediaManager.MEDIA_SOURCE_MODE_BROWSE;
 import static android.car.media.CarMediaManager.MEDIA_SOURCE_MODE_PLAYBACK;
 
+import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.annotation.TestApi;
 import android.app.ActivityManager;
 import android.car.Car;
@@ -54,9 +56,6 @@ import android.os.UserManager;
 import android.service.media.MediaBrowserService;
 import android.text.TextUtils;
 import android.util.Log;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;

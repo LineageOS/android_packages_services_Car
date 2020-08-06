@@ -47,12 +47,11 @@ import android.os.SystemClock;
 import android.util.ArraySet;
 import android.util.Log;
 
-import androidx.annotation.GuardedBy;
-import androidx.annotation.VisibleForTesting;
-
 import com.android.car.CarLocalServices;
 import com.android.car.CarServiceUtils;
 import com.android.car.vms.VmsBrokerService;
+import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;

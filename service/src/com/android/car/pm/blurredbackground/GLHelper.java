@@ -16,14 +16,13 @@
 
 package com.android.car.pm.blurredbackground;
 
+import android.annotation.Nullable;
 import android.content.Context;
 import android.opengl.GLES30;
 import android.opengl.Matrix;
 import android.os.Build;
 import android.util.Log;
 import android.util.Slog;
-
-import androidx.annotation.Nullable;
 
 import libcore.io.Streams;
 

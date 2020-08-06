@@ -16,12 +16,11 @@
 
 package com.android.car.audio;
 
+import android.annotation.IntDef;
 import android.media.AudioAttributes;
 import android.media.AudioAttributes.AttributeUsage;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
-
-import androidx.annotation.IntDef;
 
 import com.android.internal.util.Preconditions;
 
