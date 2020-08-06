@@ -20,7 +20,6 @@ import static org.testng.Assert.assertThrows;
 
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.JavaMockitoHelper;
-import android.car.userlib.InitialUserSetter;
 import android.content.Context;
 import android.content.res.Resources;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
@@ -50,8 +49,6 @@ public final class SilentModeControllerUnitTest extends AbstractExtendedMockitoT
     @Mock
     private UserManager mUserManager;
     @Mock
-    private InitialUserSetter mInitialUserSetter;
-    @Mock
     private SystemInterface mMockSystemInterface;
     @Mock
     private IVoiceInteractionManagerService mMockInteractionManager;
@@ -79,7 +76,7 @@ public final class SilentModeControllerUnitTest extends AbstractExtendedMockitoT
         mPowerHal = new MockedPowerHalService(true /*isPowerStateSupported*/,
                 true /*isDeepSleepAllowed*/, true /*isTimedWakeupAllowed*/);
         mCarPowerManagementService = new CarPowerManagementService(mContext, mResources, mPowerHal,
-                mMockSystemInterface, mUserManager, null, mInitialUserSetter);
+                mMockSystemInterface, mUserManager, null);
         CarLocalServices.addService(CarPowerManagementService.class, mCarPowerManagementService);
         mCarPowerManagementService.onApPowerStateChange(
                 new PowerState(VehicleApPowerStateReq.ON, 0));

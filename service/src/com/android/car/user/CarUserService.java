@@ -55,7 +55,6 @@ import android.graphics.Bitmap;
 import android.hardware.automotive.vehicle.V2_0.CreateUserRequest;
 import android.hardware.automotive.vehicle.V2_0.CreateUserStatus;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
-import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
 import android.hardware.automotive.vehicle.V2_0.RemoveUserRequest;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserRequest;
@@ -86,6 +85,7 @@ import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
 import com.android.car.R;
 import com.android.car.hal.UserHalService;
+import com.android.car.power.CarPowerManagementService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.car.EventLogTags;
@@ -333,6 +333,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         dumpGlobalProperty(writer, indent, CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID);
 
         dumpUserMetrics(writer);
+
+        mInitialUserSetter.dump(writer);
     }
 
     private void dumpGlobalProperty(PrintWriter writer, String indent, String property) {
@@ -632,55 +634,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         mHandler.post(() -> mAppLifecycleListeners.remove(uid));
     }
 
-    @Override
-    public void getInitialUserInfo(int requestType, int timeoutMs,
-            @NonNull IResultReceiver receiver) {
-        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_INITIAL_USER_INFO_REQ, requestType,
-                timeoutMs);
-        Objects.requireNonNull(receiver, "receiver cannot be null");
-        checkManageUsersPermission("getInitialInfo");
-        if (!isUserHalSupported()) {
-            sendResult(receiver, HalCallback.STATUS_HAL_NOT_SUPPORTED, null);
-            return;
-        }
-        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUserManager);
-        mHal.getInitialUserInfo(requestType, timeoutMs, usersInfo, (status, resp) -> {
-            Bundle resultData = null;
-            if (resp != null) {
-                EventLog.writeEvent(EventLogTags.CAR_USER_SVC_INITIAL_USER_INFO_RESP,
-                        status, resp.action, resp.userToSwitchOrCreate.userId,
-                        resp.userToSwitchOrCreate.flags, resp.userNameToCreate, resp.userLocales);
-                switch (resp.action) {
-                    case InitialUserInfoResponseAction.SWITCH:
-                        resultData = new Bundle();
-                        resultData.putInt(BUNDLE_INITIAL_INFO_ACTION, resp.action);
-                        resultData.putInt(BUNDLE_USER_ID, resp.userToSwitchOrCreate.userId);
-                        break;
-                    case InitialUserInfoResponseAction.CREATE:
-                        resultData = new Bundle();
-                        resultData.putInt(BUNDLE_INITIAL_INFO_ACTION, resp.action);
-                        resultData.putInt(BUNDLE_USER_FLAGS, resp.userToSwitchOrCreate.flags);
-                        resultData.putString(BUNDLE_USER_NAME, resp.userNameToCreate);
-                        break;
-                    case InitialUserInfoResponseAction.DEFAULT:
-                        resultData = new Bundle();
-                        resultData.putInt(BUNDLE_INITIAL_INFO_ACTION, resp.action);
-                        break;
-                    default:
-                        // That's ok, it will be the same as DEFAULT...
-                        Log.w(TAG_USER, "invalid response action on " + resp);
-                }
-            } else {
-                EventLog.writeEvent(EventLogTags.CAR_USER_SVC_INITIAL_USER_INFO_RESP, status);
-            }
-            if (resultData != null && !TextUtils.isEmpty(resp.userLocales)) {
-                resultData.putString(BUNDLE_USER_LOCALES, resp.userLocales);
-            }
-
-            sendResult(receiver, status, resultData);
-        });
-    }
-
     /**
      * Gets the initial foreground user after the device boots or resumes from suspension.
      *
@@ -723,16 +676,41 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     /**
-     * Call to start user at the android startup.
+     * Calls to replace current guest user due to STR.
+     * <p>
+     * <b>Note:</b> Should be user by only {@link CarPowerManagementService}
+     */
+
+    public void initResumeReplaceGuest() {
+        int currentUserId = ActivityManager.getCurrentUser();
+        UserInfo currentUser = mUserManager.getUserInfo(currentUserId);
+
+        if (!mInitialUserSetter.canReplaceGuestUser(currentUser)) return; // Not a guest
+
+        InitialUserInfo info =
+                new InitialUserSetter.Builder(InitialUserSetter.TYPE_REPLACE_GUEST).build();
+
+        mInitialUserSetter.set(info);
+    }
+
+    /**
+     * Calls to start user at the android startup.
      */
     public void initBootUser() {
         int requestType = getInitialUserInfoRequestType();
+        initBootUser(requestType, false);
+    }
+
+    /**
+     * Calls to start user at the power resume.
+     */
+    public void initBootUser(int requestType, boolean replaceGuest) {
         EventLog.writeEvent(EventLogTags.CAR_USER_SVC_INITIAL_USER_INFO_REQ, requestType,
                 mHalTimeoutMs);
         checkManageUsersPermission("startInitialUser");
 
         if (!isUserHalSupported()) {
-            fallbackToDefaultInitialUserBehavior(/* userLocales= */ null);
+            fallbackToDefaultInitialUserBehavior(/* userLocales= */ null, replaceGuest);
             return;
         }
 
@@ -750,12 +728,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                         int userId = resp.userToSwitchOrCreate.userId;
                         if (userId <= 0) {
                             Log.w(TAG, "invalid (or missing) user id sent by HAL: " + userId);
-                            fallbackToDefaultInitialUserBehavior(userLocales);
+                            fallbackToDefaultInitialUserBehavior(userLocales, replaceGuest);
                             break;
                         }
                         info = new InitialUserSetter.Builder(InitialUserSetter.TYPE_SWITCH)
                                 .setUserLocales(userLocales)
                                 .setSwitchUserId(userId)
+                                .setReplaceGuest(replaceGuest)
                                 .build();
                         mInitialUserSetter.set(info);
                         break;
@@ -772,25 +751,26 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                         break;
 
                     case InitialUserInfoResponseAction.DEFAULT:
-                        fallbackToDefaultInitialUserBehavior(userLocales);
+                        fallbackToDefaultInitialUserBehavior(userLocales, replaceGuest);
                         break;
                     default:
                         Log.w(TAG_USER, "invalid response action on " + resp);
-                        fallbackToDefaultInitialUserBehavior(/* user locale */ null);
+                        fallbackToDefaultInitialUserBehavior(/* user locale */ null, replaceGuest);
                         break;
 
                 }
             } else {
                 EventLog.writeEvent(EventLogTags.CAR_USER_SVC_INITIAL_USER_INFO_RESP, status);
-                fallbackToDefaultInitialUserBehavior(/* user locale */ null);
+                fallbackToDefaultInitialUserBehavior(/* user locale */ null, replaceGuest);
             }
         });
     }
 
-    private void fallbackToDefaultInitialUserBehavior(String userLocales) {
+    private void fallbackToDefaultInitialUserBehavior(String userLocales, boolean replaceGuest) {
         InitialUserInfo info = new InitialUserSetter.Builder(
                 InitialUserSetter.TYPE_DEFAULT_BEHAVIOR)
                 .setUserLocales(userLocales)
+                .setReplaceGuest(replaceGuest)
                 .build();
         mInitialUserSetter.set(info);
     }
@@ -804,26 +784,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             return InitialUserInfoRequestType.FIRST_BOOT_AFTER_OTA;
         }
         return InitialUserInfoRequestType.COLD_BOOT;
-    }
-
-    /**
-     * Calls the User HAL to get the initial user info.
-     *
-     * @param requestType type as defined by {@code InitialUserInfoRequestType}.
-     * @param callback callback to receive the results.
-     */
-    public void getInitialUserInfo(int requestType,
-            HalCallback<InitialUserInfoResponse> callback) {
-        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_INITIAL_USER_INFO_REQ, requestType,
-                mHalTimeoutMs);
-        Objects.requireNonNull(callback, "callback cannot be null");
-        checkManageUsersPermission("getInitialUserInfo");
-        if (!isUserHalSupported()) {
-            callback.onResponse(HalCallback.STATUS_HAL_NOT_SUPPORTED, null);
-            return;
-        }
-        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUserManager);
-        mHal.getInitialUserInfo(requestType, mHalTimeoutMs, usersInfo, callback);
     }
 
     /**
