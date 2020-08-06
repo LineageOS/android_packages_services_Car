@@ -32,32 +32,32 @@ import com.android.settingslib.TwoTargetPreference;
  * A custom preference that provides inline switch toggle. It has a mandatory field for title, and
  * optional fields for icon and sub-text.
  */
-public class MasterSwitchPreference extends TwoTargetPreference {
+public class PrimarySwitchPreference extends TwoTargetPreference {
 
     private Switch mSwitch;
     private boolean mChecked;
     private boolean mEnableSwitch = true;
 
-    public MasterSwitchPreference(Context context, AttributeSet attrs,
+    public PrimarySwitchPreference(Context context, AttributeSet attrs,
             int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
-    public MasterSwitchPreference(Context context, AttributeSet attrs, int defStyleAttr) {
+    public PrimarySwitchPreference(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
-    public MasterSwitchPreference(Context context, AttributeSet attrs) {
+    public PrimarySwitchPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public MasterSwitchPreference(Context context) {
+    public PrimarySwitchPreference(Context context) {
         super(context);
     }
 
     @Override
     protected int getSecondTargetResId() {
-        return R.layout.preference_widget_master_switch;
+        return R.layout.preference_widget_primary_switch;
     }
 
     @Override

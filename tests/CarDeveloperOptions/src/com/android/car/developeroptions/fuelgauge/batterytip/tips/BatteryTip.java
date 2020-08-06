@@ -17,7 +17,6 @@
 package com.android.car.developeroptions.fuelgauge.batterytip.tips;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.SparseIntArray;
@@ -139,7 +138,7 @@ public abstract class BatteryTip implements Comparable<BatteryTip>, Parcelable {
      * Check whether data is still make sense. If not, try recover.
      * @param context used to do validity check
      */
-    public void sanityCheck(Context context) {
+    public void validityCheck(Context context) {
         // do nothing
     }
 

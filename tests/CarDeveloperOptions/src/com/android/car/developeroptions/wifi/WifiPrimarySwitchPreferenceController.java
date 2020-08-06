@@ -21,8 +21,8 @@ import androidx.preference.PreferenceScreen;
 
 import com.android.car.developeroptions.R;
 import com.android.car.developeroptions.core.PreferenceControllerMixin;
-import com.android.car.developeroptions.widget.MasterSwitchController;
-import com.android.car.developeroptions.widget.MasterSwitchPreference;
+import com.android.car.developeroptions.widget.PrimarySwitchController;
+import com.android.car.developeroptions.widget.PrimarySwitchPreference;
 import com.android.car.developeroptions.widget.SummaryUpdater;
 import com.android.settingslib.core.AbstractPreferenceController;
 import com.android.settingslib.core.instrumentation.MetricsFeatureProvider;
@@ -32,18 +32,18 @@ import com.android.settingslib.core.lifecycle.events.OnResume;
 import com.android.settingslib.core.lifecycle.events.OnStart;
 import com.android.settingslib.core.lifecycle.events.OnStop;
 
-public class WifiMasterSwitchPreferenceController extends AbstractPreferenceController
+public class WifiPrimarySwitchPreferenceController extends AbstractPreferenceController
         implements PreferenceControllerMixin, SummaryUpdater.OnSummaryChangeListener,
         LifecycleObserver, OnResume, OnPause, OnStart, OnStop {
 
     public static final String KEY_TOGGLE_WIFI = "toggle_wifi";
 
-    private MasterSwitchPreference mWifiPreference;
+    private PrimarySwitchPreference mWifiPreference;
     private WifiEnabler mWifiEnabler;
     private final WifiSummaryUpdater mSummaryHelper;
     private final MetricsFeatureProvider mMetricsFeatureProvider;
 
-    public WifiMasterSwitchPreferenceController(Context context,
+    public WifiPrimarySwitchPreferenceController(Context context,
             MetricsFeatureProvider metricsFeatureProvider) {
         super(context);
         mMetricsFeatureProvider = metricsFeatureProvider;
@@ -84,7 +84,7 @@ public class WifiMasterSwitchPreferenceController extends AbstractPreferenceCont
 
     @Override
     public void onStart() {
-        mWifiEnabler = new WifiEnabler(mContext, new MasterSwitchController(mWifiPreference),
+        mWifiEnabler = new WifiEnabler(mContext, new PrimarySwitchController(mWifiPreference),
             mMetricsFeatureProvider);
     }
 

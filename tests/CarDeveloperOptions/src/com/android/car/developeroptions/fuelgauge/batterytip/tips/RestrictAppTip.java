@@ -107,8 +107,8 @@ public class RestrictAppTip extends BatteryTip {
     }
 
     @Override
-    public void sanityCheck(Context context) {
-        super.sanityCheck(context);
+    public void validityCheck(Context context) {
+        super.validityCheck(context);
 
         // Set it invisible if there is no valid app
         mRestrictAppList.removeIf(AppLabelPredicate.getInstance(context));

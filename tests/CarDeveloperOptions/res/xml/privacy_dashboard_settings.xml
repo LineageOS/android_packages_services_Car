@@ -98,11 +98,11 @@
         android:summary="@string/content_capture_summary"
         settings:controller="com.android.car.developeroptions.privacy.EnableContentCapturePreferenceController"/>
 
-    <com.android.car.developeroptions.widget.MasterSwitchPreference
+    <com.android.car.developeroptions.widget.PrimarySwitchPreference
         android:key="content_capture_custom_settings"
         android:title="@string/content_capture"
         android:summary="@string/content_capture_summary"
         settings:controller="com.android.car.developeroptions.privacy.EnableContentCaptureWithServiceSettingsPreferenceController">
-    </com.android.car.developeroptions.widget.MasterSwitchPreference>
+    </com.android.car.developeroptions.widget.PrimarySwitchPreference>
 
 </PreferenceScreen>

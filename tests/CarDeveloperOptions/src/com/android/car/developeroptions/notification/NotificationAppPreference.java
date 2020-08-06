@@ -23,13 +23,13 @@ import android.widget.Switch;
 import androidx.preference.PreferenceViewHolder;
 
 import com.android.car.developeroptions.R;
-import com.android.car.developeroptions.widget.MasterSwitchPreference;
+import com.android.car.developeroptions.widget.PrimarySwitchPreference;
 import com.android.settingslib.RestrictedLockUtils;
 
 /**
  * Shows an app icon, title and summary. Has a second switch touch target.
  */
-public class NotificationAppPreference extends MasterSwitchPreference {
+public class NotificationAppPreference extends PrimarySwitchPreference {
 
     private Switch mSwitch;
     private boolean mChecked;
@@ -54,7 +54,7 @@ public class NotificationAppPreference extends MasterSwitchPreference {
 
     @Override
     protected int getSecondTargetResId() {
-        return R.layout.preference_widget_master_switch;
+        return R.layout.preference_widget_primary_switch;
     }
 
     @Override
