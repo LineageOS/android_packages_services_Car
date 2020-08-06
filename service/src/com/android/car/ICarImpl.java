@@ -800,14 +800,6 @@ public class ICarImpl extends ICar.Stub {
 
     private final class ICarSystemServerClientImpl extends ICarSystemServerClient.Stub {
         @Override
-        public void getInitialUserInfo(int requestType, int timeoutMs, IBinder binder)
-                throws RemoteException {
-            assertCallingFromSystemProcess();
-            IResultReceiver receiver = IResultReceiver.Stub.asInterface(binder);
-            mCarUserService.getInitialUserInfo(requestType, timeoutMs, receiver);
-        }
-
-        @Override
         public void onFirstUserUnlocked(int userId, long timestampMs, long duration,
                 int halResponseTime) throws RemoteException {
             assertCallingFromSystemProcess();
@@ -830,11 +822,11 @@ public class ICarImpl extends ICar.Stub {
         }
 
         @Override
-        public void setInitialUser(int userId) throws RemoteException {
+        public void initBootUser() throws RemoteException {
             assertCallingFromSystemProcess();
-            EventLog.writeEvent(EventLogTags.CAR_SERVICE_SET_INITIAL_USER, userId);
-            if (DBG) Log.d(TAG, "setInitialUser(): " + userId);
-            mCarUserService.setInitialUser(userId);
+            // TODO(b/160819016): add events log
+            if (DBG) Log.d(TAG, "initBootUser(): ");
+            mCarUserService.initBootUser();
         }
     }
 }
