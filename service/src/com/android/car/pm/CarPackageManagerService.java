@@ -635,7 +635,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
     private Map<String, Set<String>> generateConfigAllowlist() {
         Map<String, Set<String>> configAllowlist = new HashMap<>();
-        mConfiguredAllowlist = mContext.getString(R.string.activityWhitelist);
+        mConfiguredAllowlist = mContext.getString(R.string.activityAllowlist);
         if (mConfiguredAllowlist == null) {
             if (DBG_POLICY_CHECK) {
                 Log.w(CarLog.TAG_PACKAGE, "Allowlist is null.");
@@ -643,7 +643,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         }
         parseConfigList(mConfiguredAllowlist, configAllowlist);
 
-        mConfiguredSystemAllowlist = mContext.getString(R.string.systemActivityWhitelist);
+        mConfiguredSystemAllowlist = mContext.getString(R.string.systemActivityAllowlist);
         if (mConfiguredSystemAllowlist == null) {
             if (DBG_POLICY_CHECK) {
                 Log.w(CarLog.TAG_PACKAGE, "System allowlist is null.");
@@ -664,7 +664,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
     private Map<String, Set<String>> generateConfigBlocklist() {
         Map<String, Set<String>> configBlocklist = new HashMap<>();
-        mConfiguredBlocklist = mContext.getString(R.string.activityBlacklist);
+        mConfiguredBlocklist = mContext.getString(R.string.activityDenylist);
         if (mConfiguredBlocklist == null) {
             if (DBG_POLICY_CHECK) {
                 Log.d(CarLog.TAG_PACKAGE, "Null blocklist in config");
