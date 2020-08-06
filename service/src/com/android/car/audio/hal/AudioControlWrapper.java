@@ -16,10 +16,9 @@
 
 package com.android.car.audio.hal;
 
+import android.annotation.Nullable;
 import android.hardware.automotive.audiocontrol.V2_0.IFocusListener;
 import android.media.AudioAttributes.AttributeUsage;
-
-import androidx.annotation.Nullable;
 
 import java.io.PrintWriter;
 

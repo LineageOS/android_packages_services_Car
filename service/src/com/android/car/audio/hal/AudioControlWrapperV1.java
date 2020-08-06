@@ -16,12 +16,11 @@
 
 package com.android.car.audio.hal;
 
+import android.annotation.Nullable;
 import android.hardware.automotive.audiocontrol.V1_0.IAudioControl;
 import android.hardware.automotive.audiocontrol.V2_0.IFocusListener;
 import android.os.RemoteException;
 import android.util.Log;
-
-import androidx.annotation.Nullable;
 
 import com.android.car.audio.CarAudioContext;
 import com.android.internal.annotations.VisibleForTesting;

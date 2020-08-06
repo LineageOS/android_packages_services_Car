@@ -15,14 +15,13 @@
  */
 package com.android.car.audio;
 
+import android.annotation.NonNull;
 import android.car.Car;
 import android.car.media.CarAudioManager;
 import android.content.pm.PackageManager;
 import android.media.AudioFocusInfo;
 import android.media.AudioManager;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
 
 import com.android.car.audio.CarAudioContext.AudioContext;
 
