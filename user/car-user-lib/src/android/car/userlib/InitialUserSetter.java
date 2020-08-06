@@ -89,10 +89,18 @@ public final class InitialUserSetter {
      */
     public static final int TYPE_CREATE = 2;
 
+    /**
+     * Creates a new guest user and switches to it, if current user is unlocked guest user.
+     * Does not fallback if any of these steps fails. falling back to
+     * {@link #fallbackDefaultBehavior(String) if any of these steps fails
+     */
+    public static final int TYPE_REPLACE_GUEST = 3;
+
     @IntDef(prefix = { "TYPE_" }, value = {
             TYPE_DEFAULT_BEHAVIOR,
             TYPE_SWITCH,
             TYPE_CREATE,
+            TYPE_REPLACE_GUEST
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface InitialUserInfoType { }
@@ -153,12 +161,11 @@ public final class InitialUserSetter {
          * Constructor for the given type.
          *
          * @param type {@link #TYPE_DEFAULT_BEHAVIOR}, {@link #TYPE_SWITCH},
-         * or {@link #TYPE_CREATE}.
+         * {@link #TYPE_CREATE} or {@link #TYPE_REPLACE_GUEST}.
          */
         public Builder(@InitialUserInfoType int type) {
-            Preconditions.checkArgument(
-                    type == TYPE_DEFAULT_BEHAVIOR || type == TYPE_SWITCH || type == TYPE_CREATE,
-                    "invalid builder type");
+            Preconditions.checkArgument(type == TYPE_DEFAULT_BEHAVIOR || type == TYPE_SWITCH
+                    || type == TYPE_CREATE || type == TYPE_REPLACE_GUEST, "invalid builder type");
             mType = type;
         }
 
@@ -289,8 +296,39 @@ public final class InitialUserSetter {
                                     + e);
                 }
                 break;
+            case TYPE_REPLACE_GUEST:
+                try {
+                    replaceUser(info, /* fallback= */ true);
+                } catch (Exception e) {
+                    fallbackDefaultBehavior(info, /* fallback= */ true,
+                            "Exception replace guest user: " + e);
+                }
+                break;
             default:
                 throw new IllegalArgumentException("invalid InitialUserInfo type: " + info.type);
+        }
+    }
+
+    private void replaceUser(InitialUserInfo info, boolean fallback) {
+        int currentUserId = ActivityManager.getCurrentUser();
+        UserInfo currentUser = mUm.getUserInfo(currentUserId);
+
+        UserInfo newUser = replaceGuestIfNeeded(currentUser);
+        if (newUser == null) {
+            fallbackDefaultBehavior(info, fallback,
+                    "could not replace guest " + currentUser.toFullString());
+            return;
+        }
+
+        switchUser(new Builder(TYPE_SWITCH)
+                .setSwitchUserId(newUser.id)
+                .build(), fallback);
+
+        if (newUser.id != currentUser.id) {
+            Slog.i(TAG, "Removing old guest " + currentUser.id);
+            if (!mUm.removeUser(currentUser.id)) {
+                Slog.w(TAG, "Could not remove old guest " + currentUser.id);
+            }
         }
     }
 
@@ -385,6 +423,23 @@ public final class InitialUserSetter {
         }
     }
 
+    /**
+     * Check if the user is a guest and can be replaced.
+     */
+    public boolean canReplaceGuestUser(UserInfo user) {
+        if (!user.isGuest()) return false;
+
+        if (mLockPatternUtils.isSecure(user.id)) {
+            if (DBG) {
+                Log.d(TAG, "replaceGuestIfNeeded(), skipped, since user "
+                        + user.id + " has secure lock pattern");
+            }
+            return false;
+        }
+
+        return true;
+    }
+
     // TODO(b/151758646): move to CarUserManagerHelper
     /**
      * Replaces {@code user} by a new guest, if necessary.
@@ -394,17 +449,13 @@ public final class InitialUserSetter {
      * <p>Otherwise, it marks the current guest for deletion, creates a new one, and returns the
      * new guest (or {@code null} if a new guest could not be created).
      */
+
+    @VisibleForTesting
     @Nullable
-    public UserInfo replaceGuestIfNeeded(@NonNull UserInfo user) {
+    UserInfo replaceGuestIfNeeded(@NonNull UserInfo user) {
         Preconditions.checkArgument(user != null, "user cannot be null");
 
-        if (!user.isGuest()) return user;
-
-        if (mLockPatternUtils.isSecure(user.id)) {
-            if (DBG) {
-                Log.d(TAG, "replaceGuestIfNeeded(), skipped, since user "
-                        + user.id + " has secure lock pattern");
-            }
+        if (!canReplaceGuestUser(user)) {
             return user;
         }
 
