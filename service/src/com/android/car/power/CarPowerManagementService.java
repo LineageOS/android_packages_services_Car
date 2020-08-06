@@ -480,16 +480,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         int currentUserId = ActivityManager.getCurrentUser();
         UserInfo currentUser = mUserManager.getUserInfo(currentUserId);
 
-        UserInfo newUser = mInitialUserSetter.replaceGuestIfNeeded(currentUser);
-        if (newUser == currentUser) return; // Not a guest
+        if (!mInitialUserSetter.canReplaceGuestUser(currentUser)) return; // Not a guest
 
-        boolean replaceGuest = !mSwitchGuestUserBeforeSleep;
-        if (newUser == null) {
-            Slog.w(TAG, "Failed to replace guest; falling back to default behavior");
-            executeDefaultInitialUserBehavior(replaceGuest);
-            return;
-        }
-        switchUser(newUser.id, replaceGuest);
+        mInitialUserSetter.set(newInitialUserInfoBuilder(InitialUserSetter.TYPE_REPLACE_GUEST)
+                .build());
     }
 
     private void switchUser(@UserIdInt int userId, boolean replaceGuest) {
