@@ -122,8 +122,8 @@ public final class CarPackageManager extends CarManagerBase {
      * manifest. All other activities will be blocked whenever driving restrictions are required. If
      * an activity's manifest cannot be changed, then you can explicitly make an exception to its
      * behavior using the build-time XML configuration. Allow or deny specific activities by
-     * changing the appropriate value ({@code R.string.activityWhitelist},
-     * {@code R.string.activityBlacklist}) within the
+     * changing the appropriate value ({@code R.string.activityAllowlist},
+     * {@code R.string.activityDenylist}) within the
      * {@code packages/services/Car/service/res/values/config.xml} overlay.
      */
     @SystemApi
