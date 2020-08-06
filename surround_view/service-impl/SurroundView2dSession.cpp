@@ -27,6 +27,18 @@
 
 #include "CameraUtils.h"
 
+using ::std::adopt_lock;
+using ::std::lock;
+using ::std::lock_guard;
+using ::std::map;
+using ::std::mutex;
+using ::std::scoped_lock;
+using ::std::string;
+using ::std::thread;
+using ::std::unique_lock;
+using ::std::unique_ptr;
+using ::std::vector;
+
 using ::android::hardware::automotive::evs::V1_0::EvsResult;
 using ::android::hardware::camera::device::V3_2::Stream;
 
@@ -52,9 +64,11 @@ typedef struct {
 
 static const size_t kStreamCfgSz = sizeof(RawStreamConfig);
 static const uint8_t kGrayColor = 128;
-static const int kNumChannels = 3;
+static const int kInputNumChannels = 4;
+static const int kOutputNumChannels = 3;
 static const int kNumFrames = 4;
 static const int kSv2dViewId = 0;
+static const float kUndistortionScales[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 
 SurroundView2dSession::FramesHandler::FramesHandler(
     sp<IEvsCamera> pCamera, sp<SurroundView2dSession> pSession)
@@ -77,25 +91,52 @@ Return<void> SurroundView2dSession::FramesHandler::deliverFrame_1_1(
     {
         scoped_lock<mutex> lock(mSession->mAccessLock);
         if (mSession->mProcessingEvsFrames) {
-            LOG(WARNING) << "EVS frames are being processed. Skip frames:" << mSession->mSequenceId;
+            LOG(WARNING) << "EVS frames are being processed. Skip frames:"
+                         << mSession->mSequenceId;
             mCamera->doneWithFrame_1_1(buffers);
             return {};
+        } else {
+            // Sets the flag to true immediately so the new coming frames will
+            // be skipped.
+            mSession->mProcessingEvsFrames = true;
         }
     }
 
     if (buffers.size() != kNumFrames) {
+        scoped_lock<mutex> lock(mSession->mAccessLock);
         LOG(ERROR) << "The number of incoming frames is " << buffers.size()
                    << ", which is different from the number " << kNumFrames
                    << ", specified in config file";
+        mSession->mProcessingEvsFrames = false;
+        mCamera->doneWithFrame_1_1(buffers);
         return {};
     }
 
     {
         scoped_lock<mutex> lock(mSession->mAccessLock);
+        vector<int> indices;
+        for (const auto& id
+                : mSession->mIOModuleConfig->cameraConfig.evsCameraIds) {
+            for (int i = 0; i < kNumFrames; i++) {
+                if (buffers[i].deviceId == id) {
+                    indices.emplace_back(i);
+                    break;
+                }
+            }
+        }
+
+        if (indices.size() != kNumFrames) {
+            LOG(ERROR) << "The frames are not from the cameras we expected!";
+            mSession->mProcessingEvsFrames = false;
+            mCamera->doneWithFrame_1_1(buffers);
+            return {};
+        }
+
         for (int i = 0; i < kNumFrames; i++) {
-            LOG(DEBUG) << "Copying buffer No." << i
-                       << " to Surround View Service";
-            mSession->copyFromBufferToPointers(buffers[i],
+            LOG(DEBUG) << "Copying buffer from camera ["
+                       << buffers[indices[i]].deviceId
+                       << "] to Surround View Service";
+            mSession->copyFromBufferToPointers(buffers[indices[i]],
                                                mSession->mInputPointers[i]);
         }
     }
@@ -103,10 +144,6 @@ Return<void> SurroundView2dSession::FramesHandler::deliverFrame_1_1(
     mCamera->doneWithFrame_1_1(buffers);
 
     // Notify the session that a new set of frames is ready
-    {
-        scoped_lock<mutex> lock(mSession->mAccessLock);
-        mSession->mProcessingEvsFrames = true;
-    }
     mSession->mFramesSignal.notify_all();
 
     return {};
@@ -115,15 +152,11 @@ Return<void> SurroundView2dSession::FramesHandler::deliverFrame_1_1(
 Return<void> SurroundView2dSession::FramesHandler::notify(const EvsEventDesc& event) {
     switch(event.aType) {
         case EvsEventType::STREAM_STOPPED:
-        {
+            // The Surround View STREAM_STOPPED event is generated when the
+            // service finished processing the queued frames. So it does not
+            // rely on the Evs STREAM_STOPPED event.
             LOG(INFO) << "Received a STREAM_STOPPED event from Evs.";
-
-            // TODO(b/158339680): There is currently an issue in EVS reference
-            // implementation that causes STREAM_STOPPED event to be delivered
-            // properly. When the bug is fixed, we should deal with this event
-            // properly in case the EVS stream is stopped unexpectly.
             break;
-        }
 
         case EvsEventType::PARAMETER_CHANGED:
             LOG(INFO) << "Camera parameter " << std::hex << event.payload[0]
@@ -187,24 +220,10 @@ bool SurroundView2dSession::copyFromBufferToPointers(
         LOG(INFO) << "Managed to get read access to GraphicBuffer";
     }
 
-    int stride = pDesc->stride;
-
-    // readPtr comes from EVS, and it is with 4 channels
-    uint8_t* readPtr = static_cast<uint8_t*>(inputDataPtr);
-
-    // writePtr comes from CV imread, and it is with 3 channels
-    uint8_t* writePtr = static_cast<uint8_t*>(pointers.cpu_data_pointer);
-
-    for (int i=0; i<pDesc->width; i++)
-        for (int j=0; j<pDesc->height; j++) {
-            writePtr[(i + j * stride) * 3 + 0] =
-                readPtr[(i + j * stride) * 4 + 0];
-            writePtr[(i + j * stride) * 3 + 1] =
-                readPtr[(i + j * stride) * 4 + 1];
-            writePtr[(i + j * stride) * 3 + 2] =
-                readPtr[(i + j * stride) * 4 + 2];
-        }
-    LOG(INFO) << "Brute force copying finished";
+    // Both source and destination are with 4 channels
+    memcpy(pointers.cpu_data_pointer, inputDataPtr,
+           pDesc->height * pDesc->width * kInputNumChannels);
+    LOG(DEBUG) << "Buffer copying finished";
 
     return true;
 }
@@ -460,7 +479,7 @@ bool SurroundView2dSession::handleFrames(int sequenceId) {
         mOutputPointer.width = mOutputWidth;
         mOutputPointer.format = Format::RGB;
         mOutputPointer.data_pointer =
-            new char[mOutputHeight * mOutputWidth * kNumChannels];
+            new char[mOutputHeight * mOutputWidth * kOutputNumChannels];
 
         if (!mOutputPointer.data_pointer) {
             LOG(ERROR) << "Memory allocation failed. Exiting.";
@@ -484,13 +503,14 @@ bool SurroundView2dSession::handleFrames(int sequenceId) {
         }
     }
 
+    LOG(INFO) << "Output Pointer data format: " << mOutputPointer.format;
     if (mSurroundView->Get2dSurroundView(mInputPointers, &mOutputPointer)) {
         LOG(INFO) << "Get2dSurroundView succeeded";
     } else {
         LOG(ERROR) << "Get2dSurroundView failed. "
                    << "Using memset to initialize to gray";
         memset(mOutputPointer.data_pointer, kGrayColor,
-               mOutputHeight * mOutputWidth * kNumChannels);
+               mOutputHeight * mOutputWidth * kOutputNumChannels);
     }
 
     void* textureDataPtr = nullptr;
@@ -508,8 +528,8 @@ bool SurroundView2dSession::handleFrames(int sequenceId) {
     // by line, instead of single memcpy.
     uint8_t* writePtr = static_cast<uint8_t*>(textureDataPtr);
     uint8_t* readPtr = static_cast<uint8_t*>(mOutputPointer.data_pointer);
-    const int readStride = mOutputWidth * kNumChannels;
-    const int writeStride = mSvTexture->getStride() * kNumChannels;
+    const int readStride = mOutputWidth * kOutputNumChannels;
+    const int writeStride = mSvTexture->getStride() * kOutputNumChannels;
     if (readStride == writeStride) {
         memcpy(writePtr, readPtr, readStride * mSvTexture->getHeight());
     } else {
@@ -571,7 +591,8 @@ bool SurroundView2dSession::initialize() {
                     mCameraParams,
                     mIOModuleConfig->sv2dConfig.sv2dParams,
                     mIOModuleConfig->sv3dConfig.sv3dParams,
-                    GetUndistortionScales(),
+                    vector<float>(std::begin(kUndistortionScales),
+                                  std::end(kUndistortionScales)),
                     mIOModuleConfig->sv2dConfig.carBoundingBox,
                     mIOModuleConfig->carModelConfig.carModel.texturesMap,
                     mIOModuleConfig->carModelConfig.carModel.partsMap);
@@ -587,11 +608,11 @@ bool SurroundView2dSession::initialize() {
     for (int i = 0; i < kNumFrames; i++) {
         mInputPointers[i].width = mCameraParams[i].size.width;
         mInputPointers[i].height = mCameraParams[i].size.height;
-        mInputPointers[i].format = Format::RGB;
+        mInputPointers[i].format = Format::RGBA;
         mInputPointers[i].cpu_data_pointer =
                 (void*)new uint8_t[mInputPointers[i].width *
                                    mInputPointers[i].height *
-                                   kNumChannels];
+                                   kInputNumChannels];
     }
     LOG(INFO) << "Allocated " << kNumFrames << " input pointers";
 
@@ -604,9 +625,9 @@ bool SurroundView2dSession::initialize() {
 
     mOutputPointer.height = mOutputHeight;
     mOutputPointer.width = mOutputWidth;
-    mOutputPointer.format = mInputPointers[0].format;
+    mOutputPointer.format = Format::RGB;
     mOutputPointer.data_pointer = new char[
-        mOutputHeight * mOutputWidth * kNumChannels];
+        mOutputHeight * mOutputWidth * kOutputNumChannels];
 
     if (!mOutputPointer.data_pointer) {
         LOG(ERROR) << "Memory allocation failed. Exiting.";
