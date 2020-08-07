@@ -18,11 +18,10 @@
 
 #include <android-base/file.h>
 #include <android-base/stringprintf.h>
+#include <gmock/gmock.h>
 #include <inttypes.h>
 
 #include <string>
-
-#include "gmock/gmock.h"
 
 namespace android {
 namespace automotive {

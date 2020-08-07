@@ -16,15 +16,15 @@
 
 #include "ProcPidStat.h"
 
+#include "ProcPidDir.h"
+
 #include <android-base/file.h>
 #include <android-base/stringprintf.h>
+#include <gmock/gmock.h>
 #include <inttypes.h>
 
 #include <algorithm>
 #include <string>
-
-#include "ProcPidDir.h"
-#include "gmock/gmock.h"
 
 namespace android {
 namespace automotive {

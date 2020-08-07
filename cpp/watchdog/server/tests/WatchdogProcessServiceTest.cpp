@@ -16,7 +16,7 @@
 
 #include "WatchdogProcessService.h"
 
-#include "gmock/gmock.h"
+#include <gmock/gmock.h>
 
 namespace android {
 namespace automotive {

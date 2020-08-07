@@ -16,6 +16,14 @@
 
 #include "IoPerfCollection.h"
 
+#include "LooperStub.h"
+#include "ProcPidDir.h"
+#include "ProcPidStat.h"
+#include "ProcStat.h"
+#include "UidIoStats.h"
+#include "gmock/gmock.h"
+#include "utils/PackageNameResolver.h"
+
 #include <WatchdogProperties.sysprop.h>
 #include <android-base/file.h>
 #include <cutils/android_filesystem_config.h>
@@ -25,13 +33,6 @@
 #include <queue>
 #include <string>
 #include <vector>
-
-#include "LooperStub.h"
-#include "ProcPidDir.h"
-#include "ProcPidStat.h"
-#include "ProcStat.h"
-#include "UidIoStats.h"
-#include "gmock/gmock.h"
 
 namespace android {
 namespace automotive {
@@ -179,6 +180,19 @@ bool isEqual(const IoPerfRecord& lhs, const IoPerfRecord& rhs) {
 
 }  // namespace
 
+namespace internal {
+
+class PackageNameResolverPeer {
+public:
+    explicit PackageNameResolverPeer(const std::unordered_map<uid_t, std::string>& mapping) {
+        PackageNameResolver::sInstance.clear();
+        PackageNameResolver::getInstance();
+        PackageNameResolver::sInstance->mUidToPackageNameMapping = mapping;
+    }
+};
+
+}  // namespace internal
+
 TEST(IoPerfCollectionTest, TestCollectionStartAndTerminate) {
     sp<IoPerfCollection> collector = new IoPerfCollection();
     const auto& ret = collector->start();
@@ -230,6 +244,8 @@ TEST(IoPerfCollectionTest, TestValidCollectionSequence) {
     collector->mBoottimeCollection.interval = kTestBootInterval;
     collector->mPeriodicCollection.interval = kTestPeriodicInterval;
     collector->mPeriodicCollection.maxCacheSize = 1;
+
+    internal::PackageNameResolverPeer peer({{1009, "mount"}});
 
     // #1 Boot-time collection
     uidIoStatsStub->push({{1009, {.uid = 1009, .ios = {0, 20000, 0, 30000, 0, 300}}}});
@@ -873,9 +889,6 @@ TEST(IoPerfCollectionTest, TestCustomCollectionFiltersPackageNames) {
     ASSERT_TRUE(ret.ok()) << ret.error().message();
 
     // Custom collection
-    collector->mUidToPackageNameMapping[1009] = "android.car.cts";
-    collector->mUidToPackageNameMapping[2001] = "system_server";
-    collector->mUidToPackageNameMapping[3456] = "random_process";
     uidIoStatsStub->push({
             {1009, {.uid = 1009, .ios = {0, 14000, 0, 16000, 0, 100}}},
             {2001, {.uid = 2001, .ios = {0, 3400, 0, 6700, 0, 200}}},
@@ -976,6 +989,11 @@ TEST(IoPerfCollectionTest, TestCustomCollectionFiltersPackageNames) {
                      .totalMajorFaults = 55590,
                      .majorFaultsPercentChange = 0},
     };
+    internal::PackageNameResolverPeer peer({
+            {1009, "android.car.cts"},
+            {2001, "system_server"},
+            {3456, "random_process"},
+    });
     ret = looperStub->pollCache();
     ASSERT_TRUE(ret) << ret.error().message();
     ASSERT_EQ(looperStub->numSecondsElapsed(), 0) << "Custom collection didn't start immediately";
@@ -1111,6 +1129,11 @@ TEST(IoPerfCollectionTest, TestValidUidIoStatFile) {
     TemporaryFile tf;
     ASSERT_NE(tf.fd, -1);
     ASSERT_TRUE(WriteStringToFile(firstSnapshot, tf.path));
+
+    internal::PackageNameResolverPeer peer({
+            {1009, "mount"},
+            {1001000, "shared:android.uid.system"},
+    });
 
     IoPerfCollection collector;
     collector.mUidIoStats = new UidIoStats(tf.path);
@@ -1362,6 +1385,12 @@ TEST(IoPerfCollectionTest, TestValidProcPidContents) {
     expectedProcessIoPerfData.totalMajorFaults = 156663;
     expectedProcessIoPerfData.majorFaultsPercentChange = 0;
 
+    internal::PackageNameResolverPeer peer({
+            {0, "root"},
+            {1009, "mount"},
+            {1001000, "shared:android.uid.system"},
+    });
+
     TemporaryDir firstSnapshot;
     auto ret = populateProcPidDir(firstSnapshot.path, pidToTids, perProcessStat, perProcessStatus,
                                   perThreadStat);
@@ -1467,6 +1496,10 @@ TEST(IoPerfCollectionTest, TestProcPidContentsLessThanTopNStatsLimit) {
     });
     expectedProcessIoPerfData.totalMajorFaults = 880;
     expectedProcessIoPerfData.majorFaultsPercentChange = 0.0;
+
+    internal::PackageNameResolverPeer peer({
+            {0, "root"},
+    });
 
     TemporaryDir prodDir;
     auto ret = populateProcPidDir(prodDir.path, pidToTids, perProcessStat, perProcessStatus,

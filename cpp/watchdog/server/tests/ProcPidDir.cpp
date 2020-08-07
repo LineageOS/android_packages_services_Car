@@ -16,11 +16,11 @@
 
 #include "ProcPidDir.h"
 
+#include "ProcPidStat.h"
+
 #include <android-base/file.h>
 #include <android-base/result.h>
 #include <errno.h>
-
-#include "ProcPidStat.h"
 
 namespace android {
 namespace automotive {

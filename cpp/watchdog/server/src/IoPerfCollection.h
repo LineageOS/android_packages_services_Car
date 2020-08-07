@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-#ifndef WATCHDOG_SERVER_SRC_IOPERFCOLLECTION_H_
-#define WATCHDOG_SERVER_SRC_IOPERFCOLLECTION_H_
+#ifndef CPP_WATCHDOG_SERVER_SRC_IOPERFCOLLECTION_H_
+#define CPP_WATCHDOG_SERVER_SRC_IOPERFCOLLECTION_H_
 
 #include <android-base/chrono_utils.h>
 #include <android-base/result.h>
-#include <android/content/pm/IPackageManagerNative.h>
 #include <cutils/multiuser.h>
 #include <gtest/gtest_prod.h>
 #include <time.h>
@@ -164,7 +163,6 @@ public:
           mPeriodicCollection({}),
           mCustomCollection({}),
           mCurrCollectionEvent(CollectionEvent::INIT),
-          mUidToPackageNameMapping({}),
           mUidIoStats(new UidIoStats()),
           mProcStat(new ProcStat()),
           mProcPidStat(new ProcPidStat()),
@@ -237,13 +235,6 @@ private:
     android::base::Result<void> collectProcessIoPerfDataLocked(
             const CollectionInfo& collectionInfo, ProcessIoPerfData* processIoPerfData);
 
-    // Updates the |mUidToPackageNameMapping| for the given |uids|.
-    android::base::Result<void> updateUidToPackageNameMapping(
-            const std::unordered_set<uid_t>& uids);
-
-    // Retrieves package manager from the default service manager.
-    android::base::Result<void> retrievePackageManager();
-
     // Top N per-UID stats per category.
     int mTopNStatsPerCategory;
 
@@ -275,9 +266,6 @@ private:
     // |startCustomCollection| and |endCustomCollection|.
     CollectionEvent mCurrCollectionEvent GUARDED_BY(mMutex);
 
-    // Cache of uid to package name mapping.
-    std::unordered_map<uint64_t, std::string> mUidToPackageNameMapping GUARDED_BY(mMutex);
-
     // Collector/parser for `/proc/uid_io/stats`.
     android::sp<UidIoStats> mUidIoStats GUARDED_BY(mMutex);
 
@@ -290,9 +278,6 @@ private:
     // Major faults delta from last collection. Useful when calculating the percentage change in
     // major faults since last collection.
     uint64_t mLastMajorFaults GUARDED_BY(mMutex);
-
-    // To get the package names from app uids.
-    android::sp<android::content::pm::IPackageManagerNative> mPackageManager GUARDED_BY(mMutex);
 
     FRIEND_TEST(IoPerfCollectionTest, TestCollectionStartAndTerminate);
     FRIEND_TEST(IoPerfCollectionTest, TestValidCollectionSequence);
@@ -312,4 +297,4 @@ private:
 }  // namespace automotive
 }  // namespace android
 
-#endif  //  WATCHDOG_SERVER_SRC_IOPERFCOLLECTION_H_
+#endif  //  CPP_WATCHDOG_SERVER_SRC_IOPERFCOLLECTION_H_
