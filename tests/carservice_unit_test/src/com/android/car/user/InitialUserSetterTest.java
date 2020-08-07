@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.car.userlib;
+package com.android.car.user;
 
 import static android.car.test.mocks.CarArgumentMatchers.isUserInfo;
 import static android.car.test.util.UserTestingHelper.newGuestUser;
@@ -42,8 +42,7 @@ import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.IActivityManager;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
-import android.car.userlib.InitialUserSetter.Builder;
-import android.car.userlib.InitialUserSetter.InitialUserInfo;
+import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
@@ -53,6 +52,8 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
 
+import com.android.car.user.InitialUserSetter.Builder;
+import com.android.car.user.InitialUserSetter.InitialUserInfo;
 import com.android.internal.widget.LockPatternUtils;
 
 import org.junit.Before;

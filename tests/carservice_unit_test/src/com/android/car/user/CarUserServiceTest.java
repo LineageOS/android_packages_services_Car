@@ -70,7 +70,6 @@ import android.car.user.UserSwitchResult;
 import android.car.userlib.CarUserManagerHelper;
 import android.car.userlib.HalCallback;
 import android.car.userlib.HalCallback.HalCallbackStatus;
-import android.car.userlib.InitialUserSetter;
 import android.car.userlib.UserHalHelper;
 import android.car.userlib.UserHelper;
 import android.content.Context;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.car.userlib;
+package com.android.car.user;
 
 import static android.car.userlib.UserHalHelper.userFlagsToString;
 import static android.car.userlib.UserHelper.safeName;
@@ -24,6 +24,9 @@ import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.IActivityManager;
+import android.car.userlib.CarUserManagerHelper;
+import android.car.userlib.UserHalHelper;
+import android.car.userlib.UserHelper;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
