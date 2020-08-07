@@ -424,7 +424,7 @@
     <string name="security_settings_face_settings_require_confirmation" msgid="7312024271060416438">"सधैँ पुष्टि गर्न आवश्यक पर्छ"</string>
     <string name="security_settings_face_settings_require_confirmation_details" msgid="8740564864091803429">"एपहरूमा प्रमाणीकरण गर्दा सधैँ पुष्टि गर्न आवश्यक पर्छ"</string>
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"अनुहारसम्बन्धी डेटा हटाउनुहोस्"</string>
-    <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"तपाईंको यन्त्र अनलक गर्न र अनुप्रयोगहरूमाथि पहुँच राख्न तपाईंको अनुहार प्रयोग गर्न सकिन्छ। "<annotation id="url">"थप जान्नुहोस्"</annotation></string>
+    <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"तपाईंको यन्त्र अनलक गर्न र एपमाथि पहुँच राख्न तपाईंको अनुहार प्रयोग गर्न सकिन्छ। "<annotation id="url">"थप जान्नुहोस्"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"अनुहारसम्बन्धी डेटा मेट्ने हो?"</string>
     <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"फेस अनलक गर्ने सुविधामार्फत रेकर्ड गरिएको डेटा स्थायी रूपमा र सुरक्षित रूपमा मेटिने छ। हटाइसकेपछि, आफ्नो फोन अनलक गर्न, एपहरूमा साइन इन गर्न र भुक्तानी पुष्टि गर्न तपाईंसँग आफ्नो PIN, ढाँचा वा पासवर्ड हुनु पर्ने छ।"</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"औंठाछाप"</string>
@@ -493,7 +493,7 @@
     <string name="fingerprint_enroll_button_add" msgid="6335782936874996629">"अर्को थप्नुहोस्"</string>
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"अर्को"</string>
     <string name="security_settings_fingerprint_enroll_disclaimer" msgid="5831834311961551423">"तपाईँले आफ्नो फोन खोल्नका अतिरिक्त खरिद र एप पहुँच प्राधिकरण गर्नाका लागि पनि आफ्नो फिंगरप्रिन्ट प्रयोग गर्न सक्नुहुन्छ। "<annotation id="url">"थप जान्नुहोस्"</annotation></string>
-    <string name="security_settings_fingerprint_enroll_disclaimer_lockscreen_disabled" msgid="7954742554236652690">" स्क्रिन लकको विकल्प असक्षम पारिएको छ। थप जान्नलाई आफ्नो सङ्गठनको प्रशासकलाई सम्पर्क गर्नुहोस्। "<annotation id="admin_details">"थप विवरणहरू"</annotation>\n\n"तपाईं खरिदहरूलाई अधिकार दिन र अनुप्रयोगमाथि पहुँच पाउनका लागि आफ्नो फिंगरप्रिन्ट समेत प्रयोग गर्न सक्नुहुन्छ। "<annotation id="url">"थप जान्नुहोस्"</annotation></string>
+    <string name="security_settings_fingerprint_enroll_disclaimer_lockscreen_disabled" msgid="7954742554236652690">" स्क्रिन लकको विकल्प असक्षम पारिएको छ। थप जान्नलाई आफ्नो सङ्गठनको प्रशासकलाई सम्पर्क गर्नुहोस्। "<annotation id="admin_details">"थप विवरणहरू"</annotation>\n\n"तपाईं खरिदहरूलाई अधिकार दिन र एपमाथि पहुँच पाउनका लागि आफ्नो फिंगरप्रिन्ट समेत प्रयोग गर्न सक्नुहुन्छ। "<annotation id="url">"थप जान्नुहोस्"</annotation></string>
     <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"औँला उठाई, फेरि सेंसर छुनुहोस्"</string>
     <string name="fingerprint_add_max" msgid="2939393314646115661">"तपाईं <xliff:g id="COUNT">%d</xliff:g> सम्म फिंगरप्रिन्टहरू थप्न सक्नुहुन्छ"</string>
     <string name="fingerprint_intro_error_max" msgid="3247720976621039437">"तपाईंले अधिकतम संख्यामा फिंगरप्रिन्टहरू थप्नुभएको छ"</string>
@@ -2290,11 +2290,11 @@
     <string name="battery_tip_dialog_message" product="device" msgid="6348123094674390337">"तपाईंको यन्त्र असामान्य ढङ्गले धेरै पटक प्रयोग गरिएको छ। तपाईंको ब्याट्रीको चार्ज अपेक्षा गरिएभन्दा चाँडो सकिने छ।\n \n चार्ज पूरा भएपछि सबैभन्दा बढी प्रयोग गरिएका एपहरू:"</string>
     <string name="battery_tip_dialog_message_footer" msgid="1118827395267487197">"यसले उच्च क्षमतायुक्त पृष्ठभूमिको गतिविधि समावेश गर्दछ"</string>
     <plurals name="battery_tip_restrict_title" formatted="false" msgid="7140926804142734420">
-      <item quantity="other">%1$d अनुप्रयोगहरूमाथि बन्देज लगाउनुहोस्</item>
+      <item quantity="other">%1$d एपमाथि बन्देज लगाउनुहोस्</item>
       <item quantity="one">%1$d माथि बन्देज लगाउनुहोस्</item>
     </plurals>
     <plurals name="battery_tip_restrict_handled_title" formatted="false" msgid="5509363095891806748">
-      <item quantity="other">%1$d अनुप्रयोगहरूमाथि हालसालै बन्देज लगाइयो</item>
+      <item quantity="other">%1$d एपमाथि हालसालै बन्देज लगाइयो</item>
       <item quantity="one">%1$s माथि हालसालै बन्देज लगाइयो</item>
     </plurals>
     <plurals name="battery_tip_restrict_summary" formatted="false" msgid="984148373944071669">
@@ -2306,8 +2306,8 @@
       <item quantity="one">यो एप पृष्ठभूमिमा चल्न सक्दैन</item>
     </plurals>
     <plurals name="battery_tip_restrict_app_dialog_title" formatted="false" msgid="3042021435866172168">
-      <item quantity="other">%1$d अनुप्रयोगमाथि बन्देज लगाउने हो?</item>
-      <item quantity="one">अनुप्रयोगमाथि बन्देज लगाउने हो?</item>
+      <item quantity="other">%1$d एपमाथि बन्देज लगाउने हो?</item>
+      <item quantity="one">एपमाथि बन्देज लगाउने हो?</item>
     </plurals>
     <string name="battery_tip_restrict_app_dialog_message" msgid="6905822297507947381">"ब्याट्री जोगाउन, <xliff:g id="APP">%1$s</xliff:g> लाई पृष्ठभूमिमा ब्याट्री प्रयोग गर्नबाट रोक्नुहोस्। यो अनुप्रयोगले सही किसिमले काम नगर्न सक्छ र सूचनाहरू आइपुग्न ढिलाइ हुन सक्छ।"</string>
     <string name="battery_tip_restrict_apps_less_than_5_dialog_message" msgid="4225881888543582456">"ब्याट्री जोगाउन, यी एपहरूलाई पृष्ठभूमिमा ब्याट्री प्रयोग गर्नबाट रोक्नुहोस्। प्रतिबन्ध लगाइएका एपहरूले सही किसिमले काम नगर्न सक्छन् र सूचनाहरू आइपुग्न ढिलाइ हुन सक्छ।\n\nएपहरू:"</string>
@@ -4253,7 +4253,7 @@
     <string name="webview_disabled_for_user" msgid="8057805373224993504">"(प्रयोगकर्ता <xliff:g id="USER">%s</xliff:g> को लागि असक्षम पारियो)"</string>
     <string name="autofill_app" msgid="3990765434980280073">"स्वतः भरण सेवा"</string>
     <string name="autofill_keywords" msgid="7717726766232862218">"स्वतः, भरण, स्वतः भरण"</string>
-    <string name="autofill_confirmation_message" msgid="1385894598730361304">"&lt;b&gt;तपाईं यो अनुप्रयोगमाथि भरोसा गर्नुहुन्छ भन्ने कुरा पक्का गर्नुहोस्&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=Google Autofill&gt;%1$s&lt;/xliff:g&gt; यस अनुप्रयोगले स्वतः भर्नसकिने कुराहरूको निर्धारण गर्न तपाईंको स्क्रिनमा भएका वस्तुहरूको प्रयोग गर्छ।"</string>
+    <string name="autofill_confirmation_message" msgid="1385894598730361304">"&lt;b&gt;तपाईं यो एपमाथि भरोसा गर्नुहुन्छ भन्ने कुरा पक्का गर्नुहोस्&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=Google Autofill&gt;%1$s&lt;/xliff:g&gt; यस अनुप्रयोगले स्वतः भर्नसकिने कुराहरूको निर्धारण गर्न तपाईंको स्क्रिनमा भएका वस्तुहरूको प्रयोग गर्छ।"</string>
     <string name="debug_autofill_category" msgid="6262526615416295645">"स्वतः भरण"</string>
     <string name="autofill_logging_level_title" msgid="2577340324541102626">"लगिङको स्तर"</string>
     <string name="autofill_max_partitions" msgid="125269645910590057">"प्रति सत्र अनुरोधको अधिकतम सङ्ख्या"</string>
