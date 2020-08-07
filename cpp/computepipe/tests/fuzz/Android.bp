@@ -37,7 +37,9 @@ cc_defaults {
     ],
     static_libs: [
         "computepipe_runner_component",
+        "computepipe_runner_engine",
         "computepipe_stream_manager",
+        "computepipe_input_manager",
         "libcomputepipeprotos",
         "libgtest",
         "libgmock",
@@ -47,6 +49,7 @@ cc_defaults {
         "libbase",
         "liblog",
         "libnativewindow",
+        "libmediandk",
         "libprotobuf-cpp-lite",
     ],
     header_libs: [
@@ -55,6 +58,12 @@ cc_defaults {
     include_dirs: [
         "packages/services/Car/cpp/computepipe",
         "packages/services/Car/cpp/computepipe/runner/stream_manager",
+        "packages/services/Car/cpp/computepipe/runner/input_manager",
+        "packages/services/Car/cpp/computepipe/runner/input_manager/include",
+        "packages/services/Car/cpp/computepipe/runner/engine",
+        "packages/services/Car/cpp/computepipe/runner/debug_display_manager/include",
+        "packages/services/Car/cpp/computepipe/runner/client_interface/include/",
+        "packages/services/Car/cpp/computepipe/runner/graph/include/",
     ],
 }
 
@@ -78,5 +87,19 @@ cc_fuzz {
     static_libs: [
         "libcomputepipeprotosfuzz",
         "libprotobuf-mutator",
+    ],
+}
+
+cc_fuzz {
+    name: "video_input_manager_fuzzer",
+    defaults: ["libcomputepipefuzz-defaults"],
+    cppflags:[
+        "-fexceptions",
+    ],
+    srcs: [
+        "VideoInputManagerFuzzer.cpp",
+    ],
+    corpus: [
+        "corpus/video_input_manager/*"
     ],
 }
