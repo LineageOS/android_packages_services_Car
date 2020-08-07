@@ -23,7 +23,7 @@ option java_package com.android.internal.car
 #### It uses the 150000 - 160000 range
 ####
 
-150000 car_helper_start (uses_hal|1)
+150000 car_helper_start
 150001 car_helper_boot_phase (phase|1)
 150002 car_helper_user_starting (user_id|1)
 150003 car_helper_user_switching (from_user_id|1),(to_user_id|1)

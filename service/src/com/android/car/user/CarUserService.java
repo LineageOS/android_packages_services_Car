@@ -349,13 +349,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         mUserMetrics.dump(writer);
     }
 
-    /**
-     * Dumps first user unlocking time.
-     */
-    public void dumpFirstUserUnlockDuration(PrintWriter writer) {
-        mUserMetrics.dumpFirstUserUnlockDuration(writer);
-    }
-
     private void handleDumpListeners(@NonNull PrintWriter writer, String indent) {
         CountDownLatch latch = new CountDownLatch(1);
         mHandler.post(() -> {
@@ -1623,14 +1616,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             // Finally, update metrics.
             mUserMetrics.onEvent(eventType, timestampMs, fromUserId, toUserId);
         }
-    }
-
-    /**
-     * Sets the first user unlocking metrics.
-     */
-    public void onFirstUserUnlocked(@UserIdInt int userId, long timestampMs, long duration,
-            int halResponseTime) {
-        mUserMetrics.logFirstUnlockedUser(userId, timestampMs, duration, halResponseTime);
     }
 
     private void sendPostSwitchToHalLocked(@UserIdInt int userId) {
