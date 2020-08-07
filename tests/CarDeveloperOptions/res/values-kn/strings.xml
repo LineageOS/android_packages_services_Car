@@ -3394,8 +3394,8 @@
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"ಅಡಚಣೆ ಮಾಡಬೇಡ ಆಯ್ಕೆಯನ್ನು ಅನುಮತಿಸಿ"</string>
     <string name="zen_access_empty_text" msgid="7667538993781607731">"ಯಾವುದೇ ಸ್ಥಾಪಿಸಲಾದ ಅಪ್ಲಿಕೇಶನ್‌ಗಳು ಅಡಚಣೆ ಮಾಡಬೇಡಿ ಪ್ರವೇಶಿಸುವಿಕೆಯನ್ನು ವಿನಂತಿಸಿಲ್ಲ"</string>
     <string name="loading_notification_apps" msgid="1978345231934072091">"ಅಪ್ಲಿಕೇಶನ್‌ಗಳನ್ನು ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ..."</string>
-    <string name="app_notifications_off_desc" msgid="3904090905748895146">"ನಿಮ್ಮ ವಿನಂತಿಯ ಮೇರೆಗೆ, ಈ ಸಾಧನದಲ್ಲಿ ಗೋಚರವಾಗುವ ಅಪ್ಲಿಕೇಶನ್‌ಗಳ ಅಧಿಸೂಚನೆಗಳನ್ನು Android ನಿರ್ಬಂಧಿಸುತ್ತದೆ"</string>
-    <string name="channel_notifications_off_desc" msgid="8005444443218306611">"ನಿಮ್ಮ ವಿನಂತಿಯ ಮೇರೆಗೆ ಈ ಸಾಧನದಲ್ಲಿ ಗೋಚರವಾಗುವ ಈ ಪ್ರಕಾರದ ಅಪ್ಲಿಕೇಶನ್‌ಗಳ ಅಧಿಸೂಚನೆಗಳನ್ನು Android ನಿರ್ಬಂಧಿಸುತ್ತದೆ"</string>
+    <string name="app_notifications_off_desc" msgid="3904090905748895146">"ನಿಮ್ಮ ವಿನಂತಿಯ ಮೇರೆಗೆ, ಈ ಸಾಧನದಲ್ಲಿ ಆ್ಯಪ್‌ಗಳ ಅಧಿಸೂಚನೆಗಳು ಕಾಣಿಸದಂತೆ Android ನಿರ್ಬಂಧಿಸುತ್ತದೆ"</string>
+    <string name="channel_notifications_off_desc" msgid="8005444443218306611">"ನಿಮ್ಮ ವಿನಂತಿಯ ಮೇರೆಗೆ, ಈ ಸಾಧನದಲ್ಲಿ ಆ್ಯಪ್‌ಗಳ ಅಧಿಸೂಚನೆಗಳು ಕಾಣಿಸದಂತೆ Android ನಿರ್ಬಂಧಿಸುತ್ತದೆ"</string>
     <string name="channel_group_notifications_off_desc" msgid="7154205544298672850">"ನಿಮ್ಮ ವಿನಂತಿಯ ಮೇರೆಗೆ, ಈ ಸಾಧನದಲ್ಲಿ ಗೋಚರವಾಗುವ ಈ ಅಧಿಸೂಚನೆಗಳ ಗುಂಪನ್ನು Android ನಿರ್ಬಂಧಿಸುತ್ತದೆ"</string>
     <string name="notification_channels" msgid="956764228116145956">"ವಿಭಾಗಗಳು"</string>
     <string name="notification_channels_other" msgid="1615988645667411530">"ಇತರೆ"</string>

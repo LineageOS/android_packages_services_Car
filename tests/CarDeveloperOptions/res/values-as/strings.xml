@@ -3394,7 +3394,7 @@
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"অসুবিধা নিদিব ম’ডক অনুমতি দিয়ক"</string>
     <string name="zen_access_empty_text" msgid="7667538993781607731">"ইনষ্টল কৰি থোৱা কোনো এপে অসুবিধা নিদিবত প্ৰৱেশৰ অনুমতি বিচৰা নাই"</string>
     <string name="loading_notification_apps" msgid="1978345231934072091">"এপ্‌সমূহ ল’ড কৰি থকা হৈছে..."</string>
-    <string name="app_notifications_off_desc" msgid="3904090905748895146">"আপোনাৰ অনুৰোধত, Android-এ এই ডিভাইচটোত এই এপৰ জাননীসমূহ দেখাবলৈ বাধা দি আছে"</string>
+    <string name="app_notifications_off_desc" msgid="3904090905748895146">"আপোনাৰ অনুৰোধমৰ্মে, Androidএ এই এপৰ জাননীসমূহ এই ডিভাইচটোত দৃশ্যমান হোৱাত বাধা দি আছে"</string>
     <string name="channel_notifications_off_desc" msgid="8005444443218306611">"আপোনাৰ অনুৰোধমৰ্মে, Androidএ জাননীসমূহৰ এই শ্ৰেণীটোক এই ডিভাইচটোত দৃশ্যমান হ\'বলৈ দিয়া নাই"</string>
     <string name="channel_group_notifications_off_desc" msgid="7154205544298672850">"আপোনাৰ অনুৰোধমৰ্মে, Androidএ জাননীসমূহৰ এই গোটটোক এই ডিভাইচটোত দৃশ্যমান হ\'বলৈ দিয়া নাই"</string>
     <string name="notification_channels" msgid="956764228116145956">"শ্ৰেণী"</string>
