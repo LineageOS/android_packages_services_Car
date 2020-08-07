@@ -41,12 +41,12 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.preference.Preference;
 
-import com.android.internal.net.VpnConfig;
-import com.android.internal.util.ArrayUtils;
 import com.android.car.developeroptions.R;
 import com.android.car.developeroptions.SettingsPreferenceFragment;
 import com.android.car.developeroptions.core.SubSettingLauncher;
 import com.android.car.developeroptions.core.instrumentation.InstrumentedDialogFragment;
+import com.android.internal.net.VpnConfig;
+import com.android.internal.util.ArrayUtils;
 import com.android.settingslib.RestrictedPreference;
 import com.android.settingslib.RestrictedSwitchPreference;
 
@@ -225,7 +225,7 @@ public class AppManagementFragment extends SettingsPreferenceFragment
 
     private boolean setAlwaysOnVpn(boolean isEnabled, boolean isLockdown) {
         return mConnectivityManager.setAlwaysOnVpnPackageForUser(mUserId,
-                isEnabled ? mPackageName : null, isLockdown, /* lockdownWhitelist */ null);
+                isEnabled ? mPackageName : null, isLockdown, /* lockdownAllowlist */ null);
     }
 
     private void updateUI() {

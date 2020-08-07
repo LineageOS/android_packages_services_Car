@@ -89,8 +89,8 @@ public abstract class ToggleFeaturePreferenceFragment extends SettingsPreference
 
     protected void updateSwitchBarText(SwitchBar switchBar) {
         // Implement this to provide meaningful text in switch bar
-        switchBar.setSwitchBarText(R.string.accessibility_service_master_switch_title,
-                R.string.accessibility_service_master_switch_title);
+        switchBar.setSwitchBarText(R.string.accessibility_service_primary_switch_title,
+                R.string.accessibility_service_primary_switch_title);
     }
 
     protected abstract void onPreferenceToggled(String preferenceKey, boolean enabled);

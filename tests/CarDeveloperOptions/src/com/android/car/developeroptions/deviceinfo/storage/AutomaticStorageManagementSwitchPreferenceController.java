@@ -29,8 +29,8 @@ import androidx.preference.PreferenceScreen;
 import com.android.car.developeroptions.core.BasePreferenceController;
 import com.android.car.developeroptions.deletionhelper.ActivationWarningFragment;
 import com.android.car.developeroptions.overlay.FeatureFactory;
-import com.android.car.developeroptions.widget.MasterSwitchController;
-import com.android.car.developeroptions.widget.MasterSwitchPreference;
+import com.android.car.developeroptions.widget.PrimarySwitchController;
+import com.android.car.developeroptions.widget.PrimarySwitchPreference;
 import com.android.car.developeroptions.widget.SwitchWidgetController;
 import com.android.settingslib.Utils;
 import com.android.settingslib.core.instrumentation.MetricsFeatureProvider;
@@ -43,8 +43,8 @@ public class AutomaticStorageManagementSwitchPreferenceController extends
     @VisibleForTesting
     static final String STORAGE_MANAGER_ENABLED_BY_DEFAULT_PROPERTY = "ro.storage_manager.enabled";
     private final MetricsFeatureProvider mMetricsFeatureProvider;
-    private MasterSwitchPreference mSwitch;
-    private MasterSwitchController mSwitchController;
+    private PrimarySwitchPreference mSwitch;
+    private PrimarySwitchController mSwitchController;
     private FragmentManager mFragmentManager;
 
     public AutomaticStorageManagementSwitchPreferenceController(Context context, String key) {
@@ -77,7 +77,7 @@ public class AutomaticStorageManagementSwitchPreferenceController extends
         mSwitch.setChecked(Utils.isStorageManagerEnabled(mContext));
 
         if (mSwitch != null) {
-            mSwitchController = new MasterSwitchController(mSwitch);
+            mSwitchController = new PrimarySwitchController(mSwitch);
             mSwitchController.setListener(this);
             mSwitchController.startListening();
         }

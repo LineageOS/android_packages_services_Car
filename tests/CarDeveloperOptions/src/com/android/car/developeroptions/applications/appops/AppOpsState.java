@@ -28,7 +28,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.format.DateUtils;
 import android.util.Log;
-import android.util.Pair;
 import android.util.SparseArray;
 
 import com.android.car.developeroptions.R;
@@ -589,39 +588,48 @@ public class AppOpsState {
             if (appEntry == null) {
                 continue;
             }
-            List<AppOpsManager.OpEntry> dummyOps = null;
+            List<AppOpsManager.OpEntry> placeholderOps = null;
             AppOpsManager.PackageOps pkgOps = null;
             if (appInfo.requestedPermissions != null) {
-                for (int j=0; j<appInfo.requestedPermissions.length; j++) {
+                for (int j = 0; j < appInfo.requestedPermissions.length; j++) {
                     if (appInfo.requestedPermissionsFlags != null) {
                         if ((appInfo.requestedPermissionsFlags[j]
                                 & PackageInfo.REQUESTED_PERMISSION_GRANTED) == 0) {
-                            if (DEBUG) Log.d(TAG, "Pkg " + appInfo.packageName + " perm "
-                                    + appInfo.requestedPermissions[j] + " not granted; skipping");
+                            if (DEBUG) {
+                                Log.d(TAG, "Pkg " + appInfo.packageName + " perm "
+                                        + appInfo.requestedPermissions[j]
+                                        + " not granted; skipping");
+                            }
                             continue;
                         }
                     }
-                    if (DEBUG) Log.d(TAG, "Pkg " + appInfo.packageName + ": requested perm "
-                            + appInfo.requestedPermissions[j]);
-                    for (int k=0; k<perms.size(); k++) {
+                    if (DEBUG) {
+                        Log.d(TAG, "Pkg " + appInfo.packageName + ": requested perm "
+                                + appInfo.requestedPermissions[j]);
+                    }
+                    for (int k = 0; k < perms.size(); k++) {
                         if (!perms.get(k).equals(appInfo.requestedPermissions[j])) {
                             continue;
                         }
-                        if (DEBUG) Log.d(TAG, "Pkg " + appInfo.packageName + " perm " + perms.get(k)
-                                + " has op " + permOps.get(k) + ": " + appEntry.hasOp(permOps.get(k)));
+                        if (DEBUG) {
+                            Log.d(TAG, "Pkg " + appInfo.packageName + " perm " + perms.get(k)
+                                    + " has op " + permOps.get(k) + ": " + appEntry.hasOp(
+                                    permOps.get(k)));
+                        }
                         if (appEntry.hasOp(permOps.get(k))) {
                             continue;
                         }
-                        if (dummyOps == null) {
-                            dummyOps = new ArrayList<AppOpsManager.OpEntry>();
+                        if (placeholderOps == null) {
+                            placeholderOps = new ArrayList<AppOpsManager.OpEntry>();
                             pkgOps = new AppOpsManager.PackageOps(
-                                    appInfo.packageName, appInfo.applicationInfo.uid, dummyOps);
+                                    appInfo.packageName, appInfo.applicationInfo.uid,
+                                    placeholderOps);
 
                         }
                         AppOpsManager.OpEntry opEntry = new AppOpsManager.OpEntry(
                                 permOps.get(k), AppOpsManager.MODE_ALLOWED,
                                 Collections.emptyMap());
-                        dummyOps.add(opEntry);
+                        placeholderOps.add(opEntry);
                         addOp(entries, pkgOps, appEntry, opEntry, packageName == null,
                                 packageName == null ? 0 : opToOrder[opEntry.getOp()]);
                     }

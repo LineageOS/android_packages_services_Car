@@ -31,32 +31,32 @@ import com.android.settingslib.TwoTargetPreference;
  * A custom preference that provides inline checkbox. It has a mandatory field for title, and
  * optional fields for icon and sub-text.
  */
-public class MasterCheckBoxPreference extends TwoTargetPreference {
+public class PrimaryCheckBoxPreference extends TwoTargetPreference {
 
     private CheckBox mCheckBox;
     private boolean mChecked;
     private boolean mEnableCheckBox = true;
 
-    public MasterCheckBoxPreference(Context context, AttributeSet attrs,
+    public PrimaryCheckBoxPreference(Context context, AttributeSet attrs,
             int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
-    public MasterCheckBoxPreference(Context context, AttributeSet attrs, int defStyleAttr) {
+    public PrimaryCheckBoxPreference(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
-    public MasterCheckBoxPreference(Context context, AttributeSet attrs) {
+    public PrimaryCheckBoxPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public MasterCheckBoxPreference(Context context) {
+    public PrimaryCheckBoxPreference(Context context) {
         super(context);
     }
 
     @Override
     protected int getSecondTargetResId() {
-        return R.layout.preference_widget_master_checkbox;
+        return R.layout.preference_widget_primary_checkbox;
     }
 
     @Override

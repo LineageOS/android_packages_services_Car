@@ -37,7 +37,6 @@ import androidx.preference.Preference;
 import androidx.preference.Preference.OnPreferenceChangeListener;
 import androidx.preference.PreferenceCategory;
 
-import com.android.internal.widget.SubtitleView;
 import com.android.car.developeroptions.R;
 import com.android.car.developeroptions.SettingsActivity;
 import com.android.car.developeroptions.SettingsPreferenceFragment;
@@ -45,6 +44,7 @@ import com.android.car.developeroptions.accessibility.ListDialogPreference.OnVal
 import com.android.car.developeroptions.widget.SwitchBar;
 import com.android.car.developeroptions.widget.ToggleSwitch;
 import com.android.car.developeroptions.widget.ToggleSwitch.OnBeforeCheckedChangeListener;
+import com.android.internal.widget.SubtitleView;
 import com.android.settingslib.accessibility.AccessibilityUtils;
 
 import java.util.Locale;
@@ -159,8 +159,8 @@ public class CaptionPropertiesFragment extends SettingsPreferenceFragment
         final boolean enabled = mCaptioningManager.isEnabled();
         SettingsActivity activity = (SettingsActivity) getActivity();
         mSwitchBar = activity.getSwitchBar();
-        mSwitchBar.setSwitchBarText(R.string.accessibility_caption_master_switch_title,
-                R.string.accessibility_caption_master_switch_title);
+        mSwitchBar.setSwitchBarText(R.string.accessibility_caption_primary_switch_title,
+                R.string.accessibility_caption_primary_switch_title);
         mSwitchBar.setCheckedInternal(enabled);
         mToggleSwitch = mSwitchBar.getSwitch();
 

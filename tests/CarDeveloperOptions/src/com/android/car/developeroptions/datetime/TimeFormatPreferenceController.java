@@ -42,7 +42,7 @@ public class TimeFormatPreferenceController extends AbstractPreferenceController
 
     // Used for showing the current date format, which looks like "12/31/2010", "2010/12/13", etc.
     // The date value is placeholder (independent of actual date).
-    private final Calendar mDummyDate;
+    private final Calendar mPlaceholderDate;
     private final boolean mIsFromSUW;
     private final UpdateTimeAndDateCallback mUpdateTimeAndDateCallback;
 
@@ -50,7 +50,7 @@ public class TimeFormatPreferenceController extends AbstractPreferenceController
             boolean isFromSUW) {
         super(context);
         mIsFromSUW = isFromSUW;
-        mDummyDate = Calendar.getInstance();
+        mPlaceholderDate = Calendar.getInstance();
         mUpdateTimeAndDateCallback = callback;
     }
 
@@ -68,12 +68,12 @@ public class TimeFormatPreferenceController extends AbstractPreferenceController
             !AutoTimeFormatPreferenceController.isAutoTimeFormatSelection(mContext));
         ((TwoStatePreference) preference).setChecked(is24Hour());
         final Calendar now = Calendar.getInstance();
-        mDummyDate.setTimeZone(now.getTimeZone());
+        mPlaceholderDate.setTimeZone(now.getTimeZone());
         // We use December 31st because it's unambiguous when demonstrating the date format.
         // We use 13:00 so we can demonstrate the 12/24 hour options.
-        mDummyDate.set(now.get(Calendar.YEAR), 11, 31, 13, 0, 0);
-        final Date dummyDate = mDummyDate.getTime();
-        preference.setSummary(DateFormat.getTimeFormat(mContext).format(dummyDate));
+        mPlaceholderDate.set(now.get(Calendar.YEAR), 11, 31, 13, 0, 0);
+        final Date placeholderDate = mPlaceholderDate.getTime();
+        preference.setSummary(DateFormat.getTimeFormat(mContext).format(placeholderDate));
     }
 
     @Override
