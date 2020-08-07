@@ -32,7 +32,7 @@ import com.android.car.developeroptions.dashboard.DashboardFragment;
 import com.android.car.developeroptions.development.featureflags.FeatureFlagPersistent;
 import com.android.car.developeroptions.network.MobilePlanPreferenceController.MobilePlanPreferenceHost;
 import com.android.car.developeroptions.search.BaseSearchIndexProvider;
-import com.android.car.developeroptions.wifi.WifiMasterSwitchPreferenceController;
+import com.android.car.developeroptions.wifi.WifiPrimarySwitchPreferenceController;
 import com.android.settingslib.core.AbstractPreferenceController;
 import com.android.settingslib.core.instrumentation.MetricsFeatureProvider;
 import com.android.settingslib.core.lifecycle.Lifecycle;
@@ -93,8 +93,8 @@ public class NetworkDashboardFragment extends DashboardFragment implements
             MobilePlanPreferenceHost mobilePlanHost) {
         final MobilePlanPreferenceController mobilePlanPreferenceController =
                 new MobilePlanPreferenceController(context, mobilePlanHost);
-        final WifiMasterSwitchPreferenceController wifiPreferenceController =
-                new WifiMasterSwitchPreferenceController(context, metricsFeatureProvider);
+        final WifiPrimarySwitchPreferenceController wifiPreferenceController =
+                new WifiPrimarySwitchPreferenceController(context, metricsFeatureProvider);
         MobileNetworkPreferenceController mobileNetworkPreferenceController = null;
         if (!FeatureFlagPersistent.isEnabled(context, FeatureFlags.NETWORK_INTERNET_V2)) {
             mobileNetworkPreferenceController = new MobileNetworkPreferenceController(context);
@@ -189,7 +189,7 @@ public class NetworkDashboardFragment extends DashboardFragment implements
                 public List<String> getNonIndexableKeys(Context context) {
                     List<String> keys = super.getNonIndexableKeys(context);
                     // Remove global switch as a result
-                    keys.add(WifiMasterSwitchPreferenceController.KEY_TOGGLE_WIFI);
+                    keys.add(WifiPrimarySwitchPreferenceController.KEY_TOGGLE_WIFI);
                     return keys;
                 }
             };

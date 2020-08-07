@@ -34,10 +34,10 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 
-import com.android.internal.net.LegacyVpnInfo;
-import com.android.internal.net.VpnProfile;
 import com.android.car.developeroptions.R;
 import com.android.car.developeroptions.core.instrumentation.InstrumentedDialogFragment;
+import com.android.internal.net.LegacyVpnInfo;
+import com.android.internal.net.VpnProfile;
 
 /**
  * Fragment wrapper around a {@link ConfigDialog}.
@@ -176,7 +176,7 @@ public class ConfigDialogFragment extends InstrumentedDialogFragment implements
 
             final ConnectivityManager conn = ConnectivityManager.from(mContext);
             conn.setAlwaysOnVpnPackageForUser(UserHandle.myUserId(), null,
-                    /* lockdownEnabled */ false, /* lockdownWhitelist */ null);
+                    /* lockdownEnabled */ false, /* lockdownAllowlist */ null);
             VpnUtils.setLockdownVpn(mContext, profile.key);
         } else {
             // update only if lockdown vpn has been changed

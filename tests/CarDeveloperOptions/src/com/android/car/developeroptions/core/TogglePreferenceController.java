@@ -19,7 +19,7 @@ import androidx.preference.Preference;
 import androidx.preference.TwoStatePreference;
 
 import com.android.car.developeroptions.slices.SliceData;
-import com.android.car.developeroptions.widget.MasterSwitchPreference;
+import com.android.car.developeroptions.widget.PrimarySwitchPreference;
 
 /**
  * Abstract class that consolidates logic for updating toggle controllers.
@@ -52,8 +52,8 @@ public abstract class TogglePreferenceController extends BasePreferenceControlle
     public void updateState(Preference preference) {
         if (preference instanceof TwoStatePreference) {
             ((TwoStatePreference) preference).setChecked(isChecked());
-        } else if (preference instanceof MasterSwitchPreference) {
-            ((MasterSwitchPreference) preference).setChecked(isChecked());
+        } else if (preference instanceof PrimarySwitchPreference) {
+            ((PrimarySwitchPreference) preference).setChecked(isChecked());
         } else {
             refreshSummary(preference);
         }

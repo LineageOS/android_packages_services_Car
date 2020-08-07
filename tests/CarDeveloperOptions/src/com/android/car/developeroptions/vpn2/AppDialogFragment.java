@@ -33,9 +33,9 @@ import android.util.Log;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
-import com.android.internal.net.VpnConfig;
 import com.android.car.developeroptions.R;
 import com.android.car.developeroptions.core.instrumentation.InstrumentedDialogFragment;
+import com.android.internal.net.VpnConfig;
 
 /**
  * Fragment wrapper around an {@link AppDialog}.
@@ -167,7 +167,7 @@ public class AppDialogFragment extends InstrumentedDialogFragment implements App
         try {
             if (mPackageInfo.packageName.equals(VpnUtils.getConnectedPackage(mService, userId))) {
                 mService.setAlwaysOnVpnPackage(userId, null, /* lockdownEnabled */ false,
-                        /* lockdownWhitelist */ null);
+                        /* lockdownAllowlist */ null);
                 mService.prepareVpn(mPackageInfo.packageName, VpnConfig.LEGACY_VPN, userId);
             }
         } catch (RemoteException e) {

@@ -215,8 +215,8 @@ public class WifiSettings extends RestrictedSettingsFragment
             setProgressBarVisible(false);
         }
         ((SettingsActivity) activity).getSwitchBar().setSwitchBarText(
-                R.string.wifi_settings_master_switch_title,
-                R.string.wifi_settings_master_switch_title);
+                R.string.wifi_settings_primary_switch_title,
+                R.string.wifi_settings_primary_switch_title);
     }
 
     @Override
@@ -470,7 +470,7 @@ public class WifiSettings extends RestrictedSettingsFragment
 
             if (mSelectedAccessPoint.isSaved() || mSelectedAccessPoint.isEphemeral()) {
                 // Allow forgetting a network if either the network is saved or ephemerally
-                // connected. (In the latter case, "forget" blacklists the network so it won't
+                // connected. (In the latter case, "forget" denylists the network so it won't
                 // be used again, ephemerally).
                 menu.add(Menu.NONE, MENU_ID_FORGET, 0, R.string.wifi_menu_forget);
             }

@@ -23,7 +23,7 @@
     <com.android.car.developeroptions.deviceinfo.storage.StorageSummaryDonutPreference
         android:key="pref_summary"
         android:order="0" />
-    <com.android.car.developeroptions.widget.MasterSwitchPreference
+    <com.android.car.developeroptions.widget.PrimarySwitchPreference
         android:fragment="com.android.car.developeroptions.deletionhelper.AutomaticStorageManagerSettings"
         android:key="toggle_asm"
         android:title="@string/automatic_storage_manager_preference_title"

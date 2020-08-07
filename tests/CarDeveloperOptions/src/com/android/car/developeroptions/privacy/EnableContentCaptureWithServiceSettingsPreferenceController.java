@@ -26,7 +26,6 @@ import androidx.preference.Preference;
 
 import com.android.car.developeroptions.core.TogglePreferenceController;
 import com.android.car.developeroptions.utils.ContentCaptureUtils;
-import com.android.car.developeroptions.widget.MasterSwitchPreference;
 
 public final class EnableContentCaptureWithServiceSettingsPreferenceController
         extends TogglePreferenceController {
