@@ -52,7 +52,7 @@ protected:
     // OpenGL state shared among all renderers
     static EGLDisplay   sDisplay;
     static EGLContext   sContext;
-    static EGLSurface   sDummySurface;
+    static EGLSurface   sMockSurface;
     static GLuint       sFrameBuffer;
     static GLuint       sColorBuffer;
     static GLuint       sDepthBuffer;
