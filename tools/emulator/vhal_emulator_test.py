@@ -25,8 +25,8 @@
         a command of the form:
             protoc -I=<proto_dir> --python_out=<out_dir> <proto_dir>/VehicleHalProto.proto
         For example:
-            protoDir=~/android/master/hardware/interfaces/automotive/vehicle/2.0/default/impl/vhal_v2_0/proto
-            outDir=~/android/master/packages/services/Car/tools/emulator
+            protoDir=$ANDROID_BUILD_TOP/hardware/interfaces/automotive/vehicle/2.0/default/impl/vhal_v2_0/proto
+            outDir=$ANDROID_BUILD_TOP/packages/services/Car/tools/emulator
             protoc -I=$protoDir --python_out=$outDir $protoDir/VehicleHalProto.proto
 """
 

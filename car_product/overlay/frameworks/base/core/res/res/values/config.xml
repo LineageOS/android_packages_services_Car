@@ -107,18 +107,18 @@
     <!-- Turn off Wallpaper service -->
     <bool name="config_enableWallpaperService">false</bool>
 
-    <!-- Whether to only install system packages on a user if they're whitelisted for that user
+    <!-- Whether to only install system packages on a user if they're allowlisted for that user
          type. Override the default value in framework config file.
-         0  - disable whitelist (install all system packages; no logging)
-         1  - enforce (only install system packages if they are whitelisted)
-         2  - log (log when a non-whitelisted package is run)
-         4  - any package not mentioned in the whitelist file is implicitly whitelisted on all users
+         0  - disable allowlist (install all system packages; no logging)
+         1  - enforce (only install system packages if they are allowlisted)
+         2  - log (log when a non-allowlisted package is run)
+         4  - any package not mentioned in the allowlist file is implicitly allowlisted on all users
          8  - same as 4, but just for the SYSTEM user
          16 - ignore OTAs (don't install system packages during OTAs)
 
          Common scenarios for auto:
-          - to enable feature (fully enforced) for a complete whitelist: 1
-          - to enable feature for an incomplete whitelist (so use implicit whitelist mode): 5 -->
+          - to enable feature (fully enforced) for a complete allowlist: 1
+          - to enable feature for an incomplete allowlist (so use implicit allowlist mode): 5 -->
     <integer name="config_userTypePackageWhitelistMode">5</integer> <!-- 1+4 -->
 
     <!-- Default user restrictions for system user 0. -->
