@@ -492,34 +492,34 @@ Return<void> HalCamera::notify(const EvsEventDesc& event) {
 
 
 Return<EvsResult> HalCamera::setMaster(sp<VirtualCamera> virtualCamera) {
-    if (mMaster == nullptr) {
+    if (mPrimaryClient == nullptr) {
         LOG(DEBUG) << __FUNCTION__
-                   << ": " << virtualCamera.get() << " becomes a master.";
-        mMaster = virtualCamera;
+                   << ": " << virtualCamera.get() << " becomes a primary client.";
+        mPrimaryClient = virtualCamera;
         return EvsResult::OK;
     } else {
-        LOG(INFO) << "This camera already has a master client.";
+        LOG(INFO) << "This camera already has a primary client.";
         return EvsResult::OWNERSHIP_LOST;
     }
 }
 
 
 Return<EvsResult> HalCamera::forceMaster(sp<VirtualCamera> virtualCamera) {
-    sp<VirtualCamera> prevMaster = mMaster.promote();
-    if (prevMaster == virtualCamera) {
+    sp<VirtualCamera> prevPrimary = mPrimaryClient.promote();
+    if (prevPrimary == virtualCamera) {
         LOG(DEBUG) << "Client " << virtualCamera.get()
-                   << " is already a master client";
+                   << " is already a primary client";
     } else {
-        mMaster = virtualCamera;
-        if (prevMaster != nullptr) {
+        mPrimaryClient = virtualCamera;
+        if (prevPrimary != nullptr) {
             LOG(INFO) << "High priority client " << virtualCamera.get()
-                      << " steals a master role from " << prevMaster.get();
+                      << " steals a primary role from " << prevPrimary.get();
 
-            /* Notify a previous master client the loss of a master role */
+            /* Notify a previous primary client the loss of a primary role */
             EvsEventDesc event;
             event.aType = EvsEventType::MASTER_RELEASED;
-            if (!prevMaster->notify(event)) {
-                LOG(ERROR) << "Fail to deliver a master role lost notification";
+            if (!prevPrimary->notify(event)) {
+                LOG(ERROR) << "Fail to deliver a primary role lost notification";
             }
         }
     }
@@ -529,13 +529,13 @@ Return<EvsResult> HalCamera::forceMaster(sp<VirtualCamera> virtualCamera) {
 
 
 Return<EvsResult> HalCamera::unsetMaster(sp<VirtualCamera> virtualCamera) {
-    if (mMaster.promote() != virtualCamera) {
+    if (mPrimaryClient.promote() != virtualCamera) {
         return EvsResult::INVALID_ARG;
     } else {
-        LOG(INFO) << "Unset a master camera client";
-        mMaster = nullptr;
+        LOG(INFO) << "Unset a primary camera client";
+        mPrimaryClient = nullptr;
 
-        /* Notify other clients that a master role becomes available. */
+        /* Notify other clients that a primary role becomes available. */
         EvsEventDesc event;
         event.aType = EvsEventType::MASTER_RELEASED;
         auto cbResult = this->notify(event);
@@ -551,7 +551,7 @@ Return<EvsResult> HalCamera::unsetMaster(sp<VirtualCamera> virtualCamera) {
 Return<EvsResult> HalCamera::setParameter(sp<VirtualCamera> virtualCamera,
                                           CameraParam id, int32_t& value) {
     EvsResult result = EvsResult::INVALID_ARG;
-    if (virtualCamera == mMaster.promote()) {
+    if (virtualCamera == mPrimaryClient.promote()) {
         mHwCamera->setIntParameter(id, value,
                                    [&result, &value](auto status, auto readValue) {
                                        result = status;
@@ -570,7 +570,7 @@ Return<EvsResult> HalCamera::setParameter(sp<VirtualCamera> virtualCamera,
             }
         }
     } else {
-        LOG(WARNING) << "A parameter change request from a non-master client is declined.";
+        LOG(WARNING) << "A parameter change request from the non-primary client is declined.";
 
         /* Read a current value of a requested camera parameter */
         getParameter(id, value);
@@ -624,9 +624,9 @@ std::string HalCamera::toString(const char* indent) const {
         buffer += handle->toString(double_indent.c_str());
     }
 
-    StringAppendF(&buffer, "%sMaster client: %p\n"
+    StringAppendF(&buffer, "%sPrimary client: %p\n"
                            "%sSynchronization support: %s\n",
-                           indent, mMaster.promote().get(),
+                           indent, mPrimaryClient.promote().get(),
                            indent, mSyncSupported ? "T":"F");
 
     buffer += HalCamera::toString(mStreamConfig, indent);
