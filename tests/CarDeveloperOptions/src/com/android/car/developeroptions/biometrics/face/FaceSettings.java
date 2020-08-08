@@ -121,11 +121,10 @@ public class FaceSettings extends DashboardFragment {
         }
 
         if (mToken == null) {
-            final long challenge = mFaceManager.generateChallengeBlocking();
             ChooseLockSettingsHelper helper = new ChooseLockSettingsHelper(getActivity(), this);
             if (!helper.launchConfirmationActivity(CONFIRM_REQUEST,
                     getString(R.string.security_settings_face_preference_title),
-                    null, null, challenge, mUserId)) {
+                    null, null, 0L /* challenge */, mUserId)) {
                 Log.e(TAG, "Password not set");
                 finish();
             }
