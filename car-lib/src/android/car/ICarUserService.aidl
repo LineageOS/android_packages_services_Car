@@ -40,7 +40,6 @@ interface ICarUserService {
     boolean stopPassenger(int passengerId);
     void setLifecycleListenerForUid(in IResultReceiver listener);
     void resetLifecycleListenerForUid();
-    void getInitialUserInfo(int requestType, int timeoutMs, in IResultReceiver receiver);
     UserIdentificationAssociationResponse getUserIdentificationAssociation(in int[] types);
     void setUserIdentificationAssociation(int timeoutMs, in int[] types, in int[] values,
       in AndroidFuture<UserIdentificationAssociationResponse> result);

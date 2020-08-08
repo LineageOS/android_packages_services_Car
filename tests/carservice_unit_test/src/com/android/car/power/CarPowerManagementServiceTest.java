@@ -16,32 +16,23 @@
 
 package com.android.car.power;
 
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.notNull;
-import static org.mockito.Mockito.never;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.app.ActivityManager;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
-import android.car.test.util.Visitor;
-import android.car.userlib.HalCallback;
-import android.car.userlib.InitialUserSetter;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.content.res.Resources;
-import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
-import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
-import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateShutdownParam;
 import android.os.UserManager;
@@ -112,8 +103,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
     @Mock
     private CarUserService mUserService;
     @Mock
-    private InitialUserSetter mInitialUserSetter;
-    @Mock
     private IVoiceInteractionManagerService mVoiceInteractionManagerService;
 
 
@@ -166,7 +155,7 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
                 mVoiceInteractionManagerService, mSilentModeFile.getPath().toString());
         CarLocalServices.addService(SilentModeController.class, mSilentModeController);
         mService = new CarPowerManagementService(mContext, mResources, mPowerHal,
-                mSystemInterface, mUserManager, mUserService, mInitialUserSetter);
+                mSystemInterface, mUserManager, mUserService);
         CarLocalServices.addService(CarPowerManagementService.class, mService);
         mService.init();
         mSilentModeController.init();
@@ -352,148 +341,21 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
 
         suspendAndResume();
 
-        verifyDefaultInitialUserBehaviorCalled();
+        verifyInitBootUserCalled();
     }
 
     @Test
-    public void testUserSwitchingOnResume_noHal() throws Exception {
+    public void testUserSwitchingOnResume() throws Exception {
         suspendAndResumeForUserSwitchingTests();
 
-        verifyDefaultInitialUserBehaviorCalled();
+        verifyInitBootUserCalled();
     }
 
     @Test
-    public void testUserSwitchingOnResume_disabledByOEM_nonGuest() throws Exception {
-        UserInfo currentUser = setCurrentUser(CURRENT_USER_ID, /* isGuest= */ false);
-        expectCurrentGuestCanBeReplaced(false);
-
+    public void testUserSwitchingOnResume_disabledByOEM() throws Exception {
         suspendAndResumeForUserSwitchingTestsWhileDisabledByOem();
 
-        verifyNoSetCall();
-    }
-
-    @Test
-    public void testUserSwitchingOnResume_disabledByOEM_guest() throws Exception {
-        setCurrentUser(CURRENT_GUEST_ID, /* isGuest= */ true);
-        expectCurrentGuestCanBeReplaced(true);
-
-        suspendAndResumeForUserSwitchingTestsWhileDisabledByOem();
-
-        verifyUserReplaced();
-    }
-
-    @Test
-    public void testUserSwitchingUsingHal_failure_setTimeout() throws Exception {
-        userSwitchingWhenHalFailsTest(HalCallback.STATUS_HAL_SET_TIMEOUT);
-    }
-
-    @Test
-    public void testUserSwitchingUsingHal_failure_responseTimeout() throws Exception {
-        userSwitchingWhenHalFailsTest(HalCallback.STATUS_HAL_RESPONSE_TIMEOUT);
-    }
-
-    @Test
-    public void testUserSwitchingUsingHal_failure_concurrentOperation() throws Exception {
-        userSwitchingWhenHalFailsTest(HalCallback.STATUS_CONCURRENT_OPERATION);
-    }
-
-    @Test
-    public void testUserSwitchingUsingHal_failure_wrongResponse() throws Exception {
-        userSwitchingWhenHalFailsTest(HalCallback.STATUS_WRONG_HAL_RESPONSE);
-    }
-
-    @Test
-    public void testUserSwitchingUsingHal_failure_invalidResponse() throws Exception {
-        userSwitchingWhenHalFailsTest(-666);
-    }
-
-    /**
-     * Tests all scenarios where the HAL.getInitialUserInfo() call failed - the outcome is the
-     * same, it should use the default behavior.
-     */
-    private void userSwitchingWhenHalFailsTest(int status) throws Exception {
-        enableUserHal();
-
-        setGetUserInfoResponse((c) -> c.onResponse(status, /* response= */ null));
-
-        suspendAndResumeForUserSwitchingTests();
-
-        verifyDefaultInitialUserBehaviorCalled();
-    }
-
-    @Test
-    public void testUserSwitchingUsingHal_invalidAction() throws Exception {
-        enableUserHal();
-
-        InitialUserInfoResponse response = new InitialUserInfoResponse();
-        response.action = -666;
-        setGetUserInfoResponse((c) -> c.onResponse(HalCallback.STATUS_OK, response));
-
-        suspendAndResumeForUserSwitchingTests();
-
-        verifyDefaultInitialUserBehaviorCalled();
-    }
-
-    @Test
-    public void testUserSwitchingUsingHal_default_nullResponse() throws Exception {
-        enableUserHal();
-
-        setGetUserInfoResponse((c) -> c.onResponse(HalCallback.STATUS_OK, /* response= */ null));
-        suspendAndResumeForUserSwitchingTests();
-
-        verifyDefaultInitialUserBehaviorCalled();
-    }
-
-    @Test
-    public void testUserSwitchingUsingHal_default_ok() throws Exception {
-        enableUserHal();
-
-        InitialUserInfoResponse response = new InitialUserInfoResponse();
-        response.action = InitialUserInfoResponseAction.DEFAULT;
-        setGetUserInfoResponse((c) -> c.onResponse(HalCallback.STATUS_OK, response));
-
-        suspendAndResumeForUserSwitchingTests();
-
-        verifyDefaultInitialUserBehaviorCalled();
-    }
-
-    @Test
-    public void testUserSwitchingUsingHal_switch() throws Exception {
-        enableUserHal();
-
-        InitialUserInfoResponse response = new InitialUserInfoResponse();
-        response.action = InitialUserInfoResponseAction.SWITCH;
-        response.userToSwitchOrCreate.userId = 10;
-        setGetUserInfoResponse((c) -> c.onResponse(HalCallback.STATUS_OK, response));
-
-        suspendAndResumeForUserSwitchingTests();
-
-        verifyUserSwitched(10);
-        verifyDefaultInitilUserBehaviorNeverCalled();
-    }
-
-    @Test
-    public void testUserSwitchingUsingHal_create() throws Exception {
-        enableUserHal();
-
-        InitialUserInfoResponse response = new InitialUserInfoResponse();
-        response.action = InitialUserInfoResponseAction.CREATE;
-        response.userToSwitchOrCreate.flags = 42;
-        response.userNameToCreate = "Duffman";
-        setGetUserInfoResponse((c) -> c.onResponse(HalCallback.STATUS_OK, response));
-
-        suspendAndResumeForUserSwitchingTests();
-
-        verifyUserCreated("Duffman", 42);
-        verifyDefaultInitilUserBehaviorNeverCalled();
-    }
-
-    private void setGetUserInfoResponse(Visitor<HalCallback<InitialUserInfoResponse>> visitor) {
-        doAnswer((invocation) -> {
-            HalCallback<InitialUserInfoResponse> callback = invocation.getArgument(1);
-            visitor.visit(callback);
-            return null;
-        }).when(mUserService).getInitialUserInfo(eq(InitialUserInfoRequestType.RESUME), notNull());
+        verifyInitResumeReplaceGuestCalled();
     }
 
     private void enableUserHal() {
@@ -611,55 +473,12 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
         return userInfo;
     }
 
-    private void verifyUserNotSwitched() {
-        verify(mInitialUserSetter, never()).set(argThat((info) -> {
-            return info.type == InitialUserSetter.TYPE_SWITCH;
-        }));
+    private void verifyInitResumeReplaceGuestCalled() {
+        verify(mUserService).initResumeReplaceGuest();
     }
 
-    private void verifyUserSwitched(int userId) {
-        // TODO(b/153679319): pass proper value for replaceGuest
-        verify(mInitialUserSetter).set(argThat((info) -> {
-            return info.type == InitialUserSetter.TYPE_SWITCH
-                    && info.switchUserId == userId
-                    && info.replaceGuest;
-        }));
-    }
-
-    private void expectCurrentGuestCanBeReplaced(boolean result) {
-        when(mInitialUserSetter.canReplaceGuestUser(notNull())).thenReturn(result);
-    }
-
-    private void verifyDefaultInitialUserBehaviorCalled() {
-        // TODO(b/153679319): pass proper value for replaceGuest
-        verify(mInitialUserSetter).set(argThat((info) -> {
-            return info.type == InitialUserSetter.TYPE_DEFAULT_BEHAVIOR
-                    && info.replaceGuest;
-        }));
-    }
-
-    private void verifyDefaultInitilUserBehaviorNeverCalled() {
-        verify(mInitialUserSetter, never()).set(argThat((info) -> {
-            return info.type == InitialUserSetter.TYPE_DEFAULT_BEHAVIOR;
-        }));
-    }
-
-    private void verifyUserCreated(String name, int halFlags) {
-        verify(mInitialUserSetter).set(argThat((info) -> {
-            return info.type == InitialUserSetter.TYPE_CREATE
-                    && info.newUserName == name
-                    && info.newUserFlags == halFlags;
-        }));
-    }
-
-    private void verifyUserReplaced() {
-        verify(mInitialUserSetter).set(argThat((info) -> {
-            return info.type == InitialUserSetter.TYPE_REPLACE_GUEST;
-        }));
-    }
-
-    private void verifyNoSetCall() {
-        verify(mInitialUserSetter, never()).set(notNull());
+    private void verifyInitBootUserCalled() {
+        verify(mUserService).initBootUser(anyInt(), anyBoolean());
     }
 
     private static final class MockDisplayInterface implements DisplayInterface {

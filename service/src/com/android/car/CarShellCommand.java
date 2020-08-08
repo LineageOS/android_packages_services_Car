@@ -168,8 +168,6 @@ final class CarShellCommand extends ShellCommand {
                 android.Manifest.permission.MANAGE_USERS);
     }
 
-    private static final String DEVICE_POWER_PERMISSION = "android.permission.DEVICE_POWER";
-
     private static final String PARAM_DAY_MODE = "day";
     private static final String PARAM_NIGHT_MODE = "night";
     private static final String PARAM_SENSOR_MODE = "sensor";
@@ -358,8 +356,7 @@ final class CarShellCommand extends ShellCommand {
         pw.println("\t  delta_times_ms: a list of delta time (current time minus event time)");
         pw.println("\t                  in descending order. If not specified, it will be 0.");
 
-        pw.printf("\t%s <REQ_TYPE> [--hal-only] [--timeout TIMEOUT_MS]\n",
-                COMMAND_GET_INITIAL_USER_INFO);
+        pw.printf("\t%s <REQ_TYPE> [--timeout TIMEOUT_MS]\n", COMMAND_GET_INITIAL_USER_INFO);
         pw.println("\t  Calls the Vehicle HAL to get the initial boot info, passing the given");
         pw.println("\t  REQ_TYPE (which could be either FIRST_BOOT, FIRST_BOOT_AFTER_OTA, ");
         pw.println("\t  COLD_BOOT, RESUME, or any numeric value that would be passed 'as-is')");
@@ -843,7 +840,6 @@ final class CarShellCommand extends ShellCommand {
         // Gets the request type
         String typeArg = args[1];
         int requestType = UserHalHelper.parseInitialUserInfoRequestType(typeArg);
-        boolean halOnly = false;
 
         int timeout = DEFAULT_HAL_TIMEOUT_MS;
         for (int i = 2; i < args.length; i++) {
@@ -851,9 +847,6 @@ final class CarShellCommand extends ShellCommand {
             switch (arg) {
                 case "--timeout":
                     timeout = Integer.parseInt(args[++i]);
-                    break;
-                case "--hal-only":
-                    halOnly = true;
                     break;
                 default:
                     writer.println("Invalid option at index " + i + ": " + arg);
@@ -894,12 +887,8 @@ final class CarShellCommand extends ShellCommand {
                 latch.countDown();
             }
         };
-        if (halOnly) {
-            UsersInfo usersInfo = generateUsersInfo();
-            mHal.getUserHal().getInitialUserInfo(requestType, timeout, usersInfo, callback);
-        } else {
-            mCarUserService.getInitialUserInfo(requestType, callback);
-        }
+        UsersInfo usersInfo = generateUsersInfo();
+        mHal.getUserHal().getInitialUserInfo(requestType, timeout, usersInfo, callback);
         waitForHal(writer, latch, timeout);
     }
 
