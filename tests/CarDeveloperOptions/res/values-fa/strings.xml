@@ -368,7 +368,8 @@
     <string name="profile_info_settings_title" msgid="4855892878512562551">"اطلاعات نمایه"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"حساب‌ها"</string>
     <string name="location_settings_title" msgid="2707201457572301030">"مکان"</string>
-    <string name="location_settings_master_switch_title" msgid="3108016866082816733">"استفاده از مکان"</string>
+    <!-- no translation found for location_settings_primary_switch_title (6994690329349987476) -->
+    <skip />
     <string name="location_settings_summary_location_off" msgid="5563530256978372978">"خاموش"</string>
     <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
       <item quantity="one">روشن - <xliff:g id="COUNT_1">%1$d</xliff:g> برنامه می‌توانند به مکان دسترسی داشته باشند</item>
@@ -836,7 +837,8 @@
     <string name="wifi_quick_toggle_title" msgid="7935778388625246184">"Wi-Fi"</string>
     <string name="wifi_quick_toggle_summary" msgid="2879870570547594266">"روشن کردن Wi-Fi"</string>
     <string name="wifi_settings" msgid="7486492317310514109">"Wi‑Fi"</string>
-    <string name="wifi_settings_master_switch_title" msgid="3917916944694253946">"استفاده از Wi-Fi"</string>
+    <!-- no translation found for wifi_settings_primary_switch_title (8845478864364255818) -->
+    <skip />
     <string name="wifi_settings_category" msgid="9094716747565527901">"تنظیمات Wi-Fi"</string>
     <string name="wifi_settings_title" msgid="5265554991622344805">"Wi‑Fi"</string>
     <string name="wifi_settings_summary" msgid="7117267255799892820">"تنظیم و مدیریت نقاط دسترسی بی سیم"</string>
@@ -2095,9 +2097,12 @@
     <string name="accessibility_notification_vibration_title" msgid="1005799039440510298">"لرزش برای اعلان"</string>
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"لرزش هنگام زنگ خوردن"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"لرزش لمس کردن"</string>
-    <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"استفاده از سرویس"</string>
-    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"استفاده از تصحیح رنگ"</string>
-    <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"استفاده از زیرنویس"</string>
+    <!-- no translation found for accessibility_service_primary_switch_title (1405420360499478509) -->
+    <skip />
+    <!-- no translation found for accessibility_daltonizer_primary_switch_title (7428407895268627434) -->
+    <skip />
+    <!-- no translation found for accessibility_caption_primary_switch_title (1875671505480045655) -->
+    <skip />
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"ادامه"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"سمعک‌ها"</string>
     <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"هیچ سمعکی متصل نشده است"</string>
@@ -2461,7 +2466,8 @@
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"روشن کردن"</string>
-    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"استفاده از «بهینه‌سازی باتری»"</string>
+    <!-- no translation found for battery_saver_primary_switch_title (1284229065484706156) -->
+    <skip />
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"روشن شدن خودکار"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"هیچ‌وقت"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"در <xliff:g id="PERCENT">%1$s</xliff:g> باتری"</string>
@@ -4010,7 +4016,8 @@
     <string name="lockscreen_remote_input" msgid="3363310613165354434">"درصورت قفل بودن دستگاه، از تایپ پاسخ یا نوشتارهای دیگر در اعلان‌ها جلوگیری شود"</string>
     <string name="default_spell_checker" msgid="8636661093243189533">"غلط‌گیر املای پیش‌فرض"</string>
     <string name="choose_spell_checker" msgid="7619860861923582868">"انتخاب غلط‌گیر املا"</string>
-    <string name="spell_checker_master_switch_title" msgid="5712693172227400668">"استفاده از غلط‌گیر املا"</string>
+    <!-- no translation found for spell_checker_primary_switch_title (2432752198899857435) -->
+    <skip />
     <string name="spell_checker_not_selected" msgid="331034541988255137">"انتخاب نشده"</string>
     <string name="notification_log_no_title" msgid="3668232437235348628">"(هیچ‌کدام)"</string>
     <string name="notification_log_details_delimiter" msgid="5485526744689532908">": "</string>
@@ -4103,7 +4110,8 @@
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"برای کمک به خالی کردن فضای ذخیره‌سازی، مدیر ذخیره‌سازی عکس‌ها و ویدیوهای پشتیبان‌گیری‌شده را از دستگاهتان پاک می‌کند."</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"پاک کردن عکس‌ها و ویدئوها"</string>
     <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"مدیر فضای ذخیره‌سازی"</string>
-    <string name="automatic_storage_manager_master_switch_title" msgid="1456978117739582562">"استفاده از «مدیر فضای ذخیره‌سازی»"</string>
+    <!-- no translation found for automatic_storage_manager_primary_switch_title (3690187927696783754) -->
+    <skip />
     <string name="deletion_helper_automatic_title" msgid="4370975149425263205">"خودکار"</string>
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"دستی"</string>
     <string name="deletion_helper_preference_title" msgid="797270307034242206">"هم‌اکنون فضا را خالی کنید"</string>

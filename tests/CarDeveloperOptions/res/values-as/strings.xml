@@ -368,7 +368,8 @@
     <string name="profile_info_settings_title" msgid="4855892878512562551">"প্ৰ\'ফাইলৰ তথ্য"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"একাউণ্টসমূহ"</string>
     <string name="location_settings_title" msgid="2707201457572301030">"অৱস্থান"</string>
-    <string name="location_settings_master_switch_title" msgid="3108016866082816733">"অৱস্থান ব্যৱহাৰ কৰক"</string>
+    <!-- no translation found for location_settings_primary_switch_title (6994690329349987476) -->
+    <skip />
     <string name="location_settings_summary_location_off" msgid="5563530256978372978">"অফ আছে"</string>
     <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
       <item quantity="one">অন আছে - <xliff:g id="COUNT_1">%1$d</xliff:g>টা এপে অৱস্থান এক্সেছ কৰিব পাৰে</item>
@@ -836,7 +837,8 @@
     <string name="wifi_quick_toggle_title" msgid="7935778388625246184">"ৱাই-ফাই"</string>
     <string name="wifi_quick_toggle_summary" msgid="2879870570547594266">"বাই-ফাই অন কৰক"</string>
     <string name="wifi_settings" msgid="7486492317310514109">"ৱাই-ফাই"</string>
-    <string name="wifi_settings_master_switch_title" msgid="3917916944694253946">"ৱাই-ফাই ব্যৱহাৰ কৰক"</string>
+    <!-- no translation found for wifi_settings_primary_switch_title (8845478864364255818) -->
+    <skip />
     <string name="wifi_settings_category" msgid="9094716747565527901">"ৱাই-ফাই ছেটিংসমূহ"</string>
     <string name="wifi_settings_title" msgid="5265554991622344805">"ৱাই-ফাই"</string>
     <string name="wifi_settings_summary" msgid="7117267255799892820">"ৱায়াৰলেচ একচেছ পইণ্টসমূহ ছেটআপ আৰু পৰিচালনা কৰক"</string>
@@ -2095,9 +2097,12 @@
     <string name="accessibility_notification_vibration_title" msgid="1005799039440510298">"জাননীৰ কম্পন"</string>
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"ৰিং কম্পন"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"স্পৰ্শ কৰিলে কম্পন হ’ব"</string>
-    <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"সেৱা ব্যৱহাৰ কৰক"</string>
-    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"ৰং শুধৰণি ব্যৱহাৰ কৰক"</string>
-    <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"কেপশ্বন ব্যৱহাৰ কৰক"</string>
+    <!-- no translation found for accessibility_service_primary_switch_title (1405420360499478509) -->
+    <skip />
+    <!-- no translation found for accessibility_daltonizer_primary_switch_title (7428407895268627434) -->
+    <skip />
+    <!-- no translation found for accessibility_caption_primary_switch_title (1875671505480045655) -->
+    <skip />
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"অব্যাহত ৰাখক"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"শ্ৰৱণ যন্ত্ৰ"</string>
     <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"কোনো শ্ৰৱণ যন্ত্ৰ সংযুক্ত হৈ থকা নাই"</string>
@@ -2461,7 +2466,8 @@
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"অন কৰক"</string>
-    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"বেটাৰি সঞ্চয়কাৰী ব্যৱহাৰ কৰক"</string>
+    <!-- no translation found for battery_saver_primary_switch_title (1284229065484706156) -->
+    <skip />
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"স্বয়ংক্ৰিয়ভাবে অন কৰক"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"কেতিয়াও নকৰিব"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"<xliff:g id="PERCENT">%1$s</xliff:g> বেটাৰি"</string>
@@ -4010,7 +4016,8 @@
     <string name="lockscreen_remote_input" msgid="3363310613165354434">"ডিভাইচটো লক হৈ থাকোতে, টাইপিং উত্তৰ বা অইন পাঠ জাননীসমূহ নেদেখুৱাব"</string>
     <string name="default_spell_checker" msgid="8636661093243189533">"ডিফ\'ল্ট বানান পৰীক্ষক"</string>
     <string name="choose_spell_checker" msgid="7619860861923582868">"বানান পৰীক্ষক বাছনি কৰক"</string>
-    <string name="spell_checker_master_switch_title" msgid="5712693172227400668">"বানান পৰীক্ষক ব্য়ৱহাৰ কৰক"</string>
+    <!-- no translation found for spell_checker_primary_switch_title (2432752198899857435) -->
+    <skip />
     <string name="spell_checker_not_selected" msgid="331034541988255137">"বাছনি কৰা হোৱা নাই"</string>
     <string name="notification_log_no_title" msgid="3668232437235348628">"পোৱা নগ\'ল"</string>
     <string name="notification_log_details_delimiter" msgid="5485526744689532908">": "</string>
@@ -4103,7 +4110,8 @@
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"সঞ্চয়াগাৰত ঠাই খালী কৰিবৰ কাৰণে সহায় কৰিবলৈ সঞ্চয়াগাৰ মেনেজাৰে আপোনাৰ ডিভাইচৰ পৰা বেকআপ কৰা ফট\' আৰু ভিডিঅ\'বোৰ আঁতৰাই দিয়ে।"</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"ফট\' আৰু ভিডিঅ\'সমূহ আঁতৰাওক"</string>
     <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"সঞ্চয়াগাৰ পৰিচালক"</string>
-    <string name="automatic_storage_manager_master_switch_title" msgid="1456978117739582562">"সঞ্চয়াগাৰ পৰিচালক ব্যৱহাৰ কৰক"</string>
+    <!-- no translation found for automatic_storage_manager_primary_switch_title (3690187927696783754) -->
+    <skip />
     <string name="deletion_helper_automatic_title" msgid="4370975149425263205">"স্বয়ংক্ৰিয়"</string>
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"হস্তকৃত"</string>
     <string name="deletion_helper_preference_title" msgid="797270307034242206">"এতিয়া খালী স্থান উলিয়াওক"</string>
