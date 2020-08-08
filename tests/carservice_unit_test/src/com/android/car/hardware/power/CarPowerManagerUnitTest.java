@@ -43,6 +43,7 @@ import com.android.car.power.SilentModeController;
 import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.systeminterface.SystemStateInterface;
+import com.android.car.user.CarUserService;
 import com.android.internal.app.IVoiceInteractionManagerService;
 
 import org.junit.After;
@@ -77,6 +78,8 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
     private Resources mResources;
     @Mock
     private Car mCar;
+    @Mock
+    private CarUserService mCarUserService;
     @Mock
     private IVoiceInteractionManagerService mVoiceInteractionManagerService;
 
@@ -214,7 +217,7 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
                 mVoiceInteractionManagerService, "");
         CarLocalServices.addService(SilentModeController.class, mSilentModeController);
         mService = new CarPowerManagementService(mContext, mResources, mPowerHal,
-                mSystemInterface, null, null);
+                mSystemInterface, null, mCarUserService);
         mService.init();
         mService.setShutdownTimersForTest(0, 0);
         assertStateReceived(MockedPowerHalService.SET_WAIT_FOR_VHAL, 0);

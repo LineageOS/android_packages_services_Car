@@ -22,9 +22,8 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -340,22 +339,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
         mService.setShutdownTimersForTest(10, 40);
 
         suspendAndResume();
-
-        verifyInitBootUserCalled();
-    }
-
-    @Test
-    public void testUserSwitchingOnResume() throws Exception {
-        suspendAndResumeForUserSwitchingTests();
-
-        verifyInitBootUserCalled();
-    }
-
-    @Test
-    public void testUserSwitchingOnResume_disabledByOEM() throws Exception {
-        suspendAndResumeForUserSwitchingTestsWhileDisabledByOem();
-
-        verifyInitResumeReplaceGuestCalled();
     }
 
     private void enableUserHal() {
@@ -371,6 +354,8 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
         assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_DEEP_SLEEP_ENTRY);
         assertVoiceInteractionDisabled();
         mPowerSignalListener.waitForSleepEntry(WAIT_TIMEOUT_MS);
+        verify(mUserService).switchUserIfNecessary(/* onSuspend= */ true,
+                /* allowUserSwitch= */ true);
 
         // Send the finished signal
         Log.d(TAG, "resume()");
@@ -390,10 +375,18 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
         mDisplayInterface.waitForDisplayOn(WAIT_TIMEOUT_MS);
         // Should wait until Handler has finished ON processing.
         CarServiceUtils.runOnLooperSync(mService.getHandlerThread().getLooper(), () -> { });
+
+        verify(mUserService).switchUserIfNecessary(/* onSuspend= */ false,
+                /* allowUserSwitch= */ true);
+
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                 VehicleApPowerStateShutdownParam.CAN_SLEEP));
         assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_DEEP_SLEEP_ENTRY);
         mPowerSignalListener.waitForSleepEntry(WAIT_TIMEOUT_MS);
+
+        verify(mUserService, times(2)).switchUserIfNecessary(/* onSuspend= */ true,
+                /* allowUserSwitch= */ true);
+
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.FINISHED, 0));
         // PM will shutdown system as it was not woken-up due timer and it is not power on.
         mSystemStateInterface.setWakeupCausedByTimer(false);
@@ -402,14 +395,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
         assertStateReceived(PowerHalService.SET_DEEP_SLEEP_EXIT, 0);
         assertVoiceInteractionEnabled();
         assertThat(mDisplayInterface.getDisplayState()).isFalse();
-    }
-
-    private void suspendAndResumeForUserSwitchingTests() throws Exception {
-        mService.switchUserOnResumeIfNecessary(/* allowSwitching= */ true);
-    }
-
-    private void suspendAndResumeForUserSwitchingTestsWhileDisabledByOem() throws Exception {
-        mService.switchUserOnResumeIfNecessary(/* allowSwitching= */ false);
     }
 
     private void assertStateReceived(int expectedState, int expectedParam) throws Exception {
@@ -471,14 +456,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
         Log.v(TAG, "UM.getUserInfo("  + userId + ") will return " + userInfo.toFullString());
         when(mUserManager.getUserInfo(userId)).thenReturn(userInfo);
         return userInfo;
-    }
-
-    private void verifyInitResumeReplaceGuestCalled() {
-        verify(mUserService).initResumeReplaceGuest();
-    }
-
-    private void verifyInitBootUserCalled() {
-        verify(mUserService).initBootUser(anyInt(), anyBoolean());
     }
 
     private static final class MockDisplayInterface implements DisplayInterface {
