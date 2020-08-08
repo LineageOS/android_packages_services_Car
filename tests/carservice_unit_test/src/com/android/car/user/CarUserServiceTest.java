@@ -38,7 +38,6 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.notNull;
-import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -1374,159 +1373,6 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testGetUserInfo_nullReceiver() throws Exception {
-        assertThrows(NullPointerException.class, () -> mCarUserService
-                .getInitialUserInfo(mGetUserInfoRequestType, mAsyncCallTimeoutMs, null));
-    }
-
-    @Test
-    public void testGetInitialUserInfo_validReceiver_invalidPermission() throws Exception {
-        mockManageUsersPermission(android.Manifest.permission.MANAGE_USERS, false);
-        assertThrows(SecurityException.class,
-                () -> mCarUserService.getInitialUserInfo(42, 108, mReceiver));
-    }
-
-    @Test
-    public void testGetUserInfo_defaultResponse() throws Exception {
-        mockExistingUsersAndCurrentUser(mAdminUser);
-
-        mGetUserInfoResponse.action = InitialUserInfoResponseAction.DEFAULT;
-        mockGetInitialInfo(mAdminUser.id, mGetUserInfoRequestType, mGetUserInfoResponse);
-
-        mCarUserService.getInitialUserInfo(mGetUserInfoRequestType, mAsyncCallTimeoutMs, mReceiver);
-
-        assertThat(mReceiver.getResultCode()).isEqualTo(HalCallback.STATUS_OK);
-        Bundle resultData = mReceiver.getResultData();
-        assertThat(resultData).isNotNull();
-        assertInitialInfoAction(resultData, mGetUserInfoResponse.action);
-        assertInitialInfoUserLocales(resultData, null);
-    }
-
-    @Test
-    public void testGetUserInfo_defaultResponse_withLocale() throws Exception {
-        mockExistingUsersAndCurrentUser(mAdminUser);
-
-        mGetUserInfoResponse.action = InitialUserInfoResponseAction.DEFAULT;
-        mGetUserInfoResponse.userLocales = "LOL";
-        mockGetInitialInfo(mAdminUser.id, mGetUserInfoRequestType, mGetUserInfoResponse);
-
-        mCarUserService.getInitialUserInfo(mGetUserInfoRequestType, mAsyncCallTimeoutMs, mReceiver);
-
-        assertThat(mReceiver.getResultCode()).isEqualTo(HalCallback.STATUS_OK);
-        Bundle resultData = mReceiver.getResultData();
-        assertThat(resultData).isNotNull();
-        assertInitialInfoAction(resultData, mGetUserInfoResponse.action);
-        assertInitialInfoUserLocales(resultData, "LOL");
-    }
-
-    @Test
-    public void testGetUserInfo_switchUserResponse() throws Exception {
-        int switchUserId = mGuestUser.id;
-        mockExistingUsersAndCurrentUser(mAdminUser);
-
-        mGetUserInfoResponse.action = InitialUserInfoResponseAction.SWITCH;
-        mGetUserInfoResponse.userToSwitchOrCreate.userId = switchUserId;
-        mockGetInitialInfo(mAdminUser.id, mGetUserInfoRequestType, mGetUserInfoResponse);
-
-        mCarUserService.getInitialUserInfo(mGetUserInfoRequestType, mAsyncCallTimeoutMs, mReceiver);
-
-        assertThat(mReceiver.getResultCode()).isEqualTo(HalCallback.STATUS_OK);
-        Bundle resultData = mReceiver.getResultData();
-        assertThat(resultData).isNotNull();
-        assertInitialInfoAction(resultData, mGetUserInfoResponse.action);
-        assertUserId(resultData, switchUserId);
-        assertNoUserFlags(resultData);
-        assertNoUserName(resultData);
-    }
-
-    @Test
-    public void testGetUserInfo_createUserResponse() throws Exception {
-        int newUserFlags = 42;
-        String newUserName = "TheDude";
-
-        mockExistingUsersAndCurrentUser(mAdminUser);
-
-        mGetUserInfoResponse.action = InitialUserInfoResponseAction.CREATE;
-        mGetUserInfoResponse.userToSwitchOrCreate.flags = newUserFlags;
-        mGetUserInfoResponse.userNameToCreate = newUserName;
-        mockGetInitialInfo(mAdminUser.id, mGetUserInfoRequestType, mGetUserInfoResponse);
-
-        mCarUserService.getInitialUserInfo(mGetUserInfoRequestType, mAsyncCallTimeoutMs, mReceiver);
-
-        assertThat(mReceiver.getResultCode()).isEqualTo(HalCallback.STATUS_OK);
-        Bundle resultData = mReceiver.getResultData();
-        assertThat(resultData).isNotNull();
-        assertInitialInfoAction(resultData, mGetUserInfoResponse.action);
-        assertNoUserId(resultData);
-        assertUserFlags(resultData, newUserFlags);
-        assertUserName(resultData, newUserName);
-    }
-
-    @Test
-    public void testGetUserInfo_halNotSupported() throws Exception {
-        mockExistingUsersAndCurrentUser(mAdminUser);
-        mockUserHalSupported(false);
-
-        mCarUserService.getInitialUserInfo(mGetUserInfoRequestType, mAsyncCallTimeoutMs, mReceiver);
-
-        verify(mUserHal, never()).getInitialUserInfo(anyInt(), anyInt(), any(), any());
-        assertThat(mReceiver.getResultCode()).isEqualTo(HalCallback.STATUS_HAL_NOT_SUPPORTED);
-    }
-
-    /**
-     * Tests the {@code getUserInfo()} that's used by other services.
-     */
-    @Test
-    public void testGetInitialUserInfo() throws Exception {
-        int requestType = 42;
-        mockExistingUsersAndCurrentUser(mAdminUser);
-        HalCallback<InitialUserInfoResponse> callback = (s, r) -> { };
-        mCarUserService.getInitialUserInfo(requestType, callback);
-        verify(mUserHal).getInitialUserInfo(eq(requestType), anyInt(), mUsersInfoCaptor.capture(),
-                same(callback));
-        assertDefaultUsersInfo(mUsersInfoCaptor.getValue(), mAdminUser);
-    }
-
-    @Test
-    public void testGetInitialUserInfo_nullCallback() throws Exception {
-        assertThrows(NullPointerException.class,
-                () -> mCarUserService.getInitialUserInfo(42, null));
-    }
-
-    @Test
-    public void testGetInitialUserInfo_halNotSupported_callback() throws Exception {
-        int requestType = 42;
-        mockUserHalSupported(false);
-        HalCallback<InitialUserInfoResponse> callback = (s, r) -> { };
-
-        mCarUserService.getInitialUserInfo(requestType, callback);
-
-        verify(mUserHal, never()).getInitialUserInfo(anyInt(), anyInt(), any(), any());
-    }
-
-    @Test
-    public void testGetInitialUserInfo_invalidPermission() throws Exception {
-        mockManageUsersPermission(android.Manifest.permission.MANAGE_USERS, false);
-        assertThrows(SecurityException.class,
-                () -> mCarUserService.getInitialUserInfo(42, (s, r) -> { }));
-    }
-
-    @Test
-    public void testGetInitialUser_invalidPermission() throws Exception {
-        mockManageUsersPermission(android.Manifest.permission.INTERACT_ACROSS_USERS, false);
-        mockManageUsersPermission(android.Manifest.permission.INTERACT_ACROSS_USERS_FULL, false);
-        assertThrows(SecurityException.class, () -> mCarUserService.getInitialUser());
-    }
-
-    @Test
-    public void testGetInitialUser_ok() throws Exception {
-        assertThat(mCarUserService.getInitialUser()).isNull();
-        UserInfo user = new UserInfo();
-        mCarUserService.setInitialUser(user);
-        assertThat(mCarUserService.getInitialUser()).isSameAs(user);
-    }
-
-    @Test
     public void testIsHalSupported() throws Exception {
         when(mUserHal.isSupported()).thenReturn(true);
         assertThat(mCarUserService.isUserHalSupported()).isTrue();
@@ -1752,7 +1598,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testInitBootUser_halNullResponse() throws Exception {
         mockExistingUsersAndCurrentUser(mAdminUser);
-        mockGetInitialInfo(mAdminUser.id, null);
+        mockHalGetInitialInfo(mAdminUser.id, null);
 
         mCarUserService.initBootUser();
 
@@ -1762,11 +1608,24 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void testInitBootUser_halNullResponse_replaceTrue() throws Exception {
+        mockExistingUsersAndCurrentUser(mAdminUser);
+        mockHalGetInitialInfo(mAdminUser.id, null);
+
+        mCarUserService.initBootUser(mGetUserInfoRequestType, /* replaceGuest= */ true);
+
+        verify(mInitialUserSetter).set(argThat((info) -> {
+            return info.type == InitialUserSetter.TYPE_DEFAULT_BEHAVIOR
+                    && info.replaceGuest;
+        }));
+    }
+
+    @Test
     public void testInitBootUser_halDefaultResponse() throws Exception {
         mockExistingUsersAndCurrentUser(mAdminUser);
         mGetUserInfoResponse.action = InitialUserInfoResponseAction.DEFAULT;
         mGetUserInfoResponse.userLocales = "LOL";
-        mockGetInitialInfo(mAdminUser.id, mGetUserInfoResponse);
+        mockHalGetInitialInfo(mAdminUser.id, mGetUserInfoResponse);
 
         mCarUserService.initBootUser();
 
@@ -1777,17 +1636,50 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void testInitBootUser_halDefaultResponse_replaceGuest() throws Exception {
+        mockExistingUsersAndCurrentUser(mAdminUser);
+        mGetUserInfoResponse.action = InitialUserInfoResponseAction.DEFAULT;
+        mGetUserInfoResponse.userLocales = "LOL";
+        mockHalGetInitialInfo(mAdminUser.id, mGetUserInfoResponse);
+
+        mCarUserService.initBootUser(mGetUserInfoRequestType, /* replaceGuest= */ true);
+
+        verify(mInitialUserSetter).set(argThat((info) -> {
+            return info.type == InitialUserSetter.TYPE_DEFAULT_BEHAVIOR
+                    && info.replaceGuest
+                    && info.userLocales.equals("LOL");
+        }));
+    }
+
+    @Test
     public void testInitBootUser_halSwitchResponse() throws Exception {
         int switchUserId = mGuestUser.id;
         mockExistingUsersAndCurrentUser(mAdminUser);
         mGetUserInfoResponse.action = InitialUserInfoResponseAction.SWITCH;
         mGetUserInfoResponse.userToSwitchOrCreate.userId = switchUserId;
-        mockGetInitialInfo(mAdminUser.id, mGetUserInfoResponse);
+        mockHalGetInitialInfo(mAdminUser.id, mGetUserInfoResponse);
 
         mCarUserService.initBootUser();
 
         verify(mInitialUserSetter).set(argThat((info) -> {
             return info.type == InitialUserSetter.TYPE_SWITCH
+                    && info.switchUserId == switchUserId;
+        }));
+    }
+
+    @Test
+    public void testInitBootUser_halSwitchResponse_replaceGuest() throws Exception {
+        int switchUserId = mGuestUser.id;
+        mockExistingUsersAndCurrentUser(mAdminUser);
+        mGetUserInfoResponse.action = InitialUserInfoResponseAction.SWITCH;
+        mGetUserInfoResponse.userToSwitchOrCreate.userId = switchUserId;
+        mockHalGetInitialInfo(mAdminUser.id, mGetUserInfoResponse);
+
+        mCarUserService.initBootUser(mGetUserInfoRequestType, /* replaceGuest= */ true);
+
+        verify(mInitialUserSetter).set(argThat((info) -> {
+            return info.type == InitialUserSetter.TYPE_SWITCH
+                    && info.replaceGuest
                     && info.switchUserId == switchUserId;
         }));
     }
@@ -1800,7 +1692,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mGetUserInfoResponse.action = InitialUserInfoResponseAction.CREATE;
         mGetUserInfoResponse.userToSwitchOrCreate.flags = newUserFlags;
         mGetUserInfoResponse.userNameToCreate = newUserName;
-        mockGetInitialInfo(mAdminUser.id, mGetUserInfoResponse);
+        mockHalGetInitialInfo(mAdminUser.id, mGetUserInfoResponse);
 
         mCarUserService.initBootUser();
 
@@ -1809,6 +1701,27 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                     && info.newUserFlags == newUserFlags
                     && info.newUserName == newUserName;
         }));
+    }
+
+    @Test
+    public void testInitResumeReplaceGuest_replace() throws Exception {
+        mockExistingUsersAndCurrentUser(mGuestUser);
+        when(mInitialUserSetter.canReplaceGuestUser(any())).thenReturn(true);
+
+        mCarUserService.initResumeReplaceGuest();
+
+        verify(mInitialUserSetter).set(argThat((info) -> {
+            return info.type == InitialUserSetter.TYPE_REPLACE_GUEST;
+        }));
+    }
+
+    @Test
+    public void testInitResumeReplaceGuest_notReplace() throws Exception {
+        mockExistingUsersAndCurrentUser(mAdminUser);
+
+        mCarUserService.initResumeReplaceGuest();
+
+        verify(mInitialUserSetter, never()).set(any());
     }
 
     @Test
@@ -1901,7 +1814,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         when(mMockedIActivityManager.switchUser(user.id)).thenReturn(result);
     }
 
-    private void mockGetInitialInfo(@UserIdInt int currentUserId,
+    private void mockHalGetInitialInfo(@UserIdInt int currentUserId,
             @NonNull InitialUserInfoResponse response) {
         UsersInfo usersInfo = newUsersInfo(currentUserId);
         doAnswer((invocation) -> {
@@ -1914,21 +1827,6 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         }).when(mUserHal).getInitialUserInfo(anyInt(), eq(mAsyncCallTimeoutMs),
                 eq(usersInfo), notNull());
     }
-
-    private void mockGetInitialInfo(@UserIdInt int currentUserId, int requestType,
-            @NonNull InitialUserInfoResponse response) {
-        UsersInfo usersInfo = newUsersInfo(currentUserId);
-        doAnswer((invocation) -> {
-            Log.d(TAG, "Answering " + invocation + " with " + response);
-            @SuppressWarnings("unchecked")
-            HalCallback<InitialUserInfoResponse> callback =
-                    (HalCallback<InitialUserInfoResponse>) invocation.getArguments()[3];
-            callback.onResponse(HalCallback.STATUS_OK, response);
-            return null;
-        }).when(mUserHal).getInitialUserInfo(eq(requestType), eq(mAsyncCallTimeoutMs),
-                eq(usersInfo), notNull());
-    }
-
 
     private void mockIsHeadlessSystemUser(@UserIdInt int userId, boolean mode) {
         doReturn(mode).when(() -> UserHelper.isHeadlessSystemUser(userId));
