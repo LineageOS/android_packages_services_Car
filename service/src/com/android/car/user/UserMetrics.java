@@ -31,7 +31,6 @@ import android.car.user.CarUserManager.UserLifecycleEventType;
 import android.util.LocalLog;
 import android.util.Slog;
 import android.util.SparseArray;
-import android.util.SparseLongArray;
 import android.util.TimeUtils;
 
 import com.android.internal.annotations.GuardedBy;
@@ -54,6 +53,7 @@ import java.io.StringWriter;
  * {{@link #INITIAL_CAPACITY}} occurrences of each when the operation finished (so it can be dumped
  * later).
  */
+// TODO(b/157514796): Move this to CSHS
 final class UserMetrics {
 
     private static final String TAG = UserMetrics.class.getSimpleName();
@@ -80,11 +80,7 @@ final class UserMetrics {
     @GuardedBy("mLock")
     private final LocalLog mUserStoppedLogs = new LocalLog(LOG_SIZE);
 
-    @GuardedBy("mLock")
-    private final SparseLongArray mFirstUserUnlockDuration = new SparseLongArray(1);
-
-    @GuardedBy("mLock")
-    private int mHalResponseTime;
+    // TODO(b/157514796): add hal response time if required.
 
     /**
      * Logs a user lifecycle event.
@@ -114,17 +110,6 @@ final class UserMetrics {
                 default:
                     Slog.w(TAG, "Invalid event: " + lifecycleEventTypeToString(eventType));
             }
-        }
-    }
-
-    /**
-     * Logs when the first user was unlocked.
-     */
-    public void logFirstUnlockedUser(int userId, long timestampMs, long duration,
-            int halResponseTime) {
-        synchronized (mLock) {
-            mHalResponseTime = halResponseTime;
-            mFirstUserUnlockDuration.put(userId, duration);
         }
     }
 
@@ -252,14 +237,6 @@ final class UserMetrics {
         pw.println("* User Metrics *");
         synchronized (mLock) {
 
-            if (mFirstUserUnlockDuration.size() == 0) {
-                pw.println("First user not unlocked yet");
-            } else {
-                pw.printf("First user (%d) unlocked in ", mFirstUserUnlockDuration.keyAt(0));
-                TimeUtils.formatDuration(mFirstUserUnlockDuration.valueAt(0), pw);
-                pw.println();
-            }
-
             dump(pw, "starting", mUserStartingMetrics);
             dump(pw, "stopping", mUserStoppingMetrics);
 
@@ -269,29 +246,7 @@ final class UserMetrics {
             pw.printf("Last %d stopped users\n", LOG_SIZE);
             mUserStoppedLogs.dump("  ", pw);
 
-            pw.print("HAL response time: ");
-            if (mHalResponseTime == 0) {
-                pw.print("N/A");
-            } else if (mHalResponseTime < 0) {
-                pw.print("not replied yet, sent at ");
-                TimeUtils.formatUptime(-mHalResponseTime);
-            } else {
-                TimeUtils.formatDuration(mHalResponseTime, pw);
-            }
             pw.println();
-        }
-    }
-
-    /**
-     * Dumps only how long it took to unlock the first user (or {@code -1} if not available).
-     */
-    public void dumpFirstUserUnlockDuration(@NonNull PrintWriter pw) {
-        synchronized (mLock) {
-            if (mFirstUserUnlockDuration.size() == 0) {
-                pw.println(-1);
-                return;
-            }
-            pw.println(mFirstUserUnlockDuration.valueAt(0));
         }
     }
 
