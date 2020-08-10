@@ -1572,17 +1572,6 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testUserMetric_FirstUnlock() {
-        int userId = 99;
-        long timestampMs = 0;
-        long duration = 153;
-        int halResponseTime = 5;
-        mCarUserService.onFirstUserUnlocked(userId, timestampMs, duration, halResponseTime);
-
-        verify(mUserMetrics).logFirstUnlockedUser(userId, timestampMs, duration, halResponseTime);
-    }
-
-    @Test
     public void testInitBootUser_halNotSupported() {
         mockUserHalSupported(false);
 

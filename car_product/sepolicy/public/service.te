@@ -1,2 +1,3 @@
 type carservice_service, app_api_service, service_manager_type;
+type car_service_server_service, system_server_service, service_manager_type;
 type procfsinspector_service, service_manager_type;

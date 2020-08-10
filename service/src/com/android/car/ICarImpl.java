@@ -674,8 +674,7 @@ public class ICarImpl extends ICar.Stub {
             return;
         } else if ("--user-metrics".equals(args[0])) {
             mCarUserService.dumpUserMetrics(writer);
-        } else if ("--first-user-metrics".equals(args[0])) {
-            mCarUserService.dumpFirstUserUnlockDuration(writer);
+            //TODO(b/157514796): Add --first-user-metrics in CSHS along with --user-metrics
         } else if ("--help".equals(args[0])) {
             showDumpHelp(writer);
         } else {
@@ -799,13 +798,6 @@ public class ICarImpl extends ICar.Stub {
     }
 
     private final class ICarSystemServerClientImpl extends ICarSystemServerClient.Stub {
-        @Override
-        public void onFirstUserUnlocked(int userId, long timestampMs, long duration,
-                int halResponseTime) throws RemoteException {
-            assertCallingFromSystemProcess();
-            mCarUserService.onFirstUserUnlocked(userId, timestampMs, duration, halResponseTime);
-        }
-
         @Override
         public void onUserLifecycleEvent(int eventType, long timestampMs, int fromUserId,
                 int toUserId) throws RemoteException {
