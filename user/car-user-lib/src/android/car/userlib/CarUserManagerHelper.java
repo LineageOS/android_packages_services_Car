@@ -154,7 +154,8 @@ public final class CarUserManagerHelper {
      * @return user id of the initial user to boot into on the device, or
      * {@link UserHandle#USER_NULL} if there is no user available.
      */
-    int getInitialUser(boolean usesOverrideUserIdProperty) {
+    // TODO(b/160819016): Move this logic to CarUserService
+    public int getInitialUser(boolean usesOverrideUserIdProperty) {
 
         List<Integer> allUsers = userInfoListToUserIdList(getAllUsers());
 
