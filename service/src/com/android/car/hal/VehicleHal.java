@@ -73,18 +73,22 @@ public class VehicleHal extends IVehicleCallback.Stub {
 
     private static final boolean DBG = false;
 
-    /** Used in {@link dumpVehiclePropValue} method when copying {@link VehiclePropValue}. */
+    /**
+     * Used in {@link VehicleHal#dumpVehiclePropValue} method when copying {@link VehiclePropValue}.
+     */
     private static final int MAX_BYTE_SIZE = 20;
 
-    private static final int NO_AREA = -1;
+    public static final int NO_AREA = -1;
+    public static final float NO_SAMPLE_RATE = -1;
 
-    private final HandlerThread mHandlerThread;
-    private final PowerHalService mPowerHal;
-    private final PropertyHalService mPropertyHal;
-    private final InputHalService mInputHal;
-    private final VmsHalService mVmsHal;
-    private final UserHalService mUserHal;
-    private DiagnosticHalService mDiagnosticHal = null;
+    private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
+            VehicleHal.class.getSimpleName());
+    private PowerHalService mPowerHal;
+    private PropertyHalService mPropertyHal;
+    private InputHalService mInputHal;
+    private VmsHalService mVmsHal;
+    private UserHalService mUserHal;
+    private DiagnosticHalService mDiagnosticHal;
 
     private final Object mLock = new Object();
 
@@ -108,49 +112,66 @@ public class VehicleHal extends IVehicleCallback.Stub {
     // Used by injectVHALEvent for testing purposes.  Delimiter for an array of data
     private static final String DATA_DELIMITER = ",";
 
+    /**
+     * Constructs a new {@link VehicleHal} object given the {@link Context} and {@link IVehicle}
+     * both passed as parameters.
+     */
     public VehicleHal(Context context, IVehicle vehicle) {
-        mHandlerThread = CarServiceUtils.getHandlerThread(VehicleHal.class.getSimpleName());
-        // passing this should be safe as long as it is just kept and not used in constructor
         mPowerHal = new PowerHalService(this);
         mPropertyHal = new PropertyHalService(this);
         mInputHal = new InputHalService(this);
         mVmsHal = new VmsHalService(context, this);
-        mDiagnosticHal = new DiagnosticHalService(this);
         mUserHal = new UserHalService(this);
+        mDiagnosticHal = new DiagnosticHalService(this);
         mAllServices.addAll(Arrays.asList(mPowerHal,
                 mInputHal,
                 mDiagnosticHal,
                 mVmsHal,
                 mUserHal,
                 mPropertyHal)); // mPropertyHal should be the last.
-
-        mHalClient = new HalClient(vehicle, mHandlerThread.getLooper(), this /*IVehicleCallback*/);
+        mHalClient = new HalClient(vehicle, mHandlerThread.getLooper(),
+                /* callback= */ this);
     }
 
-    /** Placeholder version only for testing */
+    /**
+     * Constructs a new {@link VehicleHal} object given the services and {@link HalClient} factory
+     * function passed as parameters. This method must be used by tests only.
+     */
     @VisibleForTesting
-    public VehicleHal(PowerHalService powerHal, DiagnosticHalService diagnosticHal,
-            HalClient halClient, PropertyHalService propertyHal) {
-        mHandlerThread = null;
+    VehicleHal(IVehicle vehicle,
+            PowerHalService powerHal,
+            PropertyHalService propertyHal,
+            InputHalService inputHal,
+            VmsHalService vmsHal,
+            UserHalService userHal,
+            DiagnosticHalService diagnosticHal,
+            HalClient halClient) {
         mPowerHal = powerHal;
         mPropertyHal = propertyHal;
+        mInputHal = inputHal;
+        mVmsHal = vmsHal;
+        mUserHal = userHal;
         mDiagnosticHal = diagnosticHal;
-        mInputHal = null;
-        mVmsHal = null;
+        mAllServices.addAll(Arrays.asList(mPowerHal,
+                mInputHal,
+                mDiagnosticHal,
+                mVmsHal,
+                mUserHal,
+                mPropertyHal));
         mHalClient = halClient;
-        mDiagnosticHal = diagnosticHal;
-        mUserHal = null;
     }
+
+    /** Private constructor for tests only */
+    @VisibleForTesting
+    protected VehicleHal() {}
 
     /** Called when connection to Vehicle HAL was restored. */
     public void vehicleHalReconnected(IVehicle vehicle) {
         synchronized (mLock) {
             mHalClient = new HalClient(vehicle, mHandlerThread.getLooper(),
                     this /*IVehicleCallback*/);
-
             SubscribeOptions[] options = mSubscribedProperties.values()
                     .toArray(new SubscribeOptions[0]);
-
             try {
                 mHalClient.subscribe(options);
             } catch (RemoteException e) {
@@ -290,7 +311,8 @@ public class VehicleHal extends IVehicleCallback.Stub {
      */
     public void subscribeProperty(HalServiceBase service, int property)
             throws IllegalArgumentException {
-        subscribeProperty(service, property, 0f, SubscribeFlags.EVENTS_FROM_CAR);
+        subscribeProperty(service, property, /* samplingRateHz= */ 0f,
+                SubscribeFlags.EVENTS_FROM_CAR);
     }
 
     /**
@@ -440,10 +462,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
             Log.i(CarLog.TAG_HAL, "get, property: 0x" + toHexString(propertyId)
                     + ", areaId: 0x" + toHexString(areaId));
         }
-        VehiclePropValue propValue = new VehiclePropValue();
-        propValue.prop = propertyId;
-        propValue.areaId = areaId;
-        return mHalClient.getValue(propValue);
+        return mHalClient.getValue(createPropValue(propertyId, areaId));
     }
 
     /**
@@ -505,17 +524,14 @@ public class VehicleHal extends IVehicleCallback.Stub {
     }
 
     /**
-     *
-     * @param propId Property ID to return the current sample rate for.
-     *
-     * @return float Returns the current sample rate of the specified propId, or -1 if the
-     *                  property is not currently subscribed.
+     * Returns the sample rate for a subscribed property. Returns {@link VehicleHal#NO_SAMPLE_RATE}
+     * if the property id passed as parameter is not linked to any subscribed property.
      */
     public float getSampleRate(int propId) {
         SubscribeOptions opts = mSubscribedProperties.get(propId);
         if (opts == null) {
             // No sample rate for this property
-            return -1;
+            return NO_SAMPLE_RATE;
         } else {
             return opts.sampleRate;
         }
@@ -541,12 +557,6 @@ public class VehicleHal extends IVehicleCallback.Stub {
             return false;
         }
         return true;
-    }
-
-    static void dumpProperties(PrintWriter writer, Collection<VehiclePropConfig> configs) {
-        for (VehiclePropConfig config : configs) {
-            writer.println(String.format("property 0x%x", config.prop));
-        }
     }
 
     private final ArraySet<HalServiceBase> mServicesToDispatch = new ArraySet<>();
@@ -752,6 +762,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
         }
         return builder.toString();
     }
+
     /**
      * Inject a VHAL event
      *
