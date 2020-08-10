@@ -63,7 +63,7 @@ static vector<sp<IEvsCamera_1_0>> sVirtualCameras;
 static vector<sp<IEvsDisplay_1_0>> sDisplays;
 
 extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv) {
-    setenv("TREBLE_TESTING_OVERRIDE", "true", true);
+    android::hardware::details::setTrebleTestingOverride(true);
     configureRpcThreadpool(2, false /* callerWillNotJoin */);
 
     // Prepare for the HWEnumerator service
