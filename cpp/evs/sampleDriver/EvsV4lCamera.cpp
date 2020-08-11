@@ -18,8 +18,12 @@
 #include "EvsEnumerator.h"
 #include "bufferCopy.h"
 
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #include <android/hardware_buffer.h>
 #include <android-base/logging.h>
+#include <android-base/unique_fd.h>
 #include <ui/GraphicBufferAllocator.h>
 #include <ui/GraphicBufferMapper.h>
 #include <utils/SystemClock.h>
@@ -726,6 +730,24 @@ void EvsV4lCamera::forwardFrame(imageBuffer* pV4lBuff, void* pData) {
         }
     }
 
+    if (mDumpFrame) {
+        // Construct a target filename with the device identifier
+        std::string filename = std::string(mDescription.v1.cameraId);
+        std::replace(filename.begin(), filename.end(), '/', '_');
+        filename = mDumpPath + filename + "_" + to_string(mFrameCounter) + ".bin";
+
+        android::base::unique_fd fd(open(filename.c_str(),
+                                         O_WRONLY | O_CREAT,
+                                         S_IRUSR | S_IWUSR | S_IRGRP));
+        LOG(ERROR) << filename << ", " << fd;
+        if (fd == -1) {
+            PLOG(ERROR) << "Failed to open a file, " << filename;
+        } else {
+            auto len = write(fd.get(), pData, pV4lBuff->length);
+            LOG(INFO) << len << " bytes are written to " << filename;
+        }
+    }
+
     if (!readyForFrame) {
         // We need to return the video buffer so it can capture a new frame
         mVideo.markFrameConsumed(pV4lBuff->index);
@@ -823,6 +845,9 @@ void EvsV4lCamera::forwardFrame(imageBuffer* pV4lBuff, void* pData) {
             mFramesInUse--;
         }
     }
+
+    // Increse a frame counter
+    ++mFrameCounter;
 }
 
 
@@ -947,6 +972,32 @@ sp<EvsV4lCamera> EvsV4lCamera::Create(const char *deviceName,
     return evsCamera;
 }
 
+
+using android::base::Result;
+using android::base::Error;
+Result<void> EvsV4lCamera::startDumpFrames(const std::string& path) {
+    struct stat info;
+    if (stat(path.c_str(), &info) != 0) {
+        return Error(BAD_VALUE) << "Cannot access " << path;
+    } else if (!(info.st_mode & S_IFDIR)) {
+        return Error(BAD_VALUE) << path << " is not a directory";
+    }
+
+    mDumpPath = path;
+    mDumpFrame = true;
+
+    return {};
+}
+
+
+Result<void> EvsV4lCamera::stopDumpFrames() {
+    if (!mDumpFrame) {
+        return Error(INVALID_OPERATION) << "Device is not dumping frames";
+    }
+
+    mDumpFrame = false;
+    return {};
+}
 
 } // namespace implementation
 } // namespace V1_1

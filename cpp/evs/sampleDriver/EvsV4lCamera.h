@@ -17,19 +17,19 @@
 #ifndef ANDROID_HARDWARE_AUTOMOTIVE_EVS_V1_1_EVSV4LCAMERA_H
 #define ANDROID_HARDWARE_AUTOMOTIVE_EVS_V1_1_EVSV4LCAMERA_H
 
+#include "VideoCapture.h"
+#include "ConfigManager.h"
+
+#include <functional>
+#include <thread>
+
 #include <android/hardware/automotive/evs/1.1/types.h>
 #include <android/hardware/automotive/evs/1.1/IEvsCamera.h>
 #include <android/hardware/automotive/evs/1.1/IEvsCameraStream.h>
 #include <android/hardware/automotive/evs/1.1/IEvsDisplay.h>
 #include <android/hardware/camera/device/3.2/ICameraDevice.h>
+#include <android-base/result.h>
 #include <ui/GraphicBuffer.h>
-
-#include <functional>
-#include <thread>
-#include <set>
-
-#include "VideoCapture.h"
-#include "ConfigManager.h"
 
 using ::android::hardware::hidl_string;
 using ::android::hardware::camera::device::V3_2::Stream;
@@ -101,6 +101,10 @@ public:
 
     const CameraDesc& getDesc() { return mDescription; };
 
+    // Dump captured frames to the filesystem
+    android::base::Result<void> startDumpFrames(const std::string& path);
+    android::base::Result<void> stopDumpFrames();
+
 private:
     // Constructors
     EvsV4lCamera(const char *deviceName,
@@ -153,6 +157,15 @@ private:
 
     // Extended information
     std::unordered_map<uint32_t, std::vector<uint8_t>> mExtInfo;
+
+    // Dump captured frames
+    std::atomic<bool> mDumpFrame = false;
+
+    // Path to store captured frames
+    std::string mDumpPath;
+
+    // Frame counter
+    uint64_t mFrameCounter = 0;
 };
 
 } // namespace implementation
