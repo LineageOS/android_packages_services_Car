@@ -145,6 +145,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     private final int mMaxRunningUsers;
     private final InitialUserSetter mInitialUserSetter;
     private final boolean mEnablePassengerSupport;
+    private final UserPreCreator mUserPreCreator;
 
     private final Object mLockUser = new Object();
     @GuardedBy("mLockUser")
@@ -262,6 +263,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         } else {
             mInitialUserSetter = initialUserSetter;
         }
+        mUserPreCreator = new UserPreCreator(mUserManager);
     }
 
     @Override
@@ -1993,5 +1995,12 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     private int getZoneId(@OccupantTypeEnum int occupantType) {
         List<OccupantZoneInfo> zoneInfos = getOccupantZones(occupantType);
         return (zoneInfos.size() > 0) ? zoneInfos.get(0).zoneId : OccupantZoneInfo.INVALID_ZONE_ID;
+    }
+
+    /**
+     * Manages the required number of pre-created users.
+     */
+    public void preCreateUsers() {
+        mUserPreCreator.managePreCreatedUsers();
     }
 }
