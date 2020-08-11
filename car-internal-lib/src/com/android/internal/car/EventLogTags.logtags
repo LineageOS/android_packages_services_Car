@@ -37,8 +37,8 @@ option java_package com.android.internal.car
 150011 car_helper_hal_default_behavior (fallback|1),(user_locales|3)
 150012 car_helper_hal_start_user (user_id|1),(user_locales|3)
 150013 car_helper_hal_create_user (flags|1),(safe_name|3),(user_locales|3)
-150014 car_helper_pre_creation_requested (number_users|1),(number_guests|1)
-150015 car_helper_pre_creation_status (number_existing_users|1),(number_users_to_add|1),(number_users_to_remove|1),(number_existing_guests|1),(number_guests_to_add|1),(number_guests_to_remove|1),(number_invalid_users_to_remove|1)
+#150014 (Not_used_anymore) car_helper_pre_creation_requested
+#150015 (Not_used_anymore) car_helper_pre_creation_status
 
 ####
 #### Tags used by ICarImpl / CarService
@@ -86,6 +86,8 @@ option java_package com.android.internal.car
 150120 car_user_svc_remove_user_resp (user_id|1),(result|1)
 150121 car_user_svc_notify_app_lifecycle_listener (uid|1),(event_type|1),(from_user_id|1),(to_user_id|1)
 150122 car_user_svc_notify_internal_lifecycle_listener (listener_name|3),(event_type|1),(from_user_id|1),(to_user_id|1)
+150123 car_user_svc_pre_creation_requested (number_users|1),(number_guests|1)
+150124 car_user_svc_pre_creation_status (number_existing_users|1),(number_users_to_add|1),(number_users_to_remove|1),(number_existing_guests|1),(number_guests_to_add|1),(number_guests_to_remove|1),(number_invalid_users_to_remove|1)
 
 150140 car_user_hal_initial_user_info_req (request_id|1),(request_type|1),(timeout|1)
 150141 car_user_hal_initial_user_info_resp (request_id|1),(status|1),(action|1),(user_id|1),(flags|1),(safe_name|3),(user_locales|3)

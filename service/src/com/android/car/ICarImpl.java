@@ -820,5 +820,13 @@ public class ICarImpl extends ICar.Stub {
             if (DBG) Log.d(TAG, "initBootUser(): ");
             mCarUserService.initBootUser();
         }
+
+        @Override
+        public void preCreateUsers() throws RemoteException {
+            assertCallingFromSystemProcess();
+            // TODO(b/160819016): add events log
+            if (DBG) Log.d(TAG, "preCreateUsers(): ");
+            mCarUserService.preCreateUsers();
+        }
     }
 }
