@@ -46,7 +46,7 @@ public class CarPropertyManagerPublicPermissionTest {
     private HashSet<Integer> mProps = new HashSet<>();
     private static final String TAG = CarPropertyManagerPublicPermissionTest.class.getSimpleName();
     private static final Integer PLACEHOLDER_AREA_ID = VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL;
-    // Dummy values for setter test.
+    // Fake values for setter test.
     private static final int PLACEHOLDER_PROPERTY_VALUE_INTEGER = 1;
     private static final Integer[] PLACEHOLDER_PROPERTY_VALUE_INTEGER_ARRAY = new Integer[]{1};
     private static final float PLACEHOLDER_PROPERTY_VALUE_FLOAT = 1.0f;
@@ -249,7 +249,7 @@ public class CarPropertyManagerPublicPermissionTest {
     public void testCarPropertyManagerSetter() {
         for (int propertyId : mProps) {
             try {
-                // Dummy value may not in the valid range. CarService checks permission
+                // Fake value may not in the valid range. CarService checks permission
                 // and sends request to VHAL. VHAL checks specific property range.
                 switch (propertyId & VehiclePropertyType.MASK) {
                     case VehiclePropertyType.BOOLEAN:
