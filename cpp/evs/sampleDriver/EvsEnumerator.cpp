@@ -20,10 +20,13 @@
 #include "ConfigManager.h"
 
 #include <dirent.h>
+
+#include <android-base/file.h>
+#include <android-base/strings.h>
+#include <android-base/stringprintf.h>
 #include <hardware_legacy/uevent.h>
 #include <hwbinder/IPCThreadState.h>
 #include <cutils/android_filesystem_config.h>
-
 
 using namespace std::chrono_literals;
 using CameraDesc_1_0 = ::android::hardware::automotive::evs::V1_0::CameraDesc;
@@ -680,6 +683,98 @@ Return<void> EvsEnumerator::closeUltrasonicsArray(
     (void)evsUltrasonicsArray;
     return Void();
 }
+
+
+using android::base::Result;
+using android::base::EqualsIgnoreCase;
+using android::base::StringPrintf;
+using android::base::WriteStringToFd;
+Return<void> EvsEnumerator::debug(const hidl_handle& fd,
+                                  const hidl_vec<hidl_string>& options) {
+    if (fd.getNativeHandle() != nullptr && fd->numFds > 0) {
+        parseCommand(fd->data[0], options);
+    } else {
+        LOG(ERROR) << "Given file descriptor is not valid.";
+    }
+
+    return {};
+}
+
+
+void EvsEnumerator::parseCommand(int fd, const hidl_vec<hidl_string>& options) {
+    if (options.size() < 1) {
+        WriteStringToFd("No option is given.\n", fd);
+        cmdHelp(fd);
+        return;
+    }
+
+    const std::string command = options[0];
+    if (EqualsIgnoreCase(command, "--help")) {
+        cmdHelp(fd);
+    } else if (EqualsIgnoreCase(command, "--dump")) {
+        cmdDump(fd, options);
+    } else {
+        WriteStringToFd(StringPrintf("Invalid option: %s\n", command.c_str()), fd);
+    }
+}
+
+
+void EvsEnumerator::cmdHelp(int fd) {
+    WriteStringToFd("--help: shows this help.\n"
+                    "--dump [id] [start|stop] [directory]\n"
+                    "\tDump camera frames to a target directory\n", fd);
+}
+
+
+void EvsEnumerator::cmdDump(int fd, const hidl_vec<hidl_string>& options) {
+    if (options.size() < 3) {
+        WriteStringToFd("Necessary argument is missing\n", fd);
+        cmdHelp(fd);
+        return;
+    }
+
+    EvsEnumerator::CameraRecord *pRecord = findCameraById(options[1]);
+    if (pRecord == nullptr) {
+        WriteStringToFd(StringPrintf("%s is not active\n", options[1].c_str()), fd);
+        return;
+    }
+
+    auto device = pRecord->activeInstance.promote();
+    if (device == nullptr) {
+        WriteStringToFd(StringPrintf("%s seems dead\n", options[1].c_str()), fd);
+        return;
+    }
+
+    const std::string command = options[2];
+    if (EqualsIgnoreCase(command, "start")) {
+        // --dump [device id] start [path]
+        if (options.size() < 4) {
+            WriteStringToFd("Necessary argument is missing\n", fd);
+            cmdHelp(fd);
+            return;
+        }
+
+        const std::string path = options[3];
+        auto ret = device->startDumpFrames(path);
+        if (!ret.ok()) {
+            WriteStringToFd(StringPrintf("Failed to start storing frames: %s\n",
+                                         ret.error().message().c_str()), fd);
+        }
+    } else if (EqualsIgnoreCase(command, "stop")) {
+        // --dump [device id] stop
+        auto ret = device->stopDumpFrames();
+        if (!ret.ok()) {
+            WriteStringToFd(StringPrintf("Failed to stop storing frames: %s\n",
+                                         ret.error().message().c_str()), fd);
+        }
+    } else {
+        WriteStringToFd(StringPrintf("Unknown command: %s", command.c_str()), fd);
+        cmdHelp(fd);
+    }
+
+    return;
+}
+
 
 } // namespace implementation
 } // namespace V1_1

@@ -76,6 +76,9 @@ public:
     // Listen to video device uevents
     static void EvsUeventThread(std::atomic<bool>& running);
 
+    // Methods from ::android.hidl.base::V1_0::IBase follow.
+    Return<void> debug(const hidl_handle& fd, const hidl_vec<hidl_string>& options) override;
+
 private:
     struct CameraRecord {
         CameraDesc          desc;
@@ -114,6 +117,11 @@ private:
     static std::unordered_map<uint8_t,
                               uint64_t>       sDisplayPortList;
     static uint64_t                           sInternalDisplayId;
+
+    // LSHAL debug command implementations
+    void parseCommand(int fd, const hidl_vec<hidl_string>& options);
+    void cmdHelp(int fd);
+    void cmdDump(int fd, const hidl_vec<hidl_string>& options);
 };
 
 } // namespace implementation
