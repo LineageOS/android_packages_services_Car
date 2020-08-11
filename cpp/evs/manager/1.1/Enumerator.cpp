@@ -16,6 +16,9 @@
 
 #include "Enumerator.h"
 #include "HalDisplay.h"
+#include "emul/EvsEmulatedCamera.h"
+
+#include <regex>
 
 #include <android-base/chrono_utils.h>
 #include <android-base/file.h>
@@ -45,6 +48,7 @@ namespace {
     const int kOptionDumpCameraCommandIndex = 3;
     const int kOptionDumpCameraArgsStartIndex = 4;
 
+    const std::regex kEmulatedCameraNamePattern("emulated/[0-9]+", std::regex_constants::icase);
 }
 
 namespace android {
@@ -227,9 +231,18 @@ Return<sp<IEvsCamera_1_0>> Enumerator::openCamera(const hidl_string& cameraId) {
         hwCamera = mActiveCameras[cameraId];
     } else {
         // Is the hardware camera available?
-        sp<IEvsCamera_1_1> device =
-            IEvsCamera_1_1::castFrom(mHwEnumerator->openCamera(cameraId))
-            .withDefault(nullptr);
+        sp<IEvsCamera_1_1> device;
+        if (std::regex_match(cameraId.c_str(), kEmulatedCameraNamePattern)) {
+            if (mEmulatedCameraDevices.find(cameraId) == mEmulatedCameraDevices.end()) {
+                LOG(ERROR) << cameraId << " is not available";
+            } else {
+                device = EvsEmulatedCamera::Create(cameraId.c_str(),
+                                                   mEmulatedCameraDevices[cameraId]);
+            }
+        } else {
+            device = IEvsCamera_1_1::castFrom(mHwEnumerator->openCamera(cameraId))
+                     .withDefault(nullptr);
+        }
         if (device == nullptr) {
             LOG(ERROR) << "Failed to open hardware camera " << cameraId;
         } else {
@@ -319,10 +332,19 @@ Return<sp<IEvsCamera_1_1>> Enumerator::openCamera_1_1(const hidl_string& cameraI
     for (auto&& id : physicalCameras) {
         auto it = mActiveCameras.find(id);
         if (it == mActiveCameras.end()) {
-            // Try to open a hardware camera.
-            sp<IEvsCamera_1_1> device =
-                IEvsCamera_1_1::castFrom(mHwEnumerator->openCamera_1_1(id, streamCfg))
-                .withDefault(nullptr);
+            sp<IEvsCamera_1_1> device;
+            if (std::regex_match(cameraId.c_str(), kEmulatedCameraNamePattern)) {
+                if (mEmulatedCameraDevices.find(id) == mEmulatedCameraDevices.end()) {
+                    LOG(ERROR) << cameraId << " is not available";
+                } else {
+                    device = EvsEmulatedCamera::Create(id.c_str(),
+                                                       mEmulatedCameraDevices[id]);
+                }
+            } else {
+                device = IEvsCamera_1_1::castFrom(mHwEnumerator->openCamera_1_1(id, streamCfg))
+                         .withDefault(nullptr);
+            }
+
             if (device == nullptr) {
                 LOG(ERROR) << "Failed to open hardware camera " << cameraId;
                 success = false;
@@ -418,6 +440,15 @@ Return<void> Enumerator::getCameraList_1_1(getCameraList_1_1_cb list_cb)  {
     mCameraDevices.clear();
     for (auto&& desc : hidlCameras) {
         mCameraDevices.insert_or_assign(desc.v1.cameraId, desc);
+    }
+
+    // Add emulated devices if there is any
+    if (mEmulatedCameraDevices.size() > 0) {
+        int index = hidlCameras.size();
+        hidlCameras.resize(hidlCameras.size() + mEmulatedCameraDevices.size());
+        for (auto&& [id, desc] : mEmulatedCameraDevices) {
+            hidlCameras[index++].v1.cameraId = id;
+        }
     }
 
     list_cb(hidlCameras);
@@ -588,6 +619,8 @@ void Enumerator::cmdDump(int fd, const hidl_vec<hidl_string>& options) {
         cmdList(fd, options);
     } else if (EqualsIgnoreCase(option, "--dump")) {
         cmdDumpDevice(fd, options);
+    } else if (EqualsIgnoreCase(option, "--configure-emulated-camera")) {
+        cmdConfigureEmulatedCamera(fd, options);
     } else {
         WriteStringToFd(StringPrintf("Invalid option: %s\n", option.c_str()),
                         fd);
@@ -608,7 +641,9 @@ void Enumerator::cmdHelp(int fd) {
                     "at every [interval] during [duration].  Interval and duration are in "
                     "milliseconds.\n"
                     "\t\tstop: stops collecting usage statistics and shows collected records.\n"
-                    "--dump display: shows current status of the display\n", fd);
+                    "--dump display: shows current status of the display\n"
+                    "--configure-emulated-camera [id] [path] [width] [height] [interval].  "
+                    "Interval is in milliseconds.\n", fd);
 }
 
 
@@ -850,6 +885,45 @@ void Enumerator::cmdDumpDevice(int fd, const hidl_vec<hidl_string>& options) {
         }
     }
 }
+
+
+void Enumerator::cmdConfigureEmulatedCamera(int fd, const hidl_vec<hidl_string>& options) {
+    if (options.size() < 6) {
+        WriteStringToFd(StringPrintf("Necessary arguments are missing.\n"), fd);
+        cmdHelp(fd);
+        return;
+    }
+
+    // --configure-emulated-camera [id] [path] [width] [height] [interval]
+    const std::string id = options[1];
+    if (!std::regex_match(id.c_str(), kEmulatedCameraNamePattern)) {
+        WriteStringToFd(StringPrintf("%s does not match to the pattern.\n", id.c_str()), fd);
+        return;
+    }
+
+    if (mCameraDevices.find(id) != mCameraDevices.end()) {
+        WriteStringToFd(
+            StringPrintf("Updating %s's configuration.  "
+                         "This will get effective when currently active stream is closed.\n",
+                         id.c_str()), fd);
+    }
+
+    std::string sourceDir = options[2];
+    int width = std::stoi(options[3]);
+    int height = std::stoi(options[4]);
+    std::chrono::nanoseconds interval = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                                            std::chrono::milliseconds(std::stoi(options[5]))
+                                        );
+    WriteStringToFd(StringPrintf("Configuring %s as:\n"
+                                 "\tWidth: %d\n"
+                                 "\tHeight: %d\n"
+                                 "\tInterval: %f\n",
+                                 id.c_str(), width, height, interval.count() / 1000.), fd);
+
+    EmulatedCameraDesc desc = {width, height, sourceDir, interval};
+    mEmulatedCameraDevices.insert_or_assign(id, std::move(desc));
+}
+
 
 } // namespace implementation
 } // namespace V1_1
