@@ -659,7 +659,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testGetAllPossibleDrivers() {
         Set<Integer> expected = new HashSet<Integer>(Arrays.asList(10, 11, 13, 14));
-        when(mMockedUserManager.getUsers(true)).thenReturn(prepareUserList());
+        when(mMockedUserManager.getAliveUsers()).thenReturn(prepareUserList());
         mockIsHeadlessSystemUser(19, true);
         for (UserInfo user : mCarUserService.getAllDrivers()) {
             assertThat(expected).contains(user.id);
@@ -680,7 +680,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         };
         mockIsHeadlessSystemUser(18, true);
         for (int i = 0; i < testCases.size(); i++) {
-            when(mMockedUserManager.getUsers(true)).thenReturn(prepareUserList());
+            when(mMockedUserManager.getAliveUsers()).thenReturn(prepareUserList());
             List<UserInfo> passengers = mCarUserService.getPassengers(testCases.keyAt(i));
             HashSet<Integer> expected = testCases.valueAt(i);
             for (UserInfo user : passengers) {

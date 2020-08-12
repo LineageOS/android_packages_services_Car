@@ -233,7 +233,7 @@ public final class CarUserManagerHelper {
         if (UserManager.isHeadlessSystemUserMode()) {
             return getAllUsersExceptSystemUserAndSpecifiedUser(UserHandle.USER_SYSTEM);
         } else {
-            return mUserManager.getUsers(/* excludeDying= */ true);
+            return mUserManager.getAliveUsers();
         }
     }
 
@@ -244,7 +244,7 @@ public final class CarUserManagerHelper {
      * @return All users other than system user and user with userId.
      */
     private List<UserInfo> getAllUsersExceptSystemUserAndSpecifiedUser(int userId) {
-        List<UserInfo> users = mUserManager.getUsers(/* excludeDying= */true);
+        List<UserInfo> users = mUserManager.getAliveUsers();
 
         for (Iterator<UserInfo> iterator = users.iterator(); iterator.hasNext(); ) {
             UserInfo userInfo = iterator.next();
