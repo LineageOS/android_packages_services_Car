@@ -22,8 +22,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.os.RemoteException;
 
+import com.android.car.internal.ICarServiceHelper;
 import com.android.car.systeminterface.SystemStateInterface;
-import com.android.internal.car.ICarServiceHelper;
 import com.android.settingslib.utils.ThreadUtils;
 
 import org.junit.Before;

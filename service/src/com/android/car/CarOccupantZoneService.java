@@ -52,10 +52,10 @@ import android.util.SparseIntArray;
 import android.view.Display;
 import android.view.DisplayAddress;
 
+import com.android.car.internal.ICarServiceHelper;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.car.ICarServiceHelper;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;

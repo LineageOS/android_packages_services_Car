@@ -48,9 +48,11 @@ import android.util.ArrayMap;
 import android.util.EventLog;
 import android.util.Log;
 
+import com.android.car.internal.CommonConstants;
+import com.android.car.internal.EventLogTags;
+import com.android.car.internal.UserHelperLite;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.car.EventLogTags;
 import com.android.internal.infra.AndroidFuture;
 import com.android.internal.os.IResultReceiver;
 import com.android.internal.util.ArrayUtils;
@@ -86,7 +88,8 @@ public final class CarUserManager extends CarManagerBase {
      */
     @SystemApi
     @TestApi
-    public static final int USER_LIFECYCLE_EVENT_TYPE_STARTING = 1;
+    public static final int USER_LIFECYCLE_EVENT_TYPE_STARTING =
+            CommonConstants.USER_LIFECYCLE_EVENT_TYPE_STARTING;
 
     /**
      * {@link UserLifecycleEvent} called when switching to a different foreground user, for
@@ -101,7 +104,8 @@ public final class CarUserManager extends CarManagerBase {
      */
     @SystemApi
     @TestApi
-    public static final int USER_LIFECYCLE_EVENT_TYPE_SWITCHING = 2;
+    public static final int USER_LIFECYCLE_EVENT_TYPE_SWITCHING =
+            CommonConstants.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 
     /**
      * {@link UserLifecycleEvent} called when an existing user is in the process of being unlocked.
@@ -116,7 +120,8 @@ public final class CarUserManager extends CarManagerBase {
      */
     @SystemApi
     @TestApi
-    public static final int USER_LIFECYCLE_EVENT_TYPE_UNLOCKING = 3;
+    public static final int USER_LIFECYCLE_EVENT_TYPE_UNLOCKING =
+            CommonConstants.USER_LIFECYCLE_EVENT_TYPE_UNLOCKING;
 
     /**
      * {@link UserLifecycleEvent} called after an existing user is unlocked.
@@ -125,7 +130,8 @@ public final class CarUserManager extends CarManagerBase {
      */
     @SystemApi
     @TestApi
-    public static final int USER_LIFECYCLE_EVENT_TYPE_UNLOCKED = 4;
+    public static final int USER_LIFECYCLE_EVENT_TYPE_UNLOCKED =
+            CommonConstants.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
 
     /**
      * {@link UserLifecycleEvent} called when an existing user is stopping, for components to
@@ -142,7 +148,8 @@ public final class CarUserManager extends CarManagerBase {
      */
     @SystemApi
     @TestApi
-    public static final int USER_LIFECYCLE_EVENT_TYPE_STOPPING = 5;
+    public static final int USER_LIFECYCLE_EVENT_TYPE_STOPPING =
+            CommonConstants.USER_LIFECYCLE_EVENT_TYPE_STOPPING;
 
     /**
      * {@link UserLifecycleEvent} called after an existing user is stopped.
@@ -153,7 +160,8 @@ public final class CarUserManager extends CarManagerBase {
      */
     @SystemApi
     @TestApi
-    public static final int USER_LIFECYCLE_EVENT_TYPE_STOPPED = 6;
+    public static final int USER_LIFECYCLE_EVENT_TYPE_STOPPED =
+            CommonConstants.USER_LIFECYCLE_EVENT_TYPE_STOPPED;
 
     /** @hide */
     @IntDef(prefix = { "USER_LIFECYCLE_EVENT_TYPE_" }, value = {
@@ -168,9 +176,11 @@ public final class CarUserManager extends CarManagerBase {
     public @interface UserLifecycleEventType{}
 
     /** @hide */
-    public static final String BUNDLE_PARAM_ACTION = "action";
+    public static final String BUNDLE_PARAM_ACTION =
+            CommonConstants.BUNDLE_PARAM_ACTION;
     /** @hide */
-    public static final String BUNDLE_PARAM_PREVIOUS_USER_ID = "previous_user";
+    public static final String BUNDLE_PARAM_PREVIOUS_USER_ID =
+            CommonConstants.BUNDLE_PARAM_PREVIOUS_USER_ID;
 
     private final Object mLock = new Object();
     private final ICarUserService mService;
@@ -274,7 +284,7 @@ public final class CarUserManager extends CarManagerBase {
                 };
             };
             EventLog.writeEvent(EventLogTags.CAR_USER_MGR_CREATE_USER_REQ, uid,
-                    safeName(name), userType, flags);
+                    UserHelperLite.safeName(name), userType, flags);
             mService.createUser(name, userType, flags, HAL_TIMEOUT_MS, future);
             return new AndroidAsyncFuture<>(future);
         } catch (RemoteException e) {
@@ -651,19 +661,6 @@ public final class CarUserManager extends CarManagerBase {
             }
         }
         return false;
-    }
-
-    // TODO(b/150413515): use from UserHelper instead (would require a new make target, otherwise it
-    // would include the whole car-user-lib)
-    private boolean isHeadlessSystemUser(int targetUserId) {
-        return targetUserId == UserHandle.USER_SYSTEM && UserManager.isHeadlessSystemUserMode();
-    }
-
-    // TODO(b/150413515): use from UserHelper instead (would require a new make target, otherwise it
-    // would include the whole car-user-lib)
-    @Nullable
-    private static String safeName(@Nullable String name) {
-        return name == null ? name : name.length() + "_chars";
     }
 
     /**

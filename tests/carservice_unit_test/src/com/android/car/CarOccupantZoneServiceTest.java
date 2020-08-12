@@ -53,8 +53,8 @@ import android.view.DisplayAddress;
 import com.android.car.CarOccupantZoneService.DisplayConfig;
 import com.android.car.CarOccupantZoneService.DisplayInfo;
 import com.android.car.CarOccupantZoneService.OccupantConfig;
+import com.android.car.internal.ICarServiceHelper;
 import com.android.car.user.CarUserService;
-import com.android.internal.car.ICarServiceHelper;
 
 import org.junit.After;
 import org.junit.Before;

@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import static com.android.car.internal.SystemConstants.ICAR_SYSTEM_SERVER_CLIENT;
+
 import android.annotation.MainThread;
 import android.annotation.Nullable;
 import android.app.ActivityManager;
@@ -51,6 +53,9 @@ import com.android.car.audio.CarAudioService;
 import com.android.car.cluster.InstrumentClusterService;
 import com.android.car.garagemode.GarageModeService;
 import com.android.car.hal.VehicleHal;
+import com.android.car.internal.EventLogTags;
+import com.android.car.internal.ICarServiceHelper;
+import com.android.car.internal.ICarSystemServerClient;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.power.SilentModeController;
@@ -62,9 +67,6 @@ import com.android.car.vms.VmsBrokerService;
 import com.android.car.watchdog.CarWatchdogService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.car.EventLogTags;
-import com.android.internal.car.ICarServiceHelper;
-import com.android.internal.car.ICarSystemServerClient;
 import com.android.internal.os.IResultReceiver;
 
 import java.io.FileDescriptor;
@@ -78,8 +80,6 @@ public class ICarImpl extends ICar.Stub {
     public static final String INTERNAL_INPUT_SERVICE = "internal_input";
     public static final String INTERNAL_SYSTEM_ACTIVITY_MONITORING_SERVICE =
             "system_activity_monitoring";
-    // TODO(b/162240867): Move this constant at a common place.
-    private static final String ICAR_SYSTEM_SERVER_CLIENT = "ICarSystemServerClient";
 
     private static final int INITIAL_VHAL_GET_RETRY = 2;
 
