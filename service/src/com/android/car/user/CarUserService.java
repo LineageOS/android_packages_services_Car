@@ -201,6 +201,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     private final CopyOnWriteArrayList<PassengerCallback> mPassengerCallbacks =
             new CopyOnWriteArrayList<>();
 
+    // TODO(b/163566866): Use mSwitchGuestUserBeforeSleep for new create guest request
+    private final boolean mSwitchGuestUserBeforeSleep;
+
     @Nullable
     @GuardedBy("mLockUser")
     private UserInfo mInitialUser;
@@ -256,7 +259,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         mMaxRunningUsers = maxRunningUsers;
         mUserManager = userManager;
         mLastPassengerId = UserHandle.USER_NULL;
-        mEnablePassengerSupport = context.getResources().getBoolean(R.bool.enablePassengerSupport);
         mUserMetrics = userMetrics;
         if (initialUserSetter == null) {
             mInitialUserSetter = new InitialUserSetter(context, (u) -> setInitialUser(u));
@@ -264,6 +266,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             mInitialUserSetter = initialUserSetter;
         }
         mUserPreCreator = new UserPreCreator(mUserManager);
+        Resources resources = context.getResources();
+        mEnablePassengerSupport = resources.getBoolean(R.bool.enablePassengerSupport);
+        mSwitchGuestUserBeforeSleep = resources.getBoolean(
+                R.bool.config_switchGuestUserBeforeGoingSleep);
     }
 
     @Override
@@ -669,13 +675,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
     }
 
-    /**
-     * Calls to replace current guest user due to STR.
-     * <p>
-     * <b>Note:</b> Should be user by only {@link CarPowerManagementService}
-     */
-
-    public void initResumeReplaceGuest() {
+    private void initResumeReplaceGuest() {
         int currentUserId = ActivityManager.getCurrentUser();
         UserInfo currentUser = mUserManager.getUserInfo(currentUserId);
 
@@ -688,17 +688,46 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     /**
+     * Calls to switch user at the power resume or suspend.
+     *
+     * <p><b>Note:</b> Should be used only by {@link CarPowerManagementService}
+     *
+     * @param onSuspend true if called during suspend, false if called during resume.
+     * @param allowUserSwitch true if OEM configuration allows user switching.
+     */
+    public void switchUserIfNecessary(boolean onSuspend, boolean allowUserSwitch) {
+        if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
+            Log.d(TAG_USER, "switchUserIfNecessary(" + onSuspend + ", " + allowUserSwitch + "):"
+                    + ", mSwitchGuestUserBeforeSleep=" + mSwitchGuestUserBeforeSleep);
+        }
+
+        if (onSuspend) {
+            if (mSwitchGuestUserBeforeSleep) {
+                initResumeReplaceGuest();
+            }
+        } else {
+            if (!allowUserSwitch) {
+                if (!mSwitchGuestUserBeforeSleep) {
+                    initResumeReplaceGuest();
+                }
+                return;
+            }
+
+            initBootUser(InitialUserInfoRequestType.RESUME);
+        }
+    }
+
+    /**
      * Calls to start user at the android startup.
      */
     public void initBootUser() {
         int requestType = getInitialUserInfoRequestType();
-        initBootUser(requestType, false);
+        initBootUser(requestType);
     }
 
-    /**
-     * Calls to start user at the power resume.
-     */
-    public void initBootUser(int requestType, boolean replaceGuest) {
+    private void initBootUser(int requestType) {
+        boolean replaceGuest =
+                requestType == InitialUserInfoRequestType.RESUME && !mSwitchGuestUserBeforeSleep;
         EventLog.writeEvent(EventLogTags.CAR_USER_SVC_INITIAL_USER_INFO_REQ, requestType,
                 mHalTimeoutMs);
         checkManageUsersPermission("startInitialUser");

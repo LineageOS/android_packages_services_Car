@@ -26,7 +26,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.UserInfo;
 import android.content.res.Resources;
-import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
 import android.net.wifi.WifiManager;
 import android.os.Build;
@@ -432,33 +431,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         mHal.sendOn();
 
         try {
-            switchUserOnResumeIfNecessary(allowUserSwitch);
+            mUserService.switchUserIfNecessary(/* onSuspend= */ false, allowUserSwitch);
         } catch (Exception e) {
             Slog.e(TAG, "Could not switch user on resume", e);
         }
-    }
-
-    // TODO(b/160819016): Move all user switch logic to CarUserService if possible.
-    @VisibleForTesting // Ideally it should not be exposed, but it speeds up the unit tests
-    void switchUserOnResumeIfNecessary(boolean allowSwitching) {
-        Slog.d(TAG, "switchUserOnResumeIfNecessary(): allowSwitching=" + allowSwitching
-                + ", mSwitchGuestUserBeforeSleep=" + mSwitchGuestUserBeforeSleep);
-        if (!allowSwitching) {
-            if (mSwitchGuestUserBeforeSleep) { // already handled
-                return;
-            }
-            switchToNewGuestIfNecessary();
-            return;
-        }
-
-        switchUserOnResumeIfNecessaryUsingHal();
-    }
-
-    /**
-     * Replaces the current user if it's a guest.
-     */
-    private void switchToNewGuestIfNecessary() {
-        mUserService.initResumeReplaceGuest();
     }
 
     /**
@@ -471,14 +447,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         synchronized (mLock) {
             return mGarageModeShouldExitImmediately;
         }
-    }
-
-    /**
-     * Switches the initial user by calling the User HAL to define the behavior.
-     */
-    private void switchUserOnResumeIfNecessaryUsingHal() {
-        Slog.i(TAG, "Using User HAL to define initial user behavior");
-        mUserService.initBootUser(InitialUserInfoRequestType.RESUME, !mSwitchGuestUserBeforeSleep);
     }
 
     private void handleShutdownPrepare(CpmsState newState) {
@@ -671,9 +639,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     0 /*delay*/,
                     intervalMs);
         }
-        if (mSwitchGuestUserBeforeSleep) {
-            switchToNewGuestIfNecessary();
-        }
+        // allowUserSwitch value doesn't matter for onSuspend = true
+        mUserService.switchUserIfNecessary(/* onSuspend= */ true, /* allowUserSwitch= */ true);
     }
 
     private void sendPowerManagerEvent(int newState) {
