@@ -89,6 +89,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private static final String WIFI_STATE_FILENAME = "wifi_state";
     private static final String WIFI_STATE_MODIFIED = "forcibly_disabled";
     private static final String WIFI_STATE_ORIGINAL = "original";
+    // If Suspend to RAM fails, we retry with an exponential back-off:
+    // 10 msec, 20 msec, ..., 1280 msec, for a maximum of about 2.5 seconds.
+    private static final int MAX_SUSPEND_TRIES = 9; // Initial + 8 retries
+    private static final long INITIAL_SUSPEND_RETRY_INTERVAL_MS = 10;
 
     private final Object mLock = new Object();
     private final Object mSimulationWaitObject = new Object();
@@ -1075,15 +1079,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     // Send the command to enter Suspend to RAM.
-    // If the command is not successful, try again.
+    // If the command is not successful, try again with an exponential back-off.
     // If it fails repeatedly, send the command to shut down.
-    // If we decide to go to a different power state, abort this
-    // retry mechanism.
+    // If we decide to go to a different power state, abort this retry mechanism.
     // Returns true if we successfully suspended.
     private boolean suspendWithRetries() {
-        final int maxTries = 9; // 0, 10, 20, ..., 1280 msec
-        final long initialRetryIntervalMs = 10;
-        long retryIntervalMs = initialRetryIntervalMs;
+        long retryIntervalMs = INITIAL_SUSPEND_RETRY_INTERVAL_MS;
         int tryCount = 0;
 
         while (true) {
@@ -1093,7 +1094,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 return true;
             }
             tryCount++;
-            if (tryCount >= maxTries) {
+            if (tryCount >= MAX_SUSPEND_TRIES) {
                 break;
             }
             // We failed to suspend. Block the thread briefly and try again.
@@ -1102,7 +1103,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     Slog.w(TAG, "Failed to Suspend; will retry later.");
                     try {
                         mLock.wait(retryIntervalMs);
-                    } catch (InterruptedException ignored) { }
+                    } catch (InterruptedException ignored) {
+                        Thread.currentThread().interrupt();
+                    }
                     retryIntervalMs *= 2;
                 }
                 // Check for a new power state now, before going around the loop again
