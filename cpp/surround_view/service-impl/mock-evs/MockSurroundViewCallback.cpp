@@ -46,6 +46,12 @@ Return<void> MockSurroundViewCallback::receiveFrames(
     LOG(INFO) << __FUNCTION__ << svFramesDesc.svBuffers.size()
               << " frames are received";
 
+    // Increment the count of received frames.
+    {
+        std::scoped_lock<std::mutex> lock(mAccessLock);
+        mReceivedFramesCount++;
+    }
+
     // Create a separate thread to return the frames to the session. This
     // simulates the behavior of oneway HIDL method call.
     thread mockHidlThread([this, &svFramesDesc]() {
@@ -53,6 +59,20 @@ Return<void> MockSurroundViewCallback::receiveFrames(
     });
     mockHidlThread.detach();
     return {};
+}
+
+int MockSurroundViewCallback::getReceivedFramesCount() {
+    {
+        std::scoped_lock<std::mutex> lock(mAccessLock);
+        return mReceivedFramesCount;
+    }
+}
+
+void MockSurroundViewCallback::clearReceivedFramesCount() {
+    {
+        std::scoped_lock<std::mutex> lock(mAccessLock);
+        mReceivedFramesCount = 0;
+    }
 }
 
 }  // namespace implementation

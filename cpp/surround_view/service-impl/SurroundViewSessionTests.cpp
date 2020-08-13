@@ -100,6 +100,8 @@ TEST(SurroundViewSessionTests, startAndStopSurroundView3dSession) {
     sleep(5);
 
     sv3dSession->stopStream();
+
+    EXPECT_GT(sv3dCallback->getReceivedFramesCount(), 0);
 }
 
 }  // namespace
