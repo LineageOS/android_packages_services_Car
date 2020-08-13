@@ -102,7 +102,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                 uint64_t whichCam =
                             fdp.ConsumeIntegralInRange<uint64_t>(startMockHWCameraId,
                                                                  endMockHWCameraId-1);
-                hidl_string camStr = to_string(whichCam);
+                hidl_string camStr = std::to_string(whichCam);
                 sp<IEvsCamera_1_0> virtualCam = sEnumerator->openCamera(camStr);
                 if (virtualCam != nullptr) {
                     sVirtualCameras.emplace_back(virtualCam);
@@ -144,7 +144,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                 uint64_t whichCam =
                             fdp.ConsumeIntegralInRange<uint64_t>(startMockHWCameraId,
                                                                  endMockHWCameraId-1);
-                hidl_string camStr = to_string(whichCam);
+                hidl_string camStr = std::to_string(whichCam);
                 Stream streamCfg = {};
                 sp<IEvsCamera_1_1> virtualCam = sEnumerator->openCamera_1_1(camStr, streamCfg);
                 if (virtualCam != nullptr) {
