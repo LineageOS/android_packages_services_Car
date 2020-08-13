@@ -311,6 +311,9 @@ void VideoCapture::collectFrames() {
 
         mFrames.insert(buf.index);
 
+        // Update a frame metadata
+        mBufferInfos[buf.index] = buf;
+
         // If a callback was requested per frame, do that now
         if (mCallback) {
             mCallback(this, &mBufferInfos[buf.index], mPixelBuffers[buf.index]);
