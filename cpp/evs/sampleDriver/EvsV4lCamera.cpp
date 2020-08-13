@@ -734,7 +734,7 @@ void EvsV4lCamera::forwardFrame(imageBuffer* pV4lBuff, void* pData) {
         // Construct a target filename with the device identifier
         std::string filename = std::string(mDescription.v1.cameraId);
         std::replace(filename.begin(), filename.end(), '/', '_');
-        filename = mDumpPath + filename + "_" + to_string(mFrameCounter) + ".bin";
+        filename = mDumpPath + filename + "_" + std::to_string(mFrameCounter) + ".bin";
 
         android::base::unique_fd fd(open(filename.c_str(),
                                          O_WRONLY | O_CREAT,
