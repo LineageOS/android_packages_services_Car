@@ -71,7 +71,7 @@ android_app {
         "car-frameworks-service",
     ],
 
-    required: ["privapp_whitelist_com.android.car"],
+    required: ["allowed_privapp_com.android.car"],
 
     // Disable build in PDK, missing aidl import breaks build
     product_variables: {

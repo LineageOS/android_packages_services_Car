@@ -57,7 +57,7 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
 
 LOCAL_JAVA_LIBRARIES += android.car
 
-LOCAL_REQUIRED_MODULES := privapp_whitelist_com.google.android.car.kitchensink
+LOCAL_REQUIRED_MODULES := allowed_privapp_com.google.android.car.kitchensink
 
 include $(BUILD_PACKAGE)
 

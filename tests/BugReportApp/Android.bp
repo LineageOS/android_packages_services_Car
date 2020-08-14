@@ -57,7 +57,7 @@ android_app {
         "jsr305",
     ],
 
-    required: ["privapp_whitelist_com.android.car.bugreport"],
+    required: ["allowed_privapp_com.android.car.bugreport"],
 
     // Explicitly define annotation processors even if javac can find them from static_libs.
     plugins: ["auto_value_plugin"],

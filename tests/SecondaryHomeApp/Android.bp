@@ -37,7 +37,7 @@ android_app {
     platform_apis: true,
     certificate: "platform",
     privileged: true,
-    required: ["privapp_whitelist_com.android.car.secondaryhome"],
+    required: ["allowed_privapp_com.android.car.secondaryhome"],
 
     resource_dirs: [
         "res",
