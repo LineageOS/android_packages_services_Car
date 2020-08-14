@@ -368,7 +368,7 @@
     <string name="profile_info_settings_title" msgid="4855892878512562551">"प्रोफाइल माहिती"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"खाती"</string>
     <string name="location_settings_title" msgid="2707201457572301030">"स्थान"</string>
-    <string name="location_settings_master_switch_title" msgid="3108016866082816733">"स्‍थान वापरा"</string>
+    <string name="location_settings_primary_switch_title" msgid="6994690329349987476">"स्‍थान वापरा"</string>
     <string name="location_settings_summary_location_off" msgid="5563530256978372978">"बंद आहे"</string>
     <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
       <item quantity="other">सुरू करा - <xliff:g id="COUNT_1">%1$d</xliff:g> अ‍ॅप्स स्थान अ‍ॅक्सेस करू शकतात</item>
@@ -836,7 +836,7 @@
     <string name="wifi_quick_toggle_title" msgid="7935778388625246184">"वाय-फाय"</string>
     <string name="wifi_quick_toggle_summary" msgid="2879870570547594266">"वाय-फाय सुरू करा"</string>
     <string name="wifi_settings" msgid="7486492317310514109">"वाय-फाय"</string>
-    <string name="wifi_settings_master_switch_title" msgid="3917916944694253946">"वाय-फाय वापरा"</string>
+    <string name="wifi_settings_primary_switch_title" msgid="8845478864364255818">"वाय-फाय वापरा"</string>
     <string name="wifi_settings_category" msgid="9094716747565527901">"वाय-फाय सेटिंग्ज"</string>
     <string name="wifi_settings_title" msgid="5265554991622344805">"वाय-फाय"</string>
     <string name="wifi_settings_summary" msgid="7117267255799892820">"वायरलेस प्रवेश बिंदू सेट करा आणि  व्यवस्थापित करा"</string>
@@ -1168,7 +1168,7 @@
     <string name="accessibility_category_personal" msgid="1423427301759058762">"वैयक्तिक प्रोफाईल खाती"</string>
     <string name="accessibility_work_account_title" msgid="3195468574776888011">"कार्य खाते - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
     <string name="accessibility_personal_account_title" msgid="7251761883688839354">"वैयक्तिक खाते - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
-    <string name="search_settings" msgid="5809250790214921377">"शोध"</string>
+    <string name="search_settings" msgid="5809250790214921377">"Search"</string>
     <string name="display_settings" msgid="1045535829232307190">"डिस्प्ले"</string>
     <string name="accelerometer_title" msgid="2427487734964971453">"ऑटो-रोटेट स्क्रीन"</string>
     <string name="color_mode_title" msgid="8164858320869449142">"रंग"</string>
@@ -2096,9 +2096,9 @@
     <string name="accessibility_notification_vibration_title" msgid="1005799039440510298">"सूचना कंपन"</string>
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"रिंग कंपन"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"स्पर्श व्हायब्रेशन"</string>
-    <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"ही सेवा वापरा"</string>
-    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"रंग सुधारणा वापरा"</string>
-    <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"कॅप्शन वापरा"</string>
+    <string name="accessibility_service_primary_switch_title" msgid="1405420360499478509">"सेवा वापरा"</string>
+    <string name="accessibility_daltonizer_primary_switch_title" msgid="7428407895268627434">"रंग सुधारणा वापरा"</string>
+    <string name="accessibility_caption_primary_switch_title" msgid="1875671505480045655">"कॅप्शन वापरा"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"सुरू ठेवा"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"श्रवणयंत्रे"</string>
     <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"कोणतीही श्रवणयंत्रे जोडलेली नाहीत"</string>
@@ -2212,7 +2212,7 @@
     <string name="print_feature_state_off" msgid="208580346723223688">"बंद"</string>
     <string name="print_menu_item_add_service" msgid="6803000110578493782">"सेवा जोडा"</string>
     <string name="print_menu_item_add_printer" msgid="8529196211179574921">"प्रिंटर जोडा"</string>
-    <string name="print_menu_item_search" msgid="1165316329772287360">"शोध"</string>
+    <string name="print_menu_item_search" msgid="1165316329772287360">"Search"</string>
     <string name="print_searching_for_printers" msgid="6538687129687642542">"प्रिंटर शोधत आहे"</string>
     <string name="print_service_disabled" msgid="6376344992705893436">"सेवा अक्षम केली"</string>
     <string name="print_print_jobs" msgid="7357841034181762157">"प्रिंट कार्ये"</string>
@@ -2462,7 +2462,7 @@
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"सुरू करा"</string>
-    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"बॅटरी सेव्हर वापरा"</string>
+    <string name="battery_saver_primary_switch_title" msgid="1284229065484706156">"बॅटरी सेव्हर वापरा"</string>
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"स्वयंचलितपणे सुरू करा"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"कधीही नाही"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"<xliff:g id="PERCENT">%1$s</xliff:g>बॅटरीवर"</string>
@@ -4011,7 +4011,7 @@
     <string name="lockscreen_remote_input" msgid="3363310613165354434">"डिव्हाइस लॉक केले असल्यास, प्रत्युत्तरे किंवा सूचनांमध्ये इतर मजकूर टाइप करण्यास प्रतिबंधित करा"</string>
     <string name="default_spell_checker" msgid="8636661093243189533">"डीफॉल्ट शब्दलेखन तपासक"</string>
     <string name="choose_spell_checker" msgid="7619860861923582868">"शब्दलेखन तपासक निवडा"</string>
-    <string name="spell_checker_master_switch_title" msgid="5712693172227400668">"स्पेलचेकर वापरा"</string>
+    <string name="spell_checker_primary_switch_title" msgid="2432752198899857435">"स्पेल-चेकर वापरा"</string>
     <string name="spell_checker_not_selected" msgid="331034541988255137">"न निवडलेले"</string>
     <string name="notification_log_no_title" msgid="3668232437235348628">"(काहीही नाही)"</string>
     <string name="notification_log_details_delimiter" msgid="5485526744689532908">": "</string>
@@ -4104,7 +4104,7 @@
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"स्टोरेज स्थान मोकळे करण्यात मदत करण्यासाठी, स्टोरेज व्यवस्थापक तुमच्या डिव्हाइस वरून बॅक अप घेतलेले फोटो आणि व्हिडिओ काढतो."</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"फोटो आणि व्हिडिओ काढा"</string>
     <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"स्टोरेज व्यवस्थापक"</string>
-    <string name="automatic_storage_manager_master_switch_title" msgid="1456978117739582562">"स्टोरेज व्यवस्थापक वापरा"</string>
+    <string name="automatic_storage_manager_primary_switch_title" msgid="3690187927696783754">"स्टोरेज व्यवस्थापक वापरा"</string>
     <string name="deletion_helper_automatic_title" msgid="4370975149425263205">"स्वयंचलित"</string>
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"व्यक्तिचलित"</string>
     <string name="deletion_helper_preference_title" msgid="797270307034242206">"आता स्थान मोकळे करा"</string>

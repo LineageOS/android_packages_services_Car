@@ -370,7 +370,7 @@
     <string name="profile_info_settings_title" msgid="4855892878512562551">"Подаци о профилу"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"Налози"</string>
     <string name="location_settings_title" msgid="2707201457572301030">"Локација"</string>
-    <string name="location_settings_master_switch_title" msgid="3108016866082816733">"Користи локацију"</string>
+    <string name="location_settings_primary_switch_title" msgid="6994690329349987476">"Користи локацију"</string>
     <string name="location_settings_summary_location_off" msgid="5563530256978372978">"Искључена"</string>
     <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
       <item quantity="one">Укључена – <xliff:g id="COUNT_1">%1$d</xliff:g> апликација може да приступа локацији</item>
@@ -853,7 +853,7 @@
     <string name="wifi_quick_toggle_title" msgid="7935778388625246184">"Wi‑Fi"</string>
     <string name="wifi_quick_toggle_summary" msgid="2879870570547594266">"Укључивање Wi-Fi-ја"</string>
     <string name="wifi_settings" msgid="7486492317310514109">"Wi‑Fi"</string>
-    <string name="wifi_settings_master_switch_title" msgid="3917916944694253946">"Користи Wi-Fi"</string>
+    <string name="wifi_settings_primary_switch_title" msgid="8845478864364255818">"Користи Wi-Fi"</string>
     <string name="wifi_settings_category" msgid="9094716747565527901">"Wi-Fi подешавања"</string>
     <string name="wifi_settings_title" msgid="5265554991622344805">"Wi‑Fi"</string>
     <string name="wifi_settings_summary" msgid="7117267255799892820">"Подешавање и управљање бежичним приступним тачкама"</string>
@@ -2116,9 +2116,9 @@
     <string name="accessibility_notification_vibration_title" msgid="1005799039440510298">"Вибрирање обавештења"</string>
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"Вибрирање звона"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"Вибрација при додиру"</string>
-    <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"Користи услугу"</string>
-    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"Користи корекцију боја"</string>
-    <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"Користи натписе"</string>
+    <string name="accessibility_service_primary_switch_title" msgid="1405420360499478509">"Користи услугу"</string>
+    <string name="accessibility_daltonizer_primary_switch_title" msgid="7428407895268627434">"Користи корекцију боја"</string>
+    <string name="accessibility_caption_primary_switch_title" msgid="1875671505480045655">"Користи титл"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"Настави"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"Слушни апарати"</string>
     <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"Није повезан ниједан слушни апарат"</string>
@@ -2497,7 +2497,7 @@
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"Укључи"</string>
-    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"Користи Уштеду батерије"</string>
+    <string name="battery_saver_primary_switch_title" msgid="1284229065484706156">"Користи уштеду батерије"</string>
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"Аутоматски укључи"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"Никада"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"на <xliff:g id="PERCENT">%1$s</xliff:g> батерије"</string>
@@ -4076,7 +4076,7 @@
     <string name="lockscreen_remote_input" msgid="3363310613165354434">"Ако је уређај закључан, спречи унос одговора или другог текста у обавештења"</string>
     <string name="default_spell_checker" msgid="8636661093243189533">"Подразумевана провера правописа"</string>
     <string name="choose_spell_checker" msgid="7619860861923582868">"Изаберите проверу правописа"</string>
-    <string name="spell_checker_master_switch_title" msgid="5712693172227400668">"Користи проверу правописа"</string>
+    <string name="spell_checker_primary_switch_title" msgid="2432752198899857435">"Користи проверу правописа"</string>
     <string name="spell_checker_not_selected" msgid="331034541988255137">"Није изабрано"</string>
     <string name="notification_log_no_title" msgid="3668232437235348628">"(ниједно)"</string>
     <string name="notification_log_details_delimiter" msgid="5485526744689532908">": "</string>
@@ -4173,7 +4173,7 @@
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"Да би ослободио меморијски простор, менаџер меморијског простора уклања резервне копије слика и видео снимака са уређаја."</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"Уклоните слике и видео"</string>
     <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"Менаџер меморијског простора"</string>
-    <string name="automatic_storage_manager_master_switch_title" msgid="1456978117739582562">"Користи Менаџер меморијског простора"</string>
+    <string name="automatic_storage_manager_primary_switch_title" msgid="3690187927696783754">"Користи менаџер меморијског простора"</string>
     <string name="deletion_helper_automatic_title" msgid="4370975149425263205">"Аутоматска"</string>
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"Ручна"</string>
     <string name="deletion_helper_preference_title" msgid="797270307034242206">"Ослободи простор"</string>

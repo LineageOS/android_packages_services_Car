@@ -368,7 +368,7 @@
     <string name="profile_info_settings_title" msgid="4855892878512562551">"Профильдік ақпарат"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"Есептік жазбалар"</string>
     <string name="location_settings_title" msgid="2707201457572301030">"Орналасу"</string>
-    <string name="location_settings_master_switch_title" msgid="3108016866082816733">"Орналасу дерегін пайдалану"</string>
+    <string name="location_settings_primary_switch_title" msgid="6994690329349987476">"Орынды пайдалану"</string>
     <string name="location_settings_summary_location_off" msgid="5563530256978372978">"Өшірулі"</string>
     <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
       <item quantity="other">Қосулы – <xliff:g id="COUNT_1">%1$d</xliff:g> қолданба геодеректерді пайдалана алады</item>
@@ -836,7 +836,7 @@
     <string name="wifi_quick_toggle_title" msgid="7935778388625246184">"Wi‑Fi"</string>
     <string name="wifi_quick_toggle_summary" msgid="2879870570547594266">"Wi‑Fi қосу"</string>
     <string name="wifi_settings" msgid="7486492317310514109">"Wi‑Fi"</string>
-    <string name="wifi_settings_master_switch_title" msgid="3917916944694253946">"Wi-Fi пайдалану"</string>
+    <string name="wifi_settings_primary_switch_title" msgid="8845478864364255818">"Wi-Fi пайдалану"</string>
     <string name="wifi_settings_category" msgid="9094716747565527901">"Wi‑Fi параметрлері"</string>
     <string name="wifi_settings_title" msgid="5265554991622344805">"Wi‑Fi"</string>
     <string name="wifi_settings_summary" msgid="7117267255799892820">"Сымсыз қол жетімділік нүктесін орнату және басқару"</string>
@@ -2095,9 +2095,9 @@
     <string name="accessibility_notification_vibration_title" msgid="1005799039440510298">"Хабарландыру дірілі"</string>
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"Қоңырау дірілі"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"Түрту дірілі"</string>
-    <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"Қызметті пайдалану"</string>
-    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"Түсті түзету функциясын пайдалану"</string>
-    <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"Субтитр пайдалану"</string>
+    <string name="accessibility_service_primary_switch_title" msgid="1405420360499478509">"Қызметті пайдалану"</string>
+    <string name="accessibility_daltonizer_primary_switch_title" msgid="7428407895268627434">"Түсті түзету функциясын пайдалану"</string>
+    <string name="accessibility_caption_primary_switch_title" msgid="1875671505480045655">"Субтитрлерді пайдалану"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"Жалғастыру"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"Есту аппараттары"</string>
     <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"Есту аппараты жалғанбаған"</string>
@@ -2461,7 +2461,7 @@
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"Қосу"</string>
-    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"\"Battery Saver\" функциясын пайдалану"</string>
+    <string name="battery_saver_primary_switch_title" msgid="1284229065484706156">"Батареяны үнемдеу режимі функциясын пайдалану"</string>
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"Автоматты түрде қосу"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"Ешқашан"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"батарея заряды <xliff:g id="PERCENT">%1$s</xliff:g> болғанда"</string>
@@ -4010,7 +4010,7 @@
     <string name="lockscreen_remote_input" msgid="3363310613165354434">"Құрылғы құлыптаулы кезде, хабарландыруларда жауап немесе басқа мәтін теруге тыйым салу"</string>
     <string name="default_spell_checker" msgid="8636661093243189533">"Әдепкі емлені тексеру құралы"</string>
     <string name="choose_spell_checker" msgid="7619860861923582868">"Емлені тексеру құралын таңдау"</string>
-    <string name="spell_checker_master_switch_title" msgid="5712693172227400668">"Емле тексеру құралын пайдалану"</string>
+    <string name="spell_checker_primary_switch_title" msgid="2432752198899857435">"Емлені тексеру құралын пайдалану"</string>
     <string name="spell_checker_not_selected" msgid="331034541988255137">"Таңдалмаған"</string>
     <string name="notification_log_no_title" msgid="3668232437235348628">"(ешқандай)"</string>
     <string name="notification_log_details_delimiter" msgid="5485526744689532908">": "</string>
@@ -4103,7 +4103,7 @@
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"Жад кеңістігін босату үшін жад реттегіші құрылғыдағы сақтық көшірмесі жасалған фотосуреттер мен бейнелерді өшіреді."</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"Фотосуреттер мен бейнелерді жою"</string>
     <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"Жад реттегіші"</string>
-    <string name="automatic_storage_manager_master_switch_title" msgid="1456978117739582562">"Жад менеджерін пайдалану"</string>
+    <string name="automatic_storage_manager_primary_switch_title" msgid="3690187927696783754">"Жадты басқару құралын пайдалану"</string>
     <string name="deletion_helper_automatic_title" msgid="4370975149425263205">"Aвтоматты"</string>
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"Қолмен"</string>
     <string name="deletion_helper_preference_title" msgid="797270307034242206">"Орынды қазір босату"</string>

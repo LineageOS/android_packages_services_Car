@@ -368,7 +368,7 @@
     <string name="profile_info_settings_title" msgid="4855892878512562551">"പ്രൊഫൈൽ വിവരം"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"അക്കൗണ്ടുകൾ"</string>
     <string name="location_settings_title" msgid="2707201457572301030">"ലൊക്കേഷൻ"</string>
-    <string name="location_settings_master_switch_title" msgid="3108016866082816733">"ലൊക്കേഷൻ ഉപയോഗിക്കുക"</string>
+    <string name="location_settings_primary_switch_title" msgid="6994690329349987476">"ലൊക്കേഷൻ ഉപയോഗിക്കുക"</string>
     <string name="location_settings_summary_location_off" msgid="5563530256978372978">"ഓഫാക്കുക"</string>
     <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
       <item quantity="other"> - <xliff:g id="COUNT_1">%1$d</xliff:g> ആപ്പുകളിൽ, ലൊക്കേഷൻ ആക്‌സസ് ചെയ്യാനാവും</item>
@@ -836,7 +836,7 @@
     <string name="wifi_quick_toggle_title" msgid="7935778388625246184">"വൈഫൈ"</string>
     <string name="wifi_quick_toggle_summary" msgid="2879870570547594266">"വൈഫൈ ഓണാക്കുക"</string>
     <string name="wifi_settings" msgid="7486492317310514109">"വൈഫൈ"</string>
-    <string name="wifi_settings_master_switch_title" msgid="3917916944694253946">"വൈഫൈ ഉപയോഗിക്കുക"</string>
+    <string name="wifi_settings_primary_switch_title" msgid="8845478864364255818">"വൈഫൈ ഉപയോഗിക്കുക"</string>
     <string name="wifi_settings_category" msgid="9094716747565527901">"വൈഫൈ ക്രമീകരണങ്ങൾ"</string>
     <string name="wifi_settings_title" msgid="5265554991622344805">"വൈഫൈ"</string>
     <string name="wifi_settings_summary" msgid="7117267255799892820">"വയർലെസ് ആക്‌സസ് പോയിന്റുകൾ സജ്ജീകരിക്കുക, നിയന്ത്രിക്കുക"</string>
@@ -2095,9 +2095,9 @@
     <string name="accessibility_notification_vibration_title" msgid="1005799039440510298">"അറിയിപ്പ് വൈബ്രേഷൻ"</string>
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"റിംഗ് വൈബ്രേഷൻ"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"ടച്ച് വൈബ്രേഷൻ"</string>
-    <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"സേവനം ഉപയോഗിക്കുക"</string>
-    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"നിറം ക്രമീകരിക്കൽ ഉപയോഗിക്കുക"</string>
-    <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"അടിക്കുറിപ്പുകൾ ഉപയോഗിക്കുക"</string>
+    <string name="accessibility_service_primary_switch_title" msgid="1405420360499478509">"സേവനം ഉപയോഗിക്കുക"</string>
+    <string name="accessibility_daltonizer_primary_switch_title" msgid="7428407895268627434">"നിറം ശരിയാക്കൽ ഉപയോഗിക്കുക"</string>
+    <string name="accessibility_caption_primary_switch_title" msgid="1875671505480045655">"അടിക്കുറിപ്പുകൾ ഉപയോഗിക്കുക"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"തുടരുക"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"ശ്രവണ സഹായികൾ"</string>
     <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"ശ്രവണ സഹായികളൊന്നും കണക്‌റ്റ് ചെയ്‌തിട്ടില്ല"</string>
@@ -2461,7 +2461,7 @@
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"ഓണാക്കുക"</string>
-    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"ബാറ്ററി ലാഭിക്കൽ ഉപയോഗിക്കുക"</string>
+    <string name="battery_saver_primary_switch_title" msgid="1284229065484706156">"ബാറ്ററി ലാഭിക്കൽ ഉപയോഗിക്കുക"</string>
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"ഓട്ടോമാറ്റിക്കായി ഓണാക്കുക"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"ഒരിക്കലും"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"<xliff:g id="PERCENT">%1$s</xliff:g> ബാറ്ററിയിൽ"</string>
@@ -4010,7 +4010,7 @@
     <string name="lockscreen_remote_input" msgid="3363310613165354434">"ഉപകരണം ലോക്കുചെയ്തിരിക്കുകയാണെങ്കിൽ അറിയിപ്പുകൾക്ക് മറുപടികളോ മറ്റ് ടെക്സ്റ്റുകളോ ടൈപ്പുചെയ്യുന്നത് തടയുക"</string>
     <string name="default_spell_checker" msgid="8636661093243189533">"ഡിഫോൾട്ട് സ്പെൽ ചെക്കർ"</string>
     <string name="choose_spell_checker" msgid="7619860861923582868">"സ്പെൽ ചെക്കർ തിരഞ്ഞെടുക്കുക"</string>
-    <string name="spell_checker_master_switch_title" msgid="5712693172227400668">"സ്പെൽ ചെക്കര്‍ ഉപയോഗിക്കുക"</string>
+    <string name="spell_checker_primary_switch_title" msgid="2432752198899857435">"സ്പെൽ ചെക്കർ ഉപയോഗിക്കുക"</string>
     <string name="spell_checker_not_selected" msgid="331034541988255137">"തിരഞ്ഞെടുത്തില്ല"</string>
     <string name="notification_log_no_title" msgid="3668232437235348628">"(ഒന്നുമില്ല)"</string>
     <string name="notification_log_details_delimiter" msgid="5485526744689532908">": "</string>
@@ -4103,7 +4103,7 @@
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"സ്റ്റോറേജ് ഇടം സൃഷ്ടിക്കുന്നതിന്, ബാക്കപ്പെടുത്ത ഫോട്ടോകളും വീഡിയോകളും നിങ്ങളുടെ ഉപകരണത്തിൽ നിന്ന് സ്റ്റോറേജ് മാനേജർ നീക്കംചെയ്യുന്നു."</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"ഫോട്ടോകളും വീഡിയോകളും നീക്കംചെയ്യുക"</string>
     <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"സ്റ്റോറേജ് മാനേജർ"</string>
-    <string name="automatic_storage_manager_master_switch_title" msgid="1456978117739582562">"സ്‌റ്റോറേജ് മാനേജർ ഉപയോഗിക്കുക"</string>
+    <string name="automatic_storage_manager_primary_switch_title" msgid="3690187927696783754">"സ്‌റ്റോറേജ് മാനേജർ ഉപയോഗിക്കുക"</string>
     <string name="deletion_helper_automatic_title" msgid="4370975149425263205">"സ്വയമേവ"</string>
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"മാനുവൽ"</string>
     <string name="deletion_helper_preference_title" msgid="797270307034242206">"ഇപ്പോൾ ഇടം സൃഷ്ടിക്കുക"</string>

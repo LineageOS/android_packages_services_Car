@@ -368,7 +368,7 @@
     <string name="profile_info_settings_title" msgid="4855892878512562551">"Inform. i profilit"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"Llogaritë"</string>
     <string name="location_settings_title" msgid="2707201457572301030">"Vendndodhja"</string>
-    <string name="location_settings_master_switch_title" msgid="3108016866082816733">"Përdor vendndodhjen"</string>
+    <string name="location_settings_primary_switch_title" msgid="6994690329349987476">"Përdor vendndodhjen"</string>
     <string name="location_settings_summary_location_off" msgid="5563530256978372978">"Joaktiv"</string>
     <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
       <item quantity="other">Aktive - <xliff:g id="COUNT_1">%1$d</xliff:g> aplikacione mund të kenë qasje te vendndodhja</item>
@@ -836,7 +836,7 @@
     <string name="wifi_quick_toggle_title" msgid="7935778388625246184">"Wi-Fi"</string>
     <string name="wifi_quick_toggle_summary" msgid="2879870570547594266">"Aktivizo Wi-Fi"</string>
     <string name="wifi_settings" msgid="7486492317310514109">"Wi‑Fi"</string>
-    <string name="wifi_settings_master_switch_title" msgid="3917916944694253946">"Përdor Wi-Fi"</string>
+    <string name="wifi_settings_primary_switch_title" msgid="8845478864364255818">"Përdor Wi-Fi"</string>
     <string name="wifi_settings_category" msgid="9094716747565527901">"Cilësimet e Wi-Fi"</string>
     <string name="wifi_settings_title" msgid="5265554991622344805">"Wi‑Fi"</string>
     <string name="wifi_settings_summary" msgid="7117267255799892820">"Cakto dhe menaxho zonat e qasjes të rrjetit me valë"</string>
@@ -2095,9 +2095,9 @@
     <string name="accessibility_notification_vibration_title" msgid="1005799039440510298">"Dridhjet e njoftimeve"</string>
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"Dridhjet e ziles"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"Dridhje për prekjen"</string>
-    <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"Përdor shërbimin"</string>
-    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"Përdor korrigjimin e ngjyrave"</string>
-    <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"Përdor titrat"</string>
+    <string name="accessibility_service_primary_switch_title" msgid="1405420360499478509">"Përdor shërbimin"</string>
+    <string name="accessibility_daltonizer_primary_switch_title" msgid="7428407895268627434">"Përdor korrigjimin e ngjyrave"</string>
+    <string name="accessibility_caption_primary_switch_title" msgid="1875671505480045655">"Përdor titrat"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"Vazhdo"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"Aparatet e dëgjimit"</string>
     <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"Nuk ka asnjë aparat dëgjimi të lidhur"</string>
@@ -2461,7 +2461,7 @@
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"Aktivizo"</string>
-    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"Përdor \"Kursyesin e baterisë\""</string>
+    <string name="battery_saver_primary_switch_title" msgid="1284229065484706156">"Përdor \"Kursyesin e baterisë\""</string>
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"Aktivizim automatikisht"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"Asnjëherë"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"me <xliff:g id="PERCENT">%1$s</xliff:g> bateri"</string>
@@ -4010,7 +4010,7 @@
     <string name="lockscreen_remote_input" msgid="3363310613165354434">"Nëse pajisja është e kyçur, parandalo shkrimin e përgjigjeve ose teksteve të tjera te njoftimet"</string>
     <string name="default_spell_checker" msgid="8636661093243189533">"Kontrolluesi drejtshkrimor i parazgjedhur"</string>
     <string name="choose_spell_checker" msgid="7619860861923582868">"Zgjidh kontrolluesin drejtshkrimor"</string>
-    <string name="spell_checker_master_switch_title" msgid="5712693172227400668">"Përdor kontrolluesin drejtshkrimor"</string>
+    <string name="spell_checker_primary_switch_title" msgid="2432752198899857435">"Përdor kontrolluesin drejtshkrimor"</string>
     <string name="spell_checker_not_selected" msgid="331034541988255137">"I pazgjedhur"</string>
     <string name="notification_log_no_title" msgid="3668232437235348628">"(asnjë)"</string>
     <string name="notification_log_details_delimiter" msgid="5485526744689532908">": "</string>
@@ -4103,7 +4103,7 @@
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"Për të ndihmuar në lirimin e hapësirës ruajtëse, menaxheri i hapësirës ruajtëse i heq fotografitë dhe videot e rezervuara nga pajisja jote."</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"Hiq fotografitë dhe videot"</string>
     <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"Menaxheri i hapësirës ruajtëse"</string>
-    <string name="automatic_storage_manager_master_switch_title" msgid="1456978117739582562">"Përdor \"Menaxherin e hapësirës ruajtëse\""</string>
+    <string name="automatic_storage_manager_primary_switch_title" msgid="3690187927696783754">"Përdor \"Menaxherin e hapësirës ruajtëse\""</string>
     <string name="deletion_helper_automatic_title" msgid="4370975149425263205">"Automatike"</string>
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"Manual"</string>
     <string name="deletion_helper_preference_title" msgid="797270307034242206">"Liro hapësirën tani"</string>

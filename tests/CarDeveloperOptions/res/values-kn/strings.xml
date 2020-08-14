@@ -368,8 +368,7 @@
     <string name="profile_info_settings_title" msgid="4855892878512562551">"ಪ್ರೊಫೈಲ್‌‌ ಮಾಹಿತಿ"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"ಖಾತೆಗಳು"</string>
     <string name="location_settings_title" msgid="2707201457572301030">"ಸ್ಥಳ"</string>
-    <!-- no translation found for location_settings_primary_switch_title (6994690329349987476) -->
-    <skip />
+    <string name="location_settings_primary_switch_title" msgid="6994690329349987476">"ಸ್ಥಳ ಬಳಸಿ"</string>
     <string name="location_settings_summary_location_off" msgid="5563530256978372978">"ಆಫ್ ಮಾಡಿ"</string>
     <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
       <item quantity="one">ಸ್ಥಳವು ಆನ್‌ ಆಗಿರುವಾಗ - <xliff:g id="COUNT_1">%1$d</xliff:g> ಆ್ಯಪ್‌ಗಳು ಸ್ಥಳವನ್ನು ಪ್ರವೇಶಿಸಬಹುದು</item>
@@ -837,8 +836,7 @@
     <string name="wifi_quick_toggle_title" msgid="7935778388625246184">"Wi‑Fi"</string>
     <string name="wifi_quick_toggle_summary" msgid="2879870570547594266">"Wi‑Fi ಆನ್‌ ಮಾಡಿ"</string>
     <string name="wifi_settings" msgid="7486492317310514109">"Wi‑Fi"</string>
-    <!-- no translation found for wifi_settings_primary_switch_title (8845478864364255818) -->
-    <skip />
+    <string name="wifi_settings_primary_switch_title" msgid="8845478864364255818">"ವೈ-ಫೈ ಬಳಸಿ"</string>
     <string name="wifi_settings_category" msgid="9094716747565527901">"Wi‑Fi ಸೆಟ್ಟಿಂಗ್‌ಗಳು"</string>
     <string name="wifi_settings_title" msgid="5265554991622344805">"Wi‑Fi"</string>
     <string name="wifi_settings_summary" msgid="7117267255799892820">"ವಯರ್‌ಲೆಸ್‌ ಪ್ರವೇಶಿಸುವಿಕೆ ಅಂಶಗಳನ್ನು ಹೊಂದಿಸಿ &amp; ನಿರ್ವಹಿಸಿ"</string>
@@ -2097,12 +2095,9 @@
     <string name="accessibility_notification_vibration_title" msgid="1005799039440510298">"ಅಧಿಸೂಚನೆಯ ವೈಬ್ರೇಷನ್"</string>
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"ರಿಂಗ್‌ನೊಂದಿಗೆ ವೈಬ್ರೇಷನ್"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"ಸ್ಪರ್ಶಿಸಿದಾಗ ವೈಬ್ರೇಷನ್‌"</string>
-    <!-- no translation found for accessibility_service_primary_switch_title (1405420360499478509) -->
-    <skip />
-    <!-- no translation found for accessibility_daltonizer_primary_switch_title (7428407895268627434) -->
-    <skip />
-    <!-- no translation found for accessibility_caption_primary_switch_title (1875671505480045655) -->
-    <skip />
+    <string name="accessibility_service_primary_switch_title" msgid="1405420360499478509">"ಸೇವೆಯನ್ನು ಬಳಸಿ"</string>
+    <string name="accessibility_daltonizer_primary_switch_title" msgid="7428407895268627434">"ಬಣ್ಣ ತಿದ್ದುಪಡಿಯನ್ನು ಬಳಸಿ"</string>
+    <string name="accessibility_caption_primary_switch_title" msgid="1875671505480045655">"ಶೀರ್ಷಿಕೆಗಳನ್ನು ಬಳಸಿ"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"ಮುಂದುವರಿಸಿ"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"ಶ್ರವಣ ಸಾಧನಗಳು"</string>
     <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"ಯಾವುದೇ ಶ್ರವಣ ಸಾಧನ ಸಂಪರ್ಕಗೊಂಡಿಲ್ಲ"</string>
@@ -2466,8 +2461,7 @@
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"ಆನ್"</string>
-    <!-- no translation found for battery_saver_primary_switch_title (1284229065484706156) -->
-    <skip />
+    <string name="battery_saver_primary_switch_title" msgid="1284229065484706156">"ಬ್ಯಾಟರಿ ಸೇವರ್ ಬಳಸಿ"</string>
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಆನ್ ಆಗುವಿಕೆ"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"ಎಂದಿಗೂ ಬೇಡ"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"ಬ್ಯಾಟರಿಯಲ್ಲಿ <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
@@ -4016,8 +4010,7 @@
     <string name="lockscreen_remote_input" msgid="3363310613165354434">"ಸಾಧನವು ಲಾಕ್ ಆಗಿದ್ದರೆ, ಅಧಿಸೂಚನೆಗಳಲ್ಲಿ ಪ್ರತ್ಯುತ್ತರಗಳು,ಇತರ ಪಠ್ಯವನ್ನು ಟೈಪ್ ಮಾಡುವುದನ್ನು ತಡೆ"</string>
     <string name="default_spell_checker" msgid="8636661093243189533">"ಡಿಫಾಲ್ಟ್ ಕಾಗುಣಿತ ಪರೀಕ್ಷಕ"</string>
     <string name="choose_spell_checker" msgid="7619860861923582868">"ಕಾಗುಣಿತ ಪರೀಕ್ಷಕ ಆಯ್ಕೆಮಾಡಿ"</string>
-    <!-- no translation found for spell_checker_primary_switch_title (2432752198899857435) -->
-    <skip />
+    <string name="spell_checker_primary_switch_title" msgid="2432752198899857435">"ಕಾಗುಣಿತ ಪರೀಕ್ಷಕ ಬಳಸಿ"</string>
     <string name="spell_checker_not_selected" msgid="331034541988255137">"ಆಯ್ಕೆಮಾಡಲಾಗಿಲ್ಲ"</string>
     <string name="notification_log_no_title" msgid="3668232437235348628">"(ಯಾವುದೂ ಇಲ್ಲ)"</string>
     <string name="notification_log_details_delimiter" msgid="5485526744689532908">": "</string>
@@ -4110,8 +4103,7 @@
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"ಸಂಗ್ರಹಣೆ ಸ್ಥಳಾವಕಾಶ ಮುಕ್ತಗೊಳಿಸುವಲ್ಲಿ ಸಹಾಯ ಮಾಡಲು, ಸಂಗ್ರಹಣೆ ನಿರ್ವಾಹಕವು ಬ್ಯಾಕಪ್ ಮಾಡಲಾದ ಫೋಟೋಗಳು ಮತ್ತು ವೀಡಿಯೊಗಳನ್ನು ನಿಮ್ಮ ಸಾಧನದಿಂದ ತೆಗೆದುಹಾಕುತ್ತದೆ."</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"ಫೋಟೋಗಳು ಮತ್ತು ವೀಡಿಯೊಗಳನ್ನು ತೆಗೆದುಹಾಕಿ"</string>
     <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"ಸಂಗ್ರಹಣೆ ನಿರ್ವಾಹಕ"</string>
-    <!-- no translation found for automatic_storage_manager_primary_switch_title (3690187927696783754) -->
-    <skip />
+    <string name="automatic_storage_manager_primary_switch_title" msgid="3690187927696783754">"ಸಂಗ್ರಹಣೆ ನಿರ್ವಾಹಕವನ್ನು ಬಳಸಿ"</string>
     <string name="deletion_helper_automatic_title" msgid="4370975149425263205">"ಸ್ವಯಂಚಾಲಿತ"</string>
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"ಹಸ್ತಚಾಲಿತ"</string>
     <string name="deletion_helper_preference_title" msgid="797270307034242206">"ಈಗ ಸ್ಥಳಾವಕಾಶವನ್ನು ಮುಕ್ತಗೊಳಿಸಿ"</string>

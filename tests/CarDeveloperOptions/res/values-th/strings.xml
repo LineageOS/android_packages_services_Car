@@ -368,7 +368,7 @@
     <string name="profile_info_settings_title" msgid="4855892878512562551">"ข้อมูลโปรไฟล์"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"บัญชี"</string>
     <string name="location_settings_title" msgid="2707201457572301030">"ตำแหน่ง"</string>
-    <string name="location_settings_master_switch_title" msgid="3108016866082816733">"ใช้ตำแหน่ง"</string>
+    <string name="location_settings_primary_switch_title" msgid="6994690329349987476">"ใช้ตำแหน่ง"</string>
     <string name="location_settings_summary_location_off" msgid="5563530256978372978">"ปิด"</string>
     <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
       <item quantity="other">เปิดอยู่ - แอป <xliff:g id="COUNT_1">%1$d</xliff:g> แอปเข้าถึงตำแหน่งได้</item>
@@ -836,7 +836,7 @@
     <string name="wifi_quick_toggle_title" msgid="7935778388625246184">"Wi-Fi"</string>
     <string name="wifi_quick_toggle_summary" msgid="2879870570547594266">"เปิด WiFi"</string>
     <string name="wifi_settings" msgid="7486492317310514109">"Wi-Fi"</string>
-    <string name="wifi_settings_master_switch_title" msgid="3917916944694253946">"ใช้ Wi-Fi"</string>
+    <string name="wifi_settings_primary_switch_title" msgid="8845478864364255818">"ใช้ Wi-Fi"</string>
     <string name="wifi_settings_category" msgid="9094716747565527901">"การตั้งค่า WiFi"</string>
     <string name="wifi_settings_title" msgid="5265554991622344805">"Wi-Fi"</string>
     <string name="wifi_settings_summary" msgid="7117267255799892820">"ตั้งค่าและจัดการจุดเข้าใช้งานระบบไร้สาย"</string>
@@ -2095,9 +2095,9 @@
     <string name="accessibility_notification_vibration_title" msgid="1005799039440510298">"การสั่นเมื่อมีการแจ้งเตือน"</string>
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"การสั่นเมื่อมีเสียงเรียกเข้า"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"การสั่นเมื่อแตะ"</string>
-    <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"ใช้บริการ"</string>
-    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"ใช้การแก้สี"</string>
-    <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"ใช้คำบรรยาย"</string>
+    <string name="accessibility_service_primary_switch_title" msgid="1405420360499478509">"ใช้บริการ"</string>
+    <string name="accessibility_daltonizer_primary_switch_title" msgid="7428407895268627434">"ใช้การแก้สี"</string>
+    <string name="accessibility_caption_primary_switch_title" msgid="1875671505480045655">"ใช้คำบรรยาย"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"ต่อไป"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"เครื่องช่วยฟัง"</string>
     <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"ไม่ได้เชื่อมต่อเครื่องช่วยฟัง"</string>
@@ -2461,7 +2461,7 @@
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"เปิด"</string>
-    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"ใช้โหมดประหยัดแบตเตอรี่"</string>
+    <string name="battery_saver_primary_switch_title" msgid="1284229065484706156">"ใช้โหมดประหยัดแบตเตอรี่"</string>
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"เปิดอัตโนมัติ"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"ไม่ใช้เลย"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"ที่แบตเตอรี่ <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
@@ -4010,7 +4010,7 @@
     <string name="lockscreen_remote_input" msgid="3363310613165354434">"หากอุปกรณ์ล็อกอยู่ จะป้องกันไม่ให้มีการพิมพ์คำตอบหรือข้อความอื่นๆ ในการแจ้งเตือน"</string>
     <string name="default_spell_checker" msgid="8636661093243189533">"โปรแกรมตรวจตัวสะกดเริ่มต้น"</string>
     <string name="choose_spell_checker" msgid="7619860861923582868">"เลือกโปรแกรมตรวจตัวสะกด"</string>
-    <string name="spell_checker_master_switch_title" msgid="5712693172227400668">"ใช้โปรแกรมตรวจตัวสะกด"</string>
+    <string name="spell_checker_primary_switch_title" msgid="2432752198899857435">"ใช้โปรแกรมตรวจตัวสะกด"</string>
     <string name="spell_checker_not_selected" msgid="331034541988255137">"ไม่ได้เลือก"</string>
     <string name="notification_log_no_title" msgid="3668232437235348628">"(ไม่มี)"</string>
     <string name="notification_log_details_delimiter" msgid="5485526744689532908">": "</string>
@@ -4103,7 +4103,7 @@
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"ตัวจัดการพื้นที่เก็บข้อมูลจะนำรูปภาพและวิดีโอที่สำรองไว้ออกจากอุปกรณ์ของคุณ เพื่อช่วยเพิ่มพื้นที่เก็บข้อมูล"</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"นำรูปภาพและวิดีโอออก"</string>
     <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"ตัวจัดการพื้นที่เก็บข้อมูล"</string>
-    <string name="automatic_storage_manager_master_switch_title" msgid="1456978117739582562">"ใช้ตัวจัดการพื้นที่เก็บข้อมูล"</string>
+    <string name="automatic_storage_manager_primary_switch_title" msgid="3690187927696783754">"ใช้ตัวจัดการพื้นที่เก็บข้อมูล"</string>
     <string name="deletion_helper_automatic_title" msgid="4370975149425263205">"อัตโนมัติ"</string>
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"คู่มือ"</string>
     <string name="deletion_helper_preference_title" msgid="797270307034242206">"เพิ่มพื้นที่ว่างเลย"</string>

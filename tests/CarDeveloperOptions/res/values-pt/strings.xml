@@ -368,8 +368,7 @@
     <string name="profile_info_settings_title" msgid="4855892878512562551">"Informações do perfil"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"Contas"</string>
     <string name="location_settings_title" msgid="2707201457572301030">"Localização"</string>
-    <!-- no translation found for location_settings_primary_switch_title (6994690329349987476) -->
-    <skip />
+    <string name="location_settings_primary_switch_title" msgid="6994690329349987476">"Usar o local"</string>
     <string name="location_settings_summary_location_off" msgid="5563530256978372978">"Configuração desativada"</string>
     <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
       <item quantity="one">Ativado: <xliff:g id="COUNT_1">%1$d</xliff:g> app com acesso ao local</item>
@@ -837,8 +836,7 @@
     <string name="wifi_quick_toggle_title" msgid="7935778388625246184">"Wi-Fi"</string>
     <string name="wifi_quick_toggle_summary" msgid="2879870570547594266">"Ativar o Wi-Fi"</string>
     <string name="wifi_settings" msgid="7486492317310514109">"Wi-Fi"</string>
-    <!-- no translation found for wifi_settings_primary_switch_title (8845478864364255818) -->
-    <skip />
+    <string name="wifi_settings_primary_switch_title" msgid="8845478864364255818">"Usar o Wi-Fi"</string>
     <string name="wifi_settings_category" msgid="9094716747565527901">"Configurações de Wi-Fi"</string>
     <string name="wifi_settings_title" msgid="5265554991622344805">"Wi-Fi"</string>
     <string name="wifi_settings_summary" msgid="7117267255799892820">"Configurar e gerenciar pontos de acesso sem fio"</string>
@@ -2097,12 +2095,9 @@
     <string name="accessibility_notification_vibration_title" msgid="1005799039440510298">"Vibração de notificação"</string>
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"Vibração do toque"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"Vibrar ao tocar na tela"</string>
-    <!-- no translation found for accessibility_service_primary_switch_title (1405420360499478509) -->
-    <skip />
-    <!-- no translation found for accessibility_daltonizer_primary_switch_title (7428407895268627434) -->
-    <skip />
-    <!-- no translation found for accessibility_caption_primary_switch_title (1875671505480045655) -->
-    <skip />
+    <string name="accessibility_service_primary_switch_title" msgid="1405420360499478509">"Usar o serviço"</string>
+    <string name="accessibility_daltonizer_primary_switch_title" msgid="7428407895268627434">"Usar a correção de cor"</string>
+    <string name="accessibility_caption_primary_switch_title" msgid="1875671505480045655">"Usar as legendas"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"Continuar"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"Aparelhos auditivos"</string>
     <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"Nenhum aparelho auditivo conectado"</string>
@@ -2466,8 +2461,7 @@
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"Ativar"</string>
-    <!-- no translation found for battery_saver_primary_switch_title (1284229065484706156) -->
-    <skip />
+    <string name="battery_saver_primary_switch_title" msgid="1284229065484706156">"Usar a Economia de bateria"</string>
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"Ativar automaticamente"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"Nunca"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"com <xliff:g id="PERCENT">%1$s</xliff:g> de bateria"</string>
@@ -4016,8 +4010,7 @@
     <string name="lockscreen_remote_input" msgid="3363310613165354434">"Se o dispositivo estiver bloqueado, impedir a digitação de respostas ou outros textos nas notificações"</string>
     <string name="default_spell_checker" msgid="8636661093243189533">"Corretor ortográfico padrão"</string>
     <string name="choose_spell_checker" msgid="7619860861923582868">"Escolher corretor ortográfico"</string>
-    <!-- no translation found for spell_checker_primary_switch_title (2432752198899857435) -->
-    <skip />
+    <string name="spell_checker_primary_switch_title" msgid="2432752198899857435">"Usar o corretor ortográfico"</string>
     <string name="spell_checker_not_selected" msgid="331034541988255137">"Não selecionado"</string>
     <string name="notification_log_no_title" msgid="3668232437235348628">"(nenhum)"</string>
     <string name="notification_log_details_delimiter" msgid="5485526744689532908">": "</string>
@@ -4110,8 +4103,7 @@
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"Para ajudar a liberar espaço de armazenamento, o gerenciador de armazenamento remove fotos e vídeos do seu dispositivo salvos em backup."</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"Remover fotos e vídeos"</string>
     <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"Gerenciador de armazenamento"</string>
-    <!-- no translation found for automatic_storage_manager_primary_switch_title (3690187927696783754) -->
-    <skip />
+    <string name="automatic_storage_manager_primary_switch_title" msgid="3690187927696783754">"Usar o gerenciador de armazenamento"</string>
     <string name="deletion_helper_automatic_title" msgid="4370975149425263205">"Modo automático"</string>
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"Modo manual"</string>
     <string name="deletion_helper_preference_title" msgid="797270307034242206">"Liberar espaço agora"</string>
