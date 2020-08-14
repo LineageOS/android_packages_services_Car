@@ -65,7 +65,7 @@ java_library {
     srcs: ["src/android/car/navigation/navigation_state.proto"]
 }
 
-// library to access settings from CarSettings 
+// library to access settings from CarSettings
 java_library {
     name: "android.car.settings",
     srcs: ["src/android/car/settings/CarSettings.java"]
@@ -226,6 +226,70 @@ droidstubs {
             enabled: false,
         },
     },
+}
+
+// Generates stubs for API documentation.
+droidstubs {
+    name: "car-doc-stubs",
+    srcs: [
+        "src/**/*.java"
+    ],
+    create_doc_stubs: true,
+    annotations_enabled: true,
+    api_levels_annotations_enabled: true,
+    api_levels_jar_filename: "android.car.jar",
+    api_levels_annotations_dirs: [
+        "sdk-dir",
+        "api-versions-jars-dir",
+    ],
+    previous_api: ":android-car-last-released-api",
+    merge_annotations_dirs: [
+        "metalava-manual",
+    ],
+    arg_files: [
+        "AndroidManifest.xml",
+    ],
+    // Add --verbose to print metalava details.
+    args: "--manifest $(location AndroidManifest.xml) " +
+          "--error UnhiddenSystemApi " +
+          "--hide RequiresPermission " +
+          "--hide CallbackInterface " +
+          "--hide MissingPermission " +
+          "--hide HiddenSuperclass --hide DeprecationMismatch --hide UnavailableSymbol " +
+          "--hide SdkConstant --hide HiddenTypeParameter --hide Todo --hide Typo " +
+          "--hide Todo --hide Typo ",
+    write_sdk_values: true,
+}
+
+// Generates API docs for go/devsite.
+droiddoc {
+    name: "ds-car-docs",
+    srcs: [
+        ":car-doc-stubs",
+    ],
+    libs: [
+        "stub-annotations",
+        "unsupportedappusage",
+    ],
+    custom_template: "droiddoc-templates-sdk",
+    // These variables that are used in doclava templates.
+    hdf: [
+        "dac true",
+        "sdk.preview 0", // Not a preview version.
+        "sdk.version 30",
+        "android.whichdoc online",
+        "android.hasSamples false",
+    ],
+    arg_files: [
+        "AndroidManifest.xml",
+    ],
+    proofread_file: "ds-sdk-docs-proofrerad.txt",
+    // See doclava docs in https://github.com/tinks/doclava.
+    // See error numbers in external/doclava/src/com/google/doclava/Errors.java.
+    // TODO: Add -werror -lerror to catch bad javadocs
+    args: "-android -manifest $(location AndroidManifest.xml) -toroot / -devsite -yamlV2 -metalavaApiSince " +
+        "-hide 111 -hide 113 -hide 125 -hide 126 -hide 127 -hide 128 " +
+        "-stubpackages android.car -dac_libraryroot android/car ",
 }
 
 java_library {
