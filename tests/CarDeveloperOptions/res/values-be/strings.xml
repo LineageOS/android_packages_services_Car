@@ -372,8 +372,7 @@
     <string name="profile_info_settings_title" msgid="4855892878512562551">"Звесткi профiлю"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"Уліковыя запісы"</string>
     <string name="location_settings_title" msgid="2707201457572301030">"Месцазнаходжанне"</string>
-    <!-- no translation found for location_settings_primary_switch_title (6994690329349987476) -->
-    <skip />
+    <string name="location_settings_primary_switch_title" msgid="6994690329349987476">"Выкарыстоўваць месцазнаходжанне"</string>
     <string name="location_settings_summary_location_off" msgid="5563530256978372978">"Выкл."</string>
     <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
       <item quantity="one">Укл. – <xliff:g id="COUNT_1">%1$d</xliff:g> праграма мае доступ да вызначэння месцазнаходжання</item>
@@ -871,8 +870,7 @@
     <string name="wifi_quick_toggle_title" msgid="7935778388625246184">"Wi-Fi"</string>
     <string name="wifi_quick_toggle_summary" msgid="2879870570547594266">"Уключыць Wi-Fi"</string>
     <string name="wifi_settings" msgid="7486492317310514109">"Wi-Fi"</string>
-    <!-- no translation found for wifi_settings_primary_switch_title (8845478864364255818) -->
-    <skip />
+    <string name="wifi_settings_primary_switch_title" msgid="8845478864364255818">"Выкарыстоўваць Wi-Fi"</string>
     <string name="wifi_settings_category" msgid="9094716747565527901">"Налады Wi-Fi"</string>
     <string name="wifi_settings_title" msgid="5265554991622344805">"Wi-Fi"</string>
     <string name="wifi_settings_summary" msgid="7117267255799892820">"Усталяванне бесправадных кропак доступу і кіраванне iмi"</string>
@@ -2139,12 +2137,9 @@
     <string name="accessibility_notification_vibration_title" msgid="1005799039440510298">"Вібрацыя пры апавяшчэнні"</string>
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"Вібрацыя пры выкліку"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"Вібрацыя пры націсканні"</string>
-    <!-- no translation found for accessibility_service_primary_switch_title (1405420360499478509) -->
-    <skip />
-    <!-- no translation found for accessibility_daltonizer_primary_switch_title (7428407895268627434) -->
-    <skip />
-    <!-- no translation found for accessibility_caption_primary_switch_title (1875671505480045655) -->
-    <skip />
+    <string name="accessibility_service_primary_switch_title" msgid="1405420360499478509">"Выкарыстоўваць сэрвіс"</string>
+    <string name="accessibility_daltonizer_primary_switch_title" msgid="7428407895268627434">"Выкарыстоўваць карэкцыю колераў"</string>
+    <string name="accessibility_caption_primary_switch_title" msgid="1875671505480045655">"Выкарыстоўваць субцітры"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"Далей"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"Слыхавы апарат"</string>
     <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"Няма падключаных слыхавых апаратаў"</string>
@@ -2538,8 +2533,7 @@
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"Уключыць"</string>
-    <!-- no translation found for battery_saver_primary_switch_title (1284229065484706156) -->
-    <skip />
+    <string name="battery_saver_primary_switch_title" msgid="1284229065484706156">"Выкарыстоўваць Эканомію зараду"</string>
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"Уключаць аўтаматычна"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"Ніколі"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"пры ўзроўні зараду акумулятара <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
@@ -4148,8 +4142,7 @@
     <string name="lockscreen_remote_input" msgid="3363310613165354434">"Калі прылада заблакіравана, не дазваляць набіраць адказы або іншы тэкст у апавяшчэннях"</string>
     <string name="default_spell_checker" msgid="8636661093243189533">"Стандартная праверка правапісу"</string>
     <string name="choose_spell_checker" msgid="7619860861923582868">"Праверка правапісу"</string>
-    <!-- no translation found for spell_checker_primary_switch_title (2432752198899857435) -->
-    <skip />
+    <string name="spell_checker_primary_switch_title" msgid="2432752198899857435">"Выкарыстоўваць праверку правапісу"</string>
     <string name="spell_checker_not_selected" msgid="331034541988255137">"Не выбрана"</string>
     <string name="notification_log_no_title" msgid="3668232437235348628">"(няма)"</string>
     <string name="notification_log_details_delimiter" msgid="5485526744689532908">": "</string>
@@ -4250,8 +4243,7 @@
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"Каб вызваліць месца ў сховішчы, Менеджар сховішча выдаляе фота і відэа, для якіх створаны рэзервовыя копіі, з вашай прылады."</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"Выдаліць фота і відэа"</string>
     <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"Менеджар сховішча"</string>
-    <!-- no translation found for automatic_storage_manager_primary_switch_title (3690187927696783754) -->
-    <skip />
+    <string name="automatic_storage_manager_primary_switch_title" msgid="3690187927696783754">"Выкарыстоўваць менеджар сховішча"</string>
     <string name="deletion_helper_automatic_title" msgid="4370975149425263205">"Аўтаматычна"</string>
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"Уручную"</string>
     <string name="deletion_helper_preference_title" msgid="797270307034242206">"Вызваліць месца"</string>

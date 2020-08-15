@@ -368,7 +368,7 @@
     <string name="profile_info_settings_title" msgid="4855892878512562551">"প্রোফাইল তথ্য"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"অ্যাকাউন্টগুলি"</string>
     <string name="location_settings_title" msgid="2707201457572301030">"লোকেশন"</string>
-    <string name="location_settings_master_switch_title" msgid="3108016866082816733">"লোকেশন ব্যবহার করুন"</string>
+    <string name="location_settings_primary_switch_title" msgid="6994690329349987476">"লোকেশন ব্যবহার করুন"</string>
     <string name="location_settings_summary_location_off" msgid="5563530256978372978">"বন্ধ আছে"</string>
     <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
       <item quantity="one">চালু আছে - <xliff:g id="COUNT_1">%1$d</xliff:g>টি অ্যাপ লোকেশন অ্যাক্সেস করতে পারবে</item>
@@ -836,7 +836,7 @@
     <string name="wifi_quick_toggle_title" msgid="7935778388625246184">"ওয়াই-ফাই"</string>
     <string name="wifi_quick_toggle_summary" msgid="2879870570547594266">"ওয়াই-ফাই চালু করুন"</string>
     <string name="wifi_settings" msgid="7486492317310514109">"ওয়াই-ফাই"</string>
-    <string name="wifi_settings_master_switch_title" msgid="3917916944694253946">"ওয়াই-ফাই ব্যবহার করুন"</string>
+    <string name="wifi_settings_primary_switch_title" msgid="8845478864364255818">"ওয়াই-ফাই ব্যবহার করুন"</string>
     <string name="wifi_settings_category" msgid="9094716747565527901">"ওয়াই-ফাই সেটিংস"</string>
     <string name="wifi_settings_title" msgid="5265554991622344805">"ওয়াই-ফাই"</string>
     <string name="wifi_settings_summary" msgid="7117267255799892820">"ওয়্যারলেস অ্যাক্সেস পয়েন্ট সেট-আপ ও পরিচালনা করুন"</string>
@@ -2095,9 +2095,9 @@
     <string name="accessibility_notification_vibration_title" msgid="1005799039440510298">"বিজ্ঞপ্তির ভাইব্রেশন"</string>
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"রিং ভাইব্রেশন"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"স্পর্শ করলে ভাইব্রেশন"</string>
-    <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"পরিষেবা ব্যবহার করুন"</string>
-    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"রঙ সংশোধন ফিচারটি ব্যবহার করুন"</string>
-    <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"ক্যাপশন ব্যবহার করুন"</string>
+    <string name="accessibility_service_primary_switch_title" msgid="1405420360499478509">"পরিষেবা ব্যবহার করুন"</string>
+    <string name="accessibility_daltonizer_primary_switch_title" msgid="7428407895268627434">"কালার কারেকশন ব্যবহার করুন"</string>
+    <string name="accessibility_caption_primary_switch_title" msgid="1875671505480045655">"ক্যাপশন ব্যবহার করুন"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"এগিয়ে যান"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"হিয়ারিং এড"</string>
     <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"কোনও হিয়ারিং এড কানেক্ট করা নেই"</string>
@@ -2461,7 +2461,7 @@
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"চালু করুন"</string>
-    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"ব্যাটারি সেভার ব্যবহার করুন"</string>
+    <string name="battery_saver_primary_switch_title" msgid="1284229065484706156">"ব্যাটারি সেভার ব্যবহার করুন"</string>
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"স্বয়ংক্রিয়ভাবে চালু হবে"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"কখনও নয়"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"<xliff:g id="PERCENT">%1$s</xliff:g>ব্যাটারি আছে"</string>
@@ -4010,7 +4010,7 @@
     <string name="lockscreen_remote_input" msgid="3363310613165354434">"যদি ডিভাইসটি লক থাকে তাহলে, বিজ্ঞপ্তিগুলির মধ্যে উত্তর বা অন্যান্য পাঠ্য লেখা আটকায়"</string>
     <string name="default_spell_checker" msgid="8636661093243189533">"ডিফল্ট বানান পরিক্ষক"</string>
     <string name="choose_spell_checker" msgid="7619860861923582868">"বানান পরীক্ষক চয়ন করুন"</string>
-    <string name="spell_checker_master_switch_title" msgid="5712693172227400668">"বানান পরিক্ষক ব্যবহার করুন"</string>
+    <string name="spell_checker_primary_switch_title" msgid="2432752198899857435">"বানান-পরীক্ষক ফিচার ব্যবহার করুন"</string>
     <string name="spell_checker_not_selected" msgid="331034541988255137">"নির্বাচন করা হয়নি"</string>
     <string name="notification_log_no_title" msgid="3668232437235348628">"(কোনো কিছুই নয়)"</string>
     <string name="notification_log_details_delimiter" msgid="5485526744689532908">": "</string>
@@ -4103,7 +4103,7 @@
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"স্টোরেজ খালি করার কাজে সাহায্য করার জন্য, স্টোরেজ ম্যানেজার আপনার ডিভাইস থেকে ব্যাক-আপ নেওয়া ফটো এবং ভিডিওগুলিকে সরিয়ে দেয়৷"</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"ফটো এবং ভিডিওগুলিকে সরান"</string>
     <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"সঞ্চয়স্থানের পরিচালক"</string>
-    <string name="automatic_storage_manager_master_switch_title" msgid="1456978117739582562">"স্টোরেজ পরিচালক ব্যবহার করুন"</string>
+    <string name="automatic_storage_manager_primary_switch_title" msgid="3690187927696783754">"স্টোরেজ ম্যানেজার ব্যবহার করুন"</string>
     <string name="deletion_helper_automatic_title" msgid="4370975149425263205">"অটোমেটিক"</string>
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"ম্যানুয়াল"</string>
     <string name="deletion_helper_preference_title" msgid="797270307034242206">"এখনই জায়গা খালি করুন"</string>

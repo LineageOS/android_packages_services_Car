@@ -368,7 +368,7 @@
     <string name="profile_info_settings_title" msgid="4855892878512562551">"Info sa profile"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"Mga Account"</string>
     <string name="location_settings_title" msgid="2707201457572301030">"Lokasyon"</string>
-    <string name="location_settings_master_switch_title" msgid="3108016866082816733">"Gumamit ng lokasyon"</string>
+    <string name="location_settings_primary_switch_title" msgid="6994690329349987476">"Gumamit ng lokasyon"</string>
     <string name="location_settings_summary_location_off" msgid="5563530256978372978">"Naka-off"</string>
     <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
       <item quantity="one">Naka-on - <xliff:g id="COUNT_1">%1$d</xliff:g> (na) app ang makaka-access sa lokasyon</item>
@@ -836,7 +836,7 @@
     <string name="wifi_quick_toggle_title" msgid="7935778388625246184">"Wi‑Fi"</string>
     <string name="wifi_quick_toggle_summary" msgid="2879870570547594266">"I-on ang Wi-Fi"</string>
     <string name="wifi_settings" msgid="7486492317310514109">"Wi‑Fi"</string>
-    <string name="wifi_settings_master_switch_title" msgid="3917916944694253946">"Gumamit ng Wi‑Fi"</string>
+    <string name="wifi_settings_primary_switch_title" msgid="8845478864364255818">"Gumamit ng Wi‑Fi"</string>
     <string name="wifi_settings_category" msgid="9094716747565527901">"Mga setting ng Wi-Fi"</string>
     <string name="wifi_settings_title" msgid="5265554991622344805">"Wi‑Fi"</string>
     <string name="wifi_settings_summary" msgid="7117267255799892820">"Mag-set up &amp; mamahala ng mga wireless na access point"</string>
@@ -2095,9 +2095,9 @@
     <string name="accessibility_notification_vibration_title" msgid="1005799039440510298">"Pag-vibrate kapag may notification"</string>
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"Pag-vibrate kapag nag-ring"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"Pag-vibrate sa pagpindot"</string>
-    <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"Gamitin ang serbisyo"</string>
-    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"Gumamit ng pagtatama ng kulay"</string>
-    <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"Gumamit ng mga caption"</string>
+    <string name="accessibility_service_primary_switch_title" msgid="1405420360499478509">"Gamitin ang serbisyo"</string>
+    <string name="accessibility_daltonizer_primary_switch_title" msgid="7428407895268627434">"Gumamit ng pagtatama ng kulay"</string>
+    <string name="accessibility_caption_primary_switch_title" msgid="1875671505480045655">"Gumamit ng mga caption"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"Magpatuloy"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"Mga hearing aid"</string>
     <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"Walang nakakonektang hearing aid"</string>
@@ -2461,7 +2461,7 @@
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"I-on"</string>
-    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"Gumamit ng Pangtipid sa Baterya"</string>
+    <string name="battery_saver_primary_switch_title" msgid="1284229065484706156">"Gumamit ng Pantipid ng Baterya"</string>
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"Awtomatikong i-on"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"Hindi Kailanman"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"sa <xliff:g id="PERCENT">%1$s</xliff:g> baterya"</string>
@@ -4010,7 +4010,7 @@
     <string name="lockscreen_remote_input" msgid="3363310613165354434">"Kung naka-lock ang device, iwasang mag-type ng mga tugon o iba pang text sa mga notification"</string>
     <string name="default_spell_checker" msgid="8636661093243189533">"Default na spell checker"</string>
     <string name="choose_spell_checker" msgid="7619860861923582868">"Pumili ng spell checker"</string>
-    <string name="spell_checker_master_switch_title" msgid="5712693172227400668">"Gamitin ang spell checker"</string>
+    <string name="spell_checker_primary_switch_title" msgid="2432752198899857435">"Gamitin ang spell checker"</string>
     <string name="spell_checker_not_selected" msgid="331034541988255137">"Hindi napili"</string>
     <string name="notification_log_no_title" msgid="3668232437235348628">"(wala)"</string>
     <string name="notification_log_details_delimiter" msgid="5485526744689532908">": "</string>
@@ -4103,7 +4103,7 @@
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"Upang tumulong na magbakante ng space sa storage, inaalis ng storage manager ang mga naka-back up na larawan at video mula sa iyong device."</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"Alisin ang mga larawan at video"</string>
     <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"Storage manager"</string>
-    <string name="automatic_storage_manager_master_switch_title" msgid="1456978117739582562">"Gumamit ng Storage manager"</string>
+    <string name="automatic_storage_manager_primary_switch_title" msgid="3690187927696783754">"Gumamit ng Storage manager"</string>
     <string name="deletion_helper_automatic_title" msgid="4370975149425263205">"Awtomatiko"</string>
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"Manual"</string>
     <string name="deletion_helper_preference_title" msgid="797270307034242206">"Magbakante ng espasyo ngayon"</string>

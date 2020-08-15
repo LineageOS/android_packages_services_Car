@@ -368,7 +368,7 @@
     <string name="profile_info_settings_title" msgid="4855892878512562551">"Profilinformasjon"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"Kontoer"</string>
     <string name="location_settings_title" msgid="2707201457572301030">"Posisjon"</string>
-    <string name="location_settings_master_switch_title" msgid="3108016866082816733">"Bruk posisjon"</string>
+    <string name="location_settings_primary_switch_title" msgid="6994690329349987476">"Bruk posisjon"</string>
     <string name="location_settings_summary_location_off" msgid="5563530256978372978">"Av"</string>
     <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
       <item quantity="other">På – <xliff:g id="COUNT_1">%1$d</xliff:g> apper har tilgang til posisjonen</item>
@@ -836,7 +836,7 @@
     <string name="wifi_quick_toggle_title" msgid="7935778388625246184">"Wi-Fi"</string>
     <string name="wifi_quick_toggle_summary" msgid="2879870570547594266">"Slå på Wi-Fi"</string>
     <string name="wifi_settings" msgid="7486492317310514109">"Wi-Fi"</string>
-    <string name="wifi_settings_master_switch_title" msgid="3917916944694253946">"Bruk Wi-Fi"</string>
+    <string name="wifi_settings_primary_switch_title" msgid="8845478864364255818">"Bruk Wi-Fi"</string>
     <string name="wifi_settings_category" msgid="9094716747565527901">"Innstillinger for Wi-Fi"</string>
     <string name="wifi_settings_title" msgid="5265554991622344805">"Wi-Fi"</string>
     <string name="wifi_settings_summary" msgid="7117267255799892820">"Sett opp og styr trådløse aksesspunkt"</string>
@@ -2095,9 +2095,9 @@
     <string name="accessibility_notification_vibration_title" msgid="1005799039440510298">"Varselvibrering"</string>
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"Ringevibrering"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"Berøringsvibrering"</string>
-    <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"Bruk tjenesten"</string>
-    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"Bruk fargekorrigering"</string>
-    <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"Bruk teksting"</string>
+    <string name="accessibility_service_primary_switch_title" msgid="1405420360499478509">"Bruk tjenesten"</string>
+    <string name="accessibility_daltonizer_primary_switch_title" msgid="7428407895268627434">"Bruk fargekorrigering"</string>
+    <string name="accessibility_caption_primary_switch_title" msgid="1875671505480045655">"Bruk teksting"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"Fortsett"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"Høreapparater"</string>
     <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"Ingen høreapparater er tilkoblet"</string>
@@ -2461,7 +2461,7 @@
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"Slå på"</string>
-    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"Bruk batterisparing"</string>
+    <string name="battery_saver_primary_switch_title" msgid="1284229065484706156">"Bruk Batterisparing"</string>
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"Slå på automatisk"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"Aldri"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"med <xliff:g id="PERCENT">%1$s</xliff:g> batteri"</string>
@@ -2601,7 +2601,7 @@
     <string name="work_mode_label" msgid="6845849194740195757">"Jobbprofil"</string>
     <string name="work_mode_on_summary" msgid="1682781113156323592">"Administreres av organisasjonen din"</string>
     <string name="work_mode_off_summary" msgid="1688885392211178315">"Apper og varsler er slått av"</string>
-    <string name="remove_managed_profile_label" msgid="4625542553784793536">"Fjern arbeidsprofilen"</string>
+    <string name="remove_managed_profile_label" msgid="4625542553784793536">"Fjern jobbprofilen"</string>
     <string name="background_data" msgid="8275750862371471171">"Bakgrunnsdata"</string>
     <string name="background_data_summary" msgid="799640633948841990">"Apper kan når som helst synkronisere, sende og motta data"</string>
     <string name="background_data_dialog_title" msgid="8306650658158895976">"Vil du deaktivere bakgrunnsdata?"</string>
@@ -2888,7 +2888,7 @@
     <string name="user_confirm_remove_self_title" msgid="6739480453680217543">"Vil du slette deg selv?"</string>
     <string name="user_confirm_remove_title" msgid="1034498514019462084">"Vil du slette brukeren?"</string>
     <string name="user_profile_confirm_remove_title" msgid="6138684743385947063">"Fjerne denne profilen?"</string>
-    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"Vil du fjerne arbeidsprofilen?"</string>
+    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"Fjern jobbprofilen?"</string>
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"Lagringsplassen og dataene dine blir fjernet fra dette nettbrettet. Denne handlingen kan ikke angres."</string>
     <string name="user_confirm_remove_self_message" product="default" msgid="8441729423565705183">"Lagringsplassen og dataene dine blir fjernet fra telefonen. Denne handlingen kan ikke angres."</string>
     <string name="user_confirm_remove_message" msgid="5202150470271756013">"Alle apper og data slettes."</string>
@@ -4010,7 +4010,7 @@
     <string name="lockscreen_remote_input" msgid="3363310613165354434">"Når enheten er låst, kan man ikke skrive svar eller annen tekst i varsler"</string>
     <string name="default_spell_checker" msgid="8636661093243189533">"Standard stavekontroll"</string>
     <string name="choose_spell_checker" msgid="7619860861923582868">"Velg stavekontroll"</string>
-    <string name="spell_checker_master_switch_title" msgid="5712693172227400668">"Bruk stavekontroll"</string>
+    <string name="spell_checker_primary_switch_title" msgid="2432752198899857435">"Bruk stavekontroll"</string>
     <string name="spell_checker_not_selected" msgid="331034541988255137">"Ikke valgt"</string>
     <string name="notification_log_no_title" msgid="3668232437235348628">"(ingen)"</string>
     <string name="notification_log_details_delimiter" msgid="5485526744689532908">": "</string>
@@ -4103,7 +4103,7 @@
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"For å frigjøre lagringsplass fjernes sikkerhetskopierte bilder og videoer fra enheten din av lagringsadministratoren."</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"Fjern bilder og videoer"</string>
     <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"Lagringsadministrator"</string>
-    <string name="automatic_storage_manager_master_switch_title" msgid="1456978117739582562">"Bruk lagringsadministrator"</string>
+    <string name="automatic_storage_manager_primary_switch_title" msgid="3690187927696783754">"Bruk Lagringsbehandling"</string>
     <string name="deletion_helper_automatic_title" msgid="4370975149425263205">"Automatisk"</string>
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"Manuelle innstillinger"</string>
     <string name="deletion_helper_preference_title" msgid="797270307034242206">"Frigjør lagringsplass nå"</string>

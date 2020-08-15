@@ -368,7 +368,7 @@
     <string name="profile_info_settings_title" msgid="4855892878512562551">"प्रोफ़ाइल की जानकारी"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"खाते"</string>
     <string name="location_settings_title" msgid="2707201457572301030">"जगह"</string>
-    <string name="location_settings_master_switch_title" msgid="3108016866082816733">"जगह की जानकारी की सुविधा का इस्तेमाल करें"</string>
+    <string name="location_settings_primary_switch_title" msgid="6994690329349987476">"जगह की जानकारी की सुविधा का इस्तेमाल करें"</string>
     <string name="location_settings_summary_location_off" msgid="5563530256978372978">"बंद करें"</string>
     <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
       <item quantity="one">चालू - <xliff:g id="COUNT_1">%1$d</xliff:g> ऐप्लिकेशन जगह की जानकारी ऐक्सेस कर सकते हैं</item>
@@ -836,7 +836,7 @@
     <string name="wifi_quick_toggle_title" msgid="7935778388625246184">"वाई-फ़ाई"</string>
     <string name="wifi_quick_toggle_summary" msgid="2879870570547594266">"वाई-फ़ाई  चालू करें"</string>
     <string name="wifi_settings" msgid="7486492317310514109">"वाई-फ़ाई"</string>
-    <string name="wifi_settings_master_switch_title" msgid="3917916944694253946">"वाई-फ़ाई इस्तेमाल करें"</string>
+    <string name="wifi_settings_primary_switch_title" msgid="8845478864364255818">"वाई-फ़ाई का इस्तेमाल करें"</string>
     <string name="wifi_settings_category" msgid="9094716747565527901">"वाई-फ़ाई सेटिंग"</string>
     <string name="wifi_settings_title" msgid="5265554991622344805">"वाई-फ़ाई"</string>
     <string name="wifi_settings_summary" msgid="7117267255799892820">"वायरलेस पहुंच बिंदुओं को सेट अप और प्रबंधित करें"</string>
@@ -2095,9 +2095,9 @@
     <string name="accessibility_notification_vibration_title" msgid="1005799039440510298">"सूचना के लिए वाइब्रेशन"</string>
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"घंटी के लिए वाइब्रेशन"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"छूने पर वाइब्रेशन"</string>
-    <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"सेवा इस्तेमाल करें"</string>
-    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"रंग में सुधार करने की सुविधा इस्तेमाल करें"</string>
-    <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"कैप्शन इस्तेमाल करें"</string>
+    <string name="accessibility_service_primary_switch_title" msgid="1405420360499478509">"सेवा का इस्तेमाल करें"</string>
+    <string name="accessibility_daltonizer_primary_switch_title" msgid="7428407895268627434">"रंग में सुधार करने की सुविधा का इस्तेमाल करें"</string>
+    <string name="accessibility_caption_primary_switch_title" msgid="1875671505480045655">"कैप्शन का इस्तेमाल करें"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"जारी रखें"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"सुनने में मदद करने वाला डिवाइस"</string>
     <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"कान की कोई भी मशीन नहीं जुड़ी है"</string>
@@ -2461,7 +2461,7 @@
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"चालू करें"</string>
-    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"बैटरी सेवर इस्तेमाल करें"</string>
+    <string name="battery_saver_primary_switch_title" msgid="1284229065484706156">"बैटरी सेवर का इस्तेमाल करें"</string>
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"अपने आप चालू करें"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"कभी नहीं"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"<xliff:g id="PERCENT">%1$s</xliff:g> बैटरी होने पर"</string>
@@ -4010,7 +4010,7 @@
     <string name="lockscreen_remote_input" msgid="3363310613165354434">"अगर डिवाइस लॉक है, तो सूचनाओं का जवाब या अन्य लेख लिखने से रोकें"</string>
     <string name="default_spell_checker" msgid="8636661093243189533">"डिफ़ॉल्ट तौर पर स्पेलिंग जाँचने वाला"</string>
     <string name="choose_spell_checker" msgid="7619860861923582868">"वर्तनी/स्पेलिंग जाँचकर्ता चुनें"</string>
-    <string name="spell_checker_master_switch_title" msgid="5712693172227400668">"स्पेलिंग जाँचने वाला टूल इस्तेमाल करें"</string>
+    <string name="spell_checker_primary_switch_title" msgid="2432752198899857435">"स्पेलिंग जांचने वाले टूल का इस्तेमाल करें"</string>
     <string name="spell_checker_not_selected" msgid="331034541988255137">"नहीं चुना गया"</string>
     <string name="notification_log_no_title" msgid="3668232437235348628">"(कुछ नहीं)"</string>
     <string name="notification_log_details_delimiter" msgid="5485526744689532908">": "</string>
@@ -4103,7 +4103,7 @@
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"मेमोरी में जगह खाली करने में मदद करने के लिए, मेमोरी प्रबंधक आपके डिवाइस से बैकअप ली गई फ़ोटो और वीडियो निकाल देता है."</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"फ़ोटो और वीडियो निकालें"</string>
     <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"मेमोरी प्रबंधक"</string>
-    <string name="automatic_storage_manager_master_switch_title" msgid="1456978117739582562">"मेमोरी मैनेजर इस्तेमाल करें"</string>
+    <string name="automatic_storage_manager_primary_switch_title" msgid="3690187927696783754">"मेमोरी प्रबंधक का इस्तेमाल करें"</string>
     <string name="deletion_helper_automatic_title" msgid="4370975149425263205">"ऑटोमैटिक"</string>
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"मैन्युअल"</string>
     <string name="deletion_helper_preference_title" msgid="797270307034242206">"अभी स्पेस खाली करें"</string>

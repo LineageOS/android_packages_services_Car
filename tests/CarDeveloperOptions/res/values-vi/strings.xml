@@ -368,8 +368,7 @@
     <string name="profile_info_settings_title" msgid="4855892878512562551">"Thông tin hồ sơ"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"Tài khoản"</string>
     <string name="location_settings_title" msgid="2707201457572301030">"Vị trí"</string>
-    <!-- no translation found for location_settings_primary_switch_title (6994690329349987476) -->
-    <skip />
+    <string name="location_settings_primary_switch_title" msgid="6994690329349987476">"Sử dụng vị trí"</string>
     <string name="location_settings_summary_location_off" msgid="5563530256978372978">"Đang tắt"</string>
     <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
       <item quantity="other">Đang bật - <xliff:g id="COUNT_1">%1$d</xliff:g> ứng dụng có thể truy cập vào vị trí</item>
@@ -837,8 +836,7 @@
     <string name="wifi_quick_toggle_title" msgid="7935778388625246184">"Wi‑Fi"</string>
     <string name="wifi_quick_toggle_summary" msgid="2879870570547594266">"Bật Wi‑Fi"</string>
     <string name="wifi_settings" msgid="7486492317310514109">"Wi‑Fi"</string>
-    <!-- no translation found for wifi_settings_primary_switch_title (8845478864364255818) -->
-    <skip />
+    <string name="wifi_settings_primary_switch_title" msgid="8845478864364255818">"Sử dụng Wi-Fi"</string>
     <string name="wifi_settings_category" msgid="9094716747565527901">"Cài đặt Wi‑Fi"</string>
     <string name="wifi_settings_title" msgid="5265554991622344805">"Wi‑Fi"</string>
     <string name="wifi_settings_summary" msgid="7117267255799892820">"Thiết lập &amp; quản lý điểm truy cập mạng"</string>
@@ -2097,12 +2095,9 @@
     <string name="accessibility_notification_vibration_title" msgid="1005799039440510298">"Rung khi có thông báo"</string>
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"Rung khi đổ chuông"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"Rung khi chạm"</string>
-    <!-- no translation found for accessibility_service_primary_switch_title (1405420360499478509) -->
-    <skip />
-    <!-- no translation found for accessibility_daltonizer_primary_switch_title (7428407895268627434) -->
-    <skip />
-    <!-- no translation found for accessibility_caption_primary_switch_title (1875671505480045655) -->
-    <skip />
+    <string name="accessibility_service_primary_switch_title" msgid="1405420360499478509">"Sử dụng dịch vụ"</string>
+    <string name="accessibility_daltonizer_primary_switch_title" msgid="7428407895268627434">"Sử dụng tính năng chỉnh màu"</string>
+    <string name="accessibility_caption_primary_switch_title" msgid="1875671505480045655">"Sử dụng phụ đề"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"Tiếp tục"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"Thiết bị trợ thính"</string>
     <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"Chưa kết nối thiết bị trợ thính nào"</string>
@@ -2466,8 +2461,7 @@
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"Bật"</string>
-    <!-- no translation found for battery_saver_primary_switch_title (1284229065484706156) -->
-    <skip />
+    <string name="battery_saver_primary_switch_title" msgid="1284229065484706156">"Sử dụng Trình tiết kiệm pin"</string>
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"Tự động bật"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"Không bao giờ"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"ở mức <xliff:g id="PERCENT">%1$s</xliff:g> pin"</string>
@@ -4016,8 +4010,7 @@
     <string name="lockscreen_remote_input" msgid="3363310613165354434">"Nếu thiết bị bị khóa, ngăn nhập câu trả lời hoặc văn bản khác trong thông báo"</string>
     <string name="default_spell_checker" msgid="8636661093243189533">"Trình kiểm tra chính tả mặc định"</string>
     <string name="choose_spell_checker" msgid="7619860861923582868">"Chọn trình kiểm tra chính tả"</string>
-    <!-- no translation found for spell_checker_primary_switch_title (2432752198899857435) -->
-    <skip />
+    <string name="spell_checker_primary_switch_title" msgid="2432752198899857435">"Sử dụng trình kiểm tra chính tả"</string>
     <string name="spell_checker_not_selected" msgid="331034541988255137">"Chưa được chọn"</string>
     <string name="notification_log_no_title" msgid="3668232437235348628">"(không có)"</string>
     <string name="notification_log_details_delimiter" msgid="5485526744689532908">": "</string>
@@ -4110,8 +4103,7 @@
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"Để giúp giải phóng dung lượng lưu trữ, trình quản lý bộ nhớ sẽ xóa ảnh và video đã sao lưu khỏi thiết bị của bạn."</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"Xóa ảnh và video"</string>
     <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"Trình quản lý bộ nhớ"</string>
-    <!-- no translation found for automatic_storage_manager_primary_switch_title (3690187927696783754) -->
-    <skip />
+    <string name="automatic_storage_manager_primary_switch_title" msgid="3690187927696783754">"Sử dụng Trình quản lý bộ nhớ"</string>
     <string name="deletion_helper_automatic_title" msgid="4370975149425263205">"Tự động"</string>
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"Hướng dẫn sử dụng"</string>
     <string name="deletion_helper_preference_title" msgid="797270307034242206">"Giải phóng dung lượng ngay"</string>

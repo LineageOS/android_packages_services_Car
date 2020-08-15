@@ -368,7 +368,7 @@
     <string name="profile_info_settings_title" msgid="4855892878512562551">"ព័ត៌មាន​ប្រវត្តិរូប"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"គណនី"</string>
     <string name="location_settings_title" msgid="2707201457572301030">"ទី​តាំង​"</string>
-    <string name="location_settings_master_switch_title" msgid="3108016866082816733">"ប្រើទីតាំង"</string>
+    <string name="location_settings_primary_switch_title" msgid="6994690329349987476">"ប្រើទីតាំង"</string>
     <string name="location_settings_summary_location_off" msgid="5563530256978372978">"បិទ"</string>
     <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
       <item quantity="other">នៅពេល​បើក​ទីតាំង កម្មវិធី <xliff:g id="COUNT_1">%1$d</xliff:g> អាចចូល​ប្រើទីតាំង​បាន</item>
@@ -836,7 +836,7 @@
     <string name="wifi_quick_toggle_title" msgid="7935778388625246184">"Wi-Fi"</string>
     <string name="wifi_quick_toggle_summary" msgid="2879870570547594266">"បើក​វ៉ាយហ្វាយ"</string>
     <string name="wifi_settings" msgid="7486492317310514109">"Wi‑Fi"</string>
-    <string name="wifi_settings_master_switch_title" msgid="3917916944694253946">"ប្រើ Wi‑Fi"</string>
+    <string name="wifi_settings_primary_switch_title" msgid="8845478864364255818">"ប្រើ Wi‑Fi"</string>
     <string name="wifi_settings_category" msgid="9094716747565527901">"ការកំណត់​វ៉ាយហ្វាយ"</string>
     <string name="wifi_settings_title" msgid="5265554991622344805">"Wi-Fi"</string>
     <string name="wifi_settings_summary" msgid="7117267255799892820">"រៀបចំ &amp; គ្រប់គ្រង​ចំណុច​ចូល​ដំណើរការ​ឥត​ខ្សែ"</string>
@@ -2095,9 +2095,9 @@
     <string name="accessibility_notification_vibration_title" msgid="1005799039440510298">"ការ​ញ័រនៃការជូនដំណឹង"</string>
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"ការញ័រ​នៃសំឡេងរោទ៍"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"ការ​ញ័រ​ពេល​ប៉ះ"</string>
-    <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"ប្រើ​សេវាកម្ម"</string>
-    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"ប្រើ​ការ​កែតម្រូវពណ៌"</string>
-    <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"ប្រើ​អក្សររត់"</string>
+    <string name="accessibility_service_primary_switch_title" msgid="1405420360499478509">"ប្រើ​សេវាកម្ម"</string>
+    <string name="accessibility_daltonizer_primary_switch_title" msgid="7428407895268627434">"ប្រើ​ការ​កែតម្រូវពណ៌"</string>
+    <string name="accessibility_caption_primary_switch_title" msgid="1875671505480045655">"ប្រើ​អក្សររត់"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"បន្ត"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"ឧបករណ៍​ជំនួយការ​ស្ដាប់"</string>
     <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"មិនបានភ្ជាប់​ឧបករណ៍​ជំនួយ​ការ​ស្តាប់ទេ"</string>
@@ -2461,7 +2461,7 @@
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"បើក"</string>
-    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"ប្រើ​កម្មវិធីសន្សំថ្ម"</string>
+    <string name="battery_saver_primary_switch_title" msgid="1284229065484706156">"ប្រើ​មុខងារ​សន្សំថ្ម"</string>
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"បើក​ដោយ​ស្វ័យ​ប្រវត្តិ"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"កុំ"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"នៅពេលដែលថ្មសល់ <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
@@ -4010,7 +4010,7 @@
     <string name="lockscreen_remote_input" msgid="3363310613165354434">"ពេលឧបករណ៍ជាប់សោ ទប់ស្កាត់ការវាយអក្សរឆ្លើយតប ឬអត្ថបទផ្សេងទៀតនៅក្នុងការជូនដំណឹង"</string>
     <string name="default_spell_checker" msgid="8636661093243189533">"កម្មវិធីពិនិត្យអក្ខរាវិរុទ្ធលំនាំដើម"</string>
     <string name="choose_spell_checker" msgid="7619860861923582868">"ជ្រើសរើសកម្មវិធីពិនិត្យអក្ខរាវិរុទ្ធ"</string>
-    <string name="spell_checker_master_switch_title" msgid="5712693172227400668">"ប្រើកម្មវិធីពិនិត្យអក្ខរាវិរុទ្ធ"</string>
+    <string name="spell_checker_primary_switch_title" msgid="2432752198899857435">"ប្រើ​មុខងារ​ពិនិត្យ​អក្ខរាវិរុទ្ធ"</string>
     <string name="spell_checker_not_selected" msgid="331034541988255137">"មិនបានជ្រើស"</string>
     <string name="notification_log_no_title" msgid="3668232437235348628">"(គ្មាន)"</string>
     <string name="notification_log_details_delimiter" msgid="5485526744689532908">"៖ "</string>
@@ -4103,7 +4103,7 @@
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"ដើម្បីបង្កើនទំហំផ្ទុក កម្មវិធីគ្រប់គ្រងទំហំផ្ទុកយករូបថត និងវីដេអូដែលបានបម្រុងទុកចេញពីឧបករណ៍របស់អ្នក។"</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"យករូបថត និងវីដេអូចេញ"</string>
     <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"កម្មវិធីគ្រប់គ្រងទំហំផ្ទុក"</string>
-    <string name="automatic_storage_manager_master_switch_title" msgid="1456978117739582562">"ប្រើ​កម្មវិធីគ្រប់គ្រង​ទំហំផ្ទុក"</string>
+    <string name="automatic_storage_manager_primary_switch_title" msgid="3690187927696783754">"ប្រើ​កម្មវិធីគ្រប់គ្រង​ទំហំផ្ទុក"</string>
     <string name="deletion_helper_automatic_title" msgid="4370975149425263205">"ស្វ័យប្រវត្តិ"</string>
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"ឯកសារណែនាំ"</string>
     <string name="deletion_helper_preference_title" msgid="797270307034242206">"បង្កើនទំហំផ្ទុកឥឡូវនេះ"</string>

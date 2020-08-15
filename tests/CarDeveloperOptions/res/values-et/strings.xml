@@ -368,7 +368,7 @@
     <string name="profile_info_settings_title" msgid="4855892878512562551">"Profiili teave"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"Kontod"</string>
     <string name="location_settings_title" msgid="2707201457572301030">"Asukoht"</string>
-    <string name="location_settings_master_switch_title" msgid="3108016866082816733">"Kasuta asukohta"</string>
+    <string name="location_settings_primary_switch_title" msgid="6994690329349987476">"Kasuta asukohta"</string>
     <string name="location_settings_summary_location_off" msgid="5563530256978372978">"Väljas"</string>
     <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
       <item quantity="other">Sees – <xliff:g id="COUNT_1">%1$d</xliff:g> rakendust pääsevad asukohale juurde</item>
@@ -836,7 +836,7 @@
     <string name="wifi_quick_toggle_title" msgid="7935778388625246184">"WiFi"</string>
     <string name="wifi_quick_toggle_summary" msgid="2879870570547594266">"Lülita WiFi sisse"</string>
     <string name="wifi_settings" msgid="7486492317310514109">"WiFi"</string>
-    <string name="wifi_settings_master_switch_title" msgid="3917916944694253946">"WiFi kasutus"</string>
+    <string name="wifi_settings_primary_switch_title" msgid="8845478864364255818">"Kasuta WiFi-t"</string>
     <string name="wifi_settings_category" msgid="9094716747565527901">"WiFi-seaded"</string>
     <string name="wifi_settings_title" msgid="5265554991622344805">"WiFi"</string>
     <string name="wifi_settings_summary" msgid="7117267255799892820">"Määra ja halda traadita pääsupunkte"</string>
@@ -2095,9 +2095,9 @@
     <string name="accessibility_notification_vibration_title" msgid="1005799039440510298">"Märguanne koos vibreerimisega"</string>
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"Helin koos vibreerimisega"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"Puudutusel vibreerimine"</string>
-    <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"Kasuta teenust"</string>
-    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"Kasuta värvikorrigeerimist"</string>
-    <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"Kasuta subtiitreid"</string>
+    <string name="accessibility_service_primary_switch_title" msgid="1405420360499478509">"Kasuta teenust"</string>
+    <string name="accessibility_daltonizer_primary_switch_title" msgid="7428407895268627434">"Kasuta värvide korrigeerimist"</string>
+    <string name="accessibility_caption_primary_switch_title" msgid="1875671505480045655">"Kasuta subtiitreid"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"Jätka"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"Kuuldeaparaadid"</string>
     <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"Ühtegi kuuldeaparaati pole ühendatud"</string>
@@ -2461,7 +2461,7 @@
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"Lülita sisse"</string>
-    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"Kasuta akusäästjat"</string>
+    <string name="battery_saver_primary_switch_title" msgid="1284229065484706156">"Kasuta akusäästjat"</string>
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"Automaatne sisselülitamine"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"Mitte kunagi"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"aku taseme <xliff:g id="PERCENT">%1$s</xliff:g> juures"</string>
@@ -4010,7 +4010,7 @@
     <string name="lockscreen_remote_input" msgid="3363310613165354434">"Kui seade on lukus, keela märguannetes vastuste või muu teksti sisestamine"</string>
     <string name="default_spell_checker" msgid="8636661093243189533">"Vaikeõigekirjakontroll"</string>
     <string name="choose_spell_checker" msgid="7619860861923582868">"Õigekirjakontrolli valimine"</string>
-    <string name="spell_checker_master_switch_title" msgid="5712693172227400668">"Kasuta õigekirjakontrolli"</string>
+    <string name="spell_checker_primary_switch_title" msgid="2432752198899857435">"Kasuta õigekirjakontrolli"</string>
     <string name="spell_checker_not_selected" msgid="331034541988255137">"Pole valitud"</string>
     <string name="notification_log_no_title" msgid="3668232437235348628">"(puudub)"</string>
     <string name="notification_log_details_delimiter" msgid="5485526744689532908">": "</string>
@@ -4103,7 +4103,7 @@
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"Salvestusruumi vabastamiseks eemaldab salvestusruumi haldur varundatud fotod ja videod teie seadmest."</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"Fotode ja videote eemaldamine"</string>
     <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"Salvestusruumi haldur"</string>
-    <string name="automatic_storage_manager_master_switch_title" msgid="1456978117739582562">"Kasuta salvestusruumi haldurit"</string>
+    <string name="automatic_storage_manager_primary_switch_title" msgid="3690187927696783754">"Kasuta salvestusruumi haldurit"</string>
     <string name="deletion_helper_automatic_title" msgid="4370975149425263205">"Automaatne"</string>
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"Käsitsi"</string>
     <string name="deletion_helper_preference_title" msgid="797270307034242206">"Vabastage ruumi"</string>

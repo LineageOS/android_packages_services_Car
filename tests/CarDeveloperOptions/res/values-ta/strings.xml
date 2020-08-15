@@ -368,7 +368,7 @@
     <string name="profile_info_settings_title" msgid="4855892878512562551">"சுயவிவரத் தகவல்"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"கணக்குகள்"</string>
     <string name="location_settings_title" msgid="2707201457572301030">"இருப்பிடம்"</string>
-    <string name="location_settings_master_switch_title" msgid="3108016866082816733">"இருப்பிடத்தைப் பயன்படுத்து"</string>
+    <string name="location_settings_primary_switch_title" msgid="6994690329349987476">"இருப்பிடத்தைப் பயன்படுத்து"</string>
     <string name="location_settings_summary_location_off" msgid="5563530256978372978">"ஆஃப்"</string>
     <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
       <item quantity="other">ஆன் - <xliff:g id="COUNT_1">%1$d</xliff:g> ஆப்ஸால் இருப்பிடத்தை அணுக இயலும்</item>
@@ -836,7 +836,7 @@
     <string name="wifi_quick_toggle_title" msgid="7935778388625246184">"வைஃபை"</string>
     <string name="wifi_quick_toggle_summary" msgid="2879870570547594266">"வைஃபையை இயக்கு"</string>
     <string name="wifi_settings" msgid="7486492317310514109">"வைஃபை"</string>
-    <string name="wifi_settings_master_switch_title" msgid="3917916944694253946">"வைஃபையைப் பயன்படுத்து"</string>
+    <string name="wifi_settings_primary_switch_title" msgid="8845478864364255818">"வைஃபையைப் பயன்படுத்து"</string>
     <string name="wifi_settings_category" msgid="9094716747565527901">"வைஃபை அமைப்பு"</string>
     <string name="wifi_settings_title" msgid="5265554991622344805">"வைஃபை"</string>
     <string name="wifi_settings_summary" msgid="7117267255799892820">"வயர்லெஸ் ஆக்சஸ் பாயிண்ட்களை அமைத்து &amp; நிர்வகிக்கவும்"</string>
@@ -2095,9 +2095,9 @@
     <string name="accessibility_notification_vibration_title" msgid="1005799039440510298">"அறிவிப்பு அதிர்வுகள்"</string>
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"ரிங் அதிர்வுகள்"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"தொடுதல் அதிர்வு"</string>
-    <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"சேவையைப் பயன்படுத்து"</string>
-    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"வண்ணத் திருத்தத்தைப் பயன்படுத்து"</string>
-    <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"தலைப்புகளைப் பயன்படுத்து"</string>
+    <string name="accessibility_service_primary_switch_title" msgid="1405420360499478509">"சேவையைப் பயன்படுத்து"</string>
+    <string name="accessibility_daltonizer_primary_switch_title" msgid="7428407895268627434">"கலர் கரெக்‌ஷனைப் பயன்படுத்து"</string>
+    <string name="accessibility_caption_primary_switch_title" msgid="1875671505480045655">"தலைப்புகளைப் பயன்படுத்து"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"தொடர்க"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"செவித்துணைக் கருவிகள்"</string>
     <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"இணைக்கப்பட்ட செவித்துணைக் கருவிகள் இல்லை"</string>
@@ -2461,7 +2461,7 @@
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"ஆன் செய்"</string>
-    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"பேட்டரி சேமிப்பானைப் பயன்படுத்து"</string>
+    <string name="battery_saver_primary_switch_title" msgid="1284229065484706156">"பேட்டரி சேமிப்பானைப் பயன்படுத்து"</string>
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"தானாகவே இயக்கு"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"ஒருபோதும் வேண்டாம்"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"<xliff:g id="PERCENT">%1$s</xliff:g> பேட்டரி இருக்கும் போது"</string>
@@ -4010,7 +4010,7 @@
     <string name="lockscreen_remote_input" msgid="3363310613165354434">"சாதனம் பூட்டப்பட்டிருந்தால், அறிவிப்புகளில் பதில்கள் அல்லது பிற உரையை உள்ளிடுவதைத் தடு"</string>
     <string name="default_spell_checker" msgid="8636661093243189533">"இயல்பு பிழைத்திருத்தி"</string>
     <string name="choose_spell_checker" msgid="7619860861923582868">"பிழைத்திருத்தியைத் தேர்வுசெய்க"</string>
-    <string name="spell_checker_master_switch_title" msgid="5712693172227400668">"பிழைதிருத்தியைப் பயன்படுத்துதல்"</string>
+    <string name="spell_checker_primary_switch_title" msgid="2432752198899857435">"பிழைதிருத்தியைப் பயன்படுத்துதல்"</string>
     <string name="spell_checker_not_selected" msgid="331034541988255137">"தேர்ந்தெடுக்கவில்லை"</string>
     <string name="notification_log_no_title" msgid="3668232437235348628">"(எதுவுமில்லை)"</string>
     <string name="notification_log_details_delimiter" msgid="5485526744689532908">": "</string>
@@ -4103,7 +4103,7 @@
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"சேமிப்பக இடத்தைக் காலியாக்க உதவ, காப்புப் பிரதி எடுக்கப்பட்ட படங்களையும் வீடியோக்களையும் உங்கள் சாதனத்திலிருந்து சேமிப்பக நிர்வாகி அகற்றும்."</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"படங்கள் &amp; வீடியோக்களை அகற்று"</string>
     <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"சேமிப்பக நிர்வாகி"</string>
-    <string name="automatic_storage_manager_master_switch_title" msgid="1456978117739582562">"சேமிப்பக நிர்வாகியைப் பயன்படுத்து"</string>
+    <string name="automatic_storage_manager_primary_switch_title" msgid="3690187927696783754">"சேமிப்பக நிர்வாகியைப் பயன்படுத்து"</string>
     <string name="deletion_helper_automatic_title" msgid="4370975149425263205">"தானியங்கு"</string>
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"கைமுறை"</string>
     <string name="deletion_helper_preference_title" msgid="797270307034242206">"இப்போதே இடத்தைக் காலியாக்கு"</string>

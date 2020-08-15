@@ -370,7 +370,7 @@
     <string name="profile_info_settings_title" msgid="4855892878512562551">"Informacije o profilu"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"Računi"</string>
     <string name="location_settings_title" msgid="2707201457572301030">"Lokacija"</string>
-    <string name="location_settings_master_switch_title" msgid="3108016866082816733">"Koristi lokaciju"</string>
+    <string name="location_settings_primary_switch_title" msgid="6994690329349987476">"Koristi lokaciju"</string>
     <string name="location_settings_summary_location_off" msgid="5563530256978372978">"Isključeno"</string>
     <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
       <item quantity="one">Uključeno – <xliff:g id="COUNT_1">%1$d</xliff:g> aplikacija može pristupiti lokaciji</item>
@@ -853,7 +853,7 @@
     <string name="wifi_quick_toggle_title" msgid="7935778388625246184">"Wi‑Fi"</string>
     <string name="wifi_quick_toggle_summary" msgid="2879870570547594266">"Uključite Wi‑Fi"</string>
     <string name="wifi_settings" msgid="7486492317310514109">"Wi‑Fi"</string>
-    <string name="wifi_settings_master_switch_title" msgid="3917916944694253946">"Koristi WiFi"</string>
+    <string name="wifi_settings_primary_switch_title" msgid="8845478864364255818">"Koristi WiFi"</string>
     <string name="wifi_settings_category" msgid="9094716747565527901">"WiFi postavke"</string>
     <string name="wifi_settings_title" msgid="5265554991622344805">"WiFi"</string>
     <string name="wifi_settings_summary" msgid="7117267255799892820">"Podešavanje bežičnih pristupnih tačaka i upravljanje njima"</string>
@@ -1609,7 +1609,7 @@
     <string name="master_clear_accounts" product="default" msgid="3432884235445405376">\n\n"Trenutno ste prijavljeni u sljedeće račune:\n"</string>
     <string name="master_clear_other_users_present" product="default" msgid="5993259656117566767">\n\n"Drugi korisnici su prisutni na ovom uređaju.\n"</string>
     <string name="master_clear_desc_also_erases_external" msgid="3947303501615091903"><li>"muziku"</li>\n<li>"fotografije"</li>\n<li>"ostale korisničke podatke"</li></string>
-    <string name="master_clear_desc_also_erases_esim" msgid="4497260499055258773"><li>"eSIM kartice"</li></string>
+    <string name="master_clear_desc_also_erases_esim" msgid="4497260499055258773"><li>"eSIM-ove"</li></string>
     <string name="master_clear_desc_no_cancel_mobile_plan" msgid="6072668588881679461">\n\n"Ovim se neće otkazati vaš plan usluga mobilnog operatera."</string>
     <string name="master_clear_desc_erase_external_storage" product="nosdcard" msgid="2723272952715259307">\n\n"Da biste izbrisali muziku, slike i ostale korisničke podatke, "<b>"USB pohrana"</b>" treba biti izbrisana."</string>
     <string name="master_clear_desc_erase_external_storage" product="default" msgid="9003555775524798797">\n\n"Da biste izbrisali muziku, slike i ostale korisničke podatke, "<b>"SD kartica"</b>" treba biti izbrisana."</string>
@@ -2116,9 +2116,9 @@
     <string name="accessibility_notification_vibration_title" msgid="1005799039440510298">"Vibracija obavještenja"</string>
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"Vibracija pri zvonu"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"Vibracija pri dodiru"</string>
-    <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"Koristi uslugu"</string>
-    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"Koristi ispravku boje"</string>
-    <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"Koristi natpise"</string>
+    <string name="accessibility_service_primary_switch_title" msgid="1405420360499478509">"Koristi uslugu"</string>
+    <string name="accessibility_daltonizer_primary_switch_title" msgid="7428407895268627434">"Koristi ispravku boje"</string>
+    <string name="accessibility_caption_primary_switch_title" msgid="1875671505480045655">"Koristi titlove"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"Nastavi"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"Slušni aparat"</string>
     <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"Nije povezan nijedan slušni aparat"</string>
@@ -2497,7 +2497,7 @@
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"Uključi"</string>
-    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"Koristi Uštedu baterije"</string>
+    <string name="battery_saver_primary_switch_title" msgid="1284229065484706156">"Koristi Uštedu baterije"</string>
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"Automatsko uključivanje"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"Nikad"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"na <xliff:g id="PERCENT">%1$s</xliff:g> baterije"</string>
@@ -3031,11 +3031,11 @@
     <string name="sim_cards_changed_message" msgid="1012486903583092731">"SIM kartice su promijenjene"</string>
     <string name="sim_cards_changed_message_summary" msgid="5753692480107865077">"Dodirnite za podešavanje aktivnosti"</string>
     <string name="sim_cellular_data_unavailable" msgid="1832472508352891641">"Prijenos podataka na mobilnoj mreži je nedostupan"</string>
-    <string name="sim_cellular_data_unavailable_summary" msgid="3093797406601964131">"Dodirnite za odabir SIM kartice za prijenos podataka"</string>
+    <string name="sim_cellular_data_unavailable_summary" msgid="3093797406601964131">"Dodirnite za odabir SIM-a za prijenos podataka"</string>
     <string name="sim_calls_always_use" msgid="5322696995795851734">"Uvijek koristi ovo za pozive"</string>
     <string name="select_sim_for_data" msgid="2099705792885526394">"Odaberite SIM za podatke"</string>
     <string name="select_sim_for_sms" msgid="2481682560233370731">"Odaberite SIM za SMS"</string>
-    <string name="data_switch_started" msgid="4517966162053949265">"Prebacuje se SIM kartica za prijenos podataka. Ovo može potrajati najviše jednu minutu..."</string>
+    <string name="data_switch_started" msgid="4517966162053949265">"Prebacuje se SIM za prijenos podataka. Ovo može potrajati najviše jednu minutu..."</string>
     <string name="select_sim_for_calls" msgid="131091573472832807">"Poziv putem"</string>
     <string name="sim_select_card" msgid="5558215843972182767">"Odaberite SIM karticu"</string>
     <string name="sim_card_number_title" msgid="8808663374497085634">"SIM <xliff:g id="CARD_NUMBER">%1$d</xliff:g>"</string>
@@ -4076,7 +4076,7 @@
     <string name="lockscreen_remote_input" msgid="3363310613165354434">"Ako je uređaj zaključan, spriječiti kucanje odgovora ili drugog teksta u obavijestima"</string>
     <string name="default_spell_checker" msgid="8636661093243189533">"Zadani kontrolor pravopisa"</string>
     <string name="choose_spell_checker" msgid="7619860861923582868">"Odaberite provjeru pravopisa"</string>
-    <string name="spell_checker_master_switch_title" msgid="5712693172227400668">"Koristi provjeru pravopisa"</string>
+    <string name="spell_checker_primary_switch_title" msgid="2432752198899857435">"Koristi provjeru pravopisa"</string>
     <string name="spell_checker_not_selected" msgid="331034541988255137">"Nije odabrano"</string>
     <string name="notification_log_no_title" msgid="3668232437235348628">"(ništa)"</string>
     <string name="notification_log_details_delimiter" msgid="5485526744689532908">": "</string>
@@ -4173,7 +4173,7 @@
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"Radi lakšeg oslobađanja prostora za pohranu, upravitelj pohranom s vašeg uređaja uklanja sigurnosne kopije fotografija i videozapisa."</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"Ukloni fotografije i videozapise"</string>
     <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"Upravitelj prostora za pohranu"</string>
-    <string name="automatic_storage_manager_master_switch_title" msgid="1456978117739582562">"Koristi Upravitelja pohrane"</string>
+    <string name="automatic_storage_manager_primary_switch_title" msgid="3690187927696783754">"Koristi Upravitelja pohrane"</string>
     <string name="deletion_helper_automatic_title" msgid="4370975149425263205">"Automatski"</string>
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"Ručno"</string>
     <string name="deletion_helper_preference_title" msgid="797270307034242206">"Oslobodite prostor odmah"</string>
