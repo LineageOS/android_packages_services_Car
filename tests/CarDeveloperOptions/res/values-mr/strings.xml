@@ -1168,7 +1168,7 @@
     <string name="accessibility_category_personal" msgid="1423427301759058762">"वैयक्तिक प्रोफाईल खाती"</string>
     <string name="accessibility_work_account_title" msgid="3195468574776888011">"कार्य खाते - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
     <string name="accessibility_personal_account_title" msgid="7251761883688839354">"वैयक्तिक खाते - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
-    <string name="search_settings" msgid="5809250790214921377">"शोध"</string>
+    <string name="search_settings" msgid="5809250790214921377">"Search"</string>
     <string name="display_settings" msgid="1045535829232307190">"डिस्प्ले"</string>
     <string name="accelerometer_title" msgid="2427487734964971453">"ऑटो-रोटेट स्क्रीन"</string>
     <string name="color_mode_title" msgid="8164858320869449142">"रंग"</string>
@@ -2212,7 +2212,7 @@
     <string name="print_feature_state_off" msgid="208580346723223688">"बंद"</string>
     <string name="print_menu_item_add_service" msgid="6803000110578493782">"सेवा जोडा"</string>
     <string name="print_menu_item_add_printer" msgid="8529196211179574921">"प्रिंटर जोडा"</string>
-    <string name="print_menu_item_search" msgid="1165316329772287360">"शोध"</string>
+    <string name="print_menu_item_search" msgid="1165316329772287360">"Search"</string>
     <string name="print_searching_for_printers" msgid="6538687129687642542">"प्रिंटर शोधत आहे"</string>
     <string name="print_service_disabled" msgid="6376344992705893436">"सेवा अक्षम केली"</string>
     <string name="print_print_jobs" msgid="7357841034181762157">"प्रिंट कार्ये"</string>
