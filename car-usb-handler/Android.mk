@@ -35,7 +35,7 @@ LOCAL_PROGUARD_ENABLED := disabled
 
 LOCAL_JAVA_LIBRARIES += android.car
 
-LOCAL_REQUIRED_MODULES := privapp_whitelist_android.car.usb.handler
+LOCAL_REQUIRED_MODULES := allowed_privapp_android.car.usb.handler
 
 include $(BUILD_PACKAGE)
 

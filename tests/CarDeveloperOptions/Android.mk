@@ -31,7 +31,7 @@ LOCAL_PRIVATE_PLATFORM_APIS := true
 LOCAL_CERTIFICATE := platform
 LOCAL_SYSTEM_EXT_MODULE := true
 LOCAL_PRIVILEGED_MODULE := true
-LOCAL_REQUIRED_MODULES := privapp_whitelist_com.android.car.developeroptions
+LOCAL_REQUIRED_MODULES := allowed_privapp_com.android.car.developeroptions
 LOCAL_MODULE_TAGS := optional
 LOCAL_USE_AAPT2 := true
 

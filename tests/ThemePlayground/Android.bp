@@ -43,5 +43,5 @@ android_app {
 
     libs: ["android.car"],
 
-    required: ["privapp_whitelist_com.android.car.themeplayground"],
+    required: ["allowed_privapp_com.android.car.themeplayground"],
 }
