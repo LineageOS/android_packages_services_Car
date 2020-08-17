@@ -19,8 +19,21 @@
 // supported.
 
 java_library {
-    name: "android.car.internal.event-log-tags",
+    name: "com.android.car.internal.all",
     srcs: [
-        "src/com/android/internal/car/EventLogTags.logtags",
+        "src/com/android/car/internal/EventLogTags.logtags",
+        "src/com/android/car/internal/CommonConstants.java",
+        "src/com/android/car/internal/UserHelperLite.java",
     ],
 }
+
+java_library {
+    name: "com.android.car.internal.system",
+    srcs: [
+        "src/com/android/car/internal/SystemConstants.java",
+        "src/com/android/car/internal/ICarServiceHelper.aidl",
+        "src/com/android/car/internal/ICarSystemServerClient.aidl",
+    ],
+}
+
+

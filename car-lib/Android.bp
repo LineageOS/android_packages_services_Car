@@ -87,7 +87,7 @@ java_library {
         "src/android/car/storagemonitoring/IoStatsEntry.aidl",
     ],
     static_libs: [
-        "android.car.internal.event-log-tags",
+        "com.android.car.internal.all",
     ],
     product_variables: {
         pdk: {

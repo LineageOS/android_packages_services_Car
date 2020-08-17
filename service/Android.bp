@@ -68,7 +68,8 @@ android_app {
     libs: ["android.car"],
 
     static_libs: common_lib_deps + [
-        "car-frameworks-service",
+        "com.android.car.internal.all",
+        "com.android.car.internal.system",
     ],
 
     required: ["privapp_whitelist_com.android.car"],

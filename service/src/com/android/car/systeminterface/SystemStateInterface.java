@@ -25,10 +25,10 @@ import android.os.PowerManager;
 import android.util.Log;
 import android.util.Pair;
 
+import com.android.car.internal.ICarServiceHelper;
 import com.android.car.procfsinspector.ProcessInfo;
 import com.android.car.procfsinspector.ProcfsInspector;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.car.ICarServiceHelper;
 
 import java.time.Duration;
 import java.util.ArrayList;

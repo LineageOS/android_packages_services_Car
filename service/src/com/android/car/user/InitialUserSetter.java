@@ -16,7 +16,6 @@
 package com.android.car.user;
 
 import static android.car.userlib.UserHalHelper.userFlagsToString;
-import static android.car.userlib.UserHelper.safeName;
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
@@ -26,7 +25,6 @@ import android.app.ActivityManager;
 import android.app.IActivityManager;
 import android.car.userlib.CarUserManagerHelper;
 import android.car.userlib.UserHalHelper;
-import android.car.userlib.UserHelper;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
@@ -41,6 +39,7 @@ import android.util.Pair;
 import android.util.Slog;
 import android.util.TimingsTraceLog;
 
+import com.android.car.internal.UserHelperLite;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 import com.android.internal.widget.LockPatternUtils;
@@ -294,7 +293,7 @@ public final class InitialUserSetter {
                 } catch (Exception e) {
                     fallbackDefaultBehavior(info, /* fallback= */ true,
                             "Exception createUser user with name "
-                                    + UserHelper.safeName(info.newUserName) + " and flags "
+                                    + UserHelperLite.safeName(info.newUserName) + " and flags "
                                     + UserHalHelper.userFlagsToString(info.newUserFlags) + ": "
                                     + e);
                 }
@@ -520,7 +519,7 @@ public final class InitialUserSetter {
         int halFlags = info.newUserFlags;
 
         if (DBG) {
-            Log.d(TAG, "createUser(name=" + safeName(name) + ", flags="
+            Log.d(TAG, "createUser(name=" + UserHelperLite.safeName(name) + ", flags="
                     + userFlagsToString(halFlags) + ")");
         }
 
@@ -550,13 +549,13 @@ public final class InitialUserSetter {
                 : UserManager.USER_TYPE_FULL_SECONDARY;
 
         if (DBG) {
-            Log.d(TAG, "calling am.createUser((name=" + safeName(name) + ", type=" + type
-                    + ", flags=" + UserInfo.flagsToString(flags) + ")");
+            Log.d(TAG, "calling am.createUser((name=" + UserHelperLite.safeName(name) + ", type="
+                    + type + ", flags=" + UserInfo.flagsToString(flags) + ")");
         }
 
         UserInfo userInfo = mUm.createUser(name, type, flags);
         if (userInfo == null) {
-            return new Pair<>(null, "createUser(name=" + safeName(name) + ", flags="
+            return new Pair<>(null, "createUser(name=" + UserHelperLite.safeName(name) + ", flags="
                     + userFlagsToString(halFlags) + "): failed to create user");
         }
 
@@ -607,7 +606,7 @@ public final class InitialUserSetter {
 
     @VisibleForTesting
     boolean startForegroundUser(@UserIdInt int userId) {
-        if (UserHelper.isHeadlessSystemUser(userId)) {
+        if (UserHelperLite.isHeadlessSystemUser(userId)) {
             // System User doesn't associate with real person, can not be switched to.
             return false;
         }

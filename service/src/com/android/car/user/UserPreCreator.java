@@ -25,8 +25,8 @@ import android.util.EventLog;
 import android.util.Slog;
 import android.util.SparseBooleanArray;
 
+import com.android.car.internal.EventLogTags;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.car.EventLogTags;
 
 import java.util.ArrayList;
 import java.util.List;
