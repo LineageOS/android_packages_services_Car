@@ -31,6 +31,12 @@ const int kFrameGenerationDelayMillis = 30;
 const char kConfigFilePath[] =
         "/vendor/etc/automotive/evs/evs_sample_configuration.xml";
 
+// Evs Camera Id names defined in sv_sample_config.xml.
+const char kEvsCameraDeviceIdNames[4][20] = {
+    "/dev/video60", "/dev/video61", "/dev/video62", "/dev/video63"
+};
+
+
 MockEvsCamera::MockEvsCamera(const string& cameraId, const Stream& streamCfg) {
     mConfigManager = ConfigManager::Create(kConfigFilePath);
 
@@ -255,6 +261,7 @@ void MockEvsCamera::initializeFrames(int framesCount) {
                                                label + (char)(i + 48));
         mBufferDescs[i].buffer.nativeHandle =
                 mGraphicBuffers[i]->getNativeBuffer()->handle;
+        mBufferDescs[i].deviceId = kEvsCameraDeviceIdNames[i];
         AHardwareBuffer_Desc* pDesc =
                 reinterpret_cast<AHardwareBuffer_Desc*>(
                         &mBufferDescs[i].buffer.description);
