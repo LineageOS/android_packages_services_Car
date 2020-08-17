@@ -30,7 +30,6 @@ import android.car.hardware.property.CarPropertyManager;
 import android.car.user.CarUserManager;
 import android.car.userlib.HalCallback;
 import android.car.userlib.UserHalHelper;
-import android.car.userlib.UserHelper;
 import android.hardware.automotive.vehicle.V2_0.CreateUserRequest;
 import android.hardware.automotive.vehicle.V2_0.CreateUserResponse;
 import android.hardware.automotive.vehicle.V2_0.CreateUserStatus;
@@ -63,10 +62,11 @@ import android.util.SparseBooleanArray;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarStatsLog;
+import com.android.car.internal.EventLogTags;
+import com.android.car.internal.UserHelperLite;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.car.EventLogTags;
 import com.android.internal.util.FunctionalUtils;
 import com.android.internal.util.Preconditions;
 
@@ -431,7 +431,7 @@ public final class UserHalService extends HalServiceBase {
         }
 
         EventLog.writeEvent(EventLogTags.CAR_USER_HAL_CREATE_USER_REQ, request.requestId,
-                UserHelper.safeName(request.newUserName), request.newUserInfo.flags, timeoutMs);
+                UserHelperLite.safeName(request.newUserName), request.newUserInfo.flags, timeoutMs);
         CarStatsLog.write(CarStatsLog.CAR_USER_HAL_MODIFY_USER_REQUEST_REPORTED, request.requestId,
                 CarStatsLog
                 .CAR_USER_HAL_MODIFY_USER_REQUEST_REPORTED__REQUEST_TYPE__CREATE_REQUEST,

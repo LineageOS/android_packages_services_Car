@@ -16,8 +16,6 @@
 package android.car.userlib;
 
 import android.annotation.NonNull;
-import android.annotation.Nullable;
-import android.annotation.UserIdInt;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.graphics.Bitmap;
@@ -45,21 +43,6 @@ public final class UserHelper {
 
     private UserHelper() {
         throw new UnsupportedOperationException("contains only static methods");
-    }
-
-    /**
-     * Gets a PII-safe representation of the name.
-     */
-    @Nullable
-    public static String safeName(@Nullable String name) {
-        return name == null ? name : name.length() + "_chars";
-    }
-
-    /**
-     * Checks whether the given user is both {@code SYSTEM} and headless.
-     */
-    public static boolean isHeadlessSystemUser(@UserIdInt int userId) {
-        return userId == UserHandle.USER_SYSTEM && UserManager.isHeadlessSystemUserMode();
     }
 
     /**

@@ -38,10 +38,8 @@ import android.car.user.UserIdentificationAssociationResponse;
 import android.car.user.UserRemovalResult;
 import android.car.user.UserSwitchResult;
 import android.car.userlib.CarUserManagerHelper;
-import android.car.userlib.CommonConstants.CarUserServiceConstants;
 import android.car.userlib.HalCallback;
 import android.car.userlib.UserHalHelper;
-import android.car.userlib.UserHelper;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -83,11 +81,13 @@ import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
 import com.android.car.R;
 import com.android.car.hal.UserHalService;
+import com.android.car.internal.CommonConstants;
+import com.android.car.internal.EventLogTags;
+import com.android.car.internal.UserHelperLite;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.user.InitialUserSetter.InitialUserInfo;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.car.EventLogTags;
 import com.android.internal.infra.AndroidFuture;
 import com.android.internal.os.IResultReceiver;
 import com.android.internal.util.ArrayUtils;
@@ -120,21 +120,21 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     private static final String TAG = TAG_USER;
 
     /** {@code int} extra used to represent a user id in a {@link IResultReceiver} response. */
-    public static final String BUNDLE_USER_ID = CarUserServiceConstants.BUNDLE_USER_ID;
+    public static final String BUNDLE_USER_ID = CommonConstants.BUNDLE_USER_ID;
     /** {@code int} extra used to represent user flags in a {@link IResultReceiver} response. */
-    public static final String BUNDLE_USER_FLAGS = CarUserServiceConstants.BUNDLE_USER_FLAGS;
+    public static final String BUNDLE_USER_FLAGS = CommonConstants.BUNDLE_USER_FLAGS;
     /** {@code String} extra used to represent a user name in a {@link IResultReceiver} response. */
-    public static final String BUNDLE_USER_NAME = CarUserServiceConstants.BUNDLE_USER_NAME;
+    public static final String BUNDLE_USER_NAME = CommonConstants.BUNDLE_USER_NAME;
     /**
      * {@code int} extra used to represent the user locales in a {@link IResultReceiver} response.
      */
     public static final String BUNDLE_USER_LOCALES =
-            CarUserServiceConstants.BUNDLE_USER_LOCALES;
+            CommonConstants.BUNDLE_USER_LOCALES;
     /**
      * {@code int} extra used to represent the info action in a {@link IResultReceiver} response.
      */
     public static final String BUNDLE_INITIAL_INFO_ACTION =
-            CarUserServiceConstants.BUNDLE_INITIAL_INFO_ACTION;
+            CommonConstants.BUNDLE_INITIAL_INFO_ACTION;
 
     public static final String VEHICLE_HAL_NOT_SUPPORTED = "Vehicle Hal not supported.";
 
@@ -473,7 +473,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @Override
     public void switchDriver(@UserIdInt int driverId, AndroidFuture<UserSwitchResult> receiver) {
         checkManageUsersPermission("switchDriver");
-        if (UserHelper.isHeadlessSystemUser(driverId)) {
+        if (UserHelperLite.isHeadlessSystemUser(driverId)) {
             // System user doesn't associate with real person, can not be switched to.
             Log.w(TAG_USER, "switching to system user in headless system user mode is not allowed");
             sendUserSwitchResult(receiver, UserSwitchResult.STATUS_INVALID_REQUEST);
@@ -497,7 +497,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @NonNull
     public List<UserInfo> getAllDrivers() {
         checkManageUsersOrDumpPermission("getAllDrivers");
-        return getUsers((user) -> !UserHelper.isHeadlessSystemUser(user.id) && user.isEnabled()
+        return getUsers((user) -> !UserHelperLite.isHeadlessSystemUser(user.id) && user.isEnabled()
                 && !user.isManagedProfile() && !user.isEphemeral());
     }
 
@@ -512,7 +512,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     public List<UserInfo> getPassengers(@UserIdInt int driverId) {
         checkManageUsersOrDumpPermission("getPassengers");
         return getUsers((user) -> {
-            return !UserHelper.isHeadlessSystemUser(user.id) && user.isEnabled()
+            return !UserHelperLite.isHeadlessSystemUser(user.id) && user.isEnabled()
                     && user.isManagedProfile() && user.profileGroupId == driverId;
         });
     }
@@ -1065,8 +1065,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         Objects.requireNonNull(userType, "user type cannot be null");
         Objects.requireNonNull(receiver, "receiver cannot be null");
         checkManageOrCreateUsersPermission("createUser");
-        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_CREATE_USER_REQ, UserHelper.safeName(name),
-                userType, flags, timeoutMs);
+        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_CREATE_USER_REQ,
+                UserHelperLite.safeName(name), userType, flags, timeoutMs);
 
         UserInfo newUser;
         try {
@@ -1081,7 +1081,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 Log.d(TAG, "Created user: " + newUser.toFullString());
             }
             EventLog.writeEvent(EventLogTags.CAR_USER_SVC_CREATE_USER_USER_CREATED, newUser.id,
-                    UserHelper.safeName(newUser.name), newUser.userType, newUser.flags);
+                    UserHelperLite.safeName(newUser.name), newUser.userType, newUser.flags);
         } catch (RuntimeException e) {
             Log.e(TAG_USER, "Error creating user of type " + userType + " and flags"
                     + UserInfo.flagsToString(flags), e);

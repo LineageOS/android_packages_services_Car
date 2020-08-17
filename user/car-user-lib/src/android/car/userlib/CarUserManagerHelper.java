@@ -32,6 +32,7 @@ import android.provider.Settings;
 import android.sysprop.CarProperties;
 import android.util.Log;
 
+import com.android.car.internal.UserHelperLite;
 import com.android.internal.util.UserIcons;
 
 import com.google.android.collect.Sets;
@@ -99,7 +100,7 @@ public final class CarUserManagerHelper {
      * Sets the last active user.
      */
     public void setLastActiveUser(@UserIdInt int userId) {
-        if (UserHelper.isHeadlessSystemUser(userId)) {
+        if (UserHelperLite.isHeadlessSystemUser(userId)) {
             if (DEBUG) Log.d(TAG, "setLastActiveUser(): ignoring headless system user " + userId);
             return;
         }
@@ -339,7 +340,7 @@ public final class CarUserManagerHelper {
      */
     @Deprecated
     public boolean switchToUserId(int id) {
-        if (UserHelper.isHeadlessSystemUser(id)) {
+        if (UserHelperLite.isHeadlessSystemUser(id)) {
             // System User doesn't associate with real person, can not be switched to.
             return false;
         }

@@ -33,9 +33,9 @@ import android.os.SystemProperties;
 import android.util.EventLog;
 import android.util.Log;
 
+import com.android.car.internal.EventLogTags;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.car.EventLogTags;
 import com.android.internal.util.RingBufferIndices;
 
 import java.io.FileDescriptor;
@@ -199,14 +199,14 @@ public class CarService extends Service {
             try {
                 mVehicle.unlinkToDeath(this);
             } catch (RemoteException e) {
-                Log.e(CarLog.TAG_SERVICE, "Failed to unlinkToDeath", e);  // Log and continue.
+                Log.e(CarLog.TAG_SERVICE, "Failed to unlinkToDeath", e); // Log and continue.
             }
             mVehicle = null;
 
             mVhalCrashTracker.crashDetected();
 
-            Log.i(CarLog.TAG_SERVICE, "Trying to reconnect to Vehicle HAL: " +
-                    mVehicleInterfaceName);
+            Log.i(CarLog.TAG_SERVICE,
+                    "Trying to reconnect to Vehicle HAL: " + mVehicleInterfaceName);
             mVehicle = getVehicleWithTimeout(WAIT_FOR_VEHICLE_HAL_TIMEOUT_MS);
             if (mVehicle == null) {
                 throw new IllegalStateException("Failed to reconnect to Vehicle HAL");
@@ -237,8 +237,8 @@ public class CarService extends Service {
         private final Runnable mCallback;
 
         /**
-         * If maxCrashCountLimit number of crashes occurred within slidingWindowMillis time
-         * frame then call provided callback function.
+         * If maxCrashCountLimit number of crashes occurred within slidingWindowMillis time frame
+         * then call provided callback function.
          */
         CrashTracker(int maxCrashCountLimit, int slidingWindowMillis, Runnable callback) {
             mMaxCrashCountLimit = maxCrashCountLimit;

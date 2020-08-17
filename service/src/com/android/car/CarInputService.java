@@ -31,7 +31,6 @@ import android.car.input.ICarInput;
 import android.car.input.ICarInputCallback;
 import android.car.input.RotaryEvent;
 import android.car.user.CarUserManager;
-import android.car.userlib.UserHelper;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -52,6 +51,7 @@ import android.view.KeyEvent;
 import android.view.ViewConfiguration;
 
 import com.android.car.hal.InputHalService;
+import com.android.car.internal.UserHelperLite;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -606,7 +606,7 @@ public class CarInputService extends ICarInput.Stub
     }
 
     private void updateRotaryServiceSettings(@UserIdInt int userId) {
-        if (UserHelper.isHeadlessSystemUser(userId)) {
+        if (UserHelperLite.isHeadlessSystemUser(userId)) {
             return;
         }
         ContentResolver contentResolver = mContext.getContentResolver();

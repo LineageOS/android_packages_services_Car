@@ -19,8 +19,8 @@ LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_SRC_FILES := \
-    $(call all-java-files-under, src) \
-    ../../../../../frameworks/opt/car/services/src/com/android/internal/car/ICarServiceHelper.aidl
+    $(call all-java-files-under, src)
+
 
 LOCAL_RESOURCE_DIR += $(LOCAL_PATH)/res \
     packages/services/Car/service/res
@@ -55,8 +55,9 @@ LOCAL_STATIC_JAVA_LIBRARIES := \
     androidx.test.core \
     androidx.test.ext.junit \
     androidx.test.rules \
-    car-frameworks-service \
     car-service-test-static-lib \
+    com.android.car.internal.all \
+    com.android.car.internal.system \
     com.android.car.test.utils \
     frameworks-base-testutils \
     mockito-target-extended \

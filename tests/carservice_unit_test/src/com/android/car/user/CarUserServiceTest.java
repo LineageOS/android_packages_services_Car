@@ -106,6 +106,7 @@ import android.util.SparseArray;
 import androidx.test.InstrumentationRegistry;
 
 import com.android.car.hal.UserHalService;
+import com.android.car.internal.UserHelperLite;
 import com.android.internal.R;
 import com.android.internal.infra.AndroidFuture;
 import com.android.internal.os.IResultReceiver;
@@ -200,6 +201,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
             // considerably (more than 5 minutes total, instead of just a couple seconds). So, it's
             // mocking UserHelper.isHeadlessSystemUser() (on mockIsHeadlessSystemUser()) instead...
             .spyStatic(UserHelper.class)
+            .spyStatic(UserHelperLite.class)
             .spyStatic(CarProperties.class);
     }
 
@@ -1866,7 +1868,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     private void mockIsHeadlessSystemUser(@UserIdInt int userId, boolean mode) {
-        doReturn(mode).when(() -> UserHelper.isHeadlessSystemUser(userId));
+        doReturn(mode).when(() -> UserHelperLite.isHeadlessSystemUser(userId));
     }
 
     private void mockHalSwitch(@UserIdInt int currentUserId, @NonNull UserInfo androidTargetUser,
