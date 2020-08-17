@@ -26,6 +26,12 @@
         <install-in user-type="SYSTEM" />
     </install-in-user-type>
 
+    <!-- Failed to complete CtsShortcutHostTestCases if LocalTransport is not
+    installed for system user  -->
+    <install-in-user-type package="com.android.localtransport">
+        <install-in user-type="SYSTEM" />
+    </install-in-user-type>
+
 <!--
   Apps that need to run on SYSTEM and evaluated by package owner.
   Here the apps will have FULL and SYSTEM.
