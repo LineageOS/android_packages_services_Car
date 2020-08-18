@@ -1168,7 +1168,7 @@
     <string name="accessibility_category_personal" msgid="1423427301759058762">"ਨਿੱਜੀ ਪ੍ਰੋਫਾਈਲ ਖਾਤੇ"</string>
     <string name="accessibility_work_account_title" msgid="3195468574776888011">"ਕੰਮ ਖਾਤਾ - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
     <string name="accessibility_personal_account_title" msgid="7251761883688839354">"ਨਿੱਜੀ ਖਾਤਾ - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
-    <string name="search_settings" msgid="5809250790214921377">"ਖੋਜੋ"</string>
+    <string name="search_settings" msgid="5809250790214921377">"ਖੋਜ"</string>
     <string name="display_settings" msgid="1045535829232307190">"ਡਿਸਪਲੇ"</string>
     <string name="accelerometer_title" msgid="2427487734964971453">"ਸਕ੍ਰੀਨ ਸਵੈ-ਘੁਮਾਓ"</string>
     <string name="color_mode_title" msgid="8164858320869449142">"ਰੰਗ"</string>

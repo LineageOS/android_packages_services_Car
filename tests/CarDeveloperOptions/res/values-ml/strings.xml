@@ -1168,7 +1168,7 @@
     <string name="accessibility_category_personal" msgid="1423427301759058762">"വ്യക്തിഗത പ്രൊഫൈൽ അക്കൗണ്ടുകൾ"</string>
     <string name="accessibility_work_account_title" msgid="3195468574776888011">"ഔദ്യോഗിക അക്കൗണ്ട് - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
     <string name="accessibility_personal_account_title" msgid="7251761883688839354">"വ്യക്തിഗത അക്കൗണ്ട് - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
-    <string name="search_settings" msgid="5809250790214921377">"തിരയൽ"</string>
+    <string name="search_settings" msgid="5809250790214921377">"Search"</string>
     <string name="display_settings" msgid="1045535829232307190">"ഡിസ്പ്ലേ"</string>
     <string name="accelerometer_title" msgid="2427487734964971453">"സ്‌ക്രീൻ സ്വയമേവ തിരിക്കുക"</string>
     <string name="color_mode_title" msgid="8164858320869449142">"നിറങ്ങൾ"</string>
@@ -2211,7 +2211,7 @@
     <string name="print_feature_state_off" msgid="208580346723223688">"ഓഫ്"</string>
     <string name="print_menu_item_add_service" msgid="6803000110578493782">"സേവനം ചേർക്കുക"</string>
     <string name="print_menu_item_add_printer" msgid="8529196211179574921">"പ്രിന്റർ ചേർക്കുക"</string>
-    <string name="print_menu_item_search" msgid="1165316329772287360">"തിരയൽ"</string>
+    <string name="print_menu_item_search" msgid="1165316329772287360">"Search"</string>
     <string name="print_searching_for_printers" msgid="6538687129687642542">"പ്രിന്ററുകൾക്കായി തിരയുന്നു"</string>
     <string name="print_service_disabled" msgid="6376344992705893436">"സേവനം പ്രവർത്തനരഹിതമാക്കി"</string>
     <string name="print_print_jobs" msgid="7357841034181762157">"പ്രിന്റ് ജോലികൾ"</string>

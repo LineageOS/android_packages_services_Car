@@ -1168,7 +1168,7 @@
     <string name="accessibility_category_personal" msgid="1423427301759058762">"વ્યક્તિગત પ્રોફાઇલ એકાઉન્ટ્સ"</string>
     <string name="accessibility_work_account_title" msgid="3195468574776888011">"કાર્ય એકાઉન્ટ - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
     <string name="accessibility_personal_account_title" msgid="7251761883688839354">"વ્યક્તિગત એકાઉન્ટ - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
-    <string name="search_settings" msgid="5809250790214921377">"શોધો"</string>
+    <string name="search_settings" msgid="5809250790214921377">"Search"</string>
     <string name="display_settings" msgid="1045535829232307190">"ડિસ્પ્લે"</string>
     <string name="accelerometer_title" msgid="2427487734964971453">"ઑટો રોટેટ સ્ક્રીન"</string>
     <string name="color_mode_title" msgid="8164858320869449142">"રંગો"</string>

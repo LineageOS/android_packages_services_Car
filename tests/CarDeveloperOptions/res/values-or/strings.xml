@@ -1168,7 +1168,7 @@
     <string name="accessibility_category_personal" msgid="1423427301759058762">"ବ୍ୟକ୍ତିଗତ ପ୍ରୋଫାଇଲ୍‌ ଆକାଉଣ୍ଟ"</string>
     <string name="accessibility_work_account_title" msgid="3195468574776888011">"କାର୍ଯ୍ୟ ଆକାଉଣ୍ଟ - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
     <string name="accessibility_personal_account_title" msgid="7251761883688839354">"ବ୍ୟକ୍ତିଗତ ଆକାଉଣ୍ଟ - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
-    <string name="search_settings" msgid="5809250790214921377">"ସନ୍ଧାନ"</string>
+    <string name="search_settings" msgid="5809250790214921377">"Search"</string>
     <string name="display_settings" msgid="1045535829232307190">"ଡିସ୍‌ପ୍ଲେ"</string>
     <string name="accelerometer_title" msgid="2427487734964971453">"ଅଟୋ-ରୋଟେଟ୍‌ ସ୍କ୍ରିନ୍"</string>
     <string name="color_mode_title" msgid="8164858320869449142">"ରଙ୍ଗ"</string>
@@ -2211,7 +2211,7 @@
     <string name="print_feature_state_off" msgid="208580346723223688">"ଅଫ୍"</string>
     <string name="print_menu_item_add_service" msgid="6803000110578493782">"ସେବା ଯୋଡ଼ନ୍ତୁ"</string>
     <string name="print_menu_item_add_printer" msgid="8529196211179574921">"ପ୍ରିଣ୍ଟର୍‌ ଯୋଡ଼ନ୍ତୁ"</string>
-    <string name="print_menu_item_search" msgid="1165316329772287360">"ସର୍ଚ୍ଚ"</string>
+    <string name="print_menu_item_search" msgid="1165316329772287360">"Search"</string>
     <string name="print_searching_for_printers" msgid="6538687129687642542">"ପ୍ରିଣ୍ଟର୍‌ ଖୋଜୁଛି"</string>
     <string name="print_service_disabled" msgid="6376344992705893436">"ସେବା ବନ୍ଦ ଅଛି"</string>
     <string name="print_print_jobs" msgid="7357841034181762157">"ପ୍ରିଣ୍ଟ ଜବ୍‌"</string>
