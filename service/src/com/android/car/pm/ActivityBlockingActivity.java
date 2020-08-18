@@ -22,6 +22,7 @@ import static com.android.car.pm.CarPackageManagerService.BLOCKING_INTENT_EXTRA_
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.ActivityTaskManager.RootTaskInfo;
 import android.app.IActivityManager;
 import android.car.Car;
 import android.car.content.pm.CarPackageManager;
@@ -264,34 +265,34 @@ public class ActivityBlockingActivity extends Activity {
      * the ABA is distraction optimized.
      */
     private boolean isTopActivityBehindAbaDistractionOptimized() {
-        List<ActivityManager.StackInfo> stackInfos;
+        List<RootTaskInfo> taskInfos;
         try {
-            stackInfos = mAm.getAllStackInfos();
+            taskInfos = mAm.getAllRootTaskInfos();
         } catch (RemoteException e) {
             Log.e(CarLog.TAG_AM, "Unable to get stack info from ActivityManager");
             // assume that the state is still correct, the activity behind is not DO
             return false;
         }
 
-        ActivityManager.StackInfo topStackBehindAba = null;
-        for (ActivityManager.StackInfo stackInfo : stackInfos) {
-            if (stackInfo.displayId != getDisplayId()) {
+        RootTaskInfo topStackBehindAba = null;
+        for (RootTaskInfo taskInfo : taskInfos) {
+            if (taskInfo.displayId != getDisplayId()) {
                 // ignore stacks on other displays
                 continue;
             }
 
-            if (getComponentName().equals(stackInfo.topActivity)) {
+            if (getComponentName().equals(taskInfo.topActivity)) {
                 // ignore stack with the blocking activity
                 continue;
             }
 
-            if (!stackInfo.visible) {
+            if (!taskInfo.visible) {
                 // ignore stacks that aren't visible
                 continue;
             }
 
-            if (topStackBehindAba == null || topStackBehindAba.position < stackInfo.position) {
-                topStackBehindAba = stackInfo;
+            if (topStackBehindAba == null || topStackBehindAba.position < taskInfo.position) {
+                topStackBehindAba = taskInfo;
             }
         }
 

@@ -19,7 +19,7 @@ package com.android.car.pm;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.ActivityManager;
-import android.app.ActivityManager.StackInfo;
+import android.app.ActivityTaskManager.RootTaskInfo;
 import android.app.PendingIntent;
 import android.car.Car;
 import android.car.content.pm.AppBlockingPackageInfo;
@@ -318,7 +318,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
     @Override
     public boolean isActivityBackedBySafeActivity(ComponentName activityName) {
-        StackInfo info = mSystemActivityMonitoringService.getFocusedStackForTopActivity(
+        RootTaskInfo info = mSystemActivityMonitoringService.getFocusedStackForTopActivity(
                 activityName);
         if (info == null) { // not top in focused stack
             return true;
@@ -326,11 +326,11 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         if (!isUxRestrictedOnDisplay(info.displayId)) {
             return true;
         }
-        if (info.taskNames.length <= 1) { // nothing below this.
+        if (info.childTaskNames.length <= 1) { // nothing below this.
             return false;
         }
         ComponentName activityBehind = ComponentName.unflattenFromString(
-                info.taskNames[info.taskNames.length - 2]);
+                info.childTaskNames[info.childTaskNames.length - 2]);
         return isActivityDistractionOptimized(activityBehind.getPackageName(),
                 activityBehind.getClassName());
     }
@@ -1069,24 +1069,24 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             if (!mEnableActivityBlocking) {
                 Log.d(CarLog.TAG_PACKAGE, "Current activity " + topTask.topActivity +
                         " not allowed, blocking disabled. Number of tasks in stack:"
-                        + topTask.stackInfo.taskIds.length);
+                        + topTask.taskInfo.childTaskIds.length);
                 return;
             }
         }
         if (DBG_POLICY_ENFORCEMENT) {
             Log.i(CarLog.TAG_PACKAGE, "Current activity " + topTask.topActivity +
                     " not allowed, will block, number of tasks in stack:" +
-                    topTask.stackInfo.taskIds.length);
+                    topTask.taskInfo.childTaskIds.length);
         }
 
         // Figure out the root activity of blocked task.
         String taskRootActivity = null;
-        for (int i = 0; i < topTask.stackInfo.taskIds.length; i++) {
+        for (int i = 0; i < topTask.taskInfo.childTaskIds.length; i++) {
             // topTask.taskId is the task that should be blocked.
-            if (topTask.stackInfo.taskIds[i] == topTask.taskId) {
+            if (topTask.taskInfo.childTaskIds[i] == topTask.taskId) {
                 // stackInfo represents an ActivityStack. Its fields taskIds and taskNames
                 // are 1:1 mapped, where taskNames is the name of root activity in this task.
-                taskRootActivity = topTask.stackInfo.taskNames[i];
+                taskRootActivity = topTask.taskInfo.childTaskNames[i];
                 break;
             }
         }
