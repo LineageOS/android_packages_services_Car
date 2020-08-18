@@ -29,6 +29,7 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.os.SystemClock;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.Display;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 
@@ -350,6 +351,9 @@ public class InputHalService extends HalServiceBase {
                 0 /* flags */,
                 InputDevice.SOURCE_CLASS_BUTTON);
 
+        if (display == DISPLAY_MAIN) {
+            event.setDisplayId(Display.DEFAULT_DISPLAY);
+        }
         listener.onKeyEvent(event, display);
     }
 
