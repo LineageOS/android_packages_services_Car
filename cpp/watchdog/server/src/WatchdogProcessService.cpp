@@ -23,26 +23,45 @@
 #include <android-base/file.h>
 #include <android-base/properties.h>
 #include <android-base/stringprintf.h>
+#include <android-base/strings.h>
+#include <android/hardware/automotive/vehicle/2.0/types.h>
 #include <binder/IPCThreadState.h>
+#include <hidl/HidlTransportSupport.h>
+#include <utils/SystemClock.h>
 
 namespace android {
 namespace automotive {
 namespace watchdog {
 
-using std::literals::chrono_literals::operator""s;
 using android::base::Error;
 using android::base::GetProperty;
+using android::base::ReadFileToString;
 using android::base::Result;
 using android::base::StringAppendF;
 using android::base::StringPrintf;
+using android::base::Trim;
 using android::base::WriteStringToFd;
 using android::binder::Status;
+using android::hardware::hidl_vec;
+using android::hardware::interfacesEqual;
+using android::hardware::automotive::vehicle::V2_0::IVehicle;
+using android::hardware::automotive::vehicle::V2_0::ProcessTerminationReason;
+using android::hardware::automotive::vehicle::V2_0::StatusCode;
+using android::hardware::automotive::vehicle::V2_0::VehiclePropConfig;
+using android::hardware::automotive::vehicle::V2_0::VehicleProperty;
+using android::hardware::automotive::vehicle::V2_0::VehiclePropertyStatus;
+using android::hardware::automotive::vehicle::V2_0::VehiclePropValue;
+using android::hidl::base::V1_0::IBase;
 
 namespace {
 
 const std::vector<TimeoutLength> kTimeouts = {TimeoutLength::TIMEOUT_CRITICAL,
                                               TimeoutLength::TIMEOUT_MODERATE,
                                               TimeoutLength::TIMEOUT_NORMAL};
+
+// TimeoutLength is also used as a message ID. Other message IDs should start next to
+// TimeoutLength::TIMEOUT_NORMAL.
+const int32_t MSG_VHAL_WATCHDOG_ALIVE = static_cast<int>(TimeoutLength::TIMEOUT_NORMAL) + 1;
 
 std::chrono::nanoseconds timeoutToDurationNs(const TimeoutLength& timeout) {
     switch (timeout) {
@@ -79,9 +98,14 @@ bool isSystemShuttingDown() {
 }  // namespace
 
 WatchdogProcessService::WatchdogProcessService(const sp<Looper>& handlerLooper) :
-      mHandlerLooper(handlerLooper), mLastSessionId(0) {
+      mHandlerLooper(handlerLooper),
+      mLastSessionId(0),
+      mServiceStarted(false),
+      mVhalService(nullptr) {
     mMessageHandler = new MessageHandlerImpl(this);
     mWatchdogEnabled = true;
+    mBinderDeathRecipient = new BinderDeathRecipient(this);
+    mHidlDeathRecipient = new HidlDeathRecipient(this);
     for (const auto& timeout : kTimeouts) {
         mClients.insert(std::make_pair(timeout, std::vector<ClientInfo>()));
         mPingedClients.insert(std::make_pair(timeout, PingedClientMap()));
@@ -121,7 +145,7 @@ Status WatchdogProcessService::registerMonitor(const sp<ICarWatchdogMonitor>& mo
     if (mMonitor != nullptr && binder == BnCarWatchdog::asBinder(mMonitor)) {
         return Status::ok();
     }
-    status_t ret = binder->linkToDeath(this);
+    status_t ret = binder->linkToDeath(mBinderDeathRecipient);
     if (ret != OK) {
         ALOGW("Cannot register the monitor. The monitor is dead.");
         return Status::fromExceptionCode(Status::EX_ILLEGAL_STATE, "The monitor is dead.");
@@ -141,7 +165,7 @@ Status WatchdogProcessService::unregisterMonitor(const sp<ICarWatchdogMonitor>& 
                                          "The monitor has not been registered.");
     }
     sp<IBinder> binder = BnCarWatchdog::asBinder(monitor);
-    binder->unlinkToDeath(this);
+    binder->unlinkToDeath(mBinderDeathRecipient);
     mMonitor = nullptr;
     if (DEBUG) {
         ALOGD("Car watchdog monitor is unregistered");
@@ -231,11 +255,11 @@ Status WatchdogProcessService::notifyUserStateChange(userid_t userId, UserState 
     Mutex::Autolock lock(mMutex);
     switch (state) {
         case UserState::USER_STATE_STARTED:
-            mStoppedUserId.erase(userId);
+            mStoppedUserIds.erase(userId);
             buffer = StringPrintf("user(%d) is started", userId);
             break;
         case UserState::USER_STATE_STOPPED:
-            mStoppedUserId.insert(userId);
+            mStoppedUserIds.insert(userId);
             buffer = StringPrintf("user(%d) is stopped", userId);
             break;
         default:
@@ -273,7 +297,7 @@ Result<void> WatchdogProcessService::dump(int fd, const Vector<String16>& /*args
                     fd);
     buffer = "none";
     bool first = true;
-    for (const auto& userId : mStoppedUserId) {
+    for (const auto& userId : mStoppedUserIds) {
         if (first) {
             buffer = StringPrintf("%d", userId);
             first = false;
@@ -304,7 +328,7 @@ void WatchdogProcessService::doHealthCheck(int what) {
         pingedClients.clear();
         clientsToCheck = mClients[timeout];
         for (auto& clientInfo : clientsToCheck) {
-            if (mStoppedUserId.count(clientInfo.userId) > 0) {
+            if (mStoppedUserIds.count(clientInfo.userId) > 0) {
                 continue;
             }
             int sessionId = getNewSessionId();
@@ -332,34 +356,33 @@ void WatchdogProcessService::doHealthCheck(int what) {
     }
 }
 
+Result<void> WatchdogProcessService::start() {
+    if (mServiceStarted) {
+        return Error(INVALID_OPERATION) << "Cannot start process monitoring more than once";
+    }
+    mServiceStarted = true;
+    reportWatchdogAliveToVhal();
+    return {};
+}
+
 void WatchdogProcessService::terminate() {
     Mutex::Autolock lock(mMutex);
     for (const auto& timeout : kTimeouts) {
         std::vector<ClientInfo>& clients = mClients[timeout];
         for (auto it = clients.begin(); it != clients.end();) {
             sp<IBinder> binder = BnCarWatchdog::asBinder((*it).client);
-            binder->unlinkToDeath(this);
+            binder->unlinkToDeath(mBinderDeathRecipient);
             it = clients.erase(it);
         }
     }
-}
-
-void WatchdogProcessService::binderDied(const wp<IBinder>& who) {
-    Mutex::Autolock lock(mMutex);
-    IBinder* binder = who.unsafe_get();
-    // Check if dead binder is monitor.
-    sp<IBinder> monitor = BnCarWatchdog::asBinder(mMonitor);
-    if (monitor == binder) {
-        mMonitor = nullptr;
-        ALOGW("The monitor has died.");
-        return;
+    if (mMonitor != nullptr) {
+        sp<IBinder> binder = BnCarWatchdog::asBinder(mMonitor);
+        binder->unlinkToDeath(mBinderDeathRecipient);
     }
-    findClientAndProcessLocked(kTimeouts, binder,
-                               [&](std::vector<ClientInfo>& clients,
-                                   std::vector<ClientInfo>::const_iterator it) {
-                                   ALOGW("Client(pid: %d) died", it->pid);
-                                   clients.erase(it);
-                               });
+    if (mVhalService != nullptr) {
+        mVhalService->unlinkToDeath(mHidlDeathRecipient);
+    }
+    mServiceStarted = false;
 }
 
 bool WatchdogProcessService::isRegisteredLocked(const sp<ICarWatchdogClient>& client) {
@@ -375,7 +398,7 @@ Status WatchdogProcessService::registerClientLocked(const sp<ICarWatchdogClient>
         return Status::ok();
     }
     sp<IBinder> binder = BnCarWatchdog::asBinder(client);
-    status_t status = binder->linkToDeath(this);
+    status_t status = binder->linkToDeath(mBinderDeathRecipient);
     if (status != OK) {
         std::string errorStr = StringPrintf("The %s is dead", clientName);
         const char* errorCause = errorStr.c_str();
@@ -404,7 +427,7 @@ Status WatchdogProcessService::unregisterClientLocked(const std::vector<TimeoutL
     bool result = findClientAndProcessLocked(timeouts, binder,
                                              [&](std::vector<ClientInfo>& clients,
                                                  std::vector<ClientInfo>::const_iterator it) {
-                                                 binder->unlinkToDeath(this);
+                                                 binder->unlinkToDeath(mBinderDeathRecipient);
                                                  clients.erase(it);
                                              });
     if (!result) {
@@ -481,7 +504,7 @@ Result<void> WatchdogProcessService::dumpAndKillClientsIfNotResponding(TimeoutLe
                                            userId = (*it).userId;
                                            clients.erase(it);
                                        });
-            if (pid != -1 && mStoppedUserId.count(userId) == 0) {
+            if (pid != -1 && mStoppedUserIds.count(userId) == 0) {
                 clientsToNotify.push_back(client);
                 processIds.push_back(pid);
             }
@@ -517,11 +540,164 @@ Result<void> WatchdogProcessService::dumpAndKillAllProcesses(
               pidString.c_str());
         return {};
     }
+    reportTerminatedProcessToVhal(processesNotResponding);
     monitor->onClientsNotResponding(processesNotResponding);
     if (DEBUG) {
         ALOGD("Dumping and killing processes is requested: %s", pidString.c_str());
     }
     return {};
+}
+
+// Handle when car watchdog clients die.
+void WatchdogProcessService::handleBinderDeath(const wp<IBinder>& who) {
+    Mutex::Autolock lock(mMutex);
+    IBinder* binder = who.unsafe_get();
+    // Check if dead binder is monitor.
+    sp<IBinder> monitor = BnCarWatchdog::asBinder(mMonitor);
+    if (monitor == binder) {
+        mMonitor = nullptr;
+        ALOGW("The monitor has died.");
+        return;
+    }
+    findClientAndProcessLocked(kTimeouts, binder,
+                               [&](std::vector<ClientInfo>& clients,
+                                   std::vector<ClientInfo>::const_iterator it) {
+                                   ALOGW("Client(pid: %d) died", it->pid);
+                                   clients.erase(it);
+                               });
+}
+
+// Handle when VHAL dies.
+void WatchdogProcessService::handleHidlDeath(const wp<IBase>& who) {
+    Mutex::Autolock lock(mMutex);
+    if (!interfacesEqual(mVhalService, who.promote())) {
+        return;
+    }
+    ALOGW("VHAL has died.");
+    mVhalService->unlinkToDeath(mHidlDeathRecipient);
+    mVhalService = nullptr;
+}
+
+void WatchdogProcessService::reportWatchdogAliveToVhal() {
+    if (mNotSupportedVhalProperties.count(VehicleProperty::WATCHDOG_ALIVE) > 0) {
+        ALOGW("VHAL doesn't support WATCHDOG_ALIVE. Car watchdog will not update WATCHDOG_ALIVE.");
+        return;
+    }
+    int64_t systemUptime = uptimeMillis();
+    VehiclePropValue propValue{
+            .prop = static_cast<int32_t>(VehicleProperty::WATCHDOG_ALIVE),
+            .status = VehiclePropertyStatus::AVAILABLE,
+            .value = {.int64Values = {systemUptime}},
+    };
+    const auto& ret = updateVhal(propValue);
+    if (!ret.ok()) {
+        ALOGW("Failed to update WATCHDOG_ALIVE VHAL property. Will try again in 3s");
+    }
+    // Update VHAL with the interval of TIMEOUT_CRITICAL(3s).
+    auto durationNs = timeoutToDurationNs(TimeoutLength::TIMEOUT_CRITICAL);
+    mHandlerLooper->removeMessages(mMessageHandler, MSG_VHAL_WATCHDOG_ALIVE);
+    mHandlerLooper->sendMessageDelayed(durationNs.count(), mMessageHandler,
+                                       Message(MSG_VHAL_WATCHDOG_ALIVE));
+}
+
+void WatchdogProcessService::reportTerminatedProcessToVhal(
+        const std::vector<int32_t>& processesNotResponding) {
+    if (mNotSupportedVhalProperties.count(VehicleProperty::WATCHDOG_TERMINATED_PROCESS) > 0) {
+        ALOGW("VHAL doesn't support WATCHDOG_TERMINATED_PROCESS. Terminated process is not "
+              "reported to VHAL.");
+        return;
+    }
+    for (auto&& pid : processesNotResponding) {
+        const auto& retCmdLine = readProcCmdLine(pid);
+        if (!retCmdLine.ok()) {
+            ALOGW("Failed to get process command line for pid(%d): %s", pid,
+                  retCmdLine.error().message().c_str());
+            continue;
+        }
+        std::string procCmdLine = retCmdLine.value();
+        VehiclePropValue propValue{
+                .prop = static_cast<int32_t>(VehicleProperty::WATCHDOG_TERMINATED_PROCESS),
+                .status = VehiclePropertyStatus::AVAILABLE,
+                .value = {
+                        .int32Values = {static_cast<int32_t>(
+                                ProcessTerminationReason::NOT_RESPONDING)},
+                        .stringValue = procCmdLine,
+                },
+        };
+        const auto& retUpdate = updateVhal(propValue);
+        if (!retUpdate.ok()) {
+            ALOGW("Failed to update WATCHDOG_TERMINATED_PROCESS VHAL property(command line: %s)",
+                  procCmdLine.c_str());
+        }
+    }
+}
+
+Result<void> WatchdogProcessService::updateVhal(const VehiclePropValue& value) {
+    Mutex::Autolock lock(mMutex);
+    const auto& connectRet = connectToVhalLocked();
+    if (!connectRet.ok()) {
+        std::string errorMsg = "VHAL is not connected: " + connectRet.error().message();
+        ALOGW("%s", errorMsg.c_str());
+        return Error() << errorMsg;
+    }
+    if (mNotSupportedVhalProperties.count(static_cast<VehicleProperty>(value.prop)) > 0) {
+        std::string errorMsg = StringPrintf("VHAL doesn't support property(id: %d)", value.prop);
+        ALOGW("%s", errorMsg.c_str());
+        return Error() << errorMsg;
+    }
+    const auto& updateRet = mVhalService->set(value);
+    if (updateRet.isOk() && updateRet == StatusCode::OK) {
+        return {};
+    }
+    return Error() << "Failed to set propValue(" << value.prop << ") to VHAL";
+}
+
+Result<std::string> WatchdogProcessService::readProcCmdLine(int32_t pid) {
+    std::string cmdLinePath = StringPrintf("/proc/%d/cmdline", pid);
+    std::string procCmdLine;
+    if (ReadFileToString(cmdLinePath, &procCmdLine)) {
+        std::replace(procCmdLine.begin(), procCmdLine.end(), '\0', ' ');
+        procCmdLine = Trim(procCmdLine);
+        return procCmdLine;
+    }
+    return Error() << "Failed to read " << cmdLinePath;
+}
+
+Result<void> WatchdogProcessService::connectToVhalLocked() {
+    if (mVhalService.get() != nullptr) {
+        return {};
+    }
+    mVhalService = IVehicle::tryGetService();
+    if (mVhalService.get() == nullptr) {
+        return Error() << "Failed to connect to VHAL. Will try to connect to VHAL in 500ms";
+    }
+    mVhalService->linkToDeath(mHidlDeathRecipient, /*cookie=*/0);
+    queryVhalPropertiesLocked();
+    ALOGI("Successfully connected to VHAL.");
+    return {};
+}
+
+void WatchdogProcessService::queryVhalPropertiesLocked() {
+    mNotSupportedVhalProperties.clear();
+    std::vector<VehicleProperty> propIds = {VehicleProperty::WATCHDOG_ALIVE,
+                                            VehicleProperty::WATCHDOG_TERMINATED_PROCESS,
+                                            VehicleProperty::VHAL_HEARTBEAT};
+    for (const auto& propId : propIds) {
+        if (!isVhalPropertySupportedLocked(propId)) {
+            mNotSupportedVhalProperties.insert(propId);
+        }
+    }
+}
+
+bool WatchdogProcessService::isVhalPropertySupportedLocked(VehicleProperty propId) {
+    StatusCode status;
+    hidl_vec<int32_t> props = {static_cast<int32_t>(propId)};
+    mVhalService->getPropConfigs(props,
+                                 [&status](StatusCode s,
+                                           hidl_vec<VehiclePropConfig> /*propConfigs*/) {
+                                     status = s;
+                                 });
+    return status == StatusCode::OK;
 }
 
 int32_t WatchdogProcessService::getNewSessionId() {
@@ -544,6 +720,23 @@ std::string WatchdogProcessService::ClientInfo::toString() {
     return buffer;
 }
 
+WatchdogProcessService::BinderDeathRecipient::BinderDeathRecipient(
+        const sp<WatchdogProcessService>& service) :
+      mService(service) {}
+
+void WatchdogProcessService::BinderDeathRecipient::binderDied(const wp<IBinder>& who) {
+    mService->handleBinderDeath(who);
+}
+
+WatchdogProcessService::HidlDeathRecipient::HidlDeathRecipient(
+        const sp<WatchdogProcessService>& service) :
+      mService(service) {}
+
+void WatchdogProcessService::HidlDeathRecipient::serviceDied(uint64_t /*cookie*/,
+                                                             const wp<IBase>& who) {
+    mService->handleHidlDeath(who);
+}
+
 WatchdogProcessService::MessageHandlerImpl::MessageHandlerImpl(
         const sp<WatchdogProcessService>& service) :
       mService(service) {}
@@ -554,6 +747,9 @@ void WatchdogProcessService::MessageHandlerImpl::handleMessage(const Message& me
         case static_cast<int>(TimeoutLength::TIMEOUT_MODERATE):
         case static_cast<int>(TimeoutLength::TIMEOUT_NORMAL):
             mService->doHealthCheck(message.what);
+            break;
+        case MSG_VHAL_WATCHDOG_ALIVE:
+            mService->reportWatchdogAliveToVhal();
             break;
         default:
             ALOGW("Unknown message: %d", message.what);

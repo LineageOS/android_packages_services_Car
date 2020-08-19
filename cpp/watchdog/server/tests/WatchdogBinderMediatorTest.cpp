@@ -62,7 +62,6 @@ public:
                 (const android::sp<ICarWatchdogMonitor>& monitor, int32_t pid), (override));
     MOCK_METHOD(Status, notifyPowerCycleChange, (PowerCycle cycle), (override));
     MOCK_METHOD(Status, notifyUserStateChange, (userid_t userId, UserState state), (override));
-    MOCK_METHOD(void, binderDied, (const android::wp<IBinder>& who), (override));
 };
 
 class MockIoPerfCollection : public IoPerfCollection {
