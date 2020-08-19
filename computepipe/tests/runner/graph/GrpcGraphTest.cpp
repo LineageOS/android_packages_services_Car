@@ -44,12 +44,12 @@ namespace computepipe {
 namespace graph {
 namespace {
 
-constexpr char kGraphName[] = "Dummy graph name";
-constexpr char kSetGraphConfigMessage[] = "Dummy set config message";
-constexpr char kSetDebugOptionMessage[] = "Dummy set debug option message";
-constexpr char kStartGraphMessage[] = "Dummy start graph message";
-constexpr char kStopGraphMessage[] = "Dummy stop graph message";
-constexpr char kOutputStreamPacket[] = "Dummy output stream packet";
+constexpr char kGraphName[] = "Stub graph name";
+constexpr char kSetGraphConfigMessage[] = "Stub set config message";
+constexpr char kSetDebugOptionMessage[] = "Stub set debug option message";
+constexpr char kStartGraphMessage[] = "Stub start graph message";
+constexpr char kStopGraphMessage[] = "Stub stop graph message";
+constexpr char kOutputStreamPacket[] = "Stub output stream packet";
 constexpr char kResetGraphMessage[] = "ResetGraphMessage";
 
 // This is a barebones synchronous server implementation. A better implementation would be an
