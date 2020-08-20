@@ -25,9 +25,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
 
-import android.automotive.watchdog.ICarWatchdogClient;
 import android.car.Car;
 import android.car.watchdog.CarWatchdogManager;
+import android.car.watchdog.ICarWatchdogServiceCallback;
 import android.content.Context;
 import android.os.Handler;
 import android.os.IBinder;
@@ -70,11 +70,11 @@ public class CarWatchdogManagerUnitTest {
     @Test
     public void testRegisterClient() throws Exception {
         TestClient client = new TestClient();
-        ICarWatchdogClient clientImpl = registerClient(client);
+        ICarWatchdogServiceCallback clientImpl = registerClient(client);
         mCarWatchdogManager.unregisterClient(client);
         verify(mService).unregisterClient(clientImpl);
 
-        clientImpl.checkIfAlive(123456, TIMEOUT_CRITICAL);
+        clientImpl.onCheckHealthStatus(123456, TIMEOUT_CRITICAL);
         verify(mService, never()).tellClientAlive(clientImpl, 123456);
     }
 
@@ -111,10 +111,11 @@ public class CarWatchdogManagerUnitTest {
         testClientResponse(new ReturnAndPongClient());
     }
 
-    private ICarWatchdogClient registerClient(CarWatchdogManager.CarWatchdogClientCallback client) {
+    private ICarWatchdogServiceCallback registerClient(
+            CarWatchdogManager.CarWatchdogClientCallback client) {
         mCarWatchdogManager.registerClient(mExecutor, client, TIMEOUT_CRITICAL);
-        ArgumentCaptor<ICarWatchdogClient> clientImplCaptor =
-                ArgumentCaptor.forClass(ICarWatchdogClient.class);
+        ArgumentCaptor<ICarWatchdogServiceCallback> clientImplCaptor =
+                ArgumentCaptor.forClass(ICarWatchdogServiceCallback.class);
 
         verify(mService).registerClient(clientImplCaptor.capture(), eq(TIMEOUT_CRITICAL));
         return clientImplCaptor.getValue();
@@ -122,8 +123,8 @@ public class CarWatchdogManagerUnitTest {
 
     private void testClientResponse(CarWatchdogManager.CarWatchdogClientCallback client)
             throws Exception {
-        ICarWatchdogClient clientImpl = registerClient(client);
-        clientImpl.checkIfAlive(123456, TIMEOUT_CRITICAL);
+        ICarWatchdogServiceCallback clientImpl = registerClient(client);
+        clientImpl.onCheckHealthStatus(123456, TIMEOUT_CRITICAL);
         verify(mService, timeout(MAX_WAIT_TIME_MS)).tellClientAlive(clientImpl, 123456);
     }
 
