@@ -81,8 +81,8 @@ class VideoDecoder {
     std::atomic<bool> mStopThread = false;
 
     // Media decoder resources - Owned by mDecoderThead when thread is running.
-    AMediaExtractor* mExtractor;
-    AMediaCodec* mCodec;
+    AMediaExtractor* mExtractor = nullptr;
+    AMediaCodec* mCodec = nullptr;
     int mFd;
     int mIsFdOpen = false;
     bool mExtractorFinished = false;
