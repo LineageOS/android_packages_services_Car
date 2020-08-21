@@ -75,7 +75,7 @@ public final class VehicleHalTest {
 
     @Before
     public void setUp() throws Exception {
-        mVehicleHal = new VehicleHal(mIVehicle, mPowerHalService,
+        mVehicleHal = new VehicleHal(mPowerHalService,
                 mPropertyHalService, mInputHalService, mVmsHalService, mUserHalService,
                 mDiagnosticHalService, mHalClient);
 
