@@ -83,12 +83,12 @@ public class VehicleHal extends IVehicleCallback.Stub {
 
     private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
             VehicleHal.class.getSimpleName());
-    private PowerHalService mPowerHal;
-    private PropertyHalService mPropertyHal;
-    private InputHalService mInputHal;
-    private VmsHalService mVmsHal;
-    private UserHalService mUserHal;
-    private DiagnosticHalService mDiagnosticHal;
+    private final PowerHalService mPowerHal;
+    private final PropertyHalService mPropertyHal;
+    private final InputHalService mInputHal;
+    private final VmsHalService mVmsHal;
+    private final UserHalService mUserHal;
+    private final DiagnosticHalService mDiagnosticHal;
 
     private final Object mLock = new Object();
 
@@ -138,8 +138,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
      * function passed as parameters. This method must be used by tests only.
      */
     @VisibleForTesting
-    VehicleHal(IVehicle vehicle,
-            PowerHalService powerHal,
+    VehicleHal(PowerHalService powerHal,
             PropertyHalService propertyHal,
             InputHalService inputHal,
             VmsHalService vmsHal,
@@ -163,7 +162,11 @@ public class VehicleHal extends IVehicleCallback.Stub {
 
     /** Private constructor for tests only */
     @VisibleForTesting
-    protected VehicleHal() {}
+    protected VehicleHal() {
+        this(/* powerHal= */ null, /* propertyHal= */ null, /* inputHal= */ null,
+                /* vmsHal= */ null, /* userHal= */ null, /* diagnosticHal= */ null,
+                /* halClient= */ null);
+    }
 
     /** Called when connection to Vehicle HAL was restored. */
     public void vehicleHalReconnected(IVehicle vehicle) {
