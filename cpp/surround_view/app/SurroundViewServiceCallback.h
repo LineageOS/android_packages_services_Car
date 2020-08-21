@@ -29,8 +29,14 @@
 #include <GLES3/gl3.h>
 #include <GLES3/gl3ext.h>
 
+#include "ObjectDetector.h"
+#include "DetectedObjects.pb.h"
+
 using namespace android::hardware::automotive::sv::V1_0;
 using namespace android::hardware::automotive::evs::V1_1;
+
+using android::automotive::surround_view::object_detection::DetectedObjects;
+using android::automotive::surround_view::object_detection::ObjectDetector;
 
 using BufferDesc_1_0  = ::android::hardware::automotive::evs::V1_0::BufferDesc;
 
@@ -43,6 +49,8 @@ public:
     android::hardware::Return<void> notify(SvEvent svEvent) override;
     android::hardware::Return<void> receiveFrames(const SvFramesDesc& svFramesDesc) override;
 
+    void setObjectDetector(std::shared_ptr<ObjectDetector> pObjectDetector);
+
 private:
     static const char* getEGLError(void);
     static const std::string getGLFramebufferError(void);
@@ -51,6 +59,7 @@ private:
     BufferDesc convertBufferDesc(const BufferDesc_1_0& src);
     bool attachRenderTarget(const BufferDesc& tgtBuffer);
     void detachRenderTarget();
+    void OverlayBoundingBoxes(int texWidth, int texHeight);
 
     static EGLDisplay   sGLDisplay;
     static GLuint       sFrameBuffer;
@@ -61,4 +70,5 @@ private:
 
     android::sp<IEvsDisplay> mDisplay;
     android::sp<ISurroundViewSession> mSession;
+    std::shared_ptr<ObjectDetector> mObjectDetector = nullptr;
 };
