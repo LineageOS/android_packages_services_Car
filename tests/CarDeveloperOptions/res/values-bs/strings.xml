@@ -2092,7 +2092,7 @@
     <string name="accessibility_power_button_ends_call_prerefence_title" msgid="6172987104538172869">"Dugme uklj./isklj. prekida poziv"</string>
     <string name="accessibility_toggle_large_pointer_icon_title" msgid="9127905775116570565">"Veliki pokazivač miša"</string>
     <string name="accessibility_disable_animations" msgid="8378441317115710009">"Uklanjanje animacija"</string>
-    <string name="accessibility_toggle_master_mono_title" msgid="899550848196702565">"Mono audio"</string>
+    <string name="accessibility_toggle_master_mono_title" msgid="899550848196702565">"Mono zvuk"</string>
     <string name="accessibility_toggle_master_mono_summary" msgid="3847052868469033235">"Kombiniranje kanala prilikom reprodukcije zvuka"</string>
     <string name="accessibility_toggle_master_balance_title" msgid="8723492001092647562">"Audio balans"</string>
     <string name="accessibility_toggle_master_balance_left_label" msgid="8531986342666527970">"Lijevo"</string>
