@@ -3312,7 +3312,7 @@
     <string name="bubbles_app_toggle_title" msgid="6401217027603326439">"Burbuilak"</string>
     <string name="bubbles_app_toggle_summary" msgid="7707611139796553855">"Baimendu <xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioari jakinarazpen batzuk burbuila gisa erakustea"</string>
     <string name="bubbles_feature_disabled_dialog_title" msgid="3375452386012079293">"Aktibatu burbuilak"</string>
-    <string name="bubbles_feature_disabled_dialog_text" msgid="326945485806386477">"Aplikazio honetan burbuilak aktibatu ahal izateko, gailuan aktibatu behar dituzu lehendabizi. Ekintza horrek eragina izango du burbuilak lehendik ere aktibatuta dituzten aplikazioetan."</string>
+    <string name="bubbles_feature_disabled_dialog_text" msgid="326945485806386477">"Aplikazio honetan burbuilak aktibatu ahal izateko, gailuan aktibatu behar dituzu lehendabizi. Ekintza horrek eragina izango du burbuilak lehendik ere aktibatuta dauzkaten aplikazioetan."</string>
     <string name="bubbles_feature_disabled_button_approve" msgid="6661464849674493351">"Gailua pizteko"</string>
     <string name="bubbles_feature_disabled_button_cancel" msgid="4807286844588486198">"Utzi"</string>
     <string name="swipe_direction_title" msgid="7535031630668873009">"Hatza pasatuta gauzatzen diren ekintzak"</string>

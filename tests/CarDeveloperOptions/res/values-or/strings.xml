@@ -20,7 +20,7 @@
     <string name="no" msgid="4709057267400907161">"ନାହିଁ"</string>
     <string name="create" msgid="5131953868544187847">"ତିଆରି କରନ୍ତୁ"</string>
     <string name="allow" msgid="128867119174713893">"ଅନୁମତି"</string>
-    <string name="deny" msgid="3998166389989144025">"ପ୍ରତ୍ୟାଖ୍ୟାନ"</string>
+    <string name="deny" msgid="3998166389989144025">"ଅଗ୍ରାହ୍ୟ କରନ୍ତୁ"</string>
     <string name="device_info_default" msgid="1548919563979154348">"ଅଜଣା"</string>
     <plurals name="show_dev_countdown" formatted="false" msgid="3953785659137161981">
       <item quantity="other">ଜଣେ ଡେଭଲପର୍ ହେବାରେ ଆପଣ ବର୍ତ୍ତମାନ <xliff:g id="STEP_COUNT_1">%1$d</xliff:g> ଟି ପଦାଙ୍କ ଦୂରରେ ଅଛନ୍ତି।</item>

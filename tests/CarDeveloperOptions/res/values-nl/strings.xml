@@ -2099,15 +2099,15 @@
     <string name="accessibility_daltonizer_primary_switch_title" msgid="7428407895268627434">"Kleurcorrectie gebruiken"</string>
     <string name="accessibility_caption_primary_switch_title" msgid="1875671505480045655">"Ondertiteling gebruiken"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"Doorgaan"</string>
-    <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"Gehoorapparaten"</string>
-    <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"Geen gehoorapparaten verbonden"</string>
-    <string name="accessibility_hearingaid_adding_summary" msgid="4139031880828714300">"Gehoorapparaten toevoegen"</string>
-    <string name="accessibility_hearingaid_pair_instructions_first_message" msgid="2671518890909750740">"Tik op het volgende scherm op je gehoorapparaat om dit te koppelen."</string>
-    <string name="accessibility_hearingaid_pair_instructions_second_message" msgid="1584538735488464991">"Controleer of je gehoorapparaat zich in de koppelingsmodus bevindt."</string>
+    <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"Hoortoestellen"</string>
+    <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"Geen hoortoestellen verbonden"</string>
+    <string name="accessibility_hearingaid_adding_summary" msgid="4139031880828714300">"Hoortoestellen toevoegen"</string>
+    <string name="accessibility_hearingaid_pair_instructions_first_message" msgid="2671518890909750740">"Tik op het volgende scherm op je hoortoestel om dit te koppelen."</string>
+    <string name="accessibility_hearingaid_pair_instructions_second_message" msgid="1584538735488464991">"Controleer of je hoortoestel zich in de koppelingsmodus bevindt."</string>
     <string name="accessibility_hearingaid_active_device_summary" msgid="6081382497207168885">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> actief"</string>
     <plurals name="show_number_hearingaid_count" formatted="false" msgid="7906547154695855096">
-      <item quantity="other"><xliff:g id="NUMBER_DEVICE_COUNT_1">%1$d</xliff:g> opgeslagen gehoorapparaten</item>
-      <item quantity="one"><xliff:g id="NUMBER_DEVICE_COUNT_0">%1$d</xliff:g> opgeslagen gehoorapparaat</item>
+      <item quantity="other"><xliff:g id="NUMBER_DEVICE_COUNT_1">%1$d</xliff:g> opgeslagen hoortoestellen</item>
+      <item quantity="one"><xliff:g id="NUMBER_DEVICE_COUNT_0">%1$d</xliff:g> opgeslagen hoortoestel</item>
     </plurals>
     <string name="accessibility_summary_state_enabled" msgid="7357731696603247963">"Aan"</string>
     <string name="accessibility_summary_state_disabled" msgid="9197369047683087620">"Uit"</string>
