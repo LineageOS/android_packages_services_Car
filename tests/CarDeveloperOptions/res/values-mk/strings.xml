@@ -2926,7 +2926,7 @@
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"На терминалот Допри и плати плаќајте со:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Плаќање на терминалот"</string>
     <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Поставете апликација за плаќање. Потоа само задржете ја задната страна на телефонот до кој било терминал означен со симболот за плаќање без контакт."</string>
-    <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"Разбрав"</string>
+    <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"Сфатив"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"Повеќе..."</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"Постави како свој параметар?"</string>
     <string name="nfc_payment_set_default" msgid="1186837502664412132">"Секогаш користи <xliff:g id="APP">%1$s</xliff:g> кога користиш Допри и плати?"</string>

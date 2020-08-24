@@ -3113,7 +3113,7 @@
     <string name="keywords_fingerprint_settings" msgid="902902368701134163">"մատնահետք, ավելացնել մատնահետք"</string>
     <string name="keywords_display_auto_brightness" msgid="1810596220466483996">"խամրեցված էկրան, հպէկրան, մարտկոց, խելացի պայծառություն, դինամիկ պայծառություն"</string>
     <string name="keywords_display_adaptive_sleep" msgid="1695357782432822811">"խամրած էկրան, քնելու ռեժիմ, մարտկոց, ժամանակի սպառում, ուշադրություն, էկրան, ցուցադրել, անգործուն ռեժիմ"</string>
-    <string name="keywords_auto_rotate" msgid="4320791369951647513">"պտտել, շրջել, պտույտ, ուղղահայաց, հորիզոնական, դիրք, դիմանկար, բնանկար"</string>
+    <string name="keywords_auto_rotate" msgid="4320791369951647513">"պտտել, շրջել, պտույտ, ուղղաձիգ, հորիզոնական, դիրք, դիմանկար, բնանկար"</string>
     <string name="keywords_system_update_settings" msgid="4419971277998986067">"թարմացնել, Android"</string>
     <string name="keywords_zen_mode_settings" msgid="4103819458182535493">"չանհանգստացնել, ժամանակացույց, ծանուցումներ, արգելափակել, անձայն ռեժիմ, թրթռալ, քուն, աշխատանք, կենտրոնացում, ձայն, անջատել ձայնը, օր, աշխատանքային օր, հանգստյան օր, աշխատանքային օրվա երեկո, միջոցառում"</string>
     <string name="keywords_screen_timeout" msgid="4328381362313993666">"էկրան, կողպման ժամանակը, դադար, կողպէկրան"</string>
