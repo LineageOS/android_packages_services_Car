@@ -36,6 +36,7 @@ import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.content.Context;
 import android.os.Handler;
+import android.os.UserHandle;
 import android.os.UserManager;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -83,7 +84,8 @@ public final class CarUserManagerPermissionTest {
 
     @Test
     public void testRemoveUserPermission() throws Exception {
-        Exception e = expectThrows(SecurityException.class, () -> mCarUserManager.removeUser(100));
+        Exception e = expectThrows(SecurityException.class,
+                () -> mCarUserManager.removeUser(UserHandle.of(100)));
         assertThat(e.getMessage()).contains(MANAGE_USERS);
     }
 
