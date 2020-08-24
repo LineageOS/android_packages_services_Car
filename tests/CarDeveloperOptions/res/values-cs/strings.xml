@@ -2033,7 +2033,7 @@
     <string name="user_dict_settings_add_menu_title" msgid="1553743292556229909">"Přidat"</string>
     <string name="user_dict_settings_add_dialog_title" msgid="5447922936256448695">"Přidat do slovníku"</string>
     <string name="user_dict_settings_add_screen_title" msgid="8164998107273393830">"Fráze"</string>
-    <string name="user_dict_settings_add_dialog_more_options" msgid="577584009496650183">"Více možností"</string>
+    <string name="user_dict_settings_add_dialog_more_options" msgid="577584009496650183">"Další možnosti"</string>
     <string name="user_dict_settings_add_dialog_less_options" msgid="5678408488188525719">"Méně možností"</string>
     <string name="user_dict_settings_add_dialog_confirm" msgid="7279673661732968137">"OK"</string>
     <string name="user_dict_settings_add_word_option_name" msgid="5310204485783762787">"Slovo:"</string>

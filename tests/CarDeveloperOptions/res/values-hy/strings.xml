@@ -852,14 +852,14 @@
     <string name="wifi_wakeup_summary" msgid="1152699417411690">"Wi‑Fi-ը կրկին կմիանա լավ ազդանշանով պահված ցանցերի, օրինակ, ձեր տան ցանցի մոտակայքում"</string>
     <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"Անհասանելի է, քանի որ տեղորոշումն անջատված է։ Միացրեք "<annotation id="link">"տեղորոշումը"</annotation>"։"</string>
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"Անհասանելի է, քանի որ Wi‑Fi ցանցերի որոնումն անջատված է"</string>
-    <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"Օգտագործելու համար ընտրեք ցանցի վարկանիշի մատակարարը"</string>
+    <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"Օգտագործելու համար ընտրեք ցանցերի վարկանիշի մատակարարին"</string>
     <string name="wifi_poor_network_detection" msgid="7193423327400703073">"Չօգտագործել թույլ կապ"</string>
     <string name="wifi_poor_network_detection_summary" msgid="5539951465985614590">"Չօգտագործել Wi-Fi ցանցը, եթե դրա ինտերնետային կապը թույլ է"</string>
     <string name="wifi_avoid_poor_network_detection_summary" msgid="1976503191780928104">"Օգտագործել միայն լավ ինտերնետային կապ ունեցող ցանցերը"</string>
     <string name="use_open_wifi_automatically_title" msgid="3084513215481454350">"Միանալ բաց ցանցերին"</string>
     <string name="use_open_wifi_automatically_summary" msgid="8338020172673161754">"Ավտոմատ միանալ լավ ազդանշանով բաց ցանցերին"</string>
-    <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"Օգտագործելու համար ընտրեք ցանցի վարկանիշի մատակարարը"</string>
-    <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"Օգտագործելու համար ընտրեք համատեղելի ցանցի վարկանիշի մատակարարը"</string>
+    <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"Օգտագործելու համար ընտրեք ցանցերի վարկանիշի մատակարարին"</string>
+    <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"Օգտագործելու համար ընտրեք ցանցերի վարկանիշի համատեղելի մատակարարի"</string>
     <string name="wifi_install_credentials" msgid="5650088113710858289">"Հավաստագրերի տեղադրում"</string>
     <string name="wifi_scan_notify_text" msgid="7614101215028336927">"Տեղորոշման ճշգրտությունը բարելավելու նպատակով հավելվածներն ու ծառայությունները կորոնեն Wi‑Fi ցանցեր՝ նույնիսկ, երբ Wi‑Fi-ն անջատած է: Դա կարող է օգտագործվել, օրինակ, տեղորոշում օգտագործող գործառույթների ու ծառայությունների աշխատանքն օպտիմալացնելու համար։ Այս պարամետրը կարող եք փոխել <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>որոնման կարգավորումներում<xliff:g id="LINK_END_1">LINK_END</xliff:g>։"</string>
     <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"Տեղորոշման ճշգրտությունը բարելավելու համար միացրեք Wi-Fi ցանցերի որոնումը <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>որոնման կարգավորումներում<xliff:g id="LINK_END_1">LINK_END</xliff:g>։"</string>
@@ -1637,7 +1637,7 @@
     <string name="sms_change_default_dialog_title" msgid="6301260161969667578">"Փոխե՞լ SMS-ների փոխանակման հավելվածը"</string>
     <string name="sms_change_default_dialog_text" msgid="8275088077930942680">"Որպես SMS-ների փոխանակման հավելված <xliff:g id="CURRENT_APP">%2$s</xliff:g>-ի փոխարեն օգտագործե՞լ <xliff:g id="NEW_APP">%1$s</xliff:g>-ը:"</string>
     <string name="sms_change_default_no_previous_dialog_text" msgid="4680224695080527907">"Որպես SMS-ների փոխանակման հավելված օգտագործե՞լ <xliff:g id="NEW_APP">%s</xliff:g>-ը:"</string>
-    <string name="network_scorer_picker_title" msgid="1691073966560952916">"Ցանցերի վարկանիշի աղբյուրը"</string>
+    <string name="network_scorer_picker_title" msgid="1691073966560952916">"Ցանցերի վարկանիշի մատակարար"</string>
     <string name="network_scorer_picker_none_preference" msgid="6448280557733231737">"Չկա"</string>
     <string name="network_scorer_change_active_dialog_title" msgid="4274159562371475090">"Փոխե՞լ Wi-Fi օգնականին:"</string>
     <string name="network_scorer_change_active_dialog_text" msgid="4264089809189760730">"Օգտագործե՞լ <xliff:g id="NEW_APP">%1$s</xliff:g> ծրագիրը <xliff:g id="CURRENT_APP">%2$s</xliff:g>-ի փոխարեն՝ ձեր ցանցային կապերը կառավարելու համար:"</string>
@@ -3113,7 +3113,7 @@
     <string name="keywords_fingerprint_settings" msgid="902902368701134163">"մատնահետք, ավելացնել մատնահետք"</string>
     <string name="keywords_display_auto_brightness" msgid="1810596220466483996">"խամրեցված էկրան, հպէկրան, մարտկոց, խելացի պայծառություն, դինամիկ պայծառություն"</string>
     <string name="keywords_display_adaptive_sleep" msgid="1695357782432822811">"խամրած էկրան, քնելու ռեժիմ, մարտկոց, ժամանակի սպառում, ուշադրություն, էկրան, ցուցադրել, անգործուն ռեժիմ"</string>
-    <string name="keywords_auto_rotate" msgid="4320791369951647513">"պտտել, շրջել, պտույտ, ուղղահայաց, հորիզոնական, դիրք, դիմանկար, բնանկար"</string>
+    <string name="keywords_auto_rotate" msgid="4320791369951647513">"պտտել, շրջել, պտույտ, ուղղաձիգ, հորիզոնական, դիրք, դիմանկար, բնանկար"</string>
     <string name="keywords_system_update_settings" msgid="4419971277998986067">"թարմացնել, Android"</string>
     <string name="keywords_zen_mode_settings" msgid="4103819458182535493">"չանհանգստացնել, ժամանակացույց, ծանուցումներ, արգելափակել, անձայն ռեժիմ, թրթռալ, քուն, աշխատանք, կենտրոնացում, ձայն, անջատել ձայնը, օր, աշխատանքային օր, հանգստյան օր, աշխատանքային օրվա երեկո, միջոցառում"</string>
     <string name="keywords_screen_timeout" msgid="4328381362313993666">"էկրան, կողպման ժամանակը, դադար, կողպէկրան"</string>
