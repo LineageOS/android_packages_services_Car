@@ -16,28 +16,44 @@
 package android.car.util.concurrent;
 
 import android.annotation.NonNull;
-import android.annotation.SuppressLint;
+import android.annotation.Nullable;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
 
-//TODO(b/162007404): move to core framework
 /**
- * Custom {@link Future} that provides a way to be handled asynchronously.
+ * Custom {@code Future} that provides a way to be handled asynchronously.
  *
- * @param <T> type returned by the {@link Future}.
+ * <p><b>Note: it doesn't extend {@link java.util.concurrent.Future} because it's implemented by
+ * {@code AndroidFuture}, which doesn't propagate
+ * {@link java.util.concurrent.Future#cancel(boolean)} to the remote object.
+ *
+ * @param <T> type returned by the {@code Future}.
+ *
+ * @hide
  */
-// Future usage is not recommended because it's "missing non-blocking listening, making it hard to
-// use with asynchronous code", which is exactly what this interface is addressing, so it's ok to
-// ignore this warning.
-@SuppressLint("BadFuture")
-public interface AsyncFuture<T> extends Future<T> {
+public interface AsyncFuture<T> {
 
     /**
-     * Executes the given {@code} (in the provided {@code executor}) when the future is completed.
+     * See {@link java.util.concurrent.Future#get()}.
      */
-    @NonNull AsyncFuture<T> whenCompleteAsync(
-            @NonNull BiConsumer<? super T, ? super Throwable> action,
+    @Nullable
+    T get() throws InterruptedException, ExecutionException;
+
+    /**
+     * See {@link java.util.concurrent.Future#get(long, TimeUnit).
+     */
+    @Nullable
+    T get(long timeout, @NonNull TimeUnit unit)
+            throws InterruptedException, ExecutionException, TimeoutException;
+
+    /**
+     * See {@link java.util.concurrent.CompletableFuture#whenCompleteAsync(BiConsumer, Executor).
+     */
+    @NonNull
+    AsyncFuture<T> whenCompleteAsync(@NonNull BiConsumer<? super T, ? super Throwable> action,
             @NonNull Executor executor);
 }

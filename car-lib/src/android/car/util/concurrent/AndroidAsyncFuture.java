@@ -21,15 +21,12 @@ import com.android.internal.infra.AndroidFuture;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.BiConsumer;
 
 /**
- * TODO(b/162007404): remove this class once AndroidFuture implements AsyncFuture
- *
- * @param <T> type returned by the {@link Future}.
+ * Implements {@link AsyncFuture} by wrapping a {@link AndroidFuture}.
  *
  * @hide
  */
@@ -41,22 +38,6 @@ public final class AndroidAsyncFuture<T> implements AsyncFuture<T> {
     public AndroidAsyncFuture(@NonNull AndroidFuture<T> future) {
         mFuture = future;
     }
-
-    @Override
-    public boolean cancel(boolean mayInterruptIfRunning) {
-        return mFuture.cancel(mayInterruptIfRunning);
-    }
-
-    @Override
-    public boolean isCancelled() {
-        return mFuture.isCancelled();
-    }
-
-    @Override
-    public boolean isDone() {
-        return mFuture.isDone();
-    }
-
     @Override
     public T get() throws InterruptedException, ExecutionException {
         return mFuture.get();
