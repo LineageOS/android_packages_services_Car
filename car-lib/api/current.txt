@@ -613,11 +613,3 @@ package android.car.media {
 
 }
 
-package android.car.util.concurrent {
-
-  public interface AsyncFuture<T> extends java.util.concurrent.Future<T> {
-    method @NonNull public android.car.util.concurrent.AsyncFuture<T> whenCompleteAsync(@NonNull java.util.function.BiConsumer<? super T,? super java.lang.Throwable>, @NonNull java.util.concurrent.Executor);
-  }
-
-}
-
