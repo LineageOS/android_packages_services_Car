@@ -1156,9 +1156,7 @@ final class CarShellCommand extends ShellCommand {
         }
 
         CarUserManager carUserManager = getCarUserManager(mContext);
-        UserRemovalResult result = waitForFuture(writer, carUserManager.removeUser(userId),
-                DEFAULT_HAL_TIMEOUT_MS);
-        if (result == null) return;
+        UserRemovalResult result = carUserManager.removeUser(UserHandle.of(userId));
         writer.printf("UserRemovalResult: status = %s\n",
                 UserRemovalResult.statusToString(result.getStatus()));
     }

@@ -17,6 +17,8 @@
 package android.car.user;
 
 import android.annotation.IntDef;
+import android.annotation.SystemApi;
+import android.annotation.TestApi;
 import android.os.Parcelable;
 
 import com.android.internal.util.DataClass;
@@ -33,48 +35,38 @@ import java.lang.annotation.RetentionPolicy;
         genToString = true,
         genHiddenConstructor = true,
         genHiddenConstDefs = true)
+@SystemApi
+@TestApi
 public final class UserRemovalResult implements Parcelable, OperationResult {
 
     /**
      * When user remove is successful.
-     *
-     * @hide
      */
     public static final int STATUS_SUCCESSFUL = CommonResults.STATUS_SUCCESSFUL;
 
     /**
      * When user remove fails for android. Hal user is not removed.
-     *
-     * @hide
      */
     public static final int STATUS_ANDROID_FAILURE = CommonResults.STATUS_ANDROID_FAILURE;
 
     /**
      * When remove user fails for unknown error.
-     *
-     * @hide
      */
     public static final int STATUS_HAL_INTERNAL_FAILURE = CommonResults.STATUS_HAL_INTERNAL_FAILURE;
 
      /**
      * When user to remove is same as current user.
-     *
-     * @hide
      */
     public static final int STATUS_TARGET_USER_IS_CURRENT_USER =
             CommonResults.LAST_COMMON_STATUS + 1;
 
     /**
      * When user to remove doesn't exits.
-     *
-     * @hide
      */
     public static final int STATUS_USER_DOES_NOT_EXIST = CommonResults.LAST_COMMON_STATUS + 2;
 
     /**
      * When user to remove is last admin user.
-     *
-     * @hide
      */
     public static final int STATUS_TARGET_USER_IS_LAST_ADMIN_USER =
             CommonResults.LAST_COMMON_STATUS + 3;

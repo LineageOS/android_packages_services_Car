@@ -191,7 +191,7 @@ public final class UserFragment extends Fragment {
     private void removeUser() {
         int userId = mUsersSpinner.getSelectedUserId();
         Log.i(TAG, "Remove user: " + userId);
-        UserRemovalResult result = getResult(mCarUserManager.removeUser(userId));
+        UserRemovalResult result = mCarUserManager.removeUser(UserHandle.of(userId));
         updateState();
 
         if (result.isSuccess()) {

@@ -324,25 +324,33 @@ public final class CarUserManager extends CarManagerBase {
                 Settings.Secure.SKIP_FIRST_USE_HINTS, "1", user.id);
     }
 
-     /**
-     * Removes a user.
+    /**
+     * Removes the given user.
+     *
+     * @param user identification of the user to be removed.
+     *
+     * @return whether the user was successfully removed.
      *
      * @hide
      */
+    @SystemApi
+    @TestApi
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
-    public AsyncFuture<UserRemovalResult> removeUser(@UserIdInt int userId) {
+    @NonNull
+    public UserRemovalResult removeUser(@NonNull UserHandle user) {
+        Objects.requireNonNull(user, "user cannot be null");
+
+        int userId = user.getIdentifier();
         int uid = myUid();
         EventLog.writeEvent(EventLogTags.CAR_USER_MGR_REMOVE_USER_REQ, uid, userId);
         int status = UserRemovalResult.STATUS_HAL_INTERNAL_FAILURE;
-        AndroidFuture<UserRemovalResult> future = new AndroidFuture<>();
         try {
             UserRemovalResult result = mService.removeUser(userId);
             status = result.getStatus();
-            future.complete(result);
-            return new AndroidAsyncFuture<>(future);
+            return result;
         } catch (RemoteException e) {
-            future.complete(new UserRemovalResult(UserRemovalResult.STATUS_HAL_INTERNAL_FAILURE));
-            return handleRemoteExceptionFromCarService(e, new AndroidAsyncFuture<>(future));
+            return handleRemoteExceptionFromCarService(e,
+                    new UserRemovalResult(UserRemovalResult.STATUS_ANDROID_FAILURE));
         } finally {
             EventLog.writeEvent(EventLogTags.CAR_USER_MGR_REMOVE_USER_RESP, uid, status);
         }

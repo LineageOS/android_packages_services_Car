@@ -52,6 +52,7 @@ import android.content.Context;
 import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
 import android.os.RemoteException;
+import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
 
@@ -209,24 +210,27 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
 
     @Test
     public void testRemoveUser_success() throws Exception {
-        int userId = 11;
         int status = UserRemovalResult.STATUS_SUCCESSFUL;
-        when(mService.removeUser(userId)).thenReturn(new UserRemovalResult(status));
+        when(mService.removeUser(100)).thenReturn(new UserRemovalResult(status));
 
-        UserRemovalResult result = mMgr.removeUser(11).get();
+        UserRemovalResult result = mMgr.removeUser(UserHandle.of(100));
 
         assertThat(result.getStatus()).isEqualTo(UserRemovalResult.STATUS_SUCCESSFUL);
     }
 
     @Test
     public void testRemoveUser_remoteException() throws Exception {
-        int userId = 11;
-        doThrow(new RemoteException("D'OH!")).when(mService).removeUser(eq(userId));
+        doThrow(new RemoteException("D'OH!")).when(mService).removeUser(100);
         mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
 
-        UserRemovalResult result = mMgr.removeUser(11).get();
+        UserRemovalResult result = mMgr.removeUser(UserHandle.of(100));
 
-        assertThat(result.getStatus()).isEqualTo(UserRemovalResult.STATUS_HAL_INTERNAL_FAILURE);
+        assertThat(result.getStatus()).isEqualTo(UserRemovalResult.STATUS_ANDROID_FAILURE);
+    }
+
+    @Test
+    public void testRemoveUser_nullUser() {
+        assertThrows(NullPointerException.class, () -> mMgr.removeUser(null));
     }
 
     @Test
