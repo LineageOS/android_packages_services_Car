@@ -278,7 +278,7 @@ public final class UserFragment extends Fragment {
         mIsAdminCheckBox.setEnabled(!isAdmin); // there's no API to "un-admin a user"
 
         // Existing users
-        List<UserInfo> allUsers = mUserManager.getUsers(/* excludeDying= */ true);
+        List<UserInfo> allUsers = mUserManager.getAliveUsers();
         Log.v(TAG, allUsers.size() + " users: " + allUsers);
         mUsersSpinner.setOnUserSelectedListener((u) -> onUserSelected(u));
         mUsersSpinner.init(allUsers);
