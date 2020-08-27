@@ -804,7 +804,7 @@ public class UserSettings extends SettingsPreferenceFragment
         if (context == null) {
             return;
         }
-        final List<UserInfo> users = mUserManager.getUsers(true);
+        final List<UserInfo> users = mUserManager.getAliveUsers();
 
         final boolean voiceCapable = Utils.isVoiceCapable(context);
         final ArrayList<Integer> missingIcons = new ArrayList<>();
