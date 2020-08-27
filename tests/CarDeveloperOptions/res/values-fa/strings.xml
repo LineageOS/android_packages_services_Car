@@ -2008,7 +2008,7 @@
     <string name="testing" msgid="4255916838792186365">"تست کردن"</string>
     <string name="testing_phone_info" product="tablet" msgid="2714303457408649566">"اطلاعات رایانهٔ لوحی"</string>
     <string name="testing_phone_info" product="default" msgid="1954062952628179016">"اطلاعات تلفن"</string>
-    <string name="input_methods_settings_title" msgid="880477541100103388">"ووردی متن"</string>
+    <string name="input_methods_settings_title" msgid="880477541100103388">"ورودی نوشتاری"</string>
     <string name="input_method" msgid="2426639635860376775">"روش ورودی"</string>
     <string name="current_input_method" msgid="4831870685505762355">"صفحه‌کلید کنونی"</string>
     <string name="input_method_selector" msgid="2053594139601607047">"انتخابگر روش ورودی"</string>
@@ -2443,7 +2443,7 @@
     <string name="menu_stats_last_unplugged" msgid="197591229866380225">"در حین قطع اتصال آخر برای <xliff:g id="UNPLUGGED">%1$s</xliff:g>"</string>
     <string name="menu_stats_total" msgid="2270006562448894071">"مقدار کل استفاده"</string>
     <string name="menu_stats_refresh" msgid="9017362786647223203">"بازخوانی"</string>
-    <string name="process_kernel_label" msgid="4175060316414593760">"سیستم عامل Android"</string>
+    <string name="process_kernel_label" msgid="4175060316414593760">"سیستم‌عامل Android"</string>
     <string name="process_mediaserver_label" msgid="8591722404282619153">"سرور رسانه"</string>
     <string name="process_dex2oat_label" msgid="8249082119748556085">"بهینه‌سازی برنامه"</string>
     <string name="battery_saver" msgid="3989710213758938398">"بهینه‌سازی باتری"</string>
@@ -2475,7 +2475,7 @@
     <string name="process_stats_type_background" msgid="7867552451658035199">"پس‌زمینه"</string>
     <string name="process_stats_type_foreground" msgid="9185538008409818577">"پیش‌زمینه"</string>
     <string name="process_stats_type_cached" msgid="6774816751826613732">"در حافظه پنهان"</string>
-    <string name="process_stats_os_label" msgid="2866711070924260440">"سیستم عامل Android"</string>
+    <string name="process_stats_os_label" msgid="2866711070924260440">"سیستم‌عامل Android"</string>
     <string name="process_stats_os_native" msgid="8971193568864959041">"داخلی"</string>
     <string name="process_stats_os_kernel" msgid="496627624157605578">"مرکزی"</string>
     <string name="process_stats_os_zram" msgid="5654662484619165424">"Z-Ram"</string>

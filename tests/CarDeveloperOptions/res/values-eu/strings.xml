@@ -978,7 +978,7 @@
     <string name="wifi_no_domain_warning" msgid="735859919311067606">"Domeinua zehaztu behar da."</string>
     <string name="wifi_wps_available_first_item" msgid="3221671453930485243">"WPSa erabilgarri"</string>
     <string name="wifi_wps_available_second_item" msgid="5703265526619705185">" (WPSa erabilgarri)"</string>
-    <string name="wifi_carrier_connect" msgid="7202618367339982884">"Operadorearen Wi‑Fi sarea"</string>
+    <string name="wifi_carrier_connect" msgid="7202618367339982884">"Operadorearen wifi-sarea"</string>
     <string name="wifi_carrier_content" msgid="3467402515071949783">"Konektatu <xliff:g id="NAME">%1$s</xliff:g> bidez"</string>
     <string name="wifi_scan_always_turnon_message" msgid="7811846312032594248">"Kokapenaren zehaztasuna hobetzeko eta beste helburu batzuetarako, <xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioak sare-bilaketa aktibatu nahi du, Wi-Fia desaktibatuta egonda ere.\n\nBilaketa egin nahi duten beste aplikazio guztiei ere baimendu nahi diezu?"</string>
     <string name="wifi_scan_always_turnoff_message" msgid="556993843641750002">"Desaktibatzeko, joan menuko \"Ezarpen aurreratuak\" aukerara."</string>
@@ -3312,7 +3312,7 @@
     <string name="bubbles_app_toggle_title" msgid="6401217027603326439">"Burbuilak"</string>
     <string name="bubbles_app_toggle_summary" msgid="7707611139796553855">"Baimendu <xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioari jakinarazpen batzuk burbuila gisa erakustea"</string>
     <string name="bubbles_feature_disabled_dialog_title" msgid="3375452386012079293">"Aktibatu burbuilak"</string>
-    <string name="bubbles_feature_disabled_dialog_text" msgid="326945485806386477">"Aplikazio honetan burbuilak aktibatu ahal izateko, gailuan aktibatu behar dituzu lehendabizi. Ekintza horrek eragina izango du burbuilak lehendik ere aktibatuta dituzten aplikazioetan."</string>
+    <string name="bubbles_feature_disabled_dialog_text" msgid="326945485806386477">"Aplikazio honetan burbuilak aktibatu ahal izateko, gailuan aktibatu behar dituzu lehendabizi. Ekintza horrek eragina izango du burbuilak lehendik ere aktibatuta dauzkaten aplikazioetan."</string>
     <string name="bubbles_feature_disabled_button_approve" msgid="6661464849674493351">"Gailua pizteko"</string>
     <string name="bubbles_feature_disabled_button_cancel" msgid="4807286844588486198">"Utzi"</string>
     <string name="swipe_direction_title" msgid="7535031630668873009">"Hatza pasatuta gauzatzen diren ekintzak"</string>
@@ -4164,7 +4164,7 @@
     <string name="account_sync_title" msgid="1570164819114297154">"Kontuaren sinkronizazioa"</string>
     <string name="account_sync_summary_some_on" msgid="1934556869158274053">"<xliff:g id="ID_1">%1$d</xliff:g>/<xliff:g id="ID_2">%2$d</xliff:g> elementuk aktibatuta daukate sinkronizazioa"</string>
     <string name="account_sync_summary_all_on" msgid="3634161204232431700">"Elementu guztiek aktibatuta daukate sinkronizazioa"</string>
-    <string name="account_sync_summary_all_off" msgid="1971584632343645602">"Elementu guztiek desaktibatuta dute sinkronizazioa"</string>
+    <string name="account_sync_summary_all_off" msgid="1971584632343645602">"Elementu guztiek desaktibatuta daukate sinkronizazioa"</string>
     <string name="enterprise_privacy_settings" msgid="2777101678653072889">"Gailu kudeatuaren informazioa"</string>
     <string name="enterprise_privacy_settings_summary_generic" msgid="5557859169062703683">"Erakundeak kudeatzen dituen aldaketak eta ezarpenak"</string>
     <string name="enterprise_privacy_settings_summary_with_name" msgid="4884479123751308407">"<xliff:g id="ORGANIZATION_NAME">%s</xliff:g> erakundeak kudeatzen dituen aldaketak eta ezarpenak"</string>
