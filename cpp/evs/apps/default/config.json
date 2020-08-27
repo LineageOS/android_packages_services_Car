@@ -19,8 +19,8 @@
     }
   ],
   "graphic" : {
-    "frontPixel" : 23,
-    "rearPixel" : 223
+    "frontPixel" : -20,
+    "rearPixel" : 260
   },
   "cameras" : [
     {
