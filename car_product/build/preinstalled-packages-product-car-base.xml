@@ -306,4 +306,7 @@
     <install-in-user-type package="com.android.hotspot2.osulogin">
         <install-in user-type="FULL" />
     </install-in-user-type>
+    <install-in-user-type package="com.android.permissioncontroller.car.rro">
+        <install-in user-type="FULL" />
+    </install-in-user-type>
 </config>
