@@ -2351,9 +2351,9 @@
     <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"Šī lietotne varēs izmantot akumulatora enerģiju fonā. Tādējādi akumulators var izlādēties ātrāk nekā parasti."</string>
     <string name="battery_tip_unrestrict_app_dialog_ok" msgid="9154938931448151479">"Noņemt"</string>
     <string name="battery_tip_unrestrict_app_dialog_cancel" msgid="7331148618292397166">"Atcelt"</string>
-    <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"Jūsu lietotnes patērē normālu akumulatora enerģijas apjomu. Ja lietotnes patērē pārāk daudz akumulatora enerģijas, jūsu tālrunī tiks parādītas ieteicamās darbības.\n\nJa akumulatora uzlādes līmenis ir zems, varat jebkurā laikā ieslēgt akumulatora jaudas taupīšanas režīmu."</string>
-    <string name="battery_tip_dialog_summary_message" product="tablet" msgid="1721081030632329647">"Jūsu lietotnes patērē normālu akumulatora enerģijas apjomu. Ja lietotnes patērē pārāk daudz akumulatora enerģijas, jūsu planšetdatorā tiks parādītas ieteicamās darbības.\n\nJa akumulatora uzlādes līmenis ir zems, varat jebkurā laikā ieslēgt akumulatora jaudas taupīšanas režīmu."</string>
-    <string name="battery_tip_dialog_summary_message" product="device" msgid="146872407040848465">"Jūsu lietotnes patērē normālu akumulatora enerģijas apjomu. Ja lietotnes patērē pārāk daudz akumulatora enerģijas, jūsu ierīcē tiks parādītas ieteicamās darbības.\n\nJa akumulatora uzlādes līmenis ir zems, varat jebkurā laikā ieslēgt akumulatora jaudas taupīšanas režīmu."</string>
+    <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"Jūsu lietotnes patērē normālu akumulatora enerģijas apjomu. Ja lietotnes patērē pārāk daudz akumulatora enerģijas, jūsu tālrunī tiks parādītas ieteicamās darbības.\n\nJa akumulatora uzlādes līmenis ir zems, varat jebkurā laikā ieslēgt akumulatora enerģijas taupīšanas režīmu."</string>
+    <string name="battery_tip_dialog_summary_message" product="tablet" msgid="1721081030632329647">"Jūsu lietotnes patērē normālu akumulatora enerģijas apjomu. Ja lietotnes patērē pārāk daudz akumulatora enerģijas, jūsu planšetdatorā tiks parādītas ieteicamās darbības.\n\nJa akumulatora uzlādes līmenis ir zems, varat jebkurā laikā ieslēgt akumulatora enerģijas taupīšanas režīmu."</string>
+    <string name="battery_tip_dialog_summary_message" product="device" msgid="146872407040848465">"Jūsu lietotnes patērē normālu akumulatora enerģijas apjomu. Ja lietotnes patērē pārāk daudz akumulatora enerģijas, jūsu ierīcē tiks parādītas ieteicamās darbības.\n\nJa akumulatora uzlādes līmenis ir zems, varat jebkurā laikā ieslēgt akumulatora enerģijas taupīšanas režīmu."</string>
     <string name="smart_battery_manager_title" msgid="5744035036663849515">"Akumulatora pārvaldnieks"</string>
     <string name="smart_battery_title" msgid="4919670408532804351">"Automātiska akumulatora enerģijas patēriņa pārvaldība"</string>
     <string name="smart_battery_summary" msgid="640027046471198174">"Ierobežojiet akumulatora enerģijas patēriņu tām lietotnēm, kuras neizmantojat bieži"</string>
@@ -2450,7 +2450,7 @@
     <string name="battery_sugg_bluetooth_headset" msgid="2421931037149315202">"Mēģiniet izveidot savienojumu ar citu Bluetooth ierīci"</string>
     <string name="battery_desc_apps" msgid="6826726880149226823">"Lietotnes darbībai izmantotā akumulatora enerģija"</string>
     <string name="battery_sugg_apps_info" msgid="9175761965559743977">"Apturiet lietotnes darbību vai atinstalējiet lietotni"</string>
-    <string name="battery_sugg_apps_gps" msgid="489694612870772770">"Atlasiet akumulatora jaudas taupīšanas režīmu"</string>
+    <string name="battery_sugg_apps_gps" msgid="489694612870772770">"Atlasiet akumulatora enerģijas taupīšanas režīmu"</string>
     <string name="battery_sugg_apps_settings" msgid="20465932930350295">"Lietotnē var būt pieejami iestatījumi akumulatora enerģijas patēriņa samazināšanai"</string>
     <string name="battery_desc_users" msgid="3736510265433457165">"Lietotāja patērētā akumulatora jauda"</string>
     <string name="battery_desc_unaccounted" msgid="1713437127406964501">"Dažādu avotu enerģijas patēriņš"</string>
@@ -2482,22 +2482,22 @@
     <string name="process_kernel_label" msgid="4175060316414593760">"Android OS"</string>
     <string name="process_mediaserver_label" msgid="8591722404282619153">"Mediaserver"</string>
     <string name="process_dex2oat_label" msgid="8249082119748556085">"Lietotnes optimizācija"</string>
-    <string name="battery_saver" msgid="3989710213758938398">"Akumulatora jaudas taupīšanas režīms"</string>
+    <string name="battery_saver" msgid="3989710213758938398">"Akumulatora enerģijas taupīšanas režīms"</string>
     <string name="battery_saver_auto_title" msgid="4158659069641849952">"Automātiska ieslēgšana"</string>
     <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"Nav grafika"</string>
     <string name="battery_saver_auto_routine" msgid="886514412067906980">"Atbilstoši jūsu ikdienas grafikam"</string>
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"Atbilstoši uzlādes līmenim"</string>
-    <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Akumulatora jaudas taupīšanas režīms ieslēgsies, ja akumulators var izlādēties vēl pirms ierastā uzlādes laika."</string>
+    <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Akumulatora enerģijas taupīšanas režīms ieslēgsies, ja akumulators var izlādēties vēl pirms ierastā uzlādes laika."</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Ieslēgsies uzlādes līmenim sasniedzot <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Iestatīt grafiku"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Izslēgt, kad akumulators ir pilnībā uzlādēts"</string>
-    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"Akumulatora jaudas taupīšanas režīms tiek izslēgts, kad tālruņa uzlādes līmenis ir <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
-    <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"Akumulatora jaudas taupīšanas režīms tiek izslēgts, kad planšetdatora uzlādes līmenis ir <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
-    <string name="battery_saver_sticky_description_new" product="device" msgid="5056520668081504111">"Akumulatora jaudas taupīšanas režīms tiek izslēgts, kad ierīces uzlādes līmenis ir <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
+    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"Akumulatora enerģijas taupīšanas režīms tiek izslēgts, kad tālruņa uzlādes līmenis ir <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
+    <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"Akumulatora enerģijas taupīšanas režīms tiek izslēgts, kad planšetdatora uzlādes līmenis ir <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
+    <string name="battery_saver_sticky_description_new" product="device" msgid="5056520668081504111">"Akumulatora enerģijas taupīšanas režīms tiek izslēgts, kad ierīces uzlādes līmenis ir <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"Ieslēgt"</string>
-    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"Izmantot akumulatora jaudas taupīšanas režīmu"</string>
+    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"Izmantot akumulatora enerģijas taupīšanas režīmu"</string>
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"Ieslēgt automātiski"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"Nekad"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"ar akumulatora uzlādes līmeni <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
@@ -3168,7 +3168,7 @@
     <string name="keywords_touch_vibration" msgid="2081175517528255224">"haptisks, vibrēt, ekrāns, jutīgums"</string>
     <string name="keywords_ring_vibration" msgid="4210509151866460210">"skārienjutīgs, vibrācija, tālrunis, zvans, jutīgums, zvanīšana"</string>
     <string name="keywords_notification_vibration" msgid="1077515502086745166">"skārienjutīgs, vibrācija, jutīgums"</string>
-    <string name="keywords_battery_saver_sticky" msgid="8733804259716284872">"akumulatora jaudas taupīšanas režīms, fiksēts, saglabāties, jaudas taupīšanas režīms, akumulators"</string>
+    <string name="keywords_battery_saver_sticky" msgid="8733804259716284872">"akumulatora enerģijas taupīšanas režīms, fiksēts, saglabāties, enerģijas taupīšanas režīms, akumulators"</string>
     <string name="default_sound" msgid="6675629744816442953">"Noklusējuma skaņa"</string>
     <string name="sound_settings_summary" msgid="8467549670633195109">"Zvana skaļums: <xliff:g id="PERCENTAGE">%1$s</xliff:g>"</string>
     <string name="sound_dashboard_summary" msgid="5187301919242823508">"Skaļums, vibrācija, režīms “Netraucēt”"</string>
@@ -3954,7 +3954,7 @@
     <string name="condition_zen_title" msgid="2128184708916052585">"Režīms “Netraucēt” ir ieslēgts"</string>
     <string name="condition_zen_summary_phone_muted" msgid="4396050395522974654">"Tālruņa skaņa izslēgta"</string>
     <string name="condition_zen_summary_with_exceptions" msgid="3435216391993785818">"Ar izņēmumiem"</string>
-    <string name="condition_battery_title" msgid="6704870010912986274">"Akumulatora jaudas taupīšana"</string>
+    <string name="condition_battery_title" msgid="6704870010912986274">"Akumulatora enerģijas taupīšana"</string>
     <string name="condition_battery_summary" msgid="1236078243905690620">"Funkcijas ir ierobežotas"</string>
     <string name="condition_cellular_title" msgid="6605277435894307935">"Mobilie dati ir izslēgti"</string>
     <string name="condition_cellular_summary" msgid="3607459310548343777">"Internets ir pieejams, izmantojot tikai Wi-Fi savienojumu"</string>

@@ -4143,7 +4143,7 @@
     <string name="fingerprint_swipe_for_notifications_suggestion_title" msgid="948946491233738823">"Ver notificações rapidamente"</string>
     <string name="gesture_setting_on" msgid="7573680730101327866">"Ativado"</string>
     <string name="gesture_setting_off" msgid="2540159841716890511">"Desativado"</string>
-    <string name="oem_unlock_enable_disabled_summary_bootloader_unlocked" msgid="7233244080078311793">"O bootloader já está desbloqueado"</string>
+    <string name="oem_unlock_enable_disabled_summary_bootloader_unlocked" msgid="7233244080078311793">"O carregador de inicialização já está desbloqueado"</string>
     <string name="oem_unlock_enable_disabled_summary_connectivity" msgid="262986780389836168">"Conecte-se à Internet primeiro"</string>
     <string name="oem_unlock_enable_disabled_summary_connectivity_or_locked" msgid="3331374502670483142">"Conecte-se à Internet ou entre em contato com sua operadora"</string>
     <string name="oem_unlock_enable_disabled_summary_sim_locked_device" msgid="5223278198179877704">"Indisponível em dispositivos bloqueados pela operadora"</string>
