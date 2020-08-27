@@ -1833,7 +1833,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     /** Returns all users who are matched by the given filter. */
     private List<UserInfo> getUsers(UserFilter filter) {
-        List<UserInfo> users = mUserManager.getAliveUsers();
+        List<UserInfo> users = mUserManager.getUsers(/* excludeDying= */ true);
 
         for (Iterator<UserInfo> iterator = users.iterator(); iterator.hasNext(); ) {
             UserInfo user = iterator.next();
@@ -1893,7 +1893,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     private int getNumberOfManagedProfiles(@UserIdInt int userId) {
-        List<UserInfo> users = mUserManager.getAliveUsers();
+        List<UserInfo> users = mUserManager.getUsers(/* excludeDying= */true);
         // Count all users that are managed profiles of the given user.
         int managedProfilesCount = 0;
         for (UserInfo user : users) {

@@ -110,10 +110,8 @@ public final class AndroidMockitoHelper {
         when(um.getUserInfo(UserHandle.USER_SYSTEM)).thenReturn(user);
     }
 
-    // TODO(b/157921703): split into methods for the proper UserManager methods
-    // (like getAliveUsers() / getAllUsers())
     /**
-     * Mocks {@code UserManager#getUsers()}, {@code UserManager#getAliveUsers()}, and
+     * Mocks {@code UserManager#getUsers()}, {@code UserManager#getUsers(excludeDying)}, and
      * {@code UserManager#getUsers(excludePartial, excludeDying, excludeDying)} to return the given
      * users.
      */
@@ -121,21 +119,19 @@ public final class AndroidMockitoHelper {
         Objects.requireNonNull(um);
         List<UserInfo> testUsers = Arrays.stream(users).collect(Collectors.toList());
         when(um.getUsers()).thenReturn(testUsers);
-        when(um.getAliveUsers()).thenReturn(testUsers);
+        when(um.getUsers(anyBoolean())).thenReturn(testUsers);
         when(um.getUsers(anyBoolean(), anyBoolean(), anyBoolean())).thenReturn(testUsers);
     }
 
-    // TODO(b/157921703): split into methods for the proper UserManager methods
-    // (like getAliveUsers() / getAllUsers())
     /**
-     * Mocks {@code UserManager#getUsers()}, {@code UserManager#getAliveUsers()}, and
+     * Mocks {@code UserManager#getUsers()}, {@code UserManager#getUsers(excludeDying)}, and
      * {@code UserManager#getUsers(excludePartial, excludeDying, excludeDying)} to return simple
      * users with the given ids.
      */
     public static void mockUmGetUsers(@NonNull UserManager um, @NonNull @UserIdInt int... userIds) {
         List<UserInfo> users = UserTestingHelper.newUsers(userIds);
         when(um.getUsers()).thenReturn(users);
-        when(um.getAliveUsers()).thenReturn(users);
+        when(um.getUsers(anyBoolean())).thenReturn(users);
         when(um.getUsers(anyBoolean(), anyBoolean(), anyBoolean())).thenReturn(users);
     }
 
@@ -154,7 +150,7 @@ public final class AndroidMockitoHelper {
      */
     public static void mockUmGetUsers(@NonNull UserManager um, @NonNull List<UserInfo> userInfos) {
         when(um.getUsers()).thenReturn(userInfos);
-        when(um.getAliveUsers()).thenReturn(userInfos);
+        when(um.getUsers(anyBoolean())).thenReturn(userInfos);
         when(um.getUsers(anyBoolean(), anyBoolean(), anyBoolean())).thenReturn(userInfos);
     }
 
