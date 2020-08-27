@@ -98,12 +98,12 @@ import androidx.lifecycle.Lifecycle;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceGroup;
 
-import com.android.internal.app.UnlaunchableAppActivity;
-import com.android.internal.util.ArrayUtils;
-import com.android.internal.widget.LockPatternUtils;
 import com.android.car.developeroptions.core.FeatureFlags;
 import com.android.car.developeroptions.development.featureflags.FeatureFlagPersistent;
 import com.android.car.developeroptions.password.ChooseLockSettingsHelper;
+import com.android.internal.app.UnlaunchableAppActivity;
+import com.android.internal.util.ArrayUtils;
+import com.android.internal.widget.LockPatternUtils;
 import com.android.settingslib.widget.ActionBarShadowController;
 
 import java.net.InetAddress;
@@ -546,7 +546,7 @@ public final class Utils extends com.android.settingslib.Utils {
      * @return UserInfo of the user or null for non-existent user.
      */
     public static UserInfo getExistingUser(UserManager userManager, UserHandle checkUser) {
-        final List<UserInfo> users = userManager.getUsers(true /* excludeDying */);
+        final List<UserInfo> users = userManager.getAliveUsers();
         final int checkUserId = checkUser.getIdentifier();
         for (UserInfo user : users) {
             if (user.id == checkUserId) {
