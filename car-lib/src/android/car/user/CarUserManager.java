@@ -660,7 +660,7 @@ public final class CarUserManager extends CarManagerBase {
      * @hide
      */
     public boolean isValidUser(@UserIdInt int userId) {
-        List<UserInfo> allUsers = mUserManager.getUsers(/* excludeDying= */ true);
+        List<UserInfo> allUsers = mUserManager.getAliveUsers();
         for (int i = 0; i < allUsers.size(); i++) {
             UserInfo user = allUsers.get(i);
             if (user.id == userId && (userId != UserHandle.USER_SYSTEM
