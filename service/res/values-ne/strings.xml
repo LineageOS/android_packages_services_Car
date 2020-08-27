@@ -50,7 +50,7 @@
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"आन्तरिक परीक्षण गर्ने प्रयोजनका लागि तपाईंको कारको सवारी साधन HAL को अनुकरण गर्ने।"</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"तपाईंको कारको अडियोको भोल्युम नियन्त्रण गर्ने।"</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"आफ्नो कारको अडियोसम्बन्धी सेटिङहरू नियन्त्रण गर्नुहोस्।"</string>
-    <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"अनुप्रयोगमाथि रोक लगाउने कार्य"</string>
+    <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"एपमाथि रोक लगाउने कार्य"</string>
     <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"सवारी साधन चलाइरहेका बेलामा एपलाई रोक लगाउने प्रक्रिया नियन्त्रण गर्ने।"</string>
     <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"नेभिगेसन प्रबन्धक"</string>
     <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"नेभिगेसनसम्बन्धी डेटालाई उपकरणको क्लस्टरमा रिपोर्ट गर्ने"</string>

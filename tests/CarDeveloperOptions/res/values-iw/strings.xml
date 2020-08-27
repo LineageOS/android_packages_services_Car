@@ -3486,9 +3486,9 @@
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"הפעלת ההרשאה \'נא לא להפריע\'"</string>
     <string name="zen_access_empty_text" msgid="7667538993781607731">"אין אפליקציות מותקנות שביקשו גישה אל \'נא לא להפריע\'"</string>
     <string name="loading_notification_apps" msgid="1978345231934072091">"טוען אפליקציות..."</string>
-    <string name="app_notifications_off_desc" msgid="3904090905748895146">"לבקשתך, מערכת Android חוסמת במכשיר זה הצגת התראות מאפליקציה זו"</string>
-    <string name="channel_notifications_off_desc" msgid="8005444443218306611">"לבקשתך, מערכת Android חוסמת במכשיר הצגה של קטגוריית התראות זו"</string>
-    <string name="channel_group_notifications_off_desc" msgid="7154205544298672850">"לבקשתך, מערכת Android חוסמת במכשיר הצגה של מקבץ הודעות זה"</string>
+    <string name="app_notifications_off_desc" msgid="3904090905748895146">"לבקשתך, מערכת Android לא מאפשרת להציג במכשיר הזה התראות מהאפליקציה הזו"</string>
+    <string name="channel_notifications_off_desc" msgid="8005444443218306611">"לבקשתך, מערכת Android לא מאפשרת להציג במכשיר הזה התראות ששייכות לקטגוריה הזו"</string>
+    <string name="channel_group_notifications_off_desc" msgid="7154205544298672850">"לבקשתך, מערכת Android לא מאפשרת להציג במכשיר הזה התראות מקבוצה זו"</string>
     <string name="notification_channels" msgid="956764228116145956">"קטגוריות"</string>
     <string name="notification_channels_other" msgid="1615988645667411530">"אחר"</string>
     <plurals name="notification_group_summary" formatted="false" msgid="3744856747513344999">
