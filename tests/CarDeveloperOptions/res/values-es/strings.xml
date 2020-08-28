@@ -322,7 +322,7 @@
     <string name="date_and_time_settings_title" msgid="7827088656940910631">"Fecha y hora"</string>
     <string name="date_and_time_settings_title_setup_wizard" msgid="1573030770187844365">"Establecer fecha y hora"</string>
     <string name="date_and_time_settings_summary" msgid="4617979434474713417">"Establecer fecha, hora, zona horaria y formatos"</string>
-    <string name="date_time_auto" msgid="2679132152303750218">"Usar hora de la red"</string>
+    <string name="date_time_auto" msgid="2679132152303750218">"Usar la hora proporcionada por la red"</string>
     <string name="zone_auto_title" msgid="5500880975376882488">"Usar la zona horaria proporcionada por la red"</string>
     <string name="date_time_24hour_auto" msgid="7499659679134962547">"Usar la configuración regional predeterminada"</string>
     <string name="date_time_24hour_title" msgid="6209923858891621283">"Formato de 24 horas"</string>
