@@ -87,6 +87,11 @@ private:
         ClientType type;
     };
 
+    struct HeartBeat {
+        int64_t eventTime;
+        int64_t value;
+    };
+
     typedef std::unordered_map<int, ClientInfo> PingedClientMap;
 
     class BinderDeathRecipient : public android::IBinder::DeathRecipient {
@@ -105,6 +110,26 @@ private:
 
         void serviceDied(uint64_t cookie,
                          const android::wp<android::hidl::base::V1_0::IBase>& who) override;
+
+    private:
+        android::sp<WatchdogProcessService> mService;
+    };
+
+    class PropertyChangeListener :
+          public android::hardware::automotive::vehicle::V2_0::IVehicleCallback {
+    public:
+        explicit PropertyChangeListener(const android::sp<WatchdogProcessService>& service);
+
+        android::hardware::Return<void> onPropertyEvent(
+                const android::hardware::hidl_vec<
+                        android::hardware::automotive::vehicle::V2_0::VehiclePropValue>& propValues)
+                override;
+        android::hardware::Return<void> onPropertySet(
+                const android::hardware::automotive::vehicle::V2_0::VehiclePropValue& propValue)
+                override;
+        android::hardware::Return<void> onPropertySetError(
+                android::hardware::automotive::vehicle::V2_0::StatusCode errorCode, int32_t propId,
+                int32_t areaId) override;
 
     private:
         android::sp<WatchdogProcessService> mService;
@@ -131,12 +156,13 @@ private:
     android::base::Result<void> startHealthCheckingLocked(TimeoutLength timeout);
     android::base::Result<void> dumpAndKillClientsIfNotResponding(TimeoutLength timeout);
     android::base::Result<void> dumpAndKillAllProcesses(
-            const std::vector<int32_t>& processesNotResponding);
+            const std::vector<int32_t>& processesNotResponding, bool reportToVhal);
     int32_t getNewSessionId();
     bool isWatchdogEnabled();
     android::base::Result<void> updateVhal(
             const android::hardware::automotive::vehicle::V2_0::VehiclePropValue& value);
     android::base::Result<void> connectToVhalLocked();
+    void subscribeToVhalHeartBeatLocked();
     void reportWatchdogAliveToVhal();
     void reportTerminatedProcessToVhal(const std::vector<int32_t>& processesNotResponding);
     android::base::Result<std::string> readProcCmdLine(int32_t pid);
@@ -145,6 +171,9 @@ private:
     void queryVhalPropertiesLocked();
     bool isVhalPropertySupportedLocked(
             android::hardware::automotive::vehicle::V2_0::VehicleProperty propId);
+    void updateVhalHeartBeat(int64_t value);
+    void checkVhalHealth();
+    void terminateVhal();
 
     using Processor =
             std::function<void(std::vector<ClientInfo>&, std::vector<ClientInfo>::const_iterator)>;
@@ -170,6 +199,8 @@ private:
     android::sp<HidlDeathRecipient> mHidlDeathRecipient;
     std::unordered_set<android::hardware::automotive::vehicle::V2_0::VehicleProperty>
             mNotSupportedVhalProperties;
+    android::sp<PropertyChangeListener> mPropertyChangeListener;
+    HeartBeat mVhalHeartBeat GUARDED_BY(mMutex);
 };
 
 }  // namespace watchdog

@@ -25,3 +25,6 @@ allow carwatchdogd proc_stat:file r_file_perms;
 
 # Find package_native to get uid to package name mapping.
 allow carwatchdogd package_native_service:service_manager find;
+
+# List HALs to get pid of vehicle HAL.
+allow carwatchdogd hwservicemanager:hwservice_manager list;
