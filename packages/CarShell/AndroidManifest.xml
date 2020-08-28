@@ -25,4 +25,6 @@
     <uses-permission android:name="android.car.permission.CAR_DRIVING_STATE" />
     <!-- Permission required for ATS tests - AtsDeviceInfo, AtsAudioDeviceTestCases -->
     <uses-permission android:name="android.car.permission.CAR_CONTROL_AUDIO_VOLUME" />
+    <!-- Permissions required for ATS tests - AtsDeviceInfo -->
+    <uses-permission android:name="android.car.permission.CAR_DIAGNOSTICS" />
 </manifest>
