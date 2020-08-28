@@ -27,6 +27,8 @@ import android.app.AppOpsManager;
 import android.car.CarNotConnectedException;
 import android.car.hardware.power.CarPowerManager;
 import android.car.settings.CarSettings;
+import android.car.user.CarUserManager;
+import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.user.IUserNotice;
 import android.car.user.IUserNoticeUI;
 import android.content.BroadcastReceiver;
@@ -47,6 +49,8 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.IWindowManager;
 import android.view.WindowManagerGlobal;
+
+import androidx.annotation.VisibleForTesting;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarServiceBase;
@@ -78,7 +82,7 @@ public final class CarUserNoticeService implements CarServiceBase {
     @Nullable
     private final Intent mServiceIntent;
 
-    private final Handler mMainHandler = new Handler(Looper.getMainLooper());
+    private final Handler mMainHandler;
 
     private final Object mLock = new Object();
 
@@ -106,19 +110,16 @@ public final class CarUserNoticeService implements CarServiceBase {
     @UserIdInt
     private int mIgnoreUserId = UserHandle.USER_NULL;
 
-    private final CarUserService.UserCallback mUserCallback = new CarUserService.UserCallback() {
-        @Override
-        public void onUserLockChanged(@UserIdInt int userId, boolean unlocked) {
-            // Nothing to do
+    private final UserLifecycleListener mUserLifecycleListener = event -> {
+        if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
+            Log.d(TAG_USER, "onEvent(" + event + ")");
         }
-
-        @Override
-        public void onSwitchUser(@UserIdInt int userId) {
-            mMainHandler.post(() -> {
+        if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING == event.getEventType()) {
+            CarUserNoticeService.this.mMainHandler.post(() -> {
                 stopUi(/* clearUiShown= */ true);
                 synchronized (mLock) {
-                    // This should be the only place to change user
-                    mUserId = userId;
+                   // This should be the only place to change user
+                    mUserId = event.getUserId();
                 }
                 startNoticeUiIfNecessary();
             });
@@ -167,6 +168,7 @@ public final class CarUserNoticeService implements CarServiceBase {
     };
 
     private final ServiceConnection mUiServiceConnection = new ServiceConnection() {
+        @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             synchronized (mLock) {
                 if (!mServiceBound) {
@@ -187,6 +189,7 @@ public final class CarUserNoticeService implements CarServiceBase {
             }
         }
 
+        @Override
         public void onServiceDisconnected(ComponentName name) {
             // UI crashed. Stop it so that it does not come again.
             stopUi(/* clearUiShown= */ true);
@@ -205,6 +208,12 @@ public final class CarUserNoticeService implements CarServiceBase {
     };
 
     public CarUserNoticeService(Context context) {
+        this(context, new Handler(Looper.getMainLooper()));
+    }
+
+    @VisibleForTesting
+    CarUserNoticeService(Context context, Handler handler) {
+        mMainHandler = handler;
         Resources res = context.getResources();
         String componentName = res.getString(R.string.config_userNoticeUiService);
         if (componentName.isEmpty()) {
@@ -365,7 +374,7 @@ public final class CarUserNoticeService implements CarServiceBase {
             throw new RuntimeException("CarNotConnectedException from CarPowerManager", e);
         }
         CarUserService userService = CarLocalServices.getService(CarUserService.class);
-        userService.addUserCallback(mUserCallback);
+        userService.addUserLifecycleListener(mUserLifecycleListener);
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_SCREEN_OFF);
         intentFilter.addAction(Intent.ACTION_SCREEN_ON);
@@ -380,7 +389,7 @@ public final class CarUserNoticeService implements CarServiceBase {
         }
         mContext.unregisterReceiver(mDisplayBroadcastReceiver);
         CarUserService userService = CarLocalServices.getService(CarUserService.class);
-        userService.removeUserCallback(mUserCallback);
+        userService.removeUserLifecycleListener(mUserLifecycleListener);
         CarPowerManager carPowerManager;
         synchronized (mLock) {
             carPowerManager = mCarPowerManager;

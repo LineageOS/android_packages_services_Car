@@ -19,6 +19,7 @@ import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
+import android.car.annotation.RequiredFeature;
 import android.os.IBinder;
 import android.os.RemoteException;
 
@@ -36,6 +37,7 @@ import java.util.Set;
  * @hide
  */
 @SystemApi
+@RequiredFeature(Car.STORAGE_MONITORING_SERVICE)
 public final class CarStorageMonitoringManager extends CarManagerBase {
     private static final String TAG = CarStorageMonitoringManager.class.getSimpleName();
     private static final int MSG_IO_STATS_EVENT = 0;
@@ -45,9 +47,17 @@ public final class CarStorageMonitoringManager extends CarManagerBase {
     private final SingleMessageHandler<IoStats> mMessageHandler;
     private final Set<IoStatsListener> mListeners = new HashSet<>();
 
+    /**
+     * Implementers will be notified on every new I/O activity calculated stats.
+     */
     public interface IoStatsListener {
+
+        /**
+         * Invoked when a new periodic snapshot delta of I/O activities is calculated.
+         */
         void onSnapshot(IoStats snapshot);
     }
+
     private static final class ListenerToService extends IIoStatsListener.Stub {
         private final WeakReference<CarStorageMonitoringManager> mManager;
 
@@ -107,7 +117,7 @@ public final class CarStorageMonitoringManager extends CarManagerBase {
      * It will return either PRE_EOL_INFO_UNKNOWN if the value can't be determined,
      * or one of PRE_EOL_INFO_{NORMAL|WARNING|URGENT} depending on the device state.
      */
-    @RequiresPermission(value=Car.PERMISSION_STORAGE_MONITORING)
+    @RequiresPermission(value = Car.PERMISSION_STORAGE_MONITORING)
     public int getPreEolIndicatorStatus() {
         try {
             return mService.getPreEolIndicatorStatus();
@@ -125,7 +135,7 @@ public final class CarStorageMonitoringManager extends CarManagerBase {
      *
      * If either or both indicators are not available, they will be reported as UNKNOWN.
      */
-    @RequiresPermission(value=Car.PERMISSION_STORAGE_MONITORING)
+    @RequiresPermission(value = Car.PERMISSION_STORAGE_MONITORING)
     public WearEstimate getWearEstimate() {
         try {
             return mService.getWearEstimate();
@@ -145,7 +155,7 @@ public final class CarStorageMonitoringManager extends CarManagerBase {
      *
      * If no indicators are available, an empty list will be returned.
      */
-    @RequiresPermission(value=Car.PERMISSION_STORAGE_MONITORING)
+    @RequiresPermission(value = Car.PERMISSION_STORAGE_MONITORING)
     public List<WearEstimateChange> getWearEstimateHistory() {
         try {
             return mService.getWearEstimateHistory();
@@ -164,7 +174,7 @@ public final class CarStorageMonitoringManager extends CarManagerBase {
      *
      * If the information is not available, an empty list will be returned.
      */
-    @RequiresPermission(value=Car.PERMISSION_STORAGE_MONITORING)
+    @RequiresPermission(value = Car.PERMISSION_STORAGE_MONITORING)
     public List<IoStatsEntry> getBootIoStats() {
         try {
             return mService.getBootIoStats();
@@ -194,7 +204,7 @@ public final class CarStorageMonitoringManager extends CarManagerBase {
      *
      * <p>If the information is not available, SHUTDOWN_COST_INFO_MISSING will be returned.</p>s
      */
-    @RequiresPermission(value=Car.PERMISSION_STORAGE_MONITORING)
+    @RequiresPermission(value = Car.PERMISSION_STORAGE_MONITORING)
     public long getShutdownDiskWriteAmount() {
         try {
             return mService.getShutdownDiskWriteAmount();
@@ -211,7 +221,7 @@ public final class CarStorageMonitoringManager extends CarManagerBase {
      *
      * If the information is not available, an empty list will be returned.
      */
-    @RequiresPermission(value=Car.PERMISSION_STORAGE_MONITORING)
+    @RequiresPermission(value = Car.PERMISSION_STORAGE_MONITORING)
     public List<IoStatsEntry> getAggregateIoStats() {
         try {
             return mService.getAggregateIoStats();
@@ -231,7 +241,7 @@ public final class CarStorageMonitoringManager extends CarManagerBase {
      *
      * If the information is not available, an empty list will be returned.
      */
-    @RequiresPermission(value=Car.PERMISSION_STORAGE_MONITORING)
+    @RequiresPermission(value = Car.PERMISSION_STORAGE_MONITORING)
     public List<IoStats> getIoStatsDeltas() {
         try {
             return mService.getIoStatsDeltas();
@@ -248,7 +258,7 @@ public final class CarStorageMonitoringManager extends CarManagerBase {
      *
      * The timing of availability of the deltas is configurable by the OEM.
      */
-    @RequiresPermission(value=Car.PERMISSION_STORAGE_MONITORING)
+    @RequiresPermission(value = Car.PERMISSION_STORAGE_MONITORING)
     public void registerListener(IoStatsListener listener) {
         try {
             if (mListeners.isEmpty()) {
@@ -266,7 +276,7 @@ public final class CarStorageMonitoringManager extends CarManagerBase {
     /**
      * This method removes a registered listener of I/O stats deltas.
      */
-    @RequiresPermission(value=Car.PERMISSION_STORAGE_MONITORING)
+    @RequiresPermission(value = Car.PERMISSION_STORAGE_MONITORING)
     public void unregisterListener(IoStatsListener listener) {
         try {
             if (!mListeners.remove(listener)) {

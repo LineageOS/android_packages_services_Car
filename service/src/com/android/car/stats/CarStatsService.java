@@ -16,22 +16,21 @@
 
 package com.android.car.stats;
 
-import android.Manifest;
+import android.app.StatsManager;
+import android.app.StatsManager.PullAtomMetadata;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.os.StatsLogEventWrapper;
-import android.os.SystemClock;
 import android.util.ArrayMap;
 import android.util.Log;
-import android.util.StatsLog;
+import android.util.StatsEvent;
 
+import com.android.car.CarStatsLog;
 import com.android.car.stats.VmsClientLogger.ConnectionState;
 import com.android.internal.annotations.GuardedBy;
-import com.android.internal.car.ICarStatsService;
+import com.android.internal.util.ConcurrentUtils;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -41,11 +40,11 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * Implementation of {@link ICarStatsService}, for reporting pulled atoms via statsd.
+ * Registers pulled atoms with statsd via StatsManager.
  *
  * Also implements collection and dumpsys reporting of atoms in CSV format.
  */
-public class CarStatsService extends ICarStatsService.Stub {
+public class CarStatsService {
     private static final boolean DEBUG = false;
     private static final String TAG = "CarStatsService";
     private static final String VMS_CONNECTION_STATS_DUMPSYS_HEADER =
@@ -82,6 +81,7 @@ public class CarStatsService extends ICarStatsService.Stub {
 
     private final Context mContext;
     private final PackageManager mPackageManager;
+    private final StatsManager mStatsManager;
 
     @GuardedBy("mVmsClientStats")
     private final Map<Integer, VmsClientLogger> mVmsClientStats = new ArrayMap<>();
@@ -89,6 +89,22 @@ public class CarStatsService extends ICarStatsService.Stub {
     public CarStatsService(Context context) {
         mContext = context;
         mPackageManager = context.getPackageManager();
+        mStatsManager = (StatsManager) mContext.getSystemService(Context.STATS_MANAGER);
+    }
+
+    /**
+     * Registers VmsClientStats puller with StatsManager.
+     */
+    public void init() {
+        PullAtomMetadata metadata = new PullAtomMetadata.Builder()
+                .setAdditiveFields(new int[] {5, 6, 7, 8, 9, 10})
+                .build();
+        mStatsManager.setPullAtomCallback(
+                CarStatsLog.VMS_CLIENT_STATS,
+                metadata,
+                ConcurrentUtils.DIRECT_EXECUTOR,
+                (atomTag, data) -> pullVmsClientStats(atomTag, data)
+        );
     }
 
     /**
@@ -108,27 +124,11 @@ public class CarStatsService extends ICarStatsService.Stub {
         }
     }
 
-    @Override
     public void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
         List<String> flags = Arrays.asList(args);
         if (args.length == 0 || flags.contains("--vms-client")) {
             dumpVmsStats(writer);
         }
-    }
-
-    @Override
-    public StatsLogEventWrapper[] pullData(int tagId) {
-        mContext.enforceCallingPermission(Manifest.permission.DUMP, null);
-        if (tagId != StatsLog.VMS_CLIENT_STATS) {
-            Log.w(TAG, "Unexpected tagId: " + tagId);
-            return null;
-        }
-
-        List<StatsLogEventWrapper> ret = new ArrayList<>();
-        long elapsedNanos = SystemClock.elapsedRealtimeNanos();
-        long wallClockNanos = SystemClock.currentTimeMicro() * 1000L;
-        pullVmsClientStats(tagId, elapsedNanos, wallClockNanos, ret);
-        return ret.toArray(new StatsLogEventWrapper[0]);
     }
 
     private void dumpVmsStats(PrintWriter writer) {
@@ -149,25 +149,32 @@ public class CarStatsService extends ICarStatsService.Stub {
         }
     }
 
-    private void pullVmsClientStats(int tagId, long elapsedNanos, long wallClockNanos,
-            List<StatsLogEventWrapper> pulledData) {
+    private int pullVmsClientStats(int atomTag, List<StatsEvent> pulledData) {
+        if (atomTag != CarStatsLog.VMS_CLIENT_STATS) {
+            Log.w(TAG, "Unexpected atom tag: " + atomTag);
+            return StatsManager.PULL_SKIP;
+        }
+
         dumpVmsClientStats((entry) -> {
-            StatsLogEventWrapper e =
-                    new StatsLogEventWrapper(tagId, elapsedNanos, wallClockNanos);
-            e.writeInt(entry.getUid());
+            StatsEvent e = StatsEvent.newBuilder()
+                    .setAtomId(atomTag)
+                    .writeInt(entry.getUid())
+                    .addBooleanAnnotation(CarStatsLog.ANNOTATION_ID_IS_UID, true)
 
-            e.writeInt(entry.getLayerType());
-            e.writeInt(entry.getLayerChannel());
-            e.writeInt(entry.getLayerVersion());
+                    .writeInt(entry.getLayerType())
+                    .writeInt(entry.getLayerChannel())
+                    .writeInt(entry.getLayerVersion())
 
-            e.writeLong(entry.getTxBytes());
-            e.writeLong(entry.getTxPackets());
-            e.writeLong(entry.getRxBytes());
-            e.writeLong(entry.getRxPackets());
-            e.writeLong(entry.getDroppedBytes());
-            e.writeLong(entry.getDroppedPackets());
+                    .writeLong(entry.getTxBytes())
+                    .writeLong(entry.getTxPackets())
+                    .writeLong(entry.getRxBytes())
+                    .writeLong(entry.getRxPackets())
+                    .writeLong(entry.getDroppedBytes())
+                    .writeLong(entry.getDroppedPackets())
+                    .build();
             pulledData.add(e);
         });
+        return StatsManager.PULL_SUCCESS;
     }
 
     private void dumpVmsClientStats(Consumer<VmsClientStats> dumpFn) {

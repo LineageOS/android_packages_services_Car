@@ -18,16 +18,13 @@ package com.android.car.hal;
 import static com.android.car.CarServiceUtils.toByteArray;
 
 import android.car.VehicleAreaType;
-import android.car.vms.IVmsPublisherClient;
-import android.car.vms.IVmsPublisherService;
-import android.car.vms.IVmsSubscriberClient;
-import android.car.vms.IVmsSubscriberService;
 import android.car.vms.VmsAssociatedLayer;
 import android.car.vms.VmsAvailableLayers;
+import android.car.vms.VmsClient;
+import android.car.vms.VmsClientManager.VmsClientCallback;
 import android.car.vms.VmsLayer;
 import android.car.vms.VmsLayerDependency;
-import android.car.vms.VmsLayersOffering;
-import android.car.vms.VmsOperationRecorder;
+import android.car.vms.VmsSubscriptionHelper;
 import android.car.vms.VmsSubscriptionState;
 import android.content.Context;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
@@ -43,29 +40,30 @@ import android.hardware.automotive.vehicle.V2_0.VmsPublisherInformationIntegerVa
 import android.hardware.automotive.vehicle.V2_0.VmsStartSessionMessageIntegerValuesIndex;
 import android.os.Build;
 import android.os.Handler;
+import android.os.HandlerExecutor;
 import android.os.HandlerThread;
-import android.os.IBinder;
-import android.os.Message;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.ArraySet;
 import android.util.Log;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.VisibleForTesting;
 
-import com.android.car.vms.VmsClientManager;
+import com.android.car.CarLocalServices;
+import com.android.car.CarServiceUtils;
+import com.android.car.vms.VmsBrokerService;
 
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 /**
@@ -78,131 +76,72 @@ public class VmsHalService extends HalServiceBase {
     private static final boolean DBG = false;
     private static final String TAG = "VmsHalService";
     private static final int HAL_PROPERTY_ID = VehicleProperty.VEHICLE_MAP_SERVICE;
+    private static final int[] SUPPORTED_PROPERTIES = new int[]{
+            HAL_PROPERTY_ID
+    };
     private static final int NUM_INTEGERS_IN_VMS_LAYER = 3;
     private static final int UNKNOWN_CLIENT_ID = -1;
+    private static final byte[] DEFAULT_PUBLISHER_INFO = new byte[0];
 
     private final VehicleHal mVehicleHal;
+    private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
+            getClass().getSimpleName());
+    private final Handler mHandler = new Handler(mHandlerThread.getLooper());
     private final int mCoreId;
-    private final MessageQueue mMessageQueue;
+    private final BiFunction<Handler, VmsClientCallback, VmsClient> mInitVmsClient;
     private final int mClientMetricsProperty;
     private final boolean mPropagatePropertyException;
-    private volatile boolean mIsSupported = false;
+    private final VmsSubscriptionHelper mSubscriptionHelper =
+            new VmsSubscriptionHelper(this::setSubscriptions);
 
-    private VmsClientManager mClientManager;
-    private IVmsPublisherService mPublisherService;
-    private IBinder mPublisherToken;
-    private IVmsSubscriberService mSubscriberService;
+    private final Object mLock = new Object();
+    @GuardedBy("mLock")
+    private boolean mIsSupported;
+    @GuardedBy("mLock")
+    private VmsClient mClient;
 
-    private int mSubscriptionStateSequence = -1;
-    private int mAvailableLayersSequence = -1;
-
-    private final IVmsPublisherClient.Stub mPublisherClient = new IVmsPublisherClient.Stub() {
+    private final VmsClientCallback mClientCallback = new VmsClientCallback() {
         @Override
-        public void setVmsPublisherService(IBinder token, IVmsPublisherService service) {
-            mPublisherToken = token;
-            mPublisherService = service;
+        public void onClientConnected(VmsClient client) {
+            Log.wtf(TAG, "onClientConnnected triggered for local client");
         }
 
         @Override
-        public void onVmsSubscriptionChange(VmsSubscriptionState subscriptionState) {
+        public void onSubscriptionStateChanged(VmsSubscriptionState subscriptionState) {
             if (DBG) Log.d(TAG, "Handling a subscription state change");
-            // Drop out-of-order notifications
-            if (subscriptionState.getSequenceNumber() <= mSubscriptionStateSequence) {
-                Log.w(TAG,
-                        String.format("Out of order subscription state received: %d (expecting %d)",
-                                subscriptionState.getSequenceNumber(),
-                                mSubscriptionStateSequence + 1));
-                return;
-            }
-            mSubscriptionStateSequence = subscriptionState.getSequenceNumber();
-            mMessageQueue.enqueue(VmsMessageType.SUBSCRIPTIONS_CHANGE,
-                    createSubscriptionStateMessage(VmsMessageType.SUBSCRIPTIONS_CHANGE,
+            setPropertyValue(createSubscriptionStateMessage(VmsMessageType.SUBSCRIPTIONS_CHANGE,
                             subscriptionState));
         }
-    };
-
-    private final IVmsSubscriberClient.Stub mSubscriberClient = new IVmsSubscriberClient.Stub() {
-        @Override
-        public void onVmsMessageReceived(VmsLayer layer, byte[] payload) {
-            if (DBG) Log.d(TAG, "Handling a data message for Layer: " + layer);
-            mMessageQueue.enqueue(VmsMessageType.DATA, createDataMessage(layer, payload));
-        }
 
         @Override
-        public void onLayersAvailabilityChanged(VmsAvailableLayers availableLayers) {
+        public void onLayerAvailabilityChanged(VmsAvailableLayers availableLayers) {
             if (DBG) Log.d(TAG, "Handling a layer availability change");
-            // Drop out-of-order notifications
-            if (availableLayers.getSequence() <= mAvailableLayersSequence) {
-                Log.w(TAG,
-                        String.format("Out of order layer availability received: %d (expecting %d)",
-                                availableLayers.getSequence(),
-                                mAvailableLayersSequence + 1));
-                return;
-            }
-            mAvailableLayersSequence = availableLayers.getSequence();
-            mMessageQueue.enqueue(VmsMessageType.AVAILABILITY_CHANGE,
-                    createAvailableLayersMessage(VmsMessageType.AVAILABILITY_CHANGE,
+            setPropertyValue(createAvailableLayersMessage(VmsMessageType.AVAILABILITY_CHANGE,
                             availableLayers));
         }
-    };
-
-    private class MessageQueue implements Handler.Callback {
-        private final Set<Integer> mSupportedMessageTypes = new ArraySet<>(Arrays.asList(
-                VmsMessageType.DATA,
-                VmsMessageType.START_SESSION,
-                VmsMessageType.AVAILABILITY_CHANGE,
-                VmsMessageType.SUBSCRIPTIONS_CHANGE
-        ));
-        private HandlerThread mHandlerThread;
-        private Handler mHandler;
-
-        synchronized void init() {
-            mHandlerThread = new HandlerThread(TAG);
-            mHandlerThread.start();
-            mHandler = new Handler(mHandlerThread.getLooper(), this);
-        }
-
-        synchronized void release() {
-            if (mHandlerThread != null) {
-                mHandlerThread.quitSafely();
-            }
-        }
-
-        synchronized void enqueue(int messageType, Object message) {
-            if (mSupportedMessageTypes.contains(messageType)) {
-                Message.obtain(mHandler, messageType, message).sendToTarget();
-            } else {
-                Log.e(TAG, "Unexpected message type: " + VmsMessageType.toString(messageType));
-            }
-        }
-
-        synchronized void clear() {
-            mSupportedMessageTypes.forEach(mHandler::removeMessages);
-        }
 
         @Override
-        public boolean handleMessage(Message msg) {
-            int messageType = msg.what;
-            VehiclePropValue vehicleProp = (VehiclePropValue) msg.obj;
-            if (DBG) Log.d(TAG, "Sending " + VmsMessageType.toString(messageType) + " message");
-            setPropertyValue(vehicleProp);
-            return true;
+        public void onPacketReceived(int providerId, VmsLayer layer, byte[] packet) {
+            if (DBG) Log.d(TAG, "Handling a data message for Layer: " + layer);
+            setPropertyValue(createDataMessage(layer, providerId, packet));
         }
-    }
+    };
 
     /**
      * Constructor used by {@link VehicleHal}
      */
     VmsHalService(Context context, VehicleHal vehicleHal) {
-        this(context, vehicleHal, SystemClock::uptimeMillis, (Build.IS_ENG || Build.IS_USERDEBUG));
+        this(context, vehicleHal, SystemClock::uptimeMillis, VmsHalService::initVmsClient,
+                Build.IS_DEBUGGABLE);
     }
 
     @VisibleForTesting
     VmsHalService(Context context, VehicleHal vehicleHal, Supplier<Long> getCoreId,
+            BiFunction<Handler, VmsClientCallback, VmsClient> initVmsClient,
             boolean propagatePropertyException) {
         mVehicleHal = vehicleHal;
         mCoreId = (int) (getCoreId.get() % Integer.MAX_VALUE);
-        mMessageQueue = new MessageQueue();
+        mInitVmsClient = initVmsClient;
         mClientMetricsProperty = getClientMetricsProperty(context);
         mPropagatePropertyException = propagatePropertyException;
     }
@@ -229,84 +168,69 @@ public class VmsHalService extends HalServiceBase {
      */
     @VisibleForTesting
     Handler getHandler() {
-        return mMessageQueue.mHandler;
-    }
-
-    /**
-     * Sets a reference to the {@link VmsClientManager} implementation for use by the HAL.
-     */
-    public void setClientManager(VmsClientManager clientManager) {
-        mClientManager = clientManager;
-    }
-
-    /**
-     * Sets a reference to the {@link IVmsSubscriberService} implementation for use by the HAL.
-     */
-    public void setVmsSubscriberService(IVmsSubscriberService service) {
-        mSubscriberService = service;
+        return mHandler;
     }
 
     @Override
-    public Collection<VehiclePropConfig> takeSupportedProperties(
-            Collection<VehiclePropConfig> allProperties) {
-        for (VehiclePropConfig p : allProperties) {
-            if (p.prop == HAL_PROPERTY_ID) {
-                mIsSupported = true;
-                return Collections.singleton(p);
-            }
+    public int[] getAllSupportedProperties() {
+        return SUPPORTED_PROPERTIES;
+    }
+
+    @Override
+    public void takeProperties(Collection<VehiclePropConfig> properties) {
+        if (properties.isEmpty()) {
+            return;
         }
-        return Collections.emptySet();
+        synchronized (mLock) {
+            mIsSupported = true;
+        }
     }
 
     @Override
     public void init() {
-        if (mIsSupported) {
-            Log.i(TAG, "Initializing VmsHalService VHAL property");
-            mVehicleHal.subscribeProperty(this, HAL_PROPERTY_ID);
-        } else {
-            Log.i(TAG, "VmsHalService VHAL property not supported");
-            return; // Do not continue initialization
+        synchronized (mLock) {
+            if (!mIsSupported) {
+                Log.i(TAG, "VmsHalService VHAL property not supported");
+                return; // Do not continue initialization
+            }
+            connectVmsClient();
         }
 
-        mMessageQueue.init();
-        mMessageQueue.enqueue(VmsMessageType.START_SESSION,
-                createStartSessionMessage(mCoreId, UNKNOWN_CLIENT_ID));
+        Log.i(TAG, "Initializing VmsHalService VHAL property");
+        mVehicleHal.subscribeProperty(this, HAL_PROPERTY_ID);
+
+        mHandler.post(() ->
+                setPropertyValue(createStartSessionMessage(mCoreId, UNKNOWN_CLIENT_ID)));
     }
 
     @Override
     public void release() {
-        mMessageQueue.release();
-        mSubscriptionStateSequence = -1;
-        mAvailableLayersSequence = -1;
-
-        if (mIsSupported) {
-            if (DBG) Log.d(TAG, "Releasing VmsHalService VHAL property");
-            mVehicleHal.unsubscribeProperty(this, HAL_PROPERTY_ID);
-        } else {
-            return;
-        }
-
-        if (mSubscriberService != null) {
-            try {
-                mSubscriberService.removeVmsSubscriberToNotifications(mSubscriberClient);
-            } catch (RemoteException e) {
-                Log.e(TAG, "While removing subscriber callback", e);
+        synchronized (mLock) {
+            disconnectVmsClient();
+            if (!mIsSupported) {
+                return;
             }
         }
+        if (DBG) {
+            Log.d(TAG, "Releasing VmsHalService VHAL property");
+        }
+        mVehicleHal.unsubscribeProperty(this, HAL_PROPERTY_ID);
     }
 
     @Override
     public void dump(PrintWriter writer) {
-        writer.println("*VMS HAL*");
-
-        writer.println("VmsProperty: " + (mIsSupported ? "supported" : "unsupported"));
-        writer.println("VmsPublisherService: "
-                + (mPublisherService != null ? "registered " : "unregistered"));
-        writer.println("mSubscriptionStateSequence: " + mSubscriptionStateSequence);
-
-        writer.println("VmsSubscriberService: "
-                + (mSubscriberService != null ? "registered" : "unregistered"));
-        writer.println("mAvailableLayersSequence: " + mAvailableLayersSequence);
+        synchronized (mLock) {
+            writer.println("*VMS HAL*");
+            writer.printf("VmsProperty: %s\n", mIsSupported ? "supported" : "unsupported");
+            if (mClient == null) {
+                writer.println("VmsClient: disconnected");
+                return;
+            }
+            writer.println("VmsClient: connected");
+            writer.printf("Subscriptions: %s\n", mSubscriptionHelper.getSubscriptions());
+            writer.printf("AvailableLayers: %s\n", mClient.getAvailableLayers());
+            writer.printf("SubscriptionState: %s\n", mClient.getSubscriptionState());
+        }
     }
 
     /**
@@ -323,7 +247,7 @@ public class VmsHalService extends HalServiceBase {
         VehiclePropValue vehicleProp = null;
         try {
             vehicleProp = mVehicleHal.get(mClientMetricsProperty);
-        } catch (PropertyTimeoutException | RuntimeException e) {
+        } catch (RuntimeException e) {
             // Failures to retrieve metrics should be non-fatal
             Log.e(TAG, "While reading metrics from client", e);
         }
@@ -332,12 +256,11 @@ public class VmsHalService extends HalServiceBase {
             return;
         }
 
-        FileOutputStream fout = new FileOutputStream(fd);
-        try {
+        try (FileOutputStream fout = new FileOutputStream(fd)) {
             fout.write(toByteArray(vehicleProp.value.bytes));
             fout.flush();
         } catch (IOException e) {
-            Log.e(TAG, "Error writing metrics to output stream");
+            Log.e(TAG, "Error writing metrics to output stream", e);
         }
     }
 
@@ -348,7 +271,7 @@ public class VmsHalService extends HalServiceBase {
      * hardware/interfaces/automotive/vehicle/2.0/types.hal
      */
     @Override
-    public void handleHalEvents(List<VehiclePropValue> values) {
+    public void onHalEvents(List<VehiclePropValue> values) {
         if (DBG) Log.d(TAG, "Handling a VMS property change");
         for (VehiclePropValue v : values) {
             ArrayList<Integer> vec = v.value.int32Values;
@@ -392,9 +315,54 @@ public class VmsHalService extends HalServiceBase {
                     default:
                         Log.e(TAG, "Unexpected message type: " + messageType);
                 }
-            } catch (IndexOutOfBoundsException | RemoteException e) {
+            } catch (IndexOutOfBoundsException e) {
                 Log.e(TAG, "While handling " + VmsMessageType.toString(messageType), e);
             }
+        }
+    }
+
+    private void connectVmsClient() {
+        synchronized (mLock) {
+            mClient = mInitVmsClient.apply(mHandler, mClientCallback);
+        }
+    }
+
+    private void disconnectVmsClient() {
+        synchronized (mLock) {
+            if (mClient != null) {
+                try {
+                    mClient.unregister();
+                } catch (RemoteException e) {
+                    Log.wtf(TAG, "Local broker should not throw RemoteException", e);
+                }
+                mClient = null;
+            }
+        }
+    }
+
+    private static VmsClient initVmsClient(Handler handler, VmsClientCallback callback) {
+        VmsBrokerService brokerService = CarLocalServices.getService(VmsBrokerService.class);
+        if (brokerService == null) {
+            Log.e(TAG, "Broker service is not enabled");
+            return null;
+        }
+        VmsClient client = new VmsClient(brokerService, new HandlerExecutor(handler), callback,
+                /* legacyClient= */ true, /* autoCloseMemory */ false,
+                /* exceptionHandler= */ ignored -> { });
+        try {
+            client.register();
+        } catch (RemoteException e) {
+            Log.wtf(TAG, "Local broker should not throw RemoteException", e);
+        }
+        return client;
+    }
+
+    private VmsClient getVmsClient() {
+        synchronized (mLock) {
+            if (mClient == null) {
+                throw new IllegalStateException("VmsClient is not connected");
+            }
+            return mClient;
         }
     }
 
@@ -412,39 +380,13 @@ public class VmsHalService extends HalServiceBase {
         Log.i(TAG, "Starting new session with coreId: " + coreId + " client: " + clientId);
 
         if (coreId != mCoreId) {
-            if (mClientManager != null) {
-                mClientManager.onHalDisconnected();
-            } else {
-                Log.w(TAG, "Client manager not registered");
-            }
-
-            // Drop all queued messages and client state
-            mMessageQueue.clear();
-            mSubscriptionStateSequence = -1;
-            mAvailableLayersSequence = -1;
-
+            // Reset VmsClient
+            disconnectVmsClient();
+            connectVmsClient();
             // Send acknowledgement message
             setPropertyValue(createStartSessionMessage(mCoreId, clientId));
         }
-
-        // Notify client manager of connection
-        if (mClientManager != null) {
-            mClientManager.onHalConnected(mPublisherClient, mSubscriberClient);
-        } else {
-            Log.w(TAG, "Client manager not registered");
-        }
-
-        if (mSubscriberService != null) {
-            // Publish layer availability to HAL clients (this triggers HAL client initialization)
-            try {
-                mSubscriberClient.onLayersAvailabilityChanged(
-                        mSubscriberService.getAvailableLayers());
-            } catch (RemoteException e) {
-                Log.e(TAG, "While publishing layer availability", e);
-            }
-        } else {
-            Log.w(TAG, "Subscriber connect callback not registered");
-        }
+        mClientCallback.onLayerAvailabilityChanged(getVmsClient().getAvailableLayers());
     }
 
     /**
@@ -458,15 +400,14 @@ public class VmsHalService extends HalServiceBase {
      * <li>Payload
      * </ul>
      */
-    private void handleDataEvent(List<Integer> message, byte[] payload)
-            throws RemoteException {
+    private void handleDataEvent(List<Integer> message, byte[] payload) {
         VmsLayer vmsLayer = parseVmsLayerFromMessage(message);
         int publisherId = parsePublisherIdFromMessage(message);
         if (DBG) {
             Log.d(TAG,
                     "Handling a data event for Layer: " + vmsLayer + " Publisher: " + publisherId);
         }
-        mPublisherService.publish(mPublisherToken, vmsLayer, publisherId, payload);
+        getVmsClient().publishPacket(publisherId, vmsLayer, payload);
     }
 
     /**
@@ -478,10 +419,10 @@ public class VmsHalService extends HalServiceBase {
      * <li>Layer version
      * </ul>
      */
-    private void handleSubscribeEvent(List<Integer> message) throws RemoteException {
+    private void handleSubscribeEvent(List<Integer> message) {
         VmsLayer vmsLayer = parseVmsLayerFromMessage(message);
         if (DBG) Log.d(TAG, "Handling a subscribe event for Layer: " + vmsLayer);
-        mSubscriberService.addVmsSubscriber(mSubscriberClient, vmsLayer);
+        mSubscriptionHelper.subscribe(vmsLayer);
     }
 
     /**
@@ -494,16 +435,14 @@ public class VmsHalService extends HalServiceBase {
      * <li>Publisher ID
      * </ul>
      */
-    private void handleSubscribeToPublisherEvent(List<Integer> message)
-            throws RemoteException {
+    private void handleSubscribeToPublisherEvent(List<Integer> message) {
         VmsLayer vmsLayer = parseVmsLayerFromMessage(message);
         int publisherId = parsePublisherIdFromMessage(message);
         if (DBG) {
-            Log.d(TAG,
-                    "Handling a subscribe event for Layer: " + vmsLayer + " Publisher: "
-                            + publisherId);
+            Log.d(TAG, "Handling a subscribe event for Layer: " + vmsLayer
+                    + " Publisher: " + publisherId);
         }
-        mSubscriberService.addVmsSubscriberToPublisher(mSubscriberClient, vmsLayer, publisherId);
+        mSubscriptionHelper.subscribe(vmsLayer, publisherId);
     }
 
     /**
@@ -515,10 +454,10 @@ public class VmsHalService extends HalServiceBase {
      * <li>Layer version
      * </ul>
      */
-    private void handleUnsubscribeEvent(List<Integer> message) throws RemoteException {
+    private void handleUnsubscribeEvent(List<Integer> message) {
         VmsLayer vmsLayer = parseVmsLayerFromMessage(message);
         if (DBG) Log.d(TAG, "Handling an unsubscribe event for Layer: " + vmsLayer);
-        mSubscriberService.removeVmsSubscriber(mSubscriberClient, vmsLayer);
+        mSubscriptionHelper.unsubscribe(vmsLayer);
     }
 
     /**
@@ -531,15 +470,18 @@ public class VmsHalService extends HalServiceBase {
      * <li>Publisher ID
      * </ul>
      */
-    private void handleUnsubscribeFromPublisherEvent(List<Integer> message)
-            throws RemoteException {
+    private void handleUnsubscribeFromPublisherEvent(List<Integer> message) {
         VmsLayer vmsLayer = parseVmsLayerFromMessage(message);
         int publisherId = parsePublisherIdFromMessage(message);
         if (DBG) {
-            Log.d(TAG, "Handling an unsubscribe event for Layer: " + vmsLayer + " Publisher: "
-                    + publisherId);
+            Log.d(TAG, "Handling an unsubscribe event for Layer: " + vmsLayer
+                    + " Publisher: " + publisherId);
         }
-        mSubscriberService.removeVmsSubscriberToPublisher(mSubscriberClient, vmsLayer, publisherId);
+        mSubscriptionHelper.unsubscribe(vmsLayer, publisherId);
+    }
+
+    private void setSubscriptions(Set<VmsAssociatedLayer> subscriptions) {
+        getVmsClient().setSubscriptions(subscriptions);
     }
 
     /**
@@ -555,14 +497,15 @@ public class VmsHalService extends HalServiceBase {
      * <li>Publisher ID
      * </ul>
      */
-    private void handlePublisherIdRequest(byte[] payload)
-            throws RemoteException {
-        if (DBG) Log.d(TAG, "Handling a publisher id request event");
+    private void handlePublisherIdRequest(byte[] payload) {
+        if (DBG) {
+            Log.d(TAG, "Handling a publisher id request event");
+        }
 
         VehiclePropValue vehicleProp = createVmsMessage(VmsMessageType.PUBLISHER_ID_RESPONSE);
-        // Publisher ID
-        vehicleProp.value.int32Values.add(mPublisherService.getPublisherId(payload));
 
+        // Publisher ID
+        vehicleProp.value.int32Values.add(getVmsClient().registerProvider(payload));
         setPropertyValue(vehicleProp);
     }
 
@@ -580,16 +523,17 @@ public class VmsHalService extends HalServiceBase {
      * <li>Publisher info (bytes)
      * </ul>
      */
-    private void handlePublisherInfoRequest(List<Integer> message)
-            throws RemoteException {
+    private void handlePublisherInfoRequest(List<Integer> message) {
         if (DBG) Log.d(TAG, "Handling a publisher info request event");
         int publisherId = message.get(VmsPublisherInformationIntegerValuesIndex.PUBLISHER_ID);
 
         VehiclePropValue vehicleProp =
                 createVmsMessage(VmsMessageType.PUBLISHER_INFORMATION_RESPONSE);
-        // Publisher Info
-        appendBytes(vehicleProp.value.bytes, mSubscriberService.getPublisherInfo(publisherId));
 
+        // Publisher Info
+        byte[] publisherInfo = getVmsClient().getProviderDescription(publisherId);
+        appendBytes(vehicleProp.value.bytes,
+                publisherInfo != null ? publisherInfo : DEFAULT_PUBLISHER_INFO);
         setPropertyValue(vehicleProp);
     }
 
@@ -614,7 +558,7 @@ public class VmsHalService extends HalServiceBase {
      * </ul>
      * </ul>
      */
-    private void handleOfferingEvent(List<Integer> message) throws RemoteException {
+    private void handleOfferingEvent(List<Integer> message) {
         // Publisher ID for OFFERING is stored at a different index than in other message types
         int publisherId = message.get(VmsOfferingMessageIntegerValuesIndex.PUBLISHER_ID);
         int numLayerDependencies =
@@ -645,10 +589,7 @@ public class VmsHalService extends HalServiceBase {
                 offeredLayers.add(new VmsLayerDependency(offeredLayer, dependencies));
             }
         }
-
-        VmsLayersOffering offering = new VmsLayersOffering(offeredLayers, publisherId);
-        VmsOperationRecorder.get().setHalPublisherLayersOffering(offering);
-        mPublisherService.setLayersOffering(mPublisherToken, offering);
+        getVmsClient().setProviderOfferings(publisherId, offeredLayers);
     }
 
     /**
@@ -657,10 +598,9 @@ public class VmsHalService extends HalServiceBase {
      * <li>Message type
      * </ul>
      */
-    private void handleAvailabilityRequestEvent() throws RemoteException {
-        setPropertyValue(
-                createAvailableLayersMessage(VmsMessageType.AVAILABILITY_RESPONSE,
-                        mSubscriberService.getAvailableLayers()));
+    private void handleAvailabilityRequestEvent() {
+        setPropertyValue(createAvailableLayersMessage(VmsMessageType.AVAILABILITY_RESPONSE,
+                getVmsClient().getAvailableLayers()));
     }
 
     /**
@@ -669,26 +609,27 @@ public class VmsHalService extends HalServiceBase {
      * <li>Message type
      * </ul>
      */
-    private void handleSubscriptionsRequestEvent() throws RemoteException {
-        setPropertyValue(
-                createSubscriptionStateMessage(VmsMessageType.SUBSCRIPTIONS_RESPONSE,
-                        mPublisherService.getSubscriptions()));
+    private void handleSubscriptionsRequestEvent() {
+        setPropertyValue(createSubscriptionStateMessage(VmsMessageType.SUBSCRIPTIONS_RESPONSE,
+                getVmsClient().getSubscriptionState()));
     }
 
     private void setPropertyValue(VehiclePropValue vehicleProp) {
         int messageType = vehicleProp.value.int32Values.get(
                 VmsBaseMessageIntegerValuesIndex.MESSAGE_TYPE);
 
-        if (!mIsSupported) {
-            Log.w(TAG, "HAL unsupported while attempting to send "
-                    + VmsMessageType.toString(messageType));
-            return;
+        synchronized (mLock) {
+            if (!mIsSupported) {
+                Log.w(TAG, "HAL unsupported while attempting to send "
+                        + VmsMessageType.toString(messageType));
+                return;
+            }
         }
 
         try {
             mVehicleHal.set(vehicleProp);
-        } catch (PropertyTimeoutException | RuntimeException e) {
-            Log.e(TAG, "While sending " + VmsMessageType.toString(messageType), e.getCause());
+        } catch (RuntimeException e) {
+            Log.e(TAG, "While sending " + VmsMessageType.toString(messageType), e);
             if (mPropagatePropertyException) {
                 throw new IllegalStateException(e);
             }
@@ -733,16 +674,18 @@ public class VmsHalService extends HalServiceBase {
      * </ul>
      *
      * @param layer Layer for which message was published.
+     * @param publisherId Publisher of message
+     * @param payload Data message
      */
-    private static VehiclePropValue createDataMessage(VmsLayer layer, byte[] payload) {
+    private static VehiclePropValue createDataMessage(VmsLayer layer, int publisherId,
+            byte[] payload) {
         // Message type + layer
         VehiclePropValue vehicleProp = createVmsMessage(VmsMessageType.DATA);
         appendLayer(vehicleProp.value.int32Values, layer);
         List<Integer> message = vehicleProp.value.int32Values;
 
         // Publisher ID
-        // TODO(b/124130256): Set publisher ID of data message
-        message.add(0);
+        message.add(publisherId);
 
         // Payload
         appendBytes(vehicleProp.value.bytes, payload);
@@ -879,8 +822,8 @@ public class VmsHalService extends HalServiceBase {
         message.add(layer.getVmsLayer().getType());
         message.add(layer.getVmsLayer().getSubtype());
         message.add(layer.getVmsLayer().getVersion());
-        message.add(layer.getPublisherIds().size());
-        message.addAll(layer.getPublisherIds());
+        message.add(layer.getProviderIds().size());
+        message.addAll(layer.getProviderIds());
     }
 
     private static void appendBytes(ArrayList<Byte> dst, byte[] src) {

@@ -26,6 +26,7 @@
     <string name="usb_pref_delete_cancel" msgid="5999791462730255929">"రద్దు చేయి"</string>
     <string name="usb_resolving_handlers" msgid="1943100136172948686">"మద్దతుగల హ్యాండ్లర్‌లను పొందడం"</string>
     <string name="usb_unknown_device" msgid="4211439272338937095">"తెలియని USB పరికరం"</string>
+    <string name="usb_boot_service_notification" msgid="8519949189071048797">"USB పరికరాలను విశ్లేషిస్తోంది"</string>
   <string-array name="config_AoapIncompatibleDeviceIds">
     <item msgid="4267974637522344258">"18d1:9302"</item>
   </string-array>

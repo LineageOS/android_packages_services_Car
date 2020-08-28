@@ -18,19 +18,20 @@ package android.car.vms;
 
 import android.annotation.CallbackExecutor;
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
-import android.os.Binder;
-import android.os.IBinder;
-import android.os.RemoteException;
-import android.util.Log;
+import android.car.annotation.RequiredFeature;
+import android.car.vms.VmsClientManager.VmsClientCallback;
 
 import com.android.internal.annotations.GuardedBy;
-import com.android.internal.util.Preconditions;
 
-import java.util.Collections;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * API implementation for use by Vehicle Map Service subscribers.
@@ -38,23 +39,15 @@ import java.util.concurrent.Executor;
  * Supports a single client callback that can subscribe and unsubscribe to different data layers.
  * {@link #setVmsSubscriberClientCallback} must be called before any subscription operations.
  *
+ * @deprecated Use {@link VmsClientManager} instead
  * @hide
  */
+@RequiredFeature(Car.VMS_SUBSCRIBER_SERVICE)
+@Deprecated
 @SystemApi
 public final class VmsSubscriberManager extends CarManagerBase {
-    private static final String TAG = "VmsSubscriberManager";
-
+    private static final long CLIENT_READY_TIMEOUT_MS = 500;
     private static final byte[] DEFAULT_PUBLISHER_INFO = new byte[0];
-    private static final VmsAvailableLayers DEFAULT_AVAILABLE_LAYERS =
-            new VmsAvailableLayers(Collections.emptySet(), 0);
-
-    private final IVmsSubscriberService mVmsSubscriberService;
-    private final IVmsSubscriberClient mSubscriberManagerClient;
-    private final Object mClientCallbackLock = new Object();
-    @GuardedBy("mClientCallbackLock")
-    private VmsSubscriberClientCallback mClientCallback;
-    @GuardedBy("mClientCallbackLock")
-    private Executor mExecutor;
 
     /**
      * Callback interface for Vehicle Map Service subscribers.
@@ -76,47 +69,32 @@ public final class VmsSubscriberManager extends CarManagerBase {
         void onLayersAvailabilityChanged(@NonNull VmsAvailableLayers availableLayers);
     }
 
+    private final VmsClientManager mClientManager;
+
+    private final Object mLock = new Object();
+
+    @GuardedBy("mLock")
+    private @Nullable VmsClient mClient;
+
+    @GuardedBy("mLock")
+    private @Nullable VmsClientCallback mClientCallback;
+
+    private final VmsSubscriptionHelper mSubscriptionHelper =
+            new VmsSubscriptionHelper(this::setSubscriptions);
+
     /**
-     * Hidden constructor - can only be used internally.
-     *
      * @hide
      */
-    public VmsSubscriberManager(Car car, IBinder service) {
-        super(car);
-        mVmsSubscriberService = IVmsSubscriberService.Stub.asInterface(service);
-        mSubscriberManagerClient = new IVmsSubscriberClient.Stub() {
-            @Override
-            public void onVmsMessageReceived(VmsLayer layer, byte[] payload) {
-                Executor executor;
-                synchronized (mClientCallbackLock) {
-                    executor = mExecutor;
-                }
-                if (executor == null) {
-                    Log.w(TAG, "Executor is unset in onVmsMessageReceived");
-                    return;
-                }
-                Binder.clearCallingIdentity();
-                executor.execute(() -> {
-                    dispatchOnReceiveMessage(layer, payload);
-                });
-            }
+    public static VmsSubscriberManager wrap(Car car, @Nullable VmsClientManager clientManager) {
+        if (clientManager == null) {
+            return null;
+        }
+        return new VmsSubscriberManager(car, clientManager);
+    }
 
-            @Override
-            public void onLayersAvailabilityChanged(VmsAvailableLayers availableLayers) {
-                Executor executor;
-                synchronized (mClientCallbackLock) {
-                    executor = mExecutor;
-                }
-                if (executor == null) {
-                    Log.w(TAG, "Executor is unset in onLayersAvailabilityChanged");
-                    return;
-                }
-                Binder.clearCallingIdentity();
-                executor.execute(() -> {
-                    dispatchOnAvailabilityChangeMessage(availableLayers);
-                });
-            }
-        };
+    private VmsSubscriberManager(Car car, VmsClientManager clientManager) {
+        super(car);
+        mClientManager = clientManager;
     }
 
     /**
@@ -129,38 +107,41 @@ public final class VmsSubscriberManager extends CarManagerBase {
     public void setVmsSubscriberClientCallback(
             @NonNull @CallbackExecutor Executor executor,
             @NonNull VmsSubscriberClientCallback clientCallback) {
-        synchronized (mClientCallbackLock) {
+        Objects.requireNonNull(clientCallback, "clientCallback cannot be null");
+        Objects.requireNonNull(executor, "executor cannot be null");
+        CountDownLatch clientReady;
+        synchronized (mLock) {
             if (mClientCallback != null) {
                 throw new IllegalStateException("Client callback is already configured.");
             }
-            mClientCallback = Preconditions.checkNotNull(clientCallback,
-                    "clientCallback cannot be null");
-            mExecutor = Preconditions.checkNotNull(executor, "executor cannot be null");
+            clientReady = new CountDownLatch(1);
+            mClientCallback = new SubscriberCallbackWrapper(clientCallback, clientReady);
+            // Register callback with broker service
+            mClientManager.registerVmsClientCallback(executor, mClientCallback,
+                    /* legacyClient= */ true);
         }
+
         try {
-            mVmsSubscriberService.addVmsSubscriberToNotifications(mSubscriberManagerClient);
-        } catch (RemoteException e) {
-            handleRemoteExceptionFromCarService(e);
+            // Wait for VmsClient to be available
+            if (!clientReady.await(CLIENT_READY_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
+                clearVmsSubscriberClientCallback();
+                throw new IllegalStateException("Subscriber client is not ready");
+            }
+        } catch (InterruptedException e) {
+            clearVmsSubscriberClientCallback();
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted while waiting for subscriber client", e);
         }
     }
-
 
     /**
      * Clears the subscriber client's callback.
      */
     public void clearVmsSubscriberClientCallback() {
-        synchronized (mClientCallbackLock) {
-            if (mExecutor == null) return;
-        }
-        try {
-            mVmsSubscriberService.removeVmsSubscriberToNotifications(mSubscriberManagerClient);
-        } catch (RemoteException e) {
-            handleRemoteExceptionFromCarService(e);
-        } finally {
-            synchronized (mClientCallbackLock) {
-                mClientCallback = null;
-                mExecutor = null;
-            }
+        synchronized (mLock) {
+            mClientManager.unregisterVmsClientCallback(mClientCallback);
+            mClient = null;
+            mClientCallback = null;
         }
     }
 
@@ -172,11 +153,8 @@ public final class VmsSubscriberManager extends CarManagerBase {
      */
     @NonNull
     public byte[] getPublisherInfo(int publisherId) {
-        try {
-            return mVmsSubscriberService.getPublisherInfo(publisherId);
-        } catch (RemoteException e) {
-            return handleRemoteExceptionFromCarService(e, DEFAULT_PUBLISHER_INFO);
-        }
+        byte[] publisherInfo = getVmsClient().getProviderDescription(publisherId);
+        return publisherInfo != null ? publisherInfo : DEFAULT_PUBLISHER_INFO;
     }
 
     /**
@@ -186,11 +164,7 @@ public final class VmsSubscriberManager extends CarManagerBase {
      */
     @NonNull
     public VmsAvailableLayers getAvailableLayers() {
-        try {
-            return mVmsSubscriberService.getAvailableLayers();
-        } catch (RemoteException e) {
-            return handleRemoteExceptionFromCarService(e, DEFAULT_AVAILABLE_LAYERS);
-        }
+        return getVmsClient().getAvailableLayers();
     }
 
     /**
@@ -201,13 +175,7 @@ public final class VmsSubscriberManager extends CarManagerBase {
      *                               {@link #setVmsSubscriberClientCallback}.
      */
     public void subscribe(@NonNull VmsLayer layer) {
-        verifySubscriptionIsAllowed();
-        try {
-            mVmsSubscriberService.addVmsSubscriber(mSubscriberManagerClient, layer);
-            VmsOperationRecorder.get().subscribe(layer);
-        } catch (RemoteException e) {
-            handleRemoteExceptionFromCarService(e);
-        }
+        mSubscriptionHelper.subscribe(layer);
     }
 
     /**
@@ -219,27 +187,14 @@ public final class VmsSubscriberManager extends CarManagerBase {
      *                               {@link #setVmsSubscriberClientCallback}.
      */
     public void subscribe(@NonNull VmsLayer layer, int publisherId) {
-        verifySubscriptionIsAllowed();
-        try {
-            mVmsSubscriberService.addVmsSubscriberToPublisher(
-                    mSubscriberManagerClient, layer, publisherId);
-            VmsOperationRecorder.get().subscribe(layer, publisherId);
-        } catch (RemoteException e) {
-            handleRemoteExceptionFromCarService(e);
-        }
+        mSubscriptionHelper.subscribe(layer, publisherId);
     }
 
     /**
      * Start monitoring all messages for all layers, regardless of subscriptions.
      */
     public void startMonitoring() {
-        verifySubscriptionIsAllowed();
-        try {
-            mVmsSubscriberService.addVmsSubscriberPassive(mSubscriberManagerClient);
-            VmsOperationRecorder.get().startMonitoring();
-        } catch (RemoteException e) {
-            handleRemoteExceptionFromCarService(e);
-        }
+        getVmsClient().setMonitoringEnabled(true);
     }
 
     /**
@@ -250,13 +205,7 @@ public final class VmsSubscriberManager extends CarManagerBase {
      *                               {@link #setVmsSubscriberClientCallback}.
      */
     public void unsubscribe(@NonNull VmsLayer layer) {
-        verifySubscriptionIsAllowed();
-        try {
-            mVmsSubscriberService.removeVmsSubscriber(mSubscriberManagerClient, layer);
-            VmsOperationRecorder.get().unsubscribe(layer);
-        } catch (RemoteException e) {
-            handleRemoteExceptionFromCarService(e);
-        }
+        mSubscriptionHelper.unsubscribe(layer);
     }
 
     /**
@@ -268,74 +217,66 @@ public final class VmsSubscriberManager extends CarManagerBase {
      *                               {@link #setVmsSubscriberClientCallback}.
      */
     public void unsubscribe(@NonNull VmsLayer layer, int publisherId) {
-        try {
-            mVmsSubscriberService.removeVmsSubscriberToPublisher(
-                    mSubscriberManagerClient, layer, publisherId);
-            VmsOperationRecorder.get().unsubscribe(layer, publisherId);
-        } catch (RemoteException e) {
-            handleRemoteExceptionFromCarService(e);
-        }
+        mSubscriptionHelper.unsubscribe(layer, publisherId);
     }
 
     /**
      * Stop monitoring. Only receive messages for layers which have been subscribed to."
      */
     public void stopMonitoring() {
-        try {
-            mVmsSubscriberService.removeVmsSubscriberPassive(mSubscriberManagerClient);
-            VmsOperationRecorder.get().stopMonitoring();
-        } catch (RemoteException e) {
-            handleRemoteExceptionFromCarService(e);
-        }
-    }
-
-    private void dispatchOnReceiveMessage(VmsLayer layer, byte[] payload) {
-        VmsSubscriberClientCallback clientCallback = getClientCallbackThreadSafe();
-        if (clientCallback == null) {
-            Log.e(TAG, "Cannot dispatch received message.");
-            return;
-        }
-        clientCallback.onVmsMessageReceived(layer, payload);
-    }
-
-    private void dispatchOnAvailabilityChangeMessage(VmsAvailableLayers availableLayers) {
-        VmsSubscriberClientCallback clientCallback = getClientCallbackThreadSafe();
-        if (clientCallback == null) {
-            Log.e(TAG, "Cannot dispatch availability change message.");
-            return;
-        }
-        clientCallback.onLayersAvailabilityChanged(availableLayers);
-    }
-
-    private VmsSubscriberClientCallback getClientCallbackThreadSafe() {
-        VmsSubscriberClientCallback clientCallback;
-        synchronized (mClientCallbackLock) {
-            clientCallback = mClientCallback;
-        }
-        if (clientCallback == null) {
-            Log.e(TAG, "client callback not set.");
-        }
-        return clientCallback;
-    }
-
-    /*
-     * Verifies that the subscriber is in a state where it is allowed to subscribe.
-     */
-    private void verifySubscriptionIsAllowed() {
-        VmsSubscriberClientCallback clientCallback = getClientCallbackThreadSafe();
-        if (clientCallback == null) {
-            throw new IllegalStateException("Cannot subscribe.");
-        }
+        getVmsClient().setMonitoringEnabled(false);
     }
 
     /**
      * @hide
      */
     @Override
-    public void onCarDisconnected() {
-        synchronized (mClientCallbackLock) {
-            mClientCallback = null;
-            mExecutor = null;
+    public void onCarDisconnected() {}
+
+    private void setSubscriptions(Set<VmsAssociatedLayer> subscriptions) {
+        getVmsClient().setSubscriptions(subscriptions);
+    }
+
+    private VmsClient getVmsClient() {
+        synchronized (mLock) {
+            if (mClient == null) {
+                throw new IllegalStateException("VMS client connection is not ready");
+            }
+            return mClient;
+        }
+    }
+
+    private final class SubscriberCallbackWrapper implements VmsClientCallback {
+        private final VmsSubscriberClientCallback mCallback;
+        private final CountDownLatch mClientReady;
+
+        SubscriberCallbackWrapper(VmsSubscriberClientCallback callback,
+                CountDownLatch clientReady) {
+            mCallback = callback;
+            mClientReady = clientReady;
+        }
+
+        @Override
+        public void onClientConnected(VmsClient client) {
+            synchronized (mLock) {
+                mClient = client;
+            }
+            mClientReady.countDown();
+        }
+
+        @Override
+        public void onSubscriptionStateChanged(VmsSubscriptionState subscriptionState) {
+            // Ignored
+        }
+
+        @Override
+        public void onLayerAvailabilityChanged(VmsAvailableLayers availableLayers) {
+            mCallback.onLayersAvailabilityChanged(availableLayers);
+        }
+
+        @Override
+        public void onPacketReceived(int providerId, VmsLayer layer, byte[] packet) {
+            mCallback.onVmsMessageReceived(layer, packet);
         }
     }
 }

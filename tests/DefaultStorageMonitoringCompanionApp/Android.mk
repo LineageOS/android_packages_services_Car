@@ -23,8 +23,7 @@ LOCAL_SRC_FILES := $(call all-java-files-under, src)
 LOCAL_RESOURCE_DIR := $(LOCAL_PATH)/res
 
 LOCAL_PACKAGE_NAME := DefaultStorageMonitoringCompanionApp
-
-LOCAL_SDK_VERSION := system_current
+LOCAL_PRIVATE_PLATFORM_APIS := true
 
 LOCAL_AAPT_FLAGS := --auto-add-overlay
 
@@ -36,6 +35,6 @@ LOCAL_PRIVILEGED_MODULE := true
 
 LOCAL_DEX_PREOPT := false
 
-LOCAL_JAVA_LIBRARIES += android.car-system-stubs
+LOCAL_JAVA_LIBRARIES += android.car
 
 include $(BUILD_PACKAGE)

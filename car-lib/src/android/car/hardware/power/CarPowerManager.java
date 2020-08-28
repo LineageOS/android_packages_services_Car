@@ -16,6 +16,7 @@
 
 package android.car.hardware.power;
 
+import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
@@ -34,8 +35,8 @@ import java.util.concurrent.CompletableFuture;
  */
 @SystemApi
 public class CarPowerManager extends CarManagerBase {
-    private final static boolean DBG = false;
-    private final static String TAG = "CarPowerManager";
+    private static final boolean DBG = false;
+    private static final String TAG = CarPowerManager.class.getSimpleName();
 
     private final Object mLock = new Object();
     private final ICarPower mService;
@@ -56,9 +57,14 @@ public class CarPowerManager extends CarManagerBase {
     public interface CarPowerStateListener {
         /**
          * onStateChanged() states.  These definitions must match the ones located in the native
-         * CarPowerManager:  packages/services/Car/car-lib/native/CarPowerManager/CarPowerManager.h
+         * CarPowerManager:  packages/services/Car/car-lib/native/include/CarPowerManager.h
          */
 
+        /**
+         * The current power state is unavailable, unknown, or invalid
+         * @hide
+         */
+        int INVALID = 0;
         /**
          * Android is up, but vendor is controlling the audio / display
          * @hide
@@ -162,6 +168,20 @@ public class CarPowerManager extends CarManagerBase {
     }
 
     /**
+     * Returns the current power state
+     * @return One of the values defined in {@link CarPowerStateListener}
+     * @hide
+     */
+    @RequiresPermission(Car.PERMISSION_CAR_POWER)
+    public int getPowerState() {
+        try {
+            return mService.getPowerState();
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, CarPowerStateListener.INVALID);
+        }
+    }
+
+    /**
      * Sets a listener to receive power state changes. Only one listener may be set at a
      * time for an instance of CarPowerManager.
      * The listener is assumed to completely handle the 'onStateChanged' before returning.
@@ -195,7 +215,7 @@ public class CarPowerManager extends CarManagerBase {
      * @hide
      */
     public void setListenerWithCompletion(CarPowerStateListenerWithCompletion listener) {
-        synchronized(mLock) {
+        synchronized (mLock) {
             if (mListener != null || mListenerWithCompletion != null) {
                 throw new IllegalStateException("Listener must be cleared first");
             }
@@ -220,14 +240,18 @@ public class CarPowerManager extends CarManagerBase {
                             future = mFuture;
                         }
                         // Notify user that the state has changed and supply a future
-                        listenerWithCompletion.onStateChanged(state, future);
+                        if (listenerWithCompletion != null) {
+                            listenerWithCompletion.onStateChanged(state, future);
+                        }
                     } else {
                         CarPowerStateListener listener;
                         synchronized (mLock) {
                             listener = mListener;
                         }
                         // Notify the user without supplying a future
-                        listener.onStateChanged(state);
+                        if (listener != null) {
+                            listener.onStateChanged(state);
+                        }
                     }
                 }
             };

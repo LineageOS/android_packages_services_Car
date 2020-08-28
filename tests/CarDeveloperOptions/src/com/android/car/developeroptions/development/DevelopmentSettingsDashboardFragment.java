@@ -45,13 +45,13 @@ import com.android.car.developeroptions.dashboard.RestrictedDashboardFragment;
 import com.android.car.developeroptions.development.autofill.AutofillLoggingLevelPreferenceController;
 import com.android.car.developeroptions.development.autofill.AutofillResetOptionsPreferenceController;
 import com.android.car.developeroptions.search.BaseSearchIndexProvider;
-import com.android.car.developeroptions.search.Indexable;
 import com.android.car.developeroptions.widget.SwitchBar;
 import com.android.settingslib.core.AbstractPreferenceController;
 import com.android.settingslib.core.lifecycle.Lifecycle;
 import com.android.settingslib.development.DeveloperOptionsPreferenceController;
 import com.android.settingslib.development.DevelopmentSettingsEnabler;
 import com.android.settingslib.development.SystemPropPoker;
+import com.android.settingslib.search.Indexable;
 import com.android.settingslib.search.SearchIndexable;
 
 import java.util.ArrayList;

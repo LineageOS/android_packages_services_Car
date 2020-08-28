@@ -41,16 +41,19 @@ LOCAL_PROGUARD_ENABLED := disabled
 LOCAL_DEX_PREOPT := false
 
 LOCAL_STATIC_ANDROID_LIBRARIES += \
-    car-service-lib-for-test \
-    androidx.car_car
+    car-service-test-static-lib \
+    com.google.android.material_material \
+    androidx.appcompat_appcompat \
+    car-ui-lib
 
 LOCAL_STATIC_JAVA_LIBRARIES += \
     android.hidl.base-V1.0-java \
     android.hardware.automotive.vehicle-V2.0-java \
-    vehicle-hal-support-lib \
+    vehicle-hal-support-lib-for-test \
     com.android.car.keventreader-client \
     guava \
-    android.car.cluster.navigation
+    android.car.cluster.navigation \
+    car-experimental-api-static-lib
 
 LOCAL_JAVA_LIBRARIES += android.car
 

@@ -15,17 +15,12 @@
  */
 package android.car.usb.handler;
 
-import static android.content.Intent.ACTION_USER_SWITCHED;
-
-import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Binder;
@@ -46,14 +41,6 @@ public class BootUsbService extends Service {
     static final String USB_DEVICE_LIST_KEY = "usb_device_list";
 
     private ArrayList<UsbDevice> mDeviceList;
-    private boolean mReceiverRegistered = false;
-    private final BroadcastReceiver mUserSwitchBroadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            processDevices();
-            unregisterUserSwitchReceiver();
-        }
-    };
 
     @Override
     public Binder onBind(Intent intent) {
@@ -81,27 +68,13 @@ public class BootUsbService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         mDeviceList = intent.getParcelableArrayListExtra(USB_DEVICE_LIST_KEY);
-        // If the current user is still the system user, wait until the non system user becomes the
-        // current/foreground user. Otherwise, we can go ahead and start processing the USB devices
-        // immediately.
-        if (ActivityManager.getCurrentUser() == UserHandle.USER_SYSTEM) {
-            Log.d(TAG, "Current user is still the system user, waiting for user switch");
-            registerUserSwitchReceiver();
-        } else {
-            processDevices();
-        }
-
+        processDevices();
         return START_NOT_STICKY;
     }
 
-    @Override
-    public void onDestroy() {
-        unregisterUserSwitchReceiver();
-    }
-
     private void processDevices() {
-        Log.d(TAG, "Processing connected USB devices and starting handlers");
         for (UsbDevice device : mDeviceList) {
+            Log.d(TAG, "Processing device: " + device.getProductName());
             handle(this, device);
         }
         stopSelf();
@@ -113,19 +86,5 @@ public class BootUsbService extends Service {
         manageDevice.putExtra(UsbManager.EXTRA_DEVICE, device);
         manageDevice.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivityAsUser(manageDevice, UserHandle.CURRENT);
-    }
-
-    private void registerUserSwitchReceiver() {
-        if (!mReceiverRegistered) {
-            registerReceiver(mUserSwitchBroadcastReceiver, new IntentFilter(ACTION_USER_SWITCHED));
-            mReceiverRegistered = true;
-        }
-    }
-
-    private void unregisterUserSwitchReceiver() {
-        if (mReceiverRegistered) {
-            unregisterReceiver(mUserSwitchBroadcastReceiver);
-            mReceiverRegistered = false;
-        }
     }
 }

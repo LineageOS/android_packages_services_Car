@@ -20,6 +20,7 @@
     <dimen name="bug_report_padding">30dp</dimen>
 
     <dimen name="bug_report_default_text_size">28dp</dimen>
+    <dimen name="bug_report_small_text_size">24dp</dimen>
 
     <!-- VoiceRecordingView dimensions -->
     <dimen name="bug_report_voice_recording_margin_top">20dp</dimen>

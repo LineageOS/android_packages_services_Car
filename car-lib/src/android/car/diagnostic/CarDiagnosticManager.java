@@ -51,11 +51,10 @@ public final class CarDiagnosticManager extends CarManagerBase {
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({FRAME_TYPE_LIVE, FRAME_TYPE_FREEZE})
-    /** @hide */
     public @interface FrameType {}
 
     /** @hide */
-    public static final @FrameType int FRAME_TYPES[] = {
+    public static final @FrameType int[] FRAME_TYPES = {
         FRAME_TYPE_LIVE,
         FRAME_TYPE_FREEZE
     };
@@ -95,9 +94,8 @@ public final class CarDiagnosticManager extends CarManagerBase {
     }
 
     @Override
-    /** @hide */
     public void onCarDisconnected() {
-        synchronized(mActiveListeners) {
+        synchronized (mActiveListeners) {
             mActiveListeners.clear();
         }
     }
@@ -109,7 +107,7 @@ public final class CarDiagnosticManager extends CarManagerBase {
          *
          * @param carDiagnosticEvent
          */
-        void onDiagnosticEvent(final CarDiagnosticEvent carDiagnosticEvent);
+        void onDiagnosticEvent(CarDiagnosticEvent carDiagnosticEvent);
     }
 
     // OnDiagnosticEventListener registration
@@ -136,7 +134,7 @@ public final class CarDiagnosticManager extends CarManagerBase {
     public boolean registerListener(
             OnDiagnosticEventListener listener, @FrameType int frameType, int rate) {
         assertFrameType(frameType);
-        synchronized(mActiveListeners) {
+        synchronized (mActiveListeners) {
             boolean needsServerUpdate = false;
             CarDiagnosticListeners listeners = mActiveListeners.get(frameType);
             if (listeners == null) {
@@ -161,8 +159,8 @@ public final class CarDiagnosticManager extends CarManagerBase {
      * @param listener
      */
     public void unregisterListener(OnDiagnosticEventListener listener) {
-        synchronized(mActiveListeners) {
-            for(@FrameType int frameType : FRAME_TYPES) {
+        synchronized (mActiveListeners) {
+            for (@FrameType int frameType : FRAME_TYPES) {
                 doUnregisterListenerLocked(listener, frameType);
             }
         }
@@ -179,7 +177,7 @@ public final class CarDiagnosticManager extends CarManagerBase {
             if (listeners.isEmpty()) {
                 try {
                     mService.unregisterDiagnosticListener(frameType,
-                        mListenerToService);
+                            mListenerToService);
                 } catch (RemoteException e) {
                     handleRemoteExceptionFromCarService(e);
                     // continue for local clean-up
@@ -342,12 +340,12 @@ public final class CarDiagnosticManager extends CarManagerBase {
             extends Stub {
         private final WeakReference<CarDiagnosticManager> mManager;
 
-        public CarDiagnosticEventListenerToService(CarDiagnosticManager manager) {
+        CarDiagnosticEventListenerToService(CarDiagnosticManager manager) {
             mManager = new WeakReference<>(manager);
         }
 
         private void handleOnDiagnosticEvents(CarDiagnosticManager manager,
-            List<CarDiagnosticEvent> events) {
+                List<CarDiagnosticEvent> events) {
             manager.mHandlerCallback.sendEvents(events);
         }
 
@@ -374,8 +372,8 @@ public final class CarDiagnosticManager extends CarManagerBase {
             }
             mLastUpdateTime = updateTime;
             final boolean hasVendorExtensionPermission = mVendorExtensionPermission.checkGranted();
-            final CarDiagnosticEvent eventToDispatch = hasVendorExtensionPermission ?
-                    event :
+            final CarDiagnosticEvent eventToDispatch = hasVendorExtensionPermission
+                    ? event :
                     event.withVendorSensorsRemoved();
             List<OnDiagnosticEventListener> listeners;
             synchronized (mActiveListeners) {

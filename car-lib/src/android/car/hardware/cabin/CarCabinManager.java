@@ -28,6 +28,8 @@ import android.car.hardware.property.ICarProperty;
 import android.os.IBinder;
 import android.util.ArraySet;
 
+import com.android.internal.annotations.GuardedBy;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
@@ -57,10 +59,11 @@ import java.util.List;
 @Deprecated
 @SystemApi
 public final class CarCabinManager extends CarManagerBase {
-    private final static boolean DBG = false;
-    private final static String TAG = "CarCabinManager";
+    private final Object mLock = new Object();
     private final CarPropertyManager mCarPropertyMgr;
+    @GuardedBy("mLock")
     private final ArraySet<CarCabinEventCallback> mCallbacks = new ArraySet<>();
+    @GuardedBy("mLock")
     private CarPropertyEventListenerToBase mListenerToBase = null;
 
     /** Door properties are zoned by VehicleAreaDoor */
@@ -416,7 +419,7 @@ public final class CarCabinManager extends CarManagerBase {
     private static class CarPropertyEventListenerToBase implements CarPropertyEventCallback {
         private final WeakReference<CarCabinManager> mManager;
 
-        public CarPropertyEventListenerToBase(CarCabinManager manager) {
+        CarPropertyEventListenerToBase(CarCabinManager manager) {
             mManager = new WeakReference<>(manager);
         }
 
@@ -439,7 +442,7 @@ public final class CarCabinManager extends CarManagerBase {
 
     private void handleOnChangeEvent(CarPropertyValue value) {
         Collection<CarCabinEventCallback> callbacks;
-        synchronized (this) {
+        synchronized (mLock) {
             callbacks = new ArraySet<>(mCallbacks);
         }
         for (CarCabinEventCallback l: callbacks) {
@@ -449,7 +452,7 @@ public final class CarCabinManager extends CarManagerBase {
 
     private void handleOnErrorEvent(int propertyId, int zone) {
         Collection<CarCabinEventCallback> listeners;
-        synchronized (this) {
+        synchronized (mLock) {
             listeners = new ArraySet<>(mCallbacks);
         }
         if (!listeners.isEmpty()) {
@@ -487,16 +490,18 @@ public final class CarCabinManager extends CarManagerBase {
      * Implement wrappers for contained CarPropertyManagerBase object
      * @param callback
      */
-    public synchronized void registerCallback(CarCabinEventCallback callback) {
-        if (mCallbacks.isEmpty()) {
-            mListenerToBase = new CarPropertyEventListenerToBase(this);
-        }
+    public void registerCallback(CarCabinEventCallback callback) {
         List<CarPropertyConfig> configs = getPropertyList();
-        for (CarPropertyConfig c : configs) {
-            // Register each individual propertyId
-            mCarPropertyMgr.registerCallback(mListenerToBase, c.getPropertyId(), 0);
+        synchronized (mLock) {
+            if (mListenerToBase == null) {
+                mListenerToBase = new CarPropertyEventListenerToBase(this);
+            }
+            for (CarPropertyConfig c : configs) {
+                // Register each individual propertyId
+                mCarPropertyMgr.registerCallback(mListenerToBase, c.getPropertyId(), 0);
+            }
+            mCallbacks.add(callback);
         }
-        mCallbacks.add(callback);
     }
 
     /**
@@ -504,15 +509,17 @@ public final class CarCabinManager extends CarManagerBase {
      * this listener, all listening will be stopped.
      * @param callback
      */
-    public synchronized void unregisterCallback(CarCabinEventCallback callback) {
-        mCallbacks.remove(callback);
-        List<CarPropertyConfig> configs = getPropertyList();
-        for (CarPropertyConfig c : configs) {
-                // Register each individual propertyId
-            mCarPropertyMgr.unregisterCallback(mListenerToBase, c.getPropertyId());
-        }
-        if (mCallbacks.isEmpty()) {
-            mListenerToBase = null;
+    public void unregisterCallback(CarCabinEventCallback callback) {
+        synchronized (mLock) {
+            mCallbacks.remove(callback);
+            List<CarPropertyConfig> configs = getPropertyList();
+            for (CarPropertyConfig c : configs) {
+                    // Register each individual propertyId
+                mCarPropertyMgr.unregisterCallback(mListenerToBase, c.getPropertyId());
+            }
+            if (mCallbacks.isEmpty()) {
+                mListenerToBase = null;
+            }
         }
     }
 
@@ -593,8 +600,7 @@ public final class CarCabinManager extends CarManagerBase {
     /** @hide */
     @Override
     public void onCarDisconnected() {
-        // TODO(b/142730969) Fix synchronization to use separate mLock
-        synchronized (this) {
+        synchronized (mLock) {
             mCallbacks.clear();
         }
         mCarPropertyMgr.onCarDisconnected();

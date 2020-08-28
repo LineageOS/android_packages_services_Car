@@ -30,7 +30,7 @@ use it's APIs, by default it's none.
 
 To allow AAE BugReport app to access the API, you need to overlay
 `config_car_bugreport_application` in `packages/services/Car/service/res/values/config.xml`
-with value `com.google.android.car.bugreport`.
+with value `com.android.car.bugreport`.
 
 ## App Configuration
 
@@ -55,10 +55,10 @@ BugReport app uses `res/raw/gcs_credentials.json` for authentication and
 
 The app supports following intents:
 
-1. `adb shell am start com.google.android.car.bugreport/.BugReportActivity`
+1. `adb shell am start com.android.car.bugreport/.BugReportActivity`
     - generates `MetaBugReport.Type.INTERACTIVE` bug report, shows audio message dialog before
     collecting bugreport.
-2. `adb shell am start-foreground-service -a com.google.android.car.bugreport.action.START_SILENT com.google.android.car.bugreport/.BugReportService`
+2. `adb shell am start-foreground-service -a com.android.car.bugreport.action.START_SILENT com.android.car.bugreport/.BugReportService`
     - generates `MetaBugReport.Type.SILENT` bug report, without audio message. It shows audio dialog
     after collecting bugreport.
 
@@ -82,7 +82,7 @@ Please follow these instructions to test the app:
      task scheduling rules.
    * You should see progress bar in notification shade.
 5. Pull collected zip files from the device:
-   * `adb pull /data/user/0/com.google.android.car.bugreport/bug_reports_pending/`
+   * `adb pull /data/user/0/com.android.car.bugreport/bug_reports_pending/`
 6. Please manually verify bug report contents.
    * Images - the should contain screenshots of all the physical displays.
    * Audio files - they should contain the audio message you recorded.

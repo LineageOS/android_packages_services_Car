@@ -16,7 +16,7 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.google.android.car.bugreport.tests" >
+    package="com.android.car.bugreport.tests" >
 
     <application>
         <uses-library android:name="android.test.runner" />
@@ -25,5 +25,5 @@
     <instrumentation
             android:name="android.support.test.runner.AndroidJUnitRunner"
             android:label="BugReportAppTest"
-            android:targetPackage="com.google.android.car.bugreport" />
+            android:targetPackage="com.android.car.bugreport" />
 </manifest>

@@ -41,6 +41,7 @@ public class CarInstrumentClusterManager extends CarManagerBase {
      *
      * @hide
      */
+    @Deprecated
     @SystemApi
     public static final String CATEGORY_NAVIGATION = "android.car.cluster.NAVIGATION";
 
@@ -49,10 +50,11 @@ public class CarInstrumentClusterManager extends CarManagerBase {
      * intent's extra thus activity will know information about unobscured area, etc. upon activity
      * creation.
      *
-     * @deprecated use {@link android.car.Car#CATEGORY_NAVIGATION} instead
+     * @deprecated use {@link android.car.Car#CAR_EXTRA_CLUSTER_ACTIVITY_STATE} instead
      *
      * @hide
      */
+    @Deprecated
     @SystemApi
     public static final String KEY_EXTRA_ACTIVITY_STATE =
             "android.car.cluster.ClusterActivityState";
@@ -64,6 +66,7 @@ public class CarInstrumentClusterManager extends CarManagerBase {
      *
      * @hide
      */
+    @Deprecated
     @SystemApi
     public void startActivity(Intent intent) {
         // No-op
@@ -81,6 +84,7 @@ public class CarInstrumentClusterManager extends CarManagerBase {
      *
      * @hide
      */
+    @Deprecated
     @SystemApi
     public void registerCallback(String category, Callback callback) {
         // No-op
@@ -95,6 +99,7 @@ public class CarInstrumentClusterManager extends CarManagerBase {
      *
      * @hide
      */
+    @Deprecated
     @SystemApi
     public void unregisterCallback(Callback callback) {
         // No-op
