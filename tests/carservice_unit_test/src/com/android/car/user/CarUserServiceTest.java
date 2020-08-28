@@ -55,7 +55,6 @@ import android.car.CarOccupantZoneManager.OccupantTypeEnum;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.settings.CarSettings;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
-import android.car.test.mocks.AndroidMockitoHelper;
 import android.car.test.mocks.BlockingAnswer;
 import android.car.test.util.BlockingResultReceiver;
 import android.car.testapi.BlockingUserLifecycleListener;
@@ -737,7 +736,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         doAnswer((invocation) -> {
             existingUsers.remove(removeUser);
             return true;
-        }).when(mMockedUserManager).removeUser(eq(removeUser.id));
+        }).when(mMockedUserManager).removeUser(removeUser.id);
 
         UserRemovalResult result = mCarUserService.removeUser(removeUser.id);
 
@@ -1838,9 +1837,10 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     private void mockExistingUsers(@NonNull List<UserInfo> existingUsers) {
-        mockUmGetUsers(mMockedUserManager, existingUsers);
+        mockUmGetUsers(mMockedUserManager, /* excludePartial= */ false, /* excludeDying= */ false,
+                /* excludePreCreated= */ true, existingUsers);
         for (UserInfo user : existingUsers) {
-            AndroidMockitoHelper.mockUmGetUserInfo(mMockedUserManager, user);
+            mockUmGetUserInfo(mMockedUserManager, user);
         }
     }
 

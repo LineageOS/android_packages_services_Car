@@ -15,7 +15,7 @@
  */
 package com.android.car.user;
 
-import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUsers;
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetAliveUsers;
 import static android.car.testapi.CarMockitoHelper.mockHandleRemoteExceptionFromCarServiceWithDefaultValue;
 import static android.car.testapi.CarTestingHelper.getResult;
 import static android.os.UserHandle.USER_SYSTEM;
@@ -519,6 +519,6 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
     }
 
     private void setExistingUsers(int... userIds) {
-        mockUmGetUsers(mUserManager, userIds);
+        mockUmGetAliveUsers(mUserManager, userIds);
     }
 }
