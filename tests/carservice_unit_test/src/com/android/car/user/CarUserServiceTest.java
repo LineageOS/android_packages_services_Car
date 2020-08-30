@@ -145,8 +145,6 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
     private static final int NON_EXISTING_USER = 55; // must not be on mExistingUsers
 
-    private static final long DEFAULT_LIFECYCLE_TIMESTAMP = 1;
-
     @Mock private Context mMockContext;
     @Mock private Context mApplicationContext;
     @Mock private LocationManager mLocationManager;
@@ -156,7 +154,6 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Mock private UserManager mMockedUserManager;
     @Mock private Resources mMockedResources;
     @Mock private Drawable mMockedDrawable;
-    @Mock private UserMetrics mUserMetrics;
     @Mock private InitialUserSetter mInitialUserSetter;
     @Mock IResultReceiver mSwitchUserUiReceiver;
     @Mock PackageManager mPackageManager;
@@ -232,7 +229,6 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                         mMockedUserManager,
                         mMockedIActivityManager,
                         /* maxRunningUsers= */ 3,
-                        mUserMetrics,
                         mInitialUserSetter);
 
         mFakeCarOccupantZoneService = new FakeCarOccupantZoneService(mCarUserService);
@@ -1567,15 +1563,6 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testUserMetric_SendEvent() throws Exception {
-        mockExistingUsersAndCurrentUser(mAdminUser);
-        sendUserSwitchingEvent(mAdminUser.id, mRegularUser.id);
-
-        verify(mUserMetrics).onEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING,
-                DEFAULT_LIFECYCLE_TIMESTAMP, mAdminUser.id, mRegularUser.id);
-    }
-
-    @Test
     public void testInitBootUser_halNotSupported() {
         mockUserHalSupported(false);
 
@@ -1663,7 +1650,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                         mMockedCarUserManagerHelper,
                         mMockedUserManager,
                         mMockedIActivityManager,
-                        3, mUserMetrics, mInitialUserSetter);
+                        3, mInitialUserSetter);
 
         carUserService.switchUserIfNecessary(/* onSuspend= */true, /* allowUserSwitch= */ false);
 
@@ -1686,7 +1673,6 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                         mMockedUserManager,
                         mMockedIActivityManager,
                         /* maxRunningUsers= */ 3,
-                        mUserMetrics,
                         mInitialUserSetter);
 
         carUserService.switchUserIfNecessary(/* onSuspend= */true, /* allowUserSwitch= */ false);
@@ -2237,7 +2223,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
     private void sendUserLifecycleEvent(@UserIdInt int fromUserId, @UserIdInt int toUserId,
             @UserLifecycleEventType int eventType) {
-        mCarUserService.onUserLifecycleEvent(eventType, DEFAULT_LIFECYCLE_TIMESTAMP, fromUserId,
+        mCarUserService.onUserLifecycleEvent(eventType, fromUserId,
                 toUserId);
     }
 

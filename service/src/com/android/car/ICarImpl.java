@@ -672,9 +672,6 @@ public class ICarImpl extends ICar.Stub {
         } else if ("--list-hals".equals(args[0])) {
             mHal.dumpListHals(writer);
             return;
-        } else if ("--user-metrics".equals(args[0])) {
-            mCarUserService.dumpUserMetrics(writer);
-            //TODO(b/157514796): Add --first-user-metrics in CSHS along with --user-metrics
         } else if ("--help".equals(args[0])) {
             showDumpHelp(writer);
         } else {
@@ -800,8 +797,8 @@ public class ICarImpl extends ICar.Stub {
 
     private final class ICarSystemServerClientImpl extends ICarSystemServerClient.Stub {
         @Override
-        public void onUserLifecycleEvent(int eventType, long timestampMs, int fromUserId,
-                int toUserId) throws RemoteException {
+        public void onUserLifecycleEvent(int eventType, int fromUserId, int toUserId)
+                throws RemoteException {
             assertCallingFromSystemProcess();
             EventLog.writeEvent(EventLogTags.CAR_SERVICE_ON_USER_LIFECYCLE, eventType, fromUserId,
                     toUserId);
@@ -811,7 +808,7 @@ public class ICarImpl extends ICar.Stub {
                                 + CarUserManager.lifecycleEventTypeToString(eventType) + ", "
                                 + toUserId + ")");
             }
-            mCarUserService.onUserLifecycleEvent(eventType, timestampMs, fromUserId, toUserId);
+            mCarUserService.onUserLifecycleEvent(eventType, fromUserId, toUserId);
         }
 
         @Override

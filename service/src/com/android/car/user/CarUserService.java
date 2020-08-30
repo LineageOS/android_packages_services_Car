@@ -208,8 +208,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @GuardedBy("mLockUser")
     private UserInfo mInitialUser;
 
-    private UserMetrics mUserMetrics;
-
     private IResultReceiver mUserSwitchUiReceiver;
 
     /** Interface for callbaks related to passenger activities. */
@@ -241,13 +239,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             @NonNull CarUserManagerHelper carUserManagerHelper, @NonNull UserManager userManager,
             @NonNull IActivityManager am, int maxRunningUsers) {
         this(context, hal, carUserManagerHelper, userManager, am, maxRunningUsers,
-                new UserMetrics(), /* initialUserSetter= */ null);
+                /* initialUserSetter= */ null);
     }
 
     @VisibleForTesting
     CarUserService(@NonNull Context context, @NonNull UserHalService hal,
             @NonNull CarUserManagerHelper carUserManagerHelper, @NonNull UserManager userManager,
-            @NonNull IActivityManager am, int maxRunningUsers, @NonNull UserMetrics userMetrics,
+            @NonNull IActivityManager am, int maxRunningUsers,
             @Nullable InitialUserSetter initialUserSetter) {
         if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
             Log.d(TAG_USER, "constructed");
@@ -259,7 +257,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         mMaxRunningUsers = maxRunningUsers;
         mUserManager = userManager;
         mLastPassengerId = UserHandle.USER_NULL;
-        mUserMetrics = userMetrics;
         if (initialUserSetter == null) {
             mInitialUserSetter = new InitialUserSetter(context, (u) -> setInitialUser(u));
         } else {
@@ -339,21 +336,12 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         dumpGlobalProperty(writer, indent, CarSettings.Global.LAST_ACTIVE_USER_ID);
         dumpGlobalProperty(writer, indent, CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID);
 
-        dumpUserMetrics(writer);
-
         mInitialUserSetter.dump(writer);
     }
 
     private void dumpGlobalProperty(PrintWriter writer, String indent, String property) {
         String value = Settings.Global.getString(mContext.getContentResolver(), property);
         writer.printf("%s%s=%s\n", indent, property, value);
-    }
-
-    /**
-     * Dumps user metrics.
-     */
-    public void dumpUserMetrics(@NonNull PrintWriter writer) {
-        mUserMetrics.dump(writer);
     }
 
     private void handleDumpListeners(@NonNull PrintWriter writer, String indent) {
@@ -1623,7 +1611,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     /**
      * Notifies all registered {@link UserLifecycleListener} with the event passed as argument.
      */
-    public void onUserLifecycleEvent(@UserLifecycleEventType int eventType, long timestampMs,
+    public void onUserLifecycleEvent(@UserLifecycleEventType int eventType,
             @UserIdInt int fromUserId, @UserIdInt int toUserId) {
         int userId = toUserId;
 
@@ -1641,11 +1629,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             handleNotifyServiceUserLifecycleListeners(event);
             handleNotifyAppUserLifecycleListeners(event);
         });
-
-        if (timestampMs != 0) {
-            // Finally, update metrics.
-            mUserMetrics.onEvent(eventType, timestampMs, fromUserId, toUserId);
-        }
     }
 
     private void sendPostSwitchToHalLocked(@UserIdInt int userId) {
