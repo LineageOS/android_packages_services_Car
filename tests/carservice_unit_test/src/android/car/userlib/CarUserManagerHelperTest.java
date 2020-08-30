@@ -16,9 +16,9 @@
 
 package android.car.userlib;
 
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetAliveUsers;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetSystemUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserInfo;
-import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUsers;
 import static android.car.test.util.UserTestingHelper.newUser;
 import static android.os.UserHandle.USER_SYSTEM;
 
@@ -187,7 +187,7 @@ public class CarUserManagerHelperTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testGetInitialUser_WithValidLastActiveUser_ReturnsLastActiveUser() {
         setLastActiveUser(12);
-        mockGetUsers(USER_SYSTEM, 10, 11, 12);
+        mockGeAliveUsers(USER_SYSTEM, 10, 11, 12);
 
         assertThat(mCarUserManagerHelper.getInitialUser(/* usesOverrideUserIdProperty= */ true))
                 .isEqualTo(12);
@@ -197,7 +197,7 @@ public class CarUserManagerHelperTest extends AbstractExtendedMockitoTestCase {
     public void testGetInitialUser_WithNonExistLastActiveUser_ReturnsLastPersistentUser() {
         setLastActiveUser(120);
         setLastPersistentActiveUser(110);
-        mockGetUsers(USER_SYSTEM, 100, 110);
+        mockGeAliveUsers(USER_SYSTEM, 100, 110);
 
         assertThat(mCarUserManagerHelper.getInitialUser(/* usesOverrideUserIdProperty= */ true))
                 .isEqualTo(110);
@@ -210,7 +210,7 @@ public class CarUserManagerHelperTest extends AbstractExtendedMockitoTestCase {
     public void testGetInitialUser_WithNonExistLastActiveAndPersistentUsers_ReturnsSmallestUser() {
         setLastActiveUser(120);
         setLastPersistentActiveUser(120);
-        mockGetUsers(USER_SYSTEM, 100, 110);
+        mockGeAliveUsers(USER_SYSTEM, 100, 110);
 
         assertThat(mCarUserManagerHelper.getInitialUser(/* usesOverrideUserIdProperty= */ true))
                 .isEqualTo(100);
@@ -225,7 +225,7 @@ public class CarUserManagerHelperTest extends AbstractExtendedMockitoTestCase {
     public void testGetInitialUser_WithOverrideId_ReturnsOverrideId() {
         setDefaultBootUserOverride(11);
         setLastActiveUser(12);
-        mockGetUsers(USER_SYSTEM, 10, 11, 12);
+        mockGeAliveUsers(USER_SYSTEM, 10, 11, 12);
 
         assertThat(mCarUserManagerHelper.getInitialUser(/* usesOverrideUserIdProperty= */ true))
                 .isEqualTo(11);
@@ -235,7 +235,7 @@ public class CarUserManagerHelperTest extends AbstractExtendedMockitoTestCase {
     public void testGetInitialUser_WithInvalidOverrideId_ReturnsLastActiveUserId() {
         setDefaultBootUserOverride(15);
         setLastActiveUser(12);
-        mockGetUsers(USER_SYSTEM, 10, 11, 12);
+        mockGeAliveUsers(USER_SYSTEM, 10, 11, 12);
 
         assertThat(mCarUserManagerHelper.getInitialUser(/* usesOverrideUserIdProperty= */ true))
                 .isEqualTo(12);
@@ -249,7 +249,7 @@ public class CarUserManagerHelperTest extends AbstractExtendedMockitoTestCase {
 
         setDefaultBootUserOverride(invalidOverrideUserId);
         setLastActiveUser(invalidLastActiveUserId);
-        mockGetUsers(USER_SYSTEM, minimumUserId, minimumUserId + 1, minimumUserId + 2);
+        mockGeAliveUsers(USER_SYSTEM, minimumUserId, minimumUserId + 1, minimumUserId + 2);
 
         assertThat(mCarUserManagerHelper.getInitialUser(/* usesOverrideUserIdProperty= */ true))
                 .isEqualTo(minimumUserId);
@@ -259,7 +259,7 @@ public class CarUserManagerHelperTest extends AbstractExtendedMockitoTestCase {
     public void testGetInitialUser_WhenOverrideIdIsIgnored() {
         setDefaultBootUserOverride(11);
         setLastActiveUser(12);
-        mockGetUsers(USER_SYSTEM, 10, 11, 12);
+        mockGeAliveUsers(USER_SYSTEM, 10, 11, 12);
 
         assertThat(mCarUserManagerHelper.getInitialUser(/* usesOverrideUserIdProperty= */ false))
                 .isEqualTo(12);
@@ -274,7 +274,7 @@ public class CarUserManagerHelperTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testHasInitialUser_onlyHeadlessSystemUser() {
         mockIsHeadlessSystemUserMode(true);
-        mockGetUsers(USER_SYSTEM);
+        mockGeAliveUsers(USER_SYSTEM);
 
         assertThat(mCarUserManagerHelper.hasInitialUser()).isFalse();
     }
@@ -282,7 +282,7 @@ public class CarUserManagerHelperTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testHasInitialUser_onlyNonHeadlessSystemUser() {
         mockIsHeadlessSystemUserMode(false);
-        mockGetUsers(USER_SYSTEM);
+        mockGeAliveUsers(USER_SYSTEM);
 
         assertThat(mCarUserManagerHelper.hasInitialUser()).isTrue();
     }
@@ -290,7 +290,7 @@ public class CarUserManagerHelperTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testHasInitialUser_hasNormalUser() {
         mockIsHeadlessSystemUserMode(true);
-        mockGetUsers(USER_SYSTEM, 10);
+        mockGeAliveUsers(USER_SYSTEM, 10);
 
         assertThat(mCarUserManagerHelper.hasInitialUser()).isTrue();
     }
@@ -305,7 +305,7 @@ public class CarUserManagerHelperTest extends AbstractExtendedMockitoTestCase {
         workProfile.userType = UserManager.USER_TYPE_PROFILE_MANAGED;
         assertThat(workProfile.isManagedProfile()).isTrue(); // Confidence check
 
-        mockGetUsers(systemUser, workProfile);
+        mockGetAliveUsers(systemUser, workProfile);
 
         assertThat(mCarUserManagerHelper.hasInitialUser()).isFalse();
     }
@@ -369,12 +369,12 @@ public class CarUserManagerHelperTest extends AbstractExtendedMockitoTestCase {
         assertThat(getSettingsInt(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID)).isEqualTo(42);
     }
 
-    private void mockGetUsers(@NonNull @UserIdInt int... userIds) {
-        mockUmGetUsers(mUserManager, userIds);
+    private void mockGeAliveUsers(@NonNull @UserIdInt int... userIds) {
+        mockUmGetAliveUsers(mUserManager, userIds);
     }
 
-    private void mockGetUsers(@NonNull UserInfo... users) {
-        mockUmGetUsers(mUserManager, users);
+    private void mockGetAliveUsers(@NonNull UserInfo... users) {
+        mockUmGetAliveUsers(mUserManager, users);
     }
 
     private void setLastActiveUser(@UserIdInt int userId) {

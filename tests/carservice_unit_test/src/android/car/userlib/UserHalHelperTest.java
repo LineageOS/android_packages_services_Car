@@ -16,6 +16,8 @@
 
 package android.car.userlib;
 
+import static android.car.test.mocks.AndroidMockitoHelper.mockAmGetCurrentUser;
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUsers;
 import static android.car.userlib.UserHalHelper.CREATE_USER_PROPERTY;
 import static android.car.userlib.UserHalHelper.REMOVE_USER_PROPERTY;
 import static android.car.userlib.UserHalHelper.SWITCH_USER_PROPERTY;
@@ -44,7 +46,6 @@ import android.annotation.NonNull;
 import android.app.ActivityManager;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase.CustomMockitoSessionBuilder;
-import android.car.test.mocks.AndroidMockitoHelper;
 import android.car.test.util.UserTestingHelper.UserInfoBuilder;
 import android.content.pm.UserInfo;
 import android.hardware.automotive.vehicle.V2_0.CreateUserRequest;
@@ -73,8 +74,7 @@ import com.google.common.collect.Range;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
 
@@ -1187,8 +1187,7 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void testNewUsersInfo_noUsers() {
-        List<UserInfo> users = new ArrayList<>();
-        AndroidMockitoHelper.mockUmGetUsers(mUm, users);
+        mockGetAllUsersButPrecreated(new UserInfo[0]);
 
         UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUm, 100);
 
@@ -1200,8 +1199,8 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
         UserInfo user100 = new UserInfoBuilder(100).setFlags(UserInfo.FLAG_ADMIN).build();
         UserInfo user200 = new UserInfoBuilder(200).build();
 
-        AndroidMockitoHelper.mockUmGetUsers(mUm, user100, user200);
-        AndroidMockitoHelper.mockAmGetCurrentUser(300); // just to make sure it's not used
+        mockGetAllUsersButPrecreated(user100, user200);
+        mockAmGetCurrentUser(300); // just to make sure it's not used
 
         UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUm, 100);
 
@@ -1223,8 +1222,8 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
         UserInfo user100 = new UserInfoBuilder(100).setFlags(UserInfo.FLAG_ADMIN).build();
         UserInfo user200 = new UserInfoBuilder(200).build();
 
-        AndroidMockitoHelper.mockUmGetUsers(mUm, user100, user200);
-        AndroidMockitoHelper.mockAmGetCurrentUser(100);
+        mockGetAllUsersButPrecreated(user100, user200);
+        mockAmGetCurrentUser(100);
 
         UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUm);
 
@@ -1247,8 +1246,8 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
         UserInfo user100 = new UserInfoBuilder(100).setFlags(UserInfo.FLAG_ADMIN).build();
         UserInfo user200 = new UserInfoBuilder(200).build();
 
-        AndroidMockitoHelper.mockUmGetUsers(mUm, user100, user200);
-        AndroidMockitoHelper.mockAmGetCurrentUser(300);
+        mockGetAllUsersButPrecreated(user100, user200);
+        mockAmGetCurrentUser(300);
 
         UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUm);
 
@@ -1320,6 +1319,11 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
         usersInfo.existingUsers.add(currentUser);
 
         UserHalHelper.checkValid(usersInfo);
+    }
+
+    private void mockGetAllUsersButPrecreated(@NonNull UserInfo... users) {
+        mockUmGetUsers(mUm, /* excludePartial= */ false, /* excludeDying= */ false,
+                /* excludePreCreated= */ true, Arrays.asList(users));
     }
 
     private static void assertEmptyUsersInfo(UsersInfo usersInfo) {

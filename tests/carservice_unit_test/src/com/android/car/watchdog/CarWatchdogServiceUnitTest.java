@@ -16,7 +16,7 @@
 
 package com.android.car.watchdog;
 
-import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUsers;
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetAllUsers;
 import static android.car.watchdog.CarWatchdogManager.TIMEOUT_CRITICAL;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
@@ -47,8 +47,6 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.ArrayList;
 
 /**
  * <p>This class contains unit tests for the {@link CarWatchdogService}.
@@ -137,7 +135,7 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
 
     private void setupUsers() {
         when(mMockContext.getSystemService(Context.USER_SERVICE)).thenReturn(mUserManager);
-        mockUmGetUsers(mUserManager, new ArrayList<UserInfo>());
+        mockUmGetAllUsers(mUserManager, new UserInfo[0]);
     }
 
     private ICarWatchdogClient registerMediator() throws Exception {

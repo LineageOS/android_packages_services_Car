@@ -77,10 +77,10 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
     private final Executor mExecutor =
             InstrumentationRegistry.getInstrumentation().getTargetContext().getMainExecutor();
-    private final ArrayList<UserInfo> mUserInfos = new ArrayList<>(Arrays.asList(
+    private final UserInfo[] mUserInfos = new UserInfo[] {
             new UserInfoBuilder(10).setName("user 1").build(),
             new UserInfoBuilder(11).setName("user 2").build()
-    ));
+    };
 
     @Mock private Context mMockContext;
     @Mock private Car mCar;
