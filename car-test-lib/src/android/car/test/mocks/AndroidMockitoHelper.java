@@ -17,7 +17,6 @@ package android.car.test.mocks;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -37,14 +36,12 @@ import android.os.ServiceManager;
 import android.os.UserHandle;
 import android.os.UserManager;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
 
 /**
  * Provides common Mockito calls for core Android classes.
@@ -110,52 +107,38 @@ public final class AndroidMockitoHelper {
         when(um.getUserInfo(UserHandle.USER_SYSTEM)).thenReturn(user);
     }
 
-    // TODO(b/157921703): split into methods for the proper UserManager methods
-    // (like getAliveUsers() / getAllUsers())
     /**
-     * Mocks {@code UserManager#getUsers()}, {@code UserManager#getAliveUsers()}, and
-     * {@code UserManager#getUsers(excludePartial, excludeDying, excludeDying)} to return the given
-     * users.
+     * Mocks {@code UserManager#getAliveUsers()} to return the given users.
      */
-    public static void mockUmGetUsers(@NonNull UserManager um, @NonNull UserInfo... users) {
+    public static void mockUmGetAliveUsers(@NonNull UserManager um, @NonNull UserInfo... users) {
         Objects.requireNonNull(um);
-        List<UserInfo> testUsers = Arrays.stream(users).collect(Collectors.toList());
-        when(um.getUsers()).thenReturn(testUsers);
-        when(um.getAliveUsers()).thenReturn(testUsers);
-        when(um.getUsers(anyBoolean(), anyBoolean(), anyBoolean())).thenReturn(testUsers);
+        when(um.getAliveUsers()).thenReturn(UserTestingHelper.toList(users));
     }
 
-    // TODO(b/157921703): split into methods for the proper UserManager methods
-    // (like getAliveUsers() / getAllUsers())
     /**
-     * Mocks {@code UserManager#getUsers()}, {@code UserManager#getAliveUsers()}, and
-     * {@code UserManager#getUsers(excludePartial, excludeDying, excludeDying)} to return simple
-     * users with the given ids.
+     * Mocks {@code UserManager#getAliveUsers()} to return the simple users with the given ids.
      */
-    public static void mockUmGetUsers(@NonNull UserManager um, @NonNull @UserIdInt int... userIds) {
+    public static void mockUmGetAliveUsers(@NonNull UserManager um,
+            @NonNull @UserIdInt int... userIds) {
         List<UserInfo> users = UserTestingHelper.newUsers(userIds);
-        when(um.getUsers()).thenReturn(users);
         when(um.getAliveUsers()).thenReturn(users);
-        when(um.getUsers(anyBoolean(), anyBoolean(), anyBoolean())).thenReturn(users);
+    }
+
+    /**
+     * Mocks {@code UserManager#getUsers(excludePartial, excludeDying, excludeDying)} to return the
+     * given users.
+     */
+    public static void mockUmGetUsers(@NonNull UserManager um, boolean excludePartial,
+            boolean excludeDying, boolean excludePreCreated, @NonNull List<UserInfo> users) {
+        Objects.requireNonNull(um);
+        when(um.getUsers(excludePartial, excludeDying, excludePreCreated)).thenReturn(users);
     }
 
     /**
      * Mocks a call to {@code UserManager#getUsers()}, which includes dying users.
      */
-    public static void mockUmGetAllUsers(@NonNull UserManager um,
-            @NonNull List<UserInfo> userInfos) {
-        when(um.getUsers()).thenReturn(userInfos);
-    }
-
-    /**
-     * Mocks {@code UserManager#getUsers()}, {@code UserManager#getUsers(excludeDying)}, and
-     * {@code UserManager#getUsers(excludePartial, excludeDying, excludeDying)} to return given
-     * userInfos.
-     */
-    public static void mockUmGetUsers(@NonNull UserManager um, @NonNull List<UserInfo> userInfos) {
-        when(um.getUsers()).thenReturn(userInfos);
-        when(um.getAliveUsers()).thenReturn(userInfos);
-        when(um.getUsers(anyBoolean(), anyBoolean(), anyBoolean())).thenReturn(userInfos);
+    public static void mockUmGetAllUsers(@NonNull UserManager um, @NonNull UserInfo... userInfos) {
+        when(um.getUsers()).thenReturn(UserTestingHelper.toList(userInfos));
     }
 
     /**
