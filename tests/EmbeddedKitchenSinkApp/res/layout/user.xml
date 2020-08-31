@@ -56,11 +56,21 @@
             android:enabled="false"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:text=""/>
+    </LinearLayout>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal" >
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:text="Is admin? "/>
         <CheckBox android:layout_width="wrap_content" android:layout_height="wrap_content"
               android:id="@+id/is_admin"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="Associate Key Fob?"/>
+        <CheckBox android:layout_width="wrap_content" android:layout_height="wrap_content"
+              android:id="@+id/is_associated_key_fob"/>
     </LinearLayout>
     <TextView
         android:layout_width="wrap_content"
