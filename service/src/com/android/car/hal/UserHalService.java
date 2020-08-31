@@ -1078,7 +1078,6 @@ public final class UserHalService extends HalServiceBase {
         writer.printf("*User HAL*\n");
 
         writer.printf("Relevant CarProperties\n");
-        dumpSystemProperty(writer, indent, "user_hal_enabled", CarProperties.user_hal_enabled());
         dumpSystemProperty(writer, indent, "user_hal_timeout", CarProperties.user_hal_timeout());
 
         synchronized (mLock) {
