@@ -209,8 +209,6 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
      */
     private void setService() throws Exception {
         Log.i(TAG, "setService(): overridden overlay properties: "
-                + "config_disableUserSwitchDuringResume="
-                + mResources.getBoolean(R.bool.config_disableUserSwitchDuringResume)
                 + ", maxGarageModeRunningDurationInSecs="
                 + mResources.getInteger(R.integer.maxGarageModeRunningDurationInSecs));
         mSilentModeController = new SilentModeController(mContext, mSystemInterface,

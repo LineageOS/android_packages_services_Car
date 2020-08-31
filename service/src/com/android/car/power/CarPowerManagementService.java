@@ -137,8 +137,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     @GuardedBy("mLock")
     private boolean mIsBooting = true;
     @GuardedBy("mLock")
-    private boolean mIsResuming;
-    @GuardedBy("mLock")
     private int mShutdownPrepareTimeMs = MIN_MAX_GARAGE_MODE_DURATION_MS;
     @GuardedBy("mLock")
     private int mShutdownPollingIntervalMs = SHUTDOWN_POLLING_INTERVAL_MS;
@@ -146,7 +144,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private boolean mRebootAfterGarageMode;
     @GuardedBy("mLock")
     private boolean mGarageModeShouldExitImmediately;
-    private final boolean mDisableUserSwitchDuringResume;
 
     private final UserManager mUserManager;
     private final CarUserService mUserService;
@@ -194,8 +191,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         mHal = powerHal;
         mSystemInterface = systemInterface;
         mUserManager = userManager;
-        mDisableUserSwitchDuringResume = resources
-                .getBoolean(R.bool.config_disableUserSwitchDuringResume);
         mShutdownPrepareTimeMs = resources.getInteger(
                 R.integer.maxGarageModeRunningDurationInSecs) * 1000;
         mSwitchGuestUserBeforeSleep = resources.getBoolean(
@@ -273,7 +268,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             writer.print(",mShutdownOnFinish:" + mShutdownOnFinish);
             writer.print(",mShutdownPollingIntervalMs:" + mShutdownPollingIntervalMs);
             writer.print(",mShutdownPrepareTimeMs:" + mShutdownPrepareTimeMs);
-            writer.print(",mDisableUserSwitchDuringResume:" + mDisableUserSwitchDuringResume);
             writer.println(",mRebootAfterGarageMode:" + mRebootAfterGarageMode);
             writer.println("mSwitchGuestUserBeforeSleep:" + mSwitchGuestUserBeforeSleep);
         }
@@ -289,13 +283,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     @VisibleForTesting
-    void setStateForTesting(boolean isBooting, boolean isResuming) {
+    void setStateForTesting(boolean isBooting) {
         synchronized (mLock) {
-            Slog.d(TAG, "setStateForTesting():"
-                    + " booting(" + mIsBooting + ">" + isBooting + ")"
-                    + " resuming(" + mIsResuming + ">" + isResuming + ")");
+            Slog.d(TAG, "setStateForTesting():" + " booting(" + mIsBooting + ">" + isBooting + ")");
             mIsBooting = isBooting;
-            mIsResuming = isResuming;
         }
     }
 
@@ -405,33 +396,20 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             updateCarUserNoticeServiceIfNecessary();
         }
 
-        // Some OEMs have their own user-switching logic, which may not be coordinated with this
-        // code. To avoid contention, we don't switch users when we coming alive. The OEM's code
-        // should do the switch.
-        boolean allowUserSwitch = true;
-        synchronized (mLock) {
-            if (mIsBooting) {
-                // The system is booting, so don't switch users
-                allowUserSwitch = false;
-                mIsBooting = false;
-                mIsResuming = false;
-                Slog.i(TAG, "User switch disallowed while booting");
-            } else {
-                // The system is resuming after a suspension. Optionally disable user switching.
-                allowUserSwitch = !mDisableUserSwitchDuringResume;
-                mIsBooting = false;
-                mIsResuming = false;
-                if (!allowUserSwitch) {
-                    Slog.i(TAG, "User switch disallowed while resuming");
-                }
-            }
-        }
         sendPowerManagerEvent(CarPowerStateListener.ON);
 
         mHal.sendOn();
 
+        synchronized (mLock) {
+            if (mIsBooting) {
+                Slog.d(TAG, "handleOn(): called on boot");
+                mIsBooting = false;
+                return;
+            }
+        }
+
         try {
-            mUserService.switchUserIfNecessary(/* onSuspend= */ false, allowUserSwitch);
+            mUserService.onResume();
         } catch (Exception e) {
             Slog.e(TAG, "Could not switch user on resume", e);
         }
@@ -640,7 +618,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     intervalMs);
         }
         // allowUserSwitch value doesn't matter for onSuspend = true
-        mUserService.switchUserIfNecessary(/* onSuspend= */ true, /* allowUserSwitch= */ true);
+        mUserService.onSuspend();
     }
 
     private void sendPowerManagerEvent(int newState) {
@@ -717,7 +695,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             nextListenerState = CarPowerStateListener.SUSPEND_EXIT;
         }
         synchronized (mLock) {
-            mIsResuming = true;
             // Any wakeup time from before is no longer valid.
             mNextWakeupSec = 0;
         }
