@@ -62,7 +62,7 @@ typedef struct {
     int32_t framerate;
 } RawStreamConfig;
 
-static const size_t kStreamCfgSz = sizeof(RawStreamConfig);
+static const size_t kStreamCfgSz = sizeof(RawStreamConfig) / sizeof(int32_t);
 static const uint8_t kGrayColor = 128;
 static const int kInputNumChannels = 4;
 static const int kOutputNumChannels = 3;
