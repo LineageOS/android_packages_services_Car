@@ -160,14 +160,6 @@ public class VehicleHal extends IVehicleCallback.Stub {
         mHalClient = halClient;
     }
 
-    /** Private constructor for tests only */
-    @VisibleForTesting
-    protected VehicleHal() {
-        this(/* powerHal= */ null, /* propertyHal= */ null, /* inputHal= */ null,
-                /* vmsHal= */ null, /* userHal= */ null, /* diagnosticHal= */ null,
-                /* halClient= */ null);
-    }
-
     /** Called when connection to Vehicle HAL was restored. */
     public void vehicleHalReconnected(IVehicle vehicle) {
         synchronized (mLock) {

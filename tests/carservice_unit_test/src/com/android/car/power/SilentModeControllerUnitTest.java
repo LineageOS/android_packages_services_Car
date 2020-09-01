@@ -29,6 +29,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.CarLocalServices;
+import com.android.car.hal.MockedPowerHalService;
 import com.android.car.hal.PowerHalService.PowerState;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.test.utils.TemporaryFile;
