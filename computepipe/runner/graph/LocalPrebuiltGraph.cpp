@@ -179,7 +179,7 @@ LocalPrebuiltGraph* LocalPrebuiltGraph::GetPrebuiltGraphFromLibrary(
         const std::string& prebuilt_library,
         std::weak_ptr<PrebuiltEngineInterface> engineInterface) {
     std::unique_lock<std::mutex> lock(LocalPrebuiltGraph::mCreationMutex);
-    if (mPrebuiltGraphInstance != nullptr) {
+    if (mPrebuiltGraphInstance == nullptr) {
         mPrebuiltGraphInstance = new LocalPrebuiltGraph();
     }
     if (mPrebuiltGraphInstance->mGraphState.load() != PrebuiltGraphState::UNINITIALIZED) {
