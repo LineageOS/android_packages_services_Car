@@ -219,7 +219,7 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
         mCarUserService.addUserLifecycleListener(blockingListener);
 
         runOnMainThreadAndWaitForIdle(() -> mCarUserService.onUserLifecycleEvent(eventType,
-                /* timestampMs= */ 0, /* fromUserId= */ UserHandle.USER_NULL, userId));
+                /* fromUserId= */ UserHandle.USER_NULL, userId));
         blockingListener.waitForAnyEvent();
     }
 
