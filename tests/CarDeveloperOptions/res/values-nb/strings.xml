@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Gjør teksten på skjermen større eller mindre."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Gjør mindre"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Gjør større"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Eksempeltekst"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"Trollmannen fra Oz"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"Kapittel 11: Den vidunderlige smaragdbyen Oz"</string>
@@ -470,7 +469,7 @@
     <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"Plassér fingeren på sensoren, og løft den når du kjenner en vibrasjon"</string>
     <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"Løft fingeren og berør igjen"</string>
     <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"Løft fingeren gjentatte ganger for å legge til de forskjellige delene av fingeravtrykket ditt"</string>
-    <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"Fingeravtrykk lagt til"</string>
+    <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"Fingeravtrykket er lagt til"</string>
     <string name="security_settings_fingerprint_enroll_finish_message" msgid="5862643337893923347">"Når du ser dette ikonet, kan du bruke fingeravtrykket ditt til å identifisere deg eller godkjenne kjøp"</string>
     <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"Gjør det senere"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_title" msgid="2816424026528101690">"Vil du hoppe over fingeravtrykk-konfig.?"</string>
@@ -488,7 +487,7 @@
     <string name="security_settings_fingerprint_enroll_done" msgid="4111289529758845926">"Ferdig"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_title" msgid="7410398793283818609">"Ops, det er ikke sensoren"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_message" msgid="7192100314788868883">"Berør sensoren på baksiden av telefonen. Bruk pekefingeren."</string>
-    <string name="security_settings_fingerprint_enroll_error_dialog_title" msgid="1415709674142168770">"Registrering er ikke fullført"</string>
+    <string name="security_settings_fingerprint_enroll_error_dialog_title" msgid="1415709674142168770">"Registreringen er ikke fullført"</string>
     <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"Tidsgrensen for registrering av fingeravtrykk er nådd. Prøv på nytt."</string>
     <string name="security_settings_fingerprint_enroll_error_generic_dialog_message" msgid="7896295829530444810">"Registrering av fingeravtrykket mislyktes. Prøv på nytt, eller bruk en annen finger."</string>
     <string name="fingerprint_enroll_button_add" msgid="6335782936874996629">"Legg til ett til"</string>
@@ -847,7 +846,7 @@
     <string name="wifi_error" msgid="5605801874484465557">"Feil"</string>
     <string name="wifi_sap_no_channel_error" msgid="6881796988574851628">"5 GHz-bånd er ikke tilgjengelig i dette landet"</string>
     <string name="wifi_in_airplane_mode" msgid="4729571191578262246">"I flymodus"</string>
-    <string name="wifi_notify_open_networks" msgid="4782239203624619655">"Varsel om åpent nettverk"</string>
+    <string name="wifi_notify_open_networks" msgid="4782239203624619655">"Varsel om åpne nettverk"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"Varsle når et offentlig nettverk av høy kvalitet er tilgjengelig"</string>
     <string name="wifi_wakeup" msgid="4963732992164721548">"Slå på Wi‑Fi automatisk"</string>
     <string name="wifi_wakeup_summary" msgid="1152699417411690">"Wi‑Fi slås på igjen i nærheten av lagrede nettverk av høy kvalitet, for eksempel hjemmenettverket ditt"</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"Mobil"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Bruk mobilnettverk hvis Wi-Fi er utilgjengelig"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Bruk Wi-Fi hvis mobilnettverket er utilgjengelig"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Ring via Wi‑Fi. Samtalen avsluttes hvis du mister Wi‑Fi-tilkoblingen."</string>
@@ -1635,7 +1637,7 @@
     <string name="sms_change_default_dialog_title" msgid="6301260161969667578">"Vil du bytte SMS-app?"</string>
     <string name="sms_change_default_dialog_text" msgid="8275088077930942680">"Vil du bruke <xliff:g id="NEW_APP">%1$s</xliff:g> i stedet for <xliff:g id="CURRENT_APP">%2$s</xliff:g> for SMS?"</string>
     <string name="sms_change_default_no_previous_dialog_text" msgid="4680224695080527907">"Vil du bruke <xliff:g id="NEW_APP">%s</xliff:g> som SMS-app?"</string>
-    <string name="network_scorer_picker_title" msgid="1691073966560952916">"Nettverksvurdering levert av"</string>
+    <string name="network_scorer_picker_title" msgid="1691073966560952916">"Leverandør av nettverksvurdering"</string>
     <string name="network_scorer_picker_none_preference" msgid="6448280557733231737">"Ingen"</string>
     <string name="network_scorer_change_active_dialog_title" msgid="4274159562371475090">"Vil du endre Wi-Fi-assistent?"</string>
     <string name="network_scorer_change_active_dialog_text" msgid="4264089809189760730">"Vil du bruke <xliff:g id="NEW_APP">%1$s</xliff:g> i stedet for <xliff:g id="CURRENT_APP">%2$s</xliff:g> til å administrere nettverkstilkoblingene?"</string>
@@ -1705,7 +1707,7 @@
     <string name="settings_safetylegal_activity_loading" msgid="7680998654145172">"Laster inn …"</string>
     <string name="confirm_device_credential_use_alternate_method" msgid="1279869272895739941">"Bruk en annen metode"</string>
     <string name="lockpassword_choose_your_screen_lock_header" msgid="6283518876031424798">"Angi skjermlås"</string>
-    <string name="lockpassword_choose_your_password_message" msgid="2838273977481046536">"Angi et passord for sikkerheten"</string>
+    <string name="lockpassword_choose_your_password_message" msgid="2838273977481046536">"Angi et passord av hensyn til sikkerheten"</string>
     <string name="lockpassword_choose_your_password_header_for_fingerprint" msgid="4921343500484160894">"Angi passord for å bruke fingeravtrykk"</string>
     <string name="lockpassword_choose_your_pattern_header_for_fingerprint" msgid="314870151462139417">"Angi mønster for å bruke fingeravtrykk"</string>
     <string name="lockpassword_choose_your_pin_message" msgid="8942598950627277885">"Angi en PIN-kode for sikkerheten"</string>
@@ -1750,7 +1752,7 @@
     <string name="lockpattern_change_lock_pin_label" msgid="3435796032210265723">"Endre PIN-kode for opplåsning"</string>
     <string name="lockpattern_recording_intro_header" msgid="2262005028838969839">"Tegn et opplåsingsmønster"</string>
     <string name="lockpattern_recording_intro_footer" msgid="5426745740754065099">"Trykk menyknappen for hjelp."</string>
-    <string name="lockpattern_recording_inprogress" msgid="4060818382176523671">"Slipp opp fingeren når du er ferdig."</string>
+    <string name="lockpattern_recording_inprogress" msgid="4060818382176523671">"Løft fingeren når du er ferdig."</string>
     <string name="lockpattern_recording_incorrect_too_short" msgid="6374760294545431845">"Berør minst <xliff:g id="NUMBER">%d</xliff:g> punkter. Prøv på nytt."</string>
     <string name="lockpattern_pattern_entered_header" msgid="2108106638322637851">"Mønsteret er registrert"</string>
     <string name="lockpattern_need_to_confirm" msgid="4079482507985867389">"Tegn mønsteret på nytt for å bekrefte"</string>
@@ -2087,7 +2089,7 @@
     <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"Fargeinvertering"</string>
     <string name="accessibility_display_inversion_preference_subtitle" msgid="69291255322175323">"Kan påvirke ytelsen"</string>
     <string name="accessibility_autoclick_preference_title" msgid="9164599088410340405">"Holdetid"</string>
-    <string name="accessibility_autoclick_description" msgid="5492414927846407499">"Hvis du bruker en mus, kan du stille musepekeren til å klikke automatisk når den slutter å bevege seg i en bestemt periode."</string>
+    <string name="accessibility_autoclick_description" msgid="5492414927846407499">"Hvis du bruker en mus, kan du stille musepekeren til å klikke automatisk etter at den har stått i ro en viss tid."</string>
     <string name="accessibility_autoclick_delay_preference_title" msgid="8303022510942147049">"Forsinkelse før klikk"</string>
     <string name="accessibility_vibration_settings_title" msgid="1902649657883159406">"Vibrasjon"</string>
     <string name="accessibility_notification_vibration_title" msgid="1005799039440510298">"Varselvibrering"</string>
@@ -2599,7 +2601,7 @@
     <string name="work_mode_label" msgid="6845849194740195757">"Jobbprofil"</string>
     <string name="work_mode_on_summary" msgid="1682781113156323592">"Administreres av organisasjonen din"</string>
     <string name="work_mode_off_summary" msgid="1688885392211178315">"Apper og varsler er slått av"</string>
-    <string name="remove_managed_profile_label" msgid="4625542553784793536">"Fjern arbeidsprofilen"</string>
+    <string name="remove_managed_profile_label" msgid="4625542553784793536">"Fjern jobbprofilen"</string>
     <string name="background_data" msgid="8275750862371471171">"Bakgrunnsdata"</string>
     <string name="background_data_summary" msgid="799640633948841990">"Apper kan når som helst synkronisere, sende og motta data"</string>
     <string name="background_data_dialog_title" msgid="8306650658158895976">"Vil du deaktivere bakgrunnsdata?"</string>
@@ -2792,7 +2794,7 @@
     <string name="vpn_always_on_summary" msgid="3639994551631437397">"La enheten være tilkoblet VPN hele tiden"</string>
     <string name="vpn_always_on_summary_not_supported" msgid="9077720997795965133">"Støttes ikke av denne appen"</string>
     <string name="vpn_always_on_summary_active" msgid="8962619701962239088">"Alltid på er aktiv"</string>
-    <string name="vpn_require_connection" msgid="5413746839457797350">"Blokker tilkoblinger uten VPN"</string>
+    <string name="vpn_require_connection" msgid="5413746839457797350">"Blokkér tilkoblinger uten VPN"</string>
     <string name="vpn_require_connection_title" msgid="8361434328767853717">"Vil du kreve VPN-tilkobling?"</string>
     <string name="vpn_lockdown_summary" msgid="6770030025737770861">"Velg en VPN-profil du vil forbli tilkoblet til. Nettverkstrafikk blir bare tillatt når du er tilkoblet denne VPN-en."</string>
     <string name="vpn_lockdown_none" msgid="3789288793603394679">"Ingen"</string>
@@ -2886,7 +2888,7 @@
     <string name="user_confirm_remove_self_title" msgid="6739480453680217543">"Vil du slette deg selv?"</string>
     <string name="user_confirm_remove_title" msgid="1034498514019462084">"Vil du slette brukeren?"</string>
     <string name="user_profile_confirm_remove_title" msgid="6138684743385947063">"Fjerne denne profilen?"</string>
-    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"Vil du fjerne arbeidsprofilen?"</string>
+    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"Fjern jobbprofilen?"</string>
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"Lagringsplassen og dataene dine blir fjernet fra dette nettbrettet. Denne handlingen kan ikke angres."</string>
     <string name="user_confirm_remove_self_message" product="default" msgid="8441729423565705183">"Lagringsplassen og dataene dine blir fjernet fra telefonen. Denne handlingen kan ikke angres."</string>
     <string name="user_confirm_remove_message" msgid="5202150470271756013">"Alle apper og data slettes."</string>
@@ -2914,7 +2916,7 @@
     <string name="apps_with_restrictions_settings_button" msgid="5065896213467171744">"Utvidelsesinnstillinger for appen"</string>
     <string name="nfc_payment_settings_title" msgid="5070077706735415291">"Berøringsbetaling"</string>
     <string name="nfc_payment_how_it_works" msgid="7607901964687787177">"Slik fungerer det"</string>
-    <string name="nfc_payment_no_apps" msgid="8844440783395420860">"Betal med telefonen din i butikker"</string>
+    <string name="nfc_payment_no_apps" msgid="8844440783395420860">"Betal med telefonen i butikker"</string>
     <string name="nfc_payment_default" msgid="7869273092463612271">"Standardapp for betaling"</string>
     <string name="nfc_payment_default_not_set" msgid="955804193510335338">"Ikke angitt"</string>
     <string name="nfc_payment_app_and_desc" msgid="102312684211458190">"<xliff:g id="APP">%1$s</xliff:g> – <xliff:g id="DESCRIPTION">%2$s</xliff:g>"</string>
@@ -2923,7 +2925,7 @@
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Unntatt når en annen betalingsapp er åpen"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"På betalingsterminaler med berøringsfunksjonalitet vil du betale med"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Betaling ved terminaler"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Konfigurer en betalingsapp. Deretter holder du baksiden av telefonen din mot en terminal som har symbolet for kontaktløs betaling."</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Konfigurer en betalingsapp. Deretter holder du baksiden av telefonen mot en terminal som har symbolet for kontaktløs betaling."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"Skjønner"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"Mr"</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"Angi som foretrukket?"</string>
@@ -3159,8 +3161,8 @@
     <string name="emergency_tone_alert" msgid="907868135091891015">"Toner"</string>
     <string name="emergency_tone_vibrate" msgid="5020068066905681181">"Vibrasjoner"</string>
     <string name="boot_sounds_title" msgid="7583926202411353620">"Lyder ved oppstart"</string>
-    <string name="live_caption_title" msgid="7926591158657997051">"Liveteksting"</string>
-    <string name="live_caption_summary" msgid="9064771862352393125">"Automatisk teksting av media"</string>
+    <string name="live_caption_title" msgid="7926591158657997051">"Direkteteksting"</string>
+    <string name="live_caption_summary" msgid="9064771862352393125">"Automatisk medieteksting"</string>
     <string name="zen_mode_settings_summary_off" msgid="6929319200478424962">"Aldri"</string>
     <plurals name="zen_mode_settings_summary_on" formatted="false" msgid="6061723291126091396">
       <item quantity="other"><xliff:g id="ON_COUNT">%d</xliff:g> er slått på</item>
