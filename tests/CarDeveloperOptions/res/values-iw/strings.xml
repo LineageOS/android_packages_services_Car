@@ -85,8 +85,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"שינוי גודל הטקסט שמופיע במסך."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"הקטנה"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"הגדלה"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"טקסט לדוגמה"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"הקוסם המופלא מארץ עוץ"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"פרק 11: עיר הברקת המופלאה של ארץ עוץ"</string>
@@ -1139,7 +1138,10 @@
     <item msgid="3658897985297386665">"‎@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"‎@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"סלולרי"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"אם חיבור Wi‑Fi לא זמין, ייעשה שימוש ברשת סלולרית"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"אם אין רשת סלולרית זמינה יש להשתמש ב-Wi‑Fi"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"התקשרות בחיבור Wi-Fi. אם חיבור ה-Wi‑Fi יתנתק, השיחה תסתיים."</string>
@@ -2089,7 +2091,7 @@
     <string name="feature_flags_dashboard_title" msgid="3153034144122754381">"סימוני תכונות"</string>
     <string name="talkback_title" msgid="3717960404234260050">"Talkback"</string>
     <string name="talkback_summary" msgid="6602857105831641574">"קורא מסך המיועד בעיקר לעיוורים או לבעלי ראייה לקויה"</string>
-    <string name="select_to_speak_summary" msgid="7514180457557735421">"הקש על פריטים במסך כדי לשמוע הקראה שלהם"</string>
+    <string name="select_to_speak_summary" msgid="7514180457557735421">"ניתן להקיש על פריטים במסך כדי לשמוע הקראה שלהם"</string>
     <string name="accessibility_captioning_title" msgid="5878371993023439642">"כתוביות"</string>
     <string name="accessibility_screen_magnification_title" msgid="7250949681883917360">"הגדלה"</string>
     <string name="accessibility_screen_magnification_gestures_title" msgid="9199287875401817974">"הגדלה על-ידי הקשה שלוש פעמים"</string>
@@ -3478,15 +3480,15 @@
     <string name="picture_in_picture_empty_text" msgid="8664071475324685241">"אין אפליקציות מותקנות שתומכות ב\'תמונה בתוך תמונה\'"</string>
     <string name="picture_in_picture_keywords" msgid="7326958702002259262">"תמונה בתוך תמונה"</string>
     <string name="picture_in_picture_app_detail_title" msgid="3916189052657425936">"תמונה בתוך תמונה"</string>
-    <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"עם תמונה בתוך תמונה"</string>
+    <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"תמונה בתוך תמונה"</string>
     <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"אפליקציה זו תוכל ליצור חלון מסוג תמונה-בתוך-תמונה בזמן שהיא תהיה פתוחה או לאחר היציאה ממנה (למשל, כדי להמשיך לצפות בסרטון). חלון זה מוצג מעל אפליקציות אחרות שנמצאות בשימוש."</string>
     <string name="manage_zen_access_title" msgid="3058206309728524196">"גישה אל \'נא לא להפריע\'"</string>
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"הפעלת ההרשאה \'נא לא להפריע\'"</string>
     <string name="zen_access_empty_text" msgid="7667538993781607731">"אין אפליקציות מותקנות שביקשו גישה אל \'נא לא להפריע\'"</string>
     <string name="loading_notification_apps" msgid="1978345231934072091">"טוען אפליקציות..."</string>
-    <string name="app_notifications_off_desc" msgid="3904090905748895146">"לבקשתך, מערכת Android חוסמת במכשיר זה הצגת התראות מאפליקציה זו"</string>
-    <string name="channel_notifications_off_desc" msgid="8005444443218306611">"לבקשתך, מערכת Android חוסמת במכשיר הצגה של קטגוריית התראות זו"</string>
-    <string name="channel_group_notifications_off_desc" msgid="7154205544298672850">"לבקשתך, מערכת Android חוסמת במכשיר הצגה של מקבץ הודעות זה"</string>
+    <string name="app_notifications_off_desc" msgid="3904090905748895146">"לבקשתך, מערכת Android לא מאפשרת להציג במכשיר הזה התראות מהאפליקציה הזו"</string>
+    <string name="channel_notifications_off_desc" msgid="8005444443218306611">"לבקשתך, מערכת Android לא מאפשרת להציג במכשיר הזה התראות ששייכות לקטגוריה הזו"</string>
+    <string name="channel_group_notifications_off_desc" msgid="7154205544298672850">"לבקשתך, מערכת Android לא מאפשרת להציג במכשיר הזה התראות מקבוצה זו"</string>
     <string name="notification_channels" msgid="956764228116145956">"קטגוריות"</string>
     <string name="notification_channels_other" msgid="1615988645667411530">"אחר"</string>
     <plurals name="notification_group_summary" formatted="false" msgid="3744856747513344999">
