@@ -18,6 +18,7 @@
 #include <gmock/gmock.h>
 #include <stdio.h>
 #include <unistd.h>
+#include "Common.h"
 #include "DefaultEngine.h"
 #include "VideoInputManager.h"
 
@@ -38,15 +39,8 @@ public:
                  Status(const std::shared_ptr<RunnerComponentInterface>& iface));
 };
 
-enum INPUT_MGR_FUZZ_FUNCS {
-    INPUT_MGR_HANDLE_EXECUTION_PHASE = 0,    // verify handleExecutionPhase
-    INPUT_MGR_HANDLE_STOP_IMMEDIATE_PHASE,   // verify handleStopImmediatePhase
-    INPUT_MGR_HANDLE_STOP_WITH_FLUSH_PHASE,  // verify handleStopWithFlushPhase
-    INPUT_MGR_HANDLE_RESET_PHASE,            // verify handleResetPhase
-    INPUT_MGR_API_SUM
-};
+enum INPUT_MGR_FUZZ_FUNCS { RUNNER_COMP_BASE_ENUM };
 
-const int kMaxFuzzerConsumedBytes = 12;
 static std::shared_ptr<VideoInputManager> manager;
 
 extern "C" int LLVMFuzzerInitialize(int* argc, char*** argv) {
@@ -85,9 +79,12 @@ extern "C" int LLVMFuzzerInitialize(int* argc, char*** argv) {
 // TODO(b/163138279, b/163138595) verify the fix for these two bugs
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     FuzzedDataProvider fdp(data, size);
-    while (fdp.remaining_bytes() > kMaxFuzzerConsumedBytes) {
-        switch (fdp.ConsumeIntegralInRange<uint32_t>(0, INPUT_MGR_API_SUM - 1)) {
-            case INPUT_MGR_HANDLE_EXECUTION_PHASE: {
+    while (fdp.remaining_bytes() > test::kMaxFuzzerConsumedBytes) {
+        switch (fdp.ConsumeIntegralInRange<uint32_t>(0, API_SUM - 1)) {
+            case HANDLE_CONFIG_PHASE: {
+                break;
+            }
+            case HANDLE_EXECUTION_PHASE: {
                 testing::NiceMock<MockRunnerEvent> e;
                 bool isTransitionComplete = fdp.ConsumeBool();
                 bool isPhaseEntry = fdp.ConsumeBool();
@@ -116,17 +113,17 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                 }
                 break;
             }
-            case INPUT_MGR_HANDLE_STOP_IMMEDIATE_PHASE: {
+            case HANDLE_STOP_IMMEDIATE_PHASE: {
                 testing::NiceMock<MockRunnerEvent> e;
                 manager->handleStopImmediatePhase(e);
                 break;
             }
-            case INPUT_MGR_HANDLE_STOP_WITH_FLUSH_PHASE: {
+            case HANDLE_STOP_WITH_FLUSH_PHASE: {
                 testing::NiceMock<MockRunnerEvent> e;
                 manager->handleStopWithFlushPhase(e);
                 break;
             }
-            case INPUT_MGR_HANDLE_RESET_PHASE: {
+            case HANDLE_RESET_PHASE: {
                 testing::NiceMock<MockRunnerEvent> e;
                 manager->handleResetPhase(e);
                 break;
