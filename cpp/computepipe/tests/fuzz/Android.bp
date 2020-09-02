@@ -119,3 +119,24 @@ cc_fuzz {
     ],
 }
 
+cc_fuzz {
+    name: "local_prebuild_graph_fuzzer",
+    defaults: ["libcomputepipefuzz-defaults"],
+    cppflags:[
+        "-fexceptions",
+        "-Wno-unused-variable",
+    ],
+    static_libs: [
+        "computepipe_prebuilt_graph",
+    ],
+    shared_libs: [
+        "libstubgraphimpl",
+    ],
+    include_dirs: [
+        "packages/services/Car/cpp/computepipe",
+        "packages/services/Car/cpp/computepipe/runner/graph",
+    ],
+    srcs: [
+        "LocalPrebuildGraphFuzzer.cpp",
+    ],
+}
