@@ -34,6 +34,7 @@ cc_defaults {
         "-Wall",
         "-Werror",
         "-Wno-unused-parameter",
+        "-Wno-unused-variable",
     ],
     static_libs: [
         "computepipe_runner_component",
@@ -54,6 +55,7 @@ cc_defaults {
     ],
     header_libs: [
         "computepipe_runner_includes",
+        "graph_test_headers",
     ],
     include_dirs: [
         "packages/services/Car/cpp/computepipe",
@@ -124,7 +126,6 @@ cc_fuzz {
     defaults: ["libcomputepipefuzz-defaults"],
     cppflags:[
         "-fexceptions",
-        "-Wno-unused-variable",
     ],
     static_libs: [
         "computepipe_prebuilt_graph",
@@ -138,5 +139,29 @@ cc_fuzz {
     ],
     srcs: [
         "LocalPrebuildGraphFuzzer.cpp",
+    ],
+}
+
+cc_fuzz {
+    name: "grpc_graph_fuzzer",
+    defaults: ["libcomputepipefuzz-defaults"],
+    cppflags:[
+        "-fexceptions",
+    ],
+    static_libs: [
+        "computepipe_grpc_graph_proto",
+    ],
+    shared_libs: [
+        "computepipe_grpc_graph",
+        "libcomputepipeprotos",
+        "libgrpc++",
+        "libprotobuf-cpp-full",
+    ],
+    include_dirs: [
+        "packages/services/Car/cpp/computepipe",
+        "packages/services/Car/cpp/computepipe/runner/graph",
+    ],
+    srcs: [
+        "GrpcGraphFuzzer.cpp",
     ],
 }
