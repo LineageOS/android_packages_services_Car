@@ -24,12 +24,10 @@ interface ICarSystemServerClient {
      * Notify of user lifecycle events.
      *
      * @param eventType - type as defined by CarUserManager.UserLifecycleEventType
-     * @param timestampMs - when the event happened
      * @param fromUserId - user id of previous user when type is SWITCHING (or UserHandle.USER_NULL)
      * @param toUserId - user id of new user.
      */
-    oneway void onUserLifecycleEvent(int eventType, long timestampMs, int fromUserId,
-            int toUserId);
+    oneway void onUserLifecycleEvent(int eventType, int fromUserId, int toUserId);
 
     /**
      * Notify to init boot user.
