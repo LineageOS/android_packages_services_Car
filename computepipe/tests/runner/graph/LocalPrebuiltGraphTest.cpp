@@ -18,6 +18,7 @@
 #include "ClientConfig.pb.h"
 #include "LocalPrebuiltGraph.h"
 #include "PrebuiltEngineInterface.h"
+#include "PrebuiltEngineInterfaceImpl.h"
 #include "ProfilingType.pb.h"
 #include "RunnerComponent.h"
 #include "gmock/gmock-matchers.h"
@@ -35,44 +36,6 @@ namespace automotive {
 namespace computepipe {
 namespace graph {
 namespace {
-
-// Barebones implementation of the PrebuiltEngineInterface. This implementation should suffice for
-// basic cases. More complicated use cases might need their own implementation of it.
-typedef std::function<void(int, int64_t, const runner::InputFrame&)> PixelCallback;
-typedef std::function<void(int, int64_t, std::string&&)> SerializedStreamCallback;
-typedef std::function<void(Status, std::string&&)> GraphTerminationCallback;
-class PrebuiltEngineInterfaceImpl : public PrebuiltEngineInterface {
-private:
-    PixelCallback mPixelCallbackFn;
-    SerializedStreamCallback mSerializedStreamCallbackFn;
-    GraphTerminationCallback mGraphTerminationCallbackFn;
-
-public:
-    virtual ~PrebuiltEngineInterfaceImpl() = default;
-
-    void DispatchPixelData(int streamId, int64_t timestamp,
-                           const runner::InputFrame& frame) override {
-        mPixelCallbackFn(streamId, timestamp, frame);
-    }
-
-    void DispatchSerializedData(int streamId, int64_t timestamp, std::string&& data) override {
-        mSerializedStreamCallbackFn(streamId, timestamp, std::move(data));
-    }
-
-    void DispatchGraphTerminationMessage(Status status, std::string&& msg) override {
-        mGraphTerminationCallbackFn(status, std::move(msg));
-    }
-
-    void SetPixelCallback(PixelCallback callback) { mPixelCallbackFn = callback; }
-
-    void SetSerializedStreamCallback(SerializedStreamCallback callback) {
-        mSerializedStreamCallbackFn = callback;
-    }
-
-    void SetGraphTerminationCallback(GraphTerminationCallback callback) {
-        mGraphTerminationCallbackFn = callback;
-    }
-};
 
 // The stub graph implementation is a passthrough implementation that does not run
 // any graph and returns success for all implementations. The only useful things that
