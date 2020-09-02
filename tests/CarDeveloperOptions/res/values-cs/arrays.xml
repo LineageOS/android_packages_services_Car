@@ -423,9 +423,19 @@
     <item msgid="7718817231348607934">"Nepovolit nikdy"</item>
     <item msgid="8184570120217958741">"Vždy povolit"</item>
   </string-array>
-    <!-- no translation found for ram_states:0 (708247372474061274) -->
-    <!-- no translation found for ram_states:4 (1567326459340152525) -->
-    <!-- no translation found for proc_stats_memory_states:3 (8577246509202964244) -->
+  <string-array name="ram_states">
+    <item msgid="708247372474061274">"Normální"</item>
+    <item msgid="5101233285497327432">"Střední"</item>
+    <item msgid="1555861583162930714">"Nízká"</item>
+    <item msgid="1719683776264798117">"Kritické"</item>
+    <item msgid="1567326459340152525">"?"</item>
+  </string-array>
+  <string-array name="proc_stats_memory_states">
+    <item msgid="3474232046138139454">"Normální"</item>
+    <item msgid="6107138933849816768">"Střední"</item>
+    <item msgid="182695359839047859">"Nízká"</item>
+    <item msgid="8577246509202964244">"Kritické"</item>
+  </string-array>
   <string-array name="proc_stats_process_states">
     <item msgid="7560955722349181440">"Trvalé"</item>
     <item msgid="167418068739176448">"Nejvyšší aktivita"</item>
@@ -467,7 +477,7 @@
     <item msgid="1008268820118852416">"Považovat za neměřenou síť"</item>
   </string-array>
   <string-array name="wifi_privacy_entries">
-    <item msgid="6545683814310036454">"Použít náhodně vygenerovanou adresu MAC"</item>
+    <item msgid="6545683814310036454">"Použít náhodnou MAC (výchozí)"</item>
     <item msgid="214234417308375326">"Použít adresu MAC zařízení"</item>
   </string-array>
   <string-array name="wifi_hidden_entries">

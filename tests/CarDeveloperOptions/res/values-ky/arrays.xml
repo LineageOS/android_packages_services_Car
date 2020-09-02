@@ -29,8 +29,25 @@
     <item msgid="5194868215515664953">"Тынч океан"</item>
     <item msgid="7044520255415007865">"Бардыгы"</item>
   </string-array>
-    <!-- no translation found for screen_timeout_entries:0 (8596143519087753804) -->
-    <!-- no translation found for dream_timeout_entries:7 (8271452751594598661) -->
+  <string-array name="screen_timeout_entries">
+    <item msgid="8596143519087753804">"15 секунд"</item>
+    <item msgid="772029947136115322">"30 секунд"</item>
+    <item msgid="8743663928349474087">"1 мүнөт"</item>
+    <item msgid="1506508631223164814">"2 мүнөт"</item>
+    <item msgid="8664703938127907662">"5 мүнөт"</item>
+    <item msgid="5827960506924849753">"10 мүнөт"</item>
+    <item msgid="6677424950124253938">"30 мүнөт"</item>
+  </string-array>
+  <string-array name="dream_timeout_entries">
+    <item msgid="6487043225269853023">"Эч качан"</item>
+    <item msgid="2517785806387977252">"15 секунд"</item>
+    <item msgid="6347954399441173672">"30 секунд"</item>
+    <item msgid="4858305253279921789">"1 мүнөт"</item>
+    <item msgid="8109273437140044073">"2 мүнөт"</item>
+    <item msgid="2788593551142462622">"5 мүнөт"</item>
+    <item msgid="8012672183888404961">"10 мүнөт"</item>
+    <item msgid="8271452751594598661">"30 мүнөт"</item>
+  </string-array>
   <string-array name="lock_after_timeout_entries">
     <item msgid="2232921187970351881">"Дароо"</item>
     <item msgid="2038544972632026612">"5 секунд"</item>
@@ -42,17 +59,47 @@
     <item msgid="811192536981678974">"10 мүнөт"</item>
     <item msgid="7258394417241706272">"30 мүнөт"</item>
   </string-array>
-    <!-- no translation found for entries_font_size:0 (2340391964816059553) -->
-    <!-- no translation found for entries_font_size:0 (6490061470416867723) -->
-    <!-- no translation found for entries_font_size:2 (1714184661981538355) -->
-    <!-- no translation found for entries_font_size:2 (1678068858001018666) -->
-    <!-- no translation found for wifi_status:3 (5848277343965362748) -->
-    <!-- no translation found for wifi_status_with_ssid:1 (6816207058895999545) -->
-    <!-- no translation found for wifi_status_with_ssid:3 (7547609081339573756) -->
-    <!-- no translation found for wifi_status_with_ssid:4 (5145158315060185414) -->
+  <string-array name="entries_font_size">
+    <item msgid="2340391964816059553">"Кичине"</item>
+    <item msgid="591935967183159581">"Демейки"</item>
+    <item msgid="1714184661981538355">"Чоң"</item>
+    <item msgid="6195563047686707484">"Эң чоң"</item>
+  </string-array>
+  <string-array name="wifi_status">
+    <item msgid="1304883790721412351"></item>
+    <item msgid="4157625910392775808">"Скандалууда…"</item>
+    <item msgid="5597394826455877834">"Туташууда…"</item>
+    <item msgid="5848277343965362748">"Аныктыгы текшерилүүдө…"</item>
+    <item msgid="3391238031431440676">"IP дареги алынууда…"</item>
+    <item msgid="5257597310494000224">"Туташты"</item>
+    <item msgid="8472497592913050396">"Убактылуу токтотулду"</item>
+    <item msgid="1228072488815999109">"Ажыратылууда…"</item>
+    <item msgid="7253087004422991731">"Ажыратылган"</item>
+    <item msgid="4169850917304751227">"Ийгиликсиз"</item>
+    <item msgid="6266658166690831131">"Бөгөттөлгөн"</item>
+    <item msgid="4517230805854909775">"Начар байланыштан убактылуу баш тартууда"</item>
+  </string-array>
+  <string-array name="wifi_status_with_ssid">
+    <item msgid="4853670665485437464"></item>
+    <item msgid="6816207058895999545">"Изделүүдө…"</item>
+    <item msgid="8058143476674427024">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g> тармагына туташууда…"</item>
+    <item msgid="7547609081339573756">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g> менен аныктыгы текшерилүүдө…"</item>
+    <item msgid="5145158315060185414">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g> тармагынан IP дареги алынууда…"</item>
+    <item msgid="3283243151651124831">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g> тармагына туташты"</item>
+    <item msgid="6600156231416890902">"Убактылуу токтотулду"</item>
+    <item msgid="4133290864821295785">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g> тармагынан ажыратылууда…"</item>
+    <item msgid="3980154971187953257">"Ажыратылган"</item>
+    <item msgid="2847316776634969068">"Ийгиликсиз"</item>
+    <item msgid="4390990424746035383">"Бөгөттөлгөн"</item>
+    <item msgid="3618248791367063949">"Начар байланыштан убактылуу баш тартууда"</item>
+  </string-array>
     <!-- no translation found for wifi_tether_security:0 (5586343370515598801) -->
     <!-- no translation found for wifi_tether_security:1 (6136336549994615745) -->
-    <!-- no translation found for wifi_p2p_wps_setup:0 (5390235347963255303) -->
+  <string-array name="wifi_p2p_wps_setup">
+    <item msgid="5390235347963255303">"Баскычты басыңыз"</item>
+    <item msgid="7401896200768713930">"Туташуучу түзмөктүн PIN\'и"</item>
+    <item msgid="4526848028011846710">"Ушул түзмөктүн PIN\'и"</item>
+  </string-array>
   <string-array name="wifi_p2p_status">
     <item msgid="8741947238021758201">"Туташты"</item>
     <item msgid="983792611851499732">"Чакырылды"</item>
@@ -60,7 +107,12 @@
     <item msgid="4646663015449312554">"Жеткиликтүү"</item>
     <item msgid="3230556734162006146">"Аракет чегинен тышкары"</item>
   </string-array>
-    <!-- no translation found for bluetooth_visibility_timeout_entries:1 (2759776603549270587) -->
+  <string-array name="bluetooth_visibility_timeout_entries">
+    <item msgid="8247986727324120082">"2 мүнөт"</item>
+    <item msgid="2759776603549270587">"5 мүнөт"</item>
+    <item msgid="167772676068860015">"1 саат"</item>
+    <item msgid="5985477119043628504">"Токтотпоо"</item>
+  </string-array>
   <string-array name="bluetooth_max_connected_audio_devices">
     <item msgid="3800257971619063588">"Демейки маани колдонулат: <xliff:g id="DEFAULT_BLUETOOTH_MAX_CONNECTED_AUDIO_DEVICES">%1$d</xliff:g>"</item>
     <item msgid="8572230405241423895">"1"</item>
@@ -69,8 +121,13 @@
     <item msgid="1644506614010085798">"4"</item>
     <item msgid="3132506679404897150">"5"</item>
   </string-array>
-    <!-- no translation found for wifi_signal:1 (7882129634982603782) -->
-    <!-- no translation found for wifi_signal:4 (999948812884919584) -->
+  <string-array name="wifi_signal">
+    <item msgid="1709949377823900951">"Начар"</item>
+    <item msgid="7882129634982603782">"Начар"</item>
+    <item msgid="6457357501905996224">"Орто"</item>
+    <item msgid="405271628162918841">"Жакшы"</item>
+    <item msgid="999948812884919584">"Эң жакшы"</item>
+  </string-array>
   <string-array name="data_usage_data_range">
     <item msgid="8986775481492954015">"Акыркы 30 күн"</item>
     <item msgid="3211287705232736964">"Колдонуу мерчимин коюу…"</item>
@@ -106,10 +163,13 @@
     <item msgid="7330627471456865502">"MSCHAPV2"</item>
     <item msgid="6255179395132581882">"GTC"</item>
   </string-array>
-    <!-- no translation found for wifi_ip_settings:1 (4377002609760712163) -->
+  <string-array name="wifi_ip_settings">
+    <item msgid="2717196390555072244">"DHCP"</item>
+    <item msgid="4377002609760712163">"Туруктуу"</item>
+  </string-array>
   <string-array name="wifi_proxy_settings">
     <item msgid="9032900195127165132">"Эчтеке жок"</item>
-    <item msgid="1464741437353223198">"Нускама"</item>
+    <item msgid="1464741437353223198">"Кол менен"</item>
     <item msgid="5793600062487886090">"Прокси авто-конфигурац."</item>
   </string-array>
   <string-array name="apn_auth_entries">
@@ -226,11 +286,73 @@
     <item msgid="1165623660533024666">"фондо ойнотуу"</item>
     <item msgid="6423861043647911030">"атайын мүмкүнчүлүктөрдүн үнүнүн катуулугу"</item>
   </string-array>
-    <!-- no translation found for app_ops_labels:3 (7836406246005211990) -->
-    <!-- no translation found for app_ops_labels:4 (3951439024549922598) -->
-    <!-- no translation found for app_ops_labels:8 (3597797992398484655) -->
-    <!-- no translation found for app_ops_labels:20 (3037159047591081136) -->
-    <!-- no translation found for app_ops_labels:41 (2464189519136248621) -->
+  <string-array name="app_ops_labels">
+    <item msgid="7892361636570580123">"Жайгашкан жер"</item>
+    <item msgid="6656077694190491067">"Жайгашкан жер"</item>
+    <item msgid="8790228218278477369">"Жайгашкан жер"</item>
+    <item msgid="7836406246005211990">"Дирилдөө"</item>
+    <item msgid="3951439024549922598">"Байланыштарды окуу"</item>
+    <item msgid="8802152411647068">"Байланыштарды өзгөртүү"</item>
+    <item msgid="229544934599698735">"Чалуулар тизмесин окуу"</item>
+    <item msgid="7396102294405899613">"Чалуулар тизмесин өзгөртүү"</item>
+    <item msgid="3597797992398484655">"Жылнааманы окуу"</item>
+    <item msgid="2705975774250907343">"Күнбаракты өзгөртүү"</item>
+    <item msgid="4668747371441932697">"Жайгашкан жер"</item>
+    <item msgid="1487578921720243646">"Эскертүү жайгаштыруу"</item>
+    <item msgid="4636080349724146638">"Орду"</item>
+    <item msgid="673510900286463926">"Телефон чалуу"</item>
+    <item msgid="542083422784609790">"SMS/MMS окуу"</item>
+    <item msgid="1033780373029588436">"SMS/MMS жазуу"</item>
+    <item msgid="5647111115517787488">"SMS/MMS алуу"</item>
+    <item msgid="8591105601108455893">"SMS/MMS алуу"</item>
+    <item msgid="7730995008517841903">"SMS/MMS алуу"</item>
+    <item msgid="2613033109026626086">"SMS/MMS алуу"</item>
+    <item msgid="3037159047591081136">"SMS/MMS жөнөтүү"</item>
+    <item msgid="4726682243833913568">"SMS/MMS окуу"</item>
+    <item msgid="6555678522277865572">"SMS/MMS жазуу"</item>
+    <item msgid="6981734935578130884">"Тууралоолорду өзгөртүү"</item>
+    <item msgid="8705854389991425629">"Үстүнө тартуу"</item>
+    <item msgid="5861356020344153651">"Жетки билдирмелери"</item>
+    <item msgid="78432174621628659">"Камера"</item>
+    <item msgid="3986116419882154794">"Аудио жаздыруу"</item>
+    <item msgid="4516840825756409490">"Аудио ойнотуу"</item>
+    <item msgid="6811712502798183957">"Алмашуу буферин окуу"</item>
+    <item msgid="2780369012602289114">"Алмашуу буферин өзгөртүү"</item>
+    <item msgid="2331359440170850868">"Медиа баскычтар"</item>
+    <item msgid="6133599737122751231">"Аудио фокус"</item>
+    <item msgid="6844485713404805301">"Үн башкаргыч"</item>
+    <item msgid="1600379420669104929">"Үндүн деңгээли"</item>
+    <item msgid="6296768210470214866">"Шыңгырдын үнү"</item>
+    <item msgid="510690696071629241">"Мультимедианын катуулугу"</item>
+    <item msgid="406861638631430109">"Ойготкучтун катуулугу"</item>
+    <item msgid="4715864795872233884">"Эскертме үнүнүн катуулугу"</item>
+    <item msgid="2311478519251301183">"Bluetooth үнү"</item>
+    <item msgid="5133991377896747027">"Ойгоо кармоо"</item>
+    <item msgid="2464189519136248621">"Жайгашкан жер"</item>
+    <item msgid="2062677934050803037">"Орду"</item>
+    <item msgid="1735171933192715957">"Колдонуу статистикасын алуу"</item>
+    <item msgid="1014093788778383554">"Микрофондун үнүн басуу/чыгаруу"</item>
+    <item msgid="4199297950608622850">"Эскертмени көрсөтүү"</item>
+    <item msgid="2527962435313398821">"Долбоор медиясы"</item>
+    <item msgid="5117506254221861929">"VPN\'ди жандыруу"</item>
+    <item msgid="8291198322681891160">"Тушкагаз жазуу"</item>
+    <item msgid="7106921284621230961">"Көмөкчү түзүм"</item>
+    <item msgid="4496533640894624799">"Көмөкчү скриншот"</item>
+    <item msgid="2598847264853993611">"Телефон абалын окуу"</item>
+    <item msgid="9215610846802973353">"Үн почтасын кошуу"</item>
+    <item msgid="9186411956086478261">"Sip пайдалануу"</item>
+    <item msgid="6884763100104539558">"Чыгуучу чалууну иштетүү"</item>
+    <item msgid="125513972170580692">"Манжа изи"</item>
+    <item msgid="2556071024281275619">"Дене сенсорлору"</item>
+    <item msgid="617168514928339387">"Калкка кабар берүү тутумунун билдирүүлөрүн окуу"</item>
+    <item msgid="7134693570516523585">"Жайгашкан жер дайындарын бурмалоо"</item>
+    <item msgid="7224489175375229399">"Сактагычтагы дайындарды окуу"</item>
+    <item msgid="8472735063903258202">"Сактагычка дайындарды жазуу"</item>
+    <item msgid="4069276819909595110">"Экранды күйгүзүү"</item>
+    <item msgid="1228338896751121025">"Аккаунттарды алуу"</item>
+    <item msgid="3181581793459233672">"Фондо ойнотуу"</item>
+    <item msgid="2340936043025374076">"Атайын мүмкүнчүлүктөрдүн үнүнүн катуулугу"</item>
+  </string-array>
   <string-array name="long_press_timeout_selector_titles">
     <item msgid="8950313530602254787">"Кыска"</item>
     <item msgid="4816511817309094890">"Орто"</item>
@@ -247,7 +369,13 @@
     <item msgid="4627069151979553527">"Жантык"</item>
     <item msgid="6896773537705206194">"Кичине баш тамгалар"</item>
   </string-array>
-    <!-- no translation found for captioning_font_size_selector_titles:3 (2784236342175159295) -->
+  <string-array name="captioning_font_size_selector_titles">
+    <item msgid="1680223634161592855">"Өтө кичине"</item>
+    <item msgid="5091603983404027034">"Кичине"</item>
+    <item msgid="176844712416932112">"Кадимки"</item>
+    <item msgid="2784236342175159295">"Чоң"</item>
+    <item msgid="218913203203160606">"Өтө чоң"</item>
+  </string-array>
   <string-array name="captioning_edge_type_selector_titles">
     <item msgid="3865198759294188069">"Демейки"</item>
     <item msgid="6488643537808152001">"Эчтеке жок"</item>
@@ -262,7 +390,14 @@
     <item msgid="1874668269931014581">"75%"</item>
     <item msgid="6462911487571123954">"100%"</item>
   </string-array>
-    <!-- no translation found for captioning_preset_selector_titles:2 (5891360837786277638) -->
+  <string-array name="captioning_preset_selector_titles">
+    <item msgid="326819345272910536">"Колдонмонун демейкилерин колдонуу"</item>
+    <item msgid="8611890312638868524">"Ак карада"</item>
+    <item msgid="5891360837786277638">"Кара акта"</item>
+    <item msgid="2798457065945456853">"Сары карада"</item>
+    <item msgid="5799049811524553967">"Сары көктө"</item>
+    <item msgid="3673930830658169860">"Ыңгайлаштырылган"</item>
+  </string-array>
   <string-array name="vpn_types_long">
     <item msgid="6566768880689730097">"PPTP VPN"</item>
     <item msgid="1349760781118368659">"Алдын ала бөлүшүлгөн ачкычтары бар L2TP/IPSec VPN"</item>
@@ -273,17 +408,34 @@
   </string-array>
   <string-array name="vpn_proxy_settings">
     <item msgid="2958623927055120839">"Эч нерсе жок"</item>
-    <item msgid="1157046369795346308">"Нускама"</item>
+    <item msgid="1157046369795346308">"Кол менен"</item>
   </string-array>
-    <!-- no translation found for vpn_states:4 (9135049670787351881) -->
+  <string-array name="vpn_states">
+    <item msgid="5408915841694583740">"Ажыратылган"</item>
+    <item msgid="8754480102834556765">"Демилгеленүүдө…"</item>
+    <item msgid="3351334355574270250">"Туташууда…"</item>
+    <item msgid="8303882153995748352">"Туташты"</item>
+    <item msgid="9135049670787351881">"Таймаут"</item>
+    <item msgid="2124868417182583926">"Ийгиликсиз"</item>
+  </string-array>
   <string-array name="security_settings_premium_sms_values">
     <item msgid="1164265643455394443">"Суроо"</item>
     <item msgid="7718817231348607934">"Эч качан уруксат жок"</item>
     <item msgid="8184570120217958741">"Дайым уруксат"</item>
   </string-array>
-    <!-- no translation found for ram_states:0 (708247372474061274) -->
-    <!-- no translation found for ram_states:4 (1567326459340152525) -->
-    <!-- no translation found for proc_stats_memory_states:3 (8577246509202964244) -->
+  <string-array name="ram_states">
+    <item msgid="708247372474061274">"Орточо"</item>
+    <item msgid="5101233285497327432">"Орточо"</item>
+    <item msgid="1555861583162930714">"Төмөн"</item>
+    <item msgid="1719683776264798117">"Кескин"</item>
+    <item msgid="1567326459340152525">"?"</item>
+  </string-array>
+  <string-array name="proc_stats_memory_states">
+    <item msgid="3474232046138139454">"Кадимки"</item>
+    <item msgid="6107138933849816768">"Орточо"</item>
+    <item msgid="182695359839047859">"Төмөн"</item>
+    <item msgid="8577246509202964244">"Кескин"</item>
+  </string-array>
   <string-array name="proc_stats_process_states">
     <item msgid="7560955722349181440">"Туруктуу"</item>
     <item msgid="167418068739176448">"Көп аткарылган иш"</item>
@@ -325,7 +477,7 @@
     <item msgid="1008268820118852416">"Ченелбейт"</item>
   </string-array>
   <string-array name="wifi_privacy_entries">
-    <item msgid="6545683814310036454">"Демейки (туш келди MAC дарегин колдонуу)"</item>
+    <item msgid="6545683814310036454">"Туш келди MAC дарек колдонулат (демейки)"</item>
     <item msgid="214234417308375326">"MAC түзмөгүн колдонуу"</item>
   </string-array>
   <string-array name="wifi_hidden_entries">
@@ -338,7 +490,7 @@
   </string-array>
   <string-array name="autofill_logging_level_entries">
     <item msgid="6882729786516723474">"Өчүк"</item>
-    <item msgid="4072198137051566919">"Мүчүлүштүктөрдү оңдоо"</item>
+    <item msgid="4072198137051566919">"Мүчүлүштүктөрдү аныктоо"</item>
     <item msgid="2473005316958868509">"Оозеки кирүү"</item>
   </string-array>
   <string-array name="cdma_system_select_choices">
