@@ -72,9 +72,11 @@
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Giriş olaylarını işleme"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN veri yolu başarısız"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN veri yolu yanıt vermiyor. Ana birim kutusunu söküp tekrar takın ve aracı yeniden çalıştırın"</string>
-    <string name="activity_blocked_text" msgid="5342114426610711378">"Güvenliğiniz için bu etkinlik sürüş sırasında gerçekleştirilemez.\nDevam etmek için park edene dek bekleyin."</string>
+    <string name="activity_blocked_text" msgid="8088902789540147995">"Sürüş sırasında bu özelliği kullanamazsınız"</string>
     <string name="exit_button_message" msgid="8554690915924055685">"Güvenli uygulama özellikleriyle baştan başlamak için <xliff:g id="EXIT_BUTTON">%s</xliff:g> düğmesini seçin."</string>
     <string name="exit_button" msgid="5829638404777671253">"Geri"</string>
+    <string name="exit_button_close_application" msgid="8824289547809332460">"Uygulamayı kapat"</string>
+    <string name="exit_button_go_back" msgid="3469083862100560326">"Geri"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"teşhis verilerini okuma"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Araçtan teşhis verilerini okuma."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"teşhis verilerini temizleme"</string>
@@ -140,4 +142,5 @@
     <string name="car_permission_label_use_car_watchdog" msgid="6973938293170413475">"araç güvenlik zamanlayıcısını kullan"</string>
     <string name="car_permission_desc_use_car_watchdog" msgid="8244592601805516086">"Araç güvenlik zamanlayıcısını kullan."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Cihazım"</string>
+    <string name="default_guest_name" msgid="2912812799433131476">"Misafir"</string>
 </resources>
