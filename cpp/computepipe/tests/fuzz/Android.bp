@@ -68,14 +68,6 @@ cc_defaults {
 }
 
 cc_fuzz {
-    name: "computepipe_semantic_manager_fuzzer",
-    defaults: ["libcomputepipefuzz-defaults"],
-    srcs: [
-        "SemanticManagerFuzzer.cpp",
-    ],
-}
-
-cc_fuzz {
     name: "computepipe_pixel_mem_handle_fuzzer",
     defaults: ["libcomputepipefuzz-defaults"],
     srcs: [
@@ -87,6 +79,29 @@ cc_fuzz {
     static_libs: [
         "libcomputepipeprotosfuzz",
         "libprotobuf-mutator",
+    ],
+}
+
+cc_fuzz {
+    name: "computepipe_pixel_stream_manager_fuzzer",
+    defaults: ["libcomputepipefuzz-defaults"],
+    srcs: [
+        "PixelStreamManagerFuzzer.cpp",
+    ],
+    shared_libs: [
+         "libprotobuf-cpp-full",
+    ],
+    static_libs: [
+        "libcomputepipeprotosfuzz",
+        "libprotobuf-mutator",
+    ],
+}
+
+cc_fuzz {
+    name: "computepipe_semantic_manager_fuzzer",
+    defaults: ["libcomputepipefuzz-defaults"],
+    srcs: [
+        "SemanticManagerFuzzer.cpp",
     ],
 }
 
@@ -103,3 +118,4 @@ cc_fuzz {
         "corpus/video_input_manager/*"
     ],
 }
+
