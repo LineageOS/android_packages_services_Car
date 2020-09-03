@@ -24,7 +24,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.app.ActivityManager;
@@ -44,6 +43,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import com.android.car.CarLocalServices;
 import com.android.car.CarServiceUtils;
 import com.android.car.R;
+import com.android.car.hal.MockedPowerHalService;
 import com.android.car.hal.PowerHalService;
 import com.android.car.hal.PowerHalService.PowerState;
 import com.android.car.systeminterface.DisplayInterface;
@@ -103,7 +103,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
     private CarUserService mUserService;
     @Mock
     private IVoiceInteractionManagerService mVoiceInteractionManagerService;
-
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {

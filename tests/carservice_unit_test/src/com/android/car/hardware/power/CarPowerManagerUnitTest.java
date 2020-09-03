@@ -35,10 +35,10 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.CarLocalServices;
 import com.android.car.R;
+import com.android.car.hal.MockedPowerHalService;
 import com.android.car.hal.PowerHalService;
 import com.android.car.hal.PowerHalService.PowerState;
 import com.android.car.power.CarPowerManagementService;
-import com.android.car.power.MockedPowerHalService;
 import com.android.car.power.SilentModeController;
 import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.SystemInterface;
