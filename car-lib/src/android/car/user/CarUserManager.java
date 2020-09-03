@@ -217,7 +217,8 @@ public final class CarUserManager extends CarManagerBase {
      *
      * @hide
      */
-    @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
+    @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
+            android.Manifest.permission.CREATE_USERS})
     public AsyncFuture<UserSwitchResult> switchUser(@UserIdInt int targetUserId) {
         int uid = myUid();
 
@@ -261,7 +262,7 @@ public final class CarUserManager extends CarManagerBase {
      * @hide
      */
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
-            android.Manifest.permission.CREATE_USERS})
+                        android.Manifest.permission.CREATE_USERS})
     public AsyncFuture<UserCreationResult> createUser(@Nullable String name,
             @NonNull String userType, @UserInfoFlag int flags) {
         int uid = myUid();
@@ -335,7 +336,8 @@ public final class CarUserManager extends CarManagerBase {
      */
     @SystemApi
     @TestApi
-    @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
+    @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
+            android.Manifest.permission.CREATE_USERS})
     @NonNull
     public UserRemovalResult removeUser(@NonNull UserHandle user) {
         Objects.requireNonNull(user, "user cannot be null");
@@ -462,7 +464,8 @@ public final class CarUserManager extends CarManagerBase {
      * @hide
      */
     @NonNull
-    @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
+    @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
+            android.Manifest.permission.CREATE_USERS})
     public UserIdentificationAssociationResponse getUserIdentificationAssociation(
             @NonNull int... types) {
         Preconditions.checkArgument(!ArrayUtils.isEmpty(types), "must have at least one type");
@@ -487,7 +490,8 @@ public final class CarUserManager extends CarManagerBase {
      * @hide
      */
     @NonNull
-    @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
+    @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
+            android.Manifest.permission.CREATE_USERS})
     public AsyncFuture<UserIdentificationAssociationResponse> setUserIdentificationAssociation(
             @NonNull int[] types, @NonNull int[] values) {
         Preconditions.checkArgument(!ArrayUtils.isEmpty(types), "must have at least one type");
