@@ -1636,7 +1636,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testSwitchUserIfNecessary_onSuspend_replace() throws Exception {
+    public void testOnSuspend_replace() throws Exception {
         mockExistingUsersAndCurrentUser(mGuestUser);
         when(mInitialUserSetter.canReplaceGuestUser(any())).thenReturn(true);
         when(mMockedResources
@@ -1651,7 +1651,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                         mMockedIActivityManager,
                         3, mInitialUserSetter);
 
-        carUserService.switchUserIfNecessary(/* onSuspend= */true, /* allowUserSwitch= */ false);
+        carUserService.onSuspend();
 
         verify(mInitialUserSetter).set(argThat((info) -> {
             return info.type == InitialUserSetter.TYPE_REPLACE_GUEST;
@@ -1659,7 +1659,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testSwitchUserIfNecessary_onSuspend_notReplace() throws Exception {
+    public void testOnSuspend_notReplace() throws Exception {
         mockExistingUsersAndCurrentUser(mAdminUser);
         when(mMockedResources
                 .getBoolean(com.android.car.R.bool.config_switchGuestUserBeforeGoingSleep))
@@ -1674,17 +1674,17 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                         /* maxRunningUsers= */ 3,
                         mInitialUserSetter);
 
-        carUserService.switchUserIfNecessary(/* onSuspend= */true, /* allowUserSwitch= */ false);
+        carUserService.onSuspend();
 
         verify(mInitialUserSetter, never()).set(any());
     }
 
     @Test
-    public void testSwitchUserIfNecessary_onResume_halNullResponse_replaceTrue() throws Exception {
+    public void testOnResume_halNullResponse_replaceTrue() throws Exception {
         mockExistingUsersAndCurrentUser(mAdminUser);
         mockHalGetInitialInfo(mAdminUser.id, null);
 
-        mCarUserService.switchUserIfNecessary(/* onSuspend= */false, /* allowUserSwitch= */ true);
+        mCarUserService.onResume();
 
         verify(mInitialUserSetter).set(argThat((info) -> {
             return info.type == InitialUserSetter.TYPE_DEFAULT_BEHAVIOR
@@ -1693,14 +1693,14 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testSwitchUserIfNecessary_onResume_halDefaultResponse_replaceGuest()
+    public void testOnResume_halDefaultResponse_replaceGuest()
             throws Exception {
         mockExistingUsersAndCurrentUser(mAdminUser);
         mGetUserInfoResponse.action = InitialUserInfoResponseAction.DEFAULT;
         mGetUserInfoResponse.userLocales = "LOL";
         mockHalGetInitialInfo(mAdminUser.id, mGetUserInfoResponse);
 
-        mCarUserService.switchUserIfNecessary(/* onSuspend= */false, /* allowUserSwitch= */ true);
+        mCarUserService.onResume();
 
         verify(mInitialUserSetter).set(argThat((info) -> {
             return info.type == InitialUserSetter.TYPE_DEFAULT_BEHAVIOR && info.replaceGuest
@@ -1709,7 +1709,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testSwitchUserIfNecessary_onResume_halSwitchResponse_replaceGuest()
+    public void testOnResume_halSwitchResponse_replaceGuest()
             throws Exception {
         int switchUserId = mGuestUser.id;
         mockExistingUsersAndCurrentUser(mAdminUser);
@@ -1717,7 +1717,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mGetUserInfoResponse.userToSwitchOrCreate.userId = switchUserId;
         mockHalGetInitialInfo(mAdminUser.id, mGetUserInfoResponse);
 
-        mCarUserService.switchUserIfNecessary(/* onSuspend= */false, /* allowUserSwitch= */ true);
+        mCarUserService.onResume();
 
         verify(mInitialUserSetter).set(argThat((info) -> {
             return info.type == InitialUserSetter.TYPE_SWITCH && info.replaceGuest
@@ -1726,26 +1726,15 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testSwitchUserIfNecessary_onResume_allowUserSwitch_false_replace()
+    public void testOnResume_halDisabled()
             throws Exception {
-        mockExistingUsersAndCurrentUser(mGuestUser);
-        when(mInitialUserSetter.canReplaceGuestUser(any())).thenReturn(true);
+        mockUserHalSupported(false);
 
-        mCarUserService.switchUserIfNecessary(/* onSuspend= */false, /* allowUserSwitch= */ false);
+        mCarUserService.onResume();
 
         verify(mInitialUserSetter).set(argThat((info) -> {
-            return info.type == InitialUserSetter.TYPE_REPLACE_GUEST;
+            return info.type == InitialUserSetter.TYPE_DEFAULT_BEHAVIOR && info.replaceGuest;
         }));
-    }
-
-    @Test
-    public void testSwitchUserIfNecessary_onResume_allowUserSwitch_false_notReplace()
-            throws Exception {
-        mockExistingUsersAndCurrentUser(mAdminUser);
-
-        mCarUserService.switchUserIfNecessary(/* onSuspend= */false, /* allowUserSwitch= */ false);
-
-        verify(mInitialUserSetter, never()).set(any());
     }
 
     @Test

@@ -676,33 +676,34 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     /**
-     * Calls to switch user at the power resume or suspend.
+     * Calls to switch user at the power suspend.
      *
      * <p><b>Note:</b> Should be used only by {@link CarPowerManagementService}
      *
-     * @param onSuspend true if called during suspend, false if called during resume.
-     * @param allowUserSwitch true if OEM configuration allows user switching.
      */
-    public void switchUserIfNecessary(boolean onSuspend, boolean allowUserSwitch) {
+    public void onSuspend() {
         if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
-            Log.d(TAG_USER, "switchUserIfNecessary(" + onSuspend + ", " + allowUserSwitch + "):"
-                    + ", mSwitchGuestUserBeforeSleep=" + mSwitchGuestUserBeforeSleep);
+            Log.d(TAG_USER, "onSuspend called.");
         }
 
-        if (onSuspend) {
-            if (mSwitchGuestUserBeforeSleep) {
-                initResumeReplaceGuest();
-            }
-        } else {
-            if (!allowUserSwitch) {
-                if (!mSwitchGuestUserBeforeSleep) {
-                    initResumeReplaceGuest();
-                }
-                return;
-            }
-
-            initBootUser(InitialUserInfoRequestType.RESUME);
+        if (mSwitchGuestUserBeforeSleep) {
+            initResumeReplaceGuest();
         }
+    }
+
+    /**
+     * Calls to switch user at the power resume.
+     *
+     * <p>
+     * <b>Note:</b> Should be used only by {@link CarPowerManagementService}
+     *
+     */
+    public void onResume() {
+        if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
+            Log.d(TAG_USER, "onResume called.");
+        }
+
+        initBootUser(InitialUserInfoRequestType.RESUME);
     }
 
     /**

@@ -16,7 +16,6 @@
 
 package com.android.car.power;
 
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -64,7 +63,6 @@ import org.mockito.Mock;
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -143,8 +141,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
         when(mResources.getInteger(R.integer.maxGarageModeRunningDurationInSecs))
                 .thenReturn(900);
         Log.i(TAG, "setService(): overridden overlay properties: "
-                + "config_disableUserSwitchDuringResume="
-                + mResources.getBoolean(R.bool.config_disableUserSwitchDuringResume)
                 + ", maxGarageModeRunningDurationInSecs="
                 + mResources.getInteger(R.integer.maxGarageModeRunningDurationInSecs));
         mSilentModeFile = new TemporaryFile(TAG);
@@ -340,11 +336,6 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
         suspendAndResume();
     }
 
-    private void enableUserHal() {
-        doReturn(Optional.of(true)).when(() -> CarProperties.user_hal_enabled());
-        when(mUserService.isUserHalSupported()).thenReturn(true);
-    }
-
     private void suspendAndResume() throws Exception {
         Log.d(TAG, "suspend()");
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
@@ -353,8 +344,7 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
         assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_DEEP_SLEEP_ENTRY);
         assertVoiceInteractionDisabled();
         mPowerSignalListener.waitForSleepEntry(WAIT_TIMEOUT_MS);
-        verify(mUserService).switchUserIfNecessary(/* onSuspend= */ true,
-                /* allowUserSwitch= */ true);
+        verify(mUserService).onSuspend();
 
         // Send the finished signal
         Log.d(TAG, "resume()");
@@ -367,7 +357,7 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
         // second processing after wakeup
         assertThat(mDisplayInterface.getDisplayState()).isFalse();
 
-        mService.setStateForTesting(/* isBooting= */ false, /* isResuming= */ true);
+        mService.setStateForTesting(/* isBooting= */ false);
 
         mSilentModeFile.write(NONSILENT_STRING); // Wake non-silently
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
@@ -375,16 +365,14 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
         // Should wait until Handler has finished ON processing.
         CarServiceUtils.runOnLooperSync(mService.getHandlerThread().getLooper(), () -> { });
 
-        verify(mUserService).switchUserIfNecessary(/* onSuspend= */ false,
-                /* allowUserSwitch= */ true);
+        verify(mUserService).onResume();
 
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                 VehicleApPowerStateShutdownParam.CAN_SLEEP));
         assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_DEEP_SLEEP_ENTRY);
         mPowerSignalListener.waitForSleepEntry(WAIT_TIMEOUT_MS);
 
-        verify(mUserService, times(2)).switchUserIfNecessary(/* onSuspend= */ true,
-                /* allowUserSwitch= */ true);
+        verify(mUserService, times(2)).onSuspend();
 
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.FINISHED, 0));
         // PM will shutdown system as it was not woken-up due timer and it is not power on.
