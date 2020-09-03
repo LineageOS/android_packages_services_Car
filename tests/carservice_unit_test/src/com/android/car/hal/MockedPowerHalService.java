@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car.power;
+package com.android.car.hal;
+
+import static org.mockito.Mockito.mock;
 
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
 import android.util.Log;
-
-import com.android.car.hal.PowerHalService;
-import com.android.car.hal.VehicleHal;
 
 import java.util.LinkedList;
 
@@ -35,13 +34,25 @@ public class MockedPowerHalService extends PowerHalService {
 
     private final LinkedList<int[]> mSentStates = new LinkedList<>();
 
-    interface SignalListener {
+    public interface SignalListener {
         void sendingSignal(int signal);
+    }
+
+    private static VehicleHal createVehicleHalWithMockedServices() {
+        VehicleHal mockedVehicleHal = new VehicleHal(
+                mock(PowerHalService.class),
+                mock(PropertyHalService.class),
+                mock(InputHalService.class),
+                mock(VmsHalService.class),
+                mock(UserHalService.class),
+                mock(DiagnosticHalService.class),
+                mock(HalClient.class));
+        return mockedVehicleHal;
     }
 
     public MockedPowerHalService(boolean isPowerStateSupported, boolean isDeepSleepAllowed,
             boolean isTimedWakeupAllowed) {
-        super(new VehicleHal() {});
+        super(createVehicleHalWithMockedServices());
         mIsPowerStateSupported = isPowerStateSupported;
         mIsDeepSleepAllowed = isDeepSleepAllowed;
         mIsTimedWakeupAllowed = isTimedWakeupAllowed;
