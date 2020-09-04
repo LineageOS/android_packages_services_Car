@@ -79,6 +79,9 @@ public:
     // Implementation details
     bool init(const char* hardwareServiceName);
 
+    // Destructor
+    virtual ~Enumerator();
+
 private:
     bool inline                     checkPermission();
     bool                            isLogicalCamera(const camera_metadata_t *metadata);

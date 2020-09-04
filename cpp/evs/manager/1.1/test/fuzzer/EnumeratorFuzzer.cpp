@@ -76,21 +76,19 @@ extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv) {
         exit(2);
     }
 
+    return 0;
+}
+
+extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
+    FuzzedDataProvider fdp(data, size);
+
     // Inititialize the enumerator that we are going to test
-    // TODO(b/162631113) if we place the initialization of enumerator inside
-    // LLVMFuzzerTestOneInput, there will be issues in destruction.
     sEnumerator = new Enumerator();
     if (!sEnumerator->init(kMockHWEnumeratorName)) {
         std::cerr << "Failed to connect to hardware service"
                   << "- quitting from LLVMFuzzerInitialize" << std::endl;
         exit(1);
     }
-
-    return 0;
-}
-
-extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
-    FuzzedDataProvider fdp(data, size);
 
     while (fdp.remaining_bytes() > kMaxFuzzerConsumedBytes) {
         switch (fdp.ConsumeIntegralInRange<uint32_t>(0, EVS_FUZZ_API_SUM)) {
@@ -191,6 +189,9 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                 break;
         }
     }
+
+    // Explicitly destroy the Enumerator
+    sEnumerator = nullptr;
     return 0;
 }
 

@@ -65,6 +65,12 @@ using ::android::base::WriteStringToFd;
 using CameraDesc_1_0 = ::android::hardware::automotive::evs::V1_0::CameraDesc;
 using CameraDesc_1_1 = ::android::hardware::automotive::evs::V1_1::CameraDesc;
 
+Enumerator::~Enumerator() {
+    if (mClientsMonitor != nullptr) {
+        mClientsMonitor->stopCollection();
+    }
+}
+
 bool Enumerator::init(const char* hardwareServiceName) {
     LOG(DEBUG) << "init";
 
