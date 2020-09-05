@@ -31,6 +31,7 @@ import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CancellationException;
@@ -176,30 +177,28 @@ class GarageMode {
         }
     }
 
-    List<String> dump() {
-        List<String> outString = new ArrayList<>();
+    void dump(PrintWriter writer) {
         if (!mGarageModeActive) {
-            return outString;
+            return;
         }
-        outString.add("GarageMode idle checker is " + (mIdleCheckerIsRunning ? "" : "not ")
-                + "running");
+        writer.printf("GarageMode idle checker is %srunning\n",
+                (mIdleCheckerIsRunning ? "" : "not "));
         List<String> jobList = new ArrayList<>();
         int numJobs = getListOfIdleJobsRunning(jobList);
         if (numJobs > 0) {
-            outString.add("GarageMode is waiting for " + numJobs + " jobs:");
+            writer.printf("GarageMode is waiting for %d jobs:\n", numJobs);
             // Dump the names of the jobs that we are waiting for
             for (int idx = 0; idx < jobList.size(); idx++) {
-                outString.add("   " + (idx + 1) + ": " + jobList.get(idx));
+                writer.printf("   %d: %s\n", idx + 1, jobList.get(idx));
             }
         } else {
             // Dump the names of the pending jobs that we are waiting for
             numJobs = getListOfPendingJobs(jobList);
-            outString.add("GarageMode is waiting for " + jobList.size() + " pending idle jobs:");
+            writer.printf("GarageMode is waiting for %d pending idle jobs:\n", jobList.size());
             for (int idx = 0; idx < jobList.size(); idx++) {
-                outString.add("   " + (idx + 1) + ": " + jobList.get(idx));
+                writer.printf("   %d: %s\n", idx + 1, jobList.get(idx));
             }
         }
-        return outString;
     }
 
     void enterGarageMode(CompletableFuture<Void> future) {

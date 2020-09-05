@@ -23,7 +23,6 @@ import com.android.car.CarServiceBase;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
-import java.util.List;
 
 /**
  * Main service container for car Garage Mode.
@@ -70,10 +69,7 @@ public class GarageModeService implements CarServiceBase {
     public void dump(PrintWriter writer) {
         boolean isActive = mController.isGarageModeActive();
         writer.println("GarageModeInProgress " + isActive);
-        List<String> status = mController.dump();
-        for (int idx = 0; idx < status.size(); idx++) {
-            writer.println(status.get(idx));
-        }
+        mController.dump(writer);
     }
 
     /**
