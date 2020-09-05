@@ -24,6 +24,7 @@
     <string name="usb_pref_delete_cancel" msgid="5999791462730255929">"取消"</string>
     <string name="usb_resolving_handlers" msgid="1943100136172948686">"正在获取受支持的处理程序"</string>
     <string name="usb_unknown_device" msgid="4211439272338937095">"未知 USB 设备"</string>
+    <string name="usb_boot_service_notification" msgid="8519949189071048797">"正在解析 USB 设备"</string>
   <string-array name="config_AoapIncompatibleDeviceIds">
     <item msgid="4267974637522344258">"18d1:9302"</item>
   </string-array>

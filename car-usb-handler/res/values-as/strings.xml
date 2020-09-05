@@ -24,6 +24,7 @@
     <string name="usb_pref_delete_cancel" msgid="5999791462730255929">"বাতিল কৰক"</string>
     <string name="usb_resolving_handlers" msgid="1943100136172948686">"সমৰ্থিত হেণ্ডলাৰসমূহ গোটোৱা হৈছে"</string>
     <string name="usb_unknown_device" msgid="4211439272338937095">"অজ্ঞাত ইউএছবি ডিভাইচ"</string>
+    <string name="usb_boot_service_notification" msgid="8519949189071048797">"ইউএছবি ডিভাইচবোৰৰ বিশ্লেষণ কৰি থকা হৈছে"</string>
   <string-array name="config_AoapIncompatibleDeviceIds">
     <item msgid="4267974637522344258">"18d1:9302"</item>
   </string-array>
