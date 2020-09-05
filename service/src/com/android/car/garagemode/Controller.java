@@ -30,7 +30,7 @@ import com.android.car.CarLocalServices;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.VisibleForTesting;
 
-import java.util.List;
+import java.io.PrintWriter;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -108,10 +108,10 @@ public class Controller implements CarPowerStateListenerWithCompletion {
     }
 
     /**
-     * @return Garage Mode's status, including what jobs it is waiting for
+     * Prints Garage Mode's status, including what jobs it is waiting for
      */
-    List<String> dump() {
-        return mGarageMode.dump();
+    void dump(PrintWriter writer) {
+        mGarageMode.dump(writer);
     }
 
     /**
