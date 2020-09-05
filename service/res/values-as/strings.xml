@@ -16,31 +16,35 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="car_permission_label" msgid="2215078736675564541">"গাড়ীৰ তথ্য"</string>
+    <string name="car_permission_label" msgid="741004755205554376">"গাড়ীৰ তথ্য এক্সেছ কৰিব"</string>
     <string name="car_permission_desc" msgid="162499818870052725">"আপোনাৰ গাড়ীৰ তথ্য এক্সেছ কৰিব।"</string>
-    <string name="car_permission_label_cabin" msgid="7737204489497269651">"গাড়ীৰ কেবিন"</string>
-    <string name="car_permission_desc_cabin" msgid="4495805806748641822">"দৰ্জা, আইনা, আসন আৰু খিৰিকীসহ আপোনাৰ গাড়ীৰ আনুষংগিক সামগ্ৰীসমূহ এক্সেছ কৰিব।"</string>
-    <string name="car_permission_label_camera" msgid="608969838109034886">"গাড়ীৰ কেমেৰা"</string>
+    <string name="car_permission_label_camera" msgid="3725702064841827180">"গাড়ীৰ কেমেৰা এক্সেছ কৰিব"</string>
     <string name="car_permission_desc_camera" msgid="917024932164501426">"আপোনাৰ গাড়ীৰ কেমেৰা এক্সেছ কৰিব।"</string>
-    <string name="car_permission_label_energy" msgid="3398092932402178393">"গাড়ীৰ শক্তি বিষয়ক তথ্য"</string>
+    <string name="car_permission_label_energy" msgid="7409144323527821558">"গাড়ীৰ শক্তিৰ তথ্য এক্সেছ কৰিব"</string>
     <string name="car_permission_desc_energy" msgid="3392963810053235407">"আপোনাৰ গাড়ীৰ শক্তি সম্পৰ্কীয় তথ্য এক্সেছ কৰিব।"</string>
-    <string name="car_permission_label_hvac" msgid="8047274427463154164">"গাড়ীৰ Hvac"</string>
+    <string name="car_permission_label_hvac" msgid="1499454192558727843">"গাড়ীৰ এইছভিএচি এক্সেছ কৰিব"</string>
     <string name="car_permission_desc_hvac" msgid="3754229695589774195">"আপোনাৰ গাড়ীৰ hvac এক্সেছ কৰিব।"</string>
-    <string name="car_permission_label_mileage" msgid="811821331694754443">"গাড়ীৰ মাইলেজ"</string>
+    <string name="car_permission_label_mileage" msgid="4661317074631150551">"গাড়ীৰ মাইলেজৰ তথ্য এক্সেছ কৰিব"</string>
     <string name="car_permission_desc_mileage" msgid="7179735693278681090">"আপোনাৰ গাড়ীৰ মাইলেজৰ তথ্য চাব।"</string>
-    <string name="car_permission_label_speed" msgid="7315924371063443241">"গাড়ীৰ গতিবেগ"</string>
+    <string name="car_permission_label_speed" msgid="1149027717860529745">"গাড়ীৰ বেগ পঢ়িব"</string>
     <string name="car_permission_desc_speed" msgid="2047965198165448241">"আপোনাৰ গাড়ীৰ বেগ চাব।"</string>
-    <string name="car_permission_label_vehicle_dynamics_state" msgid="6475840407257670137">"বাহনৰ ডায়নামিক্স স্থিতি"</string>
-    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8226448484805146681">"আপোনাৰ গাড়ীৰ ডায়নামিক্স স্থিতি এক্সেছ কৰিব"</string>
-    <string name="car_permission_label_vendor_extension" msgid="9173884051360575867">"গাড়ী বিক্ৰেতাৰ চ্চেনেল"</string>
+    <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"গাড়ীৰ ডাইনেমিক স্থিতি এক্সেছ কৰিব"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8891506193446375660">"আপোনাৰ গাড়ীৰ ডায়নামিক্সৰ স্থিতি এক্সেছ কৰিব।"</string>
+    <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"গাড়ীৰ ভেণ্ডৰ চেনেল এক্সেছ কৰিব"</string>
     <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"নিৰ্দিষ্ট গাড়ী বিষয়ক তথ্য বিনিময়ৰ বাবে গাড়ীৰ বিক্ৰেতাৰ চ্চেনেল এক্সেছ কৰিব।"</string>
-    <string name="car_permission_label_radio" msgid="4768692394049267617">"গাড়ীৰ ৰেডিঅ’"</string>
+    <string name="car_permission_label_radio" msgid="6009465291685935112">"গাড়ীৰ ৰেডিঅ’ পৰিচালনা কৰিব"</string>
     <string name="car_permission_desc_radio" msgid="3385999027478186964">"আপোনাৰ গাড়ীৰ ৰেডিঅ’ এক্সেছ কৰিব।"</string>
-    <string name="car_permission_label_projection" msgid="7830068427803303154">"গাড়ীৰ প্ৰজেকশ্বন"</string>
-    <string name="car_permission_label_audio_volume" msgid="4802249016680066596">"গাড়ীৰ অডিঅ’ৰ ভলিউম কিমান জানিব"</string>
-    <string name="car_permission_label_audio_settings" msgid="7788327093945466775">"গাড়ীৰ অডিঅ’ ছেটিং"</string>
-    <string name="car_permission_desc_projection" msgid="2680001094361534439">"গাড়ীৰ ডিছপ্লে’ত ফ’ন ইণ্টাৰফে’চ দেখুওৱাব"</string>
-    <string name="car_permission_label_mock_vehicle_hal" msgid="7429043278386896118">"বাহনৰ HAL ইমুলে’ট কৰক"</string>
+    <string name="car_permission_label_projection" msgid="9107156380287576787">"কোনো ফ’নৰ পৰা এটা ইণ্টাৰফে’চ গাড়ীৰ ডিছপ্লে’ত প্ৰজেক্ট কৰিব"</string>
+    <string name="car_permission_desc_projection" msgid="2352178999656292944">"কোনো এপক ফ’নৰ পৰা এটা ইণ্টাৰফে’চ গাড়ীৰ ডিছপ্লে’ত প্ৰজেক্ট কৰিবলৈ অনুমতি দিয়ে।"</string>
+    <string name="car_permission_label_access_projection_status" msgid="4231618890836627402">"প্ৰজেক্‌শ্বনৰ স্থিতি এক্সেছ কৰিব"</string>
+    <string name="car_permission_desc_access_projection_status" msgid="8497351979100616278">"কোনো এপক গাড়ী ডিছপ্লে’ত প্ৰজেক্ট কৰি থকা অন্য এপৰ স্থিতি লাভ কৰিবলৈ অনুমতি দিয়ে।"</string>
+    <string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"প্ৰজেক্‌শ্বন সেৱাৰ সৈতে সংযুক্ত হ’ব"</string>
+    <string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"এটা প্ৰজেক্‌শ্বন সেৱাৰ শীৰ্ষ স্তৰৰ ইণ্টাৰফে’চৰ সৈতে সংযুক্ত হ’বলৈ ধাৰকক অনুমতি দিয়ে। সাধাৰণ এপ্‌সমূহৰ বাবে কেতিয়াও প্ৰয়োজন হ’ব নালাগে।"</string>
+    <string name="car_permission_label_audio_volume" msgid="310587969373137690">"গাড়ীৰ অডিঅ’ ভলিউম নিয়ন্ত্ৰণ কৰিব"</string>
+    <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"গাড়ীৰ অডিঅ’ ছেটিংসমূহ পৰিচালনা কৰিব"</string>
+    <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"বাহনৰ HAL ইমুলে’ট কৰিব"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"অডিঅ\' ডাকিং অনুষ্ঠান পাওক"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"গাড়ীত অন্য অডিঅ\' প্লে\' কৰাৰ কাৰণে কোনো এপৰ ভলিউম কম কৰিলে সেই বিষয়ে এপ্‌টোক জাননী পাবলৈ দিয়ে।"</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"আভ্যন্তৰীণ পৰীক্ষণৰ উদ্দেশ্যে আপোনাৰ গাড়ীৰ বাহন HAL ইমুলে’ট কৰিব।"</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"আপোনাৰ গাড়ীৰ অডিঅ’ৰ ভলিউম নিয়ন্ত্ৰণ কৰিব।"</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"আপোনাৰ গাড়ীৰ অডিঅ’ ছেটিং নিয়ন্ত্ৰণ কৰক।"</string>
@@ -56,72 +60,73 @@
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"ইনষ্ট্ৰুমেণ্ট ক্লাষ্টাৰৰ ডেটা পায়"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"UX সীমাবদ্ধতা কনফিগাৰেশ্বন"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"UXৰ সীমাবদ্ধতা কনফিগাৰ কৰক"</string>
+    <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"AOAP ম’ডত থকা ইউএছবি ডিভাইচৰ লগত যোগাযোগ কৰিব পাৰে"</string>
+    <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"কোনো এপক AOAP ম’ডত থকা ডিভাইচৰ লগত যোগাযোগ কৰাৰ অনুমতি দিয়ে"</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"গাড়ীৰ ইনপুট সেৱা"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"ইনপুট ইভেণ্ট নিয়ন্ত্ৰণ কৰিব"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN বাছ বিফল হৈছে"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN বাছে সঁহাৰি দিয়া নাই। হে’ড ইউনিট বাকচটো আঁতৰাই পুনৰ লগাওক"</string>
-    <string name="activity_blocked_text" msgid="5342114426610711378">"আপোনাৰ নিৰাপত্তাৰ বাবে এই কাৰ্যকলাপটো গাড়ী চলাই থকা সময়ত কৰিব নোৱাৰি।\nগাড়ীখন পাৰ্ক কৰি কামটো কৰক।"</string>
+    <string name="activity_blocked_text" msgid="8088902789540147995">"আপুনি গাড়ী চলাই থকাৰ সময়ত এই সুবিধাটো ব্যৱহাৰ কৰিব নোৱাৰে"</string>
     <string name="exit_button_message" msgid="8554690915924055685">"সুৰক্ষিত এপ্ সুবিধাসহ আকৌ আৰম্ভ কৰিবলৈ <xliff:g id="EXIT_BUTTON">%s</xliff:g> বাছনি কৰক।"</string>
     <string name="exit_button" msgid="5829638404777671253">"উভতি যাওক"</string>
-    <string name="debug_button_text" msgid="6395881820644544676">"ডিবাগ তথ্য"</string>
-    <string name="car_permission_label_diag_read" msgid="2539365760945541902">"ডায়েগন’ষ্টিক ডেটা"</string>
-    <string name="car_permission_desc_diag_read" msgid="6300061847723430001">"গাড়ীৰ ডায়গ’ষ্টিক তথ্য পঢ়িব"</string>
-    <string name="car_permission_label_diag_clear" msgid="5276954546130303905">"ডায়েগন’ষ্টিক ডেটা"</string>
-    <string name="car_permission_desc_diag_clear" msgid="6890216593617069473">"ডায়গ’ষ্টিক ডেটা গাড়ীৰ পৰা মচিব"</string>
-    <string name="car_permission_label_vms_publisher" msgid="5738544816086673968">"VMS প্ৰকাশক"</string>
-    <string name="car_permission_desc_vms_publisher" msgid="154858011053838907">"vms বাৰ্তা প্ৰকাশ কৰিব পাৰে"</string>
-    <string name="car_permission_label_vms_subscriber" msgid="2776578987390414930">"VMS গ্ৰাহকভুক্তি"</string>
-    <string name="car_permission_desc_vms_subscriber" msgid="6846187370448294450">"vms বাৰ্তাৰ গ্ৰাহকভুক্ত কৰিব"</string>
+    <string name="exit_button_close_application" msgid="8824289547809332460">"এপ্‌টো বন্ধ কৰক"</string>
+    <string name="exit_button_go_back" msgid="3469083862100560326">"উভতি যাওক"</string>
+    <string name="car_permission_label_diag_read" msgid="7248894224877702604">"ডায়গন’ষ্টিক ডেটা পঢ়িব"</string>
+    <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"গাড়ীৰ ডায়গ’ষ্টিক তথ্য পঢ়িব।"</string>
+    <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"ডায়গন’ষ্টিক ডেটা মচিব"</string>
+    <string name="car_permission_desc_diag_clear" msgid="7453222114866042786">"গাড়ীৰ পৰা ডায়গন’ষ্টিক ডেটা মচিব।"</string>
+    <string name="car_permission_label_vms_publisher" msgid="3049934078926106641">"VMS প্ৰকাশক"</string>
+    <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"VMS বাৰ্তা প্ৰকাশ কৰিব পাৰে"</string>
+    <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"VMS গ্ৰাহক"</string>
+    <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"VMS বাৰ্তাৰ গ্ৰাহকভুক্তি কৰিব পাৰে"</string>
+    <string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"VMS ক্লায়েণ্ট সেৱা"</string>
+    <string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"VMS ক্লায়েণ্টৰ সৈতে সংযুক্ত হ’ব পাৰে"</string>
     <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"সঞ্চয়াগাৰ নিৰীক্ষণ কৰিব"</string>
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"সঞ্চয়াগাৰ ব্যৱহাৰৰ তথ্য নিৰীক্ষণ কৰিব"</string>
-    <string name="car_permission_label_driving_state" msgid="6069696010591163256">"গাড়ী চালনাৰ স্থিতি"</string>
-    <string name="car_permission_desc_driving_state" msgid="4082684279226021396">"গাড়ী চালনাৰ স্থিতি সলনি হ’লে তাক জানিব"</string>
-    <string name="car_permission_label_car_engine_detailed" msgid="9002892724697007617">"ইঞ্জিন ডিটেইলড"</string>
-    <string name="car_permission_desc_car_engine_detailed" msgid="2207487506454195487">"আপোনাৰ গাড়ীৰ ইঞ্জিনৰ সবিশেষ তথ্য এক্সেছ কৰিব"</string>
-    <string name="car_permission_label_car_energy_ports" msgid="4263949434683308884">"এনাৰ্জী প’ৰ্ট"</string>
-    <string name="car_permission_desc_car_energy_ports" msgid="557965577468080620">"এনাৰ্জী প’ৰ্ট এক্সেছ কৰিব"</string>
-    <string name="car_permission_label_car_identification" msgid="1729154715508060432">"গাড়ীৰ চিনাক্তকাৰী তথ্য"</string>
-    <string name="car_permission_desc_car_identification" msgid="6209540619324873333">"গাড়ীৰ চিনাক্তকাৰী তথ্য এক্সেছ কৰিব"</string>
-    <string name="car_permission_label_control_car_doors" msgid="982176169678332325">"গাড়ীৰ দৰ্জা"</string>
-    <string name="car_permission_desc_control_car_doors" msgid="4138087940094487785">"গাড়ীৰ দৰ্জা নিয়ন্ত্ৰণ কৰিব"</string>
-    <string name="car_permission_label_control_car_windows" msgid="8495424050848179521">"গাড়ীৰ খিৰিকী"</string>
-    <string name="car_permission_desc_control_car_windows" msgid="7618554178690485310">"গাড়ীৰ খিৰিকী নিয়ন্ত্ৰণ কৰিব"</string>
-    <string name="car_permission_label_control_car_mirrors" msgid="5695032398073590372">"গাড়ীৰ আইনা"</string>
-    <string name="car_permission_desc_control_car_mirrors" msgid="2644116799651071636">"গাড়ীৰ আইনা নিয়ন্ত্ৰণ কৰিব"</string>
-    <string name="car_permission_label_control_car_seats" msgid="4068728236135716379">"গাড়ীৰ আসন"</string>
-    <string name="car_permission_desc_control_car_seats" msgid="3918469592876954231">"গাড়ীৰ আসন নিয়ন্ত্ৰণ কৰিব"</string>
-    <string name="car_permission_label_car_info" msgid="5638680944359440535">"গাড়ীৰ প্ৰাথমিক তথ্য"</string>
-    <string name="car_permission_desc_car_info" msgid="1697298888275875496">"গাড়ীৰ বিষয়ে প্ৰাথমিক তথ্য এক্সেছ কৰিব"</string>
-    <string name="car_permission_label_car_exterior_lights" msgid="6756996909877627936">"গাড়ীৰ বাহ্যিক লাইট"</string>
-    <string name="car_permission_desc_car_exterior_lights" msgid="5404593475424542202">"গাড়ীৰ বাহ্যিক লাইটৰ স্থিতি এক্সেছ কৰিব"</string>
-    <string name="car_permission_label_control_car_exterior_lights" msgid="822902629489856498">"গাড়ীৰ বাহ্যিক লাইট"</string>
-    <string name="car_permission_desc_control_car_exterior_lights" msgid="1131149440610151914">"গাড়ীৰ বাহ্যিক লাইট নিয়ন্ত্ৰণ কৰিব"</string>
-    <!-- no translation found for car_permission_label_car_interior_lights (8621712545425524831) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_car_interior_lights (840227872922412645) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_car_interior_lights (3491592176569557684) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_interior_lights (3824832232269219288) -->
-    <skip />
-    <string name="car_permission_label_car_exterior_environment" msgid="7617025356417480155">"গাড়ীৰ বাহ্যিক তাপমান"</string>
-    <string name="car_permission_desc_car_exterior_environment" msgid="7665860792016287191">"গাড়ীৰ বাহ্যিক তাপমান এক্সেছ কৰিব"</string>
-    <string name="car_permission_label_car_tires" msgid="7261327603773636683">"গাড়ীৰ টায়াৰ"</string>
-    <string name="car_permission_desc_car_tires" msgid="4398458490319322940">"গাড়ীৰ টায়াৰৰ তথ্য এক্সেছ কৰিব"</string>
-    <!-- no translation found for car_permission_label_car_steering (8647938979297456216) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_car_steering (2260536897255153934) -->
-    <skip />
-    <!-- no translation found for car_permission_label_read_car_display_units (6460802833740285024) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_car_display_units (7488927661568759471) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_car_display_units (6898209531910065261) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_display_units (5701046407628424738) -->
-    <skip />
-    <string name="car_permission_label_car_powertrain" msgid="246182551556313624">"গাড়ীৰ পাৱাৰট্ৰেইন"</string>
-    <string name="car_permission_desc_car_powertrain" msgid="3838172429633520832">"গাড়ীৰ পাৱাৰট্ৰেইন সম্পৰ্কীয় তথ্য এক্সেছ কৰিব"</string>
-    <string name="car_permission_label_car_power" msgid="3671174734416372201">"গাড়ীৰ শক্তি"</string>
-    <string name="car_permission_desc_car_power" msgid="8955018800799758403">"গাড়ীৰ শক্তিৰ স্থিতি এক্সেছ কৰিব"</string>
+    <string name="car_permission_label_driving_state" msgid="7754624599537393650">"গাড়ী চালনাৰ স্থিতি সলনি হ’লে সেইয়া জানিব"</string>
+    <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"গাড়ী চালনাৰ স্থিতি সলনি হ’লে সেইয়া জানিব।"</string>
+    <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"গাড়ীৰ ইঞ্জিনৰ সবিশেষ তথ্য এক্সেছ কৰিব"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"আপোনাৰ গাড়ীৰ ইঞ্জিনৰ সবিশেষ তথ্য এক্সেছ কৰিব।"</string>
+    <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"গাড়ীৰ ইন্ধনৰ দৰ্জা আৰু চাৰ্জ প’ৰ্ট এক্সেছ কৰিব"</string>
+    <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"গাড়ীৰ ইন্ধনৰ দৰ্জা আৰু চাৰ্জ প’ৰ্ট এক্সেছ কৰিব।"</string>
+    <string name="car_permission_label_car_identification" msgid="5896712510164020478">"গাড়ী চিনাক্তকৰণৰ তথ্য পঢ়িব"</string>
+    <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"গাড়ী চিনাক্তকৰণৰ তথ্য এক্সেছ কৰিব।"</string>
+    <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"গাড়ীৰ দৰ্জা নিয়ন্ত্ৰণ কৰিব"</string>
+    <string name="car_permission_desc_control_car_doors" msgid="6287353311980590092">"গাড়ীৰ দৰ্জা নিয়ন্ত্ৰণ কৰিব।"</string>
+    <string name="car_permission_label_control_car_windows" msgid="2452854429996653029">"গাড়ীৰ খিৰিকী নিয়ন্ত্ৰণ কৰিব"</string>
+    <string name="car_permission_desc_control_car_windows" msgid="7693657991521595635">"গাড়ীৰ খিৰিকী নিয়ন্ত্ৰণ কৰিব।"</string>
+    <string name="car_permission_label_control_car_mirrors" msgid="8470700538827409476">"গাড়ীৰ আইনা নিয়ন্ত্ৰণ কৰিব"</string>
+    <string name="car_permission_desc_control_car_mirrors" msgid="1224135684068855032">"গাড়ীৰ আইনা নিয়ন্ত্ৰণ কৰিব।"</string>
+    <string name="car_permission_label_control_car_seats" msgid="1826934820585497135">"গাড়ীৰ আসন নিয়ন্ত্ৰণ কৰিব"</string>
+    <string name="car_permission_desc_control_car_seats" msgid="2407536601226470563">"গাড়ীৰ আসন নিয়ন্ত্ৰণ কৰিব।"</string>
+    <string name="car_permission_label_car_info" msgid="4707513570676492315">"গাড়ীৰ মৌলিক তথ্যবোৰ এক্সেছ কৰিব"</string>
+    <string name="car_permission_desc_car_info" msgid="2118081474543537653">"গাড়ীৰ মৌলিক তথ্যবোৰ এক্সেছ কৰিব।"</string>
+    <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"গাড়ীৰ বাহ্যিক লাইটৰ স্থিতি পঢ়িব"</string>
+    <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"গাড়ীৰ বাহ্যিক লাইটৰ স্থিতি এক্সেছ কৰিব।"</string>
+    <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"গাড়ীৰ বাহ্যিক লাইট পঢ়িব"</string>
+    <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"গাড়ীৰ বাহ্যিক লাইট নিয়ন্ত্ৰণ কৰিব।"</string>
+    <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"গাড়ীৰ ভিতৰৰ লাইট পঢ়িব"</string>
+    <string name="car_permission_desc_car_interior_lights" msgid="6204775354692372506">"গাড়ীৰ ভিতৰৰ লাইটৰ স্থিতি এক্সেছ কৰিব।"</string>
+    <string name="car_permission_label_control_car_interior_lights" msgid="6685386372012664281">"গাড়ীৰ ভিতৰৰ লাইট নিয়ন্ত্ৰণ কৰিব"</string>
+    <string name="car_permission_desc_control_car_interior_lights" msgid="797201814109701538">"গাড়ীৰ ভিতৰৰ লাইট নিয়ন্ত্ৰণ কৰিব।"</string>
+    <string name="car_permission_label_car_exterior_environment" msgid="3385924985991299436">"গাড়ীৰ বাহ্যিক তাপমান পঢ়িব"</string>
+    <string name="car_permission_desc_car_exterior_environment" msgid="1716656004731603379">"গাড়ীৰ বাহ্যিক তাপমান এক্সেছ কৰিব।"</string>
+    <string name="car_permission_label_car_tires" msgid="4379255261197836840">"গাড়ীৰ টায়াৰৰ তথ্য এক্সেছ কৰিব"</string>
+    <string name="car_permission_desc_car_tires" msgid="8134496466769810134">"গাড়ীৰ টায়াৰৰ তথ্য এক্সেছ কৰিব।"</string>
+    <string name="car_permission_label_car_steering" msgid="7779530447441232479">"গাড়ীৰ ষ্টীয়েৰিঙৰ কোণৰ তথ্য পঢ়িব"</string>
+    <string name="car_permission_desc_car_steering" msgid="1357331844530708138">"গাড়ীৰ ষ্টীয়েৰিঙৰ কোণৰ তথ্য এক্সেছ কৰিব।"</string>
+    <string name="car_permission_label_read_car_display_units" msgid="7617008314862097183">"গাড়ীৰ ডিছপ্লে’ ইউনিট পঢ়িব"</string>
+    <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"ডিছপ্লে’ ইউনিট পঢ়িব।"</string>
+    <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"গাড়ীৰ ডিছপ্লে’ ইউনিট নিয়ন্ত্ৰণ কৰিব"</string>
+    <string name="car_permission_desc_control_car_display_units" msgid="8744397195158556945">"ডিছপ্লে’ ইউনিট নিয়ন্ত্ৰণ কৰিব।"</string>
+    <string name="car_permission_label_car_powertrain" msgid="4586122326622134886">"গাড়ীৰ পাৱাৰট্ৰেইন সম্পৰ্কীয় তথ্য পঢ়িব"</string>
+    <string name="car_permission_desc_car_powertrain" msgid="1116007372551797796">"গাড়ীৰ পাৱাৰট্ৰেইন সম্পৰ্কীয় তথ্য এক্সেছ কৰিব।"</string>
+    <string name="car_permission_label_car_power" msgid="8111448088314368268">"গাড়ীৰ শক্তিৰ স্থিতি জানিব"</string>
+    <string name="car_permission_desc_car_power" msgid="9202079903668652864">"গাড়ীৰ শক্তিৰ স্থিতি এক্সেছ কৰিব।"</string>
+    <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"বিশ্বাসী ডিভাইচ পঞ্জীয়ন কৰক"</string>
+    <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"বিশ্বাসী ডিভাইচ পঞ্জীয়নৰ অনুমতি দিয়ক"</string>
+    <string name="car_permission_label_car_test_service" msgid="9159328930558208708">"বাহনৰ পৰীক্ষণ ম’ড নিয়ন্ত্ৰণ কৰক"</string>
+    <string name="car_permission_desc_car_test_service" msgid="7426844534110145843">"বাহনৰ পৰীক্ষণ ম’ড নিয়ন্ত্ৰণ কৰক"</string>
+    <string name="trust_device_default_name" msgid="4213625926070261253">"মোৰ ডিভাইচ"</string>
+    <string name="default_guest_name" msgid="2912812799433131476">"অতিথি"</string>
 </resources>
