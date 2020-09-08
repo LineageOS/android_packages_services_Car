@@ -667,7 +667,6 @@
       <item quantity="other"><xliff:g id="NUMBER_1">%d</xliff:g> számjegynél rövidebbnek kell lennie</item>
       <item quantity="one"><xliff:g id="NUMBER_0">%d</xliff:g> számjegynél rövidebbnek kell lennie</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Csak számokat tartalmazhat, 0-tól 9-ig"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Az eszközrendszergazda nem engedélyezi a legutóbbi PIN-kódok használatát"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"Rendszergazdája letiltotta a gyakran használt PIN-kódokat. Próbálkozzon másik PIN-kóddal."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Ez nem tartalmazhat érvénytelen karaktert"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">Tartalmaznia kell legalább <xliff:g id="COUNT">%d</xliff:g> olyan karaktert, amely nem betű</item>
       <item quantity="one">Tartalmaznia kell legalább 1 olyan karaktert, amely nem betű</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">Tartalmaznia kell legalább <xliff:g id="COUNT">%d</xliff:g> olyan karaktert, amely nem szám</item>
+      <item quantity="one">Tartalmaznia kell legalább 1 olyan karaktert, amely nem szám</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Az eszközrendszergazda nem engedélyezi a legutóbbi jelszavak használatát"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Rendszergazdája letiltotta a gyakran használt jelszavakat. Próbálkozzon másik jelszóval."</string>

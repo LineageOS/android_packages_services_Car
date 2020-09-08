@@ -699,7 +699,6 @@
       <item quantity="other">يجب ألا يزيد رقم التعريف الشخصي عن <xliff:g id="NUMBER_1">%d</xliff:g> رقم.</item>
       <item quantity="one">يجب ألا يزيد رقم التعريف الشخصي عن رقم واحد (<xliff:g id="NUMBER_0">%d</xliff:g>).</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"يجب أن يحتوي رقم التعريف الشخصي على أرقام من ۰–٩ فقط."</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"لا يسمح مشرف الجهاز باستخدام رقم تعريف شخصي تم استخدامه مؤخرًا"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"حظرَ مشرف تكنولوجيا المعلومات استخدام أرقام التعريف الشخصية الشائعة. جرِّب استخدام رقم تعريف شخصي مختلف."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"لا يجب أن تتضمن كلمة المرور حرفًا غير صالح."</string>
@@ -753,6 +752,14 @@
       <item quantity="many">يجب أن تحتوي كلمة المرور على <xliff:g id="COUNT">%d</xliff:g> حرفًا ليس من الأحرف الأبجدية على الأقل</item>
       <item quantity="other">يجب أن تحتوي كلمة المرور على <xliff:g id="COUNT">%d</xliff:g> حرف ليس من الأحرف الأبجدية على الأقل</item>
       <item quantity="one">يجب أن تحتوي كلمة المرور على حرف واحد ليس من الأحرف الأبجدية على الأقل</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="zero">يجب أن تحتوي كلمة المرور على <xliff:g id="COUNT">%d</xliff:g> حرف أبجدي على الأقل.</item>
+      <item quantity="two">يجب أن تحتوي كلمة المرور على حرفين (<xliff:g id="COUNT">%d</xliff:g>) أبجديين على الأقل.</item>
+      <item quantity="few">يجب أن تحتوي كلمة المرور على <xliff:g id="COUNT">%d</xliff:g> أحرف أبجدية على الأقل.</item>
+      <item quantity="many">يجب أن تحتوي كلمة المرور على <xliff:g id="COUNT">%d</xliff:g> حرفًا أبجديًا على الأقل.</item>
+      <item quantity="other">يجب أن تحتوي كلمة المرور على <xliff:g id="COUNT">%d</xliff:g> حرف أبجدي على الأقل.</item>
+      <item quantity="one">يجب أن تحتوي كلمة المرور على حرف أبجدي واحد على الأقل.</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"لا يسمح مشرف الجهاز باستخدام كلمة مرور تم استخدامها مؤخرًا"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"حظرَ مشرف تكنولوجيا المعلومات استخدام كلمات المرور الشائعة. جرِّب استخدام كلمة مرور مختلفة."</string>

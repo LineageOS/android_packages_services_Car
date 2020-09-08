@@ -667,7 +667,6 @@
       <item quantity="other">Duhet të ketë më pak se <xliff:g id="NUMBER_1">%d</xliff:g> shifra</item>
       <item quantity="one">Duhet të ketë më pak se <xliff:g id="NUMBER_0">%d</xliff:g> shifër</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Duhet të përmbajë vetëm shifrat 0-9"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Administratori i pajisjes nuk e lejon përdorimin e një kodi PIN të përdorur së fundi"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"Kodet e zakonshme PIN janë bllokuar nga administratori i TI-së. Provo një kod tjetër PIN."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Kjo nuk mund të përfshijë një karakter të pavlefshëm"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">Duhet të përmbajë të paktën <xliff:g id="COUNT">%d</xliff:g> karaktere që nuk janë shkronja</item>
       <item quantity="one">Duhet të përmbajë të paktën 1 karakter që nuk është shkronjë</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">Duhet të përmbajë të paktën <xliff:g id="COUNT">%d</xliff:g> karaktere jonumerike</item>
+      <item quantity="one">Duhet të përmbajë të paktën 1 karakter jonumerik</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Administratori i pajisjes nuk e lejon përdorimin e një fjalëkalimi të përdorur së fundi"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Fjalëkalimet e zakonshme janë bllokuar nga administratori i TI-së. Provo një fjalëkalim tjetër."</string>

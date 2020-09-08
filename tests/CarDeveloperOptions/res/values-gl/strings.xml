@@ -667,7 +667,6 @@
       <item quantity="other">Debe conter menos de <xliff:g id="NUMBER_1">%d</xliff:g> díxitos</item>
       <item quantity="one">Debe conter menos de <xliff:g id="NUMBER_0">%d</xliff:g> díxito</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Só pode conter díxitos comprendidos entre o 0 e o 9"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"O administrador de dispositivos non permite o uso dun PIN recente"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"O teu administrador de TI bloqueou os PIN comúns. Proba cun PIN diferente."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Non pode conter un carácter non válido"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">Debe conter polo menos <xliff:g id="COUNT">%d</xliff:g> caracteres que non sexan letras</item>
       <item quantity="one">Debe conter polo menos 1 carácter que non sexa unha letra</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">Debe conter polo menos <xliff:g id="COUNT">%d</xliff:g> caracteres que non sexan números</item>
+      <item quantity="one">Debe conter polo menos 1 carácter que non sexa un número</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"O administrador de dispositivos non permite o uso dun contrasinal recente"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"O teu administrador de TI bloqueou os contrasinais comúns. Proba cun contrasinal diferente."</string>

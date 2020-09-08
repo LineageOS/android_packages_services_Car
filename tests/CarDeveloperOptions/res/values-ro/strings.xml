@@ -675,7 +675,6 @@
       <item quantity="other">Trebuie să conțină mai puțin de <xliff:g id="NUMBER_1">%d</xliff:g> de cifre</item>
       <item quantity="one">Trebuie să conțină mai puțin de <xliff:g id="NUMBER_0">%d</xliff:g> cifră</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Trebuie să conțină numai cifre de la 0 la 9"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Administratorul dispozitivului nu permite utilizarea unui PIN recent"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"Codurile PIN sunt blocate de administratorul dvs. IT. Încercați alt cod PIN."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Aceasta nu poate include un caracter nevalid"</string>
@@ -711,6 +710,11 @@
       <item quantity="few">Trebuie să conțină cel puțin <xliff:g id="COUNT">%d</xliff:g> caractere care să nu fie litere</item>
       <item quantity="other">Trebuie să conțină cel puțin <xliff:g id="COUNT">%d</xliff:g> de caractere care să nu fie litere</item>
       <item quantity="one">Trebuie să conțină cel puțin un caracter care să nu fie literă</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="few">Trebuie să conțină cel puțin <xliff:g id="COUNT">%d</xliff:g> caractere care să nu fie cifre</item>
+      <item quantity="other">Trebuie să conțină cel puțin <xliff:g id="COUNT">%d</xliff:g> de caractere care să nu fie cifre</item>
+      <item quantity="one">Trebuie să conțină cel puțin un caracter care să nu fie cifră</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Administratorul dispozitivului nu permite utilizarea unei parole recente"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Parolele obișnuite sunt blocate de administratorul dvs. IT. Încercați altă parolă."</string>

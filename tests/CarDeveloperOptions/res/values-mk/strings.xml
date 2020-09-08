@@ -667,7 +667,6 @@
       <item quantity="one">Мора да има помалку од <xliff:g id="NUMBER_1">%d</xliff:g> цифра</item>
       <item quantity="other">Мора да има помалку од <xliff:g id="NUMBER_1">%d</xliff:g> цифри</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Мора да содржи само цифри од 0 до 9"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Администраторот на уредот не дозволува користење на неодамнешен PIN"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"Обичните PIN-кодови се блокирани од вашиот IT-администратор. Обидете се со друг PIN."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Ова не може да вклучува неважечки знак"</string>
@@ -695,6 +694,10 @@
       <item quantity="other">Мора да содржи најмалку <xliff:g id="COUNT">%d</xliff:g> специјални симболи</item>
     </plurals>
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
+      <item quantity="one">Мора да содржи најмалку <xliff:g id="COUNT">%d</xliff:g> знак што не е буква</item>
+      <item quantity="other">Мора да содржи најмалку <xliff:g id="COUNT">%d</xliff:g> знаци што не се букви</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
       <item quantity="one">Мора да содржи најмалку <xliff:g id="COUNT">%d</xliff:g> знак што не е буква</item>
       <item quantity="other">Мора да содржи најмалку <xliff:g id="COUNT">%d</xliff:g> знаци што не се букви</item>
     </plurals>

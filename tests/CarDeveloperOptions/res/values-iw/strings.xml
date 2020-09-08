@@ -683,7 +683,6 @@
       <item quantity="other">צריכה להכיל פחות מ-<xliff:g id="NUMBER_1">%d</xliff:g> ספרות</item>
       <item quantity="one">צריכה להכיל פחות מספרה אחת (<xliff:g id="NUMBER_0">%d</xliff:g>)</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"צריך להכיל רק את הספרות 0-9"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"מנהל המכשיר לא מאפשר להשתמש בקוד גישה שנעשה בו שימוש לאחרונה"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"קודי גישה נפוצים חסומים בידי מנהל ה-IT. יש לנסות קוד גישה אחר."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"לא ניתן לכלול תו לא חוקי"</string>
@@ -725,6 +724,12 @@
       <item quantity="many">צריכה להכיל לפחות <xliff:g id="COUNT">%d</xliff:g> תווים שאינם אותיות</item>
       <item quantity="other">צריכה להכיל לפחות <xliff:g id="COUNT">%d</xliff:g> תווים שאינם אותיות</item>
       <item quantity="one">צריכה להכיל לפחות תו אחד שאינו אות</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="two">חייבת להכיל לפחות <xliff:g id="COUNT">%d</xliff:g> תווים שאינם מספרים</item>
+      <item quantity="many">חייבת להכיל לפחות <xliff:g id="COUNT">%d</xliff:g> תווים שאינם מספרים</item>
+      <item quantity="other">חייבת להכיל לפחות <xliff:g id="COUNT">%d</xliff:g> תווים שאינם מספרים</item>
+      <item quantity="one">חייבת להכיל לפחות תו אחד שאינו מספר</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"מנהל המכשיר לא מאפשר להשתמש בסיסמה שנעשה בה שימוש לאחרונה"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"סיסמאות נפוצות חסומות בידי מנהל ה-IT. יש לנסות סיסמה אחרת."</string>

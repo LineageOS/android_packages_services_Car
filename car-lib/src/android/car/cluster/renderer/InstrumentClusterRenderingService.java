@@ -52,6 +52,7 @@ import android.view.KeyEvent;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.FileDescriptor;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Collection;
@@ -255,14 +256,17 @@ public abstract class InstrumentClusterRenderingService extends Service {
      *         target Activity is in normal state and client should retry when it fails. Once it is
      *         successfully launched, car service will guarantee that it is running across crash or
      *         other events.
-     *
-     * @hide
      */
-    protected boolean startFixedActivityModeForDisplayAndUser(@NonNull Intent intent,
+    public boolean startFixedActivityModeForDisplayAndUser(@NonNull Intent intent,
             @NonNull ActivityOptions options, @UserIdInt int userId) {
         IInstrumentClusterHelper helper = getClusterHelper();
         if (helper == null) {
             return false;
+        }
+        if (mActivityState != null
+                && intent.getBundleExtra(Car.CAR_EXTRA_CLUSTER_ACTIVITY_STATE) == null) {
+            intent = new Intent(intent).putExtra(Car.CAR_EXTRA_CLUSTER_ACTIVITY_STATE,
+                    mActivityState.toBundle());
         }
         try {
             return helper.startFixedActivityModeForDisplayAndUser(intent, options.toBundle(),
@@ -278,10 +282,8 @@ public abstract class InstrumentClusterRenderingService extends Service {
     /**
      * Stop fixed mode for top Activity in the display. Crashing or launching other Activity
      * will not re-launch the top Activity any more.
-     *
-     * @hide
      */
-    protected void stopFixedActivityMode(int displayId) {
+    public void stopFixedActivityMode(int displayId) {
         IInstrumentClusterHelper helper = getClusterHelper();
         if (helper == null) {
             return;
@@ -410,13 +412,13 @@ public abstract class InstrumentClusterRenderingService extends Service {
             startActivityAsUser(intent, mActivityOptions.toBundle(), UserHandle.CURRENT);
             Log.i(TAG, String.format("Activity launched: %s (options: %s, displayId: %d)",
                     mActivityOptions, intent, mActivityOptions.getLaunchDisplayId()));
-        } catch (ActivityNotFoundException ex) {
+        } catch (ActivityNotFoundException e) {
             Log.w(TAG, "Unable to find activity for intent: " + intent);
             return false;
-        } catch (Exception ex) {
+        } catch (RuntimeException e) {
             // Catch all other possible exception to prevent service disruption by misbehaving
             // applications.
-            Log.e(TAG, "Error trying to launch intent: " + intent + ". Ignored", ex);
+            Log.e(TAG, "Error trying to launch intent: " + intent + ". Ignored", e);
             return false;
         }
         return true;
@@ -523,7 +525,6 @@ public abstract class InstrumentClusterRenderingService extends Service {
         @SuppressWarnings("deprecation")
         public void onNavigationStateChanged(@Nullable Bundle bundle) throws RemoteException {
             assertClusterManagerPermission();
-            assertContextOwnership();
             mUiHandler.post(() -> {
                 if (mNavigationRenderer != null) {
                     mNavigationRenderer.onNavigationStateChanged(bundle);
@@ -535,18 +536,6 @@ public abstract class InstrumentClusterRenderingService extends Service {
         public CarNavigationInstrumentCluster getInstrumentClusterInfo() throws RemoteException {
             assertClusterManagerPermission();
             return runAndWaitResult(() -> mNavigationRenderer.getNavigationProperties());
-        }
-
-        private void assertContextOwnership() {
-            int uid = getCallingUid();
-            int pid = getCallingPid();
-
-            synchronized (mLock) {
-                if (mNavContextOwner.mUid != uid || mNavContextOwner.mPid != pid) {
-                    throw new IllegalStateException("Client {uid:" + uid + ", pid: " + pid + "} is"
-                            + " not an owner of APP_FOCUS_TYPE_NAVIGATION " + mNavContextOwner);
-                }
-            }
         }
     }
 
@@ -585,6 +574,8 @@ public abstract class InstrumentClusterRenderingService extends Service {
      * This is a costly operation. Returned bitmaps should be cached and fetching should be done on
      * a secondary thread.
      *
+     * @param uri The URI of the bitmap
+     *
      * @throws IllegalArgumentException if {@code uri} does not have width and height query params.
      *
      * @deprecated Replaced by {@link #getBitmap(Uri, int, int)}.
@@ -596,8 +587,8 @@ public abstract class InstrumentClusterRenderingService extends Service {
             if (uri.getQueryParameter(BITMAP_QUERY_WIDTH).isEmpty() || uri.getQueryParameter(
                     BITMAP_QUERY_HEIGHT).isEmpty()) {
                 throw new IllegalArgumentException(
-                        "Uri must have '" + BITMAP_QUERY_WIDTH + "' and '" + BITMAP_QUERY_HEIGHT
-                                + "' query parameters");
+                    "Uri must have '" + BITMAP_QUERY_WIDTH + "' and '" + BITMAP_QUERY_HEIGHT
+                            + "' query parameters");
             }
 
             ContextOwner contextOwner = getNavigationContextOwner();
@@ -607,7 +598,6 @@ public abstract class InstrumentClusterRenderingService extends Service {
             }
 
             String host = uri.getHost();
-
             if (!contextOwner.mAuthorities.contains(host)) {
                 Log.e(TAG, "Uri points to an authority not handled by the current context owner: "
                         + uri + " (valid authorities: " + contextOwner.mAuthorities + ")");
@@ -623,29 +613,27 @@ public abstract class InstrumentClusterRenderingService extends Service {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "Requesting bitmap: " + uri);
             }
-            ParcelFileDescriptor fileDesc = getContentResolver()
-                    .openFileDescriptor(filteredUid, "r");
-            if (fileDesc != null) {
-                Bitmap bitmap = BitmapFactory.decodeFileDescriptor(fileDesc.getFileDescriptor());
-                fileDesc.close();
-                return bitmap;
-            } else {
-                Log.e(TAG, "Failed to create pipe for uri string: " + uri);
+            try (ParcelFileDescriptor fileDesc = getContentResolver()
+                    .openFileDescriptor(filteredUid, "r")) {
+                if (fileDesc != null) {
+                    Bitmap bitmap = BitmapFactory.decodeFileDescriptor(
+                            fileDesc.getFileDescriptor());
+                    return bitmap;
+                } else {
+                    Log.e(TAG, "Failed to create pipe for uri string: " + uri);
+                }
             }
-        } catch (Throwable e) {
+        } catch (IOException e) {
             Log.e(TAG, "Unable to fetch uri: " + uri, e);
         }
-
         return null;
     }
 
     /**
      * See {@link #getBitmap(Uri, int, int, float)}
-     *
-     * @throws IllegalArgumentException if {@code width} or {@code height} is not greater than 0.
      */
     @Nullable
-    public Bitmap getBitmap(Uri uri, int width, int height) {
+    public Bitmap getBitmap(@NonNull Uri uri, int width, int height) {
         return getBitmap(uri, width, height, 1f);
     }
 
@@ -660,11 +648,14 @@ public abstract class InstrumentClusterRenderingService extends Service {
      * </ul>
      * This is a costly operation. Returned bitmaps should be fetched on a secondary thread.
      *
+     * @param uri           The URI of the bitmap
+     * @param width         Requested width
+     * @param height        Requested height
+     * @param offLanesAlpha Opacity value of the off-lane images. Only used for lane guidance images
      * @throws IllegalArgumentException if width, height <= 0, or 0 > offLanesAlpha > 1
-     * @hide
      */
     @Nullable
-    public Bitmap getBitmap(Uri uri, int width, int height, float offLanesAlpha) {
+    public Bitmap getBitmap(@NonNull Uri uri, int width, int height, float offLanesAlpha) {
         if (width <= 0 || height <= 0) {
             throw new IllegalArgumentException("Width and height must be > 0");
         }
@@ -704,27 +695,24 @@ public abstract class InstrumentClusterRenderingService extends Service {
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Log.d(TAG, "Requesting bitmap: " + uri);
                 }
-                ParcelFileDescriptor fileDesc = getContentResolver()
-                        .openFileDescriptor(filteredUid, "r");
-                if (fileDesc != null) {
-                    bitmap = BitmapFactory.decodeFileDescriptor(fileDesc.getFileDescriptor());
-                    fileDesc.close();
-                    return bitmap;
-                } else {
-                    Log.e(TAG, "Failed to create pipe for uri string: " + uri);
+                try (ParcelFileDescriptor fileDesc = getContentResolver()
+                        .openFileDescriptor(filteredUid, "r")) {
+                    if (fileDesc != null) {
+                        bitmap = BitmapFactory.decodeFileDescriptor(fileDesc.getFileDescriptor());
+                        return bitmap;
+                    } else {
+                        Log.e(TAG, "Failed to create pipe for uri string: " + uri);
+                    }
                 }
-
                 if (bitmap.getWidth() != width || bitmap.getHeight() != height) {
                     bitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
                 }
                 mCache.put(uri.toString(), bitmap);
             }
-
             return bitmap;
-        } catch (Throwable e) {
+        } catch (IOException e) {
             Log.e(TAG, "Unable to fetch uri: " + uri, e);
         }
-
         return null;
     }
 }

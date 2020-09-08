@@ -1,3 +1,2 @@
 car_service  u:object_r:carservice_service:s0
-car_stats u:object_r:carstats_service:s0
 com.android.car.procfsinspector u:object_r:procfsinspector_service:s0

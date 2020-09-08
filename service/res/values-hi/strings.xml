@@ -22,6 +22,8 @@
     <string name="car_permission_desc_camera" msgid="917024932164501426">"आपकी कार के कैमरे ऐक्सेस कर सकता है."</string>
     <string name="car_permission_label_energy" msgid="7409144323527821558">"कार की ऊर्जा की जानकारी ऐक्सेस कर सकता है"</string>
     <string name="car_permission_desc_energy" msgid="3392963810053235407">"आपकी कार की ऊर्जा से जुड़ी जानकारी ऐक्सेस कर सकता है."</string>
+    <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"मौजूदा बैटरी या फ़्यूल में कार कितनी दूरी तय कर सकती है, इस मान में बदलाव करें."</string>
+    <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"मौजूदा बैटरी या फ़्यूल में कार कितनी दूरी तय कर सकती है, इस मान में बदलाव करें."</string>
     <string name="car_permission_label_hvac" msgid="1499454192558727843">"कार का एचवीएसी ऐक्सेस कर सकता है"</string>
     <string name="car_permission_desc_hvac" msgid="3754229695589774195">"आपकी कार का एचवीएसी ऐक्सेस कर सकता है."</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"कार के माइलेज की जानकारी ऐक्सेस कर सकता है"</string>
@@ -62,6 +64,10 @@
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"UX की पाबंदियां कॉन्फ़िगर करें"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"एओएपी मोड में यूएसबी डिवाइस से कनेक्ट करें"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"ऐप्लिकेशन एओएपी मोड में किसी डिवाइस से कनेक्ट हो सकता है"</string>
+    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Occupant Awareness System से मिले डेटा को सिर्फ़ पढ़ने की अनुमति"</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"इससे Occupant Awareness System की स्थिति और डिटेक्शन सिस्टम के नतीजों को पढ़ने की अनुमति मिलती है. डिटेक्शन सिस्टम यह बताता है कि ड्राइवर कहां देख रहा है."</string>
+    <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"इससे ऐप्लिकेशन को Occupant Awareness System Graph कंट्रोल करने की अनुमति मिलती है"</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"इससे Occupant Awareness System के डिटेक्शन ग्राफ़ को शुरू करने या रोकने की अनुमति मिलती है"</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"कार की इनपुट सेवा"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"इनपुट से जुड़े इवेंट प्रबंधित कर सकता है"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"\'CAN बस\' काम नहीं कर पा रहा है"</string>
@@ -89,6 +95,8 @@
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"आपकी कार के इंजन की पूरी जानकारी ऐक्सेस कर सकता है."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"कार की ईंधन टंकी का ढक्कन और चार्जिंग पोर्ट ऐक्सेस कर सकता है"</string>
     <string name="car_permission_desc_car_energy_ports" msgid="7771185999828794949">"कार की ईंधन टंकी का ढक्कन और चार्जिंग पोर्ट ऐक्सेस कर सकता है."</string>
+    <string name="car_permission_label_control_car_energy_ports" msgid="4375137311026313475">"इससे ऐप्लिकेशन को कार की ईंधन टंकी का ढक्कन और चार्जिंग पोर्ट कंट्रोल करने की अनुमति मिलती है"</string>
+    <string name="car_permission_desc_control_car_energy_ports" msgid="7364633710492525387">"इससे ऐप्लिकेशन को कार की ईंधन टंकी का ढक्कन और चार्जिंग पोर्ट कंट्रोल करने की अनुमति मिलती है."</string>
     <string name="car_permission_label_car_identification" msgid="5896712510164020478">"कार की पहचान देख सकता है"</string>
     <string name="car_permission_desc_car_identification" msgid="4132040867171275059">"कार की पहचान ऐक्सेस कर सकता है."</string>
     <string name="car_permission_label_control_car_doors" msgid="3032058819250195700">"कार के दरवाज़े नियंत्रित कर सकता है"</string>
@@ -101,6 +109,8 @@
     <string name="car_permission_desc_control_car_seats" msgid="2407536601226470563">"कार की सीटें नियंत्रित कर सकता है."</string>
     <string name="car_permission_label_car_info" msgid="4707513570676492315">"कार की बुनियादी जानकारी ऐक्सेस कर सकता है"</string>
     <string name="car_permission_desc_car_info" msgid="2118081474543537653">"कार की बुनियादी जानकारी ऐक्सेस कर सकता है."</string>
+    <string name="car_permission_label_vendor_permission_info" msgid="4471260460536888654">"कार के वेंडर की अनुमति संबंधित जानकारी ऐक्सेस करें"</string>
+    <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"कार के वेंडर की अनुमति संबंधित जानकारी ऐक्सेस करें."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"कार के बाहरी हिस्से में लगी लाइटों की स्थिति देख सकता है"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"कार के बाहरी हिस्से में लगी लाइटों की स्थिति ऐक्सेस कर सकता है."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"कार के बाहरी हिस्से में लगी लाइटें नियंत्रित कर सकता है"</string>
@@ -127,6 +137,10 @@
     <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"भरोसेमंद डिवाइस का नाम दर्ज करने की अनुमति दें"</string>
     <string name="car_permission_label_car_test_service" msgid="9159328930558208708">"कार के जांच मोड को नियंत्रित करें"</string>
     <string name="car_permission_desc_car_test_service" msgid="7426844534110145843">"कार के जांच मोड को नियंत्रित करें"</string>
+    <string name="car_permission_label_control_car_features" msgid="3905791560378888286">"कार की सुविधाएं चालू या बंद करें"</string>
+    <string name="car_permission_desc_control_car_features" msgid="7646711104530599901">"कार की सुविधाएं चालू या बंद करें."</string>
+    <string name="car_permission_label_use_car_watchdog" msgid="6973938293170413475">"कार के वॉचडॉग का इस्तेमाल करें"</string>
+    <string name="car_permission_desc_use_car_watchdog" msgid="8244592601805516086">"कार के वॉचडॉग का इस्तेमाल करें."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"मेरा डिवाइस"</string>
     <string name="default_guest_name" msgid="2912812799433131476">"मेहमान"</string>
 </resources>

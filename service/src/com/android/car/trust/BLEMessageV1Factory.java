@@ -113,7 +113,8 @@ class BLEMessageV1Factory {
      * @param operation The operation this message represents
      * @return The generated {@link com.android.car.trust.BLEStream.BLEMessage}
      */
-    private static BLEMessage makeBLEMessage(byte[] payload, OperationType operation,
+    @VisibleForTesting
+    static BLEMessage makeBLEMessage(byte[] payload, OperationType operation,
             boolean isPayloadEncrypted) {
         return BLEMessage.newBuilder()
                 .setVersion(PROTOCOL_VERSION)

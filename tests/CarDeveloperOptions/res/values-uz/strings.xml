@@ -667,7 +667,6 @@
       <item quantity="other">Maksimum <xliff:g id="NUMBER_1">%d</xliff:g> ta raqam</item>
       <item quantity="one">Maksimum <xliff:g id="NUMBER_0">%d</xliff:g> ta raqam</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"PIN kod faqat 0-9 raqamlaridan iborat bo‘lishi lozim"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Qurilma administratori oxirgi PIN koddan yana foydalanishga ruxsat bermaydi"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"Oddiy PIN kodlar AT admini tomonidan bloklangan. Murakkabroq PIN kod tanlang."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Parol yaroqsiz belgidan iborat bo‘lmasligi lozim"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">Parol tarkibida kamida <xliff:g id="COUNT">%d</xliff:g> ta harf bo‘lmagan belgi bo‘lishi lozim</item>
       <item quantity="one">Parol tarkibida kamida 1 ta harf bo‘lmagan belgi bo‘lishi lozim</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">Kamida <xliff:g id="COUNT">%d</xliff:g> ta raqam boʻlmagan belgi boʻlishi lozim</item>
+      <item quantity="one">Kamida 1 ta raqam boʻlmagan belgi boʻlishi lozim</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Qurilma administratori yaqinda foydalanilgan paroldan yana foydalanishga ruxsat bermaydi"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Oddiy parollar AT admini tomonidan bloklangan. Murakkabroq parol tanlang."</string>

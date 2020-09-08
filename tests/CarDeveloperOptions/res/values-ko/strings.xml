@@ -667,7 +667,6 @@
       <item quantity="other"><xliff:g id="NUMBER_1">%d</xliff:g>자리 미만이어야 합니다.</item>
       <item quantity="one"><xliff:g id="NUMBER_0">%d</xliff:g>자리 미만이어야 합니다.</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"0에서 9까지의 숫자만 포함되어야 합니다."</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"기기 관리자가 최근 PIN 사용을 허용하지 않습니다."</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"IT 관리자가 일반 PIN을 차단했습니다. 다른 PIN을 시도해 보세요."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"잘못된 문자를 포함할 수 없습니다."</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">글자가 아닌 문자를 <xliff:g id="COUNT">%d</xliff:g>개 이상 포함해야 합니다.</item>
       <item quantity="one">글자가 아닌 문자를 1개 이상 포함해야 합니다.</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">숫자가 아닌 문자를 <xliff:g id="COUNT">%d</xliff:g>개 이상 포함해야 합니다.</item>
+      <item quantity="one">숫자가 아닌 문자를 1개 이상 포함해야 합니다.</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"기기 관리자가 최근 비밀번호 사용을 허용하지 않습니다."</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"IT 관리자가 일반적인 단어로 된 비밀번호를 허용하지 않습니다. 다른 비밀번호를 시도해 보세요."</string>

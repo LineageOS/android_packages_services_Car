@@ -667,7 +667,6 @@
       <item quantity="one">Kufanele kube amadijithi angaphansi kuka-<xliff:g id="NUMBER_1">%d</xliff:g></item>
       <item quantity="other">Kufanele kube amadijithi angaphansi kuka-<xliff:g id="NUMBER_1">%d</xliff:g></item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Kumele iqukathe amadijithi angu-0-9 kuphela"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Umlawuli wedivayisi akavumeli ukusebenzisa iphinikhodi yakamuva"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"Ama-PIN avamile avinjelwe umlawuli wakho we-IT. Zama i-PIN ehlukile."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Lokhu akukwazi ukufana uhlamvu olungavumelekile"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="one">Kumele iqukathe okungenani okungu-<xliff:g id="COUNT">%d</xliff:g> okungezona izinhlamvu</item>
       <item quantity="other">Kumele iqukathe okungenani okungu-<xliff:g id="COUNT">%d</xliff:g> okungezona izinhlamvu</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="one">Kumele iqukathe okungenani izinhlamvu ezingasizo izinombolo ezingu-<xliff:g id="COUNT">%d</xliff:g></item>
+      <item quantity="other">Kumele iqukathe okungenani izinhlamvu ezingasizo izinombolo ezingu-<xliff:g id="COUNT">%d</xliff:g></item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Umlawuli wedivayisi akavumeli ukusebenzisa iphasiwedi yakamuva"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Amaphasiwedi avamile avinjelwe umlawuli wakho we-IT. Zama iphasiwedi ehlukile."</string>

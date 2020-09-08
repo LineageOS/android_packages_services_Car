@@ -667,7 +667,6 @@
       <item quantity="one">पिन में <xliff:g id="NUMBER_1">%d</xliff:g> से कम अंक होने चाहिए</item>
       <item quantity="other">पिन में <xliff:g id="NUMBER_1">%d</xliff:g> से कम अंक होने चाहिए</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"इसमें सिर्फ़ 0 से 9 तक के अंक होने चाहिए"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"डिवाइस व्यवस्थापक हाल ही के पिन का उपयोग करने की अनुमति नहीं देता"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"आपके आईटी एडमिन ने आम तौर पर इस्तेमाल होने वाले पिन पर रोक लगा रखी है. दूसरा पिन बनाएं."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"इसमें अमान्य वर्ण शामिल नहीं हो सकता"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="one">इसमें कम से कम <xliff:g id="COUNT">%d</xliff:g> वर्ण ऐसे होने चाहिए जो अक्षर ना हों</item>
       <item quantity="other">इसमें कम से कम <xliff:g id="COUNT">%d</xliff:g> वर्ण ऐसे होने चाहिए जो अक्षर ना हों</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="one">पासवर्ड में कम से कम <xliff:g id="COUNT">%d</xliff:g> वर्ण ऐसे होने चाहिए जो संख्या न हो</item>
+      <item quantity="other">पासवर्ड में कम से कम <xliff:g id="COUNT">%d</xliff:g> वर्ण ऐसे होने चाहिए जो संख्या न हो</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"डिवाइस व्यवस्थापक हाल ही के पासवर्ड का उपयोग करने की अनुमति नहीं देता"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"आपके आईटी एडमिन ने आम तौर पर इस्तेमाल होने वाले पासवर्ड पर रोक लगा रखी है. कोई दूसरा पासवर्ड बनाएं."</string>

@@ -36,25 +36,26 @@ import android.os.Looper;
 import android.os.ServiceManager;
 import android.util.Pair;
 
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-
 import com.android.car.CarServiceUtils;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.MockitoSession;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.quality.Strictness;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Unit test for Car API.
  */
-@RunWith(AndroidJUnit4.class)
+@RunWith(JUnit4.class)
 public class CarTest {
     private static final String TAG = CarTest.class.getSimpleName();
 
@@ -72,11 +73,56 @@ public class CarTest {
         }
 
         @Override
-        public void setUserLockStatus(int userHandle, int unlocked) {
+        public void onUserLifecycleEvent(int eventType, long timestampMs, int fromUserId,
+                int toUserId) {
         }
 
         @Override
-        public void onSwitchUser(int userHandle) {
+        public void onFirstUserUnlocked(int userId, long timestampMs, long duration,
+                int halResponseTime) {
+        }
+
+        @Override
+        public void getInitialUserInfo(int requestType, int timeoutMs, IBinder binder) {
+        }
+
+        @Override
+        public void setInitialUser(int userId) {
+        }
+
+        @Override
+        public boolean isFeatureEnabled(String featureName) {
+            return false;
+        }
+
+        @Override
+        public int enableFeature(String featureName) {
+            return Car.FEATURE_REQUEST_SUCCESS;
+        }
+
+        @Override
+        public int disableFeature(String featureName) {
+            return Car.FEATURE_REQUEST_SUCCESS;
+        }
+
+        @Override
+        public List<String> getAllEnabledFeatures() {
+            return Collections.EMPTY_LIST;
+        }
+
+        @Override
+        public List<String> getAllPendingDisabledFeatures() {
+            return Collections.EMPTY_LIST;
+        }
+
+        @Override
+        public List<String> getAllPendingEnabledFeatures() {
+            return Collections.EMPTY_LIST;
+        }
+
+        @Override
+        public String getCarManagerClassForFeature(String featureName) {
+            return null;
         }
 
         @Override

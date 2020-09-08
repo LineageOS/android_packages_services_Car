@@ -667,7 +667,6 @@
       <item quantity="other">ຕ້ອງມີໜ້ອຍກວ່າ <xliff:g id="NUMBER_1">%d</xliff:g> ຕົວເລກ</item>
       <item quantity="one">ຕ້ອງມີໜ້ອຍກວ່າ <xliff:g id="NUMBER_0">%d</xliff:g> ຕົວເລກ</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"ຕ້ອງມີຕົວເລກ 0 ຫາ 9 ເທົ່ານັ້ນ"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"ຜູ້ເບິ່ງແຍງລະບົບອຸປະກອນບໍ່ອະນຸຍາດໃຫ້ໃຊ້ລະຫັດ PIN ເມື່ອບໍ່ດົນມານີ້"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"ລະຫັດ PIN ທົ່ວໄປແມ່ນຖືກບລັອກໂດຍຜູ້ເບິ່ງແຍງລະບົບໄອທີຂອງທ່ານ. ໃຫ້ລອງໃຊ້ລະຫັດ PIN ອື່ນແທນ."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"ນີ້ບໍ່ສາມາດຮວມມີຕົວອັກສອນທີ່ບໍ່ຖືກຕ້ອງນຳໄດ້"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">ຕ້ອງມີຕົວອັກຂະລະທີ່ບໍ່ແມ່ນຕົວອັກສອນຢ່າງໜ້ອຍ <xliff:g id="COUNT">%d</xliff:g> ຕົວ</item>
       <item quantity="one">ຕ້ອງມີຕົວອັກຂະລະທີ່ບໍ່ແມ່ນຕົວອັກສອນຢ່າງໜ້ອຍ 1 ຕົວ</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">ຕ້ອງມີຕົວອັກສອນທີ່ບໍ່ແມ່ນຕົວເລກຢ່າງໜ້ອຍ <xliff:g id="COUNT">%d</xliff:g> ຕົວ</item>
+      <item quantity="one">ຕ້ອງມີຕົວອັກສອນທີ່ບໍ່ແມ່ນຕົວເລກຢ່າງໜ້ອຍ 1 ຕົວ</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"ຜູ້ເບິ່ງແຍງລະບົບບໍ່ອະນຸຍາດໃຫ້ໃຊ້ລະຫັດຜ່ານເມື່ອບໍ່ດົນມານີ້ໄດ້"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"ລະຫັດຜ່ານທົ່ວໄປແມ່ນຖືກບລັອກໂດຍຜູ້ເບິ່ງແຍງລະບົບໄອທີຂອງທ່ານ. ໃຫ້ລອງໃຊ້ລະຫັດອື່ນແທນ."</string>

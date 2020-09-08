@@ -667,7 +667,6 @@
       <item quantity="other">ဂဏန်း <xliff:g id="NUMBER_1">%d</xliff:g> လုံးထက် နည်းရမည်</item>
       <item quantity="one">ဂဏန်း <xliff:g id="NUMBER_0">%d</xliff:g> လုံးထက် နည်းရမည်</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"ဂဏန်း ၀−၉ အထိသာ ပါဝင်ရပါမည်"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"စက်ပစ္စည်း၏ စီမံခန့်ခွဲသူသည် မကြာသေးမီက အသုံးပြုခဲ့သည့် ပင်နံပါတ်ကို သုံးခွင့်မပြုပါ"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"အသုံးပြုလေ့ရှိသော PIN များကို သင်၏ IT စီမံခန့်ခွဲသူက ပိတ်ထားသည်။ အခြား PIN တစ်ခုဖြင့် စမ်းကြည့်ပါ။"</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"၎င်းတွင် မမှန်ကန်သည့်စကားလုံးများ ပါဝင်၍မရပါ"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">အနည်းဆုံး စာလုံးငယ် <xliff:g id="COUNT">%d</xliff:g> လုံးပါဝင်ရမည်</item>
       <item quantity="one">အနည်းဆုံး စာလုံးငယ် ၁ လုံးပါဝင်ရမည်</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">ဂဏန်းမဟုတ်သော အက္ခရာ အနည်းဆုံး <xliff:g id="COUNT">%d</xliff:g> လုံးပါရမည်</item>
+      <item quantity="one">ဂဏန်းမဟုတ်သော အက္ခရာ အနည်းဆုံး ၁ လုံးပါရမည်</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"စက်ပစ္စည်းစီမံခန့်ခွဲသူသည် မကြာသေးမီက အသုံးပြုခဲ့သည့် စကားဝှက်ကို သုံးခွင့်မပြုပါ"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"အသုံးပြုလေ့ရှိသော စကားဝှက်များကို သင်၏ IT စီမံခန့်ခွဲသူက ပိတ်ထားသည်။ အခြား စကားဝှက်တစ်ခုဖြင့် စမ်းကြည့်ပါ။"</string>

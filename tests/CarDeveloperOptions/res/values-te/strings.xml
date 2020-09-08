@@ -667,7 +667,6 @@
       <item quantity="other"><xliff:g id="NUMBER_1">%d</xliff:g> కంటే తక్కువ అంకెలు తప్పక ఉండాలి</item>
       <item quantity="one"><xliff:g id="NUMBER_0">%d</xliff:g> కంటే తక్కువ అంకె తప్పక ఉండాలి</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"తప్పనిసరిగా 0-9 అంకెలను మాత్రమే కలిగి ఉండాలి"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"ఇటీవలి పిన్‌ని ఉపయోగించడానికి డివైజ్ నిర్వాహకులు అనుమతించరు"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"సాధారణ PINలను మా IT నిర్వాహకుడు బ్లాక్ చేసారు. వేరే PINని ప్రయత్నించండి."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"ఇందులో చెల్లని అక్షరం ఉండకూడదు"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">తప్పనిసరిగా కనీసం <xliff:g id="COUNT">%d</xliff:g> వర్ణమాల యేతర అక్షరాలను కలిగి ఉండాలి</item>
       <item quantity="one">తప్పనిసరిగా కనీసం 1 వర్ణమాల యేతర అక్షరాన్ని కలిగి ఉండాలి</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">తప్పనిసరిగా కనీసం <xliff:g id="COUNT">%d</xliff:g> సంఖ్యేతర అక్షరాలను కలిగి ఉండాలి</item>
+      <item quantity="one">తప్పనిసరిగా కనీసం 1 సంఖ్యేతర అక్షరాన్ని కలిగి ఉండాలి</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"ఇటీవలి పాస్‌వర్డ్‌ను ఉపయోగించడానికి పరికర నిర్వాహకులు అనుమతించరు"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"సాధారణ పాస్‌వర్డ్‌లను మా IT నిర్వాహకుడు బ్లాక్ చేసారు. వేరే పాస్‌వర్డ్‌ని ప్రయత్నించండి."</string>

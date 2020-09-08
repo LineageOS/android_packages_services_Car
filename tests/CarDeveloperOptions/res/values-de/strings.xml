@@ -667,7 +667,6 @@
       <item quantity="other">Muss weniger als <xliff:g id="NUMBER_1">%d</xliff:g> Ziffern haben</item>
       <item quantity="one">Muss weniger als <xliff:g id="NUMBER_0">%d</xliff:g> Ziffer haben</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Es dürfen nur Ziffern von 0 bis 9 enthalten sein"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Der Geräteadministrator lässt die Verwendung einer früheren PIN nicht zu"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"Häufig verwendete PINs werden von deinem IT-Administrator blockiert. Versuch es mit einer anderen PIN."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Es sind keine ungültigen Zeichen zulässig"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">Das Passwort muss mindestens <xliff:g id="COUNT">%d</xliff:g> Zeichen enthalten, die keine Buchstaben sind</item>
       <item quantity="one">Das Passwort muss mindestens ein Zeichen enthalten, das kein Buchstabe ist</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">Passwort muss mindestens <xliff:g id="COUNT">%d</xliff:g> Zeichen enthalten, die keine Ziffern sind</item>
+      <item quantity="one">Passwort muss mindestens ein Zeichen enthalten, das keine Ziffer ist</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Der Geräteadministrator lässt die Verwendung eines früheren Passworts nicht zu"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Häufig verwendete Passwörter werden von deinem IT-Administrator blockiert. Versuch es mit einem anderen Passwort."</string>

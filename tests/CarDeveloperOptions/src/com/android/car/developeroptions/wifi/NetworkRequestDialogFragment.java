@@ -30,6 +30,7 @@ import android.net.wifi.WifiManager.NetworkRequestMatchCallback;
 import android.net.wifi.WifiManager.NetworkRequestUserSelectionCallback;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.HandlerExecutor;
 import android.os.Message;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -304,7 +305,7 @@ public class NetworkRequestDialogFragment extends InstrumentedDialogFragment imp
         final WifiManager wifiManager = getContext().getApplicationContext()
                 .getSystemService(WifiManager.class);
         if (wifiManager != null) {
-            wifiManager.registerNetworkRequestMatchCallback(this, mHandler);
+            wifiManager.registerNetworkRequestMatchCallback(new HandlerExecutor(mHandler), this);
         }
         // Sets time-out to stop scanning.
         mHandler.sendEmptyMessageDelayed(MESSAGE_STOP_SCAN_WIFI_LIST, DELAY_TIME_STOP_SCAN_MS);

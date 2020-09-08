@@ -15,27 +15,50 @@
  */
 package android.car.media;
 
+import android.annotation.IntDef;
+import android.annotation.NonNull;
 import android.annotation.RequiresPermission;
+import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.content.ComponentName;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import com.android.internal.annotations.GuardedBy;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * API for updating and receiving updates to the primary media source in the car.
  * @hide
  */
+@SystemApi
 public final class CarMediaManager extends CarManagerBase {
 
+    public static final int MEDIA_SOURCE_MODE_PLAYBACK = 0;
+    public static final int MEDIA_SOURCE_MODE_BROWSE = 1;
+
+    /** @hide */
+    @IntDef(prefix = { "MEDIA_SOURCE_MODE_" }, value = {
+            MEDIA_SOURCE_MODE_PLAYBACK,
+            MEDIA_SOURCE_MODE_BROWSE
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface MediaSourceMode {}
+
+    private final Object mLock = new Object();
+
     private final ICarMedia mService;
+    @GuardedBy("mLock")
     private Map<MediaSourceChangedListener, ICarMediaSourceListener> mCallbackMap = new HashMap();
 
     /**
-     * Get an instance of the CarPowerManager.
+     * Get an instance of the CarMediaManager.
      *
      * Should not be obtained directly by clients, use {@link Car#getCarManager(String)} instead.
      * @hide
@@ -47,40 +70,39 @@ public final class CarMediaManager extends CarManagerBase {
 
     /**
      * Listener for updates to the primary media source
-     * @hide
      */
     public interface MediaSourceChangedListener {
 
         /**
          * Called when the primary media source is changed
-         * @hide
          */
-        void onMediaSourceChanged(ComponentName componentName);
+        void onMediaSourceChanged(@NonNull ComponentName componentName);
     }
 
     /**
-     * Gets the currently active media source, or null if none exists
-     * Requires android.Manifest.permission.MEDIA_CONTENT_CONTROL permission
-     * @hide
+     * Gets the currently active media source for the provided mode
+     *
+     * @param mode the mode (playback or browse) for which the media source is active in.
+     * @return the active media source in the provided mode, will be non-{@code null}.
      */
     @RequiresPermission(value = android.Manifest.permission.MEDIA_CONTENT_CONTROL)
-    public synchronized ComponentName getMediaSource() {
+    public @NonNull ComponentName getMediaSource(@MediaSourceMode int mode) {
         try {
-            return mService.getMediaSource();
+            return mService.getMediaSource(mode);
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, null);
         }
     }
 
     /**
-     * Sets the currently active media source
-     * Requires android.Manifest.permission.MEDIA_CONTENT_CONTROL permission
-     * @hide
+     * Sets the currently active media source for the provided mode
+     *
+     * @param mode the mode (playback or browse) for which the media source is active in.
      */
     @RequiresPermission(value = android.Manifest.permission.MEDIA_CONTENT_CONTROL)
-    public synchronized void setMediaSource(ComponentName componentName) {
+    public void setMediaSource(@NonNull ComponentName componentName, @MediaSourceMode int mode) {
         try {
-            mService.setMediaSource(componentName);
+            mService.setMediaSource(componentName, mode);
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
         }
@@ -88,11 +110,13 @@ public final class CarMediaManager extends CarManagerBase {
 
     /**
      * Register a callback that receives updates to the active media source.
-     * Requires android.Manifest.permission.MEDIA_CONTENT_CONTROL permission
-     * @hide
+     *
+     * @param callback the callback to receive active media source updates.
+     * @param mode the mode to receive updates for.
      */
     @RequiresPermission(value = android.Manifest.permission.MEDIA_CONTENT_CONTROL)
-    public synchronized void registerMediaSourceListener(MediaSourceChangedListener callback) {
+    public void addMediaSourceListener(@NonNull MediaSourceChangedListener callback,
+            @MediaSourceMode int mode) {
         try {
             ICarMediaSourceListener binderCallback = new ICarMediaSourceListener.Stub() {
                 @Override
@@ -100,8 +124,10 @@ public final class CarMediaManager extends CarManagerBase {
                     callback.onMediaSourceChanged(componentName);
                 }
             };
-            mCallbackMap.put(callback, binderCallback);
-            mService.registerMediaSourceListener(binderCallback);
+            synchronized (mLock) {
+                mCallbackMap.put(callback, binderCallback);
+            }
+            mService.registerMediaSourceListener(binderCallback, mode);
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
         }
@@ -109,23 +135,72 @@ public final class CarMediaManager extends CarManagerBase {
 
     /**
      * Unregister a callback that receives updates to the active media source.
-     * Requires android.Manifest.permission.MEDIA_CONTENT_CONTROL permission
-     * @hide
+     *
+     * @param callback the callback to be unregistered.
+     * @param mode the mode that the callback was registered to receive updates for.
      */
     @RequiresPermission(value = android.Manifest.permission.MEDIA_CONTENT_CONTROL)
-    public synchronized void unregisterMediaSourceListener(MediaSourceChangedListener callback) {
+    public void removeMediaSourceListener(@NonNull MediaSourceChangedListener callback,
+            @MediaSourceMode int mode) {
         try {
-            ICarMediaSourceListener binderCallback = mCallbackMap.remove(callback);
-            mService.unregisterMediaSourceListener(binderCallback);
+            synchronized (mLock) {
+                ICarMediaSourceListener binderCallback = mCallbackMap.remove(callback);
+                mService.unregisterMediaSourceListener(binderCallback, mode);
+            }
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
         }
     }
 
+    /**
+     * Retrieve a list of media sources, ordered by most recently used.
+     *
+     * @param mode the mode (playback or browse) for which to retrieve media sources from.
+     * @return non-{@code null} list of media sources, ordered by most recently used
+     */
+    @RequiresPermission(value = android.Manifest.permission.MEDIA_CONTENT_CONTROL)
+    public @NonNull List<ComponentName> getLastMediaSources(@MediaSourceMode int mode) {
+        try {
+            return mService.getLastMediaSources(mode);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, null);
+        }
+    }
+
     /** @hide */
     @Override
-    public synchronized void onCarDisconnected() {
-        // TODO(b/142733057) Fix synchronization to use separate mLock
-        mCallbackMap.clear();
+    public void onCarDisconnected() {
+        synchronized (mLock) {
+            mCallbackMap.clear();
+        }
+    }
+
+    /**
+     * Returns whether the browse and playback sources can be changed independently.
+     * @return true if the browse and playback sources can be changed independently, false if it
+     * isn't or if the value could not be determined.
+     * @hide
+     */
+    @RequiresPermission(value = android.Manifest.permission.MEDIA_CONTENT_CONTROL)
+    public boolean isIndependentPlaybackConfig() {
+        try {
+            return mService.isIndependentPlaybackConfig();
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, null);
+        }
+    }
+
+    /**
+     * Sets whether the browse and playback sources can be changed independently.
+     * @param independent whether the browse and playback sources can be changed independently.
+     * @hide
+     */
+    @RequiresPermission(value = android.Manifest.permission.MEDIA_CONTENT_CONTROL)
+    public void setIndependentPlaybackConfig(boolean independent) {
+        try {
+            mService.setIndependentPlaybackConfig(independent);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
     }
 }

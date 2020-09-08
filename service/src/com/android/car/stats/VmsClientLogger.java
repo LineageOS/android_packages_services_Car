@@ -19,8 +19,8 @@ package com.android.car.stats;
 import android.annotation.Nullable;
 import android.car.vms.VmsLayer;
 import android.util.ArrayMap;
-import android.util.StatsLog;
 
+import com.android.car.CarStatsLog;
 import com.android.internal.annotations.GuardedBy;
 
 import java.util.Collection;
@@ -38,19 +38,19 @@ public class VmsClientLogger {
     public static class ConnectionState {
         // Attempting to connect to the client
         public static final int CONNECTING =
-                StatsLog.VMS_CLIENT_CONNECTION_STATE_CHANGED__STATE__CONNECTING;
+                CarStatsLog.VMS_CLIENT_CONNECTION_STATE_CHANGED__STATE__CONNECTING;
         // Client connection established
         public static final int CONNECTED =
-                StatsLog.VMS_CLIENT_CONNECTION_STATE_CHANGED__STATE__CONNECTED;
+                CarStatsLog.VMS_CLIENT_CONNECTION_STATE_CHANGED__STATE__CONNECTED;
         // Client connection closed unexpectedly
         public static final int DISCONNECTED =
-                StatsLog.VMS_CLIENT_CONNECTION_STATE_CHANGED__STATE__DISCONNECTED;
+                CarStatsLog.VMS_CLIENT_CONNECTION_STATE_CHANGED__STATE__DISCONNECTED;
         // Client connection closed by VMS
         public static final int TERMINATED =
-                StatsLog.VMS_CLIENT_CONNECTION_STATE_CHANGED__STATE__TERMINATED;
+                CarStatsLog.VMS_CLIENT_CONNECTION_STATE_CHANGED__STATE__TERMINATED;
         // Error establishing the client connection
         public static final int CONNECTION_ERROR =
-                StatsLog.VMS_CLIENT_CONNECTION_STATE_CHANGED__STATE__CONNECTION_ERROR;
+                CarStatsLog.VMS_CLIENT_CONNECTION_STATE_CHANGED__STATE__CONNECTION_ERROR;
     }
 
     private final Object mLock = new Object();
@@ -83,8 +83,8 @@ public class VmsClientLogger {
      * @param connectionState New connection state
      */
     public void logConnectionState(int connectionState) {
-        StatsLog.write(StatsLog.VMS_CLIENT_CONNECTION_STATE_CHANGED,
-                mUid, mPackageName, connectionState);
+        CarStatsLog.write(CarStatsLog.VMS_CLIENT_CONNECTION_STATE_CHANGED,
+                mUid, connectionState);
 
         AtomicLong counter;
         synchronized (mLock) {

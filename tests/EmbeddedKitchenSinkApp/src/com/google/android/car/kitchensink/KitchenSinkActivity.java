@@ -45,6 +45,7 @@ import com.google.android.car.kitchensink.activityview.ActivityViewTestFragment;
 import com.google.android.car.kitchensink.alertdialog.AlertDialogTestFragment;
 import com.google.android.car.kitchensink.assistant.CarAssistantFragment;
 import com.google.android.car.kitchensink.audio.AudioTestFragment;
+import com.google.android.car.kitchensink.audio.CarAudioInputTestFragment;
 import com.google.android.car.kitchensink.bluetooth.BluetoothHeadsetFragment;
 import com.google.android.car.kitchensink.bluetooth.MapMceTestFragment;
 import com.google.android.car.kitchensink.carboard.KeyboardTestFragment;
@@ -52,25 +53,29 @@ import com.google.android.car.kitchensink.cluster.InstrumentClusterFragment;
 import com.google.android.car.kitchensink.connectivity.ConnectivityFragment;
 import com.google.android.car.kitchensink.cube.CubesTestFragment;
 import com.google.android.car.kitchensink.diagnostic.DiagnosticTestFragment;
-import com.google.android.car.kitchensink.dialer.DialerTestFragment;
 import com.google.android.car.kitchensink.displayinfo.DisplayInfoFragment;
+import com.google.android.car.kitchensink.experimental.ExperimentalFeatureTestFragment;
 import com.google.android.car.kitchensink.hvac.HvacTestFragment;
-import com.google.android.car.kitchensink.input.InputTestFragment;
 import com.google.android.car.kitchensink.notification.NotificationFragment;
 import com.google.android.car.kitchensink.orientation.OrientationTestFragment;
+import com.google.android.car.kitchensink.packageinfo.PackageInfoFragment;
 import com.google.android.car.kitchensink.power.PowerTestFragment;
 import com.google.android.car.kitchensink.projection.ProjectionFragment;
 import com.google.android.car.kitchensink.property.PropertyTestFragment;
 import com.google.android.car.kitchensink.sensor.SensorsTestFragment;
 import com.google.android.car.kitchensink.storagelifetime.StorageLifetimeFragment;
 import com.google.android.car.kitchensink.storagevolumes.StorageVolumesFragment;
+import com.google.android.car.kitchensink.systemfeatures.SystemFeaturesFragment;
 import com.google.android.car.kitchensink.touch.TouchTestFragment;
+import com.google.android.car.kitchensink.users.ProfileUserFragment;
 import com.google.android.car.kitchensink.users.UsersFragment;
+import com.google.android.car.kitchensink.vehiclectrl.VehicleCtrlFragment;
 import com.google.android.car.kitchensink.vhal.VehicleHalFragment;
 import com.google.android.car.kitchensink.volume.VolumeTestFragment;
 import com.google.android.car.kitchensink.weblinks.WebLinksTestFragment;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 public class KitchenSinkActivity extends FragmentActivity {
@@ -163,32 +168,37 @@ public class KitchenSinkActivity extends FragmentActivity {
             new FragmentMenuEntry("alert window", AlertDialogTestFragment.class),
             new FragmentMenuEntry("assistant", CarAssistantFragment.class),
             new FragmentMenuEntry("audio", AudioTestFragment.class),
-            new FragmentMenuEntry("bluetooth headset", BluetoothHeadsetFragment.class),
-            new FragmentMenuEntry("bluetooth messaging test", MapMceTestFragment.class),
+            new FragmentMenuEntry("Audio Input", CarAudioInputTestFragment.class),
+            new FragmentMenuEntry("BT headset", BluetoothHeadsetFragment.class),
+            new FragmentMenuEntry("BT messaging", MapMceTestFragment.class),
             new FragmentMenuEntry("carapi", CarApiTestFragment.class),
             new FragmentMenuEntry("carboard", KeyboardTestFragment.class),
             new FragmentMenuEntry("connectivity", ConnectivityFragment.class),
             new FragmentMenuEntry("cubes test", CubesTestFragment.class),
             new FragmentMenuEntry("diagnostic", DiagnosticTestFragment.class),
-            new FragmentMenuEntry("dialer incallservice", DialerTestFragment.class),
             new FragmentMenuEntry("display info", DisplayInfoFragment.class),
+            new FragmentMenuEntry("experimental feature", ExperimentalFeatureTestFragment.class),
             new FragmentMenuEntry("hvac", HvacTestFragment.class),
             new FragmentMenuEntry("inst cluster", InstrumentClusterFragment.class),
-            new FragmentMenuEntry("input test", InputTestFragment.class),
+            // TODO (b/141774865) Enable after b/141635607 is fixed
+            // new FragmentMenuEntry("input test", InputTestFragment.class),
             new FragmentMenuEntry("notification", NotificationFragment.class),
             new FragmentMenuEntry("orientation test", OrientationTestFragment.class),
+            new FragmentMenuEntry("package info", PackageInfoFragment.class),
             new FragmentMenuEntry("power test", PowerTestFragment.class),
+            new FragmentMenuEntry("profile_user", ProfileUserFragment.class),
             new FragmentMenuEntry("projection", ProjectionFragment.class),
             new FragmentMenuEntry("property test", PropertyTestFragment.class),
             new FragmentMenuEntry("sensors", SensorsTestFragment.class),
             new FragmentMenuEntry("storage lifetime", StorageLifetimeFragment.class),
             new FragmentMenuEntry("storage volumes", StorageVolumesFragment.class),
+            new FragmentMenuEntry("system features", SystemFeaturesFragment.class),
             new FragmentMenuEntry("touch test", TouchTestFragment.class),
             new FragmentMenuEntry("users", UsersFragment.class),
-            new FragmentMenuEntry("volume test", VolumeTestFragment.class),
+            new FragmentMenuEntry("vehicle ctrl", VehicleCtrlFragment.class),
             new FragmentMenuEntry("vehicle hal", VehicleHalFragment.class),
-            new FragmentMenuEntry("web links", WebLinksTestFragment.class)
-    );
+            new FragmentMenuEntry("volume test", VolumeTestFragment.class),
+            new FragmentMenuEntry("web links", WebLinksTestFragment.class));
 
     private Car mCarApi;
     private CarHvacManager mHvacManager;
@@ -198,6 +208,10 @@ public class KitchenSinkActivity extends FragmentActivity {
     private CarAppFocusManager mCarAppFocusManager;
     private CarProjectionManager mCarProjectionManager;
     private Object mPropertyManagerReady = new Object();
+
+    public KitchenSinkActivity() {
+        mMenuEntries.sort(Comparator.comparing(MenuEntry::getText));
+    }
 
     public CarHvacManager getHvacManager() {
         return mHvacManager;
@@ -223,13 +237,31 @@ public class KitchenSinkActivity extends FragmentActivity {
      * adb shell am force-stop com.google.android.car.kitchensink
      * adb shell am start -n com.google.android.car.kitchensink/.KitchenSinkActivity \
      *     --es "select" "connectivity"
+     *
+     * Test car watchdog:
+     * adb shell am force-stop com.google.android.car.kitchensink
+     * adb shell am start -n com.google.android.car.kitchensink/.KitchenSinkActivity \
+     *     --es "watchdog" "[timeout] [not_respond_after] [inactive_main_after] [verbose]"
+     * - timeout: critical | moderate | normal
+     * - not_respond_after: after the given seconds, the client will not respond to car watchdog
+     *                      (-1 for making the client respond always)
+     * - inactive_main_after: after the given seconds, the main thread will not be responsive
+     *                        (-1 for making the main thread responsive always)
+     * - verbose: whether to output verbose logs (default: false)
      */
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         Log.i(TAG, "onNewIntent");
         Bundle extras = intent.getExtras();
-        String select = (extras == null) ? null : extras.getString("select");
+        if (extras == null) {
+            return;
+        }
+        String watchdog = extras.getString("watchdog");
+        if (watchdog != null) {
+            CarWatchdogClient.start(getCar(), watchdog);
+        }
+        String select = extras.getString("select");
         if (select != null) {
             mMenuEntries.stream().filter(me -> select.equals(me.getText()))
                     .findAny().ifPresent(me -> me.onClick());
@@ -250,7 +282,7 @@ public class KitchenSinkActivity extends FragmentActivity {
 
         mMenu = findViewById(R.id.menu);
         mMenu.setAdapter(new MenuAdapter(this));
-        mMenu.setLayoutManager(new GridLayoutManager(this, 3));
+        mMenu.setLayoutManager(new GridLayoutManager(this, 4));
 
         mMenuButton = findViewById(R.id.menu_button);
         mMenuButton.setOnClickListener(view -> toggleMenuVisibility());
@@ -331,11 +363,11 @@ public class KitchenSinkActivity extends FragmentActivity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         if (mCarApi != null) {
             mCarApi.disconnect();
         }
         Log.i(TAG, "onDestroy");
+        super.onDestroy();
     }
 
     private void showFragment(Fragment fragment) {

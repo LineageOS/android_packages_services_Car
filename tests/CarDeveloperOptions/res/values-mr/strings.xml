@@ -667,7 +667,6 @@
       <item quantity="other"><xliff:g id="NUMBER_1">%d</xliff:g> अंकांपेक्षा कमी असणे आवश्यक आहे</item>
       <item quantity="one"><xliff:g id="NUMBER_0">%d</xliff:g> अंकापेक्षा कमी असणे आवश्यक आहे</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"केवळ 0-9 अंक असणे आवश्यक आहे"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"डिव्हाइस प्रशासक अलीकडील पिन वापरण्याची अनुमती देत नाही"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"सामान्यत: वापरले जाणारे पिन तुमच्या IT प्रशासनाने ब्लॉक केलेले आहेत. दुसरा एखादा पिन वापरून पाहा."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"यामध्ये अवैध वर्ण समाविष्ट असू शकत नाही"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">किमान <xliff:g id="COUNT">%d</xliff:g> अक्षर नसलेले वर्ण असणे आवश्यक आहे</item>
       <item quantity="one">किमान 1 अक्षर नसलेला वर्ण असणे आवश्यक आहे</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">किमान <xliff:g id="COUNT">%d</xliff:g> अंक नसलेले वर्ण असणे आवश्यक आहे</item>
+      <item quantity="one">किमान एक अंक नसलेला वर्ण असणे आवश्यक आहे</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"डिव्हाइस प्रशासक अलीकडील पासवर्ड वापरण्याची अनुमती देत नाही"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"सामान्यत: वापरले जाणारे पासवर्ड तुमच्या IT प्रशासनाने ब्लॉक केलेले आहेत. दुसरा एखादा पासवर्ड वापरून पाहा."</string>

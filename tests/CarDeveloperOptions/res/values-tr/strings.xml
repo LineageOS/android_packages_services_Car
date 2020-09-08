@@ -667,7 +667,6 @@
       <item quantity="other"><xliff:g id="NUMBER_1">%d</xliff:g> basamaktan az olmalıdır</item>
       <item quantity="one"><xliff:g id="NUMBER_0">%d</xliff:g> basamaktan az olmalıdır</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Yalnızca 0-9 arasındaki rakamları içermelidir"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Cihaz yöneticisi yakın zamanda kullanılan bir PIN\'e izin vermiyor"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"Yaygın olarak kullanılan PIN\'ler BT yöneticiniz tarafından engellendi. Farklı bir PIN deneyin."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Burada geçersiz bir karakter kullanılamaz"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">Harf olmayan en az <xliff:g id="COUNT">%d</xliff:g> karakter içermelidir</item>
       <item quantity="one">Harf olmayan en az 1 karakter içermelidir</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">Rakam olmayan en az <xliff:g id="COUNT">%d</xliff:g> karakter içermelidir</item>
+      <item quantity="one">Rakam olmayan en az 1 karakter içermelidir</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Cihaz yöneticisi yakın zamanda kullanılan bir şifreye izin vermiyor"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Yaygın olarak kullanılan şifreler BT yöneticiniz tarafından engellendi. Farklı bir şifre deneyin."</string>

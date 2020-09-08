@@ -667,7 +667,6 @@
       <item quantity="other">Phải có ít hơn <xliff:g id="NUMBER_1">%d</xliff:g> chữ số</item>
       <item quantity="one">Phải có ít hơn <xliff:g id="NUMBER_0">%d</xliff:g> chữ số</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Chỉ được chứa các chữ số 0-9"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Quản trị viên thiết bị không cho phép dùng mã PIN gần đây"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"Quản vị viên CNTT đã chặn những mã PIN phổ biến. Hãy thử mã PIN khác."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Mật khẩu này không được bao gồm ký tự không hợp lệ"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">Phải chứa ít nhất <xliff:g id="COUNT">%d</xliff:g> ký tự không phải chữ cái</item>
       <item quantity="one">Phải chứa ít nhất 1 ký tự không phải chữ cái</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">Phải có ít nhất <xliff:g id="COUNT">%d</xliff:g> ký tự không phải là số</item>
+      <item quantity="one">Phải có ít nhất 1 ký tự không phải là số</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Quản trị viên thiết bị không cho phép sử dụng mật khẩu gần đây"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Quản vị viên CNTT đã chặn những mật khẩu phổ biến. Hãy thử mật khẩu khác."</string>

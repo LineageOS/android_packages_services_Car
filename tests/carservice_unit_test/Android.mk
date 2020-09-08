@@ -44,21 +44,27 @@ LOCAL_INSTRUMENTATION_FOR := CarService
 LOCAL_JAVA_LIBRARIES := \
     android.car \
     android.car.userlib \
+    android.car.watchdoglib \
     android.test.runner \
     android.test.base \
-    android.test.mock
+    android.test.mock \
+    EncryptionRunner
 
 LOCAL_STATIC_JAVA_LIBRARIES := \
+    android.car.testapi \
+    android.car.test.utils \
     androidx.test.core \
     androidx.test.ext.junit \
     androidx.test.rules \
     car-frameworks-service \
-    car-service-lib-for-test \
+    car-service-test-static-lib \
     com.android.car.test.utils \
     frameworks-base-testutils \
     mockito-target-extended \
     testng \
     truth-prebuilt
+
+LOCAL_COMPATIBILITY_SUITE := general-tests
 
 # mockito-target-inline dependency
 LOCAL_JNI_SHARED_LIBRARIES := \

@@ -683,7 +683,6 @@
       <item quantity="many">PIN-код павінен змяшчаць менш за <xliff:g id="NUMBER_1">%d</xliff:g> лічбаў</item>
       <item quantity="other">PIN-код павінен змяшчаць менш за <xliff:g id="NUMBER_1">%d</xliff:g> лічбы</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Павінен змяшчаць толькі лічбы 0-9"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Адміністратар прылады не дазваляе выкарыстоўваць апошні PIN-код"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"IT адміністратар блакіруе папулярныя PIN-коды. Паспрабуйце іншы PIN-код."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Не можа змяшчаць недапушчальны сімвал"</string>
@@ -725,6 +724,12 @@
       <item quantity="few">Павінен змяшчаць не менш за <xliff:g id="COUNT">%d</xliff:g> сімвалы, якія не з\'яўляюцца літарамі</item>
       <item quantity="many">Павінен змяшчаць не менш за <xliff:g id="COUNT">%d</xliff:g> сімвалаў, якія не з\'яўляюцца літарамі</item>
       <item quantity="other">Павінен змяшчаць не менш за <xliff:g id="COUNT">%d</xliff:g> сімвала, якія не з\'яўляюцца літарамі</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="one">Павінен змяшчаць не менш за <xliff:g id="COUNT">%d</xliff:g> сімвал, які не з\'яўляецца лічбай</item>
+      <item quantity="few">Павінен змяшчаць не менш за <xliff:g id="COUNT">%d</xliff:g> сімвалы, якія не з\'яўляюцца лічбамі</item>
+      <item quantity="many">Павінен змяшчаць не менш за <xliff:g id="COUNT">%d</xliff:g> сімвалаў, якія не з\'яўляюцца лічбамі</item>
+      <item quantity="other">Павінен змяшчаць не менш за <xliff:g id="COUNT">%d</xliff:g> сімвала, якія не з\'яўляюцца лічбамі</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Адміністратар прылады не дазваляе выкарыстоўваць апошні пароль"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"IT адміністратар блакіруе папулярныя паролі. Паспрабуйце іншы пароль."</string>

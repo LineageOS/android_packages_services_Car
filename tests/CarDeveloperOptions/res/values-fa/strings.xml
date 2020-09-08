@@ -667,7 +667,6 @@
       <item quantity="one">باید کمتر از <xliff:g id="NUMBER_1">%d</xliff:g> رقم باشد</item>
       <item quantity="other">باید کمتر از <xliff:g id="NUMBER_1">%d</xliff:g> رقم باشد</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"فقط می‌تواند شامل اعداد ۰ تا ۹ باشد"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"سرپرست دستگاه اجازه استفاده از پین اخیر را نمی‌دهد"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"پین‌های رایج توسط سرپرست فناوری اطلاعات شما مسدود شده‌اند. پین متفاوتی را امتحان کنید."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"نمی‌تواند نویسه نامعتبر داشته باشد"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="one">باید حداقل <xliff:g id="COUNT">%d</xliff:g> نویسه غیرحرف داشته باشد</item>
       <item quantity="other">باید حداقل <xliff:g id="COUNT">%d</xliff:g> نویسه غیرحرف داشته باشد</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="one">باید حداقل <xliff:g id="COUNT">%d</xliff:g> نویسه غیرعددی داشته باشد</item>
+      <item quantity="other">باید حداقل <xliff:g id="COUNT">%d</xliff:g> نویسه غیرعددی داشته باشد</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"سرپرست دستگاه اجازه استفاده از گذرواژه اخیر را نمی‌دهد"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"گذرواژه‌های رایج توسط سرپرست فناوری اطلاعات شما مسدود شده‌اند. گذرواژه متفاوتی را امتحان کنید."</string>

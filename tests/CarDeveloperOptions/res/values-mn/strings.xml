@@ -667,7 +667,6 @@
       <item quantity="other"><xliff:g id="NUMBER_1">%d</xliff:g>-с цөөн цифртэй байх ёстой</item>
       <item quantity="one"><xliff:g id="NUMBER_0">%d</xliff:g>-с цөөн цифртэй байх ёстой</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Зөвхөн 0-9 хүртэлх цифр агуулах шаардлагатай"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Төхөөрөмжийн админ саяхны ПИН-г ашиглахыг зөвшөөрдөггүй"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"Таны IT админ түгээмэл ПИН-г блоклосон байна. Өөр ПИН оруулна уу."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Үүнд хүчингүй тэмдэгт агуулах боломжгүй"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">Хамгийн багадаа <xliff:g id="COUNT">%d</xliff:g> тэмдэгт агуулах шаардлагатай</item>
       <item quantity="one">Хамгийн багадаа 1 тэмдэгт агуулах шаардлагатай</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">Хамгийн багадаа тоон бус <xliff:g id="COUNT">%d</xliff:g> тэмдэгт агуулах ёстой</item>
+      <item quantity="one">Хамгийн багадаа тоон бус 1 тэмдэгт агуулах ёстой</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Төхөөрөмжийн админ саяхны нууц үгийг ашиглахыг зөвшөөрдөггүй"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Таны IT админ түгээмэл нууц үгийг блоклосон байна. Өөр нууц үг оруулна уу."</string>

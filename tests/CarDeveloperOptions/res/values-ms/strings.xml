@@ -667,7 +667,6 @@
       <item quantity="other">Mesti kurang daripada <xliff:g id="NUMBER_1">%d</xliff:g> digit</item>
       <item quantity="one">Mesti kurang daripada <xliff:g id="NUMBER_0">%d</xliff:g> digit</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Mesti mengandungi angka 0-9 sahaja"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Pentadbir peranti tidak membenarkan penggunaan PIN terbaharu"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"PIN lazim disekat oleh pentadbir IT anda. Cuba PIN yang lain."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Tidak boleh menyertakan aksara yang tidak sah"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">Mesti mengandungi sekurang-kurangnya <xliff:g id="COUNT">%d</xliff:g> aksara bukan huruf</item>
       <item quantity="one">Mesti mengandungi sekurang-kurangnya 1 aksara bukan huruf</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">Mesti mengandungi sekurang-kurangnya <xliff:g id="COUNT">%d</xliff:g> aksara bukan angka</item>
+      <item quantity="one">Mesti mengandungi sekurang-kurangnya 1 aksara bukan angka</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Pentadbir peranti tidak membenarkan penggunaan kata laluan terbaharu"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Kata laluan lazim disekat oleh pentadbir IT anda. Cuba kata laluan yang lain."</string>

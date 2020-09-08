@@ -95,6 +95,10 @@
                 <action android:name="android.settings.USER_DICTIONARY_SETTINGS" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
+            <intent-filter android:priority="-1">
+                <action android:name="android.settings.PICTURE_IN_PICTURE_SETTINGS" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
 
         <!-- CDD Core Application Intents Stubs -->
@@ -190,5 +194,30 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <!-- Contacts package stubs -->
+        <activity
+            android:name=".Stubs$ContactsStub"
+            android:label="@string/stub_name"
+            android:excludeFromRecents="true">
+            <intent-filter android:priority="-1">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="vnd.android.cursor.dir/contact"/>
+            </intent-filter>
+
+            <intent-filter android:priority="-1">
+                <action android:name="android.intent.action.GET_CONTENT" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="vnd.android.cursor.dir/contact"/>
+            </intent-filter>
+
+            <intent-filter android:priority="-1">
+                <action android:name="android.intent.action.PICK" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="vnd.android.cursor.dir/contact"/>
+            </intent-filter>
+        </activity>
+
     </application>
 </manifest>

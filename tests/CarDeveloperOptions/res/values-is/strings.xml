@@ -667,7 +667,6 @@
       <item quantity="one">Má ekki vera lengra en <xliff:g id="NUMBER_1">%d</xliff:g> tölustafur</item>
       <item quantity="other">Má ekki vera lengra en <xliff:g id="NUMBER_1">%d</xliff:g> tölustafir</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Má eingöngu innihalda tölustafi, 0–9"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Tækjastjóri leyfir ekki notkun nýlegs PIN-númers"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"Kerfisstjórinn þinn hefur lokað á algeng PIN-númer. Prófaðu annað PIN-númer."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Þetta má ekki innihalda ógildan staf"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="one">Verður að innihalda að minnsta kosti <xliff:g id="COUNT">%d</xliff:g> staftákn sem ekki er bókstafur</item>
       <item quantity="other">Verður að innihalda að minsta kosti <xliff:g id="COUNT">%d</xliff:g> staftákn sem ekki eru bókstafir</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="one">Verður að innihalda að minnsta kosti <xliff:g id="COUNT">%d</xliff:g> staftákn sem er ekki tölustafur</item>
+      <item quantity="other">Verður að innihalda að minnsta kosti <xliff:g id="COUNT">%d</xliff:g> staftákn sem eru ekki tölustafir</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Tækjastjóri leyfir ekki notkun nýlegs aðgangsorðs"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Kerfisstjórinn þinn hefur lokað á algeng aðgangsorð. Prófaðu annað aðgangsorð."</string>

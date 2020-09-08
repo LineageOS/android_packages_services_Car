@@ -667,7 +667,6 @@
       <item quantity="one">Skal indeholde færre end <xliff:g id="NUMBER_1">%d</xliff:g> ciffer</item>
       <item quantity="other">Skal indeholde færre end <xliff:g id="NUMBER_1">%d</xliff:g> cifre</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Må kun indeholde tallene 0-9"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Enhedens administrator tillader ikke brug af en nylig brugt pinkode"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"Brug af almindelige pinkoder er blokeret af din it-administrator. Prøv en anden pinkode."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Der kan ikke bruges et ugyldigt tegn"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="one">Skal indeholde mindst <xliff:g id="COUNT">%d</xliff:g> tegn, der ikke er et bogstav</item>
       <item quantity="other">Skal indeholde mindst <xliff:g id="COUNT">%d</xliff:g> tegn, der ikke er bogstaver</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="one">Skal indeholde mindst <xliff:g id="COUNT">%d</xliff:g> tegn, som ikke er et tal</item>
+      <item quantity="other">Skal indeholde mindst <xliff:g id="COUNT">%d</xliff:g> tegn, som ikke er et tal</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Enhedens administrator tillader ikke brug af en nylig brugt adgangskode"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Brug af almindelige adgangskoder er blokeret af din it-administrator. Prøv en anden adgangskode."</string>

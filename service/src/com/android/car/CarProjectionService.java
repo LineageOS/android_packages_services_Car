@@ -26,14 +26,12 @@ import static android.net.wifi.WifiManager.EXTRA_WIFI_AP_STATE;
 import static android.net.wifi.WifiManager.WIFI_AP_STATE_DISABLED;
 import static android.net.wifi.WifiManager.WIFI_AP_STATE_ENABLED;
 import static android.net.wifi.WifiManager.WIFI_AP_STATE_ENABLING;
-import static android.net.wifi.WifiManager.WIFI_FREQUENCY_BAND_5GHZ;
 
 import android.annotation.Nullable;
 import android.app.ActivityOptions;
 import android.bluetooth.BluetoothDevice;
 import android.car.CarProjectionManager;
 import android.car.CarProjectionManager.ProjectionAccessPointCallback;
-import android.car.CarProjectionManager.ProjectionKeyEventHandler;
 import android.car.ICarProjection;
 import android.car.ICarProjectionKeyEventHandler;
 import android.car.ICarProjectionStatusListener;
@@ -49,8 +47,9 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Rect;
+import android.net.MacAddress;
+import android.net.wifi.SoftApConfiguration;
 import android.net.wifi.WifiClient;
-import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiManager.LocalOnlyHotspotCallback;
 import android.net.wifi.WifiManager.LocalOnlyHotspotReservation;
@@ -614,10 +613,10 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
             ensureApConfiguration();
         }
 
-        if (!mWifiManager.startSoftAp(null /* use existing config*/)) {
+        if (!mWifiManager.startTetheredHotspot(null /* use existing config*/)) {
             // The indicates that AP might be already started.
             if (mWifiManager.getWifiApState() == WIFI_AP_STATE_ENABLED) {
-                sendApStarted(mWifiManager.getWifiApConfiguration());
+                sendApStarted(mWifiManager.getSoftApConfiguration());
             } else {
                 Log.e(TAG, "Failed to start soft AP");
                 sendApFailed(ERROR_GENERIC);
@@ -640,7 +639,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
     private void startLocalOnlyApLocked() {
         if (mLocalOnlyHotspotReservation != null) {
             Log.i(TAG, "Local-only hotspot is already registered.");
-            sendApStarted(mLocalOnlyHotspotReservation.getWifiConfiguration());
+            sendApStarted(mLocalOnlyHotspotReservation.getSoftApConfiguration());
             return;
         }
 
@@ -652,7 +651,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
                 synchronized (mLock) {
                     mLocalOnlyHotspotReservation = reservation;
                 }
-                sendApStarted(reservation.getWifiConfiguration());
+                sendApStarted(reservation.getSoftApConfiguration());
             }
 
             @Override
@@ -708,18 +707,19 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         mLocalOnlyHotspotReservation = null;
     }
 
-    private void sendApStarted(WifiConfiguration wifiConfiguration) {
-        WifiConfiguration localWifiConfig = new WifiConfiguration(wifiConfiguration);
-        localWifiConfig.BSSID = mApBssid;
-
+    private void sendApStarted(SoftApConfiguration softApConfiguration) {
+        SoftApConfiguration localSoftApConfig =
+                new SoftApConfiguration.Builder(softApConfiguration)
+                .setBssid(MacAddress.fromString(mApBssid))
+                .build();
         Message message = Message.obtain();
         message.what = CarProjectionManager.PROJECTION_AP_STARTED;
-        message.obj = localWifiConfig;
+        message.obj = localSoftApConfig;
         Log.i(TAG, "Sending PROJECTION_AP_STARTED, ssid: "
-                + localWifiConfig.getPrintableSsid()
-                + ", apBand: " + localWifiConfig.apBand
-                + ", apChannel: " + localWifiConfig.apChannel
-                + ", bssid: " + localWifiConfig.BSSID);
+                + localSoftApConfig.getSsid()
+                + ", apBand: " + localSoftApConfig.getBand()
+                + ", apChannel: " + localSoftApConfig.getChannel()
+                + ", bssid: " + localSoftApConfig.getBssid());
         sendApStatusMessage(message);
     }
 
@@ -938,11 +938,11 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
 
     private void ensureApConfiguration() {
         // Always prefer 5GHz configuration whenever it is available.
-        WifiConfiguration apConfig = mWifiManager.getWifiApConfiguration();
-        if (apConfig != null && apConfig.apBand != WIFI_FREQUENCY_BAND_5GHZ
+        SoftApConfiguration apConfig = mWifiManager.getSoftApConfiguration();
+        if (apConfig != null && apConfig.getBand() != SoftApConfiguration.BAND_5GHZ
                 && mWifiManager.is5GHzBandSupported()) {
-            apConfig.apBand = WIFI_FREQUENCY_BAND_5GHZ;
-            mWifiManager.setWifiApConfiguration(apConfig);
+            mWifiManager.setSoftApConfiguration(new SoftApConfiguration.Builder(apConfig)
+                    .setBand(SoftApConfiguration.BAND_5GHZ).build());
         }
     }
 
@@ -964,7 +964,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
 
             switch (state) {
                 case WifiManager.WIFI_AP_STATE_ENABLED: {
-                    sendApStarted(mWifiManager.getWifiApConfiguration());
+                    sendApStarted(mWifiManager.getSoftApConfiguration());
                     break;
                 }
                 case WifiManager.WIFI_AP_STATE_DISABLED: {

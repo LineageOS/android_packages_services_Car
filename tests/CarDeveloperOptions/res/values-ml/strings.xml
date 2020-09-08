@@ -667,7 +667,6 @@
       <item quantity="other"><xliff:g id="NUMBER_1">%d</xliff:g> അക്കങ്ങളേക്കാൾ കുറവായിരിക്കണം</item>
       <item quantity="one"><xliff:g id="NUMBER_0">%d</xliff:g> അക്കത്തിനേക്കാൾ കുറവായിരിക്കണം</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"0 മുതൽ 9 വരെയുള്ള അക്കങ്ങൾ മാത്രം അടങ്ങിയിരിക്കണം"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"ഉപകരണ അഡ്‌മിൻ സമീപകാലത്തുള്ള പിൻ ഉപയോഗിക്കുന്നത് അനുവദിക്കുന്നില്ല"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"നിങ്ങളുടെ ഐടി അഡ്‌മിൻ സാധാരണ പിന്നുകൾ ബ്ലോക്ക് ചെയ്‌തിട്ടുണ്ട്. മറ്റൊരു പിൻ പരീക്ഷിക്കുക."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"ഇതിൽ അസാധുവായൊരു പ്രതീകം ഉണ്ടായിരിക്കാൻ പാടില്ല"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">കുറഞ്ഞത് അക്ഷരമല്ലാത്ത <xliff:g id="COUNT">%d</xliff:g> പ്രതീകങ്ങളെങ്കിലും അടങ്ങിയിരിക്കണം</item>
       <item quantity="one">കുറഞ്ഞത് അക്ഷരമല്ലാത്ത ഒരു പ്രതീകമെങ്കിലും അടങ്ങിയിരിക്കണം</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">കുറഞ്ഞത് സംഖ്യയല്ലാത്ത <xliff:g id="COUNT">%d</xliff:g> പ്രതീകങ്ങളെങ്കിലും അടങ്ങിയിരിക്കണം</item>
+      <item quantity="one">കുറഞ്ഞത് സംഖ്യയല്ലാത്ത ഒരു പ്രതീകമെങ്കിലും അടങ്ങിയിരിക്കണം</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"ഒരു സമീപകാല പാസ്‌വേഡ് ഉപയോഗിക്കാൻ ഉപകരണ അഡ്‌മിൻ അനുവദിക്കുന്നില്ല"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"നിങ്ങളുടെ IT അഡ്‌മിൻ സാധാരണ പാസ്‍വേഡുകൾ ബ്ലോക്ക് ചെയ്‌തിട്ടുണ്ട്. മറ്റൊരു പാസ്‍വേഡ് പരീക്ഷിക്കുക."</string>

@@ -667,7 +667,6 @@
       <item quantity="other">Moet minder as <xliff:g id="NUMBER_1">%d</xliff:g> syfers wees</item>
       <item quantity="one">Moet minder as <xliff:g id="NUMBER_0">%d</xliff:g> syfer wees</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Mag net syfers 0-9 bevat"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Toesteladministrateur laat nie toe dat jy \'n onlangse PIN gebruik nie"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"Jou IT-administrateur blokkeer algemene PIN\'e. Probeer \'n ander PIN."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Dit mag nie \'n ongeldige karakter insluit nie"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">Moet minstens <xliff:g id="COUNT">%d</xliff:g> nieletterkarakters bevat</item>
       <item quantity="one">Moet minstens 1 nieletterkarakter bevat</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">Moet minstens <xliff:g id="COUNT">%d</xliff:g> nienumeriese karakters bevat</item>
+      <item quantity="one">Moet minstens 1 nienumeriese karakter bevat</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Toesteladministrateur laat nie toe dat jy \'n onlangse wagwoord gebruik nie"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Jou IT-administrateur blokkeer algemene wagwoorde. Probeer \'n ander wagwoord."</string>

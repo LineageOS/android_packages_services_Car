@@ -667,7 +667,6 @@
       <item quantity="other"><xliff:g id="NUMBER_1">%d</xliff:g> сандан ашпашы керек</item>
       <item quantity="one"><xliff:g id="NUMBER_0">%d</xliff:g> сандан ашпашы керек</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"0-9 сандарынан гана турушу керек"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Түзмөктүн администратору акыркы PIN кодду колдонууга тыюу салган"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"Жөнөкөй PIN-коддорду коюу IT администраторуңуз тарабынан бөгөттөлгөн. Татаалыраак PIN-кодду коюп көрүңүз."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Бул жерде жараксыз белги камтылбашы керек"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">Тамгадан башка кеминде <xliff:g id="COUNT">%d</xliff:g> белги болушу керек</item>
       <item quantity="one">Тамгадан башка кеминде 1 белги болушу керек</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">Тамгадан башка кеминде <xliff:g id="COUNT">%d</xliff:g> сандык эмес символ болушу керек</item>
+      <item quantity="one">Тамгадан башка кеминде 1 сандык эмес символ болушу керек</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Түзмөктүн администратору акыркы сырсөздү колдонууга тыюу салган"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Жөнөкөй сырсөздөрү коюу IT администраторуңуз тарабынан бөгөттөлгөн. Татаалыраак сырсөздү коюп көрүңүз."</string>

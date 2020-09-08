@@ -667,7 +667,6 @@
       <item quantity="other">Peab olema alla <xliff:g id="NUMBER_1">%d</xliff:g> numbri</item>
       <item quantity="one">Peab olema alla <xliff:g id="NUMBER_0">%d</xliff:g> numbri</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Tohib sisaldada ainult numbreid 0–9."</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Seadme administraator ei luba kasutada viimast PIN-koodi"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"IT-administraator on levinud PIN-koodid blokeerinud. Proovige muud PIN-koodi."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"See ei tohi sisaldada sobimatut tähemärki"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">Peab sisaldama vähemalt <xliff:g id="COUNT">%d</xliff:g> tähemärki, mis ei ole täht</item>
       <item quantity="one">Peab sisaldama vähemalt 1 tähemärki, mis ei ole täht</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">Peab sisaldama vähemalt <xliff:g id="COUNT">%d</xliff:g> tähemärki, mis ei ole number</item>
+      <item quantity="one">Peab sisaldama vähemalt 1 tähemärki, mis ei ole number</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Seadme administraator ei luba kasutada hiljutist parooli"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"IT-administraator on levinud paroolid blokeerinud. Proovige muud parooli."</string>

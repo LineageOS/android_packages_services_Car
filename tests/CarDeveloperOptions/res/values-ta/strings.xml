@@ -667,7 +667,6 @@
       <item quantity="other"><xliff:g id="NUMBER_1">%d</xliff:g> இலக்கங்களை விடக் குறைவாக இருக்க வேண்டும்</item>
       <item quantity="one"><xliff:g id="NUMBER_0">%d</xliff:g> இலக்கத்தை விடக் குறைவாக இருக்க வேண்டும்</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"0-9 இலக்கங்கள் மட்டுமே இருக்க வேண்டும்"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"சாதன நிர்வாகி சமீபத்திய பின்னை பயன்படுத்துவதை அனுமதிக்கவில்லை"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"IT நிர்வாகியால், பொதுவான பின்கள் தடை செய்யப்பட்டுள்ளன. வேறொரு பின்னை முயலவும்."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"இதில் தவறான எழுத்துக்குறி இருக்கக்கூடாது"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">குறைந்தது எழுத்து அல்லாத <xliff:g id="COUNT">%d</xliff:g> குறிகள் இருக்க வேண்டும்</item>
       <item quantity="one">குறைந்தது எழுத்து அல்லாத 1 குறி இருக்க வேண்டும்</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">குறைந்தது எண் அல்லாத <xliff:g id="COUNT">%d</xliff:g> எழுத்துகளாவது இருக்க வேண்டும்</item>
+      <item quantity="one">குறைந்தது எண் அல்லாத 1 எழுத்தாவது இருக்க வேண்டும்</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"சாதன நிர்வாகி சமீபத்திய கடவுச்சொல்லைப் பயன்படுத்துவதை அனுமதிக்கவில்லை"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"IT நிர்வாகியால், பொதுவான கடவுச்சொற்கள் தடை செய்யப்பட்டுள்ளன. வேறொரு கடவுச்சொல்லை முயலவும்."</string>

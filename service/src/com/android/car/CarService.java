@@ -30,10 +30,12 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemClock;
 import android.os.SystemProperties;
+import android.util.EventLog;
 import android.util.Log;
 
 import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.internal.car.EventLogTags;
 import com.android.internal.util.RingBufferIndices;
 
 import java.io.FileDescriptor;
@@ -77,6 +79,7 @@ public class CarService extends Service {
         Log.i(CarLog.TAG_SERVICE, "Service onCreate");
         mCanBusErrorNotifier = new CanBusErrorNotifier(this /* context */);
         mVehicle = getVehicle();
+        EventLog.writeEvent(EventLogTags.CAR_SERVICE_CREATE, mVehicle == null ? 0 : 1);
 
         if (mVehicle == null) {
             throw new IllegalStateException("Vehicle HAL service is not available.");
@@ -88,6 +91,7 @@ public class CarService extends Service {
         }
 
         Log.i(CarLog.TAG_SERVICE, "Connected to " + mVehicleInterfaceName);
+        EventLog.writeEvent(EventLogTags.CAR_SERVICE_CONNECTED, mVehicleInterfaceName);
 
         mICarImpl = new ICarImpl(this,
                 mVehicle,
@@ -99,7 +103,6 @@ public class CarService extends Service {
         linkToDeath(mVehicle, mVehicleDeathRecipient);
 
         ServiceManager.addService("car_service", mICarImpl);
-        ServiceManager.addService("car_stats", mICarImpl.getStatsService());
         SystemProperties.set("boot.car_service_created", "1");
         super.onCreate();
     }
@@ -109,6 +112,7 @@ public class CarService extends Service {
     // cleanup task that you want to make sure happens on shutdown/reboot, see OnShutdownReboot.
     @Override
     public void onDestroy() {
+        EventLog.writeEvent(EventLogTags.CAR_SERVICE_CREATE, mVehicle == null ? 0 : 1);
         Log.i(CarLog.TAG_SERVICE, "Service onDestroy");
         mICarImpl.release();
         mCanBusErrorNotifier.removeFailureReport(this);
@@ -167,21 +171,23 @@ public class CarService extends Service {
 
     @Nullable
     private static IVehicle getVehicle() {
+        final String instanceName = SystemProperties.get("ro.vehicle.hal", "default");
+
         try {
-            return android.hardware.automotive.vehicle.V2_0.IVehicle.getService();
+            return android.hardware.automotive.vehicle.V2_0.IVehicle.getService(instanceName);
         } catch (RemoteException e) {
-            Log.e(CarLog.TAG_SERVICE, "Failed to get IVehicle service", e);
+            Log.e(CarLog.TAG_SERVICE, "Failed to get IVehicle/" + instanceName + " service", e);
         } catch (NoSuchElementException e) {
-            Log.e(CarLog.TAG_SERVICE, "IVehicle service not registered yet");
+            Log.e(CarLog.TAG_SERVICE, "IVehicle/" + instanceName + " service not registered yet");
         }
         return null;
     }
 
     private class VehicleDeathRecipient implements DeathRecipient {
-        private int deathCount = 0;
 
         @Override
         public void serviceDied(long cookie) {
+            EventLog.writeEvent(EventLogTags.CAR_SERVICE_VHAL_DIED, cookie);
             if (RESTART_CAR_SERVICE_WHEN_VHAL_CRASH) {
                 Log.wtf(CarLog.TAG_SERVICE, "***Vehicle HAL died. Car service will restart***");
                 Process.killProcess(Process.myPid());

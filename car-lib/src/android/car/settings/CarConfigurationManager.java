@@ -23,7 +23,10 @@ import android.os.RemoteException;
 
 /**
  * Manager that exposes car configuration values that are stored on the system.
+ *
+ * @deprecated The {@code CarConfigurationManager} is no longer supported and will be removed.
  */
+@Deprecated
 public class CarConfigurationManager extends CarManagerBase {
     private static final String TAG = "CarConfigurationManager";
 

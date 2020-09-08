@@ -667,7 +667,6 @@
       <item quantity="other">ត្រូវ​តែ​តិច​ជាង <xliff:g id="NUMBER_1">%d</xliff:g> ខ្ទង់</item>
       <item quantity="one">ត្រូវ​តែ​តិច​ជាង <xliff:g id="NUMBER_0">%d</xliff:g> ខ្ទង់</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"ត្រូវមានលេខពី 0-9 តែប៉ុណ្ណោះ"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"អ្នក​គ្រប់គ្រង​ឧបករណ៍​មិនអនុញ្ញាត​កូដ PIN ​ទើបប្រើហើយទេ"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"កូដ PIN លក្ខណៈ​សាមញ្ញ​ត្រូវ​បាន​ទប់ស្កាត់​ដោយ​អ្នក​គ្រប់គ្រង​ព័ត៌មាន​វិទ្យា​របស់អ្នក។ សាកល្បង​ប្រើ​កូដ PIN ផ្សេង​ពី​នេះ។"</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"វាមិនអាចប្រើតួអក្សរដែលគ្មានសុពលភាពទេ"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">ត្រូវ​មាន​តួ​ដែល​មិន​មែន​ជា​អក្សរ​យ៉ាង​ហោច​ណាស់ <xliff:g id="COUNT">%d</xliff:g></item>
       <item quantity="one">ត្រូវមានតួដែលមិនមែនជាអក្សរយ៉ាងហោចណាស់ 1</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">ត្រូវតែមាន​តួដែលមិនមែន​ជាលេខ​យ៉ាងហោចណាស់ <xliff:g id="COUNT">%d</xliff:g></item>
+      <item quantity="one">ត្រូវតែមាន​តួដែលមិនមែន​ជាលេខ​យ៉ាងហោចណាស់ 1</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"អ្នក​គ្រប់គ្រង​ឧបករណ៍​មិន​អនុញ្ញាត​ឲ្យ​ប្រើ​ពាក្យ​សម្ងាត់​បច្ចុប្បន្ន​ទេ"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"ពាក្យសម្ងាត់​លក្ខណៈ​សាមញ្ញ​ត្រូវ​បាន​ទប់ស្កាត់​ដោយ​អ្នក​គ្រប់គ្រង​ព័ត៌មាន​វិទ្យា​របស់អ្នក។ សាកល្បង​ប្រើ​ពាក្យ​សម្ងាត់​ផ្សេង​ពី​នេះ។"</string>

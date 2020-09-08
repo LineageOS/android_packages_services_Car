@@ -667,7 +667,6 @@
       <item quantity="other">Ha de tenir <xliff:g id="NUMBER_1">%d</xliff:g> dígits o menys</item>
       <item quantity="one">Ha de tenir <xliff:g id="NUMBER_0">%d</xliff:g> dígit o menys</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Només pot contenir dígits del 0 al 9"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"L\'administrador del dispositiu no permet que s\'utilitzi un PIN recent"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"L\'administrador de TI ha bloquejat els PIN més comuns. Prova un altre PIN."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"No pot incloure un caràcter no vàlid"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">Ha de contenir com a mínim <xliff:g id="COUNT">%d</xliff:g> caràcters que no siguin lletres</item>
       <item quantity="one">Ha de contenir com a mínim 1 caràcter que no sigui una lletra</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">Ha de contenir com a mínim <xliff:g id="COUNT">%d</xliff:g> caràcters que no siguin números</item>
+      <item quantity="one">Ha de contenir com a mínim 1 caràcter que no sigui un número</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"L\'administrador del dispositiu no permet que s\'utilitzi una contrasenya recent"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"L\'administrador de TI ha bloquejat les contrasenyes més comunes. Prova una altra contrasenya."</string>

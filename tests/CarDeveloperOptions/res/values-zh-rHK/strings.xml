@@ -667,7 +667,6 @@
       <item quantity="other">必須少於 <xliff:g id="NUMBER_1">%d</xliff:g> 個數字</item>
       <item quantity="one">必須少於 <xliff:g id="NUMBER_0">%d</xliff:g> 個數字</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"只可包含數字 0-9"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"裝置管理員不允許使用最近用過的 PIN 碼"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"您的 IT 管理員已禁止使用常用的 PIN 碼，請嘗試輸入另一個 PIN 碼。"</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"您不可使用無效字元"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">必須包含最少 <xliff:g id="COUNT">%d</xliff:g> 個非字母字元</item>
       <item quantity="one">必須包含最少 1 個非字母字元</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">必須包含至少 <xliff:g id="COUNT">%d</xliff:g> 個非數字字元</item>
+      <item quantity="one">必須包含至少 1 個非數字字元</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"裝置管理員不允許使用最近用過的密碼"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"您的 IT 管理員已禁止使用常用的密碼，請嘗試輸入另一個密碼。"</string>

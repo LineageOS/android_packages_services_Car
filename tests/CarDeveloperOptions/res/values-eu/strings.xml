@@ -667,7 +667,6 @@
       <item quantity="other"><xliff:g id="NUMBER_1">%d</xliff:g> digitu baino gutxiago izan behar ditu</item>
       <item quantity="one"><xliff:g id="NUMBER_0">%d</xliff:g> digitu baino gutxiago izan behar du</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"0 eta 9 arteko digituak soilik izan ditzake"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Gailuaren administratzaileak ez du eman beste PIN kode bat erabiltzeko baimenik"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"IKT saileko administratzaileak blokeatu egiten ditu asmatzen errazak diren PIN kodeak. Erabili beste PIN bat."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Ezin da erabili onartzen ez den karaktererik"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">Hizkiak ez diren <xliff:g id="COUNT">%d</xliff:g> karaktere bat izan behar du gutxienez</item>
       <item quantity="one">Hizkia ez den karaktere bat izan behar du gutxienez</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">Gutxienez, zenbakizkoak ez diren <xliff:g id="COUNT">%d</xliff:g> karaktere izan behar ditu</item>
+      <item quantity="one">Gutxienez, zenbakizkoa ez den 1 karaktere izan behar du</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Gailuaren administratzaileak ez du eman beste pasahitz bat erabiltzeko baimenik"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"IKT saileko administratzaileak blokeatu egiten ditu asmatzen errazak diren pasahitzak. Erabili beste pasahitz bat."</string>

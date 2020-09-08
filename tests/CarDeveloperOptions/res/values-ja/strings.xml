@@ -667,7 +667,6 @@
       <item quantity="other"><xliff:g id="NUMBER_1">%d</xliff:g> 桁未満にしてください</item>
       <item quantity="one"><xliff:g id="NUMBER_0">%d</xliff:g> 桁未満にしてください</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"使用できるのは 0～9 の数字のみです"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"デバイス管理により、最近使用した PIN は使用できません"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"一般的な PIN は IT 管理者によってブロックされています。別の PIN をお試しください。"</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"無効な文字があります"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">記号または数字が <xliff:g id="COUNT">%d</xliff:g> つ以上必要です</item>
       <item quantity="one">記号または数字が 1 つ以上必要です</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">数字以外の文字を <xliff:g id="COUNT">%d</xliff:g> 個以上使用してください</item>
+      <item quantity="one">数字以外の文字を 1 個以上使用してください</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"デバイス管理により、最近使用したパスワードは使用できません"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"一般的なパスワードは IT 管理者によってブロックされています。別のパスワードをお試しください。"</string>

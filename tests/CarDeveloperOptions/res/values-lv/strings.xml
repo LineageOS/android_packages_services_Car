@@ -675,7 +675,6 @@
       <item quantity="one">Ir jābūt mazāk par <xliff:g id="NUMBER_1">%d</xliff:g> ciparu.</item>
       <item quantity="other">Ir jābūt mazāk par <xliff:g id="NUMBER_1">%d</xliff:g> cipariem.</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Ir jāietver tikai cipari no 0 līdz 9."</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Ierīces administrators neļauj izmantot nesen izveidotu PIN."</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"Jūsu IT administrators ir bloķējis pārāk vienkāršus PIN kodus. Izmēģiniet sarežģītāku PIN kodu."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Nedrīkst ietvert nederīgu rakstzīmi."</string>
@@ -711,6 +710,11 @@
       <item quantity="zero">Ir jāietver vismaz <xliff:g id="COUNT">%d</xliff:g> rakstzīmes, kas nav burti.</item>
       <item quantity="one">Ir jāietver vismaz <xliff:g id="COUNT">%d</xliff:g> rakstzīme, kas nav burts.</item>
       <item quantity="other">Ir jāietver vismaz <xliff:g id="COUNT">%d</xliff:g> rakstzīmes, kas nav burti.</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="zero">Ir jāietver vismaz <xliff:g id="COUNT">%d</xliff:g> rakstzīmes, kas nav cipari.</item>
+      <item quantity="one">Ir jāietver vismaz <xliff:g id="COUNT">%d</xliff:g> rakstzīme, kas nav cipari.</item>
+      <item quantity="other">Ir jāietver vismaz <xliff:g id="COUNT">%d</xliff:g> rakstzīmes, kas nav cipari.</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Ierīces administrators neļauj izmantot nesen izveidotu paroli."</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Jūsu IT administrators ir bloķējis pārāk vienkāršas paroles. Izmēģiniet sarežģītāku paroli."</string>

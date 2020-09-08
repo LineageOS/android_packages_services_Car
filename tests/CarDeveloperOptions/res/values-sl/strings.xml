@@ -683,7 +683,6 @@
       <item quantity="few">Vsebovati mora manj kot <xliff:g id="NUMBER_1">%d</xliff:g> števke</item>
       <item quantity="other">Vsebovati mora manj kot <xliff:g id="NUMBER_1">%d</xliff:g> števk</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Vsebovati sme samo števke od 0 do 9."</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Skrbnik naprave ne dovoli uporabe nedavne kode PIN."</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"Skrbnik za IT je blokiral pogoste kode PIN. Poskusite z drugo kodo PIN."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Ne sme vsebovati neveljavnih znakov."</string>
@@ -725,6 +724,12 @@
       <item quantity="two">Vsebovati mora vsaj <xliff:g id="COUNT">%d</xliff:g> znaka, ki nista črka</item>
       <item quantity="few">Vsebovati mora vsaj <xliff:g id="COUNT">%d</xliff:g> znake, ki niso črka</item>
       <item quantity="other">Vsebovati mora vsaj <xliff:g id="COUNT">%d</xliff:g> znakov, ki niso črka</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="one">Vsebovati mora vsaj <xliff:g id="COUNT">%d</xliff:g> znak, ki ni števka</item>
+      <item quantity="two">Vsebovati mora vsaj <xliff:g id="COUNT">%d</xliff:g> znaka, ki nista števki</item>
+      <item quantity="few">Vsebovati mora vsaj <xliff:g id="COUNT">%d</xliff:g> znake, ki niso števke</item>
+      <item quantity="other">Vsebovati mora vsaj <xliff:g id="COUNT">%d</xliff:g> znakov, ki niso števke</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Skrbnik naprave ne dovoli uporabe nedavnega gesla."</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Skrbnik za IT je blokiral pogosta gesla. Poskusite z drugim geslom."</string>

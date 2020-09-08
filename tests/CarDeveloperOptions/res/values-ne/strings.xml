@@ -667,7 +667,6 @@
       <item quantity="other">अनिवार्य रूपमा <xliff:g id="NUMBER_1">%d</xliff:g> अङ्कहरू भन्दा कम हुनु पर्छ</item>
       <item quantity="one">अनिवार्य रूपमा <xliff:g id="NUMBER_0">%d</xliff:g> अङ्क भन्दा कम हुनु पर्छ</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"अनिवार्य रूपमा ० देखि ९ सम्मका अङ्कहरू मात्र समावेश हुनु पर्छ"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"यन्त्र प्रशासकले पछिल्लो PIN प्रयोग गर्न अनुमति दिँदैन"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"तपाईंकसे IT व्यवस्थापकले धेरै प्रयोग हुने PIN हरूमाथि रोक लगाउनु भएको छ। कुनै फरक PIN प्रयोग गरी हेर्नुहोस्।"</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"यसमा अमान्य वर्ण समावेश गर्न सकिँदैन"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">कम्तीमा पनि <xliff:g id="COUNT">%d</xliff:g> वटा गैर-अक्षर वर्ण हुनु अनिवार्य छ</item>
       <item quantity="one">कम्तीमा पनि एउटा गैर-अक्षर वर्ण हुनु अनिवार्य छ</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">कम्तीमा पनि <xliff:g id="COUNT">%d</xliff:g> गैर-सङ्ख्यात्मक वर्ण हुनु अनिवार्य छ</item>
+      <item quantity="one">कम्तीमा पनि १ गैर-सङ्ख्यात्मक वर्ण हुनु अनिवार्य छ</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"यन्त्रको प्रशासकले पछिल्लो पासवर्ड प्रयोग गर्ने अनुमति दिँदैन"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"तपाईंकसे IT व्यवस्थापकले धेरै प्रयोग हुने पासवर्डहरूमाथि रोक लगाउनु भएको छ। कुनै फरक पासवर्ड प्रयोग गरी हेर्नुहोस्।"</string>

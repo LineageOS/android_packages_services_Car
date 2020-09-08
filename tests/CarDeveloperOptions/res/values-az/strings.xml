@@ -667,7 +667,6 @@
       <item quantity="other"><xliff:g id="NUMBER_1">%d</xliff:g> rəqəmdən az olmalıdır</item>
       <item quantity="one"><xliff:g id="NUMBER_0">%d</xliff:g> rəqəmdən az olmalıdır</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Yalnız 0-9 rəqəmlərindən ibarət olmalıdır"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Cihaz admini son vaxtlardakı PIN kodu istifadə etməyə icazə vermir"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"Ümumi PIN-lər IT admini tərəfindən blok edilib. Fərqli PIN-i sınayın."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Yalnış simvol daxil edə bilməzsiniz"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">Ən azı hərf olmayan <xliff:g id="COUNT">%d</xliff:g> simvol olmalıdır</item>
       <item quantity="one">Ən azı hərf olmayan 1 simvol olmalıdır</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">Ən azı rəqəm olmayan <xliff:g id="COUNT">%d</xliff:g> simvol olmalıdır</item>
+      <item quantity="one">Ən azı rəqəm olmayan 1 simvol olmalıdır</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Cihaz admini son vaxtlardakı parolu istifadə etməyə icazə vermir"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Ümumi parollar IT admini tərəfindən blok edilib. Fərqli parolu sınayın."</string>

@@ -253,8 +253,7 @@ public class WifiConfigController implements TextWatcher,
         mMeteredSettingsSpinner = mView.findViewById(R.id.metered_settings);
         mHiddenSettingsSpinner = mView.findViewById(R.id.hidden_settings);
         mPrivacySettingsSpinner = mView.findViewById(R.id.privacy_settings);
-        if (mContext.getResources().getBoolean(
-                com.android.internal.R.bool.config_wifi_connected_mac_randomization_supported)) {
+        if (mWifiManager.isConnectedMacRandomizationSupported()) {
             View privacySettingsLayout = mView.findViewById(R.id.privacy_settings_fields);
             privacySettingsLayout.setVisibility(View.VISIBLE);
         }
@@ -288,11 +287,12 @@ public class WifiConfigController implements TextWatcher,
                                 config.macRandomizationSetting);
                 mPrivacySettingsSpinner.setSelection(prefMacValue);
 
-                if (config.getIpAssignment() == IpAssignment.STATIC) {
+                if (config.getIpConfiguration().getIpAssignment() == IpAssignment.STATIC) {
                     mIpSettingsSpinner.setSelection(STATIC_IP);
                     showAdvancedFields = true;
                     // Display IP address.
-                    StaticIpConfiguration staticConfig = config.getStaticIpConfiguration();
+                    StaticIpConfiguration staticConfig = config.getIpConfiguration()
+                            .getStaticIpConfiguration();
                     if (staticConfig != null && staticConfig.ipAddress != null) {
                         addRow(group, R.string.wifi_ip_address,
                                 staticConfig.ipAddress.getAddress().getHostAddress());
@@ -306,10 +306,11 @@ public class WifiConfigController implements TextWatcher,
                     showAdvancedFields = true;
                 }
 
-                if (config.getProxySettings() == ProxySettings.STATIC) {
+                ProxySettings proxySettings = config.getIpConfiguration().getProxySettings();
+                if (proxySettings == ProxySettings.STATIC) {
                     mProxySettingsSpinner.setSelection(PROXY_STATIC);
                     showAdvancedFields = true;
-                } else if (config.getProxySettings() == ProxySettings.PAC) {
+                } else if (proxySettings == ProxySettings.PAC) {
                     mProxySettingsSpinner.setSelection(PROXY_PAC);
                     showAdvancedFields = true;
                 } else {
@@ -330,17 +331,10 @@ public class WifiConfigController implements TextWatcher,
                 showProxyFields();
                 final CheckBox advancedTogglebox =
                         (CheckBox) mView.findViewById(R.id.wifi_advanced_togglebox);
-                mView.findViewById(R.id.wifi_advanced_toggle).setVisibility(
-                        mAccessPoint.isCarrierAp() ? View.GONE : View.VISIBLE);
                 advancedTogglebox.setOnCheckedChangeListener(this);
                 advancedTogglebox.setChecked(showAdvancedFields);
                 mView.findViewById(R.id.wifi_advanced_fields)
                         .setVisibility(showAdvancedFields ? View.VISIBLE : View.GONE);
-                if (mAccessPoint.isCarrierAp()) {
-                    addRow(group, R.string.wifi_carrier_connect,
-                            String.format(mContext.getString(R.string.wifi_carrier_content),
-                            mAccessPoint.getCarrierName()));
-                }
             }
 
             if (mMode == WifiConfigUiBase.MODE_MODIFY) {
@@ -643,7 +637,7 @@ public class WifiConfigController implements TextWatcher,
                 config.allowedKeyManagement.set(KeyMgmt.IEEE8021X);
                 if (mAccessPointSecurity == AccessPoint.SECURITY_EAP_SUITE_B) {
                     config.allowedKeyManagement.set(KeyMgmt.SUITE_B_192);
-                    config.requirePMF = true;
+                    config.requirePmf = true;
                     config.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.GCMP_256);
                     config.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.GCMP_256);
                     config.allowedGroupManagementCiphers.set(WifiConfiguration.GroupMgmtCipher
@@ -760,7 +754,7 @@ public class WifiConfigController implements TextWatcher,
                 break;
             case AccessPoint.SECURITY_SAE:
                 config.allowedKeyManagement.set(KeyMgmt.SAE);
-                config.requirePMF = true;
+                config.requirePmf = true;
                 if (mPasswordView.length() != 0) {
                     String password = mPasswordView.getText().toString();
                     config.preSharedKey = '"' + password + '"';
@@ -769,7 +763,7 @@ public class WifiConfigController implements TextWatcher,
 
             case AccessPoint.SECURITY_OWE:
                 config.allowedKeyManagement.set(KeyMgmt.OWE);
-                config.requirePMF = true;
+                config.requirePmf = true;
                 break;
 
             default:
@@ -977,10 +971,6 @@ public class WifiConfigController implements TextWatcher,
             mEapIdentityView = (TextView) mView.findViewById(R.id.identity);
             mEapAnonymousView = (TextView) mView.findViewById(R.id.anonymous);
 
-            if (mAccessPoint != null && mAccessPoint.isCarrierAp()) {
-                mEapMethodSpinner.setSelection(mAccessPoint.getCarrierApEapType());
-            }
-
             loadCertificates(
                     mEapCaCertSpinner,
                     Credentials.CA_CERTIFICATE,
@@ -1148,9 +1138,6 @@ public class WifiConfigController implements TextWatcher,
                 setUserCertInvisible();
                 setPasswordInvisible();
                 setIdentityInvisible();
-                if (mAccessPoint != null && mAccessPoint.isCarrierAp()) {
-                    setEapMethodInvisible();
-                }
                 break;
         }
 
@@ -1245,7 +1232,8 @@ public class WifiConfigController implements TextWatcher,
                 mDns2View.addTextChangedListener(this);
             }
             if (config != null) {
-                StaticIpConfiguration staticConfig = config.getStaticIpConfiguration();
+                StaticIpConfiguration staticConfig = config.getIpConfiguration()
+                        .getStaticIpConfiguration();
                 if (staticConfig != null) {
                     if (staticConfig.ipAddress != null) {
                         mIpAddressView.setText(

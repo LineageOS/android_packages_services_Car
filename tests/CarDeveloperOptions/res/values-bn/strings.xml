@@ -667,7 +667,6 @@
       <item quantity="one">অবশ্যই <xliff:g id="NUMBER_1">%d</xliff:g>টি সংখ্যার থেকে কম হতে হবে</item>
       <item quantity="other">অবশ্যই <xliff:g id="NUMBER_1">%d</xliff:g>টি সংখ্যার থেকে কম হতে হবে</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"শুধুমাত্র ০-৯ সংখ্যাগুলি থাকবে"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"ডিভাইস প্রশাসক একটি সাম্প্রতিক পিন ব্যবহার করতে দেয় না"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"একইধরনের পিন আপনার আইটি অ্যাডমিনের মাধ্যমে ব্লক করা হয়। অন্য একটি পিন ব্যবহার করার চেষ্টা করুন।"</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"এতে কোনো অবৈধ অক্ষর অন্তর্ভুক্ত করা যাবে না"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="one">কমপক্ষে এমন <xliff:g id="COUNT">%d</xliff:g>টি অক্ষর থাকতে হবে যেটি বর্ণ নয়</item>
       <item quantity="other">কমপক্ষে এমন <xliff:g id="COUNT">%d</xliff:g>টি অক্ষর থাকতে হবে যেটি বর্ণ নয়</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="one">কমপক্ষে এমন <xliff:g id="COUNT">%d</xliff:g>টি অক্ষর থাকতে হবে যেটি সংখ্যা নয়</item>
+      <item quantity="other">কমপক্ষে এমন <xliff:g id="COUNT">%d</xliff:g>টি অক্ষর থাকতে হবে যেটি সংখ্যা নয়</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"ডিভাইস প্রশাসক একটি সাম্প্রতিক পাসওয়ার্ড ব্যবহার করতে দেয় না"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"একইধরনের পাসওয়ার্ড আপনার আইটি অ্যাডমিনের মাধ্যমে ব্লক করা হয়। অন্য একটি পাসওয়ার্ড ব্যবহার করার চেষ্টা করুন।"</string>

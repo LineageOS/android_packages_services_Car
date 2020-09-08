@@ -667,7 +667,6 @@
       <item quantity="one"><xliff:g id="NUMBER_1">%d</xliff:g> ਤੋਂ ਘੱਟ ਅੰਕ ਹੋਣਾ ਚਾਹੀਦਾ ਹੈ</item>
       <item quantity="other"><xliff:g id="NUMBER_1">%d</xliff:g> ਤੋਂ ਵਧੇਰੇ ਘੱਟ ਅੰਕ ਹੋਣੇ ਚਾਹੀਦੇ ਹਨ</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"ਸਿਰਫ਼ 0-9 ਤੱਕ ਅੰਕ ਸ਼ਾਮਲ ਹੋਣੇ ਲਾਜ਼ਮੀ ਹਨ"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"ਡੀਵਾਈਸ ਪ੍ਰਸ਼ਾਸਕ ਇੱਕ ਹਾਲੀਆ ਪਿੰਨ ਵਰਤਣ ਦੀ ਇਜਾਜ਼ਤ ਨਹੀਂ ਦਿੰਦਾ ਹੈ"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"ਆਮ ਪਿੰਨ ਤੁਹਾਡੇ IT ਪ੍ਰਸ਼ਾਸਕ ਵੱਲੋਂ ਬਲਾਕ ਕੀਤੇ ਗਏ ਹਨ। ਕੋਈ ਵੱਖਰਾ ਪਿੰਨ ਵਰਤੋ।"</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"ਇਸ ਵਿੱਚ ਇੱਕ ਅਵੈਧ ਅੱਖਰ-ਚਿੰਨ੍ਹ ਸ਼ਾਮਲ ਨਹੀਂ ਹੋ ਸਕਦਾ"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="one">ਘੱਟੋ-ਘੱਟ <xliff:g id="COUNT">%d</xliff:g> ਗੈਰ-ਅੱਖਰੀ ਅੱਖਰ-ਚਿੰਨ੍ਹ ਸ਼ਾਮਲ ਕਰਨਾ ਲਾਜ਼ਮੀ ਹੈ</item>
       <item quantity="other">ਘੱਟੋ-ਘੱਟ <xliff:g id="COUNT">%d</xliff:g> ਗੈਰ-ਅੱਖਰੀ ਅੱਖਰ-ਚਿੰਨ੍ਹ ਸ਼ਾਮਲ ਕਰਨਾ ਲਾਜ਼ਮੀ ਹੈ</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="one">ਘੱਟੋ-ਘੱਟ <xliff:g id="COUNT">%d</xliff:g> ਗੈਰ-ਸੰਖਿਆਵਾਚੀ ਅੱਖਰ-ਚਿੰਨ੍ਹ ਸ਼ਾਮਲ ਕਰਨਾ ਲਾਜ਼ਮੀ ਹੈ</item>
+      <item quantity="other">ਘੱਟੋ-ਘੱਟ <xliff:g id="COUNT">%d</xliff:g> ਗੈਰ-ਸੰਖਿਆਵਾਚੀ ਅੱਖਰ-ਚਿੰਨ੍ਹ ਸ਼ਾਮਲ ਕਰਨੇ ਲਾਜ਼ਮੀ ਹਨ</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"ਡੀਵਾਈਸ ਪ੍ਰਸ਼ਾਸਕ ਇੱਕ ਹਾਲੀਆ ਪਾਸਵਰਡ ਵਰਤਣ ਦੀ ਇਜਾਜ਼ਤ ਨਹੀਂ ਦਿੰਦਾ ਹੈ।"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"ਆਮ ਪਾਸਵਰਡ ਤੁਹਾਡੇ IT ਪ੍ਰਸ਼ਾਸਕ ਵੱਲੋਂ ਬਲਾਕ ਕੀਤੇ ਗਏ ਹਨ। ਕੋਈ ਵੱਖਰਾ ਪਾਸਵਰਡ ਵਰਤੋ।"</string>

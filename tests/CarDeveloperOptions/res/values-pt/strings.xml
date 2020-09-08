@@ -667,7 +667,6 @@
       <item quantity="one">Precisa ter menos de <xliff:g id="NUMBER_1">%d</xliff:g> dígito</item>
       <item quantity="other">Precisa ter menos de <xliff:g id="NUMBER_1">%d</xliff:g> dígitos</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Precisa ter apenas dígitos de 0 a 9"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"O administrador do dispositivo não permite o uso de um PIN recente"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"PINs comuns foram bloqueados pelo seu administrador de TI. Tente um PIN diferente."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Não pode incluir um caractere inválido"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="one">Precisa ter pelo menos <xliff:g id="COUNT">%d</xliff:g> caractere que não seja letra</item>
       <item quantity="other">Precisa ter pelo menos <xliff:g id="COUNT">%d</xliff:g> caracteres que não sejam letras</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="one">Precisa ter pelo menos <xliff:g id="COUNT">%d</xliff:g> caractere não numérico</item>
+      <item quantity="other">Precisa ter pelo menos <xliff:g id="COUNT">%d</xliff:g> caracteres não numéricos</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"O administrador do dispositivo não permite usar uma senha recente"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Senhas comuns foram bloqueadas pelo seu administrador de TI. Tente uma senha diferente."</string>

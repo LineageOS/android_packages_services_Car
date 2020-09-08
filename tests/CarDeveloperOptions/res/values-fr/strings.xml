@@ -667,7 +667,6 @@
       <item quantity="one">Le code doit contenir moins de <xliff:g id="NUMBER_1">%d</xliff:g> chiffre</item>
       <item quantity="other">Le code doit contenir moins de <xliff:g id="NUMBER_1">%d</xliff:g> chiffres</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Le code ne doit comporter que des chiffres compris entre 0 et 9"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"L\'administrateur de l\'appareil n\'autorise pas l\'utilisation d\'un code récent"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"Les codes courants sont bloqués par votre administrateur informatique. Choisissez un autre code."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Vous ne pouvez pas inclure de caractère non valide."</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="one">Le mot de passe doit comporter au moins <xliff:g id="COUNT">%d</xliff:g> caractère autre qu\'une lettre</item>
       <item quantity="other">Le mot de passe doit comporter au moins <xliff:g id="COUNT">%d</xliff:g> caractères autre qu\'une lettre</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="one">Doit contenir au moins <xliff:g id="COUNT">%d</xliff:g> caractère non numérique</item>
+      <item quantity="other">Doit contenir au moins <xliff:g id="COUNT">%d</xliff:g> caractères non numériques</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"L\'administrateur de l\'appareil n\'autorise pas l\'utilisation d\'un mot de passe récent"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Les mots de passe courants sont bloqués par votre administrateur informatique. Choisissez un autre mot de passe."</string>

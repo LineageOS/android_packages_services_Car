@@ -683,7 +683,6 @@
       <item quantity="other">Musí obsahovat méně než <xliff:g id="NUMBER_1">%d</xliff:g> číslic</item>
       <item quantity="one">Musí obsahovat méně než <xliff:g id="NUMBER_0">%d</xliff:g> číslici</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"PIN smí obsahovat pouze číslice 0 až 9."</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Administrátor zařízení nedovoluje použití nedávno použitého kódu PIN"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"Obvyklé kódy PIN jsou blokovány administrátorem IT. Použijte jiný PIN."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Heslo nesmí obsahovat neplatné znaky."</string>
@@ -725,6 +724,12 @@
       <item quantity="many">Heslo musí obsahovat alespoň <xliff:g id="COUNT">%d</xliff:g> znaku jiného než písmeno</item>
       <item quantity="other">Heslo musí obsahovat alespoň <xliff:g id="COUNT">%d</xliff:g> znaků jiných než písmeno</item>
       <item quantity="one">Heslo musí obsahovat alespoň 1 znak jiný než písmeno</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="few">Musí obsahovat alespoň <xliff:g id="COUNT">%d</xliff:g> znaky jiné než číslice</item>
+      <item quantity="many">Musí obsahovat alespoň <xliff:g id="COUNT">%d</xliff:g> znaku jiného než číslici</item>
+      <item quantity="other">Musí obsahovat alespoň <xliff:g id="COUNT">%d</xliff:g> znaků jiných než číslici</item>
+      <item quantity="one">Musí obsahovat alespoň 1 znak jiný než číslici</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Administrátor zařízení neumožňuje použít heslo, které jste použili nedávno"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Obvyklá hesla jsou blokována administrátorem IT. Použijte jiné heslo."</string>

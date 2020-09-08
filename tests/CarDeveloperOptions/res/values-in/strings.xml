@@ -667,7 +667,6 @@
       <item quantity="other">Harus kurang dari <xliff:g id="NUMBER_1">%d</xliff:g> digit</item>
       <item quantity="one">Harus kurang dari <xliff:g id="NUMBER_0">%d</xliff:g> digit</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Hanya boleh berisi angka 0-9"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Admin perangkat tidak mengizinkan penggunaan PIN terbaru."</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"PIN umum diblokir oleh admin IT. Coba PIN lain."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Tidak boleh berisi karakter yang tidak valid"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">Minimal berisi <xliff:g id="COUNT">%d</xliff:g> karakter bukan huruf</item>
       <item quantity="one">Minimal berisi 1 karakter bukan huruf</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">Minimal berisi <xliff:g id="COUNT">%d</xliff:g> karakter bukan numerik</item>
+      <item quantity="one">Minimal berisi 1 karakter bukan numerik</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Admin perangkat tidak mengizinkan penggunaan sandi terbaru."</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Sandi umum diblokir oleh admin IT. Coba sandi lain."</string>

@@ -683,7 +683,6 @@
       <item quantity="many">PIN-код должен содержать менее <xliff:g id="NUMBER_1">%d</xliff:g> цифр</item>
       <item quantity="other">PIN-код должен содержать менее <xliff:g id="NUMBER_1">%d</xliff:g> цифры</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"PIN-код должен содержать только цифры"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Использовать недавний PIN-код запрещено"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"ИТ-администратор заблокировал простые PIN-коды. Выберите более сложную комбинацию."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Недопустимые символы"</string>
@@ -725,6 +724,12 @@
       <item quantity="few">Используйте как минимум <xliff:g id="COUNT">%d</xliff:g> небуквенных символа</item>
       <item quantity="many">Используйте как минимум <xliff:g id="COUNT">%d</xliff:g> небуквенных символов</item>
       <item quantity="other">Используйте как минимум <xliff:g id="COUNT">%d</xliff:g> небуквенного символа</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="one">Пароль должен содержать как минимум <xliff:g id="COUNT">%d</xliff:g> нечисловой символ.</item>
+      <item quantity="few">Пароль должен содержать как минимум <xliff:g id="COUNT">%d</xliff:g> нечисловых символа.</item>
+      <item quantity="many">Пароль должен содержать как минимум <xliff:g id="COUNT">%d</xliff:g> нечисловых символов.</item>
+      <item quantity="other">Пароль должен содержать как минимум <xliff:g id="COUNT">%d</xliff:g> нечислового символа.</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Использовать недавний пароль запрещено"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"ИТ-администратор заблокировал простые пароли. Выберите более сложную комбинацию."</string>

@@ -667,7 +667,6 @@
       <item quantity="other">Moet minder dan <xliff:g id="NUMBER_1">%d</xliff:g> cijfers bevatten</item>
       <item quantity="one">Moet minder dan <xliff:g id="NUMBER_0">%d</xliff:g> cijfer bevatten</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Mag alleen de cijfers 0-9 bevatten"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Apparaatbeheer staat het gebruik van een recente pincode niet toe"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"Veelvoorkomende pincodes worden geblokkeerd door je IT-beheerder. Probeer een andere pincode."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Mag geen ongeldig teken bevatten"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">Moet ten minste <xliff:g id="COUNT">%d</xliff:g> tekens bevatten die geen letters zijn</item>
       <item quantity="one">Moet ten minste één teken bevatten dat geen letter is</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">Moet ten minste <xliff:g id="COUNT">%d</xliff:g> niet-numerieke tekens bevatten</item>
+      <item quantity="one">Moet ten minste 1 niet-numeriek teken bevatten</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Apparaatbeheer staat het gebruik van een recent wachtwoord niet toe"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Veelvoorkomende wachtwoorden worden geblokkeerd door je IT-beheerder. Probeer een ander wachtwoord."</string>

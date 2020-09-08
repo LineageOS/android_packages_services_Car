@@ -17,8 +17,10 @@
 package android.car.content.pm;
 
 import android.annotation.IntDef;
+import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.annotation.TestApi;
+import android.app.PendingIntent;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.content.ComponentName;
@@ -106,8 +108,8 @@ public final class CarPackageManager extends CarManagerBase {
     @SystemApi
     public void setAppBlockingPolicy(
             String packageName, CarAppBlockingPolicy policy, @SetPolicyFlags int flags) {
-        if ((flags & FLAG_SET_POLICY_WAIT_FOR_CHANGE) != 0 &&
-                Looper.getMainLooper().isCurrentThread()) {
+        if ((flags & FLAG_SET_POLICY_WAIT_FOR_CHANGE) != 0
+                && Looper.getMainLooper().isCurrentThread()) {
             throw new IllegalStateException(
                     "FLAG_SET_POLICY_WAIT_FOR_CHANGE cannot be used in main thread");
         }
@@ -120,6 +122,8 @@ public final class CarPackageManager extends CarManagerBase {
 
     /**
      * Restarts the requested task. If task with {@code taskId} does not exist, do nothing.
+     *
+     * <p>This requires {@code android.permission.REAL_GET_TASKS} permission.
      *
      * @hide
      */
@@ -169,16 +173,33 @@ public final class CarPackageManager extends CarManagerBase {
     }
 
     /**
-     * Check if given activity is distraction optimized, i.e, allowed in a
-     * restricted driving state
+     * Returns whether an activity is distraction optimized, i.e, allowed in a restricted
+     * driving state.
      *
-     * @param packageName
-     * @param className
-     * @return
+     * @param packageName the activity's {@link android.content.pm.ActivityInfo#packageName}.
+     * @param className the activity's {@link android.content.pm.ActivityInfo#name}.
+     * @return true if the activity is distraction optimized, false if it isn't or if the value
+     *         could not be determined.
      */
     public boolean isActivityDistractionOptimized(String packageName, String className) {
         try {
             return mService.isActivityDistractionOptimized(packageName, className);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, false);
+        }
+    }
+
+    /**
+     * Returns whether the given {@link PendingIntent} represents an activity that is distraction
+     * optimized, i.e, allowed in a restricted driving state.
+     *
+     * @param pendingIntent the {@link PendingIntent} to check.
+     * @return true if the pending intent represents an activity that is distraction optimized,
+     *         false if it isn't or if the value could not be determined.
+     */
+    public boolean isPendingIntentDistractionOptimized(@NonNull PendingIntent pendingIntent) {
+        try {
+            return mService.isPendingIntentDistractionOptimized(pendingIntent);
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, false);
         }

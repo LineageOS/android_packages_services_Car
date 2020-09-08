@@ -667,7 +667,6 @@
       <item quantity="one"><xliff:g id="NUMBER_1">%d</xliff:g> કરતાં ઓછા અંક હોવા જરૂરી છે</item>
       <item quantity="other"><xliff:g id="NUMBER_1">%d</xliff:g> કરતાં ઓછા અંક હોવા જરૂરી છે</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"માત્ર 0-9 અંક શામેલ હોવા આવશ્યક છે"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"ઉપકરણ વ્યવસ્થાપક તાજેતરનાં પિનનો ઉપયોગ કરવાની મંજૂરી આપતા નથી"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"સામાન્ય પિન તમારા IT વ્યવસ્થાપક દ્વારા બ્લૉક કરવામાં આવે છે. એક અલગ પિન અજમાવી જુઓ."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"આમાં અમાન્ય અક્ષરોનો સમાવેશ થઈ શકતો નથી"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="one">ઓછામાં ઓછા <xliff:g id="COUNT">%d</xliff:g> વર્ણ સિવાયના અક્ષર ધરાવતો હોવો જોઈએ</item>
       <item quantity="other">ઓછામાં ઓછા <xliff:g id="COUNT">%d</xliff:g> વર્ણ સિવાયના અક્ષર ધરાવતો હોવો જોઈએ</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="one">ઓછામાં ઓછો <xliff:g id="COUNT">%d</xliff:g> અક્ષર એવો હોવો જોઈએ કે જે સંખ્યા ન હોય</item>
+      <item quantity="other">ઓછામાં ઓછા <xliff:g id="COUNT">%d</xliff:g> અક્ષર એવા હોવા જોઈએ કે જે સંખ્યા ન હોય</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"ઉપકરણ વ્યવસ્થાપક તાજેતરનાં પાસવર્ડનો ઉપયોગ કરવાની મંજૂરી આપતા નથી"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"સામાન્ય પાસવર્ડ તમારા IT વ્યવસ્થાપક દ્વારા બ્લૉક કરવામાં આવે છે. એક અલગ પાસવર્ડ અજમાવી જુઓ."</string>

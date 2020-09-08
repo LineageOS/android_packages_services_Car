@@ -667,7 +667,6 @@
       <item quantity="one"><xliff:g id="NUMBER_1">%d</xliff:g>টা সংখ্যাতকৈ কম হ\'বই লাগিব</item>
       <item quantity="other"><xliff:g id="NUMBER_1">%d</xliff:g>টা সংখ্যাতকৈ কম হ\'বই লাগিব</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"কেৱল অংকহে থাকিব লাগিব ০-৯"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"ডিভাইচ এডমিনে আপুনি ব্যৱহাৰ কৰা অন্তিমটো পিন আকৌ ব্যৱহাৰ কৰিবলৈ অনুমতি দিয়া নাই"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"আপোনাৰ আইটি প্ৰশাসকে বিশেষত্বহীন পিনবোৰ অৱৰোধ কৰি থৈছে৷ এটা পৃথক পিনেৰে চেষ্টা কৰক৷"</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"কেৱল বৈধ বৰ্ণহে দিয়ক"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="one">অতি কমেও <xliff:g id="COUNT">%d</xliff:g>টা সংখ্যা বা প্ৰতীক থাকিব লাগিব</item>
       <item quantity="other">অতি কমেও <xliff:g id="COUNT">%d</xliff:g>টা সংখ্যা বা প্ৰতীক থাকিব লাগিব</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="one">অতি কমেও <xliff:g id="COUNT">%d</xliff:g>টা এনেকুৱা বৰ্ণ থাকিবই লাগিব যিটো সংখ্যা নহয়</item>
+      <item quantity="other">অতি কমেও <xliff:g id="COUNT">%d</xliff:g>টা এনেকুৱা বৰ্ণ থাকিবই লাগিব যিটো সংখ্যা নহয়</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"ডিভাইচৰ প্ৰশাসকে শেহতীয়া পাছৱৰ্ড ব্যৱহাৰ কৰিব নিদিয়ে"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"আইটি এডমিনে উমৈহতীয়া পাছৱৰ্ডসমূহ অৱৰোধ কৰি থৈছে। এটা পৃথক পাছৱৰ্ডেৰে চেষ্টা কৰক।"</string>

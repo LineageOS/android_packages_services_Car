@@ -17,8 +17,11 @@
 package android.car;
 
 import android.annotation.IntDef;
+import android.annotation.TestApi;
 import android.os.IBinder;
 import android.os.RemoteException;
+
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -42,8 +45,11 @@ public final class CarAppFocusManager extends CarManagerBase {
         /**
          * Application focus has changed. Note that {@link CarAppFocusManager} instance
          * causing the change will not get this notification.
-         * @param appType
-         * @param active
+         *
+         * <p>Note that this call can happen for app focus grant, release, and ownership change.
+         *
+         * @param appType appType where the focus change has happened.
+         * @param active {@code true} if there is an active owner for the focus.
          */
         void onAppFocusChanged(@AppFocusType int appType, boolean active);
     }
@@ -121,7 +127,8 @@ public final class CarAppFocusManager extends CarManagerBase {
     /**
      * @hide
      */
-    CarAppFocusManager(Car car, IBinder service) {
+    @VisibleForTesting
+    public CarAppFocusManager(Car car, IBinder service) {
         super(car);
         mService = IAppFocus.Stub.asInterface(service);
     }
@@ -204,6 +211,7 @@ public final class CarAppFocusManager extends CarManagerBase {
      * Returns application types currently active in the system.
      * @hide
      */
+    @TestApi
     public int[] getActiveAppTypes() {
         try {
             return mService.getActiveAppTypes();

@@ -683,7 +683,6 @@
       <item quantity="many">Може містити до <xliff:g id="NUMBER_1">%d</xliff:g> цифр</item>
       <item quantity="other">Може містити до <xliff:g id="NUMBER_1">%d</xliff:g> цифри</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Має містити лише цифри від 0 до 9"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Адміністратор пристрою не дозволяє використовувати останній PIN-код"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"IT-адміністратор заблокував загальні PIN-коди. Введіть інший PIN-код."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Не може містити недійсних символів"</string>
@@ -725,6 +724,12 @@
       <item quantity="few">Має містити принаймні <xliff:g id="COUNT">%d</xliff:g> символи, які не є літерами</item>
       <item quantity="many">Має містити принаймні <xliff:g id="COUNT">%d</xliff:g> символів, які не є літерами</item>
       <item quantity="other">Має містити принаймні <xliff:g id="COUNT">%d</xliff:g> символу, які не є літерами</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="one">Має містити, окрім цифр, принаймні <xliff:g id="COUNT">%d</xliff:g> інший символ</item>
+      <item quantity="few">Має містити, окрім цифр, принаймні <xliff:g id="COUNT">%d</xliff:g> інші символи</item>
+      <item quantity="many">Має містити, окрім цифр, принаймні <xliff:g id="COUNT">%d</xliff:g> інших символів</item>
+      <item quantity="other">Має містити, окрім цифр, принаймні <xliff:g id="COUNT">%d</xliff:g> іншого символу</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Адміністратор пристрою не дозволяє використовувати останній пароль"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"IT-адміністратор заблокував загальні паролі. Введіть інший пароль."</string>

@@ -48,7 +48,11 @@ import java.util.List;
  * The system {@link com.android.server.trust.TrustManagerService} binds to this agent and uses
  * the data it receives from this agent to authorize a user in lieu of the PIN/Pattern/Password
  * credentials.
+ *
+ * @deprecated Enrolling a trusted device through car service is no longer supported and these APIs
+ * will be removed in the next Android release.
  */
+@Deprecated
 public class CarBleTrustAgent extends TrustAgentService {
     private static final String TAG = CarBleTrustAgent.class.getSimpleName();
     private boolean mIsDeviceLocked;
@@ -240,7 +244,7 @@ public class CarBleTrustAgent extends TrustAgentService {
 
     private void onBluetoothStateChanged(int state) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "onBluetoothStateChanged: " + state);
+            Log.d(TAG, "onBluetoothStateChanged: " + BluetoothAdapter.nameForState(state));
         }
         if (!mIsDeviceLocked) {
             return;

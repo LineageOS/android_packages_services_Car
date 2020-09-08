@@ -667,7 +667,6 @@
       <item quantity="one"> <xliff:g id="NUMBER_1">%d</xliff:g> ಗಿಂತ ಕಡಿಮೆ ಅಂಕಿಗಳನ್ನು ಹೊಂದಿರಬೇಕು</item>
       <item quantity="other"> <xliff:g id="NUMBER_1">%d</xliff:g> ಗಿಂತ ಕಡಿಮೆ ಅಂಕಿಗಳನ್ನು ಹೊಂದಿರಬೇಕು</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"ಕೇವಲ 0-9 ಅಂಕಿಗಳನ್ನು ಮಾತ್ರ ಹೊಂದಿರಬೇಕು"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"ಇತ್ತೀಚಿನ ಪಿನ್ ಬಳಸಲು ಸಾಧನದ ನಿರ್ವಾಹಕರು ಅನುಮತಿಸುವುದಿಲ್ಲ"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"ಸರಳವಾದ ಪಿನ್‌ಗಳನ್ನು ನಿಮ್ಮ IT ನಿರ್ವಾಹಕರಿಂದ ನಿರ್ಬಂಧಿಸಲಾಗಿದೆ. ಬೇರೆಯ ಪಿನ್ ಪ್ರಯತ್ನಿಸಿ."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"ಇದು ಅಮಾನ್ಯ ಅಕ್ಷರವನ್ನು ಒಳಗೊಂಡಿರಬಾರದು"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="one">ಕನಿಷ್ಠ <xliff:g id="COUNT">%d</xliff:g> ಅಕ್ಷರೇತರ ಕ್ಯಾರೆಕ್ಟರ್‌ಗಳನ್ನು ಹೊಂದಿರಬೇಕು</item>
       <item quantity="other">ಕನಿಷ್ಠ <xliff:g id="COUNT">%d</xliff:g> ಅಕ್ಷರೇತರ ಕ್ಯಾರೆಕ್ಟರ್‌ಗಳನ್ನು ಹೊಂದಿರಬೇಕು</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="one">ಕನಿಷ್ಠ <xliff:g id="COUNT">%d</xliff:g> ಸಂಖ್ಯೆಯಲ್ಲದ ಅಕ್ಷರಗಳನ್ನು ಹೊಂದಿರಬೇಕು</item>
+      <item quantity="other">ಕನಿಷ್ಠ <xliff:g id="COUNT">%d</xliff:g> ಸಂಖ್ಯೆಯಲ್ಲದ ಅಕ್ಷರಗಳನ್ನು ಹೊಂದಿರಬೇಕು</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"ಇತ್ತೀಚಿನ ಪಾಸ್‌ವರ್ಡ್ ಬಳಸಲು ಸಾಧನದ ನಿರ್ವಾಹಕರು ಅನುಮತಿಸುವುದಿಲ್ಲ"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"ಸರಳವಾದ ಪಾಸ್‌ವರ್ಡ್‌ಗಳನ್ನು ನಿಮ್ಮ IT ನಿರ್ವಾಹಕರಿಂದ ನಿರ್ಬಂಧಿಸಲಾಗಿದೆ. ಬೇರೆಯ ಪಾಸ್‌ವರ್ಡ್‌ ಪ್ರಯತ್ನಿಸಿ."</string>

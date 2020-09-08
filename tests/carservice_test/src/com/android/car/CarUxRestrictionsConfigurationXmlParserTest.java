@@ -29,9 +29,9 @@ import android.car.drivingstate.CarUxRestrictionsConfiguration;
 import android.content.Context;
 import android.util.ArraySet;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,7 +48,7 @@ public class CarUxRestrictionsConfigurationXmlParserTest {
     private static final String UX_RESTRICTION_MODE_PASSENGER = "passenger";
 
     private Context getContext() {
-        return InstrumentationRegistry.getTargetContext();
+        return InstrumentationRegistry.getInstrumentation().getTargetContext();
     }
 
     @Test

@@ -667,7 +667,6 @@
       <item quantity="other">PIN-koodissa saa olla enintään <xliff:g id="NUMBER_1">%d</xliff:g> numeroa.</item>
       <item quantity="one">PIN-koodissa saa olla enintään <xliff:g id="NUMBER_0">%d</xliff:g> numero.</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"PIN-koodi saa sisältää vain numeroita 0–9."</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Järjestelmänvalvoja esti PIN-koodin, koska sitä on käytetty hiljattain."</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"IT-järjestelmänvalvoja on estänyt yleiset PIN-koodit. Kokeile eri PIN-koodia."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Salasanassa ei saa olla virheellisiä merkkejä."</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">Salasanassa on oltava vähintään <xliff:g id="COUNT">%d</xliff:g> merkkiä, jotka eivät ole kirjaimia.</item>
       <item quantity="one">Salasanassa on oltava vähintään 1 merkki, joka ei ole kirjain.</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">Salasanassa on oltava vähintään <xliff:g id="COUNT">%d</xliff:g> merkki, joka ei ole numero</item>
+      <item quantity="one">Salasanassa on oltava vähintään 1 merkki, joka ei ole numero</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Järjestelmänvalvoja esti salasanan, koska sitä on käytetty hiljattain."</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"IT-järjestelmänvalvoja on estänyt yleiset salasanat. Kokeile eri salasanaa."</string>

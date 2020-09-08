@@ -675,7 +675,6 @@
       <item quantity="few">Ukupan broj cifara mora biti manji od <xliff:g id="NUMBER_1">%d</xliff:g></item>
       <item quantity="other">Ukupan broj cifara mora biti manji od <xliff:g id="NUMBER_1">%d</xliff:g></item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Mora sadržavati isključivo cifre 0-9."</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Administrator uređaja ne dozvoljava korištenje nedavnog PIN-a"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"Vaš IT administrator je blokirao česte PIN kôdove. Probajte drugi PIN kôd."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Ne može sadržavati nevažeći znak"</string>
@@ -711,6 +710,11 @@
       <item quantity="one">Mora sadržavati najmanje <xliff:g id="COUNT">%d</xliff:g> znak koji nije slovo</item>
       <item quantity="few">Mora sadržavati najmanje <xliff:g id="COUNT">%d</xliff:g> znaka koja nisu slova</item>
       <item quantity="other">Mora sadržavati najmanje <xliff:g id="COUNT">%d</xliff:g> znakova koji nisu slova</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="one">Mora sadržavati najmanje <xliff:g id="COUNT">%d</xliff:g> znak koji nije broj</item>
+      <item quantity="few">Mora sadržavati najmanje <xliff:g id="COUNT">%d</xliff:g> znaka koja nisu brojevi</item>
+      <item quantity="other">Mora sadržavati najmanje <xliff:g id="COUNT">%d</xliff:g> znakova koji nisu brojevi</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Administrator uređaja ne dozvoljava korištenje nedavne lozinke"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Vaš IT administrator je blokirao česte lozinke. Probajte drugu lozinku."</string>

@@ -667,7 +667,6 @@
       <item quantity="other"><xliff:g id="NUMBER_1">%d</xliff:g> ଅଙ୍କରୁ କମ୍‌ ହେବା ଦରକାର</item>
       <item quantity="one"><xliff:g id="NUMBER_0">%d</xliff:g> ଅଙ୍କରୁ କମ୍‌ ହେବା ଦରକାର</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"କେବଳ 0-9 ସଂଖ୍ୟା ହିଁ ରହିବା ଦରକାର"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"ଏକ ସାମ୍ପ୍ରତିକ ପିନ୍‌ର ବ୍ୟବହାରକୁ ଡିଭାଇସ୍‌ ଆଡ୍‌ମିନ୍‌ ଅନୁମତି ଦେବନାହିଁ"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"ସାଧାରଣ PINଗୁଡିକ ଆପଣଙ୍କ IT ଆଡମିନ୍‌ଙ୍କ ଦ୍ୱାରା ଅବରୋଧ କରିଦିଆଯାଇଛି। ଭିନ୍ନ PIN ଚେଷ୍ଟା କରନ୍ତୁ।"</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"ଏକ ଭୁଲ ଅକ୍ଷରକୁ ଏହା ମିଶାଇ ପାରିବନାହିଁ"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">ଅତିକମ୍‌ରେ <xliff:g id="COUNT">%d</xliff:g>ଟି ବିଶେଷ ଅକ୍ଷର କିମ୍ୱା ସଂଖ୍ୟା ଆବଶ୍ୟକ</item>
       <item quantity="one">ଅତିକମ୍‌ରେ 1ଟି ବିଶେଷ ଅକ୍ଷର କିମ୍ୱା ସଂଖ୍ୟା ଆବଶ୍ୟକ</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">ଅତିକମ୍‌ରେ <xliff:g id="COUNT">%d</xliff:g>ଟି ଅକ୍ଷର ହେବା ନିହାତି ଆବଶ୍ୟକ ଯାହା ସଂଖ୍ୟା ହୋଇନଥିବା</item>
+      <item quantity="one">ଅତିକମ୍‌ରେ 1ଟି ଅକ୍ଷର ହେବା ନିହାତି ଆବଶ୍ୟକ ଯାହା ସଂଖ୍ୟା ହୋଇନଥିବା</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"ଏକ ସମ୍ପ୍ରତି ପାସ୍‌ୱର୍ଡ ବ୍ୟବହାର କରିବାକୁ ଡିଭାଇସ୍‌ ଆଡମିନ୍‌ ଅନୁମତି ଦିଅନ୍ତି ନାହିଁ"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"ଆପଣଙ୍କର ଆଇଟି ଆଡ୍‌ମିନ୍‌ ଦ୍ୱାରା ସାଧାରଣ ପାସ୍‌ୱର୍ଡଗୁଡ଼ିକୁ ରୋକିଦିଆଯାଇଛି। ଏକ ଭିନ୍ନ ପାସ୍‌ୱର୍ଡ ଦିଅନ୍ତୁ।"</string>

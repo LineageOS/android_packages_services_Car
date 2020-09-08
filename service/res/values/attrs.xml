@@ -24,7 +24,7 @@
     </declare-styleable>
     <declare-styleable name="volumeGroups_group"/>
     <declare-styleable name="volumeGroups_context">
-        <!-- Align with hardware/interfaces/automotive/audiocontrol/1.0/types.hal:ContextNumber -->
+        <!-- Align with CarAudioContext -->
         <attr name="context">
             <enum name="music" value="1"/>
             <enum name="navigation" value="2"/>
@@ -34,6 +34,10 @@
             <enum name="alarm" value="6"/>
             <enum name="notification" value="7"/>
             <enum name="system_sound" value="8"/>
+            <enum name="emergency" value="9"/>
+            <enum name="safety" value="10"/>
+            <enum name="vehicle_status" value="11"/>
+            <enum name="announcement" value="12"/>
         </attr>
     </declare-styleable>
 

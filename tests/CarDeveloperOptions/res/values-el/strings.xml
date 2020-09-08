@@ -667,7 +667,6 @@
       <item quantity="other">Πρέπει να αποτελείται από λιγότερα από <xliff:g id="NUMBER_1">%d</xliff:g> ψηφία</item>
       <item quantity="one">Πρέπει να αποτελείται από λιγότερα από <xliff:g id="NUMBER_0">%d</xliff:g> ψηφίο</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Πρέπει να περιέχει μόνο ψηφία από το 0 έως το 9"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Ο διαχειριστής της συσκευής δεν επιτρέπει τη χρήση πρόσφατου PIN"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"Τα συνηθισμένα PIN αποκλείονται από τον διαχειριστή IT. Δοκιμάστε να χρησιμοποιήσετε διαφορετικό PIN."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Δεν μπορεί να περιλαμβάνει μη έγκυρο χαρακτήρα"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="other">Πρέπει να περιέχει τουλάχιστον <xliff:g id="COUNT">%d</xliff:g> χαρακτήρες που δεν είναι γράμματα</item>
       <item quantity="one">Πρέπει να περιέχει τουλάχιστον 1 χαρακτήρα που δεν είναι γράμμα</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="other">Πρέπει να περιέχει τουλάχιστον <xliff:g id="COUNT">%d</xliff:g> μη αριθμητικούς χαρακτήρες</item>
+      <item quantity="one">Πρέπει να περιέχει τουλάχιστον 1 μη αριθμητικό χαρακτήρα</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Ο διαχειριστής της συσκευής δεν επιτρέπει τη χρήση πρόσφατου κωδικού πρόσβασης"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Οι συνηθισμένοι κωδικοί πρόσβασης αποκλείονται από τον διαχειριστή IT. Δοκιμάστε να χρησιμοποιήσετε διαφορετικό κωδικό πρόσβασης."</string>

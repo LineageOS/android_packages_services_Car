@@ -53,13 +53,13 @@ import zipfile
 
 VERSION = '0.2.0'
 
-BUGREPORT_PACKAGE = 'com.google.android.car.bugreport'
+BUGREPORT_PACKAGE = 'com.android.car.bugreport'
 PENDING_BUGREPORTS_DIR = ('/data/user/0/%s/bug_reports_pending' %
                           BUGREPORT_PACKAGE)
 SQLITE_DB_DIR = '/data/user/0/%s/databases' % BUGREPORT_PACKAGE
 SQLITE_DB_PATH = SQLITE_DB_DIR + '/bugreport.db'
 
-# The statuses are from `src/com/google/android/car/bugreport/Status.java.
+# The statuses are from `src/com.android.car.bugreport/Status.java.
 STATUS_WRITE_PENDING = 0
 STATUS_WRITE_FAILED = 1
 STATUS_UPLOAD_PENDING = 2

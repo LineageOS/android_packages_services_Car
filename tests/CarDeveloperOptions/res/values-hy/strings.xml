@@ -667,7 +667,6 @@
       <item quantity="one">Պետք է <xliff:g id="NUMBER_1">%d</xliff:g>-ից քիչ թվանշան պարունակի</item>
       <item quantity="other">Պետք է <xliff:g id="NUMBER_1">%d</xliff:g>-ից քիչ թվանշան պարունակի</item>
     </plurals>
-    <string name="lockpassword_pin_contains_non_digits" msgid="1501729742023195556">"Պետք է պարունակի միայն 0-9 թվանշաններ"</string>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Սարքի ադմինիստրատորը չի թույլատրում օգտագործել վերջին PIN կոդերը"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"ՏՏ ադմինիստրատորն արգելափակել է պարզ PIN կոդերը: Փորձեք մեկ այլ PIN:"</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Այն չի կարող պարունակել անվավեր գրանշան"</string>
@@ -697,6 +696,10 @@
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
       <item quantity="one">Must contain at least <xliff:g id="COUNT">%d</xliff:g> non-letter characters</item>
       <item quantity="other">Պետք է պարունակի առնվազն <xliff:g id="COUNT">%d</xliff:g> ոչ-տառային գրանշան</item>
+    </plurals>
+    <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
+      <item quantity="one">Պետք է պարունակի առնվազն <xliff:g id="COUNT">%d</xliff:g> ոչ թվային նիշ</item>
+      <item quantity="other">Պետք է պարունակի առնվազն <xliff:g id="COUNT">%d</xliff:g> ոչ թվային նիշ</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"Սարքի ադմինիստրատորը թույլ չի տալիս օգտագործել վերջին գաղտնաբառը"</string>
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"ՏՏ ադմինիստրատորն արգելափակել է պարզ գաղտնաբառերը: Փորձեք մեկ այլ գաղտնաբառ:"</string>
