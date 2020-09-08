@@ -1681,7 +1681,7 @@
     <string name="location_access_summary" msgid="6919495149026354355">"Ge appar som har bett om tillstånd möjlighet att använda din platsinformation"</string>
     <string name="location_sources_heading" msgid="8526658357120282741">"Platskällor"</string>
     <string name="about_settings" product="tablet" msgid="4869626690708456341">"Om surfplattan"</string>
-    <string name="about_settings" product="default" msgid="6019547763377294261">"Om mobilen"</string>
+    <string name="about_settings" product="default" msgid="6019547763377294261">"Om telefonen"</string>
     <string name="about_settings" product="device" msgid="1770438316234693655">"Om enheten"</string>
     <string name="about_settings" product="emulator" msgid="4497482494770487014">"Om emulerad enhet"</string>
     <string name="about_settings_summary" msgid="4506081667462281647">"Visa juridisk information, status, programversion"</string>
@@ -4083,7 +4083,7 @@
     <string name="sensors_off_quick_settings_title" msgid="3655699045300438902">"Sensorer är inaktiverade"</string>
     <string name="managed_profile_settings_title" msgid="4340409321523532402">"Inställningar för jobbprofilen"</string>
     <string name="managed_profile_contact_search_title" msgid="7337225196804457095">"Kontaktsökning"</string>
-    <string name="managed_profile_contact_search_summary" msgid="7278267480246726951">"Tillåt att organisationen söker bland kontakter för att identifiera ringande och kontakter"</string>
+    <string name="managed_profile_contact_search_summary" msgid="7278267480246726951">"Tillåt att organisationen söker bland kontakter för att identifiera uppringare och kontakter"</string>
     <string name="cross_profile_calendar_title" msgid="2351605904015067145">"Kalender för flera profiler"</string>
     <string name="cross_profile_calendar_summary" msgid="3196258680438896098">"Visa jobbhändelser i den personliga kalendern"</string>
     <string name="cross_profile_calendar_restricted_summary" msgid="6892589892357409107">"Organisationen tillåter inte åtkomst till jobbkalendern via personliga appar"</string>

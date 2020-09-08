@@ -1648,7 +1648,7 @@
     <string name="mobile_connect_to_internet" msgid="6031886097365170913">"Connecta a Internet"</string>
     <string name="location_title" msgid="8664674161765477168">"La meva ubicació"</string>
     <string name="managed_profile_location_switch_title" msgid="8157384427925389680">"Ubicació per al perfil de treball"</string>
-    <string name="location_app_level_permissions" msgid="1298041503927632960">"Permís d\'aplicacions"</string>
+    <string name="location_app_level_permissions" msgid="1298041503927632960">"Permisos de les aplicacions"</string>
     <string name="location_app_permission_summary_location_off" msgid="541372845344796336">"La ubicació està desactivada"</string>
     <plurals name="location_app_permission_summary_location_on" formatted="false" msgid="7904821382328758218">
       <item quantity="other">Aplicacions que tenen accés il·limitat: <xliff:g id="BACKGROUND_LOCATION_APP_COUNT_2">%1$d</xliff:g> de <xliff:g id="TOTAL_LOCATION_APP_COUNT_3">%2$d</xliff:g></item>

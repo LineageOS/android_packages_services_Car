@@ -308,7 +308,7 @@
     <string name="settings_label" msgid="7263237773415875813">"الإعدادات"</string>
     <string name="settings_label_launcher" msgid="500627679902923496">"الإعدادات"</string>
     <string name="settings_shortcut" msgid="4503714880251502167">"اختصار الإعدادات"</string>
-    <string name="airplane_mode" msgid="4508870277398231073">"وضع الطائرة"</string>
+    <string name="airplane_mode" msgid="4508870277398231073">"وضع الطيران"</string>
     <string name="wireless_networks_settings_title" msgid="4298430520189173949">"اللاسلكي والشبكات"</string>
     <string name="radio_controls_summary" msgid="4596981962167684814">"إدارة Wi-Fi والبلوتوث ووضع الطائرة وشبكات الجوّال والشبكات الافتراضية الخاصة (VPN)"</string>
     <string name="cellular_data_title" msgid="7909624119432695022">"بيانات الجوّال"</string>
@@ -913,7 +913,7 @@
     <string name="wifi_stopping" msgid="413711069039939520">"إيقاف Wi-Fi…"</string>
     <string name="wifi_error" msgid="5605801874484465557">"خطأ"</string>
     <string name="wifi_sap_no_channel_error" msgid="6881796988574851628">"لا يتوفر التردد ٥ غيغاهرتز في هذا البلد"</string>
-    <string name="wifi_in_airplane_mode" msgid="4729571191578262246">"في وضع الطائرة"</string>
+    <string name="wifi_in_airplane_mode" msgid="4729571191578262246">"في وضع الطيران"</string>
     <string name="wifi_notify_open_networks" msgid="4782239203624619655">"الإشعار بوجود شبكات مفتوحة"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"الإشعار عند توفر شبكة عامة عالية الجودة"</string>
     <string name="wifi_wakeup" msgid="4963732992164721548">"تفعيل اتّصال Wi‑Fi تلقائيًا"</string>
@@ -1725,7 +1725,7 @@
     <string name="location_title" msgid="8664674161765477168">"موقعي"</string>
     <string name="managed_profile_location_switch_title" msgid="8157384427925389680">"موقع الملف الشخصي للعمل"</string>
     <string name="location_app_level_permissions" msgid="1298041503927632960">"إذن التطبيقات"</string>
-    <string name="location_app_permission_summary_location_off" msgid="541372845344796336">"تم إيقاف خدمة الموقع الجغرافي."</string>
+    <string name="location_app_permission_summary_location_off" msgid="541372845344796336">"الموقع الجغرافي غير مفعّل"</string>
     <plurals name="location_app_permission_summary_location_on" formatted="false" msgid="7904821382328758218">
       <item quantity="zero">لدى <xliff:g id="BACKGROUND_LOCATION_APP_COUNT_2">%1$d</xliff:g> من أصل <xliff:g id="TOTAL_LOCATION_APP_COUNT_3">%2$d</xliff:g> تطبيق إذن وصول غير محدود.</item>
       <item quantity="two">لدى <xliff:g id="BACKGROUND_LOCATION_APP_COUNT_2">%1$d</xliff:g> من أصل <xliff:g id="TOTAL_LOCATION_APP_COUNT_3">%2$d</xliff:g> تطبيق إذن وصول غير محدود.</item>
@@ -2546,7 +2546,7 @@
     <string name="battery_desc_standby" product="tablet" msgid="2941777996429933419">"البطارية المستخدمة عندما يكون الجهاز اللوحي خاملاً"</string>
     <string name="battery_desc_standby" product="default" msgid="8889482616564520287">"يتم استخدام البطارية عندما يكون الهاتف في وضع الخمول"</string>
     <string name="battery_desc_radio" msgid="5119078473833865414">"البطارية مستخدمة بواسطة الراديو الخلوي"</string>
-    <string name="battery_sugg_radio" msgid="3616364509738133415">"تبديل إلى وضع الطائرة للحفاظ على الطاقة في المناطق التي لا توجد بها تغطية للشبكة"</string>
+    <string name="battery_sugg_radio" msgid="3616364509738133415">"تبديل إلى وضع الطيران للحفاظ على الطاقة في المناطق التي لا توجد بها تغطية للشبكة"</string>
     <string name="battery_desc_flashlight" msgid="4574819522143720917">"طاقة البطارية المستخدمة بواسطة ضوء الفلاش"</string>
     <string name="battery_desc_camera" msgid="517966830222999462">"طاقة البطارية التي استهلكتها الكاميرا"</string>
     <string name="battery_desc_display" msgid="6701005808894183097">"طاقة البطارية المستخدمة بواسطة العرض والإضاءة الخلفية"</string>
@@ -4132,7 +4132,7 @@
     <string name="condition_expand_show" msgid="4118818022763913777">"إظهار"</string>
     <string name="condition_expand_hide" msgid="1112721783024332643">"إخفاء"</string>
     <string name="condition_hotspot_title" msgid="4143299802283098506">"نقطة الاتصال مفعّلة"</string>
-    <string name="condition_airplane_title" msgid="8484582712516148433">"وضع الطائرة قيد التفعيل"</string>
+    <string name="condition_airplane_title" msgid="8484582712516148433">"وضع الطيران قيد التفعيل"</string>
     <string name="condition_airplane_summary" msgid="3021193218494740742">"الشبكات غير متوفرة"</string>
     <string name="condition_zen_title" msgid="2128184708916052585">"تمّ تفعيل \"الرجاء عدم الإزعاج\""</string>
     <string name="condition_zen_summary_phone_muted" msgid="4396050395522974654">"تم كتم صوت الهاتف."</string>
@@ -4781,7 +4781,7 @@
     <string name="settings_panel_title" msgid="8181989386118232534">"لوحة الإعدادات"</string>
     <string name="internet_connectivity_panel_title" msgid="341712994620215750">"اتصال الإنترنت"</string>
     <string name="volume_connectivity_panel_title" msgid="4998755371496690971">"مستوى الصوت"</string>
-    <string name="mobile_data_ap_mode_disabled" msgid="2452716524753472885">"غير متاح أثناء وضع الطائرة"</string>
+    <string name="mobile_data_ap_mode_disabled" msgid="2452716524753472885">"غير متاح أثناء وضع الطيران"</string>
     <string name="force_desktop_mode" msgid="6973100177551040740">"فرض وضع سطح المكتب"</string>
     <string name="force_desktop_mode_summary" msgid="8865007610266954719">"فرض وضع سطح المكتب التجريبي على شاشات العرض الثانوية"</string>
     <string name="hwui_force_dark_title" msgid="3744825212652331461">"إلغاء ميزة فرض تعتيم الشاشة"</string>
