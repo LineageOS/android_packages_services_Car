@@ -14,6 +14,65 @@
 //
 //
 
+cc_library {
+    name: "android.automotive.evs.manager.fuzzlib",
+
+    srcs: [
+        "Enumerator.cpp",
+        "HalCamera.cpp",
+        "HalDisplay.cpp",
+        "VirtualCamera.cpp",
+        "stats/CameraUsageStats.cpp",
+        "stats/LooperWrapper.cpp",
+        "stats/StatsCollector.cpp",
+        "sync/unique_fd.cpp",
+        "sync/unique_fence.cpp",
+        "sync/unique_timeline.cpp",
+    ],
+
+    shared_libs: [
+        "android.hardware.automotive.evs@1.0",
+        "android.hardware.automotive.evs@1.1",
+        "libbase",
+        "libcamera_metadata",
+        "libcutils",
+        "libhardware",
+        "libhidlbase",
+        "libprocessgroup",
+        "libstatslog",
+        "libsync",
+        "libui",
+        "libutils",
+    ],
+
+    cflags: ["-DLOG_TAG=\"EvsManagerFuzzlibV1_1\""] + [
+        "-D_LIBCPP_ENABLE_THREAD_SAFETY_ANNOTATIONS",
+        "-Wall",
+        "-Werror",
+        "-Wunused",
+        "-Wunreachable-code",
+        "-Wthread-safety",
+    ],
+
+    include_dirs: [
+        "system/core/libsync",
+    ],
+
+    export_include_dirs: [
+        "./",
+        "stats/",
+        "sync/",
+    ],
+
+    product_variables: {
+        debuggable: {
+            cflags: [
+                "-DEVS_DEBUG",
+            ]
+        }
+    },
+}
+
 
 //#################################
 cc_binary {
