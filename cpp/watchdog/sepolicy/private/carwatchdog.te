@@ -9,6 +9,11 @@ add_service(carwatchdogd, carwatchdogd_service)
 binder_use(carwatchdogd)
 binder_service(carwatchdogd)
 
+# Configration to communicate with VHAL
+hwbinder_use(carwatchdogd)
+get_prop(carwatchdogd, hwservicemanager_prop)
+hal_client_domain(carwatchdogd, hal_vehicle)
+
 # Scan through /proc/pid for all processes
 r_dir_file(carwatchdogd, domain)
 
@@ -20,3 +25,6 @@ allow carwatchdogd proc_stat:file r_file_perms;
 
 # Find package_native to get uid to package name mapping.
 allow carwatchdogd package_native_service:service_manager find;
+
+# List HALs to get pid of vehicle HAL.
+allow carwatchdogd hwservicemanager:hwservice_manager list;

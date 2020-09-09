@@ -64,7 +64,13 @@ void ServiceManager::terminateServices() {
 }
 
 Result<void> ServiceManager::startProcessAnrMonitor(const sp<Looper>& looper) {
-    sWatchdogProcessService = new WatchdogProcessService(looper);
+    sp<WatchdogProcessService> service = new WatchdogProcessService(looper);
+    const auto& result = service->start();
+    if (!result.ok()) {
+        return Error(result.error().code())
+                << "Failed to start process monitoring: " << result.error();
+    }
+    sWatchdogProcessService = service;
     return {};
 }
 

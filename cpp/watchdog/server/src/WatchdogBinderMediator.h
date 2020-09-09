@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef WATCHDOG_SERVER_SRC_WATCHDOGBINDERMEDIATOR_H_
-#define WATCHDOG_SERVER_SRC_WATCHDOGBINDERMEDIATOR_H_
+#ifndef CPP_WATCHDOG_SERVER_SRC_WATCHDOGBINDERMEDIATOR_H_
+#define CPP_WATCHDOG_SERVER_SRC_WATCHDOGBINDERMEDIATOR_H_
 
 #include <android-base/result.h>
 #include <android/automotive/watchdog/BnCarWatchdog.h>
@@ -39,7 +39,7 @@ class ServiceManager;
 
 // WatchdogBinderMediator implements the carwatchdog binder APIs such that it forwards the calls
 // either to process ANR service or I/O performance data collection.
-class WatchdogBinderMediator : public BnCarWatchdog, public IBinder::DeathRecipient {
+class WatchdogBinderMediator : public BnCarWatchdog {
 public:
     WatchdogBinderMediator() : mWatchdogProcessService(nullptr), mIoPerfCollection(nullptr) {}
 
@@ -80,9 +80,6 @@ protected:
     }
 
 private:
-    void binderDied(const android::wp<IBinder>& who) override {
-        return mWatchdogProcessService->binderDied(who);
-    }
     bool dumpHelpText(int fd, std::string errorMsg);
 
     android::sp<WatchdogProcessService> mWatchdogProcessService;
@@ -98,4 +95,4 @@ private:
 }  // namespace automotive
 }  // namespace android
 
-#endif  // WATCHDOG_SERVER_SRC_WATCHDOGBINDERMEDIATOR_H_
+#endif  // CPP_WATCHDOG_SERVER_SRC_WATCHDOGBINDERMEDIATOR_H_
