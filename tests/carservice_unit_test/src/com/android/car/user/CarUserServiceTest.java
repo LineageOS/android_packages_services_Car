@@ -154,6 +154,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Mock private Resources mMockedResources;
     @Mock private Drawable mMockedDrawable;
     @Mock private InitialUserSetter mInitialUserSetter;
+    @Mock private UserPreCreator mUserPreCreator;
     @Mock IResultReceiver mSwitchUserUiReceiver;
     @Mock PackageManager mPackageManager;
 
@@ -228,7 +229,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                         mMockedUserManager,
                         mMockedIActivityManager,
                         /* maxRunningUsers= */ 3,
-                        mInitialUserSetter);
+                        mInitialUserSetter,
+                        mUserPreCreator);
 
         mFakeCarOccupantZoneService = new FakeCarOccupantZoneService(mCarUserService);
     }
@@ -1649,13 +1651,15 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                         mMockedCarUserManagerHelper,
                         mMockedUserManager,
                         mMockedIActivityManager,
-                        3, mInitialUserSetter);
+                        3, mInitialUserSetter,
+                        mUserPreCreator);
 
         carUserService.onSuspend();
 
         verify(mInitialUserSetter).set(argThat((info) -> {
             return info.type == InitialUserSetter.TYPE_REPLACE_GUEST;
         }));
+        verify(mUserPreCreator).managePreCreatedUsers();
     }
 
     @Test
@@ -1672,11 +1676,13 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                         mMockedUserManager,
                         mMockedIActivityManager,
                         /* maxRunningUsers= */ 3,
-                        mInitialUserSetter);
+                        mInitialUserSetter,
+                        mUserPreCreator);
 
         carUserService.onSuspend();
 
         verify(mInitialUserSetter, never()).set(any());
+        verify(mUserPreCreator).managePreCreatedUsers();
     }
 
     @Test
