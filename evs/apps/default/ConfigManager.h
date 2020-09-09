@@ -111,8 +111,6 @@ public:
     android_pixel_format_t getExternalMemoryFormat() const {
         return mExternalMemoryFormat;
     }
-    void    setMockGearSignal(int32_t signal) { mMockGearSignal = signal; }
-    int32_t getMockGearSignal() const { return mMockGearSignal; }
 
 private:
     // Camera information
@@ -127,9 +125,6 @@ private:
 
     // Format of external memory
     android_pixel_format_t mExternalMemoryFormat;
-
-    // Gear signal to simulate in test mode
-    int32_t mMockGearSignal;
 
     // Car body information (assumes front wheel steering and origin at center of rear axel)
     // Note that units aren't specified and don't matter as long as all length units are consistent
