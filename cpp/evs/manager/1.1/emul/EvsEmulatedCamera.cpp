@@ -30,73 +30,100 @@ using BufferDesc_1_1 = ::android::hardware::automotive::evs::V1_1::BufferDesc;
 namespace {
     // Arbitrary limit on number of graphics buffers allowed to be allocated
     // Safeguards against unreasonable resource consumption and provides a testable limit
-    static const unsigned MAX_BUFFERS_IN_FLIGHT = 100;
+    const unsigned MAX_BUFFERS_IN_FLIGHT = 100;
 
-};
+    uint32_t yuvToRgbx(const unsigned char Y, const unsigned char Uin, const unsigned char Vin) {
+        const float U = Uin - 128.0f;
+        const float V = Vin - 128.0f;
+
+        const float Rf = Y + 1.140f*V;
+        const float Gf = Y - 0.395f*U - 0.581f*V;
+        const float Bf = Y + 2.032f*U;
+        const unsigned char R = static_cast<unsigned char>(std::clamp(Rf, 0.0f, 255.0f));
+        const unsigned char G = static_cast<unsigned char>(std::clamp(Gf, 0.0f, 255.0f));
+        const unsigned char B = static_cast<unsigned char>(std::clamp(Bf, 0.0f, 255.0f));
+
+        return ((R & 0xFF))       |
+               ((G & 0xFF) << 8)  |
+               ((B & 0xFF) << 16) |
+               0xFF000000;  // Fill the alpha channel with ones
+    }
+
+
+    void fillRGBAFromYUYV(const BufferDesc& dstBuff,
+                                 uint8_t* dstData,
+                                 void* srcData,
+                                 unsigned srcStride,
+                                 unsigned srcHeight) {
+        const AHardwareBuffer_Desc* pDesc =
+            reinterpret_cast<const AHardwareBuffer_Desc*>(&dstBuff.buffer.description);
+        unsigned width = pDesc->width;
+        uint32_t* src = reinterpret_cast<uint32_t*>(srcData);
+        uint32_t* dst = reinterpret_cast<uint32_t*>(dstData);
+        unsigned srcStridePixels = srcStride / 2;
+        unsigned dstStridePixels = pDesc->stride;
+
+        const int srcRowPadding32 =
+            srcStridePixels / 2 - width / 2;  // 2 bytes per pixel, 4 bytes per word
+        const int dstRowPadding32 =
+            dstStridePixels - width;    // 4 bytes per pixel, 4 bytes per word
+
+        const unsigned numRows = std::min(srcHeight, pDesc->height);
+        for (unsigned r = 0; r < numRows; ++r) {
+            for (unsigned c = 0; c < width/2; c++) {
+                // Note:  we're walking two pixels at a time here (even/odd)
+                uint32_t srcPixel = *src++;
+
+                uint8_t Y1 = (srcPixel)       & 0xFF;
+                uint8_t U  = (srcPixel >> 8)  & 0xFF;
+                uint8_t Y2 = (srcPixel >> 16) & 0xFF;
+                uint8_t V  = (srcPixel >> 24) & 0xFF;
+
+                // On the RGB output, we're writing one pixel at a time
+                *(dst+0) = yuvToRgbx(Y1, U, V);
+                *(dst+1) = yuvToRgbx(Y2, U, V);
+                dst += 2;
+            }
+
+            // Skip over any extra data or end of row alignment padding
+            src += srcRowPadding32;
+            dst += dstRowPadding32;
+        }
+    }
+
+
+    void fillBufferCopy(const BufferDesc& dstBuff,
+                               uint8_t* dst,
+                               void* srcData,
+                               unsigned srcStride,
+                               unsigned srcHeight) {
+        const AHardwareBuffer_Desc* pDesc =
+            reinterpret_cast<const AHardwareBuffer_Desc*>(&dstBuff.buffer.description);
+
+        // HAL_PIXEL_FORMAT_RGBA_8888 default output format
+        const unsigned bytesPerPixel = 4;
+        const unsigned dstStride = pDesc->stride * bytesPerPixel;
+
+        // Simply copy the data, row by row, without the scaling.
+        const unsigned copyStride = std::min(srcStride, dstStride);
+        const unsigned numRows = std::min(srcHeight, pDesc->height);
+        uint8_t* src = reinterpret_cast<uint8_t*>(srcData);
+        for (auto r = 0; r < numRows; ++r) {
+            memcpy(dst, src, copyStride);
+
+            // Moves to the next row
+            src += srcStride;
+            dst += dstStride;
+        }
+    }
+} // namespace
+
 
 namespace android {
 namespace automotive {
 namespace evs {
 namespace V1_1 {
 namespace implementation {
-
-static uint32_t yuvToRgbx(
-        const unsigned char Y, const unsigned char Uin, const unsigned char Vin) {
-    const float U = Uin - 128.0f;
-    const float V = Vin - 128.0f;
-
-    const float Rf = Y + 1.140f*V;
-    const float Gf = Y - 0.395f*U - 0.581f*V;
-    const float Bf = Y + 2.032f*U;
-    const unsigned char R = static_cast<unsigned char>(std::clamp(Rf, 0.0f, 255.0f));
-    const unsigned char G = static_cast<unsigned char>(std::clamp(Gf, 0.0f, 255.0f));
-    const unsigned char B = static_cast<unsigned char>(std::clamp(Bf, 0.0f, 255.0f));
-
-    return ((R & 0xFF))       |
-           ((G & 0xFF) << 8)  |
-           ((B & 0xFF) << 16) |
-           0xFF000000;  // Fill the alpha channel with ones
-}
-
-
-static void fillRGBAFromYUYV(
-        const BufferDesc& tgtBuff, uint8_t* tgt, void* imgData, unsigned imgStride) {
-    const AHardwareBuffer_Desc* pDesc =
-        reinterpret_cast<const AHardwareBuffer_Desc*>(&tgtBuff.buffer.description);
-    unsigned width = pDesc->width;
-    unsigned height = pDesc->height;
-    uint32_t* src = (uint32_t*)imgData;
-    uint32_t* dst = (uint32_t*)tgt;
-    unsigned srcStridePixels = imgStride / 2;
-    unsigned dstStridePixels = pDesc->stride;
-
-    const int srcRowPadding32 =
-        srcStridePixels / 2 - width / 2;  // 2 bytes per pixel, 4 bytes per word
-    const int dstRowPadding32 =
-        dstStridePixels - width;    // 4 bytes per pixel, 4 bytes per word
-
-    for (unsigned r=0; r<height; r++) {
-        for (unsigned c=0; c<width/2; c++) {
-            // Note:  we're walking two pixels at a time here (even/odd)
-            uint32_t srcPixel = *src++;
-
-            uint8_t Y1 = (srcPixel)       & 0xFF;
-            uint8_t U  = (srcPixel >> 8)  & 0xFF;
-            uint8_t Y2 = (srcPixel >> 16) & 0xFF;
-            uint8_t V  = (srcPixel >> 24) & 0xFF;
-
-            // On the RGB output, we're writing one pixel at a time
-            *(dst+0) = yuvToRgbx(Y1, U, V);
-            *(dst+1) = yuvToRgbx(Y2, U, V);
-            dst += 2;
-        }
-
-        // Skip over any extra data or end of row alignment padding
-        src += srcRowPadding32;
-        dst += dstRowPadding32;
-    }
-}
-
 
 EvsEmulatedCamera::EvsEmulatedCamera(const char *deviceName,
                                      const EmulatedCameraDesc& desc) :
@@ -130,8 +157,6 @@ bool EvsEmulatedCamera::openDevice() {
     bool opened = false;
     if (mVideo) {
         opened = mVideo->open(mCaptureDeviceDesc.path,
-                              mCaptureDeviceDesc.width,
-                              mCaptureDeviceDesc.height,
                               mCaptureDeviceDesc.interval);
     }
 
@@ -231,10 +256,7 @@ Return<EvsResult> EvsEmulatedCamera::startVideoStream(const sp<IEvsCameraStream_
         }
     }
 
-    // TODO(b/162946784): Support more input data format.
-    // Set up the video stream with a callback to our member function forwardFrame()
-    mFillBufferFromVideo = fillRGBAFromYUYV;
-    if (!mVideo->startStream([this](VideoCapture*, imageBuffer* tgt, void* data) {
+    if (!mVideo->startStream([this](VideoCapture*, imageBufferDesc* tgt, void* data) {
                                 this->forwardFrame(tgt, data);
                             })
     ) {
@@ -592,13 +614,12 @@ unsigned EvsEmulatedCamera::increaseAvailableFrames_Locked(unsigned numToAdd) {
     while (added < numToAdd) {
         unsigned pixelsPerLine;
         buffer_handle_t memHandle = nullptr;
-        status_t result = alloc.allocate(mVideo->getWidth(), mVideo->getHeight(),
-                                         mFormat, 1,
-                                         mUsage,
+        status_t result = alloc.allocate(mCaptureDeviceDesc.width, mCaptureDeviceDesc.height,
+                                         mFormat, 1 /* layers */, mUsage,
                                          &memHandle, &pixelsPerLine, 0, "EvsEmulatedCamera");
         if (result != NO_ERROR) {
             LOG(ERROR) << "Error " << result << " allocating "
-                       << mVideo->getWidth() << " x " << mVideo->getHeight()
+                       << mCaptureDeviceDesc.width << " x " << mCaptureDeviceDesc.height
                        << " graphics buffer";
             break;
         }
@@ -669,7 +690,7 @@ unsigned EvsEmulatedCamera::decreaseAvailableFrames_Locked(unsigned numToRemove)
 
 
 // This is the async callback from the video camera that tells us a frame is ready
-void EvsEmulatedCamera::forwardFrame(imageBuffer* /*pTargetBuf*/, void* pData) {
+void EvsEmulatedCamera::forwardFrame(imageBufferDesc* pBufferInfo, void* pData) {
     bool readyForFrame = false;
     size_t idx = 0;
 
@@ -712,8 +733,9 @@ void EvsEmulatedCamera::forwardFrame(imageBuffer* /*pTargetBuf*/, void* pData) {
         BufferDesc_1_1 bufDesc_1_1 = {};
         AHardwareBuffer_Desc* pDesc =
             reinterpret_cast<AHardwareBuffer_Desc *>(&bufDesc_1_1.buffer.description);
-        pDesc->width  = mVideo->getWidth();
-        pDesc->height = mVideo->getHeight();
+
+        pDesc->width  = mCaptureDeviceDesc.width;
+        pDesc->height = mCaptureDeviceDesc.height;
         pDesc->layers = 1;
         pDesc->format = mFormat;
         pDesc->usage  = mUsage;
@@ -742,7 +764,29 @@ void EvsEmulatedCamera::forwardFrame(imageBuffer* /*pTargetBuf*/, void* pData) {
 
         // Transfer the video image into the output buffer, making any needed
         // format conversion along the way
-        mFillBufferFromVideo(bufDesc_1_1, (uint8_t *)targetPixels, pData, mVideo->getStride());
+        switch (pBufferInfo->info.format) {
+            case V4L2_PIX_FMT_YUYV:
+                fillRGBAFromYUYV(bufDesc_1_1,
+                                 reinterpret_cast<uint8_t*>(targetPixels),
+                                 pData,
+                                 mVideo->getStride(),
+                                 mVideo->getHeight());
+                break;
+
+            case V4L2_PIX_FMT_XBGR32:
+                [[fallthrough]];
+            case V4L2_PIX_FMT_ABGR32:
+                fillBufferCopy(bufDesc_1_1,
+                               reinterpret_cast<uint8_t*>(targetPixels),
+                               pData,
+                               mVideo->getStride(),
+                               mVideo->getHeight());
+                break;
+
+            default:
+                LOG(ERROR) << "Source data is in unsupported format";
+                break;
+        }
 
         // Unlock the output buffer
         mapper.unlock(bufDesc_1_1.buffer.nativeHandle);

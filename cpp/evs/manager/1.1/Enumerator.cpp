@@ -648,8 +648,12 @@ void Enumerator::cmdHelp(int fd) {
                     "milliseconds.\n"
                     "\t\tstop: stops collecting usage statistics and shows collected records.\n"
                     "--dump display: shows current status of the display\n"
-                    "--configure-emulated-camera [id] [path] [width] [height] [interval].  "
-                    "Interval is in milliseconds.\n", fd);
+                    "--configure-emulated-camera [id] [path] [width] [height] [interval]\n"
+                    "\tid: emulated device id to use; emulated/[0-9]+\n"
+                    "\tpath: a path to the directory where source files are stored\n"
+                    "\twidth: image width in pixels\n"
+                    "\theight: image height in pixels\n"
+                    "\tinterval: interval between consecutive frames in milliseconds.\n", fd);
 }
 
 
@@ -921,10 +925,10 @@ void Enumerator::cmdConfigureEmulatedCamera(int fd, const hidl_vec<hidl_string>&
                                             std::chrono::milliseconds(std::stoi(options[5]))
                                         );
     WriteStringToFd(StringPrintf("Configuring %s as:\n"
-                                 "\tWidth: %d\n"
-                                 "\tHeight: %d\n"
-                                 "\tInterval: %f\n",
-                                 id.c_str(), width, height, interval.count() / 1000.), fd);
+                                 "\tResolution: %dx%d\n"
+                                 "\tInterval: %f ms\n",
+                                 id.c_str(), width, height,
+                                 interval.count() / 1000000.), fd);
 
     EmulatedCameraDesc desc = {width, height, sourceDir, interval};
     mEmulatedCameraDevices.insert_or_assign(id, std::move(desc));
