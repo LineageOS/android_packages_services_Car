@@ -104,6 +104,7 @@
     <uses-permission android:name="android.permission.REAL_GET_TASKS"/>
     <uses-permission android:name="android.permission.REBOOT"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.SEND_CATEGORY_CAR_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.SEND_SMS"/>
     <!-- use for CarServiceTest -->
     <uses-permission android:name="android.permission.MONITOR_INPUT"/>
