@@ -17,7 +17,13 @@
 # Base platform for car builds
 # car packages should be added to car.mk instead of here
 
+ifeq ($(DISABLE_CAR_PRODUCT_CONFIG_OVERLAY),)
 PRODUCT_PACKAGE_OVERLAYS += packages/services/Car/car_product/overlay
+endif
+
+ifeq ($(DISABLE_CAR_PRODUCT_VISUAL_OVERLAY),)
+PRODUCT_PACKAGE_OVERLAYS += packages/services/Car/car_product/overlay-visual
+endif
 
 PRODUCT_COPY_FILES += \
     packages/services/Car/car_product/build/component-overrides.xml:$(TARGET_COPY_OUT_VENDOR)/etc/sysconfig/component-overrides.xml \
