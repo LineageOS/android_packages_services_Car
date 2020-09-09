@@ -33,6 +33,19 @@ const int kMaxFuzzerConsumedBytes = 12;
             HANDLE_RESET_PHASE,           /* verify handleResetPhase */         \
             API_SUM
 
+#define GRAPH_RUNNER_BASE_ENUM                                                 \
+    GET_GRAPH_TYPE,                      /* verify GetGraphType */             \
+            GET_GRAPH_STATE,             /* verify GetGraphState */            \
+            GET_STATUS,                  /* verify GetStatus */                \
+            GET_ERROR_MESSAGE,           /* verify GetErrorMessage */          \
+            GET_SUPPORTED_GRAPH_CONFIGS, /* verify GetSupportedGraphConfigs */ \
+            SET_INPUT_STREAM_DATA,       /* verify SetInputStreamData */       \
+            SET_INPUT_STREAM_PIXEL_DATA, /* verify SetInputStreamPixelData */  \
+            START_GRAPH_PROFILING,       /* verify StartGraphProfiling */      \
+            STOP_GRAPH_PROFILING         /* verify StopGraphProfiling */
+
+const char kAddress[16] = "[::]:10000";
+
 }  // namespace test
 }  // namespace runner
 }  // namespace computepipe
