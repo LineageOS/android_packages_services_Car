@@ -239,14 +239,15 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             @NonNull CarUserManagerHelper carUserManagerHelper, @NonNull UserManager userManager,
             @NonNull IActivityManager am, int maxRunningUsers) {
         this(context, hal, carUserManagerHelper, userManager, am, maxRunningUsers,
-                /* initialUserSetter= */ null);
+                /* initialUserSetter= */ null, /* userPreCreator= */ null);
     }
 
     @VisibleForTesting
     CarUserService(@NonNull Context context, @NonNull UserHalService hal,
             @NonNull CarUserManagerHelper carUserManagerHelper, @NonNull UserManager userManager,
             @NonNull IActivityManager am, int maxRunningUsers,
-            @Nullable InitialUserSetter initialUserSetter) {
+            @Nullable InitialUserSetter initialUserSetter,
+            @Nullable UserPreCreator userPreCreator) {
         if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
             Log.d(TAG_USER, "constructed");
         }
@@ -257,12 +258,11 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         mMaxRunningUsers = maxRunningUsers;
         mUserManager = userManager;
         mLastPassengerId = UserHandle.USER_NULL;
-        if (initialUserSetter == null) {
-            mInitialUserSetter = new InitialUserSetter(context, (u) -> setInitialUser(u));
-        } else {
-            mInitialUserSetter = initialUserSetter;
-        }
-        mUserPreCreator = new UserPreCreator(mUserManager);
+        mInitialUserSetter =
+                initialUserSetter == null ? new InitialUserSetter(context, (u) -> setInitialUser(u))
+                        : initialUserSetter;
+        mUserPreCreator =
+                userPreCreator == null ? new UserPreCreator(mUserManager) : userPreCreator;
         Resources resources = context.getResources();
         mEnablePassengerSupport = resources.getBoolean(R.bool.enablePassengerSupport);
         mSwitchGuestUserBeforeSleep = resources.getBoolean(
@@ -689,6 +689,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         if (mSwitchGuestUserBeforeSleep) {
             initResumeReplaceGuest();
         }
+
+        preCreateUsers();
     }
 
     /**
