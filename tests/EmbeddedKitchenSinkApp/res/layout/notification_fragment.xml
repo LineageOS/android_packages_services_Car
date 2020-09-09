@@ -199,7 +199,6 @@
                 android:background="#ffa9a8"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:text="Car Emergency"
-                android:enabled="false"
                 android:textSize="30sp"/>
 
             <Button
@@ -210,7 +209,6 @@
                 android:background="#ffa9a8"
                 android:foreground="?android:attr/selectableItemBackground"
                 android:text="Car Warning"
-                android:enabled="false"
                 android:textSize="30sp"/>
 
             <Button
@@ -219,7 +217,6 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:text="Car Information"
-                android:enabled="false"
                 android:textSize="30sp"/>
         </LinearLayout>
     </LinearLayout>
