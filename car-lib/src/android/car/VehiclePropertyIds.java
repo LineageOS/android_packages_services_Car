@@ -977,6 +977,36 @@ public final class VehiclePropertyIds {
     public static final int USER_IDENTIFICATION_ASSOCIATION = 299896587;
 
     /**
+     * Property to report that car watchdog is alive.
+     *
+     * <p>Doesn't require permission because it's not exposed through
+     * {@link android.car.hardware.property.CarPropertyManager}.
+     *
+     * @hide
+     */
+    public static final int WATCHDOG_ALIVE = 290459441;
+
+    /**
+     * Property to report a process terminated by car watchdog.
+     *
+     * <p>Doesn't require permission because it's not exposed through
+     * {@link android.car.hardware.property.CarPropertyManager}.
+     *
+     * @hide
+     */
+    public static final int WATCHDOG_TERMINATED_PROCESS = 299896626;
+
+    /**
+     * Property to signal a heartbeat from VHAL.
+     *
+     * <p>Doesn't require permission because it's not exposed through
+     * {@link android.car.hardware.property.CarPropertyManager}.
+     *
+     * @hide
+     */
+    public static final int VHAL_HEARTBEAT = 290459443;
+
+    /**
      * Gets a user-friendly representation of a property.
      */
     public static String toString(int property) {
@@ -1255,6 +1285,12 @@ public final class VehiclePropertyIds {
                 return "REMOVE_USER";
             case USER_IDENTIFICATION_ASSOCIATION:
                 return "USER_IDENTIFICATION_ASSOCIATION";
+            case WATCHDOG_ALIVE:
+                return "WATCHDOG_ALIVE";
+            case WATCHDOG_TERMINATED_PROCESS:
+                return "WATCHDOG_TERMINATED_PROCESS";
+            case VHAL_HEARTBEAT:
+                return "VHAL_HEARTBEAT";
             default:
                 return "0x" + Integer.toHexString(property);
         }
