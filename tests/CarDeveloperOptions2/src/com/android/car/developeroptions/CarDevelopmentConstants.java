@@ -26,6 +26,7 @@ public class CarDevelopmentConstants {
     static final String BUGREPORT_IN_POWER = "bugreport_in_power";
     static final String GRAPHICS_DRIVER_DASHBOARD = "graphics_driver_dashboard";
     static final String QUICK_SETTINGS_TILES = "quick_settings_tiles";
+    static final String SHARED_DATA = "shared_data";
     static final String SYSTEM_SERVER_HEAP_DUMP = "system_server_heap_dump";
     static final String TOGGLE_ADB_WIRELESS = "toggle_adb_wireless";
 
@@ -36,6 +37,7 @@ public class CarDevelopmentConstants {
                             BUGREPORT_IN_POWER,
                             GRAPHICS_DRIVER_DASHBOARD,
                             QUICK_SETTINGS_TILES,
+                            SHARED_DATA,
                             SYSTEM_SERVER_HEAP_DUMP,
                             TOGGLE_ADB_WIRELESS
                     ));
