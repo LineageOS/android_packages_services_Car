@@ -16,6 +16,7 @@
 
 #include <fuzzer/FuzzedDataProvider.h>
 #include <iostream>
+#include "Common.h"
 #include "Enumerator.h"
 #include "HalCamera.h"
 #include "MockHWCamera.h"
@@ -29,15 +30,21 @@ namespace implementation {
 namespace {
 
 enum EvsFuzzFuncs {
-    EVS_FUZZ_MAKE_VIRTUAL_CAMERA = 0,  // verify makeVirtualCamera
-    EVS_FUZZ_OWN_VIRTUAL_CAMERA,       // verify ownVirtualCamera
-    EVS_FUZZ_DISOWN_VIRTUAL_CAMERA,    // verify disownVirtualCamera
-    EVS_FUZZ_GET_HW_CAMERA,            // verify getHwCamera
-    EVS_FUZZ_GET_CLIENT_COUNT,         // verify getClientCount
-    EVS_FUZZ_GET_ID,                   // verify getId
-    EVS_FUZZ_GET_STREAM_CONFIG,        // verify getStreamConfig
-    EVS_FUZZ_CHANGE_FRAMES_IN_FLIGHT,  // verify changeFramesInFlight
-    EVS_FUZZ_API_SUM
+    EVS_FUZZ_MAKE_VIRTUAL_CAMERA = 0,    // verify makeVirtualCamera
+    EVS_FUZZ_OWN_VIRTUAL_CAMERA,         // verify ownVirtualCamera
+    EVS_FUZZ_DISOWN_VIRTUAL_CAMERA,      // verify disownVirtualCamera
+    EVS_FUZZ_GET_CLIENT_COUNT,           // verify getClientCount
+    EVS_FUZZ_GET_ID,                     // verify getId
+    EVS_FUZZ_GET_STREAM_CONFIG,          // verify getStreamConfig
+    EVS_FUZZ_CHANGE_FRAMES_IN_FLIGHT,    // verify changeFramesInFlight
+    EVS_FUZZ_CHANGE_FRAMES_IN_FLIGHT_1,  // verify overloaded changeFramesInFlight
+    EVS_FUZZ_REQUEST_NEW_FRAME,          // verify requestNewFrame
+    EVS_FUZZ_CLIENT_STREAM_STARTING,     // verify clientStreamStarting
+    EVS_FUZZ_CLIENT_STREAM_ENDING,       // verify clientStreamEnding
+    EVS_FUZZ_GET_STATS,                  // verify getStats
+    EVS_FUZZ_GET_STREAM_CONFIGURATION,   // verify getStreamConfiguration
+    EVS_FUZZ_DELIVER_FRAME_1_1,          // verify deliverFrame_1_1
+    EVS_FUZZ_BASE_ENUM                   // verify common functions
 };
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
