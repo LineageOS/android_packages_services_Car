@@ -18,7 +18,7 @@ package com.android.car.secondaryhome.launcher;
 
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.app.ActivityManager.StackInfo;
+import android.app.ActivityTaskManager.RootTaskInfo;
 import android.app.ActivityView;
 import android.app.IActivityManager;
 import android.app.TaskStackBuilder;
@@ -74,7 +74,7 @@ public final class AppFragment extends Fragment {
                     view.startActivity(mLaunchIntent);
                     synchronized (mLock) {
                         try {
-                            mTaskStackId = mAm.getFocusedStackInfo().stackId;
+                            mTaskStackId = mAm.getFocusedRootTaskInfo().taskId;
                         } catch (RemoteException e) {
                             Log.e(TAG, "cannot get new taskstackid in ActivityView.StateCallback");
                         }
@@ -216,10 +216,10 @@ public final class AppFragment extends Fragment {
     private boolean isTaskStackEmpty() {
         synchronized (mLock) {
             try {
-                return mAm.getAllStackInfos().stream().anyMatch(info
-                        -> (info.stackId == mTaskStackId && info.topActivity == null));
+                return mAm.getAllRootTaskInfos().stream().anyMatch(info
+                        -> (info.taskId == mTaskStackId && info.topActivity == null));
             } catch (RemoteException e) {
-                Log.e(TAG, "cannot getFocusedStackInfos", e);
+                Log.e(TAG, "cannot getFocusedTaskInfos", e);
                 return true;
             }
         }
@@ -228,11 +228,11 @@ public final class AppFragment extends Fragment {
     private final class TaskListener extends TaskStackListener {
         @Override
         public void onTaskStackChanged() {
-            StackInfo focusedStackInfo;
+            RootTaskInfo focusedTaskInfo;
             try {
-                focusedStackInfo = mAm.getFocusedStackInfo();
+                focusedTaskInfo = mAm.getFocusedRootTaskInfo();
             } catch (RemoteException e) {
-                Log.e(TAG, "cannot getFocusedStackInfo", e);
+                Log.e(TAG, "cannot getFocusedRootTaskInfo", e);
                 return;
             }
 
@@ -247,10 +247,10 @@ public final class AppFragment extends Fragment {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "OnTaskStackChanged: virtual display: "
                         + mVirtualDisplayId + " homeDisplay: " + mHomeDisplayId
-                        + "\nFocused stack: " + focusedStackInfo);
+                        + "\nFocused stack: " + focusedTaskInfo);
                 try {
-                    for (StackInfo info: mAm.getAllStackInfos()) {
-                        Log.d(TAG, "    stackId: " + info.stackId + " displayId: "
+                    for (RootTaskInfo info: mAm.getAllRootTaskInfos()) {
+                        Log.d(TAG, "    taskId: " + info.taskId + " displayId: "
                                 + info.displayId + " component: " + info.topActivity);
                     }
                 } catch (RemoteException e) {

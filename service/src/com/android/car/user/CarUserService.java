@@ -22,7 +22,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
-import android.app.ActivityManager.StackInfo;
+import android.app.ActivityTaskManager.RootTaskInfo;
 import android.app.IActivityManager;
 import android.car.CarOccupantZoneManager;
 import android.car.CarOccupantZoneManager.OccupantTypeEnum;
@@ -580,10 +580,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     private void stopAllTasks(@UserIdInt int userId) {
         try {
-            for (StackInfo info : mAm.getAllStackInfos()) {
-                for (int i = 0; i < info.taskIds.length; i++) {
-                    if (info.taskUserIds[i] == userId) {
-                        int taskId = info.taskIds[i];
+            for (RootTaskInfo info : mAm.getAllRootTaskInfos()) {
+                for (int i = 0; i < info.childTaskIds.length; i++) {
+                    if (info.childTaskUserIds[i] == userId) {
+                        int taskId = info.childTaskIds[i];
                         if (!mAm.removeTask(taskId)) {
                             Log.w(TAG_USER, "could not remove task " + taskId);
                         }
