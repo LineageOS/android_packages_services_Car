@@ -168,6 +168,8 @@ final class CarShellCommand extends ShellCommand {
                 android.Manifest.permission.MANAGE_USERS);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_SET_USER_AUTH_ASSOCIATION,
                 android.Manifest.permission.MANAGE_USERS);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_DAY_NIGHT_MODE,
+                android.Manifest.permission.MODIFY_DAY_NIGHT_MODE);
     }
 
     private static final String PARAM_DAY_MODE = "day";
