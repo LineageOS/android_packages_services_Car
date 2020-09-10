@@ -29,4 +29,6 @@
     <uses-permission android:name="android.car.permission.CAR_DIAGNOSTICS" />
     <!-- Permission required for 'adb shell cmd car_service silent-mode' -->
     <uses-permission android:name="android.car.permission.CAR_POWER" />
+    <!-- Permission required for 'adb shell cmd car_service day-night-mode [day|night]' -->
+    <uses-permission android:name="android.car.permission.MODIFY_DAY_NIGHT_MODE" />
 </manifest>
