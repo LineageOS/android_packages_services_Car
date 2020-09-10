@@ -17,6 +17,7 @@ package com.android.car.am;
 
 import static android.app.ActivityTaskManager.INVALID_TASK_ID;
 import static android.os.Process.INVALID_UID;
+import static android.view.WindowManager.LayoutParams.TYPE_SYSTEM_DIALOG;
 
 import static com.android.car.CarLog.TAG_AM;
 
@@ -444,6 +445,9 @@ public final class FixedActivityService implements CarServiceBase {
                             }
                             mBlockingPresentations.append(displayIdForActivity, p);
                         }
+                        // Change the window type, since we can't show the Presentation window
+                        // in the internal display.
+                        p.getWindow().setType(TYPE_SYSTEM_DIALOG);
                         p.show();
                     });
                 }
