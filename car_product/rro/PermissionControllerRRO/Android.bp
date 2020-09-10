@@ -1,0 +1,9 @@
+android_app {
+    name: "CarPermissionControllerRRO",
+    resource_dirs: ["res"],
+    platform_apis: true,
+    aaptflags: [
+        "--no-resource-deduping",
+        "--no-resource-removal"
+    ],
+}

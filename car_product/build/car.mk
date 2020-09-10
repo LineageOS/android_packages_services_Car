@@ -118,6 +118,10 @@ PRODUCT_PACKAGES += \
     com.android.car.procfsinspector \
     libcar-framework-service-jni \
 
+# RROs
+PRODUCT_PACKAGES += \
+    CarPermissionControllerRRO \
+
 # System Server components
 # Order is important: if X depends on Y, then Y should precede X on the list.
 PRODUCT_SYSTEM_SERVER_JARS += car-frameworks-service
