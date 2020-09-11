@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#define LOG_TAG "powerpolicydaemon"
+#define LOG_TAG "carpowerpolicyd"
 
 #include "CarPowerPolicyServer.h"
 
