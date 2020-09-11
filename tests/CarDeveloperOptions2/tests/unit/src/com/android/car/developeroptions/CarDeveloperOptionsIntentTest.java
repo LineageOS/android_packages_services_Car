@@ -79,7 +79,7 @@ public class CarDeveloperOptionsIntentTest {
 
     private Intent createSettingsPackageIntent() {
         Intent intent = new Intent();
-        intent.setPackage("com.android.settings");
+        intent.setPackage("com.android.car.developeroptions");
         return intent;
     }
 }

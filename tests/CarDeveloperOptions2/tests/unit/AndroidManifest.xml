@@ -25,6 +25,6 @@
     </application>
 
     <instrumentation android:name="androidx.test.runner.AndroidJUnitRunner"
-                     android:targetPackage="com.android.settings"
+                     android:targetPackage="com.android.car.developeroptions"
                      android:label="Car Developeroptions Unit Tests" />
 </manifest>
