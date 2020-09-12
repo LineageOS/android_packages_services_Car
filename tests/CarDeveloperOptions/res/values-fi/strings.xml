@@ -1053,7 +1053,7 @@
     <string name="wifi_p2p_disconnect_title" msgid="915880461655863812">"Katkaistaanko yhteys?"</string>
     <string name="wifi_p2p_disconnect_message" msgid="3745286932812740784">"Jos katkaiset yhteyden, yhteys laitteeseen <xliff:g id="PEER_NAME">%1$s</xliff:g> katkaistaan."</string>
     <string name="wifi_p2p_disconnect_multiple_message" msgid="6051173422663731688">"Jos kosketat Katkaise yhteys, yhteys laitteeseen <xliff:g id="PEER_NAME">%1$s</xliff:g> ja <xliff:g id="PEER_COUNT">%2$s</xliff:g> muuhun laitteeseen katkaistaan."</string>
-    <string name="wifi_p2p_cancel_connect_title" msgid="2465200999145769427">"Peruutetaanko kutsu?"</string>
+    <string name="wifi_p2p_cancel_connect_title" msgid="2465200999145769427">"Perutaanko kutsu?"</string>
     <string name="wifi_p2p_cancel_connect_message" msgid="3752679335020392154">"Haluatko peruuttaa laitteelle <xliff:g id="PEER_NAME">%1$s</xliff:g> lähetetyn yhteydenmuodostuskutsun?"</string>
     <string name="wifi_p2p_delete_group_message" msgid="3206660449067701089">"Unohdetaanko tämä ryhmä?"</string>
     <string name="wifi_hotspot_checkbox_text" msgid="12062341344410520">"Wi‑Fi-hotspot"</string>
@@ -3789,7 +3789,7 @@
     <string name="zen_access_warning_dialog_title" msgid="7704910289810337055">"Myönnetäänkö Älä häiritse -tilan käyttöoikeus sovellukselle <xliff:g id="APP">%1$s</xliff:g>?"</string>
     <string name="zen_access_warning_dialog_summary" msgid="2717755746850874577">"Sovellus voi ottaa Älä häiritse -tilan käyttöön tai poistaa sen käytöstä sekä muokata siihen liittyviä asetuksia."</string>
     <string name="zen_access_disabled_package_warning" msgid="7086237569177576966">"Tämän täytyy olla käytössä, sillä ilmoitusten käyttöoikeus on myönnetty."</string>
-    <string name="zen_access_revoke_warning_dialog_title" msgid="6850994585577513299">"Peruutetaanko sovellukselta <xliff:g id="APP">%1$s</xliff:g> Älä häiritse -tilan käyttöoikeus?"</string>
+    <string name="zen_access_revoke_warning_dialog_title" msgid="6850994585577513299">"Perutaanko sovellukselta <xliff:g id="APP">%1$s</xliff:g> Älä häiritse -tilan käyttöoikeus?"</string>
     <string name="zen_access_revoke_warning_dialog_summary" msgid="3487422193181311403">"Kaikki tämän sovelluksen luomat Älä häiritse -säännöt poistetaan."</string>
     <string name="ignore_optimizations_on" msgid="4373971641328943551">"Älä optimoi"</string>
     <string name="ignore_optimizations_off" msgid="4372289432580282870">"Optimoi"</string>
