@@ -65,12 +65,19 @@ PRODUCT_PACKAGES += \
     PackageInstaller \
     car-bugreportd \
 
-# EVS resources
-PRODUCT_PACKAGES += android.automotive.evs.manager@1.0
-# The following packages, or their vendor specific equivalents should be include in the device.mk
-#PRODUCT_PACKAGES += evs_app
-#PRODUCT_PACKAGES += evs_app_default_resources
-#PRODUCT_PACKAGES += android.hardware.automotive.evs@1.0-service
+# EVS service
+include packages/services/Car/cpp/evs/manager/evsmanager.mk
+
+ifeq ($(ENABLE_EVS_SAMPLE), true)
+# ENABLE_EVS_SAMPLE should set be true or their vendor specific equivalents should be included in
+# the device.mk with the corresponding selinux policies
+PRODUCT_PRODUCT_PROPERTIES += persist.automotive.evs.mode=0
+PRODUCT_PACKAGES += evs_app \
+                    android.hardware.automotive.evs@1.1-sample \
+                    android.frameworks.automotive.display@1.0-service
+include packages/services/Car/cpp/evs/apps/sepolicy/evsapp.mk
+include packages/services/Car/cpp/evs/sampleDriver/sepolicy/evsdriver.mk
+endif
 
 # Device running Android is a car
 PRODUCT_COPY_FILES += \
