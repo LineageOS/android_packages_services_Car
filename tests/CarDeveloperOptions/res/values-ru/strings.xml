@@ -496,7 +496,7 @@
     <string name="security_settings_fingerprint_enroll_touch_dialog_title" msgid="7410398793283818609">"Мимо! Это не сканер отпечатков пальцев..."</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_message" msgid="7192100314788868883">"Найдите сканер на задней панели и коснитесь его указательным пальцем."</string>
     <string name="security_settings_fingerprint_enroll_error_dialog_title" msgid="1415709674142168770">"Отпечаток не добавлен"</string>
-    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"Превышен срок ожидания. Повторите попытку."</string>
+    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"Превышен срок ожидания. Повторите попытку"</string>
     <string name="security_settings_fingerprint_enroll_error_generic_dialog_message" msgid="7896295829530444810">"Не удалось добавить отпечаток. Повторите попытку или попробуйте сохранить отпечаток другого пальца."</string>
     <string name="fingerprint_enroll_button_add" msgid="6335782936874996629">"Добавить ещё"</string>
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"Далее"</string>
@@ -895,7 +895,7 @@
     <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"Чтобы использовать эту функцию, выберите источник рейтинга сетей"</string>
     <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"Чтобы использовать эту функцию, выберите поддерживаемый источник рейтинга сетей"</string>
     <string name="wifi_install_credentials" msgid="5650088113710858289">"Установка сертификатов"</string>
-    <string name="wifi_scan_notify_text" msgid="7614101215028336927">"Чтобы точнее определять ваше местонахождение, сервисы и приложения могут искать доступные беспроводные сети, даже когда Wi-Fi отключен. Этот режим позволяет улучшить работу функций, связанных с геолокацией. Отключить его можно в <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>настройках поиска сетей Wi-Fi<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
+    <string name="wifi_scan_notify_text" msgid="7614101215028336927">"Чтобы точнее определять ваше местонахождение, сервисы и приложения могут искать доступные беспроводные сети, даже когда Wi-Fi отключен. Этот режим позволяет улучшить работу функций, связанных с геолокацией. Отключить его можно в разделе <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>настроек поиска сетей Wi-Fi<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"Чтобы повысить точность определения местоположения, включите поиск сетей Wi-Fi в <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>настройках<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="wifi_scan_notify_remember_choice" msgid="1235445971400237444">"Больше не показывать"</string>
     <string name="wifi_setting_sleep_policy_title" msgid="2120785188625932076">"Wi-Fi в спящем режиме"</string>
@@ -954,7 +954,7 @@
     <string name="wifi_eap_domain" msgid="3298302320003640130">"Домен"</string>
     <string name="wifi_eap_user_cert" msgid="6786839531765719173">"Сертификат пользователя"</string>
     <string name="wifi_eap_identity" msgid="5280457017705738773">"Пользователь"</string>
-    <string name="wifi_eap_anonymous" msgid="6352344972490839958">"Анонимный пользователь"</string>
+    <string name="wifi_eap_anonymous" msgid="6352344972490839958">"Неизвестный"</string>
     <string name="wifi_password" msgid="6942983531275177771">"Пароль"</string>
     <string name="wifi_show_password" msgid="7878398590772942202">"Показать пароль"</string>
     <string name="wifi_ap_band_config" msgid="6565016368079288433">"Диапазон частот Wi-Fi"</string>
@@ -989,7 +989,7 @@
     <string name="wifi_dpp_wifi_shared_with_device" msgid="5713765471758272471">"Устройство подключено к Wi‑Fi"</string>
     <string name="wifi_dpp_add_another_device" msgid="3698441567235301565">"Подключить другое устройство"</string>
     <string name="wifi_dpp_choose_different_network" msgid="128515107488187050">"Выбрать другую сеть Wi-Fi"</string>
-    <string name="wifi_dpp_could_not_add_device" msgid="4966109556543584813">"Не удалось добавить устройство"</string>
+    <string name="wifi_dpp_could_not_add_device" msgid="4966109556543584813">"Не удалось добавить устройство."</string>
     <string name="wifi_dpp_device_found" msgid="6488461467496850841">"Устройство найдено"</string>
     <string name="wifi_dpp_sharing_wifi_with_this_device" msgid="2540529164687476827">"Предоставление доступа к сети Wi‑Fi…"</string>
     <string name="wifi_dpp_connecting" msgid="4229290407210299897">"Подключение…"</string>
@@ -1246,8 +1246,8 @@
     <string name="adaptive_sleep_summary_off" msgid="2891586225954973431">"Отключено"</string>
     <string name="adaptive_sleep_description" msgid="812673735459170009">"Экран не будет отключаться, если вы смотрите на него."</string>
     <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"Когда адаптивный спящий режим включен, устройство использует фронтальную камеру, чтобы отслеживать, смотрит ли кто-то на экран. Эта функция работает только на вашем устройстве: собранные данные не сохраняются и не отправляются в Google."</string>
-    <string name="night_display_title" msgid="1305002424893349814">"Ночная подсветка"</string>
-    <string name="night_display_text" msgid="5330502493684652527">"С ночной подсветкой экран приобретает желтоватый оттенок. Это снижает напряжение глаз при тусклом свете и может помочь вам быстрее заснуть."</string>
+    <string name="night_display_title" msgid="1305002424893349814">"Ночной режим"</string>
+    <string name="night_display_text" msgid="5330502493684652527">"В ночном режиме экран приобретает желтоватый оттенок. Это снижает напряжение глаз при тусклом свете и может помочь вам быстрее заснуть."</string>
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"Расписание"</string>
     <string name="night_display_auto_mode_never" msgid="2897444637217807088">"Нет"</string>
     <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"В выбранное время"</string>
@@ -1270,7 +1270,7 @@
     <string name="night_display_activation_off_twilight" msgid="6846727701281556110">"Отключить до заката"</string>
     <string name="night_display_activation_on_custom" msgid="4761140206778957611">"Включить до <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="night_display_activation_off_custom" msgid="4207238846687792731">"Отключить до <xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="night_display_not_currently_on" msgid="1436588493764429281">"Ночная подсветка сейчас выключена"</string>
+    <string name="night_display_not_currently_on" msgid="1436588493764429281">"Ночной режим сейчас выключен"</string>
     <string name="screen_timeout" msgid="1700950247634525588">"Спящий режим"</string>
     <string name="screen_timeout_title" msgid="150117777762864112">"Отключение экрана"</string>
     <string name="screen_timeout_summary" msgid="8644192861778491060">"После <xliff:g id="TIMEOUT_DESCRIPTION">%1$s</xliff:g> бездействия"</string>
@@ -1735,7 +1735,7 @@
     <string name="terms_title" msgid="1804549588198223771">"Условия использования"</string>
     <string name="webview_license_title" msgid="8244960025549725051">"Системная лицензия WebView"</string>
     <string name="wallpaper_attributions" msgid="2941987966332943253">"Обои"</string>
-    <string name="wallpaper_attributions_values" msgid="4461979853894606323">"Спутниковые фотографии:\n© 2014 CNES/Astrium, DigitalGlobe, Bluesky"</string>
+    <string name="wallpaper_attributions_values" msgid="4461979853894606323">"Спутниковые фотографии:\n© CNES 2014/Astrium, DigitalGlobe, Bluesky"</string>
     <string name="settings_manual_activity_title" msgid="7599911755054286789">"Руководство пользователя"</string>
     <string name="settings_manual_activity_unavailable" msgid="4872502775018655343">"Не удалось загрузить руководство пользователя."</string>
     <string name="settings_license_activity_title" msgid="1099045216283677608">"Лицензии третьих сторон"</string>
@@ -1776,7 +1776,7 @@
     <string name="lockpassword_strong_auth_required_device_pin" msgid="24030584350601016">"Введите PIN-код"</string>
     <string name="lockpassword_strong_auth_required_device_password" msgid="7746588206458754598">"Введите пароль устройства"</string>
     <string name="lockpassword_strong_auth_required_work_pattern" msgid="6861154706098327320">"Укажите графический ключ от рабочего профиля"</string>
-    <string name="lockpassword_strong_auth_required_work_pin" msgid="6306902249365524526">"Для дополнительной защиты введите PIN-код рабочего профиля."</string>
+    <string name="lockpassword_strong_auth_required_work_pin" msgid="6306902249365524526">"Введите PIN-код рабочего профиля"</string>
     <string name="lockpassword_strong_auth_required_work_password" msgid="2917338218971012776">"Введите пароль от рабочего профиля"</string>
     <string name="lockpassword_confirm_your_pattern_details_frp" msgid="1085862410379709928">"Настройки вашего телефона были сброшены. Чтобы использовать его, введите свой прежний графический ключ."</string>
     <string name="lockpassword_confirm_your_pin_details_frp" msgid="6849889353126558761">"Настройки вашего телефона были сброшены. Чтобы использовать его, введите свой прежний PIN-код."</string>
@@ -2342,7 +2342,7 @@
     <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"Телефон используется больше, чем обычно"</string>
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"Планшет используется больше, чем обычно"</string>
     <string name="battery_tip_high_usage_title" product="device" msgid="8304138287288309490">"Устройство используется больше, чем обычно"</string>
-    <string name="battery_tip_high_usage_summary" msgid="5514749872957528189">"Заряд батареи расходуется быстрее, чем обычно"</string>
+    <string name="battery_tip_high_usage_summary" msgid="5514749872957528189">"Заряд батареи расходуется быстрее, чем обычно."</string>
     <string name="battery_tip_dialog_message" product="default" msgid="8453700079047810964">"Телефон используется больше, чем обычно. Батарея скоро разрядится.\n\nС момента последней зарядки активнее всего использовались следующие приложения с высоким потреблением энергии:"</string>
     <string name="battery_tip_dialog_message" product="tablet" msgid="6489981050645444068">"Планшет используется больше, чем обычно. Батарея скоро разрядится.\n\nС момента последней зарядки активнее всего использовались следующие приложения с высоким потреблением энергии:"</string>
     <string name="battery_tip_dialog_message" product="device" msgid="6348123094674390337">"Устройство используется больше, чем обычно. Батарея скоро разрядится.\n\nС момента последней зарядки активнее всего использовались следующие приложения с высоким потреблением энергии:"</string>
@@ -2525,7 +2525,7 @@
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"С учетом уровня заряда"</string>
     <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Включать, если высока вероятность, что уровня заряда не хватит до подзарядки"</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Включать при уровне заряда <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
-    <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Задать расписание"</string>
+    <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Создать расписание"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Выключать при полном заряде"</string>
     <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"Режим энергосбережения отключается, когда уровень заряда достигает <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"Режим энергосбережения отключается, когда уровень заряда достигает <xliff:g id="PERCENT">%1$s</xliff:g>."</string>
@@ -3663,7 +3663,7 @@
     <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"Запрашивать графический ключ"</string>
     <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"Запрашивать PIN-код"</string>
     <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"Запрашивать пароль"</string>
-    <string name="screen_pinning_unlock_none" msgid="9183040569733226911">"Блокировать устройство при отключении функции"</string>
+    <string name="screen_pinning_unlock_none" msgid="9183040569733226911">"Блокировать устройство при откл. блокировки в приложении"</string>
     <string name="opening_paragraph_delete_profile_unknown_company" msgid="2350380017136403670">"Профилем управляет"</string>
     <string name="managing_admin" msgid="3212584016377581608">"Управляется <xliff:g id="ADMIN_APP_LABEL">%s</xliff:g>"</string>
     <string name="experimental_preference" msgid="5903223408406906322">"(экспериментальная настройка)"</string>
@@ -3833,7 +3833,7 @@
     <string name="high_power_prompt_body" msgid="8067395096053552289">"Если приложение \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" сможет запускаться в фоновом режиме, это увеличит расход заряда батареи.\n\nЭту функцию можно отключить, открыв Настройки &gt; Приложения и уведомления."</string>
     <string name="battery_summary" msgid="4345690800899981339">"Использовано с момента последней полной зарядки: <xliff:g id="PERCENTAGE">%1$s</xliff:g>"</string>
     <string name="battery_power_management" msgid="2853925857548647969">"Управление питанием"</string>
-    <string name="no_battery_summary" msgid="4105932628367471314">"С момента последней полной зарядки батарея не использовалась"</string>
+    <string name="no_battery_summary" msgid="4105932628367471314">"Батарея с момента последней полной зарядки не расходовалась"</string>
     <string name="app_notification_preferences" msgid="5154466638524523201">"Настройки приложения"</string>
     <string name="system_ui_settings" msgid="6751165163665775447">"Показать SystemUI Tuner"</string>
     <string name="additional_permissions" msgid="3142290772324571654">"Ещё разрешения"</string>
@@ -3905,7 +3905,7 @@
     </plurals>
     <string name="running_frequency" msgid="7545170806968474449">"Как часто используется"</string>
     <string name="memory_maximum_usage" msgid="4734981118293469479">"Макс. памяти использовано"</string>
-    <string name="no_data_usage" msgid="903383745620135746">"Трафик не расходовался"</string>
+    <string name="no_data_usage" msgid="903383745620135746">"Нет использованного трафика"</string>
     <string name="zen_access_warning_dialog_title" msgid="7704910289810337055">"Разрешить приложению \"<xliff:g id="APP">%1$s</xliff:g>\" доступ к настройкам режима \"Не беспокоить\"?"</string>
     <string name="zen_access_warning_dialog_summary" msgid="2717755746850874577">"Приложение сможет включать и отключать режим \"Не беспокоить\", а также изменять соответствующие настройки."</string>
     <string name="zen_access_disabled_package_warning" msgid="7086237569177576966">"Должно быть включено, поскольку разрешен доступ к уведомлениям"</string>
@@ -3967,7 +3967,7 @@
     <string name="screen_zoom_conversation_timestamp_2" msgid="816265985618121370">"Вт, 18:01"</string>
     <string name="screen_zoom_conversation_timestamp_3" msgid="7346540212221792932">"Вт, 18:02"</string>
     <string name="screen_zoom_conversation_timestamp_4" msgid="1452374487089625022">"Вт, 18:03"</string>
-    <string name="disconnected" msgid="4088439352761747084">"Не подключено"</string>
+    <string name="disconnected" msgid="4088439352761747084">"Нет подключения"</string>
     <string name="keyboard_disconnected" msgid="3068615097201531871">"Не подключено"</string>
     <string name="data_usage_summary_format" msgid="7788095271598602797">"Использовано трафика: <xliff:g id="AMOUNT">%1$s</xliff:g>"</string>
     <string name="data_usage_wifi_format" msgid="9028934101966264710">"<xliff:g id="AMOUNT">^1</xliff:g> передано через Wi‑Fi"</string>
@@ -4028,9 +4028,9 @@
     <string name="condition_device_muted_summary" msgid="3101055117680109021">"Для звонков и уведомлений"</string>
     <string name="condition_device_vibrate_title" msgid="5712659354868872338">"Только вибрация"</string>
     <string name="condition_device_vibrate_summary" msgid="9073880731894828604">"Для звонков и уведомлений"</string>
-    <string name="night_display_suggestion_title" msgid="4222839610992282188">"Расписание ночной подсветки"</string>
+    <string name="night_display_suggestion_title" msgid="4222839610992282188">"Расписание ночного режима"</string>
     <string name="night_display_suggestion_summary" msgid="1754361016383576916">"Автоматически изменять оттенок экрана по вечерам."</string>
-    <string name="condition_night_display_title" msgid="9171491784857160135">"Ночная подсветка включена"</string>
+    <string name="condition_night_display_title" msgid="9171491784857160135">"Ночной режим включен"</string>
     <string name="condition_night_display_summary" msgid="7885776986937527558">"Экран имеет желтый оттенок"</string>
     <string name="condition_grayscale_title" msgid="1226351649203551299">"Оттенки серого"</string>
     <string name="condition_grayscale_summary" msgid="749172886527349546">"Показывать только в серых тонах"</string>
@@ -4635,7 +4635,7 @@
     <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"Удалить эту подсказку?"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"Подсказка удалена."</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"Отменить"</string>
-    <string name="low_storage_summary" msgid="4562224870189133400">"В хранилище заканчивается место. Занято: <xliff:g id="PERCENTAGE">%1$s</xliff:g>, свободно: <xliff:g id="FREE_SPACE">%2$s</xliff:g>."</string>
+    <string name="low_storage_summary" msgid="4562224870189133400">"В хранилище заканчивается пространство. Занято: <xliff:g id="PERCENTAGE">%1$s</xliff:g>, свободно: <xliff:g id="FREE_SPACE">%2$s</xliff:g>."</string>
     <string name="contextual_card_feedback_send" msgid="8698649023854350623">"Отправить отзыв"</string>
     <string name="contextual_card_feedback_confirm_message" msgid="3987973028353264878">"Поделитесь мнением об этой подсказке."</string>
     <string name="copyable_slice_toast" msgid="1357518174923789947">"Контент (<xliff:g id="COPY_CONTENT">%1$s</xliff:g>) скопирован в буфер обмена"</string>

@@ -891,7 +891,7 @@
     <string name="wifi_poor_network_detection_summary" msgid="5539951465985614590">"Nie korzystaj z sieci Wi-Fi, jeśli nie ma dobrego połączenia z internetem"</string>
     <string name="wifi_avoid_poor_network_detection_summary" msgid="1976503191780928104">"Używaj tylko sieci z dobrym połączeniem z internetem"</string>
     <string name="use_open_wifi_automatically_title" msgid="3084513215481454350">"Łącz się z otwartymi sieciami"</string>
-    <string name="use_open_wifi_automatically_summary" msgid="8338020172673161754">"Automatycznie łącz się z sieciami publicznymi wysokiej jakości"</string>
+    <string name="use_open_wifi_automatically_summary" msgid="8338020172673161754">"Automatycznie łącz się z publicznymi sieciami wysokiej jakości"</string>
     <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"Aby użyć tej funkcji, wybierz dostawcę ocen jakości sieci"</string>
     <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"Aby użyć tej funkcji, wybierz zgodnego dostawcę ocen jakości sieci"</string>
     <string name="wifi_install_credentials" msgid="5650088113710858289">"Instaluj certyfikaty"</string>
@@ -2537,7 +2537,7 @@
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"Włącz automatycznie"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"Nigdy"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"przy <xliff:g id="PERCENT">%1$s</xliff:g> baterii"</string>
-    <string name="battery_percentage" msgid="7782252476471033843">"Procent naładowania baterii"</string>
+    <string name="battery_percentage" msgid="7782252476471033843">"Poziom naładowania baterii w procentach"</string>
     <string name="battery_percentage_description" msgid="9219875229166700610">"Pokazuj procentowy poziom naładowania baterii na pasku stanu"</string>
     <string name="process_stats_summary_title" msgid="9189588417488537954">"Statystyki procesów"</string>
     <string name="process_stats_summary" msgid="8077998499161221885">"Rozbudowane statystyki uruchomionych procesów"</string>
@@ -2806,7 +2806,7 @@
     <string name="data_usage_metered_wifi" msgid="2955256408132426720">"Sieci Wi‑Fi z pomiarem"</string>
     <string name="data_usage_metered_wifi_disabled" msgid="5771083253782103415">"Aby wybrać sieci z pomiarem, włącz Wi-Fi."</string>
     <string name="data_usage_metered_auto" msgid="7924116401382629319">"Automatycznie"</string>
-    <string name="data_usage_metered_yes" msgid="7333744880035386073">"Pomiar użycia danych"</string>
+    <string name="data_usage_metered_yes" msgid="7333744880035386073">"Użycie danych jest mierzone"</string>
     <string name="data_usage_metered_no" msgid="1961524615778610008">"Użycie danych nie jest mierzone"</string>
     <string name="data_usage_disclaimer" msgid="4683321532922590425">"Operator komórkowy może obliczać ilość przesłanych danych inaczej niż urządzenie."</string>
     <string name="cryptkeeper_emergency_call" msgid="4625420047524693116">"Połączenie alarmowe"</string>
@@ -3004,7 +3004,7 @@
     <string name="nfc_payment_favor_default" msgid="7555356982142464260">"Zawsze"</string>
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Z wyjątkiem, gdy jest otwarta inna aplikacja płatnicza"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"Na terminalu „Zbliż i zapłać” płać przy użyciu:"</string>
-    <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Płacenie na terminalu"</string>
+    <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Płacenie przy terminalu"</string>
     <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Skonfiguruj aplikację płatniczą, a później przyłóż tylną część telefonu do terminala z symbolem płatności zbliżeniowej."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"OK"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"Więcej..."</string>
@@ -3309,7 +3309,7 @@
     <string name="zen_mode_block_effect_summary_sound" msgid="4907185880913861880">"Dźwięk i wibracje"</string>
     <string name="zen_mode_block_effect_summary_some" msgid="6035118904496072665">"Dźwięk, wibracje i niektóre rodzaje wizualnej sygnalizacji powiadomień"</string>
     <string name="zen_mode_block_effect_summary_all" msgid="2830443565687247759">"Dźwięk, wibracje i wizualna sygnalizacja powiadomień"</string>
-    <string name="zen_mode_blocked_effects_footer" msgid="4375156159613413924">"Powiadomienia wymagane przez podstawowe funkcje i stan telefonu nigdy nie będą ukryte"</string>
+    <string name="zen_mode_blocked_effects_footer" msgid="4375156159613413924">"Powiadomienia wymagane przez podstawowe funkcje telefonu oraz stan nigdy nie będą ukryte"</string>
     <string name="zen_mode_no_exceptions" msgid="3099578343994492857">"Brak"</string>
     <string name="zen_mode_other_options" msgid="7216192179063769057">"inne opcje"</string>
     <string name="zen_mode_add" msgid="2533484377786927366">"Dodaj"</string>
@@ -4000,7 +4000,7 @@
     <string name="disabled_by_policy_title_camera" msgid="3741138901926111197">"Brak uprawnień do aparatu"</string>
     <string name="disabled_by_policy_title_screen_capture" msgid="1856835333536274665">"Brak uprawnień do tworzenia zrzutów ekranu"</string>
     <string name="disabled_by_policy_title_suspend_packages" msgid="4254714213391802322">"Nie można otworzyć tej aplikacji"</string>
-    <string name="default_admin_support_msg" msgid="5789424433689798637">"Jeśli masz pytania, skontaktuj się z administratorem IT"</string>
+    <string name="default_admin_support_msg" msgid="5789424433689798637">"Jeśli masz pytania, skontaktuj się z administratorem"</string>
     <string name="admin_support_more_info" msgid="8737842638087863477">"Więcej szczegółów"</string>
     <string name="admin_profile_owner_message" msgid="3199544166281052845">"Administrator może monitorować aplikacje i dane powiązane z Twoim profilem do pracy (w tym ustawienia, uprawnienia, firmowe uprawnienia dostępu, aktywność w sieci i informacje o lokalizacji urządzenia) oraz nimi zarządzać."</string>
     <string name="admin_profile_owner_user_message" msgid="2991249382056855531">"Administrator może monitorować aplikacje i dane powiązane z tym użytkownikiem (w tym ustawienia, uprawnienia, firmowe uprawnienia dostępu, aktywność w sieci i informacje o lokalizacji urządzenia) oraz nimi zarządzać."</string>

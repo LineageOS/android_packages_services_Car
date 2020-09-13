@@ -19,7 +19,7 @@
     <string name="yes" msgid="39117354665111159">"Yes"</string>
     <string name="no" msgid="4709057267400907161">"No"</string>
     <string name="create" msgid="5131953868544187847">"ဖန်တီးရန်"</string>
-    <string name="allow" msgid="128867119174713893">"ခွင့်ပြုရန်"</string>
+    <string name="allow" msgid="128867119174713893">"ခွင့်ပြုပါ"</string>
     <string name="deny" msgid="3998166389989144025">"ငြင်းပယ်ရန်"</string>
     <string name="device_info_default" msgid="1548919563979154348">"မသိ"</string>
     <plurals name="show_dev_countdown" formatted="false" msgid="3953785659137161981">
@@ -488,7 +488,7 @@
     <string name="security_settings_fingerprint_enroll_touch_dialog_title" msgid="7410398793283818609">"အိုး။ ဒါ အာရုံခံကိရိယာမဟုတ်ဘူး"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_message" msgid="7192100314788868883">"သင့်ဖုန်း ကျောဘက်ရှိ အာရုံခံကိရိယာကို ထိပါ။ လက်ညှိုးကို အသုံးပြုပါ။"</string>
     <string name="security_settings_fingerprint_enroll_error_dialog_title" msgid="1415709674142168770">"စာရင်းသွင်းမှု မပြီးစီးခဲ့ပါ"</string>
-    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"လက်ဗွေစာရင်းသွင်းမှု ကန့်သတ်ချိန် ကုန်သွားပြီ။ ထပ်စမ်းကြည့်ပါ။"</string>
+    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"လက်ဗွေ ပေးသွင်းမှု ကန့်သတ်ချိန် ကုန်သွားပြီ။ ထပ်စမ်းကြည့်ပါ။"</string>
     <string name="security_settings_fingerprint_enroll_error_generic_dialog_message" msgid="7896295829530444810">"လက်ဗွေထည့်သွင်းမှု အဆင်မပြေပါ။ အခြားလက်ချောင်းကို သုံးပါ သို့မဟုတ် ထပ်စမ်းကြည့်ပါ။"</string>
     <string name="fingerprint_enroll_button_add" msgid="6335782936874996629">"နောက်တစ်ခု ထည့်ရန်"</string>
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"ရှေ့သို့"</string>
@@ -889,7 +889,7 @@
     <string name="wifi_menu_forget" msgid="7561140554450163075">"ကွန်ရက်အား မေ့ရန်"</string>
     <string name="wifi_menu_modify" msgid="4080178040721021101">"ကွန်ယက်အား ပြင်ရန်"</string>
     <string name="wifi_empty_list_wifi_off" msgid="272877164691346240">"ရနိုင်သည့်ကွန်ရက်များကို မြင်ရန် Wi-Fi ဖွင့်ပါ"</string>
-    <string name="wifi_empty_list_wifi_on" msgid="881478805041020600">"Wi-Fi ကွန်ရက်များ ရှာဖွေနေသည်…"</string>
+    <string name="wifi_empty_list_wifi_on" msgid="881478805041020600">"ဝိုင်ဖိုင်ကွန်ယက်များရှာဖွေနေသည်"</string>
     <string name="wifi_empty_list_user_restricted" msgid="2341613007817352431">"သင့်မှာ Wi-Fi  ကွန်ရက်ကို ပြောင်းလဲရန် ခွင့်ပြုချက် မရှိပါ။"</string>
     <string name="wifi_more" msgid="3538241640407382185">"နောက်ထပ်"</string>
     <string name="wifi_setup_wps" msgid="6730131677695521321">"အလိုအလျောက် အစီအမံ (WPS)"</string>
@@ -1829,7 +1829,7 @@
     <string name="app_factory_reset" msgid="8718986000278776272">"အဆင့်မြင့်မှုများကိုဖယ်ထုတ်မည်လား?"</string>
     <string name="auto_launch_enable_text" msgid="3372898942144027341">"မူလကတည်းမှ တစ်ချို့လုပ်ဆောင်ချက်များအတွက် ဤအပလီကေးရှင်းကို ဖွင့်ရန်သင်ရွေး ချယ်ထားပြီးသားဖြစ်သည်"</string>
     <string name="always_allow_bind_appwidgets_text" msgid="2286211654774611037">"၀ဒ်ဂျက်များ ဖန်တီးရန်နှင့် ၎င်းတို့၏ အချက်အလက်များရယူရန် ဤအပလီကေးရှင်းကို ခွင့်ပြုကြောင်း သင်ရွေးချယ်ထားသည်။"</string>
-    <string name="auto_launch_disable_text" msgid="8560921288036801416">"မူရင်း သတ်မှတ်မထားပါ။"</string>
+    <string name="auto_launch_disable_text" msgid="8560921288036801416">"မူရင်း သတ်မှတ်ထားခြင်းမရှိ"</string>
     <string name="clear_activities" msgid="2068014972549235347">"မူရင်းများကို ရှင်းလင်းခြင်း"</string>
     <string name="screen_compatibility_text" msgid="1768064020294301496">"သင့်ဖန်သားပြင်အတွက် ဤအပ်ပလီကေးရှင်းမှာ လိုက်ဖက်အောင် လုပ်ထားခြင်း မရှိနိုင်ပါ။ ဤနေရာတွင် သင့်ဖန်သားပြင်နှင့်ကိုက်ညီအောင် ထိန်းချုပ်နိုင်ပါသည်။"</string>
     <string name="ask_compatibility" msgid="6687958195768084807">"ဖွင့်သည့်အခါ မေးမြန်းရန်။"</string>
@@ -2278,13 +2278,13 @@
     <string name="battery_tip_smart_battery_title" product="device" msgid="7419448992583346364">"စက်ပစ္စည်း၏ ဘက်ထရီသက်တမ်းကို ပိုကောင်းလာအောင်လုပ်ခြင်း"</string>
     <string name="battery_tip_smart_battery_summary" msgid="5344821856478265778">"\'ဘက်ထရီ စီမံခန့်ခွဲမှုစနစ်\' ကို ဖွင့်ပါ"</string>
     <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"\'ဘက်ထရီ အားထိန်း\' ကို ဖွင့်ရန်"</string>
-    <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"ပုံမှန်ထက် ဘက်ထရီ အကုန်မြန်နိုင်သည်"</string>
+    <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"ဘက်ထရီသည် ပုံမှန်ထက် စောလျင်စွာ ကုန်နိုင်ပါသည်"</string>
     <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"\'ဘက်ထရီ အားထိန်း\' ကို ဖွင့်ထားသည်"</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"အချို့သော ဝန်ဆောင်မှုများကို ကန့်သတ်ထားနိုင်ပါသည်"</string>
     <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"ဖုန်းကို ပုံမှန်ထက် ပိုသုံးထားသည်"</string>
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"တက်ဘလက်ကို ပုံမှန်ထက် ပိုသုံးထားသည်"</string>
     <string name="battery_tip_high_usage_title" product="device" msgid="8304138287288309490">"စက်ပစ္စည်းကို ပုံမှန်ထက် ပိုသုံးထားသည်"</string>
-    <string name="battery_tip_high_usage_summary" msgid="5514749872957528189">"ပုံမှန်ထက် ဘက်ထရီ အကုန်မြန်နိုင်သည်"</string>
+    <string name="battery_tip_high_usage_summary" msgid="5514749872957528189">"ဘက်ထရီသည် ပုံမှန်ထက် စောလျင်စွာ ကုန်နိုင်ပါသည်"</string>
     <string name="battery_tip_dialog_message" product="default" msgid="8453700079047810964">"သင့်ဖုန်းကို ပုံမှန်ထက် ပိုသုံးထားသည်။ သင့်ဘက်ထရီသည် ခန့်မှန်းထားသည်ထက် စောလျင်စွာ ကုန်နိုင်ပါသည်။\n\nအားအပြည့်သွင်းပြီးသည့် အချိန်မှစ၍ သင် အသုံးအများဆုံးအက်ပ်−"</string>
     <string name="battery_tip_dialog_message" product="tablet" msgid="6489981050645444068">"သင့်တက်ဘလက်ကို ပုံမှန်ထက် ပိုသုံးထားသည်။ သင့်ဘက်ထရီသည် ခန့်မှန်းထားသည်ထက် စောလျင်စွာ ကုန်နိုင်ပါသည်။\n\nအားအပြည့်သွင်းပြီးသည့် အချိန်မှစ၍ သင် အသုံးအများဆုံးအက်ပ်−"</string>
     <string name="battery_tip_dialog_message" product="device" msgid="6348123094674390337">"သင့်စက်ပစ္စည်းကို ပုံမှန်ထက် ပိုသုံးထားသည်။ သင့်ဘက်ထရီသည် ခန့်မှန်းထားသည်ထက် စောလျင်စွာ ကုန်နိုင်ပါသည်။\n\nအားအပြည့်သွင်းပြီးသည့် အချိန်မှစ၍ သင် အသုံးအများဆုံးအက်ပ်−"</string>
@@ -2601,7 +2601,7 @@
     <string name="work_mode_label" msgid="6845849194740195757">"အလုပ်ပရိုဖိုင်"</string>
     <string name="work_mode_on_summary" msgid="1682781113156323592">"သင်၏ အဖွဲ့အစည်းက စီမံခန့်ခွဲထားပါသည်"</string>
     <string name="work_mode_off_summary" msgid="1688885392211178315">"အက်ပ်နှင့် အကြောင်းကြားချက်များကို ပိတ်ထားသည်"</string>
-    <string name="remove_managed_profile_label" msgid="4625542553784793536">"အလုပ်ပရိုဖိုင် ဖယ်ရှားရန်"</string>
+    <string name="remove_managed_profile_label" msgid="4625542553784793536">"အလုပ် ပရိုဖိုင်ကို ဖယ်ရှားပစ်ရန်"</string>
     <string name="background_data" msgid="8275750862371471171">"နောက်ခံတွင်အသုံးပြုသောဒေတာ"</string>
     <string name="background_data_summary" msgid="799640633948841990">"အက်ပ်များက ဒေတာ ပို့၊ လက်ခံ၊ စင့်ခ် အချိန်မရွေးလုပ်နိုင်သည်"</string>
     <string name="background_data_dialog_title" msgid="8306650658158895976">"နောက်ခံဒေတာဖျက်မလား"</string>
@@ -2888,7 +2888,7 @@
     <string name="user_confirm_remove_self_title" msgid="6739480453680217543">"သင့်ကို ဖယ်ရှားမလား။"</string>
     <string name="user_confirm_remove_title" msgid="1034498514019462084">"ဤအသုံးပြုသူကို ဖျက်မလား။"</string>
     <string name="user_profile_confirm_remove_title" msgid="6138684743385947063">"ဒီပရိုဖိုင်ကို ဖယ်ရှားရမလား?"</string>
-    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"အလုပ်ပရိုဖိုင် ဖယ်ရှားမလား။"</string>
+    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"အလုပ်ပရိုဖိုင် ဖယ်မည်လား?"</string>
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"ဤ တက်ဘလက်ပေါ်မှ သင့်နေရာနှင့် အချက်အလက်များသည် ပျောက်သွားလိမ့်မည်။ ဤလုပ်ဆောင်ချက်ကို သင် နောက်ပြန်သွား၍ မရနိုင်ပါ။"</string>
     <string name="user_confirm_remove_self_message" product="default" msgid="8441729423565705183">"ဤဖုန်းပေါ်မှ သင့်နေရာနှင့် အချက်အလက်များသည် ပျောက်သွားလိမ့်မည်။ ဤလုပ်ဆောင်ချက်ကို သင် နောက်ပြန်သွား၍ မရနိုင်ပါ။"</string>
     <string name="user_confirm_remove_message" msgid="5202150470271756013">"အက်ပ်များ အားလုံး နှင့် ဒေတာကို ဖျက်သွားမည်။"</string>
@@ -3318,7 +3318,7 @@
     <string name="swipe_direction_title" msgid="7535031630668873009">"ပွတ်ဆွဲ လုပ်ဆောင်ချက်များ"</string>
     <string name="swipe_direction_ltr" msgid="944932514821822709">"ပယ်ရန် ညာသို့၊ မီနူးပြရန် ဘယ်သို့ ပွတ်ဆွဲပါ"</string>
     <string name="swipe_direction_rtl" msgid="4521416787262888813">"ပယ်ရန် ဘယ်သို့၊ မီနူးပြရန် ညာသို့ ပွတ်ဆွဲပါ"</string>
-    <string name="notification_pulse_title" msgid="4861418327614907116">"မီး မှိတ်တုတ်မှိတ်တုတ်လုပ်ပါ"</string>
+    <string name="notification_pulse_title" msgid="4861418327614907116">"မီး မှိတ်တုတ်မှိတ်တုတ်လုပ်ရန်"</string>
     <string name="lock_screen_notifications_title" msgid="6889072265118747835">"လော့ခ်ချချိန် မျက်နှာပြင်တွင်"</string>
     <string name="locked_work_profile_notification_title" msgid="8307025804986190658">"အလုပ်ပရိုဖိုင်လော့ခ်ချထားချိန်"</string>
     <string name="lock_screen_notifications_summary_show" msgid="5788874994455257378">"အကြောင်းကြားချက်ပါ အရာအားလုံး ပြပါ"</string>
@@ -3332,7 +3332,7 @@
     <string name="lock_screen_notifications_interstitial_title_profile" msgid="4043621508889929254">"ပရိုဖိုင်သတိပေးချက်များ"</string>
     <string name="notifications_title" msgid="8334011924253810654">"အကြောင်းကြားချက်များ"</string>
     <string name="app_notifications_title" msgid="1141791221581312325">"အက်ပ် အကြောင်းကြားချက်များ"</string>
-    <string name="notification_channel_title" msgid="6637705960909690229">"အကြောင်းကြားချက် အမျိုးအစား"</string>
+    <string name="notification_channel_title" msgid="6637705960909690229">"အသိပေးချက် အမျိုးအစား"</string>
     <string name="notification_group_title" msgid="6105337987437608590">"အကြောင်းကြားချက် အုပ်စုအမျိုးအစား"</string>
     <string name="notification_importance_title" msgid="4131979083408000545">"အပြုအမူ"</string>
     <string name="notification_importance_unspecified" msgid="2515778981253707724">"အသံကို ခွင့်ပြုရန်"</string>
@@ -4135,7 +4135,7 @@
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"တက်ဘလက်ကို စစ်ဆေးရန် တို့ပါ"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"စက်ပစ္စည်းကို စစ်ဆေးရန် တို့ပါ"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"အချိန်၊ အကြောင်းကြားချက်များနှင့် အခြားအချက်အလက်များကို စစ်ဆေးရန် သင့်ဖန်သားပြင်ကို တို့ပါ။"</string>
-    <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"သတိပေးချက်အတွက် လက်ဗွေပွတ်ဆွဲခြင်း"</string>
+    <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"သတိပေးချက်အတွက် လက်ဗွေပွတ်ဆွဲပါ"</string>
     <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"လက်ဗွေပွတ်ဆွဲခြင်း"</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"အကြောင်းကြားချက်များကို ကြည့်ရန် ဖုန်း၏ နောက်ကျောဘက်ရှိ လက်ဗွေ အာရုံခံကိရိယာပေါ်တွင် အောက်သို့ ပွတ်ဆွဲပါ။"</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="tablet" msgid="3480057984564476283">"အကြောင်းကြားချက်များကို ကြည့်ရန် တက်ဘလက်၏ နောက်ကျောဘက်ရှိ လက်ဗွေ အာရုံခံကိရိယာပေါ်တွင် အောက်သို့ ပွတ်ဆွဲပါ။"</string>

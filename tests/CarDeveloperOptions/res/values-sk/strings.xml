@@ -454,8 +454,8 @@
     <string name="security_settings_fingerprint_enroll_introduction_continue" msgid="271662150372486535">"Pokračovať"</string>
     <string name="security_settings_fingerprint_enroll_introduction_cancel_setup" msgid="756928427429893070">"Preskočiť"</string>
     <string name="security_settings_fingerprint_enroll_introduction_continue_setup" msgid="4125977169169671144">"Ďalej"</string>
-    <string name="setup_fingerprint_enroll_skip_title" msgid="763018850721691594">"Preskočiť nastavenie odtlačku prsta?"</string>
-    <string name="setup_fingerprint_enroll_skip_after_adding_lock_text" msgid="8849928362049018680">"Nastavenie odtlačku prsta trvá asi minútu. Ak tento krok preskočíte, môžete si odtlačok prsta pridať neskôr v nastaveniach."</string>
+    <string name="setup_fingerprint_enroll_skip_title" msgid="763018850721691594">"Preskočiť odtlačok prsta?"</string>
+    <string name="setup_fingerprint_enroll_skip_after_adding_lock_text" msgid="8849928362049018680">"Nastavenie odtlačku prsta trvá približne minútu. Ak tento krok preskočíte, môžete si odtlačok prsta pridať neskôr v Nastaveniach."</string>
     <string name="lock_screen_intro_skip_title" msgid="5307431665496346914">"Preskočiť zámku obrazovky?"</string>
     <string name="lock_screen_intro_skip_dialog_text_frp" product="tablet" msgid="7553945981266845264">"Funkcie ochrany zariadenia sa nezapnú. V prípade straty, krádeže alebo obnovenia nebudete môcť cudzím osobám zabrániť v používaní tohto tabletu."</string>
     <string name="lock_screen_intro_skip_dialog_text_frp" product="device" msgid="1378243257238015603">"Funkcie ochrany zariadenia sa nezapnú. V prípade straty, krádeže alebo obnovenia nebudete môcť cudzím osobám zabrániť v používaní tohto zariadenia."</string>
@@ -643,7 +643,7 @@
     <string name="unlock_footer_medium_complexity_requested" msgid="5004825329461874633">"<xliff:g id="APP_NAME">%1$s</xliff:g> odporúča nový kód PIN alebo heslo, bez ktorého nemusí fungovať podľa očakávaní"</string>
     <string name="unlock_footer_low_complexity_requested" msgid="513212093196833566">"<xliff:g id="APP_NAME">%1$s</xliff:g> odporúča nový vzor, PIN alebo heslo, bez ktorého nemusí fungovať podľa očakávaní"</string>
     <string name="unlock_footer_none_complexity_requested" msgid="1669550050597044896">"<xliff:g id="APP_NAME">%1$s</xliff:g> odporúča nová zámku obrazovky"</string>
-    <string name="lock_failed_attempts_before_wipe" msgid="7565412834122130877">"Skúste to znova. <xliff:g id="CURRENT_ATTEMPTS">%1$d</xliff:g>. z <xliff:g id="TOTAL_ATTEMPTS">%2$d</xliff:g> pokusov."</string>
+    <string name="lock_failed_attempts_before_wipe" msgid="7565412834122130877">"Skúste to znova. Pokus <xliff:g id="CURRENT_ATTEMPTS">%1$d</xliff:g> z <xliff:g id="TOTAL_ATTEMPTS">%2$d</xliff:g>."</string>
     <string name="lock_last_attempt_before_wipe_warning_title" msgid="7853820095898368793">"Vaše dáta budú odstránené"</string>
     <string name="lock_last_pattern_attempt_before_wipe_device" msgid="1021644947949306054">"Ak pri ďalšom pokuse zadáte nesprávny vzor, dáta tohto zariadenia budú odstránené"</string>
     <string name="lock_last_pin_attempt_before_wipe_device" msgid="3823600293847594141">"Ak pri ďalšom pokuse zadáte nesprávny kód PIN, dáta tohto zariadenia budú odstránené"</string>
@@ -652,7 +652,7 @@
     <string name="lock_last_pin_attempt_before_wipe_user" msgid="7833852187363499906">"Ak pri ďalšom pokuse zadáte nesprávny kód PIN, tento používateľ bude odstránený"</string>
     <string name="lock_last_password_attempt_before_wipe_user" msgid="8979742220140001204">"Ak pri ďalšom pokuse zadáte nesprávne heslo, tento používateľ bude odstránený"</string>
     <string name="lock_last_pattern_attempt_before_wipe_profile" msgid="3877613047631174576">"Ak pri ďalšom pokuse zadáte nesprávny vzor, váš pracovný profil a jeho dáta budú odstránené"</string>
-    <string name="lock_last_pin_attempt_before_wipe_profile" msgid="8132438288175428168">"Ak pri ďalšom pokuse zadáte nesprávny PIN, váš pracovný profil a jeho dáta budú odstránené"</string>
+    <string name="lock_last_pin_attempt_before_wipe_profile" msgid="8132438288175428168">"Ak pri ďalšom pokuse zadáte nesprávny kód PIN, váš pracovný profil a jeho dáta budú odstránené."</string>
     <string name="lock_last_password_attempt_before_wipe_profile" msgid="1535128774464384305">"Ak pri ďalšom pokuse zadáte nesprávne heslo, váš pracovný profil a jeho dáta budú odstránené"</string>
     <string name="lock_failed_attempts_now_wiping_device" msgid="8662360098784762828">"Príliš veľa chybných pokusov. Dáta tohto zariadenia budú odstránené."</string>
     <string name="lock_failed_attempts_now_wiping_user" msgid="3793513796171561873">"Príliš veľa chybných pokusov. Tento používateľ bude odstránený."</string>
@@ -766,7 +766,7 @@
     <string name="bluetooth_pairing_request" msgid="7221745525632573125">"Spárovať so zariadením <xliff:g id="DEVICE_NAME">%1$s</xliff:g>?"</string>
     <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"Párovací kód Bluetooth"</string>
     <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"Zadajte párovací kód a potom stlačte tlačidlo Return alebo Enter"</string>
-    <string name="bluetooth_enable_alphanumeric_pin" msgid="9138308197078115672">"PIN obsahuje písmená či symboly"</string>
+    <string name="bluetooth_enable_alphanumeric_pin" msgid="9138308197078115672">"Kód PIN obsahuje písmená alebo symboly"</string>
     <string name="bluetooth_pin_values_hint" msgid="8044671726261326240">"Obvykle 0000 alebo 1234"</string>
     <string name="bluetooth_pin_values_hint_16_digits" msgid="2665983525706661525">"Musí obsahovať 16 číslic"</string>
     <string name="bluetooth_enter_pin_other_device" msgid="1727015949040507621">"Tento kód PIN bude možno treba zadať aj na druhom zariadení."</string>
@@ -949,7 +949,7 @@
     <string name="passpoint_label" msgid="7429247462404128615">"Uložené prostredníctvom siete"</string>
     <string name="passpoint_content" msgid="340527524510304327">"Poverenia: <xliff:g id="NAME">%1$s</xliff:g>"</string>
     <string name="wifi_eap_method" msgid="3752116941487485859">"Metóda EAP"</string>
-    <string name="please_select_phase2" msgid="5848080896810435677">"Druhá fáza overenia"</string>
+    <string name="please_select_phase2" msgid="5848080896810435677">"Overenie – 2. fáza"</string>
     <string name="wifi_eap_ca_cert" msgid="1496395241849383785">"Certifikát CA"</string>
     <string name="wifi_eap_domain" msgid="3298302320003640130">"Doména"</string>
     <string name="wifi_eap_user_cert" msgid="6786839531765719173">"Certifikát používateľa"</string>
@@ -973,20 +973,20 @@
     <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"Skenovanie QR kódu"</string>
     <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"Ak sa chcete pripojiť k sieti <xliff:g id="SSID">%1$s</xliff:g>, vycentrujte QR kód nižšie"</string>
     <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"Pripojte sa k sieti Wi‑Fi naskenovaním QR kódu"</string>
-    <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"Zdieľať Wi‑Fi"</string>
+    <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"Zdieľanie Wi‑Fi"</string>
     <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"Ak sa chcete pripojiť k sieti <xliff:g id="SSID">%1$s</xliff:g> a zdieľať heslo, naskenujte tento QR kód"</string>
     <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"Ak sa chcete pripojiť k sieti <xliff:g id="SSID">%1$s</xliff:g>, naskenujte tento QR kód"</string>
     <string name="wifi_dpp_could_not_detect_valid_qr_code" msgid="27667719861826438">"QR kód sa nepodarilo prečítať. Opätovne ho vycentrujte a skúste to znova."</string>
     <string name="wifi_dpp_failure_authentication_or_configuration" msgid="9142051662156233679">"Skúste to znova. Ak problém pretrváva, kontaktujte výrobcu zariadenia."</string>
     <string name="wifi_dpp_failure_not_compatible" msgid="4320027179973678283">"Vyskytol sa problém"</string>
-    <string name="wifi_dpp_failure_timeout" msgid="5060065168142109420">"Skontrolujte, či je zariadenie zapojené, nabité a zapnuté"</string>
-    <string name="wifi_dpp_failure_generic" msgid="7840142544736640189">"Skontrolujte, či je zariadenie zapojené, nabité a zapnuté. Ak problém pretrváva, kontaktujte výrobcu zariadenia."</string>
+    <string name="wifi_dpp_failure_timeout" msgid="5060065168142109420">"Uistite, sa či je zariadenie zapojené do zásuvky, nabité a zapnuté"</string>
+    <string name="wifi_dpp_failure_generic" msgid="7840142544736640189">"Uistite, sa či je zariadenie zapojené do zásuvky, nabité a zapnuté. Ak problém pretrváva, kontaktujte výrobcu zariadenia."</string>
     <string name="wifi_dpp_failure_not_supported" msgid="111779621766171626">"Toto zariadenie nepodporuje pridanie siete <xliff:g id="SSID">%1$s</xliff:g>"</string>
     <string name="wifi_dpp_check_connection_try_again" msgid="7144663015219170999">"Skontrolujte pripojenie a skúste to znova"</string>
     <string name="wifi_dpp_choose_network" msgid="6251424431594491691">"Výber siete"</string>
     <string name="wifi_dpp_choose_network_to_connect_device" msgid="6385259857886784285">"Ak chcete pripojiť svoje zariadenie, vyberte sieť"</string>
     <string name="wifi_dpp_add_device_to_wifi" msgid="6454198064645462446">"Pridať toto zariadenie do siete <xliff:g id="SSID">%1$s</xliff:g>?"</string>
-    <string name="wifi_dpp_wifi_shared_with_device" msgid="5713765471758272471">"Wi‑Fi sa zdieľa so zariadením"</string>
+    <string name="wifi_dpp_wifi_shared_with_device" msgid="5713765471758272471">"So zariadením bola zdieľaná sieť Wi‑Fi"</string>
     <string name="wifi_dpp_add_another_device" msgid="3698441567235301565">"Pridať ďalšie zariadenie"</string>
     <string name="wifi_dpp_choose_different_network" msgid="128515107488187050">"Vybrať inú sieť"</string>
     <string name="wifi_dpp_could_not_add_device" msgid="4966109556543584813">"Zariadenie sa nepodarilo pridať"</string>
@@ -1334,7 +1334,7 @@
     <string name="sim_multi_sims_summary" msgid="8237021982527032257">"Vyberte preferovanú SIM kartu na mobilné dáta."</string>
     <string name="sim_change_data_title" msgid="2512227368681250054">"Používať <xliff:g id="CARRIER">%1$s</xliff:g> na mobilné dáta?"</string>
     <string name="sim_change_data_message" msgid="51004703157782900">"Používate mobilné dáta od operátora <xliff:g id="CARRIER2_0">%2$s</xliff:g>. Ak prepnete na <xliff:g id="CARRIER1">%1$s</xliff:g>, <xliff:g id="CARRIER2_1">%2$s</xliff:g> sa už nebude používať na mobilné dáta."</string>
-    <string name="sim_change_data_ok" msgid="7491552537317573235">"Používať <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
+    <string name="sim_change_data_ok" msgid="7491552537317573235">"Použiť <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
     <string name="sim_preferred_title" msgid="3389680276182899407">"Aktualizovať pref. SIM kartu?"</string>
     <string name="sim_preferred_message" msgid="3751011329746359050">"<xliff:g id="NEW_SIM">%1$s</xliff:g> je jediná SIM karta v zariadení. Chcete ju použiť na mobilné dáta, hovory a správy SMS?"</string>
     <string name="wrong_pin_code_pukked" msgid="3214670264775760428">"Nesprávny kód PIN SIM karty. Teraz musíte kontaktovať svojho operátora, aby vám odomkol zariadenie."</string>
@@ -1770,7 +1770,7 @@
     <string name="lockpassword_confirm_your_pin_generic" msgid="8732268389177735264">"Ak chcete pokračovať, zadajte PIN zariadenia"</string>
     <string name="lockpassword_confirm_your_password_generic" msgid="6304552647060899594">"Ak chcete pokračovať, zadajte heslo zariadenia"</string>
     <string name="lockpassword_confirm_your_pattern_generic_profile" msgid="3074250084050465513">"Ak chcete pokračovať, použite pracovný bezpečnostný vzor"</string>
-    <string name="lockpassword_confirm_your_pin_generic_profile" msgid="6037908971086439523">"Pre pokračovanie zadajte svoj pracovný PIN"</string>
+    <string name="lockpassword_confirm_your_pin_generic_profile" msgid="6037908971086439523">"Ak chcete pokračovať, zadajte pracovný kód PIN"</string>
     <string name="lockpassword_confirm_your_password_generic_profile" msgid="2646162490703489685">"Ak chcete pokračovať, zadajte pracovné heslo"</string>
     <string name="lockpassword_strong_auth_required_device_pattern" msgid="1014214190135045781">"Zadajte bezpečnostný vzor zariadenia a získajte vyššiu mieru zabezpečenia"</string>
     <string name="lockpassword_strong_auth_required_device_pin" msgid="24030584350601016">"Zadajte kód PIN zariadenia a získajte vyššiu mieru zabezpečenia"</string>
@@ -1812,7 +1812,7 @@
     <string name="lockpattern_settings_choose_lock_pattern" msgid="9042142745571386381">"Nastaviť bezpečnostný vzor"</string>
     <string name="lockpattern_settings_change_lock_pattern" msgid="1456643060737114885">"Zmena bezpečnostného vzoru"</string>
     <string name="lockpattern_settings_help_how_to_record" msgid="6037403647312543908">"Bezpečnostný vzor obrazovky nakreslite takto"</string>
-    <string name="lockpattern_too_many_failed_confirmation_attempts" msgid="3043127997770535921">"Príliš veľa chybných pokusov. Skúste to znova o <xliff:g id="NUMBER">%d</xliff:g> s."</string>
+    <string name="lockpattern_too_many_failed_confirmation_attempts" msgid="3043127997770535921">"Príliš veľa nesprávnych pokusov. Skúste to znova o <xliff:g id="NUMBER">%d</xliff:g> s."</string>
     <string name="activity_not_found" msgid="3492413375341165453">"Aplikácia nie je v telefóne nainštalovaná."</string>
     <string name="lock_settings_profile_title" msgid="3928992050074556160">"Zabezpečenie pracovného profilu"</string>
     <string name="lock_settings_profile_screen_lock_title" msgid="285267471459162203">"Zámka obrazovky pre pracovný profil"</string>
@@ -2093,7 +2093,7 @@
     <string name="talkback_summary" msgid="6602857105831641574">"Čítačka obrazovky je určená hlavne pre nevidiacich a slabozrakých ľudí"</string>
     <string name="select_to_speak_summary" msgid="7514180457557735421">"Položky na obrazovke si môžete vypočuť nahlas klepnutím"</string>
     <string name="accessibility_captioning_title" msgid="5878371993023439642">"Titulky"</string>
-    <string name="accessibility_screen_magnification_title" msgid="7250949681883917360">"Zväčšenie"</string>
+    <string name="accessibility_screen_magnification_title" msgid="7250949681883917360">"Priblíženie"</string>
     <string name="accessibility_screen_magnification_gestures_title" msgid="9199287875401817974">"Priblíženie trojitým klepnutím"</string>
     <string name="accessibility_screen_magnification_navbar_title" msgid="400655612610761242">"Priblíženie tlačidlom"</string>
     <string name="accessibility_screen_magnification_state_navbar_gesture" msgid="1863831350878995600">"Priblíženie tlačidlom a trojitým klepnutím"</string>
@@ -2360,10 +2360,10 @@
       <item quantity="one">%1$s aplikácia bola nedávno obmedzená</item>
     </plurals>
     <plurals name="battery_tip_restrict_summary" formatted="false" msgid="984148373944071669">
-      <item quantity="few">%2$d aplikácie majú vysokú spotrebu batérie na pozadí</item>
-      <item quantity="many">%2$d apps have high background battery usage</item>
-      <item quantity="other">%2$d aplikácií má vysokú spotrebu batérie na pozadí</item>
-      <item quantity="one">Aplikácia %1$s má vysokú spotrebu batérie na pozadí</item>
+      <item quantity="few">Aplikácie (%2$d) majú vysokú spotrebu batérie na pozadí</item>
+      <item quantity="many">Aplikácie (%2$d) majú vysokú spotrebu batérie na pozadí</item>
+      <item quantity="other">Aplikácie (%2$d) majú vysokú spotrebu batérie na pozadí</item>
+      <item quantity="one">Aplikácia (%1$s) má vysokú spotrebu batérie na pozadí</item>
     </plurals>
     <plurals name="battery_tip_restrict_handled_summary" formatted="false" msgid="469696766640020557">
       <item quantity="few">Tieto aplikácie sa nedajú spustiť na pozadí</item>
@@ -3568,7 +3568,7 @@
     <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"Plán sa vypne, keď zazvoní budík"</string>
     <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"Správanie režimu bez vyrušení"</string>
     <string name="zen_mode_custom_behavior_summary_default" msgid="3509865340195397447">"Použiť predvolené nastavenia"</string>
-    <string name="zen_mode_custom_behavior_summary" msgid="7206909852887332604">"Vytvoriť si vlastné nastavenia tohto plánu"</string>
+    <string name="zen_mode_custom_behavior_summary" msgid="7206909852887332604">"Vytvorte si vlastné nastavenia tohto plánu"</string>
     <string name="zen_mode_custom_behavior_category_title" msgid="7451686525113262087">"V rámci plánu <xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>"</string>
     <string name="summary_divider_text" msgid="4780683204694442666">", "</string>
     <string name="summary_range_symbol_combination" msgid="6038631664844488406">"<xliff:g id="START">%1$s</xliff:g> – <xliff:g id="END">%2$s</xliff:g>"</string>
@@ -3619,7 +3619,7 @@
     <string name="zen_mode_contacts_callers" msgid="3116829245339716399">"kontaktov"</string>
     <string name="zen_mode_starred_callers" msgid="1317376207713013472">"kontaktov s hviezdičkou"</string>
     <string name="zen_mode_repeat_callers" msgid="1435309867554692340">"Opakované volania"</string>
-    <string name="zen_mode_repeat_callers_list" msgid="2750270907597457279">"opakované volania"</string>
+    <string name="zen_mode_repeat_callers_list" msgid="2750270907597457279">"opakujúcich sa volajúcich"</string>
     <string name="zen_mode_repeat_callers_title" msgid="7192952181541813487">"Povoliť opakované volania"</string>
     <string name="zen_mode_calls_summary_one" msgid="8327371053236689649">"Povoliť od <xliff:g id="CALLER_TYPE">%1$s</xliff:g>"</string>
     <string name="zen_mode_calls_summary_two" msgid="9017678770532673578">"Povoliť od <xliff:g id="CALLER_TYPE">%1$s</xliff:g> a <xliff:g id="CALLERT_TPYE">%2$s</xliff:g>"</string>
@@ -3980,7 +3980,7 @@
     <string name="notification_summary_none" msgid="5003043219430054784">"Zapnuté pre všetky aplikácie"</string>
     <string name="apps_summary" msgid="8355759446490212195">"<xliff:g id="COUNT">%1$d</xliff:g> nainštalovaných aplikácií"</string>
     <string name="apps_summary_example" msgid="3011143598675185269">"24 nainštalovaných aplikácií"</string>
-    <string name="storage_summary" msgid="4835916510511133784">"Využité: <xliff:g id="PERCENTAGE">%1$s</xliff:g>, voľné: <xliff:g id="FREE_SPACE">%2$s</xliff:g>"</string>
+    <string name="storage_summary" msgid="4835916510511133784">"Využité: <xliff:g id="PERCENTAGE">%1$s</xliff:g> – voľné: <xliff:g id="FREE_SPACE">%2$s</xliff:g>"</string>
     <string name="storage_summary_with_sdcard" msgid="8742907204848352697">"Vnútorné úložisko: využité <xliff:g id="PERCENTAGE">%1$s</xliff:g> – voľné <xliff:g id="FREE_SPACE">%2$s</xliff:g>"</string>
     <string name="display_summary" msgid="5725269449657325797">"Režim spánku sa spustí po <xliff:g id="TIMEOUT_DESCRIPTION">%1$s</xliff:g> nečinnosti"</string>
     <string name="display_dashboard_summary" msgid="7678566148167010682">"Tapeta, režim spánku, veľkosť písma"</string>
@@ -4000,7 +4000,7 @@
     <string name="disabled_by_policy_title_camera" msgid="3741138901926111197">"Použitie fotoaparátu je zakázané"</string>
     <string name="disabled_by_policy_title_screen_capture" msgid="1856835333536274665">"Snímky obrazovky sú zakázané"</string>
     <string name="disabled_by_policy_title_suspend_packages" msgid="4254714213391802322">"Táto aplikácia sa nedá otvoriť"</string>
-    <string name="default_admin_support_msg" msgid="5789424433689798637">"Ak máte nejaké otázky, obráťte sa na svojho správcu IT"</string>
+    <string name="default_admin_support_msg" msgid="5789424433689798637">"V prípade otázok kontaktujte správcu IT."</string>
     <string name="admin_support_more_info" msgid="8737842638087863477">"Ďalšie podrobnosti"</string>
     <string name="admin_profile_owner_message" msgid="3199544166281052845">"Správca môže sledovať a spravovať aplikácie a údaje priradené k vášmu pracovnému profilu vrátane nastavení, povolení, firemného prístupu, aktivity siete a informácií o polohe zariadenia."</string>
     <string name="admin_profile_owner_user_message" msgid="2991249382056855531">"Správca môže sledovať a spravovať aplikácie a údaje priradené k tomuto používateľovi vrátane nastavení, povolení, firemného prístupu, aktivity siete a informácií o polohe zariadenia."</string>

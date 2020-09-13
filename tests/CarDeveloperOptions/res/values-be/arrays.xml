@@ -477,7 +477,7 @@
     <item msgid="1008268820118852416">"Безлімітная"</item>
   </string-array>
   <string-array name="wifi_privacy_entries">
-    <item msgid="6545683814310036454">"Выпадковы MAC-адрас (стандартна)"</item>
+    <item msgid="6545683814310036454">"Выкарыстоўваць выпадковы MAC-адрас (стандартна)"</item>
     <item msgid="214234417308375326">"Выкарыстоўваць прыладу MAC"</item>
   </string-array>
   <string-array name="wifi_hidden_entries">

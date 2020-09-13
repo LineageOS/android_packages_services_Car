@@ -2048,7 +2048,7 @@
     <string name="experimental_category_title" msgid="3797000069740110717">"Eksperimentel"</string>
     <string name="feature_flags_dashboard_title" msgid="3153034144122754381">"Aktivering og deaktivering af demofunktioner"</string>
     <string name="talkback_title" msgid="3717960404234260050">"TalkBack"</string>
-    <string name="talkback_summary" msgid="6602857105831641574">"Skærmlæser primært til blinde og svagtseende brugere"</string>
+    <string name="talkback_summary" msgid="6602857105831641574">"Skærmlæseren er primært til blinde og svagtseende brugere"</string>
     <string name="select_to_speak_summary" msgid="7514180457557735421">"Tryk på elementer på din skærm for at få dem læst op"</string>
     <string name="accessibility_captioning_title" msgid="5878371993023439642">"Undertekster"</string>
     <string name="accessibility_screen_magnification_title" msgid="7250949681883917360">"Forstørrelse"</string>
@@ -2278,13 +2278,13 @@
     <string name="battery_tip_smart_battery_title" product="device" msgid="7419448992583346364">"Forlæng enhedens batteritid"</string>
     <string name="battery_tip_smart_battery_summary" msgid="5344821856478265778">"Aktivér batteriadministration"</string>
     <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"Aktivér batterisparefunktionen"</string>
-    <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"Batteriet aflades muligvis hurtigere end normalt"</string>
+    <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"Enheden løber muligvis tør for batteri hurtigere end forventet"</string>
     <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"Batterisparefunktion er aktiveret"</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"Nogle funktioner kan være begrænsede"</string>
     <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"Telefonen er blevet brugt mere end normalt"</string>
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"Din tablet er blevet brugt mere end normalt"</string>
     <string name="battery_tip_high_usage_title" product="device" msgid="8304138287288309490">"Enheden er blevet brugt mere end normalt"</string>
-    <string name="battery_tip_high_usage_summary" msgid="5514749872957528189">"Batteriet aflades muligvis hurtigere end normalt"</string>
+    <string name="battery_tip_high_usage_summary" msgid="5514749872957528189">"Enheden løber muligvis tør for batteri hurtigere end forventet"</string>
     <string name="battery_tip_dialog_message" product="default" msgid="8453700079047810964">"Din telefon er blevet brugt mere end normalt. Telefonen løber muligvis tør for batteri hurtigere end forventet.\n\nDe mest anvendte apps siden sidste fulde opladning:"</string>
     <string name="battery_tip_dialog_message" product="tablet" msgid="6489981050645444068">"Din tablet er blevet brugt mere end normalt. Din tablet løber muligvis tør for batteri hurtigere end forventet.\n\nDe mest anvendte apps siden sidste fulde opladning:"</string>
     <string name="battery_tip_dialog_message" product="device" msgid="6348123094674390337">"Din enhed er blevet brugt mere end normalt. Enheden løber muligvis tør for batteri hurtigere end forventet.\n\nDe mest anvendte apps siden sidste fulde opladning:"</string>
@@ -3147,13 +3147,13 @@
     <string name="alarm_ringtone_title" msgid="6411326147408635902">"Standardlyd for alarmer"</string>
     <string name="vibrate_when_ringing_title" msgid="2757996559847126952">"Vibrer ved opkald"</string>
     <string name="other_sound_settings" msgid="5250376066099818676">"Andre lyde"</string>
-    <string name="dial_pad_tones_title" msgid="8877212139988655769">"Toner for tastatur"</string>
+    <string name="dial_pad_tones_title" msgid="8877212139988655769">"Toner for numerisk tastatur"</string>
     <string name="screen_locking_sounds_title" msgid="4407110895465866809">"Lyd ved skærmlås"</string>
     <string name="charging_sounds_title" msgid="5070437987230894287">"Lyd og vibration ved opladning"</string>
     <string name="docking_sounds_title" msgid="2573137471605541366">"Lyde for dockingstation"</string>
     <string name="touch_sounds_title" msgid="165237488496165652">"Lyd ved berøring"</string>
     <string name="vibrate_on_touch_title" msgid="6360155469279157684">"Vibration ved berøring"</string>
-    <string name="vibrate_on_touch_summary" msgid="5504424764028676043">"Feedback ved berøring for tryk, tastatur og mere"</string>
+    <string name="vibrate_on_touch_summary" msgid="5504424764028676043">"Feedback ved berøring for tryk, tastatur og meget mere"</string>
     <string name="dock_audio_media_title" msgid="1859521680502040781">"Dockhøjttaler afspiller"</string>
     <string name="dock_audio_media_disabled" msgid="4300752306178486302">"Al lyd"</string>
     <string name="dock_audio_media_enabled" msgid="2873275045878628153">"Kun medielyd"</string>
@@ -3633,7 +3633,7 @@
     <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"Der er ikke anmodet om nogen tilladelser"</string>
     <string name="filter_all_apps" msgid="4042756539846043675">"Alle apps"</string>
     <string name="filter_enabled_apps" msgid="5888459261768538489">"Installerede aps"</string>
-    <string name="filter_instant_apps" msgid="8087483282854072366">"Instant-apps"</string>
+    <string name="filter_instant_apps" msgid="8087483282854072366">"Instant apps"</string>
     <string name="filter_personal_apps" msgid="3473268022652904457">"Personlig"</string>
     <string name="filter_work_apps" msgid="4202483998339465542">"Arbejde"</string>
     <string name="filter_notif_all_apps" msgid="1862666327228804896">"Apps: Alle"</string>
@@ -4149,9 +4149,9 @@
     <string name="oem_unlock_enable_disabled_summary_sim_locked_device" msgid="5223278198179877704">"Indstillingen er ikke tilgængelig på SIM-låste enheder"</string>
     <string name="oem_lock_info_message" msgid="5090850412279403901">"Genstart enheden for at aktivere funktionen Enhedsbeskyttelse."</string>
     <string name="automatic_storage_manager_freed_bytes" msgid="7360443072390107772">"<xliff:g id="SIZE">%1$s</xliff:g> blev frigjort\n\nSidst kørt den <xliff:g id="DATE">%2$s</xliff:g>"</string>
-    <string name="web_action_enable_title" msgid="4462106633708675959">"Instant-apps"</string>
+    <string name="web_action_enable_title" msgid="4462106633708675959">"Instant apps"</string>
     <string name="web_action_enable_summary" msgid="1729016644691793085">"Åbn links i apps – selv hvis de ikke er installeret"</string>
-    <string name="web_action_section_title" msgid="5563229447734734662">"Instant-apps"</string>
+    <string name="web_action_section_title" msgid="5563229447734734662">"Instant apps"</string>
     <string name="instant_apps_settings" msgid="879003203555847537">"Præferencer for Instant Apps"</string>
     <string name="domain_url_section_title" msgid="206403507921518321">"Installerede aps"</string>
     <string name="automatic_storage_manager_activation_warning" msgid="2630083316417707308">"Din lagerplads administreres nu af lageradministratoren"</string>
@@ -4244,7 +4244,7 @@
     <string name="storage_volume_total" msgid="5021484171514159913">"Anvendt lagerplads ud af <xliff:g id="TOTAL">%1$s</xliff:g>"</string>
     <string name="storage_percent_full" msgid="6924662861545958442">"brugt"</string>
     <string name="clear_instant_app_data" msgid="3673669086522890405">"Ryd appen"</string>
-    <string name="clear_instant_app_confirmation" msgid="1778553115373698061">"Vil du fjerne denne instant-app?"</string>
+    <string name="clear_instant_app_confirmation" msgid="1778553115373698061">"Vil du fjerne denne instant app?"</string>
     <string name="launch_instant_app" msgid="5251693061228352333">"Åbn"</string>
     <string name="game_storage_settings" msgid="6856911551799175914">"Spil"</string>
     <string name="audio_files_title" msgid="3073879661731363935">"Lydfiler"</string>
@@ -4267,7 +4267,7 @@
     <string name="storage_manager_indicator" msgid="4255140732848476875">"Lagerstyring: <xliff:g id="STATUS">^1</xliff:g>"</string>
     <string name="storage_manager_indicator_off" msgid="6404056007102580777">"Fra"</string>
     <string name="storage_manager_indicator_on" msgid="5295306384982062320">"Til"</string>
-    <string name="install_type_instant" msgid="6248487669862821874">"Instant-app"</string>
+    <string name="install_type_instant" msgid="6248487669862821874">"Instant app"</string>
     <string name="automatic_storage_manager_deactivation_warning" msgid="7867793739491286374">"Slå lagerstyring fra?"</string>
     <string name="storage_movies_tv" msgid="7282484273991655296">"Film- og tv-apps"</string>
     <string name="carrier_provisioning" msgid="3309125279191534469">"Oplysninger om mobilselskab"</string>

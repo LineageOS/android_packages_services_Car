@@ -488,7 +488,7 @@
     <string name="security_settings_fingerprint_enroll_touch_dialog_title" msgid="7410398793283818609">"Naku, hindi iyan ang sensor"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_message" msgid="7192100314788868883">"Pindutin ang sensor sa likod ng iyong telepono. Gamitin ang hintuturo mo."</string>
     <string name="security_settings_fingerprint_enroll_error_dialog_title" msgid="1415709674142168770">"Hindi nakumpleto ang pagpapatala"</string>
-    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"Naabot na ang limitasyon sa oras ng pag-enroll ng fingerprint. Subukan ulit."</string>
+    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"Naabot na ang limitasyon sa oras ng pagpapatala ng fingerprint. Subukang muli."</string>
     <string name="security_settings_fingerprint_enroll_error_generic_dialog_message" msgid="7896295829530444810">"Hindi gumana ang pagpapatala ng fingerprint. Subukang muli o gumamit ng ibang daliri."</string>
     <string name="fingerprint_enroll_button_add" msgid="6335782936874996629">"Magdagdag ng isa pa"</string>
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"Susunod"</string>

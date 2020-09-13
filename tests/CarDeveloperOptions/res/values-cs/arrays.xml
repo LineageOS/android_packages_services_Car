@@ -477,7 +477,7 @@
     <item msgid="1008268820118852416">"Považovat za neměřenou síť"</item>
   </string-array>
   <string-array name="wifi_privacy_entries">
-    <item msgid="6545683814310036454">"Použít náhodnou MAC (výchozí)"</item>
+    <item msgid="6545683814310036454">"Použít náhodně vygenerovanou adresu MAC"</item>
     <item msgid="214234417308375326">"Použít adresu MAC zařízení"</item>
   </string-array>
   <string-array name="wifi_hidden_entries">
