@@ -125,6 +125,7 @@ public final class SilentModeController implements CarServiceBase {
             @NonNull IVoiceInteractionManagerService voiceService, @NonNull String fileName,
             String bootReason) {
         Objects.requireNonNull(context, "Context must be non-null");
+        Objects.requireNonNull(systemInterface, "SystemInterface must be non-null");
         Objects.requireNonNull(fileName, "File name must be non-null");
         mContext = context;
         mSystemInterface = systemInterface;
@@ -238,6 +239,21 @@ public final class SilentModeController implements CarServiceBase {
         verifyPermission();
         synchronized (mLock) {
             mSilentModeListeners.remove(listener);
+        }
+    }
+
+    /**
+     * Sets the power state for Silent Mode
+     *
+     * Helps to test Silent Mode without CarPowerManagementService
+     */
+    @VisibleForTesting
+    public void setPowerOnForTest(boolean isOn) {
+        synchronized (mLock) {
+            if (mPowerStateIsOn != isOn) {
+                mPowerStateIsOn = isOn;
+                queueNotificationLocked();
+            }
         }
     }
 
