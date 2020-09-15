@@ -1,0 +1,10 @@
+# Car power policy server
+typeattribute carpowerpolicyd coredomain;
+typeattribute carpowerpolicyd mlstrustedsubject;
+
+type carpowerpolicyd_exec, exec_type, file_type, system_file_type;
+
+init_daemon_domain(carpowerpolicyd)
+add_service(carpowerpolicyd, carpowerpolicyd_service)
+binder_use(carpowerpolicyd)
+binder_service(carpowerpolicyd)

@@ -50,6 +50,13 @@ struct CallbackInfo {
 
 std::string toString(const std::vector<PowerComponent>& components);
 
+// Forward declaration for testing use only.
+namespace internal {
+
+class CarPowerPolicyServerPeer;
+
+}  // namespace internal
+
 class CarPowerPolicyServer : public BnCarPowerPolicyServer, public IBinder::DeathRecipient {
 public:
     static base::Result<sp<CarPowerPolicyServer>> startService(const android::sp<Looper>& looper);
@@ -83,6 +90,9 @@ private:
     android::Mutex mMutex;
     CarPowerPolicy* mCurrentPowerPolicy GUARDED_BY(mMutex);
     std::vector<CallbackInfo> mPolicyChangeCallbacks GUARDED_BY(mMutex);
+
+    // For unit tests.
+    friend class internal::CarPowerPolicyServerPeer;
 };
 
 }  // namespace powerpolicy

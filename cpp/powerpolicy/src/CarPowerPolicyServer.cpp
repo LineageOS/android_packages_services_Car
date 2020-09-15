@@ -30,6 +30,7 @@ namespace frameworks {
 namespace automotive {
 namespace powerpolicy {
 
+using android::defaultServiceManager;
 using android::base::Error;
 using android::base::Result;
 using android::base::StringAppendF;
@@ -204,7 +205,14 @@ Result<void> CarPowerPolicyServer::init(const sp<Looper>& looper) {
         return Error() << "Failed to subscribe to VHAL power policy properties.";
     }
 
-    // TODO(b/168520203): Register car powerpolicy daemon to system server.
+    status_t status =
+            defaultServiceManager()->addService(String16(
+                                                        "android.frameworks.automotive.powerpolicy."
+                                                        "ICarPowerPolicyServer/default"),
+                                                this);
+    if (status != OK) {
+        return Error(status) << "Failed to add carpowerpolicyd to ServiceManager";
+    }
 
     return {};
 }

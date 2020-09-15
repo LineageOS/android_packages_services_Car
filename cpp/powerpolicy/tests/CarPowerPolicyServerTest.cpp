@@ -59,63 +59,79 @@ private:
 
 }  // namespace
 
-class CarPowerPolicyServerTest : public ::testing::Test {
-protected:
-    void SetUp() override {
-        sp<Looper> looper(Looper::prepare(/*opts=*/0));
-        auto ret = CarPowerPolicyServer::startService(looper);
-        ASSERT_TRUE(ret.ok()) << "Failed to start service: " << ret.error().message();
-        mServer = *ret;
+namespace internal {
+
+class CarPowerPolicyServerPeer : public RefBase {
+public:
+    CarPowerPolicyServerPeer() { server = new CarPowerPolicyServer(); }
+
+    Status getCurrentPowerPolicy(CarPowerPolicy* aidlReturn) {
+        return server->getCurrentPowerPolicy(aidlReturn);
+    }
+    Status registerPowerPolicyChangeCallback(const sp<ICarPowerPolicyChangeCallback>& callback,
+                                             const CarPowerPolicyFilter& filter) {
+        return server->registerPowerPolicyChangeCallback(callback, filter);
+    }
+    Status unregisterPowerPolicyChangeCallback(const sp<ICarPowerPolicyChangeCallback>& callback) {
+        return server->unregisterPowerPolicyChangeCallback(callback);
     }
 
-    void TearDown() override { CarPowerPolicyServer::terminateService(); }
-
-protected:
-    sp<CarPowerPolicyServer> mServer;
+    sp<CarPowerPolicyServer> server;
 };
 
+}  // namespace internal
+
+class CarPowerPolicyServerTest : public ::testing::Test {};
+
 TEST_F(CarPowerPolicyServerTest, TestRegisterCallback) {
+    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
     sp<MockPowerPolicyChangeCallback> callbackOne = new MockPowerPolicyChangeCallback();
     callbackOne->expectLinkToDeathStatus(OK);
 
     CarPowerPolicyFilter filter;
-    Status status = mServer->registerPowerPolicyChangeCallback(callbackOne, filter);
+    Status status = server->registerPowerPolicyChangeCallback(callbackOne, filter);
     ASSERT_TRUE(status.isOk()) << status;
-    status = mServer->registerPowerPolicyChangeCallback(callbackOne, filter);
+    status = server->registerPowerPolicyChangeCallback(callbackOne, filter);
     ASSERT_FALSE(status.isOk()) << "Duplicated registration is not allowed";
     filter.components = {PowerComponent::BLUETOOTH, PowerComponent::AUDIO};
-    status = mServer->registerPowerPolicyChangeCallback(callbackOne, filter);
+    status = server->registerPowerPolicyChangeCallback(callbackOne, filter);
     ASSERT_FALSE(status.isOk()) << "Duplicated registration is not allowed";
 
     sp<MockPowerPolicyChangeCallback> callbackTwo = new MockPowerPolicyChangeCallback();
     callbackTwo->expectLinkToDeathStatus(OK);
 
-    status = mServer->registerPowerPolicyChangeCallback(callbackTwo, filter);
+    status = server->registerPowerPolicyChangeCallback(callbackTwo, filter);
     ASSERT_TRUE(status.isOk()) << status;
 }
 
 TEST_F(CarPowerPolicyServerTest, TestRegisterCallback_BinderDied) {
+    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
     sp<MockPowerPolicyChangeCallback> callback = new MockPowerPolicyChangeCallback();
     callback->expectLinkToDeathStatus(DEAD_OBJECT);
     CarPowerPolicyFilter filter;
-    ASSERT_FALSE(mServer->registerPowerPolicyChangeCallback(callback, filter).isOk())
+
+    ASSERT_FALSE(server->registerPowerPolicyChangeCallback(callback, filter).isOk())
             << "When linkToDeath fails, registerPowerPolicyChangeCallback should return an error";
 }
 
 TEST_F(CarPowerPolicyServerTest, TestUnregisterCallback) {
+    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
     sp<MockPowerPolicyChangeCallback> callback = new MockPowerPolicyChangeCallback();
     callback->expectLinkToDeathStatus(OK);
     CarPowerPolicyFilter filter;
-    mServer->registerPowerPolicyChangeCallback(callback, filter);
-    Status status = mServer->unregisterPowerPolicyChangeCallback(callback);
+
+    server->registerPowerPolicyChangeCallback(callback, filter);
+    Status status = server->unregisterPowerPolicyChangeCallback(callback);
     ASSERT_TRUE(status.isOk()) << status;
-    ASSERT_FALSE(mServer->unregisterPowerPolicyChangeCallback(callback).isOk())
+    ASSERT_FALSE(server->unregisterPowerPolicyChangeCallback(callback).isOk())
             << "Unregistering an unregistered powerpolicy change callback should return an error";
 }
 
 TEST_F(CarPowerPolicyServerTest, TestGetCurrentPowerPolicy) {
+    sp<internal::CarPowerPolicyServerPeer> server = new internal::CarPowerPolicyServerPeer();
     CarPowerPolicy currentPolicy;
-    Status status = mServer->getCurrentPowerPolicy(&currentPolicy);
+
+    Status status = server->getCurrentPowerPolicy(&currentPolicy);
     ASSERT_FALSE(status.isOk()) << "The current policy at creation should be null";
     // TODO(b/168545262): Add more test cases after VHAL integration is complete.
 }

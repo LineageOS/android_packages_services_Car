@@ -14,3 +14,9 @@
 
 # Add carpowerpolicyd to product package
 PRODUCT_PACKAGES += carpowerpolicyd
+
+# SELinux public policies for car power policy server
+PRODUCT_PUBLIC_SEPOLICY_DIRS += packages/services/Car/cpp/powerpolicy/sepolicy/public
+
+# SELinux private policies for car power policy server
+PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/cpp/powerpolicy/sepolicy/private
