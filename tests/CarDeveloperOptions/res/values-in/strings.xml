@@ -490,7 +490,7 @@
     <string name="security_settings_fingerprint_enroll_error_dialog_title" msgid="1415709674142168770">"Pendaftaran tidak selesai"</string>
     <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"Waktu pendaftaran sidik jari habis. Coba lagi."</string>
     <string name="security_settings_fingerprint_enroll_error_generic_dialog_message" msgid="7896295829530444810">"Pendaftaran sidik jari tidak berhasil. Coba lagi atau gunakan jari lain."</string>
-    <string name="fingerprint_enroll_button_add" msgid="6335782936874996629">"Tambahkan yang lain"</string>
+    <string name="fingerprint_enroll_button_add" msgid="6335782936874996629">"Tambahkan lainnya"</string>
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"Berikutnya"</string>
     <string name="security_settings_fingerprint_enroll_disclaimer" msgid="5831834311961551423">"Selain membuka kunci ponsel, Anda juga dapat menggunakan sidik jari untuk mengotorisasi pembelian dan akses aplikasi. "<annotation id="url">"Pelajari lebih lanjut"</annotation></string>
     <string name="security_settings_fingerprint_enroll_disclaimer_lockscreen_disabled" msgid="7954742554236652690">" Opsi layar kunci dinonaktifkan. Untuk mempelajari lebih lanjut, hubungi admin organisasi Anda. "<annotation id="admin_details">"Detail selengkapnya"</annotation>\n\n"Anda tetap dapat menggunakan sidik jari untuk mengotorisasi pembelian dan akses aplikasi. "<annotation id="url">"Pelajari lebih lanjut"</annotation></string>

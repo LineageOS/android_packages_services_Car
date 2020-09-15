@@ -1980,7 +1980,7 @@
     <string name="game_controller_settings_category" msgid="9066526500617769463">"دسته کنترل بازی"</string>
     <string name="vibrate_input_devices" msgid="3584406079534121467">"تغییر مسیر لرزش"</string>
     <string name="vibrate_input_devices_summary" msgid="7503148018220540038">"وقتی متصل شد، لرزش به دسته کنترل بازی ارسال شود"</string>
-    <string name="keyboard_layout_dialog_title" msgid="4762706917037085797">"انتخاب طرح‌بندی صفحه‌کلید"</string>
+    <string name="keyboard_layout_dialog_title" msgid="4762706917037085797">"انتخاب جانمایی صفحه‌کلید"</string>
     <string name="keyboard_layout_dialog_setup_button" msgid="771293535107618283">"تنظیم طرح‌بندی‌های صفحه‌کلید"</string>
     <string name="keyboard_layout_dialog_switch_hint" msgid="138516114253502182">"برای تغییر، Control-کلید فاصله را فشار هید"</string>
     <string name="keyboard_layout_default_label" msgid="8368579311667189793">"پیش‌فرض"</string>
@@ -2020,7 +2020,7 @@
     <string name="input_method_settings_button" msgid="6151412131733672062">"تنظیمات"</string>
     <string name="input_methods_settings_label_format" msgid="5927400388781960176">"<xliff:g id="IME_NAME">%1$s</xliff:g> تنظیمات"</string>
     <string name="input_methods_and_subtype_enabler_title" msgid="75557930915149416">"انتخاب روش‌های ورودی فعال"</string>
-    <string name="onscreen_keyboard_settings_summary" msgid="148763210673670769">"تنظیمات صفحه‌کلید روی صفحه"</string>
+    <string name="onscreen_keyboard_settings_summary" msgid="148763210673670769">"تنظیمات صفحه‌کلید مجازی"</string>
     <string name="builtin_keyboard_settings_title" msgid="3683883402326039724">"صفحه‌کلید فیزیکی"</string>
     <string name="builtin_keyboard_settings_summary" msgid="6498739864479285932">"تنظیمات صفحه‌کلید فیزیکی"</string>
     <string name="gadget_picker_title" msgid="9146981887780645322">"انتخاب اسبابک"</string>
