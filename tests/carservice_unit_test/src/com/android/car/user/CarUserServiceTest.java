@@ -711,14 +711,23 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testRemoveUser_lastAdminUser() throws Exception {
-        mockCurrentUser(mRegularUser);
-        mockExistingUsers(mExistingUsers);
+    public void testRemoveUser_LastAdminUser_success() throws Exception {
+        // TODO(b/168839147): Update the test
+        List<UserInfo> existingUsers =
+                new ArrayList<UserInfo>(Arrays.asList(mAdminUser, mGuestUser, mRegularUser));
+        UserInfo currentUser = mRegularUser;
+        mockExistingUsersAndCurrentUser(existingUsers, currentUser);
+        UserInfo removeUser = mAdminUser;
+        doAnswer((invocation) -> {
+            existingUsers.remove(removeUser);
+            return true;
+        }).when(mMockedUserManager).removeUser(eq(removeUser.id));
 
         UserRemovalResult result = mCarUserService.removeUser(mAdminUser.id);
 
         assertThat(result.getStatus())
-                .isEqualTo(UserRemovalResult.STATUS_TARGET_USER_IS_LAST_ADMIN_USER);
+                .isEqualTo(UserRemovalResult.STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED);
+        assertHalRemove(currentUser, removeUser, existingUsers);
     }
 
     @Test
