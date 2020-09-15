@@ -67,6 +67,16 @@ cc_defaults {
         "packages/services/Car/cpp/computepipe/runner/client_interface/include/",
         "packages/services/Car/cpp/computepipe/runner/graph/include/",
     ],
+
+    fuzz_config: {
+        cc: [
+            "guodonghu@google.com",
+            "hanumantsingh@google.com",
+            "kathan@google.com",
+            "smara@google.com",
+            "zhaomingyin@google.com",
+        ],
+    },
 }
 
 cc_fuzz {

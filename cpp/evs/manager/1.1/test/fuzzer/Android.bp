@@ -41,6 +41,15 @@ cc_defaults {
     cflags: [
         "-Wno-unused-parameter",
     ],
+
+    fuzz_config: {
+        cc: [
+            "changyeon@google.com",
+            "guodonghu@google.com",
+            "smara@google.com",
+            "zhaomingyin@google.com",
+        ],
+    },
 }
 
 cc_fuzz {
