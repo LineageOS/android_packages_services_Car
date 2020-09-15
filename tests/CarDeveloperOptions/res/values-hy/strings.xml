@@ -1836,7 +1836,7 @@
     <string name="enable_compatibility" msgid="1754177974320410195">"Աստիճանակարգել հավելվածները"</string>
     <string name="unknown" msgid="2780743426415501227">"Անհայտ"</string>
     <string name="sort_order_alpha" msgid="6689698854460261212">"Դասակարգել ըստ անունների"</string>
-    <string name="sort_order_size" msgid="3167376197248713027">"Տեսակավորել ըստ չափի"</string>
+    <string name="sort_order_size" msgid="3167376197248713027">"Դասավորել ըստ չափի"</string>
     <string name="sort_order_recent_notification" msgid="5592496977404445941">"Վերջինները"</string>
     <string name="sort_order_frequent_notification" msgid="5640245013098010347">"Առավել հաճախ"</string>
     <string name="show_running_services" msgid="1895994322704667543">"Ցույց տալ ընթացիկ ծառայությունները"</string>
@@ -3772,8 +3772,8 @@
     <string name="memory_details" msgid="5165105904103664110">"Մանրամասներ"</string>
     <string name="memory_use_summary" msgid="7676311343819965850">"Վերջին 3 ժամվա մեջ օգտագործվել է միջինը <xliff:g id="SIZE">%1$s</xliff:g> հիշողություն"</string>
     <string name="no_memory_use_summary" msgid="3966550113388917978">"Վերջին 3 ժամվա մեջ հիշողություն չի օգտագործվել"</string>
-    <string name="sort_avg_use" msgid="78428601253054298">"Տեսակավորել ըստ միջին օգտագործման"</string>
-    <string name="sort_max_use" msgid="322772647893307413">"Տեսակավորել ըստ առավելագույն օգտագործման"</string>
+    <string name="sort_avg_use" msgid="78428601253054298">"Դասավորել ըստ միջին օգտագործման"</string>
+    <string name="sort_max_use" msgid="322772647893307413">"Դասավորել ըստ առավելագույն օգտագործման"</string>
     <string name="memory_performance" msgid="3506743771947250453">"Արդյունավետություն"</string>
     <string name="total_memory" msgid="7352192982476976453">"Ընդհանուր հիշողությունը"</string>
     <string name="average_used" msgid="3022736210190754669">"Միջին օգագործում (%)"</string>

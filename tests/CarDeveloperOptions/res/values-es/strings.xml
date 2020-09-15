@@ -916,7 +916,7 @@
     <string name="passpoint_content" msgid="340527524510304327">"Credenciales de <xliff:g id="NAME">%1$s</xliff:g>"</string>
     <string name="wifi_eap_method" msgid="3752116941487485859">"Método EAP"</string>
     <string name="please_select_phase2" msgid="5848080896810435677">"Autenticación de fase 2"</string>
-    <string name="wifi_eap_ca_cert" msgid="1496395241849383785">"Certificado de CA"</string>
+    <string name="wifi_eap_ca_cert" msgid="1496395241849383785">"Certificado AC"</string>
     <string name="wifi_eap_domain" msgid="3298302320003640130">"Dominio"</string>
     <string name="wifi_eap_user_cert" msgid="6786839531765719173">"Certificado de usuario"</string>
     <string name="wifi_eap_identity" msgid="5280457017705738773">"Identidad"</string>
@@ -2747,7 +2747,7 @@
     <string name="vpn_ipsec_identifier" msgid="1230238784830362888">"Identificador de IPSec"</string>
     <string name="vpn_ipsec_secret" msgid="1531503910441962752">"Clave precompartida de IPSec"</string>
     <string name="vpn_ipsec_user_cert" msgid="2762078384595366852">"Certificado de usuario de IPSec"</string>
-    <string name="vpn_ipsec_ca_cert" msgid="5537567128766402789">"Certificado de CA de IPSec"</string>
+    <string name="vpn_ipsec_ca_cert" msgid="5537567128766402789">"Certificado AC de IPSec"</string>
     <string name="vpn_ipsec_server_cert" msgid="3066696943831527934">"Certificado del servidor IPSec"</string>
     <string name="vpn_show_options" msgid="7672984921872882859">"Mostrar opciones avanzadas"</string>
     <string name="vpn_search_domains" msgid="8469394307693909080">"Dominios de búsqueda de DNS"</string>
@@ -2809,13 +2809,13 @@
     <string name="trusted_credentials_enable_label" msgid="8991649977058280799">"Habilitar"</string>
     <string name="trusted_credentials_remove_label" msgid="530728557358501000">"Quitar"</string>
     <string name="trusted_credentials_trust_label" msgid="1580022708780121664">"Confiar"</string>
-    <string name="trusted_credentials_enable_confirmation" msgid="936560980286792656">"¿Quieres habilitar el certificado de CA del sistema?"</string>
-    <string name="trusted_credentials_disable_confirmation" msgid="643386483024801539">"¿Quieres inhabilitar el certificado de CA del sistema?"</string>
-    <string name="trusted_credentials_remove_confirmation" msgid="3731678919848637342">"¿Eliminar el certificado de CA de usuario de forma permanente?"</string>
+    <string name="trusted_credentials_enable_confirmation" msgid="936560980286792656">"¿Quieres habilitar el certificado AC del sistema?"</string>
+    <string name="trusted_credentials_disable_confirmation" msgid="643386483024801539">"¿Quieres inhabilitar el certificado AC del sistema?"</string>
+    <string name="trusted_credentials_remove_confirmation" msgid="3731678919848637342">"¿Eliminar el certificado AC de usuario de forma permanente?"</string>
     <string name="credential_contains" msgid="483346955378412119">"Esta entrada incluye:"</string>
     <string name="one_userkey" msgid="5349738921509013845">"una clave de usuario"</string>
     <string name="one_usercrt" msgid="856282310586987313">"un certificado de usuario"</string>
-    <string name="one_cacrt" msgid="4757720453112732485">"un certificado de CA"</string>
+    <string name="one_cacrt" msgid="4757720453112732485">"un certificado AC"</string>
     <string name="n_cacrts" msgid="7539893176217891549">"%d certificados de CA"</string>
     <string name="user_credential_title" msgid="6237611303219831419">"Detalles de credenciales"</string>
     <string name="user_credential_removed" msgid="6243576567538844852">"Quitar credencial: <xliff:g id="CREDENTIAL_NAME">%s</xliff:g>"</string>
