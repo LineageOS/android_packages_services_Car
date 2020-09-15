@@ -23,6 +23,7 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -33,6 +34,7 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.StackInfo;
 import android.app.ActivityOptions;
 import android.app.IActivityManager;
+import android.app.IActivityTaskManager;
 import android.app.TaskStackListener;
 import android.car.hardware.power.CarPowerManager;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
@@ -78,6 +80,8 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
     @Mock
     private IActivityManager mActivityManager;
     @Mock
+    private IActivityTaskManager mActivityTaskManager;
+    @Mock
     private UserManager mUserManager;
     @Mock
     private DisplayManager mDisplayManager;
@@ -102,8 +106,8 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
         when(mContext.getPackageManager()).thenReturn(mPackageManager);
         doReturn(mCarUserService).when(() -> CarLocalServices.getService(CarUserService.class));
         doReturn(mCarPowerManager).when(() -> CarLocalServices.createCarPowerManager(mContext));
-        mFixedActivityService = new FixedActivityService(mContext, mActivityManager, mUserManager,
-                mDisplayManager);
+        mFixedActivityService = new FixedActivityService(mContext, mActivityManager,
+                mActivityTaskManager, mUserManager, mDisplayManager);
     }
 
     @After
@@ -142,7 +146,7 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
         mockAmGetCurrentUser(userId);
         expectActivityStackInfo(
                 createEmptyStackInfo(),
-                createStackInfo(intent, userIds, mValidDisplayId, taskIds)
+                createStackInfoList(intent, userIds, mValidDisplayId, taskIds)
         );
 
         // No running activities
@@ -172,7 +176,7 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
         mockAmGetCurrentUser(userId);
         expectActivityStackInfo(
                 createEmptyStackInfo(),
-                createStackInfo(intent, userIds, mValidDisplayId, taskIds)
+                createStackInfoList(intent, userIds, mValidDisplayId, taskIds)
         );
 
         // No running activities
@@ -202,7 +206,7 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
         mockAmGetCurrentUser(userId);
         expectActivityStackInfo(
                 createEmptyStackInfo(),
-                createStackInfo(intent, userIds, mValidDisplayId, taskIds)
+                createStackInfoList(intent, userIds, mValidDisplayId, taskIds)
         );
 
         // No running activities
@@ -323,6 +327,88 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
         verify(mActivityManager, never()).unregisterTaskStackListener(any(TaskStackListener.class));
     }
 
+    @Test
+    public void testHandleTaskFocusChanged_returnForcusBack() throws Exception {
+        int userId = 10;
+        int testTaskId = 1234;
+        int[] userIds = new int[]{userId};
+        int[] taskIds = new int[]{testTaskId};
+        ActivityOptions options = new ActivityOptions(new Bundle());
+        Intent intent = expectComponentAvailable("test_package", "com.test.dude", userId);
+        mockAmGetCurrentUser(userId);
+        expectActivityStackInfo(createStackInfoList(intent, userIds, mValidDisplayId, taskIds));
+
+        // Make FixedActivityService to update the taskIds.
+        boolean ret = mFixedActivityService.startFixedActivityModeForDisplayAndUser(intent,
+                options, mValidDisplayId, userId);
+        assertThat(ret).isTrue();
+
+        Intent homeIntent = expectComponentAvailable("home", "homeActivity", userId);
+        int homeTaskId = 4567;
+        when(mActivityTaskManager.getAllStackInfosOnDisplay(Display.DEFAULT_DISPLAY)).thenReturn(
+                createStackInfoList(
+                        homeIntent, userIds, Display.DEFAULT_DISPLAY, new int[]{homeTaskId}));
+
+        mFixedActivityService.handleTaskFocusChanged(testTaskId, true);
+
+        verify(mActivityTaskManager).setFocusedTask(homeTaskId);
+    }
+
+    // If there are two tasks in one display id, then there is a bug to invalidate
+    // RunningActivityInfo.taskId examining 2nd task and it prevents from checking FixedActivity
+    // in handleTaskFocusChanged(). This test makes sure if the bug doesn't exist.
+    @Test
+    public void testHandleTaskFocusChanged_returnForcusBackInTwoStackInfos() throws Exception {
+        int userId = 10;
+        int testTaskId = 1234;
+        int[] userIds = new int[]{userId};
+        int[] taskIds = new int[]{testTaskId};
+        int[] taskIds2 = new int[]{testTaskId + 1111};
+        ActivityOptions options = new ActivityOptions(new Bundle());
+        Intent intent = expectComponentAvailable("test_package", "com.test.dude", userId);
+        Intent intent2 = expectComponentAvailable("test_package2", "com.test.others", userId);
+        mockAmGetCurrentUser(userId);
+        expectActivityStackInfo(Arrays.asList(
+                createStackInfo(intent, userIds, mValidDisplayId, taskIds),
+                createStackInfo(intent2, userIds, mValidDisplayId, taskIds2)));
+
+        // Make FixedActivityService to update the taskIds.
+        boolean ret = mFixedActivityService.startFixedActivityModeForDisplayAndUser(intent,
+                options, mValidDisplayId, userId);
+        assertThat(ret).isTrue();
+
+        Intent homeIntent = expectComponentAvailable("home", "homeActivity", userId);
+        int homeTaskId = 4567;
+        when(mActivityTaskManager.getAllStackInfosOnDisplay(Display.DEFAULT_DISPLAY)).thenReturn(
+                createStackInfoList(
+                        homeIntent, userIds, Display.DEFAULT_DISPLAY, new int[]{homeTaskId}));
+
+        mFixedActivityService.handleTaskFocusChanged(testTaskId, true);
+
+        verify(mActivityTaskManager).setFocusedTask(homeTaskId);
+    }
+
+    @Test
+    public void testHandleTaskFocusChanged_noForcusBack() throws Exception {
+        int userId = 10;
+        int testTaskId = 1234;
+        int[] userIds = new int[]{userId};
+        int[] taskIds = new int[]{testTaskId};
+        ActivityOptions options = new ActivityOptions(new Bundle());
+        Intent intent = expectComponentAvailable("test_package", "com.test.dude", userId);
+        mockAmGetCurrentUser(userId);
+        expectActivityStackInfo(createStackInfoList(intent, userIds, mValidDisplayId, taskIds));
+
+        // Make FixedActivityService to update the taskIds.
+        boolean ret = mFixedActivityService.startFixedActivityModeForDisplayAndUser(intent,
+                options, mValidDisplayId, userId);
+        assertThat(ret).isTrue();
+
+        mFixedActivityService.handleTaskFocusChanged(testTaskId + 1, true);
+
+        verify(mActivityTaskManager, never()).setFocusedTask(anyInt());
+    }
+
     private void expectNoProfileUser(@UserIdInt int userId) {
         when(mUserManager.getEnabledProfileIds(userId)).thenReturn(new int[0]);
     }
@@ -371,7 +457,7 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
         return new ArrayList<StackInfo>();
     }
 
-    private List<StackInfo> createStackInfo(Intent intent, @UserIdInt int[] userIds, int displayId,
+    private StackInfo createStackInfo(Intent intent, @UserIdInt int[] userIds, int displayId,
             int[] taskIds) {
         StackInfo stackInfo = new StackInfo();
         stackInfo.taskUserIds = userIds;
@@ -379,6 +465,11 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
         stackInfo.visible = true;
         stackInfo.displayId = displayId;
         stackInfo.taskIds = taskIds;
-        return Arrays.asList(stackInfo);
+        return stackInfo;
+    }
+
+    private List<StackInfo> createStackInfoList(Intent intent, @UserIdInt int[] userIds,
+            int displayId, int[] taskIds) {
+        return Arrays.asList(createStackInfo(intent, userIds, displayId, taskIds));
     }
 }
