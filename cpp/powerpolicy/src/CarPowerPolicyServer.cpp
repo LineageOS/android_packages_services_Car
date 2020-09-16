@@ -59,18 +59,6 @@ std::vector<CallbackInfo>::const_iterator lookupPowerPolicyChangeCallback(
 
 sp<CarPowerPolicyServer> CarPowerPolicyServer::sCarPowerPolicyServer = nullptr;
 
-std::string toString(const std::vector<PowerComponent>& components) {
-    size_t size = components.size();
-    if (size == 0) {
-        return "none";
-    }
-    std::string filterStr = toString(components[0]);
-    for (int i = 1; i < size; i++) {
-        StringAppendF(&filterStr, ", %s", toString(components[i]).c_str());
-    }
-    return filterStr;
-}
-
 Result<sp<CarPowerPolicyServer>> CarPowerPolicyServer::startService(
         const android::sp<Looper>& looper) {
     if (sCarPowerPolicyServer != nullptr) {
@@ -171,22 +159,28 @@ Status CarPowerPolicyServer::unregisterPowerPolicyChangeCallback(
 }
 
 status_t CarPowerPolicyServer::dump(int fd, const Vector<String16>& args) {
-    Mutex::Autolock lock(mMutex);
-    const char* indent = "  ";
-    const char* doubleIndent = "    ";
-    WriteStringToFd("CAR POWER POLICY DAEMON\n", fd);
-    WriteStringToFd(StringPrintf("%sCurrent power policy: %s\n", indent,
-                                 mCurrentPowerPolicy ? mCurrentPowerPolicy->policyId.c_str()
-                                                     : "none"),
-                    fd);
-    // TODO(b/162599168): dump registered power policy and default power policy per transition.
-    WriteStringToFd(StringPrintf("%sPolicy change callbacks:%s\n", indent,
-                                 mPolicyChangeCallbacks.size() ? "" : " none"),
-                    fd);
-    for (auto& callback : mPolicyChangeCallbacks) {
-        WriteStringToFd(StringPrintf("%s- %s\n", doubleIndent, toString(callback).c_str()), fd);
+    {
+        Mutex::Autolock lock(mMutex);
+        const char* indent = "  ";
+        const char* doubleIndent = "    ";
+        WriteStringToFd("CAR POWER POLICY DAEMON\n", fd);
+        WriteStringToFd(StringPrintf("%sCurrent power policy: %s\n", indent,
+                                     mCurrentPowerPolicy ? mCurrentPowerPolicy->policyId.c_str()
+                                                         : "none"),
+                        fd);
+        WriteStringToFd(StringPrintf("%sPolicy change callbacks:%s\n", indent,
+                                     mPolicyChangeCallbacks.size() ? "" : " none"),
+                        fd);
+        for (auto& callback : mPolicyChangeCallbacks) {
+            WriteStringToFd(StringPrintf("%s- %s\n", doubleIndent, toString(callback).c_str()), fd);
+        }
     }
-    const auto& ret = mComponentHandler.dump(fd, args);
+    auto ret = mPolicyManager.dump(fd, args);
+    if (!ret.ok()) {
+        ALOGW("Failed to dump power policy handler: %s", ret.error().message().c_str());
+        return ret.error().code();
+    }
+    ret = mComponentHandler.dump(fd, args);
     if (!ret.ok()) {
         ALOGW("Failed to dump power component handler: %s", ret.error().message().c_str());
         return ret.error().code();
@@ -197,7 +191,7 @@ status_t CarPowerPolicyServer::dump(int fd, const Vector<String16>& args) {
 Result<void> CarPowerPolicyServer::init(const sp<Looper>& looper) {
     mHandlerLooper = looper;
 
-    readVendorPowerPolicy();
+    mPolicyManager.init();
     mComponentHandler.init();
     checkSilentModeFromKernel();
     const auto& ret = subscribeToVhal();

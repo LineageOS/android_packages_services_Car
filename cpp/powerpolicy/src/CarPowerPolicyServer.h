@@ -17,6 +17,7 @@
 #ifndef CPP_POWERPOLICY_SRC_CARPOWERPOLICYSERVER_H_
 #define CPP_POWERPOLICY_SRC_CARPOWERPOLICYSERVER_H_
 
+#include "PolicyManager.h"
 #include "PowerComponentHandler.h"
 
 #include <android-base/result.h>
@@ -87,6 +88,7 @@ private:
 
     sp<Looper> mHandlerLooper;
     PowerComponentHandler mComponentHandler;
+    PolicyManager mPolicyManager;
     android::Mutex mMutex;
     CarPowerPolicy* mCurrentPowerPolicy GUARDED_BY(mMutex);
     std::vector<CallbackInfo> mPolicyChangeCallbacks GUARDED_BY(mMutex);
