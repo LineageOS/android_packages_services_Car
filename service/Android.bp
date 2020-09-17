@@ -68,7 +68,6 @@ android_app {
     libs: ["android.car"],
 
     static_libs: common_lib_deps + [
-        "com.android.car.internal.all",
         "com.android.car.internal.system",
     ],
 
