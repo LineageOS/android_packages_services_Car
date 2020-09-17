@@ -2455,7 +2455,7 @@
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Wordt ingeschakeld bij <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Een planning instellen"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Uitschakelen wanneer volledig opgeladen"</string>
-    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"Batterijbesparing wordt uitgeschakeld wanneer je telefoon <xliff:g id="PERCENT">%1$s</xliff:g> batterijlading heeft"</string>
+    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"Batterijbesparing wordt uitgeschakeld als je telefoon <xliff:g id="PERCENT">%1$s</xliff:g> batterijlading heeft"</string>
     <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"Batterijbesparing wordt uitgeschakeld wanneer je tablet <xliff:g id="PERCENT">%1$s</xliff:g> batterijlading heeft"</string>
     <string name="battery_saver_sticky_description_new" product="device" msgid="5056520668081504111">"Batterijbesparing wordt uitgeschakeld wanneer je apparaat <xliff:g id="PERCENT">%1$s</xliff:g> batterijlading heeft"</string>
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
