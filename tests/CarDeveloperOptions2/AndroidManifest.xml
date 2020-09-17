@@ -2520,6 +2520,15 @@
             <intent-filter tools:node="removeAll"/>
         </receiver>
 
+        <receiver
+            android:name=".media.BluetoothPairingReceiver"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </receiver>
+
         <service
             android:name=".wifi.tether.TetherService"
             android:enabled="false"
