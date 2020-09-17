@@ -194,6 +194,12 @@
         <install-in user-type="SYSTEM" />
     </install-in-user-type>
 
+    <!-- Needed for new developer options module (under settings package) -->
+    <install-in-user-type package="com.android.settings">
+        <install-in user-type="FULL" />
+        <install-in user-type="SYSTEM" />
+    </install-in-user-type>
+
 <!--
   Apps that do need to run on SYSTEM and evaluated by package owner.
   Here the apps will have FULL only.
