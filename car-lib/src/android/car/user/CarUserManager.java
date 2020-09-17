@@ -33,6 +33,7 @@ import android.annotation.UserIdInt;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.ICarUserService;
+import android.car.constants.CommonConstants;
 import android.car.util.concurrent.AndroidAsyncFuture;
 import android.car.util.concurrent.AsyncFuture;
 import android.content.pm.UserInfo;
@@ -48,7 +49,6 @@ import android.util.ArrayMap;
 import android.util.EventLog;
 import android.util.Log;
 
-import com.android.car.internal.CommonConstants;
 import com.android.car.internal.EventLogTags;
 import com.android.car.internal.UserHelperLite;
 import com.android.internal.annotations.GuardedBy;
@@ -176,11 +176,9 @@ public final class CarUserManager extends CarManagerBase {
     public @interface UserLifecycleEventType{}
 
     /** @hide */
-    public static final String BUNDLE_PARAM_ACTION =
-            CommonConstants.BUNDLE_PARAM_ACTION;
+    public static final String BUNDLE_PARAM_ACTION = "action";
     /** @hide */
-    public static final String BUNDLE_PARAM_PREVIOUS_USER_ID =
-            CommonConstants.BUNDLE_PARAM_PREVIOUS_USER_ID;
+    public static final String BUNDLE_PARAM_PREVIOUS_USER_ID = "previous_user";
 
     private final Object mLock = new Object();
     private final ICarUserService mService;
