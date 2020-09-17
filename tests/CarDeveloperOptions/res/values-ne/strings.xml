@@ -515,7 +515,7 @@
     <string name="crypt_keeper_low_charge_text" msgid="1422879728632636311">"तपाईँको ब्याट्री चार्ज गरी पुनःप्रयास गर्नुहोस्।"</string>
     <string name="crypt_keeper_unplugged_text" msgid="6597684068340036200">"तपाईंको चार्जरमा प्लग इन गरेर फेरि प्रयास गर्नुहोस्।"</string>
     <string name="crypt_keeper_dialog_need_password_title" msgid="8532211509636340535">"कुनै लक स्क्रिन PIN वा पासवर्ड छैन"</string>
-    <string name="crypt_keeper_dialog_need_password_message" msgid="1341590897367808702">"तपाईंले इन्क्रिप्सन सुरु गर्नु अघि लक स्क्रिन PIN वा पासवर्ड सेट गर्न आवश्यक छ।"</string>
+    <string name="crypt_keeper_dialog_need_password_message" msgid="1341590897367808702">"तपाईंले इन्क्रिप्सन सुरु गर्नुअघि लक स्क्रिन PIN वा पासवर्ड सेट गर्न आवश्यक छ।"</string>
     <string name="crypt_keeper_confirm_title" msgid="8884417036062084547">"इन्क्रिप्ट गर्ने हो?"</string>
     <string name="crypt_keeper_final_desc" product="tablet" msgid="2713708841024805586">"इन्क्रिप्सन कार्य उल्ट्याउन मिल्दैन र यदि तपाईँले अवरोध पुर्‍याउनु भयो भने तपाईँले डेटा गुमाउनु हुने छ। इन्क्रिप्सनले एक घन्टा वा बढी समय लिन सक्छ, यस समयमा ट्याब्लेट धेरै पटक पुनःस्टार्ट हुन सक्छ।"</string>
     <string name="crypt_keeper_final_desc" product="default" msgid="2483549885938505746">"इन्क्रिप्सन अपरेसन उल्टाउन मिल्दैन र यदि तपाईँले यसलाई अवरूद्ध गर्नु भयो भने तपाईँले डेटा गुमाउनु हुने छ। इनक्रिप्सनलाई करिब एक घन्टा वा बढी लाग्छ जुन समय फोन धेरै चोटि पुनःस्टार्ट हुन सक्छ।"</string>
@@ -1157,7 +1157,7 @@
     <string name="dock_audio_summary_unknown" msgid="1615958511030469507">"संलग्न डकको लागि सेटिङहरू"</string>
     <string name="dock_not_found_title" msgid="2035088760477532435">"डक भेटिएन"</string>
     <string name="dock_not_found_text" product="tablet" msgid="5996654431405111902">"डक अडियो सेट गर्न अघि तपाईँले ट्याब्लेट डक गर्नु पर्ने हुन्छ।"</string>
-    <string name="dock_not_found_text" product="default" msgid="8275091896320216368">"तपाईंले डक अडियो सेटिङ गर्नु अघि फोन डक गर्नु आवश्यक पर्दछ।"</string>
+    <string name="dock_not_found_text" product="default" msgid="8275091896320216368">"तपाईंले डक अडियो सेटिङ गर्नुअघि फोन डक गर्नु आवश्यक पर्दछ।"</string>
     <string name="dock_sounds_enable_title" msgid="3385931465312084061">"डक राख्ने आवाज"</string>
     <string name="dock_sounds_enable_summary_on" product="tablet" msgid="4322104626905111669">"डकबाट ट्याब्लेट हटाउँदा वा राख्दा आवाज बजाउनुहोस्"</string>
     <string name="dock_sounds_enable_summary_on" product="default" msgid="2751810717801098293">"फोन डकमा राख्दा वा झिक्दा आवाज बजाउनुहोस्"</string>

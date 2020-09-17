@@ -2084,7 +2084,7 @@
     <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"Змінити розмір шрифту"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"Програми зчитування з екрана"</string>
     <string name="audio_and_captions_category_title" msgid="6140472938769619212">"Аудіо й текст на екрані"</string>
-    <string name="display_category_title" msgid="545168481672250195">"Дисплей"</string>
+    <string name="display_category_title" msgid="545168481672250195">"Екран"</string>
     <string name="interaction_control_category_title" msgid="8775039211811947683">"Елементи керування взаємодією"</string>
     <string name="user_installed_services_category_title" msgid="4288689493753221319">"Завантажені служби"</string>
     <string name="experimental_category_title" msgid="3797000069740110717">"Експериментальні налаштування"</string>
