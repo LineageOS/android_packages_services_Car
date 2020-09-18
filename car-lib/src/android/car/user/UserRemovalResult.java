@@ -66,9 +66,10 @@ public final class UserRemovalResult implements Parcelable, OperationResult {
     public static final int STATUS_USER_DOES_NOT_EXIST = CommonResults.LAST_COMMON_STATUS + 2;
 
     /**
-     * When user to remove is last admin user.
+     * When last admin user successfully removed.
+     *
      */
-    public static final int STATUS_TARGET_USER_IS_LAST_ADMIN_USER =
+    public static final int STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED =
             CommonResults.LAST_COMMON_STATUS + 3;
 
     /**
@@ -79,13 +80,13 @@ public final class UserRemovalResult implements Parcelable, OperationResult {
      *         {@link UserRemovalResult#STATUS_HAL_INTERNAL_FAILURE},
      *         {@link UserRemovalResult#STATUS_TARGET_USER_IS_CURRENT_USER},
      *         {@link UserRemovalResult#STATUS_USER_DOES_NOT_EXIST}, or
-     *         {@link UserRemovalResult#STATUS_TARGET_USER_IS_LAST_ADMIN_USER}.
+     *         {@link UserRemovalResult#STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED}.
      */
     private final @Status int mStatus;
 
     @Override
     public boolean isSuccess() {
-        return mStatus == STATUS_SUCCESSFUL;
+        return mStatus == STATUS_SUCCESSFUL || mStatus == STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED;
     }
 
     // TODO(b/158195639): if you change any status constant, you need to manually assign its values
@@ -112,7 +113,7 @@ public final class UserRemovalResult implements Parcelable, OperationResult {
         STATUS_HAL_INTERNAL_FAILURE,
         STATUS_TARGET_USER_IS_CURRENT_USER,
         STATUS_USER_DOES_NOT_EXIST,
-        STATUS_TARGET_USER_IS_LAST_ADMIN_USER
+        STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED
     })
     @Retention(RetentionPolicy.SOURCE)
     @DataClass.Generated.Member
@@ -132,8 +133,8 @@ public final class UserRemovalResult implements Parcelable, OperationResult {
                     return "STATUS_TARGET_USER_IS_CURRENT_USER";
             case STATUS_USER_DOES_NOT_EXIST:
                     return "STATUS_USER_DOES_NOT_EXIST";
-            case STATUS_TARGET_USER_IS_LAST_ADMIN_USER:
-                    return "STATUS_TARGET_USER_IS_LAST_ADMIN_USER";
+            case STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED:
+                    return "STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED";
             default: return Integer.toHexString(value);
         }
     }
@@ -149,13 +150,30 @@ public final class UserRemovalResult implements Parcelable, OperationResult {
      *           {@link UserRemovalResult#STATUS_HAL_INTERNAL_FAILURE},
      *           {@link UserRemovalResult#STATUS_TARGET_USER_IS_CURRENT_USER},
      *           {@link UserRemovalResult#STATUS_USER_DOES_NOT_EXIST}, or
-     *           {@link UserRemovalResult#STATUS_TARGET_USER_IS_LAST_ADMIN_USER}.
+     *           {@link UserRemovalResult#STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED}.
      * @hide
      */
     @DataClass.Generated.Member
     public UserRemovalResult(
-            int status) {
+            @Status int status) {
         this.mStatus = status;
+
+        if (!(mStatus == STATUS_SUCCESSFUL)
+                && !(mStatus == STATUS_ANDROID_FAILURE)
+                && !(mStatus == STATUS_HAL_INTERNAL_FAILURE)
+                && !(mStatus == STATUS_TARGET_USER_IS_CURRENT_USER)
+                && !(mStatus == STATUS_USER_DOES_NOT_EXIST)
+                && !(mStatus == STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED)) {
+            throw new java.lang.IllegalArgumentException(
+                    "status was " + mStatus + " but must be one of: "
+                            + "STATUS_SUCCESSFUL(" + STATUS_SUCCESSFUL + "), "
+                            + "STATUS_ANDROID_FAILURE(" + STATUS_ANDROID_FAILURE + "), "
+                            + "STATUS_HAL_INTERNAL_FAILURE(" + STATUS_HAL_INTERNAL_FAILURE + "), "
+                            + "STATUS_TARGET_USER_IS_CURRENT_USER(" + STATUS_TARGET_USER_IS_CURRENT_USER + "), "
+                            + "STATUS_USER_DOES_NOT_EXIST(" + STATUS_USER_DOES_NOT_EXIST + "), "
+                            + "STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED(" + STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED + ")");
+        }
+
 
         // onConstructed(); // You can define this method to get a callback
     }
@@ -168,10 +186,10 @@ public final class UserRemovalResult implements Parcelable, OperationResult {
      *         {@link UserRemovalResult#STATUS_HAL_INTERNAL_FAILURE},
      *         {@link UserRemovalResult#STATUS_TARGET_USER_IS_CURRENT_USER},
      *         {@link UserRemovalResult#STATUS_USER_DOES_NOT_EXIST}, or
-     *         {@link UserRemovalResult#STATUS_TARGET_USER_IS_LAST_ADMIN_USER}.
+     *         {@link UserRemovalResult#STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED}.
      */
     @DataClass.Generated.Member
-    public int getStatus() {
+    public @Status int getStatus() {
         return mStatus;
     }
 
@@ -182,7 +200,7 @@ public final class UserRemovalResult implements Parcelable, OperationResult {
         // String fieldNameToString() { ... }
 
         return "UserRemovalResult { " +
-                "status = " + mStatus +
+                "status = " + statusToString(mStatus) +
         " }";
     }
 
@@ -210,6 +228,23 @@ public final class UserRemovalResult implements Parcelable, OperationResult {
 
         this.mStatus = status;
 
+        if (!(mStatus == STATUS_SUCCESSFUL)
+                && !(mStatus == STATUS_ANDROID_FAILURE)
+                && !(mStatus == STATUS_HAL_INTERNAL_FAILURE)
+                && !(mStatus == STATUS_TARGET_USER_IS_CURRENT_USER)
+                && !(mStatus == STATUS_USER_DOES_NOT_EXIST)
+                && !(mStatus == STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED)) {
+            throw new java.lang.IllegalArgumentException(
+                    "status was " + mStatus + " but must be one of: "
+                            + "STATUS_SUCCESSFUL(" + STATUS_SUCCESSFUL + "), "
+                            + "STATUS_ANDROID_FAILURE(" + STATUS_ANDROID_FAILURE + "), "
+                            + "STATUS_HAL_INTERNAL_FAILURE(" + STATUS_HAL_INTERNAL_FAILURE + "), "
+                            + "STATUS_TARGET_USER_IS_CURRENT_USER(" + STATUS_TARGET_USER_IS_CURRENT_USER + "), "
+                            + "STATUS_USER_DOES_NOT_EXIST(" + STATUS_USER_DOES_NOT_EXIST + "), "
+                            + "STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED(" + STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED + ")");
+        }
+
+
         // onConstructed(); // You can define this method to get a callback
     }
 
@@ -228,10 +263,10 @@ public final class UserRemovalResult implements Parcelable, OperationResult {
     };
 
     @DataClass.Generated(
-            time = 1591259644931L,
+            time = 1600198487158L,
             codegenVersion = "1.0.15",
             sourceFile = "packages/services/Car/car-lib/src/android/car/user/UserRemovalResult.java",
-            inputSignatures = "public static final  int STATUS_SUCCESSFUL\npublic static final  int STATUS_ANDROID_FAILURE\npublic static final  int STATUS_HAL_INTERNAL_FAILURE\npublic static final  int STATUS_TARGET_USER_IS_CURRENT_USER\npublic static final  int STATUS_USER_DOES_NOT_EXIST\npublic static final  int STATUS_TARGET_USER_IS_LAST_ADMIN_USER\nprivate final  int mStatus\npublic  boolean isSuccess()\nclass UserRemovalResult extends java.lang.Object implements [android.os.Parcelable]\n@com.android.internal.util.DataClass(genToString=true, genHiddenConstructor=true, genHiddenConstDefs=true)")
+            inputSignatures = "public static final  int STATUS_SUCCESSFUL\npublic static final  int STATUS_ANDROID_FAILURE\npublic static final  int STATUS_HAL_INTERNAL_FAILURE\npublic static final  int STATUS_TARGET_USER_IS_CURRENT_USER\npublic static final  int STATUS_USER_DOES_NOT_EXIST\npublic static final  int STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED\nprivate final @android.car.user.UserRemovalResult.Status int mStatus\npublic  boolean isSuccess()\nclass UserRemovalResult extends java.lang.Object implements [android.os.Parcelable]\n@com.android.internal.util.DataClass(genToString=true, genHiddenConstructor=true, genHiddenConstDefs=true)")
     @Deprecated
     private void __metadata() {}
 
