@@ -100,7 +100,7 @@ std::string IoUsage::toString() const {
                         metrics[FSYNC_COUNT][FOREGROUND], metrics[FSYNC_COUNT][BACKGROUND]);
 }
 
-Result<std::unordered_map<uid_t, UidIoUsage>> UidIoStats::collect() {
+Result<void> UidIoStats::collect() {
     if (!kEnabled) {
         return Error() << "Can not access " << kPath;
     }
@@ -111,16 +111,16 @@ Result<std::unordered_map<uid_t, UidIoUsage>> UidIoStats::collect() {
         return Error() << "Failed to get UID IO stats: " << uidIoUsages.error();
     }
 
-    std::unordered_map<uid_t, UidIoUsage> usage;
+    mDeltaUidIoUsages.clear();
     for (const auto& it : *uidIoUsages) {
         const UidIoUsage& curUsage = it.second;
-        usage[it.first] = curUsage;
-        if (mLastUidIoUsages.find(it.first) != mLastUidIoUsages.end()) {
-            usage[it.first] -= mLastUidIoUsages[it.first];
+        mDeltaUidIoUsages[it.first] = curUsage;
+        if (mLatestUidIoUsages.find(it.first) != mLatestUidIoUsages.end()) {
+            mDeltaUidIoUsages[it.first] -= mLatestUidIoUsages[it.first];
         }
     }
-    mLastUidIoUsages = *uidIoUsages;
-    return usage;
+    mLatestUidIoUsages = *uidIoUsages;
+    return {};
 }
 
 Result<std::unordered_map<uid_t, UidIoUsage>> UidIoStats::getUidIoUsagesLocked() const {

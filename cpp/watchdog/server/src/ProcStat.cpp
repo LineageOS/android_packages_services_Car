@@ -71,7 +71,7 @@ bool parseProcsCount(const std::string& data, uint32_t* out) {
 
 }  // namespace
 
-Result<ProcStatInfo> ProcStat::collect() {
+Result<void> ProcStat::collect() {
     if (!kEnabled) {
         return Error() << "Can not access " << kPath;
     }
@@ -82,26 +82,11 @@ Result<ProcStatInfo> ProcStat::collect() {
         return Error() << "Failed to get proc stat contents: " << info.error();
     }
 
-    ProcStatInfo delta;
+    mDeltaStats = *info;
+    mDeltaStats -= mLatestStats;
+    mLatestStats = *info;
 
-    delta.cpuStats.userTime = info->cpuStats.userTime - mLastCpuStats.userTime;
-    delta.cpuStats.niceTime = info->cpuStats.niceTime - mLastCpuStats.niceTime;
-    delta.cpuStats.sysTime = info->cpuStats.sysTime - mLastCpuStats.sysTime;
-    delta.cpuStats.idleTime = info->cpuStats.idleTime - mLastCpuStats.idleTime;
-    delta.cpuStats.ioWaitTime = info->cpuStats.ioWaitTime - mLastCpuStats.ioWaitTime;
-    delta.cpuStats.irqTime = info->cpuStats.irqTime - mLastCpuStats.irqTime;
-    delta.cpuStats.softIrqTime = info->cpuStats.softIrqTime - mLastCpuStats.softIrqTime;
-    delta.cpuStats.stealTime = info->cpuStats.stealTime - mLastCpuStats.stealTime;
-    delta.cpuStats.guestTime = info->cpuStats.guestTime - mLastCpuStats.guestTime;
-    delta.cpuStats.guestNiceTime = info->cpuStats.guestNiceTime - mLastCpuStats.guestNiceTime;
-
-    // Process counts are real-time values. Thus they should be reported as-is and not their deltas.
-    delta.runnableProcessesCnt = info->runnableProcessesCnt;
-    delta.ioBlockedProcessesCnt = info->ioBlockedProcessesCnt;
-
-    mLastCpuStats = info->cpuStats;
-
-    return delta;
+    return {};
 }
 
 Result<ProcStatInfo> ProcStat::getProcStatLocked() const {
