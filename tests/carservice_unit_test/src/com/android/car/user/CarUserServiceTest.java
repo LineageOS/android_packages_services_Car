@@ -1593,7 +1593,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                 .getUserIdentificationAssociation(types);
 
         assertThat(response.isSuccess()).isTrue();
-        assertThat(response.getValues()).asList().containsAllOf(10, 20, 30).inOrder();
+        assertThat(response.getValues()).asList().containsAtLeast(10, 20, 30).inOrder();
         assertThat(response.getErrorMessage()).isEqualTo("D'OH!");
     }
 
@@ -1711,7 +1711,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         UserIdentificationAssociationResponse response = getUserAssociationRespResult();
 
         assertThat(response.isSuccess()).isTrue();
-        assertThat(response.getValues()).asList().containsAllOf(10, 20, 30).inOrder();
+        assertThat(response.getValues()).asList().containsAtLeast(10, 20, 30).inOrder();
         assertThat(response.getErrorMessage()).isEqualTo("D'OH!");
     }
 

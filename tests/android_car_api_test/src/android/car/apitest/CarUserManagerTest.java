@@ -199,7 +199,7 @@ public final class CarUserManagerTest extends CarApiTestBase {
         // Make sure unregistered listener didn't receive any more events
         List<UserLifecycleEvent> allStartEvents = startListener.getAllReceivedEvents();
         Log.d(TAG, "All start events: " + startEvents);
-        assertThat(allStartEvents).containsAllIn(startEvents).inOrder();
+        assertThat(allStartEvents).containsAtLeastElementsIn(startEvents).inOrder();
 
         Log.d(TAG, "unregistering stop listener: " + stopListener);
         mCarUserManager.removeListener(stopListener);
