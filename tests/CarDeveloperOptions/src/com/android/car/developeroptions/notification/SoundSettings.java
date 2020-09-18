@@ -200,10 +200,6 @@ public class SoundSettings extends DashboardFragment implements OnActivityResult
 
         @Override
         public void onSampleStarting(SeekBarVolumizer sbv) {
-            if (mCurrent != null && mCurrent != sbv) {
-                mCurrent.stopSample();
-            }
-            mCurrent = sbv;
             if (mCurrent != null) {
                 mHandler.removeMessages(STOP_SAMPLE);
                 mHandler.sendEmptyMessageDelayed(STOP_SAMPLE, SAMPLE_CUTOFF);
@@ -216,6 +212,15 @@ public class SoundSettings extends DashboardFragment implements OnActivityResult
                 mHandler.removeMessages(STOP_SAMPLE);
                 mHandler.sendEmptyMessageDelayed(STOP_SAMPLE, SAMPLE_CUTOFF);
             }
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBarVolumizer sbv) {
+            // stop the ringtone when other seek bar is adjust
+            if (mCurrent != null && mCurrent != sbv) {
+                mCurrent.stopSample();
+            }
+            mCurrent = sbv;
         }
 
         public void stopSample() {
