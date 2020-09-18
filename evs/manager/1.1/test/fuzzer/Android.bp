@@ -59,3 +59,19 @@ cc_fuzz {
     ],
     defaults: ["evs_fuzz_default"],
 }
+
+cc_fuzz {
+    name: "evs_haldisplay_fuzzer",
+    srcs: [
+        "HalDisplayFuzzer.cpp",
+    ],
+    defaults: ["evs_fuzz_default"],
+}
+
+cc_fuzz {
+    name: "evs_enumerator_fuzzer",
+    srcs: [
+        "EnumeratorFuzzer.cpp",
+    ],
+    defaults: ["evs_fuzz_default"],
+}

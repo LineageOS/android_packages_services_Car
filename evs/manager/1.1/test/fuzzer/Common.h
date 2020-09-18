@@ -36,6 +36,12 @@ namespace implementation {
             EVS_FUZZ_GET_PARAMETER,       /* verify getIntParameter */   \
             EVS_FUZZ_API_SUM
 
+const char* kMockHWEnumeratorName = "hw/fuzzEVSMock";
+const uint64_t startMockHWCameraId = 1024;
+const uint64_t endMockHWCameraId = 1028;
+const uint64_t startMockHWDisplayId = 256;
+const uint64_t endMockHWDisplayId = 258;
+
 }  // namespace implementation
 }  // namespace V1_1
 }  // namespace evs
