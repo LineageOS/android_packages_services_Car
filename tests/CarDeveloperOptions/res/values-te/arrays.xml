@@ -477,7 +477,7 @@
     <item msgid="1008268820118852416">"గణించబడనిదిగా పరిగణించండి"</item>
   </string-array>
   <string-array name="wifi_privacy_entries">
-    <item msgid="6545683814310036454">"ర్యాండ‌మ్‌గా రూపొందించిన MAC అడ్రస్‌ను ఉపయోగించండి (ఆటోమేటిక్‌)"</item>
+    <item msgid="6545683814310036454">"యాదృచ్ఛిక MAC అడ్రస్‌ని ఉపయోగించండి (డిఫాల్ట్)"</item>
     <item msgid="214234417308375326">"MAC పరికరాన్ని ఉపయోగించండి"</item>
   </string-array>
   <string-array name="wifi_hidden_entries">

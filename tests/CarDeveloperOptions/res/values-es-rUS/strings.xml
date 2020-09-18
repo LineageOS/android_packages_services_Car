@@ -406,11 +406,11 @@
     <string name="security_settings_face_enroll_introduction_message_setup" msgid="4533297059466270074">"Usa tu rostro para desbloquear el teléfono, autorizar compras o acceder a las apps"</string>
     <string name="security_settings_face_enroll_introduction_footer_message" msgid="7764021721107723266"></string>
     <string name="security_settings_face_enroll_repeat_title" msgid="2507710348140837875">"Centra el rostro en el círculo"</string>
-    <string name="security_settings_face_enroll_enrolling_skip" msgid="4346077260378772613">"Más tarde"</string>
+    <string name="security_settings_face_enroll_enrolling_skip" msgid="4346077260378772613">"Hacerlo más tarde"</string>
     <string name="face_add_max" msgid="8870899421165189413">"Puedes agregar hasta <xliff:g id="COUNT">%d</xliff:g> rostros"</string>
     <string name="face_intro_error_max" msgid="4024147799079828937">"Agregaste la cantidad máxima permitida de rostros"</string>
     <string name="face_intro_error_unknown" msgid="3241592604198351134">"No se pueden agregar más rostros"</string>
-    <string name="security_settings_face_enroll_error_dialog_title" msgid="3933492758701563051">"No se completó la inscripción"</string>
+    <string name="security_settings_face_enroll_error_dialog_title" msgid="3933492758701563051">"No se completó el registro"</string>
     <string name="security_settings_face_enroll_dialog_ok" msgid="1078348922734845090">"Aceptar"</string>
     <string name="security_settings_face_enroll_error_timeout_dialog_message" msgid="4917894418448325405">"Se alcanzó el límite de tiempo para el registro de rostros. Vuelve a intentarlo."</string>
     <string name="security_settings_face_enroll_error_generic_dialog_message" msgid="5160473187142616862">"No funcionó el registro de rostros."</string>
@@ -471,7 +471,7 @@
     <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"Sigue levantando el dedo para agregar diferentes partes de la huella digital."</string>
     <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"Se agregó la huella digital"</string>
     <string name="security_settings_fingerprint_enroll_finish_message" msgid="5862643337893923347">"Cuando veas este ícono, usa tu huella digital para identificarte o aprobar compras."</string>
-    <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"Más tarde"</string>
+    <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"Hacerlo más tarde"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_title" msgid="2816424026528101690">"¿Omitir configuración de huella digital?"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_message" msgid="8139299964344809780">"Decidiste usar la huella digital como una de las formas para desbloquear el teléfono. Si omites este paso, tendrás que configurarla más tarde. La configuración tarda un minuto aproximadamente."</string>
     <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="tablet" msgid="1384438077720821127">"Protege la tablet con una opción de bloqueo de pantalla para que nadie pueda usarla si la pierdes o te la roban. Además, tienes que establecer una opción de bloqueo de pantalla para configurar la huella digital. Presiona Cancelar y, luego, establece un PIN o elige otra opción de bloqueo de pantalla."</string>
@@ -487,8 +487,8 @@
     <string name="security_settings_fingerprint_enroll_done" msgid="4111289529758845926">"Listo"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_title" msgid="7410398793283818609">"Ese no es el sensor"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_message" msgid="7192100314788868883">"Toca el sensor en la parte posterior del teléfono con el dedo índice."</string>
-    <string name="security_settings_fingerprint_enroll_error_dialog_title" msgid="1415709674142168770">"No se completó la inscripción"</string>
-    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"Se alcanzó el límite de tiempo para la inscripción de huellas digitales. Vuelve a intentarlo."</string>
+    <string name="security_settings_fingerprint_enroll_error_dialog_title" msgid="1415709674142168770">"No se completó el registro"</string>
+    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"Se alcanzó el límite de tiempo para el registro de huellas digitales. Vuelve a intentarlo."</string>
     <string name="security_settings_fingerprint_enroll_error_generic_dialog_message" msgid="7896295829530444810">"El registro de huellas digitales no funcionó. Vuelve a intentarlo o usa otro dedo."</string>
     <string name="fingerprint_enroll_button_add" msgid="6335782936874996629">"Agregar otra huella digital"</string>
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"Siguiente"</string>
@@ -888,7 +888,7 @@
     <string name="wifi_menu_remember" msgid="717257200269700641">"Recordar red"</string>
     <string name="wifi_menu_forget" msgid="7561140554450163075">"Olvidar red"</string>
     <string name="wifi_menu_modify" msgid="4080178040721021101">"Modificar red"</string>
-    <string name="wifi_empty_list_wifi_off" msgid="272877164691346240">"Para ver las redes disponibles, activa el Wi-Fi."</string>
+    <string name="wifi_empty_list_wifi_off" msgid="272877164691346240">"Para ver las redes disponibles, activa Wi-Fi."</string>
     <string name="wifi_empty_list_wifi_on" msgid="881478805041020600">"Buscando redes Wi-Fi…"</string>
     <string name="wifi_empty_list_user_restricted" msgid="2341613007817352431">"No tienes permiso para cambiar la red Wi‑Fi."</string>
     <string name="wifi_more" msgid="3538241640407382185">"Más"</string>
@@ -908,8 +908,8 @@
     <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Si el router no emite un ID de red, pero quieres conectarte a la red en el futuro, configúrala para que esté oculta.\n\nEs posible que esta acción implique riesgos de seguridad porque el teléfono emitirá la señal regularmente para buscar la red.\n\nSi configuras la red para que esté oculta, no se modificarán los ajustes del router."</string>
     <string name="wifi_signal" msgid="696548364467704808">"Potencia de la señal"</string>
     <string name="wifi_status" msgid="3439931558930689940">"Estado"</string>
-    <string name="tx_wifi_speed" msgid="2571810085003261073">"Velocidad enlace de transmisión"</string>
-    <string name="rx_wifi_speed" msgid="7392873246110937187">"Velocidad enlace de recepción"</string>
+    <string name="tx_wifi_speed" msgid="2571810085003261073">"Transmitir velocidad de vínculo"</string>
+    <string name="rx_wifi_speed" msgid="7392873246110937187">"Recibir velocidad de vínculo"</string>
     <string name="wifi_frequency" msgid="6132852924995724246">"Frecuencia"</string>
     <string name="wifi_ip_address" msgid="5572539114989914831">"Dirección IP"</string>
     <string name="passpoint_label" msgid="7429247462404128615">"Se guardó mediante"</string>
@@ -3440,7 +3440,7 @@
     <string name="zen_mode_add_event_rule" msgid="1398181272397489506">"Agregar programa de eventos"</string>
     <string name="zen_mode_add_time_rule" msgid="5999467757140524729">"Agregar programa de tiempo"</string>
     <string name="zen_mode_delete_rule" msgid="2292933835997203801">"Borrar programa"</string>
-    <string name="zen_mode_choose_rule_type" msgid="8877138307319450306">"Elegir el tipo de programa"</string>
+    <string name="zen_mode_choose_rule_type" msgid="8877138307319450306">"Elegir tipo de programa"</string>
     <string name="zen_mode_delete_rule_confirmation" msgid="2646596466259025978">"¿Quieres borrar la regla \"<xliff:g id="RULE">%1$s</xliff:g>\"?"</string>
     <string name="zen_mode_delete_rule_button" msgid="611058106279881991">"Borrar"</string>
     <string name="zen_mode_rule_type_unknown" msgid="2819480113355191421">"Desconocido"</string>
@@ -3709,7 +3709,7 @@
     <string name="high_power_off" msgid="5906679734326490426">"Optimizando el uso de la batería"</string>
     <string name="high_power_system" msgid="739584574711292753">"Optimización de la batería no disponible"</string>
     <string name="high_power_desc" msgid="333756885680362741">"No se aplica la optimización de la batería, por lo que se puede agotar más rápido."</string>
-    <string name="high_power_prompt_title" msgid="2805745781720454052">"¿Permitir que la app se ejecute siempre en segundo plano?"</string>
+    <string name="high_power_prompt_title" msgid="2805745781720454052">"¿Deseas permitir que la app se ejecute siempre en segundo plano?"</string>
     <string name="high_power_prompt_body" msgid="8067395096053552289">"Si permites que <xliff:g id="APP_NAME">%1$s</xliff:g> se ejecute siempre en segundo plano, es posible que se reduzca la duración de la batería. \n\nPuedes cambiar esta opción más tarde en Configuración &gt; Apps y notificaciones."</string>
     <string name="battery_summary" msgid="4345690800899981339">"Se usó el <xliff:g id="PERCENTAGE">%1$s</xliff:g> desde la última carga completa"</string>
     <string name="battery_power_management" msgid="2853925857548647969">"Administración de energía"</string>

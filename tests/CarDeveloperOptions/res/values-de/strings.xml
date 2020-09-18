@@ -449,12 +449,12 @@
     <string name="setup_fingerprint_enroll_skip_title" msgid="763018850721691594">"Fingerabdruck überspringen?"</string>
     <string name="setup_fingerprint_enroll_skip_after_adding_lock_text" msgid="8849928362049018680">"Die Fingerabdruck-Einrichtung dauert nur ein, zwei Minuten. Wenn du sie jetzt überspringst, kannst du sie später über die Einstellungen nachholen."</string>
     <string name="lock_screen_intro_skip_title" msgid="5307431665496346914">"Displaysperre überspringen?"</string>
-    <string name="lock_screen_intro_skip_dialog_text_frp" product="tablet" msgid="7553945981266845264">"Die Schutzfunktionen für dein Mobilgerät werden nicht aktiviert. Du kannst dann nicht verhindern, dass andere Personen dieses Tablet verwenden, falls es verloren geht, gestohlen oder zurückgesetzt wird."</string>
-    <string name="lock_screen_intro_skip_dialog_text_frp" product="device" msgid="1378243257238015603">"Die Schutzfunktionen für dein Mobilgerät werden nicht aktiviert. Du kannst dann nicht verhindern, dass andere Personen dieses Gerät verwenden, falls es verloren geht, gestohlen oder zurückgesetzt wird."</string>
-    <string name="lock_screen_intro_skip_dialog_text_frp" product="default" msgid="8395540117461339748">"Die Schutzfunktionen für dein Mobilgerät werden nicht aktiviert. Du kannst dann nicht verhindern, dass andere Personen dieses Smartphone verwenden, falls es verloren geht, gestohlen oder zurückgesetzt wird."</string>
-    <string name="lock_screen_intro_skip_dialog_text" product="tablet" msgid="7572334562915795226">"Die Schutzfunktionen für dein Mobilgerät werden nicht aktiviert. Du kannst dann nicht verhindern, dass andere Personen dieses Tablet verwenden, falls es verloren geht oder gestohlen wird."</string>
-    <string name="lock_screen_intro_skip_dialog_text" product="device" msgid="3819285334459763813">"Die Schutzfunktionen für dein Mobilgerät werden nicht aktiviert. Du kannst dann nicht verhindern, dass andere Personen dieses Gerät verwenden, falls es verloren geht oder gestohlen wird."</string>
-    <string name="lock_screen_intro_skip_dialog_text" product="default" msgid="5361573789585652826">"Die Schutzfunktionen für dein Mobilgerät werden nicht aktiviert. Du kannst dann nicht verhindern, dass andere Personen dieses Smartphone verwenden, falls es verloren geht oder gestohlen wird."</string>
+    <string name="lock_screen_intro_skip_dialog_text_frp" product="tablet" msgid="7553945981266845264">"Die Geräteschutzfunktionen werden nicht aktiviert. Du kannst dann nicht verhindern, dass andere Personen dieses Tablet verwenden, falls es verloren geht, gestohlen oder zurückgesetzt wird."</string>
+    <string name="lock_screen_intro_skip_dialog_text_frp" product="device" msgid="1378243257238015603">"Die Geräteschutzfunktionen werden nicht aktiviert. Du kannst dann nicht verhindern, dass andere Personen dieses Gerät verwenden, falls es verloren geht, gestohlen oder zurückgesetzt wird."</string>
+    <string name="lock_screen_intro_skip_dialog_text_frp" product="default" msgid="8395540117461339748">"Die Geräteschutzfunktionen werden nicht aktiviert. Du kannst dann nicht verhindern, dass andere Personen dieses Smartphone verwenden, falls es verloren geht, gestohlen oder zurückgesetzt wird."</string>
+    <string name="lock_screen_intro_skip_dialog_text" product="tablet" msgid="7572334562915795226">"Die Geräteschutzfunktionen werden nicht aktiviert. Du kannst dann nicht verhindern, dass andere Personen dieses Tablet verwenden, falls es verloren geht oder gestohlen wird."</string>
+    <string name="lock_screen_intro_skip_dialog_text" product="device" msgid="3819285334459763813">"Die Geräteschutzfunktionen werden nicht aktiviert. Du kannst dann nicht verhindern, dass andere Personen dieses Gerät verwenden, falls es verloren geht oder gestohlen wird."</string>
+    <string name="lock_screen_intro_skip_dialog_text" product="default" msgid="5361573789585652826">"Die Geräteschutzfunktionen werden nicht aktiviert. Du kannst dann nicht verhindern, dass andere Personen dieses Smartphone verwenden, falls es verloren geht oder gestohlen wird."</string>
     <string name="skip_anyway_button_label" msgid="4437815969645175429">"Trotzdem überspringen"</string>
     <string name="go_back_button_label" msgid="7310586887969860472">"Zurück"</string>
     <string name="skip_lock_screen_dialog_button_label" msgid="6706047245716780006">"Überspringen"</string>
@@ -468,7 +468,7 @@
     <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"Sensor berühren"</string>
     <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"Lege deinen Finger auf den Sensor und hebe ihn an, wenn du eine Vibration spürst."</string>
     <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"Anheben und erneut berühren"</string>
-    <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"Lege den Finger immer wieder in leicht geänderter Position auf, bis der Abdruck vollständig erfasst ist."</string>
+    <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"Ändere zur vollständigen Erfassung jedes Mal ein wenig die Position deines Fingers"</string>
     <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"Fingerabdruck hinzugefügt"</string>
     <string name="security_settings_fingerprint_enroll_finish_message" msgid="5862643337893923347">"Wenn du dieses Symbol siehst, kannst du deinen Fingerabdruck verwenden, um dich zu identifizieren oder einen Kauf zu autorisieren."</string>
     <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"Später"</string>
@@ -549,9 +549,9 @@
     <string name="setup_lock_settings_picker_title" product="device" msgid="4739290104106645233">"Gerät schützen"</string>
     <string name="setup_lock_settings_picker_title" product="default" msgid="3911582328576859628">"Smartphone schützen"</string>
     <string name="lock_settings_picker_biometrics_added_security_message" msgid="799453282539387294">"Richte für zusätzliche Sicherheit eine alternative Displaysperre ein"</string>
-    <string name="setup_lock_settings_picker_message" product="tablet" msgid="7230799135599877804">"Du kannst verhindern, dass andere Personen dieses Tablet ohne deine Erlaubnis verwenden, indem du die Schutzfunktionen für dein Mobilgerät aktivierst. Wähle eine Displaysperre aus."</string>
-    <string name="setup_lock_settings_picker_message" product="device" msgid="2098404520816295371">"Du kannst verhindern, dass andere Personen dieses Gerät ohne deine Erlaubnis verwenden, indem du die Schutzfunktionen für dein Mobilgerät aktivierst. Wähle eine Displaysperre aus."</string>
-    <string name="setup_lock_settings_picker_message" product="default" msgid="2003984443953672040">"Du kannst verhindern, dass andere Personen dieses Smartphone ohne deine Erlaubnis verwenden, indem du die Schutzfunktionen für dein Mobilgerät aktivierst. Wähle eine Displaysperre aus."</string>
+    <string name="setup_lock_settings_picker_message" product="tablet" msgid="7230799135599877804">"Du kannst verhindern, dass andere Personen dieses Tablet ohne deine Erlaubnis verwenden, indem du die Geräteschutzfunktionen aktivierst. Wähle eine Displaysperre aus."</string>
+    <string name="setup_lock_settings_picker_message" product="device" msgid="2098404520816295371">"Du kannst verhindern, dass andere Personen dieses Gerät ohne deine Erlaubnis verwenden, indem du die Geräteschutzfunktionen aktivierst. Wähle eine Displaysperre aus."</string>
+    <string name="setup_lock_settings_picker_message" product="default" msgid="2003984443953672040">"Du kannst verhindern, dass andere Personen dieses Smartphone ohne deine Erlaubnis verwenden, indem du die Geräteschutzfunktionen aktivierst. Wähle eine Displaysperre aus."</string>
     <string name="lock_settings_picker_fingerprint_message" msgid="1344567476145156885">"Alternative Methode für die Displaysperre auswählen"</string>
     <string name="lock_settings_picker_face_message" msgid="6413145626861812959">"Alternative Methode für die Displaysperre auswählen"</string>
     <string name="setup_lock_settings_options_button_label" msgid="4197315143877977385">"Optionen für die Displaysperre"</string>
@@ -890,7 +890,7 @@
     <string name="wifi_menu_forget" msgid="7561140554450163075">"Netzwerk entfernen"</string>
     <string name="wifi_menu_modify" msgid="4080178040721021101">"Netzwerk ändern"</string>
     <string name="wifi_empty_list_wifi_off" msgid="272877164691346240">"WLAN aktivieren, um verfügbare Netze abzurufen"</string>
-    <string name="wifi_empty_list_wifi_on" msgid="881478805041020600">"Suche nach WLAN läuft…"</string>
+    <string name="wifi_empty_list_wifi_on" msgid="881478805041020600">"Suche nach WLAN-Netzwerken läuft…"</string>
     <string name="wifi_empty_list_user_restricted" msgid="2341613007817352431">"Du verfügst nicht über die Berechtigung zum Ändern des WLAN-Netzwerks."</string>
     <string name="wifi_more" msgid="3538241640407382185">"Mehr"</string>
     <string name="wifi_setup_wps" msgid="6730131677695521321">"Automatisches Setup (WPS)"</string>
@@ -2904,7 +2904,7 @@
     <string name="user_exit_guest_confirm_message" msgid="6955182181145748919">"Alle Apps und Daten in dieser Sitzung werden gelöscht."</string>
     <string name="user_exit_guest_dialog_remove" msgid="1878866060881115716">"Entfernen"</string>
     <string name="user_enable_calling" msgid="864760054792249503">"Telefonieren zulassen"</string>
-    <string name="user_enable_calling_sms" msgid="3450252891736718793">"Telefonieren &amp; SMS zulassen"</string>
+    <string name="user_enable_calling_sms" msgid="3450252891736718793">"Telefonieren &amp; SMS zulassen?"</string>
     <string name="user_remove_user" msgid="3687544420125911166">"Nutzer löschen"</string>
     <string name="user_enable_calling_confirm_title" msgid="1141612415529158542">"Telefonieren zulassen?"</string>
     <string name="user_enable_calling_confirm_message" msgid="2490126715153125970">"Die Anrufliste wird für diesen Nutzer freigegeben."</string>
@@ -3153,7 +3153,7 @@
     <string name="charging_sounds_title" msgid="5070437987230894287">"Töne und Vibration beim Aufladen"</string>
     <string name="docking_sounds_title" msgid="2573137471605541366">"Docking-Sounds"</string>
     <string name="touch_sounds_title" msgid="165237488496165652">"Töne bei Berührung"</string>
-    <string name="vibrate_on_touch_title" msgid="6360155469279157684">"Vibration bei Berührung"</string>
+    <string name="vibrate_on_touch_title" msgid="6360155469279157684">"Vibration bei Displayberührung"</string>
     <string name="vibrate_on_touch_summary" msgid="5504424764028676043">"Haptisches Feedback beim Tippen, bei der Tastaturnutzung und mehr"</string>
     <string name="dock_audio_media_title" msgid="1859521680502040781">"Dock-Lautsprecherwiedergabe"</string>
     <string name="dock_audio_media_disabled" msgid="4300752306178486302">"Alle Audioquellen"</string>
@@ -3471,7 +3471,7 @@
     <string name="zen_mode_schedule_rule_days_all" msgid="8814173364016139675">"Täglich"</string>
     <string name="zen_mode_schedule_alarm_title" msgid="2078194049274875023">"Wecker kann Schlusszeit außer Kraft setzen"</string>
     <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"Zeitplan wird deaktiviert, wenn ein Wecker klingelt"</string>
-    <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"\"Bitte nicht stören\"-Modus"</string>
+    <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"\"Bitte nicht stören\"-Verhalten"</string>
     <string name="zen_mode_custom_behavior_summary_default" msgid="3509865340195397447">"Standardeinstellungen verwenden"</string>
     <string name="zen_mode_custom_behavior_summary" msgid="7206909852887332604">"Benutzerdefinierte Einstellungen festlegen"</string>
     <string name="zen_mode_custom_behavior_category_title" msgid="7451686525113262087">"Für \"<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>\""</string>
@@ -4124,18 +4124,18 @@
     <string name="ambient_display_title" product="default" msgid="6785677099744344088">"Für Blick aufs Display doppeltippen"</string>
     <string name="ambient_display_title" product="tablet" msgid="1106285490888683613">"Doppeltippen für schnellen Blick auf das Display des Tablets"</string>
     <string name="ambient_display_title" product="device" msgid="5064644474876041478">"Doppeltippen für schnellen Blick auf das Display des Geräts"</string>
-    <string name="ambient_display_summary" msgid="4882910328216411109">"Wenn du auf den Bildschirm doppeltippst, werden die Uhrzeit, Benachrichtigungen und andere Informationen angezeigt."</string>
-    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"Beim Hochheben Display aktivieren"</string>
+    <string name="ambient_display_summary" msgid="4882910328216411109">"Wenn auf den Bildschirm doppelgetippt wird, werden die Uhrzeit, Benachrichtigungen und andere Informationen angezeigt"</string>
+    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"Für Blick aufs Display Smartphone in die Hand nehmen"</string>
     <string name="ambient_display_pickup_title" product="tablet" msgid="1555456400210301959">"Tablet hochnehmen, um das Display anzusehen"</string>
     <string name="ambient_display_pickup_title" product="device" msgid="2480126522988135037">"Gerät hochnehmen, um das Display anzusehen"</string>
     <string name="ambient_display_wake_screen_title" msgid="3376988352851077102">"Bildschirm aktivieren"</string>
-    <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"Wenn du das Smartphone in die Hand nimmst, werden die Uhrzeit, Benachrichtigungen und andere Informationen angezeigt."</string>
-    <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"Wenn du das Tablet in die Hand nimmst, werden die Uhrzeit, Benachrichtigungen und andere Informationen angezeigt."</string>
-    <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"Wenn du das Gerät in die Hand nimmst, werden die Uhrzeit, Benachrichtigungen und andere Informationen angezeigt."</string>
+    <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"Wenn das Smartphone in die Hand genommen wird, werden die Uhrzeit, Benachrichtigungen und andere Informationen angezeigt."</string>
+    <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"Wenn das Tablet in die Hand genommen wird, werden die Uhrzeit, Benachrichtigungen und andere Informationen angezeigt"</string>
+    <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"Wenn das Gerät in die Hand genommen wird, werden die Uhrzeit, Benachrichtigungen und andere Informationen angezeigt"</string>
     <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Tippen, um Informationen auf dem Smartphone anzusehen"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Tippen, um Informationen auf dem Tablet anzusehen"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Tippen, um Informationen auf dem Gerät anzusehen"</string>
-    <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Wenn du auf den Bildschirm tippst, werden die Uhrzeit, Benachrichtigungen und andere Informationen angezeigt."</string>
+    <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Wenn auf den Bildschirm getippt wird, werden die Uhrzeit, Benachrichtigungen und andere Informationen angezeigt."</string>
     <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Benachrichtigungen durch Wischen über Fingerabdrucksensor öffnen"</string>
     <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"Fingerabdrucksensor verwenden"</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"Zum Lesen von Benachrichtigungen über den Fingerabdrucksensor auf der Rückseite des Smartphones nach unten wischen"</string>

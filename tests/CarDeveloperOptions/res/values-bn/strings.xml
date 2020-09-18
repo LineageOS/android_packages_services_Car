@@ -2038,7 +2038,7 @@
     <string name="accessibility_settings_title" msgid="1687226556576913576">"সহজ ব্যবহার সেটিংস"</string>
     <string name="accessibility_settings_summary" msgid="5742379519336396561">"স্ক্রিন রিডার, ডিসপ্লে, ইন্টারঅ্যাকশন নিয়ন্ত্রণগুলি"</string>
     <string name="vision_settings_title" msgid="7315352351051423944">"দৃষ্টিশক্তি সেটিংস"</string>
-    <string name="vision_settings_description" msgid="3476589459009287332">"আপনি এই ডিভাইসটি নিজের পছন্দমত সেট করতে পারেন৷ এই অ্যাক্সেসিবিলিটি বৈশিষ্ট্যগুলি পরে সেটিংসে গিয়ে পরিবর্তন করা যাবে৷"</string>
+    <string name="vision_settings_description" msgid="3476589459009287332">"আপনি এই ডিভাইসটি নিজের পছন্দমত সেট করতে পারেন৷ এই অ্যাক্সেসযোগ্যতার বৈশিষ্ট্যগুলি পরে সেটিংসে গিয়ে পরিবর্তন করা যাবে৷"</string>
     <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"হরফের মাপ পরিবর্তন করুন"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"স্ক্রিন রিডার"</string>
     <string name="audio_and_captions_category_title" msgid="6140472938769619212">"অডিও এবং অন-স্ক্রিন পাঠ্য"</string>
@@ -2096,7 +2096,7 @@
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"রিং ভাইব্রেশন"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"স্পর্শ করলে ভাইব্রেশন"</string>
     <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"পরিষেবা ব্যবহার করুন"</string>
-    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"রঙ সংশোধন ফিচারটি ব্যবহার করুন"</string>
+    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"কালার কারেকশন ব্যবহার করুন"</string>
     <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"ক্যাপশন ব্যবহার করুন"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"এগিয়ে যান"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"হিয়ারিং এড"</string>
@@ -2903,11 +2903,11 @@
     <string name="user_exit_guest_confirm_message" msgid="6955182181145748919">"এই সেশনের সব অ্যাপ্লিকেশান ও ডেটা মুছে ফেলা হবে।"</string>
     <string name="user_exit_guest_dialog_remove" msgid="1878866060881115716">"সরান"</string>
     <string name="user_enable_calling" msgid="864760054792249503">"ফোন কলের সুবিধা চালু করুন"</string>
-    <string name="user_enable_calling_sms" msgid="3450252891736718793">"ফোন কল এবং এসএমএস চালু করবেন?"</string>
+    <string name="user_enable_calling_sms" msgid="3450252891736718793">"ফোন কলগুলিকে এবং SMS চালু করবেন?"</string>
     <string name="user_remove_user" msgid="3687544420125911166">"ব্যবহারকারীর অ্যাকাউন্ট মুছে দিন"</string>
     <string name="user_enable_calling_confirm_title" msgid="1141612415529158542">"ফোন কলগুলিকে চালু করবেন?"</string>
     <string name="user_enable_calling_confirm_message" msgid="2490126715153125970">"কলের ইতিহাস এই ব্যবহারকারীর সাথে শেয়ার করা হবে।"</string>
-    <string name="user_enable_calling_and_sms_confirm_title" msgid="4153856398523366976">"ফোন কল এবং এসএমএস চালু করবেন?"</string>
+    <string name="user_enable_calling_and_sms_confirm_title" msgid="4153856398523366976">"ফোন কলগুলিকে এবং SMS চালু করবেন?"</string>
     <string name="user_enable_calling_and_sms_confirm_message" msgid="3278802798876095734">"কল ও SMS ইতিহাস এই ব্যবহারকারীর সাথে শেয়ার করা হবে।"</string>
     <string name="emergency_info_title" msgid="1522609271881425375">"জরুরি তথ্য"</string>
     <string name="emergency_info_summary" msgid="7280464759837387342">"<xliff:g id="USER_NAME">%1$s</xliff:g>-এর তথ্য ও পরিচিতি"</string>
@@ -3041,7 +3041,7 @@
     <string name="connected_devices_dashboard_no_driving_mode_summary" msgid="3524409078596318803">"ব্লুটুথ, এনএফসি"</string>
     <string name="connected_devices_dashboard_no_driving_mode_no_nfc_summary" msgid="7881286613528299400">"ব্লুটুথ"</string>
     <string name="app_and_notification_dashboard_title" msgid="8448096608058843730">"অ্যাপ ও বিজ্ঞপ্তি"</string>
-    <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"Assistant, সাম্প্রতিক অ্যাপ, ডিফল্ট অ্যাপ"</string>
+    <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"অ্যাসিস্ট্যান্ট, সাম্প্রতিক অ্যাপ, ডিফল্ট অ্যাপ"</string>
     <string name="notification_settings_work_profile" msgid="7190550347842400029">"কাজের প্রোফাইলে অ্যাপের জন্য বিজ্ঞপ্তি অ্যাক্সেস উপলভ্য নয়।"</string>
     <string name="account_dashboard_title" msgid="4734300939532555885">"অ্যাকাউন্ট"</string>
     <string name="account_dashboard_default_summary" msgid="6822549669771936206">"কোনও অ্যাকাউন্ট যোগ করা হয়নি"</string>
@@ -4239,7 +4239,7 @@
     <string name="storage_music_audio" msgid="3661289086715297149">"মিউজিক ও অডিও"</string>
     <string name="storage_games" msgid="7740038143749092373">"গেম"</string>
     <string name="storage_other_apps" msgid="3202407095387420842">"অন্যান্য অ্যাপ"</string>
-    <string name="storage_files" msgid="2087824267937487880">"Files"</string>
+    <string name="storage_files" msgid="2087824267937487880">"ফাইল"</string>
     <string name="storage_size_large_alternate" msgid="1317796542509105857">"<xliff:g id="NUMBER">^1</xliff:g>"<small>" "<font size="20">"<xliff:g id="UNIT">^2</xliff:g>"</font></small>""</string>
     <string name="storage_volume_total" msgid="5021484171514159913">"<xliff:g id="TOTAL">%1$s</xliff:g> এর মধ্যে ব্যবহার হয়েছে"</string>
     <string name="storage_percent_full" msgid="6924662861545958442">"ব্যবহৃত"</string>
@@ -4325,7 +4325,7 @@
     <string name="battery_suggestion_summary" msgid="2669070349482656490"></string>
     <string name="gesture_prevent_ringing_screen_title" msgid="4173494225145223638">"রিং হওয়া বন্ধ করুন"</string>
     <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"রিং হওয়া বন্ধ করতে পাওয়ার ও ভলিউম বাড়ানোর বোতাম একসাথে প্রেস করুন"</string>
-    <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"রিংয়ের আরওয়াজ আটকানোর শর্টকাট"</string>
+    <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"রিং হওয়া আটকানোর শর্টকাট"</string>
     <string name="prevent_ringing_option_vibrate" msgid="6456505293904544108">"ভাইব্রেশন হতে দিন"</string>
     <string name="prevent_ringing_option_mute" msgid="53662688921253613">"মিউট করুন"</string>
     <string name="prevent_ringing_option_none" msgid="1450985763137666231">"যেমন আছে থাক"</string>
@@ -4473,7 +4473,7 @@
     <string name="privacy_dashboard_title" msgid="8764930992456607513">"গোপনীয়তা"</string>
     <string name="privacy_dashboard_summary" msgid="7916431309860824945">"অনুমতি, অ্যাকাউন্ট অ্যাক্টিভিটি, ব্যক্তিগত ডেটা"</string>
     <string name="contextual_card_dismiss_remove" msgid="1750420285615827309">"সরান"</string>
-    <string name="contextual_card_dismiss_keep" msgid="3204450672928193661">"Keep"</string>
+    <string name="contextual_card_dismiss_keep" msgid="3204450672928193661">"রাখুন"</string>
     <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"সাজেশনটি সরাতে চান?"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"সাজেশন সরিয়ে দেওয়া হয়েছে"</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"আগের অবস্থায় ফিরে যান"</string>

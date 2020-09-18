@@ -477,7 +477,7 @@
     <item msgid="1008268820118852416">"Treat as unmetered"</item>
   </string-array>
   <string-array name="wifi_privacy_entries">
-    <item msgid="6545683814310036454">"Use randomized MAC (default)"</item>
+    <item msgid="6545683814310036454">"Use randomised MAC (default)"</item>
     <item msgid="214234417308375326">"Use device MAC"</item>
   </string-array>
   <string-array name="wifi_hidden_entries">

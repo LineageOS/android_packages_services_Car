@@ -412,7 +412,7 @@
     <string name="face_intro_error_unknown" msgid="3241592604198351134">"Impossibile aggiungere altri volti"</string>
     <string name="security_settings_face_enroll_error_dialog_title" msgid="3933492758701563051">"Registrazione non completata"</string>
     <string name="security_settings_face_enroll_dialog_ok" msgid="1078348922734845090">"OK"</string>
-    <string name="security_settings_face_enroll_error_timeout_dialog_message" msgid="4917894418448325405">"Hai raggiunto il tempo limite per la registrazione del volto. Riprova."</string>
+    <string name="security_settings_face_enroll_error_timeout_dialog_message" msgid="4917894418448325405">"Raggiunto il tempo limite per la registrazione del volto. Riprova."</string>
     <string name="security_settings_face_enroll_error_generic_dialog_message" msgid="5160473187142616862">"Registrazione del volto non riuscita."</string>
     <string name="security_settings_face_enroll_finish_title" msgid="6800717857394410769">"Fatto. Tutto OK."</string>
     <string name="security_settings_face_enroll_done" msgid="5409739233373490971">"Fine"</string>
@@ -488,7 +488,7 @@
     <string name="security_settings_fingerprint_enroll_touch_dialog_title" msgid="7410398793283818609">"Ops, questo non è il sensore"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_message" msgid="7192100314788868883">"Tocca il sensore sulla parte posteriore del telefono. Utilizza il dito indice."</string>
     <string name="security_settings_fingerprint_enroll_error_dialog_title" msgid="1415709674142168770">"Registrazione non completata"</string>
-    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"Hai raggiunto il tempo limite per la registrazione dell\'impronta digitale. Riprova."</string>
+    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"Raggiunto tempo limite per la registrazione dell\'impronta digitale. Riprova."</string>
     <string name="security_settings_fingerprint_enroll_error_generic_dialog_message" msgid="7896295829530444810">"Registrazione dell\'impronta digitale non riuscita. Riprova o utilizza un dito diverso."</string>
     <string name="fingerprint_enroll_button_add" msgid="6335782936874996629">"Aggiungine un\'altra"</string>
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"Avanti"</string>
@@ -4325,7 +4325,7 @@
     <string name="battery_suggestion_summary" msgid="2669070349482656490"></string>
     <string name="gesture_prevent_ringing_screen_title" msgid="4173494225145223638">"Disattiva suoneria"</string>
     <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"Premi contemporaneamente i tasti di accensione e Volume su per"</string>
-    <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"Scorciatoia per disattivare la suoneria"</string>
+    <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"Scorciatoia per impedire al telefono di suonare"</string>
     <string name="prevent_ringing_option_vibrate" msgid="6456505293904544108">"Vibrazione"</string>
     <string name="prevent_ringing_option_mute" msgid="53662688921253613">"Disattiva audio"</string>
     <string name="prevent_ringing_option_none" msgid="1450985763137666231">"Non fare niente"</string>

@@ -718,7 +718,7 @@
       <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> 个应用正在运行</item>
     </plurals>
     <string name="manage_trust_agents" msgid="8129970926213142261">"可信代理"</string>
-    <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"需先设置屏幕锁定方式才能使用"</string>
+    <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"要开始使用，请先设置屏幕锁定方式"</string>
     <string name="manage_trust_agents_summary" msgid="2023116850759962248">"无"</string>
     <plurals name="manage_trust_agents_summary_on" formatted="false" msgid="5550538038916606097">
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> 个可信代理正在运行</item>
@@ -889,7 +889,7 @@
     <string name="wifi_menu_forget" msgid="7561140554450163075">"取消保存网络"</string>
     <string name="wifi_menu_modify" msgid="4080178040721021101">"修改网络"</string>
     <string name="wifi_empty_list_wifi_off" msgid="272877164691346240">"要查看可用网络，请打开 WLAN。"</string>
-    <string name="wifi_empty_list_wifi_on" msgid="881478805041020600">"正在搜索 WLAN 网络…"</string>
+    <string name="wifi_empty_list_wifi_on" msgid="881478805041020600">"正在搜索WLAN网络…"</string>
     <string name="wifi_empty_list_user_restricted" msgid="2341613007817352431">"您无权更改WLAN网络。"</string>
     <string name="wifi_more" msgid="3538241640407382185">"更多"</string>
     <string name="wifi_setup_wps" msgid="6730131677695521321">"自动设置 (WPS)"</string>
@@ -1210,8 +1210,8 @@
     <string name="adaptive_sleep_summary_off" msgid="2891586225954973431">"关闭"</string>
     <string name="adaptive_sleep_description" msgid="812673735459170009">"避免屏幕在您查看它时关闭。"</string>
     <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"屏幕感知功能会通过前置摄像头来确定是否有人正在看屏幕。这个功能只会在设备上运行，系统决不会存储图片或将图片发送给 Google。"</string>
-    <string name="night_display_title" msgid="1305002424893349814">"护眼模式"</string>
-    <string name="night_display_text" msgid="5330502493684652527">"护眼模式会将您的屏幕色调调为琥珀色，可让您在光线昏暗的环境下更舒适地查看屏幕或阅读文字，并有助您入睡。"</string>
+    <string name="night_display_title" msgid="1305002424893349814">"夜间模式"</string>
+    <string name="night_display_text" msgid="5330502493684652527">"夜间模式会将您的屏幕色调调为琥珀色，可让您在光线昏暗的环境下更舒适地查看屏幕或阅读文字，并有助您入睡。"</string>
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"设定时间"</string>
     <string name="night_display_auto_mode_never" msgid="2897444637217807088">"无"</string>
     <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"在设定的时间开启"</string>
@@ -1730,7 +1730,7 @@
     <string name="lockpassword_confirm_your_pin_generic" msgid="8732268389177735264">"请输入您的设备 PIN 码以继续"</string>
     <string name="lockpassword_confirm_your_password_generic" msgid="6304552647060899594">"请输入您的设备密码以继续"</string>
     <string name="lockpassword_confirm_your_pattern_generic_profile" msgid="3074250084050465513">"请绘制您的工作解锁图案以继续"</string>
-    <string name="lockpassword_confirm_your_pin_generic_profile" msgid="6037908971086439523">"需输入您的工作资料 PIN 码才能继续"</string>
+    <string name="lockpassword_confirm_your_pin_generic_profile" msgid="6037908971086439523">"请输入您的工作 PIN 码以继续"</string>
     <string name="lockpassword_confirm_your_password_generic_profile" msgid="2646162490703489685">"请输入您的工作密码以继续"</string>
     <string name="lockpassword_strong_auth_required_device_pattern" msgid="1014214190135045781">"为了提升安全性，请绘制您的设备解锁图案"</string>
     <string name="lockpassword_strong_auth_required_device_pin" msgid="24030584350601016">"为了提升安全性，请输入您的设备 PIN 码"</string>
@@ -1829,7 +1829,7 @@
     <string name="app_factory_reset" msgid="8718986000278776272">"卸载更新"</string>
     <string name="auto_launch_enable_text" msgid="3372898942144027341">"您已选择默认使用此应用处理某些操作。"</string>
     <string name="always_allow_bind_appwidgets_text" msgid="2286211654774611037">"您已选择允许该应用创建微件并查看其数据。"</string>
-    <string name="auto_launch_disable_text" msgid="8560921288036801416">"无默认设置。"</string>
+    <string name="auto_launch_disable_text" msgid="8560921288036801416">"没有默认操作。"</string>
     <string name="clear_activities" msgid="2068014972549235347">"清除默认操作"</string>
     <string name="screen_compatibility_text" msgid="1768064020294301496">"此应用可能不是针对您的屏幕设计的。您可以在此处调整其显示尺寸/比例，让它适合您的屏幕。"</string>
     <string name="ask_compatibility" msgid="6687958195768084807">"启动时确认"</string>
@@ -3201,7 +3201,7 @@
     <string name="zen_mode_restrict_notifications_mute_footer" msgid="3049522809520549054">"手机在收到通知时既不会发出提示音也不会振动。"</string>
     <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"不显示通知，也不发出通知提示音"</string>
     <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"您将不会看到通知或听到通知提示音"</string>
-    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"您的手机将不会显示任何新通知或现有通知，也不会因此发出振动或提示音。请注意，系统仍会显示与手机活动和状态相关的重要通知。\n\n关闭勿扰模式后，只要从屏幕顶部向下滑动即可查看错过的通知。"</string>
+    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"您的手机将不会显示任何新通知或现有通知，也不会因此发出振动或提示音。请注意，系统仍会显示与手机活动和状态相关的重要通知。\n\n关闭“勿扰”模式后，您可以通过从屏幕顶部向下滑动来查找错过的通知。"</string>
     <string name="zen_mode_restrict_notifications_custom" msgid="3167252482570424133">"自定义"</string>
     <string name="zen_mode_restrict_notifications_enable_custom" msgid="6376983315529894440">"启用自定义设置"</string>
     <string name="zen_mode_restrict_notifications_disable_custom" msgid="8004212081465043044">"移除自定义设置"</string>
@@ -3594,7 +3594,7 @@
     <string name="app_launch_open_domain_urls_summary" msgid="6803029846855502366">"无需询问即可打开"</string>
     <string name="app_launch_supported_domain_urls_title" msgid="503976327533974142">"支持的链接"</string>
     <string name="app_launch_other_defaults_title" msgid="2986685757258232543">"其他默认设置"</string>
-    <string name="storage_summary_format" msgid="2166430500147022935">"已使用 <xliff:g id="SIZE">%1$s</xliff:g> <xliff:g id="STORAGE_TYPE">%2$s</xliff:g>"</string>
+    <string name="storage_summary_format" msgid="2166430500147022935">"<xliff:g id="STORAGE_TYPE">%2$s</xliff:g>已使用 <xliff:g id="SIZE">%1$s</xliff:g>"</string>
     <string name="storage_type_internal" msgid="4434212376539293892">"内部存储空间"</string>
     <string name="storage_type_external" msgid="8827468573685648108">"外部存储空间"</string>
     <string name="data_summary_format" msgid="5022135392347814271">"自 <xliff:g id="DATE">%2$s</xliff:g>以来已使用 <xliff:g id="SIZE">%1$s</xliff:g>"</string>
@@ -3906,9 +3906,9 @@
     <string name="condition_device_muted_summary" msgid="3101055117680109021">"通话和通知"</string>
     <string name="condition_device_vibrate_title" msgid="5712659354868872338">"仅振动"</string>
     <string name="condition_device_vibrate_summary" msgid="9073880731894828604">"通话和通知"</string>
-    <string name="night_display_suggestion_title" msgid="4222839610992282188">"设置“护眼模式”时间表"</string>
+    <string name="night_display_suggestion_title" msgid="4222839610992282188">"设置“夜间模式”时间安排"</string>
     <string name="night_display_suggestion_summary" msgid="1754361016383576916">"每晚自动调节屏幕色调"</string>
-    <string name="condition_night_display_title" msgid="9171491784857160135">"“护眼模式”已开启"</string>
+    <string name="condition_night_display_title" msgid="9171491784857160135">"“夜间模式”已开启"</string>
     <string name="condition_night_display_summary" msgid="7885776986937527558">"已将屏幕调为琥珀色"</string>
     <string name="condition_grayscale_title" msgid="1226351649203551299">"灰度模式"</string>
     <string name="condition_grayscale_summary" msgid="749172886527349546">"仅以灰色显示"</string>

@@ -477,7 +477,7 @@
     <item msgid="1008268820118852416">"무제한 Wi-Fi로 취급"</item>
   </string-array>
   <string-array name="wifi_privacy_entries">
-    <item msgid="6545683814310036454">"무작위 MAC 사용(기본값)"</item>
+    <item msgid="6545683814310036454">"임의의 MAC 사용(기본값)"</item>
     <item msgid="214234417308375326">"기기 MAC 사용"</item>
   </string-array>
   <string-array name="wifi_hidden_entries">

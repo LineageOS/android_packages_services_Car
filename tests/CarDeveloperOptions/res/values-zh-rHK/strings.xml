@@ -447,7 +447,7 @@
     <string name="security_settings_fingerprint_enroll_introduction_cancel_setup" msgid="756928427429893070">"略過"</string>
     <string name="security_settings_fingerprint_enroll_introduction_continue_setup" msgid="4125977169169671144">"繼續"</string>
     <string name="setup_fingerprint_enroll_skip_title" msgid="763018850721691594">"要略過指紋設定程序嗎？"</string>
-    <string name="setup_fingerprint_enroll_skip_after_adding_lock_text" msgid="8849928362049018680">"指紋設定程序只需一至兩分鐘。如略過此步驟，您可於稍後在設定中加入指紋。"</string>
+    <string name="setup_fingerprint_enroll_skip_after_adding_lock_text" msgid="8849928362049018680">"指紋設定程序只需一至兩分鐘。如果您略過此程序，稍後可以在設定中自行新增您的指紋。"</string>
     <string name="lock_screen_intro_skip_title" msgid="5307431665496346914">"要略過螢幕鎖定設定程序嗎？"</string>
     <string name="lock_screen_intro_skip_dialog_text_frp" product="tablet" msgid="7553945981266845264">"系統將不會開啟裝置保護功能。如果您的平板電腦遺失、被盜或被重設，您將無法防止他人使用此平板電腦。"</string>
     <string name="lock_screen_intro_skip_dialog_text_frp" product="device" msgid="1378243257238015603">"系統將不會開啟裝置保護功能。如果您的裝置遺失、被盜或被重設，您將無法防止他人使用此裝置。"</string>
@@ -466,7 +466,7 @@
     <string name="security_settings_fingerprint_enroll_dialog_ok" msgid="3428927518029038956">"確定"</string>
     <string name="security_settings_fingerprint_enroll_dialog_delete" msgid="4312297515772004580">"刪除"</string>
     <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"輕觸感應器"</string>
-    <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"請將手指放在感應器上，並在感到震動時移開"</string>
+    <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"手指放在感應器上，感到震動時移開"</string>
     <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"移開手指，然後再次輕觸"</string>
     <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"手指重覆按壓，記錄指紋各個部分"</string>
     <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"已加入指紋"</string>
@@ -488,7 +488,7 @@
     <string name="security_settings_fingerprint_enroll_touch_dialog_title" msgid="7410398793283818609">"糟糕，這不是感應器"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_message" msgid="7192100314788868883">"請使用食指輕觸位於手機背面的感應器。"</string>
     <string name="security_settings_fingerprint_enroll_error_dialog_title" msgid="1415709674142168770">"尚未完成註冊"</string>
-    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"註冊指紋過程逾時，請重新嘗試。"</string>
+    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"已達到指紋註冊次數上限，請重試。"</string>
     <string name="security_settings_fingerprint_enroll_error_generic_dialog_message" msgid="7896295829530444810">"無法註冊指紋，請重試或使用另一隻手指。"</string>
     <string name="fingerprint_enroll_button_add" msgid="6335782936874996629">"新增其他"</string>
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"下一步"</string>
@@ -935,13 +935,13 @@
     <string name="wifi_privacy_settings" msgid="4462092795794247809">"私隱"</string>
     <string name="wifi_privacy_settings_ephemeral_summary" msgid="2411375348287064283">"隨機化處理 MAC"</string>
     <string name="wifi_dpp_add_device_to_network" msgid="8871041525483253430">"新增裝置"</string>
-    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"將下方方框對準二維條碼，即可將裝置加到「<xliff:g id="SSID">%1$s</xliff:g>」"</string>
+    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"相機對準以下二維條碼，即可將裝置新增至「<xliff:g id="SSID">%1$s</xliff:g>」"</string>
     <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"掃瞄二維條碼"</string>
     <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"將二維條碼置於下方中間，即可連接至「<xliff:g id="SSID">%1$s</xliff:g>」"</string>
     <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"掃瞄二維條碼以加入 Wi-Fi"</string>
     <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"分享 Wi‑Fi"</string>
     <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"掃瞄此二維條碼即可連線至「<xliff:g id="SSID">%1$s</xliff:g>」並分享密碼"</string>
-    <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"掃描此二維條碼，即可連接「<xliff:g id="SSID">%1$s</xliff:g>」"</string>
+    <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"掃描此二維條碼即可連線至「<xliff:g id="SSID">%1$s</xliff:g>」"</string>
     <string name="wifi_dpp_could_not_detect_valid_qr_code" msgid="27667719861826438">"無法讀取二維條碼。重新將二維條碼放在正中，然後再試一次"</string>
     <string name="wifi_dpp_failure_authentication_or_configuration" msgid="9142051662156233679">"請再試一次。如果仍有問題，請聯絡裝置製造商"</string>
     <string name="wifi_dpp_failure_not_compatible" msgid="4320027179973678283">"發生問題"</string>
@@ -2922,7 +2922,7 @@
     <string name="nfc_payment_default_not_set" msgid="955804193510335338">"未設定"</string>
     <string name="nfc_payment_app_and_desc" msgid="102312684211458190">"<xliff:g id="APP">%1$s</xliff:g> - <xliff:g id="DESCRIPTION">%2$s</xliff:g>"</string>
     <string name="nfc_payment_use_default" msgid="3098724195746409476">"使用預設應用程式"</string>
-    <string name="nfc_payment_favor_default" msgid="7555356982142464260">"一律使用"</string>
+    <string name="nfc_payment_favor_default" msgid="7555356982142464260">"永遠"</string>
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"其他付款應用程式已開啟除外"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"於 Tap &amp; Pay 終端機使用的付款方式："</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"在收款機付款"</string>
@@ -3178,17 +3178,17 @@
     <string name="zen_mode_behavior_total_silence" msgid="371498357539257671">"完全靜音"</string>
     <string name="zen_mode_behavior_no_sound_except" msgid="8894465423364103198">"不發出音效 (<xliff:g id="CATEGORIES">%1$s</xliff:g>除外)"</string>
     <string name="zen_mode_behavior_alarms_only" msgid="8406622989983047562">"不發出音效 (鬧鐘和媒體除外)"</string>
-    <string name="zen_mode_automation_settings_title" msgid="3916960043054489008">"時間表"</string>
+    <string name="zen_mode_automation_settings_title" msgid="3916960043054489008">"預定時間"</string>
     <string name="zen_mode_delete_automatic_rules" msgid="2455264581527305755">"刪除日程表"</string>
     <string name="zen_mode_schedule_delete" msgid="7786092652527516740">"刪除"</string>
     <string name="zen_mode_rule_name_edit" msgid="5479435215341745578">"編輯"</string>
-    <string name="zen_mode_automation_settings_page_title" msgid="3001783354881078983">"時間表"</string>
+    <string name="zen_mode_automation_settings_page_title" msgid="3001783354881078983">"預定時間"</string>
     <string name="zen_mode_automatic_rule_settings_page_title" msgid="5272888746413504692">"預定時間"</string>
     <string name="zen_mode_schedule_category_title" msgid="1936785755444711221">"預定時間"</string>
     <string name="zen_mode_automation_suggestion_title" msgid="4921779962633710347">"在特定時間將手機設為靜音"</string>
     <string name="zen_mode_automation_suggestion_summary" msgid="2709837472884371037">"設定「請勿騷擾」規則"</string>
     <string name="zen_mode_schedule_title" msgid="5275268813192802631">"預定時間"</string>
-    <string name="zen_mode_use_automatic_rule" msgid="446326253915861824">"使用時間表"</string>
+    <string name="zen_mode_use_automatic_rule" msgid="446326253915861824">"使用日程表"</string>
     <string name="zen_mode_option_important_interruptions" msgid="5173944276846940149">"只限優先"</string>
     <string name="zen_mode_option_alarms" msgid="4843278125235203076">"只限鬧鐘"</string>
     <string name="zen_mode_option_no_interruptions" msgid="4723700274519260852">"完全靜音"</string>
@@ -3423,7 +3423,7 @@
     <string name="notification_content_block_summary" msgid="2743896875255591743">"永不在通知欄或周邊裝置上顯示通知"</string>
     <string name="notification_badge_title" msgid="8989086619255666442">"允許通知圓點"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"顯示通知圓點"</string>
-    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"忽略「請勿騷擾」設定"</string>
+    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"蓋過「請勿騷擾」設定"</string>
     <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"「請勿騷擾」模式開啟時繼續接收這些通知"</string>
     <string name="app_notification_visibility_override_title" msgid="2349335170165637672">"在上鎖畫面上"</string>
     <string name="app_notification_row_banned" msgid="2079325338122151677">"已封鎖"</string>
@@ -3436,14 +3436,14 @@
     <string name="notification_channel_sound_title" msgid="7635366839003304745">"音效"</string>
     <string name="zen_mode_rule_delete_button" msgid="6763486487220471193">"刪除"</string>
     <string name="zen_mode_rule_rename_button" msgid="1428130397306726792">"重新命名"</string>
-    <string name="zen_mode_rule_name" msgid="8583652780885724670">"時間表名稱"</string>
+    <string name="zen_mode_rule_name" msgid="8583652780885724670">"日程表名稱"</string>
     <string name="zen_mode_rule_name_hint" msgid="6569877315858105901">"輸入日程表名稱"</string>
     <string name="zen_mode_rule_name_warning" msgid="4773465816059587512">"日程表名稱已使用"</string>
     <string name="zen_mode_add_rule" msgid="7200004557856029928">"加入更多"</string>
     <string name="zen_mode_add_event_rule" msgid="1398181272397489506">"加入日程表 (活動)"</string>
     <string name="zen_mode_add_time_rule" msgid="5999467757140524729">"加入日程表 (時間)"</string>
     <string name="zen_mode_delete_rule" msgid="2292933835997203801">"刪除日程表"</string>
-    <string name="zen_mode_choose_rule_type" msgid="8877138307319450306">"選擇時間表類型"</string>
+    <string name="zen_mode_choose_rule_type" msgid="8877138307319450306">"選擇日程表類型"</string>
     <string name="zen_mode_delete_rule_confirmation" msgid="2646596466259025978">"要刪除規則「<xliff:g id="RULE">%1$s</xliff:g>」嗎？"</string>
     <string name="zen_mode_delete_rule_button" msgid="611058106279881991">"刪除"</string>
     <string name="zen_mode_rule_type_unknown" msgid="2819480113355191421">"未知"</string>
@@ -3473,7 +3473,7 @@
     <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"鬧鐘響起時，系統會關閉日程表"</string>
     <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"「請勿騷擾」行為"</string>
     <string name="zen_mode_custom_behavior_summary_default" msgid="3509865340195397447">"使用預設設定"</string>
-    <string name="zen_mode_custom_behavior_summary" msgid="7206909852887332604">"為此時間表建立自訂設定"</string>
+    <string name="zen_mode_custom_behavior_summary" msgid="7206909852887332604">"為此日程表建立自訂設定"</string>
     <string name="zen_mode_custom_behavior_category_title" msgid="7451686525113262087">"時段：「<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>」"</string>
     <string name="summary_divider_text" msgid="4780683204694442666">"、 "</string>
     <string name="summary_range_symbol_combination" msgid="6038631664844488406">"<xliff:g id="START">%1$s</xliff:g> - <xliff:g id="END">%2$s</xliff:g>"</string>
@@ -3512,8 +3512,8 @@
     <string name="zen_mode_bypassing_apps" msgid="3080739479028713449">"允許應用程式取代「請勿騷擾」"</string>
     <string name="zen_mode_bypassing_apps_title" msgid="2115024664615538847">"應用程式例外情況"</string>
     <plurals name="zen_mode_bypassing_apps_subtext" formatted="false" msgid="8723144434730871572">
-      <item quantity="other"><xliff:g id="NUMBER">%1$d</xliff:g> 個應用程式的通知可忽略「請勿騷擾」設定</item>
-      <item quantity="one">1 個應用程式的通知可忽略「請勿騷擾」設定</item>
+      <item quantity="other"><xliff:g id="NUMBER">%1$d</xliff:g> 個應用程式的通知可蓋過「請勿騷擾」設定</item>
+      <item quantity="one">1 個應用程式的通知可蓋過「請勿騷擾」設定</item>
     </plurals>
     <string name="zen_mode_events_list" msgid="8578102701815684873">"活動"</string>
     <string name="zen_mode_all_callers" msgid="4455039040077343838">"任何人"</string>

@@ -4239,7 +4239,7 @@
     <string name="storage_music_audio" msgid="3661289086715297149">"সংগীত আৰু ধ্বনি"</string>
     <string name="storage_games" msgid="7740038143749092373">"খেল"</string>
     <string name="storage_other_apps" msgid="3202407095387420842">"অন্যান্য এপসমূহ"</string>
-    <string name="storage_files" msgid="2087824267937487880">"Files"</string>
+    <string name="storage_files" msgid="2087824267937487880">"ফাইলসমূহ"</string>
     <string name="storage_size_large_alternate" msgid="1317796542509105857">"<xliff:g id="NUMBER">^1</xliff:g>"<small>" "<font size="20">"<xliff:g id="UNIT">^2</xliff:g>"</font></small>""</string>
     <string name="storage_volume_total" msgid="5021484171514159913">"<xliff:g id="TOTAL">%1$s</xliff:g>ৰ বাবে ব্যৱহৃত"</string>
     <string name="storage_percent_full" msgid="6924662861545958442">"ব্যৱহৃত"</string>
@@ -4473,7 +4473,7 @@
     <string name="privacy_dashboard_title" msgid="8764930992456607513">"গোপনীয়তা"</string>
     <string name="privacy_dashboard_summary" msgid="7916431309860824945">"অনুমতি, একাউণ্টৰ কাৰ্যকলাপ, ব্যক্তিগত ডেটা"</string>
     <string name="contextual_card_dismiss_remove" msgid="1750420285615827309">"আঁতৰাওক"</string>
-    <string name="contextual_card_dismiss_keep" msgid="3204450672928193661">"Keep"</string>
+    <string name="contextual_card_dismiss_keep" msgid="3204450672928193661">"ৰাখক"</string>
     <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"এই পৰামৰ্শটো আঁতৰাবনে?"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"পৰামৰ্শ আঁতৰোৱা হ’ল"</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"আনডু কৰক"</string>

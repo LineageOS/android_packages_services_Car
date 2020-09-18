@@ -3307,7 +3307,7 @@
     <string name="hide_silent_icons_title" msgid="1070905516921542662">"Fihla izithonjana ezithulile zesimo sokwazisa"</string>
     <string name="hide_silent_icons_summary" msgid="2624346914488256888">"Fihla izithonjana zezaziso ezithulile kubha yesimo"</string>
     <string name="notification_badging_title" msgid="6311699476970264712">"Vumela amachashazi esaziso"</string>
-    <string name="notification_bubbles_title" msgid="9196562435741861317">"Amabhamuza"</string>
+    <string name="notification_bubbles_title" msgid="9196562435741861317">"Amabhamu"</string>
     <string name="notification_bubbles_summary" msgid="4624512775901949578">"Finyelela ngokushesha okuqukethwe kohlelo lokusebenza kusuka noma yikuphi usebenzisa izinqamuleli ezintantayo"</string>
     <string name="bubbles_feature_education" msgid="8979109826818881018">"Ezinye izaziso nokunye okuqukethwe kungavela njengamabhamuza kusikrini. Ukuze uvule ibhamuza, lithephe. Ukuze ulicashise, lidonsele phansi kusikrini."</string>
     <string name="bubbles_app_toggle_title" msgid="6401217027603326439">"Amabhamuza"</string>
