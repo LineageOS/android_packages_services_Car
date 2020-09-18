@@ -62,7 +62,7 @@ static sp<Enumerator> sEnumerator;
 static vector<sp<IEvsCamera_1_0>> sVirtualCameras;
 static vector<sp<IEvsDisplay_1_0>> sDisplays;
 
-extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv) {
+bool DoInitialization() {
     android::hardware::details::setTrebleTestingOverride(true);
     configureRpcThreadpool(2, false /* callerWillNotJoin */);
 
@@ -76,15 +76,16 @@ extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv) {
         exit(2);
     }
 
-    return 0;
+    return true;
 }
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     FuzzedDataProvider fdp(data, size);
 
     // Inititialize the enumerator that we are going to test
+    static bool initialized = DoInitialization();
     sEnumerator = new Enumerator();
-    if (!sEnumerator->init(kMockHWEnumeratorName)) {
+    if (!initialized || !sEnumerator->init(kMockHWEnumeratorName)) {
         std::cerr << "Failed to connect to hardware service"
                   << "- quitting from LLVMFuzzerInitialize" << std::endl;
         exit(1);
