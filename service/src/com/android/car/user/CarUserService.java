@@ -999,7 +999,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         halUser.flags = UserHalHelper.convertFlags(userInfo);
         UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUserManager);
 
-        // Do not delete last admin user.
+        // check if the user is last admin user.
+        boolean isLastAdmin = false;
         if (UserHalHelper.isAdmin(halUser.flags)) {
             int size = usersInfo.existingUsers.size();
             int totalAdminUsers = 0;
@@ -1009,8 +1010,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 }
             }
             if (totalAdminUsers == 1) {
-                return logAndGetResults(userId,
-                        UserRemovalResult.STATUS_TARGET_USER_IS_LAST_ADMIN_USER);
+                isLastAdmin = true;
             }
         }
 
@@ -1027,7 +1027,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             mHal.removeUser(request);
         }
 
-        return logAndGetResults(userId, UserRemovalResult.STATUS_SUCCESSFUL);
+        if (isLastAdmin) {
+            Log.w(TAG_USER, "Last admin user successfully removed. User Id: " + userId);
+        }
+
+        return logAndGetResults(userId,
+                isLastAdmin ? UserRemovalResult.STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED
+                        : UserRemovalResult.STATUS_SUCCESSFUL);
     }
 
     private UserRemovalResult logAndGetResults(@UserIdInt int userId,
