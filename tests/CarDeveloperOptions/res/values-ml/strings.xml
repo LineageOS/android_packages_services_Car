@@ -3282,7 +3282,7 @@
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"ശല്ല്യപ്പെടുത്തരുത് അറിയിപ്പ് ക്രമീകരണം മാറ്റണോ?"</string>
     <string name="sound_work_settings" msgid="4140215240360927923">"ഔദ്യോഗിക പ്രൊഫൈൽ ശബ്ദങ്ങൾ"</string>
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"സ്വകാര്യ പ്രൊഫൈൽ ശബ്ദങ്ങൾ ഉപയോഗിക്കുക"</string>
-    <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"ഔദ്യോഗിക പ്രൊഫൈലുകൾക്കും വ്യക്തിഗത പ്രൊഫൈലുകൾക്കുമുള്ള ശബ്ദങ്ങൾ ഒന്നുതന്നെ ആയിരിക്കും"</string>
+    <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"ഔദ്യോഗിക പ്രൊഫൈലുകൾക്കും സ്വകാര്യ പ്രൊഫൈലുകൾക്കുമുള്ള ശബ്ദങ്ങൾ ഒന്നുതന്നെ ആയിരിക്കും"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"ഔദ്യോഗിക ഫോൺ റിംഗ്‌ടോൺ"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"ഡിഫോൾട്ട് ഔദ്യോഗിക അറിയിപ്പ് ശബ്‌ദം"</string>
     <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"ഡിഫോൾട്ട് ഔദ്യോഗിക അലാറം ശബ്‌ദം"</string>

@@ -935,14 +935,14 @@
     <string name="wifi_privacy_settings" msgid="4462092795794247809">"حریم خصوصی"</string>
     <string name="wifi_privacy_settings_ephemeral_summary" msgid="2411375348287064283">"MAC تصادفی"</string>
     <string name="wifi_dpp_add_device_to_network" msgid="8871041525483253430">"افزودن دستگاه"</string>
-    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"برای افزودن دستگاه به «<xliff:g id="SSID">%1$s</xliff:g>»،‌ کد QR را در مرکز پنجره زیر قرار دهید"</string>
-    <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"اسکن کد QR"</string>
-    <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"برای اتصال به «<xliff:g id="SSID">%1$s</xliff:g>»،‌ کد QR را در مرکز پنجره زیر قرار دهید"</string>
-    <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"با اسکن کردن کد QR، به Wi‑Fi بپیوندید"</string>
+    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"برای افزودن دستگاه به «<xliff:g id="SSID">%1$s</xliff:g>»،‌ رمزینه پاسخ‌سریع را در مرکز پنجره زیر قرار دهید"</string>
+    <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"اسکن رمزینه پاسخ‌سریع"</string>
+    <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"برای اتصال به «<xliff:g id="SSID">%1$s</xliff:g>»،‌ رمزینه پاسخ‌سریع را در مرکز پنجره زیر قرار دهید"</string>
+    <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"با اسکن کردن رمزینه پاسخ‌سریع، به Wi‑Fi بپیوندید"</string>
     <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"استفاده مشترک از Wi‑Fi"</string>
-    <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"برای اتصال به «<xliff:g id="SSID">%1$s</xliff:g>»، این کد QR را اسکن کنید و گذرواژه مربوطه را هم‌رسانی کنید"</string>
-    <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"برای اتصال به «<xliff:g id="SSID">%1$s</xliff:g>»، این کد QR را اسکن کنید"</string>
-    <string name="wifi_dpp_could_not_detect_valid_qr_code" msgid="27667719861826438">"کد QR خوانده نشد. کد را در مرکز قرار دهید و دوباره امتحان کنید"</string>
+    <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"برای اتصال به «<xliff:g id="SSID">%1$s</xliff:g>»، این رمزینه پاسخ‌سریع را اسکن کنید و گذرواژه مربوطه را هم‌رسانی کنید"</string>
+    <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"برای اتصال به «<xliff:g id="SSID">%1$s</xliff:g>»، این رمزینه پاسخ‌سریع را اسکن کنید"</string>
+    <string name="wifi_dpp_could_not_detect_valid_qr_code" msgid="27667719861826438">"رمزینه پاسخ‌سریع خوانده نشد. کد را در مرکز قرار دهید و دوباره امتحان کنید"</string>
     <string name="wifi_dpp_failure_authentication_or_configuration" msgid="9142051662156233679">"دوباره امتحان کنید. اگر مشکل همچنان ادامه دارد، با سازنده دستگاه تماس بگیرید"</string>
     <string name="wifi_dpp_failure_not_compatible" msgid="4320027179973678283">"مشکلی رخ داده است"</string>
     <string name="wifi_dpp_failure_timeout" msgid="5060065168142109420">"مطمئن شوید دستگاه متصل، شارژ و روشن شده است"</string>
@@ -964,7 +964,7 @@
     <string name="wifi_dpp_wifi_password" msgid="8007558344032612455">"گذرواژه Wi-Fi: <xliff:g id="PASSWORD">%1$s</xliff:g>"</string>
     <string name="wifi_dpp_hotspot_password" msgid="6172326289042241924">"گذرواژه نقطه اتصال: <xliff:g id="PASSWORD">%1$s</xliff:g>"</string>
     <string name="wifi_dpp_add_device" msgid="1347056725253936358">"افزودن دستگاه"</string>
-    <string name="wifi_dpp_connect_network_using_qr_code" msgid="115993715600532357">"بااستفاده از کد QR، به این شبکه متصل شوید"</string>
+    <string name="wifi_dpp_connect_network_using_qr_code" msgid="115993715600532357">"بااستفاده از رمزینه پاسخ‌سریع، به این شبکه متصل شوید"</string>
     <string name="retry" msgid="8500839563577344702">"امتحان مجدد"</string>
     <string name="wifi_shared" msgid="5054256778276524960">"اشتراک‌گذاری با دیگر استفاده‌کنندگان از دستگاه"</string>
     <string name="wifi_unchanged" msgid="6804964646942333992">"(بدون تغییر)"</string>

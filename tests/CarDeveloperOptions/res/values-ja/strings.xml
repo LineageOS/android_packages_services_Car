@@ -3308,9 +3308,9 @@
     <string name="notification_badging_title" msgid="6311699476970264712">"通知ドットの許可"</string>
     <string name="notification_bubbles_title" msgid="9196562435741861317">"ふきだし"</string>
     <string name="notification_bubbles_summary" msgid="4624512775901949578">"フローティング ショートカットにより、アプリのコンテンツにどこからでもすぐにアクセスできます"</string>
-    <string name="bubbles_feature_education" msgid="8979109826818881018">"一部の通知や他のコンテンツを画面にふきだしとして表示できます。ふきだしはタップすると開き、画面の下へドラッグすると消えます。"</string>
+    <string name="bubbles_feature_education" msgid="8979109826818881018">"一部の通知や他のコンテンツを画面にバブルとして表示できます。バブルはタップすると開き、画面の下へドラッグすると消えます。"</string>
     <string name="bubbles_app_toggle_title" msgid="6401217027603326439">"ふきだし"</string>
-    <string name="bubbles_app_toggle_summary" msgid="7707611139796553855">"一部の通知をふきだしとして表示することを <xliff:g id="APP_NAME">%1$s</xliff:g> に許可します"</string>
+    <string name="bubbles_app_toggle_summary" msgid="7707611139796553855">"一部の通知をバブルとして表示することを <xliff:g id="APP_NAME">%1$s</xliff:g> に許可します"</string>
     <string name="bubbles_feature_disabled_dialog_title" msgid="3375452386012079293">"ふきだしの有効化"</string>
     <string name="bubbles_feature_disabled_dialog_text" msgid="326945485806386477">"このアプリのふきだしを有効にするには、デバイスでふきだしを有効にしておく必要があります。この設定は、ふきだしを以前に有効にした他のアプリにも反映されます。"</string>
     <string name="bubbles_feature_disabled_button_approve" msgid="6661464849674493351">"デバイスで有効にする"</string>

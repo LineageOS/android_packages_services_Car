@@ -1621,11 +1621,11 @@
     <string name="tether_settings_disabled_on_data_saver" msgid="3682544845899910726">"Երբ թրաֆիկի տնտեսումն ակտիվ է, հնարավոր չէ կապել կամ օգտագործել շարժական հասանելիության կետերը"</string>
     <string name="usb_title" msgid="7480927657535578688">"USB"</string>
     <string name="usb_tethering_button_text" msgid="6242228383142012332">"USB մոդեմ"</string>
-    <string name="usb_tethering_subtext" product="default" msgid="1573513260339548671">"Տարածել հեռախոսի ինտերնետային կապը USB-ով"</string>
+    <string name="usb_tethering_subtext" product="default" msgid="1573513260339548671">"Տարածել հեռախոսի ինտերնետ կապը USB-ով"</string>
     <string name="usb_tethering_subtext" product="tablet" msgid="154536000235361034">"Տարածել պլանշետի ինտերնետային կապը USB-ով"</string>
     <string name="bluetooth_tether_checkbox_text" msgid="7257293066139372774">"Bluetooth մոդեմ"</string>
     <string name="bluetooth_tethering_subtext" product="tablet" msgid="6868756914621131635">"Տարածել պլանշետի ինտերնետային կապը Bluetooth-ով"</string>
-    <string name="bluetooth_tethering_subtext" product="default" msgid="9167912297565425178">"Տարածել հեռախոսի ինտերնետային կապը Bluetooth-ով"</string>
+    <string name="bluetooth_tethering_subtext" product="default" msgid="9167912297565425178">"Տարածել հեռախոսի ինտերնետ կապը Bluetooth-ով"</string>
     <string name="bluetooth_tethering_off_subtext_config" msgid="3981528184780083266">"<xliff:g id="DEVICE_NAME">%1$d</xliff:g> սարքի ինտերնետային կապը տարածվում է Bluetooth-ով"</string>
     <string name="bluetooth_tethering_overflow_error" msgid="6946561351369376943">"Հնարավոր չէ միանալ ավելի քան <xliff:g id="MAXCONNECTION">%1$d</xliff:g> սարքերի հետ:"</string>
     <string name="bluetooth_untether_blank" msgid="5428300773782256084">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g>-ը կանջատվի:"</string>

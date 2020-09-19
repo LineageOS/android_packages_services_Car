@@ -1625,7 +1625,7 @@
     <string name="usb_tethering_subtext" product="tablet" msgid="154536000235361034">"Internetverbinding van tablet delen via USB"</string>
     <string name="bluetooth_tether_checkbox_text" msgid="7257293066139372774">"Bluetooth-tethering"</string>
     <string name="bluetooth_tethering_subtext" product="tablet" msgid="6868756914621131635">"Internetverbinding van deze tablet delen via bluetooth"</string>
-    <string name="bluetooth_tethering_subtext" product="default" msgid="9167912297565425178">"Internetverbinding van deze telefoon delen via bluetooth"</string>
+    <string name="bluetooth_tethering_subtext" product="default" msgid="9167912297565425178">"Internetverbinding van telefoon delen via bluetooth"</string>
     <string name="bluetooth_tethering_off_subtext_config" msgid="3981528184780083266">"Internetverbinding van deze <xliff:g id="DEVICE_NAME">%1$d</xliff:g> delen via bluetooth"</string>
     <string name="bluetooth_tethering_overflow_error" msgid="6946561351369376943">"Kan niet meer dan <xliff:g id="MAXCONNECTION">%1$d</xliff:g> apparaten tetheren."</string>
     <string name="bluetooth_untether_blank" msgid="5428300773782256084">"Tethering van <xliff:g id="DEVICE_NAME">%1$s</xliff:g> wordt opgeheven."</string>
@@ -2455,7 +2455,7 @@
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Wordt ingeschakeld bij <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Een planning instellen"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Uitschakelen wanneer volledig opgeladen"</string>
-    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"Batterijbesparing wordt uitgeschakeld wanneer je telefoon <xliff:g id="PERCENT">%1$s</xliff:g> batterijlading heeft"</string>
+    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"Batterijbesparing wordt uitgeschakeld als je telefoon <xliff:g id="PERCENT">%1$s</xliff:g> batterijlading heeft"</string>
     <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"Batterijbesparing wordt uitgeschakeld wanneer je tablet <xliff:g id="PERCENT">%1$s</xliff:g> batterijlading heeft"</string>
     <string name="battery_saver_sticky_description_new" product="device" msgid="5056520668081504111">"Batterijbesparing wordt uitgeschakeld wanneer je apparaat <xliff:g id="PERCENT">%1$s</xliff:g> batterijlading heeft"</string>
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
@@ -3295,7 +3295,7 @@
     <string name="ringtones_category_preference_title" msgid="4491932700769815470">"Ringtones"</string>
     <string name="other_sound_category_preference_title" msgid="2045757472469840859">"Andere geluiden en trillingen"</string>
     <string name="configure_notification_settings" msgid="291914315140851270">"Meldingen"</string>
-    <string name="recent_notifications" msgid="8125865995065032049">"Recent verzonden"</string>
+    <string name="recent_notifications" msgid="8125865995065032049">"Recent verstuurd"</string>
     <string name="recent_notifications_see_all_title" msgid="4089007770442871469">"Alles weergeven van de afgelopen zeven dagen"</string>
     <string name="advanced_section_header" msgid="984680389373090015">"Geavanceerd"</string>
     <string name="profile_section_header" msgid="5471479005472037417">"Werkmeldingen"</string>
@@ -4251,15 +4251,15 @@
     <string name="app_info_storage_title" msgid="6643391804949509308">"Gebruikte ruimte"</string>
     <string name="webview_uninstalled_for_user" msgid="3407952144444040557">"(verwijderd voor gebruiker <xliff:g id="USER">%s</xliff:g>)"</string>
     <string name="webview_disabled_for_user" msgid="8057805373224993504">"(uitgezet voor gebruiker <xliff:g id="USER">%s</xliff:g>)"</string>
-    <string name="autofill_app" msgid="3990765434980280073">"Service voor automatisch aanvullen"</string>
+    <string name="autofill_app" msgid="3990765434980280073">"Service voor automatisch invullen"</string>
     <string name="autofill_keywords" msgid="7717726766232862218">"auto, automatisch, invullen, aanvullen"</string>
     <string name="autofill_confirmation_message" msgid="1385894598730361304">"&lt;b&gt;Zorg dat je deze app vertrouwt&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=Google Autofill&gt;%1$s&lt;/xliff:g&gt; maakt gebruik van de content op je scherm om te bepalen wat automatisch kan worden aangevuld."</string>
-    <string name="debug_autofill_category" msgid="6262526615416295645">"Automatisch aanvullen"</string>
+    <string name="debug_autofill_category" msgid="6262526615416295645">"Automatisch invullen"</string>
     <string name="autofill_logging_level_title" msgid="2577340324541102626">"Logniveau"</string>
     <string name="autofill_max_partitions" msgid="125269645910590057">"Max. aantal verzoeken per sessie"</string>
     <string name="autofill_max_visible_datasets" msgid="2791081640248423492">"Max. zichtbare gegevenssets"</string>
     <string name="autofill_reset_developer_options" msgid="7208417230269613101">"Resetten naar standaardwaarden"</string>
-    <string name="autofill_reset_developer_options_complete" msgid="5686061993002179524">"Ontwikkelaarsopties voor automatisch aanvullen zijn gereset"</string>
+    <string name="autofill_reset_developer_options_complete" msgid="5686061993002179524">"Ontwikkelaarsopties voor automatisch invullen zijn gereset"</string>
     <string name="device_theme" msgid="8992291311481135893">"Apparaatthema"</string>
     <string name="default_theme" msgid="5986996377385956138">"Standaard"</string>
     <string name="show_operator_name_title" msgid="5056163028128447308">"Netwerknaam"</string>

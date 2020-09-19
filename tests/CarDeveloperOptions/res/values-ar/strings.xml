@@ -107,7 +107,7 @@
     <string name="bluetooth_device_name" msgid="3682016026866302981">"اسم الجهاز"</string>
     <string name="bluetooth_device_details" msgid="2500840679106321361">"إعدادات الجهاز"</string>
     <string name="bluetooth_profile_details" msgid="1785505059738682493">"إعدادات الملف الشخصي"</string>
-    <string name="bluetooth_name_not_set" msgid="1886067683138385142">"لم يتم تعيين اسم، استخدام اسم الحساب"</string>
+    <string name="bluetooth_name_not_set" msgid="1886067683138385142">"لم يتم ضبط اسم، استخدام اسم الحساب"</string>
     <string name="bluetooth_scan_for_devices" msgid="3215740768422735880">"البحث عن أجهزة"</string>
     <string name="bluetooth_rename_device" msgid="7862992396452800566">"إعادة تسمية هذا الجهاز"</string>
     <string name="bluetooth_rename_button" msgid="8946904845821073267">"إعادة التسمية"</string>
@@ -216,7 +216,7 @@
     <string name="radio_info_dl_kbps" msgid="2903778264453410272">"معدّل نقل بيانات DL (كيلوبت في الثانية):"</string>
     <string name="radio_info_ul_kbps" msgid="3802245899811732716">"معدّل نقل بيانات UL (كيلوبت في الثانية):"</string>
     <string name="radio_info_signal_location_label" msgid="6788144906873498013">"معلومات الموقع الخلوية (تم الإيقاف):"</string>
-    <string name="radio_info_phy_chan_config" msgid="1184401689381480522">"تهيئة قناة LTE Physical:"</string>
+    <string name="radio_info_phy_chan_config" msgid="1184401689381480522">"إعداد قناة LTE Physical:"</string>
     <string name="radio_info_cell_info_refresh_rate" msgid="3557422342215875913">"معدل إعادة تحميل المعلومات الخلوية:"</string>
     <string name="radio_info_cellinfo_label" msgid="632796561627452215">"جميع معلومات القياس الخلوية:"</string>
     <string name="radio_info_gprs_service_label" msgid="7926626443442993242">"خدمة البيانات:"</string>
@@ -235,7 +235,7 @@
     <string name="radio_info_band_mode_label" msgid="9181607879920091762">"تحديد النطاق اللاسلكي"</string>
     <string name="radio_info_voice_network_type_label" msgid="3686471589514241007">"نوع الشبكة الصوتية:"</string>
     <string name="radio_info_data_network_type_label" msgid="5108279335070879015">"نوع شبكة البيانات:"</string>
-    <string name="radio_info_set_perferred_label" msgid="1447353131819041587">"تعيين نوع الشبكة المفضل:"</string>
+    <string name="radio_info_set_perferred_label" msgid="1447353131819041587">"ضبط نوع الشبكة المفضل:"</string>
     <string name="radio_info_ping_hostname_v4" msgid="4377067049156466290">"فحص اتصال اسم المضيف (www.google.com) عبر IPv4:"</string>
     <string name="radio_info_ping_hostname_v6" msgid="3541896405771734445">"فحص اتصال اسم المضيف (www.google.com) عبر IPv6:"</string>
     <string name="radio_info_http_client_test" msgid="781411599778629953">"اختبار عميل HTTP:"</string>
@@ -973,7 +973,7 @@
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"يُرجى إدخال اسم SSID"</string>
     <string name="wifi_security" msgid="9136702039496152831">"الأمان"</string>
     <string name="wifi_hidden_network" msgid="6647772204699776833">"شبكة مخفية"</string>
-    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"إذا لم يكن جهاز التوجيه يبث معرّف شبكة وتريد الاتصال به في المستقبل، يمكنك تعيين الشبكة كشبكة مخفية.\n\nربما ينشئ هذا خطرًا أمنيًا حيث سيبث هاتفك إشارته بانتظام للعثور على الشبكة.\n\nلن يؤدي تعيين الشبكة كشبكة مخفية إلى تغيير إعدادات جهاز التوجيه."</string>
+    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"إذا لم يكن جهاز التوجيه يبث معرّف شبكة وتريد الاتصال به في المستقبل، يمكنك ضبط الشبكة كشبكة مخفية.\n\nربما ينشئ هذا خطرًا أمنيًا حيث سيبث هاتفك إشارته بانتظام للعثور على الشبكة.\n\nلن يؤدي تعيين الشبكة كشبكة مخفية إلى تغيير إعدادات جهاز التوجيه."</string>
     <string name="wifi_signal" msgid="696548364467704808">"قوة الإشارة"</string>
     <string name="wifi_status" msgid="3439931558930689940">"الحالة"</string>
     <string name="tx_wifi_speed" msgid="2571810085003261073">"سرعة نقل الرابط"</string>
@@ -1133,7 +1133,7 @@
     <string name="wifi_hotspot_tethering_on_subtext" product="tablet" msgid="71421730039785897">"تتم مشاركة اتصال الإنترنت على هذا الجهاز اللوحي عبر نقطة الاتصال"</string>
     <string name="wifi_hotspot_tethering_on_subtext" product="default" msgid="8914285514605049879">"تتم مشاركة اتصال الإنترنت على هذا الهاتف عبر نقطة الاتصال"</string>
     <string name="wifi_hotspot_on_local_only_subtext" msgid="7415381343846704553">"يشارك التطبيق المحتوى. لمشاركة اتصال الإنترنت، يجب إيقاف نقطة الاتصال، ثم تفعيلها."</string>
-    <string name="wifi_hotspot_no_password_subtext" msgid="5400500962974373706">"لم يتم تعيين كلمة مرور"</string>
+    <string name="wifi_hotspot_no_password_subtext" msgid="5400500962974373706">"لم يتم ضبط كلمة مرور"</string>
     <string name="wifi_hotspot_name_title" msgid="6572202165400226127">"اسم نقطة الاتصال"</string>
     <string name="wifi_hotspot_name_summary_connecting" msgid="5176787959408511889">"جارٍ تفعيل <xliff:g id="WIFI_HOTSPOT_NAME">%1$s</xliff:g>..."</string>
     <string name="wifi_hotspot_name_summary_connected" msgid="8387768642326756749">"يمكن توصيل الأجهزة الأخرى بشبكة <xliff:g id="WIFI_HOTSPOT_NAME">%1$s</xliff:g>"</string>
@@ -1801,8 +1801,8 @@
     <string name="lockpassword_draw_your_pattern_again_header" msgid="9017394036814402348">"ارسم النقش مرة أخرى"</string>
     <string name="lockpassword_choose_lock_generic_header" msgid="4418423132980560119">"اختيار طريقة فتح القفل"</string>
     <string name="lockpassword_password_set_toast" msgid="601928982984489868">"تم ضبط كلمة المرور"</string>
-    <string name="lockpassword_pin_set_toast" msgid="172594825722240059">"تم تعيين رمز PIN"</string>
-    <string name="lockpassword_pattern_set_toast" msgid="6923260369475481406">"تم تعيين النقش"</string>
+    <string name="lockpassword_pin_set_toast" msgid="172594825722240059">"تم ضبط رمز PIN"</string>
+    <string name="lockpassword_pattern_set_toast" msgid="6923260369475481406">"تم ضبط النقش"</string>
     <string name="lockpassword_choose_your_password_header_for_face" msgid="8823110536502072216">"لاستخدام المصادقة بالوجه، اضبط كلمة المرور"</string>
     <string name="lockpassword_choose_your_pattern_header_for_face" msgid="5563793748503883666">"لاستخدام المصادقة بالوجه، اضبط النمط"</string>
     <string name="lockpassword_choose_your_pin_header_for_face" msgid="7238352632535405068">"لاستخدام المصادقة بالوجه، اضبط رقم التعريف الشخصي"</string>
@@ -1913,7 +1913,7 @@
     <string name="app_factory_reset" msgid="8718986000278776272">"إزالة التحديثات"</string>
     <string name="auto_launch_enable_text" msgid="3372898942144027341">"لقد اخترت تشغيل هذا التطبيق بشكل تلقائي لبعض الإجراءات."</string>
     <string name="always_allow_bind_appwidgets_text" msgid="2286211654774611037">"لقد اخترت السماح لهذا التطبيق بإنشاء الأدوات والوصول إلى بياناتها."</string>
-    <string name="auto_launch_disable_text" msgid="8560921288036801416">"لم يتم تعيين إعدادات تلقائية."</string>
+    <string name="auto_launch_disable_text" msgid="8560921288036801416">"لم يتم ضبط إعدادات تلقائية."</string>
     <string name="clear_activities" msgid="2068014972549235347">"محو الإعدادات التلقائية"</string>
     <string name="screen_compatibility_text" msgid="1768064020294301496">"ربما لم يتم تصميم هذا التطبيق ليلائم شاشتك، يمكنك التحكم في كيفية ضبطه ليلائم شاشتك هنا."</string>
     <string name="ask_compatibility" msgid="6687958195768084807">"السؤال عند الإطلاق"</string>
@@ -2144,7 +2144,7 @@
     <string name="accessibility_screen_magnification_navbar_short_summary" msgid="5418767043532322397">"انقر على أحد الأزرار للتكبير"</string>
     <string name="accessibility_screen_magnification_summary" msgid="3363006902079431772"><b>"للتكبير أو التصغير"</b>"، انقر على الشاشة 3 مرات بسرعة.\n"<ul><li>"اسحب بإصبعين أو أكثر للتمرير"</li>\n<li>"اضغط بإصبعين أو أكثر على الشاشة لضبط التكبير/التصغير"</li></ul>\n\n<b>"للتكبير أو التصغير مؤقتًا"</b>"، انقر على الشاشة 3 مرات بسرعة واستمر بالضغط بإصبعك بعد النقرة الثالثة.\n"<ul><li>"اسحب للتنقل على الشاشة"</li>\n<li>"ارفع إصبعك للتصغير"</li></ul>\n\n"لا يمكنك استخدام التكبير عند استخدام لوحة المفاتيح وشريط التنقل."</string>
     <string name="accessibility_screen_magnification_navbar_summary" msgid="4726360285256503132">"عند تفعيل ميزة التكبير، استخدم زر إمكانية الوصول في أسفل الشاشة للتكبير بسرعة.\n\n"<b>"للتكبير أو التصغير"</b>"، انقر على زر إمكانية الوصول، ثم انقر في أي مكان على الشاشة.\n"<ul><li>"اسحب بإصبعين أو أكثر للتمرير"</li>\n<li>"اضغط بإصبعين أو أكثر على الشاشة لضبط التكبير/التصغير"</li></ul>\n\n<b>"للتكبير أو التصغير مؤقتًا"</b>"، انقر على زر إمكانية الوصول، ثم المس أي موضع على الشاشة مع الاستمرار.\n"<ul><li>"اسحب للتنقل على الشاشة"</li>\n<li>"ارفع إصبعك للتصغير"</li></ul>\n\n"لا يمكنك استخدام التكبير عند استخدام لوحة المفاتيح وشريط التنقل."</string>
-    <string name="accessibility_screen_magnification_navbar_configuration_warning" msgid="6477234309484795550">"تم تعيين زر إمكانية الوصول لخدمة <xliff:g id="SERVICE">%1$s</xliff:g>. لاستخدام التكبير، المس زر إمكانية الوصول مع الاستمرار ثم اختر التكبير."</string>
+    <string name="accessibility_screen_magnification_navbar_configuration_warning" msgid="6477234309484795550">"تم ضبط زر إمكانية الوصول لخدمة <xliff:g id="SERVICE">%1$s</xliff:g>. لاستخدام التكبير، المس زر إمكانية الوصول مع الاستمرار ثم اختر التكبير."</string>
     <string name="accessibility_global_gesture_preference_title" msgid="3842279082831426816">"مفتاح الاختصار لمستوى الصوت"</string>
     <string name="accessibility_shortcut_service_title" msgid="3516052294376744060">"خدمة الاختصار"</string>
     <string name="accessibility_shortcut_service_on_lock_screen_title" msgid="1279441617927949980">"السماح من شاشة القفل"</string>
@@ -3149,7 +3149,7 @@
     <string name="sim_settings_title" msgid="8818243954752261922">"بطاقات SIM"</string>
     <string name="sim_settings_summary" msgid="6516330865408217800">"<xliff:g id="SIM_NAME">%1$s</xliff:g> - <xliff:g id="SIM_NUMBER">%2$s</xliff:g>"</string>
     <string name="sim_cards_changed_message" msgid="1012486903583092731">"تم تغيير بطاقات SIM"</string>
-    <string name="sim_cards_changed_message_summary" msgid="5753692480107865077">"انقر لتعيين الأنشطة."</string>
+    <string name="sim_cards_changed_message_summary" msgid="5753692480107865077">"انقر لضبط الأنشطة."</string>
     <string name="sim_cellular_data_unavailable" msgid="1832472508352891641">"بيانات الجوّال غير متاحة"</string>
     <string name="sim_cellular_data_unavailable_summary" msgid="3093797406601964131">"انقر لاختيار شريحة SIM للبيانات."</string>
     <string name="sim_calls_always_use" msgid="5322696995795851734">"استخدام هذا للمكالمات دائمًا"</string>
@@ -3295,8 +3295,8 @@
     <string name="default_sound" msgid="6675629744816442953">"الصوت التلقائي"</string>
     <string name="sound_settings_summary" msgid="8467549670633195109">"مستوى صوت الرنين على <xliff:g id="PERCENTAGE">%1$s</xliff:g>"</string>
     <string name="sound_dashboard_summary" msgid="5187301919242823508">"مستوى الصوت والاهتزاز ووضع\"عدم الإزعاج\""</string>
-    <string name="sound_settings_summary_vibrate" msgid="2194491116884798590">"تم تعيين الرنين على اهتزاز"</string>
-    <string name="sound_settings_summary_silent" msgid="899823817462768876">"تم تعيين الرنين على صامت"</string>
+    <string name="sound_settings_summary_vibrate" msgid="2194491116884798590">"تم ضبط الرنين على اهتزاز"</string>
+    <string name="sound_settings_summary_silent" msgid="899823817462768876">"تم ضبط الرنين على صامت"</string>
     <string name="sound_settings_example_summary" msgid="2091822107298841827">"مستوى صوت الرنين على ۸۰٪"</string>
     <string name="media_volume_option_title" msgid="3553411883305505682">"مستوى صوت الوسائط"</string>
     <string name="remote_media_volume_option_title" msgid="6355710054191873836">"مستوى صوت الإرسال"</string>
@@ -3973,7 +3973,7 @@
     <string name="usb_use_MIDI" msgid="4710632870781041401">"MIDI"</string>
     <string name="usb_use_MIDI_desc" msgid="1770966187150010947">"يمكنك استخدام هذا الجهاز باعتباره MIDI"</string>
     <string name="usb_use" msgid="8940500223316278632">"استخدام USB في"</string>
-    <string name="usb_default_label" msgid="7471316635263936101">"تهيئة USB التلقائية"</string>
+    <string name="usb_default_label" msgid="7471316635263936101">"إعداد USB التلقائي"</string>
     <string name="usb_default_info" msgid="953775292571786528">"عند الاتصال بجهاز آخر وإلغاء قفل هاتفك، سيتم تطبيق هذه الإعدادات. لذلك يجب الاتصال بالأجهزة الموثوق بها فقط."</string>
     <string name="usb_pref" msgid="6194821550693495068">"USB"</string>
     <string name="usb_preference" msgid="7092987095048592826">"إعدادات USB"</string>
@@ -4486,7 +4486,7 @@
     <string name="enterprise_privacy_always_on_vpn_device" msgid="2022700916516458213">"تم تفعيل إعداد \"شبكة افتراضية خاصة (VPN) دائمة التفعيل\""</string>
     <string name="enterprise_privacy_always_on_vpn_personal" msgid="5644065780843002044">"تم تفعيل إعداد \"شبكة افتراضية خاصة (VPN) دائمة التفعيل\" في الملف الشخصي"</string>
     <string name="enterprise_privacy_always_on_vpn_work" msgid="6443089897985373564">"تم تفعيل \"شبكة افتراضية خاصة (VPN) دائمة التفعيل\" في الملف الشخصي للعمل"</string>
-    <string name="enterprise_privacy_global_http_proxy" msgid="3862135895716080830">"تم تعيين الخادم الوكيل HTTP العام"</string>
+    <string name="enterprise_privacy_global_http_proxy" msgid="3862135895716080830">"تم ضبط الخادم الوكيل HTTP العام"</string>
     <string name="enterprise_privacy_ca_certs_device" msgid="7715658848470643878">"بيانات الاعتماد الموثوقة"</string>
     <string name="enterprise_privacy_ca_certs_personal" msgid="1356447417193483802">"بيانات اعتماد موثوقة في ملفك الشخصي"</string>
     <string name="enterprise_privacy_ca_certs_work" msgid="836419648894546893">"بيانات اعتماد موثوقة في ملفك الشخصي للعمل"</string>
@@ -4594,7 +4594,7 @@
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"عرض مربع حوار الأعطال دائمًا"</string>
     <string name="show_first_crash_dialog_summary" msgid="8197987550025401754">"عرض مربع الحوار في كل مرة يتعطل فيها تطبيق"</string>
     <string name="angle_enabled_app" msgid="4359266182151708733">"اختيار التطبيق الذي يستخدم ANGLE"</string>
-    <string name="angle_enabled_app_not_set" msgid="7428910515748621910">"لم يتم تعيين تطبيق لاستخدام ANGLE"</string>
+    <string name="angle_enabled_app_not_set" msgid="7428910515748621910">"لم يتم ضبط تطبيق لاستخدام ANGLE"</string>
     <string name="angle_enabled_app_set" msgid="7313088703610569320">"التطبيق الذي يستخدم ANGLE: <xliff:g id="APP_NAME">%1$s</xliff:g>"</string>
     <string name="game_driver_dashboard_title" msgid="219443350404091201">"إعدادات Game Driver المفضّلة"</string>
     <string name="game_driver_dashboard_summary" msgid="1500674075618790528">"تعديل إعدادات Game Driver"</string>

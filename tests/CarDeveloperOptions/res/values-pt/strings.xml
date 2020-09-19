@@ -3753,7 +3753,7 @@
     <string name="usb_summary_photo_transfers" msgid="4743028167400644354">"PTP (fotos)"</string>
     <string name="usb_summary_MIDI" msgid="5540604166270861247">"MIDI"</string>
     <string name="usb_summary_file_transfers_power" msgid="1684501026426766867">"Transferência de arquivo e fornecimento de energia"</string>
-    <string name="usb_summary_tether_power" msgid="5684170912136320002">"Tethering USB e fornecimento de energia"</string>
+    <string name="usb_summary_tether_power" msgid="5684170912136320002">"Tethering por USB e fornecimento de energia"</string>
     <string name="usb_summary_photo_transfers_power" msgid="4424106272137720464">"PTP e fornecimento de energia"</string>
     <string name="usb_summary_MIDI_power" msgid="7685597621357005180">"MIDI e fornecimento de energia"</string>
     <string name="background_check_pref" msgid="664081406854758392">"Verificação em segundo plano"</string>
@@ -4052,7 +4052,7 @@
     <string name="display_cutout_emulation_keywords" msgid="6795671536772871439">"corte de tela, entalhe"</string>
     <string name="overlay_option_device_default" msgid="165508753381657697">"Padrão do dispositivo"</string>
     <string name="overlay_toast_failed_to_apply" msgid="5692251825129250040">"Falha ao aplicar sobreposição"</string>
-    <string name="special_access" msgid="1453926335914696206">"Acesso especial a apps"</string>
+    <string name="special_access" msgid="1453926335914696206">"Acesso especial para apps"</string>
     <plurals name="special_access_summary" formatted="false" msgid="5182092345063909346">
       <item quantity="one"><xliff:g id="COUNT">%d</xliff:g> app pode usar dados ilimitados</item>
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> apps podem usar dados ilimitados</item>
