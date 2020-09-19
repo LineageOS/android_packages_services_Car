@@ -50,16 +50,17 @@ TEST(UidIoStatsTest, TestValidStatFile) {
 
     UidIoStats uidIoStats(tf.path);
     ASSERT_TRUE(uidIoStats.enabled()) << "Temporary file is inaccessible";
+    ASSERT_RESULT_OK(uidIoStats.collect());
 
-    const auto& actualFirstUsage = uidIoStats.collect();
-    EXPECT_TRUE(actualFirstUsage) << actualFirstUsage.error();
-    EXPECT_EQ(expectedFirstUsage.size(), actualFirstUsage->size());
+    const auto& actualFirstUsage = uidIoStats.deltaStats();
+    EXPECT_EQ(expectedFirstUsage.size(), actualFirstUsage.size());
+
     for (const auto& it : expectedFirstUsage) {
-        if (actualFirstUsage->find(it.first) == actualFirstUsage->end()) {
+        if (actualFirstUsage.find(it.first) == actualFirstUsage.end()) {
             ADD_FAILURE() << "Expected uid " << it.first << " not found in the first snapshot";
         }
         const UidIoUsage& expected = it.second;
-        const UidIoUsage& actual = actualFirstUsage->at(it.first);
+        const UidIoUsage& actual = actualFirstUsage.at(it.first);
         EXPECT_EQ(expected.uid, actual.uid);
         EXPECT_EQ(expected.ios, actual.ios)
             << "Unexpected I/O usage for uid " << it.first << " in first snapshot.\nExpected:\n"
@@ -82,15 +83,17 @@ TEST(UidIoStatsTest, TestValidStatFile) {
             {1001000, {.uid = 1001000, .ios = {0, 0, 0, 0, 0, 0}}},
     };
     ASSERT_TRUE(WriteStringToFile(secondSnapshot, tf.path));
-    const auto& actualSecondUsage = uidIoStats.collect();
-    EXPECT_TRUE(actualSecondUsage) << actualSecondUsage.error();
-    EXPECT_EQ(expectedSecondUsage.size(), actualSecondUsage->size());
+    ASSERT_RESULT_OK(uidIoStats.collect());
+
+    const auto& actualSecondUsage = uidIoStats.deltaStats();
+    EXPECT_EQ(expectedSecondUsage.size(), actualSecondUsage.size());
+
     for (const auto& it : expectedSecondUsage) {
-        if (actualSecondUsage->find(it.first) == actualSecondUsage->end()) {
+        if (actualSecondUsage.find(it.first) == actualSecondUsage.end()) {
             ADD_FAILURE() << "Expected uid " << it.first << " not found in the second snapshot";
         }
         const UidIoUsage& expected = it.second;
-        const UidIoUsage& actual = actualSecondUsage->at(it.first);
+        const UidIoUsage& actual = actualSecondUsage.at(it.first);
         EXPECT_EQ(expected.uid, actual.uid);
         EXPECT_EQ(expected.ios, actual.ios)
             << "Unexpected I/O usage for uid " << it.first << " in second snapshot:.\nExpected:\n"
@@ -112,7 +115,7 @@ TEST(UidIoStatsTest, TestErrorOnInvalidStatFile) {
 
     UidIoStats uidIoStats(tf.path);
     ASSERT_TRUE(uidIoStats.enabled()) << "Temporary file is inaccessible";
-    EXPECT_FALSE(uidIoStats.collect()) << "No error returned for invalid file";
+    EXPECT_FALSE(uidIoStats.collect().ok()) << "No error returned for invalid file";
 }
 
 }  // namespace watchdog

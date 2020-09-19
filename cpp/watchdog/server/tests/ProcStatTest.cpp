@@ -86,13 +86,12 @@ TEST(ProcStatTest, TestValidStatFile) {
 
     ProcStat procStat(tf.path);
     ASSERT_TRUE(procStat.enabled()) << "Temporary file is inaccessible";
+    ASSERT_RESULT_OK(procStat.collect());
 
-    const auto& actualFirstDelta = procStat.collect();
-    EXPECT_RESULT_OK(actualFirstDelta);
-    EXPECT_EQ(expectedFirstDelta, *actualFirstDelta)
-            << "First snapshot doesnt't match.\nExpected:\n"
-            << toString(expectedFirstDelta) << "\nActual:\n"
-            << toString(*actualFirstDelta);
+    const auto& actualFirstDelta = procStat.deltaStats();
+    EXPECT_EQ(expectedFirstDelta, actualFirstDelta) << "First snapshot doesn't match.\nExpected:\n"
+                                                    << toString(expectedFirstDelta) << "\nActual:\n"
+                                                    << toString(actualFirstDelta);
 
     constexpr char secondSnapshot[] =
             "cpu  16200 8700 2000 4100 2200 6200 5900 0 0 0\n"
@@ -125,12 +124,13 @@ TEST(ProcStatTest, TestValidStatFile) {
     expectedSecondDelta.ioBlockedProcessesCnt = 2;
 
     ASSERT_TRUE(WriteStringToFile(secondSnapshot, tf.path));
-    const auto& actualSecondDelta = procStat.collect();
-    EXPECT_RESULT_OK(actualSecondDelta);
-    EXPECT_EQ(expectedSecondDelta, *actualSecondDelta)
+    ASSERT_RESULT_OK(procStat.collect());
+
+    const auto& actualSecondDelta = procStat.deltaStats();
+    EXPECT_EQ(expectedSecondDelta, actualSecondDelta)
             << "Second snapshot doesnt't match.\nExpected:\n"
             << toString(expectedSecondDelta) << "\nActual:\n"
-            << toString(*actualSecondDelta);
+            << toString(actualSecondDelta);
 }
 
 TEST(ProcStatTest, TestErrorOnCorruptedStatFile) {
@@ -254,14 +254,13 @@ TEST(ProcStatTest, TestErrorOnUnknownProcsLine) {
 TEST(ProcStatTest, TestProcStatContentsFromDevice) {
     ProcStat procStat;
     ASSERT_TRUE(procStat.enabled()) << kProcStatPath << " file is inaccessible";
+    ASSERT_RESULT_OK(procStat.collect());
 
-    const auto& info = procStat.collect();
-    ASSERT_RESULT_OK(info);
-
+    const auto& info = procStat.deltaStats();
     // The below checks should pass because the /proc/stats file should have the CPU time spent
     // since bootup and there should be at least one running process.
-    EXPECT_GT(info->totalCpuTime(), 0);
-    EXPECT_GT(info->totalProcessesCnt(), 0);
+    EXPECT_GT(info.totalCpuTime(), 0);
+    EXPECT_GT(info.totalProcessesCnt(), 0);
 }
 
 }  // namespace watchdog

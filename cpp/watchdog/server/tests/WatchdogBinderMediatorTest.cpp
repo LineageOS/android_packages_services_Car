@@ -63,9 +63,12 @@ public:
     MOCK_METHOD(Status, notifyUserStateChange, (userid_t userId, UserState state), (override));
 };
 
-class MockIoPerfCollection : public IoPerfCollection {
+class MockWatchdogPerfService : public WatchdogPerfService {
 public:
-    MockIoPerfCollection() {}
+    MockWatchdogPerfService() {}
+    ~MockWatchdogPerfService() {}
+    MOCK_METHOD(Result<void>, start, (), (override));
+    MOCK_METHOD(void, terminate, (), (override));
     MOCK_METHOD(Result<void>, onBootFinished, (), (override));
     MOCK_METHOD(Result<void>, onCustomCollection, (int fd, const Vector<String16>& args),
                 (override));
@@ -121,30 +124,30 @@ class WatchdogBinderMediatorTest : public ::testing::Test {
 protected:
     virtual void SetUp() {
         mMockWatchdogProcessService = new MockWatchdogProcessService();
-        mMockIoPerfCollection = new MockIoPerfCollection();
+        mMockWatchdogPerfService = new MockWatchdogPerfService();
         mWatchdogBinderMediator = new WatchdogBinderMediator();
-        mWatchdogBinderMediator->init(mMockWatchdogProcessService, mMockIoPerfCollection);
+        mWatchdogBinderMediator->init(mMockWatchdogProcessService, mMockWatchdogPerfService);
     }
     virtual void TearDown() {
         mWatchdogBinderMediator->terminate();
         ASSERT_TRUE(mWatchdogBinderMediator->mWatchdogProcessService == nullptr);
-        ASSERT_TRUE(mWatchdogBinderMediator->mIoPerfCollection == nullptr);
+        ASSERT_TRUE(mWatchdogBinderMediator->mWatchdogPerfService == nullptr);
         mMockWatchdogProcessService = nullptr;
-        mMockIoPerfCollection = nullptr;
+        mMockWatchdogPerfService = nullptr;
         mWatchdogBinderMediator = nullptr;
         mScopedChangeCallingUid = nullptr;
     }
     // Sets calling UID to imitate System's process.
     void setSystemCallingUid() { mScopedChangeCallingUid = new ScopedChangeCallingUid(AID_SYSTEM); }
     sp<MockWatchdogProcessService> mMockWatchdogProcessService;
-    sp<MockIoPerfCollection> mMockIoPerfCollection;
+    sp<MockWatchdogPerfService> mMockWatchdogPerfService;
     sp<WatchdogBinderMediator> mWatchdogBinderMediator;
     sp<ScopedChangeCallingUid> mScopedChangeCallingUid;
 };
 
 TEST_F(WatchdogBinderMediatorTest, TestErrorOnNullptrDuringInit) {
     sp<WatchdogBinderMediator> mediator = new WatchdogBinderMediator();
-    ASSERT_FALSE(mediator->init(nullptr, new MockIoPerfCollection()).ok())
+    ASSERT_FALSE(mediator->init(nullptr, new MockWatchdogPerfService()).ok())
             << "No error returned on nullptr watchdog process service";
     ASSERT_FALSE(mediator->init(new MockWatchdogProcessService(), nullptr).ok())
             << "No error returned on nullptr I/O perf collection";
@@ -153,20 +156,22 @@ TEST_F(WatchdogBinderMediatorTest, TestErrorOnNullptrDuringInit) {
 
 TEST_F(WatchdogBinderMediatorTest, TestHandlesEmptyDumpArgs) {
     EXPECT_CALL(*mMockWatchdogProcessService, dump(-1, _)).WillOnce(Return(Result<void>()));
-    EXPECT_CALL(*mMockIoPerfCollection, onDump(-1)).WillOnce(Return(Result<void>()));
+    EXPECT_CALL(*mMockWatchdogPerfService, onDump(-1)).WillOnce(Return(Result<void>()));
     mWatchdogBinderMediator->dump(-1, Vector<String16>());
 }
 
-TEST_F(WatchdogBinderMediatorTest, TestHandlesStartCustomIoPerfCollection) {
-    EXPECT_CALL(*mMockIoPerfCollection, onCustomCollection(-1, _)).WillOnce(Return(Result<void>()));
+TEST_F(WatchdogBinderMediatorTest, TestHandlesStartCustomPerfCollection) {
+    EXPECT_CALL(*mMockWatchdogPerfService, onCustomCollection(-1, _))
+            .WillOnce(Return(Result<void>()));
 
     Vector<String16> args;
     args.push_back(String16(kStartCustomCollectionFlag));
     ASSERT_EQ(mWatchdogBinderMediator->dump(-1, args), OK);
 }
 
-TEST_F(WatchdogBinderMediatorTest, TestHandlesStopCustomIoPerfCollection) {
-    EXPECT_CALL(*mMockIoPerfCollection, onCustomCollection(-1, _)).WillOnce(Return(Result<void>()));
+TEST_F(WatchdogBinderMediatorTest, TestHandlesStopCustomPerfCollection) {
+    EXPECT_CALL(*mMockWatchdogPerfService, onCustomCollection(-1, _))
+            .WillOnce(Return(Result<void>()));
 
     Vector<String16> args;
     args.push_back(String16(kEndCustomCollectionFlag));
@@ -349,7 +354,7 @@ TEST_F(WatchdogBinderMediatorTest, TestErrorOnNotifyUserStateChangeWithInvalidAr
 TEST_F(WatchdogBinderMediatorTest, TestNotifyBootPhaseChange) {
     setSystemCallingUid();
     StateType type = StateType::BOOT_PHASE;
-    EXPECT_CALL(*mMockIoPerfCollection, onBootFinished()).WillOnce(Return(Result<void>()));
+    EXPECT_CALL(*mMockWatchdogPerfService, onBootFinished()).WillOnce(Return(Result<void>()));
     Status status = mWatchdogBinderMediator->notifySystemStateChange(
         type, static_cast<int32_t>(BootPhase::BOOT_COMPLETED), -1);
     ASSERT_TRUE(status.isOk()) << status;
@@ -359,7 +364,7 @@ TEST_F(WatchdogBinderMediatorTest, TestNotifyBootPhaseChange) {
 TEST_F(WatchdogBinderMediatorTest, TestNotifyBootPhaseChangeWithNonBootCompletedPhase) {
     setSystemCallingUid();
     StateType type = StateType::BOOT_PHASE;
-    EXPECT_CALL(*mMockIoPerfCollection, onBootFinished()).Times(0);
+    EXPECT_CALL(*mMockWatchdogPerfService, onBootFinished()).Times(0);
     Status status = mWatchdogBinderMediator->notifySystemStateChange(type, 0, -1);
     ASSERT_TRUE(status.isOk()) << status;
 }

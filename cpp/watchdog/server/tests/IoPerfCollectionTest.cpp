@@ -16,21 +16,17 @@
 
 #include "IoPerfCollection.h"
 
-#include "LooperStub.h"
-#include "ProcPidDir.h"
-#include "ProcPidStat.h"
-#include "ProcStat.h"
-#include "UidIoStats.h"
-#include "gmock/gmock.h"
+#include "MockProcPidStat.h"
+#include "MockProcStat.h"
+#include "MockUidIoStats.h"
 #include "utils/PackageNameResolver.h"
 
 #include <WatchdogProperties.sysprop.h>
 #include <android-base/file.h>
-#include <cutils/android_filesystem_config.h>
+#include <gmock/gmock.h>
+#include <sys/types.h>
+#include <unistd.h>
 
-#include <algorithm>
-#include <future>
-#include <queue>
 #include <string>
 #include <vector>
 
@@ -39,77 +35,11 @@ namespace automotive {
 namespace watchdog {
 
 using android::base::Error;
+using android::base::ReadFdToString;
 using android::base::Result;
-using android::base::WriteStringToFile;
-using testing::LooperStub;
-using testing::populateProcPidDir;
+using ::testing::Return;
 
 namespace {
-
-const std::chrono::seconds kTestBootInterval = 1s;
-const std::chrono::seconds kTestPeriodicInterval = 2s;
-const std::chrono::seconds kTestCustomInterval = 3s;
-const std::chrono::seconds kTestCustomCollectionDuration = 11s;
-
-class UidIoStatsStub : public UidIoStats {
-public:
-    explicit UidIoStatsStub(bool enabled = false) : mEnabled(enabled) {}
-    Result<std::unordered_map<uid_t, UidIoUsage>> collect() override {
-        if (mCache.empty()) {
-            return Error() << "Cache is empty";
-        }
-        const auto entry = mCache.front();
-        mCache.pop();
-        return entry;
-    }
-    bool enabled() override { return mEnabled; }
-    std::string filePath() override { return kUidIoStatsPath; }
-    void push(const std::unordered_map<uid_t, UidIoUsage>& entry) { mCache.push(entry); }
-
-private:
-    bool mEnabled;
-    std::queue<std::unordered_map<uid_t, UidIoUsage>> mCache;
-};
-
-class ProcStatStub : public ProcStat {
-public:
-    explicit ProcStatStub(bool enabled = false) : mEnabled(enabled) {}
-    Result<ProcStatInfo> collect() override {
-        if (mCache.empty()) {
-            return Error() << "Cache is empty";
-        }
-        const auto entry = mCache.front();
-        mCache.pop();
-        return entry;
-    }
-    bool enabled() override { return mEnabled; }
-    std::string filePath() override { return kProcStatPath; }
-    void push(const ProcStatInfo& entry) { mCache.push(entry); }
-
-private:
-    bool mEnabled;
-    std::queue<ProcStatInfo> mCache;
-};
-
-class ProcPidStatStub : public ProcPidStat {
-public:
-    explicit ProcPidStatStub(bool enabled = false) : mEnabled(enabled) {}
-    Result<std::vector<ProcessStats>> collect() override {
-        if (mCache.empty()) {
-            return Error() << "Cache is empty";
-        }
-        const auto entry = mCache.front();
-        mCache.pop();
-        return entry;
-    }
-    bool enabled() override { return mEnabled; }
-    std::string dirPath() override { return kProcDirPath; }
-    void push(const std::vector<ProcessStats>& entry) { mCache.push(entry); }
-
-private:
-    bool mEnabled;
-    std::queue<std::vector<ProcessStats>> mCache;
-};
 
 bool isEqual(const UidIoPerfData& lhs, const UidIoPerfData& rhs) {
     if (lhs.topNReads.size() != rhs.topNReads.size() ||
@@ -178,9 +108,47 @@ bool isEqual(const IoPerfRecord& lhs, const IoPerfRecord& rhs) {
             isEqual(lhs.processIoPerfData, rhs.processIoPerfData);
 }
 
+int countOccurrences(std::string str, std::string subStr) {
+    size_t pos = 0;
+    int occurrences = 0;
+    while ((pos = str.find(subStr, pos)) != std::string::npos) {
+        ++occurrences;
+        pos += subStr.length();
+    }
+    return occurrences;
+}
+
 }  // namespace
 
 namespace internal {
+
+class IoPerfCollectionPeer {
+public:
+    explicit IoPerfCollectionPeer(sp<IoPerfCollection> collector) : collector(collector) {}
+    IoPerfCollectionPeer() = delete;
+    ~IoPerfCollectionPeer() { collector->terminate(); }
+
+    void setTopNStatsPerCategory(int value) { collector->mTopNStatsPerCategory = value; }
+
+    void setTopNStatsPerSubcategory(int value) { collector->mTopNStatsPerSubcategory = value; }
+
+    const CollectionInfo& getBoottimeCollectionInfo() {
+        Mutex::Autolock lock(collector->mMutex);
+        return collector->mBoottimeCollection;
+    }
+
+    const CollectionInfo& getPeriodicCollectionInfo() {
+        Mutex::Autolock lock(collector->mMutex);
+        return collector->mPeriodicCollection;
+    }
+
+    const CollectionInfo& getCustomCollectionInfo() {
+        Mutex::Autolock lock(collector->mMutex);
+        return collector->mCustomCollection;
+    }
+
+    sp<IoPerfCollection> collector;
+};
 
 class PackageNameResolverPeer {
 public:
@@ -193,788 +161,205 @@ public:
 
 }  // namespace internal
 
-TEST(IoPerfCollectionTest, TestCollectionStartAndTerminate) {
-    sp<IoPerfCollection> collector = new IoPerfCollection();
-    const auto& ret = collector->start();
-    ASSERT_TRUE(ret) << ret.error().message();
-    ASSERT_TRUE(collector->mCollectionThread.joinable()) << "Collection thread not created";
-    ASSERT_FALSE(collector->start())
-            << "No error returned when collector was started more than once";
-    ASSERT_TRUE(sysprop::topNStatsPerCategory().has_value());
-    ASSERT_EQ(collector->mTopNStatsPerCategory, sysprop::topNStatsPerCategory().value());
-
-    ASSERT_TRUE(sysprop::topNStatsPerSubcategory().has_value());
-    ASSERT_EQ(collector->mTopNStatsPerSubcategory, sysprop::topNStatsPerSubcategory().value());
-
-    ASSERT_TRUE(sysprop::boottimeCollectionInterval().has_value());
-    ASSERT_EQ(std::chrono::duration_cast<std::chrono::seconds>(
-                      collector->mBoottimeCollection.interval)
-                      .count(),
-              sysprop::boottimeCollectionInterval().value());
-
-    ASSERT_TRUE(sysprop::topNStatsPerCategory().has_value());
-    ASSERT_EQ(std::chrono::duration_cast<std::chrono::seconds>(
-                      collector->mPeriodicCollection.interval)
-                      .count(),
-              sysprop::periodicCollectionInterval().value());
-
-    ASSERT_TRUE(sysprop::periodicCollectionBufferSize().has_value());
-    ASSERT_EQ(collector->mPeriodicCollection.maxCacheSize,
-              sysprop::periodicCollectionBufferSize().value());
-
-    collector->terminate();
-    ASSERT_FALSE(collector->mCollectionThread.joinable()) << "Collection thread did not terminate";
-}
-
-TEST(IoPerfCollectionTest, TestValidCollectionSequence) {
-    sp<UidIoStatsStub> uidIoStatsStub = new UidIoStatsStub(true);
-    sp<ProcStatStub> procStatStub = new ProcStatStub(true);
-    sp<ProcPidStatStub> procPidStatStub = new ProcPidStatStub(true);
-    sp<LooperStub> looperStub = new LooperStub();
+TEST(IoPerfCollectionTest, TestBoottimeCollection) {
+    sp<MockUidIoStats> mockUidIoStats = new MockUidIoStats();
+    sp<MockProcStat> mockProcStat = new MockProcStat();
+    sp<MockProcPidStat> mockProcPidStat = new MockProcPidStat();
 
     sp<IoPerfCollection> collector = new IoPerfCollection();
-    collector->mUidIoStats = uidIoStatsStub;
-    collector->mProcStat = procStatStub;
-    collector->mProcPidStat = procPidStatStub;
-    collector->mHandlerLooper = looperStub;
 
-    auto ret = collector->start();
-    ASSERT_TRUE(ret) << ret.error().message();
+    ASSERT_RESULT_OK(collector->start());
 
-    collector->mBoottimeCollection.interval = kTestBootInterval;
-    collector->mPeriodicCollection.interval = kTestPeriodicInterval;
-    collector->mPeriodicCollection.maxCacheSize = 1;
+    internal::IoPerfCollectionPeer collectorPeer(collector);
 
-    internal::PackageNameResolverPeer peer({{1009, "mount"}});
-
-    // #1 Boot-time collection
-    uidIoStatsStub->push({{1009, {.uid = 1009, .ios = {0, 20000, 0, 30000, 0, 300}}}});
-    procStatStub->push(ProcStatInfo{
-            /*stats=*/{6200, 5700, 1700, 3100, /*ioWaitTime=*/1100, 5200, 3900, 0, 0, 0},
-            /*runnableCnt=*/17,
-            /*ioBlockedCnt=*/5,
-    });
-    procPidStatStub->push({{.tgid = 100,
-                            .uid = 1009,
-                            .process = {.pid = 100,
-                                        .comm = "disk I/O",
-                                        .state = "D",
-                                        .ppid = 1,
-                                        .majorFaults = 5000,
-                                        .numThreads = 1,
-                                        .startTime = 234},
-                            .threads = {{100,
-                                         {.pid = 100,
-                                          .comm = "disk I/O",
-                                          .state = "D",
-                                          .ppid = 1,
-                                          .majorFaults = 5000,
-                                          .numThreads = 1,
-                                          .startTime = 234}}}}});
-    IoPerfRecord bootExpectedFirst = {
-            .uidIoPerfData = {.topNReads = {{.userId = 0,
-                                             .packageName = "mount",
-                                             .bytes = {0, 20000},
-                                             .fsync{0, 300}}},
-                              .topNWrites = {{.userId = 0,
-                                              .packageName = "mount",
-                                              .bytes = {0, 30000},
-                                              .fsync{0, 300}}},
-                              .total = {{0, 20000}, {0, 30000}, {0, 300}}},
-            .systemIoPerfData = {.cpuIoWaitTime = 1100,
-                                 .totalCpuTime = 26900,
-                                 .ioBlockedProcessesCnt = 5,
-                                 .totalProcessesCnt = 22},
-            .processIoPerfData = {.topNIoBlockedUids = {{0, "mount", 1, {{"disk I/O", 1}}}},
-                                  .topNIoBlockedUidsTotalTaskCnt = {1},
-                                  .topNMajorFaultUids = {{0, "mount", 5000, {{"disk I/O", 5000}}}},
-                                  .totalMajorFaults = 5000,
-                                  .majorFaultsPercentChange = 0.0},
-    };
-    ret = looperStub->pollCache();
-    ASSERT_TRUE(ret) << ret.error().message();
-    ASSERT_EQ(looperStub->numSecondsElapsed(), 0)
-            << "Boot-time collection didn't start immediately";
-
-    // #2 Boot-time collection
-    uidIoStatsStub->push({
-            {1009, {.uid = 1009, .ios = {0, 2000, 0, 3000, 0, 100}}},
-    });
-    procStatStub->push(ProcStatInfo{
-            /*stats=*/{1200, 1700, 2700, 7800, /*ioWaitTime=*/5500, 500, 300, 0, 0, 100},
-            /*runnableCnt=*/8,
-            /*ioBlockedCnt=*/6,
-    });
-    procPidStatStub->push({{.tgid = 100,
-                            .uid = 1009,
-                            .process = {.pid = 100,
-                                        .comm = "disk I/O",
-                                        .state = "D",
-                                        .ppid = 1,
-                                        .majorFaults = 11000,
-                                        .numThreads = 1,
-                                        .startTime = 234},
-                            .threads = {{100,
-                                         {.pid = 100,
-                                          .comm = "disk I/O",
-                                          .state = "D",
-                                          .ppid = 1,
-                                          .majorFaults = 10000,
-                                          .numThreads = 1,
-                                          .startTime = 234}},
-                                        {200,
-                                         {.pid = 200,
-                                          .comm = "disk I/O",
-                                          .state = "D",
-                                          .ppid = 1,
-                                          .majorFaults = 1000,
-                                          .numThreads = 1,
-                                          .startTime = 1234}}}}});
-    IoPerfRecord bootExpectedSecond = {
-            .uidIoPerfData = {.topNReads = {{.userId = 0,
-                                             .packageName = "mount",
-                                             .bytes = {0, 2000},
-                                             .fsync{0, 100}}},
-                              .topNWrites = {{.userId = 0,
-                                              .packageName = "mount",
-                                              .bytes = {0, 3000},
-                                              .fsync{0, 100}}},
-                              .total = {{0, 2000}, {0, 3000}, {0, 100}}},
-            .systemIoPerfData = {.cpuIoWaitTime = 5500,
-                                 .totalCpuTime = 19800,
-                                 .ioBlockedProcessesCnt = 6,
-                                 .totalProcessesCnt = 14},
-            .processIoPerfData =
-                    {.topNIoBlockedUids = {{0, "mount", 2, {{"disk I/O", 2}}}},
-                     .topNIoBlockedUidsTotalTaskCnt = {2},
-                     .topNMajorFaultUids = {{0, "mount", 11000, {{"disk I/O", 11000}}}},
-                     .totalMajorFaults = 11000,
-                     .majorFaultsPercentChange = ((11000.0 - 5000.0) / 5000.0) * 100},
-    };
-    ret = looperStub->pollCache();
-    ASSERT_TRUE(ret) << ret.error().message();
-    ASSERT_EQ(looperStub->numSecondsElapsed(), kTestBootInterval.count())
-            << "Subsequent boot-time collection didn't happen at " << kTestBootInterval.count()
-            << " seconds interval";
-
-    // #3 Last boot-time collection
-    ret = collector->onBootFinished();
-    ASSERT_TRUE(ret) << ret.error().message();
-    uidIoStatsStub->push({
-            {1009, {.uid = 1009, .ios = {0, 7000, 0, 8000, 0, 50}}},
-    });
-    procStatStub->push(ProcStatInfo{
-            /*stats=*/{1400, 1900, 2900, 8000, /*ioWaitTime=*/5700, 700, 500, 0, 0, 300},
-            /*runnableCnt=*/10,
-            /*ioBlockedCnt=*/8,
-    });
-    procPidStatStub->push({{.tgid = 100,
-                            .uid = 1009,
-                            .process = {.pid = 100,
-                                        .comm = "disk I/O",
-                                        .state = "D",
-                                        .ppid = 1,
-                                        .majorFaults = 5000,
-                                        .numThreads = 1,
-                                        .startTime = 234},
-                            .threads = {{100,
-                                         {.pid = 100,
-                                          .comm = "disk I/O",
-                                          .state = "D",
-                                          .ppid = 1,
-                                          .majorFaults = 3000,
-                                          .numThreads = 1,
-                                          .startTime = 234}},
-                                        {200,
-                                         {.pid = 200,
-                                          .comm = "disk I/O",
-                                          .state = "D",
-                                          .ppid = 1,
-                                          .majorFaults = 2000,
-                                          .numThreads = 1,
-                                          .startTime = 1234}}}}});
-    IoPerfRecord bootExpectedThird = {
-            .uidIoPerfData = {.topNReads = {{.userId = 0,
-                                             .packageName = "mount",
-                                             .bytes = {0, 7000},
-                                             .fsync{0, 50}}},
-                              .topNWrites = {{.userId = 0,
-                                              .packageName = "mount",
-                                              .bytes = {0, 8000},
-                                              .fsync{0, 50}}},
-                              .total = {{0, 7000}, {0, 8000}, {0, 50}}},
-            .systemIoPerfData = {.cpuIoWaitTime = 5700,
-                                 .totalCpuTime = 21400,
-                                 .ioBlockedProcessesCnt = 8,
-                                 .totalProcessesCnt = 18},
-            .processIoPerfData = {.topNIoBlockedUids = {{0, "mount", 2, {{"disk I/O", 2}}}},
-                                  .topNIoBlockedUidsTotalTaskCnt = {2},
-                                  .topNMajorFaultUids = {{0, "mount", 5000, {{"disk I/O", 5000}}}},
-                                  .totalMajorFaults = 5000,
-                                  .majorFaultsPercentChange = ((5000.0 - 11000.0) / 11000.0) * 100},
-    };
-    ret = looperStub->pollCache();
-    ASSERT_TRUE(ret) << ret.error().message();
-    ASSERT_EQ(looperStub->numSecondsElapsed(), 0)
-            << "Last boot-time collection didn't happen immediately after receiving boot complete "
-            << "notification";
-
-    ASSERT_EQ(collector->mBoottimeCollection.records.size(), 3);
-    ASSERT_TRUE(isEqual(collector->mBoottimeCollection.records[0], bootExpectedFirst))
-            << "Boot-time collection record 1 doesn't match.\nExpected:\n"
-            << toString(bootExpectedFirst) << "\nActual:\n"
-            << toString(collector->mBoottimeCollection.records[0]);
-    ASSERT_TRUE(isEqual(collector->mBoottimeCollection.records[1], bootExpectedSecond))
-            << "Boot-time collection record 2 doesn't match.\nExpected:\n"
-            << toString(bootExpectedSecond) << "\nActual:\n"
-            << toString(collector->mBoottimeCollection.records[1]);
-    ASSERT_TRUE(isEqual(collector->mBoottimeCollection.records[2], bootExpectedThird))
-            << "Boot-time collection record 3 doesn't match.\nExpected:\n"
-            << toString(bootExpectedSecond) << "\nActual:\n"
-            << toString(collector->mBoottimeCollection.records[2]);
-
-    // #4 Periodic collection
-    uidIoStatsStub->push({
-            {1009, {.uid = 1009, .ios = {0, 4000, 0, 6000, 0, 100}}},
-    });
-    procStatStub->push(ProcStatInfo{
-            /*stats=*/{200, 700, 400, 800, /*ioWaitTime=*/500, 666, 780, 0, 0, 230},
-            /*runnableCnt=*/12,
-            /*ioBlockedCnt=*/3,
-    });
-    procPidStatStub->push({{.tgid = 100,
-                            .uid = 1009,
-                            .process = {.pid = 100,
-                                        .comm = "disk I/O",
-                                        .state = "D",
-                                        .ppid = 1,
-                                        .majorFaults = 4100,
-                                        .numThreads = 1,
-                                        .startTime = 234},
-                            .threads = {{100,
-                                         {.pid = 100,
-                                          .comm = "disk I/O",
-                                          .state = "D",
-                                          .ppid = 1,
-                                          .majorFaults = 100,
-                                          .numThreads = 1,
-                                          .startTime = 234}},
-                                        {1200,
-                                         {.pid = 1200,
-                                          .comm = "disk I/O",
-                                          .state = "S",
-                                          .ppid = 1,
-                                          .majorFaults = 4000,
-                                          .numThreads = 1,
-                                          .startTime = 567890}}}}});
-    IoPerfRecord periodicExpectedFirst = {
-            .uidIoPerfData = {.topNReads = {{.userId = 0,
-                                             .packageName = "mount",
-                                             .bytes = {0, 4000},
-                                             .fsync{0, 100}}},
-                              .topNWrites = {{.userId = 0,
-                                              .packageName = "mount",
-                                              .bytes = {0, 6000},
-                                              .fsync{0, 100}}},
-                              .total = {{0, 4000}, {0, 6000}, {0, 100}}},
-            .systemIoPerfData = {.cpuIoWaitTime = 500,
-                                 .totalCpuTime = 4276,
-                                 .ioBlockedProcessesCnt = 3,
-                                 .totalProcessesCnt = 15},
-            .processIoPerfData = {.topNIoBlockedUids = {{0, "mount", 1, {{"disk I/O", 1}}}},
-                                  .topNIoBlockedUidsTotalTaskCnt = {2},
-                                  .topNMajorFaultUids = {{0, "mount", 4100, {{"disk I/O", 4100}}}},
-                                  .totalMajorFaults = 4100,
-                                  .majorFaultsPercentChange = ((4100.0 - 5000.0) / 5000.0) * 100},
-    };
-    ret = looperStub->pollCache();
-    ASSERT_TRUE(ret) << ret.error().message();
-    ASSERT_EQ(looperStub->numSecondsElapsed(), kTestPeriodicInterval.count())
-            << "First periodic collection didn't happen at " << kTestPeriodicInterval.count()
-            << " seconds interval";
-
-    // #5 Periodic collection
-    uidIoStatsStub->push({
-            {1009, {.uid = 1009, .ios = {0, 3000, 0, 5000, 0, 800}}},
-    });
-    procStatStub->push(ProcStatInfo{
-            /*stats=*/{2300, 7300, 4300, 8300, /*ioWaitTime=*/5300, 6366, 7380, 0, 0, 2330},
-            /*runnableCnt=*/2,
-            /*ioBlockedCnt=*/4,
-    });
-    procPidStatStub->push({{.tgid = 100,
-                            .uid = 1009,
-                            .process = {.pid = 100,
-                                        .comm = "disk I/O",
-                                        .state = "D",
-                                        .ppid = 1,
-                                        .majorFaults = 44300,
-                                        .numThreads = 1,
-                                        .startTime = 234},
-                            .threads = {{100,
-                                         {.pid = 100,
-                                          .comm = "disk I/O",
-                                          .state = "D",
-                                          .ppid = 1,
-                                          .majorFaults = 1300,
-                                          .numThreads = 1,
-                                          .startTime = 234}},
-                                        {1200,
-                                         {.pid = 1200,
-                                          .comm = "disk I/O",
-                                          .state = "D",
-                                          .ppid = 1,
-                                          .majorFaults = 43000,
-                                          .numThreads = 1,
-                                          .startTime = 567890}}}}});
-    IoPerfRecord periodicExpectedSecond = {
-            .uidIoPerfData = {.topNReads = {{.userId = 0,
-                                             .packageName = "mount",
-                                             .bytes = {0, 3000},
-                                             .fsync{0, 800}}},
-                              .topNWrites = {{.userId = 0,
-                                              .packageName = "mount",
-                                              .bytes = {0, 5000},
-                                              .fsync{0, 800}}},
-                              .total = {{0, 3000}, {0, 5000}, {0, 800}}},
-            .systemIoPerfData = {.cpuIoWaitTime = 5300,
-                                 .totalCpuTime = 43576,
-                                 .ioBlockedProcessesCnt = 4,
-                                 .totalProcessesCnt = 6},
-            .processIoPerfData =
-                    {.topNIoBlockedUids = {{0, "mount", 2, {{"disk I/O", 2}}}},
-                     .topNIoBlockedUidsTotalTaskCnt = {2},
-                     .topNMajorFaultUids = {{0, "mount", 44300, {{"disk I/O", 44300}}}},
-                     .totalMajorFaults = 44300,
-                     .majorFaultsPercentChange = ((44300.0 - 4100.0) / 4100.0) * 100},
-    };
-    ret = looperStub->pollCache();
-    ASSERT_TRUE(ret) << ret.error().message();
-    ASSERT_EQ(looperStub->numSecondsElapsed(), kTestPeriodicInterval.count())
-            << "Subsequent periodic collection didn't happen at " << kTestPeriodicInterval.count()
-            << " seconds interval";
-
-    ASSERT_EQ(collector->mPeriodicCollection.records.size(), 2);
-    ASSERT_TRUE(isEqual(collector->mPeriodicCollection.records[0], periodicExpectedFirst))
-            << "Periodic collection snapshot 1, record 1 doesn't match.\nExpected:\n"
-            << toString(periodicExpectedFirst) << "\nActual:\n"
-            << toString(collector->mPeriodicCollection.records[0]);
-    ASSERT_TRUE(isEqual(collector->mPeriodicCollection.records[1], periodicExpectedSecond))
-            << "Periodic collection snapshot 1, record 2 doesn't match.\nExpected:\n"
-            << toString(periodicExpectedSecond) << "\nActual:\n"
-            << toString(collector->mPeriodicCollection.records[1]);
-
-    // #6 Custom collection
-    Vector<String16> args;
-    args.push_back(String16(kStartCustomCollectionFlag));
-    args.push_back(String16(kIntervalFlag));
-    args.push_back(String16(std::to_string(kTestCustomInterval.count()).c_str()));
-    args.push_back(String16(kMaxDurationFlag));
-    args.push_back(String16(std::to_string(kTestCustomCollectionDuration.count()).c_str()));
-
-    ret = collector->onCustomCollection(-1, args);
-    ASSERT_TRUE(ret.ok()) << ret.error().message();
-    uidIoStatsStub->push({
-            {1009, {.uid = 1009, .ios = {0, 13000, 0, 15000, 0, 100}}},
-    });
-    procStatStub->push(ProcStatInfo{
-            /*stats=*/{2800, 7800, 4800, 8800, /*ioWaitTime=*/5800, 6866, 7880, 0, 0, 2830},
-            /*runnableCnt=*/200,
-            /*ioBlockedCnt=*/13,
-    });
-    procPidStatStub->push({{.tgid = 100,
-                            .uid = 1009,
-                            .process = {.pid = 100,
-                                        .comm = "disk I/O",
-                                        .state = "D",
-                                        .ppid = 1,
-                                        .majorFaults = 49800,
-                                        .numThreads = 1,
-                                        .startTime = 234},
-                            .threads = {{100,
-                                         {.pid = 100,
-                                          .comm = "disk I/O",
-                                          .state = "D",
-                                          .ppid = 1,
-                                          .majorFaults = 1800,
-                                          .numThreads = 1,
-                                          .startTime = 234}},
-                                        {1200,
-                                         {.pid = 1200,
-                                          .comm = "disk I/O",
-                                          .state = "D",
-                                          .ppid = 1,
-                                          .majorFaults = 48000,
-                                          .numThreads = 1,
-                                          .startTime = 567890}}}}});
-    IoPerfRecord customExpectedFirst = {
-            .uidIoPerfData = {.topNReads = {{.userId = 0,
-                                             .packageName = "mount",
-                                             .bytes = {0, 13000},
-                                             .fsync{0, 100}}},
-                              .topNWrites = {{.userId = 0,
-                                              .packageName = "mount",
-                                              .bytes = {0, 15000},
-                                              .fsync{0, 100}}},
-                              .total = {{0, 13000}, {0, 15000}, {0, 100}}},
-            .systemIoPerfData = {.cpuIoWaitTime = 5800,
-                                 .totalCpuTime = 47576,
-                                 .ioBlockedProcessesCnt = 13,
-                                 .totalProcessesCnt = 213},
-            .processIoPerfData =
-                    {.topNIoBlockedUids = {{0, "mount", 2, {{"disk I/O", 2}}}},
-                     .topNIoBlockedUidsTotalTaskCnt = {2},
-                     .topNMajorFaultUids = {{0, "mount", 49800, {{"disk I/O", 49800}}}},
-                     .totalMajorFaults = 49800,
-                     .majorFaultsPercentChange = ((49800.0 - 44300.0) / 44300.0) * 100},
-    };
-    ret = looperStub->pollCache();
-    ASSERT_TRUE(ret) << ret.error().message();
-    ASSERT_EQ(looperStub->numSecondsElapsed(), 0) << "Custom collection didn't start immediately";
-
-    // #7 Custom collection
-    uidIoStatsStub->push({
+    const std::unordered_map<uid_t, UidIoUsage> uidIoUsages({
             {1009, {.uid = 1009, .ios = {0, 14000, 0, 16000, 0, 100}}},
     });
-    procStatStub->push(ProcStatInfo{
+    const ProcStatInfo procStatInfo{
             /*stats=*/{2900, 7900, 4900, 8900, /*ioWaitTime=*/5900, 6966, 7980, 0, 0, 2930},
             /*runnableCnt=*/100,
             /*ioBlockedCnt=*/57,
+    };
+    const std::vector<ProcessStats> processStats({
+            {.tgid = 100,
+             .uid = 1009,
+             .process = {100, "disk I/O", "D", 1, 11000, 1, 234},
+             .threads = {{100, {100, "mount", "D", 1, 11000, 1, 234}}}},
     });
-    procPidStatStub->push({{.tgid = 100,
-                            .uid = 1009,
-                            .process = {.pid = 100,
-                                        .comm = "disk I/O",
-                                        .state = "D",
-                                        .ppid = 1,
-                                        .majorFaults = 50900,
-                                        .numThreads = 1,
-                                        .startTime = 234},
-                            .threads = {{100,
-                                         {.pid = 100,
-                                          .comm = "disk I/O",
-                                          .state = "D",
-                                          .ppid = 1,
-                                          .majorFaults = 1900,
-                                          .numThreads = 1,
-                                          .startTime = 234}},
-                                        {1200,
-                                         {.pid = 1200,
-                                          .comm = "disk I/O",
-                                          .state = "D",
-                                          .ppid = 1,
-                                          .majorFaults = 49000,
-                                          .numThreads = 1,
-                                          .startTime = 567890}}}}});
-    IoPerfRecord customExpectedSecond = {
-            .uidIoPerfData = {.topNReads = {{.userId = 0,
-                                             .packageName = "mount",
-                                             .bytes = {0, 14000},
-                                             .fsync{0, 100}}},
-                              .topNWrites = {{.userId = 0,
-                                              .packageName = "mount",
-                                              .bytes = {0, 16000},
-                                              .fsync{0, 100}}},
+
+    EXPECT_CALL(*mockUidIoStats, deltaStats()).WillOnce(Return(uidIoUsages));
+    EXPECT_CALL(*mockProcStat, deltaStats()).WillOnce(Return(procStatInfo));
+    EXPECT_CALL(*mockProcPidStat, deltaStats()).WillOnce(Return(processStats));
+
+    const IoPerfRecord expected = {
+            .uidIoPerfData = {.topNReads = {{0, "mount", {0, 14000}, {0, 100}}},
+                              .topNWrites = {{0, "mount", {0, 16000}, {0, 100}}},
                               .total = {{0, 14000}, {0, 16000}, {0, 100}}},
-            .systemIoPerfData = {.cpuIoWaitTime = 5900,
-                                 .totalCpuTime = 48376,
-                                 .ioBlockedProcessesCnt = 57,
-                                 .totalProcessesCnt = 157},
+            .systemIoPerfData = {5900, 48376, 57, 157},
             .processIoPerfData =
-                    {.topNIoBlockedUids = {{0, "mount", 2, {{"disk I/O", 2}}}},
-                     .topNIoBlockedUidsTotalTaskCnt = {2},
-                     .topNMajorFaultUids = {{0, "mount", 50900, {{"disk I/O", 50900}}}},
-                     .totalMajorFaults = 50900,
-                     .majorFaultsPercentChange = ((50900.0 - 49800.0) / 49800.0) * 100},
+                    {.topNIoBlockedUids = {{0, "mount", 1, {{"disk I/O", 1}}}},
+                     .topNIoBlockedUidsTotalTaskCnt = {1},
+                     .topNMajorFaultUids = {{0, "mount", 11000, {{"disk I/O", 11000}}}},
+                     .totalMajorFaults = 11000,
+                     .majorFaultsPercentChange = 0},
     };
-    ret = looperStub->pollCache();
-    ASSERT_TRUE(ret) << ret.error().message();
-    ASSERT_EQ(looperStub->numSecondsElapsed(), kTestCustomInterval.count())
-            << "Subsequent custom collection didn't happen at " << kTestCustomInterval.count()
-            << " seconds interval";
+    internal::PackageNameResolverPeer peer({{1009, "mount"}});
 
-    ASSERT_EQ(collector->mCustomCollection.records.size(), 2);
-    ASSERT_TRUE(isEqual(collector->mCustomCollection.records[0], customExpectedFirst))
-            << "Custom collection record 1 doesn't match.\nExpected:\n"
-            << toString(customExpectedFirst) << "\nActual:\n"
-            << toString(collector->mCustomCollection.records[0]);
-    ASSERT_TRUE(isEqual(collector->mCustomCollection.records[1], customExpectedSecond))
-            << "Custom collection record 2 doesn't match.\nExpected:\n"
-            << toString(customExpectedSecond) << "\nActual:\n"
-            << toString(collector->mCustomCollection.records[1]);
+    time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    ASSERT_RESULT_OK(
+            collector->onBoottimeCollection(now, mockUidIoStats, mockProcStat, mockProcPidStat));
 
-    // #8 Switch to periodic collection
-    args.clear();
-    args.push_back(String16(kEndCustomCollectionFlag));
-    TemporaryFile customDump;
-    ret = collector->onCustomCollection(customDump.fd, args);
-    ASSERT_TRUE(ret.ok()) << ret.error().message();
-    ret = looperStub->pollCache();
-    ASSERT_TRUE(ret) << ret.error().message();
+    const CollectionInfo& collectionInfo = collectorPeer.getBoottimeCollectionInfo();
 
-    // Custom collection cache should be emptied on ending the collection.
-    ASSERT_EQ(collector->mCustomCollection.records.size(), 0);
+    ASSERT_EQ(collectionInfo.maxCacheSize, std::numeric_limits<std::size_t>::max());
+    ASSERT_EQ(collectionInfo.records.size(), 1);
+    ASSERT_TRUE(isEqual(collectionInfo.records[0], expected))
+            << "Boottime collection record doesn't match.\nExpected:\n"
+            << toString(expected) << "\nActual:\n"
+            << toString(collectionInfo.records[0]);
 
-    // #7 periodic collection
-    uidIoStatsStub->push({
-            {1009, {.uid = 1009, .ios = {0, 123, 0, 456, 0, 25}}},
+    TemporaryFile dump;
+    ASSERT_RESULT_OK(collector->onDump(dump.fd));
+
+    lseek(dump.fd, 0, SEEK_SET);
+    std::string dumpContents;
+    ASSERT_TRUE(ReadFdToString(dump.fd, &dumpContents));
+    ASSERT_FALSE(dumpContents.empty());
+
+    ASSERT_EQ(countOccurrences(dumpContents, kEmptyCollectionMessage), 1)
+            << "Only periodic collection should be not collected. Dump contents: " << dumpContents;
+}
+
+TEST(IoPerfCollectionTest, TestPeriodicCollection) {
+    sp<MockUidIoStats> mockUidIoStats = new MockUidIoStats();
+    sp<MockProcStat> mockProcStat = new MockProcStat();
+    sp<MockProcPidStat> mockProcPidStat = new MockProcPidStat();
+
+    sp<IoPerfCollection> collector = new IoPerfCollection();
+
+    ASSERT_RESULT_OK(collector->start());
+
+    internal::IoPerfCollectionPeer collectorPeer(collector);
+
+    const std::unordered_map<uid_t, UidIoUsage> uidIoUsages({
+            {1009, {.uid = 1009, .ios = {0, 14000, 0, 16000, 0, 100}}},
     });
-    procStatStub->push(ProcStatInfo{
-            /*stats=*/{3400, 2300, 5600, 7800, /*ioWaitTime=*/1100, 166, 180, 0, 0, 130},
-            /*runnableCnt=*/3,
-            /*ioBlockedCnt=*/1,
-    });
-    procPidStatStub->push({{.tgid = 100,
-                            .uid = 1009,
-                            .process = {.pid = 100,
-                                        .comm = "disk I/O",
-                                        .state = "D",
-                                        .ppid = 1,
-                                        .majorFaults = 5701,
-                                        .numThreads = 1,
-                                        .startTime = 234},
-                            .threads = {{100,
-                                         {.pid = 100,
-                                          .comm = "disk I/O",
-                                          .state = "D",
-                                          .ppid = 1,
-                                          .majorFaults = 23,
-                                          .numThreads = 1,
-                                          .startTime = 234}},
-                                        {1200,
-                                         {.pid = 1200,
-                                          .comm = "disk I/O",
-                                          .state = "D",
-                                          .ppid = 1,
-                                          .majorFaults = 5678,
-                                          .numThreads = 1,
-                                          .startTime = 567890}}}}});
-    IoPerfRecord periodicExpectedThird = {
-            .uidIoPerfData = {.topNReads = {{.userId = 0,
-                                             .packageName = "mount",
-                                             .bytes = {0, 123},
-                                             .fsync{0, 25}}},
-                              .topNWrites = {{.userId = 0,
-                                              .packageName = "mount",
-                                              .bytes = {0, 456},
-                                              .fsync{0, 25}}},
-                              .total = {{0, 123}, {0, 456}, {0, 25}}},
-            .systemIoPerfData = {.cpuIoWaitTime = 1100,
-                                 .totalCpuTime = 20676,
-                                 .ioBlockedProcessesCnt = 1,
-                                 .totalProcessesCnt = 4},
-            .processIoPerfData = {.topNIoBlockedUids = {{0, "mount", 2, {{"disk I/O", 2}}}},
-                                  .topNIoBlockedUidsTotalTaskCnt = {2},
-                                  .topNMajorFaultUids = {{0, "mount", 5701, {{"disk I/O", 5701}}}},
-                                  .totalMajorFaults = 5701,
-                                  .majorFaultsPercentChange = ((5701.0 - 50900.0) / 50900.0) * 100},
+    const ProcStatInfo procStatInfo{
+            /*stats=*/{2900, 7900, 4900, 8900, /*ioWaitTime=*/5900, 6966, 7980, 0, 0, 2930},
+            /*runnableCnt=*/100,
+            /*ioBlockedCnt=*/57,
     };
-    ret = looperStub->pollCache();
-    ASSERT_TRUE(ret) << ret.error().message();
-    ASSERT_EQ(looperStub->numSecondsElapsed(), 0)
-            << "Periodic collection didn't start immediately after ending custom collection";
+    const std::vector<ProcessStats> processStats({
+            {.tgid = 100,
+             .uid = 1009,
+             .process = {100, "disk I/O", "D", 1, 11000, 1, 234},
+             .threads = {{100, {100, "mount", "D", 1, 11000, 1, 234}}}},
+    });
 
-    // Maximum periodic collection buffer size is 2.
-    ASSERT_EQ(collector->mPeriodicCollection.records.size(), 2);
-    ASSERT_TRUE(isEqual(collector->mPeriodicCollection.records[0], periodicExpectedSecond))
-            << "Periodic collection snapshot 2, record 1 doesn't match.\nExpected:\n"
-            << toString(periodicExpectedSecond) << "\nActual:\n"
-            << toString(collector->mPeriodicCollection.records[0]);
-    ASSERT_TRUE(isEqual(collector->mPeriodicCollection.records[1], periodicExpectedThird))
-            << "Periodic collection snapshot 2, record 2 doesn't match.\nExpected:\n"
-            << toString(periodicExpectedThird) << "\nActual:\n"
-            << toString(collector->mPeriodicCollection.records[1]);
+    EXPECT_CALL(*mockUidIoStats, deltaStats()).WillOnce(Return(uidIoUsages));
+    EXPECT_CALL(*mockProcStat, deltaStats()).WillOnce(Return(procStatInfo));
+    EXPECT_CALL(*mockProcPidStat, deltaStats()).WillOnce(Return(processStats));
 
-    ASSERT_EQ(collector->mBoottimeCollection.records.size(), 3)
-            << "Boot-time records not persisted until collector termination";
+    const IoPerfRecord expected = {
+            .uidIoPerfData = {.topNReads = {{0, "mount", {0, 14000}, {0, 100}}},
+                              .topNWrites = {{0, "mount", {0, 16000}, {0, 100}}},
+                              .total = {{0, 14000}, {0, 16000}, {0, 100}}},
+            .systemIoPerfData = {5900, 48376, 57, 157},
+            .processIoPerfData =
+                    {.topNIoBlockedUids = {{0, "mount", 1, {{"disk I/O", 1}}}},
+                     .topNIoBlockedUidsTotalTaskCnt = {1},
+                     .topNMajorFaultUids = {{0, "mount", 11000, {{"disk I/O", 11000}}}},
+                     .totalMajorFaults = 11000,
+                     .majorFaultsPercentChange = 0},
+    };
+    internal::PackageNameResolverPeer peer({{1009, "mount"}});
 
-    TemporaryFile bugreportDump;
-    ret = collector->onDump(bugreportDump.fd);
-    ASSERT_TRUE(ret.ok()) << ret.error().message();
+    time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    ASSERT_RESULT_OK(
+            collector->onPeriodicCollection(now, mockUidIoStats, mockProcStat, mockProcPidStat));
 
-    collector->terminate();
+    const CollectionInfo& collectionInfo = collectorPeer.getPeriodicCollectionInfo();
+
+    ASSERT_EQ(collectionInfo.maxCacheSize,
+              static_cast<size_t>(sysprop::periodicCollectionBufferSize().value_or(
+                      kDefaultPeriodicCollectionBufferSize)));
+    ASSERT_EQ(collectionInfo.records.size(), 1);
+    ASSERT_TRUE(isEqual(collectionInfo.records[0], expected))
+            << "Periodic collection record doesn't match.\nExpected:\n"
+            << toString(expected) << "\nActual:\n"
+            << toString(collectionInfo.records[0]);
+
+    TemporaryFile dump;
+    ASSERT_RESULT_OK(collector->onDump(dump.fd));
+
+    lseek(dump.fd, 0, SEEK_SET);
+    std::string dumpContents;
+    ASSERT_TRUE(ReadFdToString(dump.fd, &dumpContents));
+    ASSERT_FALSE(dumpContents.empty());
+
+    ASSERT_EQ(countOccurrences(dumpContents, kEmptyCollectionMessage), 1)
+            << "Only boot-time collection should be not collected. Dump contents: " << dumpContents;
 }
 
-TEST(IoPerfCollectionTest, TestCollectionTerminatesOnZeroEnabledCollectors) {
-    sp<IoPerfCollection> collector = new IoPerfCollection();
-    collector->mUidIoStats = new UidIoStatsStub();
-    collector->mProcStat = new ProcStatStub();
-    collector->mProcPidStat = new ProcPidStatStub();
-
-    const auto& ret = collector->start();
-    ASSERT_TRUE(ret) << ret.error().message();
-
-    ASSERT_EQ(std::async([&]() {
-                  if (collector->mCollectionThread.joinable()) {
-                      collector->mCollectionThread.join();
-                  }
-              }).wait_for(1s),
-              std::future_status::ready)
-            << "Collection thread didn't terminate within 1 second.";
-    ASSERT_EQ(collector->mCurrCollectionEvent, CollectionEvent::TERMINATED);
-
-    // When the collection doesn't auto-terminate on error, the test will hang if the collector is
-    // not terminated explicitly. Thus call terminate to avoid this.
-    collector->terminate();
-}
-
-TEST(IoPerfCollectionTest, TestCollectionTerminatesOnError) {
-    sp<IoPerfCollection> collector = new IoPerfCollection();
-    collector->mUidIoStats = new UidIoStatsStub(true);
-    collector->mProcStat = new ProcStatStub(true);
-    collector->mProcPidStat = new ProcPidStatStub(true);
-
-    // Stub caches are empty so polling them should trigger error.
-    const auto& ret = collector->start();
-    ASSERT_TRUE(ret) << ret.error().message();
-
-    ASSERT_EQ(std::async([&]() {
-                  if (collector->mCollectionThread.joinable()) {
-                      collector->mCollectionThread.join();
-                  }
-              }).wait_for(1s),
-              std::future_status::ready)
-            << "Collection thread didn't terminate within 1 second.";
-    ASSERT_EQ(collector->mCurrCollectionEvent, CollectionEvent::TERMINATED);
-
-    // When the collection doesn't auto-terminate on error, the test will hang if the collector is
-    // not terminated explicitly. Thus call terminate to avoid this.
-    collector->terminate();
-}
-
-TEST(IoPerfCollectionTest, TestCustomCollectionFiltersPackageNames) {
-    sp<UidIoStatsStub> uidIoStatsStub = new UidIoStatsStub(true);
-    sp<ProcStatStub> procStatStub = new ProcStatStub(true);
-    sp<ProcPidStatStub> procPidStatStub = new ProcPidStatStub(true);
-    sp<LooperStub> looperStub = new LooperStub();
+TEST(IoPerfCollectionTest, TestCustomCollection) {
+    sp<MockUidIoStats> mockUidIoStats = new MockUidIoStats();
+    sp<MockProcStat> mockProcStat = new MockProcStat();
+    sp<MockProcPidStat> mockProcPidStat = new MockProcPidStat();
 
     sp<IoPerfCollection> collector = new IoPerfCollection();
-    collector->mUidIoStats = uidIoStatsStub;
-    collector->mProcStat = procStatStub;
-    collector->mProcPidStat = procPidStatStub;
-    collector->mHandlerLooper = looperStub;
+
+    ASSERT_RESULT_OK(collector->start());
+
+    internal::IoPerfCollectionPeer collectorPeer(collector);
     // Filter by package name should ignore this limit.
-    collector->mTopNStatsPerCategory = 1;
+    collectorPeer.setTopNStatsPerCategory(1);
 
-    auto ret = collector->start();
-    ASSERT_TRUE(ret) << ret.error().message();
-
-    // Mocked boot-time collection
-    uidIoStatsStub->push({});
-    procStatStub->push(ProcStatInfo{});
-    procPidStatStub->push({});
-    ret = looperStub->pollCache();
-    ASSERT_TRUE(ret) << ret.error().message();
-
-    // Mocked Periodic collection
-    ret = collector->onBootFinished();
-    ASSERT_TRUE(ret) << ret.error().message();
-    uidIoStatsStub->push({});
-    procStatStub->push(ProcStatInfo{});
-    procPidStatStub->push({});
-    ret = looperStub->pollCache();
-    ASSERT_TRUE(ret) << ret.error().message();
-
-    // Start custom Collection
-    Vector<String16> args;
-    args.push_back(String16(kStartCustomCollectionFlag));
-    args.push_back(String16(kIntervalFlag));
-    args.push_back(String16(std::to_string(kTestCustomInterval.count()).c_str()));
-    args.push_back(String16(kMaxDurationFlag));
-    args.push_back(String16(std::to_string(kTestCustomCollectionDuration.count()).c_str()));
-    args.push_back(String16(kFilterPackagesFlag));
-    args.push_back(String16("android.car.cts,system_server"));
-
-    ret = collector->onCustomCollection(-1, args);
-    ASSERT_TRUE(ret.ok()) << ret.error().message();
-
-    // Custom collection
-    uidIoStatsStub->push({
+    const std::unordered_map<uid_t, UidIoUsage> uidIoUsages({
             {1009, {.uid = 1009, .ios = {0, 14000, 0, 16000, 0, 100}}},
             {2001, {.uid = 2001, .ios = {0, 3400, 0, 6700, 0, 200}}},
             {3456, {.uid = 3456, .ios = {0, 4200, 0, 5600, 0, 300}}},
     });
-    procStatStub->push(ProcStatInfo{
+    const ProcStatInfo procStatInfo{
             /*stats=*/{2900, 7900, 4900, 8900, /*ioWaitTime=*/5900, 6966, 7980, 0, 0, 2930},
             /*runnableCnt=*/100,
             /*ioBlockedCnt=*/57,
+    };
+    const std::vector<ProcessStats> processStats({
+            {.tgid = 100,
+             .uid = 1009,
+             .process = {100, "cts_test", "D", 1, 50900, 2, 234},
+             .threads = {{100, {100, "cts_test", "D", 1, 50900, 1, 234}},
+                         {200, {200, "cts_test_2", "D", 1, 0, 1, 290}}}},
+            {.tgid = 1000,
+             .uid = 2001,
+             .process = {1000, "system_server", "D", 1, 1234, 1, 345},
+             .threads = {{1000, {1000, "system_server", "D", 1, 1234, 1, 345}}}},
+            {.tgid = 4000,
+             .uid = 3456,
+             .process = {4000, "random_process", "D", 1, 3456, 1, 890},
+             .threads = {{4000, {4000, "random_process", "D", 1, 50900, 1, 890}}}},
     });
-    procPidStatStub->push({{.tgid = 100,
-                            .uid = 1009,
-                            .process = {.pid = 100,
-                                        .comm = "cts_test",
-                                        .state = "D",
-                                        .ppid = 1,
-                                        .majorFaults = 50900,
-                                        .numThreads = 2,
-                                        .startTime = 234},
-                            .threads = {{100,
-                                         {.pid = 100,
-                                          .comm = "cts_test",
-                                          .state = "D",
-                                          .ppid = 1,
-                                          .majorFaults = 50900,
-                                          .numThreads = 1,
-                                          .startTime = 234}},
-                                        {200,
-                                         {.pid = 200,
-                                          .comm = "cts_test_2",
-                                          .state = "D",
-                                          .ppid = 1,
-                                          .majorFaults = 0,
-                                          .numThreads = 1,
-                                          .startTime = 290}}}},
-                           {.tgid = 1000,
-                            .uid = 2001,
-                            .process = {.pid = 1000,
-                                        .comm = "system_server",
-                                        .state = "D",
-                                        .ppid = 1,
-                                        .majorFaults = 1234,
-                                        .numThreads = 1,
-                                        .startTime = 345},
-                            .threads = {{1000,
-                                         {.pid = 1000,
-                                          .comm = "system_server",
-                                          .state = "D",
-                                          .ppid = 1,
-                                          .majorFaults = 1234,
-                                          .numThreads = 1,
-                                          .startTime = 345}}}},
-                           {.tgid = 4000,
-                            .uid = 3456,
-                            .process = {.pid = 4000,
-                                        .comm = "random_process",
-                                        .state = "D",
-                                        .ppid = 1,
-                                        .majorFaults = 3456,
-                                        .numThreads = 1,
-                                        .startTime = 890},
-                            .threads = {{4000,
-                                         {.pid = 4000,
-                                          .comm = "random_process",
-                                          .state = "D",
-                                          .ppid = 1,
-                                          .majorFaults = 50900,
-                                          .numThreads = 1,
-                                          .startTime = 890}}}}});
-    IoPerfRecord expected = {
+
+    EXPECT_CALL(*mockUidIoStats, deltaStats()).WillOnce(Return(uidIoUsages));
+    EXPECT_CALL(*mockProcStat, deltaStats()).WillOnce(Return(procStatInfo));
+    EXPECT_CALL(*mockProcPidStat, deltaStats()).WillOnce(Return(processStats));
+    const IoPerfRecord expected = {
             .uidIoPerfData = {.topNReads = {{.userId = 0,
                                              .packageName = "android.car.cts",
                                              .bytes = {0, 14000},
-                                             .fsync{0, 100}},
+                                             .fsync = {0, 100}},
                                             {.userId = 0,
                                              .packageName = "system_server",
                                              .bytes = {0, 3400},
-                                             .fsync{0, 200}}},
+                                             .fsync = {0, 200}}},
                               .topNWrites = {{.userId = 0,
                                               .packageName = "android.car.cts",
                                               .bytes = {0, 16000},
-                                              .fsync{0, 100}},
+                                              .fsync = {0, 100}},
                                              {.userId = 0,
                                               .packageName = "system_server",
                                               .bytes = {0, 6700},
-                                              .fsync{0, 200}}},
+                                              .fsync = {0, 200}}},
                               .total = {{0, 21600}, {0, 28300}, {0, 600}}},
             .systemIoPerfData = {.cpuIoWaitTime = 5900,
                                  .totalCpuTime = 48376,
@@ -994,141 +379,67 @@ TEST(IoPerfCollectionTest, TestCustomCollectionFiltersPackageNames) {
             {2001, "system_server"},
             {3456, "random_process"},
     });
-    ret = looperStub->pollCache();
-    ASSERT_TRUE(ret) << ret.error().message();
-    ASSERT_EQ(looperStub->numSecondsElapsed(), 0) << "Custom collection didn't start immediately";
 
-    ASSERT_EQ(collector->mCurrCollectionEvent, CollectionEvent::CUSTOM);
-    ASSERT_EQ(collector->mCustomCollection.records.size(), 1);
-    ASSERT_TRUE(isEqual(collector->mCustomCollection.records[0], expected))
+    time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    ASSERT_RESULT_OK(collector->onCustomCollection(now, {"android.car.cts", "system_server"},
+                                                   mockUidIoStats, mockProcStat, mockProcPidStat));
+
+    const CollectionInfo& collectionInfo = collectorPeer.getCustomCollectionInfo();
+
+    EXPECT_EQ(collectionInfo.maxCacheSize, std::numeric_limits<std::size_t>::max());
+    ASSERT_EQ(collectionInfo.records.size(), 1);
+    ASSERT_TRUE(isEqual(collectionInfo.records[0], expected))
             << "Custom collection record doesn't match.\nExpected:\n"
             << toString(expected) << "\nActual:\n"
-            << toString(collector->mCustomCollection.records[0]);
-    collector->terminate();
+            << toString(collectionInfo.records[0]);
+
+    TemporaryFile customDump;
+    ASSERT_RESULT_OK(collector->onCustomCollectionDump(customDump.fd));
+
+    lseek(customDump.fd, 0, SEEK_SET);
+    std::string customDumpContents;
+    ASSERT_TRUE(ReadFdToString(customDump.fd, &customDumpContents));
+    ASSERT_FALSE(customDumpContents.empty());
+    ASSERT_EQ(countOccurrences(customDumpContents, kEmptyCollectionMessage), 0)
+            << "Custom collection should be reported. Dump contents: " << customDumpContents;
+
+    // Should clear the cache.
+    ASSERT_RESULT_OK(collector->onCustomCollectionDump(-1));
+
+    const CollectionInfo& emptyCollectionInfo = collectorPeer.getCustomCollectionInfo();
+    EXPECT_TRUE(emptyCollectionInfo.records.empty());
+    EXPECT_EQ(emptyCollectionInfo.maxCacheSize, std::numeric_limits<std::size_t>::max());
 }
 
-TEST(IoPerfCollectionTest, TestCustomCollectionTerminatesAfterMaxDuration) {
-    sp<UidIoStatsStub> uidIoStatsStub = new UidIoStatsStub(true);
-    sp<ProcStatStub> procStatStub = new ProcStatStub(true);
-    sp<ProcPidStatStub> procPidStatStub = new ProcPidStatStub(true);
-    sp<LooperStub> looperStub = new LooperStub();
-
-    sp<IoPerfCollection> collector = new IoPerfCollection();
-    collector->mUidIoStats = uidIoStatsStub;
-    collector->mProcStat = procStatStub;
-    collector->mProcPidStat = procPidStatStub;
-    collector->mHandlerLooper = looperStub;
-
-    auto ret = collector->start();
-    ASSERT_TRUE(ret) << ret.error().message();
-
-    // Mocked boot-time collection
-    uidIoStatsStub->push({});
-    procStatStub->push(ProcStatInfo{});
-    procPidStatStub->push({});
-    ret = looperStub->pollCache();
-    ASSERT_TRUE(ret) << ret.error().message();
-
-    // Mocked Periodic collection
-    ret = collector->onBootFinished();
-    ASSERT_TRUE(ret) << ret.error().message();
-    uidIoStatsStub->push({});
-    procStatStub->push(ProcStatInfo{});
-    procPidStatStub->push({});
-    ret = looperStub->pollCache();
-    ASSERT_TRUE(ret) << ret.error().message();
-
-    // Start custom Collection
-    Vector<String16> args;
-    args.push_back(String16(kStartCustomCollectionFlag));
-    args.push_back(String16(kIntervalFlag));
-    args.push_back(String16(std::to_string(kTestCustomInterval.count()).c_str()));
-    args.push_back(String16(kMaxDurationFlag));
-    args.push_back(String16(std::to_string(kTestCustomCollectionDuration.count()).c_str()));
-
-    ret = collector->onCustomCollection(-1, args);
-    ASSERT_TRUE(ret.ok()) << ret.error().message();
-    // Maximum custom collection iterations during |kTestCustomCollectionDuration|.
-    int maxIterations =
-            static_cast<int>(kTestCustomCollectionDuration.count() / kTestCustomInterval.count());
-    for (int i = 0; i < maxIterations; ++i) {
-        ASSERT_TRUE(ret) << ret.error().message();
-        uidIoStatsStub->push({});
-        procStatStub->push(ProcStatInfo{});
-        procPidStatStub->push({});
-        ret = looperStub->pollCache();
-        ASSERT_TRUE(ret) << ret.error().message();
-        int secondsElapsed = (i == 0 ? 0 : kTestCustomInterval.count());
-        ASSERT_EQ(looperStub->numSecondsElapsed(), secondsElapsed)
-                << "Custom collection didn't happen at " << secondsElapsed
-                << " seconds interval in iteration " << i;
-    }
-
-    ASSERT_EQ(collector->mCurrCollectionEvent, CollectionEvent::CUSTOM);
-    ASSERT_GT(collector->mCustomCollection.records.size(), 0);
-    // Next looper message was injected during startCustomCollection to end the custom collection
-    // after |kTestCustomCollectionDuration|. Thus on processing this message the custom collection
-    // should terminate.
-    ret = looperStub->pollCache();
-    ASSERT_TRUE(ret) << ret.error().message();
-    ASSERT_EQ(looperStub->numSecondsElapsed(),
-              kTestCustomCollectionDuration.count() % kTestCustomInterval.count())
-            << "Custom collection did't end after " << kTestCustomCollectionDuration.count()
-            << " seconds";
-    ASSERT_EQ(collector->mCurrCollectionEvent, CollectionEvent::PERIODIC);
-    ASSERT_EQ(collector->mCustomCollection.records.size(), 0)
-            << "Custom collection records not discarded at the end of the collection";
-    collector->terminate();
-}
-
-TEST(IoPerfCollectionTest, TestValidUidIoStatFile) {
-    // Format: uid fgRdChar fgWrChar fgRdBytes fgWrBytes bgRdChar bgWrChar bgRdBytes bgWrBytes
-    // fgFsync bgFsync
-    constexpr char firstSnapshot[] =
-        "1001234 5000 1000 3000 500 0 0 0 0 20 0\n"
-        "1005678 500 100 30 50 300 400 100 200 45 60\n"
-        "1009 0 0 0 0 40000 50000 20000 30000 0 300\n"
-        "1001000 4000 3000 2000 1000 400 300 200 100 50 10\n";
-
-    struct UidIoPerfData expectedUidIoPerfData = {};
-    expectedUidIoPerfData.total[READ_BYTES][FOREGROUND] = 5030;
-    expectedUidIoPerfData.total[READ_BYTES][BACKGROUND] = 20300;
-    expectedUidIoPerfData.total[WRITE_BYTES][FOREGROUND] = 1550;
-    expectedUidIoPerfData.total[WRITE_BYTES][BACKGROUND] = 30300;
-    expectedUidIoPerfData.total[FSYNC_COUNT][FOREGROUND] = 115;
-    expectedUidIoPerfData.total[FSYNC_COUNT][BACKGROUND] = 370;
-    expectedUidIoPerfData.topNReads.push_back({
-            // uid: 1009
-            .userId = 0,
-            .packageName = "mount",
-            .bytes = {0, 20000},
-            .fsync = {0, 300},
+TEST(IoPerfCollectionTest, TestUidIoStatsGreaterThanTopNStatsLimit) {
+    std::unordered_map<uid_t, UidIoUsage> uidIoUsages({
+            {1001234, {.uid = 1001234, .ios = {3000, 0, 500, 0, 20, 0}}},
+            {1005678, {.uid = 1005678, .ios = {30, 100, 50, 200, 45, 60}}},
+            {1009, {.uid = 1009, .ios = {0, 20000, 0, 30000, 0, 300}}},
+            {1001000, {.uid = 1001000, .ios = {2000, 200, 1000, 100, 50, 10}}},
     });
-    expectedUidIoPerfData.topNReads.push_back({
-            // uid: 1001234
-            .userId = 10,
-            .packageName = "1001234",
-            .bytes = {3000, 0},
-            .fsync = {20, 0},
-    });
-    expectedUidIoPerfData.topNWrites.push_back({
-            // uid: 1009
-            .userId = 0,
-            .packageName = "mount",
-            .bytes = {0, 30000},
-            .fsync = {0, 300},
-    });
-    expectedUidIoPerfData.topNWrites.push_back({
-            // uid: 1001000
-            .userId = 10,
-            .packageName = "shared:android.uid.system",
-            .bytes = {1000, 100},
-            .fsync = {50, 10},
-    });
+    sp<MockUidIoStats> mockUidIoStats = new MockUidIoStats();
+    EXPECT_CALL(*mockUidIoStats, deltaStats()).WillOnce(Return(uidIoUsages));
 
-    TemporaryFile tf;
-    ASSERT_NE(tf.fd, -1);
-    ASSERT_TRUE(WriteStringToFile(firstSnapshot, tf.path));
+    struct UidIoPerfData expectedUidIoPerfData = {
+            .topNReads = {{.userId = 0,  // uid: 1009
+                           .packageName = "mount",
+                           .bytes = {0, 20000},
+                           .fsync = {0, 300}},
+                          {.userId = 10,  // uid: 1001234
+                           .packageName = "1001234",
+                           .bytes = {3000, 0},
+                           .fsync = {20, 0}}},
+            .topNWrites = {{.userId = 0,  // uid: 1009
+                            .packageName = "mount",
+                            .bytes = {0, 30000},
+                            .fsync = {0, 300}},
+                           {.userId = 10,  // uid: 1001000
+                            .packageName = "shared:android.uid.system",
+                            .bytes = {1000, 100},
+                            .fsync = {50, 10}}},
+            .total = {{5030, 20300}, {1550, 30300}, {115, 370}},
+    };
 
     internal::PackageNameResolverPeer peer({
             {1009, "mount"},
@@ -1136,63 +447,46 @@ TEST(IoPerfCollectionTest, TestValidUidIoStatFile) {
     });
 
     IoPerfCollection collector;
-    collector.mUidIoStats = new UidIoStats(tf.path);
     collector.mTopNStatsPerCategory = 2;
-    ASSERT_TRUE(collector.mUidIoStats->enabled()) << "Temporary file is inaccessible";
 
     struct UidIoPerfData actualUidIoPerfData = {};
-    auto ret = collector.collectUidIoPerfDataLocked(CollectionInfo{}, &actualUidIoPerfData);
-    ASSERT_RESULT_OK(ret);
+    collector.processUidIoPerfData({}, mockUidIoStats, &actualUidIoPerfData);
+
     EXPECT_TRUE(isEqual(expectedUidIoPerfData, actualUidIoPerfData))
         << "First snapshot doesn't match.\nExpected:\n"
         << toString(expectedUidIoPerfData) << "\nActual:\n"
         << toString(actualUidIoPerfData);
 
-    constexpr char secondSnapshot[] =
-        "1001234 10000 2000 7000 950 0 0 0 0 45 0\n"
-        "1005678 600 100 40 50 1000 1000 1000 600 50 70\n"
-        "1003456 300 500 200 300 0 0 0 0 50 0\n"
-        "1001000 400 300 200 100 40 30 20 10 5 1\n";
+    uidIoUsages = {
+            {1001234, {.uid = 1001234, .ios = {4000, 0, 450, 0, 25, 0}}},
+            {1005678, {.uid = 1005678, .ios = {10, 900, 0, 400, 5, 10}}},
+            {1003456, {.uid = 1003456, .ios = {200, 0, 300, 0, 50, 0}}},
+            {1001000, {.uid = 1001000, .ios = {0, 0, 0, 0, 0, 0}}},
+    };
+    EXPECT_CALL(*mockUidIoStats, deltaStats()).WillOnce(Return(uidIoUsages));
 
-    expectedUidIoPerfData = {};
-    expectedUidIoPerfData.total[READ_BYTES][FOREGROUND] = 4210;
-    expectedUidIoPerfData.total[READ_BYTES][BACKGROUND] = 900;
-    expectedUidIoPerfData.total[WRITE_BYTES][FOREGROUND] = 750;
-    expectedUidIoPerfData.total[WRITE_BYTES][BACKGROUND] = 400;
-    expectedUidIoPerfData.total[FSYNC_COUNT][FOREGROUND] = 80;
-    expectedUidIoPerfData.total[FSYNC_COUNT][BACKGROUND] = 10;
-    expectedUidIoPerfData.topNReads.push_back({
-            // uid: 1001234
-            .userId = 10,
-            .packageName = "1001234",
-            .bytes = {4000, 0},
-            .fsync = {25, 0},
-    });
-    expectedUidIoPerfData.topNReads.push_back({
-            // uid: 1005678
-            .userId = 10,
-            .packageName = "1005678",
-            .bytes = {10, 900},
-            .fsync = {5, 10},
-    });
-    expectedUidIoPerfData.topNWrites.push_back({
-            // uid: 1001234
-            .userId = 10,
-            .packageName = "1001234",
-            .bytes = {450, 0},
-            .fsync = {25, 0},
-    });
-    expectedUidIoPerfData.topNWrites.push_back({
-            // uid: 1005678
-            .userId = 10,
-            .packageName = "1005678",
-            .bytes = {0, 400},
-            .fsync = {5, 10},
-    });
-    ASSERT_TRUE(WriteStringToFile(secondSnapshot, tf.path));
+    expectedUidIoPerfData = {
+            .topNReads = {{.userId = 10,  // uid: 1001234
+                           .packageName = "1001234",
+                           .bytes = {4000, 0},
+                           .fsync = {25, 0}},
+                          {.userId = 10,  // uid: 1005678
+                           .packageName = "1005678",
+                           .bytes = {10, 900},
+                           .fsync = {5, 10}}},
+            .topNWrites = {{.userId = 10,  // uid: 1001234
+                            .packageName = "1001234",
+                            .bytes = {450, 0},
+                            .fsync = {25, 0}},
+                           {.userId = 10,  // uid: 1005678
+                            .packageName = "1005678",
+                            .bytes = {0, 400},
+                            .fsync = {5, 10}}},
+            .total = {{4210, 900}, {750, 400}, {80, 10}},
+    };
     actualUidIoPerfData = {};
-    ret = collector.collectUidIoPerfDataLocked(CollectionInfo{}, &actualUidIoPerfData);
-    ASSERT_RESULT_OK(ret);
+    collector.processUidIoPerfData({}, mockUidIoStats, &actualUidIoPerfData);
+
     EXPECT_TRUE(isEqual(expectedUidIoPerfData, actualUidIoPerfData))
         << "Second snapshot doesn't match.\nExpected:\n"
         << toString(expectedUidIoPerfData) << "\nActual:\n"
@@ -1200,67 +494,39 @@ TEST(IoPerfCollectionTest, TestValidUidIoStatFile) {
 }
 
 TEST(IoPerfCollectionTest, TestUidIOStatsLessThanTopNStatsLimit) {
-    // Format: uid fgRdChar fgWrChar fgRdBytes fgWrBytes bgRdChar bgWrChar bgRdBytes bgWrBytes
-    // fgFsync bgFsync
-    constexpr char contents[] = "1001234 5000 1000 3000 500 0 0 0 0 20 0\n";
+    const std::unordered_map<uid_t, UidIoUsage> uidIoUsages(
+            {{1001234, {.uid = 1001234, .ios = {3000, 0, 500, 0, 20, 0}}}});
 
-    struct UidIoPerfData expectedUidIoPerfData = {};
-    expectedUidIoPerfData.total[READ_BYTES][FOREGROUND] = 3000;
-    expectedUidIoPerfData.total[READ_BYTES][BACKGROUND] = 0;
-    expectedUidIoPerfData.total[WRITE_BYTES][FOREGROUND] = 500;
-    expectedUidIoPerfData.total[WRITE_BYTES][BACKGROUND] = 0;
-    expectedUidIoPerfData.total[FSYNC_COUNT][FOREGROUND] = 20;
-    expectedUidIoPerfData.total[FSYNC_COUNT][BACKGROUND] = 0;
-    expectedUidIoPerfData.topNReads.push_back({
-            // uid: 1001234
-            .userId = 10,
-            .packageName = "1001234",
-            .bytes = {3000, 0},
-            .fsync = {20, 0},
-    });
-    expectedUidIoPerfData.topNWrites.push_back({
-            // uid: 1001234
-            .userId = 10,
-            .packageName = "1001234",
-            .bytes = {500, 0},
-            .fsync = {20, 0},
-    });
+    const struct UidIoPerfData expectedUidIoPerfData = {
+            .topNReads = {{.userId = 10,
+                           .packageName = "1001234",
+                           .bytes = {3000, 0},
+                           .fsync = {20, 0}}},
+            .topNWrites =
+                    {{.userId = 10, .packageName = "1001234", .bytes = {500, 0}, .fsync = {20, 0}}},
+            .total = {{3000, 0}, {500, 0}, {20, 0}},
+    };
 
-    TemporaryFile tf;
-    ASSERT_NE(tf.fd, -1);
-    ASSERT_TRUE(WriteStringToFile(contents, tf.path));
+    sp<MockUidIoStats> mockUidIoStats = new MockUidIoStats();
+    EXPECT_CALL(*mockUidIoStats, deltaStats()).WillOnce(Return(uidIoUsages));
 
     IoPerfCollection collector;
-    collector.mUidIoStats = new UidIoStats(tf.path);
     collector.mTopNStatsPerCategory = 10;
-    ASSERT_TRUE(collector.mUidIoStats->enabled()) << "Temporary file is inaccessible";
 
     struct UidIoPerfData actualUidIoPerfData = {};
-    const auto& ret = collector.collectUidIoPerfDataLocked(CollectionInfo{}, &actualUidIoPerfData);
-    ASSERT_RESULT_OK(ret);
+    collector.processUidIoPerfData({}, mockUidIoStats, &actualUidIoPerfData);
+
     EXPECT_TRUE(isEqual(expectedUidIoPerfData, actualUidIoPerfData))
         << "Collected data doesn't match.\nExpected:\n"
         << toString(expectedUidIoPerfData) << "\nActual:\n"
         << toString(actualUidIoPerfData);
 }
 
-TEST(IoPerfCollectionTest, TestValidProcStatFile) {
-    constexpr char firstSnapshot[] =
-            "cpu  6200 5700 1700 3100 1100 5200 3900 0 0 0\n"
-            "cpu0 2400 2900 600 690 340 4300 2100 0 0 0\n"
-            "cpu1 1900 2380 510 760 51 370 1500 0 0 0\n"
-            "cpu2 900 400 400 1000 600 400 160 0 0 0\n"
-            "cpu3 1000 20 190 650 109 130 140 0 0 0\n"
-            "intr 694351583 0 0 0 297062868 0 5922464 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 "
-            "0 0\n"
-            // Skipped most of the intr line as it is not important for testing the ProcStat parsing
-            // logic.
-            "ctxt 579020168\n"
-            "btime 1579718450\n"
-            "processes 113804\n"
-            "procs_running 17\n"
-            "procs_blocked 5\n"
-            "softirq 33275060 934664 11958403 5111 516325 200333 0 341482 10651335 0 8667407\n";
+TEST(IoPerfCollectionTest, TestProcessSystemIoPerfData) {
+    const ProcStatInfo procStatInfo(
+            /*stats=*/{6200, 5700, 1700, 3100, 1100, 5200, 3900, 0, 0, 0},
+            /*runnableCnt=*/17,
+            /*ioBlockedCnt=*/5);
     struct SystemIoPerfData expectedSystemIoPerfData = {
             .cpuIoWaitTime = 1100,
             .totalCpuTime = 26900,
@@ -1268,122 +534,73 @@ TEST(IoPerfCollectionTest, TestValidProcStatFile) {
             .totalProcessesCnt = 22,
     };
 
-    TemporaryFile tf;
-    ASSERT_NE(tf.fd, -1);
-    ASSERT_TRUE(WriteStringToFile(firstSnapshot, tf.path));
+    sp<MockProcStat> mockProcStat = new MockProcStat();
+    EXPECT_CALL(*mockProcStat, deltaStats()).WillOnce(Return(procStatInfo));
 
     IoPerfCollection collector;
-    collector.mProcStat = new ProcStat(tf.path);
-    ASSERT_TRUE(collector.mProcStat->enabled()) << "Temporary file is inaccessible";
-
     struct SystemIoPerfData actualSystemIoPerfData = {};
-    auto ret = collector.collectSystemIoPerfDataLocked(&actualSystemIoPerfData);
-    ASSERT_RESULT_OK(ret);
-    EXPECT_TRUE(isEqual(expectedSystemIoPerfData, actualSystemIoPerfData))
-            << "First snapshot doesn't match.\nExpected:\n"
-            << toString(expectedSystemIoPerfData) << "\nActual:\n"
-            << toString(actualSystemIoPerfData);
+    collector.processSystemIoPerfData(mockProcStat, &actualSystemIoPerfData);
 
-    constexpr char secondSnapshot[] =
-            "cpu  16200 8700 2000 4100 2200 6200 5900 0 0 0\n"
-            "cpu0 4400 3400 700 890 800 4500 3100 0 0 0\n"
-            "cpu1 5900 3380 610 960 100 670 2000 0 0 0\n"
-            "cpu2 2900 1000 450 1400 800 600 460 0 0 0\n"
-            "cpu3 3000 920 240 850 500 430 340 0 0 0\n"
-            "intr 694351583 0 0 0 297062868 0 5922464 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 "
-            "0 0\n"
-            "ctxt 579020168\n"
-            "btime 1579718450\n"
-            "processes 113804\n"
-            "procs_running 10\n"
-            "procs_blocked 2\n"
-            "softirq 33275060 934664 11958403 5111 516325 200333 0 341482 10651335 0 8667407\n";
-    expectedSystemIoPerfData = {
-            .cpuIoWaitTime = 1100,
-            .totalCpuTime = 18400,
-            .ioBlockedProcessesCnt = 2,
-            .totalProcessesCnt = 12,
-    };
-
-    ASSERT_TRUE(WriteStringToFile(secondSnapshot, tf.path));
-    actualSystemIoPerfData = {};
-    ret = collector.collectSystemIoPerfDataLocked(&actualSystemIoPerfData);
-    ASSERT_RESULT_OK(ret);
     EXPECT_TRUE(isEqual(expectedSystemIoPerfData, actualSystemIoPerfData))
-            << "Second snapshot doesn't match.\nExpected:\n"
+            << "Expected:\n"
             << toString(expectedSystemIoPerfData) << "\nActual:\n"
             << toString(actualSystemIoPerfData);
 }
 
-TEST(IoPerfCollectionTest, TestValidProcPidContents) {
-    std::unordered_map<pid_t, std::vector<pid_t>> pidToTids = {
-            {1, {1, 453}},
-            {2546, {2546, 3456, 4789}},
-            {7890, {7890, 8978, 12890}},
-            {18902, {18902, 21345, 32452}},
-            {28900, {28900}},
-    };
-    std::unordered_map<pid_t, std::string> perProcessStat = {
-            {1, "1 (init) S 0 0 0 0 0 0 0 0 220 0 0 0 0 0 0 0 2 0 0\n"},
-            {2546, "2546 (system_server) R 1 0 0 0 0 0 0 0 6000 0 0 0 0 0 0 0 3 0 1000\n"},
-            {7890, "7890 (logd) D 1 0 0 0 0 0 0 0 15000 0 0 0 0 0 0 0 3 0 2345\n"},
-            {18902, "18902 (disk I/O) D 1 0 0 0 0 0 0 0 45678 0 0 0 0 0 0 0 3 0 897654\n"},
-            {28900, "28900 (tombstoned) D 1 0 0 0 0 0 0 0 89765 0 0 0 0 0 0 0 3 0 2345671\n"},
-    };
-    std::unordered_map<pid_t, std::string> perProcessStatus = {
-            {1, "Pid:\t1\nTgid:\t1\nUid:\t0\t0\t0\t0\n"},
-            {2546, "Pid:\t2546\nTgid:\t2546\nUid:\t1001000\t1001000\t1001000\t1001000\n"},
-            {7890, "Pid:\t7890\nTgid:\t7890\nUid:\t1001000\t1001000\t1001000\t1001000\n"},
-            {18902, "Pid:\t18902\nTgid:\t18902\nUid:\t1009\t1009\t1009\t1009\n"},
-            {28900, "Pid:\t28900\nTgid:\t28900\nUid:\t1001234\t1001234\t1001234\t1001234\n"},
-    };
-    std::unordered_map<pid_t, std::string> perThreadStat = {
-            {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 2 0 0\n"},
-            {453, "453 (init) S 0 0 0 0 0 0 0 0 20 0 0 0 0 0 0 0 2 0 275\n"},
-            {2546, "2546 (system_server) R 1 0 0 0 0 0 0 0 1000 0 0 0 0 0 0 0 3 0 1000\n"},
-            {3456, "3456 (system_server) S 1 0 0 0 0 0 0 0 3000 0 0 0 0 0 0 0 3 0 2300\n"},
-            {4789, "4789 (system_server) D 1 0 0 0 0 0 0 0 2000 0 0 0 0 0 0 0 3 0 4500\n"},
-            {7890, "7890 (logd) D 1 0 0 0 0 0 0 0 10000 0 0 0 0 0 0 0 3 0 2345\n"},
-            {8978, "8978 (logd) D 1 0 0 0 0 0 0 0 1000 0 0 0 0 0 0 0 3 0 2500\n"},
-            {12890, "12890 (logd) D 1 0 0 0 0 0 0 0 500 0 0 0 0 0 0 0 3 0 2900\n"},
-            {18902, "18902 (disk I/O) D 1 0 0 0 0 0 0 0 30000 0 0 0 0 0 0 0 3 0 897654\n"},
-            {21345, "21345 (disk I/O) D 1 0 0 0 0 0 0 0 15000 0 0 0 0 0 0 0 3 0 904000\n"},
-            {32452, "32452 (disk I/O) D 1 0 0 0 0 0 0 0 678 0 0 0 0 0 0 0 3 0 1007000\n"},
-            {28900, "28900 (tombstoned) D 1 0 0 0 0 0 0 0 89765 0 0 0 0 0 0 0 3 0 2345671\n"},
-    };
-    struct ProcessIoPerfData expectedProcessIoPerfData = {};
-    expectedProcessIoPerfData.topNIoBlockedUids.push_back({
-            // uid: 1001000
-            .userId = 10,
-            .packageName = "shared:android.uid.system",
-            .count = 4,
-            .topNProcesses = {{"logd", 3}, {"system_server", 1}},
+TEST(IoPerfCollectionTest, TestProcPidContentsGreaterThanTopNStatsLimit) {
+    const std::vector<ProcessStats> firstProcessStats({
+            {.tgid = 1,
+             .uid = 0,
+             .process = {1, "init", "S", 0, 220, 2, 0},
+             .threads = {{1, {1, "init", "S", 0, 200, 2, 0}},
+                         {453, {453, "init", "S", 0, 20, 2, 275}}}},
+            {.tgid = 2456,
+             .uid = 1001000,
+             .process = {2456, "system_server", "R", 1, 6000, 3, 1000},
+             .threads = {{2456, {2456, "system_server", "R", 1, 1000, 3, 1000}},
+                         {3456, {3456, "system_server", "S", 1, 3000, 3, 2300}},
+                         {4789, {4789, "system_server", "D", 1, 2000, 3, 4500}}}},
+            {.tgid = 7890,
+             .uid = 1001000,
+             .process = {7890, "logd", "D", 1, 15000, 3, 2345},
+             .threads = {{7890, {7890, "logd", "D", 1, 10000, 3, 2345}},
+                         {8978, {8978, "logd", "D", 1, 1000, 3, 2500}},
+                         {12890, {12890, "logd", "D", 1, 500, 3, 2900}}}},
+            {.tgid = 18902,
+             .uid = 1009,
+             .process = {18902, "disk I/O", "D", 1, 45678, 3, 897654},
+             .threads = {{18902, {18902, "disk I/O", "D", 1, 30000, 3, 897654}},
+                         {21345, {21345, "disk I/O", "D", 1, 15000, 3, 904000}},
+                         {32452, {32452, "disk I/O", "D", 1, 678, 3, 1007000}}}},
+            {.tgid = 28900,
+             .uid = 1001234,
+             .process = {28900, "tombstoned", "D", 1, 89765, 1, 2345671},
+             .threads = {{28900, {28900, "tombstoned", "D", 1, 89765, 1, 2345671}}}},
     });
-    expectedProcessIoPerfData.topNIoBlockedUidsTotalTaskCnt.push_back(6);
-    expectedProcessIoPerfData.topNIoBlockedUids.push_back({
-            // uid: 1009
-            .userId = 0,
-            .packageName = "mount",
-            .count = 3,
-            .topNProcesses = {{"disk I/O", 3}},
-    });
-    expectedProcessIoPerfData.topNIoBlockedUidsTotalTaskCnt.push_back(3);
-    expectedProcessIoPerfData.topNMajorFaultUids.push_back({
-            // uid: 1001234
-            .userId = 10,
-            .packageName = "1001234",
-            .count = 89765,
-            .topNProcesses = {{"tombstoned", 89765}},
-    });
-    expectedProcessIoPerfData.topNMajorFaultUids.push_back({
-            // uid: 1009
-            .userId = 0,
-            .packageName = "mount",
-            .count = 45678,
-            .topNProcesses = {{"disk I/O", 45678}},
-    });
-    expectedProcessIoPerfData.totalMajorFaults = 156663;
-    expectedProcessIoPerfData.majorFaultsPercentChange = 0;
+    sp<MockProcPidStat> mockProcPidStat = new MockProcPidStat();
+    EXPECT_CALL(*mockProcPidStat, deltaStats()).WillOnce(Return(firstProcessStats));
+
+    struct ProcessIoPerfData expectedProcessIoPerfData = {
+            .topNIoBlockedUids = {{.userId = 10,  // uid: 1001000
+                                   .packageName = "shared:android.uid.system",
+                                   .count = 4,
+                                   .topNProcesses = {{"logd", 3}, {"system_server", 1}}},
+                                  {.userId = 0,
+                                   .packageName = "mount",
+                                   .count = 3,
+                                   .topNProcesses = {{"disk I/O", 3}}}},
+            .topNIoBlockedUidsTotalTaskCnt = {6, 3},
+            .topNMajorFaultUids = {{.userId = 10,  // uid: 1001234
+                                    .packageName = "1001234",
+                                    .count = 89765,
+                                    .topNProcesses = {{"tombstoned", 89765}}},
+                                   {.userId = 0,  // uid: 1009
+                                    .packageName = "mount",
+                                    .count = 45678,
+                                    .topNProcesses = {{"disk I/O", 45678}}}},
+            .totalMajorFaults = 156663,
+            .majorFaultsPercentChange = 0.0,
+    };
 
     internal::PackageNameResolverPeer peer({
             {0, "root"},
@@ -1391,81 +608,53 @@ TEST(IoPerfCollectionTest, TestValidProcPidContents) {
             {1001000, "shared:android.uid.system"},
     });
 
-    TemporaryDir firstSnapshot;
-    auto ret = populateProcPidDir(firstSnapshot.path, pidToTids, perProcessStat, perProcessStatus,
-                                  perThreadStat);
-    ASSERT_TRUE(ret) << "Failed to populate proc pid dir: " << ret.error();
-
     IoPerfCollection collector;
-    collector.mProcPidStat = new ProcPidStat(firstSnapshot.path);
     collector.mTopNStatsPerCategory = 2;
     collector.mTopNStatsPerSubcategory = 2;
-    ASSERT_TRUE(collector.mProcPidStat->enabled())
-            << "Files under the temporary proc directory are inaccessible";
 
     struct ProcessIoPerfData actualProcessIoPerfData = {};
-    ret = collector.collectProcessIoPerfDataLocked(CollectionInfo{}, &actualProcessIoPerfData);
-    ASSERT_TRUE(ret) << "Failed to collect first snapshot: " << ret.error();
+    collector.processProcessIoPerfDataLocked({}, mockProcPidStat, &actualProcessIoPerfData);
+
     EXPECT_TRUE(isEqual(expectedProcessIoPerfData, actualProcessIoPerfData))
             << "First snapshot doesn't match.\nExpected:\n"
             << toString(expectedProcessIoPerfData) << "\nActual:\n"
             << toString(actualProcessIoPerfData);
 
-    pidToTids = {
-            {1, {1, 453}},
-            {2546, {2546, 3456, 4789}},
-    };
-    perProcessStat = {
-            {1, "1 (init) S 0 0 0 0 0 0 0 0 880 0 0 0 0 0 0 0 2 0 0\n"},
-            {2546, "2546 (system_server) R 1 0 0 0 0 0 0 0 18000 0 0 0 0 0 0 0 3 0 1000\n"},
-    };
-    perProcessStatus = {
-            {1, "Pid:\t1\nTgid:\t1\nUid:\t0\t0\t0\t0\n"},
-            {2546, "Pid:\t2546\nTgid:\t2546\nUid:\t1001000\t1001000\t1001000\t1001000\n"},
-    };
-    perThreadStat = {
-            {1, "1 (init) S 0 0 0 0 0 0 0 0 800 0 0 0 0 0 0 0 2 0 0\n"},
-            {453, "453 (init) S 0 0 0 0 0 0 0 0 80 0 0 0 0 0 0 0 2 0 275\n"},
-            {2546, "2546 (system_server) R 1 0 0 0 0 0 0 0 3000 0 0 0 0 0 0 0 3 0 1000\n"},
-            {3456, "3456 (system_server) S 1 0 0 0 0 0 0 0 9000 0 0 0 0 0 0 0 3 0 2300\n"},
-            {4789, "4789 (system_server) D 1 0 0 0 0 0 0 0 6000 0 0 0 0 0 0 0 3 0 4500\n"},
-    };
-    expectedProcessIoPerfData = {};
-    expectedProcessIoPerfData.topNIoBlockedUids.push_back({
-            // uid: 1001000
-            .userId = 10,
-            .packageName = "shared:android.uid.system",
-            .count = 1,
-            .topNProcesses = {{"system_server", 1}},
+    const std::vector<ProcessStats> secondProcessStats({
+            {.tgid = 1,
+             .uid = 0,
+             .process = {1, "init", "S", 0, 660, 2, 0},
+             .threads = {{1, {1, "init", "S", 0, 600, 2, 0}},
+                         {453, {453, "init", "S", 0, 60, 2, 275}}}},
+            {.tgid = 2546,
+             .uid = 1001000,
+             .process = {2546, "system_server", "R", 1, 12000, 3, 1000},
+             .threads = {{2456, {2456, "system_server", "R", 1, 2000, 3, 1000}},
+                         {3456, {3456, "system_server", "S", 1, 6000, 3, 2300}},
+                         {4789, {4789, "system_server", "D", 1, 4000, 3, 4500}}}},
     });
-    expectedProcessIoPerfData.topNIoBlockedUidsTotalTaskCnt.push_back(3);
-    expectedProcessIoPerfData.topNMajorFaultUids.push_back({
-            // uid: 1001000
-            .userId = 10,
-            .packageName = "shared:android.uid.system",
-            .count = 12000,
-            .topNProcesses = {{"system_server", 12000}},
-    });
-    expectedProcessIoPerfData.topNMajorFaultUids.push_back({
-            // uid: 0
-            .userId = 0,
-            .packageName = "root",
-            .count = 660,
-            .topNProcesses = {{"init", 660}},
-    });
-    expectedProcessIoPerfData.totalMajorFaults = 12660;
-    expectedProcessIoPerfData.majorFaultsPercentChange = ((12660.0 - 156663.0) / 156663.0) * 100;
-
-    TemporaryDir secondSnapshot;
-    ret = populateProcPidDir(secondSnapshot.path, pidToTids, perProcessStat, perProcessStatus,
-                             perThreadStat);
-    ASSERT_TRUE(ret) << "Failed to populate proc pid dir: " << ret.error();
-
-    collector.mProcPidStat->mPath = secondSnapshot.path;
+    EXPECT_CALL(*mockProcPidStat, deltaStats()).WillOnce(Return(secondProcessStats));
+    expectedProcessIoPerfData = {
+            .topNIoBlockedUids = {{.userId = 10,  // uid: 1001000
+                                   .packageName = "shared:android.uid.system",
+                                   .count = 1,
+                                   .topNProcesses = {{"system_server", 1}}}},
+            .topNIoBlockedUidsTotalTaskCnt = {3},
+            .topNMajorFaultUids = {{.userId = 10,  // uid: 1001000
+                                    .packageName = "shared:android.uid.system",
+                                    .count = 12000,
+                                    .topNProcesses = {{"system_server", 12000}}},
+                                   {.userId = 0,  // uid: 0
+                                    .packageName = "root",
+                                    .count = 660,
+                                    .topNProcesses = {{"init", 660}}}},
+            .totalMajorFaults = 12660,
+            .majorFaultsPercentChange = ((12660.0 - 156663.0) / 156663.0) * 100,
+    };
 
     actualProcessIoPerfData = {};
-    ret = collector.collectProcessIoPerfDataLocked(CollectionInfo{}, &actualProcessIoPerfData);
-    ASSERT_TRUE(ret) << "Failed to collect second snapshot: " << ret.error();
+    collector.processProcessIoPerfDataLocked({}, mockProcPidStat, &actualProcessIoPerfData);
+
     EXPECT_TRUE(isEqual(expectedProcessIoPerfData, actualProcessIoPerfData))
             << "Second snapshot doesn't match.\nExpected:\n"
             << toString(expectedProcessIoPerfData) << "\nActual:\n"
@@ -1473,83 +662,40 @@ TEST(IoPerfCollectionTest, TestValidProcPidContents) {
 }
 
 TEST(IoPerfCollectionTest, TestProcPidContentsLessThanTopNStatsLimit) {
-    std::unordered_map<pid_t, std::vector<pid_t>> pidToTids = {
-            {1, {1, 453}},
-    };
-    std::unordered_map<pid_t, std::string> perProcessStat = {
-            {1, "1 (init) S 0 0 0 0 0 0 0 0 880 0 0 0 0 0 0 0 2 0 0\n"},
-    };
-    std::unordered_map<pid_t, std::string> perProcessStatus = {
-            {1, "Pid:\t1\nTgid:\t1\nUid:\t0\t0\t0\t0\n"},
-    };
-    std::unordered_map<pid_t, std::string> perThreadStat = {
-            {1, "1 (init) S 0 0 0 0 0 0 0 0 800 0 0 0 0 0 0 0 2 0 0\n"},
-            {453, "453 (init) S 0 0 0 0 0 0 0 0 80 0 0 0 0 0 0 0 2 0 275\n"},
-    };
-    struct ProcessIoPerfData expectedProcessIoPerfData = {};
-    expectedProcessIoPerfData.topNMajorFaultUids.push_back({
-            // uid: 0
-            .userId = 0,
-            .packageName = "root",
-            .count = 880,
-            .topNProcesses = {{"init", 880}},
+    const std::vector<ProcessStats> processStats({
+            {.tgid = 1,
+             .uid = 0,
+             .process = {1, "init", "S", 0, 880, 2, 0},
+             .threads = {{1, {1, "init", "S", 0, 800, 2, 0}},
+                         {453, {453, "init", "S", 0, 80, 2, 275}}}},
     });
-    expectedProcessIoPerfData.totalMajorFaults = 880;
-    expectedProcessIoPerfData.majorFaultsPercentChange = 0.0;
+    sp<MockProcPidStat> mockProcPidStat = new MockProcPidStat();
+    EXPECT_CALL(*mockProcPidStat, deltaStats()).WillOnce(Return(processStats));
+
+    struct ProcessIoPerfData expectedProcessIoPerfData = {
+            .topNMajorFaultUids = {{.userId = 0,  // uid: 0
+                                    .packageName = "root",
+                                    .count = 880,
+                                    .topNProcesses = {{"init", 880}}}},
+            .totalMajorFaults = 880,
+            .majorFaultsPercentChange = 0.0,
+    };
 
     internal::PackageNameResolverPeer peer({
             {0, "root"},
     });
 
-    TemporaryDir prodDir;
-    auto ret = populateProcPidDir(prodDir.path, pidToTids, perProcessStat, perProcessStatus,
-                                  perThreadStat);
-    ASSERT_TRUE(ret) << "Failed to populate proc pid dir: " << ret.error();
-
     IoPerfCollection collector;
     collector.mTopNStatsPerCategory = 5;
     collector.mTopNStatsPerSubcategory = 3;
-    collector.mProcPidStat = new ProcPidStat(prodDir.path);
+
     struct ProcessIoPerfData actualProcessIoPerfData = {};
-    ret = collector.collectProcessIoPerfDataLocked(CollectionInfo{}, &actualProcessIoPerfData);
-    ASSERT_TRUE(ret) << "Failed to collect proc pid contents: " << ret.error();
+    collector.processProcessIoPerfDataLocked({}, mockProcPidStat, &actualProcessIoPerfData);
+
     EXPECT_TRUE(isEqual(expectedProcessIoPerfData, actualProcessIoPerfData))
             << "proc pid contents don't match.\nExpected:\n"
             << toString(expectedProcessIoPerfData) << "\nActual:\n"
             << toString(actualProcessIoPerfData);
-}
-
-TEST(IoPerfCollectionTest, TestHandlesInvalidDumpArguments) {
-    sp<IoPerfCollection> collector = new IoPerfCollection();
-    collector->start();
-    Vector<String16> args;
-    args.push_back(String16(kStartCustomCollectionFlag));
-    args.push_back(String16("Invalid flag"));
-    args.push_back(String16("Invalid value"));
-    ASSERT_FALSE(collector->onCustomCollection(-1, args).ok());
-
-    args.clear();
-    args.push_back(String16(kStartCustomCollectionFlag));
-    args.push_back(String16(kIntervalFlag));
-    args.push_back(String16("Invalid interval"));
-    ASSERT_FALSE(collector->onCustomCollection(-1, args).ok());
-
-    args.clear();
-    args.push_back(String16(kStartCustomCollectionFlag));
-    args.push_back(String16(kMaxDurationFlag));
-    args.push_back(String16("Invalid duration"));
-    ASSERT_FALSE(collector->onCustomCollection(-1, args).ok());
-
-    args.clear();
-    args.push_back(String16(kEndCustomCollectionFlag));
-    args.push_back(String16(kMaxDurationFlag));
-    args.push_back(String16(std::to_string(kTestCustomCollectionDuration.count()).c_str()));
-    ASSERT_FALSE(collector->onCustomCollection(-1, args).ok());
-
-    args.clear();
-    args.push_back(String16("Invalid flag"));
-    ASSERT_FALSE(collector->onCustomCollection(-1, args).ok());
-    collector->terminate();
 }
 
 }  // namespace watchdog

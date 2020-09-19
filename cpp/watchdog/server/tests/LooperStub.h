@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef WATCHDOG_SERVER_TESTS_LOOPERSTUB_H_
-#define WATCHDOG_SERVER_TESTS_LOOPERSTUB_H_
+#ifndef CPP_WATCHDOG_SERVER_TESTS_LOOPERSTUB_H_
+#define CPP_WATCHDOG_SERVER_TESTS_LOOPERSTUB_H_
 
 #include <android-base/chrono_utils.h>
 #include <android-base/result.h>
@@ -83,4 +83,4 @@ private:
 }  // namespace automotive
 }  // namespace android
 
-#endif  // WATCHDOG_SERVER_TESTS_LOOPERSTUB_H_
+#endif  // CPP_WATCHDOG_SERVER_TESTS_LOOPERSTUB_H_
