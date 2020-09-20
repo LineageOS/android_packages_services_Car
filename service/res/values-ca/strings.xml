@@ -24,8 +24,8 @@
     <string name="car_permission_desc_energy" msgid="3392963810053235407">"Accedir a la informació sobre l\'energia del cotxe"</string>
     <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"ajustar l\'autonomia restant del cotxe"</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"Ajustar el valor de l\'autonomia restant del cotxe."</string>
-    <string name="car_permission_label_hvac" msgid="1499454192558727843">"accedir al sistema de calefacció, ventilació i aire condicionat del cotxe"</string>
-    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Accedir al sistema de calefacció, ventilació i aire condicionat del cotxe"</string>
+    <string name="car_permission_label_hvac" msgid="1499454192558727843">"accedir al sistema de climatització del cotxe"</string>
+    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Accedir al sistema de climatització del cotxe"</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"accedeix a la informació sobre el quilometratge del cotxe"</string>
     <string name="car_permission_desc_mileage" msgid="7179735693278681090">"Accedir a la informació sobre el quilometratge del cotxe"</string>
     <string name="car_permission_label_speed" msgid="1149027717860529745">"llegeix la velocitat del cotxe"</string>
