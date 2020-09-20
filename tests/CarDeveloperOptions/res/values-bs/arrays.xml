@@ -202,7 +202,7 @@
     <item msgid="3778273775365258534">"IS95A"</item>
   </string-array>
   <string-array name="mvno_type_entries">
-    <item msgid="6984770764726663331">"Nema"</item>
+    <item msgid="6984770764726663331">"Ništa"</item>
     <item msgid="1469208769491004112">"SPN"</item>
     <item msgid="7556656048009090524">"IMSI"</item>
     <item msgid="8636516530542473799">"GID"</item>
