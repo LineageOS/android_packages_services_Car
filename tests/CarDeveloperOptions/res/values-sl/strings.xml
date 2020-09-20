@@ -1093,7 +1093,7 @@
     <string name="wifi_p2p_cancel_connect_message" msgid="3752679335020392154">"Ali želite preklicati povabilo za povezavo z napravo <xliff:g id="PEER_NAME">%1$s</xliff:g>?"</string>
     <string name="wifi_p2p_delete_group_message" msgid="3206660449067701089">"Želite pozabiti to skupino?"</string>
     <string name="wifi_hotspot_checkbox_text" msgid="12062341344410520">"Dostopna točka Wi-Fi"</string>
-    <string name="wifi_hotspot_off_subtext" msgid="6177054857136221058">"Internetna povezava ali vsebina ni v skupni rabi z drugimi napravami"</string>
+    <string name="wifi_hotspot_off_subtext" msgid="6177054857136221058">"Internetna povezava ali vsebina ni deljena z drugimi napravami"</string>
     <string name="wifi_hotspot_tethering_on_subtext" product="tablet" msgid="71421730039785897">"Skupna raba internetne povezave tega tabličnega računalnika prek dostopne točke"</string>
     <string name="wifi_hotspot_tethering_on_subtext" product="default" msgid="8914285514605049879">"Skupna raba internetne povezave tega telefona prek dostopne točke"</string>
     <string name="wifi_hotspot_on_local_only_subtext" msgid="7415381343846704553">"Aplikacija daje vsebino v skupno rabo. Če želite omogočiti skupno rabo internetne povezave, dostopno točko izklopite in znova vklopite."</string>

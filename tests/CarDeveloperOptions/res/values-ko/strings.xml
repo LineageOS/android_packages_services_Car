@@ -3282,7 +3282,7 @@
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"방해 금지 모드의 알림 설정을 변경하시겠습니까?"</string>
     <string name="sound_work_settings" msgid="4140215240360927923">"직장 프로필 사운드"</string>
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"개인 프로필 사운드 사용"</string>
-    <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"직장 프로필과 개인 프로필의 소리가 같습니다."</string>
+    <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"직장 프로필과 개인 프로필의 사운드가 같습니다."</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"직장 휴대전화 벨소리"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"기본 직장 알림 소리"</string>
     <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"기본 직장 알람 소리"</string>

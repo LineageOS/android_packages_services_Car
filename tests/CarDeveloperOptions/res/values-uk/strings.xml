@@ -2084,7 +2084,7 @@
     <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"Змінити розмір шрифту"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"Програми зчитування з екрана"</string>
     <string name="audio_and_captions_category_title" msgid="6140472938769619212">"Аудіо й текст на екрані"</string>
-    <string name="display_category_title" msgid="545168481672250195">"Дисплей"</string>
+    <string name="display_category_title" msgid="545168481672250195">"Екран"</string>
     <string name="interaction_control_category_title" msgid="8775039211811947683">"Елементи керування взаємодією"</string>
     <string name="user_installed_services_category_title" msgid="4288689493753221319">"Завантажені служби"</string>
     <string name="experimental_category_title" msgid="3797000069740110717">"Експериментальні налаштування"</string>
@@ -3860,8 +3860,8 @@
     <string name="usb_pref" msgid="6194821550693495068">"USB"</string>
     <string name="usb_preference" msgid="7092987095048592826">"Параметри USB"</string>
     <string name="usb_control_title" msgid="2379698856760894768">"USB керує"</string>
-    <string name="usb_control_host" msgid="193292043691034178">"Підключений пристрій"</string>
-    <string name="usb_control_device" msgid="9154790265254725254">"Цей пристрій"</string>
+    <string name="usb_control_host" msgid="193292043691034178">"Підключеним пристроєм"</string>
+    <string name="usb_control_device" msgid="9154790265254725254">"Цим пристроєм"</string>
     <string name="usb_switching" msgid="1230386065163529904">"Змінюється…"</string>
     <string name="usb_switching_failed" msgid="6857722544186145439">"Не вдалося змінити"</string>
     <string name="usb_summary_charging_only" msgid="4118449308708872339">"Заряджання пристрою"</string>

@@ -3283,7 +3283,7 @@
     <string name="sound_work_settings" msgid="4140215240360927923">"工作資料夾音效"</string>
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"使用個人設定檔音效"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"工作資料夾和個人設定檔使用相同的音效"</string>
-    <string name="work_ringtone_title" msgid="5499360583947410224">"Work 手機鈴聲"</string>
+    <string name="work_ringtone_title" msgid="5499360583947410224">"工作手機鈴聲"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"預設 Work 通知音效"</string>
     <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"預設 Work 鬧鐘音效"</string>
     <string name="work_sound_same_as_personal" msgid="7728560881697159758">"與個人設定檔相同"</string>

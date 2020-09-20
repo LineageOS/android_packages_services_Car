@@ -3726,7 +3726,7 @@
     <string name="sharing_remote_bugreport_dialog_message" msgid="3814787466701526359">"Мүчүлүштүк тууралуу бул баяндама IT администраторуңуз менен бөлүшүлүүдө. Көбүрөөк маалымат үчүн администраторуңузга кайрылыңыз."</string>
     <string name="share_remote_bugreport_action" msgid="8600797271670537888">"Бөлүшүү"</string>
     <string name="decline_remote_bugreport_action" msgid="706319275774199033">"Четке кагуу"</string>
-    <string name="usb_use_charging_only" msgid="2344625733377110164">"Дайындар өткөрүлбөйт"</string>
+    <string name="usb_use_charging_only" msgid="2344625733377110164">"Дайын-даректер өткөрүлбөйт"</string>
     <string name="usb_use_charging_only_desc" msgid="3283518562582478950">"Жөн гана бул түзмөктү кубаттоо"</string>
     <string name="usb_use_power_only" msgid="6595783381323810697">"Туташкан түзмөктү кубаттоо"</string>
     <string name="usb_use_file_transfers" msgid="6153021302176151884">"Файл өткөрүү"</string>

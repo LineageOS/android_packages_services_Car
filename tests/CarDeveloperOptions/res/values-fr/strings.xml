@@ -3731,7 +3731,7 @@
     <string name="usb_use_power_only" msgid="6595783381323810697">"Recharger l\'appareil connecté"</string>
     <string name="usb_use_file_transfers" msgid="6153021302176151884">"Transfert de fichiers"</string>
     <string name="usb_use_file_transfers_desc" msgid="6953866660041189580">"Transférer des fichiers vers un autre appareil"</string>
-    <string name="usb_use_photo_transfers" msgid="5974236250197451257">"PTP"</string>
+    <string name="usb_use_photo_transfers" msgid="5974236250197451257">"Transfert de photos (PTP)"</string>
     <string name="usb_use_photo_transfers_desc" msgid="2325112887316125320">"Transférer des photos ou des fichiers si MTP n\'est pas compatible (PTP)"</string>
     <string name="usb_use_tethering" msgid="4250626730173163846">"Partage de connexion via USB"</string>
     <string name="usb_use_MIDI" msgid="4710632870781041401">"Mode MIDI"</string>
@@ -3741,7 +3741,7 @@
     <string name="usb_default_info" msgid="953775292571786528">"Ces paramètres sont appliqués lorsqu\'un autre appareil est connecté et que votre téléphone est déverrouillé. Connectez-vous uniquement à des appareils vérifiés."</string>
     <string name="usb_pref" msgid="6194821550693495068">"USB"</string>
     <string name="usb_preference" msgid="7092987095048592826">"Préférences USB"</string>
-    <string name="usb_control_title" msgid="2379698856760894768">"USB contrôlé par"</string>
+    <string name="usb_control_title" msgid="2379698856760894768">"Connexion USB contrôlée par"</string>
     <string name="usb_control_host" msgid="193292043691034178">"Appareil connecté"</string>
     <string name="usb_control_device" msgid="9154790265254725254">"Cet appareil"</string>
     <string name="usb_switching" msgid="1230386065163529904">"Changement…"</string>

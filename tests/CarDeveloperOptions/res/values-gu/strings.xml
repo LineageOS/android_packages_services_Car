@@ -1791,7 +1791,7 @@
     <string name="applications_settings_header" msgid="3766501606045211098">"ઍપ્લિકેશન સેટિંગ્સ"</string>
     <string name="install_applications" msgid="7745902974984889179">"અજાણ્યા સ્ત્રોતો"</string>
     <string name="install_applications_title" msgid="8164828577588659496">"બધા ઍપ્લિકેશન સ્રોતોને મંજૂરી આપો"</string>
-    <string name="recent_app_category_title" msgid="7688788038277126727">"તાજેતરમાં ખોલેલી ઍપ્લિકેશનો"</string>
+    <string name="recent_app_category_title" msgid="7688788038277126727">"તાજેતરમાં ખોલેલી ઍપ"</string>
     <string name="see_all_apps_title" msgid="6435061912110347474">"બધી <xliff:g id="COUNT">%1$d</xliff:g> ઍપ્લિકેશન જુઓ"</string>
     <string name="install_all_warning" product="tablet" msgid="4580699862358542727">"તમારું ટૅબ્લેટ અને વ્યક્તિગત ડેટા અજાણી ઍપ્લિકેશનોના હુમલા પ્રતિ વધુ સંવેદનશીલ છે. આ સ્રોત પરથી ઍપ્લિકેશનો ઇન્સ્ટૉલ કરીને તમે સંમત થાઓ છો કે તેમનો ઉપયોગ કરવાના પરિણામે તમારા ટૅબ્લેટને થતી કોઈ પણ ક્ષતિ કે ડેટાના નુકસાન માટે તમે જવાબદાર છો."</string>
     <string name="install_all_warning" product="default" msgid="7445839116997296358">"તમારો ફોન અને વ્યક્તિગત ડેટા અજાણી ઍપ્લિકેશનોના હુમલા પ્રતિ વધુ સંવેદનશીલ છે. આ સ્રોત પરથી ઍપ્લિકેશનો ઇન્સ્ટૉલ કરીને તમે સંમત થાઓ છો કે તેમનો ઉપયોગ કરવાના પરિણામે તમારા ફોનને થતી કોઈ પણ ક્ષતિ કે ડેટાના નુકસાન માટે તમે જવાબદાર છો."</string>
@@ -3040,12 +3040,12 @@
     <string name="connected_devices_dashboard_no_nfc_summary" msgid="2610085597733526722">"બ્લૂટૂથ, ડ્રાઇવિંગ મોડ"</string>
     <string name="connected_devices_dashboard_no_driving_mode_summary" msgid="3524409078596318803">"બ્લૂટૂથ, NFC"</string>
     <string name="connected_devices_dashboard_no_driving_mode_no_nfc_summary" msgid="7881286613528299400">"બ્લૂટૂથ"</string>
-    <string name="app_and_notification_dashboard_title" msgid="8448096608058843730">"ઍપ્લિકેશનો અને નોટિફિકેશન"</string>
+    <string name="app_and_notification_dashboard_title" msgid="8448096608058843730">"ઍપ અને નોટિફિકેશન"</string>
     <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"Assistant, તાજેતરની ઍપ, ડિફૉલ્ટ ઍપ"</string>
     <string name="notification_settings_work_profile" msgid="7190550347842400029">"કાર્યાલયની પ્રોફાઇલમાં ઍપ માટે નોટિફિકેશન ઍક્સેસ ઉપલબ્ધ નથી."</string>
     <string name="account_dashboard_title" msgid="4734300939532555885">"એકાઉન્ટ"</string>
     <string name="account_dashboard_default_summary" msgid="6822549669771936206">"કોઈ એકાઉન્ટ ઉમેરવામાં આવ્યાં નથી"</string>
-    <string name="app_default_dashboard_title" msgid="6575301028225232193">"ડિફૉલ્ટ ઍપ્લિકેશનો"</string>
+    <string name="app_default_dashboard_title" msgid="6575301028225232193">"ડિફૉલ્ટ ઍપ"</string>
     <string name="system_dashboard_summary" msgid="6582464466735779394">"ભાષાઓ, જેશ્ચર સમય, બૅકઅપ"</string>
     <string name="search_results_title" msgid="4160717656435503940">"સેટિંગ્સ"</string>
     <string name="keywords_wifi" msgid="8477688080895466846">"વાઇફાઇ, વાઇ-ફાઇ, નેટવર્ક કનેક્શન, ઇન્ટરનેટ, વાયરલેસ, ડેટા, વાઇ-ફાઇ"</string>
@@ -3137,7 +3137,7 @@
     <string name="media_volume_option_title" msgid="3553411883305505682">"મીડિયા વૉલ્યૂમ"</string>
     <string name="remote_media_volume_option_title" msgid="6355710054191873836">"કાસ્ટનું વૉલ્યૂમ"</string>
     <string name="call_volume_option_title" msgid="5028003296631037334">"કૉલ વૉલ્યૂમ"</string>
-    <string name="alarm_volume_option_title" msgid="3184076022438477047">"એલાર્મ વૉલ્યૂમ"</string>
+    <string name="alarm_volume_option_title" msgid="3184076022438477047">"અલાર્મ વૉલ્યૂમ"</string>
     <string name="ring_volume_option_title" msgid="2038924918468372264">"રિંગ વૉલ્યૂમ"</string>
     <string name="notification_volume_option_title" msgid="1358512611511348260">"નોટિફિકેશન વૉલ્યૂમ"</string>
     <string name="ringtone_title" msgid="1409086028485922583">"ફોન રિંગટોન"</string>
@@ -3151,7 +3151,7 @@
     <string name="screen_locking_sounds_title" msgid="4407110895465866809">"સ્ક્રીન લૉકિંગ ધ્વનિઓ"</string>
     <string name="charging_sounds_title" msgid="5070437987230894287">"ચાર્જિંગ સાઉન્ડ અને વાઇબ્રેશન"</string>
     <string name="docking_sounds_title" msgid="2573137471605541366">"ડૉકિંગ સાઉન્ડ્સ"</string>
-    <string name="touch_sounds_title" msgid="165237488496165652">"ટચ સાઉન્ડ્સ"</string>
+    <string name="touch_sounds_title" msgid="165237488496165652">"ટચ સાઉન્ડ"</string>
     <string name="vibrate_on_touch_title" msgid="6360155469279157684">"સ્પર્શ વાઇબ્રેશન"</string>
     <string name="vibrate_on_touch_summary" msgid="5504424764028676043">"ટૅપ, કીબોર્ડ અને વધુ માટે સ્પર્શ દ્વારા આપેલ અભિપ્રાય"</string>
     <string name="dock_audio_media_title" msgid="1859521680502040781">"ડૉક સ્પીકર ચલાવે છે"</string>
@@ -3280,12 +3280,12 @@
     <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"તમે કોઈ નોટિફિકેશન જોઈ અથવા સાંભળી શકશો નહીં. સ્ટાર આપેલા સંપર્કો અને રિપીટ કૉલરના કૉલને પરવાનગી આપવામાં આવે છે."</string>
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(વર્તમાન સેટિંગ)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"ખલેલ પાડશો નહીં નોટિફિકેશનની સેટિંગમાં ફેરફાર કરીએ?"</string>
-    <string name="sound_work_settings" msgid="4140215240360927923">"કાર્યાલયની પ્રોફાઇલની ધ્વનિઓ"</string>
-    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"વ્યક્તિગત પ્રોફાઇલ ધ્વનિઓ વાપરો"</string>
-    <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"કાર્ય અને વ્યક્તિગત પ્રોફાઇલો માટે ધ્વનિ સમાન રહે છે"</string>
-    <string name="work_ringtone_title" msgid="5499360583947410224">"કાર્ય ફોન રિંગટોન"</string>
-    <string name="work_notification_ringtone_title" msgid="8059159087214025757">"કાર્યાલયના નોટિફિકેશન માટે ડિફૉલ્ટ ધ્વનિ"</string>
-    <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"ડિફૉલ્ટ કાર્ય એલાર્મ માટે સાઉન્ડ"</string>
+    <string name="sound_work_settings" msgid="4140215240360927923">"ઑફિસની પ્રોફાઇલના સાઉન્ડ"</string>
+    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"વ્યક્તિગત પ્રોફાઇલ સાઉન્ડ વાપરો"</string>
+    <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"ઑફિસ અને વ્યક્તિગત પ્રોફાઇલો માટે સાઉન્ડ સમાન રહે છે"</string>
+    <string name="work_ringtone_title" msgid="5499360583947410224">"ઑફિસ ફોન રિંગટોન"</string>
+    <string name="work_notification_ringtone_title" msgid="8059159087214025757">"ઑફિસના નોટિફિકેશન માટે ડિફૉલ્ટ સાઉન્ડ"</string>
+    <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"ઑફિસના અલાર્મ માટે ડિફૉલ્ટ સાઉન્ડ"</string>
     <string name="work_sound_same_as_personal" msgid="7728560881697159758">"વ્યક્તિગત પ્રોફાઇલની જેમ જ"</string>
     <string name="work_sync_dialog_title" msgid="4799120971202956837">"ધ્વનિ બદલીએ?"</string>
     <string name="work_sync_dialog_yes" msgid="2110726233746476066">"બદલો"</string>
@@ -3728,7 +3728,7 @@
     <string name="decline_remote_bugreport_action" msgid="706319275774199033">"નકારો"</string>
     <string name="usb_use_charging_only" msgid="2344625733377110164">"કોઈ ડેટા ટ્રાન્સફર નથી"</string>
     <string name="usb_use_charging_only_desc" msgid="3283518562582478950">"બસ આ ઉપકરણને ચાર્જ કરો"</string>
-    <string name="usb_use_power_only" msgid="6595783381323810697">"કનેક્ટ થયેલ ઉપકરણને ચાર્જ કરો"</string>
+    <string name="usb_use_power_only" msgid="6595783381323810697">"કનેક્ટ થયેલ ડિવાઇસને ચાર્જ કરો"</string>
     <string name="usb_use_file_transfers" msgid="6153021302176151884">"ફાઇલ ટ્રાન્સફર"</string>
     <string name="usb_use_file_transfers_desc" msgid="6953866660041189580">"ફાઇલોને બીજા ઉપકરણ પર ટ્રાન્સફર કરો"</string>
     <string name="usb_use_photo_transfers" msgid="5974236250197451257">"PTP"</string>
@@ -4188,7 +4188,7 @@
     <string name="enterprise_privacy_location_access" msgid="110406267468274216">"સ્થાન માટેની પરવાનગીઓ"</string>
     <string name="enterprise_privacy_microphone_access" msgid="4586428105675460207">"માઇક્રોફોન માટેની પરવાનગીઓ"</string>
     <string name="enterprise_privacy_camera_access" msgid="2366392786153103482">"કૅમેરા માટેની પરવાનગીઓ"</string>
-    <string name="enterprise_privacy_enterprise_set_default_apps" msgid="6142937923758931242">"ડિફૉલ્ટ ઍપ્લિકેશનો"</string>
+    <string name="enterprise_privacy_enterprise_set_default_apps" msgid="6142937923758931242">"ડિફૉલ્ટ ઍપ"</string>
     <plurals name="enterprise_privacy_number_packages" formatted="false" msgid="1480745164313890415">
       <item quantity="one"><xliff:g id="COUNT_1">%d</xliff:g> ઍપ્લિકેશન</item>
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> ઍપ્લિકેશન</item>

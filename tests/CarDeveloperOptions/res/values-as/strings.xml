@@ -3726,7 +3726,7 @@
     <string name="sharing_remote_bugreport_dialog_message" msgid="3814787466701526359">"আপোনাৰ আইটি প্ৰশাসকৰ সৈতে এই বাগ প্ৰতিবেদনটো শ্বেয়াৰ কৰা হৈছে। অধিক তথ্যৰ বাবে তেওঁলোকৰ সৈতে যোগাযোগ কৰক।"</string>
     <string name="share_remote_bugreport_action" msgid="8600797271670537888">"শ্বেয়াৰ কৰক"</string>
     <string name="decline_remote_bugreport_action" msgid="706319275774199033">"প্ৰত্যাখ্যান কৰক"</string>
-    <string name="usb_use_charging_only" msgid="2344625733377110164">"কোনো ডেটা স্থানান্তৰণ কৰিব নোৱাৰি"</string>
+    <string name="usb_use_charging_only" msgid="2344625733377110164">"ডেটা স্থানান্তৰ কৰিব নোৱাৰি"</string>
     <string name="usb_use_charging_only_desc" msgid="3283518562582478950">"ডিভাইচটো কেৱল চাৰ্জ কৰক"</string>
     <string name="usb_use_power_only" msgid="6595783381323810697">"চ্চাৰ্জাৰ ডিভাইচত সংযোগ কৰা হ’ল"</string>
     <string name="usb_use_file_transfers" msgid="6153021302176151884">"ফাইল স্থানান্তৰণৰ বাবে"</string>

@@ -1644,7 +1644,7 @@
     <string name="usb_tethering_subtext" product="tablet" msgid="154536000235361034">"Дељење интернет везе таблета преко USB-а"</string>
     <string name="bluetooth_tether_checkbox_text" msgid="7257293066139372774">"Bluetooth привезивање"</string>
     <string name="bluetooth_tethering_subtext" product="tablet" msgid="6868756914621131635">"Делите интернет везу таблета преко Bluetooth-а"</string>
-    <string name="bluetooth_tethering_subtext" product="default" msgid="9167912297565425178">"Делите интернет везу телефона преко Bluetooth-а"</string>
+    <string name="bluetooth_tethering_subtext" product="default" msgid="9167912297565425178">"Дељење интернет везе телефона преко Bluetooth-а"</string>
     <string name="bluetooth_tethering_off_subtext_config" msgid="3981528184780083266">"Интернет веза уређаја <xliff:g id="DEVICE_NAME">%1$d</xliff:g> се дели преко Bluetooth-а"</string>
     <string name="bluetooth_tethering_overflow_error" msgid="6946561351369376943">"Привезивање на више од <xliff:g id="MAXCONNECTION">%1$d</xliff:g> уређаја није могуће."</string>
     <string name="bluetooth_untether_blank" msgid="5428300773782256084">"Интернет веза са уређајем <xliff:g id="DEVICE_NAME">%1$s</xliff:g> ће бити прекинута."</string>
