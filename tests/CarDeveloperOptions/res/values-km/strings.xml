@@ -3736,7 +3736,7 @@
     <string name="usb_use_tethering" msgid="4250626730173163846">"ការ​ភ្ជាប់តាម USB"</string>
     <string name="usb_use_MIDI" msgid="4710632870781041401">"MIDI"</string>
     <string name="usb_use_MIDI_desc" msgid="1770966187150010947">"ប្រើឧបករណ៍នេះជាមីឌី"</string>
-    <string name="usb_use" msgid="8940500223316278632">"ប្រើ USB ដើម្បី"</string>
+    <string name="usb_use" msgid="8940500223316278632">"ប្រើ USB សម្រាប់"</string>
     <string name="usb_default_label" msgid="7471316635263936101">"ការកំណត់​រចនាសម្ព័ន្ធ USB លំនាំ​ដើម"</string>
     <string name="usb_default_info" msgid="953775292571786528">"ការកំណត់​ទាំងនេះ​នឹងអនុវត្ត នៅពេល​ដែល​ទូរសព្ទ​របស់អ្នក​ដោះសោ ហើយឧបករណ៍​ផ្សេងទៀត​ត្រូវបានភ្ជាប់​។ សូម​ភ្ជាប់​ជាមួយឧបករណ៍​ដែលទុកចិត្ត​តែប៉ុណ្ណោះ។"</string>
     <string name="usb_pref" msgid="6194821550693495068">"USB"</string>

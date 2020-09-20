@@ -3231,7 +3231,7 @@
     <string name="other_sound_settings" msgid="5250376066099818676">"Іншыя гукі"</string>
     <string name="dial_pad_tones_title" msgid="8877212139988655769">"Гукі панэлі набору"</string>
     <string name="screen_locking_sounds_title" msgid="4407110895465866809">"Гукі блакіроўкі экрана"</string>
-    <string name="charging_sounds_title" msgid="5070437987230894287">"Сігнал зарадкі і вібрацыя"</string>
+    <string name="charging_sounds_title" msgid="5070437987230894287">"Гукі і вібрацыя пры зарадцы"</string>
     <string name="docking_sounds_title" msgid="2573137471605541366">"Гукі док-станцыі"</string>
     <string name="touch_sounds_title" msgid="165237488496165652">"Гукі пры дотыку"</string>
     <string name="vibrate_on_touch_title" msgid="6360155469279157684">"Вібрацыя пры націсканні"</string>

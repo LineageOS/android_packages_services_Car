@@ -735,7 +735,7 @@
     </plurals>
     <string name="manage_trust_agents" msgid="8129970926213142261">"Pouzdani agenti"</string>
     <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"Da biste ovo koristili, prvo postavite zaključavanje ekrana"</string>
-    <string name="manage_trust_agents_summary" msgid="2023116850759962248">"Nema"</string>
+    <string name="manage_trust_agents_summary" msgid="2023116850759962248">"Ništa"</string>
     <plurals name="manage_trust_agents_summary_on" formatted="false" msgid="5550538038916606097">
       <item quantity="one"><xliff:g id="COUNT">%d</xliff:g> aktivni pouzdani agent</item>
       <item quantity="few"><xliff:g id="COUNT">%d</xliff:g> aktivna pouzdana agenta</item>
@@ -3165,9 +3165,9 @@
     <string name="keywords_default_payment_app" msgid="845369409578423996">"plaćanje, zadano"</string>
     <string name="keywords_ambient_display" msgid="8835182491798487184">"dolazno obavještenje"</string>
     <string name="keywords_hotspot_tethering" msgid="1723591462602613867">"povezivanje putem usb uređaja, povezivanje putem bluetooth uređaja, wifi pristupna tačka"</string>
-    <string name="keywords_touch_vibration" msgid="2081175517528255224">"haptika, vibriranje, ekran, osjetljivost"</string>
-    <string name="keywords_ring_vibration" msgid="4210509151866460210">"haptika, vibriranje, telefon, poziv, osjetljivost, zvono"</string>
-    <string name="keywords_notification_vibration" msgid="1077515502086745166">"haptika, vibriranje, osjetljivost"</string>
+    <string name="keywords_touch_vibration" msgid="2081175517528255224">"haptička tehnologija, vibriranje, ekran, osjetljivost"</string>
+    <string name="keywords_ring_vibration" msgid="4210509151866460210">"haptička tehnologija, vibriranje, telefon, poziv, osjetljivost, zvono"</string>
+    <string name="keywords_notification_vibration" msgid="1077515502086745166">"haptička tehnologija, vibriranje, osjetljivost"</string>
     <string name="keywords_battery_saver_sticky" msgid="8733804259716284872">"ušteda baterije, ljepljivo, istrajnost, ušteda energije, baterija"</string>
     <string name="default_sound" msgid="6675629744816442953">"Podrazumijevani zvuk"</string>
     <string name="sound_settings_summary" msgid="8467549670633195109">"Jačina zvuka zvona je na <xliff:g id="PERCENTAGE">%1$s</xliff:g>"</string>
@@ -3325,7 +3325,7 @@
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(Trenutna postavka)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"Promijeniti postavke obavještenja načina rada Ne ometaj?"</string>
     <string name="sound_work_settings" msgid="4140215240360927923">"Zvukovi radnog profila"</string>
-    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Koristite zvukove ličnog profila"</string>
+    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Koristi zvukove ličnog profila"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Zvukovi su isti za radni i lični profil"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"Melodija zvona radnog telefona"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Zadani zvuk radnih obavještenja"</string>
@@ -4248,7 +4248,7 @@
     <string name="enterprise_privacy_network_logs" msgid="5427398751599441159">"Najskoriji zapis mrežnog saobraćaja"</string>
     <string name="enterprise_privacy_bug_reports" msgid="283443567328836380">"Najnoviji izvještaj o greškama"</string>
     <string name="enterprise_privacy_security_logs" msgid="8936969480449604726">"Najnoviji zapisnik o aktivnostima"</string>
-    <string name="enterprise_privacy_none" msgid="5990646476868794882">"Nema"</string>
+    <string name="enterprise_privacy_none" msgid="5990646476868794882">"Ništa"</string>
     <string name="enterprise_privacy_enterprise_installed_packages" msgid="6575025134782391212">"Aplikacije su instalirane"</string>
     <string name="enterprise_privacy_apps_count_estimation_info" msgid="5020730108878608500">"Broj aplikacija je samo procjena. Možda nisu obuhvaćene aplikacije koje su instalirane izvan Play trgovine."</string>
     <plurals name="enterprise_privacy_number_packages_lower_bound" formatted="false" msgid="5161417161943060602">

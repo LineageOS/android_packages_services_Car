@@ -3134,7 +3134,7 @@
     <string name="sound_settings_summary_vibrate" msgid="2194491116884798590">"ደዋዩ ወደ ንዘር ተቀናብሯል"</string>
     <string name="sound_settings_summary_silent" msgid="899823817462768876">"ደዋዩ ወደ ጸጥታ ተቀናብሯል"</string>
     <string name="sound_settings_example_summary" msgid="2091822107298841827">"የጥሪ ድምጽ መጠን 80% ላይ"</string>
-    <string name="media_volume_option_title" msgid="3553411883305505682">"የማህደረመረጃ ክፍልፍል"</string>
+    <string name="media_volume_option_title" msgid="3553411883305505682">"የማህደረ መረጃ ድምጽ መጠን"</string>
     <string name="remote_media_volume_option_title" msgid="6355710054191873836">"ድምፅን Cast አድርግ"</string>
     <string name="call_volume_option_title" msgid="5028003296631037334">"የስልክ ጥሪ ድምጽ መጠን"</string>
     <string name="alarm_volume_option_title" msgid="3184076022438477047">"የማንቂያ ድምፅ መጠን"</string>

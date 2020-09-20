@@ -3370,8 +3370,8 @@
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"Zmienić ustawienia trybu Nie przeszkadzać?"</string>
     <string name="sound_work_settings" msgid="4140215240360927923">"Dźwięki w profilu do pracy"</string>
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Użyj dźwięków z profilu osobistego"</string>
-    <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Dźwięki są takie same w profilu osobistym i do pracy"</string>
-    <string name="work_ringtone_title" msgid="5499360583947410224">"Dzwonek w profilu do pracy"</string>
+    <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Dźwięki są takie same w profilu osobistym i służbowym"</string>
+    <string name="work_ringtone_title" msgid="5499360583947410224">"Dzwonek w profilu służbowym"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Domyślny dźwięk powiadomienia w profilu służbowym"</string>
     <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"Domyślny dźwięk alarmu w profilu służbowym"</string>
     <string name="work_sound_same_as_personal" msgid="7728560881697159758">"Taki sam jak w profilu osobistym"</string>

@@ -162,7 +162,7 @@
     <string name="bluetooth_map_acceptance_dialog_text" msgid="736507842082640410">"%1$s muốn truy cập tin nhắn của bạn. Bạn có muốn cấp quyền truy cập cho %2$s không?"</string>
     <string name="bluetooth_sap_request" msgid="6318039677671263261">"Yêu cầu truy cập SIM"</string>
     <string name="bluetooth_sap_acceptance_dialog_text" msgid="1909352413109340355">"<xliff:g id="DEVICE_NAME_0">%1$s</xliff:g> muốn truy cập vào thẻ SIM của bạn. Cấp quyền truy cập vào thẻ SIM sẽ vô hiệu hóa khả năng kết nối dữ liệu trên thiết bị của bạn trong suốt thời gian kết nối. Cấp quyền truy cập vào <xliff:g id="DEVICE_NAME_1">%2$s?</xliff:g>"</string>
-    <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"Hiển thị là \"<xliff:g id="DEVICE_NAME">^1</xliff:g>\" với các thiết bị khác"</string>
+    <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"Tên xuất hiện trên các thiết bị khác: <xliff:g id="DEVICE_NAME">^1</xliff:g>"</string>
     <string name="bluetooth_off_footer" msgid="7658444560543730571">"Bật Bluetooth để kết nối với các thiết bị khác."</string>
     <string name="bluetooth_paired_device_title" msgid="8361860197780425286">"Thiết bị của bạn"</string>
     <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"Ghép nối thiết bị mới"</string>
@@ -3426,7 +3426,7 @@
     <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"Cho phép những thông báo này tiếp tục làm gián đoạn khi chế độ Không làm phiền đang bật"</string>
     <string name="app_notification_visibility_override_title" msgid="2349335170165637672">"Trên màn hình khóa"</string>
     <string name="app_notification_row_banned" msgid="2079325338122151677">"Bị chặn"</string>
-    <string name="app_notification_row_priority" msgid="432299064888787236">"Mức độ ưu tiên"</string>
+    <string name="app_notification_row_priority" msgid="432299064888787236">"Ưu tiên"</string>
     <string name="app_notification_row_sensitive" msgid="4919671519227722958">"Nhạy cảm"</string>
     <string name="app_notifications_dialog_done" msgid="5395611029779655968">"Xong"</string>
     <string name="app_notification_importance_title" msgid="1902794400671001142">"Mức độ quan trọng"</string>

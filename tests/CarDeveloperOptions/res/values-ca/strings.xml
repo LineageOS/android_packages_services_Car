@@ -1615,7 +1615,7 @@
     <string name="tether_settings_title_bluetooth" msgid="1999590158102569959">"Compartició de xarxa per Bluetooth"</string>
     <string name="tether_settings_title_usb_bluetooth" msgid="1159128764162788159">"Compartició de xarxa"</string>
     <string name="tether_settings_title_all" msgid="6935843543433954181">"Punt d\'accés Wi-Fi i compartició de xarxa"</string>
-    <string name="tether_settings_summary_hotspot_on_tether_on" msgid="1289593649526514499">"Punt d\'accés Wi-Fi i compartició de xarxa activats"</string>
+    <string name="tether_settings_summary_hotspot_on_tether_on" msgid="1289593649526514499">"Punt d\'accés Wi-Fi activat, compartició de xarxa"</string>
     <string name="tether_settings_summary_hotspot_on_tether_off" msgid="8010689354668285422">"Punt d\'accés Wi-Fi activat"</string>
     <string name="tether_settings_summary_hotspot_off_tether_on" msgid="1349909238672649877">"Compartició de xarxa"</string>
     <string name="tether_settings_disabled_on_data_saver" msgid="3682544845899910726">"No es pot compartir la xarxa ni utilitzar punts d\'accés Wi-Fi mentre la funció Economitzador de dades està activada"</string>
