@@ -1057,7 +1057,7 @@
     <string name="wifi_p2p_cancel_connect_message" msgid="3752679335020392154">"¿Quieres cancelar la invitación para conectar con <xliff:g id="PEER_NAME">%1$s</xliff:g>?"</string>
     <string name="wifi_p2p_delete_group_message" msgid="3206660449067701089">"¿Olvidar este grupo?"</string>
     <string name="wifi_hotspot_checkbox_text" msgid="12062341344410520">"Punto de acceso Wi-Fi"</string>
-    <string name="wifi_hotspot_off_subtext" msgid="6177054857136221058">"No se está compartiendo Internet ni el contenido con otros dispositivos"</string>
+    <string name="wifi_hotspot_off_subtext" msgid="6177054857136221058">"No se está compartiendo Internet ni contenido con otros dispositivos"</string>
     <string name="wifi_hotspot_tethering_on_subtext" product="tablet" msgid="71421730039785897">"Se está compartiendo la conexión a Internet de este tablet mediante un punto de acceso"</string>
     <string name="wifi_hotspot_tethering_on_subtext" product="default" msgid="8914285514605049879">"Se está compartiendo la conexión a Internet de este teléfono mediante un punto de acceso"</string>
     <string name="wifi_hotspot_on_local_only_subtext" msgid="7415381343846704553">"La aplicación está compartiendo contenido. Para compartir la conexión a Internet, desactiva el punto de acceso y vuelve a activarlo"</string>
@@ -1298,7 +1298,7 @@
     <string name="sim_multi_sims_summary" msgid="8237021982527032257">"Selecciona la SIM que prefieras para usar datos móviles."</string>
     <string name="sim_change_data_title" msgid="2512227368681250054">"¿Usar <xliff:g id="CARRIER">%1$s</xliff:g> para los datos móviles?"</string>
     <string name="sim_change_data_message" msgid="51004703157782900">"Estás utilizando <xliff:g id="CARRIER2_0">%2$s</xliff:g> para los datos móviles. Si cambias a <xliff:g id="CARRIER1">%1$s</xliff:g>, no se utilizará más a <xliff:g id="CARRIER2_1">%2$s</xliff:g> para los datos móviles."</string>
-    <string name="sim_change_data_ok" msgid="7491552537317573235">"Utilizar <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
+    <string name="sim_change_data_ok" msgid="7491552537317573235">"Usar <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
     <string name="sim_preferred_title" msgid="3389680276182899407">"¿Actualizar tarjeta SIM preferida?"</string>
     <string name="sim_preferred_message" msgid="3751011329746359050">"<xliff:g id="NEW_SIM">%1$s</xliff:g> es la única SIM del dispositivo. ¿Quieres usarla para los datos móviles, las llamadas y los mensajes SMS?"</string>
     <string name="wrong_pin_code_pukked" msgid="3214670264775760428">"Código PIN de la tarjeta SIM incorrecto. Debes ponerte en contacto con tu operador para desbloquear el dispositivo."</string>
@@ -3746,7 +3746,7 @@
     <string name="usb_control_device" msgid="9154790265254725254">"Este dispositivo"</string>
     <string name="usb_switching" msgid="1230386065163529904">"Cambiando..."</string>
     <string name="usb_switching_failed" msgid="6857722544186145439">"No se ha podido hacer el cambio"</string>
-    <string name="usb_summary_charging_only" msgid="4118449308708872339">"Cargando el dispositivo"</string>
+    <string name="usb_summary_charging_only" msgid="4118449308708872339">"Cargando este dispositivo"</string>
     <string name="usb_summary_power_only" msgid="3552240122641051107">"Cargando dispositivo conectado"</string>
     <string name="usb_summary_file_transfers" msgid="7805342797099821502">"Transferencia de archivos"</string>
     <string name="usb_summary_tether" msgid="778845069037366883">"Compartir conexión por USB"</string>

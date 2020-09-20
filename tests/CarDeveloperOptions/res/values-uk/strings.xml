@@ -3860,8 +3860,8 @@
     <string name="usb_pref" msgid="6194821550693495068">"USB"</string>
     <string name="usb_preference" msgid="7092987095048592826">"Параметри USB"</string>
     <string name="usb_control_title" msgid="2379698856760894768">"USB керує"</string>
-    <string name="usb_control_host" msgid="193292043691034178">"Підключений пристрій"</string>
-    <string name="usb_control_device" msgid="9154790265254725254">"Цей пристрій"</string>
+    <string name="usb_control_host" msgid="193292043691034178">"Підключеним пристроєм"</string>
+    <string name="usb_control_device" msgid="9154790265254725254">"Цим пристроєм"</string>
     <string name="usb_switching" msgid="1230386065163529904">"Змінюється…"</string>
     <string name="usb_switching_failed" msgid="6857722544186145439">"Не вдалося змінити"</string>
     <string name="usb_summary_charging_only" msgid="4118449308708872339">"Заряджання пристрою"</string>

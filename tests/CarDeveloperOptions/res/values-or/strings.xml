@@ -1125,7 +1125,7 @@
     <string name="musicfx_title" msgid="6456079041566773649">"ମ୍ୟୁଜିକ୍‌ ଇଫେକ୍ଟସ୍"</string>
     <string name="ring_volume_title" msgid="5874791723449821646">"ରିଙ୍ଗ ଭଲ୍ୟୁମ୍"</string>
     <string name="vibrate_in_silent_title" msgid="2314667015729841220">"ନୀରବ ଥିବା ବେଳେ କମ୍ପନ କରନ୍ତୁ"</string>
-    <string name="notification_sound_title" msgid="6812164482799723931">"ପୂର୍ବ-ନିର୍ଦ୍ଧାରିତ ବିଜ୍ଞପ୍ତିର ଶବ୍ଦ"</string>
+    <string name="notification_sound_title" msgid="6812164482799723931">"ଡିଫଲ୍ଟ ବିଜ୍ଞପ୍ତି ସାଉଣ୍ଡ"</string>
     <string name="incoming_call_volume_title" msgid="4736570528754310450">"ରିଙ୍ଗଟୋନ୍‌"</string>
     <string name="notification_volume_title" msgid="6022562909288085275">"ବିଜ୍ଞପ୍ତି"</string>
     <string name="checkbox_notification_same_as_incoming_call" msgid="7312942422655861175">"ବିଜ୍ଞପ୍ତିଗୁଡ଼ିକ ପାଇଁ ଇନ୍‌କମିଙ୍ଗ କଲ୍‌ ଭଲ୍ୟୁମ୍‌କୁ ବ୍ୟବହାର କର"</string>
@@ -1615,7 +1615,7 @@
     <string name="tether_settings_title_bluetooth" msgid="1999590158102569959">"ବ୍ଲୁଟୁଥ ଟିଥରିଂ"</string>
     <string name="tether_settings_title_usb_bluetooth" msgid="1159128764162788159">"ଟିଥରିଂ"</string>
     <string name="tether_settings_title_all" msgid="6935843543433954181">"ହଟସ୍ପଟ୍‌ ଓ ଟିଥରିଂ"</string>
-    <string name="tether_settings_summary_hotspot_on_tether_on" msgid="1289593649526514499">"Hotspot ଅନ୍‌ ଅଛି, ଟିଥର୍‌ କରୁଛି"</string>
+    <string name="tether_settings_summary_hotspot_on_tether_on" msgid="1289593649526514499">"ହଟସ୍ପଟ୍ ଚାଲୁ‌ ଅଛି, ଟିଥର୍‌ କରୁଛି"</string>
     <string name="tether_settings_summary_hotspot_on_tether_off" msgid="8010689354668285422">"ହଟସ୍ପଟ୍‌ ଅନ୍‌"</string>
     <string name="tether_settings_summary_hotspot_off_tether_on" msgid="1349909238672649877">"ଟିଥରିଂ"</string>
     <string name="tether_settings_disabled_on_data_saver" msgid="3682544845899910726">"ଡାଟା ସେଭର୍‌ ଅନ୍‌ ଥିବାବେଳେ ଟିଥର୍‌ କିମ୍ୱା ପୋର୍ଟେବଲ୍‌ ହଟ୍‌ସ୍ପଟ୍‌ ବ୍ୟବହାର କରିପାରିବ ନାହିଁ"</string>
@@ -3141,7 +3141,7 @@
     <string name="ring_volume_option_title" msgid="2038924918468372264">"ରିଙ୍ଗ ଭଲ୍ୟୁମ୍‌"</string>
     <string name="notification_volume_option_title" msgid="1358512611511348260">"ସୂଚନା ଭଲ୍ୟୁମ"</string>
     <string name="ringtone_title" msgid="1409086028485922583">"ଫୋନ୍‌ ରିଙ୍ଗଟୋନ୍‌"</string>
-    <string name="notification_ringtone_title" msgid="2932960620843976285">"ଡିଫଲ୍ଟ୍ ବିଜ୍ଞପ୍ତି ଶବ୍ଦ"</string>
+    <string name="notification_ringtone_title" msgid="2932960620843976285">"ଡିଫଲ୍ଟ ବିଜ୍ଞପ୍ତି ସାଉଣ୍ଡ"</string>
     <string name="notification_unknown_sound_title" msgid="8043718667804838398">"ଆପ୍‌ ଦ୍ୱାରା ପ୍ରଦତ୍ତ ଶବ୍ଦ"</string>
     <string name="notification_sound_default" msgid="2664544380802426260">"ଡିଫଲ୍ଟ ବିଜ୍ଞପ୍ତି ସାଉଣ୍ଡ"</string>
     <string name="alarm_ringtone_title" msgid="6411326147408635902">"ଡିଫଲ୍ଟ ଆଲାର୍ମ ସାଉଣ୍ଡ"</string>
@@ -3280,12 +3280,12 @@
     <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"ଆପଣ ବିଜ୍ଞପ୍ତିକୁ ଦେଖି କିମ୍ବା ଶୁଣିପାରିବେ ନାହିଁ। ତାରାଙ୍କିତ ଯୋଗାଯୋଗରୁ ଆସିଥିବା କଲ୍ ଏବଂ ପୁଣି କଲ୍ କରୁଥିବା କଲର୍‍ଙ୍କୁ ଅନୁମତି ଦିଆଯାଇଛି।"</string>
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(ସାମ୍ପ୍ରତିକ ସେଟିଙ୍ଗ)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"’ବିରକ୍ତ କରନ୍ତୁ ନାହିଁ’ ବିଜ୍ଞପ୍ତି ସେଟିଙ୍ଗ ବଦଳାଇବେ?"</string>
-    <string name="sound_work_settings" msgid="4140215240360927923">"କାର୍ଯ୍ୟ ପ୍ରୋଫାଇଲ୍‌ ଶବ୍ଦ"</string>
-    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"ବ୍ୟକ୍ତିଗତ ପ୍ରୋଫାଇଲ୍‌ ଧ୍ୱନୀ ବ୍ୟବହାର କରନ୍ତୁ"</string>
-    <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"କାର୍ଯ୍ୟ ଓ ବ୍ୟକ୍ତିଗତ ପ୍ରୋଫାଇଲ୍‌ ପାଇଁ ଶବ୍ଦଗୁଡ଼ିକ ସମାନ ଅଟେ"</string>
+    <string name="sound_work_settings" msgid="4140215240360927923">"କାର୍ଯ୍ୟ ପ୍ରୋଫାଇଲ୍‌ ସାଉଣ୍ଡ"</string>
+    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"ବ୍ୟକ୍ତିଗତ ପ୍ରୋଫାଇଲ୍‌ ସାଉଣ୍ଡ ବ୍ୟବହାର କରନ୍ତୁ"</string>
+    <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"କାର୍ଯ୍ୟ ଓ ବ୍ୟକ୍ତିଗତ ପ୍ରୋଫାଇଲ୍‌ ପାଇଁ ସାଉଣ୍ଡଗୁଡ଼ିକ ସମାନ ଅଟେ"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"ଅଫିସ୍‌ ଫୋନ୍‌ର ରିଙ୍ଗଟୋନ୍‌"</string>
-    <string name="work_notification_ringtone_title" msgid="8059159087214025757">"ପୂର୍ବ-ନିର୍ଦ୍ଧାରିତ କାର୍ଯ୍ୟ ବିଜ୍ଞପ୍ତି ଶବ୍ଦ"</string>
-    <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"ଡିଫଲ୍ଟ କାର୍ଯ୍ୟ ଆଲାର୍ମ ଶବ୍ଦ"</string>
+    <string name="work_notification_ringtone_title" msgid="8059159087214025757">"ଡିଫଲ୍ଟ କାର୍ଯ୍ୟ ବିଜ୍ଞପ୍ତି ସାଉଣ୍ଡ"</string>
+    <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"ଡିଫଲ୍ଟ କାର୍ଯ୍ୟ ଆଲାର୍ମ ସାଉଣ୍ଡ"</string>
     <string name="work_sound_same_as_personal" msgid="7728560881697159758">"ବ୍ୟକ୍ତିଗତ ପ୍ରୋଫାଇଲ୍‌ ପରି ସମାନ"</string>
     <string name="work_sync_dialog_title" msgid="4799120971202956837">"ଶବ୍ଦ ବଦଳାଇବେ?"</string>
     <string name="work_sync_dialog_yes" msgid="2110726233746476066">"ବଦଳାଇବ"</string>
@@ -3728,7 +3728,7 @@
     <string name="decline_remote_bugreport_action" msgid="706319275774199033">"ଅଗ୍ରାହ୍ୟ କରନ୍ତୁ"</string>
     <string name="usb_use_charging_only" msgid="2344625733377110164">"ଡାଟା ସ୍ଥାନାନ୍ତର ହେବ ନାହିଁ"</string>
     <string name="usb_use_charging_only_desc" msgid="3283518562582478950">"ଏହି ଡିଭାଇସ୍‌କୁ ଚାର୍ଜ କରିଦିଅନ୍ତୁ"</string>
-    <string name="usb_use_power_only" msgid="6595783381323810697">"କନେକ୍ଟ ହୋଇଥିବା ଡିଭାଇସ୍‍ ଚାର୍ଜ କରନ୍ତୁ"</string>
+    <string name="usb_use_power_only" msgid="6595783381323810697">"ସଂଯୁକ୍ତ ହୋଇଥିବା ଡିଭାଇସ୍‍ ଚାର୍ଜ କରନ୍ତୁ"</string>
     <string name="usb_use_file_transfers" msgid="6153021302176151884">"ଫାଇଲ୍‌ ଟ୍ରାନ୍ସଫର୍‌"</string>
     <string name="usb_use_file_transfers_desc" msgid="6953866660041189580">"ଅନ୍ୟଏକ ଡିଭାଇସ୍‌କୁ ଫାଇଲ୍‌ ଟ୍ରାନ୍ସଫର୍‌ କରନ୍ତୁ"</string>
     <string name="usb_use_photo_transfers" msgid="5974236250197451257">"PTP"</string>

@@ -3726,7 +3726,7 @@
     <string name="sharing_remote_bugreport_dialog_message" msgid="3814787466701526359">"Laporan bug ini sedang dibagikan kepada admin IT. Hubungi mereka untuk detail selengkapnya."</string>
     <string name="share_remote_bugreport_action" msgid="8600797271670537888">"Bagikan"</string>
     <string name="decline_remote_bugreport_action" msgid="706319275774199033">"Tolak"</string>
-    <string name="usb_use_charging_only" msgid="2344625733377110164">"Tidak ada transfer data"</string>
+    <string name="usb_use_charging_only" msgid="2344625733377110164">"Jangan transfer data"</string>
     <string name="usb_use_charging_only_desc" msgid="3283518562582478950">"Mengisi daya perangkat ini saja"</string>
     <string name="usb_use_power_only" msgid="6595783381323810697">"Isi daya baterai perangkat yang terhubung"</string>
     <string name="usb_use_file_transfers" msgid="6153021302176151884">"Transfer File"</string>

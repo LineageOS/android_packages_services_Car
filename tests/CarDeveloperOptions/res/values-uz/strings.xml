@@ -3661,7 +3661,7 @@
     <string name="advanced_apps" msgid="6643869089344883537">"Kengaytirilgan sozlamalar"</string>
     <string name="configure_apps" msgid="4066683118857400943">"Ilovalarni sozlash"</string>
     <string name="unknown_app" msgid="2312052973570376877">"Noma’lum ilova"</string>
-    <string name="app_permissions" msgid="3215958256821756086">"Ruxsatlar menejeri"</string>
+    <string name="app_permissions" msgid="3215958256821756086">"Ruxsatlar boshqaruvi"</string>
     <string name="app_permissions_summary" msgid="8785798165776061594">"Ruxsatga ega ilovalar (<xliff:g id="APPS">%1$s</xliff:g>)"</string>
     <string name="tap_to_wake" msgid="1902991239401652323">"Teginib yoqish"</string>
     <string name="tap_to_wake_summary" msgid="8485222120721006793">"Qurilmani yoqish uchun ekranning istalgan joyiga ikki marta bosing"</string>
@@ -3746,7 +3746,7 @@
     <string name="decline_remote_bugreport_action" msgid="706319275774199033">"Rad etish"</string>
     <string name="usb_use_charging_only" msgid="2344625733377110164">"Axborot uzatilmasin"</string>
     <string name="usb_use_charging_only_desc" msgid="3283518562582478950">"Faqat shu qurilmani quvvatlash"</string>
-    <string name="usb_use_power_only" msgid="6595783381323810697">"Ulangan qurilmani quvvatlang"</string>
+    <string name="usb_use_power_only" msgid="6595783381323810697">"Ulangan qurilmani quvvatlash"</string>
     <string name="usb_use_file_transfers" msgid="6153021302176151884">"Fayl uzatish"</string>
     <string name="usb_use_file_transfers_desc" msgid="6953866660041189580">"Boshqa qurilmaga fayl o‘tkazish"</string>
     <string name="usb_use_photo_transfers" msgid="5974236250197451257">"PTP"</string>

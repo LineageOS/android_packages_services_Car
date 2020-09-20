@@ -973,7 +973,7 @@
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"يُرجى إدخال اسم SSID"</string>
     <string name="wifi_security" msgid="9136702039496152831">"الأمان"</string>
     <string name="wifi_hidden_network" msgid="6647772204699776833">"شبكة مخفية"</string>
-    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"إذا لم يكن جهاز التوجيه يبث معرّف شبكة وتريد الاتصال به في المستقبل، يمكنك تعيين الشبكة كشبكة مخفية.\n\nربما ينشئ هذا خطرًا أمنيًا حيث سيبث هاتفك إشارته بانتظام للعثور على الشبكة.\n\nلن يؤدي تعيين الشبكة كشبكة مخفية إلى تغيير إعدادات جهاز التوجيه."</string>
+    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"إذا لم يكن جهاز التوجيه يبث معرّف شبكة وتريد الاتصال به في المستقبل، يمكنك ضبط الشبكة كشبكة مخفية.\n\nربما ينشئ هذا خطرًا أمنيًا حيث سيبث هاتفك إشارته بانتظام للعثور على الشبكة.\n\nلن يؤدي تعيين الشبكة كشبكة مخفية إلى تغيير إعدادات جهاز التوجيه."</string>
     <string name="wifi_signal" msgid="696548364467704808">"قوة الإشارة"</string>
     <string name="wifi_status" msgid="3439931558930689940">"الحالة"</string>
     <string name="tx_wifi_speed" msgid="2571810085003261073">"سرعة نقل الرابط"</string>
@@ -3149,7 +3149,7 @@
     <string name="sim_settings_title" msgid="8818243954752261922">"بطاقات SIM"</string>
     <string name="sim_settings_summary" msgid="6516330865408217800">"<xliff:g id="SIM_NAME">%1$s</xliff:g> - <xliff:g id="SIM_NUMBER">%2$s</xliff:g>"</string>
     <string name="sim_cards_changed_message" msgid="1012486903583092731">"تم تغيير بطاقات SIM"</string>
-    <string name="sim_cards_changed_message_summary" msgid="5753692480107865077">"انقر لتعيين الأنشطة."</string>
+    <string name="sim_cards_changed_message_summary" msgid="5753692480107865077">"انقر لضبط الأنشطة."</string>
     <string name="sim_cellular_data_unavailable" msgid="1832472508352891641">"بيانات الجوّال غير متاحة"</string>
     <string name="sim_cellular_data_unavailable_summary" msgid="3093797406601964131">"انقر لاختيار شريحة SIM للبيانات."</string>
     <string name="sim_calls_always_use" msgid="5322696995795851734">"استخدام هذا للمكالمات دائمًا"</string>
