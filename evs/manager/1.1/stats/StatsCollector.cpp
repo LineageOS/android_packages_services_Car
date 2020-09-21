@@ -107,9 +107,15 @@ Result<void> StatsCollector::handleCollectionEvent(CollectionEvent event,
                                                    CollectionInfo* info) {
     AutoMutex lock(mMutex);
     if (mCurrentCollectionEvent != event) {
-        LOG(WARNING) << "Skipping " << toString(event) << " collection event "
-                     << "on collection event " << toString(mCurrentCollectionEvent);
-        return {};
+        if (mCurrentCollectionEvent != CollectionEvent::TERMINATED) {
+            LOG(WARNING) << "Skipping " << toString(event) << " collection event "
+                         << "on collection event " << toString(mCurrentCollectionEvent);
+
+            return {};
+        } else {
+            return Error() << "A collection has been terminated "
+                           << "while a current event was pending in the message queue.";
+        }
     }
 
     if (info->maxCacheSize < 1) {
