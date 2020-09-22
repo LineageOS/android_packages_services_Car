@@ -33,6 +33,7 @@ import android.car.annotation.MandatoryFeature;
 import android.car.annotation.OptionalFeature;
 import android.car.cluster.CarInstrumentClusterManager;
 import android.car.cluster.ClusterActivityState;
+import android.car.constants.CommonConstants;
 import android.car.content.pm.CarPackageManager;
 import android.car.diagnostic.CarDiagnosticManager;
 import android.car.drivingstate.CarDrivingStateManager;
@@ -743,7 +744,7 @@ public final class Car {
             "android.media.session.BROWSE_SERVICE";
 
     /** @hide */
-    public static final String CAR_SERVICE_INTERFACE_NAME = "android.car.ICar";
+    public static final String CAR_SERVICE_INTERFACE_NAME = CommonConstants.CAR_SERVICE_INTERFACE;
 
     private static final String CAR_SERVICE_PACKAGE = "com.android.car";
 
