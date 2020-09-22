@@ -25,6 +25,8 @@
 #include <android-base/properties.h>
 #include <android-base/stringprintf.h>
 #include <android-base/strings.h>
+#include <android/automotive/watchdog/BnCarWatchdogClient.h>
+#include <android/automotive/watchdog/BnCarWatchdogMonitor.h>
 #include <android/hardware/automotive/vehicle/2.0/types.h>
 #include <android/hidl/manager/1.0/IServiceManager.h>
 #include <binder/IPCThreadState.h>
@@ -134,7 +136,7 @@ Status WatchdogProcessService::registerClient(const sp<ICarWatchdogClient>& clie
 
 Status WatchdogProcessService::unregisterClient(const sp<ICarWatchdogClient>& client) {
     Mutex::Autolock lock(mMutex);
-    sp<IBinder> binder = BnCarWatchdog::asBinder(client);
+    sp<IBinder> binder = BnCarWatchdogClient::asBinder(client);
     // kTimeouts is declared as global static constant to cover all kinds of timeout (CRITICAL,
     // MODERATE, NORMAL).
     return unregisterClientLocked(kTimeouts, binder, ClientType::Regular);
@@ -148,15 +150,15 @@ Status WatchdogProcessService::registerMediator(const sp<ICarWatchdogClient>& me
 
 Status WatchdogProcessService::unregisterMediator(const sp<ICarWatchdogClient>& mediator) {
     std::vector<TimeoutLength> timeouts = {TimeoutLength::TIMEOUT_CRITICAL};
-    sp<IBinder> binder = BnCarWatchdog::asBinder(mediator);
+    sp<IBinder> binder = BnCarWatchdogClient::asBinder(mediator);
     Mutex::Autolock lock(mMutex);
     return unregisterClientLocked(timeouts, binder, ClientType::Mediator);
 }
 
 Status WatchdogProcessService::registerMonitor(const sp<ICarWatchdogMonitor>& monitor) {
     Mutex::Autolock lock(mMutex);
-    sp<IBinder> binder = BnCarWatchdog::asBinder(monitor);
-    if (mMonitor != nullptr && binder == BnCarWatchdog::asBinder(mMonitor)) {
+    sp<IBinder> binder = BnCarWatchdogMonitor::asBinder(monitor);
+    if (mMonitor != nullptr && binder == BnCarWatchdogMonitor::asBinder(mMonitor)) {
         return Status::ok();
     }
     status_t ret = binder->linkToDeath(mBinderDeathRecipient);
@@ -178,7 +180,7 @@ Status WatchdogProcessService::unregisterMonitor(const sp<ICarWatchdogMonitor>& 
         return Status::fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
                                          "The monitor has not been registered.");
     }
-    sp<IBinder> binder = BnCarWatchdog::asBinder(monitor);
+    sp<IBinder> binder = BnCarWatchdogMonitor::asBinder(monitor);
     binder->unlinkToDeath(mBinderDeathRecipient);
     mMonitor = nullptr;
     if (DEBUG) {
@@ -223,7 +225,7 @@ Status WatchdogProcessService::tellDumpFinished(const sp<ICarWatchdogMonitor>& m
                                                 int32_t pid) {
     Mutex::Autolock lock(mMutex);
     if (mMonitor == nullptr || monitor == nullptr ||
-        BnCarWatchdog::asBinder(monitor) != BnCarWatchdog::asBinder(mMonitor)) {
+        BnCarWatchdogMonitor::asBinder(monitor) != BnCarWatchdogMonitor::asBinder(mMonitor)) {
         return Status::
                 fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
                                   "The monitor is not registered or an invalid monitor is given");
@@ -384,13 +386,13 @@ void WatchdogProcessService::terminate() {
     for (const auto& timeout : kTimeouts) {
         std::vector<ClientInfo>& clients = mClients[timeout];
         for (auto it = clients.begin(); it != clients.end();) {
-            sp<IBinder> binder = BnCarWatchdog::asBinder((*it).client);
+            sp<IBinder> binder = BnCarWatchdogClient::asBinder((*it).client);
             binder->unlinkToDeath(mBinderDeathRecipient);
             it = clients.erase(it);
         }
     }
     if (mMonitor != nullptr) {
-        sp<IBinder> binder = BnCarWatchdog::asBinder(mMonitor);
+        sp<IBinder> binder = BnCarWatchdogMonitor::asBinder(mMonitor);
         binder->unlinkToDeath(mBinderDeathRecipient);
     }
     if (mVhalService != nullptr) {
@@ -400,7 +402,7 @@ void WatchdogProcessService::terminate() {
 }
 
 bool WatchdogProcessService::isRegisteredLocked(const sp<ICarWatchdogClient>& client) {
-    sp<IBinder> binder = BnCarWatchdog::asBinder(client);
+    sp<IBinder> binder = BnCarWatchdogClient::asBinder(client);
     return findClientAndProcessLocked(kTimeouts, binder, nullptr);
 }
 
@@ -411,7 +413,7 @@ Status WatchdogProcessService::registerClientLocked(const sp<ICarWatchdogClient>
         ALOGW("Cannot register the %s: the %s is already registered.", clientName, clientName);
         return Status::ok();
     }
-    sp<IBinder> binder = BnCarWatchdog::asBinder(client);
+    sp<IBinder> binder = BnCarWatchdogClient::asBinder(client);
     status_t status = binder->linkToDeath(mBinderDeathRecipient);
     if (status != OK) {
         std::string errorStr = StringPrintf("The %s is dead", clientName);
@@ -458,11 +460,11 @@ Status WatchdogProcessService::unregisterClientLocked(const std::vector<TimeoutL
 
 Status WatchdogProcessService::tellClientAliveLocked(const sp<ICarWatchdogClient>& client,
                                                      int32_t sessionId) {
-    const sp<IBinder> binder = BnCarWatchdog::asBinder(client);
+    const sp<IBinder> binder = BnCarWatchdogClient::asBinder(client);
     for (const auto& timeout : kTimeouts) {
         PingedClientMap& clients = mPingedClients[timeout];
         PingedClientMap::const_iterator it = clients.find(sessionId);
-        if (it == clients.cend() || binder != BnCarWatchdog::asBinder(it->second.client)) {
+        if (it == clients.cend() || binder != BnCarWatchdogClient::asBinder(it->second.client)) {
             continue;
         }
         clients.erase(it);
@@ -478,7 +480,7 @@ bool WatchdogProcessService::findClientAndProcessLocked(const std::vector<Timeou
     for (const auto& timeout : timeouts) {
         std::vector<ClientInfo>& clients = mClients[timeout];
         for (auto it = clients.begin(); it != clients.end(); it++) {
-            if (BnCarWatchdog::asBinder((*it).client) != binder) {
+            if (BnCarWatchdogClient::asBinder((*it).client) != binder) {
                 continue;
             }
             if (processor != nullptr) {
@@ -509,7 +511,7 @@ Result<void> WatchdogProcessService::dumpAndKillClientsIfNotResponding(TimeoutLe
             pid_t pid = -1;
             userid_t userId = -1;
             sp<ICarWatchdogClient> client = it->second.client;
-            sp<IBinder> binder = BnCarWatchdog::asBinder(client);
+            sp<IBinder> binder = BnCarWatchdogClient::asBinder(client);
             std::vector<TimeoutLength> timeouts = {timeout};
             findClientAndProcessLocked(timeouts, binder,
                                        [&](std::vector<ClientInfo>& clients,
@@ -569,7 +571,7 @@ void WatchdogProcessService::handleBinderDeath(const wp<IBinder>& who) {
     Mutex::Autolock lock(mMutex);
     IBinder* binder = who.unsafe_get();
     // Check if dead binder is monitor.
-    sp<IBinder> monitor = BnCarWatchdog::asBinder(mMonitor);
+    sp<IBinder> monitor = BnCarWatchdogMonitor::asBinder(mMonitor);
     if (monitor == binder) {
         mMonitor = nullptr;
         ALOGW("The monitor has died.");
