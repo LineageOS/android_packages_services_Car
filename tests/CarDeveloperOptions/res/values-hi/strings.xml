@@ -3136,7 +3136,7 @@
     <string name="sound_settings_example_summary" msgid="2091822107298841827">"रिंग की आवाज़ 80% है"</string>
     <string name="media_volume_option_title" msgid="3553411883305505682">"मीडिया की आवाज़"</string>
     <string name="remote_media_volume_option_title" msgid="6355710054191873836">"आवाज़ कास्ट करें"</string>
-    <string name="call_volume_option_title" msgid="5028003296631037334">"कॉल की आवाज़"</string>
+    <string name="call_volume_option_title" msgid="5028003296631037334">"कॉल वॉल्‍यूम"</string>
     <string name="alarm_volume_option_title" msgid="3184076022438477047">"अलार्म की आवाज़"</string>
     <string name="ring_volume_option_title" msgid="2038924918468372264">"रिंग की आवाज़"</string>
     <string name="notification_volume_option_title" msgid="1358512611511348260">"सूचना की आवाज़"</string>

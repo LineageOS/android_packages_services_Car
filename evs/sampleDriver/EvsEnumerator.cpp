@@ -220,7 +220,7 @@ void EvsEnumerator::enumerateDisplays() {
             if (displayIds.size() > 0) {
                 sInternalDisplayId = displayIds[0];
                 for (const auto& id : displayIds) {
-                    const auto port = id & 0xF;
+                    const auto port = id & 0xFF;
                     LOG(INFO) << "Display " << std::hex << id
                               << " is detected on the port, " << port;
                     sDisplayPortList.insert_or_assign(port, id);
@@ -510,7 +510,7 @@ Return<void> EvsEnumerator::getDisplayIdList(getDisplayIdList_cb _list_cb) {
     if (sDisplayPortList.size() > 0) {
         ids.resize(sDisplayPortList.size());
         unsigned i = 0;
-        ids[i++] = sInternalDisplayId & 0xF;
+        ids[i++] = sInternalDisplayId & 0xFF;
         for (const auto& [port, id] : sDisplayPortList) {
             if (sInternalDisplayId != id) {
                 ids[i++] = port;
