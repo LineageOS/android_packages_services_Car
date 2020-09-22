@@ -16,10 +16,10 @@
 
 package com.android.car.user;
 
-import static android.car.test.mocks.AndroidMockitoHelper.getResult;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmCreateUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserInfo;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUsers;
+import static android.car.test.mocks.JavaMockitoHelper.getResult;
 import static android.car.test.util.UserTestingHelper.UserInfoBuilder;
 import static android.content.pm.UserInfo.FLAG_ADMIN;
 import static android.content.pm.UserInfo.FLAG_EPHEMERAL;
