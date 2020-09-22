@@ -552,9 +552,9 @@
     <string name="crypt_keeper_data_corrupt_summary" product="default" msgid="5798580588985326937">"كلمة المرور التي أدخلتها صحيحة، ولكن للأسف بياناتك تالفة. \n\nلاستئناف استخدام هاتفك، يلزمك إجراء إعادة الضبط على الإعدادات الأصلية. عند إعداد الهاتف بعد إعادة الضبط، ستكون لديك فرصة لاستعادة أي بيانات تم نسخها احتياطيًا في حسابك على Google."</string>
     <string name="crypt_keeper_switch_input_method" msgid="4744137470890459582">"تبديل أسلوب الإدخال"</string>
     <string name="suggested_lock_settings_title" msgid="1518155558803371661">"تأمين هاتفك"</string>
-    <string name="suggested_lock_settings_summary" product="tablet" msgid="1861066918594412519">"تعيين قفل شاشة لحماية الجهاز اللوحي"</string>
-    <string name="suggested_lock_settings_summary" product="device" msgid="7127114417250029182">"تعيين قفل شاشة لحماية الجهاز"</string>
-    <string name="suggested_lock_settings_summary" product="default" msgid="1090621950888321990">"تعيين قفل شاشة لحماية الهاتف"</string>
+    <string name="suggested_lock_settings_summary" product="tablet" msgid="1861066918594412519">"ضبط قفل شاشة لحماية الجهاز اللوحي"</string>
+    <string name="suggested_lock_settings_summary" product="device" msgid="7127114417250029182">"ضبط قفل شاشة لحماية الجهاز"</string>
+    <string name="suggested_lock_settings_summary" product="default" msgid="1090621950888321990">"ضبط قفل شاشة لحماية الهاتف"</string>
     <string name="suggested_fingerprint_lock_settings_title" msgid="2860380076519822398">"إضافة بصمة الإصبع لإلغاء القفل"</string>
     <string name="suggested_fingerprint_lock_settings_summary" product="tablet" msgid="8114514312665251311"></string>
     <string name="suggested_fingerprint_lock_settings_summary" product="device" msgid="8114514312665251311"></string>
@@ -1604,7 +1604,7 @@
     <string name="battery_level_title" msgid="5207775387973771646">"مستوى البطارية"</string>
     <string name="apn_settings" msgid="8130776653826271664">"أسماء نقاط الوصول"</string>
     <string name="apn_edit" msgid="4350571070853305357">"تعديل نقطة الوصول"</string>
-    <string name="apn_not_set" msgid="5344235604466825691">"لم يتم التعيين"</string>
+    <string name="apn_not_set" msgid="5344235604466825691">"لم يتم الضبط"</string>
     <string name="apn_name" msgid="8431432886706852226">"الاسم"</string>
     <string name="apn_apn" msgid="190519449579357696">"APN"</string>
     <string name="apn_http_proxy" msgid="8816906767987944465">"الخادم الوكيل"</string>
@@ -3078,7 +3078,7 @@
     <string name="nfc_payment_how_it_works" msgid="7607901964687787177">"آلية العمل"</string>
     <string name="nfc_payment_no_apps" msgid="8844440783395420860">"استخدِم هاتفك للدفع في المتاجر"</string>
     <string name="nfc_payment_default" msgid="7869273092463612271">"التطبيق التلقائي للدفع"</string>
-    <string name="nfc_payment_default_not_set" msgid="955804193510335338">"لم يتم التعيين"</string>
+    <string name="nfc_payment_default_not_set" msgid="955804193510335338">"لم يتم الضبط"</string>
     <string name="nfc_payment_app_and_desc" msgid="102312684211458190">"<xliff:g id="APP">%1$s</xliff:g> - <xliff:g id="DESCRIPTION">%2$s</xliff:g>"</string>
     <string name="nfc_payment_use_default" msgid="3098724195746409476">"استخدام التلقائي"</string>
     <string name="nfc_payment_favor_default" msgid="7555356982142464260">"دومًا"</string>
@@ -4482,7 +4482,7 @@
       <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> تطبيق</item>
     </plurals>
     <string name="enterprise_privacy_input_method" msgid="5885916325874284011">"لوحة المفاتيح التلقائية"</string>
-    <string name="enterprise_privacy_input_method_name" msgid="439610095825218563">"تعيين على <xliff:g id="APP_LABEL">%s</xliff:g>"</string>
+    <string name="enterprise_privacy_input_method_name" msgid="439610095825218563">"ضبط على <xliff:g id="APP_LABEL">%s</xliff:g>"</string>
     <string name="enterprise_privacy_always_on_vpn_device" msgid="2022700916516458213">"تم تفعيل إعداد \"شبكة افتراضية خاصة (VPN) دائمة التفعيل\""</string>
     <string name="enterprise_privacy_always_on_vpn_personal" msgid="5644065780843002044">"تم تفعيل إعداد \"شبكة افتراضية خاصة (VPN) دائمة التفعيل\" في الملف الشخصي"</string>
     <string name="enterprise_privacy_always_on_vpn_work" msgid="6443089897985373564">"تم تفعيل \"شبكة افتراضية خاصة (VPN) دائمة التفعيل\" في الملف الشخصي للعمل"</string>
