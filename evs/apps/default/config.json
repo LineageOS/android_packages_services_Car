@@ -8,12 +8,12 @@
   },
   "displays" : [
     {
-      "displayPort" : 1,
+      "displayPort" : 136,
       "frontRange" : 100,
       "rearRange" : 100
     },
     {
-      "displayPort" : 2,
+      "displayPort" : 130,
       "frontRange" : 100,
       "rearRange" : 100
     }
