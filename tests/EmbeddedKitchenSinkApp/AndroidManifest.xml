@@ -111,6 +111,7 @@
     <uses-permission android:name="android.permission.SET_ACTIVITY_WATCHER"/>
     <!-- needed for User fragment to lock user data -->
     <uses-permission android:name="android.permission.STORAGE_INTERNAL"/>
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"/>
     <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
     <!-- use for vendor properties -->
