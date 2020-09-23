@@ -18,6 +18,7 @@
 
 #include "ServiceManager.h"
 
+#include "IoPerfCollection.h"
 #include "utils/PackageNameResolver.h"
 
 namespace android {
@@ -26,16 +27,17 @@ namespace watchdog {
 
 using android::sp;
 using android::String16;
+using android::automotive::watchdog::WatchdogPerfService;
 using android::automotive::watchdog::WatchdogProcessService;
 using android::base::Error;
 using android::base::Result;
 
 sp<WatchdogProcessService> ServiceManager::sWatchdogProcessService = nullptr;
-sp<IoPerfCollection> ServiceManager::sIoPerfCollection = nullptr;
+sp<WatchdogPerfService> ServiceManager::sWatchdogPerfService = nullptr;
 sp<WatchdogBinderMediator> ServiceManager::sWatchdogBinderMediator = nullptr;
 
 Result<void> ServiceManager::startServices(const sp<Looper>& looper) {
-    if (sWatchdogProcessService != nullptr || sIoPerfCollection != nullptr ||
+    if (sWatchdogProcessService != nullptr || sWatchdogPerfService != nullptr ||
         sWatchdogBinderMediator != nullptr) {
         return Error(INVALID_OPERATION) << "Cannot start services more than once";
     }
@@ -44,7 +46,7 @@ Result<void> ServiceManager::startServices(const sp<Looper>& looper) {
     if (!result.ok()) {
         return result;
     }
-    result = startIoPerfCollection();
+    result = startPerfService();
     if (!result.ok()) {
         return result;
     }
@@ -57,9 +59,9 @@ void ServiceManager::terminateServices() {
         sWatchdogProcessService->terminate();
         sWatchdogProcessService = nullptr;
     }
-    if (sIoPerfCollection != nullptr) {
-        sIoPerfCollection->terminate();
-        sIoPerfCollection = nullptr;
+    if (sWatchdogPerfService != nullptr) {
+        sWatchdogPerfService->terminate();
+        sWatchdogPerfService = nullptr;
     }
     if (sWatchdogBinderMediator != nullptr) {
         sWatchdogBinderMediator->terminate();
@@ -78,20 +80,22 @@ Result<void> ServiceManager::startProcessAnrMonitor(const sp<Looper>& looper) {
     return {};
 }
 
-Result<void> ServiceManager::startIoPerfCollection() {
-    sp<IoPerfCollection> service = new IoPerfCollection();
+Result<void> ServiceManager::startPerfService() {
+    sp<WatchdogPerfService> service = new WatchdogPerfService();
+    service->registerDataProcessor(new IoPerfCollection());
     const auto& result = service->start();
     if (!result.ok()) {
         return Error(result.error().code())
-                << "Failed to start I/O performance collection: " << result.error();
+                << "Failed to start performance service: " << result.error();
     }
-    sIoPerfCollection = service;
+    sWatchdogPerfService = service;
     return {};
 }
 
 Result<void> ServiceManager::startBinderMediator() {
     sWatchdogBinderMediator = new WatchdogBinderMediator();
-    const auto& result = sWatchdogBinderMediator->init(sWatchdogProcessService, sIoPerfCollection);
+    const auto& result =
+            sWatchdogBinderMediator->init(sWatchdogProcessService, sWatchdogPerfService);
     if (!result.ok()) {
         return Error(result.error().code())
                 << "Failed to start binder mediator: " << result.error();

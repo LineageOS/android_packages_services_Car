@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef WATCHDOG_SERVER_SRC_PROCSTAT_H_
-#define WATCHDOG_SERVER_SRC_PROCSTAT_H_
+#ifndef CPP_WATCHDOG_SERVER_SRC_PROCSTAT_H_
+#define CPP_WATCHDOG_SERVER_SRC_PROCSTAT_H_
 
 #include <android-base/result.h>
 #include <stdint.h>
@@ -39,6 +39,20 @@ struct CpuStats {
     uint64_t stealTime = 0;      // Stolen time (Time spent in other OS in a virtualized env).
     uint64_t guestTime = 0;      // Time spent running a virtual CPU for guest OS.
     uint64_t guestNiceTime = 0;  // Time spent running a niced virtual CPU for guest OS.
+
+    CpuStats& operator-=(const CpuStats& rhs) {
+        userTime -= rhs.userTime;
+        niceTime -= rhs.niceTime;
+        sysTime -= rhs.sysTime;
+        idleTime -= rhs.idleTime;
+        ioWaitTime -= rhs.ioWaitTime;
+        irqTime -= rhs.irqTime;
+        softIrqTime -= rhs.softIrqTime;
+        stealTime -= rhs.stealTime;
+        guestTime -= rhs.guestTime;
+        guestNiceTime -= rhs.guestNiceTime;
+        return *this;
+    }
 };
 
 class ProcStatInfo {
@@ -61,34 +75,57 @@ public:
                 runnableProcessesCnt == info.runnableProcessesCnt &&
                 ioBlockedProcessesCnt == info.ioBlockedProcessesCnt;
     }
+    ProcStatInfo& operator-=(const ProcStatInfo& rhs) {
+        cpuStats -= rhs.cpuStats;
+        // Don't diff *ProcessesCnt as they are real-time values unlike |cpuStats|, which are
+        // aggregated values since system startup.
+        return *this;
+    }
 };
 
 // Collector/parser for `/proc/stat` file.
 class ProcStat : public RefBase {
 public:
     explicit ProcStat(const std::string& path = kProcStatPath) :
-          mLastCpuStats({}), kEnabled(!access(path.c_str(), R_OK)), kPath(path) {}
+          mLatestStats({}),
+          kEnabled(!access(path.c_str(), R_OK)),
+          kPath(path) {}
 
     virtual ~ProcStat() {}
 
     // Collects proc stat delta since the last collection.
-    virtual android::base::Result<ProcStatInfo> collect();
+    virtual android::base::Result<void> collect();
 
     // Returns true when the proc stat file is accessible. Otherwise, returns false.
-    // Called by IoPerfCollection and tests.
+    // Called by WatchdogPerfService and tests.
     virtual bool enabled() { return kEnabled; }
 
     virtual std::string filePath() { return kProcStatPath; }
+
+    // Returns the latest stats.
+    virtual const ProcStatInfo latestStats() const {
+        Mutex::Autolock lock(mMutex);
+        return mLatestStats;
+    }
+
+    // Returns the delta of stats from the latest collection.
+    virtual const ProcStatInfo deltaStats() const {
+        Mutex::Autolock lock(mMutex);
+        return mDeltaStats;
+    }
 
 private:
     // Reads the contents of |kPath|.
     android::base::Result<ProcStatInfo> getProcStatLocked() const;
 
     // Makes sure only one collection is running at any given time.
-    Mutex mMutex;
+    mutable Mutex mMutex;
 
-    // Last dump of cpu stats from the file at |kPath|.
-    CpuStats mLastCpuStats GUARDED_BY(mMutex);
+    // Latest dump of CPU stats from the file at |kPath|.
+    ProcStatInfo mLatestStats GUARDED_BY(mMutex);
+
+    // Delta of CPU stats from the latest collection.
+    ProcStatInfo mDeltaStats GUARDED_BY(mMutex);
 
     // True if |kPath| is accessible.
     const bool kEnabled;
@@ -101,4 +138,4 @@ private:
 }  // namespace automotive
 }  // namespace android
 
-#endif  //  WATCHDOG_SERVER_SRC_PROCSTAT_H_
+#endif  //  CPP_WATCHDOG_SERVER_SRC_PROCSTAT_H_

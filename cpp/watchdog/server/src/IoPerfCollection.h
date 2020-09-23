@@ -17,38 +17,30 @@
 #ifndef CPP_WATCHDOG_SERVER_SRC_IOPERFCOLLECTION_H_
 #define CPP_WATCHDOG_SERVER_SRC_IOPERFCOLLECTION_H_
 
-#include <android-base/chrono_utils.h>
-#include <android-base/result.h>
-#include <cutils/multiuser.h>
-#include <gtest/gtest_prod.h>
-#include <time.h>
-#include <utils/Errors.h>
-#include <utils/Looper.h>
-#include <utils/Mutex.h>
-#include <utils/String16.h>
-#include <utils/StrongPointer.h>
-#include <utils/Vector.h>
-
-#include <string>
-#include <thread>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
-
-#include "LooperWrapper.h"
 #include "ProcPidStat.h"
 #include "ProcStat.h"
 #include "UidIoStats.h"
+#include "WatchdogPerfService.h"
+
+#include <android-base/result.h>
+#include <cutils/multiuser.h>
+#include <gtest/gtest_prod.h>
+#include <utils/Errors.h>
+#include <utils/Mutex.h>
+#include <utils/RefBase.h>
+
+#include <ctime>
+#include <string>
+#include <unordered_set>
+#include <vector>
 
 namespace android {
 namespace automotive {
 namespace watchdog {
 
-constexpr const char* kStartCustomCollectionFlag = "--start_io";
-constexpr const char* kEndCustomCollectionFlag = "--stop_io";
-constexpr const char* kIntervalFlag = "--interval";
-constexpr const char* kMaxDurationFlag = "--max_duration";
-constexpr const char* kFilterPackagesFlag = "--filter_packages";
+// Number of periodic collection perf data snapshots to cache in memory.
+const int32_t kDefaultPeriodicCollectionBufferSize = 180;
+constexpr const char* kEmptyCollectionMessage = "No collection recorded\n";
 
 // Performance data collected from the `/proc/uid_io/stats` file.
 struct UidIoPerfData {
@@ -108,132 +100,80 @@ struct IoPerfRecord {
 std::string toString(const IoPerfRecord& record);
 
 struct CollectionInfo {
-    std::chrono::nanoseconds interval = 0ns;  // Collection interval between subsequent collections.
     size_t maxCacheSize = 0;                  // Maximum cache size for the collection.
-    std::unordered_set<std::string> filterPackages;  // Filter the output only to the specified
-                                                     // packages.
-    nsecs_t lastCollectionUptime = 0;         // Used to calculate the uptime for next collection.
     std::vector<IoPerfRecord> records;        // Cache of collected performance records.
 };
 
 std::string toString(const CollectionInfo& collectionInfo);
 
-enum CollectionEvent {
-    INIT = 0,
-    BOOT_TIME,
-    PERIODIC,
-    CUSTOM,
-    TERMINATED,
-    LAST_EVENT,
-};
+// Forward declaration for testing use only.
+namespace internal {
 
-enum SwitchEvent {
-    // Ends boot-time collection by collecting the last boot-time record and switching the
-    // collection event to periodic collection.
-    END_BOOTTIME_COLLECTION = CollectionEvent::LAST_EVENT + 1,
-    // Ends custom collection, discards collected data and starts periodic collection.
-    END_CUSTOM_COLLECTION
-};
+class IoPerfCollectionPeer;
 
-static inline std::string toString(CollectionEvent event) {
-    switch (event) {
-        case CollectionEvent::INIT:
-            return "INIT";
-        case CollectionEvent::BOOT_TIME:
-            return "BOOT_TIME";
-        case CollectionEvent::PERIODIC:
-            return "PERIODIC";
-        case CollectionEvent::CUSTOM:
-            return "CUSTOM";
-        case CollectionEvent::TERMINATED:
-            return "TERMINATED";
-        default:
-            return "INVALID";
-    }
-}
+}  // namespace internal
 
-// IoPerfCollection implements the I/O performance data collection module of the CarWatchDog
-// service. It exposes APIs that the CarWatchDog main thread and binder service can call to start
-// a collection, update the collection type, and generate collection dumps.
-class IoPerfCollection : public MessageHandler {
+// IoPerfCollection implements the I/O performance data collection module.
+class IoPerfCollection : public DataProcessor {
 public:
     IoPerfCollection() :
-          mHandlerLooper(new LooperWrapper()),
           mBoottimeCollection({}),
           mPeriodicCollection({}),
           mCustomCollection({}),
-          mCurrCollectionEvent(CollectionEvent::INIT),
-          mUidIoStats(new UidIoStats()),
-          mProcStat(new ProcStat()),
-          mProcPidStat(new ProcPidStat()),
           mLastMajorFaults(0) {}
 
     ~IoPerfCollection() { terminate(); }
 
-    // Starts the boot-time collection in the looper handler on a collection thread and returns
-    // immediately. Must be called only once. Otherwise, returns an error.
+    std::string name() { return "IoPerfCollection"; }
+
+    // Implements DataProcessor interface.
     android::base::Result<void> start();
 
-    // Terminates the collection thread and returns.
+    // Clears in-memory cache.
     void terminate();
 
-    // Ends the boot-time collection, caches boot-time perf records, sends message to the looper to
-    // begin the periodic collection, and returns immediately.
-    virtual android::base::Result<void> onBootFinished();
+    android::base::Result<void> onBoottimeCollection(time_t time,
+                                                     const android::wp<UidIoStats>& uidIoStats,
+                                                     const android::wp<ProcStat>& procStat,
+                                                     const android::wp<ProcPidStat>& procPidStat);
 
-    // Depending the arguments, it either:
-    // 1. Starts custom collection.
-    // 2. Ends custom collection and dumps the collected data.
-    // Returns any error observed during the dump generation.
-    virtual android::base::Result<void> onCustomCollection(int fd, const Vector<String16>& args);
+    android::base::Result<void> onPeriodicCollection(time_t time,
+                                                     const android::wp<UidIoStats>& uidIoStats,
+                                                     const android::wp<ProcStat>& procStat,
+                                                     const android::wp<ProcPidStat>& procPidStat);
 
-    // Generates a dump from the boot-time and periodic collection events.
-    virtual android::base::Result<void> onDump(int fd);
+    android::base::Result<void> onCustomCollection(
+            time_t time, const std::unordered_set<std::string>& filterPackages,
+            const android::wp<UidIoStats>& uidIoStats, const android::wp<ProcStat>& procStat,
+            const android::wp<ProcPidStat>& procPidStat);
 
-    // Dumps the help text.
-    bool dumpHelpText(int fd);
+    android::base::Result<void> onDump(int fd);
+
+    android::base::Result<void> onCustomCollectionDump(int fd);
 
 private:
-    // Dumps the collectors' status when they are disabled.
-    android::base::Result<void> dumpCollectorsStatusLocked(int fd);
+    // Processes the collected data.
+    android::base::Result<void> processLocked(time_t time,
+                                              const std::unordered_set<std::string>& filterPackages,
+                                              const android::wp<UidIoStats>& uidIoStats,
+                                              const android::wp<ProcStat>& procStat,
+                                              const android::wp<ProcPidStat>& procPidStat,
+                                              CollectionInfo* collectionInfo);
 
-    // Starts a custom collection on the looper handler, temporarily stops the periodic collection
-    // (won't discard the collected data), and returns immediately. Returns any error observed
-    // during this process. The custom collection happens once every |interval| seconds. When the
-    // |maxDuration| is reached, the looper receives a message to end the collection, discards the
-    // collected data, and starts the periodic collection. This is needed to ensure the custom
-    // collection doesn't run forever when a subsequent |endCustomCollection| call is not received.
-    // When |kFilterPackagesFlag| value is provided, the results are filtered only to the specified
-    // package names.
-    android::base::Result<void> startCustomCollection(
-            std::chrono::nanoseconds interval, std::chrono::nanoseconds maxDuration,
-            const std::unordered_set<std::string>& filterPackages);
+    // Processes performance data from the `/proc/uid_io/stats` file.
+    void processUidIoPerfData(const std::unordered_set<std::string>& filterPackages,
+                              const android::wp<UidIoStats>& uidIoStats,
+                              UidIoPerfData* uidIoPerfData) const;
 
-    // Ends the current custom collection, generates a dump, sends message to looper to start the
-    // periodic collection, and returns immediately. Returns an error when there is no custom
-    // collection running or when a dump couldn't be generated from the custom collection.
-    android::base::Result<void> endCustomCollection(int fd);
+    // Processes performance data from the `/proc/stats` file.
+    void processSystemIoPerfData(const android::wp<ProcStat>& procStat,
+                                 SystemIoPerfData* systemIoPerfData) const;
 
-    // Handles the messages received by the lopper.
-    void handleMessage(const Message& message) override;
-
-    // Processes the events received by |handleMessage|.
-    android::base::Result<void> processCollectionEvent(CollectionEvent event, CollectionInfo* info);
-
-    // Collects/stores the performance data for the current collection event.
-    android::base::Result<void> collectLocked(CollectionInfo* collectionInfo);
-
-    // Collects performance data from the `/proc/uid_io/stats` file.
-    android::base::Result<void> collectUidIoPerfDataLocked(const CollectionInfo& collectionInfo,
-                                                           UidIoPerfData* uidIoPerfData);
-
-    // Collects performance data from the `/proc/stats` file.
-    android::base::Result<void> collectSystemIoPerfDataLocked(SystemIoPerfData* systemIoPerfData);
-
-    // Collects performance data from the `/proc/[pid]/stat` and
-    // `/proc/[pid]/task/[tid]/stat` files.
-    android::base::Result<void> collectProcessIoPerfDataLocked(
-            const CollectionInfo& collectionInfo, ProcessIoPerfData* processIoPerfData);
+    // Processes performance data from the `/proc/[pid]/stat` and `/proc/[pid]/task/[tid]/stat`
+    // files.
+    void processProcessIoPerfDataLocked(const std::unordered_set<std::string>& filterPackages,
+                                        const android::wp<ProcPidStat>& procPidStat,
+                                        ProcessIoPerfData* processIoPerfData);
 
     // Top N per-UID stats per category.
     int mTopNStatsPerCategory;
@@ -241,56 +181,31 @@ private:
     // Top N per-process stats per subcategory.
     int mTopNStatsPerSubcategory;
 
-    // Thread on which the actual collection happens.
-    std::thread mCollectionThread;
-
     // Makes sure only one collection is running at any given time.
     Mutex mMutex;
 
-    // Handler lopper to execute different collection events on the collection thread.
-    android::sp<LooperWrapper> mHandlerLooper GUARDED_BY(mMutex);
-
-    // Info for the |CollectionEvent::BOOT_TIME| collection event. The cache is persisted until
-    // system shutdown/reboot.
+    // Info for the boot-time collection event. The cache is persisted until system shutdown/reboot.
     CollectionInfo mBoottimeCollection GUARDED_BY(mMutex);
 
-    // Info for the |CollectionEvent::PERIODIC| collection event. The cache size is limited by
+    // Info for the periodic collection event. The cache size is limited by
     // |ro.carwatchdog.periodic_collection_buffer_size|.
     CollectionInfo mPeriodicCollection GUARDED_BY(mMutex);
 
-    // Info for the |CollectionEvent::CUSTOM| collection event. The info is cleared at the end of
-    // every custom collection.
+    // Info for the custom collection event. The info is cleared at the end of every custom
+    // collection.
     CollectionInfo mCustomCollection GUARDED_BY(mMutex);
-
-    // Tracks the current collection event. Updated on |start|, |onBootComplete|,
-    // |startCustomCollection| and |endCustomCollection|.
-    CollectionEvent mCurrCollectionEvent GUARDED_BY(mMutex);
-
-    // Collector/parser for `/proc/uid_io/stats`.
-    android::sp<UidIoStats> mUidIoStats GUARDED_BY(mMutex);
-
-    // Collector/parser for `/proc/stat`.
-    android::sp<ProcStat> mProcStat GUARDED_BY(mMutex);
-
-    // Collector/parser for `/proc/PID/*` stat files.
-    android::sp<ProcPidStat> mProcPidStat GUARDED_BY(mMutex);
 
     // Major faults delta from last collection. Useful when calculating the percentage change in
     // major faults since last collection.
     uint64_t mLastMajorFaults GUARDED_BY(mMutex);
 
-    FRIEND_TEST(IoPerfCollectionTest, TestCollectionStartAndTerminate);
-    FRIEND_TEST(IoPerfCollectionTest, TestValidCollectionSequence);
-    FRIEND_TEST(IoPerfCollectionTest, TestCollectionTerminatesOnZeroEnabledCollectors);
-    FRIEND_TEST(IoPerfCollectionTest, TestCollectionTerminatesOnError);
-    FRIEND_TEST(IoPerfCollectionTest, TestCustomCollectionTerminatesAfterMaxDuration);
-    FRIEND_TEST(IoPerfCollectionTest, TestValidUidIoStatFile);
+    // For unit tests.
+    friend class internal::IoPerfCollectionPeer;
+    FRIEND_TEST(IoPerfCollectionTest, TestUidIoStatsGreaterThanTopNStatsLimit);
     FRIEND_TEST(IoPerfCollectionTest, TestUidIOStatsLessThanTopNStatsLimit);
-    FRIEND_TEST(IoPerfCollectionTest, TestProcUidIoStatsContentsFromDevice);
-    FRIEND_TEST(IoPerfCollectionTest, TestValidProcStatFile);
-    FRIEND_TEST(IoPerfCollectionTest, TestValidProcPidContents);
+    FRIEND_TEST(IoPerfCollectionTest, TestProcessSystemIoPerfData);
+    FRIEND_TEST(IoPerfCollectionTest, TestProcPidContentsGreaterThanTopNStatsLimit);
     FRIEND_TEST(IoPerfCollectionTest, TestProcPidContentsLessThanTopNStatsLimit);
-    FRIEND_TEST(IoPerfCollectionTest, TestCustomCollectionFiltersPackageNames);
 };
 
 }  // namespace watchdog

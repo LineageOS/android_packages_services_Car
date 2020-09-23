@@ -72,12 +72,12 @@ class IoUsage {
 };
 
 struct UidIoUsage {
+    uid_t uid = 0;  // Linux user id.
+    IoUsage ios = {};
     UidIoUsage& operator-=(const UidIoUsage& rhs) {
         ios -= rhs.ios;
         return *this;
     }
-    uid_t uid = 0;  // Linux user id
-    IoUsage ios = {};
 };
 
 class UidIoStats : public RefBase {
@@ -87,8 +87,18 @@ public:
 
     virtual ~UidIoStats() {}
 
-    // Collects the I/O usage since the last collection.
-    virtual android::base::Result<std::unordered_map<uid_t, UidIoUsage>> collect();
+    // Collects the per-UID I/O usage.
+    virtual android::base::Result<void> collect();
+
+    virtual const std::unordered_map<uid_t, UidIoUsage> latestStats() const {
+        Mutex::Autolock lock(mMutex);
+        return mLatestUidIoUsages;
+    }
+
+    virtual const std::unordered_map<uid_t, UidIoUsage> deltaStats() const {
+        Mutex::Autolock lock(mMutex);
+        return mDeltaUidIoUsages;
+    }
 
     // Returns true when the uid_io stats file is accessible. Otherwise, returns false.
     // Called by IoPerfCollection and tests.
@@ -101,10 +111,13 @@ private:
     android::base::Result<std::unordered_map<uid_t, UidIoUsage>> getUidIoUsagesLocked() const;
 
     // Makes sure only one collection is running at any given time.
-    Mutex mMutex;
+    mutable Mutex mMutex;
 
-    // Last dump from the file at |kPath|.
-    std::unordered_map<uid_t, UidIoUsage> mLastUidIoUsages GUARDED_BY(mMutex);
+    // Latest dump from the file at |kPath|.
+    std::unordered_map<uid_t, UidIoUsage> mLatestUidIoUsages GUARDED_BY(mMutex);
+
+    // Delta of per-UID I/O usage since last before collection.
+    std::unordered_map<uid_t, UidIoUsage> mDeltaUidIoUsages GUARDED_BY(mMutex);
 
     // True if kPath is accessible.
     const bool kEnabled;

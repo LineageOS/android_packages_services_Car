@@ -70,18 +70,18 @@ Status fromExceptionCode(int32_t exceptionCode, std::string message) {
 }  // namespace
 
 Result<void> WatchdogBinderMediator::init(sp<WatchdogProcessService> watchdogProcessService,
-                                          sp<IoPerfCollection> ioPerfCollection) {
-    if (watchdogProcessService == nullptr || ioPerfCollection == nullptr) {
+                                          sp<WatchdogPerfService> watchdogPerfService) {
+    if (watchdogProcessService == nullptr || watchdogPerfService == nullptr) {
         return Error(INVALID_OPERATION)
                 << "Must initialize both process and I/O perf collection service before starting "
                 << "carwatchdog binder mediator";
     }
-    if (mWatchdogProcessService != nullptr || mIoPerfCollection != nullptr) {
+    if (mWatchdogProcessService != nullptr || mWatchdogPerfService != nullptr) {
         return Error(INVALID_OPERATION)
                 << "Cannot initialize carwatchdog binder mediator more than once";
     }
     mWatchdogProcessService = watchdogProcessService;
-    mIoPerfCollection = ioPerfCollection;
+    mWatchdogPerfService = watchdogPerfService;
     status_t status =
             defaultServiceManager()
                     ->addService(String16("android.automotive.watchdog.ICarWatchdog/default"),
@@ -104,7 +104,7 @@ status_t WatchdogBinderMediator::dump(int fd, const Vector<String16>& args) {
     if (numArgs >= 1 &&
         (args[0] == String16(kStartCustomCollectionFlag) ||
          args[0] == String16(kEndCustomCollectionFlag))) {
-        auto ret = mIoPerfCollection->onCustomCollection(fd, args);
+        auto ret = mWatchdogPerfService->onCustomCollection(fd, args);
         if (!ret.ok()) {
             std::string mode = args[0] == String16(kStartCustomCollectionFlag) ? "start" : "end";
             std::string errorMsg = StringPrintf("Failed to %s custom I/O perf collection: %s",
@@ -129,7 +129,7 @@ status_t WatchdogBinderMediator::dump(int fd, const Vector<String16>& args) {
         ALOGW("Failed to dump carwatchdog process service: %s", ret.error().message().c_str());
         return ret.error().code();
     }
-    ret = mIoPerfCollection->onDump(fd);
+    ret = mWatchdogPerfService->onDump(fd);
     if (!ret.ok()) {
         ALOGW("Failed to dump I/O perf collection: %s", ret.error().message().c_str());
         return ret.error().code();
@@ -147,7 +147,7 @@ bool WatchdogBinderMediator::dumpHelpText(int fd, std::string errorMsg) {
     }
 
     return WriteStringToFd(StringPrintf(kHelpText, kHelpFlag, kHelpShortFlag), fd) &&
-            mIoPerfCollection->dumpHelpText(fd);
+            mWatchdogPerfService->dumpHelpText(fd);
 }
 
 Status WatchdogBinderMediator::registerMediator(const sp<ICarWatchdogClient>& mediator) {
@@ -206,7 +206,7 @@ Status WatchdogBinderMediator::notifySystemStateChange(StateType type, int32_t a
         case StateType::BOOT_PHASE: {
             BootPhase phase = static_cast<BootPhase>(static_cast<uint32_t>(arg1));
             if (phase >= BootPhase::BOOT_COMPLETED) {
-                auto ret = mIoPerfCollection->onBootFinished();
+                auto ret = mWatchdogPerfService->onBootFinished();
                 if (!ret.ok()) {
                     return fromExceptionCode(ret.error().code(), ret.error().message());
                 }

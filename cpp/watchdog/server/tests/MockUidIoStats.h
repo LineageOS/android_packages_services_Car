@@ -33,8 +33,9 @@ class MockUidIoStats : public UidIoStats {
 public:
     MockUidIoStats() { ON_CALL(*this, enabled()).WillByDefault(::testing::Return(true)); }
     MOCK_METHOD(bool, enabled, (), (override));
-    MOCK_METHOD((android::base::Result<std::unordered_map<uid_t, UidIoUsage>>), collect, (),
-                (override));
+    MOCK_METHOD(android::base::Result<void>, collect, (), (override));
+    MOCK_METHOD((const std::unordered_map<uid_t, UidIoUsage>), latestStats, (), (const, override));
+    MOCK_METHOD((const std::unordered_map<uid_t, UidIoUsage>), deltaStats, (), (const, override));
     MOCK_METHOD(std::string, filePath, (), (override));
 };
 

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef WATCHDOG_SERVER_SRC_LOOPERWRAPPER_H_
-#define WATCHDOG_SERVER_SRC_LOOPERWRAPPER_H_
+#ifndef CPP_WATCHDOG_SERVER_SRC_LOOPERWRAPPER_H_
+#define CPP_WATCHDOG_SERVER_SRC_LOOPERWRAPPER_H_
 
 #include <utils/Looper.h>
 #include <utils/RefBase.h>
@@ -50,4 +50,4 @@ protected:
 }  // namespace automotive
 }  // namespace android
 
-#endif  //  WATCHDOG_SERVER_SRC_LOOPERWRAPPER_H_
+#endif  //  CPP_WATCHDOG_SERVER_SRC_LOOPERWRAPPER_H_

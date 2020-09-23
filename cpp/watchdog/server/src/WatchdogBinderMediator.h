@@ -28,7 +28,7 @@
 #include <utils/StrongPointer.h>
 #include <utils/Vector.h>
 
-#include "IoPerfCollection.h"
+#include "WatchdogPerfService.h"
 #include "WatchdogProcessService.h"
 
 namespace android {
@@ -38,10 +38,10 @@ namespace watchdog {
 class ServiceManager;
 
 // WatchdogBinderMediator implements the carwatchdog binder APIs such that it forwards the calls
-// either to process ANR service or I/O performance data collection.
+// either to process ANR or performance services.
 class WatchdogBinderMediator : public BnCarWatchdog {
 public:
-    WatchdogBinderMediator() : mWatchdogProcessService(nullptr), mIoPerfCollection(nullptr) {}
+    WatchdogBinderMediator() : mWatchdogProcessService(nullptr), mWatchdogPerfService(nullptr) {}
 
     status_t dump(int fd, const Vector<String16>& args) override;
     binder::Status registerClient(const sp<ICarWatchdogClient>& client,
@@ -73,17 +73,17 @@ public:
 
 protected:
     android::base::Result<void> init(android::sp<WatchdogProcessService> watchdogProcessService,
-                                     android::sp<IoPerfCollection> ioPerfCollection);
+                                     android::sp<WatchdogPerfService> watchdogPerfService);
     void terminate() {
         mWatchdogProcessService = nullptr;
-        mIoPerfCollection = nullptr;
+        mWatchdogPerfService = nullptr;
     }
 
 private:
     bool dumpHelpText(int fd, std::string errorMsg);
 
     android::sp<WatchdogProcessService> mWatchdogProcessService;
-    android::sp<IoPerfCollection> mIoPerfCollection;
+    android::sp<WatchdogPerfService> mWatchdogPerfService;
 
     friend class ServiceManager;
     friend class WatchdogBinderMediatorTest;
