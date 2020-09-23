@@ -22,11 +22,10 @@
 #include <binder/IBinder.h>
 #include <binder/IPCThreadState.h>
 #include <errno.h>
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <private/android_filesystem_config.h>
 #include <utils/RefBase.h>
-
-#include "gmock/gmock.h"
 
 namespace android {
 namespace automotive {

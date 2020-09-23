@@ -32,11 +32,31 @@ cc_defaults {
     ],
 }
 
+cc_library {
+  name: "libwatchdog_utils",
+  srcs: [
+      "src/utils/PackageNameResolver.cpp",
+  ],
+  defaults: [
+      "carwatchdogd_defaults",
+  ],
+  shared_libs: [
+      "libcutils",
+  ],
+  static_libs: [
+      "libgtest_prod",
+  ],
+  export_include_dirs: [
+       "src/utils",
+  ],
+}
+
 cc_defaults {
-    name: "libwatchdog_ioperfcollection_defaults",
+    name: "libwatchdog_perf_service_defaults",
     shared_libs: [
         "libcutils",
         "libprocessgroup",
+        "libwatchdog_utils",
     ],
     static_libs: [
         "libgtest_prod",
@@ -44,12 +64,13 @@ cc_defaults {
 }
 
 cc_library {
-    name: "libwatchdog_ioperfcollection",
+    name: "libwatchdog_perf_service",
     defaults: [
         "carwatchdogd_defaults",
-        "libwatchdog_ioperfcollection_defaults",
+        "libwatchdog_perf_service_defaults",
     ],
     srcs: [
+        "src/WatchdogPerfService.cpp",
         "src/IoPerfCollection.cpp",
         "src/LooperWrapper.cpp",
         "src/ProcPidStat.cpp",
@@ -68,25 +89,28 @@ cc_test {
     name: "libwatchdog_test",
     defaults: [
         "carwatchdogd_defaults",
-        "libwatchdog_ioperfcollection_defaults",
+        "libwatchdog_perf_service_defaults",
         "libwatchdog_process_service_defaults",
     ],
     test_suites: ["general-tests"],
     srcs: [
         "tests/IoPerfCollectionTest.cpp",
         "tests/LooperStub.cpp",
+        "tests/PackageNameResolverTest.cpp",
         "tests/ProcPidDir.cpp",
         "tests/ProcPidStatTest.cpp",
         "tests/ProcStatTest.cpp",
         "tests/UidIoStatsTest.cpp",
         "tests/WatchdogBinderMediatorTest.cpp",
+        "tests/WatchdogPerfServiceTest.cpp",
         "tests/WatchdogProcessServiceTest.cpp",
     ],
     static_libs: [
         "libgmock",
         "libgtest",
         "libwatchdog_binder_mediator",
-        "libwatchdog_ioperfcollection",
+        "libwatchdog_perf_service",
+        "libwatchdog_utils",
     ],
 }
 
@@ -114,7 +138,7 @@ cc_library {
     name: "libwatchdog_binder_mediator",
     defaults: [
         "carwatchdogd_defaults",
-        "libwatchdog_ioperfcollection_defaults",
+        "libwatchdog_perf_service_defaults",
         "libwatchdog_process_service_defaults",
     ],
     srcs: [
@@ -123,7 +147,7 @@ cc_library {
         "src/IoPerfCollection.cpp",
     ],
     shared_libs: [
-        "libwatchdog_ioperfcollection",
+        "libwatchdog_perf_service",
         "libwatchdog_process_service",
     ],
     export_include_dirs: [
@@ -135,7 +159,7 @@ cc_binary {
     name: "carwatchdogd",
     defaults: [
         "carwatchdogd_defaults",
-        "libwatchdog_ioperfcollection_defaults",
+        "libwatchdog_perf_service_defaults",
         "libwatchdog_process_service_defaults",
     ],
     srcs: [
@@ -145,8 +169,9 @@ cc_binary {
     init_rc: ["carwatchdogd.rc"],
     shared_libs: [
       "libwatchdog_binder_mediator",
-      "libwatchdog_ioperfcollection",
+      "libwatchdog_perf_service",
       "libwatchdog_process_service",
+      "libwatchdog_utils",
     ],
     vintf_fragments: ["carwatchdogd.xml"],
 }
