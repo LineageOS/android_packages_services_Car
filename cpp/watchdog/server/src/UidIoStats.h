@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef WATCHDOG_SERVER_SRC_UIDIOSTATS_H_
-#define WATCHDOG_SERVER_SRC_UIDIOSTATS_H_
+#ifndef CPP_WATCHDOG_SERVER_SRC_UIDIOSTATS_H_
+#define CPP_WATCHDOG_SERVER_SRC_UIDIOSTATS_H_
 
 #include <android-base/result.h>
 #include <stdint.h>
@@ -38,23 +38,10 @@ enum UidState {
 };
 
 enum MetricType {
-    READ_BYTES = 0,
-    WRITE_BYTES,
-    FSYNC_COUNT,
+    READ_BYTES = 0,  // bytes read (from storage layer)
+    WRITE_BYTES,     // bytes written (to storage layer)
+    FSYNC_COUNT,     // number of fsync syscalls
     METRIC_TYPES,
-};
-
-struct IoStat {
-    uint64_t rchar = 0;       // characters read
-    uint64_t wchar = 0;       // characters written
-    uint64_t readBytes = 0;   // bytes read (from storage layer)
-    uint64_t writeBytes = 0;  // bytes written (to storage layer)
-    uint64_t fsync = 0;       // number of fsync syscalls
-};
-
-struct UidIoStat {
-    uid_t uid = 0;  // linux user id
-    IoStat io[UID_STATES] = {{}};
 };
 
 class IoUsage {
@@ -69,6 +56,7 @@ class IoUsage {
         metrics[FSYNC_COUNT][FOREGROUND] = fgFsync;
         metrics[FSYNC_COUNT][BACKGROUND] = bgFsync;
     }
+    IoUsage& operator-=(const IoUsage& rhs);
     bool operator==(const IoUsage& usage) const {
         return memcmp(&metrics, &usage.metrics, sizeof(metrics)) == 0;
     }
@@ -84,7 +72,11 @@ class IoUsage {
 };
 
 struct UidIoUsage {
-    uid_t uid = 0;
+    UidIoUsage& operator-=(const UidIoUsage& rhs) {
+        ios -= rhs.ios;
+        return *this;
+    }
+    uid_t uid = 0;  // Linux user id
     IoUsage ios = {};
 };
 
@@ -106,13 +98,13 @@ public:
 
 private:
     // Reads the contents of |kPath|.
-    android::base::Result<std::unordered_map<uid_t, UidIoStat>> getUidIoStatsLocked() const;
+    android::base::Result<std::unordered_map<uid_t, UidIoUsage>> getUidIoUsagesLocked() const;
 
     // Makes sure only one collection is running at any given time.
     Mutex mMutex;
 
     // Last dump from the file at |kPath|.
-    std::unordered_map<uid_t, UidIoStat> mLastUidIoStats GUARDED_BY(mMutex);
+    std::unordered_map<uid_t, UidIoUsage> mLastUidIoUsages GUARDED_BY(mMutex);
 
     // True if kPath is accessible.
     const bool kEnabled;
@@ -125,4 +117,4 @@ private:
 }  // namespace automotive
 }  // namespace android
 
-#endif  //  WATCHDOG_SERVER_SRC_UIDIOSTATS_H_
+#endif  //  CPP_WATCHDOG_SERVER_SRC_UIDIOSTATS_H_

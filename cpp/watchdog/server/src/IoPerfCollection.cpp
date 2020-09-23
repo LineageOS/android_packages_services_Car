@@ -18,18 +18,17 @@
 
 #include "IoPerfCollection.h"
 
+#include "utils/PackageNameResolver.h"
+
 #include <WatchdogProperties.sysprop.h>
 #include <android-base/file.h>
 #include <android-base/parseint.h>
 #include <android-base/stringprintf.h>
 #include <android-base/strings.h>
-#include <binder/IServiceManager.h>
-#include <cutils/android_filesystem_config.h>
 #include <inttypes.h>
 #include <log/log.h>
 #include <processgroup/sched_policy.h>
 #include <pthread.h>
-#include <pwd.h>
 
 #include <algorithm>
 #include <iomanip>
@@ -45,10 +44,6 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-using android::defaultServiceManager;
-using android::IBinder;
-using android::IServiceManager;
-using android::sp;
 using android::String16;
 using android::base::Error;
 using android::base::ParseUint;
@@ -57,7 +52,6 @@ using android::base::Split;
 using android::base::StringAppendF;
 using android::base::StringPrintf;
 using android::base::WriteStringToFd;
-using android::content::pm::IPackageManagerNative;
 
 namespace {
 
@@ -756,16 +750,14 @@ Result<void> IoPerfCollection::collectUidIoPerfDataLocked(const CollectionInfo& 
     UidIoUsage tempUsage = {};
     std::vector<const UidIoUsage*> topNReads(mTopNStatsPerCategory, &tempUsage);
     std::vector<const UidIoUsage*> topNWrites(mTopNStatsPerCategory, &tempUsage);
-    std::unordered_set<uid_t> unmappedUids;
+    std::unordered_set<uid_t> uids;
 
     for (const auto& uIt : *usage) {
         const UidIoUsage& curUsage = uIt.second;
         if (curUsage.ios.isZero()) {
             continue;
         }
-        if (mUidToPackageNameMapping.find(curUsage.uid) == mUidToPackageNameMapping.end()) {
-            unmappedUids.insert(curUsage.uid);
-        }
+        uids.insert(curUsage.uid);
         uidIoPerfData->total[READ_BYTES][FOREGROUND] +=
                 curUsage.ios.metrics[READ_BYTES][FOREGROUND];
         uidIoPerfData->total[READ_BYTES][BACKGROUND] +=
@@ -801,10 +793,7 @@ Result<void> IoPerfCollection::collectUidIoPerfDataLocked(const CollectionInfo& 
         }
     }
 
-    const auto& ret = updateUidToPackageNameMapping(unmappedUids);
-    if (!ret.ok()) {
-        ALOGW("%s", ret.error().message().c_str());
-    }
+    const auto& uidToPackageNameMapping = PackageNameResolver::getInstance()->resolveUids(uids);
 
     // Convert the top N I/O usage to UidIoPerfData.
     for (const auto& usage : topNReads) {
@@ -821,8 +810,8 @@ Result<void> IoPerfCollection::collectUidIoPerfDataLocked(const CollectionInfo& 
                 .fsync = {usage->ios.metrics[FSYNC_COUNT][FOREGROUND],
                           usage->ios.metrics[FSYNC_COUNT][BACKGROUND]},
         };
-        if (mUidToPackageNameMapping.find(usage->uid) != mUidToPackageNameMapping.end()) {
-            stats.packageName = mUidToPackageNameMapping[usage->uid];
+        if (uidToPackageNameMapping.find(usage->uid) != uidToPackageNameMapping.end()) {
+            stats.packageName = uidToPackageNameMapping.at(usage->uid);
         }
         if (!collectionInfo.filterPackages.empty() &&
             collectionInfo.filterPackages.find(stats.packageName) ==
@@ -846,8 +835,8 @@ Result<void> IoPerfCollection::collectUidIoPerfDataLocked(const CollectionInfo& 
                 .fsync = {usage->ios.metrics[FSYNC_COUNT][FOREGROUND],
                           usage->ios.metrics[FSYNC_COUNT][BACKGROUND]},
         };
-        if (mUidToPackageNameMapping.find(usage->uid) != mUidToPackageNameMapping.end()) {
-            stats.packageName = mUidToPackageNameMapping[usage->uid];
+        if (uidToPackageNameMapping.find(usage->uid) != uidToPackageNameMapping.end()) {
+            stats.packageName = uidToPackageNameMapping.at(usage->uid);
         }
         if (!collectionInfo.filterPackages.empty() &&
             collectionInfo.filterPackages.find(stats.packageName) ==
@@ -892,7 +881,7 @@ Result<void> IoPerfCollection::collectProcessIoPerfDataLocked(
     }
 
     const auto& uidProcessStats = getUidProcessStats(*processStats, mTopNStatsPerSubcategory);
-    std::unordered_set<uid_t> unmappedUids;
+    std::unordered_set<uid_t> uids;
     // Fetch only the top N I/O blocked UIDs and UIDs with most major page faults.
     UidProcessStats temp = {};
     std::vector<const UidProcessStats*> topNIoBlockedUids(mTopNStatsPerCategory, &temp);
@@ -900,9 +889,7 @@ Result<void> IoPerfCollection::collectProcessIoPerfDataLocked(
     processIoPerfData->totalMajorFaults = 0;
     for (const auto& it : *uidProcessStats) {
         const UidProcessStats& curStats = it.second;
-        if (mUidToPackageNameMapping.find(curStats.uid) == mUidToPackageNameMapping.end()) {
-            unmappedUids.insert(curStats.uid);
-        }
+        uids.insert(curStats.uid);
         processIoPerfData->totalMajorFaults += curStats.majorFaults;
         for (auto it = topNIoBlockedUids.begin(); it != topNIoBlockedUids.end(); ++it) {
             const UidProcessStats* topStats = *it;
@@ -926,10 +913,7 @@ Result<void> IoPerfCollection::collectProcessIoPerfDataLocked(
         }
     }
 
-    const auto& ret = updateUidToPackageNameMapping(unmappedUids);
-    if (!ret.ok()) {
-        ALOGW("%s", ret.error().message().c_str());
-    }
+    const auto& uidToPackageNameMapping = PackageNameResolver::getInstance()->resolveUids(uids);
 
     // Convert the top N uid process stats to ProcessIoPerfData.
     for (const auto& it : topNIoBlockedUids) {
@@ -943,8 +927,8 @@ Result<void> IoPerfCollection::collectProcessIoPerfDataLocked(
                 .packageName = std::to_string(it->uid),
                 .count = it->ioBlockedTasksCnt,
         };
-        if (mUidToPackageNameMapping.find(it->uid) != mUidToPackageNameMapping.end()) {
-            stats.packageName = mUidToPackageNameMapping[it->uid];
+        if (uidToPackageNameMapping.find(it->uid) != uidToPackageNameMapping.end()) {
+            stats.packageName = uidToPackageNameMapping.at(it->uid);
         }
         if (!collectionInfo.filterPackages.empty() &&
             collectionInfo.filterPackages.find(stats.packageName) ==
@@ -972,8 +956,8 @@ Result<void> IoPerfCollection::collectProcessIoPerfDataLocked(
                 .packageName = std::to_string(it->uid),
                 .count = it->majorFaults,
         };
-        if (mUidToPackageNameMapping.find(it->uid) != mUidToPackageNameMapping.end()) {
-            stats.packageName = mUidToPackageNameMapping[it->uid];
+        if (uidToPackageNameMapping.find(it->uid) != uidToPackageNameMapping.end()) {
+            stats.packageName = uidToPackageNameMapping.at(it->uid);
         }
         if (!collectionInfo.filterPackages.empty() &&
             collectionInfo.filterPackages.find(stats.packageName) ==
@@ -997,63 +981,6 @@ Result<void> IoPerfCollection::collectProcessIoPerfDataLocked(
                 (static_cast<double>(increase) / static_cast<double>(mLastMajorFaults)) * 100.0;
     }
     mLastMajorFaults = processIoPerfData->totalMajorFaults;
-    return {};
-}
-
-Result<void> IoPerfCollection::updateUidToPackageNameMapping(
-        const std::unordered_set<uid_t>& uids) {
-    std::vector<int32_t> appUids;
-
-    for (const auto& uid : uids) {
-        if (uid >= AID_APP_START) {
-            appUids.emplace_back(static_cast<int32_t>(uid));
-            continue;
-        }
-        // System/native UIDs.
-        passwd* usrpwd = getpwuid(uid);
-        if (!usrpwd) {
-            continue;
-        }
-        mUidToPackageNameMapping[uid] = std::string(usrpwd->pw_name);
-    }
-
-    if (appUids.empty()) {
-        return {};
-    }
-
-    if (mPackageManager == nullptr) {
-        auto ret = retrievePackageManager();
-        if (!ret) {
-            return Error() << "Failed to retrieve package manager: " << ret.error();
-        }
-    }
-
-    std::vector<std::string> packageNames;
-    const binder::Status& status = mPackageManager->getNamesForUids(appUids, &packageNames);
-    if (!status.isOk()) {
-        return Error() << "package_native::getNamesForUids failed: " << status.exceptionMessage();
-    }
-
-    for (size_t i = 0; i < appUids.size(); i++) {
-        if (!packageNames[i].empty()) {
-            mUidToPackageNameMapping[appUids[i]] = packageNames[i];
-        }
-    }
-
-    return {};
-}
-
-Result<void> IoPerfCollection::retrievePackageManager() {
-    const sp<IServiceManager> sm = defaultServiceManager();
-    if (sm == nullptr) {
-        return Error() << "Failed to retrieve defaultServiceManager";
-    }
-
-    sp<IBinder> binder = sm->getService(String16("package_native"));
-    if (binder == nullptr) {
-        return Error() << "Failed to get service package_native";
-    }
-    mPackageManager = interface_cast<IPackageManagerNative>(binder);
     return {};
 }
 

@@ -17,10 +17,9 @@
 #include "UidIoStats.h"
 
 #include <android-base/file.h>
+#include <gmock/gmock.h>
 
 #include <unordered_map>
-
-#include "gmock/gmock.h"
 
 namespace android {
 namespace automotive {

@@ -18,6 +18,8 @@
 
 #include "ServiceManager.h"
 
+#include "utils/PackageNameResolver.h"
+
 namespace android {
 namespace automotive {
 namespace watchdog {
@@ -37,6 +39,7 @@ Result<void> ServiceManager::startServices(const sp<Looper>& looper) {
         sWatchdogBinderMediator != nullptr) {
         return Error(INVALID_OPERATION) << "Cannot start services more than once";
     }
+    PackageNameResolver::getInstance();
     auto result = startProcessAnrMonitor(looper);
     if (!result.ok()) {
         return result;
@@ -49,6 +52,7 @@ Result<void> ServiceManager::startServices(const sp<Looper>& looper) {
 }
 
 void ServiceManager::terminateServices() {
+    PackageNameResolver::terminate();
     if (sWatchdogProcessService != nullptr) {
         sWatchdogProcessService->terminate();
         sWatchdogProcessService = nullptr;
