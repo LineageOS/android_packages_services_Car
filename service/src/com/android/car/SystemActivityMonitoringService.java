@@ -427,9 +427,9 @@ public class SystemActivityMonitoringService implements CarServiceBase {
                     info.childTaskNames[info.childTaskNames.length - 1]);
             if (activity.equals(topActivity)) {
                 try {
-                    mAm.setFocusedStack(info.taskId);
+                    mAm.setFocusedRootTask(info.taskId);
                 } catch (RemoteException e) {
-                    Log.e(CarLog.TAG_AM, "cannot setFocusedStack to stack:" + info.taskId, e);
+                    Log.e(CarLog.TAG_AM, "cannot setFocusedRootTask to task:" + info.taskId, e);
                 }
                 return;
             }
