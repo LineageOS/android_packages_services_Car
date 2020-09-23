@@ -3137,7 +3137,7 @@
     <string name="media_volume_option_title" msgid="3553411883305505682">"Volum de multimèdia"</string>
     <string name="remote_media_volume_option_title" msgid="6355710054191873836">"Volum emès"</string>
     <string name="call_volume_option_title" msgid="5028003296631037334">"Volum de trucada"</string>
-    <string name="alarm_volume_option_title" msgid="3184076022438477047">"Volum de l\'alarma"</string>
+    <string name="alarm_volume_option_title" msgid="3184076022438477047">"Volum d\'alarma"</string>
     <string name="ring_volume_option_title" msgid="2038924918468372264">"Volum del to"</string>
     <string name="notification_volume_option_title" msgid="1358512611511348260">"Volum de notificació"</string>
     <string name="ringtone_title" msgid="1409086028485922583">"So de trucada del telèfon"</string>
