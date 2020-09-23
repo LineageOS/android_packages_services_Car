@@ -143,52 +143,39 @@ TEST(ProcPidStatTest, TestValidStatFiles) {
     };
 
     std::vector<ProcessStats> expected = {
-            {
-                    .tgid = 1,
-                    .uid = 0,
-                    .vmPeakKb = 123,
-                    .vmSizeKb = 456,
-                    .vmHwmKb = 789,
-                    .vmRssKb = 345,
-                    .process = {1, "init", "S", 0, 220, 2, 0},
-                    .threads =
-                            {
-                                    {1, {1, "init", "S", 0, 200, 2, 0}},
-                                    {453, {453, "init", "S", 0, 20, 2, 275}},
-                            },
-            },
-            {
-                    .tgid = 1000,
-                    .uid = 10001234,
-                    .vmPeakKb = 234,
-                    .vmSizeKb = 567,
-                    .vmHwmKb = 890,
-                    .vmRssKb = 123,
-                    .process = {1000, "system_server", "R", 1, 600, 2, 1000},
-                    .threads =
-                            {
-                                    {1000, {1000, "system_server", "R", 1, 250, 2, 1000}},
-                                    {1100, {1100, "system_server", "S", 1, 350, 2, 1200}},
-                            },
-            },
+            {.tgid = 1,
+             .uid = 0,
+             .vmPeakKb = 123,
+             .vmSizeKb = 456,
+             .vmHwmKb = 789,
+             .vmRssKb = 345,
+             .process = {1, "init", "S", 0, 220, 2, 0},
+             .threads = {{1, {1, "init", "S", 0, 200, 2, 0}},
+                         {453, {453, "init", "S", 0, 20, 2, 275}}}},
+            {.tgid = 1000,
+             .uid = 10001234,
+             .vmPeakKb = 234,
+             .vmSizeKb = 567,
+             .vmHwmKb = 890,
+             .vmRssKb = 123,
+             .process = {1000, "system_server", "R", 1, 600, 2, 1000},
+             .threads = {{1000, {1000, "system_server", "R", 1, 250, 2, 1000}},
+                         {1100, {1100, "system_server", "S", 1, 350, 2, 1200}}}},
     };
 
     TemporaryDir firstSnapshot;
-    auto ret = populateProcPidDir(firstSnapshot.path, pidToTids, perProcessStat, perProcessStatus,
-                                  perThreadStat);
-    ASSERT_TRUE(ret) << "Failed to populate proc pid dir: " << ret.error();
+    ASSERT_RESULT_OK(populateProcPidDir(firstSnapshot.path, pidToTids, perProcessStat,
+                                        perProcessStatus, perThreadStat));
 
     ProcPidStat procPidStat(firstSnapshot.path);
     ASSERT_TRUE(procPidStat.enabled())
             << "Files under the path `" << firstSnapshot.path << "` are inaccessible";
+    ASSERT_RESULT_OK(procPidStat.collect());
 
-    auto actual = procPidStat.collect();
-    ASSERT_TRUE(actual) << "Failed to collect proc pid stat: " << actual.error();
-
-    EXPECT_TRUE(isEqual(&expected, &actual.value())) << "First snapshot doesn't match.\nExpected:\n"
-                                                     << toString(expected) << "\nActual:\n"
-                                                     << toString(*actual);
-
+    auto actual = std::vector<ProcessStats>(procPidStat.deltaStats());
+    EXPECT_TRUE(isEqual(&expected, &actual)) << "First snapshot doesn't match.\nExpected:\n"
+                                             << toString(expected) << "\nActual:\n"
+                                             << toString(actual);
     pidToTids = {
             {1, {1, 453}}, {1000, {1000, 1400}},  // TID 1100 terminated and 1400 instantiated.
     };
@@ -208,52 +195,39 @@ TEST(ProcPidStatTest, TestValidStatFiles) {
     };
 
     expected = {
-            {
-                    .tgid = 1,
-                    .uid = 0,
-                    .vmPeakKb = 123,
-                    .vmSizeKb = 456,
-                    .vmHwmKb = 789,
-                    .vmRssKb = 345,
-                    .process = {1, "init", "S", 0, 700, 2, 0},
-                    .threads =
-                            {
-                                    {1, {1, "init", "S", 0, 400, 2, 0}},
-                                    {453, {453, "init", "S", 0, 300, 2, 275}},
-                            },
-            },
-            {
-                    .tgid = 1000,
-                    .uid = 10001234,
-                    .vmPeakKb = 234,
-                    .vmSizeKb = 567,
-                    .vmHwmKb = 890,
-                    .vmRssKb = 123,
-                    .process = {1000, "system_server", "R", 1, 950, 2, 1000},
-                    .threads =
-                            {
-                                    {1000, {1000, "system_server", "R", 1, 350, 2, 1000}},
-                                    {1400, {1400, "system_server", "S", 1, 200, 2, 8977476}},
-                            },
-            },
+            {.tgid = 1,
+             .uid = 0,
+             .vmPeakKb = 123,
+             .vmSizeKb = 456,
+             .vmHwmKb = 789,
+             .vmRssKb = 345,
+             .process = {1, "init", "S", 0, 700, 2, 0},
+             .threads = {{1, {1, "init", "S", 0, 400, 2, 0}},
+                         {453, {453, "init", "S", 0, 300, 2, 275}}}},
+            {.tgid = 1000,
+             .uid = 10001234,
+             .vmPeakKb = 234,
+             .vmSizeKb = 567,
+             .vmHwmKb = 890,
+             .vmRssKb = 123,
+             .process = {1000, "system_server", "R", 1, 950, 2, 1000},
+             .threads = {{1000, {1000, "system_server", "R", 1, 350, 2, 1000}},
+                         {1400, {1400, "system_server", "S", 1, 200, 2, 8977476}}}},
     };
 
     TemporaryDir secondSnapshot;
-    ret = populateProcPidDir(secondSnapshot.path, pidToTids, perProcessStat, perProcessStatus,
-                             perThreadStat);
-    ASSERT_TRUE(ret) << "Failed to populate proc pid dir: " << ret.error();
+    ASSERT_RESULT_OK(populateProcPidDir(secondSnapshot.path, pidToTids, perProcessStat,
+                                        perProcessStatus, perThreadStat));
 
     procPidStat.mPath = secondSnapshot.path;
     ASSERT_TRUE(procPidStat.enabled())
             << "Files under the path `" << secondSnapshot.path << "` are inaccessible";
+    ASSERT_RESULT_OK(procPidStat.collect());
 
-    actual = procPidStat.collect();
-    ASSERT_TRUE(actual) << "Failed to collect proc pid stat: " << actual.error();
-
-    EXPECT_TRUE(isEqual(&expected, &actual.value()))
-            << "Second snapshot doesn't match.\nExpected:\n"
-            << toString(expected) << "\nActual:\n"
-            << toString(*actual);
+    actual = std::vector<ProcessStats>(procPidStat.deltaStats());
+    EXPECT_TRUE(isEqual(&expected, &actual)) << "Second snapshot doesn't match.\nExpected:\n"
+                                             << toString(expected) << "\nActual:\n"
+                                             << toString(actual);
 }
 
 TEST(ProcPidStatTest, TestHandlesProcessTerminationBetweenScanningAndParsing) {
@@ -288,50 +262,39 @@ TEST(ProcPidStatTest, TestHandlesProcessTerminationBetweenScanningAndParsing) {
     };
 
     std::vector<ProcessStats> expected = {
-            {
-                    .tgid = 1,
-                    .uid = 0,
-                    .process = {1, "init", "S", 0, 220, 1, 0},
-                    .threads = {{1, {1, "init", "S", 0, 200, 1, 0}}},
-            },
-            {
-                    .tgid = -1,
-                    .uid = -1,
-                    .process = {1000, "system_server", "R", 1, 600, 1, 1000},
-                    // Stats common between process and main-thread are copied when
-                    // main-thread stats are not available.
-                    .threads = {{1000, {1000, "system_server", "R", 1, 0, 1, 1000}}},
-            },
-            {
-                    .tgid = 2000,
-                    .uid = 10001234,
-                    .process = {2000, "logd", "R", 1, 1200, 1, 4567},
-                    .threads = {{2000, {2000, "logd", "R", 1, 0, 1, 4567}}},
-            },
-            {
-                    .tgid = 3000,
-                    .uid = 10001234,
-                    .process = {3000, "disk I/O", "R", 1, 10300, 2, 67890},
-                    .threads = {{3000, {3000, "disk I/O", "R", 1, 2400, 2, 67890}}},
-            },
+            {.tgid = 1,
+             .uid = 0,
+             .process = {1, "init", "S", 0, 220, 1, 0},
+             .threads = {{1, {1, "init", "S", 0, 200, 1, 0}}}},
+            {.tgid = -1,
+             .uid = -1,
+             .process = {1000, "system_server", "R", 1, 600, 1, 1000},
+             // Stats common between process and main-thread are copied when
+             // main-thread stats are not available.
+             .threads = {{1000, {1000, "system_server", "R", 1, 0, 1, 1000}}}},
+            {.tgid = 2000,
+             .uid = 10001234,
+             .process = {2000, "logd", "R", 1, 1200, 1, 4567},
+             .threads = {{2000, {2000, "logd", "R", 1, 0, 1, 4567}}}},
+            {.tgid = 3000,
+             .uid = 10001234,
+             .process = {3000, "disk I/O", "R", 1, 10300, 2, 67890},
+             .threads = {{3000, {3000, "disk I/O", "R", 1, 2400, 2, 67890}}}},
     };
 
     TemporaryDir procDir;
-    const auto& ret = populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
-                                         perThreadStat);
-    ASSERT_TRUE(ret) << "Failed to populate proc pid dir: " << ret.error();
+    ASSERT_RESULT_OK(populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
+                                        perThreadStat));
 
     ProcPidStat procPidStat(procDir.path);
     ASSERT_TRUE(procPidStat.enabled())
             << "Files under the path `" << procDir.path << "` are inaccessible";
+    ASSERT_RESULT_OK(procPidStat.collect());
 
-    auto actual = procPidStat.collect();
-    ASSERT_TRUE(actual) << "Failed to collect proc pid stat: " << actual.error();
-
-    EXPECT_TRUE(isEqual(&expected, &actual.value()))
-            << "Proc pid contents doesn't match.\nExpected:\n"
-            << toString(expected) << "\nActual:\n"
-            << toString(*actual);
+    auto actual = std::vector<ProcessStats>(procPidStat.deltaStats());
+    EXPECT_TRUE(isEqual(&expected, &actual)) << "Proc pid contents doesn't match.\nExpected:\n"
+                                             << toString(expected) << "\nActual:\n"
+                                             << toString(actual);
 }
 
 TEST(ProcPidStatTest, TestHandlesPidTidReuse) {
@@ -363,47 +326,36 @@ TEST(ProcPidStatTest, TestHandlesPidTidReuse) {
     };
 
     std::vector<ProcessStats> expected = {
-            {
-                    .tgid = 1,
-                    .uid = 0,
-                    .process = {1, "init", "S", 0, 1200, 4, 0},
-                    .threads =
-                            {
-                                    {1, {1, "init", "S", 0, 200, 4, 0}},
-                                    {367, {367, "init", "S", 0, 400, 4, 100}},
-                                    {453, {453, "init", "S", 0, 100, 4, 275}},
-                                    {589, {589, "init", "S", 0, 500, 4, 600}},
-                            },
-            },
-            {
-                    .tgid = 1000,
-                    .uid = 10001234,
-                    .process = {1000, "system_server", "R", 1, 250, 1, 1000},
-                    .threads = {{1000, {1000, "system_server", "R", 1, 250, 1, 1000}}},
-            },
-            {
-                    .tgid = 2345,
-                    .uid = 10001234,
-                    .process = {2345, "logd", "R", 1, 54354, 1, 456},
-                    .threads = {{2345, {2345, "logd", "R", 1, 54354, 1, 456}}},
-            },
+            {.tgid = 1,
+             .uid = 0,
+             .process = {1, "init", "S", 0, 1200, 4, 0},
+             .threads = {{1, {1, "init", "S", 0, 200, 4, 0}},
+                         {367, {367, "init", "S", 0, 400, 4, 100}},
+                         {453, {453, "init", "S", 0, 100, 4, 275}},
+                         {589, {589, "init", "S", 0, 500, 4, 600}}}},
+            {.tgid = 1000,
+             .uid = 10001234,
+             .process = {1000, "system_server", "R", 1, 250, 1, 1000},
+             .threads = {{1000, {1000, "system_server", "R", 1, 250, 1, 1000}}}},
+            {.tgid = 2345,
+             .uid = 10001234,
+             .process = {2345, "logd", "R", 1, 54354, 1, 456},
+             .threads = {{2345, {2345, "logd", "R", 1, 54354, 1, 456}}}},
     };
 
     TemporaryDir firstSnapshot;
-    auto ret = populateProcPidDir(firstSnapshot.path, pidToTids, perProcessStat, perProcessStatus,
-                                  perThreadStat);
-    ASSERT_TRUE(ret) << "Failed to populate proc pid dir: " << ret.error();
+    ASSERT_RESULT_OK(populateProcPidDir(firstSnapshot.path, pidToTids, perProcessStat,
+                                        perProcessStatus, perThreadStat));
 
     ProcPidStat procPidStat(firstSnapshot.path);
     ASSERT_TRUE(procPidStat.enabled())
             << "Files under the path `" << firstSnapshot.path << "` are inaccessible";
+    ASSERT_RESULT_OK(procPidStat.collect());
 
-    auto actual = procPidStat.collect();
-    ASSERT_TRUE(actual) << "Failed to collect proc pid stat: " << actual.error();
-
-    EXPECT_TRUE(isEqual(&expected, &actual.value())) << "First snapshot doesn't match.\nExpected:\n"
-                                                     << toString(expected) << "\nActual:\n"
-                                                     << toString(*actual);
+    auto actual = std::vector<ProcessStats>(procPidStat.deltaStats());
+    EXPECT_TRUE(isEqual(&expected, &actual)) << "First snapshot doesn't match.\nExpected:\n"
+                                             << toString(expected) << "\nActual:\n"
+                                             << toString(actual);
 
     pidToTids = {
             {1, {1, 589}},       // TID 589 reused by the same process.
@@ -434,54 +386,36 @@ TEST(ProcPidStatTest, TestHandlesPidTidReuse) {
     };
 
     expected = {
-            {
-                    .tgid = 1,
-                    .uid = 0,
-                    .process = {1, "init", "S", 0, 600, 2, 0},
-                    .threads =
-                            {
-                                    {1, {1, "init", "S", 0, 300, 2, 0}},
-                                    {589, {589, "init", "S", 0, 300, 2, 2345}},
-                            },
-            },
-            {
-                    .tgid = 367,
-                    .uid = 10001234,
-                    .process = {367, "system_server", "R", 1, 100, 2, 3450},
-                    .threads =
-                            {
-                                    {367, {367, "system_server", "R", 1, 50, 2, 3450}},
-                                    {2000, {2000, "system_server", "R", 1, 50, 2, 3670}},
-                            },
-            },
-            {
-                    .tgid = 1000,
-                    .uid = 10001234,
-                    .process = {1000, "logd", "R", 1, 2000, 2, 4650},
-                    .threads =
-                            {
-                                    {1000, {1000, "logd", "R", 1, 200, 2, 4650}},
-                                    {453, {453, "logd", "D", 1, 1800, 2, 4770}},
-                            },
-            },
+            {.tgid = 1,
+             .uid = 0,
+             .process = {1, "init", "S", 0, 600, 2, 0},
+             .threads = {{1, {1, "init", "S", 0, 300, 2, 0}},
+                         {589, {589, "init", "S", 0, 300, 2, 2345}}}},
+            {.tgid = 367,
+             .uid = 10001234,
+             .process = {367, "system_server", "R", 1, 100, 2, 3450},
+             .threads = {{367, {367, "system_server", "R", 1, 50, 2, 3450}},
+                         {2000, {2000, "system_server", "R", 1, 50, 2, 3670}}}},
+            {.tgid = 1000,
+             .uid = 10001234,
+             .process = {1000, "logd", "R", 1, 2000, 2, 4650},
+             .threads = {{1000, {1000, "logd", "R", 1, 200, 2, 4650}},
+                         {453, {453, "logd", "D", 1, 1800, 2, 4770}}}},
     };
 
     TemporaryDir secondSnapshot;
-    ret = populateProcPidDir(secondSnapshot.path, pidToTids, perProcessStat, perProcessStatus,
-                             perThreadStat);
-    ASSERT_TRUE(ret) << "Failed to populate proc pid dir: " << ret.error();
+    ASSERT_RESULT_OK(populateProcPidDir(secondSnapshot.path, pidToTids, perProcessStat,
+                                        perProcessStatus, perThreadStat));
 
     procPidStat.mPath = secondSnapshot.path;
     ASSERT_TRUE(procPidStat.enabled())
             << "Files under the path `" << secondSnapshot.path << "` are inaccessible";
+    ASSERT_RESULT_OK(procPidStat.collect());
 
-    actual = procPidStat.collect();
-    ASSERT_TRUE(actual) << "Failed to collect proc pid stat: " << actual.error();
-
-    EXPECT_TRUE(isEqual(&expected, &actual.value()))
-            << "Second snapshot doesn't match.\nExpected:\n"
-            << toString(expected) << "\nActual:\n"
-            << toString(*actual);
+    actual = std::vector<ProcessStats>(procPidStat.deltaStats());
+    EXPECT_TRUE(isEqual(&expected, &actual)) << "Second snapshot doesn't match.\nExpected:\n"
+                                             << toString(expected) << "\nActual:\n"
+                                             << toString(actual);
 }
 
 TEST(ProcPidStatTest, TestErrorOnCorruptedProcessStatFile) {
@@ -502,16 +436,13 @@ TEST(ProcPidStatTest, TestErrorOnCorruptedProcessStatFile) {
     };
 
     TemporaryDir procDir;
-    const auto& ret = populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
-                                         perThreadStat);
-    ASSERT_TRUE(ret) << "Failed to populate proc pid dir: " << ret.error();
+    ASSERT_RESULT_OK(populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
+                                        perThreadStat));
 
     ProcPidStat procPidStat(procDir.path);
     ASSERT_TRUE(procPidStat.enabled())
             << "Files under the path `" << procDir.path << "` are inaccessible";
-
-    const auto& actual = procPidStat.collect();
-    ASSERT_FALSE(actual) << "No error returned for invalid process stat file";
+    ASSERT_FALSE(procPidStat.collect().ok()) << "No error returned for invalid process stat file";
 }
 
 TEST(ProcPidStatTest, TestErrorOnCorruptedProcessStatusFile) {
@@ -532,16 +463,13 @@ TEST(ProcPidStatTest, TestErrorOnCorruptedProcessStatusFile) {
     };
 
     TemporaryDir procDir;
-    const auto& ret = populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
-                                         perThreadStat);
-    ASSERT_TRUE(ret) << "Failed to populate proc pid dir: " << ret.error();
+    ASSERT_RESULT_OK(populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
+                                        perThreadStat));
 
     ProcPidStat procPidStat(procDir.path);
     ASSERT_TRUE(procPidStat.enabled())
             << "Files under the path `" << procDir.path << "` are inaccessible";
-
-    const auto& actual = procPidStat.collect();
-    ASSERT_FALSE(actual) << "No error returned for invalid process status file";
+    ASSERT_FALSE(procPidStat.collect().ok()) << "No error returned for invalid process status file";
 }
 
 TEST(ProcPidStatTest, TestErrorOnCorruptedThreadStatFile) {
@@ -562,16 +490,13 @@ TEST(ProcPidStatTest, TestErrorOnCorruptedThreadStatFile) {
     };
 
     TemporaryDir procDir;
-    const auto& ret = populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
-                                         perThreadStat);
-    ASSERT_TRUE(ret) << "Failed to populate proc pid dir: " << ret.error();
+    ASSERT_RESULT_OK(populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
+                                        perThreadStat));
 
     ProcPidStat procPidStat(procDir.path);
     ASSERT_TRUE(procPidStat.enabled())
             << "Files under the path `" << procDir.path << "` are inaccessible";
-
-    const auto& actual = procPidStat.collect();
-    ASSERT_FALSE(actual) << "No error returned for invalid thread stat file";
+    ASSERT_FALSE(procPidStat.collect().ok()) << "No error returned for invalid thread stat file";
 }
 
 TEST(ProcPidStatTest, TestHandlesSpaceInCommName) {
@@ -592,43 +517,35 @@ TEST(ProcPidStatTest, TestHandlesSpaceInCommName) {
     };
 
     std::vector<ProcessStats> expected = {
-            {
-                    .tgid = 1,
-                    .uid = 0,
-                    .process = {1, "random process name with space", "S", 0, 200, 1, 0},
-                    .threads = {{1, {1, "random process name with space", "S", 0, 200, 1, 0}}},
-            },
+            {.tgid = 1,
+             .uid = 0,
+             .process = {1, "random process name with space", "S", 0, 200, 1, 0},
+             .threads = {{1, {1, "random process name with space", "S", 0, 200, 1, 0}}}},
     };
 
     TemporaryDir procDir;
-    const auto& ret = populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
-                                         perThreadStat);
-    ASSERT_TRUE(ret) << "Failed to populate proc pid dir: " << ret.error();
+    ASSERT_RESULT_OK(populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
+                                        perThreadStat));
 
     ProcPidStat procPidStat(procDir.path);
     ASSERT_TRUE(procPidStat.enabled())
             << "Files under the path `" << procDir.path << "` are inaccessible";
+    ASSERT_RESULT_OK(procPidStat.collect());
 
-    auto actual = procPidStat.collect();
-    ASSERT_TRUE(actual) << "Failed to collect proc pid stat: " << actual.error();
-
-    EXPECT_TRUE(isEqual(&expected, &actual.value()))
-            << "Proc pid contents doesn't match.\nExpected:\n"
-            << toString(expected) << "\nActual:\n"
-            << toString(*actual);
+    auto actual = std::vector<ProcessStats>(procPidStat.deltaStats());
+    EXPECT_TRUE(isEqual(&expected, &actual)) << "Proc pid contents doesn't match.\nExpected:\n"
+                                             << toString(expected) << "\nActual:\n"
+                                             << toString(actual);
 }
 
 TEST(ProcPidStatTest, TestProcPidStatContentsFromDevice) {
-    // TODO(b/148486340): Enable the test after appropriate SELinux privileges are available to
-    // read the proc file.
     ProcPidStat procPidStat;
     ASSERT_TRUE(procPidStat.enabled()) << "/proc/[pid]/.* files are inaccessible";
+    ASSERT_RESULT_OK(procPidStat.collect());
 
-    const auto& processStats = procPidStat.collect();
-    ASSERT_TRUE(processStats) << "Failed to collect proc pid stat: " << processStats.error();
-
+    const auto& processStats = procPidStat.deltaStats();
     // The below check should pass because there should be at least one process.
-    EXPECT_GT(processStats->size(), 0);
+    EXPECT_GT(processStats.size(), 0);
 }
 
 }  // namespace watchdog

@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-#ifndef WATCHDOG_SERVER_SRC_SERVICEMANAGER_H_
-#define WATCHDOG_SERVER_SRC_SERVICEMANAGER_H_
+#ifndef CPP_WATCHDOG_SERVER_SRC_SERVICEMANAGER_H_
+#define CPP_WATCHDOG_SERVER_SRC_SERVICEMANAGER_H_
 
 #include <android-base/result.h>
 #include <utils/Looper.h>
 #include <utils/StrongPointer.h>
 
-#include "IoPerfCollection.h"
 #include "WatchdogBinderMediator.h"
 #include "WatchdogProcessService.h"
 
@@ -37,10 +36,10 @@ public:
 
 private:
     static android::base::Result<void> startProcessAnrMonitor(const android::sp<Looper>& looper);
-    static android::base::Result<void> startIoPerfCollection();
+    static android::base::Result<void> startPerfService();
 
     static android::sp<WatchdogProcessService> sWatchdogProcessService;
-    static android::sp<IoPerfCollection> sIoPerfCollection;
+    static android::sp<WatchdogPerfService> sWatchdogPerfService;
     static android::sp<WatchdogBinderMediator> sWatchdogBinderMediator;
 };
 
@@ -48,4 +47,4 @@ private:
 }  // namespace automotive
 }  // namespace android
 
-#endif  // WATCHDOG_SERVER_SRC_SERVICEMANAGER_H_
+#endif  // CPP_WATCHDOG_SERVER_SRC_SERVICEMANAGER_H_

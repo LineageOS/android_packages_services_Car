@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef WATCHDOG_SERVER_SRC_PROCPIDSTAT_H_
-#define WATCHDOG_SERVER_SRC_PROCPIDSTAT_H_
+#ifndef CPP_WATCHDOG_SERVER_SRC_PROCPIDSTAT_H_
+#define CPP_WATCHDOG_SERVER_SRC_PROCPIDSTAT_H_
 
 #include <android-base/result.h>
 #include <android-base/stringprintf.h>
@@ -68,7 +68,8 @@ struct ProcessStats {
 class ProcPidStat : public RefBase {
 public:
     explicit ProcPidStat(const std::string& path = kProcDirPath) :
-          mLastProcessStats({}), mPath(path) {
+          mLatestProcessStats({}),
+          mPath(path) {
         std::string pidStatPath = StringPrintf((mPath + kStatFileFormat).c_str(), PID_FOR_INIT);
         std::string tidStatPath = StringPrintf((mPath + kTaskDirFormat + kStatFileFormat).c_str(),
                                                PID_FOR_INIT, PID_FOR_INIT);
@@ -80,10 +81,22 @@ public:
 
     virtual ~ProcPidStat() {}
 
-    // Collects pid info delta since the last collection.
-    virtual android::base::Result<std::vector<ProcessStats>> collect();
+    // Collects per-process stats.
+    virtual android::base::Result<void> collect();
 
-    // Called by IoPerfCollection and tests.
+    // Returns the latest per-process stats collected.
+    virtual const std::unordered_map<pid_t, ProcessStats> latestStats() const {
+        Mutex::Autolock lock(mMutex);
+        return mLatestProcessStats;
+    }
+
+    // Returns the delta of per-process stats since the last before collection.
+    virtual const std::vector<ProcessStats> deltaStats() const {
+        Mutex::Autolock lock(mMutex);
+        return mDeltaProcessStats;
+    }
+
+    // Called by WatchdogPerfService and tests.
     virtual bool enabled() { return mEnabled; }
 
     virtual std::string dirPath() { return mPath; }
@@ -96,11 +109,14 @@ private:
     android::base::Result<std::unordered_map<pid_t, ProcessStats>> getProcessStatsLocked() const;
 
     // Makes sure only one collection is running at any given time.
-    Mutex mMutex;
+    mutable Mutex mMutex;
 
-    // Last dump of per-process stats. Useful for calculating the delta and identifying PID/TID
+    // Latest dump of per-process stats. Useful for calculating the delta and identifying PID/TID
     // reuse.
-    std::unordered_map<pid_t, ProcessStats> mLastProcessStats GUARDED_BY(mMutex);
+    std::unordered_map<pid_t, ProcessStats> mLatestProcessStats GUARDED_BY(mMutex);
+
+    // Latest delta of per-process stats.
+    std::vector<ProcessStats> mDeltaProcessStats GUARDED_BY(mMutex);
 
     // True if the below files are accessible:
     // 1. Pid stat file at |mPath| + |kTaskStatFileFormat|
@@ -123,4 +139,4 @@ private:
 }  // namespace automotive
 }  // namespace android
 
-#endif  //  WATCHDOG_SERVER_SRC_PROCPIDSTAT_H_
+#endif  //  CPP_WATCHDOG_SERVER_SRC_PROCPIDSTAT_H_

@@ -191,7 +191,7 @@ Result<void> readPidStatusFile(const std::string& path, ProcessStats* processSta
 
 }  // namespace
 
-Result<std::vector<ProcessStats>> ProcPidStat::collect() {
+Result<void> ProcPidStat::collect() {
     if (!mEnabled) {
         return Error() << "Can not access PID stat files under " << kProcDirPath;
     }
@@ -202,14 +202,14 @@ Result<std::vector<ProcessStats>> ProcPidStat::collect() {
         return Error() << processStats.error();
     }
 
-    std::vector<ProcessStats> delta;
+    mDeltaProcessStats.clear();
     for (const auto& it : *processStats) {
         const ProcessStats& curStats = it.second;
-        const auto& cachedIt = mLastProcessStats.find(it.first);
-        if (cachedIt == mLastProcessStats.end() ||
+        const auto& cachedIt = mLatestProcessStats.find(it.first);
+        if (cachedIt == mLatestProcessStats.end() ||
             cachedIt->second.process.startTime != curStats.process.startTime) {
             // New/reused PID so don't calculate the delta.
-            delta.emplace_back(curStats);
+            mDeltaProcessStats.emplace_back(curStats);
             continue;
         }
 
@@ -225,10 +225,10 @@ Result<std::vector<ProcessStats>> ProcPidStat::collect() {
             }
             deltaThread.second.majorFaults -= cachedThread->second.majorFaults;
         }
-        delta.emplace_back(deltaStats);
+        mDeltaProcessStats.emplace_back(deltaStats);
     }
-    mLastProcessStats = *processStats;
-    return delta;
+    mLatestProcessStats = *processStats;
+    return {};
 }
 
 Result<std::unordered_map<pid_t, ProcessStats>> ProcPidStat::getProcessStatsLocked() const {
@@ -273,8 +273,8 @@ Result<std::unordered_map<pid_t, ProcessStats>> ProcPidStat::getProcessStatsLock
 
         // 3. When failed to read tgid or uid, copy these from the previous collection.
         if (curStats.tgid == -1 || curStats.uid == -1) {
-            const auto& it = mLastProcessStats.find(curStats.process.pid);
-            if (it != mLastProcessStats.end() &&
+            const auto& it = mLatestProcessStats.find(curStats.process.pid);
+            if (it != mLatestProcessStats.end() &&
                 it->second.process.startTime == curStats.process.startTime) {
                 curStats.tgid = it->second.tgid;
                 curStats.uid = it->second.uid;

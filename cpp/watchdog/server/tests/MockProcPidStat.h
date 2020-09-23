@@ -23,6 +23,7 @@
 #include <gmock/gmock.h>
 
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace android {
@@ -33,7 +34,10 @@ class MockProcPidStat : public ProcPidStat {
 public:
     MockProcPidStat() { ON_CALL(*this, enabled()).WillByDefault(::testing::Return(true)); }
     MOCK_METHOD(bool, enabled, (), (override));
-    MOCK_METHOD((android::base::Result<std::vector<ProcessStats>>), collect, (), (override));
+    MOCK_METHOD(android::base::Result<void>, collect, (), (override));
+    MOCK_METHOD((const std::unordered_map<pid_t, ProcessStats>), latestStats, (),
+                (const, override));
+    MOCK_METHOD(const std::vector<ProcessStats>, deltaStats, (), (const, override));
     MOCK_METHOD(std::string, dirPath, (), (override));
 };
 

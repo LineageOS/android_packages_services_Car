@@ -361,7 +361,7 @@ TEST(WatchdogPerfServiceTest, TestCollectionTerminatesOnDataCollectorError) {
     ASSERT_RESULT_OK(servicePeer.start());
 
     // Inject data collector error.
-    Result<std::unordered_map<uid_t, UidIoUsage>> errorRes = Error() << "Failed to collect data";
+    Result<void> errorRes = Error() << "Failed to collect data";
     EXPECT_CALL(*servicePeer.mockUidIoStats, collect()).WillOnce(Return(errorRes));
 
     // Collection should terminate and call data processor's terminate method on error.
