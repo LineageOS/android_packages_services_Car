@@ -22,6 +22,7 @@ cc_binary {
         "SurroundViewServiceCallback.cpp",
         "shader.cpp",
         "sv_app.cpp",
+        "ObjectDetector.cpp",
     ],
 
     shared_libs: [
@@ -36,11 +37,20 @@ cc_binary {
         "libhidlbase",
         "libutils",
         "libui",
+        "android.automotive.computepipe.runner-ndk_platform",
+        "android.automotive.computepipe.registry-ndk_platform",
+        "libprotobuf-cpp-lite",
+        "libbinder_ndk",
+        "liblog",
+        "android.hidl.allocator@1.0",
+        "android.hidl.memory@1.0",
+        "libhidlmemory",
     ],
 
     static_libs: [
         "libjsoncpp",
         "libmath",
+        "libdetectedobjectproto",
     ],
 
     strip: {
@@ -57,6 +67,46 @@ cc_binary {
         "-Werror",
         "-Wunused",
         "-Wunreachable-code",
+	"-Wthread-safety",
     ],
+}
+
+cc_defaults {
+    name: "libdetectedobject-defaults",
+
+    proto: {
+        export_proto_headers: true,
+        include_dirs: ["external/protobuf/src"],
+    },
+
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-unused-parameter",
+    ],
+
+    srcs: [
+        "DetectedObjects.proto",
+    ],
+}
+
+cc_library {
+    name: "libdetectedobjectproto",
+    defaults: ["libdetectedobject-defaults"],
+    host_supported: false,
+    vendor_available: true,
+    target: {
+        android: {
+            proto: {
+                type: "lite",
+            },
+            static_libs: [
+                "libprotobuf-cpp-lite",
+            ],
+            shared: {
+                enabled: false,
+            },
+        },
+    },
 }
 

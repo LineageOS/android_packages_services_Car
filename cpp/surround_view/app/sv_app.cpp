@@ -15,6 +15,7 @@
  */
 
 #include <android-base/logging.h>
+#include <android/binder_process.h>
 #include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
 #include <android/hardware/automotive/sv/1.0/ISurroundViewService.h>
 #include <android/hardware/automotive/sv/1.0/ISurroundView2dSession.h>
@@ -25,7 +26,9 @@
 #include <utils/Log.h>
 #include <thread>
 
+
 #include "SurroundViewServiceCallback.h"
+#include "ObjectDetector.h"
 
 // libhidl:
 using android::hardware::configureRpcThreadpool;
@@ -40,6 +43,9 @@ using DisplayState = android::hardware::automotive::evs::V1_0::DisplayState;
 
 using namespace android::hardware::automotive::sv::V1_0;
 using namespace android::hardware::automotive::evs::V1_1;
+
+using android::automotive::surround_view::object_detection::ObjectDetector;
+using android::automotive::surround_view::object_detection::DetectedObjects;
 
 const int kLowResolutionWidth = 120;
 const int kLowResolutionHeight = 90;
@@ -97,9 +103,39 @@ const float kPoseTrans[kPoseCount][4] = {
     {3.69552, -1.53073, 2.5}
 };
 
+enum ObjectDetectionMode {
+    DISABLED,
+    ENABLED_EVS_FRAME,
+};
+
+void terminationCallback(bool error, std::string errorMsg) {
+    if (error) {
+        LOG(ERROR) << errorMsg;
+        exit(EXIT_FAILURE);
+    }
+    LOG(INFO) << "Test completed";
+    exit(EXIT_SUCCESS);
+}
+
 bool run2dSurroundView(sp<ISurroundViewService> pSurroundViewService,
-                       sp<IEvsDisplay> pDisplay) {
+                       sp<IEvsDisplay> pDisplay,
+                       ObjectDetectionMode objectDetectionMode = DISABLED) {
     LOG(INFO) << "Run 2d Surround View demo";
+
+    // TODO(b/169203412): clean up the logic for the ObjectDetector
+    // Init object detector
+    std::shared_ptr<ObjectDetector> objectdetector;
+    std::vector<DetectedObjects> detectedobjects(4);
+    if (objectDetectionMode != DISABLED) {
+      std::function<void(bool, std::string)> cb = terminationCallback;
+      ABinderProcess_startThreadPool();
+      ndk::ScopedAStatus status = objectdetector->init(std::move(cb), &detectedobjects);
+      if (!status.isOk()) {
+          LOG(ERROR) << "Unable to init object detector";
+          return false;
+      }
+    }
+
 
     // Call HIDL API "start2dSession"
     sp<ISurroundView2dSession> surroundView2dSession;
@@ -121,6 +157,13 @@ bool run2dSurroundView(sp<ISurroundViewService> pSurroundViewService,
 
     sp<SurroundViewServiceCallback> sv2dCallback
         = new SurroundViewServiceCallback(pDisplay, surroundView2dSession);
+
+    // Start object detector
+    if (objectDetectionMode != DISABLED) {
+        objectdetector->set2dsession(surroundView2dSession);
+        objectdetector->start();
+        sv2dCallback->setObjectDetector(objectdetector);
+    }
 
     // Start 2d stream with callback
     if (surroundView2dSession->startStream(sv2dCallback) != SvResult::OK) {
@@ -153,7 +196,7 @@ bool run2dSurroundView(sp<ISurroundViewService> pSurroundViewService,
     LOG(INFO) << "SV 2D session finished.";
 
     return true;
-};
+}
 
 // Given a valid sv 3d session and pose, viewid and hfov parameters, sets the view.
 bool setView(sp<ISurroundView3dSession> surroundView3dSession, uint32_t viewId,
@@ -178,8 +221,22 @@ bool setView(sp<ISurroundView3dSession> surroundView3dSession, uint32_t viewId,
 }
 
 bool run3dSurroundView(sp<ISurroundViewService> pSurroundViewService,
-                       sp<IEvsDisplay> pDisplay) {
+                       sp<IEvsDisplay> pDisplay,
+                       ObjectDetectionMode objectDetectionMode = DISABLED) {
     LOG(INFO) << "Run 3d Surround View demo";
+
+    // Init object detector
+    ObjectDetector objectdetector;
+    std::vector<DetectedObjects> detectedobjects(4);
+    if (objectDetectionMode != DISABLED) {
+      std::function<void(bool, std::string)> cb = terminationCallback;
+      ABinderProcess_startThreadPool();
+      ndk::ScopedAStatus status = objectdetector.init(std::move(cb), &detectedobjects);
+      if (!status.isOk()) {
+        LOG(ERROR) << "Unable to init object detector";
+        return false;
+        }
+    }
 
     // Call HIDL API "start3dSession"
     sp<ISurroundView3dSession> surroundView3dSession;
@@ -201,6 +258,12 @@ bool run3dSurroundView(sp<ISurroundViewService> pSurroundViewService,
 
     sp<SurroundViewServiceCallback> sv3dCallback
         = new SurroundViewServiceCallback(pDisplay, surroundView3dSession);
+
+    // Start object detector
+    if (objectDetectionMode != DISABLED) {
+        objectdetector.set3dsession(surroundView3dSession);
+        objectdetector.start();
+    }
 
     // A view must be set before the 3d stream is started.
     if (!setView(surroundView3dSession, 0, 0, kHorizontalFov)) {
@@ -253,7 +316,7 @@ bool run3dSurroundView(sp<ISurroundViewService> pSurroundViewService,
     LOG(DEBUG) << "SV 3D session finished.";
 
     return true;
-};
+}
 
 // Main entry point
 int main(int argc, char** argv) {
@@ -261,11 +324,14 @@ int main(int argc, char** argv) {
     LOG(INFO) << "SV app starting";
 
     DemoMode mode = UNKNOWN;
+    ObjectDetectionMode objectDetectionMode = DISABLED;
     for (int i=1; i< argc; i++) {
         if (strcmp(argv[i], "--use2d") == 0) {
             mode = DEMO_2D;
         } else if (strcmp(argv[i], "--use3d") == 0) {
             mode = DEMO_3D;
+        } else if (strcmp(argv[i], "--detectevs") == 0) {
+            objectDetectionMode = ENABLED_EVS_FRAME;
         } else {
             LOG(WARNING) << "Ignoring unrecognized command line arg: "
                          << argv[i];
@@ -316,13 +382,13 @@ int main(int argc, char** argv) {
     }
 
     if (mode == DEMO_2D) {
-        if (!run2dSurroundView(surroundViewService, display)) {
+        if (!run2dSurroundView(surroundViewService, display, objectDetectionMode)) {
             LOG(ERROR) << "Something went wrong in 2d surround view demo. "
                        << "Exiting.";
             return EXIT_FAILURE;
         }
     } else if (mode == DEMO_3D) {
-        if (!run3dSurroundView(surroundViewService, display)) {
+        if (!run3dSurroundView(surroundViewService, display, objectDetectionMode)) {
             LOG(ERROR) << "Something went wrong in 3d surround view demo. "
                        << "Exiting.";
             return EXIT_FAILURE;
