@@ -38,12 +38,14 @@ public class VehiclePropertyIdsTest extends AndroidTestCase {
             new ArrayList<>(
                 Arrays.asList(
                     "DISABLED_OPTIONAL_FEATURES",
+                    "HW_CUSTOM_INPUT",
                     "HW_ROTARY_INPUT",
                     "SUPPORT_CUSTOMIZE_VENDOR_PERMISSION"));
     private static final List<Integer> MISSING_VEHICLE_PROPERTY_ID_VALUES =
             new ArrayList<>(
                 Arrays.asList(
                     /*DISABLED_OPTIONAL_FEATURES=*/286265094,
+                    /*HW_CUSTOM_INPUT=*/289475120,
                     /*HW_ROTARY_INPUT=*/289475104,
                     /*SUPPORT_CUSTOMIZE_VENDOR_PERMISSION=*/287313669));
 

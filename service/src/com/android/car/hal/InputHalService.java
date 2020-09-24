@@ -15,12 +15,16 @@
  */
 package com.android.car.hal;
 
+import static android.hardware.automotive.vehicle.V2_0.CustomInputType.CUSTOM_EVENT_F1;
+import static android.hardware.automotive.vehicle.V2_0.CustomInputType.CUSTOM_EVENT_F10;
 import static android.hardware.automotive.vehicle.V2_0.RotaryInputType.ROTARY_INPUT_TYPE_AUDIO_VOLUME;
 import static android.hardware.automotive.vehicle.V2_0.RotaryInputType.ROTARY_INPUT_TYPE_SYSTEM_NAVIGATION;
+import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.HW_CUSTOM_INPUT;
 import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.HW_KEY_INPUT;
 import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.HW_ROTARY_INPUT;
 
 import android.car.input.CarInputManager;
+import android.car.input.CustomInputEvent;
 import android.car.input.RotaryEvent;
 import android.hardware.automotive.vehicle.V2_0.VehicleDisplay;
 import android.hardware.automotive.vehicle.V2_0.VehicleHwKeyInputAction;
@@ -54,7 +58,8 @@ public class InputHalService extends HalServiceBase {
 
     private static final int[] SUPPORTED_PROPERTIES = new int[] {
             HW_KEY_INPUT,
-            HW_ROTARY_INPUT
+            HW_ROTARY_INPUT,
+            HW_CUSTOM_INPUT
     };
 
     private final VehicleHal mHal;
@@ -72,6 +77,8 @@ public class InputHalService extends HalServiceBase {
         void onKeyEvent(KeyEvent event, int targetDisplay);
         /** Called for rotary event */
         void onRotaryEvent(RotaryEvent event, int targetDisplay);
+        /** Called for OEM custom input event */
+        void onCustomInputEvent(CustomInputEvent event);
     }
 
     /** The current press state of a key. */
@@ -87,10 +94,13 @@ public class InputHalService extends HalServiceBase {
     private final Object mLock = new Object();
 
     @GuardedBy("mLock")
-    private boolean mKeyInputSupported = false;
+    private boolean mKeyInputSupported;
 
     @GuardedBy("mLock")
-    private boolean mRotaryInputSupported = false;
+    private boolean mRotaryInputSupported;
+
+    @GuardedBy("mLock")
+    private boolean mCustomInputSupported;
 
     @GuardedBy("mLock")
     private InputListener mListener;
@@ -114,8 +124,9 @@ public class InputHalService extends HalServiceBase {
     public void setInputListener(InputListener listener) {
         boolean keyInputSupported;
         boolean rotaryInputSupported;
+        boolean customInputSupported;
         synchronized (mLock) {
-            if (!mKeyInputSupported && !mRotaryInputSupported) {
+            if (!mKeyInputSupported && !mRotaryInputSupported && !mCustomInputSupported) {
                 Log.w(CarLog.TAG_INPUT,
                         "input listener set while rotary and key input not supported");
                 return;
@@ -123,12 +134,16 @@ public class InputHalService extends HalServiceBase {
             mListener = listener;
             keyInputSupported = mKeyInputSupported;
             rotaryInputSupported = mRotaryInputSupported;
+            customInputSupported = mCustomInputSupported;
         }
         if (keyInputSupported) {
             mHal.subscribeProperty(this, HW_KEY_INPUT);
         }
         if (rotaryInputSupported) {
             mHal.subscribeProperty(this, HW_ROTARY_INPUT);
+        }
+        if (customInputSupported) {
+            mHal.subscribeProperty(this, HW_CUSTOM_INPUT);
         }
     }
 
@@ -146,6 +161,13 @@ public class InputHalService extends HalServiceBase {
         }
     }
 
+    /** Returns whether {@code HW_CUSTOM_INPUT} is supported. */
+    public boolean isCustomInputSupported() {
+        synchronized (mLock) {
+            return mCustomInputSupported;
+        }
+    }
+
     @Override
     public void init() {
     }
@@ -156,6 +178,7 @@ public class InputHalService extends HalServiceBase {
             mListener = null;
             mKeyInputSupported = false;
             mRotaryInputSupported = false;
+            mCustomInputSupported = false;
         }
     }
 
@@ -176,6 +199,11 @@ public class InputHalService extends HalServiceBase {
                 case HW_ROTARY_INPUT:
                     synchronized (mLock) {
                         mRotaryInputSupported = true;
+                    }
+                    break;
+                case HW_CUSTOM_INPUT:
+                    synchronized (mLock) {
+                        mCustomInputSupported = true;
                     }
                     break;
             }
@@ -199,6 +227,9 @@ public class InputHalService extends HalServiceBase {
                     break;
                 case HW_ROTARY_INPUT:
                     dispatchRotaryInput(listener, value);
+                    break;
+                case HW_CUSTOM_INPUT:
+                    dispatchCustomInput(listener, value);
                     break;
                 default:
                     Log.e(CarLog.TAG_INPUT,
@@ -345,7 +376,6 @@ public class InputHalService extends HalServiceBase {
                 action,
                 code,
                 repeat,
-                0 /* meta state */,
                 0 /* deviceId */,
                 0 /* scancode */,
                 0 /* flags */,
@@ -355,6 +385,23 @@ public class InputHalService extends HalServiceBase {
             event.setDisplayId(Display.DEFAULT_DISPLAY);
         }
         listener.onKeyEvent(event, display);
+    }
+
+    private void dispatchCustomInput(InputListener listener, VehiclePropValue value) {
+        if (DBG) {
+            Log.d(CarLog.TAG_INPUT, "Dispatching CustomInputEvent for listener="
+                    + listener + " and value=" + value);
+        }
+        int inputCode = value.value.int32Values.get(0);
+        int targetDisplayType = value.value.int32Values.get(1);
+        int repeatCounter = value.value.int32Values.get(2);
+
+        if (inputCode < CUSTOM_EVENT_F1 || inputCode > CUSTOM_EVENT_F10) {
+            Log.e(CarLog.TAG_INPUT, "Unknown custom input code: " + inputCode);
+            return;
+        }
+        CustomInputEvent event = new CustomInputEvent(inputCode, targetDisplayType, repeatCounter);
+        listener.onCustomInputEvent(event);
     }
 
     @Override

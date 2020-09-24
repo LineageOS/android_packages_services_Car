@@ -23,6 +23,7 @@ import static org.testng.Assert.assertThrows;
 import android.annotation.NonNull;
 import android.car.Car;
 import android.car.input.CarInputManager;
+import android.car.input.CustomInputEvent;
 import android.car.input.RotaryEvent;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.util.Log;
@@ -47,6 +48,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 
+// TODO(b/159623196): Enhance this class to test HW_CUSTOM_INPUT
 @RunWith(AndroidJUnit4.class)
 @MediumTest
 public final class CarInputManagerTest extends MockedCarTestBase {
@@ -72,6 +74,11 @@ public final class CarInputManagerTest extends MockedCarTestBase {
         private final LinkedList<Pair<Integer, List<RotaryEvent>>> mRotaryEvents =
                 new LinkedList<>();
 
+        // Stores passed events. Last one in front
+        @GuardedBy("mLock")
+        private final LinkedList<Pair<Integer, List<CustomInputEvent>>> mCustomInputEvents =
+                new LinkedList<>();
+
         // Stores passed state changes. Last one in front
         @GuardedBy("mLock")
         private final LinkedList<Pair<Integer, int[]>> mStateChanges = new LinkedList<>();
@@ -79,6 +86,7 @@ public final class CarInputManagerTest extends MockedCarTestBase {
         private final Semaphore mKeyEventWait = new Semaphore(0);
         private final Semaphore mRotaryEventWait = new Semaphore(0);
         private final Semaphore mStateChangeWait = new Semaphore(0);
+        private final Semaphore mCustomInputEventWait = new Semaphore(0);
 
         @Override
         public void onKeyEvents(int targetDisplayId, List<KeyEvent> keyEvents) {
@@ -97,6 +105,16 @@ public final class CarInputManagerTest extends MockedCarTestBase {
                         events));
             }
             mRotaryEventWait.release();
+        }
+
+        @Override
+        public void onCustomInputEvents(int targetDisplayId, List<CustomInputEvent> events) {
+            Log.i(TAG, "onCustomInputEvents event:" + events.get(0) + " this:" + this);
+            synchronized (mLock) {
+                mCustomInputEvents.addFirst(new Pair<Integer, List<CustomInputEvent>>(
+                        targetDisplayId, events));
+            }
+            mCustomInputEventWait.release();
         }
 
         @Override
@@ -128,6 +146,10 @@ public final class CarInputManagerTest extends MockedCarTestBase {
             mRotaryEventWait.tryAcquire(EVENT_WAIT_TIME, TimeUnit.MILLISECONDS);
         }
 
+        private void waitForCustomInputEvent() throws Exception {
+            mCustomInputEventWait.tryAcquire(EVENT_WAIT_TIME, TimeUnit.MILLISECONDS);
+        }
+
         private LinkedList<Pair<Integer, List<KeyEvent>>> getkeyEvents() {
             synchronized (mLock) {
                 LinkedList<Pair<Integer, List<KeyEvent>>> r =
@@ -155,6 +177,7 @@ public final class CarInputManagerTest extends MockedCarTestBase {
 
     private final CaptureCallback mCallback0 = new CaptureCallback();
     private final CaptureCallback mCallback1 = new CaptureCallback();
+    private final CaptureCallback mCallback2 = new CaptureCallback();
 
     @Override
     protected synchronized void configureMockedHal() {
@@ -165,6 +188,10 @@ public final class CarInputManagerTest extends MockedCarTestBase {
         addProperty(VehicleProperty.HW_ROTARY_INPUT,
                 VehiclePropValueBuilder.newBuilder(VehicleProperty.HW_ROTARY_INPUT)
                         .addIntValue(0, 1, 0)
+                        .build());
+        addProperty(VehicleProperty.HW_CUSTOM_INPUT,
+                VehiclePropValueBuilder.newBuilder(VehicleProperty.HW_CUSTOM_INPUT)
+                        .addIntValue(0)
                         .build());
     }
 
@@ -336,6 +363,11 @@ public final class CarInputManagerTest extends MockedCarTestBase {
         r = mCarInputManager.requestInputEventCapture(mCallback1,
                 CarInputManager.TARGET_DISPLAY_TYPE_MAIN,
                 new int[]{CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION}, 0);
+        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
+
+        r = mCarInputManager.requestInputEventCapture(mCallback2,
+                CarInputManager.TARGET_DISPLAY_TYPE_MAIN,
+                new int[]{CarInputManager.INPUT_TYPE_CUSTOM_INPUT_EVENT}, 0);
         assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
     }
 
