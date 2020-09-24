@@ -118,7 +118,7 @@ private:
     unsigned increaseAvailableFrames_Locked(unsigned numToAdd);
     unsigned decreaseAvailableFrames_Locked(unsigned numToRemove);
 
-    void forwardFrame(imageBuffer* tgt, void* data);
+    void forwardFrame(imageBufferDesc* tgt, void* data);
 
     sp<IEvsCameraStream_1_1> mStream = nullptr;  // The callback used to deliver each frame
 
@@ -140,10 +140,6 @@ private:
     std::vector <BufferRecord> mBuffers;  // Graphics buffers to transfer images
     unsigned mFramesAllowed;              // How many buffers are we currently using
     unsigned mFramesInUse;                // How many buffers are currently outstanding
-
-    // Which format specific function we need to use to move camera imagery into our output buffers
-    void(*mFillBufferFromVideo)(const BufferDesc& tgtBuff, uint8_t* tgt,
-                                void* imgData, unsigned imgStride);
 
 
     EvsResult doneWithFrame_impl(const uint32_t id, const buffer_handle_t handle);
