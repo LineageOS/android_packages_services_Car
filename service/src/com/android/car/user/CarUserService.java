@@ -81,6 +81,7 @@ import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
 import com.android.car.R;
 import com.android.car.hal.UserHalService;
+import com.android.car.internal.CommonConstants;
 import com.android.car.internal.EventLogTags;
 import com.android.car.internal.UserHelperLite;
 import com.android.car.power.CarPowerManagementService;
@@ -119,19 +120,21 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     private static final String TAG = TAG_USER;
 
     /** {@code int} extra used to represent a user id in a {@link IResultReceiver} response. */
-    public static final String BUNDLE_USER_ID = "user.id";
+    public static final String BUNDLE_USER_ID = CommonConstants.BUNDLE_USER_ID;
     /** {@code int} extra used to represent user flags in a {@link IResultReceiver} response. */
-    public static final String BUNDLE_USER_FLAGS = "user.flags";
+    public static final String BUNDLE_USER_FLAGS = CommonConstants.BUNDLE_USER_FLAGS;
     /** {@code String} extra used to represent a user name in a {@link IResultReceiver} response. */
-    public static final String BUNDLE_USER_NAME = "user.name";
+    public static final String BUNDLE_USER_NAME = CommonConstants.BUNDLE_USER_NAME;
     /**
      * {@code int} extra used to represent the user locales in a {@link IResultReceiver} response.
      */
-    public static final String BUNDLE_USER_LOCALES = "user.locales";
+    public static final String BUNDLE_USER_LOCALES =
+            CommonConstants.BUNDLE_USER_LOCALES;
     /**
      * {@code int} extra used to represent the info action in a {@link IResultReceiver} response.
      */
-    public static final String BUNDLE_INITIAL_INFO_ACTION = "initial_info.action";
+    public static final String BUNDLE_INITIAL_INFO_ACTION =
+            CommonConstants.BUNDLE_INITIAL_INFO_ACTION;
 
     public static final String VEHICLE_HAL_NOT_SUPPORTED = "Vehicle Hal not supported.";
 
