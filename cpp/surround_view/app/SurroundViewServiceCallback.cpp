@@ -352,54 +352,6 @@ void SurroundViewServiceCallback::detachRenderTarget() {
     }
 }
 
-void SurroundViewServiceCallback::OverlayBoundingBoxes(int texWidth, int texHeight) {
-    if (mObjectDetector != nullptr) {
-        std::vector<DetectedObjects> detectedObjects = mObjectDetector->
-            getStreamCallback()->getSurroundView2dOverlay();
-        GLfloat halfTexWidth = texWidth / 2, halfTexHeight = texHeight / 2;
-        for (auto objects : detectedObjects) {
-            std::vector<Point2dInt> corners;
-            // For each detected object
-            for (const auto& boundingbox : *objects.mutable_bounding_box()) {
-                float x1 = std::min(
-                         std::max(boundingbox.corner1().x(), 0.0f),
-                         static_cast<float>(texWidth - 1));
-                float y1 = std::min(
-                         std::max(boundingbox.corner1().y(), 0.0f),
-                         static_cast<float>(texHeight - 1));
-                float x2 = std::min(
-                         std::max(boundingbox.corner2().x(), 0.0f),
-                         static_cast<float>(texWidth - 1));
-                float y2 = std::min(
-                         std::max(boundingbox.corner2().y(), 0.0f),
-                         static_cast<float>(texHeight - 1));
-                float x3 = std::min(
-                         std::max(boundingbox.corner3().x(), 0.0f),
-                         static_cast<float>(texWidth - 1));
-                float y3 = std::min(
-                         std::max(boundingbox.corner3().y(), 0.0f),
-                         static_cast<float>(texHeight - 1));
-                float x4 = std::min(
-                         std::max(boundingbox.corner4().x(), 0.0f),
-                         static_cast<float>(texWidth - 1));
-                float y4 = std::min(
-                         std::max(boundingbox.corner4().y(), 0.0f),
-                         static_cast<float>(texHeight - 1));
-                glBindTexture(GL_TEXTURE_2D, 0);
-                GLfloat vertsRectangle[] = {
-                  (x1 - halfTexWidth) / halfTexWidth, (y1 - halfTexHeight) / halfTexHeight,
-                  (x2 - halfTexWidth) / halfTexWidth, (y2 - halfTexHeight) / halfTexHeight,
-                  (x3 - halfTexWidth) / halfTexWidth, (y3 - halfTexHeight) / halfTexHeight,
-                  (x4 - halfTexWidth) / halfTexWidth, (y4 - halfTexHeight) / halfTexHeight};
-                glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertsRectangle);
-                glEnableVertexAttribArray(0);
-                glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-                glDisableVertexAttribArray(0);
-            }
-        }
-    }
-}
-
 SurroundViewServiceCallback::SurroundViewServiceCallback(
     sp<IEvsDisplay> pDisplay,
     sp<ISurroundViewSession> pSession) :
@@ -442,11 +394,6 @@ Return<void> SurroundViewServiceCallback::notify(SvEvent svEvent) {
         LOG(INFO) << "Received unknown event";
     }
     return {};
-}
-
-void SurroundViewServiceCallback::setObjectDetector(
-        std::shared_ptr<ObjectDetector> pObjectDetector) {
-    mObjectDetector = pObjectDetector;
 }
 
 Return<void> SurroundViewServiceCallback::receiveFrames(
@@ -592,9 +539,6 @@ Return<void> SurroundViewServiceCallback::receiveFrames(
         // Now that everything is submitted, release our hold on the
         // texture resource
         detachRenderTarget();
-
-        // Overlay detected bounding box on surround view 2d
-        OverlayBoundingBoxes(pDesc->width, pDesc->height);
 
         // Wait for the rendering to finish
         glFinish();
