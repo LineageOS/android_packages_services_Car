@@ -139,12 +139,12 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
             }
             case DISPATCH_PIXEL_DATA: {
                 runner::InputFrame inputFrame(0, 0, PixelFormat::RGB, 0, nullptr);
-                graph->dispatchPixelData(/*streamIndex =*/1, /*timestamp =*/0,
+                graph->dispatchPixelData(/*streamIndex =*/2, /*timestamp =*/0,
                                          /*inputFrame =*/inputFrame);
                 break;
             }
             case DISPATCH_SERIALIZED_DATA: {
-                graph->dispatchSerializedData(/*streamIndex =*/2, /* timestamp =*/0, /* data =*/"");
+                graph->dispatchSerializedData(/*streamIndex =*/1, /* timestamp =*/0, /* data =*/"");
                 break;
             }
             case DISPATCH_GRAPH_TERMINATION_MSG: {
