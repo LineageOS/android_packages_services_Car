@@ -17,12 +17,12 @@
 */
 -->
 <resources>
-    <dimen name="status_bar_height">76dp</dimen>
-    <dimen name="status_bar_height_landscape">76dp</dimen>
-    <dimen name="status_bar_height_portrait">76dp</dimen>
-    <dimen name="car_qs_header_system_icons_area_height">76dp</dimen>
-    <dimen name="navigation_bar_height">112dp</dimen>
-    <dimen name="navigation_bar_height_landscape">112dp</dimen>
+    <dimen name="status_bar_height">68dp</dimen>
+    <dimen name="status_bar_height_landscape">68dp</dimen>
+    <dimen name="status_bar_height_portrait">68dp</dimen>
+    <dimen name="car_qs_header_system_icons_area_height">68dp</dimen>
+    <dimen name="navigation_bar_height">96dp</dimen>
+    <dimen name="navigation_bar_height_landscape">96dp</dimen>
 
     <!-- Notification icon size in the status bar. -->
     <dimen name="status_bar_icon_size">32dp</dimen>
