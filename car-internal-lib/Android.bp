@@ -22,6 +22,7 @@ java_library {
     name: "com.android.car.internal.all",
     srcs: [
         "src/com/android/car/internal/EventLogTags.logtags",
+        "src/com/android/car/internal/CommonConstants.java",
         "src/com/android/car/internal/UserHelperLite.java",
     ],
 }

@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package android.car.constants;
+package com.android.car.internal;
 
 /**
- * Provides common constants for Car library, Car Service, and System Server.
- *
- * @hide
+ * Provides common constants for CarService, CarServiceHelperService and other packages.
  */
 public final class CommonConstants {
 
@@ -28,13 +26,22 @@ public final class CommonConstants {
     }
 
     // CarUserManagerConstants
-
     public static final int USER_LIFECYCLE_EVENT_TYPE_STARTING = 1;
     public static final int USER_LIFECYCLE_EVENT_TYPE_SWITCHING = 2;
     public static final int USER_LIFECYCLE_EVENT_TYPE_UNLOCKING = 3;
     public static final int USER_LIFECYCLE_EVENT_TYPE_UNLOCKED = 4;
     public static final int USER_LIFECYCLE_EVENT_TYPE_STOPPING = 5;
     public static final int USER_LIFECYCLE_EVENT_TYPE_STOPPED = 6;
+
+    public static final String BUNDLE_PARAM_ACTION = "action";
+    public static final String BUNDLE_PARAM_PREVIOUS_USER_ID = "previous_user";
+
+    // CarUserServiceConstants
+    public static final String BUNDLE_USER_ID = "user.id";
+    public static final String BUNDLE_USER_FLAGS = "user.flags";
+    public static final String BUNDLE_USER_NAME = "user.name";
+    public static final String BUNDLE_USER_LOCALES = "user.locales";
+    public static final String BUNDLE_INITIAL_INFO_ACTION = "initial_info.action";
 
     // CarService Constants
     public static final String CAR_SERVICE_INTERFACE = "android.car.ICar";
