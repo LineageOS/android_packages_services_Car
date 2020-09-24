@@ -32,6 +32,7 @@ import android.app.ActivityOptions;
 import android.app.UiModeManager;
 import android.car.Car;
 import android.car.input.CarInputManager;
+import android.car.input.CustomInputEvent;
 import android.car.input.RotaryEvent;
 import android.car.user.CarUserManager;
 import android.car.user.UserCreationResult;
@@ -126,6 +127,7 @@ final class CarShellCommand extends ShellCommand {
     private static final String COMMAND_DISABLE_FEATURE = "disable-feature";
     private static final String COMMAND_INJECT_KEY = "inject-key";
     private static final String COMMAND_INJECT_ROTARY = "inject-rotary";
+    private static final String COMMAND_INJECT_CUSTOM_INPUT = "inject-custom-input";
     private static final String COMMAND_GET_INITIAL_USER_INFO = "get-initial-user-info";
     private static final String COMMAND_SILENT_MODE = "silent-mode";
     private static final String COMMAND_SWITCH_USER = "switch-user";
@@ -194,8 +196,10 @@ final class CarShellCommand extends ShellCommand {
     private static final SparseArray<String> VALID_USER_AUTH_SET_VALUES;
     private static final String VALID_USER_AUTH_SET_VALUES_HELP;
 
+    private static final ArrayMap<String, Integer> CUSTOM_INPUT_FUNCTION_ARGS;
+
     static {
-        VALID_USER_AUTH_TYPES = new SparseArray<String>(5);
+        VALID_USER_AUTH_TYPES = new SparseArray<>(5);
         VALID_USER_AUTH_TYPES.put(KEY_FOB, UserIdentificationAssociationType.toString(KEY_FOB));
         VALID_USER_AUTH_TYPES.put(CUSTOM_1, UserIdentificationAssociationType.toString(CUSTOM_1));
         VALID_USER_AUTH_TYPES.put(CUSTOM_2, UserIdentificationAssociationType.toString(CUSTOM_2));
@@ -203,7 +207,7 @@ final class CarShellCommand extends ShellCommand {
         VALID_USER_AUTH_TYPES.put(CUSTOM_4, UserIdentificationAssociationType.toString(CUSTOM_4));
         VALID_USER_AUTH_TYPES_HELP = getHelpString("types", VALID_USER_AUTH_TYPES);
 
-        VALID_USER_AUTH_SET_VALUES = new SparseArray<String>(3);
+        VALID_USER_AUTH_SET_VALUES = new SparseArray<>(3);
         VALID_USER_AUTH_SET_VALUES.put(ASSOCIATE_CURRENT_USER,
                 UserIdentificationAssociationSetValue.toString(ASSOCIATE_CURRENT_USER));
         VALID_USER_AUTH_SET_VALUES.put(DISASSOCIATE_CURRENT_USER,
@@ -211,6 +215,18 @@ final class CarShellCommand extends ShellCommand {
         VALID_USER_AUTH_SET_VALUES.put(DISASSOCIATE_ALL_USERS,
                 UserIdentificationAssociationSetValue.toString(DISASSOCIATE_ALL_USERS));
         VALID_USER_AUTH_SET_VALUES_HELP = getHelpString("values", VALID_USER_AUTH_SET_VALUES);
+
+        CUSTOM_INPUT_FUNCTION_ARGS = new ArrayMap<>(10);
+        CUSTOM_INPUT_FUNCTION_ARGS.put("f1", CustomInputEvent.INPUT_CODE_F1);
+        CUSTOM_INPUT_FUNCTION_ARGS.put("f2", CustomInputEvent.INPUT_CODE_F2);
+        CUSTOM_INPUT_FUNCTION_ARGS.put("f3", CustomInputEvent.INPUT_CODE_F3);
+        CUSTOM_INPUT_FUNCTION_ARGS.put("f4", CustomInputEvent.INPUT_CODE_F4);
+        CUSTOM_INPUT_FUNCTION_ARGS.put("f5", CustomInputEvent.INPUT_CODE_F5);
+        CUSTOM_INPUT_FUNCTION_ARGS.put("f6", CustomInputEvent.INPUT_CODE_F6);
+        CUSTOM_INPUT_FUNCTION_ARGS.put("f7", CustomInputEvent.INPUT_CODE_F7);
+        CUSTOM_INPUT_FUNCTION_ARGS.put("f8", CustomInputEvent.INPUT_CODE_F8);
+        CUSTOM_INPUT_FUNCTION_ARGS.put("f9", CustomInputEvent.INPUT_CODE_F9);
+        CUSTOM_INPUT_FUNCTION_ARGS.put("f10", CustomInputEvent.INPUT_CODE_F10);
     }
 
     @NonNull
@@ -362,7 +378,11 @@ final class CarShellCommand extends ShellCommand {
         pw.println("\t             counter-clockwise. If not specified, it will be false.");
         pw.println("\t  delta_times_ms: a list of delta time (current time minus event time)");
         pw.println("\t                  in descending order. If not specified, it will be 0.");
-
+        pw.println("\tinject-custom-input [-d display] [-r repeatCounter] EVENT");
+        pw.println("\t  display: 0 for main, 1 for cluster. If not specified, it will be 0.");
+        pw.println("\t  repeatCounter: number of times the button was hit (default value is 1)");
+        pw.println("\t  EVENT: mandatory last argument. Possible values for for this flag are ");
+        pw.println("\t         F1, F2, up to F10 (functions to defined by OEM partners)");
         pw.printf("\t%s <REQ_TYPE> [--timeout TIMEOUT_MS]\n", COMMAND_GET_INITIAL_USER_INFO);
         pw.println("\t  Calls the Vehicle HAL to get the initial boot info, passing the given");
         pw.println("\t  REQ_TYPE (which could be either FIRST_BOOT, FIRST_BOOT_AFTER_OTA, ");
@@ -615,6 +635,12 @@ final class CarShellCommand extends ShellCommand {
                 }
                 injectRotary(args, writer);
                 break;
+            case COMMAND_INJECT_CUSTOM_INPUT:
+                if (args.length < 2) {
+                    return showInvalidArguments(writer);
+                }
+                injectCustomInputEvent(args, writer);
+                break;
             case COMMAND_GET_INITIAL_USER_INFO:
                 getInitialUserInfo(args, writer);
                 break;
@@ -847,6 +873,47 @@ final class CarShellCommand extends ShellCommand {
         RotaryEvent rotaryEvent = new RotaryEvent(inputType, clockwise, uptimeMs);
         mCarInputService.onRotaryEvent(rotaryEvent, display);
         writer.println("Succeeded in injecting: " + rotaryEvent);
+    }
+
+    private void injectCustomInputEvent(String[] args, PrintWriter writer) {
+        int display = InputHalService.DISPLAY_MAIN;
+        int repeatCounter = 1;
+
+        int argIdx = 1;
+        for (; argIdx < args.length - 1; argIdx++) {
+            switch (args[argIdx]) {
+                case "-d":
+                    display = Integer.parseInt(args[++argIdx]);
+                    break;
+                case "-r":
+                    repeatCounter = Integer.parseInt(args[++argIdx]);
+                    break;
+                default:
+                    writer.printf("Unrecognized argument: {%s}\n", args[argIdx]);
+                    writer.println("Pass -help to see the full list of options");
+                    return;
+            }
+        }
+
+        if (argIdx == args.length) {
+            writer.println("Last mandatory argument (fn) not passed.");
+            writer.println("Pass -help to see the full list of options");
+            return;
+        }
+
+        // Processing the last remaining argument (expected to be 'f1', 'f2', ..., 'f10').
+        String eventValue = args[argIdx].toLowerCase();
+        Integer inputCode = CUSTOM_INPUT_FUNCTION_ARGS.get(eventValue);
+        if (inputCode == null) {
+            writer.printf("Invalid input event value {%s}, valid values are f1, f2, ..., f10\n",
+                    eventValue);
+            writer.println("Pass -help to see the full list of options");
+            return;
+        }
+
+        CustomInputEvent event = new CustomInputEvent(inputCode, display, repeatCounter);
+        mCarInputService.onCustomInputEvent(event);
+        writer.printf("Succeeded in injecting {%s}\n", event);
     }
 
     private void getInitialUserInfo(String[] args, PrintWriter writer) {

@@ -23,6 +23,7 @@ import android.car.Car;
 import android.car.CarManagerBase;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.util.Slog;
 import android.util.SparseArray;
 import android.view.KeyEvent;
 
@@ -42,6 +43,10 @@ import java.util.List;
  */
 public final class CarInputManager extends CarManagerBase {
 
+    private static final String TAG = CarInputManager.class.getSimpleName();
+
+    private static final boolean DEBUG = false;
+
     /**
      * Callback for capturing input events.
      */
@@ -49,20 +54,27 @@ public final class CarInputManager extends CarManagerBase {
         /**
          * Key events were captured.
          */
-        void onKeyEvents(int targetDisplayId, @NonNull List<KeyEvent> keyEvents);
+        // TODO(b/164195589): Rename targetDisplayId parameter to targetDisplayType
+        default void onKeyEvents(int targetDisplayId, @NonNull List<KeyEvent> keyEvents) {}
 
         /**
          * Rotary events were captured.
          */
-        void onRotaryEvents(int targetDisplayId, @NonNull List<RotaryEvent> events);
+        default void onRotaryEvents(int targetDisplayId, @NonNull List<RotaryEvent> events) {}
 
         /**
          * Capture state for the display has changed due to other client making requests or
          * releasing capture. Client should check {@code activeInputTypes} for which input types
          * are currently captured.
          */
-        void onCaptureStateChanged(int targetDisplayId,
-                @NonNull @InputTypeEnum int[] activeInputTypes);
+        default void onCaptureStateChanged(int targetDisplayId,
+                @NonNull @InputTypeEnum int[] activeInputTypes) {}
+
+        /**
+         * Custom input events were captured.
+         */
+        default void onCustomInputEvents(int targetDisplayId,
+                @NonNull List<CustomInputEvent> events) {}
     }
 
     /**
@@ -137,14 +149,19 @@ public final class CarInputManager extends CarManagerBase {
     public static final int INPUT_TYPE_DPAD_KEYS = 100;
 
     /**
-     * This is for all KEYCODE_NAVIGATE_* keys.
+     * This is for all {@code KeyEvent#KEYCODE_NAVIGATE_*} keys.
      */
     public static final int INPUT_TYPE_NAVIGATE_KEYS = 101;
 
     /**
-     * This is for all KEYCODE_SYSTEM_NAVIGATE_* keys.
+     * This is for all {@code KeyEvent#KEYCODE_SYSTEM_NAVIGATE_*} keys.
      */
     public static final int INPUT_TYPE_SYSTEM_NAVIGATE_KEYS = 102;
+
+    /**
+     * This is for {@code HW_CUSTOM_INPUT} events.
+     */
+    public static final int INPUT_TYPE_CUSTOM_INPUT_EVENT = 200;
 
     /** @hide */
     @Retention(RetentionPolicy.SOURCE)
@@ -154,7 +171,8 @@ public final class CarInputManager extends CarManagerBase {
             INPUT_TYPE_ROTARY_VOLUME,
             INPUT_TYPE_DPAD_KEYS,
             INPUT_TYPE_NAVIGATE_KEYS,
-            INPUT_TYPE_SYSTEM_NAVIGATE_KEYS
+            INPUT_TYPE_SYSTEM_NAVIGATE_KEYS,
+            INPUT_TYPE_CUSTOM_INPUT_EVENT,
     })
     @Target({ElementType.TYPE_USE})
     public @interface InputTypeEnum {}
@@ -299,6 +317,18 @@ public final class CarInputManager extends CarManagerBase {
         });
     }
 
+    private void dispatchCustomInputEvents(int targetDisplayType, List<CustomInputEvent> events) {
+        getEventHandler().post(() -> {
+            CarInputCaptureCallback callback = getCallback(targetDisplayType);
+            if (DEBUG) {
+                Slog.d(TAG, "Firing events " + events + " on callback " + callback);
+            }
+            if (callback != null) {
+                callback.onCustomInputEvents(targetDisplayType, events);
+            }
+        });
+    }
+
     private static final class ICarInputCallbackImpl extends ICarInputCallback.Stub {
 
         private final WeakReference<CarInputManager> mManager;
@@ -332,6 +362,15 @@ public final class CarInputManager extends CarManagerBase {
                 return;
             }
             manager.dispatchOnCaptureStateChanged(targetDisplayType, activeInputTypes);
+        }
+
+        @Override
+        public void onCustomInputEvents(int targetDisplayId, List<CustomInputEvent> events) {
+            CarInputManager manager = mManager.get();
+            if (manager == null) {
+                return;
+            }
+            manager.dispatchCustomInputEvents(targetDisplayId, events);
         }
     }
 }

@@ -27,6 +27,7 @@ import android.bluetooth.BluetoothHeadsetClient;
 import android.bluetooth.BluetoothProfile;
 import android.car.CarProjectionManager;
 import android.car.input.CarInputManager;
+import android.car.input.CustomInputEvent;
 import android.car.input.ICarInput;
 import android.car.input.ICarInputCallback;
 import android.car.input.RotaryEvent;
@@ -360,6 +361,17 @@ public class CarInputService extends ICarInput.Stub
             for (KeyEvent keyEvent : keyEvents) {
                 onKeyEvent(keyEvent, targetDisplay);
             }
+        }
+    }
+
+    @Override
+    public void onCustomInputEvent(CustomInputEvent event) {
+        if (!mCaptureController.onCustomInputEvent(event)) {
+            Log.w(CarLog.TAG_INPUT, "Failed to propagate " + event);
+            return;
+        }
+        if (DBG) {
+            Log.d(CarLog.TAG_INPUT, "Succeed injecting " + event);
         }
     }
 

@@ -15,18 +15,4 @@
  */
 package android.car.input;
 
-import android.car.input.CustomInputEvent;
-import android.car.input.RotaryEvent;
-import android.view.KeyEvent;
-
-/**
- * Binder API for Input Service.
- *
- * @hide
- */
-oneway interface ICarInputCallback {
-    void onKeyEvents(int targetDisplayType, in List<KeyEvent> keyEvents) = 1;
-    void onRotaryEvents(int targetDisplayType, in List<RotaryEvent> events) = 2;
-    void onCaptureStateChanged(int targetDisplayType, in int[] activeInputTypes) = 3;
-    void onCustomInputEvents(int targetDisplayType, in List<CustomInputEvent> events) = 4;
-}
+parcelable CustomInputEvent;
