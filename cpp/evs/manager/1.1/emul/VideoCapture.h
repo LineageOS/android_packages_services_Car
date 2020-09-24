@@ -27,8 +27,6 @@
 #include <utils/Mutex.h>
 #include <utils/Timers.h>
 
-typedef v4l2_buffer imageBuffer;
-
 namespace {
 
     // Careful changing these -- we're using bit-wise ops to manipulate these
@@ -45,7 +43,20 @@ namespace {
         TERMINATED,
     };
 
-};
+    struct imageMetadata {
+        uint32_t width;     // Image width in pixels
+        uint32_t height;    // Image height in pixels
+        uint32_t stride;    // Number of bytes from one row in memory
+        uint32_t format;    // Image format
+    };
+}
+
+
+typedef struct {
+        struct imageMetadata info;
+        uint32_t sequence;        // Counting frames in sequence
+        struct timeval timestamp; // Tells when this frame is generated
+} imageBufferDesc;
 
 
 namespace android {
@@ -59,25 +70,24 @@ public:
     explicit VideoCapture() {};
     virtual ~VideoCapture();
     bool open(const std::string& path,
-              const int width,
-              const int height,
               const std::chrono::nanoseconds interval);
     void close();
 
-    bool startStream(std::function<void(VideoCapture*, imageBuffer*, void*)> callback = nullptr);
+    bool startStream(
+            std::function<void(VideoCapture*, imageBufferDesc*, void*)> callback = nullptr);
     void stopStream();
 
     // Valid only after open()
-    __u32   getWidth()          { return mWidth; }
-    __u32   getHeight()         { return mHeight; }
-    __u32   getStride()         { return mStride; }
-    __u32   getV4LFormat()      { return mFormat; }
+    __u32   getWidth()          { return mBufferInfo.info.width; }
+    __u32   getHeight()         { return mBufferInfo.info.height; }
+    __u32   getStride()         { return mBufferInfo.info.stride; }
+    __u32   getV4LFormat()      { return mBufferInfo.info.format; }
 
     // NULL until stream is started
     void* getLatestData()       { return mPixelBuffer; }
     bool isFrameReady()         { return mFrameReady; }
     void markFrameConsumed()    { returnFrame(); }
-    bool isOpen()               { return mPixelBuffer != nullptr; }
+    bool isOpen()               { return mVideoReady; }
 
     int setParameter(struct v4l2_control& control);
     int getParameter(struct v4l2_control& control);
@@ -90,7 +100,7 @@ private:
     // Handles the message from the looper
     void handleMessage(const android::Message& message) override;
 
-    // Looper to message the a frame generator thread
+    // Looper to message the frame generator thread
     android::sp<android::Looper> mLooper;
 
     // Background thread to dispatch generated frames
@@ -109,23 +119,26 @@ private:
     // Desired interval to generate and send a frame
     std::chrono::nanoseconds mDesiredFrameInterval = 1000ms;
 
-    mutable android::Mutex mMutex;
+    // Source image descriptor
+    imageBufferDesc mBufferInfo = {};
 
-    v4l2_buffer mBufferInfo = {};
+    // Buffer to store the source pixel data
     char* mPixelBuffer = nullptr;
 
-    __u32   mFormat = 0;
-    __u32   mWidth  = 0;
-    __u32   mHeight = 0;
-    __u32   mStride = 0;
+    // Current pixel buffer size
+    size_t mPixelBufferSize = 0;
 
-    std::function<void(VideoCapture*, imageBuffer*, void*)> mCallback;
+    // Callback to tell about new frames
+    std::function<void(VideoCapture*, imageBufferDesc*, void*)> mCallback;
 
     // Used to signal the frame loop (see RunModes below)
     std::atomic<int> mRunMode;
 
     // Set when a frame has been delivered
     std::atomic<bool> mFrameReady;
+
+    // flag to tell whether it is ready to start a stream
+    bool mVideoReady = false;
 };
 
 } // namespace implementation

@@ -743,7 +743,13 @@ void EvsV4lCamera::forwardFrame(imageBuffer* pV4lBuff, void* pData) {
         if (fd == -1) {
             PLOG(ERROR) << "Failed to open a file, " << filename;
         } else {
-            auto len = write(fd.get(), pData, pV4lBuff->length);
+            auto width = mVideo.getWidth();
+            auto height = mVideo.getHeight();
+            auto len = write(fd.get(), &width, sizeof(width));
+            len += write(fd.get(), &height, sizeof(height));
+            len += write(fd.get(), &mStride, sizeof(mStride));
+            len += write(fd.get(), &mFormat, sizeof(mFormat));
+            len += write(fd.get(), pData, pV4lBuff->length);
             LOG(INFO) << len << " bytes are written to " << filename;
         }
     }
