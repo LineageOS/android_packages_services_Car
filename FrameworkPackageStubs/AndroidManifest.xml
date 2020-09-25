@@ -114,10 +114,6 @@
                 <action android:name="android.settings.USER_DICTIONARY_SETTINGS"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
-            <intent-filter android:priority="-1">
-                <action android:name="android.settings.PICTURE_IN_PICTURE_SETTINGS" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
         </activity>
 
         <!-- CDD Core Application Intents Stubs -->
@@ -221,11 +217,23 @@
             </intent-filter>
         </activity>
 
+        <!-- Picture in picture settings stub -->
+        <activity android:name=".Stubs$PictureInPictureSettingsStub"
+                  android:label="@string/stub_name"
+                  android:excludeFromRecents="true"
+                  android:exported="true">
+            <intent-filter android:priority="-1">
+                <action android:name="android.settings.PICTURE_IN_PICTURE_SETTINGS" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <!-- Contacts package stubs -->
         <activity
             android:name=".Stubs$ContactsStub"
             android:label="@string/stub_name"
-            android:excludeFromRecents="true">
+            android:excludeFromRecents="true"
+            android:exported="true">
             <intent-filter android:priority="-1">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
