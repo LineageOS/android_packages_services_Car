@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='utf-8'?>
+
+<powerPolicy version="1.0">
+
+    <systemPolicyOverrides>
+        <policy id="system_power_policy_no_user_interaction">
+            <component id="POWER_COMPONENT_BLUETOOTH">on</component>
+            <component id="POWER_COMPONENT_NFC">on</component>
+            <component id="POWER_COMPONENT_TRUSTED_DEVICE_DETECTION">off</component>
+        </policy>
+    </systemPolicyOverrides>
+
+</powerPolicy>

@@ -54,11 +54,15 @@ cc_test {
     test_suites: ["general-tests"],
     srcs: [
         "tests/CarPowerPolicyServerTest.cpp",
+        "tests/PolicyManagerTest.cpp",
     ],
     static_libs: [
         "libgmock",
         "libgtest",
         "lib_carpowerpolicyserver",
+    ],
+    data: [
+        "tests/data/*.xml",
     ],
 }
 

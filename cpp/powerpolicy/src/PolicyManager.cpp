@@ -95,7 +95,7 @@ const std::vector<PowerComponent> kSystemPolicyDisabledComponents =
          PowerComponent::INPUT,
          PowerComponent::VOICE_INTERACTION,
          PowerComponent::VISUAL_INTERACTION};
-const std::vector<PowerComponent> kSystemPolicyConfigurableComponents =
+const std::unordered_set<PowerComponent> kSystemPolicyConfigurableComponents =
         {PowerComponent::BLUETOOTH, PowerComponent::NFC, PowerComponent::TRUSTED_DEVICE_DETECTION};
 
 void iterateAllPowerComponents(const std::function<bool(PowerComponent)>& processor) {
@@ -139,30 +139,25 @@ void logXmlError(const std::string& errMsg) {
     ALOGW("Proceed without registered policies: %s", errMsg.c_str());
 }
 
-bool readComponents(const XMLElement* pPolicy, CarPowerPolicyPtr policy,
-                    std::unordered_set<PowerComponent>* visited) {
+Result<void> readComponents(const XMLElement* pPolicy, CarPowerPolicyPtr policy,
+                            std::unordered_set<PowerComponent>* visited) {
     for (const XMLElement* pComponent = pPolicy->FirstChildElement(kTagComponent);
          pComponent != nullptr; pComponent = pComponent->NextSiblingElement(kTagComponent)) {
         const char* id;
         if (pComponent->QueryStringAttribute(kAttrId, &id) != XML_SUCCESS) {
-            logXmlError(StringPrintf("Failed to read |%s| attribute in |%s| tag", kAttrId,
-                                     kTagComponent));
-            return false;
+            return Error() << StringPrintf("Failed to read |%s| attribute in |%s| tag", kAttrId,
+                                           kTagComponent);
         }
         PowerComponent componentId = toPowerComponent(id);
         if (componentId == INVALID_POWER_COMPONENT) {
-            logXmlError(StringPrintf("XML configuration has invalid value(%s) in |%s| attribute of "
-                                     "|%s| tag",
-                                     safePtrPrint(id), kAttrId, kTagComponent)
-                                .c_str());
-            return false;
+            return Error() << StringPrintf("XML configuration has invalid value(%s) in |%s| "
+                                           "attribute of |%s| tag",
+                                           safePtrPrint(id), kAttrId, kTagComponent);
         }
         if (visited->count(componentId) > 0) {
-            logXmlError(StringPrintf("XML configuration has duplicated component(%s) in |%s| "
-                                     "attribute of |%s| tag",
-                                     toString(componentId).c_str(), kAttrId, kTagComponent)
-                                .c_str());
-            return false;
+            return Error() << StringPrintf("XML configuration has duplicated component(%s) in |%s| "
+                                           "attribute of |%s| tag",
+                                           toString(componentId).c_str(), kAttrId, kTagComponent);
         }
         visited->insert(componentId);
         const char* powerState = pComponent->GetText();
@@ -171,23 +166,21 @@ bool readComponents(const XMLElement* pPolicy, CarPowerPolicyPtr policy,
         } else if (!strcmp(powerState, kPowerStateOff)) {
             policy->disabledComponents.push_back(componentId);
         } else {
-            logXmlError(StringPrintf("XML configuration has invalid value(%s) in |%s| tag",
-                                     safePtrPrint(powerState), kTagComponent));
-            return false;
+            return Error() << StringPrintf("XML configuration has invalid value(%s) in |%s| tag",
+                                           safePtrPrint(powerState), kTagComponent);
         }
     }
-    return true;
+    return {};
 }
 
-bool readOtherComponents(const XMLElement* pPolicy, CarPowerPolicyPtr policy,
-                         const std::unordered_set<PowerComponent>& visited) {
+Result<void> readOtherComponents(const XMLElement* pPolicy, CarPowerPolicyPtr policy,
+                                 const std::unordered_set<PowerComponent>& visited) {
     const char* otherComponentBehavior = kPowerStateUntouched;
     const XMLElement* pElement = pPolicy->FirstChildElement(kTagOtherComponents);
     if (pElement != nullptr) {
         if (pElement->QueryStringAttribute(kAttrBehavior, &otherComponentBehavior) != XML_SUCCESS) {
-            logXmlError(StringPrintf("Failed to read |%s| attribute in |%s| tag", kAttrBehavior,
-                                     kTagOtherComponents));
-            return false;
+            return Error() << StringPrintf("Failed to read |%s| attribute in |%s| tag",
+                                           kAttrBehavior, kTagOtherComponents);
         }
     }
     if (!strcmp(otherComponentBehavior, kPowerStateOn)) {
@@ -207,17 +200,16 @@ bool readOtherComponents(const XMLElement* pPolicy, CarPowerPolicyPtr policy,
     } else if (!strcmp(otherComponentBehavior, kPowerStateUntouched)) {
         // Do nothing
     } else {
-        logXmlError(StringPrintf("XML configuration has invalid value(%s) in |%s| attribute of "
-                                 "|%s| tag",
-                                 safePtrPrint(otherComponentBehavior), kAttrBehavior,
-                                 kTagOtherComponents));
-        return false;
+        return Error() << StringPrintf("XML configuration has invalid value(%s) in |%s| attribute "
+                                       "of |%s| tag",
+                                       safePtrPrint(otherComponentBehavior), kAttrBehavior,
+                                       kTagOtherComponents);
     }
-    return true;
+    return {};
 }
 
-std::vector<CarPowerPolicyPtr> readPolicies(const XMLElement* pRoot, const char* tag,
-                                            bool includeOtherComponents) {
+Result<std::vector<CarPowerPolicyPtr>> readPolicies(const XMLElement* pRoot, const char* tag,
+                                                    bool includeOtherComponents) {
     std::vector<CarPowerPolicyPtr> policies;
     const XMLElement* pPolicies = pRoot->FirstChildElement(tag);
     if (pPolicies == nullptr) {
@@ -228,19 +220,20 @@ std::vector<CarPowerPolicyPtr> readPolicies(const XMLElement* pRoot, const char*
         std::unordered_set<PowerComponent> visited;
         const char* policyId;
         if (pPolicy->QueryStringAttribute(kAttrId, &policyId) != XML_SUCCESS) {
-            logXmlError(
-                    StringPrintf("Failed to read |%s| attribute in |%s| tag", kAttrId, kTagPolicy));
-            return std::vector<CarPowerPolicyPtr>();
+            return Error() << StringPrintf("Failed to read |%s| attribute in |%s| tag", kAttrId,
+                                           kTagPolicy);
         }
         auto policy = std::make_shared<CarPowerPolicy>();
         policy->policyId = policyId;
 
-        if (!readComponents(pPolicy, policy, &visited)) {
-            return std::vector<CarPowerPolicyPtr>();
+        auto ret = readComponents(pPolicy, policy, &visited);
+        if (!ret.ok()) {
+            return ret.error();
         }
         if (includeOtherComponents) {
-            if (!readOtherComponents(pPolicy, policy, visited)) {
-                return std::vector<CarPowerPolicyPtr>();
+            ret = readOtherComponents(pPolicy, policy, visited);
+            if (!ret.ok()) {
+                return ret.error();
             }
         }
         policies.push_back(policy);
@@ -292,7 +285,7 @@ Result<PolicyGroup> readPolicyGroup(
     return policyGroup;
 }
 
-std::unordered_map<std::string, PolicyGroup> readPolicyGroups(
+Result<std::unordered_map<std::string, PolicyGroup>> readPolicyGroups(
         const XMLElement* pRoot,
         const std::unordered_map<std::string, CarPowerPolicyPtr>& registeredPowerPolicies) {
     const XMLElement* pPolicyGroups = pRoot->FirstChildElement(kTagPolicyGroups);
@@ -306,47 +299,69 @@ std::unordered_map<std::string, PolicyGroup> readPolicyGroups(
          pPolicyGroup = pPolicyGroup->NextSiblingElement(kTagPolicyGroup)) {
         const char* policyGroupId;
         if (pPolicyGroup->QueryStringAttribute(kAttrId, &policyGroupId) != XML_SUCCESS) {
-            logXmlError(StringPrintf("Failed to read |%s| attribute in |%s| tag", kAttrId,
-                                     kTagPolicyGroup));
-            return std::unordered_map<std::string, PolicyGroup>();
+            return Error() << StringPrintf("Failed to read |%s| attribute in |%s| tag", kAttrId,
+                                           kTagPolicyGroup);
         }
         const auto& policyGroup = readPolicyGroup(pPolicyGroup, registeredPowerPolicies);
         if (!policyGroup.ok()) {
-            logXmlError(policyGroup.error().message());
-            return std::unordered_map<std::string, PolicyGroup>();
+            return Error() << policyGroup.error();
         }
         policyGroups.emplace(policyGroupId, *policyGroup);
     }
     return policyGroups;
 }
 
-std::vector<CarPowerPolicyPtr> readSystemPolicyOverrides(const XMLElement* pRoot) {
-    return readPolicies(pRoot, kTagSystemPolicyOverrides, false);
-}
-
 bool isConfigurableComponent(PowerComponent component) {
-    for (auto configurableComponent : kSystemPolicyConfigurableComponents) {
-        if (component == configurableComponent) {
-            return true;
-        }
-    }
-    return false;
+    return kSystemPolicyConfigurableComponents.count(component) > 0;
 }
 
-bool configureComponents(const std::vector<PowerComponent>& configComponents,
-                         std::vector<PowerComponent>* systemComponents) {
-    for (const auto component : configComponents) {
+Result<void> checkConfigurableComponents(const std::vector<PowerComponent>& components) {
+    for (auto component : components) {
         if (!isConfigurableComponent(component)) {
-            ALOGW("Component(%s) is not configurable in system power policy.",
-                  toString(component).c_str());
-            return false;
-        }
-        auto it = std::find(systemComponents->begin(), systemComponents->end(), component);
-        if (it == systemComponents->end()) {
-            systemComponents->push_back(component);
+            return Error()
+                    << StringPrintf("Component(%s) is not configurable in system power policy.",
+                                    toString(component).c_str());
         }
     }
-    return true;
+    return {};
+}
+
+Result<std::vector<CarPowerPolicyPtr>> readSystemPolicyOverrides(const XMLElement* pRoot) {
+    const auto& systemPolicyOverrides = readPolicies(pRoot, kTagSystemPolicyOverrides, false);
+    if (!systemPolicyOverrides.ok()) {
+        return Error() << systemPolicyOverrides.error().message();
+    }
+    for (auto policy : *systemPolicyOverrides) {
+        if (policy->policyId != kSystemPolicyId) {
+            return Error() << StringPrintf("System power policy(%s) is not supported.",
+                                           policy->policyId.c_str());
+        }
+        auto ret = checkConfigurableComponents(policy->enabledComponents);
+        if (!ret.ok()) {
+            return ret.error();
+        }
+        ret = checkConfigurableComponents(policy->disabledComponents);
+        if (!ret.ok()) {
+            return ret.error();
+        }
+    }
+    return systemPolicyOverrides;
+}
+
+// configureComponents assumes that previously validated components are passed.
+void configureComponents(const std::vector<PowerComponent>& configComponents,
+                         std::vector<PowerComponent>* componentsAddedTo,
+                         std::vector<PowerComponent>* componentsRemovedFrom) {
+    for (const auto component : configComponents) {
+        auto it = std::find(componentsAddedTo->begin(), componentsAddedTo->end(), component);
+        if (it == componentsAddedTo->end()) {
+            componentsAddedTo->push_back(component);
+        }
+        it = std::find(componentsRemovedFrom->begin(), componentsRemovedFrom->end(), component);
+        if (it != componentsRemovedFrom->end()) {
+            componentsRemovedFrom->erase(it);
+        }
+    }
 }
 
 }  // namespace
@@ -370,10 +385,13 @@ std::string toString(const CarPowerPolicy& policy) {
 }
 
 void PolicyManager::init() {
+    mRegisteredPowerPolicies.clear();
+    mPolicyGroups.clear();
+    initSystemPowerPolicy();
     readPowerPolicyConfiguration();
 }
 
-CarPowerPolicyPtr PolicyManager::getPowerPolicy(const std::string& policyId) {
+CarPowerPolicyPtr PolicyManager::getPowerPolicy(const std::string& policyId) const {
     if (mRegisteredPowerPolicies.count(policyId) == 0) {
         ALOGW("Policy(id: %s) is not found", policyId.c_str());
         return nullptr;
@@ -382,7 +400,7 @@ CarPowerPolicyPtr PolicyManager::getPowerPolicy(const std::string& policyId) {
 }
 
 CarPowerPolicyPtr PolicyManager::getDefaultPowerPolicyForTransition(
-        const std::string& powerTransition) {
+        const std::string& powerTransition) const {
     if (mPolicyGroups.count(mCurrentPolicyGroupId) == 0) {
         ALOGW("The current power policy group is not set");
         return nullptr;
@@ -395,8 +413,20 @@ CarPowerPolicyPtr PolicyManager::getDefaultPowerPolicyForTransition(
     return mRegisteredPowerPolicies.at(policyGroup.at(powerTransition));
 }
 
-CarPowerPolicyPtr PolicyManager::getSystemPowerPolicy() {
+CarPowerPolicyPtr PolicyManager::getSystemPowerPolicy() const {
     return mSystemPowerPolicy;
+}
+
+std::string PolicyManager::getCurrentPowerPolicyGroup() const {
+    return mCurrentPolicyGroupId;
+}
+
+Result<void> PolicyManager::setCurrentPowerPolicyGroup(const std::string& groupId) {
+    if (mPolicyGroups.count(groupId) == 0) {
+        return Error() << StringPrintf("Power policy group(%s) is not found", groupId.c_str());
+    }
+    mCurrentPolicyGroupId = groupId;
+    return {};
 }
 
 Result<void> PolicyManager::dump(int fd, const Vector<String16>& /*args*/) {
@@ -438,39 +468,58 @@ void PolicyManager::readPowerPolicyConfiguration() {
         logXmlError(StringPrintf("Failed to read and/or parse %s", kVendorPolicyFile));
         return;
     }
+    readPowerPolicyFromXml(xmlDoc);
+}
+
+void PolicyManager::readPowerPolicyFromXml(const XMLDocument& xmlDoc) {
     const XMLElement* pRootElement = xmlDoc.RootElement();
     if (!pRootElement || strcmp(pRootElement->Name(), kTagRoot)) {
         logXmlError(StringPrintf("XML file is not in the required format"));
         return;
     }
-    mRegisteredPowerPolicies.clear();
     const auto& registeredPolicies = readPolicies(pRootElement, kTagPolicies, true);
-    for (auto policy : registeredPolicies) {
-        mRegisteredPowerPolicies.emplace(policy->policyId, policy);
+    if (!registeredPolicies.ok()) {
+        logXmlError(StringPrintf("Reading policies failed: %s",
+                                 registeredPolicies.error().message().c_str()));
+        return;
     }
-    mPolicyGroups.clear();
-    mPolicyGroups = readPolicyGroups(pRootElement, mRegisteredPowerPolicies);
+    std::unordered_map<std::string, CarPowerPolicyPtr> registeredPoliciesMap;
+    for (auto policy : *registeredPolicies) {
+        registeredPoliciesMap.emplace(policy->policyId, policy);
+    }
+    const auto& policyGroups = readPolicyGroups(pRootElement, registeredPoliciesMap);
+    if (!policyGroups.ok()) {
+        logXmlError(StringPrintf("Reading power policy groups for power transition failed: %s",
+                                 policyGroups.error().message().c_str()));
+        return;
+    }
     const auto& systemPolicyOverrides = readSystemPolicyOverrides(pRootElement);
-    reconstructSystemPolicies(systemPolicyOverrides);
+    if (!systemPolicyOverrides.ok()) {
+        logXmlError(StringPrintf("Reading system power policy overrides failed: %s",
+                                 systemPolicyOverrides.error().message().c_str()));
+        return;
+    }
+
+    mRegisteredPowerPolicies = registeredPoliciesMap;
+    mPolicyGroups = *policyGroups;
+    reconstructSystemPolicies(*systemPolicyOverrides);
 }
 
 void PolicyManager::reconstructSystemPolicies(
         const std::vector<CarPowerPolicyPtr>& policyOverrides) {
+    for (auto policy : policyOverrides) {
+        configureComponents(policy->enabledComponents, &mSystemPowerPolicy->enabledComponents,
+                            &mSystemPowerPolicy->disabledComponents);
+        configureComponents(policy->disabledComponents, &mSystemPowerPolicy->disabledComponents,
+                            &mSystemPowerPolicy->enabledComponents);
+    }
+}
+
+void PolicyManager::initSystemPowerPolicy() {
     CarPowerPolicyPtr systemPolicy = std::make_shared<CarPowerPolicy>();
     systemPolicy->policyId = kSystemPolicyId;
     systemPolicy->enabledComponents = kSystemPolicyEnabledComponents;
     systemPolicy->disabledComponents = kSystemPolicyDisabledComponents;
-
-    for (auto policy : policyOverrides) {
-        if (policy->policyId != kSystemPolicyId) {
-            ALOGW("System power policy(%s) is not supported.", policy->policyId.c_str());
-            return;
-        }
-        if (!configureComponents(policy->enabledComponents, &systemPolicy->enabledComponents) ||
-            !configureComponents(policy->disabledComponents, &systemPolicy->disabledComponents)) {
-            return;
-        }
-    }
     mSystemPowerPolicy = std::move(systemPolicy);
 }
 

@@ -20,6 +20,8 @@
 #include <android-base/result.h>
 #include <android/frameworks/automotive/powerpolicy/CarPowerPolicy.h>
 
+#include <tinyxml2.h>
+
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -29,10 +31,18 @@ namespace frameworks {
 namespace automotive {
 namespace powerpolicy {
 
+std::string toString(const CarPowerPolicy& policy);
 std::string toString(const std::vector<PowerComponent>& components);
 
 using CarPowerPolicyPtr = std::shared_ptr<CarPowerPolicy>;
 using PolicyGroup = std::unordered_map<std::string, std::string>;
+
+// Forward declaration for testing use only.
+namespace internal {
+
+class PolicyManagerPeer;
+
+}  // namespace internal
 
 /**
  * PolicyManager manages power policies, power policy mapping to power transision, and system power
@@ -43,13 +53,17 @@ using PolicyGroup = std::unordered_map<std::string, std::string>;
 class PolicyManager {
 public:
     void init();
-    CarPowerPolicyPtr getPowerPolicy(const std::string& policyId);
-    CarPowerPolicyPtr getDefaultPowerPolicyForTransition(const std::string& powerTransition);
-    CarPowerPolicyPtr getSystemPowerPolicy();
+    CarPowerPolicyPtr getPowerPolicy(const std::string& policyId) const;
+    CarPowerPolicyPtr getDefaultPowerPolicyForTransition(const std::string& powerTransition) const;
+    CarPowerPolicyPtr getSystemPowerPolicy() const;
+    std::string getCurrentPowerPolicyGroup() const;
+    base::Result<void> setCurrentPowerPolicyGroup(const std::string& groupId);
     base::Result<void> dump(int fd, const Vector<String16>& args);
 
 private:
+    void initSystemPowerPolicy();
     void readPowerPolicyConfiguration();
+    void readPowerPolicyFromXml(const tinyxml2::XMLDocument& xmlDoc);
     void reconstructSystemPolicies(const std::vector<CarPowerPolicyPtr>& policyOverrides);
 
 private:
@@ -57,6 +71,9 @@ private:
     CarPowerPolicyPtr mSystemPowerPolicy;
     std::unordered_map<std::string, PolicyGroup> mPolicyGroups;
     std::string mCurrentPolicyGroupId;
+
+    // For unit tests.
+    friend class internal::PolicyManagerPeer;
 };
 
 }  // namespace powerpolicy

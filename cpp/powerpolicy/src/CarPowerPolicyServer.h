@@ -49,8 +49,6 @@ struct CallbackInfo {
     pid_t pid;
 };
 
-std::string toString(const std::vector<PowerComponent>& components);
-
 // Forward declaration for testing use only.
 namespace internal {
 
