@@ -188,12 +188,6 @@
         <install-in user-type="SYSTEM" />
     </install-in-user-type>
 
-    <!-- Required for Non-updatable tethering -->
-    <install-in-user-type package="com.android.networkstack.tethering.inprocess">
-        <install-in user-type="FULL" />
-        <install-in user-type="SYSTEM" />
-    </install-in-user-type>
-
     <!-- Needed for new developer options module (under settings package) -->
     <install-in-user-type package="com.android.settings">
         <install-in user-type="FULL" />
