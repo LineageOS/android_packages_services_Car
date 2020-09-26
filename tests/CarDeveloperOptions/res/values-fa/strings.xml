@@ -1836,7 +1836,7 @@
     <string name="enable_compatibility" msgid="1754177974320410195">"مقیاس‌بندی برنامه"</string>
     <string name="unknown" msgid="2780743426415501227">"ناشناس"</string>
     <string name="sort_order_alpha" msgid="6689698854460261212">"مرتب سازی براساس نام"</string>
-    <string name="sort_order_size" msgid="3167376197248713027">"مرتب‌سازی براساس اندازه"</string>
+    <string name="sort_order_size" msgid="3167376197248713027">"به‌ترتیب اندازه"</string>
     <string name="sort_order_recent_notification" msgid="5592496977404445941">"جدیدترین"</string>
     <string name="sort_order_frequent_notification" msgid="5640245013098010347">"پرتکرارترین"</string>
     <string name="show_running_services" msgid="1895994322704667543">"نمایش سرویس‌های در حال اجرا"</string>
@@ -2030,7 +2030,7 @@
     <string name="allow_bind_app_widget_activity_always_allow_bind" msgid="1185486443615658430">"همیشه به <xliff:g id="WIDGET_HOST_NAME">%1$s</xliff:g> برای ایجاد ابزارک‌ها و دسترسی به اطلاعات آن‌ها اجازه داده شود"</string>
     <string name="usage_stats_label" msgid="3128999956478977035">"آمار کاربرد"</string>
     <string name="testing_usage_stats" msgid="704965692323956976">"آمار کاربرد"</string>
-    <string name="display_order_text" msgid="2973620313510295873">"ترتیب براساس:"</string>
+    <string name="display_order_text" msgid="2973620313510295873">"به‌ترتیب:"</string>
     <string name="app_name_label" msgid="2258469951312794816">"برنامه"</string>
     <string name="last_time_used_label" msgid="1119322667349666930">"آخرین زمان استفاده"</string>
     <string name="usage_time_label" msgid="5615725415876461039">"زمان استفاده"</string>
@@ -3772,8 +3772,8 @@
     <string name="memory_details" msgid="5165105904103664110">"جزئیات"</string>
     <string name="memory_use_summary" msgid="7676311343819965850">"<xliff:g id="SIZE">%1$s</xliff:g> متوسط حافظه استفاده شده در ۳ ساعت گذشته"</string>
     <string name="no_memory_use_summary" msgid="3966550113388917978">"در ۳ ساعت گذشته از حافظه استفاده نشده است"</string>
-    <string name="sort_avg_use" msgid="78428601253054298">"مرتب‌سازی براساس مصرف متوسط"</string>
-    <string name="sort_max_use" msgid="322772647893307413">"مرتب‌سازی براساس حداکثر مصرف"</string>
+    <string name="sort_avg_use" msgid="78428601253054298">"به‌ترتیب مصرف متوسط"</string>
+    <string name="sort_max_use" msgid="322772647893307413">"به‌ترتیب حداکثر مصرف"</string>
     <string name="memory_performance" msgid="3506743771947250453">"عملکرد"</string>
     <string name="total_memory" msgid="7352192982476976453">"کل حافظه"</string>
     <string name="average_used" msgid="3022736210190754669">"مصرف متوسط (%)"</string>
