@@ -40,7 +40,6 @@ import java.util.List;
  */
 public final class UserPreCreator {
 
-    private static final boolean DBG = false;
     private static final String TAG = UserPreCreator.class.getSimpleName();
 
     private final UserManager mUserManager;
@@ -58,10 +57,8 @@ public final class UserPreCreator {
         int numberRequestedUsers = CarProperties.number_pre_created_users().orElse(0);
         EventLog.writeEvent(EventLogTags.CAR_USER_SVC_PRE_CREATION_REQUESTED, numberRequestedUsers,
                 numberRequestedGuests);
-        if (DBG) {
-            Slog.d(TAG, "managePreCreatedUsers(): OEM asked for " + numberRequestedGuests
-                    + " guests and " + numberRequestedUsers + " users");
-        }
+        Slog.d(TAG, "managePreCreatedUsers(): OEM asked for " + numberRequestedGuests
+                + " guests and " + numberRequestedUsers + " users");
 
         if (numberRequestedGuests < 0 || numberRequestedUsers < 0) {
             Slog.w(TAG, "preCreateUsers(): invalid values provided by OEM; "
@@ -75,7 +72,7 @@ public final class UserPreCreator {
                 /* excludeDying= */ true, /* excludePreCreated= */ false);
 
         int allUsersSize = allUsers.size();
-        if (DBG) Slog.d(TAG, "preCreateUsers: total users size is " + allUsersSize);
+        Slog.d(TAG, "preCreateUsers: total users size is " + allUsersSize);
 
         int numberExistingGuests = 0;
         int numberExistingUsers = 0;
@@ -113,12 +110,10 @@ public final class UserPreCreator {
                 }
             }
         }
-        if (DBG) {
-            Slog.d(TAG, "managePreCreatedUsers(): system already has " + numberExistingGuests
-                    + " pre-created guests," + numberExistingUsers + " pre-created users, and these"
-                    + " invalid users: " + invalidPreCreatedUsers
-                    + " extra pre-created users: " + extraPreCreatedUsers);
-        }
+        Slog.i(TAG, "managePreCreatedUsers(): system already has " + numberExistingGuests
+                + " pre-created guests," + numberExistingUsers + " pre-created users, and these"
+                + " invalid users: " + invalidPreCreatedUsers
+                + " and these extra pre-created users: " + extraPreCreatedUsers);
 
         int numberGuestsToAdd = numberRequestedGuests - numberExistingGuests;
         int numberUsersToAdd = numberRequestedUsers - numberExistingUsers;
@@ -132,7 +127,7 @@ public final class UserPreCreator {
                 numberInvalidUsersToRemove);
 
         if (numberGuestsToAdd == 0 && numberUsersToAdd == 0 && numberInvalidUsersToRemove == 0) {
-            if (DBG) Slog.d(TAG, "managePreCreatedUsers(): everything in sync");
+            Slog.i(TAG, "managePreCreatedUsers(): everything in sync");
             return;
         }
 
@@ -151,7 +146,7 @@ public final class UserPreCreator {
             }
 
             int totalNumberToRemove = extraPreCreatedUsers.size();
-            if (DBG) Slog.d(TAG, "Must delete " + totalNumberToRemove + " pre-created users");
+            Slog.d(TAG, "Must delete " + totalNumberToRemove + " pre-created users");
             if (totalNumberToRemove > 0) {
                 int[] usersToRemove = new int[totalNumberToRemove];
                 for (int i = 0; i < totalNumberToRemove; i++) {
@@ -163,7 +158,7 @@ public final class UserPreCreator {
             if (numberInvalidUsersToRemove > 0) {
                 for (int i = 0; i < numberInvalidUsersToRemove; i++) {
                     int userId = invalidPreCreatedUsers.keyAt(i);
-                    Slog.i(TAG, "removing invalid pre-created user " + userId);
+                    Slog.w(TAG, "removing invalid pre-created user " + userId);
                     mUserManager.removeUser(userId);
                 }
             }
@@ -175,11 +170,11 @@ public final class UserPreCreator {
         // We cannot use SystemServerInitThreadPool because user pre-creation can take too long,
         // which would crash the SystemServer on SystemServerInitThreadPool.shutdown();
         String threadName = TAG + ".AsyncTask";
-        Slog.i(TAG, "Starting thread " + threadName);
+        Slog.d(TAG, "Starting thread " + threadName);
         new Thread(() -> {
             try {
                 r.run();
-                Slog.i(TAG, "Finishing thread " + threadName);
+                Slog.d(TAG, "Finishing thread " + threadName);
             } catch (RuntimeException e) {
                 Slog.e(TAG, "runAsync() failed", e);
                 throw e;
@@ -189,7 +184,7 @@ public final class UserPreCreator {
 
     private void preCreateUsers(int size, boolean isGuest) {
         String msg = isGuest ? "preCreateGuests-" + size : "preCreateUsers-" + size;
-        if (DBG) Slog.d(TAG, "preCreateUsers: " + msg);
+        Slog.d(TAG, "preCreateUsers: " + msg);
         for (int i = 1; i <= size; i++) {
             UserInfo preCreated = preCreateUsers(isGuest);
             if (preCreated == null) {
