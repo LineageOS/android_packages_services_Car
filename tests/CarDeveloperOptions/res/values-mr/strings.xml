@@ -1891,7 +1891,7 @@
     <string name="app_disable_dlg_positive" msgid="5508828271100168073">"अ‍ॅप अक्षम करा"</string>
     <string name="app_disable_dlg_text" msgid="9221864774943530281">"तुम्ही हे अ‍ॅप बंद केल्यास, Android आणि इतर अ‍ॅप्स कदाचित अपेक्षेप्रमाणे काम करणार नाहीत. लक्षात ठेवा, हे अ‍ॅप तुमच्या डिव्हाइसवर आधीच इंस्टॉल करून आलेले असल्यामुळे तुम्ही ते हटवू शकत नाही. बंद करून, तुम्ही हे अ‍ॅप बंद करता आणि ते तुमच्या डिव्हाइसवर लपवता."</string>
     <string name="app_disable_notifications_dlg_title" msgid="699530661413553928">"सूचना बंद करायच्या?"</string>
-    <string name="app_install_details_group_title" msgid="2909597319422976921">"स्टोअर"</string>
+    <string name="app_install_details_group_title" msgid="2909597319422976921">"Store"</string>
     <string name="app_install_details_title" msgid="6954953384372934881">"अ‍ॅप तपशील"</string>
     <string name="app_install_details_summary" msgid="6612222941121363940">"अ‍ॅप <xliff:g id="APP_STORE">%1$s</xliff:g> मधून इंस्टॉल केला"</string>
     <string name="instant_app_details_summary" msgid="6384264315914966114">"<xliff:g id="APP_STORE">%1$s</xliff:g> ची अधिक माहिती"</string>
