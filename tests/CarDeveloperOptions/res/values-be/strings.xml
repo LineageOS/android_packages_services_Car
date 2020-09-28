@@ -1411,7 +1411,7 @@
     <string name="memory_media_usage" msgid="2744652206722240527">"Медыя"</string>
     <string name="memory_downloads_usage" msgid="7039979723012065168">"Спампаваць"</string>
     <string name="memory_dcim_usage" msgid="599009211606524732">"Выявы, відэа"</string>
-    <string name="memory_music_usage" msgid="809605300042546279">"Аўдыё (музыка, рынгтоны, падкасты і г. д.)"</string>
+    <string name="memory_music_usage" msgid="809605300042546279">"Аўдыя (музыка, рынгтоны, падкасты і г. д.)"</string>
     <string name="memory_media_misc_usage" msgid="6258827529046910705">"Іншыя файлы"</string>
     <string name="memory_media_cache_usage" msgid="1307620682751377717">"Кэшаваныя дадзеныя"</string>
     <string name="sd_eject" product="nosdcard" msgid="3016608823130472449">"Адключыць сумеснае сховішча"</string>
