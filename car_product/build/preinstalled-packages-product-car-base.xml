@@ -255,12 +255,6 @@
     <install-in-user-type package="com.android.statementservice">
         <install-in user-type="FULL" />
     </install-in-user-type>
-    <install-in-user-type package="com.android.backupconfirm">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-   <install-in-user-type package="com.android.calllogbackup">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
     <install-in-user-type package="com.android.providers.blockednumber">
         <install-in user-type="FULL" />
     </install-in-user-type>
@@ -307,9 +301,6 @@
         <install-in user-type="FULL" />
     </install-in-user-type>
     <install-in-user-type package="com.android.vpndialogs">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.sharedstoragebackup">
         <install-in user-type="FULL" />
     </install-in-user-type>
     <install-in-user-type package="com.android.externalstorage">
