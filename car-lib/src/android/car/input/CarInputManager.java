@@ -54,26 +54,27 @@ public final class CarInputManager extends CarManagerBase {
         /**
          * Key events were captured.
          */
-        // TODO(b/164195589): Rename targetDisplayId parameter to targetDisplayType
-        default void onKeyEvents(int targetDisplayId, @NonNull List<KeyEvent> keyEvents) {}
+        default void onKeyEvents(@TargetDisplayType int targetDisplayType,
+                @NonNull List<KeyEvent> keyEvents) {}
 
         /**
          * Rotary events were captured.
          */
-        default void onRotaryEvents(int targetDisplayId, @NonNull List<RotaryEvent> events) {}
+        default void onRotaryEvents(@TargetDisplayType int targetDisplayType,
+                @NonNull List<RotaryEvent> events) {}
 
         /**
          * Capture state for the display has changed due to other client making requests or
          * releasing capture. Client should check {@code activeInputTypes} for which input types
          * are currently captured.
          */
-        default void onCaptureStateChanged(int targetDisplayId,
+        default void onCaptureStateChanged(@TargetDisplayType int targetDisplayType,
                 @NonNull @InputTypeEnum int[] activeInputTypes) {}
 
         /**
          * Custom input events were captured.
          */
-        default void onCustomInputEvents(int targetDisplayId,
+        default void onCustomInputEvents(@TargetDisplayType int targetDisplayType,
                 @NonNull List<CustomInputEvent> events) {}
     }
 
@@ -94,7 +95,7 @@ public final class CarInputManager extends CarManagerBase {
             TARGET_DISPLAY_TYPE_CLUSTER,
     })
     @Target({ElementType.TYPE_USE})
-    public @interface TargetDisplayTypeEnum {}
+    public @interface TargetDisplayType {}
 
     /**
      * Client will wait for grant if the request is failing due to higher priority client.
@@ -244,7 +245,7 @@ public final class CarInputManager extends CarManagerBase {
     @RequiresPermission(android.Manifest.permission.MONITOR_INPUT)
     @InputCaptureResponseEnum
     public int requestInputEventCapture(@NonNull CarInputCaptureCallback callback,
-            @TargetDisplayTypeEnum int targetDisplayType,
+            @TargetDisplayType int targetDisplayType,
             @NonNull @InputTypeEnum int[] inputTypes,
             @CaptureRequestFlags int requestFlags) {
         synchronized (mLock) {
@@ -261,7 +262,7 @@ public final class CarInputManager extends CarManagerBase {
     /**
      * Stops capturing of given display.
      */
-    public void releaseInputEventCapture(@TargetDisplayTypeEnum int targetDisplayType) {
+    public void releaseInputEventCapture(@TargetDisplayType int targetDisplayType) {
         CarInputCaptureCallback callback;
         synchronized (mLock) {
             callback = mCarInputCaptureCallbacks.removeReturnOld(targetDisplayType);
@@ -338,7 +339,8 @@ public final class CarInputManager extends CarManagerBase {
         }
 
         @Override
-        public void onKeyEvents(int targetDisplayType, List<KeyEvent> keyEvents) {
+        public void onKeyEvents(@TargetDisplayType int targetDisplayType,
+                @NonNull List<KeyEvent> keyEvents) {
             CarInputManager manager = mManager.get();
             if (manager == null) {
                 return;
@@ -347,7 +349,8 @@ public final class CarInputManager extends CarManagerBase {
         }
 
         @Override
-        public void onRotaryEvents(int targetDisplayType, List<RotaryEvent> events) {
+        public void onRotaryEvents(@TargetDisplayType int targetDisplayType,
+                @NonNull List<RotaryEvent> events) {
             CarInputManager manager = mManager.get();
             if (manager == null) {
                 return;
@@ -356,7 +359,8 @@ public final class CarInputManager extends CarManagerBase {
         }
 
         @Override
-        public void onCaptureStateChanged(int targetDisplayType, int[] activeInputTypes) {
+        public void onCaptureStateChanged(@TargetDisplayType int targetDisplayType,
+                @NonNull @InputTypeEnum int[] activeInputTypes) {
             CarInputManager manager = mManager.get();
             if (manager == null) {
                 return;
@@ -365,12 +369,13 @@ public final class CarInputManager extends CarManagerBase {
         }
 
         @Override
-        public void onCustomInputEvents(int targetDisplayId, List<CustomInputEvent> events) {
+        public void onCustomInputEvents(@TargetDisplayType int targetDisplayType,
+                @NonNull List<CustomInputEvent> events) {
             CarInputManager manager = mManager.get();
             if (manager == null) {
                 return;
             }
-            manager.dispatchCustomInputEvents(targetDisplayId, events);
+            manager.dispatchCustomInputEvents(targetDisplayType, events);
         }
     }
 }

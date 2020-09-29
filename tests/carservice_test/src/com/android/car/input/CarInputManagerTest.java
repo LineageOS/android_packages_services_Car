@@ -16,6 +16,8 @@
 
 package com.android.car.input;
 
+import static android.car.input.CarInputManager.TargetDisplayType;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.testng.Assert.assertThrows;
@@ -89,41 +91,42 @@ public final class CarInputManagerTest extends MockedCarTestBase {
         private final Semaphore mCustomInputEventWait = new Semaphore(0);
 
         @Override
-        public void onKeyEvents(int targetDisplayId, List<KeyEvent> keyEvents) {
+        public void onKeyEvents(@TargetDisplayType int targetDisplayType,
+                @NonNull List<KeyEvent> keyEvents) {
             Log.i(TAG, "onKeyEvents event:" + keyEvents.get(0) + " this:" + this);
             synchronized (mLock) {
-                mKeyEvents.addFirst(new Pair<Integer, List<KeyEvent>>(targetDisplayId, keyEvents));
+                mKeyEvents.addFirst(new Pair<>(targetDisplayType, keyEvents));
             }
             mKeyEventWait.release();
         }
 
         @Override
-        public void onRotaryEvents(int targetDisplayId, List<RotaryEvent> events) {
+        public void onRotaryEvents(@TargetDisplayType int targetDisplayType,
+                @NonNull List<RotaryEvent> events) {
             Log.i(TAG, "onRotaryEvents event:" + events.get(0) + " this:" + this);
             synchronized (mLock) {
-                mRotaryEvents.addFirst(new Pair<Integer, List<RotaryEvent>>(targetDisplayId,
-                        events));
+                mRotaryEvents.addFirst(new Pair<>(targetDisplayType, events));
             }
             mRotaryEventWait.release();
         }
 
         @Override
-        public void onCustomInputEvents(int targetDisplayId, List<CustomInputEvent> events) {
+        public void onCustomInputEvents(@TargetDisplayType int targetDisplayType,
+                @NonNull List<CustomInputEvent> events) {
             Log.i(TAG, "onCustomInputEvents event:" + events.get(0) + " this:" + this);
             synchronized (mLock) {
-                mCustomInputEvents.addFirst(new Pair<Integer, List<CustomInputEvent>>(
-                        targetDisplayId, events));
+                mCustomInputEvents.addFirst(new Pair<>(targetDisplayType, events));
             }
             mCustomInputEventWait.release();
         }
 
         @Override
-        public void onCaptureStateChanged(int targetDisplayId,
+        public void onCaptureStateChanged(@TargetDisplayType int targetDisplayType,
                 @NonNull @CarInputManager.InputTypeEnum int[] activeInputTypes) {
             Log.i(TAG, "onCaptureStateChanged types:" + Arrays.toString(activeInputTypes)
                     + " this:" + this);
             synchronized (mLock) {
-                mStateChanges.addFirst(new Pair<Integer, int[]>(targetDisplayId, activeInputTypes));
+                mStateChanges.addFirst(new Pair<>(targetDisplayType, activeInputTypes));
             }
             mStateChangeWait.release();
         }
@@ -138,7 +141,7 @@ public final class CarInputManagerTest extends MockedCarTestBase {
             mStateChangeWait.tryAcquire(EVENT_WAIT_TIME, TimeUnit.MILLISECONDS);
         }
 
-        private void waitForKeyEvent() throws Exception  {
+        private void waitForKeyEvent() throws Exception {
             mKeyEventWait.tryAcquire(EVENT_WAIT_TIME, TimeUnit.MILLISECONDS);
         }
 
@@ -153,7 +156,7 @@ public final class CarInputManagerTest extends MockedCarTestBase {
         private LinkedList<Pair<Integer, List<KeyEvent>>> getkeyEvents() {
             synchronized (mLock) {
                 LinkedList<Pair<Integer, List<KeyEvent>>> r =
-                        new LinkedList<Pair<Integer, List<KeyEvent>>>(mKeyEvents);
+                        new LinkedList<>(mKeyEvents);
                 Log.i(TAG, "getKeyEvents size:" + r.size() + ",this:" + this);
                 return r;
             }
@@ -162,7 +165,7 @@ public final class CarInputManagerTest extends MockedCarTestBase {
         private LinkedList<Pair<Integer, List<RotaryEvent>>> getRotaryEvents() {
             synchronized (mLock) {
                 LinkedList<Pair<Integer, List<RotaryEvent>>> r =
-                        new LinkedList<Pair<Integer, List<RotaryEvent>>>(mRotaryEvents);
+                        new LinkedList<>(mRotaryEvents);
                 Log.i(TAG, "getRotaryEvents size:" + r.size() + ",this:" + this);
                 return r;
             }
@@ -170,7 +173,7 @@ public final class CarInputManagerTest extends MockedCarTestBase {
 
         private LinkedList<Pair<Integer, int[]>> getStateChanges() {
             synchronized (mLock) {
-                return new LinkedList<Pair<Integer, int[]>>(mStateChanges);
+                return new LinkedList<>(mStateChanges);
             }
         }
     }
@@ -451,7 +454,6 @@ public final class CarInputManagerTest extends MockedCarTestBase {
         assertNumberOfOnRotaryEvents(1, mCallback0);
 
 
-
         mCallback0.resetAllEventsWaiting();
         carInputManager1.releaseInputEventCapture(CarInputManager.TARGET_DISPLAY_TYPE_MAIN);
 
@@ -563,12 +565,12 @@ public final class CarInputManagerTest extends MockedCarTestBase {
         CarServiceUtils.runOnMainSync(() -> { });
     }
 
-    private void assertLastKeyEvent(int displayId, boolean down, int keyCode,
+    private void assertLastKeyEvent(int displayTarget, boolean down, int keyCode,
             CaptureCallback callback) {
         LinkedList<Pair<Integer, List<KeyEvent>>> events = callback.getkeyEvents();
         assertThat(events).isNotEmpty();
         Pair<Integer, List<KeyEvent>> lastEvent = events.getFirst();
-        assertThat(lastEvent.first).isEqualTo(displayId);
+        assertThat(lastEvent.first).isEqualTo(displayTarget);
         assertThat(lastEvent.second).hasSize(1);
         KeyEvent keyEvent = lastEvent.second.get(0);
         assertThat(keyEvent.getAction()).isEqualTo(
@@ -581,12 +583,12 @@ public final class CarInputManagerTest extends MockedCarTestBase {
         assertThat(events).hasSize(expectedNumber);
     }
 
-    private void assertLastRotaryEvent(int displayId, int rotaryType, int numberOfClicks,
+    private void assertLastRotaryEvent(int displayTarget, int rotaryType, int numberOfClicks,
             CaptureCallback callback) {
         LinkedList<Pair<Integer, List<RotaryEvent>>> rotaryEvents = callback.getRotaryEvents();
         assertThat(rotaryEvents).isNotEmpty();
         Pair<Integer, List<RotaryEvent>> lastEvent = rotaryEvents.getFirst();
-        assertThat(lastEvent.first).isEqualTo(displayId);
+        assertThat(lastEvent.first).isEqualTo(displayTarget);
         assertThat(lastEvent.second).hasSize(1);
         RotaryEvent rotaryEvent = lastEvent.second.get(0);
         assertThat(rotaryEvent.getInputType()).isEqualTo(rotaryType);
@@ -599,36 +601,36 @@ public final class CarInputManagerTest extends MockedCarTestBase {
         assertThat(rotaryEvents).hasSize(expectedNumber);
     }
 
-    private void assertLastStateChange(int expectedTargetDisplayId, int[] expectedInputTypes,
+    private void assertLastStateChange(int expectedTargetDisplayTarget, int[] expectedInputTypes,
             CaptureCallback callback) {
         LinkedList<Pair<Integer, int[]>> changes = callback.getStateChanges();
         assertThat(changes).isNotEmpty();
         Pair<Integer, int[]> lastChange = changes.getFirst();
-        assertStateChange(expectedTargetDisplayId, expectedInputTypes, lastChange);
+        assertStateChange(expectedTargetDisplayTarget, expectedInputTypes, lastChange);
     }
 
     private void assertNoStateChange(CaptureCallback callback) {
         assertThat(callback.getStateChanges()).isEmpty();
     }
 
-    private void assertStateChange(int expectedTargetDisplayId, int[] expectedInputTypes,
+    private void assertStateChange(int expectedTargetDisplayTarget, int[] expectedInputTypes,
             Pair<Integer, int[]> actual) {
         Arrays.sort(expectedInputTypes);
-        assertThat(actual.first).isEqualTo(expectedTargetDisplayId);
+        assertThat(actual.first).isEqualTo(expectedTargetDisplayTarget);
         assertThat(actual.second).isEqualTo(expectedInputTypes);
     }
 
     private void injectKeyEvent(boolean down, int keyCode) {
         getMockedVehicleHal().injectEvent(
                 VehiclePropValueBuilder.newBuilder(VehicleProperty.HW_KEY_INPUT)
-                .addIntValue(down ? 0 : 1, keyCode, 0)
-                .build());
+                        .addIntValue(down ? 0 : 1, keyCode, 0)
+                        .build());
     }
 
-    private void injectRotaryEvent(int displayId, int numClicks) {
+    private void injectRotaryEvent(int displayTarget, int numClicks) {
         VehiclePropValueBuilder builder = VehiclePropValueBuilder.newBuilder(
                 VehicleProperty.HW_ROTARY_INPUT)
-                .addIntValue(0 /* navigation oly for now */, numClicks, displayId);
+                .addIntValue(0 /* navigation oly for now */, numClicks, displayTarget);
         for (int i = 0; i < numClicks - 1; i++) {
             builder.addIntValue(0);
         }
