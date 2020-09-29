@@ -33,7 +33,6 @@ import android.car.annotation.MandatoryFeature;
 import android.car.annotation.OptionalFeature;
 import android.car.cluster.CarInstrumentClusterManager;
 import android.car.cluster.ClusterActivityState;
-import android.car.constants.CommonConstants;
 import android.car.content.pm.CarPackageManager;
 import android.car.diagnostic.CarDiagnosticManager;
 import android.car.drivingstate.CarDrivingStateManager;
@@ -72,6 +71,7 @@ import android.os.TransactionTooLargeException;
 import android.os.UserHandle;
 import android.util.Log;
 
+import com.android.car.internal.common.CommonConstants;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 

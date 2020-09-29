@@ -62,8 +62,8 @@ import android.util.SparseBooleanArray;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarStatsLog;
-import com.android.car.internal.EventLogTags;
-import com.android.car.internal.UserHelperLite;
+import com.android.car.internal.common.EventLogTags;
+import com.android.car.internal.common.UserHelperLite;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;

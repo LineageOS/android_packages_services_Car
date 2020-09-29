@@ -30,7 +30,7 @@ import android.provider.Settings;
 import android.sysprop.CarProperties;
 import android.util.Log;
 
-import com.android.car.internal.UserHelperLite;
+import com.android.car.internal.common.UserHelperLite;
 
 import com.google.android.collect.Sets;
 

@@ -73,8 +73,11 @@ java_library {
 
 // library to access common constants between carlibrary and system server.
 java_library {
-    name: "android.car.constants",
-    srcs: ["src/android/car/Constants/CommonConstants.java"]
+    name: "com.android.car.internal.common",
+    srcs: [
+        "src/com/android/car/internal/common/**/*.java",
+        "src/com/android/car/internal/common/EventLogTags.logtags",
+    ]
 }
 
 java_library {
@@ -82,6 +85,7 @@ java_library {
     srcs: [
         "src/**/*.java",
         "src/**/I*.aidl",
+        "src/com/android/car/internal/common/EventLogTags.logtags",
     ],
     aidl: {
         include_dirs: [
@@ -91,9 +95,6 @@ java_library {
     exclude_srcs: [
         "src/android/car/storagemonitoring/IoStats.aidl",
         "src/android/car/storagemonitoring/IoStatsEntry.aidl",
-    ],
-    static_libs: [
-        "com.android.car.internal.all",
     ],
     product_variables: {
         pdk: {

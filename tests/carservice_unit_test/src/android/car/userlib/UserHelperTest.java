@@ -34,7 +34,7 @@ import android.os.UserManager;
 
 import androidx.test.InstrumentationRegistry;
 
-import com.android.car.internal.UserHelperLite;
+import com.android.car.internal.common.UserHelperLite;
 
 import org.junit.Before;
 import org.junit.Test;

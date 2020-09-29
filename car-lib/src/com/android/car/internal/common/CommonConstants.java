@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.car.constants;
+package com.android.car.internal.common;
 
 /**
  * Provides common constants for Car library, Car Service, and System Server.
