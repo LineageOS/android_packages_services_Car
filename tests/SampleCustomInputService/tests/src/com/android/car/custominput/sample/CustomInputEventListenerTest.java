@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car.custominput.test;
+package com.android.car.custominput.sample;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -46,7 +46,7 @@ public class CustomInputEventListenerTest {
     private Context mContext;
 
     @Mock
-    private CustomInputTestService mService;
+    private SampleCustomInputService mService;
 
     @Before
     public void setUp() {

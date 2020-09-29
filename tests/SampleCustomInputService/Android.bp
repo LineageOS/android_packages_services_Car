@@ -13,15 +13,15 @@
 // limitations under the License.
 
 filegroup {
-    name: "CustomInputTestService-srcs",
+    name: "SampleCustomInputService-srcs",
     srcs: [
         "src/**/*.java",
     ],
 }
 
 android_app {
-    name: "CustomInputTestService",
-    srcs: [":CustomInputTestService-srcs"],
+    name: "SampleCustomInputService",
+    srcs: [":SampleCustomInputService-srcs"],
     resource_dirs: ["res"],
 
     // Because it uses a platform API (CarInputManager).
@@ -51,11 +51,11 @@ android_app {
 }
 
 android_test {
-    name: "CustomInputTestServiceTest",
+    name: "SampleCustomInputServiceTest",
 
     srcs: [
         "tests/src/**/*.java",
-        ":CustomInputTestService-srcs",
+        ":SampleCustomInputService-srcs",
     ],
 
     manifest: "tests/AndroidManifest.xml",
