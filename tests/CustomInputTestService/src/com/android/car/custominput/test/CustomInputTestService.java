@@ -15,6 +15,8 @@
  */
 package com.android.car.custominput.test;
 
+import static android.car.input.CarInputManager.TargetDisplayType;
+
 import android.annotation.NonNull;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -116,9 +118,10 @@ public class CustomInputTestService extends Service implements
     }
 
     @Override
-    public void onCustomInputEvents(int targetDisplayId, @NonNull List<CustomInputEvent> events) {
+    public void onCustomInputEvents(@TargetDisplayType int targetDisplayType,
+            @NonNull List<CustomInputEvent> events) {
         for (CustomInputEvent event : events) {
-            mEventHandler.handle(targetDisplayId, event);
+            mEventHandler.handle(targetDisplayType, event);
         }
     }
 }
