@@ -27,13 +27,10 @@ IncludeBlocks: Regroup
 IncludeCategories:
   - Regex:           '^<[[:alnum:]_]+\.h>'
     Priority:        3
-    SortPriority:    3
   - Regex:           '^<sys/(auxv|cachectl|capability|cdefs|endian|epoll|errno|eventfd|fcntl|file|fsuid|ifunc|inotify|ioctl|ipc|klog|limits|mman|mount|msg|mtio|param|personality|poll|prctl|procfs|ptrace|queue|quota|random|reboot|reg|resource|select|sem|sendfile|shm|signalfd|signal|socket|statfs|stat|statvfs|swap|syscall|sysconf|sysinfo|syslog|sysmacros|_system_properties|system_properties|thread_properties|time|timerfd|times|timex|ttydefaults|types|ucontext|uio|un|unistd|user|utsname|vfs|vt|wait|xattr)\.h>'
     Priority:        3
-    SortPriority:    3
   - Regex:           '^<[[:alnum:]_]+>'
-    Priority:        3
-    SortPriority:    4
+    Priority:        4
   - Regex:           '^<.*/[[:alnum:]_]+\.h>'
     Priority:        2
   - Regex:           '^".*'
