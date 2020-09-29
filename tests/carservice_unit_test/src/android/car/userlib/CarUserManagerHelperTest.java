@@ -98,48 +98,6 @@ public class CarUserManagerHelperTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testCreateNewNonAdminUser() {
-        // Verify createUser on UserManager gets called.
-        mCarUserManagerHelper.createNewNonAdminUser(TEST_USER_NAME);
-        verify(mUserManager).createUser(TEST_USER_NAME, NO_FLAGS);
-
-        doReturn(null).when(mUserManager).createUser(TEST_USER_NAME, NO_FLAGS);
-        assertThat(mCarUserManagerHelper.createNewNonAdminUser(TEST_USER_NAME)).isNull();
-
-        UserInfo newUser = new UserInfo();
-        newUser.name = TEST_USER_NAME;
-        doReturn(newUser).when(mUserManager).createUser(TEST_USER_NAME, NO_FLAGS);
-        assertThat(mCarUserManagerHelper.createNewNonAdminUser(TEST_USER_NAME)).isEqualTo(newUser);
-    }
-
-    @Test
-    public void testSwitchToId() {
-        int userIdToSwitchTo = mForegroundUserId + 2;
-        doReturn(true).when(mActivityManager).switchUser(userIdToSwitchTo);
-
-        assertThat(mCarUserManagerHelper.switchToUserId(userIdToSwitchTo)).isTrue();
-        verify(mActivityManager).switchUser(userIdToSwitchTo);
-    }
-
-    @Test
-    public void testSwitchToForegroundIdExitsEarly() {
-        doReturn(true).when(mActivityManager).switchUser(mForegroundUserId);
-
-        assertThat(mCarUserManagerHelper.switchToUserId(mForegroundUserId)).isFalse();
-        verify(mActivityManager, never()).switchUser(mForegroundUserId);
-    }
-
-    @Test
-    public void testCannotSwitchIfSwitchingNotAllowed() {
-        int userIdToSwitchTo = mForegroundUserId + 2;
-        doReturn(true).when(mActivityManager).switchUser(userIdToSwitchTo);
-        doReturn(UserManager.SWITCHABILITY_STATUS_USER_SWITCH_DISALLOWED)
-                .when(mUserManager).getUserSwitchability();
-        assertThat(mCarUserManagerHelper.switchToUserId(userIdToSwitchTo)).isFalse();
-        verify(mActivityManager, never()).switchUser(userIdToSwitchTo);
-    }
-
-    @Test
     public void testGrantAdminPermissions() {
         int userId = 30;
         UserInfo testInfo = newUser(userId);
@@ -156,14 +114,11 @@ public class CarUserManagerHelperTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testDefaultNonAdminRestrictions() {
-        String testUserName = "Test User";
+    public void testSetDefaultNonAdminRestrictions() {
         int userId = 20;
         UserInfo newNonAdmin = newUser(userId);
 
-        doReturn(newNonAdmin).when(mUserManager).createUser(testUserName, NO_FLAGS);
-
-        mCarUserManagerHelper.createNewNonAdminUser(testUserName);
+        mCarUserManagerHelper.setDefaultNonAdminRestrictions(newNonAdmin, true);
 
         verify(mUserManager).setUserRestriction(
                 UserManager.DISALLOW_FACTORY_RESET, /* enable= */ true, UserHandle.of(userId));

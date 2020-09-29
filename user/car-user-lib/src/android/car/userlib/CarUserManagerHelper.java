@@ -18,14 +18,12 @@ package android.car.userlib;
 
 import android.Manifest;
 import android.annotation.NonNull;
-import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.settings.CarSettings;
 import android.content.Context;
 import android.content.pm.UserInfo;
-import android.graphics.Bitmap;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
@@ -33,7 +31,6 @@ import android.sysprop.CarProperties;
 import android.util.Log;
 
 import com.android.car.internal.UserHelperLite;
-import com.android.internal.util.UserIcons;
 
 import com.google.android.collect.Sets;
 
@@ -281,29 +278,6 @@ public final class CarUserManagerHelper {
     }
 
     /**
-     * Creates a new non-admin user on the system.
-     *
-     * @param userName Name to give to the newly created user.
-     * @return Newly created non-admin user, null if failed to create a user.
-     *
-     * @deprecated non-admin restrictions should be set by resources overlay
-     */
-    @Deprecated
-    @Nullable
-    public UserInfo createNewNonAdminUser(String userName) {
-        UserInfo user = mUserManager.createUser(userName, 0);
-        if (user == null) {
-            // Couldn't create user, most likely because there are too many.
-            Log.w(TAG, "can't create non-admin user.");
-            return null;
-        }
-        setDefaultNonAdminRestrictions(user, /* enable= */ true);
-
-        assignDefaultIcon(user);
-        return user;
-    }
-
-    /**
      * Sets the values of default Non-Admin restrictions to the passed in value.
      *
      * @param userInfo User to set restrictions on.
@@ -328,55 +302,5 @@ public final class CarUserManagerHelper {
         for (String restriction : OPTIONAL_NON_ADMIN_RESTRICTIONS) {
             mUserManager.setUserRestriction(restriction, enable, userInfo.getUserHandle());
         }
-    }
-
-    /**
-     * Switches (logs in) to another user given user id.
-     *
-     * @param id User id to switch to.
-     * @return {@code true} if user switching succeed.
-     *
-     * @deprecated should use {@link android.car.user.CarUserManager.CarUserManager} instead
-     */
-    @Deprecated
-    public boolean switchToUserId(int id) {
-        if (UserHelperLite.isHeadlessSystemUser(id)) {
-            // System User doesn't associate with real person, can not be switched to.
-            return false;
-        }
-        if (mUserManager.getUserSwitchability() != UserManager.SWITCHABILITY_STATUS_OK) {
-            return false;
-        }
-        if (id == ActivityManager.getCurrentUser()) {
-            return false;
-        }
-        return mActivityManager.switchUser(id);
-    }
-
-    /**
-     * Switches (logs in) to another user.
-     *
-     * @param userInfo User to switch to.
-     * @return {@code true} if user switching succeed.
-     *
-     * @deprecated should use {@link android.car.user.CarUserManager.CarUserManager} instead
-     */
-    @Deprecated
-    public boolean switchToUser(UserInfo userInfo) {
-        return switchToUserId(userInfo.id);
-    }
-
-    /**
-     * Assigns a default icon to a user according to the user's id.
-     *
-     * @param userInfo User whose avatar is set to default icon.
-     * @return Bitmap of the user icon.
-     */
-    private Bitmap assignDefaultIcon(UserInfo userInfo) {
-        int idForIcon = userInfo.isGuest() ? UserHandle.USER_NULL : userInfo.id;
-        Bitmap bitmap = UserIcons.convertToBitmap(
-                UserIcons.getDefaultUserIcon(mContext.getResources(), idForIcon, false));
-        mUserManager.setUserIcon(userInfo.id, bitmap);
-        return bitmap;
     }
 }
