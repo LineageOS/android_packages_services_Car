@@ -125,6 +125,12 @@ class VhalTest:
                     # Truncate float to 5 decimal places
                     value = "%.5f" % value
                     value = float(value)
+                elif valType in self._types.TYPE_MIXED:
+                    # Quick stub to unblock most tests
+                    # Todo: proper implement according to VehiclePropertyType in types.hal
+                    value = rxMsg.value[0].float_values[0]
+                    value = "%.5f" % value
+                    value = float(value)
                 else:
                     self._log.error("getValueFromMsg:  valType=0x%X is not handled", valType)
                     value = None
