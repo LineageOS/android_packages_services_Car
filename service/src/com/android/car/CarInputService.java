@@ -52,7 +52,7 @@ import android.view.KeyEvent;
 import android.view.ViewConfiguration;
 
 import com.android.car.hal.InputHalService;
-import com.android.car.internal.UserHelperLite;
+import com.android.car.internal.common.UserHelperLite;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;

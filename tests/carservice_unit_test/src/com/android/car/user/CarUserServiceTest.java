@@ -105,7 +105,7 @@ import android.util.SparseArray;
 import androidx.test.InstrumentationRegistry;
 
 import com.android.car.hal.UserHalService;
-import com.android.car.internal.UserHelperLite;
+import com.android.car.internal.common.UserHelperLite;
 import com.android.internal.R;
 import com.android.internal.infra.AndroidFuture;
 import com.android.internal.os.IResultReceiver;

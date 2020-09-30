@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.internal;
+package com.android.car.internal.common;
 
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
@@ -23,6 +23,8 @@ import android.os.UserManager;
 
 /**
  * Provides user information related helper methods.
+ *
+ * @hide
  */
 public final class UserHelperLite {
 
