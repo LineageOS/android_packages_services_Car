@@ -15,9 +15,14 @@
  */
 package com.android.car.user;
 
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetAliveUsers;
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetSystemUser;
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserInfo;
 import static android.car.test.mocks.CarArgumentMatchers.isUserInfo;
 import static android.car.test.util.UserTestingHelper.newGuestUser;
 import static android.car.test.util.UserTestingHelper.newSecondaryUser;
+import static android.car.test.util.UserTestingHelper.newUser;
+import static android.os.UserHandle.USER_SYSTEM;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
@@ -41,8 +46,8 @@ import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.IActivityManager;
+import android.car.settings.CarSettings;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
-import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
@@ -51,6 +56,7 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
+import android.sysprop.CarProperties;
 
 import com.android.car.user.InitialUserSetter.Builder;
 import com.android.car.user.InitialUserSetter.InitialUserInfo;
@@ -60,6 +66,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase {
@@ -76,9 +83,6 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
 
     @Mock
     private Context mContext;
-
-    @Mock
-    private CarUserManagerHelper mHelper;
 
     @Mock
     private IActivityManager mIActivityManager;
@@ -98,12 +102,13 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
         session
             .spyStatic(ActivityManager.class)
+            .spyStatic(CarProperties.class)
             .spyStatic(UserManager.class);
     }
 
     @Before
     public void setFixtures() {
-        mSetter = spy(new InitialUserSetter(mContext, mHelper, mUm, mListener,
+        mSetter = spy(new InitialUserSetter(mContext, mUm, mListener,
                 mLockPatternUtils, OWNER_NAME, GUEST_NAME));
 
         doReturn(mIActivityManager).when(() -> ActivityManager.getService());
@@ -723,7 +728,6 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     @Test
     public void testDefaultBehavior_nonFirstBoot_ok_guestDoesNotNeedToBeReplaced()
             throws Exception {
-        boolean ephemeral = true; // ephemeral doesn't really matter in this test
         UserInfo existingGuest = expectHasInitialGuest(USER_ID);
         expectSwitchUser(USER_ID);
 
@@ -798,6 +802,211 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
                 null);
     }
 
+    @Test
+    public void testGetInitialUser_WithValidLastActiveUser_ReturnsLastActiveUser() {
+        setLastActiveUser(12);
+        mockGeAliveUsers(USER_SYSTEM, 10, 11, 12);
+
+        assertThat(mSetter.getInitialUser(/* usesOverrideUserIdProperty= */ true))
+                .isEqualTo(12);
+    }
+
+    @Test
+    public void testGetInitialUser_WithNonExistLastActiveUser_ReturnsLastPersistentUser() {
+        setLastActiveUser(120);
+        setLastPersistentActiveUser(110);
+        mockGeAliveUsers(USER_SYSTEM, 100, 110);
+
+        assertThat(mSetter.getInitialUser(/* usesOverrideUserIdProperty= */ true))
+                .isEqualTo(110);
+        // should have reset last active user
+        assertThat(getSettingsInt(CarSettings.Global.LAST_ACTIVE_USER_ID))
+                .isEqualTo(UserHandle.USER_NULL);
+    }
+
+    @Test
+    public void testGetInitialUser_WithNonExistLastActiveAndPersistentUsers_ReturnsSmallestUser() {
+        setLastActiveUser(120);
+        setLastPersistentActiveUser(120);
+        mockGeAliveUsers(USER_SYSTEM, 100, 110);
+
+        assertThat(mSetter.getInitialUser(/* usesOverrideUserIdProperty= */ true))
+                .isEqualTo(100);
+        // should have reset both settions
+        assertThat(getSettingsInt(CarSettings.Global.LAST_ACTIVE_USER_ID))
+                .isEqualTo(UserHandle.USER_NULL);
+        assertThat(getSettingsInt(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID))
+                .isEqualTo(UserHandle.USER_NULL);
+    }
+
+    @Test
+    public void testGetInitialUser_WithOverrideId_ReturnsOverrideId() {
+        setDefaultBootUserOverride(11);
+        setLastActiveUser(12);
+        mockGeAliveUsers(USER_SYSTEM, 10, 11, 12);
+
+        assertThat(mSetter.getInitialUser(/* usesOverrideUserIdProperty= */ true))
+                .isEqualTo(11);
+    }
+
+    @Test
+    public void testGetInitialUser_WithInvalidOverrideId_ReturnsLastActiveUserId() {
+        setDefaultBootUserOverride(15);
+        setLastActiveUser(12);
+        mockGeAliveUsers(USER_SYSTEM, 10, 11, 12);
+
+        assertThat(mSetter.getInitialUser(/* usesOverrideUserIdProperty= */ true))
+                .isEqualTo(12);
+    }
+
+    @Test
+    public void testGetInitialUser_WithInvalidOverrideAndLastActiveUserIds_ReturnsSmallestUserId() {
+        int minimumUserId = 10;
+        int invalidLastActiveUserId = 14;
+        int invalidOverrideUserId = 15;
+
+        setDefaultBootUserOverride(invalidOverrideUserId);
+        setLastActiveUser(invalidLastActiveUserId);
+        mockGeAliveUsers(USER_SYSTEM, minimumUserId, minimumUserId + 1, minimumUserId + 2);
+
+        assertThat(mSetter.getInitialUser(/* usesOverrideUserIdProperty= */ true))
+                .isEqualTo(minimumUserId);
+    }
+
+    @Test
+    public void testGetInitialUser_WhenOverrideIdIsIgnored() {
+        setDefaultBootUserOverride(11);
+        setLastActiveUser(12);
+        mockGeAliveUsers(USER_SYSTEM, 10, 11, 12);
+
+        assertThat(mSetter.getInitialUser(/* usesOverrideUserIdProperty= */ false))
+                .isEqualTo(12);
+    }
+
+    @Test
+    public void testGetInitialUser_WithEmptyReturnNull() {
+        assertThat(mSetter.getInitialUser(/* usesOverrideUserIdProperty= */ true))
+                .isEqualTo(UserHandle.USER_NULL);
+    }
+
+    @Test
+    public void testHasInitialUser_onlyHeadlessSystemUser() {
+        mockIsHeadlessSystemUserMode(true);
+        mockGeAliveUsers(USER_SYSTEM);
+
+        assertThat(mSetter.hasInitialUser()).isFalse();
+    }
+
+    @Test
+    public void testHasInitialUser_onlyNonHeadlessSystemUser() {
+        mockIsHeadlessSystemUserMode(false);
+        mockGeAliveUsers(USER_SYSTEM);
+
+        assertThat(mSetter.hasInitialUser()).isTrue();
+    }
+
+    @Test
+    public void testHasInitialUser_hasNormalUser() {
+        mockIsHeadlessSystemUserMode(true);
+        mockGeAliveUsers(USER_SYSTEM, 10);
+
+        assertThat(mSetter.hasInitialUser()).isTrue();
+    }
+
+    @Test
+    public void testHasInitialUser_hasOnlyWorkProfile() {
+        mockIsHeadlessSystemUserMode(true);
+
+        UserInfo systemUser = newUser(UserHandle.USER_SYSTEM);
+
+        UserInfo workProfile = newUser(10);
+        workProfile.userType = UserManager.USER_TYPE_PROFILE_MANAGED;
+        assertThat(workProfile.isManagedProfile()).isTrue(); // Confidence check
+
+        mockGetAliveUsers(systemUser, workProfile);
+
+        assertThat(mSetter.hasInitialUser()).isFalse();
+    }
+
+    @Test
+    public void testSetLastActiveUser_headlessSystem() {
+        mockIsHeadlessSystemUserMode(true);
+        mockUmGetSystemUser(mUm);
+
+        mSetter.setLastActiveUser(UserHandle.USER_SYSTEM);
+
+        assertSettingsNotSet(CarSettings.Global.LAST_ACTIVE_USER_ID);
+        assertSettingsNotSet(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID);
+    }
+
+    @Test
+    public void testSetLastActiveUser_nonHeadlessSystem() {
+        mockIsHeadlessSystemUserMode(false);
+        mockUmGetSystemUser(mUm);
+
+        mSetter.setLastActiveUser(UserHandle.USER_SYSTEM);
+
+        assertThat(getSettingsInt(CarSettings.Global.LAST_ACTIVE_USER_ID))
+                .isEqualTo(UserHandle.USER_SYSTEM);
+        assertThat(getSettingsInt(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID))
+                .isEqualTo(UserHandle.USER_SYSTEM);
+    }
+
+    @Test
+    public void testSetLastActiveUser_nonExistingUser() {
+        // Don't need to mock um.getUser(), it will return null by default
+        mSetter.setLastActiveUser(42);
+
+        assertThat(getSettingsInt(CarSettings.Global.LAST_ACTIVE_USER_ID)).isEqualTo(42);
+        assertSettingsNotSet(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID);
+    }
+
+    @Test
+    public void testSetLastActiveUser_ephemeralUser() {
+        int persistentUserId = 42;
+        int ephemeralUserid = 108;
+        mockUmGetUserInfo(mUm, persistentUserId, NO_FLAGS);
+        mockUmGetUserInfo(mUm, ephemeralUserid, UserInfo.FLAG_EPHEMERAL);
+
+        mSetter.setLastActiveUser(persistentUserId);
+        mSetter.setLastActiveUser(ephemeralUserid);
+
+        assertThat(getSettingsInt(CarSettings.Global.LAST_ACTIVE_USER_ID))
+                .isEqualTo(ephemeralUserid);
+        assertThat(getSettingsInt(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID))
+                .isEqualTo(persistentUserId);
+    }
+
+    @Test
+    public void testSetLastActiveUser_nonEphemeralUser() {
+        mockUmGetUserInfo(mUm, 42, NO_FLAGS);
+
+        mSetter.setLastActiveUser(42);
+
+        assertThat(getSettingsInt(CarSettings.Global.LAST_ACTIVE_USER_ID)).isEqualTo(42);
+        assertThat(getSettingsInt(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID)).isEqualTo(42);
+    }
+
+    private void mockGeAliveUsers(@NonNull @UserIdInt int... userIds) {
+        mockUmGetAliveUsers(mUm, userIds);
+    }
+
+    private void mockGetAliveUsers(@NonNull UserInfo... users) {
+        mockUmGetAliveUsers(mUm, users);
+    }
+
+    private void setLastActiveUser(@UserIdInt int userId) {
+        putSettingsInt(CarSettings.Global.LAST_ACTIVE_USER_ID, userId);
+    }
+
+    private void setLastPersistentActiveUser(@UserIdInt int userId) {
+        putSettingsInt(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID, userId);
+    }
+
+    private void setDefaultBootUserOverride(@UserIdInt int userId) {
+        doReturn(Optional.of(userId)).when(() -> CarProperties.boot_user_override_id());
+    }
+
     private UserInfo expectHasInitialUser(@UserIdInt int userId) {
         return expectHasInitialUser(userId, /* supportsOverrideUserIdProperty= */ false);
     }
@@ -813,8 +1022,8 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     }
     private UserInfo expectHasInitialUser(@UserIdInt int userId, boolean isGuest,
             boolean supportsOverrideUserIdProperty) {
-        when(mHelper.hasInitialUser()).thenReturn(true);
-        when(mHelper.getInitialUser(supportsOverrideUserIdProperty)).thenReturn(userId);
+        doReturn(true).when(mSetter).hasInitialUser();
+        doReturn(userId).when(mSetter).getInitialUser(supportsOverrideUserIdProperty);
         return isGuest ? expectGuestExists(userId, /* isEphemeral= */ true)
                 : expectUserExists(userId);
     }
@@ -892,7 +1101,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
 
     private void verifyUserSwitched(@UserIdInt int userId) throws Exception {
         verify(mSetter).startForegroundUser(userId);
-        verify(mHelper).setLastActiveUser(userId);
+        verify(mSetter).setLastActiveUser(userId);
     }
 
     private void verifyUserNeverSwitched() throws Exception {
@@ -955,7 +1164,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     }
 
     private void verifyLastActiveUserNeverSet() {
-        verify(mHelper, never()).setLastActiveUser(anyInt());
+        verify(mSetter, never()).setLastActiveUser(anyInt());
     }
 
     private void assertInitialUserSet(@NonNull UserInfo expectedUser) {

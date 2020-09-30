@@ -40,9 +40,9 @@ import android.car.user.UserCreationResult;
 import android.car.user.UserIdentificationAssociationResponse;
 import android.car.user.UserRemovalResult;
 import android.car.user.UserSwitchResult;
-import android.car.userlib.CarUserManagerHelper;
 import android.car.userlib.HalCallback;
 import android.car.userlib.UserHalHelper;
+import android.car.userlib.UserHelper;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -140,7 +140,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     public static final String VEHICLE_HAL_NOT_SUPPORTED = "Vehicle Hal not supported.";
 
     private final Context mContext;
-    private final CarUserManagerHelper mCarUserManagerHelper;
     private final IActivityManager mAm;
     private final UserManager mUserManager;
     private final int mMaxRunningUsers;
@@ -237,15 +236,15 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     private ZoneUserBindingHelper mZoneUserBindingHelper;
 
     public CarUserService(@NonNull Context context, @NonNull UserHalService hal,
-            @NonNull CarUserManagerHelper carUserManagerHelper, @NonNull UserManager userManager,
+            @NonNull UserManager userManager,
             @NonNull IActivityManager am, int maxRunningUsers) {
-        this(context, hal, carUserManagerHelper, userManager, am, maxRunningUsers,
+        this(context, hal, userManager, am, maxRunningUsers,
                 /* initialUserSetter= */ null, /* userPreCreator= */ null);
     }
 
     @VisibleForTesting
     CarUserService(@NonNull Context context, @NonNull UserHalService hal,
-            @NonNull CarUserManagerHelper carUserManagerHelper, @NonNull UserManager userManager,
+            @NonNull UserManager userManager,
             @NonNull IActivityManager am, int maxRunningUsers,
             @Nullable InitialUserSetter initialUserSetter,
             @Nullable UserPreCreator userPreCreator) {
@@ -254,7 +253,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
         mContext = context;
         mHal = hal;
-        mCarUserManagerHelper = carUserManagerHelper;
         mAm = am;
         mMaxRunningUsers = maxRunningUsers;
         mUserManager = userManager;
@@ -451,7 +449,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             return null;
         }
         // Passenger user should be a non-admin user.
-        mCarUserManagerHelper.setDefaultNonAdminRestrictions(user, /* enable= */ true);
+        UserHelper.setDefaultNonAdminRestrictions(mContext, user, /* enable= */ true);
         assignDefaultIcon(user);
         return user;
     }
@@ -792,7 +790,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     @VisibleForTesting
     int getInitialUserInfoRequestType() {
-        if (!mCarUserManagerHelper.hasInitialUser()) {
+        if (!mInitialUserSetter.hasInitialUser()) {
             return InitialUserInfoRequestType.FIRST_BOOT;
         }
         if (mContext.getPackageManager().isDeviceUpgrading()) {
@@ -1739,7 +1737,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         // Switch HAL users if user switch is not requested by CarUserService
         notifyHalLegacySwitch(fromUserId, toUserId);
 
-        mCarUserManagerHelper.setLastActiveUser(toUserId);
+        mInitialUserSetter.setLastActiveUser(toUserId);
 
         if (mLastPassengerId != UserHandle.USER_NULL) {
             stopPassengerInternal(mLastPassengerId, false);
