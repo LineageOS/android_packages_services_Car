@@ -16,6 +16,9 @@
 
 package com.android.car.user;
 
+import static android.Manifest.permission.CREATE_USERS;
+import static android.Manifest.permission.MANAGE_USERS;
+
 import static com.android.car.CarLog.TAG_USER;
 
 import android.annotation.NonNull;
@@ -65,6 +68,7 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Process;
 import android.os.RemoteException;
 import android.os.Trace;
 import android.os.UserHandle;
@@ -839,7 +843,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     public void switchUser(@UserIdInt int targetUserId, int timeoutMs,
             @NonNull AndroidFuture<UserSwitchResult> receiver) {
         EventLog.writeEvent(EventLogTags.CAR_USER_SVC_SWITCH_USER_REQ, targetUserId, timeoutMs);
-        checkManageUsersPermission("switchUser");
+        checkManageOrCreateUsersPermission("switchUser");
         Objects.requireNonNull(receiver);
         UserInfo targetUser = mUserManager.getUserInfo(targetUserId);
         Preconditions.checkArgument(targetUser != null, "Target user doesn't exist");
@@ -976,7 +980,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     @Override
     public UserRemovalResult removeUser(@UserIdInt int userId) {
-        checkManageUsersPermission("removeUser");
+        checkManageOrCreateUsersPermission("removeUser");
         EventLog.writeEvent(EventLogTags.CAR_USER_SVC_REMOVE_USER_REQ, userId);
         // If the requested user is the current user, return error.
         if (ActivityManager.getCurrentUser() == userId) {
@@ -1058,7 +1062,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             int timeoutMs, @NonNull AndroidFuture<UserCreationResult> receiver) {
         Objects.requireNonNull(userType, "user type cannot be null");
         Objects.requireNonNull(receiver, "receiver cannot be null");
-        checkManageOrCreateUsersPermission("createUser");
+        checkManageOrCreateUsersPermission(flags);
+
         EventLog.writeEvent(EventLogTags.CAR_USER_SVC_CREATE_USER_REQ,
                 UserHelperLite.safeName(name), userType, flags, timeoutMs);
 
@@ -1165,7 +1170,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
 
         Preconditions.checkArgument(!ArrayUtils.isEmpty(types), "must have at least one type");
-        checkManageUsersPermission("getUserIdentificationAssociation");
+        checkManageOrCreateUsersPermission("getUserIdentificationAssociation");
 
         int uid = getCallingUid();
         int userId = UserHandle.getUserId(uid);
@@ -1211,7 +1216,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             throw new IllegalArgumentException("types (" + Arrays.toString(types) + ") and values ("
                     + Arrays.toString(values) + ") should have the same length");
         }
-        checkManageUsersPermission("setUserIdentificationAssociation");
+        checkManageOrCreateUsersPermission("setUserIdentificationAssociation");
 
         int uid = getCallingUid();
         int userId = UserHandle.getUserId(uid);
@@ -1833,24 +1838,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         return users;
     }
 
-    /**
-     * Enforces that apps which have the
-     * {@link android.Manifest.permission#MANAGE_USERS MANAGE_USERS}
-     * can make certain calls to the CarUserManager.
-     *
-     * @param message used as message if SecurityException is thrown.
-     * @throws SecurityException if the caller is not system or root.
-     */
-    private static void checkManageUsersPermission(String message) {
-        checkAtLeastOnePermission(message, android.Manifest.permission.MANAGE_USERS);
-    }
-
-    private static void checkManageOrCreateUsersPermission(String message) {
-        checkAtLeastOnePermission(message,
-                android.Manifest.permission.MANAGE_USERS,
-                android.Manifest.permission.CREATE_USERS);
-    }
-
     private static void checkManageUsersOrDumpPermission(String message) {
         checkAtLeastOnePermission(message,
                 android.Manifest.permission.MANAGE_USERS,
@@ -2020,5 +2007,68 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      */
     public void preCreateUsers() {
         mUserPreCreator.managePreCreatedUsers();
+    }
+
+    // TODO(b/167698977): members below were copied from UserManagerService; it would be better to
+    // move them to some internal android.os class instead.
+
+    private static final int ALLOWED_FLAGS_FOR_CREATE_USERS_PERMISSION =
+            UserInfo.FLAG_MANAGED_PROFILE
+            | UserInfo.FLAG_PROFILE
+            | UserInfo.FLAG_EPHEMERAL
+            | UserInfo.FLAG_RESTRICTED
+            | UserInfo.FLAG_GUEST
+            | UserInfo.FLAG_DEMO
+            | UserInfo.FLAG_FULL;
+
+    private static void checkManageUsersPermission(String message) {
+        if (!hasManageUsersPermission()) {
+            throw new SecurityException("You need " + MANAGE_USERS + " permission to: " + message);
+        }
+    }
+
+    private static void checkManageOrCreateUsersPermission(String message) {
+        if (!hasManageOrCreateUsersPermission()) {
+            throw new SecurityException(
+                    "You either need " + MANAGE_USERS + " or " + CREATE_USERS + " permission to: "
+            + message);
+        }
+    }
+
+    private static void checkManageOrCreateUsersPermission(int creationFlags) {
+        if ((creationFlags & ~ALLOWED_FLAGS_FOR_CREATE_USERS_PERMISSION) == 0) {
+            if (!hasManageOrCreateUsersPermission()) {
+                throw new SecurityException("You either need " + MANAGE_USERS + " or "
+                        + CREATE_USERS + "permission to create a user with flags "
+                        + creationFlags);
+            }
+        } else if (!hasManageUsersPermission()) {
+            throw new SecurityException("You need " + MANAGE_USERS + " permission to create a user"
+                    + " with flags " + creationFlags);
+        }
+    }
+
+    private static boolean hasManageUsersPermission() {
+        final int callingUid = Binder.getCallingUid();
+        return UserHandle.isSameApp(callingUid, Process.SYSTEM_UID)
+                || callingUid == Process.ROOT_UID
+                || hasPermissionGranted(MANAGE_USERS, callingUid);
+    }
+
+    private static boolean hasManageUsersOrPermission(String alternativePermission) {
+        final int callingUid = Binder.getCallingUid();
+        return UserHandle.isSameApp(callingUid, Process.SYSTEM_UID)
+                || callingUid == Process.ROOT_UID
+                || hasPermissionGranted(MANAGE_USERS, callingUid)
+                || hasPermissionGranted(alternativePermission, callingUid);
+    }
+
+    private static boolean hasManageOrCreateUsersPermission() {
+        return hasManageUsersOrPermission(CREATE_USERS);
+    }
+
+    private static boolean hasPermissionGranted(String permission, int uid) {
+        return ActivityManager.checkComponentPermission(permission, uid, /* owningUid= */ -1,
+                /* exported= */ true) == PackageManager.PERMISSION_GRANTED;
     }
 }

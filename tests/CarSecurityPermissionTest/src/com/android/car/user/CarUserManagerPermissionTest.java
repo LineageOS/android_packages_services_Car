@@ -24,6 +24,7 @@ import static android.car.Car.CAR_USER_SERVICE;
 import static android.car.Car.createCar;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType.CUSTOM_1;
 
+import static com.android.compatibility.common.util.ShellIdentityUtils.invokeMethodWithShellPermissions;
 import static com.android.compatibility.common.util.ShellIdentityUtils.invokeMethodWithShellPermissionsNoReturn;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -35,6 +36,7 @@ import android.car.Car;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.content.Context;
+import android.content.pm.UserInfo;
 import android.os.Handler;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -53,7 +55,6 @@ import java.util.Objects;
  */
 @RunWith(AndroidJUnit4.class)
 public final class CarUserManagerPermissionTest {
-    private static final int USRE_TYPE = 1;
 
     private CarUserManager mCarUserManager;
     private Context mContext;
@@ -71,6 +72,7 @@ public final class CarUserManagerPermissionTest {
     @Test
     public void testSwitchUserPermission() throws Exception {
         Exception e = expectThrows(SecurityException.class, () -> mCarUserManager.switchUser(100));
+        assertThat(e.getMessage()).contains(CREATE_USERS);
         assertThat(e.getMessage()).contains(MANAGE_USERS);
     }
 
@@ -78,14 +80,34 @@ public final class CarUserManagerPermissionTest {
     public void testCreateUserPermission() throws Exception {
         Exception e = expectThrows(SecurityException.class,
                 () -> mCarUserManager.createUser(null, UserManager.USER_TYPE_FULL_SECONDARY, 0));
-        assertThat(e.getMessage()).contains(MANAGE_USERS);
         assertThat(e.getMessage()).contains(CREATE_USERS);
+        assertThat(e.getMessage()).contains(MANAGE_USERS);
+    }
+
+    @Test
+    public void testCannotCreateAdminUserWithoutManageUsersPermission() throws Exception {
+        Exception e = expectThrows(SecurityException.class,
+                () -> invokeMethodWithShellPermissions(mCarUserManager,
+                        (um) -> um.createUser("Thanos", UserInfo.FLAG_ADMIN)));
+        assertThat(e.getMessage()).contains(MANAGE_USERS);
+        assertThat(e.getMessage()).contains("flags " + UserInfo.FLAG_ADMIN);
+    }
+
+    @Test
+    public void testCannotCreateAdminUserWithTypeWithoutManageUsersPermission() throws Exception {
+        Exception e = expectThrows(SecurityException.class,
+                () -> invokeMethodWithShellPermissions(mCarUserManager,
+                        (um) -> um.createUser("Thanos", UserManager.USER_TYPE_FULL_SECONDARY,
+                                UserInfo.FLAG_ADMIN)));
+        assertThat(e.getMessage()).contains(MANAGE_USERS);
+        assertThat(e.getMessage()).contains("flags " + UserInfo.FLAG_ADMIN);
     }
 
     @Test
     public void testRemoveUserPermission() throws Exception {
         Exception e = expectThrows(SecurityException.class,
                 () -> mCarUserManager.removeUser(UserHandle.of(100)));
+        assertThat(e.getMessage()).contains(CREATE_USERS);
         assertThat(e.getMessage()).contains(MANAGE_USERS);
     }
 
@@ -117,6 +139,7 @@ public final class CarUserManagerPermissionTest {
     public void testGetUserIdentificationAssociationPermission() {
         Exception e = expectThrows(SecurityException.class,
                 () -> mCarUserManager.getUserIdentificationAssociation(CUSTOM_1));
+        assertThat(e.getMessage()).contains(CREATE_USERS);
         assertThat(e.getMessage()).contains(MANAGE_USERS);
     }
 
@@ -125,6 +148,7 @@ public final class CarUserManagerPermissionTest {
         Exception e = expectThrows(SecurityException.class,
                 () -> mCarUserManager.setUserIdentificationAssociation(
                         new int[] {CUSTOM_1}, new int[] {42}));
+        assertThat(e.getMessage()).contains(CREATE_USERS);
         assertThat(e.getMessage()).contains(MANAGE_USERS);
     }
 
