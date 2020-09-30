@@ -143,13 +143,41 @@ final class CarShellCommand extends ShellCommand {
     private static final String COMMAND_SET_USER_AUTH_ASSOCIATION =
             "set-user-auth-association";
 
+    private static final String[] CREATE_OR_MANAGE_USERS_PERMISSIONS = new String[] {
+            android.Manifest.permission.CREATE_USERS,
+            android.Manifest.permission.MANAGE_USERS
+    };
+
+    // List of commands allowed in user build. All these command should be protected with
+    // a permission. K: command, V: required permissions (must have at least 1).
+    // Only commands with permission already granted to shell user should be allowed.
+    // Commands that can affect safety should be never allowed in user build.
+    //
+    // This map is looked up first, then USER_BUILD_COMMAND_TO_PERMISSION_MAP
+    private static final ArrayMap<String, String[]> USER_BUILD_COMMAND_TO_PERMISSIONS_MAP;
+    static {
+        USER_BUILD_COMMAND_TO_PERMISSIONS_MAP = new ArrayMap<>(6);
+        USER_BUILD_COMMAND_TO_PERMISSIONS_MAP.put(COMMAND_GET_INITIAL_USER_INFO,
+                CREATE_OR_MANAGE_USERS_PERMISSIONS);
+        USER_BUILD_COMMAND_TO_PERMISSIONS_MAP.put(COMMAND_SWITCH_USER,
+                CREATE_OR_MANAGE_USERS_PERMISSIONS);
+        USER_BUILD_COMMAND_TO_PERMISSIONS_MAP.put(COMMAND_REMOVE_USER,
+                CREATE_OR_MANAGE_USERS_PERMISSIONS);
+        USER_BUILD_COMMAND_TO_PERMISSIONS_MAP.put(COMMAND_CREATE_USER,
+                CREATE_OR_MANAGE_USERS_PERMISSIONS);
+        USER_BUILD_COMMAND_TO_PERMISSIONS_MAP.put(COMMAND_GET_USER_AUTH_ASSOCIATION,
+                CREATE_OR_MANAGE_USERS_PERMISSIONS);
+        USER_BUILD_COMMAND_TO_PERMISSIONS_MAP.put(COMMAND_SET_USER_AUTH_ASSOCIATION,
+                CREATE_OR_MANAGE_USERS_PERMISSIONS);
+    }
+
     // List of commands allowed in user build. All these command should be protected with
     // a permission. K: command, V: required permission.
     // Only commands with permission already granted to shell user should be allowed.
     // Commands that can affect safety should be never allowed in user build.
     private static final ArrayMap<String, String> USER_BUILD_COMMAND_TO_PERMISSION_MAP;
     static {
-        USER_BUILD_COMMAND_TO_PERMISSION_MAP = new ArrayMap<>();
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP = new ArrayMap<>(5);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_GARAGE_MODE,
                 android.Manifest.permission.DEVICE_POWER);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_RESUME,
@@ -158,18 +186,6 @@ final class CarShellCommand extends ShellCommand {
                 android.Manifest.permission.DEVICE_POWER);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_GET_INITIAL_USER,
                 android.Manifest.permission.INTERACT_ACROSS_USERS_FULL);
-        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_GET_INITIAL_USER_INFO,
-                android.Manifest.permission.MANAGE_USERS);
-        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_SWITCH_USER,
-                android.Manifest.permission.MANAGE_USERS);
-        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_REMOVE_USER,
-                android.Manifest.permission.MANAGE_USERS);
-        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_CREATE_USER,
-                android.Manifest.permission.MANAGE_USERS);
-        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_GET_USER_AUTH_ASSOCIATION,
-                android.Manifest.permission.MANAGE_USERS);
-        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_SET_USER_AUTH_ASSOCIATION,
-                android.Manifest.permission.MANAGE_USERS);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_DAY_NIGHT_MODE,
                 android.Manifest.permission.MODIFY_DAY_NIGHT_MODE);
     }
@@ -469,21 +485,40 @@ final class CarShellCommand extends ShellCommand {
         }
     }
 
+    private void assertHasAtLeastOnePermission(String cmd, String[] requiredPermissions) {
+        for (String requiredPermission : requiredPermissions) {
+            if (ICarImpl.hasPermission(mContext, requiredPermission)) return;
+        }
+        if (requiredPermissions.length == 1) {
+            throw new SecurityException("The command '" + cmd + "' requires permission:"
+                    + requiredPermissions[0]);
+        }
+        throw new SecurityException(
+                "The command " + cmd + " requires one of the following permissions:"
+                        + Arrays.toString(requiredPermissions));
+    }
+
     int exec(String[] args, PrintWriter writer) {
         String cmd = args[0];
-        String requiredPermission = USER_BUILD_COMMAND_TO_PERMISSION_MAP.get(cmd);
-        if (VERBOSE) {
-            Log.v(TAG, "cmd: " + cmd + ", requiredPermission: " + requiredPermission);
-        }
-        if (Build.IS_USER && requiredPermission == null) {
-            throw new SecurityException("The command " + cmd + "requires non-user build");
-        }
-        if (requiredPermission != null) {
-            if (!ICarImpl.hasPermission(mContext, requiredPermission)) {
-                throw new SecurityException("The command " + cmd + "requires permission:"
-                        + requiredPermission);
+        String[] requiredPermissions = USER_BUILD_COMMAND_TO_PERMISSIONS_MAP.get(cmd);
+        if (requiredPermissions == null) {
+            String requiredPermission = USER_BUILD_COMMAND_TO_PERMISSION_MAP.get(cmd);
+            if (requiredPermission != null) {
+                requiredPermissions = new String[] { requiredPermission };
             }
+
         }
+        if (VERBOSE) {
+            Log.v(TAG, "cmd: " + cmd + ", requiredPermissions: "
+                    + Arrays.toString(requiredPermissions));
+        }
+        if (Build.IS_USER && requiredPermissions == null) {
+            throw new SecurityException("The command '" + cmd + "' requires non-user build");
+        }
+        if (requiredPermissions != null) {
+            assertHasAtLeastOnePermission(cmd, requiredPermissions);
+        }
+
         switch (cmd) {
             case COMMAND_HELP:
                 showHelp(writer);
@@ -1114,7 +1149,7 @@ final class CarShellCommand extends ShellCommand {
         }
 
         Log.d(TAG, "createUser(): name=" + name + ", userType=" + userType
-                + ", flags=" + UserHalHelper.userFlagsToString(flags)
+                + ", flags=" + android.content.pm.UserInfo.flagsToString(flags)
                 + ", halOnly=" + halOnly + ", timeout=" + timeout);
 
         if (!halOnly) {
