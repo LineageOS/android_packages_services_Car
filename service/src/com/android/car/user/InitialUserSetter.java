@@ -39,7 +39,7 @@ import android.util.Pair;
 import android.util.Slog;
 import android.util.TimingsTraceLog;
 
-import com.android.car.internal.UserHelperLite;
+import com.android.car.internal.common.UserHelperLite;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 import com.android.internal.widget.LockPatternUtils;

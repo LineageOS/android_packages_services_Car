@@ -33,7 +33,7 @@ import android.os.SystemProperties;
 import android.util.EventLog;
 import android.util.Log;
 
-import com.android.car.internal.EventLogTags;
+import com.android.car.internal.common.EventLogTags;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.RingBufferIndices;

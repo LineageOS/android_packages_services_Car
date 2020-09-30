@@ -56,7 +56,7 @@ LOCAL_STATIC_JAVA_LIBRARIES := \
     androidx.test.ext.junit \
     androidx.test.rules \
     car-service-test-static-lib \
-    com.android.car.internal.all \
+    com.android.car.internal.common \
     com.android.car.internal.system \
     com.android.car.test.utils \
     frameworks-base-testutils \

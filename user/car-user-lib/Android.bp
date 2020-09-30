@@ -20,7 +20,7 @@ java_library {
     libs: [
         "android.hardware.automotive.vehicle-V2.0-java",
         "android.car.settings",
-        "com.android.car.internal.all",
+        "com.android.car.internal.common",
     ],
     product_variables: {
         pdk: {

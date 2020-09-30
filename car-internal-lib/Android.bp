@@ -19,14 +19,6 @@
 // supported.
 
 java_library {
-    name: "com.android.car.internal.all",
-    srcs: [
-        "src/com/android/car/internal/EventLogTags.logtags",
-        "src/com/android/car/internal/UserHelperLite.java",
-    ],
-}
-
-java_library {
     name: "com.android.car.internal.system",
     srcs: [
         "src/com/android/car/internal/SystemConstants.java",
