@@ -712,61 +712,44 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void testRemoveUser_LastAdminUser_success() throws Exception {
-        // TODO(b/168839147): Update the test
-        List<UserInfo> existingUsers =
-                new ArrayList<UserInfo>(Arrays.asList(mAdminUser, mGuestUser, mRegularUser));
         UserInfo currentUser = mRegularUser;
-        mockExistingUsersAndCurrentUser(existingUsers, currentUser);
+        mockExistingUsersAndCurrentUser(mExistingUsers, currentUser);
         UserInfo removeUser = mAdminUser;
-        doAnswer((invocation) -> {
-            existingUsers.remove(removeUser);
-            return true;
-        }).when(mMockedUserManager).removeUser(eq(removeUser.id));
+        when(mMockedUserManager.removeUser(removeUser.id)).thenReturn(true);
 
         UserRemovalResult result = mCarUserService.removeUser(mAdminUser.id);
 
         assertThat(result.getStatus())
                 .isEqualTo(UserRemovalResult.STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED);
-        assertHalRemove(currentUser, removeUser, existingUsers);
+        assertHalRemove(currentUser, removeUser);
     }
 
     @Test
     public void testRemoveUser_notLastAdminUser_success() throws Exception {
-        List<UserInfo> existingUsers =
-                new ArrayList<UserInfo>(Arrays.asList(mAdminUser, mGuestUser, mRegularUser));
         UserInfo currentUser = mRegularUser;
         // Give admin rights to current user.
         currentUser.flags = currentUser.flags | FLAG_ADMIN;
-        mockExistingUsersAndCurrentUser(existingUsers, currentUser);
-
+        mockExistingUsersAndCurrentUser(mExistingUsers, currentUser);
         UserInfo removeUser = mAdminUser;
-        doAnswer((invocation) -> {
-            existingUsers.remove(removeUser);
-            return true;
-        }).when(mMockedUserManager).removeUser(removeUser.id);
+        when(mMockedUserManager.removeUser(removeUser.id)).thenReturn(true);
 
         UserRemovalResult result = mCarUserService.removeUser(removeUser.id);
 
         assertThat(result.getStatus()).isEqualTo(UserRemovalResult.STATUS_SUCCESSFUL);
-        assertHalRemove(currentUser, removeUser, existingUsers);
+        assertHalRemove(currentUser, removeUser);
     }
 
     @Test
     public void testRemoveUser_success() throws Exception {
-        List<UserInfo> existingUsers =
-                new ArrayList<UserInfo>(Arrays.asList(mAdminUser, mGuestUser, mRegularUser));
         UserInfo currentUser = mAdminUser;
-        mockExistingUsersAndCurrentUser(existingUsers, currentUser);
+        mockExistingUsersAndCurrentUser(mExistingUsers, currentUser);
         UserInfo removeUser = mRegularUser;
-        doAnswer((invocation) -> {
-            existingUsers.remove(removeUser);
-            return true;
-        }).when(mMockedUserManager).removeUser(eq(removeUser.id));
+        when(mMockedUserManager.removeUser(removeUser.id)).thenReturn(true);
 
         UserRemovalResult result = mCarUserService.removeUser(removeUser.id);
 
         assertThat(result.getStatus()).isEqualTo(UserRemovalResult.STATUS_SUCCESSFUL);
-        assertHalRemove(currentUser, removeUser, existingUsers);
+        assertHalRemove(currentUser, removeUser);
     }
 
     @Test
@@ -2163,18 +2146,13 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         verify(mUserHal, never()).createUser(any(), eq(mAsyncCallTimeoutMs), any());
     }
 
-    private void assertHalRemove(@NonNull UserInfo currentUser, @NonNull UserInfo removeUser,
-            @NonNull List<UserInfo> existingUsers) {
+    private void assertHalRemove(@NonNull UserInfo currentUser, @NonNull UserInfo removeUser) {
+        verify(mMockedUserManager).removeUser(removeUser.id);
         ArgumentCaptor<RemoveUserRequest> request =
                 ArgumentCaptor.forClass(RemoveUserRequest.class);
         verify(mUserHal).removeUser(request.capture());
         assertThat(request.getValue().removedUserInfo.userId).isEqualTo(removeUser.id);
         assertThat(request.getValue().usersInfo.currentUser.userId).isEqualTo(currentUser.id);
-        UsersInfo receivedExistingUsers = request.getValue().usersInfo;
-        assertThat(receivedExistingUsers.numberUsers).isEqualTo(existingUsers.size());
-        for (int i = 0; i < receivedExistingUsers.numberUsers; i++) {
-            assertSameUser(receivedExistingUsers.existingUsers.get(i), existingUsers.get(i));
-        }
     }
 
     @NonNull
