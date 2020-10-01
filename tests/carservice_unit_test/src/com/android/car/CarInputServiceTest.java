@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import static android.car.input.CarInputManager.TargetDisplayType;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -30,23 +32,16 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.ignoreStubs;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import android.annotation.UserIdInt;
-import android.app.IActivityManager;
 import android.car.CarProjectionManager;
 import android.car.input.CarInputManager;
-import android.car.testapi.BlockingUserLifecycleListener;
-import android.car.user.CarUserManager;
 import android.content.ComponentName;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.UserInfo;
-import android.content.res.Resources;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -54,26 +49,18 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
 import android.os.UserHandle;
-import android.os.UserManager;
-import android.provider.Settings;
 import android.service.voice.VoiceInteractionSession;
 import android.telecom.TelecomManager;
-import android.test.mock.MockContentResolver;
 import android.view.KeyEvent;
 
 import androidx.test.core.app.ApplicationProvider;
 
 import com.android.car.hal.InputHalService;
-import com.android.car.hal.UserHalService;
-import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
 import com.android.car.user.CarUserService;
 import com.android.internal.app.AssistUtils;
-import com.android.internal.util.test.BroadcastInterceptingContext;
-import com.android.internal.util.test.FakeSettingsProvider;
 
 import com.google.common.collect.Range;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -81,6 +68,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.testng.Assert;
 
 import java.util.BitSet;
 import java.util.function.IntSupplier;
@@ -88,139 +76,39 @@ import java.util.function.Supplier;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CarInputServiceTest {
-    // TODO(b/152069895): decrease value once refactored. In fact, it should not even use
-    // runWithScissors(), but only rely on CountdownLatches
-    private static final long DEFAULT_TIMEOUT_MS = 5_000;
 
     @Mock InputHalService mInputHalService;
     @Mock TelecomManager mTelecomManager;
     @Mock AssistUtils mAssistUtils;
     @Mock CarInputService.KeyEventListener mDefaultMainListener;
+    @Mock CarInputService.KeyEventListener mInstrumentClusterKeyListener;
     @Mock Supplier<String> mLastCallSupplier;
     @Mock IntSupplier mLongPressDelaySupplier;
     @Mock InputCaptureClientController mCaptureController;
+    @Mock CarOccupantZoneService mCarOccupantZoneService;
 
     @Spy Context mContext = ApplicationProvider.getApplicationContext();
     @Spy Handler mHandler = new Handler(Looper.getMainLooper());
 
-    private MockContext mMockContext;
-    private CarUserService mCarUserService;
+    @Mock
+    CarUserService mCarUserService;
     private CarInputService mCarInputService;
-
-    /**
-     * A mock {@link Context}.
-     * This class uses a mock {@link ContentResolver} and {@link android.content.ContentProvider} to
-     * avoid changing real system settings. Besides, to emulate the case where the OEM changes
-     * {@link R.string.rotaryService} to empty in the resource file (e.g., the OEM doesn't want to
-     * start RotaryService), this class allows to return a given String when retrieving {@link
-     * R.string.rotaryService}.
-     */
-    private static class MockContext extends BroadcastInterceptingContext {
-        private final MockContentResolver mContentResolver;
-        private final FakeSettingsProvider mContentProvider;
-        private final Resources mResources;
-
-        MockContext(Context base, String rotaryService) {
-            super(base);
-            FakeSettingsProvider.clearSettingsProvider();
-            mContentResolver = new MockContentResolver(this);
-            mContentProvider = new FakeSettingsProvider();
-            mContentResolver.addProvider(Settings.AUTHORITY, mContentProvider);
-
-            mResources = spy(base.getResources());
-            doReturn(rotaryService).when(mResources).getString(R.string.rotaryService);
-        }
-
-        void release() {
-            FakeSettingsProvider.clearSettingsProvider();
-        }
-
-        @Override
-        public ContentResolver getContentResolver() {
-            return mContentResolver;
-        }
-
-        @Override
-        public Resources getResources() {
-            return mResources;
-        }
-    }
 
     @Before
     public void setUp() {
         mCarUserService = mock(CarUserService.class);
+
         mCarInputService = new CarInputService(mContext, mInputHalService, mCarUserService,
-                mHandler, mTelecomManager, mAssistUtils, mDefaultMainListener, mLastCallSupplier,
-                mLongPressDelaySupplier, mCaptureController);
+                mCarOccupantZoneService, mHandler, mTelecomManager, mAssistUtils,
+                mDefaultMainListener, mLastCallSupplier, mLongPressDelaySupplier,
+                mCaptureController);
+        mCarInputService.setInstrumentClusterKeyListener(mInstrumentClusterKeyListener);
 
         when(mInputHalService.isKeyInputSupported()).thenReturn(true);
         mCarInputService.init();
 
         // Delay Handler callbacks until flushHandler() is called.
         doReturn(true).when(mHandler).sendMessageAtTime(any(), anyLong());
-    }
-
-    @Test
-    public void rotaryServiceSettingsUpdated_whenRotaryServiceIsNotEmpty() throws Exception {
-        final String rotaryService = "com.android.car.rotary/com.android.car.rotary.RotaryService";
-        init(rotaryService);
-        assertThat(mMockContext.getString(R.string.rotaryService)).isEqualTo(rotaryService);
-
-        final int userId = 11;
-
-        // By default RotaryService is not enabled.
-        String enabledServices = Settings.Secure.getStringForUser(
-                mMockContext.getContentResolver(),
-                Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
-                userId);
-        assertThat(enabledServices == null ? "" : enabledServices).doesNotContain(rotaryService);
-
-        String enabled = Settings.Secure.getStringForUser(
-                mMockContext.getContentResolver(),
-                Settings.Secure.ACCESSIBILITY_ENABLED,
-                userId);
-        assertThat(enabled).isNull();
-
-        // Enable RotaryService by sending user switch event.
-        sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, userId);
-
-        enabledServices = Settings.Secure.getStringForUser(
-                mMockContext.getContentResolver(),
-                Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
-                userId);
-        assertThat(enabledServices).contains(rotaryService);
-
-        enabled = Settings.Secure.getStringForUser(
-                mMockContext.getContentResolver(),
-                Settings.Secure.ACCESSIBILITY_ENABLED,
-                userId);
-        assertThat(enabled).isEqualTo("1");
-    }
-
-    @Test
-    public void rotaryServiceSettingsNotUpdated_whenRotaryServiceIsEmpty() throws Exception {
-        final String rotaryService = "";
-        init(rotaryService);
-        assertThat(mMockContext.getString(R.string.rotaryService)).isEqualTo(rotaryService);
-
-        final int userId = 11;
-
-        // By default the Accessibility is disabled.
-        String enabled = Settings.Secure.getStringForUser(
-                mMockContext.getContentResolver(),
-                Settings.Secure.ACCESSIBILITY_ENABLED,
-                userId);
-        assertThat(enabled).isNull();
-
-        sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, userId);
-
-        // Sending user switch event shouldn't enable the Accessibility because RotaryService is
-        // empty.
-        enabled = Settings.Secure.getStringForUser(
-                mMockContext.getContentResolver(),
-                Settings.Secure.ACCESSIBILITY_ENABLED,
-                userId);
-        assertThat(enabled).isNull();
     }
 
     @Test
@@ -601,51 +489,61 @@ public class CarInputServiceTest {
         assertThat(timeCaptor.getValue()).isIn(Range.closed(then + systemDelay, now + systemDelay));
     }
 
-    @After
-    public void tearDown() {
-        if (mMockContext != null) {
-            mMockContext.release();
-            mMockContext = null;
-        }
+    @Test
+    public void injectKeyEvent_throwsSecurityExceptionWithoutInjectEventsPermission() {
+        // Arrange
+        doReturn(PackageManager.PERMISSION_DENIED).when(mContext).checkCallingOrSelfPermission(
+                android.Manifest.permission.INJECT_EVENTS);
+
+        KeyEvent event = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER);
+
+        // Act and assert
+        Assert.assertThrows(SecurityException.class,
+                () -> mCarInputService.injectKeyEvent(event, InputHalService.DISPLAY_MAIN));
     }
 
-    /**
-     * Initializes {@link #mMockContext}, {@link #mCarUserService}, and {@link #mCarInputService}.
-     */
-    private void init(String rotaryService) {
-        mMockContext = new MockContext(mContext, rotaryService);
+    @Test
+    public void injectKeyEvent_delegatesToOnKeyEvent() {
+        KeyEvent event = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER);
+        event.setDisplayId(android.view.Display.INVALID_DISPLAY);
 
-        UserManager userManager = mock(UserManager.class);
-        UserInfo userInfo = mock(UserInfo.class);
-        doReturn(userInfo).when(userManager).getUserInfo(anyInt());
-        UserHalService userHal = mock(UserHalService.class);
-        IActivityManager iActivityManager = mock(IActivityManager.class);
-        mCarUserService = new CarUserService(mMockContext, userHal,
-                userManager, iActivityManager, /* maxRunningUsers= */ 2);
+        injectKeyEventAndVerify(event, InputHalService.DISPLAY_MAIN);
 
-        mCarInputService = new CarInputService(mMockContext, mInputHalService, mCarUserService,
-                mHandler, mTelecomManager, mAssistUtils, mDefaultMainListener, mLastCallSupplier,
-                mLongPressDelaySupplier, mCaptureController);
-        mCarInputService.init();
+        verify(mDefaultMainListener).onKeyEvent(event);
+        verify(mInstrumentClusterKeyListener, never()).onKeyEvent(event);
     }
 
-    private void sendUserLifecycleEvent(@UserLifecycleEventType int eventType,
-            @UserIdInt int userId) throws InterruptedException {
-        // Add a blocking listener to ensure CarUserService event notification is completed
-        // before proceeding with test execution.
-        BlockingUserLifecycleListener blockingListener =
-                BlockingUserLifecycleListener.forAnyEvent().build();
-        mCarUserService.addUserLifecycleListener(blockingListener);
+    @Test
+    public void injectKeyEvent_sendingKeyEventWithDefaultDisplayAgainstClusterDisplayType() {
+        KeyEvent event = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER);
+        event.setDisplayId(android.view.Display.DEFAULT_DISPLAY);
 
-        runOnMainThreadAndWaitForIdle(() -> mCarUserService.onUserLifecycleEvent(eventType,
-                /* fromUserId= */ UserHandle.USER_NULL, userId));
-        blockingListener.waitForAnyEvent();
+        injectKeyEventAndVerify(event, InputHalService.DISPLAY_INSTRUMENT_CLUSTER);
+
+        verify(mDefaultMainListener, never()).onKeyEvent(event);
+        verify(mInstrumentClusterKeyListener).onKeyEvent(event);
     }
 
-    private static void runOnMainThreadAndWaitForIdle(Runnable r) {
-        Handler.getMain().runWithScissors(r, DEFAULT_TIMEOUT_MS);
-        // Run empty runnable to make sure that all posted handlers are done.
-        Handler.getMain().runWithScissors(() -> { }, DEFAULT_TIMEOUT_MS);
+    private void injectKeyEventAndVerify(KeyEvent event, @TargetDisplayType int displayType) {
+        // Arrange
+        doReturn(PackageManager.PERMISSION_GRANTED).when(mContext).checkCallingOrSelfPermission(
+                android.Manifest.permission.INJECT_EVENTS);
+
+        int anyDriverUserId = 1;
+        int anyZoneId = 1;
+        int someDisplayId = Integer.MAX_VALUE;
+        when(mCarOccupantZoneService.getDriverUserId()).thenReturn(anyDriverUserId);
+        when(mCarOccupantZoneService.getOccupantZoneIdForUserId(anyInt())).thenReturn(anyZoneId);
+        when(mCarOccupantZoneService.getDisplayForOccupant(anyInt(), anyInt())).thenReturn(
+                someDisplayId);
+
+        assertThat(event.getDisplayId()).isNotEqualTo(someDisplayId);
+
+        // Act
+        mCarInputService.injectKeyEvent(event, displayType);
+
+        // Assert display id was updated as expected
+        assertThat(event.getDisplayId()).isEqualTo(someDisplayId);
     }
 
     private enum Key {DOWN, UP}

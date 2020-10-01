@@ -277,6 +277,25 @@ public final class CarInputManager extends CarManagerBase {
         }
     }
 
+    /**
+     * Injects the {@link KeyEvent} passed as parameter against Car Input API.
+     * <p>
+     * The event parameter display id will be overridden accordingly to the display type also passed
+     * as parameter.
+     *
+     * @param event the event to inject
+     * @param targetDisplayType the display type associated with the event
+     * @throws RemoteException in case of failure when invoking car input service
+     */
+    @RequiresPermission(android.Manifest.permission.INJECT_EVENTS)
+    public void injectKeyEvent(KeyEvent event, @TargetDisplayType int targetDisplayType) {
+        try {
+            mService.injectKeyEvent(event, targetDisplayType);
+        } catch (RemoteException e) {
+            e.rethrowFromSystemServer();
+        }
+    }
+
     @Override
     protected void onCarDisconnected() {
         synchronized (mLock) {
@@ -297,7 +316,6 @@ public final class CarInputManager extends CarManagerBase {
                 callback.onKeyEvents(targetDisplayType, keyEvents);
             }
         });
-
     }
 
     private void dispatchRotaryEvents(int targetDisplayType, List<RotaryEvent> events) {

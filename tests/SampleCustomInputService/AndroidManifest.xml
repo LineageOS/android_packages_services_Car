@@ -18,10 +18,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.android.car.custominput.sample">
 
-    <uses-permission android:name="android.permission.MONITOR_INPUT"/>
+    <!-- This permission is required to start SampleCustomInputService -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <!-- This permission is required to re-inject KeyEvents in Car Input API -->
+    <uses-permission android:name="android.permission.INJECT_EVENTS" />
+    <!-- The following permissions are required in order to communicate against Car Input API -->
     <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.MONITOR_INPUT"/>
 
     <application>
         <service android:name=".SampleCustomInputService"
