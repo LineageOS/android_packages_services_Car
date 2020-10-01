@@ -236,8 +236,9 @@ UniqueFence HalCamera::requestNewFrame(sp<VirtualCamera> client,
 
     std::lock_guard<std::mutex> lock(mFrameMutex);
 
-    if (mStreamState != RUNNING) {
-        LOG(WARNING) << "This HalCamera is not streaming.";
+    if (mTimelines.find(id) == mTimelines.end()) {
+        // Timeline for this client either does not exist or is deleted.
+        LOG(ERROR) << "Timeline for this client does not exist.";
         return {};
     }
 
