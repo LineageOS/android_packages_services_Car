@@ -17,27 +17,15 @@
 package android.car.userlib;
 
 import android.Manifest;
-import android.annotation.NonNull;
 import android.annotation.RequiresPermission;
-import android.annotation.UserIdInt;
 import android.app.ActivityManager;
-import android.car.settings.CarSettings;
 import android.content.Context;
 import android.content.pm.UserInfo;
-import android.os.UserHandle;
 import android.os.UserManager;
-import android.provider.Settings;
-import android.sysprop.CarProperties;
 import android.util.Log;
-
-import com.android.car.internal.common.UserHelperLite;
 
 import com.google.android.collect.Sets;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -57,7 +45,6 @@ public final class CarUserManagerHelper {
     private static final String TAG = "CarUserManagerHelper";
 
     private static final boolean DEBUG = false;
-    private static final int BOOT_USER_NOT_FOUND = -1;
 
     /**
      * Default set of restrictions for Non-Admin users.
@@ -94,168 +81,6 @@ public final class CarUserManagerHelper {
     }
 
     /**
-     * Sets the last active user.
-     */
-    public void setLastActiveUser(@UserIdInt int userId) {
-        if (UserHelperLite.isHeadlessSystemUser(userId)) {
-            if (DEBUG) Log.d(TAG, "setLastActiveUser(): ignoring headless system user " + userId);
-            return;
-        }
-        setUserIdGlobalProperty(CarSettings.Global.LAST_ACTIVE_USER_ID, userId);
-
-        // TODO(b/155918094): change method to receive a UserInfo instead
-        UserInfo user = mUserManager.getUserInfo(userId);
-        if (user == null) {
-            Log.w(TAG, "setLastActiveUser(): user " + userId + " doesn't exist");
-            return;
-        }
-        if (!user.isEphemeral()) {
-            setUserIdGlobalProperty(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID, userId);
-        }
-    }
-
-    private void setUserIdGlobalProperty(@NonNull String name, @UserIdInt int userId) {
-        if (DEBUG) Log.d(TAG, "setting global property " + name + " to " + userId);
-
-        Settings.Global.putInt(mContext.getContentResolver(), name, userId);
-    }
-
-    private int getUserIdGlobalProperty(@NonNull String name) {
-        int userId = Settings.Global.getInt(mContext.getContentResolver(), name,
-                UserHandle.USER_NULL);
-        if (DEBUG) Log.d(TAG, "getting global property " + name + ": " + userId);
-
-        return userId;
-    }
-
-    private void resetUserIdGlobalProperty(@NonNull String name) {
-        if (DEBUG) Log.d(TAG, "resetting global property " + name);
-
-        Settings.Global.putInt(mContext.getContentResolver(), name, UserHandle.USER_NULL);
-    }
-
-    /**
-     * Gets the user id for the initial user to boot into. This is only applicable for headless
-     * system user model. This method checks for a system property and will only work for system
-     * apps.
-     *
-     * This method checks for the initial user via three mechanisms in this order:
-     * <ol>
-     *     <li>Check for a boot user override via {@link CarProperties#boot_user_override_id()}</li>
-     *     <li>Check for the last active user in the system</li>
-     *     <li>Fallback to the smallest user id that is not {@link UserHandle.USER_SYSTEM}</li>
-     * </ol>
-     *
-     * If any step fails to retrieve the stored id or the retrieved id does not exist on device,
-     * then it will move onto the next step.
-     *
-     * @return user id of the initial user to boot into on the device, or
-     * {@link UserHandle#USER_NULL} if there is no user available.
-     */
-    // TODO(b/160819016): Move this logic to CarUserService
-    public int getInitialUser(boolean usesOverrideUserIdProperty) {
-
-        List<Integer> allUsers = userInfoListToUserIdList(getAllUsers());
-
-        if (allUsers.isEmpty()) {
-            return UserHandle.USER_NULL;
-        }
-
-        if (usesOverrideUserIdProperty) {
-            int bootUserOverride = CarProperties.boot_user_override_id()
-                    .orElse(BOOT_USER_NOT_FOUND);
-
-            // If an override user is present and a real user, return it
-            if (bootUserOverride != BOOT_USER_NOT_FOUND
-                    && allUsers.contains(bootUserOverride)) {
-                Log.i(TAG, "Boot user id override found for initial user, user id: "
-                        + bootUserOverride);
-                return bootUserOverride;
-            }
-        }
-
-        // If the last active user is not the SYSTEM user and is a real user, return it
-        int lastActiveUser = getUserIdGlobalProperty(CarSettings.Global.LAST_ACTIVE_USER_ID);
-        if (allUsers.contains(lastActiveUser)) {
-            Log.i(TAG, "Last active user loaded for initial user: " + lastActiveUser);
-            return lastActiveUser;
-        }
-        resetUserIdGlobalProperty(CarSettings.Global.LAST_ACTIVE_USER_ID);
-
-        int lastPersistentUser = getUserIdGlobalProperty(
-                CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID);
-        if (allUsers.contains(lastPersistentUser)) {
-            Log.i(TAG, "Last active, persistent user loaded for initial user: "
-                    + lastPersistentUser);
-            return lastPersistentUser;
-        }
-        resetUserIdGlobalProperty(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID);
-
-        // If all else fails, return the smallest user id
-        int returnId = Collections.min(allUsers);
-        // TODO(b/158101909): the smallest user id is not always the initial user; a better approach
-        // would be looking for the first ADMIN user, or keep track of all last active users (not
-        // just the very last)
-        Log.w(TAG, "Last active user (" + lastActiveUser + ") not found. Returning smallest user id"
-                + " instead: " + returnId);
-        return returnId;
-    }
-
-    /**
-     * Checks whether the device has an initial user that can be switched to.
-     */
-    public boolean hasInitialUser() {
-        List<UserInfo> allUsers = getAllUsers();
-        for (int i = 0; i < allUsers.size(); i++) {
-            UserInfo user = allUsers.get(i);
-            if (user.isManagedProfile()) continue;
-
-            return true;
-        }
-        return false;
-    }
-
-    private static List<Integer> userInfoListToUserIdList(List<UserInfo> allUsers) {
-        ArrayList<Integer> list = new ArrayList<>(allUsers.size());
-        for (UserInfo userInfo : allUsers) {
-            list.add(userInfo.id);
-        }
-        return list;
-    }
-
-    /**
-     * Gets all the users that can be brought to the foreground on the system.
-     *
-     * @return List of {@code UserInfo} for users that associated with a real person.
-     */
-    private List<UserInfo> getAllUsers() {
-        if (UserManager.isHeadlessSystemUserMode()) {
-            return getAllUsersExceptSystemUserAndSpecifiedUser(UserHandle.USER_SYSTEM);
-        } else {
-            return mUserManager.getAliveUsers();
-        }
-    }
-
-    /**
-     * Get all the users except system user and the one with userId passed in.
-     *
-     * @param userId of the user not to be returned.
-     * @return All users other than system user and user with userId.
-     */
-    private List<UserInfo> getAllUsersExceptSystemUserAndSpecifiedUser(int userId) {
-        List<UserInfo> users = mUserManager.getAliveUsers();
-
-        for (Iterator<UserInfo> iterator = users.iterator(); iterator.hasNext(); ) {
-            UserInfo userInfo = iterator.next();
-            if (userInfo.id == userId || userInfo.id == UserHandle.USER_SYSTEM) {
-                // Remove user with userId from the list.
-                iterator.remove();
-            }
-        }
-        return users;
-    }
-
-    /**
      * Grants admin permissions to the user.
      *
      * @param user User to be upgraded to Admin status.
@@ -282,11 +107,8 @@ public final class CarUserManagerHelper {
      *
      * @param userInfo User to set restrictions on.
      * @param enable If true, restriction is ON, If false, restriction is OFF.
-     *
-     * @deprecated non-admin restrictions should be set by resources overlay
      */
-    @Deprecated
-    public void setDefaultNonAdminRestrictions(UserInfo userInfo, boolean enable) {
+    private void setDefaultNonAdminRestrictions(UserInfo userInfo, boolean enable) {
         for (String restriction : DEFAULT_NON_ADMIN_RESTRICTIONS) {
             mUserManager.setUserRestriction(restriction, enable, userInfo.getUserHandle());
         }

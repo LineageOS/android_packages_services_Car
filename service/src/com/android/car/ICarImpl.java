@@ -26,7 +26,6 @@ import android.car.CarFeatures;
 import android.car.ICar;
 import android.car.cluster.renderer.IInstrumentClusterNavigation;
 import android.car.user.CarUserManager;
-import android.car.userlib.CarUserManagerHelper;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -113,7 +112,6 @@ public class ICarImpl extends ICar.Stub {
     private final CarDiagnosticService mCarDiagnosticService;
     private final CarStorageMonitoringService mCarStorageMonitoringService;
     private final CarMediaService mCarMediaService;
-    private final CarUserManagerHelper mUserManagerHelper;
     private final CarUserService mCarUserService;
     private final CarOccupantZoneService mCarOccupantZoneService;
     private final CarUserNoticeService mCarUserNoticeService;
@@ -179,7 +177,6 @@ public class ICarImpl extends ICar.Stub {
                 disabledFeaturesFromVhal , mSystemInterface.getSystemCarDir());
         CarLocalServices.addService(CarFeatureController.class, mFeatureController);
         mVehicleInterfaceName = vehicleInterfaceName;
-        mUserManagerHelper = new CarUserManagerHelper(serviceContext);
         if (carUserService != null) {
             mCarUserService = carUserService;
         } else {
@@ -188,7 +185,7 @@ public class ICarImpl extends ICar.Stub {
             int maxRunningUsers = res.getInteger(
                     com.android.internal.R.integer.config_multiuserMaxRunningUsers);
             mCarUserService = new CarUserService(serviceContext, mHal.getUserHal(),
-                    mUserManagerHelper, userManager, ActivityManager.getService(), maxRunningUsers);
+                    userManager, ActivityManager.getService(), maxRunningUsers);
         }
         mCarOccupantZoneService = new CarOccupantZoneService(serviceContext);
         mSystemActivityMonitoringService = new SystemActivityMonitoringService(serviceContext);
