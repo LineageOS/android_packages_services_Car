@@ -19,6 +19,7 @@
 
 #include <android-base/result.h>
 #include <android/frameworks/automotive/powerpolicy/CarPowerPolicy.h>
+#include <android/hardware/automotive/vehicle/2.0/IVehicle.h>
 
 #include <tinyxml2.h>
 
@@ -35,7 +36,7 @@ std::string toString(const CarPowerPolicy& policy);
 std::string toString(const std::vector<PowerComponent>& components);
 
 using CarPowerPolicyPtr = std::shared_ptr<CarPowerPolicy>;
-using PolicyGroup = std::unordered_map<std::string, std::string>;
+using PolicyGroup = std::unordered_map<int32_t, std::string>;
 
 // Forward declaration for testing use only.
 namespace internal {
@@ -54,10 +55,11 @@ class PolicyManager {
 public:
     void init();
     CarPowerPolicyPtr getPowerPolicy(const std::string& policyId) const;
-    CarPowerPolicyPtr getDefaultPowerPolicyForTransition(const std::string& powerTransition) const;
+    CarPowerPolicyPtr getDefaultPowerPolicyForState(
+            const std::string& groupId,
+            hardware::automotive::vehicle::V2_0::VehicleApPowerStateReport state) const;
     CarPowerPolicyPtr getSystemPowerPolicy() const;
-    std::string getCurrentPowerPolicyGroup() const;
-    base::Result<void> setCurrentPowerPolicyGroup(const std::string& groupId);
+    bool isPowerPolicyGroupAvailable(const std::string& groupId) const;
     base::Result<void> dump(int fd, const Vector<String16>& args);
 
 private:
@@ -70,7 +72,6 @@ private:
     std::unordered_map<std::string, CarPowerPolicyPtr> mRegisteredPowerPolicies;
     CarPowerPolicyPtr mSystemPowerPolicy;
     std::unordered_map<std::string, PolicyGroup> mPolicyGroups;
-    std::string mCurrentPolicyGroupId;
 
     // For unit tests.
     friend class internal::PolicyManagerPeer;

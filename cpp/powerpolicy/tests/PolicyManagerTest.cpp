@@ -17,6 +17,7 @@
 #include "PolicyManager.h"
 
 #include <android-base/file.h>
+#include <android/hardware/automotive/vehicle/2.0/IVehicle.h>
 #include <gmock/gmock.h>
 
 #include <unordered_set>
@@ -26,6 +27,7 @@ namespace frameworks {
 namespace automotive {
 namespace powerpolicy {
 
+using android::hardware::automotive::vehicle::V2_0::VehicleApPowerStateReport;
 using tinyxml2::XML_SUCCESS;
 using tinyxml2::XMLDocument;
 
@@ -58,10 +60,11 @@ constexpr const char* kExistingPowerPolicyId_OtherOn = "policy_id_other_on";
 constexpr const char* kExistingPowerPolicyId_OtherUntouched = "policy_id_other_untouched";
 constexpr const char* kExistingPowerPolicyId_OtherNone = "policy_id_other_none";
 constexpr const char* kNonExistingPowerPolicyId = "non_existing_power_poicy_id";
-constexpr const char* kExistingTransition = "WaitForVHAL";
-constexpr const char* kNonExistingTransition = "NonExistingTransition";
 constexpr const char* kValidPowerPolicyGroupId = "mixed_policy_group";
 constexpr const char* kInvalidPowerPolicyGroupId = "invalid_policy_group";
+
+const VehicleApPowerStateReport kExistingTransition = VehicleApPowerStateReport::WAIT_FOR_VHAL;
+const VehicleApPowerStateReport kNonExistingTransition = static_cast<VehicleApPowerStateReport>(-1);
 
 CarPowerPolicy createCarPowerPolicy(const std::string& id,
                                     const std::vector<PowerComponent>& enabledComponents,
@@ -184,12 +187,14 @@ void checkPolicies(const PolicyManager& policyManager) {
 }
 
 void checkPowerPolicyGroups(const PolicyManager& policyManager) {
-    CarPowerPolicyPtr policy =
-            policyManager.getDefaultPowerPolicyForTransition(kExistingTransition);
+    CarPowerPolicyPtr policy = policyManager.getDefaultPowerPolicyForState(kValidPowerPolicyGroupId,
+                                                                           kExistingTransition);
     ASSERT_TRUE(policy.get() != nullptr);
     ASSERT_TRUE(isEqual(*policy, kExistingTransitionPolicy));
-    ASSERT_TRUE(policyManager.getDefaultPowerPolicyForTransition(kNonExistingTransition).get() ==
-                nullptr);
+    ASSERT_TRUE(
+            policyManager
+                    .getDefaultPowerPolicyForState(kValidPowerPolicyGroupId, kNonExistingTransition)
+                    .get() == nullptr);
 }
 
 void checkSystemPowerPolicy(const PolicyManager& policyManager,
@@ -201,8 +206,14 @@ void checkSystemPowerPolicy(const PolicyManager& policyManager,
 void checkInvalidPolicies(const PolicyManager& policyManager) {
     ASSERT_EQ(policyManager.getPowerPolicy(kExistingPowerPolicyId).get(), nullptr);
     ASSERT_EQ(policyManager.getPowerPolicy(kNonExistingPowerPolicyId).get(), nullptr);
-    ASSERT_EQ(policyManager.getDefaultPowerPolicyForTransition(kExistingTransition).get(), nullptr);
-    ASSERT_EQ(policyManager.getDefaultPowerPolicyForTransition(kNonExistingTransition).get(),
+    ASSERT_EQ(policyManager
+                      .getDefaultPowerPolicyForState(kValidPowerPolicyGroupId, kExistingTransition)
+                      .get(),
+              nullptr);
+    ASSERT_EQ(policyManager
+                      .getDefaultPowerPolicyForState(kValidPowerPolicyGroupId,
+                                                     kNonExistingTransition)
+                      .get(),
               nullptr);
     CarPowerPolicyPtr policy = policyManager.getSystemPowerPolicy();
     ASSERT_TRUE(isEqual(*policy, kDefaultSystemPowerPolicy));
@@ -251,7 +262,6 @@ TEST_F(PolicyManagerTest, TestValidXml_PowerPolicyGroup) {
     internal::PolicyManagerPeer policyManagerPeer(&policyManager);
     policyManagerPeer.expectValidPowerPolicyXML(kValidPowerPolicyXmlFile);
 
-    ASSERT_TRUE(policyManager.setCurrentPowerPolicyGroup(kValidPowerPolicyGroupId).ok());
     checkPowerPolicyGroups(policyManager);
 }
 
@@ -269,9 +279,14 @@ TEST_F(PolicyManagerTest, TestValidXml_NoPowerPolicyGroups) {
     policyManagerPeer.expectValidPowerPolicyXML(kValidPowerPolicyNoPowerPolicyGroupsXmlFile);
 
     checkPolicies(policyManager);
-    ASSERT_FALSE(policyManager.setCurrentPowerPolicyGroup(kValidPowerPolicyGroupId).ok());
-    ASSERT_EQ(policyManager.getDefaultPowerPolicyForTransition(kExistingTransition).get(), nullptr);
-    ASSERT_EQ(policyManager.getDefaultPowerPolicyForTransition(kNonExistingTransition).get(),
+    ASSERT_EQ(policyManager
+                      .getDefaultPowerPolicyForState(kValidPowerPolicyGroupId, kExistingTransition)
+                      .get(),
+              nullptr);
+    ASSERT_EQ(policyManager
+                      .getDefaultPowerPolicyForState(kValidPowerPolicyGroupId,
+                                                     kNonExistingTransition)
+                      .get(),
               nullptr);
     checkSystemPowerPolicy(policyManager, kModifiedSystemPowerPolicy);
 }
@@ -282,7 +297,6 @@ TEST_F(PolicyManagerTest, TestValidXml_NoSystemPowerPolicy) {
     policyManagerPeer.expectValidPowerPolicyXML(kValidPowerPolicyNoSystemPowerPolicyXmlFile);
 
     checkPolicies(policyManager);
-    ASSERT_TRUE(policyManager.setCurrentPowerPolicyGroup(kValidPowerPolicyGroupId).ok());
     checkPowerPolicyGroups(policyManager);
     checkSystemPowerPolicy(policyManager, kDefaultSystemPowerPolicy);
 }
@@ -293,9 +307,14 @@ TEST_F(PolicyManagerTest, TestValidXml_PoliciesOnly) {
     policyManagerPeer.expectValidPowerPolicyXML(kValidPowerPolicyPowerPoliciesOnlyXmlFile);
 
     checkPolicies(policyManager);
-    ASSERT_EQ(policyManager.getDefaultPowerPolicyForTransition(kExistingTransition).get(), nullptr);
-    ASSERT_FALSE(policyManager.setCurrentPowerPolicyGroup(kValidPowerPolicyGroupId).ok());
-    ASSERT_EQ(policyManager.getDefaultPowerPolicyForTransition(kNonExistingTransition).get(),
+    ASSERT_EQ(policyManager
+                      .getDefaultPowerPolicyForState(kValidPowerPolicyGroupId, kExistingTransition)
+                      .get(),
+              nullptr);
+    ASSERT_EQ(policyManager
+                      .getDefaultPowerPolicyForState(kValidPowerPolicyGroupId,
+                                                     kNonExistingTransition)
+                      .get(),
               nullptr);
     checkSystemPowerPolicy(policyManager, kDefaultSystemPowerPolicy);
 }
@@ -307,9 +326,14 @@ TEST_F(PolicyManagerTest, TestValidXml_SystemPowerPolicyOnly) {
 
     ASSERT_EQ(policyManager.getPowerPolicy(kExistingPowerPolicyId).get(), nullptr);
     ASSERT_EQ(policyManager.getPowerPolicy(kNonExistingPowerPolicyId).get(), nullptr);
-    ASSERT_FALSE(policyManager.setCurrentPowerPolicyGroup(kValidPowerPolicyGroupId).ok());
-    ASSERT_EQ(policyManager.getDefaultPowerPolicyForTransition(kExistingTransition).get(), nullptr);
-    ASSERT_EQ(policyManager.getDefaultPowerPolicyForTransition(kNonExistingTransition).get(),
+    ASSERT_EQ(policyManager
+                      .getDefaultPowerPolicyForState(kValidPowerPolicyGroupId, kExistingTransition)
+                      .get(),
+              nullptr);
+    ASSERT_EQ(policyManager
+                      .getDefaultPowerPolicyForState(kValidPowerPolicyGroupId,
+                                                     kNonExistingTransition)
+                      .get(),
               nullptr);
     checkSystemPowerPolicy(policyManager, kModifiedSystemPowerPolicy);
 }
@@ -344,15 +368,13 @@ TEST_F(PolicyManagerTest, TestInvalidSystemPowerPolicyXml) {
     }
 }
 
-TEST_F(PolicyManagerTest, TestValidXml_CurrentPowerPolicyGroup) {
+TEST_F(PolicyManagerTest, TestValidXml_PowerPolicyGroupAvailable) {
     PolicyManager policyManager;
     internal::PolicyManagerPeer policyManagerPeer(&policyManager);
     policyManagerPeer.expectValidPowerPolicyXML(kValidPowerPolicyXmlFile);
 
-    ASSERT_EQ(policyManager.getCurrentPowerPolicyGroup(), "");
-    ASSERT_TRUE(policyManager.setCurrentPowerPolicyGroup(kValidPowerPolicyGroupId).ok());
-    ASSERT_EQ(policyManager.getCurrentPowerPolicyGroup(), kValidPowerPolicyGroupId);
-    ASSERT_FALSE(policyManager.setCurrentPowerPolicyGroup(kInvalidPowerPolicyGroupId).ok());
+    ASSERT_TRUE(policyManager.isPowerPolicyGroupAvailable(kValidPowerPolicyGroupId));
+    ASSERT_FALSE(policyManager.isPowerPolicyGroupAvailable(kInvalidPowerPolicyGroupId));
 }
 
 }  // namespace powerpolicy

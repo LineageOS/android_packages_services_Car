@@ -22,6 +22,7 @@
 
 #include <android-base/result.h>
 #include <android/frameworks/automotive/powerpolicy/BnCarPowerPolicyServer.h>
+#include <android/hardware/automotive/vehicle/2.0/IVehicle.h>
 #include <binder/IBinder.h>
 #include <binder/Status.h>
 #include <utils/Looper.h>
@@ -56,9 +57,58 @@ class CarPowerPolicyServerPeer;
 
 }  // namespace internal
 
-class CarPowerPolicyServer : public BnCarPowerPolicyServer, public IBinder::DeathRecipient {
+// Forward declaration for defining binder death handler and property change listener.
+class CarPowerPolicyServer;
+
+class BinderDeathRecipient : public IBinder::DeathRecipient {
 public:
-    static base::Result<sp<CarPowerPolicyServer>> startService(const android::sp<Looper>& looper);
+    explicit BinderDeathRecipient(const sp<CarPowerPolicyServer>& service);
+
+    void binderDied(const wp<IBinder>& who) override;
+
+private:
+    sp<CarPowerPolicyServer> mService;
+};
+
+class HidlDeathRecipient : public hardware::hidl_death_recipient {
+public:
+    explicit HidlDeathRecipient(const sp<CarPowerPolicyServer>& service);
+
+    void serviceDied(uint64_t cookie, const wp<hidl::base::V1_0::IBase>& who) override;
+
+private:
+    sp<CarPowerPolicyServer> mService;
+};
+
+class PropertyChangeListener : public hardware::automotive::vehicle::V2_0::IVehicleCallback {
+public:
+    explicit PropertyChangeListener(const sp<CarPowerPolicyServer>& service);
+
+    hardware::Return<void> onPropertyEvent(
+            const hardware::hidl_vec<hardware::automotive::vehicle::V2_0::VehiclePropValue>&
+                    propValues) override;
+    hardware::Return<void> onPropertySet(
+            const hardware::automotive::vehicle::V2_0::VehiclePropValue& propValue);
+    hardware::Return<void> onPropertySetError(
+            hardware::automotive::vehicle::V2_0::StatusCode status, int32_t propId, int32_t areaId);
+
+private:
+    sp<CarPowerPolicyServer> mService;
+};
+
+class MessageHandlerImpl : public MessageHandler {
+public:
+    explicit MessageHandlerImpl(const sp<CarPowerPolicyServer>& service);
+
+    void handleMessage(const Message& message) override;
+
+private:
+    sp<CarPowerPolicyServer> mService;
+};
+
+class CarPowerPolicyServer : public BnCarPowerPolicyServer {
+public:
+    static base::Result<sp<CarPowerPolicyServer>> startService(const sp<Looper>& looper);
     static void terminateService();
 
     status_t dump(int fd, const Vector<String16>& args) override;
@@ -69,27 +119,48 @@ public:
             const CarPowerPolicyFilter& filter) override;
     binder::Status unregisterPowerPolicyChangeCallback(
             const sp<ICarPowerPolicyChangeCallback>& callback) override;
-    void binderDied(const wp<IBinder>& who) override;
+
+    void connectToVhalHelper();
+    void handleBinderDeath(const wp<IBinder>& who);
+    void handleHidlDeath(const wp<hidl::base::V1_0::IBase>& who);
+    base::Result<void> applyPowerPolicy(const std::string& policyId);
+    base::Result<void> setPowerPolicyGroup(const std::string& groupId);
 
 private:
-    CarPowerPolicyServer() : mCurrentPowerPolicy(nullptr) {}
+    CarPowerPolicyServer();
 
     base::Result<void> init(const sp<Looper>& looper);
     void terminate();
     bool isRegisteredLocked(const sp<ICarPowerPolicyChangeCallback>& callback);
-    void readVendorPowerPolicy();
     void checkSilentModeFromKernel();
-    base::Result<void> subscribeToVhal();
+    void connectToVhal();
+    void subscribeToVhal();
+    void subscribeToProperty(
+            int32_t prop,
+            std::function<void(const hardware::automotive::vehicle::V2_0::VehiclePropValue&)>
+                    processor);
+    base::Result<void> notifyVhalNewPowerPolicy(const std::string& policyId);
+    bool isPropertySupported(int32_t prop);
 
 private:
     static sp<CarPowerPolicyServer> sCarPowerPolicyServer;
 
     sp<Looper> mHandlerLooper;
+    sp<MessageHandlerImpl> mMessageHandler;
     PowerComponentHandler mComponentHandler;
     PolicyManager mPolicyManager;
-    android::Mutex mMutex;
-    CarPowerPolicy* mCurrentPowerPolicy GUARDED_BY(mMutex);
+    Mutex mMutex;
+    CarPowerPolicyPtr mCurrentPowerPolicy GUARDED_BY(mMutex);
+    std::string mCurrentPolicyGroupId GUARDED_BY(mMutex);
     std::vector<CallbackInfo> mPolicyChangeCallbacks GUARDED_BY(mMutex);
+    sp<hardware::automotive::vehicle::V2_0::IVehicle> mVhalService GUARDED_BY(mMutex);
+    int64_t mLastApplyPowerPolicy GUARDED_BY(mMutex);
+    int64_t mLastSetDefaultPowerPolicyGroup GUARDED_BY(mMutex);
+    std::unordered_map<int32_t, bool> mSupportedProperties;
+    sp<BinderDeathRecipient> mBinderDeathRecipient;
+    sp<HidlDeathRecipient> mHidlDeathRecipient;
+    sp<PropertyChangeListener> mPropertyChangeListener;
+    int32_t mRemainingConnectionRetryCount;
 
     // For unit tests.
     friend class internal::CarPowerPolicyServerPeer;

@@ -38,6 +38,7 @@ using android::base::Result;
 using android::base::StringAppendF;
 using android::base::StringPrintf;
 using android::base::WriteStringToFd;
+using android::hardware::automotive::vehicle::V2_0::VehicleApPowerStateReport;
 using tinyxml2::XML_SUCCESS;
 using tinyxml2::XMLDocument;
 using tinyxml2::XMLElement;
@@ -74,6 +75,7 @@ constexpr const char* kPowerTransitionShutdownStart = "ShutdownStart";
 constexpr const char* kPowerTransitionDeepSleepEntry = "DeepSleepEntry";
 
 const PowerComponent INVALID_POWER_COMPONENT = static_cast<PowerComponent>(-1);
+const int32_t INVALID_VEHICLE_POWER_STATE = -1;
 
 constexpr const char* kPowerComponentPrefix = "POWER_COMPONENT_";
 
@@ -128,11 +130,24 @@ const char* safePtrPrint(const char* ptr) {
     return ptr == nullptr ? "nullptr" : ptr;
 }
 
-bool isValidPowerTransition(const char* transition) {
-    return !strcmp(transition, kPowerTransitionWaitForVhal) ||
-            !strcmp(transition, kPowerTransitionOn) ||
-            !strcmp(transition, kPowerTransitionDeepSleepEntry) ||
-            !strcmp(transition, kPowerTransitionShutdownStart);
+int32_t toVehiclePowerState(const char* state) {
+    if (!strcmp(state, kPowerTransitionWaitForVhal)) {
+        return static_cast<int32_t>(VehicleApPowerStateReport::WAIT_FOR_VHAL);
+    }
+    if (!strcmp(state, kPowerTransitionOn)) {
+        return static_cast<int32_t>(VehicleApPowerStateReport::ON);
+    }
+    if (!strcmp(state, kPowerTransitionDeepSleepEntry)) {
+        return static_cast<int32_t>(VehicleApPowerStateReport::DEEP_SLEEP_ENTRY);
+    }
+    if (!strcmp(state, kPowerTransitionShutdownStart)) {
+        return static_cast<int32_t>(VehicleApPowerStateReport::SHUTDOWN_START);
+    }
+    return INVALID_VEHICLE_POWER_STATE;
+}
+
+bool isValidPowerState(int32_t state) {
+    return state != INVALID_VEHICLE_POWER_STATE;
 }
 
 void logXmlError(const std::string& errMsg) {
@@ -253,7 +268,8 @@ Result<PolicyGroup> readPolicyGroup(
             return Error() << StringPrintf("Failed to read |%s| attribute in |%s| tag", kAttrState,
                                            kTagDefaultPolicy);
         }
-        if (!isValidPowerTransition(state)) {
+        int32_t powerState = toVehiclePowerState(state);
+        if (!isValidPowerState(powerState)) {
             return Error() << StringPrintf("Target state(%s) is not valid", state);
         }
         const char* policyId;
@@ -264,7 +280,7 @@ Result<PolicyGroup> readPolicyGroup(
         if (registeredPowerPolicies.count(policyId) == 0) {
             return Error() << StringPrintf("Policy(id: %s) is not registered", policyId);
         }
-        policyGroup.emplace(state, policyId);
+        policyGroup.emplace(powerState, policyId);
     }
     for (const XMLElement* pNoPolicy = pPolicyGroup->FirstChildElement(kTagNoDefaultPolicy);
          pNoPolicy != nullptr; pNoPolicy = pNoPolicy->NextSiblingElement(kTagNoDefaultPolicy)) {
@@ -273,10 +289,11 @@ Result<PolicyGroup> readPolicyGroup(
             return Error() << StringPrintf("Failed to read |%s| attribute in |%s| tag", kAttrState,
                                            kTagNoDefaultPolicy);
         }
-        if (!isValidPowerTransition(state)) {
+        int32_t powerState = toVehiclePowerState(state);
+        if (!isValidPowerState(powerState)) {
             return Error() << StringPrintf("Target state(%s) is not valid", state);
         }
-        if (policyGroup.count(state) > 0) {
+        if (policyGroup.count(powerState) > 0) {
             return Error()
                     << StringPrintf("Target state(%s) is specified both in |%s| and |%s| tags",
                                     state, kTagDefaultPolicy, kTagNoDefaultPolicy);
@@ -399,34 +416,27 @@ CarPowerPolicyPtr PolicyManager::getPowerPolicy(const std::string& policyId) con
     return mRegisteredPowerPolicies.at(policyId);
 }
 
-CarPowerPolicyPtr PolicyManager::getDefaultPowerPolicyForTransition(
-        const std::string& powerTransition) const {
-    if (mPolicyGroups.count(mCurrentPolicyGroupId) == 0) {
-        ALOGW("The current power policy group is not set");
+CarPowerPolicyPtr PolicyManager::getDefaultPowerPolicyForState(
+        const std::string& groupId, VehicleApPowerStateReport state) const {
+    if (mPolicyGroups.count(groupId) == 0) {
+        ALOGW("Power policy group(%s) is not available", groupId.c_str());
         return nullptr;
     }
-    PolicyGroup policyGroup = mPolicyGroups.at(mCurrentPolicyGroupId);
-    if (policyGroup.count(powerTransition) == 0) {
-        ALOGW("Policy for %s is not found", powerTransition.c_str());
+    PolicyGroup policyGroup = mPolicyGroups.at(groupId);
+    int32_t key = static_cast<int32_t>(state);
+    if (policyGroup.count(key) == 0) {
+        ALOGW("Policy for %s is not found", toString(state).c_str());
         return nullptr;
     }
-    return mRegisteredPowerPolicies.at(policyGroup.at(powerTransition));
+    return mRegisteredPowerPolicies.at(policyGroup.at(key));
 }
 
 CarPowerPolicyPtr PolicyManager::getSystemPowerPolicy() const {
     return mSystemPowerPolicy;
 }
 
-std::string PolicyManager::getCurrentPowerPolicyGroup() const {
-    return mCurrentPolicyGroupId;
-}
-
-Result<void> PolicyManager::setCurrentPowerPolicyGroup(const std::string& groupId) {
-    if (mPolicyGroups.count(groupId) == 0) {
-        return Error() << StringPrintf("Power policy group(%s) is not found", groupId.c_str());
-    }
-    mCurrentPolicyGroupId = groupId;
-    return {};
+bool PolicyManager::isPowerPolicyGroupAvailable(const std::string& groupId) const {
+    return mPolicyGroups.count(groupId) > 0;
 }
 
 Result<void> PolicyManager::dump(int fd, const Vector<String16>& /*args*/) {
@@ -440,17 +450,15 @@ Result<void> PolicyManager::dump(int fd, const Vector<String16>& /*args*/) {
     for (auto& it : mRegisteredPowerPolicies) {
         WriteStringToFd(StringPrintf("%s- %s\n", doubleIndent, toString(*it.second).c_str()), fd);
     }
-    WriteStringToFd(StringPrintf("%sCurrent power policy group ID: %s\n", indent,
-                                 mCurrentPolicyGroupId.empty() ? "not set"
-                                                               : mCurrentPolicyGroupId.c_str()),
-                    fd);
-    WriteStringToFd(StringPrintf("%sPower policy groups: %s\n", indent,
+    WriteStringToFd(StringPrintf("%sPower policy groups:%s\n", indent,
                                  mPolicyGroups.size() ? "" : " none"),
                     fd);
     for (auto& itGroup : mPolicyGroups) {
         WriteStringToFd(StringPrintf("%s%s\n", doubleIndent, itGroup.first.c_str()), fd);
         for (auto& itMapping : itGroup.second) {
-            WriteStringToFd(StringPrintf("%s- %s --> %s\n", tripleIndent, itMapping.first.c_str(),
+            VehicleApPowerStateReport state =
+                    static_cast<VehicleApPowerStateReport>(itMapping.first);
+            WriteStringToFd(StringPrintf("%s- %s --> %s\n", tripleIndent, toString(state).c_str(),
                                          itMapping.second.c_str()),
                             fd);
         }
@@ -489,7 +497,7 @@ void PolicyManager::readPowerPolicyFromXml(const XMLDocument& xmlDoc) {
     }
     const auto& policyGroups = readPolicyGroups(pRootElement, registeredPoliciesMap);
     if (!policyGroups.ok()) {
-        logXmlError(StringPrintf("Reading power policy groups for power transition failed: %s",
+        logXmlError(StringPrintf("Reading power policy groups for power state failed: %s",
                                  policyGroups.error().message().c_str()));
         return;
     }

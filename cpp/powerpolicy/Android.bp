@@ -22,9 +22,11 @@ cc_defaults {
         "-Wunused-parameter",
     ],
     shared_libs: [
+        "android.hardware.automotive.vehicle@2.0",
         "carpowerpolicy_aidl_interface-cpp",
         "libbase",
         "libbinder",
+        "libhidlbase",
         "liblog",
         "libtinyxml2",
         "libutils",
