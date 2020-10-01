@@ -236,6 +236,11 @@ UniqueFence HalCamera::requestNewFrame(sp<VirtualCamera> client,
 
     std::lock_guard<std::mutex> lock(mFrameMutex);
 
+    if (mStreamState != RUNNING) {
+        LOG(WARNING) << "This HalCamera is not streaming.";
+        return {};
+    }
+
     mTimelines[id]->BumpFenceEventCounter();
     UniqueFence fence = mTimelines[id]->CreateFence("FrameFence");
 
