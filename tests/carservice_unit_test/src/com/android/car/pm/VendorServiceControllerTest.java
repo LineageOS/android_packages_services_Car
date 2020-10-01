@@ -30,7 +30,6 @@ import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.testapi.BlockingUserLifecycleListener;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEventType;
-import android.car.userlib.CarUserManagerHelper;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -56,7 +55,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -94,7 +92,6 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
     private UserHalService mUserHal;
 
     private ServiceLauncherContext mContext;
-    private CarUserManagerHelper mUserManagerHelper;
     private CarUserService mCarUserService;
     private VendorServiceController mController;
 
@@ -107,8 +104,7 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
     @Before
     public void setUp() {
         mContext = new ServiceLauncherContext(ApplicationProvider.getApplicationContext());
-        mUserManagerHelper = Mockito.spy(new CarUserManagerHelper(mContext));
-        mCarUserService = new CarUserService(mContext, mUserHal, mUserManagerHelper, mUserManager,
+        mCarUserService = new CarUserService(mContext, mUserHal, mUserManager,
                 ActivityManager.getService(), 2 /* max running users */);
         CarLocalServices.addService(CarUserService.class, mCarUserService);
 

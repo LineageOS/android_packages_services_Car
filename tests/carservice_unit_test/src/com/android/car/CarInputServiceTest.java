@@ -41,7 +41,6 @@ import android.car.CarProjectionManager;
 import android.car.input.CarInputManager;
 import android.car.testapi.BlockingUserLifecycleListener;
 import android.car.user.CarUserManager;
-import android.car.userlib.CarUserManagerHelper;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -619,9 +618,8 @@ public class CarInputServiceTest {
         UserInfo userInfo = mock(UserInfo.class);
         doReturn(userInfo).when(userManager).getUserInfo(anyInt());
         UserHalService userHal = mock(UserHalService.class);
-        CarUserManagerHelper carUserManagerHelper = mock(CarUserManagerHelper.class);
         IActivityManager iActivityManager = mock(IActivityManager.class);
-        mCarUserService = new CarUserService(mMockContext, userHal, carUserManagerHelper,
+        mCarUserService = new CarUserService(mMockContext, userHal,
                 userManager, iActivityManager, /* maxRunningUsers= */ 2);
 
         mCarInputService = new CarInputService(mMockContext, mInputHalService, mCarUserService,

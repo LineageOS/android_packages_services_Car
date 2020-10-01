@@ -23,7 +23,7 @@ import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.IActivityManager;
-import android.car.userlib.CarUserManagerHelper;
+import android.car.settings.CarSettings;
 import android.car.userlib.UserHalHelper;
 import android.content.Context;
 import android.content.pm.UserInfo;
@@ -47,16 +47,21 @@ import com.android.internal.widget.LockPatternUtils;
 import java.io.PrintWriter;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
  * Helper used to set the initial Android user on boot or when resuming from RAM.
  */
-public final class InitialUserSetter {
+final class InitialUserSetter {
 
     private static final String TAG = InitialUserSetter.class.getSimpleName();
 
     private static final boolean DBG = false;
+    private static final int BOOT_USER_NOT_FOUND = -1;
 
     /**
      * Sets the initial user using the default behavior.
@@ -111,7 +116,6 @@ public final class InitialUserSetter {
 
     // TODO(b/150413304): abstract AM / UM into interfaces, then provide local and remote
     // implementation (where local is implemented by ActivityManagerInternal / UserManagerInternal)
-    private final CarUserManagerHelper mHelper;
     private final UserManager mUm;
     private final LockPatternUtils mLockPatternUtils;
 
@@ -120,24 +124,21 @@ public final class InitialUserSetter {
 
     private final Consumer<UserInfo> mListener;
 
-    public InitialUserSetter(@NonNull Context context, @NonNull Consumer<UserInfo> listener) {
+    InitialUserSetter(@NonNull Context context, @NonNull Consumer<UserInfo> listener) {
         this(context, listener, /* newGuestName= */ null);
     }
 
-    public InitialUserSetter(@NonNull Context context, @NonNull Consumer<UserInfo> listener,
+    InitialUserSetter(@NonNull Context context, @NonNull Consumer<UserInfo> listener,
             @Nullable String newGuestName) {
-        this(context, new CarUserManagerHelper(context), UserManager.get(context), listener,
-                new LockPatternUtils(context),
+        this(context, UserManager.get(context), listener, new LockPatternUtils(context),
                 context.getString(com.android.internal.R.string.owner_name), newGuestName);
     }
 
     @VisibleForTesting
-    public InitialUserSetter(@NonNull Context context, @NonNull CarUserManagerHelper helper,
-            @NonNull UserManager um, @NonNull Consumer<UserInfo> listener,
-            @NonNull LockPatternUtils lockPatternUtils,
+    InitialUserSetter(@NonNull Context context, @NonNull UserManager um,
+            @NonNull Consumer<UserInfo> listener, @NonNull LockPatternUtils lockPatternUtils,
             @Nullable String newUserName, @Nullable String newGuestName) {
         mContext = context;
-        mHelper = helper;
         mUm = um;
         mListener = listener;
         mLockPatternUtils = lockPatternUtils;
@@ -335,7 +336,7 @@ public final class InitialUserSetter {
     }
 
     private void executeDefaultBehavior(@NonNull InitialUserInfo info, boolean fallback) {
-        if (!mHelper.hasInitialUser()) {
+        if (!hasInitialUser()) {
             if (DBG) Log.d(TAG, "executeDefaultBehavior(): no initial user, creating it");
             createAndSwitchUser(new Builder(TYPE_CREATE)
                     .setNewUserName(mNewUserName)
@@ -345,7 +346,7 @@ public final class InitialUserSetter {
                     .build(), fallback);
         } else {
             if (DBG) Log.d(TAG, "executeDefaultBehavior(): switching to initial user");
-            int userId = mHelper.getInitialUser(info.supportsOverrideUserIdProperty);
+            int userId = getInitialUser(info.supportsOverrideUserIdProperty);
             switchUser(new Builder(TYPE_SWITCH)
                     .setSwitchUserId(userId)
                     .setSupportsOverrideUserIdProperty(info.supportsOverrideUserIdProperty)
@@ -406,7 +407,7 @@ public final class InitialUserSetter {
                         "am.switchUser(" + actualUserId + ") failed");
                 return;
             }
-            mHelper.setLastActiveUser(actualUserId);
+            setLastActiveUser(actualUser.id);
         }
         notifyListener(actualUser);
 
@@ -442,7 +443,6 @@ public final class InitialUserSetter {
         return true;
     }
 
-    // TODO(b/151758646): move to CarUserManagerHelper
     /**
      * Replaces {@code user} by a new guest, if necessary.
      *
@@ -631,5 +631,168 @@ public final class InitialUserSetter {
         String indent = "  ";
         writer.printf("%smNewUserName: %s\n", indent, mNewUserName);
         writer.printf("%smNewGuestName: %s\n", indent, mNewGuestName);
+    }
+
+    /**
+     * Sets the last active user.
+     */
+    public void setLastActiveUser(@UserIdInt int userId) {
+        if (UserHelperLite.isHeadlessSystemUser(userId)) {
+            if (DBG) Log.d(TAG, "setLastActiveUser(): ignoring headless system user " + userId);
+            return;
+        }
+        setUserIdGlobalProperty(CarSettings.Global.LAST_ACTIVE_USER_ID, userId);
+
+        // TODO(b/155918094): change method to receive a UserInfo instead
+        UserInfo user = mUm.getUserInfo(userId);
+        if (user == null) {
+            Log.w(TAG, "setLastActiveUser(): user " + userId + " doesn't exist");
+            return;
+        }
+        if (!user.isEphemeral()) {
+            setUserIdGlobalProperty(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID, userId);
+        }
+    }
+
+    private void setUserIdGlobalProperty(@NonNull String name, @UserIdInt int userId) {
+        if (DBG) Log.d(TAG, "setting global property " + name + " to " + userId);
+
+        Settings.Global.putInt(mContext.getContentResolver(), name, userId);
+    }
+
+    /**
+     * Gets the user id for the initial user to boot into. This is only applicable for headless
+     * system user model. This method checks for a system property and will only work for system
+     * apps.
+     *
+     * This method checks for the initial user via three mechanisms in this order:
+     * <ol>
+     *     <li>Check for a boot user override via {@link CarProperties#boot_user_override_id()}</li>
+     *     <li>Check for the last active user in the system</li>
+     *     <li>Fallback to the smallest user id that is not {@link UserHandle.USER_SYSTEM}</li>
+     * </ol>
+     *
+     * If any step fails to retrieve the stored id or the retrieved id does not exist on device,
+     * then it will move onto the next step.
+     *
+     * @return user id of the initial user to boot into on the device, or
+     * {@link UserHandle#USER_NULL} if there is no user available.
+     */
+    @VisibleForTesting
+    int getInitialUser(boolean usesOverrideUserIdProperty) {
+
+        List<Integer> allUsers = userInfoListToUserIdList(getAllUsers());
+
+        if (allUsers.isEmpty()) {
+            return UserHandle.USER_NULL;
+        }
+
+        //TODO(b/150416512): Check if it is still supported, if not remove it.
+        if (usesOverrideUserIdProperty) {
+            int bootUserOverride = CarProperties.boot_user_override_id()
+                    .orElse(BOOT_USER_NOT_FOUND);
+
+            // If an override user is present and a real user, return it
+            if (bootUserOverride != BOOT_USER_NOT_FOUND
+                    && allUsers.contains(bootUserOverride)) {
+                Log.i(TAG, "Boot user id override found for initial user, user id: "
+                        + bootUserOverride);
+                return bootUserOverride;
+            }
+        }
+
+        // If the last active user is not the SYSTEM user and is a real user, return it
+        int lastActiveUser = getUserIdGlobalProperty(CarSettings.Global.LAST_ACTIVE_USER_ID);
+        if (allUsers.contains(lastActiveUser)) {
+            Log.i(TAG, "Last active user loaded for initial user: " + lastActiveUser);
+            return lastActiveUser;
+        }
+        resetUserIdGlobalProperty(CarSettings.Global.LAST_ACTIVE_USER_ID);
+
+        int lastPersistentUser = getUserIdGlobalProperty(
+                CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID);
+        if (allUsers.contains(lastPersistentUser)) {
+            Log.i(TAG, "Last active, persistent user loaded for initial user: "
+                    + lastPersistentUser);
+            return lastPersistentUser;
+        }
+        resetUserIdGlobalProperty(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID);
+
+        // If all else fails, return the smallest user id
+        int returnId = Collections.min(allUsers);
+        // TODO(b/158101909): the smallest user id is not always the initial user; a better approach
+        // would be looking for the first ADMIN user, or keep track of all last active users (not
+        // just the very last)
+        Log.w(TAG, "Last active user (" + lastActiveUser + ") not found. Returning smallest user id"
+                + " instead: " + returnId);
+        return returnId;
+    }
+
+    /**
+     * Gets all the users that can be brought to the foreground on the system.
+     *
+     * @return List of {@code UserInfo} for users that associated with a real person.
+     */
+    private List<UserInfo> getAllUsers() {
+        if (UserManager.isHeadlessSystemUserMode()) {
+            return getAllUsersExceptSystemUserAndSpecifiedUser(UserHandle.USER_SYSTEM);
+        } else {
+            return mUm.getAliveUsers();
+        }
+    }
+
+    /**
+     * Gets all the users except system user and the one with userId passed in.
+     *
+     * @param userId of the user not to be returned.
+     * @return All users other than system user and user with userId.
+     */
+    private List<UserInfo> getAllUsersExceptSystemUserAndSpecifiedUser(@UserIdInt int userId) {
+        List<UserInfo> users = mUm.getAliveUsers();
+
+        for (Iterator<UserInfo> iterator = users.iterator(); iterator.hasNext(); ) {
+            UserInfo userInfo = iterator.next();
+            if (userInfo.id == userId || userInfo.id == UserHandle.USER_SYSTEM) {
+                // Remove user with userId from the list.
+                iterator.remove();
+            }
+        }
+        return users;
+    }
+
+    /**
+     * Checks whether the device has an initial user that can be switched to.
+     */
+    public boolean hasInitialUser() {
+        List<UserInfo> allUsers = getAllUsers();
+        for (int i = 0; i < allUsers.size(); i++) {
+            UserInfo user = allUsers.get(i);
+            if (user.isManagedProfile()) continue;
+
+            return true;
+        }
+        return false;
+    }
+
+    private static List<Integer> userInfoListToUserIdList(List<UserInfo> allUsers) {
+        ArrayList<Integer> list = new ArrayList<>(allUsers.size());
+        for (int i = 0; i < allUsers.size(); i++) {
+            list.add(allUsers.get(i).id);
+        }
+        return list;
+    }
+
+    private void resetUserIdGlobalProperty(@NonNull String name) {
+        if (DBG) Log.d(TAG, "resetting global property " + name);
+
+        Settings.Global.putInt(mContext.getContentResolver(), name, UserHandle.USER_NULL);
+    }
+
+    private int getUserIdGlobalProperty(@NonNull String name) {
+        int userId = Settings.Global.getInt(mContext.getContentResolver(), name,
+                UserHandle.USER_NULL);
+        if (DBG) Log.d(TAG, "getting global property " + name + ": " + userId);
+
+        return userId;
     }
 }

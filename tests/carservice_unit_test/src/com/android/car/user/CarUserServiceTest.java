@@ -25,6 +25,8 @@ import static android.content.pm.UserInfo.FLAG_ADMIN;
 import static android.content.pm.UserInfo.FLAG_EPHEMERAL;
 import static android.content.pm.UserInfo.FLAG_GUEST;
 
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doNothing;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -34,11 +36,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.notNull;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -66,7 +68,6 @@ import android.car.user.UserCreationResult;
 import android.car.user.UserIdentificationAssociationResponse;
 import android.car.user.UserRemovalResult;
 import android.car.user.UserSwitchResult;
-import android.car.userlib.CarUserManagerHelper;
 import android.car.userlib.HalCallback;
 import android.car.userlib.HalCallback.HalCallbackStatus;
 import android.car.userlib.UserHalHelper;
@@ -148,7 +149,6 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Mock private Context mApplicationContext;
     @Mock private LocationManager mLocationManager;
     @Mock private UserHalService mUserHal;
-    @Mock private CarUserManagerHelper mMockedCarUserManagerHelper;
     @Mock private IActivityManager mMockedIActivityManager;
     @Mock private UserManager mMockedUserManager;
     @Mock private Resources mMockedResources;
@@ -167,7 +167,6 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     private boolean mUser0TaskExecuted;
     private FakeCarOccupantZoneService mFakeCarOccupantZoneService;
 
-    private final int mGetUserInfoRequestType = InitialUserInfoRequestType.COLD_BOOT;
     private final AndroidFuture<UserSwitchResult> mUserSwitchFuture = new AndroidFuture<>();
     private final AndroidFuture<UserCreationResult> mUserCreationFuture = new AndroidFuture<>();
     private final AndroidFuture<UserIdentificationAssociationResponse> mUserAssociationRespFuture =
@@ -221,11 +220,11 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockUserHalSupported(true);
         mockUserHalUserAssociationSupported(true);
         doReturn(Optional.of(mAsyncCallTimeoutMs)).when(() -> CarProperties.user_hal_timeout());
+
         mCarUserService =
                 new CarUserService(
                         mMockContext,
                         mUserHal,
-                        mMockedCarUserManagerHelper,
                         mMockedUserManager,
                         mMockedIActivityManager,
                         /* maxRunningUsers= */ 3,
@@ -314,12 +313,12 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         assertThat(actualEvent.getUserId()).isEqualTo(expectedNewUserId);
     }
 
-    private void verifyLastActiveUserSet(@UserIdInt int userId) {
-        verify(mMockedCarUserManagerHelper).setLastActiveUser(userId);
+    private void verifyLastActiveUserSet(UserInfo user) {
+        verify(mInitialUserSetter).setLastActiveUser(user.id);
     }
 
     private void verifyLastActiveUserNotSet() {
-        verify(mMockedCarUserManagerHelper, never()).setLastActiveUser(anyInt());
+        verify(mInitialUserSetter, never()).setLastActiveUser(any());
     }
 
     /**
@@ -344,7 +343,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
         sendUserSwitchingEvent(mAdminUser.id, mRegularUser.id);
 
-        verifyLastActiveUserSet(mRegularUser.id);
+        verifyLastActiveUserSet(mRegularUser);
     }
 
     /**
@@ -528,6 +527,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void testCreatePassenger() {
+        doNothing()
+                .when(() -> UserHelper.setDefaultNonAdminRestrictions(any(), any(), anyBoolean()));
         int driverId = 90;
         int passengerId = 99;
         String userName = "testUser";
@@ -1640,7 +1641,6 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                 new CarUserService(
                         mMockContext,
                         mUserHal,
-                        mMockedCarUserManagerHelper,
                         mMockedUserManager,
                         mMockedIActivityManager,
                         3, mInitialUserSetter,
@@ -1664,7 +1664,6 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                 new CarUserService(
                         mMockContext,
                         mUserHal,
-                        mMockedCarUserManagerHelper,
                         mMockedUserManager,
                         mMockedIActivityManager,
                         /* maxRunningUsers= */ 3,
@@ -1737,7 +1736,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void testInitialUserInfoRequestType_FirstBoot() throws Exception {
-        when(mMockedCarUserManagerHelper.hasInitialUser()).thenReturn(false);
+        when(mInitialUserSetter.hasInitialUser()).thenReturn(false);
         when(mMockContext.getPackageManager()).thenReturn(mPackageManager);
         when(mPackageManager.isDeviceUpgrading()).thenReturn(true);
 
@@ -1747,7 +1746,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void testInitialUserInfoRequestType_FirstBootAfterOTA() throws Exception {
-        when(mMockedCarUserManagerHelper.hasInitialUser()).thenReturn(true);
+        when(mInitialUserSetter.hasInitialUser()).thenReturn(true);
         when(mMockContext.getPackageManager()).thenReturn(mPackageManager);
         when(mPackageManager.isDeviceUpgrading()).thenReturn(true);
 
@@ -1757,7 +1756,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void testInitialUserInfoRequestType_ColdBoot() throws Exception {
-        when(mMockedCarUserManagerHelper.hasInitialUser()).thenReturn(true);
+        when(mInitialUserSetter.hasInitialUser()).thenReturn(true);
         when(mMockContext.getPackageManager()).thenReturn(mPackageManager);
         when(mPackageManager.isDeviceUpgrading()).thenReturn(false);
 
