@@ -2048,7 +2048,7 @@
     <string name="experimental_category_title" msgid="3797000069740110717">"Experimental"</string>
     <string name="feature_flags_dashboard_title" msgid="3153034144122754381">"Marques de funcions"</string>
     <string name="talkback_title" msgid="3717960404234260050">"Talkback"</string>
-    <string name="talkback_summary" msgid="6602857105831641574">"Lector de pantalla destinat principalment a persones invidents i amb problemes de visió"</string>
+    <string name="talkback_summary" msgid="6602857105831641574">"Lector de pantalla destinat principalment a persones invidents i amb poca visió"</string>
     <string name="select_to_speak_summary" msgid="7514180457557735421">"Toca els elements de la pantalla per sentir-los en veu alta"</string>
     <string name="accessibility_captioning_title" msgid="5878371993023439642">"Subtítols"</string>
     <string name="accessibility_screen_magnification_title" msgid="7250949681883917360">"Ampliació"</string>
