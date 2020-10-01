@@ -1758,7 +1758,7 @@
     <string name="lockpattern_need_to_confirm" msgid="4079482507985867389">"Ырастоо үчүн графикалык ачкычты дагы бир жолу тартыңыз"</string>
     <string name="lockpattern_pattern_confirmed_header" msgid="5603156929428721407">"Жаңы графикалык ачкычыңыз"</string>
     <string name="lockpattern_confirm_button_text" msgid="7059311304112902598">"Ырастоо"</string>
-    <string name="lockpattern_restart_button_text" msgid="4322968353922529868">"Кайра тартуу"</string>
+    <string name="lockpattern_restart_button_text" msgid="4322968353922529868">"Кайра тартам"</string>
     <string name="lockpattern_retry_button_text" msgid="5473976578241534298">"Тазалоо"</string>
     <string name="lockpattern_continue_button_text" msgid="3328913552656376892">"Улантуу"</string>
     <string name="lockpattern_settings_title" msgid="5152005866870766842">"Кулпуну ачуу үлгүсү"</string>

@@ -1746,10 +1746,10 @@
     <string name="lockpassword_choose_your_password_header_for_face" msgid="8823110536502072216">"Потврда идентитета лицем захтева лозинку"</string>
     <string name="lockpassword_choose_your_pattern_header_for_face" msgid="5563793748503883666">"Потврда идентитета лицем захтева шаблон"</string>
     <string name="lockpassword_choose_your_pin_header_for_face" msgid="7238352632535405068">"Потврда идентитета лицем захтева PIN"</string>
-    <string name="lockpassword_confirm_your_pattern_generic" msgid="6146545393074070916">"Употребите шаблон за уређај да бисте наставили"</string>
+    <string name="lockpassword_confirm_your_pattern_generic" msgid="6146545393074070916">"Користите шаблон за уређај да бисте наставили"</string>
     <string name="lockpassword_confirm_your_pin_generic" msgid="8732268389177735264">"Унесите PIN уређаја да бисте наставили"</string>
     <string name="lockpassword_confirm_your_password_generic" msgid="6304552647060899594">"Унесите лозинку уређаја да бисте наставили"</string>
-    <string name="lockpassword_confirm_your_pattern_generic_profile" msgid="3074250084050465513">"Употребите шаблон за пословни профил да бисте наставили"</string>
+    <string name="lockpassword_confirm_your_pattern_generic_profile" msgid="3074250084050465513">"Користите шаблон за пословни профил да бисте наставили"</string>
     <string name="lockpassword_confirm_your_pin_generic_profile" msgid="6037908971086439523">"Унесите PIN за пословни профил да бисте наставили"</string>
     <string name="lockpassword_confirm_your_password_generic_profile" msgid="2646162490703489685">"Унесите лозинку за пословни профил да бисте наставили"</string>
     <string name="lockpassword_strong_auth_required_device_pattern" msgid="1014214190135045781">"Ради веће безбедности користите шаблон за уређај"</string>

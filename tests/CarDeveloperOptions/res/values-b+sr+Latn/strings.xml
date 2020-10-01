@@ -1746,10 +1746,10 @@
     <string name="lockpassword_choose_your_password_header_for_face" msgid="8823110536502072216">"Potvrda identiteta licem zahteva lozinku"</string>
     <string name="lockpassword_choose_your_pattern_header_for_face" msgid="5563793748503883666">"Potvrda identiteta licem zahteva šablon"</string>
     <string name="lockpassword_choose_your_pin_header_for_face" msgid="7238352632535405068">"Potvrda identiteta licem zahteva PIN"</string>
-    <string name="lockpassword_confirm_your_pattern_generic" msgid="6146545393074070916">"Upotrebite šablon za uređaj da biste nastavili"</string>
+    <string name="lockpassword_confirm_your_pattern_generic" msgid="6146545393074070916">"Koristite šablon za uređaj da biste nastavili"</string>
     <string name="lockpassword_confirm_your_pin_generic" msgid="8732268389177735264">"Unesite PIN uređaja da biste nastavili"</string>
     <string name="lockpassword_confirm_your_password_generic" msgid="6304552647060899594">"Unesite lozinku uređaja da biste nastavili"</string>
-    <string name="lockpassword_confirm_your_pattern_generic_profile" msgid="3074250084050465513">"Upotrebite šablon za poslovni profil da biste nastavili"</string>
+    <string name="lockpassword_confirm_your_pattern_generic_profile" msgid="3074250084050465513">"Koristite šablon za poslovni profil da biste nastavili"</string>
     <string name="lockpassword_confirm_your_pin_generic_profile" msgid="6037908971086439523">"Unesite PIN za poslovni profil da biste nastavili"</string>
     <string name="lockpassword_confirm_your_password_generic_profile" msgid="2646162490703489685">"Unesite lozinku za poslovni profil da biste nastavili"</string>
     <string name="lockpassword_strong_auth_required_device_pattern" msgid="1014214190135045781">"Radi veće bezbednosti koristite šablon za uređaj"</string>

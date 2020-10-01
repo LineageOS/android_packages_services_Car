@@ -302,7 +302,7 @@
     <string name="settings_shortcut" msgid="4503714880251502167">"Settings shortcut"</string>
     <string name="airplane_mode" msgid="4508870277398231073">"Airplane mode"</string>
     <string name="wireless_networks_settings_title" msgid="4298430520189173949">"Wireless &amp; networks"</string>
-    <string name="radio_controls_summary" msgid="4596981962167684814">"Manage Wi‑Fi, Bluetooth, airplane mode, mobile networks, &amp; VPNs"</string>
+    <string name="radio_controls_summary" msgid="4596981962167684814">"Manage Wi‑Fi, Bluetooth, Airplane mode, mobile networks and VPNs"</string>
     <string name="cellular_data_title" msgid="7909624119432695022">"Mobile data"</string>
     <string name="calls_title" msgid="875693497825736550">"Allow calls"</string>
     <string name="sms_messages_title" msgid="934188835214592753">"SMS messages"</string>
@@ -1673,8 +1673,8 @@
     <string name="location_street_level" product="tablet" msgid="4459804798444296650">"Let apps use GPS on your tablet to pinpoint your location"</string>
     <string name="location_street_level" product="default" msgid="7407688345675450051">"Let apps use GPS on your phone to pinpoint your location"</string>
     <string name="assisted_gps" msgid="5411780261117055175">"Use assisted GPS"</string>
-    <string name="assisted_gps_enabled" msgid="2561022181775725369">"Use server to assist GPS (un-tick to reduce network usage)"</string>
-    <string name="assisted_gps_disabled" msgid="6448758788217415937">"Use server to assist GPS (un-tick to improve GPS performance)"</string>
+    <string name="assisted_gps_enabled" msgid="2561022181775725369">"Use server to assist GPS (uncheck to reduce network usage)"</string>
+    <string name="assisted_gps_disabled" msgid="6448758788217415937">"Use server to assist GPS (uncheck to improve GPS performance)"</string>
     <string name="use_location_title" msgid="7724788634359496634">"Location &amp; Google search"</string>
     <string name="use_location_summary" msgid="7396716606067400283">"Let Google use your location to improve search results and other services"</string>
     <string name="location_access_title" msgid="8587974819606800029">"Access to my location"</string>
@@ -2402,7 +2402,7 @@
     <string name="battery_desc_standby" product="tablet" msgid="2941777996429933419">"Battery used when tablet is idle"</string>
     <string name="battery_desc_standby" product="default" msgid="8889482616564520287">"Battery used when phone is idle"</string>
     <string name="battery_desc_radio" msgid="5119078473833865414">"Battery used by mobile radio"</string>
-    <string name="battery_sugg_radio" msgid="3616364509738133415">"Switch to airplane mode to save power in areas with no cell coverage"</string>
+    <string name="battery_sugg_radio" msgid="3616364509738133415">"Switch to Airplane mode to save power in areas with no cell coverage"</string>
     <string name="battery_desc_flashlight" msgid="4574819522143720917">"Battery used by the flashlight"</string>
     <string name="battery_desc_camera" msgid="517966830222999462">"Battery used by the camera"</string>
     <string name="battery_desc_display" msgid="6701005808894183097">"Battery used by the display and backlight"</string>
