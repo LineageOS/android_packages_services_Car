@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.custominput.test;
+package com.android.car.custominput.sample;
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
@@ -31,15 +31,14 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * Handles incoming {@link CustomInputEvent}. In this implementation, incoming events are expected
- * to have the display id set, the event input type is represented by the value passed in
- * `-customEvent` flag (see {@link EventAction} for the available actions).
+ * to have the display id and the function set.
  */
 final class CustomInputEventListener {
 
     private static final String TAG = CustomInputEventListener.class.getSimpleName();
     private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
-    private final CustomInputTestService mService;
+    private final SampleCustomInputService mService;
     private final Context mContext;
 
     /** List of defined actions for this reference service implementation */
@@ -67,7 +66,7 @@ final class CustomInputEventListener {
 
     CustomInputEventListener(
             @NonNull Context context,
-            @NonNull CustomInputTestService service) {
+            @NonNull SampleCustomInputService service) {
         mContext = context;
         mService = service;
     }
