@@ -130,7 +130,7 @@ public class CarAudioZonesHelperLegacyTest {
         CarVolumeGroup secondVolumeGroup = volumeGroups[1];
         List<Integer> secondContexts = IntStream.of(secondVolumeGroup.getContexts()).boxed()
                 .collect(Collectors.toList());
-        assertThat(secondContexts).containsAllOf(CarAudioContext.NAVIGATION,
+        assertThat(secondContexts).containsAtLeast(CarAudioContext.NAVIGATION,
                 CarAudioContext.VOICE_COMMAND, CarAudioContext.CALL_RING, CarAudioContext.CALL,
                 CarAudioContext.ALARM, CarAudioContext.NOTIFICATION, CarAudioContext.SYSTEM_SOUND);
 
@@ -152,7 +152,7 @@ public class CarAudioZonesHelperLegacyTest {
         CarVolumeGroup mediaVolumeGroup = volumeGroups[0];
         List<Integer> contexts = IntStream.of(mediaVolumeGroup.getContexts()).boxed().collect(
                 Collectors.toList());
-        assertThat(contexts).containsAllOf(CarAudioService.DEFAULT_AUDIO_CONTEXT,
+        assertThat(contexts).containsAtLeast(CarAudioService.DEFAULT_AUDIO_CONTEXT,
                 CarAudioContext.EMERGENCY, CarAudioContext.VEHICLE_STATUS,
                 CarAudioContext.ANNOUNCEMENT);
     }

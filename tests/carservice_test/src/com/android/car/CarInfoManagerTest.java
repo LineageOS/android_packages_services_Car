@@ -112,13 +112,14 @@ public class CarInfoManagerTest extends MockedCarTestBase {
 
     @Test
     public void testGetFuelType() throws Exception {
-        assertThat(mCarInfoManager.getFuelTypes()).asList().containsAllIn(FUEL_TYPES).inOrder();
+        assertThat(mCarInfoManager.getFuelTypes()).asList()
+                .containsAtLeastElementsIn(FUEL_TYPES).inOrder();
     }
 
     @Test
     public void testGetEvConnectorTypes() throws Exception {
-        assertThat(mCarInfoManager.getEvConnectorTypes()).asList().containsAllIn(EV_CONNECTOR_TYPES)
-                .inOrder();
+        assertThat(mCarInfoManager.getEvConnectorTypes()).asList()
+                .containsAtLeastElementsIn(EV_CONNECTOR_TYPES).inOrder();
     }
 
     @Test
