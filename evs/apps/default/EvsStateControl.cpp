@@ -219,7 +219,7 @@ void EvsStateControl::updateLoop() {
 
 
 bool EvsStateControl::selectStateForCurrentConditions() {
-    static int32_t sDummyGear   = int32_t(VehicleGear::GEAR_REVERSE);
+    static int32_t sDummyGear   = mConfig.getMockGearSignal();
     static int32_t sDummySignal = int32_t(VehicleTurnSignal::NONE);
 
     if (mVehicle != nullptr) {
@@ -245,7 +245,7 @@ bool EvsStateControl::selectStateForCurrentConditions() {
             sDummyGear = int32_t(VehicleGear::GEAR_DRIVE);
         }
 
-        // Build the dummy vehicle state values (treating single values as 1 element vectors)
+        // Build the placeholder vehicle state values (treating single values as 1 element vectors)
         mGearValue.value.int32Values.setToExternal(&sDummyGear, 1);
         mTurnSignalValue.value.int32Values.setToExternal(&sDummySignal, 1);
     }
