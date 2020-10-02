@@ -297,7 +297,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     public void testReplaceGuestIfNeeded_nonGuest() {
         UserInfo user = newSecondaryUser(USER_ID);
 
-        assertThat(mSetter.replaceGuestIfNeeded(user)).isSameAs(user);
+        assertThat(mSetter.replaceGuestIfNeeded(user)).isSameInstanceAs(user);
 
         verifyGuestNeverMarkedForDeletion();
         verifyUserNeverCreated();
@@ -308,7 +308,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
         UserInfo newGuest = expectCreateGuestUser(NEW_USER_ID, GUEST_NAME, NO_FLAGS);
         UserInfo user = newGuestUser(USER_ID, /* ephemeral= */ false);
 
-        assertThat(mSetter.replaceGuestIfNeeded(user)).isSameAs(newGuest);
+        assertThat(mSetter.replaceGuestIfNeeded(user)).isSameInstanceAs(newGuest);
 
         verifyGuestMarkedForDeletion(USER_ID);
     }
@@ -317,7 +317,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     public void testReplaceGuestIfNeeded_lockScreen() throws Exception {
         UserInfo user = newGuestUser(USER_ID, /* ephemeral= */ false);
         expectUserIsSecure(USER_ID);
-        assertThat(mSetter.replaceGuestIfNeeded(user)).isSameAs(user);
+        assertThat(mSetter.replaceGuestIfNeeded(user)).isSameInstanceAs(user);
 
         verifyGuestNeverMarkedForDeletion();
         verifyUserNeverCreated();
@@ -328,7 +328,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
         UserInfo newGuest = expectCreateGuestUser(NEW_USER_ID, GUEST_NAME, UserInfo.FLAG_EPHEMERAL);
         UserInfo user = newGuestUser(USER_ID, /* ephemeral= */ true);
 
-        assertThat(mSetter.replaceGuestIfNeeded(user)).isSameAs(newGuest);
+        assertThat(mSetter.replaceGuestIfNeeded(user)).isSameInstanceAs(newGuest);
 
         verifyGuestMarkedForDeletion(USER_ID);
     }
@@ -1171,7 +1171,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
         assertWithMessage("listener called wrong number of times").that(mListener.numberCalls)
             .isEqualTo(1);
         assertWithMessage("wrong initial user set on listener").that(mListener.initialUser)
-            .isSameAs(expectedUser);
+            .isSameInstanceAs(expectedUser);
     }
 
     private void assertSystemLocales(@NonNull String expected) {
