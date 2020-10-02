@@ -56,7 +56,6 @@ import com.google.android.car.kitchensink.diagnostic.DiagnosticTestFragment;
 import com.google.android.car.kitchensink.displayinfo.DisplayInfoFragment;
 import com.google.android.car.kitchensink.experimental.ExperimentalFeatureTestFragment;
 import com.google.android.car.kitchensink.hvac.HvacTestFragment;
-import com.google.android.car.kitchensink.insets.WindowInsetsFragment;
 import com.google.android.car.kitchensink.notification.NotificationFragment;
 import com.google.android.car.kitchensink.orientation.OrientationTestFragment;
 import com.google.android.car.kitchensink.packageinfo.PackageInfoFragment;
@@ -66,6 +65,7 @@ import com.google.android.car.kitchensink.property.PropertyTestFragment;
 import com.google.android.car.kitchensink.sensor.SensorsTestFragment;
 import com.google.android.car.kitchensink.storagelifetime.StorageLifetimeFragment;
 import com.google.android.car.kitchensink.storagevolumes.StorageVolumesFragment;
+import com.google.android.car.kitchensink.systembars.SystemBarsFragment;
 import com.google.android.car.kitchensink.systemfeatures.SystemFeaturesFragment;
 import com.google.android.car.kitchensink.touch.TouchTestFragment;
 import com.google.android.car.kitchensink.users.ProfileUserFragment;
@@ -194,6 +194,7 @@ public class KitchenSinkActivity extends FragmentActivity {
             new FragmentMenuEntry("sensors", SensorsTestFragment.class),
             new FragmentMenuEntry("storage lifetime", StorageLifetimeFragment.class),
             new FragmentMenuEntry("storage volumes", StorageVolumesFragment.class),
+            new FragmentMenuEntry("system bars", SystemBarsFragment.class),
             new FragmentMenuEntry("system features", SystemFeaturesFragment.class),
             new FragmentMenuEntry("touch test", TouchTestFragment.class),
             new FragmentMenuEntry("users", UserFragment.class),
@@ -201,8 +202,7 @@ public class KitchenSinkActivity extends FragmentActivity {
             new FragmentMenuEntry("vehicle ctrl", VehicleCtrlFragment.class),
             new FragmentMenuEntry("vehicle hal", VehicleHalFragment.class),
             new FragmentMenuEntry("volume test", VolumeTestFragment.class),
-            new FragmentMenuEntry("web links", WebLinksTestFragment.class),
-            new FragmentMenuEntry("window insets", WindowInsetsFragment.class));
+            new FragmentMenuEntry("web links", WebLinksTestFragment.class));
 
     private Car mCarApi;
     private CarHvacManager mHvacManager;

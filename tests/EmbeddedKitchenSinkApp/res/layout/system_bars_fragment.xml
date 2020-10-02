@@ -146,5 +146,33 @@
 
         </LinearLayout>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Toggle System Bar Color"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/color_status_bars"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Toggle Status Bar Color"
+                android:textSize="30sp"/>
+
+            <Button
+                android:id="@+id/color_navigation_bars"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="Toggle Nav Bar Color"
+                android:textSize="30sp"/>
+
+        </LinearLayout>
+
     </LinearLayout>
 </ScrollView>
