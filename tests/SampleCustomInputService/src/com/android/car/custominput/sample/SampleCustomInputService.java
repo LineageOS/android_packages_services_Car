@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car.custominput.test;
+package com.android.car.custominput.sample;
 
 import static android.car.input.CarInputManager.TargetDisplayType;
 
@@ -35,14 +35,13 @@ import java.util.List;
  * This service is a reference implementation to be used as an example on how to define and handle
  * HW_CUSTOM_INPUT events.
  */
-// TODO(b/12219669): Rename this to CustomInputSampleService
-public class CustomInputTestService extends Service implements
+public class SampleCustomInputService extends Service implements
         CarInputManager.CarInputCaptureCallback {
 
-    private static final String TAG = CustomInputTestService.class.getSimpleName();
+    private static final String TAG = SampleCustomInputService.class.getSimpleName();
     private static final boolean DEBUG = false;
 
-    private static final String CHANNEL_ID = CustomInputTestService.class.getSimpleName();
+    private static final String CHANNEL_ID = SampleCustomInputService.class.getSimpleName();
     private static final int FOREGROUND_ID = 1;
 
     private Car mCar;
@@ -64,7 +63,7 @@ public class CustomInputTestService extends Service implements
         NotificationManager notificationManager = getSystemService(NotificationManager.class);
         notificationManager.createNotificationChannel(channel);
         Notification notification = new Notification.Builder(getApplicationContext(), CHANNEL_ID)
-                .setContentTitle("CustomInputTestService")
+                .setContentTitle("SampleCustomInputService")
                 .setContentText("Processing...")
                 .setSmallIcon(R.drawable.custom_input_ref_service)
                 .build();
