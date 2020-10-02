@@ -16,8 +16,10 @@
 
 package android.automotive.watchdog;
 
+import android.automotive.watchdog.ComponentType;
 import android.automotive.watchdog.ICarWatchdogClient;
 import android.automotive.watchdog.ICarWatchdogMonitor;
+import android.automotive.watchdog.IoOveruseConfiguration;
 import android.automotive.watchdog.StateType;
 import android.automotive.watchdog.TimeoutLength;
 
@@ -53,7 +55,7 @@ interface ICarWatchdog {
   /**
    * Register the mediator to the watchdog server.
    * Note that watchdog mediator is also a watchdog client.
-   * The caller should have system UID.
+   * The caller should have system UID. Otherwise, returns security exception binder error.
    *
    * @param mediator            Watchdog mediator to register.
    */
@@ -70,7 +72,7 @@ interface ICarWatchdog {
 
   /**
    * Register the monitor to the watchdog server.
-   * The caller should have system UID.
+   * The caller should have system UID. Otherwise, returns security exception binder error.
    *
    * @param monitor             Watchdog monitor to register.
    */
@@ -78,7 +80,7 @@ interface ICarWatchdog {
 
   /**
    * Unregister the monitor from the watchdog server.
-   * The caller should have system UID.
+   * The caller should have system UID. Otherwise, returns security exception binder error.
    *
    * @param monitor             Watchdog monitor to unregister.
    */
@@ -95,7 +97,7 @@ interface ICarWatchdog {
   /**
    * Tell watchdog server that the mediator is alive together with the status of clients under
    * the mediator.
-   * The caller should have system UID.
+   * The caller should have system UID. Otherwise, returns security exception binder error.
    *
    * @param mediator             Watchdog mediator that is responding.
    * @param clientsNotResponding Array of process id of clients which haven't responded to the
@@ -107,7 +109,7 @@ interface ICarWatchdog {
 
   /**
    * Tell watchdog server that the monitor has finished dumping process information.
-   * The caller should have system UID.
+   * The caller should have system UID. Otherwise, returns security exception binder error.
    *
    * @param monitor              Watchdog monitor that is registered to watchdog server.
    * @param pid                  Process id that has been dumped.
@@ -116,7 +118,7 @@ interface ICarWatchdog {
 
   /**
    * Notify watchdog server about the system state change.
-   * The caller should have system UID.
+   * The caller should have system UID. Otherwise, returns security exception binder error.
    *
    * @param type                 One of the change types defined in the StateType enum.
    * @param arg1                 First state change information for the specified type.
@@ -127,4 +129,15 @@ interface ICarWatchdog {
    * When type is BOOT_PHASE, arg1 should contain the current boot phase.
    */
   void notifySystemStateChange(in StateType type, in int arg1, in int arg2);
+
+  /**
+   * CarWatchdogService uses this API to forward the I/O overuse configuration update received from
+   * the system or OEM applications.
+   * The caller should have system UID. Otherwise, returns security exception binder error.
+   *
+   * @param type                 Component type for which the I/O overuse configuration update was
+   *                             received.
+   * @param config               I/O overuse configuration.
+   */
+  void updateIoOveruseConfiguration(in ComponentType type, in IoOveruseConfiguration config);
 }

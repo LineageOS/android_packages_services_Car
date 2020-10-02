@@ -17,8 +17,13 @@
 #ifndef CPP_WATCHDOG_SERVER_SRC_WATCHDOGBINDERMEDIATOR_H_
 #define CPP_WATCHDOG_SERVER_SRC_WATCHDOGBINDERMEDIATOR_H_
 
+#include "WatchdogPerfService.h"
+#include "WatchdogProcessService.h"
+
 #include <android-base/result.h>
 #include <android/automotive/watchdog/BnCarWatchdog.h>
+#include <android/automotive/watchdog/ComponentType.h>
+#include <android/automotive/watchdog/IoOveruseConfiguration.h>
 #include <android/automotive/watchdog/StateType.h>
 #include <binder/IBinder.h>
 #include <binder/Status.h>
@@ -27,9 +32,6 @@
 #include <utils/String16.h>
 #include <utils/StrongPointer.h>
 #include <utils/Vector.h>
-
-#include "WatchdogPerfService.h"
-#include "WatchdogProcessService.h"
 
 namespace android {
 namespace automotive {
@@ -70,6 +72,9 @@ public:
         return mWatchdogProcessService->tellDumpFinished(monitor, pid);
     }
     binder::Status notifySystemStateChange(StateType type, int32_t arg1, int32_t arg2) override;
+
+    binder::Status updateIoOveruseConfiguration(ComponentType type,
+                                                const IoOveruseConfiguration& config) override;
 
 protected:
     android::base::Result<void> init(android::sp<WatchdogProcessService> watchdogProcessService,
