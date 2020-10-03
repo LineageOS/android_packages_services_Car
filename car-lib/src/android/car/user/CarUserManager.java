@@ -23,6 +23,7 @@ import static android.os.Process.myUid;
 import static com.android.internal.util.FunctionalUtils.getLambdaName;
 
 import android.annotation.CallbackExecutor;
+import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
@@ -58,6 +59,8 @@ import com.android.internal.os.IResultReceiver;
 import com.android.internal.util.ArrayUtils;
 import com.android.internal.util.Preconditions;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -165,6 +168,139 @@ public final class CarUserManager extends CarManagerBase {
     public static final String BUNDLE_PARAM_ACTION = "action";
     /** @hide */
     public static final String BUNDLE_PARAM_PREVIOUS_USER_ID = "previous_user";
+
+    /**
+     * {@link UserIdentificationAssociationType} for key fob.
+     *
+     * @hide
+     */
+    public static final int USER_IDENTIFICATION_ASSOCIATION_TYPE_KEY_FOB = 1;
+
+    /**
+     * {@link UserIdentificationAssociationType} for custom type 1.
+     *
+     * @hide
+     */
+    public static final int USER_IDENTIFICATION_ASSOCIATION_TYPE_CUSTOM_1 = 101;
+
+    /**
+     * {@link UserIdentificationAssociationType} for custom type 2.
+     *
+     * @hide
+     */
+    public static final int USER_IDENTIFICATION_ASSOCIATION_TYPE_CUSTOM_2 = 102;
+
+    /**
+     * {@link UserIdentificationAssociationType} for custom type 3.
+     *
+     * @hide
+     */
+    public static final int USER_IDENTIFICATION_ASSOCIATION_TYPE_CUSTOM_3 = 103;
+
+    /**
+     * {@link UserIdentificationAssociationType} for custom type 4.
+     *
+     * @hide
+     */
+    public static final int USER_IDENTIFICATION_ASSOCIATION_TYPE_CUSTOM_4 = 104;
+
+    /**
+     *  User HAL's user identification association types
+     *
+     * @hide
+     */
+    @IntDef(prefix = { "USER_IDENTIFICATION_ASSOCIATION_TYPE_" }, value = {
+            USER_IDENTIFICATION_ASSOCIATION_TYPE_KEY_FOB,
+            USER_IDENTIFICATION_ASSOCIATION_TYPE_CUSTOM_1,
+            USER_IDENTIFICATION_ASSOCIATION_TYPE_CUSTOM_2,
+            USER_IDENTIFICATION_ASSOCIATION_TYPE_CUSTOM_3,
+            USER_IDENTIFICATION_ASSOCIATION_TYPE_CUSTOM_4,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface UserIdentificationAssociationType{}
+
+    /**
+     * {@link UserIdentificationAssociationSetValue} to associate the identification type with the
+     * current foreground Android user.
+     *
+     * @hide
+     */
+    public static final int USER_IDENTIFICATION_ASSOCIATION_SET_VALUE_ASSOCIATE_CURRENT_USER = 1;
+
+    /**
+     * {@link UserIdentificationAssociationSetValue} to disassociate the identification type from
+     * the current foreground Android user.
+     *
+     * @hide
+     */
+    public static final int USER_IDENTIFICATION_ASSOCIATION_SET_VALUE_DISASSOCIATE_CURRENT_USER = 2;
+
+    /**
+     * {@link UserIdentificationAssociationSetValue} to disassociate the identification type from
+     * all Android users.
+     *
+     * @hide
+     */
+    public static final int USER_IDENTIFICATION_ASSOCIATION_SET_VALUE_DISASSOCIATE_ALL_USERS = 3;
+
+    /**
+     * User HAL's user identification association types
+     *
+     * @hide
+     */
+    @IntDef(prefix = { "USER_IDENTIFICATION_ASSOCIATION_SET_VALUE_" }, value = {
+            USER_IDENTIFICATION_ASSOCIATION_SET_VALUE_ASSOCIATE_CURRENT_USER,
+            USER_IDENTIFICATION_ASSOCIATION_SET_VALUE_DISASSOCIATE_CURRENT_USER,
+            USER_IDENTIFICATION_ASSOCIATION_SET_VALUE_DISASSOCIATE_ALL_USERS,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface UserIdentificationAssociationSetValue{}
+
+    /**
+     * {@link UserIdentificationAssociationValue} when the status of an association could not be
+     * determined.
+     *
+     * @hide
+     */
+    public static final int USER_IDENTIFICATION_ASSOCIATION_VALUE_UNKNOWN = 1;
+
+    /**
+     * {@link UserIdentificationAssociationValue} when the identification type is associated with
+     * the current foreground Android user.
+     *
+     * @hide
+     */
+    public static final int USER_IDENTIFICATION_ASSOCIATION_VALUE_ASSOCIATE_CURRENT_USER = 2;
+
+    /**
+     * {@link UserIdentificationAssociationValue} when the identification type is associated with
+     * another Android user.
+     *
+     * @hide
+     */
+    public static final int USER_IDENTIFICATION_ASSOCIATION_VALUE_ASSOCIATED_ANOTHER_USER = 3;
+
+    /**
+     * {@link UserIdentificationAssociationValue} when the identification type is not associated
+     * with any Android user.
+     *
+     * @hide
+     */
+    public static final int USER_IDENTIFICATION_ASSOCIATION_VALUE_NOT_ASSOCIATED_ANY_USER = 4;
+
+    /**
+     * User HAL's user identification association types
+     *
+     * @hide
+     */
+    @IntDef(prefix = { "USER_IDENTIFICATION_ASSOCIATION_VALUE_" }, value = {
+            USER_IDENTIFICATION_ASSOCIATION_VALUE_UNKNOWN,
+            USER_IDENTIFICATION_ASSOCIATION_VALUE_ASSOCIATE_CURRENT_USER,
+            USER_IDENTIFICATION_ASSOCIATION_VALUE_ASSOCIATED_ANOTHER_USER,
+            USER_IDENTIFICATION_ASSOCIATION_VALUE_NOT_ASSOCIATED_ANY_USER,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface UserIdentificationAssociationValue{}
 
     private final Object mLock = new Object();
     private final ICarUserService mService;
@@ -445,7 +581,7 @@ public final class CarUserManager extends CarManagerBase {
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             android.Manifest.permission.CREATE_USERS})
     public UserIdentificationAssociationResponse getUserIdentificationAssociation(
-            @NonNull int... types) {
+            @UserIdentificationAssociationType int... types) {
         Preconditions.checkArgument(!ArrayUtils.isEmpty(types), "must have at least one type");
         EventLog.writeEvent(EventLogTags.CAR_USER_MGR_GET_USER_AUTH_REQ, types.length);
         try {
@@ -471,7 +607,8 @@ public final class CarUserManager extends CarManagerBase {
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             android.Manifest.permission.CREATE_USERS})
     public AsyncFuture<UserIdentificationAssociationResponse> setUserIdentificationAssociation(
-            @NonNull int[] types, @NonNull int[] values) {
+            @UserIdentificationAssociationType int[] types,
+            @UserIdentificationAssociationSetValue int[] values) {
         Preconditions.checkArgument(!ArrayUtils.isEmpty(types), "must have at least one type");
         Preconditions.checkArgument(!ArrayUtils.isEmpty(values), "must have at least one value");
         if (types.length != values.length) {

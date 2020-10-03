@@ -51,6 +51,9 @@ import android.car.util.concurrent.AsyncFuture;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
+import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue;
+import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType;
+import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationValue;
 import android.os.RemoteException;
 import android.os.UserManager;
 import android.provider.Settings;
@@ -83,6 +86,43 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
     public void setFixtures() {
         mMgr = new CarUserManager(mCar, mService, mUserManager);
         when(mCar.getContext()).thenReturn(mMockContext);
+    }
+
+    @Test
+    public void testUserIdentificationAssociationType() {
+        assertThat(CarUserManager.USER_IDENTIFICATION_ASSOCIATION_TYPE_KEY_FOB)
+                .isEqualTo(UserIdentificationAssociationType.KEY_FOB);
+        assertThat(CarUserManager.USER_IDENTIFICATION_ASSOCIATION_TYPE_CUSTOM_1)
+                .isEqualTo(UserIdentificationAssociationType.CUSTOM_1);
+        assertThat(CarUserManager.USER_IDENTIFICATION_ASSOCIATION_TYPE_CUSTOM_2)
+                .isEqualTo(UserIdentificationAssociationType.CUSTOM_2);
+        assertThat(CarUserManager.USER_IDENTIFICATION_ASSOCIATION_TYPE_CUSTOM_3)
+                .isEqualTo(UserIdentificationAssociationType.CUSTOM_3);
+        assertThat(CarUserManager.USER_IDENTIFICATION_ASSOCIATION_TYPE_CUSTOM_4)
+                .isEqualTo(UserIdentificationAssociationType.CUSTOM_4);
+    }
+
+    @Test
+    public void testUserIdentificationAssociationSetValue() {
+        assertThat(CarUserManager.USER_IDENTIFICATION_ASSOCIATION_SET_VALUE_ASSOCIATE_CURRENT_USER)
+                .isEqualTo(UserIdentificationAssociationSetValue.ASSOCIATE_CURRENT_USER);
+        assertThat(
+                CarUserManager.USER_IDENTIFICATION_ASSOCIATION_SET_VALUE_DISASSOCIATE_CURRENT_USER)
+                        .isEqualTo(UserIdentificationAssociationSetValue.DISASSOCIATE_CURRENT_USER);
+        assertThat(CarUserManager.USER_IDENTIFICATION_ASSOCIATION_SET_VALUE_DISASSOCIATE_ALL_USERS)
+                .isEqualTo(UserIdentificationAssociationSetValue.DISASSOCIATE_ALL_USERS);
+    }
+
+    @Test
+    public void testUserIdentificationAssociationValue() {
+        assertThat(CarUserManager.USER_IDENTIFICATION_ASSOCIATION_VALUE_UNKNOWN)
+                .isEqualTo(UserIdentificationAssociationValue.UNKNOWN);
+        assertThat(CarUserManager.USER_IDENTIFICATION_ASSOCIATION_VALUE_ASSOCIATE_CURRENT_USER)
+                .isEqualTo(UserIdentificationAssociationValue.ASSOCIATED_CURRENT_USER);
+        assertThat(CarUserManager.USER_IDENTIFICATION_ASSOCIATION_VALUE_ASSOCIATED_ANOTHER_USER)
+                .isEqualTo(UserIdentificationAssociationValue.ASSOCIATED_ANOTHER_USER);
+        assertThat(CarUserManager.USER_IDENTIFICATION_ASSOCIATION_VALUE_NOT_ASSOCIATED_ANY_USER)
+                .isEqualTo(UserIdentificationAssociationValue.NOT_ASSOCIATED_ANY_USER);
     }
 
     @Test
