@@ -2549,7 +2549,7 @@
     <string name="privacy_settings_title" msgid="3573891462732375772">"Copia de seguridad"</string>
     <string name="backup_summary_state_on" msgid="1725597360282574647">"Activada"</string>
     <string name="backup_summary_state_off" msgid="7138020503288730492">"Desactivada"</string>
-    <string name="backup_section_title" msgid="8177209731777904656">"Copia de seguridad"</string>
+    <string name="backup_section_title" msgid="8177209731777904656">"Copia de seguridad y restauración"</string>
     <string name="personal_data_section_title" msgid="9161854418510071558">"Datos personales"</string>
     <string name="backup_data_title" msgid="4461508563849583624">"Copia de seguridad de mis datos"</string>
     <string name="backup_data_summary" msgid="555459891017933746">"Crear copia de seguridad de los datos de las aplicaciones, las contraseñas de redes Wi-Fi y otros ajustes en los servidores de Google"</string>
