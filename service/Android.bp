@@ -39,6 +39,7 @@ common_lib_deps = [
     "android.hardware.health-V1.0-java",
     "android.hardware.health-V2.0-java",
     "android.hardware.automotive.occupant_awareness-java",
+    "carpowerpolicy_system_notification-java",
     "vehicle-hal-support-lib",
     "car-systemtest",
     "com.android.car.procfsinspector-client",

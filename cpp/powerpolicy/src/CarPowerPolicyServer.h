@@ -22,6 +22,7 @@
 
 #include <android-base/result.h>
 #include <android/frameworks/automotive/powerpolicy/BnCarPowerPolicyServer.h>
+#include <android/frameworks/automotive/powerpolicy/BnCarPowerPolicySystemNotification.h>
 #include <android/hardware/automotive/vehicle/2.0/IVehicle.h>
 #include <binder/IBinder.h>
 #include <binder/Status.h>
@@ -106,6 +107,18 @@ private:
     sp<CarPowerPolicyServer> mService;
 };
 
+class CarServiceNotificationHandler : public BnCarPowerPolicySystemNotification {
+public:
+    explicit CarServiceNotificationHandler(const sp<CarPowerPolicyServer>& server);
+
+    status_t dump(int fd, const Vector<String16>& args) override;
+    binder::Status notifyCarServiceReady(PolicyState* policyState) override;
+    binder::Status notifyPowerPolicyChange(const std::string& policyId) override;
+
+private:
+    sp<CarPowerPolicyServer> mService;
+};
+
 class CarPowerPolicyServer : public BnCarPowerPolicyServer {
 public:
     static base::Result<sp<CarPowerPolicyServer>> startService(const sp<Looper>& looper);
@@ -123,7 +136,10 @@ public:
     void connectToVhalHelper();
     void handleBinderDeath(const wp<IBinder>& who);
     void handleHidlDeath(const wp<hidl::base::V1_0::IBase>& who);
-    base::Result<void> applyPowerPolicy(const std::string& policyId);
+    binder::Status notifyCarServiceReady(PolicyState* policyState);
+    binder::Status notifyPowerPolicyChange(const std::string& policyId);
+    base::Result<void> applyPowerPolicy(const std::string& policyId, bool carServiceInOperation,
+                                        bool notifyClients);
     base::Result<void> setPowerPolicyGroup(const std::string& groupId);
 
 private:
@@ -156,10 +172,12 @@ private:
     sp<hardware::automotive::vehicle::V2_0::IVehicle> mVhalService GUARDED_BY(mMutex);
     int64_t mLastApplyPowerPolicy GUARDED_BY(mMutex);
     int64_t mLastSetDefaultPowerPolicyGroup GUARDED_BY(mMutex);
+    bool mCarServiceInOperation GUARDED_BY(mMutex);
     std::unordered_map<int32_t, bool> mSupportedProperties;
     sp<BinderDeathRecipient> mBinderDeathRecipient;
     sp<HidlDeathRecipient> mHidlDeathRecipient;
     sp<PropertyChangeListener> mPropertyChangeListener;
+    sp<CarServiceNotificationHandler> mCarServiceNotificationHandler;
     int32_t mRemainingConnectionRetryCount;
 
     // For unit tests.

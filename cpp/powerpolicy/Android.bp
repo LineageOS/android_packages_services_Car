@@ -22,8 +22,9 @@ cc_defaults {
         "-Wunused-parameter",
     ],
     shared_libs: [
+        "android.frameworks.automotive.powerpolicy-cpp",
         "android.hardware.automotive.vehicle@2.0",
-        "carpowerpolicy_aidl_interface-cpp",
+        "carpowerpolicy_system_notification-cpp",
         "libbase",
         "libbinder",
         "libhidlbase",
