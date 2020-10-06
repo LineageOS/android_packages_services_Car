@@ -271,7 +271,7 @@ public class CarAudioZonesHelperTest {
         List<Integer> audioContexts = Arrays.stream(volumeGroup.getContexts()).boxed()
                 .collect(Collectors.toList());
 
-        assertThat(audioContexts).containsAllOf(DEFAULT_AUDIO_CONTEXT, CarAudioContext.EMERGENCY,
+        assertThat(audioContexts).containsAtLeast(DEFAULT_AUDIO_CONTEXT, CarAudioContext.EMERGENCY,
                 CarAudioContext.SAFETY, CarAudioContext.VEHICLE_STATUS,
                 CarAudioContext.ANNOUNCEMENT);
     }

@@ -113,7 +113,7 @@ public final class BlockingUserLifecycleListenerTest {
                 USER_LIFECYCLE_EVENT_TYPE_UNLOCKED);
 
         List<UserLifecycleEvent> allReceivedEvents = listener.getAllReceivedEvents();
-        assertThat(allReceivedEvents).containsAllIn(events).inOrder();
+        assertThat(allReceivedEvents).containsAtLeastElementsIn(events).inOrder();
     }
 
     @Test
