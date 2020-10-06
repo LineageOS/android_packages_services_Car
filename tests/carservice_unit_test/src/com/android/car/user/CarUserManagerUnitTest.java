@@ -383,7 +383,7 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
         UserIdentificationAssociationResponse actualResponse =
                 mMgr.getUserIdentificationAssociation(types);
 
-        assertThat(actualResponse).isSameAs(expectedResponse);
+        assertThat(actualResponse).isSameInstanceAs(expectedResponse);
     }
 
     @Test
@@ -456,7 +456,7 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
         assertThat(future).isNotNull();
         UserIdentificationAssociationResponse result = getResult(future);
         assertThat(result.isSuccess()).isTrue();
-        assertThat(result.getValues()).asList().containsAllOf(10, 20, 30).inOrder();
+        assertThat(result.getValues()).asList().containsAtLeast(10, 20, 30).inOrder();
         assertThat(result.getErrorMessage()).isEqualTo("D'OH!");
     }
 
