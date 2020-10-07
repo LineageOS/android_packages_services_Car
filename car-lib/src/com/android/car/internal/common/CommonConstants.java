@@ -16,6 +16,11 @@
 
 package com.android.car.internal.common;
 
+import android.annotation.IntDef;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * Provides common constants for Car library, Car Service, and System Server.
  *
@@ -38,4 +43,15 @@ public final class CommonConstants {
 
     // CarService Constants
     public static final String CAR_SERVICE_INTERFACE = "android.car.ICar";
+
+    @IntDef(prefix = { "USER_LIFECYCLE_EVENT_TYPE_" }, value = {
+            USER_LIFECYCLE_EVENT_TYPE_STARTING,
+            USER_LIFECYCLE_EVENT_TYPE_SWITCHING,
+            USER_LIFECYCLE_EVENT_TYPE_UNLOCKING,
+            USER_LIFECYCLE_EVENT_TYPE_UNLOCKED,
+            USER_LIFECYCLE_EVENT_TYPE_STOPPING,
+            USER_LIFECYCLE_EVENT_TYPE_STOPPED,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface UserLifecycleEventType{}
 }

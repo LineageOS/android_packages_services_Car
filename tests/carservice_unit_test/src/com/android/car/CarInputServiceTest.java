@@ -65,6 +65,7 @@ import androidx.test.core.app.ApplicationProvider;
 
 import com.android.car.hal.InputHalService;
 import com.android.car.hal.UserHalService;
+import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
 import com.android.car.user.CarUserService;
 import com.android.internal.app.AssistUtils;
 import com.android.internal.util.test.BroadcastInterceptingContext;
@@ -628,7 +629,7 @@ public class CarInputServiceTest {
         mCarInputService.init();
     }
 
-    private void sendUserLifecycleEvent(@CarUserManager.UserLifecycleEventType int eventType,
+    private void sendUserLifecycleEvent(@UserLifecycleEventType int eventType,
             @UserIdInt int userId) throws InterruptedException {
         // Add a blocking listener to ensure CarUserService event notification is completed
         // before proceeding with test execution.
