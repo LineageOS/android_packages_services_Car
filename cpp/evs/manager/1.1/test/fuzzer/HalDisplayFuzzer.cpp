@@ -54,14 +54,17 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     while (fdp.remaining_bytes() > kMaxFuzzerConsumedBytes) {
         switch (fdp.ConsumeIntegralInRange<uint32_t>(0, EVS_FUZZ_API_SUM)) {
             case EVS_FUZZ_GET_HW_DISPLAY: {
+                LOG(DEBUG) << "EVS_FUZZ_GET_HW_DISPLAY";
                 halDisplay->getHwDisplay();
                 break;
             }
             case EVS_FUZZ_GET_DISPLAY_INFO: {
+                LOG(DEBUG) << "EVS_FUZZ_GET_DISPLAY_INFO";
                 halDisplay->getDisplayInfo([](DisplayDesc desc) {});
                 break;
             }
             case EVS_FUZZ_SET_DISPLAY_STATE: {
+                LOG(DEBUG) << "EVS_FUZZ_SET_DISPLAY_STATE";
                 uint32_t state =
                         fdp.ConsumeIntegralInRange<uint32_t>(0,
                                                              static_cast<uint32_t>(
@@ -71,24 +74,29 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                 break;
             }
             case EVS_FUZZ_GET_DISPLAY_STATE: {
+                LOG(DEBUG) << "EVS_FUZZ_GET_DISPLAY_STATE";
                 halDisplay->getDisplayState();
                 break;
             }
             case EVS_FUZZ_GET_TARGET_BUFFER: {
+                LOG(DEBUG) << "EVS_FUZZ_GET_TARGET_BUFFER";
                 halDisplay->getTargetBuffer([](const BufferDesc_1_0& buff) {});
                 break;
             }
             case EVS_FUZZ_RTN_TGT_BUF_FOR_DISPLAY: {
+                LOG(DEBUG) << "EVS_FUZZ_RTN_TGT_BUF_FOR_DISPLAY";
                 BufferDesc_1_0 buffer;
                 buffer.bufferId = fdp.ConsumeIntegral<int32_t>();
                 halDisplay->returnTargetBufferForDisplay(buffer);
                 break;
             }
             case EVS_FUZZ_GET_DISPLAY_INFO_1_1: {
+                LOG(DEBUG) << "EVS_FUZZ_GET_DISPLAY_INFO_1_1";
                 halDisplay->getDisplayInfo_1_1([](const auto& config, const auto& state) {});
                 break;
             }
             case EVS_FUZZ_TO_STRING: {
+                LOG(DEBUG) << "EVS_FUZZ_TO_STRING";
                 std::string indent = fdp.ConsumeRandomLengthString(kMaxFuzzerConsumedBytes);
                 halDisplay->toString(indent.c_str());
                 break;

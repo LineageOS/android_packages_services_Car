@@ -68,11 +68,13 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     while (fdp.remaining_bytes() > kMaxFuzzerConsumedBytes) {
         switch (fdp.ConsumeIntegralInRange<uint32_t>(0, EVS_FUZZ_API_SUM)) {
             case EVS_FUZZ_MAKE_VIRTUAL_CAMERA: {
+                LOG(DEBUG) << "EVS_FUZZ_MAKE_VIRTUAL_CAMERA";
                 sp<VirtualCamera> virtualCamera = halCamera->makeVirtualCamera();
                 virtualCameras.emplace_back(virtualCamera);
                 break;
             }
             case EVS_FUZZ_OWN_VIRTUAL_CAMERA: {
+                LOG(DEBUG) << "EVS_FUZZ_OWN_VIRTUAL_CAMERA";
                 if (!virtualCameras.empty()) {
                     uint32_t whichCam =
                             fdp.ConsumeIntegralInRange<uint32_t>(0, virtualCameras.size() - 1);
@@ -81,6 +83,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                 break;
             }
             case EVS_FUZZ_DISOWN_VIRTUAL_CAMERA: {
+                LOG(DEBUG) << "EVS_FUZZ_DISOWN_VIRTUAL_CAMERA";
                 if (!virtualCameras.empty()) {
                     uint32_t whichCam =
                             fdp.ConsumeIntegralInRange<uint32_t>(0, virtualCameras.size() - 1);
@@ -89,33 +92,40 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                 break;
             }
             case EVS_FUZZ_GET_HW_CAMERA: {
+                LOG(DEBUG) << "EVS_FUZZ_GET_HW_CAMERA";
                 halCamera->getHwCamera();
                 break;
             }
             case EVS_FUZZ_GET_CLIENT_COUNT: {
+                LOG(DEBUG) << "EVS_FUZZ_GET_CLIENT_COUNT";
                 halCamera->getClientCount();
                 break;
             }
             case EVS_FUZZ_GET_ID: {
+                LOG(DEBUG) << "EVS_FUZZ_GET_ID";
                 halCamera->getId();
                 break;
             }
             case EVS_FUZZ_GET_STREAM_CONFIG: {
+                LOG(DEBUG) << "EVS_FUZZ_GET_STREAM_CONFIG";
                 halCamera->getStreamConfig();
                 break;
             }
             case EVS_FUZZ_CHANGE_FRAMES_IN_FLIGHT: {
+                LOG(DEBUG) << "EVS_FUZZ_CHANGE_FRAMES_IN_FLIGHT";
                 uint32_t delta = fdp.ConsumeIntegral<int32_t>();
                 halCamera->changeFramesInFlight(delta);
                 break;
             }
             case EVS_FUZZ_CHANGE_FRAMES_IN_FLIGHT_1: {
+                LOG(DEBUG) << "EVS_FUZZ_CHANGE_FRAMES_IN_FLIGHT_1";
                 hidl_vec<BufferDesc_1_1> buffers;
                 int32_t delta = 0;
                 halCamera->changeFramesInFlight(buffers, &delta);
                 break;
             }
             case EVS_FUZZ_REQUEST_NEW_FRAME: {
+                LOG(DEBUG) << "EVS_FUZZ_REQUEST_NEW_FRAME";
                 if (!virtualCameras.empty()) {
                     uint32_t whichCam =
                             fdp.ConsumeIntegralInRange<uint32_t>(0, virtualCameras.size() - 1);
@@ -124,10 +134,12 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                 break;
             }
             case EVS_FUZZ_CLIENT_STREAM_STARTING: {
+                LOG(DEBUG) << "EVS_FUZZ_CLIENT_STREAM_STARTING";
                 halCamera->clientStreamStarting();
                 break;
             }
             case EVS_FUZZ_CLIENT_STREAM_ENDING: {
+                LOG(DEBUG) << "EVS_FUZZ_CLIENT_STREAM_ENDING";
                 if (!virtualCameras.empty()) {
                     uint32_t whichCam =
                             fdp.ConsumeIntegralInRange<uint32_t>(0, virtualCameras.size() - 1);
@@ -136,6 +148,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                 break;
             }
             case EVS_FUZZ_DONE_WITH_FRAME_1_0: {
+                LOG(DEBUG) << "EVS_FUZZ_DONE_WITH_FRAME_1_0";
                 if (!vBufferDesc_1_0.empty()) {
                     uint32_t whichBuffer =
                             fdp.ConsumeIntegralInRange<uint32_t>(0, vBufferDesc_1_0.size() - 1);
@@ -144,6 +157,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                 break;
             }
             case EVS_FUZZ_DONE_WITH_FRAME_1_1: {
+                LOG(DEBUG) << "EVS_FUZZ_DONE_WITH_FRAME_1_1";
                 if (!vBufferDesc_1_1.empty()) {
                     uint32_t whichBuffer =
                             fdp.ConsumeIntegralInRange<uint32_t>(0, vBufferDesc_1_1.size() - 1);
@@ -152,6 +166,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                 break;
             }
             case EVS_FUZZ_SET_PRIMARY: {
+                LOG(DEBUG) << "EVS_FUZZ_SET_PRIMARY";
                 if (!virtualCameras.empty()) {
                     uint32_t whichCam =
                             fdp.ConsumeIntegralInRange<uint32_t>(0, virtualCameras.size() - 1);
@@ -160,6 +175,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                 break;
             }
             case EVS_FUZZ_FORCE_PRIMARY: {
+                LOG(DEBUG) << "EVS_FUZZ_FORCE_PRIMARY";
                 if (!virtualCameras.empty()) {
                     uint32_t whichCam =
                             fdp.ConsumeIntegralInRange<uint32_t>(0, virtualCameras.size() - 1);
@@ -168,6 +184,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                 break;
             }
             case EVS_FUZZ_UNSET_PRIMARY: {
+                LOG(DEBUG) << "EVS_FUZZ_UNSET_PRIMARY";
                 if (!virtualCameras.empty()) {
                     uint32_t whichCam =
                             fdp.ConsumeIntegralInRange<uint32_t>(0, virtualCameras.size() - 1);
@@ -176,6 +193,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                 break;
             }
             case EVS_FUZZ_SET_PARAMETER: {
+                LOG(DEBUG) << "EVS_FUZZ_SET_PARAMETER";
                 if (!virtualCameras.empty()) {
                     uint32_t whichCam =
                             fdp.ConsumeIntegralInRange<uint32_t>(0, virtualCameras.size() - 1);
@@ -188,6 +206,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                 break;
             }
             case EVS_FUZZ_GET_PARAMETER: {
+                LOG(DEBUG) << "EVS_FUZZ_GET_PARAMETER";
                 uint32_t whichParam =
                         fdp.ConsumeIntegralInRange<uint32_t>(0,
                                                              static_cast<uint32_t>(
@@ -197,14 +216,17 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                 break;
             }
             case EVS_FUZZ_GET_STATS: {
+                LOG(DEBUG) << "EVS_FUZZ_GET_STATS";
                 halCamera->getStats();
                 break;
             }
             case EVS_FUZZ_GET_STREAM_CONFIGURATION: {
+                LOG(DEBUG) << "EVS_FUZZ_GET_STREAM_CONFIGURATION";
                 halCamera->getStreamConfiguration();
                 break;
             }
             case EVS_FUZZ_DELIVER_FRAME: {
+                LOG(DEBUG) << "EVS_FUZZ_DELIVER_FRAME";
                 BufferDesc_1_0 buffer;
                 buffer.bufferId = fdp.ConsumeIntegral<int32_t>();
                 halCamera->deliverFrame(buffer);
@@ -212,6 +234,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                 break;
             }
             case EVS_FUZZ_DELIVER_FRAME_1_1: {
+                LOG(DEBUG) << "EVS_FUZZ_DELIVER_FRAME_1_1";
                 std::vector<BufferDesc_1_1> vec;
                 BufferDesc_1_1 buffer;
                 buffer.bufferId = fdp.ConsumeIntegral<int32_t>();
@@ -222,6 +245,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                 break;
             }
             case EVS_FUZZ_NOTIFY: {
+                LOG(DEBUG) << "EVS_FUZZ_NOTIFY";
                 EvsEventDesc event;
                 uint32_t type =
                         fdp.ConsumeIntegralInRange<uint32_t>(0,

@@ -94,10 +94,12 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     while (fdp.remaining_bytes() > kMaxFuzzerConsumedBytes) {
         switch (fdp.ConsumeIntegralInRange<uint32_t>(0, EVS_FUZZ_API_SUM)) {
             case EVS_FUZZ_GET_CAMERA_LIST: {
+                LOG(DEBUG) << "EVS_FUZZ_GET_CAMERA_LIST";
                 sEnumerator->getCameraList([](auto list){});
                 break;
             }
             case EVS_FUZZ_OPEN_CAMERA: {
+                LOG(DEBUG) << "EVS_FUZZ_OPEN_CAMERA";
                 uint64_t whichCam =
                             fdp.ConsumeIntegralInRange<uint64_t>(startMockHWCameraId,
                                                                  endMockHWCameraId-1);
@@ -109,6 +111,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                 break;
             }
             case EVS_FUZZ_CLOSE_CAMERA: {
+                LOG(DEBUG) << "EVS_FUZZ_CLOSE_CAMERA";
                 if (!sVirtualCameras.empty()) {
                     sp<IEvsCamera_1_0> cam = sVirtualCameras.back();
                     sEnumerator->closeCamera(cam);
@@ -117,6 +120,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                 break;
             }
             case EVS_FUZZ_OPEN_DISPLAY: {
+                LOG(DEBUG) << "EVS_FUZZ_OPEN_DISPLAY";
                 sp<IEvsDisplay_1_0> display = sEnumerator->openDisplay();
                 if (display != nullptr) {
                     sDisplays.emplace_back(display);
@@ -124,6 +128,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                 break;
             }
             case EVS_FUZZ_CLOSE_DISPLAY: {
+                LOG(DEBUG) << "EVS_FUZZ_CLOSE_DISPLAY";
                 if (!sDisplays.empty()) {
                     sp<IEvsDisplay_1_0> display = sDisplays.back();
                     sEnumerator->closeDisplay(display);
@@ -132,14 +137,17 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                 break;
             }
             case EVS_FUZZ_GET_DISPLAY_STATE: {
+                LOG(DEBUG) << "EVS_FUZZ_GET_DISPLAY_STATE";
                 sEnumerator->getDisplayState();
                 break;
             }
             case EVS_FUZZ_GET_CAMERA_LIST_1_1: {
+                LOG(DEBUG) << "EVS_FUZZ_GET_CAMERA_LIST_1_1";
                 sEnumerator->getCameraList_1_1([](auto cams){});
                 break;
             }
             case EVS_FUZZ_OPEN_CAMERA_1_1: {
+                LOG(DEBUG) << "EVS_FUZZ_OPEN_CAMERA_1_1";
                 uint64_t whichCam =
                             fdp.ConsumeIntegralInRange<uint64_t>(startMockHWCameraId,
                                                                  endMockHWCameraId-1);
@@ -152,14 +160,17 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                 break;
             }
             case EVS_FUZZ_IS_HARDWARE: {
+                LOG(DEBUG) << "EVS_FUZZ_IS_HARDWARE";
                 sEnumerator->isHardware();
                 break;
             }
             case EVS_FUZZ_GET_DISPLAY_LIST: {
+                LOG(DEBUG) << "EVS_FUZZ_GET_DISPLAY_LIST";
                 sEnumerator->getDisplayIdList([](auto list){});
                 break;
             }
             case EVS_FUZZ_OPEN_DISPLAY_1_1: {
+                LOG(DEBUG) << "EVS_FUZZ_OPEN_DISPLAY_1_1";
                 uint64_t whichDisp =
                             fdp.ConsumeIntegralInRange<uint64_t>(startMockHWDisplayId,
                                                                  endMockHWDisplayId-1);
@@ -172,15 +183,18 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                 break;
             }
             case EVS_FUZZ_GET_ULTRASONICS_ARRAY_LIST: {
+                LOG(DEBUG) << "EVS_FUZZ_GET_ULTRASONICS_ARRAY_LIST";
                 sEnumerator->getUltrasonicsArrayList([](auto list) {});
                 break;
             }
             case EVS_FUZZ_OPEN_ULTRASONICS_ARRAY: {
+                LOG(DEBUG) << "EVS_FUZZ_OPEN_ULTRASONICS_ARRAY";
                 // TODO(b/162465548) replace this once implementation is ready
                 sEnumerator->openUltrasonicsArray("");
                 break;
             }
             case EVS_FUZZ_CLOSE_ULTRASONICS_ARRAY: {
+                LOG(DEBUG) << "EVS_FUZZ_CLOSE_ULTRASONICS_ARRAY";
                 // TODO(b/162465548) replace this once implementation is ready
                 sEnumerator->closeUltrasonicsArray(nullptr);
                 break;
