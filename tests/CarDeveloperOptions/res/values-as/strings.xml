@@ -1890,7 +1890,7 @@
     <string name="app_disable_dlg_positive" msgid="5508828271100168073">"এপ্ অক্ষম কৰক"</string>
     <string name="app_disable_dlg_text" msgid="9221864774943530281">"আপুনি যদি এই এপ্‌টো অক্ষম কৰে, তেন্তে Android আৰু অন্য এপ্‌সমূহে বিচৰাৰ দৰে কাম নকৰিব পাৰে। মনত ৰাখিব, আপুনি এই এপ্‌টো মচিব নোৱাৰে কাৰণ এইটো আপোনাৰ ডিভাইচত আগৰেপৰা ইনষ্টল কৰি থোৱা আছে। অক্ষম কৰি আপুনি এই এপ্‌টো অফ কৰে আৰু ইয়াক আপোনাৰ ডিভাইচৰপৰা লুকুৱায়।"</string>
     <string name="app_disable_notifications_dlg_title" msgid="699530661413553928">"জাননীসমুহ অফ কৰিবনে?"</string>
-    <string name="app_install_details_group_title" msgid="2909597319422976921">"ষ্ট’ৰ"</string>
+    <string name="app_install_details_group_title" msgid="2909597319422976921">"Store"</string>
     <string name="app_install_details_title" msgid="6954953384372934881">"এপ্‌ৰ সবিশেষ"</string>
     <string name="app_install_details_summary" msgid="6612222941121363940">"<xliff:g id="APP_STORE">%1$s</xliff:g>ৰ পৰা এপ্ ইনষ্টল কৰা হৈছে"</string>
     <string name="instant_app_details_summary" msgid="6384264315914966114">"<xliff:g id="APP_STORE">%1$s</xliff:g>ত আৰু অধিক তথ্য"</string>
@@ -3726,7 +3726,7 @@
     <string name="sharing_remote_bugreport_dialog_message" msgid="3814787466701526359">"আপোনাৰ আইটি প্ৰশাসকৰ সৈতে এই বাগ প্ৰতিবেদনটো শ্বেয়াৰ কৰা হৈছে। অধিক তথ্যৰ বাবে তেওঁলোকৰ সৈতে যোগাযোগ কৰক।"</string>
     <string name="share_remote_bugreport_action" msgid="8600797271670537888">"শ্বেয়াৰ কৰক"</string>
     <string name="decline_remote_bugreport_action" msgid="706319275774199033">"প্ৰত্যাখ্যান কৰক"</string>
-    <string name="usb_use_charging_only" msgid="2344625733377110164">"কোনো ডেটা স্থানান্তৰণ কৰিব নোৱাৰি"</string>
+    <string name="usb_use_charging_only" msgid="2344625733377110164">"ডেটা স্থানান্তৰ কৰিব নোৱাৰি"</string>
     <string name="usb_use_charging_only_desc" msgid="3283518562582478950">"ডিভাইচটো কেৱল চাৰ্জ কৰক"</string>
     <string name="usb_use_power_only" msgid="6595783381323810697">"চ্চাৰ্জাৰ ডিভাইচত সংযোগ কৰা হ’ল"</string>
     <string name="usb_use_file_transfers" msgid="6153021302176151884">"ফাইল স্থানান্তৰণৰ বাবে"</string>
@@ -4239,7 +4239,7 @@
     <string name="storage_music_audio" msgid="3661289086715297149">"সংগীত আৰু ধ্বনি"</string>
     <string name="storage_games" msgid="7740038143749092373">"খেল"</string>
     <string name="storage_other_apps" msgid="3202407095387420842">"অন্যান্য এপসমূহ"</string>
-    <string name="storage_files" msgid="2087824267937487880">"ফাইলসমূহ"</string>
+    <string name="storage_files" msgid="2087824267937487880">"Files"</string>
     <string name="storage_size_large_alternate" msgid="1317796542509105857">"<xliff:g id="NUMBER">^1</xliff:g>"<small>" "<font size="20">"<xliff:g id="UNIT">^2</xliff:g>"</font></small>""</string>
     <string name="storage_volume_total" msgid="5021484171514159913">"<xliff:g id="TOTAL">%1$s</xliff:g>ৰ বাবে ব্যৱহৃত"</string>
     <string name="storage_percent_full" msgid="6924662861545958442">"ব্যৱহৃত"</string>
@@ -4473,7 +4473,7 @@
     <string name="privacy_dashboard_title" msgid="8764930992456607513">"গোপনীয়তা"</string>
     <string name="privacy_dashboard_summary" msgid="7916431309860824945">"অনুমতি, একাউণ্টৰ কাৰ্যকলাপ, ব্যক্তিগত ডেটা"</string>
     <string name="contextual_card_dismiss_remove" msgid="1750420285615827309">"আঁতৰাওক"</string>
-    <string name="contextual_card_dismiss_keep" msgid="3204450672928193661">"ৰাখক"</string>
+    <string name="contextual_card_dismiss_keep" msgid="3204450672928193661">"Keep"</string>
     <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"এই পৰামৰ্শটো আঁতৰাবনে?"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"পৰামৰ্শ আঁতৰোৱা হ’ল"</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"আনডু কৰক"</string>

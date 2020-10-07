@@ -2091,7 +2091,7 @@
     <string name="feature_flags_dashboard_title" msgid="3153034144122754381">"סימוני תכונות"</string>
     <string name="talkback_title" msgid="3717960404234260050">"Talkback"</string>
     <string name="talkback_summary" msgid="6602857105831641574">"קורא מסך המיועד בעיקר לעיוורים או לבעלי ראייה לקויה"</string>
-    <string name="select_to_speak_summary" msgid="7514180457557735421">"הקש על פריטים במסך כדי לשמוע הקראה שלהם"</string>
+    <string name="select_to_speak_summary" msgid="7514180457557735421">"ניתן להקיש על פריטים במסך כדי לשמוע הקראה שלהם"</string>
     <string name="accessibility_captioning_title" msgid="5878371993023439642">"כתוביות"</string>
     <string name="accessibility_screen_magnification_title" msgid="7250949681883917360">"הגדלה"</string>
     <string name="accessibility_screen_magnification_gestures_title" msgid="9199287875401817974">"הגדלה על-ידי הקשה שלוש פעמים"</string>
@@ -3747,7 +3747,7 @@
     <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"לא התבקשו הרשאות"</string>
     <string name="filter_all_apps" msgid="4042756539846043675">"כל האפליקציות"</string>
     <string name="filter_enabled_apps" msgid="5888459261768538489">"אפליקציות מותקנות"</string>
-    <string name="filter_instant_apps" msgid="8087483282854072366">"אפליקציות אינסטנט"</string>
+    <string name="filter_instant_apps" msgid="8087483282854072366">"אפליקציות ללא התקנה"</string>
     <string name="filter_personal_apps" msgid="3473268022652904457">"אישיות"</string>
     <string name="filter_work_apps" msgid="4202483998339465542">"עבודה"</string>
     <string name="filter_notif_all_apps" msgid="1862666327228804896">"אפליקציות: הכל"</string>
@@ -4291,10 +4291,10 @@
     <string name="oem_unlock_enable_disabled_summary_sim_locked_device" msgid="5223278198179877704">"לא זמין במכשירים הנעולים לספק"</string>
     <string name="oem_lock_info_message" msgid="5090850412279403901">"יש להפעיל מחדש את המכשיר כדי להפעיל את התכונה של הגנת המכשיר."</string>
     <string name="automatic_storage_manager_freed_bytes" msgid="7360443072390107772">"סה\"כ <xliff:g id="SIZE">%1$s</xliff:g> הפכו לזמינים\n\nהורץ לאחרונה בתאריך <xliff:g id="DATE">%2$s</xliff:g>"</string>
-    <string name="web_action_enable_title" msgid="4462106633708675959">"אפליקציות אינסטנט"</string>
+    <string name="web_action_enable_title" msgid="4462106633708675959">"אפליקציות ללא התקנה"</string>
     <string name="web_action_enable_summary" msgid="1729016644691793085">"פתיחת קישורים באפליקציות, גם אם הן לא מותקנות"</string>
-    <string name="web_action_section_title" msgid="5563229447734734662">"אפליקציות אינסטנט"</string>
-    <string name="instant_apps_settings" msgid="879003203555847537">"העדפות של אפליקציות אינסטנט"</string>
+    <string name="web_action_section_title" msgid="5563229447734734662">"אפליקציות ללא התקנה"</string>
+    <string name="instant_apps_settings" msgid="879003203555847537">"העדפות של אפליקציות ללא התקנה"</string>
     <string name="domain_url_section_title" msgid="206403507921518321">"אפליקציות מותקנות"</string>
     <string name="automatic_storage_manager_activation_warning" msgid="2630083316417707308">"האחסון שלך מנוהל כעת על ידי מנהל האחסון"</string>
     <string name="account_for_section_header" msgid="5975241715840642563">"חשבונות עבור <xliff:g id="USER_NAME">%1$s</xliff:g>"</string>
@@ -4423,7 +4423,7 @@
     <string name="storage_manager_indicator" msgid="4255140732848476875">"מנהל אחסון: <xliff:g id="STATUS">^1</xliff:g>"</string>
     <string name="storage_manager_indicator_off" msgid="6404056007102580777">"כבוי"</string>
     <string name="storage_manager_indicator_on" msgid="5295306384982062320">"פועל"</string>
-    <string name="install_type_instant" msgid="6248487669862821874">"אפליקציה אינסטנט"</string>
+    <string name="install_type_instant" msgid="6248487669862821874">"אפליקציה ללא התקנה"</string>
     <string name="automatic_storage_manager_deactivation_warning" msgid="7867793739491286374">"האם לכבות את מנהל האחסון?"</string>
     <string name="storage_movies_tv" msgid="7282484273991655296">"אפליקציות סרטים וטלוויזיה"</string>
     <string name="carrier_provisioning" msgid="3309125279191534469">"פרטי ניהול תצורה של ספק סלולרי"</string>
