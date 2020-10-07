@@ -17,7 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name" msgid="2596316479611335185">"Мүчүлүштүк тууралуу кабар берүү"</string>
+    <string name="app_name" msgid="2596316479611335185">"Мүчүлүштүк тууралуу кабарлоо"</string>
     <string name="bugreport_info_quit" msgid="5590138890181142473">"Жабуу"</string>
     <string name="bugreport_info_start" msgid="667324824650830832">"Мүчүлүштүк тууралуу кабарды берип баштоо"</string>
     <string name="bugreport_info_status" msgid="7211044508792815451">"Абалы:"</string>
@@ -45,5 +45,5 @@
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"Абал тууралуу маалымат алынган жок"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"Мүчүлүштүк тууралуу кабар даярдалууда"</string>
     <string name="notification_bugreport_finished_title" msgid="3970195939909624320">"Мүчүлүштүк тууралуу кабар алынды"</string>
-    <string name="notification_bugreport_channel_name" msgid="776902295433824255">"Мүчүлүштүк тууралуу кабар берүү абалынын каналы"</string>
+    <string name="notification_bugreport_channel_name" msgid="776902295433824255">"Мүчүлүштүк тууралуу кабарлоо абалынын каналы"</string>
 </resources>
