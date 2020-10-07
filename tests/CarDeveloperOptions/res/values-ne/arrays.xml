@@ -135,7 +135,7 @@
   <string-array name="usage_stats_display_order_types">
     <item msgid="1266031014388516303">"उपयोग समय"</item>
     <item msgid="2784401352592276015">"पछिल्लो समय प्रयोग गरिएको"</item>
-    <item msgid="249854287216326349">"अनुप्रयोगको नाम"</item>
+    <item msgid="249854287216326349">"एपको नाम"</item>
   </string-array>
   <string-array name="wifi_eap_entries">
     <item msgid="5538816743897530343">"PEAP"</item>
@@ -170,7 +170,7 @@
   <string-array name="wifi_proxy_settings">
     <item msgid="9032900195127165132">"कुनै पनि होइन"</item>
     <item msgid="1464741437353223198">"म्यानुअल"</item>
-    <item msgid="5793600062487886090">"प्रोक्सी स्वतः समायोजन"</item>
+    <item msgid="5793600062487886090">"प्रोक्सी अटो-कन्फिगुरेसन"</item>
   </string-array>
   <string-array name="apn_auth_entries">
     <item msgid="7099647881902405997">"कुनै पनि होइन"</item>
@@ -454,7 +454,7 @@
   </string-array>
   <string-array name="color_picker">
     <item msgid="3151827842194201728">"टिल"</item>
-    <item msgid="3228505970082457852">"नीलो"</item>
+    <item msgid="3228505970082457852">"निलो"</item>
     <item msgid="6590260735734795647">"इन्डिगो"</item>
     <item msgid="3521763377357218577">"बैजनी"</item>
     <item msgid="5932337981182999919">"गुलाबी"</item>
