@@ -296,6 +296,16 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private void onApPowerStateChange(int apState, int carPowerStateListenerState) {
         CpmsState newState = new CpmsState(apState, carPowerStateListenerState);
         synchronized (mLock) {
+            if (newState.mState == CpmsState.WAIT_FOR_FINISH) {
+                // We are ready to shut down. Suppress this transition if
+                // there is a request to cancel the shutdown (WAIT_FOR_VHAL).
+                for (int idx = 0; idx < mPendingPowerStates.size(); idx++) {
+                    if (mPendingPowerStates.get(idx).mState == CpmsState.WAIT_FOR_VHAL) {
+                        // Completely ignore this WAIT_FOR_FINISH
+                        return;
+                    }
+                }
+            }
             mPendingPowerStates.addFirst(newState);
             mLock.notify();
         }
