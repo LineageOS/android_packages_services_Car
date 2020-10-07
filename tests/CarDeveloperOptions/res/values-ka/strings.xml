@@ -2240,7 +2240,7 @@
     <string name="background_activity_warning_dialog_title" msgid="2170790412855899678">"გსურთ ფონური აქტივობის შეზღუდვა?"</string>
     <string name="background_activity_warning_dialog_text" msgid="8242749826732375096">"აპისთვის ფონური აქტივობის შეზღუდვის შემთხვევაში, მან შეიძლება არასათანადოდ იმუშაოს"</string>
     <string name="background_activity_disabled_dialog_text" msgid="4234598000779459640">"რადგან ეს აპი ბატარეის ოპტიმიზებისთვის დაყენებული არაა, მას ვერ შეზღუდავთ.\n\nჩართეთ ბატარეის ოპტიმიზაცია აპის შესაზღუდავად."</string>
-    <string name="device_screen_usage" msgid="4470485475363132750">"ეკრანის მოხმარება ბოლო სრული დატენვიდან"</string>
+    <string name="device_screen_usage" msgid="4470485475363132750">"ეკრანის გამოყენება ბოლო სრული დატენვიდან"</string>
     <string name="power_usage_list_summary" msgid="4314438658308211057">"ბატარეის მოხმარება ბოლო სრული დატენვიდან"</string>
     <string name="screen_usage_summary" msgid="263396144684078341">"დროის ხანგრძლივობა სრული დატენვიდან, რომლის განმავლობაშიც ეკრანი ჩართული იყო"</string>
     <string name="device_usage_list_summary" msgid="8299017481332816368">"მოწყობილობის მოხმარება ბოლო სრული დატენვიდან"</string>

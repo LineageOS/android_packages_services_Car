@@ -447,7 +447,7 @@
     <string name="security_settings_fingerprint_enroll_introduction_cancel_setup" msgid="756928427429893070">"Omitir"</string>
     <string name="security_settings_fingerprint_enroll_introduction_continue_setup" msgid="4125977169169671144">"Seguinte"</string>
     <string name="setup_fingerprint_enroll_skip_title" msgid="763018850721691594">"Omitir a impresión dixital?"</string>
-    <string name="setup_fingerprint_enroll_skip_after_adding_lock_text" msgid="8849928362049018680">"Configurar a impresión dixital só leva un ou dous minutos, pero tamén podes facelo más tarde en Configuración."</string>
+    <string name="setup_fingerprint_enroll_skip_after_adding_lock_text" msgid="8849928362049018680">"Configurar a impresión dixital só leva un ou dous minutos, pero tamén podes facelo máis tarde en Configuración."</string>
     <string name="lock_screen_intro_skip_title" msgid="5307431665496346914">"Omitir o bloqueo de pantalla?"</string>
     <string name="lock_screen_intro_skip_dialog_text_frp" product="tablet" msgid="7553945981266845264">"As funcións de protección do dispositivo non se activarán. Non poderás evitar que outros usuarios utilicen a tableta en caso de perda, roubo ou restablecemento"</string>
     <string name="lock_screen_intro_skip_dialog_text_frp" product="device" msgid="1378243257238015603">"As funcións de protección do dispositivo non se activarán. Non poderás evitar que outros usuarios o utilicen en caso de perda, roubo ou restablecemento."</string>
@@ -852,14 +852,14 @@
     <string name="wifi_wakeup_summary" msgid="1152699417411690">"A wifi volverase activar preto de redes de alta calidade gardadas, como a túa rede doméstica"</string>
     <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"Non está dispoñible porque a localización está desactivada. "<annotation id="link">"Actívaa"</annotation>"."</string>
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"Non está dispoñible porque a busca de redes wifi está desactivada"</string>
-    <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"Para utilizar a función, selecciona un provedor de valoración de rede"</string>
+    <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"Para utilizar a función, selecciona un provedor de valoración de redes"</string>
     <string name="wifi_poor_network_detection" msgid="7193423327400703073">"Evitar conexións deficientes"</string>
     <string name="wifi_poor_network_detection_summary" msgid="5539951465985614590">"Non utilizar unha rede wifi se non ten unha boa conexión a Internet"</string>
     <string name="wifi_avoid_poor_network_detection_summary" msgid="1976503191780928104">"Usar só redes que teñan unha boa conexión a Internet"</string>
     <string name="use_open_wifi_automatically_title" msgid="3084513215481454350">"Conectarse ás redes abertas"</string>
     <string name="use_open_wifi_automatically_summary" msgid="8338020172673161754">"Conéctase automaticamente a redes públicas de alta calidade"</string>
-    <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"Para utilizar a función, selecciona un provedor de valoración de rede"</string>
-    <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"Para utilizar a función, selecciona un provedor de valoración de rede que sexa compatible"</string>
+    <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"Para utilizar a función, selecciona un provedor de valoración de redes"</string>
+    <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"Para utilizar a función, selecciona un provedor de valoración de redes que sexa compatible"</string>
     <string name="wifi_install_credentials" msgid="5650088113710858289">"Instalar certificados"</string>
     <string name="wifi_scan_notify_text" msgid="7614101215028336927">"Para mellorar a precisión de localización, as aplicacións e os servizos poden seguir buscando redes wifi en calquera momento, aínda que esta conexión estea desactivada. Esta opción pódese utilizar, por exemplo, para mellorar as funcións e os servizos baseados na localización, e podes cambiala na <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>configuración de busca<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"Para mellorar a precisión de localización, activa a busca de redes wifi na <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>configuración de busca<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
@@ -1637,7 +1637,7 @@
     <string name="sms_change_default_dialog_title" msgid="6301260161969667578">"Queres cambiar a aplicación de SMS?"</string>
     <string name="sms_change_default_dialog_text" msgid="8275088077930942680">"Queres utilizar <xliff:g id="NEW_APP">%1$s</xliff:g> en lugar de <xliff:g id="CURRENT_APP">%2$s</xliff:g> como a túa aplicación de SMS?"</string>
     <string name="sms_change_default_no_previous_dialog_text" msgid="4680224695080527907">"Queres utilizar <xliff:g id="NEW_APP">%s</xliff:g> como a túa aplicación de SMS?"</string>
-    <string name="network_scorer_picker_title" msgid="1691073966560952916">"Provedor da valoración de rede"</string>
+    <string name="network_scorer_picker_title" msgid="1691073966560952916">"Provedor de valoración de redes"</string>
     <string name="network_scorer_picker_none_preference" msgid="6448280557733231737">"Ningún"</string>
     <string name="network_scorer_change_active_dialog_title" msgid="4274159562371475090">"Queres cambiar o asistente da wifi?"</string>
     <string name="network_scorer_change_active_dialog_text" msgid="4264089809189760730">"Queres utilizar <xliff:g id="NEW_APP">%1$s</xliff:g> en lugar de <xliff:g id="CURRENT_APP">%2$s</xliff:g> para xestionar as túas conexións de rede?"</string>
@@ -2061,7 +2061,7 @@
     <string name="accessibility_screen_magnification_summary" msgid="3363006902079431772"><b>"Para achegar o zoom"</b>", toca a pantalla 3 veces rapidamente.\n"<ul><li>"Arrastra 2 ou máis dedos para desprazarte"</li>\n<li>"Belisca con 2 ou máis dedos para axustar o zoom"</li></ul>\n\n<b>"Para achegar o zoom temporalmente"</b>", toca a pantalla 3 veces rapidamente e mantén o dedo sobre a pantalla despois do terceiro toque.\n"<ul><li>"Arrastra o dedo para moverte pola pantalla"</li>\n<li>"Levántao para afastar o zoom"</li></ul>\n\n"Non podes achegar o zoom sobre o teclado nin sobre a barra de navegación."</string>
     <string name="accessibility_screen_magnification_navbar_summary" msgid="4726360285256503132">"Cando a ampliación estea activada, utiliza o botón Accesibilidade da parte inferior da pantalla para ampliar rapidamente o contido.\n\n"<b>"Para achegar o zoom"</b>", toca o botón Accesibilidade e, a continuación, toca en calquera parte da pantalla.\n"<ul><li>"Arrastra 2 ou máis dedos para desprazarte"</li>\n<li>"Belisca con 2 ou máis dedos para axustar o zoom"</li></ul>\n\n<b>"Para achegar o zoom temporalmente"</b>", toca o botón Accesibilidade e, a continuación, mantén tocada calquera parte da pantalla.\n"<ul><li>"Arrastra o dedo para moverte pola pantalla"</li>\n<li>"Levántao para afastar o zoom"</li></ul>\n\n"Non podes achegar o zoom sobre o teclado nin sobre a barra de navegación."</string>
     <string name="accessibility_screen_magnification_navbar_configuration_warning" msgid="6477234309484795550">"O botón Accesibilidade está configurado en <xliff:g id="SERVICE">%1$s</xliff:g>. Para utilizar a ampliación, mantén tocado o botón Accesibilidade e, a continuación, selecciona a ampliación."</string>
-    <string name="accessibility_global_gesture_preference_title" msgid="3842279082831426816">"Atallo mediante as teclas de volume"</string>
+    <string name="accessibility_global_gesture_preference_title" msgid="3842279082831426816">"Atallo da tecla de volume"</string>
     <string name="accessibility_shortcut_service_title" msgid="3516052294376744060">"Servizo de atallo"</string>
     <string name="accessibility_shortcut_service_on_lock_screen_title" msgid="1279441617927949980">"Permitir na pantalla bloqueo"</string>
     <string name="accessibility_shortcut_description" msgid="1427049334225166395">"Cando o atallo está activado, podes premer as dúas teclas de volume durante 3 segundos para iniciar unha función de accesibilidade."</string>
@@ -2162,7 +2162,7 @@
     <string name="captioning_edge_color" msgid="4330622137047993780">"Cor do bordo"</string>
     <string name="captioning_edge_type" msgid="4414946407430588162">"Tipo de bordo"</string>
     <string name="captioning_typeface" msgid="7893208796949341767">"Familia do tipo de letra"</string>
-    <string name="captioning_preview_text" msgid="4877753964772618049">"Os subtítulos terán un aspecto similar ao seguinte"</string>
+    <string name="captioning_preview_text" msgid="4877753964772618049">"Os subtítulos veranse así"</string>
     <string name="captioning_preview_characters" msgid="6469599599352973561">"Aa"</string>
     <string name="locale_default" msgid="910074908458214054">"Predeterminado"</string>
     <string name="color_title" msgid="132875486061816584">"Cor"</string>
@@ -3711,7 +3711,7 @@
     <string name="high_power_off" msgid="5906679734326490426">"Optimizando o uso da batería"</string>
     <string name="high_power_system" msgid="739584574711292753">"A optimización da batería non está dispoñible"</string>
     <string name="high_power_desc" msgid="333756885680362741">"Non aplicar a optimización da batería, xa que esta pode esgotarse máis rápido."</string>
-    <string name="high_power_prompt_title" msgid="2805745781720454052">"Queres permitir que esta aplicación se execute sempre en segundo plano?"</string>
+    <string name="high_power_prompt_title" msgid="2805745781720454052">"Permitir que se execute sempre en segundo plano?"</string>
     <string name="high_power_prompt_body" msgid="8067395096053552289">"Se permites que <xliff:g id="APP_NAME">%1$s</xliff:g> estea executándose sempre en segundo plano, é posible que se  reduza a duración da batería. \n\nPodes cambiar esta opción máis tarde en Configuración &gt; Aplicacións e notificacións."</string>
     <string name="battery_summary" msgid="4345690800899981339">"Uso do <xliff:g id="PERCENTAGE">%1$s</xliff:g> desde a última carga completa"</string>
     <string name="battery_power_management" msgid="2853925857548647969">"Xestión da batería"</string>
@@ -3799,7 +3799,7 @@
     <string name="app_list_preference_none" msgid="7100409177446935028">"Ningún"</string>
     <string name="work_profile_usage_access_warning" msgid="403208064382097510">"A desactivación do acceso de uso desta aplicación non impide que o teu administrador realice o seguimento do uso de datos das aplicacións no teu perfil de traballo"</string>
     <string name="accessibility_lock_screen_progress" msgid="8242917828598820049">"Uso de <xliff:g id="COUNT_0">%1$d</xliff:g> de <xliff:g id="COUNT_1">%2$d</xliff:g> caracteres"</string>
-    <string name="draw_overlay" msgid="2878665072530660668">"Superpoñer sobre aplicacións"</string>
+    <string name="draw_overlay" msgid="2878665072530660668">"Superpor a aplicacións"</string>
     <string name="system_alert_window_settings" msgid="3024330223417646567">"Mostrar sobre outras aplicacións"</string>
     <string name="system_alert_window_apps_title" msgid="9188448296493699566">"Aplicacións"</string>
     <string name="system_alert_window_access_title" msgid="5187343732185369675">"Mostrar sobre outras aplicacións"</string>
@@ -3807,7 +3807,7 @@
     <string name="allow_overlay_description" msgid="6669524816705082807">"Permite que esta aplicación se mostre enriba doutras aplicacións que estás utilizando. Pode interferir no uso desas aplicacións ou cambiar a forma na que aparecen ou se comportan."</string>
     <string name="keywords_vr_listener" msgid="5312633527788917750">"rv realidade virtual axente de escoita estéreo asistente servizo"</string>
     <string name="keywords_system_alert_window" msgid="3936658600272194599">"cadro de diálogo da ventá de alerta do sistema para mostrar sobre outras aplicacións"</string>
-    <string name="overlay_settings" msgid="3325154759946433666">"Superpoñer sobre aplicacións"</string>
+    <string name="overlay_settings" msgid="3325154759946433666">"Superpor a aplicacións"</string>
     <string name="system_alert_window_summary" msgid="7703582115861844158">"Aplicacións con permiso para superpoñerse a outras: <xliff:g id="COUNT_0">%1$d</xliff:g> de <xliff:g id="COUNT_1">%2$d</xliff:g>"</string>
     <string name="filter_overlay_apps" msgid="6336897660213304743">"Aplicacións con permiso"</string>
     <string name="app_permission_summary_allowed" msgid="6458476982015518778">"Permitido"</string>
@@ -4477,7 +4477,7 @@
     <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"Queres eliminar esta suxestión?"</string>
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"Quitouse a suxestión"</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"Desfacer"</string>
-    <string name="low_storage_summary" msgid="4562224870189133400">"Queda pouco espazo. Utilizado: <xliff:g id="PERCENTAGE">%1$s</xliff:g>. Libre: <xliff:g id="FREE_SPACE">%2$s</xliff:g>"</string>
+    <string name="low_storage_summary" msgid="4562224870189133400">"Queda pouco espazo. En uso: <xliff:g id="PERCENTAGE">%1$s</xliff:g>. Libre: <xliff:g id="FREE_SPACE">%2$s</xliff:g>"</string>
     <string name="contextual_card_feedback_send" msgid="8698649023854350623">"Enviar comentarios"</string>
     <string name="contextual_card_feedback_confirm_message" msgid="3987973028353264878">"Queres indicarnos a túa opinión sobre esta suxestión?"</string>
     <string name="copyable_slice_toast" msgid="1357518174923789947">"<xliff:g id="COPY_CONTENT">%1$s</xliff:g>: copiouse no portapapeis."</string>

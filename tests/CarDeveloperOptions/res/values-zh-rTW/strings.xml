@@ -3283,7 +3283,7 @@
     <string name="sound_work_settings" msgid="4140215240360927923">"工作資料夾音效"</string>
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"使用個人設定檔音效"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"工作資料夾和個人設定檔使用相同的音效"</string>
-    <string name="work_ringtone_title" msgid="5499360583947410224">"Work 手機鈴聲"</string>
+    <string name="work_ringtone_title" msgid="5499360583947410224">"工作手機鈴聲"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"預設 Work 通知音效"</string>
     <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"預設 Work 鬧鐘音效"</string>
     <string name="work_sound_same_as_personal" msgid="7728560881697159758">"與個人設定檔相同"</string>
@@ -4100,10 +4100,10 @@
       <item quantity="one">1 秒</item>
     </plurals>
     <string name="automatic_storage_manager_settings" msgid="2403621409625820182">"管理儲存空間"</string>
-    <string name="automatic_storage_manager_text" msgid="4270379105066667493">"儲存空間管理員會將已備份的相片和影片從裝置中移除，藉此釋出儲存空間。"</string>
+    <string name="automatic_storage_manager_text" msgid="4270379105066667493">"儲存空間管理工具會將已備份的相片和影片從裝置中移除，藉此釋出儲存空間。"</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"移除相片和影片"</string>
-    <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"儲存空間管理員"</string>
-    <string name="automatic_storage_manager_master_switch_title" msgid="1456978117739582562">"使用儲存空間管理員"</string>
+    <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"儲存空間管理工具"</string>
+    <string name="automatic_storage_manager_master_switch_title" msgid="1456978117739582562">"使用儲存空間管理工具"</string>
     <string name="deletion_helper_automatic_title" msgid="4370975149425263205">"自動"</string>
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"手動"</string>
     <string name="deletion_helper_preference_title" msgid="797270307034242206">"立即釋出空間"</string>
@@ -4154,7 +4154,7 @@
     <string name="web_action_section_title" msgid="5563229447734734662">"免安裝應用程式"</string>
     <string name="instant_apps_settings" msgid="879003203555847537">"免安裝應用程式偏好設定"</string>
     <string name="domain_url_section_title" msgid="206403507921518321">"已安裝的應用程式"</string>
-    <string name="automatic_storage_manager_activation_warning" msgid="2630083316417707308">"你的儲存空間目前是由儲存空間管理員管理"</string>
+    <string name="automatic_storage_manager_activation_warning" msgid="2630083316417707308">"你的儲存空間目前是由儲存空間管理工具管理"</string>
     <string name="account_for_section_header" msgid="5975241715840642563">"<xliff:g id="USER_NAME">%1$s</xliff:g>的帳戶"</string>
     <string name="configure_section_header" msgid="6988981883075615136">"設定"</string>
     <string name="auto_sync_account_title" msgid="2394463123733529506">"自動同步處理資料"</string>
@@ -4264,11 +4264,11 @@
     <string name="default_theme" msgid="5986996377385956138">"預設"</string>
     <string name="show_operator_name_title" msgid="5056163028128447308">"網路名稱"</string>
     <string name="show_operator_name_summary" msgid="6352180285743777497">"在狀態列顯示網路名稱"</string>
-    <string name="storage_manager_indicator" msgid="4255140732848476875">"儲存空間管理員：<xliff:g id="STATUS">^1</xliff:g>"</string>
+    <string name="storage_manager_indicator" msgid="4255140732848476875">"儲存空間管理工具：<xliff:g id="STATUS">^1</xliff:g>"</string>
     <string name="storage_manager_indicator_off" msgid="6404056007102580777">"關閉"</string>
     <string name="storage_manager_indicator_on" msgid="5295306384982062320">"開啟"</string>
     <string name="install_type_instant" msgid="6248487669862821874">"免安裝應用程式"</string>
-    <string name="automatic_storage_manager_deactivation_warning" msgid="7867793739491286374">"要停用儲存空間管理員嗎？"</string>
+    <string name="automatic_storage_manager_deactivation_warning" msgid="7867793739491286374">"要停用儲存空間管理工具嗎？"</string>
     <string name="storage_movies_tv" msgid="7282484273991655296">"影視應用程式"</string>
     <string name="carrier_provisioning" msgid="3309125279191534469">"電信業者佈建資訊"</string>
     <string name="trigger_carrier_provisioning" msgid="6284005970057901477">"觸發電信業者佈建程序"</string>
