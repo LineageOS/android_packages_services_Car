@@ -23,7 +23,6 @@ import static android.os.Process.myUid;
 import static com.android.internal.util.FunctionalUtils.getLambdaName;
 
 import android.annotation.CallbackExecutor;
-import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
@@ -49,6 +48,7 @@ import android.util.EventLog;
 import android.util.Log;
 
 import com.android.car.internal.common.CommonConstants;
+import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
 import com.android.car.internal.common.EventLogTags;
 import com.android.car.internal.common.UserHelperLite;
 import com.android.internal.annotations.GuardedBy;
@@ -58,8 +58,6 @@ import com.android.internal.os.IResultReceiver;
 import com.android.internal.util.ArrayUtils;
 import com.android.internal.util.Preconditions;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -162,18 +160,6 @@ public final class CarUserManager extends CarManagerBase {
     @TestApi
     public static final int USER_LIFECYCLE_EVENT_TYPE_STOPPED =
             CommonConstants.USER_LIFECYCLE_EVENT_TYPE_STOPPED;
-
-    /** @hide */
-    @IntDef(prefix = { "USER_LIFECYCLE_EVENT_TYPE_" }, value = {
-            USER_LIFECYCLE_EVENT_TYPE_STARTING,
-            USER_LIFECYCLE_EVENT_TYPE_SWITCHING,
-            USER_LIFECYCLE_EVENT_TYPE_UNLOCKING,
-            USER_LIFECYCLE_EVENT_TYPE_UNLOCKED,
-            USER_LIFECYCLE_EVENT_TYPE_STOPPING,
-            USER_LIFECYCLE_EVENT_TYPE_STOPPED,
-    })
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface UserLifecycleEventType{}
 
     /** @hide */
     public static final String BUNDLE_PARAM_ACTION = "action";

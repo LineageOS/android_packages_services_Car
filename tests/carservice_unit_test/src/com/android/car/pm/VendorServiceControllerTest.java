@@ -29,7 +29,6 @@ import android.app.ActivityManager;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.testapi.BlockingUserLifecycleListener;
 import android.car.user.CarUserManager;
-import android.car.user.CarUserManager.UserLifecycleEventType;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -47,6 +46,7 @@ import androidx.test.core.app.ApplicationProvider;
 
 import com.android.car.CarLocalServices;
 import com.android.car.hal.UserHalService;
+import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
