@@ -254,7 +254,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 setupLegacyVolumeChangedListener();
             }
 
-            // Restore global mute state if applicable
+            // Restore master mute state if applicable
             if (mPersistMasterMuteState) {
                 boolean storedMasterMute = mCarAudioSettings.getMasterMute();
                 setMasterMute(storedMasterMute, 0);
@@ -370,7 +370,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private void setMasterMute(boolean mute, int flags) {
         mAudioManager.setMasterMute(mute, flags);
 
-        // When the global mute is turned ON, we want the playing app to get a "pause" command.
+        // When the master mute is turned ON, we want the playing app to get a "pause" command.
         // When the volume is unmuted, we want to resume playback.
         int keycode = mute ? KeyEvent.KEYCODE_MEDIA_PAUSE : KeyEvent.KEYCODE_MEDIA_PLAY;
         mAudioManager.dispatchMediaKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, keycode));
@@ -380,7 +380,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private void callbackMasterMuteChange(int zoneId, int flags) {
         mCarVolumeCallbackHandler.onMasterMuteChanged(zoneId, flags);
 
-        // Persists global mute state if applicable
+        // Persists master mute state if applicable
         if (mPersistMasterMuteState) {
             mCarAudioSettings.storeMasterMute(mAudioManager.isMasterMute());
         }
