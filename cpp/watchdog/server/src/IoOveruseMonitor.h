@@ -17,6 +17,7 @@
 #ifndef CPP_WATCHDOG_SERVER_SRC_IOOVERUSEMONITOR_H_
 #define CPP_WATCHDOG_SERVER_SRC_IOOVERUSEMONITOR_H_
 
+#include "IoOveruseConfigs.h"
 #include "ProcPidStat.h"
 #include "ProcStat.h"
 #include "UidIoStats.h"
@@ -25,6 +26,7 @@
 #include <android-base/result.h>
 #include <android/automotive/watchdog/ComponentType.h>
 #include <android/automotive/watchdog/IoOveruseConfiguration.h>
+#include <utils/Mutex.h>
 
 #include <string>
 #include <unordered_set>
@@ -36,7 +38,7 @@ namespace watchdog {
 // IoOveruseMonitor implements the I/O overuse monitoring module.
 class IoOveruseMonitor : public DataProcessor {
 public:
-    IoOveruseMonitor() {}
+    IoOveruseMonitor() : mIoOveruseConfigs({}) {}
 
     ~IoOveruseMonitor() { terminate(); }
 
@@ -89,6 +91,13 @@ public:
         // No special processing for custom collection. Thus no custom collection dump.
         return {};
     }
+
+private:
+    // Makes sure only one collection is running at any given time.
+    Mutex mMutex;
+
+    // Summary of configs available for all the components and system-wide overuse alert thresholds.
+    IoOveruseConfigs mIoOveruseConfigs GUARDED_BY(mMutex);
 };
 
 }  // namespace watchdog

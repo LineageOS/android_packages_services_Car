@@ -24,7 +24,6 @@ namespace watchdog {
 
 using android::base::Error;
 using android::base::Result;
-using android::binder::Status;
 
 Result<void> IoOveruseMonitor::start() {
     // TODO(b/167240592): Read the latest I/O overuse config, last per-package I/O usage, and
@@ -103,9 +102,10 @@ Result<void> IoOveruseMonitor::onDump(int /*fd*/) {
     return {};
 }
 
-Result<void> IoOveruseMonitor::updateIoOveruseConfiguration(
-        ComponentType /*type*/, const IoOveruseConfiguration& /*config*/) {
-    return Error(Status::EX_UNSUPPORTED_OPERATION) << "Unimplemented method";
+Result<void> IoOveruseMonitor::updateIoOveruseConfiguration(ComponentType type,
+                                                            const IoOveruseConfiguration& config) {
+    Mutex::Autolock lock(mMutex);
+    return mIoOveruseConfigs.update(type, config);
 }
 
 }  // namespace watchdog
