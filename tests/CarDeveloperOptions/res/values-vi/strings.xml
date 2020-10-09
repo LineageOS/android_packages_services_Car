@@ -2448,9 +2448,9 @@
     <string name="process_dex2oat_label" msgid="8249082119748556085">"Tối ưu hóa ứng dụng"</string>
     <string name="battery_saver" msgid="3989710213758938398">"Trình tiết kiệm pin"</string>
     <string name="battery_saver_auto_title" msgid="4158659069641849952">"Tự động bật"</string>
-    <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"Chưa có lịch biểu nào"</string>
+    <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"Không có lịch biểu"</string>
     <string name="battery_saver_auto_routine" msgid="886514412067906980">"Dựa trên thói quen của bạn"</string>
-    <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"Dựa trên số phần trăm pin"</string>
+    <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"Dựa trên mức phần trăm pin"</string>
     <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Nếu pin có khả năng hết trước lần sạc thông thường tiếp theo, hệ thống sẽ bật Trình tiết kiệm pin."</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Sẽ bật khi pin ở mức <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Đặt lịch biểu"</string>
@@ -4388,7 +4388,7 @@
     <string name="mobile_data_settings_summary" msgid="6492798151325636912">"Sử dụng dữ liệu qua mạng di động"</string>
     <string name="mobile_data_settings_summary_auto_switch" msgid="3665863214578471494">"Điện thoại sẽ tự động chuyển sang nhà mạng này khi nằm trong vùng phủ sóng"</string>
     <string name="calls_preference" msgid="2076353032705811243">"Tùy chọn cuộc gọi"</string>
-    <string name="sms_preference" msgid="8449270011976880">"Tùy chọn SMS"</string>
+    <string name="sms_preference" msgid="8449270011976880">"Tùy chọn cho SMS"</string>
     <string name="calls_and_sms_ask_every_time" msgid="2776167541223210738">"Luôn hỏi"</string>
     <string name="mobile_network_summary_add_a_network" msgid="5408745221357144009">"Thêm mạng"</string>
     <plurals name="mobile_network_summary_count" formatted="false" msgid="6222822873390636020">
