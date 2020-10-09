@@ -17,15 +17,18 @@
 #include "WatchdogBinderMediator.h"
 
 #include <android/automotive/watchdog/BootPhase.h>
+#include <android/automotive/watchdog/ComponentType.h>
+#include <android/automotive/watchdog/IoOveruseConfiguration.h>
 #include <android/automotive/watchdog/PowerCycle.h>
 #include <android/automotive/watchdog/UserState.h>
 #include <binder/IBinder.h>
 #include <binder/IPCThreadState.h>
-#include <errno.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <private/android_filesystem_config.h>
 #include <utils/RefBase.h>
+
+#include <errno.h>
 
 namespace android {
 namespace automotive {
@@ -73,6 +76,14 @@ public:
     MOCK_METHOD(Result<void>, onCustomCollection, (int fd, const Vector<String16>& args),
                 (override));
     MOCK_METHOD(Result<void>, onDump, (int fd), (override));
+};
+
+class MockIoOveruseMonitor : public IoOveruseMonitor {
+public:
+    MockIoOveruseMonitor() {}
+    ~MockIoOveruseMonitor() {}
+    MOCK_METHOD(Result<void>, updateIoOveruseConfiguration,
+                (ComponentType type, const IoOveruseConfiguration& config), (override));
 };
 
 class MockICarWatchdogClient : public ICarWatchdogClient {
@@ -125,33 +136,45 @@ protected:
     virtual void SetUp() {
         mMockWatchdogProcessService = new MockWatchdogProcessService();
         mMockWatchdogPerfService = new MockWatchdogPerfService();
+        mMockIoOveruseMonitor = new MockIoOveruseMonitor();
         mWatchdogBinderMediator = new WatchdogBinderMediator();
-        mWatchdogBinderMediator->init(mMockWatchdogProcessService, mMockWatchdogPerfService);
+        mWatchdogBinderMediator->init(mMockWatchdogProcessService, mMockWatchdogPerfService,
+                                      mMockIoOveruseMonitor);
     }
     virtual void TearDown() {
         mWatchdogBinderMediator->terminate();
-        ASSERT_TRUE(mWatchdogBinderMediator->mWatchdogProcessService == nullptr);
-        ASSERT_TRUE(mWatchdogBinderMediator->mWatchdogPerfService == nullptr);
-        mMockWatchdogProcessService = nullptr;
-        mMockWatchdogPerfService = nullptr;
-        mWatchdogBinderMediator = nullptr;
-        mScopedChangeCallingUid = nullptr;
+        ASSERT_EQ(mWatchdogBinderMediator->mWatchdogProcessService, nullptr);
+        ASSERT_EQ(mWatchdogBinderMediator->mWatchdogPerfService, nullptr);
+        ASSERT_EQ(mWatchdogBinderMediator->mIoOveruseMonitor, nullptr);
+        mMockWatchdogProcessService.clear();
+        mMockWatchdogPerfService.clear();
+        mMockIoOveruseMonitor.clear();
+        mWatchdogBinderMediator.clear();
+        mScopedChangeCallingUid.clear();
     }
     // Sets calling UID to imitate System's process.
     void setSystemCallingUid() { mScopedChangeCallingUid = new ScopedChangeCallingUid(AID_SYSTEM); }
     sp<MockWatchdogProcessService> mMockWatchdogProcessService;
     sp<MockWatchdogPerfService> mMockWatchdogPerfService;
+    sp<MockIoOveruseMonitor> mMockIoOveruseMonitor;
     sp<WatchdogBinderMediator> mWatchdogBinderMediator;
     sp<ScopedChangeCallingUid> mScopedChangeCallingUid;
 };
 
 TEST_F(WatchdogBinderMediatorTest, TestErrorOnNullptrDuringInit) {
     sp<WatchdogBinderMediator> mediator = new WatchdogBinderMediator();
-    ASSERT_FALSE(mediator->init(nullptr, new MockWatchdogPerfService()).ok())
+    ASSERT_FALSE(
+            mediator->init(nullptr, new MockWatchdogPerfService(), new MockIoOveruseMonitor()).ok())
             << "No error returned on nullptr watchdog process service";
-    ASSERT_FALSE(mediator->init(new MockWatchdogProcessService(), nullptr).ok())
-            << "No error returned on nullptr I/O perf collection";
-    ASSERT_FALSE(mediator->init(nullptr, nullptr).ok()) << "No error returned on nullptr";
+    ASSERT_FALSE(
+            mediator->init(new MockWatchdogProcessService(), nullptr, new MockIoOveruseMonitor())
+                    .ok())
+            << "No error returned on nullptr watchdog perf service";
+    ASSERT_FALSE(
+            mediator->init(new MockWatchdogProcessService(), new MockWatchdogPerfService(), nullptr)
+                    .ok())
+            << "No error returned on nullptr I/O overuse monitor";
+    ASSERT_FALSE(mediator->init(nullptr, nullptr, nullptr).ok()) << "No error returned on nullptr";
 }
 
 TEST_F(WatchdogBinderMediatorTest, TestHandlesEmptyDumpArgs) {
@@ -367,6 +390,22 @@ TEST_F(WatchdogBinderMediatorTest, TestNotifyBootPhaseChangeWithNonBootCompleted
     EXPECT_CALL(*mMockWatchdogPerfService, onBootFinished()).Times(0);
     Status status = mWatchdogBinderMediator->notifySystemStateChange(type, 0, -1);
     ASSERT_TRUE(status.isOk()) << status;
+}
+
+TEST_F(WatchdogBinderMediatorTest, TestUpdateIoOveruseConfiguration) {
+    setSystemCallingUid();
+    EXPECT_CALL(*mMockIoOveruseMonitor, updateIoOveruseConfiguration(ComponentType::SYSTEM, _))
+            .WillOnce(Return(Result<void>()));
+    Status status = mWatchdogBinderMediator->updateIoOveruseConfiguration(ComponentType::SYSTEM,
+                                                                          IoOveruseConfiguration{});
+    ASSERT_TRUE(status.isOk()) << status;
+}
+
+TEST_F(WatchdogBinderMediatorTest, TestErrorOnUpdateIoOveruseConfigurationWithNonSystemCallingUid) {
+    EXPECT_CALL(*mMockIoOveruseMonitor, updateIoOveruseConfiguration(_, _)).Times(0);
+    Status status = mWatchdogBinderMediator->updateIoOveruseConfiguration(ComponentType::SYSTEM,
+                                                                          IoOveruseConfiguration{});
+    ASSERT_FALSE(status.isOk()) << status;
 }
 
 }  // namespace watchdog

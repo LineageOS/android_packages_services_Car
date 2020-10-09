@@ -35,10 +35,11 @@ using android::base::Result;
 sp<WatchdogProcessService> ServiceManager::sWatchdogProcessService = nullptr;
 sp<WatchdogPerfService> ServiceManager::sWatchdogPerfService = nullptr;
 sp<WatchdogBinderMediator> ServiceManager::sWatchdogBinderMediator = nullptr;
+sp<IoOveruseMonitor> ServiceManager::sIoOveruseMonitor = nullptr;
 
 Result<void> ServiceManager::startServices(const sp<Looper>& looper) {
     if (sWatchdogProcessService != nullptr || sWatchdogPerfService != nullptr ||
-        sWatchdogBinderMediator != nullptr) {
+        sWatchdogBinderMediator != nullptr || sIoOveruseMonitor != nullptr) {
         return Error(INVALID_OPERATION) << "Cannot start services more than once";
     }
     PackageNameResolver::getInstance();
@@ -57,15 +58,18 @@ void ServiceManager::terminateServices() {
     PackageNameResolver::terminate();
     if (sWatchdogProcessService != nullptr) {
         sWatchdogProcessService->terminate();
-        sWatchdogProcessService = nullptr;
+        sWatchdogProcessService.clear();
+    }
+    if (sIoOveruseMonitor != nullptr) {
+        sIoOveruseMonitor.clear();
     }
     if (sWatchdogPerfService != nullptr) {
         sWatchdogPerfService->terminate();
-        sWatchdogPerfService = nullptr;
+        sWatchdogPerfService.clear();
     }
     if (sWatchdogBinderMediator != nullptr) {
         sWatchdogBinderMediator->terminate();
-        sWatchdogBinderMediator = nullptr;
+        sWatchdogBinderMediator.clear();
     }
 }
 
@@ -82,20 +86,29 @@ Result<void> ServiceManager::startProcessAnrMonitor(const sp<Looper>& looper) {
 
 Result<void> ServiceManager::startPerfService() {
     sp<WatchdogPerfService> service = new WatchdogPerfService();
-    service->registerDataProcessor(new IoPerfCollection());
-    const auto& result = service->start();
+    sp<IoOveruseMonitor> ioOveruseMonitor = new IoOveruseMonitor();
+    auto result = service->registerDataProcessor(new IoPerfCollection());
+    if (!result.ok()) {
+        return Error() << "Failed to register I/O perf collection: " << result.error();
+    }
+    // TODO(b/167240592): Register I/O overuse monitor after it is completely implemented.
+    //  Caveat: I/O overuse monitor reads from /data partition when initialized so initializing here
+    //  would cause the read to happen during early-init when the /data partition is not available.
+    //  Thus delay the initialization/registration until the /data partition is available.
+    result = service->start();
     if (!result.ok()) {
         return Error(result.error().code())
                 << "Failed to start performance service: " << result.error();
     }
     sWatchdogPerfService = service;
+    sIoOveruseMonitor = ioOveruseMonitor;
     return {};
 }
 
 Result<void> ServiceManager::startBinderMediator() {
     sWatchdogBinderMediator = new WatchdogBinderMediator();
-    const auto& result =
-            sWatchdogBinderMediator->init(sWatchdogProcessService, sWatchdogPerfService);
+    const auto& result = sWatchdogBinderMediator->init(sWatchdogProcessService,
+                                                       sWatchdogPerfService, sIoOveruseMonitor);
     if (!result.ok()) {
         return Error(result.error().code())
                 << "Failed to start binder mediator: " << result.error();

@@ -17,12 +17,13 @@
 #ifndef CPP_WATCHDOG_SERVER_SRC_SERVICEMANAGER_H_
 #define CPP_WATCHDOG_SERVER_SRC_SERVICEMANAGER_H_
 
+#include "IoOveruseMonitor.h"
+#include "WatchdogBinderMediator.h"
+#include "WatchdogProcessService.h"
+
 #include <android-base/result.h>
 #include <utils/Looper.h>
 #include <utils/StrongPointer.h>
-
-#include "WatchdogBinderMediator.h"
-#include "WatchdogProcessService.h"
 
 namespace android {
 namespace automotive {
@@ -41,6 +42,7 @@ private:
     static android::sp<WatchdogProcessService> sWatchdogProcessService;
     static android::sp<WatchdogPerfService> sWatchdogPerfService;
     static android::sp<WatchdogBinderMediator> sWatchdogBinderMediator;
+    static android::sp<IoOveruseMonitor> sIoOveruseMonitor;
 };
 
 }  // namespace watchdog

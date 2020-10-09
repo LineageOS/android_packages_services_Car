@@ -70,18 +70,22 @@ Status fromExceptionCode(int32_t exceptionCode, std::string message) {
 }  // namespace
 
 Result<void> WatchdogBinderMediator::init(sp<WatchdogProcessService> watchdogProcessService,
-                                          sp<WatchdogPerfService> watchdogPerfService) {
-    if (watchdogProcessService == nullptr || watchdogPerfService == nullptr) {
-        return Error(INVALID_OPERATION)
-                << "Must initialize both process and I/O perf collection service before starting "
-                << "carwatchdog binder mediator";
+                                          sp<WatchdogPerfService> watchdogPerfService,
+                                          sp<IoOveruseMonitor> ioOveruseMonitor) {
+    if (watchdogProcessService == nullptr || watchdogPerfService == nullptr ||
+        ioOveruseMonitor == nullptr) {
+        return Error(INVALID_OPERATION) << "Must initialize process service, performance service, "
+                                        << "I/O overuse monitoring service before starting "
+                                        << "carwatchdog binder mediator";
     }
-    if (mWatchdogProcessService != nullptr || mWatchdogPerfService != nullptr) {
+    if (mWatchdogProcessService != nullptr || mWatchdogPerfService != nullptr ||
+        mIoOveruseMonitor != nullptr) {
         return Error(INVALID_OPERATION)
                 << "Cannot initialize carwatchdog binder mediator more than once";
     }
     mWatchdogProcessService = watchdogProcessService;
     mWatchdogPerfService = watchdogPerfService;
+    mIoOveruseMonitor = ioOveruseMonitor;
     status_t status =
             defaultServiceManager()
                     ->addService(String16("android.automotive.watchdog.ICarWatchdog/default"),
@@ -218,13 +222,17 @@ Status WatchdogBinderMediator::notifySystemStateChange(StateType type, int32_t a
                              StringPrintf("Invalid state change type %d", type));
 }
 
-Status WatchdogBinderMediator::updateIoOveruseConfiguration(
-        ComponentType /*type*/, const IoOveruseConfiguration& /*config*/) {
+Status WatchdogBinderMediator::updateIoOveruseConfiguration(ComponentType type,
+                                                            const IoOveruseConfiguration& config) {
     Status status = checkSystemPermission();
     if (!status.isOk()) {
         return status;
     }
-    return fromExceptionCode(Status::EX_UNSUPPORTED_OPERATION, "Unimplemented method");
+    auto result = mIoOveruseMonitor->updateIoOveruseConfiguration(type, config);
+    if (!result.ok()) {
+        return fromExceptionCode(result.error().code(), result.error().message());
+    }
+    return Status::ok();
 }
 
 }  // namespace watchdog

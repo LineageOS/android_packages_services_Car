@@ -101,7 +101,7 @@ public:
         service->mUidIoStats = mockUidIoStats;
         service->mProcStat = mockProcStat;
         service->mProcPidStat = mockProcPidStat;
-        service->registerDataProcessor(mockDataProcessor);
+        ASSERT_RESULT_OK(service->registerDataProcessor(mockDataProcessor));
     }
 
     Result<void> start() {
