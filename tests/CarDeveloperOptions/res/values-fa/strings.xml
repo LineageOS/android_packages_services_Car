@@ -3316,8 +3316,8 @@
     <string name="bubbles_feature_disabled_button_approve" msgid="6661464849674493351">"روشن کردن برای دستگاه"</string>
     <string name="bubbles_feature_disabled_button_cancel" msgid="4807286844588486198">"لغو"</string>
     <string name="swipe_direction_title" msgid="7535031630668873009">"کنش‌های تند کشیدن"</string>
-    <string name="swipe_direction_ltr" msgid="944932514821822709">"برای رد کردن تند به چپ بکشید و برای نمایش منو تند به راست بکشید"</string>
-    <string name="swipe_direction_rtl" msgid="4521416787262888813">"برای رد کردن تند به راست بکشید و برای نمایش منو تند به چپ بکشید"</string>
+    <string name="swipe_direction_ltr" msgid="944932514821822709">"برای رد کردن تند به‌چپ بکشید و برای نمایش منو تند به‌راست بکشید"</string>
+    <string name="swipe_direction_rtl" msgid="4521416787262888813">"برای رد کردن تند به‌راست بکشید و برای نمایش منو تند به‌چپ بکشید"</string>
     <string name="notification_pulse_title" msgid="4861418327614907116">"نور چشمک‌زن"</string>
     <string name="lock_screen_notifications_title" msgid="6889072265118747835">"در صفحه قفل"</string>
     <string name="locked_work_profile_notification_title" msgid="8307025804986190658">"وقتی نمایه کاری قفل است"</string>
@@ -4117,7 +4117,7 @@
     <string name="double_twist_for_camera_mode_title" msgid="2606032140297556018">"چرخاندن دوربین"</string>
     <string name="double_twist_for_camera_mode_summary" msgid="8979914206876018137"></string>
     <string name="double_twist_for_camera_suggestion_title" msgid="5932411386316771246">"سریع‌تر گرفتن خودگرفت"</string>
-    <string name="swipe_up_to_switch_apps_summary" msgid="4644068184114154787">"برای رفتن به یک برنامه دیگر، انگشتتان را روی دکمه اصلی به بالا تند بکشید. برای دیدن همه برنامه‌ها، انگشتتان را دوباره تند به بالا بکشید. دیگر در سمت چپ پایین صفحه‌نمایش، دکمه نمای کلی ندارید."</string>
+    <string name="swipe_up_to_switch_apps_summary" msgid="4644068184114154787">"برای رفتن به یک برنامه دیگر، انگشتتان را روی دکمه اصلی به بالا تند بکشید. برای دیدن همه برنامه‌ها، انگشتتان را دوباره تند به‌بالا بکشید. دیگر در سمت چپ پایین صفحه‌نمایش، دکمه نمای کلی ندارید."</string>
     <string name="swipe_up_to_switch_apps_suggestion_title" msgid="7641846365137536128">"دکمه صفحه اصلی جدید را امتحان کنید"</string>
     <string name="swipe_up_to_switch_apps_suggestion_summary" msgid="7338653224520387852">"برای تغییر برنامه‌ها، اشاره جدید را روشن کنید"</string>
     <string name="ambient_display_title" product="default" msgid="6785677099744344088">"دو ضربه برای چک کردن تلفن"</string>
@@ -4137,9 +4137,9 @@
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"برای بررسی زمان، اعلان‌ها و اطلاعات دیگر، روی صفحه‌نمایش ضربه بزنید."</string>
     <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"تند کشیدن اثرانگشت برای اعلان‌ها"</string>
     <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"تند کشیدن اثرانگشت"</string>
-    <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"برای بررسی اعلان‌ها، انگشتتان را روی حسگر اثرانگشت (در پشت تلفن) تند به پایین بکشید."</string>
-    <string name="fingerprint_swipe_for_notifications_summary" product="tablet" msgid="3480057984564476283">"برای بررسی اعلان‌ها، انگشتتان را روی حسگر اثرانگشت (در پشت رایانه لوحی) تند به پایین بکشید."</string>
-    <string name="fingerprint_swipe_for_notifications_summary" product="device" msgid="7950264130913070035">"برای بررسی اعلان‌ها، انگشتتان را روی حسگر اثرانگشت (در پشت دستگاه) تند به پایین بکشید."</string>
+    <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"برای بررسی اعلان‌ها، انگشتتان را روی حسگر اثرانگشت (در پشت تلفن) تند به‌پایین بکشید."</string>
+    <string name="fingerprint_swipe_for_notifications_summary" product="tablet" msgid="3480057984564476283">"برای بررسی اعلان‌ها، انگشتتان را روی حسگر اثرانگشت (در پشت رایانه لوحی) تند به‌پایین بکشید."</string>
+    <string name="fingerprint_swipe_for_notifications_summary" product="device" msgid="7950264130913070035">"برای بررسی اعلان‌ها، انگشتتان را روی حسگر اثرانگشت (در پشت دستگاه) تند به‌پایین بکشید."</string>
     <string name="fingerprint_swipe_for_notifications_suggestion_title" msgid="948946491233738823">"دیدن سریع اعلان‌ها"</string>
     <string name="gesture_setting_on" msgid="7573680730101327866">"روشن"</string>
     <string name="gesture_setting_off" msgid="2540159841716890511">"خاموش"</string>
