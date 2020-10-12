@@ -792,6 +792,8 @@ bool SurroundView3dSession::initialize() {
                     mIOModuleConfig->carModelConfig.carModel.partsMap);
     mSurroundView->SetStaticData(params);
 
+    mEvsCameraIds = mIOModuleConfig->cameraConfig.evsCameraIds;
+
     mInputPointers.resize(kNumFrames);
     for (int i = 0; i < kNumFrames; i++) {
         mInputPointers[i].width = mCameraParams[i].size.width;
@@ -915,7 +917,7 @@ bool SurroundView3dSession::setupEvs() {
     }
 
     map<string, AndroidCameraParams> cameraIdToAndroidParameters;
-    for (const auto& id : mIOModuleConfig->cameraConfig.evsCameraIds) {
+    for (const auto& id : mEvsCameraIds) {
         AndroidCameraParams params;
         if (getAndroidCameraParams(mCamera, id, params)) {
             cameraIdToAndroidParameters.emplace(id, params);
