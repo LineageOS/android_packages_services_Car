@@ -543,9 +543,10 @@ public class NotificationStation extends SettingsPreferenceFragment {
                 if (userId == UserHandle.USER_ALL) {
                     userId = UserHandle.USER_SYSTEM;
                 }
-                r = mPm.getResourcesForApplicationAsUser(pkg, userId);
+                r = mContext.createContextAsUser(UserHandle.of(userId), /* flags */ 0)
+                        .getPackageManager().getResourcesForApplication(pkg);
             } catch (PackageManager.NameNotFoundException ex) {
-                Log.e(TAG, "Icon package not found: " + pkg, ex);
+                Log.e(TAG, "Icon package not found: " + pkg + " for user " + userId, ex);
                 return null;
             }
         } else {
