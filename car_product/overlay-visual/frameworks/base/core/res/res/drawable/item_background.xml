@@ -15,19 +15,18 @@
 -->
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_focused="true" android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <solid android:color="#8A94CBFF"/>
+            <stroke android:width="4dp"
+                    android:color="#94CBFF"/>
+        </shape>
+    </item>
     <item android:state_focused="true">
-        <layer-list>
-            <item>
-                <shape android:shape="rectangle">
-                    <solid android:color="#3D94CBFF"/>
-                </shape>
-            </item>
-            <item>
-                <shape android:shape="rectangle">
-                    <stroke android:width="8dp" android:color="#94CBFF"/>
-                </shape>
-            </item>
-        </layer-list>
+        <shape android:shape="rectangle">
+            <solid android:color="#3D94CBFF"/>
+            <stroke android:width="8dp" android:color="#94CBFF"/>
+        </shape>
     </item>
     <item>
         <ripple android:color="?android:attr/colorControlHighlight">
