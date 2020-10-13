@@ -182,7 +182,7 @@ public class CarTrustAgentEnrollmentService extends ICarTrustAgentEnrollment.Stu
     }
 
     /**
-     * Pass a placeholder encryption to generate a placeholder key, only for test purpose.
+     * Pass a dummy encryption to generate a dummy key, only for test purpose.
      */
     @VisibleForTesting
     void setEncryptionRunner(EncryptionRunner dummyEncryptionRunner) {
