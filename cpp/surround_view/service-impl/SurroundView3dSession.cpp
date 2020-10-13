@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#define ATRACE_TAG ATRACE_TAG_CAMERA
 
 #include "SurroundView3dSession.h"
 
@@ -22,6 +23,7 @@
 #include <hidlmemory/mapping.h>
 #include <system/camera_metadata.h>
 #include <utils/SystemClock.h>
+#include <utils/Trace.h>
 
 #include <array>
 #include <thread>
@@ -91,6 +93,8 @@ Return<void> SurroundView3dSession::FramesHandler::deliverFrame(
 
 Return<void> SurroundView3dSession::FramesHandler::deliverFrame_1_1(
     const hidl_vec<BufferDesc_1_1>& buffers) {
+    ATRACE_BEGIN(__PRETTY_FUNCTION__);
+
     LOG(INFO) << "Received " << buffers.size() << " frames from the camera";
     mSession->mSequenceId++;
 
@@ -159,6 +163,8 @@ Return<void> SurroundView3dSession::FramesHandler::deliverFrame_1_1(
     // Notify the session that a new set of frames is ready
     mSession->mFramesSignal.notify_all();
 
+    ATRACE_END();
+
     return {};
 }
 
@@ -196,9 +202,12 @@ Return<void> SurroundView3dSession::FramesHandler::notify(const EvsEventDesc& ev
 bool SurroundView3dSession::copyFromBufferToPointers(
     BufferDesc_1_1 buffer, SurroundViewInputBufferPointers pointers) {
 
+    ATRACE_BEGIN(__PRETTY_FUNCTION__);
+
     AHardwareBuffer_Desc* pDesc =
         reinterpret_cast<AHardwareBuffer_Desc *>(&buffer.buffer.description);
 
+    ATRACE_BEGIN("Create Graphic Buffer");
     // create a GraphicBuffer from the existing handle
     sp<GraphicBuffer> inputBuffer = new GraphicBuffer(
         buffer.buffer.nativeHandle, GraphicBuffer::CLONE_HANDLE, pDesc->width,
@@ -218,7 +227,9 @@ bool SurroundView3dSession::copyFromBufferToPointers(
                   << " format: " << pDesc->format
                   << " stride: " << pDesc->stride;
     }
+    ATRACE_END();
 
+    ATRACE_BEGIN("Lock input buffer (gpu to cpu)");
     // Lock the input GraphicBuffer and map it to a pointer.  If we failed to
     // lock, return false.
     void* inputDataPtr;
@@ -232,22 +243,36 @@ bool SurroundView3dSession::copyFromBufferToPointers(
     } else {
         LOG(INFO) << "Managed to get read access to GraphicBuffer";
     }
+    ATRACE_END();
 
+    ATRACE_BEGIN("Copy input data");
     // Both source and destination are with 4 channels
     memcpy(pointers.cpu_data_pointer, inputDataPtr,
            pDesc->height * pDesc->width * kInputNumChannels);
     LOG(INFO) << "Buffer copying finished";
+    ATRACE_END();
+
+    ATRACE_BEGIN("Unlock input buffer (cpu to gpu)");
+    inputBuffer->unlock();
+    ATRACE_END();
+
+    // Paired with ATRACE_BEGIN in the beginning of the method.
+    ATRACE_END();
 
     return true;
 }
 
 void SurroundView3dSession::processFrames() {
+    ATRACE_BEGIN(__PRETTY_FUNCTION__);
+
+    ATRACE_BEGIN("SV core lib method: Start3dPipeline");
     if (mSurroundView->Start3dPipeline()) {
         LOG(INFO) << "Start3dPipeline succeeded";
     } else {
         LOG(ERROR) << "Start3dPipeline failed";
         return;
     }
+    ATRACE_END();
 
     while (true) {
         {
@@ -279,6 +304,8 @@ void SurroundView3dSession::processFrames() {
         mStream = nullptr;
         LOG(DEBUG) << "Stream marked STOPPED.";
     }
+
+    ATRACE_END();
 }
 
 SurroundView3dSession::SurroundView3dSession(sp<IEvsEnumerator> pEvs,
@@ -602,6 +629,8 @@ Return<void> SurroundView3dSession::projectCameraPointsTo3dSurface(
 bool SurroundView3dSession::handleFrames(int sequenceId) {
     LOG(INFO) << __FUNCTION__ << "Handling sequenceId " << sequenceId << ".";
 
+    ATRACE_BEGIN(__PRETTY_FUNCTION__);
+
     // TODO(b/157498592): Now only one sets of EVS input frames and one SV
     // output frame is supported. Implement buffer queue for both of them.
     {
@@ -657,6 +686,7 @@ bool SurroundView3dSession::handleFrames(int sequenceId) {
         }
     }
 
+    ATRACE_BEGIN("SV core lib method: Set3dOverlay");
     // Set 3d overlays.
     {
         scoped_lock<mutex> lock(mAccessLock);
@@ -667,7 +697,9 @@ bool SurroundView3dSession::handleFrames(int sequenceId) {
             mOverlayIsUpdated = false;
         }
     }
+    ATRACE_END();
 
+    ATRACE_BEGIN("VhalHandler method: getPropertyValues");
     // Get the latest VHal property values
     if (mVhalHandler != nullptr) {
         if (!mVhalHandler->getPropertyValues(&mPropertyValues)) {
@@ -676,19 +708,24 @@ bool SurroundView3dSession::handleFrames(int sequenceId) {
     } else {
         LOG(WARNING) << "VhalHandler is null. Ignored";
     }
+    ATRACE_END();
 
+    ATRACE_BEGIN("AnimationModule method: getUpdatedAnimationParams");
     vector<AnimationParam> params;
     if (mAnimationModule != nullptr) {
         params = mAnimationModule->getUpdatedAnimationParams(mPropertyValues);
     } else {
         LOG(WARNING) << "AnimationModule is null. Ignored";
     }
+    ATRACE_END();
 
+    ATRACE_BEGIN("SV core lib method: SetAnimations");
     if (!params.empty()) {
         mSurroundView->SetAnimations(params);
     } else {
         LOG(INFO) << "AnimationParams is empty. Ignored";
     }
+    ATRACE_END();
 
     // Get the view.
     // TODO(161399517): Only single view is currently supported, add support for multiple views.
@@ -698,6 +735,7 @@ bool SurroundView3dSession::handleFrames(int sequenceId) {
     const std::array<float, 4> viewQuaternion = {quat.x, quat.y, quat.z, quat.w};
     const std::array<float, 3> viewTranslation = {trans.x, trans.y, trans.z};
 
+    ATRACE_BEGIN("SV core lib method: Get3dSurroundView");
     if (mSurroundView->Get3dSurroundView(
             mInputPointers, viewQuaternion, viewTranslation, &mOutputPointer)) {
         LOG(INFO) << "Get3dSurroundView succeeded";
@@ -707,16 +745,21 @@ bool SurroundView3dSession::handleFrames(int sequenceId) {
         memset(mOutputPointer.data_pointer, kGrayColor,
                mOutputHeight * mOutputWidth * kOutputNumChannels);
     }
+    ATRACE_END();
 
+    ATRACE_BEGIN("Lock output texture (gpu to cpu)");
     void* textureDataPtr = nullptr;
     mSvTexture->lock(GRALLOC_USAGE_SW_WRITE_OFTEN
                     | GRALLOC_USAGE_SW_READ_NEVER,
                     &textureDataPtr);
+    ATRACE_END();
+
     if (!textureDataPtr) {
         LOG(ERROR) << "Failed to gain write access to GraphicBuffer!";
         return false;
     }
 
+    ATRACE_BEGIN("Copy output result");
     // Note: there is a chance that the stride of the texture is not the
     // same as the width. For example, when the input frame is 1920 * 1080,
     // the width is 1080, but the stride is 2048. So we'd better copy the
@@ -735,7 +778,11 @@ bool SurroundView3dSession::handleFrames(int sequenceId) {
         }
     }
     LOG(INFO) << "memcpy finished!";
+    ATRACE_END();
+
+    ATRACE_BEGIN("Unlock output texture (cpu to gpu)");
     mSvTexture->unlock();
+    ATRACE_END();
 
     ANativeWindowBuffer* buffer = mSvTexture->getNativeBuffer();
     LOG(DEBUG) << "ANativeWindowBuffer->handle: " << buffer->handle;
@@ -763,11 +810,15 @@ bool SurroundView3dSession::handleFrames(int sequenceId) {
         mStream->receiveFrames(mFramesRecord.frames);
     }
 
+    ATRACE_END();
+
     return true;
 }
 
 bool SurroundView3dSession::initialize() {
     lock_guard<mutex> lock(mAccessLock, adopt_lock);
+
+    ATRACE_BEGIN(__PRETTY_FUNCTION__);
 
     if (!setupEvs()) {
         LOG(ERROR) << "Failed to setup EVS components for 3d session";
@@ -790,10 +841,13 @@ bool SurroundView3dSession::initialize() {
                     mIOModuleConfig->sv2dConfig.carBoundingBox,
                     mIOModuleConfig->carModelConfig.carModel.texturesMap,
                     mIOModuleConfig->carModelConfig.carModel.partsMap);
+    ATRACE_BEGIN("SV core lib method: SetStaticData");
     mSurroundView->SetStaticData(params);
+    ATRACE_END();
 
     mEvsCameraIds = mIOModuleConfig->cameraConfig.evsCameraIds;
 
+    ATRACE_BEGIN("Allocate cpu buffers");
     mInputPointers.resize(kNumFrames);
     for (int i = 0; i < kNumFrames; i++) {
         mInputPointers[i].width = mCameraParams[i].size.width;
@@ -823,7 +877,9 @@ bool SurroundView3dSession::initialize() {
         LOG(ERROR) << "Memory allocation failed. Exiting.";
         return false;
     }
+    ATRACE_END();
 
+    ATRACE_BEGIN("Allocate output texture");
     mSvTexture = new GraphicBuffer(mOutputWidth,
                                    mOutputHeight,
                                    HAL_PIXEL_FORMAT_RGBA_8888,
@@ -837,13 +893,18 @@ bool SurroundView3dSession::initialize() {
         LOG(ERROR) << "Failed to allocate Graphic Buffer";
         return false;
     }
-
+    ATRACE_END();
 
     mIsInitialized = true;
+
+    ATRACE_END();
+
     return true;
 }
 
 bool SurroundView3dSession::setupEvs() {
+    ATRACE_BEGIN(__PRETTY_FUNCTION__);
+
     // Reads the camera related information from the config object
     const string evsGroupId = mIOModuleConfig->cameraConfig.evsGroupId;
 
@@ -939,10 +1000,14 @@ bool SurroundView3dSession::setupEvs() {
         camera.circular_fov = 179;
     }
 
+    ATRACE_END();
+
     return true;
 }
 
 bool SurroundView3dSession::startEvs() {
+    ATRACE_BEGIN(__PRETTY_FUNCTION__);
+
     mFramesHandler = new FramesHandler(mCamera, this);
     Return<EvsResult> result = mCamera->startVideoStream(mFramesHandler);
     if (result != EvsResult::OK) {
@@ -951,6 +1016,8 @@ bool SurroundView3dSession::startEvs() {
     } else {
         LOG(INFO) << "Video stream was started successfully";
     }
+
+    ATRACE_END();
 
     return true;
 }
