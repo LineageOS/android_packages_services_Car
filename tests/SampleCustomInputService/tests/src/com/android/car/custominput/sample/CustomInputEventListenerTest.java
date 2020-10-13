@@ -15,9 +15,13 @@
  */
 package com.android.car.custominput.sample;
 
+import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
+import static android.media.AudioAttributes.AttributeUsage;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -25,11 +29,15 @@ import static org.mockito.Mockito.when;
 
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
+import android.car.media.CarAudioManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.UserHandle;
+import android.view.Display;
 import android.view.KeyEvent;
 
 import org.junit.Before;
@@ -39,16 +47,31 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.List;
+
 @RunWith(MockitoJUnitRunner.class)
 public class CustomInputEventListenerTest {
 
+    // Some arbitrary display type
+    private static final int SOME_DISPLAY_TYPE = CarInputManager.TARGET_DISPLAY_TYPE_MAIN;
+
+    // Some arbitrary display id
+    private static final int SOME_DISPLAY_ID = 0;
+
+    // Some arbitrary media group id for testing purposes only
+    private static final int SOME_MEDIA_GROUP_ID = 1;
+
+    // Maximum allowed volume for alert and media
+    private static final int MAX_VOLUME = 38;
+
+    // Minimum volume for alert and media
+    private static final int MIN_VOLUME = 0;
+
     private CustomInputEventListener mEventHandler;
 
-    @Mock
-    private Context mContext;
-
-    @Mock
-    private SampleCustomInputService mService;
+    @Mock private Context mContext;
+    @Mock private CarAudioManager mCarAudioManager;
+    @Mock private SampleCustomInputService mService;
 
     @Before
     public void setUp() {
@@ -57,22 +80,21 @@ public class CustomInputEventListenerTest {
         when(mContext.getString(R.string.maps_activity_class)).thenReturn(
                 "com.google.android.maps.MapsActivity");
 
-        mEventHandler = new CustomInputEventListener(mContext, mService);
+        mEventHandler = new CustomInputEventListener(mContext, mCarAudioManager, mService);
     }
 
     @Test
     public void testHandleEvent_launchingMaps() {
         // Arrange
-        int anyDisplayId = CarInputManager.TARGET_DISPLAY_TYPE_MAIN;
         CustomInputEvent event = new CustomInputEvent(
                 // In this implementation, INPUT_TYPE_CUSTOM_EVENT_F1 represents the action of
                 // launching maps.
                 /* inputCode= */ CustomInputEvent.INPUT_CODE_F1,
-                /* targetDisplayType= */ anyDisplayId,
+                /* targetDisplayType= */ SOME_DISPLAY_TYPE,
                 /* repeatCounter= */ 1);
 
         // Act
-        mEventHandler.handle(anyDisplayId, event);
+        mEventHandler.handle(SOME_DISPLAY_TYPE, event);
 
         // Assert
         ArgumentCaptor<Intent> intentCaptor = ArgumentCaptor.forClass(Intent.class);
@@ -93,8 +115,7 @@ public class CustomInputEventListenerTest {
         // Assert bundle and user parameters
         assertThat(bundleCaptor.getValue().getInt("android.activity.launchDisplayId")).isEqualTo(
                 /* displayId= */
-                0);
-        // TODO(b/159623196): displayId is currently hardcoded to 0, see missing
+                0);  // TODO(b/159623196): displayId is currently hardcoded to 0, see missing
         // targetDisplayTarget to targetDisplayId logic in
         // CustomInputEventListener
         assertThat(userHandleCaptor.getValue()).isEqualTo(UserHandle.CURRENT);
@@ -103,16 +124,15 @@ public class CustomInputEventListenerTest {
     @Test
     public void testHandleEvent_backHomeAction() {
         // Arrange
-        int anyDisplayId = CarInputManager.TARGET_DISPLAY_TYPE_MAIN;
         CustomInputEvent event = new CustomInputEvent(
                 // In this implementation, INPUT_TYPE_CUSTOM_EVENT_F6 represents the back HOME
                 // action.
-                /* inputCode= */ CustomInputEvent.INPUT_CODE_F6,
-                /* targetDisplayType= */ anyDisplayId,
+                /* inputCode= */ CustomInputEvent.INPUT_CODE_F8,
+                /* targetDisplayType= */ SOME_DISPLAY_TYPE,
                 /* repeatCounter= */ 1);
 
         // Act
-        mEventHandler.handle(anyDisplayId, event);
+        mEventHandler.handle(SOME_DISPLAY_TYPE, event);
 
         // Assert
         ArgumentCaptor<KeyEvent> keyEventCaptor = ArgumentCaptor.forClass(KeyEvent.class);
@@ -120,11 +140,20 @@ public class CustomInputEventListenerTest {
         verify(mService, times(2)).injectKeyEvent(keyEventCaptor.capture(),
                 displayTypeCaptor.capture());
 
-        KeyEvent actualEvent = keyEventCaptor.getValue();
-        assertThat(actualEvent.getAction()).isEqualTo(KeyEvent.ACTION_UP);
-        assertThat(actualEvent.getKeyCode()).isEqualTo(KeyEvent.KEYCODE_HOME);
+        List<KeyEvent> actualEvents = keyEventCaptor.getAllValues();
+        KeyEvent actualEventDown = actualEvents.get(0);
+        assertThat(actualEventDown.getAction()).isEqualTo(KeyEvent.ACTION_DOWN);
+        assertThat(actualEventDown.getKeyCode()).isEqualTo(KeyEvent.KEYCODE_HOME);
+        assertThat(actualEventDown.getDisplayId()).isEqualTo(Display.INVALID_DISPLAY);
 
-        assertThat(displayTypeCaptor.getValue()).isEqualTo(
+        KeyEvent actualEventUp = actualEvents.get(1);
+        assertThat(actualEventUp.getAction()).isEqualTo(KeyEvent.ACTION_UP);
+        assertThat(actualEventUp.getKeyCode()).isEqualTo(KeyEvent.KEYCODE_HOME);
+        assertThat(actualEventUp.getDisplayId()).isEqualTo(Display.INVALID_DISPLAY);
+
+        List<Integer> actualDisplayTypes = displayTypeCaptor.getAllValues();
+
+        assertThat(actualDisplayTypes).containsExactly(CarInputManager.TARGET_DISPLAY_TYPE_MAIN,
                 CarInputManager.TARGET_DISPLAY_TYPE_MAIN);
     }
 
@@ -141,5 +170,133 @@ public class CustomInputEventListenerTest {
         // Assert
         verify(mService, never()).startActivityAsUser(any(Intent.class), any(Bundle.class),
                 any(UserHandle.class));
+    }
+
+    @Test
+    public void testHandleEvent_increaseMediaVolume() {
+        doTestIncreaseVolumeAndAssert(AudioAttributes.USAGE_MEDIA, CustomInputEvent.INPUT_CODE_F4);
+    }
+
+    @Test
+    public void testHandleEvent_increaseAlarmVolume() {
+        doTestIncreaseVolumeAndAssert(AudioAttributes.USAGE_ALARM, CustomInputEvent.INPUT_CODE_F6);
+    }
+
+    private void doTestIncreaseVolumeAndAssert(@AttributeUsage int usage, int inputCode) {
+        // Arrange
+        when(mCarAudioManager.getVolumeGroupIdForUsage(PRIMARY_AUDIO_ZONE, usage)).thenReturn(
+                SOME_MEDIA_GROUP_ID);
+        when(mCarAudioManager.getGroupMaxVolume(PRIMARY_AUDIO_ZONE,
+                SOME_MEDIA_GROUP_ID)).thenReturn(MAX_VOLUME);
+        int currentVolume = 5;
+        when(mCarAudioManager.getGroupVolume(PRIMARY_AUDIO_ZONE, SOME_MEDIA_GROUP_ID)).thenReturn(
+                currentVolume);
+
+        CustomInputEvent event = new CustomInputEvent(inputCode,
+                SOME_DISPLAY_ID,
+                /* repeatCounter= */ 1);
+
+        // Act
+        mEventHandler.handle(SOME_DISPLAY_TYPE, event);
+
+        // Assert
+        verify(mCarAudioManager).setGroupVolume(SOME_MEDIA_GROUP_ID, currentVolume + 1,
+                AudioManager.FLAG_SHOW_UI);
+    }
+
+    @Test
+    public void testHandleEvent_increaseMediaVolumeMax() {
+        doTestIncreaseMaxVolumeAndAssert(AudioAttributes.USAGE_MEDIA,
+                CustomInputEvent.INPUT_CODE_F4);
+    }
+
+    @Test
+    public void testHandleEvent_increaseAlarmVolumeMax() {
+        doTestIncreaseMaxVolumeAndAssert(AudioAttributes.USAGE_ALARM,
+                CustomInputEvent.INPUT_CODE_F6);
+    }
+
+    private void doTestIncreaseMaxVolumeAndAssert(@AttributeUsage int usage, int inputCode) {
+        // Arrange
+        when(mCarAudioManager.getVolumeGroupIdForUsage(PRIMARY_AUDIO_ZONE, usage)).thenReturn(
+                SOME_MEDIA_GROUP_ID);
+        when(mCarAudioManager.getGroupMaxVolume(PRIMARY_AUDIO_ZONE,
+                SOME_MEDIA_GROUP_ID)).thenReturn(MAX_VOLUME);
+        when(mCarAudioManager.getGroupVolume(PRIMARY_AUDIO_ZONE, SOME_MEDIA_GROUP_ID)).thenReturn(
+                MAX_VOLUME);
+
+        CustomInputEvent event = new CustomInputEvent(inputCode,
+                SOME_DISPLAY_ID,
+                /* repeatCounter= */ 1);
+
+        // Act
+        mEventHandler.handle(SOME_DISPLAY_TYPE, event);
+
+        // Assert
+        verify(mCarAudioManager, never()).setGroupVolume(anyInt(), anyInt(), anyInt());
+    }
+
+    @Test
+    public void testHandleEvent_decreaseMediaVolume() {
+        doTestDecreaseVolumeAndAssert(AudioAttributes.USAGE_MEDIA, CustomInputEvent.INPUT_CODE_F5);
+    }
+
+    @Test
+    public void testHandleEvent_decreaseAlarmVolume() {
+        doTestDecreaseVolumeAndAssert(AudioAttributes.USAGE_ALARM, CustomInputEvent.INPUT_CODE_F7);
+    }
+
+    private void doTestDecreaseVolumeAndAssert(@AttributeUsage int usage, int inputCode) {
+        // Arrange
+        when(mCarAudioManager.getVolumeGroupIdForUsage(PRIMARY_AUDIO_ZONE, usage)).thenReturn(
+                SOME_MEDIA_GROUP_ID);
+        when(mCarAudioManager.getGroupMinVolume(PRIMARY_AUDIO_ZONE,
+                SOME_MEDIA_GROUP_ID)).thenReturn(MIN_VOLUME);
+        int currentVolume = 5;
+        when(mCarAudioManager.getGroupVolume(PRIMARY_AUDIO_ZONE, SOME_MEDIA_GROUP_ID)).thenReturn(
+                currentVolume);
+
+        CustomInputEvent event = new CustomInputEvent(inputCode,
+                SOME_DISPLAY_ID,
+                /* repeatCounter= */ 1);
+
+        // Act
+        mEventHandler.handle(SOME_DISPLAY_TYPE, event);
+
+        // Assert
+        verify(mCarAudioManager).setGroupVolume(SOME_MEDIA_GROUP_ID, currentVolume - 1,
+                AudioManager.FLAG_SHOW_UI);
+    }
+
+    @Test
+    public void testHandleEvent_decreaseMediaMinVolume() {
+        doTestDecreaseMinVolumeAndAssert(AudioAttributes.USAGE_MEDIA,
+                CustomInputEvent.INPUT_CODE_F5);
+    }
+
+    @Test
+    public void testHandleEvent_decreaseAlarmMinVolume() {
+        doTestDecreaseMinVolumeAndAssert(AudioAttributes.USAGE_ALARM,
+                CustomInputEvent.INPUT_CODE_F7);
+    }
+
+    private void doTestDecreaseMinVolumeAndAssert(@AttributeUsage int usage, int inputCode) {
+        // Arrange
+        when(mCarAudioManager.getVolumeGroupIdForUsage(PRIMARY_AUDIO_ZONE, usage)).thenReturn(
+                SOME_MEDIA_GROUP_ID);
+        when(mCarAudioManager.getGroupMinVolume(PRIMARY_AUDIO_ZONE,
+                SOME_MEDIA_GROUP_ID)).thenReturn(MIN_VOLUME);
+        when(mCarAudioManager.getGroupVolume(PRIMARY_AUDIO_ZONE, SOME_MEDIA_GROUP_ID)).thenReturn(
+                MIN_VOLUME);
+
+        CustomInputEvent event = new CustomInputEvent(inputCode,
+                SOME_DISPLAY_ID,
+                /* repeatCounter= */ 1);
+
+        // Act
+        mEventHandler.handle(SOME_DISPLAY_TYPE, event);
+
+        // Assert
+        verify(mCarAudioManager, never()).setGroupVolume(anyInt(), anyInt(), anyInt());
     }
 }
