@@ -1,0 +1,7 @@
+# Car power policy server
+type carpowerpolicyd, domain;
+
+binder_call(carpowerpolicycallback_domain, carpowerpolicyd)
+
+# Configuration for system_server
+allow system_server carpowerpolicyd_service:service_manager find;

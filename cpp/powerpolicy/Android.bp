@@ -28,15 +28,38 @@ cc_defaults {
         "liblog",
         "libutils",
     ],
+    static_libs: [
+        "libgtest_prod",
+    ],
 }
 
 cc_library {
-    name: "libcarpowerpolicy_server",
+    name: "libcarpowerpolicyserver",
     srcs: [
         "src/CarPowerPolicyServer.cpp",
+        "src/PowerComponentHandler.cpp",
     ],
     defaults: [
         "carpowerpolicyserver_defaults",
+    ],
+    export_include_dirs: [
+        "src",
+    ],
+}
+
+cc_test {
+    name: "libcarpowerpolicyserver_test",
+    defaults: [
+        "carpowerpolicyserver_defaults",
+    ],
+    test_suites: ["general-tests"],
+    srcs: [
+        "tests/CarPowerPolicyServerTest.cpp",
+    ],
+    static_libs: [
+        "libgmock",
+        "libgtest",
+        "libcarpowerpolicyserver",
     ],
 }
 
@@ -50,7 +73,7 @@ cc_binary {
     ],
     init_rc: ["carpowerpolicyd.rc"],
     shared_libs: [
-      "libcarpowerpolicy_server",
+        "libcarpowerpolicyserver",
     ],
     vintf_fragments: ["carpowerpolicyd.xml"],
 }
