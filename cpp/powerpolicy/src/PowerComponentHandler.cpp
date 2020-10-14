@@ -28,15 +28,13 @@ using android::base::Error;
 using android::base::Result;
 
 void PowerComponentHandler::init() {
-    // TODO(b/162599168): implement here
 }
 
 void PowerComponentHandler::finalize() {
-    // TODO(b/162599168): implement here
 }
 
-Result<void> PowerComponentHandler::applyPowerPolicy(const CarPowerPolicy& /*powerPolicy*/,
-                                                     powerPolicyChangeCallback /*callback*/) {
+Result<void> PowerComponentHandler::applyPowerPolicy(CarPowerPolicyPtr /*powerPolicy*/) {
+    // TODO(b/162600133): change power states of components according to the power policy.
     return Error(-1) << "Not implemented";
 }
 
@@ -45,7 +43,7 @@ Result<bool> PowerComponentHandler::getPowerComponentState(PowerComponent /*comp
 }
 
 Result<void> PowerComponentHandler::dump(int /*fd*/, const Vector<String16>& /*args*/) {
-    return Error(-1) << "Not implemented";
+    return {};
 }
 
 }  // namespace powerpolicy

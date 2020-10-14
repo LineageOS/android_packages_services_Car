@@ -8,3 +8,7 @@ init_daemon_domain(carpowerpolicyd)
 add_service(carpowerpolicyd, carpowerpolicyd_service)
 binder_use(carpowerpolicyd)
 binder_service(carpowerpolicyd)
+
+hwbinder_use(carpowerpolicyd)
+get_prop(carpowerpolicyd, hwservicemanager_prop)
+hal_client_domain(carpowerpolicyd, hal_vehicle)

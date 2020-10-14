@@ -20,7 +20,6 @@
 
 #include <android-base/result.h>
 #include <binder/IPCThreadState.h>
-#include <binder/IServiceManager.h>
 #include <binder/ProcessState.h>
 #include <log/log.h>
 #include <signal.h>
