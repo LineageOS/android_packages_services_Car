@@ -22,7 +22,7 @@
 #include <android-base/result.h>
 #include <android/frameworks/automotive/powerpolicy/CarPowerPolicy.h>
 
-#include <functional>
+#include <memory>
 #include <unordered_map>
 
 namespace android {
@@ -30,7 +30,7 @@ namespace frameworks {
 namespace automotive {
 namespace powerpolicy {
 
-using powerPolicyChangeCallback = std::function<void(bool, std::string)>;
+using CarPowerPolicyPtr = std::shared_ptr<CarPowerPolicy>;
 
 class PowerComponentHandler final {
 public:
@@ -38,8 +38,7 @@ public:
 
     void init();
     void finalize();
-    base::Result<void> applyPowerPolicy(const CarPowerPolicy& powerPolicy,
-                                        powerPolicyChangeCallback callback);
+    base::Result<void> applyPowerPolicy(CarPowerPolicyPtr powerPolicy);
     base::Result<bool> getPowerComponentState(PowerComponent componentId);
     base::Result<void> dump(int fd, const Vector<String16>& args);
 

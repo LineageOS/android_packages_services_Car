@@ -22,21 +22,22 @@ cc_defaults {
         "-Wunused-parameter",
     ],
     shared_libs: [
+        "android.hardware.automotive.vehicle@2.0",
         "carpowerpolicy_aidl_interface-cpp",
         "libbase",
         "libbinder",
+        "libhidlbase",
         "liblog",
+        "libtinyxml2",
         "libutils",
-    ],
-    static_libs: [
-        "libgtest_prod",
     ],
 }
 
 cc_library {
-    name: "libcarpowerpolicyserver",
+    name: "lib_carpowerpolicyserver",
     srcs: [
         "src/CarPowerPolicyServer.cpp",
+        "src/PolicyManager.cpp",
         "src/PowerComponentHandler.cpp",
     ],
     defaults: [
@@ -48,18 +49,22 @@ cc_library {
 }
 
 cc_test {
-    name: "libcarpowerpolicyserver_test",
+    name: "carpowerpolicyserver_test",
     defaults: [
         "carpowerpolicyserver_defaults",
     ],
     test_suites: ["general-tests"],
     srcs: [
         "tests/CarPowerPolicyServerTest.cpp",
+        "tests/PolicyManagerTest.cpp",
     ],
     static_libs: [
         "libgmock",
         "libgtest",
-        "libcarpowerpolicyserver",
+        "lib_carpowerpolicyserver",
+    ],
+    data: [
+        "tests/data/*.xml",
     ],
 }
 
@@ -71,9 +76,9 @@ cc_binary {
     srcs: [
         "src/main.cpp",
     ],
-    init_rc: ["carpowerpolicyd.rc"],
-    shared_libs: [
-        "libcarpowerpolicyserver",
+    static_libs: [
+        "lib_carpowerpolicyserver",
     ],
+    init_rc: ["carpowerpolicyd.rc"],
     vintf_fragments: ["carpowerpolicyd.xml"],
 }
