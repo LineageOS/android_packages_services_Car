@@ -28,6 +28,7 @@ import android.car.input.CustomInputEvent;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.KeyEvent;
 
 import java.util.List;
 
@@ -122,5 +123,9 @@ public class SampleCustomInputService extends Service implements
         for (CustomInputEvent event : events) {
             mEventHandler.handle(targetDisplayType, event);
         }
+    }
+
+    public void injectKeyEvent(KeyEvent event, @TargetDisplayType int targetDisplayType) {
+        mCarInputManager.injectKeyEvent(event, targetDisplayType);
     }
 }

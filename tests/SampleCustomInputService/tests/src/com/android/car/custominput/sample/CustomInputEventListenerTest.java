@@ -19,6 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -29,6 +30,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.UserHandle;
+import android.view.KeyEvent;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -91,10 +93,39 @@ public class CustomInputEventListenerTest {
         // Assert bundle and user parameters
         assertThat(bundleCaptor.getValue().getInt("android.activity.launchDisplayId")).isEqualTo(
                 /* displayId= */
-                0);  // TODO(b/159623196): displayId is currently hardcoded to 0, see missing
-                               // targetDisplayTarget to targetDisplayId logic in
-                               // CustomInputEventListener
+                0);
+        // TODO(b/159623196): displayId is currently hardcoded to 0, see missing
+        // targetDisplayTarget to targetDisplayId logic in
+        // CustomInputEventListener
         assertThat(userHandleCaptor.getValue()).isEqualTo(UserHandle.CURRENT);
+    }
+
+    @Test
+    public void testHandleEvent_backHomeAction() {
+        // Arrange
+        int anyDisplayId = CarInputManager.TARGET_DISPLAY_TYPE_MAIN;
+        CustomInputEvent event = new CustomInputEvent(
+                // In this implementation, INPUT_TYPE_CUSTOM_EVENT_F6 represents the back HOME
+                // action.
+                /* inputCode= */ CustomInputEvent.INPUT_CODE_F6,
+                /* targetDisplayType= */ anyDisplayId,
+                /* repeatCounter= */ 1);
+
+        // Act
+        mEventHandler.handle(anyDisplayId, event);
+
+        // Assert
+        ArgumentCaptor<KeyEvent> keyEventCaptor = ArgumentCaptor.forClass(KeyEvent.class);
+        ArgumentCaptor<Integer> displayTypeCaptor = ArgumentCaptor.forClass(Integer.class);
+        verify(mService, times(2)).injectKeyEvent(keyEventCaptor.capture(),
+                displayTypeCaptor.capture());
+
+        KeyEvent actualEvent = keyEventCaptor.getValue();
+        assertThat(actualEvent.getAction()).isEqualTo(KeyEvent.ACTION_UP);
+        assertThat(actualEvent.getKeyCode()).isEqualTo(KeyEvent.KEYCODE_HOME);
+
+        assertThat(displayTypeCaptor.getValue()).isEqualTo(
+                CarInputManager.TARGET_DISPLAY_TYPE_MAIN);
     }
 
     @Test
