@@ -1060,6 +1060,36 @@ public final class VehiclePropertyIds {
     public static final int USER_IDENTIFICATION_ASSOCIATION = 299896587;
 
     /**
+     * Property for VHAL to apply power policy.
+     *
+     * <p>Doesn't require permission because it's not exposed through
+     * {@link android.car.hardware.property.CarPropertyManager}.
+     *
+     * @hide
+     */
+    public static final int POWER_POLICY_REQ = 286265121;
+
+    /**
+     * Property for VHAL to set the default power policies per power status transition.
+     *
+     * <p>Doesn't require permission because it's not exposed through
+     * {@link android.car.hardware.property.CarPropertyManager}.
+     *
+     * @hide
+     */
+    public static final int POWER_POLICY_GROUP_REQ = 286265122;
+
+    /**
+     * Property to report a new current power policy to VHAL.
+     *
+     * <p>Doesn't require permission because it's not exposed through
+     * {@link android.car.hardware.property.CarPropertyManager}.
+     *
+     * @hide
+     */
+    public static final int CURRENT_POWER_POLICY = 286265123;
+
+    /**
      * Property to report that car watchdog is alive.
      *
      * <p>Doesn't require permission because it's not exposed through
@@ -1368,6 +1398,12 @@ public final class VehiclePropertyIds {
                 return "REMOVE_USER";
             case USER_IDENTIFICATION_ASSOCIATION:
                 return "USER_IDENTIFICATION_ASSOCIATION";
+            case POWER_POLICY_REQ:
+                return "POWER_POLICY_REQ";
+            case POWER_POLICY_GROUP_REQ:
+                return "POWER_POLICY_GROUP_REQ";
+            case CURRENT_POWER_POLICY:
+                return "CURRENT_POWER_POLICY";
             case WATCHDOG_ALIVE:
                 return "WATCHDOG_ALIVE";
             case WATCHDOG_TERMINATED_PROCESS:
