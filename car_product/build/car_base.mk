@@ -101,3 +101,6 @@ PRODUCT_COPY_FILES += \
 
 # Enable car watchdog
 include packages/services/Car/cpp/watchdog/product/carwatchdog.mk
+
+# Enable car power policy
+include packages/services/Car/cpp/powerpolicy/product/carpowerpolicy.mk
