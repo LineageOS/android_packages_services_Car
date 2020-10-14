@@ -16,6 +16,8 @@
 
 package com.android.car.custominput.sample;
 
+import static android.car.input.CarInputManager.TargetDisplayType;
+
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.app.ActivityOptions;
@@ -25,6 +27,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.UserHandle;
 import android.util.Log;
+import android.view.Display;
+import android.view.KeyEvent;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -44,7 +48,8 @@ final class CustomInputEventListener {
     /** List of defined actions for this reference service implementation */
     @IntDef({EventAction.LAUNCH_MAPS_ACTION,
             EventAction.ACCEPT_INCOMING_CALL_ACTION, EventAction.REJECT_INCOMING_CALL_ACTION,
-            EventAction.INCREASE_SOUND_VOLUME_ACTION, EventAction.DECREASE_SOUND_VOLUME_ACTION})
+            EventAction.INCREASE_SOUND_VOLUME_ACTION, EventAction.DECREASE_SOUND_VOLUME_ACTION,
+            EventAction.BACK_HOME_ACTION})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EventAction {
 
@@ -62,6 +67,9 @@ final class CustomInputEventListener {
 
         /** Increases volume action. */
         int DECREASE_SOUND_VOLUME_ACTION = CustomInputEvent.INPUT_CODE_F5;
+
+        /** Simulates the HOME button (re-injects the HOME KeyEvent against Car Input API. */
+        int BACK_HOME_ACTION = CustomInputEvent.INPUT_CODE_F6;
     }
 
     CustomInputEventListener(
@@ -71,7 +79,7 @@ final class CustomInputEventListener {
         mService = service;
     }
 
-    void handle(int targetDisplayType, CustomInputEvent event) {
+    void handle(@TargetDisplayType int targetDisplayType, CustomInputEvent event) {
         if (!isValidTargetDisplayType(targetDisplayType)) {
             return;
         }
@@ -93,18 +101,22 @@ final class CustomInputEventListener {
             case EventAction.DECREASE_SOUND_VOLUME_ACTION:
                 decreaseVolume(targetDisplayId);
                 break;
+            case EventAction.BACK_HOME_ACTION:
+                backHome(targetDisplayType);
+                break;
             default:
                 Log.e(TAG, "Ignoring event [" + action + "]");
         }
     }
 
-    private int getDisplayIdForDisplayType(/* unused for now */ int targetDisplayType) {
+    private int getDisplayIdForDisplayType(/* unused for now */
+            @TargetDisplayType int targetDisplayType) {
         // TODO(159623196): convert the displayType to displayId using OccupantZoneManager api and
         //                  add tests. For now, we're just returning the display type.
         return 0;  // Hardcoded to return main display id for now.
     }
 
-    private static boolean isValidTargetDisplayType(int displayType) {
+    private static boolean isValidTargetDisplayType(@TargetDisplayType int displayType) {
         if (displayType == CarInputManager.TARGET_DISPLAY_TYPE_MAIN) {
             return true;
         }
@@ -118,7 +130,7 @@ final class CustomInputEventListener {
 
     private void launchMap(int targetDisplayId) {
         if (DEBUG) {
-            Log.d(TAG, "Launching Maps on display {" + targetDisplayId + "}");
+            Log.d(TAG, "Launching Maps on display id {" + targetDisplayId + "}");
         }
         ActivityOptions options = ActivityOptions.makeBasic();
         options.setLaunchDisplayId(targetDisplayId);
@@ -133,7 +145,7 @@ final class CustomInputEventListener {
         // TODO(b/159623196): When implementing this method, avoid using
         //     TelecomManager#acceptRingingCall deprecated method.
         if (DEBUG) {
-            Log.d(TAG, "Accepting incoming call on display {" + targetDisplayId + "}");
+            Log.d(TAG, "Accepting incoming call on display id {" + targetDisplayId + "}");
         }
     }
 
@@ -141,21 +153,37 @@ final class CustomInputEventListener {
         // TODO(b/159623196): When implementing this method, avoid using
         //     TelecomManager#endCall deprecated method.
         if (DEBUG) {
-            Log.d(TAG, "Rejecting incoming call on display {" + targetDisplayId + "}");
+            Log.d(TAG, "Rejecting incoming call on display id {" + targetDisplayId + "}");
         }
     }
 
     private void increaseVolume(int targetDisplayId) {
         // TODO(b/159623196): Provide implementation.
         if (DEBUG) {
-            Log.d(TAG, "Increasing volume on display {" + targetDisplayId + "}");
+            Log.d(TAG, "Increasing volume on display id {" + targetDisplayId + "}");
         }
     }
 
     private void decreaseVolume(int targetDisplayId) {
-        // TODO(kanant, b/159623196): Provide implementation.
+        // TODO(b/159623196): Provide implementation.
         if (DEBUG) {
-            Log.d(TAG, "Decreasing volume on display {" + targetDisplayId + "}");
+            Log.d(TAG, "Decreasing volume on display id {" + targetDisplayId + "}");
         }
+    }
+
+    private void backHome(@TargetDisplayType int targetDisplayType) {
+        if (DEBUG) {
+            Log.d(TAG, "Injecting HOME KeyEvent on display type {" + targetDisplayType + "}");
+        }
+
+        KeyEvent e = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_HOME);
+        e.setDisplayId(Display.INVALID_DISPLAY);
+
+        // Re-injecting KeyEvent.KEYCODE_HOME
+        mService.injectKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_HOME),
+                targetDisplayType);
+
+        mService.injectKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_HOME),
+                targetDisplayType);
     }
 }

@@ -35,6 +35,7 @@ import android.car.user.CarUserManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.hardware.input.InputManager;
 import android.net.Uri;
@@ -47,6 +48,7 @@ import android.provider.Settings;
 import android.telecom.TelecomManager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Display;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.ViewConfiguration;
@@ -156,6 +158,7 @@ public class CarInputService extends ICarInput.Stub
     private final Context mContext;
     private final InputHalService mInputHalService;
     private final CarUserService mUserService;
+    private final CarOccupantZoneService mCarOccupantZoneService;
     private final TelecomManager mTelecomManager;
     private final AssistUtils mAssistUtils;
 
@@ -234,8 +237,9 @@ public class CarInputService extends ICarInput.Stub
     }
 
     public CarInputService(Context context, InputHalService inputHalService,
-            CarUserService userService) {
-        this(context, inputHalService, userService, new Handler(Looper.getMainLooper()),
+            CarUserService userService, CarOccupantZoneService occupantZoneService) {
+        this(context, inputHalService, userService, occupantZoneService,
+                new Handler(Looper.getMainLooper()),
                 context.getSystemService(TelecomManager.class), new AssistUtils(context),
                 event ->
                         context.getSystemService(InputManager.class)
@@ -247,13 +251,16 @@ public class CarInputService extends ICarInput.Stub
 
     @VisibleForTesting
     CarInputService(Context context, InputHalService inputHalService, CarUserService userService,
-            Handler handler, TelecomManager telecomManager, AssistUtils assistUtils,
-            KeyEventListener mainDisplayHandler, Supplier<String> lastCalledNumberSupplier,
-            IntSupplier longPressDelaySupplier, InputCaptureClientController captureController) {
+            CarOccupantZoneService occupantZoneService, Handler handler,
+            TelecomManager telecomManager, AssistUtils assistUtils,
+            KeyEventListener mainDisplayHandler,
+            Supplier<String> lastCalledNumberSupplier, IntSupplier longPressDelaySupplier,
+            InputCaptureClientController captureController) {
         mContext = context;
         mCaptureController = captureController;
         mInputHalService = inputHalService;
         mUserService = userService;
+        mCarOccupantZoneService = occupantZoneService;
         mTelecomManager = telecomManager;
         mAssistUtils = assistUtils;
         mMainDisplayHandler = mainDisplayHandler;
@@ -431,6 +438,45 @@ public class CarInputService extends ICarInput.Stub
     @Override
     public void releaseInputEventCapture(ICarInputCallback callback, int targetDisplayType) {
         mCaptureController.releaseInputEventCapture(callback, targetDisplayType);
+    }
+
+    /**
+     * Injects the {@link KeyEvent} passed as parameter against Car Input API.
+     * <p>
+     * The event's display id will be overridden accordingly to the display type (it will be
+     * retrieved from {@link CarOccupantZoneService}).
+     *
+     * @param event the event to inject
+     * @param targetDisplayType the display type associated with the event
+     * @throws SecurityException when caller doesn't have INJECT_EVENTS permission granted
+     */
+    @Override
+    public void injectKeyEvent(KeyEvent event, int targetDisplayType) {
+        // Permission check
+        if (PackageManager.PERMISSION_GRANTED != mContext.checkCallingOrSelfPermission(
+                android.Manifest.permission.INJECT_EVENTS)) {
+            throw new SecurityException("Injecting KeyEvent requires INJECT_EVENTS permission");
+        }
+
+        // Setting display id for driver user id (currently MAIN and CLUSTER display types are
+        // linked to driver user only)
+        int driverUserId = mCarOccupantZoneService.getDriverUserId();
+        int driverZoneId = mCarOccupantZoneService.getOccupantZoneIdForUserId(driverUserId);
+        int newDisplayId = mCarOccupantZoneService.getDisplayForOccupant(driverZoneId,
+                targetDisplayType);
+
+        // Sets KeyEvent display id
+        int oldDisplayId = event.getDisplayId();
+        if (oldDisplayId != Display.INVALID_DISPLAY && oldDisplayId != newDisplayId) {
+            Log.w(CarLog.TAG_INPUT, "Incoming KeyEvent parameter is expected to be set "
+                    + "with INVALID_DISPLAY or the display id associated with driver user id ("
+                    + "which is {" + newDisplayId + "}), but instead was set with {"
+                    + oldDisplayId + "}");
+        }
+        event.setDisplayId(newDisplayId);
+
+        // Redirect event to onKeyEvent
+        onKeyEvent(event, targetDisplayType);
     }
 
     private void handleVoiceAssistKey(KeyEvent event) {
