@@ -47,10 +47,10 @@ public final class RemoveUserResult {
     public static final int STATUS_SUCCESS_LAST_ADMIN_REMOVED = 2;
 
     /**
-     * User was not removed because it is the current foreground user.
+     * When the user is set as ephemeral so that it is scheduled for removal. This occurs when the
+     * user can't be immediately removed, such as when the current user is being removed.
      */
-    // TODO(b/155913815): change to STATUS_SUCCESS_SET_EPHEMERAL  / update javadoc
-    public static final int STATUS_FAILURE_TARGET_USER_IS_CURRENT_USER = 3;
+    public static final int STATUS_SUCCESS_SET_EPHEMERAL = 3;
 
     /**
      * User was not removed because it doesn't exist.
@@ -63,6 +63,13 @@ public final class RemoveUserResult {
     public static final int STATUS_FAILURE_INVALID_ARGUMENTS = 5;
 
     /**
+     * When last admin user has been set as ephemeral so that it is scheduled for removal. This
+     * occurs when the user can't be immediately removed, such as when the current user is being
+     * removed.
+     */
+    public static final int STATUS_SUCCESS_LAST_ADMIN_SET_EPHEMERAL = 6;
+
+    /**
      * User was not removed for some other reason not described above.
      */
     public static final int STATUS_FAILURE_GENERIC = 100;
@@ -71,10 +78,11 @@ public final class RemoveUserResult {
     @IntDef(prefix = "STATUS_", value = {
             STATUS_SUCCESS,
             STATUS_SUCCESS_LAST_ADMIN_REMOVED,
-            STATUS_FAILURE_TARGET_USER_IS_CURRENT_USER,
+            STATUS_SUCCESS_SET_EPHEMERAL,
             STATUS_FAILURE_USER_DOES_NOT_EXIST,
             STATUS_FAILURE_INVALID_ARGUMENTS,
-            STATUS_FAILURE_GENERIC
+            STATUS_FAILURE_GENERIC,
+            STATUS_SUCCESS_LAST_ADMIN_SET_EPHEMERAL
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface Status {
@@ -99,8 +107,8 @@ public final class RemoveUserResult {
             case UserRemovalResult.STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED:
                 mStatus = STATUS_SUCCESS_LAST_ADMIN_REMOVED;
                 break;
-            case UserRemovalResult.STATUS_TARGET_USER_IS_CURRENT_USER:
-                mStatus = STATUS_FAILURE_TARGET_USER_IS_CURRENT_USER;
+            case UserRemovalResult.STATUS_SUCCESSFUL_SET_EPHEMERAL:
+                mStatus = STATUS_SUCCESS_SET_EPHEMERAL;
                 break;
             case UserRemovalResult.STATUS_USER_DOES_NOT_EXIST:
                 mStatus = STATUS_FAILURE_USER_DOES_NOT_EXIST;
@@ -108,18 +116,24 @@ public final class RemoveUserResult {
             case UserRemovalResult.STATUS_INVALID_REQUEST:
                 mStatus = STATUS_FAILURE_INVALID_ARGUMENTS;
                 break;
+            case UserRemovalResult.STATUS_SUCCESSFUL_LAST_ADMIN_SET_EPHEMERAL:
+                mStatus = STATUS_SUCCESS_LAST_ADMIN_SET_EPHEMERAL;
+                break;
             default:
                 mStatus = STATUS_FAILURE_GENERIC;
         }
     }
 
     /**
-     * Gets the specifif result of the operation.
+     * Gets the specific result of the operation.
      *
      * @return either {@link RemoveUserResult#STATUS_SUCCESS},
      *         {@link RemoveUserResult#STATUS_SUCCESS_LAST_ADMIN_REMOVED},
-     *         {@link RemoveUserResult#STATUS_FAILURE_TARGET_USER_IS_CURRENT_USER}, or
-     *         {@link RemoveUserResult#STATUS_FAILURE_USER_DOES_NOT_EXIST}.
+     *         {@link RemoveUserResult#STATUS_SUCCESS_SET_EPHEMERAL},
+     *         {@link RemoveUserResult#STATUS_FAILURE_USER_DOES_NOT_EXIST},
+     *         {@link RemoveUserResult#STATUS_FAILURE_INVALID_ARGUMENTS},
+     *         {@link RemoveUserResult#STATUS_FAILURE_GENERIC}, or
+     *         {@link RemoveUserResult#STATUS_SUCCESS_LAST_ADMIN_SET_EPHEMERAL}.
      */
     public @Status int getStatus() {
         return mStatus;
@@ -129,7 +143,9 @@ public final class RemoveUserResult {
      * Gets whether the operation was successful or not.
      */
     public boolean isSuccess() {
-        return mStatus == STATUS_SUCCESS || mStatus == STATUS_SUCCESS_LAST_ADMIN_REMOVED;
+        return mStatus == STATUS_SUCCESS || mStatus == STATUS_SUCCESS_LAST_ADMIN_REMOVED
+                || mStatus == STATUS_SUCCESS_SET_EPHEMERAL
+                || mStatus == STATUS_SUCCESS_LAST_ADMIN_SET_EPHEMERAL;
     }
 
     @Override
@@ -144,14 +160,16 @@ public final class RemoveUserResult {
                 return "SUCCESS";
             case STATUS_SUCCESS_LAST_ADMIN_REMOVED:
                 return "LAST_ADMIN_REMOVED";
-            case STATUS_FAILURE_TARGET_USER_IS_CURRENT_USER:
-                return "FAILURE_TARGET_USER_IS_CURRENT_USER";
+            case STATUS_SUCCESS_SET_EPHEMERAL:
+                return "SET_EPHEMERAL";
             case STATUS_FAILURE_USER_DOES_NOT_EXIST:
                 return "FAILURE_USER_DOES_NOT_EXIST";
             case STATUS_FAILURE_INVALID_ARGUMENTS:
                 return "FAILURE_INVALID_ARGUMENTS";
             case STATUS_FAILURE_GENERIC:
                 return "FAILURE_GENERIC";
+            case STATUS_SUCCESS_LAST_ADMIN_SET_EPHEMERAL:
+                return "LAST_ADMIN_SET_EPHEMERAL";
             default:
                 return "UNKNOWN-" + status;
         }

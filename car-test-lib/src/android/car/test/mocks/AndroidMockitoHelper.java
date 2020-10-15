@@ -176,17 +176,18 @@ public final class AndroidMockitoHelper {
     }
 
     /**
-     * Mocks a successful call to {@code UserManager#removeUser(int)}, including the respective
-     * {@code receiver} notification.
+     * Mocks a successful call to {@code UserManager#removeUserOrSetEphemeral(int)}, including the
+     * respective {@code receiver} notification.
      */
-    public static void mockUmRemoveUser(@NonNull Context context, @NonNull UserManager um,
+    public static void mockUmRemoveUserOrSetEphemeral(@NonNull Context context,
+            @NonNull UserManager um,
             @NonNull BroadcastReceiver receiver, @UserIdInt int userId) {
-        when(um.removeUser(userId)).thenAnswer((inv) -> {
+        when(um.removeUserOrSetEphemeral(userId)).thenAnswer((inv) -> {
             Intent intent = new Intent(Intent.ACTION_USER_REMOVED);
             intent.putExtra(Intent.EXTRA_USER_HANDLE, userId);
             Log.v(TAG, "mockUmRemoveUser(): broadcasting " + intent + " to " + receiver);
             receiver.onReceive(context, intent);
-            return true;
+            return UserManager.REMOVE_RESULT_REMOVED;
         });
     }
 

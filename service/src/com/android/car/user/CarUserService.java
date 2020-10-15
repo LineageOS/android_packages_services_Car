@@ -1128,12 +1128,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         EventLog.writeEvent(EventLogTags.CAR_USER_SVC_REMOVE_USER_REQ, userId,
                 hasCallerRestrictions ? 1 : 0);
 
-        // If the requested user is the current user, return error.
-        if (ActivityManager.getCurrentUser() == userId) {
-            return logAndGetResults(userId,
-                    UserRemovalResult.STATUS_TARGET_USER_IS_CURRENT_USER);
-        }
-
         // If requested user is the only admin user, return error.
         UserInfo userInfo = mUserManager.getUserInfo(userId);
         if (userInfo == null) {
@@ -1173,17 +1167,29 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
         // First remove user from android and then remove from HAL because HAL remove user is one
         // way call.
-        if (!mUserManager.removeUser(userId)) {
+        int result = mUserManager.removeUserOrSetEphemeral(userId);
+        if (result == UserManager.REMOVE_RESULT_ERROR) {
             return logAndGetResults(userId, UserRemovalResult.STATUS_ANDROID_FAILURE);
         }
 
         if (isLastAdmin) {
-            Log.w(TAG_USER, "Last admin user successfully removed. User Id: " + userId);
+            Log.w(TAG_USER,
+                    "Last admin user successfully removed or set ephemeral. User Id: " + userId);
         }
 
-        return logAndGetResults(userId,
-                isLastAdmin ? UserRemovalResult.STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED
-                        : UserRemovalResult.STATUS_SUCCESSFUL);
+        switch (result) {
+            case UserManager.REMOVE_RESULT_REMOVED:
+            case UserManager.REMOVE_RESULT_ALREADY_BEING_REMOVED:
+                return logAndGetResults(userId,
+                        isLastAdmin ? UserRemovalResult.STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED
+                                : UserRemovalResult.STATUS_SUCCESSFUL);
+            case UserManager.REMOVE_RESULT_SET_EPHEMERAL:
+                return logAndGetResults(userId,
+                        isLastAdmin ? UserRemovalResult.STATUS_SUCCESSFUL_LAST_ADMIN_SET_EPHEMERAL
+                                : UserRemovalResult.STATUS_SUCCESSFUL_SET_EPHEMERAL);
+            default:
+                throw new IllegalStateException("Unknown user removal result code " + result);
+        }
     }
 
     private void notifyHalUserRemoved(@UserIdInt int userId) {
