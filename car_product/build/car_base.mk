@@ -52,7 +52,6 @@ PRODUCT_PACKAGES += \
     MmsService \
     ExternalStorageProvider \
     atrace \
-    cameraserver \
     libandroidfw \
     libaudioutils \
     libmdnssd \
@@ -66,11 +65,15 @@ PRODUCT_PACKAGES += \
     car-bugreportd \
 
 # EVS resources
-PRODUCT_PACKAGES += android.automotive.evs.manager@1.0
+PRODUCT_PACKAGES += android.automotive.evs.manager@1.1
 # The following packages, or their vendor specific equivalents should be include in the device.mk
 #PRODUCT_PACKAGES += evs_app
 #PRODUCT_PACKAGES += evs_app_default_resources
 #PRODUCT_PACKAGES += android.hardware.automotive.evs@1.0-service
+
+# EVS manager overrides cameraserver on automotive implementations so
+# we need to configure Camera API to not connect to it
+PRODUCT_PROPERTY_OVERRIDES += config.disable_cameraservice=true
 
 # Device running Android is a car
 PRODUCT_COPY_FILES += \
