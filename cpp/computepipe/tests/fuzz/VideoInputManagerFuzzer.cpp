@@ -14,19 +14,24 @@
  * limitations under the License.
  */
 
-#include <fuzzer/FuzzedDataProvider.h>
-#include <gmock/gmock.h>
-#include <stdio.h>
-#include <unistd.h>
 #include "Common.h"
 #include "DefaultEngine.h"
 #include "VideoInputManager.h"
+
+#include <android-base/file.h>
+#include <fuzzer/FuzzedDataProvider.h>
+#include <gmock/gmock.h>
+
+#include <stdio.h>
+#include <unistd.h>
 
 namespace android {
 namespace automotive {
 namespace computepipe {
 namespace runner {
 namespace input_manager {
+
+using android::base::Dirname;
 
 namespace {
 
@@ -44,18 +49,9 @@ enum INPUT_MGR_FUZZ_FUNCS { RUNNER_COMP_BASE_ENUM };
 static std::shared_ptr<VideoInputManager> manager;
 
 extern "C" int LLVMFuzzerInitialize(int* argc, char*** argv) {
-    int ret;
-    const std::string kBaseDir = "/data/fuzz/arm64/video_input_manager_fuzzer/";
-    const std::string kOldname = kBaseDir + "corpus/centaur_1.mpg";
-    const std::string kNewname = kBaseDir + "centaur_1.mpg";
-    if (access(kOldname.c_str(), F_OK) != -1) {
-        ret = rename(kOldname.c_str(), kNewname.c_str());
-
-        if (ret != 0) {
-            std::cerr << "Video file failed to rename!" << std::endl;
-            exit(1);
-        }
-    } else if (access(kNewname.c_str(), F_OK) == -1) {
+    const std::string kFilename =
+            Dirname(*argv[0]) + "/data/corpus/video_input_manager/centaur_1.mpg";
+    if (access(kFilename.c_str(), F_OK) == -1) {
         std::cerr << "Video file does not exist!" << std::endl;
         exit(1);
     }
@@ -64,7 +60,7 @@ extern "C" int LLVMFuzzerInitialize(int* argc, char*** argv) {
     proto::InputConfig inputConf;
     proto::InputStreamConfig* streamConfig = inputConf.add_input_stream();
     proto::VideoFileConfig* videoConfig = streamConfig->mutable_video_config();
-    videoConfig->set_file_path(kNewname);
+    videoConfig->set_file_path(kFilename);
 
     // Initialize callBack, which does nothing
     std::shared_ptr<InputEngineInterface> callBack = std::make_shared<engine::InputCallback>(
