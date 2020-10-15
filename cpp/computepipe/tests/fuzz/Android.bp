@@ -126,7 +126,7 @@ cc_fuzz {
     srcs: [
         "VideoInputManagerFuzzer.cpp",
     ],
-    corpus: [
+    data: [
         "corpus/video_input_manager/*"
     ],
 }
