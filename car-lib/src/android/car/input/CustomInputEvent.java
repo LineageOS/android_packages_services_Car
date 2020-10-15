@@ -17,6 +17,7 @@
 package android.car.input;
 
 import android.annotation.NonNull;
+import android.annotation.SystemApi;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -34,6 +35,7 @@ import com.android.internal.util.DataClass;
 //       input.
 // TODO(b/12219669): Check with INPUT_CODE_Fn constants should move to
 //     android/car/Constants/CommonConstants.java. If keeping these constants, than add unit tests.
+@SystemApi
 @DataClass(
         genEqualsHashCode = true,
         genAidl = true)
@@ -72,7 +74,7 @@ public final class CustomInputEvent implements Parcelable {
     //   Settings > Editor > Code Style > Formatter Control
     //@formatter:off
 
-
+    /** @hide */
     @android.annotation.IntDef(prefix = "INPUT_CODE_", value = {
             INPUT_CODE_F1,
             INPUT_CODE_F2,
@@ -91,6 +93,7 @@ public final class CustomInputEvent implements Parcelable {
     }
 
     @DataClass.Generated.Member
+    @NonNull
     public static String inputCodeToString(@InputCode int value) {
         switch (value) {
             case INPUT_CODE_F1:
@@ -314,3 +317,4 @@ public final class CustomInputEvent implements Parcelable {
     //@formatter:on
     // End of generated code
 }
+

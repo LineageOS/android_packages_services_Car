@@ -41,6 +41,8 @@ CallbackInterface: android.car.hardware.cabin.CarCabinManager.CarCabinEventCallb
     Callbacks must be abstract class instead of interface to enable extension in future API levels: CarCabinEventCallback
 CallbackInterface: android.car.hardware.hvac.CarHvacManager.CarHvacEventCallback:
     Callbacks must be abstract class instead of interface to enable extension in future API levels: CarHvacEventCallback
+CallbackInterface: android.car.input.CarInputManager.CarInputCaptureCallback:
+    Callbacks must be abstract class instead of interface to enable extension in future API levels: CarInputCaptureCallback
 CallbackInterface: android.car.trust.CarTrustAgentEnrollmentManager.CarTrustAgentBleCallback:
     Callbacks must be abstract class instead of interface to enable extension in future API levels: CarTrustAgentBleCallback
 CallbackInterface: android.car.trust.CarTrustAgentEnrollmentManager.CarTrustAgentEnrollmentCallback:
@@ -77,6 +79,9 @@ ExecutorRegistration: android.car.hardware.cabin.CarCabinManager#registerCallbac
     Registration methods should have overload that accepts delivery Executor: `registerCallback`
 ExecutorRegistration: android.car.hardware.hvac.CarHvacManager#registerCallback(android.car.hardware.hvac.CarHvacManager.CarHvacEventCallback):
     Registration methods should have overload that accepts delivery Executor: `registerCallback`
+ExecutorRegistration: android.car.input.CarInputManager#requestInputEventCapture(android.car.input.CarInputManager.CarInputCaptureCallback, int, int[], int):
+    Registration methods should have overload that accepts delivery Executor: `requestInputEventCapture`
+
 ExecutorRegistration: android.car.storagemonitoring.CarStorageMonitoringManager#registerListener(android.car.storagemonitoring.CarStorageMonitoringManager.IoStatsListener):
     Registration methods should have overload that accepts delivery Executor: `registerListener`
 ExecutorRegistration: android.car.trust.CarTrustAgentEnrollmentManager#setBleCallback(android.car.trust.CarTrustAgentEnrollmentManager.CarTrustAgentBleCallback):
@@ -144,6 +149,12 @@ InternalField: android.car.input.CarInputHandlingService.InputFilter#mKeyCode:
 InternalField: android.car.input.CarInputHandlingService.InputFilter#mTargetDisplay:
     Internal field mTargetDisplay must not be exposed
 
+ListenerLast: android.car.input.CarInputManager#requestInputEventCapture(android.car.input.CarInputManager.CarInputCaptureCallback, int, int[], int) parameter #1:
+    Listeners should always be at end of argument list (method `requestInputEventCapture`)
+ListenerLast: android.car.input.CarInputManager#requestInputEventCapture(android.car.input.CarInputManager.CarInputCaptureCallback, int, int[], int) parameter #2:
+    Listeners should always be at end of argument list (method `requestInputEventCapture`)
+ListenerLast: android.car.input.CarInputManager#requestInputEventCapture(android.car.input.CarInputManager.CarInputCaptureCallback, int, int[], int) parameter #3:
+    Listeners should always be at end of argument list (method `requestInputEventCapture`)
 
 MinMaxConstant: android.car.diagnostic.IntegerSensorIndex#MAX_AIR_FLOW_RATE_FROM_MASS_AIR_FLOW_SENSOR:
     If min/max could change in future, make them dynamic methods: android.car.diagnostic.IntegerSensorIndex#MAX_AIR_FLOW_RATE_FROM_MASS_AIR_FLOW_SENSOR
