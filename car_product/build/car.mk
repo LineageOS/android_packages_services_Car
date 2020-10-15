@@ -24,7 +24,7 @@ PRODUCT_PACKAGES += \
     CarDeveloperOptions2 \
     CompanionDeviceSupport \
     OneTimeInitializer \
-    Provision \
+    CarProvision \
     StatementService \
     SystemUpdater
 
