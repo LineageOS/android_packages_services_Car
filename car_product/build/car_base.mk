@@ -52,7 +52,6 @@ PRODUCT_PACKAGES += \
     MmsService \
     ExternalStorageProvider \
     atrace \
-    cameraserver \
     libandroidfw \
     libaudioutils \
     libmdnssd \
@@ -67,6 +66,10 @@ PRODUCT_PACKAGES += \
 
 # EVS service
 include packages/services/Car/cpp/evs/manager/evsmanager.mk
+
+# EVS manager overrides cameraserver on automotive implementations so
+# we need to configure Camera API to not connect to it
+PRODUCT_PROPERTY_OVERRIDES += config.disable_cameraservice=true
 
 ifeq ($(ENABLE_EVS_SAMPLE), true)
 # ENABLE_EVS_SAMPLE should set be true or their vendor specific equivalents should be included in
