@@ -223,7 +223,7 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
         int appId = 987;
         BroadcastReceiver receiver = receiverCaptor.getValue();
         Intent packageIntent = new Intent(Intent.ACTION_PACKAGE_CHANGED);
-        packageIntent.setData(new Uri.Builder().path(packageName).build());
+        packageIntent.setData(new Uri.Builder().path("Any package").build());
         packageIntent.putExtra(Intent.EXTRA_UID, UserHandle.getUid(userId, appId));
         receiver.onReceive(mContext, packageIntent);
         verify(mContext).startActivityAsUser(eq(intent), any(Bundle.class),
