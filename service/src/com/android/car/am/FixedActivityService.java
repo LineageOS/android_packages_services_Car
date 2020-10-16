@@ -153,8 +153,9 @@ public final class FixedActivityService implements CarServiceBase {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (Intent.ACTION_PACKAGE_CHANGED.equals(action)
-                    || Intent.ACTION_PACKAGE_REPLACED.equals(
-                    action)) {
+                    || Intent.ACTION_PACKAGE_REPLACED.equals(action)
+                    || Intent.ACTION_PACKAGE_ADDED.equals(action)
+                    || Intent.ACTION_PACKAGE_REMOVED.equals(action)) {
                 Uri packageData = intent.getData();
                 if (packageData == null) {
                     Log.w(TAG_AM, "null packageData");
@@ -171,15 +172,15 @@ public final class FixedActivityService implements CarServiceBase {
                 synchronized (mLock) {
                     for (int i = 0; i < mRunningActivities.size(); i++) {
                         RunningActivityInfo info = mRunningActivities.valueAt(i);
-                        ComponentName component = info.intent.getComponent();
-                        // should do this for all activities as the same package can cover multiple
-                        // displays.
-                        if (packageName.equals(component.getPackageName())
-                                && info.userId == userId) {
-                            Log.i(TAG_AM, "Package updated:" + packageName
-                                    + ",user:" + userId);
+                        // Should do this for all activities as it can happen for multiple
+                        // displays. Package name is ignored as one package can affect
+                        // others.
+                        if (info.userId == userId) {
+                            Log.i(TAG_AM, "Package changed:" + packageName
+                                    + ",user:" + userId + ",action:" + action);
                             info.resetCrashCounterLocked();
                             tryLaunch = true;
+                            break;
                         }
                     }
                 }
@@ -384,6 +385,8 @@ public final class FixedActivityService implements CarServiceBase {
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_PACKAGE_CHANGED);
         filter.addAction(Intent.ACTION_PACKAGE_REPLACED);
+        filter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
         filter.addDataScheme("package");
         mContext.registerReceiverAsUser(mBroadcastReceiver, UserHandle.ALL, filter,
                 /* broadcastPermission= */ null, /* scheduler= */ null);
