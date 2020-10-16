@@ -118,7 +118,7 @@ cc_defaults {
     name: "libwatchdog_process_service_defaults",
     shared_libs: [
         "android.hardware.automotive.vehicle@2.0",
-        "carwatchdog_aidl_interface-cpp",
+        "carwatchdog_aidl_interface-unstable-cpp",
         "libhidlbase",
     ],
 }

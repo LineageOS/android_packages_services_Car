@@ -218,6 +218,15 @@ Status WatchdogBinderMediator::notifySystemStateChange(StateType type, int32_t a
                              StringPrintf("Invalid state change type %d", type));
 }
 
+Status WatchdogBinderMediator::updateIoOveruseConfiguration(
+        ComponentType /*type*/, const IoOveruseConfiguration& /*config*/) {
+    Status status = checkSystemPermission();
+    if (!status.isOk()) {
+        return status;
+    }
+    return fromExceptionCode(Status::EX_UNSUPPORTED_OPERATION, "Unimplemented method");
+}
+
 }  // namespace watchdog
 }  // namespace automotive
 }  // namespace android
