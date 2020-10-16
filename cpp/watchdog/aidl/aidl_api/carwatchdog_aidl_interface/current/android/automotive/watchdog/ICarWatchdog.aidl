@@ -28,4 +28,5 @@ interface ICarWatchdog {
   void tellMediatorAlive(in android.automotive.watchdog.ICarWatchdogClient mediator, in int[] clientsNotResponding, in int sessionId);
   void tellDumpFinished(in android.automotive.watchdog.ICarWatchdogMonitor monitor, in int pid);
   void notifySystemStateChange(in android.automotive.watchdog.StateType type, in int arg1, in int arg2);
+  void updateIoOveruseConfiguration(in android.automotive.watchdog.ComponentType type, in android.automotive.watchdog.IoOveruseConfiguration config);
 }
