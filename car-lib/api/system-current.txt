@@ -18,6 +18,7 @@ package android.car {
     method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_FEATURES) public java.util.List<java.lang.String> getAllPendingDisabledFeatures();
     method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_FEATURES) public java.util.List<java.lang.String> getAllPendingEnabledFeatures();
     field @Deprecated public static final String CABIN_SERVICE = "cabin";
+    field public static final String CAR_DEVICE_POLICY_SERVICE = "car_device_policy_service";
     field public static final String CAR_DRIVING_STATE_SERVICE = "drivingstate";
     field public static final String CAR_EXTRA_CLUSTER_ACTIVITY_STATE = "android.car.cluster.ClusterActivityState";
     field public static final String CAR_MEDIA_SERVICE = "car_media";
@@ -197,6 +198,24 @@ package android.car {
     field public static final int US_GALLON = 66; // 0x42
     field public static final int WATT_HOUR = 96; // 0x60
     field public static final int YEAR = 89; // 0x59
+  }
+
+}
+
+package android.car.admin {
+
+  public final class CarDevicePolicyManager {
+    method @NonNull @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.CREATE_USERS}) public android.car.admin.RemoveUserResult removeUser(@NonNull android.os.UserHandle);
+  }
+
+  public final class RemoveUserResult {
+    method public int getStatus();
+    method public boolean isSuccess();
+    field public static final int STATUS_FAILURE_GENERIC = 100; // 0x64
+    field public static final int STATUS_FAILURE_TARGET_USER_IS_CURRENT_USER = 3; // 0x3
+    field public static final int STATUS_FAILURE_USER_DOES_NOT_EXIST = 4; // 0x4
+    field public static final int STATUS_SUCCESS = 1; // 0x1
+    field public static final int STATUS_SUCCESS_LAST_ADMIN_REMOVED = 2; // 0x2
   }
 
 }
@@ -1085,7 +1104,6 @@ package android.car.user {
   public final class CarUserManager {
     method @RequiresPermission(anyOf={android.Manifest.permission.INTERACT_ACROSS_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS_FULL}) public void addListener(@NonNull java.util.concurrent.Executor, @NonNull android.car.user.CarUserManager.UserLifecycleListener);
     method @RequiresPermission(anyOf={android.Manifest.permission.INTERACT_ACROSS_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS_FULL}) public void removeListener(@NonNull android.car.user.CarUserManager.UserLifecycleListener);
-    method @NonNull @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.CREATE_USERS}) public android.car.user.UserRemovalResult removeUser(@NonNull android.os.UserHandle);
     field public static final int USER_LIFECYCLE_EVENT_TYPE_STARTING = 1; // 0x1
     field public static final int USER_LIFECYCLE_EVENT_TYPE_STOPPED = 6; // 0x6
     field public static final int USER_LIFECYCLE_EVENT_TYPE_STOPPING = 5; // 0x5

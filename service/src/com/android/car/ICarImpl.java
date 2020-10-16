@@ -47,6 +47,7 @@ import android.util.Log;
 import android.util.Slog;
 import android.util.TimingsTraceLog;
 
+import com.android.car.admin.CarDevicePolicyService;
 import com.android.car.am.FixedActivityService;
 import com.android.car.audio.CarAudioService;
 import com.android.car.cluster.InstrumentClusterService;
@@ -120,6 +121,7 @@ public class ICarImpl extends ICar.Stub {
     private final CarStatsService mCarStatsService;
     private final CarExperimentalFeatureServiceController mCarExperimentalFeatureServiceController;
     private final CarWatchdogService mCarWatchdogService;
+    private final CarDevicePolicyService mCarDevicePolicyService;
 
     private final CarServiceBase[] mAllServices;
 
@@ -260,6 +262,8 @@ public class ICarImpl extends ICar.Stub {
             mCarWatchdogService = carWatchdogService;
         }
 
+        mCarDevicePolicyService = new CarDevicePolicyService(mCarUserService);
+
         CarLocalServices.addService(CarPowerManagementService.class, mCarPowerManagementService);
         CarLocalServices.addService(SilentModeController.class, mSilentModeController);
         CarLocalServices.addService(CarPropertyService.class, mCarPropertyService);
@@ -272,6 +276,7 @@ public class ICarImpl extends ICar.Stub {
         CarLocalServices.addService(VmsBrokerService.class, mVmsBrokerService);
         CarLocalServices.addService(CarOccupantZoneService.class, mCarOccupantZoneService);
         CarLocalServices.addService(AppFocusService.class, mAppFocusService);
+        CarLocalServices.addService(CarDevicePolicyService.class, mCarDevicePolicyService);
 
         // Be careful with order. Service depending on other service should be inited later.
         List<CarServiceBase> allServices = new ArrayList<>();
@@ -305,6 +310,8 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mCarLocationService);
         allServices.add(mCarBugreportManagerService);
         allServices.add(mCarWatchdogService);
+        allServices.add(mCarDevicePolicyService);
+
         // Always put mCarExperimentalFeatureServiceController in last.
         addServiceIfNonNull(allServices, mCarExperimentalFeatureServiceController);
         mAllServices = allServices.toArray(new CarServiceBase[allServices.size()]);
@@ -515,6 +522,8 @@ public class ICarImpl extends ICar.Stub {
                 return mCarWatchdogService;
             case Car.CAR_INPUT_SERVICE:
                 return mCarInputService;
+            case Car.CAR_DEVICE_POLICY_SERVICE:
+                return mCarDevicePolicyService;
             default:
                 IBinder service = null;
                 if (mCarExperimentalFeatureServiceController != null) {
