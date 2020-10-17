@@ -576,7 +576,7 @@ public class FingerprintSettings extends SubSettings {
         public void onDestroy() {
             super.onDestroy();
             if (getActivity().isFinishing()) {
-                mFingerprintManager.revokeChallenge();
+                mFingerprintManager.revokeChallenge(mUserId);
             }
         }
 
