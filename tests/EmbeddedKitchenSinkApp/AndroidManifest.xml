@@ -122,6 +122,9 @@
 
     <uses-permission android:name="android.car.permission.CONTROL_CAR_FEATURES"/>
 
+    <!-- use for rotary fragment to enable/disable packages related to rotary -->
+    <uses-permission android:name="android.permission.CHANGE_COMPONENT_ENABLED_STATE"/>
+
     <application android:label="@string/app_title"
          android:icon="@drawable/ic_launcher">
         <uses-library android:name="android.test.runner"/>
