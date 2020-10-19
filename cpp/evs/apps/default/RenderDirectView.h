@@ -17,13 +17,12 @@
 #ifndef CAR_EVS_APP_RENDERDIRECTVIEW_H
 #define CAR_EVS_APP_RENDERDIRECTVIEW_H
 
-
-#include "RenderBase.h"
-
-#include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
 #include "ConfigManager.h"
+#include "RenderBase.h"
 #include "VideoTex.h"
 
+#include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
+#include <math/mat2.h>
 
 using namespace ::android::hardware::automotive::evs::V1_1;
 using ::android::hardware::camera::device::V3_2::Stream;
@@ -52,6 +51,8 @@ protected:
     std::unique_ptr<VideoTex>       mTexture;
 
     GLuint                          mShaderProgram = 0;
+
+    android::mat2                   mRotationMat;
 };
 
 
