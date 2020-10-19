@@ -31,8 +31,11 @@
       "z" : 48,
       "yaw" : 180,
       "pitch" : -10,
+      "roll" : 0,
       "hfov" : 115,
-      "vfov" : 80
+      "vfov" : 80,
+      "hflip" : true,
+      "vflip" : false
     },
     {
       "cameraId" : "/dev/video11",
@@ -42,8 +45,11 @@
       "z" : 48,
       "yaw" : 0,
       "pitch" : -10,
+      "roll" : 0,
       "hfov" : 115,
-      "vfov" : 80
+      "vfov" : 80,
+      "hflip" : false,
+      "vflip" : false
     },
     {
       "cameraId" : "/dev/video12",
@@ -53,8 +59,11 @@
       "z" : 88,
       "yaw" : -90,
       "pitch" : -10,
+      "roll" : 0,
       "hfov" : 60,
-      "vfov" : 62
+      "vfov" : 62,
+      "hflip" : false,
+      "vflip" : false
     },
     {
       "cameraId" : "/dev/video13",
@@ -64,8 +73,11 @@
       "z" : 88,
       "yaw" : 90,
       "pitch" : -10,
+      "roll" : 0,
       "hfov" : 60,
-      "vfov" : 62
+      "vfov" : 62,
+      "hflip" : false,
+      "vflip" : false
     }
   ]
 }
