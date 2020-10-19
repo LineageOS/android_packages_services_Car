@@ -15,6 +15,7 @@
  */
 package com.android.car.custominput.sample;
 
+import static android.car.CarOccupantZoneManager.DISPLAY_TYPE_MAIN;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 import static android.media.AudioAttributes.AttributeUsage;
 
@@ -27,7 +28,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.car.input.CarInputManager;
+import android.car.CarOccupantZoneManager;
 import android.car.input.CustomInputEvent;
 import android.car.media.CarAudioManager;
 import android.content.ComponentName;
@@ -53,7 +54,7 @@ import java.util.List;
 public class CustomInputEventListenerTest {
 
     // Some arbitrary display type
-    private static final int SOME_DISPLAY_TYPE = CarInputManager.TARGET_DISPLAY_TYPE_MAIN;
+    private static final int SOME_DISPLAY_TYPE = CarOccupantZoneManager.DISPLAY_TYPE_MAIN;
 
     // Some arbitrary display id
     private static final int SOME_DISPLAY_ID = 0;
@@ -79,7 +80,6 @@ public class CustomInputEventListenerTest {
                 "com.google.android.apps.maps");
         when(mContext.getString(R.string.maps_activity_class)).thenReturn(
                 "com.google.android.maps.MapsActivity");
-
         mEventHandler = new CustomInputEventListener(mContext, mCarAudioManager, mService);
     }
 
@@ -151,21 +151,18 @@ public class CustomInputEventListenerTest {
         assertThat(actualEventUp.getKeyCode()).isEqualTo(KeyEvent.KEYCODE_HOME);
         assertThat(actualEventUp.getDisplayId()).isEqualTo(Display.INVALID_DISPLAY);
 
-        List<Integer> actualDisplayTypes = displayTypeCaptor.getAllValues();
-
-        assertThat(actualDisplayTypes).containsExactly(CarInputManager.TARGET_DISPLAY_TYPE_MAIN,
-                CarInputManager.TARGET_DISPLAY_TYPE_MAIN);
+        assertThat(displayTypeCaptor.getValue()).isEqualTo(DISPLAY_TYPE_MAIN);
     }
 
     @Test
     public void testHandleEvent_ignoringEventsForNonMainDisplay() {
-        int invalidDisplayId = -1;
+        int invalidDisplayType = -1;
         CustomInputEvent event = new CustomInputEvent(CustomInputEvent.INPUT_CODE_F1,
-                invalidDisplayId,
+                invalidDisplayType,
                 /* repeatCounter= */ 1);
 
         // Act
-        mEventHandler.handle(invalidDisplayId, event);
+        mEventHandler.handle(invalidDisplayType, event);
 
         // Assert
         verify(mService, never()).startActivityAsUser(any(Intent.class), any(Bundle.class),

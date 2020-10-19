@@ -29,7 +29,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.car.CarOccupantZoneManager;
 import android.car.input.CustomInputEvent;
+import android.hardware.automotive.vehicle.V2_0.VehicleDisplay;
 import android.hardware.automotive.vehicle.V2_0.VehicleHwKeyInputAction;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
@@ -68,7 +70,7 @@ public class InputHalServiceTest {
             VehiclePropConfigBuilder.newBuilder(VehicleProperty.HW_ROTARY_INPUT).build();
     private static final VehiclePropConfig HW_CUSTOM_INPUT_CONFIG =
             VehiclePropConfigBuilder.newBuilder(VehicleProperty.HW_CUSTOM_INPUT).build();
-    private static final int DISPLAY = 42;
+    private static final int DISPLAY_MAIN = VehicleDisplay.MAIN;
 
     private enum Key { DOWN, UP }
 
@@ -176,7 +178,7 @@ public class InputHalServiceTest {
             KeyEvent event = inv.getArgument(0);
             events.add(event.copy());
             return null;
-        }).when(mInputListener).onKeyEvent(any(), eq(DISPLAY));
+        }).when(mInputListener).onKeyEvent(any(), eq(CarOccupantZoneManager.DISPLAY_TYPE_MAIN));
 
         mInputHalService.onHalEvents(
                 ImmutableList.of(
@@ -362,17 +364,17 @@ public class InputHalServiceTest {
         }).when(mInputListener).onCustomInputEvent(any());
 
         // Arrange
-        int targetDisplayType = InputHalService.DISPLAY_INSTRUMENT_CLUSTER;
         int repeatCounter = 1;
         VehiclePropValue customInputPropValue = makeCustomInputPropValue(
-                CUSTOM_EVENT_F1, targetDisplayType, repeatCounter);
+                CUSTOM_EVENT_F1, DISPLAY_MAIN, repeatCounter);
 
         // Act
         mInputHalService.onHalEvents(ImmutableList.of(customInputPropValue));
 
         // Assert
         assertThat(events).containsExactly(new CustomInputEvent(
-                CustomInputEvent.INPUT_CODE_F1, targetDisplayType, repeatCounter));
+                CustomInputEvent.INPUT_CODE_F1, CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+                repeatCounter));
     }
 
     private void subscribeListener() {
@@ -392,7 +394,7 @@ public class InputHalServiceTest {
                         ? VehicleHwKeyInputAction.ACTION_DOWN
                         : VehicleHwKeyInputAction.ACTION_UP));
         v.value.int32Values.add(code);
-        v.value.int32Values.add(DISPLAY);
+        v.value.int32Values.add(DISPLAY_MAIN);
         return v;
     }
 
@@ -400,7 +402,8 @@ public class InputHalServiceTest {
         ArgumentCaptor<KeyEvent> captor = ArgumentCaptor.forClass(KeyEvent.class);
         reset(mInputListener);
         mInputHalService.onHalEvents(ImmutableList.of(makeKeyPropValue(action, code)));
-        verify(mInputListener).onKeyEvent(captor.capture(), eq(DISPLAY));
+        verify(mInputListener).onKeyEvent(captor.capture(),
+                eq(CarOccupantZoneManager.DISPLAY_TYPE_MAIN));
         reset(mInputListener);
         return captor.getValue();
     }
@@ -411,7 +414,7 @@ public class InputHalServiceTest {
         // Only Key.down can have indents.
         v.value.int32Values.add(VehicleHwKeyInputAction.ACTION_DOWN);
         v.value.int32Values.add(code);
-        v.value.int32Values.add(DISPLAY);
+        v.value.int32Values.add(DISPLAY_MAIN);
         v.value.int32Values.add(indents);
         return v;
     }
@@ -421,7 +424,8 @@ public class InputHalServiceTest {
         reset(mInputListener);
         mInputHalService.onHalEvents(
                 ImmutableList.of(makeKeyPropValueWithIndents(code, indents)));
-        verify(mInputListener, times(indents)).onKeyEvent(captor.capture(), eq(DISPLAY));
+        verify(mInputListener, times(indents)).onKeyEvent(captor.capture(),
+                eq(CarOccupantZoneManager.DISPLAY_TYPE_MAIN));
         reset(mInputListener);
         return captor.getValue();
     }
@@ -432,7 +436,7 @@ public class InputHalServiceTest {
         v.prop = VehicleProperty.HW_ROTARY_INPUT;
         v.value.int32Values.add(rotaryInputType);
         v.value.int32Values.add(detents);
-        v.value.int32Values.add(DISPLAY);
+        v.value.int32Values.add(DISPLAY_MAIN);
         for (int i = 0; i < Math.abs(detents) - 1; i++) {
             v.value.int32Values.add(delayBetweenDetents);
         }

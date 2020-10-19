@@ -31,6 +31,7 @@ import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.app.UiModeManager;
 import android.car.Car;
+import android.car.CarOccupantZoneManager;
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
 import android.car.input.RotaryEvent;
@@ -65,6 +66,7 @@ import android.hardware.automotive.vehicle.V2_0.UserIdentificationSetRequest;
 import android.hardware.automotive.vehicle.V2_0.UserInfo;
 import android.hardware.automotive.vehicle.V2_0.UsersInfo;
 import android.hardware.automotive.vehicle.V2_0.VehicleArea;
+import android.hardware.automotive.vehicle.V2_0.VehicleDisplay;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Process;
@@ -794,7 +796,7 @@ final class CarShellCommand extends ShellCommand {
 
     private void injectKey(String[] args, PrintWriter writer) {
         int i = 1; // 0 is command itself
-        int display = InputHalService.DISPLAY_MAIN;
+        int display = CarOccupantZoneManager.DISPLAY_TYPE_MAIN;
         int delayMs = 0;
         int keyCode = KeyEvent.KEYCODE_UNKNOWN;
         int action = -1;
@@ -803,7 +805,11 @@ final class CarShellCommand extends ShellCommand {
                 switch (args[i]) {
                     case "-d":
                         i++;
-                        display = Integer.parseInt(args[i]);
+                        int vehicleDisplay = Integer.parseInt(args[i]);
+                        if (!checkVehicleDisplay(vehicleDisplay, writer)) {
+                            return;
+                        }
+                        display = InputHalService.convertDisplayType(vehicleDisplay);
                         break;
                     case "-t":
                         i++;
@@ -838,12 +844,6 @@ final class CarShellCommand extends ShellCommand {
             showHelp(writer);
             return;
         }
-        if (display != InputHalService.DISPLAY_MAIN
-                && display != InputHalService.DISPLAY_INSTRUMENT_CLUSTER) {
-            writer.println("Invalid display:" + display);
-            showHelp(writer);
-            return;
-        }
         if (delayMs < 0) {
             writer.println("Invalid delay:" + delayMs);
             showHelp(writer);
@@ -866,7 +866,7 @@ final class CarShellCommand extends ShellCommand {
 
     private void injectRotary(String[] args, PrintWriter writer) {
         int i = 1; // 0 is command itself
-        int display = InputHalService.DISPLAY_MAIN;
+        int display = CarOccupantZoneManager.DISPLAY_TYPE_MAIN;
         int inputType = CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION;
         boolean clockwise = false;
         List<Long> deltaTimeMs = new ArrayList<>();
@@ -875,7 +875,11 @@ final class CarShellCommand extends ShellCommand {
                 switch (args[i]) {
                     case "-d":
                         i++;
-                        display = Integer.parseInt(args[i]);
+                        int vehicleDisplay = Integer.parseInt(args[i]);
+                        if (!checkVehicleDisplay(vehicleDisplay, writer)) {
+                            return;
+                        }
+                        display = InputHalService.convertDisplayType(vehicleDisplay);
                         break;
                     case "-i":
                         i++;
@@ -929,14 +933,18 @@ final class CarShellCommand extends ShellCommand {
     }
 
     private void injectCustomInputEvent(String[] args, PrintWriter writer) {
-        int display = InputHalService.DISPLAY_MAIN;
+        int display = CarOccupantZoneManager.DISPLAY_TYPE_MAIN;
         int repeatCounter = 1;
 
         int argIdx = 1;
         for (; argIdx < args.length - 1; argIdx++) {
             switch (args[argIdx]) {
                 case "-d":
-                    display = Integer.parseInt(args[++argIdx]);
+                    int vehicleDisplay = Integer.parseInt(args[++argIdx]);
+                    if (!checkVehicleDisplay(vehicleDisplay, writer)) {
+                        return;
+                    }
+                    display = InputHalService.convertDisplayType(vehicleDisplay);
                     break;
                 case "-r":
                     repeatCounter = Integer.parseInt(args[++argIdx]);
@@ -967,6 +975,16 @@ final class CarShellCommand extends ShellCommand {
         CustomInputEvent event = new CustomInputEvent(inputCode, display, repeatCounter);
         mCarInputService.onCustomInputEvent(event);
         writer.printf("Succeeded in injecting {%s}\n", event);
+    }
+
+    private boolean checkVehicleDisplay(int vehicleDisplay, PrintWriter writer) {
+        if (vehicleDisplay != VehicleDisplay.MAIN
+                && vehicleDisplay != VehicleDisplay.INSTRUMENT_CLUSTER) {
+            writer.println("Invalid display:" + vehicleDisplay);
+            showHelp(writer);
+            return false;
+        }
+        return true;
     }
 
     private void getInitialUserInfo(String[] args, PrintWriter writer) {

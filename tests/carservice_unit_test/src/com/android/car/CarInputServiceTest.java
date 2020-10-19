@@ -16,7 +16,7 @@
 
 package com.android.car;
 
-import static android.car.input.CarInputManager.TargetDisplayType;
+import static android.car.CarOccupantZoneManager.DisplayTypeEnum;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -36,8 +36,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import android.car.CarOccupantZoneManager;
 import android.car.CarProjectionManager;
-import android.car.input.CarInputManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -90,8 +90,7 @@ public class CarInputServiceTest {
     @Spy Context mContext = ApplicationProvider.getApplicationContext();
     @Spy Handler mHandler = new Handler(Looper.getMainLooper());
 
-    @Mock
-    CarUserService mCarUserService;
+    @Mock CarUserService mCarUserService;
     private CarInputService mCarInputService;
 
     @Before
@@ -144,7 +143,7 @@ public class CarInputServiceTest {
 
         KeyEvent event = send(Key.DOWN, KeyEvent.KEYCODE_ENTER, Display.MAIN);
         verify(instrumentClusterListener, never()).onKeyEvent(any(KeyEvent.class));
-        verify(mCaptureController).onKeyEvent(CarInputManager.TARGET_DISPLAY_TYPE_MAIN, event);
+        verify(mCaptureController).onKeyEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN, event);
         verify(mDefaultMainListener, never()).onKeyEvent(any(KeyEvent.class));
     }
 
@@ -499,7 +498,8 @@ public class CarInputServiceTest {
 
         // Act and assert
         Assert.assertThrows(SecurityException.class,
-                () -> mCarInputService.injectKeyEvent(event, InputHalService.DISPLAY_MAIN));
+                () -> mCarInputService.injectKeyEvent(event,
+                        CarOccupantZoneManager.DISPLAY_TYPE_MAIN));
     }
 
     @Test
@@ -507,7 +507,7 @@ public class CarInputServiceTest {
         KeyEvent event = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER);
         event.setDisplayId(android.view.Display.INVALID_DISPLAY);
 
-        injectKeyEventAndVerify(event, InputHalService.DISPLAY_MAIN);
+        injectKeyEventAndVerify(event, CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
 
         verify(mDefaultMainListener).onKeyEvent(event);
         verify(mInstrumentClusterKeyListener, never()).onKeyEvent(event);
@@ -518,13 +518,13 @@ public class CarInputServiceTest {
         KeyEvent event = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER);
         event.setDisplayId(android.view.Display.DEFAULT_DISPLAY);
 
-        injectKeyEventAndVerify(event, InputHalService.DISPLAY_INSTRUMENT_CLUSTER);
+        injectKeyEventAndVerify(event, CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER);
 
         verify(mDefaultMainListener, never()).onKeyEvent(event);
         verify(mInstrumentClusterKeyListener).onKeyEvent(event);
     }
 
-    private void injectKeyEventAndVerify(KeyEvent event, @TargetDisplayType int displayType) {
+    private void injectKeyEventAndVerify(KeyEvent event, @DisplayTypeEnum int displayType) {
         // Arrange
         doReturn(PackageManager.PERMISSION_GRANTED).when(mContext).checkCallingOrSelfPermission(
                 android.Manifest.permission.INJECT_EVENTS);
@@ -564,8 +564,8 @@ public class CarInputServiceTest {
         mCarInputService.onKeyEvent(
                 event,
                 display == Display.MAIN
-                        ? InputHalService.DISPLAY_MAIN
-                        : InputHalService.DISPLAY_INSTRUMENT_CLUSTER);
+                        ? CarOccupantZoneManager.DISPLAY_TYPE_MAIN
+                        : CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER);
         return event;
     }
 

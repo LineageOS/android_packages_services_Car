@@ -16,9 +16,12 @@
 
 package com.android.car;
 
+import static android.car.CarOccupantZoneManager.DisplayTypeEnum;
+
 import static java.util.Map.entry;
 
 import android.annotation.NonNull;
+import android.car.CarOccupantZoneManager;
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
 import android.car.input.ICarInputCallback;
@@ -35,7 +38,6 @@ import android.view.KeyEvent;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.ArrayUtils;
 import com.android.internal.util.Preconditions;
-
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -100,7 +102,7 @@ public class InputCaptureClientController {
 
     // TODO(b/150818155) Need to migrate cluster code to use this to enable it.
     private static final List<Integer> SUPPORTED_DISPLAY_TYPES = List.of(
-            CarInputManager.TARGET_DISPLAY_TYPE_MAIN
+            CarOccupantZoneManager.DISPLAY_TYPE_MAIN
     );
 
     private static final int[] EMPTY_INPUT_TYPES = new int[0];
@@ -234,7 +236,8 @@ public class InputCaptureClientController {
      * {@link CarInputManager#requestInputEventCapture(CarInputManager.CarInputCaptureCallback,
      * int, int[], int)}.
      */
-    public int requestInputEventCapture(ICarInputCallback callback, int targetDisplayType,
+    public int requestInputEventCapture(ICarInputCallback callback,
+            @DisplayTypeEnum int targetDisplayType,
             int[] inputTypes, int requestFlags) {
         ICarImpl.assertPermission(mContext, android.Manifest.permission.MONITOR_INPUT);
 
@@ -250,8 +253,8 @@ public class InputCaptureClientController {
                         + " for CAPTURE_REQ_FLAGS_TAKE_ALL_EVENTS_FOR_DISPLAY");
             }
         }
-        if (targetDisplayType != CarInputManager.TARGET_DISPLAY_TYPE_CLUSTER
-                && targetDisplayType != CarInputManager.TARGET_DISPLAY_TYPE_MAIN) {
+        if (targetDisplayType != CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER
+                && targetDisplayType != CarOccupantZoneManager.DISPLAY_TYPE_MAIN) {
             throw new IllegalArgumentException("Unrecognized display type:" + targetDisplayType);
         }
         if (inputTypes == null) {
@@ -488,12 +491,11 @@ public class InputCaptureClientController {
      * Dispatches the given {@code KeyEvent} to a capturing client if there is one.
      *
      * @param displayType the display type defined in {@code CarInputManager} such as
-     *                    {@link CarInputManager#TARGET_DISPLAY_TYPE_MAIN}
-     * @param event the key event to handle
-     *
+     *                    {@link CarOccupantZoneManager#DISPLAY_TYPE_MAIN}
+     * @param event       the key event to handle
      * @return true if the event was consumed.
      */
-    public boolean onKeyEvent(int displayType, KeyEvent event) {
+    public boolean onKeyEvent(@DisplayTypeEnum int displayType, KeyEvent event) {
         if (!SUPPORTED_DISPLAY_TYPES.contains(displayType)) {
             return false;
         }
@@ -518,12 +520,11 @@ public class InputCaptureClientController {
      * Dispatches the given {@code RotaryEvent} to a capturing client if there is one.
      *
      * @param displayType the display type defined in {@code CarInputManager} such as
-     *                    {@link CarInputManager#TARGET_DISPLAY_TYPE_MAIN}
-     * @param event the Rotary event to handle
-     *
+     *                    {@link CarOccupantZoneManager#DISPLAY_TYPE_MAIN}
+     * @param event       the Rotary event to handle
      * @return true if the event was consumed.
      */
-    public boolean onRotaryEvent(int displayType, RotaryEvent event) {
+    public boolean onRotaryEvent(@DisplayTypeEnum int displayType, RotaryEvent event) {
         if (!SUPPORTED_DISPLAY_TYPES.contains(displayType)) {
             Log.w(TAG, "onRotaryEvent for not supported display:" + displayType);
             return false;
@@ -725,7 +726,8 @@ public class InputCaptureClientController {
         });
     }
 
-    private void dispatchCustomInputEvent(int targetDisplayType, CustomInputEvent event,
+    private void dispatchCustomInputEvent(@DisplayTypeEnum int targetDisplayType,
+            CustomInputEvent event,
             ICarInputCallback callback) {
         if (DBG_DISPATCH) {
             Log.d(TAG, "dispatchCustomInputEvent:" + event);
