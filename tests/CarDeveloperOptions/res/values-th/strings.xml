@@ -355,7 +355,7 @@
     <string name="security_enable_widgets_title" msgid="1701510007926738088">"เปิดใช้งานวิดเจ็ต"</string>
     <string name="security_enable_widgets_disabled_summary" msgid="4408176087132339331">"ปิดใช้โดยผู้ดูแลระบบ"</string>
     <string name="lockdown_settings_title" msgid="4534779922580115990">"แสดงตัวเลือกการปิดล็อก"</string>
-    <string name="lockdown_settings_summary" msgid="7270756909878256174">"แสดงตัวเลือกปุ่มเปิด/ปิดที่จะปิด Smart Lock การปลดล็อกด้วยลายนิ้วมือ และการแจ้งเตือนในหน้าจอล็อก"</string>
+    <string name="lockdown_settings_summary" msgid="7270756909878256174">"แสดงตัวเลือกปุ่มเปิด/ปิดที่จะปิด Smart Lock, การปลดล็อกด้วยลายนิ้วมือ และการแจ้งเตือนในหน้าจอล็อก"</string>
     <string name="trust_agents_extend_unlock_title" msgid="3582017561316089951">"เอเจนต์ความน่าเชื่อถือขยายเฉพาะการปลดล็อก"</string>
     <string name="trust_agents_extend_unlock_summary" msgid="3543997596586078084">"หากเปิดใช้ เอเจนต์ความน่าเชื่อถือจะปลดล็อกอุปกรณ์ค้างไว้นานขึ้น แต่จะปลดล็อกอุปกรณ์ที่ล็อกอยู่ไม่ได้อีกต่อไป"</string>
     <string name="trust_lost_locks_screen_title" msgid="3094736590690459372">"หน้าจอล็อกเมื่อสภาพแวดล้อมไม่น่าเชื่อถือ"</string>
@@ -914,7 +914,7 @@
     <string name="wifi_ip_address" msgid="5572539114989914831">"ที่อยู่ IP"</string>
     <string name="passpoint_label" msgid="7429247462404128615">"บันทึกผ่านทาง"</string>
     <string name="passpoint_content" msgid="340527524510304327">"ข้อมูลรับรองของ <xliff:g id="NAME">%1$s</xliff:g>"</string>
-    <string name="wifi_eap_method" msgid="3752116941487485859">"วิธีการ EAP"</string>
+    <string name="wifi_eap_method" msgid="3752116941487485859">"เมธอด EAP"</string>
     <string name="please_select_phase2" msgid="5848080896810435677">"การตรวจสอบสิทธิ์เฟส 2"</string>
     <string name="wifi_eap_ca_cert" msgid="1496395241849383785">"ใบรับรอง CA"</string>
     <string name="wifi_eap_domain" msgid="3298302320003640130">"โดเมน"</string>
@@ -935,10 +935,10 @@
     <string name="wifi_privacy_settings" msgid="4462092795794247809">"ความเป็นส่วนตัว"</string>
     <string name="wifi_privacy_settings_ephemeral_summary" msgid="2411375348287064283">"MAC แบบสุ่ม"</string>
     <string name="wifi_dpp_add_device_to_network" msgid="8871041525483253430">"เพิ่มอุปกรณ์"</string>
-    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"ถือให้โค้ด QR อยู่กลางช่องด้านล่างเพื่อเพิ่มอุปกรณ์ไปยัง “<xliff:g id="SSID">%1$s</xliff:g>”"</string>
+    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"ให้คิวอาร์โค้ดอยู่กลางช่องด้านล่างเพื่อเพิ่มอุปกรณ์ไปยัง “<xliff:g id="SSID">%1$s</xliff:g>”"</string>
     <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"สแกนคิวอาร์โค้ด"</string>
-    <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"ถือให้โค้ด QR อยู่กลางช่องด้านล่างเพื่อเชื่อมต่อไปยัง “<xliff:g id="SSID">%1$s</xliff:g>”"</string>
-    <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"เข้าร่วม Wi‑Fi โดยการสแกนคิวอาร์โค้ด"</string>
+    <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"ให้คิวอาร์โค้ดอยู่กลางช่องด้านล่างเพื่อเชื่อมต่อไปยัง “<xliff:g id="SSID">%1$s</xliff:g>”"</string>
+    <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"ร่วมใช้ Wi‑Fi โดยการสแกนคิวอาร์โค้ด"</string>
     <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"แชร์ Wi‑Fi"</string>
     <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"สแกนคิวอาร์โค้ดนี้เพื่อเชื่อมต่อกับ “<xliff:g id="SSID">%1$s</xliff:g>” และแชร์รหัสผ่าน"</string>
     <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"สแกนคิวอาร์โค้ดนี้เพื่อเชื่อมต่อกับ “<xliff:g id="SSID">%1$s</xliff:g>”"</string>
@@ -1337,7 +1337,7 @@
     <string name="status_number_sim_slot" product="tablet" msgid="4518232285651165459">"MDN (ช่องซิม %1$d)"</string>
     <string name="status_number_sim_slot" product="default" msgid="3660851494421332328">"หมายเลขโทรศัพท์ (ช่องซิม %1$d)"</string>
     <string name="status_number_sim_status" product="tablet" msgid="8069693515860290952">"MDN ในซิม"</string>
-    <string name="status_number_sim_status" product="default" msgid="6602562692270457610">"หมายเลขโทรศัพท์ในซิม"</string>
+    <string name="status_number_sim_status" product="default" msgid="6602562692270457610">"หมายเลขโทรศัพท์ของซิม"</string>
     <string name="status_min_number" msgid="8346889546673707777">"นาที"</string>
     <string name="status_msid_number" msgid="7808175928664357661">"MSID"</string>
     <string name="status_prl_version" msgid="5634561205739199042">"รุ่น PRL"</string>
@@ -1656,7 +1656,7 @@
     </plurals>
     <string name="location_category_recent_location_access" msgid="286059523360285026">"การเข้าถึงตำแหน่งล่าสุด"</string>
     <string name="location_recent_location_access_view_details" msgid="2051602261436245905">"ดูรายละเอียด"</string>
-    <string name="location_no_recent_apps" msgid="77502059586413278">"ไม่มีแอปใดทำการขอตำแหน่งเมื่อเร็วๆ นี้"</string>
+    <string name="location_no_recent_apps" msgid="77502059586413278">"ไม่มีแอปใดขอตำแหน่งเมื่อเร็วๆ นี้"</string>
     <string name="location_no_recent_accesses" msgid="6289916310397279890">"ไม่มีแอปที่เข้าถึงตำแหน่งเมื่อเร็วๆ นี้"</string>
     <string name="location_high_battery_use" msgid="7177199869979522663">"ใช้แบตเตอรี่มาก"</string>
     <string name="location_low_battery_use" msgid="5030448574501435888">"ใช้แบตเตอรี่น้อย"</string>
@@ -2038,7 +2038,7 @@
     <string name="accessibility_settings_title" msgid="1687226556576913576">"การตั้งค่าการเข้าถึง"</string>
     <string name="accessibility_settings_summary" msgid="5742379519336396561">"โปรแกรมอ่านหน้าจอ การแสดงผล ส่วนควบคุมการโต้ตอบ"</string>
     <string name="vision_settings_title" msgid="7315352351051423944">"การตั้งค่าการมองเห็น"</string>
-    <string name="vision_settings_description" msgid="3476589459009287332">"คุณสามารถปรับแต่งอุปกรณ์นี้ให้ตรงกับความต้องการของคุณ และเปลี่ยนฟีเจอร์การเข้าถึงเหล่านี้ได้ภายหลังในการตั้งค่า"</string>
+    <string name="vision_settings_description" msgid="3476589459009287332">"คุณปรับแต่งอุปกรณ์นี้ให้ตรงกับความต้องการได้ และเปลี่ยนฟีเจอร์การช่วยเหลือพิเศษเหล่านี้ได้ภายหลังในการตั้งค่า"</string>
     <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"เปลี่ยนขนาดแบบอักษร"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"โปรแกรมอ่านหน้าจอ"</string>
     <string name="audio_and_captions_category_title" msgid="6140472938769619212">"เสียงและข้อความบนหน้าจอ"</string>
@@ -2048,7 +2048,7 @@
     <string name="experimental_category_title" msgid="3797000069740110717">"ทดสอบ"</string>
     <string name="feature_flags_dashboard_title" msgid="3153034144122754381">"แฟล็กฟีเจอร์"</string>
     <string name="talkback_title" msgid="3717960404234260050">"TalkBack"</string>
-    <string name="talkback_summary" msgid="6602857105831641574">"โปรแกรมอ่านหน้าจอที่ใช้สำหรับคนตาบอดหรือผู้มีสายตาบกพร่อง"</string>
+    <string name="talkback_summary" msgid="6602857105831641574">"โปรแกรมอ่านหน้าจอที่ใช้สำหรับคนตาบอดหรือผู้มีสายตาบกพร่องเป็นหลัก"</string>
     <string name="select_to_speak_summary" msgid="7514180457557735421">"แตะรายการบนหน้าจอเพื่อฟังการอ่านออกเสียง"</string>
     <string name="accessibility_captioning_title" msgid="5878371993023439642">"คำบรรยาย"</string>
     <string name="accessibility_screen_magnification_title" msgid="7250949681883917360">"การขยาย"</string>
@@ -2195,8 +2195,8 @@
     <string name="print_settings" msgid="7886184656544483072">"การพิมพ์"</string>
     <string name="print_settings_summary_no_service" msgid="634173687975841526">"ปิด"</string>
     <plurals name="print_settings_summary" formatted="false" msgid="7580293760281445137">
-      <item quantity="other">บริการการพิมพ์เปิดอยู่ <xliff:g id="COUNT">%1$d</xliff:g> รายการ</item>
-      <item quantity="one">บริการการพิมพ์เปิดอยู่ 1 รายการ</item>
+      <item quantity="other">บริการพิมพ์เปิดอยู่ <xliff:g id="COUNT">%1$d</xliff:g> รายการ</item>
+      <item quantity="one">บริการพิมพ์เปิดอยู่ 1 รายการ</item>
     </plurals>
     <plurals name="print_jobs_summary" formatted="false" msgid="6180308415569432845">
       <item quantity="other">งานพิมพ์ <xliff:g id="COUNT">%1$d</xliff:g> รายการ</item>
@@ -2299,7 +2299,7 @@
     </plurals>
     <plurals name="battery_tip_restrict_summary" formatted="false" msgid="984148373944071669">
       <item quantity="other">แอป %2$d แอปใช้แบตเตอรี่ในเบื้องหลังเปลือง</item>
-      <item quantity="one">แอป %1$s แอปใช้แบตเตอรี่ในเบื้องหลังเปลือง</item>
+      <item quantity="one">%1$s ใช้แบตเตอรี่ในเบื้องหลังเปลือง</item>
     </plurals>
     <plurals name="battery_tip_restrict_handled_summary" formatted="false" msgid="469696766640020557">
       <item quantity="other">แอปเหล่านี้ทำงานในเบื้องหลังไม่ได้</item>
@@ -2455,7 +2455,7 @@
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"จะเปิดเมื่อเหลือแบตเตอรี่ <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"ตั้งกำหนดการ"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"ปิดเมื่อชาร์จเต็มแล้ว"</string>
-    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"โหมดประหยัดแบตเตอรี่จะปิดเมื่อแบตเตอรี่โทรศัพท์อยู่ที่ <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
+    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"โหมดประหยัดแบตเตอรี่จะปิดเมื่อมีแบตเตอรี่โทรศัพท์อยู่ที่ <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"โหมดประหยัดแบตเตอรี่จะปิดเมื่อแบตเตอรี่แท็บเล็ตอยู่ที่ <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_sticky_description_new" product="device" msgid="5056520668081504111">"โหมดประหยัดแบตเตอรี่จะปิดเมื่อแบตเตอรี่อุปกรณ์อยู่ที่ <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
@@ -3306,10 +3306,10 @@
     <string name="hide_silent_icons_title" msgid="1070905516921542662">"ซ่อนไอคอนสถานะการแจ้งเตือนแบบไม่มีเสียง"</string>
     <string name="hide_silent_icons_summary" msgid="2624346914488256888">"ซ่อนไอคอนสำหรับการแจ้งเตือนแบบไม่มีเสียงในแถบสถานะ"</string>
     <string name="notification_badging_title" msgid="6311699476970264712">"อนุญาตให้ใช้จุดแจ้งเตือน"</string>
-    <string name="notification_bubbles_title" msgid="9196562435741861317">"ลูกโป่ง"</string>
+    <string name="notification_bubbles_title" msgid="9196562435741861317">"บับเบิล"</string>
     <string name="notification_bubbles_summary" msgid="4624512775901949578">"เข้าถึงเนื้อหาแอปอย่างรวดเร็วได้จากทุกที่โดยใช้ทางลัดแบบลอย"</string>
     <string name="bubbles_feature_education" msgid="8979109826818881018">"การแจ้งเตือนบางรายการและเนื้อหาอื่นอาจแสดงเป็นลูกโป่งในหน้าจอได้ แตะลูกโป่งเพื่อเปิด ลากลูกโป่งลงไปที่ด้านล่างของหน้าจอเพื่อปิด"</string>
-    <string name="bubbles_app_toggle_title" msgid="6401217027603326439">"ลูกโป่ง"</string>
+    <string name="bubbles_app_toggle_title" msgid="6401217027603326439">"บับเบิล"</string>
     <string name="bubbles_app_toggle_summary" msgid="7707611139796553855">"อนุญาตให้ \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" แสดงการแจ้งเตือนบางรายการเป็นลูกโป่ง"</string>
     <string name="bubbles_feature_disabled_dialog_title" msgid="3375452386012079293">"เปิดลูกโป่ง"</string>
     <string name="bubbles_feature_disabled_dialog_text" msgid="326945485806386477">"หากต้องการเปิดลูกโป่งของแอปนี้ คุณต้องเปิดลูกโป่งของอุปกรณ์ก่อน การดำเนินการนี้จะส่งผลต่อแอปอื่นๆ ที่คุณเปิดลูกโป่งไว้ก่อนหน้านี้"</string>
@@ -3435,9 +3435,9 @@
     <string name="notification_channel_sound_title" msgid="7635366839003304745">"เสียง"</string>
     <string name="zen_mode_rule_delete_button" msgid="6763486487220471193">"ลบ"</string>
     <string name="zen_mode_rule_rename_button" msgid="1428130397306726792">"เปลี่ยนชื่อ"</string>
-    <string name="zen_mode_rule_name" msgid="8583652780885724670">"ชื่อกำหนดเวลา"</string>
+    <string name="zen_mode_rule_name" msgid="8583652780885724670">"ชื่อกำหนดการ"</string>
     <string name="zen_mode_rule_name_hint" msgid="6569877315858105901">"ระบุชื่อกำหนดการ"</string>
-    <string name="zen_mode_rule_name_warning" msgid="4773465816059587512">"มีการใช้ชื่อกำหนดเวลานี้แล้ว"</string>
+    <string name="zen_mode_rule_name_warning" msgid="4773465816059587512">"มีการใช้ชื่อกำหนดการนี้แล้ว"</string>
     <string name="zen_mode_add_rule" msgid="7200004557856029928">"เพิ่มอีก"</string>
     <string name="zen_mode_add_event_rule" msgid="1398181272397489506">"เพิ่มกำหนดการตามกิจกรรม"</string>
     <string name="zen_mode_add_time_rule" msgid="5999467757140524729">"เพิ่มกำหนดการตามเวลา"</string>
@@ -3468,11 +3468,11 @@
     <string name="zen_mode_schedule_rule_days" msgid="220627703673691816">"วัน"</string>
     <string name="zen_mode_schedule_rule_days_none" msgid="6011716195119389956">"ไม่มี"</string>
     <string name="zen_mode_schedule_rule_days_all" msgid="8814173364016139675">"ทุกวัน"</string>
-    <string name="zen_mode_schedule_alarm_title" msgid="2078194049274875023">"เวลาปลุกจะแทนที่เวลาสิ้นสุดได้"</string>
-    <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"กำหนดเวลาจะปิดเมื่อนาฬิกาปลุกดังขึ้น"</string>
+    <string name="zen_mode_schedule_alarm_title" msgid="2078194049274875023">"การปลุกจะแทนที่เวลาสิ้นสุดได้"</string>
+    <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"กำหนดการจะปิดเมื่อนาฬิกาปลุกดังขึ้น"</string>
     <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"ลักษณะการทำงานของโหมดห้ามรบกวน"</string>
     <string name="zen_mode_custom_behavior_summary_default" msgid="3509865340195397447">"ใช้การตั้งค่าเริ่มต้น"</string>
-    <string name="zen_mode_custom_behavior_summary" msgid="7206909852887332604">"สร้างการตั้งค่าที่กำหนดเองสำหรับกำหนดเวลานี้"</string>
+    <string name="zen_mode_custom_behavior_summary" msgid="7206909852887332604">"สร้างการตั้งค่าที่กำหนดเองสำหรับกำหนดการนี้"</string>
     <string name="zen_mode_custom_behavior_category_title" msgid="7451686525113262087">"สำหรับ \"<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>\""</string>
     <string name="summary_divider_text" msgid="4780683204694442666">", "</string>
     <string name="summary_range_symbol_combination" msgid="6038631664844488406">"<xliff:g id="START">%1$s</xliff:g> - <xliff:g id="END">%2$s</xliff:g>"</string>
@@ -3712,7 +3712,7 @@
     <string name="high_power_system" msgid="739584574711292753">"การเพิ่มประสิทธิภาพแบตเตอรี่ไม่พร้อมใช้งาน"</string>
     <string name="high_power_desc" msgid="333756885680362741">"ไม่ใช้การเพิ่มประสิทธิภาพแบตเตอรี่ อาจทำให้แบตเตอรี่หมดเร็วยิ่งขึ้น"</string>
     <string name="high_power_prompt_title" msgid="2805745781720454052">"ให้แอปทำงานในพื้นหลังทุกครั้งไหม"</string>
-    <string name="high_power_prompt_body" msgid="8067395096053552289">"การอนุญาตให้ <xliff:g id="APP_NAME">%1$s</xliff:g> ทำงานในพื้นหลังทุกครั้งอาจลดอายุการใช้งานแบตเตอรี่ \n\nคุณสามารถเปลี่ยนการตั้งค่านี้ได้ในภายหลังจากการตั้งค่า &gt; แอปและการแจ้งเตือน"</string>
+    <string name="high_power_prompt_body" msgid="8067395096053552289">"การอนุญาตให้ \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" ทำงานอยู่เบื้องหลังทุกครั้งอาจลดอายุการใช้งานแบตเตอรี่ \n\nคุณเปลี่ยนการตั้งค่านี้ได้ในภายหลังจากการตั้งค่า &gt; แอปและการแจ้งเตือน"</string>
     <string name="battery_summary" msgid="4345690800899981339">"ใช้ <xliff:g id="PERCENTAGE">%1$s</xliff:g> ตั้งแต่ชาร์จจนเต็มครั้งล่าสุด"</string>
     <string name="battery_power_management" msgid="2853925857548647969">"การจัดการพลังงาน"</string>
     <string name="no_battery_summary" msgid="4105932628367471314">"ไม่มีการใช้แบตเตอรี่ตั้งแต่การชาร์จเต็มครั้งล่าสุด"</string>

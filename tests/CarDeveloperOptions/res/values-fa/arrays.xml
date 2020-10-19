@@ -111,7 +111,7 @@
     <item msgid="8247986727324120082">"۲ دقیقه"</item>
     <item msgid="2759776603549270587">"۵ دقیقه"</item>
     <item msgid="167772676068860015">"۱ ساعت"</item>
-    <item msgid="5985477119043628504">"بدون مهلت زمانی"</item>
+    <item msgid="5985477119043628504">"بدون درنگ"</item>
   </string-array>
   <string-array name="bluetooth_max_connected_audio_devices">
     <item msgid="3800257971619063588">"استفاده از پیش‌فرض سیستم: <xliff:g id="DEFAULT_BLUETOOTH_MAX_CONNECTED_AUDIO_DEVICES">%1$d</xliff:g>"</item>
@@ -415,7 +415,7 @@
     <item msgid="8754480102834556765">"آماده سازی..."</item>
     <item msgid="3351334355574270250">"در حال اتصال..."</item>
     <item msgid="8303882153995748352">"متصل"</item>
-    <item msgid="9135049670787351881">"وقفه زمانی"</item>
+    <item msgid="9135049670787351881">"درنگ"</item>
     <item msgid="2124868417182583926">"ناموفق"</item>
   </string-array>
   <string-array name="security_settings_premium_sms_values">

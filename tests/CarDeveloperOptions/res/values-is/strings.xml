@@ -1264,7 +1264,7 @@
     <string name="doze_title" msgid="235269029233857546">"Nýjar tilkynningar"</string>
     <string name="doze_summary" msgid="6762274282827831706">"Vekja skjáinn þegar þú færð tilkynningar"</string>
     <string name="doze_always_on_title" msgid="8555184965031789941">"Alltaf kveikt"</string>
-    <string name="doze_always_on_summary" msgid="7654436900436328950">"Sýna tíma, tilkynningartákn og aðrar upplýsingar. Aukin rafhlöðunotkun."</string>
+    <string name="doze_always_on_summary" msgid="7654436900436328950">"Sýna klukku, tilkynningartákn og aðrar upplýsingar. Aukin rafhlöðunotkun."</string>
     <string name="title_font_size" msgid="5021464556860010851">"Leturstærð"</string>
     <string name="short_summary_font_size" msgid="4141077908728522946">"Gera texta stærri eða minni"</string>
     <string name="sim_lock_settings" msgid="1986924650622642189">"Stillingar SIM-kortaláss"</string>
@@ -2092,7 +2092,7 @@
     <string name="accessibility_autoclick_description" msgid="5492414927846407499">"Ef þú notar mús geturðu stillt bendilinn þannig að hann framkvæmi aðgerð sjálfkrafa þegar hann er óhreyfður í tiltekinn tíma."</string>
     <string name="accessibility_autoclick_delay_preference_title" msgid="8303022510942147049">"Bíða áður en smellt er"</string>
     <string name="accessibility_vibration_settings_title" msgid="1902649657883159406">"Titringur"</string>
-    <string name="accessibility_notification_vibration_title" msgid="1005799039440510298">"Titringur fyrir tilkynningar"</string>
+    <string name="accessibility_notification_vibration_title" msgid="1005799039440510298">"Titringur tilkynninga"</string>
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"Titringur hringingar"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"Snertititringur"</string>
     <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"Nota þjónustu"</string>
@@ -3459,8 +3459,8 @@
     <string name="zen_mode_event_rule_summary_reply_template" msgid="3917497077674876311">"Þar sem svarið er <xliff:g id="REPLY">%1$s</xliff:g>"</string>
     <string name="zen_mode_event_rule_calendar_any" msgid="155915101132859764">"Öll dagatöl"</string>
     <string name="zen_mode_event_rule_reply" msgid="9100941281268256319">"Þar sem svarið er"</string>
-    <string name="zen_mode_event_rule_reply_any_except_no" msgid="3344044163641764449">"„Já“, „Kannski“ eða „Ekki svarað“"</string>
-    <string name="zen_mode_event_rule_reply_yes_or_maybe" msgid="5042234361937256329">"„Já“ eða „Kannski“"</string>
+    <string name="zen_mode_event_rule_reply_any_except_no" msgid="3344044163641764449">"Já, Kannski eða Ekki svarað"</string>
+    <string name="zen_mode_event_rule_reply_yes_or_maybe" msgid="5042234361937256329">"Já eða Kannski"</string>
     <string name="zen_mode_event_rule_reply_yes" msgid="7039756546321205552">"Já"</string>
     <string name="zen_mode_rule_not_found_text" msgid="6553855397424553685">"Regla fannst ekki."</string>
     <string name="zen_mode_rule_summary_enabled_combination" msgid="8269105393636454359">"Kveikt / <xliff:g id="MODE">%1$s</xliff:g>"</string>

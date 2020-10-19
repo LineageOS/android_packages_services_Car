@@ -1246,7 +1246,7 @@
     <string name="adaptive_sleep_summary_off" msgid="2891586225954973431">"Вимкнено"</string>
     <string name="adaptive_sleep_description" msgid="812673735459170009">"Не дає екрану вимикатись, якщо ви на нього дивитесь."</string>
     <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"Розпізнавання уваги за допомогою передньої камери визначає, чи дивиться користувач на екран. Ця функція працює лише на пристрої, не зберігає зображень і не надсилає їх у Google."</string>
-    <string name="night_display_title" msgid="1305002424893349814">"Нічний режим"</string>
+    <string name="night_display_title" msgid="1305002424893349814">"Нічний екран"</string>
     <string name="night_display_text" msgid="5330502493684652527">"У нічному режимі екран набуває бурштинового відтінку. Це знімає напруження очей при тьмяному освітленні та допомагає легше заснути."</string>
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"Розклад"</string>
     <string name="night_display_auto_mode_never" msgid="2897444637217807088">"Ніколи"</string>
@@ -1270,7 +1270,7 @@
     <string name="night_display_activation_off_twilight" msgid="6846727701281556110">"Вимкнути до заходу сонця"</string>
     <string name="night_display_activation_on_custom" msgid="4761140206778957611">"Увімкнути до <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="night_display_activation_off_custom" msgid="4207238846687792731">"Вимкнути до <xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="night_display_not_currently_on" msgid="1436588493764429281">"Нічний режим не ввімкнено"</string>
+    <string name="night_display_not_currently_on" msgid="1436588493764429281">"Нічний екран не ввімкнено"</string>
     <string name="screen_timeout" msgid="1700950247634525588">"Режим сну"</string>
     <string name="screen_timeout_title" msgid="150117777762864112">"Вимикати екран"</string>
     <string name="screen_timeout_summary" msgid="8644192861778491060">"Коли минає <xliff:g id="TIMEOUT_DESCRIPTION">%1$s</xliff:g> бездіяльності"</string>
@@ -2084,7 +2084,7 @@
     <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"Змінити розмір шрифту"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"Програми зчитування з екрана"</string>
     <string name="audio_and_captions_category_title" msgid="6140472938769619212">"Аудіо й текст на екрані"</string>
-    <string name="display_category_title" msgid="545168481672250195">"Дисплей"</string>
+    <string name="display_category_title" msgid="545168481672250195">"Екран"</string>
     <string name="interaction_control_category_title" msgid="8775039211811947683">"Елементи керування взаємодією"</string>
     <string name="user_installed_services_category_title" msgid="4288689493753221319">"Завантажені служби"</string>
     <string name="experimental_category_title" msgid="3797000069740110717">"Експериментальні налаштування"</string>
@@ -2994,7 +2994,7 @@
     <string name="application_restrictions" msgid="6871981013736536763">"Дозволи для програм і вмісту"</string>
     <string name="apps_with_restrictions_header" msgid="8656739605673756176">"Програми з обмеженнями"</string>
     <string name="apps_with_restrictions_settings_button" msgid="5065896213467171744">"Розгорнути налаштув. програм"</string>
-    <string name="nfc_payment_settings_title" msgid="5070077706735415291">"Натиснути й оплатити"</string>
+    <string name="nfc_payment_settings_title" msgid="5070077706735415291">"Експрес-платежі"</string>
     <string name="nfc_payment_how_it_works" msgid="7607901964687787177">"Як це працює"</string>
     <string name="nfc_payment_no_apps" msgid="8844440783395420860">"Оплачуйте покупки за допомогою телефона"</string>
     <string name="nfc_payment_default" msgid="7869273092463612271">"Додаток для платежів за умовчанням"</string>
@@ -3702,7 +3702,7 @@
     <string name="storage_type_internal" msgid="4434212376539293892">"Внутрішня пам’ять"</string>
     <string name="storage_type_external" msgid="8827468573685648108">"Зовнішня пам’ять"</string>
     <string name="data_summary_format" msgid="5022135392347814271">"З <xliff:g id="DATE">%2$s</xliff:g> використано <xliff:g id="SIZE">%1$s</xliff:g>"</string>
-    <string name="storage_used" msgid="2457948583478332647">"Використано пам’яті"</string>
+    <string name="storage_used" msgid="2457948583478332647">"Використане сховище"</string>
     <string name="change" msgid="41563753961948554">"Змінити"</string>
     <string name="change_storage" msgid="2064045078609862770">"Змінити пам’ять"</string>
     <string name="notifications_label" msgid="2792398288062643318">"Сповіщення"</string>
@@ -3860,8 +3860,8 @@
     <string name="usb_pref" msgid="6194821550693495068">"USB"</string>
     <string name="usb_preference" msgid="7092987095048592826">"Параметри USB"</string>
     <string name="usb_control_title" msgid="2379698856760894768">"USB керує"</string>
-    <string name="usb_control_host" msgid="193292043691034178">"Підключений пристрій"</string>
-    <string name="usb_control_device" msgid="9154790265254725254">"Цей пристрій"</string>
+    <string name="usb_control_host" msgid="193292043691034178">"Підключеним пристроєм"</string>
+    <string name="usb_control_device" msgid="9154790265254725254">"Цим пристроєм"</string>
     <string name="usb_switching" msgid="1230386065163529904">"Змінюється…"</string>
     <string name="usb_switching_failed" msgid="6857722544186145439">"Не вдалося змінити"</string>
     <string name="usb_summary_charging_only" msgid="4118449308708872339">"Заряджання пристрою"</string>
@@ -4028,9 +4028,9 @@
     <string name="condition_device_muted_summary" msgid="3101055117680109021">"Для викликів і сповіщень"</string>
     <string name="condition_device_vibrate_title" msgid="5712659354868872338">"Лише вібрація"</string>
     <string name="condition_device_vibrate_summary" msgid="9073880731894828604">"Для викликів і сповіщень"</string>
-    <string name="night_display_suggestion_title" msgid="4222839610992282188">"Налаштувати графік нічного режиму"</string>
+    <string name="night_display_suggestion_title" msgid="4222839610992282188">"Налаштувати графік функції \"Нічний екран\""</string>
     <string name="night_display_suggestion_summary" msgid="1754361016383576916">"Автоматично відтіняти екран щовечора"</string>
-    <string name="condition_night_display_title" msgid="9171491784857160135">"Нічне освітлення ввімкнено"</string>
+    <string name="condition_night_display_title" msgid="9171491784857160135">"Нічний екран увімкнено"</string>
     <string name="condition_night_display_summary" msgid="7885776986937527558">"Відтінок екрана змінено на бурштиновий"</string>
     <string name="condition_grayscale_title" msgid="1226351649203551299">"Відтінки сірого"</string>
     <string name="condition_grayscale_summary" msgid="749172886527349546">"Відображати все в сірому кольорі"</string>
@@ -4464,7 +4464,7 @@
     <string name="change_wifi_state_title" msgid="5140754955787584174">"Керування Wi-Fi"</string>
     <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"Дозволити додатку керувати Wi-Fi"</string>
     <string name="change_wifi_state_app_detail_summary" msgid="614854822469259860">"Дозволити цьому додатку вмикати чи вимикати Wi-Fi, шукати мережі Wi-Fi та підключатися до них, додавати або видаляти мережі чи запускати лише локальну точку доступу"</string>
-    <string name="media_output_title" msgid="8710632337456601848">"Відтворювати медіа-вміст у додатку"</string>
+    <string name="media_output_title" msgid="8710632337456601848">"Відтворення медіаконтенту"</string>
     <string name="media_output_default_summary" msgid="3159237976830415584">"Цей пристрій"</string>
     <string name="media_output_summary" product="default" msgid="6294261435613551178">"Телефон"</string>
     <string name="media_output_summary" product="tablet" msgid="6672024060360538526">"Планшет"</string>

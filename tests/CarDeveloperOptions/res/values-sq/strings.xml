@@ -1125,7 +1125,7 @@
     <string name="musicfx_title" msgid="6456079041566773649">"Efektet e muzikës"</string>
     <string name="ring_volume_title" msgid="5874791723449821646">"Volumi i ziles"</string>
     <string name="vibrate_in_silent_title" msgid="2314667015729841220">"Dridhje kur është \"në heshtje\""</string>
-    <string name="notification_sound_title" msgid="6812164482799723931">"Zëri i parazgjedhur i njoftimit"</string>
+    <string name="notification_sound_title" msgid="6812164482799723931">"Tingulli i parazgjedhur i njoftimit"</string>
     <string name="incoming_call_volume_title" msgid="4736570528754310450">"Toni i ziles"</string>
     <string name="notification_volume_title" msgid="6022562909288085275">"Njoftimi"</string>
     <string name="checkbox_notification_same_as_incoming_call" msgid="7312942422655861175">"Përdor volumin e telefonatës hyrëse për njoftime"</string>
@@ -1309,7 +1309,7 @@
     <string name="pin_failed" msgid="4877356137480446727">"Operac. kodit PIN të kartës SIM dështoi!"</string>
     <string name="system_update_settings_list_item_title" msgid="1907497454722790033">"Përditësimet e sistemit"</string>
     <string name="system_update_settings_list_item_summary" msgid="3497456690691907873"></string>
-    <string name="firmware_version" msgid="547095584029938749">"Versioni i Android-it"</string>
+    <string name="firmware_version" msgid="547095584029938749">"Versioni i Android"</string>
     <string name="security_patch" msgid="483709031051932208">"Niveli i korrigjimit të sigurisë së Android"</string>
     <string name="model_info" msgid="1729765474260797594">"Modeli"</string>
     <string name="model_summary" msgid="8781425868254352168">"Modeli: %1$s"</string>
@@ -2280,7 +2280,7 @@
     <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"Aktivizo \"Kursyesin e baterisë\""</string>
     <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"Bateria mund të mbarojë më herët se zakonisht"</string>
     <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"\"Kursyesi i baterisë\" është i aktivizuar"</string>
-    <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"Disa funksione mund të jenë të kufizuara"</string>
+    <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"Disa veçori mund të jenë të kufizuara"</string>
     <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"Telefoni është përdorur më shumë se zakonisht"</string>
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"Tableti është përdorur më shumë se zakonisht"</string>
     <string name="battery_tip_high_usage_title" product="device" msgid="8304138287288309490">"Pajisja është përdorur më shumë se zakonisht"</string>
@@ -2921,11 +2921,11 @@
     <string name="nfc_payment_default_not_set" msgid="955804193510335338">"Nuk është caktuar"</string>
     <string name="nfc_payment_app_and_desc" msgid="102312684211458190">"<xliff:g id="APP">%1$s</xliff:g> - <xliff:g id="DESCRIPTION">%2$s</xliff:g>"</string>
     <string name="nfc_payment_use_default" msgid="3098724195746409476">"Përdor opsionin e parazgjedhur"</string>
-    <string name="nfc_payment_favor_default" msgid="7555356982142464260">"Gjithmonë!"</string>
+    <string name="nfc_payment_favor_default" msgid="7555356982142464260">"Gjithmonë"</string>
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Përveçse kur është i hapur një aplikacion tjetër pagese"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"Në terminalin \"Prek dhe paguaj\", paguaj me:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Pagesa në terminal"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Konfiguro një aplikacion pagese. Më pas thjesht mbaj shtypur pjesën e pasme të telefonit me një terminal me simbolin e pagesave pa kontakt."</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Konfiguro një aplikacion pagese. Më pas thjesht mbaje pjesën e pasme të telefonit te një terminal me simbolin e pagesave pa kontakt."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"E kuptova!"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"Më shumë..."</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"Të caktohet si preferencë?"</string>
@@ -3007,7 +3007,7 @@
     <string name="sim_editor_number" msgid="1757338150165234970">"Numri"</string>
     <string name="sim_editor_color" msgid="373059962306191123">"Ngjyra e kartës SIM"</string>
     <string name="sim_card_select_title" msgid="4925862525985187946">"Zgjidh kartën SIM"</string>
-    <string name="color_orange" msgid="3159707916066563431">"portokalli"</string>
+    <string name="color_orange" msgid="3159707916066563431">"Portokalli"</string>
     <string name="color_purple" msgid="4391440966734810713">"Vjollcë"</string>
     <string name="sim_no_inserted_msg" msgid="1197884607569714609">"Nuk janë futur karta SIM"</string>
     <string name="sim_status_title" msgid="4483653750844520871">"Statusi i kartës SIM"</string>
@@ -3128,7 +3128,7 @@
     <string name="keywords_ring_vibration" msgid="4210509151866460210">"prekje, dridhje, telefon, telefonatë, ndjeshmëri, zile"</string>
     <string name="keywords_notification_vibration" msgid="1077515502086745166">"prekje, dridhje, ndjeshmëri"</string>
     <string name="keywords_battery_saver_sticky" msgid="8733804259716284872">"kursyesi i baterisë, i ngjitur, vazhdoj, kursyesi i energjisë, bateria"</string>
-    <string name="default_sound" msgid="6675629744816442953">"Zëri i parazgjedhur"</string>
+    <string name="default_sound" msgid="6675629744816442953">"Tingulli i parazgjedhur"</string>
     <string name="sound_settings_summary" msgid="8467549670633195109">"Volumi i ziles në <xliff:g id="PERCENTAGE">%1$s</xliff:g>"</string>
     <string name="sound_dashboard_summary" msgid="5187301919242823508">"Volum, dridhje, \"Mos shqetëso\""</string>
     <string name="sound_settings_summary_vibrate" msgid="2194491116884798590">"Zilja u caktua me dridhje"</string>
@@ -3141,7 +3141,7 @@
     <string name="ring_volume_option_title" msgid="2038924918468372264">"Volumi i ziles"</string>
     <string name="notification_volume_option_title" msgid="1358512611511348260">"Volumi i njoftimit"</string>
     <string name="ringtone_title" msgid="1409086028485922583">"Zilja e telefonit"</string>
-    <string name="notification_ringtone_title" msgid="2932960620843976285">"Zëri i parazgjedhur i njoftimit"</string>
+    <string name="notification_ringtone_title" msgid="2932960620843976285">"Tingulli i parazgjedhur i njoftimit"</string>
     <string name="notification_unknown_sound_title" msgid="8043718667804838398">"Tingulli i dhënë nga aplikacioni"</string>
     <string name="notification_sound_default" msgid="2664544380802426260">"Tingulli i parazgjedhur i njoftimit"</string>
     <string name="alarm_ringtone_title" msgid="6411326147408635902">"Tingulli i parazgjedhur i alarmit"</string>
@@ -3149,7 +3149,7 @@
     <string name="other_sound_settings" msgid="5250376066099818676">"Tinguj të tjerë"</string>
     <string name="dial_pad_tones_title" msgid="8877212139988655769">"Tonet e bllokut të tasteve"</string>
     <string name="screen_locking_sounds_title" msgid="4407110895465866809">"Tingujt e kyçjes së ekranit"</string>
-    <string name="charging_sounds_title" msgid="5070437987230894287">"Tingujt dhe dridhja e ngarkimit"</string>
+    <string name="charging_sounds_title" msgid="5070437987230894287">"Tingujt dhe dridhja e karikimit"</string>
     <string name="docking_sounds_title" msgid="2573137471605541366">"Tingujt e stacionimit"</string>
     <string name="touch_sounds_title" msgid="165237488496165652">"Tingujt e prekjes"</string>
     <string name="vibrate_on_touch_title" msgid="6360155469279157684">"Dridhje për prekjen"</string>
@@ -3555,7 +3555,7 @@
     <string name="switch_on_text" msgid="7100491749799298324">"Aktivizuar"</string>
     <string name="switch_off_text" msgid="3539551289454353555">"Joaktiv"</string>
     <string name="screen_pinning_title" msgid="578020318289781102">"Gozhdimi i ekranit"</string>
-    <string name="screen_pinning_description" msgid="3814537379086412278">"Kur ky funksion është i aktivizuar, mund të përdorësh gozhdimin e ekranit për të mbajtur pamjen aktuale të ekranit deri sa ta anulosh gozhdimin.\n\nPër të përdorur gozhdimin e ekranit:\n\n1. Sigurohu që gozhdimi i ekranit është i aktivizuar\n\n2. Hap \"Përmbledhja\"\n\n3. Trokit tek ikona e aplikacionit në krye të ekranit dhe më pas trokit te \"Gozhdo\""</string>
+    <string name="screen_pinning_description" msgid="3814537379086412278">"Kur ky cilësim është i aktivizuar, mund të përdorësh gozhdimin e ekranit për të mbajtur pamjen aktuale të ekranit deri sa ta anulosh gozhdimin.\n\nPër të përdorur gozhdimin e ekranit:\n\n1. Sigurohu që gozhdimi i ekranit është i aktivizuar\n\n2. Hap \"Përmbledhja\"\n\n3. Trokit tek ikona e aplikacionit në krye të ekranit dhe më pas trokit te \"Gozhdo\""</string>
     <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"Kërko motivin e shkyçjes para anulimit të mbërthimit"</string>
     <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"Zhgozhdimi kërkon PIN-in"</string>
     <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"Kërko fjalëkalim para heqjes nga gozhdimi"</string>
@@ -3728,7 +3728,7 @@
     <string name="decline_remote_bugreport_action" msgid="706319275774199033">"Refuzo"</string>
     <string name="usb_use_charging_only" msgid="2344625733377110164">"Nuk ka transferim të të dhënave"</string>
     <string name="usb_use_charging_only_desc" msgid="3283518562582478950">"Vetëm karikoje këtë pajisje"</string>
-    <string name="usb_use_power_only" msgid="6595783381323810697">"Ngarko pajisjen e lidhur"</string>
+    <string name="usb_use_power_only" msgid="6595783381323810697">"Kariko pajisjen e lidhur"</string>
     <string name="usb_use_file_transfers" msgid="6153021302176151884">"Transferimi i skedarëve"</string>
     <string name="usb_use_file_transfers_desc" msgid="6953866660041189580">"Transfero skedarët te një pajisje tjetër"</string>
     <string name="usb_use_photo_transfers" msgid="5974236250197451257">"PTP"</string>
