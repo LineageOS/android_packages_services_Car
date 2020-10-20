@@ -101,8 +101,6 @@ cc_library_static {
 cc_binary {
     name: "android.automotive.evs.manager@1.1",
 
-    overrides: ["cameraserver"],
-
     defaults: ["android.automotive.evs.manager_defaults"],
 
     srcs: [
