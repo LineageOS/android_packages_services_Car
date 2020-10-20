@@ -78,8 +78,6 @@ cc_library {
 cc_binary {
     name: "android.automotive.evs.manager@1.1",
 
-    overrides: ["cameraserver"],
-
     srcs: [
         "Enumerator.cpp",
         "HalCamera.cpp",
