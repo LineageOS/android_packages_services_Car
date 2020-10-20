@@ -36,8 +36,8 @@ cc_library {
         "liblog",
         "libnativewindow",
         "libutils",
-        "android.automotive.computepipe.runner-ndk_platform",
-        "android.automotive.computepipe.registry-ndk_platform",
+        "android.automotive.computepipe.runner-unstable-ndk_platform",
+        "android.automotive.computepipe.registry-unstable-ndk_platform",
         "libprotobuf-cpp-lite",
     ],
     include_dirs: [
