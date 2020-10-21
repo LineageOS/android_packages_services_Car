@@ -26,9 +26,9 @@
       <item quantity="other">اب آپ ایک ڈویلپر بننے سے <xliff:g id="STEP_COUNT_1">%1$d</xliff:g> قدم دور ہیں۔</item>
       <item quantity="one">اب آپ ایک ڈویلپر بننے سے <xliff:g id="STEP_COUNT_0">%1$d</xliff:g> قدم دور ہیں۔</item>
     </plurals>
-    <string name="show_dev_on" msgid="9075712234786224065">"اب آپ ایک ڈیولپر ہیں!"</string>
-    <string name="show_dev_already" msgid="7665948832405148689">"کوئی ضرورت نہیں ہے، آپ پہلے سے ہی ایک ڈیولپر ہیں۔"</string>
-    <string name="dev_settings_disabled_warning" msgid="3198732189395396721">"براہ کرم پہلے ڈیولپر کے اختیارات فعال کریں"</string>
+    <string name="show_dev_on" msgid="9075712234786224065">"اب آپ ایک ڈویلپر ہیں!"</string>
+    <string name="show_dev_already" msgid="7665948832405148689">"کوئی ضرورت نہیں ہے، آپ پہلے سے ہی ایک ڈویلپر ہیں۔"</string>
+    <string name="dev_settings_disabled_warning" msgid="3198732189395396721">"براہ کرم پہلے ڈویلپر کے اختیارات فعال کریں"</string>
     <string name="header_category_wireless_networks" msgid="8968405993937795898">"وائرلیس اور نیٹ ورکس"</string>
     <string name="header_category_system" msgid="4045988717359334410">"سسٹم"</string>
     <string name="radio_info_data_connection_enable" msgid="2554249462719717119">"ڈیٹا کنکشن فعال کریں"</string>
@@ -2563,7 +2563,7 @@
     <string name="backup_erase_dialog_title" msgid="8178424339104463014"></string>
     <string name="backup_erase_dialog_message" msgid="8767843355330070902">"اپنے Wi‑Fi پاس ورڈز، بُک مارکس، دوسری ترتیبات اور ایپ کے ڈیٹا کا بیک اپ لینا بند کریں، ساتھ ہی Google سرورز پر موجود سبھی کاپیاں حذف کریں۔"</string>
     <string name="fullbackup_erase_dialog_message" msgid="2588536036471144070">"آلہ کے ڈیٹا (جیسے کہ Wi-Fi پاس ورڈز اور کال کی سرگزشت) اور ایپ ڈیٹا (جیسے کہ ایپس کی جانب سے اسٹور کردہ ترتیبات اور فائلز) کا بیک اپ لینا بند کریں، نیز ریموٹ سرورز پر موجود سبھی کاپیاں مٹائیں؟"</string>
-    <string name="fullbackup_data_summary" msgid="406274198094268556">"خودکار طریقے سے دور سے آلہ کے ڈیٹا (جیسے کہ Wi-Fi پاس ورڈز اور کال کی سرگزشت) اور ایپ ڈیٹا (جیسے کہ ایپس کی جانب سے اسٹور کردہ ترتیبات اور فائلز) کا بیک اپ لیں۔\n\nجب آپ خودکار بیک اپ آن کرتے ہیں تو آلہ اور ایپ کا ڈیٹا وقفہ وقفہ پر دور سے محفوظ کیا جاتا ہے۔ ممکنہ طور پر حساس ڈیٹا مثلاً رابطے، پیغامات اور تصاویر سمیت ایپ ڈیٹا کوئی بھی ایسا ڈیٹا ہو سکتا ہے جسے کسی ایپ نے (ڈیولپر ترتیبات کی بنیاد پر) محفوظ کیا ہو۔"</string>
+    <string name="fullbackup_data_summary" msgid="406274198094268556">"خودکار طریقے سے دور سے آلہ کے ڈیٹا (جیسے کہ Wi-Fi پاس ورڈز اور کال کی سرگزشت) اور ایپ ڈیٹا (جیسے کہ ایپس کی جانب سے اسٹور کردہ ترتیبات اور فائلز) کا بیک اپ لیں۔\n\nجب آپ خودکار بیک اپ آن کرتے ہیں تو آلہ اور ایپ کا ڈیٹا وقفہ وقفہ پر دور سے محفوظ کیا جاتا ہے۔ ممکنہ طور پر حساس ڈیٹا مثلاً رابطے، پیغامات اور تصاویر سمیت ایپ ڈیٹا کوئی بھی ایسا ڈیٹا ہو سکتا ہے جسے کسی ایپ نے (ڈویلپر ترتیبات کی بنیاد پر) محفوظ کیا ہو۔"</string>
     <string name="device_admin_settings_title" msgid="2074319456047334589">"آلہ کے منتظم کی ترتیبات"</string>
     <string name="active_device_admin_msg" msgid="6929247869516924549">"آلہ کے منتظم کی ایپ"</string>
     <string name="remove_device_admin" msgid="4413438593788336400">"آلہ کے منتظم کی یہ ایپ غیر فعال کریں"</string>
@@ -4076,7 +4076,7 @@
     <string name="dark_ui_mode_title" msgid="8774932716427742413">"تھیم منتخب کریں"</string>
     <string name="dark_ui_settings_light_summary" msgid="5219102347744462812">"اس ترتیب کا اطلاق ایپس پر بھی ہوتا ہے"</string>
     <string name="dark_ui_settings_dark_summary" msgid="7042737828943784289">"تعاون یافتہ ایپس بھی گہری تھیم پر سوئچ ہو جائیں گی"</string>
-    <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"فوری ترتیبات کے ڈیولپر ٹائلز"</string>
+    <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"فوری ترتیبات کے ڈویلپر ٹائلز"</string>
     <string name="winscope_trace_quick_settings_title" msgid="940971040388411374">"Winscope ٹریس"</string>
     <string name="sensors_off_quick_settings_title" msgid="3655699045300438902">"سینسرز آف ہیں"</string>
     <string name="managed_profile_settings_title" msgid="4340409321523532402">"دفتری پروفائل کی ترتیبات"</string>
