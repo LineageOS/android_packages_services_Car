@@ -16,6 +16,7 @@
 package com.android.car.developeroptions.development;
 
 import android.content.Context;
+import android.os.UserHandle;
 import android.provider.Settings;
 
 import androidx.annotation.VisibleForTesting;
@@ -47,24 +48,31 @@ public class AppsNotRespondingPreferenceController extends DeveloperOptionsPrefe
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         final boolean isEnabled = (Boolean) newValue;
-        Settings.Secure.putInt(mContext.getContentResolver(),
+        // Set for system user since Android framework will read it as that user.
+        // Note that this will enable/disable this option for all users.
+        Settings.Secure.putIntForUser(mContext.getContentResolver(),
                 Settings.Secure.ANR_SHOW_BACKGROUND,
-                isEnabled ? SETTING_VALUE_ON : SETTING_VALUE_OFF);
+                isEnabled ? SETTING_VALUE_ON : SETTING_VALUE_OFF,
+                UserHandle.SYSTEM.getIdentifier());
         return true;
     }
 
     @Override
     public void updateState(Preference preference) {
-        final int mode = Settings.Secure.getInt(mContext.getContentResolver(),
-                Settings.Secure.ANR_SHOW_BACKGROUND, SETTING_VALUE_OFF);
+        final int mode = Settings.Secure.getIntForUser(mContext.getContentResolver(),
+                Settings.Secure.ANR_SHOW_BACKGROUND,
+                SETTING_VALUE_OFF, UserHandle.SYSTEM.getIdentifier());
         ((SwitchPreference) mPreference).setChecked(mode != SETTING_VALUE_OFF);
     }
 
     @Override
     protected void onDeveloperOptionsSwitchDisabled() {
         super.onDeveloperOptionsSwitchDisabled();
-        Settings.Secure.putInt(mContext.getContentResolver(),
-                Settings.Secure.ANR_SHOW_BACKGROUND, SETTING_VALUE_OFF);
+        // Set for system user since Android framework will read it as that user.
+        // Note that this will enable/disable this option for all users.
+        Settings.Secure.putIntForUser(mContext.getContentResolver(),
+                Settings.Secure.ANR_SHOW_BACKGROUND,
+                SETTING_VALUE_OFF, UserHandle.SYSTEM.getIdentifier());
         ((SwitchPreference) mPreference).setChecked(false);
     }
 }
