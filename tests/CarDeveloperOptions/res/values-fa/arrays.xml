@@ -402,9 +402,9 @@
     <item msgid="6566768880689730097">"PPTP VPN"</item>
     <item msgid="1349760781118368659">"L2TP/IPSec VPN با کلیدهای از قبل به اشتراک گذاشته شده"</item>
     <item msgid="6128519070545038358">"L2TP/IPSec VPN با گواهی"</item>
-    <item msgid="312397853907741968">"IPSec VPN با کلیدهای از قبل به اشتراک گذاشته شده و احراز هویت Xauth"</item>
-    <item msgid="3319427315593649917">"IPSec VPN با گواهی و احراز هویت Xauth"</item>
-    <item msgid="8258927774145391041">"IPSec VPN دارای گواهی و احراز هویت دوگانه"</item>
+    <item msgid="312397853907741968">"IPSec VPN با کلیدهای از قبل به اشتراک گذاشته شده و اصالت‌سنجی Xauth"</item>
+    <item msgid="3319427315593649917">"IPSec VPN با گواهی و اصالت‌سنجی Xauth"</item>
+    <item msgid="8258927774145391041">"IPSec VPN دارای گواهی و اصالت‌سنجی دوگانه"</item>
   </string-array>
   <string-array name="vpn_proxy_settings">
     <item msgid="2958623927055120839">"هیچ‌کدام"</item>
