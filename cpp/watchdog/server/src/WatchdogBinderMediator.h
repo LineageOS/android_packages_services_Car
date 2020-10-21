@@ -17,6 +17,7 @@
 #ifndef CPP_WATCHDOG_SERVER_SRC_WATCHDOGBINDERMEDIATOR_H_
 #define CPP_WATCHDOG_SERVER_SRC_WATCHDOGBINDERMEDIATOR_H_
 
+#include "IoOveruseMonitor.h"
 #include "WatchdogPerfService.h"
 #include "WatchdogProcessService.h"
 
@@ -43,7 +44,10 @@ class ServiceManager;
 // either to process ANR or performance services.
 class WatchdogBinderMediator : public BnCarWatchdog {
 public:
-    WatchdogBinderMediator() : mWatchdogProcessService(nullptr), mWatchdogPerfService(nullptr) {}
+    WatchdogBinderMediator() :
+          mWatchdogProcessService(nullptr),
+          mWatchdogPerfService(nullptr),
+          mIoOveruseMonitor(nullptr) {}
 
     status_t dump(int fd, const Vector<String16>& args) override;
     binder::Status registerClient(const sp<ICarWatchdogClient>& client,
@@ -78,10 +82,12 @@ public:
 
 protected:
     android::base::Result<void> init(android::sp<WatchdogProcessService> watchdogProcessService,
-                                     android::sp<WatchdogPerfService> watchdogPerfService);
+                                     android::sp<WatchdogPerfService> watchdogPerfService,
+                                     android::sp<IoOveruseMonitor> ioOveruseMonitor);
     void terminate() {
-        mWatchdogProcessService = nullptr;
-        mWatchdogPerfService = nullptr;
+        mWatchdogProcessService.clear();
+        mWatchdogPerfService.clear();
+        mIoOveruseMonitor.clear();
     }
 
 private:
@@ -89,6 +95,7 @@ private:
 
     android::sp<WatchdogProcessService> mWatchdogProcessService;
     android::sp<WatchdogPerfService> mWatchdogPerfService;
+    android::sp<IoOveruseMonitor> mIoOveruseMonitor;
 
     friend class ServiceManager;
     friend class WatchdogBinderMediatorTest;
