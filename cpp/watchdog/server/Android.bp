@@ -25,6 +25,7 @@ cc_defaults {
         "system/core/base/include",
     ],
     shared_libs: [
+        "carwatchdog_aidl_interface-unstable-cpp",
         "libbase",
         "libbinder",
         "liblog",
@@ -71,6 +72,7 @@ cc_library {
     ],
     srcs: [
         "src/WatchdogPerfService.cpp",
+        "src/IoOveruseMonitor.cpp",
         "src/IoPerfCollection.cpp",
         "src/LooperWrapper.cpp",
         "src/ProcPidStat.cpp",
@@ -118,7 +120,6 @@ cc_defaults {
     name: "libwatchdog_process_service_defaults",
     shared_libs: [
         "android.hardware.automotive.vehicle@2.0",
-        "carwatchdog_aidl_interface-unstable-cpp",
         "libhidlbase",
     ],
 }

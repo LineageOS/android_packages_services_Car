@@ -138,8 +138,12 @@ public:
 
     ~WatchdogPerfService() { terminate(); }
 
-    void registerDataProcessor(android::sp<DataProcessor> processor) {
+    android::base::Result<void> registerDataProcessor(android::sp<DataProcessor> processor) {
+        if (processor == nullptr) {
+            return android::base::Error() << "Must provide a valid data processor";
+        }
         mDataProcessors.emplace_back(processor);
+        return {};
     }
 
     // Starts the boot-time collection in the looper handler on a new thread and returns
