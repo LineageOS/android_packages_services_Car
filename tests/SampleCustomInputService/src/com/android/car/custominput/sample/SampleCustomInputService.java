@@ -25,6 +25,7 @@ import android.app.Service;
 import android.car.Car;
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
+import android.car.media.CarAudioManager;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
@@ -36,11 +37,11 @@ import java.util.List;
  * This service is a reference implementation to be used as an example on how to define and handle
  * HW_CUSTOM_INPUT events.
  */
+// TODO(b/171405561): Add scenarios for cluster display type.
 public class SampleCustomInputService extends Service implements
         CarInputManager.CarInputCaptureCallback {
 
     private static final String TAG = SampleCustomInputService.class.getSimpleName();
-    private static final boolean DEBUG = false;
 
     private static final String CHANNEL_ID = SampleCustomInputService.class.getSimpleName();
     private static final int FOREGROUND_ID = 1;
@@ -93,14 +94,15 @@ public class SampleCustomInputService extends Service implements
                                 CarInputManager.TARGET_DISPLAY_TYPE_MAIN,
                                 new int[]{CarInputManager.INPUT_TYPE_CUSTOM_INPUT_EVENT},
                                 CarInputManager.CAPTURE_REQ_FLAGS_ALLOW_DELAYED_GRANT);
+                        mEventHandler = new CustomInputEventListener(getApplicationContext(),
+                                (CarAudioManager) mCar.getCarManager(Car.AUDIO_SERVICE), this);
                     }
                 });
-        mEventHandler = new CustomInputEventListener(getApplicationContext(), this);
     }
 
     @Override
     public void onDestroy() {
-        if (DEBUG) {
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "Service destroyed");
         }
         if (mCarInputManager != null) {
@@ -126,6 +128,10 @@ public class SampleCustomInputService extends Service implements
     }
 
     public void injectKeyEvent(KeyEvent event, @TargetDisplayType int targetDisplayType) {
+        if (mCarInputManager == null) {
+            throw new IllegalStateException(
+                    "Service was properly initialized, reference to CarInputManager is null");
+        }
         mCarInputManager.injectKeyEvent(event, targetDisplayType);
     }
 }
