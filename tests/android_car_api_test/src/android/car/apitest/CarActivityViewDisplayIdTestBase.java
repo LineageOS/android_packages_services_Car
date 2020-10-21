@@ -112,8 +112,7 @@ abstract class CarActivityViewDisplayIdTestBase extends CarApiTestBase {
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
 
-            mActivityView = new CarActivityView(this, /*attrs=*/null , /*defStyle=*/0 ,
-                    /*singleTaskInstance=*/true);
+            mActivityView = new CarActivityView(this, /*attrs=*/null , /*defStyle=*/0);
             mActivityView.setCallback(mCallback);
             setContentView(mActivityView);
 

@@ -53,12 +53,7 @@ public final class CarActivityView extends ActivityView {
     }
 
     public CarActivityView(Context context, AttributeSet attrs, int defStyle) {
-        this(context, attrs, defStyle,  /*singleTaskInstance=*/ false);
-    }
-
-    public CarActivityView(
-            Context context, AttributeSet attrs, int defStyle, boolean singleTaskInstance) {
-        super(context, attrs, defStyle, singleTaskInstance, /*usePublicVirtualDisplay=*/ true);
+        super(context, attrs, defStyle, /*usePublicVirtualDisplay=*/ true);
         super.setCallback(new CarActivityViewCallback());
     }
 
