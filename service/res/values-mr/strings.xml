@@ -60,8 +60,8 @@
     <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"इंस्ट्रुमेंट क्लस्टरमध्ये अ‍ॅप्स लाँच करा"</string>
     <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"इंस्ट्रुमेंट क्लस्टर रेंडरिंग"</string>
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"इंस्ट्रुमेंट क्लस्टर डेटा मिळवा"</string>
-    <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"UX निर्बंध कॉन्फिगरेशन"</string>
-    <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"UX निर्बंध कॉन्फिगर करा"</string>
+    <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"UX निर्बंध कॉंफिगरेशन"</string>
+    <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"UX निर्बंध कॉंफिगर करा"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"USB डिव्हाइसशी AOAP मोडमध्ये कनेक्ट करा"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"अ‍ॅपला डिव्हाइसशी AOAP मोडमध्ये कनेक्ट करण्याची अनुमती देते"</string>
     <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"ऑक्युपंट अवेअरनेस सिस्टम वाचन अ‍ॅक्सेस"</string>
