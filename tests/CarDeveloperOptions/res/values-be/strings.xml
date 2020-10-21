@@ -55,7 +55,7 @@
     <string name="radio_info_ims_reg_status_not_registered" msgid="1286050699734226077">"Не зарэгістраваны"</string>
     <string name="radio_info_ims_feature_status_available" msgid="2040629393134756058">"Даступны"</string>
     <string name="radio_info_ims_feature_status_unavailable" msgid="3348223769202693596">"Недаступны"</string>
-    <string name="radio_info_ims_reg_status" msgid="4771711884059371514">"Рэгістрацыя IMS: <xliff:g id="STATUS">%1$s</xliff:g>\nГолас па LTE: <xliff:g id="AVAILABILITY_0">%2$s</xliff:g>\nГолас па WiFi: <xliff:g id="AVAILABILITY_1">%3$s</xliff:g>\nВідэавыклік: <xliff:g id="AVAILABILITY_2">%4$s</xliff:g>\nІнтэрфейс UT: <xliff:g id="AVAILABILITY_3">%5$s</xliff:g>"</string>
+    <string name="radio_info_ims_reg_status" msgid="4771711884059371514">"Рэгістрацыя IMS: <xliff:g id="STATUS">%1$s</xliff:g>\nГаласавая сувязь па LTE: <xliff:g id="AVAILABILITY_0">%2$s</xliff:g>\nГаласавая сувязь па Wi-Fi: <xliff:g id="AVAILABILITY_1">%3$s</xliff:g>\nВідэавыклікі: <xliff:g id="AVAILABILITY_2">%4$s</xliff:g>\nІнтэрфейс UT: <xliff:g id="AVAILABILITY_3">%5$s</xliff:g>"</string>
     <string name="radioInfo_service_in" msgid="1297020186765943857">"Працуе"</string>
     <string name="radioInfo_service_out" msgid="8460363463722476510">"Не працуе"</string>
     <string name="radioInfo_service_emergency" msgid="7674989004735662599">"Толькі экстранныя выклікі"</string>

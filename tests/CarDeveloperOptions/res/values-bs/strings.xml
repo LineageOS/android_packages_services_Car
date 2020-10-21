@@ -67,7 +67,7 @@
     <string name="radioInfo_data_disconnected" msgid="5311119240521915279">"Isključena"</string>
     <string name="radioInfo_data_connecting" msgid="47095003276717745">"Povezivanje"</string>
     <string name="radioInfo_data_connected" msgid="3755289851642913750">"Povezano"</string>
-    <string name="radioInfo_data_suspended" msgid="5013451375409737795">"Suspendirano"</string>
+    <string name="radioInfo_data_suspended" msgid="5013451375409737795">"Obustavljeno"</string>
     <string name="radioInfo_unknown" msgid="3148839102896278859">"Nepoznato"</string>
     <string name="radioInfo_display_packets" msgid="5472652398031589527">"paketi"</string>
     <string name="radioInfo_display_bytes" msgid="2357292401820837630">"bajtova"</string>

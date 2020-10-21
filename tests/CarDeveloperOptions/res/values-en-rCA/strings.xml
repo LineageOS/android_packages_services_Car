@@ -4100,7 +4100,7 @@
       <item quantity="one">1 second</item>
     </plurals>
     <string name="automatic_storage_manager_settings" msgid="2403621409625820182">"Manage storage"</string>
-    <string name="automatic_storage_manager_text" msgid="4270379105066667493">"To help free up storage space, storage manager removes backed up photos and videos from your device."</string>
+    <string name="automatic_storage_manager_text" msgid="4270379105066667493">"To help free up storage space, storage manager removes backed-up photos and videos from your device."</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"Remove photos &amp; videos"</string>
     <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"Storage manager"</string>
     <string name="automatic_storage_manager_primary_switch_title" msgid="3690187927696783754">"Use storage Manager"</string>
