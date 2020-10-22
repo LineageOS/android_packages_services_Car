@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.UserInfo;
 import android.content.res.Resources;
+import android.frameworks.automotive.powerpolicy.ICarPowerPolicySystemNotification;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
 import android.net.wifi.WifiManager;
 import android.os.Build;
@@ -37,6 +38,7 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
+import android.os.ServiceManager;
 import android.os.SystemClock;
 import android.os.SystemProperties;
 import android.os.UserHandle;
@@ -59,6 +61,7 @@ import com.android.car.user.CarUserNoticeService;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.internal.util.function.pooled.PooledLambda;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -93,6 +96,23 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private static final int MAX_SUSPEND_TRIES = 9; // Initial + 8 retries
     private static final long INITIAL_SUSPEND_RETRY_INTERVAL_MS = 10;
 
+    private static final long CAR_POWER_POLICY_DAEMON_FIND_MARGINAL_TIME_MS = 300;
+    private static final long CAR_POWER_POLICY_DAEMON_BIND_RETRY_INTERVAL_MS = 500;
+    private static final int CAR_POWER_POLICY_DAEMON_BIND_MAX_RETRY = 3;
+    private static final String CAR_POWER_POLICY_DAEMON_INTERFACE =
+            "carpowerpolicy_system_notification";
+
+    // TODO:  Make this OEM configurable.
+    private static final int SHUTDOWN_POLLING_INTERVAL_MS = 2000;
+    private static final int SHUTDOWN_EXTEND_MAX_MS = 5000;
+
+    // maxGarageModeRunningDurationInSecs should be equal or greater than this. 15 min for now.
+    private static final int MIN_MAX_GARAGE_MODE_DURATION_MS = 15 * 60 * 1000;
+
+    // in secs
+    private static final String PROP_MAX_GARAGE_MODE_DURATION_OVERRIDE =
+            "android.car.garagemodeduration";
+
     private final Object mLock = new Object();
     private final Object mSimulationWaitObject = new Object();
 
@@ -105,13 +125,28 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private final PowerManagerCallbackList mPowerManagerListenersWithCompletion =
                           new PowerManagerCallbackList();
 
+    @GuardedBy("mLock")
+    private final Set<IBinder> mListenersWeAreWaitingFor = new HashSet<>();
+    @GuardedBy("mLock")
+    private final LinkedList<CpmsState> mPendingPowerStates = new LinkedList<>();
+    private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
+            getClass().getSimpleName());
+    private final PowerHandler mHandler = new PowerHandler(mHandlerThread.getLooper(), this);
+
+    private final UserManager mUserManager;
+    private final CarUserService mUserService;
+
+    private final WifiManager mWifiManager;
+    private final AtomicFile mWifiStateFile;
+
+    // This is a temp work-around to reduce user switching delay after wake-up.
+    private final boolean mSwitchGuestUserBeforeSleep;
+
     @GuardedBy("mSimulationWaitObject")
     private boolean mWakeFromSimulatedSleep;
     @GuardedBy("mSimulationWaitObject")
     private boolean mInSimulatedDeepSleepMode;
 
-    @GuardedBy("mLock")
-    private final Set<IBinder> mListenersWeAreWaitingFor = new HashSet<>();
     @GuardedBy("mLock")
     private CpmsState mCurrentState;
     @GuardedBy("mLock")
@@ -120,11 +155,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private long mProcessingStartTime;
     @GuardedBy("mLock")
     private long mLastSleepEntryTime;
-    @GuardedBy("mLock")
-    private final LinkedList<CpmsState> mPendingPowerStates = new LinkedList<>();
-    private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
-            getClass().getSimpleName());
-    private final PowerHandler mHandler = new PowerHandler(mHandlerThread.getLooper(), this);
 
     @GuardedBy("mLock")
     private boolean mTimerActive;
@@ -145,25 +175,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     @GuardedBy("mLock")
     private boolean mGarageModeShouldExitImmediately;
 
-    private final UserManager mUserManager;
-    private final CarUserService mUserService;
-
-    private final WifiManager mWifiManager;
-    private final AtomicFile mWifiStateFile;
-
-    // TODO:  Make this OEM configurable.
-    private static final int SHUTDOWN_POLLING_INTERVAL_MS = 2000;
-    private static final int SHUTDOWN_EXTEND_MAX_MS = 5000;
-
-    // maxGarageModeRunningDurationInSecs should be equal or greater than this. 15 min for now.
-    private static final int MIN_MAX_GARAGE_MODE_DURATION_MS = 15 * 60 * 1000;
-
-    // in secs
-    private static final String PROP_MAX_GARAGE_MODE_DURATION_OVERRIDE =
-            "android.car.garagemodeduration";
-
-    // This is a temp work-around to reduce user switching delay after wake-up.
-    private final boolean mSwitchGuestUserBeforeSleep;
+    @GuardedBy("mLock")
+    private ICarPowerPolicySystemNotification mCarPowerPolicyDaemon;
+    @GuardedBy("mLock")
+    private boolean mConnectionInProgress;
+    private BinderHandler mBinderHandler;
 
     private class PowerManagerCallbackList extends RemoteCallbackList<ICarPowerStateListener> {
         /**
@@ -239,13 +255,18 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             onApPowerStateChange(CpmsState.ON, CarPowerStateListener.ON);
         }
         mSystemInterface.startDisplayStateMonitoring(this);
+        connectToPowerPolicyDaemon();
     }
 
     @Override
     public void release() {
+        if (mBinderHandler != null) {
+            mBinderHandler.unlinkToDeath();
+        }
         synchronized (mLock) {
             releaseTimerLocked();
             mCurrentState = null;
+            mCarPowerPolicyDaemon = null;
             mHandler.cancelAll();
             mListenersWeAreWaitingFor.clear();
         }
@@ -915,6 +936,121 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             }
             Slog.i(TAG, "Apps are finished, call handleProcessingComplete()");
             powerHandler.handleProcessingComplete();
+        }
+    }
+
+    private void initializePowerPolicy() {
+        // TODO(b/170158623): Get the current policy ID from car power policy daemon and make sure
+        // that all components are in the expected power state.
+    }
+
+    private void connectToPowerPolicyDaemon() {
+        synchronized (mLock) {
+            if (mCarPowerPolicyDaemon != null || mConnectionInProgress) {
+                return;
+            }
+            mConnectionInProgress = true;
+        }
+        connectToDaemonHelper(CAR_POWER_POLICY_DAEMON_BIND_MAX_RETRY);
+    }
+
+    private void connectToDaemonHelper(int retryCount) {
+        if (retryCount <= 0) {
+            synchronized (mLock) {
+                mConnectionInProgress = false;
+            }
+            Slog.e(TAG, "Cannot reconnect to car power policyd daemon after retrying "
+                    + CAR_POWER_POLICY_DAEMON_BIND_MAX_RETRY + " times");
+            return;
+        }
+        if (makeBinderConnection()) {
+            Slog.i(TAG, "Connected to car power policy daemon");
+            initializePowerPolicy();
+            return;
+        }
+        mHandler.sendMessageDelayed(PooledLambda.obtainMessage(
+                CarPowerManagementService::connectToDaemonHelper,
+                CarPowerManagementService.this, retryCount - 1),
+                CAR_POWER_POLICY_DAEMON_BIND_RETRY_INTERVAL_MS);
+    }
+
+    private boolean makeBinderConnection() {
+        long currentTimeMs = SystemClock.uptimeMillis();
+        IBinder binder = ServiceManager.getService(CAR_POWER_POLICY_DAEMON_INTERFACE);
+        if (binder == null) {
+            Slog.w(TAG, "Finding car power policy daemon failed. Power policy management is not "
+                    + "supported");
+            return false;
+        }
+        long elapsedTimeMs = SystemClock.uptimeMillis() - currentTimeMs;
+        if (elapsedTimeMs > CAR_POWER_POLICY_DAEMON_FIND_MARGINAL_TIME_MS) {
+            Slog.wtf(TAG, "Finding car power policy daemon took too long(" + elapsedTimeMs + "ms)");
+        }
+
+        ICarPowerPolicySystemNotification daemon =
+                ICarPowerPolicySystemNotification.Stub.asInterface(binder);
+        if (daemon == null) {
+            Slog.w(TAG, "Getting car power policy daemon interface failed. Power policy management "
+                    + "is not supported");
+            return false;
+        }
+        synchronized (mLock) {
+            mCarPowerPolicyDaemon = daemon;
+            mConnectionInProgress = false;
+        }
+        mBinderHandler = new BinderHandler(daemon);
+        mBinderHandler.linkToDeath();
+        return true;
+    }
+
+    private final class BinderHandler implements IBinder.DeathRecipient {
+        private ICarPowerPolicySystemNotification mDaemon;
+
+        private BinderHandler(ICarPowerPolicySystemNotification daemon) {
+            mDaemon = daemon;
+        }
+
+        @Override
+        public void binderDied() {
+            Slog.w(TAG, "Car power policy daemon died: reconnecting");
+            unlinkToDeath();
+            mDaemon = null;
+            synchronized (mLock) {
+                mCarPowerPolicyDaemon = null;
+            }
+            mHandler.sendMessageDelayed(PooledLambda.obtainMessage(
+                    CarPowerManagementService::connectToDaemonHelper,
+                    CarPowerManagementService.this, CAR_POWER_POLICY_DAEMON_BIND_MAX_RETRY),
+                    CAR_POWER_POLICY_DAEMON_BIND_RETRY_INTERVAL_MS);
+        }
+
+        private void linkToDeath() {
+            if (mDaemon == null) {
+                return;
+            }
+            IBinder binder = mDaemon.asBinder();
+            if (binder == null) {
+                Slog.w(TAG, "Linking to binder death recipient skipped");
+                return;
+            }
+            try {
+                binder.linkToDeath(this, 0);
+            } catch (RemoteException e) {
+                mDaemon = null;
+                Slog.w(TAG, "Linking to binder death recipient failed: " + e);
+            }
+        }
+
+        private void unlinkToDeath() {
+            if (mDaemon == null) {
+                return;
+            }
+            IBinder binder = mDaemon.asBinder();
+            if (binder == null) {
+                Slog.w(TAG, "Unlinking from binder death recipient skipped");
+                return;
+            }
+            binder.unlinkToDeath(this, 0);
         }
     }
 
