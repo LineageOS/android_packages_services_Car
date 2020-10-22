@@ -13,6 +13,25 @@
 // limitations under the License.
 
 aidl_interface {
+    name: "android.automotive.watchdog",
+    vendor_available: true,
+    srcs: [
+        "android/automotive/watchdog/*.aidl",
+    ],
+    stability: "vintf",
+    backend: {
+        java: {
+            platform_apis: true,
+            enabled: true,
+        },
+    },
+    versions: [
+        "2",
+    ],
+}
+
+// TODO(b/170323141): Remove the old build rule after its dependencies are completely removed.
+aidl_interface {
     name: "carwatchdog_aidl_interface",
     vendor_available: true,
     srcs: [
