@@ -45,7 +45,7 @@ class GrpcGraph : public PrebuiltGraph, public StreamGraphInterface {
   public:
     GrpcGraph() {}
 
-    virtual ~GrpcGraph() {}
+    virtual ~GrpcGraph();
 
     Status initialize(const std::string& address,
                       std::weak_ptr<PrebuiltEngineInterface> engineInterface);
