@@ -16,11 +16,8 @@
 
 package com.android.car.developeroptions.notification;
 
-import static android.provider.Settings.Secure.NOTIFICATION_NEW_INTERRUPTION_MODEL;
-
 import android.content.Context;
 import android.os.UserHandle;
-import android.provider.Settings;
 
 import com.android.car.developeroptions.core.TogglePreferenceController;
 
@@ -55,11 +52,7 @@ public class SilentStatusBarPreferenceController extends TogglePreferenceControl
 
     @Override
     public int getAvailabilityStatus() {
-        return Settings.Secure.getInt(
-                mContext.getContentResolver(), NOTIFICATION_NEW_INTERRUPTION_MODEL, 1) != 0
-                ? AVAILABLE : UNSUPPORTED_ON_DEVICE;
+        return AVAILABLE;
     }
 
 }
-
-
