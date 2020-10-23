@@ -65,6 +65,10 @@ std::pair<Status, std::string> FinishRpcAndGetResult(
 
 }  // namespace
 
+GrpcGraph::~GrpcGraph() {
+    mStreamSetObserver.reset();
+}
+
 PrebuiltGraphState GrpcGraph::GetGraphState() const {
     std::lock_guard lock(mLock);
     return mGraphState;

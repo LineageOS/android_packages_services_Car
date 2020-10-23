@@ -157,10 +157,9 @@ void StreamSetObserver::stopObservingStreams(bool stopImmediately) {
     std::unique_lock lock(mLock);
     if (mStopped) {
         // Separate thread is necessary here to avoid recursive locking.
-        std::thread t([streamGraphInterface(mStreamGraphInterface)]() {
+        mGraphTerminationThread = std::thread([streamGraphInterface(mStreamGraphInterface)]() {
             streamGraphInterface->dispatchGraphTerminationMessage(Status::SUCCESS, "");
         });
-        t.detach();
         return;
     }
 
@@ -184,10 +183,15 @@ void StreamSetObserver::reportStreamClosed(int streamId) {
     if (mStreamObservers.empty()) {
         mStopped = true;
         mStoppedCv.notify_one();
-        std::thread t([streamGraphInterface(mStreamGraphInterface)]() {
+        mGraphTerminationThread = std::thread([streamGraphInterface(mStreamGraphInterface)]() {
             streamGraphInterface->dispatchGraphTerminationMessage(Status::SUCCESS, "");
         });
-        t.detach();
+    }
+}
+
+StreamSetObserver::~StreamSetObserver() {
+    if (mGraphTerminationThread.joinable()) {
+        mGraphTerminationThread.join();
     }
 }
 

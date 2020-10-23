@@ -78,6 +78,8 @@ class SingleStreamObserver {
 
 class StreamSetObserver : public EndOfStreamReporter {
   public:
+    virtual ~StreamSetObserver();
+
     StreamSetObserver(const runner::ClientConfig& clientConfig,
                       StreamGraphInterface* streamGraphInterface);
 
@@ -92,6 +94,7 @@ class StreamSetObserver : public EndOfStreamReporter {
     std::map<int, std::unique_ptr<SingleStreamObserver>> mStreamObservers;
     std::mutex mLock;
     std::condition_variable mStoppedCv;
+    std::thread mGraphTerminationThread;
     bool mStopped = true;
 };
 
