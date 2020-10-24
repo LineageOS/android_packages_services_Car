@@ -22,7 +22,7 @@ cc_defaults {
         "-Wunused-parameter",
     ],
     include_dirs: [
-        "system/core/base/include",
+        "system/libbase/include",
     ],
     shared_libs: [
         "libbase",
