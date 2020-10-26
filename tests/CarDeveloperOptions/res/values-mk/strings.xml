@@ -2952,7 +2952,7 @@
     <!-- no translation found for call_manager_summary (1232655174841493040) -->
     <skip />
     <string name="cell_broadcast_settings" msgid="5750066270993255966">"Предупредувања за итни случаи"</string>
-    <string name="network_operators_settings" msgid="7822337582828465633">"Оператори на мрежа"</string>
+    <string name="network_operators_settings" msgid="7822337582828465633">"Мрежни оператори"</string>
     <string name="access_point_names" msgid="7992382237358800596">"Имиња на пристапни точки"</string>
     <string name="enhanced_4g_lte_mode_title" msgid="1624079276378568594">"VoLTE"</string>
     <string name="enhanced_4g_lte_mode_title_advanced_calling" msgid="5155507161065290507">"Напредно повикување"</string>

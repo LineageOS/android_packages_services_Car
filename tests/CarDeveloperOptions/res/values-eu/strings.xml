@@ -1021,7 +1021,7 @@
     <string name="wifi_advanced_mac_address_title" msgid="1162782083754021737">"MAC helbidea"</string>
     <string name="wifi_advanced_ip_address_title" msgid="2708185994512829071">"IP helbidea"</string>
     <string name="wifi_details_title" msgid="2164042631550920157">"Sarearen xehetasunak"</string>
-    <string name="wifi_details_subnet_mask" msgid="53396707004763012">"Azpisarearen maskara"</string>
+    <string name="wifi_details_subnet_mask" msgid="53396707004763012">"Azpisare-maskara"</string>
     <string name="wifi_details_dns" msgid="1118251455740116559">"DNS"</string>
     <string name="wifi_details_ipv6_address_header" msgid="1642310137145363299">"IPv6 helbideak"</string>
     <string name="wifi_saved_access_points_label" msgid="3790693285928292563">"Gordetako sareak"</string>
