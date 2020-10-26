@@ -72,7 +72,9 @@ import android.car.userlib.HalCallback;
 import android.car.userlib.HalCallback.HalCallbackStatus;
 import android.car.userlib.UserHalHelper;
 import android.car.userlib.UserHelper;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
 import android.content.res.Resources;
@@ -156,8 +158,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Mock private Drawable mMockedDrawable;
     @Mock private InitialUserSetter mInitialUserSetter;
     @Mock private UserPreCreator mUserPreCreator;
-    @Mock IResultReceiver mSwitchUserUiReceiver;
-    @Mock PackageManager mPackageManager;
+    @Mock private IResultReceiver mSwitchUserUiReceiver;
+    @Mock private PackageManager mPackageManager;
 
     private final BlockingUserLifecycleListener mUserLifecycleListener =
             BlockingUserLifecycleListener.forAnyEvent().build();
@@ -225,6 +227,34 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mCarUserService = newCarUserService(/* switchGuestUserBeforeGoingSleep= */ false);
 
         mFakeCarOccupantZoneService = new FakeCarOccupantZoneService(mCarUserService);
+    }
+
+    private BroadcastReceiver initService() {
+        ArgumentCaptor<BroadcastReceiver> captor = ArgumentCaptor.forClass(BroadcastReceiver.class);
+        when(mMockContext.registerReceiver(captor.capture(), argThat((filter) -> {
+            // NOTE: it's assuming there's just one action; if it supports more (like USER_CREATE),
+            // it need to be changed to search through all of them
+            return filter.getAction(0).equals(Intent.ACTION_USER_REMOVED);
+        }))).thenReturn(null);
+
+        mCarUserService.init();
+
+        BroadcastReceiver receiver = captor.getValue();
+        assertWithMessage("init() didn't register receiver for %s", Intent.ACTION_USER_REMOVED)
+                .that(receiver).isNotNull();
+
+        return receiver;
+    }
+
+    @Test
+    public void testInitAndRelease() {
+        // init()
+        BroadcastReceiver receiver = initService();
+        assertThat(receiver).isNotNull();
+
+        // release()
+        mCarUserService.release();
+        verify(mMockContext).unregisterReceiver(receiver);
     }
 
     @Test
@@ -708,14 +738,14 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     public void testRemoveUser_LastAdminUser_success() throws Exception {
         UserInfo currentUser = mRegularUser;
         mockExistingUsersAndCurrentUser(mExistingUsers, currentUser);
-        UserInfo removeuser = mAdminUser;
-        mockUmRemoveUser(mMockedUserManager, removeuser);
+        UserInfo removeUser = mAdminUser;
+        mockRemoveUser(removeUser.id);
 
         UserRemovalResult result = mCarUserService.removeUser(mAdminUser.id);
 
         assertThat(result.getStatus())
                 .isEqualTo(UserRemovalResult.STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED);
-        assertHalRemove(currentUser, removeuser);
+        assertHalRemove(currentUser, removeUser);
     }
 
     @Test
@@ -725,7 +755,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         currentUser.flags = currentUser.flags | FLAG_ADMIN;
         mockExistingUsersAndCurrentUser(mExistingUsers, currentUser);
         UserInfo removeUser = mAdminUser;
-        mockUmRemoveUser(mMockedUserManager, removeUser);
+        mockRemoveUser(removeUser.id);
 
         UserRemovalResult result = mCarUserService.removeUser(removeUser.id);
 
@@ -738,7 +768,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         UserInfo currentUser = mAdminUser;
         mockExistingUsersAndCurrentUser(mExistingUsers, currentUser);
         UserInfo removeUser = mRegularUser;
-        mockUmRemoveUser(mMockedUserManager, removeUser);
+        mockRemoveUser(removeUser.id);
 
         UserRemovalResult result = mCarUserService.removeUser(removeUser.id);
 
@@ -751,7 +781,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockExistingUsersAndCurrentUser(mAdminUser);
         UserInfo removeUser = mRegularUser;
         mockUserHalSupported(false);
-        mockUmRemoveUser(mMockedUserManager, removeUser);
+        mockRemoveUser(removeUser.id);
 
         UserRemovalResult result = mCarUserService.removeUser(removeUser.id);
 
@@ -1209,6 +1239,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         assertThat(result.getErrorMessage()).isNull();
         assertNoHalUserCreation();
         verifyNoUserRemoved();
+        assertNoHalUserRemoval();
     }
 
     @Test
@@ -1225,12 +1256,14 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         assertThat(result.getErrorMessage()).isNull();
         assertNoHalUserCreation();
         verifyNoUserRemoved();
+        assertNoHalUserRemoval();
     }
 
     @Test
     public void testCreateUser_internalHalFailure() throws Exception {
         mockUmCreateUser(mMockedUserManager, "dude", "TypeONegative", 108, 42);
         mockHalCreateUser(HalCallback.STATUS_INVALID, /* not_used_status= */ -1);
+        mockRemoveUser(42);
 
         mCarUserService.createUser("dude", "TypeONegative", 108, mAsyncCallTimeoutMs,
                 mUserCreationFuture);
@@ -1240,12 +1273,14 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         assertThat(result.getUser()).isNull();
         assertThat(result.getErrorMessage()).isNull();
         verifyUserRemoved(42);
+        assertNoHalUserRemoval();
     }
 
     @Test
     public void testCreateUser_halFailure() throws Exception {
         mockUmCreateUser(mMockedUserManager, "dude", "TypeONegative", 108, 42);
         mockHalCreateUser(HalCallback.STATUS_OK, CreateUserStatus.FAILURE);
+        mockRemoveUser(42);
 
         mCarUserService.createUser("dude", "TypeONegative", 108, mAsyncCallTimeoutMs,
                 mUserCreationFuture);
@@ -1256,12 +1291,14 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         assertThat(result.getErrorMessage()).isNull();
 
         verifyUserRemoved(42);
+        assertNoHalUserRemoval();
     }
 
     @Test
     public void testCreateUser_halServiceThrowsRuntimeException() throws Exception {
         mockUmCreateUser(mMockedUserManager, "dude", "TypeONegative", 108, 42);
         mockHalCreateUserThrowsRuntimeException();
+        mockRemoveUser(42);
 
         mCarUserService.createUser("dude", "TypeONegative", 108, mAsyncCallTimeoutMs,
                 mUserCreationFuture);
@@ -1272,6 +1309,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         assertThat(result.getErrorMessage()).isNull();
 
         verifyUserRemoved(42);
+        assertNoHalUserRemoval();
     }
 
     @Test
@@ -1287,7 +1325,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
         UserCreationResult result = getUserCreationResult();
         assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_SUCCESSFUL);
-        verify(mUserHal, never()).createUser(any(), anyInt(), any());
+        assertNoHalUserCreation();
+        assertNoHalUserRemoval();
     }
 
     @Test
@@ -1321,6 +1360,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         assertThat(newUser.flags).isEqualTo(UserInfo.FLAG_EPHEMERAL);
 
         verifyNoUserRemoved();
+        assertNoHalUserRemoval();
     }
 
     @Test
@@ -1356,6 +1396,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         assertThat(newUser.flags).isEqualTo(UserInfo.FLAG_EPHEMERAL);
 
         verifyNoUserRemoved();
+        verify(mUserHal, never()).removeUser(any());
     }
 
     @Test
@@ -1756,6 +1797,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         when(mMockedResources
                 .getBoolean(com.android.car.R.bool.config_switchGuestUserBeforeGoingSleep))
                         .thenReturn(switchGuestUserBeforeGoingSleep);
+
         return new CarUserService(
                 mMockContext,
                 mUserHal,
@@ -1809,6 +1851,11 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
     private void mockAmSwitchUser(@NonNull UserInfo user, boolean result) throws Exception {
         when(mMockedIActivityManager.switchUser(user.id)).thenReturn(result);
+    }
+
+    private void mockRemoveUser(@UserIdInt int userId) {
+        BroadcastReceiver receiver = initService();
+        mockUmRemoveUser(mMockContext, mMockedUserManager, receiver, userId);
     }
 
     private void mockHalGetInitialInfo(@UserIdInt int currentUserId,
@@ -2128,7 +2175,11 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     private void assertNoHalUserCreation() {
-        verify(mUserHal, never()).createUser(any(), eq(mAsyncCallTimeoutMs), any());
+        verify(mUserHal, never()).createUser(any(), anyInt(), any());
+    }
+
+    private void assertNoHalUserRemoval() {
+        verify(mUserHal, never()).removeUser(any());
     }
 
     private void assertHalRemove(@NonNull UserInfo currentUser, @NonNull UserInfo removeUser) {
