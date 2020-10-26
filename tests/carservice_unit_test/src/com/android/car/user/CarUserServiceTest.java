@@ -183,14 +183,19 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     private final @NonNull UserInfo mAdminUser = new UserInfoBuilder(100)
             .setAdmin(true)
             .build();
+    private final @NonNull UserInfo mAnotherAdminUser = new UserInfoBuilder(108)
+            .setAdmin(true)
+            .build();
     private final @NonNull UserInfo mGuestUser = new UserInfoBuilder(111)
             .setGuest(true)
             .setEphemeral(true)
             .build();
     private final @NonNull UserInfo mRegularUser = new UserInfoBuilder(222)
             .build();
-    private final List<UserInfo> mExistingUsers =
-            Arrays.asList(mAdminUser, mGuestUser, mRegularUser);
+    private final @NonNull UserInfo mAnotherRegularUser = new UserInfoBuilder(333)
+            .build();
+    private final List<UserInfo> mExistingUsers = Arrays
+            .asList(mAdminUser, mAnotherAdminUser, mGuestUser, mRegularUser, mAnotherRegularUser);
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
@@ -201,7 +206,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
             // mocking UserHelper.isHeadlessSystemUser() (on mockIsHeadlessSystemUser()) instead...
             .spyStatic(UserHelper.class)
             .spyStatic(UserHelperLite.class)
-            .spyStatic(CarProperties.class);
+            .spyStatic(CarProperties.class)
+            .spyStatic(Binder.class);
     }
 
     /**
@@ -720,7 +726,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     public void testRemoveUser_currentUserCannotBeRemoved() throws Exception {
         mockCurrentUser(mAdminUser);
 
-        UserRemovalResult result = mCarUserService.removeUser(mAdminUser.id);
+        UserRemovalResult result = mCarUserService.removeUser(mAdminUser.id,
+                /* hasCallerRestrictions= */ false);
 
         assertThat(result.getStatus())
                 .isEqualTo(UserRemovalResult.STATUS_TARGET_USER_IS_CURRENT_USER);
@@ -728,7 +735,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void testRemoveUser_userNotExist() throws Exception {
-        UserRemovalResult result = mCarUserService.removeUser(15);
+        UserRemovalResult result = mCarUserService.removeUser(15,
+                /* hasCallerRestrictions= */ false);
 
         assertThat(result.getStatus())
                 .isEqualTo(UserRemovalResult.STATUS_USER_DOES_NOT_EXIST);
@@ -737,11 +745,14 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testRemoveUser_LastAdminUser_success() throws Exception {
         UserInfo currentUser = mRegularUser;
-        mockExistingUsersAndCurrentUser(mExistingUsers, currentUser);
         UserInfo removeUser = mAdminUser;
+        List<UserInfo> existingUsers = Arrays.asList(mAdminUser, mRegularUser);
+
+        mockExistingUsersAndCurrentUser(existingUsers, currentUser);
         mockRemoveUser(removeUser.id);
 
-        UserRemovalResult result = mCarUserService.removeUser(mAdminUser.id);
+        UserRemovalResult result = mCarUserService.removeUser(mAdminUser.id,
+                /* hasCallerRestrictions= */ false);
 
         assertThat(result.getStatus())
                 .isEqualTo(UserRemovalResult.STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED);
@@ -757,7 +768,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         UserInfo removeUser = mAdminUser;
         mockRemoveUser(removeUser.id);
 
-        UserRemovalResult result = mCarUserService.removeUser(removeUser.id);
+        UserRemovalResult result = mCarUserService.removeUser(removeUser.id,
+                /* hasCallerRestrictions= */ false);
 
         assertThat(result.getStatus()).isEqualTo(UserRemovalResult.STATUS_SUCCESSFUL);
         assertHalRemove(currentUser, removeUser);
@@ -770,7 +782,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         UserInfo removeUser = mRegularUser;
         mockRemoveUser(removeUser.id);
 
-        UserRemovalResult result = mCarUserService.removeUser(removeUser.id);
+        UserRemovalResult result = mCarUserService.removeUser(removeUser.id,
+                /* hasCallerRestrictions= */ false);
 
         assertThat(result.getStatus()).isEqualTo(UserRemovalResult.STATUS_SUCCESSFUL);
         assertHalRemove(currentUser, removeUser);
@@ -783,7 +796,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockUserHalSupported(false);
         mockRemoveUser(removeUser.id);
 
-        UserRemovalResult result = mCarUserService.removeUser(removeUser.id);
+        UserRemovalResult result = mCarUserService.removeUser(removeUser.id,
+                /* hasCallerRestrictions= */ false);
 
         assertThat(result.getStatus()).isEqualTo(UserRemovalResult.STATUS_SUCCESSFUL);
         verify(mUserHal, never()).removeUser(any());
@@ -795,9 +809,98 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         int targetUserId = mRegularUser.id;
         // No need to mock um.removeUser as it returns false by default
 
-        UserRemovalResult result = mCarUserService.removeUser(targetUserId);
+        UserRemovalResult result = mCarUserService.removeUser(targetUserId,
+                /* hasCallerRestrictions= */ false);
 
         assertThat(result.getStatus()).isEqualTo(UserRemovalResult.STATUS_ANDROID_FAILURE);
+    }
+
+    @Test
+    public void testRemoveUserWithRestriction_nonAdminRemovingAdmin() throws Exception {
+        UserInfo currentUser = mRegularUser;
+        UserInfo removeUser = mAdminUser;
+        mockGetCallingUserHandle(currentUser.id);
+        mockExistingUsersAndCurrentUser(mExistingUsers, currentUser);
+        mockRemoveUser(removeUser.id);
+
+        assertThrows(SecurityException.class, () -> mCarUserService.removeUser(removeUser.id,
+                /* hasCallerRestrictions= */ true));
+    }
+
+    @Test
+    public void testRemoveUserWithRestriction_nonAdminRemovingNonAdmin() throws Exception {
+        UserInfo currentUser = mRegularUser;
+        UserInfo removeUser = mAnotherRegularUser;
+        mockGetCallingUserHandle(currentUser.id);
+        mockExistingUsersAndCurrentUser(mExistingUsers, currentUser);
+        mockRemoveUser(removeUser.id);
+
+        assertThrows(SecurityException.class, () -> mCarUserService.removeUser(removeUser.id,
+                /* hasCallerRestrictions= */ true));
+    }
+
+    @Test
+    public void testRemoveUserWithRestriction_nonAdminRemovingItself() throws Exception {
+        UserInfo currentUser = mRegularUser;
+        UserInfo removeUser = mRegularUser;
+        mockGetCallingUserHandle(currentUser.id);
+        mockExistingUsersAndCurrentUser(mExistingUsers, currentUser);
+        mockRemoveUser(removeUser.id);
+
+        UserRemovalResult result = mCarUserService.removeUser(removeUser.id,
+                /* hasCallerRestrictions= */ true);
+
+        // TODO(b/155913815): return STATUS_SUCCESSFUL_SET_EPHEMERAL instead
+        assertThat(result.getStatus())
+                .isEqualTo(UserRemovalResult.STATUS_TARGET_USER_IS_CURRENT_USER);
+        assertNoHalUserRemoval();
+    }
+
+    @Test
+    public void testRemoveUserWithRestriction_adminRemovingAdmin() throws Exception {
+        UserInfo currentUser = mAdminUser;
+        UserInfo removeUser = mAnotherAdminUser;
+        mockGetCallingUserHandle(currentUser.id);
+        mockExistingUsersAndCurrentUser(mExistingUsers, currentUser);
+        mockRemoveUser(removeUser.id);
+
+        UserRemovalResult result = mCarUserService.removeUser(removeUser.id,
+                /* hasCallerRestrictions= */ true);
+
+        assertThat(result.getStatus()).isEqualTo(UserRemovalResult.STATUS_SUCCESSFUL);
+        assertHalRemove(currentUser, removeUser);
+    }
+
+    @Test
+    public void testRemoveUserWithRestriction_adminRemovingNonAdmin() throws Exception {
+        UserInfo currentUser = mAdminUser;
+        UserInfo removeUser = mRegularUser;
+        mockGetCallingUserHandle(currentUser.id);
+        mockExistingUsersAndCurrentUser(mExistingUsers, currentUser);
+        mockRemoveUser(removeUser.id);
+
+        UserRemovalResult result = mCarUserService.removeUser(removeUser.id,
+                /* hasCallerRestrictions= */ true);
+
+        assertThat(result.getStatus()).isEqualTo(UserRemovalResult.STATUS_SUCCESSFUL);
+        assertHalRemove(currentUser, removeUser);
+    }
+
+    @Test
+    public void testRemoveUserWithRestriction_adminRemovingItself() throws Exception {
+        UserInfo currentUser = mAdminUser;
+        UserInfo removeUser = mAdminUser;
+        mockGetCallingUserHandle(currentUser.id);
+        mockExistingUsersAndCurrentUser(mExistingUsers, currentUser);
+        mockRemoveUser(removeUser.id);
+
+        UserRemovalResult result = mCarUserService.removeUser(removeUser.id,
+                /* hasCallerRestrictions= */ true);
+
+        // TODO(b/155913815): return STATUS_SUCCESSFUL_SET_EPHEMERAL instead
+        assertThat(result.getStatus())
+                .isEqualTo(UserRemovalResult.STATUS_TARGET_USER_IS_CURRENT_USER);
+        assertNoHalUserRemoval();
     }
 
     @Test

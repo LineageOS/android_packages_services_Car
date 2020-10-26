@@ -112,6 +112,14 @@ public final class CarUserManagerPermissionTest {
     }
 
     @Test
+    public void testRemoveUserInternalPermission() throws Exception {
+        Exception e = expectThrows(SecurityException.class,
+                () -> mCarUserManager.removeUser(100));
+        assertThat(e.getMessage()).contains(CREATE_USERS);
+        assertThat(e.getMessage()).contains(MANAGE_USERS);
+    }
+
+    @Test
     public void testAddListenerPermission() {
         UserLifecycleListener listener = (e) -> { };
 
