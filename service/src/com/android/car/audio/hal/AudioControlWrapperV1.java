@@ -18,7 +18,6 @@ package com.android.car.audio.hal;
 
 import android.annotation.Nullable;
 import android.hardware.automotive.audiocontrol.V1_0.IAudioControl;
-import android.hardware.automotive.audiocontrol.V2_0.IFocusListener;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -41,7 +40,7 @@ public final class AudioControlWrapperV1 implements AudioControlWrapper {
     /**
      * Gets IAudioControl@1.0 service if registered.
      */
-    public static @Nullable IAudioControl getService() {
+    static @Nullable IAudioControl getService() {
         try {
             return IAudioControl.getService(true);
         } catch (RemoteException e) {
@@ -62,7 +61,7 @@ public final class AudioControlWrapperV1 implements AudioControlWrapper {
     }
 
     @Override
-    public void registerFocusListener(IFocusListener focusListener) {
+    public void registerFocusListener(HalFocusListener focusListener) {
         throw new UnsupportedOperationException(
                 "Focus listener is unsupported for IAudioControl@1.0");
     }

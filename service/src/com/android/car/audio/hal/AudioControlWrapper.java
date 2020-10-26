@@ -17,7 +17,6 @@
 package com.android.car.audio.hal;
 
 import android.annotation.Nullable;
-import android.hardware.automotive.audiocontrol.V2_0.IFocusListener;
 import android.media.AudioAttributes.AttributeUsage;
 
 import java.io.PrintWriter;
@@ -44,7 +43,7 @@ public interface AudioControlWrapper {
      *
      * @param focusListener the listener to register on the IAudioControl HAL.
      */
-    void registerFocusListener(IFocusListener focusListener);
+    void registerFocusListener(HalFocusListener focusListener);
 
     /**
      * Notifies HAL of change in audio focus for a request it has made.

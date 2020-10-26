@@ -23,13 +23,11 @@ import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 
 import android.annotation.NonNull;
 import android.car.media.CarAudioManager;
-import android.hardware.automotive.audiocontrol.V2_0.IFocusListener;
 import android.media.AudioAttributes;
 import android.media.AudioAttributes.AttributeUsage;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -42,7 +40,7 @@ import java.util.Objects;
 /**
  * Manages focus requests from the HAL on a per-zone per-usage basis
  */
-public final class HalAudioFocus extends IFocusListener.Stub {
+public final class HalAudioFocus implements HalFocusListener {
     private static final String TAG = HalAudioFocus.class.getSimpleName();
 
     private final AudioManager mAudioManager;
@@ -83,7 +81,9 @@ public final class HalAudioFocus extends IFocusListener.Stub {
         mAudioControlWrapper.unregisterFocusListener();
     }
 
-    @Override
+    /**
+     * See {@link HalFocusListener#requestAudioFocus(int, int, int)}
+     */
     public void requestAudioFocus(@AttributeUsage int usage, int zoneId, int focusGain) {
         Preconditions.checkArgument(mHalFocusRequestsByZoneAndUsage.contains(zoneId),
                 "Invalid zoneId %d provided in requestAudioFocus", zoneId);
@@ -106,8 +106,10 @@ public final class HalAudioFocus extends IFocusListener.Stub {
         }
     }
 
-    @Override
-    public void abandonAudioFocus(int usage, int zoneId) throws RemoteException {
+    /**
+     * See {@link HalFocusListener#abandonAudioFocus(int, int)}
+     */
+    public void abandonAudioFocus(@AttributeUsage int usage, int zoneId) {
         Preconditions.checkArgument(mHalFocusRequestsByZoneAndUsage.contains(zoneId),
                 "Invalid zoneId %d provided in abandonAudioFocus", zoneId);
         if (Log.isLoggable(TAG, Log.DEBUG)) {

@@ -24,7 +24,6 @@ import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
 
 import android.hardware.automotive.audiocontrol.V1_0.IAudioControl;
-import android.hardware.automotive.audiocontrol.V2_0.IFocusListener;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 
@@ -88,7 +87,7 @@ public class AudioControlWrapperV1Test {
     @Test
     public void registerFocusListener_throws() {
         AudioControlWrapperV1 audioControlWrapperV1 = new AudioControlWrapperV1(mAudioControlV1);
-        IFocusListener mockListener = mock(IFocusListener.class);
+        HalFocusListener mockListener = mock(HalFocusListener.class);
 
         assertThrows(UnsupportedOperationException.class,
                 () -> audioControlWrapperV1.registerFocusListener(mockListener));
@@ -97,7 +96,7 @@ public class AudioControlWrapperV1Test {
     @Test
     public void unregisterFocusListener_throws() {
         AudioControlWrapperV1 audioControlWrapperV1 = new AudioControlWrapperV1(mAudioControlV1);
-        IFocusListener mockListener = mock(IFocusListener.class);
+        HalFocusListener mockListener = mock(HalFocusListener.class);
 
         assertThrows(UnsupportedOperationException.class,
                 () -> audioControlWrapperV1.unregisterFocusListener());

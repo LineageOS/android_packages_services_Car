@@ -18,6 +18,7 @@ package com.android.car.audio.hal;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -41,7 +42,6 @@ import org.mockito.junit.MockitoRule;
 public class AudioControlWrapperV2Test {
     private static final float FADE_VALUE = 5;
     private static final float BALANCE_VALUE = 6;
-    private static final int CONTEXT_NUMBER = 3;
     private static final int USAGE = AudioAttributes.USAGE_MEDIA;
     private static final int ZONE_ID = 2;
     private static final int FOCUS_GAIN = AudioManager.AUDIOFOCUS_GAIN;
@@ -78,17 +78,19 @@ public class AudioControlWrapperV2Test {
     @Test
     public void registerFocusListener_succeeds() throws Exception {
         AudioControlWrapperV2 audioControlWrapperV2 = new AudioControlWrapperV2(mAudioControlV2);
-        IFocusListener mockListener = mock(IFocusListener.class);
+        HalFocusListener mockListener = mock(HalFocusListener.class);
+
         audioControlWrapperV2.registerFocusListener(mockListener);
 
-        verify(mAudioControlV2).registerFocusListener(mockListener);
+        verify(mAudioControlV2).registerFocusListener(any(IFocusListener.class));
     }
 
     @Test
     public void unregisterFocusListener_closesHandle() throws Exception {
-        IFocusListener mockListener = mock(IFocusListener.class);
+        HalFocusListener mockListener = mock(HalFocusListener.class);
         ICloseHandle mockCloseHandle = mock(ICloseHandle.class);
-        when(mAudioControlV2.registerFocusListener(mockListener)).thenReturn(mockCloseHandle);
+        when(mAudioControlV2.registerFocusListener(any(IFocusListener.class)))
+                .thenReturn(mockCloseHandle);
 
         AudioControlWrapperV2 audioControlWrapperV2 = new AudioControlWrapperV2(mAudioControlV2);
         audioControlWrapperV2.registerFocusListener(mockListener);
