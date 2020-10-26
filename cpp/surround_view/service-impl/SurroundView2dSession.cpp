@@ -289,9 +289,7 @@ SurroundView2dSession::SurroundView2dSession(sp<IEvsEnumerator> pEvs,
                                              IOModuleConfig* pConfig)
     : mEvs(pEvs),
       mIOModuleConfig(pConfig),
-      mStreamState(STOPPED) {
-    mEvsCameraIds = {"0", "1", "2", "3"};
-}
+      mStreamState(STOPPED) {}
 
 SurroundView2dSession::~SurroundView2dSession() {
     // In case the client did not call stopStream properly, we should stop the
@@ -650,8 +648,6 @@ bool SurroundView2dSession::initialize() {
     }
     ATRACE_END();
 
-    mEvsCameraIds = mIOModuleConfig->cameraConfig.evsCameraIds;
-
     ATRACE_BEGIN("Allocate cpu buffers");
     mInputPointers.resize(kNumFrames);
     for (int i = 0; i < kNumFrames; i++) {
@@ -785,7 +781,13 @@ bool SurroundView2dSession::setupEvs() {
         LOG(ERROR) << "Failed to allocate EVS Camera interface for " << camId;
         return false;
     } else {
-        LOG(INFO) << "Camera " << camId << " is opened successfully";
+        LOG(INFO) << "Logical camera " << camId << " is opened successfully";
+    }
+
+    mEvsCameraIds = mIOModuleConfig->cameraConfig.evsCameraIds;
+    if (mEvsCameraIds.size() < kNumFrames) {
+        LOG(ERROR) << "Incorrect camera info is stored in the camera config";
+        return false;
     }
 
     map<string, AndroidCameraParams> cameraIdToAndroidParameters;
