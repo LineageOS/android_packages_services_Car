@@ -170,6 +170,13 @@ public final class AndroidMockitoHelper {
     }
 
     /**
+     * Mocks a successful call to {@code UserManager#removeUser(int)}.
+     */
+    public static void mockUmRemoveUser(@NonNull UserManager um, @NonNull UserInfo user) {
+        when(um.removeUser(user.id)).thenReturn(true);
+    }
+
+    /**
      * Mocks a call to {@link ServiceManager#getService(name)}.
      *
      * <p><b>Note: </b>it must be made inside a
