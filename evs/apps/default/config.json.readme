@@ -38,8 +38,11 @@
       "z" : 48,                     // Optical center distance above ground
       "yaw" : 180,                  // Optical axis degrees to the left of straight ahead
       "pitch" : -30,                // Optical axis degrees above the horizon
+      "roll" : 0,                   // Rotation degrees around the optical axis
       "hfov" : 125,                 // Horizontal field of view in degrees
-      "vfov" :103                   // Vertical field of view in degrees
+      "vfov" :103,                  // Vertical field of view in degrees
+      "hflip" : true,               // Flip the view horizontally
+      "vflip" : true,               // Flip the view vertically
     }
   ]
 }
