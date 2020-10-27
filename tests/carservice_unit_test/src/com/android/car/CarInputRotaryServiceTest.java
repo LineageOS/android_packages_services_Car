@@ -70,17 +70,18 @@ public class CarInputRotaryServiceTest {
     // runWithScissors(), but only rely on CountdownLatches
     private static final long DEFAULT_TIMEOUT_MS = 5_000;
 
-    @Mock InputHalService mInputHalService;
-    @Mock TelecomManager mTelecomManager;
-    @Mock AssistUtils mAssistUtils;
-    @Mock CarInputService.KeyEventListener mDefaultMainListener;
-    @Mock Supplier<String> mLastCallSupplier;
-    @Mock IntSupplier mLongPressDelaySupplier;
-    @Mock InputCaptureClientController mCaptureController;
-    @Mock CarOccupantZoneService mCarOccupantZoneService;
+    @Mock private InputHalService mInputHalService;
+    @Mock private TelecomManager mTelecomManager;
+    @Mock private AssistUtils mAssistUtils;
+    @Mock private CarInputService.KeyEventListener mDefaultMainListener;
+    @Mock private Supplier<String> mLastCallSupplier;
+    @Mock private IntSupplier mLongPressDelaySupplier;
+    @Mock private InputCaptureClientController mCaptureController;
+    @Mock private CarOccupantZoneService mCarOccupantZoneService;
+    @Mock private CarUxRestrictionsManagerService mUxRestrictionService;
 
-    @Spy Context mContext = ApplicationProvider.getApplicationContext();
-    @Spy Handler mHandler = new Handler(Looper.getMainLooper());
+    @Spy private final Context mContext = ApplicationProvider.getApplicationContext();
+    @Spy private final Handler mHandler = new Handler(Looper.getMainLooper());
 
     private MockContext mMockContext;
     private CarUserService mCarUserService;
@@ -217,7 +218,7 @@ public class CarInputRotaryServiceTest {
         UserHalService userHal = mock(UserHalService.class);
         IActivityManager iActivityManager = mock(IActivityManager.class);
         mCarUserService = new CarUserService(mMockContext, userHal,
-                userManager, iActivityManager, /* maxRunningUsers= */ 2);
+                userManager, iActivityManager, /* maxRunningUsers= */ 2, mUxRestrictionService);
 
         mCarInputService = new CarInputService(mMockContext, mInputHalService, mCarUserService,
                 mCarOccupantZoneService, mHandler, mTelecomManager, mAssistUtils,
