@@ -268,6 +268,38 @@ final class InitialUserSetter {
             supportsOverrideUserIdProperty = builder.mSupportsOverrideUserIdProperty;
             userLocales = builder.mUserLocales;
         }
+
+        @Override
+        public String toString() {
+            StringBuilder string = new StringBuilder("InitialUserInfo[type=");
+            switch(type) {
+                case TYPE_DEFAULT_BEHAVIOR:
+                    string.append("DEFAULT_BEHAVIOR");
+                    break;
+                case TYPE_REPLACE_GUEST:
+                    string.append("REPLACE_GUEST");
+                    break;
+                case TYPE_SWITCH:
+                    string.append("SWITCH").append(",userId=").append(switchUserId);
+                    break;
+                case TYPE_CREATE:
+                    string.append("CREATE").append(",flags=")
+                            .append(UserHalHelper.userFlagsToString(newUserFlags));
+                    if (newUserName != null) {
+                        string.append(",name=" + UserHelperLite.safeName(newUserName));
+                    }
+                    if (userLocales != null) {
+                        string.append(",locales=").append(userLocales);
+                    }
+                    break;
+                default:
+                    string.append("UNKNOWN:").append(type);
+            }
+            if (replaceGuest) string.append(",replaceGuest");
+            if (supportsOverrideUserIdProperty) string.append(",supportsOverrideUserIdProperty");
+
+            return string.append(']').toString();
+        }
     }
 
     /**
