@@ -385,7 +385,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         for (int i = 0; i < size; i++) {
             int uid = mAppLifecycleListeners.keyAt(i);
             IResultReceiver listener = mAppLifecycleListeners.valueAt(i);
-            writer.printf("%suid: %d\n", indent, uid);
+            writer.printf("%suid: %d listener: %s\n", indent, uid,
+                    FunctionalUtils.getLambdaName(listener));
         }
     }
 
