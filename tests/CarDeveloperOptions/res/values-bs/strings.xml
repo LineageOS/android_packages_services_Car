@@ -4140,7 +4140,7 @@
     <string name="bluetooth_disabled" msgid="6588102116819268238">"Isključeno"</string>
     <string name="bluetooth_connected_summary" msgid="439920840053965217">"Povezan s uređajem <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="bluetooth_connected_multiple_devices_summary" msgid="596205630653123250">"Povezan s više uređaja"</string>
-    <string name="demo_mode" msgid="3831081808592541104">"Način demonstracije Sistemskog UI-a"</string>
+    <string name="demo_mode" msgid="3831081808592541104">"Način rada za demonstraciju Sistemskog UI-a"</string>
     <string name="dark_ui_mode" msgid="703844190192599217">"Tema"</string>
     <string name="dark_ui_mode_title" msgid="8774932716427742413">"Odabir teme"</string>
     <string name="dark_ui_settings_light_summary" msgid="5219102347744462812">"Ova postavka se odnosi i na aplikacije"</string>
