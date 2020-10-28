@@ -329,7 +329,7 @@ public final class CarUserManager extends CarManagerBase {
         int userId = user.getIdentifier();
         int uid = myUid();
         EventLog.writeEvent(EventLogTags.CAR_USER_MGR_REMOVE_USER_REQ, uid, userId);
-        int status = UserRemovalResult.STATUS_HAL_INTERNAL_FAILURE;
+        int status = UserRemovalResult.STATUS_ANDROID_FAILURE;
         try {
             UserRemovalResult result = mService.removeUser(userId);
             status = result.getStatus();
