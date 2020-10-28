@@ -2935,7 +2935,7 @@
     <string name="restriction_menu_reset" msgid="3642252461410370554">"Quitar restricciones"</string>
     <string name="restriction_menu_change_pin" msgid="592512748243421101">"Cambiar PIN"</string>
     <string name="app_notifications_switch_label" msgid="670683308275498821">"Mostrar notificaciones"</string>
-    <string name="help_label" msgid="1296484776243905646">"Ayuda y sugerencias"</string>
+    <string name="help_label" msgid="1296484776243905646">"Ayuda y comentarios"</string>
     <string name="support_summary" msgid="3278943815956130740">"Artículos de ayuda, teléfono y chat, cómo empezar"</string>
     <string name="user_account_title" msgid="2108666882630552859">"Cuenta para contenido"</string>
     <string name="user_picture_title" msgid="6664602422948159123">"ID de foto"</string>
