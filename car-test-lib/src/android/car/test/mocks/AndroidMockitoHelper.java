@@ -26,7 +26,9 @@ import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.test.util.UserTestingHelper;
 import android.car.test.util.UserTestingHelper.UserInfoBuilder;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
@@ -35,6 +37,7 @@ import android.os.IInterface;
 import android.os.ServiceManager;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.util.Log;
 
 import java.util.List;
 import java.util.Objects;
@@ -43,6 +46,8 @@ import java.util.Objects;
  * Provides common Mockito calls for core Android classes.
  */
 public final class AndroidMockitoHelper {
+
+    private static final String TAG = AndroidMockitoHelper.class.getSimpleName();
 
     /**
      * Mocks a call to {@link ActivityManager#getCurrentUser()}.
@@ -170,10 +175,18 @@ public final class AndroidMockitoHelper {
     }
 
     /**
-     * Mocks a successful call to {@code UserManager#removeUser(int)}.
+     * Mocks a successful call to {@code UserManager#removeUser(int)}, including the respective
+     * {@code receiver} notification.
      */
-    public static void mockUmRemoveUser(@NonNull UserManager um, @NonNull UserInfo user) {
-        when(um.removeUser(user.id)).thenReturn(true);
+    public static void mockUmRemoveUser(@NonNull Context context, @NonNull UserManager um,
+            @NonNull BroadcastReceiver receiver, @UserIdInt int userId) {
+        when(um.removeUser(userId)).thenAnswer((inv) -> {
+            Intent intent = new Intent(Intent.ACTION_USER_REMOVED);
+            intent.putExtra(Intent.EXTRA_USER_HANDLE, userId);
+            Log.v(TAG, "mockUmRemoveUser(): broadcasting " + intent + " to " + receiver);
+            receiver.onReceive(context, intent);
+            return true;
+        });
     }
 
     /**

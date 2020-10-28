@@ -42,8 +42,11 @@ import android.car.user.UserSwitchResult;
 import android.car.userlib.HalCallback;
 import android.car.userlib.UserHalHelper;
 import android.car.userlib.UserHelper;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.UserInfo;
@@ -78,6 +81,7 @@ import android.text.TextUtils;
 import android.util.EventLog;
 import android.util.Log;
 import android.util.SparseArray;
+import android.util.SparseBooleanArray;
 import android.util.TimingsTraceLog;
 
 import com.android.car.CarServiceBase;
@@ -235,6 +239,27 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @GuardedBy("mLockHelper")
     private ZoneUserBindingHelper mZoneUserBindingHelper;
 
+    private final BroadcastReceiver mUserLifecycleReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
+                Log.d(TAG_USER, "onReceive: " + intent);
+            }
+            switch(intent.getAction()) {
+                case Intent.ACTION_USER_REMOVED:
+                    int userId = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, UserHandle.USER_NULL);
+                    notifyHalUserRemoved(userId);
+                    break;
+                default:
+                    Log.w(TAG, "received unexpected intent: " + intent);
+            }
+        }
+    };
+
+    /** Map used to avoid calling UserHAL when a user was removed because HAL creation failed. */
+    @GuardedBy("mLockUser")
+    private final SparseBooleanArray mFailedToCreateUserIds = new SparseBooleanArray(1);
+
     public CarUserService(@NonNull Context context, @NonNull UserHalService hal,
             @NonNull UserManager userManager,
             @NonNull IActivityManager am, int maxRunningUsers) {
@@ -273,6 +298,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
             Log.d(TAG_USER, "init");
         }
+        mContext.registerReceiver(mUserLifecycleReceiver,
+                new IntentFilter(Intent.ACTION_USER_REMOVED));
     }
 
     @Override
@@ -280,6 +307,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
             Log.d(TAG_USER, "release");
         }
+        mContext.unregisterReceiver(mUserLifecycleReceiver);
     }
 
     @Override
@@ -293,6 +321,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             writer.println("User0Unlocked: " + mUser0Unlocked);
             writer.println("BackgroundUsersToRestart: " + mBackgroundUsersToRestart);
             writer.println("BackgroundUsersRestarted: " + mBackgroundUsersRestartedHere);
+            if (mFailedToCreateUserIds.size() > 0) {
+                writer.println("FailedToCreateUserIds: " + mFailedToCreateUserIds);
+            }
         }
         writer.println("MaxRunningUsers: " + mMaxRunningUsers);
         List<UserInfo> allDrivers = getAllDrivers();
@@ -1020,13 +1051,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             return logAndGetResults(userId, UserRemovalResult.STATUS_ANDROID_FAILURE);
         }
 
-        if (isUserHalSupported()) {
-            RemoveUserRequest request = new RemoveUserRequest();
-            request.removedUserInfo = halUser;
-            request.usersInfo = UserHalHelper.newUsersInfo(mUserManager);
-            mHal.removeUser(request);
-        }
-
         if (isLastAdmin) {
             Log.w(TAG_USER, "Last admin user successfully removed. User Id: " + userId);
         }
@@ -1034,6 +1058,38 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         return logAndGetResults(userId,
                 isLastAdmin ? UserRemovalResult.STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED
                         : UserRemovalResult.STATUS_SUCCESSFUL);
+    }
+
+    private void notifyHalUserRemoved(@UserIdInt int userId) {
+        if (!isUserHalSupported()) return;
+
+        if (userId == UserHandle.USER_NULL) {
+            Log.wtf(TAG, "notifyHalUserRemoved() Called for UserHandle.USER_NULL");
+            return;
+        }
+
+        synchronized (mLockUser) {
+            if (mFailedToCreateUserIds.get(userId)) {
+                if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
+                    Log.d(TAG, "notifyHalUserRemoved(): skipping " + userId);
+                }
+                mFailedToCreateUserIds.delete(userId);
+                return;
+            }
+        }
+
+        android.hardware.automotive.vehicle.V2_0.UserInfo halUser =
+                new android.hardware.automotive.vehicle.V2_0.UserInfo();
+        halUser.userId = userId;
+        // TODO(b/155913815): per the REMOVE_USER API, the userFlags should be set as well, but it's
+        // gone. We'll need to either update the documentation, or if that's not possible (as it's
+        // breaking the contract), either change the intent to contain the flags, or keep track of
+        // the flags internally.
+
+        RemoveUserRequest request = new RemoveUserRequest();
+        request.removedUserInfo = halUser;
+        request.usersInfo = UserHalHelper.newUsersInfo(mUserManager);
+        mHal.removeUser(request);
     }
 
     private UserRemovalResult logAndGetResults(@UserIdInt int userId,
@@ -1117,7 +1173,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                             + resp);
                     EventLog.writeEvent(EventLogTags.CAR_USER_SVC_CREATE_USER_RESP, status,
                             resultStatus, resp.errorMessage);
-                    removeUser(newUser, "HAL call failed with "
+                    removeCreatedUser(newUser, "HAL call failed with "
                             + UserHalHelper.halCallbackStatusToString(status));
                     sendUserCreationResult(receiver, resultStatus, user, /* errorMsg= */ null);
                     return;
@@ -1139,22 +1195,28 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 EventLog.writeEvent(EventLogTags.CAR_USER_SVC_CREATE_USER_RESP, status,
                         resultStatus, resp.errorMessage);
                 if (user == null) {
-                    removeUser(newUser, "HAL returned "
+                    removeCreatedUser(newUser, "HAL returned "
                             + UserCreationResult.statusToString(resultStatus));
                 }
                 sendUserCreationResult(receiver, resultStatus, user, resp.errorMessage);
             });
         } catch (Exception e) {
             Log.w(TAG, "mHal.createUser(" + request + ") failed", e);
-            removeUser(newUser, "mHal.createUser() failed");
+            removeCreatedUser(newUser, "mHal.createUser() failed");
             sendUserCreationResultFailure(receiver, UserCreationResult.STATUS_HAL_INTERNAL_FAILURE);
         }
     }
 
-    private void removeUser(@NonNull UserInfo user, @NonNull String reason) {
-        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_CREATE_USER_USER_REMOVED, user.id, reason);
+    private void removeCreatedUser(@NonNull UserInfo user, @NonNull String reason) {
+        int userId = user.id;
+        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_CREATE_USER_USER_REMOVED, userId, reason);
+
+        synchronized (mLockUser) {
+            mFailedToCreateUserIds.put(userId, true);
+        }
+
         try {
-            if (!mUserManager.removeUser(user.id)) {
+            if (!mUserManager.removeUser(userId)) {
                 Log.w(TAG, "Failed to remove user " + user.toFullString());
             }
         } catch (Exception e) {
