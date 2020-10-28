@@ -15,7 +15,7 @@
  */
 package com.android.car.custominput.sample;
 
-import static android.car.input.CarInputManager.TargetDisplayType;
+import static android.car.CarOccupantZoneManager.DisplayTypeEnum;
 
 import android.annotation.NonNull;
 import android.app.Notification;
@@ -23,6 +23,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.car.Car;
+import android.car.CarOccupantZoneManager;
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
 import android.car.media.CarAudioManager;
@@ -91,7 +92,7 @@ public class SampleCustomInputService extends Service implements
                         mCarInputManager =
                                 (CarInputManager) mCar.getCarManager(Car.CAR_INPUT_SERVICE);
                         mCarInputManager.requestInputEventCapture(this,
-                                CarInputManager.TARGET_DISPLAY_TYPE_MAIN,
+                                CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
                                 new int[]{CarInputManager.INPUT_TYPE_CUSTOM_INPUT_EVENT},
                                 CarInputManager.CAPTURE_REQ_FLAGS_ALLOW_DELAYED_GRANT);
                         mEventHandler = new CustomInputEventListener(getApplicationContext(),
@@ -106,7 +107,7 @@ public class SampleCustomInputService extends Service implements
             Log.d(TAG, "Service destroyed");
         }
         if (mCarInputManager != null) {
-            mCarInputManager.releaseInputEventCapture(CarInputManager.TARGET_DISPLAY_TYPE_MAIN);
+            mCarInputManager.releaseInputEventCapture(CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
         }
         if (mCar != null) {
             mCar.disconnect();
@@ -120,14 +121,14 @@ public class SampleCustomInputService extends Service implements
     }
 
     @Override
-    public void onCustomInputEvents(@TargetDisplayType int targetDisplayType,
+    public void onCustomInputEvents(@DisplayTypeEnum int targetDisplayType,
             @NonNull List<CustomInputEvent> events) {
         for (CustomInputEvent event : events) {
             mEventHandler.handle(targetDisplayType, event);
         }
     }
 
-    public void injectKeyEvent(KeyEvent event, @TargetDisplayType int targetDisplayType) {
+    public void injectKeyEvent(KeyEvent event, @DisplayTypeEnum int targetDisplayType) {
         if (mCarInputManager == null) {
             throw new IllegalStateException(
                     "Service was properly initialized, reference to CarInputManager is null");

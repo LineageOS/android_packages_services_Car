@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.testng.Assert.assertThrows;
 
 import android.car.Car;
+import android.car.CarOccupantZoneManager;
 import android.car.input.CarInputManager;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -61,7 +62,7 @@ public class CarInputManagerPermisisonTest {
     public void testEnableFeaturePermission() throws Exception {
         assertThrows(SecurityException.class, () -> mCarInputManager.requestInputEventCapture(
                 mMockedCallback,
-                CarInputManager.TARGET_DISPLAY_TYPE_MAIN,
+                CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
                 new int[]{CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION}, 0));
     }
 }
