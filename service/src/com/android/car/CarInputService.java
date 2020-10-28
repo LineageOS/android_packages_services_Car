@@ -15,6 +15,7 @@
  */
 package com.android.car;
 
+import static android.car.CarOccupantZoneManager.DisplayTypeEnum;
 import static android.hardware.input.InputManager.INJECT_INPUT_EVENT_MODE_ASYNC;
 import static android.service.voice.VoiceInteractionSession.SHOW_SOURCE_PUSH_TO_TALK;
 
@@ -25,6 +26,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothHeadsetClient;
 import android.bluetooth.BluetoothProfile;
+import android.car.CarOccupantZoneManager;
 import android.car.CarProjectionManager;
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
@@ -337,7 +339,7 @@ public class CarInputService extends ICarInput.Stub
     }
 
     @Override
-    public void onKeyEvent(KeyEvent event, int targetDisplay) {
+    public void onKeyEvent(KeyEvent event, @DisplayTypeEnum int targetDisplay) {
         // Special case key code that have special "long press" handling for automotive
         switch (event.getKeyCode()) {
             case KeyEvent.KEYCODE_VOICE_ASSIST:
@@ -351,10 +353,10 @@ public class CarInputService extends ICarInput.Stub
         }
 
         // Allow specifically targeted keys to be routed to the cluster
-        if (targetDisplay == InputHalService.DISPLAY_INSTRUMENT_CLUSTER) {
+        if (targetDisplay == CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER) {
             handleInstrumentClusterKey(event);
         } else {
-            if (mCaptureController.onKeyEvent(CarInputManager.TARGET_DISPLAY_TYPE_MAIN, event)) {
+            if (mCaptureController.onKeyEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN, event)) {
                 return;
             }
             mMainDisplayHandler.onKeyEvent(event);
@@ -362,7 +364,7 @@ public class CarInputService extends ICarInput.Stub
     }
 
     @Override
-    public void onRotaryEvent(RotaryEvent event, int targetDisplay) {
+    public void onRotaryEvent(RotaryEvent event, @DisplayTypeEnum int targetDisplay) {
         if (!mCaptureController.onRotaryEvent(targetDisplay, event)) {
             List<KeyEvent> keyEvents = rotaryEventToKeyEvents(event);
             for (KeyEvent keyEvent : keyEvents) {
@@ -429,14 +431,16 @@ public class CarInputService extends ICarInput.Stub
     }
 
     @Override
-    public int requestInputEventCapture(ICarInputCallback callback, int targetDisplayType,
+    public int requestInputEventCapture(ICarInputCallback callback,
+            @DisplayTypeEnum int targetDisplayType,
             int[] inputTypes, int requestFlags) {
         return mCaptureController.requestInputEventCapture(callback, targetDisplayType, inputTypes,
                 requestFlags);
     }
 
     @Override
-    public void releaseInputEventCapture(ICarInputCallback callback, int targetDisplayType) {
+    public void releaseInputEventCapture(ICarInputCallback callback,
+            @DisplayTypeEnum int targetDisplayType) {
         mCaptureController.releaseInputEventCapture(callback, targetDisplayType);
     }
 
@@ -446,12 +450,12 @@ public class CarInputService extends ICarInput.Stub
      * The event's display id will be overridden accordingly to the display type (it will be
      * retrieved from {@link CarOccupantZoneService}).
      *
-     * @param event the event to inject
+     * @param event             the event to inject
      * @param targetDisplayType the display type associated with the event
      * @throws SecurityException when caller doesn't have INJECT_EVENTS permission granted
      */
     @Override
-    public void injectKeyEvent(KeyEvent event, int targetDisplayType) {
+    public void injectKeyEvent(KeyEvent event, @DisplayTypeEnum int targetDisplayType) {
         // Permission check
         if (PackageManager.PERMISSION_GRANTED != mContext.checkCallingOrSelfPermission(
                 android.Manifest.permission.INJECT_EVENTS)) {

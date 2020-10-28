@@ -16,14 +16,14 @@
 
 package com.android.car.custominput.sample;
 
-import static android.car.input.CarInputManager.TargetDisplayType;
+import static android.car.CarOccupantZoneManager.DisplayTypeEnum;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 import static android.media.AudioAttributes.AttributeUsage;
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.app.ActivityOptions;
-import android.car.input.CarInputManager;
+import android.car.CarOccupantZoneManager;
 import android.car.input.CustomInputEvent;
 import android.car.media.CarAudioManager;
 import android.content.Context;
@@ -95,7 +95,7 @@ final class CustomInputEventListener {
         mService = service;
     }
 
-    void handle(@TargetDisplayType int targetDisplayType, CustomInputEvent event) {
+    void handle(@DisplayTypeEnum int targetDisplayType, CustomInputEvent event) {
         if (!isValidTargetDisplayType(targetDisplayType)) {
             return;
         }
@@ -132,9 +132,9 @@ final class CustomInputEventListener {
     }
 
     private int getDisplayIdForDisplayType(/* unused for now */
-            @TargetDisplayType int targetDisplayType) {
+            @DisplayTypeEnum int targetDisplayType) {
         // TODO(b/170233532): convert the displayType to displayId using OccupantZoneManager api and
-        //                  add tests. For now, we're just returning the display type.
+        //     add tests. For now, we're just returning the display type.
         return 0;  // Hardcoded to return main display id for now.
     }
 
@@ -144,15 +144,14 @@ final class CustomInputEventListener {
         return PRIMARY_AUDIO_ZONE;
     }
 
-    private static boolean isValidTargetDisplayType(@TargetDisplayType int displayType) {
-        if (displayType == CarInputManager.TARGET_DISPLAY_TYPE_MAIN) {
+    private static boolean isValidTargetDisplayType(@DisplayTypeEnum int displayType) {
+        if (displayType == CarOccupantZoneManager.DISPLAY_TYPE_MAIN) {
             return true;
         }
         Log.w(TAG,
                 "This service implementation can only handle CustomInputEvent with "
                         + "targetDisplayType set to main display (main display type is {"
-                        + CarInputManager.TARGET_DISPLAY_TYPE_MAIN
-                        + "}), current display type is {"
+                        + CarOccupantZoneManager.DISPLAY_TYPE_MAIN + "}), current display type is {"
                         + displayType + "})");
         return false;
     }
@@ -230,7 +229,7 @@ final class CustomInputEventListener {
         mCarAudioManager.setGroupVolume(volumeGroupId, volume, AudioManager.FLAG_SHOW_UI);
     }
 
-    private void backHome(@TargetDisplayType int targetDisplayType) {
+    private void backHome(@DisplayTypeEnum int targetDisplayType) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "Injecting HOME KeyEvent on display type {" + targetDisplayType + "}");
         }
