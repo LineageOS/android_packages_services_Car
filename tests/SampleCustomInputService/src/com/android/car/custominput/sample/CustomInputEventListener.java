@@ -51,6 +51,7 @@ final class CustomInputEventListener {
     private final SampleCustomInputService mService;
     private final Context mContext;
     private final CarAudioManager mCarAudioManager;
+    private final CarOccupantZoneManager mCarOccupantZoneManager;
 
     /** List of defined actions for this reference service implementation */
     @IntDef({EventAction.LAUNCH_MAPS_ACTION,
@@ -89,9 +90,11 @@ final class CustomInputEventListener {
     CustomInputEventListener(
             @NonNull Context context,
             @NonNull CarAudioManager carAudioManager,
+            @NonNull CarOccupantZoneManager carOccupantZoneManager,
             @NonNull SampleCustomInputService service) {
         mContext = context;
         mCarAudioManager = carAudioManager;
+        mCarOccupantZoneManager = carOccupantZoneManager;
         mService = service;
     }
 
@@ -131,11 +134,13 @@ final class CustomInputEventListener {
         }
     }
 
-    private int getDisplayIdForDisplayType(/* unused for now */
-            @DisplayTypeEnum int targetDisplayType) {
-        // TODO(b/170233532): convert the displayType to displayId using OccupantZoneManager api and
-        //     add tests. For now, we're just returning the display type.
-        return 0;  // Hardcoded to return main display id for now.
+    private int getDisplayIdForDisplayType(@DisplayTypeEnum int targetDisplayType) {
+        int displayId = mCarOccupantZoneManager.getDisplayIdForDriver(targetDisplayType);
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Resolved display id {" + displayId + "} for display type {"
+                    + targetDisplayType + "}");
+        }
+        return displayId;
     }
 
     private int getOccupantZoneIdForDisplayId(/* unused for now */ int displayId) {

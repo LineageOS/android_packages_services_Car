@@ -96,7 +96,10 @@ public class SampleCustomInputService extends Service implements
                                 new int[]{CarInputManager.INPUT_TYPE_CUSTOM_INPUT_EVENT},
                                 CarInputManager.CAPTURE_REQ_FLAGS_ALLOW_DELAYED_GRANT);
                         mEventHandler = new CustomInputEventListener(getApplicationContext(),
-                                (CarAudioManager) mCar.getCarManager(Car.AUDIO_SERVICE), this);
+                                (CarAudioManager) mCar.getCarManager(Car.AUDIO_SERVICE),
+                                (CarOccupantZoneManager) mCar.getCarManager(
+                                        Car.CAR_OCCUPANT_ZONE_SERVICE),
+                                this);
                     }
                 });
     }

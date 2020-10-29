@@ -23,6 +23,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -72,6 +73,7 @@ public class CustomInputEventListenerTest {
 
     @Mock private Context mContext;
     @Mock private CarAudioManager mCarAudioManager;
+    @Mock private CarOccupantZoneManager mCarOccupantZoneManager;
     @Mock private SampleCustomInputService mService;
 
     @Before
@@ -80,7 +82,10 @@ public class CustomInputEventListenerTest {
                 "com.google.android.apps.maps");
         when(mContext.getString(R.string.maps_activity_class)).thenReturn(
                 "com.google.android.maps.MapsActivity");
-        mEventHandler = new CustomInputEventListener(mContext, mCarAudioManager, mService);
+        when(mCarOccupantZoneManager.getDisplayIdForDriver(eq(DISPLAY_TYPE_MAIN))).thenReturn(0);
+
+        mEventHandler = new CustomInputEventListener(mContext, mCarAudioManager,
+                mCarOccupantZoneManager, mService);
     }
 
     @Test
