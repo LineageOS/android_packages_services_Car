@@ -1111,7 +1111,6 @@ package android.car.user {
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field @NonNull public static final android.os.Parcelable.Creator<android.car.user.UserRemovalResult> CREATOR;
     field public static final int STATUS_ANDROID_FAILURE = 2; // 0x2
-    field public static final int STATUS_HAL_INTERNAL_FAILURE = 4; // 0x4
     field public static final int STATUS_SUCCESSFUL = 1; // 0x1
     field public static final int STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED = 103; // 0x67
     field public static final int STATUS_TARGET_USER_IS_CURRENT_USER = 101; // 0x65
