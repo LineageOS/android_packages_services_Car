@@ -1296,7 +1296,7 @@ final class CarShellCommand extends ShellCommand {
         }
 
         CarUserManager carUserManager = getCarUserManager(mContext);
-        UserRemovalResult result = carUserManager.removeUser(UserHandle.of(userId));
+        UserRemovalResult result = carUserManager.removeUser(userId);
         writer.printf("UserRemovalResult: status = %s\n",
                 UserRemovalResult.statusToString(result.getStatus()));
     }

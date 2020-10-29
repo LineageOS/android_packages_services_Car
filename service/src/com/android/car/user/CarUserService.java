@@ -1009,9 +1009,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     @Override
-    public UserRemovalResult removeUser(@UserIdInt int userId) {
+    public UserRemovalResult removeUser(@UserIdInt int userId, boolean hasCallerRestrictions) {
         checkManageOrCreateUsersPermission("removeUser");
         EventLog.writeEvent(EventLogTags.CAR_USER_SVC_REMOVE_USER_REQ, userId);
+
         // If the requested user is the current user, return error.
         if (ActivityManager.getCurrentUser() == userId) {
             return logAndGetResults(userId,
@@ -1022,6 +1023,16 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         UserInfo userInfo = mUserManager.getUserInfo(userId);
         if (userInfo == null) {
             return logAndGetResults(userId, UserRemovalResult.STATUS_USER_DOES_NOT_EXIST);
+        }
+
+        if (hasCallerRestrictions) {
+            // Restrictions: non-admin user can only remove itself, admins have no restrictions
+            int callingUserId = Binder.getCallingUserHandle().getIdentifier();
+            UserInfo callingUser = mUserManager.getUserInfo(callingUserId);
+            if (!callingUser.isAdmin() && userId != callingUserId) {
+                throw new SecurityException("Non-admin user " + callingUserId
+                        + " can only remove itself");
+            }
         }
 
         android.hardware.automotive.vehicle.V2_0.UserInfo halUser =

@@ -325,13 +325,26 @@ public final class CarUserManager extends CarManagerBase {
     @NonNull
     public UserRemovalResult removeUser(@NonNull UserHandle user) {
         Objects.requireNonNull(user, "user cannot be null");
+        return removeUser(user.getIdentifier(), /* hasCallerRestrictions= */ true);
+    }
 
-        int userId = user.getIdentifier();
+    // TODO(b/155913815): add proper javadoc / explain difference between 2 methods (but wait until
+    // we're sure the @SystemAPI method won't be moved to CarDevicePolicyManager)
+    /** @hide */
+    @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
+            android.Manifest.permission.CREATE_USERS})
+    @NonNull
+    public UserRemovalResult removeUser(@UserIdInt int userId) {
+        return removeUser(userId, /* hasCallerRestrictions= */ false);
+    }
+
+    private UserRemovalResult removeUser(@UserIdInt int userId, boolean hasCallerRestrictions) {
         int uid = myUid();
-        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_REMOVE_USER_REQ, uid, userId);
+        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_REMOVE_USER_REQ, uid, userId,
+                hasCallerRestrictions ? 1 : 0);
         int status = UserRemovalResult.STATUS_ANDROID_FAILURE;
         try {
-            UserRemovalResult result = mService.removeUser(userId);
+            UserRemovalResult result = mService.removeUser(userId, hasCallerRestrictions);
             status = result.getStatus();
             return result;
         } catch (RemoteException e) {
