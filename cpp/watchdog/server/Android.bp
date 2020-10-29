@@ -72,6 +72,7 @@ cc_library {
     ],
     srcs: [
         "src/WatchdogPerfService.cpp",
+        "src/IoOveruseConfigs.cpp",
         "src/IoOveruseMonitor.cpp",
         "src/IoPerfCollection.cpp",
         "src/LooperWrapper.cpp",
@@ -96,6 +97,7 @@ cc_test {
     ],
     test_suites: ["general-tests"],
     srcs: [
+        "tests/IoOveruseConfigsTest.cpp",
         "tests/IoPerfCollectionTest.cpp",
         "tests/LooperStub.cpp",
         "tests/PackageNameResolverTest.cpp",
