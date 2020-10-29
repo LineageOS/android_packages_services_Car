@@ -55,6 +55,8 @@ import java.util.stream.Collectors;
  * class is not thread-safe, and must be used in the main thread or with additional serialization.
  */
 final class PolicyReader {
+    static final int INVALID_POWER_COMPONENT = -1;
+
     private static final String TAG = PolicyReader.class.getSimpleName();
     private static final String VENDOR_POLICY_PATH = "/vendor/etc/power_policy.xml";
 
@@ -79,7 +81,6 @@ final class PolicyReader {
     private static final String POWER_ONOFF_UNTOUCHED = "untouched";
 
     private static final String POWER_COMPONENT_PREFIX = "POWER_COMPONENT_";
-    private static final int INVALID_POWER_COMPONENT = -1;
     private static final int INVALID_POWER_STATE = -1;
 
     private static final String POWER_COMPONENT_AUDIO = "AUDIO";
@@ -159,6 +160,10 @@ final class PolicyReader {
     @NonNull
     CarPowerPolicy getSystemPowerPolicy() {
         return mSystemPowerPolicy;
+    }
+
+    boolean isPowerPolicyGroupAvailable(String policyGroupId) {
+        return mPolicyGroups.containsKey(policyGroupId);
     }
 
     void init() {
@@ -541,7 +546,60 @@ final class PolicyReader {
         return SYSTEM_POLICY_CONFIGURABLE_COMPONENTS.contains(component);
     }
 
-    private int toPowerComponent(String component) {
+    private int toPowerState(String state) {
+        if (state == null) {
+            return INVALID_POWER_STATE;
+        }
+        switch (state) {
+            case POWER_STATE_WAIT_FOR_VHAL:
+                return VehicleApPowerStateReport.WAIT_FOR_VHAL;
+            case POWER_STATE_ON:
+                return VehicleApPowerStateReport.ON;
+            case POWER_STATE_DEEP_SLEEP_ENTRY:
+                return VehicleApPowerStateReport.DEEP_SLEEP_ENTRY;
+            case POWER_STATE_SHUTDOWN_START:
+                return VehicleApPowerStateReport.SHUTDOWN_START;
+            default:
+                return INVALID_POWER_STATE;
+        }
+    }
+
+    private String powerStateToString(int state) {
+        switch (state) {
+            case VehicleApPowerStateReport.WAIT_FOR_VHAL:
+                return POWER_STATE_WAIT_FOR_VHAL;
+            case VehicleApPowerStateReport.ON:
+                return POWER_STATE_ON;
+            case VehicleApPowerStateReport.DEEP_SLEEP_ENTRY:
+                return POWER_STATE_DEEP_SLEEP_ENTRY;
+            case VehicleApPowerStateReport.SHUTDOWN_START:
+                return POWER_STATE_SHUTDOWN_START;
+            default:
+                return "unknown power state";
+        }
+    }
+
+    private String toString(CarPowerPolicy policy) {
+        return policy.policyId + "(enabledComponents: "
+                + componentsToString(policy.enabledComponents) + " | disabledComponents: "
+                + componentsToString(policy.disabledComponents) + ")";
+    }
+
+    private String componentsToString(int[] components) {
+        StringBuffer buffer = new StringBuffer();
+        for (int i = 0; i < components.length; i++) {
+            if (i > 0) buffer.append(", ");
+            buffer.append(powerComponentToString(components[i]));
+        }
+        return buffer.toString();
+    }
+
+    static boolean isValidPowerComponent(int component) {
+        return component >= PowerComponent.AUDIO
+                && component <= PowerComponent.TRUSTED_DEVICE_DETECTION;
+    }
+
+    static int toPowerComponent(String component) {
         if (component == null || !component.startsWith(POWER_COMPONENT_PREFIX)) {
             return INVALID_POWER_COMPONENT;
         }
@@ -584,40 +642,7 @@ final class PolicyReader {
         }
     }
 
-    private int toPowerState(String state) {
-        if (state == null) {
-            return INVALID_POWER_STATE;
-        }
-        switch (state) {
-            case POWER_STATE_WAIT_FOR_VHAL:
-                return VehicleApPowerStateReport.WAIT_FOR_VHAL;
-            case POWER_STATE_ON:
-                return VehicleApPowerStateReport.ON;
-            case POWER_STATE_DEEP_SLEEP_ENTRY:
-                return VehicleApPowerStateReport.DEEP_SLEEP_ENTRY;
-            case POWER_STATE_SHUTDOWN_START:
-                return VehicleApPowerStateReport.SHUTDOWN_START;
-            default:
-                return INVALID_POWER_STATE;
-        }
-    }
-
-    private String powerStateToString(int state) {
-        switch (state) {
-            case VehicleApPowerStateReport.WAIT_FOR_VHAL:
-                return POWER_STATE_WAIT_FOR_VHAL;
-            case VehicleApPowerStateReport.ON:
-                return POWER_STATE_ON;
-            case VehicleApPowerStateReport.DEEP_SLEEP_ENTRY:
-                return POWER_STATE_DEEP_SLEEP_ENTRY;
-            case VehicleApPowerStateReport.SHUTDOWN_START:
-                return POWER_STATE_SHUTDOWN_START;
-            default:
-                return "unknown power state";
-        }
-    }
-
-    private String powerComponentToString(int component) {
+    static String powerComponentToString(int component) {
         switch (component) {
             case PowerComponent.AUDIO:
                 return POWER_COMPONENT_AUDIO;
@@ -656,21 +681,6 @@ final class PolicyReader {
         }
     }
 
-    private String toString(CarPowerPolicy policy) {
-        return policy.policyId + "(enabledComponents: "
-                + componentsToString(policy.enabledComponents) + " | disabledComponents: "
-                + componentsToString(policy.disabledComponents) + ")";
-    }
-
-    private String componentsToString(int[] components) {
-        StringBuffer buffer = new StringBuffer();
-        for (int i = 0; i < components.length; i++) {
-            if (i > 0) buffer.append(", ");
-            buffer.append(powerComponentToString(components[i]));
-        }
-        return buffer.toString();
-    }
-
     private static int[] toIntArray(SparseBooleanArray array, boolean value) {
         int arraySize = array.size();
         int returnSize = 0;
@@ -678,8 +688,11 @@ final class PolicyReader {
             if (array.valueAt(i) == value) returnSize++;
         }
         int[] ret = new int[returnSize];
-        for (int i = 0; i < returnSize; i++) {
-            ret[i] = array.keyAt(i);
+        int count = 0;
+        for (int i = 0; i < arraySize; i++) {
+            if (array.valueAt(i) == value) {
+                ret[count++] = array.keyAt(i);
+            }
         }
         return ret;
     }
