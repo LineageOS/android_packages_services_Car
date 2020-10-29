@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,30 @@
  * limitations under the License.
  */
 
-package android.automotive.watchdog;
+package android.automotive.watchdog.internal;
 
 /**
- * Used by ICarWatchdog to describe the change type.
- *
- * @deprecated System API specific copy available under android.automotive.watchdog.internal
- * package.
+ * Used by ICarWatchdog to describe the device power status.
  */
-@VintfStability
 @Backing(type="int")
-enum StateType {
+enum PowerCycle {
   /**
-   * Device power status change.
+   * The system is about to shut down.
    */
-  POWER_CYCLE,
+  POWER_CYCLE_SHUTDOWN,
 
   /**
-   * User state change.
+   * The system is being suspended.
    */
-  USER_STATE,
+  POWER_CYCLE_SUSPEND,
 
   /**
-   * Boot phase change.
+   * The system resumes working.
    */
-  BOOT_PHASE,
+  POWER_CYCLE_RESUME,
+
+  /**
+   * Number of available power cycles.
+   */
+  NUM_POWER_CYLES,
 }

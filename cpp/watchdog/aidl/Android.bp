@@ -48,3 +48,18 @@ aidl_interface {
         "2",
     ],
 }
+
+aidl_interface {
+    name: "android.automotive.watchdog.internal",
+    unstable: true,
+    vendor_available: false,
+    srcs: [
+        "android/automotive/watchdog/internal/*.aidl",
+    ],
+    backend: {
+        java: {
+            platform_apis: true,
+            enabled: true,
+        },
+    },
+}

@@ -18,6 +18,9 @@ package android.automotive.watchdog;
 
 /**
  * Used by ICarWatchdog to describe the boot phase.
+ *
+ * @deprecated System API specific copy available under android.automotive.watchdog.internal
+ * package.
  */
 
 @VintfStability

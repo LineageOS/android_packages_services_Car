@@ -14,26 +14,25 @@
  * limitations under the License.
  */
 
-package android.automotive.watchdog;
+package android.automotive.watchdog.internal;
 
 /**
- * Describes the category type of an application.
+ * Used by ICarWatchdog to describe the change type.
  */
-@VintfStability
 @Backing(type="int")
-enum ApplicationCategoryType {
+enum StateType {
   /**
-   * Maps application.
+   * Device power status change.
    */
-  MAPS,
+  POWER_CYCLE,
 
   /**
-   * Audio or Video application.
+   * User state change.
    */
-  MEDIA,
+  USER_STATE,
 
   /**
-   * Applications that don't fall under the above categories.
+   * Boot phase change.
    */
-  OTHERS,
+  BOOT_PHASE,
 }

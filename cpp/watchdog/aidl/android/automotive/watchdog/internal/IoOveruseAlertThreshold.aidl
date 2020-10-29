@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package android.automotive.watchdog;
+package android.automotive.watchdog.internal;
 
 /**
  * Structure that describes the system-wide disk I/O overuse threshold that triggers I/O overuse
  * alert.
  */
-@VintfStability
 parcelable IoOveruseAlertThreshold {
   /**
    * Duration to aggregate the system-wide disk I/O usage and compare the usage against the given

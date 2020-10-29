@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,25 @@
  * limitations under the License.
  */
 
-package android.automotive.watchdog;
+package android.automotive.watchdog.internal;
 
 /**
- * Used by ICarWatchdog to describe the change type.
- *
- * @deprecated System API specific copy available under android.automotive.watchdog.internal
- * package.
+ * Used by ICarWatchdog to describe whether user is started or stopped.
  */
-@VintfStability
 @Backing(type="int")
-enum StateType {
+enum UserState {
   /**
-   * Device power status change.
+   * The user is started.
    */
-  POWER_CYCLE,
+  USER_STATE_STARTED,
 
   /**
-   * User state change.
+   * The user is stopped.
    */
-  USER_STATE,
+  USER_STATE_STOPPED,
 
   /**
-   * Boot phase change.
+   * Number of available user states.
    */
-  BOOT_PHASE,
+  NUM_USER_STATES,
 }

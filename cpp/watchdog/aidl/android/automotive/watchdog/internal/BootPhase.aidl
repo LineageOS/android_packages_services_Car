@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,15 @@
  * limitations under the License.
  */
 
-package android.automotive.watchdog;
+package android.automotive.watchdog.internal;
 
 /**
- * Used by ICarWatchdog to describe the change type.
- *
- * @deprecated System API specific copy available under android.automotive.watchdog.internal
- * package.
+ * Used by ICarWatchdog to describe the boot phase.
  */
-@VintfStability
 @Backing(type="int")
-enum StateType {
+enum BootPhase {
   /**
-   * Device power status change.
+   * Boot completed and the home application has started.
    */
-  POWER_CYCLE,
-
-  /**
-   * User state change.
-   */
-  USER_STATE,
-
-  /**
-   * Boot phase change.
-   */
-  BOOT_PHASE,
+  BOOT_COMPLETED = 1000,
 }
