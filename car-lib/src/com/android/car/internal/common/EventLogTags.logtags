@@ -115,6 +115,6 @@ option java_package com.android.car.internal.common
 150179 car_user_mgr_set_user_auth_resp (values|4)
 150180 car_user_mgr_create_user_req (uid|1),(safe_name|3),(user_type|3),(flags|1)
 150181 car_user_mgr_create_user_resp (uid|1),(status|1),(error_message|3)
-150182 car_user_mgr_remove_user_req (uid|1),(user_id|1)
+150182 car_user_mgr_remove_user_req (uid|1),(user_id|1),(has_caller_restrictions|1)
 150183 car_user_mgr_remove_user_resp (uid|1),(status|1)
 150184 car_user_mgr_notify_lifecycle_listener (number_listeners|1),(event_type|1),(from_user_id|1),(to_user_id|1)

@@ -211,7 +211,8 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
     @Test
     public void testRemoveUser_success() throws Exception {
         int status = UserRemovalResult.STATUS_SUCCESSFUL;
-        when(mService.removeUser(100)).thenReturn(new UserRemovalResult(status));
+        when(mService.removeUser(100, /* hasCallerRestrictions= */ true))
+                .thenReturn(new UserRemovalResult(status));
 
         UserRemovalResult result = mMgr.removeUser(UserHandle.of(100));
 
@@ -220,7 +221,8 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
 
     @Test
     public void testRemoveUser_remoteException() throws Exception {
-        doThrow(new RemoteException("D'OH!")).when(mService).removeUser(100);
+        doThrow(new RemoteException("D'OH!")).when(mService).removeUser(100,
+                /* hasCallerRestrictions= */ true);
         mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
 
         UserRemovalResult result = mMgr.removeUser(UserHandle.of(100));
@@ -231,6 +233,28 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
     @Test
     public void testRemoveUser_nullUser() {
         assertThrows(NullPointerException.class, () -> mMgr.removeUser(null));
+    }
+
+    @Test
+    public void testRemoveUserInternal_success() throws Exception {
+        int status = UserRemovalResult.STATUS_SUCCESSFUL;
+        when(mService.removeUser(100, /* hasCallerRestrictions= */ false))
+                .thenReturn(new UserRemovalResult(status));
+
+        UserRemovalResult result = mMgr.removeUser(100);
+
+        assertThat(result.getStatus()).isEqualTo(UserRemovalResult.STATUS_SUCCESSFUL);
+    }
+
+    @Test
+    public void testRemoveUserInternal_remoteException() throws Exception {
+        doThrow(new RemoteException("D'OH!")).when(mService).removeUser(100,
+                /* hasCallerRestrictions= */ false);
+        mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
+
+        UserRemovalResult result = mMgr.removeUser(100);
+
+        assertThat(result.getStatus()).isEqualTo(UserRemovalResult.STATUS_ANDROID_FAILURE);
     }
 
     @Test

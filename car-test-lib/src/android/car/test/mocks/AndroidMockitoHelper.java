@@ -32,6 +32,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
+import android.os.Binder;
 import android.os.IBinder;
 import android.os.IInterface;
 import android.os.ServiceManager;
@@ -218,6 +219,19 @@ public final class AndroidMockitoHelper {
             @NonNull IBinder binder, @NonNull T service) {
         doReturn(binder).when(() -> ServiceManager.getService(name));
         when(binder.queryLocalInterface(anyString())).thenReturn(service);
+    }
+
+    /**
+     * Mocks a call to {@link Binder.getCallingUserHandle()}.
+     *
+     * <p><b>Note: </b>it must be made inside a
+     * {@link com.android.dx.mockito.inline.extended.StaticMockitoSession} built with
+     * {@code spyStatic(Binder.class)}.
+     *
+     * @param userId identifier of the {@link UserHandle} that will be returned.
+     */
+    public static void mockBinderGetCallingUserHandle(@UserIdInt int userId) {
+        doReturn(UserHandle.of(userId)).when(() -> Binder.getCallingUserHandle());
     }
 
     /**

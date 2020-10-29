@@ -31,6 +31,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
+import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Trace;
@@ -262,6 +263,21 @@ public abstract class AbstractExtendedMockitoTestCase {
 
         beginTrace("mockUmIsHeadlessSystemUserMode");
         AndroidMockitoHelper.mockUmIsHeadlessSystemUserMode(mode);
+        endTrace();
+    }
+
+    /**
+     * Mocks a call to {@link Binder.getCallingUserHandle()}.
+     *
+     * @throws IllegalStateException if class didn't override {@link #newSessionBuilder()} and
+     * called {@code spyStatic(Binder.class)} on the session passed to it.
+     */
+    protected final void mockGetCallingUserHandle(@UserIdInt int userId) {
+        if (VERBOSE) Log.v(TAG, getLogPrefix() + "mockBinderCallingUser(" + userId + ")");
+        assertSpied(Binder.class);
+
+        beginTrace("mockBinderCallingUser");
+        AndroidMockitoHelper.mockBinderGetCallingUserHandle(userId);
         endTrace();
     }
 

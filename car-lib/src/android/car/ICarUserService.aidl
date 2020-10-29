@@ -33,7 +33,8 @@ interface ICarUserService {
     void setUserSwitchUiCallback(in IResultReceiver callback);
     void createUser(@nullable String name, String userType, int flags, int timeoutMs,
       in AndroidFuture<UserCreationResult> receiver);
-    UserRemovalResult removeUser(int userId);
+    // hasCallerRestrictions is used by public API: it restricts what non-admin can remove
+    UserRemovalResult removeUser(int userId, boolean hasCallerRestrictions);
     List<UserInfo> getAllDrivers();
     List<UserInfo> getPassengers(int driverId);
     boolean startPassenger(int passengerId, int zoneId);
