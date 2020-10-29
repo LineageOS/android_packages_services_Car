@@ -1162,7 +1162,7 @@
     <string name="ring_volume_title" msgid="5874791723449821646">"Hlasitost vyzvánění"</string>
     <string name="vibrate_in_silent_title" msgid="2314667015729841220">"Vibrovat v tichém režimu"</string>
     <string name="notification_sound_title" msgid="6812164482799723931">"Výchozí zvuk oznámení"</string>
-    <string name="incoming_call_volume_title" msgid="4736570528754310450">"Vyzváněcí tón"</string>
+    <string name="incoming_call_volume_title" msgid="4736570528754310450">"Vyzvánění"</string>
     <string name="notification_volume_title" msgid="6022562909288085275">"Oznámení"</string>
     <string name="checkbox_notification_same_as_incoming_call" msgid="7312942422655861175">"Použije hlasitost příchozích hovorů také pro oznámení"</string>
     <string name="home_work_profile_not_supported" msgid="6137073723297076818">"Nepodporuje pracovní profily"</string>
@@ -1677,7 +1677,7 @@
     <string name="sms_change_default_no_previous_dialog_text" msgid="4680224695080527907">"Chcete pro zprávy SMS používat aplikaci <xliff:g id="NEW_APP">%s</xliff:g>?"</string>
     <string name="network_scorer_picker_title" msgid="1691073966560952916">"Poskytovatel hodnocení sítí"</string>
     <string name="network_scorer_picker_none_preference" msgid="6448280557733231737">"Žádné"</string>
-    <string name="network_scorer_change_active_dialog_title" msgid="4274159562371475090">"Změnit nastavení Google Wi-Fi Assistant?"</string>
+    <string name="network_scorer_change_active_dialog_title" msgid="4274159562371475090">"Změnit asistenta pro Wi-Fi?"</string>
     <string name="network_scorer_change_active_dialog_text" msgid="4264089809189760730">"Chcete spravovat síťová připojení pomocí aplikace <xliff:g id="NEW_APP">%1$s</xliff:g> namísto aplikace <xliff:g id="CURRENT_APP">%2$s</xliff:g>?"</string>
     <string name="network_scorer_change_active_no_previous_dialog_text" msgid="6394483538843474495">"Chcete spravovat síťová připojení pomocí aplikace <xliff:g id="NEW_APP">%s</xliff:g>?"</string>
     <string name="mobile_unknown_sim_operator" msgid="872589370085135817">"Operátor SIM karty není znám"</string>
@@ -2033,7 +2033,7 @@
     <string name="user_dict_settings_add_menu_title" msgid="1553743292556229909">"Přidat"</string>
     <string name="user_dict_settings_add_dialog_title" msgid="5447922936256448695">"Přidat do slovníku"</string>
     <string name="user_dict_settings_add_screen_title" msgid="8164998107273393830">"Fráze"</string>
-    <string name="user_dict_settings_add_dialog_more_options" msgid="577584009496650183">"Více možností"</string>
+    <string name="user_dict_settings_add_dialog_more_options" msgid="577584009496650183">"Další možnosti"</string>
     <string name="user_dict_settings_add_dialog_less_options" msgid="5678408488188525719">"Méně možností"</string>
     <string name="user_dict_settings_add_dialog_confirm" msgid="7279673661732968137">"OK"</string>
     <string name="user_dict_settings_add_word_option_name" msgid="5310204485783762787">"Slovo:"</string>
@@ -3222,7 +3222,7 @@
     <string name="alarm_volume_option_title" msgid="3184076022438477047">"Hlasitost budíku"</string>
     <string name="ring_volume_option_title" msgid="2038924918468372264">"Hlasitost vyzvánění"</string>
     <string name="notification_volume_option_title" msgid="1358512611511348260">"Hlasitost oznámení"</string>
-    <string name="ringtone_title" msgid="1409086028485922583">"Vyzváněcí tón telefonu"</string>
+    <string name="ringtone_title" msgid="1409086028485922583">"Vyzvánění telefonu"</string>
     <string name="notification_ringtone_title" msgid="2932960620843976285">"Výchozí zvuk oznámení"</string>
     <string name="notification_unknown_sound_title" msgid="8043718667804838398">"Zvuk z aplikace"</string>
     <string name="notification_sound_default" msgid="2664544380802426260">"Výchozí zvuk oznámení"</string>
@@ -3371,7 +3371,7 @@
     <string name="sound_work_settings" msgid="4140215240360927923">"Zvuky pracovního profilu"</string>
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Použít zvuky osobního profilu"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Zvuky pracovního a osobního profilu jsou stejné"</string>
-    <string name="work_ringtone_title" msgid="5499360583947410224">"Vyzváněcí tón prac. telefonu"</string>
+    <string name="work_ringtone_title" msgid="5499360583947410224">"Vyzvánění prac. telefonu"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Výchozí zvuk pracovního oznámení"</string>
     <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"Výchozí zvuk pracovního budíku"</string>
     <string name="work_sound_same_as_personal" msgid="7728560881697159758">"Stejné jako v osobním profilu"</string>
@@ -3380,7 +3380,7 @@
     <string name="work_sync_dialog_message" msgid="944233463059129156">"Pro pracovní profil budou použity zvuky z osobního profilu"</string>
     <string name="ringtones_install_custom_sound_title" msgid="210551218424553671">"Přidat vlastní zvuk?"</string>
     <string name="ringtones_install_custom_sound_content" msgid="6683649115132255452">"Soubor bude zkopírován do složky <xliff:g id="FOLDER_NAME">%s</xliff:g>"</string>
-    <string name="ringtones_category_preference_title" msgid="4491932700769815470">"Vyzváněcí tóny"</string>
+    <string name="ringtones_category_preference_title" msgid="4491932700769815470">"Vyzvánění"</string>
     <string name="other_sound_category_preference_title" msgid="2045757472469840859">"Další zvuky a vibrace"</string>
     <string name="configure_notification_settings" msgid="291914315140851270">"Oznámení"</string>
     <string name="recent_notifications" msgid="8125865995065032049">"Nedávno odeslané"</string>

@@ -2737,7 +2737,7 @@
     <string name="data_usage_metered_yes" msgid="7333744880035386073">"Sınırlı"</string>
     <string name="data_usage_metered_no" msgid="1961524615778610008">"Sınırsız"</string>
     <string name="data_usage_disclaimer" msgid="4683321532922590425">"Operatörünüzün veri hesaplaması, cihazınızınkinden farklı olabilir."</string>
-    <string name="cryptkeeper_emergency_call" msgid="4625420047524693116">"Acil durum çağrısı"</string>
+    <string name="cryptkeeper_emergency_call" msgid="4625420047524693116">"Acil durum araması"</string>
     <string name="cryptkeeper_return_to_call" msgid="4433942821196822815">"Çağrıya dön"</string>
     <string name="vpn_name" msgid="3538818658670774080">"Ad"</string>
     <string name="vpn_type" msgid="6389116710008658550">"Tür"</string>

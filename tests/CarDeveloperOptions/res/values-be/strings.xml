@@ -55,7 +55,7 @@
     <string name="radio_info_ims_reg_status_not_registered" msgid="1286050699734226077">"Не зарэгістраваны"</string>
     <string name="radio_info_ims_feature_status_available" msgid="2040629393134756058">"Даступны"</string>
     <string name="radio_info_ims_feature_status_unavailable" msgid="3348223769202693596">"Недаступны"</string>
-    <string name="radio_info_ims_reg_status" msgid="4771711884059371514">"Рэгістрацыя IMS: <xliff:g id="STATUS">%1$s</xliff:g>\nГолас па LTE: <xliff:g id="AVAILABILITY_0">%2$s</xliff:g>\nГолас па WiFi: <xliff:g id="AVAILABILITY_1">%3$s</xliff:g>\nВідэавыклік: <xliff:g id="AVAILABILITY_2">%4$s</xliff:g>\nІнтэрфейс UT: <xliff:g id="AVAILABILITY_3">%5$s</xliff:g>"</string>
+    <string name="radio_info_ims_reg_status" msgid="4771711884059371514">"Рэгістрацыя IMS: <xliff:g id="STATUS">%1$s</xliff:g>\nГаласавая сувязь па LTE: <xliff:g id="AVAILABILITY_0">%2$s</xliff:g>\nГаласавая сувязь па Wi-Fi: <xliff:g id="AVAILABILITY_1">%3$s</xliff:g>\nВідэавыклікі: <xliff:g id="AVAILABILITY_2">%4$s</xliff:g>\nІнтэрфейс UT: <xliff:g id="AVAILABILITY_3">%5$s</xliff:g>"</string>
     <string name="radioInfo_service_in" msgid="1297020186765943857">"Працуе"</string>
     <string name="radioInfo_service_out" msgid="8460363463722476510">"Не працуе"</string>
     <string name="radioInfo_service_emergency" msgid="7674989004735662599">"Толькі экстранныя выклікі"</string>
@@ -794,7 +794,7 @@
     <string name="bluetooth_device_context_connect" msgid="1812090541371432890">"Падключыцца"</string>
     <string name="bluetooth_device_context_disconnect" msgid="8085015949275771802">"Адключыць"</string>
     <string name="bluetooth_device_context_pair_connect" msgid="1503322591778810032">"Спарыць і падключыць"</string>
-    <string name="bluetooth_device_context_unpair" msgid="250588431708253041">"Разарваць пару"</string>
+    <string name="bluetooth_device_context_unpair" msgid="250588431708253041">"Разлучыць"</string>
     <string name="bluetooth_device_context_disconnect_unpair" msgid="4519151805677280077">"Адключыць і разарваць пару"</string>
     <string name="bluetooth_device_context_connect_advanced" msgid="423463405499392444">"Параметры..."</string>
     <string name="bluetooth_menu_advanced" msgid="7566858513372603652">"Пашыраныя налады"</string>
@@ -1411,7 +1411,7 @@
     <string name="memory_media_usage" msgid="2744652206722240527">"Медыя"</string>
     <string name="memory_downloads_usage" msgid="7039979723012065168">"Спампаваць"</string>
     <string name="memory_dcim_usage" msgid="599009211606524732">"Выявы, відэа"</string>
-    <string name="memory_music_usage" msgid="809605300042546279">"Аўдыё (музыка, рынгтоны, падкасты і г. д.)"</string>
+    <string name="memory_music_usage" msgid="809605300042546279">"Аўдыя (музыка, рынгтоны, падкасты і г. д.)"</string>
     <string name="memory_media_misc_usage" msgid="6258827529046910705">"Іншыя файлы"</string>
     <string name="memory_media_cache_usage" msgid="1307620682751377717">"Кэшаваныя дадзеныя"</string>
     <string name="sd_eject" product="nosdcard" msgid="3016608823130472449">"Адключыць сумеснае сховішча"</string>
@@ -3231,7 +3231,7 @@
     <string name="other_sound_settings" msgid="5250376066099818676">"Іншыя гукі"</string>
     <string name="dial_pad_tones_title" msgid="8877212139988655769">"Гукі панэлі набору"</string>
     <string name="screen_locking_sounds_title" msgid="4407110895465866809">"Гукі блакіроўкі экрана"</string>
-    <string name="charging_sounds_title" msgid="5070437987230894287">"Сігнал зарадкі і вібрацыя"</string>
+    <string name="charging_sounds_title" msgid="5070437987230894287">"Гукі і вібрацыя пры зарадцы"</string>
     <string name="docking_sounds_title" msgid="2573137471605541366">"Гукі док-станцыі"</string>
     <string name="touch_sounds_title" msgid="165237488496165652">"Гукі пры дотыку"</string>
     <string name="vibrate_on_touch_title" msgid="6360155469279157684">"Вібрацыя пры націсканні"</string>

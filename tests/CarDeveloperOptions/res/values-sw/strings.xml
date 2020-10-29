@@ -3284,8 +3284,8 @@
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Tumia sauti za wasifu wako binafsi"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Sauti za wasifu wa binafsi na wa kazini ni sawa"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"Mlio wa simu ya kazini"</string>
-    <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Sauti chaguomsingi ya arifa ya kazini"</string>
-    <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"Sauti chaguomsingi ya kengele ya kazini"</string>
+    <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Sauti chaguomsingi ya arifa za kazini"</string>
+    <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"Sauti chaguomsingi ya kengele za kazini"</string>
     <string name="work_sound_same_as_personal" msgid="7728560881697159758">"Sawa na wasifu binafsi"</string>
     <string name="work_sync_dialog_title" msgid="4799120971202956837">"Ungependa kubadilisha sauti?"</string>
     <string name="work_sync_dialog_yes" msgid="2110726233746476066">"Badilisha"</string>
