@@ -1168,7 +1168,7 @@
     <string name="accessibility_category_personal" msgid="1423427301759058762">"व्‍यक्‍तिगत प्रोफ़ाइल खाते"</string>
     <string name="accessibility_work_account_title" msgid="3195468574776888011">"कार्यस्‍थल खाता - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
     <string name="accessibility_personal_account_title" msgid="7251761883688839354">"व्‍यक्‍तिगत खाता - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
-    <string name="search_settings" msgid="5809250790214921377">"सर्च"</string>
+    <string name="search_settings" msgid="5809250790214921377">"खोज"</string>
     <string name="display_settings" msgid="1045535829232307190">"डिसप्ले"</string>
     <string name="accelerometer_title" msgid="2427487734964971453">"स्‍क्रीन अपने आप घूमने की सुविधा चालू करें"</string>
     <string name="color_mode_title" msgid="8164858320869449142">"रंग"</string>
@@ -3136,7 +3136,7 @@
     <string name="sound_settings_example_summary" msgid="2091822107298841827">"रिंग की आवाज़ 80% है"</string>
     <string name="media_volume_option_title" msgid="3553411883305505682">"मीडिया की आवाज़"</string>
     <string name="remote_media_volume_option_title" msgid="6355710054191873836">"आवाज़ कास्ट करें"</string>
-    <string name="call_volume_option_title" msgid="5028003296631037334">"कॉल की आवाज़"</string>
+    <string name="call_volume_option_title" msgid="5028003296631037334">"कॉल वॉल्‍यूम"</string>
     <string name="alarm_volume_option_title" msgid="3184076022438477047">"अलार्म की आवाज़"</string>
     <string name="ring_volume_option_title" msgid="2038924918468372264">"रिंग की आवाज़"</string>
     <string name="notification_volume_option_title" msgid="1358512611511348260">"सूचना की आवाज़"</string>

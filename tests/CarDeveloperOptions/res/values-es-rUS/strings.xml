@@ -113,7 +113,7 @@
     <string name="bluetooth_disconnect_all_profiles" product="device" msgid="4707569949253450208">"Tu dispositivo se desconectará de <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
     <string name="bluetooth_disconnect_dialog_ok" msgid="4183522987246110145">"Desconectar"</string>
     <string name="bluetooth_empty_list_user_restricted" msgid="3616298363281495777">"No tienes permiso para cambiar la configuración de Bluetooth."</string>
-    <string name="bluetooth_pairing_pref_title" msgid="2904954138013884029">"Sincronizar dispositivo nuevo"</string>
+    <string name="bluetooth_pairing_pref_title" msgid="2904954138013884029">"Vincular dispositivo nuevo"</string>
     <string name="bluetooth_is_visible_message" msgid="6341088682252805612">"Los dispositivos cercanos podrán ver tu <xliff:g id="DEVICE_NAME">%1$s</xliff:g> si está abierta la configuración de Bluetooth."</string>
     <string name="bluetooth_footer_mac_message" product="default" msgid="335341476746836260">"Dirección Bluetooth del teléfono: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_footer_mac_message" product="tablet" msgid="6033609611245782463">"Dirección Bluetooth de la tablet: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
@@ -165,7 +165,7 @@
     <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"Visible como \"<xliff:g id="DEVICE_NAME">^1</xliff:g>\" para otros dispositivos"</string>
     <string name="bluetooth_off_footer" msgid="7658444560543730571">"Activa el Bluetooth para establecer conexión con otros dispositivos."</string>
     <string name="bluetooth_paired_device_title" msgid="8361860197780425286">"Tus dispositivos"</string>
-    <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"Sincronizar dispositivo nuevo"</string>
+    <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"Vincular dispositivo nuevo"</string>
     <string name="bluetooth_pref_summary" product="tablet" msgid="3601662966604648212">"Permite que la tablet se comunique con dispositivos Bluetooth cercanos"</string>
     <string name="bluetooth_pref_summary" product="device" msgid="2286727776570956969">"Permite que el dispositivo se comunique con dispositivos Bluetooth cercanos"</string>
     <string name="bluetooth_pref_summary" product="default" msgid="863659221858781186">"Permite que el teléfono se comunique con dispositivos Bluetooth cercanos"</string>

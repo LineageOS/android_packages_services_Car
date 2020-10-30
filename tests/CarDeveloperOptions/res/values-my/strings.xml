@@ -912,7 +912,7 @@
     <string name="rx_wifi_speed" msgid="7392873246110937187">"လက်ခံခြင်းလင့်ခ် အမြန်နှုန်း"</string>
     <string name="wifi_frequency" msgid="6132852924995724246">"လှိုင်းနှုန်း"</string>
     <string name="wifi_ip_address" msgid="5572539114989914831">"အိုင်ပီလိပ်စာ"</string>
-    <string name="passpoint_label" msgid="7429247462404128615">"မှတဆင့် သိမ်းရန်"</string>
+    <string name="passpoint_label" msgid="7429247462404128615">"မှတစ်ဆင့် သိမ်းရန်"</string>
     <string name="passpoint_content" msgid="340527524510304327">"<xliff:g id="NAME">%1$s</xliff:g> အထောက်အထားများ"</string>
     <string name="wifi_eap_method" msgid="3752116941487485859">"EAPနည်းလမ်း"</string>
     <string name="please_select_phase2" msgid="5848080896810435677">"အဆင့်(၂) စစ်မှန်ကြောင်းအတည်ပြုခြင်း"</string>

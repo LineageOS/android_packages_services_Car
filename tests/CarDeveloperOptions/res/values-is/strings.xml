@@ -2092,7 +2092,7 @@
     <string name="accessibility_autoclick_description" msgid="5492414927846407499">"Ef þú notar mús geturðu stillt bendilinn þannig að hann framkvæmi aðgerð sjálfkrafa þegar hann er óhreyfður í tiltekinn tíma."</string>
     <string name="accessibility_autoclick_delay_preference_title" msgid="8303022510942147049">"Bíða áður en smellt er"</string>
     <string name="accessibility_vibration_settings_title" msgid="1902649657883159406">"Titringur"</string>
-    <string name="accessibility_notification_vibration_title" msgid="1005799039440510298">"Titringur fyrir tilkynningar"</string>
+    <string name="accessibility_notification_vibration_title" msgid="1005799039440510298">"Titringur tilkynninga"</string>
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"Titringur hringingar"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"Snertititringur"</string>
     <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"Nota þjónustu"</string>

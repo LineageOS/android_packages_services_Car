@@ -3149,7 +3149,7 @@
     <string name="other_sound_settings" msgid="5250376066099818676">"Tinguj të tjerë"</string>
     <string name="dial_pad_tones_title" msgid="8877212139988655769">"Tonet e bllokut të tasteve"</string>
     <string name="screen_locking_sounds_title" msgid="4407110895465866809">"Tingujt e kyçjes së ekranit"</string>
-    <string name="charging_sounds_title" msgid="5070437987230894287">"Tingujt dhe dridhja e ngarkimit"</string>
+    <string name="charging_sounds_title" msgid="5070437987230894287">"Tingujt dhe dridhja e karikimit"</string>
     <string name="docking_sounds_title" msgid="2573137471605541366">"Tingujt e stacionimit"</string>
     <string name="touch_sounds_title" msgid="165237488496165652">"Tingujt e prekjes"</string>
     <string name="vibrate_on_touch_title" msgid="6360155469279157684">"Dridhje për prekjen"</string>
@@ -3728,7 +3728,7 @@
     <string name="decline_remote_bugreport_action" msgid="706319275774199033">"Refuzo"</string>
     <string name="usb_use_charging_only" msgid="2344625733377110164">"Nuk ka transferim të të dhënave"</string>
     <string name="usb_use_charging_only_desc" msgid="3283518562582478950">"Vetëm karikoje këtë pajisje"</string>
-    <string name="usb_use_power_only" msgid="6595783381323810697">"Ngarko pajisjen e lidhur"</string>
+    <string name="usb_use_power_only" msgid="6595783381323810697">"Kariko pajisjen e lidhur"</string>
     <string name="usb_use_file_transfers" msgid="6153021302176151884">"Transferimi i skedarëve"</string>
     <string name="usb_use_file_transfers_desc" msgid="6953866660041189580">"Transfero skedarët te një pajisje tjetër"</string>
     <string name="usb_use_photo_transfers" msgid="5974236250197451257">"PTP"</string>

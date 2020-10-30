@@ -162,7 +162,7 @@
     <string name="bluetooth_map_acceptance_dialog_text" msgid="736507842082640410">"%1$s muốn truy cập tin nhắn của bạn. Bạn có muốn cấp quyền truy cập cho %2$s không?"</string>
     <string name="bluetooth_sap_request" msgid="6318039677671263261">"Yêu cầu truy cập SIM"</string>
     <string name="bluetooth_sap_acceptance_dialog_text" msgid="1909352413109340355">"<xliff:g id="DEVICE_NAME_0">%1$s</xliff:g> muốn truy cập vào thẻ SIM của bạn. Cấp quyền truy cập vào thẻ SIM sẽ vô hiệu hóa khả năng kết nối dữ liệu trên thiết bị của bạn trong suốt thời gian kết nối. Cấp quyền truy cập vào <xliff:g id="DEVICE_NAME_1">%2$s?</xliff:g>"</string>
-    <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"Hiển thị là \"<xliff:g id="DEVICE_NAME">^1</xliff:g>\" với các thiết bị khác"</string>
+    <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"Tên xuất hiện trên các thiết bị khác: <xliff:g id="DEVICE_NAME">^1</xliff:g>"</string>
     <string name="bluetooth_off_footer" msgid="7658444560543730571">"Bật Bluetooth để kết nối với các thiết bị khác."</string>
     <string name="bluetooth_paired_device_title" msgid="8361860197780425286">"Thiết bị của bạn"</string>
     <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"Ghép nối thiết bị mới"</string>
@@ -2233,7 +2233,7 @@
     <string name="power_usage_level_and_status" msgid="8873534076894160727">"<xliff:g id="LEVEL">%1$s</xliff:g> - <xliff:g id="STATUS">%2$s</xliff:g>"</string>
     <string name="power_discharge_remaining" msgid="3461915627093471868">"<xliff:g id="REMAIN">%1$s</xliff:g> còn lại"</string>
     <string name="power_charge_remaining" msgid="2730510256218879651">"<xliff:g id="UNTIL_CHARGED">%1$s</xliff:g> để tính phí"</string>
-    <string name="background_activity_title" msgid="7207836362312111483">"Hạn chế trong nền"</string>
+    <string name="background_activity_title" msgid="7207836362312111483">"Hạn chế chạy trong nền"</string>
     <string name="background_activity_summary" msgid="582372194738538145">"Cho phép ứng dụng chạy trong nền"</string>
     <string name="background_activity_summary_disabled" msgid="457944930942085876">"Ứng dụng không được phép chạy trong nền"</string>
     <string name="background_activity_summary_whitelisted" msgid="4713321059375873828">"Không thể hạn chế sử dụng trong nền"</string>
@@ -2448,9 +2448,9 @@
     <string name="process_dex2oat_label" msgid="8249082119748556085">"Tối ưu hóa ứng dụng"</string>
     <string name="battery_saver" msgid="3989710213758938398">"Trình tiết kiệm pin"</string>
     <string name="battery_saver_auto_title" msgid="4158659069641849952">"Tự động bật"</string>
-    <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"Chưa có lịch biểu nào"</string>
+    <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"Không có lịch biểu"</string>
     <string name="battery_saver_auto_routine" msgid="886514412067906980">"Dựa trên thói quen của bạn"</string>
-    <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"Dựa trên số phần trăm pin"</string>
+    <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"Dựa trên mức phần trăm pin"</string>
     <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Nếu pin có khả năng hết trước lần sạc thông thường tiếp theo, hệ thống sẽ bật Trình tiết kiệm pin."</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Sẽ bật khi pin ở mức <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Đặt lịch biểu"</string>
@@ -3426,7 +3426,7 @@
     <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"Cho phép những thông báo này tiếp tục làm gián đoạn khi chế độ Không làm phiền đang bật"</string>
     <string name="app_notification_visibility_override_title" msgid="2349335170165637672">"Trên màn hình khóa"</string>
     <string name="app_notification_row_banned" msgid="2079325338122151677">"Bị chặn"</string>
-    <string name="app_notification_row_priority" msgid="432299064888787236">"Mức độ ưu tiên"</string>
+    <string name="app_notification_row_priority" msgid="432299064888787236">"Ưu tiên"</string>
     <string name="app_notification_row_sensitive" msgid="4919671519227722958">"Nhạy cảm"</string>
     <string name="app_notifications_dialog_done" msgid="5395611029779655968">"Xong"</string>
     <string name="app_notification_importance_title" msgid="1902794400671001142">"Mức độ quan trọng"</string>
@@ -3589,7 +3589,7 @@
     <string name="imei_information_summary" msgid="716516316022275083">"Thông tin liên quan đến IMEI"</string>
     <string name="slot_number" msgid="785422579177068698">"(Khe cắm<xliff:g id="SLOT_NUM">%1$d</xliff:g>)"</string>
     <string name="launch_by_default" msgid="6106985160202769725">"Mở theo mặc định"</string>
-    <string name="app_launch_domain_links_title" msgid="2987289657348349133">"Mở liên kết"</string>
+    <string name="app_launch_domain_links_title" msgid="2987289657348349133">"Mở đường liên kết"</string>
     <string name="app_launch_open_domain_urls_title" msgid="8595126859922391331">"Mở các liên kết được hỗ trợ"</string>
     <string name="app_launch_open_domain_urls_summary" msgid="6803029846855502366">"Mở không cần hỏi"</string>
     <string name="app_launch_supported_domain_urls_title" msgid="503976327533974142">"Các liên kết được hỗ trợ"</string>
@@ -3649,7 +3649,7 @@
     <string name="app_permissions_summary" msgid="8785798165776061594">"Ứng dụng sử dụng <xliff:g id="APPS">%1$s</xliff:g>"</string>
     <string name="tap_to_wake" msgid="1902991239401652323">"Nhấn để đánh thức"</string>
     <string name="tap_to_wake_summary" msgid="8485222120721006793">"Nhấn đúp vào vị trí bất kỳ trên màn hình để đánh thức thiết bị"</string>
-    <string name="domain_urls_title" msgid="7939209950373945367">"Mở liên kết"</string>
+    <string name="domain_urls_title" msgid="7939209950373945367">"Mở đường liên kết"</string>
     <string name="domain_urls_summary_none" msgid="5401203416941265109">"Không mở các liên kết được hỗ trợ"</string>
     <string name="domain_urls_summary_one" msgid="3893975485064803435">"Mở <xliff:g id="DOMAIN">%s</xliff:g>"</string>
     <string name="domain_urls_summary_some" msgid="2130534984153210797">"Mở <xliff:g id="DOMAIN">%s</xliff:g> và các URL khác"</string>
@@ -4388,7 +4388,7 @@
     <string name="mobile_data_settings_summary" msgid="6492798151325636912">"Sử dụng dữ liệu qua mạng di động"</string>
     <string name="mobile_data_settings_summary_auto_switch" msgid="3665863214578471494">"Điện thoại sẽ tự động chuyển sang nhà mạng này khi nằm trong vùng phủ sóng"</string>
     <string name="calls_preference" msgid="2076353032705811243">"Tùy chọn cuộc gọi"</string>
-    <string name="sms_preference" msgid="8449270011976880">"Tùy chọn SMS"</string>
+    <string name="sms_preference" msgid="8449270011976880">"Tùy chọn cho SMS"</string>
     <string name="calls_and_sms_ask_every_time" msgid="2776167541223210738">"Luôn hỏi"</string>
     <string name="mobile_network_summary_add_a_network" msgid="5408745221357144009">"Thêm mạng"</string>
     <plurals name="mobile_network_summary_count" formatted="false" msgid="6222822873390636020">

@@ -1872,7 +1872,7 @@
     <string name="computing_size" msgid="2234106107535318136">"Hisoblanmoqda…"</string>
     <string name="invalid_size_value" msgid="1202239724000802296">"Paket o‘lchamini hisoblamadi"</string>
     <string name="version_text" msgid="5421619604445758652">"<xliff:g id="VERSION_NUM">%1$s</xliff:g> versiya"</string>
-    <string name="move_app" msgid="5400135231255614785">"Ko‘chirish"</string>
+    <string name="move_app" msgid="5400135231255614785">"Boshqa joyga olish"</string>
     <string name="move_app_to_internal" product="tablet" msgid="8658767231643024635">"Planshetga o‘tkazish"</string>
     <string name="move_app_to_internal" product="default" msgid="1031111519418252055">"Telefonga ko‘chirish"</string>
     <string name="move_app_to_sdcard" product="nosdcard" msgid="5555917755995563518">"USB xotiraga o‘tkazish"</string>
@@ -3411,8 +3411,8 @@
     <string name="zen_access_empty_text" msgid="7667538993781607731">"Hech qanday ilova “Bezovta qilinmasin” funksiyasiga ruxsat so‘ramagan"</string>
     <string name="loading_notification_apps" msgid="1978345231934072091">"Ilovalar yuklanmoqda…"</string>
     <string name="app_notifications_off_desc" msgid="3904090905748895146">"Android ushbu ilova bildirishnomalarini ekranga chiqarmaydi"</string>
-    <string name="channel_notifications_off_desc" msgid="8005444443218306611">"Talabingizga binoan, Android bu turkumdagi bildirishnomalarni bloklamoqda"</string>
-    <string name="channel_group_notifications_off_desc" msgid="7154205544298672850">"Talabingizga binoan, Android bunday bildirishnomalar guruhini bloklaydi"</string>
+    <string name="channel_notifications_off_desc" msgid="8005444443218306611">"Android bu turkumdagi bildirishnomalarni bloklamoqda"</string>
+    <string name="channel_group_notifications_off_desc" msgid="7154205544298672850">"Android bunday bildirishnomalar guruhini bloklaydi"</string>
     <string name="notification_channels" msgid="956764228116145956">"Turkumlar"</string>
     <string name="notification_channels_other" msgid="1615988645667411530">"Boshqa"</string>
     <plurals name="notification_group_summary" formatted="false" msgid="3744856747513344999">
@@ -3661,7 +3661,7 @@
     <string name="advanced_apps" msgid="6643869089344883537">"Kengaytirilgan sozlamalar"</string>
     <string name="configure_apps" msgid="4066683118857400943">"Ilovalarni sozlash"</string>
     <string name="unknown_app" msgid="2312052973570376877">"Noma’lum ilova"</string>
-    <string name="app_permissions" msgid="3215958256821756086">"Ruxsatlar menejeri"</string>
+    <string name="app_permissions" msgid="3215958256821756086">"Ruxsatlar boshqaruvi"</string>
     <string name="app_permissions_summary" msgid="8785798165776061594">"Ruxsatga ega ilovalar (<xliff:g id="APPS">%1$s</xliff:g>)"</string>
     <string name="tap_to_wake" msgid="1902991239401652323">"Teginib yoqish"</string>
     <string name="tap_to_wake_summary" msgid="8485222120721006793">"Qurilmani yoqish uchun ekranning istalgan joyiga ikki marta bosing"</string>
@@ -3746,7 +3746,7 @@
     <string name="decline_remote_bugreport_action" msgid="706319275774199033">"Rad etish"</string>
     <string name="usb_use_charging_only" msgid="2344625733377110164">"Axborot uzatilmasin"</string>
     <string name="usb_use_charging_only_desc" msgid="3283518562582478950">"Faqat shu qurilmani quvvatlash"</string>
-    <string name="usb_use_power_only" msgid="6595783381323810697">"Ulangan qurilmani quvvatlang"</string>
+    <string name="usb_use_power_only" msgid="6595783381323810697">"Ulangan qurilmani quvvatlash"</string>
     <string name="usb_use_file_transfers" msgid="6153021302176151884">"Fayl uzatish"</string>
     <string name="usb_use_file_transfers_desc" msgid="6953866660041189580">"Boshqa qurilmaga fayl o‘tkazish"</string>
     <string name="usb_use_photo_transfers" msgid="5974236250197451257">"PTP"</string>
