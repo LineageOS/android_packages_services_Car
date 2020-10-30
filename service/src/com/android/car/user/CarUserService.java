@@ -18,6 +18,7 @@ package com.android.car.user;
 
 import static android.Manifest.permission.CREATE_USERS;
 import static android.Manifest.permission.MANAGE_USERS;
+import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_SETUP;
 
 import static com.android.car.CarLog.TAG_USER;
 
@@ -31,6 +32,7 @@ import android.car.CarOccupantZoneManager;
 import android.car.CarOccupantZoneManager.OccupantTypeEnum;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.ICarUserService;
+import android.car.drivingstate.CarUxRestrictions;
 import android.car.settings.CarSettings;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
@@ -86,6 +88,7 @@ import android.util.TimingsTraceLog;
 
 import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
+import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.R;
 import com.android.car.hal.UserHalService;
 import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
@@ -214,6 +217,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     private IResultReceiver mUserSwitchUiReceiver;
 
+    private final CarUxRestrictionsManagerService mUxRestrictionService;
+
     /** Interface for callbaks related to passenger activities. */
     public interface PassengerCallback {
         /** Called when passenger is started at a certain zone. */
@@ -262,9 +267,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     public CarUserService(@NonNull Context context, @NonNull UserHalService hal,
             @NonNull UserManager userManager,
-            @NonNull IActivityManager am, int maxRunningUsers) {
+            @NonNull IActivityManager am, int maxRunningUsers,
+            @NonNull CarUxRestrictionsManagerService uxRestrictionService) {
         this(context, hal, userManager, am, maxRunningUsers,
-                /* initialUserSetter= */ null, /* userPreCreator= */ null);
+                /* initialUserSetter= */ null, /* userPreCreator= */ null, uxRestrictionService);
     }
 
     @VisibleForTesting
@@ -272,7 +278,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             @NonNull UserManager userManager,
             @NonNull IActivityManager am, int maxRunningUsers,
             @Nullable InitialUserSetter initialUserSetter,
-            @Nullable UserPreCreator userPreCreator) {
+            @Nullable UserPreCreator userPreCreator,
+            @NonNull CarUxRestrictionsManagerService uxRestrictionService) {
         if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
             Log.d(TAG_USER, "constructed");
         }
@@ -291,6 +298,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         mEnablePassengerSupport = resources.getBoolean(R.bool.enablePassengerSupport);
         mSwitchGuestUserBeforeSleep = resources.getBoolean(
                 R.bool.config_switchGuestUserBeforeGoingSleep);
+        mUxRestrictionService = uxRestrictionService;
     }
 
     @Override
@@ -361,6 +369,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         writer.printf("Request Id for the user switch in process=%d\n ",
                     mRequestIdForUserSwitchInProcess);
         writer.printf("System UI package name=%s\n", getSystemUiPackageName());
+        writer.printf("Is UX restricted: %b\n", isUxRestricted());
 
         writer.println("Relevant Global settings");
         dumpGlobalProperty(writer, indent, CarSettings.Global.LAST_ACTIVE_USER_ID);
@@ -831,6 +840,18 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         return InitialUserInfoRequestType.COLD_BOOT;
     }
 
+    private boolean isUxRestricted() {
+        CarUxRestrictions restrictions = mUxRestrictionService.getCurrentUxRestrictions();
+        boolean restricted = restrictions != null
+                && (restrictions.getActiveRestrictions() & UX_RESTRICTIONS_NO_SETUP)
+                        == UX_RESTRICTIONS_NO_SETUP;
+        if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
+            Log.d(TAG_USER, "isUxRestricted(): restrictions=" + restrictions
+                    + ", restricted=" + restricted);
+        }
+        return restricted;
+    }
+
     /**
      * Calls the {@link UserHalService} and {@link IActivityManager} for user switch.
      *
@@ -888,6 +909,11 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             return;
         }
 
+        if (isUxRestricted()) {
+            sendUserSwitchResult(receiver, UserSwitchResult.STATUS_UX_RESTRICTION_FAILURE);
+            return;
+        }
+
         // If User Hal is not supported, just android user switch.
         if (!isUserHalSupported()) {
             try {
@@ -935,27 +961,24 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUserManager);
         SwitchUserRequest request = createUserSwitchRequest(targetUserId, usersInfo);
 
-        mHal.switchUser(request, timeoutMs, (status, resp) -> {
+        mHal.switchUser(request, timeoutMs, (halCallbackStatus, resp) -> {
             if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
                 Log.d(TAG, "switch response: status="
-                        + UserHalHelper.halCallbackStatusToString(status) + ", resp=" + resp);
+                        + UserHalHelper.halCallbackStatusToString(halCallbackStatus)
+                        + ", resp=" + resp);
             }
 
             int resultStatus = UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE;
 
             synchronized (mLockUser) {
-                if (status != HalCallback.STATUS_OK) {
-                    EventLog.writeEvent(EventLogTags.CAR_USER_SVC_SWITCH_USER_RESP, status);
+                if (halCallbackStatus != HalCallback.STATUS_OK) {
                     Log.w(TAG, "invalid callback status ("
-                            + UserHalHelper.halCallbackStatusToString(status) + ") for response "
-                            + resp);
+                            + UserHalHelper.halCallbackStatusToString(halCallbackStatus)
+                            + ") for response " + resp);
                     sendUserSwitchResult(receiver, resultStatus);
                     mUserIdForUserSwitchInProcess = UserHandle.USER_NULL;
                     return;
                 }
-
-                EventLog.writeEvent(EventLogTags.CAR_USER_SVC_SWITCH_USER_RESP, status, resp.status,
-                        resp.errorMessage);
 
                 if (mUserIdForUserSwitchInProcess != targetUserId) {
                     // Another user switch request received while HAL responded. No need to process
@@ -1004,7 +1027,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     mUserIdForUserSwitchInProcess = UserHandle.USER_NULL;
                 }
             }
-            sendUserSwitchResult(receiver, resultStatus, resp.errorMessage);
+            sendUserSwitchResult(receiver, halCallbackStatus, resultStatus, resp.errorMessage);
         });
     }
 
@@ -1362,13 +1385,22 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     private void sendUserSwitchResult(@NonNull AndroidFuture<UserSwitchResult> receiver,
-            @UserSwitchResult.Status int status) {
-        sendUserSwitchResult(receiver, status, /* errorMessage= */ null);
+            @UserSwitchResult.Status int userSwitchStatus) {
+        sendUserSwitchResult(receiver, HalCallback.STATUS_INVALID, userSwitchStatus,
+                /* errorMessage= */ null);
     }
 
     private void sendUserSwitchResult(@NonNull AndroidFuture<UserSwitchResult> receiver,
-            @UserSwitchResult.Status int status, @Nullable String errorMessage) {
-        receiver.complete(new UserSwitchResult(status, errorMessage));
+            @HalCallback.HalCallbackStatus int halCallbackStatus,
+            @UserSwitchResult.Status int userSwitchStatus, @Nullable String errorMessage) {
+        if (errorMessage != null) {
+            EventLog.writeEvent(EventLogTags.CAR_USER_SVC_SWITCH_USER_RESP, halCallbackStatus,
+                    userSwitchStatus, errorMessage);
+        } else {
+            EventLog.writeEvent(EventLogTags.CAR_USER_SVC_SWITCH_USER_RESP, halCallbackStatus,
+                    userSwitchStatus);
+        }
+        receiver.complete(new UserSwitchResult(userSwitchStatus, errorMessage));
     }
 
     private void sendUserCreationResultFailure(@NonNull AndroidFuture<UserCreationResult> receiver,

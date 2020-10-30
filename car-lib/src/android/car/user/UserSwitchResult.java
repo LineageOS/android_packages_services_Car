@@ -65,6 +65,12 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
     public static final int STATUS_INVALID_REQUEST = CommonResults.STATUS_INVALID_REQUEST;
 
     /**
+     * When user switch fails because of driving safety UX restrictions.
+     */
+    public static final int STATUS_UX_RESTRICTION_FAILURE =
+            CommonResults.STATUS_UX_RESTRICTION_FAILURE;
+
+    /**
      * When target user is same as current user.
      */
     public static final int STATUS_OK_USER_ALREADY_IN_FOREGROUND =
@@ -97,6 +103,7 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
      *         {@link UserSwitchResult#STATUS_HAL_FAILURE},
      *         {@link UserSwitchResult#STATUS_HAL_INTERNAL_FAILURE},
      *         {@link UserSwitchResult#STATUS_INVALID_REQUEST},
+     *         {@link UserSwitchResult#STATUS_UX_RESTRICTION_FAILURE},
      *         {@link UserSwitchResult#STATUS_OK_USER_ALREADY_IN_FOREGROUND},
      *         {@link UserSwitchResult#STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO},
      *         {@link UserSwitchResult#STATUS_TARGET_USER_ABANDONED_DUE_TO_A_NEW_REQUEST}, or
@@ -138,6 +145,7 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
         STATUS_HAL_FAILURE,
         STATUS_HAL_INTERNAL_FAILURE,
         STATUS_INVALID_REQUEST,
+        STATUS_UX_RESTRICTION_FAILURE,
         STATUS_OK_USER_ALREADY_IN_FOREGROUND,
         STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO,
         STATUS_TARGET_USER_ABANDONED_DUE_TO_A_NEW_REQUEST,
@@ -161,6 +169,8 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
                     return "STATUS_HAL_INTERNAL_FAILURE";
             case STATUS_INVALID_REQUEST:
                     return "STATUS_INVALID_REQUEST";
+            case STATUS_UX_RESTRICTION_FAILURE:
+                    return "STATUS_UX_RESTRICTION_FAILURE";
             case STATUS_OK_USER_ALREADY_IN_FOREGROUND:
                     return "STATUS_OK_USER_ALREADY_IN_FOREGROUND";
             case STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO:
@@ -184,6 +194,7 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
      *           {@link UserSwitchResult#STATUS_HAL_FAILURE},
      *           {@link UserSwitchResult#STATUS_HAL_INTERNAL_FAILURE},
      *           {@link UserSwitchResult#STATUS_INVALID_REQUEST},
+     *           {@link UserSwitchResult#STATUS_UX_RESTRICTION_FAILURE},
      *           {@link UserSwitchResult#STATUS_OK_USER_ALREADY_IN_FOREGROUND},
      *           {@link UserSwitchResult#STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO},
      *           {@link UserSwitchResult#STATUS_TARGET_USER_ABANDONED_DUE_TO_A_NEW_REQUEST}, or
@@ -203,6 +214,7 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
                 && !(mStatus == STATUS_HAL_FAILURE)
                 && !(mStatus == STATUS_HAL_INTERNAL_FAILURE)
                 && !(mStatus == STATUS_INVALID_REQUEST)
+                && !(mStatus == STATUS_UX_RESTRICTION_FAILURE)
                 && !(mStatus == STATUS_OK_USER_ALREADY_IN_FOREGROUND)
                 && !(mStatus == STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO)
                 && !(mStatus == STATUS_TARGET_USER_ABANDONED_DUE_TO_A_NEW_REQUEST)
@@ -214,6 +226,7 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
                             + "STATUS_HAL_FAILURE(" + STATUS_HAL_FAILURE + "), "
                             + "STATUS_HAL_INTERNAL_FAILURE(" + STATUS_HAL_INTERNAL_FAILURE + "), "
                             + "STATUS_INVALID_REQUEST(" + STATUS_INVALID_REQUEST + "), "
+                            + "STATUS_UX_RESTRICTION_FAILURE(" + STATUS_UX_RESTRICTION_FAILURE + "), "
                             + "STATUS_OK_USER_ALREADY_IN_FOREGROUND(" + STATUS_OK_USER_ALREADY_IN_FOREGROUND + "), "
                             + "STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO(" + STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO + "), "
                             + "STATUS_TARGET_USER_ABANDONED_DUE_TO_A_NEW_REQUEST(" + STATUS_TARGET_USER_ABANDONED_DUE_TO_A_NEW_REQUEST + "), "
@@ -233,6 +246,7 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
      *         {@link UserSwitchResult#STATUS_HAL_FAILURE},
      *         {@link UserSwitchResult#STATUS_HAL_INTERNAL_FAILURE},
      *         {@link UserSwitchResult#STATUS_INVALID_REQUEST},
+     *         {@link UserSwitchResult#STATUS_UX_RESTRICTION_FAILURE},
      *         {@link UserSwitchResult#STATUS_OK_USER_ALREADY_IN_FOREGROUND},
      *         {@link UserSwitchResult#STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO},
      *         {@link UserSwitchResult#STATUS_TARGET_USER_ABANDONED_DUE_TO_A_NEW_REQUEST}, or
@@ -298,6 +312,7 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
                 && !(mStatus == STATUS_HAL_FAILURE)
                 && !(mStatus == STATUS_HAL_INTERNAL_FAILURE)
                 && !(mStatus == STATUS_INVALID_REQUEST)
+                && !(mStatus == STATUS_UX_RESTRICTION_FAILURE)
                 && !(mStatus == STATUS_OK_USER_ALREADY_IN_FOREGROUND)
                 && !(mStatus == STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO)
                 && !(mStatus == STATUS_TARGET_USER_ABANDONED_DUE_TO_A_NEW_REQUEST)
@@ -309,6 +324,7 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
                             + "STATUS_HAL_FAILURE(" + STATUS_HAL_FAILURE + "), "
                             + "STATUS_HAL_INTERNAL_FAILURE(" + STATUS_HAL_INTERNAL_FAILURE + "), "
                             + "STATUS_INVALID_REQUEST(" + STATUS_INVALID_REQUEST + "), "
+                            + "STATUS_UX_RESTRICTION_FAILURE(" + STATUS_UX_RESTRICTION_FAILURE + "), "
                             + "STATUS_OK_USER_ALREADY_IN_FOREGROUND(" + STATUS_OK_USER_ALREADY_IN_FOREGROUND + "), "
                             + "STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO(" + STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO + "), "
                             + "STATUS_TARGET_USER_ABANDONED_DUE_TO_A_NEW_REQUEST(" + STATUS_TARGET_USER_ABANDONED_DUE_TO_A_NEW_REQUEST + "), "

@@ -70,7 +70,7 @@ option java_package com.android.car.internal.common
 150104 car_user_svc_set_lifecycle_listener (uid|1)
 150105 car_user_svc_reset_lifecycle_listener (uid|1)
 150106 car_user_svc_switch_user_req (user_id|1),(timeout|1)
-150107 car_user_svc_switch_user_resp (status|1),(result|1),(error_message|3)
+150107 car_user_svc_switch_user_resp (hal_callback_status|1),(user_switch_status|1),(error_message|3)
 150108 car_user_svc_post_switch_user_req (target_user_id|1),(current_user_id|1)
 150109 car_user_svc_get_user_auth_req (uid|1),(user_id|1),(number_types|1)
 150110 car_user_svc_get_user_auth_resp (number_values|1)

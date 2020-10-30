@@ -45,6 +45,7 @@ import android.util.Log;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.android.car.CarLocalServices;
+import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.hal.UserHalService;
 import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
 import com.android.car.user.CarUserService;
@@ -91,6 +92,9 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
     @Mock
     private UserHalService mUserHal;
 
+    @Mock
+    private CarUxRestrictionsManagerService mUxRestrictionService;
+
     private ServiceLauncherContext mContext;
     private CarUserService mCarUserService;
     private VendorServiceController mController;
@@ -105,7 +109,7 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
     public void setUp() {
         mContext = new ServiceLauncherContext(ApplicationProvider.getApplicationContext());
         mCarUserService = new CarUserService(mContext, mUserHal, mUserManager,
-                ActivityManager.getService(), 2 /* max running users */);
+                ActivityManager.getService(), /* maxRunningUsers= */ 2, mUxRestrictionService);
         CarLocalServices.addService(CarUserService.class, mCarUserService);
 
         mController = new VendorServiceController(mContext, Looper.getMainLooper());
