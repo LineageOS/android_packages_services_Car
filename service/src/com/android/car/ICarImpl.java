@@ -177,6 +177,10 @@ public class ICarImpl extends ICar.Stub {
                 disabledFeaturesFromVhal , mSystemInterface.getSystemCarDir());
         CarLocalServices.addService(CarFeatureController.class, mFeatureController);
         mVehicleInterfaceName = vehicleInterfaceName;
+        mCarPropertyService = new CarPropertyService(serviceContext, mHal.getPropertyHal());
+        mCarDrivingStateService = new CarDrivingStateService(serviceContext, mCarPropertyService);
+        mCarUXRestrictionsService = new CarUxRestrictionsManagerService(serviceContext,
+                mCarDrivingStateService, mCarPropertyService);
         if (carUserService != null) {
             mCarUserService = carUserService;
         } else {
@@ -185,7 +189,8 @@ public class ICarImpl extends ICar.Stub {
             int maxRunningUsers = res.getInteger(
                     com.android.internal.R.integer.config_multiuserMaxRunningUsers);
             mCarUserService = new CarUserService(serviceContext, mHal.getUserHal(),
-                    userManager, ActivityManager.getService(), maxRunningUsers);
+                    userManager, ActivityManager.getService(), maxRunningUsers,
+                    mCarUXRestrictionsService);
         }
         mCarOccupantZoneService = new CarOccupantZoneService(serviceContext);
         mSystemActivityMonitoringService = new SystemActivityMonitoringService(serviceContext);
@@ -197,10 +202,6 @@ public class ICarImpl extends ICar.Stub {
         } else {
             mCarUserNoticeService = null;
         }
-        mCarPropertyService = new CarPropertyService(serviceContext, mHal.getPropertyHal());
-        mCarDrivingStateService = new CarDrivingStateService(serviceContext, mCarPropertyService);
-        mCarUXRestrictionsService = new CarUxRestrictionsManagerService(serviceContext,
-                mCarDrivingStateService, mCarPropertyService);
         if (mFeatureController.isFeatureEnabled(Car.OCCUPANT_AWARENESS_SERVICE)) {
             mOccupantAwarenessService = new OccupantAwarenessService(serviceContext);
         } else {

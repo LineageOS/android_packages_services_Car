@@ -56,6 +56,7 @@ import android.app.ActivityManager;
 import android.app.IActivityManager;
 import android.car.CarOccupantZoneManager.OccupantTypeEnum;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
+import android.car.drivingstate.CarUxRestrictions;
 import android.car.settings.CarSettings;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.BlockingAnswer;
@@ -107,6 +108,7 @@ import android.util.SparseArray;
 
 import androidx.test.InstrumentationRegistry;
 
+import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.hal.UserHalService;
 import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
 import com.android.car.internal.common.UserHelperLite;
@@ -160,6 +162,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Mock private UserPreCreator mUserPreCreator;
     @Mock private IResultReceiver mSwitchUserUiReceiver;
     @Mock private PackageManager mPackageManager;
+    @Mock private CarUxRestrictionsManagerService mUxRestrictionService;
 
     private final BlockingUserLifecycleListener mUserLifecycleListener =
             BlockingUserLifecycleListener.forAnyEvent().build();
@@ -605,6 +608,19 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void testSwitchDriver_failUxRestrictions() throws Exception {
+        mockExistingUsersAndCurrentUser(mAdminUser);
+        mockUxRestrictions();
+
+        mCarUserService.switchDriver(mRegularUser.id, mUserSwitchFuture);
+
+        assertThat(getUserSwitchResult().getStatus())
+                .isEqualTo(UserSwitchResult.STATUS_UX_RESTRICTION_FAILURE);
+        verifyNoUserSwitch();
+        assertNoHalUserSwitch();
+    }
+
+    @Test
     public void testSwitchDriver_IfUserSwitchIsNotAllowed() throws Exception {
         when(mMockedUserManager.getUserSwitchability())
                 .thenReturn(UserManager.SWITCHABILITY_STATUS_USER_SWITCH_DISALLOWED);
@@ -925,6 +941,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
         assertThat(getUserSwitchResult().getStatus())
                 .isEqualTo(UserSwitchResult.STATUS_OK_USER_ALREADY_IN_FOREGROUND);
+
+        verifyNoUserSwitch();
     }
 
     @Test
@@ -942,6 +960,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         // update current user due to successful user switch
         mockCurrentUser(mRegularUser);
         sendUserUnlockedEvent(mRegularUser.id);
+        assertNoHalUserSwitch();
         assertNoPostSwitch();
     }
 
@@ -954,7 +973,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
         assertThat(getUserSwitchResult().getStatus())
                 .isEqualTo(UserSwitchResult.STATUS_ANDROID_FAILURE);
-        verify(mUserHal, never()).switchUser(any(), anyInt(), any());
+
+        assertNoHalUserSwitch();
     }
 
     @Test
@@ -1004,6 +1024,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         UserSwitchResult result = getUserSwitchResult();
         assertThat(result.getStatus()).isEqualTo(UserSwitchResult.STATUS_HAL_FAILURE);
         assertThat(result.getErrorMessage()).isEqualTo(mSwitchUserResponse.errorMessage);
+        verifyNoUserSwitch();
     }
 
     @Test
@@ -1017,6 +1038,20 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
         assertThat(getUserSwitchResult().getStatus())
                 .isEqualTo(UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE);
+        verifyNoUserSwitch();
+    }
+
+    @Test
+    public void testSwitchUser_failUxRestrictions() throws Exception {
+        mockUxRestrictions();
+        mockExistingUsersAndCurrentUser(mAdminUser);
+
+        mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture);
+
+        assertThat(getUserSwitchResult().getStatus())
+                .isEqualTo(UserSwitchResult.STATUS_UX_RESTRICTION_FAILURE);
+        assertNoHalUserSwitch();
+        verifyNoUserSwitch();
     }
 
     @Test
@@ -1908,7 +1943,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                 mMockedIActivityManager,
                 /* maxRunningUsers= */ 3,
                 mInitialUserSetter,
-                mUserPreCreator);
+                mUserPreCreator,
+                mUxRestrictionService);
     }
 
     /**
@@ -2150,6 +2186,14 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         when(mUserHal.isUserAssociationSupported()).thenReturn(result);
     }
 
+    private void mockUxRestrictions() {
+        CarUxRestrictions restrictions = new CarUxRestrictions.Builder(/* reqOpt= */ false,
+                CarUxRestrictions.UX_RESTRICTIONS_NO_SETUP,
+                System.currentTimeMillis()).build();
+        Log.v(TAG, "Mocking UX restrictions: " + restrictions);
+        when(mUxRestrictionService.getCurrentUxRestrictions()).thenReturn(restrictions);
+    }
+
     /**
      * Asserts a {@link UsersInfo} that was created based on {@link #mockCurrentUsers(UserInfo)}.
      */
@@ -2178,6 +2222,11 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
     private void verifyNoUserRemoved() {
         verify(mMockedUserManager, never()).removeUser(anyInt());
+    }
+
+    private void verifyNoUserSwitch() throws Exception {
+        verify(mMockedIActivityManager, never()).switchUser(anyInt());
+        assertNoPostSwitch();
     }
 
     @NonNull
@@ -2275,6 +2324,10 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     private void assertHalSwitch(int currentId, int targetId) {
         verify(mUserHal).switchUser(isSwitchUserRequest(0, currentId, targetId),
                 eq(mAsyncCallTimeoutMs), any());
+    }
+
+    private void assertNoHalUserSwitch() {
+        verify(mUserHal, never()).switchUser(any(), anyInt(), any());
     }
 
     private void assertNoHalUserCreation() {
