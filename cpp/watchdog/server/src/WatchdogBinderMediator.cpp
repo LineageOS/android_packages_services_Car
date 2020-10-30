@@ -22,20 +22,15 @@
 #include <android-base/parseint.h>
 #include <android-base/stringprintf.h>
 #include <android-base/strings.h>
-#include <android/automotive/watchdog/BootPhase.h>
-#include <android/automotive/watchdog/PowerCycle.h>
-#include <android/automotive/watchdog/UserState.h>
-#include <binder/IPCThreadState.h>
 #include <binder/IServiceManager.h>
-#include <cutils/multiuser.h>
 #include <log/log.h>
-#include <private/android_filesystem_config.h>
 
 namespace android {
 namespace automotive {
 namespace watchdog {
 
 using android::defaultServiceManager;
+using android::sp;
 using android::base::Error;
 using android::base::Join;
 using android::base::ParseUint;
@@ -53,14 +48,9 @@ constexpr const char* kHelpText =
         "Format: dumpsys android.automotive.watchdog.ICarWatchdog/default [options]\n\n"
         "%s or %s: Displays this help text.\n"
         "When no options are specified, carwatchdog report is generated.\n";
-
-Status checkSystemPermission() {
-    if (IPCThreadState::self()->getCallingUid() != AID_SYSTEM) {
-        return Status::fromExceptionCode(Status::EX_SECURITY,
-                                         "Calling process does not have proper privilege");
-    }
-    return Status::ok();
-}
+constexpr const char* kCarWatchdogServerInterface =
+        "android.automotive.watchdog.ICarWatchdog/default";
+constexpr const char* kCarWatchdogInternalServerInterface = "carwatchdogd_system";
 
 Status fromExceptionCode(int32_t exceptionCode, std::string message) {
     ALOGW("%s", message.c_str());
@@ -69,9 +59,9 @@ Status fromExceptionCode(int32_t exceptionCode, std::string message) {
 
 }  // namespace
 
-Result<void> WatchdogBinderMediator::init(sp<WatchdogProcessService> watchdogProcessService,
-                                          sp<WatchdogPerfService> watchdogPerfService,
-                                          sp<IoOveruseMonitor> ioOveruseMonitor) {
+Result<void> WatchdogBinderMediator::init(const sp<WatchdogProcessService>& watchdogProcessService,
+                                          const sp<WatchdogPerfService>& watchdogPerfService,
+                                          const sp<IoOveruseMonitor>& ioOveruseMonitor) {
     if (watchdogProcessService == nullptr || watchdogPerfService == nullptr ||
         ioOveruseMonitor == nullptr) {
         return Error(INVALID_OPERATION) << "Must initialize process service, performance service, "
@@ -79,19 +69,38 @@ Result<void> WatchdogBinderMediator::init(sp<WatchdogProcessService> watchdogPro
                                         << "carwatchdog binder mediator";
     }
     if (mWatchdogProcessService != nullptr || mWatchdogPerfService != nullptr ||
-        mIoOveruseMonitor != nullptr) {
+        mIoOveruseMonitor != nullptr || mWatchdogInternalHandler != nullptr) {
         return Error(INVALID_OPERATION)
                 << "Cannot initialize carwatchdog binder mediator more than once";
+    }
+
+    sp<WatchdogInternalHandler> watchdogInternalHandler =
+            new WatchdogInternalHandler(this, watchdogProcessService, watchdogPerfService,
+                                        mIoOveruseMonitor);
+
+    auto result = registerServices(watchdogInternalHandler);
+    if (!result.ok()) {
+        return result;
     }
     mWatchdogProcessService = watchdogProcessService;
     mWatchdogPerfService = watchdogPerfService;
     mIoOveruseMonitor = ioOveruseMonitor;
+    mWatchdogInternalHandler = watchdogInternalHandler;
+    return {};
+}
+
+Result<void> WatchdogBinderMediator::registerServices(
+        const sp<WatchdogInternalHandler>& watchdogInternalHandler) {
     status_t status =
-            defaultServiceManager()
-                    ->addService(String16("android.automotive.watchdog.ICarWatchdog/default"),
-                                 this);
+            defaultServiceManager()->addService(String16(kCarWatchdogServerInterface), this);
     if (status != OK) {
-        return Error(status) << "Failed to start carwatchdog binder mediator";
+        return Error(status) << "Failed to add CarWatchdog server interface to ServiceManager";
+    }
+    status = defaultServiceManager()->addService(String16(kCarWatchdogInternalServerInterface),
+                                                 watchdogInternalHandler);
+    if (status != OK) {
+        return Error(status)
+                << "Failed to add CarWatchdog internal server interface to ServiceManager";
     }
     return {};
 }
@@ -138,6 +147,7 @@ status_t WatchdogBinderMediator::dump(int fd, const Vector<String16>& args) {
         ALOGW("Failed to dump I/O perf collection: %s", ret.error().message().c_str());
         return ret.error().code();
     }
+    // TODO(b/167240592): Add a dump call to I/O overuse monitor and relevant tests.
     return OK;
 }
 
@@ -154,85 +164,46 @@ bool WatchdogBinderMediator::dumpHelpText(int fd, std::string errorMsg) {
             mWatchdogPerfService->dumpHelpText(fd);
 }
 
-Status WatchdogBinderMediator::registerMediator(const sp<ICarWatchdogClient>& mediator) {
-    Status status = checkSystemPermission();
-    if (!status.isOk()) {
-        return status;
-    }
-    return mWatchdogProcessService->registerMediator(mediator);
+Status WatchdogBinderMediator::registerMediator(
+        const android::sp<ICarWatchdogClient>& /*mediator*/) {
+    return fromExceptionCode(Status::EX_UNSUPPORTED_OPERATION,
+                             "Deprecated method registerMediator");
 }
 
-Status WatchdogBinderMediator::unregisterMediator(const sp<ICarWatchdogClient>& mediator) {
-    Status status = checkSystemPermission();
-    if (!status.isOk()) {
-        return status;
-    }
-    return mWatchdogProcessService->unregisterMediator(mediator);
-}
-Status WatchdogBinderMediator::registerMonitor(const sp<ICarWatchdogMonitor>& monitor) {
-    Status status = checkSystemPermission();
-    if (!status.isOk()) {
-        return status;
-    }
-    return mWatchdogProcessService->registerMonitor(monitor);
-}
-Status WatchdogBinderMediator::unregisterMonitor(const sp<ICarWatchdogMonitor>& monitor) {
-    Status status = checkSystemPermission();
-    if (!status.isOk()) {
-        return status;
-    }
-    return mWatchdogProcessService->unregisterMonitor(monitor);
+Status WatchdogBinderMediator::unregisterMediator(
+        const android::sp<ICarWatchdogClient>& /*mediator*/) {
+    return fromExceptionCode(Status::EX_UNSUPPORTED_OPERATION,
+                             "Deprecated method unregisterMediator");
 }
 
-Status WatchdogBinderMediator::notifySystemStateChange(StateType type, int32_t arg1, int32_t arg2) {
-    Status status = checkSystemPermission();
-    if (!status.isOk()) {
-        return status;
-    }
-    switch (type) {
-        case StateType::POWER_CYCLE: {
-            PowerCycle powerCycle = static_cast<PowerCycle>(static_cast<uint32_t>(arg1));
-            if (powerCycle >= PowerCycle::NUM_POWER_CYLES) {
-                return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
-                                         StringPrintf("Invalid power cycle %d", powerCycle));
-            }
-            return mWatchdogProcessService->notifyPowerCycleChange(powerCycle);
-        }
-        case StateType::USER_STATE: {
-            userid_t userId = static_cast<userid_t>(arg1);
-            UserState userState = static_cast<UserState>(static_cast<uint32_t>(arg2));
-            if (userState >= UserState::NUM_USER_STATES) {
-                return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
-                                         StringPrintf("Invalid user state %d", userState));
-            }
-            return mWatchdogProcessService->notifyUserStateChange(userId, userState);
-        }
-        case StateType::BOOT_PHASE: {
-            BootPhase phase = static_cast<BootPhase>(static_cast<uint32_t>(arg1));
-            if (phase >= BootPhase::BOOT_COMPLETED) {
-                auto ret = mWatchdogPerfService->onBootFinished();
-                if (!ret.ok()) {
-                    return fromExceptionCode(ret.error().code(), ret.error().message());
-                }
-            }
-            return Status::ok();
-        }
-    }
-    return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
-                             StringPrintf("Invalid state change type %d", type));
+Status WatchdogBinderMediator::registerMonitor(
+        const android::sp<ICarWatchdogMonitor>& /*monitor*/) {
+    return fromExceptionCode(Status::EX_UNSUPPORTED_OPERATION, "Deprecated method registerMonitor");
 }
 
-Status WatchdogBinderMediator::updateIoOveruseConfiguration(ComponentType type,
-                                                            const IoOveruseConfiguration& config) {
-    Status status = checkSystemPermission();
-    if (!status.isOk()) {
-        return status;
-    }
-    auto result = mIoOveruseMonitor->updateIoOveruseConfiguration(type, config);
-    if (!result.ok()) {
-        return fromExceptionCode(result.error().code(), result.error().message());
-    }
-    return Status::ok();
+Status WatchdogBinderMediator::unregisterMonitor(
+        const android::sp<ICarWatchdogMonitor>& /*monitor*/) {
+    return fromExceptionCode(Status::EX_UNSUPPORTED_OPERATION,
+                             "Deprecated method unregisterMonitor");
+}
+
+Status WatchdogBinderMediator::tellMediatorAlive(
+        const android::sp<ICarWatchdogClient>& /*mediator*/,
+        const std::vector<int32_t>& /*clientsNotResponding*/, int32_t /*sessionId*/) {
+    return fromExceptionCode(Status::EX_UNSUPPORTED_OPERATION,
+                             "Deprecated method tellMediatorAlive");
+}
+
+Status WatchdogBinderMediator::tellDumpFinished(const android::sp<ICarWatchdogMonitor>& /*monitor*/,
+                                                int32_t /*pid*/) {
+    return fromExceptionCode(Status::EX_UNSUPPORTED_OPERATION,
+                             "Deprecated method tellDumpFinished");
+}
+
+Status WatchdogBinderMediator::notifySystemStateChange(StateType /*type*/, int32_t /*arg1*/,
+                                                       int32_t /*arg2*/) {
+    return fromExceptionCode(Status::EX_UNSUPPORTED_OPERATION,
+                             "Deprecated method notifySystemStateChange");
 }
 
 }  // namespace watchdog

@@ -18,15 +18,13 @@
 #define CPP_WATCHDOG_SERVER_SRC_WATCHDOGBINDERMEDIATOR_H_
 
 #include "IoOveruseMonitor.h"
+#include "WatchdogInternalHandler.h"
 #include "WatchdogPerfService.h"
 #include "WatchdogProcessService.h"
 
 #include <android-base/result.h>
 #include <android/automotive/watchdog/BnCarWatchdog.h>
-#include <android/automotive/watchdog/ComponentType.h>
-#include <android/automotive/watchdog/IoOveruseConfiguration.h>
 #include <android/automotive/watchdog/StateType.h>
-#include <binder/IBinder.h>
 #include <binder/Status.h>
 #include <gtest/gtest_prod.h>
 #include <utils/Errors.h>
@@ -40,54 +38,64 @@ namespace watchdog {
 
 class ServiceManager;
 
-// WatchdogBinderMediator implements the carwatchdog binder APIs such that it forwards the calls
-// either to process ANR or performance services.
+// WatchdogBinderMediator implements the public carwatchdog binder APIs such that it forwards
+// the calls either to process ANR or performance services.
 class WatchdogBinderMediator : public BnCarWatchdog {
 public:
     WatchdogBinderMediator() :
           mWatchdogProcessService(nullptr),
           mWatchdogPerfService(nullptr),
-          mIoOveruseMonitor(nullptr) {}
+          mIoOveruseMonitor(nullptr),
+          mWatchdogInternalHandler(nullptr) {}
+    ~WatchdogBinderMediator() { terminate(); }
 
     status_t dump(int fd, const Vector<String16>& args) override;
-    binder::Status registerClient(const sp<ICarWatchdogClient>& client,
-                                  TimeoutLength timeout) override {
+    android::binder::Status registerClient(const android::sp<ICarWatchdogClient>& client,
+                                           TimeoutLength timeout) override {
         return mWatchdogProcessService->registerClient(client, timeout);
     }
-    binder::Status unregisterClient(const sp<ICarWatchdogClient>& client) override {
+    android::binder::Status unregisterClient(
+            const android::sp<ICarWatchdogClient>& client) override {
         return mWatchdogProcessService->unregisterClient(client);
     }
-    binder::Status registerMediator(const sp<ICarWatchdogClient>& mediator) override;
-    binder::Status unregisterMediator(const sp<ICarWatchdogClient>& mediator) override;
-    binder::Status registerMonitor(const sp<ICarWatchdogMonitor>& monitor) override;
-    binder::Status unregisterMonitor(const sp<ICarWatchdogMonitor>& monitor) override;
-    binder::Status tellClientAlive(const sp<ICarWatchdogClient>& client,
-                                   int32_t sessionId) override {
+    android::binder::Status tellClientAlive(const android::sp<ICarWatchdogClient>& client,
+                                            int32_t sessionId) override {
         return mWatchdogProcessService->tellClientAlive(client, sessionId);
     }
-    binder::Status tellMediatorAlive(const sp<ICarWatchdogClient>& mediator,
-                                     const std::vector<int32_t>& clientsNotResponding,
-                                     int32_t sessionId) override {
-        return mWatchdogProcessService->tellMediatorAlive(mediator, clientsNotResponding,
-                                                          sessionId);
-    }
-    binder::Status tellDumpFinished(const android::sp<ICarWatchdogMonitor>& monitor,
-                                    int32_t pid) override {
-        return mWatchdogProcessService->tellDumpFinished(monitor, pid);
-    }
-    binder::Status notifySystemStateChange(StateType type, int32_t arg1, int32_t arg2) override;
 
-    binder::Status updateIoOveruseConfiguration(ComponentType type,
-                                                const IoOveruseConfiguration& config) override;
+    // Deprecated APIs.
+    android::binder::Status registerMediator(
+            const android::sp<ICarWatchdogClient>& mediator) override;
+    android::binder::Status unregisterMediator(
+            const android::sp<ICarWatchdogClient>& mediator) override;
+    android::binder::Status registerMonitor(
+            const android::sp<ICarWatchdogMonitor>& monitor) override;
+    android::binder::Status unregisterMonitor(
+            const android::sp<ICarWatchdogMonitor>& monitor) override;
+    android::binder::Status tellMediatorAlive(const android::sp<ICarWatchdogClient>& mediator,
+                                              const std::vector<int32_t>& clientsNotResponding,
+                                              int32_t sessionId) override;
+    android::binder::Status tellDumpFinished(const android::sp<ICarWatchdogMonitor>& monitor,
+                                             int32_t pid) override;
+    android::binder::Status notifySystemStateChange(StateType type, int32_t arg1,
+                                                    int32_t arg2) override;
 
 protected:
-    android::base::Result<void> init(android::sp<WatchdogProcessService> watchdogProcessService,
-                                     android::sp<WatchdogPerfService> watchdogPerfService,
-                                     android::sp<IoOveruseMonitor> ioOveruseMonitor);
+    android::base::Result<void> init(
+            const android::sp<WatchdogProcessService>& watchdogProcessService,
+            const android::sp<WatchdogPerfService>& watchdogPerfService,
+            const android::sp<IoOveruseMonitor>& ioOveruseMonitor);
+    virtual android::base::Result<void> registerServices(
+            const sp<WatchdogInternalHandler>& watchdogInternalHandler);
+
     void terminate() {
         mWatchdogProcessService.clear();
         mWatchdogPerfService.clear();
         mIoOveruseMonitor.clear();
+        if (mWatchdogInternalHandler != nullptr) {
+            mWatchdogInternalHandler->terminate();
+            mWatchdogInternalHandler.clear();
+        }
     }
 
 private:
@@ -96,6 +104,7 @@ private:
     android::sp<WatchdogProcessService> mWatchdogProcessService;
     android::sp<WatchdogPerfService> mWatchdogPerfService;
     android::sp<IoOveruseMonitor> mIoOveruseMonitor;
+    android::sp<WatchdogInternalHandler> mWatchdogInternalHandler;
 
     friend class ServiceManager;
     friend class WatchdogBinderMediatorTest;

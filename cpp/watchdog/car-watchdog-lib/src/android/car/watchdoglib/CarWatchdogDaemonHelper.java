@@ -20,9 +20,9 @@ import static com.android.internal.util.function.pooled.PooledLambda.obtainMessa
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.automotive.watchdog.ICarWatchdog;
-import android.automotive.watchdog.ICarWatchdogClient;
-import android.automotive.watchdog.ICarWatchdogMonitor;
+import android.automotive.watchdog.internal.ICarWatchdog;
+import android.automotive.watchdog.internal.ICarWatchdogClient;
+import android.automotive.watchdog.internal.ICarWatchdogMonitor;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -50,8 +50,7 @@ public final class CarWatchdogDaemonHelper {
     private static final long CAR_WATCHDOG_DAEMON_BIND_RETRY_INTERVAL_MS = 500;
     private static final long CAR_WATCHDOG_DAEMON_FIND_MARGINAL_TIME_MS = 300;
     private static final int CAR_WATCHDOG_DAEMON_BIND_MAX_RETRY = 3;
-    private static final String CAR_WATCHDOG_DAEMON_INTERFACE =
-            "android.automotive.watchdog.ICarWatchdog/default";
+    private static final String CAR_WATCHDOG_DAEMON_INTERFACE = "carwatchdogd_system";
 
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     private final CopyOnWriteArrayList<OnConnectionChangeListener> mConnectionListeners =
@@ -152,31 +151,6 @@ public final class CarWatchdogDaemonHelper {
     }
 
     /**
-     * Registers car watchdog client.
-     *
-     * @param client Car watchdog client to be registered.
-     * @param timeout Time within which the client should respond.
-     * @throws IllegalArgumentException If the client is already registered.
-     * @throws IllegalStateException If car watchdog daemon is not connected.
-     * @throws RemoteException
-     */
-    public void registerClient(ICarWatchdogClient client, int timeout) throws RemoteException {
-        invokeDaemonMethod((daemon) -> daemon.registerClient(client, timeout));
-    }
-
-    /**
-     * Unregisters car watchdog client.
-     *
-     * @param client Car watchdog client to be unregistered.
-     * @throws IllegalArgumentException If the client is not registered.
-     * @throws IllegalStateException If car watchdog daemon is not connected.
-     * @throws RemoteException
-     */
-    public void unregisterClient(ICarWatchdogClient client) throws RemoteException {
-        invokeDaemonMethod((daemon) -> daemon.unregisterClient(client));
-    }
-
-    /**
      * Registers car watchdog client as mediator.
      *
      * @param mediator Car watchdog client to be registered.
@@ -222,20 +196,6 @@ public final class CarWatchdogDaemonHelper {
      */
     public void unregisterMonitor(ICarWatchdogMonitor monitor) throws RemoteException {
         invokeDaemonMethod((daemon) -> daemon.unregisterMonitor(monitor));
-    }
-
-    /**
-     * Tells car watchdog daemon that the client is alive.
-     *
-     * @param client Car watchdog client which has been pined by car watchdog daemon.
-     * @param sessionId Session ID that car watchdog daemon has given.
-     * @throws IllegalArgumentException If the client is not registered,
-     *                                  or session ID is not correct.
-     * @throws IllegalStateException If car watchdog daemon is not connected.
-     * @throws RemoteException
-     */
-    public void tellClientAlive(ICarWatchdogClient client, int sessionId) throws RemoteException {
-        invokeDaemonMethod((daemon) -> daemon.tellClientAlive(client, sessionId));
     }
 
     /**

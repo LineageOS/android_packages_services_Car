@@ -24,8 +24,8 @@
 #include "WatchdogPerfService.h"
 
 #include <android-base/result.h>
-#include <android/automotive/watchdog/ComponentType.h>
-#include <android/automotive/watchdog/IoOveruseConfiguration.h>
+#include <android/automotive/watchdog/internal/ComponentType.h>
+#include <android/automotive/watchdog/internal/IoOveruseConfiguration.h>
 #include <utils/Mutex.h>
 
 #include <string>
@@ -46,7 +46,8 @@ public:
 
     // WatchdogBinderMediator API implementation.
     virtual android::base::Result<void> updateIoOveruseConfiguration(
-            ComponentType type, const IoOveruseConfiguration& config);
+            android::automotive::watchdog::internal::ComponentType type,
+            const android::automotive::watchdog::internal::IoOveruseConfiguration& config);
 
     // DataProcessor interface implementation.
     android::base::Result<void> start();

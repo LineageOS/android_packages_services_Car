@@ -26,6 +26,7 @@ cc_defaults {
     ],
     shared_libs: [
         "android.automotive.watchdog-unstable-cpp",
+        "android.automotive.watchdog.internal-unstable-cpp",
         "libbase",
         "libbinder",
         "liblog",
@@ -106,6 +107,7 @@ cc_test {
         "tests/ProcStatTest.cpp",
         "tests/UidIoStatsTest.cpp",
         "tests/WatchdogBinderMediatorTest.cpp",
+        "tests/WatchdogInternalHandlerTest.cpp",
         "tests/WatchdogPerfServiceTest.cpp",
         "tests/WatchdogProcessServiceTest.cpp",
     ],
@@ -146,6 +148,7 @@ cc_library {
     ],
     srcs: [
         "src/WatchdogBinderMediator.cpp",
+        "src/WatchdogInternalHandler.cpp",
         "src/WatchdogProcessService.cpp",
         "src/IoPerfCollection.cpp",
     ],

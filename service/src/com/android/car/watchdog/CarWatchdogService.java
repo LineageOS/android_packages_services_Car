@@ -27,10 +27,10 @@ import static com.android.internal.util.function.pooled.PooledLambda.obtainMessa
 
 import android.annotation.NonNull;
 import android.annotation.UserIdInt;
-import android.automotive.watchdog.ICarWatchdogClient;
-import android.automotive.watchdog.PowerCycle;
-import android.automotive.watchdog.StateType;
-import android.automotive.watchdog.UserState;
+import android.automotive.watchdog.internal.ICarWatchdogClient;
+import android.automotive.watchdog.internal.PowerCycle;
+import android.automotive.watchdog.internal.StateType;
+import android.automotive.watchdog.internal.UserState;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.hardware.power.ICarPowerStateListener;
 import android.car.watchdog.ICarWatchdogService;
@@ -576,16 +576,6 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         @Override
         public void prepareProcessTermination() {
             Log.w(TAG, "CarWatchdogService is about to be killed by car watchdog daemon");
-        }
-
-        @Override
-        public int getInterfaceVersion() {
-            return this.VERSION;
-        }
-
-        @Override
-        public String getInterfaceHash() {
-            return this.HASH;
         }
     }
 

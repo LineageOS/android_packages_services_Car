@@ -22,6 +22,8 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
+using android::automotive::watchdog::internal::ComponentType;
+using android::automotive::watchdog::internal::IoOveruseConfiguration;
 using android::base::Error;
 using android::base::Result;
 

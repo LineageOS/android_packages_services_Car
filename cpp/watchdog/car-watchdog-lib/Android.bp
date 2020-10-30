@@ -19,7 +19,7 @@ java_library {
     ],
     static_libs: [
         "androidx.preference_preference",
-        "android.automotive.watchdog-java",
+        "android.automotive.watchdog.internal-java",
     ],
     product_variables: {
         pdk: {

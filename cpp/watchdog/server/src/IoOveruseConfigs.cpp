@@ -26,14 +26,19 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-namespace {
-
+using android::automotive::watchdog::internal::ApplicationCategoryType;
+using android::automotive::watchdog::internal::ComponentType;
+using android::automotive::watchdog::internal::IoOveruseAlertThreshold;
+using android::automotive::watchdog::internal::IoOveruseConfiguration;
+using android::automotive::watchdog::internal::PerStateIoOveruseThreshold;
 using android::base::Error;
 using android::base::Result;
 using android::base::StartsWith;
 using android::base::StringAppendF;
 using android::base::StringPrintf;
 using android::binder::Status;
+
+namespace {
 
 // Enum to filter the updatable I/O overuse configs by each component.
 enum IoOveruseConfigEnum {
@@ -57,6 +62,15 @@ bool isZeroValueThresholds(const PerStateIoOveruseThreshold& thresholds) {
     return thresholds.perStateWriteBytes.applicationForegroundBytes == 0 &&
             thresholds.perStateWriteBytes.applicationBackgroundBytes == 0 &&
             thresholds.perStateWriteBytes.systemGarageModeBytes == 0;
+}
+
+std::string toString(const PerStateIoOveruseThreshold& thresholds) {
+    return StringPrintf("name=%s, foregroundBytes=%" PRId64 ", backgroundBytes=%" PRId64
+                        ", garageModeBytes=%" PRId64,
+                        String8(thresholds.name).c_str(),
+                        thresholds.perStateWriteBytes.applicationForegroundBytes,
+                        thresholds.perStateWriteBytes.applicationBackgroundBytes,
+                        thresholds.perStateWriteBytes.systemGarageModeBytes);
 }
 
 Result<void> containsValidThresholds(const PerStateIoOveruseThreshold& thresholds) {
@@ -330,15 +344,6 @@ Result<void> IoOveruseConfigs::update(ComponentType type,
               errorMsgs.c_str());
     }
     return {};
-}
-
-std::string toString(const PerStateIoOveruseThreshold& thresholds) {
-    return StringPrintf("name=%s, foregroundBytes=%" PRId64 ", backgroundBytes=%" PRId64
-                        ", garageModeBytes=%" PRId64,
-                        String8(thresholds.name).c_str(),
-                        thresholds.perStateWriteBytes.applicationForegroundBytes,
-                        thresholds.perStateWriteBytes.applicationBackgroundBytes,
-                        thresholds.perStateWriteBytes.systemGarageModeBytes);
 }
 
 }  // namespace watchdog
