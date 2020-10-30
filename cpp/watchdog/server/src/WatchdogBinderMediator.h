@@ -25,6 +25,7 @@
 #include <android-base/result.h>
 #include <android/automotive/watchdog/BnCarWatchdog.h>
 #include <android/automotive/watchdog/StateType.h>
+#include <binder/IBinder.h>
 #include <binder/Status.h>
 #include <gtest/gtest_prod.h>
 #include <utils/Errors.h>
@@ -32,21 +33,28 @@
 #include <utils/StrongPointer.h>
 #include <utils/Vector.h>
 
+#include <functional>
+
 namespace android {
 namespace automotive {
 namespace watchdog {
 
 class ServiceManager;
 
+// Forward declaration for testing use only.
+namespace internal {
+
+class WatchdogBinderMediatorPeer;
+
+}  // namespace internal
+
 // WatchdogBinderMediator implements the public carwatchdog binder APIs such that it forwards
 // the calls either to process ANR or performance services.
 class WatchdogBinderMediator : public BnCarWatchdog {
 public:
-    WatchdogBinderMediator() :
-          mWatchdogProcessService(nullptr),
-          mWatchdogPerfService(nullptr),
-          mIoOveruseMonitor(nullptr),
-          mWatchdogInternalHandler(nullptr) {}
+    WatchdogBinderMediator(const std::function<android::base::Result<void>(
+                                   const char*, const android::sp<android::IBinder>&)>&
+                                   addServiceHandler = nullptr);
     ~WatchdogBinderMediator() { terminate(); }
 
     status_t dump(int fd, const Vector<String16>& args) override;
@@ -85,8 +93,6 @@ protected:
             const android::sp<WatchdogProcessService>& watchdogProcessService,
             const android::sp<WatchdogPerfService>& watchdogPerfService,
             const android::sp<IoOveruseMonitor>& ioOveruseMonitor);
-    virtual android::base::Result<void> registerServices(
-            const sp<WatchdogInternalHandler>& watchdogInternalHandler);
 
     void terminate() {
         mWatchdogProcessService.clear();
@@ -106,9 +112,17 @@ private:
     android::sp<IoOveruseMonitor> mIoOveruseMonitor;
     android::sp<WatchdogInternalHandler> mWatchdogInternalHandler;
 
+    // Used by tests to stub the call to IServiceManager.
+    std::function<android::base::Result<void>(const char*, const android::sp<android::IBinder>&)>
+            mAddServiceHandler;
+
     friend class ServiceManager;
-    friend class WatchdogBinderMediatorTest;
-    FRIEND_TEST(WatchdogBinderMediatorTest, TestErrorOnNullptrDuringInit);
+
+    // For unit tests.
+    friend class internal::WatchdogBinderMediatorPeer;
+    FRIEND_TEST(WatchdogBinderMediatorTest, TestInit);
+    FRIEND_TEST(WatchdogBinderMediatorTest, TestErrorOnInitWithNullptrArgs);
+    FRIEND_TEST(WatchdogBinderMediatorTest, TestTerminate);
     FRIEND_TEST(WatchdogBinderMediatorTest, TestHandlesEmptyDumpArgs);
 };
 

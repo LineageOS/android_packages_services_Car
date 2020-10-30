@@ -39,8 +39,6 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-namespace {
-
 using android::wp;
 using android::base::Error;
 using android::base::Result;
@@ -53,6 +51,8 @@ using ::testing::NiceMock;
 using ::testing::Return;
 using ::testing::StrictMock;
 using ::testing::UnorderedElementsAreArray;
+
+namespace {
 
 const std::chrono::seconds kTestBootInterval = 1s;
 const std::chrono::seconds kTestPeriodicInterval = 2s;

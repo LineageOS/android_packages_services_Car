@@ -24,11 +24,11 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.testng.Assert.assertThrows;
 
-import android.automotive.watchdog.ICarWatchdog;
-import android.automotive.watchdog.ICarWatchdogClient;
-import android.automotive.watchdog.ICarWatchdogMonitor;
-import android.automotive.watchdog.PowerCycle;
-import android.automotive.watchdog.StateType;
+import android.automotive.watchdog.internal.ICarWatchdog;
+import android.automotive.watchdog.internal.ICarWatchdogClient;
+import android.automotive.watchdog.internal.ICarWatchdogMonitor;
+import android.automotive.watchdog.internal.PowerCycle;
+import android.automotive.watchdog.internal.StateType;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -49,8 +49,7 @@ import java.util.ArrayList;
  */
 public class CarWatchdogDaemonHelperTest {
 
-    private static final String CAR_WATCHDOG_DAEMON_INTERFACE =
-            "android.automotive.watchdog.ICarWatchdog/default";
+    private static final String CAR_WATCHDOG_DAEMON_INTERFACE = "carwatchdogd_system";
 
     @Mock CarWatchdogDaemonHelper.OnConnectionChangeListener mListener;
     @Mock private IBinder mBinder = new Binder();
@@ -93,15 +92,6 @@ public class CarWatchdogDaemonHelperTest {
     }
 
     @Test
-    public void testIndirectCall_RegisterUnregisterClient() throws Exception {
-        ICarWatchdogClient client = new ICarWatchdogClient.Default();
-        mCarWatchdogDaemonHelper.registerClient(client, 0);
-        verify(mFakeCarWatchdog).registerClient(client, 0);
-        mCarWatchdogDaemonHelper.unregisterClient(client);
-        verify(mFakeCarWatchdog).unregisterClient(client);
-    }
-
-    @Test
     public void testIndirectCall_RegisterUnregisterMediator() throws Exception {
         ICarWatchdogClient mediator = new ICarWatchdogClient.Default();
         mCarWatchdogDaemonHelper.registerMediator(mediator);
@@ -117,13 +107,6 @@ public class CarWatchdogDaemonHelperTest {
         verify(mFakeCarWatchdog).registerMonitor(monitor);
         mCarWatchdogDaemonHelper.unregisterMonitor(monitor);
         verify(mFakeCarWatchdog).unregisterMonitor(monitor);
-    }
-
-    @Test
-    public void testIndirectCall_TellClientAlive() throws Exception {
-        ICarWatchdogClient client = new ICarWatchdogClient.Default();
-        mCarWatchdogDaemonHelper.tellClientAlive(client, 123456);
-        verify(mFakeCarWatchdog).tellClientAlive(client, 123456);
     }
 
     @Test
@@ -206,15 +189,5 @@ public class CarWatchdogDaemonHelperTest {
 
         @Override
         public void prepareProcessTermination() {}
-
-        @Override
-        public int getInterfaceVersion() {
-            return this.VERSION;
-        }
-
-        @Override
-        public String getInterfaceHash() {
-            return this.HASH;
-        }
     }
 }

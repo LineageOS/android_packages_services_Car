@@ -30,6 +30,7 @@ namespace automotive {
 namespace watchdog {
 
 using android::defaultServiceManager;
+using android::IBinder;
 using android::sp;
 using android::base::Error;
 using android::base::Join;
@@ -38,6 +39,10 @@ using android::base::Result;
 using android::base::StringPrintf;
 using android::base::WriteStringToFd;
 using android::binder::Status;
+
+using AddServiceFunction =
+        std::function<android::base::Result<void>(const char*,
+                                                  const android::sp<android::IBinder>&)>;
 
 namespace {
 
@@ -57,7 +62,26 @@ Status fromExceptionCode(int32_t exceptionCode, std::string message) {
     return Status::fromExceptionCode(exceptionCode, message.c_str());
 }
 
+Result<void> addToServiceManager(const char* serviceName, sp<IBinder> service) {
+    status_t status = defaultServiceManager()->addService(String16(serviceName), service);
+    if (status != OK) {
+        return Error(status) << "Failed to add '" << serviceName << "' to ServiceManager";
+    }
+    return {};
+}
+
 }  // namespace
+
+WatchdogBinderMediator::WatchdogBinderMediator(const AddServiceFunction& addServiceHandler) :
+      mWatchdogProcessService(nullptr),
+      mWatchdogPerfService(nullptr),
+      mIoOveruseMonitor(nullptr),
+      mWatchdogInternalHandler(nullptr),
+      mAddServiceHandler(addServiceHandler) {
+    if (mAddServiceHandler == nullptr) {
+        mAddServiceHandler = &addToServiceManager;
+    }
+}
 
 Result<void> WatchdogBinderMediator::init(const sp<WatchdogProcessService>& watchdogProcessService,
                                           const sp<WatchdogPerfService>& watchdogPerfService,
@@ -78,7 +102,12 @@ Result<void> WatchdogBinderMediator::init(const sp<WatchdogProcessService>& watc
             new WatchdogInternalHandler(this, watchdogProcessService, watchdogPerfService,
                                         mIoOveruseMonitor);
 
-    auto result = registerServices(watchdogInternalHandler);
+    auto result = mAddServiceHandler(kCarWatchdogServerInterface, this);
+    if (!result.ok()) {
+        return result;
+    }
+
+    result = mAddServiceHandler(kCarWatchdogInternalServerInterface, watchdogInternalHandler);
     if (!result.ok()) {
         return result;
     }
@@ -86,22 +115,6 @@ Result<void> WatchdogBinderMediator::init(const sp<WatchdogProcessService>& watc
     mWatchdogPerfService = watchdogPerfService;
     mIoOveruseMonitor = ioOveruseMonitor;
     mWatchdogInternalHandler = watchdogInternalHandler;
-    return {};
-}
-
-Result<void> WatchdogBinderMediator::registerServices(
-        const sp<WatchdogInternalHandler>& watchdogInternalHandler) {
-    status_t status =
-            defaultServiceManager()->addService(String16(kCarWatchdogServerInterface), this);
-    if (status != OK) {
-        return Error(status) << "Failed to add CarWatchdog server interface to ServiceManager";
-    }
-    status = defaultServiceManager()->addService(String16(kCarWatchdogInternalServerInterface),
-                                                 watchdogInternalHandler);
-    if (status != OK) {
-        return Error(status)
-                << "Failed to add CarWatchdog internal server interface to ServiceManager";
-    }
     return {};
 }
 
