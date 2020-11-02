@@ -181,6 +181,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private boolean mConnectionInProgress;
     private BinderHandler mBinderHandler;
 
+    private final PolicyReader mPolicyReader = new PolicyReader();
+
     private class PowerManagerCallbackList extends RemoteCallbackList<ICarPowerStateListener> {
         /**
          * Old version of {@link #onCallbackDied(E, Object)} that
@@ -246,6 +248,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     @Override
     public void init() {
+        mPolicyReader.init();
         mHal.setListener(this);
         if (mHal.isPowerStateSupported()) {
             // Initialize CPMS in WAIT_FOR_VHAL state
@@ -292,6 +295,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             writer.println(",mRebootAfterGarageMode:" + mRebootAfterGarageMode);
             writer.println("mSwitchGuestUserBeforeSleep:" + mSwitchGuestUserBeforeSleep);
         }
+        mPolicyReader.dump(writer);
     }
 
     @Override
