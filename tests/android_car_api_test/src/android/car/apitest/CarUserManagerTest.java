@@ -212,7 +212,7 @@ public final class CarUserManagerTest extends CarApiTestBase {
     @FlakyTest // TODO(b/158050171) remove once process is stable on user switching.
     public void testGuestUserResumeToNewGuestUser() throws Exception {
         // Create new guest user
-        UserInfo guestUser = createNewUser("Guest", /* isGuestUser= */ true);
+        UserInfo guestUser = createNewUser("Guest", /* isGuest= */ true);
         int guestUserId = guestUser.id;
 
         // Wait for this user to be active
@@ -263,7 +263,7 @@ public final class CarUserManagerTest extends CarApiTestBase {
     @FlakyTest // TODO(b/158050171) remove once process is stable on user switching.
     public void testSecuredGuestUserResumeToSameUser() throws Exception {
         // Create new guest user
-        UserInfo guestUser = createNewUser("Guest", /* isGuestUser= */ true);
+        UserInfo guestUser = createNewUser("Guest", /* isGuest= */ true);
         int guestUserId = guestUser.id;
 
         // Wait for this user to be active

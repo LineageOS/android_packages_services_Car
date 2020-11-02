@@ -29,6 +29,7 @@ import android.annotation.SystemApi;
 import android.annotation.TestApi;
 import android.app.Activity;
 import android.app.Service;
+import android.car.admin.CarDevicePolicyManager;
 import android.car.annotation.MandatoryFeature;
 import android.car.annotation.OptionalFeature;
 import android.car.cluster.CarInstrumentClusterManager;
@@ -176,6 +177,16 @@ public final class Car {
     @SystemApi
     @TestApi
     public static final String CAR_USER_SERVICE = "car_user_service";
+
+    /**
+     * Service name for {@link CarDevicePolicyManager}
+     *
+     * @hide
+     */
+    @MandatoryFeature
+    @SystemApi
+    @TestApi
+    public static final String CAR_DEVICE_POLICY_SERVICE = "car_device_policy_service";
 
     /**
      * Service name for {@link CarInstrumentClusterManager}
@@ -1725,6 +1736,9 @@ public final class Car {
                 break;
             case CAR_INPUT_SERVICE:
                 manager = new CarInputManager(this, binder);
+                break;
+            case CAR_DEVICE_POLICY_SERVICE:
+                manager = new CarDevicePolicyManager(this, binder);
                 break;
             default:
                 // Experimental or non-existing

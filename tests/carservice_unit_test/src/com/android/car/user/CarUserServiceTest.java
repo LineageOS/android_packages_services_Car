@@ -45,6 +45,7 @@ import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
@@ -270,6 +271,15 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     public void testAddUserLifecycleListener_checkNullParameter() {
         assertThrows(NullPointerException.class,
                 () -> mCarUserService.addUserLifecycleListener(null));
+    }
+
+    @Test
+    public void testRemoveUser_binderMethod() {
+        CarUserService spy = spy(mCarUserService);
+
+        spy.removeUser(42);
+
+        verify(spy).removeUser(42, /* hasCallerRestrictions= */ false);
     }
 
     @Test
@@ -973,7 +983,6 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
         assertThat(getUserSwitchResult().getStatus())
                 .isEqualTo(UserSwitchResult.STATUS_ANDROID_FAILURE);
-
         assertNoHalUserSwitch();
     }
 

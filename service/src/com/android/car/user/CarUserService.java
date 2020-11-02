@@ -21,6 +21,8 @@ import static android.Manifest.permission.MANAGE_USERS;
 import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_SETUP;
 
 import static com.android.car.CarLog.TAG_USER;
+import static com.android.car.PermissionHelper.checkHasAtLeastOnePermissionGranted;
+import static com.android.car.PermissionHelper.checkHasDumpPermissionGranted;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -320,7 +322,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     @Override
     public void dump(@NonNull PrintWriter writer) {
-        checkAtLeastOnePermission("dump()", android.Manifest.permission.DUMP);
+        checkHasDumpPermissionGranted("dump()");
+
         writer.println("*CarUserService*");
         String indent = "  ";
         handleDumpListeners(writer, indent);
@@ -1032,9 +1035,24 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     @Override
+    public UserRemovalResult removeUser(@UserIdInt int userId) {
+        return removeUser(userId, /* hasCallerRestrictions= */ false);
+    }
+
+    /**
+     * Internal implementation of {@code removeUser()}, which is used by both
+     * {@code ICarUserService} and {@code ICarDevicePolicyService}.
+     *
+     * @param userId user to be removed
+     * @param hasCallerRestrictions when {@code true}, if the caller user is not an admin, it can
+     * only remove itself.
+     *
+     * @return result of the operation.
+     */
     public UserRemovalResult removeUser(@UserIdInt int userId, boolean hasCallerRestrictions) {
         checkManageOrCreateUsersPermission("removeUser");
-        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_REMOVE_USER_REQ, userId);
+        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_REMOVE_USER_REQ, userId,
+                hasCallerRestrictions ? 1 : 0);
 
         // If the requested user is the current user, return error.
         if (ActivityManager.getCurrentUser() == userId) {
@@ -1943,33 +1961,15 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     private static void checkManageUsersOrDumpPermission(String message) {
-        checkAtLeastOnePermission(message,
+        checkHasAtLeastOnePermissionGranted(message,
                 android.Manifest.permission.MANAGE_USERS,
                 android.Manifest.permission.DUMP);
     }
 
     private void checkInteractAcrossUsersPermission(String message) {
-        checkAtLeastOnePermission(message, android.Manifest.permission.INTERACT_ACROSS_USERS,
+        checkHasAtLeastOnePermissionGranted(message,
+                android.Manifest.permission.INTERACT_ACROSS_USERS,
                 android.Manifest.permission.INTERACT_ACROSS_USERS_FULL);
-    }
-
-    private static void checkAtLeastOnePermission(String message, String...permissions) {
-        int callingUid = Binder.getCallingUid();
-        if (!hasAtLeastOnePermissionGranted(callingUid, permissions)) {
-            throw new SecurityException("You need one of " + Arrays.toString(permissions)
-                    + " to: " + message);
-        }
-    }
-
-    private static boolean hasAtLeastOnePermissionGranted(int uid, String... permissions) {
-        for (String permission : permissions) {
-            if (ActivityManager.checkComponentPermission(permission, uid, /* owningUid = */-1,
-                    /* exported = */ true)
-                    == android.content.pm.PackageManager.PERMISSION_GRANTED) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private int getNumberOfManagedProfiles(@UserIdInt int userId) {

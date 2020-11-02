@@ -20,9 +20,11 @@ import static com.android.compatibility.common.util.ShellUtils.runShellCommand;
 import static com.android.compatibility.common.util.TestUtils.BooleanSupplierWithThrow;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.fail;
 
+import android.annotation.NonNull;
 import android.car.Car;
 import android.content.ComponentName;
 import android.content.Context;
@@ -82,6 +84,17 @@ abstract class CarApiTestBase {
 
     protected final Context getContext() {
         return sContext;
+    }
+
+    @SuppressWarnings("TypeParameterUnusedInFormals") // error prone complains about returning <T>
+    protected final <T> T getCarService(@NonNull String serviceName) {
+        assertThat(serviceName).isNotNull();
+        Object service = mCar.getCarManager(serviceName);
+        assertWithMessage("Could not get service %s", serviceName).that(service).isNotNull();
+
+        @SuppressWarnings("unchecked")
+        T castService = (T) service;
+        return castService;
     }
 
     protected static void assertMainThread() {

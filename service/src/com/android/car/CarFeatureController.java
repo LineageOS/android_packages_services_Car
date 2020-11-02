@@ -77,6 +77,7 @@ public final class CarFeatureController implements CarServiceBase {
             Car.PROPERTY_SERVICE,
             Car.TEST_SERVICE,
             Car.CAR_WATCHDOG_SERVICE,
+            Car.CAR_DEVICE_POLICY_SERVICE,
             // All items below here are deprecated, but still should be supported
             Car.CAR_INSTRUMENT_CLUSTER_SERVICE,
             Car.CABIN_SERVICE,
