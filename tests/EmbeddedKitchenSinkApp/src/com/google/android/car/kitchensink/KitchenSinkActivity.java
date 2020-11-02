@@ -42,6 +42,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.car.kitchensink.activityview.ActivityViewTestFragment;
+import com.google.android.car.kitchensink.admin.DevicePolicyFragment;
 import com.google.android.car.kitchensink.alertdialog.AlertDialogTestFragment;
 import com.google.android.car.kitchensink.assistant.CarAssistantFragment;
 import com.google.android.car.kitchensink.audio.AudioTestFragment;
@@ -178,6 +179,7 @@ public class KitchenSinkActivity extends FragmentActivity {
             new FragmentMenuEntry("carboard", KeyboardTestFragment.class),
             new FragmentMenuEntry("connectivity", ConnectivityFragment.class),
             new FragmentMenuEntry("cubes test", CubesTestFragment.class),
+            new FragmentMenuEntry("device policy", DevicePolicyFragment.class),
             new FragmentMenuEntry("diagnostic", DiagnosticTestFragment.class),
             new FragmentMenuEntry("display info", DisplayInfoFragment.class),
             new FragmentMenuEntry("experimental feature", ExperimentalFeatureTestFragment.class),
