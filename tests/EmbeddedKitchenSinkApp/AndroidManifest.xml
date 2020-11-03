@@ -125,6 +125,9 @@
     <!-- use for rotary fragment to enable/disable packages related to rotary -->
     <uses-permission android:name="android.permission.CHANGE_COMPONENT_ENABLED_STATE"/>
 
+    <!-- Used on DEVICE POLICY screen to lock screen -->
+    <uses-permission android:name="android.permission.LOCK_DEVICE"/>
+
     <application android:label="@string/app_title"
          android:icon="@drawable/ic_launcher">
         <uses-library android:name="android.test.runner"/>
