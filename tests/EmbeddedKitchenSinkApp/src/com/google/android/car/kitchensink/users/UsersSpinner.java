@@ -51,6 +51,7 @@ public final class UsersSpinner extends Spinner {
      * Initializes the spinner with the given users.
      */
     public void init(List<UserInfo> users) {
+        Log.v(TAG, "init(): " + users.size() + " users (" + users + ")");
         int size = users.size();
         mUsers = new UserInfo[size];
         users.toArray(mUsers);
@@ -75,10 +76,9 @@ public final class UsersSpinner extends Spinner {
         setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Log.v(TAG, "onItemSelected(): " + position);
-                if (mListener == null) return;
                 UserInfo user = getSelectedUser();
-                if (user != null) {
+                Log.v(TAG, "onItemSelected(): index=" + position + ", user=" + user);
+                if (mListener != null) {
                     mListener.onUserSelected(user);
                 }
             }
@@ -126,7 +126,6 @@ public final class UsersSpinner extends Spinner {
     public interface OnUserSelectedListener {
         /**
          * Callback for the selected user.
-         * @param user
          */
         void onUserSelected(@NonNull UserInfo user);
     }

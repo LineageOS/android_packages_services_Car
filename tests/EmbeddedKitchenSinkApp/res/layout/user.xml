@@ -17,106 +17,68 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical" >
+
+    <!--  Current user info -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" android:text="Current User"/>
+    <com.google.android.car.kitchensink.users.UserInfoView
+        android:id="@+id/current_user"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+
+    <!--  Actions on current user -->
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
-                  android:orientation="horizontal" >
+                  android:orientation="horizontal">
         <TextView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text="ID: "/>
-        <EditText
-            android:id="@+id/user_id"
-            android:enabled="false"
+            android:layout_height="wrap_content"
+            android:text="Is admin? "/>
+        <CheckBox
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text=""/>
+            android:layout_height="wrap_content"
+            android:id="@+id/is_admin"/>
         <TextView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text="Name: "/>
-        <EditText
-            android:id="@+id/user_name"
-            android:enabled="false"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text=""/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text="Type: "/>
-        <EditText
-            android:id="@+id/user_type"
-            android:enabled="false"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text=""/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text="Flags: "/>
-        <EditText
-            android:id="@+id/user_flags"
-            android:enabled="false"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text=""/>
-    </LinearLayout>
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:orientation="horizontal" >
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text="Is admin? "/>
-        <CheckBox android:layout_width="wrap_content" android:layout_height="wrap_content"
-              android:id="@+id/is_admin"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text="Associate Key Fob?"/>
+            android:layout_height="wrap_content"
+            android:text="Associate Key Fob?"/>
         <CheckBox android:layout_width="wrap_content" android:layout_height="wrap_content"
               android:id="@+id/is_associated_key_fob"/>
     </LinearLayout>
-    <TextView
+
+    <!--  Existing users... -->
+    <com.google.android.car.kitchensink.users.ExistingUsersView
+        android:layout_marginTop="80dp"
+        android:id="@+id/current_users"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" android:text="Existing Users"/>
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:orientation="horizontal" >
-            <com.google.android.car.kitchensink.users.UsersSpinner
-                android:id="@+id/existing_users"
-                android:layout_width="wrap_content" android:layout_height="wrap_content"/>
-        <Button
-            android:id="@+id/switch_user"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text="Switch"/>
-        <Button
-            android:id="@+id/remove_user"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text="Remove"/>
-        <Button
-            android:id="@+id/lock_user_data"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text="Lock Data"/>
-    </LinearLayout>
+        android:layout_height="wrap_content" />
+
+    <!--  ...and actions on them -->
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal" >
-        <TextView
+        <Button
+            android:id="@+id/switch_user"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text="Type: "/>
-        <EditText
-            android:id="@+id/selected_user_type"
-            android:enabled="false"
+            android:layout_height="wrap_content"
+            android:text="Switch"/>
+        <Button
+            android:id="@+id/remove_user"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text=""/>
-        <TextView
+            android:layout_height="wrap_content"
+            android:text="Remove"/>
+        <Button
+            android:id="@+id/lock_user_data"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text="Flags: "/>
-        <EditText
-            android:id="@+id/selected_user_flags"
-            android:enabled="false"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text=""/>
+            android:layout_height="wrap_content"
+            android:text="Lock Data"/>
     </LinearLayout>
+
+    <!-- New user section -->
     <TextView
+        android:layout_marginTop="80dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" android:text="New User"/>
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -142,6 +104,11 @@
             android:layout_height="wrap_content" android:text="Is guest? "/>
         <CheckBox android:layout_width="wrap_content" android:layout_height="wrap_content"
               android:id="@+id/new_user_is_guest"/>
+    </LinearLayout>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal" >
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:text="Extra flags: "/>
