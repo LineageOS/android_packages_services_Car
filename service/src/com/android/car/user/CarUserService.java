@@ -1167,12 +1167,57 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @Override
     public void createUser(@Nullable String name, @NonNull String userType, @UserInfoFlag int flags,
             int timeoutMs, @NonNull AndroidFuture<UserCreationResult> receiver) {
+        createUser(name, userType, flags, timeoutMs, receiver, /* hasCallerRestrictions= */ false);
+    }
+
+    /**
+     * Internal implementation of {@code createUser()}, which is used by both
+     * {@code ICarUserService} and {@code ICarDevicePolicyService}.
+     *
+     * @param hasCallerRestrictions when {@code true}, if the caller user is not an admin, it can
+     * only create admin users
+     */
+    public void createUser(@Nullable String name, @NonNull String userType, @UserInfoFlag int flags,
+            int timeoutMs, @NonNull AndroidFuture<UserCreationResult> receiver,
+            boolean hasCallerRestrictions) {
         Objects.requireNonNull(userType, "user type cannot be null");
         Objects.requireNonNull(receiver, "receiver cannot be null");
         checkManageOrCreateUsersPermission(flags);
 
         EventLog.writeEvent(EventLogTags.CAR_USER_SVC_CREATE_USER_REQ,
-                UserHelperLite.safeName(name), userType, flags, timeoutMs);
+                UserHelperLite.safeName(name), userType, flags, timeoutMs,
+                hasCallerRestrictions ? 1 : 0);
+
+        if (hasCallerRestrictions) {
+            // Restrictions:
+            // - type/flag can only be normal user, admin, or guest
+            // - non-admin user can only create non-admin users
+
+            boolean validCombination;
+            switch (userType) {
+                case UserManager.USER_TYPE_FULL_SECONDARY:
+                    validCombination = flags == 0
+                        || (flags & UserInfo.FLAG_ADMIN) == UserInfo.FLAG_ADMIN;
+                    break;
+                case UserManager.USER_TYPE_FULL_GUEST:
+                    validCombination = flags == 0;
+                    break;
+                default:
+                    validCombination = false;
+            }
+            if (!validCombination) {
+                throw new IllegalArgumentException("Invalid combination of user type(" + userType
+                        + ") and flags (" + UserInfo.flagsToString(flags)
+                        + ") for caller with restrictions");
+            }
+
+            int callingUserId = Binder.getCallingUserHandle().getIdentifier();
+            UserInfo callingUser = mUserManager.getUserInfo(callingUserId);
+            if (!callingUser.isAdmin() && (flags & UserInfo.FLAG_ADMIN) == UserInfo.FLAG_ADMIN) {
+                throw new SecurityException("Non-admin user " + callingUserId
+                        + " can only create non-admin users");
+            }
+        }
 
         UserInfo newUser;
         try {

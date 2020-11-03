@@ -34,14 +34,50 @@
         android:layout_height="wrap_content" />
 
     <!--  ...and actions on them -->
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal" >
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal" >
         <Button
             android:id="@+id/remove_user"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Remove"/>
+    </LinearLayout>
+
+    <!-- New user section -->
+    <TextView
+        android:layout_marginTop="80dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:text="New User"/>
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal" >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="Name: "/>
+        <EditText
+            android:id="@+id/new_user_name"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:maxLength="25"
+            android:text=""/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="Is admin? "/>
+        <CheckBox android:layout_width="wrap_content" android:layout_height="wrap_content"
+              android:id="@+id/new_user_is_admin"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="Is guest? "/>
+        <CheckBox android:layout_width="wrap_content" android:layout_height="wrap_content"
+              android:id="@+id/new_user_is_guest"/>
+    </LinearLayout>
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal" >
+        <Button
+            android:id="@+id/create_user"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="Create"/>
     </LinearLayout>
 </LinearLayout>

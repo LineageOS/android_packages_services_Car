@@ -31,27 +31,32 @@ public final class RemoveUserResultTest {
     }
 
     @Test
-    public void testConversion() {
-        conversionTest(/* isSuccess= */ true,
-                UserRemovalResult.STATUS_SUCCESSFUL,
+    public void testSuccess() {
+        successTest(UserRemovalResult.STATUS_SUCCESSFUL,
                 RemoveUserResult.STATUS_SUCCESS);
-        conversionTest(/* isSuccess= */ true,
-                UserRemovalResult.STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED,
+        successTest(UserRemovalResult.STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED,
                 RemoveUserResult.STATUS_SUCCESS_LAST_ADMIN_REMOVED);
-        conversionTest(/* isSuccess= */ false,
-                UserRemovalResult.STATUS_TARGET_USER_IS_CURRENT_USER,
+    }
+
+    private void successTest(int userRemovalStatus, int removeUserStatus) {
+        RemoveUserResult result = new RemoveUserResult(new UserRemovalResult(userRemovalStatus));
+        assertThat(result.isSuccess()).isTrue();
+        assertThat(result.getStatus()).isEqualTo(removeUserStatus);
+    }
+
+    @Test
+    public void testFailure() {
+        failureTest(UserRemovalResult.STATUS_TARGET_USER_IS_CURRENT_USER,
                 RemoveUserResult.STATUS_FAILURE_TARGET_USER_IS_CURRENT_USER);
-        conversionTest(/* isSuccess= */ false,
-                UserRemovalResult.STATUS_USER_DOES_NOT_EXIST,
+        failureTest(UserRemovalResult.STATUS_USER_DOES_NOT_EXIST,
                 RemoveUserResult.STATUS_FAILURE_USER_DOES_NOT_EXIST);
-        conversionTest(/* isSuccess= */ false,
-                UserRemovalResult.STATUS_ANDROID_FAILURE,
+        failureTest(UserRemovalResult.STATUS_ANDROID_FAILURE,
                 RemoveUserResult.STATUS_FAILURE_GENERIC);
     }
 
-    private void conversionTest(boolean isSuccess, int userRemovalStatus, int removeUserStatus) {
+    private void failureTest(int userRemovalStatus, int removeUserStatus) {
         RemoveUserResult result = new RemoveUserResult(new UserRemovalResult(userRemovalStatus));
-        assertThat(result.isSuccess()).isEqualTo(isSuccess);
+        assertThat(result.isSuccess()).isFalse();
         assertThat(result.getStatus()).isEqualTo(removeUserStatus);
     }
 }

@@ -19,15 +19,27 @@ package com.android.car.admin;
 import static com.android.car.PermissionHelper.checkHasDumpPermissionGranted;
 
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.annotation.UserIdInt;
+import android.car.admin.CarDevicePolicyManager;
 import android.car.admin.ICarDevicePolicyService;
+import android.car.user.UserCreationResult;
 import android.car.user.UserRemovalResult;
+import android.content.pm.UserInfo;
+import android.os.UserManager;
+import android.sysprop.CarProperties;
 import android.util.Log;
 
 import com.android.car.CarServiceBase;
+import com.android.car.internal.common.UserHelperLite;
 import com.android.car.user.CarUserService;
+import com.android.internal.annotations.VisibleForTesting;
+import com.android.internal.infra.AndroidFuture;
 
 import java.io.PrintWriter;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Service for device policy related features.
@@ -38,10 +50,19 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
     private static final String TAG = CarDevicePolicyService.class.getSimpleName();
     private static final boolean DEBUG = false;
 
+    private static final int HAL_TIMEOUT_MS = CarProperties.user_hal_timeout().orElse(5_000);
+
     private final CarUserService mCarUserService;
+    private final int mFutureTimeoutMs;
 
     public CarDevicePolicyService(@NonNull CarUserService carUserService) {
+        this(carUserService, HAL_TIMEOUT_MS + 100);
+    }
+
+    @VisibleForTesting
+    CarDevicePolicyService(@NonNull CarUserService carUserService, int futureTimeoutMs) {
         mCarUserService = carUserService;
+        mFutureTimeoutMs = futureTimeoutMs;
     }
 
     @Override
@@ -60,9 +81,52 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
     }
 
     @Override
+    public UserCreationResult createUser(@Nullable String name,
+            @CarDevicePolicyManager.UserType int type) {
+        int userInfoFlags = 0;
+        String userType = UserManager.USER_TYPE_FULL_SECONDARY;
+        switch(type) {
+            case CarDevicePolicyManager.USER_TYPE_REGULAR:
+                break;
+            case CarDevicePolicyManager.USER_TYPE_ADMIN:
+                userInfoFlags = UserInfo.FLAG_ADMIN;
+                break;
+            case CarDevicePolicyManager.USER_TYPE_GUEST:
+                userType = UserManager.USER_TYPE_FULL_GUEST;
+                break;
+            default:
+                throw new IllegalArgumentException("invalid type: " + type);
+        }
+
+        AndroidFuture<UserCreationResult> receiver = new AndroidFuture<>();
+
+        if (DEBUG) {
+            Log.d(TAG, "calling createUser(" + UserHelperLite.safeName(name) + "," + userType + ", "
+                    + userInfoFlags + ", " + HAL_TIMEOUT_MS + ")");
+        }
+
+        mCarUserService.createUser(name, userType, userInfoFlags, HAL_TIMEOUT_MS, receiver);
+
+        try {
+            return receiver.get(mFutureTimeoutMs, TimeUnit.MILLISECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
+            Log.w(TAG, "Timeout waiting " + mFutureTimeoutMs + "ms for UserCreationResult's future",
+                    e);
+            return new UserCreationResult(UserCreationResult.STATUS_HAL_INTERNAL_FAILURE,
+                    /* user= */ null, /* errorMessage= */ null);
+        }
+    }
+
+    @Override
     public void dump(@NonNull PrintWriter writer) {
         checkHasDumpPermissionGranted("dump()");
 
         writer.println("*CarDevicePolicyService*");
+
+        writer.printf("HAL_TIMEOUT_MS: %d\n", HAL_TIMEOUT_MS);
+        writer.printf("mFutureTimeoutMs: %d\n", mFutureTimeoutMs);
     }
 }
