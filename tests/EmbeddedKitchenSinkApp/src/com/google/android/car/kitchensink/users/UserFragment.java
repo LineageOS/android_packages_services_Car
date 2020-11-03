@@ -20,7 +20,6 @@ import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssocia
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType.KEY_FOB;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationValue.ASSOCIATED_CURRENT_USER;
 
-import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.AlertDialog;
 import android.car.Car;
@@ -51,7 +50,6 @@ import androidx.fragment.app.Fragment;
 import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -77,15 +75,13 @@ public final class UserFragment extends Fragment {
     private CarUserManager mCarUserManager;
 
     // Current user
-    private EditText mUserIdEditText;
-    private EditText mUserNameEditText;
-    private EditText mUserTypeEditText;
-    private EditText mUserFlagsEditText;
+    private UserInfoView mCurrentUser;
+
     private CheckBox mIsAdminCheckBox;
     private CheckBox mIsAssociatedKeyFobCheckBox;
 
     // Existing users
-    private UsersSpinner mUsersSpinner;
+    private ExistingUsersView mCurrentUsers;
     private Button mSwitchUserButton;
     private Button mRemoveUserButton;
     private Button mLockUserDataButton;
@@ -94,8 +90,6 @@ public final class UserFragment extends Fragment {
     private CheckBox mNewUserIsGuestCheckBox;
     private EditText mNewUserExtraFlagsText;
     private Button mCreateUserButton;
-    private EditText mSelectedUserTypeText;
-    private EditText mSelectedUserFlagsText;
 
 
     @Nullable
@@ -105,19 +99,17 @@ public final class UserFragment extends Fragment {
         return inflater.inflate(R.layout.user, container, false);
     }
 
+    @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         mUserManager = UserManager.get(getContext());
         Car car = ((KitchenSinkActivity) getHost()).getCar();
         mCarUserManager = (CarUserManager) car.getCarManager(Car.CAR_USER_SERVICE);
 
-        mUserIdEditText = view.findViewById(R.id.user_id);
-        mUserNameEditText = view.findViewById(R.id.user_name);
-        mUserTypeEditText = view.findViewById(R.id.user_type);
-        mUserFlagsEditText = view.findViewById(R.id.user_flags);
+        mCurrentUser = view.findViewById(R.id.current_user);
         mIsAdminCheckBox = view.findViewById(R.id.is_admin);
         mIsAssociatedKeyFobCheckBox = view.findViewById(R.id.is_associated_key_fob);
 
-        mUsersSpinner = view.findViewById(R.id.existing_users);
+        mCurrentUsers = view.findViewById(R.id.current_users);
         mSwitchUserButton = view.findViewById(R.id.switch_user);
         mRemoveUserButton = view.findViewById(R.id.remove_user);
         mLockUserDataButton = view.findViewById(R.id.lock_user_data);
@@ -126,8 +118,6 @@ public final class UserFragment extends Fragment {
         mNewUserIsGuestCheckBox = view.findViewById(R.id.new_user_is_guest);
         mNewUserExtraFlagsText = view.findViewById(R.id.new_user_flags);
         mCreateUserButton = view.findViewById(R.id.create_user);
-        mSelectedUserTypeText = view.findViewById(R.id.selected_user_type);
-        mSelectedUserFlagsText = view.findViewById(R.id.selected_user_flags);
 
         mIsAdminCheckBox.setOnClickListener((v) -> toggleAdmin());
         mSwitchUserButton.setOnClickListener((v) -> switchUser());
@@ -205,7 +195,7 @@ public final class UserFragment extends Fragment {
     }
 
     private void removeUser() {
-        int userId = mUsersSpinner.getSelectedUserId();
+        int userId = mCurrentUsers.getSelectedUserId();
         Log.i(TAG, "Remove user: " + userId);
         UserRemovalResult result = mCarUserManager.removeUser(userId);
         updateState();
@@ -219,7 +209,7 @@ public final class UserFragment extends Fragment {
     }
 
     private void switchUser() {
-        int userId = mUsersSpinner.getSelectedUserId();
+        int userId = mCurrentUsers.getSelectedUserId();
         Log.i(TAG, "Switch user: " + userId);
         AsyncFuture<UserSwitchResult> future = mCarUserManager.switchUser(userId);
         UserSwitchResult result = getResult(future);
@@ -246,7 +236,7 @@ public final class UserFragment extends Fragment {
     }
 
     private void lockUserData() {
-        int userToLock = mUsersSpinner.getSelectedUserId();
+        int userToLock = mCurrentUsers.getSelectedUserId();
         if (userToLock == UserHandle.USER_NULL) {
             return;
         }
@@ -275,34 +265,16 @@ public final class UserFragment extends Fragment {
         int userId = UserHandle.myUserId();
         boolean isAdmin = mUserManager.isAdminUser();
         boolean isAssociatedKeyFob = isAssociatedKeyFob();
-
         UserInfo user = mUserManager.getUserInfo(mUserId);
-        String userName, userType, userFlags;
-        if (user == null) {
-            userName = userType = userFlags = "N/A";
-        } else {
-            userName = user.name;
-            userType = user.userType;
-            userFlags = UserInfo.flagsToString(user.flags);
-        }
-        Log.v(TAG, "updateState(): userId=" + mUserId + ", name=" + userName + ", type=" + userType
-                + ", flags=" + userFlags + ", isAdmin=" + isAdmin
+        Log.v(TAG, "updateState(): user= " + user + ", isAdmin=" + isAdmin
                 + ", isAssociatedKeyFob=" + isAssociatedKeyFob);
-        mUserIdEditText.setText(String.valueOf(mUserId));
-        mUserNameEditText.setText(userName);
-        mUserTypeEditText.setText(userType);
-        mUserFlagsEditText.setText(userFlags);
-
+        mCurrentUser.update(user);
         mIsAdminCheckBox.setChecked(isAdmin);
         mIsAdminCheckBox.setEnabled(!isAdmin); // there's no API to "un-admin a user"
-
         mIsAssociatedKeyFobCheckBox.setChecked(isAssociatedKeyFob);
 
         // Existing users
-        List<UserInfo> allUsers = mUserManager.getAliveUsers();
-        Log.v(TAG, allUsers.size() + " users: " + allUsers);
-        mUsersSpinner.setOnUserSelectedListener((u) -> onUserSelected(u));
-        mUsersSpinner.init(allUsers);
+        mCurrentUsers.updateState();
     }
 
     private boolean isAssociatedKeyFob() {
@@ -347,11 +319,6 @@ public final class UserFragment extends Fragment {
             showMessage("associateKeyFob(" + associate + ") failed: " + error);
         }
         updateState();
-    }
-
-    private void onUserSelected(@NonNull UserInfo user) {
-        mSelectedUserTypeText.setText(user.userType);
-        mSelectedUserFlagsText.setText(UserInfo.flagsToString(user.flags));
     }
 
     private void showMessage(String pattern, Object... args) {
