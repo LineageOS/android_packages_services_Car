@@ -15,11 +15,19 @@
  */
 package android.car.apitest;
 
+import static com.android.compatibility.common.util.ShellUtils.runShellCommand;
+import static com.android.compatibility.common.util.SystemUtil.eventually;
+
 import static com.google.common.truth.Truth.assertWithMessage;
+
+import static org.testng.Assert.expectThrows;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
+import android.app.KeyguardManager;
+import android.app.admin.DevicePolicyManager;
+import android.app.admin.UnsafeStateException;
 import android.car.Car;
 import android.car.admin.CarDevicePolicyManager;
 import android.car.admin.CreateUserResult;
@@ -27,10 +35,13 @@ import android.car.admin.RemoveUserResult;
 import android.car.user.CarUserManager;
 import android.car.user.UserCreationResult;
 import android.car.user.UserRemovalResult;
+import android.content.Context;
 import android.content.pm.UserInfo;
+import android.os.PowerManager;
 import android.os.UserHandle;
 import android.util.Log;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -40,13 +51,25 @@ public final class CarDevicePolicyManagerTest extends CarApiTestBase {
 
     private static final String TAG = CarDevicePolicyManagerTest.class.getSimpleName();
 
-    private CarDevicePolicyManager mManager;
+    private CarDevicePolicyManager mCarDpm;
     private CarUserManager mCarUserManager;
+    private DevicePolicyManager mDpm;
+    private KeyguardManager mKeyguardManager;
+    private PowerManager mPowerManager;
 
     @Before
     public void setManager() throws Exception {
-        mManager = getCarService(Car.CAR_DEVICE_POLICY_SERVICE);
+        mCarDpm = getCarService(Car.CAR_DEVICE_POLICY_SERVICE);
         mCarUserManager = getCarService(Car.CAR_USER_SERVICE);
+        Context context = getContext();
+        mDpm = context.getSystemService(DevicePolicyManager.class);
+        mKeyguardManager = context.getSystemService(KeyguardManager.class);
+        mPowerManager = context.getSystemService(PowerManager.class);
+    }
+
+    @After
+    public void restoreDpmSafety() throws Exception {
+        setDpmSafety(/* safe= */ true);
     }
 
     @Test
@@ -54,7 +77,7 @@ public final class CarDevicePolicyManagerTest extends CarApiTestBase {
         UserInfo user  = createUser("CarDevicePolicyManagerTest.testRemoveUser");
         Log.d(TAG, "removing user " + user.toFullString());
 
-        RemoveUserResult result = mManager.removeUser(user.getUserHandle());
+        RemoveUserResult result = mCarDpm.removeUser(user.getUserHandle());
         Log.d(TAG, "result: " + result);
 
         assertWithMessage("Failed to remove user%s: %s", user.toFullString(), result)
@@ -67,7 +90,7 @@ public final class CarDevicePolicyManagerTest extends CarApiTestBase {
         int type = CarDevicePolicyManager.USER_TYPE_REGULAR;
         Log.d(TAG, "creating new user with name " + name + " and type " + type);
 
-        CreateUserResult result = mManager.createUser(name, type);
+        CreateUserResult result = mCarDpm.createUser(name, type);
         Log.d(TAG, "result: " + result);
         UserHandle user = result.getUserHandle();
 
@@ -79,6 +102,97 @@ public final class CarDevicePolicyManagerTest extends CarApiTestBase {
                 removeUser(user.getIdentifier());
             }
         }
+    }
+
+    @Test
+    public void testLockNow_safe() throws Exception {
+        assertScreenOn();
+
+        runSecureDeviceTest(()-> {
+            setDpmSafety(/* safe= */ true);
+
+            mDpm.lockNow();
+
+            assertLockedEventually();
+            assertScreenOn();
+        });
+    }
+
+    @Test
+    public void testLockNow_unsafe() throws Exception {
+        assertScreenOn();
+
+        runSecureDeviceTest(()-> {
+            setDpmSafety(/* safe= */ false);
+
+            UnsafeStateException e = expectThrows(UnsafeStateException.class, () -> mDpm.lockNow());
+
+            assertWithMessage("Invalid operation on %s", e).that(e.getOperation())
+                    .isEqualTo(DevicePolicyManager.OPERATION_LOCK_NOW);
+            assertUnlocked();
+            assertScreenOn();
+        });
+    }
+
+    private void runSecureDeviceTest(@NonNull Runnable test) {
+        unlockDevice();
+        setUserPin(1234);
+
+        try {
+            test.run();
+        } finally {
+            resetUserPin(1234);
+        }
+    }
+
+    private void unlockDevice() {
+        runShellCommand("input keyevent KEYCODE_POWER");
+        runShellCommand("input keyevent KEYCODE_WAKEUP");
+        runShellCommand("wm dismiss-keyguard");
+        assertUnLockedEventually();
+    }
+
+    private void setUserPin(int pin) {
+        runShellCommand("locksettings set-pin %d", pin);
+    }
+
+    private void resetUserPin(int oldPin) {
+        runShellCommand("locksettings clear --old %d", oldPin);
+    }
+
+    private void assertUnlocked() {
+        assertWithMessage("device is locked").that(mKeyguardManager.isDeviceLocked()).isFalse();
+        assertWithMessage("keyguard is locked").that(mKeyguardManager.isKeyguardLocked()).isFalse();
+    }
+
+    private void assertUnLockedEventually() {
+        eventually(() -> assertUnlocked());
+    }
+
+    private void assertLocked() {
+        assertDeviceSecure();
+        assertWithMessage("device is unlocked").that(mKeyguardManager.isDeviceLocked())
+            .isTrue();
+        assertWithMessage("keyguard is unlocked").that(mKeyguardManager.isKeyguardLocked())
+            .isTrue();
+    }
+
+    private void assertLockedEventually() {
+        eventually(() -> assertLocked());
+    }
+
+    private void assertDeviceSecure() {
+        assertWithMessage("device is not secure / user credentials not set")
+                .that(mKeyguardManager.isDeviceSecure()).isTrue();
+    }
+
+    private void assertScreenOn() {
+        assertWithMessage("screen is off").that(mPowerManager.isInteractive()).isTrue();
+    }
+
+    private void setDpmSafety(boolean safe) {
+        String event = safe ? "--park" : "--drive";
+        runShellCommand("dumpsys system_server_dumper --name CarServiceHelper %s", event);
     }
 
     // TODO(b/169779216): move methods below to superclass once more tests use them
