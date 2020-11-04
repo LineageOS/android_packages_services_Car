@@ -30,7 +30,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.car.CarOccupantZoneManager;
+import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
+import android.car.input.RotaryEvent;
+import android.hardware.automotive.vehicle.V2_0.RotaryInputType;
 import android.hardware.automotive.vehicle.V2_0.VehicleDisplay;
 import android.hardware.automotive.vehicle.V2_0.VehicleHwKeyInputAction;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
@@ -281,74 +284,70 @@ public class InputHalServiceTest {
     }
 
     @Test
-    public void dispatchesRotaryEvent_singleVolumeUp_toListener() {
-        // TODO(b/151225008) Update this
-        /*
+    public void dispatchesRotaryEvent_singleVolumeUp() {
         subscribeListener();
 
-        // KeyEvents get recycled, so we can't just use ArgumentCaptor#getAllValues here.
-        // We need to make a copy of the information we need at the time of the call.
-        List<KeyEvent> events = new ArrayList<>();
-        doAnswer(inv -> {
-            KeyEvent event = inv.getArgument(0);
-            events.add(event.copy());
+        // Arrange mInputListener to capture incoming RotaryEvent
+        List<RotaryEvent> events = new ArrayList<>();
+        doAnswer(invocation -> {
+            RotaryEvent event = invocation.getArgument(0);
+            events.add(event);
             return null;
-        }).when(mInputListener).onKeyEvent(any(), eq(DISPLAY));
+        }).when(mInputListener).onRotaryEvent(any(), eq(CarOccupantZoneManager.DISPLAY_TYPE_MAIN));
 
-        long timestampNanos = 12345678901L;
+        // Arrange
+        long timestampNanos = 12_345_678_901L;
+
+        // Act
         mInputHalService.onHalEvents(ImmutableList.of(
                 makeRotaryPropValue(RotaryInputType.ROTARY_INPUT_TYPE_AUDIO_VOLUME, 1,
                         timestampNanos, 0)));
 
-        long timestampMillis = timestampNanos / 1000000;
-        KeyEvent downEvent = events.get(0);
-        assertThat(downEvent.getKeyCode()).isEqualTo(KeyEvent.KEYCODE_VOLUME_UP);
-        assertThat(downEvent.getAction()).isEqualTo(KeyEvent.ACTION_DOWN);
-        assertThat(downEvent.getEventTime()).isEqualTo(timestampMillis);
-        KeyEvent upEvent = events.get(1);
-        assertThat(upEvent.getKeyCode()).isEqualTo(KeyEvent.KEYCODE_VOLUME_UP);
-        assertThat(upEvent.getAction()).isEqualTo(KeyEvent.ACTION_UP);
-        assertThat(upEvent.getEventTime()).isEqualTo(timestampMillis);
+        // Assert
 
-        events.forEach(KeyEvent::recycle);
-        */
+        // Expected Rotary event to have only one value for uptimeMillisForClicks since the input
+        // property was created with one detent only. This value will correspond to the event
+        // startup time. See CarServiceUtils#getUptimeToElapsedTimeDeltaInMillis for more detailed
+        // information on how this value is calculated.
+        assertThat(events).containsExactly(new RotaryEvent(
+                /* inputType= */ CarInputManager.INPUT_TYPE_ROTARY_VOLUME,
+                /* clockwise= */ true,
+                /* uptimeMillisForClicks= */ new long[]{12345L}));
     }
 
     @Test
-    public void dispatchesRotaryEvent_multipleNavigatePrevious_toListener() {
-        // TODO(b/151225008) Update this
-        /*
+    public void dispatchesRotaryEvent_multipleNavigatePrevious() {
         subscribeListener();
 
-        // KeyEvents get recycled, so we can't just use ArgumentCaptor#getAllValues here.
-        // We need to make a copy of the information we need at the time of the call.
-        List<KeyEvent> events = new ArrayList<>();
-        doAnswer(inv -> {
-            KeyEvent event = inv.getArgument(0);
-            events.add(event.copy());
+        // Arrange mInputListener to capture incoming RotaryEvent
+        List<RotaryEvent> events = new ArrayList<>();
+        doAnswer(invocation -> {
+            RotaryEvent event = invocation.getArgument(0);
+            events.add(event);
             return null;
-        }).when(mInputListener).onKeyEvent(any(), eq(DISPLAY));
+        }).when(mInputListener).onRotaryEvent(any(), eq(CarOccupantZoneManager.DISPLAY_TYPE_MAIN));
 
-        long timestampNanos = 12345678901L;
-        int deltaNanos = 876543210;
+        // Arrange
+        long timestampNanos = 12_345_000_000L;
+        int deltaNanos = 2_000_000;
         int numberOfDetents = 3;
+
+        // Act
         mInputHalService.onHalEvents(ImmutableList.of(
                 makeRotaryPropValue(RotaryInputType.ROTARY_INPUT_TYPE_SYSTEM_NAVIGATION,
                         -numberOfDetents, timestampNanos, deltaNanos)));
 
-        for (int i = 0; i < numberOfDetents; i++) {
-            long timestampMillis = (timestampNanos + i * (long) deltaNanos) / 1000000;
-            KeyEvent downEvent = events.get(i * 2);
-            assertThat(downEvent.getKeyCode()).isEqualTo(KeyEvent.KEYCODE_NAVIGATE_PREVIOUS);
-            assertThat(downEvent.getAction()).isEqualTo(KeyEvent.ACTION_DOWN);
-            assertThat(downEvent.getEventTime()).isEqualTo(timestampMillis);
-            KeyEvent upEvent = events.get(i * 2 + 1);
-            assertThat(upEvent.getKeyCode()).isEqualTo(KeyEvent.KEYCODE_NAVIGATE_PREVIOUS);
-            assertThat(upEvent.getAction()).isEqualTo(KeyEvent.ACTION_UP);
-            assertThat(upEvent.getEventTime()).isEqualTo(timestampMillis);
-        }
+        // Assert
 
-        events.forEach(KeyEvent::recycle);*/
+        // Expected Rotary event to have 3 values for uptimeMillisForClicks since the input
+        // property value was created with 3 detents. Each value in uptimeMillisForClicks
+        // represents the calculated deltas (in nanoseconds) between pairs of consecutive detents
+        // up times. See InputHalService#dispatchRotaryInput for more detailed information on how
+        // delta times are calculated.
+        assertThat(events).containsExactly(new RotaryEvent(
+                /* inputType= */CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION,
+                /* clockwise= */ false,
+                /* uptimeMillisForClicks= */ new long[]{12345L, 12347L, 12349L}));
     }
 
     @Test
