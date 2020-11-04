@@ -45,9 +45,14 @@ public final class UserRemovalResult implements Parcelable, OperationResult {
     public static final int STATUS_SUCCESSFUL = CommonResults.STATUS_SUCCESSFUL;
 
     /**
-     * When user remove fails for android. Hal user is not removed.
+     * When user remove fails for Android. Hal user is not removed.
      */
     public static final int STATUS_ANDROID_FAILURE = CommonResults.STATUS_ANDROID_FAILURE;
+
+    /**
+     * When user remove fails due to invalid arguments passed to method. Hal user is not removed.
+     */
+    public static final int STATUS_INVALID_REQUEST = CommonResults.STATUS_INVALID_REQUEST;
 
      /**
      * When user to remove is same as current user.
@@ -74,6 +79,7 @@ public final class UserRemovalResult implements Parcelable, OperationResult {
      *         {@link UserRemovalResult#STATUS_ANDROID_FAILURE},
      *         {@link UserRemovalResult#STATUS_HAL_INTERNAL_FAILURE},
      *         {@link UserRemovalResult#STATUS_TARGET_USER_IS_CURRENT_USER},
+     *         {@link UserRemovalResult#STATUS_INVALID_REQUEST},
      *         {@link UserRemovalResult#STATUS_USER_DOES_NOT_EXIST}, or
      *         {@link UserRemovalResult#STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED}.
      */
@@ -103,6 +109,7 @@ public final class UserRemovalResult implements Parcelable, OperationResult {
     @IntDef(prefix = "STATUS_", value = {
         STATUS_SUCCESSFUL,
         STATUS_ANDROID_FAILURE,
+        STATUS_INVALID_REQUEST,
         STATUS_TARGET_USER_IS_CURRENT_USER,
         STATUS_USER_DOES_NOT_EXIST,
         STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED
@@ -119,6 +126,8 @@ public final class UserRemovalResult implements Parcelable, OperationResult {
                     return "STATUS_SUCCESSFUL";
             case STATUS_ANDROID_FAILURE:
                     return "STATUS_ANDROID_FAILURE";
+            case STATUS_INVALID_REQUEST:
+                    return "STATUS_INVALID_REQUEST";
             case STATUS_TARGET_USER_IS_CURRENT_USER:
                     return "STATUS_TARGET_USER_IS_CURRENT_USER";
             case STATUS_USER_DOES_NOT_EXIST:
@@ -139,6 +148,7 @@ public final class UserRemovalResult implements Parcelable, OperationResult {
      *           {@link UserRemovalResult#STATUS_ANDROID_FAILURE},
      *           {@link UserRemovalResult#STATUS_HAL_INTERNAL_FAILURE},
      *           {@link UserRemovalResult#STATUS_TARGET_USER_IS_CURRENT_USER},
+     *           {@link UserRemovalResult#STATUS_INVALID_REQUEST},
      *           {@link UserRemovalResult#STATUS_USER_DOES_NOT_EXIST}, or
      *           {@link UserRemovalResult#STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED}.
      * @hide
@@ -150,6 +160,7 @@ public final class UserRemovalResult implements Parcelable, OperationResult {
 
         if (!(mStatus == STATUS_SUCCESSFUL)
                 && !(mStatus == STATUS_ANDROID_FAILURE)
+                && !(mStatus == STATUS_INVALID_REQUEST)
                 && !(mStatus == STATUS_TARGET_USER_IS_CURRENT_USER)
                 && !(mStatus == STATUS_USER_DOES_NOT_EXIST)
                 && !(mStatus == STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED)) {
@@ -157,6 +168,7 @@ public final class UserRemovalResult implements Parcelable, OperationResult {
                     "status was " + mStatus + " but must be one of: "
                             + "STATUS_SUCCESSFUL(" + STATUS_SUCCESSFUL + "), "
                             + "STATUS_ANDROID_FAILURE(" + STATUS_ANDROID_FAILURE + "), "
+                            + "STATUS_INVALID_REQUEST(" + STATUS_INVALID_REQUEST + "), "
                             + "STATUS_TARGET_USER_IS_CURRENT_USER(" + STATUS_TARGET_USER_IS_CURRENT_USER + "), "
                             + "STATUS_USER_DOES_NOT_EXIST(" + STATUS_USER_DOES_NOT_EXIST + "), "
                             + "STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED(" + STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED + ")");
@@ -173,6 +185,7 @@ public final class UserRemovalResult implements Parcelable, OperationResult {
      *         {@link UserRemovalResult#STATUS_ANDROID_FAILURE},
      *         {@link UserRemovalResult#STATUS_HAL_INTERNAL_FAILURE},
      *         {@link UserRemovalResult#STATUS_TARGET_USER_IS_CURRENT_USER},
+     *         {@link UserRemovalResult#STATUS_INVALID_REQUEST},
      *         {@link UserRemovalResult#STATUS_USER_DOES_NOT_EXIST}, or
      *         {@link UserRemovalResult#STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED}.
      */
@@ -218,6 +231,7 @@ public final class UserRemovalResult implements Parcelable, OperationResult {
 
         if (!(mStatus == STATUS_SUCCESSFUL)
                 && !(mStatus == STATUS_ANDROID_FAILURE)
+                && !(mStatus == STATUS_INVALID_REQUEST)
                 && !(mStatus == STATUS_TARGET_USER_IS_CURRENT_USER)
                 && !(mStatus == STATUS_USER_DOES_NOT_EXIST)
                 && !(mStatus == STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED)) {
@@ -225,6 +239,7 @@ public final class UserRemovalResult implements Parcelable, OperationResult {
                     "status was " + mStatus + " but must be one of: "
                             + "STATUS_SUCCESSFUL(" + STATUS_SUCCESSFUL + "), "
                             + "STATUS_ANDROID_FAILURE(" + STATUS_ANDROID_FAILURE + "), "
+                            + "STATUS_INVALID_REQUEST(" + STATUS_INVALID_REQUEST + "), "
                             + "STATUS_TARGET_USER_IS_CURRENT_USER(" + STATUS_TARGET_USER_IS_CURRENT_USER + "), "
                             + "STATUS_USER_DOES_NOT_EXIST(" + STATUS_USER_DOES_NOT_EXIST + "), "
                             + "STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED(" + STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED + ")");
@@ -249,10 +264,10 @@ public final class UserRemovalResult implements Parcelable, OperationResult {
     };
 
     @DataClass.Generated(
-            time = 1603921355849L,
+            time = 1604368616862L,
             codegenVersion = "1.0.18",
             sourceFile = "packages/services/Car/car-lib/src/android/car/user/UserRemovalResult.java",
-            inputSignatures = "public static final  int STATUS_SUCCESSFUL\npublic static final  int STATUS_ANDROID_FAILURE\npublic static final  int STATUS_TARGET_USER_IS_CURRENT_USER\npublic static final  int STATUS_USER_DOES_NOT_EXIST\npublic static final  int STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED\nprivate final @android.car.user.UserRemovalResult.Status int mStatus\npublic @java.lang.Override boolean isSuccess()\nclass UserRemovalResult extends java.lang.Object implements [android.os.Parcelable, android.car.user.OperationResult]\n@com.android.internal.util.DataClass(genToString=true, genHiddenConstructor=true, genHiddenConstDefs=true)")
+            inputSignatures = "public static final  int STATUS_SUCCESSFUL\npublic static final  int STATUS_ANDROID_FAILURE\npublic static final  int STATUS_INVALID_REQUEST\npublic static final  int STATUS_TARGET_USER_IS_CURRENT_USER\npublic static final  int STATUS_USER_DOES_NOT_EXIST\npublic static final  int STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED\nprivate final @android.car.user.UserRemovalResult.Status int mStatus\npublic @java.lang.Override boolean isSuccess()\nclass UserRemovalResult extends java.lang.Object implements [android.os.Parcelable, android.car.user.OperationResult]\n@com.android.internal.util.DataClass(genToString=true, genHiddenConstructor=true, genHiddenConstDefs=true)")
     @Deprecated
     private void __metadata() {}
 

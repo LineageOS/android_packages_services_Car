@@ -95,7 +95,11 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
                 userType = UserManager.USER_TYPE_FULL_GUEST;
                 break;
             default:
-                throw new IllegalArgumentException("invalid type: " + type);
+                if (DEBUG) {
+                    Log.d(TAG, "createUser(): invalid userType (" + userType + ") / flags ("
+                            + userInfoFlags + ") combination");
+                }
+                return new UserCreationResult(UserCreationResult.STATUS_INVALID_REQUEST);
         }
 
         AndroidFuture<UserCreationResult> receiver = new AndroidFuture<>();
@@ -115,8 +119,7 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
             }
             Log.w(TAG, "Timeout waiting " + mFutureTimeoutMs + "ms for UserCreationResult's future",
                     e);
-            return new UserCreationResult(UserCreationResult.STATUS_HAL_INTERNAL_FAILURE,
-                    /* user= */ null, /* errorMessage= */ null);
+            return new UserCreationResult(UserCreationResult.STATUS_HAL_INTERNAL_FAILURE);
         }
     }
 

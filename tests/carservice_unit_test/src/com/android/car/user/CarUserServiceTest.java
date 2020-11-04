@@ -1574,10 +1574,18 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockExistingUsersAndCurrentUser(currentUser);
         mockGetCallingUserHandle(currentUser.id);
 
-        assertThrows(SecurityException.class,
-                () -> mCarUserService.createUser("name", UserManager.USER_TYPE_FULL_SECONDARY,
-                        UserInfo.FLAG_ADMIN, mAsyncCallTimeoutMs, mUserCreationFuture,
-                        HAS_CALLER_RESTRICTIONS));
+        mCarUserService.createUser("name", UserManager.USER_TYPE_FULL_SECONDARY,
+                UserInfo.FLAG_ADMIN, mAsyncCallTimeoutMs,
+                mUserCreationFuture, HAS_CALLER_RESTRICTIONS);
+        assertInvalidArgumentsFailure();
+    }
+
+    private void assertInvalidArgumentsFailure() throws Exception {
+        UserCreationResult result = getUserCreationResult();
+        assertThat(result).isNotNull();
+        assertThat(result.isSuccess()).isFalse();
+        assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_INVALID_REQUEST);
+        assertThat(result.getUser()).isNull();
     }
 
     @Test
@@ -1590,10 +1598,10 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
 
-    private void createUserWithRestrictionsInvalidTypes(@NonNull String type) {
-        assertThrows(IllegalArgumentException.class,
-                () -> mCarUserService.createUser("name", type, /* flags= */ 0, mAsyncCallTimeoutMs,
-                        mUserCreationFuture, HAS_CALLER_RESTRICTIONS));
+    private void createUserWithRestrictionsInvalidTypes(@NonNull String type) throws Exception {
+        mCarUserService.createUser("name", type, /* flags= */ 0, mAsyncCallTimeoutMs,
+                mUserCreationFuture, HAS_CALLER_RESTRICTIONS);
+        assertInvalidArgumentsFailure();
     }
 
     @Test
@@ -1610,10 +1618,10 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         createUserWithRestrictionsInvalidTypes(UserInfo.FLAG_SYSTEM);
     }
 
-    private void createUserWithRestrictionsInvalidTypes(int flags) {
-        assertThrows(IllegalArgumentException.class,
-                () -> mCarUserService.createUser("name", UserManager.USER_TYPE_FULL_SECONDARY,
-                        flags, mAsyncCallTimeoutMs, mUserCreationFuture, HAS_CALLER_RESTRICTIONS));
+    private void createUserWithRestrictionsInvalidTypes(int flags) throws Exception {
+        mCarUserService.createUser("name", UserManager.USER_TYPE_FULL_SECONDARY, flags,
+                mAsyncCallTimeoutMs, mUserCreationFuture, HAS_CALLER_RESTRICTIONS);
+        assertInvalidArgumentsFailure();
     }
 
     @Test

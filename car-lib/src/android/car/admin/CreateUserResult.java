@@ -47,13 +47,19 @@ public final class CreateUserResult {
     public static final int STATUS_SUCCESS = 1;
 
     /**
-     * User was not created.
+     * User was not created because arguments passed to the method were invalid.
+     */
+    public static final int STATUS_FAILURE_INVALID_ARGUMENTS = 2;
+
+    /**
+     * User was not created for some other reason not described above.
      */
     public static final int STATUS_FAILURE_GENERIC = 100;
 
     /** @hide */
     @IntDef(prefix = "STATUS_", value = {
             STATUS_SUCCESS,
+            STATUS_FAILURE_INVALID_ARGUMENTS,
             STATUS_FAILURE_GENERIC
     })
     @Retention(RetentionPolicy.SOURCE)
@@ -76,7 +82,8 @@ public final class CreateUserResult {
             mUserHandle = null;
             return;
         }
-        if (result.getStatus() == UserCreationResult.STATUS_SUCCESSFUL) {
+        int status = result.getStatus();
+        if (status == UserCreationResult.STATUS_SUCCESSFUL) {
             UserInfo user = result.getUser();
             mUserHandle = user == null ? null : user.getUserHandle();
             if (mUserHandle == null) {
@@ -89,7 +96,13 @@ public final class CreateUserResult {
         }
 
         mUserHandle = null;
-        mStatus = STATUS_FAILURE_GENERIC;
+        switch (status) {
+            case UserCreationResult.STATUS_INVALID_REQUEST:
+                mStatus = STATUS_FAILURE_INVALID_ARGUMENTS;
+                break;
+            default:
+                mStatus = STATUS_FAILURE_GENERIC;
+        }
     }
 
     /**
@@ -132,6 +145,8 @@ public final class CreateUserResult {
         switch (status) {
             case STATUS_SUCCESS:
                 return "SUCCESS";
+            case STATUS_FAILURE_INVALID_ARGUMENTS:
+                return "FAILURE_INVALID_ARGUMENTS";
             case STATUS_FAILURE_GENERIC:
                 return "FAILURE_GENERIC";
             default:

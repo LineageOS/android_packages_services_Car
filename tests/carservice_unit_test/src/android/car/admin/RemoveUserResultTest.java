@@ -50,6 +50,8 @@ public final class RemoveUserResultTest {
                 RemoveUserResult.STATUS_FAILURE_TARGET_USER_IS_CURRENT_USER);
         failureTest(UserRemovalResult.STATUS_USER_DOES_NOT_EXIST,
                 RemoveUserResult.STATUS_FAILURE_USER_DOES_NOT_EXIST);
+        failureTest(UserRemovalResult.STATUS_INVALID_REQUEST,
+                RemoveUserResult.STATUS_FAILURE_INVALID_ARGUMENTS);
         failureTest(UserRemovalResult.STATUS_ANDROID_FAILURE,
                 RemoveUserResult.STATUS_FAILURE_GENERIC);
     }

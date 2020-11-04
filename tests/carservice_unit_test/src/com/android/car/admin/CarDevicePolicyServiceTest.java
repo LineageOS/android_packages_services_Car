@@ -22,7 +22,6 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
-import static org.testng.Assert.expectThrows;
 
 import android.annotation.NonNull;
 import android.car.admin.CarDevicePolicyManager;
@@ -71,9 +70,12 @@ public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTes
     }
 
     private void invalidCreateUserTypeTest(@CarDevicePolicyManager.UserType int type) {
-        IllegalArgumentException exception = expectThrows(IllegalArgumentException.class,
-                () -> mService.createUser("name", type));
-        assertThat(exception.getMessage()).contains(Integer.toString(type));
+        UserCreationResult result = mService.createUser("name", type);
+
+        assertThat(result).isNotNull();
+        assertThat(result.isSuccess()).isFalse();
+        assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_INVALID_REQUEST);
+        assertThat(result.getUser()).isNull();
     }
 
     @Test
@@ -96,8 +98,7 @@ public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTes
 
     private void createUserOkTest(@UserInfoFlag int flags,
             @CarDevicePolicyManager.UserType int carDpmUserType, @NonNull String userType) {
-        UserCreationResult result = new UserCreationResult(UserCreationResult.STATUS_SUCCESSFUL,
-                /* user= */ null, /* errorMessage= */ null);
+        UserCreationResult result = new UserCreationResult(UserCreationResult.STATUS_SUCCESSFUL);
         doAnswer((inv) -> {
             Log.d(TAG, "returning " + result + " for user " + userType + " and flags " + flags);
             @SuppressWarnings("unchecked")

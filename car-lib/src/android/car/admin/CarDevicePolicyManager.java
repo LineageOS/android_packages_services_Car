@@ -31,7 +31,6 @@ import android.car.user.UserRemovalResult;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
-import android.util.DebugUtils;
 import android.util.EventLog;
 
 import com.android.car.internal.common.EventLogTags;
@@ -110,17 +109,15 @@ public final class CarDevicePolicyManager extends CarManagerBase {
         mService = service;
     }
 
-    // TODO(b/169779216): return STATUS_INVALID request in case of non-admin restriction
-
     /**
      * Removes the given user.
+     *
+     * <p><b>Note: </b>if the caller user is not an admin, it can only remove itself
+     * (otherwise it will fail with {@link RemoveUserResult#STATUS_FAILURE_INVALID_ARGUMENTS}).
      *
      * @param user identification of the user to be removed.
      *
      * @return whether the user was successfully removed.
-     *
-     * @throws SecurityException if the caller user is not an admin and is trying to remove any user
-     * other than its own user.
      *
      * @hide
      */
@@ -147,21 +144,17 @@ public final class CarDevicePolicyManager extends CarManagerBase {
         }
     }
 
-    // TODO(b/169779216): return STATUS_INVALID request in case of non-admin restriction
-
     /**
      * Creates a user with the given characteristics.
      *
+     * <p><b>Note: </b>if the caller user is not an admin, it can only create non-admin users
+     * (otherwise it will fail with {@link CreateUserResult#STATUS_FAILURE_INVALID_ARGUMENTS}).
+     *
      * @param name user name.
-     * @param type either {@link #USER_TYPE_REGUKAR}, {@link #USER_TYPE_ADMIN},
+     * @param type either {@link #USER_TYPE_REGULAR}, {@link #USER_TYPE_ADMIN},
      * or {@link #USER_TYPE_GUEST}.
      *
      * @return whether the user was successfully removed.
-     *
-     * @throws SecurityException if the caller user is not an admin and is trying to create an admin
-     *  user.
-     *
-     * @throws IllegalArgumentException on invalid {@code type} value.
      *
      * @hide
      */
@@ -190,10 +183,5 @@ public final class CarDevicePolicyManager extends CarManagerBase {
     @Override
     public void onCarDisconnected() {
         // nothing to do
-    }
-
-    /** @hide */
-    public static String userFlagsToString(@UserType int flags) {
-        return DebugUtils.flagsToString(CarDevicePolicyManager.class, PREFIX_USER_TYPE, flags);
     }
 }

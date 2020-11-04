@@ -274,8 +274,7 @@ public final class CarUserManager extends CarManagerBase {
             return new AndroidAsyncFuture<>(future);
         } catch (RemoteException e) {
             AndroidFuture<UserCreationResult> future = new AndroidFuture<>();
-            future.complete(new UserCreationResult(UserCreationResult.STATUS_HAL_INTERNAL_FAILURE,
-                    null, null));
+            future.complete(new UserCreationResult(UserCreationResult.STATUS_HAL_INTERNAL_FAILURE));
             return handleRemoteExceptionFromCarService(e, new AndroidAsyncFuture<>(future));
         }
     }
