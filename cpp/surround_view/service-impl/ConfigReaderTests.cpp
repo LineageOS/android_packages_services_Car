@@ -59,6 +59,7 @@ TEST(ConfigReaderTests, ReadConfigSuccess) {
 
     // Surround view 2D
     EXPECT_EQ(svConfig.sv2dConfig.sv2dEnabled, true);
+    EXPECT_EQ(svConfig.sv2dConfig.sv2dGpuAccelerationEnabled, false);
     EXPECT_EQ(svConfig.sv2dConfig.sv2dParams.resolution.width, 768);
     EXPECT_EQ(svConfig.sv2dConfig.sv2dParams.resolution.height, 1024);
     EXPECT_EQ(svConfig.sv2dConfig.sv2dParams.physical_size.width, 9.0);

@@ -73,6 +73,9 @@ bool ReadSvConfig2d(const XMLElement* parent, SvConfig2d* sv2dConfig) {
         return true;
     }
 
+    RETURN_IF_FALSE(ReadValue(parent, "Sv2dGpuAccelerationEnabled",
+                              &sv2dConfig->sv2dGpuAccelerationEnabled));
+
     SurroundView2dParams* sv2dParams = &sv2dConfig->sv2dParams;
     const XMLElement* param2dElem = nullptr;
     RETURN_IF_FALSE(GetElement(parent, "Sv2dParams", &param2dElem));
