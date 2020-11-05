@@ -1206,17 +1206,27 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     validCombination = false;
             }
             if (!validCombination) {
-                throw new IllegalArgumentException("Invalid combination of user type(" + userType
-                        + ") and flags (" + UserInfo.flagsToString(flags)
-                        + ") for caller with restrictions");
+                if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
+                    Log.d(TAG, "Invalid combination of user type(" + userType
+                            + ") and flags (" + UserInfo.flagsToString(flags)
+                            + ") for caller with restrictions");
+                }
+                sendUserCreationResultFailure(receiver, UserCreationResult.STATUS_INVALID_REQUEST);
+                return;
+
             }
 
             int callingUserId = Binder.getCallingUserHandle().getIdentifier();
             UserInfo callingUser = mUserManager.getUserInfo(callingUserId);
             if (!callingUser.isAdmin() && (flags & UserInfo.FLAG_ADMIN) == UserInfo.FLAG_ADMIN) {
-                throw new SecurityException("Non-admin user " + callingUserId
-                        + " can only create non-admin users");
+                if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
+                    Log.d(TAG, "Non-admin user " + callingUserId
+                            + " can only create non-admin users");
+                }
+                sendUserCreationResultFailure(receiver, UserCreationResult.STATUS_INVALID_REQUEST);
+                return;
             }
+
         }
 
         UserInfo newUser;

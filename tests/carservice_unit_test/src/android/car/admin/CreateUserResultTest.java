@@ -51,8 +51,7 @@ public final class CreateUserResultTest {
     @Test
     public void testFailure_nullUserInfo() {
         CreateUserResult result = new CreateUserResult(
-                new UserCreationResult(UserCreationResult.STATUS_SUCCESSFUL, /* user= */ null,
-                        /* errorMessage= */ null));
+                new UserCreationResult(UserCreationResult.STATUS_SUCCESSFUL));
 
         assertThat(result.isSuccess()).isFalse();
         assertThat(result.getStatus()).isEqualTo(RemoveUserResult.STATUS_FAILURE_GENERIC);
@@ -78,18 +77,20 @@ public final class CreateUserResultTest {
     }
 
     @Test
-    public void testFailure_invalidConversion() {
-        invalidConversionTest(UserCreationResult.STATUS_SUCCESSFUL);
-        invalidConversionTest(UserCreationResult.STATUS_ANDROID_FAILURE);
-        invalidConversionTest(UserCreationResult.STATUS_HAL_INTERNAL_FAILURE);
-        invalidConversionTest(UserCreationResult.STATUS_INVALID_REQUEST);
+    public void testFailure() {
+        failureTest(UserCreationResult.STATUS_SUCCESSFUL, CreateUserResult.STATUS_FAILURE_GENERIC);
+        failureTest(UserCreationResult.STATUS_ANDROID_FAILURE,
+                CreateUserResult.STATUS_FAILURE_GENERIC);
+        failureTest(UserCreationResult.STATUS_HAL_INTERNAL_FAILURE,
+                CreateUserResult.STATUS_FAILURE_GENERIC);
+        failureTest(UserCreationResult.STATUS_INVALID_REQUEST,
+                CreateUserResult.STATUS_FAILURE_INVALID_ARGUMENTS);
     }
 
-    private void invalidConversionTest(int userCreationStatus) {
-        CreateUserResult result = new CreateUserResult(new UserCreationResult(userCreationStatus,
-                /* user= */ null, /* errorMessage= */ null));
+    private void failureTest(int userCreationStatus, int removeUserStatus) {
+        CreateUserResult result = new CreateUserResult(new UserCreationResult(userCreationStatus));
         assertThat(result.isSuccess()).isFalse();
-        assertThat(result.getStatus()).isEqualTo(CreateUserResult.STATUS_FAILURE_GENERIC);
+        assertThat(result.getStatus()).isEqualTo(removeUserStatus);
         assertThat(result.getUserHandle()).isNull();
     }
 }

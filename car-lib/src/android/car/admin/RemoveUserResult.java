@@ -58,6 +58,11 @@ public final class RemoveUserResult {
     public static final int STATUS_FAILURE_USER_DOES_NOT_EXIST = 4;
 
     /**
+     * User was not removed because arguments passed to the method were invalid.
+     */
+    public static final int STATUS_FAILURE_INVALID_ARGUMENTS = 5;
+
+    /**
      * User was not removed for some other reason not described above.
      */
     public static final int STATUS_FAILURE_GENERIC = 100;
@@ -68,6 +73,7 @@ public final class RemoveUserResult {
             STATUS_SUCCESS_LAST_ADMIN_REMOVED,
             STATUS_FAILURE_TARGET_USER_IS_CURRENT_USER,
             STATUS_FAILURE_USER_DOES_NOT_EXIST,
+            STATUS_FAILURE_INVALID_ARGUMENTS,
             STATUS_FAILURE_GENERIC
     })
     @Retention(RetentionPolicy.SOURCE)
@@ -98,6 +104,9 @@ public final class RemoveUserResult {
                 break;
             case UserRemovalResult.STATUS_USER_DOES_NOT_EXIST:
                 mStatus = STATUS_FAILURE_USER_DOES_NOT_EXIST;
+                break;
+            case UserRemovalResult.STATUS_INVALID_REQUEST:
+                mStatus = STATUS_FAILURE_INVALID_ARGUMENTS;
                 break;
             default:
                 mStatus = STATUS_FAILURE_GENERIC;
@@ -139,6 +148,8 @@ public final class RemoveUserResult {
                 return "FAILURE_TARGET_USER_IS_CURRENT_USER";
             case STATUS_FAILURE_USER_DOES_NOT_EXIST:
                 return "FAILURE_USER_DOES_NOT_EXIST";
+            case STATUS_FAILURE_INVALID_ARGUMENTS:
+                return "FAILURE_INVALID_ARGUMENTS";
             case STATUS_FAILURE_GENERIC:
                 return "FAILURE_GENERIC";
             default:
