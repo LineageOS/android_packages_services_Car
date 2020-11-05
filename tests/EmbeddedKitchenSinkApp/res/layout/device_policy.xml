@@ -80,4 +80,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:text="Create"/>
     </LinearLayout>
+
+    <!-- Non user-related actions -->
+    <TextView
+        android:layout_marginTop="80dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:text="Other actions"/>
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal" >
+        <Button
+            android:id="@+id/lock_now"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="Lock Now"/>
+    </LinearLayout>
 </LinearLayout>

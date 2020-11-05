@@ -17,6 +17,7 @@ package com.google.android.car.kitchensink.admin;
 
 import android.annotation.Nullable;
 import android.app.AlertDialog;
+import android.app.admin.DevicePolicyManager;
 import android.car.Car;
 import android.car.admin.CarDevicePolicyManager;
 import android.car.admin.CreateUserResult;
@@ -49,6 +50,7 @@ public final class DevicePolicyFragment extends Fragment {
     private static final String TAG = DevicePolicyFragment.class.getSimpleName();
 
     private UserManager mUserManager;
+    private DevicePolicyManager mDevicePolicyManager;
     private CarDevicePolicyManager mCarDevicePolicyManager;
 
     // Current user
@@ -66,6 +68,7 @@ public final class DevicePolicyFragment extends Fragment {
     // Actions
     private Button mCreateUserButton;
     private Button mRemoveUserButton;
+    private Button mLockNowButton;
 
     @Nullable
     @Override
@@ -77,6 +80,7 @@ public final class DevicePolicyFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         mUserManager = UserManager.get(getContext());
+        mDevicePolicyManager = getContext().getSystemService(DevicePolicyManager.class);
         Car car = ((KitchenSinkActivity) getHost()).getCar();
         mCarDevicePolicyManager = (CarDevicePolicyManager) car
                 .getCarManager(Car.CAR_DEVICE_POLICY_SERVICE);
@@ -92,6 +96,8 @@ public final class DevicePolicyFragment extends Fragment {
 
         mRemoveUserButton.setOnClickListener((v) -> removeUser());
         mCreateUserButton.setOnClickListener((v) -> createUser());
+
+        mLockNowButton = view.findViewById(R.id.lock_now);
 
         updateState();
     }
@@ -141,6 +147,12 @@ public final class DevicePolicyFragment extends Fragment {
         } else {
             showMessage("Failed to create user with type %d: %s", type, result);
         }
+    }
+
+    private void lockNow() {
+        Log.i(TAG, "Calling lockNow()...");
+        mDevicePolicyManager.lockNow();
+        Log.i(TAG, "...locked!");
     }
 
     private void showMessage(String pattern, Object... args) {
