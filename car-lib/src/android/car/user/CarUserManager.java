@@ -226,10 +226,10 @@ public final class CarUserManager extends CarManagerBase {
             EventLog.writeEvent(EventLogTags.CAR_USER_MGR_SWITCH_USER_REQ, uid, targetUserId);
             mService.switchUser(targetUserId, HAL_TIMEOUT_MS, future);
             return new AndroidAsyncFuture<>(future);
-        } catch (RemoteException e) {
+        } catch (RemoteException | RuntimeException e) {
             AsyncFuture<UserSwitchResult> future =
                     newSwitchResuiltForFailure(UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE);
-            return handleRemoteExceptionFromCarService(e, future);
+            return handleExceptionFromCarService(e, future);
         }
     }
 
@@ -272,10 +272,10 @@ public final class CarUserManager extends CarManagerBase {
                     UserHelperLite.safeName(name), userType, flags);
             mService.createUser(name, userType, flags, HAL_TIMEOUT_MS, future);
             return new AndroidAsyncFuture<>(future);
-        } catch (RemoteException e) {
+        } catch (RemoteException | RuntimeException e) {
             AndroidFuture<UserCreationResult> future = new AndroidFuture<>();
             future.complete(new UserCreationResult(UserCreationResult.STATUS_HAL_INTERNAL_FAILURE));
-            return handleRemoteExceptionFromCarService(e, new AndroidAsyncFuture<>(future));
+            return handleExceptionFromCarService(e, new AndroidAsyncFuture<>(future));
         }
     }
 
@@ -328,8 +328,8 @@ public final class CarUserManager extends CarManagerBase {
             UserRemovalResult result = mService.removeUser(userId);
             status = result.getStatus();
             return result;
-        } catch (RemoteException e) {
-            return handleRemoteExceptionFromCarService(e,
+        } catch (RemoteException | RuntimeException e) {
+            return handleExceptionFromCarService(e,
                     new UserRemovalResult(UserRemovalResult.STATUS_ANDROID_FAILURE));
         } finally {
             EventLog.writeEvent(EventLogTags.CAR_USER_MGR_REMOVE_USER_RESP, uid, status);
@@ -431,8 +431,8 @@ public final class CarUserManager extends CarManagerBase {
     public boolean isUserHalUserAssociationSupported() {
         try {
             return mService.isUserHalUserAssociationSupported();
-        } catch (RemoteException e) {
-            return handleRemoteExceptionFromCarService(e, false);
+        } catch (RemoteException | RuntimeException e) {
+            return handleExceptionFromCarService(e, false);
         }
     }
 
@@ -457,8 +457,9 @@ public final class CarUserManager extends CarManagerBase {
                         values != null ? values.length : 0);
             }
             return response;
-        } catch (RemoteException e) {
-            return handleRemoteExceptionFromCarService(e, null);
+        } catch (RemoteException | RuntimeException e) {
+            return handleExceptionFromCarService(e,
+                    UserIdentificationAssociationResponse.forFailure(e.getMessage()));
         }
     }
 
@@ -512,10 +513,10 @@ public final class CarUserManager extends CarManagerBase {
             };
             mService.setUserIdentificationAssociation(HAL_TIMEOUT_MS, types, values, future);
             return new AndroidAsyncFuture<>(future);
-        } catch (RemoteException e) {
+        } catch (RemoteException | RuntimeException e) {
             AndroidFuture<UserIdentificationAssociationResponse> future = new AndroidFuture<>();
             future.complete(UserIdentificationAssociationResponse.forFailure());
-            return handleRemoteExceptionFromCarService(e, new AndroidAsyncFuture<>(future));
+            return handleExceptionFromCarService(e, new AndroidAsyncFuture<>(future));
         }
     }
 
