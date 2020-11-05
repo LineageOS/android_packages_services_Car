@@ -40,7 +40,7 @@ public final class AudioControlWrapperV2 implements AudioControlWrapper {
     private AudioControlDeathRecipient mDeathRecipient;
     private ICloseHandle mCloseHandle;
 
-    public static @Nullable IAudioControl getService() {
+    static @Nullable IAudioControl getService() {
         try {
             return IAudioControl.getService(true);
         } catch (RemoteException e) {
@@ -73,10 +73,11 @@ public final class AudioControlWrapperV2 implements AudioControlWrapper {
     }
 
     @Override
-    public void registerFocusListener(IFocusListener focusListener) {
+    public void registerFocusListener(HalFocusListener focusListener) {
         Log.d(TAG, "Registering focus listener on AudioControl HAL");
+        IFocusListener listenerWrapper = new FocusListenerWrapper(focusListener);
         try {
-            mCloseHandle = mAudioControlV2.registerFocusListener(focusListener);
+            mCloseHandle = mAudioControlV2.registerFocusListener(listenerWrapper);
         } catch (RemoteException e) {
             Log.e(TAG, "Failed to register focus listener");
             throw new IllegalStateException("IAudioControl#registerFocusListener failed", e);
@@ -152,6 +153,24 @@ public final class AudioControlWrapperV2 implements AudioControlWrapper {
         linkToDeath(mDeathRecipient);
         if (mDeathRecipient != null) {
             mDeathRecipient.serviceDied();
+        }
+    }
+
+    private final class FocusListenerWrapper extends IFocusListener.Stub {
+        private final HalFocusListener mListener;
+
+        FocusListenerWrapper(HalFocusListener halFocusListener) {
+            mListener = halFocusListener;
+        }
+
+        @Override
+        public void requestAudioFocus(int usage, int zoneId, int focusGain) throws RemoteException {
+            mListener.requestAudioFocus(usage, zoneId, focusGain);
+        }
+
+        @Override
+        public void abandonAudioFocus(int usage, int zoneId) throws RemoteException {
+            mListener.abandonAudioFocus(usage, zoneId);
         }
     }
 }
