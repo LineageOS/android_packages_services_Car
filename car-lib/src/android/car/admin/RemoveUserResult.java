@@ -58,7 +58,7 @@ public final class RemoveUserResult {
     public static final int STATUS_FAILURE_USER_DOES_NOT_EXIST = 4;
 
     /**
-     * User was not removed for some other reason not described above
+     * User was not removed for some other reason not described above.
      */
     public static final int STATUS_FAILURE_GENERIC = 100;
 
@@ -68,6 +68,7 @@ public final class RemoveUserResult {
             STATUS_SUCCESS_LAST_ADMIN_REMOVED,
             STATUS_FAILURE_TARGET_USER_IS_CURRENT_USER,
             STATUS_FAILURE_USER_DOES_NOT_EXIST,
+            STATUS_FAILURE_GENERIC
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface Status {
@@ -87,16 +88,16 @@ public final class RemoveUserResult {
 
         switch (status) {
             case UserRemovalResult.STATUS_SUCCESSFUL:
-                mStatus = RemoveUserResult.STATUS_SUCCESS;
+                mStatus = STATUS_SUCCESS;
                 break;
             case UserRemovalResult.STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED:
-                mStatus = RemoveUserResult.STATUS_SUCCESS_LAST_ADMIN_REMOVED;
+                mStatus = STATUS_SUCCESS_LAST_ADMIN_REMOVED;
                 break;
             case UserRemovalResult.STATUS_TARGET_USER_IS_CURRENT_USER:
-                mStatus = RemoveUserResult.STATUS_FAILURE_TARGET_USER_IS_CURRENT_USER;
+                mStatus = STATUS_FAILURE_TARGET_USER_IS_CURRENT_USER;
                 break;
             case UserRemovalResult.STATUS_USER_DOES_NOT_EXIST:
-                mStatus = RemoveUserResult.STATUS_FAILURE_USER_DOES_NOT_EXIST;
+                mStatus = STATUS_FAILURE_USER_DOES_NOT_EXIST;
                 break;
             default:
                 mStatus = STATUS_FAILURE_GENERIC;
@@ -127,7 +128,8 @@ public final class RemoveUserResult {
         return "RemoveUserResult[" + statusToString(mStatus) + "]";
     }
 
-    private String statusToString(int status) {
+    /** @hide */
+    public static String statusToString(@Status int status) {
         switch (status) {
             case STATUS_SUCCESS:
                 return "SUCCESS";

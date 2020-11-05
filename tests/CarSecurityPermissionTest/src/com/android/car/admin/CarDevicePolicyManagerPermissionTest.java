@@ -66,4 +66,12 @@ public final class CarDevicePolicyManagerPermissionTest {
         assertThat(e.getMessage()).contains(CREATE_USERS);
         assertThat(e.getMessage()).contains(MANAGE_USERS);
     }
+
+    @Test
+    public void testCreateUserPermission() throws Exception {
+        Exception e = expectThrows(SecurityException.class,
+                () -> mManager.createUser("DaUser", CarDevicePolicyManager.USER_TYPE_REGULAR));
+        assertThat(e.getMessage()).contains(CREATE_USERS);
+        assertThat(e.getMessage()).contains(MANAGE_USERS);
+    }
 }

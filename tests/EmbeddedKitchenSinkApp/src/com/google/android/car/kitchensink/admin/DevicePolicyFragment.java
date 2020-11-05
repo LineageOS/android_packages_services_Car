@@ -19,16 +19,20 @@ import android.annotation.Nullable;
 import android.app.AlertDialog;
 import android.car.Car;
 import android.car.admin.CarDevicePolicyManager;
+import android.car.admin.CreateUserResult;
 import android.car.admin.RemoveUserResult;
 import android.content.pm.UserInfo;
 import android.os.Bundle;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
 
 import androidx.fragment.app.Fragment;
 
@@ -53,6 +57,14 @@ public final class DevicePolicyFragment extends Fragment {
     // Existing users
     private ExistingUsersView mCurrentUsers;
 
+    // New user
+    private EditText mNewUserNameText;
+    private CheckBox mNewUserIsAdminCheckBox;
+    private CheckBox mNewUserIsGuestCheckBox;
+    private EditText mNewUserExtraFlagsText;
+
+    // Actions
+    private Button mCreateUserButton;
     private Button mRemoveUserButton;
 
     @Nullable
@@ -73,7 +85,13 @@ public final class DevicePolicyFragment extends Fragment {
         mCurrentUsers = view.findViewById(R.id.current_users);
         mRemoveUserButton = view.findViewById(R.id.remove_user);
 
+        mNewUserNameText = view.findViewById(R.id.new_user_name);
+        mNewUserIsAdminCheckBox = view.findViewById(R.id.new_user_is_admin);
+        mNewUserIsGuestCheckBox = view.findViewById(R.id.new_user_is_guest);
+        mCreateUserButton = view.findViewById(R.id.create_user);
+
         mRemoveUserButton.setOnClickListener((v) -> removeUser());
+        mCreateUserButton.setOnClickListener((v) -> createUser());
 
         updateState();
     }
@@ -93,12 +111,35 @@ public final class DevicePolicyFragment extends Fragment {
         int userId = mCurrentUsers.getSelectedUserId();
         Log.i(TAG, "Remove user: " + userId);
         RemoveUserResult result = mCarDevicePolicyManager.removeUser(UserHandle.of(userId));
-        updateState();
-
         if (result.isSuccess()) {
+            updateState();
             showMessage("User %d removed", userId);
         } else {
             showMessage("Failed to remove user %d: %s", userId, result);
+        }
+    }
+
+    private void createUser() {
+        String name = mNewUserNameText.getText().toString();
+        if (TextUtils.isEmpty(name)) {
+            name = null;
+        }
+        // Type is treated as a flag here so we can emulate an invalid value by selecting both.
+        int type = CarDevicePolicyManager.USER_TYPE_REGULAR;
+        boolean isAdmin = mNewUserIsAdminCheckBox.isChecked();
+        if (isAdmin) {
+            type |= CarDevicePolicyManager.USER_TYPE_ADMIN;
+        }
+        boolean isGuest = mNewUserIsGuestCheckBox.isChecked();
+        if (isGuest) {
+            type |= CarDevicePolicyManager.USER_TYPE_GUEST;
+        }
+        CreateUserResult result = mCarDevicePolicyManager.createUser(name, type);
+        if (result.isSuccess()) {
+            showMessage("User crated: %s", result.getUserHandle().getIdentifier());
+            updateState();
+        } else {
+            showMessage("Failed to create user with type %d: %s", type, result);
         }
     }
 
