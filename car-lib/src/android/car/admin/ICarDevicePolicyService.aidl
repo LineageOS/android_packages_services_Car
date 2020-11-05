@@ -17,8 +17,10 @@
 package android.car.admin;
 
 import android.car.user.UserRemovalResult;
+import android.car.user.UserCreationResult;
 
 /** @hide */
 interface ICarDevicePolicyService {
     UserRemovalResult removeUser(int userId);
+    UserCreationResult createUser(String name, int flags);
 }

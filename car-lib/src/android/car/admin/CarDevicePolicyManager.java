@@ -18,21 +18,28 @@ package android.car.admin;
 
 import static android.os.Process.myUid;
 
+import android.annotation.IntDef;
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.annotation.TestApi;
 import android.car.Car;
 import android.car.CarManagerBase;
+import android.car.user.UserCreationResult;
 import android.car.user.UserRemovalResult;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
+import android.util.DebugUtils;
 import android.util.EventLog;
 
 import com.android.car.internal.common.EventLogTags;
+import com.android.car.internal.common.UserHelperLite;
 import com.android.internal.annotations.VisibleForTesting;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Objects;
 
 /**
@@ -43,7 +50,7 @@ import java.util.Objects;
  *
  * <ol>
  *   <li>Its methods take in consideration driver-safety restrictions.
- *   <li>Callers doesn't need to be a {@code DPC}, but rather have the TBD Role.
+ *   <li>Callers doesn't need to be a {@code DPC}, but rather have the proper permissions.
  * </ol>
  *
  * @hide
@@ -53,6 +60,39 @@ import java.util.Objects;
 public final class CarDevicePolicyManager extends CarManagerBase {
 
     private final ICarDevicePolicyService mService;
+
+    private static final String PREFIX_USER_TYPE = "USER_TYPE_";
+
+    /**
+     * Type used to indicate the user is a regular user.
+     */
+    public static final int USER_TYPE_REGULAR = 0;
+
+    /**
+     * Type used to indicate the user is an admin user.
+     */
+    public static final int USER_TYPE_ADMIN = 1;
+
+    /**
+     * Type used to indicate the user is a guest user.
+     */
+    public static final int USER_TYPE_GUEST = 2;
+
+    /** @hide - Used on test cases only */
+    public static final int FIRST_USER_TYPE = USER_TYPE_REGULAR;
+    /** @hide - Used on test cases only */
+    public static final int LAST_USER_TYPE = USER_TYPE_GUEST;
+
+
+    /** @hide */
+    @IntDef(prefix = PREFIX_USER_TYPE, value = {
+            USER_TYPE_REGULAR,
+            USER_TYPE_ADMIN,
+            USER_TYPE_GUEST
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface UserType {
+    }
 
     /**
      * @hide
@@ -70,6 +110,8 @@ public final class CarDevicePolicyManager extends CarManagerBase {
         mService = service;
     }
 
+    // TODO(b/169779216): return STATUS_INVALID request in case of non-admin restriction
+
     /**
      * Removes the given user.
      *
@@ -77,10 +119,8 @@ public final class CarDevicePolicyManager extends CarManagerBase {
      *
      * @return whether the user was successfully removed.
      *
-     * @throws SecurityException if the caller app doesn't have the proper permission (either
-     * {@code android.Manifest.permission.MANAGE_USERS} or
-     * {@code android.Manifest.permission.CREATE_USERS}) or if the caller user is not an admin and
-     * is trying to remove any user other than its own user.
+     * @throws SecurityException if the caller user is not an admin and is trying to remove any user
+     * other than its own user.
      *
      * @hide
      */
@@ -107,9 +147,53 @@ public final class CarDevicePolicyManager extends CarManagerBase {
         }
     }
 
+    // TODO(b/169779216): return STATUS_INVALID request in case of non-admin restriction
+
+    /**
+     * Creates a user with the given characteristics.
+     *
+     * @param name user name.
+     * @param type either {@link #USER_TYPE_REGUKAR}, {@link #USER_TYPE_ADMIN},
+     * or {@link #USER_TYPE_GUEST}.
+     *
+     * @return whether the user was successfully removed.
+     *
+     * @throws SecurityException if the caller user is not an admin and is trying to create an admin
+     *  user.
+     *
+     * @throws IllegalArgumentException on invalid {@code type} value.
+     *
+     * @hide
+     */
+    @SystemApi
+    @TestApi
+    @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
+            android.Manifest.permission.CREATE_USERS})
+    @NonNull
+    public CreateUserResult createUser(@Nullable String name, @UserType int type) {
+        int uid = myUid();
+        EventLog.writeEvent(EventLogTags.CAR_DP_MGR_CREATE_USER_REQ, uid,
+                UserHelperLite.safeName(name), type);
+        int status = CreateUserResult.STATUS_FAILURE_GENERIC;
+        try {
+            UserCreationResult result = mService.createUser(name, type);
+            status = result.getStatus();
+            return new CreateUserResult(result);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, new CreateUserResult(null));
+        } finally {
+            EventLog.writeEvent(EventLogTags.CAR_DP_MGR_CREATE_USER_RESP, uid, status);
+        }
+    }
+
     /** @hide */
     @Override
     public void onCarDisconnected() {
         // nothing to do
+    }
+
+    /** @hide */
+    public static String userFlagsToString(@UserType int flags) {
+        return DebugUtils.flagsToString(CarDevicePolicyManager.class, PREFIX_USER_TYPE, flags);
     }
 }

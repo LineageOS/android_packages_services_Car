@@ -122,3 +122,5 @@ option java_package com.android.car.internal.common
 #### Device policy related tags (range 150200 - 150299)
 150200 car_dp_mgr_remove_user_req (uid|1),(user_id|1)
 150201 car_dp_mgr_remove_user_resp (uid|1),(status|1)
+150202 car_dp_mgr_create_user_req (uid|1),(safe_name|3),(flags|1)
+150203 car_dp_mgr_create_user_resp (uid|1),(status|1)

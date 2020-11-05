@@ -25,7 +25,10 @@ import static org.testng.Assert.assertThrows;
 
 import android.car.Car;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.test.util.UserTestingHelper.UserInfoBuilder;
+import android.car.user.UserCreationResult;
 import android.car.user.UserRemovalResult;
+import android.content.pm.UserInfo;
 import android.os.RemoteException;
 import android.os.UserHandle;
 
@@ -55,6 +58,7 @@ public final class CarDevicePolicyManagerUnitTest extends AbstractExtendedMockit
 
         RemoveUserResult result = mMgr.removeUser(UserHandle.of(100));
 
+        assertThat(result.isSuccess()).isTrue();
         assertThat(result.getStatus()).isEqualTo(RemoveUserResult.STATUS_SUCCESS);
     }
 
@@ -65,11 +69,38 @@ public final class CarDevicePolicyManagerUnitTest extends AbstractExtendedMockit
 
         RemoveUserResult result = mMgr.removeUser(UserHandle.of(100));
 
+        assertThat(result.isSuccess()).isFalse();
         assertThat(result.getStatus()).isEqualTo(RemoveUserResult.STATUS_FAILURE_GENERIC);
     }
 
     @Test
     public void testRemoveUser_nullUser() {
         assertThrows(NullPointerException.class, () -> mMgr.removeUser(null));
+    }
+
+    @Test
+    public void testCreateUser_success() throws Exception {
+        UserInfo user = new UserInfoBuilder(100).build();
+        int status = UserCreationResult.STATUS_SUCCESSFUL;
+        when(mService.createUser("TheDude", 100))
+                .thenReturn(new UserCreationResult(status, user, /* errorMessage= */ null));
+
+        CreateUserResult result = mMgr.createUser("TheDude", 100);
+
+        assertThat(result.isSuccess()).isTrue();
+        assertThat(result.getStatus()).isEqualTo(CreateUserResult.STATUS_SUCCESS);
+        assertThat(result.getUserHandle().getIdentifier()).isEqualTo(100);
+    }
+
+    @Test
+    public void testCreateUser_remoteException() throws Exception {
+        doThrow(new RemoteException("D'OH!")).when(mService).createUser("TheDude", 100);
+        mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
+
+        CreateUserResult result = mMgr.createUser("TheDude", 100);
+
+        assertThat(result.isSuccess()).isFalse();
+        assertThat(result.getStatus()).isEqualTo(CreateUserResult.STATUS_FAILURE_GENERIC);
+        assertThat(result.getUserHandle()).isNull();
     }
 }

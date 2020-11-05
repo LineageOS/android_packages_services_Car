@@ -151,6 +151,9 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
     private static final int NON_EXISTING_USER = 55; // must not be on mExistingUsers
 
+    private static final boolean HAS_CALLER_RESTRICTIONS = true;
+    private static final boolean NO_CALLER_RESTRICTIONS = false;
+
     @Mock private Context mMockContext;
     @Mock private Context mApplicationContext;
     @Mock private LocationManager mLocationManager;
@@ -172,7 +175,6 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
     private CarUserService mCarUserService;
     private boolean mUser0TaskExecuted;
-    private FakeCarOccupantZoneService mFakeCarOccupantZoneService;
 
     private final AndroidFuture<UserSwitchResult> mUserSwitchFuture = new AndroidFuture<>();
     private final AndroidFuture<UserCreationResult> mUserCreationFuture = new AndroidFuture<>();
@@ -236,7 +238,9 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
         mCarUserService = newCarUserService(/* switchGuestUserBeforeGoingSleep= */ false);
 
-        mFakeCarOccupantZoneService = new FakeCarOccupantZoneService(mCarUserService);
+        // TODO(b/172262561): refactor this call, which is not assigning the service to anything
+        // (but without it some tests fail due to NPE).
+        new FakeCarOccupantZoneService(mCarUserService);
     }
 
     private BroadcastReceiver initService() {
@@ -279,7 +283,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
         spy.removeUser(42);
 
-        verify(spy).removeUser(42, /* hasCallerRestrictions= */ false);
+        verify(spy).removeUser(42, NO_CALLER_RESTRICTIONS);
     }
 
     @Test
@@ -753,7 +757,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockCurrentUser(mAdminUser);
 
         UserRemovalResult result = mCarUserService.removeUser(mAdminUser.id,
-                /* hasCallerRestrictions= */ false);
+                NO_CALLER_RESTRICTIONS);
 
         assertThat(result.getStatus())
                 .isEqualTo(UserRemovalResult.STATUS_TARGET_USER_IS_CURRENT_USER);
@@ -762,7 +766,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testRemoveUser_userNotExist() throws Exception {
         UserRemovalResult result = mCarUserService.removeUser(15,
-                /* hasCallerRestrictions= */ false);
+                NO_CALLER_RESTRICTIONS);
 
         assertThat(result.getStatus())
                 .isEqualTo(UserRemovalResult.STATUS_USER_DOES_NOT_EXIST);
@@ -778,7 +782,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockRemoveUser(removeUser.id);
 
         UserRemovalResult result = mCarUserService.removeUser(mAdminUser.id,
-                /* hasCallerRestrictions= */ false);
+                NO_CALLER_RESTRICTIONS);
 
         assertThat(result.getStatus())
                 .isEqualTo(UserRemovalResult.STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED);
@@ -795,7 +799,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockRemoveUser(removeUser.id);
 
         UserRemovalResult result = mCarUserService.removeUser(removeUser.id,
-                /* hasCallerRestrictions= */ false);
+                NO_CALLER_RESTRICTIONS);
 
         assertThat(result.getStatus()).isEqualTo(UserRemovalResult.STATUS_SUCCESSFUL);
         assertHalRemove(currentUser, removeUser);
@@ -809,7 +813,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockRemoveUser(removeUser.id);
 
         UserRemovalResult result = mCarUserService.removeUser(removeUser.id,
-                /* hasCallerRestrictions= */ false);
+                NO_CALLER_RESTRICTIONS);
 
         assertThat(result.getStatus()).isEqualTo(UserRemovalResult.STATUS_SUCCESSFUL);
         assertHalRemove(currentUser, removeUser);
@@ -823,7 +827,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockRemoveUser(removeUser.id);
 
         UserRemovalResult result = mCarUserService.removeUser(removeUser.id,
-                /* hasCallerRestrictions= */ false);
+                NO_CALLER_RESTRICTIONS);
 
         assertThat(result.getStatus()).isEqualTo(UserRemovalResult.STATUS_SUCCESSFUL);
         verify(mUserHal, never()).removeUser(any());
@@ -836,7 +840,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         // No need to mock um.removeUser as it returns false by default
 
         UserRemovalResult result = mCarUserService.removeUser(targetUserId,
-                /* hasCallerRestrictions= */ false);
+                NO_CALLER_RESTRICTIONS);
 
         assertThat(result.getStatus()).isEqualTo(UserRemovalResult.STATUS_ANDROID_FAILURE);
     }
@@ -850,7 +854,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockRemoveUser(removeUser.id);
 
         assertThrows(SecurityException.class, () -> mCarUserService.removeUser(removeUser.id,
-                /* hasCallerRestrictions= */ true));
+                HAS_CALLER_RESTRICTIONS));
     }
 
     @Test
@@ -862,7 +866,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockRemoveUser(removeUser.id);
 
         assertThrows(SecurityException.class, () -> mCarUserService.removeUser(removeUser.id,
-                /* hasCallerRestrictions= */ true));
+                HAS_CALLER_RESTRICTIONS));
     }
 
     @Test
@@ -874,7 +878,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockRemoveUser(removeUser.id);
 
         UserRemovalResult result = mCarUserService.removeUser(removeUser.id,
-                /* hasCallerRestrictions= */ true);
+                HAS_CALLER_RESTRICTIONS);
 
         // TODO(b/155913815): return STATUS_SUCCESSFUL_SET_EPHEMERAL instead
         assertThat(result.getStatus())
@@ -891,7 +895,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockRemoveUser(removeUser.id);
 
         UserRemovalResult result = mCarUserService.removeUser(removeUser.id,
-                /* hasCallerRestrictions= */ true);
+                HAS_CALLER_RESTRICTIONS);
 
         assertThat(result.getStatus()).isEqualTo(UserRemovalResult.STATUS_SUCCESSFUL);
         assertHalRemove(currentUser, removeUser);
@@ -906,7 +910,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockRemoveUser(removeUser.id);
 
         UserRemovalResult result = mCarUserService.removeUser(removeUser.id,
-                /* hasCallerRestrictions= */ true);
+                HAS_CALLER_RESTRICTIONS);
 
         assertThat(result.getStatus()).isEqualTo(UserRemovalResult.STATUS_SUCCESSFUL);
         assertHalRemove(currentUser, removeUser);
@@ -921,7 +925,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockRemoveUser(removeUser.id);
 
         UserRemovalResult result = mCarUserService.removeUser(removeUser.id,
-                /* hasCallerRestrictions= */ true);
+                HAS_CALLER_RESTRICTIONS);
 
         // TODO(b/155913815): return STATUS_SUCCESSFUL_SET_EPHEMERAL instead
         assertThat(result.getStatus())
@@ -1364,13 +1368,15 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testCreateUser_nullType() throws Exception {
         assertThrows(NullPointerException.class, () -> mCarUserService
-                .createUser("dude", null, 108, mAsyncCallTimeoutMs, mUserCreationFuture));
+                .createUser("dude", null, 108, mAsyncCallTimeoutMs, mUserCreationFuture,
+                        NO_CALLER_RESTRICTIONS));
     }
 
     @Test
     public void testCreateUser_nullReceiver() throws Exception {
         assertThrows(NullPointerException.class, () -> mCarUserService
-                .createUser("dude", "TypeONegative", 108, mAsyncCallTimeoutMs, null));
+                .createUser("dude", "TypeONegative", 108, mAsyncCallTimeoutMs, null,
+                        NO_CALLER_RESTRICTIONS));
     }
 
     @Test
@@ -1378,7 +1384,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         // No need to mock um.createUser() to return null
 
         mCarUserService.createUser("dude", "TypeONegative", 108, mAsyncCallTimeoutMs,
-                mUserCreationFuture);
+                mUserCreationFuture, NO_CALLER_RESTRICTIONS);
 
         UserCreationResult result = getUserCreationResult();
         assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_ANDROID_FAILURE);
@@ -1395,7 +1401,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                 new RuntimeException("D'OH!"));
 
         mCarUserService.createUser("dude", "TypeONegative", 108, mAsyncCallTimeoutMs,
-                mUserCreationFuture);
+                mUserCreationFuture, NO_CALLER_RESTRICTIONS);
 
         UserCreationResult result = getUserCreationResult();
         assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_ANDROID_FAILURE);
@@ -1413,7 +1419,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockRemoveUser(42);
 
         mCarUserService.createUser("dude", "TypeONegative", 108, mAsyncCallTimeoutMs,
-                mUserCreationFuture);
+                mUserCreationFuture, NO_CALLER_RESTRICTIONS);
 
         UserCreationResult result = getUserCreationResult();
         assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_HAL_INTERNAL_FAILURE);
@@ -1430,7 +1436,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockRemoveUser(42);
 
         mCarUserService.createUser("dude", "TypeONegative", 108, mAsyncCallTimeoutMs,
-                mUserCreationFuture);
+                mUserCreationFuture, NO_CALLER_RESTRICTIONS);
 
         UserCreationResult result = getUserCreationResult();
         assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_HAL_FAILURE);
@@ -1448,7 +1454,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockRemoveUser(42);
 
         mCarUserService.createUser("dude", "TypeONegative", 108, mAsyncCallTimeoutMs,
-                mUserCreationFuture);
+                mUserCreationFuture, NO_CALLER_RESTRICTIONS);
 
         UserCreationResult result = getUserCreationResult();
         assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_HAL_INTERNAL_FAILURE);
@@ -1468,7 +1474,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                 UserInfo.FLAG_EPHEMERAL, userId);
 
         mCarUserService.createUser("dude", UserManager.USER_TYPE_FULL_GUEST,
-                UserInfo.FLAG_EPHEMERAL, mAsyncCallTimeoutMs, mUserCreationFuture);
+                UserInfo.FLAG_EPHEMERAL, mAsyncCallTimeoutMs, mUserCreationFuture,
+                NO_CALLER_RESTRICTIONS);
 
         UserCreationResult result = getUserCreationResult();
         assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_SUCCESSFUL);
@@ -1486,7 +1493,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                 mockHalCreateUser(HalCallback.STATUS_OK, CreateUserStatus.SUCCESS);
 
         mCarUserService.createUser("dude", UserManager.USER_TYPE_FULL_GUEST,
-                UserInfo.FLAG_EPHEMERAL, mAsyncCallTimeoutMs, mUserCreationFuture);
+                UserInfo.FLAG_EPHEMERAL, mAsyncCallTimeoutMs, mUserCreationFuture,
+                NO_CALLER_RESTRICTIONS);
 
         // Assert request
         CreateUserRequest request = requestCaptor.getValue();
@@ -1521,7 +1529,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                 mockHalCreateUser(HalCallback.STATUS_OK, CreateUserStatus.SUCCESS);
 
         mCarUserService.createUser(nullName, UserManager.USER_TYPE_FULL_GUEST,
-                UserInfo.FLAG_EPHEMERAL, mAsyncCallTimeoutMs, mUserCreationFuture);
+                UserInfo.FLAG_EPHEMERAL, mAsyncCallTimeoutMs, mUserCreationFuture,
+                NO_CALLER_RESTRICTIONS);
 
         // Assert request
         CreateUserRequest request = requestCaptor.getValue();
@@ -1544,6 +1553,67 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
         verifyNoUserRemoved();
         verify(mUserHal, never()).removeUser(any());
+    }
+
+    @Test
+    public void testCreateUser_binderMethod() {
+        CarUserService spy = spy(mCarUserService);
+        AndroidFuture<UserCreationResult> receiver = new AndroidFuture<>();
+        int flags = 42;
+        int timeoutMs = 108;
+
+        spy.createUser("name", "type", flags, timeoutMs, receiver);
+
+        verify(spy).createUser("name", "type", flags, timeoutMs, receiver,
+                NO_CALLER_RESTRICTIONS);
+    }
+
+    @Test
+    public void testCreateUserWithRestrictions_nonAdminCreatingAdmin() throws Exception {
+        UserInfo currentUser = mRegularUser;
+        mockExistingUsersAndCurrentUser(currentUser);
+        mockGetCallingUserHandle(currentUser.id);
+
+        assertThrows(SecurityException.class,
+                () -> mCarUserService.createUser("name", UserManager.USER_TYPE_FULL_SECONDARY,
+                        UserInfo.FLAG_ADMIN, mAsyncCallTimeoutMs, mUserCreationFuture,
+                        HAS_CALLER_RESTRICTIONS));
+    }
+
+    @Test
+    public void testCreateUserWithRestrictions_invalidTypes() throws Exception {
+        createUserWithRestrictionsInvalidTypes(UserManager.USER_TYPE_FULL_DEMO);
+        createUserWithRestrictionsInvalidTypes(UserManager.USER_TYPE_FULL_RESTRICTED);
+        createUserWithRestrictionsInvalidTypes(UserManager.USER_TYPE_FULL_SYSTEM);
+        createUserWithRestrictionsInvalidTypes(UserManager.USER_TYPE_PROFILE_MANAGED);
+        createUserWithRestrictionsInvalidTypes(UserManager.USER_TYPE_SYSTEM_HEADLESS);
+    }
+
+
+    private void createUserWithRestrictionsInvalidTypes(@NonNull String type) {
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarUserService.createUser("name", type, /* flags= */ 0, mAsyncCallTimeoutMs,
+                        mUserCreationFuture, HAS_CALLER_RESTRICTIONS));
+    }
+
+    @Test
+    public void testCreateUserWithRestrictions_invalidFlags() throws Exception {
+        createUserWithRestrictionsInvalidTypes(UserInfo.FLAG_DEMO);
+        createUserWithRestrictionsInvalidTypes(UserInfo.FLAG_DISABLED);
+        createUserWithRestrictionsInvalidTypes(UserInfo.FLAG_EPHEMERAL);
+        createUserWithRestrictionsInvalidTypes(UserInfo.FLAG_FULL);
+        createUserWithRestrictionsInvalidTypes(UserInfo.FLAG_INITIALIZED);
+        createUserWithRestrictionsInvalidTypes(UserInfo.FLAG_MANAGED_PROFILE);
+        createUserWithRestrictionsInvalidTypes(UserInfo.FLAG_PRIMARY);
+        createUserWithRestrictionsInvalidTypes(UserInfo.FLAG_QUIET_MODE);
+        createUserWithRestrictionsInvalidTypes(UserInfo.FLAG_RESTRICTED);
+        createUserWithRestrictionsInvalidTypes(UserInfo.FLAG_SYSTEM);
+    }
+
+    private void createUserWithRestrictionsInvalidTypes(int flags) {
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarUserService.createUser("name", UserManager.USER_TYPE_FULL_SECONDARY,
+                        flags, mAsyncCallTimeoutMs, mUserCreationFuture, HAS_CALLER_RESTRICTIONS));
     }
 
     @Test

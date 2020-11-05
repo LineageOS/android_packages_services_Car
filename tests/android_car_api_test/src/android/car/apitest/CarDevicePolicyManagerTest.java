@@ -19,12 +19,16 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.UserIdInt;
 import android.car.Car;
 import android.car.admin.CarDevicePolicyManager;
+import android.car.admin.CreateUserResult;
 import android.car.admin.RemoveUserResult;
 import android.car.user.CarUserManager;
 import android.car.user.UserCreationResult;
+import android.car.user.UserRemovalResult;
 import android.content.pm.UserInfo;
+import android.os.UserHandle;
 import android.util.Log;
 
 import org.junit.Before;
@@ -57,7 +61,28 @@ public final class CarDevicePolicyManagerTest extends CarApiTestBase {
                 .that(result.isSuccess()).isTrue();
     }
 
-    // TODO(b/169779216): move to superclass once more tests use it
+    @Test
+    public void testCreateUser() throws Exception {
+        String name = "CarDevicePolicyManagerTest.testCreateUser";
+        int type = CarDevicePolicyManager.USER_TYPE_REGULAR;
+        Log.d(TAG, "creating new user with name " + name + " and type " + type);
+
+        CreateUserResult result = mManager.createUser(name, type);
+        Log.d(TAG, "result: " + result);
+        UserHandle user = result.getUserHandle();
+
+        try {
+            assertWithMessage("Failed to create user named %s and type %s: %s", name, type,
+                    result).that(result.isSuccess()).isTrue();
+        } finally {
+            if (user != null) {
+                removeUser(user.getIdentifier());
+            }
+        }
+    }
+
+    // TODO(b/169779216): move methods below to superclass once more tests use them
+
     @NonNull
     private UserInfo createUser(@Nullable String name) throws Exception {
         Log.d(TAG, "creating user " + name);
@@ -67,5 +92,14 @@ public final class CarDevicePolicyManagerTest extends CarApiTestBase {
         assertWithMessage("Could not create user %s: %s", name, result).that(result.isSuccess())
                 .isTrue();
         return result.getUser();
+    }
+
+    private void removeUser(@UserIdInt int userId) throws Exception {
+        Log.d(TAG, "Removing user " + userId);
+
+        UserRemovalResult result = mCarUserManager.removeUser(userId);
+        Log.d(TAG, "result: " + result);
+        assertWithMessage("Could not remove user %s: %s", userId, result).that(result.isSuccess())
+                .isTrue();
     }
 }

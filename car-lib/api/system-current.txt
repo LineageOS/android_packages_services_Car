@@ -205,7 +205,19 @@ package android.car {
 package android.car.admin {
 
   public final class CarDevicePolicyManager {
+    method @NonNull @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.CREATE_USERS}) public android.car.admin.CreateUserResult createUser(@Nullable String, int);
     method @NonNull @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.CREATE_USERS}) public android.car.admin.RemoveUserResult removeUser(@NonNull android.os.UserHandle);
+    field public static final int USER_TYPE_ADMIN = 1; // 0x1
+    field public static final int USER_TYPE_GUEST = 2; // 0x2
+    field public static final int USER_TYPE_REGULAR = 0; // 0x0
+  }
+
+  public final class CreateUserResult {
+    method public int getStatus();
+    method @Nullable public android.os.UserHandle getUserHandle();
+    method public boolean isSuccess();
+    field public static final int STATUS_FAILURE_GENERIC = 100; // 0x64
+    field public static final int STATUS_SUCCESS = 1; // 0x1
   }
 
   public final class RemoveUserResult {
