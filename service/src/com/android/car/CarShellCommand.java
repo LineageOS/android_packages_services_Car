@@ -32,6 +32,7 @@ import android.app.ActivityOptions;
 import android.app.UiModeManager;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
+import android.car.VehiclePropertyIds;
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
 import android.car.input.RotaryEvent;
@@ -67,6 +68,7 @@ import android.hardware.automotive.vehicle.V2_0.UserInfo;
 import android.hardware.automotive.vehicle.V2_0.UsersInfo;
 import android.hardware.automotive.vehicle.V2_0.VehicleArea;
 import android.hardware.automotive.vehicle.V2_0.VehicleDisplay;
+import android.hardware.automotive.vehicle.V2_0.VehicleGear;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Process;
@@ -144,6 +146,10 @@ final class CarShellCommand extends ShellCommand {
             "get-user-auth-association";
     private static final String COMMAND_SET_USER_AUTH_ASSOCIATION =
             "set-user-auth-association";
+
+    private static final String COMMAND_EMULATE_DRIVING_STATE = "emulate-driving-state";
+    private static final String DRIVING_STATE_DRIVE = "drive";
+    private static final String DRIVING_STATE_PARK = "park";
 
     private static final String[] CREATE_OR_MANAGE_USERS_PERMISSIONS = new String[] {
             android.Manifest.permission.CREATE_USERS,
@@ -455,6 +461,10 @@ final class CarShellCommand extends ShellCommand {
         pw.println("\t  Forces silent mode silent or non-silent. With query (or no command) "
                 + "displays the silent state");
         pw.println("\t  and shows how many listeners are monitoring the state.");
+
+        pw.printf("\t%s [%s|%s]\n", COMMAND_EMULATE_DRIVING_STATE, DRIVING_STATE_DRIVE,
+                DRIVING_STATE_PARK);
+        pw.println("\t  Emulates the giving driving state");
     }
 
     private static int showInvalidArguments(PrintWriter pw) {
@@ -700,6 +710,10 @@ final class CarShellCommand extends ShellCommand {
             case COMMAND_SET_USER_AUTH_ASSOCIATION:
                 setUserAuthAssociation(args, writer);
                 break;
+            case COMMAND_EMULATE_DRIVING_STATE:
+                emulateDrivingState(args, writer);
+                break;
+
             default:
                 writer.println("Unknown command: \"" + cmd + "\"");
                 showHelp(writer);
@@ -1627,6 +1641,43 @@ final class CarShellCommand extends ShellCommand {
         }
     }
 
+    private void emulateDrivingState(String[] args, PrintWriter writer) {
+        if (args.length != 2) {
+            writer.println("invalid usage, must pass driving state");
+            return;
+        }
+        String mode = args[1];
+        switch (mode) {
+            case DRIVING_STATE_DRIVE:
+                emulateDrive();
+                break;
+            case DRIVING_STATE_PARK:
+                emulatePark();
+                break;
+            default:
+                writer.printf("invalid driving mode %s; must be %s or %s\n", mode,
+                        DRIVING_STATE_DRIVE, DRIVING_STATE_PARK);
+        }
+    }
+
+    private void emulateDrive() {
+        Log.i(TAG, "Emulating driving mode");
+        mHal.injectVhalEvent(Integer.toString(VehiclePropertyIds.PERF_VEHICLE_SPEED),
+                /* zone= */ "0", /* value= */ "80", /* delayTime= */ "2000");
+        mHal.injectVhalEvent(Integer.toString(VehiclePropertyIds.GEAR_SELECTION),
+                /* zone= */ "0", Integer.toString(VehicleGear.GEAR_8), /* delayTime= */ "0");
+        mHal.injectVhalEvent(Integer.toString(VehiclePropertyIds.PARKING_BRAKE_ON),
+                /* zone= */ "0", /* value= */ "false", /* delayTime= */ "0");
+    }
+
+    private void emulatePark() {
+        Log.i(TAG, "Emulating parking mode");
+        mHal.injectVhalEvent(Integer.toString(VehiclePropertyIds.PERF_VEHICLE_SPEED),
+                /* zone= */ "0", /* value= */ "0", /* delayTime= */ "0");
+        mHal.injectVhalEvent(Integer.toString(VehiclePropertyIds.GEAR_SELECTION),
+                /* zone= */ "0", Integer.toString(VehicleGear.GEAR_PARK), /* delayTime= */ "0");
+    }
+
     /**
      * Inject a fake  VHAL event
      *
@@ -1639,6 +1690,9 @@ final class CarShellCommand extends ShellCommand {
      */
     private void injectVhalEvent(String property, String zone, String value,
             boolean isErrorEvent, String delayTime, PrintWriter writer) {
+        Log.i(TAG, "Injecting VHAL event: prop="  + property + ", zone=" + zone + ", value=" + value
+                + ", isError=" + isErrorEvent
+                + (TextUtils.isEmpty(delayTime) ?  "" : ", delayTime=" + delayTime));
         if (zone != null && (zone.equalsIgnoreCase(PARAM_VEHICLE_PROPERTY_AREA_GLOBAL))) {
             if (!isPropertyAreaTypeGlobal(property)) {
                 writer.println("Property area type inconsistent with given zone");
