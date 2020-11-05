@@ -20,6 +20,7 @@ import static android.car.test.util.UserTestingHelper.newUser;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
@@ -145,5 +146,49 @@ public final class UserHelperTest extends AbstractExtendedMockitoTestCase {
     public void testAssignDefaultIcon_nullUser_throwsException() {
         assertThrows(IllegalArgumentException.class,
                 () -> UserHelper.assignDefaultIcon(mContext, /* user= */ null));
+    }
+
+    @Test
+    public void testGrantAdminPermissions_nonAdmin() {
+        int userId = 30;
+        UserInfo testInfo = newUser(userId);
+
+        // Test that non-admins cannot grant admin permissions.
+        when(mUserManager.isAdminUser()).thenReturn(false);
+        UserHelper.grantAdminPermissions(mContext, testInfo);
+        verify(mUserManager, never()).setUserAdmin(userId);
+    }
+
+    @Test
+    public void testGrantAdminPermissions_admin() {
+        int userId = 30;
+        UserInfo testInfo = newUser(userId);
+
+        // Admins can grant admin permissions.
+        when(mUserManager.isAdminUser()).thenReturn(true);
+        UserHelper.grantAdminPermissions(mContext, testInfo);
+        verify(mUserManager).setUserAdmin(userId);
+    }
+
+    @Test
+    public void testGrantingAdminPermissionsRemovesNonAdminRestrictions() {
+        int testUserId = 30;
+        boolean restrictionEnabled = false;
+        UserInfo testInfo = newUser(testUserId);
+
+        // Only admins can grant permissions.
+        when(mUserManager.isAdminUser()).thenReturn(true);
+
+        UserHelper.grantAdminPermissions(mContext, testInfo);
+
+        // verify all restrictions
+        for (String restriction : UserHelper.DEFAULT_NON_ADMIN_RESTRICTIONS) {
+            verify(mUserManager).setUserRestriction(restriction, restrictionEnabled,
+                    UserHandle.of(testUserId));
+        }
+        for (String restriction : UserHelper.DEFAULT_NON_ADMIN_RESTRICTIONS) {
+            verify(mUserManager).setUserRestriction(restriction, restrictionEnabled,
+                    UserHandle.of(testUserId));
+        }
     }
 }
