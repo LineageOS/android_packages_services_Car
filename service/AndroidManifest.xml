@@ -442,6 +442,14 @@
          android:label="@string/car_permission_label_read_car_occupant_awareness_state"
          android:description="@string/car_permission_desc_read_car_occupant_awareness_state"/>
 
+    <!-- Allows an application to access private display id.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.ACCESS_PRIVATE_DISPLAY_ID"
+                android:protectionLevel="signature|privileged"
+                android:label="@string/car_permission_label_access_private_display_id"
+                android:description="@string/car_permission_desc_access_private_display_id"/>
+
     <!-- Allows an application to control the detection graph for the 'Occupant Awareness System'.
          <p>Protection level: signature|privileged
     -->

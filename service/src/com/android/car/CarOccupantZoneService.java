@@ -473,6 +473,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
 
     @Override
     public int getDisplayIdForDriver(@DisplayTypeEnum int displayType) {
+        enforcePermission(Car.ACCESS_PRIVATE_DISPLAY_ID);
         synchronized (mLock) {
             int driverUserId = getDriverUserId();
             DisplayInfo displayInfo = findDisplayForDriverLocked(driverUserId, displayType);
