@@ -30,6 +30,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.audio.policy.configuration.V7_0.AudioUsage;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.hardware.automotive.audiocontrol.IAudioControl;
 import android.hardware.automotive.audiocontrol.IFocusListener;
@@ -47,8 +48,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-
-import audio.policy.configuration.V7_0.AudioUsage;
 
 @RunWith(AndroidJUnit4.class)
 public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTestCase {
