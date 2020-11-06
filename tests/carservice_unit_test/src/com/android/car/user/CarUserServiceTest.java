@@ -1529,7 +1529,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         assertThat(mCarUserService.getInitialUser()).isNull();
         UserInfo user = new UserInfo();
         mCarUserService.setInitialUser(user);
-        assertThat(mCarUserService.getInitialUser()).isSameAs(user);
+        assertThat(mCarUserService.getInitialUser()).isSameInstanceAs(user);
     }
 
     @Test
