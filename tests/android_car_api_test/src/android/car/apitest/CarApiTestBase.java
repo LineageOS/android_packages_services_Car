@@ -23,12 +23,14 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeFalse;
 
 import android.annotation.NonNull;
 import android.car.Car;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.PowerManager;
@@ -150,5 +152,9 @@ abstract class CarApiTestBase {
 
         fail(msg + " after: " + timeoutMs + "ms");
         return false;
+    }
+
+    protected void requireNonUserBuild() {
+        assumeFalse("Requires Shell commands that are not available on user builds", Build.IS_USER);
     }
 }

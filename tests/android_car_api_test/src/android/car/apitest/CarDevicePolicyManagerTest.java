@@ -41,7 +41,6 @@ import android.os.PowerManager;
 import android.os.UserHandle;
 import android.util.Log;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -65,11 +64,6 @@ public final class CarDevicePolicyManagerTest extends CarApiTestBase {
         mDpm = context.getSystemService(DevicePolicyManager.class);
         mKeyguardManager = context.getSystemService(KeyguardManager.class);
         mPowerManager = context.getSystemService(PowerManager.class);
-    }
-
-    @After
-    public void restoreDpmSafety() throws Exception {
-        setDpmSafety(/* safe= */ true);
     }
 
     @Test
@@ -111,10 +105,14 @@ public final class CarDevicePolicyManagerTest extends CarApiTestBase {
         runSecureDeviceTest(()-> {
             setDpmSafety(/* safe= */ true);
 
-            mDpm.lockNow();
+            try {
+                mDpm.lockNow();
 
-            assertLockedEventually();
-            assertScreenOn();
+                assertLockedEventually();
+                assertScreenOn();
+            } finally {
+                setDpmSafety(/* safe= */ true);
+            }
         });
     }
 
@@ -125,12 +123,17 @@ public final class CarDevicePolicyManagerTest extends CarApiTestBase {
         runSecureDeviceTest(()-> {
             setDpmSafety(/* safe= */ false);
 
-            UnsafeStateException e = expectThrows(UnsafeStateException.class, () -> mDpm.lockNow());
+            try {
+                UnsafeStateException e = expectThrows(UnsafeStateException.class,
+                        () -> mDpm.lockNow());
 
-            assertWithMessage("Invalid operation on %s", e).that(e.getOperation())
-                    .isEqualTo(DevicePolicyManager.OPERATION_LOCK_NOW);
-            assertUnlocked();
-            assertScreenOn();
+                assertWithMessage("Invalid operation on %s", e).that(e.getOperation())
+                        .isEqualTo(DevicePolicyManager.OPERATION_LOCK_NOW);
+                assertUnlocked();
+                assertScreenOn();
+            } finally {
+                setDpmSafety(/* safe= */ true);
+            }
         });
     }
 
@@ -191,8 +194,9 @@ public final class CarDevicePolicyManagerTest extends CarApiTestBase {
     }
 
     private void setDpmSafety(boolean safe) {
-        String event = safe ? "--park" : "--drive";
-        runShellCommand("dumpsys system_server_dumper --name CarServiceHelper %s", event);
+        requireNonUserBuild();
+        String state = safe ? "park" : "drive";
+        runShellCommand("cmd car_service emulate-driving-state %s", state);
     }
 
     // TODO(b/169779216): move methods below to superclass once more tests use them

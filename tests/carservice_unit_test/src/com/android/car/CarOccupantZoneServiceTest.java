@@ -35,14 +35,12 @@ import android.car.VehicleAreaSeat;
 import android.car.media.CarAudioManager;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.UserInfo;
 import android.content.res.Resources;
 import android.hardware.display.DisplayManager;
 import android.os.Looper;
-import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.SparseArray;
@@ -53,7 +51,6 @@ import android.view.DisplayAddress;
 import com.android.car.CarOccupantZoneService.DisplayConfig;
 import com.android.car.CarOccupantZoneService.DisplayInfo;
 import com.android.car.CarOccupantZoneService.OccupantConfig;
-import com.android.car.internal.ICarServiceHelper;
 import com.android.car.user.CarUserService;
 
 import org.junit.After;
@@ -929,16 +926,11 @@ public class CarOccupantZoneServiceTest {
                 CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_AUDIO)).isFalse();
     }
 
-    private static class ICarServiceHelperImpl extends ICarServiceHelper.Stub {
+    private static class ICarServiceHelperImpl extends AbstractICarServiceHelperStub {
         private List<Integer> mPassengerDisplayIds;
 
         /** key: user id, value: display allowlists */
         private HashMap<Integer, List<Integer>> mAllowlists = new HashMap<>();
-
-        @Override
-        public int forceSuspend(int timeoutMs) {
-            return 0;
-        }
 
         @Override
         public void setDisplayAllowlistForUser(@UserIdInt int userId, int[] displayIds) {
@@ -949,11 +941,6 @@ public class CarOccupantZoneServiceTest {
         public void setPassengerDisplays(int[] displayIdsForPassenger) {
             mPassengerDisplayIds = Arrays.stream(displayIdsForPassenger).boxed().collect(
                     Collectors.toList());
-        }
-
-        @Override
-        public void setSourcePreferredComponents(boolean enableSourcePreferred,
-                List<ComponentName> sourcePreferredComponents) throws RemoteException {
         }
     }
 }

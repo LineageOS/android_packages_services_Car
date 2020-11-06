@@ -281,6 +281,7 @@ public class ICarImpl extends ICar.Stub {
         // Be careful with order. Service depending on other service should be inited later.
         List<CarServiceBase> allServices = new ArrayList<>();
         allServices.add(mFeatureController);
+        allServices.add(mCarUXRestrictionsService); // mCarUserService depends on it
         allServices.add(mCarUserService);
         allServices.add(mSystemActivityMonitoringService);
         allServices.add(mCarPowerManagementService);
@@ -288,7 +289,6 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mCarPropertyService);
         allServices.add(mCarDrivingStateService);
         allServices.add(mCarOccupantZoneService);
-        allServices.add(mCarUXRestrictionsService);
         addServiceIfNonNull(allServices, mOccupantAwarenessService);
         allServices.add(mCarPackageManagerService);
         allServices.add(mCarInputService);
@@ -365,8 +365,10 @@ public class ICarImpl extends ICar.Stub {
             synchronized (mLock) {
                 mICarServiceHelper = carServiceHelper;
             }
+            // TODO(b/173030628) create a proxy wrapping access to CarServiceHelper instead
             mSystemInterface.setCarServiceHelper(carServiceHelper);
             mCarOccupantZoneService.setCarServiceHelper(carServiceHelper);
+            mCarUserService.setCarServiceHelper(carServiceHelper);
 
             bundle = new Bundle();
             bundle.putBinder(ICAR_SYSTEM_SERVER_CLIENT, mICarSystemServerClientImpl.asBinder());
