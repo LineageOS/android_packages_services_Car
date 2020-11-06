@@ -19,6 +19,7 @@
     </CameraConfig>
 
     <Sv2dEnabled>true</Sv2dEnabled>
+    <Sv2dGpuAccelerationEnabled>false</Sv2dGpuAccelerationEnabled>
     <Sv2dParams>
         <OutputResolution>
             <Width>768</Width>
