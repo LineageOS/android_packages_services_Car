@@ -37,12 +37,21 @@ namespace automotive {
 namespace powerpolicy {
 
 using android::defaultServiceManager;
+using android::IBinder;
+using android::Looper;
+using android::Mutex;
+using android::sp;
+using android::status_t;
+using android::String16;
+using android::Vector;
+using android::wp;
 using android::base::Error;
 using android::base::Result;
 using android::base::StringAppendF;
 using android::base::StringPrintf;
 using android::base::WriteStringToFd;
 using android::binder::Status;
+using android::frameworks::automotive::powerpolicy::internal::PolicyState;
 using android::hardware::hidl_vec;
 using android::hardware::interfacesEqual;
 using android::hardware::Return;

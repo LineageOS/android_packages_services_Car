@@ -23,8 +23,8 @@ cc_defaults {
     ],
     shared_libs: [
         "android.frameworks.automotive.powerpolicy-cpp",
+        "android.frameworks.automotive.powerpolicy.internal-unstable-cpp",
         "android.hardware.automotive.vehicle@2.0",
-        "carpowerpolicy_system_notification-cpp",
         "libbase",
         "libbinder",
         "libhidlbase",
