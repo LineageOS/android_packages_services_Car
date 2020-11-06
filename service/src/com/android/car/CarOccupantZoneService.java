@@ -23,6 +23,7 @@ import android.app.ActivityManager;
 import android.car.Car;
 import android.car.CarInfoManager;
 import android.car.CarOccupantZoneManager;
+import android.car.CarOccupantZoneManager.DisplayTypeEnum;
 import android.car.CarOccupantZoneManager.OccupantTypeEnum;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.ICarOccupantZone;
@@ -468,6 +469,41 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             }
         }
         return Display.INVALID_DISPLAY;
+    }
+
+    @Override
+    public int getDisplayIdForDriver(@DisplayTypeEnum int displayType) {
+        synchronized (mLock) {
+            int driverUserId = getDriverUserId();
+            DisplayInfo displayInfo = findDisplayForDriverLocked(driverUserId, displayType);
+            if (displayInfo == null) {
+                return Display.INVALID_DISPLAY;
+            }
+            return displayInfo.display.getDisplayId();
+        }
+    }
+
+    @Nullable
+    private DisplayInfo findDisplayForDriverLocked(int driverUserId,
+            @DisplayTypeEnum int displayType) {
+        for (OccupantZoneInfo zoneInfo : getAllOccupantZones()) {
+            if (zoneInfo.occupantType == CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER) {
+                OccupantConfig config = mActiveOccupantConfigs.get(zoneInfo.zoneId);
+                if (config == null) {
+                    //No active display for zone, just continue...
+                    continue;
+                }
+
+                if (config.userId == driverUserId) {
+                    for (DisplayInfo displayInfo : config.displayInfos) {
+                        if (displayInfo.displayType == displayType) {
+                            return displayInfo;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     @Override

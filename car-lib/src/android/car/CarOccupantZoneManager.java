@@ -341,6 +341,28 @@ public class CarOccupantZoneManager extends CarManagerBase {
     }
 
     /**
+     * Returns the display id for the driver.
+     *
+     * <p>This method just returns the display id for the requested type. The returned display id
+     * may correspond to a private display and the client may not have access to it.
+     *
+     * @param displayType the display type
+     * @return the driver's display id or {@link Display#INVALID_DISPLAY} when no such display
+     * exists
+     *
+     * @hide
+     */
+    // TODO(b/159623196): this method will need to be exposed with @SystemApi so it can be used by
+    //     OEMs when handling CustomInputEvents.
+    public int getDisplayIdForDriver(@DisplayTypeEnum int displayType) {
+        try {
+            return mService.getDisplayIdForDriver(displayType);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, Display.INVALID_DISPLAY);
+        }
+    }
+
+    /**
      * Gets the audio zone id for the occupant, or returns
      * {@code CarAudioManager.INVALID_AUDIO_ZONE} if no audio zone matches the requirements.
      * throws InvalidArgumentException if occupantZone does not exist.
