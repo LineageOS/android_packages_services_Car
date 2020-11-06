@@ -62,7 +62,7 @@ static sp<Enumerator> sEnumerator;
 static vector<sp<IEvsCamera_1_0>> sVirtualCameras;
 static vector<sp<IEvsDisplay_1_0>> sDisplays;
 
-extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv) {
+bool DoInitialization() {
     setenv("TREBLE_TESTING_OVERRIDE", "true", true);
     configureRpcThreadpool(2, false /* callerWillNotJoin */);
 
@@ -76,21 +76,20 @@ extern "C" int LLVMFuzzerInitialize(int *argc, char ***argv) {
         exit(2);
     }
 
-    // Inititialize the enumerator that we are going to test
-    // TODO(b/162631113) if we place the initialization of enumerator inside
-    // LLVMFuzzerTestOneInput, there will be issues in destruction.
-    sEnumerator = new Enumerator();
-    if (!sEnumerator->init(kMockHWEnumeratorName)) {
-        std::cerr << "Failed to connect to hardware service"
-                  << "- quitting from LLVMFuzzerInitialize" << std::endl;
-        exit(1);
-    }
-
-    return 0;
+    return true;
 }
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     FuzzedDataProvider fdp(data, size);
+
+    // Inititialize the enumerator that we are going to test
+    static bool initialized = DoInitialization();
+    sEnumerator = new Enumerator();
+    if (!initialized || !sEnumerator->init(kMockHWEnumeratorName)) {
+        std::cerr << "Failed to connect to hardware service"
+                  << "- quitting from LLVMFuzzerInitialize" << std::endl;
+        exit(1);
+    }
 
     while (fdp.remaining_bytes() > kMaxFuzzerConsumedBytes) {
         switch (fdp.ConsumeIntegralInRange<uint32_t>(0, EVS_FUZZ_API_SUM)) {
@@ -102,7 +101,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                 uint64_t whichCam =
                             fdp.ConsumeIntegralInRange<uint64_t>(startMockHWCameraId,
                                                                  endMockHWCameraId-1);
-                hidl_string camStr = to_string(whichCam);
+                hidl_string camStr = std::to_string(whichCam);
                 sp<IEvsCamera_1_0> virtualCam = sEnumerator->openCamera(camStr);
                 if (virtualCam != nullptr) {
                     sVirtualCameras.emplace_back(virtualCam);
@@ -144,7 +143,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                 uint64_t whichCam =
                             fdp.ConsumeIntegralInRange<uint64_t>(startMockHWCameraId,
                                                                  endMockHWCameraId-1);
-                hidl_string camStr = to_string(whichCam);
+                hidl_string camStr = std::to_string(whichCam);
                 Stream streamCfg = {};
                 sp<IEvsCamera_1_1> virtualCam = sEnumerator->openCamera_1_1(camStr, streamCfg);
                 if (virtualCam != nullptr) {
@@ -191,6 +190,8 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                 break;
         }
     }
+    // Explicitly destroy the Enumerator
+    sEnumerator = nullptr;
     return 0;
 }
 
