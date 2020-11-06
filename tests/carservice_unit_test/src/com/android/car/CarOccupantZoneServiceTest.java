@@ -806,6 +806,33 @@ public class CarOccupantZoneServiceTest {
     }
 
     @Test
+    public void testManagerGetDisplayIdForDriver_driverDisplays() {
+        mService.init();
+
+        // Driver displays
+        assertThat(mManager.getDisplayIdForDriver(
+                CarOccupantZoneManager.DISPLAY_TYPE_MAIN)).isEqualTo(mDisplay0.getDisplayId());
+        assertThat(mManager.getDisplayIdForDriver(
+                CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER)).isEqualTo(
+                        mDisplay1.getDisplayId());
+    }
+
+    @Test
+    public void testManagerGetDisplayIdForDriver_nonDriverDisplays() {
+        mService.init();
+
+        // Non driver displays
+        assertThat(mManager.getDisplayIdForDriver(
+                CarOccupantZoneManager.DISPLAY_TYPE_UNKNOWN)).isEqualTo(Display.INVALID_DISPLAY);
+        assertThat(mManager.getDisplayIdForDriver(
+                CarOccupantZoneManager.DISPLAY_TYPE_INPUT)).isEqualTo(Display.INVALID_DISPLAY);
+        assertThat(mManager.getDisplayIdForDriver(
+                CarOccupantZoneManager.DISPLAY_TYPE_HUD)).isEqualTo(Display.INVALID_DISPLAY);
+        assertThat(mManager.getDisplayIdForDriver(
+                CarOccupantZoneManager.DISPLAY_TYPE_AUXILIARY)).isEqualTo(Display.INVALID_DISPLAY);
+    }
+
+    @Test
     public void testManagerGetDisplayType() {
         mService.init();
 

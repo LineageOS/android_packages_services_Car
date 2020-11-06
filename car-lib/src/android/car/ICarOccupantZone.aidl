@@ -38,4 +38,5 @@ interface ICarOccupantZone {
     void registerCallback(in ICarOccupantZoneCallback callback);
     void unregisterCallback(in ICarOccupantZoneCallback callback);
     boolean assignProfileUserToOccupantZone(in int occupantZoneId, in int userId);
+    int getDisplayIdForDriver(in int displayType);
 }
