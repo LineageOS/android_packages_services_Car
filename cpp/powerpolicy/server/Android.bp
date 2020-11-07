@@ -49,6 +49,13 @@ cc_library {
     ],
 }
 
+filegroup {
+    name: "powerpolicyxmlfiles",
+    srcs: [
+        "tests/data/*.xml",
+    ],
+}
+
 cc_test {
     name: "carpowerpolicyserver_test",
     defaults: [
@@ -64,9 +71,7 @@ cc_test {
         "libgtest",
         "lib_carpowerpolicyserver",
     ],
-    data: [
-        "tests/data/*.xml",
-    ],
+    data: [":powerpolicyxmlfiles"],
 }
 
 cc_binary {

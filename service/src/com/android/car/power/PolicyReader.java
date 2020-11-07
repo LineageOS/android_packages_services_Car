@@ -40,6 +40,7 @@ import android.util.SparseBooleanArray;
 import android.util.Xml;
 
 import com.android.car.CarServiceUtils;
+import com.android.internal.annotations.VisibleForTesting;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -150,9 +151,7 @@ final class PolicyReader {
     }
 
     void init() {
-        mRegisteredPowerPolicies = new ArrayMap<>();
-        mPolicyGroups = new ArrayMap<>();
-        initSystemPowerPolicy();
+        initPolicies();
         readPowerPolicyConfiguration();
     }
 
@@ -202,6 +201,13 @@ final class PolicyReader {
         writer.printf("System power policy: %s\n", toString(mSystemPowerPolicy));
     }
 
+    @VisibleForTesting
+    void initPolicies() {
+        mRegisteredPowerPolicies = new ArrayMap<>();
+        mPolicyGroups = new ArrayMap<>();
+        initSystemPowerPolicy();
+    }
+
     private void readPowerPolicyConfiguration() {
         try (InputStream inputStream = new FileInputStream(VENDOR_POLICY_PATH)) {
             readPowerPolicyFromXml(inputStream);
@@ -211,7 +217,8 @@ final class PolicyReader {
         }
     }
 
-    private void readPowerPolicyFromXml(InputStream stream) throws PolicyXmlException,
+    @VisibleForTesting
+    void readPowerPolicyFromXml(InputStream stream) throws PolicyXmlException,
             XmlPullParserException, IOException {
         XmlPullParser parser = Xml.newPullParser();
         parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, NAMESPACE != null);
@@ -302,13 +309,19 @@ final class PolicyReader {
     private CarPowerPolicy parseSystemPolicyOverrides(XmlPullParser parser) throws
             PolicyXmlException, XmlPullParserException, IOException {
         ArrayMap<String, CarPowerPolicy> systemOverrides = parsePolicies(parser, false);
-        if (systemOverrides.size() > 1) {
-            throw new PolicyXmlException("only one system power policy is supported");
+        int numOverrides = systemOverrides.size();
+        if (numOverrides == 0) {
+            return null;
+        }
+        if (numOverrides > 1) {
+            throw new PolicyXmlException("only one system power policy is supported: "
+                    + numOverrides + " system policies exist");
         }
         CarPowerPolicy policyOverride =
                 systemOverrides.get(SYSTEM_POWER_POLICY_NO_USER_INTERACTION);
         if (policyOverride == null) {
-            return null;
+            throw new PolicyXmlException("system power policy id should be "
+                    + SYSTEM_POWER_POLICY_NO_USER_INTERACTION);
         }
         Set<Integer> visited = new ArraySet<>();
         checkSystemPowerPolicyComponents(policyOverride.enabledComponents, visited);
@@ -632,7 +645,8 @@ final class PolicyReader {
         return ret;
     }
 
-    private static class PolicyXmlException extends Exception {
+    @VisibleForTesting
+    static final class PolicyXmlException extends Exception {
         PolicyXmlException(String message) {
             super(message);
         }
