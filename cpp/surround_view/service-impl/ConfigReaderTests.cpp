@@ -59,13 +59,13 @@ TEST(ConfigReaderTests, ReadConfigSuccess) {
 
     // Surround view 2D
     EXPECT_EQ(svConfig.sv2dConfig.sv2dEnabled, true);
-    EXPECT_EQ(svConfig.sv2dConfig.sv2dGpuAccelerationEnabled, false);
     EXPECT_EQ(svConfig.sv2dConfig.sv2dParams.resolution.width, 768);
     EXPECT_EQ(svConfig.sv2dConfig.sv2dParams.resolution.height, 1024);
     EXPECT_EQ(svConfig.sv2dConfig.sv2dParams.physical_size.width, 9.0);
     EXPECT_EQ(svConfig.sv2dConfig.sv2dParams.physical_size.height, 12.0);
     EXPECT_EQ(svConfig.sv2dConfig.sv2dParams.physical_center.x, 0.0);
     EXPECT_EQ(svConfig.sv2dConfig.sv2dParams.physical_center.y, 0.0);
+    EXPECT_EQ(svConfig.sv2dConfig.sv2dParams.gpu_acceleration_enabled, false);
     EXPECT_EQ(svConfig.sv2dConfig.carBoundingBox.width, 2.0);
     EXPECT_EQ(svConfig.sv2dConfig.carBoundingBox.height, 3.0);
     EXPECT_EQ(svConfig.sv2dConfig.carBoundingBox.x, 1.0);

@@ -45,9 +45,6 @@ struct SvConfig2d {
     // Bool flag for surround view 2d.
     bool sv2dEnabled;
 
-    // Bool flag for enabling/disabling GPU acceleration.
-    bool sv2dGpuAccelerationEnabled;
-
     // Surround view 2d params.
     android_auto::surround_view::SurroundView2dParams sv2dParams;
 

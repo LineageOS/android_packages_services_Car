@@ -200,20 +200,26 @@ struct SurroundView2dParams {
     // Blending type for low quality preset.
     BlendingType low_quality_blending;
 
+    // whether gpu acceleration is enabled or not
+    bool gpu_acceleration_enabled;
+
     SurroundView2dParams() :
           resolution{0, 0},
           physical_size{0.0f, 0.0f},
           physical_center{0.0f, 0.0f},
           high_quality_blending(BlendingType::MULTIBAND),
-          low_quality_blending(BlendingType::ALPHA) {}
+          low_quality_blending(BlendingType::ALPHA),
+          gpu_acceleration_enabled(false) {}
 
     SurroundView2dParams(Size2dInteger resolution_, Size2dFloat physical_size_,
-                         Coordinate2dFloat physical_center_) :
+                         Coordinate2dFloat physical_center_,
+                         bool gpu_acceleration_enabled_) :
           resolution(resolution_),
           physical_size(physical_size_),
           physical_center(physical_center_),
           high_quality_blending(BlendingType::MULTIBAND),
-          low_quality_blending(BlendingType::ALPHA) {}
+          low_quality_blending(BlendingType::ALPHA),
+          gpu_acceleration_enabled(gpu_acceleration_enabled_) {}
 
     // Checks if data is valid.
     bool IsValid() const { return resolution.IsValid() && physical_size.IsValid(); }
@@ -222,7 +228,8 @@ struct SurroundView2dParams {
         return resolution == rhs.resolution && physical_size == rhs.physical_size &&
                 physical_center == rhs.physical_center &&
                 high_quality_blending == rhs.high_quality_blending &&
-                low_quality_blending == rhs.low_quality_blending;
+                low_quality_blending == rhs.low_quality_blending &&
+                gpu_acceleration_enabled == rhs.gpu_acceleration_enabled;
     }
 
     SurroundView2dParams& operator=(const SurroundView2dParams& rhs) {
@@ -231,6 +238,7 @@ struct SurroundView2dParams {
         physical_center = rhs.physical_center;
         high_quality_blending = rhs.high_quality_blending;
         low_quality_blending = rhs.low_quality_blending;
+        gpu_acceleration_enabled = rhs.gpu_acceleration_enabled;
         return *this;
     }
 };

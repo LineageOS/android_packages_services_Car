@@ -19,7 +19,6 @@
     </CameraConfig>
 
     <Sv2dEnabled>true</Sv2dEnabled>
-    <Sv2dGpuAccelerationEnabled>false</Sv2dGpuAccelerationEnabled>
     <Sv2dParams>
         <OutputResolution>
             <Width>768</Width>
@@ -45,6 +44,7 @@
             <HighQuality>multiband</HighQuality>
             <LowQuality>alpha</LowQuality>
         </BlendingType>
+        <GpuAccelerationEnabled>false</GpuAccelerationEnabled>
     </Sv2dParams>
 
     <Sv3dEnabled>true</Sv3dEnabled>
