@@ -83,7 +83,8 @@
     <string name="font_size_summary" msgid="9120023206321191067">"තිරය මත පෙළ වඩාත් කුඩා හෝ විශාල කරන්න."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"වඩා කුඩා කරන්න"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"වඩා විශාල කරන්න"</string>
-    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
+    <!-- no translation found for font_size_preview_text (360019784926073822) -->
+    <skip />
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"ආදර්ශ පෙළ"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"The Wonderful Wizard of Oz"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"11වන පරිච්ඡේදය: The Wonderful Emerald City of Oz"</string>
@@ -368,7 +369,7 @@
     <string name="profile_info_settings_title" msgid="4855892878512562551">"පැතිකඩ තොරතුරු"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"ගිණුම්"</string>
     <string name="location_settings_title" msgid="2707201457572301030">"ස්ථානය"</string>
-    <string name="location_settings_primary_switch_title" msgid="6994690329349987476">"ස්ථානය භාවිත කරන්න"</string>
+    <string name="location_settings_master_switch_title" msgid="3108016866082816733">"ස්ථානය භාවිත කරන්න"</string>
     <string name="location_settings_summary_location_off" msgid="5563530256978372978">"ක්‍රියාවිරහිතයි"</string>
     <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
       <item quantity="one">ක්‍රියාත්මකයි - යෙදුම් <xliff:g id="COUNT_1">%1$d</xliff:g>කට ස්ථානයට ප්‍රවේශ විය හැකිය</item>
@@ -377,7 +378,7 @@
     <string name="location_settings_loading_app_permission_stats" msgid="7818169326621327628">"පූරණය වේ…"</string>
     <string name="account_settings_title" msgid="7870321267198486578">"ගිණුම්"</string>
     <string name="security_settings_title" msgid="8228075165942416425">"ආරක්ෂාව"</string>
-    <string name="encryption_and_credential_settings_title" msgid="6911729638397745353">"සංකේතනය, අක්තපත්‍ර"</string>
+    <string name="encryption_and_credential_settings_title" msgid="6911729638397745353">"සංකේතනය සහ අක්තපත්‍ර"</string>
     <string name="encryption_and_credential_settings_summary" product="default" msgid="468749700109808546">"දුරකතනය සංකේතනය කර ඇත"</string>
     <string name="decryption_settings_summary" product="default" msgid="7401802133199522441">"දුරකතනය සංකේතනය කර නැත"</string>
     <string name="encryption_and_credential_settings_summary" product="tablet" msgid="8170667308598998791">"උපාංගය සංකේතිතයි"</string>
@@ -836,7 +837,7 @@
     <string name="wifi_quick_toggle_title" msgid="7935778388625246184">"Wi-Fi"</string>
     <string name="wifi_quick_toggle_summary" msgid="2879870570547594266">"Wi-Fi සක්‍රිය කරන්න"</string>
     <string name="wifi_settings" msgid="7486492317310514109">"Wi-Fi"</string>
-    <string name="wifi_settings_primary_switch_title" msgid="8845478864364255818">"Wi-Fi භාවිත කරන්න"</string>
+    <string name="wifi_settings_master_switch_title" msgid="3917916944694253946">"Wi-Fi භාවිත කරන්න"</string>
     <string name="wifi_settings_category" msgid="9094716747565527901">"Wi-Fi සැකසුම්"</string>
     <string name="wifi_settings_title" msgid="5265554991622344805">"Wi-Fi"</string>
     <string name="wifi_settings_summary" msgid="7117267255799892820">"රැහැන් රහිත ප්‍රවේශ තැන් සකසන්න සහ කළමනාකරණය කරන්න"</string>
@@ -1102,10 +1103,7 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
-    <item msgid="6452246499629557266">"Wi-Fi"</item>
-    <item msgid="2271962426654621656">"ජංගම"</item>
-  </string-array>
+    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Wi‑Fi නොලැබේ නම්, ජංගම ජාලය භාවිත කරන්න"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"ජංගම ජාලය නොලැබේ නම්, Wi-Fi භාවිත කරන්න"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Wi‑Fi ඔස්සේ ඇමතුම. Wi‑Fi අහිමි වූයේ නම්, ඇමතුම අවසන් වෙයි."</string>
@@ -2095,9 +2093,9 @@
     <string name="accessibility_notification_vibration_title" msgid="1005799039440510298">"දැනුම්දීම් කම්පනය"</string>
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"නාද කම්පනය"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"ස්පර්ශ කම්පනය"</string>
-    <string name="accessibility_service_primary_switch_title" msgid="1405420360499478509">"සේවාව භාවිත කරන්න"</string>
-    <string name="accessibility_daltonizer_primary_switch_title" msgid="7428407895268627434">"වර්ණ නිවැරදි කිරීම භාවිත කරන්න"</string>
-    <string name="accessibility_caption_primary_switch_title" msgid="1875671505480045655">"සිරස්තල භාවිත කරන්න"</string>
+    <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"සේවාව භාවිත කරන්න"</string>
+    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"වර්ණ නිවැරදි කිරීම භාවිත කරන්න"</string>
+    <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"සිරස්තල භාවිත කරන්න"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"ඉදිරියට යන්න"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"ශ්‍රවණාධාරක"</string>
     <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"ශ්‍රවණාධාරක සම්බන්ධ කර නැත"</string>
@@ -2461,7 +2459,7 @@
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"ක්‍රියාත්මක කරන්න"</string>
-    <string name="battery_saver_primary_switch_title" msgid="1284229065484706156">"බැටරි සුරැකුම භාවිත කරන්න"</string>
+    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"බැටරි සුරැකුම භාවිත කරන්න"</string>
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"ස්වයන්ක්‍රියව ක්‍රියාත්මක කරන්න"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"කවදාවත් නෑ"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"බැටරිය <xliff:g id="PERCENT">%1$s</xliff:g> හි"</string>
@@ -2576,7 +2574,7 @@
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"SMS සහ ඇමතුම් ලොග ප්‍රවේශය සීමා කරන්න"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"පෙරනිමි දුරකථන සහ පණිවිඩකරණ යෙදුම්වලට පමණක් SMS සහ ඇමතුම් ලොග අවසර ඇත"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"විශ්වාසනීය ඒජන්තවරුන් නැත"</string>
-    <string name="add_device_admin_msg" msgid="3573765823476931173">"උපාංග පරිපාලක යෙදුම සක්‍රිය කර.?"</string>
+    <string name="add_device_admin_msg" msgid="3573765823476931173">"උපාංගය පරිපාලක යෙදුම සක්‍රිය කරන්නද?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"මෙම උපාංගය පරිපාලක යෙදුම සක්‍රිය කරන්න"</string>
     <string name="device_admin_add_title" msgid="6097881332139146897">"උපාංග පරිපාලක"</string>
     <string name="device_admin_warning" msgid="4421817419326480449">"මෙම පරිපාලකයා සක්‍රිය කිරීමෙන් <xliff:g id="APP_NAME">%1$s</xliff:g> යෙදුමට පහත ක්‍රියාවන් සිදුකිරීමට අවස්තාව ලබාදේ:"</string>
@@ -4010,7 +4008,7 @@
     <string name="lockscreen_remote_input" msgid="3363310613165354434">"උපාංගය අගුලු දමා ඇති නම්, දැනුම්දීම් තුළ පිළිතුරු හෝ වෙනත් පෙළ ටයිප් කිරීම වළක්වන්න"</string>
     <string name="default_spell_checker" msgid="8636661093243189533">"පෙරනිමි අක්ෂර වින්‍යාස පරීක්ෂක"</string>
     <string name="choose_spell_checker" msgid="7619860861923582868">"අක්ෂර වින්‍යාස පරීක්ෂක තෝරන්න"</string>
-    <string name="spell_checker_primary_switch_title" msgid="2432752198899857435">"අක්ෂර වින්‍යාස පරීක්ෂාව භාවිත කරන්න"</string>
+    <string name="spell_checker_master_switch_title" msgid="5712693172227400668">"අක්ෂර වින්‍යාස පරීක්ෂාව භාවිත කරන්න"</string>
     <string name="spell_checker_not_selected" msgid="331034541988255137">"තෝරා නොමැත"</string>
     <string name="notification_log_no_title" msgid="3668232437235348628">"(කිසිවක් නැත)"</string>
     <string name="notification_log_details_delimiter" msgid="5485526744689532908">": "</string>
@@ -4103,7 +4101,7 @@
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"ගබඩා ඉඩ නිදහස් කර ගැනීමට උදවු වීමට, ගබඩා කළමනාකරු ඔබේ උපාංගය වෙතින් උපස්ථ කළ ඡායාරූප සහ වීඩියෝ ඉවත් කරයි."</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"ඡායාරූප සහ වීඩියෝ ඉවත් කරන්න"</string>
     <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"ගබඩා කළමනාකරු"</string>
-    <string name="automatic_storage_manager_primary_switch_title" msgid="3690187927696783754">"ගබඩා කළමනාකරු භාවිත කරන්න"</string>
+    <string name="automatic_storage_manager_master_switch_title" msgid="1456978117739582562">"ගබඩා කළමනාකරු භාවිත කරන්න"</string>
     <string name="deletion_helper_automatic_title" msgid="4370975149425263205">"ස්වයංක්‍රිය"</string>
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"අත්පොත"</string>
     <string name="deletion_helper_preference_title" msgid="797270307034242206">"දැන් ඉඩ නිදහස් කර ගන්න"</string>
