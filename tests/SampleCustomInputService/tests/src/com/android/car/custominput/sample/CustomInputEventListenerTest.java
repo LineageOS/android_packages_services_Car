@@ -127,6 +127,40 @@ public class CustomInputEventListenerTest {
     }
 
     @Test
+    public void testHandleEvent_acceptIncomingCallAction() {
+        // Arrange
+        CustomInputEvent event = new CustomInputEvent(
+                // In this implementation, INPUT_TYPE_CUSTOM_EVENT_F2 represents the accept CALL
+                // action.
+                /* inputCode= */ CustomInputEvent.INPUT_CODE_F2,
+                /* targetDisplayType= */ SOME_DISPLAY_TYPE,
+                /* repeatCounter= */ 1);
+
+        // Act
+        mEventHandler.handle(SOME_DISPLAY_TYPE, event);
+
+        // Assert
+        assertKeyEvent(/* expectedDisplayType= */ DISPLAY_TYPE_MAIN, KeyEvent.KEYCODE_CALL);
+    }
+
+    @Test
+    public void testHandleEvent_rejectIncomingCallAction() {
+        // Arrange
+        CustomInputEvent event = new CustomInputEvent(
+                // In this implementation, INPUT_TYPE_CUSTOM_EVENT_F3 represents the reject CALL
+                // action.
+                /* inputCode= */ CustomInputEvent.INPUT_CODE_F3,
+                /* targetDisplayType= */ SOME_DISPLAY_TYPE,
+                /* repeatCounter= */ 1);
+
+        // Act
+        mEventHandler.handle(SOME_DISPLAY_TYPE, event);
+
+        // Assert
+        assertKeyEvent(/* expectedDisplayType= */ DISPLAY_TYPE_MAIN, KeyEvent.KEYCODE_ENDCALL);
+    }
+
+    @Test
     public void testHandleEvent_backHomeAction() {
         // Arrange
         CustomInputEvent event = new CustomInputEvent(
@@ -140,6 +174,10 @@ public class CustomInputEventListenerTest {
         mEventHandler.handle(SOME_DISPLAY_TYPE, event);
 
         // Assert
+        assertKeyEvent(/* expectedDisplayType= */ DISPLAY_TYPE_MAIN, KeyEvent.KEYCODE_HOME);
+    }
+
+    private void assertKeyEvent(int expectedDisplayType, int keyCode) {
         ArgumentCaptor<KeyEvent> keyEventCaptor = ArgumentCaptor.forClass(KeyEvent.class);
         ArgumentCaptor<Integer> displayTypeCaptor = ArgumentCaptor.forClass(Integer.class);
         verify(mService, times(2)).injectKeyEvent(keyEventCaptor.capture(),
@@ -148,15 +186,15 @@ public class CustomInputEventListenerTest {
         List<KeyEvent> actualEvents = keyEventCaptor.getAllValues();
         KeyEvent actualEventDown = actualEvents.get(0);
         assertThat(actualEventDown.getAction()).isEqualTo(KeyEvent.ACTION_DOWN);
-        assertThat(actualEventDown.getKeyCode()).isEqualTo(KeyEvent.KEYCODE_HOME);
+        assertThat(actualEventDown.getKeyCode()).isEqualTo(keyCode);
         assertThat(actualEventDown.getDisplayId()).isEqualTo(Display.INVALID_DISPLAY);
 
         KeyEvent actualEventUp = actualEvents.get(1);
         assertThat(actualEventUp.getAction()).isEqualTo(KeyEvent.ACTION_UP);
-        assertThat(actualEventUp.getKeyCode()).isEqualTo(KeyEvent.KEYCODE_HOME);
+        assertThat(actualEventUp.getKeyCode()).isEqualTo(keyCode);
         assertThat(actualEventUp.getDisplayId()).isEqualTo(Display.INVALID_DISPLAY);
 
-        assertThat(displayTypeCaptor.getValue()).isEqualTo(DISPLAY_TYPE_MAIN);
+        assertThat(displayTypeCaptor.getValue()).isEqualTo(expectedDisplayType);
     }
 
     @Test

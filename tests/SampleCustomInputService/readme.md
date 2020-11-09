@@ -40,7 +40,7 @@ partners non-standard events. They all represent hypothetical features for the s
 
 For this example, press home first, then inject the event to start Maps activity by running:
 
-```
+```shell script
 adb shell cmd car_service inject-custom-input -d 0 f1
 ```
 
@@ -50,3 +50,54 @@ Parameters are:
     represents the action used to launch Google maps app;
 
 *Note*: For this command to run, ensure that Google Maps app is installed first.
+
+### Inject events to accept or reject incoming calls
+
+In this example, CustomInputEvents are send to accept or reject incoming calls. First cell phone
+must be connected to Android via Bluetooth. Then, to accept incoming calls, run:
+
+```shell script
+adb shell cmd car_service inject-custom-input f2
+```
+
+Alternatively, to reject incoming calls, run:
+
+```shell script
+adb shell cmd car_service inject-custom-input f3
+```
+
+### Inject events to increase or decrease media volume
+
+To increase media volume, run:
+
+```shell script
+adb shell cmd car_service inject-custom-input f4
+```
+
+To decrease media volume, run:
+
+```shell script
+adb shell cmd car_service inject-custom-input f5
+```
+
+### Inject events to increase or decrease alarm volume
+
+To increase alarm volume, run:
+
+```shell script
+adb shell cmd car_service inject-custom-input f6
+```
+
+To decrease alarm volume, run:
+
+```shell script
+adb shell cmd car_service inject-custom-input f7
+```
+
+### Inject event to simulate pressing BACK HOME button
+
+To simulate pressing BACK HOME button, run:
+
+```shell script
+adb shell cmd car_service inject-custom-input f8
+```
