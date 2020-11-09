@@ -16,6 +16,7 @@
 package com.android.car.power;
 
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.car.Car;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
@@ -967,7 +968,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             Slog.e(TAG, "Failed to tell car power policy daemon that CarService is ready", e);
             return;
         }
-        applyPowerPolicy(state.policyId);
+        String errorMsg = applyPowerPolicy(state.policyId);
+        if (errorMsg != null) {
+            Slog.w(TAG, "Cannot apply power policy: " + errorMsg);
+        }
     }
 
     private void setCurrentPowerPolicyGroup(String policyGroupId) {
@@ -980,11 +984,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
     }
 
-    private void applyPowerPolicy(String policyId) {
+    @Nullable
+    private String applyPowerPolicy(String policyId) {
         CarPowerPolicy policy = mPolicyReader.getPowerPolicy(policyId);
         if (policy == null) {
-            Slog.w(TAG, "Cannot apply power policy: " + policyId + " is not registered");
-            return;
+            return policyId + " is not registered";
         }
         mPowerComponentHandler.applyPowerPolicy(policy);
         synchronized (mLock) {
@@ -992,6 +996,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
         Slog.i(TAG, "The current power policy is " + policyId);
         // TODO(b/172535781): Notify to listeners.
+        return null;
     }
 
     private void connectToPowerPolicyDaemon() {
@@ -1421,6 +1426,81 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             handler = mHandler;
         }
         handler.handlePowerStateChange();
+    }
+
+    /**
+     * Manually defines a power policy.
+     *
+     * <p>If the given ID already exists or specified power components are invalid, it fails.
+     *
+     * @return {@node null}, if successful. Otherwise, error message.
+     */
+    @Nullable
+    public String definePowerPolicyFromCommand(String[] args, PrintWriter writer) {
+        if (args.length < 2) {
+            return "Too few arguments";
+        }
+        String powerPolicyId = args[1];
+        int index = 2;
+        String[] enabledComponents = new String[0];
+        String[] disabledComponents = new String[0];
+        while (index < args.length) {
+            switch (args[index]) {
+                case "--enable":
+                    if (index == args.length - 1) {
+                        return "No components for --enable";
+                    }
+                    enabledComponents = args[index + 1].split(",");
+                    break;
+                case "--disable":
+                    if (index == args.length - 1) {
+                        return "No components for --disabled";
+                    }
+                    disabledComponents = args[index + 1].split(",");
+                    break;
+                default:
+                    return "Unrecognized argument: " + args[index];
+            }
+            index += 2;
+        }
+        String errorMsg = mPolicyReader.definePowerPolicy(powerPolicyId, enabledComponents,
+                disabledComponents);
+        if (errorMsg != null) {
+            return "Failed to define power policy: " + errorMsg;
+        }
+        ICarPowerPolicySystemNotification daemon;
+        synchronized (mLock) {
+            daemon = mCarPowerPolicyDaemon;
+        }
+        try {
+            daemon.notifyPowerPolicyDefinition(powerPolicyId, enabledComponents,
+                    disabledComponents);
+        } catch (RemoteException e) {
+            return "Failed to define power policy: " + e.getMessage();
+        }
+        writer.printf("Power policy(%s) is successfully defined.\n", powerPolicyId);
+        return null;
+    }
+
+    /**
+     * Manually applies a power policy.
+     *
+     * <p>If the given ID is not defined, it fails.
+     *
+     * @return {@node null}, if successful. Otherwise, error message.
+     */
+    @Nullable
+    public String applyPowerPolicyFromCommand(String[] args, PrintWriter writer) {
+        if (args.length != 2) {
+            return "Power policy ID should be given";
+        }
+        String powerPolicyId = args[1];
+        String errorMsg = applyPowerPolicy(powerPolicyId);
+        if (errorMsg != null) {
+            return "Failed to apply power policy: " + errorMsg;
+        }
+        writer.printf("Power policy(%s) is successfully applied.\n", powerPolicyId);
+        return null;
     }
 
     // In a real Deep Sleep, the hardware removes power from the CPU (but retains power

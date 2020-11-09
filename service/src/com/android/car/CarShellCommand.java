@@ -146,6 +146,8 @@ final class CarShellCommand extends ShellCommand {
             "get-user-auth-association";
     private static final String COMMAND_SET_USER_AUTH_ASSOCIATION =
             "set-user-auth-association";
+    private static final String COMMAND_DEFINE_POWER_POLICY = "define-power-policy";
+    private static final String COMMAND_APPLY_POWER_POLICY = "apply-power-policy";
 
     private static final String COMMAND_EMULATE_DRIVING_STATE = "emulate-driving-state";
     private static final String DRIVING_STATE_DRIVE = "drive";
@@ -465,6 +467,16 @@ final class CarShellCommand extends ShellCommand {
         pw.printf("\t%s [%s|%s]\n", COMMAND_EMULATE_DRIVING_STATE, DRIVING_STATE_DRIVE,
                 DRIVING_STATE_PARK);
         pw.println("\t  Emulates the giving driving state");
+
+        pw.printf("\t%s <POLICY_ID> [--enable COMP1,COMP2,...] [--disable COMP1,COMP2,...]\n",
+                COMMAND_DEFINE_POWER_POLICY);
+        pw.println("\t  Defines a power policy. Components not specified in --enable or --disable");
+        pw.println("\t  are unchanged when the policy is applied.");
+        pw.println("\t  Components should be comma-separated without space.");
+
+        pw.printf("\t%s <POLICY_ID>", COMMAND_APPLY_POWER_POLICY);
+        pw.println("\t  Applies power policy which is defined in /vendor/etc/power_policy.xml or");
+        pw.printf("\t  by %s command\n", COMMAND_DEFINE_POWER_POLICY);
     }
 
     private static int showInvalidArguments(PrintWriter pw) {
@@ -712,6 +724,28 @@ final class CarShellCommand extends ShellCommand {
                 break;
             case COMMAND_EMULATE_DRIVING_STATE:
                 emulateDrivingState(args, writer);
+                break;
+            case COMMAND_DEFINE_POWER_POLICY: {
+                String errorMsg =
+                        mCarPowerManagementService.definePowerPolicyFromCommand(args, writer);
+                if (errorMsg != null) {
+                    writer.println(errorMsg);
+                    writer.printf("\nUsage: cmd car_service %s <POLICY_ID> "
+                            + "[--enable COMP1,COMP2,...] [--disable COMP1,COMP2,...]\n",
+                            COMMAND_DEFINE_POWER_POLICY);
+                    return RESULT_ERROR;
+                }
+                break;
+            }
+            case COMMAND_APPLY_POWER_POLICY:
+                String errorMsg =
+                        mCarPowerManagementService.applyPowerPolicyFromCommand(args, writer);
+                if (errorMsg != null) {
+                    writer.println(errorMsg);
+                    writer.printf("\nUsage: cmd car_service %s <POLICY_ID>\n",
+                            COMMAND_APPLY_POWER_POLICY);
+                    return RESULT_ERROR;
+                }
                 break;
 
             default:

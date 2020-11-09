@@ -173,6 +173,34 @@ final class PolicyReader {
         readPowerPolicyConfiguration();
     }
 
+    /**
+     * Creates and registers a new power policy.
+     *
+     * @return {@code null}, if successful. Otherwise, error message.
+     */
+    @Nullable
+    String definePowerPolicy(String policyId, String[] enabledComponents,
+            String[] disabledComponents) {
+        if (mRegisteredPowerPolicies.containsKey(policyId)) {
+            return policyId + " is already registered";
+        }
+        SparseBooleanArray components = new SparseBooleanArray();
+        String errorMsg = parseComponents(enabledComponents, true, components);
+        if (errorMsg != null) {
+            return errorMsg;
+        }
+        errorMsg = parseComponents(disabledComponents, false, components);
+        if (errorMsg != null) {
+            return errorMsg;
+        }
+        CarPowerPolicy policy = new CarPowerPolicy();
+        policy.policyId = policyId;
+        policy.enabledComponents = toIntArray(components, true);
+        policy.disabledComponents = toIntArray(components, false);
+        mRegisteredPowerPolicies.put(policyId, policy);
+        return null;
+    }
+
     void dump(PrintWriter writer) {
         String indent = "  ";
         String doubleIndent = "    ";
@@ -320,7 +348,7 @@ final class PolicyReader {
             if (type != START_TAG) continue;
             if (TAG_COMPONENT.equals(parser.getName())) {
                 String id = parser.getAttributeValue(NAMESPACE, ATTR_ID);
-                int powerComponent = toPowerComponent(id);
+                int powerComponent = toPowerComponent(id, true);
                 if (powerComponent == INVALID_POWER_COMPONENT) {
                     throw new PolicyXmlException("invalid value(" + id + ") in |" + ATTR_ID
                             + "| attribute of |" + TAG_COMPONENT + "| tag");
@@ -594,16 +622,37 @@ final class PolicyReader {
         return buffer.toString();
     }
 
+    @Nullable
+    private String parseComponents(String[] componentArr, boolean enabled,
+            SparseBooleanArray components) {
+        for (int i = 0; i < componentArr.length; i++) {
+            int component = toPowerComponent(componentArr[i], false);
+            if (component == INVALID_POWER_COMPONENT) {
+                return componentArr[i] + " is not a valid power component";
+            }
+            if (components.indexOfKey(component) >= 0) {
+                return componentArr[i] + " is specified more than oncee";
+            }
+            components.put(component, enabled);
+        }
+        return null;
+    }
+
     static boolean isValidPowerComponent(int component) {
         return component >= PowerComponent.AUDIO
                 && component <= PowerComponent.TRUSTED_DEVICE_DETECTION;
     }
 
-    static int toPowerComponent(String component) {
-        if (component == null || !component.startsWith(POWER_COMPONENT_PREFIX)) {
+    static int toPowerComponent(String component, boolean prefix) {
+        if (component == null) {
             return INVALID_POWER_COMPONENT;
         }
-        component = component.substring(POWER_COMPONENT_PREFIX.length());
+        if (prefix) {
+            if (!component.startsWith(POWER_COMPONENT_PREFIX)) {
+                return INVALID_POWER_COMPONENT;
+            }
+            component = component.substring(POWER_COMPONENT_PREFIX.length());
+        }
         switch (component) {
             case POWER_COMPONENT_AUDIO:
                 return PowerComponent.AUDIO;

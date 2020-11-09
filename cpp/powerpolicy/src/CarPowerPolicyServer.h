@@ -121,6 +121,9 @@ public:
             android::frameworks::automotive::powerpolicy::internal::PolicyState* policyState)
             override;
     android::binder::Status notifyPowerPolicyChange(const std::string& policyId) override;
+    android::binder::Status notifyPowerPolicyDefinition(
+            const std::string& policyId, const std::vector<std::string>& enabledComponents,
+            const std::vector<std::string>& disabledComponents) override;
 
 private:
     android::sp<CarPowerPolicyServer> mService;
@@ -145,6 +148,9 @@ public:
     void handleHidlDeath(const android::wp<android::hidl::base::V1_0::IBase>& who);
     android::binder::Status notifyCarServiceReady(
             android::frameworks::automotive::powerpolicy::internal::PolicyState* policyState);
+    android::binder::Status notifyPowerPolicyDefinition(
+            const std::string& policyId, const std::vector<std::string>& enabledComponents,
+            const std::vector<std::string>& disabledComponents);
     android::binder::Status notifyPowerPolicyChange(const std::string& policyId);
     android::base::Result<void> applyPowerPolicy(const std::string& policyId,
                                                  bool carServiceInOperation, bool notifyClients);

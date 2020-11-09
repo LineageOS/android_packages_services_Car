@@ -20,6 +20,7 @@
 
 #include <android-base/file.h>
 #include <android-base/stringprintf.h>
+#include <android-base/strings.h>
 #include <binder/Enums.h>
 
 #include <tinyxml2.h>
@@ -35,6 +36,7 @@ namespace powerpolicy {
 
 using android::base::Error;
 using android::base::Result;
+using android::base::StartsWith;
 using android::base::StringAppendF;
 using android::base::StringPrintf;
 using android::base::WriteStringToFd;
@@ -108,15 +110,13 @@ void iterateAllPowerComponents(const std::function<bool(PowerComponent)>& proces
     }
 }
 
-PowerComponent toPowerComponent(const char* id) {
-    std::string componentId = id;
-    size_t lenPrefix = strlen(kPowerComponentPrefix);
-    if (componentId.substr(0, lenPrefix) != kPowerComponentPrefix) {
+PowerComponent toPowerComponent(std::string_view id, std::string_view prefix) {
+    if (!StartsWith(id, prefix)) {
         return INVALID_POWER_COMPONENT;
     }
-    componentId = componentId.substr(lenPrefix, std::string::npos);
+    std::string_view componentId = id.substr(prefix.size());
     PowerComponent matchedComponent = INVALID_POWER_COMPONENT;
-    iterateAllPowerComponents([componentId, &matchedComponent](PowerComponent component) {
+    iterateAllPowerComponents([componentId, &matchedComponent](PowerComponent component) -> bool {
         if (componentId == toString(component)) {
             matchedComponent = component;
             return false;
@@ -163,7 +163,7 @@ Result<void> readComponents(const XMLElement* pPolicy, CarPowerPolicyPtr policy,
             return Error() << StringPrintf("Failed to read |%s| attribute in |%s| tag", kAttrId,
                                            kTagComponent);
         }
-        PowerComponent componentId = toPowerComponent(id);
+        PowerComponent componentId = toPowerComponent(id, kPowerComponentPrefix);
         if (componentId == INVALID_POWER_COMPONENT) {
             return Error() << StringPrintf("XML configuration has invalid value(%s) in |%s| "
                                            "attribute of |%s| tag",
@@ -199,14 +199,14 @@ Result<void> readOtherComponents(const XMLElement* pPolicy, CarPowerPolicyPtr po
         }
     }
     if (!strcmp(otherComponentBehavior, kPowerStateOn)) {
-        iterateAllPowerComponents([&visited, &policy](PowerComponent component) {
+        iterateAllPowerComponents([&visited, &policy](PowerComponent component) -> bool {
             if (visited.count(component) == 0) {
                 policy->enabledComponents.push_back(component);
             }
             return true;
         });
     } else if (!strcmp(otherComponentBehavior, kPowerStateOff)) {
-        iterateAllPowerComponents([&visited, &policy](PowerComponent component) {
+        iterateAllPowerComponents([&visited, &policy](PowerComponent component) -> bool {
             if (visited.count(component) == 0) {
                 policy->disabledComponents.push_back(component);
             }
@@ -381,6 +381,19 @@ void configureComponents(const std::vector<PowerComponent>& configComponents,
     }
 }
 
+Result<void> stringsToComponents(const std::vector<std::string>& arr,
+                                 std::vector<PowerComponent>* components) {
+    for (const auto& c : arr) {
+        const char* component = c.c_str();
+        PowerComponent componentId = toPowerComponent(component, "");
+        if (componentId == INVALID_POWER_COMPONENT) {
+            return Error() << StringPrintf("%s is not a valid component", component);
+        }
+        components->push_back(componentId);
+    }
+    return {};
+}
+
 }  // namespace
 
 std::string toString(const std::vector<PowerComponent>& components) {
@@ -437,6 +450,26 @@ CarPowerPolicyPtr PolicyManager::getSystemPowerPolicy() const {
 
 bool PolicyManager::isPowerPolicyGroupAvailable(const std::string& groupId) const {
     return mPolicyGroups.count(groupId) > 0;
+}
+
+Result<void> PolicyManager::definePowerPolicy(const std::string& policyId,
+                                              const std::vector<std::string>& enabledComponents,
+                                              const std::vector<std::string>& disabledComponents) {
+    if (mRegisteredPowerPolicies.count(policyId) > 0) {
+        return Error() << StringPrintf("%s is already registered", policyId.c_str());
+    }
+    auto policy = std::make_shared<CarPowerPolicy>();
+    policy->policyId = policyId;
+    auto ret = stringsToComponents(enabledComponents, &policy->enabledComponents);
+    if (!ret.ok()) {
+        return ret;
+    }
+    ret = stringsToComponents(disabledComponents, &policy->disabledComponents);
+    if (!ret.ok()) {
+        return ret;
+    }
+    mRegisteredPowerPolicies.emplace(policyId, policy);
+    return {};
 }
 
 Result<void> PolicyManager::dump(int fd, const Vector<String16>& /*args*/) {
