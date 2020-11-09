@@ -325,6 +325,10 @@ Status CarPowerPolicyServer::notifyPowerPolicyChange(const std::string& policyId
 Status CarPowerPolicyServer::notifyPowerPolicyDefinition(
         const std::string& policyId, const std::vector<std::string>& enabledComponents,
         const std::vector<std::string>& disabledComponents) {
+    Status status = checkSystemPermission();
+    if (!status.isOk()) {
+        return status;
+    }
     const auto& ret =
             mPolicyManager.definePowerPolicy(policyId, enabledComponents, disabledComponents);
     if (!ret.ok()) {

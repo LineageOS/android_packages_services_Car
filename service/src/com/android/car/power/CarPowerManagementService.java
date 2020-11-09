@@ -968,7 +968,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             Slog.e(TAG, "Failed to tell car power policy daemon that CarService is ready", e);
             return;
         }
-        String errorMsg = applyPowerPolicy(state.policyId);
+        String errorMsg = applyPowerPolicy(state.policyId, false);
         if (errorMsg != null) {
             Slog.w(TAG, "Cannot apply power policy: " + errorMsg);
         }
@@ -985,7 +985,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     @Nullable
-    private String applyPowerPolicy(String policyId) {
+    private String applyPowerPolicy(String policyId, boolean upToDaemon) {
         CarPowerPolicy policy = mPolicyReader.getPowerPolicy(policyId);
         if (policy == null) {
             return policyId + " is not registered";
@@ -994,9 +994,27 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         synchronized (mLock) {
             mCurrentPowerPolicy = policyId;
         }
+        notifyPowerPolicyChange(policyId, upToDaemon);
         Slog.i(TAG, "The current power policy is " + policyId);
-        // TODO(b/172535781): Notify to listeners.
         return null;
+    }
+
+    private void notifyPowerPolicyChange(String policyId, boolean upToDaemon) {
+        if (upToDaemon) {
+            ICarPowerPolicySystemNotification daemon;
+            synchronized (mLock) {
+                daemon = mCarPowerPolicyDaemon;
+            }
+
+            try {
+                daemon.notifyPowerPolicyChange(policyId);
+            } catch (RemoteException e) {
+                Slog.e(TAG, "Failed to notify car power policy daemon of a new power policy("
+                        + policyId + ")", e);
+                return;
+            }
+        }
+        // TODO(b/172535781): Notify to Java listeners (aka CarPowerManager).
     }
 
     private void connectToPowerPolicyDaemon() {
@@ -1495,7 +1513,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             return "Power policy ID should be given";
         }
         String powerPolicyId = args[1];
-        String errorMsg = applyPowerPolicy(powerPolicyId);
+        String errorMsg = applyPowerPolicy(powerPolicyId, true);
         if (errorMsg != null) {
             return "Failed to apply power policy: " + errorMsg;
         }
