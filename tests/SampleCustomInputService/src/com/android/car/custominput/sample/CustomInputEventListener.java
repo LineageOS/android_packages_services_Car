@@ -16,12 +16,8 @@
 
 package com.android.car.custominput.sample;
 
-import static android.car.CarOccupantZoneManager.DisplayTypeEnum;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
-import static android.media.AudioAttributes.AttributeUsage;
 
-import android.annotation.IntDef;
-import android.annotation.NonNull;
 import android.app.ActivityOptions;
 import android.car.CarOccupantZoneManager;
 import android.car.input.CustomInputEvent;
@@ -30,12 +26,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
-import android.os.UserHandle;
 import android.util.Log;
-import android.view.Display;
 import android.view.KeyEvent;
 
-import com.android.internal.util.Preconditions;
+import androidx.annotation.NonNull;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -54,11 +48,6 @@ final class CustomInputEventListener {
     private final CarOccupantZoneManager mCarOccupantZoneManager;
 
     /** List of defined actions for this reference service implementation */
-    @IntDef({EventAction.LAUNCH_MAPS_ACTION,
-            EventAction.ACCEPT_INCOMING_CALL_ACTION, EventAction.REJECT_INCOMING_CALL_ACTION,
-            EventAction.INCREASE_MEDIA_VOLUME_ACTION, EventAction.DECREASE_MEDIA_VOLUME_ACTION,
-            EventAction.INCREASE_ALARM_VOLUME_ACTION, EventAction.DECREASE_ALARM_VOLUME_ACTION,
-            EventAction.BACK_HOME_ACTION})
     @Retention(RetentionPolicy.SOURCE)
     public @interface EventAction {
 
@@ -98,7 +87,7 @@ final class CustomInputEventListener {
         mService = service;
     }
 
-    void handle(@DisplayTypeEnum int targetDisplayType, CustomInputEvent event) {
+    void handle(int targetDisplayType, CustomInputEvent event) {
         if (!isValidTargetDisplayType(targetDisplayType)) {
             return;
         }
@@ -127,14 +116,14 @@ final class CustomInputEventListener {
                 decreaseVolume(targetDisplayId, AudioAttributes.USAGE_ALARM);
                 break;
             case EventAction.BACK_HOME_ACTION:
-                backHome(targetDisplayType);
+                launchHome(targetDisplayType);
                 break;
             default:
                 Log.e(TAG, "Ignoring event [" + action + "]");
         }
     }
 
-    private int getDisplayIdForDisplayType(@DisplayTypeEnum int targetDisplayType) {
+    private int getDisplayIdForDisplayType(int targetDisplayType) {
         int displayId = mCarOccupantZoneManager.getDisplayIdForDriver(targetDisplayType);
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "Resolved display id {" + displayId + "} for display type {"
@@ -149,7 +138,7 @@ final class CustomInputEventListener {
         return PRIMARY_AUDIO_ZONE;
     }
 
-    private static boolean isValidTargetDisplayType(@DisplayTypeEnum int displayType) {
+    private static boolean isValidTargetDisplayType(int displayType) {
         if (displayType == CarOccupantZoneManager.DISPLAY_TYPE_MAIN) {
             return true;
         }
@@ -171,7 +160,7 @@ final class CustomInputEventListener {
         mapsIntent.setClassName(mContext.getString(R.string.maps_app_package),
                 mContext.getString(R.string.maps_activity_class));
         mapsIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        mService.startActivityAsUser(mapsIntent, options.toBundle(), UserHandle.CURRENT);
+        mService.startActivity(mapsIntent, options.toBundle());
     }
 
     private void acceptIncomingCall(int targetDisplayType) {
@@ -189,12 +178,16 @@ final class CustomInputEventListener {
         injectKeyEvent(targetDisplayType, KeyEvent.KEYCODE_ENDCALL);
     }
 
-    private void increaseVolume(int targetDisplayId, @AttributeUsage int usage) {
+    private void increaseVolume(int targetDisplayId, int usage) {
         int zoneId = getOccupantZoneIdForDisplayId(targetDisplayId);
         int volumeGroupId = mCarAudioManager.getVolumeGroupIdForUsage(zoneId, usage);
         int maxVolume = mCarAudioManager.getGroupMaxVolume(zoneId, volumeGroupId);
         int volume = mCarAudioManager.getGroupVolume(zoneId, volumeGroupId);
-        Preconditions.checkArgument(maxVolume >= volume);
+        if (volume > maxVolume) {
+            throw new IllegalStateException("Volume (" + volume + ") is higher than MaxVolume ("
+                    + maxVolume + ") for zoneId {" + zoneId + "} and volumeGroupId {"
+                    + volumeGroupId + "}");
+        }
         String usageName = AudioAttributes.usageToString(usage);
         if (volume == maxVolume) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
@@ -211,12 +204,16 @@ final class CustomInputEventListener {
         mCarAudioManager.setGroupVolume(volumeGroupId, volume, AudioManager.FLAG_SHOW_UI);
     }
 
-    private void decreaseVolume(int targetDisplayId, @AttributeUsage int usage) {
+    private void decreaseVolume(int targetDisplayId, int usage) {
         int zoneId = getOccupantZoneIdForDisplayId(targetDisplayId);
         int volumeGroupId = mCarAudioManager.getVolumeGroupIdForUsage(zoneId, usage);
         int minVolume = mCarAudioManager.getGroupMinVolume(zoneId, volumeGroupId);
         int volume = mCarAudioManager.getGroupVolume(zoneId, volumeGroupId);
-        Preconditions.checkArgument(minVolume <= volume);
+        if (volume < minVolume) {
+            throw new IllegalStateException("Volume (" + volume + ") is lower than MinVolume ("
+                    + minVolume + ") for zoneId {" + zoneId + "} and volumeGroupId {"
+                    + volumeGroupId + "}");
+        }
         String usageName = AudioAttributes.usageToString(usage);
         if (volume == minVolume) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
@@ -233,7 +230,7 @@ final class CustomInputEventListener {
         mCarAudioManager.setGroupVolume(volumeGroupId, volume, AudioManager.FLAG_SHOW_UI);
     }
 
-    private void backHome(@DisplayTypeEnum int targetDisplayType) {
+    private void launchHome(int targetDisplayType) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "Injecting HOME KeyEvent on display type {" + targetDisplayType + "}");
         }
@@ -242,11 +239,9 @@ final class CustomInputEventListener {
 
     private void injectKeyEvent(int targetDisplayType, int keycodeCall) {
         KeyEvent keyDown = new KeyEvent(KeyEvent.ACTION_DOWN, keycodeCall);
-        keyDown.setDisplayId(Display.INVALID_DISPLAY);
         mService.injectKeyEvent(keyDown, targetDisplayType);
 
         KeyEvent keyUp = new KeyEvent(KeyEvent.ACTION_UP, keycodeCall);
-        keyUp.setDisplayId(Display.INVALID_DISPLAY);
         mService.injectKeyEvent(keyUp, targetDisplayType);
     }
 }

@@ -38,7 +38,6 @@ import android.content.Intent;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.os.Bundle;
-import android.os.UserHandle;
 import android.view.Display;
 import android.view.KeyEvent;
 
@@ -104,9 +103,7 @@ public class CustomInputEventListenerTest {
         // Assert
         ArgumentCaptor<Intent> intentCaptor = ArgumentCaptor.forClass(Intent.class);
         ArgumentCaptor<Bundle> bundleCaptor = ArgumentCaptor.forClass(Bundle.class);
-        ArgumentCaptor<UserHandle> userHandleCaptor = ArgumentCaptor.forClass(UserHandle.class);
-        verify(mService).startActivityAsUser(intentCaptor.capture(),
-                bundleCaptor.capture(), userHandleCaptor.capture());
+        verify(mService).startActivity(intentCaptor.capture(), bundleCaptor.capture());
 
         // Assert intent parameter
         Intent actualIntent = intentCaptor.getValue();
@@ -121,9 +118,6 @@ public class CustomInputEventListenerTest {
         assertThat(bundleCaptor.getValue().getInt("android.activity.launchDisplayId")).isEqualTo(
                 /* displayId= */
                 0);  // TODO(b/159623196): displayId is currently hardcoded to 0, see missing
-        // targetDisplayTarget to targetDisplayId logic in
-        // CustomInputEventListener
-        assertThat(userHandleCaptor.getValue()).isEqualTo(UserHandle.CURRENT);
     }
 
     @Test
@@ -161,7 +155,7 @@ public class CustomInputEventListenerTest {
     }
 
     @Test
-    public void testHandleEvent_backHomeAction() {
+    public void testHandleEvent_launchHomeAction() {
         // Arrange
         CustomInputEvent event = new CustomInputEvent(
                 // In this implementation, INPUT_TYPE_CUSTOM_EVENT_F6 represents the back HOME
@@ -187,29 +181,27 @@ public class CustomInputEventListenerTest {
         KeyEvent actualEventDown = actualEvents.get(0);
         assertThat(actualEventDown.getAction()).isEqualTo(KeyEvent.ACTION_DOWN);
         assertThat(actualEventDown.getKeyCode()).isEqualTo(keyCode);
-        assertThat(actualEventDown.getDisplayId()).isEqualTo(Display.INVALID_DISPLAY);
+        assertThat(actualEventDown.getDisplayId()).isEqualTo(Display.DEFAULT_DISPLAY);
 
         KeyEvent actualEventUp = actualEvents.get(1);
         assertThat(actualEventUp.getAction()).isEqualTo(KeyEvent.ACTION_UP);
         assertThat(actualEventUp.getKeyCode()).isEqualTo(keyCode);
-        assertThat(actualEventUp.getDisplayId()).isEqualTo(Display.INVALID_DISPLAY);
+        assertThat(actualEventUp.getDisplayId()).isEqualTo(Display.DEFAULT_DISPLAY);
 
         assertThat(displayTypeCaptor.getValue()).isEqualTo(expectedDisplayType);
     }
 
     @Test
     public void testHandleEvent_ignoringEventsForNonMainDisplay() {
-        int invalidDisplayType = -1;
         CustomInputEvent event = new CustomInputEvent(CustomInputEvent.INPUT_CODE_F1,
-                invalidDisplayType,
+                DISPLAY_TYPE_MAIN,
                 /* repeatCounter= */ 1);
 
         // Act
-        mEventHandler.handle(invalidDisplayType, event);
+        mEventHandler.handle(DISPLAY_TYPE_MAIN, event);
 
         // Assert
-        verify(mService, never()).startActivityAsUser(any(Intent.class), any(Bundle.class),
-                any(UserHandle.class));
+        verify(mService, never()).startActivity(any(Intent.class), any(Bundle.class));
     }
 
     @Test
