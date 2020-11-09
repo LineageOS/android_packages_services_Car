@@ -15,6 +15,7 @@
  */
 package com.google.android.car.kitchensink.admin;
 
+import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.AlertDialog;
 import android.app.admin.DevicePolicyManager;
@@ -64,9 +65,13 @@ public final class DevicePolicyFragment extends Fragment {
     private CheckBox mNewUserIsAdminCheckBox;
     private CheckBox mNewUserIsGuestCheckBox;
     private EditText mNewUserExtraFlagsText;
-
-    // Actions
     private Button mCreateUserButton;
+
+    // Reset password
+    private EditText mPasswordText;
+    private Button mResetPasswordButton;
+
+    // Other actions
     private Button mRemoveUserButton;
     private Button mLockNowButton;
 
@@ -97,7 +102,12 @@ public final class DevicePolicyFragment extends Fragment {
         mRemoveUserButton.setOnClickListener((v) -> removeUser());
         mCreateUserButton.setOnClickListener((v) -> createUser());
 
+        mPasswordText = view.findViewById(R.id.password);
+        mResetPasswordButton = view.findViewById(R.id.reset_password);
+        mResetPasswordButton.setOnClickListener((v) -> resetPassword());
+
         mLockNowButton = view.findViewById(R.id.lock_now);
+        mLockNowButton.setOnClickListener((v) -> lockNow());
 
         updateState();
     }
@@ -149,13 +159,30 @@ public final class DevicePolicyFragment extends Fragment {
         }
     }
 
-    private void lockNow() {
-        Log.i(TAG, "Calling lockNow()...");
-        mDevicePolicyManager.lockNow();
-        Log.i(TAG, "...locked!");
+    private void resetPassword() {
+        String password = mPasswordText.getText().toString();
+        // NOTE: on "real" code the password should NEVER be logged in plain text, but it's fine
+        // here (as it's used for testing / development purposes)
+        Log.i(TAG, "Calling resetPassword('" + password + "')...");
+        run(() -> mDevicePolicyManager.resetPassword(password, /* flags= */ 0), "Password reset!");
     }
 
-    private void showMessage(String pattern, Object... args) {
+    private void lockNow() {
+        Log.i(TAG, "Calling lockNow()...");
+        run(() -> mDevicePolicyManager.lockNow(), "Locked!");
+    }
+
+    private void run(@NonNull Runnable runnable, @NonNull String successMessage) {
+        try {
+            runnable.run();
+            showMessage(successMessage);
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Failed", e);
+            showMessage("failed: " + e);
+        }
+    }
+
+    private void showMessage(@NonNull String pattern, @Nullable Object... args) {
         String message = String.format(pattern, args);
         Log.v(TAG, "showMessage(): " + message);
         new AlertDialog.Builder(getContext()).setMessage(message).show();
