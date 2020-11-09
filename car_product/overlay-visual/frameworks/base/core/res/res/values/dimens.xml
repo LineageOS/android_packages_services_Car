@@ -63,7 +63,7 @@
     <dimen name="notification_header_margin_bottom">0dp</dimen>
 
     <!-- The absolute height for the header in a media notification. -->
-    <dimen name="media_notification_header_height">@*android:dimen/notification_header_height</dimen>
+    <dimen name="media_notification_header_height">@*android:dimen/media_notification_header_height</dimen>
 
     <!-- Top margin to accommodate for the header before the notification content. This value
          is 8dp smaller than the notification_header_height to bring the text closer. Otherwise,
