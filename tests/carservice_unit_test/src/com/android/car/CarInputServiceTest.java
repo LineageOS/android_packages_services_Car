@@ -71,6 +71,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.testng.Assert;
 
 import java.util.BitSet;
+import java.util.function.BooleanSupplier;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
@@ -84,6 +85,7 @@ public class CarInputServiceTest {
     @Mock CarInputService.KeyEventListener mInstrumentClusterKeyListener;
     @Mock Supplier<String> mLastCallSupplier;
     @Mock IntSupplier mLongPressDelaySupplier;
+    @Mock BooleanSupplier mShouldCallButtonEndOngoingCallSupplier;
     @Mock InputCaptureClientController mCaptureController;
     @Mock CarOccupantZoneService mCarOccupantZoneService;
 
@@ -100,7 +102,7 @@ public class CarInputServiceTest {
         mCarInputService = new CarInputService(mContext, mInputHalService, mCarUserService,
                 mCarOccupantZoneService, mHandler, mTelecomManager, mAssistUtils,
                 mDefaultMainListener, mLastCallSupplier, mLongPressDelaySupplier,
-                mCaptureController);
+                mShouldCallButtonEndOngoingCallSupplier, mCaptureController);
         mCarInputService.setInstrumentClusterKeyListener(mInstrumentClusterKeyListener);
 
         when(mInputHalService.isKeyInputSupported()).thenReturn(true);
@@ -108,6 +110,8 @@ public class CarInputServiceTest {
 
         // Delay Handler callbacks until flushHandler() is called.
         doReturn(true).when(mHandler).sendMessageAtTime(any(), anyLong());
+
+        when(mShouldCallButtonEndOngoingCallSupplier.getAsBoolean()).thenReturn(false);
     }
 
     @Test
@@ -351,6 +355,27 @@ public class CarInputServiceTest {
     }
 
     @Test
+    public void callKey_shortPress_duringCall_endCallViaCallButtonOn_endsCall() {
+        when(mShouldCallButtonEndOngoingCallSupplier.getAsBoolean()).thenReturn(true);
+        when(mTelecomManager.isInCall()).thenReturn(true);
+
+        send(Key.DOWN, KeyEvent.KEYCODE_CALL, Display.MAIN);
+        send(Key.UP, KeyEvent.KEYCODE_CALL, Display.MAIN);
+
+        verify(mTelecomManager).endCall();
+    }
+
+    @Test
+    public void callKey_shortPress_duringCall_endCallViaCallButtonOff_doesNotEndCall() {
+        when(mTelecomManager.isInCall()).thenReturn(true);
+
+        send(Key.DOWN, KeyEvent.KEYCODE_CALL, Display.MAIN);
+        send(Key.UP, KeyEvent.KEYCODE_CALL, Display.MAIN);
+
+        verify(mTelecomManager, never()).endCall();
+    }
+
+    @Test
     public void callKey_longPress_withoutEventHandler_redialsLastCall() {
         ArgumentCaptor<Intent> intentCaptor = ArgumentCaptor.forClass(Intent.class);
 
@@ -426,6 +451,27 @@ public class CarInputServiceTest {
         // Ensure that event handler does not run, either after accepting ringing call,
         // or as a result of key-up.
         verify(eventHandler, never()).onKeyEvent(anyInt());
+    }
+
+    @Test
+    public void callKey_longPress_duringCall_endCallViaCallButtonOn_endsCall() {
+        when(mShouldCallButtonEndOngoingCallSupplier.getAsBoolean()).thenReturn(true);
+        when(mTelecomManager.isInCall()).thenReturn(true);
+
+        send(Key.DOWN, KeyEvent.KEYCODE_CALL, Display.MAIN);
+        flushHandler();
+
+        verify(mTelecomManager).endCall();
+    }
+
+    @Test
+    public void callKey_longPress_duringCall_endCallViaCallButtonOff_doesNotEndCall() {
+        when(mTelecomManager.isInCall()).thenReturn(true);
+
+        send(Key.DOWN, KeyEvent.KEYCODE_CALL, Display.MAIN);
+        flushHandler();
+
+        verify(mTelecomManager, never()).endCall();
     }
 
     @Test
