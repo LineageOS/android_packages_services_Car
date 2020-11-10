@@ -56,6 +56,8 @@ constexpr const char* kHelpText =
 constexpr const char* kCarWatchdogServerInterface =
         "android.automotive.watchdog.ICarWatchdog/default";
 constexpr const char* kCarWatchdogInternalServerInterface = "carwatchdogd_system";
+constexpr const char* kNullCarWatchdogClientError =
+        "Must provide a non-null car watchdog client instance";
 
 Status fromExceptionCode(int32_t exceptionCode, std::string message) {
     ALOGW("%s", message.c_str());
@@ -177,37 +179,56 @@ bool WatchdogBinderMediator::dumpHelpText(int fd, std::string errorMsg) {
             mWatchdogPerfService->dumpHelpText(fd);
 }
 
-Status WatchdogBinderMediator::registerMediator(
-        const android::sp<ICarWatchdogClient>& /*mediator*/) {
+Status WatchdogBinderMediator::registerClient(const sp<ICarWatchdogClient>& client,
+                                              TimeoutLength timeout) {
+    if (client == nullptr) {
+        return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT, kNullCarWatchdogClientError);
+    }
+    return mWatchdogProcessService->registerClient(client, timeout);
+}
+
+Status WatchdogBinderMediator::unregisterClient(const sp<ICarWatchdogClient>& client) {
+    if (client == nullptr) {
+        return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT, kNullCarWatchdogClientError);
+    }
+    return mWatchdogProcessService->unregisterClient(client);
+}
+
+Status WatchdogBinderMediator::tellClientAlive(const sp<ICarWatchdogClient>& client,
+                                               int32_t sessionId) {
+    if (client == nullptr) {
+        return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT, kNullCarWatchdogClientError);
+    }
+    return mWatchdogProcessService->tellClientAlive(client, sessionId);
+}
+
+Status WatchdogBinderMediator::registerMediator(const sp<ICarWatchdogClient>& /*mediator*/) {
     return fromExceptionCode(Status::EX_UNSUPPORTED_OPERATION,
                              "Deprecated method registerMediator");
 }
 
-Status WatchdogBinderMediator::unregisterMediator(
-        const android::sp<ICarWatchdogClient>& /*mediator*/) {
+Status WatchdogBinderMediator::unregisterMediator(const sp<ICarWatchdogClient>& /*mediator*/) {
     return fromExceptionCode(Status::EX_UNSUPPORTED_OPERATION,
                              "Deprecated method unregisterMediator");
 }
 
-Status WatchdogBinderMediator::registerMonitor(
-        const android::sp<ICarWatchdogMonitor>& /*monitor*/) {
+Status WatchdogBinderMediator::registerMonitor(const sp<ICarWatchdogMonitor>& /*monitor*/) {
     return fromExceptionCode(Status::EX_UNSUPPORTED_OPERATION, "Deprecated method registerMonitor");
 }
 
-Status WatchdogBinderMediator::unregisterMonitor(
-        const android::sp<ICarWatchdogMonitor>& /*monitor*/) {
+Status WatchdogBinderMediator::unregisterMonitor(const sp<ICarWatchdogMonitor>& /*monitor*/) {
     return fromExceptionCode(Status::EX_UNSUPPORTED_OPERATION,
                              "Deprecated method unregisterMonitor");
 }
 
 Status WatchdogBinderMediator::tellMediatorAlive(
-        const android::sp<ICarWatchdogClient>& /*mediator*/,
+        const sp<ICarWatchdogClient>& /*mediator*/,
         const std::vector<int32_t>& /*clientsNotResponding*/, int32_t /*sessionId*/) {
     return fromExceptionCode(Status::EX_UNSUPPORTED_OPERATION,
                              "Deprecated method tellMediatorAlive");
 }
 
-Status WatchdogBinderMediator::tellDumpFinished(const android::sp<ICarWatchdogMonitor>& /*monitor*/,
+Status WatchdogBinderMediator::tellDumpFinished(const sp<ICarWatchdogMonitor>& /*monitor*/,
                                                 int32_t /*pid*/) {
     return fromExceptionCode(Status::EX_UNSUPPORTED_OPERATION,
                              "Deprecated method tellDumpFinished");

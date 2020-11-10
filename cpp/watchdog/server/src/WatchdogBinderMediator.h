@@ -57,19 +57,14 @@ public:
                                    addServiceHandler = nullptr);
     ~WatchdogBinderMediator() { terminate(); }
 
+    // Implements ICarWatchdog.aidl APIs.
     status_t dump(int fd, const Vector<String16>& args) override;
     android::binder::Status registerClient(const android::sp<ICarWatchdogClient>& client,
-                                           TimeoutLength timeout) override {
-        return mWatchdogProcessService->registerClient(client, timeout);
-    }
+                                           TimeoutLength timeout) override;
     android::binder::Status unregisterClient(
-            const android::sp<ICarWatchdogClient>& client) override {
-        return mWatchdogProcessService->unregisterClient(client);
-    }
+            const android::sp<ICarWatchdogClient>& client) override;
     android::binder::Status tellClientAlive(const android::sp<ICarWatchdogClient>& client,
-                                            int32_t sessionId) override {
-        return mWatchdogProcessService->tellClientAlive(client, sessionId);
-    }
+                                            int32_t sessionId) override;
 
     // Deprecated APIs.
     android::binder::Status registerMediator(
