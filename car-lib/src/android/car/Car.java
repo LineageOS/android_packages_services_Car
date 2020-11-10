@@ -336,6 +336,8 @@ public final class Car {
     /**
      * @hide
      */
+    @MandatoryFeature
+    @SystemApi
     public static final String CAR_INPUT_SERVICE = "android.car.input";
 
     /**
@@ -711,9 +713,17 @@ public final class Car {
     public static final String PERMISSION_USE_CAR_WATCHDOG =
             "android.car.permission.USE_CAR_WATCHDOG";
 
+    /**
+     * Permission necessary to monitor Car input events.
+     *
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_CAR_MONITOR_INPUT =
+            "android.car.permission.CAR_MONITOR_INPUT";
+
     /** Type of car connection: platform runs directly in car. */
     public static final int CONNECTION_TYPE_EMBEDDED = 5;
-
 
     /** @hide */
     @IntDef({CONNECTION_TYPE_EMBEDDED})

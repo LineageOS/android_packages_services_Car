@@ -21,6 +21,7 @@ import static android.car.CarOccupantZoneManager.DisplayTypeEnum;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.RequiresPermission;
+import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.CarOccupantZoneManager;
@@ -44,6 +45,7 @@ import java.util.List;
  *
  * @hide
  */
+@SystemApi
 public final class CarInputManager extends CarManagerBase {
 
     private static final String TAG = CarInputManager.class.getSimpleName();
@@ -55,8 +57,7 @@ public final class CarInputManager extends CarManagerBase {
      * <p>
      * Events (key, rotary and custom input events) are associated with display types.
      * Display types are defined in {@link android.car.CarOccupantZoneManager}. This manager only
-     * accepts the driver display types. Currently it accepts driver's displays only (
-     * ({@link CarOccupantZoneManager#DISPLAY_TYPE_MAIN} and
+     * accepts the driver display types ({@link CarOccupantZoneManager#DISPLAY_TYPE_MAIN} and
      * {@link CarOccupantZoneManager#DISPLAY_TYPE_INSTRUMENT_CLUSTER}).
      */
     public interface CarInputCaptureCallback {
@@ -113,12 +114,12 @@ public final class CarInputManager extends CarManagerBase {
     public static final int CAPTURE_REQ_FLAGS_TAKE_ALL_EVENTS_FOR_DISPLAY = 0x2;
 
     /** @hide */
-    @IntDef(flag = true, prefix = { "CAPTURE_REQ_FLAGS_" }, value = {
+    @IntDef(flag = true, prefix = {"CAPTURE_REQ_FLAGS_"}, value = {
             CAPTURE_REQ_FLAGS_ALLOW_DELAYED_GRANT,
             CAPTURE_REQ_FLAGS_TAKE_ALL_EVENTS_FOR_DISPLAY,
     })
     @Retention(RetentionPolicy.SOURCE)
-    @interface CaptureRequestFlags {}
+    public @interface CaptureRequestFlags {}
 
     /**
      * This is special type to cover all INPUT_TYPE_*. This is used for clients using
@@ -148,16 +149,22 @@ public final class CarInputManager extends CarManagerBase {
      * {@link KeyEvent#KEYCODE_DPAD_RIGHT}, {@link KeyEvent#KEYCODE_DPAD_CENTER},
      * {@link KeyEvent#KEYCODE_DPAD_DOWN_LEFT}, {@link KeyEvent#KEYCODE_DPAD_DOWN_RIGHT},
      * {@link KeyEvent#KEYCODE_DPAD_UP_LEFT}, {@link KeyEvent#KEYCODE_DPAD_UP_RIGHT}
+     *
+     * @hide
      */
     public static final int INPUT_TYPE_DPAD_KEYS = 100;
 
     /**
      * This is for all {@code KeyEvent#KEYCODE_NAVIGATE_*} keys.
+     *
+     * @hide
      */
     public static final int INPUT_TYPE_NAVIGATE_KEYS = 101;
 
     /**
      * This is for all {@code KeyEvent#KEYCODE_SYSTEM_NAVIGATE_*} keys.
+     *
+     * @hide
      */
     public static final int INPUT_TYPE_SYSTEM_NAVIGATE_KEYS = 102;
 
@@ -244,11 +251,22 @@ public final class CarInputManager extends CarManagerBase {
      * until the client receives a {@link CarInputCaptureCallback#onCaptureStateChanged(int, int[])}
      * call with valid input types.
      *
-     * <p> The targetDisplayType parameter must represent a driver display type (
-     * {@link CarOccupantZoneManager#DISPLAY_TYPE_MAIN} or
+     * <p> The targetDisplayType parameter must only contain driver display types (which are
+     * {@link CarOccupantZoneManager#DISPLAY_TYPE_MAIN} and
      * {@link CarOccupantZoneManager#DISPLAY_TYPE_INSTRUMENT_CLUSTER}.
+     *
+     * <p>Callbacks are grouped and stacked per display and input types. Only the most recently
+     * registered callback will receive the incoming events for the associated display and input
+     * types.
+     *
+     * @throws SecurityException is caller doesn't have android.car.permission.CAR_MONITOR_INPUT
+     *                           permission granted
+     * @throws IllegalArgumentException if targetDisplayType parameter correspond to a non supported
+     *                                  display type
+     * @throws IllegalArgumentException if inputTypes parameter contains invalid or non supported
+     *                                  values
      */
-    @RequiresPermission(android.Manifest.permission.MONITOR_INPUT)
+    @RequiresPermission(Car.PERMISSION_CAR_MONITOR_INPUT)
     @InputCaptureResponseEnum
     public int requestInputEventCapture(@NonNull CarInputCaptureCallback callback,
             @DisplayTypeEnum int targetDisplayType,
@@ -289,12 +307,12 @@ public final class CarInputManager extends CarManagerBase {
      * The event parameter display id will be overridden accordingly to the display type also passed
      * as parameter.
      *
-     * @param event the event to inject
-     * @param targetDisplayType the display type associated with the event
+     * @param event the key event to inject
+     * @param targetDisplayType the display type associated with the key event
      * @throws RemoteException in case of failure when invoking car input service
      */
     @RequiresPermission(android.Manifest.permission.INJECT_EVENTS)
-    public void injectKeyEvent(KeyEvent event, @DisplayTypeEnum int targetDisplayType) {
+    public void injectKeyEvent(@NonNull KeyEvent event, @DisplayTypeEnum int targetDisplayType) {
         try {
             mService.injectKeyEvent(event, targetDisplayType);
         } catch (RemoteException e) {
@@ -302,6 +320,7 @@ public final class CarInputManager extends CarManagerBase {
         }
     }
 
+    /** @hide */
     @Override
     protected void onCarDisconnected() {
         synchronized (mLock) {

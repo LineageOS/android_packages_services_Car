@@ -21,6 +21,7 @@ package android.car {
     field public static final String CAR_DEVICE_POLICY_SERVICE = "car_device_policy_service";
     field public static final String CAR_DRIVING_STATE_SERVICE = "drivingstate";
     field public static final String CAR_EXTRA_CLUSTER_ACTIVITY_STATE = "android.car.cluster.ClusterActivityState";
+    field public static final String CAR_INPUT_SERVICE = "android.car.input";
     field public static final String CAR_MEDIA_SERVICE = "car_media";
     field public static final String CAR_USER_SERVICE = "car_user_service";
     field public static final String CAR_WATCHDOG_SERVICE = "car_watchdog";
@@ -38,6 +39,7 @@ package android.car {
     field public static final String PERMISSION_CAR_DYNAMICS_STATE = "android.car.permission.CAR_DYNAMICS_STATE";
     field public static final String PERMISSION_CAR_ENGINE_DETAILED = "android.car.permission.CAR_ENGINE_DETAILED";
     field public static final String PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL = "android.car.permission.CAR_INSTRUMENT_CLUSTER_CONTROL";
+    field public static final String PERMISSION_CAR_MONITOR_INPUT = "android.car.permission.CAR_MONITOR_INPUT";
     field public static final String PERMISSION_CAR_POWER = "android.car.permission.CAR_POWER";
     field public static final String PERMISSION_CAR_PROJECTION = "android.car.permission.CAR_PROJECTION";
     field public static final String PERMISSION_CAR_PROJECTION_STATUS = "android.car.permission.ACCESS_CAR_PROJECTION_STATUS";
@@ -843,6 +845,58 @@ package android.car.input {
     field @Deprecated public static final android.os.Parcelable.Creator CREATOR;
     field @Deprecated public final int mKeyCode;
     field @Deprecated public final int mTargetDisplay;
+  }
+
+  public final class CarInputManager {
+    method @RequiresPermission(android.Manifest.permission.INJECT_EVENTS) public void injectKeyEvent(@NonNull android.view.KeyEvent, int);
+    method public void releaseInputEventCapture(int);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_MONITOR_INPUT) public int requestInputEventCapture(@NonNull android.car.input.CarInputManager.CarInputCaptureCallback, int, @NonNull int[], int);
+    field public static final int CAPTURE_REQ_FLAGS_ALLOW_DELAYED_GRANT = 1; // 0x1
+    field public static final int INPUT_CAPTURE_RESPONSE_DELAYED = 2; // 0x2
+    field public static final int INPUT_CAPTURE_RESPONSE_FAILED = 1; // 0x1
+    field public static final int INPUT_CAPTURE_RESPONSE_SUCCEEDED = 0; // 0x0
+    field public static final int INPUT_TYPE_CUSTOM_INPUT_EVENT = 200; // 0xc8
+    field public static final int INPUT_TYPE_ROTARY_NAVIGATION = 10; // 0xa
+  }
+
+  public static interface CarInputManager.CarInputCaptureCallback {
+    method public default void onCaptureStateChanged(int, @NonNull int[]);
+    method public default void onCustomInputEvents(int, @NonNull java.util.List<android.car.input.CustomInputEvent>);
+    method public default void onKeyEvents(int, @NonNull java.util.List<android.view.KeyEvent>);
+    method public default void onRotaryEvents(int, @NonNull java.util.List<android.car.input.RotaryEvent>);
+  }
+
+  public final class CustomInputEvent implements android.os.Parcelable {
+    ctor public CustomInputEvent(int, int, int);
+    method public int describeContents();
+    method public int getInputCode();
+    method public int getRepeatCounter();
+    method public int getTargetDisplayType();
+    method @NonNull public static String inputCodeToString(int);
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.input.CustomInputEvent> CREATOR;
+    field public static final int INPUT_CODE_F1 = 1001; // 0x3e9
+    field public static final int INPUT_CODE_F10 = 1010; // 0x3f2
+    field public static final int INPUT_CODE_F2 = 1002; // 0x3ea
+    field public static final int INPUT_CODE_F3 = 1003; // 0x3eb
+    field public static final int INPUT_CODE_F4 = 1004; // 0x3ec
+    field public static final int INPUT_CODE_F5 = 1005; // 0x3ed
+    field public static final int INPUT_CODE_F6 = 1006; // 0x3ee
+    field public static final int INPUT_CODE_F7 = 1007; // 0x3ef
+    field public static final int INPUT_CODE_F8 = 1008; // 0x3f0
+    field public static final int INPUT_CODE_F9 = 1009; // 0x3f1
+  }
+
+  public final class RotaryEvent implements android.os.Parcelable {
+    ctor public RotaryEvent(int, boolean, @NonNull long[]);
+    method public int describeContents();
+    method public int getInputType();
+    method public int getNumberOfClicks();
+    method public long getUptimeMillisForClick(int);
+    method @NonNull public long[] getUptimeMillisForClicks();
+    method public boolean isClockwise();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.input.RotaryEvent> CREATOR;
   }
 
 }
