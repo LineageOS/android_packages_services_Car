@@ -28,7 +28,7 @@
       <item quantity="other">אתה כעת במרחק של <xliff:g id="STEP_COUNT_1">%1$d</xliff:g> צעדים מלהיות מפתח.</item>
       <item quantity="one">אתה כעת במרחק של צעד <xliff:g id="STEP_COUNT_0">%1$d</xliff:g> מלהיות מפתח.</item>
     </plurals>
-    <string name="show_dev_on" msgid="9075712234786224065">"אתה כעת מפתח!"</string>
+    <string name="show_dev_on" msgid="9075712234786224065">"הוגדרת כמפתח!"</string>
     <string name="show_dev_already" msgid="7665948832405148689">"אין צורך, אתה כבר מפתח."</string>
     <string name="dev_settings_disabled_warning" msgid="3198732189395396721">"קודם עליך להפעיל את אפשרויות המפתח."</string>
     <string name="header_category_wireless_networks" msgid="8968405993937795898">"רשתות ותקשורת אלחוטית"</string>
@@ -85,8 +85,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"שינוי גודל הטקסט שמופיע במסך."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"הקטנה"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"הגדלה"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"טקסט לדוגמה"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"הקוסם המופלא מארץ עוץ"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"פרק 11: עיר הברקת המופלאה של ארץ עוץ"</string>
@@ -373,7 +372,7 @@
     <string name="profile_info_settings_title" msgid="4855892878512562551">"פרטי פרופיל"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"חשבונות"</string>
     <string name="location_settings_title" msgid="2707201457572301030">"מיקום"</string>
-    <string name="location_settings_master_switch_title" msgid="3108016866082816733">"שימוש במיקום"</string>
+    <string name="location_settings_primary_switch_title" msgid="6994690329349987476">"שימוש במיקום"</string>
     <string name="location_settings_summary_location_off" msgid="5563530256978372978">"כבוי"</string>
     <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
       <item quantity="two">פועל - ל-<xliff:g id="COUNT_1">%1$d</xliff:g> אפליקציות יש גישה למיקום</item>
@@ -871,7 +870,7 @@
     <string name="wifi_quick_toggle_title" msgid="7935778388625246184">"Wi-Fi"</string>
     <string name="wifi_quick_toggle_summary" msgid="2879870570547594266">"הפעל את ה-Wi-Fi"</string>
     <string name="wifi_settings" msgid="7486492317310514109">"Wi-Fi"</string>
-    <string name="wifi_settings_master_switch_title" msgid="3917916944694253946">"שימוש ב-Wi-Fi"</string>
+    <string name="wifi_settings_primary_switch_title" msgid="8845478864364255818">"שימוש ב-Wi-Fi"</string>
     <string name="wifi_settings_category" msgid="9094716747565527901">"הגדרות Wi-Fi"</string>
     <string name="wifi_settings_title" msgid="5265554991622344805">"Wi-Fi"</string>
     <string name="wifi_settings_summary" msgid="7117267255799892820">"הגדרה וניהול של נקודות גישה אלחוטיות"</string>
@@ -1139,7 +1138,10 @@
     <item msgid="3658897985297386665">"‎@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"‎@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"סלולרי"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"אם חיבור Wi‑Fi לא זמין, ייעשה שימוש ברשת סלולרית"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"אם אין רשת סלולרית זמינה יש להשתמש ב-Wi‑Fi"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"התקשרות בחיבור Wi-Fi. אם חיבור ה-Wi‑Fi יתנתק, השיחה תסתיים."</string>
@@ -2089,7 +2091,7 @@
     <string name="feature_flags_dashboard_title" msgid="3153034144122754381">"סימוני תכונות"</string>
     <string name="talkback_title" msgid="3717960404234260050">"Talkback"</string>
     <string name="talkback_summary" msgid="6602857105831641574">"קורא מסך המיועד בעיקר לעיוורים או לבעלי ראייה לקויה"</string>
-    <string name="select_to_speak_summary" msgid="7514180457557735421">"הקש על פריטים במסך כדי לשמוע הקראה שלהם"</string>
+    <string name="select_to_speak_summary" msgid="7514180457557735421">"ניתן להקיש על פריטים במסך כדי לשמוע הקראה שלהם"</string>
     <string name="accessibility_captioning_title" msgid="5878371993023439642">"כתוביות"</string>
     <string name="accessibility_screen_magnification_title" msgid="7250949681883917360">"הגדלה"</string>
     <string name="accessibility_screen_magnification_gestures_title" msgid="9199287875401817974">"הגדלה על-ידי הקשה שלוש פעמים"</string>
@@ -2135,9 +2137,9 @@
     <string name="accessibility_notification_vibration_title" msgid="1005799039440510298">"רטט ההתראה"</string>
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"רטט הצלצול"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"רטט מגע"</string>
-    <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"שימוש בשירות"</string>
-    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"שימוש בתיקון צבע"</string>
-    <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"שימוש בכתוביות"</string>
+    <string name="accessibility_service_primary_switch_title" msgid="1405420360499478509">"שימוש בשירות"</string>
+    <string name="accessibility_daltonizer_primary_switch_title" msgid="7428407895268627434">"שימוש בתיקון צבע"</string>
+    <string name="accessibility_caption_primary_switch_title" msgid="1875671505480045655">"שימוש בכתוביות"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"המשך"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"מכשירי שמיעה"</string>
     <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"אין מכשירי שמיעה מחוברים"</string>
@@ -2531,7 +2533,7 @@
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"הפעלה"</string>
-    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"שימוש במצב חיסכון בסוללה"</string>
+    <string name="battery_saver_primary_switch_title" msgid="1284229065484706156">"שימוש במצב חיסכון בסוללה"</string>
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"הפעלה אוטומטית"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"אף פעם"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"סוללה ברמת טעינה של <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
@@ -3478,15 +3480,15 @@
     <string name="picture_in_picture_empty_text" msgid="8664071475324685241">"אין אפליקציות מותקנות שתומכות ב\'תמונה בתוך תמונה\'"</string>
     <string name="picture_in_picture_keywords" msgid="7326958702002259262">"תמונה בתוך תמונה"</string>
     <string name="picture_in_picture_app_detail_title" msgid="3916189052657425936">"תמונה בתוך תמונה"</string>
-    <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"עם תמונה בתוך תמונה"</string>
+    <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"תמונה בתוך תמונה"</string>
     <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"אפליקציה זו תוכל ליצור חלון מסוג תמונה-בתוך-תמונה בזמן שהיא תהיה פתוחה או לאחר היציאה ממנה (למשל, כדי להמשיך לצפות בסרטון). חלון זה מוצג מעל אפליקציות אחרות שנמצאות בשימוש."</string>
     <string name="manage_zen_access_title" msgid="3058206309728524196">"גישה אל \'נא לא להפריע\'"</string>
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"הפעלת ההרשאה \'נא לא להפריע\'"</string>
     <string name="zen_access_empty_text" msgid="7667538993781607731">"אין אפליקציות מותקנות שביקשו גישה אל \'נא לא להפריע\'"</string>
     <string name="loading_notification_apps" msgid="1978345231934072091">"טוען אפליקציות..."</string>
-    <string name="app_notifications_off_desc" msgid="3904090905748895146">"לבקשתך, מערכת Android חוסמת במכשיר זה הצגת התראות מאפליקציה זו"</string>
-    <string name="channel_notifications_off_desc" msgid="8005444443218306611">"לבקשתך, מערכת Android חוסמת במכשיר הצגה של קטגוריית התראות זו"</string>
-    <string name="channel_group_notifications_off_desc" msgid="7154205544298672850">"לבקשתך, מערכת Android חוסמת במכשיר הצגה של מקבץ הודעות זה"</string>
+    <string name="app_notifications_off_desc" msgid="3904090905748895146">"לבקשתך, מערכת Android לא מאפשרת להציג במכשיר הזה התראות מהאפליקציה הזו"</string>
+    <string name="channel_notifications_off_desc" msgid="8005444443218306611">"לבקשתך, מערכת Android לא מאפשרת להציג במכשיר הזה התראות ששייכות לקטגוריה הזו"</string>
+    <string name="channel_group_notifications_off_desc" msgid="7154205544298672850">"לבקשתך, מערכת Android לא מאפשרת להציג במכשיר הזה התראות מקבוצה זו"</string>
     <string name="notification_channels" msgid="956764228116145956">"קטגוריות"</string>
     <string name="notification_channels_other" msgid="1615988645667411530">"אחר"</string>
     <plurals name="notification_group_summary" formatted="false" msgid="3744856747513344999">
@@ -3745,7 +3747,7 @@
     <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"לא התבקשו הרשאות"</string>
     <string name="filter_all_apps" msgid="4042756539846043675">"כל האפליקציות"</string>
     <string name="filter_enabled_apps" msgid="5888459261768538489">"אפליקציות מותקנות"</string>
-    <string name="filter_instant_apps" msgid="8087483282854072366">"אפליקציות אינסטנט"</string>
+    <string name="filter_instant_apps" msgid="8087483282854072366">"אפליקציות ללא התקנה"</string>
     <string name="filter_personal_apps" msgid="3473268022652904457">"אישיות"</string>
     <string name="filter_work_apps" msgid="4202483998339465542">"עבודה"</string>
     <string name="filter_notif_all_apps" msgid="1862666327228804896">"אפליקציות: הכל"</string>
@@ -4142,7 +4144,7 @@
     <string name="lockscreen_remote_input" msgid="3363310613165354434">"כשהמכשיר נעול לא תתאפשר הקלדת תגובות או טקסט אחר בהתראות"</string>
     <string name="default_spell_checker" msgid="8636661093243189533">"ברירת מחדל לבודק איות"</string>
     <string name="choose_spell_checker" msgid="7619860861923582868">"בחירת בודק איות"</string>
-    <string name="spell_checker_master_switch_title" msgid="5712693172227400668">"שימוש בבדיקת איות"</string>
+    <string name="spell_checker_primary_switch_title" msgid="2432752198899857435">"שימוש בבדיקת איות"</string>
     <string name="spell_checker_not_selected" msgid="331034541988255137">"לא נבחר"</string>
     <string name="notification_log_no_title" msgid="3668232437235348628">"(ללא)"</string>
     <string name="notification_log_details_delimiter" msgid="5485526744689532908">": "</string>
@@ -4243,7 +4245,7 @@
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"כדי לעזור בפינוי שטח אחסון, מנהל האחסון מסיר מהמכשיר שלך תמונות וסרטונים מגובים."</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"הסרת תמונות וסרטונים"</string>
     <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"מנהל אחסון"</string>
-    <string name="automatic_storage_manager_master_switch_title" msgid="1456978117739582562">"שימוש במנהל אחסון"</string>
+    <string name="automatic_storage_manager_primary_switch_title" msgid="3690187927696783754">"שימוש במנהל האחסון"</string>
     <string name="deletion_helper_automatic_title" msgid="4370975149425263205">"באופן אוטומטי"</string>
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"ידני"</string>
     <string name="deletion_helper_preference_title" msgid="797270307034242206">"פינוי שטח אחסון עכשיו"</string>
@@ -4289,10 +4291,10 @@
     <string name="oem_unlock_enable_disabled_summary_sim_locked_device" msgid="5223278198179877704">"לא זמין במכשירים הנעולים לספק"</string>
     <string name="oem_lock_info_message" msgid="5090850412279403901">"יש להפעיל מחדש את המכשיר כדי להפעיל את התכונה של הגנת המכשיר."</string>
     <string name="automatic_storage_manager_freed_bytes" msgid="7360443072390107772">"סה\"כ <xliff:g id="SIZE">%1$s</xliff:g> הפכו לזמינים\n\nהורץ לאחרונה בתאריך <xliff:g id="DATE">%2$s</xliff:g>"</string>
-    <string name="web_action_enable_title" msgid="4462106633708675959">"אפליקציות אינסטנט"</string>
+    <string name="web_action_enable_title" msgid="4462106633708675959">"אפליקציות ללא התקנה"</string>
     <string name="web_action_enable_summary" msgid="1729016644691793085">"פתיחת קישורים באפליקציות, גם אם הן לא מותקנות"</string>
-    <string name="web_action_section_title" msgid="5563229447734734662">"אפליקציות אינסטנט"</string>
-    <string name="instant_apps_settings" msgid="879003203555847537">"העדפות של אפליקציות אינסטנט"</string>
+    <string name="web_action_section_title" msgid="5563229447734734662">"אפליקציות ללא התקנה"</string>
+    <string name="instant_apps_settings" msgid="879003203555847537">"העדפות של אפליקציות ללא התקנה"</string>
     <string name="domain_url_section_title" msgid="206403507921518321">"אפליקציות מותקנות"</string>
     <string name="automatic_storage_manager_activation_warning" msgid="2630083316417707308">"האחסון שלך מנוהל כעת על ידי מנהל האחסון"</string>
     <string name="account_for_section_header" msgid="5975241715840642563">"חשבונות עבור <xliff:g id="USER_NAME">%1$s</xliff:g>"</string>
@@ -4421,7 +4423,7 @@
     <string name="storage_manager_indicator" msgid="4255140732848476875">"מנהל אחסון: <xliff:g id="STATUS">^1</xliff:g>"</string>
     <string name="storage_manager_indicator_off" msgid="6404056007102580777">"כבוי"</string>
     <string name="storage_manager_indicator_on" msgid="5295306384982062320">"פועל"</string>
-    <string name="install_type_instant" msgid="6248487669862821874">"אפליקציה אינסטנט"</string>
+    <string name="install_type_instant" msgid="6248487669862821874">"אפליקציה ללא התקנה"</string>
     <string name="automatic_storage_manager_deactivation_warning" msgid="7867793739491286374">"האם לכבות את מנהל האחסון?"</string>
     <string name="storage_movies_tv" msgid="7282484273991655296">"אפליקציות סרטים וטלוויזיה"</string>
     <string name="carrier_provisioning" msgid="3309125279191534469">"פרטי ניהול תצורה של ספק סלולרי"</string>
