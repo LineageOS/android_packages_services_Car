@@ -1592,7 +1592,6 @@ public final class Car {
         }
     }
 
-
     private void finishClient() {
         if (mContext == null) {
             throw new IllegalStateException("Car service has crashed, null Context");
