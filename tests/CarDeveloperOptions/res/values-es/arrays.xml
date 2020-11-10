@@ -71,7 +71,7 @@
     <item msgid="5597394826455877834">"Conectando…"</item>
     <item msgid="5848277343965362748">"Autenticando..."</item>
     <item msgid="3391238031431440676">"Obteniendo dirección IP…"</item>
-    <item msgid="5257597310494000224">"Conectada"</item>
+    <item msgid="5257597310494000224">"Conectado"</item>
     <item msgid="8472497592913050396">"Suspendido"</item>
     <item msgid="1228072488815999109">"Desconectando…"</item>
     <item msgid="7253087004422991731">"Desconectado"</item>
@@ -101,7 +101,7 @@
     <item msgid="4526848028011846710">"PIN del dispositivo"</item>
   </string-array>
   <string-array name="wifi_p2p_status">
-    <item msgid="8741947238021758201">"Conectada"</item>
+    <item msgid="8741947238021758201">"Conectado"</item>
     <item msgid="983792611851499732">"Invitado"</item>
     <item msgid="5438273405428201793">"Con error"</item>
     <item msgid="4646663015449312554">"Disponible"</item>
@@ -170,7 +170,7 @@
   <string-array name="wifi_proxy_settings">
     <item msgid="9032900195127165132">"Ninguna"</item>
     <item msgid="1464741437353223198">"Manual"</item>
-    <item msgid="5793600062487886090">"Proxy autoconfigurado"</item>
+    <item msgid="5793600062487886090">"Proxy configurado automáticamente"</item>
   </string-array>
   <string-array name="apn_auth_entries">
     <item msgid="7099647881902405997">"Ninguna"</item>
@@ -414,7 +414,7 @@
     <item msgid="5408915841694583740">"Desconectado"</item>
     <item msgid="8754480102834556765">"Iniciando..."</item>
     <item msgid="3351334355574270250">"Conectando…"</item>
-    <item msgid="8303882153995748352">"Conectada"</item>
+    <item msgid="8303882153995748352">"Conectado"</item>
     <item msgid="9135049670787351881">"Tiempo de espera"</item>
     <item msgid="2124868417182583926">"Con error"</item>
   </string-array>
@@ -423,9 +423,19 @@
     <item msgid="7718817231348607934">"No permitir nunca"</item>
     <item msgid="8184570120217958741">"Permitir siempre"</item>
   </string-array>
-    <!-- no translation found for ram_states:0 (708247372474061274) -->
-    <!-- no translation found for ram_states:4 (1567326459340152525) -->
-    <!-- no translation found for proc_stats_memory_states:3 (8577246509202964244) -->
+  <string-array name="ram_states">
+    <item msgid="708247372474061274">"Normal"</item>
+    <item msgid="5101233285497327432">"Moderada"</item>
+    <item msgid="1555861583162930714">"Baja"</item>
+    <item msgid="1719683776264798117">"Crítico"</item>
+    <item msgid="1567326459340152525">"?"</item>
+  </string-array>
+  <string-array name="proc_stats_memory_states">
+    <item msgid="3474232046138139454">"Normal"</item>
+    <item msgid="6107138933849816768">"Moderado"</item>
+    <item msgid="182695359839047859">"Baja"</item>
+    <item msgid="8577246509202964244">"Crítico"</item>
+  </string-array>
   <string-array name="proc_stats_process_states">
     <item msgid="7560955722349181440">"Persistente"</item>
     <item msgid="167418068739176448">"Actividad principal"</item>
@@ -446,14 +456,14 @@
     <item msgid="3151827842194201728">"Verde azulado"</item>
     <item msgid="3228505970082457852">"Azul"</item>
     <item msgid="6590260735734795647">"Índigo"</item>
-    <item msgid="3521763377357218577">"Violeta"</item>
+    <item msgid="3521763377357218577">"Morado"</item>
     <item msgid="5932337981182999919">"Rosa"</item>
     <item msgid="5642914536624000094">"Rojo"</item>
   </string-array>
   <string-array name="automatic_storage_management_days">
-    <item msgid="2860293514533486236">"Más de 30 días de antigüedad"</item>
-    <item msgid="8699273238891265610">"Más de 60 días de antigüedad"</item>
-    <item msgid="8346279419423837266">"Más de 90 días de antigüedad"</item>
+    <item msgid="2860293514533486236">"De más de 30 días de antigüedad"</item>
+    <item msgid="8699273238891265610">"De más de 60 días de antigüedad"</item>
+    <item msgid="8346279419423837266">"De más de 90 días de antigüedad"</item>
   </string-array>
     <!-- no translation found for swipe_direction_titles:0 (6583090603341402282) -->
     <!-- no translation found for swipe_direction_titles:1 (4965730704403236310) -->

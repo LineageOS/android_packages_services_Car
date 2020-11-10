@@ -272,7 +272,7 @@
     <item msgid="6266277260961066535">"辅助结构"</item>
     <item msgid="7715498149883482300">"辅助屏幕截图"</item>
     <item msgid="4046679376726313293">"读取手机状态"</item>
-    <item msgid="6329507266039719587">"添加语音邮件"</item>
+    <item msgid="6329507266039719587">"添加语音信息"</item>
     <item msgid="7692440726415391408">"使用 SIP"</item>
     <item msgid="8572453398128326267">"处理拨出电话"</item>
     <item msgid="7775674394089376306">"指纹"</item>
@@ -339,7 +339,7 @@
     <item msgid="7106921284621230961">"辅助结构"</item>
     <item msgid="4496533640894624799">"辅助屏幕截图"</item>
     <item msgid="2598847264853993611">"读取手机状态"</item>
-    <item msgid="9215610846802973353">"添加语音邮件"</item>
+    <item msgid="9215610846802973353">"添加语音信息"</item>
     <item msgid="9186411956086478261">"使用 SIP"</item>
     <item msgid="6884763100104539558">"处理拨出电话"</item>
     <item msgid="125513972170580692">"指纹"</item>
@@ -423,9 +423,19 @@
     <item msgid="7718817231348607934">"永不允许"</item>
     <item msgid="8184570120217958741">"始终允许"</item>
   </string-array>
-    <!-- no translation found for ram_states:0 (708247372474061274) -->
-    <!-- no translation found for ram_states:4 (1567326459340152525) -->
-    <!-- no translation found for proc_stats_memory_states:3 (8577246509202964244) -->
+  <string-array name="ram_states">
+    <item msgid="708247372474061274">"正常"</item>
+    <item msgid="5101233285497327432">"中等"</item>
+    <item msgid="1555861583162930714">"低"</item>
+    <item msgid="1719683776264798117">"严重不足"</item>
+    <item msgid="1567326459340152525">"？"</item>
+  </string-array>
+  <string-array name="proc_stats_memory_states">
+    <item msgid="3474232046138139454">"正常"</item>
+    <item msgid="6107138933849816768">"中等"</item>
+    <item msgid="182695359839047859">"低"</item>
+    <item msgid="8577246509202964244">"严重"</item>
+  </string-array>
   <string-array name="proc_stats_process_states">
     <item msgid="7560955722349181440">"常驻"</item>
     <item msgid="167418068739176448">"顶层 Activity"</item>
