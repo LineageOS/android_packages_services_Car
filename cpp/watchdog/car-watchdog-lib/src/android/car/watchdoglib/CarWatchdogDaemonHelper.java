@@ -21,8 +21,8 @@ import static com.android.internal.util.function.pooled.PooledLambda.obtainMessa
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.automotive.watchdog.internal.ICarWatchdog;
-import android.automotive.watchdog.internal.ICarWatchdogClient;
 import android.automotive.watchdog.internal.ICarWatchdogMonitor;
+import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -151,27 +151,29 @@ public final class CarWatchdogDaemonHelper {
     }
 
     /**
-     * Registers car watchdog client as mediator.
+     * Registers car watchdog service.
      *
-     * @param mediator Car watchdog client to be registered.
-     * @throws IllegalArgumentException If the mediator is already registered.
+     * @param service Car watchdog service to be registered.
+     * @throws IllegalArgumentException If the service is already registered.
      * @throws IllegalStateException If car watchdog daemon is not connected.
      * @throws RemoteException
      */
-    public void registerMediator(ICarWatchdogClient mediator) throws RemoteException {
-        invokeDaemonMethod((daemon) -> daemon.registerMediator(mediator));
+    public void registerCarWatchdogService(
+            ICarWatchdogServiceForSystem service) throws RemoteException {
+        invokeDaemonMethod((daemon) -> daemon.registerCarWatchdogService(service));
     }
 
     /**
-     * Unregisters car watchdog client as mediator.
+     * Unregisters car watchdog service.
      *
-     * @param mediator Car watchdog client to be unregistered.
-     * @throws IllegalArgumentException If the mediator is not registered.
+     * @param service Car watchdog service to be unregistered.
+     * @throws IllegalArgumentException If the service is not registered.
      * @throws IllegalStateException If car watchdog daemon is not connected.
      * @throws RemoteException
      */
-    public void unregisterMediator(ICarWatchdogClient mediator)  throws RemoteException {
-        invokeDaemonMethod((daemon) -> daemon.unregisterMediator(mediator));
+    public void unregisterCarWatchdogService(
+            ICarWatchdogServiceForSystem service)  throws RemoteException {
+        invokeDaemonMethod((daemon) -> daemon.unregisterCarWatchdogService(service));
     }
 
     /**
@@ -182,7 +184,7 @@ public final class CarWatchdogDaemonHelper {
      * @throws IllegalStateException If car watchdog daemon is not connected.
      * @throws RemoteException
      */
-    public void registerMonitor(ICarWatchdogMonitor monitor)  throws RemoteException {
+    public void registerMonitor(ICarWatchdogMonitor monitor) throws RemoteException {
         invokeDaemonMethod((daemon) -> daemon.registerMonitor(monitor));
     }
 
@@ -199,20 +201,22 @@ public final class CarWatchdogDaemonHelper {
     }
 
     /**
-     * Tells car watchdog daemon that the mediator is alive.
+     * Tells car watchdog daemon that the service is alive.
      *
-     * @param mediator Car watchdog client which has been pined by car watchdog daemon.
+     * @param service Car watchdog service which has been pined by car watchdog daemon.
      * @param clientsNotResponding Array of process ID that are not responding.
      * @param sessionId Session ID that car watchdog daemon has given.
-     * @throws IllegalArgumentException If the client is not registered,
+     * @throws IllegalArgumentException If the service is not registered,
      *                                  or session ID is not correct.
      * @throws IllegalStateException If car watchdog daemon is not connected.
      * @throws RemoteException
      */
-    public void tellMediatorAlive(ICarWatchdogClient mediator, int[] clientsNotResponding,
+    public void tellCarWatchdogServiceAlive(
+            ICarWatchdogServiceForSystem service, int[] clientsNotResponding,
             int sessionId) throws RemoteException {
         invokeDaemonMethod(
-                (daemon) -> daemon.tellMediatorAlive(mediator, clientsNotResponding, sessionId));
+                (daemon) -> daemon.tellCarWatchdogServiceAlive(
+                    service, clientsNotResponding, sessionId));
     }
 
     /**

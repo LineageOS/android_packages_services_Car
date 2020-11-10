@@ -18,21 +18,27 @@ package android.automotive.watchdog.internal;
 
 import android.automotive.watchdog.internal.TimeoutLength;
 
-oneway interface ICarWatchdogClient {
+/**
+ * ICarWatchdogServiceForSystem interface used by the watchdog server to communicate with the
+ * watchdog service.
+ *
+ * @hide
+ */
+interface ICarWatchdogServiceForSystem {
   /**
    * Check if the client is alive.
-   * Watchdog server or mediator calls this method, expecting the clients will respond within
-   * timeout. The final timeout is decided by the server, considering the requested timeout on
-   * client registration. If no response from the clients, watchdog server will dump process
-   * information and kill them.
+   * Watchdog server calls this method, expecting the clients will respond within timeout.
+   * The final timeout is decided by the server, considering the requested timeout on client
+   * registration. If no response from the clients, watchdog server will dump process information
+   * and kill them.
    *
-   * @param sessionId           Unique id to identify each health check session.
-   * @param timeout             Final timeout given by the server based on client request.
+   * @param sessionId                   Unique id to identify each health check session.
+   * @param timeout                     Final timeout given by the server based on client request.
    */
-  void checkIfAlive(in int sessionId, in TimeoutLength timeout);
+  oneway void checkIfAlive(in int sessionId, in TimeoutLength timeout);
 
   /**
    * Notify the client that it will be forcedly terminated in 1 second.
    */
-  void prepareProcessTermination();
+  oneway void prepareProcessTermination();
 }

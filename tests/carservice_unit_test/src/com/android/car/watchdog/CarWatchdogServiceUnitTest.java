@@ -31,7 +31,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.automotive.watchdog.internal.ICarWatchdog;
-import android.automotive.watchdog.internal.ICarWatchdogClient;
+import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.watchdog.ICarWatchdogServiceCallback;
 import android.content.Context;
@@ -64,7 +64,7 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
     @Mock private ICarWatchdog mCarWatchdogDaemon;
 
     private CarWatchdogService mCarWatchdogService;
-    private ICarWatchdogClient mClientImpl;
+    private ICarWatchdogServiceForSystem mWatchdogServiceForSystemImpl;
 
     /**
      * Initialize all of the objects with the @Mock annotation.
@@ -75,21 +75,22 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
         mockWatchdogDaemon();
         setupUsers();
         mCarWatchdogService.init();
-        mClientImpl = registerMediator();
+        mWatchdogServiceForSystemImpl = registerCarWatchdogService();
     }
 
     @Test
-    public void testMediatorHealthCheck() throws Exception {
-        mClientImpl.checkIfAlive(123456, TIMEOUT_CRITICAL);
-        verify(mCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS)).tellMediatorAlive(eq(mClientImpl),
-                any(int[].class), eq(123456));
+    public void testCarWatchdogServiceHealthCheck() throws Exception {
+        mWatchdogServiceForSystemImpl.checkIfAlive(123456, TIMEOUT_CRITICAL);
+        verify(mCarWatchdogDaemon,
+                timeout(MAX_WAIT_TIME_MS)).tellCarWatchdogServiceAlive(
+                        eq(mWatchdogServiceForSystemImpl), any(int[].class), eq(123456));
     }
 
     @Test
     public void testRegisterClient() throws Exception {
         TestClient client = new TestClient();
         mCarWatchdogService.registerClient(client, TIMEOUT_CRITICAL);
-        mClientImpl.checkIfAlive(123456, TIMEOUT_CRITICAL);
+        mWatchdogServiceForSystemImpl.checkIfAlive(123456, TIMEOUT_CRITICAL);
         // Checking client health is asynchronous, so wait at most 1 second.
         int repeat = 10;
         while (repeat > 0) {
@@ -108,7 +109,7 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
         TestClient client = new TestClient();
         mCarWatchdogService.registerClient(client, TIMEOUT_CRITICAL);
         mCarWatchdogService.unregisterClient(client);
-        mClientImpl.checkIfAlive(123456, TIMEOUT_CRITICAL);
+        mWatchdogServiceForSystemImpl.checkIfAlive(123456, TIMEOUT_CRITICAL);
         assertThat(client.getLastSessionId()).isEqualTo(INVALID_SESSION_ID);
     }
 
@@ -137,23 +138,24 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
         mockUmGetAllUsers(mUserManager, new UserInfo[0]);
     }
 
-    private ICarWatchdogClient registerMediator() throws Exception {
-        ArgumentCaptor<ICarWatchdogClient> clientImplCaptor =
-                ArgumentCaptor.forClass(ICarWatchdogClient.class);
-        verify(mCarWatchdogDaemon).registerMediator(clientImplCaptor.capture());
-        return clientImplCaptor.getValue();
+    private ICarWatchdogServiceForSystem registerCarWatchdogService() throws Exception {
+        ArgumentCaptor<ICarWatchdogServiceForSystem> watchdogServiceForSystemImplCaptor =
+                ArgumentCaptor.forClass(ICarWatchdogServiceForSystem.class);
+        verify(mCarWatchdogDaemon).registerCarWatchdogService(
+                watchdogServiceForSystemImplCaptor.capture());
+        return watchdogServiceForSystemImplCaptor.getValue();
     }
 
     private void testClientHealthCheck(TestClient client, int badClientCount) throws Exception {
         mCarWatchdogService.registerClient(client, TIMEOUT_CRITICAL);
-        mClientImpl.checkIfAlive(123456, TIMEOUT_CRITICAL);
+        mWatchdogServiceForSystemImpl.checkIfAlive(123456, TIMEOUT_CRITICAL);
         ArgumentCaptor<int[]> notRespondingClients = ArgumentCaptor.forClass(int[].class);
-        verify(mCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS)).tellMediatorAlive(eq(mClientImpl),
-                notRespondingClients.capture(), eq(123456));
+        verify(mCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS)).tellCarWatchdogServiceAlive(
+                eq(mWatchdogServiceForSystemImpl), notRespondingClients.capture(), eq(123456));
         assertThat(notRespondingClients.getValue().length).isEqualTo(0);
-        mClientImpl.checkIfAlive(987654, TIMEOUT_CRITICAL);
-        verify(mCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS)).tellMediatorAlive(eq(mClientImpl),
-                notRespondingClients.capture(), eq(987654));
+        mWatchdogServiceForSystemImpl.checkIfAlive(987654, TIMEOUT_CRITICAL);
+        verify(mCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS)).tellCarWatchdogServiceAlive(
+                eq(mWatchdogServiceForSystemImpl), notRespondingClients.capture(), eq(987654));
         assertThat(notRespondingClients.getValue().length).isEqualTo(badClientCount);
     }
 

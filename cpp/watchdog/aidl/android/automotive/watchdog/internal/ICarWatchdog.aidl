@@ -17,40 +17,40 @@
 package android.automotive.watchdog.internal;
 
 import android.automotive.watchdog.internal.ComponentType;
-import android.automotive.watchdog.internal.ICarWatchdogClient;
 import android.automotive.watchdog.internal.ICarWatchdogMonitor;
+import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
 import android.automotive.watchdog.internal.IoOveruseConfiguration;
 import android.automotive.watchdog.internal.StateType;
 
 /**
  * ICarWatchdog is an interface implemented by watchdog server. This interface is used only by the
  * internal services to communicate with the watchdog server.
+ * Watchdog service is the counter part of the watchdog server to help communicate with
+ * the car service and Java side services.
  * For health check, 3 components are involved: watchdog server, watchdog service, watchdog monitor.
  *   - watchdog server:   1. Checks clients' health status by pinging and waiting for the response.
  *                        2. Monitors I/O overuse for system, OEM and third-party applications.
- *   - watchdog mediator: is a watchdog client by reporting its health status to the server, and
+ *   - watchdog service: is a watchdog client by reporting its health status to the server, and
  *                        at the same time plays a role of watchdog server by checking its clients'
  *                        health status.
  *   - watchdog monitor:  captures and reports the process state of watchdog clients.
  */
 interface ICarWatchdog {
   /**
-   * Register the mediator to the watchdog server.
-   * Note that watchdog mediator is also a watchdog client.
+   * Register the CarWatchdogService to the watchdog server.
    * The caller should have system UID. Otherwise, returns security exception binder error.
    *
-   * @param mediator            Watchdog mediator to register.
+   * @param service             CarWatchdogService to register.
    */
-  void registerMediator(in ICarWatchdogClient mediator);
+  void registerCarWatchdogService(in ICarWatchdogServiceForSystem service);
 
   /**
-   * Unregister the mediator from the watchdog server.
-   * Note that watchdog mediator is also a watchdog client.
+   * Unregister the CarWatchdogService from the watchdog server.
    * The caller should have system UID. Otherwise, returns security exception binder error.
    *
-   * @param mediator            Watchdog mediator to unregister.
+   * @param service             CarWatchdogService to unregister.
    */
-  void unregisterMediator(in ICarWatchdogClient mediator);
+  void unregisterCarWatchdogService(in ICarWatchdogServiceForSystem service);
 
   /**
    * Register the monitor to the watchdog server.
@@ -69,17 +69,17 @@ interface ICarWatchdog {
   void unregisterMonitor(in ICarWatchdogMonitor monitor);
 
   /**
-   * Tell watchdog server that the mediator is alive together with the status of clients under
-   * the mediator.
+   * Tell watchdog server that the CarWatchdogService is alive together with the status of clients
+   * under the CarWatchdogService.
    * The caller should have system UID. Otherwise, returns security exception binder error.
    *
-   * @param mediator             Watchdog mediator that is responding.
+   * @param service              Watchdog service that is responding.
    * @param clientsNotResponding Array of process id of clients which haven't responded to the
    *                             mediator.
    * @param sessionId            Session id given by watchdog server.
    */
-  void tellMediatorAlive(
-          in ICarWatchdogClient mediator, in int[] clientsNotResponding, in int sessionId);
+  void tellCarWatchdogServiceAlive(
+          in ICarWatchdogServiceForSystem service, in int[] clientsNotResponding, in int sessionId);
 
   /**
    * Tell watchdog server that the monitor has finished dumping process information.
