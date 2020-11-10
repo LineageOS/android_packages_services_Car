@@ -37,6 +37,8 @@ import android.car.ICarUserService;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.settings.CarSettings;
 import android.car.user.CarUserManager;
+import android.car.user.CarUserManager.UserIdentificationAssociationSetValue;
+import android.car.user.CarUserManager.UserIdentificationAssociationType;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.user.UserCreationResult;
@@ -1332,7 +1334,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     @Override
-    public UserIdentificationAssociationResponse getUserIdentificationAssociation(int[] types) {
+    public UserIdentificationAssociationResponse getUserIdentificationAssociation(
+            @UserIdentificationAssociationType int[] types) {
         if (!isUserHalUserAssociationSupported()) {
             return UserIdentificationAssociationResponse.forFailure(VEHICLE_HAL_NOT_SUPPORTED);
         }
@@ -1370,7 +1373,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     @Override
-    public void setUserIdentificationAssociation(int timeoutMs, int[] types, int[] values,
+    public void setUserIdentificationAssociation(int timeoutMs,
+            @UserIdentificationAssociationType int[] types,
+            @UserIdentificationAssociationSetValue int[] values,
             AndroidFuture<UserIdentificationAssociationResponse> result) {
         if (!isUserHalUserAssociationSupported()) {
             result.complete(
