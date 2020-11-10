@@ -17,10 +17,12 @@
 #ifndef CPP_WATCHDOG_SERVER_SRC_WATCHDOGPROCESSSERVICE_H_
 #define CPP_WATCHDOG_SERVER_SRC_WATCHDOGPROCESSSERVICE_H_
 
+#include "WatchdogServiceHelper.h"
+
 #include <android-base/result.h>
-#include <android/automotive/watchdog/BnCarWatchdogClient.h>
-#include <android/automotive/watchdog/internal/BnCarWatchdogClient.h>
-#include <android/automotive/watchdog/internal/BnCarWatchdogMonitor.h>
+#include <android/automotive/watchdog/ICarWatchdogClient.h>
+#include <android/automotive/watchdog/internal/ICarWatchdogMonitor.h>
+#include <android/automotive/watchdog/internal/ICarWatchdogServiceForSystem.h>
 #include <android/automotive/watchdog/internal/PowerCycle.h>
 #include <android/automotive/watchdog/internal/UserState.h>
 #include <android/hardware/automotive/vehicle/2.0/IVehicle.h>
@@ -49,19 +51,21 @@ public:
 
     virtual android::binder::Status registerClient(const android::sp<ICarWatchdogClient>& client,
                                                    TimeoutLength timeout);
-    virtual android::binder::Status unregisterClient(const sp<ICarWatchdogClient>& client);
-    virtual android::binder::Status registerMediator(
-            const sp<android::automotive::watchdog::internal::ICarWatchdogClient>& mediator);
-    virtual android::binder::Status unregisterMediator(
-            const sp<android::automotive::watchdog::internal::ICarWatchdogClient>& mediator);
+    virtual android::binder::Status unregisterClient(const android::sp<ICarWatchdogClient>& client);
+    virtual android::binder::Status registerWatchdogServiceHelper(
+            const android::sp<WatchdogServiceHelperInterface>& helper);
+    virtual android::binder::Status unregisterWatchdogServiceHelper();
     virtual android::binder::Status registerMonitor(
-            const sp<android::automotive::watchdog::internal::ICarWatchdogMonitor>& monitor);
+            const android::sp<android::automotive::watchdog::internal::ICarWatchdogMonitor>&
+                    monitor);
     virtual android::binder::Status unregisterMonitor(
-            const sp<android::automotive::watchdog::internal::ICarWatchdogMonitor>& monitor);
-    virtual android::binder::Status tellClientAlive(const sp<ICarWatchdogClient>& client,
+            const android::sp<android::automotive::watchdog::internal::ICarWatchdogMonitor>&
+                    monitor);
+    virtual android::binder::Status tellClientAlive(const android::sp<ICarWatchdogClient>& client,
                                                     int32_t sessionId);
-    virtual android::binder::Status tellMediatorAlive(
-            const sp<android::automotive::watchdog::internal::ICarWatchdogClient>& mediator,
+    virtual android::binder::Status tellCarWatchdogServiceAlive(
+            const android::sp<
+                    android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>& service,
             const std::vector<int32_t>& clientsNotResponding, int32_t sessionId);
     virtual android::binder::Status tellDumpFinished(
             const android::sp<android::automotive::watchdog::internal::ICarWatchdogMonitor>&

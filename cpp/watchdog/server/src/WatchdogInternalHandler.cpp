@@ -34,10 +34,16 @@ namespace aawi = android::automotive::watchdog::internal;
 
 using android::sp;
 using android::automotive::watchdog::internal::ComponentType;
+using android::automotive::watchdog::internal::ICarWatchdogServiceForSystem;
 using android::automotive::watchdog::internal::IoOveruseConfiguration;
 using android::binder::Status;
 
 namespace {
+
+constexpr const char* kNullCarWatchdogServiceError =
+        "Must provide a non-null car watchdog service instance";
+constexpr const char* kNullCarWatchdogMonitorError =
+        "Must provide a non-null car watchdog monitor instance";
 
 Status checkSystemUser() {
     if (IPCThreadState::self()->getCallingUid() != AID_SYSTEM) {
@@ -58,26 +64,45 @@ status_t WatchdogInternalHandler::dump(int fd, const Vector<String16>& args) {
     return mBinderMediator->dump(fd, args);
 }
 
-Status WatchdogInternalHandler::registerMediator(const sp<aawi::ICarWatchdogClient>& mediator) {
+Status WatchdogInternalHandler::registerCarWatchdogService(
+        const sp<ICarWatchdogServiceForSystem>& service) {
     Status status = checkSystemUser();
     if (!status.isOk()) {
         return status;
     }
-    return mWatchdogProcessService->registerMediator(mediator);
+    if (service == nullptr) {
+        return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT, kNullCarWatchdogServiceError);
+    }
+    status = mWatchdogServiceHelper->registerService(service);
+    if (!status.isOk()) {
+        return status;
+    }
+    return mWatchdogProcessService->registerWatchdogServiceHelper(mWatchdogServiceHelper);
 }
 
-Status WatchdogInternalHandler::unregisterMediator(const sp<aawi::ICarWatchdogClient>& mediator) {
+Status WatchdogInternalHandler::unregisterCarWatchdogService(
+        const sp<ICarWatchdogServiceForSystem>& service) {
     Status status = checkSystemUser();
     if (!status.isOk()) {
         return status;
     }
-    return mWatchdogProcessService->unregisterMediator(mediator);
+    if (service == nullptr) {
+        return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT, kNullCarWatchdogServiceError);
+    }
+    status = mWatchdogServiceHelper->unregisterService(service);
+    if (!status.isOk()) {
+        return status;
+    }
+    return mWatchdogProcessService->unregisterWatchdogServiceHelper();
 }
 
 Status WatchdogInternalHandler::registerMonitor(const sp<aawi::ICarWatchdogMonitor>& monitor) {
     Status status = checkSystemUser();
     if (!status.isOk()) {
         return status;
+    }
+    if (monitor == nullptr) {
+        return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT, kNullCarWatchdogMonitorError);
     }
     return mWatchdogProcessService->registerMonitor(monitor);
 }
@@ -87,23 +112,33 @@ Status WatchdogInternalHandler::unregisterMonitor(const sp<aawi::ICarWatchdogMon
     if (!status.isOk()) {
         return status;
     }
+    if (monitor == nullptr) {
+        return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT, kNullCarWatchdogMonitorError);
+    }
     return mWatchdogProcessService->unregisterMonitor(monitor);
 }
 
-Status WatchdogInternalHandler::tellMediatorAlive(
-        const android::sp<aawi::ICarWatchdogClient>& mediator,
+Status WatchdogInternalHandler::tellCarWatchdogServiceAlive(
+        const android::sp<ICarWatchdogServiceForSystem>& service,
         const std::vector<int32_t>& clientsNotResponding, int32_t sessionId) {
     Status status = checkSystemUser();
     if (!status.isOk()) {
         return status;
     }
-    return mWatchdogProcessService->tellMediatorAlive(mediator, clientsNotResponding, sessionId);
+    if (service == nullptr) {
+        return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT, kNullCarWatchdogServiceError);
+    }
+    return mWatchdogProcessService->tellCarWatchdogServiceAlive(service, clientsNotResponding,
+                                                                sessionId);
 }
 Status WatchdogInternalHandler::tellDumpFinished(
         const android::sp<aawi::ICarWatchdogMonitor>& monitor, int32_t pid) {
     Status status = checkSystemUser();
     if (!status.isOk()) {
         return status;
+    }
+    if (monitor == nullptr) {
+        return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT, kNullCarWatchdogMonitorError);
     }
     return mWatchdogProcessService->tellDumpFinished(monitor, pid);
 }

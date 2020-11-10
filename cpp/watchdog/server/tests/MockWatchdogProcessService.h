@@ -18,11 +18,12 @@
 #define CPP_WATCHDOG_SERVER_TESTS_MOCKWATCHDOGPROCESSSERVICE_H_
 
 #include "WatchdogProcessService.h"
+#include "WatchdogServiceHelper.h"
 
 #include <android-base/result.h>
-#include <android/automotive/watchdog/BnCarWatchdogClient.h>
-#include <android/automotive/watchdog/internal/BnCarWatchdogClient.h>
-#include <android/automotive/watchdog/internal/BnCarWatchdogMonitor.h>
+#include <android/automotive/watchdog/ICarWatchdogClient.h>
+#include <android/automotive/watchdog/internal/ICarWatchdogMonitor.h>
+#include <android/automotive/watchdog/internal/ICarWatchdogServiceForSystem.h>
 #include <android/automotive/watchdog/internal/PowerCycle.h>
 #include <android/automotive/watchdog/internal/UserState.h>
 #include <binder/Status.h>
@@ -46,12 +47,9 @@ public:
                 (const sp<ICarWatchdogClient>& client, TimeoutLength timeout), (override));
     MOCK_METHOD(android::binder::Status, unregisterClient, (const sp<ICarWatchdogClient>& client),
                 (override));
-    MOCK_METHOD(android::binder::Status, registerMediator,
-                (const sp<android::automotive::watchdog::internal::ICarWatchdogClient>& mediator),
-                (override));
-    MOCK_METHOD(android::binder::Status, unregisterMediator,
-                (const sp<android::automotive::watchdog::internal::ICarWatchdogClient>& mediator),
-                (override));
+    MOCK_METHOD(android::binder::Status, registerWatchdogServiceHelper,
+                (const sp<WatchdogServiceHelperInterface>& helper), (override));
+    MOCK_METHOD(android::binder::Status, unregisterWatchdogServiceHelper, (), (override));
     MOCK_METHOD(android::binder::Status, registerMonitor,
                 (const sp<android::automotive::watchdog::internal::ICarWatchdogMonitor>& monitor),
                 (override));
@@ -60,8 +58,9 @@ public:
                 (override));
     MOCK_METHOD(android::binder::Status, tellClientAlive,
                 (const sp<ICarWatchdogClient>& client, int32_t sessionId), (override));
-    MOCK_METHOD(android::binder::Status, tellMediatorAlive,
-                (const sp<android::automotive::watchdog::internal::ICarWatchdogClient>& mediator,
+    MOCK_METHOD(android::binder::Status, tellCarWatchdogServiceAlive,
+                (const sp<android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>&
+                         service,
                  const std::vector<int32_t>& clientsNotResponding, int32_t sessionId),
                 (override));
     MOCK_METHOD(android::binder::Status, tellDumpFinished,

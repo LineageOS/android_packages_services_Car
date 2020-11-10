@@ -24,6 +24,7 @@ namespace watchdog {
 
 namespace aawi = android::automotive::watchdog::internal;
 
+using android::BBinder;
 using android::sp;
 using android::binder::Status;
 using ::testing::_;
@@ -78,7 +79,7 @@ protected:
 };
 
 sp<MockCarWatchdogClient> createMockCarWatchdogClient(status_t linkToDeathResult) {
-    sp<MockCarWatchdogClient> client = new MockCarWatchdogClient;
+    sp<MockCarWatchdogClient> client = new MockCarWatchdogClient();
     sp<MockBinder> binder = client->getBinder();
     EXPECT_CALL(*binder, linkToDeath(_, nullptr, 0)).WillRepeatedly(Return(linkToDeathResult));
     EXPECT_CALL(*binder, unlinkToDeath(_, nullptr, 0, nullptr)).WillRepeatedly(Return(OK));
@@ -87,7 +88,7 @@ sp<MockCarWatchdogClient> createMockCarWatchdogClient(status_t linkToDeathResult
 }
 
 sp<MockCarWatchdogMonitor> createMockCarWatchdogMonitor(status_t linkToDeathResult) {
-    sp<MockCarWatchdogMonitor> monitor = new MockCarWatchdogMonitor;
+    sp<MockCarWatchdogMonitor> monitor = new MockCarWatchdogMonitor();
     sp<MockBinder> binder = monitor->getBinder();
     EXPECT_CALL(*binder, linkToDeath(_, nullptr, 0)).WillRepeatedly(Return(linkToDeathResult));
     EXPECT_CALL(*binder, unlinkToDeath(_, nullptr, 0, nullptr)).WillRepeatedly(Return(OK));

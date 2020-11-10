@@ -32,6 +32,9 @@ cc_defaults {
         "liblog",
         "libutils",
     ],
+    static_libs: [
+        "libgtest_prod",
+    ],
 }
 
 cc_library {
@@ -45,9 +48,6 @@ cc_library {
   shared_libs: [
       "libcutils",
   ],
-  static_libs: [
-      "libgtest_prod",
-  ],
   export_include_dirs: [
        "src/utils",
   ],
@@ -59,9 +59,6 @@ cc_defaults {
         "libcutils",
         "libprocessgroup",
         "libwatchdog_utils",
-    ],
-    static_libs: [
-        "libgtest_prod",
     ],
 }
 
@@ -110,6 +107,7 @@ cc_test {
         "tests/WatchdogInternalHandlerTest.cpp",
         "tests/WatchdogPerfServiceTest.cpp",
         "tests/WatchdogProcessServiceTest.cpp",
+        "tests/WatchdogServiceHelperTest.cpp",
     ],
     static_libs: [
         "libgmock",
@@ -150,6 +148,7 @@ cc_library {
         "src/WatchdogBinderMediator.cpp",
         "src/WatchdogInternalHandler.cpp",
         "src/WatchdogProcessService.cpp",
+        "src/WatchdogServiceHelper.cpp",
         "src/IoPerfCollection.cpp",
     ],
     shared_libs: [

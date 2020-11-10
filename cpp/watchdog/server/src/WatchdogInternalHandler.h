@@ -20,9 +20,12 @@
 #include "IoOveruseMonitor.h"
 #include "WatchdogPerfService.h"
 #include "WatchdogProcessService.h"
+#include "WatchdogServiceHelper.h"
 
 #include <android/automotive/watchdog/internal/BnCarWatchdog.h>
 #include <android/automotive/watchdog/internal/ComponentType.h>
+#include <android/automotive/watchdog/internal/ICarWatchdogMonitor.h>
+#include <android/automotive/watchdog/internal/ICarWatchdogServiceForSystem.h>
 #include <android/automotive/watchdog/internal/IoOveruseConfiguration.h>
 #include <android/automotive/watchdog/internal/StateType.h>
 #include <binder/Status.h>
@@ -43,26 +46,29 @@ public:
             const android::sp<WatchdogPerfService>& watchdogPerfService,
             const android::sp<IoOveruseMonitor>& ioOveruseMonitor) :
           mBinderMediator(binderMediator),
+          mWatchdogServiceHelper(new WatchdogServiceHelper()),
           mWatchdogProcessService(watchdogProcessService),
           mWatchdogPerfService(watchdogPerfService),
           mIoOveruseMonitor(ioOveruseMonitor) {}
 
     status_t dump(int fd, const Vector<String16>& args) override;
-    android::binder::Status registerMediator(
-            const android::sp<android::automotive::watchdog::internal::ICarWatchdogClient>&
-                    mediator) override;
-    android::binder::Status unregisterMediator(
-            const android::sp<android::automotive::watchdog::internal::ICarWatchdogClient>&
-                    mediator) override;
+    android::binder::Status registerCarWatchdogService(
+            const android::sp<
+                    android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>& service)
+            override;
+    android::binder::Status unregisterCarWatchdogService(
+            const android::sp<
+                    android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>& service)
+            override;
     android::binder::Status registerMonitor(
             const android::sp<android::automotive::watchdog::internal::ICarWatchdogMonitor>&
                     monitor) override;
     android::binder::Status unregisterMonitor(
             const android::sp<android::automotive::watchdog::internal::ICarWatchdogMonitor>&
                     monitor) override;
-    android::binder::Status tellMediatorAlive(
-            const android::sp<android::automotive::watchdog::internal::ICarWatchdogClient>&
-                    mediator,
+    android::binder::Status tellCarWatchdogServiceAlive(
+            const android::sp<
+                    android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>& service,
             const std::vector<int32_t>& clientsNotResponding, int32_t sessionId) override;
     android::binder::Status tellDumpFinished(
             const android::sp<android::automotive::watchdog::internal::ICarWatchdogMonitor>&
@@ -77,7 +83,10 @@ public:
 
 protected:
     void terminate() {
+        mWatchdogServiceHelper->terminate();
+
         mBinderMediator.clear();
+        mWatchdogServiceHelper.clear();
         mWatchdogProcessService.clear();
         mWatchdogPerfService.clear();
         mIoOveruseMonitor.clear();
@@ -85,6 +94,7 @@ protected:
 
 private:
     android::sp<WatchdogBinderMediator> mBinderMediator;
+    android::sp<WatchdogServiceHelperInterface> mWatchdogServiceHelper;
     android::sp<WatchdogProcessService> mWatchdogProcessService;
     android::sp<WatchdogPerfService> mWatchdogPerfService;
     android::sp<IoOveruseMonitor> mIoOveruseMonitor;

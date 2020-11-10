@@ -25,6 +25,8 @@
 #include <android-base/properties.h>
 #include <android-base/stringprintf.h>
 #include <android-base/strings.h>
+#include <android/automotive/watchdog/BnCarWatchdogClient.h>
+#include <android/automotive/watchdog/internal/BnCarWatchdogMonitor.h>
 #include <android/hardware/automotive/vehicle/2.0/types.h>
 #include <android/hidl/manager/1.0/IServiceManager.h>
 #include <binder/IPCThreadState.h>
@@ -142,15 +144,15 @@ Status WatchdogProcessService::unregisterClient(const sp<ICarWatchdogClient>& cl
     return unregisterClientLocked(kTimeouts, binder, ClientType::Regular);
 }
 
-Status WatchdogProcessService::registerMediator(const sp<aawi::ICarWatchdogClient>& /*mediator*/) {
-    // TODO(b/167240592): Replace this call with registerCarWatchdogService.
-    return Status::fromExceptionCode(Status::EX_UNSUPPORTED_OPERATION, "Deprecate method");
+Status WatchdogProcessService::registerWatchdogServiceHelper(
+        const sp<WatchdogServiceHelperInterface>& /*helper*/) {
+    // TODO(b/167240592): Implement this method.
+    return Status::fromExceptionCode(Status::EX_UNSUPPORTED_OPERATION, "Not yet implemented");
 }
 
-Status WatchdogProcessService::unregisterMediator(
-        const sp<aawi::ICarWatchdogClient>& /*mediator*/) {
-    // TODO(b/167240592): Replace this call with unregisterCarWatchdogService.
-    return Status::fromExceptionCode(Status::EX_UNSUPPORTED_OPERATION, "Deprecate method");
+Status WatchdogProcessService::unregisterWatchdogServiceHelper() {
+    // TODO(b/167240592): Implement this method.
+    return Status::fromExceptionCode(Status::EX_UNSUPPORTED_OPERATION, "Not yet implemented");
 }
 
 Status WatchdogProcessService::registerMonitor(const sp<aawi::ICarWatchdogMonitor>& monitor) {
@@ -173,13 +175,14 @@ Status WatchdogProcessService::registerMonitor(const sp<aawi::ICarWatchdogMonito
 
 Status WatchdogProcessService::unregisterMonitor(const sp<aawi::ICarWatchdogMonitor>& monitor) {
     Mutex::Autolock lock(mMutex);
-    if (mMonitor != monitor) {
+    sp<IBinder> curBinder = aawi::BnCarWatchdogMonitor::asBinder(mMonitor);
+    sp<IBinder> newBinder = aawi::BnCarWatchdogMonitor::asBinder(monitor);
+    if (curBinder != newBinder) {
         ALOGW("Cannot unregister the monitor. The monitor has not been registered.");
         return Status::fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
                                          "The monitor has not been registered.");
     }
-    sp<IBinder> binder = aawi::BnCarWatchdogMonitor::asBinder(monitor);
-    binder->unlinkToDeath(mBinderDeathRecipient);
+    curBinder->unlinkToDeath(mBinderDeathRecipient);
     mMonitor = nullptr;
     if (DEBUG) {
         ALOGD("Car watchdog monitor is unregistered");
@@ -193,11 +196,11 @@ Status WatchdogProcessService::tellClientAlive(const sp<ICarWatchdogClient>& cli
     return tellClientAliveLocked(client, sessionId);
 }
 
-Status WatchdogProcessService::tellMediatorAlive(
-        const sp<aawi::ICarWatchdogClient>& /*mediator*/,
+Status WatchdogProcessService::tellCarWatchdogServiceAlive(
+        const sp<aawi::ICarWatchdogServiceForSystem>& /*service*/,
         const std::vector<int32_t>& /*clientsNotResponding*/, int32_t /*sessionId*/) {
-    // TODO(b/167240592): Replace this call with tellCarWatchdogServiceAlive.
-    return Status::fromExceptionCode(Status::EX_UNSUPPORTED_OPERATION, "Deprecate method");
+    // TODO(b/167240592): Implement this method.
+    return Status::fromExceptionCode(Status::EX_UNSUPPORTED_OPERATION, "Not yet implemented");
 }
 
 Status WatchdogProcessService::tellDumpFinished(const sp<aawi::ICarWatchdogMonitor>& monitor,
