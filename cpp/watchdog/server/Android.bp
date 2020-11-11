@@ -25,7 +25,7 @@ cc_defaults {
         "system/libbase/include",
     ],
     shared_libs: [
-        "carwatchdog_aidl_interface-unstable-cpp",
+        "android.automotive.watchdog-unstable-cpp",
         "libbase",
         "libbinder",
         "liblog",
