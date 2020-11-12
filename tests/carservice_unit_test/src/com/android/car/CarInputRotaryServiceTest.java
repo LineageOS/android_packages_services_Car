@@ -60,6 +60,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
@@ -76,6 +77,7 @@ public class CarInputRotaryServiceTest {
     @Mock private CarInputService.KeyEventListener mDefaultMainListener;
     @Mock private Supplier<String> mLastCallSupplier;
     @Mock private IntSupplier mLongPressDelaySupplier;
+    @Mock private BooleanSupplier mShouldCallButtonEndOngoingCallSupplier;
     @Mock private InputCaptureClientController mCaptureController;
     @Mock private CarOccupantZoneService mCarOccupantZoneService;
     @Mock private CarUxRestrictionsManagerService mUxRestrictionService;
@@ -223,7 +225,7 @@ public class CarInputRotaryServiceTest {
         mCarInputService = new CarInputService(mMockContext, mInputHalService, mCarUserService,
                 mCarOccupantZoneService, mHandler, mTelecomManager, mAssistUtils,
                 mDefaultMainListener, mLastCallSupplier, mLongPressDelaySupplier,
-                mCaptureController);
+                mShouldCallButtonEndOngoingCallSupplier, mCaptureController);
         mCarInputService.init();
     }
 
