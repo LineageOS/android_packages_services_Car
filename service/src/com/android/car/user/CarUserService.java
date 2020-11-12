@@ -35,6 +35,7 @@ import android.car.CarOccupantZoneManager.OccupantTypeEnum;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.ICarUserService;
 import android.car.drivingstate.CarUxRestrictions;
+import android.car.drivingstate.ICarUxRestrictionsChangeListener;
 import android.car.settings.CarSettings;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserIdentificationAssociationSetValue;
@@ -89,12 +90,14 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.util.TimingsTraceLog;
+import android.view.Display;
 
 import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
 import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.R;
 import com.android.car.hal.UserHalService;
+import com.android.car.internal.ICarServiceHelper;
 import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
 import com.android.car.internal.common.EventLogTags;
 import com.android.car.internal.common.UserHelperLite;
@@ -221,7 +224,31 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     private IResultReceiver mUserSwitchUiReceiver;
 
-    private final CarUxRestrictionsManagerService mUxRestrictionService;
+    private final CarUxRestrictionsManagerService mCarUxRestrictionService;
+
+    /**
+     * Whether some operations - like user switch - are restricted by driving safety constraints.
+     */
+    @GuardedBy("mLockUser")
+    private boolean mUxRestricted;
+
+    /**
+     * Callback to notify {@code CarServiceHelper} about driving safety changes (through
+     * {@link ICarServiceHelper#setSafetyMode(boolean).
+     *
+     * <p>NOTE: in theory, that logic should belong to {@code CarDevicePolicyService}, but it's
+     * simpler to do it here (and that service already depends on this one).
+     */
+    @GuardedBy("mLockUser")
+    private ICarServiceHelper mICarServiceHelper;
+
+    private final ICarUxRestrictionsChangeListener mCarUxRestrictionsChangeListener =
+            new ICarUxRestrictionsChangeListener.Stub() {
+        @Override
+        public void onUxRestrictionsChanged(CarUxRestrictions restrictions) {
+            setUxRestrictions(restrictions);
+        }
+    };
 
     /** Interface for callbaks related to passenger activities. */
     public interface PassengerCallback {
@@ -302,24 +329,30 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         mEnablePassengerSupport = resources.getBoolean(R.bool.enablePassengerSupport);
         mSwitchGuestUserBeforeSleep = resources.getBoolean(
                 R.bool.config_switchGuestUserBeforeGoingSleep);
-        mUxRestrictionService = uxRestrictionService;
+        mCarUxRestrictionService = uxRestrictionService;
     }
 
     @Override
     public void init() {
         if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
-            Log.d(TAG_USER, "init");
+            Log.d(TAG_USER, "init()");
         }
         mContext.registerReceiver(mUserLifecycleReceiver,
                 new IntentFilter(Intent.ACTION_USER_REMOVED));
+        mCarUxRestrictionService.registerUxRestrictionsChangeListener(
+                mCarUxRestrictionsChangeListener, Display.DEFAULT_DISPLAY);
+
+        setUxRestrictions(mCarUxRestrictionService.getCurrentUxRestrictions());
     }
 
     @Override
     public void release() {
         if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
-            Log.d(TAG_USER, "release");
+            Log.d(TAG_USER, "release()");
         }
         mContext.unregisterReceiver(mUserLifecycleReceiver);
+        mCarUxRestrictionService
+                .unregisterUxRestrictionsChangeListener(mCarUxRestrictionsChangeListener);
     }
 
     @Override
@@ -337,6 +370,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             if (mFailedToCreateUserIds.size() > 0) {
                 writer.println("FailedToCreateUserIds: " + mFailedToCreateUserIds);
             }
+            writer.printf("Is UX restricted: %b\n", mUxRestricted);
         }
         writer.println("MaxRunningUsers: " + mMaxRunningUsers);
         List<UserInfo> allDrivers = getAllDrivers();
@@ -374,7 +408,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         writer.printf("Request Id for the user switch in process=%d\n ",
                     mRequestIdForUserSwitchInProcess);
         writer.printf("System UI package name=%s\n", getSystemUiPackageName());
-        writer.printf("Is UX restricted: %b\n", isUxRestricted());
 
         writer.println("Relevant Global settings");
         dumpGlobalProperty(writer, indent, CarSettings.Global.LAST_ACTIVE_USER_ID);
@@ -845,16 +878,55 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         return InitialUserInfoRequestType.COLD_BOOT;
     }
 
-    private boolean isUxRestricted() {
-        CarUxRestrictions restrictions = mUxRestrictionService.getCurrentUxRestrictions();
+    /**
+     * Sets the {@link ICarServiceHelper} so it can receive UX restriction updates.
+     */
+    public void setCarServiceHelper(ICarServiceHelper helper) {
+        boolean restricted;
+        synchronized (mLockUser) {
+            mICarServiceHelper = helper;
+            restricted = mUxRestricted;
+        }
+        updateSafetyMode(helper, restricted);
+    }
+
+    private void updateSafetyMode(@Nullable ICarServiceHelper helper, boolean restricted) {
+        if (helper == null) return;
+
+        boolean isSafe = !restricted;
+        try {
+            helper.setSafetyMode(isSafe);
+        } catch (Exception e) {
+            Log.e(TAG, "Exception calling helper.setDpmSafetyMode(" + isSafe + ")", e);
+        }
+    }
+
+    private void setUxRestrictions(@Nullable CarUxRestrictions restrictions) {
         boolean restricted = restrictions != null
                 && (restrictions.getActiveRestrictions() & UX_RESTRICTIONS_NO_SETUP)
                         == UX_RESTRICTIONS_NO_SETUP;
         if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
-            Log.d(TAG_USER, "isUxRestricted(): restrictions=" + restrictions
-                    + ", restricted=" + restricted);
+            Log.d(TAG_USER, "setUxRestrictions(" + restrictions + "): restricted=" + restricted);
+        } else {
+            Log.i(TAG_USER, "Setting UX restricted to " + restricted);
         }
-        return restricted;
+
+        ICarServiceHelper helper = null;
+
+        synchronized (mLockUser) {
+            mUxRestricted = restricted;
+            if (mICarServiceHelper == null) {
+                Log.e(TAG, "onUxRestrictionsChanged(): no mICarServiceHelper");
+            }
+            helper = mICarServiceHelper;
+        }
+        updateSafetyMode(helper, restricted);
+    }
+
+    private boolean isUxRestricted() {
+        synchronized (mLockUser) {
+            return mUxRestricted;
+        }
     }
 
     /**

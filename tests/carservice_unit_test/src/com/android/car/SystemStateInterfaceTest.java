@@ -18,9 +18,7 @@ package com.android.car;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.content.ComponentName;
 import android.content.Context;
-import android.os.RemoteException;
 
 import com.android.car.internal.ICarServiceHelper;
 import com.android.car.systeminterface.SystemStateInterface;
@@ -30,8 +28,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import java.util.List;
 
 /**
  * Unit tests for {@link SystemStateInterface}
@@ -86,36 +82,16 @@ public class SystemStateInterfaceTest {
         assertThat(sleepWithDelayedHelper(null)).isFalse();
     }
 
-    private static class TestServiceHelperSucceeds extends ICarServiceHelper.Stub {
+    private static class TestServiceHelperSucceeds extends AbstractICarServiceHelperStub {
         @Override
         public int forceSuspend(int timeoutMs) {
             return 0; // Success
         }
-        @Override
-        public void setDisplayAllowlistForUser(int userId, int[] displayIds) {
-        }
-        @Override
-        public void setPassengerDisplays(int[] displayIdsForPassenger) {
-        }
-        @Override
-        public void setSourcePreferredComponents(boolean enableSourcePreferred,
-                List<ComponentName> sourcePreferredComponents) throws RemoteException {
-        }
     }
-    private static class TestServiceHelperFails extends ICarServiceHelper.Stub {
+    private static class TestServiceHelperFails extends AbstractICarServiceHelperStub {
         @Override
         public int forceSuspend(int timeoutMs) {
             return 1; // Failure
-        }
-        @Override
-        public void setDisplayAllowlistForUser(int userId, int[] displayIds) {
-        }
-        @Override
-        public void setPassengerDisplays(int[] displayIdsForPassenger) {
-        }
-        @Override
-        public void setSourcePreferredComponents(boolean enableSourcePreferred,
-                List<ComponentName> sourcePreferredComponents) throws RemoteException {
         }
     }
     // Invoke enterDeepSleep() before setting the helper.

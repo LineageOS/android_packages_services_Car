@@ -420,6 +420,10 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     public CarUxRestrictions getCurrentUxRestrictions(int displayId) {
         CarUxRestrictions restrictions;
         synchronized (mLock) {
+            if (mCurrentUxRestrictions == null) {
+                Log.wtf(TAG, "getCurrentUxRestrictions() called before init()");
+                return null;
+            }
             restrictions = mCurrentUxRestrictions.get(getPhysicalPortLocked(displayId));
         }
         if (restrictions == null) {

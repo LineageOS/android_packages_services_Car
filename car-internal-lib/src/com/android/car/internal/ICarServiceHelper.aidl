@@ -44,4 +44,10 @@ interface ICarServiceHelper {
      */
     void setSourcePreferredComponents(
             boolean enableSourcePreferred, in List<ComponentName> sourcePreferredComponents);
+
+    /**
+     * Sets whether it's safe to run operations (like DevicePolicyManager.lockNow()).
+     */
+    void setSafetyMode(boolean safe);
+
 }
