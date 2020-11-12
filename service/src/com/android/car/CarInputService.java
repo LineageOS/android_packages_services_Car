@@ -72,6 +72,7 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
@@ -182,6 +183,8 @@ public class CarInputService extends ICarInput.Stub
     private final IntSupplier mLongPressDelaySupplier;
     // ComponentName of the RotaryService.
     private final String mRotaryServiceComponentName;
+
+    private final BooleanSupplier mShouldCallButtonEndOngoingCallSupplier;
 
     private final Object mLock = new Object();
 
@@ -308,7 +311,8 @@ public class CarInputService extends ICarInput.Stub
                                 .injectInputEvent(event, INJECT_INPUT_EVENT_MODE_ASYNC),
                 () -> Calls.getLastOutgoingCall(context),
                 getDefaultInputComponent(context),
-                () -> getViewLongPressDelay(context.getContentResolver()));
+                () -> getViewLongPressDelay(context.getContentResolver()),
+                () -> context.getResources().getBoolean(R.bool.config_callButtonEndsOngoingCall));
     }
 
     @VisibleForTesting
@@ -316,7 +320,8 @@ public class CarInputService extends ICarInput.Stub
             Handler handler, TelecomManager telecomManager, AssistUtils assistUtils,
             KeyEventListener mainDisplayHandler, Supplier<String> lastCalledNumberSupplier,
             @Nullable ComponentName customInputServiceComponent,
-            IntSupplier longPressDelaySupplier) {
+            IntSupplier longPressDelaySupplier,
+            BooleanSupplier shouldCallButtonEndOngoingCallSupplier) {
         mContext = context;
         mCaptureController = new InputCaptureClientController(context);
         mInputHalService = inputHalService;
@@ -335,6 +340,7 @@ public class CarInputService extends ICarInput.Stub
                 new KeyPressTimer(handler, longPressDelaySupplier, this::handleCallLongPress);
 
         mRotaryServiceComponentName = mContext.getString(R.string.rotaryService);
+        mShouldCallButtonEndOngoingCallSupplier = shouldCallButtonEndOngoingCallSupplier;
     }
 
     @VisibleForTesting
@@ -580,6 +586,11 @@ public class CarInputService extends ICarInput.Stub
                 return;
             }
 
+            if (mShouldCallButtonEndOngoingCallSupplier.getAsBoolean() && endCall()) {
+                // On-going call ended, nothing more to do.
+                return;
+            }
+
             if (dispatchProjectionKeyEvent(
                     CarProjectionManager.KEY_EVENT_CALL_SHORT_PRESS_KEY_UP)) {
                 return;
@@ -592,6 +603,10 @@ public class CarInputService extends ICarInput.Stub
     private void handleCallLongPress() {
         // Long-press answers call if ringing, same as short-press.
         if (acceptCallIfRinging()) {
+            return;
+        }
+
+        if (mShouldCallButtonEndOngoingCallSupplier.getAsBoolean() && endCall()) {
             return;
         }
 
@@ -638,6 +653,15 @@ public class CarInputService extends ICarInput.Stub
         if (mTelecomManager != null && mTelecomManager.isRinging()) {
             Log.i(CarLog.TAG_INPUT, "call key while ringing. Answer the call!");
             mTelecomManager.acceptRingingCall();
+            return true;
+        }
+        return false;
+    }
+
+    private boolean endCall() {
+        if (mTelecomManager != null && mTelecomManager.isInCall()) {
+            Log.i(CarLog.TAG_INPUT, "End the call!");
+            mTelecomManager.endCall();
             return true;
         }
         return false;
@@ -711,6 +735,8 @@ public class CarInputService extends ICarInput.Stub
             writer.println("mCarInputListener: " + mCarInputListener);
         }
         writer.println("Long-press delay: " + mLongPressDelaySupplier.getAsInt() + "ms");
+        writer.println("Call button ends ongoing call: "
+                + mShouldCallButtonEndOngoingCallSupplier.getAsBoolean());
         mCaptureController.dump(writer);
     }
 
