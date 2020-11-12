@@ -26,7 +26,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.UserInfo;
 import android.content.res.Resources;
+import android.frameworks.automotive.powerpolicy.CarPowerPolicy;
 import android.frameworks.automotive.powerpolicy.ICarPowerPolicySystemNotification;
+import android.frameworks.automotive.powerpolicy.PolicyState;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
 import android.net.wifi.WifiManager;
 import android.os.Build;
@@ -180,7 +182,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     @GuardedBy("mLock")
     private boolean mConnectionInProgress;
     private BinderHandler mBinderHandler;
+    @GuardedBy("mLock")
+    private String mCurrentPowerPolicy;
+    @GuardedBy("mLock")
+    private String mCurrentPowerPolicyGroup;
 
+    private final PowerComponentHandler mPowerComponentHandler;
     private final PolicyReader mPolicyReader = new PolicyReader();
 
     private class PowerManagerCallbackList extends RemoteCallbackList<ICarPowerStateListener> {
@@ -224,6 +231,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         mWifiManager = context.getSystemService(WifiManager.class);
         mWifiStateFile = new AtomicFile(
                 new File(mSystemInterface.getSystemCarDir(), WIFI_STATE_FILENAME));
+        mPowerComponentHandler = new PowerComponentHandler(context, systemInterface);
     }
 
     /**
@@ -258,6 +266,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             onApPowerStateChange(CpmsState.ON, CarPowerStateListener.ON);
         }
         mSystemInterface.startDisplayStateMonitoring(this);
+        mPowerComponentHandler.init();
         connectToPowerPolicyDaemon();
     }
 
@@ -294,6 +303,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             writer.print(",mShutdownPrepareTimeMs:" + mShutdownPrepareTimeMs);
             writer.println(",mRebootAfterGarageMode:" + mRebootAfterGarageMode);
             writer.println("mSwitchGuestUserBeforeSleep:" + mSwitchGuestUserBeforeSleep);
+            writer.println("mCurrentPowerPolicy:" + mCurrentPowerPolicy);
+            writer.println("mCurrentPowerPolicyGroup:" + mCurrentPowerPolicyGroup);
         }
         mPolicyReader.dump(writer);
     }
@@ -551,7 +562,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         if (!wifiEnabled) return;
 
         mWifiManager.setWifiEnabled(false);
-        wifiEnabled = mWifiManager.isWifiEnabled();
         Slog.i(TAG, "Wifi has been disabled and the last setting was saved");
     }
 
@@ -944,8 +954,44 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     private void initializePowerPolicy() {
-        // TODO(b/170158623): Get the current policy ID from car power policy daemon and make sure
-        // that all components are in the expected power state.
+        ICarPowerPolicySystemNotification daemon;
+        synchronized (mLock) {
+            daemon = mCarPowerPolicyDaemon;
+        }
+
+        PolicyState state;
+        try {
+            state = daemon.notifyCarServiceReady();
+            setCurrentPowerPolicyGroup(state.policyGroupId);
+        } catch (RemoteException e) {
+            Slog.e(TAG, "Failed to tell car power policy daemon that CarService is ready", e);
+            return;
+        }
+        applyPowerPolicy(state.policyId);
+    }
+
+    private void setCurrentPowerPolicyGroup(String policyGroupId) {
+        if (!mPolicyReader.isPowerPolicyGroupAvailable(policyGroupId)) {
+            Slog.w(TAG, "Cannot set policy group: " + policyGroupId + " is not registered");
+            return;
+        }
+        synchronized (mLock) {
+            mCurrentPowerPolicyGroup = policyGroupId;
+        }
+    }
+
+    private void applyPowerPolicy(String policyId) {
+        CarPowerPolicy policy = mPolicyReader.getPowerPolicy(policyId);
+        if (policy == null) {
+            Slog.w(TAG, "Cannot apply power policy: " + policyId + " is not registered");
+            return;
+        }
+        mPowerComponentHandler.applyPowerPolicy(policy);
+        synchronized (mLock) {
+            mCurrentPowerPolicy = policyId;
+        }
+        Slog.i(TAG, "The current power policy is " + policyId);
+        // TODO(b/172535781): Notify to listeners.
     }
 
     private void connectToPowerPolicyDaemon() {
