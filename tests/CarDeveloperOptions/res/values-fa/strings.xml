@@ -1175,7 +1175,7 @@
     <string name="color_mode_option_natural" msgid="1292837781836645320">"طبیعی"</string>
     <string name="color_mode_option_boosted" msgid="453557938434778933">"تقویت‌شده"</string>
     <string name="color_mode_option_saturated" msgid="7758384943407859851">"اشباع‌شده"</string>
-    <string name="color_mode_option_automatic" msgid="6572718611315165117">"قابل تطبیق"</string>
+    <string name="color_mode_option_automatic" msgid="6572718611315165117">"تطبیقی"</string>
     <string name="color_mode_summary_natural" msgid="1247153893843263340">"فقط استفاده از رنگ‌های دقیق"</string>
     <string name="color_mode_summary_automatic" msgid="6066740785261330514">"تنظیم بین رنگ‌های روشن و دقیق"</string>
     <string name="accelerometer_summary_on" product="tablet" msgid="5750977897791656412">"هنگام چرخاندن رایانهٔ لوحی، جهت به‌طور خودکار تغییر می‌کند"</string>
