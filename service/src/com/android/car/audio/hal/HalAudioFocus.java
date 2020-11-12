@@ -139,6 +139,21 @@ public final class HalAudioFocus extends IFocusListener.Stub {
     }
 
     /**
+     * Returns the currently active {@code AttributeUsage}'s for an audio zone
+     */
+    public @AttributeUsage int[]  getActiveUsagesForZone(int audioZoneId) {
+        synchronized (mLock) {
+            SparseArray<HalAudioFocusRequest> halFocusRequestsForZone =
+                    mHalFocusRequestsByZoneAndUsage.get(audioZoneId);
+            int [] activeUsages = new int[halFocusRequestsForZone.size()];
+            for (int index = 0; index < halFocusRequestsForZone.size(); index++) {
+                activeUsages[index] = halFocusRequestsForZone.keyAt(index);
+            }
+            return activeUsages;
+        }
+    }
+
+    /**
      * dumps the current state of the HalAudioFocus
      *
      * @param indent indent to append to each new line
