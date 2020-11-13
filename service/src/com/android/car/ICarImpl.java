@@ -61,6 +61,7 @@ import com.android.car.power.CarPowerManagementService;
 import com.android.car.power.SilentModeController;
 import com.android.car.stats.CarStatsService;
 import com.android.car.systeminterface.SystemInterface;
+import com.android.car.ui.FactoryResetActivity;
 import com.android.car.user.CarUserNoticeService;
 import com.android.car.user.CarUserService;
 import com.android.car.vms.VmsBrokerService;
@@ -842,6 +843,14 @@ public class ICarImpl extends ICar.Stub {
             // TODO(b/160819016): add events log
             if (DBG) Slog.d(TAG, "onUserRemoved(): " + user.toFullString());
             mCarUserService.onUserRemoved(user);
+        }
+
+        @Override
+        public void onFactoryReset(IResultReceiver callback) {
+            assertCallingFromSystemProcess();
+
+            // TODO(b/171603586): STOPSHIP set it on CPMS so it's called on resume.
+            FactoryResetActivity.sendNotification(mContext, callback);
         }
     }
 }
