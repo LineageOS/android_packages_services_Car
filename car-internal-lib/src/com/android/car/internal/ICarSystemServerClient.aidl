@@ -16,10 +16,12 @@
 
 package com.android.car.internal;
 
+import android.content.pm.UserInfo;
+
 /**
  * API to communicate from CarServiceHelperService to car service.
  */
-interface ICarSystemServerClient {
+oneway interface ICarSystemServerClient {
     /**
      * Notify of user lifecycle events.
      *
@@ -27,15 +29,24 @@ interface ICarSystemServerClient {
      * @param fromUserId - user id of previous user when type is SWITCHING (or UserHandle.USER_NULL)
      * @param toUserId - user id of new user.
      */
-    oneway void onUserLifecycleEvent(int eventType, int fromUserId, int toUserId);
+    void onUserLifecycleEvent(int eventType, int fromUserId, int toUserId);
+
+    /**
+     * Nofity when a user is removed.
+     *
+     * NOTE: this is different from onUserLifecycleEvent(), whic is used on user switching events.
+     *
+     * @param user info about the user that was removed.
+     */
+    void onUserRemoved(in UserInfo user);
 
     /**
      * Notify to init boot user.
      */
-    oneway void initBootUser();
+    void initBootUser();
 
     /**
      * Notify to pre-create users.
      */
-    oneway void preCreateUsers();
+    void preCreateUsers();
 }

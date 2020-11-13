@@ -76,9 +76,7 @@ import android.car.userlib.HalCallback;
 import android.car.userlib.HalCallback.HalCallbackStatus;
 import android.car.userlib.UserHalHelper;
 import android.car.userlib.UserHelper;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
 import android.content.res.Resources;
@@ -107,7 +105,6 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.sysprop.CarProperties;
 import android.util.Log;
-import android.util.Pair;
 import android.util.SparseArray;
 import android.view.Display;
 
@@ -251,15 +248,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         new FakeCarOccupantZoneService(mCarUserService);
     }
 
-    private Pair<BroadcastReceiver, ICarUxRestrictionsChangeListener> initService() {
-        ArgumentCaptor<BroadcastReceiver> receiverCaptor =
-                ArgumentCaptor.forClass(BroadcastReceiver.class);
-        when(mMockContext.registerReceiver(receiverCaptor.capture(), argThat((filter) -> {
-            // NOTE: it's assuming there's just one action; if it supports more (like USER_CREATE),
-            // it need to be changed to search through all of them
-            return filter.getAction(0).equals(Intent.ACTION_USER_REMOVED);
-        }))).thenReturn(null);
-
+    private ICarUxRestrictionsChangeListener initService() {
         ArgumentCaptor<ICarUxRestrictionsChangeListener> listenerCaptor =
                 ArgumentCaptor.forClass(ICarUxRestrictionsChangeListener.class);
         doNothing().when(mCarUxRestrictionService).registerUxRestrictionsChangeListener(
@@ -267,35 +256,28 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
         mCarUserService.init();
 
-        BroadcastReceiver receiver = receiverCaptor.getValue();
-        assertWithMessage("init() didn't register receiver for %s", Intent.ACTION_USER_REMOVED)
-                .that(receiver).isNotNull();
-
         ICarUxRestrictionsChangeListener listener = listenerCaptor.getValue();
         assertWithMessage("init() didn't register ICarUxRestrictionsChangeListener")
                 .that(listener).isNotNull();
 
-        return new Pair<>(receiver, listener);
+        return listener;
     }
 
     @Test
     public void testInitAndRelease() {
         // init()
-        Pair<BroadcastReceiver, ICarUxRestrictionsChangeListener> pair = initService();
-        assertThat(pair).isNotNull();
-        assertThat(pair.first).isNotNull();
-        assertThat(pair.second).isNotNull();
+        ICarUxRestrictionsChangeListener listener = initService();
+        assertThat(listener).isNotNull();
 
         // release()
         mCarUserService.release();
-        verify(mMockContext).unregisterReceiver(pair.first);
-        verify(mCarUxRestrictionService).unregisterUxRestrictionsChangeListener(pair.second);
+        verify(mCarUxRestrictionService).unregisterUxRestrictionsChangeListener(listener);
     }
 
     @Test
     public void testSetICarServiceHelper_withUxRestrictions() throws Exception {
         mockGetUxRestrictions(/* restricted= */ true);
-        ICarUxRestrictionsChangeListener listener = initService().second;
+        ICarUxRestrictionsChangeListener listener = initService();
 
         mCarUserService.setCarServiceHelper(mICarServiceHelper);
         verify(mICarServiceHelper).setSafetyMode(false);
@@ -307,7 +289,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testSetICarServiceHelper_withoutUxRestrictions() throws Exception {
         mockGetUxRestrictions(/* restricted= */ false);
-        ICarUxRestrictionsChangeListener listener = initService().second;
+        ICarUxRestrictionsChangeListener listener = initService();
 
         mCarUserService.setCarServiceHelper(mICarServiceHelper);
         verify(mICarServiceHelper).setSafetyMode(true);
@@ -1160,7 +1142,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockAmSwitchUser(mGuestUser, true);
 
         // Should be ok first time...
-        ICarUxRestrictionsChangeListener listener = initService().second;
+        ICarUxRestrictionsChangeListener listener = initService();
         mCarUserService.switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture);
         assertThat(getUserSwitchResult().getStatus()).isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
 
@@ -2229,8 +2211,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     private void mockRemoveUser(@NonNull UserInfo user) {
-        BroadcastReceiver receiver = initService().first;
-        mockUmRemoveUserOrSetEphemeral(mMockContext, mMockedUserManager, receiver, user);
+        mockUmRemoveUserOrSetEphemeral(mMockedUserManager, user,
+                (u) -> mCarUserService.onUserRemoved(u));
     }
 
     private void mockHalGetInitialInfo(@UserIdInt int currentUserId,
@@ -2601,11 +2583,13 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
     private void assertHalRemove(@NonNull UserInfo currentUser, @NonNull UserInfo removeUser) {
         verify(mMockedUserManager).removeUserOrSetEphemeral(removeUser.id);
-        ArgumentCaptor<RemoveUserRequest> request =
+        ArgumentCaptor<RemoveUserRequest> requestCaptor =
                 ArgumentCaptor.forClass(RemoveUserRequest.class);
-        verify(mUserHal).removeUser(request.capture());
-        assertThat(request.getValue().removedUserInfo.userId).isEqualTo(removeUser.id);
-        assertThat(request.getValue().usersInfo.currentUser.userId).isEqualTo(currentUser.id);
+        verify(mUserHal).removeUser(requestCaptor.capture());
+        RemoveUserRequest request = requestCaptor.getValue();
+        assertThat(request.removedUserInfo.userId).isEqualTo(removeUser.id);
+        assertThat(request.removedUserInfo.flags).isEqualTo(UserHalHelper.convertFlags(removeUser));
+        assertThat(request.usersInfo.currentUser.userId).isEqualTo(currentUser.id);
     }
 
     @NonNull

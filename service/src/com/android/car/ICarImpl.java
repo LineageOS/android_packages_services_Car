@@ -28,6 +28,7 @@ import android.car.cluster.renderer.IInstrumentClusterNavigation;
 import android.car.user.CarUserManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.pm.UserInfo;
 import android.content.res.Resources;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
@@ -835,6 +836,14 @@ public class ICarImpl extends ICar.Stub {
             // TODO(b/160819016): add events log
             if (DBG) Log.d(TAG, "preCreateUsers(): ");
             mCarUserService.preCreateUsers();
+        }
+
+        @Override
+        public void onUserRemoved(UserInfo user) throws RemoteException {
+            assertCallingFromSystemProcess();
+            // TODO(b/160819016): add events log
+            if (DBG) Log.d(TAG, "onUserRemoved(): " + user.toFullString());
+            mCarUserService.onUserRemoved(user);
         }
     }
 }
