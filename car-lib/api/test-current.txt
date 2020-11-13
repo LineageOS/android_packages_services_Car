@@ -50,10 +50,11 @@ package android.car.admin {
     method public boolean isSuccess();
     field public static final int STATUS_FAILURE_GENERIC = 100; // 0x64
     field public static final int STATUS_FAILURE_INVALID_ARGUMENTS = 5; // 0x5
-    field public static final int STATUS_FAILURE_TARGET_USER_IS_CURRENT_USER = 3; // 0x3
     field public static final int STATUS_FAILURE_USER_DOES_NOT_EXIST = 4; // 0x4
     field public static final int STATUS_SUCCESS = 1; // 0x1
     field public static final int STATUS_SUCCESS_LAST_ADMIN_REMOVED = 2; // 0x2
+    field public static final int STATUS_SUCCESS_LAST_ADMIN_SET_EPHEMERAL = 6; // 0x6
+    field public static final int STATUS_SUCCESS_SET_EPHEMERAL = 3; // 0x3
   }
 
 }
@@ -104,20 +105,6 @@ package android.car.user {
 
   public static interface CarUserManager.UserLifecycleListener {
     method public void onEvent(@NonNull android.car.user.CarUserManager.UserLifecycleEvent);
-  }
-
-  public final class UserRemovalResult implements android.os.Parcelable {
-    method public int describeContents();
-    method public int getStatus();
-    method public boolean isSuccess();
-    method public void writeToParcel(@NonNull android.os.Parcel, int);
-    field @NonNull public static final android.os.Parcelable.Creator<android.car.user.UserRemovalResult> CREATOR;
-    field public static final int STATUS_ANDROID_FAILURE = 2; // 0x2
-    field public static final int STATUS_INVALID_REQUEST = 5; // 0x5
-    field public static final int STATUS_SUCCESSFUL = 1; // 0x1
-    field public static final int STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED = 103; // 0x67
-    field public static final int STATUS_TARGET_USER_IS_CURRENT_USER = 101; // 0x65
-    field public static final int STATUS_USER_DOES_NOT_EXIST = 102; // 0x66
   }
 
 }

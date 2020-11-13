@@ -19,7 +19,7 @@ package com.android.car.user;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmCreateUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserInfo;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUsers;
-import static android.car.test.mocks.AndroidMockitoHelper.mockUmRemoveUser;
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmRemoveUserOrSetEphemeral;
 import static android.car.test.mocks.JavaMockitoHelper.getResult;
 import static android.car.test.util.UserTestingHelper.UserInfoBuilder;
 import static android.content.pm.UserInfo.FLAG_ADMIN;
@@ -799,14 +799,49 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testRemoveUser_currentUserCannotBeRemoved() throws Exception {
-        mockCurrentUser(mAdminUser);
+    public void testRemoveUser_currentUser_successSetEphemeral() throws Exception {
+        UserInfo currentUser = mRegularUser;
+        mockExistingUsersAndCurrentUser(mExistingUsers, currentUser);
+        UserInfo removeUser = mRegularUser;
+        when(mMockedUserManager.removeUserOrSetEphemeral(removeUser.id)).thenReturn(
+                UserManager.REMOVE_RESULT_SET_EPHEMERAL);
+
+        UserRemovalResult result = mCarUserService.removeUser(removeUser.id);
+
+        assertThat(result.getStatus()).isEqualTo(UserRemovalResult.STATUS_SUCCESSFUL_SET_EPHEMERAL);
+        assertNoHalUserRemoval();
+    }
+
+    @Test
+    public void testRemoveUser_alreadyBeingRemoved_success() throws Exception {
+        UserInfo currentUser = mRegularUser;
+        mockExistingUsersAndCurrentUser(mExistingUsers, currentUser);
+        UserInfo removeUser = mRegularUser;
+        when(mMockedUserManager.removeUserOrSetEphemeral(removeUser.id)).thenReturn(
+                UserManager.REMOVE_RESULT_ALREADY_BEING_REMOVED);
+        mockRemoveUser(removeUser.id);
+
+        UserRemovalResult result = mCarUserService.removeUser(removeUser.id);
+
+        assertThat(result.getStatus()).isEqualTo(UserRemovalResult.STATUS_SUCCESSFUL);
+        assertHalRemove(currentUser, removeUser);
+    }
+
+    @Test
+    public void testRemoveUser_currentLastAdmin_successSetEphemeral() throws Exception {
+        UserInfo currentUser = mAdminUser;
+        List<UserInfo> existingUsers = Arrays.asList(mAdminUser, mRegularUser);
+        mockExistingUsersAndCurrentUser(existingUsers, currentUser);
+        UserInfo removeUser = mAdminUser;
+        when(mMockedUserManager.removeUserOrSetEphemeral(removeUser.id)).thenReturn(
+                UserManager.REMOVE_RESULT_SET_EPHEMERAL);
 
         UserRemovalResult result = mCarUserService.removeUser(mAdminUser.id,
                 NO_CALLER_RESTRICTIONS);
 
         assertThat(result.getStatus())
-                .isEqualTo(UserRemovalResult.STATUS_TARGET_USER_IS_CURRENT_USER);
+                .isEqualTo(UserRemovalResult.STATUS_SUCCESSFUL_LAST_ADMIN_SET_EPHEMERAL);
+        assertNoHalUserRemoval();
     }
 
     @Test
@@ -819,7 +854,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testRemoveUser_LastAdminUser_success() throws Exception {
+    public void testRemoveUser_lastAdminUser_success() throws Exception {
         UserInfo currentUser = mRegularUser;
         UserInfo removeUser = mAdminUser;
         List<UserInfo> existingUsers = Arrays.asList(mAdminUser, mRegularUser);
@@ -883,7 +918,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     public void testRemoveUser_androidFailure() throws Exception {
         mockExistingUsersAndCurrentUser(mAdminUser);
         int targetUserId = mRegularUser.id;
-        // No need to mock um.removeUser as it returns false by default
+        when(mMockedUserManager.removeUserOrSetEphemeral(targetUserId)).thenReturn(
+                UserManager.REMOVE_RESULT_ERROR);
 
         UserRemovalResult result = mCarUserService.removeUser(targetUserId,
                 NO_CALLER_RESTRICTIONS);
@@ -921,14 +957,14 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         UserInfo removeUser = mRegularUser;
         mockGetCallingUserHandle(currentUser.id);
         mockExistingUsersAndCurrentUser(mExistingUsers, currentUser);
-        mockRemoveUser(removeUser.id);
+        when(mMockedUserManager.removeUserOrSetEphemeral(removeUser.id)).thenReturn(
+                UserManager.REMOVE_RESULT_SET_EPHEMERAL);
 
         UserRemovalResult result = mCarUserService.removeUser(removeUser.id,
                 HAS_CALLER_RESTRICTIONS);
 
-        // TODO(b/155913815): return STATUS_SUCCESSFUL_SET_EPHEMERAL instead
         assertThat(result.getStatus())
-                .isEqualTo(UserRemovalResult.STATUS_TARGET_USER_IS_CURRENT_USER);
+                .isEqualTo(UserRemovalResult.STATUS_SUCCESSFUL_SET_EPHEMERAL);
         assertNoHalUserRemoval();
     }
 
@@ -968,14 +1004,14 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         UserInfo removeUser = mAdminUser;
         mockGetCallingUserHandle(currentUser.id);
         mockExistingUsersAndCurrentUser(mExistingUsers, currentUser);
-        mockRemoveUser(removeUser.id);
+        when(mMockedUserManager.removeUserOrSetEphemeral(removeUser.id)).thenReturn(
+                UserManager.REMOVE_RESULT_SET_EPHEMERAL);
 
         UserRemovalResult result = mCarUserService.removeUser(removeUser.id,
                 HAS_CALLER_RESTRICTIONS);
 
-        // TODO(b/155913815): return STATUS_SUCCESSFUL_SET_EPHEMERAL instead
         assertThat(result.getStatus())
-                .isEqualTo(UserRemovalResult.STATUS_TARGET_USER_IS_CURRENT_USER);
+                .isEqualTo(UserRemovalResult.STATUS_SUCCESSFUL_SET_EPHEMERAL);
         assertNoHalUserRemoval();
     }
 
@@ -2152,7 +2188,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
     private void mockRemoveUser(@UserIdInt int userId) {
         BroadcastReceiver receiver = initService().first;
-        mockUmRemoveUser(mMockContext, mMockedUserManager, receiver, userId);
+        mockUmRemoveUserOrSetEphemeral(mMockContext, mMockedUserManager, receiver, userId);
     }
 
     private void mockHalGetInitialInfo(@UserIdInt int currentUserId,
@@ -2396,6 +2432,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     private void verifyNoUserRemoved() {
+        verify(mMockedUserManager, never()).removeUserOrSetEphemeral(anyInt());
         verify(mMockedUserManager, never()).removeUser(anyInt());
     }
 
@@ -2521,7 +2558,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     private void assertHalRemove(@NonNull UserInfo currentUser, @NonNull UserInfo removeUser) {
-        verify(mMockedUserManager).removeUser(removeUser.id);
+        verify(mMockedUserManager).removeUserOrSetEphemeral(removeUser.id);
         ArgumentCaptor<RemoveUserRequest> request =
                 ArgumentCaptor.forClass(RemoveUserRequest.class);
         verify(mUserHal).removeUser(request.capture());

@@ -447,7 +447,7 @@ public final class CarUserManager extends CarManagerBase {
     /**
      * Removes the given user.
      *
-     * @param user identification of the user to be removed.
+     * @param userId identification of the user to be removed.
      *
      * @return whether the user was successfully removed.
      *

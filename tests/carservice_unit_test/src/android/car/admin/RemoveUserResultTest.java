@@ -36,6 +36,10 @@ public final class RemoveUserResultTest {
                 RemoveUserResult.STATUS_SUCCESS);
         successTest(UserRemovalResult.STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED,
                 RemoveUserResult.STATUS_SUCCESS_LAST_ADMIN_REMOVED);
+        successTest(UserRemovalResult.STATUS_SUCCESSFUL_SET_EPHEMERAL,
+                RemoveUserResult.STATUS_SUCCESS_SET_EPHEMERAL);
+        successTest(UserRemovalResult.STATUS_SUCCESSFUL_LAST_ADMIN_SET_EPHEMERAL,
+                RemoveUserResult.STATUS_SUCCESS_LAST_ADMIN_SET_EPHEMERAL);
     }
 
     private void successTest(int userRemovalStatus, int removeUserStatus) {
@@ -46,8 +50,6 @@ public final class RemoveUserResultTest {
 
     @Test
     public void testFailure() {
-        failureTest(UserRemovalResult.STATUS_TARGET_USER_IS_CURRENT_USER,
-                RemoveUserResult.STATUS_FAILURE_TARGET_USER_IS_CURRENT_USER);
         failureTest(UserRemovalResult.STATUS_USER_DOES_NOT_EXIST,
                 RemoveUserResult.STATUS_FAILURE_USER_DOES_NOT_EXIST);
         failureTest(UserRemovalResult.STATUS_INVALID_REQUEST,
