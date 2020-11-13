@@ -198,6 +198,7 @@ public class CarSettings {
          * The value is boolean (1 or 0).
          * @hide
          */
+        @SystemApi
         public static final String KEY_ENABLE_INITIAL_NOTICE_SCREEN_TO_USER =
                 "android.car.ENABLE_INITIAL_NOTICE_SCREEN_TO_USER";
 
@@ -207,6 +208,7 @@ public class CarSettings {
          * The value is boolean (1 or 0).
          * @hide
          */
+        @SystemApi
         public static final String KEY_SETUP_WIZARD_IN_PROGRESS =
                 "android.car.SETUP_WIZARD_IN_PROGRESS";
     }
