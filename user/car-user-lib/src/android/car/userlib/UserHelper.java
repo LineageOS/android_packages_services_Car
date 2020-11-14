@@ -16,12 +16,15 @@
 package android.car.userlib;
 
 import android.annotation.NonNull;
+import android.annotation.RequiresPermission;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.graphics.Bitmap;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.util.Log;
 
+import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 import com.android.internal.util.UserIcons;
 
@@ -34,15 +37,64 @@ import java.util.Set;
  */
 public final class UserHelper {
 
+    private static final String TAG = UserHelper.class.getSimpleName();
+
     /**
      * Default set of restrictions for Non-Admin users.
      */
-    private static final Set<String> DEFAULT_NON_ADMIN_RESTRICTIONS = Sets.newArraySet(
+    @VisibleForTesting
+    public static final Set<String> DEFAULT_NON_ADMIN_RESTRICTIONS = Sets.newArraySet(
             UserManager.DISALLOW_FACTORY_RESET
+    );
+
+    /**
+     * Additional optional set of restrictions for Non-Admin users. These are the restrictions
+     * configurable via Settings.
+     */
+    @VisibleForTesting
+    public static final Set<String> OPTIONAL_NON_ADMIN_RESTRICTIONS = Sets.newArraySet(
+            UserManager.DISALLOW_ADD_USER,
+            UserManager.DISALLOW_OUTGOING_CALLS,
+            UserManager.DISALLOW_SMS,
+            UserManager.DISALLOW_INSTALL_APPS,
+            UserManager.DISALLOW_UNINSTALL_APPS
     );
 
     private UserHelper() {
         throw new UnsupportedOperationException("contains only static methods");
+    }
+
+    /**
+     * Grants admin permissions to the user.
+     *
+     * @hide
+     */
+    @RequiresPermission(allOf = {
+            android.Manifest.permission.INTERACT_ACROSS_USERS_FULL,
+            android.Manifest.permission.MANAGE_USERS
+    })
+    public static void grantAdminPermissions(@NonNull Context context, @NonNull UserInfo user) {
+        Preconditions.checkArgument(context != null, "Context cannot be null");
+        Preconditions.checkArgument(user != null, "User cannot be null");
+
+        UserManager userManager = UserManager.get(context);
+
+        if (!userManager.isAdminUser()) {
+            Log.w(TAG, "Only admin users can assign admin permissions.");
+            return;
+        }
+
+        userManager.setUserAdmin(user.id);
+
+        UserHandle userHandle = user.getUserHandle();
+        // Remove restrictions imposed on non-admins.
+        for (String restriction : DEFAULT_NON_ADMIN_RESTRICTIONS) {
+            userManager.setUserRestriction(restriction, /* enable= */ false, userHandle);
+        }
+
+        for (String restriction : OPTIONAL_NON_ADMIN_RESTRICTIONS) {
+            userManager.setUserRestriction(restriction, /* enable= */ false, userHandle);
+        }
     }
 
     /**
