@@ -180,8 +180,8 @@ public final class AndroidMockitoHelper {
      * respective {@code receiver} notification.
      */
     public static void mockUmRemoveUserOrSetEphemeral(@NonNull Context context,
-            @NonNull UserManager um,
-            @NonNull BroadcastReceiver receiver, @UserIdInt int userId) {
+            @NonNull UserManager um, @NonNull BroadcastReceiver receiver, @NonNull UserInfo user) {
+        int userId = user.id;
         when(um.removeUserOrSetEphemeral(userId)).thenAnswer((inv) -> {
             Intent intent = new Intent(Intent.ACTION_USER_REMOVED);
             intent.putExtra(Intent.EXTRA_USER_HANDLE, userId);
