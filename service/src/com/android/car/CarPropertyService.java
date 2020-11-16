@@ -18,6 +18,8 @@ package com.android.car;
 
 import static java.lang.Integer.toHexString;
 
+import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.car.Car;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
@@ -58,8 +60,6 @@ public class CarPropertyService extends ICarProperty.Stub
     private static final String TAG = "Property.service";
     private final Context mContext;
     private final Map<IBinder, Client> mClientMap = new ConcurrentHashMap<>();
-    @GuardedBy("mLock")
-    private final Map<Integer, CarPropertyConfig<?>> mConfigs = new HashMap<>();
     private final PropertyHalService mHal;
     private boolean mListenerIsSet = false;
     private final Map<Integer, List<Client>> mPropIdClientMap = new ConcurrentHashMap<>();
@@ -69,6 +69,11 @@ public class CarPropertyService extends ICarProperty.Stub
     private final HandlerThread mHandlerThread =
             CarServiceUtils.getHandlerThread(getClass().getSimpleName());
     private final Handler mHandler = new Handler(mHandlerThread.getLooper());
+    // Use SparseArray instead of map to save memory.
+    @GuardedBy("mLock")
+    private SparseArray<CarPropertyConfig<?>> mConfigs = new SparseArray<>();
+    @GuardedBy("mLock")
+    private SparseArray<Pair<String, String>> mPropToPermission = new SparseArray<>();
 
     public CarPropertyService(Context context, PropertyHalService hal) {
         if (DBG) {
@@ -147,9 +152,9 @@ public class CarPropertyService extends ICarProperty.Stub
     @Override
     public void init() {
         synchronized (mLock) {
-            // Cache the configs list to avoid subsequent binder calls
-            mConfigs.clear();
-            mConfigs.putAll(mHal.getPropertyList());
+            // Cache the configs list and permissions to avoid subsequent binder calls
+            mConfigs = mHal.getPropertyList();
+            mPropToPermission = mHal.getPermissionsForAllProperties();
         }
         if (DBG) {
             Slog.d(TAG, "cache CarPropertyConfigs " + mConfigs.size());
@@ -344,25 +349,54 @@ public class CarPropertyService extends ICarProperty.Stub
     }
 
     /**
-     * Return the list of properties that the caller may access.
+     * Return the list of properties' configs that the caller may access.
      */
+    @NonNull
     @Override
     public List<CarPropertyConfig> getPropertyList() {
-        List<CarPropertyConfig> returnList = new ArrayList<CarPropertyConfig>();
-        Set<CarPropertyConfig> allConfigs;
+        int[] allPropId;
+        // Avoid permission checking under lock.
         synchronized (mLock) {
-            allConfigs = new HashSet<>(mConfigs.values());
+            allPropId = new int[mConfigs.size()];
+            for (int i = 0; i < mConfigs.size(); i++) {
+                allPropId[i] = mConfigs.keyAt(i);
+            }
         }
-        for (CarPropertyConfig c : allConfigs) {
-            if (ICarImpl.hasPermission(mContext, mHal.getReadPermission(c.getPropertyId()))) {
-                // Only add properties the list if the process has permissions to read it
-                returnList.add(c);
+        return getPropertyConfigList(allPropId);
+    }
+
+    /**
+     *
+     * @param propIds Array of property Ids
+     * @return the list of properties' configs that the caller may access.
+     */
+    @NonNull
+    @Override
+    public List<CarPropertyConfig> getPropertyConfigList(int[] propIds) {
+        // Cache the granted permissions
+        Set<String> grantedPermission = new HashSet<>();
+        List<CarPropertyConfig> availableProp = new ArrayList<>();
+        if (propIds == null) {
+            return availableProp;
+        }
+        for (int propId : propIds) {
+            String readPermission = getReadPermission(propId);
+            if (readPermission == null) {
+                continue;
+            }
+            // Check if context already granted permission first
+            if (grantedPermission.contains(readPermission)
+                    || ICarImpl.hasPermission(mContext, readPermission)) {
+                grantedPermission.add(readPermission);
+                synchronized (mLock) {
+                    availableProp.add(mConfigs.get(propId));
+                }
             }
         }
         if (DBG) {
-            Slog.d(TAG, "getPropertyList returns " + returnList.size() + " configs");
+            Slog.d(TAG, "getPropertyList returns " + availableProp.size() + " configs");
         }
-        return returnList;
+        return availableProp;
     }
 
     @Override
@@ -378,30 +412,36 @@ public class CarPropertyService extends ICarProperty.Stub
         return mHal.getProperty(prop, zone);
     }
 
+    @Nullable
     @Override
     public String getReadPermission(int propId) {
+        Pair<String, String> permissions;
         synchronized (mLock) {
-            if (mConfigs.get(propId) == null) {
-                // Property ID does not exist
-                Slog.e(TAG,
-                        "getReadPermission: propId is not in config list:0x" + toHexString(propId));
-                return null;
-            }
+            permissions = mPropToPermission.get(propId);
         }
-        return mHal.getReadPermission(propId);
+        if (permissions == null) {
+            // Property ID does not exist
+            Slog.e(TAG,
+                    "getReadPermission: propId is not in config list:0x" + toHexString(propId));
+            return null;
+        }
+        return permissions.first;
     }
 
+    @Nullable
     @Override
     public String getWritePermission(int propId) {
+        Pair<String, String> permissions;
         synchronized (mLock) {
-            if (mConfigs.get(propId) == null) {
-                // Property ID does not exist
-                Slog.e(TAG, "getWritePermission: propId is not in config list:0x" + toHexString(
-                        propId));
-                return null;
-            }
+            permissions = mPropToPermission.get(propId);
         }
-        return mHal.getWritePermission(propId);
+        if (permissions == null) {
+            // Property ID does not exist
+            Slog.e(TAG,
+                    "getWritePermission: propId is not in config list:0x" + toHexString(propId));
+            return null;
+        }
+        return permissions.second;
     }
 
     @Override

@@ -65,8 +65,6 @@ public class CarPropertyManager extends CarManagerBase {
     /** Record of locally active properties. Key is propertyId */
     private final SparseArray<CarPropertyListeners> mActivePropertyListener =
             new SparseArray<>();
-    /** Record of properties' configs. Key is propertyId */
-    private final SparseArray<CarPropertyConfig> mConfigMap = new SparseArray<>();
 
     /**
      * Application registers {@link CarPropertyEventCallback} object to receive updates and changes
@@ -172,15 +170,6 @@ public class CarPropertyManager extends CarManagerBase {
         super(car);
         mService = service;
         mAppTargetSdk = getContext().getApplicationInfo().targetSdkVersion;
-        try {
-            List<CarPropertyConfig> configs = mService.getPropertyList();
-            for (CarPropertyConfig carPropertyConfig : configs) {
-                mConfigMap.put(carPropertyConfig.getPropertyId(), carPropertyConfig);
-            }
-        } catch (RemoteException e) {
-            Log.e(TAG, "getPropertyList exception ", e);
-            throw new RuntimeException(e);
-        }
 
         Handler eventHandler = getEventHandler();
         if (eventHandler == null) {
@@ -249,7 +238,7 @@ public class CarPropertyManager extends CarManagerBase {
             if (mCarPropertyEventToService == null) {
                 mCarPropertyEventToService = new CarPropertyEventListenerToService(this);
             }
-            CarPropertyConfig config = mConfigMap.get(propertyId);
+            CarPropertyConfig config = getCarPropertyConfig(propertyId);
             if (config == null) {
                 Log.e(TAG, "registerListener:  propId is not in config list:  " + propertyId);
                 return false;
@@ -364,9 +353,12 @@ public class CarPropertyManager extends CarManagerBase {
      */
     @NonNull
     public List<CarPropertyConfig> getPropertyList() {
-        List<CarPropertyConfig> configs = new ArrayList<>(mConfigMap.size());
-        for (int i = 0; i < mConfigMap.size(); i++) {
-            configs.add(mConfigMap.valueAt(i));
+        List<CarPropertyConfig> configs;
+        try {
+            configs = mService.getPropertyList();
+        } catch (RemoteException e) {
+            Log.e(TAG, "getPropertyList exception ", e);
+            return handleRemoteExceptionFromCarService(e, new ArrayList<CarPropertyConfig>());
         }
         return configs;
     }
@@ -378,13 +370,18 @@ public class CarPropertyManager extends CarManagerBase {
      */
     @NonNull
     public List<CarPropertyConfig> getPropertyList(@NonNull ArraySet<Integer> propertyIds) {
-        List<CarPropertyConfig> configs = new ArrayList<>();
+        int[] propIds = new int[propertyIds.size()];
+        int idx = 0;
         for (int propId : propertyIds) {
             checkSupportedProperty(propId);
-            CarPropertyConfig config = mConfigMap.get(propId);
-            if (config != null) {
-                configs.add(config);
-            }
+            propIds[idx++] = propId;
+        }
+        List<CarPropertyConfig> configs;
+        try {
+            configs = mService.getPropertyConfigList(propIds);
+        } catch (RemoteException e) {
+            Log.e(TAG, "getPropertyList exception ", e);
+            return handleRemoteExceptionFromCarService(e, new ArrayList<CarPropertyConfig>());
         }
         return configs;
     }
@@ -399,8 +396,14 @@ public class CarPropertyManager extends CarManagerBase {
     @Nullable
     public CarPropertyConfig<?> getCarPropertyConfig(int propId) {
         checkSupportedProperty(propId);
-
-        return  mConfigMap.get(propId);
+        List<CarPropertyConfig> configs;
+        try {
+            configs = mService.getPropertyConfigList(new int[] {propId});
+        } catch (RemoteException e) {
+            Log.e(TAG, "getPropertyList exception ", e);
+            return handleRemoteExceptionFromCarService(e, null);
+        }
+        return configs.size() == 0 ? null : configs.get(0);
     }
 
     /**
