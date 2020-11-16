@@ -125,7 +125,7 @@
     <string name="bluetooth_no_devices_found" msgid="4396050022213494322">"کوئی قریبی بلوٹوتھ آلات نہیں ملے۔"</string>
     <string name="bluetooth_notif_ticker" msgid="8398481099943141819">"بلوٹوتھ جوڑا بنانے کی درخواست"</string>
     <string name="bluetooth_notif_title" msgid="5090288898529286011">"جوڑا بنانے کی درخواست"</string>
-    <string name="bluetooth_notif_message" msgid="6612367890895077938">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> کے ساتھ جوڑا بنانے کیلئے تھپتھپائیں۔"</string>
+    <string name="bluetooth_notif_message" msgid="6612367890895077938">"‫<xliff:g id="DEVICE_NAME">%1$s</xliff:g> کے ساتھ جوڑا بنانے کیلئے تھپتھپائیں۔"</string>
     <string name="bluetooth_show_received_files" msgid="5060846395852236652">"موصولہ فائلیں"</string>
     <string name="bluetooth_show_files_received_via_bluetooth" msgid="1699095577431389560">"بذریعہ بلوٹوتھ موصول شدہ فائلیں"</string>
     <string name="device_picker" msgid="8345264486071697705">"بلوٹوتھ آلہ منتخب کریں"</string>
@@ -729,7 +729,7 @@
     <string name="bluetooth_settings" msgid="5228032727293770389">"بلوٹوتھ"</string>
     <string name="bluetooth_settings_title" msgid="7261244857456521825">"بلوٹوتھ"</string>
     <string name="bluetooth_settings_summary" msgid="1221689092429277887">"کنکشنز کا نظم کریں، آلہ کا نام اور دریافتگی کو سیٹ کریں"</string>
-    <string name="bluetooth_pairing_request" msgid="7221745525632573125">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> کے ساتھ جوڑا بنائیں؟"</string>
+    <string name="bluetooth_pairing_request" msgid="7221745525632573125">"‫<xliff:g id="DEVICE_NAME">%1$s</xliff:g> کے ساتھ جوڑا بنائیں؟"</string>
     <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"بلوٹوتھ جوڑا بنانے کا کوڈ"</string>
     <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"جوڑا بنانے کا کوڈ ٹائپ کریں پھر ریٹرن یا انٹر دبائیں"</string>
     <string name="bluetooth_enable_alphanumeric_pin" msgid="9138308197078115672">"PIN میں حروف یا علامات شامل ہیں"</string>
@@ -754,7 +754,7 @@
     <string name="bluetooth_pairing_dialog_title" msgid="7900515495932064945">"اس آلہ کے ساتھ جوڑا بنائیں؟"</string>
     <string name="bluetooth_pairing_dialog_sharing_phonebook_title" msgid="7395493311980018460">"فون بُک کا اشتراک کریں؟"</string>
     <string name="bluetooth_pairing_dialog_contants_request" msgid="2103132762434487717">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> آپ کے رابطوں اور کال کی سرگزشت تک رسائی حاصل کرنا چاہتا ہے۔"</string>
-    <string name="bluetooth_pairing_dialog_paring_request" msgid="5513953935086446387">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g>بلوٹوتھ کے ساتھ جوڑا بنانا چاہتا ہے۔ منسلک ہونے پر، اسے آپکے رابطوں و کال کی سرگزشت تک رسائی ہوگی۔"</string>
+    <string name="bluetooth_pairing_dialog_paring_request" msgid="5513953935086446387">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> بلوٹوتھ کے ساتھ جوڑا بنانا چاہتا ہے۔ منسلک ہونے پر، اسے آپکے رابطوں و کال کی سرگزشت تک رسائی ہوگی۔‫"</string>
     <string name="bluetooth_preference_found_media_devices" msgid="5748539613567836379">"دستیاب آلات"</string>
     <string name="bluetooth_preference_no_found_devices" msgid="4190090666412408576">"کوئی آلات دستیاب نہیں ہیں"</string>
     <string name="bluetooth_device_context_connect" msgid="1812090541371432890">"مربوط کریں"</string>
