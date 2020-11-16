@@ -109,10 +109,10 @@ final class CustomInputEventListener {
                 launchMap(targetDisplayId);
                 break;
             case EventAction.ACCEPT_INCOMING_CALL_ACTION:
-                acceptIncomingCall(targetDisplayId);
+                acceptIncomingCall(targetDisplayType);
                 break;
             case EventAction.REJECT_INCOMING_CALL_ACTION:
-                rejectIncomingCall(targetDisplayId);
+                rejectIncomingCall(targetDisplayType);
                 break;
             case EventAction.INCREASE_MEDIA_VOLUME_ACTION:
                 increaseVolume(targetDisplayId, AudioAttributes.USAGE_MEDIA);
@@ -174,20 +174,19 @@ final class CustomInputEventListener {
         mService.startActivityAsUser(mapsIntent, options.toBundle(), UserHandle.CURRENT);
     }
 
-    private void acceptIncomingCall(int targetDisplayId) {
-        // TODO(b/159623196): When implementing this method, avoid using
-        //     TelecomManager#acceptRingingCall deprecated method.
+    private void acceptIncomingCall(int targetDisplayType) {
+        Log.i(TAG, "Entering acceptIncomingCall");
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Accepting incoming call on display id {" + targetDisplayId + "}");
+            Log.d(TAG, "Accepting incoming call on display id {" + targetDisplayType + "}");
         }
+        injectKeyEvent(targetDisplayType, KeyEvent.KEYCODE_CALL);
     }
 
-    private void rejectIncomingCall(int targetDisplayId) {
-        // TODO(b/159623196): When implementing this method, avoid using
-        //     TelecomManager#endCall deprecated method.
+    private void rejectIncomingCall(int targetDisplayType) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Rejecting incoming call on display id {" + targetDisplayId + "}");
+            Log.d(TAG, "Rejecting incoming call on display id {" + targetDisplayType + "}");
         }
+        injectKeyEvent(targetDisplayType, KeyEvent.KEYCODE_ENDCALL);
     }
 
     private void increaseVolume(int targetDisplayId, @AttributeUsage int usage) {
@@ -238,16 +237,16 @@ final class CustomInputEventListener {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "Injecting HOME KeyEvent on display type {" + targetDisplayType + "}");
         }
+        injectKeyEvent(targetDisplayType, KeyEvent.KEYCODE_HOME);
+    }
 
-        // Re-injecting KeyEvent.KEYCODE_HOME. Setting the event's display to INVALID_DISPLAY since
-        // CarInputService will be properly assigning the correct display id from the display type
-        // passed as argument.
-        KeyEvent homeKeyDown = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_HOME);
-        homeKeyDown.setDisplayId(Display.INVALID_DISPLAY);
-        mService.injectKeyEvent(homeKeyDown, targetDisplayType);
+    private void injectKeyEvent(int targetDisplayType, int keycodeCall) {
+        KeyEvent keyDown = new KeyEvent(KeyEvent.ACTION_DOWN, keycodeCall);
+        keyDown.setDisplayId(Display.INVALID_DISPLAY);
+        mService.injectKeyEvent(keyDown, targetDisplayType);
 
-        KeyEvent homeKeyUp = new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_HOME);
-        homeKeyUp.setDisplayId(Display.INVALID_DISPLAY);
-        mService.injectKeyEvent(homeKeyUp, targetDisplayType);
+        KeyEvent keyUp = new KeyEvent(KeyEvent.ACTION_UP, keycodeCall);
+        keyUp.setDisplayId(Display.INVALID_DISPLAY);
+        mService.injectKeyEvent(keyUp, targetDisplayType);
     }
 }
