@@ -678,6 +678,15 @@ public final class Car {
             "android.car.permission.READ_CAR_OCCUPANT_AWARENESS_STATE";
 
     /**
+     * Permission necessary to access private display id.
+     *
+     * @hide
+     */
+    @SystemApi
+    public static final String ACCESS_PRIVATE_DISPLAY_ID =
+            "android.car.permission.ACCESS_PRIVATE_DISPLAY_ID";
+
+    /**
      * @deprecated This permission is not used by any service.
      *
      * @hide

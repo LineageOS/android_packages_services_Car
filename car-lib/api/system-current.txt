@@ -17,6 +17,7 @@ package android.car {
     method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_FEATURES) public java.util.List<java.lang.String> getAllEnabledFeatures();
     method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_FEATURES) public java.util.List<java.lang.String> getAllPendingDisabledFeatures();
     method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_FEATURES) public java.util.List<java.lang.String> getAllPendingEnabledFeatures();
+    field public static final String ACCESS_PRIVATE_DISPLAY_ID = "android.car.permission.ACCESS_PRIVATE_DISPLAY_ID";
     field @Deprecated public static final String CABIN_SERVICE = "cabin";
     field public static final String CAR_DEVICE_POLICY_SERVICE = "car_device_policy_service";
     field public static final String CAR_DRIVING_STATE_SERVICE = "drivingstate";
@@ -77,6 +78,7 @@ package android.car {
 
   public class CarOccupantZoneManager {
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public int getAudioZoneIdForOccupant(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
+    method @RequiresPermission(android.car.Car.ACCESS_PRIVATE_DISPLAY_ID) public int getDisplayIdForDriver(int);
     method @Nullable @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public android.car.CarOccupantZoneManager.OccupantZoneInfo getOccupantForAudioZoneId(int);
   }
 

@@ -103,6 +103,9 @@
     <string name="car_permission_desc_bind_instrument_cluster_rendering">Receive instrument cluster data</string>
     <string name="car_permission_label_car_ux_restrictions_configuration">UX Restrictions Configuration</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration">Configure UX Restrictions</string>
+    <string name="car_permission_label_access_private_display_id">Read access to private display id</string>
+    <string name="car_permission_desc_access_private_display_id">Allows read access to private display id</string>
+
     <string name="car_permission_label_car_handle_usb_aoap_device">Communicate with USB device in AOAP mode</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device">Allows an app to communicate with a device in AOAP mode</string>
 

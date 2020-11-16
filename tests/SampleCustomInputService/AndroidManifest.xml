@@ -30,6 +30,8 @@
     <uses-permission android:name="android.car.permission.CAR_MONITOR_INPUT"/>
     <!-- This permission is required to adjust car audio volume -->
     <uses-permission android:name="android.car.permission.CAR_CONTROL_AUDIO_VOLUME"/>
+    <!-- This permission is required to read driver's display id -->
+    <uses-permission android:name="android.car.permission.ACCESS_PRIVATE_DISPLAY_ID"/>
 
     <application>
         <service android:name=".SampleCustomInputService"

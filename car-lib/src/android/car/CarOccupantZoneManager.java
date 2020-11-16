@@ -352,8 +352,8 @@ public class CarOccupantZoneManager extends CarManagerBase {
      *
      * @hide
      */
-    // TODO(b/159623196): this method will need to be exposed with @SystemApi so it can be used by
-    //     OEMs when handling CustomInputEvents.
+    @SystemApi
+    @RequiresPermission(Car.ACCESS_PRIVATE_DISPLAY_ID)
     public int getDisplayIdForDriver(@DisplayTypeEnum int displayType) {
         try {
             return mService.getDisplayIdForDriver(displayType);
