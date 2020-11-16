@@ -22,7 +22,7 @@
 
 #include <android-base/result.h>
 #include <android/frameworks/automotive/powerpolicy/BnCarPowerPolicyServer.h>
-#include <android/frameworks/automotive/powerpolicy/BnCarPowerPolicySystemNotification.h>
+#include <android/frameworks/automotive/powerpolicy/internal/BnCarPowerPolicySystemNotification.h>
 #include <android/hardware/automotive/vehicle/2.0/IVehicle.h>
 #include <binder/IBinder.h>
 #include <binder/Status.h>
@@ -40,13 +40,13 @@ namespace automotive {
 namespace powerpolicy {
 
 struct CallbackInfo {
-    CallbackInfo(const sp<ICarPowerPolicyChangeCallback>& callback,
+    CallbackInfo(const android::sp<ICarPowerPolicyChangeCallback>& callback,
                  const CarPowerPolicyFilter& filter, int32_t pid) :
           callback(callback),
           filter(filter),
           pid(pid) {}
 
-    sp<ICarPowerPolicyChangeCallback> callback;
+    android::sp<ICarPowerPolicyChangeCallback> callback;
     CarPowerPolicyFilter filter;
     pid_t pid;
 };
@@ -61,127 +61,137 @@ class CarPowerPolicyServerPeer;
 // Forward declaration for defining binder death handler and property change listener.
 class CarPowerPolicyServer;
 
-class BinderDeathRecipient : public IBinder::DeathRecipient {
+class BinderDeathRecipient : public android::IBinder::DeathRecipient {
 public:
-    explicit BinderDeathRecipient(const sp<CarPowerPolicyServer>& service);
+    explicit BinderDeathRecipient(const android::sp<CarPowerPolicyServer>& service);
 
-    void binderDied(const wp<IBinder>& who) override;
+    void binderDied(const android::wp<android::IBinder>& who) override;
+
+private:
+    android::sp<CarPowerPolicyServer> mService;
+};
+
+class HidlDeathRecipient : public android::hardware::hidl_death_recipient {
+public:
+    explicit HidlDeathRecipient(const android::sp<CarPowerPolicyServer>& service);
+
+    void serviceDied(uint64_t cookie,
+                     const android::wp<android::hidl::base::V1_0::IBase>& who) override;
 
 private:
     sp<CarPowerPolicyServer> mService;
 };
 
-class HidlDeathRecipient : public hardware::hidl_death_recipient {
+class PropertyChangeListener :
+      public android::hardware::automotive::vehicle::V2_0::IVehicleCallback {
 public:
-    explicit HidlDeathRecipient(const sp<CarPowerPolicyServer>& service);
+    explicit PropertyChangeListener(const android::sp<CarPowerPolicyServer>& service);
 
-    void serviceDied(uint64_t cookie, const wp<hidl::base::V1_0::IBase>& who) override;
+    android::hardware::Return<void> onPropertyEvent(
+            const android::hardware::hidl_vec<
+                    hardware::automotive::vehicle::V2_0::VehiclePropValue>& propValues) override;
+    android::hardware::Return<void> onPropertySet(
+            const android::hardware::automotive::vehicle::V2_0::VehiclePropValue& propValue);
+    android::hardware::Return<void> onPropertySetError(
+            android::hardware::automotive::vehicle::V2_0::StatusCode status, int32_t propId,
+            int32_t areaId);
 
 private:
-    sp<CarPowerPolicyServer> mService;
+    android::sp<CarPowerPolicyServer> mService;
 };
 
-class PropertyChangeListener : public hardware::automotive::vehicle::V2_0::IVehicleCallback {
+class MessageHandlerImpl : public android::MessageHandler {
 public:
-    explicit PropertyChangeListener(const sp<CarPowerPolicyServer>& service);
+    explicit MessageHandlerImpl(const android::sp<CarPowerPolicyServer>& service);
 
-    hardware::Return<void> onPropertyEvent(
-            const hardware::hidl_vec<hardware::automotive::vehicle::V2_0::VehiclePropValue>&
-                    propValues) override;
-    hardware::Return<void> onPropertySet(
-            const hardware::automotive::vehicle::V2_0::VehiclePropValue& propValue);
-    hardware::Return<void> onPropertySetError(
-            hardware::automotive::vehicle::V2_0::StatusCode status, int32_t propId, int32_t areaId);
+    void handleMessage(const android::Message& message) override;
 
 private:
-    sp<CarPowerPolicyServer> mService;
+    android::sp<CarPowerPolicyServer> mService;
 };
 
-class MessageHandlerImpl : public MessageHandler {
+class CarServiceNotificationHandler :
+      public android::frameworks::automotive::powerpolicy::internal::
+              BnCarPowerPolicySystemNotification {
 public:
-    explicit MessageHandlerImpl(const sp<CarPowerPolicyServer>& service);
+    explicit CarServiceNotificationHandler(const android::sp<CarPowerPolicyServer>& server);
 
-    void handleMessage(const Message& message) override;
+    android::status_t dump(int fd, const android::Vector<android::String16>& args) override;
+    android::binder::Status notifyCarServiceReady(
+            android::frameworks::automotive::powerpolicy::internal::PolicyState* policyState)
+            override;
+    android::binder::Status notifyPowerPolicyChange(const std::string& policyId) override;
 
 private:
-    sp<CarPowerPolicyServer> mService;
-};
-
-class CarServiceNotificationHandler : public BnCarPowerPolicySystemNotification {
-public:
-    explicit CarServiceNotificationHandler(const sp<CarPowerPolicyServer>& server);
-
-    status_t dump(int fd, const Vector<String16>& args) override;
-    binder::Status notifyCarServiceReady(PolicyState* policyState) override;
-    binder::Status notifyPowerPolicyChange(const std::string& policyId) override;
-
-private:
-    sp<CarPowerPolicyServer> mService;
+    android::sp<CarPowerPolicyServer> mService;
 };
 
 class CarPowerPolicyServer : public BnCarPowerPolicyServer {
 public:
-    static base::Result<sp<CarPowerPolicyServer>> startService(const sp<Looper>& looper);
+    static base::Result<sp<CarPowerPolicyServer>> startService(const sp<android::Looper>& looper);
     static void terminateService();
 
     status_t dump(int fd, const Vector<String16>& args) override;
     binder::Status getCurrentPowerPolicy(CarPowerPolicy* aidlReturn) override;
     binder::Status getPowerComponentState(PowerComponent componentId, bool* aidlReturn) override;
     binder::Status registerPowerPolicyChangeCallback(
-            const sp<ICarPowerPolicyChangeCallback>& callback,
+            const android::sp<ICarPowerPolicyChangeCallback>& callback,
             const CarPowerPolicyFilter& filter) override;
     binder::Status unregisterPowerPolicyChangeCallback(
-            const sp<ICarPowerPolicyChangeCallback>& callback) override;
+            const android::sp<ICarPowerPolicyChangeCallback>& callback) override;
 
     void connectToVhalHelper();
-    void handleBinderDeath(const wp<IBinder>& who);
-    void handleHidlDeath(const wp<hidl::base::V1_0::IBase>& who);
-    binder::Status notifyCarServiceReady(PolicyState* policyState);
-    binder::Status notifyPowerPolicyChange(const std::string& policyId);
-    base::Result<void> applyPowerPolicy(const std::string& policyId, bool carServiceInOperation,
-                                        bool notifyClients);
-    base::Result<void> setPowerPolicyGroup(const std::string& groupId);
+    void handleBinderDeath(const android::wp<android::IBinder>& who);
+    void handleHidlDeath(const android::wp<android::hidl::base::V1_0::IBase>& who);
+    android::binder::Status notifyCarServiceReady(
+            android::frameworks::automotive::powerpolicy::internal::PolicyState* policyState);
+    android::binder::Status notifyPowerPolicyChange(const std::string& policyId);
+    android::base::Result<void> applyPowerPolicy(const std::string& policyId,
+                                                 bool carServiceInOperation, bool notifyClients);
+    android::base::Result<void> setPowerPolicyGroup(const std::string& groupId);
 
 private:
     CarPowerPolicyServer();
 
-    base::Result<void> init(const sp<Looper>& looper);
+    android::base::Result<void> init(const android::sp<android::Looper>& looper);
     void terminate();
-    bool isRegisteredLocked(const sp<ICarPowerPolicyChangeCallback>& callback);
+    bool isRegisteredLocked(const android::sp<ICarPowerPolicyChangeCallback>& callback);
     void checkSilentModeFromKernel();
     void connectToVhal();
     void subscribeToVhal();
     void subscribeToProperty(
             int32_t prop,
-            std::function<void(const hardware::automotive::vehicle::V2_0::VehiclePropValue&)>
+            std::function<
+                    void(const android::hardware::automotive::vehicle::V2_0::VehiclePropValue&)>
                     processor);
-    base::Result<void> notifyVhalNewPowerPolicy(const std::string& policyId);
+    android::base::Result<void> notifyVhalNewPowerPolicy(const std::string& policyId);
     bool isPropertySupported(int32_t prop);
 
 private:
-    static sp<CarPowerPolicyServer> sCarPowerPolicyServer;
+    static android::sp<CarPowerPolicyServer> sCarPowerPolicyServer;
 
-    sp<Looper> mHandlerLooper;
+    sp<android::Looper> mHandlerLooper;
     sp<MessageHandlerImpl> mMessageHandler;
     PowerComponentHandler mComponentHandler;
     PolicyManager mPolicyManager;
-    Mutex mMutex;
+    android::Mutex mMutex;
     CarPowerPolicyPtr mCurrentPowerPolicy GUARDED_BY(mMutex);
     std::string mCurrentPolicyGroupId GUARDED_BY(mMutex);
     std::vector<CallbackInfo> mPolicyChangeCallbacks GUARDED_BY(mMutex);
-    sp<hardware::automotive::vehicle::V2_0::IVehicle> mVhalService GUARDED_BY(mMutex);
+    android::sp<android::hardware::automotive::vehicle::V2_0::IVehicle> mVhalService
+            GUARDED_BY(mMutex);
     int64_t mLastApplyPowerPolicy GUARDED_BY(mMutex);
     int64_t mLastSetDefaultPowerPolicyGroup GUARDED_BY(mMutex);
     bool mCarServiceInOperation GUARDED_BY(mMutex);
     std::unordered_map<int32_t, bool> mSupportedProperties;
-    sp<BinderDeathRecipient> mBinderDeathRecipient;
-    sp<HidlDeathRecipient> mHidlDeathRecipient;
-    sp<PropertyChangeListener> mPropertyChangeListener;
-    sp<CarServiceNotificationHandler> mCarServiceNotificationHandler;
+    android::sp<BinderDeathRecipient> mBinderDeathRecipient;
+    android::sp<HidlDeathRecipient> mHidlDeathRecipient;
+    android::sp<PropertyChangeListener> mPropertyChangeListener;
+    android::sp<CarServiceNotificationHandler> mCarServiceNotificationHandler;
     int32_t mRemainingConnectionRetryCount;
 
     // For unit tests.
-    friend class internal::CarPowerPolicyServerPeer;
+    friend class android::frameworks::automotive::powerpolicy::internal::CarPowerPolicyServerPeer;
 };
 
 }  // namespace powerpolicy
