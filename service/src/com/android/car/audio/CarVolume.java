@@ -18,23 +18,24 @@ package com.android.car.audio;
 
 import static com.android.car.audio.CarAudioService.DEFAULT_AUDIO_CONTEXT;
 
-import android.media.AudioAttributes;
 import android.media.AudioAttributes.AttributeUsage;
 import android.media.AudioPlaybackConfiguration;
 import android.telephony.Annotation.CallState;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 import android.util.SparseIntArray;
 
 import com.android.car.audio.CarAudioContext.AudioContext;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * CarVolume is responsible for determining which audio contexts to prioritize when adjusting volume
  */
 final class CarVolume {
     private static final String TAG = CarVolume.class.getSimpleName();
+    private static final int CONTEXT_HEIGHEST_PRIORITY = 0;
     private static final int CONTEXT_NOT_PRIORITIZED = -1;
 
     private static final int[] AUDIO_CONTEXT_VOLUME_PRIORITY = {
@@ -57,7 +58,8 @@ final class CarVolume {
     private static final SparseIntArray VOLUME_PRIORITY_BY_AUDIO_CONTEXT = new SparseIntArray();
 
     static {
-        for (int priority = 0; priority < AUDIO_CONTEXT_VOLUME_PRIORITY.length; priority++) {
+        for (int priority = CONTEXT_HEIGHEST_PRIORITY;
+                priority < AUDIO_CONTEXT_VOLUME_PRIORITY.length; priority++) {
             VOLUME_PRIORITY_BY_AUDIO_CONTEXT.append(AUDIO_CONTEXT_VOLUME_PRIORITY[priority],
                     priority);
         }
@@ -65,12 +67,15 @@ final class CarVolume {
 
     /**
      * Suggests a {@link AudioContext} that should be adjusted based on the current
-     * {@link AudioPlaybackConfiguration}s and {@link CallState}.
+     * {@link AudioPlaybackConfiguration}s, {@link CallState}, and active HAL usages
      */
     static @AudioContext int getSuggestedAudioContext(
-            List<AudioPlaybackConfiguration> configurations, @CallState int callState) {
+            List<AudioPlaybackConfiguration> configurations,
+            @CallState int callState, @AttributeUsage int[] activeHalUsages) {
         int currentContext = DEFAULT_AUDIO_CONTEXT;
-        int currentPriority = AUDIO_CONTEXT_VOLUME_PRIORITY.length;
+        int currentPriority = CONTEXT_HEIGHEST_PRIORITY + AUDIO_CONTEXT_VOLUME_PRIORITY.length;
+
+        Set<Integer> contexts = new HashSet<>();
 
         if (callState == TelephonyManager.CALL_STATE_RINGING) {
             currentContext = CarAudioContext.CALL_RING;
@@ -84,19 +89,27 @@ final class CarVolume {
             if (!configuration.isActive()) {
                 continue;
             }
+            contexts.add(CarAudioContext
+                    .getContextForUsage(configuration.getAudioAttributes().getSystemUsage()));
+        }
 
-            @AttributeUsage int usage = configuration.getAudioAttributes().getSystemUsage();
-            @AudioContext int context = CarAudioContext.getContextForUsage(usage);
+        for (int index = 0; index < activeHalUsages.length; index++) {
+            contexts.add(CarAudioContext.getContextForUsage(activeHalUsages[index]));
+        }
+
+        for (@AudioContext int context : contexts) {
             int priority = VOLUME_PRIORITY_BY_AUDIO_CONTEXT.get(context, CONTEXT_NOT_PRIORITIZED);
             if (priority == CONTEXT_NOT_PRIORITIZED) {
-                Log.w(TAG, "Usage " + AudioAttributes.usageToString(usage) + " mapped to context "
-                        + CarAudioContext.toString(context) + " which is not prioritized");
                 continue;
             }
 
             if (priority < currentPriority) {
                 currentContext = context;
                 currentPriority = priority;
+                // If the highest priority has been found, return early.
+                if (currentPriority == CONTEXT_HEIGHEST_PRIORITY) {
+                    return currentContext;
+                }
             }
         }
 

@@ -139,7 +139,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         @Override
         public void onVolumeAdjustment(int adjustment) {
             int zoneId = CarAudioManager.PRIMARY_AUDIO_ZONE;
-            @AudioContext int suggestedContext = getSuggestedAudioContext();
+            @AudioContext int suggestedContext = getSuggestedAudioContext(zoneId);
 
             int groupId;
             synchronized (mImplLock) {
@@ -1119,11 +1119,12 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         return group.getAudioDevicePortForContext(CarAudioContext.getContextForUsage(usage));
     }
 
-    private @AudioContext int getSuggestedAudioContext() {
+    private @AudioContext int getSuggestedAudioContext(int zoneId) {
         @CallState int callState = mTelephonyManager.getCallState();
         List<AudioPlaybackConfiguration> configurations =
                 mAudioManager.getActivePlaybackConfigurations();
-        return CarVolume.getSuggestedAudioContext(configurations, callState);
+        return CarVolume.getSuggestedAudioContext(configurations, callState,
+                mHalAudioFocus.getActiveUsagesForZone(zoneId));
     }
 
     /**
