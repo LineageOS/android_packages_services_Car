@@ -25,6 +25,7 @@ import static org.testng.Assert.expectThrows;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
+import android.app.ActivityManager;
 import android.app.KeyguardManager;
 import android.app.admin.DevicePolicyManager;
 import android.app.admin.UnsafeStateException;
@@ -35,18 +36,28 @@ import android.car.admin.RemoveUserResult;
 import android.car.user.CarUserManager;
 import android.car.user.UserCreationResult;
 import android.car.user.UserRemovalResult;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.UserInfo;
 import android.os.PowerManager;
 import android.os.UserHandle;
+import android.os.UserManager;
 import android.util.Log;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public final class CarDevicePolicyManagerTest extends CarApiTestBase {
+    private static final long REMOVE_TIMEOUT_MILLIS = TimeUnit.SECONDS.toMillis(60);
+    private static final long SWITCH_USER_TIMEOUT_MILLIS = TimeUnit.SECONDS.toMillis(40);
 
     private static final String TAG = CarDevicePolicyManagerTest.class.getSimpleName();
 
@@ -55,6 +66,12 @@ public final class CarDevicePolicyManagerTest extends CarApiTestBase {
     private DevicePolicyManager mDpm;
     private KeyguardManager mKeyguardManager;
     private PowerManager mPowerManager;
+    private UserManager mUserManager;
+
+    private final CountDownLatch mUserRemoveLatch = new CountDownLatch(1);
+    private final CountDownLatch mUserSwitchLatch = new CountDownLatch(1);
+
+    private List<Integer> mUsersToRemove;
 
     @Before
     public void setManager() throws Exception {
@@ -64,11 +81,38 @@ public final class CarDevicePolicyManagerTest extends CarApiTestBase {
         mDpm = context.getSystemService(DevicePolicyManager.class);
         mKeyguardManager = context.getSystemService(KeyguardManager.class);
         mPowerManager = context.getSystemService(PowerManager.class);
+        mUserManager = context.getSystemService(UserManager.class);
+
+        IntentFilter filter = new IntentFilter(Intent.ACTION_USER_REMOVED);
+        filter.addAction(Intent.ACTION_USER_SWITCHED);
+        getContext().registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                switch (intent.getAction()) {
+                    case Intent.ACTION_USER_REMOVED:
+                        mUserRemoveLatch.countDown();
+                        break;
+                    case Intent.ACTION_USER_SWITCHED:
+                        mUserSwitchLatch.countDown();
+                        break;
+                }
+            }
+        }, filter);
+        mUsersToRemove = new ArrayList<>();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        for (Integer userId : mUsersToRemove) {
+            if (hasUser(userId)) {
+                removeUser(userId);
+            }
+        }
     }
 
     @Test
     public void testRemoveUser() throws Exception {
-        UserInfo user  = createUser("CarDevicePolicyManagerTest.testRemoveUser");
+        UserInfo user = createUser("CarDevicePolicyManagerTest.testRemoveUser");
         Log.d(TAG, "removing user " + user.toFullString());
 
         RemoveUserResult result = mCarDpm.removeUser(user.getUserHandle());
@@ -76,6 +120,38 @@ public final class CarDevicePolicyManagerTest extends CarApiTestBase {
 
         assertWithMessage("Failed to remove user%s: %s", user.toFullString(), result)
                 .that(result.isSuccess()).isTrue();
+    }
+
+    @Test
+    public void testRemoveUser_currentUserSetEphemeral() throws Exception {
+        int startUser = ActivityManager.getCurrentUser();
+        UserInfo user = createUser(
+                "CarDevicePolicyManagerTest.testRemoveUser_currentUserSetEphemeral");
+        Log.d(TAG, "switching to user " + user.toFullString());
+        switchUser(user.id);
+
+        Log.d(TAG, "removing user " + user.toFullString());
+        RemoveUserResult result = mCarDpm.removeUser(user.getUserHandle());
+
+        assertWithMessage("Failed to set ephemeral %s: %s", user.toFullString(), result)
+                .that(result.getStatus())
+                .isEqualTo(RemoveUserResult.STATUS_SUCCESS_SET_EPHEMERAL);
+
+        assertWithMessage("User should still exist: %s", user).that(hasUser(user.id)).isTrue();
+        assertWithMessage("User should be set as ephemeral: %s", user)
+                .that(getUser(user.id).isEphemeral())
+                .isTrue();
+
+        // Switch back to the starting user.
+        Log.d(TAG, "switching to user " + startUser);
+        switchUser(startUser);
+
+        // User is removed once switch is complete
+        Log.d(TAG, "waiting for user to be removed: " + user);
+        waitForUserRemoval(user.id);
+        assertWithMessage("User should have been removed after switch: %s", user)
+                .that(hasUser(user.id))
+                .isFalse();
     }
 
     @Test
@@ -175,9 +251,9 @@ public final class CarDevicePolicyManagerTest extends CarApiTestBase {
     private void assertLocked() {
         assertDeviceSecure();
         assertWithMessage("device is unlocked").that(mKeyguardManager.isDeviceLocked())
-            .isTrue();
+                .isTrue();
         assertWithMessage("keyguard is unlocked").that(mKeyguardManager.isKeyguardLocked())
-            .isTrue();
+                .isTrue();
     }
 
     private void assertLockedEventually() {
@@ -209,7 +285,23 @@ public final class CarDevicePolicyManagerTest extends CarApiTestBase {
         Log.d(TAG, "result: " + result);
         assertWithMessage("Could not create user %s: %s", name, result).that(result.isSuccess())
                 .isTrue();
+        mUsersToRemove.add(result.getUser().id);
         return result.getUser();
+    }
+
+    private void waitForUserRemoval(int userId) throws Exception {
+        boolean result = mUserRemoveLatch.await(REMOVE_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+        assertWithMessage("Timeout waiting for removeUser. userId = %s", userId)
+                .that(result)
+                .isTrue();
+    }
+
+    private void switchUser(int userId) throws Exception {
+        mCarUserManager.switchUser(userId);
+        boolean result = mUserSwitchLatch.await(SWITCH_USER_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+        assertWithMessage("Timeout waiting for the user switch to %s", userId)
+                .that(result)
+                .isTrue();
     }
 
     private void removeUser(@UserIdInt int userId) throws Exception {
@@ -219,5 +311,21 @@ public final class CarDevicePolicyManagerTest extends CarApiTestBase {
         Log.d(TAG, "result: " + result);
         assertWithMessage("Could not remove user %s: %s", userId, result).that(result.isSuccess())
                 .isTrue();
+    }
+
+    @Nullable
+    private UserInfo getUser(int id) {
+        List<UserInfo> list = mUserManager.getUsers();
+
+        for (UserInfo user : list) {
+            if (user.id == id) {
+                return user;
+            }
+        }
+        return null;
+    }
+
+    private boolean hasUser(int id) {
+        return getUser(id) != null;
     }
 }
