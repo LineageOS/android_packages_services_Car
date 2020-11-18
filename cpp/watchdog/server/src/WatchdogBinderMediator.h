@@ -21,6 +21,7 @@
 #include "WatchdogInternalHandler.h"
 #include "WatchdogPerfService.h"
 #include "WatchdogProcessService.h"
+#include "WatchdogServiceHelper.h"
 
 #include <android-base/result.h>
 #include <android/automotive/watchdog/BnCarWatchdog.h>
@@ -52,7 +53,11 @@ class WatchdogBinderMediatorPeer;
 // the calls either to process ANR or performance services.
 class WatchdogBinderMediator : public BnCarWatchdog {
 public:
-    WatchdogBinderMediator(const std::function<android::base::Result<void>(
+    WatchdogBinderMediator(const android::sp<WatchdogProcessService>& watchdogProcessService,
+                           const android::sp<WatchdogPerfService>& watchdogPerfService,
+                           const android::sp<IoOveruseMonitor>& ioOveruseMonitor,
+                           const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper,
+                           const std::function<android::base::Result<void>(
                                    const char*, const android::sp<android::IBinder>&)>&
                                    addServiceHandler = nullptr);
     ~WatchdogBinderMediator() { terminate(); }
@@ -89,10 +94,7 @@ public:
                                                     int32_t arg2) override;
 
 protected:
-    android::base::Result<void> init(
-            const android::sp<WatchdogProcessService>& watchdogProcessService,
-            const android::sp<WatchdogPerfService>& watchdogPerfService,
-            const android::sp<IoOveruseMonitor>& ioOveruseMonitor);
+    android::base::Result<void> init();
 
     void terminate() {
         mWatchdogProcessService.clear();
@@ -121,7 +123,7 @@ private:
     // For unit tests.
     friend class internal::WatchdogBinderMediatorPeer;
     FRIEND_TEST(WatchdogBinderMediatorTest, TestInit);
-    FRIEND_TEST(WatchdogBinderMediatorTest, TestErrorOnInitWithNullptrArgs);
+    FRIEND_TEST(WatchdogBinderMediatorTest, TestErrorOnInitWithNullServiceInstances);
     FRIEND_TEST(WatchdogBinderMediatorTest, TestTerminate);
     FRIEND_TEST(WatchdogBinderMediatorTest, TestHandlesEmptyDumpArgs);
 };

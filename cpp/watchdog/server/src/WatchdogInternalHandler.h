@@ -42,14 +42,16 @@ class WatchdogInternalHandler : public android::automotive::watchdog::internal::
 public:
     explicit WatchdogInternalHandler(
             const android::sp<WatchdogBinderMediator>& binderMediator,
+            const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper,
             const android::sp<WatchdogProcessService>& watchdogProcessService,
             const android::sp<WatchdogPerfService>& watchdogPerfService,
             const android::sp<IoOveruseMonitor>& ioOveruseMonitor) :
           mBinderMediator(binderMediator),
-          mWatchdogServiceHelper(new WatchdogServiceHelper()),
+          mWatchdogServiceHelper(watchdogServiceHelper),
           mWatchdogProcessService(watchdogProcessService),
           mWatchdogPerfService(watchdogPerfService),
           mIoOveruseMonitor(ioOveruseMonitor) {}
+    ~WatchdogInternalHandler() { terminate(); }
 
     status_t dump(int fd, const Vector<String16>& args) override;
     android::binder::Status registerCarWatchdogService(
@@ -83,8 +85,6 @@ public:
 
 protected:
     void terminate() {
-        mWatchdogServiceHelper->terminate();
-
         mBinderMediator.clear();
         mWatchdogServiceHelper.clear();
         mWatchdogProcessService.clear();

@@ -36,6 +36,7 @@ using android::base::Error;
 using android::base::Join;
 using android::base::ParseUint;
 using android::base::Result;
+using android::base::StringAppendF;
 using android::base::StringPrintf;
 using android::base::WriteStringToFd;
 using android::binder::Status;
@@ -72,49 +73,57 @@ Result<void> addToServiceManager(const char* serviceName, sp<IBinder> service) {
 
 }  // namespace
 
-WatchdogBinderMediator::WatchdogBinderMediator(const AddServiceFunction& addServiceHandler) :
-      mWatchdogProcessService(nullptr),
-      mWatchdogPerfService(nullptr),
-      mIoOveruseMonitor(nullptr),
-      mWatchdogInternalHandler(nullptr),
+WatchdogBinderMediator::WatchdogBinderMediator(
+        const android::sp<WatchdogProcessService>& watchdogProcessService,
+        const android::sp<WatchdogPerfService>& watchdogPerfService,
+        const android::sp<IoOveruseMonitor>& ioOveruseMonitor,
+        const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper,
+        const AddServiceFunction& addServiceHandler) :
+      mWatchdogProcessService(watchdogProcessService),
+      mWatchdogPerfService(watchdogPerfService),
+      mIoOveruseMonitor(ioOveruseMonitor),
       mAddServiceHandler(addServiceHandler) {
     if (mAddServiceHandler == nullptr) {
         mAddServiceHandler = &addToServiceManager;
     }
+    if (watchdogServiceHelper != nullptr) {
+        mWatchdogInternalHandler =
+                new WatchdogInternalHandler(this, watchdogServiceHelper, mWatchdogProcessService,
+                                            mWatchdogPerfService, mIoOveruseMonitor);
+    }
 }
 
-Result<void> WatchdogBinderMediator::init(const sp<WatchdogProcessService>& watchdogProcessService,
-                                          const sp<WatchdogPerfService>& watchdogPerfService,
-                                          const sp<IoOveruseMonitor>& ioOveruseMonitor) {
-    if (watchdogProcessService == nullptr || watchdogPerfService == nullptr ||
-        ioOveruseMonitor == nullptr) {
-        return Error(INVALID_OPERATION) << "Must initialize process service, performance service, "
-                                        << "I/O overuse monitoring service before starting "
-                                        << "carwatchdog binder mediator";
-    }
-    if (mWatchdogProcessService != nullptr || mWatchdogPerfService != nullptr ||
-        mIoOveruseMonitor != nullptr || mWatchdogInternalHandler != nullptr) {
+Result<void> WatchdogBinderMediator::init() {
+    if (mWatchdogProcessService == nullptr || mWatchdogPerfService == nullptr ||
+        mIoOveruseMonitor == nullptr || mWatchdogInternalHandler == nullptr) {
+        std::string serviceList;
+        if (mWatchdogProcessService == nullptr) {
+            StringAppendF(&serviceList, "%s%s", (!serviceList.empty() ? ", " : ""),
+                          "Watchdog process service");
+        }
+        if (mWatchdogPerfService == nullptr) {
+            StringAppendF(&serviceList, "%s%s", (!serviceList.empty() ? ", " : ""),
+                          "Watchdog performance service");
+        }
+        if (mIoOveruseMonitor == nullptr) {
+            StringAppendF(&serviceList, "%s%s", (!serviceList.empty() ? ", " : ""),
+                          "Watchdog I/O overuse monitor");
+        }
+        if (mWatchdogInternalHandler == nullptr) {
+            StringAppendF(&serviceList, "%s%s", (!serviceList.empty() ? ", " : ""),
+                          "Watchdog internal handler");
+        }
         return Error(INVALID_OPERATION)
-                << "Cannot initialize carwatchdog binder mediator more than once";
+                << serviceList << " must be initialized with non-null instance";
     }
-
-    sp<WatchdogInternalHandler> watchdogInternalHandler =
-            new WatchdogInternalHandler(this, watchdogProcessService, watchdogPerfService,
-                                        mIoOveruseMonitor);
-
     auto result = mAddServiceHandler(kCarWatchdogServerInterface, this);
     if (!result.ok()) {
         return result;
     }
-
-    result = mAddServiceHandler(kCarWatchdogInternalServerInterface, watchdogInternalHandler);
+    result = mAddServiceHandler(kCarWatchdogInternalServerInterface, mWatchdogInternalHandler);
     if (!result.ok()) {
         return result;
     }
-    mWatchdogProcessService = watchdogProcessService;
-    mWatchdogPerfService = watchdogPerfService;
-    mIoOveruseMonitor = ioOveruseMonitor;
-    mWatchdogInternalHandler = watchdogInternalHandler;
     return {};
 }
 
