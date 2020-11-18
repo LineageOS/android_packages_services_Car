@@ -62,6 +62,10 @@
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"ଇନ୍‍ଷ୍ଟ୍ରୁମେଣ୍ଟ କ୍ଲଷ୍ଟର୍‌ର ଡାଟା ପ୍ରାପ୍ତ କରନ୍ତୁ"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"UX ପ୍ରତିବନ୍ଧତା କନଫିଗ୍‌ରେଶନ୍"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"UX ପ୍ରତିବନ୍ଧତା କନ୍‌ଫିଗର୍ କରନ୍ତୁ"</string>
+    <!-- no translation found for car_permission_label_access_private_display_id (6712116114341634316) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_access_private_display_id (8535974477610944721) -->
+    <skip />
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"AOAP ମୋଡ୍‌ରେ USB ଡିଭାଇସ୍ ସହ ଯୋଗାଯୋଗ କରନ୍ତୁ"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"AOAP ମୋଡ୍‌ରେ ଏକ ଡିଭାଇସ୍ ସହ ଯୋଗାଯୋଗ କରିବା ପାଇଁ ଆପ୍‍କୁ ଅନୁମତି ଦେଇଥାଏ"</string>
     <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"ଅକ୍ୟୁପେଣ୍ଟ ଆୱାରନେସ୍ ସିଷ୍ଟମ୍ ପଢ଼ିବା ଆକ୍ସେସ୍"</string>
