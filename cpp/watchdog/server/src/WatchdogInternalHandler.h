@@ -29,6 +29,7 @@
 #include <android/automotive/watchdog/internal/IoOveruseConfiguration.h>
 #include <android/automotive/watchdog/internal/StateType.h>
 #include <binder/Status.h>
+#include <gtest/gtest_prod.h>
 #include <utils/Errors.h>
 #include <utils/Vector.h>
 
@@ -100,7 +101,9 @@ private:
     android::sp<IoOveruseMonitor> mIoOveruseMonitor;
 
     friend class WatchdogBinderMediator;
-    friend class WatchdogInternalHandlerTest;
+
+    // For unit tests.
+    FRIEND_TEST(WatchdogInternalHandlerTest, TestTerminate);
 };
 
 }  // namespace watchdog

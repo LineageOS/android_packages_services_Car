@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
+#include "MockCarWatchdogServiceForSystem.h"
+#include "MockWatchdogProcessService.h"
 #include "WatchdogServiceHelper.h"
 
 #include <binder/IBinder.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <utils/RefBase.h>
 
 namespace android {
 namespace automotive {
@@ -27,72 +30,127 @@ namespace watchdog {
 namespace aawi = android::automotive::watchdog::internal;
 
 using android::BBinder;
+using android::IBinder;
+using android::RefBase;
 using android::sp;
 using android::automotive::watchdog::internal::ICarWatchdogServiceForSystem;
 using android::automotive::watchdog::internal::ICarWatchdogServiceForSystemDefault;
+using android::base::Error;
+using android::base::Result;
 using android::binder::Status;
 using ::testing::_;
 using ::testing::Return;
 
-namespace {
+namespace internal {
 
-class MockBinder : public BBinder {
+class WatchdogServiceHelperPeer : public RefBase {
 public:
-    MockBinder() {
-        EXPECT_CALL(*this, linkToDeath(_, nullptr, 0)).WillRepeatedly(Return(OK));
-        EXPECT_CALL(*this, unlinkToDeath(_, nullptr, 0, nullptr)).WillRepeatedly(Return(OK));
-    }
-    void injectLinkToDeathResult(status_t linkToDeathResult) {
-        EXPECT_CALL(*this, linkToDeath(_, nullptr, 0)).WillRepeatedly(Return(linkToDeathResult));
-    }
-    MOCK_METHOD(status_t, linkToDeath,
-                (const sp<DeathRecipient>& recipient, void* cookie, uint32_t flags), (override));
-    MOCK_METHOD(status_t, unlinkToDeath,
-                (const wp<DeathRecipient>& recipient, void* cookie, uint32_t flags,
-                 wp<DeathRecipient>* outRecipient),
-                (override));
-};
+    explicit WatchdogServiceHelperPeer(const sp<WatchdogServiceHelper>& helper) : mHelper(helper) {}
+    ~WatchdogServiceHelperPeer() { mHelper.clear(); }
 
-class MockCarWatchdogServiceForSystem : public ICarWatchdogServiceForSystemDefault {
-public:
-    MockCarWatchdogServiceForSystem() : mBinder(new MockBinder()) {
-        EXPECT_CALL(*this, onAsBinder()).WillRepeatedly(Return(mBinder.get()));
+    Result<void> init(const android::sp<WatchdogProcessService>& watchdogProcessService) {
+        return mHelper->init(watchdogProcessService);
     }
 
-    sp<MockBinder> getBinder() const { return mBinder; }
-    void injectLinkToDeathResult(status_t linkToDeathResult) {
-        mBinder->injectLinkToDeathResult(linkToDeathResult);
+    const sp<ICarWatchdogServiceForSystem> getCarWatchdogServiceForSystem() {
+        return mHelper->mService;
     }
-
-    MOCK_METHOD(IBinder*, onAsBinder, (), (override));
-    MOCK_METHOD(Status, checkIfAlive, (int32_t, aawi::TimeoutLength), (override));
-    MOCK_METHOD(Status, prepareProcessTermination, (), (override));
 
 private:
-    sp<MockBinder> mBinder;
+    sp<WatchdogServiceHelper> mHelper;
 };
+
+}  // namespace internal
 
 class WatchdogServiceHelperTest : public ::testing::Test {
 protected:
     virtual void SetUp() {
-        mMockCarWatchdogServiceForSystem = new MockCarWatchdogServiceForSystem();
+        mMockWatchdogProcessService = new MockWatchdogProcessService();
         mWatchdogServiceHelper = new WatchdogServiceHelper();
+        mWatchdogServiceHelperPeer =
+                new internal::WatchdogServiceHelperPeer(mWatchdogServiceHelper);
+        mMockCarWatchdogServiceForSystem = new MockCarWatchdogServiceForSystem();
+        mMockCarWatchdogServiceForSystemBinder = mMockCarWatchdogServiceForSystem->getBinder();
+
+        EXPECT_CALL(*mMockWatchdogProcessService, registerWatchdogServiceHelper(_))
+                .WillOnce(Return(Result<void>()));
+        auto result = mWatchdogServiceHelperPeer->init(mMockWatchdogProcessService);
+        ASSERT_RESULT_OK(result);
+
+        /*auto watchdogProcessService =
+                static_cast<sp<WatchdogProcessService>>(mMockWatchdogProcessService);*/
+    }
+
+    virtual void TearDown() {
+        if (mWatchdogServiceHelperPeer->getCarWatchdogServiceForSystem() != nullptr) {
+            EXPECT_CALL(*mMockCarWatchdogServiceForSystemBinder,
+                        unlinkToDeath(_, nullptr, 0, nullptr))
+                    .WillOnce(Return(OK));
+            EXPECT_CALL(*mMockWatchdogProcessService, unregisterCarWatchdogService(_)).Times(1);
+        }
+        mWatchdogServiceHelper.clear();
+
+        mMockWatchdogProcessService.clear();
+        mMockCarWatchdogServiceForSystem.clear();
+        mMockCarWatchdogServiceForSystemBinder.clear();
+        mWatchdogServiceHelperPeer.clear();
+    }
+
+    void registerCarWatchdogService() {
+        EXPECT_CALL(*mMockCarWatchdogServiceForSystemBinder, linkToDeath(_, nullptr, 0))
+                .WillOnce(Return(OK));
+        EXPECT_CALL(*mMockWatchdogProcessService, registerCarWatchdogService(_))
+                .WillOnce(Return(Status::ok()));
+
         Status status = mWatchdogServiceHelper->registerService(mMockCarWatchdogServiceForSystem);
         ASSERT_TRUE(status.isOk()) << status;
     }
 
-    virtual void TearDown() {
-        mMockCarWatchdogServiceForSystem.clear();
-        mWatchdogServiceHelper.clear();
-    }
-
-    sp<MockCarWatchdogServiceForSystem> mMockCarWatchdogServiceForSystem;
     sp<WatchdogServiceHelper> mWatchdogServiceHelper;
+    sp<MockWatchdogProcessService> mMockWatchdogProcessService;
+    sp<MockCarWatchdogServiceForSystem> mMockCarWatchdogServiceForSystem;
+    sp<MockBinder> mMockCarWatchdogServiceForSystemBinder;
+
+private:
+    sp<internal::WatchdogServiceHelperPeer> mWatchdogServiceHelperPeer;
 };
 
-}  // namespace
+TEST_F(WatchdogServiceHelperTest, TestInit) {
+    sp<WatchdogServiceHelper> helper(new WatchdogServiceHelper());
+    sp<MockWatchdogProcessService> mockWatchdogProcessService(new MockWatchdogProcessService());
+
+    EXPECT_CALL(*mockWatchdogProcessService, registerWatchdogServiceHelper(_))
+            .WillOnce(Return(Result<void>()));
+
+    ASSERT_RESULT_OK(helper->init(mockWatchdogProcessService));
+}
+
+TEST_F(WatchdogServiceHelperTest, TestErrorOnInitWithErrorFromWatchdogProcessServiceRegistration) {
+    sp<WatchdogServiceHelper> helper(new WatchdogServiceHelper());
+    sp<MockWatchdogProcessService> mockWatchdogProcessService(new MockWatchdogProcessService());
+
+    EXPECT_CALL(*mockWatchdogProcessService, registerWatchdogServiceHelper(_))
+            .WillOnce([](const sp<WatchdogServiceHelperInterface>&) -> Result<void> {
+                return Error() << "Failed to register";
+            });
+
+    auto result = helper->init(nullptr);
+
+    ASSERT_FALSE(result.ok()) << "Watchdog service helper init should fail on error from "
+                              << "watchdog process service registration error";
+}
+
+TEST_F(WatchdogServiceHelperTest, TestErrorOnInitWithNullWatchdogProcessServiceInstance) {
+    sp<WatchdogServiceHelper> helper(new WatchdogServiceHelper());
+
+    auto result = helper->init(nullptr);
+
+    ASSERT_FALSE(result.ok())
+            << "Watchdog service helper init should fail on null watchdog process service instance";
+}
 
 TEST_F(WatchdogServiceHelperTest, TestTerminate) {
+    registerCarWatchdogService();
     EXPECT_CALL(*(mMockCarWatchdogServiceForSystem->getBinder()),
                 unlinkToDeath(_, nullptr, 0, nullptr))
             .WillOnce(Return(OK));
@@ -103,23 +161,57 @@ TEST_F(WatchdogServiceHelperTest, TestTerminate) {
 }
 
 TEST_F(WatchdogServiceHelperTest, TestRegisterService) {
-    sp<ICarWatchdogServiceForSystem> service = new MockCarWatchdogServiceForSystem();
-    sp<WatchdogServiceHelperInterface> helper = new WatchdogServiceHelper();
-    Status status = helper->registerService(service);
+    sp<IBinder> binder = static_cast<sp<IBinder>>(mMockCarWatchdogServiceForSystemBinder);
+    EXPECT_CALL(*mMockCarWatchdogServiceForSystemBinder, linkToDeath(_, nullptr, 0))
+            .WillOnce(Return(OK));
+    EXPECT_CALL(*mMockWatchdogProcessService, registerCarWatchdogService(binder))
+            .WillOnce(Return(Status::ok()));
+
+    Status status = mWatchdogServiceHelper->registerService(mMockCarWatchdogServiceForSystem);
+    ASSERT_TRUE(status.isOk()) << status;
+
+    EXPECT_CALL(*mMockCarWatchdogServiceForSystemBinder, linkToDeath(_, nullptr, 0)).Times(0);
+    EXPECT_CALL(*mMockWatchdogProcessService, registerCarWatchdogService(_)).Times(0);
+
+    status = mWatchdogServiceHelper->registerService(mMockCarWatchdogServiceForSystem);
     ASSERT_TRUE(status.isOk()) << status;
 }
 
 TEST_F(WatchdogServiceHelperTest, TestErrorOnRegisterServiceWithBinderDied) {
-    sp<MockCarWatchdogServiceForSystem> service = new MockCarWatchdogServiceForSystem();
-    service->injectLinkToDeathResult(DEAD_OBJECT);
-    sp<WatchdogServiceHelperInterface> helper = new WatchdogServiceHelper();
-    ASSERT_FALSE(helper->registerService(service).isOk())
+    EXPECT_CALL(*mMockCarWatchdogServiceForSystemBinder, linkToDeath(_, nullptr, 0))
+            .WillOnce(Return(DEAD_OBJECT));
+    EXPECT_CALL(*mMockWatchdogProcessService, registerCarWatchdogService(_)).Times(0);
+
+    ASSERT_FALSE(mWatchdogServiceHelper->registerService(mMockCarWatchdogServiceForSystem).isOk())
             << "Failed to return error on register service with dead binder";
 }
 
+TEST_F(WatchdogServiceHelperTest, TestErrorOnRegisterServiceWithWatchdogProcessServiceError) {
+    sp<IBinder> binder = static_cast<sp<IBinder>>(mMockCarWatchdogServiceForSystemBinder);
+    EXPECT_CALL(*mMockCarWatchdogServiceForSystemBinder, linkToDeath(_, nullptr, 0))
+            .WillOnce(Return(OK));
+    EXPECT_CALL(*mMockCarWatchdogServiceForSystemBinder, unlinkToDeath(_, nullptr, 0, nullptr))
+            .WillOnce(Return(OK));
+    EXPECT_CALL(*mMockWatchdogProcessService, registerCarWatchdogService(binder))
+            .WillOnce(Return(Status::fromExceptionCode(Status::EX_ILLEGAL_STATE)));
+
+    ASSERT_FALSE(mWatchdogServiceHelper->registerService(mMockCarWatchdogServiceForSystem).isOk())
+            << "Failed to return error on error from watchdog process service";
+}
+
 TEST_F(WatchdogServiceHelperTest, TestUnregisterService) {
+    registerCarWatchdogService();
+    sp<IBinder> binder = static_cast<sp<IBinder>>(mMockCarWatchdogServiceForSystemBinder);
+    EXPECT_CALL(*mMockCarWatchdogServiceForSystemBinder, unlinkToDeath(_, nullptr, 0, nullptr))
+            .WillOnce(Return(OK));
+    EXPECT_CALL(*mMockWatchdogProcessService, unregisterCarWatchdogService(binder)).Times(1);
+
     Status status = mWatchdogServiceHelper->unregisterService(mMockCarWatchdogServiceForSystem);
     ASSERT_TRUE(status.isOk()) << status;
+
+    EXPECT_CALL(*mMockCarWatchdogServiceForSystemBinder, unlinkToDeath(_, nullptr, 0, nullptr))
+            .Times(0);
+    EXPECT_CALL(*mMockWatchdogProcessService, unregisterCarWatchdogService(_)).Times(0);
 
     status = mWatchdogServiceHelper->unregisterService(mMockCarWatchdogServiceForSystem);
     ASSERT_FALSE(status.isOk()) << "Unregistering an unregistered service should return an error: "
@@ -127,55 +219,78 @@ TEST_F(WatchdogServiceHelperTest, TestUnregisterService) {
 }
 
 TEST_F(WatchdogServiceHelperTest, TestCheckIfAlive) {
+    registerCarWatchdogService();
     EXPECT_CALL(*mMockCarWatchdogServiceForSystem,
                 checkIfAlive(0, aawi::TimeoutLength::TIMEOUT_CRITICAL))
             .WillOnce(Return(Status::ok()));
-    Status status = mWatchdogServiceHelper->checkIfAlive(0, TimeoutLength::TIMEOUT_CRITICAL);
+    Status status = mWatchdogServiceHelper->checkIfAlive(mMockCarWatchdogServiceForSystemBinder, 0,
+                                                         TimeoutLength::TIMEOUT_CRITICAL);
     ASSERT_TRUE(status.isOk()) << status;
 }
 
-TEST_F(WatchdogServiceHelperTest, TestErrorOnCheckIfAliveWithoutValidCarWatchdogService) {
-    Status status = mWatchdogServiceHelper->unregisterService(mMockCarWatchdogServiceForSystem);
-    ASSERT_TRUE(status.isOk()) << status;
-
+TEST_F(WatchdogServiceHelperTest,
+       TestErrorOnCheckIfAliveWithNotRegisteredCarWatchdogServiceBinder) {
+    registerCarWatchdogService();
     EXPECT_CALL(*mMockCarWatchdogServiceForSystem, checkIfAlive(_, _)).Times(0);
-    status = mWatchdogServiceHelper->checkIfAlive(0, TimeoutLength::TIMEOUT_CRITICAL);
+    Status status = mWatchdogServiceHelper->checkIfAlive(new MockBinder(), 0,
+                                                         TimeoutLength::TIMEOUT_CRITICAL);
+    ASSERT_FALSE(status.isOk()) << "checkIfAlive should fail when the given car watchdog service "
+                                   "binder is not registered with the helper";
+}
+
+TEST_F(WatchdogServiceHelperTest, TestErrorOnCheckIfAliveWithNoCarWatchdogServiceRegistered) {
+    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, checkIfAlive(_, _)).Times(0);
+    Status status = mWatchdogServiceHelper->checkIfAlive(mMockCarWatchdogServiceForSystemBinder, 0,
+                                                         TimeoutLength::TIMEOUT_CRITICAL);
     ASSERT_FALSE(status.isOk())
             << "checkIfAlive should fail when no car watchdog service registered with the helper";
 }
 
 TEST_F(WatchdogServiceHelperTest, TestErrorOnCheckIfAliveWithErrorStatusFromCarWatchdogService) {
+    registerCarWatchdogService();
     EXPECT_CALL(*mMockCarWatchdogServiceForSystem,
                 checkIfAlive(0, aawi::TimeoutLength::TIMEOUT_CRITICAL))
             .WillOnce(Return(Status::fromExceptionCode(Status::EX_ILLEGAL_STATE, "Illegal state")));
-    Status status = mWatchdogServiceHelper->checkIfAlive(0, TimeoutLength::TIMEOUT_CRITICAL);
+    Status status = mWatchdogServiceHelper->checkIfAlive(mMockCarWatchdogServiceForSystemBinder, 0,
+                                                         TimeoutLength::TIMEOUT_CRITICAL);
     ASSERT_FALSE(status.isOk())
             << "checkIfAlive should fail when car watchdog service API returns error";
 }
 
 TEST_F(WatchdogServiceHelperTest, TestPrepareProcessTermination) {
+    registerCarWatchdogService();
     EXPECT_CALL(*mMockCarWatchdogServiceForSystem, prepareProcessTermination())
             .WillOnce(Return(Status::ok()));
-    Status status = mWatchdogServiceHelper->prepareProcessTermination();
+    Status status = mWatchdogServiceHelper->prepareProcessTermination(
+            mMockCarWatchdogServiceForSystemBinder);
     ASSERT_TRUE(status.isOk()) << status;
 }
 
 TEST_F(WatchdogServiceHelperTest,
-       TestErrorOnPrepareProcessTerminationWithoutValidCarWatchdogService) {
-    Status status = mWatchdogServiceHelper->unregisterService(mMockCarWatchdogServiceForSystem);
-    ASSERT_TRUE(status.isOk()) << status;
-
+       TestErrorOnPrepareProcessTerminationWithNotRegisteredCarWatchdogServiceBinder) {
+    registerCarWatchdogService();
     EXPECT_CALL(*mMockCarWatchdogServiceForSystem, prepareProcessTermination()).Times(0);
-    status = mWatchdogServiceHelper->prepareProcessTermination();
+    Status status = mWatchdogServiceHelper->prepareProcessTermination(new MockBinder());
+    ASSERT_FALSE(status.isOk()) << "prepareProcessTermination should fail when the given car "
+                                   "watchdog service binder is not registered with the helper";
+}
+
+TEST_F(WatchdogServiceHelperTest,
+       TestErrorOnPrepareProcessTerminationWithNoCarWatchdogServiceRegistered) {
+    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, prepareProcessTermination()).Times(0);
+    Status status = mWatchdogServiceHelper->prepareProcessTermination(
+            mMockCarWatchdogServiceForSystemBinder);
     ASSERT_FALSE(status.isOk()) << "prepareProcessTermination should fail when no car watchdog "
                                    "service registered with the helper";
 }
 
 TEST_F(WatchdogServiceHelperTest,
        TestErrorOnPrepareProcessTerminationWithErrorStatusFromCarWatchdogService) {
+    registerCarWatchdogService();
     EXPECT_CALL(*mMockCarWatchdogServiceForSystem, prepareProcessTermination())
             .WillOnce(Return(Status::fromExceptionCode(Status::EX_ILLEGAL_STATE, "Illegal state")));
-    Status status = mWatchdogServiceHelper->prepareProcessTermination();
+    Status status = mWatchdogServiceHelper->prepareProcessTermination(
+            mMockCarWatchdogServiceForSystemBinder);
     ASSERT_FALSE(status.isOk())
             << "prepareProcessTermination should fail when car watchdog service API returns error";
 }

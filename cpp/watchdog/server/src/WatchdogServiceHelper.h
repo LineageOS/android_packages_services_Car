@@ -35,10 +35,15 @@ namespace watchdog {
 class ServiceManager;
 class WatchdogProcessService;
 
+// Forward declaration for testing use only.
+namespace internal {
+
+class WatchdogServiceHelperPeer;
+
+}  // namespace internal
+
 class WatchdogServiceHelperInterface : public android::IBinder::DeathRecipient {
 public:
-    virtual android::base::Result<void> init(
-            const android::sp<WatchdogProcessService>& watchdogProcessService) = 0;
     virtual android::binder::Status registerService(
             const android::sp<
                     android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>&
@@ -56,6 +61,8 @@ public:
             const android::wp<android::IBinder>& who) = 0;
 
 protected:
+    virtual android::base::Result<void> init(
+            const android::sp<WatchdogProcessService>& watchdogProcessService) = 0;
     virtual void terminate() = 0;
 
 private:
@@ -70,8 +77,6 @@ public:
     WatchdogServiceHelper() : mService(nullptr), mWatchdogProcessService(nullptr) {}
     ~WatchdogServiceHelper();
 
-    android::base::Result<void> init(
-            const android::sp<WatchdogProcessService>& watchdogProcessService);
     android::binder::Status registerService(
             const android::sp<
                     android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>& service)
@@ -89,6 +94,8 @@ public:
             const android::wp<android::IBinder>& who) override;
 
 protected:
+    android::base::Result<void> init(
+            const android::sp<WatchdogProcessService>& watchdogProcessService);
     void terminate();
 
 private:
@@ -99,9 +106,15 @@ private:
             GUARDED_BY(mRWMutex);
     android::sp<WatchdogProcessService> mWatchdogProcessService;
 
-    // For unit tests.
-    FRIEND_TEST(WatchdogServiceHelperTest, TestTerminate);
     friend class ServiceManager;
+
+    // For unit tests.
+    friend class internal::WatchdogServiceHelperPeer;
+    FRIEND_TEST(WatchdogServiceHelperTest, TestInit);
+    FRIEND_TEST(WatchdogServiceHelperTest,
+                TestErrorOnInitWithErrorFromWatchdogProcessServiceRegistration);
+    FRIEND_TEST(WatchdogServiceHelperTest, TestErrorOnInitWithNullWatchdogProcessServiceInstance);
+    FRIEND_TEST(WatchdogServiceHelperTest, TestTerminate);
 };
 
 }  // namespace watchdog
