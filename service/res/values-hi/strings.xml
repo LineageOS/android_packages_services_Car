@@ -62,6 +62,10 @@
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"इंस्ट्रूमेंट क्लस्टर का डेटा पाएं"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"UX पाबंदियों का कॉन्फ़िगरेशन"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"UX की पाबंदियां कॉन्फ़िगर करें"</string>
+    <!-- no translation found for car_permission_label_access_private_display_id (6712116114341634316) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_access_private_display_id (8535974477610944721) -->
+    <skip />
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"एओएपी मोड में यूएसबी डिवाइस से कनेक्ट करें"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"ऐप्लिकेशन एओएपी मोड में किसी डिवाइस से कनेक्ट हो सकता है"</string>
     <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Occupant Awareness System से मिले डेटा को सिर्फ़ पढ़ने की अनुमति"</string>
