@@ -60,6 +60,9 @@ public:
             hardware::automotive::vehicle::V2_0::VehicleApPowerStateReport state) const;
     CarPowerPolicyPtr getSystemPowerPolicy() const;
     bool isPowerPolicyGroupAvailable(const std::string& groupId) const;
+    base::Result<void> definePowerPolicy(const std::string& policyId,
+                                         const std::vector<std::string>& enabledComponents,
+                                         const std::vector<std::string>& disabledComponents);
     base::Result<void> dump(int fd, const Vector<String16>& args);
 
 private:

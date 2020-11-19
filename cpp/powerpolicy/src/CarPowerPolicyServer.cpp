@@ -178,6 +178,12 @@ Status CarServiceNotificationHandler::notifyPowerPolicyChange(const std::string&
     return mService->notifyPowerPolicyChange(policyId);
 }
 
+Status CarServiceNotificationHandler::notifyPowerPolicyDefinition(
+        const std::string& policyId, const std::vector<std::string>& enabledComponents,
+        const std::vector<std::string>& disabledComponents) {
+    return mService->notifyPowerPolicyDefinition(policyId, enabledComponents, disabledComponents);
+}
+
 Result<sp<CarPowerPolicyServer>> CarPowerPolicyServer::startService(const sp<Looper>& looper) {
     if (sCarPowerPolicyServer != nullptr) {
         return Error(INVALID_OPERATION) << "Cannot start service more than once";
@@ -312,6 +318,21 @@ Status CarPowerPolicyServer::notifyPowerPolicyChange(const std::string& policyId
                                          StringPrintf("Failed to notify power policy change: %s",
                                                       ret.error().message().c_str())
                                                  .c_str());
+    }
+    return Status::ok();
+}
+
+Status CarPowerPolicyServer::notifyPowerPolicyDefinition(
+        const std::string& policyId, const std::vector<std::string>& enabledComponents,
+        const std::vector<std::string>& disabledComponents) {
+    const auto& ret =
+            mPolicyManager.definePowerPolicy(policyId, enabledComponents, disabledComponents);
+    if (!ret.ok()) {
+        return Status::
+                fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
+                                  StringPrintf("Failed to notify power policy definition: %s",
+                                               ret.error().message().c_str())
+                                          .c_str());
     }
     return Status::ok();
 }

@@ -146,7 +146,7 @@ final class PowerComponentHandler {
                 new InputStreamReader(mComponentStateFile.openRead(), StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                int component = toPowerComponent(line.trim());
+                int component = toPowerComponent(line.trim(), false);
                 if (component == INVALID_POWER_COMPONENT) {
                     invalid = true;
                     break;
