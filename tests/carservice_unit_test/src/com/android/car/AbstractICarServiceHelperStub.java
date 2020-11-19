@@ -17,6 +17,7 @@ package com.android.car;
 
 import android.annotation.UserIdInt;
 import android.content.ComponentName;
+import android.content.pm.UserInfo;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -64,5 +65,12 @@ abstract class AbstractICarServiceHelperStub extends ICarServiceHelper.Stub {
     @Override
     public void setSafetyMode(boolean safe) {
         Log.d(TAG, "setSafetyMode(safe=" + safe + ")");
+    }
+
+    @Override
+    public UserInfo createUserEvenWhenDisallowed(String name, String userType, int flags) {
+        Log.d(TAG, "createUserEvenWhenDisallowed(name=" + name + ", userType=" + userType
+                + ", flags=" + flags + ")");
+        return null;
     }
 }

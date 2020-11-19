@@ -321,8 +321,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         mUserManager = userManager;
         mLastPassengerId = UserHandle.USER_NULL;
         mInitialUserSetter =
-                initialUserSetter == null ? new InitialUserSetter(context, (u) -> setInitialUser(u))
-                        : initialUserSetter;
+                initialUserSetter == null ? new InitialUserSetter(context, this,
+                        (u) -> setInitialUser(u)) : initialUserSetter;
         mUserPreCreator =
                 userPreCreator == null ? new UserPreCreator(mUserManager) : userPreCreator;
         Resources resources = context.getResources();
@@ -1241,6 +1241,26 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             mUserSwitchUiReceiver.send(targetUserId, null);
         } catch (RemoteException e) {
             Log.e(TAG_USER, "Error calling user switch UI receiver.", e);
+        }
+    }
+
+    /**
+     * Used to create the initial user, even when it's disallowed by {@code DevicePolicyManager}.
+     */
+    @Nullable
+    UserInfo createUserEvenWhenDisallowed(@Nullable String name, @NonNull String userType,
+            @UserInfoFlag int flags) {
+        if (mICarServiceHelper == null) {
+            Log.wtf(TAG, "createUserEvenWhenDisallowed(): mICarServiceHelper not set yet",
+                    new Exception());
+            return null;
+        }
+        try {
+            return mICarServiceHelper.createUserEvenWhenDisallowed(name, userType, flags);
+        } catch (RemoteException e) {
+            Log.e(TAG, "createUserEvenWhenDisallowed(" + UserHelperLite.safeName(name) + ", "
+                    + userType + ", " + UserInfo.flagsToString(flags) + ") failed", e);
+            return null;
         }
     }
 
