@@ -127,6 +127,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private final boolean mUseDynamicRouting;
     private final boolean mPersistMasterMuteState;
     private final CarAudioSettings mCarAudioSettings;
+    private final CarVolume mCarVolume;
     private AudioControlWrapper mAudioControlWrapper;
     private HalAudioFocus mHalAudioFocus;
 
@@ -234,6 +235,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         mCarVolumeCallbackHandler = new CarVolumeCallbackHandler();
         mCarAudioSettings = new CarAudioSettings(mContext.getContentResolver());
         mAudioZoneIdToUserIdMapping = new SparseIntArray();
+        mCarVolume = new CarVolume(CarVolume.AUDIO_CONTEXT_VOLUME_PRIORITY_V1);
     }
 
     /**
@@ -1123,7 +1125,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         @CallState int callState = mTelephonyManager.getCallState();
         List<AudioPlaybackConfiguration> configurations =
                 mAudioManager.getActivePlaybackConfigurations();
-        return CarVolume.getSuggestedAudioContext(configurations, callState,
+        return mCarVolume.getSuggestedAudioContext(configurations, callState,
                 mHalAudioFocus.getActiveUsagesForZone(zoneId));
     }
 

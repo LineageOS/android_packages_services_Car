@@ -28,7 +28,6 @@ import static android.telephony.TelephonyManager.CALL_STATE_IDLE;
 import static android.telephony.TelephonyManager.CALL_STATE_OFFHOOK;
 import static android.telephony.TelephonyManager.CALL_STATE_RINGING;
 
-import static com.android.car.audio.CarAudioContext.ALARM;
 import static com.android.car.audio.CarAudioContext.CALL;
 import static com.android.car.audio.CarAudioContext.CALL_RING;
 import static com.android.car.audio.CarAudioContext.MUSIC;
@@ -61,7 +60,9 @@ import java.util.List;
 public class CarVolumeTest {
     @Test
     public void getSuggestedAudioContext_withNoConfigurationsAndIdleTelephony_returnsDefault() {
-        @AudioContext int suggestedContext = CarVolume.getSuggestedAudioContext(new ArrayList<>(),
+        CarVolume carVolume = new CarVolume(CarVolume.AUDIO_CONTEXT_VOLUME_PRIORITY_V2);
+
+        @AudioContext int suggestedContext = carVolume.getSuggestedAudioContext(new ArrayList<>(),
                 CALL_STATE_IDLE, new int[0]);
 
         assertThat(suggestedContext).isEqualTo(CarAudioService.DEFAULT_AUDIO_CONTEXT);
@@ -69,19 +70,22 @@ public class CarVolumeTest {
 
     @Test
     public void getSuggestedAudioContext_withOneConfiguration_returnsAssociatedContext() {
+        CarVolume carVolume = new CarVolume(CarVolume.AUDIO_CONTEXT_VOLUME_PRIORITY_V2);
         List<AudioPlaybackConfiguration> configurations = ImmutableList.of(
-                new Builder().setUsage(USAGE_ALARM).build()
+                new Builder().setUsage(USAGE_ASSISTANT).build()
         );
 
-        @AudioContext int suggestedContext = CarVolume.getSuggestedAudioContext(configurations,
+        @AudioContext int suggestedContext = carVolume.getSuggestedAudioContext(configurations,
                 CALL_STATE_IDLE, new int[0]);
 
-        assertThat(suggestedContext).isEqualTo(ALARM);
+        assertThat(suggestedContext).isEqualTo(VOICE_COMMAND);
     }
 
     @Test
     public void getSuggestedAudioContext_withCallStateOffHook_returnsCallContext() {
-        @AudioContext int suggestedContext = CarVolume.getSuggestedAudioContext(new ArrayList<>(),
+        CarVolume carVolume = new CarVolume(CarVolume.AUDIO_CONTEXT_VOLUME_PRIORITY_V2);
+
+        @AudioContext int suggestedContext = carVolume.getSuggestedAudioContext(new ArrayList<>(),
                 CALL_STATE_OFFHOOK, new int[0]);
 
         assertThat(suggestedContext).isEqualTo(CALL);
@@ -89,7 +93,9 @@ public class CarVolumeTest {
 
     @Test
     public void getSuggestedAudioContext_withCallStateRinging_returnsCallRingContext() {
-        @AudioContext int suggestedContext = CarVolume.getSuggestedAudioContext(new ArrayList<>(),
+        CarVolume carVolume = new CarVolume(CarVolume.AUDIO_CONTEXT_VOLUME_PRIORITY_V2);
+
+        @AudioContext int suggestedContext = carVolume.getSuggestedAudioContext(new ArrayList<>(),
                 CALL_STATE_RINGING, new int[0]);
 
         assertThat(suggestedContext).isEqualTo(CALL_RING);
@@ -97,13 +103,14 @@ public class CarVolumeTest {
 
     @Test
     public void getSuggestedAudioContext_withConfigurations_returnsHighestPriorityContext() {
+        CarVolume carVolume = new CarVolume(CarVolume.AUDIO_CONTEXT_VOLUME_PRIORITY_V2);
         List<AudioPlaybackConfiguration> configurations = ImmutableList.of(
                 new Builder().setUsage(USAGE_ALARM).build(),
                 new Builder().setUsage(USAGE_VOICE_COMMUNICATION).build(),
                 new Builder().setUsage(USAGE_NOTIFICATION).build()
         );
 
-        @AudioContext int suggestedContext = CarVolume.getSuggestedAudioContext(configurations,
+        @AudioContext int suggestedContext = carVolume.getSuggestedAudioContext(configurations,
                 CALL_STATE_IDLE, new int[0]);
 
         assertThat(suggestedContext).isEqualTo(CALL);
@@ -111,50 +118,67 @@ public class CarVolumeTest {
 
     @Test
     public void getSuggestedAudioContext_ignoresInactiveConfigurations() {
+        CarVolume carVolume = new CarVolume(CarVolume.AUDIO_CONTEXT_VOLUME_PRIORITY_V2);
         List<AudioPlaybackConfiguration> configurations = ImmutableList.of(
-                new Builder().setUsage(USAGE_ALARM).build(),
+                new Builder().setUsage(USAGE_ASSISTANT).build(),
                 new Builder().setUsage(USAGE_VOICE_COMMUNICATION).setInactive().build(),
                 new Builder().setUsage(USAGE_NOTIFICATION).build()
         );
 
-        @AudioContext int suggestedContext = CarVolume.getSuggestedAudioContext(configurations,
+        @AudioContext int suggestedContext = carVolume.getSuggestedAudioContext(configurations,
                 CALL_STATE_IDLE, new int[0]);
 
-        assertThat(suggestedContext).isEqualTo(ALARM);
+        assertThat(suggestedContext).isEqualTo(VOICE_COMMAND);
     }
 
     @Test
     public void getSuggestedAudioContext_withLowerPriorityConfigurationsAndCall_returnsCall() {
+        CarVolume carVolume = new CarVolume(CarVolume.AUDIO_CONTEXT_VOLUME_PRIORITY_V2);
         List<AudioPlaybackConfiguration> configurations = ImmutableList.of(
                 new Builder().setUsage(USAGE_ALARM).build(),
                 new Builder().setUsage(USAGE_NOTIFICATION).build()
         );
 
-        @AudioContext int suggestedContext = CarVolume.getSuggestedAudioContext(configurations,
+        @AudioContext int suggestedContext = carVolume.getSuggestedAudioContext(configurations,
                 CALL_STATE_OFFHOOK, new int[0]);
 
         assertThat(suggestedContext).isEqualTo(CALL);
     }
 
     @Test
-    public void getSuggestedAudioContext_withNavigationConfigurationAndCall_returnsNavigation() {
+    public void getSuggestedAudioContext_withV1AndNavigationConfigurationAndCall_returnsNav() {
+        CarVolume carVolume = new CarVolume(CarVolume.AUDIO_CONTEXT_VOLUME_PRIORITY_V1);
         List<AudioPlaybackConfiguration> configurations = ImmutableList.of(
                 new Builder().setUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE).build()
         );
 
-        @AudioContext int suggestedContext = CarVolume.getSuggestedAudioContext(configurations,
+        @AudioContext int suggestedContext = carVolume.getSuggestedAudioContext(configurations,
                 CALL_STATE_OFFHOOK, new int[0]);
 
         assertThat(suggestedContext).isEqualTo(NAVIGATION);
     }
 
     @Test
+    public void getSuggestedAudioContext_withV2AndNavigationConfigurationAndCall_returnsCall() {
+        CarVolume carVolume = new CarVolume(CarVolume.AUDIO_CONTEXT_VOLUME_PRIORITY_V2);
+        List<AudioPlaybackConfiguration> configurations = ImmutableList.of(
+                new Builder().setUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE).build()
+        );
+
+        @AudioContext int suggestedContext = carVolume.getSuggestedAudioContext(configurations,
+                CALL_STATE_OFFHOOK, new int[0]);
+
+        assertThat(suggestedContext).isEqualTo(CALL);
+    }
+
+    @Test
     public void getSuggestedAudioContext_withUnprioritizedUsage_returnsDefault() {
+        CarVolume carVolume = new CarVolume(CarVolume.AUDIO_CONTEXT_VOLUME_PRIORITY_V2);
         List<AudioPlaybackConfiguration> configurations = ImmutableList.of(
                 new Builder().setUsage(USAGE_VIRTUAL_SOURCE).build()
         );
 
-        @AudioContext int suggestedContext = CarVolume.getSuggestedAudioContext(configurations,
+        @AudioContext int suggestedContext = carVolume.getSuggestedAudioContext(configurations,
                 CALL_STATE_IDLE, new int[0]);
 
         assertThat(suggestedContext).isEqualTo(DEFAULT_AUDIO_CONTEXT);
@@ -162,9 +186,10 @@ public class CarVolumeTest {
 
     @Test
     public void getSuggestedAudioContext_withHalActiveUsage_returnsHalActive() {
+        CarVolume carVolume = new CarVolume(CarVolume.AUDIO_CONTEXT_VOLUME_PRIORITY_V2);
         int[] activeHalUsages = new int[] {USAGE_ASSISTANT};
 
-        @AudioContext int suggestedContext = CarVolume.getSuggestedAudioContext(new ArrayList<>(),
+        @AudioContext int suggestedContext = carVolume.getSuggestedAudioContext(new ArrayList<>(),
                 CALL_STATE_IDLE, activeHalUsages);
 
         assertThat(suggestedContext).isEqualTo(VOICE_COMMAND);
@@ -172,9 +197,10 @@ public class CarVolumeTest {
 
     @Test
     public void getSuggestedAudioContext_withHalUnprioritizedUsage_returnsDefault() {
+        CarVolume carVolume = new CarVolume(CarVolume.AUDIO_CONTEXT_VOLUME_PRIORITY_V2);
         int[] activeHalUsages = new int[] {USAGE_VIRTUAL_SOURCE};
 
-        @AudioContext int suggestedContext = CarVolume.getSuggestedAudioContext(new ArrayList<>(),
+        @AudioContext int suggestedContext = carVolume.getSuggestedAudioContext(new ArrayList<>(),
                 CALL_STATE_IDLE, activeHalUsages);
 
         assertThat(suggestedContext).isEqualTo(DEFAULT_AUDIO_CONTEXT);
@@ -182,12 +208,13 @@ public class CarVolumeTest {
 
     @Test
     public void getSuggestedAudioContext_withConfigAndHalActiveUsage_returnsConfigActive() {
+        CarVolume carVolume = new CarVolume(CarVolume.AUDIO_CONTEXT_VOLUME_PRIORITY_V2);
         int[] activeHalUsages = new int[] {USAGE_ASSISTANT};
         List<AudioPlaybackConfiguration> configurations = ImmutableList.of(
                 new Builder().setUsage(USAGE_MEDIA).build()
         );
 
-        @AudioContext int suggestedContext = CarVolume.getSuggestedAudioContext(configurations,
+        @AudioContext int suggestedContext = carVolume.getSuggestedAudioContext(configurations,
                 CALL_STATE_IDLE, activeHalUsages);
 
         assertThat(suggestedContext).isEqualTo(MUSIC);
@@ -195,12 +222,13 @@ public class CarVolumeTest {
 
     @Test
     public void getSuggestedAudioContext_withConfigAndHalActiveUsage_returnsHalActive() {
+        CarVolume carVolume = new CarVolume(CarVolume.AUDIO_CONTEXT_VOLUME_PRIORITY_V2);
         int[] activeHalUsages = new int[] {USAGE_MEDIA};
         List<AudioPlaybackConfiguration> configurations = ImmutableList.of(
                 new Builder().setUsage(USAGE_ASSISTANT).build()
         );
 
-        @AudioContext int suggestedContext = CarVolume.getSuggestedAudioContext(configurations,
+        @AudioContext int suggestedContext = carVolume.getSuggestedAudioContext(configurations,
                 CALL_STATE_IDLE, activeHalUsages);
 
         assertThat(suggestedContext).isEqualTo(MUSIC);
@@ -208,10 +236,11 @@ public class CarVolumeTest {
 
     @Test
     public void getSuggestedAudioContext_withHalActiveUsageAndActiveCall_returnsCall() {
+        CarVolume carVolume = new CarVolume(CarVolume.AUDIO_CONTEXT_VOLUME_PRIORITY_V2);
         int[] activeHalUsages = new int[] {USAGE_MEDIA};
         List<AudioPlaybackConfiguration> configurations = new ArrayList<>();
 
-        @AudioContext int suggestedContext = CarVolume.getSuggestedAudioContext(configurations,
+        @AudioContext int suggestedContext = carVolume.getSuggestedAudioContext(configurations,
                 CALL_STATE_OFFHOOK, activeHalUsages);
 
         assertThat(suggestedContext).isEqualTo(CALL);
@@ -219,10 +248,11 @@ public class CarVolumeTest {
 
     @Test
     public void getSuggestedAudioContext_withMultipleHalActiveUsages_returnsMusic() {
+        CarVolume carVolume = new CarVolume(CarVolume.AUDIO_CONTEXT_VOLUME_PRIORITY_V2);
         int[] activeHalUsages = new int[] {USAGE_MEDIA, USAGE_ANNOUNCEMENT, USAGE_ASSISTANT};
         List<AudioPlaybackConfiguration> configurations = new ArrayList<>();
 
-        @AudioContext int suggestedContext = CarVolume.getSuggestedAudioContext(configurations,
+        @AudioContext int suggestedContext = carVolume.getSuggestedAudioContext(configurations,
                 CALL_STATE_IDLE, activeHalUsages);
 
         assertThat(suggestedContext).isEqualTo(MUSIC);
