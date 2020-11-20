@@ -625,25 +625,27 @@ bool SurroundView2dSession::initialize() {
     mSurroundView = unique_ptr<SurroundView>(Create());
 
     SurroundViewStaticDataParams params =
-            SurroundViewStaticDataParams(
-                    mCameraParams,
-                    mIOModuleConfig->sv2dConfig.sv2dParams,
-                    mIOModuleConfig->sv3dConfig.sv3dParams,
-                    vector<float>(std::begin(kUndistortionScales),
-                                  std::end(kUndistortionScales)),
-                    mIOModuleConfig->sv2dConfig.carBoundingBox,
-                    mIOModuleConfig->carModelConfig.carModel.texturesMap,
-                    mIOModuleConfig->carModelConfig.carModel.partsMap);
+            SurroundViewStaticDataParams(mCameraParams,
+                                         mIOModuleConfig->sv2dConfig.sv2dParams,
+                                         mIOModuleConfig->sv3dConfig.sv3dParams,
+                                         vector<float>(std::begin(kUndistortionScales),
+                                                       std::end(kUndistortionScales)),
+                                         mIOModuleConfig->sv2dConfig.carBoundingBox,
+                                         mIOModuleConfig->carModelConfig.carModel.texturesMap,
+                                         mIOModuleConfig->carModelConfig.carModel.partsMap);
 
     ATRACE_BEGIN("SV core lib method: SetStaticData");
     mSurroundView->SetStaticData(params);
     ATRACE_END();
 
     ATRACE_BEGIN("SV core lib method: Start2dPipeline");
+    const string gpuEnabledText = mIOModuleConfig->sv2dConfig.sv2dParams.gpu_acceleration_enabled
+            ? "with GPU acceleration flag enabled"
+            : "with GPU acceleration flag disabled";
     if (mSurroundView->Start2dPipeline()) {
-        LOG(INFO) << "Start2dPipeline succeeded";
+        LOG(INFO) << "Start2dPipeline succeeded " << gpuEnabledText;
     } else {
-        LOG(ERROR) << "Start2dPipeline failed";
+        LOG(ERROR) << "Start2dPipeline failed " << gpuEnabledText;
         return false;
     }
     ATRACE_END();

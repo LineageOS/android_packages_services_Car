@@ -177,6 +177,7 @@ cc_library{
         "libio_module",
         "libui",
         "libutils",
+        "libvulkan",
         "libvhal_handler",
     ],
     required : [
@@ -396,6 +397,7 @@ cc_prebuilt_library_shared{
         "libdl",
         "libz",
         "liblog",
+        "libvulkan",
     ],
 }
 
