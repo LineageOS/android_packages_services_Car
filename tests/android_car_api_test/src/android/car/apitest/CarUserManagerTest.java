@@ -38,8 +38,6 @@ import android.car.Car;
 import android.car.testapi.BlockingUserLifecycleListener;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
-import android.car.user.UserSwitchResult;
-import android.car.util.concurrent.AsyncFuture;
 import android.content.pm.UserInfo;
 import android.os.RemoteException;
 import android.os.UserHandle;
@@ -56,7 +54,6 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class CarUserManagerTest extends CarApiTestBase {
@@ -113,7 +110,7 @@ public final class CarUserManagerTest extends CarApiTestBase {
     @Test
     public void testLifecycleListener() throws Exception {
         int oldUserId = ActivityManager.getCurrentUser();
-        int newUserId = createNewUser("Test", /* isGuest= */ false).id;
+        int newUserId = createNewUserDirectly("Test", /* isGuest= */ false).id;
 
         BlockingUserLifecycleListener startListener = BlockingUserLifecycleListener
                 .forSpecificEvents()
@@ -212,7 +209,7 @@ public final class CarUserManagerTest extends CarApiTestBase {
     @FlakyTest // TODO(b/158050171) remove once process is stable on user switching.
     public void testGuestUserResumeToNewGuestUser() throws Exception {
         // Create new guest user
-        UserInfo guestUser = createNewUser("Guest", /* isGuest= */ true);
+        UserInfo guestUser = createNewUserDirectly("Guest", /* isGuest= */ true);
         int guestUserId = guestUser.id;
 
         // Wait for this user to be active
@@ -263,7 +260,7 @@ public final class CarUserManagerTest extends CarApiTestBase {
     @FlakyTest // TODO(b/158050171) remove once process is stable on user switching.
     public void testSecuredGuestUserResumeToSameUser() throws Exception {
         // Create new guest user
-        UserInfo guestUser = createNewUser("Guest", /* isGuest= */ true);
+        UserInfo guestUser = createNewUserDirectly("Guest", /* isGuest= */ true);
         int guestUserId = guestUser.id;
 
         // Wait for this user to be active
@@ -299,7 +296,7 @@ public final class CarUserManagerTest extends CarApiTestBase {
     @Test
     @FlakyTest // TODO(b/158050171) remove once process is stable on user switching.
     public void testPersistentUserResumeToUser() throws Exception {
-        int newUserId = createNewUser("Test", /* isGuest= */ false).id;
+        int newUserId = createNewUserDirectly("Test", /* isGuest= */ false).id;
         BlockingUserLifecycleListener listener = BlockingUserLifecycleListener
                 .forSpecificEvents()
                 .forUser(newUserId)
@@ -321,7 +318,7 @@ public final class CarUserManagerTest extends CarApiTestBase {
     }
 
     @NonNull
-    private static UserInfo createNewUser(String name, boolean isGuest) {
+    private static UserInfo createNewUserDirectly(String name, boolean isGuest) {
         name = "CarUserManagerTest." + name;
         Log.i(TAG, "Creating new user " + name);
         UserInfo newUser = isGuest ? sUserManager.createGuest(sContext, name)
@@ -329,19 +326,6 @@ public final class CarUserManagerTest extends CarApiTestBase {
         sCreatedUsers.add(newUser.id);
         Log.i(TAG, "Created new user: " + newUser.toFullString());
         return newUser;
-    }
-
-    private void switchUser(@UserIdInt int userId) throws Exception {
-        Log.i(TAG, "Switching to user " + userId + " using CarUserManager");
-
-        AsyncFuture<UserSwitchResult> future = mCarUserManager.switchUser(userId);
-        UserSwitchResult result = future.get(SWITCH_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        Log.d(TAG, "Result: " + result);
-
-        // TODO(b/155326051): use result.isSuccess()
-        if (result.getStatus() != UserSwitchResult.STATUS_SUCCESSFUL) {
-            fail("Could not switch to user " + userId + ": " + result);
-        }
     }
 
     // TODO: ideally should use switchUser(), but that requires CarUserManager, which is not static.

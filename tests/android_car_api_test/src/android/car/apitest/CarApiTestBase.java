@@ -26,15 +26,27 @@ import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeFalse;
 
 import android.annotation.NonNull;
+import android.annotation.Nullable;
+import android.annotation.UserIdInt;
 import android.car.Car;
+import android.car.user.CarUserManager;
+import android.car.user.UserCreationResult;
+import android.car.user.UserRemovalResult;
+import android.car.user.UserSwitchResult;
+import android.car.util.concurrent.AsyncFuture;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.pm.UserInfo;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.PowerManager;
 import android.os.SystemClock;
+import android.os.UserManager;
 import android.util.Log;
 
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -42,6 +54,9 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import org.junit.After;
 import org.junit.Before;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -49,6 +64,8 @@ abstract class CarApiTestBase {
 
     private static final String TAG = CarApiTestBase.class.getSimpleName();
 
+    private static final long REMOVE_TIMEOUT_MS = TimeUnit.SECONDS.toMillis(60);
+    private static final long SWITCH_USER_TIMEOUT_MS = TimeUnit.SECONDS.toMillis(40);
     protected static final long DEFAULT_WAIT_TIMEOUT_MS = 1_000;
 
     /**
@@ -64,20 +81,39 @@ abstract class CarApiTestBase {
             .getTargetContext();
 
     private Car mCar;
+    private CarUserManager mCarUserManager;
+    private UserManager mUserManager;
 
     protected final DefaultServiceConnectionListener mConnectionListener =
             new DefaultServiceConnectionListener();
+    private final CountDownLatch mUserRemoveLatch = new CountDownLatch(1);
+    private final List<Integer> mUsersToRemove = new ArrayList<>();
 
     @Before
     public final void connectToCar() throws Exception {
         mCar = Car.createCar(getContext(), mConnectionListener);
         mCar.connect();
         mConnectionListener.waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
+        mCarUserManager = getCarService(Car.CAR_USER_SERVICE);
+        mUserManager = getContext().getSystemService(UserManager.class);
+
+        IntentFilter filter = new IntentFilter(Intent.ACTION_USER_REMOVED);
+        getContext().registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                mUserRemoveLatch.countDown();
+            }
+        }, filter);
     }
 
     @After
-    public final void disconnectFromCar() throws Exception {
+    public void tearDown() throws Exception {
         mCar.disconnect();
+        for (Integer userId : mUsersToRemove) {
+            if (hasUser(userId)) {
+                removeUser(userId);
+            }
+        }
     }
 
     protected Car getCar() {
@@ -156,5 +192,63 @@ abstract class CarApiTestBase {
 
     protected void requireNonUserBuild() {
         assumeFalse("Requires Shell commands that are not available on user builds", Build.IS_USER);
+    }
+
+    @NonNull
+    protected UserInfo createUser(@Nullable String name) throws Exception {
+        Log.d(TAG, "Creating new user " + name);
+        UserCreationResult result = mCarUserManager.createUser(name, /* flags= */ 0)
+                .get(DEFAULT_WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        Log.d(TAG, "result: " + result);
+        assertWithMessage("Could not create user %s: %s", name, result)
+                .that(result.isSuccess())
+                .isTrue();
+        mUsersToRemove.add(result.getUser().id);
+        return result.getUser();
+    }
+
+    protected void waitForUserRemoval(@UserIdInt int userId) throws Exception {
+        boolean result = mUserRemoveLatch.await(REMOVE_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        assertWithMessage("Timeout waiting for removeUser. userId = %s", userId)
+                .that(result)
+                .isTrue();
+    }
+
+    protected void switchUser(@UserIdInt int userId) throws Exception {
+        Log.i(TAG, "Switching to user " + userId + " using CarUserManager");
+
+        AsyncFuture<UserSwitchResult> future = mCarUserManager.switchUser(userId);
+        UserSwitchResult result = future.get(SWITCH_USER_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        Log.d(TAG, "Result: " + result);
+
+        assertWithMessage("Timeout waiting for the user switch to %s. Result: %s", userId, result)
+                .that(result.isSuccess())
+                .isTrue();
+    }
+
+    protected void removeUser(@UserIdInt int userId) {
+        Log.d(TAG, "Removing user " + userId);
+
+        UserRemovalResult result = mCarUserManager.removeUser(userId);
+        Log.d(TAG, "result: " + result);
+        assertWithMessage("Could not remove user %s: %s", userId, result)
+                .that(result.isSuccess())
+                .isTrue();
+    }
+
+    @Nullable
+    protected UserInfo getUser(@UserIdInt int id) {
+        List<UserInfo> list = mUserManager.getUsers();
+
+        for (UserInfo user : list) {
+            if (user.id == id) {
+                return user;
+            }
+        }
+        return null;
+    }
+
+    protected boolean hasUser(@UserIdInt int id) {
+        return getUser(id) != null;
     }
 }
