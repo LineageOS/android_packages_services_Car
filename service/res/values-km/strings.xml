@@ -62,6 +62,8 @@
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"ទទួលបាន​ទិន្នន័យ​បណ្ដុំឧបករណ៍"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"ការកំណត់រចនាសម្ព័ន្ធ​ការរឹតបន្តឹង UX"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"កំណត់រចនាសម្ព័ន្ធ​ការរឹតបន្តឹង UX"</string>
+    <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"ការចូលអានលេខសម្គាល់ផ្ទាំងអេក្រង់ឯកជន"</string>
+    <string name="car_permission_desc_access_private_display_id" msgid="8535974477610944721">"អនុញ្ញាតការចូលអានលេខសម្គាល់ផ្ទាំងអេក្រង់ឯកជន"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"ទាក់ទងជាមួយ​ឧបករណ៍ USB តាមរយៈមុខងារ AOAP"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"អនុញ្ញាតឱ្យ​កម្មវិធី​ទាក់ទង​ជាមួយឧបករណ៍តាមរយៈមុខងារ AOAP"</string>
     <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"សិទ្ធិ​ចូលអាន​ប្រព័ន្ធ​នៃ​ការយល់ដឹង​អំពី​អ្នកជិះ​ក្នុងរថយន្ត"</string>

@@ -62,6 +62,8 @@
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"උපකරණ කලප් දත්ත ලබා ගන්න"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"UX සීමා කිරීම් වින්‍යාසය"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"UX සීමා කිරීම් වින්‍යාස කරන්න"</string>
+    <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"පෞද්ගලික සංදර්ශක ID සඳහා කියවීම් ප්‍රවේශය"</string>
+    <string name="car_permission_desc_access_private_display_id" msgid="8535974477610944721">"පෞද්ගලික සංදර්ශක ID සඳහා කියවීම් ප්‍රවේශය ඉඩ දෙයි"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"AOAP ප්‍රකාරයේ USB උපාංගය සමඟ සන්නිවේදනය කරන්න"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"යෙදුමකට AOAP ප්‍රකාරය තුළ උපාංගයක් සමඟ සන්නිවේදනය කිරීමට ඉඩ දෙයි"</string>
     <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"පදිංචිකරුවන් දැනුවත් කිරීමේ පද්ධති කියවීම් ප්‍රවේශය"</string>

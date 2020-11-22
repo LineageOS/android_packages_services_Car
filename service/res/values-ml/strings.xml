@@ -62,6 +62,8 @@
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"ഇൻസ്‌ട്രുമെന്റ് ക്ലസ്‌റ്റർ ഡാറ്റ സ്വീകരിക്കുക"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"UX നിയന്ത്രണങ്ങളുടെ കോൺഫിഗറേഷൻ"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"UX നിയന്ത്രണങ്ങൾ കോൺഫിഗർ ചെയ്യുക"</string>
+    <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"സ്വകാര്യ ഡിസ്‌പ്ലേ ഐഡിക്കുള്ള വായനാ ആക്‌സസ്"</string>
+    <string name="car_permission_desc_access_private_display_id" msgid="8535974477610944721">"സ്വകാര്യ ഡിസ്‌പ്ലേ ഐഡിക്ക് വായനാ ആക്‌സസ് അനുവദിക്കുന്നു"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"AOAP മോഡിൽ USB ഉപകരണം ഉപയോഗിച്ച് ആശയവിനിമയം നടത്തുക"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"AOAP മോഡിലുള്ള ഉപകരണവുമായി ബന്ധപ്പെടാൻ ആപ്പിനെ അനുവദിക്കുന്നു"</string>
     <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"ഒക്യുപന്റ് അവയർനെസ് സിസ്റ്റം വായനാ ആക്‌സസ്"</string>

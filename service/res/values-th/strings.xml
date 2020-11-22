@@ -62,6 +62,8 @@
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"รับข้อมูลจากแผงหน้าปัด"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"การกำหนดค่าข้อจำกัด UX"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"กำหนดค่าข้อจำกัด UX"</string>
+    <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"สิทธิ์เข้าถึงแบบอ่านสำหรับรหัสการแสดงผลส่วนตัว"</string>
+    <string name="car_permission_desc_access_private_display_id" msgid="8535974477610944721">"อนุญาตสิทธิ์เข้าถึงแบบอ่านสำหรับรหัสการแสดงผลส่วนตัว"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"สื่อสารกับอุปกรณ์ USB ในโหมด AOAP"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"อนุญาตให้แอปสื่อสารกับอุปกรณ์ในโหมด AOAP"</string>
     <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"การเข้าถึงการอ่านระบบการรับรู้ว่ามีคนอยู่"</string>

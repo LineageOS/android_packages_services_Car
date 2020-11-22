@@ -62,6 +62,8 @@
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Примајте податоци од инструменталната табла"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"Конфигурација на ограничувањата на корисничкото искуство"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Конфигурирајте ги ограничувањата на корисничкото искуство"</string>
+    <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"Пристап за читање на ID на приватен екран"</string>
+    <string name="car_permission_desc_access_private_display_id" msgid="8535974477610944721">"Дозволете пристап за читање на ID на приватен екран"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"Комуницирајте со USB-уред во режим на AOAP"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"Дозволува апликацијата да комуницира со уред во режим на AOAP"</string>
     <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Пристап за читање на „Системот за откривање патници“"</string>

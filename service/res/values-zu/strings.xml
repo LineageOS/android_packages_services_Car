@@ -62,6 +62,8 @@
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Thola idatha yento yokusebenza"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"Ukulungiswa kwemikhawulo ye-UX"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Lungisa imikhawulo ye-UX"</string>
+    <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"Ukufinyelela kokufunda ku-id yesiboniso esiyimfihlo"</string>
+    <string name="car_permission_desc_access_private_display_id" msgid="8535974477610944721">"Kuvumela ukufinyelela kokufunda ku-id yesiboniso esiyimfihlo"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"Xhumana nedivayisi ye-USB kumodi ye-AOAP"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"Ivumela uhlelo lokusebenza ukuthi luxhumane nedivayisi kumodi ye-AOAP"</string>
     <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Ukufinyelela Ekufundeni Kwesistimu Yokwazisa Yomgibeli"</string>

@@ -62,6 +62,8 @@
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"ຮັບຂໍ້ມູນຈາກແຜງໜ້າປັດ"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"ການກຳນົດຄ່າຂໍ້ຈຳກັດ UX"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"ກຳນົດຄ່າຂໍ້ຈຳກັດ UX"</string>
+    <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"ສິດເຂົ້າເຖິງແບບອ່ານສຳລັບ ID ການສະແດງຜົນສ່ວນຕົວ"</string>
+    <string name="car_permission_desc_access_private_display_id" msgid="8535974477610944721">"ອະນຸຍາດສິດເຂົ້າເຖິງແບບອ່ານສຳລັບ ID ການສະແດງຜົນສ່ວນຕົວ"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"ສື່ສານກັບອຸປະກອນ USB ໃນໂໝດ AOAP"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"ອະນຸຍາດໃຫ້ແອັບສື່ສານກັບອຸປະກອນໃນໂໝດ AOAP"</string>
     <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"ສິດເຂົ້າເຖິງການອ່ານຂອງລະບົບການຮັບຮູ້ວ່າມີຄົນຢູ່"</string>

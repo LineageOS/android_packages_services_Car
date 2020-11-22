@@ -62,6 +62,8 @@
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Gauti instrumentų blokinio duomenis"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"NP apribojimų konfigūravimas"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Konfigūruoti NP apribojimus"</string>
+    <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"Skaitymo prieiga prie privataus ekrano ID"</string>
+    <string name="car_permission_desc_access_private_display_id" msgid="8535974477610944721">"Leidžiama skaitymo prieiga prie privataus ekrano ID"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"Užmegzti ryšį su USB įrenginiu AOAP režimu"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"Programai leidžiama užmegzti ryšį su įrenginiu AOAP režimu"</string>
     <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Keleivių stebėjimo sistemos skaitymo prieiga"</string>

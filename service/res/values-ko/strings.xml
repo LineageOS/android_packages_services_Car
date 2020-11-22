@@ -62,6 +62,8 @@
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"계기판 데이터 수신"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"UX 제한사항 설정"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"UX 제한사항 설정"</string>
+    <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"비공개 디스플레이 ID를 읽을 권한"</string>
+    <string name="car_permission_desc_access_private_display_id" msgid="8535974477610944721">"비공개 디스플레이 ID를 읽을 권한 부여"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"AOAP 모드의 USB 기기와 통신"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"AOAP 모드의 기기와 통신하도록 앱을 허용하세요."</string>
     <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Occupant Awareness System 읽기 액세스"</string>
