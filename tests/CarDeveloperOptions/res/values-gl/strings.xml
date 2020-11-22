@@ -2429,7 +2429,7 @@
     <string name="battery_detail_since_full_charge" msgid="3814176986148084378">"Análise detallada desde a última carga completa"</string>
     <string name="battery_last_full_charge" msgid="5624033030647170717">"Última carga completa"</string>
     <string name="battery_full_charge_last" msgid="4614554109170251301">"Duración aproximada da carga completa"</string>
-    <string name="battery_footer_summary" msgid="4828444679643906943">"Os datos da utilización da batería son aproximados e poden cambiar en función do uso."</string>
+    <string name="battery_footer_summary" msgid="4828444679643906943">"Os datos de utilización da batería son aproximados e poden cambiar en función do uso."</string>
     <string name="battery_detail_foreground" msgid="6616408559186553085">"En uso activo"</string>
     <string name="battery_detail_background" msgid="7938146832943604280">"En segundo plano"</string>
     <string name="battery_detail_power_usage" msgid="3606930232257489212">"Uso da batería"</string>

@@ -107,7 +107,7 @@
     <string name="bluetooth_scan_for_devices" msgid="3215740768422735880">"Cerca dispositivi"</string>
     <string name="bluetooth_rename_device" msgid="7862992396452800566">"Rinomina questo dispositivo"</string>
     <string name="bluetooth_rename_button" msgid="8946904845821073267">"Rinomina"</string>
-    <string name="bluetooth_disconnect_title" msgid="2689706557852333780">"Scollegare il dispositivo?"</string>
+    <string name="bluetooth_disconnect_title" msgid="2689706557852333780">"Disconnettere il dispositivo?"</string>
     <string name="bluetooth_disconnect_all_profiles" product="default" msgid="8920448151607060442">"Il telefono verrà scollegato da <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
     <string name="bluetooth_disconnect_all_profiles" product="tablet" msgid="7322773998151831579">"Il tablet verrà scollegato da <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
     <string name="bluetooth_disconnect_all_profiles" product="device" msgid="4707569949253450208">"Il dispositivo verrà scollegato da <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>

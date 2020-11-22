@@ -729,7 +729,7 @@
     <string name="bluetooth_settings" msgid="5228032727293770389">"ब्लूटूथ"</string>
     <string name="bluetooth_settings_title" msgid="7261244857456521825">"ब्लूटूथ"</string>
     <string name="bluetooth_settings_summary" msgid="1221689092429277887">"कनेक्‍शन प्रबंधित करें, डिवाइस का नाम सेट करें और उसे खोजने लायक बनाएं"</string>
-    <string name="bluetooth_pairing_request" msgid="7221745525632573125">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> से जोड़ें?"</string>
+    <string name="bluetooth_pairing_request" msgid="7221745525632573125">"क्या आप <xliff:g id="DEVICE_NAME">%1$s</xliff:g> से जोड़ना चाहते हैं?"</string>
     <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"ब्‍लूटूथ से जोड़ने वाला कोड"</string>
     <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"दूसरे डिवाइस से जोड़ना वाला कोड लिखें और फिर Return या Enter दबाएं"</string>
     <string name="bluetooth_enable_alphanumeric_pin" msgid="9138308197078115672">"पिन में अक्षर या प्रतीक शामिल होते हैं"</string>

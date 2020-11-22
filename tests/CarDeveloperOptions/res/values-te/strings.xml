@@ -802,7 +802,7 @@
     <string name="wifi_display_enable_menu_item" msgid="4578340247147692250">"వైర్‌లెస్ ప్రదర్శనను ప్రారంభించు"</string>
     <string name="wifi_display_no_devices_found" msgid="186501729518830451">"సమీపంలోని పరికరాలు కనుగొనబడలేదు."</string>
     <string name="wifi_display_status_connecting" msgid="3799827425457383349">"కనెక్ట్ చేస్తున్నవి"</string>
-    <string name="wifi_display_status_connected" msgid="85692409327461403">"కనెక్ట్ చేయబడినవి"</string>
+    <string name="wifi_display_status_connected" msgid="85692409327461403">"కనెక్ట్ అయింది"</string>
     <string name="wifi_display_status_in_use" msgid="7646114501132773174">"ఉపయోగంలో ఉన్నవి"</string>
     <string name="wifi_display_status_not_available" msgid="5600448733204688205">"అందుబాటులో లేదు"</string>
     <string name="wifi_display_details" msgid="6379855523460749126">"ప్రదర్శన సెట్టింగ్‌లు"</string>

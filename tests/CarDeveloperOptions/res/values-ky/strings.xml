@@ -124,7 +124,7 @@
     <string name="progress_scanning" msgid="633923400401041181">"Изделүүдө"</string>
     <string name="bluetooth_no_devices_found" msgid="4396050022213494322">"Bluetooth-тизмектер табылган жок."</string>
     <string name="bluetooth_notif_ticker" msgid="8398481099943141819">"Bluetooth жупташтыруу өтүнүчү"</string>
-    <string name="bluetooth_notif_title" msgid="5090288898529286011">"Жупташтыруу өтүнүчү"</string>
+    <string name="bluetooth_notif_title" msgid="5090288898529286011">"Байланыштыруу өтүнүчү"</string>
     <string name="bluetooth_notif_message" msgid="6612367890895077938">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> менен жупташуу үчүн таптап коюңуз."</string>
     <string name="bluetooth_show_received_files" msgid="5060846395852236652">"Алынган файлдар"</string>
     <string name="bluetooth_show_files_received_via_bluetooth" msgid="1699095577431389560">"Bluetooth аркылуу алынган файлдар"</string>
@@ -729,9 +729,9 @@
     <string name="bluetooth_settings" msgid="5228032727293770389">"Bluetooth"</string>
     <string name="bluetooth_settings_title" msgid="7261244857456521825">"Bluetooth"</string>
     <string name="bluetooth_settings_summary" msgid="1221689092429277887">"Туташууларды башкарып, түзмөк аталышын жана ачыктыгын орнотуу"</string>
-    <string name="bluetooth_pairing_request" msgid="7221745525632573125">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> менен жупташтырылсынбы?"</string>
+    <string name="bluetooth_pairing_request" msgid="7221745525632573125">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> менен байланыштырасызбы?"</string>
     <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"Bluetooth жупташтыруу коду"</string>
-    <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"Жупташтыруу кодун терип, андан соң Артка же Киргизүүнү басыңыз"</string>
+    <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"Байланыштыруу кодун терип, андан соң Артка же Киргизүүнү басыңыз"</string>
     <string name="bluetooth_enable_alphanumeric_pin" msgid="9138308197078115672">"PIN тамгаларды же символдорду камтыйт"</string>
     <string name="bluetooth_pin_values_hint" msgid="8044671726261326240">"Көбүнчө 0000 же 1234 болот"</string>
     <string name="bluetooth_pin_values_hint_16_digits" msgid="2665983525706661525">"16 сандан турушу керек"</string>
@@ -759,7 +759,7 @@
     <string name="bluetooth_preference_no_found_devices" msgid="4190090666412408576">"Жеткиликтүү түзмөктөр жок"</string>
     <string name="bluetooth_device_context_connect" msgid="1812090541371432890">"Туташуу"</string>
     <string name="bluetooth_device_context_disconnect" msgid="8085015949275771802">"Ажыратуу"</string>
-    <string name="bluetooth_device_context_pair_connect" msgid="1503322591778810032">"Жупташтыруу жана туташтыруу"</string>
+    <string name="bluetooth_device_context_pair_connect" msgid="1503322591778810032">"Байланыштыруу жана туташтыруу"</string>
     <string name="bluetooth_device_context_unpair" msgid="250588431708253041">"Жупташуудан чыгаруу"</string>
     <string name="bluetooth_device_context_disconnect_unpair" msgid="4519151805677280077">"Ажыратуу жана жупташуудан чыгаруу"</string>
     <string name="bluetooth_device_context_connect_advanced" msgid="423463405499392444">"Параметрлер…"</string>

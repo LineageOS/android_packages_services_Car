@@ -777,7 +777,7 @@
     <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"Thiết bị của bạn sẽ không được ghép nối với <xliff:g id="DEVICE_NAME">%1$s</xliff:g> nữa"</string>
     <string name="bluetooth_unpair_dialog_forget_confirm_button" msgid="8485211340349958886">"Xóa thiết bị"</string>
     <string name="bluetooth_connect_specific_profiles_title" msgid="2381509181266180406">"Kết nối với…"</string>
-    <string name="bluetooth_disconnect_a2dp_profile" msgid="8072503764470451567">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> sẽ bị ngắt kết nối khỏi âm thanh phương tiện."</string>
+    <string name="bluetooth_disconnect_a2dp_profile" msgid="8072503764470451567">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> sẽ bị ngắt kết nối khỏi âm thanh nội dung nghe nhìn"</string>
     <string name="bluetooth_disconnect_headset_profile" msgid="8384028101155317339">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> sẽ bị ngắt kết nối khỏi âm thanh thiết bị rảnh tay."</string>
     <string name="bluetooth_disconnect_hid_profile" msgid="6964226087090465662">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> sẽ bị ngắt kết nối khỏi thiết bị nhập."</string>
     <string name="bluetooth_disconnect_pan_user_profile" msgid="5523689915196343097">"Truy cập Internet qua <xliff:g id="DEVICE_NAME">%1$s</xliff:g> sẽ bị ngắt kết nối."</string>
@@ -3156,7 +3156,7 @@
     <string name="vibrate_on_touch_summary" msgid="5504424764028676043">"Phản hồi xúc giác cho thao tác chạm, bàn phím và nhiều thao tác khác"</string>
     <string name="dock_audio_media_title" msgid="1859521680502040781">"Phát âm đế kết nối"</string>
     <string name="dock_audio_media_disabled" msgid="4300752306178486302">"Tất cả âm thanh"</string>
-    <string name="dock_audio_media_enabled" msgid="2873275045878628153">"Chỉ âm thanh phương tiện"</string>
+    <string name="dock_audio_media_enabled" msgid="2873275045878628153">"Chỉ âm thanh nội dung nghe nhìn"</string>
     <string name="emergency_tone_silent" msgid="804809075282717882">"Im lặng"</string>
     <string name="emergency_tone_alert" msgid="907868135091891015">"Âm"</string>
     <string name="emergency_tone_vibrate" msgid="5020068066905681181">"Rung"</string>

@@ -3238,7 +3238,7 @@
     <string name="vibrate_on_touch_summary" msgid="5504424764028676043">"Тактыльны водгук пры націсканні на кнопкі, клавіятуру і г.д."</string>
     <string name="dock_audio_media_title" msgid="1859521680502040781">"Уключыць док-дынамік"</string>
     <string name="dock_audio_media_disabled" msgid="4300752306178486302">"Усё аўдыё"</string>
-    <string name="dock_audio_media_enabled" msgid="2873275045878628153">"Толькі медыяаўдыё"</string>
+    <string name="dock_audio_media_enabled" msgid="2873275045878628153">"Толькі аўдыя медыяфайлаў"</string>
     <string name="emergency_tone_silent" msgid="804809075282717882">"Без гуку"</string>
     <string name="emergency_tone_alert" msgid="907868135091891015">"Танальныя сігналы"</string>
     <string name="emergency_tone_vibrate" msgid="5020068066905681181">"Вібрацыя"</string>

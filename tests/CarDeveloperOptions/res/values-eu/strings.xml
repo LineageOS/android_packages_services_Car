@@ -730,7 +730,7 @@
     <string name="bluetooth_settings_title" msgid="7261244857456521825">"Bluetooth-a"</string>
     <string name="bluetooth_settings_summary" msgid="1221689092429277887">"Kudeatu konexioak, ezarri gailuaren izena eta ikusgaitasuna"</string>
     <string name="bluetooth_pairing_request" msgid="7221745525632573125">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> gailuarekin parekatu nahi duzu?"</string>
-    <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"Bluetooth parekatze-kodea"</string>
+    <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"Bluetooth bidez parekatzeko kodea"</string>
     <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"Idatzi parekatze-kodea eta sakatu Sartu edo Itzuli"</string>
     <string name="bluetooth_enable_alphanumeric_pin" msgid="9138308197078115672">"PINak hizkiak edo ikurrak ditu"</string>
     <string name="bluetooth_pin_values_hint" msgid="8044671726261326240">"Normalean 0000 edo 1234"</string>
@@ -1844,7 +1844,7 @@
     <string name="default_emergency_app" msgid="286530070173495823">"Larrialdietarako aplikazioa"</string>
     <string name="reset_app_preferences" msgid="1426500030595212077">"Berrezarri aplikazioen hobespenak"</string>
     <string name="reset_app_preferences_title" msgid="792909865493673598">"Aplikazioen hobespenak berrezarri nahi dituzu?"</string>
-    <string name="reset_app_preferences_desc" msgid="7935273005301096031">"Hauen hobespen guztiak berrezarriko dira:\n\n"<li>"desgaitutako aplikazioak,"</li>\n<li>"desgaitutako aplikazio-jakinarazpenak,"</li>\n<li>"ekintza jakinetarako aplikazio lehenetsiak,"</li>\n<li>"aplikazioen atzeko planoko datuen murriztapenak eta"</li>\n<li>"baimen-murriztapenak."</li>\n\n"Ez dituzu galduko aplikazioetako datuak."</string>
+    <string name="reset_app_preferences_desc" msgid="7935273005301096031">"Hauen hobespen guztiak berrezarriko dira:\n\n"<li>"desgaitutako aplikazioak,"</li>\n<li>"desgaitutako aplikazio-jakinarazpenak,"</li>\n<li>"ekintza jakinetarako aplikazio lehenetsiak,"</li>\n<li>"aplikazioen atzeko planoko datuen murriztapenak,"</li>\n<li>"baimen-murriztapenak."</li>\n\n"Ez dituzu galduko aplikazioetako datuak."</string>
     <string name="reset_app_preferences_button" msgid="2041894727477934656">"Berrezarri aplikazioak"</string>
     <string name="manage_space_text" msgid="6166469422303124302">"Kudeatu tokia"</string>
     <string name="filter" msgid="2426943916212457962">"Iragazi"</string>

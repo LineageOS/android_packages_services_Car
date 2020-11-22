@@ -2501,7 +2501,7 @@
     <string name="battery_detail_since_full_charge" msgid="3814176986148084378">"Razčlenitev od zadnje napolnjenosti akumulatorja"</string>
     <string name="battery_last_full_charge" msgid="5624033030647170717">"Zadnja polna napolnjenost"</string>
     <string name="battery_full_charge_last" msgid="4614554109170251301">"Polno napolnjena naprava deluje približno"</string>
-    <string name="battery_footer_summary" msgid="4828444679643906943">"Podatki o uporabi akumulatorja so približni in se lahko spremenijo glede na uporabo naprave"</string>
+    <string name="battery_footer_summary" msgid="4828444679643906943">"Podatki o porabi baterije so približni in se lahko spremenijo glede na uporabo naprave."</string>
     <string name="battery_detail_foreground" msgid="6616408559186553085">"Med aktivno uporabo"</string>
     <string name="battery_detail_background" msgid="7938146832943604280">"Med izvajanjem v ozadju"</string>
     <string name="battery_detail_power_usage" msgid="3606930232257489212">"Poraba akumulatorja"</string>

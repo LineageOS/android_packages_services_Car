@@ -729,7 +729,7 @@
     <string name="bluetooth_settings" msgid="5228032727293770389">"ಬ್ಲೂಟೂತ್‌‌"</string>
     <string name="bluetooth_settings_title" msgid="7261244857456521825">"ಬ್ಲೂಟೂತ್‌‌"</string>
     <string name="bluetooth_settings_summary" msgid="1221689092429277887">"ಸಂಪರ್ಕಗಳನ್ನು ನಿರ್ವಹಿಸಿ, ಸಾಧನದ ಹೆಸರು &amp; ಅನ್ವೇಷಣೆಯಾಗುವಿಕೆಯನ್ನು ಹೊಂದಿಸಿ"</string>
-    <string name="bluetooth_pairing_request" msgid="7221745525632573125">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> ಸಾಧನದೊಂದಿಗೆ ಜೊಡಿಸುವುದೇ?"</string>
+    <string name="bluetooth_pairing_request" msgid="7221745525632573125">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> ಜೊತೆ ಜೋಡಿಸುವುದೇ?"</string>
     <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"ಬ್ಲೂಟೂತ್ ಜೋಡಿಸುವ ಕೋಡ್"</string>
     <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"ಜೋಡಣೆ ಕೋಡ್‌ ಟೈಪ್‌ ಮಾಡಿ ತದನಂತರ ರಿಟರ್ನ್‌ ಅಥವಾ ಎಂಟರ್‌ ಒತ್ತಿ."</string>
     <string name="bluetooth_enable_alphanumeric_pin" msgid="9138308197078115672">"ಅಕ್ಷರಗಳು ಅಥವಾ ಚಿಹ್ನೆಗಳನ್ನು ಪಿನ್‌ ಹೊಂದಿದೆ"</string>
@@ -1450,7 +1450,7 @@
     <string name="storage_internal_forget_confirm_title" msgid="331032276130605241">"<xliff:g id="NAME">^1</xliff:g> ಮರೆತುಹೋಯಿತೇ?"</string>
     <string name="storage_internal_forget_confirm" msgid="3052483375203727176">"ಎಲ್ಲಾ ಅಪ್ಲಿಕೇಶನ್‌ಗಳು, ಫೋಟೋಗಳು ಮತ್ತು ಡೇಟಾವನ್ನು ಈ <xliff:g id="NAME">^1</xliff:g> ನಲ್ಲಿ ಸಂಗ್ರಹಿಸಿದರೆ ಶಾಶ್ವತವಾಗಿ ಕಳೆದುಹೋಗುತ್ತದೆ."</string>
     <string name="storage_detail_apps" msgid="8154648512504196820">"ಅಪ್ಲಿಕೇಶನ್‌ಗಳು"</string>
-    <string name="storage_detail_images" msgid="6996202225684468964">"ಚಿತ್ರಗಳು"</string>
+    <string name="storage_detail_images" msgid="6996202225684468964">"Images"</string>
     <string name="storage_detail_videos" msgid="6030983354721080849">"ವೀಡಿಯೊಗಳು"</string>
     <string name="storage_detail_audio" msgid="6011098436589663944">"ಆಡಿಯೊ"</string>
     <string name="storage_detail_cached" msgid="5761648455067920683">"ಸಂಗ್ರಹಿಸಿದ ಡೇಟಾ"</string>

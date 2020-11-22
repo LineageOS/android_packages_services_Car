@@ -754,7 +754,7 @@
     <string name="bluetooth_pairing_dialog_title" msgid="7900515495932064945">"با این دستگاه مرتبط‌سازی شود؟"</string>
     <string name="bluetooth_pairing_dialog_sharing_phonebook_title" msgid="7395493311980018460">"دفترچه تلفن به اشتراک گذاشته شود؟"</string>
     <string name="bluetooth_pairing_dialog_contants_request" msgid="2103132762434487717">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> می‌خواهد به مخاطبین و سابقه تماس شما دسترسی داشته باشد."</string>
-    <string name="bluetooth_pairing_dialog_paring_request" msgid="5513953935086446387">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> می‌خواهد با بلوتوث مرتبط‌سازی کند. وقتی وصل شود، به مخاطبین و سابقه تماستان دسترسی دارد."</string>
+    <string name="bluetooth_pairing_dialog_paring_request" msgid="5513953935086446387">"‏<xliff:g id="DEVICE_NAME">%1$s</xliff:g> می‌خواهد با بلوتوث مرتبط‌سازی کند. وقتی وصل شود، به مخاطبین و سابقه تماستان دسترسی دارد."</string>
     <string name="bluetooth_preference_found_media_devices" msgid="5748539613567836379">"دستگاه‌های در دسترس"</string>
     <string name="bluetooth_preference_no_found_devices" msgid="4190090666412408576">"دستگاهی موجود نیست"</string>
     <string name="bluetooth_device_context_connect" msgid="1812090541371432890">"اتصال"</string>
@@ -3939,7 +3939,7 @@
     <string name="ethernet_data_usage" msgid="747614925362556718">"میزان مصرف داده اترنت"</string>
     <string name="wifi" msgid="1586738489862966138">"Wi-Fi"</string>
     <string name="ethernet" msgid="2365753635113154667">"اترنت"</string>
-    <string name="cell_data_template" msgid="5473177306229738078">"<xliff:g id="AMOUNT">^1</xliff:g> داده شبکه تلفن همراه"</string>
+    <string name="cell_data_template" msgid="5473177306229738078">"‏<xliff:g id="AMOUNT">^1</xliff:g> داده شبکه تلفن همراه"</string>
     <string name="wifi_data_template" msgid="3146090439147042068">"<xliff:g id="AMOUNT">^1</xliff:g> داده‌های Wi-Fi"</string>
     <string name="ethernet_data_template" msgid="6414118030827090119">"<xliff:g id="AMOUNT">^1</xliff:g> داده‌ اترنت"</string>
     <string name="billing_cycle" msgid="5740717948341713190">"محدودیت و اخطار داده"</string>
