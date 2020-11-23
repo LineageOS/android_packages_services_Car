@@ -1890,7 +1890,7 @@
     <string name="app_disable_dlg_positive" msgid="5508828271100168073">"ആപ്പ് പ്രവർത്തനരഹിതമാക്കുക"</string>
     <string name="app_disable_dlg_text" msgid="9221864774943530281">"നിങ്ങൾ ഈ ആപ്പ് പ്രവർത്തനരഹിതമാക്കിയാൽ, Android-ഉം മറ്റ് ആപ്പുകളും ഇനി ഉദ്ദേശിച്ചത് പോലെ പ്രവർത്തിച്ചേക്കില്ല. ശ്രദ്ധിക്കുക, നിങ്ങളുടെ ഉപകരണത്തിൽ മുമ്പേ ഇൻസ്‌റ്റാൾ ചെയ്‌തതായതിനാൽ ഈ ആപ്പ് നിങ്ങൾക്ക് ഇല്ലാതാക്കാനാവില്ല. പ്രവർത്തനരഹിതമാക്കുന്നത് വഴി, ഈ ആപ്പ് ഓഫാക്കി നിങ്ങൾക്കിത് ഉപകരണത്തിൽ മറച്ചു വയ്ക്കാം."</string>
     <string name="app_disable_notifications_dlg_title" msgid="699530661413553928">"അറിയിപ്പുകൾ ഓഫാക്കണോ?"</string>
-    <string name="app_install_details_group_title" msgid="2909597319422976921">"സ്റ്റോർ"</string>
+    <string name="app_install_details_group_title" msgid="2909597319422976921">"Store"</string>
     <string name="app_install_details_title" msgid="6954953384372934881">"ആപ്പ് വിശദാംശങ്ങൾ"</string>
     <string name="app_install_details_summary" msgid="6612222941121363940">"<xliff:g id="APP_STORE">%1$s</xliff:g> എന്നതിൽ നിന്ന് ആപ്പ് ഇൻസ്റ്റാൾ ചെയ്തു"</string>
     <string name="instant_app_details_summary" msgid="6384264315914966114">"<xliff:g id="APP_STORE">%1$s</xliff:g> സംബന്ധിച്ച കൂടുതൽ ‌വിവരങ്ങൾ"</string>
@@ -3792,7 +3792,7 @@
     <string name="zen_access_revoke_warning_dialog_title" msgid="6850994585577513299">"\'ശല്യപ്പെടുത്തരുത്\' എന്നതിലേക്ക് <xliff:g id="APP">%1$s</xliff:g> ആപ്പിനുള്ള ആക്സസ് പിൻവലിക്കണോ?"</string>
     <string name="zen_access_revoke_warning_dialog_summary" msgid="3487422193181311403">"ഈ ആപ്പ് സൃഷ്ടിച്ചിട്ടുള്ള എല്ലാ \'ശല്യപ്പെടുത്തരുത്\' നിയമങ്ങളും നീക്കംചെയ്യപ്പെടും."</string>
     <string name="ignore_optimizations_on" msgid="4373971641328943551">"ഓപ്റ്റിമൈസ് ചെയ്യരുത്"</string>
-    <string name="ignore_optimizations_off" msgid="4372289432580282870">"ഓപ്‌റ്റിമൈസ് ചെയ്യുക"</string>
+    <string name="ignore_optimizations_off" msgid="4372289432580282870">"Optimize"</string>
     <string name="ignore_optimizations_on_desc" msgid="2904484569799521559">"നിങ്ങളുടെ ബാറ്ററി ചാർജ് കൂടുതൽ വേഗത്തിൽ തീർന്നേക്കാം. പശ്ചാത്തലത്തിൽ ബാറ്ററി ഉപയോഗിക്കുന്നതിൽ നിന്ന് ആപ്പ് ഇനി നിയന്ത്രിക്കപ്പെടില്ല."</string>
     <string name="ignore_optimizations_off_desc" msgid="5598702251817814289">"ബാറ്ററിക്ക് കൂടുതൽ ഈടുകിട്ടുന്നതിന് ശുപാർശ ചെയ്യുന്നു"</string>
     <string name="ignore_optimizations_title" msgid="7924345545276166305">"ബാറ്ററി ഒപ്റ്റിമൈസേഷനുകൾ അവഗണിക്കാൻ <xliff:g id="APP">%s</xliff:g> എന്നതിനെ അനുവദിക്കണോ?"</string>

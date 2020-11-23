@@ -26,9 +26,9 @@
       <item quantity="other">اب آپ ایک ڈویلپر بننے سے <xliff:g id="STEP_COUNT_1">%1$d</xliff:g> قدم دور ہیں۔</item>
       <item quantity="one">اب آپ ایک ڈویلپر بننے سے <xliff:g id="STEP_COUNT_0">%1$d</xliff:g> قدم دور ہیں۔</item>
     </plurals>
-    <string name="show_dev_on" msgid="9075712234786224065">"اب آپ ایک ڈیولپر ہیں!"</string>
-    <string name="show_dev_already" msgid="7665948832405148689">"کوئی ضرورت نہیں ہے، آپ پہلے سے ہی ایک ڈیولپر ہیں۔"</string>
-    <string name="dev_settings_disabled_warning" msgid="3198732189395396721">"براہ کرم پہلے ڈیولپر کے اختیارات فعال کریں"</string>
+    <string name="show_dev_on" msgid="9075712234786224065">"اب آپ ایک ڈویلپر ہیں!"</string>
+    <string name="show_dev_already" msgid="7665948832405148689">"کوئی ضرورت نہیں ہے، آپ پہلے سے ہی ایک ڈویلپر ہیں۔"</string>
+    <string name="dev_settings_disabled_warning" msgid="3198732189395396721">"براہ کرم پہلے ڈویلپر کے اختیارات فعال کریں"</string>
     <string name="header_category_wireless_networks" msgid="8968405993937795898">"وائرلیس اور نیٹ ورکس"</string>
     <string name="header_category_system" msgid="4045988717359334410">"سسٹم"</string>
     <string name="radio_info_data_connection_enable" msgid="2554249462719717119">"ڈیٹا کنکشن فعال کریں"</string>
@@ -125,7 +125,7 @@
     <string name="bluetooth_no_devices_found" msgid="4396050022213494322">"کوئی قریبی بلوٹوتھ آلات نہیں ملے۔"</string>
     <string name="bluetooth_notif_ticker" msgid="8398481099943141819">"بلوٹوتھ جوڑا بنانے کی درخواست"</string>
     <string name="bluetooth_notif_title" msgid="5090288898529286011">"جوڑا بنانے کی درخواست"</string>
-    <string name="bluetooth_notif_message" msgid="6612367890895077938">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> کے ساتھ جوڑا بنانے کیلئے تھپتھپائیں۔"</string>
+    <string name="bluetooth_notif_message" msgid="6612367890895077938">"‫<xliff:g id="DEVICE_NAME">%1$s</xliff:g> کے ساتھ جوڑا بنانے کیلئے تھپتھپائیں۔"</string>
     <string name="bluetooth_show_received_files" msgid="5060846395852236652">"موصولہ فائلیں"</string>
     <string name="bluetooth_show_files_received_via_bluetooth" msgid="1699095577431389560">"بذریعہ بلوٹوتھ موصول شدہ فائلیں"</string>
     <string name="device_picker" msgid="8345264486071697705">"بلوٹوتھ آلہ منتخب کریں"</string>
@@ -449,9 +449,9 @@
     <string name="setup_fingerprint_enroll_skip_title" msgid="763018850721691594">"فنگر پرنٹ کو نظر انداز کریں؟"</string>
     <string name="setup_fingerprint_enroll_skip_after_adding_lock_text" msgid="8849928362049018680">"فنگر پرنٹ سیٹ اپ میں صرف ایک یا دو منٹ لگتے ہیں۔ اگر آپ اسے نظر انداز کرتے ہیں، تو آپ بعد میں ترتیبات میں اپنی فنگر پرنٹ شامل کرسکتے ہیں۔"</string>
     <string name="lock_screen_intro_skip_title" msgid="5307431665496346914">"اسکرین لاک کو نظر انداز کریں؟"</string>
-    <string name="lock_screen_intro_skip_dialog_text_frp" product="tablet" msgid="7553945981266845264">"آلہ کے تحفظ کی خصوصیات آن نہیں ہوں گی۔ اس کے ضائع، چوری یا دوبارہ ترتیب دئے جانے پر آپ دوسروں کو اس ٹیبلیٹ کے استعمال سے نہیں روک پائیں گے۔"</string>
-    <string name="lock_screen_intro_skip_dialog_text_frp" product="device" msgid="1378243257238015603">"آلہ کے تحفظ کی خصوصیات آن نہیں ہوں گی۔ اس کے ضائع، چوری یا دوبارہ ترتیب دئے جانے پر آپ دوسروں کو اس آلہ کے استعمال سے نہیں روک پائیں گے۔"</string>
-    <string name="lock_screen_intro_skip_dialog_text_frp" product="default" msgid="8395540117461339748">"آلہ کے تحفظ کی خصوصیات آن نہیں ہوں گی۔ اس کے ضائع، چوری یا دوبارہ ترتیب دئے جانے پر آپ دوسروں کو اس فون کے استعمال سے نہیں روک پائیں گے۔"</string>
+    <string name="lock_screen_intro_skip_dialog_text_frp" product="tablet" msgid="7553945981266845264">"آلہ کے تحفظ کی خصوصیات آن نہیں ہوں گی۔ اس کے ضائع، چوری یا ری سیٹ کیے جانے پر آپ دوسروں کو اس ٹیبلیٹ کے استعمال سے نہیں روک پائیں گے۔"</string>
+    <string name="lock_screen_intro_skip_dialog_text_frp" product="device" msgid="1378243257238015603">"آلہ کے تحفظ کی خصوصیات آن نہیں ہوں گی۔ اس کے ضائع، چوری یا ری سیٹ کیے جانے پر آپ دوسروں کو اس آلہ کے استعمال سے نہیں روک پائیں گے۔"</string>
+    <string name="lock_screen_intro_skip_dialog_text_frp" product="default" msgid="8395540117461339748">"آلہ کے تحفظ کی خصوصیات آن نہیں ہوں گی۔ اس کے ضائع، چوری یا ری سیٹ کیے جانے پر آپ دوسروں کو اس فون کے استعمال سے نہیں روک پائیں گے۔"</string>
     <string name="lock_screen_intro_skip_dialog_text" product="tablet" msgid="7572334562915795226">"آلہ کے تحفظ کی خصوصیات آن نہیں ہوں گی۔ اس کے ضائع یا چوری ہوجانے پر آپ دوسروں کو اس ٹیبلیٹ کے استعمال سے نہیں روک پائیں گے۔"</string>
     <string name="lock_screen_intro_skip_dialog_text" product="device" msgid="3819285334459763813">"آلہ کے تحفظ کی خصوصیات آن نہیں ہوں گی۔ اس کے ضائع یا چوری ہو جانے پر آپ دوسروں کو اس آلہ کے استعمال سے نہیں روک پائیں گے۔"</string>
     <string name="lock_screen_intro_skip_dialog_text" product="default" msgid="5361573789585652826">"آلہ کے تحفظ کی خصوصیات آن نہیں ہوں گی۔ اس کے ضائع یا چوری ہوجانے پر آپ دوسروں کو اس فون کے استعمال سے نہیں روک پائیں گے۔"</string>
@@ -729,7 +729,7 @@
     <string name="bluetooth_settings" msgid="5228032727293770389">"بلوٹوتھ"</string>
     <string name="bluetooth_settings_title" msgid="7261244857456521825">"بلوٹوتھ"</string>
     <string name="bluetooth_settings_summary" msgid="1221689092429277887">"کنکشنز کا نظم کریں، آلہ کا نام اور دریافتگی کو سیٹ کریں"</string>
-    <string name="bluetooth_pairing_request" msgid="7221745525632573125">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> کے ساتھ جوڑا بنائیں؟"</string>
+    <string name="bluetooth_pairing_request" msgid="7221745525632573125">"‫<xliff:g id="DEVICE_NAME">%1$s</xliff:g> کے ساتھ جوڑا بنائیں؟"</string>
     <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"بلوٹوتھ جوڑا بنانے کا کوڈ"</string>
     <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"جوڑا بنانے کا کوڈ ٹائپ کریں پھر ریٹرن یا انٹر دبائیں"</string>
     <string name="bluetooth_enable_alphanumeric_pin" msgid="9138308197078115672">"PIN میں حروف یا علامات شامل ہیں"</string>
@@ -754,7 +754,7 @@
     <string name="bluetooth_pairing_dialog_title" msgid="7900515495932064945">"اس آلہ کے ساتھ جوڑا بنائیں؟"</string>
     <string name="bluetooth_pairing_dialog_sharing_phonebook_title" msgid="7395493311980018460">"فون بُک کا اشتراک کریں؟"</string>
     <string name="bluetooth_pairing_dialog_contants_request" msgid="2103132762434487717">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> آپ کے رابطوں اور کال کی سرگزشت تک رسائی حاصل کرنا چاہتا ہے۔"</string>
-    <string name="bluetooth_pairing_dialog_paring_request" msgid="5513953935086446387">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g>بلوٹوتھ کے ساتھ جوڑا بنانا چاہتا ہے۔ منسلک ہونے پر، اسے آپکے رابطوں و کال کی سرگزشت تک رسائی ہوگی۔"</string>
+    <string name="bluetooth_pairing_dialog_paring_request" msgid="5513953935086446387">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> بلوٹوتھ کے ساتھ جوڑا بنانا چاہتا ہے۔ منسلک ہونے پر، اسے آپکے رابطوں و کال کی سرگزشت تک رسائی ہوگی۔‫"</string>
     <string name="bluetooth_preference_found_media_devices" msgid="5748539613567836379">"دستیاب آلات"</string>
     <string name="bluetooth_preference_no_found_devices" msgid="4190090666412408576">"کوئی آلات دستیاب نہیں ہیں"</string>
     <string name="bluetooth_device_context_connect" msgid="1812090541371432890">"مربوط کریں"</string>
@@ -875,7 +875,7 @@
     <string name="wifi_cellular_data_fallback_title" msgid="5067241930716252665">"خودکار طور پر موبائل ڈیٹا پر سوئچ کریں"</string>
     <string name="wifi_cellular_data_fallback_summary" msgid="2721467405851519769">"Wi-Fi پر انٹرنیٹ رسائی نہ ہونے کی صورت میں موبائل ڈیٹا استعمال کریں۔ ڈیٹا کے استعمال کے چارجز عائد ہو سکتے ہیں۔"</string>
     <string name="wifi_add_network" msgid="4094957940791876640">"نیٹ ورک شامل کریں"</string>
-    <string name="wifi_configure_settings_preference_title" msgid="2678534679408777268">"Wi‑Fi کی ترجیحات"</string>
+    <string name="wifi_configure_settings_preference_title" msgid="2678534679408777268">"‫Wi‑Fi کی ترجیحات"</string>
     <string name="wifi_configure_settings_preference_summary_wakeup_on" msgid="5714892572614655675">"Wi‑Fi خود کار طور پر واپس آن ہوگا"</string>
     <string name="wifi_configure_settings_preference_summary_wakeup_off" msgid="286904094152909651">"Wi‑Fi خود کار طور پر واپس آن نہیں ہوگا"</string>
     <string name="wifi_access_points" msgid="1647976498906871869">"Wi‑Fi نیٹ ورکس"</string>
@@ -1309,8 +1309,8 @@
     <string name="pin_failed" msgid="4877356137480446727">"SIM کے PIN کا عمل ناکام ہوگیا!"</string>
     <string name="system_update_settings_list_item_title" msgid="1907497454722790033">"سسٹم اپ ڈیٹس"</string>
     <string name="system_update_settings_list_item_summary" msgid="3497456690691907873"></string>
-    <string name="firmware_version" msgid="547095584029938749">"Android ورژن"</string>
-    <string name="security_patch" msgid="483709031051932208">"Android سیکیورٹی پیچ کی سطح"</string>
+    <string name="firmware_version" msgid="547095584029938749">"‫Android ورژن"</string>
+    <string name="security_patch" msgid="483709031051932208">"‫Android سیکیورٹی پیچ کا لیول"</string>
     <string name="model_info" msgid="1729765474260797594">"ماڈل"</string>
     <string name="model_summary" msgid="8781425868254352168">"ماڈل: ‎%1$s‎‎"</string>
     <string name="hardware_info" msgid="174270144950621815">"ماڈل اور ہارڈ ویئر"</string>
@@ -1566,8 +1566,8 @@
     <string name="error_mnc_not23" msgid="6738398924368729180">"MNC فیلڈ میں لازمی طور پر 2 یا 3 ہندسے ہونے چاہئیں۔"</string>
     <string name="error_adding_apn_type" msgid="671634520340569678">"کیریئر APNs کی قسم ‎%s‎ کو شامل کرنے کی اجازت نہیں دیتا ہے۔"</string>
     <string name="restore_default_apn" msgid="7195266404077471007">"ڈیفالٹ APN ترتیبات بحال ہو رہی ہیں۔"</string>
-    <string name="menu_restore" msgid="3799288817317293115">"ڈیفالٹ پر دوبارہ ترتیب دیں"</string>
-    <string name="restore_default_apn_completed" msgid="5671734152740058937">"ڈیفالٹ APN ترتیبات کو دوبارہ ترتیب دینے کا عمل مکمل ہو گیا۔"</string>
+    <string name="menu_restore" msgid="3799288817317293115">"ڈیفالٹ پر ری سیٹ کریں"</string>
+    <string name="restore_default_apn_completed" msgid="5671734152740058937">"ڈیفالٹ APN ترتیبات کو ری سیٹ کرنے کا عمل مکمل ہو گیا۔"</string>
     <string name="reset_dashboard_title" msgid="7084966342252178530">"ری سیٹ کے اختیارات"</string>
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"نیٹ ورک، ایپس، یا آلہ کو ری سیٹ کیا جا سکتا ہے"</string>
     <string name="reset_network_title" msgid="8944059136930806211">"Wi-Fi، موبائل اور بلوٹوتھ ری سیٹ کریں"</string>
@@ -1575,12 +1575,12 @@
     <string name="reset_esim_title" msgid="7630781767040831893">"ڈاؤن لوڈ کردہ SIMs کو مٹائیں"</string>
     <string name="reset_esim_desc" msgid="433226911566802">"متبادل SIMs کو ڈاؤن لوڈ کرنے کے لیے، اپنے کیریئر سے رابطہ کریں۔ اس سے موبائل سروس کا کوئی بھی پلان منسوخ نہیں ہوگا۔"</string>
     <string name="reset_network_button_text" msgid="4293271046867912819">"ترتیبات ری سیٹ کریں"</string>
-    <string name="reset_network_final_desc" msgid="2463817067048751373">"نیٹ ورک کی سبھی ترتیبات کو دوبارہ ترتیب دیں؟ آپ اس کارروائی کو کالعدم نہیں کر سکتے ہیں۔"</string>
+    <string name="reset_network_final_desc" msgid="2463817067048751373">"نیٹ ورک کی سبھی ترتیبات کو ری سیٹ کریں؟ آپ اس کارروائی کو کالعدم نہیں کر سکتے ہیں۔"</string>
     <string name="reset_network_final_desc_esim" msgid="4676436976372555750">"نیٹ ورک کی سبھی ترتیبات کو ری سیٹ کریں اور ڈاؤن لوڈ کردہ SIMs کو مٹائیں؟ آپ اس کارروائی کو کالعدم نہیں کر سکتے ہیں۔"</string>
     <string name="reset_network_final_button_text" msgid="345255333127794393">"ترتیبات ری سیٹ کریں"</string>
     <string name="reset_network_confirm_title" msgid="2432145031070536008">"ری سیٹ کریں؟"</string>
-    <string name="network_reset_not_available" msgid="6146655531868016281">"اس صارف کیلئے نیٹ ورک کو دوبارہ ترتیب دینا دستیاب نہیں ہے"</string>
-    <string name="reset_network_complete_toast" msgid="128225929536005495">"نیٹ ورک کی ترتیبات کو دوبارہ ترتیب دیا گیا ہے"</string>
+    <string name="network_reset_not_available" msgid="6146655531868016281">"اس صارف کیلئے نیٹ ورک کو ری سیٹ کرنا دستیاب نہیں ہے"</string>
+    <string name="reset_network_complete_toast" msgid="128225929536005495">"نیٹ ورک کی ترتیبات کو ری سیٹ کر دیا گیا ہے"</string>
     <string name="reset_esim_error_title" msgid="4728931209471875632">"SIMs کو نہیں مٹا سکتے"</string>
     <string name="reset_esim_error_msg" msgid="4716366079119742235">"کسی خرابی کی وجہ سے ڈاؤن لوڈ کردہ SIMs کو مٹایا نہیں جا سکتا ہے۔\n\nاپنا آلہ دوبارہ شروع کریں اور دوبارہ کوشش کریں۔"</string>
     <string name="master_clear_title" msgid="1560712943955904673">"تمام ڈیٹا حذف کریں (فیکٹری ری سیٹ)"</string>
@@ -2245,7 +2245,7 @@
     <string name="screen_usage_summary" msgid="263396144684078341">"مکمل چارج کے بعد سے اسکرین آن ہونے کے وقت کی مقدار"</string>
     <string name="device_usage_list_summary" msgid="8299017481332816368">"مکمل چارج کے بعد سے آلہ کا استعمال"</string>
     <string name="battery_since_unplugged" msgid="6486555910264026856">"پلگ ہٹانے کے بعد سے بیٹری کا استعمال"</string>
-    <string name="battery_since_reset" msgid="4747587791838336661">"دوبارہ ترتیب دیے جانے کے بعد سے بیٹری کا استعمال"</string>
+    <string name="battery_since_reset" msgid="4747587791838336661">"ری سیٹ کیے جانے کے بعد سے بیٹری کا استعمال"</string>
     <string name="battery_stats_on_battery" msgid="2644055304085279716">"بیٹری پر <xliff:g id="TIME">%1$s</xliff:g>"</string>
     <string name="battery_stats_duration" msgid="4867858933068728005">"ان پلگ کیے جانے کے بعد سے <xliff:g id="TIME">%1$s</xliff:g>"</string>
     <string name="battery_stats_charging_label" msgid="3156586822576998231">"چارج ہو رہی ہے"</string>
@@ -2563,7 +2563,7 @@
     <string name="backup_erase_dialog_title" msgid="8178424339104463014"></string>
     <string name="backup_erase_dialog_message" msgid="8767843355330070902">"اپنے Wi‑Fi پاس ورڈز، بُک مارکس، دوسری ترتیبات اور ایپ کے ڈیٹا کا بیک اپ لینا بند کریں، ساتھ ہی Google سرورز پر موجود سبھی کاپیاں حذف کریں۔"</string>
     <string name="fullbackup_erase_dialog_message" msgid="2588536036471144070">"آلہ کے ڈیٹا (جیسے کہ Wi-Fi پاس ورڈز اور کال کی سرگزشت) اور ایپ ڈیٹا (جیسے کہ ایپس کی جانب سے اسٹور کردہ ترتیبات اور فائلز) کا بیک اپ لینا بند کریں، نیز ریموٹ سرورز پر موجود سبھی کاپیاں مٹائیں؟"</string>
-    <string name="fullbackup_data_summary" msgid="406274198094268556">"خودکار طریقے سے دور سے آلہ کے ڈیٹا (جیسے کہ Wi-Fi پاس ورڈز اور کال کی سرگزشت) اور ایپ ڈیٹا (جیسے کہ ایپس کی جانب سے اسٹور کردہ ترتیبات اور فائلز) کا بیک اپ لیں۔\n\nجب آپ خودکار بیک اپ آن کرتے ہیں تو آلہ اور ایپ کا ڈیٹا وقفہ وقفہ پر دور سے محفوظ کیا جاتا ہے۔ ممکنہ طور پر حساس ڈیٹا مثلاً رابطے، پیغامات اور تصاویر سمیت ایپ ڈیٹا کوئی بھی ایسا ڈیٹا ہو سکتا ہے جسے کسی ایپ نے (ڈیولپر ترتیبات کی بنیاد پر) محفوظ کیا ہو۔"</string>
+    <string name="fullbackup_data_summary" msgid="406274198094268556">"خودکار طریقے سے دور سے آلہ کے ڈیٹا (جیسے کہ Wi-Fi پاس ورڈز اور کال کی سرگزشت) اور ایپ ڈیٹا (جیسے کہ ایپس کی جانب سے اسٹور کردہ ترتیبات اور فائلز) کا بیک اپ لیں۔\n\nجب آپ خودکار بیک اپ آن کرتے ہیں تو آلہ اور ایپ کا ڈیٹا وقفہ وقفہ پر دور سے محفوظ کیا جاتا ہے۔ ممکنہ طور پر حساس ڈیٹا مثلاً رابطے، پیغامات اور تصاویر سمیت ایپ ڈیٹا کوئی بھی ایسا ڈیٹا ہو سکتا ہے جسے کسی ایپ نے (ڈویلپر ترتیبات کی بنیاد پر) محفوظ کیا ہو۔"</string>
     <string name="device_admin_settings_title" msgid="2074319456047334589">"آلہ کے منتظم کی ترتیبات"</string>
     <string name="active_device_admin_msg" msgid="6929247869516924549">"آلہ کے منتظم کی ایپ"</string>
     <string name="remove_device_admin" msgid="4413438593788336400">"آلہ کے منتظم کی یہ ایپ غیر فعال کریں"</string>
@@ -2673,7 +2673,7 @@
     <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"ذاتی ڈیٹا آٹو سنک کریں"</string>
     <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"کام کا ڈیٹا آٹو سنک کریں"</string>
     <string name="data_usage_change_cycle" msgid="447761920472170031">"سائیکل تبدیل کریں…"</string>
-    <string name="data_usage_pick_cycle_day" msgid="6319750879145917066">"ڈیٹا کے استعمال کو دوبارہ ترتیب دینے کیلئے مہینے کا دن:"</string>
+    <string name="data_usage_pick_cycle_day" msgid="6319750879145917066">"ڈیٹا کے استعمال کو ری سیٹ کرنے کیلئے مہینے کا دن:"</string>
     <string name="data_usage_empty" msgid="7981405723435034032">"اس وقفہ میں کسی ایپ نے ڈیٹا استعمال نہيں کیا۔"</string>
     <string name="data_usage_label_foreground" msgid="2471091128648754601">"پیش منظر"</string>
     <string name="data_usage_label_background" msgid="1618794447370396845">"پس منظر"</string>
@@ -4076,7 +4076,7 @@
     <string name="dark_ui_mode_title" msgid="8774932716427742413">"تھیم منتخب کریں"</string>
     <string name="dark_ui_settings_light_summary" msgid="5219102347744462812">"اس ترتیب کا اطلاق ایپس پر بھی ہوتا ہے"</string>
     <string name="dark_ui_settings_dark_summary" msgid="7042737828943784289">"تعاون یافتہ ایپس بھی گہری تھیم پر سوئچ ہو جائیں گی"</string>
-    <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"فوری ترتیبات کے ڈیولپر ٹائلز"</string>
+    <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"فوری ترتیبات کے ڈویلپر ٹائلز"</string>
     <string name="winscope_trace_quick_settings_title" msgid="940971040388411374">"Winscope ٹریس"</string>
     <string name="sensors_off_quick_settings_title" msgid="3655699045300438902">"سینسرز آف ہیں"</string>
     <string name="managed_profile_settings_title" msgid="4340409321523532402">"دفتری پروفائل کی ترتیبات"</string>
@@ -4257,7 +4257,7 @@
     <string name="autofill_max_partitions" msgid="125269645910590057">"فی سیشن زیادہ سے زیادہ درخواستیں"</string>
     <string name="autofill_max_visible_datasets" msgid="2791081640248423492">"زیادہ سے زیادہ مرئی ڈیٹا سیٹس"</string>
     <string name="autofill_reset_developer_options" msgid="7208417230269613101">"ڈیفالٹ اقدار پر دوبارہ ری سیٹ کریں"</string>
-    <string name="autofill_reset_developer_options_complete" msgid="5686061993002179524">"آٹو فل ڈویلپر کے اختیارات کو دوبارہ ترتیب دے دیا گیا ہے"</string>
+    <string name="autofill_reset_developer_options_complete" msgid="5686061993002179524">"آٹو فل ڈویلپر کے اختیارات کو ری سیٹ کر دیا گیا ہے"</string>
     <string name="device_theme" msgid="8992291311481135893">"آلہ کا تھیم"</string>
     <string name="default_theme" msgid="5986996377385956138">"ڈیفالٹ"</string>
     <string name="show_operator_name_title" msgid="5056163028128447308">"نیٹ ورک کا نام"</string>

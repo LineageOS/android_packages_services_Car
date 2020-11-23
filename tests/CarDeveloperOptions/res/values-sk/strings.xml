@@ -180,7 +180,7 @@
     <string name="connected_device_available_call_title" msgid="6774859446815858428">"Dostupné telefonické zariadenia"</string>
     <string name="connected_device_connected_title" msgid="6255107326608785482">"Aktuálne pripojené"</string>
     <string name="connected_device_saved_title" msgid="8270136893488475163">"Uložené zariadenia"</string>
-    <string name="connected_device_add_device_summary" msgid="7960491471270158891">"Zapne sa Bluetooth s cieľom párovania"</string>
+    <string name="connected_device_add_device_summary" msgid="7960491471270158891">"Bluetooth sa zapne, aby prebehlo párovanie"</string>
     <string name="connected_device_connections_title" msgid="9205000271382018428">"Nastavenia pripojenia"</string>
     <string name="connected_device_previously_connected_title" msgid="225918223397410428">"V minulosti pripojené zariadenia"</string>
     <string name="connected_device_previously_connected_screen_title" msgid="2018789662358162716">"Predtým pripojené zariadenia"</string>
@@ -1102,7 +1102,7 @@
     <string name="wifi_hotspot_name_summary_connecting" msgid="5176787959408511889">"Zapína sa hotspot <xliff:g id="WIFI_HOTSPOT_NAME">%1$s</xliff:g>…"</string>
     <string name="wifi_hotspot_name_summary_connected" msgid="8387768642326756749">"Iné zariadenia sa môžu pripojiť k hotspotu <xliff:g id="WIFI_HOTSPOT_NAME">%1$s</xliff:g>"</string>
     <string name="wifi_hotspot_password_title" msgid="4289338152595154889">"Heslo hotspotu"</string>
-    <string name="wifi_hotspot_ap_band_title" msgid="3485744480410441949">"Pásmo prístup. bodu"</string>
+    <string name="wifi_hotspot_ap_band_title" msgid="3485744480410441949">"Pásmo prístupového bodu"</string>
     <string name="wifi_hotspot_footer_info_regular" msgid="3876006922622827363">"Použite hotspot na vytvorenie siete Wi‑Fi pre ostatné zariadenia. Hotspot poskytuje internet pomocou mobilného dátového pripojenia. Môžu vám byť účtované ďalšie poplatky za mobilné dáta."</string>
     <string name="wifi_hotspot_footer_info_local_only" msgid="3339582350894639261">"Aplikácie tiež môžu vytvoriť hostpot na zdieľanie obsahu so zariadeniami v okolí."</string>
     <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"Hotspot automaticky vypínať"</string>
@@ -1606,7 +1606,7 @@
     <string name="restore_default_apn" msgid="7195266404077471007">"Prebieha obnovovanie predvolených nastavení názvu prístupového bodu (APN)."</string>
     <string name="menu_restore" msgid="3799288817317293115">"Resetovať na predvolené"</string>
     <string name="restore_default_apn_completed" msgid="5671734152740058937">"Predvolené nastavenia prístupových bodov boli obnovené"</string>
-    <string name="reset_dashboard_title" msgid="7084966342252178530">"Možnosti resetovania"</string>
+    <string name="reset_dashboard_title" msgid="7084966342252178530">"Možnosti resetu"</string>
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"Sieť, aplikácie a zariadenie sa dajú resetovať"</string>
     <string name="reset_network_title" msgid="8944059136930806211">"Resetovať Wi‑Fi, dáta a Bluetooth"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"Touto akciou obnovíte nastavenia všetkých sietí vrátane\n\n"<li>"Wi‑Fi"</li>\n<li>"mobilnej siete"</li>\n<li>"siete Bluetooth"</li></string>
@@ -1618,7 +1618,7 @@
     <string name="reset_network_final_button_text" msgid="345255333127794393">"Resetovať nastavenia"</string>
     <string name="reset_network_confirm_title" msgid="2432145031070536008">"Resetovať?"</string>
     <string name="network_reset_not_available" msgid="6146655531868016281">"Tento používateľ nemôže resetovať nastavenia siete"</string>
-    <string name="reset_network_complete_toast" msgid="128225929536005495">"Sieťové nastavenia boli obnovené"</string>
+    <string name="reset_network_complete_toast" msgid="128225929536005495">"Nastavenia sietí boli resetované"</string>
     <string name="reset_esim_error_title" msgid="4728931209471875632">"SIM karty sa nedajú vymazať"</string>
     <string name="reset_esim_error_msg" msgid="4716366079119742235">"Stiahnuté SIM karty sa nedajú vymazať z dôvodu chyby.\n\nReštartujte zariadenie a skúste to znova."</string>
     <string name="master_clear_title" msgid="1560712943955904673">"Vymazať dáta (obnova výr. nastavení)"</string>
@@ -1636,13 +1636,13 @@
     <string name="erase_external_storage" product="default" msgid="194249742376770215">"Vymazať SD kartu"</string>
     <string name="erase_external_storage_description" product="nosdcard" msgid="8020275102431496261">"Vymazať všetky dáta v internom úložisku USB, napríklad hudbu a fotky"</string>
     <string name="erase_external_storage_description" product="default" msgid="5029355708082861798">"Vymazať všetky dáta na SD karte, napríklad hudbu a fotky"</string>
-    <string name="master_clear_button_text" product="tablet" msgid="8000547818499182920">"Vymazať všetky údaje"</string>
-    <string name="master_clear_button_text" product="default" msgid="8000547818499182920">"Vymazať všetky údaje"</string>
+    <string name="master_clear_button_text" product="tablet" msgid="8000547818499182920">"Vymazať všetky dáta"</string>
+    <string name="master_clear_button_text" product="default" msgid="8000547818499182920">"Vymazať všetky dáta"</string>
     <string name="master_clear_final_desc" msgid="5189365498015339294">"Všetky vaše osobné údaje a stiahnuté aplikácie budú odstránené. Túto akciu nie je možné vrátiť späť."</string>
     <string name="master_clear_final_desc_esim" msgid="3058919823436953662">"Všetky vaše osobné údaje vrátane stiahnutých aplikácií a SIM kariet budú odstránené. Túto akciu nie je možné vrátiť späť."</string>
     <string name="master_clear_final_button_text" msgid="866772743886027768">"Vymazať všetko"</string>
     <string name="master_clear_failed" msgid="7588397453984229892">"Pokus o obnovenie sa neuskutočnil, pretože služba System Clear nie je k dispozícii."</string>
-    <string name="master_clear_confirm_title" msgid="698328669893512402">"Vymazať všetky údaje?"</string>
+    <string name="master_clear_confirm_title" msgid="698328669893512402">"Vymazať všetky dáta?"</string>
     <string name="master_clear_not_available" msgid="4676613348163652454">"Obnovenie výrobných nastavení nie je dostupné pre tohto používateľa"</string>
     <string name="master_clear_progress_title" msgid="378953167274114857">"Prebieha vymazávanie"</string>
     <string name="master_clear_progress_text" msgid="5418958116008976218">"Čakajte..."</string>
@@ -1886,7 +1886,7 @@
     <string name="default_emergency_app" msgid="286530070173495823">"Aplikácia pre tiesňové volania"</string>
     <string name="reset_app_preferences" msgid="1426500030595212077">"Resetovať nastavenia aplikácií"</string>
     <string name="reset_app_preferences_title" msgid="792909865493673598">"Chcete resetovať nastavenia aplikácií?"</string>
-    <string name="reset_app_preferences_desc" msgid="7935273005301096031">"Touto akciou resetujete predvoľby položiek:\n\n "<li>"deaktivované aplikácie,"</li>\n" "<li>"deaktivované upozornenia aplikácií,"</li>\n" "<li>"predvolené aplikácie pre rôzne akcie,"</li>\n" "<li>"obmedzenia dátových prenosov na pozadí pre aplikácie,"</li>\n" "<li>"akékoľvek obmedzenia povolení."</li>\n\n" Neprídete o žiadne dáta v aplikáciách."</string>
+    <string name="reset_app_preferences_desc" msgid="7935273005301096031">"Touto akciou resetujete nasledujúce nastavenia:\n\n "<li>"deaktivované aplikácie,"</li>\n" "<li>"deaktivované upozornenia aplikácií,"</li>\n" "<li>"predvolené aplikácie pre rôzne akcie,"</li>\n" "<li>"obmedzenia dátových prenosov na pozadí pre aplikácie,"</li>\n" "<li>"všetky obmedzenia povolení."</li>\n\n" Neprídete o žiadne dáta aplikácií."</string>
     <string name="reset_app_preferences_button" msgid="2041894727477934656">"Obnoviť aplikácie"</string>
     <string name="manage_space_text" msgid="6166469422303124302">"Správa pamäte"</string>
     <string name="filter" msgid="2426943916212457962">"Filtrovať"</string>
@@ -2951,7 +2951,7 @@
     <string name="user_add_profile_item_title" msgid="4932743891449790664">"Obmedzený profil"</string>
     <string name="user_add_user_title" msgid="2320897397066676472">"Pridať nového používateľa?"</string>
     <string name="user_add_user_message_long" msgid="686637203224195465">"Vytvorením ďalších používateľov môžete toto zariadenie zdieľať s inými ľuďmi. Každý používateľ má svoje prostredie, ktoré si môže prispôsobiť vlastnými aplikáciami, tapetou atď. Používatelia tiež môžu upraviť nastavenia zariadenia (napr. Wi-Fi), ktoré ovplyvnia všetkých používateľov.\n\nKeď pridáte nového používateľa, musí si nastaviť vlastný priestor.\n\nAkýkoľvek používateľ môže aktualizovať aplikácie všetkých používateľov. Nastavenia dostupnosti a služby sa nemusia preniesť novému používateľovi."</string>
-    <string name="user_add_user_message_short" msgid="1802594476285458254">"Keď pridáte nového používateľa, musí si nastaviť vlastný priestor.\n\nAkýkoľvek používateľ môže aktualizovať aplikácie všetkých ostatných používateľov."</string>
+    <string name="user_add_user_message_short" msgid="1802594476285458254">"Keď pridáte nového používateľa, musí si sám nastaviť vlastný priestor.\n\nKaždý používateľ môže aktualizovať aplikácie pre všetkých ostatných používateľov."</string>
     <string name="user_setup_dialog_title" msgid="6748950002206392396">"Chcete teraz nastaviť používateľa?"</string>
     <string name="user_setup_dialog_message" msgid="2988559933258353919">"Uistite sa, že je daná osoba k dispozícii a môže si na zariadení nastaviť svoj priestor."</string>
     <string name="user_setup_profile_dialog_message" msgid="7611900802824048526">"Nastaviť profil?"</string>
@@ -2966,7 +2966,7 @@
     <string name="user_new_user_name" msgid="3880395219777884838">"Nový používateľ"</string>
     <string name="user_new_profile_name" msgid="3074939718101489937">"Nový profil"</string>
     <string name="user_confirm_remove_self_title" msgid="6739480453680217543">"Chcete odstrániť svoj profil?"</string>
-    <string name="user_confirm_remove_title" msgid="1034498514019462084">"Chcete odstrániť používateľa?"</string>
+    <string name="user_confirm_remove_title" msgid="1034498514019462084">"Odobrať tohto používateľa?"</string>
     <string name="user_profile_confirm_remove_title" msgid="6138684743385947063">"Odstrániť tento profil?"</string>
     <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"Odstrániť pracovný profil?"</string>
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"Prídete o svoj priestor a dáta v tomto tablete. Táto akcia sa nedá vrátiť späť."</string>
@@ -4567,7 +4567,7 @@
     <string name="mobile_network_inactive_esim" msgid="6525747163540293028">"Neaktívne / stiahnutá SIM karta"</string>
     <string name="mobile_network_sim_name" msgid="8228870017368926761">"Názov SIM karty"</string>
     <string name="mobile_network_sim_name_rename" msgid="4810736493612513152">"Premenovať"</string>
-    <string name="mobile_network_use_sim_on" msgid="1944823242539751387">"Použiť SIM"</string>
+    <string name="mobile_network_use_sim_on" msgid="1944823242539751387">"Používať SIM kartu"</string>
     <string name="mobile_network_use_sim_off" msgid="2077820358051946635">"Vypnuté"</string>
     <string name="mobile_network_esim_swap_confirm_title" msgid="6077154427380613615">"Chcete prepnúť na operátora <xliff:g id="CARRIER">%1$s</xliff:g>?"</string>
     <string name="mobile_network_esim_swap_confirm_body" msgid="1192274915146275063">"V jednej chvíli môže byť aktívna iba jedna stiahnutá SIM karta.\n\nPrepnutím na operátora <xliff:g id="CARRIER1">%1$s</xliff:g> nezrušíte službu operátora <xliff:g id="CARRIER2">%2$s</xliff:g>."</string>

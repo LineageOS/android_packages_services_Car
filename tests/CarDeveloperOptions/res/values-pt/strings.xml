@@ -1755,7 +1755,7 @@
     <string name="lockpattern_recording_inprogress" msgid="4060818382176523671">"Levante o dedo ao terminar"</string>
     <string name="lockpattern_recording_incorrect_too_short" msgid="6374760294545431845">"Conecte pelo menos <xliff:g id="NUMBER">%d</xliff:g> pontos. Tente novamente."</string>
     <string name="lockpattern_pattern_entered_header" msgid="2108106638322637851">"Padrão registrado"</string>
-    <string name="lockpattern_need_to_confirm" msgid="4079482507985867389">"Desenhe o padrão novamente para confirmar"</string>
+    <string name="lockpattern_need_to_confirm" msgid="4079482507985867389">"Desenhe o padrão de novo para confirmar"</string>
     <string name="lockpattern_pattern_confirmed_header" msgid="5603156929428721407">"Seu novo padrão de desbloqueio"</string>
     <string name="lockpattern_confirm_button_text" msgid="7059311304112902598">"Confirmar"</string>
     <string name="lockpattern_restart_button_text" msgid="4322968353922529868">"Desenhar novamente"</string>

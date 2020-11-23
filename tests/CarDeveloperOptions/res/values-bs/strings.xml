@@ -67,7 +67,7 @@
     <string name="radioInfo_data_disconnected" msgid="5311119240521915279">"Isključena"</string>
     <string name="radioInfo_data_connecting" msgid="47095003276717745">"Povezivanje"</string>
     <string name="radioInfo_data_connected" msgid="3755289851642913750">"Povezano"</string>
-    <string name="radioInfo_data_suspended" msgid="5013451375409737795">"Suspendirano"</string>
+    <string name="radioInfo_data_suspended" msgid="5013451375409737795">"Obustavljeno"</string>
     <string name="radioInfo_unknown" msgid="3148839102896278859">"Nepoznato"</string>
     <string name="radioInfo_display_packets" msgid="5472652398031589527">"paketi"</string>
     <string name="radioInfo_display_bytes" msgid="2357292401820837630">"bajtova"</string>
@@ -124,7 +124,7 @@
     <string name="bluetooth_device" msgid="3170974107364990008">"Neimenovani Bluetooth uređaj"</string>
     <string name="progress_scanning" msgid="633923400401041181">"Pretraživanje"</string>
     <string name="bluetooth_no_devices_found" msgid="4396050022213494322">"Nema Bluetooth uređaja u blizini."</string>
-    <string name="bluetooth_notif_ticker" msgid="8398481099943141819">"Zahtjev za Bluetooth uparivanje"</string>
+    <string name="bluetooth_notif_ticker" msgid="8398481099943141819">"Zahtjev za uparivanje putem Bluetootha"</string>
     <string name="bluetooth_notif_title" msgid="5090288898529286011">"Zahtjev za uparivanje"</string>
     <string name="bluetooth_notif_message" msgid="6612367890895077938">"Dodirnite za spajanje s uređajem <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
     <string name="bluetooth_show_received_files" msgid="5060846395852236652">"Primljeni fajlovi"</string>
@@ -456,9 +456,9 @@
     <string name="lock_screen_intro_skip_dialog_text_frp" product="tablet" msgid="7553945981266845264">"Funkcije za zaštitu uređaja neće se uključiti. Nećete moći spriječiti druge osobe da koriste ovaj tablet ako ga izgubite, ako vam ga ukradu ili ga vratite na početne postavke."</string>
     <string name="lock_screen_intro_skip_dialog_text_frp" product="device" msgid="1378243257238015603">"Funkcije za zaštitu uređaja neće se uključiti. Nećete moći spriječiti druge osobe da koriste ovaj uređaj ako ga izgubite, ako vam ga ukradu ili ga vratite na početne postavke."</string>
     <string name="lock_screen_intro_skip_dialog_text_frp" product="default" msgid="8395540117461339748">"Funkcije za zaštitu uređaja neće se uključiti. Nećete moći spriječiti druge osobe da koriste ovaj telefon ako ga izgubite, ako vam ga ukradu ili ga vratite na početne postavke."</string>
-    <string name="lock_screen_intro_skip_dialog_text" product="tablet" msgid="7572334562915795226">"Funkcije za zaštitu uređaja neće se uključiti. Nećete moći spriječiti druge osobe da koriste ovaj tablet ako ga izgubite ili vam ga ukradu."</string>
-    <string name="lock_screen_intro_skip_dialog_text" product="device" msgid="3819285334459763813">"Funkcije za zaštitu uređaja neće se uključiti. Nećete moći spriječiti druge osobe da koriste ovaj uređaj ako ga izgubite ili vam ga ukradu."</string>
-    <string name="lock_screen_intro_skip_dialog_text" product="default" msgid="5361573789585652826">"Funkcije za zaštitu uređaja neće se uključiti. Nećete moći spriječiti druge osobe da koriste ovaj telefon ako ga izgubite ili vam ga ukradu."</string>
+    <string name="lock_screen_intro_skip_dialog_text" product="tablet" msgid="7572334562915795226">"Funkcije za zaštitu uređaja neće se uključiti. Nećete moći spriječiti druge osobe da koriste ovaj tablet ako ga izgubite ili ga neko ukrade."</string>
+    <string name="lock_screen_intro_skip_dialog_text" product="device" msgid="3819285334459763813">"Funkcije za zaštitu uređaja neće se uključiti. Nećete moći spriječiti druge osobe da koriste ovaj uređaj ako ga izgubite ili ga neko ukrade."</string>
+    <string name="lock_screen_intro_skip_dialog_text" product="default" msgid="5361573789585652826">"Funkcije za zaštitu uređaja neće se uključiti. Nećete moći spriječiti druge osobe da koriste ovaj telefon ako ga izgubite ili ga neko ukrade."</string>
     <string name="skip_anyway_button_label" msgid="4437815969645175429">"Ipak preskoči"</string>
     <string name="go_back_button_label" msgid="7310586887969860472">"Nazad"</string>
     <string name="skip_lock_screen_dialog_button_label" msgid="6706047245716780006">"Preskoči"</string>
@@ -478,12 +478,12 @@
     <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"Uradit ću to kasnije"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_title" msgid="2816424026528101690">"Preskočiti postavljanje otiska prsta?"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_message" msgid="8139299964344809780">"Odabrali ste da koristite otisak prsta kao jedan od načina za otključavanja telefona. Ukoliko sada preskočite ovaj korak, morat ćete ga postaviti kasnije. Postavka traje otprilike samo jednu minutu."</string>
-    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="tablet" msgid="1384438077720821127">"Zaštitite tablet zaključavanjem ekrana tako da ga niko ne može koristiti ako ga izgubite ili vam ga ukradu. Zaključavanje ekrana vam je potrebno i za postavljanje otiska prsta. Dodirnite Otkaži, a zatim postavite PIN ili odaberite drugu opciju zaključavanja ekrana."</string>
-    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="device" msgid="7207112623501771824">"Zaštitite uređaj zaključavanjem ekrana tako da ga niko ne može koristiti ako ga izgubite ili vam ga ukradu. Zaključavanje ekrana vam je potrebno i za postavljanje otiska prsta. Dodirnite Otkaži, a zatim postavite PIN ili odaberite drugu opciju zaključavanja ekrana."</string>
-    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="default" msgid="7623975730623531606">"Zaštitite telefon zaključavanjem ekrana tako da ga niko ne može koristiti ako ga izgubite ili vam ga ukradu. Zaključavanje ekrana vam je potrebno i za postavljanje otiska prsta. Dodirnite Otkaži, a zatim postavite PIN ili odaberite drugu opciju zaključavanja ekrana."</string>
-    <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Zaštitite tablet zaključavanjem ekrana tako da ga niko ne može koristiti ako ga izgubite ili vam ga ukradu. Zaključavanje ekrana vam je potrebno i za postavljanje autentifikacije licem. Dodirnite Otkaži, a zatim postavite PIN ili odaberite drugu opciju zaključavanja ekrana."</string>
-    <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Zaštitite uređaj zaključavanjem ekrana tako da ga niko ne može koristiti ako ga izgubite ili vam ga ukradu. Zaključavanje ekrana vam je potrebno i za postavljanje autentifikacije licem. Dodirnite Otkaži, a zatim postavite PIN ili odaberite drugu opciju zaključavanja ekrana."</string>
-    <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Zaštitite telefon zaključavanjem ekrana tako da ga niko ne može koristiti ako ga izgubite ili vam ga ukradu. Zaključavanje ekrana vam je potrebno i za postavljanje autentifikacije licem. Dodirnite Otkaži, a zatim postavite PIN ili odaberite drugu opciju zaključavanja ekrana."</string>
+    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="tablet" msgid="1384438077720821127">"Zaštitite tablet zaključavanjem ekrana tako da ga niko ne može koristiti ako ga izgubite ili ga neko ukrade. Zaključavanje ekrana vam je potrebno i za postavljanje otiska prsta. Dodirnite Otkaži, a zatim postavite PIN ili odaberite drugu opciju zaključavanja ekrana."</string>
+    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="device" msgid="7207112623501771824">"Zaštitite uređaj zaključavanjem ekrana tako da ga niko ne može koristiti ako ga izgubite ili ga neko ukrade. Zaključavanje ekrana vam je potrebno i za postavljanje otiska prsta. Dodirnite Otkaži, a zatim postavite PIN ili odaberite drugu opciju zaključavanja ekrana."</string>
+    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="default" msgid="7623975730623531606">"Zaštitite telefon zaključavanjem ekrana tako da ga niko ne može koristiti ako ga izgubite ili ga neko ukrade. Zaključavanje ekrana vam je potrebno i za postavljanje otiska prsta. Dodirnite Otkaži, a zatim postavite PIN ili odaberite drugu opciju zaključavanja ekrana."</string>
+    <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Zaštitite tablet zaključavanjem ekrana tako da ga niko ne može koristiti ako ga izgubite ili ga neko ukrade. Zaključavanje ekrana vam je potrebno i za postavljanje autentifikacije licem. Dodirnite Otkaži, a zatim postavite PIN ili odaberite drugu opciju zaključavanja ekrana."</string>
+    <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Zaštitite uređaj zaključavanjem ekrana tako da ga niko ne može koristiti ako ga izgubite ili ga neko ukrade. Zaključavanje ekrana vam je potrebno i za postavljanje autentifikacije licem. Dodirnite Otkaži, a zatim postavite PIN ili odaberite drugu opciju zaključavanja ekrana."</string>
+    <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Zaštitite telefon zaključavanjem ekrana tako da ga niko ne može koristiti ako ga izgubite ili ga neko ukrade. Zaključavanje ekrana vam je potrebno i za postavljanje autentifikacije licem. Dodirnite Otkaži, a zatim postavite PIN ili odaberite drugu opciju zaključavanja ekrana."</string>
     <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"Preskočiti postavljanje PIN-a?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Preskočiti postavljanje lozinke?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Preskočiti postavljanje uzorka?"</string>
@@ -747,7 +747,7 @@
     <string name="bluetooth_settings_title" msgid="7261244857456521825">"Bluetooth"</string>
     <string name="bluetooth_settings_summary" msgid="1221689092429277887">"Upravljajte vezama, postavite ime uređaja i vidljivost"</string>
     <string name="bluetooth_pairing_request" msgid="7221745525632573125">"Upariti s uređajem <xliff:g id="DEVICE_NAME">%1$s</xliff:g>?"</string>
-    <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"Kod za Bluetooth uparivanje"</string>
+    <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"Kod za uparivanje putem Bluetootha"</string>
     <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"Upišite kod za uparivanje, zatim pritisnite Return ili Enter"</string>
     <string name="bluetooth_enable_alphanumeric_pin" msgid="9138308197078115672">"PIN sadrži slova ili simbole"</string>
     <string name="bluetooth_pin_values_hint" msgid="8044671726261326240">"Obično 0000 ili 1234"</string>
@@ -826,7 +826,7 @@
     <string name="wifi_display_options_title" msgid="4587264519668872213">"Opcije Bežičnog prikaza"</string>
     <string name="wifi_display_options_forget" msgid="7882982544626742073">"Zaboraviti"</string>
     <string name="wifi_display_options_done" msgid="5922060890309265817">"Gotovo"</string>
-    <string name="wifi_display_options_name" msgid="8477627781133827607">"Ime"</string>
+    <string name="wifi_display_options_name" msgid="8477627781133827607">"Naziv"</string>
     <string name="wifi_band_24ghz" msgid="2973143764653628618">"2,4 GHz"</string>
     <string name="wifi_band_5ghz" msgid="6469832209748522207">"5 GHz"</string>
     <string name="wifi_sign_in_button_text" msgid="7573695522292386360">"Prijava"</string>
@@ -1602,8 +1602,8 @@
     <string name="reset_network_complete_toast" msgid="128225929536005495">"Postavke mreže vraćene su na zadano"</string>
     <string name="reset_esim_error_title" msgid="4728931209471875632">"Nije moguće izbrisati SIM-ove"</string>
     <string name="reset_esim_error_msg" msgid="4716366079119742235">"Preuzete SIM-ove nije moguće izbrisati zbog greške.\n\nPonovo pokrenite uređaj i pokušajte ponovo."</string>
-    <string name="master_clear_title" msgid="1560712943955904673">"Izbriši sve podatke (vraćanje na fabričke postavke)"</string>
-    <string name="master_clear_short_title" msgid="919098101581335101">"Potpuno izbriši sve podatke"</string>
+    <string name="master_clear_title" msgid="1560712943955904673">"Izbriši sve podatke (vrati na fabričke postavke)"</string>
+    <string name="master_clear_short_title" msgid="919098101581335101">"Izbriši sve podatke"</string>
     <string name="master_clear_desc" product="tablet" msgid="3432373610755760899">"Na ovaj način će se izbrisati svi podaci "<b>"interne memorije"</b>" tableta, uključujući:\n\n"<li>"Google račun"</li>\n<li>"sistemske i aplikacijske podatke i postavke"</li>\n<li>"preuzete aplikacije"</li></string>
     <string name="master_clear_desc" product="default" msgid="8765543541962866697">"Na ovaj način će se izbrisati svi podaci "<b>"interne memorije"</b>" telefona, uključujući:\n\n"<li>"vaš Google račun"</li>\n<li>"podatke i postavke sistema i aplikacija"</li>\n<li>"preuzete aplikacije"</li></string>
     <string name="master_clear_accounts" product="default" msgid="3432884235445405376">\n\n"Trenutno ste prijavljeni u sljedeće račune:\n"</string>
@@ -3040,7 +3040,7 @@
     <string name="sim_select_card" msgid="5558215843972182767">"Odaberite SIM karticu"</string>
     <string name="sim_card_number_title" msgid="8808663374497085634">"SIM <xliff:g id="CARD_NUMBER">%1$d</xliff:g>"</string>
     <string name="sim_slot_empty" msgid="2710430326225678239">"SIM kartica je prazna"</string>
-    <string name="sim_editor_name" msgid="3367549287943555967">"Ime SIM-a"</string>
+    <string name="sim_editor_name" msgid="3367549287943555967">"Naziv SIM-a"</string>
     <string name="sim_name_hint" msgid="4462143545744872744">"Unesite ime SIM-a"</string>
     <string name="sim_editor_title" msgid="2303147682835318920">"SIM slot %1$d"</string>
     <string name="sim_editor_carrier" msgid="8860370077829961512">"Operater"</string>
@@ -4140,7 +4140,7 @@
     <string name="bluetooth_disabled" msgid="6588102116819268238">"Isključeno"</string>
     <string name="bluetooth_connected_summary" msgid="439920840053965217">"Povezan s uređajem <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="bluetooth_connected_multiple_devices_summary" msgid="596205630653123250">"Povezan s više uređaja"</string>
-    <string name="demo_mode" msgid="3831081808592541104">"Način demonstracije Sistemskog UI-a"</string>
+    <string name="demo_mode" msgid="3831081808592541104">"Način rada za demonstraciju Sistemskog UI-a"</string>
     <string name="dark_ui_mode" msgid="703844190192599217">"Tema"</string>
     <string name="dark_ui_mode_title" msgid="8774932716427742413">"Odabir teme"</string>
     <string name="dark_ui_settings_light_summary" msgid="5219102347744462812">"Ova postavka se odnosi i na aplikacije"</string>

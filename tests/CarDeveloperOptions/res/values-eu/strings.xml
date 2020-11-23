@@ -730,7 +730,7 @@
     <string name="bluetooth_settings_title" msgid="7261244857456521825">"Bluetooth-a"</string>
     <string name="bluetooth_settings_summary" msgid="1221689092429277887">"Kudeatu konexioak, ezarri gailuaren izena eta ikusgaitasuna"</string>
     <string name="bluetooth_pairing_request" msgid="7221745525632573125">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> gailuarekin parekatu nahi duzu?"</string>
-    <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"Bluetooth parekatze-kodea"</string>
+    <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"Bluetooth bidez parekatzeko kodea"</string>
     <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"Idatzi parekatze-kodea eta sakatu Sartu edo Itzuli"</string>
     <string name="bluetooth_enable_alphanumeric_pin" msgid="9138308197078115672">"PINak hizkiak edo ikurrak ditu"</string>
     <string name="bluetooth_pin_values_hint" msgid="8044671726261326240">"Normalean 0000 edo 1234"</string>
@@ -1021,7 +1021,7 @@
     <string name="wifi_advanced_mac_address_title" msgid="1162782083754021737">"MAC helbidea"</string>
     <string name="wifi_advanced_ip_address_title" msgid="2708185994512829071">"IP helbidea"</string>
     <string name="wifi_details_title" msgid="2164042631550920157">"Sarearen xehetasunak"</string>
-    <string name="wifi_details_subnet_mask" msgid="53396707004763012">"Azpisarearen maskara"</string>
+    <string name="wifi_details_subnet_mask" msgid="53396707004763012">"Azpisare-maskara"</string>
     <string name="wifi_details_dns" msgid="1118251455740116559">"DNS"</string>
     <string name="wifi_details_ipv6_address_header" msgid="1642310137145363299">"IPv6 helbideak"</string>
     <string name="wifi_saved_access_points_label" msgid="3790693285928292563">"Gordetako sareak"</string>
@@ -1844,7 +1844,7 @@
     <string name="default_emergency_app" msgid="286530070173495823">"Larrialdietarako aplikazioa"</string>
     <string name="reset_app_preferences" msgid="1426500030595212077">"Berrezarri aplikazioen hobespenak"</string>
     <string name="reset_app_preferences_title" msgid="792909865493673598">"Aplikazioen hobespenak berrezarri nahi dituzu?"</string>
-    <string name="reset_app_preferences_desc" msgid="7935273005301096031">"Hauen hobespen guztiak berrezarriko dira:\n\n"<li>"desgaitutako aplikazioak,"</li>\n<li>"desgaitutako aplikazio-jakinarazpenak,"</li>\n<li>"ekintza jakinetarako aplikazio lehenetsiak,"</li>\n<li>"aplikazioen atzeko planoko datuen murriztapenak eta"</li>\n<li>"baimen-murriztapenak."</li>\n\n"Ez dituzu galduko aplikazioetako datuak."</string>
+    <string name="reset_app_preferences_desc" msgid="7935273005301096031">"Hauen hobespen guztiak berrezarriko dira:\n\n"<li>"desgaitutako aplikazioak,"</li>\n<li>"desgaitutako aplikazio-jakinarazpenak,"</li>\n<li>"ekintza jakinetarako aplikazio lehenetsiak,"</li>\n<li>"aplikazioen atzeko planoko datuen murriztapenak,"</li>\n<li>"baimen-murriztapenak."</li>\n\n"Ez dituzu galduko aplikazioetako datuak."</string>
     <string name="reset_app_preferences_button" msgid="2041894727477934656">"Berrezarri aplikazioak"</string>
     <string name="manage_space_text" msgid="6166469422303124302">"Kudeatu tokia"</string>
     <string name="filter" msgid="2426943916212457962">"Iragazi"</string>
