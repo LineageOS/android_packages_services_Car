@@ -1727,6 +1727,48 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    @ExpectWtf
+    public void testCreateUserEvenWhenDisallowed_noHelper() throws Exception {
+        UserInfo userInfo = mCarUserService.createUserEvenWhenDisallowed("name",
+                UserManager.USER_TYPE_FULL_SECONDARY, UserInfo.FLAG_ADMIN);
+
+        assertThat(userInfo).isNull();
+    }
+
+    @Test
+    public void testCreateUserEvenWhenDisallowed_remoteException() throws Exception {
+        mCarUserService.setCarServiceHelper(mICarServiceHelper);
+        when(mICarServiceHelper.createUserEvenWhenDisallowed(any(), any(), anyInt()))
+                .thenThrow(new RemoteException("D'OH!"));
+
+        UserInfo userInfo = mCarUserService.createUserEvenWhenDisallowed("name",
+                UserManager.USER_TYPE_FULL_SECONDARY, UserInfo.FLAG_ADMIN);
+
+        assertThat(userInfo).isNull();
+    }
+
+    @Test
+    public void testCreateUserEvenWhenDisallowed_success() throws Exception {
+        UserInfo user = new UserInfoBuilder(100)
+                .setName("name")
+                .setType(UserManager.USER_TYPE_FULL_SECONDARY)
+                .setFlags(UserInfo.FLAG_ADMIN)
+                .build();
+        mCarUserService.setCarServiceHelper(mICarServiceHelper);
+        when(mICarServiceHelper.createUserEvenWhenDisallowed("name",
+                UserManager.USER_TYPE_FULL_SECONDARY, UserInfo.FLAG_ADMIN)).thenReturn(user);
+
+        UserInfo actualUser = mCarUserService.createUserEvenWhenDisallowed("name",
+                UserManager.USER_TYPE_FULL_SECONDARY, UserInfo.FLAG_ADMIN);
+
+        assertThat(actualUser).isNotNull();
+        assertThat(actualUser.id).isEqualTo(100);
+        assertThat(actualUser.name).isEqualTo("name");
+        assertThat(actualUser.userType).isEqualTo(UserManager.USER_TYPE_FULL_SECONDARY);
+        assertThat(actualUser.flags).isEqualTo(UserInfo.FLAG_ADMIN);
+    }
+
+    @Test
     public void testIsHalSupported() throws Exception {
         when(mUserHal.isSupported()).thenReturn(true);
         assertThat(mCarUserService.isUserHalSupported()).isTrue();

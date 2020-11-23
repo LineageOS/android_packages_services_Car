@@ -117,6 +117,7 @@ final class InitialUserSetter {
     // TODO(b/150413304): abstract AM / UM into interfaces, then provide local and remote
     // implementation (where local is implemented by ActivityManagerInternal / UserManagerInternal)
     private final UserManager mUm;
+    private final CarUserService mCarUserService;
     private final LockPatternUtils mLockPatternUtils;
 
     private final String mNewUserName;
@@ -124,22 +125,26 @@ final class InitialUserSetter {
 
     private final Consumer<UserInfo> mListener;
 
-    InitialUserSetter(@NonNull Context context, @NonNull Consumer<UserInfo> listener) {
-        this(context, listener, /* newGuestName= */ null);
+    InitialUserSetter(@NonNull Context context, @NonNull CarUserService carUserService,
+            @NonNull Consumer<UserInfo> listener) {
+        this(context, carUserService, listener, /* newGuestName= */ null);
     }
 
-    InitialUserSetter(@NonNull Context context, @NonNull Consumer<UserInfo> listener,
-            @Nullable String newGuestName) {
-        this(context, UserManager.get(context), listener, new LockPatternUtils(context),
+    InitialUserSetter(@NonNull Context context, @NonNull CarUserService carUserService,
+            @NonNull Consumer<UserInfo> listener, @Nullable String newGuestName) {
+        this(context, UserManager.get(context), carUserService, listener,
+                new LockPatternUtils(context),
                 context.getString(com.android.internal.R.string.owner_name), newGuestName);
     }
 
     @VisibleForTesting
     InitialUserSetter(@NonNull Context context, @NonNull UserManager um,
-            @NonNull Consumer<UserInfo> listener, @NonNull LockPatternUtils lockPatternUtils,
-            @Nullable String newUserName, @Nullable String newGuestName) {
+            @NonNull CarUserService carUserService, @NonNull Consumer<UserInfo> listener,
+            @NonNull LockPatternUtils lockPatternUtils, @Nullable String newUserName,
+            @Nullable String newGuestName) {
         mContext = context;
         mUm = um;
+        mCarUserService = carUserService;
         mListener = listener;
         mLockPatternUtils = lockPatternUtils;
         mNewUserName = newUserName;
@@ -585,7 +590,7 @@ final class InitialUserSetter {
                     + type + ", flags=" + UserInfo.flagsToString(flags) + ")");
         }
 
-        UserInfo userInfo = mUm.createUser(name, type, flags);
+        UserInfo userInfo = mCarUserService.createUserEvenWhenDisallowed(name, type, flags);
         if (userInfo == null) {
             return new Pair<>(null, "createUser(name=" + UserHelperLite.safeName(name) + ", flags="
                     + userFlagsToString(halFlags) + "): failed to create user");

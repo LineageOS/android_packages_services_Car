@@ -91,6 +91,9 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     private UserManager mUm;
 
     @Mock
+    private CarUserService mCarUserService;
+
+    @Mock
     private LockPatternUtils mLockPatternUtils;
 
     // Spy used in tests that need to verify the default behavior as fallback
@@ -108,7 +111,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
 
     @Before
     public void setFixtures() {
-        mSetter = spy(new InitialUserSetter(mContext, mUm, mListener,
+        mSetter = spy(new InitialUserSetter(mContext, mUm, mCarUserService, mListener,
                 mLockPatternUtils, OWNER_NAME, GUEST_NAME));
 
         doReturn(mIActivityManager).when(() -> ActivityManager.getService());
@@ -434,7 +437,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
 
     @Test
     public void testCreateUser_fail_systemUser() throws Exception {
-        // No need to set mUm.createUser() expectation - it shouldn't be called
+        // No need to mock createUser() expectation - it shouldn't be called
 
         mSetter.set(new Builder(InitialUserSetter.TYPE_CREATE)
                 .setNewUserName("TheDude")
@@ -448,7 +451,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
 
     @Test
     public void testCreateUser_fail_guestAdmin() throws Exception {
-        // No need to set mUm.createUser() expectation - it shouldn't be called
+        // No need to set createUser() expectation - it shouldn't be called
 
         mSetter.set(new Builder(InitialUserSetter.TYPE_CREATE)
                 .setNewUserName("TheDude")
@@ -461,7 +464,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
 
     @Test
     public void testCreateUser_fail_ephemeralAdmin() throws Exception {
-        // No need to set mUm.createUser() expectation - it shouldn't be called
+        // No need to set createUser() expectation - it shouldn't be called
 
         mSetter.set(new Builder(InitialUserSetter.TYPE_CREATE)
                 .setNewUserName("TheDude")
@@ -474,7 +477,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
 
     @Test
     public void testCreateUser_fail_createFail() throws Exception {
-        // No need to set mUm.createUser() expectation - it will return false by default
+        // No need to set createUser() expectation - it will return false by default
 
         mSetter.set(new Builder(InitialUserSetter.TYPE_CREATE)
                 .setNewUserName("TheDude")
@@ -1079,14 +1082,14 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     private UserInfo expectCreateUserOfType(@NonNull String type, @UserIdInt int userId,
             @Nullable String name, @UserInfoFlag int flags) {
         UserInfo userInfo = new UserInfo(userId, name, flags);
-        when(mUm.createUser(name, type, flags)).thenReturn(userInfo);
+        when(mCarUserService.createUserEvenWhenDisallowed(name, type, flags)).thenReturn(userInfo);
         // Once user is created, it should exist...
         when(mUm.getUserInfo(userId)).thenReturn(userInfo);
         return userInfo;
     }
 
     private void expectCreateUserThrowsException(@NonNull String name, @UserIdInt int userId) {
-        when(mUm.createUser(eq(name), anyString(), eq(userId)))
+        when(mCarUserService.createUserEvenWhenDisallowed(eq(name), anyString(), eq(userId)))
                 .thenThrow(new RuntimeException("Cannot create user. D'OH!"));
     }
 
