@@ -1584,7 +1584,7 @@
     <string name="reset_esim_error_title" msgid="4728931209471875632">"SIM-kaarte ei saa kustutada"</string>
     <string name="reset_esim_error_msg" msgid="4716366079119742235">"Allalaaditud SIM-kaarte ei saa vea tõttu kustutada.\n\nTaaskäivitage seade ja proovige uuesti."</string>
     <string name="master_clear_title" msgid="1560712943955904673">"Kõigi andmete kustutamine (tehaseseadetele lähtestamine)"</string>
-    <string name="master_clear_short_title" msgid="919098101581335101">"Kust. andmed (tehases. läht.)"</string>
+    <string name="master_clear_short_title" msgid="919098101581335101">"Kõigi andmete kustutamine (tehaseseaded)"</string>
     <string name="master_clear_desc" product="tablet" msgid="3432373610755760899">"See kustutab teie tahvelarvuti "<b>"sisemälust"</b>" kõik andmed, sh:\n\n"<li>"teie Google\'i konto;"</li>\n<li>"süsteemi ja rakenduste andmed ning seaded;"</li>\n<li>"allalaaditud rakendused."</li></string>
     <string name="master_clear_desc" product="default" msgid="8765543541962866697">"See kustutab teie telefoni "<b>"sisemälust"</b>" kõik andmed, sh järgmised.\n\n"<li>"Teie Google\'i konto"</li>\n<li>"Süsteemi- ja rakenduste andmed ning seaded"</li>\n<li>"Allalaaditud rakendused"</li></string>
     <string name="master_clear_accounts" product="default" msgid="3432884235445405376">\n\n"Olete praegu sisse logitud järgmistele kontodele:\n"</string>
@@ -1842,7 +1842,7 @@
     <string name="show_running_services" msgid="1895994322704667543">"Kuva töötavad teenused"</string>
     <string name="show_background_processes" msgid="88012264528093617">"Kuva vahemällu salvestatud protsessid"</string>
     <string name="default_emergency_app" msgid="286530070173495823">"Hädaabirakendus"</string>
-    <string name="reset_app_preferences" msgid="1426500030595212077">"Lähtesta rakenduste eelistused"</string>
+    <string name="reset_app_preferences" msgid="1426500030595212077">"Rakenduste eelistuste lähtestamine"</string>
     <string name="reset_app_preferences_title" msgid="792909865493673598">"Lähtestada rakenduste eelistused?"</string>
     <string name="reset_app_preferences_desc" msgid="7935273005301096031">"See lähtestab kõik järgmised eelistused:\n\n "<li>"Keelatud rakendused"</li>\n" "<li>"Keelatud rakenduste märguanded"</li>\n" "<li>"Toimingute vaikerakendused"</li>\n" "<li>"Rakenduste taustaandmete piirangud"</li>\n" "<li>"Igasugused lubade piirangud"</li>\n\n" Rakenduste andmed säilivad."</string>
     <string name="reset_app_preferences_button" msgid="2041894727477934656">"Lähtesta rakendused"</string>
@@ -1884,7 +1884,7 @@
     <string name="system_package" msgid="1824541892695233351">"Süsteemivärskendusi ei saa installida välisele kandjale."</string>
     <string name="move_error_device_admin" msgid="6640501923867066901">"Seadme administraatori rakendust ei saa installida välisele andmekandjale"</string>
     <string name="force_stop_dlg_title" msgid="8822779487097246675">"Kas peatada sunniviisiliselt?"</string>
-    <string name="force_stop_dlg_text" msgid="7435245769456493398">"Kui sunnite rakenduse peatuma, võib see valesti käituda."</string>
+    <string name="force_stop_dlg_text" msgid="7435245769456493398">"Kui sunnite rakenduse peatuma, võib see toimida valesti."</string>
     <string name="app_install_location_title" msgid="5121617802063021720">"Eelistatud installiasukoht"</string>
     <string name="app_install_location_summary" msgid="109719780117187797">"Muutke uute rakenduste eelistatud installiasukohta"</string>
     <string name="app_disable_dlg_positive" msgid="5508828271100168073">"Keela rakendus"</string>
@@ -2238,7 +2238,7 @@
     <string name="background_activity_summary_disabled" msgid="457944930942085876">"Rakendusel ei ole lubatud taustal töötada"</string>
     <string name="background_activity_summary_whitelisted" msgid="4713321059375873828">"Taustal kasutamist ei saa piirata"</string>
     <string name="background_activity_warning_dialog_title" msgid="2170790412855899678">"Kas piirata taustal tegevust?"</string>
-    <string name="background_activity_warning_dialog_text" msgid="8242749826732375096">"Kui piirate rakenduse tegevust taustal, võib rakendus valesti käituda."</string>
+    <string name="background_activity_warning_dialog_text" msgid="8242749826732375096">"Kui piirate rakenduse tegevust taustal, võib rakendus toimida valesti."</string>
     <string name="background_activity_disabled_dialog_text" msgid="4234598000779459640">"Kuna rak. pole aku optimeerimine seadistatud, ei saa te seda piirata.\n\nRak. piiramiseks lülit. esmalt sisse aku optimeerimine."</string>
     <string name="device_screen_usage" msgid="4470485475363132750">"Ekraani kasutus alates täislaadimisest"</string>
     <string name="power_usage_list_summary" msgid="4314438658308211057">"Akukasutus alates täislaadimisest"</string>
@@ -3031,7 +3031,7 @@
       <item quantity="other">Kuva %d peidetud üksust</item>
       <item quantity="one">Kuva %d peidetud üksus</item>
     </plurals>
-    <string name="network_dashboard_title" msgid="8288134139584687806">"Võrk ja Internet"</string>
+    <string name="network_dashboard_title" msgid="8288134139584687806">"Võrk ja internet"</string>
     <string name="network_dashboard_summary_mobile" msgid="5560545061217580626">"mobiilivõrk"</string>
     <string name="network_dashboard_summary_data_usage" msgid="4695629715072542102">"andmeside kasutus"</string>
     <string name="network_dashboard_summary_hotspot" msgid="3928610802321995214">"kuumkoht"</string>
@@ -3052,7 +3052,7 @@
     <string name="keywords_wifi_notify_open_networks" msgid="1031260564121854773">"WiFi märguanne, wifi märguanne"</string>
     <string name="keywords_auto_brightness" msgid="5007188989783072428">"Automaatne heledus"</string>
     <string name="keywords_vibrate_on_touch" msgid="3615173661462446877">"Vibreerimise peatamine, puudutus, klaviatuur"</string>
-    <string name="keywords_time_format" msgid="8265826377023617424">"Kasuta 24-tunnist vormingut"</string>
+    <string name="keywords_time_format" msgid="8265826377023617424">"Kasuta 24-tunni vormingut"</string>
     <string name="keywords_storage_files" msgid="1995055540202216399">"Allalaadimine"</string>
     <string name="keywords_app_default" msgid="1265502485415708667">"Ava rakendusega"</string>
     <string name="keywords_applications_settings" msgid="2078776051110952597">"Rakendused"</string>

@@ -107,7 +107,7 @@
     <string name="bluetooth_scan_for_devices" msgid="3215740768422735880">"Cerca dispositivi"</string>
     <string name="bluetooth_rename_device" msgid="7862992396452800566">"Rinomina questo dispositivo"</string>
     <string name="bluetooth_rename_button" msgid="8946904845821073267">"Rinomina"</string>
-    <string name="bluetooth_disconnect_title" msgid="2689706557852333780">"Scollegare il dispositivo?"</string>
+    <string name="bluetooth_disconnect_title" msgid="2689706557852333780">"Disconnettere il dispositivo?"</string>
     <string name="bluetooth_disconnect_all_profiles" product="default" msgid="8920448151607060442">"Il telefono verrà scollegato da <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
     <string name="bluetooth_disconnect_all_profiles" product="tablet" msgid="7322773998151831579">"Il tablet verrà scollegato da <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
     <string name="bluetooth_disconnect_all_profiles" product="device" msgid="4707569949253450208">"Il dispositivo verrà scollegato da <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
@@ -263,7 +263,7 @@
     <string name="sdcard_settings_scanning_status" product="default" msgid="67933353112027726">"Ricerca di media nella scheda SD..."</string>
     <string name="sdcard_settings_read_only_status" product="nosdcard" msgid="7959964366461613091">"Archivio USB montato: lettura."</string>
     <string name="sdcard_settings_read_only_status" product="default" msgid="8854112253788893415">"La scheda SD montata è di sola lettura."</string>
-    <string name="skip_label" msgid="8067961347551157478">"Ignora"</string>
+    <string name="skip_label" msgid="8067961347551157478">"Salta"</string>
     <string name="next_label" msgid="4710056309804362410">"Avanti"</string>
     <string name="language_picker_title" msgid="7807759931261107686">"Lingue"</string>
     <string name="locale_remove_menu" msgid="3395565699934985486">"Rimuovi"</string>
@@ -444,20 +444,20 @@
     <string name="security_settings_fingerprint_enroll_introduction_message_setup" msgid="6734490666593320711">"Utilizza la tua impronta digitale per sbloccare il telefono o approvare un acquisto.\n\nNota: la tua impronta digitale potrebbe essere meno sicura di una sequenza o un codice PIN complessi."</string>
     <string name="security_settings_fingerprint_enroll_introduction_cancel" msgid="9168637333731599827">"Annulla"</string>
     <string name="security_settings_fingerprint_enroll_introduction_continue" msgid="271662150372486535">"Continua"</string>
-    <string name="security_settings_fingerprint_enroll_introduction_cancel_setup" msgid="756928427429893070">"Ignora"</string>
+    <string name="security_settings_fingerprint_enroll_introduction_cancel_setup" msgid="756928427429893070">"Salta"</string>
     <string name="security_settings_fingerprint_enroll_introduction_continue_setup" msgid="4125977169169671144">"Avanti"</string>
     <string name="setup_fingerprint_enroll_skip_title" msgid="763018850721691594">"Saltare la configurazione?"</string>
     <string name="setup_fingerprint_enroll_skip_after_adding_lock_text" msgid="8849928362049018680">"La configurazione dell\'impronta digitale richiede solo un paio di minuti. Se salti questo passaggio, potrai aggiungere l\'impronta digitale in seguito nelle impostazioni."</string>
-    <string name="lock_screen_intro_skip_title" msgid="5307431665496346914">"Ignorare il blocco schermo?"</string>
+    <string name="lock_screen_intro_skip_title" msgid="5307431665496346914">"Saltare il blocco schermo?"</string>
     <string name="lock_screen_intro_skip_dialog_text_frp" product="tablet" msgid="7553945981266845264">"Le funzioni di protezione del dispositivo non verranno attivate. Non potrai impedire ad altre persone di utilizzare questo tablet se viene smarrito, rubato o reimpostato."</string>
     <string name="lock_screen_intro_skip_dialog_text_frp" product="device" msgid="1378243257238015603">"Le funzioni di protezione del dispositivo non verranno attivate. Non potrai impedire ad altre persone di utilizzare questo dispositivo se viene smarrito, rubato o reimpostato."</string>
     <string name="lock_screen_intro_skip_dialog_text_frp" product="default" msgid="8395540117461339748">"Le funzioni di protezione del dispositivo non verranno attivate. Non potrai impedire ad altre persone di utilizzare questo telefono se viene smarrito, rubato o reimpostato."</string>
     <string name="lock_screen_intro_skip_dialog_text" product="tablet" msgid="7572334562915795226">"Le funzioni di protezione del dispositivo non verranno attivate. Non potrai impedire ad altre persone di utilizzare questo tablet se viene smarrito o rubato."</string>
     <string name="lock_screen_intro_skip_dialog_text" product="device" msgid="3819285334459763813">"Le funzioni di protezione del dispositivo non verranno attivate. Non potrai impedire ad altre persone di utilizzare questo dispositivo se viene smarrito o rubato."</string>
     <string name="lock_screen_intro_skip_dialog_text" product="default" msgid="5361573789585652826">"Le funzioni di protezione del dispositivo non verranno attivate. Non potrai impedire ad altre persone di utilizzare questo telefono se viene smarrito o rubato."</string>
-    <string name="skip_anyway_button_label" msgid="4437815969645175429">"Ignora comunque"</string>
+    <string name="skip_anyway_button_label" msgid="4437815969645175429">"Salta comunque"</string>
     <string name="go_back_button_label" msgid="7310586887969860472">"Torna indietro"</string>
-    <string name="skip_lock_screen_dialog_button_label" msgid="6706047245716780006">"Ignora"</string>
+    <string name="skip_lock_screen_dialog_button_label" msgid="6706047245716780006">"Salta"</string>
     <string name="cancel_lock_screen_dialog_button_label" msgid="2534925227627658819">"Annulla"</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_title" msgid="8909829699273726469">"Tocca il sensore"</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_message" msgid="581120963079780740">"Si trova sulla parte posteriore del telefono. Utilizza il dito indice."</string>
@@ -1578,7 +1578,7 @@
     <string name="reset_network_final_desc" msgid="2463817067048751373">"Ripristinare tutte le impostazioni della rete? Questa azione non può essere annullata."</string>
     <string name="reset_network_final_desc_esim" msgid="4676436976372555750">"Reimpostare tutte le impostazioni di rete e resettare tutte le SIM scaricate? Questa azione non può essere annullata."</string>
     <string name="reset_network_final_button_text" msgid="345255333127794393">"Reimposta impostazioni"</string>
-    <string name="reset_network_confirm_title" msgid="2432145031070536008">"Reimpostare?"</string>
+    <string name="reset_network_confirm_title" msgid="2432145031070536008">"Vuoi reimpostare?"</string>
     <string name="network_reset_not_available" msgid="6146655531868016281">"La reimpostazione della rete non è disponibile per questo utente"</string>
     <string name="reset_network_complete_toast" msgid="128225929536005495">"Le impostazioni di rete sono state reimpostate"</string>
     <string name="reset_esim_error_title" msgid="4728931209471875632">"Impossibile resettare le SIM"</string>
@@ -1843,7 +1843,7 @@
     <string name="show_background_processes" msgid="88012264528093617">"Mostra processi nella cache"</string>
     <string name="default_emergency_app" msgid="286530070173495823">"App di emergenza"</string>
     <string name="reset_app_preferences" msgid="1426500030595212077">"Reimposta preferenze app"</string>
-    <string name="reset_app_preferences_title" msgid="792909865493673598">"Reimpostare preferenze app?"</string>
+    <string name="reset_app_preferences_title" msgid="792909865493673598">"Reimpostare le preferenze per le app?"</string>
     <string name="reset_app_preferences_desc" msgid="7935273005301096031">"Verranno reimpostate tutte le preferenze relative a:\n\n "<li>"App disattivate"</li>\n" "<li>"Notifiche di app disattivate"</li>\n" "<li>"Applicazioni predefinite per azioni"</li>\n" "<li>"Limitazioni di dati in background per app"</li>\n" "<li>"Eventuali limitazioni di autorizzazioni"</li>\n\n" Non perderai i dati delle app."</string>
     <string name="reset_app_preferences_button" msgid="2041894727477934656">"Reimposta app"</string>
     <string name="manage_space_text" msgid="6166469422303124302">"Gestisci spazio"</string>

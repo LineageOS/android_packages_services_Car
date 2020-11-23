@@ -302,7 +302,7 @@
     <string name="settings_shortcut" msgid="4503714880251502167">"Settings shortcut"</string>
     <string name="airplane_mode" msgid="4508870277398231073">"Airplane mode"</string>
     <string name="wireless_networks_settings_title" msgid="4298430520189173949">"Wireless &amp; networks"</string>
-    <string name="radio_controls_summary" msgid="4596981962167684814">"Manage Wi‑Fi, Bluetooth, airplane mode, mobile networks, &amp; VPNs"</string>
+    <string name="radio_controls_summary" msgid="4596981962167684814">"Manage Wi‑Fi, Bluetooth, Airplane mode, mobile networks and VPNs"</string>
     <string name="cellular_data_title" msgid="7909624119432695022">"Mobile data"</string>
     <string name="calls_title" msgid="875693497825736550">"Allow calls"</string>
     <string name="sms_messages_title" msgid="934188835214592753">"SMS messages"</string>
@@ -1313,7 +1313,7 @@
     <string name="security_patch" msgid="483709031051932208">"Android security patch level"</string>
     <string name="model_info" msgid="1729765474260797594">"Model"</string>
     <string name="model_summary" msgid="8781425868254352168">"Model: %1$s"</string>
-    <string name="hardware_info" msgid="174270144950621815">"Model &amp; hardware"</string>
+    <string name="hardware_info" msgid="174270144950621815">"Model and hardware"</string>
     <string name="hardware_revision" msgid="3315744162524354246">"Hardware version"</string>
     <string name="fcc_equipment_id" msgid="8681995718533066093">"Equipment ID"</string>
     <string name="baseband_version" msgid="9115560821840757786">"Baseband version"</string>
@@ -1326,7 +1326,7 @@
     <string name="device_status_summary" product="tablet" msgid="8975790197766171710">"Status of the battery, network and other information"</string>
     <string name="device_status_summary" product="default" msgid="8282235230720651642">"Phone number, signal, etc."</string>
     <string name="storage_settings" msgid="7009733301485139652">"Storage"</string>
-    <string name="storage_settings_for_app" msgid="3028887232073069965">"Storage &amp; cache"</string>
+    <string name="storage_settings_for_app" msgid="3028887232073069965">"Storage and cache"</string>
     <string name="storage_usb_settings" msgid="4470138799276333403">"Storage"</string>
     <string name="storage_settings_title" msgid="7348362600789024415">"Storage settings"</string>
     <string name="storage_settings_summary" product="nosdcard" msgid="600267641559698394">"Unmount USB storage, view available storage"</string>
@@ -1673,8 +1673,8 @@
     <string name="location_street_level" product="tablet" msgid="4459804798444296650">"Let apps use GPS on your tablet to pinpoint your location"</string>
     <string name="location_street_level" product="default" msgid="7407688345675450051">"Let apps use GPS on your phone to pinpoint your location"</string>
     <string name="assisted_gps" msgid="5411780261117055175">"Use assisted GPS"</string>
-    <string name="assisted_gps_enabled" msgid="2561022181775725369">"Use server to assist GPS (un-tick to reduce network usage)"</string>
-    <string name="assisted_gps_disabled" msgid="6448758788217415937">"Use server to assist GPS (un-tick to improve GPS performance)"</string>
+    <string name="assisted_gps_enabled" msgid="2561022181775725369">"Use server to assist GPS (uncheck to reduce network usage)"</string>
+    <string name="assisted_gps_disabled" msgid="6448758788217415937">"Use server to assist GPS (uncheck to improve GPS performance)"</string>
     <string name="use_location_title" msgid="7724788634359496634">"Location &amp; Google search"</string>
     <string name="use_location_summary" msgid="7396716606067400283">"Let Google use your location to improve search results and other services"</string>
     <string name="location_access_title" msgid="8587974819606800029">"Access to my location"</string>
@@ -2402,7 +2402,7 @@
     <string name="battery_desc_standby" product="tablet" msgid="2941777996429933419">"Battery used when tablet is idle"</string>
     <string name="battery_desc_standby" product="default" msgid="8889482616564520287">"Battery used when phone is idle"</string>
     <string name="battery_desc_radio" msgid="5119078473833865414">"Battery used by mobile radio"</string>
-    <string name="battery_sugg_radio" msgid="3616364509738133415">"Switch to airplane mode to save power in areas with no cell coverage"</string>
+    <string name="battery_sugg_radio" msgid="3616364509738133415">"Switch to Airplane mode to save power in areas with no cell coverage"</string>
     <string name="battery_desc_flashlight" msgid="4574819522143720917">"Battery used by the flashlight"</string>
     <string name="battery_desc_camera" msgid="517966830222999462">"Battery used by the camera"</string>
     <string name="battery_desc_display" msgid="6701005808894183097">"Battery used by the display and backlight"</string>
@@ -2629,8 +2629,8 @@
     <string name="remove_account_label" msgid="5885425720323823387">"Remove account"</string>
     <string name="header_add_an_account" msgid="8482614556580804956">"Add an account"</string>
     <string name="really_remove_account_title" msgid="4166512362915154319">"Remove account?"</string>
-    <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"Removing this account will delete all of its messages, contacts and other data from the tablet!"</string>
-    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Removing this account will delete all of its messages, contacts and other data from the phone!"</string>
+    <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"Removing this account will delete all of its messages, contacts and other data from the tablet."</string>
+    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Removing this account will delete all of its messages, contacts and other data from the phone."</string>
     <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"Removing this account will delete all of its messages, contacts and other data from the device."</string>
     <string name="remove_account_failed" msgid="491458185327106966">"This change isn\'t allowed by your admin"</string>
     <string name="cant_sync_dialog_title" msgid="5483419398223189881">"Cannot sync manually"</string>
@@ -4100,7 +4100,7 @@
       <item quantity="one">1 second</item>
     </plurals>
     <string name="automatic_storage_manager_settings" msgid="2403621409625820182">"Manage storage"</string>
-    <string name="automatic_storage_manager_text" msgid="4270379105066667493">"To help free up storage space, storage manager removes backed up photos and videos from your device."</string>
+    <string name="automatic_storage_manager_text" msgid="4270379105066667493">"To help free up storage space, storage manager removes backed-up photos and videos from your device."</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"Remove photos &amp; videos"</string>
     <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"Storage manager"</string>
     <string name="automatic_storage_manager_master_switch_title" msgid="1456978117739582562">"Use Storage Manager"</string>
