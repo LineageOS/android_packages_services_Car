@@ -62,6 +62,8 @@
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Přijímat údaje z přístrojové desky"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"Konfigurace omezení uživatelského prostředí"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Konfigurace omezení uživatelského prostředí"</string>
+    <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"Přístup pro čtení k soukromému ID displeje"</string>
+    <string name="car_permission_desc_access_private_display_id" msgid="8535974477610944721">"Umožňuje přístup pro čtení k soukromému ID displeje"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"Komunikace se zařízením USB v režimu AOAP"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"Umožňuje aplikaci komunikovat se zařízením v režimu AOAP"</string>
     <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Systému detekce uživatele – přístup ke čtení"</string>

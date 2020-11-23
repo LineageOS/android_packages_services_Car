@@ -62,6 +62,8 @@
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"インストルメント クラスタ データを受信します"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"UX 制限の設定"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"UX 制限を設定します"</string>
+    <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"非公開ディスプレイ ID への読み取りアクセス"</string>
+    <string name="car_permission_desc_access_private_display_id" msgid="8535974477610944721">"非公開ディスプレイ ID への読み取りアクセスを許可"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"AOAP モードでの USB デバイスとの通信"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"AOAP モードでのデバイスとの通信をアプリに許可"</string>
     <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"乗員検知システムの読み取りアクセス"</string>

@@ -62,6 +62,8 @@
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"இன்ஸ்ட்ருமெண்ட் கிளஸ்டர் தரவைப் பெறுதல்"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"UX கட்டுப்பாடுகள் உள்ளமைவு"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"UX கட்டுப்பாடுகளை உள்ளமைத்தல்"</string>
+    <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"தனிப்பட்ட காட்சி ஐடிக்குப் படிப்பதற்கான அணுகல்"</string>
+    <string name="car_permission_desc_access_private_display_id" msgid="8535974477610944721">"தனிப்பட்ட காட்சி ஐடிக்குப் படிப்பதற்கான அணுகலை அனுமதி"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"AOAP பயன்முறையில் USB சாதனத்தை தொடர்புகொள்ளும்"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"AOAP பயன்முறையில் சாதனத்துடன் ஆப்ஸைத் தொடர்புகொள்ள அனுமதிக்கிறது"</string>
     <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"உள்ளிருப்போருக்கான விழிப்புணர்வு சிஸ்டத்தின் வாசிக்கும் அணுகல்"</string>

@@ -62,6 +62,8 @@
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"接收儀表板資料"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"使用者體驗限制設定"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"設定使用者體驗限制"</string>
+    <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"私人顯示 ID 的讀取權限"</string>
+    <string name="car_permission_desc_access_private_display_id" msgid="8535974477610944721">"允許私人顯示 ID 的讀取權限"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"與啟用 AOAP 模式的 USB 裝置通訊"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"允許應用程式與啟用 AOAP 模式的裝置通訊"</string>
     <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Occupant Awareness System 的讀取權限"</string>

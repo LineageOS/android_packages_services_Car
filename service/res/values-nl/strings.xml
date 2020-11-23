@@ -62,6 +62,8 @@
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Gegevens van instrumentcluster ontvangen"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"Configuratie van beperkingen voor gebruikerservaring"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Beperkingen voor gebruikerservaring configureren"</string>
+    <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"Leestoegang tot privé-display-ID"</string>
+    <string name="car_permission_desc_access_private_display_id" msgid="8535974477610944721">"Staat leestoegang toe tot privé-display-ID"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"Communiceren met USB-apparaat in AOAP-modus"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"Hiermee kan een app communiceren met een apparaat in AOAP-modus"</string>
     <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Leestoegang voor Occupant Awareness System"</string>

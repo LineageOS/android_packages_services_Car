@@ -62,6 +62,8 @@
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Fá mælaborðsgögn"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"Grunnstilling takmarkana á upplifun notanda"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Stilla takmarkanir á upplifun notanda"</string>
+    <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"Lesaðgangur fyrir einkaskjái með auðkenni"</string>
+    <string name="car_permission_desc_access_private_display_id" msgid="8535974477610944721">"Heimilar lesaðgang fyrir einkaskjái með auðkenni"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"Eiga samskipti við USB-tæki í AOAP-stillingu"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"Gerir forriti kleift að eiga í samskiptum við tæki í AOAP-stillingu"</string>
     <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Lesaðgangur að Occupant Awareness System"</string>

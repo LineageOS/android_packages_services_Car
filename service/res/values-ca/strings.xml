@@ -62,6 +62,8 @@
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Rebre dades del quadre de comandament"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"Configuració de les restriccions de l\'experiència d\'usuari"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Configurar les restriccions de l\'experiència d\'usuari"</string>
+    <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"Accés de lectura a l\'identificador de pantalla privat"</string>
+    <string name="car_permission_desc_access_private_display_id" msgid="8535974477610944721">"Permet accés de lectura a l\'identificador de pantalla privat"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"Comunica amb un dispositiu USB al mode AOAP"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"Permet que una aplicació es comuniqui amb un dispositiu amb el mode AOAP"</string>
     <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Accés de lectura al Sistema de detecció d\'ocupants"</string>

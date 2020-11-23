@@ -62,6 +62,8 @@
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"ကိရိယာအစုအဝေး ဒေတာကို လက်ခံရန်"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"UX ကန့်သတ်ချက်များ စီစဉ်သတ်မှတ်မှု"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"UX ကန့်သတ်ချက်များကို စီစဉ်သတ်မှတ်ရန်"</string>
+    <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"သီးသန့်ဖန်သားပြင်ပြသမှု id ကို ဖတ်ခွင့်"</string>
+    <string name="car_permission_desc_access_private_display_id" msgid="8535974477610944721">"သီးသန့်ဖန်သားပြင်ပြသမှု id ကို ဖတ်ခွင့်ပြုသည်"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"AOAP မုဒ်တွင် USB ကိရိယာတစ်ခုနှင့် ဆက်သွယ်ခြင်း"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"အက်ပ်တစ်ခုကို AOAP မုဒ်တွင် စက်တစ်ခုနှင့် ဆက်သွယ်ခွင့်ပြုသည်"</string>
     <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"\'စီးနင်းသူ သတိရှိမှု စနစ်\' ဖတ်ရှုခွင့်"</string>

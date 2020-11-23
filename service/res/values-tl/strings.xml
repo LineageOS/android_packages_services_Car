@@ -62,10 +62,8 @@
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Makatanggap ng data ng cluster ng instrumento"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"Configuration ng Mga Paghihigpit sa UX"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"I-configure ang Mga Paghihigpit sa UX"</string>
-    <!-- no translation found for car_permission_label_access_private_display_id (6712116114341634316) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_private_display_id (8535974477610944721) -->
-    <skip />
+    <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"Access sa pagbasa sa pribadong display id"</string>
+    <string name="car_permission_desc_access_private_display_id" msgid="8535974477610944721">"Nagbibigay-daan sa access sa pagbasa sa pribadong display id"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"Makipag-ugnayan sa pamamagitan ng USB device sa AOAP mode"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"Binibigyang-daan ang isang app na makipag-ugnayan sa isang device sa AOAP mode"</string>
     <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Access sa Pagbasa sa Occupant Awareness System"</string>

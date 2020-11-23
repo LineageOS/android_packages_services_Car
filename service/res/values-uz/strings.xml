@@ -62,6 +62,8 @@
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Asboblar panelidan axborotlarni olish"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"Funksiyadan foydalanish cheklovini oʻrnatish"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Funksiyalardan foydalanishni cheklash"</string>
+    <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"Shaxsiy ekran identifikatorini oʻqish uchun ruxsat"</string>
+    <string name="car_permission_desc_access_private_display_id" msgid="8535974477610944721">"Shaxsiy ekran identifikatorini oʻqishga ruxsat beradi"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"USB qurilma bilan AOAP rejimida axborot almashish"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"Ilova AOAP rejimida qurilma bilan axborot almasha oladi"</string>
     <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Yoʻlovchilarni aniqlash tizimini oʻqishga ruxsat"</string>
