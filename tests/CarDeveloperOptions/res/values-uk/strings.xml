@@ -2405,7 +2405,7 @@
     <string name="restricted_app_detail_footer" msgid="482460517275754465">"Ці додатки споживали заряд акумулятора у фоновому режимі. Якщо ви їх обмежите, можливо, вони працюватимуть неналежним чином, а сповіщення надходитимуть із затримкою."</string>
     <string name="battery_auto_restriction_title" msgid="488905332794794076">"Використовувати диспетчер заряду акумулятора"</string>
     <string name="battery_auto_restriction_summary" msgid="1638072655581821837">"Виявляти, коли додатки швидко розряджають акумулятор"</string>
-    <string name="battery_manager_on" msgid="5626982529932239656">"Увімкнено / Виявляється, коли додатки швидко розряджають акумулятор"</string>
+    <string name="battery_manager_on" msgid="5626982529932239656">"Увімкнено (функція виявляє додатки, які швидко розряджають акумулятор)"</string>
     <string name="battery_manager_off" msgid="9114027524232450371">"Вимкнено"</string>
     <plurals name="battery_manager_app_restricted" formatted="false" msgid="6721813588142691216">
       <item quantity="one">%1$d додаток обмежено</item>

@@ -1426,7 +1426,7 @@
     <string name="usb_ptp_title" msgid="6629335976394685361">"क्यामेरा (PTP)"</string>
     <string name="usb_ptp_summary" msgid="460425275251168189">"तपाईँलाई क्यामेरा सफ्टवेयर प्रयोग गरेर फोटोहरू स्थानान्तरण गर्न, र MTP समर्थन नगर्ने कम्प्युटरमा कुनै पनि फाइलहरू स्थानान्तरण दिन्छ।"</string>
     <string name="usb_midi_title" msgid="8626512517313340943">"MIDI"</string>
-    <string name="usb_midi_summary" msgid="3607444815743771712">"MIDI द्वारा सक्रिय अनुप्रयोगहरूलाई तपाईंको कम्प्युटरमा USB मार्फत MIDI सफ्टवेयरसँग काम गर्न दिन्छ।"</string>
+    <string name="usb_midi_summary" msgid="3607444815743771712">"MIDI द्वारा सक्रिय एपहरूलाई तपाईंको कम्प्युटरमा USB मार्फत MIDI सफ्टवेयरसँग काम गर्न दिन्छ।"</string>
     <string name="storage_other_users" msgid="1055693465220962928">"अन्य प्रयोगकर्ताहरू"</string>
     <string name="storage_internal_title" msgid="7969898703086593200">"यन्त्र भण्डारण"</string>
     <string name="storage_external_title" msgid="3308178326521953306">"पोर्टेबल भण्डारण"</string>
@@ -1586,7 +1586,7 @@
     <string name="master_clear_title" msgid="1560712943955904673">"सबै डेटा मेटाउनुहोस् (फ्याक्ट्री रिसेट गर्नुहोस्)"</string>
     <string name="master_clear_short_title" msgid="919098101581335101">"सबै डेटा मेटाउनुहोस् (फ्याक्ट्री रिसेट गर्नुहोस्)"</string>
     <string name="master_clear_desc" product="tablet" msgid="3432373610755760899">"यसले निम्नलगायतका सबै डेटा तपाईंको "<b>"आन्तरिक भण्डारणबाट मेटाउँदछ"</b>":\n\n"<li>"तपाईंको Google खाता"</li>\n<li>"प्रणाली र एप डेटा र सेटिङहरू"</li>\n<li>"डाउनलोड गरिएका एपहरू"</li></string>
-    <string name="master_clear_desc" product="default" msgid="8765543541962866697">"यस कार्यले तपाईंको यन्त्रको "<b>"आन्तरिक भण्डारण"</b>" बाट सम्पूर्ण डेटा मेटाउँछ, जसमा निम्न कुराहरू पर्दछन्:\n\n"<li>"तपाईंको Google खाता"</li>\n<li>"प्रणाली र अनुप्रयोगका डेटा तथा सेटिङहरू"</li>\n<li>"डाउनलोड गरिएका एपहरू"</li></string>
+    <string name="master_clear_desc" product="default" msgid="8765543541962866697">"यस कार्यले तपाईंको यन्त्रको "<b>"आन्तरिक भण्डारण"</b>" बाट सम्पूर्ण डेटा मेटाउँछ, जसमा निम्न कुराहरू पर्दछन्:\n\n"<li>"तपाईंको Google खाता"</li>\n<li>"प्रणाली र एपका डेटा तथा सेटिङहरू"</li>\n<li>"डाउनलोड गरिएका एपहरू"</li></string>
     <string name="master_clear_accounts" product="default" msgid="3432884235445405376">\n" \nतपाईं अहिले निम्न खाताहरूमा साइन इन हुनुहुन्छ:\n"</string>
     <string name="master_clear_other_users_present" product="default" msgid="5993259656117566767">\n\n" यस यन्त्रमा हाल अन्य प्रयोगकर्ताहरु छन्। \n"</string>
     <string name="master_clear_desc_also_erases_external" msgid="3947303501615091903"><li>"संगीत"</li>\n<li>"तस्बिरहरू"</li>\n<li>"अन्य उपयोगकर्ता डेटा"</li></string>
@@ -1667,7 +1667,7 @@
     <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"एप तथा सेवाहरूलाई जुनसुकै बेला (ब्लुटुथ निष्क्रिय भएको बेलामा पनि) वरपरका यन्त्रहरू स्क्यान गर्न अनुमति दिनुहोस्‌। यसलाई स्थानमा आधारित सुविधा तथा सेवाहरू सुधार गर्ने जस्ता कार्यहरू गर्नाका लागि प्रयोग गर्न सकिन्छ।"</string>
     <string name="managed_profile_location_services" msgid="224925483299159541">"कार्यस्थलका स्थानसम्बन्धी सेवाहरू"</string>
     <string name="location_network_based" msgid="1535812159327454835">"Wi-Fi; मोबाइल नेटवर्क स्थान"</string>
-    <string name="location_neighborhood_level" msgid="8459352741296587916">"तपाईँको स्थानलाई सीघ्र अनुमान गर्न अनुप्रयोगहरूलाई Google स्थान सेवा प्रयोग गर्न अनुमति दिनुहोस्। बेनामी स्थान डेटा भेला गरिने छ र Googleमा पठाइने छ।"</string>
+    <string name="location_neighborhood_level" msgid="8459352741296587916">"तपाईँको स्थानलाई सीघ्र अनुमान गर्न एपहरूलाई Google स्थान सेवा प्रयोग गर्न अनुमति दिनुहोस्। बेनामी स्थान डेटा भेला गरिने छ र Googleमा पठाइने छ।"</string>
     <string name="location_neighborhood_level_wifi" msgid="6120133551482003840">"वाइ-फाइद्वारा निर्धारित स्थान"</string>
     <string name="location_gps" msgid="688049341158297763">"GPS सेटेलाइट"</string>
     <string name="location_street_level" product="tablet" msgid="4459804798444296650">"तपाईँको स्थान इङ्गित गर्नको लागि तपाईँको ट्याब्लेटमा एपलाई GPS को प्रयोग गर्न दिनुहोस्"</string>
@@ -1678,7 +1678,7 @@
     <string name="use_location_title" msgid="7724788634359496634">"स्थान; Google खोजी"</string>
     <string name="use_location_summary" msgid="7396716606067400283">"तपाईँको खोजका परिणाम र अन्य सेवाहरू सुधार्नका लागि गुगललाई तपाईँको स्थान प्रयोग गर्न अनुमति दिनुहोस्"</string>
     <string name="location_access_title" msgid="8587974819606800029">"मेरो स्थानमा पहुँच गर्नुहोस्"</string>
-    <string name="location_access_summary" msgid="6919495149026354355">"तपाईंको अनुमतिबाट अनुप्रयोगहरूलाई तपाईंको स्थान जानकारीको उपयोग गर्न दिनुहोस्।"</string>
+    <string name="location_access_summary" msgid="6919495149026354355">"तपाईंको अनुमतिबाट एपहरूलाई तपाईंको स्थान जानकारीको उपयोग गर्न दिनुहोस्।"</string>
     <string name="location_sources_heading" msgid="8526658357120282741">"स्थान स्रोतहरू"</string>
     <string name="about_settings" product="tablet" msgid="4869626690708456341">"ट्याब्लेटको बारेमा"</string>
     <string name="about_settings" product="default" msgid="6019547763377294261">"फोनको बारेमा"</string>
@@ -1842,8 +1842,8 @@
     <string name="show_running_services" msgid="1895994322704667543">"चालु सेवाहरू देखाउनुहोस्"</string>
     <string name="show_background_processes" msgid="88012264528093617">"केस गरिएका प्रक्रियाहरू"</string>
     <string name="default_emergency_app" msgid="286530070173495823">"आपत्‌कालीन एप"</string>
-    <string name="reset_app_preferences" msgid="1426500030595212077">"अनुप्रयोगका प्राथमिकताहरू रिसेट गर्नुहोस् रिसेट गर्नुहोस्"</string>
-    <string name="reset_app_preferences_title" msgid="792909865493673598">"अनुप्रयोगका अनुप्रयोगका प्राथमिकताहरू रिसेट गर्ने हो?"</string>
+    <string name="reset_app_preferences" msgid="1426500030595212077">"एपका प्राथमिकताहरू रिसेट गर्नुहोस् रिसेट गर्नुहोस्"</string>
+    <string name="reset_app_preferences_title" msgid="792909865493673598">"एपका एपका प्राथमिकताहरू रिसेट गर्ने हो?"</string>
     <string name="reset_app_preferences_desc" msgid="7935273005301096031">"यसले सबै  प्राथमिकताहरूलाई रिसेट गर्ने छ:\n\n "<li>"असक्षम पारिएका एपहरू"</li>\n" "<li>"असक्षम पारिएका एप सूचनाहरू"</li>\n" "<li>"कार्यका लागि पूर्वनिर्धारित एपहरू"</li>\n" "<li>"एपहरूको लागि पृष्ठभूमि डेटा प्रतिबन्धहरू"</li>\n" "<li>"कुनै अनुमति प्रतिबन्धहरू"</li>\n\n" तपाईँले कुनै पनि एप डेटा गुमाउनु हुने छैन।"</string>
     <string name="reset_app_preferences_button" msgid="2041894727477934656">"एपहरू रिसेट गर्नुहोस्"</string>
     <string name="manage_space_text" msgid="6166469422303124302">"ठाउँको प्रबन्ध गर्नुहोस्"</string>
@@ -1861,12 +1861,12 @@
     <string name="internal_storage" msgid="7392373600013294853">"आन्तरिक भण्डारण"</string>
     <string name="recompute_size" msgid="4290692197892743928">"आकार पुनःगणना गर्दै ..."</string>
     <string name="clear_data_dlg_title" msgid="7388024498687029597">"एप डेटा मेटाउन चाहनुहुन्छ?"</string>
-    <string name="clear_data_dlg_text" msgid="6849657743695013414">"यस अनुप्रयोगका सम्पूर्ण डेटाहरू स्थायी रूपमा मेटाइने छ। यसमा सम्पूर्ण फाइल, सेटिङ, खाताहरू, डेटाबेस आदि पर्दछन्।"</string>
+    <string name="clear_data_dlg_text" msgid="6849657743695013414">"यस एपका सम्पूर्ण डेटाहरू स्थायी रूपमा मेटाइने छ। यसमा सम्पूर्ण फाइल, सेटिङ, खाताहरू, डेटाबेस आदि पर्दछन्।"</string>
     <string name="dlg_ok" msgid="4666570206507476557">"ठिक छ"</string>
     <string name="dlg_cancel" msgid="2434951039156262467">"रद्द गर्नुहोस्"</string>
     <string name="app_not_found_dlg_title" msgid="394147475018718483"></string>
     <string name="app_not_found_dlg_text" msgid="8807428608938210212">"स्थापित एपको सूचीमा एप भेटिएन।"</string>
-    <string name="clear_failed_dlg_text" msgid="8072859778950498232">"अनुप्रयोगका लागि भण्डारण खाली गर्न सकिएन।"</string>
+    <string name="clear_failed_dlg_text" msgid="8072859778950498232">"एपका लागि भण्डारण खाली गर्न सकिएन।"</string>
     <string name="join_two_items" msgid="3833831843199356403">"<xliff:g id="FIRST_ITEM">%1$s</xliff:g> र <xliff:g id="SECOND_ITEM">%2$s</xliff:g>"</string>
     <string name="join_two_unrelated_items" msgid="8257688498236358394">"<xliff:g id="FIRST_ITEM">%1$s</xliff:g>, <xliff:g id="SECOND_ITEM">%2$s</xliff:g>"</string>
     <string name="computing_size" msgid="2234106107535318136">"कम्प्युटिङ ..."</string>
@@ -1886,7 +1886,7 @@
     <string name="force_stop_dlg_title" msgid="8822779487097246675">"बलपूर्वक रोक्ने हो?"</string>
     <string name="force_stop_dlg_text" msgid="7435245769456493398">"यदि तपाईँले एपलाई जबर्जस्ती रोक्नु भएको खण्डमा त्यसले चाहेअनुसार काम नगर्न सक्छ।"</string>
     <string name="app_install_location_title" msgid="5121617802063021720">"मन परेको स्थापना स्थान"</string>
-    <string name="app_install_location_summary" msgid="109719780117187797">"नयाँ अनुप्रयोगका लागि रुचाइएको स्थापना स्थान बदल्नुहोस्"</string>
+    <string name="app_install_location_summary" msgid="109719780117187797">"नयाँ एपका लागि रुचाइएको स्थापना स्थान बदल्नुहोस्"</string>
     <string name="app_disable_dlg_positive" msgid="5508828271100168073">"एप असक्षम गर्नुहोस्"</string>
     <string name="app_disable_dlg_text" msgid="9221864774943530281">"तपाईंले यो एपलाई असक्षम पार्नुभयो भने Android र अन्य एपहरूले अब उप्रान्त अपेक्षाअनुसार कार्य नगर्न सक्छन्। स्मरण रहोस्, तपाईं यो एप तपाईंको यन्त्रसँग पहिल्यै स्थापना भएर आएको हुँदा तपाईं यसलाई मेट्न सक्नुहुन्न। यो एप असक्षम पारेर, तपाईं यसलाई निष्क्रिय पार्नुहुन्छ र यसलाई आफ्नो यन्त्रमा लुकाउनुहुन्छ।"</string>
     <string name="app_disable_notifications_dlg_title" msgid="699530661413553928">"सूचनाहरू बन्द गर्नुहोस्?"</string>
@@ -2321,11 +2321,11 @@
     <string name="battery_tip_dialog_summary_message" product="tablet" msgid="1721081030632329647">"तपाईंका एपहरूले सामान्य मात्रामा ब्याट्रीको प्रयोग गर्दै छन्‌। एपहरूले अत्यन्त धेरै ब्याट्रीको प्रयोग गरेको खण्डमा तपाईंको ट्याब्लेटले कारबाहीको सुझाव दिन्छ। \n\nतपाईंको ब्याट्री कम हुँदै गएको छ भने तपाईंले सधैँ ब्याट्री सेभर सक्रिय पार्न सक्नुहुन्छ।"</string>
     <string name="battery_tip_dialog_summary_message" product="device" msgid="146872407040848465">"तपाईंका एपहरूले सामान्य मात्रामा ब्याट्रीको प्रयोग गर्दै छन्‌। एपहरूले अत्यन्त धेरै ब्याट्रीको प्रयोग गरेको खण्डमा तपाईंको यन्त्रले कारबाहीको सुझाव दिन्छ। \n\nतपाईंको ब्याट्री कम हुँदै गएको छ भने तपाईंले सधैँ ब्याट्री सेभर सक्रिय पार्न सक्नुहुन्छ।"</string>
     <string name="smart_battery_manager_title" msgid="5744035036663849515">"ब्याट्री प्रबन्धक"</string>
-    <string name="smart_battery_title" msgid="4919670408532804351">"अनुप्रयोगहरूलाई स्वतः व्यवस्थित गर्नुहोस्"</string>
+    <string name="smart_battery_title" msgid="4919670408532804351">"एपहरूलाई स्वतः व्यवस्थित गर्नुहोस्"</string>
     <string name="smart_battery_summary" msgid="640027046471198174">"तपाईंले प्रायः प्रयोग नगर्ने एपहरूमा ब्याट्री सीमित गर्नुहोस्"</string>
-    <string name="smart_battery_footer" product="default" msgid="3971715848890205632">"ब्याट्री प्रबन्धकले एपहरूले ब्याट्री खर्च गरिरहेको पता लगाउँदा, तपाईंसँग यी अनुप्रयोगहरूलाई प्रतिबन्धित गर्ने विकल्प हुन्छ। प्रतिबन्धित एपहरूले सही किसिमले काम नगर्न सक्छन् र सूचनाहरू आउन ढिलाइ हुन सक्छ।"</string>
-    <string name="smart_battery_footer" product="tablet" msgid="3971715848890205632">"ब्याट्री प्रबन्धकले एपहरूले ब्याट्री खर्च गरिरहेको पता लगाउँदा, तपाईंसँग यी अनुप्रयोगहरूलाई प्रतिबन्धित गर्ने विकल्प हुन्छ। प्रतिबन्धित एपहरूले सही किसिमले काम नगर्न सक्छन् र सूचनाहरू आउन ढिलाइ हुन सक्छ।"</string>
-    <string name="smart_battery_footer" product="device" msgid="3971715848890205632">"ब्याट्री प्रबन्धकले एपहरूले ब्याट्री खर्च गरिरहेको पता लगाउँदा, तपाईंसँग यी अनुप्रयोगहरूलाई प्रतिबन्धित गर्ने विकल्प हुन्छ। प्रतिबन्धित एपहरूले सही किसिमले काम नगर्न सक्छन् र सूचनाहरू आउन ढिलाइ हुन सक्छ।"</string>
+    <string name="smart_battery_footer" product="default" msgid="3971715848890205632">"ब्याट्री प्रबन्धकले एपहरूले ब्याट्री खर्च गरिरहेको पता लगाउँदा, तपाईंसँग यी एपहरूलाई प्रतिबन्धित गर्ने विकल्प हुन्छ। प्रतिबन्धित एपहरूले सही किसिमले काम नगर्न सक्छन् र सूचनाहरू आउन ढिलाइ हुन सक्छ।"</string>
+    <string name="smart_battery_footer" product="tablet" msgid="3971715848890205632">"ब्याट्री प्रबन्धकले एपहरूले ब्याट्री खर्च गरिरहेको पता लगाउँदा, तपाईंसँग यी एपहरूलाई प्रतिबन्धित गर्ने विकल्प हुन्छ। प्रतिबन्धित एपहरूले सही किसिमले काम नगर्न सक्छन् र सूचनाहरू आउन ढिलाइ हुन सक्छ।"</string>
+    <string name="smart_battery_footer" product="device" msgid="3971715848890205632">"ब्याट्री प्रबन्धकले एपहरूले ब्याट्री खर्च गरिरहेको पता लगाउँदा, तपाईंसँग यी एपहरूलाई प्रतिबन्धित गर्ने विकल्प हुन्छ। प्रतिबन्धित एपहरूले सही किसिमले काम नगर्न सक्छन् र सूचनाहरू आउन ढिलाइ हुन सक्छ।"</string>
     <string name="restricted_app_title" msgid="4957644700640127606">"प्रतिबन्धित एपहरू"</string>
     <plurals name="restricted_app_summary" formatted="false" msgid="7609538735465186040">
       <item quantity="other">ब्याट्रीको प्रयोग %1$d एपहरूमा सीमित पार्दै</item>
@@ -3307,7 +3307,7 @@
     <string name="hide_silent_icons_summary" msgid="2624346914488256888">"स्टाटस बारमा मौन सूचनाका आइकनहरू लुकाउनुहोस्"</string>
     <string name="notification_badging_title" msgid="6311699476970264712">"सूचनाको प्रतीक जनाउने थोप्लोहरूलाई अनुमति दिनुहोस्"</string>
     <string name="notification_bubbles_title" msgid="9196562435741861317">"बबलहरू"</string>
-    <string name="notification_bubbles_summary" msgid="4624512775901949578">"तैरने सर्टकटहरूको प्रयोग गरी अनुप्रयोगका सामग्रीमाथि जुनसुकै ठाउँबाट द्रुत पहुँच राख्नुहोस्"</string>
+    <string name="notification_bubbles_summary" msgid="4624512775901949578">"तैरने सर्टकटहरूको प्रयोग गरी एपका सामग्रीमाथि जुनसुकै ठाउँबाट द्रुत पहुँच राख्नुहोस्"</string>
     <string name="bubbles_feature_education" msgid="8979109826818881018">"केही सूचनाहरू र अन्य सामग्री स्क्रिनमा बबलका रूपमा देखिन सक्छन्। कुनै बबल खोल्न यसमा ट्याप गर्नुहोस्। यसलाई खारेज गर्न यसलाई स्क्रिनका पुछारतिर ड्र्याग गर्नुहोस्।"</string>
     <string name="bubbles_app_toggle_title" msgid="6401217027603326439">"बबलहरू"</string>
     <string name="bubbles_app_toggle_summary" msgid="7707611139796553855">"<xliff:g id="APP_NAME">%1$s</xliff:g> लाई केही सूचनाहरू बबलका रूपमा देखाउन दिनुहोस्"</string>
@@ -3331,7 +3331,7 @@
     <string name="lock_screen_notifications_interstitial_message_profile" msgid="3324187664458600354">"तपाईंको यन्त्र लक हुँदा, तपाईं प्रोफाइल सूचनाहरू कसरी देखाउन चाहनुहुन्छ?"</string>
     <string name="lock_screen_notifications_interstitial_title_profile" msgid="4043621508889929254">"प्रोफाइल सूचनाहरू"</string>
     <string name="notifications_title" msgid="8334011924253810654">"सूचनाहरू"</string>
-    <string name="app_notifications_title" msgid="1141791221581312325">"अनुप्रयोगसम्बन्धी सूचनाहरू"</string>
+    <string name="app_notifications_title" msgid="1141791221581312325">"एपसम्बन्धी सूचनाहरू"</string>
     <string name="notification_channel_title" msgid="6637705960909690229">"सूचनाको प्रकार"</string>
     <string name="notification_group_title" msgid="6105337987437608590">"सूचनासम्बन्धी कोटिको समूह"</string>
     <string name="notification_importance_title" msgid="4131979083408000545">"व्यवहार"</string>
@@ -3380,7 +3380,7 @@
     <string name="vr_listeners_title" msgid="511483902408792832">"VR का सहायक सेवाहरू"</string>
     <string name="no_vr_listeners" msgid="7675484190394450979">"कुनै पनि स्थापित एपहरूले VR का सहायक सेवाहरूको रूपमा चल्नका लागि अनुरोध गरेका छैनन्।"</string>
     <string name="vr_listener_security_warning_title" msgid="7019322246707645361">"<xliff:g id="SERVICE">%1$s</xliff:g> लाई VR को सेवामा पहुँचका लागि अनुमति दिने हो?"</string>
-    <string name="vr_listener_security_warning_summary" msgid="5093225583584522067">"तपाईँले अनुप्रयोगहरूलाई भर्चुअल रियालिटी मोडमा प्रयोग गरिरहेको बेला <xliff:g id="VR_LISTENER_NAME">%1$s</xliff:g> चल्नका लागि सक्षम हुनेछ।"</string>
+    <string name="vr_listener_security_warning_summary" msgid="5093225583584522067">"तपाईँले एपहरूलाई भर्चुअल रियालिटी मोडमा प्रयोग गरिरहेको बेला <xliff:g id="VR_LISTENER_NAME">%1$s</xliff:g> चल्नका लागि सक्षम हुनेछ।"</string>
     <string name="display_vr_pref_title" msgid="1088464812293416981">"यन्त्र VR मा हुँदा"</string>
     <string name="display_vr_pref_low_persistence" msgid="3132583929174794245">"अस्पष्टता कम पार्नुहोस् (सिफारिस गरिएको)"</string>
     <string name="display_vr_pref_off" msgid="4681320968818852691">"स्क्रिन झिलमिलाउने प्रभाव कम गर्नुहोस्"</string>
@@ -3394,7 +3394,7 @@
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"बाधा नपुर्‍याउनुहोस् नामक सुविधा सक्रिय गर्ने अनुमति दिनुहोस्"</string>
     <string name="zen_access_empty_text" msgid="7667538993781607731">"कुनै पनि स्थापित एपहरू द्वारा बाधा नपुर्‍यानुहोस् पहुँच को माग गरेका छैनन्"</string>
     <string name="loading_notification_apps" msgid="1978345231934072091">"एपहरू लोड हुँदै..."</string>
-    <string name="app_notifications_off_desc" msgid="3904090905748895146">"तपाईंको अनुरोधबमोजिम Android ले यस अनुप्रयोगका सूचनाहरूलाई यो यन्त्रमा देखाउन दिइरहेको छैन"</string>
+    <string name="app_notifications_off_desc" msgid="3904090905748895146">"तपाईंको अनुरोधबमोजिम Android ले यस एपका सूचनाहरूलाई यो यन्त्रमा देखाउन दिइरहेको छैन"</string>
     <string name="channel_notifications_off_desc" msgid="8005444443218306611">"तपाईंको अनुरोधबमोजिम Android ले सूचनाहरूको यस कोटिलाई यो यन्त्रमा देखिन दिइरहेको छैन"</string>
     <string name="channel_group_notifications_off_desc" msgid="7154205544298672850">"तपाईंको अनुरोधबमोजिम Android ले सूचनाहरूको यस समूहलाई यो यन्त्रमा देखाउन दिइरहेको छैन"</string>
     <string name="notification_channels" msgid="956764228116145956">"कोटिहरू"</string>
@@ -3404,11 +3404,11 @@
       <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> कोटी</item>
     </plurals>
     <string name="no_channels" msgid="8884254729302501652">"यो अनुप्रयोगले कुनै पनि सूचना पोस्ट गरेको छैन"</string>
-    <string name="app_settings_link" msgid="8465287765715790984">"अनुप्रयोगका अतिरिक्त सेटिङहरू"</string>
+    <string name="app_settings_link" msgid="8465287765715790984">"एपका अतिरिक्त सेटिङहरू"</string>
     <string name="app_notification_listing_summary_zero" msgid="4047782719487686699">"सबै एपहरूमा सक्रिय छ"</string>
     <plurals name="app_notification_listing_summary_others" formatted="false" msgid="1161774065480666519">
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> अनुप्रयोगहरूका लागि निष्क्रिय पारिएका छन्‌</item>
-      <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> अनुप्रयोगका लागि निष्क्रिय परिएको छ</item>
+      <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> एपका लागि निष्क्रिय परिएको छ</item>
     </plurals>
     <plurals name="deleted_channels" formatted="false" msgid="7741359084299446208">
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> मेटाइएका कोटीहरू</item>
@@ -3508,11 +3508,11 @@
     <string name="zen_mode_reminders" msgid="7560664194610054038">"रिमाइन्डरहरूलाई अनुमति दिनुहोस्"</string>
     <string name="zen_mode_reminders_list" msgid="7347061314032326677">"रिमाइन्डरहरू"</string>
     <string name="zen_mode_events" msgid="5784076928339534984">"कार्यक्रमहरूलाई अनुमति दिनुहोस्"</string>
-    <string name="zen_mode_bypassing_apps" msgid="3080739479028713449">"अनुप्रयोगहरूलाई ओभरराइड गर्ने अनुमति दिनुहोस्"</string>
+    <string name="zen_mode_bypassing_apps" msgid="3080739479028713449">"एपहरूलाई ओभरराइड गर्ने अनुमति दिनुहोस्"</string>
     <string name="zen_mode_bypassing_apps_title" msgid="2115024664615538847">"यो सेटिङ लागू हुने एप"</string>
     <plurals name="zen_mode_bypassing_apps_subtext" formatted="false" msgid="8723144434730871572">
-      <item quantity="other"><xliff:g id="NUMBER">%1$d</xliff:g> अनुप्रयोगका सूचनाहरूले बाधा नपुऱ्याउनुहोस्‌ नामक मोडलाई ओभरराइड गर्न सक्छन्</item>
-      <item quantity="one">१ अनुप्रयोगका सूचनाहरूले बाधा नपुऱ्याउनुहोस्‌ नामक मोडलाई ओभरराइड गर्न सक्छन्</item>
+      <item quantity="other"><xliff:g id="NUMBER">%1$d</xliff:g> एपका सूचनाहरूले बाधा नपुऱ्याउनुहोस्‌ नामक मोडलाई ओभरराइड गर्न सक्छन्</item>
+      <item quantity="one">१ एपका सूचनाहरूले बाधा नपुऱ्याउनुहोस्‌ नामक मोडलाई ओभरराइड गर्न सक्छन्</item>
     </plurals>
     <string name="zen_mode_events_list" msgid="8578102701815684873">"खेलहरू"</string>
     <string name="zen_mode_all_callers" msgid="4455039040077343838">"जोसुकै"</string>
@@ -3645,7 +3645,7 @@
     <string name="advanced_apps" msgid="6643869089344883537">"उन्नत"</string>
     <string name="configure_apps" msgid="4066683118857400943">"एपहरू कन्फिगर गर्नुहोस्"</string>
     <string name="unknown_app" msgid="2312052973570376877">"अज्ञात एप"</string>
-    <string name="app_permissions" msgid="3215958256821756086">"अनुमतिका प्रबन्धक"</string>
+    <string name="app_permissions" msgid="3215958256821756086">"पर्मिसन म्यानेजर"</string>
     <string name="app_permissions_summary" msgid="8785798165776061594">"<xliff:g id="APPS">%1$s</xliff:g> प्रयोग गरिरहेका एपहरू"</string>
     <string name="tap_to_wake" msgid="1902991239401652323">"सक्रिय पार्न ट्याप गर्नुहोस्"</string>
     <string name="tap_to_wake_summary" msgid="8485222120721006793">"यन्त्र सक्रिय पार्न स्क्रिनको जहाँसुकै दुई पटक ट्याप गर्नुहोस्"</string>
@@ -3852,8 +3852,8 @@
     <string name="data_usage_summary_format" msgid="7788095271598602797">"डेटाको <xliff:g id="AMOUNT">%1$s</xliff:g> प्रयोग गरियो"</string>
     <string name="data_usage_wifi_format" msgid="9028934101966264710">"Wi‑Fi मा प्रयोग भएको <xliff:g id="AMOUNT">^1</xliff:g>"</string>
     <plurals name="notification_summary" formatted="false" msgid="761061343339229103">
-      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> अनुप्रयोगका लागि निष्क्रिय पारिएको छ</item>
-      <item quantity="one">१ अनुप्रयोगका लागि निष्क्रिय पारिएको छ</item>
+      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> एपका लागि निष्क्रिय पारिएको छ</item>
+      <item quantity="one">१ एपका लागि निष्क्रिय पारिएको छ</item>
     </plurals>
     <string name="notification_summary_none" msgid="5003043219430054784">"सबै अनुप्रयोगहरूका लागि खुला"</string>
     <string name="apps_summary" msgid="8355759446490212195">"<xliff:g id="COUNT">%1$d</xliff:g> एपहरू स्थापना गरियो"</string>
@@ -3964,7 +3964,7 @@
     <string name="configure" msgid="8232696842838580549">"कन्फिगर गर्नुहोस्"</string>
     <string name="data_usage_other_apps" msgid="7002491980141402084">"प्रयोगमा समावेश गरिएका अन्य एपहरू"</string>
     <plurals name="data_saver_unrestricted_summary" formatted="false" msgid="6046013861315713697">
-      <item quantity="other">डेटा सेभर अन हुँदा <xliff:g id="COUNT">%1$d</xliff:g> अनुप्रयोगहरूलाई असीमित डेटाको प्रयोग गर्न अनुमति दिइयो</item>
+      <item quantity="other">डेटा सेभर अन हुँदा <xliff:g id="COUNT">%1$d</xliff:g> एपहरूलाई असीमित डेटाको प्रयोग गर्न अनुमति दिइयो</item>
       <item quantity="one">डेटा सेभर अन हुँदा १ एपलाई असीमित डेटाको प्रयोग गर्न अनुमति दिइयो</item>
     </plurals>
     <string name="data_usage_title" msgid="7874606430902201083">"प्राथमिक डेटा"</string>
@@ -4086,7 +4086,7 @@
     <string name="managed_profile_contact_search_summary" msgid="7278267480246726951">"कलर र सम्पर्कहरूको पहिचान गर्न तपाईँको संगठन अनुसार गरिने सम्पर्कका खोजीहरूलाई अनुमति दिनुहोस्"</string>
     <string name="cross_profile_calendar_title" msgid="2351605904015067145">"अन्तरप्रोफाइल पात्रो"</string>
     <string name="cross_profile_calendar_summary" msgid="3196258680438896098">"व्यक्तिगत पात्रोमा कार्यस्थलसम्बन्धी कार्यक्रमहरू देखाउनुहोस्"</string>
-    <string name="cross_profile_calendar_restricted_summary" msgid="6892589892357409107">"तपाईंको सङ्गठनले निजी अनुप्रयोगहरूलाई तपाईंको कार्यस्थलको पात्रोमाथि पहुँच गर्ने अनुमति दिँदैन"</string>
+    <string name="cross_profile_calendar_restricted_summary" msgid="6892589892357409107">"तपाईंको सङ्गठनले निजी एपहरूलाई तपाईंको कार्यस्थलको पात्रोमाथि पहुँच गर्ने अनुमति दिँदैन"</string>
     <plurals name="hours" formatted="false" msgid="135936773984899873">
       <item quantity="other"><xliff:g id="NUMBER">%s</xliff:g> घन्टा</item>
       <item quantity="one">१ घन्टा</item>
@@ -4152,7 +4152,7 @@
     <string name="web_action_enable_title" msgid="4462106633708675959">"तात्कालिक एपहरू"</string>
     <string name="web_action_enable_summary" msgid="1729016644691793085">"अनुप्रयोगहरूको स्थापना नगरिए तापनि लिंकहरूलाई तिनीहरूमा खोल्नुहोस्"</string>
     <string name="web_action_section_title" msgid="5563229447734734662">"तात्कालिक एपहरू"</string>
-    <string name="instant_apps_settings" msgid="879003203555847537">"तात्कालिक अनुप्रयोगका प्राथमिकताहरू"</string>
+    <string name="instant_apps_settings" msgid="879003203555847537">"तात्कालिक एपका प्राथमिकताहरू"</string>
     <string name="domain_url_section_title" msgid="206403507921518321">"स्थापना गरिएका एपहरू"</string>
     <string name="automatic_storage_manager_activation_warning" msgid="2630083316417707308">"तपाईंको भण्डारण अहिले भण्डारण प्रबन्धकद्वारा व्यवस्थापन भइरहेको छ"</string>
     <string name="account_for_section_header" msgid="5975241715840642563">"<xliff:g id="USER_NAME">%1$s</xliff:g> का खाताहरू"</string>
@@ -4160,7 +4160,7 @@
     <string name="auto_sync_account_title" msgid="2394463123733529506">"स्वत: डेटा सिंक गर्नुहोस्"</string>
     <string name="auto_sync_personal_account_title" msgid="6844465157916100655">"व्यक्तिगत डेटा स्वत: सिंक गर्नुहोस्"</string>
     <string name="auto_sync_work_account_title" msgid="2403222633447522376">"कार्य सम्बन्धी डेटा स्वत: सिंक गर्नुहोस्"</string>
-    <string name="auto_sync_account_summary" msgid="6316230976974033772">"अनुप्रयोगहरूलाई स्वत: डेटा रिफ्रेस गर्न दिनुहोस्"</string>
+    <string name="auto_sync_account_summary" msgid="6316230976974033772">"एपहरूलाई स्वत: डेटा रिफ्रेस गर्न दिनुहोस्"</string>
     <string name="account_sync_title" msgid="1570164819114297154">"खाताको सिंक"</string>
     <string name="account_sync_summary_some_on" msgid="1934556869158274053">"<xliff:g id="ID_2">%2$d</xliff:g> मध्ये <xliff:g id="ID_1">%1$d</xliff:g> वस्तुहरूका लागि सिंक गर्ने सेवा सक्रिय छ"</string>
     <string name="account_sync_summary_all_on" msgid="3634161204232431700">"सबै वस्तुहरूका लागि सिंक गर्ने सेवा सक्रिय छ"</string>
@@ -4180,7 +4180,7 @@
     <string name="enterprise_privacy_security_logs" msgid="8936969480449604726">"सबैभन्दा पछिल्लो सुरक्षा लग"</string>
     <string name="enterprise_privacy_none" msgid="5990646476868794882">"कुनै पनि होइन"</string>
     <string name="enterprise_privacy_enterprise_installed_packages" msgid="6575025134782391212">"एपहरू स्थापना गरियो"</string>
-    <string name="enterprise_privacy_apps_count_estimation_info" msgid="5020730108878608500">"एपको संख्या अनुमानित हो। Play Store भन्दा बाहिरबाट स्थापना गरिएका अनुप्रयोगहरूलाई यसले नसमेट्न सक्छ।"</string>
+    <string name="enterprise_privacy_apps_count_estimation_info" msgid="5020730108878608500">"एपको संख्या अनुमानित हो। Play Store भन्दा बाहिरबाट स्थापना गरिएका एपहरूलाई यसले नसमेट्न सक्छ।"</string>
     <plurals name="enterprise_privacy_number_packages_lower_bound" formatted="false" msgid="5161417161943060602">
       <item quantity="other">न्यूनतम <xliff:g id="COUNT_1">%d</xliff:g> एप</item>
       <item quantity="one">न्यूनतम <xliff:g id="COUNT_0">%d</xliff:g> एप</item>

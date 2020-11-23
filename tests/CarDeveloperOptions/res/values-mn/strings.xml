@@ -863,7 +863,7 @@
     <string name="wifi_install_credentials" msgid="5650088113710858289">"Сертификат суулгах"</string>
     <string name="wifi_scan_notify_text" msgid="7614101215028336927">"Байршлын нарийвчлалыг сайжруулахын тулд апп, үйлчилгээ нь Wi-Fi сүлжээг хүссэн үедээ буюу Wi-Fi-г унтраалттай үед нь ч хайх боломжтой хэвээр байна. Үүнийг байршилд тулгуурласан онцлог, үйлчилгээг сайжруулахад ашиглах боломжтой. Та үүнийг <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>шалгах тохиргоонд<xliff:g id="LINK_END_1">LINK_END</xliff:g> өөрчилж болно."</string>
     <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"Байршлын нарийвчлалыг сайжруулахын тулд Wi-Fi сканийг <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>скан хийх тохиргоо<xliff:g id="LINK_END_1">LINK_END</xliff:g> хэсэгт асаана уу."</string>
-    <string name="wifi_scan_notify_remember_choice" msgid="1235445971400237444">"Дахиж үл харуулах"</string>
+    <string name="wifi_scan_notify_remember_choice" msgid="1235445971400237444">"Дахиж бүү харуул"</string>
     <string name="wifi_setting_sleep_policy_title" msgid="2120785188625932076">"Идэвхгүй үед Wi-Fi-г байлгах"</string>
     <string name="wifi_setting_on_during_sleep_title" msgid="856670183023402715">"Wi‑Fi унтах үед"</string>
     <string name="wifi_setting_sleep_policy_error" msgid="9029652631829560733">"Тохиргоог өөрчлөхөд асуудал гарлаа"</string>
@@ -4172,7 +4172,7 @@
     <string name="enterprise_privacy_device_access_category" msgid="2967602674816237833">"Таны энэ төхөөрөмж дэх хандалт"</string>
     <string name="enterprise_privacy_enterprise_data" msgid="6551504749971424942">"Имэйл, хуанли зэрэг таны ажлын бүртгэлтэй холбоотой өгөгдөл"</string>
     <string name="enterprise_privacy_installed_packages" msgid="4376014821459811800">"Таны төхөөрөмжийн аппын жагсаалт"</string>
-    <string name="enterprise_privacy_usage_stats" msgid="445762931318731975">"Апп тус бүрт зарцуулсан цаг, дата"</string>
+    <string name="enterprise_privacy_usage_stats" msgid="445762931318731975">"Апп тус бүрд зарцуулсан цаг, дата"</string>
     <string name="enterprise_privacy_network_logs" msgid="5427398751599441159">"Хамгийн сүүлийн сүлжээний ачааллын бүртгэл"</string>
     <string name="enterprise_privacy_bug_reports" msgid="283443567328836380">"Хамгийн сүүлийн алдааны тайлан"</string>
     <string name="enterprise_privacy_security_logs" msgid="8936969480449604726">"Хамгийн сүүлийн үеийн аюулгүй байдлын лог"</string>

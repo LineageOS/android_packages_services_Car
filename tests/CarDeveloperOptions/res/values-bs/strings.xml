@@ -124,7 +124,7 @@
     <string name="bluetooth_device" msgid="3170974107364990008">"Neimenovani Bluetooth uređaj"</string>
     <string name="progress_scanning" msgid="633923400401041181">"Pretraživanje"</string>
     <string name="bluetooth_no_devices_found" msgid="4396050022213494322">"Nema Bluetooth uređaja u blizini."</string>
-    <string name="bluetooth_notif_ticker" msgid="8398481099943141819">"Zahtjev za Bluetooth uparivanje"</string>
+    <string name="bluetooth_notif_ticker" msgid="8398481099943141819">"Zahtjev za uparivanje putem Bluetootha"</string>
     <string name="bluetooth_notif_title" msgid="5090288898529286011">"Zahtjev za uparivanje"</string>
     <string name="bluetooth_notif_message" msgid="6612367890895077938">"Dodirnite za spajanje s uređajem <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
     <string name="bluetooth_show_received_files" msgid="5060846395852236652">"Primljeni fajlovi"</string>
@@ -747,7 +747,7 @@
     <string name="bluetooth_settings_title" msgid="7261244857456521825">"Bluetooth"</string>
     <string name="bluetooth_settings_summary" msgid="1221689092429277887">"Upravljajte vezama, postavite ime uređaja i vidljivost"</string>
     <string name="bluetooth_pairing_request" msgid="7221745525632573125">"Upariti s uređajem <xliff:g id="DEVICE_NAME">%1$s</xliff:g>?"</string>
-    <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"Kod za Bluetooth uparivanje"</string>
+    <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"Kod za uparivanje putem Bluetootha"</string>
     <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"Upišite kod za uparivanje, zatim pritisnite Return ili Enter"</string>
     <string name="bluetooth_enable_alphanumeric_pin" msgid="9138308197078115672">"PIN sadrži slova ili simbole"</string>
     <string name="bluetooth_pin_values_hint" msgid="8044671726261326240">"Obično 0000 ili 1234"</string>

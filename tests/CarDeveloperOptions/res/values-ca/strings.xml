@@ -1554,7 +1554,7 @@
     <string name="carrier_enabled_summaryOff" msgid="4093019532796386622">"APN desactivat"</string>
     <string name="bearer" msgid="4378444317087536401">"Portador"</string>
     <string name="mvno_type" msgid="3150755279048149624">"Tipus d\'OMV"</string>
-    <string name="mvno_match_data" msgid="629287305803195245">"Valor de MVNO"</string>
+    <string name="mvno_match_data" msgid="629287305803195245">"Valor d\'OMV"</string>
     <string name="menu_delete" msgid="8646081395424055735">"Suprimeix l\'APN"</string>
     <string name="menu_new" msgid="7529219814721969024">"APN nou"</string>
     <string name="menu_save" msgid="7310230314430623215">"Desa"</string>
@@ -2269,8 +2269,8 @@
     <string name="packages_subtitle" msgid="6506269487892204413">"Paquets inclosos"</string>
     <string name="battery_tip_summary_title" msgid="2750922152518825526">"Les aplicacions funcionen correctament"</string>
     <string name="battery_tip_summary_summary" product="default" msgid="6294900413896440006">"El telèfon té un ús normal de la bateria en segon pla"</string>
-    <string name="battery_tip_summary_summary" product="tablet" msgid="5280099016800644130">"La tauleta fa un ús normal de la bateria en segon pla"</string>
-    <string name="battery_tip_summary_summary" product="device" msgid="4459840492610842705">"El dispositiu fa un ús normal de la bateria en segon pla"</string>
+    <string name="battery_tip_summary_summary" product="tablet" msgid="5280099016800644130">"La tauleta té un ús normal de la bateria en segon pla"</string>
+    <string name="battery_tip_summary_summary" product="device" msgid="4459840492610842705">"El dispositiu té ús normal de la bateria en segon pla"</string>
     <string name="battery_tip_low_battery_title" msgid="6784043681672161175">"La bateria té poca capacitat"</string>
     <string name="battery_tip_low_battery_summary" msgid="9151355911381188604">"La durada de la bateria no és bona"</string>
     <string name="battery_tip_smart_battery_title" product="default" msgid="5517122075918038665">"Millora la durada de la bateria del telèfon"</string>
