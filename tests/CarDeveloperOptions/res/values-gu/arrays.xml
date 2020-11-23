@@ -170,7 +170,7 @@
   <string-array name="wifi_proxy_settings">
     <item msgid="9032900195127165132">"કોઈ નહીં"</item>
     <item msgid="1464741437353223198">"મેન્યુઅલ"</item>
-    <item msgid="5793600062487886090">"પ્રોક્સી આપમેળે ગોઠવો"</item>
+    <item msgid="5793600062487886090">"પ્રોક્સી ઑટોમૅટિક રીતે ગોઠવો"</item>
   </string-array>
   <string-array name="apn_auth_entries">
     <item msgid="7099647881902405997">"કોઈ નહીં"</item>
@@ -495,7 +495,7 @@
   </string-array>
   <string-array name="cdma_system_select_choices">
     <item msgid="8444727359525554695">"માત્ર હોમ"</item>
-    <item msgid="1161026694891024702">"આપમેળે"</item>
+    <item msgid="1161026694891024702">"ઑટોમૅટિક રીતે"</item>
   </string-array>
   <string-array name="preferred_network_mode_choices">
     <item msgid="1823884522189328861">"GSM/WCDMA પસંદ કર્યો છે"</item>
