@@ -16,9 +16,6 @@
 
 package com.android.car;
 
-import static android.car.test.mocks.CarArgumentMatchers.isUserInfo;
-import static android.car.test.util.UserTestingHelper.newGuestUser;
-
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
@@ -352,33 +349,21 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
     @Test
     public void testUserSwitchingOnResume_disabledByOEM_nonGuest() throws Exception {
         UserInfo currentUser = setCurrentUser(CURRENT_USER_ID, /* isGuest= */ false);
-        expectNewGuestCreated(CURRENT_USER_ID, currentUser);
+        expectCurrentGuestCanBeReplaced(false);
 
         suspendAndResumeForUserSwitchingTestsWhileDisabledByOem();
 
-        verifyUserNotSwitched();
+        verifyNoSetCall();
     }
 
     @Test
     public void testUserSwitchingOnResume_disabledByOEM_guest() throws Exception {
         setCurrentUser(CURRENT_GUEST_ID, /* isGuest= */ true);
-        UserInfo newGuest = newGuestUser(NEW_GUEST_ID, /* ephemeral= */ true);
-        expectNewGuestCreated(CURRENT_GUEST_ID, newGuest);
+        expectCurrentGuestCanBeReplaced(true);
 
         suspendAndResumeForUserSwitchingTestsWhileDisabledByOem();
 
-        verifyUserSwitched(NEW_GUEST_ID);
-    }
-
-    @Test
-    public void testUserSwitchingOnResume_disabledByOEM_guestReplacementFails() throws Exception {
-        setCurrentUser(CURRENT_GUEST_ID, /* isGuest= */ true);
-        expectNewGuestCreated(CURRENT_GUEST_ID, /* newGuest= */ null);
-
-        suspendAndResumeForUserSwitchingTestsWhileDisabledByOem();
-
-        verifyUserNotSwitched();
-        verifyDefaultInitialUserBehaviorCalled();
+        verifyUserReplaced();
     }
 
     @Test
@@ -622,9 +607,8 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
         }));
     }
 
-    private void expectNewGuestCreated(int existingGuestId, UserInfo newGuest) {
-        when(mInitialUserSetter.replaceGuestIfNeeded(isUserInfo(existingGuestId)))
-                .thenReturn(newGuest);
+    private void expectCurrentGuestCanBeReplaced(boolean result) {
+        when(mInitialUserSetter.canReplaceGuestUser(notNull())).thenReturn(result);
     }
 
     private void verifyDefaultInitialUserBehaviorCalled() {
@@ -647,6 +631,16 @@ public class CarPowerManagementServiceTest extends AbstractExtendedMockitoTestCa
                     && info.newUserName == name
                     && info.newUserFlags == halFlags;
         }));
+    }
+
+    private void verifyUserReplaced() {
+        verify(mInitialUserSetter).set(argThat((info) -> {
+            return info.type == InitialUserSetter.TYPE_REPLACE_GUEST;
+        }));
+    }
+
+    private void verifyNoSetCall() {
+        verify(mInitialUserSetter, never()).set(notNull());
     }
 
     private static final class MockDisplayInterface implements DisplayInterface {

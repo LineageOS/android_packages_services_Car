@@ -8,31 +8,64 @@
   },
   "displays" : [
     {
-      "displayPort" : 1,
+      "displayPort" : 136,
       "frontRange" : 100,
       "rearRange" : 100
     },
     {
-      "displayPort" : 2,
+      "displayPort" : 130,
       "frontRange" : 100,
       "rearRange" : 100
     }
   ],
   "graphic" : {
-    "frontPixel" : 23,
-    "rearPixel" : 223
+    "frontPixel" : -20,
+    "rearPixel" : 260
   },
   "cameras" : [
     {
-      "cameraId" : "/dev/video3",
-      "function" : "reverse, park",
+      "cameraId" : "/dev/video10",
+      "function" : "reverse,park",
       "x" : 0.0,
-      "y" : -40.0,
+      "y" : 20.0,
       "z" : 48,
       "yaw" : 180,
-      "pitch" : -30,
-      "hfov" : 125,
-      "vfov" : 103
+      "pitch" : -10,
+      "hfov" : 115,
+      "vfov" : 80
+    },
+    {
+      "cameraId" : "/dev/video11",
+      "function" : "front,park",
+      "x" : 0.0,
+      "y" : 100.0,
+      "z" : 48,
+      "yaw" : 0,
+      "pitch" : -10,
+      "hfov" : 115,
+      "vfov" : 80
+    },
+    {
+      "cameraId" : "/dev/video12",
+      "function" : "right,park",
+      "x" : -25.0,
+      "y" : 60.0,
+      "z" : 88,
+      "yaw" : -90,
+      "pitch" : -10,
+      "hfov" : 60,
+      "vfov" : 62
+    },
+    {
+      "cameraId" : "/dev/video13",
+      "function" : "left, park",
+      "x" : 20.0,
+      "y" : 60.0,
+      "z" : 88,
+      "yaw" : 90,
+      "pitch" : -10,
+      "hfov" : 60,
+      "vfov" : 62
     }
   ]
 }

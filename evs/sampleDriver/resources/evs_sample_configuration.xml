@@ -55,7 +55,7 @@
                     name='LOGICAL_MULTI_CAMERA_PHYSICAL_IDS'
                     type='byte[]'
                     size='2'
-                    value='/dev/video3,/dev/video4'
+                    value='/dev/video10,/dev/video11'
                 />
             </characteristics>
         </group>
@@ -198,7 +198,105 @@
             </characteristics>
         </device>
 
-    <!-- camera device information for v4l2loopback devices -->
+        <!-- vivid emulated video devices -->
+        <device id='/dev/video10' position='rear'>
+            <caps>
+                <!-- list of supported controls -->
+                <supported_controls>
+                    <control name='BRIGHTNESS' min='0' max='255'/>
+                    <control name='CONTRAST' min='0' max='255'/>
+                    <control name='AUTO_WHITE_BALANCE' min='0' max='1'/>
+                    <control name='WHITE_BALANCE_TEMPERATURE' min='2000' max='7500'/>
+                    <control name='SHARPNESS' min='0' max='255'/>
+                    <control name='AUTO_FOCUS' min='0' max='1'/>
+                    <control name='ABSOLUTE_FOCUS' min='0' max='255' step='5'/>
+                    <control name='ABSOLUTE_ZOOM' min='100' max='400'/>
+                </supported_controls>
+
+                <!-- list of supported stream configurations -->
+                <!-- vivid webcam input support below three resolutions -->
+                <stream id='0' width='1280' height='720' format='RGBA_8888' framerate='5'/>
+                <stream id='1' width='640' height='360' format='RGBA_8888' framerate='15'/>
+                <stream id='2' width='360' height='180' format='RGBA_8888' framerate='30'/>
+            </caps>
+
+            <!-- list of parameters -->
+            <characteristics/>
+        </device>
+        <device id='/dev/video11' position='left'>
+            <caps>
+                <!-- list of supported controls -->
+                <supported_controls>
+                    <control name='BRIGHTNESS' min='0' max='255'/>
+                    <control name='CONTRAST' min='0' max='255'/>
+                    <control name='AUTO_WHITE_BALANCE' min='0' max='1'/>
+                    <control name='WHITE_BALANCE_TEMPERATURE' min='2000' max='7500'/>
+                    <control name='SHARPNESS' min='0' max='255'/>
+                    <control name='AUTO_FOCUS' min='0' max='1'/>
+                    <control name='ABSOLUTE_FOCUS' min='0' max='255' step='5'/>
+                    <control name='ABSOLUTE_ZOOM' min='100' max='400'/>
+                </supported_controls>
+
+                <!-- list of supported stream configurations -->
+                <!-- vivid webcam input support below three resolutions -->
+                <stream id='0' width='1280' height='720' format='RGBA_8888' framerate='5'/>
+                <stream id='1' width='640' height='360' format='RGBA_8888' framerate='15'/>
+                <stream id='2' width='360' height='180' format='RGBA_8888' framerate='30'/>
+            </caps>
+
+            <!-- list of parameters -->
+            <characteristics/>
+        </device>
+        <device id='/dev/video12' position='right'>
+            <caps>
+                <!-- list of supported controls -->
+                <supported_controls>
+                    <control name='BRIGHTNESS' min='0' max='255'/>
+                    <control name='CONTRAST' min='0' max='255'/>
+                    <control name='AUTO_WHITE_BALANCE' min='0' max='1'/>
+                    <control name='WHITE_BALANCE_TEMPERATURE' min='2000' max='7500'/>
+                    <control name='SHARPNESS' min='0' max='255'/>
+                    <control name='AUTO_FOCUS' min='0' max='1'/>
+                    <control name='ABSOLUTE_FOCUS' min='0' max='255' step='5'/>
+                    <control name='ABSOLUTE_ZOOM' min='100' max='400'/>
+                </supported_controls>
+
+                <!-- list of supported stream configurations -->
+                <!-- vivid webcam input support below three resolutions -->
+                <stream id='0' width='1280' height='720' format='RGBA_8888' framerate='5'/>
+                <stream id='1' width='640' height='360' format='RGBA_8888' framerate='15'/>
+                <stream id='2' width='360' height='180' format='RGBA_8888' framerate='30'/>
+            </caps>
+
+            <!-- list of parameters -->
+            <characteristics/>
+        </device>
+        <device id='/dev/video13' position='front'>
+            <caps>
+                <!-- list of supported controls -->
+                <supported_controls>
+                    <control name='BRIGHTNESS' min='0' max='255'/>
+                    <control name='CONTRAST' min='0' max='255'/>
+                    <control name='AUTO_WHITE_BALANCE' min='0' max='1'/>
+                    <control name='WHITE_BALANCE_TEMPERATURE' min='2000' max='7500'/>
+                    <control name='SHARPNESS' min='0' max='255'/>
+                    <control name='AUTO_FOCUS' min='0' max='1'/>
+                    <control name='ABSOLUTE_FOCUS' min='0' max='255' step='5'/>
+                    <control name='ABSOLUTE_ZOOM' min='100' max='400'/>
+                </supported_controls>
+
+                <!-- list of supported stream configurations -->
+                <!-- vivid webcam input support below three resolutions -->
+                <stream id='0' width='1280' height='720' format='RGBA_8888' framerate='5'/>
+                <stream id='1' width='640' height='360' format='RGBA_8888' framerate='15'/>
+                <stream id='2' width='360' height='180' format='RGBA_8888' framerate='30'/>
+            </caps>
+
+            <!-- list of parameters -->
+            <characteristics/>
+        </device>
+
+        <!-- camera device information for v4l2loopback devices -->
         <!-- camera group v4l2loopback_group0 -->
         <group id='v4l2loopback_group0' synchronized='CALIBRATED'>
             <caps>

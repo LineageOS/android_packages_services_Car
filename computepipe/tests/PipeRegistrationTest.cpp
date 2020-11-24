@@ -50,17 +50,17 @@ class PipeRegistrationTest : public ::testing::Test {
 
 // Valid registration succeeds
 TEST_F(PipeRegistrationTest, RegisterFakeRunner) {
-    std::shared_ptr<IPipeRunner> dummy = ndk::SharedRefBase::make<FakeRunner>();
+    std::shared_ptr<IPipeRunner> fake = ndk::SharedRefBase::make<FakeRunner>();
     std::shared_ptr<IPipeRegistration> rIface =
         ndk::SharedRefBase::make<PipeRegistration>(this->mRegistry);
-    EXPECT_TRUE(rIface->registerPipeRunner("dummy", dummy).isOk());
+    EXPECT_TRUE(rIface->registerPipeRunner("fake", fake).isOk());
 }
 
 // Duplicate registration fails
 TEST_F(PipeRegistrationTest, RegisterDuplicateRunner) {
-    std::shared_ptr<IPipeRunner> dummy = ndk::SharedRefBase::make<FakeRunner>();
+    std::shared_ptr<IPipeRunner> fake = ndk::SharedRefBase::make<FakeRunner>();
     std::shared_ptr<IPipeRegistration> rIface =
         ndk::SharedRefBase::make<PipeRegistration>(this->mRegistry);
-    ASSERT_TRUE(rIface->registerPipeRunner("dummy", dummy).isOk());
-    EXPECT_FALSE(rIface->registerPipeRunner("dummy", dummy).isOk());
+    ASSERT_TRUE(rIface->registerPipeRunner("fake", fake).isOk());
+    EXPECT_FALSE(rIface->registerPipeRunner("fake", fake).isOk());
 }

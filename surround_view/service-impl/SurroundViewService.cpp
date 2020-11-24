@@ -16,7 +16,6 @@
 
 #include <android-base/logging.h>
 
-#include "CoreLibSetupHelper.h"
 #include "SurroundViewService.h"
 
 using namespace android_auto::surround_view;
@@ -36,14 +35,24 @@ sp<SurroundView3dSession> SurroundViewService::sSurroundView3dSession;
 const std::string kCameraIds[] = {"0", "1", "2", "3"};
 static const int kVhalUpdateRate = 10;
 
-SurroundViewService::SurroundViewService() {
+SurroundViewService::SurroundViewService() :
+      mVhalHandler(nullptr), mAnimationModule(nullptr), mIOModule(nullptr) {
     mVhalHandler = new VhalHandler();
     mIOModule = new IOModule("/vendor/etc/automotive/sv/sv_sample_config.xml");
 }
 
 SurroundViewService::~SurroundViewService() {
-    delete mVhalHandler;
-    delete mAnimationModule;
+    if (mVhalHandler != nullptr) {
+        delete mVhalHandler;
+    }
+
+    if (mIOModule != nullptr) {
+        delete mIOModule;
+    }
+
+    if (mAnimationModule != nullptr) {
+        delete mAnimationModule;
+    }
 }
 
 sp<SurroundViewService> SurroundViewService::getInstance() {

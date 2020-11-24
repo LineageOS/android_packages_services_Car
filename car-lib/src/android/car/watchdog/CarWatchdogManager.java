@@ -23,7 +23,6 @@ import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
-import android.automotive.watchdog.ICarWatchdogClient;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.os.Handler;
@@ -318,7 +317,7 @@ public final class CarWatchdogManager extends CarManagerBase {
     }
 
     /** @hide */
-    private static final class ICarWatchdogClientImpl extends ICarWatchdogClient.Stub {
+    private static final class ICarWatchdogClientImpl extends ICarWatchdogServiceCallback.Stub {
         private final WeakReference<CarWatchdogManager> mManager;
 
         private ICarWatchdogClientImpl(CarWatchdogManager manager) {
@@ -326,7 +325,7 @@ public final class CarWatchdogManager extends CarManagerBase {
         }
 
         @Override
-        public void checkIfAlive(int sessionId, int timeout) {
+        public void onCheckHealthStatus(int sessionId, int timeout) {
             CarWatchdogManager manager = mManager.get();
             if (manager != null) {
                 manager.checkClientStatus(sessionId, timeout);
@@ -334,21 +333,11 @@ public final class CarWatchdogManager extends CarManagerBase {
         }
 
         @Override
-        public void prepareProcessTermination() {
+        public void onPrepareProcessTermination() {
             CarWatchdogManager manager = mManager.get();
             if (manager != null) {
                 manager.notifyProcessTermination();
             }
-        }
-
-        @Override
-        public int getInterfaceVersion() {
-            return this.VERSION;
-        }
-
-        @Override
-        public String getInterfaceHash() {
-            return this.HASH;
         }
     }
 

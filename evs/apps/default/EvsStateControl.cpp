@@ -219,7 +219,7 @@ void EvsStateControl::updateLoop() {
 
 
 bool EvsStateControl::selectStateForCurrentConditions() {
-    static int32_t sDummyGear   = int32_t(VehicleGear::GEAR_REVERSE);
+    static int32_t sDummyGear   = mConfig.getMockGearSignal();
     static int32_t sDummySignal = int32_t(VehicleTurnSignal::NONE);
 
     if (mVehicle != nullptr) {
