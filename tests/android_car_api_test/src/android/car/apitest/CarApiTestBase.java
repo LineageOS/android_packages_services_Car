@@ -29,6 +29,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.car.Car;
+import android.car.test.util.AndroidHelper;
 import android.car.user.CarUserManager;
 import android.car.user.UserCreationResult;
 import android.car.user.UserRemovalResult;
@@ -42,6 +43,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.UserInfo;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.PowerManager;
@@ -197,6 +199,9 @@ abstract class CarApiTestBase {
     @NonNull
     protected UserInfo createUser(@Nullable String name) throws Exception {
         Log.d(TAG, "Creating new user " + name);
+
+        assertCanAddUser();
+
         UserCreationResult result = mCarUserManager.createUser(name, /* flags= */ 0)
                 .get(DEFAULT_WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
         Log.d(TAG, "result: " + result);
@@ -205,6 +210,14 @@ abstract class CarApiTestBase {
                 .isTrue();
         mUsersToRemove.add(result.getUser().id);
         return result.getUser();
+    }
+
+    protected void assertCanAddUser() {
+        Bundle restrictions = mUserManager.getUserRestrictions();
+        Log.d(TAG, "Restrictions for user " + getContext().getUserId() + ": "
+                + AndroidHelper.toString(restrictions));
+        assertWithMessage("Cannot add user due to %s restriction", UserManager.DISALLOW_ADD_USER)
+                .that(restrictions.getBoolean(UserManager.DISALLOW_ADD_USER, false)).isFalse();
     }
 
     protected void waitForUserRemoval(@UserIdInt int userId) throws Exception {

@@ -104,6 +104,8 @@ public final class CarDevicePolicyManagerTest extends CarApiTestBase {
 
     @Test
     public void testCreateUser() throws Exception {
+        assertCanAddUser();
+
         String name = "CarDevicePolicyManagerTest.testCreateUser";
         int type = CarDevicePolicyManager.USER_TYPE_REGULAR;
         Log.d(TAG, "creating new user with name " + name + " and type " + type);
