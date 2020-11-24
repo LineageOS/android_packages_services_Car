@@ -1450,7 +1450,7 @@
     <string name="storage_internal_forget_confirm_title" msgid="331032276130605241">"<xliff:g id="NAME">^1</xliff:g> ભૂલી ગયાં?"</string>
     <string name="storage_internal_forget_confirm" msgid="3052483375203727176">"આ <xliff:g id="NAME">^1</xliff:g> પર સંગ્રહિત તમામ ઍપ્લિકેશનો, ફોટો અને ડેટા કાયમ માટે જતો રહેશે."</string>
     <string name="storage_detail_apps" msgid="8154648512504196820">"ઍપ્લિકેશનો"</string>
-    <string name="storage_detail_images" msgid="6996202225684468964">"છબીઓ"</string>
+    <string name="storage_detail_images" msgid="6996202225684468964">"Images"</string>
     <string name="storage_detail_videos" msgid="6030983354721080849">"વિડિઓઝ"</string>
     <string name="storage_detail_audio" msgid="6011098436589663944">"ઑડિઓ"</string>
     <string name="storage_detail_cached" msgid="5761648455067920683">"કેશ્ડ ડેટા"</string>
