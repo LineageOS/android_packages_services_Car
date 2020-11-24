@@ -98,7 +98,8 @@ const std::vector<PowerComponent> kSystemPolicyDisabledComponents =
          PowerComponent::NFC,
          PowerComponent::INPUT,
          PowerComponent::VOICE_INTERACTION,
-         PowerComponent::VISUAL_INTERACTION};
+         PowerComponent::VISUAL_INTERACTION,
+         PowerComponent::LOCATION};
 const std::unordered_set<PowerComponent> kSystemPolicyConfigurableComponents =
         {PowerComponent::BLUETOOTH, PowerComponent::NFC, PowerComponent::TRUSTED_DEVICE_DETECTION};
 

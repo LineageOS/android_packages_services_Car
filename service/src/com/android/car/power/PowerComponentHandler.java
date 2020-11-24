@@ -16,10 +16,12 @@
 
 package com.android.car.power;
 
-import static com.android.car.power.PolicyReader.INVALID_POWER_COMPONENT;
-import static com.android.car.power.PolicyReader.isValidPowerComponent;
-import static com.android.car.power.PolicyReader.powerComponentToString;
-import static com.android.car.power.PolicyReader.toPowerComponent;
+import static com.android.car.power.PowerComponentUtil.FIRST_POWER_COMPONENT;
+import static com.android.car.power.PowerComponentUtil.INVALID_POWER_COMPONENT;
+import static com.android.car.power.PowerComponentUtil.LAST_POWER_COMPONENT;
+import static com.android.car.power.PowerComponentUtil.isValidPowerComponent;
+import static com.android.car.power.PowerComponentUtil.powerComponentToString;
+import static com.android.car.power.PowerComponentUtil.toPowerComponent;
 
 import android.annotation.Nullable;
 import android.content.Context;
@@ -67,8 +69,8 @@ final class PowerComponentHandler {
 
     void init() {
         PowerComponentMediatorFactory factory = new PowerComponentMediatorFactory();
-        for (int component = PowerComponent.AUDIO;
-                    component <= PowerComponent.TRUSTED_DEVICE_DETECTION; component++) {
+        for (int component = FIRST_POWER_COMPONENT;
+                    component <= LAST_POWER_COMPONENT; component++) {
             PowerComponentMediator mediator = factory.createPowerComponent(component);
             String componentName = powerComponentToString(component);
             if (mediator == null) {
@@ -331,6 +333,13 @@ final class PowerComponentHandler {
         // TODO(b/162600135): implement turning on/off trusted device detection.
     }
 
+    private final class MicroPhonePowerComponentMediator extends PowerComponentMediator {
+        MicroPhonePowerComponentMediator() {
+            super(PowerComponent.MICROPHONE);
+        }
+        // TODO(b/162600135): implement turning on/off microphone.
+    }
+
     private final class PowerComponentMediatorFactory {
         @Nullable
         PowerComponentMediator createPowerComponent(int component) {
@@ -365,9 +374,14 @@ final class PowerComponentHandler {
                     return new VisualInteractionPowerComponentMediator();
                 case PowerComponent.TRUSTED_DEVICE_DETECTION:
                     return new TrustedDeviceDetectionPowerComponentMediator();
+                case PowerComponent.MICROPHONE:
+                    return new MicroPhonePowerComponentMediator();
                 case PowerComponent.BLUETOOTH:
                     // com.android.car.BluetoothDeviceConnectionPolicy handles power state change.
                     // So, bluetooth mediator is not created.
+                    return null;
+                case PowerComponent.LOCATION:
+                    // GNSS HAL handles power state change. So, location mediator is not created.
                     return null;
                 default:
                     return null;
