@@ -1450,7 +1450,7 @@
     <string name="storage_internal_forget_confirm_title" msgid="331032276130605241">"<xliff:g id="NAME">^1</xliff:g>ஐ அகற்றவா?"</string>
     <string name="storage_internal_forget_confirm" msgid="3052483375203727176">"<xliff:g id="NAME">^1</xliff:g> இல் சேமிக்கப்பட்ட அனைத்து ஆப்ஸ், படங்கள் மற்றும் தரவு ஆகியவற்றை நிரந்தரமாக இழப்பீர்கள்."</string>
     <string name="storage_detail_apps" msgid="8154648512504196820">"ஆப்ஸ்"</string>
-    <string name="storage_detail_images" msgid="6996202225684468964">"படங்கள்"</string>
+    <string name="storage_detail_images" msgid="6996202225684468964">"Images"</string>
     <string name="storage_detail_videos" msgid="6030983354721080849">"வீடியோக்கள்"</string>
     <string name="storage_detail_audio" msgid="6011098436589663944">"ஆடியோ"</string>
     <string name="storage_detail_cached" msgid="5761648455067920683">"தற்காலிகத் தரவு"</string>

@@ -1407,7 +1407,7 @@
     <string name="sd_mount_summary" product="default" msgid="6849124618494311233"></string>
     <string name="sd_format" product="nosdcard" msgid="918370986254863144">"Izbriši USB pohranu"</string>
     <string name="sd_format" product="default" msgid="1346245995138883960">"Izbriši SD karticu"</string>
-    <string name="sd_format_summary" product="nosdcard" msgid="1179857727779521920">"Briše sve podatke na internoj USB pohrani, kao što su muzika i fotografije"</string>
+    <string name="sd_format_summary" product="nosdcard" msgid="1179857727779521920">"Briše sve podatke na unutrašnjoj USB pohrani, kao što su muzika i fotografije"</string>
     <string name="sd_format_summary" product="default" msgid="4284028411908176234">"Briše sve podatke na SD kartici, kao što su muzika i fotografije"</string>
     <string name="memory_clear_cache_title" msgid="4306793268129306684">"Želite li zbrisati keširane podatke?"</string>
     <string name="memory_clear_cache_message" msgid="6723120398411410031">"Ovo briše keširane podatke za sve aplikacije."</string>
@@ -1537,12 +1537,12 @@
     <string name="storage_wizard_migrate_v2_later" msgid="4909412563144649085">"Premjesti sadržaj kasnije"</string>
     <string name="storage_wizard_migrate_progress_v2_title" msgid="1796255772658203586">"Premještanje sadržaja…"</string>
     <string name="storage_wizard_slow_v2_title" msgid="4662009769135525740">"Spora pohrana <xliff:g id="NAME">^1</xliff:g>"</string>
-    <string name="storage_wizard_slow_v2_body" msgid="4443996335261861797">"I dalje možete koristiti uređaj <xliff:g id="NAME_0">^1</xliff:g>, ali može biti spor. \n\nAplikacije pohranjene na pohrani <xliff:g id="NAME_1">^2</xliff:g> možda neće raditi ispravno, a prijenos sadržaja može dugo trajati. \n\nPokušajte koristiti bržu pohranu <xliff:g id="NAME_2">^3</xliff:g> ili koristite <xliff:g id="NAME_3">^4</xliff:g> kao prenosivu pohranu."</string>
+    <string name="storage_wizard_slow_v2_body" msgid="4443996335261861797">"I dalje možete koristiti uređaj <xliff:g id="NAME_0">^1</xliff:g>, ali može biti spor. \n\nAplikacije pohranjene na uređaju za pohranu <xliff:g id="NAME_1">^2</xliff:g> možda neće raditi ispravno, a prijenos sadržaja može dugo trajati. \n\nPokušajte koristiti brži uređaj za pohranu <xliff:g id="NAME_2">^3</xliff:g> ili koristite ovaj uređaj <xliff:g id="NAME_3">^4</xliff:g> kao prenosivu pohranu."</string>
     <string name="storage_wizard_slow_v2_start_over" msgid="1686964124972424100">"Počni ispočetka"</string>
     <string name="storage_wizard_slow_v2_continue" msgid="2320238517431613392">"Nastavi"</string>
-    <string name="storage_wizard_ready_v2_external_body" msgid="5803422587027895664">"Sadržaj možete premjestiti na pohranu <xliff:g id="NAME">^1</xliff:g>"</string>
-    <string name="storage_wizard_ready_v2_internal_body" msgid="678829432420351228">"Da premjestite sadržaj na pohranu <xliff:g id="NAME">^1</xliff:g>, idite u "<b>"Postavke &gt; Pohrana"</b></string>
-    <string name="storage_wizard_ready_v2_internal_moved_body" msgid="4133133596316768033">"Sadržaj je premješten na pohranu <xliff:g id="NAME_0">^1</xliff:g>. \n\nDa upravljate ovom pohranom <xliff:g id="NAME_1">^2</xliff:g>, idite u "<b>"Postavke &gt; Pohrana"</b>"."</string>
+    <string name="storage_wizard_ready_v2_external_body" msgid="5803422587027895664">"Sadržaj možete premjestiti na uređaj za pohranu <xliff:g id="NAME">^1</xliff:g>"</string>
+    <string name="storage_wizard_ready_v2_internal_body" msgid="678829432420351228">"Da premjestite sadržaj na uređaj za pohranu <xliff:g id="NAME">^1</xliff:g>, idite u "<b>"Postavke &gt; Pohrana"</b></string>
+    <string name="storage_wizard_ready_v2_internal_moved_body" msgid="4133133596316768033">"Sadržaj je premješten na uređaj za pohranu <xliff:g id="NAME_0">^1</xliff:g>. \n\nDa upravljate uređajem za pohranu <xliff:g id="NAME_1">^2</xliff:g>, idite u "<b>"Postavke &gt; Pohrana"</b>"."</string>
     <string name="battery_status_title" msgid="8731200319740671905">"Status baterije"</string>
     <string name="battery_level_title" msgid="5207775387973771646">"Nivo napunjenosti baterije"</string>
     <string name="apn_settings" msgid="8130776653826271664">"APN-ovi"</string>
@@ -1615,7 +1615,7 @@
     <string name="master_clear_desc_erase_external_storage" product="default" msgid="9003555775524798797">\n\n"Da biste izbrisali muziku, slike i ostale korisničke podatke, "<b>"SD kartica"</b>" treba biti izbrisana."</string>
     <string name="erase_external_storage" product="nosdcard" msgid="8989746770347525207">"Izbriši USB pohranu"</string>
     <string name="erase_external_storage" product="default" msgid="194249742376770215">"Izbriši SD karticu"</string>
-    <string name="erase_external_storage_description" product="nosdcard" msgid="8020275102431496261">"Izbrišite sve podatke na internoj USB pohrani, poput muzike ili fotografija"</string>
+    <string name="erase_external_storage_description" product="nosdcard" msgid="8020275102431496261">"Izbrišite sve podatke na unutrašnjoj USB pohrani, poput muzike ili fotografija"</string>
     <string name="erase_external_storage_description" product="default" msgid="5029355708082861798">"Izbrišite sve podatke na SD kartici, poput muzike ili fotografija"</string>
     <string name="master_clear_button_text" product="tablet" msgid="8000547818499182920">"Izbriši sve podatke"</string>
     <string name="master_clear_button_text" product="default" msgid="8000547818499182920">"Izbriši sve podatke"</string>
