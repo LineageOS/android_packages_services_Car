@@ -50,6 +50,8 @@ import android.widget.ToggleButton;
 
 import androidx.fragment.app.Fragment;
 
+import com.android.internal.util.Preconditions;
+
 import com.google.android.car.kitchensink.CarEmulator;
 import com.google.android.car.kitchensink.R;
 
@@ -65,6 +67,8 @@ public class AudioTestFragment extends Fragment {
     // Key for communicating to hall which audio zone has been selected to play
     private static final String AAE_PARAMETER_KEY_FOR_SELECTED_ZONE =
             "com.android.car.emulator.selected_zone";
+
+    private static final Integer[] TONES = new Integer[] { 200, 400, 600, 800, 1_000, 1_200 };
 
     private AudioManager mAudioManager;
     private FocusHandler mAudioFocusHandler;
@@ -82,6 +86,9 @@ public class AudioTestFragment extends Fragment {
     private AudioPlayer mMusicPlayerForSelectedDeviceAddress;
     private HwAudioSource mHwAudioSource;
     private AudioPlayer[] mAllPlayers;
+
+    @GuardedBy("mLock")
+    private AudioTrackPlayer mAudioTrackPlayer;
 
     private Handler mHandler;
     private Context mContext;
@@ -169,6 +176,7 @@ public class AudioTestFragment extends Fragment {
         setUpDeviceAddressLayoutView(view);
 
         connectCar();
+        setUpTrackToneSpinnerView(view);
         initializePlayers();
 
         TextView currentZoneIdTextView = view.findViewById(R.id.activity_current_zone);
@@ -308,9 +316,26 @@ public class AudioTestFragment extends Fragment {
         view.findViewById(R.id.phone_audio_focus_stop)
                 .setOnClickListener(v -> mPhoneAudioPlayer.stop());
 
+        view.findViewById(R.id.track_audio_start)
+                .setOnClickListener(v-> startAudioTrack());
+        view.findViewById(R.id.track_audio_stop)
+                .setOnClickListener(v -> stopAudioTrack());
+
         mDelayedStatusText = view.findViewById(R.id.media_delayed_player_status);
 
         return view;
+    }
+
+    private void startAudioTrack() {
+        synchronized (mLock) {
+            mAudioTrackPlayer.start();
+        }
+    }
+
+    private void stopAudioTrack() {
+        synchronized (mLock) {
+            mAudioTrackPlayer.stop();
+        }
     }
 
     @Override
@@ -322,6 +347,7 @@ public class AudioTestFragment extends Fragment {
         for (AudioPlayer p : mAllPlayers) {
             p.stop();
         }
+        stopAudioTrack();
         handleHwAudioSourceStop();
         if (mAudioFocusHandler != null) {
             mAudioFocusHandler.release();
@@ -396,6 +422,8 @@ public class AudioTestFragment extends Fragment {
                 mWavPlayer,
                 mMusicPlayerWithDelayedFocus
         };
+
+        mAudioTrackPlayer = new AudioTrackPlayer(getTone(0));
     }
 
     private void setActivityCurrentZoneId(TextView currentZoneIdTextView) {
@@ -541,6 +569,56 @@ public class AudioTestFragment extends Fragment {
                 android.R.layout.simple_spinner_dropdown_item);
         mZoneSpinner.setAdapter(mZoneAdapter);
         mZoneSpinner.setEnabled(true);
+    }
+
+    private void setUpTrackToneSpinnerView(View view) {
+        Spinner toneSpinner = view.findViewById(R.id.tone_spinner);
+        toneSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                handleTrackToneSelection(pos);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+        ArrayAdapter<Integer> toneAdaper = new ArrayAdapter<Integer>(mContext,
+                android.R.layout.simple_spinner_item, TONES);
+        toneAdaper.setDropDownViewResource(
+                android.R.layout.simple_spinner_dropdown_item);
+        toneSpinner.setAdapter(toneAdaper);
+    }
+
+    private void handleTrackToneSelection(int pos) {
+        boolean isPlaying = false;
+        int tone = getTone(pos);
+        synchronized (mLock) {
+            if (mAudioTrackPlayer.isPlaying()) {
+                if (DBG) {
+                    Log.d(TAG,
+                            "Audio Track currently playing, stopping. Switching to frequency: "
+                                    + tone);
+                }
+                isPlaying = true;
+                mAudioTrackPlayer.stop();
+            }
+            mAudioTrackPlayer = new AudioTrackPlayer(tone);
+
+            if (isPlaying) {
+                if (DBG) {
+                    Log.d(TAG,
+                            "Audio Track was playing, starting again. Switched to frequency: "
+                            + tone);
+                }
+                mAudioTrackPlayer.start();
+            }
+        }
+    }
+
+    private static int getTone(int index) {
+        Preconditions.checkArgumentInRange(index, 0, TONES.length, "index");
+        return TONES[index];
     }
 
     private void handleNavStart() {
