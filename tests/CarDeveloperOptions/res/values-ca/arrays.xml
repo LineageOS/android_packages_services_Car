@@ -257,7 +257,7 @@
     <item msgid="5420704980305018295">"volum de la veu"</item>
     <item msgid="5797363115508970204">"volum del to"</item>
     <item msgid="8233154098550715999">"volum de multimèdia"</item>
-    <item msgid="5196715605078153950">"volum de l\'alarma"</item>
+    <item msgid="5196715605078153950">"volum d\'alarma"</item>
     <item msgid="394030698764284577">"volum de notificació"</item>
     <item msgid="8952898972491680178">"volum del Bluetooth"</item>
     <item msgid="8506227454543690851">"mantén actiu"</item>
@@ -324,7 +324,7 @@
     <item msgid="1600379420669104929">"Volum de la veu"</item>
     <item msgid="6296768210470214866">"Volum del to"</item>
     <item msgid="510690696071629241">"Volum de multimèdia"</item>
-    <item msgid="406861638631430109">"Volum de l\'alarma"</item>
+    <item msgid="406861638631430109">"Volum d\'alarma"</item>
     <item msgid="4715864795872233884">"Volum de notificació"</item>
     <item msgid="2311478519251301183">"Volum del Bluetooth"</item>
     <item msgid="5133991377896747027">"Mantén actiu"</item>
@@ -399,7 +399,7 @@
     <item msgid="3673930830658169860">"Personalitzat"</item>
   </string-array>
   <string-array name="vpn_types_long">
-    <item msgid="6566768880689730097">"VPN de PPTP"</item>
+    <item msgid="6566768880689730097">"VPN PPTP"</item>
     <item msgid="1349760781118368659">"VPN L2TP/IPSec amb claus prèviament compartides"</item>
     <item msgid="6128519070545038358">"VPN L2TP/IPSec amb certificats"</item>
     <item msgid="312397853907741968">"VPN IPSec amb claus prèviament compartides i autenticació Xauth"</item>
