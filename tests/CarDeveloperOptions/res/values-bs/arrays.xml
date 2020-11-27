@@ -72,7 +72,7 @@
     <item msgid="5848277343965362748">"Autentifikacija..."</item>
     <item msgid="3391238031431440676">"Dobivanje IP adrese…"</item>
     <item msgid="5257597310494000224">"Povezano"</item>
-    <item msgid="8472497592913050396">"Suspendirano"</item>
+    <item msgid="8472497592913050396">"Obustavljeno"</item>
     <item msgid="1228072488815999109">"Prekidanje veze…"</item>
     <item msgid="7253087004422991731">"Isključena"</item>
     <item msgid="4169850917304751227">"Neuspješno"</item>
@@ -86,7 +86,7 @@
     <item msgid="7547609081339573756">"Autentifikacija s mrežom <xliff:g id="NETWORK_NAME">%1$s</xliff:g>…"</item>
     <item msgid="5145158315060185414">"Dohvaćanje IP adrese s mreže <xliff:g id="NETWORK_NAME">%1$s</xliff:g>…"</item>
     <item msgid="3283243151651124831">"Povezano s mrežom <xliff:g id="NETWORK_NAME">%1$s</xliff:g>"</item>
-    <item msgid="6600156231416890902">"Suspendirano"</item>
+    <item msgid="6600156231416890902">"Obustavljeno"</item>
     <item msgid="4133290864821295785">"Prekidanje veze s mrežom <xliff:g id="NETWORK_NAME">%1$s</xliff:g>…"</item>
     <item msgid="3980154971187953257">"Isključena"</item>
     <item msgid="2847316776634969068">"Neuspješno"</item>
@@ -202,7 +202,7 @@
     <item msgid="3778273775365258534">"IS95A"</item>
   </string-array>
   <string-array name="mvno_type_entries">
-    <item msgid="6984770764726663331">"Nema"</item>
+    <item msgid="6984770764726663331">"Ništa"</item>
     <item msgid="1469208769491004112">"SPN"</item>
     <item msgid="7556656048009090524">"IMSI"</item>
     <item msgid="8636516530542473799">"GID"</item>
