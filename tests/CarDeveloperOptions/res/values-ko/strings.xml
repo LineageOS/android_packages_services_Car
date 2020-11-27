@@ -1844,7 +1844,7 @@
     <string name="default_emergency_app" msgid="286530070173495823">"긴급 앱"</string>
     <string name="reset_app_preferences" msgid="1426500030595212077">"앱 환경설정 초기화"</string>
     <string name="reset_app_preferences_title" msgid="792909865493673598">"앱 환경설정을 초기화하시겠습니까?"</string>
-    <string name="reset_app_preferences_desc" msgid="7935273005301096031">"이 작업을 수행하면 다음 환경설정이 초기화됩니다.\n\n "<li>"사용 중지된 앱"</li>\n" "<li>"사용 중지된 앱 알림"</li>\n" "<li>"작업에 사용하는 기본 애플리케이션"</li>\n" "<li>"앱에 대한 백그라운드 데이터 제한"</li>\n" "<li>"그 밖의 권한 제한"</li>\n\n" 앱 데이터는 손실되지 않습니다."</string>
+    <string name="reset_app_preferences_desc" msgid="7935273005301096031">"다음 환경설정이 초기화됩니다.\n\n "<li>"사용 중지된 앱"</li>\n" "<li>"사용 중지된 앱 알림"</li>\n" "<li>"작업에 사용하는 기본 애플리케이션"</li>\n" "<li>"앱의 백그라운드 데이터 제한"</li>\n" "<li>"그 밖의 권한 제한"</li>\n\n" 앱 데이터는 손실되지 않습니다."</string>
     <string name="reset_app_preferences_button" msgid="2041894727477934656">"앱 초기화"</string>
     <string name="manage_space_text" msgid="6166469422303124302">"공간 관리"</string>
     <string name="filter" msgid="2426943916212457962">"필터"</string>
@@ -2869,7 +2869,7 @@
     <string name="user_add_profile_item_summary" msgid="6386283837789573755">"내 계정의 앱 및 콘텐츠에 대한 액세스를 제한할 수 있습니다."</string>
     <string name="user_add_user_item_title" msgid="6835385073795492410">"사용자"</string>
     <string name="user_add_profile_item_title" msgid="4932743891449790664">"제한된 프로필"</string>
-    <string name="user_add_user_title" msgid="2320897397066676472">"새 사용자를 추가할까요?"</string>
+    <string name="user_add_user_title" msgid="2320897397066676472">"새 사용자를 추가하시겠습니까?"</string>
     <string name="user_add_user_message_long" msgid="686637203224195465">"추가 사용자를 만들어 다른 사용자와 기기를 공유할 수 있습니다. 각 사용자는 앱, 배경화면 등으로 맞춤설정할 수 있는 자신만의 공간을 갖게 됩니다. 또한 모든 사용자에게 영향을 미치는 Wi‑Fi와 같은 기기 설정도 조정할 수 있습니다.\n\n추가된 신규 사용자는 자신의 공간을 설정해야 합니다.\n\n모든 사용자가 앱을 업데이트할 수 있으며, 업데이트는 다른 사용자에게도 적용됩니다. 접근성 설정 및 서비스는 신규 사용자에게 이전되지 않을 수도 있습니다."</string>
     <string name="user_add_user_message_short" msgid="1802594476285458254">"추가된 새로운 사용자는 자신의 공간을 설정해야 합니다.\n\n모든 사용자는 다른 사용자들을 위하여 앱을 업데이트할 수 있습니다."</string>
     <string name="user_setup_dialog_title" msgid="6748950002206392396">"지금 사용자를 설정하시겠습니까?"</string>
@@ -3282,7 +3282,7 @@
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"방해 금지 모드의 알림 설정을 변경하시겠습니까?"</string>
     <string name="sound_work_settings" msgid="4140215240360927923">"직장 프로필 사운드"</string>
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"개인 프로필 사운드 사용"</string>
-    <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"직장 프로필과 개인 프로필의 소리가 같습니다."</string>
+    <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"직장 프로필과 개인 프로필의 사운드가 같습니다."</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"직장 휴대전화 벨소리"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"기본 직장 알림 소리"</string>
     <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"기본 직장 알람 소리"</string>

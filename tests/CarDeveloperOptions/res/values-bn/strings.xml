@@ -719,7 +719,7 @@
     </plurals>
     <string name="manage_trust_agents" msgid="8129970926213142261">"বিশ্বস্ত এজেন্ট"</string>
     <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"ব্যবহার করার জন্য প্রথমে একটি স্ক্রিন লক সেট করুন"</string>
-    <string name="manage_trust_agents_summary" msgid="2023116850759962248">"কোনো কিছুই নয়"</string>
+    <string name="manage_trust_agents_summary" msgid="2023116850759962248">"কোনও কিছুই নয়"</string>
     <plurals name="manage_trust_agents_summary_on" formatted="false" msgid="5550538038916606097">
       <item quantity="one"><xliff:g id="COUNT">%d</xliff:g>টি সক্রিয় বিশ্বস্ত এজেন্ট</item>
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g>টি সক্রিয় বিশ্বস্ত এজেন্ট</item>
@@ -1168,7 +1168,7 @@
     <string name="accessibility_category_personal" msgid="1423427301759058762">"ব্যক্তিগত প্রোফাইল অ্যাকাউন্টগুলি"</string>
     <string name="accessibility_work_account_title" msgid="3195468574776888011">"কাজের অ্যাকাউন্ট - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
     <string name="accessibility_personal_account_title" msgid="7251761883688839354">"ব্যক্তিগত অ্যাকাউন্ট - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
-    <string name="search_settings" msgid="5809250790214921377">"সার্চ"</string>
+    <string name="search_settings" msgid="5809250790214921377">"Search"</string>
     <string name="display_settings" msgid="1045535829232307190">"ডিসপ্লে"</string>
     <string name="accelerometer_title" msgid="2427487734964971453">"অটো-রোটেট স্ক্রিন"</string>
     <string name="color_mode_title" msgid="8164858320869449142">"রঙ"</string>
@@ -1450,7 +1450,7 @@
     <string name="storage_internal_forget_confirm_title" msgid="331032276130605241">"<xliff:g id="NAME">^1</xliff:g> ভুলতে চান?"</string>
     <string name="storage_internal_forget_confirm" msgid="3052483375203727176">"<xliff:g id="NAME">^1</xliff:g> -এ সঞ্চিত সমস্ত অ্যাপ্লিকেশন, ফটো, এবং ডেটা চিরতরে হারিয়ে যাবে।"</string>
     <string name="storage_detail_apps" msgid="8154648512504196820">"অ্যাপ"</string>
-    <string name="storage_detail_images" msgid="6996202225684468964">"ছবি"</string>
+    <string name="storage_detail_images" msgid="6996202225684468964">"Images"</string>
     <string name="storage_detail_videos" msgid="6030983354721080849">"ভিডিও"</string>
     <string name="storage_detail_audio" msgid="6011098436589663944">"অডিও"</string>
     <string name="storage_detail_cached" msgid="5761648455067920683">"ক্যাশে করা ডেটা"</string>
@@ -1890,7 +1890,7 @@
     <string name="app_disable_dlg_positive" msgid="5508828271100168073">"অ্যাপ্লিকেশান অক্ষম করুন"</string>
     <string name="app_disable_dlg_text" msgid="9221864774943530281">"আপনি এই অ্যাপ বন্ধ করে দিলে, Android এবং অন্যান্য অ্যাপ যেভাবে কাজ করার কথা সেইভাবে আর নাও কাজ করতে পারে। মনে রাখবেন যে এই অ্যাপ আপনার ডিভাইসে আগে থেকেই ইনস্টল করা আছে বলে এটি আপনি মুছে ফেলতে পারবেন না। বন্ধ করার মাধ্যমে, আপনি অ্যাপটিকে বন্ধ করে লুকিয়ে রাখতে পারেন।"</string>
     <string name="app_disable_notifications_dlg_title" msgid="699530661413553928">"বিজ্ঞপ্তিগুলি বন্ধ করবেন?"</string>
-    <string name="app_install_details_group_title" msgid="2909597319422976921">"স্টোর"</string>
+    <string name="app_install_details_group_title" msgid="2909597319422976921">"Store"</string>
     <string name="app_install_details_title" msgid="6954953384372934881">"অ্যাপের বিশদ বিবরণ"</string>
     <string name="app_install_details_summary" msgid="6612222941121363940">"অ্যাপটিকে <xliff:g id="APP_STORE">%1$s</xliff:g> থেকে ইনস্টল করা হয়েছে"</string>
     <string name="instant_app_details_summary" msgid="6384264315914966114">"<xliff:g id="APP_STORE">%1$s</xliff:g> সম্পর্কে আরও তথ্য"</string>
@@ -2211,7 +2211,7 @@
     <string name="print_feature_state_off" msgid="208580346723223688">"বন্ধ করুন"</string>
     <string name="print_menu_item_add_service" msgid="6803000110578493782">"পরিষেবা যোগ করুন"</string>
     <string name="print_menu_item_add_printer" msgid="8529196211179574921">"প্রিন্টার যোগ করুন"</string>
-    <string name="print_menu_item_search" msgid="1165316329772287360">"সার্চ করুন"</string>
+    <string name="print_menu_item_search" msgid="1165316329772287360">"Search"</string>
     <string name="print_searching_for_printers" msgid="6538687129687642542">"প্রিন্টার খোঁজা হচ্ছে"</string>
     <string name="print_service_disabled" msgid="6376344992705893436">"পরিষেবা অক্ষমিত"</string>
     <string name="print_print_jobs" msgid="7357841034181762157">"প্রিন্ট কাজগুলি"</string>

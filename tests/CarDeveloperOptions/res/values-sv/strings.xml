@@ -386,7 +386,7 @@
     <string name="lockscreen_settings_what_to_show_category" msgid="3133378945821488654">"Vad som ska visas"</string>
     <string name="security_settings_summary" msgid="5210109100643223686">"Ställ in Min plats, skärmupplåsning, lås för SIM-kort och lås för uppgiftslagring"</string>
     <string name="cdma_security_settings_summary" msgid="1783066617800041869">"Ställ in Min plats, skärmupplåsning, lås för uppgiftslagring"</string>
-    <string name="security_passwords_title" msgid="6853942836045862315">"Sekretess"</string>
+    <string name="security_passwords_title" msgid="6853942836045862315">"Integritet"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"Inaktiverad av administratören"</string>
     <string name="security_status_title" msgid="1261960357751754428">"Säkerhetsstatus"</string>
     <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Skärmlås, ansiktslås"</string>
@@ -932,7 +932,7 @@
     <string name="wifi_ap_5G" msgid="4584892544393675403">"5,0 GHz"</string>
     <string name="wifi_ap_band_select_one" msgid="4409754936554360355">"Välj minst ett band för Wi‑Fi-surfzon:"</string>
     <string name="wifi_ip_settings" msgid="4636102290236116946">"IP-inställningar"</string>
-    <string name="wifi_privacy_settings" msgid="4462092795794247809">"Sekretess"</string>
+    <string name="wifi_privacy_settings" msgid="4462092795794247809">"Integritet"</string>
     <string name="wifi_privacy_settings_ephemeral_summary" msgid="2411375348287064283">"Slumpgenererad MAC-adress"</string>
     <string name="wifi_dpp_add_device_to_network" msgid="8871041525483253430">"Lägg till en enhet"</string>
     <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"Lägg till enheten i <xliff:g id="SSID">%1$s</xliff:g> genom att centrera QR-koden i fönstret nedan"</string>
@@ -1681,7 +1681,7 @@
     <string name="location_access_summary" msgid="6919495149026354355">"Ge appar som har bett om tillstånd möjlighet att använda din platsinformation"</string>
     <string name="location_sources_heading" msgid="8526658357120282741">"Platskällor"</string>
     <string name="about_settings" product="tablet" msgid="4869626690708456341">"Om surfplattan"</string>
-    <string name="about_settings" product="default" msgid="6019547763377294261">"Om mobilen"</string>
+    <string name="about_settings" product="default" msgid="6019547763377294261">"Om telefonen"</string>
     <string name="about_settings" product="device" msgid="1770438316234693655">"Om enheten"</string>
     <string name="about_settings" product="emulator" msgid="4497482494770487014">"Om emulerad enhet"</string>
     <string name="about_settings_summary" msgid="4506081667462281647">"Visa juridisk information, status, programversion"</string>
@@ -4083,7 +4083,7 @@
     <string name="sensors_off_quick_settings_title" msgid="3655699045300438902">"Sensorer är inaktiverade"</string>
     <string name="managed_profile_settings_title" msgid="4340409321523532402">"Inställningar för jobbprofilen"</string>
     <string name="managed_profile_contact_search_title" msgid="7337225196804457095">"Kontaktsökning"</string>
-    <string name="managed_profile_contact_search_summary" msgid="7278267480246726951">"Tillåt att organisationen söker bland kontakter för att identifiera ringande och kontakter"</string>
+    <string name="managed_profile_contact_search_summary" msgid="7278267480246726951">"Tillåt att organisationen söker bland kontakter för att identifiera uppringare och kontakter"</string>
     <string name="cross_profile_calendar_title" msgid="2351605904015067145">"Kalender för flera profiler"</string>
     <string name="cross_profile_calendar_summary" msgid="3196258680438896098">"Visa jobbhändelser i den personliga kalendern"</string>
     <string name="cross_profile_calendar_restricted_summary" msgid="6892589892357409107">"Organisationen tillåter inte åtkomst till jobbkalendern via personliga appar"</string>
@@ -4470,7 +4470,7 @@
     <string name="force_desktop_mode_summary" msgid="8865007610266954719">"Tvinga fram experimentellt skrivbordsläge på sekundära skärmar"</string>
     <string name="hwui_force_dark_title" msgid="3744825212652331461">"Åsidosätter tvingat mörkt läge"</string>
     <string name="hwui_force_dark_summary" msgid="2051891908674765817">"Åsidosätter funktionen som tvingar mörkt läge att alltid vara aktiverat"</string>
-    <string name="privacy_dashboard_title" msgid="8764930992456607513">"Sekretess"</string>
+    <string name="privacy_dashboard_title" msgid="8764930992456607513">"Integritet"</string>
     <string name="privacy_dashboard_summary" msgid="7916431309860824945">"Behörigheter, kontoaktivitet, personuppgifter"</string>
     <string name="contextual_card_dismiss_remove" msgid="1750420285615827309">"Ta bort"</string>
     <string name="contextual_card_dismiss_keep" msgid="3204450672928193661">"Behåll"</string>

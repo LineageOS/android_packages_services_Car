@@ -1887,7 +1887,7 @@
     <string name="force_stop_dlg_text" msgid="7435245769456493398">"Ако принудително спрете приложение, то може да не функционира правилно."</string>
     <string name="app_install_location_title" msgid="5121617802063021720">"Предпочитано място за инсталиране"</string>
     <string name="app_install_location_summary" msgid="109719780117187797">"Промяна на предпочитаното място за инсталиране на нови приложения"</string>
-    <string name="app_disable_dlg_positive" msgid="5508828271100168073">"Деактивиране на приложението"</string>
+    <string name="app_disable_dlg_positive" msgid="5508828271100168073">"Деактивиране"</string>
     <string name="app_disable_dlg_text" msgid="9221864774943530281">"Ако деактивирате това приложение, Android и други приложения може да спрат да работят както трябва. Имайте предвид, че не можете да изтриете това приложение, тъй като е предварително инсталирано на устройството ви. Като деактивирате приложението, го изключвате и скривате на устройството си."</string>
     <string name="app_disable_notifications_dlg_title" msgid="699530661413553928">"Да се изключат ли известията?"</string>
     <string name="app_install_details_group_title" msgid="2909597319422976921">"App Store"</string>
@@ -3285,7 +3285,7 @@
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Звуците за служебния и личния потребителски профил са едни и същи"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"Служебна мелодия на телефона"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Стандартен звук за служебните известия"</string>
-    <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"Стандартен звук за служебните будилници"</string>
+    <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"Стандартен звук за служебните аларми"</string>
     <string name="work_sound_same_as_personal" msgid="7728560881697159758">"Като за личния потребителски профил"</string>
     <string name="work_sync_dialog_title" msgid="4799120971202956837">"Да се заменят ли звуците?"</string>
     <string name="work_sync_dialog_yes" msgid="2110726233746476066">"Замяна"</string>

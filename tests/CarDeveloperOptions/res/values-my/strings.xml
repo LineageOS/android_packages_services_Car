@@ -26,7 +26,7 @@
       <item quantity="other">သင်သည် ယခု ဆောဖ့်ဝဲရေးသားသူထံမှ <xliff:g id="STEP_COUNT_1">%1$d</xliff:g> အဆင့်အကွာအဝေးတွင် ရှိနေပါသည်။</item>
       <item quantity="one">သင်သည် ယခု ဆောဖ့်ဝဲရေးသားသူထံမှ <xliff:g id="STEP_COUNT_0">%1$d</xliff:g> အဆင့် အကွာအဝေးတွင်ရှိနေပါသည်။</item>
     </plurals>
-    <string name="show_dev_on" msgid="9075712234786224065">"သင်ဟာ ယခု တည်ဆောက်သူတစ်ယောက် ဖြစ်နေပါပြီ!"</string>
+    <string name="show_dev_on" msgid="9075712234786224065">"သင်သည် ယခု ဆော့ဖ်ဝဲအင်ဂျင်နီယာ တစ်ဦး ဖြစ်နေပါပြီ။"</string>
     <string name="show_dev_already" msgid="7665948832405148689">"မလိုတော့ပါ။ သင်သည် တည်ဆောက်သူတစ်ယောက် ဖြစ်နေပြီ ဖြစ်သည်။"</string>
     <string name="dev_settings_disabled_warning" msgid="3198732189395396721">"တီထွင်သူများရွေးစရာကို ဦးစွာဖွင့်ပါ။"</string>
     <string name="header_category_wireless_networks" msgid="8968405993937795898">"ကြိုးမဲ့ &amp; ကွန်ရက်များ"</string>

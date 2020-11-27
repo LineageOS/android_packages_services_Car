@@ -874,7 +874,7 @@
     <string name="wifi_switch_away_when_unvalidated" msgid="2418577764071293971">"Agar Wi-Fi da internet uzilib qolsa, mobil internetga ulansin."</string>
     <string name="wifi_cellular_data_fallback_title" msgid="5067241930716252665">"Mobil internetga avtomatik ulanish"</string>
     <string name="wifi_cellular_data_fallback_summary" msgid="2721467405851519769">"Wi-Fi orqali Internet aloqasi yo‘qligida mobil internetdan foydalanish. Sarflangan trafik uchun haq olinishi mumkin."</string>
-    <string name="wifi_add_network" msgid="4094957940791876640">"Tarmoq qo‘shish"</string>
+    <string name="wifi_add_network" msgid="4094957940791876640">"Tarmoq kiritish"</string>
     <string name="wifi_configure_settings_preference_title" msgid="2678534679408777268">"Wi‑Fi sozlamalari"</string>
     <string name="wifi_configure_settings_preference_summary_wakeup_on" msgid="5714892572614655675">"Wi-Fi avtomatik tarzda qayta yoqiladi"</string>
     <string name="wifi_configure_settings_preference_summary_wakeup_off" msgid="286904094152909651">"Wi‑Fi avtomatik ulanmaydi"</string>
@@ -1872,7 +1872,7 @@
     <string name="computing_size" msgid="2234106107535318136">"Hisoblanmoqda…"</string>
     <string name="invalid_size_value" msgid="1202239724000802296">"Paket o‘lchamini hisoblamadi"</string>
     <string name="version_text" msgid="5421619604445758652">"<xliff:g id="VERSION_NUM">%1$s</xliff:g> versiya"</string>
-    <string name="move_app" msgid="5400135231255614785">"Ko‘chirish"</string>
+    <string name="move_app" msgid="5400135231255614785">"Boshqa joyga olish"</string>
     <string name="move_app_to_internal" product="tablet" msgid="8658767231643024635">"Planshetga o‘tkazish"</string>
     <string name="move_app_to_internal" product="default" msgid="1031111519418252055">"Telefonga ko‘chirish"</string>
     <string name="move_app_to_sdcard" product="nosdcard" msgid="5555917755995563518">"USB xotiraga o‘tkazish"</string>
@@ -2543,7 +2543,7 @@
     <string name="credentials_install" product="default" msgid="8997183776710118353">"SD-kartadan o‘rnatish"</string>
     <string name="credentials_install_summary" product="nosdcard" msgid="3426661965567059596">"Sertifikatlarni xotira kartasidan o‘rnatish"</string>
     <string name="credentials_install_summary" product="default" msgid="4943897416156671633">"Sertifikatlarni SD-kartadan o‘rnatish"</string>
-    <string name="credentials_reset" msgid="355080737664731678">"Hisob axborotini tozalash"</string>
+    <string name="credentials_reset" msgid="355080737664731678">"Hisobga oid axborotni tozalash"</string>
     <string name="credentials_reset_summary" msgid="7622528359699428555">"Barcha sertifikatlarni o‘chirib tashlash"</string>
     <string name="trusted_credentials" msgid="6989242522455395200">"Ishonchli sertifikatlar"</string>
     <string name="trusted_credentials_summary" msgid="7411781319056251582">"Ishonchli CA sertifikatlarini chiqarish"</string>
@@ -2647,7 +2647,7 @@
     <string name="really_remove_account_title" msgid="4166512362915154319">"Hisob olib tashlansinmi?"</string>
     <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"Ushbu hisob bilan bog‘liq barcha xabarlar, kontaktlar va boshqa ma’lumotlar telefondan o‘chib ketadi."</string>
     <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Ushbu hisob bilan bog‘liq barcha xabarlar, kontaktlar va boshqa ma’lumotlar telefondan o‘chib ketadi."</string>
-    <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"Ushbu hisob o‘chirilganda unga bog‘liq barcha xabar, kontakt va boshqa ma’lumotlar qurilmadan o‘chib ketadi."</string>
+    <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"Bu hisobga tegishli barcha xabarlar, kontaktlar va boshqa maʼlumotlar ushbu qurilmadan oʻchirib tashlanadi!"</string>
     <string name="remove_account_failed" msgid="491458185327106966">"Bu o‘zgarishni amalga oshirish uchun administrator ruxsat bermagan"</string>
     <string name="cant_sync_dialog_title" msgid="5483419398223189881">"Qo‘lbola sinxronlanmadi"</string>
     <string name="cant_sync_dialog_message" msgid="3467126947262857534">"Ushbu narsani sinxronlash hozir o‘chirilgan. Bu sozlamani o‘zgartirish uchun vaqtincha fonda trafik yuklashni yoqib, keyin avtomatik sinx-lashga o‘ting."</string>
@@ -3411,8 +3411,8 @@
     <string name="zen_access_empty_text" msgid="7667538993781607731">"Hech qanday ilova “Bezovta qilinmasin” funksiyasiga ruxsat so‘ramagan"</string>
     <string name="loading_notification_apps" msgid="1978345231934072091">"Ilovalar yuklanmoqda…"</string>
     <string name="app_notifications_off_desc" msgid="3904090905748895146">"Android ushbu ilova bildirishnomalarini ekranga chiqarmaydi"</string>
-    <string name="channel_notifications_off_desc" msgid="8005444443218306611">"Talabingizga binoan, Android bu turkumdagi bildirishnomalarni bloklamoqda"</string>
-    <string name="channel_group_notifications_off_desc" msgid="7154205544298672850">"Talabingizga binoan, Android bunday bildirishnomalar guruhini bloklaydi"</string>
+    <string name="channel_notifications_off_desc" msgid="8005444443218306611">"Android bu turkumdagi bildirishnomalarni bloklamoqda"</string>
+    <string name="channel_group_notifications_off_desc" msgid="7154205544298672850">"Android bunday bildirishnomalar guruhini bloklaydi"</string>
     <string name="notification_channels" msgid="956764228116145956">"Turkumlar"</string>
     <string name="notification_channels_other" msgid="1615988645667411530">"Boshqa"</string>
     <plurals name="notification_group_summary" formatted="false" msgid="3744856747513344999">
@@ -3661,7 +3661,7 @@
     <string name="advanced_apps" msgid="6643869089344883537">"Kengaytirilgan sozlamalar"</string>
     <string name="configure_apps" msgid="4066683118857400943">"Ilovalarni sozlash"</string>
     <string name="unknown_app" msgid="2312052973570376877">"Noma’lum ilova"</string>
-    <string name="app_permissions" msgid="3215958256821756086">"Ruxsatlar menejeri"</string>
+    <string name="app_permissions" msgid="3215958256821756086">"Ruxsatlar boshqaruvi"</string>
     <string name="app_permissions_summary" msgid="8785798165776061594">"Ruxsatga ega ilovalar (<xliff:g id="APPS">%1$s</xliff:g>)"</string>
     <string name="tap_to_wake" msgid="1902991239401652323">"Teginib yoqish"</string>
     <string name="tap_to_wake_summary" msgid="8485222120721006793">"Qurilmani yoqish uchun ekranning istalgan joyiga ikki marta bosing"</string>
@@ -3746,7 +3746,7 @@
     <string name="decline_remote_bugreport_action" msgid="706319275774199033">"Rad etish"</string>
     <string name="usb_use_charging_only" msgid="2344625733377110164">"Axborot uzatilmasin"</string>
     <string name="usb_use_charging_only_desc" msgid="3283518562582478950">"Faqat shu qurilmani quvvatlash"</string>
-    <string name="usb_use_power_only" msgid="6595783381323810697">"Ulangan qurilmani quvvatlang"</string>
+    <string name="usb_use_power_only" msgid="6595783381323810697">"Ulangan qurilmani quvvatlash"</string>
     <string name="usb_use_file_transfers" msgid="6153021302176151884">"Fayl uzatish"</string>
     <string name="usb_use_file_transfers_desc" msgid="6953866660041189580">"Boshqa qurilmaga fayl o‘tkazish"</string>
     <string name="usb_use_photo_transfers" msgid="5974236250197451257">"PTP"</string>

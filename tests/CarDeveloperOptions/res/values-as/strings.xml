@@ -1168,7 +1168,7 @@
     <string name="accessibility_category_personal" msgid="1423427301759058762">"ব্যক্তিগত প্ৰ’ফাইলৰ একাউণ্টসমূহ"</string>
     <string name="accessibility_work_account_title" msgid="3195468574776888011">"কৰ্মস্থানৰ একাউণ্ট - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
     <string name="accessibility_personal_account_title" msgid="7251761883688839354">"ব্যক্তিগত একাউণ্ট - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
-    <string name="search_settings" msgid="5809250790214921377">"অনুসন্ধান"</string>
+    <string name="search_settings" msgid="5809250790214921377">"Search"</string>
     <string name="display_settings" msgid="1045535829232307190">"ডিছপ্লে’"</string>
     <string name="accelerometer_title" msgid="2427487734964971453">"স্বয়ং-ঘূৰ্ণন স্ক্ৰীণ"</string>
     <string name="color_mode_title" msgid="8164858320869449142">"ৰংবোৰ"</string>
@@ -1450,7 +1450,7 @@
     <string name="storage_internal_forget_confirm_title" msgid="331032276130605241">"<xliff:g id="NAME">^1</xliff:g>ক পাহৰিব বিচাৰেনে?"</string>
     <string name="storage_internal_forget_confirm" msgid="3052483375203727176">"এই <xliff:g id="NAME">^1</xliff:g>ত সঞ্চিত সকলো এপ্, ফট\' আৰু ডেটা চিৰদিনৰ কাৰণে হেৰুৱাব।"</string>
     <string name="storage_detail_apps" msgid="8154648512504196820">"এপ্"</string>
-    <string name="storage_detail_images" msgid="6996202225684468964">"ফট\'"</string>
+    <string name="storage_detail_images" msgid="6996202225684468964">"Images"</string>
     <string name="storage_detail_videos" msgid="6030983354721080849">"ভিডিঅ\'"</string>
     <string name="storage_detail_audio" msgid="6011098436589663944">"অডিঅ’"</string>
     <string name="storage_detail_cached" msgid="5761648455067920683">"কেশ্ব কৰা ডেটা"</string>
@@ -1890,7 +1890,7 @@
     <string name="app_disable_dlg_positive" msgid="5508828271100168073">"এপ্ অক্ষম কৰক"</string>
     <string name="app_disable_dlg_text" msgid="9221864774943530281">"আপুনি যদি এই এপ্‌টো অক্ষম কৰে, তেন্তে Android আৰু অন্য এপ্‌সমূহে বিচৰাৰ দৰে কাম নকৰিব পাৰে। মনত ৰাখিব, আপুনি এই এপ্‌টো মচিব নোৱাৰে কাৰণ এইটো আপোনাৰ ডিভাইচত আগৰেপৰা ইনষ্টল কৰি থোৱা আছে। অক্ষম কৰি আপুনি এই এপ্‌টো অফ কৰে আৰু ইয়াক আপোনাৰ ডিভাইচৰপৰা লুকুৱায়।"</string>
     <string name="app_disable_notifications_dlg_title" msgid="699530661413553928">"জাননীসমুহ অফ কৰিবনে?"</string>
-    <string name="app_install_details_group_title" msgid="2909597319422976921">"ষ্ট’ৰ"</string>
+    <string name="app_install_details_group_title" msgid="2909597319422976921">"Store"</string>
     <string name="app_install_details_title" msgid="6954953384372934881">"এপ্‌ৰ সবিশেষ"</string>
     <string name="app_install_details_summary" msgid="6612222941121363940">"<xliff:g id="APP_STORE">%1$s</xliff:g>ৰ পৰা এপ্ ইনষ্টল কৰা হৈছে"</string>
     <string name="instant_app_details_summary" msgid="6384264315914966114">"<xliff:g id="APP_STORE">%1$s</xliff:g>ত আৰু অধিক তথ্য"</string>
@@ -2211,7 +2211,7 @@
     <string name="print_feature_state_off" msgid="208580346723223688">"অফ হৈ আছে"</string>
     <string name="print_menu_item_add_service" msgid="6803000110578493782">"সেৱা যোগ কৰক"</string>
     <string name="print_menu_item_add_printer" msgid="8529196211179574921">"প্ৰিণ্টাৰ যোগ কৰক"</string>
-    <string name="print_menu_item_search" msgid="1165316329772287360">"সন্ধান কৰক"</string>
+    <string name="print_menu_item_search" msgid="1165316329772287360">"Search"</string>
     <string name="print_searching_for_printers" msgid="6538687129687642542">"সংযোগ কৰিবলৈ প্ৰিণ্টাৰ বিচাৰি থকা হৈছে"</string>
     <string name="print_service_disabled" msgid="6376344992705893436">"সেৱা নিষ্ক্ৰিয়হৈ আছে"</string>
     <string name="print_print_jobs" msgid="7357841034181762157">"প্ৰিণ্টিঙৰ কামবোৰ"</string>
@@ -3394,7 +3394,7 @@
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"অসুবিধা নিদিব ম’ডক অনুমতি দিয়ক"</string>
     <string name="zen_access_empty_text" msgid="7667538993781607731">"ইনষ্টল কৰি থোৱা কোনো এপে অসুবিধা নিদিবত প্ৰৱেশৰ অনুমতি বিচৰা নাই"</string>
     <string name="loading_notification_apps" msgid="1978345231934072091">"এপ্‌সমূহ ল’ড কৰি থকা হৈছে..."</string>
-    <string name="app_notifications_off_desc" msgid="3904090905748895146">"আপোনাৰ অনুৰোধত, Android-এ এই ডিভাইচটোত এই এপৰ জাননীসমূহ দেখাবলৈ বাধা দি আছে"</string>
+    <string name="app_notifications_off_desc" msgid="3904090905748895146">"আপোনাৰ অনুৰোধমৰ্মে, Androidএ এই এপৰ জাননীসমূহ এই ডিভাইচটোত দৃশ্যমান হোৱাত বাধা দি আছে"</string>
     <string name="channel_notifications_off_desc" msgid="8005444443218306611">"আপোনাৰ অনুৰোধমৰ্মে, Androidএ জাননীসমূহৰ এই শ্ৰেণীটোক এই ডিভাইচটোত দৃশ্যমান হ\'বলৈ দিয়া নাই"</string>
     <string name="channel_group_notifications_off_desc" msgid="7154205544298672850">"আপোনাৰ অনুৰোধমৰ্মে, Androidএ জাননীসমূহৰ এই গোটটোক এই ডিভাইচটোত দৃশ্যমান হ\'বলৈ দিয়া নাই"</string>
     <string name="notification_channels" msgid="956764228116145956">"শ্ৰেণী"</string>
@@ -3726,7 +3726,7 @@
     <string name="sharing_remote_bugreport_dialog_message" msgid="3814787466701526359">"আপোনাৰ আইটি প্ৰশাসকৰ সৈতে এই বাগ প্ৰতিবেদনটো শ্বেয়াৰ কৰা হৈছে। অধিক তথ্যৰ বাবে তেওঁলোকৰ সৈতে যোগাযোগ কৰক।"</string>
     <string name="share_remote_bugreport_action" msgid="8600797271670537888">"শ্বেয়াৰ কৰক"</string>
     <string name="decline_remote_bugreport_action" msgid="706319275774199033">"প্ৰত্যাখ্যান কৰক"</string>
-    <string name="usb_use_charging_only" msgid="2344625733377110164">"কোনো ডেটা স্থানান্তৰণ কৰিব নোৱাৰি"</string>
+    <string name="usb_use_charging_only" msgid="2344625733377110164">"ডেটা স্থানান্তৰ কৰিব নোৱাৰি"</string>
     <string name="usb_use_charging_only_desc" msgid="3283518562582478950">"ডিভাইচটো কেৱল চাৰ্জ কৰক"</string>
     <string name="usb_use_power_only" msgid="6595783381323810697">"চ্চাৰ্জাৰ ডিভাইচত সংযোগ কৰা হ’ল"</string>
     <string name="usb_use_file_transfers" msgid="6153021302176151884">"ফাইল স্থানান্তৰণৰ বাবে"</string>
@@ -3792,7 +3792,7 @@
     <string name="zen_access_revoke_warning_dialog_title" msgid="6850994585577513299">"<xliff:g id="APP">%1$s</xliff:g>ৰ অসুবিধা নিদিবলৈ থকা প্ৰৱেশৰ অনুমতি প্ৰত্যাহাৰ কৰিবনে?"</string>
     <string name="zen_access_revoke_warning_dialog_summary" msgid="3487422193181311403">"এই এপে সৃষ্টি কৰা সকলো অসুবিধা নিদিব নিয়ম আঁতৰোৱা হ\'ব।"</string>
     <string name="ignore_optimizations_on" msgid="4373971641328943551">"অপ্টিমাইজ নকৰিব"</string>
-    <string name="ignore_optimizations_off" msgid="4372289432580282870">"অপ্টিমাইজ"</string>
+    <string name="ignore_optimizations_off" msgid="4372289432580282870">"Optimize"</string>
     <string name="ignore_optimizations_on_desc" msgid="2904484569799521559">"আপোনাৰ বেটাৰি খৰকৈ শেষ কৰিব পাৰে। এপটোক নেপথ্যত বেটাৰি ব্যৱহাৰ কৰাত আৰু বাধা দিয়া নহ’ব।"</string>
     <string name="ignore_optimizations_off_desc" msgid="5598702251817814289">"বেটাৰিৰ অৱস্থা উন্নত কৰাৰ বাবে পৰামৰ্শ দিয়া হৈছে"</string>
     <string name="ignore_optimizations_title" msgid="7924345545276166305">"<xliff:g id="APP">%s</xliff:g>-ক বেটাৰি অপ্টিমাইজেশ্বন অবজ্ঞা কৰিবলৈ অনুমতি দিবনে?"</string>

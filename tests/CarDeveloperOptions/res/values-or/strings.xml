@@ -20,7 +20,7 @@
     <string name="no" msgid="4709057267400907161">"ନାହିଁ"</string>
     <string name="create" msgid="5131953868544187847">"ତିଆରି କରନ୍ତୁ"</string>
     <string name="allow" msgid="128867119174713893">"ଅନୁମତି"</string>
-    <string name="deny" msgid="3998166389989144025">"ପ୍ରତ୍ୟାଖ୍ୟାନ"</string>
+    <string name="deny" msgid="3998166389989144025">"ଅଗ୍ରାହ୍ୟ କରନ୍ତୁ"</string>
     <string name="device_info_default" msgid="1548919563979154348">"ଅଜଣା"</string>
     <plurals name="show_dev_countdown" formatted="false" msgid="3953785659137161981">
       <item quantity="other">ଜଣେ ଡେଭଲପର୍ ହେବାରେ ଆପଣ ବର୍ତ୍ତମାନ <xliff:g id="STEP_COUNT_1">%1$d</xliff:g> ଟି ପଦାଙ୍କ ଦୂରରେ ଅଛନ୍ତି।</item>
@@ -289,7 +289,7 @@
     <string name="sd_card_settings_label" product="nosdcard" msgid="3433188145440984933">"USB ଷ୍ଟୋରେଜ୍‌"</string>
     <string name="sd_card_settings_label" product="default" msgid="1074813865245983607">"SD କାର୍ଡ"</string>
     <string name="proxy_settings_label" msgid="7219106162267925123">"ପ୍ରୋକ୍ସି ସେଟିଙ୍ଗ"</string>
-    <string name="cancel" msgid="2582602392048772404">"କ୍ୟାନ୍ସଲ୍"</string>
+    <string name="cancel" msgid="2582602392048772404">"ବାତିଲ୍"</string>
     <string name="okay" msgid="5838476766924989056">"ଠିକ୍‌ ଅଛି"</string>
     <string name="forget" msgid="7735525146062672874">"ଭୁଲିଯାଆନ୍ତୁ"</string>
     <string name="save" msgid="3418211178410498517">"ସେଭ୍‌ କରନ୍ତୁ"</string>
@@ -442,7 +442,7 @@
     <string name="security_settings_fingerprint_enroll_introduction_message" msgid="5586198131986682472">"ଆପଣଙ୍କ ଫୋନ୍‌ ଅନ୍‌ଲକ୍‌ କରିବାକୁ, କିଣାକିଣିକୁ ଅଧିକୃତ କରିବା ପାଇଁ କିମ୍ୱା ଆପ୍‌ଗୁଡ଼଼ଇକରେ ସାଇନ୍‌-ଇନ୍‌ କରିବା ପାଇଁ ଆଙ୍ଗୁଠି ଚିହ୍ନ ସେନ୍ସର୍‌କୁ କେବଳ ଛୁଇଁଦିଅନ୍ତୁ। କାହାର ଆଙ୍ଗୁଠି ଚିହ୍ନ ଆପଣ ଯୋଡୁଛନ୍ତି, ସେଥିପ୍ରତି ସାବଧାନ ରୁହନ୍ତୁ। ଏପରିକି, ଯୋଡ଼ିଥିବା ଗୋଟିଏ ଚିହ୍ନ ମଧ୍ୟ ଏହିସବୁ କାମଗୁଡ଼ିକ ମଧ୍ୟରୁ ଯେକୌଣସିଟିକୁ କରିପାରିବ।\n\nଧ୍ୟାନଦିଅନ୍ତୁ: ଜଟିଳ ପାଟର୍ନ କିମ୍ୱା PIN‌ ତୁଳନାରେ ଆପଣଙ୍କର ଆଙ୍ଗୁଠି ଚିହ୍ନ କମ୍ ସୁରକ୍ଷିତ ହୋଇପାରେ।"</string>
     <string name="security_settings_fingerprint_enroll_introduction_message_unlock_disabled" msgid="1640839304679275468">"ଫୋନ୍‌କୁ ଅନ୍‌ଲକ୍‌ କରିବା କିମ୍ୱା କିଣାକିଣିକୁ ଅନୁମୋଦନ କରିବା ପାଇଁ ନିଜ ଟିପଚିହ୍ନର ବ୍ୟବହାର କରନ୍ତୁ।\n\nଧ୍ୟାନଦିଅନ୍ତୁ: ଏହି ଡିଭାଇସ୍‌ ଅନଲକ୍‌ କରିବାକୁ ଆପଣ ଟିପଚିହ୍ନ ବ୍ୟବହାର କରିପାରିବେ ନାହିଁ। ଅଧିକ ସୂଚନା ପାଇଁ, ଆପଣଙ୍କ ସଂସ୍ଥାର ଆଡମିନଙ୍କ ସହ ଯୋଗାଯୋଗ କରନ୍ତୁ।"</string>
     <string name="security_settings_fingerprint_enroll_introduction_message_setup" msgid="6734490666593320711">"ଫୋନ୍‌କୁ ଅନଲକ୍‌ କିମ୍ୱା କିଣାକିଣିକୁ ଅନୁମୋଦନ କରିବା ପାଇଁ ନିଜ ଆଙ୍ଗୁଠି ଚିହ୍ନର ବ୍ୟବହାର କରନ୍ତୁ।\n\nଧ୍ୟାନଦିଅନ୍ତୁ: ଜଟିଳ ପାଟର୍ନ କିମ୍ୱା ପିନ୍‌ ତୁଳନାରେ ଆପଣଙ୍କର ଆଙ୍ଗୁଠି ଚିହ୍ନ କମ୍ ସୁରକ୍ଷିତ ହୋଇପାରେ।"</string>
-    <string name="security_settings_fingerprint_enroll_introduction_cancel" msgid="9168637333731599827">"କ୍ୟାନ୍ସଲ୍‌"</string>
+    <string name="security_settings_fingerprint_enroll_introduction_cancel" msgid="9168637333731599827">"ବାତିଲ୍"</string>
     <string name="security_settings_fingerprint_enroll_introduction_continue" msgid="271662150372486535">"ଜାରି ରଖ"</string>
     <string name="security_settings_fingerprint_enroll_introduction_cancel_setup" msgid="756928427429893070">"ଛାଡିଦିଅନ୍ତୁ"</string>
     <string name="security_settings_fingerprint_enroll_introduction_continue_setup" msgid="4125977169169671144">"ପରବର୍ତ୍ତୀ"</string>
@@ -705,10 +705,10 @@
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"ଆପଣଙ୍କର ଆଇଟି ଆଡ୍‌ମିନ୍‌ ଦ୍ୱାରା ସାଧାରଣ ପାସ୍‌ୱର୍ଡଗୁଡ଼ିକୁ ରୋକିଦିଆଯାଇଛି। ଏକ ଭିନ୍ନ ପାସ୍‌ୱର୍ଡ ଦିଅନ୍ତୁ।"</string>
     <string name="lockpassword_pin_no_sequential_digits" msgid="3902387296149848324">"ସଂଖ୍ୟାର କ୍ରମବୃଦ୍ଧି, କ୍ରମହ୍ରାସ, କିମ୍ବା ପୁନରାବୃତ୍ତ କ୍ରମ ଅନୁମୋଦିତ ନୁହେଁ"</string>
     <string name="lockpassword_confirm_label" msgid="1512364313516715624">"ନିଶ୍ଚିତ"</string>
-    <string name="lockpassword_cancel_label" msgid="3799907375604482766">"କ୍ୟାନ୍ସଲ୍‌ କରନ୍ତୁ"</string>
+    <string name="lockpassword_cancel_label" msgid="3799907375604482766">"ବାତିଲ୍ କରନ୍ତୁ"</string>
     <string name="lockpassword_clear_label" msgid="3201458533657963554">"ଖାଲି କରନ୍ତୁ"</string>
     <string name="lockpassword_credential_changed" msgid="5183961439209866170">"ପୂର୍ବରୁ ସ୍କ୍ରିନ୍‍ ଲକ୍‌ ପରିବର୍ତ୍ତନ କରାଯାଇଥିଲା। ନୂତନ ସ୍କ୍ରିନ୍ ଲକ୍‌କୁ ଚେଷ୍ଟା କରନ୍ତୁ।"</string>
-    <string name="lockpattern_tutorial_cancel_label" msgid="450401426127674369">"କ୍ୟାନ୍ସଲ୍‌"</string>
+    <string name="lockpattern_tutorial_cancel_label" msgid="450401426127674369">"ବାତିଲ୍"</string>
     <string name="lockpattern_tutorial_continue_label" msgid="8474690922559443018">"ଆଗକୁ"</string>
     <string name="lock_setup" msgid="8710689848703935088">"ସେଟଅପ୍‌ ସମ୍ପୂର୍ଣ୍ଣ।"</string>
     <string name="manage_device_admin" msgid="322047441168191695">"ଡିଭାଇସ୍‌ ଆଡମିନ୍‌ ଆପ୍‌"</string>
@@ -1009,7 +1009,7 @@
     <string name="wifi_failed_forget_message" msgid="2581434074764127531">"ନେଟ୍‌ୱର୍କ ଭୁଲିଯିବାରେ ବିଫଳ ହେଲା"</string>
     <string name="wifi_save" msgid="4658298322696587492">"ସେଭ୍‍ କରନ୍ତୁ"</string>
     <string name="wifi_failed_save_message" msgid="5068789092841891367">"ନେଟୱାର୍କ୍‌ ସେଭ୍‌ କରି ପାରିଲା ନାହିଁ"</string>
-    <string name="wifi_cancel" msgid="7618417075930426635">"କ୍ୟାନ୍ସଲ୍‌"</string>
+    <string name="wifi_cancel" msgid="7618417075930426635">"ବାତିଲ୍"</string>
     <string name="wifi_forget_dialog_title" msgid="1757468516279704915">"ନେଟୱର୍କକୁ ଭୁଲିଯିବେ?"</string>
     <string name="wifi_forget_dialog_message" msgid="7899220710587511375">"ଏହି ନେଟ୍‌ୱର୍କ ପାଇଁ ଥିବା ସବୁ ପାସ୍‌ୱର୍ଡକୁ ଡିଲିଟ୍ କରିଦିଆଯିବ"</string>
     <plurals name="wifi_saved_access_points_summary" formatted="false" msgid="6199295921035663421">
@@ -1031,7 +1031,7 @@
     <string name="wifi_advanced_settings_label" msgid="9147669851658738784">"IP ସେଟିଂସ୍"</string>
     <string name="wifi_advanced_not_available" msgid="5751084989400195009">"ଏହି ଉପଯୋଗକର୍ତ୍ତାଙ୍କ ପାଇଁ ୱାଇ-ଫାଇ ଉନ୍ନତ ସେଟିଙ୍ଗ ଉପଲବ୍ଧ ନାହିଁ"</string>
     <string name="wifi_ip_settings_menu_save" msgid="6557330818360425933">"ସେଭ୍‌ କରନ୍ତୁ"</string>
-    <string name="wifi_ip_settings_menu_cancel" msgid="8098696509412462494">"କ୍ୟାନ୍ସଲ୍‌ କରନ୍ତୁ"</string>
+    <string name="wifi_ip_settings_menu_cancel" msgid="8098696509412462494">"ବାତିଲ୍‌ କରନ୍ତୁ"</string>
     <string name="wifi_ip_settings_invalid_ip_address" msgid="7764507690387286292">"ଏକ ବୈଧ IP ଠିକଣା ଟାଇପ୍‌ କରନ୍ତୁ"</string>
     <string name="wifi_ip_settings_invalid_gateway" msgid="7602732367437862422">"ଏକ ମାନ୍ୟ ଗେଟ୍‌ୱେ ଠିକଣା ଟାଇପ୍‌ କରନ୍ତୁ"</string>
     <string name="wifi_ip_settings_invalid_dns" msgid="4471473055625376300">"ଏକ ବୈଧ DNS ଠିକଣା ଟାଇପ୍‌ କରନ୍ତୁ।"</string>
@@ -1125,7 +1125,7 @@
     <string name="musicfx_title" msgid="6456079041566773649">"ମ୍ୟୁଜିକ୍‌ ଇଫେକ୍ଟସ୍"</string>
     <string name="ring_volume_title" msgid="5874791723449821646">"ରିଙ୍ଗ ଭଲ୍ୟୁମ୍"</string>
     <string name="vibrate_in_silent_title" msgid="2314667015729841220">"ନୀରବ ଥିବା ବେଳେ କମ୍ପନ କରନ୍ତୁ"</string>
-    <string name="notification_sound_title" msgid="6812164482799723931">"ପୂର୍ବ-ନିର୍ଦ୍ଧାରିତ ବିଜ୍ଞପ୍ତିର ଶବ୍ଦ"</string>
+    <string name="notification_sound_title" msgid="6812164482799723931">"ଡିଫଲ୍ଟ ବିଜ୍ଞପ୍ତି ସାଉଣ୍ଡ"</string>
     <string name="incoming_call_volume_title" msgid="4736570528754310450">"ରିଙ୍ଗଟୋନ୍‌"</string>
     <string name="notification_volume_title" msgid="6022562909288085275">"ବିଜ୍ଞପ୍ତି"</string>
     <string name="checkbox_notification_same_as_incoming_call" msgid="7312942422655861175">"ବିଜ୍ଞପ୍ତିଗୁଡ଼ିକ ପାଇଁ ଇନ୍‌କମିଙ୍ଗ କଲ୍‌ ଭଲ୍ୟୁମ୍‌କୁ ବ୍ୟବହାର କର"</string>
@@ -1168,7 +1168,7 @@
     <string name="accessibility_category_personal" msgid="1423427301759058762">"ବ୍ୟକ୍ତିଗତ ପ୍ରୋଫାଇଲ୍‌ ଆକାଉଣ୍ଟ"</string>
     <string name="accessibility_work_account_title" msgid="3195468574776888011">"କାର୍ଯ୍ୟ ଆକାଉଣ୍ଟ - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
     <string name="accessibility_personal_account_title" msgid="7251761883688839354">"ବ୍ୟକ୍ତିଗତ ଆକାଉଣ୍ଟ - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
-    <string name="search_settings" msgid="5809250790214921377">"ସନ୍ଧାନ"</string>
+    <string name="search_settings" msgid="5809250790214921377">"Search"</string>
     <string name="display_settings" msgid="1045535829232307190">"ଡିସ୍‌ପ୍ଲେ"</string>
     <string name="accelerometer_title" msgid="2427487734964971453">"ଅଟୋ-ରୋଟେଟ୍‌ ସ୍କ୍ରିନ୍"</string>
     <string name="color_mode_title" msgid="8164858320869449142">"ରଙ୍ଗ"</string>
@@ -1293,7 +1293,7 @@
     <string name="sim_pin_disable_failed" msgid="6780973900290546751">"PIN ଅକ୍ଷମ କରିହେବ ନାହିଁ।"</string>
     <string name="sim_pin_enable_failed" msgid="804897359922298792">"PIN ସକ୍ଷମ କରିହେବ ନାହିଁ।"</string>
     <string name="sim_enter_ok" msgid="5103626479976731229">"ଠିକ ଅଛି"</string>
-    <string name="sim_enter_cancel" msgid="2806801210236824592">"କ୍ୟାନ୍ସଲ୍‌ କରନ୍ତୁ"</string>
+    <string name="sim_enter_cancel" msgid="2806801210236824592">"ବାତିଲ୍‌ କରନ୍ତୁ"</string>
     <string name="sim_multi_sims_title" msgid="8816212852512189781">"ଏକାଧିକ ସିମ୍‌ ମିଳିଛି"</string>
     <string name="sim_multi_sims_summary" msgid="8237021982527032257">"ମୋବାଇଲ୍‌ ଡାଟା ପାଇଁ ନିଜ ପସନ୍ଦର SIM ବାଛନ୍ତୁ।"</string>
     <string name="sim_change_data_title" msgid="2512227368681250054">"ମୋବାଇଲ୍ ଡାଟା ପାଇଁ <xliff:g id="CARRIER">%1$s</xliff:g> ବ୍ୟବହାର କରିବେ?"</string>
@@ -1450,7 +1450,7 @@
     <string name="storage_internal_forget_confirm_title" msgid="331032276130605241">"<xliff:g id="NAME">^1</xliff:g> କୁ ଭୁଲିଯିବେ?"</string>
     <string name="storage_internal_forget_confirm" msgid="3052483375203727176">"ଏହି <xliff:g id="NAME">^1</xliff:g> ରେ ଷ୍ଟୋର୍‌ ହୋଇଥିବା ସମସ୍ତ ଆପସ, ଫଟୋଗୁଡିକ, ତଥା ଡାଟା ସବୁ ସମୟ ପାଇଁ ବାହାରିଯିବ।"</string>
     <string name="storage_detail_apps" msgid="8154648512504196820">"ଆପ୍‌‍"</string>
-    <string name="storage_detail_images" msgid="6996202225684468964">"ଇମେଜ୍‌"</string>
+    <string name="storage_detail_images" msgid="6996202225684468964">"Images"</string>
     <string name="storage_detail_videos" msgid="6030983354721080849">"ଭିଡିଓ"</string>
     <string name="storage_detail_audio" msgid="6011098436589663944">"ଅଡିଓ"</string>
     <string name="storage_detail_cached" msgid="5761648455067920683">"କ୍ୟାଶ୍‍ ହୋଇଥିବା ଡାଟା"</string>
@@ -1489,7 +1489,7 @@
     <string name="storage_wizard_move_unlock" msgid="7978193904519827600">"ଡାଟା ନେବାକୁ ଆପଣଙ୍କୁ ଉପଯୋଗକର୍ତ୍ତା <xliff:g id="APP">^1</xliff:g> ଅନଲକ୍‌ କରିବା ଆବଶ୍ୟକ।"</string>
     <string name="storage_wizard_move_progress_title" msgid="5250929161803336592">"<xliff:g id="APP">^1</xliff:g> ଚଳାଉଛି…"</string>
     <string name="storage_wizard_move_progress_body" msgid="1713792142250410169">"ଘୁଞ୍ଚାଇବାବେଳେ <xliff:g id="NAME">^1</xliff:g>କୁ କାଢ଼ନ୍ତୁ ନାହିଁ। \n\nଏହି ଡିଭାଇସ୍‌ରେ ଥିବା <xliff:g id="APP">^2</xliff:g> ଆପ୍‌, ଏହି କାର୍ଯ୍ୟ ନସରିବା ପର୍ଯ୍ୟନ୍ତ କାମ କରିବ ନାହିଁ।"</string>
-    <string name="storage_wizard_move_progress_cancel" msgid="9047521329704060401">"ଘୁଞ୍ଚାଇବା କ୍ୟାନ୍ସଲ୍‌ କରନ୍ତୁ"</string>
+    <string name="storage_wizard_move_progress_cancel" msgid="9047521329704060401">"ମୁଭ୍ ବାତିଲ୍ କରନ୍ତୁ"</string>
     <string name="storage_wizard_slow_body" msgid="2307974936036261069">"ଏହି <xliff:g id="NAME_0">^1</xliff:g> ଧୀର ଥିବା ପରି ଜଣାପଡୁଛି। \n\nଆପଣ ଜାରିରଖିପାରିବେ, କିନ୍ତୁ ଏହି ଅବସ୍ଥାନକୁ ଚଳାଯାଇଥିବା ଆପ୍‌ଗୁଡ଼ିକ ରହି ରହି ଚାଲିପାରେ ଏବଂ ଡାଟା ସ୍ଥାନାନ୍ତର ବହୁତ ସମୟ ନେଇପାରେ। \n\nଉନ୍ନତ କାର୍ଯ୍ୟଦକ୍ଷତା ପାଇଁ ଏକ ଦ୍ରୁତତ୍ତମ <xliff:g id="NAME_1">^1</xliff:g> ପାଇଁ ବିବେଚନା କରନ୍ତୁ।"</string>
     <string name="storage_wizard_init_v2_title" msgid="7408910177547901960">"ଆପଣ କିପରି ଏହି <xliff:g id="NAME">^1</xliff:g>କୁ ବ୍ୟବହାର କରିବେ?"</string>
     <string name="storage_wizard_init_v2_internal_title" product="tablet" msgid="7948795312504302810">"ଅତିରିକ୍ତ ଟାବଲେଟ୍ ଷ୍ଟୋରେଜ୍ ପାଇଁ ବ୍ୟବହାର କରନ୍ତୁ"</string>
@@ -1615,7 +1615,7 @@
     <string name="tether_settings_title_bluetooth" msgid="1999590158102569959">"ବ୍ଲୁଟୁଥ ଟିଥରିଂ"</string>
     <string name="tether_settings_title_usb_bluetooth" msgid="1159128764162788159">"ଟିଥରିଂ"</string>
     <string name="tether_settings_title_all" msgid="6935843543433954181">"ହଟସ୍ପଟ୍‌ ଓ ଟିଥରିଂ"</string>
-    <string name="tether_settings_summary_hotspot_on_tether_on" msgid="1289593649526514499">"Hotspot ଅନ୍‌ ଅଛି, ଟିଥର୍‌ କରୁଛି"</string>
+    <string name="tether_settings_summary_hotspot_on_tether_on" msgid="1289593649526514499">"ହଟସ୍ପଟ୍ ଚାଲୁ‌ ଅଛି, ଟିଥର୍‌ କରୁଛି"</string>
     <string name="tether_settings_summary_hotspot_on_tether_off" msgid="8010689354668285422">"ହଟସ୍ପଟ୍‌ ଅନ୍‌"</string>
     <string name="tether_settings_summary_hotspot_off_tether_on" msgid="1349909238672649877">"ଟିଥରିଂ"</string>
     <string name="tether_settings_disabled_on_data_saver" msgid="3682544845899910726">"ଡାଟା ସେଭର୍‌ ଅନ୍‌ ଥିବାବେଳେ ଟିଥର୍‌ କିମ୍ୱା ପୋର୍ଟେବଲ୍‌ ହଟ୍‌ସ୍ପଟ୍‌ ବ୍ୟବହାର କରିପାରିବ ନାହିଁ"</string>
@@ -1890,7 +1890,7 @@
     <string name="app_disable_dlg_positive" msgid="5508828271100168073">"ଆପ୍‌ ଅକ୍ଷମ କରନ୍ତୁ"</string>
     <string name="app_disable_dlg_text" msgid="9221864774943530281">"ଯଦି ଆପଣ ଏହି ଆପ୍‌କୁ ନିଷ୍କ୍ରିୟ କରନ୍ତି, ତେବେ Android ଓ ଅନ୍ୟାନ୍ୟ ଆପ୍ସ ଆଉ କାମ ନକରିପାରେ। ମନେ ରଖନ୍ତୁ, ଯେହେତୁ ଏହା ଆପଣଙ୍କ ଡିଭାଇସ୍‌ରେ ପୂର୍ବରୁ-ଇନ୍‌ଷ୍ଟଲ୍ ଅଛି, ତେଣୁ ଆପଣ ଏହି ଆପ୍‌କୁ ଡିଲିଟ୍ କରିପାରିବେ ନାହିଁ। ଏହାକୁ ଅକ୍ଷମ କରି, ଏହି ଆପ୍‌କୁ ଆପଣ ବନ୍ଦ କରିବେ ଏବଂ ଆପଣଙ୍କର ଡିଭାଇସ୍‌ରେ ଲୁଚାଇବେ।"</string>
     <string name="app_disable_notifications_dlg_title" msgid="699530661413553928">"ବିଜ୍ଞପ୍ତିଗୁଡ଼ିକ ବନ୍ଦ କରିବେ?"</string>
-    <string name="app_install_details_group_title" msgid="2909597319422976921">"ଷ୍ଟୋର୍‌"</string>
+    <string name="app_install_details_group_title" msgid="2909597319422976921">"Store"</string>
     <string name="app_install_details_title" msgid="6954953384372934881">"ଆପ୍‌ ବିବରଣୀ"</string>
     <string name="app_install_details_summary" msgid="6612222941121363940">"<xliff:g id="APP_STORE">%1$s</xliff:g> ରୁ ଇନ୍‍‌ଷ୍ଟଲ୍‌ ହୋଇଥିବା ଆପ୍"</string>
     <string name="instant_app_details_summary" msgid="6384264315914966114">"<xliff:g id="APP_STORE">%1$s</xliff:g> ଉପରେ ଅଧିକ ସୂଚନା"</string>
@@ -2211,13 +2211,13 @@
     <string name="print_feature_state_off" msgid="208580346723223688">"ଅଫ୍"</string>
     <string name="print_menu_item_add_service" msgid="6803000110578493782">"ସେବା ଯୋଡ଼ନ୍ତୁ"</string>
     <string name="print_menu_item_add_printer" msgid="8529196211179574921">"ପ୍ରିଣ୍ଟର୍‌ ଯୋଡ଼ନ୍ତୁ"</string>
-    <string name="print_menu_item_search" msgid="1165316329772287360">"ସର୍ଚ୍ଚ"</string>
+    <string name="print_menu_item_search" msgid="1165316329772287360">"Search"</string>
     <string name="print_searching_for_printers" msgid="6538687129687642542">"ପ୍ରିଣ୍ଟର୍‌ ଖୋଜୁଛି"</string>
     <string name="print_service_disabled" msgid="6376344992705893436">"ସେବା ବନ୍ଦ ଅଛି"</string>
     <string name="print_print_jobs" msgid="7357841034181762157">"ପ୍ରିଣ୍ଟ ଜବ୍‌"</string>
     <string name="print_print_job" msgid="6846889971435170443">"ପ୍ରିଣ୍ଟ ଜବ୍‌"</string>
     <string name="print_restart" msgid="4090462480288441779">"ପୁଣି ଆରମ୍ଭ କରନ୍ତୁ"</string>
-    <string name="print_cancel" msgid="4567831028966698753">"କ୍ୟାନ୍ସଲ୍‌"</string>
+    <string name="print_cancel" msgid="4567831028966698753">"ବାତିଲ୍"</string>
     <string name="print_job_summary" msgid="438156926959424058">"<xliff:g id="PRINTER">%1$s</xliff:g>\n<xliff:g id="TIME">%2$s</xliff:g>"</string>
     <string name="print_configuring_state_title_template" msgid="5052801061241050737">"<xliff:g id="PRINT_JOB_NAME">%1$s</xliff:g> କନଫିଗର୍‌ କରାଯାଉଛି"</string>
     <string name="print_printing_state_title_template" msgid="8796814912920963803">"<xliff:g id="PRINT_JOB_NAME">%1$s</xliff:g> ପ୍ରିଣ୍ଟ ହେଉଛି"</string>
@@ -2316,7 +2316,7 @@
     <string name="battery_tip_unrestrict_app_dialog_title" msgid="812458516399125710">"ପ୍ରତିବନ୍ଧକ ହଟାଇ ଦେବେ?"</string>
     <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"ଏହି ଆପ୍‌ ବ୍ୟାକ୍‌ଗ୍ରାଉଣ୍ଡରେ ବ୍ୟାଟେରୀ ବ୍ୟବହାର କରି ପାରିବ। ଆପଣଙ୍କ ବ୍ୟାଟେରୀ ଅନୁମାନ କରିଥିବା ସମୟର ପୂର୍ବରୁହିଁ ସରିଯାଇପାରେ।"</string>
     <string name="battery_tip_unrestrict_app_dialog_ok" msgid="9154938931448151479">"କାଢ଼ିଦିଅନ୍ତୁ"</string>
-    <string name="battery_tip_unrestrict_app_dialog_cancel" msgid="7331148618292397166">"କ୍ୟାନ୍ସଲ୍"</string>
+    <string name="battery_tip_unrestrict_app_dialog_cancel" msgid="7331148618292397166">"ବାତିଲ୍"</string>
     <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"ଆପଣଙ୍କର ଆପ୍ସ ସାଧାରଣ ଭାବେ ବ୍ୟାଟେରୀ ଖର୍ଚ୍ଚ କରୁଛି। ଯଦି ଆପ୍ସ ଅଧିକ ବ୍ୟାଟେରୀ ଖର୍ଚ୍ଚ କରେ, ତେବେ ଆପଣଙ୍କ ଫୋନ୍ ପଦକ୍ଷେପ ନେବା ପାଇଁ ଆପଣଙ୍କୁ ପରାମର୍ଶ ଦେବ। \n\n ବ୍ୟାଟେରୀ ଅଧିକ ଖର୍ଚ୍ଚ ହେଉଥିଲେ ଆପଣ ସର୍ବଦା ବ୍ୟାଟେରୀ ସେଭର୍‌କୁ ଚାଲୁ କରିପାରିବେ।"</string>
     <string name="battery_tip_dialog_summary_message" product="tablet" msgid="1721081030632329647">"ଆପଣଙ୍କର ଆପ୍ ସାଧାରଣ ଭାବେ ବ୍ୟାଟେରୀ ଖର୍ଚ୍ଚ କରୁଛି। ଯଦି ଆପ୍ ଅଧିକ ବ୍ୟାଟେରୀ ଖର୍ଚ୍ଚ କରନ୍ତି, ତେବେ ଆପଣଙ୍କ ଟାବଲେଟ୍ ପଦକ୍ଷେପ ନେବା ପାଇଁ ଆପଣଙ୍କୁ ପରାମର୍ଶ ଦେବ। \n\n ବ୍ୟାଟେରୀ ଅଧିକ ଖର୍ଚ୍ଚ ହେଉଥିଲେ ଆପଣ ସର୍ବଦା ବ୍ୟାଟେରୀ ସେଭର୍‌କୁ ଚାଲୁ କରିପାରିବେ।"</string>
     <string name="battery_tip_dialog_summary_message" product="device" msgid="146872407040848465">"ଆପଣଙ୍କର ଆପ୍ ସାଧାରଣ ଭାବେ ବ୍ୟାଟେରୀ ଖର୍ଚ୍ଚ କରୁଛି। ଯଦି ଆପ୍ ଅଧିକ ବ୍ୟାଟେରୀ ଖର୍ଚ୍ଚ କରନ୍ତି, ତେବେ ଡିଭାଇସ୍ ପଦକ୍ଷେପ ନେବା ପାଇଁ ଆପଣଙ୍କୁ ପରାମର୍ଶ ଦେବ। \n\n ବ୍ୟାଟେରୀ ଅଧିକ ଖର୍ଚ୍ଚ ହେଉଥିଲେ ଆପଣ ସର୍ବଦା ବ୍ୟାଟେରୀ ସେଭର୍‌କୁ ଚାଲୁ କରିପାରିବେ।"</string>
@@ -2518,7 +2518,7 @@
     <string name="tts_install_voices_title" msgid="363811937643579286">"Voices ଇନ୍‌ଷ୍ଟଲ୍‍ କରନ୍ତୁ"</string>
     <string name="tts_install_voices_text" msgid="7464832428439739995">"ଭଏସ୍‌ ଇନ୍‌ଷ୍ଟଲ୍‌ କରିବାକୁ <xliff:g id="TTS_APP_NAME">%s</xliff:g> ଆପ୍‌ ଜାରି ରଖନ୍ତୁ"</string>
     <string name="tts_install_voices_open" msgid="686776451008134790">"ଆପ୍‌ ଖୋଲନ୍ତୁ"</string>
-    <string name="tts_install_voices_cancel" msgid="1622512922523479646">"କ୍ୟାନ୍ସଲ୍‌"</string>
+    <string name="tts_install_voices_cancel" msgid="1622512922523479646">"ବାତିଲ୍"</string>
     <string name="tts_reset" msgid="8864073594540705579">"ରିସେଟ୍‌ କରନ୍ତୁ"</string>
     <string name="tts_play" msgid="9023430029380675514">"ଚଲାନ୍ତୁ"</string>
     <string name="vpn_settings_title" msgid="7008219502396889192">"VPN"</string>
@@ -2615,7 +2615,7 @@
     <string name="settings_backup" msgid="3261579634252074247">"ବ୍ୟାକ୍‌ଅପ୍‌ ସେଟିଙ୍ଗ୍‌"</string>
     <string name="settings_backup_summary" msgid="2563360505501354777">"ମୋ ସେଟିଙ୍ଗଗୁଡ଼ିକର ବ୍ୟାକ୍‌ଅପ୍‌ ନିଅ"</string>
     <string name="sync_menu_sync_now" msgid="3840755364554567507">"ବର୍ତ୍ତମାନ ସିଙ୍କ କରନ୍ତୁ"</string>
-    <string name="sync_menu_sync_cancel" msgid="5111231351104284704">"ସିଙ୍କ୍‌ କ୍ୟାନ୍ସଲ୍‌‌ କରନ୍ତୁ"</string>
+    <string name="sync_menu_sync_cancel" msgid="5111231351104284704">"ସିଙ୍କ୍‌ ବାତିଲ୍ କରନ୍ତୁ"</string>
     <string name="sync_one_time_sync" msgid="6005174168405784256">"<xliff:g id="LAST_SYNC_TIME">
 %1$s</xliff:g> ବର୍ତ୍ତମାନ ସିଙ୍କ କରିବାକୁ ଟାପ୍‌ କରନ୍ତୁ"</string>
     <string name="sync_gmail" msgid="4457967084840001296">"Gmail"</string>
@@ -2764,7 +2764,7 @@
     <string name="vpn_always_on_invalid_reason_no_dns" msgid="3814114757059738225">"ସର୍ବଦା-ଅନ୍‌ VPN ପାଇଁ ଏକ DNS ସର୍ଭର ଉଲ୍ଲେଖ କରିବା ଜରୁରୀ"</string>
     <string name="vpn_always_on_invalid_reason_dns" msgid="501388894176868973">"ସର୍ବଦା ଚାଲୁଥିବା VPN ପାଇଁ DNS ସର୍ଭର୍ ଠିକଣା ସଂଖ୍ୟା ବିଶିଷ୍ଟ ହୋଇଥିବା ଦରକାର"</string>
     <string name="vpn_always_on_invalid_reason_other" msgid="8504512156730364447">"ଏଣ୍ଟର୍‌ କରାଯାଇଥିବା ସୂଚନା ସର୍ବଦା-ଅନ୍‌ VPNକୁ ସପୋର୍ଟ କରେ ନାହିଁ"</string>
-    <string name="vpn_cancel" msgid="440645172381062337">"କ୍ୟାନ୍ସଲ୍‌ କରନ୍ତୁ"</string>
+    <string name="vpn_cancel" msgid="440645172381062337">"ବାତିଲ୍ କରନ୍ତୁ"</string>
     <string name="vpn_done" msgid="6314426362224527349">"ସମାପ୍ତ"</string>
     <string name="vpn_save" msgid="1332625259182278316">"ସେଭ୍‌ କରନ୍ତୁ"</string>
     <string name="vpn_connect" msgid="772295154834334710">"ସଂଯୋଗ କରନ୍ତୁ"</string>
@@ -3141,7 +3141,7 @@
     <string name="ring_volume_option_title" msgid="2038924918468372264">"ରିଙ୍ଗ ଭଲ୍ୟୁମ୍‌"</string>
     <string name="notification_volume_option_title" msgid="1358512611511348260">"ସୂଚନା ଭଲ୍ୟୁମ"</string>
     <string name="ringtone_title" msgid="1409086028485922583">"ଫୋନ୍‌ ରିଙ୍ଗଟୋନ୍‌"</string>
-    <string name="notification_ringtone_title" msgid="2932960620843976285">"ଡିଫଲ୍ଟ୍ ବିଜ୍ଞପ୍ତି ଶବ୍ଦ"</string>
+    <string name="notification_ringtone_title" msgid="2932960620843976285">"ଡିଫଲ୍ଟ ବିଜ୍ଞପ୍ତି ସାଉଣ୍ଡ"</string>
     <string name="notification_unknown_sound_title" msgid="8043718667804838398">"ଆପ୍‌ ଦ୍ୱାରା ପ୍ରଦତ୍ତ ଶବ୍ଦ"</string>
     <string name="notification_sound_default" msgid="2664544380802426260">"ଡିଫଲ୍ଟ ବିଜ୍ଞପ୍ତି ସାଉଣ୍ଡ"</string>
     <string name="alarm_ringtone_title" msgid="6411326147408635902">"ଡିଫଲ୍ଟ ଆଲାର୍ମ ସାଉଣ୍ଡ"</string>
@@ -3280,12 +3280,12 @@
     <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"ଆପଣ ବିଜ୍ଞପ୍ତିକୁ ଦେଖି କିମ୍ବା ଶୁଣିପାରିବେ ନାହିଁ। ତାରାଙ୍କିତ ଯୋଗାଯୋଗରୁ ଆସିଥିବା କଲ୍ ଏବଂ ପୁଣି କଲ୍ କରୁଥିବା କଲର୍‍ଙ୍କୁ ଅନୁମତି ଦିଆଯାଇଛି।"</string>
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(ସାମ୍ପ୍ରତିକ ସେଟିଙ୍ଗ)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"’ବିରକ୍ତ କରନ୍ତୁ ନାହିଁ’ ବିଜ୍ଞପ୍ତି ସେଟିଙ୍ଗ ବଦଳାଇବେ?"</string>
-    <string name="sound_work_settings" msgid="4140215240360927923">"କାର୍ଯ୍ୟ ପ୍ରୋଫାଇଲ୍‌ ଶବ୍ଦ"</string>
-    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"ବ୍ୟକ୍ତିଗତ ପ୍ରୋଫାଇଲ୍‌ ଧ୍ୱନୀ ବ୍ୟବହାର କରନ୍ତୁ"</string>
-    <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"କାର୍ଯ୍ୟ ଓ ବ୍ୟକ୍ତିଗତ ପ୍ରୋଫାଇଲ୍‌ ପାଇଁ ଶବ୍ଦଗୁଡ଼ିକ ସମାନ ଅଟେ"</string>
+    <string name="sound_work_settings" msgid="4140215240360927923">"କାର୍ଯ୍ୟ ପ୍ରୋଫାଇଲ୍‌ ସାଉଣ୍ଡ"</string>
+    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"ବ୍ୟକ୍ତିଗତ ପ୍ରୋଫାଇଲ୍‌ ସାଉଣ୍ଡ ବ୍ୟବହାର କରନ୍ତୁ"</string>
+    <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"କାର୍ଯ୍ୟ ଓ ବ୍ୟକ୍ତିଗତ ପ୍ରୋଫାଇଲ୍‌ ପାଇଁ ସାଉଣ୍ଡଗୁଡ଼ିକ ସମାନ ଅଟେ"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"ଅଫିସ୍‌ ଫୋନ୍‌ର ରିଙ୍ଗଟୋନ୍‌"</string>
-    <string name="work_notification_ringtone_title" msgid="8059159087214025757">"ପୂର୍ବ-ନିର୍ଦ୍ଧାରିତ କାର୍ଯ୍ୟ ବିଜ୍ଞପ୍ତି ଶବ୍ଦ"</string>
-    <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"ଡିଫଲ୍ଟ କାର୍ଯ୍ୟ ଆଲାର୍ମ ଶବ୍ଦ"</string>
+    <string name="work_notification_ringtone_title" msgid="8059159087214025757">"ଡିଫଲ୍ଟ କାର୍ଯ୍ୟ ବିଜ୍ଞପ୍ତି ସାଉଣ୍ଡ"</string>
+    <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"ଡିଫଲ୍ଟ କାର୍ଯ୍ୟ ଆଲାର୍ମ ସାଉଣ୍ଡ"</string>
     <string name="work_sound_same_as_personal" msgid="7728560881697159758">"ବ୍ୟକ୍ତିଗତ ପ୍ରୋଫାଇଲ୍‌ ପରି ସମାନ"</string>
     <string name="work_sync_dialog_title" msgid="4799120971202956837">"ଶବ୍ଦ ବଦଳାଇବେ?"</string>
     <string name="work_sync_dialog_yes" msgid="2110726233746476066">"ବଦଳାଇବ"</string>
@@ -3728,7 +3728,7 @@
     <string name="decline_remote_bugreport_action" msgid="706319275774199033">"ଅଗ୍ରାହ୍ୟ କରନ୍ତୁ"</string>
     <string name="usb_use_charging_only" msgid="2344625733377110164">"ଡାଟା ସ୍ଥାନାନ୍ତର ହେବ ନାହିଁ"</string>
     <string name="usb_use_charging_only_desc" msgid="3283518562582478950">"ଏହି ଡିଭାଇସ୍‌କୁ ଚାର୍ଜ କରିଦିଅନ୍ତୁ"</string>
-    <string name="usb_use_power_only" msgid="6595783381323810697">"କନେକ୍ଟ ହୋଇଥିବା ଡିଭାଇସ୍‍ ଚାର୍ଜ କରନ୍ତୁ"</string>
+    <string name="usb_use_power_only" msgid="6595783381323810697">"ସଂଯୁକ୍ତ ହୋଇଥିବା ଡିଭାଇସ୍‍ ଚାର୍ଜ କରନ୍ତୁ"</string>
     <string name="usb_use_file_transfers" msgid="6153021302176151884">"ଫାଇଲ୍‌ ଟ୍ରାନ୍ସଫର୍‌"</string>
     <string name="usb_use_file_transfers_desc" msgid="6953866660041189580">"ଅନ୍ୟଏକ ଡିଭାଇସ୍‌କୁ ଫାଇଲ୍‌ ଟ୍ରାନ୍ସଫର୍‌ କରନ୍ତୁ"</string>
     <string name="usb_use_photo_transfers" msgid="5974236250197451257">"PTP"</string>
@@ -3792,7 +3792,7 @@
     <string name="zen_access_revoke_warning_dialog_title" msgid="6850994585577513299">"<xliff:g id="APP">%1$s</xliff:g> ପାଇଁ \"ବିରକ୍ତ କରନ୍ତୁ ନାହିଁ\" ଆକ୍‌ସେସ୍‌ ରଦ୍ଦ କରିବେ?"</string>
     <string name="zen_access_revoke_warning_dialog_summary" msgid="3487422193181311403">"ଏହି ଆପ୍‌ ଦ୍ୱାରା, \"ବିରକ୍ତ କରନ୍ତୁ ନାହିଁ\" ପାଇଁ କରାଯାଇଥିବା ସମସ୍ତ ନିୟମ କାଢ଼ିଦିଆଯିବ।"</string>
     <string name="ignore_optimizations_on" msgid="4373971641328943551">"ଅନୁକୁଳ କରନାହିଁ"</string>
-    <string name="ignore_optimizations_off" msgid="4372289432580282870">"ଅନୁକୁଳ"</string>
+    <string name="ignore_optimizations_off" msgid="4372289432580282870">"ଅପ୍ଟିମାଇଜ୍ କରନ୍ତୁ"</string>
     <string name="ignore_optimizations_on_desc" msgid="2904484569799521559">"ଆପଣଙ୍କ ବ୍ୟାଟେରୀ ଖୁବ୍ ଶୀଘ୍ର ସରିଯାଇପାରେ। ବ୍ୟାକଗ୍ରାଉଣ୍ଡ ବ୍ୟାଟେରୀକୁ ବ୍ୟବହାର କରିବା ପାଇଁ ଆଉ ଆପ୍‍କୁ ବାଧା ଦେଇହେବ ନାହିଁ।"</string>
     <string name="ignore_optimizations_off_desc" msgid="5598702251817814289">"ବ୍ୟାଟେରୀ କାମ କରିବା ସମୟ ବଢାଇବାକୁ ସୁପାରିଶ କରାଯାଇଛି"</string>
     <string name="ignore_optimizations_title" msgid="7924345545276166305">"ବ୍ୟାଟେରୀ ଅନୁକୂଳନ ଏଡ଼ାଇବାକୁ <xliff:g id="APP">%s</xliff:g> କୁ ଅନୁମତି ଦେବେ?"</string>

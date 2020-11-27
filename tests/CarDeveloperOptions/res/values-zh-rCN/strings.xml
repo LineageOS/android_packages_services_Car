@@ -3432,7 +3432,7 @@
     <string name="app_notification_importance_title" msgid="1902794400671001142">"重要程度"</string>
     <string name="notification_show_lights_title" msgid="5381920725933228542">"闪烁指示灯"</string>
     <string name="notification_vibrate_title" msgid="8221718258793835282">"振动"</string>
-    <string name="notification_channel_sound_title" msgid="7635366839003304745">"提示音"</string>
+    <string name="notification_channel_sound_title" msgid="7635366839003304745">"声音"</string>
     <string name="zen_mode_rule_delete_button" msgid="6763486487220471193">"删除"</string>
     <string name="zen_mode_rule_rename_button" msgid="1428130397306726792">"重命名"</string>
     <string name="zen_mode_rule_name" msgid="8583652780885724670">"时间表名称"</string>
@@ -4036,7 +4036,7 @@
     <string name="notification_log_details_parcel" msgid="4024970850647594029">"parcel 大小"</string>
     <string name="notification_log_details_ashmem" msgid="4272241723105041393">"ashmem"</string>
     <string name="notification_log_details_alerted" msgid="1891749888625061319">"已发出通知提醒"</string>
-    <string name="notification_log_details_sound" msgid="4028782443557466322">"提示音"</string>
+    <string name="notification_log_details_sound" msgid="4028782443557466322">"声音"</string>
     <string name="notification_log_details_vibrate" msgid="8372400602058888072">"振动"</string>
     <string name="notification_log_details_vibrate_pattern" msgid="7015554755444260922">"图案"</string>
     <string name="notification_log_details_default" msgid="455451833359888182">"默认"</string>

@@ -26,7 +26,7 @@
       <item quantity="other">Enää <xliff:g id="STEP_COUNT_1">%1$d</xliff:g> vaihetta, niin sinusta tulee kehittäjä.</item>
       <item quantity="one">Enää <xliff:g id="STEP_COUNT_0">%1$d</xliff:g> vaihe, niin sinusta tulee kehittäjä.</item>
     </plurals>
-    <string name="show_dev_on" msgid="9075712234786224065">"Olet nyt kehittäjä!"</string>
+    <string name="show_dev_on" msgid="9075712234786224065">"Olet nyt kehittäjä."</string>
     <string name="show_dev_already" msgid="7665948832405148689">"Ei tarvitse klikata, olet jo kehittäjä."</string>
     <string name="dev_settings_disabled_warning" msgid="3198732189395396721">"Ota kehittäjäasetukset ensin käyttöön."</string>
     <string name="header_category_wireless_networks" msgid="8968405993937795898">"Langaton verkko ja verkot"</string>
@@ -1053,7 +1053,7 @@
     <string name="wifi_p2p_disconnect_title" msgid="915880461655863812">"Katkaistaanko yhteys?"</string>
     <string name="wifi_p2p_disconnect_message" msgid="3745286932812740784">"Jos katkaiset yhteyden, yhteys laitteeseen <xliff:g id="PEER_NAME">%1$s</xliff:g> katkaistaan."</string>
     <string name="wifi_p2p_disconnect_multiple_message" msgid="6051173422663731688">"Jos kosketat Katkaise yhteys, yhteys laitteeseen <xliff:g id="PEER_NAME">%1$s</xliff:g> ja <xliff:g id="PEER_COUNT">%2$s</xliff:g> muuhun laitteeseen katkaistaan."</string>
-    <string name="wifi_p2p_cancel_connect_title" msgid="2465200999145769427">"Peruutetaanko kutsu?"</string>
+    <string name="wifi_p2p_cancel_connect_title" msgid="2465200999145769427">"Perutaanko kutsu?"</string>
     <string name="wifi_p2p_cancel_connect_message" msgid="3752679335020392154">"Haluatko peruuttaa laitteelle <xliff:g id="PEER_NAME">%1$s</xliff:g> lähetetyn yhteydenmuodostuskutsun?"</string>
     <string name="wifi_p2p_delete_group_message" msgid="3206660449067701089">"Unohdetaanko tämä ryhmä?"</string>
     <string name="wifi_hotspot_checkbox_text" msgid="12062341344410520">"Wi‑Fi-hotspot"</string>
@@ -1388,8 +1388,8 @@
     <string name="sd_mount_summary" product="default" msgid="6849124618494311233"></string>
     <string name="sd_format" product="nosdcard" msgid="918370986254863144">"Tyhjennä USB-tila"</string>
     <string name="sd_format" product="default" msgid="1346245995138883960">"Tyhjennä SD-kortti"</string>
-    <string name="sd_format_summary" product="nosdcard" msgid="1179857727779521920">"Poistaa kaikki sisäisen USB-tallennustilan tiedot, kuten musiikin tai valokuvat."</string>
-    <string name="sd_format_summary" product="default" msgid="4284028411908176234">"Poistaa kaikki SD-kortin tiedot, kuten musiikin ja valokuvat"</string>
+    <string name="sd_format_summary" product="nosdcard" msgid="1179857727779521920">"Poistaa kaikki sisäisen USB-tallennustilan tiedot, kuten musiikin tai kuvat."</string>
+    <string name="sd_format_summary" product="default" msgid="4284028411908176234">"Poistaa kaikki SD-kortin tiedot, kuten musiikin ja kuvat"</string>
     <string name="memory_clear_cache_title" msgid="4306793268129306684">"Tyhjennetäänkö välimuistitiedot?"</string>
     <string name="memory_clear_cache_message" msgid="6723120398411410031">"Sovellusten välimuistit tyhjennetään."</string>
     <string name="mtp_ptp_mode_summary" msgid="6074099855478444183">"MTP- tai PTP-toiminto on käytössä"</string>
@@ -1448,7 +1448,7 @@
     <string name="storage_internal_unmount_details" msgid="4667435317528624039"><b>"Kun tämä <xliff:g id="NAME_0">^1</xliff:g> poistetaan, siihen tallennetut sovellukset lakkaavat toimimasta eivätkä mediatiedostot ole käytettävissä ennen kuin se liitetään uudelleen."</b>" \n\n<xliff:g id="NAME_1">^1</xliff:g> on alustettu niin, että se toimii vain tämän laitteen kanssa."</string>
     <string name="storage_internal_forget_details" msgid="5655856574682184453">"Jos haluat käyttää tallennuslaitteen <xliff:g id="NAME">^1</xliff:g> sisältämiä sovelluksia, kuvia tai tietoja, liitä se uudelleen. \n\nVoit myös halutessasi unohtaa tämän tallennuslaitteen, jos se ei ole käytettävissä. \n\nJos päätät unohtaa laitteen, menetät kaikki sen sisältämät tiedot lopullisesti. \n\nVoit asentaa sovellukset uudelleen myöhemmin, mutta niiden laitteelle tallentamat tiedot menetetään."</string>
     <string name="storage_internal_forget_confirm_title" msgid="331032276130605241">"Unohdetaanko <xliff:g id="NAME">^1</xliff:g>?"</string>
-    <string name="storage_internal_forget_confirm" msgid="3052483375203727176">"Kaikki kohteen (<xliff:g id="NAME">^1</xliff:g>) sovellukset, valokuvat ja tiedot poistetaan pysyvästi."</string>
+    <string name="storage_internal_forget_confirm" msgid="3052483375203727176">"Kaikki kohteen (<xliff:g id="NAME">^1</xliff:g>) sovellukset, kuvat ja tiedot poistetaan pysyvästi."</string>
     <string name="storage_detail_apps" msgid="8154648512504196820">"Sovellukset"</string>
     <string name="storage_detail_images" msgid="6996202225684468964">"Kuvahaku"</string>
     <string name="storage_detail_videos" msgid="6030983354721080849">"Videot"</string>
@@ -1586,7 +1586,7 @@
     <string name="master_clear_title" msgid="1560712943955904673">"Poista kaikki tiedot (palauta tehdasasetukset)"</string>
     <string name="master_clear_short_title" msgid="919098101581335101">"Poista data (tehdasasetuksiin)"</string>
     <string name="master_clear_desc" product="tablet" msgid="3432373610755760899">"Tämä poistaa kaiken datan tabletin "<b>"sisäisestä tallennustilasta"</b>", esimerkiksi\n\n"<li>"Google-tilisi"</li>\n<li>"järjestelmän ja sovellusten datan ja asetukset"</li>\n<li>"ladatut sovellukset"</li></string>
-    <string name="master_clear_desc" product="default" msgid="8765543541962866697">"Tämä poistaa kaiken datan puhelimen "<b>"sisäisestä tallennustilasta"</b>", esimerkiksi\n\n"<li>"Google-tilisi"</li>\n<li>"järjestelmän ja sovellusten datan ja asetukset"</li>\n<li>"ladatut sovellukset"</li></string>
+    <string name="master_clear_desc" product="default" msgid="8765543541962866697">"Tämä tyhjentää  kaiken datan puhelimen "<b>"sisäisestä tallennustilasta"</b>", esimerkiksi\n\n"<li>"Google-tilisi"</li>\n<li>"järjestelmän ja sovellusten datan ja asetukset"</li>\n<li>"ladatut sovellukset"</li></string>
     <string name="master_clear_accounts" product="default" msgid="3432884235445405376">\n\n"Olet kirjautunut sisään seuraaviin tileihin:\n"</string>
     <string name="master_clear_other_users_present" product="default" msgid="5993259656117566767">\n\n"Tällä laitteella on muita paikalla olevia käyttäjiä.\n"</string>
     <string name="master_clear_desc_also_erases_external" msgid="3947303501615091903"><li>"Musiikki"</li>\n<li>"Valokuvat"</li>\n<li>"Muut käyttäjän tiedot"</li></string>
@@ -1596,10 +1596,10 @@
     <string name="master_clear_desc_erase_external_storage" product="default" msgid="9003555775524798797">\n\n"Jos haluat poistaa musiikin, kuvat ja muut käyttäjän tiedot, "<b>"SD-kortti"</b>" tulee tyhjentää."</string>
     <string name="erase_external_storage" product="nosdcard" msgid="8989746770347525207">"Tyhjennä USB-tallennustila"</string>
     <string name="erase_external_storage" product="default" msgid="194249742376770215">"Tyhjennä SD-kortti"</string>
-    <string name="erase_external_storage_description" product="nosdcard" msgid="8020275102431496261">"Poista kaikki sisäisen USB-tallennustilan tiedot, kuten musiikki tai valokuvat."</string>
-    <string name="erase_external_storage_description" product="default" msgid="5029355708082861798">"Poista kaikki SD-kortin tiedot, kuten musiikki tai valokuvat."</string>
-    <string name="master_clear_button_text" product="tablet" msgid="8000547818499182920">"Pyyhi kaikki tiedot"</string>
-    <string name="master_clear_button_text" product="default" msgid="8000547818499182920">"Pyyhi kaikki tiedot"</string>
+    <string name="erase_external_storage_description" product="nosdcard" msgid="8020275102431496261">"Poista kaikki sisäisen USB-tallennustilan tiedot, kuten musiikki tai kuvat."</string>
+    <string name="erase_external_storage_description" product="default" msgid="5029355708082861798">"Poista kaikki SD-kortin tiedot, kuten musiikki tai kuvat."</string>
+    <string name="master_clear_button_text" product="tablet" msgid="8000547818499182920">"Tyhjennä kaikki data"</string>
+    <string name="master_clear_button_text" product="default" msgid="8000547818499182920">"Tyhjennä kaikki data"</string>
     <string name="master_clear_final_desc" msgid="5189365498015339294">"Kaikki henkilökohtaiset tietosi ja ladatut sovellukset poistetaan. Toimintoa ei voi kumota."</string>
     <string name="master_clear_final_desc_esim" msgid="3058919823436953662">"Kaikki henkilökohtaiset tietosi poistetaan, mukaan lukien ladatut sovellukset ja SIM-kortit. Toimintoa ei voi kumota."</string>
     <string name="master_clear_final_button_text" msgid="866772743886027768">"Poista kaikki"</string>
@@ -1813,7 +1813,7 @@
     </plurals>
     <string name="clear_uri_btn_text" msgid="3528618179883855727">"Poista käyttöoikeus"</string>
     <string name="controls_label" msgid="5609285071259457221">"Hallinta"</string>
-    <string name="force_stop" msgid="9213858124674772386">"Pakota lopetus"</string>
+    <string name="force_stop" msgid="9213858124674772386">"Pakota sulkeutumaan"</string>
     <string name="total_size_label" msgid="3929917501176594692">"Yhteensä"</string>
     <string name="application_size_label" msgid="175357855490253032">"Sovelluksen koko"</string>
     <string name="external_code_size_label" msgid="3434421216268309411">"Sovelluksen käyttämä USB-tallennustila"</string>
@@ -1883,8 +1883,8 @@
     <string name="invalid_location" msgid="8057409982223429673">"Asennussijainti on virheellinen."</string>
     <string name="system_package" msgid="1824541892695233351">"Järjestelmäpäivityksiä ei voi asentaa ulkoiseen mediaan."</string>
     <string name="move_error_device_admin" msgid="6640501923867066901">"Laitteenhallintasovellusta ei voi asentaa ulkoiseen tallennustilaan."</string>
-    <string name="force_stop_dlg_title" msgid="8822779487097246675">"Pakotetaanko lopetus?"</string>
-    <string name="force_stop_dlg_text" msgid="7435245769456493398">"Jos pakotat sovelluksen pysähtymään, se saattaa alkaa toimia virheellisesti."</string>
+    <string name="force_stop_dlg_title" msgid="8822779487097246675">"Pakotetaanko sulkeutumaan?"</string>
+    <string name="force_stop_dlg_text" msgid="7435245769456493398">"Jos pakotat sovelluksen sulkeutumaan, se saattaa alkaa toimia virheellisesti."</string>
     <string name="app_install_location_title" msgid="5121617802063021720">"Ensisijainen asennussijainti"</string>
     <string name="app_install_location_summary" msgid="109719780117187797">"Vaihda uusien sovelluksien ensisijaista asennussijaintia."</string>
     <string name="app_disable_dlg_positive" msgid="5508828271100168073">"Poista sovellus käytöstä"</string>
@@ -2392,7 +2392,7 @@
     <string name="usage_type_total_battery_capacity" msgid="1954889791720119945">"Akun kokonaiskapasiteetti"</string>
     <string name="usage_type_computed_power" msgid="2594890316149868151">"Laskettu virrankäyttö"</string>
     <string name="usage_type_actual_power" msgid="8067253427718526111">"Havaittu virrankäyttö"</string>
-    <string name="battery_action_stop" msgid="1866624019460630143">"Pakota lopetus"</string>
+    <string name="battery_action_stop" msgid="1866624019460630143">"Pakota sulkeutumaan"</string>
     <string name="battery_action_app_details" msgid="1077011181969550402">"Sovelluksen tiedot"</string>
     <string name="battery_action_app_settings" msgid="587998773852488539">"Sovellusasetukset"</string>
     <string name="battery_action_display" msgid="4887913003634317465">"Ruudun asetukset"</string>
@@ -2563,7 +2563,7 @@
     <string name="backup_erase_dialog_title" msgid="8178424339104463014"></string>
     <string name="backup_erase_dialog_message" msgid="8767843355330070902">"Haluatko lopettaa Wi-Fi-salasanojen, kirjanmerkkien, muiden asetuksien ja sovellustietojen varmuuskopioinnin ja poistaa kaikki kopiot Googlen palvelimilta?"</string>
     <string name="fullbackup_erase_dialog_message" msgid="2588536036471144070">"Lopetetaanko laitteen tietojen (kuten Wi-Fi-salasanojen ja soittohistorian) ja sovellusten tietojen (kuten asetusten ja sovellusten tallentamien tiedostojen) automaattinen varmuuskopiointi? Myös vanhat varmuuskopiot poistetaan etäpalvelimilta."</string>
-    <string name="fullbackup_data_summary" msgid="406274198094268556">"Varmuuskopioi laitteen tiedot (kuten Wi-Fi-salasanat ja soittohistoria) sekä sovellusten tiedot (kuten asetukset ja sovellusten tallentamat tiedostot) automaattisesti etäyhteyden kautta.\n\nKun otat automaattisen varmuuskopioinnin käyttöön, laitteen ja sovellusten tiedot varmuuskopioidaan säännöllisesti etäyhteyden kautta. Sovellusten tietoihin voi sisältyä mitä tahansa tietoja, joita sovellukset ovat tallentaneet (kehittäjien asetuksien perusteella). Ne saattavat sisältää myös arkaluontoisia tietoja, kuten yhteystietoja, viestejä ja valokuvia."</string>
+    <string name="fullbackup_data_summary" msgid="406274198094268556">"Varmuuskopioi laitteen tiedot (kuten Wi-Fi-salasanat ja soittohistoria) sekä sovellusten tiedot (kuten asetukset ja sovellusten tallentamat tiedostot) automaattisesti etäyhteyden kautta.\n\nKun otat automaattisen varmuuskopioinnin käyttöön, laitteen ja sovellusten tiedot varmuuskopioidaan säännöllisesti etäyhteyden kautta. Sovellusten tietoihin voi sisältyä mitä tahansa tietoja, joita sovellukset ovat tallentaneet (kehittäjien asetuksien perusteella). Ne saattavat sisältää myös arkaluontoisia tietoja, kuten yhteystietoja, viestejä ja kuvia."</string>
     <string name="device_admin_settings_title" msgid="2074319456047334589">"Laitteenhallinnan asetukset"</string>
     <string name="active_device_admin_msg" msgid="6929247869516924549">"Laitteenhallintasovellus"</string>
     <string name="remove_device_admin" msgid="4413438593788336400">"Poista laitteenhallintasovellus käytöstä"</string>
@@ -2629,9 +2629,9 @@
     <string name="remove_account_label" msgid="5885425720323823387">"Poista tili"</string>
     <string name="header_add_an_account" msgid="8482614556580804956">"Lisää tili"</string>
     <string name="really_remove_account_title" msgid="4166512362915154319">"Poistetaanko tili?"</string>
-    <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"Poistamalla tämän tilin poistat kaikki sen viestit, yhteystiedot ja muut tiedot tabletista."</string>
-    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Poistamalla tämän tilin poistat kaikki sen viestit, yhteystiedot ja muut tiedot puhelimesta."</string>
-    <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"Poistamalla tämän tilin poistat kaikki sen viestit, yhteystiedot ja muut tiedot laitteelta."</string>
+    <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"Jos poistat tämän tilin, myös kaikki sen viestit, yhteystiedot ja muut tiedot poistetaan tabletilta."</string>
+    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Jos poistat tämän tilin, myös kaikki sen viestit, yhteystiedot ja muut tiedot poistetaan puhelimelta."</string>
+    <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"Jos poistat tämän tilin, myös kaikki sen viestit, yhteystiedot ja muut tiedot poistetaan laitteelta."</string>
     <string name="remove_account_failed" msgid="491458185327106966">"Järjestelmänvalvoja ei salli tätä muutosta."</string>
     <string name="cant_sync_dialog_title" msgid="5483419398223189881">"Manuaalinen synkronointi epäonnistui"</string>
     <string name="cant_sync_dialog_message" msgid="3467126947262857534">"Tämän kohteen synkronointi on tällä hetkellä pois käytöstä. Voit muuttaa asetuksia ottamalla taustatiedonsiirron ja automaattisen synkronoinnin väliaikaisesti käyttöön."</string>
@@ -2870,7 +2870,7 @@
     <string name="user_add_user_item_title" msgid="6835385073795492410">"Käyttäjä"</string>
     <string name="user_add_profile_item_title" msgid="4932743891449790664">"Rajoitettu profiili"</string>
     <string name="user_add_user_title" msgid="2320897397066676472">"Lisätäänkö uusi käyttäjä?"</string>
-    <string name="user_add_user_message_long" msgid="686637203224195465">"Voit jakaa tämän laitteen muiden kanssa luomalla lisää käyttäjiä. Kullakin käyttäjällä on oma tilansa, jota he voivat muokata esimerkiksi omilla sovelluksilla ja taustakuvilla. Käyttäjät voivat myös muokata laiteasetuksia, kuten Wi‑Fi-asetuksia, jotka vaikuttavat laitteen kaikkiin käyttäjiin.\n\nKun lisäät uuden käyttäjän, hänen tulee määrittää oman tilansa asetukset.\n\nKaikki käyttäjät voivat päivittää muiden käyttäjien sovelluksia. Esteettömyysominaisuuksia tai ‑palveluita ei välttämättä siirretä uudelle käyttäjälle."</string>
+    <string name="user_add_user_message_long" msgid="686637203224195465">"Voit jakaa tämän laitteen muiden kanssa luomalla lisää käyttäjiä. Kullakin käyttäjällä on oma tilansa, jota he voivat muokata esimerkiksi omilla sovelluksilla ja taustakuvilla. Käyttäjät voivat myös muokata laiteasetuksia, kuten Wi‑Fi-asetuksia, jotka vaikuttavat laitteen kaikkiin käyttäjiin.\n\nKun lisäät uuden käyttäjän, hänen tulee määrittää oman tilansa asetukset.\n\nKaikki käyttäjät voivat päivittää sovelluksia muille käyttäjille. Esteettömyysominaisuuksia tai ‑palveluita ei välttämättä siirretä uudelle käyttäjälle."</string>
     <string name="user_add_user_message_short" msgid="1802594476285458254">"Kun lisäät uuden käyttäjän, hänen tulee määrittää oman tilansa asetukset.\n\nKaikki käyttäjät voivat päivittää sovelluksia muille käyttäjille."</string>
     <string name="user_setup_dialog_title" msgid="6748950002206392396">"Lisätäänkö käyttäjä nyt?"</string>
     <string name="user_setup_dialog_message" msgid="2988559933258353919">"Varmista, että käyttäjä voi ottaa laitteen nyt ja määrittää oman tilansa."</string>
@@ -2983,7 +2983,7 @@
     <string name="wizard_finish" msgid="3742102879981212094">"Valmis"</string>
     <string name="user_image_take_photo" msgid="2000247510236178111">"Ota kuva"</string>
     <string name="user_image_choose_photo" msgid="4920315415203051898">"Valitse kuva"</string>
-    <string name="user_image_photo_selector" msgid="8429694590849882411">"Valitse valokuva"</string>
+    <string name="user_image_photo_selector" msgid="8429694590849882411">"Valitse kuva"</string>
     <string name="regulatory_info_text" msgid="9112993912873512834"></string>
     <string name="sim_setup_wizard_title" msgid="77627575294867180">"SIM-kortit"</string>
     <string name="sim_settings_title" msgid="8818243954752261922">"SIM-kortit"</string>
@@ -3044,7 +3044,7 @@
     <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"Assistant, viimeaikaiset sovellukset, oletussovellukset"</string>
     <string name="notification_settings_work_profile" msgid="7190550347842400029">"Työprofiilin sovelluksilla ei voi olla ilmoitusten käyttöoikeuksia."</string>
     <string name="account_dashboard_title" msgid="4734300939532555885">"Tilit"</string>
-    <string name="account_dashboard_default_summary" msgid="6822549669771936206">"Tilejä ei lisätty"</string>
+    <string name="account_dashboard_default_summary" msgid="6822549669771936206">"Tilejä ei ole lisätty"</string>
     <string name="app_default_dashboard_title" msgid="6575301028225232193">"Oletussovellukset"</string>
     <string name="system_dashboard_summary" msgid="6582464466735779394">"Kielet, eleet, aika, varmuuskopiointi"</string>
     <string name="search_results_title" msgid="4160717656435503940">"Asetukset"</string>
@@ -3732,7 +3732,7 @@
     <string name="usb_use_file_transfers" msgid="6153021302176151884">"Tiedostonsiirto"</string>
     <string name="usb_use_file_transfers_desc" msgid="6953866660041189580">"Siirrä tiedostoja toiselle laitteelle."</string>
     <string name="usb_use_photo_transfers" msgid="5974236250197451257">"PTP"</string>
-    <string name="usb_use_photo_transfers_desc" msgid="2325112887316125320">"Siirrä valokuvia tai tiedostoja, jos MTP:tä ei tueta (PTP)."</string>
+    <string name="usb_use_photo_transfers_desc" msgid="2325112887316125320">"Siirrä kuvia tai tiedostoja, jos MTP:tä ei tueta (PTP)."</string>
     <string name="usb_use_tethering" msgid="4250626730173163846">"Internetin jakaminen USB:n kautta"</string>
     <string name="usb_use_MIDI" msgid="4710632870781041401">"MIDI"</string>
     <string name="usb_use_MIDI_desc" msgid="1770966187150010947">"Käytä tätä laitetta MIDI-tilassa."</string>
@@ -3789,7 +3789,7 @@
     <string name="zen_access_warning_dialog_title" msgid="7704910289810337055">"Myönnetäänkö Älä häiritse -tilan käyttöoikeus sovellukselle <xliff:g id="APP">%1$s</xliff:g>?"</string>
     <string name="zen_access_warning_dialog_summary" msgid="2717755746850874577">"Sovellus voi ottaa Älä häiritse -tilan käyttöön tai poistaa sen käytöstä sekä muokata siihen liittyviä asetuksia."</string>
     <string name="zen_access_disabled_package_warning" msgid="7086237569177576966">"Tämän täytyy olla käytössä, sillä ilmoitusten käyttöoikeus on myönnetty."</string>
-    <string name="zen_access_revoke_warning_dialog_title" msgid="6850994585577513299">"Peruutetaanko sovellukselta <xliff:g id="APP">%1$s</xliff:g> Älä häiritse -tilan käyttöoikeus?"</string>
+    <string name="zen_access_revoke_warning_dialog_title" msgid="6850994585577513299">"Perutaanko sovellukselta <xliff:g id="APP">%1$s</xliff:g> Älä häiritse -tilan käyttöoikeus?"</string>
     <string name="zen_access_revoke_warning_dialog_summary" msgid="3487422193181311403">"Kaikki tämän sovelluksen luomat Älä häiritse -säännöt poistetaan."</string>
     <string name="ignore_optimizations_on" msgid="4373971641328943551">"Älä optimoi"</string>
     <string name="ignore_optimizations_off" msgid="4372289432580282870">"Optimoi"</string>
@@ -4163,7 +4163,7 @@
     <string name="auto_sync_account_summary" msgid="6316230976974033772">"Salli sovellusten päivittää tietoja automaattisesti"</string>
     <string name="account_sync_title" msgid="1570164819114297154">"Tilin synkronointi"</string>
     <string name="account_sync_summary_some_on" msgid="1934556869158274053">"Synkronointi käytössä <xliff:g id="ID_1">%1$d</xliff:g>/<xliff:g id="ID_2">%2$d</xliff:g> kohteella"</string>
-    <string name="account_sync_summary_all_on" msgid="3634161204232431700">"Synkronointi käytössä kaikilla kohteilla"</string>
+    <string name="account_sync_summary_all_on" msgid="3634161204232431700">"Synkronointi käytössä kaikille kohteille"</string>
     <string name="account_sync_summary_all_off" msgid="1971584632343645602">"Synkronointi pois käytöstä kaikilla kohteilla"</string>
     <string name="enterprise_privacy_settings" msgid="2777101678653072889">"Hallinnoidun laitteen tiedot"</string>
     <string name="enterprise_privacy_settings_summary_generic" msgid="5557859169062703683">"Organisaatiosi hallitsemat valinnat ja asetukset"</string>
