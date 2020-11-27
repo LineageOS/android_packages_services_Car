@@ -62,10 +62,8 @@
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"آلہ کے گروہ کا ڈیٹا موصول کریں"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"UX کی پابندیوں کی ترتیب"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"UX کی پابندیاں ترتیب دیں"</string>
-    <!-- no translation found for car_permission_label_access_private_display_id (6712116114341634316) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_private_display_id (8535974477610944721) -->
-    <skip />
+    <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"نجی ڈسپلے ID تک پڑھنے کی رسائی"</string>
+    <string name="car_permission_desc_access_private_display_id" msgid="8535974477610944721">"نجی ڈسپلے ID تک پڑھنے کی رسائی کی اجازت دیتا ہے"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"USB آلہ کے ساتھ AOAP وضع میں مواصلت کریں"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"آلہ کے ساتھ AOAP وضع میں ایپ مواصلت کر سکتی ہے"</string>
     <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"کار میں بیٹھنے والے فرد کے لیے بنے آگاہی کے سسٹم کی رسائی کو پڑھیں"</string>
