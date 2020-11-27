@@ -162,7 +162,7 @@
     <string name="bluetooth_map_acceptance_dialog_text" msgid="736507842082640410">"%1$s хабарларыңызға кіруді қалайды. %2$s кірсін бе?"</string>
     <string name="bluetooth_sap_request" msgid="6318039677671263261">"SIM картасына кіру сұрауы"</string>
     <string name="bluetooth_sap_acceptance_dialog_text" msgid="1909352413109340355">"<xliff:g id="DEVICE_NAME_0">%1$s</xliff:g> сіздің SIM картаңызға кіруге рұқсат сұрайды. Ондай рұқсатты берсеңіз, байланыс барысында дерек тасымалы өшіріледі. <xliff:g id="DEVICE_NAME_1">%2$s?</xliff:g> құрылғысына рұқсат беру"</string>
-    <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"Басқа құрылғыларға \"<xliff:g id="DEVICE_NAME">^1</xliff:g>\" атымен көрінеді"</string>
+    <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"Басқа құрылғыларға \"<xliff:g id="DEVICE_NAME">^1</xliff:g>\" атымен көрінеді."</string>
     <string name="bluetooth_off_footer" msgid="7658444560543730571">"Басқа құрылғыларға қосылу үшін Bluetooth функциясын қосыңыз."</string>
     <string name="bluetooth_paired_device_title" msgid="8361860197780425286">"Құрылғыларыңыз"</string>
     <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"Жаңа құрылғымен жұптастыру"</string>
@@ -728,7 +728,7 @@
     <string name="bluetooth_quick_toggle_summary" msgid="3951769568065428093">"Bluetooth құрылғысын қосу"</string>
     <string name="bluetooth_settings" msgid="5228032727293770389">"Bluetooth"</string>
     <string name="bluetooth_settings_title" msgid="7261244857456521825">"Bluetooth"</string>
-    <string name="bluetooth_settings_summary" msgid="1221689092429277887">"Байланыстарды басқарып, құрылғы атауы мен табылу мүмкіндігін тағайындаңыз"</string>
+    <string name="bluetooth_settings_summary" msgid="1221689092429277887">"Байланыстарды басқару, құрылғының атауын және көріну мүмкіндігін реттеу"</string>
     <string name="bluetooth_pairing_request" msgid="7221745525632573125">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> құрылғысымен жұптау керек пе?"</string>
     <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"Bluetooth жұптау коды"</string>
     <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"Жұптау кодын теріңіз, содан кейін «Оралу» немесе «Енгізу» түймесін басыңыз"</string>
@@ -1609,7 +1609,7 @@
     <string name="master_clear_progress_title" msgid="378953167274114857">"Өшірілуде"</string>
     <string name="master_clear_progress_text" msgid="5418958116008976218">"Күте тұрыңыз…"</string>
     <string name="call_settings_title" msgid="5033906789261282752">"Қоңырау параметрлері"</string>
-    <string name="call_settings_summary" msgid="2119161087671450035">"Дауыс хабары, қоңырауды басқа нөмірге бағыттау, күту және қоңырау шалушының жеке анықтағышын орнату"</string>
+    <string name="call_settings_summary" msgid="2119161087671450035">"Дауыстық пошта, қоңырауды басқа нөмірге бағыттау және ұстап тұру, қоңырау шалушыт нөмірлерді автоматты анықтау"</string>
     <string name="tether_settings_title_usb" msgid="4265582654602420357">"USB тетеринг"</string>
     <string name="tether_settings_title_wifi" msgid="2060965130234484613">"Алынбалы хот-спот"</string>
     <string name="tether_settings_title_bluetooth" msgid="1999590158102569959">"Bluetooth модем"</string>
@@ -2268,18 +2268,18 @@
     <string name="controls_subtitle" msgid="6920199888882834620">"Қуат қолданысын бейімдеу"</string>
     <string name="packages_subtitle" msgid="6506269487892204413">"Қамтылған орамдар"</string>
     <string name="battery_tip_summary_title" msgid="2750922152518825526">"Қолданбалар қалыпты жұмыс істеп тұр"</string>
-    <string name="battery_tip_summary_summary" product="default" msgid="6294900413896440006">"Телефон фондық режимде батарея зарядын қалыпты күйде пайдаланады"</string>
-    <string name="battery_tip_summary_summary" product="tablet" msgid="5280099016800644130">"Планшет фондық режимде батарея зарядын қалыпты күйде пайдаланады"</string>
-    <string name="battery_tip_summary_summary" product="device" msgid="4459840492610842705">"Құрылғы фондық режимде батарея зарядын қалыпты күйде пайдаланады"</string>
+    <string name="battery_tip_summary_summary" product="default" msgid="6294900413896440006">"Телефон фондық режимде батарея зарядын қалыпты күйде пайдаланады."</string>
+    <string name="battery_tip_summary_summary" product="tablet" msgid="5280099016800644130">"Планшет фондық режимде батарея зарядын қалыпты күйде пайдаланады."</string>
+    <string name="battery_tip_summary_summary" product="device" msgid="4459840492610842705">"Құрылғы фондық режимде батарея зарядын қалыпты күйде пайдаланады."</string>
     <string name="battery_tip_low_battery_title" msgid="6784043681672161175">"Батарея заряды аз қалды"</string>
     <string name="battery_tip_low_battery_summary" msgid="9151355911381188604">"Батарея заряды ұзаққа жетпейді"</string>
     <string name="battery_tip_smart_battery_title" product="default" msgid="5517122075918038665">"Телефон батареясының қызметтік мерзімін ұзартыңыз"</string>
     <string name="battery_tip_smart_battery_title" product="tablet" msgid="203494973250969040">"Планшет батареясының қызметтік мерзімін ұзартыңыз"</string>
     <string name="battery_tip_smart_battery_title" product="device" msgid="7419448992583346364">"Құрылғы батареясының қызметтік мерзімін ұзартыңыз"</string>
     <string name="battery_tip_smart_battery_summary" msgid="5344821856478265778">"Battery Manager функциясын қосыңыз"</string>
-    <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"Battery Saver функциясын қосу"</string>
+    <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"Батареяны үнемдеу режимін қосу"</string>
     <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"Батареяның заряды тез азаюы мүмкін"</string>
-    <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"Battery Saver қосулы"</string>
+    <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"Батареяны үнемдеу режимі қосулы"</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"Кейбір функциялар шектелуі мүмкін"</string>
     <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"Телефон әдеттегіден көп қолданылды"</string>
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"Планшет әдеттегіден көп қолданылды"</string>
@@ -2317,9 +2317,9 @@
     <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"Бұл қолданба батареяны фондық режимде пайдаланады. Батареяның заряды тез азаюы мүмкін."</string>
     <string name="battery_tip_unrestrict_app_dialog_ok" msgid="9154938931448151479">"Алу"</string>
     <string name="battery_tip_unrestrict_app_dialog_cancel" msgid="7331148618292397166">"Бас тарту"</string>
-    <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"Қолданбалар батарея зарядын қалыпты тұтынуда. Көп тұтынатын болса, телефонда орындауға болатын әрекеттер ұсынылады.\n\nБатарея заряды аз болса, Battery Saver функциясын қосуыңызға болады."</string>
-    <string name="battery_tip_dialog_summary_message" product="tablet" msgid="1721081030632329647">"Қолданбалар батарея зарядын қалыпты тұтынуда. Көп тұтынатын болса, планшетте орындауға болатын әрекеттер ұсынылады.\n\nБатарея заряды аз болса, Battery Saver функциясын қосуыңызға болады."</string>
-    <string name="battery_tip_dialog_summary_message" product="device" msgid="146872407040848465">"Қолданбалар батарея зарядын қалыпты тұтынуда. Көп тұтынатын болса, құрылғыда орындауға болатын әрекеттер ұсынылады.\n\nБатарея заряды аз болса, Battery Saver функциясын қосуыңызға болады."</string>
+    <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"Қолданбалар батарея зарядын қалыпты тұтынуда. Көп тұтынатын болса, телефонда орындауға болатын әрекеттер ұсынылады.\n\nБатарея заряды аз болса, Батареяны үнемдеу режимін қосуыңызға болады."</string>
+    <string name="battery_tip_dialog_summary_message" product="tablet" msgid="1721081030632329647">"Қолданбалар батарея зарядын қалыпты тұтынуда. Көп тұтынатын болса, планшетте орындауға болатын әрекеттер ұсынылады.\n\nБатарея заряды аз болса, Батареяны үнемдеу режимін қосуыңызға болады."</string>
+    <string name="battery_tip_dialog_summary_message" product="device" msgid="146872407040848465">"Қолданбалар батарея зарядын қалыпты тұтынуда. Көп тұтынатын болса, құрылғыда орындауға болатын әрекеттер ұсынылады.\n\nБатарея заряды аз болса, Батареяны үнемдеу режимін қосуыңызға болады."</string>
     <string name="smart_battery_manager_title" msgid="5744035036663849515">"Battery Manager"</string>
     <string name="smart_battery_title" msgid="4919670408532804351">"Қолданбаларды автоматты түрде реттеу"</string>
     <string name="smart_battery_summary" msgid="640027046471198174">"Сирек пайдаланылатын қолданбалар үшін батареяның пайдаланылуын шектеу"</string>
@@ -2369,7 +2369,7 @@
     <string name="power_phone" msgid="4644276202135343197">"Дыбыс қоңыраулары"</string>
     <string name="power_idle" product="tablet" msgid="5220710816048070792">"Планшет бос"</string>
     <string name="power_idle" product="default" msgid="440519902393849215">"Күту режимі"</string>
-    <string name="power_unaccounted" msgid="327460424681976487">"Әр түрлі"</string>
+    <string name="power_unaccounted" msgid="327460424681976487">"Әртүрлі"</string>
     <string name="power_overcounted" msgid="8336743020857416490">"Артық есептелген"</string>
     <string name="usage_type_cpu" msgid="1128777292301436265">"Барлық CPU (орталық өңдеу бірлігі)"</string>
     <string name="usage_type_cpu_foreground" msgid="5496661858574622156">"CPU (орталық процессор) алғы шебі"</string>
@@ -2446,7 +2446,7 @@
     <string name="process_kernel_label" msgid="4175060316414593760">"Android операциялық жүйесі"</string>
     <string name="process_mediaserver_label" msgid="8591722404282619153">"Meдиасервері"</string>
     <string name="process_dex2oat_label" msgid="8249082119748556085">"Қолданбаны оңтайландыру"</string>
-    <string name="battery_saver" msgid="3989710213758938398">"Battery Saver"</string>
+    <string name="battery_saver" msgid="3989710213758938398">"Батареяны үнемдеу режимі"</string>
     <string name="battery_saver_auto_title" msgid="4158659069641849952">"Автоматты түрде қосу"</string>
     <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"Кесте жоқ"</string>
     <string name="battery_saver_auto_routine" msgid="886514412067906980">"Әрекеттеріңіз негізінде"</string>
@@ -2455,7 +2455,7 @@
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Заряд деңгейі <xliff:g id="PERCENT">%1$s</xliff:g> болғанда, қосылады"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Кестені белгілеу"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Толық зарядталғанда өшіру"</string>
-    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"Телефон заряды <xliff:g id="PERCENT">%1$s</xliff:g> болғанда, Battery Saver өшіріледі."</string>
+    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"Телефон заряды <xliff:g id="PERCENT">%1$s</xliff:g> болғанда, Батареяны үнемдеу режимі өшеді."</string>
     <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"Планшет заряды <xliff:g id="PERCENT">%1$s</xliff:g> болғанда, Battery Saver өшіріледі."</string>
     <string name="battery_saver_sticky_description_new" product="device" msgid="5056520668081504111">"Құрылғы заряды <xliff:g id="PERCENT">%1$s</xliff:g> болғанда, Battery Saver өшіріледі."</string>
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
@@ -2514,7 +2514,7 @@
     <string name="tts_sliders_title" msgid="1927481069989092278">"Сөйлеу жылдамдығы және екпін"</string>
     <string name="tts_engine_section_title" msgid="7796486438271227076">"Жүйе"</string>
     <string name="tts_install_voice_title" msgid="3143328760690690254">"Дауыс"</string>
-    <string name="tts_spoken_language" msgid="8057256621711361944">"Сөйлесу тілі"</string>
+    <string name="tts_spoken_language" msgid="8057256621711361944">"Дыбысталу тілі"</string>
     <string name="tts_install_voices_title" msgid="363811937643579286">"Дауыстарды орнату"</string>
     <string name="tts_install_voices_text" msgid="7464832428439739995">"Дауыстарды орнату үшін <xliff:g id="TTS_APP_NAME">%s</xliff:g> қолданбасына өту"</string>
     <string name="tts_install_voices_open" msgid="686776451008134790">"Қолданбаны ашу"</string>
@@ -3083,7 +3083,7 @@
     <string name="keywords_location" msgid="6439463166207072559">"маңай, орын, тарих, есеп жіберу, GPS"</string>
     <string name="keywords_accounts" msgid="5908945725229306088">"есептік жазба"</string>
     <string name="keywords_users" msgid="5880705776023155640">"шектеу, шектелген"</string>
-    <string name="keywords_keyboard_and_ime" msgid="3327265741354129990">"мәтінді түзету, түзету, дыбыс, дірілдету, авто, тіл, қимыл, ұсыну, ұсыныс, тақырып, тіл тигізетін, сөз, түрі, эмодзи, халықаралық"</string>
+    <string name="keywords_keyboard_and_ime" msgid="3327265741354129990">"мәтінді түзету, түзету, дыбыс, дірілдету, авто, тіл, қимыл, ұсыну, ұсыныс, тақырып, тіл тигізетін, сөз, түрі, эмоджи, халықаралық"</string>
     <string name="keywords_reset_apps" msgid="2645701455052020435">"ысыру, параметрлер, әдепкі"</string>
     <string name="keywords_all_apps" msgid="846444448435698930">"қолданбалар, жүктеу, қолданбалар, жүйе"</string>
     <string name="keywords_app_permissions" msgid="8539841019997048500">"қолданбалар, рұқсаттар, қауіпсіздік"</string>
@@ -3144,7 +3144,7 @@
     <string name="notification_ringtone_title" msgid="2932960620843976285">"Әдепкі хабарландыру сигналы"</string>
     <string name="notification_unknown_sound_title" msgid="8043718667804838398">"Қолданбамен берілген дыбыс"</string>
     <string name="notification_sound_default" msgid="2664544380802426260">"Әдепкі хабарландыру дыбысы"</string>
-    <string name="alarm_ringtone_title" msgid="6411326147408635902">"Әдепкі дабыл сигналы"</string>
+    <string name="alarm_ringtone_title" msgid="6411326147408635902">"Әдепкі оятқыш сигналы"</string>
     <string name="vibrate_when_ringing_title" msgid="2757996559847126952">"Қоңырау кезіндегі діріл"</string>
     <string name="other_sound_settings" msgid="5250376066099818676">"Басқа дыбыстар"</string>
     <string name="dial_pad_tones_title" msgid="8877212139988655769">"Нөмір тергіш дыбысы"</string>
@@ -3282,10 +3282,10 @@
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"\"Мазаламау\" режиміндегі хабарландыру параметрлері өзгертілсін бе?"</string>
     <string name="sound_work_settings" msgid="4140215240360927923">"Жұмыс профилінің дыбыстары"</string>
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Жеке профиль дыбыстарын пайдалану"</string>
-    <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Жұмыс пен жеке профильдер үшін дыбысы қолданылады"</string>
+    <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Жұмыс профилі мен жеке профиль дыбыстары бірдей"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"Жұмыс телефонының рингтоны"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Әдепкі жұмыс хабарландыруының дыбысы"</string>
-    <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"Әдепкі жұмыс дабылының дыбысы"</string>
+    <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"Әдепкі жұмыс оятқышының дыбысы"</string>
     <string name="work_sound_same_as_personal" msgid="7728560881697159758">"Жеке профильдікімен бірдей"</string>
     <string name="work_sync_dialog_title" msgid="4799120971202956837">"Дыбыстарды ауыстыру керек пе?"</string>
     <string name="work_sync_dialog_yes" msgid="2110726233746476066">"Ауыстыру"</string>
@@ -3746,7 +3746,7 @@
     <string name="usb_control_device" msgid="9154790265254725254">"Осы құрылғы"</string>
     <string name="usb_switching" msgid="1230386065163529904">"Ауыстырылуда..."</string>
     <string name="usb_switching_failed" msgid="6857722544186145439">"Ауыстырылмады"</string>
-    <string name="usb_summary_charging_only" msgid="4118449308708872339">"Осы құрылғыны зарядтауда"</string>
+    <string name="usb_summary_charging_only" msgid="4118449308708872339">"Осы құрылғыны зарядтауда."</string>
     <string name="usb_summary_power_only" msgid="3552240122641051107">"Жалғанған құрылғыны зарядтау"</string>
     <string name="usb_summary_file_transfers" msgid="7805342797099821502">"Файл жіберу"</string>
     <string name="usb_summary_tether" msgid="778845069037366883">"USB тетеринг"</string>

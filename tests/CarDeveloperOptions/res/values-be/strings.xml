@@ -55,7 +55,7 @@
     <string name="radio_info_ims_reg_status_not_registered" msgid="1286050699734226077">"Не зарэгістраваны"</string>
     <string name="radio_info_ims_feature_status_available" msgid="2040629393134756058">"Даступны"</string>
     <string name="radio_info_ims_feature_status_unavailable" msgid="3348223769202693596">"Недаступны"</string>
-    <string name="radio_info_ims_reg_status" msgid="4771711884059371514">"Рэгістрацыя IMS: <xliff:g id="STATUS">%1$s</xliff:g>\nГолас па LTE: <xliff:g id="AVAILABILITY_0">%2$s</xliff:g>\nГолас па WiFi: <xliff:g id="AVAILABILITY_1">%3$s</xliff:g>\nВідэавыклік: <xliff:g id="AVAILABILITY_2">%4$s</xliff:g>\nІнтэрфейс UT: <xliff:g id="AVAILABILITY_3">%5$s</xliff:g>"</string>
+    <string name="radio_info_ims_reg_status" msgid="4771711884059371514">"Рэгістрацыя IMS: <xliff:g id="STATUS">%1$s</xliff:g>\nГаласавая сувязь па LTE: <xliff:g id="AVAILABILITY_0">%2$s</xliff:g>\nГаласавая сувязь па Wi-Fi: <xliff:g id="AVAILABILITY_1">%3$s</xliff:g>\nВідэавыклікі: <xliff:g id="AVAILABILITY_2">%4$s</xliff:g>\nІнтэрфейс UT: <xliff:g id="AVAILABILITY_3">%5$s</xliff:g>"</string>
     <string name="radioInfo_service_in" msgid="1297020186765943857">"Працуе"</string>
     <string name="radioInfo_service_out" msgid="8460363463722476510">"Не працуе"</string>
     <string name="radioInfo_service_emergency" msgid="7674989004735662599">"Толькі экстранныя выклікі"</string>
@@ -935,7 +935,7 @@
     <string name="wifi_show_advanced" msgid="8199779277168030597">"Дадатковыя параметры"</string>
     <string name="wifi_advanced_toggle_description_expanded" msgid="1506697245302596510">"Выпадальны спіс \"Дадатковыя параметры\". Двойчы дакраніцеся, каб згарнуць."</string>
     <string name="wifi_advanced_toggle_description_collapsed" msgid="3014965593695454879">"Выпадальны спіс \"Дадатковыя параметры\". Двойчы дакраніцеся, каб разгарнуць."</string>
-    <string name="wifi_ssid" msgid="6746270925975522641">"Імя сеткі"</string>
+    <string name="wifi_ssid" msgid="6746270925975522641">"Назва сеткі"</string>
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"Увядзіце SSID"</string>
     <string name="wifi_security" msgid="9136702039496152831">"Бяспека"</string>
     <string name="wifi_hidden_network" msgid="6647772204699776833">"Схаваная сетка"</string>
@@ -1105,7 +1105,7 @@
     <string name="wifi_hotspot_ap_band_title" msgid="3485744480410441949">"Дыяпазон частот Wi-Fi"</string>
     <string name="wifi_hotspot_footer_info_regular" msgid="3876006922622827363">"Выкарыстоўвайце хот-спот для стварэння сеткі Wi‑Fi для іншых прылад. Хот-спот дае доступ да інтэрнэту праз падключэнне да мабільнай перадачы даных. Мабільны аператар можа спаганяць дадатковую плату."</string>
     <string name="wifi_hotspot_footer_info_local_only" msgid="3339582350894639261">"Праграмы могуць ствараць хот-спот для абагульвання змесціва з прыладамі паблізу."</string>
-    <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"Аўтаматычна выключыць хот-спот"</string>
+    <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"Аўтаматычна выключаць хот-спот"</string>
     <string name="wifi_hotspot_auto_off_summary" msgid="3866769400624802105">"Хот-спот Wi‑Fi выключыцца, калі прылады непадключаныя"</string>
     <string name="wifi_tether_starting" msgid="7676952148471297900">"Уключэнне хот-спота..."</string>
     <string name="wifi_tether_stopping" msgid="7478561853791953349">"Выключэнне хот-спота..."</string>
@@ -1411,7 +1411,7 @@
     <string name="memory_media_usage" msgid="2744652206722240527">"Медыя"</string>
     <string name="memory_downloads_usage" msgid="7039979723012065168">"Спампаваць"</string>
     <string name="memory_dcim_usage" msgid="599009211606524732">"Выявы, відэа"</string>
-    <string name="memory_music_usage" msgid="809605300042546279">"Аўдыё (музыка, рынгтоны, падкасты і г. д.)"</string>
+    <string name="memory_music_usage" msgid="809605300042546279">"Аўдыя (музыка, рынгтоны, падкасты і г. д.)"</string>
     <string name="memory_media_misc_usage" msgid="6258827529046910705">"Іншыя файлы"</string>
     <string name="memory_media_cache_usage" msgid="1307620682751377717">"Кэшаваныя дадзеныя"</string>
     <string name="sd_eject" product="nosdcard" msgid="3016608823130472449">"Адключыць сумеснае сховішча"</string>
@@ -3231,14 +3231,14 @@
     <string name="other_sound_settings" msgid="5250376066099818676">"Іншыя гукі"</string>
     <string name="dial_pad_tones_title" msgid="8877212139988655769">"Гукі панэлі набору"</string>
     <string name="screen_locking_sounds_title" msgid="4407110895465866809">"Гукі блакіроўкі экрана"</string>
-    <string name="charging_sounds_title" msgid="5070437987230894287">"Сігнал зарадкі і вібрацыя"</string>
+    <string name="charging_sounds_title" msgid="5070437987230894287">"Гукі і вібрацыя пры зарадцы"</string>
     <string name="docking_sounds_title" msgid="2573137471605541366">"Гукі док-станцыі"</string>
     <string name="touch_sounds_title" msgid="165237488496165652">"Гукі пры дотыку"</string>
     <string name="vibrate_on_touch_title" msgid="6360155469279157684">"Вібрацыя пры націсканні"</string>
     <string name="vibrate_on_touch_summary" msgid="5504424764028676043">"Тактыльны водгук пры націсканні на кнопкі, клавіятуру і г.д."</string>
     <string name="dock_audio_media_title" msgid="1859521680502040781">"Уключыць док-дынамік"</string>
     <string name="dock_audio_media_disabled" msgid="4300752306178486302">"Усё аўдыё"</string>
-    <string name="dock_audio_media_enabled" msgid="2873275045878628153">"Толькі медыяаўдыё"</string>
+    <string name="dock_audio_media_enabled" msgid="2873275045878628153">"Толькі аўдыя медыяфайлаў"</string>
     <string name="emergency_tone_silent" msgid="804809075282717882">"Без гуку"</string>
     <string name="emergency_tone_alert" msgid="907868135091891015">"Танальныя сігналы"</string>
     <string name="emergency_tone_vibrate" msgid="5020068066905681181">"Вібрацыя"</string>
@@ -4416,7 +4416,7 @@
     <string name="autofill_reset_developer_options_complete" msgid="5686061993002179524">"Аўтазапаўненне параметраў распрацоўшчыка было скінута"</string>
     <string name="device_theme" msgid="8992291311481135893">"Тэма прылады"</string>
     <string name="default_theme" msgid="5986996377385956138">"Стандартная"</string>
-    <string name="show_operator_name_title" msgid="5056163028128447308">"Імя сеткі"</string>
+    <string name="show_operator_name_title" msgid="5056163028128447308">"Назва сеткі"</string>
     <string name="show_operator_name_summary" msgid="6352180285743777497">"Паказваць імя сеткі на панэлі стану"</string>
     <string name="storage_manager_indicator" msgid="4255140732848476875">"Менеджар сховішча: <xliff:g id="STATUS">^1</xliff:g>"</string>
     <string name="storage_manager_indicator_off" msgid="6404056007102580777">"Выключаны"</string>

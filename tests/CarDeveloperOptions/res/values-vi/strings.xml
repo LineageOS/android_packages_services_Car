@@ -162,7 +162,7 @@
     <string name="bluetooth_map_acceptance_dialog_text" msgid="736507842082640410">"%1$s muốn truy cập tin nhắn của bạn. Bạn có muốn cấp quyền truy cập cho %2$s không?"</string>
     <string name="bluetooth_sap_request" msgid="6318039677671263261">"Yêu cầu truy cập SIM"</string>
     <string name="bluetooth_sap_acceptance_dialog_text" msgid="1909352413109340355">"<xliff:g id="DEVICE_NAME_0">%1$s</xliff:g> muốn truy cập vào thẻ SIM của bạn. Cấp quyền truy cập vào thẻ SIM sẽ vô hiệu hóa khả năng kết nối dữ liệu trên thiết bị của bạn trong suốt thời gian kết nối. Cấp quyền truy cập vào <xliff:g id="DEVICE_NAME_1">%2$s?</xliff:g>"</string>
-    <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"Hiển thị là \"<xliff:g id="DEVICE_NAME">^1</xliff:g>\" với các thiết bị khác"</string>
+    <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"Tên xuất hiện trên các thiết bị khác: <xliff:g id="DEVICE_NAME">^1</xliff:g>"</string>
     <string name="bluetooth_off_footer" msgid="7658444560543730571">"Bật Bluetooth để kết nối với các thiết bị khác."</string>
     <string name="bluetooth_paired_device_title" msgid="8361860197780425286">"Thiết bị của bạn"</string>
     <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"Ghép nối thiết bị mới"</string>
@@ -777,7 +777,7 @@
     <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"Thiết bị của bạn sẽ không được ghép nối với <xliff:g id="DEVICE_NAME">%1$s</xliff:g> nữa"</string>
     <string name="bluetooth_unpair_dialog_forget_confirm_button" msgid="8485211340349958886">"Xóa thiết bị"</string>
     <string name="bluetooth_connect_specific_profiles_title" msgid="2381509181266180406">"Kết nối với…"</string>
-    <string name="bluetooth_disconnect_a2dp_profile" msgid="8072503764470451567">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> sẽ bị ngắt kết nối khỏi âm thanh phương tiện."</string>
+    <string name="bluetooth_disconnect_a2dp_profile" msgid="8072503764470451567">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> sẽ bị ngắt kết nối khỏi âm thanh nội dung nghe nhìn"</string>
     <string name="bluetooth_disconnect_headset_profile" msgid="8384028101155317339">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> sẽ bị ngắt kết nối khỏi âm thanh thiết bị rảnh tay."</string>
     <string name="bluetooth_disconnect_hid_profile" msgid="6964226087090465662">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> sẽ bị ngắt kết nối khỏi thiết bị nhập."</string>
     <string name="bluetooth_disconnect_pan_user_profile" msgid="5523689915196343097">"Truy cập Internet qua <xliff:g id="DEVICE_NAME">%1$s</xliff:g> sẽ bị ngắt kết nối."</string>
@@ -1884,7 +1884,7 @@
     <string name="system_package" msgid="1824541892695233351">"Không thể cài đặt bản cập nhật hệ thống trên phương tiện bên ngoài."</string>
     <string name="move_error_device_admin" msgid="6640501923867066901">"Không thể cài đặt ứng dụng quản trị thiết bị trên phương tiện ngoài"</string>
     <string name="force_stop_dlg_title" msgid="8822779487097246675">"Buộc dừng?"</string>
-    <string name="force_stop_dlg_text" msgid="7435245769456493398">"Nếu bạn buộc dừng một ứng dụng, ứng dụng đó có thể hoạt động sai."</string>
+    <string name="force_stop_dlg_text" msgid="7435245769456493398">"Nếu bạn buộc dừng một ứng dụng, ứng dụng đó có thể hoạt động không đúng cách."</string>
     <string name="app_install_location_title" msgid="5121617802063021720">"Vị trí cài đặt ưa thích"</string>
     <string name="app_install_location_summary" msgid="109719780117187797">"Thay đổi vị trí cài đặt ưa thích cho ứng dụng mới"</string>
     <string name="app_disable_dlg_positive" msgid="5508828271100168073">"Tắt ứng dụng"</string>
@@ -2233,12 +2233,12 @@
     <string name="power_usage_level_and_status" msgid="8873534076894160727">"<xliff:g id="LEVEL">%1$s</xliff:g> - <xliff:g id="STATUS">%2$s</xliff:g>"</string>
     <string name="power_discharge_remaining" msgid="3461915627093471868">"<xliff:g id="REMAIN">%1$s</xliff:g> còn lại"</string>
     <string name="power_charge_remaining" msgid="2730510256218879651">"<xliff:g id="UNTIL_CHARGED">%1$s</xliff:g> để tính phí"</string>
-    <string name="background_activity_title" msgid="7207836362312111483">"Hạn chế trong nền"</string>
+    <string name="background_activity_title" msgid="7207836362312111483">"Hạn chế chạy trong nền"</string>
     <string name="background_activity_summary" msgid="582372194738538145">"Cho phép ứng dụng chạy trong nền"</string>
     <string name="background_activity_summary_disabled" msgid="457944930942085876">"Ứng dụng không được phép chạy trong nền"</string>
     <string name="background_activity_summary_whitelisted" msgid="4713321059375873828">"Không thể hạn chế sử dụng trong nền"</string>
     <string name="background_activity_warning_dialog_title" msgid="2170790412855899678">"Giới hạn hoạt động nền?"</string>
-    <string name="background_activity_warning_dialog_text" msgid="8242749826732375096">"Nếu bạn giới hạn hoạt động nền cho một ứng dụng, ứng dụng đó có thể hoạt động sai"</string>
+    <string name="background_activity_warning_dialog_text" msgid="8242749826732375096">"Nếu bạn giới hạn hoạt động nền cho một ứng dụng, ứng dụng đó có thể hoạt động không đúng cách"</string>
     <string name="background_activity_disabled_dialog_text" msgid="4234598000779459640">"Không thể hạn chế ứng dụng này vì bạn chưa đặt để tối ưu hóa pin.\n\nĐể hạn chế ứng dụng, trước tiên hãy bật tối ưu hóa pin."</string>
     <string name="device_screen_usage" msgid="4470485475363132750">"Mức sử dụng màn hình kể từ lần sạc đầy"</string>
     <string name="power_usage_list_summary" msgid="4314438658308211057">"Mức sử dụng pin kể từ lần sạc đầy"</string>
@@ -2448,9 +2448,9 @@
     <string name="process_dex2oat_label" msgid="8249082119748556085">"Tối ưu hóa ứng dụng"</string>
     <string name="battery_saver" msgid="3989710213758938398">"Trình tiết kiệm pin"</string>
     <string name="battery_saver_auto_title" msgid="4158659069641849952">"Tự động bật"</string>
-    <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"Chưa có lịch biểu nào"</string>
+    <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"Không có lịch biểu"</string>
     <string name="battery_saver_auto_routine" msgid="886514412067906980">"Dựa trên thói quen của bạn"</string>
-    <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"Dựa trên số phần trăm pin"</string>
+    <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"Dựa trên mức phần trăm pin"</string>
     <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Nếu pin có khả năng hết trước lần sạc thông thường tiếp theo, hệ thống sẽ bật Trình tiết kiệm pin."</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Sẽ bật khi pin ở mức <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Đặt lịch biểu"</string>
@@ -2629,9 +2629,9 @@
     <string name="remove_account_label" msgid="5885425720323823387">"Xóa tài khoản"</string>
     <string name="header_add_an_account" msgid="8482614556580804956">"Thêm tài khoản"</string>
     <string name="really_remove_account_title" msgid="4166512362915154319">"Xóa tài khoản?"</string>
-    <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"Xóa tài khoản này sẽ xóa tất cả thư, danh bạ và dữ liệu khác khỏi máy tính bảng!"</string>
-    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Xóa tài khoản này sẽ xóa tất cả thư, danh bạ và dữ liệu khác khỏi điện thoại!"</string>
-    <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"Xóa tài khoản này sẽ xóa tất cả thư, danh bạ và dữ liệu khác khỏi thiết bị!"</string>
+    <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"Nếu bạn xóa tài khoản này, tất cả thư, danh bạ và dữ liệu khác có liên quan sẽ bị xóa khỏi máy tính bảng!"</string>
+    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Nếu bạn xóa tài khoản này, tất cả thư, danh bạ và dữ liệu khác có liên quan sẽ bị xóa khỏi điện thoại!"</string>
+    <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"Nếu bạn xóa tài khoản này, tất cả thư, danh bạ và dữ liệu khác có liên quan sẽ bị xóa khỏi thiết bị!"</string>
     <string name="remove_account_failed" msgid="491458185327106966">"Quản trị viên của bạn không cho phép thực hiện thay đổi này"</string>
     <string name="cant_sync_dialog_title" msgid="5483419398223189881">"Không thể đồng bộ hóa theo cách thủ công"</string>
     <string name="cant_sync_dialog_message" msgid="3467126947262857534">"Đồng bộ hóa cho mục này hiện đã bị vô hiệu hóa. Để thay đổi cài đặt này, hãy tạm thời bật dữ liệu nền và đồng bộ hóa tự động."</string>
@@ -3156,7 +3156,7 @@
     <string name="vibrate_on_touch_summary" msgid="5504424764028676043">"Phản hồi xúc giác cho thao tác chạm, bàn phím và nhiều thao tác khác"</string>
     <string name="dock_audio_media_title" msgid="1859521680502040781">"Phát âm đế kết nối"</string>
     <string name="dock_audio_media_disabled" msgid="4300752306178486302">"Tất cả âm thanh"</string>
-    <string name="dock_audio_media_enabled" msgid="2873275045878628153">"Chỉ âm thanh phương tiện"</string>
+    <string name="dock_audio_media_enabled" msgid="2873275045878628153">"Chỉ âm thanh nội dung nghe nhìn"</string>
     <string name="emergency_tone_silent" msgid="804809075282717882">"Im lặng"</string>
     <string name="emergency_tone_alert" msgid="907868135091891015">"Âm"</string>
     <string name="emergency_tone_vibrate" msgid="5020068066905681181">"Rung"</string>
@@ -3173,9 +3173,9 @@
     <string name="zen_mode_behavior_settings_title" msgid="423125904296667490">"Ngoại lệ"</string>
     <string name="zen_mode_duration_settings_title" msgid="5522668871014735728">"Thời lượng mặc định"</string>
     <string name="zen_mode_behavior_allow_title" msgid="2440627647424280842">"Cho phép âm thanh và rung từ"</string>
-    <string name="zen_mode_behavior_no_sound" msgid="7290387625018248748">"Không có âm báo"</string>
+    <string name="zen_mode_behavior_no_sound" msgid="7290387625018248748">"Không có âm thanh"</string>
     <string name="zen_mode_behavior_total_silence" msgid="371498357539257671">"Hoàn toàn tắt tiếng"</string>
-    <string name="zen_mode_behavior_no_sound_except" msgid="8894465423364103198">"Không có âm báo ngoại trừ <xliff:g id="CATEGORIES">%1$s</xliff:g>"</string>
+    <string name="zen_mode_behavior_no_sound_except" msgid="8894465423364103198">"Không có âm thanh ngoại trừ <xliff:g id="CATEGORIES">%1$s</xliff:g>"</string>
     <string name="zen_mode_behavior_alarms_only" msgid="8406622989983047562">"Không phát âm thanh nào ngoại trừ báo thức và phương tiện"</string>
     <string name="zen_mode_automation_settings_title" msgid="3916960043054489008">"Lịch biểu"</string>
     <string name="zen_mode_delete_automatic_rules" msgid="2455264581527305755">"Xóa lịch biểu"</string>
@@ -3337,17 +3337,17 @@
     <string name="notification_importance_title" msgid="4131979083408000545">"Hành vi"</string>
     <string name="notification_importance_unspecified" msgid="2515778981253707724">"Cho phép âm thanh"</string>
     <string name="notification_importance_blocked" msgid="446807935484629222">"Không bao giờ hiển thị thông báo"</string>
-    <string name="notification_importance_min" msgid="4622854784474818944">"Hiển thị mà không phát âm báo và thu nhỏ"</string>
-    <string name="notification_importance_low" msgid="7609797151662295364">"Hiển thị mà không phát âm báo"</string>
-    <string name="notification_importance_default" msgid="4091563759103917166">"Phát âm báo"</string>
-    <string name="notification_importance_high" msgid="7973764540402436656">"Phát âm báo và hiển thị trên màn hình"</string>
+    <string name="notification_importance_min" msgid="4622854784474818944">"Hiển thị mà không phát âm thanh và thu nhỏ"</string>
+    <string name="notification_importance_low" msgid="7609797151662295364">"Hiển thị mà không phát âm thanh"</string>
+    <string name="notification_importance_default" msgid="4091563759103917166">"Phát âm thanh"</string>
+    <string name="notification_importance_high" msgid="7973764540402436656">"Phát âm thanh và hiển thị trên màn hình"</string>
     <string name="notification_importance_high_silent" msgid="3177662759865661155">"Hiển thị trên màn hình"</string>
     <string name="notification_importance_min_title" msgid="705872537330744154">"Thu nhỏ"</string>
     <string name="notification_importance_low_title" msgid="2956199021781786232">"Trung bình"</string>
     <string name="notification_importance_default_title" msgid="7985549807203332482">"Cao"</string>
     <string name="notification_importance_high_title" msgid="7258373094258585858">"Hiển thị trên màn hình"</string>
     <string name="notification_block_title" msgid="2570364198866886906">"Chặn"</string>
-    <string name="notification_silence_title" msgid="6959637402003838093">"Hiển thị mà không phát âm báo"</string>
+    <string name="notification_silence_title" msgid="6959637402003838093">"Hiển thị mà không phát âm thanh"</string>
     <string name="notification_alert_title" msgid="750683027055192648">"Cảnh báo"</string>
     <string name="allow_interruption" msgid="3548841026410702850">"Cho phép gián đoạn"</string>
     <string name="allow_interruption_summary" msgid="5207637026831135377">"Cho phép ứng dụng phát ra âm thanh, rung và/hoặc hiển thị thông báo trên màn hình"</string>
@@ -3426,13 +3426,13 @@
     <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"Cho phép những thông báo này tiếp tục làm gián đoạn khi chế độ Không làm phiền đang bật"</string>
     <string name="app_notification_visibility_override_title" msgid="2349335170165637672">"Trên màn hình khóa"</string>
     <string name="app_notification_row_banned" msgid="2079325338122151677">"Bị chặn"</string>
-    <string name="app_notification_row_priority" msgid="432299064888787236">"Mức độ ưu tiên"</string>
+    <string name="app_notification_row_priority" msgid="432299064888787236">"Ưu tiên"</string>
     <string name="app_notification_row_sensitive" msgid="4919671519227722958">"Nhạy cảm"</string>
     <string name="app_notifications_dialog_done" msgid="5395611029779655968">"Xong"</string>
     <string name="app_notification_importance_title" msgid="1902794400671001142">"Mức độ quan trọng"</string>
     <string name="notification_show_lights_title" msgid="5381920725933228542">"Nhấp nháy đèn"</string>
     <string name="notification_vibrate_title" msgid="8221718258793835282">"Rung"</string>
-    <string name="notification_channel_sound_title" msgid="7635366839003304745">"Âm báo"</string>
+    <string name="notification_channel_sound_title" msgid="7635366839003304745">"Âm thanh"</string>
     <string name="zen_mode_rule_delete_button" msgid="6763486487220471193">"Xóa"</string>
     <string name="zen_mode_rule_rename_button" msgid="1428130397306726792">"Đổi tên"</string>
     <string name="zen_mode_rule_name" msgid="8583652780885724670">"Tên lịch biểu"</string>
@@ -4388,7 +4388,7 @@
     <string name="mobile_data_settings_summary" msgid="6492798151325636912">"Sử dụng dữ liệu qua mạng di động"</string>
     <string name="mobile_data_settings_summary_auto_switch" msgid="3665863214578471494">"Điện thoại sẽ tự động chuyển sang nhà mạng này khi nằm trong vùng phủ sóng"</string>
     <string name="calls_preference" msgid="2076353032705811243">"Tùy chọn cuộc gọi"</string>
-    <string name="sms_preference" msgid="8449270011976880">"Tùy chọn SMS"</string>
+    <string name="sms_preference" msgid="8449270011976880">"Tùy chọn cho SMS"</string>
     <string name="calls_and_sms_ask_every_time" msgid="2776167541223210738">"Luôn hỏi"</string>
     <string name="mobile_network_summary_add_a_network" msgid="5408745221357144009">"Thêm mạng"</string>
     <plurals name="mobile_network_summary_count" formatted="false" msgid="6222822873390636020">

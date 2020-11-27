@@ -28,7 +28,7 @@
       <item quantity="other">אתה כעת במרחק של <xliff:g id="STEP_COUNT_1">%1$d</xliff:g> צעדים מלהיות מפתח.</item>
       <item quantity="one">אתה כעת במרחק של צעד <xliff:g id="STEP_COUNT_0">%1$d</xliff:g> מלהיות מפתח.</item>
     </plurals>
-    <string name="show_dev_on" msgid="9075712234786224065">"אתה כעת מפתח!"</string>
+    <string name="show_dev_on" msgid="9075712234786224065">"הוגדרת כמפתח!"</string>
     <string name="show_dev_already" msgid="7665948832405148689">"אין צורך, אתה כבר מפתח."</string>
     <string name="dev_settings_disabled_warning" msgid="3198732189395396721">"קודם עליך להפעיל את אפשרויות המפתח."</string>
     <string name="header_category_wireless_networks" msgid="8968405993937795898">"רשתות ותקשורת אלחוטית"</string>
@@ -3486,9 +3486,9 @@
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"הפעלת ההרשאה \'נא לא להפריע\'"</string>
     <string name="zen_access_empty_text" msgid="7667538993781607731">"אין אפליקציות מותקנות שביקשו גישה אל \'נא לא להפריע\'"</string>
     <string name="loading_notification_apps" msgid="1978345231934072091">"טוען אפליקציות..."</string>
-    <string name="app_notifications_off_desc" msgid="3904090905748895146">"לבקשתך, מערכת Android חוסמת במכשיר זה הצגת התראות מאפליקציה זו"</string>
-    <string name="channel_notifications_off_desc" msgid="8005444443218306611">"לבקשתך, מערכת Android חוסמת במכשיר הצגה של קטגוריית התראות זו"</string>
-    <string name="channel_group_notifications_off_desc" msgid="7154205544298672850">"לבקשתך, מערכת Android חוסמת במכשיר הצגה של מקבץ הודעות זה"</string>
+    <string name="app_notifications_off_desc" msgid="3904090905748895146">"לבקשתך, מערכת Android לא מאפשרת להציג במכשיר הזה התראות מהאפליקציה הזו"</string>
+    <string name="channel_notifications_off_desc" msgid="8005444443218306611">"לבקשתך, מערכת Android לא מאפשרת להציג במכשיר הזה התראות ששייכות לקטגוריה הזו"</string>
+    <string name="channel_group_notifications_off_desc" msgid="7154205544298672850">"לבקשתך, מערכת Android לא מאפשרת להציג במכשיר הזה התראות מקבוצה זו"</string>
     <string name="notification_channels" msgid="956764228116145956">"קטגוריות"</string>
     <string name="notification_channels_other" msgid="1615988645667411530">"אחר"</string>
     <plurals name="notification_group_summary" formatted="false" msgid="3744856747513344999">
@@ -3747,7 +3747,7 @@
     <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"לא התבקשו הרשאות"</string>
     <string name="filter_all_apps" msgid="4042756539846043675">"כל האפליקציות"</string>
     <string name="filter_enabled_apps" msgid="5888459261768538489">"אפליקציות מותקנות"</string>
-    <string name="filter_instant_apps" msgid="8087483282854072366">"אפליקציות אינסטנט"</string>
+    <string name="filter_instant_apps" msgid="8087483282854072366">"אפליקציות ללא התקנה"</string>
     <string name="filter_personal_apps" msgid="3473268022652904457">"אישיות"</string>
     <string name="filter_work_apps" msgid="4202483998339465542">"עבודה"</string>
     <string name="filter_notif_all_apps" msgid="1862666327228804896">"אפליקציות: הכל"</string>
@@ -4291,10 +4291,10 @@
     <string name="oem_unlock_enable_disabled_summary_sim_locked_device" msgid="5223278198179877704">"לא זמין במכשירים הנעולים לספק"</string>
     <string name="oem_lock_info_message" msgid="5090850412279403901">"יש להפעיל מחדש את המכשיר כדי להפעיל את התכונה של הגנת המכשיר."</string>
     <string name="automatic_storage_manager_freed_bytes" msgid="7360443072390107772">"סה\"כ <xliff:g id="SIZE">%1$s</xliff:g> הפכו לזמינים\n\nהורץ לאחרונה בתאריך <xliff:g id="DATE">%2$s</xliff:g>"</string>
-    <string name="web_action_enable_title" msgid="4462106633708675959">"אפליקציות אינסטנט"</string>
+    <string name="web_action_enable_title" msgid="4462106633708675959">"אפליקציות ללא התקנה"</string>
     <string name="web_action_enable_summary" msgid="1729016644691793085">"פתיחת קישורים באפליקציות, גם אם הן לא מותקנות"</string>
-    <string name="web_action_section_title" msgid="5563229447734734662">"אפליקציות אינסטנט"</string>
-    <string name="instant_apps_settings" msgid="879003203555847537">"העדפות של אפליקציות אינסטנט"</string>
+    <string name="web_action_section_title" msgid="5563229447734734662">"אפליקציות ללא התקנה"</string>
+    <string name="instant_apps_settings" msgid="879003203555847537">"העדפות של אפליקציות ללא התקנה"</string>
     <string name="domain_url_section_title" msgid="206403507921518321">"אפליקציות מותקנות"</string>
     <string name="automatic_storage_manager_activation_warning" msgid="2630083316417707308">"האחסון שלך מנוהל כעת על ידי מנהל האחסון"</string>
     <string name="account_for_section_header" msgid="5975241715840642563">"חשבונות עבור <xliff:g id="USER_NAME">%1$s</xliff:g>"</string>
@@ -4423,7 +4423,7 @@
     <string name="storage_manager_indicator" msgid="4255140732848476875">"מנהל אחסון: <xliff:g id="STATUS">^1</xliff:g>"</string>
     <string name="storage_manager_indicator_off" msgid="6404056007102580777">"כבוי"</string>
     <string name="storage_manager_indicator_on" msgid="5295306384982062320">"פועל"</string>
-    <string name="install_type_instant" msgid="6248487669862821874">"אפליקציה אינסטנט"</string>
+    <string name="install_type_instant" msgid="6248487669862821874">"אפליקציה ללא התקנה"</string>
     <string name="automatic_storage_manager_deactivation_warning" msgid="7867793739491286374">"האם לכבות את מנהל האחסון?"</string>
     <string name="storage_movies_tv" msgid="7282484273991655296">"אפליקציות סרטים וטלוויזיה"</string>
     <string name="carrier_provisioning" msgid="3309125279191534469">"פרטי ניהול תצורה של ספק סלולרי"</string>

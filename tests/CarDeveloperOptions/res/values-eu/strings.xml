@@ -730,7 +730,7 @@
     <string name="bluetooth_settings_title" msgid="7261244857456521825">"Bluetooth-a"</string>
     <string name="bluetooth_settings_summary" msgid="1221689092429277887">"Kudeatu konexioak, ezarri gailuaren izena eta ikusgaitasuna"</string>
     <string name="bluetooth_pairing_request" msgid="7221745525632573125">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> gailuarekin parekatu nahi duzu?"</string>
-    <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"Bluetooth parekatze-kodea"</string>
+    <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"Bluetooth bidez parekatzeko kodea"</string>
     <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"Idatzi parekatze-kodea eta sakatu Sartu edo Itzuli"</string>
     <string name="bluetooth_enable_alphanumeric_pin" msgid="9138308197078115672">"PINak hizkiak edo ikurrak ditu"</string>
     <string name="bluetooth_pin_values_hint" msgid="8044671726261326240">"Normalean 0000 edo 1234"</string>
@@ -978,7 +978,7 @@
     <string name="wifi_no_domain_warning" msgid="735859919311067606">"Domeinua zehaztu behar da."</string>
     <string name="wifi_wps_available_first_item" msgid="3221671453930485243">"WPSa erabilgarri"</string>
     <string name="wifi_wps_available_second_item" msgid="5703265526619705185">" (WPSa erabilgarri)"</string>
-    <string name="wifi_carrier_connect" msgid="7202618367339982884">"Operadorearen Wi‑Fi sarea"</string>
+    <string name="wifi_carrier_connect" msgid="7202618367339982884">"Operadorearen wifi-sarea"</string>
     <string name="wifi_carrier_content" msgid="3467402515071949783">"Konektatu <xliff:g id="NAME">%1$s</xliff:g> bidez"</string>
     <string name="wifi_scan_always_turnon_message" msgid="7811846312032594248">"Kokapenaren zehaztasuna hobetzeko eta beste helburu batzuetarako, <xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioak sare-bilaketa aktibatu nahi du, Wi-Fia desaktibatuta egonda ere.\n\nBilaketa egin nahi duten beste aplikazio guztiei ere baimendu nahi diezu?"</string>
     <string name="wifi_scan_always_turnoff_message" msgid="556993843641750002">"Desaktibatzeko, joan menuko \"Ezarpen aurreratuak\" aukerara."</string>
@@ -1021,7 +1021,7 @@
     <string name="wifi_advanced_mac_address_title" msgid="1162782083754021737">"MAC helbidea"</string>
     <string name="wifi_advanced_ip_address_title" msgid="2708185994512829071">"IP helbidea"</string>
     <string name="wifi_details_title" msgid="2164042631550920157">"Sarearen xehetasunak"</string>
-    <string name="wifi_details_subnet_mask" msgid="53396707004763012">"Azpisarearen maskara"</string>
+    <string name="wifi_details_subnet_mask" msgid="53396707004763012">"Azpisare-maskara"</string>
     <string name="wifi_details_dns" msgid="1118251455740116559">"DNS"</string>
     <string name="wifi_details_ipv6_address_header" msgid="1642310137145363299">"IPv6 helbideak"</string>
     <string name="wifi_saved_access_points_label" msgid="3790693285928292563">"Gordetako sareak"</string>
@@ -1844,7 +1844,7 @@
     <string name="default_emergency_app" msgid="286530070173495823">"Larrialdietarako aplikazioa"</string>
     <string name="reset_app_preferences" msgid="1426500030595212077">"Berrezarri aplikazioen hobespenak"</string>
     <string name="reset_app_preferences_title" msgid="792909865493673598">"Aplikazioen hobespenak berrezarri nahi dituzu?"</string>
-    <string name="reset_app_preferences_desc" msgid="7935273005301096031">"Hauen hobespen guztiak berrezarriko dira:\n\n"<li>"desgaitutako aplikazioak,"</li>\n<li>"desgaitutako aplikazio-jakinarazpenak,"</li>\n<li>"ekintza jakinetarako aplikazio lehenetsiak,"</li>\n<li>"aplikazioen atzeko planoko datuen murriztapenak eta"</li>\n<li>"baimen-murriztapenak."</li>\n\n"Ez dituzu galduko aplikazioetako datuak."</string>
+    <string name="reset_app_preferences_desc" msgid="7935273005301096031">"Hauen hobespen guztiak berrezarriko dira:\n\n"<li>"desgaitutako aplikazioak,"</li>\n<li>"desgaitutako aplikazio-jakinarazpenak,"</li>\n<li>"ekintza jakinetarako aplikazio lehenetsiak,"</li>\n<li>"aplikazioen atzeko planoko datuen murriztapenak,"</li>\n<li>"baimen-murriztapenak."</li>\n\n"Ez dituzu galduko aplikazioetako datuak."</string>
     <string name="reset_app_preferences_button" msgid="2041894727477934656">"Berrezarri aplikazioak"</string>
     <string name="manage_space_text" msgid="6166469422303124302">"Kudeatu tokia"</string>
     <string name="filter" msgid="2426943916212457962">"Iragazi"</string>
@@ -3312,7 +3312,7 @@
     <string name="bubbles_app_toggle_title" msgid="6401217027603326439">"Burbuilak"</string>
     <string name="bubbles_app_toggle_summary" msgid="7707611139796553855">"Baimendu <xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioari jakinarazpen batzuk burbuila gisa erakustea"</string>
     <string name="bubbles_feature_disabled_dialog_title" msgid="3375452386012079293">"Aktibatu burbuilak"</string>
-    <string name="bubbles_feature_disabled_dialog_text" msgid="326945485806386477">"Aplikazio honetan burbuilak aktibatu ahal izateko, gailuan aktibatu behar dituzu lehendabizi. Ekintza horrek eragina izango du burbuilak lehendik ere aktibatuta dituzten aplikazioetan."</string>
+    <string name="bubbles_feature_disabled_dialog_text" msgid="326945485806386477">"Aplikazio honetan burbuilak aktibatu ahal izateko, gailuan aktibatu behar dituzu lehendabizi. Ekintza horrek eragina izango du burbuilak lehendik ere aktibatuta dauzkaten aplikazioetan."</string>
     <string name="bubbles_feature_disabled_button_approve" msgid="6661464849674493351">"Gailua pizteko"</string>
     <string name="bubbles_feature_disabled_button_cancel" msgid="4807286844588486198">"Utzi"</string>
     <string name="swipe_direction_title" msgid="7535031630668873009">"Hatza pasatuta gauzatzen diren ekintzak"</string>
@@ -4164,7 +4164,7 @@
     <string name="account_sync_title" msgid="1570164819114297154">"Kontuaren sinkronizazioa"</string>
     <string name="account_sync_summary_some_on" msgid="1934556869158274053">"<xliff:g id="ID_1">%1$d</xliff:g>/<xliff:g id="ID_2">%2$d</xliff:g> elementuk aktibatuta daukate sinkronizazioa"</string>
     <string name="account_sync_summary_all_on" msgid="3634161204232431700">"Elementu guztiek aktibatuta daukate sinkronizazioa"</string>
-    <string name="account_sync_summary_all_off" msgid="1971584632343645602">"Elementu guztiek desaktibatuta dute sinkronizazioa"</string>
+    <string name="account_sync_summary_all_off" msgid="1971584632343645602">"Elementu guztiek desaktibatuta daukate sinkronizazioa"</string>
     <string name="enterprise_privacy_settings" msgid="2777101678653072889">"Gailu kudeatuaren informazioa"</string>
     <string name="enterprise_privacy_settings_summary_generic" msgid="5557859169062703683">"Erakundeak kudeatzen dituen aldaketak eta ezarpenak"</string>
     <string name="enterprise_privacy_settings_summary_with_name" msgid="4884479123751308407">"<xliff:g id="ORGANIZATION_NAME">%s</xliff:g> erakundeak kudeatzen dituen aldaketak eta ezarpenak"</string>

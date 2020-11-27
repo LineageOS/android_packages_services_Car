@@ -655,8 +655,8 @@
       <item quantity="one">ត្រូវ​តែ​មាន​យ៉ាង​ហោច​ណាស់ <xliff:g id="COUNT_0">%d</xliff:g> តួ</item>
     </plurals>
     <plurals name="lockpassword_pin_too_short" formatted="false" msgid="6805936168283187298">
-      <item quantity="other">កូដ PIN ត្រូវ​តែ​មាន​យ៉ាង​ហោច​ណាស់ <xliff:g id="COUNT_1">%d</xliff:g> ខ្ទង់</item>
-      <item quantity="one">កូដ PIN ត្រូវ​តែ​មាន​យ៉ាង​ហោច​ណាស់ <xliff:g id="COUNT_0">%d</xliff:g> ខ្ទង់</item>
+      <item quantity="other">កូដ PIN ត្រូវ​មានយ៉ាងតិច <xliff:g id="COUNT_1">%d</xliff:g> ខ្ទង់</item>
+      <item quantity="one">កូដ PIN ត្រូវ​មានយ៉ាងតិច <xliff:g id="COUNT_0">%d</xliff:g> ខ្ទង់</item>
     </plurals>
     <string name="lockpassword_continue_label" msgid="7279261861924400655">"បន្ត"</string>
     <plurals name="lockpassword_password_too_long" formatted="false" msgid="7994068708438608179">
@@ -1313,7 +1313,7 @@
     <string name="security_patch" msgid="483709031051932208">"កម្រិតបំណះសុវត្ថិភាព Android"</string>
     <string name="model_info" msgid="1729765474260797594">"ម៉ូដែល"</string>
     <string name="model_summary" msgid="8781425868254352168">"ម៉ូដែល៖ %1$s"</string>
-    <string name="hardware_info" msgid="174270144950621815">"ម៉ូដែល និង​ផ្នែករឹង"</string>
+    <string name="hardware_info" msgid="174270144950621815">"ម៉ូដែល និង​ហាតវែរ"</string>
     <string name="hardware_revision" msgid="3315744162524354246">"កំណែ​ផ្នែករឹង"</string>
     <string name="fcc_equipment_id" msgid="8681995718533066093">"លេខ​សម្គាល់​បរិក្ខារ"</string>
     <string name="baseband_version" msgid="9115560821840757786">"កំណែ​មូលដ្ឋាន"</string>
@@ -3736,7 +3736,7 @@
     <string name="usb_use_tethering" msgid="4250626730173163846">"ការ​ភ្ជាប់តាម USB"</string>
     <string name="usb_use_MIDI" msgid="4710632870781041401">"MIDI"</string>
     <string name="usb_use_MIDI_desc" msgid="1770966187150010947">"ប្រើឧបករណ៍នេះជាមីឌី"</string>
-    <string name="usb_use" msgid="8940500223316278632">"ប្រើ USB ដើម្បី"</string>
+    <string name="usb_use" msgid="8940500223316278632">"ប្រើ USB សម្រាប់"</string>
     <string name="usb_default_label" msgid="7471316635263936101">"ការកំណត់​រចនាសម្ព័ន្ធ USB លំនាំ​ដើម"</string>
     <string name="usb_default_info" msgid="953775292571786528">"ការកំណត់​ទាំងនេះ​នឹងអនុវត្ត នៅពេល​ដែល​ទូរសព្ទ​របស់អ្នក​ដោះសោ ហើយឧបករណ៍​ផ្សេងទៀត​ត្រូវបានភ្ជាប់​។ សូម​ភ្ជាប់​ជាមួយឧបករណ៍​ដែលទុកចិត្ត​តែប៉ុណ្ណោះ។"</string>
     <string name="usb_pref" msgid="6194821550693495068">"USB"</string>
@@ -4052,7 +4052,7 @@
     <string name="display_cutout_emulation_keywords" msgid="6795671536772871439">"ឆក, ក្បាលឆក"</string>
     <string name="overlay_option_device_default" msgid="165508753381657697">"លំនាំដើម​របស់ឧបករណ៍"</string>
     <string name="overlay_toast_failed_to_apply" msgid="5692251825129250040">"មិនអាចប្រើ​ការដាក់​ត្រួតគ្នា​បានទេ"</string>
-    <string name="special_access" msgid="1453926335914696206">"ការចូលប្រើប្រាស់កម្មវិធីពិសេស"</string>
+    <string name="special_access" msgid="1453926335914696206">"សិទ្ធិចូលប្រើប្រាស់កម្មវិធីពិសេស"</string>
     <plurals name="special_access_summary" formatted="false" msgid="5182092345063909346">
       <item quantity="other">កម្មវិធី <xliff:g id="COUNT">%d</xliff:g> អាច​ប្រើ​ទិន្នន័យដែលគ្មានការដាក់កំហិត</item>
       <item quantity="one">កម្មវិធី 1 អាច​ប្រើ​ទិន្នន័យដែលគ្មានការដាក់កំហិត</item>

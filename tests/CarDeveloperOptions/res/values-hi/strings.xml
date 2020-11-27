@@ -729,7 +729,7 @@
     <string name="bluetooth_settings" msgid="5228032727293770389">"ब्लूटूथ"</string>
     <string name="bluetooth_settings_title" msgid="7261244857456521825">"ब्लूटूथ"</string>
     <string name="bluetooth_settings_summary" msgid="1221689092429277887">"कनेक्‍शन प्रबंधित करें, डिवाइस का नाम सेट करें और उसे खोजने लायक बनाएं"</string>
-    <string name="bluetooth_pairing_request" msgid="7221745525632573125">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> से जोड़ें?"</string>
+    <string name="bluetooth_pairing_request" msgid="7221745525632573125">"क्या आप <xliff:g id="DEVICE_NAME">%1$s</xliff:g> से जोड़ना चाहते हैं?"</string>
     <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"ब्‍लूटूथ से जोड़ने वाला कोड"</string>
     <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"दूसरे डिवाइस से जोड़ना वाला कोड लिखें और फिर Return या Enter दबाएं"</string>
     <string name="bluetooth_enable_alphanumeric_pin" msgid="9138308197078115672">"पिन में अक्षर या प्रतीक शामिल होते हैं"</string>
@@ -1168,7 +1168,7 @@
     <string name="accessibility_category_personal" msgid="1423427301759058762">"व्‍यक्‍तिगत प्रोफ़ाइल खाते"</string>
     <string name="accessibility_work_account_title" msgid="3195468574776888011">"कार्यस्‍थल खाता - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
     <string name="accessibility_personal_account_title" msgid="7251761883688839354">"व्‍यक्‍तिगत खाता - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
-    <string name="search_settings" msgid="5809250790214921377">"सर्च"</string>
+    <string name="search_settings" msgid="5809250790214921377">"खोज"</string>
     <string name="display_settings" msgid="1045535829232307190">"डिसप्ले"</string>
     <string name="accelerometer_title" msgid="2427487734964971453">"स्‍क्रीन अपने आप घूमने की सुविधा चालू करें"</string>
     <string name="color_mode_title" msgid="8164858320869449142">"रंग"</string>
@@ -1450,7 +1450,7 @@
     <string name="storage_internal_forget_confirm_title" msgid="331032276130605241">"<xliff:g id="NAME">^1</xliff:g> को भूल जाएं?"</string>
     <string name="storage_internal_forget_confirm" msgid="3052483375203727176">"इस <xliff:g id="NAME">^1</xliff:g> पर संग्रहित सभी ऐप्‍स, फ़ोटो और डेटा हमेशा के लिए खो जाएंगे."</string>
     <string name="storage_detail_apps" msgid="8154648512504196820">"ऐप्लिकेशन"</string>
-    <string name="storage_detail_images" msgid="6996202225684468964">"इमेज"</string>
+    <string name="storage_detail_images" msgid="6996202225684468964">"Images"</string>
     <string name="storage_detail_videos" msgid="6030983354721080849">"वीडियो"</string>
     <string name="storage_detail_audio" msgid="6011098436589663944">"ऑडियो"</string>
     <string name="storage_detail_cached" msgid="5761648455067920683">"संग्रहित डेटा"</string>
@@ -2528,7 +2528,7 @@
     <string name="credentials_install_summary" product="nosdcard" msgid="3426661965567059596">"मेमोरी से प्रमाणपत्र इंस्‍टॉल करें"</string>
     <string name="credentials_install_summary" product="default" msgid="4943897416156671633">"SD कार्ड से प्रमाणपत्र इंस्‍टॉल करें"</string>
     <string name="credentials_reset" msgid="355080737664731678">"क्रेडेंशियल मिटाएं"</string>
-    <string name="credentials_reset_summary" msgid="7622528359699428555">"सभी प्रमाणपत्र मिटाएं"</string>
+    <string name="credentials_reset_summary" msgid="7622528359699428555">"सभी सर्टिफ़िकेट मिटाएं"</string>
     <string name="trusted_credentials" msgid="6989242522455395200">"भरोसेमंद क्रेडेंशियल"</string>
     <string name="trusted_credentials_summary" msgid="7411781319056251582">"भरोसेमंद सीए प्रमाणपत्र दिखाएं"</string>
     <string name="user_credentials" msgid="8365731467650306757">"यूज़र क्रेडेंशियल"</string>
@@ -2976,7 +2976,7 @@
     <string name="restriction_nfc_enable_summary_config" msgid="405349698260328073">"जब यह <xliff:g id="DEVICE_NAME">%1$s</xliff:g> किसी अन्य NFC डिवाइस को छुए तब डेटा का लेन-देन होने दें"</string>
     <string name="restriction_nfc_enable_summary" product="tablet" msgid="3292205836938064931">"जब टैबलेट अन्य डिवाइस को स्पर्श करे तो डेटा ट्रांसफर करने दें"</string>
     <string name="restriction_nfc_enable_summary" product="default" msgid="226439584043333608">"जब फ़ोन दूसरे डिवाइस को टच करे तो डेटा ट्रांसफर करने दें"</string>
-    <string name="restriction_location_enable_title" msgid="358506740636434856">"जगह"</string>
+    <string name="restriction_location_enable_title" msgid="358506740636434856">"जगह की जानकारी"</string>
     <string name="restriction_location_enable_summary" msgid="4159500201124004463">"ऐप को आपकी जगह की जानकारी का इस्तेमाल करने दें"</string>
     <string name="wizard_back" msgid="223654213898117594">"वापस जाएं"</string>
     <string name="wizard_next" msgid="5239664512608113542">"आगे बढ़ें"</string>
@@ -3136,7 +3136,7 @@
     <string name="sound_settings_example_summary" msgid="2091822107298841827">"रिंग की आवाज़ 80% है"</string>
     <string name="media_volume_option_title" msgid="3553411883305505682">"मीडिया की आवाज़"</string>
     <string name="remote_media_volume_option_title" msgid="6355710054191873836">"आवाज़ कास्ट करें"</string>
-    <string name="call_volume_option_title" msgid="5028003296631037334">"कॉल की आवाज़"</string>
+    <string name="call_volume_option_title" msgid="5028003296631037334">"कॉल वॉल्‍यूम"</string>
     <string name="alarm_volume_option_title" msgid="3184076022438477047">"अलार्म की आवाज़"</string>
     <string name="ring_volume_option_title" msgid="2038924918468372264">"रिंग की आवाज़"</string>
     <string name="notification_volume_option_title" msgid="1358512611511348260">"सूचना की आवाज़"</string>
@@ -3792,7 +3792,7 @@
     <string name="zen_access_revoke_warning_dialog_title" msgid="6850994585577513299">"<xliff:g id="APP">%1$s</xliff:g> के लिए परेशान न करें की पहुंच रद्द करें?"</string>
     <string name="zen_access_revoke_warning_dialog_summary" msgid="3487422193181311403">"इस ऐप के द्वारा, परेशान न करें के लिए बनाए गए सभी नियम निकाल दिए जाएंगे."</string>
     <string name="ignore_optimizations_on" msgid="4373971641328943551">"ऑप्‍टिमाइज़ ना करें"</string>
-    <string name="ignore_optimizations_off" msgid="4372289432580282870">"ऑप्‍टिमाइज़ करें"</string>
+    <string name="ignore_optimizations_off" msgid="4372289432580282870">"ऑप्टिमाइज़ करें"</string>
     <string name="ignore_optimizations_on_desc" msgid="2904484569799521559">"इससे आपके डिवाइस की बैटरी तेज़ी से खर्च हो सकती है. यह सेटिंग चालू करने के बाद, ऐप्लिकेशन को बैकग्राउंड में बैटरी इस्तेमाल करने से नहीं रोका जाएगा."</string>
     <string name="ignore_optimizations_off_desc" msgid="5598702251817814289">"बेहतर बैटरी जीवनकाल के लिए सुझाया गया"</string>
     <string name="ignore_optimizations_title" msgid="7924345545276166305">"<xliff:g id="APP">%s</xliff:g> को बैटरी ऑप्टिमाइज़ेशन को अनदेखा करने की अनुमति दें?"</string>
@@ -4157,7 +4157,7 @@
     <string name="automatic_storage_manager_activation_warning" msgid="2630083316417707308">"आपकी जगह का प्रबंधन अब जगह प्रबंधक द्वारा किया जा रहा है"</string>
     <string name="account_for_section_header" msgid="5975241715840642563">"<xliff:g id="USER_NAME">%1$s</xliff:g> के खाते"</string>
     <string name="configure_section_header" msgid="6988981883075615136">"कॉन्फ़िगर करें"</string>
-    <string name="auto_sync_account_title" msgid="2394463123733529506">"डेटा को अपने आप सिंक करें"</string>
+    <string name="auto_sync_account_title" msgid="2394463123733529506">"डेटा को अपने-आप सिंक होने दें"</string>
     <string name="auto_sync_personal_account_title" msgid="6844465157916100655">"व्यक्तिगत डेटा अपने आप सिंक करें"</string>
     <string name="auto_sync_work_account_title" msgid="2403222633447522376">"दफ़्तर डेटा अपने आप सिंक करें"</string>
     <string name="auto_sync_account_summary" msgid="6316230976974033772">"ऐप्लिकेशन को डेटा अपने-आप रीफ्रे़श करने दें"</string>

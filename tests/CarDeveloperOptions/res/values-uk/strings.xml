@@ -2084,7 +2084,7 @@
     <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"Змінити розмір шрифту"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"Програми зчитування з екрана"</string>
     <string name="audio_and_captions_category_title" msgid="6140472938769619212">"Аудіо й текст на екрані"</string>
-    <string name="display_category_title" msgid="545168481672250195">"Дисплей"</string>
+    <string name="display_category_title" msgid="545168481672250195">"Екран"</string>
     <string name="interaction_control_category_title" msgid="8775039211811947683">"Елементи керування взаємодією"</string>
     <string name="user_installed_services_category_title" msgid="4288689493753221319">"Завантажені служби"</string>
     <string name="experimental_category_title" msgid="3797000069740110717">"Експериментальні налаштування"</string>
@@ -2405,7 +2405,7 @@
     <string name="restricted_app_detail_footer" msgid="482460517275754465">"Ці додатки споживали заряд акумулятора у фоновому режимі. Якщо ви їх обмежите, можливо, вони працюватимуть неналежним чином, а сповіщення надходитимуть із затримкою."</string>
     <string name="battery_auto_restriction_title" msgid="488905332794794076">"Використовувати диспетчер заряду акумулятора"</string>
     <string name="battery_auto_restriction_summary" msgid="1638072655581821837">"Виявляти, коли додатки швидко розряджають акумулятор"</string>
-    <string name="battery_manager_on" msgid="5626982529932239656">"Увімкнено / Виявляється, коли додатки швидко розряджають акумулятор"</string>
+    <string name="battery_manager_on" msgid="5626982529932239656">"Увімкнено (функція виявляє додатки, які швидко розряджають акумулятор)"</string>
     <string name="battery_manager_off" msgid="9114027524232450371">"Вимкнено"</string>
     <plurals name="battery_manager_app_restricted" formatted="false" msgid="6721813588142691216">
       <item quantity="one">%1$d додаток обмежено</item>
@@ -3702,7 +3702,7 @@
     <string name="storage_type_internal" msgid="4434212376539293892">"Внутрішня пам’ять"</string>
     <string name="storage_type_external" msgid="8827468573685648108">"Зовнішня пам’ять"</string>
     <string name="data_summary_format" msgid="5022135392347814271">"З <xliff:g id="DATE">%2$s</xliff:g> використано <xliff:g id="SIZE">%1$s</xliff:g>"</string>
-    <string name="storage_used" msgid="2457948583478332647">"Використано пам’яті"</string>
+    <string name="storage_used" msgid="2457948583478332647">"Використане сховище"</string>
     <string name="change" msgid="41563753961948554">"Змінити"</string>
     <string name="change_storage" msgid="2064045078609862770">"Змінити пам’ять"</string>
     <string name="notifications_label" msgid="2792398288062643318">"Сповіщення"</string>
@@ -3860,8 +3860,8 @@
     <string name="usb_pref" msgid="6194821550693495068">"USB"</string>
     <string name="usb_preference" msgid="7092987095048592826">"Параметри USB"</string>
     <string name="usb_control_title" msgid="2379698856760894768">"USB керує"</string>
-    <string name="usb_control_host" msgid="193292043691034178">"Підключений пристрій"</string>
-    <string name="usb_control_device" msgid="9154790265254725254">"Цей пристрій"</string>
+    <string name="usb_control_host" msgid="193292043691034178">"Підключеним пристроєм"</string>
+    <string name="usb_control_device" msgid="9154790265254725254">"Цим пристроєм"</string>
     <string name="usb_switching" msgid="1230386065163529904">"Змінюється…"</string>
     <string name="usb_switching_failed" msgid="6857722544186145439">"Не вдалося змінити"</string>
     <string name="usb_summary_charging_only" msgid="4118449308708872339">"Заряджання пристрою"</string>

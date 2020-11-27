@@ -1554,7 +1554,7 @@
     <string name="carrier_enabled_summaryOff" msgid="4093019532796386622">"APN desactivat"</string>
     <string name="bearer" msgid="4378444317087536401">"Portador"</string>
     <string name="mvno_type" msgid="3150755279048149624">"Tipus d\'OMV"</string>
-    <string name="mvno_match_data" msgid="629287305803195245">"Valor de MVNO"</string>
+    <string name="mvno_match_data" msgid="629287305803195245">"Valor d\'OMV"</string>
     <string name="menu_delete" msgid="8646081395424055735">"Suprimeix l\'APN"</string>
     <string name="menu_new" msgid="7529219814721969024">"APN nou"</string>
     <string name="menu_save" msgid="7310230314430623215">"Desa"</string>
@@ -1584,7 +1584,7 @@
     <string name="reset_esim_error_title" msgid="4728931209471875632">"No es poden esborrar les targetes SIM"</string>
     <string name="reset_esim_error_msg" msgid="4716366079119742235">"No s\'han pogut esborrar les targetes SIM que has baixat a causa d\'un error.\n\nReinicia el dispositiu i torna-ho a provar."</string>
     <string name="master_clear_title" msgid="1560712943955904673">"Esborra totes les dades (restabliment de les dades de fàbrica)"</string>
-    <string name="master_clear_short_title" msgid="919098101581335101">"Esborra totes les dades"</string>
+    <string name="master_clear_short_title" msgid="919098101581335101">"Esborra totes les dades (restabliment dades fàbrica)"</string>
     <string name="master_clear_desc" product="tablet" msgid="3432373610755760899">"Aquesta acció esborrarà totes les dades de l\'"<b>"emmagatzematge intern"</b>" de la tauleta, com ara:\n\n"<li>"el teu Compte de Google"</li>\n<li>"les dades i la configuració del sistema i de les aplicacions"</li>\n<li>"les aplicacions baixades"</li></string>
     <string name="master_clear_desc" product="default" msgid="8765543541962866697">"S\'esborraran totes les dades de l\'"<b>"emmagatzematge intern"</b>" del telèfon, inclosos:\n\n"<li>"El teu Compte de Google"</li>\n<li>"Les dades i la configuració del sistema i de les aplicacions"</li>\n<li>"Les aplicacions baixades"</li></string>
     <string name="master_clear_accounts" product="default" msgid="3432884235445405376">\n\n"Tens la sessió iniciada als comptes següents:\n"</string>
@@ -1615,7 +1615,7 @@
     <string name="tether_settings_title_bluetooth" msgid="1999590158102569959">"Compartició de xarxa per Bluetooth"</string>
     <string name="tether_settings_title_usb_bluetooth" msgid="1159128764162788159">"Compartició de xarxa"</string>
     <string name="tether_settings_title_all" msgid="6935843543433954181">"Punt d\'accés Wi-Fi i compartició de xarxa"</string>
-    <string name="tether_settings_summary_hotspot_on_tether_on" msgid="1289593649526514499">"Punt d\'accés Wi-Fi i compartició de xarxa activats"</string>
+    <string name="tether_settings_summary_hotspot_on_tether_on" msgid="1289593649526514499">"Punt d\'accés Wi-Fi activat, compartició de xarxa"</string>
     <string name="tether_settings_summary_hotspot_on_tether_off" msgid="8010689354668285422">"Punt d\'accés Wi-Fi activat"</string>
     <string name="tether_settings_summary_hotspot_off_tether_on" msgid="1349909238672649877">"Compartició de xarxa"</string>
     <string name="tether_settings_disabled_on_data_saver" msgid="3682544845899910726">"No es pot compartir la xarxa ni utilitzar punts d\'accés Wi-Fi mentre la funció Economitzador de dades està activada"</string>
@@ -1648,7 +1648,7 @@
     <string name="mobile_connect_to_internet" msgid="6031886097365170913">"Connecta a Internet"</string>
     <string name="location_title" msgid="8664674161765477168">"La meva ubicació"</string>
     <string name="managed_profile_location_switch_title" msgid="8157384427925389680">"Ubicació per al perfil de treball"</string>
-    <string name="location_app_level_permissions" msgid="1298041503927632960">"Permís d\'aplicacions"</string>
+    <string name="location_app_level_permissions" msgid="1298041503927632960">"Permisos de les aplicacions"</string>
     <string name="location_app_permission_summary_location_off" msgid="541372845344796336">"La ubicació està desactivada"</string>
     <plurals name="location_app_permission_summary_location_on" formatted="false" msgid="7904821382328758218">
       <item quantity="other">Aplicacions que tenen accés il·limitat: <xliff:g id="BACKGROUND_LOCATION_APP_COUNT_2">%1$d</xliff:g> de <xliff:g id="TOTAL_LOCATION_APP_COUNT_3">%2$d</xliff:g></item>
@@ -2048,7 +2048,7 @@
     <string name="experimental_category_title" msgid="3797000069740110717">"Experimental"</string>
     <string name="feature_flags_dashboard_title" msgid="3153034144122754381">"Marques de funcions"</string>
     <string name="talkback_title" msgid="3717960404234260050">"Talkback"</string>
-    <string name="talkback_summary" msgid="6602857105831641574">"Lector de pantalla destinat principalment a persones invidents i amb problemes de visió"</string>
+    <string name="talkback_summary" msgid="6602857105831641574">"Lector de pantalla destinat principalment a persones invidents i amb poca visió"</string>
     <string name="select_to_speak_summary" msgid="7514180457557735421">"Toca els elements de la pantalla per sentir-los en veu alta"</string>
     <string name="accessibility_captioning_title" msgid="5878371993023439642">"Subtítols"</string>
     <string name="accessibility_screen_magnification_title" msgid="7250949681883917360">"Ampliació"</string>
@@ -2269,15 +2269,15 @@
     <string name="packages_subtitle" msgid="6506269487892204413">"Paquets inclosos"</string>
     <string name="battery_tip_summary_title" msgid="2750922152518825526">"Les aplicacions funcionen correctament"</string>
     <string name="battery_tip_summary_summary" product="default" msgid="6294900413896440006">"El telèfon té un ús normal de la bateria en segon pla"</string>
-    <string name="battery_tip_summary_summary" product="tablet" msgid="5280099016800644130">"La tauleta fa un ús normal de la bateria en segon pla"</string>
-    <string name="battery_tip_summary_summary" product="device" msgid="4459840492610842705">"El dispositiu fa un ús normal de la bateria en segon pla"</string>
+    <string name="battery_tip_summary_summary" product="tablet" msgid="5280099016800644130">"La tauleta té un ús normal de la bateria en segon pla"</string>
+    <string name="battery_tip_summary_summary" product="device" msgid="4459840492610842705">"El dispositiu té ús normal de la bateria en segon pla"</string>
     <string name="battery_tip_low_battery_title" msgid="6784043681672161175">"La bateria té poca capacitat"</string>
     <string name="battery_tip_low_battery_summary" msgid="9151355911381188604">"La durada de la bateria no és bona"</string>
     <string name="battery_tip_smart_battery_title" product="default" msgid="5517122075918038665">"Millora la durada de la bateria del telèfon"</string>
     <string name="battery_tip_smart_battery_title" product="tablet" msgid="203494973250969040">"Millora la durada de la bateria de la tauleta"</string>
     <string name="battery_tip_smart_battery_title" product="device" msgid="7419448992583346364">"Millora la durada de la bateria del dispositiu"</string>
     <string name="battery_tip_smart_battery_summary" msgid="5344821856478265778">"Activa el gestor de bateria"</string>
-    <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"Activa l\'estalvi de bateria"</string>
+    <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"Activa la funció Estalvi de bateria"</string>
     <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"Pot ser que la bateria s\'esgoti massa ràpid"</string>
     <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"S\'ha activat l\'estalvi de bateria"</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"És possible que algunes funcions estiguin limitades"</string>
@@ -2871,7 +2871,7 @@
     <string name="user_add_profile_item_title" msgid="4932743891449790664">"Perfil restringit"</string>
     <string name="user_add_user_title" msgid="2320897397066676472">"Vols afegir un usuari nou?"</string>
     <string name="user_add_user_message_long" msgid="686637203224195465">"Pots compartir aquest dispositiu amb altres persones creant usuaris addicionals. Cada usuari té el seu propi espai, que pot personalitzar amb aplicacions i fons de pantalla, entre d\'altres. Els usuaris també poden ajustar opcions de configuració del dispositiu, com ara la Wi-Fi, que afecten els altres usuaris.\n\nQuan afegeixis un usuari nou, haurà de configurar el seu espai.\n\nTots els usuaris poden actualitzar les aplicacions de la resta. És possible que la configuració i els serveis d\'accessibilitat no es transfereixin a l\'usuari nou."</string>
-    <string name="user_add_user_message_short" msgid="1802594476285458254">"Quan s\'afegeix un usuari nou, aquest usuari ha de configurar el seu espai.\n\nQualsevol usuari pot actualitzar les aplicacions dels altres usuaris."</string>
+    <string name="user_add_user_message_short" msgid="1802594476285458254">"Quan s\'afegeix un usuari nou, aquesta persona ha de configurar el seu espai.\n\nQualsevol usuari pot actualitzar les aplicacions dels altres usuaris."</string>
     <string name="user_setup_dialog_title" msgid="6748950002206392396">"Vols configurar l\'usuari ara?"</string>
     <string name="user_setup_dialog_message" msgid="2988559933258353919">"Assegura\'t que la persona estigui disponible per accedir al dispositiu i configurar el seu espai."</string>
     <string name="user_setup_profile_dialog_message" msgid="7611900802824048526">"Vols configurar el perfil ara?"</string>
@@ -2902,12 +2902,12 @@
     <string name="user_exit_guest_confirm_title" msgid="4767911571671099844">"Vols suprimir el convidat?"</string>
     <string name="user_exit_guest_confirm_message" msgid="6955182181145748919">"Totes les aplicacions i les dades d\'aquesta sessió se suprimiran."</string>
     <string name="user_exit_guest_dialog_remove" msgid="1878866060881115716">"Suprimeix"</string>
-    <string name="user_enable_calling" msgid="864760054792249503">"Activa les trucades"</string>
-    <string name="user_enable_calling_sms" msgid="3450252891736718793">"Activa les trucades i els SMS"</string>
+    <string name="user_enable_calling" msgid="864760054792249503">"Activa les trucades telefòniques"</string>
+    <string name="user_enable_calling_sms" msgid="3450252891736718793">"Activa les trucades telefòniques i els SMS"</string>
     <string name="user_remove_user" msgid="3687544420125911166">"Suprimeix l\'usuari"</string>
-    <string name="user_enable_calling_confirm_title" msgid="1141612415529158542">"Vols activar les trucades?"</string>
+    <string name="user_enable_calling_confirm_title" msgid="1141612415529158542">"Vols activar les trucades telefòniques?"</string>
     <string name="user_enable_calling_confirm_message" msgid="2490126715153125970">"L\'historial de trucades es compartirà amb aquest usuari."</string>
-    <string name="user_enable_calling_and_sms_confirm_title" msgid="4153856398523366976">"Vols activar les trucades i els SMS?"</string>
+    <string name="user_enable_calling_and_sms_confirm_title" msgid="4153856398523366976">"Vols activar les trucades telefòniques i els SMS?"</string>
     <string name="user_enable_calling_and_sms_confirm_message" msgid="3278802798876095734">"L\'historial de trucades i d\'SMS es compartirà amb aquest usuari."</string>
     <string name="emergency_info_title" msgid="1522609271881425375">"Informació d\'emergència"</string>
     <string name="emergency_info_summary" msgid="7280464759837387342">"Informació i contactes de: <xliff:g id="USER_NAME">%1$s</xliff:g>"</string>
@@ -3137,7 +3137,7 @@
     <string name="media_volume_option_title" msgid="3553411883305505682">"Volum de multimèdia"</string>
     <string name="remote_media_volume_option_title" msgid="6355710054191873836">"Volum emès"</string>
     <string name="call_volume_option_title" msgid="5028003296631037334">"Volum de trucada"</string>
-    <string name="alarm_volume_option_title" msgid="3184076022438477047">"Volum de l\'alarma"</string>
+    <string name="alarm_volume_option_title" msgid="3184076022438477047">"Volum d\'alarma"</string>
     <string name="ring_volume_option_title" msgid="2038924918468372264">"Volum del to"</string>
     <string name="notification_volume_option_title" msgid="1358512611511348260">"Volum de notificació"</string>
     <string name="ringtone_title" msgid="1409086028485922583">"So de trucada del telèfon"</string>

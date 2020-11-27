@@ -916,7 +916,7 @@
     <string name="passpoint_content" msgid="340527524510304327">"A(z) <xliff:g id="NAME">%1$s</xliff:g> hitelesítési adatai"</string>
     <string name="wifi_eap_method" msgid="3752116941487485859">"EAP módszer"</string>
     <string name="please_select_phase2" msgid="5848080896810435677">"Hitelesítés 2. fázisa"</string>
-    <string name="wifi_eap_ca_cert" msgid="1496395241849383785">"CA tanúsítvány"</string>
+    <string name="wifi_eap_ca_cert" msgid="1496395241849383785">"CA-tanúsítvány"</string>
     <string name="wifi_eap_domain" msgid="3298302320003640130">"Domain"</string>
     <string name="wifi_eap_user_cert" msgid="6786839531765719173">"Felhasználói tanúsítvány"</string>
     <string name="wifi_eap_identity" msgid="5280457017705738773">"Azonosság"</string>
@@ -1458,7 +1458,7 @@
     <string name="storage_detail_system" msgid="6784247618772153283">"Rendszer"</string>
     <string name="storage_detail_explore" msgid="8206900269596580264">"<xliff:g id="NAME">^1</xliff:g> felfedezése"</string>
     <string name="storage_detail_dialog_other" msgid="5073511663616043370">"Az Egyéb kategóriába tartoznak az alkalmazások által mentett megosztott fájlok, az internetről, illetve Bluetooth-kapcsolaton keresztül letöltött fájlok, az androidos fájlok stb. \n\nA(z) <xliff:g id="NAME">^1</xliff:g> látható tartalmainak megtekintéséhez koppintson a Felfedezés lehetőségre."</string>
-    <string name="storage_detail_dialog_system" msgid="1472572861360014226">"A rendszer tartalmaz <xliff:g id="VERSION">%s</xliff:g> verziójú Android futtatásához használt fájlokat"</string>
+    <string name="storage_detail_dialog_system" msgid="1472572861360014226">"A rendszer az Android <xliff:g id="VERSION">%s</xliff:g>. verziójának futtatásához használt fájlokat tartalmaz"</string>
     <string name="storage_detail_dialog_user" msgid="1663117417635010371">"Lehetséges, hogy <xliff:g id="USER_0">^1</xliff:g> felhasználó fotókat, zenét, alkalmazásokat vagy más adatokat mentett, amihez <xliff:g id="SIZE">^2</xliff:g> tárhelyet használt fel.\n\nA részleteket megtekintheti, ha átvált a következő felhasználóra: <xliff:g id="USER_1">^1</xliff:g>."</string>
     <string name="storage_wizard_init_title" msgid="3407283236421089014">"<xliff:g id="NAME">^1</xliff:g> – beállítás"</string>
     <string name="storage_wizard_init_external_title" msgid="6853250619674645478">"Használat hordozható tárolóként"</string>
@@ -2620,7 +2620,7 @@
 %1$s</xliff:g>"</string>
     <string name="sync_gmail" msgid="4457967084840001296">"Gmail"</string>
     <string name="sync_calendar" msgid="6573708019827519372">"Naptár"</string>
-    <string name="sync_contacts" msgid="5687434785723746534">"Címtár"</string>
+    <string name="sync_contacts" msgid="5687434785723746534">"Névjegyek"</string>
     <string name="sync_plug" msgid="6703804441408427257"><font fgcolor="#ffffffff">"Üdvözli a Google Sync!"</font>" \nAz adatok Google-féle szinkronizálása lehetővé teszi, hogy bárhonnan hozzáférjen címtárához, találkozóihoz stb."</string>
     <string name="header_application_sync_settings" msgid="4581847153669774489">"Alkalmazás-szinkronizálási beállítások"</string>
     <string name="header_data_and_synchronization" msgid="400831816068697286">"Adatok és szinkronizálás"</string>
@@ -2747,7 +2747,7 @@
     <string name="vpn_ipsec_identifier" msgid="1230238784830362888">"IPSec-azonosító"</string>
     <string name="vpn_ipsec_secret" msgid="1531503910441962752">"Megosztott IPSec-kulcs"</string>
     <string name="vpn_ipsec_user_cert" msgid="2762078384595366852">"IPSec felhasználói tanúsítvány"</string>
-    <string name="vpn_ipsec_ca_cert" msgid="5537567128766402789">"IPSec CA tanúsítvány"</string>
+    <string name="vpn_ipsec_ca_cert" msgid="5537567128766402789">"IPSec CA-tanúsítvány"</string>
     <string name="vpn_ipsec_server_cert" msgid="3066696943831527934">"IPSec-szervertanúsítvány"</string>
     <string name="vpn_show_options" msgid="7672984921872882859">"Speciális beállítások megjelenítése"</string>
     <string name="vpn_search_domains" msgid="8469394307693909080">"DNS-keresési domainek"</string>
@@ -2815,8 +2815,8 @@
     <string name="credential_contains" msgid="483346955378412119">"A bejegyzés a következőket tartalmazza:"</string>
     <string name="one_userkey" msgid="5349738921509013845">"egy felhasználói kulcs"</string>
     <string name="one_usercrt" msgid="856282310586987313">"egy felhasználói tanúsítvány"</string>
-    <string name="one_cacrt" msgid="4757720453112732485">"egy CA tanúsítvány"</string>
-    <string name="n_cacrts" msgid="7539893176217891549">"%d CA tanúsítvány"</string>
+    <string name="one_cacrt" msgid="4757720453112732485">"egy CA-tanúsítvány"</string>
+    <string name="n_cacrts" msgid="7539893176217891549">"%d CA-tanúsítvány"</string>
     <string name="user_credential_title" msgid="6237611303219831419">"Hitelesítési adatok"</string>
     <string name="user_credential_removed" msgid="6243576567538844852">"A következő hitelesítési adatot törölte a rendszer: <xliff:g id="CREDENTIAL_NAME">%s</xliff:g>"</string>
     <string name="user_credential_none_installed" msgid="4129252817676332368">"Nincsenek telepített felhasználói hitelesítési adatok"</string>
@@ -4203,8 +4203,8 @@
     <string name="enterprise_privacy_ca_certs_personal" msgid="1356447417193483802">"Megbízható hitelesítési adatok a személyes profilban"</string>
     <string name="enterprise_privacy_ca_certs_work" msgid="836419648894546893">"Megbízható hitelesítési adatok a munkaprofilban"</string>
     <plurals name="enterprise_privacy_number_ca_certs" formatted="false" msgid="7953528945502561752">
-      <item quantity="other">Legalább <xliff:g id="COUNT_1">%d</xliff:g> CA tanúsítvány</item>
-      <item quantity="one">Legalább <xliff:g id="COUNT_0">%d</xliff:g> CA tanúsítvány</item>
+      <item quantity="other">Legalább <xliff:g id="COUNT_1">%d</xliff:g> CA-tanúsítvány</item>
+      <item quantity="one">Legalább <xliff:g id="COUNT_0">%d</xliff:g> CA-tanúsítvány</item>
     </plurals>
     <string name="enterprise_privacy_lock_device" msgid="1533125067038409945">"A rendszergazda zárolhatja az eszközt, és új jelszót állíthat be"</string>
     <string name="enterprise_privacy_wipe_device" msgid="7555287990273929922">"A rendszergazda törölheti az összes adatot az eszközről"</string>

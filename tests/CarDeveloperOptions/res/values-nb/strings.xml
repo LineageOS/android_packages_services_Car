@@ -2601,7 +2601,7 @@
     <string name="work_mode_label" msgid="6845849194740195757">"Jobbprofil"</string>
     <string name="work_mode_on_summary" msgid="1682781113156323592">"Administreres av organisasjonen din"</string>
     <string name="work_mode_off_summary" msgid="1688885392211178315">"Apper og varsler er slått av"</string>
-    <string name="remove_managed_profile_label" msgid="4625542553784793536">"Fjern arbeidsprofilen"</string>
+    <string name="remove_managed_profile_label" msgid="4625542553784793536">"Fjern jobbprofilen"</string>
     <string name="background_data" msgid="8275750862371471171">"Bakgrunnsdata"</string>
     <string name="background_data_summary" msgid="799640633948841990">"Apper kan når som helst synkronisere, sende og motta data"</string>
     <string name="background_data_dialog_title" msgid="8306650658158895976">"Vil du deaktivere bakgrunnsdata?"</string>
@@ -2888,7 +2888,7 @@
     <string name="user_confirm_remove_self_title" msgid="6739480453680217543">"Vil du slette deg selv?"</string>
     <string name="user_confirm_remove_title" msgid="1034498514019462084">"Vil du slette brukeren?"</string>
     <string name="user_profile_confirm_remove_title" msgid="6138684743385947063">"Fjerne denne profilen?"</string>
-    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"Vil du fjerne arbeidsprofilen?"</string>
+    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"Fjern jobbprofilen?"</string>
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"Lagringsplassen og dataene dine blir fjernet fra dette nettbrettet. Denne handlingen kan ikke angres."</string>
     <string name="user_confirm_remove_self_message" product="default" msgid="8441729423565705183">"Lagringsplassen og dataene dine blir fjernet fra telefonen. Denne handlingen kan ikke angres."</string>
     <string name="user_confirm_remove_message" msgid="5202150470271756013">"Alle apper og data slettes."</string>
@@ -3140,7 +3140,7 @@
     <string name="alarm_volume_option_title" msgid="3184076022438477047">"Alarmvolum"</string>
     <string name="ring_volume_option_title" msgid="2038924918468372264">"Ringevolum"</string>
     <string name="notification_volume_option_title" msgid="1358512611511348260">"Varselvolum"</string>
-    <string name="ringtone_title" msgid="1409086028485922583">"Telefonringelyd"</string>
+    <string name="ringtone_title" msgid="1409086028485922583">"Ringetone"</string>
     <string name="notification_ringtone_title" msgid="2932960620843976285">"Standard varsellyd"</string>
     <string name="notification_unknown_sound_title" msgid="8043718667804838398">"Lyd fra app"</string>
     <string name="notification_sound_default" msgid="2664544380802426260">"Standard varsellyd"</string>

@@ -322,7 +322,7 @@
     <string name="date_and_time_settings_title" msgid="7827088656940910631">"Fecha y hora"</string>
     <string name="date_and_time_settings_title_setup_wizard" msgid="1573030770187844365">"Establecer fecha y hora"</string>
     <string name="date_and_time_settings_summary" msgid="4617979434474713417">"Establecer fecha, hora, zona horaria y formatos"</string>
-    <string name="date_time_auto" msgid="2679132152303750218">"Usar hora de la red"</string>
+    <string name="date_time_auto" msgid="2679132152303750218">"Usar la hora proporcionada por la red"</string>
     <string name="zone_auto_title" msgid="5500880975376882488">"Usar la zona horaria proporcionada por la red"</string>
     <string name="date_time_24hour_auto" msgid="7499659679134962547">"Usar la configuración regional predeterminada"</string>
     <string name="date_time_24hour_title" msgid="6209923858891621283">"Formato de 24 horas"</string>
@@ -916,7 +916,7 @@
     <string name="passpoint_content" msgid="340527524510304327">"Credenciales de <xliff:g id="NAME">%1$s</xliff:g>"</string>
     <string name="wifi_eap_method" msgid="3752116941487485859">"Método EAP"</string>
     <string name="please_select_phase2" msgid="5848080896810435677">"Autenticación de fase 2"</string>
-    <string name="wifi_eap_ca_cert" msgid="1496395241849383785">"Certificado de CA"</string>
+    <string name="wifi_eap_ca_cert" msgid="1496395241849383785">"Certificado AC"</string>
     <string name="wifi_eap_domain" msgid="3298302320003640130">"Dominio"</string>
     <string name="wifi_eap_user_cert" msgid="6786839531765719173">"Certificado de usuario"</string>
     <string name="wifi_eap_identity" msgid="5280457017705738773">"Identidad"</string>
@@ -1057,7 +1057,7 @@
     <string name="wifi_p2p_cancel_connect_message" msgid="3752679335020392154">"¿Quieres cancelar la invitación para conectar con <xliff:g id="PEER_NAME">%1$s</xliff:g>?"</string>
     <string name="wifi_p2p_delete_group_message" msgid="3206660449067701089">"¿Olvidar este grupo?"</string>
     <string name="wifi_hotspot_checkbox_text" msgid="12062341344410520">"Punto de acceso Wi-Fi"</string>
-    <string name="wifi_hotspot_off_subtext" msgid="6177054857136221058">"No se está compartiendo Internet ni el contenido con otros dispositivos"</string>
+    <string name="wifi_hotspot_off_subtext" msgid="6177054857136221058">"No se está compartiendo Internet ni contenido con otros dispositivos"</string>
     <string name="wifi_hotspot_tethering_on_subtext" product="tablet" msgid="71421730039785897">"Se está compartiendo la conexión a Internet de este tablet mediante un punto de acceso"</string>
     <string name="wifi_hotspot_tethering_on_subtext" product="default" msgid="8914285514605049879">"Se está compartiendo la conexión a Internet de este teléfono mediante un punto de acceso"</string>
     <string name="wifi_hotspot_on_local_only_subtext" msgid="7415381343846704553">"La aplicación está compartiendo contenido. Para compartir la conexión a Internet, desactiva el punto de acceso y vuelve a activarlo"</string>
@@ -1298,7 +1298,7 @@
     <string name="sim_multi_sims_summary" msgid="8237021982527032257">"Selecciona la SIM que prefieras para usar datos móviles."</string>
     <string name="sim_change_data_title" msgid="2512227368681250054">"¿Usar <xliff:g id="CARRIER">%1$s</xliff:g> para los datos móviles?"</string>
     <string name="sim_change_data_message" msgid="51004703157782900">"Estás utilizando <xliff:g id="CARRIER2_0">%2$s</xliff:g> para los datos móviles. Si cambias a <xliff:g id="CARRIER1">%1$s</xliff:g>, no se utilizará más a <xliff:g id="CARRIER2_1">%2$s</xliff:g> para los datos móviles."</string>
-    <string name="sim_change_data_ok" msgid="7491552537317573235">"Utilizar <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
+    <string name="sim_change_data_ok" msgid="7491552537317573235">"Usar <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
     <string name="sim_preferred_title" msgid="3389680276182899407">"¿Actualizar tarjeta SIM preferida?"</string>
     <string name="sim_preferred_message" msgid="3751011329746359050">"<xliff:g id="NEW_SIM">%1$s</xliff:g> es la única SIM del dispositivo. ¿Quieres usarla para los datos móviles, las llamadas y los mensajes SMS?"</string>
     <string name="wrong_pin_code_pukked" msgid="3214670264775760428">"Código PIN de la tarjeta SIM incorrecto. Debes ponerte en contacto con tu operador para desbloquear el dispositivo."</string>
@@ -2268,9 +2268,9 @@
     <string name="controls_subtitle" msgid="6920199888882834620">"Cómo reducir el uso de la batería"</string>
     <string name="packages_subtitle" msgid="6506269487892204413">"Paquetes incluidos"</string>
     <string name="battery_tip_summary_title" msgid="2750922152518825526">"Las aplicaciones funcionan con normalidad"</string>
-    <string name="battery_tip_summary_summary" product="default" msgid="6294900413896440006">"El teléfono tiene un consumo normal de batería en segundo plano"</string>
-    <string name="battery_tip_summary_summary" product="tablet" msgid="5280099016800644130">"El tablet tiene un consumo normal de batería en segundo plano"</string>
-    <string name="battery_tip_summary_summary" product="device" msgid="4459840492610842705">"El dispositivo tiene un consumo normal de batería en segundo plano"</string>
+    <string name="battery_tip_summary_summary" product="default" msgid="6294900413896440006">"El teléfono tiene un consumo de batería normal en segundo plano"</string>
+    <string name="battery_tip_summary_summary" product="tablet" msgid="5280099016800644130">"El tablet tiene un consumo de batería normal en segundo plano"</string>
+    <string name="battery_tip_summary_summary" product="device" msgid="4459840492610842705">"El dispositivo tiene un consumo de batería normal en segundo plano"</string>
     <string name="battery_tip_low_battery_title" msgid="6784043681672161175">"La capacidad de la batería es baja"</string>
     <string name="battery_tip_low_battery_summary" msgid="9151355911381188604">"Queda poca batería"</string>
     <string name="battery_tip_smart_battery_title" product="default" msgid="5517122075918038665">"Mejorar la duración de la batería del teléfono"</string>
@@ -2549,7 +2549,7 @@
     <string name="privacy_settings_title" msgid="3573891462732375772">"Copia de seguridad"</string>
     <string name="backup_summary_state_on" msgid="1725597360282574647">"Activada"</string>
     <string name="backup_summary_state_off" msgid="7138020503288730492">"Desactivada"</string>
-    <string name="backup_section_title" msgid="8177209731777904656">"Copia de seguridad"</string>
+    <string name="backup_section_title" msgid="8177209731777904656">"Copia de seguridad y restauración"</string>
     <string name="personal_data_section_title" msgid="9161854418510071558">"Datos personales"</string>
     <string name="backup_data_title" msgid="4461508563849583624">"Copia de seguridad de mis datos"</string>
     <string name="backup_data_summary" msgid="555459891017933746">"Crear copia de seguridad de los datos de las aplicaciones, las contraseñas de redes Wi-Fi y otros ajustes en los servidores de Google"</string>
@@ -2747,7 +2747,7 @@
     <string name="vpn_ipsec_identifier" msgid="1230238784830362888">"Identificador de IPSec"</string>
     <string name="vpn_ipsec_secret" msgid="1531503910441962752">"Clave precompartida de IPSec"</string>
     <string name="vpn_ipsec_user_cert" msgid="2762078384595366852">"Certificado de usuario de IPSec"</string>
-    <string name="vpn_ipsec_ca_cert" msgid="5537567128766402789">"Certificado de CA de IPSec"</string>
+    <string name="vpn_ipsec_ca_cert" msgid="5537567128766402789">"Certificado AC de IPSec"</string>
     <string name="vpn_ipsec_server_cert" msgid="3066696943831527934">"Certificado del servidor IPSec"</string>
     <string name="vpn_show_options" msgid="7672984921872882859">"Mostrar opciones avanzadas"</string>
     <string name="vpn_search_domains" msgid="8469394307693909080">"Dominios de búsqueda de DNS"</string>
@@ -2809,13 +2809,13 @@
     <string name="trusted_credentials_enable_label" msgid="8991649977058280799">"Habilitar"</string>
     <string name="trusted_credentials_remove_label" msgid="530728557358501000">"Quitar"</string>
     <string name="trusted_credentials_trust_label" msgid="1580022708780121664">"Confiar"</string>
-    <string name="trusted_credentials_enable_confirmation" msgid="936560980286792656">"¿Quieres habilitar el certificado de CA del sistema?"</string>
-    <string name="trusted_credentials_disable_confirmation" msgid="643386483024801539">"¿Quieres inhabilitar el certificado de CA del sistema?"</string>
-    <string name="trusted_credentials_remove_confirmation" msgid="3731678919848637342">"¿Eliminar el certificado de CA de usuario de forma permanente?"</string>
+    <string name="trusted_credentials_enable_confirmation" msgid="936560980286792656">"¿Quieres habilitar el certificado AC del sistema?"</string>
+    <string name="trusted_credentials_disable_confirmation" msgid="643386483024801539">"¿Quieres inhabilitar el certificado AC del sistema?"</string>
+    <string name="trusted_credentials_remove_confirmation" msgid="3731678919848637342">"¿Eliminar el certificado AC de usuario de forma permanente?"</string>
     <string name="credential_contains" msgid="483346955378412119">"Esta entrada incluye:"</string>
     <string name="one_userkey" msgid="5349738921509013845">"una clave de usuario"</string>
     <string name="one_usercrt" msgid="856282310586987313">"un certificado de usuario"</string>
-    <string name="one_cacrt" msgid="4757720453112732485">"un certificado de CA"</string>
+    <string name="one_cacrt" msgid="4757720453112732485">"un certificado AC"</string>
     <string name="n_cacrts" msgid="7539893176217891549">"%d certificados de CA"</string>
     <string name="user_credential_title" msgid="6237611303219831419">"Detalles de credenciales"</string>
     <string name="user_credential_removed" msgid="6243576567538844852">"Quitar credencial: <xliff:g id="CREDENTIAL_NAME">%s</xliff:g>"</string>
@@ -2935,7 +2935,7 @@
     <string name="restriction_menu_reset" msgid="3642252461410370554">"Quitar restricciones"</string>
     <string name="restriction_menu_change_pin" msgid="592512748243421101">"Cambiar PIN"</string>
     <string name="app_notifications_switch_label" msgid="670683308275498821">"Mostrar notificaciones"</string>
-    <string name="help_label" msgid="1296484776243905646">"Ayuda y sugerencias"</string>
+    <string name="help_label" msgid="1296484776243905646">"Ayuda y comentarios"</string>
     <string name="support_summary" msgid="3278943815956130740">"Artículos de ayuda, teléfono y chat, cómo empezar"</string>
     <string name="user_account_title" msgid="2108666882630552859">"Cuenta para contenido"</string>
     <string name="user_picture_title" msgid="6664602422948159123">"ID de foto"</string>
@@ -3746,7 +3746,7 @@
     <string name="usb_control_device" msgid="9154790265254725254">"Este dispositivo"</string>
     <string name="usb_switching" msgid="1230386065163529904">"Cambiando..."</string>
     <string name="usb_switching_failed" msgid="6857722544186145439">"No se ha podido hacer el cambio"</string>
-    <string name="usb_summary_charging_only" msgid="4118449308708872339">"Cargando el dispositivo"</string>
+    <string name="usb_summary_charging_only" msgid="4118449308708872339">"Cargando este dispositivo"</string>
     <string name="usb_summary_power_only" msgid="3552240122641051107">"Cargando dispositivo conectado"</string>
     <string name="usb_summary_file_transfers" msgid="7805342797099821502">"Transferencia de archivos"</string>
     <string name="usb_summary_tether" msgid="778845069037366883">"Compartir conexión por USB"</string>
@@ -3981,7 +3981,7 @@
     <string name="billing_cycle_less_than_one_day_left" msgid="855800570587142182">"Queda menos de 1 día"</string>
     <string name="carrier_and_update_text" msgid="4100603877929297103">"Actualizado por <xliff:g id="ID_1">^1</xliff:g> hace <xliff:g id="ID_2">^2</xliff:g>"</string>
     <string name="no_carrier_update_text" msgid="8797522203060970532">"Actualizado hace <xliff:g id="ID_1">^2</xliff:g>"</string>
-    <string name="carrier_and_update_now_text" msgid="7619705504438908034">"Actualizado por <xliff:g id="ID_1">^1</xliff:g> ahora mismo"</string>
+    <string name="carrier_and_update_now_text" msgid="7619705504438908034">"Actualizado por <xliff:g id="ID_1">^1</xliff:g> justo ahora"</string>
     <string name="no_carrier_update_now_text" msgid="4405472895804759042">"Actualizado ahora"</string>
     <string name="launch_mdp_app_text" msgid="9186559496664208252">"Ver el plan"</string>
     <string name="launch_wifi_text" msgid="317820210431682605">"Ver detalles"</string>

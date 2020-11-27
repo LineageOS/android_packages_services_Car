@@ -742,7 +742,7 @@
     <string name="bluetooth_display_passkey_pin_msg" msgid="5909423849232791647">"За да се спари со:<xliff:g id="BOLD1_0">&lt;br&gt;&lt;b&gt;</xliff:g><xliff:g id="DEVICE_NAME">%1$s</xliff:g><xliff:g id="END_BOLD1">&lt;/b&gt;&lt;br&gt;&lt;br&gt;</xliff:g>Напишете на него:<xliff:g id="BOLD2_1">&lt;br&gt;&lt;b&gt;</xliff:g><xliff:g id="PASSKEY">%2$s</xliff:g><xliff:g id="END_BOLD2">&lt;/b&gt;</xliff:g>, потоа притиснете „Врати“ или „Внеси“."</string>
     <string name="bluetooth_pairing_shares_phonebook" msgid="7474404818877079813">"Дозволете пристап до вашите контакти и историјата на повици"</string>
     <string name="bluetooth_error_title" msgid="5718761586633101960"></string>
-    <string name="bluetooth_connecting_error_message" msgid="8473359363469518478">"Не можеше да се поврзе со <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
+    <string name="bluetooth_connecting_error_message" msgid="8473359363469518478">"Не може да се поврзе со <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
     <string name="bluetooth_preference_scan_title" msgid="457781003962324807">"Скенирај за уреди"</string>
     <string name="bluetooth_search_for_devices" msgid="6796307228261078451">"Освежи"</string>
     <string name="bluetooth_searching_for_devices" msgid="7820814625522702494">"Пребарување..."</string>
@@ -768,7 +768,7 @@
     <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"Кога е вклучен Bluetooth, уредот може да комуницира со други уреди со Bluetooth во близина."</string>
     <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"Кога Bluetooth е вклучен, вашиот уред може да комуницира со други уреди со Bluetooth во близина.\n\nЗа да се подобри искуството со уредот, апликациите и услугите сепак може да скенираат уреди во близина во секое време, дури и кога Bluetooth е исклучен. Ова може да се користи, на пример, за да се подобрат функциите и услугите базирани на локација. Може да го измените во "<annotation id="link">"поставките за скенирање"</annotation>"."</string>
     <string name="ble_scan_notify_text" msgid="6290170236546386932">"За да се подобри точноста на локацијата, системските апликации и услуги сѐ уште може да откриваат уреди со Bluetooth. Ова може да го измените во <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>поставките за скенирање<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
-    <string name="bluetooth_connect_failed" msgid="1151234676456333786">"Не можеше да се поврзе. Обидете се повторно."</string>
+    <string name="bluetooth_connect_failed" msgid="1151234676456333786">"Не може да се поврзе. Обидете се повторно."</string>
     <string name="device_details_title" msgid="726517818032923222">"Детали за уредот"</string>
     <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"Адреса на Bluetooth на уредот: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"Да се заборави уредот?"</string>
@@ -871,7 +871,7 @@
     <string name="wifi_suspend_optimizations" msgid="8826033336622472222">"Оптимизација на Wi-Fi"</string>
     <string name="wifi_suspend_optimizations_summary" msgid="2375789014394339008">"Минимизирај употреба на батерија кога е вклучена Wi-Fi"</string>
     <string name="wifi_limit_optimizations_summary" msgid="1192849485764156570">"Огр. бат. за корист. на Wi‑Fi"</string>
-    <string name="wifi_switch_away_when_unvalidated" msgid="2418577764071293971">"Префрли се на мобилен интернет ако Wi-Fi-мрежата го губи пристапот до интернет."</string>
+    <string name="wifi_switch_away_when_unvalidated" msgid="2418577764071293971">"Префрли се на мобилен интернет ако Wi-Fi мрежата го губи пристапот до интернет."</string>
     <string name="wifi_cellular_data_fallback_title" msgid="5067241930716252665">"Автоматски префрли се на мобилен интернет"</string>
     <string name="wifi_cellular_data_fallback_summary" msgid="2721467405851519769">"Користете мобилен интернет кога Wi‑Fi нема пристап до интернет. Може да ви се наплати за потрошениот сообраќај."</string>
     <string name="wifi_add_network" msgid="4094957940791876640">"Додајте мрежа"</string>
@@ -942,7 +942,7 @@
     <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"Споделете Wi‑Fi"</string>
     <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"Скенирајте го овој QR-код за да се поврзете со „<xliff:g id="SSID">%1$s</xliff:g>“ и да ја споделите лозинката"</string>
     <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"Скенирајте го овој QR-код за да се поврзете со „<xliff:g id="SSID">%1$s</xliff:g>“"</string>
-    <string name="wifi_dpp_could_not_detect_valid_qr_code" msgid="27667719861826438">"Не можеше да се прочита QR-кодот. Центрирајте го кодот и обидете се повторно"</string>
+    <string name="wifi_dpp_could_not_detect_valid_qr_code" msgid="27667719861826438">"Не може да се прочита QR-кодот. Центрирајте го кодот и обидете се повторно"</string>
     <string name="wifi_dpp_failure_authentication_or_configuration" msgid="9142051662156233679">"Обидете се повторно. Ако проблемот продолжи, контактирајте со производителот на уредот"</string>
     <string name="wifi_dpp_failure_not_compatible" msgid="4320027179973678283">"Нешто тргна наопаку"</string>
     <string name="wifi_dpp_failure_timeout" msgid="5060065168142109420">"Проверете дали уредот е приклучен, наполнет и вклучен"</string>
@@ -955,7 +955,7 @@
     <string name="wifi_dpp_wifi_shared_with_device" msgid="5713765471758272471">"Wi‑Fi е споделена со уредот"</string>
     <string name="wifi_dpp_add_another_device" msgid="3698441567235301565">"Додај друг уред"</string>
     <string name="wifi_dpp_choose_different_network" msgid="128515107488187050">"Изберете друга мрежа"</string>
-    <string name="wifi_dpp_could_not_add_device" msgid="4966109556543584813">"Не можеше да се додаде уредот"</string>
+    <string name="wifi_dpp_could_not_add_device" msgid="4966109556543584813">"Не може да се додаде уредот"</string>
     <string name="wifi_dpp_device_found" msgid="6488461467496850841">"Најден е уред"</string>
     <string name="wifi_dpp_sharing_wifi_with_this_device" msgid="2540529164687476827">"Се споделува Wi‑Fi со уредов…"</string>
     <string name="wifi_dpp_connecting" msgid="4229290407210299897">"Се поврзува…"</string>
@@ -1048,7 +1048,7 @@
     <string name="wifi_p2p_menu_rename" msgid="2129974878377065488">"Преименувај уред"</string>
     <string name="wifi_p2p_peer_devices" msgid="8232126067045093382">"Спарени уреди"</string>
     <string name="wifi_p2p_remembered_groups" msgid="1356458238836730346">"Запаметени групи"</string>
-    <string name="wifi_p2p_failed_connect_message" msgid="6103436959132424093">"Не можеше да се поврзе."</string>
+    <string name="wifi_p2p_failed_connect_message" msgid="6103436959132424093">"Не може да се поврзе."</string>
     <string name="wifi_p2p_failed_rename_message" msgid="638656605352538706">"Не успеа да го преименува уредот."</string>
     <string name="wifi_p2p_disconnect_title" msgid="915880461655863812">"Исклучи?"</string>
     <string name="wifi_p2p_disconnect_message" msgid="3745286932812740784">"Ако се исклучите, вашата врска со <xliff:g id="PEER_NAME">%1$s</xliff:g> ќе заврши."</string>
@@ -1399,7 +1399,7 @@
     <string name="dlg_confirm_unmount_text" product="default" msgid="4099391737780732622">"Ако ја одмонтирате СД картичката, некои од апликациите што ги користите ќе запрат и може да се недостапни, додека повторно не ја монтирате СД картичката."</string>
     <string name="dlg_error_unmount_title" product="nosdcard" msgid="3132640848329117857"></string>
     <string name="dlg_error_unmount_title" product="default" msgid="3132640848329117857"></string>
-    <string name="dlg_error_unmount_text" product="nosdcard" msgid="4710773826053117136">"Не можеше да се одмонтира USB меморијата. Обидете се повторно подоцна."</string>
+    <string name="dlg_error_unmount_text" product="nosdcard" msgid="4710773826053117136">"Не може да се одмонтира USB меморијата. Обидете се повторно подоцна."</string>
     <string name="dlg_error_unmount_text" product="default" msgid="8243603872321575219">"СД картичката не може да се одмонтира. Обидете се повторно подоцна."</string>
     <string name="unmount_inform_text" product="nosdcard" msgid="2460118115494815052">"USB меморијата ќе се одмонтира."</string>
     <string name="unmount_inform_text" product="default" msgid="6467461731634304997">"СД картичката ќе се одмонтира."</string>
@@ -1861,16 +1861,16 @@
     <string name="internal_storage" msgid="7392373600013294853">"Внатрешен капацитет"</string>
     <string name="recompute_size" msgid="4290692197892743928">"Повторно пресметување големина..."</string>
     <string name="clear_data_dlg_title" msgid="7388024498687029597">"Да се избришат податоците на апликацијата?"</string>
-    <string name="clear_data_dlg_text" msgid="6849657743695013414">"Сите податоци на оваа апликација ќе бидат трајно избришани. Ова ги опфаќа сите датотеки, поставки, сметки, бази на податоци, итн."</string>
+    <string name="clear_data_dlg_text" msgid="6849657743695013414">"Сите податоци на оваа апликација ќе бидат трајно избришани. Ова ги опфаќа сите датотеки, поставки, сметки, бази на податоци итн."</string>
     <string name="dlg_ok" msgid="4666570206507476557">"Во ред"</string>
     <string name="dlg_cancel" msgid="2434951039156262467">"Откажи"</string>
     <string name="app_not_found_dlg_title" msgid="394147475018718483"></string>
     <string name="app_not_found_dlg_text" msgid="8807428608938210212">"Апликацијата не е пронајдена во списокот на инсталирани апликации."</string>
-    <string name="clear_failed_dlg_text" msgid="8072859778950498232">"Не можеше да се исчисти меморијата за апликацијата."</string>
+    <string name="clear_failed_dlg_text" msgid="8072859778950498232">"Не може да се исчисти меморијата за апликацијата."</string>
     <string name="join_two_items" msgid="3833831843199356403">"<xliff:g id="FIRST_ITEM">%1$s</xliff:g> и <xliff:g id="SECOND_ITEM">%2$s</xliff:g>"</string>
     <string name="join_two_unrelated_items" msgid="8257688498236358394">"<xliff:g id="FIRST_ITEM">%1$s</xliff:g>, <xliff:g id="SECOND_ITEM">%2$s</xliff:g>"</string>
     <string name="computing_size" msgid="2234106107535318136">"Пресметување..."</string>
-    <string name="invalid_size_value" msgid="1202239724000802296">"Не можеше да се пресмета големината на пакетот."</string>
+    <string name="invalid_size_value" msgid="1202239724000802296">"Не може да се пресмета големината на пакетот."</string>
     <string name="version_text" msgid="5421619604445758652">"верзија <xliff:g id="VERSION_NUM">%1$s</xliff:g>"</string>
     <string name="move_app" msgid="5400135231255614785">"Премести"</string>
     <string name="move_app_to_internal" product="tablet" msgid="8658767231643024635">"Премести во таблет"</string>
@@ -1887,7 +1887,7 @@
     <string name="force_stop_dlg_text" msgid="7435245769456493398">"Ако присилно запрете апликација, таа може да не се однесува правилно."</string>
     <string name="app_install_location_title" msgid="5121617802063021720">"Претпочиана локација на инсталирање"</string>
     <string name="app_install_location_summary" msgid="109719780117187797">"Променете ја претпочитаната локација на инсталирање за нови апликации."</string>
-    <string name="app_disable_dlg_positive" msgid="5508828271100168073">"Оневозможете ја апликацијата"</string>
+    <string name="app_disable_dlg_positive" msgid="5508828271100168073">"Оневозможи ја апликацијата"</string>
     <string name="app_disable_dlg_text" msgid="9221864774943530281">"Ако ја оневозможите оваа апликација, Android и другите апликации можеби веќе нема да функционираат како што треба. Имајте предвид, не може да ја избришете апликацијава бидејќи е однапред инсталирана на уредот. Ако ја оневозможите, ќе ја исклучите и ќе ја сокриете на уредот."</string>
     <string name="app_disable_notifications_dlg_title" msgid="699530661413553928">"Исклучи известувања?"</string>
     <string name="app_install_details_group_title" msgid="2909597319422976921">"Продавница"</string>
@@ -2926,7 +2926,7 @@
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"На терминалот Допри и плати плаќајте со:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Плаќање на терминалот"</string>
     <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Поставете апликација за плаќање. Потоа само задржете ја задната страна на телефонот до кој било терминал означен со симболот за плаќање без контакт."</string>
-    <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"Разбрав"</string>
+    <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"Сфатив"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"Повеќе..."</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"Постави како свој параметар?"</string>
     <string name="nfc_payment_set_default" msgid="1186837502664412132">"Секогаш користи <xliff:g id="APP">%1$s</xliff:g> кога користиш Допри и плати?"</string>
@@ -2952,7 +2952,7 @@
     <!-- no translation found for call_manager_summary (1232655174841493040) -->
     <skip />
     <string name="cell_broadcast_settings" msgid="5750066270993255966">"Предупредувања за итни случаи"</string>
-    <string name="network_operators_settings" msgid="7822337582828465633">"Оператори на мрежа"</string>
+    <string name="network_operators_settings" msgid="7822337582828465633">"Мрежни оператори"</string>
     <string name="access_point_names" msgid="7992382237358800596">"Имиња на пристапни точки"</string>
     <string name="enhanced_4g_lte_mode_title" msgid="1624079276378568594">"VoLTE"</string>
     <string name="enhanced_4g_lte_mode_title_advanced_calling" msgid="5155507161065290507">"Напредно повикување"</string>
@@ -3296,7 +3296,7 @@
     <string name="other_sound_category_preference_title" msgid="2045757472469840859">"Други звуци и вибрации"</string>
     <string name="configure_notification_settings" msgid="291914315140851270">"Известувања"</string>
     <string name="recent_notifications" msgid="8125865995065032049">"Неодамна испратени"</string>
-    <string name="recent_notifications_see_all_title" msgid="4089007770442871469">"Приказ на сите од последните 7 дена"</string>
+    <string name="recent_notifications_see_all_title" msgid="4089007770442871469">"Преглед на сите од минатите 7 дена"</string>
     <string name="advanced_section_header" msgid="984680389373090015">"Напредни"</string>
     <string name="profile_section_header" msgid="5471479005472037417">"Известувања за работен профил"</string>
     <string name="asst_capability_prioritizer_title" msgid="3488284760645922160">"Автоматско доделување предност на известувањата"</string>
@@ -3726,7 +3726,7 @@
     <string name="sharing_remote_bugreport_dialog_message" msgid="3814787466701526359">"Извештајот за грешки е споделен со вашиот администратор за информатичка технологија. За повеќе детали, контактирајте со него."</string>
     <string name="share_remote_bugreport_action" msgid="8600797271670537888">"Сподели"</string>
     <string name="decline_remote_bugreport_action" msgid="706319275774199033">"Одбиј"</string>
-    <string name="usb_use_charging_only" msgid="2344625733377110164">"Нема пренос на податоци"</string>
+    <string name="usb_use_charging_only" msgid="2344625733377110164">"Без пренос на податоци"</string>
     <string name="usb_use_charging_only_desc" msgid="3283518562582478950">"Само ја полни батеријата"</string>
     <string name="usb_use_power_only" msgid="6595783381323810697">"Полнење на поврзаниот уред"</string>
     <string name="usb_use_file_transfers" msgid="6153021302176151884">"Пренос на датотеки"</string>
@@ -3745,7 +3745,7 @@
     <string name="usb_control_host" msgid="193292043691034178">"Поврзан уред"</string>
     <string name="usb_control_device" msgid="9154790265254725254">"Овој уред"</string>
     <string name="usb_switching" msgid="1230386065163529904">"Префрлање…"</string>
-    <string name="usb_switching_failed" msgid="6857722544186145439">"Не можеше да се префрли"</string>
+    <string name="usb_switching_failed" msgid="6857722544186145439">"Не може да се префрли"</string>
     <string name="usb_summary_charging_only" msgid="4118449308708872339">"Полнење на уредот"</string>
     <string name="usb_summary_power_only" msgid="3552240122641051107">"Се полни поврзаниот уред"</string>
     <string name="usb_summary_file_transfers" msgid="7805342797099821502">"Пренос на датотеки"</string>
@@ -4515,7 +4515,7 @@
     <string name="content_capture_summary" msgid="2675659095218714681">"Дозволете Android да зачувува информации видени на екранот или слушнати во видео или аудиосодржини. Android дава корисни предлози според вашата активност на уредот."</string>
     <string name="capture_system_heap_dump_title" msgid="7417508823603305421">"Сними слика од меморијата на системот"</string>
     <string name="capturing_system_heap_dump_message" msgid="5108339625760845950">"Се снима слика од меморијата на системот"</string>
-    <string name="error_capturing_system_heap_dump_message" msgid="5431592130805893098">"Не можеше да се сними слика од меморијата на системот"</string>
+    <string name="error_capturing_system_heap_dump_message" msgid="5431592130805893098">"Не може да се сними слика од меморијата на системот"</string>
     <string name="automatic_system_heap_dump_title" msgid="2153897396923488317">"Автоматски снимај слики од меморијата на системот"</string>
     <string name="automatic_system_heap_dump_summary" msgid="4962129546638974661">"Автоматски снимај слика од меморијата за системот Android кога користи премногу меморија"</string>
     <string name="wifi_disconnect_button_text" msgid="787688024070426706">"Исклучи"</string>

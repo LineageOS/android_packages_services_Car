@@ -26,7 +26,7 @@
       <item quantity="one">તમે હવે એક વિકાસકર્તા બનવાથી <xliff:g id="STEP_COUNT_1">%1$d</xliff:g> પગલાં દૂર છો.</item>
       <item quantity="other">તમે હવે એક વિકાસકર્તા બનવાથી <xliff:g id="STEP_COUNT_1">%1$d</xliff:g> પગલાં દૂર છો.</item>
     </plurals>
-    <string name="show_dev_on" msgid="9075712234786224065">"તમે હવે વિકાસકર્તા છો!"</string>
+    <string name="show_dev_on" msgid="9075712234786224065">"તમે હવે ડેવલપર છો!"</string>
     <string name="show_dev_already" msgid="7665948832405148689">"કોઈ જરૂર નથી, તમે પહેલાંથી જ એક ડેવલપર છો."</string>
     <string name="dev_settings_disabled_warning" msgid="3198732189395396721">"કૃપા કરીને પહેલાં વિકાસકર્તાના વિકલ્પો સક્ષમ કરો."</string>
     <string name="header_category_wireless_networks" msgid="8968405993937795898">"વાયરલેસ અને નેટવર્ક્સ"</string>
@@ -346,7 +346,7 @@
     <string name="zone_menu_by_offset" msgid="6538342360925785227">"UTC ઑફસેટ પ્રમાણે પસંદ કરો"</string>
     <string name="date_picker_title" msgid="2563955125757999610">"તારીખ"</string>
     <string name="time_picker_title" msgid="1596400307061268660">"સમય"</string>
-    <string name="lock_after_timeout" msgid="7755520959071097304">"આપમેળે લૉક"</string>
+    <string name="lock_after_timeout" msgid="7755520959071097304">"ઑટોમૅટિક રીતે લૉક"</string>
     <string name="lock_after_timeout_summary" msgid="3160517585613694740">"નિષ્ક્રિયતા પછી <xliff:g id="TIMEOUT_STRING">%1$s</xliff:g>"</string>
     <string name="lock_immediately_summary_with_exception" msgid="6442552135409347556">"નિષ્ક્રિયતા પછી તરત, જ્યારે <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g> દ્વારા અનલૉક રાખવામાં આવેલ હોય તે સિવાય"</string>
     <string name="lock_after_timeout_summary_with_exception" msgid="7218267834086717545">"નિષ્ક્રિયતા પછી <xliff:g id="TIMEOUT_STRING">%1$s</xliff:g>, જ્યારે <xliff:g id="TRUST_AGENT_NAME">%2$s</xliff:g> દ્વારા અનલૉક રાખવામાં આવેલ હોય તે સિવાય"</string>
@@ -848,8 +848,8 @@
     <string name="wifi_in_airplane_mode" msgid="4729571191578262246">"એરપ્લેન મોડમાં"</string>
     <string name="wifi_notify_open_networks" msgid="4782239203624619655">"નેટવર્ક નોટિફિકેશન ખોલો"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"જ્યારે ઉચ્ચ ગુણવત્તાવાળું સાર્વજનિક નેટવર્ક ઉપલબ્ધ હોય ત્યારે નોટિફિકેશન આપો"</string>
-    <string name="wifi_wakeup" msgid="4963732992164721548">"વાઇ-ફાઇ આપમેળે ચાલુ કરો"</string>
-    <string name="wifi_wakeup_summary" msgid="1152699417411690">"વાઇ-ફાઇ, તમારા હોમ નેટવર્ક જેવા, સાચવેલા ઉચ્ચ ગુણવત્તાવાળા નેટવર્કની નજીકમાં આપમેળે ફરી ચાલુ થશે"</string>
+    <string name="wifi_wakeup" msgid="4963732992164721548">"વાઇ-ફાઇ ઑટોમૅટિક રીતે ચાલુ કરો"</string>
+    <string name="wifi_wakeup_summary" msgid="1152699417411690">"વાઇ-ફાઇ, તમારા હોમ નેટવર્ક જેવા, સાચવેલા ઉચ્ચ ક્વૉલિટીના નેટવર્કની નજીકમાં ઑટોમૅટિક રીતે ફરી ચાલુ થશે"</string>
     <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"અનુપલબ્ધ છે, કારણ કે સ્થાન બંધ છે. "<annotation id="link">"સ્થાન"</annotation>" ચાલુ કરો."</string>
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"અનુપલબ્ધ છે કારણ કે વાઇ-ફાઇ સ્કૅનિંગ બંધ છે"</string>
     <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"આ સુવિધાનો ઉપયોગ કરવા માટે, નેટવર્ક રેટિંગ પ્રદાતાને પસંદ કરો"</string>
@@ -857,7 +857,7 @@
     <string name="wifi_poor_network_detection_summary" msgid="5539951465985614590">"જ્યાં સુધી વાઇ-ફાઇ સારું ઇન્ટરનેટ કનેક્શન ધરાવતું ન હોય ત્યાં સુધી તેના નેટવર્કનો ઉપયોગ કરશો નહીં"</string>
     <string name="wifi_avoid_poor_network_detection_summary" msgid="1976503191780928104">"ફક્ત સારું ઇન્ટરનેટ કનેક્શન ધરાવતા નેટવર્કનો જ ઉપયોગ કરો"</string>
     <string name="use_open_wifi_automatically_title" msgid="3084513215481454350">"ખુલ્લા નેટવર્કો સાથે કનેક્ટ કરો"</string>
-    <string name="use_open_wifi_automatically_summary" msgid="8338020172673161754">"ઉચ્ચ ગુણવત્તાવાળા સાર્વજનિક નેટવર્ક સાથે આપમેળે કનેક્ટ કરો"</string>
+    <string name="use_open_wifi_automatically_summary" msgid="8338020172673161754">"ઉચ્ચ ક્વૉલિટીના સાર્વજનિક નેટવર્ક સાથે ઑટોમૅટિક રીતે કનેક્ટ કરો"</string>
     <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"આ સુવિધાનો ઉપયોગ કરવા માટે, નેટવર્ક રેટિંગ પ્રદાતાને પસંદ કરો"</string>
     <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"આ સુવિધાનો ઉપયોગ કરવા માટે, સુસંગત નેટવર્ક રેટિંગ પ્રદાતાને પસંદ કરો"</string>
     <string name="wifi_install_credentials" msgid="5650088113710858289">"પ્રમાણપત્રો ઇન્સ્ટૉલ કરો"</string>
@@ -876,8 +876,8 @@
     <string name="wifi_cellular_data_fallback_summary" msgid="2721467405851519769">"જ્યારે વાઇ-ફાઇ પાસે ઇન્ટરનેટનો ઍક્સેસ ન હોય, ત્યારે મોબાઇલ ડેટાનો ઉપયોગ કરો. ડેટા વપરાશ શુલ્ક લાગુ થઈ શકે છે."</string>
     <string name="wifi_add_network" msgid="4094957940791876640">"નેટવર્ક ઉમેરો"</string>
     <string name="wifi_configure_settings_preference_title" msgid="2678534679408777268">"વાઇ-ફાઇ પસંદગીઓ"</string>
-    <string name="wifi_configure_settings_preference_summary_wakeup_on" msgid="5714892572614655675">"વાઇ-ફાઇ ફરી આપમેળે ચાલુ થાય છે"</string>
-    <string name="wifi_configure_settings_preference_summary_wakeup_off" msgid="286904094152909651">"વાઇ-ફાઇ પાછું આપમેળે ચાલુ થતું નથી"</string>
+    <string name="wifi_configure_settings_preference_summary_wakeup_on" msgid="5714892572614655675">"વાઇ-ફાઇ ફરી ઑટોમૅટિક રીતે ચાલુ થાય છે"</string>
+    <string name="wifi_configure_settings_preference_summary_wakeup_off" msgid="286904094152909651">"વાઇ-ફાઇ પાછું ઑટોમૅટિક રીતે ચાલુ થતું નથી"</string>
     <string name="wifi_access_points" msgid="1647976498906871869">"વાઇ-ફાઇ નેટવર્ક"</string>
     <string name="wifi_menu_more_options" msgid="8318269834264035524">"વધુ વિકલ્પો"</string>
     <string name="wifi_menu_p2p" msgid="4945665601551289791">"વાઇ-ફાઇ ડાઇરેક્ટ"</string>
@@ -894,7 +894,7 @@
     <string name="wifi_more" msgid="3538241640407382185">"વધુ"</string>
     <string name="wifi_setup_wps" msgid="6730131677695521321">"ઑટોમૅટિક સેટઅપ (WPS)"</string>
     <string name="wifi_settings_scanning_required_title" msgid="3593457187659922490">"વાઇ-ફાઇ સ્કૅનિંગ ચાલુ કરીએ?"</string>
-    <string name="wifi_settings_scanning_required_summary" msgid="7469610959462708782">"આપમેળે વાઇ-ફાઇ ચાલુ કરવા માટે, તમારે પહેલા વાઇ-ફાઇ સ્કૅનિંગ ચાલુ કરવું જરૂરી છે."</string>
+    <string name="wifi_settings_scanning_required_summary" msgid="7469610959462708782">"ઑટોમૅટિક રીતે વાઇ-ફાઇ ચાલુ કરવા માટે, તમારે પહેલા વાઇ-ફાઇ સ્કૅનિંગ ચાલુ કરવું જરૂરી છે."</string>
     <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"વાઇ-ફાઇ બંધ હોય, ત્યારે પણ વાઇ-ફાઇ સ્કૅનિંગ ગમે ત્યારે ઍપ અને સેવાઓને વાઇ-ફાઇ નેટવર્ક સ્કૅન કરવાની મંજૂરી આપે છે. ઉદાહરણ તરીકે, આનો ઉપયોગ સ્થાન-આધારિત સુવિધાઓ અને સેવાઓને બહેતર બનાવવા માટે કરી શકાય છે."</string>
     <string name="wifi_settings_scanning_required_turn_on" msgid="4327570180594277049">"ચાલુ કરો"</string>
     <string name="wifi_settings_scanning_required_enabled" msgid="3336102100425307040">"વાઇ-ફાઇ સ્કૅનિંગ ચાલુ કર્યું છે"</string>
@@ -924,7 +924,7 @@
     <string name="wifi_password" msgid="6942983531275177771">"પાસવર્ડ"</string>
     <string name="wifi_show_password" msgid="7878398590772942202">"પાસવર્ડ બતાવો"</string>
     <string name="wifi_ap_band_config" msgid="6565016368079288433">"AP બેન્ડ પસંદ કરો"</string>
-    <string name="wifi_ap_choose_auto" msgid="7927637960569365785">"આપમેળે"</string>
+    <string name="wifi_ap_choose_auto" msgid="7927637960569365785">"ઑટોમૅટિક રીતે"</string>
     <string name="wifi_ap_choose_2G" msgid="43198403259714736">"2.4 GHz બેન્ડ"</string>
     <string name="wifi_ap_choose_5G" msgid="2624859713183683146">"5.0 GHz બેન્ડ"</string>
     <string name="wifi_ap_prefer_5G" msgid="8339172330471170142">"5.0 GHz બૅન્ડ પસંદ કર્યું"</string>
@@ -1168,7 +1168,7 @@
     <string name="accessibility_category_personal" msgid="1423427301759058762">"વ્યક્તિગત પ્રોફાઇલ એકાઉન્ટ્સ"</string>
     <string name="accessibility_work_account_title" msgid="3195468574776888011">"કાર્ય એકાઉન્ટ - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
     <string name="accessibility_personal_account_title" msgid="7251761883688839354">"વ્યક્તિગત એકાઉન્ટ - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
-    <string name="search_settings" msgid="5809250790214921377">"શોધો"</string>
+    <string name="search_settings" msgid="5809250790214921377">"Search"</string>
     <string name="display_settings" msgid="1045535829232307190">"ડિસ્પ્લે"</string>
     <string name="accelerometer_title" msgid="2427487734964971453">"ઑટો રોટેટ સ્ક્રીન"</string>
     <string name="color_mode_title" msgid="8164858320869449142">"રંગો"</string>
@@ -1178,10 +1178,10 @@
     <string name="color_mode_option_automatic" msgid="6572718611315165117">"સુવિધાજનક"</string>
     <string name="color_mode_summary_natural" msgid="1247153893843263340">"માત્ર સચોટ રંગોનો જ ઉપયોગ કરો"</string>
     <string name="color_mode_summary_automatic" msgid="6066740785261330514">"આબેહૂબ અને સચોટ રંગો વચ્ચે સમાયોજિત કરો"</string>
-    <string name="accelerometer_summary_on" product="tablet" msgid="5750977897791656412">"ટેબ્લેટને ફેરવતી વખતે ઓરિએન્ટેશનને આપમેળે સ્વિચ કરો"</string>
-    <string name="accelerometer_summary_on" product="default" msgid="6454733048264875491">"ફોનને ફેરવતી વખતે ઓરિએન્ટેશનને આપમેળે સ્વિચ કરો"</string>
-    <string name="accelerometer_summary_off" product="tablet" msgid="2663240868158338608">"ટેબ્લેટને ફેરવતી વખતે ઓરિએન્ટેશનને આપમેળે સ્વિચ કરો"</string>
-    <string name="accelerometer_summary_off" product="default" msgid="3366996018631557687">"ફોનને ફેરવતી વખતે ઓરિએન્ટેશનને આપમેળે સ્વિચ કરો"</string>
+    <string name="accelerometer_summary_on" product="tablet" msgid="5750977897791656412">"ટૅબ્લેટને ફેરવતી વખતે ઓરિએન્ટેશનને ઑટોમૅટિક રીતે સ્વિચ કરો"</string>
+    <string name="accelerometer_summary_on" product="default" msgid="6454733048264875491">"ફોનને ફેરવતી વખતે ઓરિએન્ટેશનને ઑટોમૅટિક રીતે સ્વિચ કરો"</string>
+    <string name="accelerometer_summary_off" product="tablet" msgid="2663240868158338608">"ટૅબ્લેટને ફેરવતી વખતે ઓરિએન્ટેશનને ઑટોમૅટિક રીતે સ્વિચ કરો"</string>
+    <string name="accelerometer_summary_off" product="default" msgid="3366996018631557687">"ફોનને ફેરવતી વખતે ઓરિએન્ટેશનને ઑટોમૅટિક રીતે સ્વિચ કરો"</string>
     <string name="brightness" msgid="7309120144111305275">"સ્ક્રીનની બ્રાઇટનેસનું સ્તર"</string>
     <string name="brightness_title" msgid="5660190946911149690">"તેજ"</string>
     <string name="brightness_summary" msgid="8687101964451818730">"સ્ક્રીનનાં તેજને સમાયોજિત કરો"</string>
@@ -1203,7 +1203,7 @@
     <string name="auto_brightness_off_summary" msgid="6162650416289359104">"ઉપલબ્ધ લાઇટ માટે સમાયોજિત કરશો નહીં"</string>
     <string name="auto_brightness_very_high_summary" msgid="7202032980509583918">"વધારેલ બૅટરી વપરાશ"</string>
     <string name="auto_brightness_disclaimer" msgid="5416696351199148809">"ઉપલબ્ધ પ્રકાશ માટેનાં તેજ સ્તરને ઑપ્ટિમાઇઝ કરો. જ્યારે આ સુવિધા ચાલુ હોય, ત્યારે પણ તમે તેજને અસ્થાયી રૂપે સમાયોજિત કરી શકો છો."</string>
-    <string name="auto_brightness_description" msgid="8209140379089535411">"તમારી સ્ક્રીનનું બ્રાઇટનેસ તમારા પર્યાવરણ અને પ્રવૃત્તિઓ સાથે આપમેળે ઓછું-વધતું થઈને ગોઠવાશે. તમે સ્લાઇડર મેન્યુઅલી ખસેડીને અડૅપ્ટિવ બ્રાઇટનેસને તમારી પસંદગીઓ જાણવામાં સહાય કરી શકો છો."</string>
+    <string name="auto_brightness_description" msgid="8209140379089535411">"તમારી સ્ક્રીનનું બ્રાઇટનેસ તમારા પર્યાવરણ અને પ્રવૃત્તિઓ સાથે ઑટોમૅટિક રીતે ઓછું-વધતું થઈને ગોઠવાશે. તમે સ્લાઇડર મેન્યુઅલી ખસેડીને અડૅપ્ટિવ બ્રાઇટનેસને તમારી પસંદગીઓ જાણવામાં સહાય કરી શકો છો."</string>
     <string name="display_white_balance_title" msgid="5747260735311935143">"વ્હાઇટ બૅલેન્સ ડિસ્પ્લે"</string>
     <string name="adaptive_sleep_title" msgid="3237620948260957018">"Screen aware"</string>
     <string name="adaptive_sleep_summary_on" msgid="6670369739228487082">"ચાલુ / જો તમે સ્ક્રીન તરફ જોતા હો, તો તમારી સ્ક્રીન બંધ થશે નહીં"</string>
@@ -1222,12 +1222,12 @@
     <string name="night_display_temperature_title" msgid="8375126629902616296">"તીવ્રતા"</string>
     <string name="night_display_summary_off" msgid="8850539785332228069">"બંધ / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="night_display_summary_off_auto_mode_never" msgid="8618824386434992487">"ક્યારેય ઑટોમૅટિક રીતે ચાલુ નહીં થાય"</string>
-    <string name="night_display_summary_off_auto_mode_custom" msgid="596847003171394411">"<xliff:g id="ID_1">%1$s</xliff:g> વાગ્યે આપમેળે ચાલુ થઈ જશે"</string>
-    <string name="night_display_summary_off_auto_mode_twilight" msgid="4071750976585359952">"સૂર્યાસ્ત સમયે આપમેળે ચાલુ થઈ જશે"</string>
+    <string name="night_display_summary_off_auto_mode_custom" msgid="596847003171394411">"<xliff:g id="ID_1">%1$s</xliff:g> વાગ્યે ઑટોમૅટિક રીતે ચાલુ થઈ જશે"</string>
+    <string name="night_display_summary_off_auto_mode_twilight" msgid="4071750976585359952">"સૂર્યાસ્ત સમયે ઑટોમૅટિક રીતે ચાલુ થઈ જશે"</string>
     <string name="night_display_summary_on" msgid="6580571388791426596">"ચાલુ / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="night_display_summary_on_auto_mode_never" msgid="5461580863060506687">"આપમેળે ક્યારેય બંધ નહીં થાય"</string>
-    <string name="night_display_summary_on_auto_mode_custom" msgid="2200631112239399233">"<xliff:g id="ID_1">%1$s</xliff:g> વાગ્યે આપમેળે બંધ થઈ જશે"</string>
-    <string name="night_display_summary_on_auto_mode_twilight" msgid="8386769601369289561">"સૂર્યોદય સમયે આપમેળે બંધ થઈ જશે"</string>
+    <string name="night_display_summary_on_auto_mode_never" msgid="5461580863060506687">"ઑટોમૅટિક રીતે ક્યારેય બંધ નહીં થાય"</string>
+    <string name="night_display_summary_on_auto_mode_custom" msgid="2200631112239399233">"<xliff:g id="ID_1">%1$s</xliff:g> વાગ્યે ઑટોમૅટિક રીતે બંધ થઈ જશે"</string>
+    <string name="night_display_summary_on_auto_mode_twilight" msgid="8386769601369289561">"સૂર્યોદય સમયે ઑટોમૅટિક રીતે બંધ થઈ જશે"</string>
     <string name="night_display_activation_on_manual" msgid="8379477527072027346">"હમણાં ચાલુ કરો"</string>
     <string name="night_display_activation_off_manual" msgid="7776082151269794201">"હમણાં બંધ કરો"</string>
     <string name="night_display_activation_on_twilight" msgid="5610294051700287249">"સૂર્યોદય સુધી ચાલુ રાખો"</string>
@@ -1450,7 +1450,7 @@
     <string name="storage_internal_forget_confirm_title" msgid="331032276130605241">"<xliff:g id="NAME">^1</xliff:g> ભૂલી ગયાં?"</string>
     <string name="storage_internal_forget_confirm" msgid="3052483375203727176">"આ <xliff:g id="NAME">^1</xliff:g> પર સંગ્રહિત તમામ ઍપ્લિકેશનો, ફોટો અને ડેટા કાયમ માટે જતો રહેશે."</string>
     <string name="storage_detail_apps" msgid="8154648512504196820">"ઍપ્લિકેશનો"</string>
-    <string name="storage_detail_images" msgid="6996202225684468964">"છબીઓ"</string>
+    <string name="storage_detail_images" msgid="6996202225684468964">"Images"</string>
     <string name="storage_detail_videos" msgid="6030983354721080849">"વિડિઓઝ"</string>
     <string name="storage_detail_audio" msgid="6011098436589663944">"ઑડિઓ"</string>
     <string name="storage_detail_cached" msgid="5761648455067920683">"કેશ્ડ ડેટા"</string>
@@ -1602,7 +1602,7 @@
     <string name="master_clear_button_text" product="default" msgid="8000547818499182920">"બધો ડેટા કાઢી નાખો"</string>
     <string name="master_clear_final_desc" msgid="5189365498015339294">"તમારી બધી વ્યક્તિગત માહિતી અને ડાઉનલોડ કરેલી ઍપ ડિલીટ કરવામાં આવશે. તમે આ ક્રિયા માટે કરેલો છેલ્લો ફેરફાર રદ કરી શકશો નહીં."</string>
     <string name="master_clear_final_desc_esim" msgid="3058919823436953662">"ડાઉનલોડ કરેલી ઍપ અને સિમ સહિતની તમારી બધી વ્યક્તિગત માહિતી ડિલીટ કરવામાં આવશે. તમે આ ક્રિયા માટે કરેલો છેલ્લો ફેરફાર રદ કરી શકશો નહીં."</string>
-    <string name="master_clear_final_button_text" msgid="866772743886027768">"દરેક વસ્તુ કાઢી નાંખો"</string>
+    <string name="master_clear_final_button_text" msgid="866772743886027768">"દરેક વસ્તુ કાઢી નાખો"</string>
     <string name="master_clear_failed" msgid="7588397453984229892">"કોઈ ફરીથી સેટ કરો કરવામાં આવ્યું નથી કારણ કે સિસ્ટમ સાફ સેવા ઉપલબ્ધ નથી."</string>
     <string name="master_clear_confirm_title" msgid="698328669893512402">"બધો ડેટા કાઢી નાખીએ?"</string>
     <string name="master_clear_not_available" msgid="4676613348163652454">"આ વપરાશકર્તા માટે ફેક્ટરી રીસેટ ઉપલબ્ધ નથી"</string>
@@ -1786,19 +1786,19 @@
     <string name="lock_settings_profile_unified_summary" msgid="5347244550751740962">"ઉપકરણ સ્ક્રીન લૉકની સમાન"</string>
     <string name="manageapplications_settings_title" msgid="6876782217962262376">"એપ્લિકેશન્સનું સંચાલન કરો"</string>
     <string name="manageapplications_settings_summary" msgid="5092964799412478962">"ઇન્સ્ટોલ કરેલ એપ્લિકેશન્સનું સંચાલન કરો અને દૂર કરો"</string>
-    <string name="applications_settings" msgid="368331725658793179">"ઍપ્લિકેશનની માહિતી"</string>
+    <string name="applications_settings" msgid="368331725658793179">"ઍપની માહિતી"</string>
     <string name="applications_settings_summary" msgid="8888258399577123906">"ઍપ્લિકેશનો સંચાલિત કરો, ઝડપી લોંચ શોર્ટકટ્સ સેટ કરો"</string>
     <string name="applications_settings_header" msgid="3766501606045211098">"ઍપ્લિકેશન સેટિંગ્સ"</string>
     <string name="install_applications" msgid="7745902974984889179">"અજાણ્યા સ્ત્રોતો"</string>
     <string name="install_applications_title" msgid="8164828577588659496">"બધા ઍપ્લિકેશન સ્રોતોને મંજૂરી આપો"</string>
-    <string name="recent_app_category_title" msgid="7688788038277126727">"તાજેતરમાં ખોલેલી ઍપ્લિકેશનો"</string>
+    <string name="recent_app_category_title" msgid="7688788038277126727">"તાજેતરમાં ખોલેલી ઍપ"</string>
     <string name="see_all_apps_title" msgid="6435061912110347474">"બધી <xliff:g id="COUNT">%1$d</xliff:g> ઍપ્લિકેશન જુઓ"</string>
     <string name="install_all_warning" product="tablet" msgid="4580699862358542727">"તમારું ટૅબ્લેટ અને વ્યક્તિગત ડેટા અજાણી ઍપ્લિકેશનોના હુમલા પ્રતિ વધુ સંવેદનશીલ છે. આ સ્રોત પરથી ઍપ્લિકેશનો ઇન્સ્ટૉલ કરીને તમે સંમત થાઓ છો કે તેમનો ઉપયોગ કરવાના પરિણામે તમારા ટૅબ્લેટને થતી કોઈ પણ ક્ષતિ કે ડેટાના નુકસાન માટે તમે જવાબદાર છો."</string>
     <string name="install_all_warning" product="default" msgid="7445839116997296358">"તમારો ફોન અને વ્યક્તિગત ડેટા અજાણી ઍપ્લિકેશનોના હુમલા પ્રતિ વધુ સંવેદનશીલ છે. આ સ્રોત પરથી ઍપ્લિકેશનો ઇન્સ્ટૉલ કરીને તમે સંમત થાઓ છો કે તેમનો ઉપયોગ કરવાના પરિણામે તમારા ફોનને થતી કોઈ પણ ક્ષતિ કે ડેટાના નુકસાન માટે તમે જવાબદાર છો."</string>
     <string name="install_all_warning" product="device" msgid="9141585291103603515">"તમારું ઉપકરણ અને વ્યક્તિગત ડેટા અજાણી ઍપના હુમલા પ્રતિ વધુ સંવેદનશીલ છે. આ સ્રોત પરથી ઍપ ઇન્સ્ટૉલ કરીને, તમે સંમત થાઓ છો કે તેમનો ઉપયોગ કરવાના પરિણામે તમારા ઉપકરણને થતી કોઈ પણ ક્ષતિ કે ડેટાના નુકસાન માટે તમે જવાબદાર છો."</string>
     <string name="advanced_settings" msgid="6282069364060968122">"વિગતવાર સેટિંગ્સ"</string>
     <string name="advanced_settings_summary" msgid="5912237062506771716">"વધુ સેટિંગ્સ વિકલ્પો સક્ષમ કરો"</string>
-    <string name="application_info_label" msgid="3886253474964599105">"ઍપ્લિકેશન માહિતી"</string>
+    <string name="application_info_label" msgid="3886253474964599105">"ઍપની માહિતી"</string>
     <string name="storage_label" msgid="1109537840103290384">"સ્ટોરેજ"</string>
     <string name="auto_launch_label" msgid="47089737922907379">"ડિફોલ્ટ તરીકે ખોલો"</string>
     <string name="auto_launch_label_generic" msgid="7865828543459493308">"ડિફૉલ્ટ્સ"</string>
@@ -1890,7 +1890,7 @@
     <string name="app_disable_dlg_positive" msgid="5508828271100168073">"ઍપ્લિકેશન અક્ષમ કરો"</string>
     <string name="app_disable_dlg_text" msgid="9221864774943530281">"જો તમે આ ઍપ બંધ કરશો, તો Android અને અન્ય ઍપ અપેક્ષા પ્રમાણે કાર્ય કરી શકશે નહીં. યાદ રાખો, તમે આ ઍપને ડિલીટ નહીં કરી શકો, કારણ કે તે તમારા ડિવાઇસમાં પહેલેથી ઇન્સ્ટૉલ થયેલી હતી. બંધ કરીને, તમે આ ઍપને માત્ર બંધ કરો છો અને તમારા ડિવાઇસમાં છુપાવો છો."</string>
     <string name="app_disable_notifications_dlg_title" msgid="699530661413553928">"સૂચનાઓ બંધ કરીએ?"</string>
-    <string name="app_install_details_group_title" msgid="2909597319422976921">"દુકાન"</string>
+    <string name="app_install_details_group_title" msgid="2909597319422976921">"Store"</string>
     <string name="app_install_details_title" msgid="6954953384372934881">"ઍપ્લિકેશનની વિગતો"</string>
     <string name="app_install_details_summary" msgid="6612222941121363940">"<xliff:g id="APP_STORE">%1$s</xliff:g> માંથી ઇન્સ્ટૉલ કરેલ ઍપ્લિકેશન"</string>
     <string name="instant_app_details_summary" msgid="6384264315914966114">"વધુ માહિતી <xliff:g id="APP_STORE">%1$s</xliff:g> પર મળશે"</string>
@@ -2066,7 +2066,7 @@
     <string name="accessibility_shortcut_service_on_lock_screen_title" msgid="1279441617927949980">"લૉક સ્ક્રીન પરથી મંજૂરી આપો"</string>
     <string name="accessibility_shortcut_description" msgid="1427049334225166395">"જ્યારે શૉર્ટકટ ચાલુ હોય, ત્યારે ઍક્સેસિબિલિટી સુવિધા શરૂ કરવા માટે તમે બન્ને વૉલ્યૂમ કીને 3 સેકન્ડ સુધી દબાવી રાખી શકો છો."</string>
     <string name="accessibility_toggle_high_text_contrast_preference_title" msgid="5652244684961877255">"ઉચ્ચ કોન્ટ્રાસ્ટ ટેક્સ્ટ"</string>
-    <string name="accessibility_toggle_screen_magnification_auto_update_preference_title" msgid="2466317284195934003">"સ્ક્રીન વિસ્તૃતીકરણ આપમેળે અપડેટ કરો"</string>
+    <string name="accessibility_toggle_screen_magnification_auto_update_preference_title" msgid="2466317284195934003">"સ્ક્રીન વિસ્તૃતીકરણ ઑટોમૅટિક રીતે અપડેટ કરો"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_summary" msgid="6625473745911276917">"ઍપ્લિકેશન સંક્રમણો પર સ્ક્રીન વિસ્તૃતીકરણને અપડેટ કરો"</string>
     <string name="accessibility_power_button_ends_call_prerefence_title" msgid="6172987104538172869">"પાવર બટન કૉલને સમાપ્ત કરે છે"</string>
     <string name="accessibility_toggle_large_pointer_icon_title" msgid="9127905775116570565">"મોટું માઉસ પોઇન્ટર"</string>
@@ -2089,7 +2089,7 @@
     <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"વિપરીત રંગમાં બદલવું"</string>
     <string name="accessibility_display_inversion_preference_subtitle" msgid="69291255322175323">"કાર્યપ્રદર્શનને અસર થઈ શકે છે"</string>
     <string name="accessibility_autoclick_preference_title" msgid="9164599088410340405">"જોવાયાનો સમયગાળો"</string>
-    <string name="accessibility_autoclick_description" msgid="5492414927846407499">"જો તમે માઉસનો ઉપયોગ કરી રહ્યાં હોય, તો જ્યારે કર્સર અમુક ચોક્કસ સમય માટે કાર્ય કરતું રોકાઈ જાય ત્યારે તમે તેને આપમેળે ક્રિયા કરવા માટે સેટ કરી શકો છો."</string>
+    <string name="accessibility_autoclick_description" msgid="5492414927846407499">"જો તમે માઉસનો ઉપયોગ કરી રહ્યાં હોય, તો જ્યારે કર્સર અમુક ચોક્કસ સમય માટે કાર્ય કરતું રોકાઈ જાય ત્યારે તમે તેને ઑટોમૅટિક રીતે ક્રિયા કરવા માટે સેટ કરી શકો છો."</string>
     <string name="accessibility_autoclick_delay_preference_title" msgid="8303022510942147049">"ક્લિક કરતાં પહેલાં વિલંબ"</string>
     <string name="accessibility_vibration_settings_title" msgid="1902649657883159406">"વાઇબ્રેશન"</string>
     <string name="accessibility_notification_vibration_title" msgid="1005799039440510298">"નોટિફિકેશન વાઇબ્રેશન"</string>
@@ -2321,7 +2321,7 @@
     <string name="battery_tip_dialog_summary_message" product="tablet" msgid="1721081030632329647">"તમારી બધી ઍપ બૅટરીનો વપરાશ સામાન્ય પ્રમાણમાં કરી રહી છે. જો તે બૅટરીનો ઘણો વધુ વપરાશ કરવા માંડશે, તો તમારું ટૅબ્લેટ તમે શું ઍક્શન લઈ શકો તે સૂચવશે.\n\nજો તમારી પાસે બૅટરીમાં ચાર્જ ઓછો રહ્યો હોય, તો તમે કોઈપણ સમયે બૅટરી સેવર ચાલુ કરી શકો છો."</string>
     <string name="battery_tip_dialog_summary_message" product="device" msgid="146872407040848465">"તમારી બધી ઍપ બૅટરીનો વપરાશ સામાન્ય પ્રમાણમાં કરી રહી છે. જો તે બૅટરીનો ઘણો વધુ વપરાશ કરવા માંડશે, તો તમારું ઉપકરણ તમે શું ઍક્શન લઈ શકો તે સૂચવશે.\n\nજો તમારી પાસે બૅટરીમાં ચાર્જ ઓછો રહ્યો હોય, તો તમે કોઈપણ સમયે બૅટરી સેવર ચાલુ કરી શકો છો."</string>
     <string name="smart_battery_manager_title" msgid="5744035036663849515">"બૅટરી મેનેજર"</string>
-    <string name="smart_battery_title" msgid="4919670408532804351">"ઍપને આપમેળે મેનેજ કરો"</string>
+    <string name="smart_battery_title" msgid="4919670408532804351">"ઍપને ઑટોમૅટિક રીતે મેનેજ કરો"</string>
     <string name="smart_battery_summary" msgid="640027046471198174">"જે ઍપનો તમે ઓછો ઉપયોગ કરતા હો, તેના માટે બૅટરી મર્યાદિત કરો"</string>
     <string name="smart_battery_footer" product="default" msgid="3971715848890205632">"જ્યારે બૅટરી મેનેજર શોધે છે કે ઍપ બૅટરીનો અતિશય ઉપયોગ કરી રહી છે, ત્યારે તમારી પાસે આ ઍપને પ્રતિબંધિત કરવાનો વિકલ્પ હશે. પ્રતિબંધિત ઍપ યોગ્ય રીતે કાર્ય નહીં કરી શકે અને નોટિફિકેશન વિલંબિત થઈ શકે છે."</string>
     <string name="smart_battery_footer" product="tablet" msgid="3971715848890205632">"જ્યારે બૅટરી મેનેજર શોધે છે કે ઍપ બૅટરીનો અતિશય ઉપયોગ કરી રહી છે, ત્યારે તમારી પાસે આ ઍપને પ્રતિબંધિત કરવાનો વિકલ્પ હશે. પ્રતિબંધિત ઍપ યોગ્ય રીતે કાર્ય નહીં કરી શકે અને નોટિફિકેશન વિલંબિત થઈ શકે છે."</string>
@@ -2393,7 +2393,7 @@
     <string name="usage_type_computed_power" msgid="2594890316149868151">"ગણતરી કારયેલ પાવર ઉપયોગ"</string>
     <string name="usage_type_actual_power" msgid="8067253427718526111">"નિરીક્ષિત પાવર ઉપયોગ"</string>
     <string name="battery_action_stop" msgid="1866624019460630143">"ફરજિયાત બંધ કરો"</string>
-    <string name="battery_action_app_details" msgid="1077011181969550402">"ઍપ્લિકેશન માહિતી"</string>
+    <string name="battery_action_app_details" msgid="1077011181969550402">"ઍપની માહિતી"</string>
     <string name="battery_action_app_settings" msgid="587998773852488539">"ઍપ્લિકેશન સેટિંગ્સ"</string>
     <string name="battery_action_display" msgid="4887913003634317465">"સ્ક્રીન સેટિંગ્સ"</string>
     <string name="battery_action_wifi" msgid="7123520587925323824">"વાઇ-ફાઇ સેટિંગ્સ"</string>
@@ -2447,7 +2447,7 @@
     <string name="process_mediaserver_label" msgid="8591722404282619153">"Mediaserver"</string>
     <string name="process_dex2oat_label" msgid="8249082119748556085">"ઍપ્લિકેશન ઓપ્ટિમાઇઝેશન"</string>
     <string name="battery_saver" msgid="3989710213758938398">"બૅટરી સેવર"</string>
-    <string name="battery_saver_auto_title" msgid="4158659069641849952">"આપમેળે ચાલુ કરો"</string>
+    <string name="battery_saver_auto_title" msgid="4158659069641849952">"ઑટોમૅટિક રીતે ચાલુ કરો"</string>
     <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"કોઈ શેડ્યૂલ નથી"</string>
     <string name="battery_saver_auto_routine" msgid="886514412067906980">"તમારા નિત્યક્રમ પર આધારિત"</string>
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"ટકાવારી પર આધારિત"</string>
@@ -2462,7 +2462,7 @@
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"ચાલુ કરો"</string>
     <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"બૅટરી સેવરનો ઉપયોગ કરો"</string>
-    <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"આપમેળે ચાલુ કરો"</string>
+    <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"ઑટોમૅટિક રીતે ચાલુ કરો"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"ક્યારેય નહીં"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"<xliff:g id="PERCENT">%1$s</xliff:g> બૅટરી પર"</string>
     <string name="battery_percentage" msgid="7782252476471033843">"બૅટરીના ટકા"</string>
@@ -2563,7 +2563,7 @@
     <string name="backup_erase_dialog_title" msgid="8178424339104463014"></string>
     <string name="backup_erase_dialog_message" msgid="8767843355330070902">"વાઇ-ફાઇ પાસવર્ડ્સ, બુકમાર્ક્સ, અન્ય સેટિંગ્સ અને ઍપ્લિકેશન ડેટાનો બેકઅપ લેવાનું રોકીએ, તેમજ Google સર્વર્સ પરની બધી કૉપિઝને કાઢી નાખીએ?"</string>
     <string name="fullbackup_erase_dialog_message" msgid="2588536036471144070">"ઉપકરણ ડેટા (જેમ કે વાઇ-ફાઇ પાસવર્ડ્સ અને કૉલ ઇતિહાસ) અને ઍપ્લિકેશન ડેટા (જેમ કે સેટિંગ્સ અને ઍપ્લિકેશનો દ્વારા સંગ્રહિત ફાઇલો) નું બેકઅપ લેવાનું રોકીએ, ઉપરાંત રિમોટ સર્વર્સ પરની તમામ કૉપિઝ કાઢી નાખીએ?"</string>
-    <string name="fullbackup_data_summary" msgid="406274198094268556">"ઉપકરણ ડેટા (જેમ કે વાઇ-ફાઇ પાસવર્ડ્સ અને કૉલ ઇતિહાસ) અને ઍપ્લિકેશન ડેટા (જેમ કે સેટિંગ્સ અને ઍપ્લિકેશનો દ્વારા સંગ્રહિત ફાઇલો)નો રિમોટલી આપમેળે બેક અપ લો.\n\nજ્યારે તમે સ્વચલિત બેકઅપ ચાલુ કરો છો, ત્યારે ઉપકરણ અને ઍપ્લિકેશન ડેટા સમયાંતરે રિમોટલી સચવાય છે. ઍપ્લિકેશન ડેટા એવો કોઈપણ ડેટા હોઈ શકે જેને કોઈ ઍપ્લિકેશને સાચવ્યો હોય (વિકાસકર્તા સેટિંગ્સનાં આધારે) જેમાં સંપર્કો, સંદેશા અને ફોટો જેવા સંભવિતપણે સંવેદનશીલ ડેટાનો સમાવેશ થાય છે."</string>
+    <string name="fullbackup_data_summary" msgid="406274198094268556">"ડિવાઇસ ડેટા (જેમ કે વાઇ-ફાઇ પાસવર્ડ અને કૉલ ઇતિહાસ) અને ઍપ ડેટા (જેમ કે સેટિંગ અને ઍપ દ્વારા સંગ્રહિત ફાઇલો)નો રિમોટલી ઑટોમૅટિક રીતે બૅકઅપ લો.\n\nજ્યારે તમે ઑટોમૅટિક રીતે બૅકઅપ ચાલુ કરો છો, ત્યારે ડિવાઇસ અને ઍપ ડેટા સમયાંતરે રિમોટલી સચવાય છે. ઍપ ડેટા એવો કોઈપણ ડેટા હોઈ શકે જેને કોઈ ઍપએ સાચવ્યો હોય (ડેવલપર સેટિંગના આધારે) જેમાં સંપર્કો, સંદેશા અને ફોટો જેવા સંભવિતપણે સંવેદનશીલ ડેટાનો સમાવેશ થાય છે."</string>
     <string name="device_admin_settings_title" msgid="2074319456047334589">"ઉપકરણ વ્યવસ્થાપક સેટિંગ્સ"</string>
     <string name="active_device_admin_msg" msgid="6929247869516924549">"ડિવાઇસ વ્યવસ્થાપક ઍપ્લિકેશન"</string>
     <string name="remove_device_admin" msgid="4413438593788336400">"આ ઉપકરણ વ્યવસ્થાપક ઍપ્લિકેશનને નિષ્ક્રિય કરો"</string>
@@ -2606,7 +2606,7 @@
     <string name="background_data_summary" msgid="799640633948841990">"ઍપ્લિકેશનો કોઈપણ સમયે ડેટાને સમન્વયિત, મોકલી અને પ્રાપ્ત કરી શકે છે"</string>
     <string name="background_data_dialog_title" msgid="8306650658158895976">"બૅકગ્રાઉન્ડ ડેટાને અક્ષમ કરીએ?"</string>
     <string name="background_data_dialog_message" msgid="8126774244911656527">"બૅકગ્રાઉન્ડ ડેટાને અક્ષમ કરવું બૅટરીની આવરદા વધારે છે અને ડેટા ઉપયોગને ઓછો કરે છે. કેટલીક ઍપ્લિકેશનો હજી પણ બૅકગ્રાઉન્ડ ડેટા કનેક્શનનો ઉપયોગ કરતી હોઈ શકે છે."</string>
-    <string name="sync_automatically" msgid="5746117156896468099">"ઍપ્લિકેશન ડેટાને આપમેળે સિંક કરો"</string>
+    <string name="sync_automatically" msgid="5746117156896468099">"ઍપ ડેટાને ઑટોમૅટિક રીતે સિંક કરો"</string>
     <string name="sync_enabled" msgid="535172627223336983">"સમન્વયન ચાલુ છે"</string>
     <string name="sync_disabled" msgid="713721807204805062">"સમન્વયન બંધ છે"</string>
     <string name="sync_error" msgid="988155155932442765">"સમન્વયન ભૂલ"</string>
@@ -2634,7 +2634,7 @@
     <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"આ એકાઉન્ટને કાઢી નાખવાથી તેના બધા સંદેશા, સંપર્કો તેમજ ઉપકરણમાંનો અન્ય ડેટા ડિલીટ થઈ જશે!"</string>
     <string name="remove_account_failed" msgid="491458185327106966">"તમારા વ્યવસ્થાપકે આ ફેરફારની મંજૂરી આપી નથી"</string>
     <string name="cant_sync_dialog_title" msgid="5483419398223189881">"મેન્યુઅલી સમન્વયિત કરી શકાતું નથી"</string>
-    <string name="cant_sync_dialog_message" msgid="3467126947262857534">"આ આઇટમ માટે સિંક હાલમાં અક્ષમ કરેલું છે. આ સેટિંગ બદલવા માટે, બૅકગ્રાઉન્ડ ડેટા અને આપમેળે સિંકને અસ્થાયી ધોરણે ચાલુ કરો."</string>
+    <string name="cant_sync_dialog_message" msgid="3467126947262857534">"આ આઇટમ માટે સિંક હાલમાં બંધ કરેલું છે. આ સેટિંગ બદલવા માટે, બૅકગ્રાઉન્ડ ડેટા અને ઑટોમૅટિક સિંકને અસ્થાયી ધોરણે ચાલુ કરો."</string>
     <string name="enter_password" msgid="2963496904625715235">"Android પ્રારંભ કરવા માટે, તમારો પાસવર્ડ દાખલ કરો"</string>
     <string name="enter_pin" msgid="7140938268709546890">"Android પ્રારંભ કરવા માટે, તમારો પિન દાખલ કરો"</string>
     <string name="enter_pattern" msgid="1653841963422825336">"Android પ્રારંભ કરવા માટે, તમારી પૅટર્ન દોરો"</string>
@@ -2652,7 +2652,7 @@
     <string name="data_usage_app_summary_title" msgid="8277327968906074983">"મોબાઇલ ડેટા અને Wi‑Fi"</string>
     <string name="data_usage_accounting" msgid="4681642832010140640">"કેરિઅર ડેટા એકાઉન્ટિંગ તમારા ઉપકરણથી અલગ હોઈ શકે છે."</string>
     <string name="data_usage_app" msgid="4995297799363021198">"ઍપ્લિકેશન વપરાશ"</string>
-    <string name="data_usage_app_info_label" msgid="5358288895158910477">"ઍપ્લિકેશન માહિતી"</string>
+    <string name="data_usage_app_info_label" msgid="5358288895158910477">"ઍપની માહિતી"</string>
     <string name="data_usage_cellular_data" msgid="3509117353455285808">"મોબાઇલ ડેટા"</string>
     <string name="data_usage_data_limit" msgid="4070740691087063670">"ડેટા મર્યાદા સેટ કરો"</string>
     <string name="data_usage_cycle" msgid="1877235461828192940">"ડેટા વપરાશ ચક્ર"</string>
@@ -2666,10 +2666,10 @@
     <string name="data_usage_menu_show_ethernet" msgid="2130574690318410238">"ઇથરનેટ વપરાશ બતાવો"</string>
     <string name="data_usage_menu_hide_ethernet" msgid="1191233197312414533">"ઇથરનેટ વપરાશ છુપાવો"</string>
     <string name="data_usage_menu_metered" msgid="3087525150259956831">"નેટવર્ક પ્રતિબંધ"</string>
-    <string name="data_usage_menu_auto_sync" msgid="3350154877737572146">"ડેટાને આપમેળે સિંક કરો"</string>
+    <string name="data_usage_menu_auto_sync" msgid="3350154877737572146">"ડેટાને ઑટોમૅટિક રીતે સિંક કરો"</string>
     <string name="data_usage_menu_sim_cards" msgid="8508154611676507088">"સિમ કાર્ડ"</string>
     <string name="data_usage_cellular_data_summary" msgid="9162777397135709280">"થોભાવવાની મર્યાદા"</string>
-    <string name="account_settings_menu_auto_sync" msgid="2673669556006027506">"ડેટાને આપમેળે સિંક કરો"</string>
+    <string name="account_settings_menu_auto_sync" msgid="2673669556006027506">"ડેટાને ઑટોમૅટિક રીતે સિંક કરો"</string>
     <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"વ્યક્તિગત ડેટાને ઑટો સિંક કરો"</string>
     <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"ઑફિસના ડેટાને ઑટો સિંક કરો"</string>
     <string name="data_usage_change_cycle" msgid="447761920472170031">"ચક્ર બદલો…"</string>
@@ -2704,8 +2704,8 @@
     <string name="data_usage_app_restrict_dialog" msgid="4022530391896478031">"આ સુવિધાને કારણે બૅકગ્રાઉન્ડ ડેટા પર આધારિત હોય તે ઍપ્લિકેશન ફક્ત મોબાઇલ નેટવર્કો ઉપલબ્ધ હોય ત્યારે કામ કરતી બંધ થઈ શકે છે.\n\nતમે ઍપ્લિકેશનમાં ઉપલબ્ધ સેટિગ્સમાં વધુ ઉચિત ડેટા વપરાશ નિયંત્રણો મેળવી શકો છો."</string>
     <string name="data_usage_restrict_denied_dialog" msgid="18928292832775805">"તમે મોબાઇલ ડેટા મર્યાદા સેટ કરી હોય, માત્ર ત્યારે જ બૅકગ્રાઉન્ડ ડેટાને મર્યાદિત કરવું સંભવ છે."</string>
     <string name="data_usage_auto_sync_on_dialog_title" msgid="2342323408229702005">"ડેટા સ્વતઃસમન્વયિત કરો ચાલુ કરીએ?"</string>
-    <string name="data_usage_auto_sync_on_dialog" product="tablet" msgid="4935430284683238901">"તમે વેબ પર તમારા એકાઉન્ટ્સમાં કરો તે કોઈપણ ફેરફારોને આપમેળે તમારા ફોન પર કૉપિ કરાશે.\n\nકેટલાક એકાઉન્ટ્સ પણ તમે ટેબ્લેટ પર કરો તે ફેરફારોની વેબ પર આપમેળે કૉપિ કરશે. Google એકાઉન્ટ આ પ્રમાણે કાર્ય કરે છે."</string>
-    <string name="data_usage_auto_sync_on_dialog" product="default" msgid="5004823486046340090">"તમે વેબ પર તમારા એકાઉન્ટ્સમાં કરો તે કોઈપણ ફેરફારોને આપમેળે તમારા ફોન પર કૉપિ કરાશે.\n\nકેટલાક એકાઉન્ટ્સ પણ તમે ફોન પર કરો તે ફેરફારોની વેબ પર આપમેળે કૉપિ કરશે. Google એકાઉન્ટ આ પ્રમાણે કાર્ય કરે છે."</string>
+    <string name="data_usage_auto_sync_on_dialog" product="tablet" msgid="4935430284683238901">"તમે વેબ પર તમારા એકાઉન્ટમાં કરો તે કોઈપણ ફેરફારોને ઑટોમૅટિક રીતે તમારા ફોન પર કૉપિ કરાશે.\n\nકેટલાક એકાઉન્ટ પણ તમે ટૅબ્લેટ પર કરો તે ફેરફારોની વેબ પર ઑટોમૅટિક રીતે કૉપિ કરશે. Google એકાઉન્ટ આ પ્રમાણે કાર્ય કરે છે."</string>
+    <string name="data_usage_auto_sync_on_dialog" product="default" msgid="5004823486046340090">"તમે વેબ પર તમારા એકાઉન્ટમાં કરો તે કોઈપણ ફેરફારોને ઑટોમૅટિક રીતે તમારા ફોન પર કૉપિ કરાશે.\n\nકેટલાક એકાઉન્ટ પણ તમે ફોન પર કરો તે ફેરફારોની વેબ પર ઑટોમૅટિક રીતે કૉપિ કરશે. Google એકાઉન્ટ આ પ્રમાણે કાર્ય કરે છે."</string>
     <string name="data_usage_auto_sync_off_dialog_title" msgid="7105334544291643305">"ડેટા ઑટો-સિંક કરો બંધ કરીએ?"</string>
     <string name="data_usage_auto_sync_off_dialog" msgid="4057984234450947964">"આમ કરવું તે ડેટા અને બૅટરી વપરાશ બચાવશે, પરંતુ તમારે તાજેતરની માહિતી એકત્રિત કરવા માટે દરેક એકાઉન્ટને મેન્યુઅલી સિંક કરવાની જરૂર પડશે. અને જ્યારે અપડેટ આવશે ત્યારે તમે નોટિફિકેશન પ્રાપ્ત કરી શકશો નહીં."</string>
     <string name="data_usage_cycle_editor_title" msgid="4967309390043599889">"વપરાશ સાયકલ ફરીથી સેટ કરવાની તારીખ"</string>
@@ -2733,7 +2733,7 @@
     <string name="data_usage_metered_mobile" msgid="3675591449158207593">"મોબાઇલ નેટવર્ક્સ"</string>
     <string name="data_usage_metered_wifi" msgid="2955256408132426720">"મીટર કરેલ વાઇ-ફાઇ નેટવર્ક્સ"</string>
     <string name="data_usage_metered_wifi_disabled" msgid="5771083253782103415">"મીટર કરેલ નેટવર્ક્સ પસંદ કરવા માટે, વાઇ-ફાઇ ચાલુ કરો."</string>
-    <string name="data_usage_metered_auto" msgid="7924116401382629319">"આપમેળે"</string>
+    <string name="data_usage_metered_auto" msgid="7924116401382629319">"ઑટોમૅટિક રીતે"</string>
     <string name="data_usage_metered_yes" msgid="7333744880035386073">"મીટર કરેલ"</string>
     <string name="data_usage_metered_no" msgid="1961524615778610008">"મીટર કરેલ નથી"</string>
     <string name="data_usage_disclaimer" msgid="4683321532922590425">"કેરિઅર ડેટા એકાઉન્ટિંગ તમારા ઉપકરણથી અલગ હોઈ શકે છે."</string>
@@ -3040,12 +3040,12 @@
     <string name="connected_devices_dashboard_no_nfc_summary" msgid="2610085597733526722">"બ્લૂટૂથ, ડ્રાઇવિંગ મોડ"</string>
     <string name="connected_devices_dashboard_no_driving_mode_summary" msgid="3524409078596318803">"બ્લૂટૂથ, NFC"</string>
     <string name="connected_devices_dashboard_no_driving_mode_no_nfc_summary" msgid="7881286613528299400">"બ્લૂટૂથ"</string>
-    <string name="app_and_notification_dashboard_title" msgid="8448096608058843730">"ઍપ્લિકેશનો અને નોટિફિકેશન"</string>
+    <string name="app_and_notification_dashboard_title" msgid="8448096608058843730">"ઍપ અને નોટિફિકેશન"</string>
     <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"Assistant, તાજેતરની ઍપ, ડિફૉલ્ટ ઍપ"</string>
     <string name="notification_settings_work_profile" msgid="7190550347842400029">"કાર્યાલયની પ્રોફાઇલમાં ઍપ માટે નોટિફિકેશન ઍક્સેસ ઉપલબ્ધ નથી."</string>
     <string name="account_dashboard_title" msgid="4734300939532555885">"એકાઉન્ટ"</string>
     <string name="account_dashboard_default_summary" msgid="6822549669771936206">"કોઈ એકાઉન્ટ ઉમેરવામાં આવ્યાં નથી"</string>
-    <string name="app_default_dashboard_title" msgid="6575301028225232193">"ડિફૉલ્ટ ઍપ્લિકેશનો"</string>
+    <string name="app_default_dashboard_title" msgid="6575301028225232193">"ડિફૉલ્ટ ઍપ"</string>
     <string name="system_dashboard_summary" msgid="6582464466735779394">"ભાષાઓ, જેશ્ચર સમય, બૅકઅપ"</string>
     <string name="search_results_title" msgid="4160717656435503940">"સેટિંગ્સ"</string>
     <string name="keywords_wifi" msgid="8477688080895466846">"વાઇફાઇ, વાઇ-ફાઇ, નેટવર્ક કનેક્શન, ઇન્ટરનેટ, વાયરલેસ, ડેટા, વાઇ-ફાઇ"</string>
@@ -3137,7 +3137,7 @@
     <string name="media_volume_option_title" msgid="3553411883305505682">"મીડિયા વૉલ્યૂમ"</string>
     <string name="remote_media_volume_option_title" msgid="6355710054191873836">"કાસ્ટનું વૉલ્યૂમ"</string>
     <string name="call_volume_option_title" msgid="5028003296631037334">"કૉલ વૉલ્યૂમ"</string>
-    <string name="alarm_volume_option_title" msgid="3184076022438477047">"એલાર્મ વૉલ્યૂમ"</string>
+    <string name="alarm_volume_option_title" msgid="3184076022438477047">"અલાર્મ વૉલ્યૂમ"</string>
     <string name="ring_volume_option_title" msgid="2038924918468372264">"રિંગ વૉલ્યૂમ"</string>
     <string name="notification_volume_option_title" msgid="1358512611511348260">"નોટિફિકેશન વૉલ્યૂમ"</string>
     <string name="ringtone_title" msgid="1409086028485922583">"ફોન રિંગટોન"</string>
@@ -3151,7 +3151,7 @@
     <string name="screen_locking_sounds_title" msgid="4407110895465866809">"સ્ક્રીન લૉકિંગ ધ્વનિઓ"</string>
     <string name="charging_sounds_title" msgid="5070437987230894287">"ચાર્જિંગ સાઉન્ડ અને વાઇબ્રેશન"</string>
     <string name="docking_sounds_title" msgid="2573137471605541366">"ડૉકિંગ સાઉન્ડ્સ"</string>
-    <string name="touch_sounds_title" msgid="165237488496165652">"ટચ સાઉન્ડ્સ"</string>
+    <string name="touch_sounds_title" msgid="165237488496165652">"ટચ સાઉન્ડ"</string>
     <string name="vibrate_on_touch_title" msgid="6360155469279157684">"સ્પર્શ વાઇબ્રેશન"</string>
     <string name="vibrate_on_touch_summary" msgid="5504424764028676043">"ટૅપ, કીબોર્ડ અને વધુ માટે સ્પર્શ દ્વારા આપેલ અભિપ્રાય"</string>
     <string name="dock_audio_media_title" msgid="1859521680502040781">"ડૉક સ્પીકર ચલાવે છે"</string>
@@ -3162,7 +3162,7 @@
     <string name="emergency_tone_vibrate" msgid="5020068066905681181">"વાઇબ્રેશન"</string>
     <string name="boot_sounds_title" msgid="7583926202411353620">"ચાલુ થવા પર વાગનાર ધ્વનિ"</string>
     <string name="live_caption_title" msgid="7926591158657997051">"લાઇવ કૅપ્શન"</string>
-    <string name="live_caption_summary" msgid="9064771862352393125">"મીડિયામાં કૅપ્શન આપમેળે ઉમેરો"</string>
+    <string name="live_caption_summary" msgid="9064771862352393125">"મીડિયામાં કૅપ્શન ઑટોમૅટિક રીતે ઉમેરો"</string>
     <string name="zen_mode_settings_summary_off" msgid="6929319200478424962">"ક્યારેય નહીં"</string>
     <plurals name="zen_mode_settings_summary_on" formatted="false" msgid="6061723291126091396">
       <item quantity="one"><xliff:g id="ON_COUNT">%d</xliff:g> શેડ્યૂલ ઑટોમૅટિક રીતે ચાલુ કર્યું</item>
@@ -3234,8 +3234,8 @@
     <string name="zen_mode_button_turn_off" msgid="3990967728457149454">"હમણાં બંધ કરો"</string>
     <string name="zen_mode_settings_dnd_manual_end_time" msgid="4307574188962071429">"ખલેલ પાડશો નહીં મોડ <xliff:g id="FORMATTED_TIME">%s</xliff:g> સુધી ચાલુ છે"</string>
     <string name="zen_mode_settings_dnd_manual_indefinite" msgid="3701005376825238752">"ખલેલ પાડશો નહીં મોડને તમે જ્યાં સુધી બંધ નહીં કરો ત્યાં સુધી તે ચાલુ રહેશે."</string>
-    <string name="zen_mode_settings_dnd_automatic_rule" msgid="2843297614114625408">"ખલેલ પાડશો નહીં મોડ શેડ્યૂલ (<xliff:g id="RULE_NAME">%s</xliff:g>) નિયમ દ્વારા આપમેળે ચાલુ કરવામાં આવ્યો હતો"</string>
-    <string name="zen_mode_settings_dnd_automatic_rule_app" msgid="5103454923160912313">"ખલેલ પાડશો નહીં મોડ એક <xliff:g id="APP_NAME">%s</xliff:g> ઍપ દ્વારા આપમેળે ચાલુ કરવામાં આવ્યું હતું"</string>
+    <string name="zen_mode_settings_dnd_automatic_rule" msgid="2843297614114625408">"ખલેલ પાડશો નહીં મોડ શેડ્યૂલ (<xliff:g id="RULE_NAME">%s</xliff:g>) નિયમ દ્વારા ઑટોમૅટિક રીતે ચાલુ કરવામાં આવ્યો હતો"</string>
+    <string name="zen_mode_settings_dnd_automatic_rule_app" msgid="5103454923160912313">"ખલેલ પાડશો નહીં મોડ એક <xliff:g id="APP_NAME">%s</xliff:g> ઍપ દ્વારા ઑટોમૅટિક રીતે ચાલુ કરવામાં આવ્યું હતું"</string>
     <string name="zen_mode_settings_dnd_custom_settings_footer" msgid="6335108298640066560">"કસ્ટમ સેટિંગ સાથે ખલેલ પાડશો નહીંની સુવિધા <xliff:g id="RULE_NAMES">%s</xliff:g> માટે ચાલુ છે."</string>
     <string name="zen_mode_settings_dnd_custom_settings_footer_link" msgid="4007974052885089379"><annotation id="link">" કસ્ટમ સેટિંગ જુઓ"</annotation></string>
     <string name="zen_interruption_level_priority" msgid="9178419297408319234">"માત્ર પ્રાધાન્યતા"</string>
@@ -3244,13 +3244,13 @@
     <string name="zen_mode_sound_summary_off_with_info" msgid="3910718455243440265">"બંધ કરો / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="zen_mode_sound_summary_off" msgid="2800265178411749309">"બંધ કરો"</string>
     <string name="zen_mode_sound_summary_on" msgid="6964666541479146310">"ચાલુ"</string>
-    <string name="zen_mode_duration_summary_always_prompt" msgid="7642321938427056823">"દર વખતે પૂછો (જો આપમેળે ચાલુ નહીં થાય તો)"</string>
-    <string name="zen_mode_duration_summary_forever" msgid="4563938129424903030">"તમે બંધ કરો ત્યાં સુધી (જો આપમેળે ચાલુ નહીં થાય તો)"</string>
+    <string name="zen_mode_duration_summary_always_prompt" msgid="7642321938427056823">"દર વખતે પૂછો (જો ઑટોમૅટિક રીતે ચાલુ ન થાય તો)"</string>
+    <string name="zen_mode_duration_summary_forever" msgid="4563938129424903030">"તમે બંધ કરો ત્યાં સુધી (જો ઑટોમૅટિક રીતે ચાલુ ન થાય તો)"</string>
     <plurals name="zen_mode_duration_summary_time_hours" formatted="false" msgid="8872000022033647725">
-      <item quantity="one"><xliff:g id="NUM_HOURS">%d</xliff:g> કલાક (જો આપમેળે ચાલુ નહીં થાય તો)</item>
-      <item quantity="other"><xliff:g id="NUM_HOURS">%d</xliff:g> કલાક (જો આપમેળે ચાલુ નહીં થાય તો)</item>
+      <item quantity="one"><xliff:g id="NUM_HOURS">%d</xliff:g> કલાક (જો ઑટોમૅટિક રીતે ચાલુ ન થાય તો)</item>
+      <item quantity="other"><xliff:g id="NUM_HOURS">%d</xliff:g> કલાક (જો ઑટોમૅટિક રીતે ચાલુ ન થાય તો)</item>
     </plurals>
-    <string name="zen_mode_duration_summary_time_minutes" msgid="6988728116715208859">"<xliff:g id="NUM_MINUTES">%d</xliff:g> મિનિટ (જો આપમેળે ચાલુ નહીં થાય તો)"</string>
+    <string name="zen_mode_duration_summary_time_minutes" msgid="6988728116715208859">"<xliff:g id="NUM_MINUTES">%d</xliff:g> મિનિટ (જો ઑટોમૅટિક રીતે ચાલુ ન થાય તો)"</string>
     <plurals name="zen_mode_sound_summary_summary_off_info" formatted="false" msgid="8527428833487709278">
       <item quantity="one"><xliff:g id="ON_COUNT">%d</xliff:g> શેડ્યૂલ ઑટોમૅટિક રીતે ચાલુ થઈ શકશે</item>
       <item quantity="other"><xliff:g id="ON_COUNT">%d</xliff:g> શેડ્યૂલ ઑટોમૅટિક રીતે ચાલુ થઈ શકશે</item>
@@ -3280,12 +3280,12 @@
     <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"તમે કોઈ નોટિફિકેશન જોઈ અથવા સાંભળી શકશો નહીં. સ્ટાર આપેલા સંપર્કો અને રિપીટ કૉલરના કૉલને પરવાનગી આપવામાં આવે છે."</string>
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(વર્તમાન સેટિંગ)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"ખલેલ પાડશો નહીં નોટિફિકેશનની સેટિંગમાં ફેરફાર કરીએ?"</string>
-    <string name="sound_work_settings" msgid="4140215240360927923">"કાર્યાલયની પ્રોફાઇલની ધ્વનિઓ"</string>
-    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"વ્યક્તિગત પ્રોફાઇલ ધ્વનિઓ વાપરો"</string>
-    <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"કાર્ય અને વ્યક્તિગત પ્રોફાઇલો માટે ધ્વનિ સમાન રહે છે"</string>
-    <string name="work_ringtone_title" msgid="5499360583947410224">"કાર્ય ફોન રિંગટોન"</string>
-    <string name="work_notification_ringtone_title" msgid="8059159087214025757">"કાર્યાલયના નોટિફિકેશન માટે ડિફૉલ્ટ ધ્વનિ"</string>
-    <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"ડિફૉલ્ટ કાર્ય એલાર્મ માટે સાઉન્ડ"</string>
+    <string name="sound_work_settings" msgid="4140215240360927923">"ઑફિસની પ્રોફાઇલના સાઉન્ડ"</string>
+    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"વ્યક્તિગત પ્રોફાઇલ સાઉન્ડ વાપરો"</string>
+    <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"ઑફિસ અને વ્યક્તિગત પ્રોફાઇલો માટે સાઉન્ડ સમાન રહે છે"</string>
+    <string name="work_ringtone_title" msgid="5499360583947410224">"ઑફિસ ફોન રિંગટોન"</string>
+    <string name="work_notification_ringtone_title" msgid="8059159087214025757">"ઑફિસના નોટિફિકેશન માટે ડિફૉલ્ટ સાઉન્ડ"</string>
+    <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"ઑફિસના અલાર્મ માટે ડિફૉલ્ટ સાઉન્ડ"</string>
     <string name="work_sound_same_as_personal" msgid="7728560881697159758">"વ્યક્તિગત પ્રોફાઇલની જેમ જ"</string>
     <string name="work_sync_dialog_title" msgid="4799120971202956837">"ધ્વનિ બદલીએ?"</string>
     <string name="work_sync_dialog_yes" msgid="2110726233746476066">"બદલો"</string>
@@ -3446,13 +3446,13 @@
     <string name="zen_mode_delete_rule_confirmation" msgid="2646596466259025978">"<xliff:g id="RULE">%1$s</xliff:g> નિયમ કાઢી નાખીએ?"</string>
     <string name="zen_mode_delete_rule_button" msgid="611058106279881991">"ડિલીટ કરો"</string>
     <string name="zen_mode_rule_type_unknown" msgid="2819480113355191421">"અજાણ્યું"</string>
-    <string name="zen_mode_app_set_behavior" msgid="8597398780262575571">"આ સેટિંગ હમણાં જ બદલી શકાશે નહીં. આ (<xliff:g id="APP_NAME">%1$s</xliff:g>) ઍપએ આપમેળે ખલેલ પાડશો નહીં મોડ કસ્ટમ વર્તન સાથે ચાલુ કર્યું છે."</string>
-    <string name="zen_mode_unknown_app_set_behavior" msgid="5666462954329932302">"આ સેટિંગ હમણાં જ બદલી શકાશે નહીં. એક ઍપએ આપમેળે ખલેલ પાડશો નહીં મોડ કસ્ટમ વર્તન સાથે ચાલુ કર્યું છે."</string>
+    <string name="zen_mode_app_set_behavior" msgid="8597398780262575571">"આ સેટિંગ હમણાં બદલી શકાશે નહીં. આ (<xliff:g id="APP_NAME">%1$s</xliff:g>) ઍપએ ઑટોમૅટિક રીતે ખલેલ પાડશો નહીં મોડ કસ્ટમ વર્તન સાથે ચાલુ કર્યું છે."</string>
+    <string name="zen_mode_unknown_app_set_behavior" msgid="5666462954329932302">"આ સેટિંગ હમણાં બદલી શકાશે નહીં. એક ઍપએ ઑટોમૅટિક રીતે ખલેલ પાડશો નહીં મોડ કસ્ટમ વર્તન સાથે ચાલુ કર્યું છે."</string>
     <string name="zen_mode_qs_set_behavior" msgid="788646569296973998">"આ સેટિંગ હમણાં જ બદલી શકાશે નહીં. ખલેલ પાડશો નહીં મોડ કસ્ટમ વર્તન સાથે મેન્યુઅલી ચાલુ કરવામાં આવ્યું હતું."</string>
     <string name="zen_schedule_rule_type_name" msgid="4516851728113801329">"સમય"</string>
-    <string name="zen_schedule_rule_enabled_toast" msgid="1742354493045049048">"ઉલ્લેખિત સમય દરમિયાન ખલેલ પાડશો નહીં ચાલુ કરવા માટે આપમેળે નિયમ સેટ કર્યો"</string>
+    <string name="zen_schedule_rule_enabled_toast" msgid="1742354493045049048">"ઉલ્લેખિત સમય દરમિયાન ખલેલ પાડશો નહીં ચાલુ કરવા માટે ઑટોમૅટિક રીતે નિયમ સેટ કર્યો"</string>
     <string name="zen_event_rule_type_name" msgid="7467729997336583342">"ઇવેન્ટ"</string>
-    <string name="zen_event_rule_enabled_toast" msgid="7087368268966855976">"ઉલ્લેખિત ઇવેન્ટ્સ દરમિયાન ખલેલ પાડશો નહીં ચાલુ કરવા માટે આપમેળે નિયમ સેટ કર્યો"</string>
+    <string name="zen_event_rule_enabled_toast" msgid="7087368268966855976">"ઉલ્લેખિત ઇવેન્ટ દરમિયાન \'ખલેલ પાડશો નહીં\' ચાલુ કરવા માટે ઑટોમૅટિક રીતે નિયમ સેટ કર્યો"</string>
     <string name="zen_mode_event_rule_calendar" msgid="6088077103908487442">"આ માટેની ઇવેન્ટ્સ દરમિયાન"</string>
     <string name="zen_mode_event_rule_summary_calendar_template" msgid="4027207992040792657">"<xliff:g id="CALENDAR">%1$s</xliff:g> માટેની ઇવેન્ટ્સ દરમિયાન"</string>
     <string name="zen_mode_event_rule_summary_any_calendar" msgid="7590085295784895885">"કોઈપણ કૅલેન્ડર"</string>
@@ -3525,7 +3525,7 @@
     <string name="zen_mode_calls_summary_two" msgid="9017678770532673578">"<xliff:g id="CALLER_TYPE">%1$s</xliff:g> અને <xliff:g id="CALLERT_TPYE">%2$s</xliff:g>ની મંજૂરી આપો"</string>
     <string name="zen_mode_repeat_callers_summary" msgid="1752513516040525545">"જો <xliff:g id="MINUTES">%d</xliff:g> મીનિટના સમયગાળા દરમ્યાન તે જ વ્યક્તિ પાછી કૉલ કરે તો"</string>
     <string name="zen_mode_behavior_summary_custom" msgid="3909532602640130841">"કસ્ટમ"</string>
-    <string name="zen_mode_when" msgid="7835420687948416255">"આપમેળે ચાલુ"</string>
+    <string name="zen_mode_when" msgid="7835420687948416255">"ઑટોમૅટિક રીતે ચાલુ"</string>
     <string name="zen_mode_when_never" msgid="4506296396609224524">"ક્યારેય નહીં"</string>
     <string name="zen_mode_when_every_night" msgid="3942151668791426194">"દર રાત્રે"</string>
     <string name="zen_mode_when_weeknights" msgid="2412709309122408474">"સપ્તાહાંત સિવાયની રાત્રે"</string>
@@ -3728,7 +3728,7 @@
     <string name="decline_remote_bugreport_action" msgid="706319275774199033">"નકારો"</string>
     <string name="usb_use_charging_only" msgid="2344625733377110164">"કોઈ ડેટા ટ્રાન્સફર નથી"</string>
     <string name="usb_use_charging_only_desc" msgid="3283518562582478950">"બસ આ ઉપકરણને ચાર્જ કરો"</string>
-    <string name="usb_use_power_only" msgid="6595783381323810697">"કનેક્ટ થયેલ ઉપકરણને ચાર્જ કરો"</string>
+    <string name="usb_use_power_only" msgid="6595783381323810697">"કનેક્ટ થયેલ ડિવાઇસને ચાર્જ કરો"</string>
     <string name="usb_use_file_transfers" msgid="6153021302176151884">"ફાઇલ ટ્રાન્સફર"</string>
     <string name="usb_use_file_transfers_desc" msgid="6953866660041189580">"ફાઇલોને બીજા ઉપકરણ પર ટ્રાન્સફર કરો"</string>
     <string name="usb_use_photo_transfers" msgid="5974236250197451257">"PTP"</string>
@@ -3792,7 +3792,7 @@
     <string name="zen_access_revoke_warning_dialog_title" msgid="6850994585577513299">"<xliff:g id="APP">%1$s</xliff:g> માટે ખલેલ પહોંચાડશો નહિ ની એક્સેસ રદબાતલ કરીએ?"</string>
     <string name="zen_access_revoke_warning_dialog_summary" msgid="3487422193181311403">"આ ઍપ્લિકેશન દ્વારા બનાવાયેલ તમામ ખલેલ પહોંચાડશો નહિ નિયમો દૂર કરવામાં આવશે."</string>
     <string name="ignore_optimizations_on" msgid="4373971641328943551">"ઓપ્ટિમાઇઝ કરશો નહીં"</string>
-    <string name="ignore_optimizations_off" msgid="4372289432580282870">"ઓપ્ટિમાઇઝ કરો"</string>
+    <string name="ignore_optimizations_off" msgid="4372289432580282870">"Optimize"</string>
     <string name="ignore_optimizations_on_desc" msgid="2904484569799521559">"તમારી બૅટરી વધુ ઝડપથી ખાલી થઈ શકે છે. ઍપ હવે બૅકગ્રાઉન્ડ બૅટરીનો ઉપયોગ કરવાથી પ્રતિબંધિત રહેશે નહીં."</string>
     <string name="ignore_optimizations_off_desc" msgid="5598702251817814289">"બહેતર બૅટરી આવરદા માટે ભલામણ કરેલ"</string>
     <string name="ignore_optimizations_title" msgid="7924345545276166305">"બૅટરી ઓપ્ટિમાઇઝેશન્સને અવગણવા માટે <xliff:g id="APP">%s</xliff:g> ને મંજૂરી આપીએ?"</string>
@@ -3907,7 +3907,7 @@
     <string name="condition_device_vibrate_title" msgid="5712659354868872338">"માત્ર વાઇબ્રેશન"</string>
     <string name="condition_device_vibrate_summary" msgid="9073880731894828604">"કૉલ અને નોટિફિકેશન માટે"</string>
     <string name="night_display_suggestion_title" msgid="4222839610992282188">"રાત્રિ પ્રકાશ માટે શેડ્યૂલ સેટ કરો"</string>
-    <string name="night_display_suggestion_summary" msgid="1754361016383576916">"દરરોજ રાત્રે સ્ક્રીનની રંગછટા આપમેળે ઓછીવધતી કરો"</string>
+    <string name="night_display_suggestion_summary" msgid="1754361016383576916">"દરરોજ રાત્રે સ્ક્રીનની રંગછટા ઑટોમૅટિક રીતે ઓછીવધતી કરો"</string>
     <string name="condition_night_display_title" msgid="9171491784857160135">"રાત્રિ પ્રકાશ ચાલુ છે"</string>
     <string name="condition_night_display_summary" msgid="7885776986937527558">"સ્ક્રીન પર પીળાશ પડતી નારંગી રંગની છટા"</string>
     <string name="condition_grayscale_title" msgid="1226351649203551299">"ગ્રેસ્કેલ"</string>
@@ -4158,8 +4158,8 @@
     <string name="account_for_section_header" msgid="5975241715840642563">"<xliff:g id="USER_NAME">%1$s</xliff:g> માટેના એકાઉન્ટ"</string>
     <string name="configure_section_header" msgid="6988981883075615136">"ગોઠવો"</string>
     <string name="auto_sync_account_title" msgid="2394463123733529506">"ડેટાને ઑટોમૅટિક રીતે સિંક કરો"</string>
-    <string name="auto_sync_personal_account_title" msgid="6844465157916100655">"વ્યક્તિગત ડેટાનું આપમેળે સમન્વયન કરો"</string>
-    <string name="auto_sync_work_account_title" msgid="2403222633447522376">"કાર્ય ડેટાનું આપમેળે સમન્વયન કરો"</string>
+    <string name="auto_sync_personal_account_title" msgid="6844465157916100655">"વ્યક્તિગત ડેટાને ઑટોમૅટિક રીતે સિંક કરો"</string>
+    <string name="auto_sync_work_account_title" msgid="2403222633447522376">"કાર્ય ડેટાને ઑટોમૅટિક રીતે સિંક કરો"</string>
     <string name="auto_sync_account_summary" msgid="6316230976974033772">"ઍપને ઑટોમૅટિક રીતે ડેટાને રિફ્રેશ કરવા દો"</string>
     <string name="account_sync_title" msgid="1570164819114297154">"એકાઉન્ટ સિંક"</string>
     <string name="account_sync_summary_some_on" msgid="1934556869158274053">"<xliff:g id="ID_2">%2$d</xliff:g> માંથી <xliff:g id="ID_1">%1$d</xliff:g> આઇટમ માટે સમન્વયન ચાલુ છે"</string>
@@ -4188,7 +4188,7 @@
     <string name="enterprise_privacy_location_access" msgid="110406267468274216">"સ્થાન માટેની પરવાનગીઓ"</string>
     <string name="enterprise_privacy_microphone_access" msgid="4586428105675460207">"માઇક્રોફોન માટેની પરવાનગીઓ"</string>
     <string name="enterprise_privacy_camera_access" msgid="2366392786153103482">"કૅમેરા માટેની પરવાનગીઓ"</string>
-    <string name="enterprise_privacy_enterprise_set_default_apps" msgid="6142937923758931242">"ડિફૉલ્ટ ઍપ્લિકેશનો"</string>
+    <string name="enterprise_privacy_enterprise_set_default_apps" msgid="6142937923758931242">"ડિફૉલ્ટ ઍપ"</string>
     <plurals name="enterprise_privacy_number_packages" formatted="false" msgid="1480745164313890415">
       <item quantity="one"><xliff:g id="COUNT_1">%d</xliff:g> ઍપ્લિકેશન</item>
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> ઍપ્લિકેશન</item>
@@ -4253,13 +4253,13 @@
     <string name="webview_disabled_for_user" msgid="8057805373224993504">"(વપરાશકર્તા <xliff:g id="USER">%s</xliff:g> માટે અક્ષમ કરેલ)"</string>
     <string name="autofill_app" msgid="3990765434980280073">"સ્વતઃભરણ સેવા"</string>
     <string name="autofill_keywords" msgid="7717726766232862218">"સ્વતઃ, ભરો, સ્વતઃભરણ"</string>
-    <string name="autofill_confirmation_message" msgid="1385894598730361304">"&lt;b&gt;ખાતરી કરો કે તમે આ ઍપ્લિકેશનનો વિશ્વાસ કરો છો&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=Google આપમેળે&gt;%1$s&lt;/xliff:g&gt; તમારી સ્ક્રીન પર શું છે તેનો ઉપયોગ એ નક્કી કરવા કરે છે કે આપમેળે શું દાખલ થશે."</string>
-    <string name="debug_autofill_category" msgid="6262526615416295645">"આપમેળે ભરવાની સેટિંગ"</string>
+    <string name="autofill_confirmation_message" msgid="1385894598730361304">"&lt;b&gt;ખાતરી કરો કે તમે આ ઍપનો વિશ્વાસ કરો છો&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=Google ઑટોમૅટિક રીતે ભરવાની સુવિધા&gt;%1$s&lt;/xliff:g&gt; તમારી સ્ક્રીન પર શું છે તેનો ઉપયોગ એ નક્કી કરવા કરે છે કે ઑટોમૅટિક રીતે શું દાખલ થશે."</string>
+    <string name="debug_autofill_category" msgid="6262526615416295645">"ઑટોમૅટિક રીતે ભરવાની સુવિધા"</string>
     <string name="autofill_logging_level_title" msgid="2577340324541102626">"લૉગિંગનું સ્તર"</string>
     <string name="autofill_max_partitions" msgid="125269645910590057">"સત્ર દીઠ મહત્તમ વિનંતીઓ"</string>
     <string name="autofill_max_visible_datasets" msgid="2791081640248423492">"જોઈ શકાતા મહત્તમ ડેટાસેટની સંખ્યા"</string>
     <string name="autofill_reset_developer_options" msgid="7208417230269613101">"ડિફૉલ્ટ મૂલ્યો પર રીસેટ કરો"</string>
-    <string name="autofill_reset_developer_options_complete" msgid="5686061993002179524">"આપમેળે ભરવાના ડેવલપરના વિકલ્પો રીસેટ કરવામાં આવ્યા છે"</string>
+    <string name="autofill_reset_developer_options_complete" msgid="5686061993002179524">"ઑટોમૅટિક રીતે ભરવાના ડેવલપરના વિકલ્પો રીસેટ કરવામાં આવ્યા છે"</string>
     <string name="device_theme" msgid="8992291311481135893">"ઉપકરણની થીમ"</string>
     <string name="default_theme" msgid="5986996377385956138">"ડિફૉલ્ટ"</string>
     <string name="show_operator_name_title" msgid="5056163028128447308">"નેટવર્કનું નામ"</string>

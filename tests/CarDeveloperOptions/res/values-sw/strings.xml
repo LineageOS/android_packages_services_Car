@@ -2631,7 +2631,7 @@
     <string name="really_remove_account_title" msgid="4166512362915154319">"Je, ungependa kuondoa akaunti?"</string>
     <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"Kuondoa akaunti hii kutafuta mazungumzo yako yote, anwani na data zingine kwenye kompyuta kibao!"</string>
     <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Kuondoa akaunti hii kutafuta mazungumzo yako yote, anwani na data nyingine kwenye simu!"</string>
-    <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"Kuondoa akaunti hii kutasabibisha kufutwa kwa ujumbe, anwani na data nyingine kwenye kifaa!"</string>
+    <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"Kuondoa akaunti hii kutasababisha kufutwa kwa ujumbe, anwani na data nyingine kwenye kifaa!"</string>
     <string name="remove_account_failed" msgid="491458185327106966">"Mabadiliko haya hayaruhusiwi na msimamizi wako"</string>
     <string name="cant_sync_dialog_title" msgid="5483419398223189881">"Huwezi kusawazisha mwenyewe"</string>
     <string name="cant_sync_dialog_message" msgid="3467126947262857534">"Kwa sasa usawazishaji wa kipengee hiki umezimwa. Kubadilisha mpangilio huu, washa kwa muda data ya usuli na usawazishaji kiotomatiki."</string>
@@ -2886,7 +2886,7 @@
     <string name="user_new_user_name" msgid="3880395219777884838">"Mtumiaji mpya"</string>
     <string name="user_new_profile_name" msgid="3074939718101489937">"Wasifu mpya"</string>
     <string name="user_confirm_remove_self_title" msgid="6739480453680217543">"Ungependa kujifuta?"</string>
-    <string name="user_confirm_remove_title" msgid="1034498514019462084">"Ungependa kumtafuta mtumiaji huyu?"</string>
+    <string name="user_confirm_remove_title" msgid="1034498514019462084">"Ungependa kumfuta mtumiaji huyu?"</string>
     <string name="user_profile_confirm_remove_title" msgid="6138684743385947063">"Ungependa kuondoa wasifu?"</string>
     <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"Ungependa kuondoa wasifu wa kazini?"</string>
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"Utapoteza nafasi na data yako kwenye kompyuta hii ndogo. Huwezi kutendua kitendo hiki."</string>
@@ -3284,8 +3284,8 @@
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Tumia sauti za wasifu wako binafsi"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Sauti za wasifu wa binafsi na wa kazini ni sawa"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"Mlio wa simu ya kazini"</string>
-    <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Sauti chaguomsingi ya arifa ya kazini"</string>
-    <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"Sauti chaguomsingi ya kengele ya kazini"</string>
+    <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Sauti chaguomsingi ya arifa za kazini"</string>
+    <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"Sauti chaguomsingi ya kengele za kazini"</string>
     <string name="work_sound_same_as_personal" msgid="7728560881697159758">"Sawa na wasifu binafsi"</string>
     <string name="work_sync_dialog_title" msgid="4799120971202956837">"Ungependa kubadilisha sauti?"</string>
     <string name="work_sync_dialog_yes" msgid="2110726233746476066">"Badilisha"</string>
