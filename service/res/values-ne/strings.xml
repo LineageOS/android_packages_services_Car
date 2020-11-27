@@ -50,7 +50,7 @@
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"आन्तरिक परीक्षण गर्ने प्रयोजनका लागि तपाईंको कारको सवारी साधन HAL को अनुकरण गर्ने।"</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"तपाईंको कारको अडियोको भोल्युम नियन्त्रण गर्ने।"</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"आफ्नो कारको अडियोसम्बन्धी सेटिङहरू नियन्त्रण गर्नुहोस्।"</string>
-    <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"अनुप्रयोगमाथि रोक लगाउने कार्य"</string>
+    <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"एपमाथि रोक लगाउने कार्य"</string>
     <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"सवारी साधन चलाइरहेका बेलामा एपलाई रोक लगाउने प्रक्रिया नियन्त्रण गर्ने।"</string>
     <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"नेभिगेसन प्रबन्धक"</string>
     <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"नेभिगेसनसम्बन्धी डेटालाई उपकरणको क्लस्टरमा रिपोर्ट गर्ने"</string>
@@ -73,7 +73,7 @@
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN bus असफल भयो"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus ले प्रतिक्रिया जनाएन। हेडयुनिट बाकसलाई प्लगबाट निकालेर फेरि प्लगमा घुसाउनुहोस् र कार पुनःसुरु गर्नुहोस्‌"</string>
     <string name="activity_blocked_text" msgid="8088902789540147995">"तपाईं सवारी साधन चलाइरहेका बेला यो सुविधा प्रयोग गर्न सक्नुहुन्न"</string>
-    <string name="exit_button_message" msgid="8554690915924055685">"अनुप्रयोगका सुरक्षित सुविधाहरूको प्रयोग गरी फेरि सुरु गर्न <xliff:g id="EXIT_BUTTON">%s</xliff:g> चयन गर्नुहोस्‌।"</string>
+    <string name="exit_button_message" msgid="8554690915924055685">"एपका सुरक्षित सुविधाहरूको प्रयोग गरी फेरि सुरु गर्न <xliff:g id="EXIT_BUTTON">%s</xliff:g> चयन गर्नुहोस्‌।"</string>
     <string name="exit_button" msgid="5829638404777671253">"पछाडि"</string>
     <string name="exit_button_close_application" msgid="8824289547809332460">"एप बन्द गर्नुहोस्"</string>
     <string name="exit_button_go_back" msgid="3469083862100560326">"पछाडि"</string>
