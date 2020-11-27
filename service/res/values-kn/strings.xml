@@ -57,7 +57,7 @@
     <string name="car_permission_car_display_in_cluster" msgid="4005987646292458684">"ಸಲಕರಣೆ ಸಂಚಯಕ್ಕೆ ನೇರ ವರ್ಗಾವಣೆ"</string>
     <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"ಸಲಕರಣೆ ಸಂಚಯದಲ್ಲಿ ಚಟುವಟಿಕೆಗಳ ಘೋಷಣೆಯನ್ನು ಪ್ರದರ್ಶಿಸಲು ಅಪ್ಲಿಕೇಶನ್‌ಗೆ ಅನುವು ಮಾಡಿ"</string>
     <string name="car_permission_car_cluster_control" msgid="1382247204230165674">"ಸಲಕರಣೆ ಸಂಚಯ ನಿಯಂತ್ರಣ"</string>
-    <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"ಸಲಕರಣೆ ಸಂಚಯದಲ್ಲಿ ಆಪ್‌ಗಳನ್ನು ಪ್ರಾರಂಭಿಸಿ"</string>
+    <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"ಸಲಕರಣೆ ಸಂಚಯದಲ್ಲಿ ಆ್ಯಪ್‌ಗಳನ್ನು ಪ್ರಾರಂಭಿಸಿ"</string>
     <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"ಸಲಕರಣೆ ಸಂಚಯ ತೋರಿಸು"</string>
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"ಸಲಕರಣೆ ಸಂಚಯ ಮಾಹಿತಿಯನ್ನು ಸ್ವೀಕರಿಸು"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"UX ನಿರ್ಬಂಧಗಳ ಸಂರಚನೆ"</string>
