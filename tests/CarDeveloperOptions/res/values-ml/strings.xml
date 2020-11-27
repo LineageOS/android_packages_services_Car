@@ -1450,7 +1450,7 @@
     <string name="storage_internal_forget_confirm_title" msgid="331032276130605241">"<xliff:g id="NAME">^1</xliff:g> മറക്കണോ?"</string>
     <string name="storage_internal_forget_confirm" msgid="3052483375203727176">"<xliff:g id="NAME">^1</xliff:g> എന്നതിൽ സംഭരിച്ചിരിക്കുന്ന എല്ലാ ആപ്സും ഫോട്ടോകളും ഡാറ്റയും ശാശ്വതമായി നഷ്ടപ്പെടും."</string>
     <string name="storage_detail_apps" msgid="8154648512504196820">"ആപ്സ്"</string>
-    <string name="storage_detail_images" msgid="6996202225684468964">"ചിത്രങ്ങൾ"</string>
+    <string name="storage_detail_images" msgid="6996202225684468964">"Images"</string>
     <string name="storage_detail_videos" msgid="6030983354721080849">"വീഡിയോകൾ"</string>
     <string name="storage_detail_audio" msgid="6011098436589663944">"ഓഡിയോ"</string>
     <string name="storage_detail_cached" msgid="5761648455067920683">"കാഷെ ചെയ്‌ത ഡാറ്റ"</string>

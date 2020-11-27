@@ -1450,7 +1450,7 @@
     <string name="storage_internal_forget_confirm_title" msgid="331032276130605241">"<xliff:g id="NAME">^1</xliff:g>ని విస్మరించాలా?"</string>
     <string name="storage_internal_forget_confirm" msgid="3052483375203727176">"ఈ <xliff:g id="NAME">^1</xliff:g>లో నిల్వ చేయబడిన అన్ని అనువర్తనాలు, ఫోటోలు మరియు డేటాను శాశ్వతంగా కోల్పోతారు."</string>
     <string name="storage_detail_apps" msgid="8154648512504196820">"యాప్‌లు"</string>
-    <string name="storage_detail_images" msgid="6996202225684468964">"చిత్రాలు"</string>
+    <string name="storage_detail_images" msgid="6996202225684468964">"ఇమేజ్‌లు"</string>
     <string name="storage_detail_videos" msgid="6030983354721080849">"వీడియోలు"</string>
     <string name="storage_detail_audio" msgid="6011098436589663944">"ఆడియో"</string>
     <string name="storage_detail_cached" msgid="5761648455067920683">"కాష్ చేసిన డేటా"</string>
