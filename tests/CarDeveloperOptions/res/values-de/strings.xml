@@ -460,7 +460,7 @@
     <string name="skip_lock_screen_dialog_button_label" msgid="6706047245716780006">"Überspringen"</string>
     <string name="cancel_lock_screen_dialog_button_label" msgid="2534925227627658819">"Abbrechen"</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_title" msgid="8909829699273726469">"Sensor berühren"</string>
-    <string name="security_settings_fingerprint_enroll_find_sensor_message" msgid="581120963079780740">"Er befindet sich auf der Rückseite deines Smartphones. Verwende am besten den Zeigefinger."</string>
+    <string name="security_settings_fingerprint_enroll_find_sensor_message" msgid="581120963079780740">"Er befindet sich auf der Rückseite des Smartphones. Am besten den Zeigefinger verwenden."</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_content_description" msgid="7835824123269738540">"Abbildung mit Gerät und Position des Fingerabdrucksensors"</string>
     <string name="security_settings_fingerprint_enroll_dialog_name_label" msgid="3519748398694308901">"Name"</string>
     <string name="security_settings_fingerprint_enroll_dialog_ok" msgid="3428927518029038956">"Ok"</string>
@@ -548,7 +548,7 @@
     <string name="setup_lock_settings_picker_title" product="tablet" msgid="2429667472335773519">"Tablet schützen"</string>
     <string name="setup_lock_settings_picker_title" product="device" msgid="4739290104106645233">"Gerät schützen"</string>
     <string name="setup_lock_settings_picker_title" product="default" msgid="3911582328576859628">"Smartphone schützen"</string>
-    <string name="lock_settings_picker_biometrics_added_security_message" msgid="799453282539387294">"Richte für zusätzliche Sicherheit eine alternative Displaysperre ein"</string>
+    <string name="lock_settings_picker_biometrics_added_security_message" msgid="799453282539387294">"Alternative Displaysperre einrichten für zusätzliche Sicherheit"</string>
     <string name="setup_lock_settings_picker_message" product="tablet" msgid="7230799135599877804">"Du kannst verhindern, dass andere Personen dieses Tablet ohne deine Erlaubnis verwenden, indem du die Schutzfunktionen für dein Mobilgerät aktivierst. Wähle eine Displaysperre aus."</string>
     <string name="setup_lock_settings_picker_message" product="device" msgid="2098404520816295371">"Du kannst verhindern, dass andere Personen dieses Gerät ohne deine Erlaubnis verwenden, indem du die Schutzfunktionen für dein Mobilgerät aktivierst. Wähle eine Displaysperre aus."</string>
     <string name="setup_lock_settings_picker_message" product="default" msgid="2003984443953672040">"Du kannst verhindern, dass andere Personen dieses Smartphone ohne deine Erlaubnis verwenden, indem du die Schutzfunktionen für dein Mobilgerät aktivierst. Wähle eine Displaysperre aus."</string>
@@ -1712,7 +1712,7 @@
     <string name="lockpassword_choose_your_password_header_for_fingerprint" msgid="4921343500484160894">"Für Fingerabdruck Passwort festlegen"</string>
     <string name="lockpassword_choose_your_pattern_header_for_fingerprint" msgid="314870151462139417">"Für Fingerabdruck Muster festlegen"</string>
     <string name="lockpassword_choose_your_pin_message" msgid="8942598950627277885">"Richte zur Sicherheit eine PIN ein"</string>
-    <string name="lockpassword_choose_your_pin_header_for_fingerprint" msgid="1102927520952116303">"Für Fingerabdruck PIN festlegen"</string>
+    <string name="lockpassword_choose_your_pin_header_for_fingerprint" msgid="1102927520952116303">"PIN für Fingerabdruck festlegen"</string>
     <string name="lockpassword_choose_your_pattern_message" msgid="1503075455752279687">"Richte zur Sicherheit ein Muster ein"</string>
     <string name="lockpassword_confirm_your_password_header" msgid="9055242184126838887">"Passwort noch einmal eingeben"</string>
     <string name="lockpassword_confirm_your_pattern_header" msgid="7137526922696316545">"Muster bestätigen"</string>

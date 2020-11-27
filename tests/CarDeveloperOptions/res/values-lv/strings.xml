@@ -4367,12 +4367,12 @@
     <string name="angle_enabled_app_set" msgid="7313088703610569320">"Lietojumprogramma, kam ANGLE ir iespējots: <xliff:g id="APP_NAME">%1$s</xliff:g>"</string>
     <string name="game_driver_dashboard_title" msgid="219443350404091201">"Game Driver preferences"</string>
     <string name="game_driver_dashboard_summary" msgid="1500674075618790528">"Mainīt Game Driver iestatījumus"</string>
-    <string name="game_driver_footer_text" msgid="1540158284161797913">"Kad lietotne Game Driver ir ieslēgta, varat izvēlēties izmantot atjaunināto grafikas dzini ierīcē instalētajām lietotnēm."</string>
+    <string name="game_driver_footer_text" msgid="1540158284161797913">"Kad lietotne Game Driver ir ieslēgta, varat izvēlēties izmantot atjaunināto grafikas draiveri ierīcē instalētajām lietotnēm."</string>
     <string name="game_driver_all_apps_preference_title" msgid="2453795714218707495">"Iespējot visām lietotnēm"</string>
-    <string name="game_driver_app_preference_title" msgid="7732401084883356004">"Grafikas dziņa atlase"</string>
+    <string name="game_driver_app_preference_title" msgid="7732401084883356004">"Grafikas draivera atlase"</string>
     <string name="game_driver_app_preference_default" msgid="7141877602592473729">"Noklusējums"</string>
     <string name="game_driver_app_preference_game_driver" msgid="879325851829463741">"Game Driver"</string>
-    <string name="game_driver_app_preference_system" msgid="2289297988130187480">"Sistēmas grafikas dzinis"</string>
+    <string name="game_driver_app_preference_system" msgid="2289297988130187480">"Sistēmas grafikas draiveris"</string>
     <!-- no translation found for game_driver_app_preference_values:0 (7987059854719029308) -->
     <!-- no translation found for game_driver_app_preference_values:1 (8222525327130471766) -->
     <!-- no translation found for game_driver_app_preference_values:2 (2739878257804927321) -->
