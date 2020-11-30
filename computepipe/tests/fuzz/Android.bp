@@ -82,6 +82,21 @@ cc_fuzz {
 }
 
 cc_fuzz {
+    name: "computepipe_pixel_stream_manager_fuzzer",
+    defaults: ["libcomputepipefuzz-defaults"],
+    srcs: [
+        "PixelStreamManagerFuzzer.cpp",
+    ],
+    shared_libs: [
+         "libprotobuf-cpp-full",
+    ],
+    static_libs: [
+        "libcomputepipeprotosfuzz",
+        "libprotobuf-mutator",
+    ],
+}
+
+cc_fuzz {
     name: "local_prebuild_graph_fuzzer",
     defaults: ["libcomputepipefuzz-defaults"],
     cppflags:[
