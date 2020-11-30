@@ -844,7 +844,7 @@
     <string name="wifi_starting" msgid="1299466156783469023">"Wi-Fi konexioa aktibatzen…"</string>
     <string name="wifi_stopping" msgid="413711069039939520">"Wi-Fia desaktibatzen…"</string>
     <string name="wifi_error" msgid="5605801874484465557">"Errorea"</string>
-    <string name="wifi_sap_no_channel_error" msgid="6881796988574851628">"5 GHz-ko banda ez dago erabilgarri herrialde honetan"</string>
+    <string name="wifi_sap_no_channel_error" msgid="6881796988574851628">"5 GHz-eko banda ez dago erabilgarri herrialde honetan"</string>
     <string name="wifi_in_airplane_mode" msgid="4729571191578262246">"Hegaldi moduan"</string>
     <string name="wifi_notify_open_networks" msgid="4782239203624619655">"Sare irekien jakinarazpenak"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"Jakinarazi kalitate handiko sare publikoak erabilgarri daudenean"</string>
@@ -925,9 +925,9 @@
     <string name="wifi_show_password" msgid="7878398590772942202">"Erakutsi pasahitza"</string>
     <string name="wifi_ap_band_config" msgid="6565016368079288433">"Hautatu AP banda"</string>
     <string name="wifi_ap_choose_auto" msgid="7927637960569365785">"Automatikoa"</string>
-    <string name="wifi_ap_choose_2G" msgid="43198403259714736">"2,4 GHz-ko banda"</string>
-    <string name="wifi_ap_choose_5G" msgid="2624859713183683146">"5,0 GHz-ko banda"</string>
-    <string name="wifi_ap_prefer_5G" msgid="8339172330471170142">"5,0 GHz-ko banda hobetsia"</string>
+    <string name="wifi_ap_choose_2G" msgid="43198403259714736">"2,4 GHz-eko banda"</string>
+    <string name="wifi_ap_choose_5G" msgid="2624859713183683146">"5,0 GHz-eko banda"</string>
+    <string name="wifi_ap_prefer_5G" msgid="8339172330471170142">"5,0 GHz-eko banda hobetsia"</string>
     <string name="wifi_ap_2G" msgid="5793110086517338494">"2,4 GHz"</string>
     <string name="wifi_ap_5G" msgid="4584892544393675403">"5,0 GHz"</string>
     <string name="wifi_ap_band_select_one" msgid="4409754936554360355">"Aukeratu gutxienez banda bat wifi-gunerako:"</string>
