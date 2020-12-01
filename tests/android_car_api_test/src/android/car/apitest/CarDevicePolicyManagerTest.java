@@ -20,13 +20,10 @@ import static com.android.compatibility.common.util.SystemUtil.eventually;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
-import static org.testng.Assert.expectThrows;
-
 import android.annotation.NonNull;
 import android.app.ActivityManager;
 import android.app.KeyguardManager;
 import android.app.admin.DevicePolicyManager;
-import android.app.admin.UnsafeStateException;
 import android.car.Car;
 import android.car.admin.CarDevicePolicyManager;
 import android.car.admin.CreateUserResult;
@@ -126,36 +123,26 @@ public final class CarDevicePolicyManagerTest extends CarApiTestBase {
 
     @Test
     public void testLockNow_safe() throws Exception {
+        lockNowTest(/* safe= */ true);
+    }
+
+    @Test
+    public void testLockNow_unsafe() throws Exception {
+        lockNowTest(/* safe= */ false);
+    }
+
+    // lockNow() is safe regardless of the UXR state
+    private void lockNowTest(boolean safe) throws Exception {
+
         assertScreenOn();
 
         runSecureDeviceTest(()-> {
-            setDpmSafety(/* safe= */ true);
+            setDpmSafety(safe);
 
             try {
                 mDpm.lockNow();
 
                 assertLockedEventually();
-                assertScreenOn();
-            } finally {
-                setDpmSafety(/* safe= */ true);
-            }
-        });
-    }
-
-    @Test
-    public void testLockNow_unsafe() throws Exception {
-        assertScreenOn();
-
-        runSecureDeviceTest(()-> {
-            setDpmSafety(/* safe= */ false);
-
-            try {
-                UnsafeStateException e = expectThrows(UnsafeStateException.class,
-                        () -> mDpm.lockNow());
-
-                assertWithMessage("Invalid operation on %s", e).that(e.getOperation())
-                        .isEqualTo(DevicePolicyManager.OPERATION_LOCK_NOW);
-                assertUnlocked();
                 assertScreenOn();
             } finally {
                 setDpmSafety(/* safe= */ true);
