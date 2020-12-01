@@ -20,7 +20,7 @@ android_app {
     system_ext_specific: true,
     privileged: true,
     required: [
-        "privapp_whitelist_com.android.settings",
+        "allowed_privapp_com.android.car.developeroptions",
         "settings-platform-compat-config",
     ],
     libs: ["android.car-stubs"],
