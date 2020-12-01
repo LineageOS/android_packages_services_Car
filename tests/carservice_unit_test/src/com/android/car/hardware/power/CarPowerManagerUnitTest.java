@@ -26,6 +26,7 @@ import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.JavaMockitoHelper;
 import android.content.Context;
 import android.content.res.Resources;
+import android.frameworks.automotive.powerpolicy.internal.ICarPowerPolicySystemNotification;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateShutdownParam;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -39,6 +40,7 @@ import com.android.car.hal.MockedPowerHalService;
 import com.android.car.hal.PowerHalService;
 import com.android.car.hal.PowerHalService.PowerState;
 import com.android.car.power.CarPowerManagementService;
+import com.android.car.power.PowerComponentHandler;
 import com.android.car.power.SilentModeController;
 import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.SystemInterface;
@@ -82,6 +84,10 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
     private CarUserService mCarUserService;
     @Mock
     private IVoiceInteractionManagerService mVoiceInteractionManagerService;
+    @Mock
+    private ICarPowerPolicySystemNotification mPowerPolicyDaemon;
+    @Mock
+    private PowerComponentHandler mPowerComponentHandler;
 
     @Before
     public void setUp() throws Exception {
@@ -214,8 +220,8 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
         mSilentModeController = new SilentModeController(mContext, mSystemInterface,
                 mVoiceInteractionManagerService, "");
         CarLocalServices.addService(SilentModeController.class, mSilentModeController);
-        mService = new CarPowerManagementService(mContext, mResources, mPowerHal,
-                mSystemInterface, null, mCarUserService);
+        mService = new CarPowerManagementService(mContext, mResources, mPowerHal, mSystemInterface,
+                null, mCarUserService, mPowerPolicyDaemon, mPowerComponentHandler);
         mService.init();
         mService.setShutdownTimersForTest(0, 0);
         assertStateReceived(MockedPowerHalService.SET_WAIT_FOR_VHAL, 0);

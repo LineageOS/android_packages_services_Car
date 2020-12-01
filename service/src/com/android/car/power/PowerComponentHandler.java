@@ -35,6 +35,7 @@ import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
 import com.android.car.systeminterface.SystemInterface;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -51,7 +52,8 @@ import java.nio.charset.StandardCharsets;
  * power component is created and registered to this class. A power component mediator encapsulates
  * the function of powering on/off.
  */
-final class PowerComponentHandler {
+@VisibleForTesting(visibility = VisibleForTesting.Visibility.PACKAGE)
+public final class PowerComponentHandler {
     private static final String TAG = PowerComponentHandler.class.getSimpleName();
     private static final String FORCED_OFF_COMPONENTS_FILENAME =
             "forced_off_components";

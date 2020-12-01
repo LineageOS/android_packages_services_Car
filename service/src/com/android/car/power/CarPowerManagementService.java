@@ -20,14 +20,15 @@ import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.car.Car;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
+import android.car.hardware.power.CarPowerPolicyFilter;
 import android.car.hardware.power.ICarPower;
+import android.car.hardware.power.ICarPowerPolicyChangeListener;
 import android.car.hardware.power.ICarPowerStateListener;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.UserInfo;
 import android.content.res.Resources;
-import android.frameworks.automotive.powerpolicy.CarPowerPolicy;
 import android.frameworks.automotive.powerpolicy.internal.ICarPowerPolicySystemNotification;
 import android.frameworks.automotive.powerpolicy.internal.PolicyState;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
@@ -36,6 +37,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.IInterface;
 import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
@@ -48,6 +50,7 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.AtomicFile;
 import android.util.Slog;
+import android.util.SparseBooleanArray;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
@@ -127,10 +130,13 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private final PowerHalService mHal;
     private final SystemInterface mSystemInterface;
     // The listeners that complete simply by returning from onStateChanged()
-    private final PowerManagerCallbackList mPowerManagerListeners = new PowerManagerCallbackList();
+    private final PowerManagerCallbackList<ICarPowerStateListener> mPowerManagerListeners =
+            new PowerManagerCallbackList<>(
+                    l -> CarPowerManagementService.this.doUnregisterListener(l));
     // The listeners that must indicate asynchronous completion by calling finished().
-    private final PowerManagerCallbackList mPowerManagerListenersWithCompletion =
-                          new PowerManagerCallbackList();
+    private final PowerManagerCallbackList<ICarPowerStateListener>
+            mPowerManagerListenersWithCompletion = new PowerManagerCallbackList<>(
+                    l -> CarPowerManagementService.this.doUnregisterListener(l));
 
     @GuardedBy("mLock")
     private final Set<IBinder> mListenersWeAreWaitingFor = new HashSet<>();
@@ -197,32 +203,47 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private String mCurrentPowerPolicy;
     @GuardedBy("mLock")
     private String mCurrentPowerPolicyGroup;
+    private final PowerManagerCallbackList<ICarPowerPolicyChangeListener> mPolicyChangeListeners =
+            new PowerManagerCallbackList<>(
+                    l -> CarPowerManagementService.this.mPolicyChangeListeners.unregister(l));
 
     private final PowerComponentHandler mPowerComponentHandler;
     private final PolicyReader mPolicyReader = new PolicyReader();
 
-    private class PowerManagerCallbackList extends RemoteCallbackList<ICarPowerStateListener> {
+    interface ActionOnDeath<T extends IInterface> {
+        void take(T listener);
+    }
+
+    private final class PowerManagerCallbackList<T extends IInterface> extends
+            RemoteCallbackList<T> {
+        private ActionOnDeath<T> mActionOnDeath;
+
+        PowerManagerCallbackList(ActionOnDeath<T> action) {
+            mActionOnDeath = action;
+        }
+
         /**
          * Old version of {@link #onCallbackDied(E, Object)} that
          * does not provide a cookie.
          */
         @Override
-        public void onCallbackDied(ICarPowerStateListener listener) {
+        public void onCallbackDied(T listener) {
             Slog.i(TAG, "binderDied " + listener.asBinder());
-            CarPowerManagementService.this.doUnregisterListener(listener);
+            mActionOnDeath.take(listener);
         }
     }
 
     public CarPowerManagementService(Context context, PowerHalService powerHal,
             SystemInterface systemInterface, CarUserService carUserService) {
         this(context, context.getResources(), powerHal, systemInterface, UserManager.get(context),
-                carUserService);
+                carUserService, null, new PowerComponentHandler(context, systemInterface));
     }
 
     @VisibleForTesting
     public CarPowerManagementService(Context context, Resources resources, PowerHalService powerHal,
-            SystemInterface systemInterface, UserManager userManager,
-            CarUserService carUserService) {
+            SystemInterface systemInterface, UserManager userManager, CarUserService carUserService,
+            ICarPowerPolicySystemNotification powerPolicyDaemon,
+            PowerComponentHandler powerComponentHandler) {
         mContext = context;
         mHal = powerHal;
         mSystemInterface = systemInterface;
@@ -239,10 +260,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             mShutdownPrepareTimeMs = MIN_MAX_GARAGE_MODE_DURATION_MS;
         }
         mUserService = carUserService;
+        mCarPowerPolicyDaemon = powerPolicyDaemon;
         mWifiManager = context.getSystemService(WifiManager.class);
         mWifiStateFile = new AtomicFile(
                 new File(mSystemInterface.getSystemCarDir(), WIFI_STATE_FILENAME));
-        mPowerComponentHandler = new PowerComponentHandler(context, systemInterface);
+        mPowerComponentHandler = powerComponentHandler;
         mMaxSuspendWaitDurationMs = Math.max(MIN_SUSPEND_WAIT_DURATION_MS,
                 Math.min(getMaxSuspendWaitDurationConfig(), MAX_SUSPEND_WAIT_DURATION_MS));
     }
@@ -297,6 +319,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
         mSystemInterface.stopDisplayStateMonitoring();
         mPowerManagerListeners.kill();
+        mPolicyChangeListeners.kill();
         mSystemInterface.releaseAllWakeLocks();
     }
 
@@ -320,6 +343,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             writer.println("mCurrentPowerPolicyGroup:" + mCurrentPowerPolicyGroup);
             writer.print("mMaxSuspendWaitDurationMs:" + mMaxSuspendWaitDurationMs);
             writer.println(", config_maxSuspendWaitDuration:" + getMaxSuspendWaitDurationConfig());
+            writer.println("# of power policy change listener:"
+                    + mPolicyChangeListeners.getRegisteredCallbackCount());
         }
         mPolicyReader.dump(writer);
     }
@@ -694,7 +719,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         // Otherwise, if the first listener calls finish() synchronously, we will
         // see the list go empty and we will think that we are done.
         boolean haveSomeCompleters = false;
-        PowerManagerCallbackList completingListeners = new PowerManagerCallbackList();
+        PowerManagerCallbackList<ICarPowerStateListener> completingListeners =
+                new PowerManagerCallbackList(l -> { });
         synchronized (mLock) {
             mListenersWeAreWaitingFor.clear();
             int idx = mPowerManagerListenersWithCompletion.beginBroadcast();
@@ -718,7 +744,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
     }
 
-    private void notifyListeners(PowerManagerCallbackList listenerList, int newState) {
+    private void notifyListeners(PowerManagerCallbackList<ICarPowerStateListener> listenerList,
+            int newState) {
         int idx = listenerList.beginBroadcast();
         while (idx-- > 0) {
             ICarPowerStateListener listener = listenerList.getBroadcastItem(idx);
@@ -890,15 +917,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         doUnregisterListener(listener);
     }
 
-    private void doUnregisterListener(ICarPowerStateListener listener) {
-        mPowerManagerListeners.unregister(listener);
-        boolean found = mPowerManagerListenersWithCompletion.unregister(listener);
-        if (found) {
-            // Remove this from the completion list (if it's there)
-            finishedImpl(listener.asBinder());
-        }
-    }
-
     @Override
     public void requestShutdownOnNextSuspend() {
         ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
@@ -944,6 +962,59 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         synchronized (mLock) {
             return (mCurrentState == null) ? CarPowerStateListener.INVALID
                     : mCurrentState.mCarPowerStateListenerState;
+        }
+    }
+
+    /**
+     * @see android.car.hardware.power.CarPowerManager#getCurrentPowerPolicy
+     */
+    @Override
+    public android.car.hardware.power.CarPowerPolicy getCurrentPowerPolicy() {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
+        String policyId;
+        synchronized (mLock) {
+            policyId = mCurrentPowerPolicy;
+        }
+        return toPowerPolicy(policyId);
+    }
+
+    /**
+     * @see android.car.hardware.power.CarPowerManager#applyPowerPolicy
+     */
+    @Override
+    public void applyPowerPolicy(String policyId) {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
+        String errorMsg = applyPowerPolicy(policyId, true);
+        if (errorMsg != null) {
+            throw new IllegalArgumentException(errorMsg);
+        }
+    }
+
+    /**
+     * @see android.car.hardware.power.CarPowerManager#registerPowerPolicyChangeListener
+     */
+    @Override
+    public void registerPowerPolicyChangeListener(ICarPowerPolicyChangeListener listener,
+            CarPowerPolicyFilter filter) {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
+        mPolicyChangeListeners.register(listener, filter);
+    }
+
+    /**
+     * @see android.car.hardware.power.CarPowerManager#unregisterPowerPolicyChangeListener
+     */
+    @Override
+    public void unregisterPowerPolicyChangeListener(ICarPowerPolicyChangeListener listener) {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
+        mPolicyChangeListeners.unregister(listener);
+    }
+
+    private void doUnregisterListener(ICarPowerStateListener listener) {
+        mPowerManagerListeners.unregister(listener);
+        boolean found = mPowerManagerListenersWithCompletion.unregister(listener);
+        if (found) {
+            // Remove this from the completion list (if it's there)
+            finishedImpl(listener.asBinder());
         }
     }
 
@@ -1010,7 +1081,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     @Nullable
     private String applyPowerPolicy(String policyId, boolean upToDaemon) {
-        CarPowerPolicy policy = mPolicyReader.getPowerPolicy(policyId);
+        android.frameworks.automotive.powerpolicy.CarPowerPolicy policy =
+                mPolicyReader.getPowerPolicy(policyId);
         if (policy == null) {
             return policyId + " is not registered";
         }
@@ -1024,6 +1096,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     private void notifyPowerPolicyChange(String policyId, boolean upToDaemon) {
+        // Notify system clients
         if (upToDaemon) {
             ICarPowerPolicySystemNotification daemon;
             synchronized (mLock) {
@@ -1038,7 +1111,65 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 return;
             }
         }
-        // TODO(b/172535781): Notify to Java listeners (aka CarPowerManager).
+
+        // Notify Java clients
+        android.car.hardware.power.CarPowerPolicy powerPolicy = toPowerPolicy(policyId);
+        if (powerPolicy == null) {
+            Slog.wtf(TAG, "The new power policy cannot be null");
+        }
+        int idx = mPolicyChangeListeners.beginBroadcast();
+        while (idx-- > 0) {
+            ICarPowerPolicyChangeListener listener = mPolicyChangeListeners.getBroadcastItem(idx);
+            CarPowerPolicyFilter filter =
+                    (CarPowerPolicyFilter) mPolicyChangeListeners.getBroadcastCookie(idx);
+            if (!hasMatchedComponents(filter, powerPolicy)) {
+                continue;
+            }
+            try {
+                listener.onPolicyChanged(powerPolicy);
+            } catch (RemoteException e) {
+                // It's likely the connection snapped. Let binder death handle the situation.
+                Slog.e(TAG, "onPolicyChanged() call failed: policyId = " + policyId, e);
+            }
+        }
+        mPolicyChangeListeners.finishBroadcast();
+    }
+
+    private interface ComponentFilter {
+        boolean filter(int[] components);
+    }
+
+    private boolean hasMatchedComponents(CarPowerPolicyFilter filter,
+            android.car.hardware.power.CarPowerPolicy policy) {
+        SparseBooleanArray filterMap = new SparseBooleanArray();
+        int[] components = filter.getComponents();
+        for (int i = 0; i < components.length; i++) {
+            filterMap.put(components[i], true);
+        }
+
+        ComponentFilter componentFilter = (c) -> {
+            for (int i = 0; i < c.length; i++) {
+                if (filterMap.get(c[i])) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        if (componentFilter.filter(policy.getEnabledComponents())) {
+            return true;
+        }
+        return componentFilter.filter(policy.getDisabledComponents());
+    }
+
+    private android.car.hardware.power.CarPowerPolicy toPowerPolicy(String policyId) {
+        android.frameworks.automotive.powerpolicy.CarPowerPolicy powerPolicy =
+                mPolicyReader.getPowerPolicy(policyId);
+        if (powerPolicy == null) {
+            return null;
+        }
+        return new android.car.hardware.power.CarPowerPolicy(powerPolicy.policyId,
+                powerPolicy.enabledComponents.clone(), powerPolicy.disabledComponents.clone());
     }
 
     private void connectToPowerPolicyDaemon() {

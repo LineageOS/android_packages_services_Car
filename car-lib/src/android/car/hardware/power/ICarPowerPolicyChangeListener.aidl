@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,16 @@
 
 package android.car.hardware.power;
 
+import android.car.hardware.power.CarPowerPolicy;
+
 /**
- * Binder callback for CarPowerStateListener.
+ * Binder callback for CarPowerPolicyChangeListener.
+ *
  * @hide
  */
-oneway interface ICarPowerStateListener {
+oneway interface ICarPowerPolicyChangeListener {
     /**
-     * Called when a power state change occurs
+     * Called when a power policy change occurs.
      */
-    void onStateChanged(int state);
+    void onPolicyChanged(in CarPowerPolicy policy);
 }
-

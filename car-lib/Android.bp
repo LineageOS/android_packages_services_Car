@@ -16,7 +16,10 @@ filegroup {
     name: "libcarpowermanager_aidl",
     srcs: [
         "src/android/car/ICar.aidl",
+        "src/android/car/hardware/power/CarPowerPolicy.aidl",
+        "src/android/car/hardware/power/CarPowerPolicyFilter.aidl",
         "src/android/car/hardware/power/ICarPower.aidl",
+        "src/android/car/hardware/power/ICarPowerPolicyChangeListener.aidl",
         "src/android/car/hardware/power/ICarPowerStateListener.aidl",
     ],
     path: "src",
@@ -53,6 +56,8 @@ cc_library {
     srcs: [
         ":libcarpowermanager_aidl",
         "native/CarPowerManager/CarPowerManager.cpp",
+        "native/CarPowerManager/CarPowerPolicy.cpp",
+        "native/CarPowerManager/CarPowerPolicyFilter.cpp",
     ],
 }
 

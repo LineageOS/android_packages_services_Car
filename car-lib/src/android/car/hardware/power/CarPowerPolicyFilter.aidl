@@ -16,4 +16,4 @@
 
 package android.car.hardware.power;
 
-parcelable CarPowerPolicyFilter;
+parcelable CarPowerPolicyFilter cpp_header "CarPowerPolicyFilter.h";
