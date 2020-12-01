@@ -26,6 +26,17 @@
           during initial development where audio hal does not support bus based addressing yet. -->
     <bool name="audioUseDynamicRouting">false</bool>
 
+    <!--  Configuration to select version of volume adjustment context priority list.
+          Version 1 includes all audio contexts arranged in the following order:
+            NAVIGATION, CALL, MUSIC, ANNOUNCEMENT, VOICE_COMMAND, CALL_RING, SYSTEM_SOUND, SAFETY,
+            ALARM, NOTIFICATION, VEHICLE_STATUS, EMERGENCY.
+          Version 2 is limited to the following contexts in order:
+            CALL, MUSIC, ANNOUNCEMENTS, VOICE_COMMAND
+
+          audioVolumeAdjustmentContextsVersion - Integer version number currently limited to
+                                                 numbers listed above. -->
+    <integer name="audioVolumeAdjustmentContextsVersion">2</integer>
+
     <!--  Configuration to persist global mute state. If this is set to true,
           Android will restore the global mute state on boot. -->
     <bool name="audioPersistMasterMuteState">true</bool>
