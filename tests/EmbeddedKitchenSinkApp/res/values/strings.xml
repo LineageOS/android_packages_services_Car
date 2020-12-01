@@ -142,6 +142,8 @@
     <string name="activity_current_zone_id" translatable="false">Activity\'s current audio zone id</string>
     <string name="no_zone" translatable="false">none</string>
     <string name="phone_audio_player" translatable="false">Phone Player</string>
+    <string name="track_audio_player" translatable="false">Track Player Tone Generator </string>
+    <string name="select_tone_to_hear_on_speaker" translatable="false">Tone</string>
 
     <!-- Audio Input-->
     <string name="play_audio_input" translatable="false">Play</string>
