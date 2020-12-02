@@ -213,7 +213,7 @@ struct SurroundView2dParams {
 
     SurroundView2dParams(Size2dInteger resolution_, Size2dFloat physical_size_,
                          Coordinate2dFloat physical_center_,
-                         bool gpu_acceleration_enabled_) :
+                         bool gpu_acceleration_enabled_ = false) :
           resolution(resolution_),
           physical_size(physical_size_),
           physical_center(physical_center_),
@@ -683,42 +683,57 @@ struct SurroundViewInputBufferPointers {
           height(height_) {}
 };
 
+// Currently we keep both cpu and gpu data pointers, and only one of them should
+// be valid at a certain point. Users need to check null before they make use of
+// the data pointers.
+// TODO(b/174778117): consider use only one data pointer once GPU migration is
+// done. If we are going to keep both cpu and gpu data pointer, specify the type
+// of data for cpu data pointer, instead of using a void pointer.
 struct SurroundViewResultPointer {
-    void* data_pointer;
+    void* gpu_data_pointer;
+    void* cpu_data_pointer;
     Format format;
     int width;
     int height;
     bool is_data_preallocated;
     SurroundViewResultPointer() :
-          data_pointer(nullptr), width(0), height(0), is_data_preallocated(false) {}
+          gpu_data_pointer(nullptr),
+          cpu_data_pointer(nullptr),
+          width(0),
+          height(0),
+          is_data_preallocated(false) {}
 
     // Constructor with result data pointer being allocated within core lib.
     // Use for cases when no already existing buffer is available.
     SurroundViewResultPointer(Format format_, int width_, int height_) :
-          format(format_), width(width_), height(height_) {
+          gpu_data_pointer(nullptr),
+          format(format_),
+          width(width_),
+          height(height_),
+          is_data_preallocated(false) {
         // default formate is gray.
         const int byte_per_pixel = format_ == RGB ? 3 : format_ == RGBA ? 4 : 1;
-        data_pointer = static_cast<void*>(new char[width * height * byte_per_pixel]);
-        is_data_preallocated = false;
+        cpu_data_pointer = static_cast<void*>(new char[width * height * byte_per_pixel]);
     }
 
     // Constructor with pre-allocated data.
     // Use for cases when results must be added to an existing allocated buffer.
     // Example, pre-allocated buffer of a display.
-    SurroundViewResultPointer(void* data_pointer_, Format format_, int width_, int height_) :
-          data_pointer(data_pointer_),
+    SurroundViewResultPointer(void* gpu_data_pointer_, void* cpu_data_pointer_, Format format_,
+                              int width_, int height_) :
+          gpu_data_pointer(gpu_data_pointer_),
+          cpu_data_pointer(cpu_data_pointer_),
           format(format_),
           width(width_),
           height(height_),
           is_data_preallocated(true) {}
 
     ~SurroundViewResultPointer() {
-        if (data_pointer) {
-            // TODO(b/154365307): Fix freeing up of pre-allocated memory.
-            // if (!is_data_preallocated) {
-            //   delete[] static_cast<char*>(data_pointer);
-            // }
-            data_pointer = nullptr;
+        if (cpu_data_pointer) {
+            if (!is_data_preallocated) {
+                delete[] static_cast<char*>(cpu_data_pointer);
+            }
+            cpu_data_pointer = nullptr;
         }
     }
 };
