@@ -16,6 +16,8 @@
 
 package android.car.hardware.power;
 
+import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.car.Car;
@@ -130,6 +132,23 @@ public class CarPowerManager extends CarManagerBase {
     }
 
     /**
+     * Listeners to receive power policy change.
+     *
+     * <p> Applications interested in power policy change register
+     * {@code CarPowerPolicyChangeListener} and will be notified when power policy changes.
+     *
+     * @hide
+     */
+    public interface CarPowerPolicyChangeListener {
+        /**
+         * Called with {@link #CarPowerPolicy} when power policy changes.
+         *
+         * @param policy The current power policy.
+         */
+        void onPolicyChanged(@NonNull CarPowerPolicy policy);
+    }
+
+    /**
      * Get an instance of the CarPowerManager.
      *
      * Should not be obtained directly by clients, use {@link Car#getCarManager(String)} instead.
@@ -223,6 +242,56 @@ public class CarPowerManager extends CarManagerBase {
             mListenerWithCompletion = listener;
             setServiceForListenerLocked(true);
         }
+    }
+
+    /**
+     * Gets the current power policy.
+     *
+     * @return The current power policy. If no power policy is set, {@code null} is returned.
+     * @hide
+     */
+    @Nullable
+    public CarPowerPolicy getCurrentPowerPolicy() {
+        // TODO(b/170158642): implement here
+        return null;
+    }
+
+    /**
+     * Applies the given power policy.
+     *
+     * <p> Power components are turned on or off as specified in the given power policy. Power
+     * policies are defined at {@code /vendor/etc/power_policy.xml}. If the given power policy
+     * doesn't exist, this method throws {@link java.lang.IllegalArgumentException}.
+     *
+     * @param policyId ID of power policy.
+     * @hide
+     */
+    @RequiresPermission(Car.PERMISSION_CAR_POWER)
+    public void applyPowerPolicy(String policyId) {
+        // TODO(b/170158642): implement here
+    }
+
+    /**
+     * Subscribes to power policy change.
+     *
+     * @param listener Listener to be notified.
+     * @param filter Filter specifying power components of interest.
+     * @hide
+     */
+    public void registerPowerPolicyChangeListener(@NonNull CarPowerPolicyChangeListener listener,
+            @NonNull CarPowerPolicyFilter filter) {
+        // TODO(b/170158642): implement here
+    }
+
+    /**
+     * Unsubscribes from power policy change.
+     *
+     * @param listener Listener that will not be notified any more.
+     * @hide
+     */
+    public void unregisterPowerPolicyChangeListener(
+            @NonNull CarPowerPolicyChangeListener listener) {
+        // TODO(b/170158642): implement here
     }
 
     private void setServiceForListenerLocked(boolean useCompletion) {
