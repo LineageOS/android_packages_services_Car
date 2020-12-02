@@ -89,7 +89,7 @@ java_library {
     name: "android.car",
     srcs: [
         "src/**/*.java",
-        "src/**/I*.aidl",
+        "src/**/*.aidl",
         "src/com/android/car/internal/common/EventLogTags.logtags",
     ],
     aidl: {

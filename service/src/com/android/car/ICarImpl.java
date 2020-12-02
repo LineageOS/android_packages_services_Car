@@ -50,6 +50,7 @@ import android.util.TimingsTraceLog;
 import com.android.car.admin.CarDevicePolicyService;
 import com.android.car.am.FixedActivityService;
 import com.android.car.audio.CarAudioService;
+import com.android.car.cluster.ClusterHomeService;
 import com.android.car.cluster.ClusterNavigationService;
 import com.android.car.cluster.InstrumentClusterService;
 import com.android.car.garagemode.GarageModeService;
@@ -125,6 +126,7 @@ public class ICarImpl extends ICar.Stub {
     private final CarExperimentalFeatureServiceController mCarExperimentalFeatureServiceController;
     private final CarWatchdogService mCarWatchdogService;
     private final CarDevicePolicyService mCarDevicePolicyService;
+    private final ClusterHomeService mClusterHomeService;
 
     private final CarServiceBase[] mAllServices;
 
@@ -268,8 +270,13 @@ public class ICarImpl extends ICar.Stub {
         } else {
             mCarWatchdogService = carWatchdogService;
         }
-
         mCarDevicePolicyService = new CarDevicePolicyService(mCarUserService);
+        if (mFeatureController.isFeatureEnabled(Car.CLUSTER_HOME_SERVICE)) {
+            mClusterHomeService = new ClusterHomeService(serviceContext, mHal.getClusterHal(),
+                    mInstrumentClusterService, mClusterNavigationService, mCarOccupantZoneService);
+        } else {
+            mClusterHomeService = null;
+        }
 
         CarLocalServices.addService(CarPowerManagementService.class, mCarPowerManagementService);
         CarLocalServices.addService(SilentModeController.class, mSilentModeController);
@@ -319,6 +326,7 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mCarBugreportManagerService);
         allServices.add(mCarWatchdogService);
         allServices.add(mCarDevicePolicyService);
+        addServiceIfNonNull(allServices, mClusterHomeService);
 
         // Always put mCarExperimentalFeatureServiceController in last.
         addServiceIfNonNull(allServices, mCarExperimentalFeatureServiceController);
@@ -531,6 +539,8 @@ public class ICarImpl extends ICar.Stub {
                 return mCarInputService;
             case Car.CAR_DEVICE_POLICY_SERVICE:
                 return mCarDevicePolicyService;
+            case Car.CLUSTER_HOME_SERVICE:
+                return mClusterHomeService;
             default:
                 IBinder service = null;
                 if (mCarExperimentalFeatureServiceController != null) {

@@ -87,6 +87,7 @@ public final class CarFeatureController implements CarServiceBase {
 
     private static final HashSet<String> OPTIONAL_FEATURES = new HashSet<>(Arrays.asList(
             CarFeatures.FEATURE_CAR_USER_NOTICE_SERVICE,
+            Car.CLUSTER_HOME_SERVICE,
             Car.CAR_NAVIGATION_SERVICE,
             Car.DIAGNOSTIC_SERVICE,
             Car.OCCUPANT_AWARENESS_SERVICE,

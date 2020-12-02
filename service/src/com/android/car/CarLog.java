@@ -27,6 +27,7 @@ public final class CarLog {
     public static final String TAG_AM = "CAR.AM";
     public static final String TAG_APP_FOCUS = "CAR.APP_FOCUS";
     public static final String TAG_AUDIO = "CAR.AUDIO";
+    public static final String TAG_CLUSTER = "CAR.CLUSTER";
     public static final String TAG_DIAGNOSTIC = "CAR.DIAGNOSTIC";
     public static final String TAG_HAL = "CAR.HAL";
     public static final String TAG_INPUT = "CAR.INPUT";
