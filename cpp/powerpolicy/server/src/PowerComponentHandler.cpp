@@ -28,9 +28,11 @@ using android::base::Error;
 using android::base::Result;
 
 void PowerComponentHandler::init() {
+    // TODO(b/162600133): implement initialization.
 }
 
 void PowerComponentHandler::finalize() {
+    // TODO(b/162600133): implement finalization.
 }
 
 Result<void> PowerComponentHandler::applyPowerPolicy(CarPowerPolicyPtr /*powerPolicy*/) {

@@ -14,36 +14,31 @@
  * limitations under the License.
  */
 
-#ifndef CPP_POWERPOLICY_SRC_POWERCOMPONENTHANDLER_H_
-#define CPP_POWERPOLICY_SRC_POWERCOMPONENTHANDLER_H_
-
-#include "PowerComponentMediator.h"
+#ifndef CPP_POWERPOLICY_SERVER_SRC_POWERCOMPONENTMEDIATOR_H_
+#define CPP_POWERPOLICY_SERVER_SRC_POWERCOMPONENTMEDIATOR_H_
 
 #include <android-base/result.h>
-#include <android/frameworks/automotive/powerpolicy/CarPowerPolicy.h>
+#include <utils/RefBase.h>
 
-#include <memory>
-#include <unordered_map>
+#include <functional>
+#include <string>
 
 namespace android {
 namespace frameworks {
 namespace automotive {
 namespace powerpolicy {
 
-using CarPowerPolicyPtr = std::shared_ptr<CarPowerPolicy>;
+using powerStateChangeCallback = std::function<void(bool, std::string)>;
 
-class PowerComponentHandler final {
+class PowerComponentMediator : public RefBase {
 public:
-    PowerComponentHandler() {}
-
-    void init();
-    void finalize();
-    base::Result<void> applyPowerPolicy(CarPowerPolicyPtr powerPolicy);
-    base::Result<bool> getPowerComponentState(PowerComponent componentId);
-    base::Result<void> dump(int fd, const Vector<String16>& args);
-
-private:
-    std::unordered_map<PowerComponent, PowerComponentMediator*> mComponentMediators;
+    // Changes the power state and the result is delivered back through callback function.
+    virtual base::Result<void> changePowerState(bool powerOn,
+                                                powerStateChangeCallback callback) = 0;
+    // Returns the current power state.
+    virtual bool getPowerState() = 0;
+    // Returns whether the power is supported by the device.
+    virtual bool isSupported() = 0;
 };
 
 }  // namespace powerpolicy
@@ -51,4 +46,4 @@ private:
 }  // namespace frameworks
 }  // namespace android
 
-#endif  // CPP_POWERPOLICY_SRC_POWERCOMPONENTHANDLER_H_
+#endif  // CPP_POWERPOLICY_SERVER_SRC_POWERCOMPONENTMEDIATOR_H_
