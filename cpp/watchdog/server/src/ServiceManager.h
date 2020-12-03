@@ -19,7 +19,9 @@
 
 #include "IoOveruseMonitor.h"
 #include "WatchdogBinderMediator.h"
+#include "WatchdogPerfService.h"
 #include "WatchdogProcessService.h"
+#include "WatchdogServiceHelper.h"
 
 #include <android-base/result.h>
 #include <utils/Looper.h>
@@ -41,8 +43,9 @@ private:
 
     static android::sp<WatchdogProcessService> sWatchdogProcessService;
     static android::sp<WatchdogPerfService> sWatchdogPerfService;
-    static android::sp<WatchdogBinderMediator> sWatchdogBinderMediator;
     static android::sp<IoOveruseMonitor> sIoOveruseMonitor;
+    static android::sp<WatchdogBinderMediator> sWatchdogBinderMediator;
+    static android::sp<WatchdogServiceHelperInterface> sWatchdogServiceHelper;
 };
 
 }  // namespace watchdog

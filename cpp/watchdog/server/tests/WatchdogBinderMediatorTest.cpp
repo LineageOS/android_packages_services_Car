@@ -17,6 +17,7 @@
 #include "MockIoOveruseMonitor.h"
 #include "MockWatchdogPerfService.h"
 #include "MockWatchdogProcessService.h"
+#include "MockWatchdogServiceHelper.h"
 #include "WatchdogBinderMediator.h"
 
 #include <binder/IBinder.h>
@@ -38,6 +39,12 @@ using ::testing::Return;
 
 namespace {
 
+const std::function<android::base::Result<void>(const char*, const android::sp<android::IBinder>&)>
+        kAddServiceFunctionStub =
+                [](const char*, const android::sp<android::IBinder>&) -> Result<void> {
+    return Result<void>{};
+};
+
 class MockICarWatchdogClient : public ICarWatchdogClient {
 public:
     MOCK_METHOD(Status, checkIfAlive, (int32_t sessionId, TimeoutLength timeout), (override));
@@ -57,11 +64,7 @@ public:
           mMediator(mediator) {}
     ~WatchdogBinderMediatorPeer() { mMediator.clear(); }
 
-    Result<void> init(const android::sp<WatchdogProcessService>& watchdogProcessService,
-                      const android::sp<WatchdogPerfService>& watchdogPerfService,
-                      const android::sp<IoOveruseMonitor>& ioOveruseMonitor) {
-        return mMediator->init(watchdogProcessService, watchdogPerfService, ioOveruseMonitor);
-    }
+    Result<void> init() { return mMediator->init(); }
 
 private:
     sp<WatchdogBinderMediator> mMediator;
@@ -75,15 +78,12 @@ protected:
         mMockWatchdogProcessService = new MockWatchdogProcessService();
         mMockWatchdogPerfService = new MockWatchdogPerfService();
         mMockIoOveruseMonitor = new MockIoOveruseMonitor();
-        mWatchdogBinderMediator = new WatchdogBinderMediator(
-                [](const char*, const android::sp<android::IBinder>&) -> Result<void> {
-                    return Result<void>{};
-                });
+        mWatchdogBinderMediator =
+                new WatchdogBinderMediator(mMockWatchdogProcessService, mMockWatchdogPerfService,
+                                           mMockIoOveruseMonitor, new MockWatchdogServiceHelper(),
+                                           kAddServiceFunctionStub);
         internal::WatchdogBinderMediatorPeer mediatorPeer(mWatchdogBinderMediator);
-
-        auto result = mediatorPeer.init(mMockWatchdogProcessService, mMockWatchdogPerfService,
-                                        mMockIoOveruseMonitor);
-        ASSERT_TRUE(result.ok()) << result.error().message();
+        ASSERT_RESULT_OK(mediatorPeer.init());
     }
     virtual void TearDown() {
         mMockWatchdogProcessService.clear();
@@ -99,13 +99,12 @@ protected:
 };
 
 TEST_F(WatchdogBinderMediatorTest, TestInit) {
-    sp<WatchdogBinderMediator> mediator = new WatchdogBinderMediator(
-            [](const char*, const android::sp<android::IBinder>&) -> Result<void> {
-                return Result<void>{};
-            });
-    auto result = mediator->init(new MockWatchdogProcessService(), new MockWatchdogPerfService(),
-                                 new MockIoOveruseMonitor());
-    ASSERT_TRUE(result.ok()) << result.error().message();
+    sp<WatchdogBinderMediator> mediator =
+            new WatchdogBinderMediator(new MockWatchdogProcessService(),
+                                       new MockWatchdogPerfService(), new MockIoOveruseMonitor(),
+                                       new MockWatchdogServiceHelper(), kAddServiceFunctionStub);
+
+    ASSERT_RESULT_OK(mediator->init());
 
     ASSERT_NE(mediator->mWatchdogProcessService, nullptr);
     ASSERT_NE(mediator->mWatchdogPerfService, nullptr);
@@ -113,20 +112,41 @@ TEST_F(WatchdogBinderMediatorTest, TestInit) {
     ASSERT_NE(mediator->mWatchdogInternalHandler, nullptr);
 }
 
-TEST_F(WatchdogBinderMediatorTest, TestErrorOnInitWithNullptrArgs) {
-    sp<WatchdogBinderMediator> mediator = new WatchdogBinderMediator();
-    ASSERT_FALSE(
-            mediator->init(nullptr, new MockWatchdogPerfService(), new MockIoOveruseMonitor()).ok())
-            << "No error returned on nullptr watchdog process service";
-    ASSERT_FALSE(
-            mediator->init(new MockWatchdogProcessService(), nullptr, new MockIoOveruseMonitor())
-                    .ok())
-            << "No error returned on nullptr watchdog perf service";
-    ASSERT_FALSE(
-            mediator->init(new MockWatchdogProcessService(), new MockWatchdogPerfService(), nullptr)
-                    .ok())
-            << "No error returned on nullptr I/O overuse monitor";
-    ASSERT_FALSE(mediator->init(nullptr, nullptr, nullptr).ok()) << "No error returned on nullptr";
+TEST_F(WatchdogBinderMediatorTest, TestErrorOnInitWithNullServiceInstances) {
+    sp<WatchdogBinderMediator> mediator =
+            new WatchdogBinderMediator(nullptr, new MockWatchdogPerfService(),
+                                       new MockIoOveruseMonitor(), new MockWatchdogServiceHelper(),
+                                       kAddServiceFunctionStub);
+
+    ASSERT_FALSE(mediator->init()) << "No error returned on nullptr watchdog process service";
+    mediator.clear();
+
+    mediator = new WatchdogBinderMediator(new MockWatchdogProcessService(), nullptr,
+                                          new MockIoOveruseMonitor(),
+                                          new MockWatchdogServiceHelper(), kAddServiceFunctionStub);
+
+    ASSERT_FALSE(mediator->init()) << "No error returned on nullptr watchdog perf service";
+    mediator.clear();
+
+    mediator = new WatchdogBinderMediator(new MockWatchdogProcessService(),
+                                          new MockWatchdogPerfService(), nullptr,
+                                          new MockWatchdogServiceHelper(), kAddServiceFunctionStub);
+
+    ASSERT_FALSE(mediator->init()) << "No error returned on nullptr I/O overuse monitor";
+    mediator.clear();
+
+    mediator = new WatchdogBinderMediator(new MockWatchdogProcessService(),
+                                          new MockWatchdogPerfService(), new MockIoOveruseMonitor(),
+                                          nullptr, kAddServiceFunctionStub);
+
+    ASSERT_FALSE(mediator->init()) << "No error returned on nullptr watchdog service helper";
+    mediator.clear();
+
+    mediator =
+            new WatchdogBinderMediator(nullptr, nullptr, nullptr, nullptr, kAddServiceFunctionStub);
+
+    ASSERT_FALSE(mediator->init()) << "No error returned on nullptr watchdog service helper";
+    mediator.clear();
 }
 
 TEST_F(WatchdogBinderMediatorTest, TestTerminate) {

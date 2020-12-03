@@ -42,14 +42,17 @@ public:
     MockWatchdogProcessService() : WatchdogProcessService(nullptr) {}
     MOCK_METHOD(android::base::Result<void>, dump, (int fd, const Vector<String16>& args),
                 (override));
+    MOCK_METHOD(android::base::Result<void>, registerWatchdogServiceHelper,
+                (const android::sp<WatchdogServiceHelperInterface>& helper), (override));
 
     MOCK_METHOD(android::binder::Status, registerClient,
                 (const sp<ICarWatchdogClient>& client, TimeoutLength timeout), (override));
     MOCK_METHOD(android::binder::Status, unregisterClient, (const sp<ICarWatchdogClient>& client),
                 (override));
-    MOCK_METHOD(android::binder::Status, registerWatchdogServiceHelper,
-                (const sp<WatchdogServiceHelperInterface>& helper), (override));
-    MOCK_METHOD(android::binder::Status, unregisterWatchdogServiceHelper, (), (override));
+    MOCK_METHOD(android::binder::Status, registerCarWatchdogService,
+                (const android::sp<IBinder>& binder), (override));
+    MOCK_METHOD(void, unregisterCarWatchdogService, (const android::sp<IBinder>& binder),
+                (override));
     MOCK_METHOD(android::binder::Status, registerMonitor,
                 (const sp<android::automotive::watchdog::internal::ICarWatchdogMonitor>& monitor),
                 (override));
@@ -59,7 +62,8 @@ public:
     MOCK_METHOD(android::binder::Status, tellClientAlive,
                 (const sp<ICarWatchdogClient>& client, int32_t sessionId), (override));
     MOCK_METHOD(android::binder::Status, tellCarWatchdogServiceAlive,
-                (const sp<android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>&
+                (const android::sp<
+                         android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>&
                          service,
                  const std::vector<int32_t>& clientsNotResponding, int32_t sessionId),
                 (override));

@@ -73,11 +73,7 @@ Status WatchdogInternalHandler::registerCarWatchdogService(
     if (service == nullptr) {
         return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT, kNullCarWatchdogServiceError);
     }
-    status = mWatchdogServiceHelper->registerService(service);
-    if (!status.isOk()) {
-        return status;
-    }
-    return mWatchdogProcessService->registerWatchdogServiceHelper(mWatchdogServiceHelper);
+    return mWatchdogServiceHelper->registerService(service);
 }
 
 Status WatchdogInternalHandler::unregisterCarWatchdogService(
@@ -89,11 +85,7 @@ Status WatchdogInternalHandler::unregisterCarWatchdogService(
     if (service == nullptr) {
         return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT, kNullCarWatchdogServiceError);
     }
-    status = mWatchdogServiceHelper->unregisterService(service);
-    if (!status.isOk()) {
-        return status;
-    }
-    return mWatchdogProcessService->unregisterWatchdogServiceHelper();
+    return mWatchdogServiceHelper->unregisterService(service);
 }
 
 Status WatchdogInternalHandler::registerMonitor(const sp<aawi::ICarWatchdogMonitor>& monitor) {

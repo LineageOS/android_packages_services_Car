@@ -29,6 +29,7 @@
 #include <android/automotive/watchdog/internal/IoOveruseConfiguration.h>
 #include <android/automotive/watchdog/internal/StateType.h>
 #include <binder/Status.h>
+#include <gtest/gtest_prod.h>
 #include <utils/Errors.h>
 #include <utils/Vector.h>
 
@@ -42,14 +43,16 @@ class WatchdogInternalHandler : public android::automotive::watchdog::internal::
 public:
     explicit WatchdogInternalHandler(
             const android::sp<WatchdogBinderMediator>& binderMediator,
+            const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper,
             const android::sp<WatchdogProcessService>& watchdogProcessService,
             const android::sp<WatchdogPerfService>& watchdogPerfService,
             const android::sp<IoOveruseMonitor>& ioOveruseMonitor) :
           mBinderMediator(binderMediator),
-          mWatchdogServiceHelper(new WatchdogServiceHelper()),
+          mWatchdogServiceHelper(watchdogServiceHelper),
           mWatchdogProcessService(watchdogProcessService),
           mWatchdogPerfService(watchdogPerfService),
           mIoOveruseMonitor(ioOveruseMonitor) {}
+    ~WatchdogInternalHandler() { terminate(); }
 
     status_t dump(int fd, const Vector<String16>& args) override;
     android::binder::Status registerCarWatchdogService(
@@ -83,8 +86,6 @@ public:
 
 protected:
     void terminate() {
-        mWatchdogServiceHelper->terminate();
-
         mBinderMediator.clear();
         mWatchdogServiceHelper.clear();
         mWatchdogProcessService.clear();
@@ -100,7 +101,9 @@ private:
     android::sp<IoOveruseMonitor> mIoOveruseMonitor;
 
     friend class WatchdogBinderMediator;
-    friend class WatchdogInternalHandlerTest;
+
+    // For unit tests.
+    FRIEND_TEST(WatchdogInternalHandlerTest, TestTerminate);
 };
 
 }  // namespace watchdog

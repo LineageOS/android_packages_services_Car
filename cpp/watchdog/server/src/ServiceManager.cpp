@@ -34,12 +34,14 @@ using android::base::Result;
 
 sp<WatchdogProcessService> ServiceManager::sWatchdogProcessService = nullptr;
 sp<WatchdogPerfService> ServiceManager::sWatchdogPerfService = nullptr;
-sp<WatchdogBinderMediator> ServiceManager::sWatchdogBinderMediator = nullptr;
 sp<IoOveruseMonitor> ServiceManager::sIoOveruseMonitor = nullptr;
+sp<WatchdogBinderMediator> ServiceManager::sWatchdogBinderMediator = nullptr;
+sp<WatchdogServiceHelperInterface> ServiceManager::sWatchdogServiceHelper = nullptr;
 
 Result<void> ServiceManager::startServices(const sp<Looper>& looper) {
-    if (sWatchdogProcessService != nullptr || sWatchdogPerfService != nullptr ||
-        sWatchdogBinderMediator != nullptr || sIoOveruseMonitor != nullptr) {
+    if (sWatchdogBinderMediator != nullptr || sWatchdogServiceHelper != nullptr ||
+        sWatchdogProcessService != nullptr || sWatchdogPerfService != nullptr ||
+        sIoOveruseMonitor != nullptr) {
         return Error(INVALID_OPERATION) << "Cannot start services more than once";
     }
     PackageNameResolver::getInstance();
@@ -50,6 +52,11 @@ Result<void> ServiceManager::startServices(const sp<Looper>& looper) {
     result = startPerfService();
     if (!result.ok()) {
         return result;
+    }
+    sWatchdogServiceHelper = new WatchdogServiceHelper();
+    result = sWatchdogServiceHelper->init(sWatchdogProcessService);
+    if (!result.ok()) {
+        return Error() << "Failed to initialize watchdog service helper: " << result.error();
     }
     return {};
 }
@@ -71,6 +78,10 @@ void ServiceManager::terminateServices() {
         sWatchdogBinderMediator->terminate();
         sWatchdogBinderMediator.clear();
     }
+    if (sWatchdogServiceHelper != nullptr) {
+        sWatchdogServiceHelper->terminate();
+        sWatchdogServiceHelper.clear();
+    }
 }
 
 Result<void> ServiceManager::startProcessAnrMonitor(const sp<Looper>& looper) {
@@ -78,7 +89,7 @@ Result<void> ServiceManager::startProcessAnrMonitor(const sp<Looper>& looper) {
     const auto& result = service->start();
     if (!result.ok()) {
         return Error(result.error().code())
-                << "Failed to start process monitoring: " << result.error();
+                << "Failed to start watchdog process monitoring: " << result.error();
     }
     sWatchdogProcessService = service;
     return {};
@@ -98,7 +109,7 @@ Result<void> ServiceManager::startPerfService() {
     result = service->start();
     if (!result.ok()) {
         return Error(result.error().code())
-                << "Failed to start performance service: " << result.error();
+                << "Failed to start watchdog performance service: " << result.error();
     }
     sWatchdogPerfService = service;
     sIoOveruseMonitor = ioOveruseMonitor;
@@ -106,12 +117,13 @@ Result<void> ServiceManager::startPerfService() {
 }
 
 Result<void> ServiceManager::startBinderMediator() {
-    sWatchdogBinderMediator = new WatchdogBinderMediator();
-    const auto& result = sWatchdogBinderMediator->init(sWatchdogProcessService,
-                                                       sWatchdogPerfService, sIoOveruseMonitor);
+    sWatchdogBinderMediator =
+            new WatchdogBinderMediator(sWatchdogProcessService, sWatchdogPerfService,
+                                       sIoOveruseMonitor, sWatchdogServiceHelper);
+    const auto& result = sWatchdogBinderMediator->init();
     if (!result.ok()) {
         return Error(result.error().code())
-                << "Failed to start binder mediator: " << result.error();
+                << "Failed to initialize watchdog binder mediator: " << result.error();
     }
     return {};
 }

@@ -17,6 +17,7 @@
 #include "MockIoOveruseMonitor.h"
 #include "MockWatchdogPerfService.h"
 #include "MockWatchdogProcessService.h"
+#include "MockWatchdogServiceHelper.h"
 #include "WatchdogBinderMediator.h"
 #include "WatchdogInternalHandler.h"
 #include "WatchdogServiceHelper.h"
@@ -55,21 +56,18 @@ namespace {
 
 class MockWatchdogBinderMediator : public WatchdogBinderMediator {
 public:
-    MockWatchdogBinderMediator() {}
+    MockWatchdogBinderMediator(
+            const android::sp<WatchdogProcessService>& watchdogProcessService,
+            const android::sp<WatchdogPerfService>& watchdogPerfService,
+            const android::sp<IoOveruseMonitor>& ioOveruseMonitor,
+            const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper) :
+          WatchdogBinderMediator(watchdogProcessService, watchdogPerfService, ioOveruseMonitor,
+                                 watchdogServiceHelper,
+                                 [](const char*, const android::sp<android::IBinder>&)
+                                         -> Result<void> { return Result<void>{}; }) {}
     ~MockWatchdogBinderMediator() {}
 
     MOCK_METHOD(status_t, dump, (int fd, const Vector<String16>& args), (override));
-};
-
-class MockWatchdogServiceHelper : public WatchdogServiceHelper {
-public:
-    MockWatchdogServiceHelper() {}
-    ~MockWatchdogServiceHelper() {}
-
-    MOCK_METHOD(Status, registerService, (const android::sp<ICarWatchdogServiceForSystem>& service),
-                (override));
-    MOCK_METHOD(Status, unregisterService,
-                (const android::sp<ICarWatchdogServiceForSystem>& service), (override));
 };
 
 class ScopedChangeCallingUid : public RefBase {
@@ -103,25 +101,20 @@ private:
 class WatchdogInternalHandlerTest : public ::testing::Test {
 protected:
     virtual void SetUp() {
-        mMockWatchdogBinderMediator = new MockWatchdogBinderMediator();
-        mMockWatchdogServiceHelper = new MockWatchdogServiceHelper();
         mMockWatchdogProcessService = new MockWatchdogProcessService();
         mMockWatchdogPerfService = new MockWatchdogPerfService();
         mMockIoOveruseMonitor = new MockIoOveruseMonitor();
+        mMockWatchdogServiceHelper = new MockWatchdogServiceHelper();
+        mMockWatchdogBinderMediator =
+                new MockWatchdogBinderMediator(mMockWatchdogProcessService,
+                                               mMockWatchdogPerfService, mMockIoOveruseMonitor,
+                                               mMockWatchdogServiceHelper);
         mWatchdogInternalHandler =
-                new WatchdogInternalHandler(mMockWatchdogBinderMediator,
+                new WatchdogInternalHandler(mMockWatchdogBinderMediator, mMockWatchdogServiceHelper,
                                             mMockWatchdogProcessService, mMockWatchdogPerfService,
                                             mMockIoOveruseMonitor);
-        mWatchdogInternalHandler->mWatchdogServiceHelper = mMockWatchdogServiceHelper;
     }
     virtual void TearDown() {
-        mWatchdogInternalHandler->terminate();
-        ASSERT_EQ(mWatchdogInternalHandler->mBinderMediator, nullptr);
-        ASSERT_EQ(mWatchdogInternalHandler->mWatchdogServiceHelper, nullptr);
-        ASSERT_EQ(mWatchdogInternalHandler->mWatchdogProcessService, nullptr);
-        ASSERT_EQ(mWatchdogInternalHandler->mWatchdogPerfService, nullptr);
-        ASSERT_EQ(mWatchdogInternalHandler->mIoOveruseMonitor, nullptr);
-
         mMockWatchdogBinderMediator.clear();
         mMockWatchdogServiceHelper.clear();
         mMockWatchdogProcessService.clear();
@@ -143,6 +136,22 @@ protected:
     sp<ScopedChangeCallingUid> mScopedChangeCallingUid;
 };
 
+TEST_F(WatchdogInternalHandlerTest, TestTerminate) {
+    ASSERT_NE(mWatchdogInternalHandler->mBinderMediator, nullptr);
+    ASSERT_NE(mWatchdogInternalHandler->mWatchdogServiceHelper, nullptr);
+    ASSERT_NE(mWatchdogInternalHandler->mWatchdogProcessService, nullptr);
+    ASSERT_NE(mWatchdogInternalHandler->mWatchdogPerfService, nullptr);
+    ASSERT_NE(mWatchdogInternalHandler->mIoOveruseMonitor, nullptr);
+
+    mWatchdogInternalHandler->terminate();
+
+    ASSERT_EQ(mWatchdogInternalHandler->mBinderMediator, nullptr);
+    ASSERT_EQ(mWatchdogInternalHandler->mWatchdogServiceHelper, nullptr);
+    ASSERT_EQ(mWatchdogInternalHandler->mWatchdogProcessService, nullptr);
+    ASSERT_EQ(mWatchdogInternalHandler->mWatchdogPerfService, nullptr);
+    ASSERT_EQ(mWatchdogInternalHandler->mIoOveruseMonitor, nullptr);
+}
+
 TEST_F(WatchdogInternalHandlerTest, TestDump) {
     EXPECT_CALL(*mMockWatchdogBinderMediator, dump(-1, _)).WillOnce(Return(OK));
     ASSERT_EQ(mWatchdogInternalHandler->dump(-1, Vector<String16>()), OK);
@@ -154,8 +163,6 @@ TEST_F(WatchdogInternalHandlerTest, TestRegisterCarWatchdogService) {
     EXPECT_CALL(*mMockWatchdogServiceHelper, registerService(service))
             .WillOnce(Return(Status::ok()));
     sp<WatchdogServiceHelperInterface> helper = mMockWatchdogServiceHelper;
-    EXPECT_CALL(*mMockWatchdogProcessService, registerWatchdogServiceHelper(helper))
-            .WillOnce(Return(Status::ok()));
     Status status = mWatchdogInternalHandler->registerCarWatchdogService(service);
     ASSERT_TRUE(status.isOk()) << status;
 }
@@ -163,7 +170,6 @@ TEST_F(WatchdogInternalHandlerTest, TestRegisterCarWatchdogService) {
 TEST_F(WatchdogInternalHandlerTest, TestErrorOnRegisterCarWatchdogServiceWithNonSystemCallingUid) {
     sp<ICarWatchdogServiceForSystem> service = new ICarWatchdogServiceForSystemDefault();
     EXPECT_CALL(*mMockWatchdogServiceHelper, registerService(service)).Times(0);
-    EXPECT_CALL(*mMockWatchdogProcessService, registerWatchdogServiceHelper(_)).Times(0);
     Status status = mWatchdogInternalHandler->registerCarWatchdogService(service);
     ASSERT_FALSE(status.isOk()) << status;
 }
@@ -174,7 +180,6 @@ TEST_F(WatchdogInternalHandlerTest,
     sp<ICarWatchdogServiceForSystem> service = new ICarWatchdogServiceForSystemDefault();
     EXPECT_CALL(*mMockWatchdogServiceHelper, registerService(service))
             .WillOnce(Return(Status::fromExceptionCode(Status::EX_ILLEGAL_STATE, "Illegal state")));
-    EXPECT_CALL(*mMockWatchdogProcessService, registerWatchdogServiceHelper(_)).Times(0);
     Status status = mWatchdogInternalHandler->registerCarWatchdogService(service);
     ASSERT_FALSE(status.isOk()) << status;
 }
@@ -184,8 +189,6 @@ TEST_F(WatchdogInternalHandlerTest, TestUnregisterCarWatchdogService) {
     sp<ICarWatchdogServiceForSystem> service = new ICarWatchdogServiceForSystemDefault();
     EXPECT_CALL(*mMockWatchdogServiceHelper, unregisterService(service))
             .WillOnce(Return(Status::ok()));
-    EXPECT_CALL(*mMockWatchdogProcessService, unregisterWatchdogServiceHelper())
-            .WillOnce(Return(Status::ok()));
     Status status = mWatchdogInternalHandler->unregisterCarWatchdogService(service);
     ASSERT_TRUE(status.isOk()) << status;
 }
@@ -194,7 +197,6 @@ TEST_F(WatchdogInternalHandlerTest,
        TestErrorOnUnregisterCarWatchdogServiceWithNonSystemCallingUid) {
     sp<ICarWatchdogServiceForSystem> service = new ICarWatchdogServiceForSystemDefault();
     EXPECT_CALL(*mMockWatchdogServiceHelper, unregisterService(service)).Times(0);
-    EXPECT_CALL(*mMockWatchdogProcessService, unregisterWatchdogServiceHelper()).Times(0);
     Status status = mWatchdogInternalHandler->unregisterCarWatchdogService(service);
     ASSERT_FALSE(status.isOk()) << status;
 }
@@ -205,7 +207,6 @@ TEST_F(WatchdogInternalHandlerTest,
     EXPECT_CALL(*mMockWatchdogServiceHelper, unregisterService(service))
             .WillOnce(Return(
                     Status::fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT, "Illegal argument")));
-    EXPECT_CALL(*mMockWatchdogProcessService, unregisterWatchdogServiceHelper()).Times(0);
     Status status = mWatchdogInternalHandler->unregisterCarWatchdogService(service);
     ASSERT_FALSE(status.isOk()) << status;
 }

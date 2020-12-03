@@ -32,7 +32,15 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-class WatchdogInternalHandler;
+class ServiceManager;
+class WatchdogProcessService;
+
+// Forward declaration for testing use only.
+namespace internal {
+
+class WatchdogServiceHelperPeer;
+
+}  // namespace internal
 
 class WatchdogServiceHelperInterface : public android::IBinder::DeathRecipient {
 public:
@@ -46,20 +54,28 @@ public:
                     service) = 0;
 
     // Helper methods for APIs in ICarWatchdogServiceForSystem.aidl.
-    virtual android::binder::Status checkIfAlive(int32_t sessionId, TimeoutLength timeout) = 0;
-    virtual android::binder::Status prepareProcessTermination() = 0;
+    virtual android::binder::Status checkIfAlive(const android::wp<android::IBinder>& who,
+                                                 int32_t sessionId,
+                                                 TimeoutLength timeout) const = 0;
+    virtual android::binder::Status prepareProcessTermination(
+            const android::wp<android::IBinder>& who) = 0;
 
 protected:
+    virtual android::base::Result<void> init(
+            const android::sp<WatchdogProcessService>& watchdogProcessService) = 0;
     virtual void terminate() = 0;
 
 private:
-    friend class WatchdogInternalHandler;
+    friend class ServiceManager;
 };
 
+// WatchdogServiceHelper implements the helper functions for the outbound API requests to
+// the CarWatchdogService. This class doesn't handle the inbound APIs requests from
+// CarWatchdogService except the registration APIs.
 class WatchdogServiceHelper : public WatchdogServiceHelperInterface {
 public:
-    WatchdogServiceHelper() : mService(nullptr) {}
-    ~WatchdogServiceHelper() { terminate(); }
+    WatchdogServiceHelper() : mService(nullptr), mWatchdogProcessService(nullptr) {}
+    ~WatchdogServiceHelper();
 
     android::binder::Status registerService(
             const android::sp<
@@ -70,18 +86,34 @@ public:
                     android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>& service)
             override;
     void binderDied(const android::wp<android::IBinder>& who) override;
-    android::binder::Status checkIfAlive(int32_t sessionId, TimeoutLength timeout) override;
-    android::binder::Status prepareProcessTermination() override;
+
+    // Helper methods for ICarWatchdogServiceForSystem.aidl.
+    android::binder::Status checkIfAlive(const android::wp<android::IBinder>& who,
+                                         int32_t sessionId, TimeoutLength timeout) const override;
+    android::binder::Status prepareProcessTermination(
+            const android::wp<android::IBinder>& who) override;
 
 protected:
+    android::base::Result<void> init(
+            const android::sp<WatchdogProcessService>& watchdogProcessService);
     void terminate();
 
 private:
-    std::shared_mutex mRWMutex;
+    void unregisterServiceLocked();
+
+    mutable std::shared_mutex mRWMutex;
     android::sp<android::automotive::watchdog::internal::ICarWatchdogServiceForSystem> mService
             GUARDED_BY(mRWMutex);
+    android::sp<WatchdogProcessService> mWatchdogProcessService;
+
+    friend class ServiceManager;
 
     // For unit tests.
+    friend class internal::WatchdogServiceHelperPeer;
+    FRIEND_TEST(WatchdogServiceHelperTest, TestInit);
+    FRIEND_TEST(WatchdogServiceHelperTest,
+                TestErrorOnInitWithErrorFromWatchdogProcessServiceRegistration);
+    FRIEND_TEST(WatchdogServiceHelperTest, TestErrorOnInitWithNullWatchdogProcessServiceInstance);
     FRIEND_TEST(WatchdogServiceHelperTest, TestTerminate);
 };
 
