@@ -111,4 +111,24 @@
             android:layout_height="wrap_content"
             android:text="Lock Now"/>
     </LinearLayout>
+
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal" >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Wipe data"/>
+        <EditText
+            android:id="@+id/wipe_data_flags"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:maxLength="10"
+            android:text=""/>
+        <Button
+            android:id="@+id/wipe_data"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Do it"/>
+    </LinearLayout>
 </LinearLayout>

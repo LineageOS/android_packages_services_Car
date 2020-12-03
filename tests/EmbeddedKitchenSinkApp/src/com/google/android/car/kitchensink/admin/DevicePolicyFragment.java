@@ -28,6 +28,7 @@ import android.os.Bundle;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.text.TextUtils;
+import android.util.DebugUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -74,6 +75,8 @@ public final class DevicePolicyFragment extends Fragment {
     // Other actions
     private Button mRemoveUserButton;
     private Button mLockNowButton;
+    private EditText mWipeDataFlagsText;
+    private Button mWipeDataButton;
 
     @Nullable
     @Override
@@ -108,6 +111,10 @@ public final class DevicePolicyFragment extends Fragment {
 
         mLockNowButton = view.findViewById(R.id.lock_now);
         mLockNowButton.setOnClickListener((v) -> lockNow());
+
+        mWipeDataFlagsText = view.findViewById(R.id.wipe_data_flags);
+        mWipeDataButton = view.findViewById(R.id.wipe_data);
+        mWipeDataButton.setOnClickListener((v) -> wipeData());
 
         updateState();
     }
@@ -170,6 +177,36 @@ public final class DevicePolicyFragment extends Fragment {
     private void lockNow() {
         Log.i(TAG, "Calling lockNow()...");
         run(() -> mDevicePolicyManager.lockNow(), "Locked!");
+    }
+
+    private void wipeData() {
+        new AlertDialog.Builder(getContext())
+            .setMessage("Wiping data is irreversible, are you sure you want to self-destruct?")
+            .setPositiveButton("Yes", (d, w) -> selfDestruct())
+            .show();
+    }
+
+    private void selfDestruct() {
+        int flags = 0;
+        String flagsText = mWipeDataFlagsText.getText().toString();
+        if (!TextUtils.isEmpty(flagsText)) {
+            try {
+                flags = Integer.parseInt(flagsText);
+            } catch (Exception e) {
+                Log.e(TAG, "Invalid wipeData flags: " + flagsText);
+            }
+        }
+
+        String flagsDesc = flags == 0 ? "0" : flags + "("
+                + DebugUtils.flagsToString(DevicePolicyManager.class, "WIPE_", flags) + ")";
+
+        Log.i(TAG, "Calling wipeData(" + flagsDesc + ")...");
+        try {
+            mDevicePolicyManager.wipeData(flags, "SelfDestruct");
+        } catch (Exception e) {
+            Log.e(TAG, "wipeData(" + flagsDesc + ") failed", e);
+            showMessage("wipeData(%s) failed: %s", flagsDesc, e);
+        }
     }
 
     private void run(@NonNull Runnable runnable, @NonNull String successMessage) {

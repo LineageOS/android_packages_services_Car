@@ -129,6 +129,8 @@
     <uses-permission android:name="android.permission.LOCK_DEVICE"/>
     <!-- Used on DEVICE POLICY screen to reset password -->
     <uses-permission android:name="android.permission.RESET_PASSWORD"/>
+    <!-- Used on DEVICE POLICY screen to wipe data -->
+    <uses-permission android:name="android.permission.MASTER_CLEAR"/>
 
     <application android:label="@string/app_title"
          android:icon="@drawable/ic_launcher">
