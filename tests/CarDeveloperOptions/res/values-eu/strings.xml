@@ -2453,7 +2453,7 @@
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"Bateria-mailaren ehunekoan oinarrituta"</string>
     <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Bateria kargatzeko ohiko ordua iritsi aurretik bateria agortzeko arriskua badago aktibatzen da bateria-aurrezlea"</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Bateria-maila <xliff:g id="PERCENT">%1$s</xliff:g> denean aktibatuko da"</string>
-    <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Ezarri programazioa"</string>
+    <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Ezarri programazio bat"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Desaktibatu guztiz kargatu ondoren"</string>
     <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"Telefonoaren bateria <xliff:g id="PERCENT">%1$s</xliff:g> denean, desaktibatu egiten da bateria-aurrezlea"</string>
     <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"Tabletaren bateria <xliff:g id="PERCENT">%1$s</xliff:g> denean, desaktibatu egiten da bateria-aurrezlea"</string>
