@@ -368,7 +368,7 @@
     <string name="profile_info_settings_title" msgid="4855892878512562551">"Profil haqida axborot"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"Hisoblar"</string>
     <string name="location_settings_title" msgid="2707201457572301030">"Joylashuv"</string>
-    <string name="location_settings_master_switch_title" msgid="3108016866082816733">"Joylashuv axborotidan foydalanish"</string>
+    <string name="location_settings_master_switch_title" msgid="3108016866082816733">"Joylashuvni aniqlash"</string>
     <string name="location_settings_summary_location_off" msgid="5563530256978372978">"Yoqilmagan"</string>
     <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
       <item quantity="other">Yoniq – <xliff:g id="COUNT_1">%1$d</xliff:g> ta ilovada joylashuv axborotiga ruxsat bor</item>
