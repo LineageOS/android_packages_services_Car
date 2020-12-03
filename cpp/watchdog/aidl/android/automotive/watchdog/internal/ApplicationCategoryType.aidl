@@ -14,26 +14,25 @@
  * limitations under the License.
  */
 
-package android.automotive.watchdog;
+package android.automotive.watchdog.internal;
 
 /**
- * Structure that describes the number of bytes attribute to each state of the application and
- * system.
+ * Describes the category type of an application.
  */
-@VintfStability
-parcelable PerStateBytes {
+@Backing(type="int")
+enum ApplicationCategoryType {
   /**
-   * Number of bytes attributed to the application foreground mode.
+   * Maps application.
    */
-  long applicationForegroundBytes;
+  MAPS,
 
   /**
-   * Number of bytes attributed to the application background mode.
+   * Audio or Video application.
    */
-  long applicationBackgroundBytes;
+  MEDIA,
 
   /**
-   * Number of bytes attributed to the system garage mode.
+   * Applications that don't fall under the above categories.
    */
-  long systemGarageModeBytes;
+  OTHERS,
 }

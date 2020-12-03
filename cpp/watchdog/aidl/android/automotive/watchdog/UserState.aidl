@@ -18,8 +18,10 @@ package android.automotive.watchdog;
 
 /**
  * Used by ICarWatchdog to describe whether user is started or stopped.
+ *
+ * @deprecated System API specific copy available under android.automotive.watchdog.internal
+ * package.
  */
-
 @VintfStability
 @Backing(type="int")
 enum UserState {

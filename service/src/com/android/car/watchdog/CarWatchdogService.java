@@ -27,10 +27,10 @@ import static com.android.internal.util.function.pooled.PooledLambda.obtainMessa
 
 import android.annotation.NonNull;
 import android.annotation.UserIdInt;
-import android.automotive.watchdog.ICarWatchdogClient;
-import android.automotive.watchdog.PowerCycle;
-import android.automotive.watchdog.StateType;
-import android.automotive.watchdog.UserState;
+import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
+import android.automotive.watchdog.internal.PowerCycle;
+import android.automotive.watchdog.internal.StateType;
+import android.automotive.watchdog.internal.UserState;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.hardware.power.ICarPowerStateListener;
 import android.car.watchdog.ICarWatchdogService;
@@ -64,8 +64,8 @@ import java.util.List;
 /**
  * Service to implement CarWatchdogManager API.
  *
- * <p>CarWatchdogService runs as car watchdog mediator, which checks clients' health status and
- * reports the result to car watchdog server.
+ * <p>CarWatchdogService also checks clients' health status and reports the result to car watchdog
+ * server.
  */
 public final class CarWatchdogService extends ICarWatchdogService.Stub implements CarServiceBase {
 
@@ -75,7 +75,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             { TIMEOUT_CRITICAL, TIMEOUT_MODERATE, TIMEOUT_NORMAL };
 
     private final Context mContext;
-    private final ICarWatchdogClientImpl mWatchdogClient;
+    private final ICarWatchdogServiceForSystemImpl mWatchdogServiceForSystem;
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
     private final CarWatchdogDaemonHelper mCarWatchdogDaemonHelper;
     private final CarWatchdogDaemonHelper.OnConnectionChangeListener mConnectionListener =
@@ -117,7 +117,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     public CarWatchdogService(Context context) {
         mContext = context;
         mCarWatchdogDaemonHelper = new CarWatchdogDaemonHelper(TAG_WATCHDOG);
-        mWatchdogClient = new ICarWatchdogClientImpl(this);
+        mWatchdogServiceForSystem = new ICarWatchdogServiceForSystemImpl(this);
     }
 
     @Override
@@ -268,7 +268,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
     private void registerToDaemon() {
         try {
-            mCarWatchdogDaemonHelper.registerMediator(mWatchdogClient);
+            mCarWatchdogDaemonHelper.registerCarWatchdogService(mWatchdogServiceForSystem);
             if (DEBUG) {
                 Log.d(TAG, "CarWatchdogService registers to car watchdog daemon");
             }
@@ -297,7 +297,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
     private void unregisterFromDaemon() {
         try {
-            mCarWatchdogDaemonHelper.unregisterMediator(mWatchdogClient);
+            mCarWatchdogDaemonHelper.unregisterCarWatchdogService(mWatchdogServiceForSystem);
             if (DEBUG) {
                 Log.d(TAG, "CarWatchdogService unregisters from car watchdog daemon");
             }
@@ -423,8 +423,8 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         }
 
         try {
-            mCarWatchdogDaemonHelper.tellMediatorAlive(mWatchdogClient, clientsNotResponding,
-                    sessionId);
+            mCarWatchdogDaemonHelper.tellCarWatchdogServiceAlive(
+                    mWatchdogServiceForSystem, clientsNotResponding, sessionId);
         } catch (RemoteException | RuntimeException e) {
             Log.w(TAG, "Cannot respond to car watchdog daemon (sessionId=" + sessionId + "): " + e);
         }
@@ -556,10 +556,11 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         }
     }
 
-    private static final class ICarWatchdogClientImpl extends ICarWatchdogClient.Stub {
+    private static final class ICarWatchdogServiceForSystemImpl
+            extends ICarWatchdogServiceForSystem.Stub {
         private final WeakReference<CarWatchdogService> mService;
 
-        private ICarWatchdogClientImpl(CarWatchdogService service) {
+        private ICarWatchdogServiceForSystemImpl(CarWatchdogService service) {
             mService = new WeakReference<>(service);
         }
 
@@ -576,16 +577,6 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         @Override
         public void prepareProcessTermination() {
             Log.w(TAG, "CarWatchdogService is about to be killed by car watchdog daemon");
-        }
-
-        @Override
-        public int getInterfaceVersion() {
-            return this.VERSION;
-        }
-
-        @Override
-        public String getInterfaceHash() {
-            return this.HASH;
         }
     }
 

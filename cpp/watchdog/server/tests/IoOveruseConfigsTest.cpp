@@ -25,12 +25,17 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-namespace {
-
+using android::automotive::watchdog::internal::ApplicationCategoryType;
+using android::automotive::watchdog::internal::ComponentType;
+using android::automotive::watchdog::internal::IoOveruseAlertThreshold;
+using android::automotive::watchdog::internal::IoOveruseConfiguration;
+using android::automotive::watchdog::internal::PerStateIoOveruseThreshold;
 using android::base::Join;
 using android::base::Result;
 using android::base::StringAppendF;
 using android::base::StringPrintf;
+
+namespace {
 
 bool isEqual(const ComponentSpecificConfig& l, const ComponentSpecificConfig& r) {
     return l.generic == r.generic && l.perPackageThresholds == r.perPackageThresholds &&
@@ -43,6 +48,15 @@ bool isEqual(const IoOveruseConfigs& l, const IoOveruseConfigs& r) {
             l.perCategoryThresholds == r.perCategoryThresholds &&
             l.vendorPackagePrefixes == r.vendorPackagePrefixes &&
             l.alertThresholds == r.alertThresholds;
+}
+
+std::string toString(const PerStateIoOveruseThreshold& thresholds) {
+    return StringPrintf("name=%s, foregroundBytes=%" PRId64 ", backgroundBytes=%" PRId64
+                        ", garageModeBytes=%" PRId64,
+                        String8(thresholds.name).c_str(),
+                        thresholds.perStateWriteBytes.applicationForegroundBytes,
+                        thresholds.perStateWriteBytes.applicationBackgroundBytes,
+                        thresholds.perStateWriteBytes.systemGarageModeBytes);
 }
 
 std::string toString(const ComponentSpecificConfig& config) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,25 @@
  * limitations under the License.
  */
 
-package android.automotive.watchdog;
+package android.automotive.watchdog.internal;
 
 /**
- * Used by ICarWatchdog to describe the change type.
- *
- * @deprecated System API specific copy available under android.automotive.watchdog.internal
- * package.
+ * Structure that describes the number of bytes attribute to each state of the application and
+ * system.
  */
-@VintfStability
-@Backing(type="int")
-enum StateType {
+parcelable PerStateBytes {
   /**
-   * Device power status change.
+   * Number of bytes attributed to the application foreground mode.
    */
-  POWER_CYCLE,
+  long applicationForegroundBytes;
 
   /**
-   * User state change.
+   * Number of bytes attributed to the application background mode.
    */
-  USER_STATE,
+  long applicationBackgroundBytes;
 
   /**
-   * Boot phase change.
+   * Number of bytes attributed to the system garage mode.
    */
-  BOOT_PHASE,
+  long systemGarageModeBytes;
 }

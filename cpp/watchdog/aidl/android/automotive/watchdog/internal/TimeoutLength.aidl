@@ -14,27 +14,30 @@
  * limitations under the License.
  */
 
-package android.automotive.watchdog;
+package android.automotive.watchdog.internal;
 
 /**
- * Describes the component for which the I/O overuse configuration update was received by
- * ICarWatchdog or the component a package belongs to.
+ * Used by ICarWatchdogMediator to determine if the clients are in bad state. Watchdog server will
+ * decide that the clients are in bad state when they don't respond within the timeout. Different
+ * timeouts are used by different clients based on how responsive they should be.
  */
-@VintfStability
 @Backing(type="int")
-enum ComponentType {
+enum TimeoutLength {
   /**
-   * System component.
+   * Timeout is 3 seconds.
+   * This is for services which should be responsive.
    */
-  SYSTEM,
+  TIMEOUT_CRITICAL,
 
   /**
-   * Vendor component.
+   * Timeout is 5 seconds.
+   * This is for services which are relatively responsive.
    */
-  VENDOR,
+  TIMEOUT_MODERATE,
 
   /**
-   * Third-party component.
+   * Timeout is 10 seconds.
+   * This is for all other services.
    */
-  THIRD_PARTY,
+  TIMEOUT_NORMAL,
 }

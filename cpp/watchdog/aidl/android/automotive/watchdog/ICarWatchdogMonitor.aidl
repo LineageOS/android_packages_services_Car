@@ -18,6 +18,10 @@ package android.automotive.watchdog;
 
 import android.automotive.watchdog.ICarWatchdogClient;
 
+/**
+ * @deprecated System API specific copy available under android.automotive.watchdog.internal
+ * package.
+ */
 @VintfStability
 oneway interface ICarWatchdogMonitor {
   /**

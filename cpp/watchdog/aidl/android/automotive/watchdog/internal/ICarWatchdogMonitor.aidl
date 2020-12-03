@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,15 @@
  * limitations under the License.
  */
 
-package android.automotive.watchdog;
+package android.automotive.watchdog.internal;
 
-/**
- * Used by ICarWatchdog to describe the change type.
- *
- * @deprecated System API specific copy available under android.automotive.watchdog.internal
- * package.
- */
-@VintfStability
-@Backing(type="int")
-enum StateType {
+oneway interface ICarWatchdogMonitor {
   /**
-   * Device power status change.
+   * Called when the client has not responded within the given timeout.
+   * Watchdog server calls this method, requesting the monitor to dump process information of the
+   * clients.
+   *
+   * @param pids                Array of process id of the clients.
    */
-  POWER_CYCLE,
-
-  /**
-   * User state change.
-   */
-  USER_STATE,
-
-  /**
-   * Boot phase change.
-   */
-  BOOT_PHASE,
+  void onClientsNotResponding(in int[] pids);
 }

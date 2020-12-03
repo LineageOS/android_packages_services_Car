@@ -18,8 +18,10 @@ package android.automotive.watchdog;
 
 /**
  * Used by ICarWatchdog to describe the device power status.
+ *
+ * @deprecated System API specific copy available under android.automotive.watchdog.internal
+ * package.
  */
-
 @VintfStability
 @Backing(type="int")
 enum PowerCycle {

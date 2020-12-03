@@ -17,12 +17,10 @@
 package android.automotive.watchdog;
 
 /**
- * Used by ICarWatchdog and ICarWatchdogMediator to determine if the clients are in bad state.
- * Watchdog server will decide that the clients are in bad state when they don't respond within
- * the timeout. Different timeouts are used by different clients based on how responsive they
- * should be.
+ * Used by ICarWatchdog to determine if the clients are in bad state. Watchdog server will decide
+ * that the clients are in bad state when they don't respond within the timeout. Different timeouts
+ * are used by different clients based on how responsive they should be.
  */
-
 @VintfStability
 @Backing(type="int")
 enum TimeoutLength {

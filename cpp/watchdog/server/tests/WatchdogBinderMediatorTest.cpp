@@ -14,19 +14,14 @@
  * limitations under the License.
  */
 
+#include "MockIoOveruseMonitor.h"
+#include "MockWatchdogPerfService.h"
+#include "MockWatchdogProcessService.h"
 #include "WatchdogBinderMediator.h"
 
-#include <android/automotive/watchdog/BootPhase.h>
-#include <android/automotive/watchdog/ComponentType.h>
-#include <android/automotive/watchdog/IoOveruseConfiguration.h>
-#include <android/automotive/watchdog/PowerCycle.h>
-#include <android/automotive/watchdog/UserState.h>
 #include <binder/IBinder.h>
-#include <binder/IPCThreadState.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <private/android_filesystem_config.h>
-#include <utils/RefBase.h>
 
 #include <errno.h>
 
@@ -36,55 +31,12 @@ namespace watchdog {
 
 using android::sp;
 using android::base::Result;
-using binder::Status;
+using android::binder::Status;
 using ::testing::_;
+using ::testing::NiceMock;
 using ::testing::Return;
 
 namespace {
-
-class MockWatchdogProcessService : public WatchdogProcessService {
-public:
-    MockWatchdogProcessService() : WatchdogProcessService(nullptr) {}
-    MOCK_METHOD(Result<void>, dump, (int fd, const Vector<String16>& args), (override));
-
-    MOCK_METHOD(Status, registerClient,
-                (const sp<ICarWatchdogClient>& client, TimeoutLength timeout), (override));
-    MOCK_METHOD(Status, unregisterClient, (const sp<ICarWatchdogClient>& client), (override));
-    MOCK_METHOD(Status, registerMediator, (const sp<ICarWatchdogClient>& mediator), (override));
-    MOCK_METHOD(Status, unregisterMediator, (const sp<ICarWatchdogClient>& mediator), (override));
-    MOCK_METHOD(Status, registerMonitor, (const sp<ICarWatchdogMonitor>& monitor), (override));
-    MOCK_METHOD(Status, unregisterMonitor, (const sp<ICarWatchdogMonitor>& monitor), (override));
-    MOCK_METHOD(Status, tellClientAlive, (const sp<ICarWatchdogClient>& client, int32_t sessionId),
-                (override));
-    MOCK_METHOD(Status, tellMediatorAlive,
-                (const sp<ICarWatchdogClient>& mediator,
-                 const std::vector<int32_t>& clientsNotResponding, int32_t sessionId),
-                (override));
-    MOCK_METHOD(Status, tellDumpFinished,
-                (const android::sp<ICarWatchdogMonitor>& monitor, int32_t pid), (override));
-    MOCK_METHOD(Status, notifyPowerCycleChange, (PowerCycle cycle), (override));
-    MOCK_METHOD(Status, notifyUserStateChange, (userid_t userId, UserState state), (override));
-};
-
-class MockWatchdogPerfService : public WatchdogPerfService {
-public:
-    MockWatchdogPerfService() {}
-    ~MockWatchdogPerfService() {}
-    MOCK_METHOD(Result<void>, start, (), (override));
-    MOCK_METHOD(void, terminate, (), (override));
-    MOCK_METHOD(Result<void>, onBootFinished, (), (override));
-    MOCK_METHOD(Result<void>, onCustomCollection, (int fd, const Vector<String16>& args),
-                (override));
-    MOCK_METHOD(Result<void>, onDump, (int fd), (override));
-};
-
-class MockIoOveruseMonitor : public IoOveruseMonitor {
-public:
-    MockIoOveruseMonitor() {}
-    ~MockIoOveruseMonitor() {}
-    MOCK_METHOD(Result<void>, updateIoOveruseConfiguration,
-                (ComponentType type, const IoOveruseConfiguration& config), (override));
-};
 
 class MockICarWatchdogClient : public ICarWatchdogClient {
 public:
@@ -95,41 +47,27 @@ public:
     MOCK_METHOD(std::string, getInterfaceHash, (), (override));
 };
 
-class MockICarWatchdogMonitor : public ICarWatchdogMonitor {
-public:
-    MOCK_METHOD(Status, onClientsNotResponding, (const std::vector<int32_t>& pids), (override));
-    MOCK_METHOD(IBinder*, onAsBinder, (), (override));
-    MOCK_METHOD(int32_t, getInterfaceVersion, (), (override));
-    MOCK_METHOD(std::string, getInterfaceHash, (), (override));
-};
+}  // namespace
 
-class ScopedChangeCallingUid : public RefBase {
+namespace internal {
+
+class WatchdogBinderMediatorPeer {
 public:
-    explicit ScopedChangeCallingUid(uid_t uid) {
-        mCallingUid = IPCThreadState::self()->getCallingUid();
-        mCallingPid = IPCThreadState::self()->getCallingPid();
-        if (mCallingUid == uid) {
-            return;
-        }
-        mChangedUid = uid;
-        int64_t token = ((int64_t)mChangedUid << 32) | mCallingPid;
-        IPCThreadState::self()->restoreCallingIdentity(token);
-    }
-    ~ScopedChangeCallingUid() {
-        if (mCallingUid == mChangedUid) {
-            return;
-        }
-        int64_t token = ((int64_t)mCallingUid << 32) | mCallingPid;
-        IPCThreadState::self()->restoreCallingIdentity(token);
+    explicit WatchdogBinderMediatorPeer(const sp<WatchdogBinderMediator>& mediator) :
+          mMediator(mediator) {}
+    ~WatchdogBinderMediatorPeer() { mMediator.clear(); }
+
+    Result<void> init(const android::sp<WatchdogProcessService>& watchdogProcessService,
+                      const android::sp<WatchdogPerfService>& watchdogPerfService,
+                      const android::sp<IoOveruseMonitor>& ioOveruseMonitor) {
+        return mMediator->init(watchdogProcessService, watchdogPerfService, ioOveruseMonitor);
     }
 
 private:
-    uid_t mCallingUid;
-    uid_t mChangedUid;
-    pid_t mCallingPid;
+    sp<WatchdogBinderMediator> mMediator;
 };
 
-}  // namespace
+}  // namespace internal
 
 class WatchdogBinderMediatorTest : public ::testing::Test {
 protected:
@@ -137,31 +75,45 @@ protected:
         mMockWatchdogProcessService = new MockWatchdogProcessService();
         mMockWatchdogPerfService = new MockWatchdogPerfService();
         mMockIoOveruseMonitor = new MockIoOveruseMonitor();
-        mWatchdogBinderMediator = new WatchdogBinderMediator();
-        mWatchdogBinderMediator->init(mMockWatchdogProcessService, mMockWatchdogPerfService,
-                                      mMockIoOveruseMonitor);
+        mWatchdogBinderMediator = new WatchdogBinderMediator(
+                [](const char*, const android::sp<android::IBinder>&) -> Result<void> {
+                    return Result<void>{};
+                });
+        internal::WatchdogBinderMediatorPeer mediatorPeer(mWatchdogBinderMediator);
+
+        auto result = mediatorPeer.init(mMockWatchdogProcessService, mMockWatchdogPerfService,
+                                        mMockIoOveruseMonitor);
+        ASSERT_TRUE(result.ok()) << result.error().message();
     }
     virtual void TearDown() {
-        mWatchdogBinderMediator->terminate();
-        ASSERT_EQ(mWatchdogBinderMediator->mWatchdogProcessService, nullptr);
-        ASSERT_EQ(mWatchdogBinderMediator->mWatchdogPerfService, nullptr);
-        ASSERT_EQ(mWatchdogBinderMediator->mIoOveruseMonitor, nullptr);
         mMockWatchdogProcessService.clear();
         mMockWatchdogPerfService.clear();
         mMockIoOveruseMonitor.clear();
         mWatchdogBinderMediator.clear();
-        mScopedChangeCallingUid.clear();
     }
-    // Sets calling UID to imitate System's process.
-    void setSystemCallingUid() { mScopedChangeCallingUid = new ScopedChangeCallingUid(AID_SYSTEM); }
+
     sp<MockWatchdogProcessService> mMockWatchdogProcessService;
     sp<MockWatchdogPerfService> mMockWatchdogPerfService;
     sp<MockIoOveruseMonitor> mMockIoOveruseMonitor;
     sp<WatchdogBinderMediator> mWatchdogBinderMediator;
-    sp<ScopedChangeCallingUid> mScopedChangeCallingUid;
 };
 
-TEST_F(WatchdogBinderMediatorTest, TestErrorOnNullptrDuringInit) {
+TEST_F(WatchdogBinderMediatorTest, TestInit) {
+    sp<WatchdogBinderMediator> mediator = new WatchdogBinderMediator(
+            [](const char*, const android::sp<android::IBinder>&) -> Result<void> {
+                return Result<void>{};
+            });
+    auto result = mediator->init(new MockWatchdogProcessService(), new MockWatchdogPerfService(),
+                                 new MockIoOveruseMonitor());
+    ASSERT_TRUE(result.ok()) << result.error().message();
+
+    ASSERT_NE(mediator->mWatchdogProcessService, nullptr);
+    ASSERT_NE(mediator->mWatchdogPerfService, nullptr);
+    ASSERT_NE(mediator->mIoOveruseMonitor, nullptr);
+    ASSERT_NE(mediator->mWatchdogInternalHandler, nullptr);
+}
+
+TEST_F(WatchdogBinderMediatorTest, TestErrorOnInitWithNullptrArgs) {
     sp<WatchdogBinderMediator> mediator = new WatchdogBinderMediator();
     ASSERT_FALSE(
             mediator->init(nullptr, new MockWatchdogPerfService(), new MockIoOveruseMonitor()).ok())
@@ -175,6 +127,20 @@ TEST_F(WatchdogBinderMediatorTest, TestErrorOnNullptrDuringInit) {
                     .ok())
             << "No error returned on nullptr I/O overuse monitor";
     ASSERT_FALSE(mediator->init(nullptr, nullptr, nullptr).ok()) << "No error returned on nullptr";
+}
+
+TEST_F(WatchdogBinderMediatorTest, TestTerminate) {
+    ASSERT_NE(mWatchdogBinderMediator->mWatchdogProcessService, nullptr);
+    ASSERT_NE(mWatchdogBinderMediator->mWatchdogPerfService, nullptr);
+    ASSERT_NE(mWatchdogBinderMediator->mIoOveruseMonitor, nullptr);
+    ASSERT_NE(mWatchdogBinderMediator->mWatchdogInternalHandler, nullptr);
+
+    mWatchdogBinderMediator->terminate();
+
+    ASSERT_EQ(mWatchdogBinderMediator->mWatchdogProcessService, nullptr);
+    ASSERT_EQ(mWatchdogBinderMediator->mWatchdogPerfService, nullptr);
+    ASSERT_EQ(mWatchdogBinderMediator->mIoOveruseMonitor, nullptr);
+    ASSERT_EQ(mWatchdogBinderMediator->mWatchdogInternalHandler, nullptr);
 }
 
 TEST_F(WatchdogBinderMediatorTest, TestHandlesEmptyDumpArgs) {
@@ -224,70 +190,6 @@ TEST_F(WatchdogBinderMediatorTest, TestUnregisterClient) {
     ASSERT_TRUE(status.isOk()) << status;
 }
 
-TEST_F(WatchdogBinderMediatorTest, TestRegisterMediator) {
-    setSystemCallingUid();
-    sp<ICarWatchdogClient> mediator = new MockICarWatchdogClient();
-    EXPECT_CALL(*mMockWatchdogProcessService, registerMediator(mediator))
-            .WillOnce(Return(Status::ok()));
-    Status status = mWatchdogBinderMediator->registerMediator(mediator);
-    ASSERT_TRUE(status.isOk()) << status;
-}
-
-TEST_F(WatchdogBinderMediatorTest, TestErrorOnRegisterMediatorWithNonSystemCallingUid) {
-    sp<ICarWatchdogClient> mediator = new MockICarWatchdogClient();
-    EXPECT_CALL(*mMockWatchdogProcessService, registerMediator(mediator)).Times(0);
-    Status status = mWatchdogBinderMediator->registerMediator(mediator);
-    ASSERT_FALSE(status.isOk()) << status;
-}
-
-TEST_F(WatchdogBinderMediatorTest, TestUnregisterMediator) {
-    setSystemCallingUid();
-    sp<ICarWatchdogClient> mediator = new MockICarWatchdogClient();
-    EXPECT_CALL(*mMockWatchdogProcessService, unregisterMediator(mediator))
-            .WillOnce(Return(Status::ok()));
-    Status status = mWatchdogBinderMediator->unregisterMediator(mediator);
-    ASSERT_TRUE(status.isOk()) << status;
-}
-
-TEST_F(WatchdogBinderMediatorTest, TestErrorOnUnegisterMediatorWithNonSystemCallingUid) {
-    sp<ICarWatchdogClient> mediator = new MockICarWatchdogClient();
-    EXPECT_CALL(*mMockWatchdogProcessService, unregisterMediator(mediator)).Times(0);
-    Status status = mWatchdogBinderMediator->unregisterMediator(mediator);
-    ASSERT_FALSE(status.isOk()) << status;
-}
-
-TEST_F(WatchdogBinderMediatorTest, TestRegisterMonitor) {
-    setSystemCallingUid();
-    sp<ICarWatchdogMonitor> monitor = new MockICarWatchdogMonitor();
-    EXPECT_CALL(*mMockWatchdogProcessService, registerMonitor(monitor))
-            .WillOnce(Return(Status::ok()));
-    Status status = mWatchdogBinderMediator->registerMonitor(monitor);
-    ASSERT_TRUE(status.isOk()) << status;
-}
-
-TEST_F(WatchdogBinderMediatorTest, TestErrorOnRegisterMonitorWithNonSystemCallingUid) {
-    sp<ICarWatchdogMonitor> monitor = new MockICarWatchdogMonitor();
-    EXPECT_CALL(*mMockWatchdogProcessService, registerMonitor(monitor)).Times(0);
-    Status status = mWatchdogBinderMediator->registerMonitor(monitor);
-    ASSERT_FALSE(status.isOk()) << status;
-}
-
-TEST_F(WatchdogBinderMediatorTest, TestUnregisterMonitor) {
-    setSystemCallingUid();
-    sp<ICarWatchdogMonitor> monitor = new MockICarWatchdogMonitor();
-    EXPECT_CALL(*mMockWatchdogProcessService, unregisterMonitor(monitor))
-            .WillOnce(Return(Status::ok()));
-    Status status = mWatchdogBinderMediator->unregisterMonitor(monitor);
-    ASSERT_TRUE(status.isOk()) << status;
-}
-
-TEST_F(WatchdogBinderMediatorTest, TestErrorOnUnregisterMonitorWithNonSystemCallingUid) {
-    sp<ICarWatchdogMonitor> monitor = new MockICarWatchdogMonitor();
-    EXPECT_CALL(*mMockWatchdogProcessService, unregisterMonitor(monitor)).Times(0);
-    Status status = mWatchdogBinderMediator->unregisterMonitor(monitor);
-    ASSERT_FALSE(status.isOk()) << status;
-}
-
 TEST_F(WatchdogBinderMediatorTest, TestTellClientAlive) {
     sp<ICarWatchdogClient> client = new MockICarWatchdogClient();
     EXPECT_CALL(*mMockWatchdogProcessService, tellClientAlive(client, 456))
@@ -296,116 +198,39 @@ TEST_F(WatchdogBinderMediatorTest, TestTellClientAlive) {
     ASSERT_TRUE(status.isOk()) << status;
 }
 
+TEST_F(WatchdogBinderMediatorTest, TestRegisterMediator) {
+    Status status = mWatchdogBinderMediator->registerMediator(nullptr);
+    ASSERT_EQ(status.exceptionCode(), Status::EX_UNSUPPORTED_OPERATION);
+}
+
+TEST_F(WatchdogBinderMediatorTest, TestUnregisterMediator) {
+    Status status = mWatchdogBinderMediator->unregisterMediator(nullptr);
+    ASSERT_EQ(status.exceptionCode(), Status::EX_UNSUPPORTED_OPERATION);
+}
+
+TEST_F(WatchdogBinderMediatorTest, TestRegisterMonitor) {
+    Status status = mWatchdogBinderMediator->registerMonitor(nullptr);
+    ASSERT_EQ(status.exceptionCode(), Status::EX_UNSUPPORTED_OPERATION);
+}
+
+TEST_F(WatchdogBinderMediatorTest, TestUnregisterMonitor) {
+    Status status = mWatchdogBinderMediator->unregisterMonitor(nullptr);
+    ASSERT_EQ(status.exceptionCode(), Status::EX_UNSUPPORTED_OPERATION);
+}
+
 TEST_F(WatchdogBinderMediatorTest, TestTellMediatorAlive) {
-    sp<ICarWatchdogClient> mediator = new MockICarWatchdogClient();
-    std::vector clientsNotResponding = {123};
-    EXPECT_CALL(*mMockWatchdogProcessService,
-                tellMediatorAlive(mediator, clientsNotResponding, 456))
-            .WillOnce(Return(Status::ok()));
-    Status status = mWatchdogBinderMediator->tellMediatorAlive(mediator, clientsNotResponding, 456);
-    ASSERT_TRUE(status.isOk()) << status;
+    Status status = mWatchdogBinderMediator->tellMediatorAlive(nullptr, {}, 0);
+    ASSERT_EQ(status.exceptionCode(), Status::EX_UNSUPPORTED_OPERATION);
 }
 
 TEST_F(WatchdogBinderMediatorTest, TestTellDumpFinished) {
-    sp<ICarWatchdogMonitor> monitor = new MockICarWatchdogMonitor();
-    EXPECT_CALL(*mMockWatchdogProcessService, tellDumpFinished(monitor, 456))
-            .WillOnce(Return(Status::ok()));
-    Status status = mWatchdogBinderMediator->tellDumpFinished(monitor, 456);
-    ASSERT_TRUE(status.isOk()) << status;
+    Status status = mWatchdogBinderMediator->tellDumpFinished(nullptr, 0);
+    ASSERT_EQ(status.exceptionCode(), Status::EX_UNSUPPORTED_OPERATION);
 }
 
-TEST_F(WatchdogBinderMediatorTest, TestErrorOnNotifyStateChangeWithNonSystemCallingUid) {
-    StateType type = StateType::POWER_CYCLE;
-    EXPECT_CALL(*mMockWatchdogProcessService, notifyPowerCycleChange(_)).Times(0);
-    Status status =
-            mWatchdogBinderMediator
-                    ->notifySystemStateChange(type,
-                                              static_cast<int32_t>(PowerCycle::POWER_CYCLE_SUSPEND),
-                                              -1);
-    ASSERT_FALSE(status.isOk()) << status;
-}
-
-TEST_F(WatchdogBinderMediatorTest, TestNotifyPowerCycleChange) {
-    setSystemCallingUid();
-    StateType type = StateType::POWER_CYCLE;
-    EXPECT_CALL(*mMockWatchdogProcessService,
-                notifyPowerCycleChange(PowerCycle::POWER_CYCLE_SUSPEND))
-            .WillOnce(Return(Status::ok()));
-    Status status =
-            mWatchdogBinderMediator
-                    ->notifySystemStateChange(type,
-                                              static_cast<int32_t>(PowerCycle::POWER_CYCLE_SUSPEND),
-                                              -1);
-    ASSERT_TRUE(status.isOk()) << status;
-}
-
-TEST_F(WatchdogBinderMediatorTest, TestErrorOnNotifyPowerCycleChangeWithInvalidArgs) {
-    EXPECT_CALL(*mMockWatchdogProcessService, notifyPowerCycleChange(_)).Times(0);
-    StateType type = StateType::POWER_CYCLE;
-
-    Status status = mWatchdogBinderMediator->notifySystemStateChange(type, -1, -1);
-    ASSERT_FALSE(status.isOk()) << status;
-
-    status = mWatchdogBinderMediator->notifySystemStateChange(type, 3000, -1);
-    ASSERT_FALSE(status.isOk()) << status;
-}
-
-TEST_F(WatchdogBinderMediatorTest, TestNotifyUserStateChange) {
-    setSystemCallingUid();
-    StateType type = StateType::USER_STATE;
-    EXPECT_CALL(*mMockWatchdogProcessService,
-                notifyUserStateChange(234567, UserState::USER_STATE_STOPPED))
-            .WillOnce(Return(Status::ok()));
-    Status status =
-            mWatchdogBinderMediator
-                    ->notifySystemStateChange(type, 234567,
-                                              static_cast<int32_t>(UserState::USER_STATE_STOPPED));
-    ASSERT_TRUE(status.isOk()) << status;
-}
-
-TEST_F(WatchdogBinderMediatorTest, TestErrorOnNotifyUserStateChangeWithInvalidArgs) {
-    EXPECT_CALL(*mMockWatchdogProcessService, notifyUserStateChange(_, _)).Times(0);
-    StateType type = StateType::USER_STATE;
-
-    Status status = mWatchdogBinderMediator->notifySystemStateChange(type, 234567, -1);
-    ASSERT_FALSE(status.isOk()) << status;
-
-    status = mWatchdogBinderMediator->notifySystemStateChange(type, 234567, 3000);
-    ASSERT_FALSE(status.isOk()) << status;
-}
-
-TEST_F(WatchdogBinderMediatorTest, TestNotifyBootPhaseChange) {
-    setSystemCallingUid();
-    StateType type = StateType::BOOT_PHASE;
-    EXPECT_CALL(*mMockWatchdogPerfService, onBootFinished()).WillOnce(Return(Result<void>()));
-    Status status = mWatchdogBinderMediator->notifySystemStateChange(
-        type, static_cast<int32_t>(BootPhase::BOOT_COMPLETED), -1);
-    ASSERT_TRUE(status.isOk()) << status;
-}
-
-
-TEST_F(WatchdogBinderMediatorTest, TestNotifyBootPhaseChangeWithNonBootCompletedPhase) {
-    setSystemCallingUid();
-    StateType type = StateType::BOOT_PHASE;
-    EXPECT_CALL(*mMockWatchdogPerfService, onBootFinished()).Times(0);
-    Status status = mWatchdogBinderMediator->notifySystemStateChange(type, 0, -1);
-    ASSERT_TRUE(status.isOk()) << status;
-}
-
-TEST_F(WatchdogBinderMediatorTest, TestUpdateIoOveruseConfiguration) {
-    setSystemCallingUid();
-    EXPECT_CALL(*mMockIoOveruseMonitor, updateIoOveruseConfiguration(ComponentType::SYSTEM, _))
-            .WillOnce(Return(Result<void>()));
-    Status status = mWatchdogBinderMediator->updateIoOveruseConfiguration(ComponentType::SYSTEM,
-                                                                          IoOveruseConfiguration{});
-    ASSERT_TRUE(status.isOk()) << status;
-}
-
-TEST_F(WatchdogBinderMediatorTest, TestErrorOnUpdateIoOveruseConfigurationWithNonSystemCallingUid) {
-    EXPECT_CALL(*mMockIoOveruseMonitor, updateIoOveruseConfiguration(_, _)).Times(0);
-    Status status = mWatchdogBinderMediator->updateIoOveruseConfiguration(ComponentType::SYSTEM,
-                                                                          IoOveruseConfiguration{});
-    ASSERT_FALSE(status.isOk()) << status;
+TEST_F(WatchdogBinderMediatorTest, TestNotifySystemStateChange) {
+    Status status = mWatchdogBinderMediator->notifySystemStateChange(StateType::POWER_CYCLE, 0, 0);
+    ASSERT_EQ(status.exceptionCode(), Status::EX_UNSUPPORTED_OPERATION);
 }
 
 }  // namespace watchdog

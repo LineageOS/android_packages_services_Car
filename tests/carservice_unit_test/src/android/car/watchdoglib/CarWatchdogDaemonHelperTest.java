@@ -24,11 +24,11 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.testng.Assert.assertThrows;
 
-import android.automotive.watchdog.ICarWatchdog;
-import android.automotive.watchdog.ICarWatchdogClient;
-import android.automotive.watchdog.ICarWatchdogMonitor;
-import android.automotive.watchdog.PowerCycle;
-import android.automotive.watchdog.StateType;
+import android.automotive.watchdog.internal.ICarWatchdog;
+import android.automotive.watchdog.internal.ICarWatchdogMonitor;
+import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
+import android.automotive.watchdog.internal.PowerCycle;
+import android.automotive.watchdog.internal.StateType;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -49,8 +49,7 @@ import java.util.ArrayList;
  */
 public class CarWatchdogDaemonHelperTest {
 
-    private static final String CAR_WATCHDOG_DAEMON_INTERFACE =
-            "android.automotive.watchdog.ICarWatchdog/default";
+    private static final String CAR_WATCHDOG_DAEMON_INTERFACE = "carwatchdogd_system";
 
     @Mock CarWatchdogDaemonHelper.OnConnectionChangeListener mListener;
     @Mock private IBinder mBinder = new Binder();
@@ -93,21 +92,12 @@ public class CarWatchdogDaemonHelperTest {
     }
 
     @Test
-    public void testIndirectCall_RegisterUnregisterClient() throws Exception {
-        ICarWatchdogClient client = new ICarWatchdogClient.Default();
-        mCarWatchdogDaemonHelper.registerClient(client, 0);
-        verify(mFakeCarWatchdog).registerClient(client, 0);
-        mCarWatchdogDaemonHelper.unregisterClient(client);
-        verify(mFakeCarWatchdog).unregisterClient(client);
-    }
-
-    @Test
     public void testIndirectCall_RegisterUnregisterMediator() throws Exception {
-        ICarWatchdogClient mediator = new ICarWatchdogClient.Default();
-        mCarWatchdogDaemonHelper.registerMediator(mediator);
-        verify(mFakeCarWatchdog).registerMediator(mediator);
-        mCarWatchdogDaemonHelper.unregisterMediator(mediator);
-        verify(mFakeCarWatchdog).unregisterMediator(mediator);
+        ICarWatchdogServiceForSystem service = new ICarWatchdogServiceForSystem.Default();
+        mCarWatchdogDaemonHelper.registerCarWatchdogService(service);
+        verify(mFakeCarWatchdog).registerCarWatchdogService(service);
+        mCarWatchdogDaemonHelper.unregisterCarWatchdogService(service);
+        verify(mFakeCarWatchdog).unregisterCarWatchdogService(service);
     }
 
     @Test
@@ -120,18 +110,11 @@ public class CarWatchdogDaemonHelperTest {
     }
 
     @Test
-    public void testIndirectCall_TellClientAlive() throws Exception {
-        ICarWatchdogClient client = new ICarWatchdogClient.Default();
-        mCarWatchdogDaemonHelper.tellClientAlive(client, 123456);
-        verify(mFakeCarWatchdog).tellClientAlive(client, 123456);
-    }
-
-    @Test
-    public void testIndirectCall_TellMediatorAlive() throws Exception {
-        ICarWatchdogClient mediator = new ICarWatchdogClient.Default();
+    public void testIndirectCall_TellCarWatchdogServiceAlive() throws Exception {
+        ICarWatchdogServiceForSystem service = new ICarWatchdogServiceForSystem.Default();
         int[] pids = new int[]{111};
-        mCarWatchdogDaemonHelper.tellMediatorAlive(mediator, pids, 123456);
-        verify(mFakeCarWatchdog).tellMediatorAlive(mediator, pids, 123456);
+        mCarWatchdogDaemonHelper.tellCarWatchdogServiceAlive(service, pids, 123456);
+        verify(mFakeCarWatchdog).tellCarWatchdogServiceAlive(service, pids, 123456);
     }
 
     @Test
@@ -151,70 +134,62 @@ public class CarWatchdogDaemonHelperTest {
 
     /*
      * Test that the {@link CarWatchdogDaemonHelper} throws {@code IllegalArgumentException} when
-     * trying to register already-registered client again.
+     * trying to register already-registered service again.
      */
     @Test
     public void testMultipleRegistration() throws Exception {
-        ICarWatchdogClient client = new ICarWatchdogClientImpl();
-        mCarWatchdogDaemonHelper.registerMediator(client);
+        ICarWatchdogServiceForSystem service = new ICarWatchdogServiceForSystemImpl();
+        mCarWatchdogDaemonHelper.registerCarWatchdogService(service);
         assertThrows(IllegalArgumentException.class,
-                () -> mCarWatchdogDaemonHelper.registerMediator(client));
+                () -> mCarWatchdogDaemonHelper.registerCarWatchdogService(service));
     }
 
     /*
      * Test that the {@link CarWatchdogDaemonHelper} throws {@code IllegalArgumentException} when
-     * trying to unregister not-registered client.
+     * trying to unregister not-registered service.
      */
     @Test
     public void testInvalidUnregistration() throws Exception {
-        ICarWatchdogClient client = new ICarWatchdogClientImpl();
+        ICarWatchdogServiceForSystem service = new ICarWatchdogServiceForSystemImpl();
         assertThrows(IllegalArgumentException.class,
-                () -> mCarWatchdogDaemonHelper.unregisterMediator(client));
+                () -> mCarWatchdogDaemonHelper.unregisterCarWatchdogService(service));
     }
 
     // FakeCarWatchdog mimics ICarWatchdog daemon in local process.
     private final class FakeCarWatchdog extends ICarWatchdog.Default {
 
-        private final ArrayList<ICarWatchdogClient> mClients = new ArrayList<>();
+        private final ArrayList<ICarWatchdogServiceForSystem> mServices = new ArrayList<>();
 
         @Override
-        public void registerMediator(ICarWatchdogClient mediator) throws RemoteException {
-            for (ICarWatchdogClient client : mClients) {
-                if (client == mediator) {
-                    throw new IllegalArgumentException("Already registered mediator");
+        public void registerCarWatchdogService(
+                ICarWatchdogServiceForSystem service) throws RemoteException {
+            for (ICarWatchdogServiceForSystem curService : mServices) {
+                if (curService == service) {
+                    throw new IllegalArgumentException("Already registered service");
                 }
             }
-            mClients.add(mediator);
+            mServices.add(service);
         }
 
         @Override
-        public void unregisterMediator(ICarWatchdogClient mediator) throws RemoteException {
-            for (ICarWatchdogClient client : mClients) {
-                if (client == mediator) {
-                    mClients.remove(mediator);
+        public void unregisterCarWatchdogService(
+                ICarWatchdogServiceForSystem service) throws RemoteException {
+            for (ICarWatchdogServiceForSystem curService : mServices) {
+                if (curService == service) {
+                    mServices.remove(service);
                     return;
                 }
             }
-            throw new IllegalArgumentException("Not registered mediator");
+            throw new IllegalArgumentException("Not registered service");
         }
 
     }
 
-    private final class ICarWatchdogClientImpl extends ICarWatchdogClient.Stub {
+    private final class ICarWatchdogServiceForSystemImpl extends ICarWatchdogServiceForSystem.Stub {
         @Override
         public void checkIfAlive(int sessionId, int timeout) {}
 
         @Override
         public void prepareProcessTermination() {}
-
-        @Override
-        public int getInterfaceVersion() {
-            return this.VERSION;
-        }
-
-        @Override
-        public String getInterfaceHash() {
-            return this.HASH;
-        }
     }
 }

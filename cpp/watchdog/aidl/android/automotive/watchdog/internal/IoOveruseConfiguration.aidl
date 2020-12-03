@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package android.automotive.watchdog;
+package android.automotive.watchdog.internal;
 
-import android.automotive.watchdog.PerStateIoOveruseThreshold;
-import android.automotive.watchdog.IoOveruseAlertThreshold;
+import android.automotive.watchdog.internal.PerStateIoOveruseThreshold;
+import android.automotive.watchdog.internal.IoOveruseAlertThreshold;
 
 /**
  * Structure that describes the disk I/O overuse configuration defined for system, vendor, or
  * third-party packages.
  */
-@VintfStability
 parcelable IoOveruseConfiguration {
   /**
    * Component-level I/O overuse thresholds. These thresholds are used when a package isn't

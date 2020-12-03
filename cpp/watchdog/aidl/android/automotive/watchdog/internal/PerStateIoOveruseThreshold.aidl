@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package android.automotive.watchdog;
+package android.automotive.watchdog.internal;
 
-import android.automotive.watchdog.PerStateBytes;
+import android.automotive.watchdog.internal.PerStateBytes;
 
 /**
  * Structure that describes the disk I/O overuse threshold for each application and system state of
  * a package or packages that fall under a component or category.
  */
-@VintfStability
 parcelable PerStateIoOveruseThreshold {
   /**
    * Contains
