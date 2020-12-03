@@ -19,8 +19,8 @@
 #include <gmock/gmock.h>
 #include "ClientConfig.pb.h"
 #include "Common.h"
-#include "LocalPrebuiltGraph.h"
-#include "PrebuiltEngineInterfaceImpl.h"
+#include "GrpcGraph.h"
+#include "GrpcGraphServerImpl.h"
 
 using ::android::automotive::computepipe::runner::ClientConfig;
 
@@ -31,35 +31,34 @@ namespace graph {
 
 namespace {
 
-enum LOCAL_PREBUILD_GRAPH_FUZZ_FUNCS { GRAPH_RUNNER_BASE_ENUM, RUNNER_COMP_BASE_ENUM };
+enum GRPC_GRAPH_FUZZ_FUNCS {
+    GRAPH_RUNNER_BASE_ENUM,
+    DISPATCH_PIXEL_DATA,            /* verify dispatchPixelData */
+    DISPATCH_SERIALIZED_DATA,       /* dispatchSerializedData */
+    DISPATCH_GRAPH_TERMINATION_MSG, /* dispatchGraphTerminationMessage */
+    RUNNER_COMP_BASE_ENUM
+};
+
+bool DoInitialization() {
+    // Initialization goes here
+    std::shared_ptr<GrpcGraphServerImpl> server;
+    server = std::make_shared<GrpcGraphServerImpl>(runner::test::kAddress);
+    std::thread t = std::thread([server]() { server->startServer(); });
+    t.detach();
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    return true;
+}
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
-    // Initialization goes here
-    bool graphHasTerminated = false;
-    int numOutputStreamCallbacksReceived[4] = {0, 0, 0, 0};
-
-    PrebuiltEngineInterfaceImpl callback;
-    callback.SetGraphTerminationCallback(
-            [&graphHasTerminated](Status, std::string) { graphHasTerminated = true; });
-
-    // Add multiple pixel stream callback functions to see if all of them register.
-    callback.SetPixelCallback([&numOutputStreamCallbacksReceived](int streamIndex, int64_t,
-                                                                  const runner::InputFrame&) {
-        ASSERT_TRUE(streamIndex == 0 || streamIndex == 1);
-        numOutputStreamCallbacksReceived[streamIndex]++;
-    });
-
-    // Add multiple stream callback functions to see if all of them register.
-    callback.SetSerializedStreamCallback(
-            [&numOutputStreamCallbacksReceived](int streamIndex, int64_t, std::string&&) {
-                ASSERT_TRUE(streamIndex == 2 || streamIndex == 3);
-                numOutputStreamCallbacksReceived[streamIndex]++;
-            });
-
-    std::shared_ptr<PrebuiltEngineInterface> engineInterface =
-            std::static_pointer_cast<PrebuiltEngineInterface, PrebuiltEngineInterfaceImpl>(
-                    std::make_shared<PrebuiltEngineInterfaceImpl>(callback));
-    PrebuiltGraph* graph = GetLocalGraphFromLibrary("libstubgraphimpl.so", engineInterface);
+    static bool initialized = DoInitialization();
+    std::shared_ptr<PrebuiltEngineInterfaceImpl> engine;
+    std::unique_ptr<GrpcGraph> graph = std::make_unique<GrpcGraph>();
+    engine = std::make_shared<PrebuiltEngineInterfaceImpl>();
+    Status status = graph->initialize(runner::test::kAddress, engine);
+    if (status != Status::SUCCESS) {
+        LOG(ERROR) << "Initialization of GrpcGraph failed, aborting...";
+        exit(1);
+    }
 
     // Fuzz goes here
     FuzzedDataProvider fdp(data, size);
@@ -136,6 +135,21 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                 ClientConfig e(0, 0, 0, maxOutputPacketsPerStream, proto::ProfilingType::DISABLED);
                 e.setPhaseState(runner::PhaseState::ENTRY);
                 graph->handleResetPhase(e);
+                break;
+            }
+            case DISPATCH_PIXEL_DATA: {
+                runner::InputFrame inputFrame(0, 0, PixelFormat::RGB, 0, nullptr);
+                graph->dispatchPixelData(/*streamIndex =*/1, /*timestamp =*/0,
+                                         /*inputFrame =*/inputFrame);
+                break;
+            }
+            case DISPATCH_SERIALIZED_DATA: {
+                graph->dispatchSerializedData(/*streamIndex =*/2, /* timestamp =*/0, /* data =*/"");
+                break;
+            }
+            case DISPATCH_GRAPH_TERMINATION_MSG: {
+                uint8_t status = fdp.ConsumeIntegralInRange<uint8_t>(0, Status::STATUS_MAX - 1);
+                graph->dispatchGraphTerminationMessage(static_cast<Status>(status), "");
                 break;
             }
             default:
