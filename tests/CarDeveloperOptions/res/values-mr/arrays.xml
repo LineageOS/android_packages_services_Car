@@ -38,7 +38,16 @@
     <item msgid="5827960506924849753">"10 मिनिटे"</item>
     <item msgid="6677424950124253938">"30 मिनिटे"</item>
   </string-array>
-    <!-- no translation found for dream_timeout_entries:7 (8271452751594598661) -->
+  <string-array name="dream_timeout_entries">
+    <item msgid="6487043225269853023">"कधीही नाही"</item>
+    <item msgid="2517785806387977252">"15 सेकंद"</item>
+    <item msgid="6347954399441173672">"३० सेकंद"</item>
+    <item msgid="4858305253279921789">"एक मिनिट"</item>
+    <item msgid="8109273437140044073">"दोन मिनिटे"</item>
+    <item msgid="2788593551142462622">"5 मिनिटे"</item>
+    <item msgid="8012672183888404961">"10 मिनिटे"</item>
+    <item msgid="8271452751594598661">"३० मिनिटे"</item>
+  </string-array>
   <string-array name="lock_after_timeout_entries">
     <item msgid="2232921187970351881">"तत्काळ"</item>
     <item msgid="2038544972632026612">"5 सेकंद"</item>
@@ -50,17 +59,47 @@
     <item msgid="811192536981678974">"10 मिनिटे"</item>
     <item msgid="7258394417241706272">"30 मिनिटे"</item>
   </string-array>
-    <!-- no translation found for entries_font_size:0 (2340391964816059553) -->
-    <!-- no translation found for entries_font_size:0 (6490061470416867723) -->
-    <!-- no translation found for entries_font_size:2 (1714184661981538355) -->
-    <!-- no translation found for entries_font_size:2 (1678068858001018666) -->
-    <!-- no translation found for wifi_status:3 (5848277343965362748) -->
-    <!-- no translation found for wifi_status_with_ssid:1 (6816207058895999545) -->
-    <!-- no translation found for wifi_status_with_ssid:3 (7547609081339573756) -->
-    <!-- no translation found for wifi_status_with_ssid:4 (5145158315060185414) -->
+  <string-array name="entries_font_size">
+    <item msgid="2340391964816059553">"लहान"</item>
+    <item msgid="591935967183159581">"डीफॉल्ट"</item>
+    <item msgid="1714184661981538355">"मोठा"</item>
+    <item msgid="6195563047686707484">"सर्वात मोठा"</item>
+  </string-array>
+  <string-array name="wifi_status">
+    <item msgid="1304883790721412351"></item>
+    <item msgid="4157625910392775808">"स्कॅन करत आहे…"</item>
+    <item msgid="5597394826455877834">"कनेक्ट करत आहे..."</item>
+    <item msgid="5848277343965362748">"ऑथेंटिकेट करत आहे…"</item>
+    <item msgid="3391238031431440676">"IP पत्ता मिळवत आहे…"</item>
+    <item msgid="5257597310494000224">"कनेक्ट केलेले आहे"</item>
+    <item msgid="8472497592913050396">"निलंबित"</item>
+    <item msgid="1228072488815999109">"डिस्कनेक्ट करत आहे..."</item>
+    <item msgid="7253087004422991731">"डिस्कनेक्ट केले"</item>
+    <item msgid="4169850917304751227">"अयशस्वी"</item>
+    <item msgid="6266658166690831131">"अवरोधित"</item>
+    <item msgid="4517230805854909775">"तात्पुरते खराब कनेक्शन टाळत आहे"</item>
+  </string-array>
+  <string-array name="wifi_status_with_ssid">
+    <item msgid="4853670665485437464"></item>
+    <item msgid="6816207058895999545">"स्कॅन करत आहे…"</item>
+    <item msgid="8058143476674427024">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g> वर कनेक्ट करत आहे…"</item>
+    <item msgid="7547609081339573756">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g> सह ऑथेंटिकेट करत आहे…"</item>
+    <item msgid="5145158315060185414">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g> वरून आयपी अ‍ॅड्रेस मिळवत आहे…"</item>
+    <item msgid="3283243151651124831">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g> वर कनेक्ट केले आहे"</item>
+    <item msgid="6600156231416890902">"निलंबित"</item>
+    <item msgid="4133290864821295785">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g> वरून डिस्कनेक्ट करत आहे…"</item>
+    <item msgid="3980154971187953257">"डिस्कनेक्ट केले"</item>
+    <item msgid="2847316776634969068">"अयशस्वी"</item>
+    <item msgid="4390990424746035383">"अवरोधित"</item>
+    <item msgid="3618248791367063949">"तात्पुरते खराब कनेक्शन टाळत आहे"</item>
+  </string-array>
     <!-- no translation found for wifi_tether_security:0 (5586343370515598801) -->
     <!-- no translation found for wifi_tether_security:1 (6136336549994615745) -->
-    <!-- no translation found for wifi_p2p_wps_setup:0 (5390235347963255303) -->
+  <string-array name="wifi_p2p_wps_setup">
+    <item msgid="5390235347963255303">"पुश बटण"</item>
+    <item msgid="7401896200768713930">"पीअर डिव्हाइसवरील पिन"</item>
+    <item msgid="4526848028011846710">"या डिव्हाइसवरील पिन"</item>
+  </string-array>
   <string-array name="wifi_p2p_status">
     <item msgid="8741947238021758201">"कनेक्ट केलेले आहे"</item>
     <item msgid="983792611851499732">"आमंत्रित केले"</item>
@@ -82,8 +121,13 @@
     <item msgid="1644506614010085798">"४"</item>
     <item msgid="3132506679404897150">"५"</item>
   </string-array>
-    <!-- no translation found for wifi_signal:1 (7882129634982603782) -->
-    <!-- no translation found for wifi_signal:4 (999948812884919584) -->
+  <string-array name="wifi_signal">
+    <item msgid="1709949377823900951">"खराब"</item>
+    <item msgid="7882129634982603782">"वाईट"</item>
+    <item msgid="6457357501905996224">"चांगले"</item>
+    <item msgid="405271628162918841">"उत्तम"</item>
+    <item msgid="999948812884919584">"उत्कृष्ट"</item>
+  </string-array>
   <string-array name="data_usage_data_range">
     <item msgid="8986775481492954015">"अंतिम 30 दिवस"</item>
     <item msgid="3211287705232736964">"वापर चक्र सेट करा..."</item>
@@ -119,7 +163,10 @@
     <item msgid="7330627471456865502">"MSCHAPV2"</item>
     <item msgid="6255179395132581882">"GTC"</item>
   </string-array>
-    <!-- no translation found for wifi_ip_settings:1 (4377002609760712163) -->
+  <string-array name="wifi_ip_settings">
+    <item msgid="2717196390555072244">"DHCP"</item>
+    <item msgid="4377002609760712163">"स्थिर"</item>
+  </string-array>
   <string-array name="wifi_proxy_settings">
     <item msgid="9032900195127165132">"काहीही नाही"</item>
     <item msgid="1464741437353223198">"व्यक्तिचलित"</item>
@@ -234,16 +281,78 @@
     <item msgid="2633626056029384366">"बनावट स्थान"</item>
     <item msgid="8356842191824684631">"वाचण्‍याचा स्टोरेज"</item>
     <item msgid="5671906070163291500">"लिहिण्‍याचा स्टोरेज"</item>
-    <item msgid="2791955098549340418">"स्क्रीन चालू करा"</item>
+    <item msgid="2791955098549340418">"स्क्रीन सुरू करा"</item>
     <item msgid="5599435119609178367">"खाती मिळवा"</item>
     <item msgid="1165623660533024666">"पार्श्वभूमीमध्ये चालवा"</item>
     <item msgid="6423861043647911030">"प्रवेशयोग्यता आकारमान"</item>
   </string-array>
-    <!-- no translation found for app_ops_labels:3 (7836406246005211990) -->
-    <!-- no translation found for app_ops_labels:4 (3951439024549922598) -->
-    <!-- no translation found for app_ops_labels:8 (3597797992398484655) -->
-    <!-- no translation found for app_ops_labels:20 (3037159047591081136) -->
-    <!-- no translation found for app_ops_labels:41 (2464189519136248621) -->
+  <string-array name="app_ops_labels">
+    <item msgid="7892361636570580123">"स्थान"</item>
+    <item msgid="6656077694190491067">"स्थान"</item>
+    <item msgid="8790228218278477369">"स्थान"</item>
+    <item msgid="7836406246005211990">"व्हायब्रेट"</item>
+    <item msgid="3951439024549922598">"संपर्क वाचा"</item>
+    <item msgid="8802152411647068">"संपर्क सुधारित करा"</item>
+    <item msgid="229544934599698735">"कॉल लॉग वाचा"</item>
+    <item msgid="7396102294405899613">"कॉल लॉग सुधारित करा"</item>
+    <item msgid="3597797992398484655">"कॅलेंडर वाचा"</item>
+    <item msgid="2705975774250907343">"कॅलेंडर सुधारित करा"</item>
+    <item msgid="4668747371441932697">"स्थान"</item>
+    <item msgid="1487578921720243646">"पोस्ट सूचना"</item>
+    <item msgid="4636080349724146638">"स्थान"</item>
+    <item msgid="673510900286463926">"फोनवर कॉल करा"</item>
+    <item msgid="542083422784609790">"SMS/MMS वाचा"</item>
+    <item msgid="1033780373029588436">"SMS/MMS लिहा"</item>
+    <item msgid="5647111115517787488">"SMS/MMS प्राप्त करा"</item>
+    <item msgid="8591105601108455893">"SMS/MMS प्राप्त करा"</item>
+    <item msgid="7730995008517841903">"SMS/MMS प्राप्त करा"</item>
+    <item msgid="2613033109026626086">"SMS/MMS प्राप्त करा"</item>
+    <item msgid="3037159047591081136">"एसएमएस/MMS पाठवा"</item>
+    <item msgid="4726682243833913568">"SMS/MMS वाचा"</item>
+    <item msgid="6555678522277865572">"SMS/MMS लिहा"</item>
+    <item msgid="6981734935578130884">"सेटिंग्ज सुधारित करा"</item>
+    <item msgid="8705854389991425629">"शीर्षस्थानी रेखांकित करा"</item>
+    <item msgid="5861356020344153651">"सूचना अ‍ॅक्सेस करा"</item>
+    <item msgid="78432174621628659">"कॅमेरा"</item>
+    <item msgid="3986116419882154794">"ऑडिओ रेकॉर्ड करा"</item>
+    <item msgid="4516840825756409490">"ऑडिओ प्ले करा"</item>
+    <item msgid="6811712502798183957">"क्लिपबोर्ड वाचा"</item>
+    <item msgid="2780369012602289114">"क्लिपबोर्ड सुधारित करा"</item>
+    <item msgid="2331359440170850868">"मीडिया बटणे"</item>
+    <item msgid="6133599737122751231">"ऑडिओ फोकस"</item>
+    <item msgid="6844485713404805301">"प्रमुख व्हॉल्यूम"</item>
+    <item msgid="1600379420669104929">"आवाज व्हॉल्यूम"</item>
+    <item msgid="6296768210470214866">"रिंग व्हॉल्यूम"</item>
+    <item msgid="510690696071629241">"मीडिया व्हॉल्यूम"</item>
+    <item msgid="406861638631430109">"अलार्म व्हॉल्यूम"</item>
+    <item msgid="4715864795872233884">"सूचना व्हॉल्यूम"</item>
+    <item msgid="2311478519251301183">"ब्लूटूथ व्हॉल्यूम"</item>
+    <item msgid="5133991377896747027">"सक्रिय ठेवा"</item>
+    <item msgid="2464189519136248621">"स्थान"</item>
+    <item msgid="2062677934050803037">"स्थान"</item>
+    <item msgid="1735171933192715957">"वापर आकडेवारी मिळवा"</item>
+    <item msgid="1014093788778383554">"मायक्रोफोन निःशब्द/सशब्द करा"</item>
+    <item msgid="4199297950608622850">"टोस्ट दर्शवा"</item>
+    <item msgid="2527962435313398821">"प्रोजेक्‍ट मीडिया"</item>
+    <item msgid="5117506254221861929">"VPN सक्रिय करा"</item>
+    <item msgid="8291198322681891160">"लिहिण्याचा वॉलपेपर"</item>
+    <item msgid="7106921284621230961">"सहाय्य रचना"</item>
+    <item msgid="4496533640894624799">"सहाय्य स्क्रीनशॉट"</item>
+    <item msgid="2598847264853993611">"फोन स्थिती वाचा"</item>
+    <item msgid="9215610846802973353">"व्हॉइसमेल जोडा"</item>
+    <item msgid="9186411956086478261">"सिप वापरा"</item>
+    <item msgid="6884763100104539558">"केल्या जाणार्‍या कॉलवर प्रक्रिया करत आहे"</item>
+    <item msgid="125513972170580692">"फिंगरप्रिंट"</item>
+    <item msgid="2556071024281275619">"शरीर सेन्सर"</item>
+    <item msgid="617168514928339387">"सेल ब्रॉडकास्ट वाचा"</item>
+    <item msgid="7134693570516523585">"बनावट स्थान"</item>
+    <item msgid="7224489175375229399">"वाचण्‍याचा स्टोरेज"</item>
+    <item msgid="8472735063903258202">"लिहिण्‍याचा स्टोरेज"</item>
+    <item msgid="4069276819909595110">"स्क्रीन सुरू करा"</item>
+    <item msgid="1228338896751121025">"खाती मिळवा"</item>
+    <item msgid="3181581793459233672">"पार्श्वभूमीमध्ये चालवा"</item>
+    <item msgid="2340936043025374076">"प्रवेशयोग्यता आकारमान"</item>
+  </string-array>
   <string-array name="long_press_timeout_selector_titles">
     <item msgid="8950313530602254787">"लघु"</item>
     <item msgid="4816511817309094890">"मध्‍यम"</item>
@@ -260,7 +369,13 @@
     <item msgid="4627069151979553527">"Cursive"</item>
     <item msgid="6896773537705206194">"Small capitals"</item>
   </string-array>
-    <!-- no translation found for captioning_font_size_selector_titles:3 (2784236342175159295) -->
+  <string-array name="captioning_font_size_selector_titles">
+    <item msgid="1680223634161592855">"खूप लहान"</item>
+    <item msgid="5091603983404027034">"लहान"</item>
+    <item msgid="176844712416932112">"सामान्य"</item>
+    <item msgid="2784236342175159295">"मोठा"</item>
+    <item msgid="218913203203160606">"खूप मोठा"</item>
+  </string-array>
   <string-array name="captioning_edge_type_selector_titles">
     <item msgid="3865198759294188069">"डीफॉल्ट"</item>
     <item msgid="6488643537808152001">"काहीही नाही"</item>
@@ -275,7 +390,14 @@
     <item msgid="1874668269931014581">"75%"</item>
     <item msgid="6462911487571123954">"१००%"</item>
   </string-array>
-    <!-- no translation found for captioning_preset_selector_titles:2 (5891360837786277638) -->
+  <string-array name="captioning_preset_selector_titles">
+    <item msgid="326819345272910536">"अ‍ॅप डीफॉल्ट वापरा"</item>
+    <item msgid="8611890312638868524">"काळ्‍यावर पांढरे"</item>
+    <item msgid="5891360837786277638">"पांढर्‍यावर काळे"</item>
+    <item msgid="2798457065945456853">"काळ्यावर पिवळे"</item>
+    <item msgid="5799049811524553967">"निळ्यावर पिवळे"</item>
+    <item msgid="3673930830658169860">"कस्टम"</item>
+  </string-array>
   <string-array name="vpn_types_long">
     <item msgid="6566768880689730097">"PPTP VPN"</item>
     <item msgid="1349760781118368659">"पूर्व-शेअर की सह L2TP/IPSec VPN"</item>
@@ -288,15 +410,32 @@
     <item msgid="2958623927055120839">"काहीही नाही"</item>
     <item msgid="1157046369795346308">"व्यक्तिचलित"</item>
   </string-array>
-    <!-- no translation found for vpn_states:4 (9135049670787351881) -->
+  <string-array name="vpn_states">
+    <item msgid="5408915841694583740">"डिस्कनेक्ट केले"</item>
+    <item msgid="8754480102834556765">"प्रारंभ करत आहे…"</item>
+    <item msgid="3351334355574270250">"कनेक्ट करत आहे..."</item>
+    <item msgid="8303882153995748352">"कनेक्ट केलेले आहे"</item>
+    <item msgid="9135049670787351881">"टाइमआउट"</item>
+    <item msgid="2124868417182583926">"अयशस्वी"</item>
+  </string-array>
   <string-array name="security_settings_premium_sms_values">
     <item msgid="1164265643455394443">"विचारा"</item>
     <item msgid="7718817231348607934">"कधीही अनुमती देऊ नका"</item>
     <item msgid="8184570120217958741">"नेहमी अनुमती द्या"</item>
   </string-array>
-    <!-- no translation found for ram_states:0 (708247372474061274) -->
-    <!-- no translation found for ram_states:4 (1567326459340152525) -->
-    <!-- no translation found for proc_stats_memory_states:3 (8577246509202964244) -->
+  <string-array name="ram_states">
+    <item msgid="708247372474061274">"सामान्य"</item>
+    <item msgid="5101233285497327432">"मध्यम"</item>
+    <item msgid="1555861583162930714">"कमी"</item>
+    <item msgid="1719683776264798117">"जटिल"</item>
+    <item msgid="1567326459340152525">"?"</item>
+  </string-array>
+  <string-array name="proc_stats_memory_states">
+    <item msgid="3474232046138139454">"सामान्य"</item>
+    <item msgid="6107138933849816768">"मध्यम"</item>
+    <item msgid="182695359839047859">"कमी"</item>
+    <item msgid="8577246509202964244">"गंभीर"</item>
+  </string-array>
   <string-array name="proc_stats_process_states">
     <item msgid="7560955722349181440">"कायम"</item>
     <item msgid="167418068739176448">"आघाडीच्या ॲक्टिव्हिटी"</item>
@@ -309,9 +448,9 @@
     <item msgid="6610439017684111046">"प्राप्तकर्ता"</item>
     <item msgid="7367606086319921117">"होम"</item>
     <item msgid="3344660712396741826">"शेवटच्या ॲक्टिव्हिटी"</item>
-    <item msgid="5006559348883303865">"कॅशे केलेली (ॲक्टिव्हिटी)"</item>
-    <item msgid="8633480732468137525">"कॅशे केलेला (ॲक्टिव्हिटी क्लायंट)"</item>
-    <item msgid="6248998242443333892">"कॅश   केलेला (रिक्त)"</item>
+    <item msgid="5006559348883303865">"कॅशे  केलेली (ॲक्टिव्हिटी)"</item>
+    <item msgid="8633480732468137525">"कॅशे  केलेला (ॲक्टिव्हिटी क्लायंट)"</item>
+    <item msgid="6248998242443333892">"कॅशे    केलेला (रिक्त)"</item>
   </string-array>
   <string-array name="color_picker">
     <item msgid="3151827842194201728">"हिरवट निळा"</item>
