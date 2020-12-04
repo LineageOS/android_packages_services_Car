@@ -125,6 +125,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private final TelephonyManager mTelephonyManager;
     private final AudioManager mAudioManager;
     private final boolean mUseDynamicRouting;
+    private final @CarVolume.CarVolumeListVersion int mAudioVolumeAdjustmentContextsVersion;
     private final boolean mPersistMasterMuteState;
     private final CarAudioSettings mCarAudioSettings;
     private final CarVolume mCarVolume;
@@ -235,7 +236,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         mCarVolumeCallbackHandler = new CarVolumeCallbackHandler();
         mCarAudioSettings = new CarAudioSettings(mContext.getContentResolver());
         mAudioZoneIdToUserIdMapping = new SparseIntArray();
-        mCarVolume = new CarVolume(CarVolume.AUDIO_CONTEXT_VOLUME_PRIORITY_V1);
+        mAudioVolumeAdjustmentContextsVersion =
+                mContext.getResources().getInteger(R.integer.audioVolumeAdjustmentContextsVersion);
+        mCarVolume = new CarVolume(mAudioVolumeAdjustmentContextsVersion);
     }
 
     /**
@@ -299,6 +302,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         writer.println("\tRun in legacy mode? " + (!mUseDynamicRouting));
         writer.println("\tPersist master mute state? " + mPersistMasterMuteState);
         writer.println("\tMaster muted? " + mAudioManager.isMasterMute());
+        writer.println("\tVolume context priority list version: "
+                + mAudioVolumeAdjustmentContextsVersion);
         if (mCarAudioConfigurationPath != null) {
             writer.println("\tCar audio configuration path: " + mCarAudioConfigurationPath);
         }

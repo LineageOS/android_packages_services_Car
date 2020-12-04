@@ -18,6 +18,7 @@ package com.android.car.audio;
 
 import static com.android.car.audio.CarAudioService.DEFAULT_AUDIO_CONTEXT;
 
+import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.media.AudioAttributes.AttributeUsage;
 import android.media.AudioPlaybackConfiguration;
@@ -26,7 +27,10 @@ import android.telephony.TelephonyManager;
 import android.util.SparseIntArray;
 
 import com.android.car.audio.CarAudioContext.AudioContext;
+import com.android.internal.util.Preconditions;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -40,7 +44,8 @@ final class CarVolume {
     private static final int CONTEXT_HEIGHEST_PRIORITY = 0;
     private static final int CONTEXT_NOT_PRIORITIZED = -1;
 
-    static final int[] AUDIO_CONTEXT_VOLUME_PRIORITY_V1 = {
+    private static final int VERSION_ONE = 1;
+    private static final int[] AUDIO_CONTEXT_VOLUME_PRIORITY_V1 = {
             CarAudioContext.NAVIGATION,
             CarAudioContext.CALL,
             CarAudioContext.MUSIC,
@@ -57,7 +62,8 @@ final class CarVolume {
             // CarAudioService and is not expected to be used.
     };
 
-    static final int[] AUDIO_CONTEXT_VOLUME_PRIORITY_V2 = {
+    private static final int VERSION_TWO = 2;
+    private static final int[] AUDIO_CONTEXT_VOLUME_PRIORITY_V2 = {
             CarAudioContext.CALL,
             CarAudioContext.MUSIC,
             CarAudioContext.ANNOUNCEMENT,
@@ -74,6 +80,24 @@ final class CarVolume {
      */
     CarVolume(@NonNull @AudioContext int[] contextVolumePriority) {
         Objects.requireNonNull(contextVolumePriority);
+        for (int priority = CONTEXT_HEIGHEST_PRIORITY;
+                priority < contextVolumePriority.length; priority++) {
+            mVolumePriorityByAudioContext.append(contextVolumePriority[priority], priority);
+        }
+    }
+
+    /**
+     * Creates a car volume with the specify context priority version number
+     *
+     * @param audioVolumeAdjustmentContextsVersion car volume priority list version number.
+     */
+    CarVolume(@CarVolumeListVersion int audioVolumeAdjustmentContextsVersion) {
+        Preconditions.checkArgumentInRange(audioVolumeAdjustmentContextsVersion, 1, 2,
+                "audioVolumeAdjustmentContextsVersion");
+        @AudioContext int[] contextVolumePriority = AUDIO_CONTEXT_VOLUME_PRIORITY_V1;
+        if (audioVolumeAdjustmentContextsVersion == VERSION_TWO) {
+            contextVolumePriority = AUDIO_CONTEXT_VOLUME_PRIORITY_V2;
+        }
         for (int priority = CONTEXT_HEIGHEST_PRIORITY;
                 priority < contextVolumePriority.length; priority++) {
             mVolumePriorityByAudioContext.append(contextVolumePriority[priority], priority);
@@ -133,5 +157,13 @@ final class CarVolume {
         }
 
         return currentContext;
+    }
+
+    @IntDef({
+            VERSION_ONE,
+            VERSION_TWO
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface CarVolumeListVersion {
     }
 }
