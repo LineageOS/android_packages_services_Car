@@ -1450,7 +1450,7 @@
     <string name="storage_internal_forget_confirm_title" msgid="331032276130605241">"<xliff:g id="NAME">^1</xliff:g> മറക്കണോ?"</string>
     <string name="storage_internal_forget_confirm" msgid="3052483375203727176">"<xliff:g id="NAME">^1</xliff:g> എന്നതിൽ സംഭരിച്ചിരിക്കുന്ന എല്ലാ ആപ്സും ഫോട്ടോകളും ഡാറ്റയും ശാശ്വതമായി നഷ്ടപ്പെടും."</string>
     <string name="storage_detail_apps" msgid="8154648512504196820">"ആപ്സ്"</string>
-    <string name="storage_detail_images" msgid="6996202225684468964">"ചിത്രങ്ങൾ"</string>
+    <string name="storage_detail_images" msgid="6996202225684468964">"Images"</string>
     <string name="storage_detail_videos" msgid="6030983354721080849">"വീഡിയോകൾ"</string>
     <string name="storage_detail_audio" msgid="6011098436589663944">"ഓഡിയോ"</string>
     <string name="storage_detail_cached" msgid="5761648455067920683">"കാഷെ ചെയ്‌ത ഡാറ്റ"</string>
@@ -3792,7 +3792,7 @@
     <string name="zen_access_revoke_warning_dialog_title" msgid="6850994585577513299">"\'ശല്യപ്പെടുത്തരുത്\' എന്നതിലേക്ക് <xliff:g id="APP">%1$s</xliff:g> ആപ്പിനുള്ള ആക്സസ് പിൻവലിക്കണോ?"</string>
     <string name="zen_access_revoke_warning_dialog_summary" msgid="3487422193181311403">"ഈ ആപ്പ് സൃഷ്ടിച്ചിട്ടുള്ള എല്ലാ \'ശല്യപ്പെടുത്തരുത്\' നിയമങ്ങളും നീക്കംചെയ്യപ്പെടും."</string>
     <string name="ignore_optimizations_on" msgid="4373971641328943551">"ഓപ്റ്റിമൈസ് ചെയ്യരുത്"</string>
-    <string name="ignore_optimizations_off" msgid="4372289432580282870">"ഓപ്‌റ്റിമൈസ് ചെയ്യുക"</string>
+    <string name="ignore_optimizations_off" msgid="4372289432580282870">"Optimize"</string>
     <string name="ignore_optimizations_on_desc" msgid="2904484569799521559">"നിങ്ങളുടെ ബാറ്ററി ചാർജ് കൂടുതൽ വേഗത്തിൽ തീർന്നേക്കാം. പശ്ചാത്തലത്തിൽ ബാറ്ററി ഉപയോഗിക്കുന്നതിൽ നിന്ന് ആപ്പ് ഇനി നിയന്ത്രിക്കപ്പെടില്ല."</string>
     <string name="ignore_optimizations_off_desc" msgid="5598702251817814289">"ബാറ്ററിക്ക് കൂടുതൽ ഈടുകിട്ടുന്നതിന് ശുപാർശ ചെയ്യുന്നു"</string>
     <string name="ignore_optimizations_title" msgid="7924345545276166305">"ബാറ്ററി ഒപ്റ്റിമൈസേഷനുകൾ അവഗണിക്കാൻ <xliff:g id="APP">%s</xliff:g> എന്നതിനെ അനുവദിക്കണോ?"</string>

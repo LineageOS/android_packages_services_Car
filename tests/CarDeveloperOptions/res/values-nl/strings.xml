@@ -467,7 +467,7 @@
     <string name="security_settings_fingerprint_enroll_dialog_delete" msgid="4312297515772004580">"Verwijderen"</string>
     <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"Raak de sensor aan"</string>
     <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"Plaats je vinger op de sensor en til deze op nadat je een trilling hebt gevoeld."</string>
-    <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"Til op en raak opnieuw aan"</string>
+    <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"Raak de sensor aan"</string>
     <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"Raak de sensor meerdere keren aan om de verschillende delen van je vingerafdruk toe te voegen."</string>
     <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"Vingerafdruk toegevoegd"</string>
     <string name="security_settings_fingerprint_enroll_finish_message" msgid="5862643337893923347">"Als je dit icoon ziet, kun je je vingerafdruk gebruiken voor identificatie of om een aankoop goed te keuren."</string>
@@ -1239,7 +1239,7 @@
     <string name="screen_timeout_title" msgid="150117777762864112">"Scherm wordt uitgeschakeld"</string>
     <string name="screen_timeout_summary" msgid="8644192861778491060">"Na <xliff:g id="TIMEOUT_DESCRIPTION">%1$s</xliff:g> inactiviteit"</string>
     <string name="wallpaper_settings_title" msgid="347390905813529607">"Achtergrond"</string>
-    <string name="style_and_wallpaper_settings_title" msgid="8898539141152705754">"Stijlen en achtergronden"</string>
+    <string name="style_and_wallpaper_settings_title" msgid="8898539141152705754">"Stijl en achtergronden"</string>
     <string name="wallpaper_settings_summary_default" msgid="2626880032742784599">"Standaard"</string>
     <string name="wallpaper_settings_summary_custom" msgid="8950504698015331202">"Aangepast"</string>
     <string name="wallpaper_suggestion_title" msgid="3012130414886743201">"Achtergrond wijzigen"</string>
@@ -2629,9 +2629,9 @@
     <string name="remove_account_label" msgid="5885425720323823387">"Account verwijderen"</string>
     <string name="header_add_an_account" msgid="8482614556580804956">"Account toevoegen"</string>
     <string name="really_remove_account_title" msgid="4166512362915154319">"Account verwijderen?"</string>
-    <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"Als dit account wordt verwijderd, worden ook alle accountberichten, contacten en andere gegevens van de tablet verwijderd."</string>
-    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Als dit account wordt verwijderd, worden ook alle account­berichten, contacten en andere gegevens van de telefoon verwijderd."</string>
-    <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"Als dit account wordt verwijderd, worden ook alle bijbehorende berichten, contacten en andere gegevens van het apparaat verwijderd."</string>
+    <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"Als dit je account verwijdert, worden ook alle accountberichten, contacten en andere gegevens van de tablet verwijderd."</string>
+    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Als je dit account verwijdert, worden ook alle account­berichten, contacten en andere gegevens van de telefoon verwijderd."</string>
+    <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"Als je dit account verwijdert, worden ook alle bijbehorende berichten, contacten en andere gegevens van het apparaat verwijderd."</string>
     <string name="remove_account_failed" msgid="491458185327106966">"Deze wijziging is niet toegestaan door je beheerder"</string>
     <string name="cant_sync_dialog_title" msgid="5483419398223189881">"Kan niet handmatig synchroniseren"</string>
     <string name="cant_sync_dialog_message" msgid="3467126947262857534">"Synchroniseren is op dit moment uitgeschakeld voor dit item. Als je deze instelling wilt wijzigen, schakel je achtergrondgegevens en automatisch synchroniseren tijdelijk in."</string>
@@ -2871,7 +2871,7 @@
     <string name="user_add_profile_item_title" msgid="4932743891449790664">"Beperkt profiel"</string>
     <string name="user_add_user_title" msgid="2320897397066676472">"Nieuwe gebruiker toevoegen?"</string>
     <string name="user_add_user_message_long" msgid="686637203224195465">"Je kunt dit apparaat met anderen delen door extra gebruikers te maken. Elke gebruiker heeft een eigen profiel met zelf gekozen apps, achtergrond, enzovoort. Gebruikers kunnen ook apparaatinstellingen aanpassen die van invloed zijn op alle gebruikers, zoals wifi.\n\nWanneer je een nieuwe gebruiker toevoegt, moet die persoon een eigen profiel instellen.\n\nElke gebruiker kan apps updaten voor alle andere gebruikers. Toegankelijkheidsinstellingen en -services worden mogelijk niet overgezet naar de nieuwe gebruiker."</string>
-    <string name="user_add_user_message_short" msgid="1802594476285458254">"Wanneer je een nieuwe gebruiker toevoegt, moet die persoon zijn eigen profiel instellen.\n\nElke gebruiker kan apps updaten voor alle andere gebruikers."</string>
+    <string name="user_add_user_message_short" msgid="1802594476285458254">"Als je een nieuwe gebruiker toevoegt, moet die persoon een eigen profiel instellen.\n\nElke gebruiker kan apps updaten voor alle andere gebruikers."</string>
     <string name="user_setup_dialog_title" msgid="6748950002206392396">"Gebruiker nu instellen?"</string>
     <string name="user_setup_dialog_message" msgid="2988559933258353919">"Zorg ervoor dat de persoon het apparaat kan overnemen om een profiel in te stellen"</string>
     <string name="user_setup_profile_dialog_message" msgid="7611900802824048526">"Profiel nu instellen?"</string>
@@ -3862,7 +3862,7 @@
     <string name="storage_summary_with_sdcard" msgid="8742907204848352697">"Interne opslag: <xliff:g id="PERCENTAGE">%1$s</xliff:g> gebruikt - <xliff:g id="FREE_SPACE">%2$s</xliff:g> vrij"</string>
     <string name="display_summary" msgid="5725269449657325797">"Slaapstand na <xliff:g id="TIMEOUT_DESCRIPTION">%1$s</xliff:g> inactiviteit"</string>
     <string name="display_dashboard_summary" msgid="7678566148167010682">"Achtergrond, slaapstand, lettergrootte"</string>
-    <string name="display_dashboard_summary_with_style" msgid="8981059474501210956">"Stijlen en achtergronden, slaapstand, tekengrootte"</string>
+    <string name="display_dashboard_summary_with_style" msgid="8981059474501210956">"Stijl en achtergronden, slaapstand, tekengrootte"</string>
     <string name="display_dashboard_nowallpaper_summary" msgid="8612534364908229000">"Slaapstand, lettergrootte"</string>
     <string name="display_summary_example" msgid="4555020581960719296">"Slaapstand na 10 minuten inactiviteit"</string>
     <string name="memory_summary" msgid="9121871336058042600">"Gem. <xliff:g id="USED_MEMORY">%1$s</xliff:g> van <xliff:g id="TOTAL_MEMORY">%2$s</xliff:g> geheugen gebruikt"</string>
@@ -4065,7 +4065,7 @@
     <string name="notification_suggestion_title" msgid="3292107671498148560">"Informatie op vergrendelscherm beheren"</string>
     <string name="notification_suggestion_summary" msgid="6516827892359614597">"Content van meldingen weergeven of verbergen"</string>
     <string name="page_tab_title_summary" msgid="4824744863994538006">"Alle"</string>
-    <string name="page_tab_title_support" msgid="5569262185010367870">"Tips en ondersteuning"</string>
+    <string name="page_tab_title_support" msgid="5569262185010367870">"Tips en support"</string>
     <string name="developer_smallest_width" msgid="2603134476228805075">"Kleinste breedte"</string>
     <string name="premium_sms_none" msgid="940723020871007898">"Er zijn geen geïnstalleerde apps die premium sms-toegang hebben aangevraagd"</string>
     <string name="premium_sms_warning" msgid="7604011651486294515">"Premium sms\'jes kunnen je geld kosten en worden toegevoegd aan de facturen van je provider. Als je rechten aan een app verleent, kun je premium sms\'jes verzenden met die app."</string>

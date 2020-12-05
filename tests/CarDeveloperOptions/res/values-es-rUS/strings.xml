@@ -95,7 +95,7 @@
     <string name="bluetooth_is_discoverable" msgid="6748888489356326898">"Visible para todos los dispositivos Bluetooth cercanos (<xliff:g id="DISCOVERABLE_TIME_PERIOD">%1$s</xliff:g>)"</string>
     <string name="bluetooth_is_discoverable_always" msgid="6835934878803488274">"Visible para todos los dispositivos Bluetooth cercanos"</string>
     <string name="bluetooth_not_visible_to_other_devices" msgid="9134284066024557293">"No visible para otros dispositivos Bluetooth"</string>
-    <string name="bluetooth_only_visible_to_paired_devices" msgid="3830247336229883519">"Solo visible para los dispositivos sincronizados"</string>
+    <string name="bluetooth_only_visible_to_paired_devices" msgid="3830247336229883519">"Solo visible para los dispositivos vinculados"</string>
     <string name="bluetooth_visibility_timeout" msgid="4804679276398564496">"Definir visibilidad"</string>
     <string name="bluetooth_lock_voice_dialing" msgid="1600385868298081015">"Bloquear marcación por voz"</string>
     <string name="bluetooth_lock_voice_dialing_summary" msgid="5005776616112427980">"Impedir el uso de Bluetooth del dispositivo cuando la pantalla esté bloqueada."</string>
@@ -113,7 +113,7 @@
     <string name="bluetooth_disconnect_all_profiles" product="device" msgid="4707569949253450208">"Tu dispositivo se desconectará de <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
     <string name="bluetooth_disconnect_dialog_ok" msgid="4183522987246110145">"Desconectar"</string>
     <string name="bluetooth_empty_list_user_restricted" msgid="3616298363281495777">"No tienes permiso para cambiar la configuración de Bluetooth."</string>
-    <string name="bluetooth_pairing_pref_title" msgid="2904954138013884029">"Sincronizar dispositivo nuevo"</string>
+    <string name="bluetooth_pairing_pref_title" msgid="2904954138013884029">"Vincular dispositivo nuevo"</string>
     <string name="bluetooth_is_visible_message" msgid="6341088682252805612">"Los dispositivos cercanos podrán ver tu <xliff:g id="DEVICE_NAME">%1$s</xliff:g> si está abierta la configuración de Bluetooth."</string>
     <string name="bluetooth_footer_mac_message" product="default" msgid="335341476746836260">"Dirección Bluetooth del teléfono: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_footer_mac_message" product="tablet" msgid="6033609611245782463">"Dirección Bluetooth de la tablet: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
@@ -124,8 +124,8 @@
     <string name="progress_scanning" msgid="633923400401041181">"Buscando"</string>
     <string name="bluetooth_no_devices_found" msgid="4396050022213494322">"No se encontraron dispositivos Bluetooth cercanos."</string>
     <string name="bluetooth_notif_ticker" msgid="8398481099943141819">"Solicitud de vinculación de Bluetooth"</string>
-    <string name="bluetooth_notif_title" msgid="5090288898529286011">"Vinculando solicitud"</string>
-    <string name="bluetooth_notif_message" msgid="6612367890895077938">"Presiona para realizar una sincronización con <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
+    <string name="bluetooth_notif_title" msgid="5090288898529286011">"Solicitud de vinculación"</string>
+    <string name="bluetooth_notif_message" msgid="6612367890895077938">"Presiona para vincular con <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
     <string name="bluetooth_show_received_files" msgid="5060846395852236652">"Archivos recibidos"</string>
     <string name="bluetooth_show_files_received_via_bluetooth" msgid="1699095577431389560">"Archivos recibidos (Bluetooth)"</string>
     <string name="device_picker" msgid="8345264486071697705">"Elegir dispositivo"</string>
@@ -165,7 +165,7 @@
     <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"Visible como \"<xliff:g id="DEVICE_NAME">^1</xliff:g>\" para otros dispositivos"</string>
     <string name="bluetooth_off_footer" msgid="7658444560543730571">"Activa el Bluetooth para establecer conexión con otros dispositivos."</string>
     <string name="bluetooth_paired_device_title" msgid="8361860197780425286">"Tus dispositivos"</string>
-    <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"Sincronizar dispositivo nuevo"</string>
+    <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"Vincular dispositivo nuevo"</string>
     <string name="bluetooth_pref_summary" product="tablet" msgid="3601662966604648212">"Permite que la tablet se comunique con dispositivos Bluetooth cercanos"</string>
     <string name="bluetooth_pref_summary" product="device" msgid="2286727776570956969">"Permite que el dispositivo se comunique con dispositivos Bluetooth cercanos"</string>
     <string name="bluetooth_pref_summary" product="default" msgid="863659221858781186">"Permite que el teléfono se comunique con dispositivos Bluetooth cercanos"</string>
@@ -178,7 +178,7 @@
     <string name="connected_device_available_call_title" msgid="6774859446815858428">"Dispositivos de llamada disponibles"</string>
     <string name="connected_device_connected_title" msgid="6255107326608785482">"Conectados actualmente"</string>
     <string name="connected_device_saved_title" msgid="8270136893488475163">"Dispositivos guardados"</string>
-    <string name="connected_device_add_device_summary" msgid="7960491471270158891">"Se activará el Bluetooth para sincronizar"</string>
+    <string name="connected_device_add_device_summary" msgid="7960491471270158891">"Se activará el Bluetooth para vincular"</string>
     <string name="connected_device_connections_title" msgid="9205000271382018428">"Preferencias de conexión"</string>
     <string name="connected_device_previously_connected_title" msgid="225918223397410428">"Dispositivos conectados previamente"</string>
     <string name="connected_device_previously_connected_screen_title" msgid="2018789662358162716">"Conectados anteriormente"</string>
@@ -731,15 +731,15 @@
     <string name="bluetooth_settings_summary" msgid="1221689092429277887">"Administrar conexiones, establecer nombre y detección del dispositivo"</string>
     <string name="bluetooth_pairing_request" msgid="7221745525632573125">"¿Vincular con <xliff:g id="DEVICE_NAME">%1$s</xliff:g>?"</string>
     <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"Código de vinculación Bluetooth"</string>
-    <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"Ingresa el código de sincronización y luego presiona Intro."</string>
+    <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"Ingresa el código de vinculación y luego presiona Intro."</string>
     <string name="bluetooth_enable_alphanumeric_pin" msgid="9138308197078115672">"El PIN contiene letras o símbolos."</string>
     <string name="bluetooth_pin_values_hint" msgid="8044671726261326240">"Por lo general, 0000 o 1234"</string>
     <string name="bluetooth_pin_values_hint_16_digits" msgid="2665983525706661525">"Debe contener 16 dígitos"</string>
     <string name="bluetooth_enter_pin_other_device" msgid="1727015949040507621">"Puede que también tengas que escribir este PIN en el otro dispositivo."</string>
     <string name="bluetooth_enter_passkey_other_device" msgid="1709886959534143500">"Puede que también tengas que escribir esta clave de acceso en otro dispositivo."</string>
-    <string name="bluetooth_confirm_passkey_msg" msgid="7094455604290076371">"Para sincronizar con&lt;br&gt;&lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt;&lt;br&gt;&lt;br&gt;asegúrate de que se muestre esta clave de acceso:&lt;br&gt;&lt;b&gt;<xliff:g id="PASSKEY">%2$s</xliff:g>&lt;/b&gt;."</string>
-    <string name="bluetooth_incoming_pairing_msg" msgid="940451919337185024">"¿Desde: &lt;br&gt;&lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt;&lt;br&gt;&lt;br&gt;sincronizas con este dispositivo?"</string>
-    <string name="bluetooth_display_passkey_pin_msg" msgid="5909423849232791647">"Para sincronizar con:<xliff:g id="BOLD1_0">&lt;br&gt;&lt;b&gt;</xliff:g><xliff:g id="DEVICE_NAME">%1$s</xliff:g><xliff:g id="END_BOLD1">&lt;/b&gt;&lt;br&gt;&lt;br&gt;</xliff:g>Escribe allí:<xliff:g id="BOLD2_1">&lt;br&gt;&lt;b&gt;</xliff:g><xliff:g id="PASSKEY">%2$s</xliff:g><xliff:g id="END_BOLD2">&lt;/b&gt;</xliff:g> y luego presiona Volver o Enter."</string>
+    <string name="bluetooth_confirm_passkey_msg" msgid="7094455604290076371">"Para vincular con&lt;br&gt;&lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt;&lt;br&gt;&lt;br&gt;asegúrate de que se muestre esta clave de acceso:&lt;br&gt;&lt;b&gt;<xliff:g id="PASSKEY">%2$s</xliff:g>&lt;/b&gt;."</string>
+    <string name="bluetooth_incoming_pairing_msg" msgid="940451919337185024">"Desde: &lt;br&gt;&lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt;&lt;br&gt;&lt;br&gt;¿Vincular con este dispositivo?"</string>
+    <string name="bluetooth_display_passkey_pin_msg" msgid="5909423849232791647">"Para vincular con:<xliff:g id="BOLD1_0">&lt;br&gt;&lt;b&gt;</xliff:g><xliff:g id="DEVICE_NAME">%1$s</xliff:g><xliff:g id="END_BOLD1">&lt;/b&gt;&lt;br&gt;&lt;br&gt;</xliff:g>Escribe allí:<xliff:g id="BOLD2_1">&lt;br&gt;&lt;b&gt;</xliff:g><xliff:g id="PASSKEY">%2$s</xliff:g><xliff:g id="END_BOLD2">&lt;/b&gt;</xliff:g> y luego presiona Volver o Intro."</string>
     <string name="bluetooth_pairing_shares_phonebook" msgid="7474404818877079813">"Permitir el acceso a tus contactos y al historial de llamadas"</string>
     <string name="bluetooth_error_title" msgid="5718761586633101960"></string>
     <string name="bluetooth_connecting_error_message" msgid="8473359363469518478">"No se pudo establecer conexión con <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
@@ -747,14 +747,14 @@
     <string name="bluetooth_search_for_devices" msgid="6796307228261078451">"Actualizar"</string>
     <string name="bluetooth_searching_for_devices" msgid="7820814625522702494">"Buscando..."</string>
     <string name="bluetooth_preference_device_settings" msgid="4247085616427015908">"Configuración de dispositivos"</string>
-    <string name="bluetooth_preference_paired_dialog_title" msgid="3567187438908143693">"Dispositivo sincronizado"</string>
+    <string name="bluetooth_preference_paired_dialog_title" msgid="3567187438908143693">"Dispositivo vinculado"</string>
     <string name="bluetooth_preference_paired_dialog_internet_option" msgid="3693599743477470469">"Conexión a Internet"</string>
     <string name="bluetooth_preference_paired_dialog_keyboard_option" msgid="4627309436489645755">"Teclado"</string>
     <string name="bluetooth_preference_paired_dialog_contacts_option" msgid="5290994459307558039">"Contactos e historial de llamadas"</string>
-    <string name="bluetooth_pairing_dialog_title" msgid="7900515495932064945">"¿Sincronizar con este dispositivo?"</string>
+    <string name="bluetooth_pairing_dialog_title" msgid="7900515495932064945">"¿Vincular con este dispositivo?"</string>
     <string name="bluetooth_pairing_dialog_sharing_phonebook_title" msgid="7395493311980018460">"¿Compartir libreta telefónica?"</string>
     <string name="bluetooth_pairing_dialog_contants_request" msgid="2103132762434487717">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> quiere acceder a tus contactos y al historial de llamadas."</string>
-    <string name="bluetooth_pairing_dialog_paring_request" msgid="5513953935086446387">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> quiere sincronizarse con Bluetooth. Al conectarse, podrá acceder a contactos e hist. de llamadas."</string>
+    <string name="bluetooth_pairing_dialog_paring_request" msgid="5513953935086446387">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> quiere vincularse con Bluetooth. Al conectarse, podrá acceder a tus contactos y llamadas."</string>
     <string name="bluetooth_preference_found_media_devices" msgid="5748539613567836379">"Dispositivos disponibles"</string>
     <string name="bluetooth_preference_no_found_devices" msgid="4190090666412408576">"No hay dispositivos disponibles."</string>
     <string name="bluetooth_device_context_connect" msgid="1812090541371432890">"Conectar"</string>
@@ -772,9 +772,9 @@
     <string name="device_details_title" msgid="726517818032923222">"Detalles del dispositivo"</string>
     <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"Dirección Bluetooth del dispositivo: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"¿Olvidar este dispositivo?"</string>
-    <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"El teléfono ya no estará sincronizado con <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
-    <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"La tablet ya no estará sincronizada con <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
-    <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"El dispositivo ya no estará sincronizado con <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
+    <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"El teléfono ya no estará vinculado con <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
+    <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"La tablet ya no estará vinculada con <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
+    <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"El dispositivo ya no estará vinculado con <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
     <string name="bluetooth_unpair_dialog_forget_confirm_button" msgid="8485211340349958886">"Olvidar este dispositivo"</string>
     <string name="bluetooth_connect_specific_profiles_title" msgid="2381509181266180406">"Conectar a..."</string>
     <string name="bluetooth_disconnect_a2dp_profile" msgid="8072503764470451567">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> se desconectará del audio multimedia."</string>
@@ -783,7 +783,7 @@
     <string name="bluetooth_disconnect_pan_user_profile" msgid="5523689915196343097">"Se desconectará el acceso a Internet a través de <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
     <string name="bluetooth_disconnect_pan_nap_profile" product="tablet" msgid="8145126793699232403">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> dejará de compartir la conexión a Internet desde esta tablet."</string>
     <string name="bluetooth_disconnect_pan_nap_profile" product="default" msgid="6040826983120279685">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> dejará de compartir la conexión a Internet desde este teléfono."</string>
-    <string name="bluetooth_device_advanced_title" msgid="5752155558126694036">"Dispositivo Bluetooth sincronizado"</string>
+    <string name="bluetooth_device_advanced_title" msgid="5752155558126694036">"Dispositivo Bluetooth vinculado"</string>
     <string name="bluetooth_device_advanced_online_mode_title" msgid="7665622268007450665">"Conectar"</string>
     <string name="bluetooth_device_advanced_online_mode_summary" msgid="4180673788239241086">"Conectar al dispositivo Bluetooth"</string>
     <string name="bluetooth_device_advanced_profile_header_title" msgid="1414487572426490659">"Utilizar para"</string>
@@ -2102,8 +2102,8 @@
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"Audífonos"</string>
     <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"No hay audífonos conectados"</string>
     <string name="accessibility_hearingaid_adding_summary" msgid="4139031880828714300">"Agregar audífonos"</string>
-    <string name="accessibility_hearingaid_pair_instructions_first_message" msgid="2671518890909750740">"Para sincronizar tus audífonos, busca y presiona tu dispositivo en la pantalla siguiente."</string>
-    <string name="accessibility_hearingaid_pair_instructions_second_message" msgid="1584538735488464991">"Asegúrate de que tus audífonos estén en modo de sincronización."</string>
+    <string name="accessibility_hearingaid_pair_instructions_first_message" msgid="2671518890909750740">"Para vincular audífonos, busca y presiona tu dispositivo en la pantalla siguiente."</string>
+    <string name="accessibility_hearingaid_pair_instructions_second_message" msgid="1584538735488464991">"Asegúrate de que tus audífonos estén en modo de vinculación."</string>
     <string name="accessibility_hearingaid_active_device_summary" msgid="6081382497207168885">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> activo"</string>
     <plurals name="show_number_hearingaid_count" formatted="false" msgid="7906547154695855096">
       <item quantity="other"><xliff:g id="NUMBER_DEVICE_COUNT_1">%1$d</xliff:g> audífonos guardados</item>
@@ -2971,7 +2971,7 @@
     <string name="restriction_wifi_config_title" msgid="1689176998451296068">"Wi‑Fi y red de celulares"</string>
     <string name="restriction_wifi_config_summary" msgid="2450206736438594690">"Permitir modificar la configuración de la red Wi‑Fi y de la red de celulares"</string>
     <string name="restriction_bluetooth_config_title" msgid="34551118506640221">"Bluetooth"</string>
-    <string name="restriction_bluetooth_config_summary" msgid="5304900222614952895">"Permitir modificar la sincronización y configuración de Bluetooth"</string>
+    <string name="restriction_bluetooth_config_summary" msgid="5304900222614952895">"Permitir modificar la vinculación y configuración de Bluetooth"</string>
     <string name="restriction_nfc_enable_title" msgid="5146674482590550598">"NFC"</string>
     <string name="restriction_nfc_enable_summary_config" msgid="405349698260328073">"Permitir intercambio de datos cuando el dispositivo <xliff:g id="DEVICE_NAME">%1$s</xliff:g> toque otro dispositivo con NFC"</string>
     <string name="restriction_nfc_enable_summary" product="tablet" msgid="3292205836938064931">"Permitir el intercambio de datos cuando la tablet toque otro dispositivo"</string>
@@ -3118,7 +3118,7 @@
     <string name="keywords_zen_mode_settings" msgid="4103819458182535493">"no interrumpir, programar, notificaciones, bloquear, silenciar, vibrar, suspender, trabajar, enfocar, sonido, silencio, día, día de la semana, fin de semana, noche de la semana, evento"</string>
     <string name="keywords_screen_timeout" msgid="4328381362313993666">"pantalla, tiempo de bloqueo, tiempo de espera, bloqueo de pantalla"</string>
     <string name="keywords_storage_settings" msgid="6422454520424236476">"memoria, caché, datos, eliminar, borrar, liberar, espacio"</string>
-    <string name="keywords_bluetooth_settings" msgid="1152229891590622822">"conectado, dispositivo, audífonos, auriculares, bocina, inalámbrico, sincronizar, auricular, música, multimedia"</string>
+    <string name="keywords_bluetooth_settings" msgid="1152229891590622822">"conectado, dispositivo, audífonos, auriculares, bocina, inalámbrico, vincular, auricular, música, multimedia"</string>
     <string name="keywords_wallpaper" msgid="7665778626293643625">"fondo, pantalla, pantalla bloqueada, tema"</string>
     <string name="keywords_assist_input" msgid="8392362788794886564">"predeterminado, asistente"</string>
     <string name="keywords_default_payment_app" msgid="845369409578423996">"pago, predeterminado"</string>

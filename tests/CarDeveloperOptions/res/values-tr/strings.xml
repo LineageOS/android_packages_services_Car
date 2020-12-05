@@ -26,7 +26,7 @@
       <item quantity="other">Geliştirici olmanıza <xliff:g id="STEP_COUNT_1">%1$d</xliff:g> adım kaldı.</item>
       <item quantity="one">Geliştirici olmanıza <xliff:g id="STEP_COUNT_0">%1$d</xliff:g> adım kaldı.</item>
     </plurals>
-    <string name="show_dev_on" msgid="9075712234786224065">"Artık siz bir geliştiricisiniz!"</string>
+    <string name="show_dev_on" msgid="9075712234786224065">"Artık bir geliştiricisiniz!"</string>
     <string name="show_dev_already" msgid="7665948832405148689">"Gerekli değil, siz zaten bir geliştiricisiniz."</string>
     <string name="dev_settings_disabled_warning" msgid="3198732189395396721">"Lütfen önce geliştirici seçeneklerini etkinleştirin."</string>
     <string name="header_category_wireless_networks" msgid="8968405993937795898">"Kablosuz ve ağlar"</string>
@@ -2491,7 +2491,7 @@
     <string name="menu_duration_6h" msgid="6169009210638008417">"6 saat"</string>
     <string name="menu_duration_12h" msgid="1435242738163843797">"12 saat"</string>
     <string name="menu_duration_1d" msgid="6476370834372352174">"1 gün"</string>
-    <string name="menu_show_system" msgid="6315865548558708248">"Sisteme ait olanları göster"</string>
+    <string name="menu_show_system" msgid="6315865548558708248">"Sisteme ait olanlar"</string>
     <string name="menu_hide_system" msgid="8457027118873733782">"Sisteme ait olanları gizle"</string>
     <string name="menu_show_percentage" msgid="6983272380729890884">"Yüzdeleri göster"</string>
     <string name="menu_use_uss" msgid="3765054705208926803">"USS\'yi kullan"</string>
@@ -4155,7 +4155,7 @@
     <string name="instant_apps_settings" msgid="879003203555847537">"Hazır Uygulama tercihleri"</string>
     <string name="domain_url_section_title" msgid="206403507921518321">"Yüklü uygulamalar"</string>
     <string name="automatic_storage_manager_activation_warning" msgid="2630083316417707308">"Depolama alanınız artık depolama yöneticisi tarafından yönetiliyor"</string>
-    <string name="account_for_section_header" msgid="5975241715840642563">"<xliff:g id="USER_NAME">%1$s</xliff:g> adlı kullanıcının hesapları"</string>
+    <string name="account_for_section_header" msgid="5975241715840642563">"<xliff:g id="USER_NAME">%1$s</xliff:g> kullanıcı hesapları"</string>
     <string name="configure_section_header" msgid="6988981883075615136">"Yapılandırma"</string>
     <string name="auto_sync_account_title" msgid="2394463123733529506">"Verileri otomatik senkronize et"</string>
     <string name="auto_sync_personal_account_title" msgid="6844465157916100655">"Kişisel verileri otomatik olarak senkronize et"</string>

@@ -182,7 +182,7 @@
     <string name="connected_device_available_call_title" msgid="6774859446815858428">"أجهزة الاتصال المتاحة"</string>
     <string name="connected_device_connected_title" msgid="6255107326608785482">"الأجهزة المتصلة حاليًا"</string>
     <string name="connected_device_saved_title" msgid="8270136893488475163">"الأجهزة المحفوظة"</string>
-    <string name="connected_device_add_device_summary" msgid="7960491471270158891">"سيتم تفعيل بلوتوث للإقران"</string>
+    <string name="connected_device_add_device_summary" msgid="7960491471270158891">"سيتم تفعيل البلوتوث للإقران."</string>
     <string name="connected_device_connections_title" msgid="9205000271382018428">"إعدادات الاتصال المفضّلة"</string>
     <string name="connected_device_previously_connected_title" msgid="225918223397410428">"الأجهزة المتصلة سابقًا"</string>
     <string name="connected_device_previously_connected_screen_title" msgid="2018789662358162716">"الأجهزة المتصلة سابقًا"</string>
@@ -1402,8 +1402,8 @@
     <string name="device_status_summary" product="tablet" msgid="8975790197766171710">"حالة البطارية والشبكة ومعلومات أخرى"</string>
     <string name="device_status_summary" product="default" msgid="8282235230720651642">"رقم الهاتف أو الإشارة أو غير ذلك."</string>
     <string name="storage_settings" msgid="7009733301485139652">"التخزين"</string>
-    <string name="storage_settings_for_app" msgid="3028887232073069965">"التخزين وذاكرة التخزين المؤقت"</string>
-    <string name="storage_usb_settings" msgid="4470138799276333403">"التخزين"</string>
+    <string name="storage_settings_for_app" msgid="3028887232073069965">"سعة التخزين وذاكرة التخزين المؤقت"</string>
+    <string name="storage_usb_settings" msgid="4470138799276333403">"سعة التخزين"</string>
     <string name="storage_settings_title" msgid="7348362600789024415">"إعدادات وحدة التخزين"</string>
     <string name="storage_settings_summary" product="nosdcard" msgid="600267641559698394">"إلغاء تثبيت وحدة تخزين USB، وعرض مساحة التخزين المتاحة"</string>
     <string name="storage_settings_summary" product="default" msgid="6233147555590816245">"إلغاء تثبيت بطاقة SD، عرض مساحة التخزين المتاحة"</string>
@@ -2508,7 +2508,7 @@
     <string name="power_flashlight" msgid="6939780588882301575">"الفلاش"</string>
     <string name="power_camera" msgid="8670998854830327437">"الكاميرا"</string>
     <string name="power_wifi" msgid="5017436332655362332">"Wi‑Fi"</string>
-    <string name="power_bluetooth" msgid="7097844828420335867">"بلوتوث"</string>
+    <string name="power_bluetooth" msgid="7097844828420335867">"البلوتوث"</string>
     <string name="power_cell" msgid="8493476823107385547">"وضع الاستعداد لشبكة الجوّال"</string>
     <string name="power_phone" msgid="4644276202135343197">"المكالمات الصوتية"</string>
     <string name="power_idle" product="tablet" msgid="5220710816048070792">"الجهاز اللوحي خامل"</string>
@@ -3203,7 +3203,7 @@
     <string name="connected_devices_dashboard_summary" msgid="1072664369515033179">"بلوتوث، وضع القيادة، NFC"</string>
     <string name="connected_devices_dashboard_no_nfc_summary" msgid="2610085597733526722">"بلوتوث، وضع القيادة"</string>
     <string name="connected_devices_dashboard_no_driving_mode_summary" msgid="3524409078596318803">"بلوتوث وNFC"</string>
-    <string name="connected_devices_dashboard_no_driving_mode_no_nfc_summary" msgid="7881286613528299400">"بلوتوث"</string>
+    <string name="connected_devices_dashboard_no_driving_mode_no_nfc_summary" msgid="7881286613528299400">"البلوتوث"</string>
     <string name="app_and_notification_dashboard_title" msgid="8448096608058843730">"التطبيقات والإشعارات"</string>
     <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"المساعد، التطبيقات المستخدمة مؤخرًا، التطبيقات التلقائية"</string>
     <string name="notification_settings_work_profile" msgid="7190550347842400029">"لا تتوفر إمكانية الدخول إلى الإشعارات للتطبيقات في الملف الشخصي للعمل."</string>

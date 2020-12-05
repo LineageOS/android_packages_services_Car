@@ -1888,7 +1888,7 @@
     <string name="app_install_location_title" msgid="5121617802063021720">"Տեղադրման նախընտրած վայրը"</string>
     <string name="app_install_location_summary" msgid="109719780117187797">"Փոխել նոր ծրագրերի համար նախընտրած տեղադրման վայրը"</string>
     <string name="app_disable_dlg_positive" msgid="5508828271100168073">"Անջատել հավելվածը"</string>
-    <string name="app_disable_dlg_text" msgid="9221864774943530281">"Եթե անջատեք այս հավելվածը, համակարգը և այլ հավելվածներ հնարավոր է՝ սխալներով աշխատեն: Դուք չեք կարող ջնջել այս հավելվածը, քանի որ այն նախապես տեղադրված է եղել ձեր սարքում։ Անջատելու դեպքում հավելվածը կդադարի աշխատել և կթաքցվի։"</string>
+    <string name="app_disable_dlg_text" msgid="9221864774943530281">"Եթե անջատեք այս հավելվածը, համակարգը և այլ հավելվածներ հնարավոր է սխալներով աշխատեն: Դուք չեք կարող ջնջել այս հավելվածը, քանի որ այն նախապես տեղադրված է եղել ձեր սարքում։ Անջատելու դեպքում հավելվածը կդադարի աշխատել և կթաքցվի։"</string>
     <string name="app_disable_notifications_dlg_title" msgid="699530661413553928">"Անջատե՞լ ծանուցումները:"</string>
     <string name="app_install_details_group_title" msgid="2909597319422976921">"Խանութ"</string>
     <string name="app_install_details_title" msgid="6954953384372934881">"Հավելվածի մասին"</string>
@@ -4259,7 +4259,7 @@
     <string name="autofill_max_partitions" msgid="125269645910590057">"Առավելագույն հարցումների թիվը աշխատաշրջանի համար"</string>
     <string name="autofill_max_visible_datasets" msgid="2791081640248423492">"Տեսանելի տվյալակազմերի առավելագույն քանակը"</string>
     <string name="autofill_reset_developer_options" msgid="7208417230269613101">"Վերականգնել կանխադրված արժեքները"</string>
-    <string name="autofill_reset_developer_options_complete" msgid="5686061993002179524">"Ինքնալրացման կարգավորումները վերակայվեցին"</string>
+    <string name="autofill_reset_developer_options_complete" msgid="5686061993002179524">"Ինքնալրացման կարգավորումները զրոյացվեցին"</string>
     <string name="device_theme" msgid="8992291311481135893">"Սարքի թեման"</string>
     <string name="default_theme" msgid="5986996377385956138">"Կանխադրված"</string>
     <string name="show_operator_name_title" msgid="5056163028128447308">"Ցանցի անունը"</string>

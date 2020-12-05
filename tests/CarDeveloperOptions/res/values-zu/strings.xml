@@ -113,7 +113,7 @@
     <string name="bluetooth_disconnect_all_profiles" product="device" msgid="4707569949253450208">"Idivayisi yakho izonqamuka kusuka ku-<xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
     <string name="bluetooth_disconnect_dialog_ok" msgid="4183522987246110145">"Nqamula"</string>
     <string name="bluetooth_empty_list_user_restricted" msgid="3616298363281495777">"Awunayo imvume yokushintsha izilungiselelo ze-Bluetooth."</string>
-    <string name="bluetooth_pairing_pref_title" msgid="2904954138013884029">"Bhanqa idivayisi entsha"</string>
+    <string name="bluetooth_pairing_pref_title" msgid="2904954138013884029">"Bhangqa idivayisi entsha"</string>
     <string name="bluetooth_is_visible_message" msgid="6341088682252805612">"I-<xliff:g id="DEVICE_NAME">%1$s</xliff:g> iyabonakala kumadivayisi aseduzane ngenkathi izilungiselelo ze-Bluetooth zivulekile."</string>
     <string name="bluetooth_footer_mac_message" product="default" msgid="335341476746836260">"Ikheli le-Bluetooth lefoni: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_footer_mac_message" product="tablet" msgid="6033609611245782463">"Ikhli le-Bluetooth lethebhulethi: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
@@ -165,7 +165,7 @@
     <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"Kubonakala njenge-\"<xliff:g id="DEVICE_NAME">^1</xliff:g>\" kwamanye amadivayisi"</string>
     <string name="bluetooth_off_footer" msgid="7658444560543730571">"Vula i-Bluetooth ukuze ixhumeke kwamanye amadivayisi."</string>
     <string name="bluetooth_paired_device_title" msgid="8361860197780425286">"Amadivayisi akho"</string>
-    <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"Bhanqa idivayisi entsha"</string>
+    <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"Bhangqa idivayisi entsha"</string>
     <string name="bluetooth_pref_summary" product="tablet" msgid="3601662966604648212">"Vumela ithebhulethi yakho ukuxhumana namadivayisi e-Bluetooth aseduze"</string>
     <string name="bluetooth_pref_summary" product="device" msgid="2286727776570956969">"Vumela idivayisi yakho ukuxhumana namadivayisi aseduze e-Bluetooth"</string>
     <string name="bluetooth_pref_summary" product="default" msgid="863659221858781186">"Vumela ifoni yakho ukuxhumana namadivayisi aseduze e-Bluetooth"</string>
@@ -729,7 +729,7 @@
     <string name="bluetooth_settings" msgid="5228032727293770389">"Bluetooth"</string>
     <string name="bluetooth_settings_title" msgid="7261244857456521825">"Bluetooth"</string>
     <string name="bluetooth_settings_summary" msgid="1221689092429277887">"Lawula uxhumano, setha igama ledivaysi nokutholakala"</string>
-    <string name="bluetooth_pairing_request" msgid="7221745525632573125">"Bhanqa ne-<xliff:g id="DEVICE_NAME">%1$s</xliff:g>?"</string>
+    <string name="bluetooth_pairing_request" msgid="7221745525632573125">"Bhangqa ne-<xliff:g id="DEVICE_NAME">%1$s</xliff:g>?"</string>
     <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"Ikhodi yokumatanisa ye-Bluetooth"</string>
     <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"Thayipha ikhodi yokumatanisa bese ucindezela ku-Buyela noma ku-Enter"</string>
     <string name="bluetooth_enable_alphanumeric_pin" msgid="9138308197078115672">"Iphinikhodi iqukethe amaletha namasimbui"</string>
@@ -751,7 +751,7 @@
     <string name="bluetooth_preference_paired_dialog_internet_option" msgid="3693599743477470469">"Uxhumo lwe-inthanethi"</string>
     <string name="bluetooth_preference_paired_dialog_keyboard_option" msgid="4627309436489645755">"Ikhibhodi"</string>
     <string name="bluetooth_preference_paired_dialog_contacts_option" msgid="5290994459307558039">"Oxhumana nabo nomlando wekholi"</string>
-    <string name="bluetooth_pairing_dialog_title" msgid="7900515495932064945">"Bhanqa nale divayisi"</string>
+    <string name="bluetooth_pairing_dialog_title" msgid="7900515495932064945">"Bhangqa nale divayisi"</string>
     <string name="bluetooth_pairing_dialog_sharing_phonebook_title" msgid="7395493311980018460">"Yabelana ngebhuku lefoni?"</string>
     <string name="bluetooth_pairing_dialog_contants_request" msgid="2103132762434487717">"I-<xliff:g id="DEVICE_NAME">%1$s</xliff:g> ifuna ukuifnyelela oxhumana nabo nomlando wekholi."</string>
     <string name="bluetooth_pairing_dialog_paring_request" msgid="5513953935086446387">"I-<xliff:g id="DEVICE_NAME">%1$s</xliff:g> ifuna ukubhanqa ne-Bluetooth. Uma ixhumekile, izokwazi ukufinyelela oxhumana nabo nomlando wekholi."</string>

@@ -1450,7 +1450,7 @@
     <string name="storage_internal_forget_confirm_title" msgid="331032276130605241">"<xliff:g id="NAME">^1</xliff:g>ক পাহৰিব বিচাৰেনে?"</string>
     <string name="storage_internal_forget_confirm" msgid="3052483375203727176">"এই <xliff:g id="NAME">^1</xliff:g>ত সঞ্চিত সকলো এপ্, ফট\' আৰু ডেটা চিৰদিনৰ কাৰণে হেৰুৱাব।"</string>
     <string name="storage_detail_apps" msgid="8154648512504196820">"এপ্"</string>
-    <string name="storage_detail_images" msgid="6996202225684468964">"ফট\'"</string>
+    <string name="storage_detail_images" msgid="6996202225684468964">"Images"</string>
     <string name="storage_detail_videos" msgid="6030983354721080849">"ভিডিঅ\'"</string>
     <string name="storage_detail_audio" msgid="6011098436589663944">"অডিঅ’"</string>
     <string name="storage_detail_cached" msgid="5761648455067920683">"কেশ্ব কৰা ডেটা"</string>
@@ -3792,7 +3792,7 @@
     <string name="zen_access_revoke_warning_dialog_title" msgid="6850994585577513299">"<xliff:g id="APP">%1$s</xliff:g>ৰ অসুবিধা নিদিবলৈ থকা প্ৰৱেশৰ অনুমতি প্ৰত্যাহাৰ কৰিবনে?"</string>
     <string name="zen_access_revoke_warning_dialog_summary" msgid="3487422193181311403">"এই এপে সৃষ্টি কৰা সকলো অসুবিধা নিদিব নিয়ম আঁতৰোৱা হ\'ব।"</string>
     <string name="ignore_optimizations_on" msgid="4373971641328943551">"অপ্টিমাইজ নকৰিব"</string>
-    <string name="ignore_optimizations_off" msgid="4372289432580282870">"অপ্টিমাইজ"</string>
+    <string name="ignore_optimizations_off" msgid="4372289432580282870">"Optimize"</string>
     <string name="ignore_optimizations_on_desc" msgid="2904484569799521559">"আপোনাৰ বেটাৰি খৰকৈ শেষ কৰিব পাৰে। এপটোক নেপথ্যত বেটাৰি ব্যৱহাৰ কৰাত আৰু বাধা দিয়া নহ’ব।"</string>
     <string name="ignore_optimizations_off_desc" msgid="5598702251817814289">"বেটাৰিৰ অৱস্থা উন্নত কৰাৰ বাবে পৰামৰ্শ দিয়া হৈছে"</string>
     <string name="ignore_optimizations_title" msgid="7924345545276166305">"<xliff:g id="APP">%s</xliff:g>-ক বেটাৰি অপ্টিমাইজেশ্বন অবজ্ঞা কৰিবলৈ অনুমতি দিবনে?"</string>

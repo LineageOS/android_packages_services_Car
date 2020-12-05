@@ -28,7 +28,7 @@
       <item quantity="other">אתה כעת במרחק של <xliff:g id="STEP_COUNT_1">%1$d</xliff:g> צעדים מלהיות מפתח.</item>
       <item quantity="one">אתה כעת במרחק של צעד <xliff:g id="STEP_COUNT_0">%1$d</xliff:g> מלהיות מפתח.</item>
     </plurals>
-    <string name="show_dev_on" msgid="9075712234786224065">"אתה כעת מפתח!"</string>
+    <string name="show_dev_on" msgid="9075712234786224065">"הוגדרת כמפתח!"</string>
     <string name="show_dev_already" msgid="7665948832405148689">"אין צורך, אתה כבר מפתח."</string>
     <string name="dev_settings_disabled_warning" msgid="3198732189395396721">"קודם עליך להפעיל את אפשרויות המפתח."</string>
     <string name="header_category_wireless_networks" msgid="8968405993937795898">"רשתות ותקשורת אלחוטית"</string>
