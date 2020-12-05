@@ -399,7 +399,7 @@
     <item msgid="3673930830658169860">"Personalitzat"</item>
   </string-array>
   <string-array name="vpn_types_long">
-    <item msgid="6566768880689730097">"VPN de PPTP"</item>
+    <item msgid="6566768880689730097">"VPN PPTP"</item>
     <item msgid="1349760781118368659">"VPN L2TP/IPSec amb claus prèviament compartides"</item>
     <item msgid="6128519070545038358">"VPN L2TP/IPSec amb certificats"</item>
     <item msgid="312397853907741968">"VPN IPSec amb claus prèviament compartides i autenticació Xauth"</item>
