@@ -44,7 +44,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 
 /**
@@ -871,12 +870,10 @@ public class CarPropertyManager extends CarManagerBase {
             synchronized (mActivePropertyListener) {
                 listeners = new ArrayList<>(getListeners());
             }
-            listeners.forEach(new Consumer<CarPropertyEventCallback>() {
-                @Override
-                public void accept(CarPropertyEventCallback listener) {
-                    if (needUpdateForSelectedListener(listener, updateTime)) {
-                        listener.onChangeEvent(event.getCarPropertyValue());
-                    }
+            listeners.forEach(listener -> {
+                if (contains(listener)
+                        && needUpdateForSelectedListener(listener, updateTime)) {
+                    listener.onChangeEvent(event.getCarPropertyValue());
                 }
             });
         }
@@ -887,20 +884,17 @@ public class CarPropertyManager extends CarManagerBase {
             synchronized (mActivePropertyListener) {
                 listeners = new ArrayList<>(getListeners());
             }
-            listeners.forEach(new Consumer<CarPropertyEventCallback>() {
-                @Override
-                public void accept(CarPropertyEventCallback listener) {
+            listeners.forEach(listener -> {
+                if (contains(listener)) {
                     if (DBG) {
                         Log.d(TAG, new StringBuilder().append("onErrorEvent for ")
-                                        .append("property: ").append(value.getPropertyId())
-                                        .append(" areaId: ").append(value.getAreaId())
-                                        .append(" errorCode: ").append(event.getErrorCode())
-                                        .toString());
+                                .append("property: ").append(value.getPropertyId())
+                                .append(" areaId: ").append(value.getAreaId())
+                                .append(" errorCode: ").append(event.getErrorCode())
+                                .toString());
                     }
-
                     listener.onErrorEvent(value.getPropertyId(), value.getAreaId(),
                             event.getErrorCode());
-
                 }
             });
         }
