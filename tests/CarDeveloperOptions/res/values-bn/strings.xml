@@ -719,7 +719,7 @@
     </plurals>
     <string name="manage_trust_agents" msgid="8129970926213142261">"বিশ্বস্ত এজেন্ট"</string>
     <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"ব্যবহার করার জন্য প্রথমে একটি স্ক্রিন লক সেট করুন"</string>
-    <string name="manage_trust_agents_summary" msgid="2023116850759962248">"কোনো কিছুই নয়"</string>
+    <string name="manage_trust_agents_summary" msgid="2023116850759962248">"কোনও কিছুই নয়"</string>
     <plurals name="manage_trust_agents_summary_on" formatted="false" msgid="5550538038916606097">
       <item quantity="one"><xliff:g id="COUNT">%d</xliff:g>টি সক্রিয় বিশ্বস্ত এজেন্ট</item>
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g>টি সক্রিয় বিশ্বস্ত এজেন্ট</item>
@@ -1450,7 +1450,7 @@
     <string name="storage_internal_forget_confirm_title" msgid="331032276130605241">"<xliff:g id="NAME">^1</xliff:g> ভুলতে চান?"</string>
     <string name="storage_internal_forget_confirm" msgid="3052483375203727176">"<xliff:g id="NAME">^1</xliff:g> -এ সঞ্চিত সমস্ত অ্যাপ্লিকেশন, ফটো, এবং ডেটা চিরতরে হারিয়ে যাবে।"</string>
     <string name="storage_detail_apps" msgid="8154648512504196820">"অ্যাপ"</string>
-    <string name="storage_detail_images" msgid="6996202225684468964">"ছবি"</string>
+    <string name="storage_detail_images" msgid="6996202225684468964">"Images"</string>
     <string name="storage_detail_videos" msgid="6030983354721080849">"ভিডিও"</string>
     <string name="storage_detail_audio" msgid="6011098436589663944">"অডিও"</string>
     <string name="storage_detail_cached" msgid="5761648455067920683">"ক্যাশে করা ডেটা"</string>

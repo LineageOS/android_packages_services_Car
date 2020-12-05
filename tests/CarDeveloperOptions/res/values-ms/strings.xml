@@ -163,7 +163,7 @@
     <string name="bluetooth_sap_request" msgid="6318039677671263261">"Permintaan akses SIM"</string>
     <string name="bluetooth_sap_acceptance_dialog_text" msgid="1909352413109340355">"<xliff:g id="DEVICE_NAME_0">%1$s</xliff:g> mahu mengakses kad SIM anda. Pemberian akses kepada kad SIM akan melumpuhkan sambungan data pada peranti anda untuk tempoh sambungan itu. Berikan akses kepada <xliff:g id="DEVICE_NAME_1">%2$s?</xliff:g>"</string>
     <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"Kelihatan kepada peranti lain sebagai “<xliff:g id="DEVICE_NAME">^1</xliff:g>”"</string>
-    <string name="bluetooth_off_footer" msgid="7658444560543730571">"Hidupkan Bluetooth untuk menyambung ke peranti lain."</string>
+    <string name="bluetooth_off_footer" msgid="7658444560543730571">"Hidupkan Bluetooth untuk menyambung kepada peranti lain."</string>
     <string name="bluetooth_paired_device_title" msgid="8361860197780425286">"Peranti anda"</string>
     <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"Gandingkan peranti baharu"</string>
     <string name="bluetooth_pref_summary" product="tablet" msgid="3601662966604648212">"Benarkan tablet anda berkomunikasi dengan peranti Bluetooth yang berdekatan"</string>
@@ -785,7 +785,7 @@
     <string name="bluetooth_disconnect_pan_nap_profile" product="default" msgid="6040826983120279685">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> akan diputuskan sambungan daripada perkongsian sambungan Internet telefon ini."</string>
     <string name="bluetooth_device_advanced_title" msgid="5752155558126694036">"Peranti Bluetooth dipasangkan"</string>
     <string name="bluetooth_device_advanced_online_mode_title" msgid="7665622268007450665">"Sambung"</string>
-    <string name="bluetooth_device_advanced_online_mode_summary" msgid="4180673788239241086">"Sambung ke peranti Bluetooth"</string>
+    <string name="bluetooth_device_advanced_online_mode_summary" msgid="4180673788239241086">"Sambung kepada peranti Bluetooth"</string>
     <string name="bluetooth_device_advanced_profile_header_title" msgid="1414487572426490659">"Gunakan untuk"</string>
     <string name="bluetooth_device_advanced_rename_device" msgid="2270087843175307865">"Namakan semula"</string>
     <string name="bluetooth_device_advanced_enable_opp_title" msgid="8258863155491651198">"Benarkan pindahan fail masuk"</string>
@@ -1584,7 +1584,7 @@
     <string name="reset_esim_error_title" msgid="4728931209471875632">"Tidak dapat memadamkan SIM"</string>
     <string name="reset_esim_error_msg" msgid="4716366079119742235">"SIM yang dimuat turun tidak dapat dipadamkan disebabkan ralat.\n\nMulakan semula peranti anda, kemudian cuba lagi."</string>
     <string name="master_clear_title" msgid="1560712943955904673">"Padamkan semua data (tetapan semula kilang)"</string>
-    <string name="master_clear_short_title" msgid="919098101581335101">"Pdm sma dta (ttpn smla kilang)"</string>
+    <string name="master_clear_short_title" msgid="919098101581335101">"Padamkan semua data"</string>
     <string name="master_clear_desc" product="tablet" msgid="3432373610755760899">"Tindakan ini akan memadamkan semua data daripada "<b>"storan dalaman"</b>" tablet anda, termasuk:\n\n"<li>"Akaun Google Anda"</li>\n<li>"Data serta tetapan sistem dan apl"</li>\n<li>"Apl yang telah dimuat turun"</li></string>
     <string name="master_clear_desc" product="default" msgid="8765543541962866697">"Tindakan ini akan memadamkan semua data daripada "<b>"storan dalaman"</b>" telefon anda, termasuk:\n\n"<li>"Akaun Google Anda"</li>\n<li>"Data serta tetapan sistem dan apl"</li>\n<li>"Apl yang dimuat turun"</li></string>
     <string name="master_clear_accounts" product="default" msgid="3432884235445405376">\n\n"Anda melog masuk ke dalam akaun berikut buat masa ini:\n"</string>
@@ -1888,7 +1888,7 @@
     <string name="app_install_location_title" msgid="5121617802063021720">"Lokasi pemasangan pilihan"</string>
     <string name="app_install_location_summary" msgid="109719780117187797">"Tukar lokasi pemasangan pilihan untuk aplikasi baru"</string>
     <string name="app_disable_dlg_positive" msgid="5508828271100168073">"Lumpuhkan apl"</string>
-    <string name="app_disable_dlg_text" msgid="9221864774943530281">"Jika anda melumpuhkan apl ini, Android dan apl lain mungkin tidak berfungsi seperti yang dimaksudkan lagi. Jangan lupa, anda tidak boleh memadamkan apl ini kerana apl diprapasang pada peranti anda. Dengan melumpuhkan apl, anda mematikan dan menyembunyikan apl ini pada peranti anda."</string>
+    <string name="app_disable_dlg_text" msgid="9221864774943530281">"Jika anda melumpuhkan apl ini, Android dan apl lain mungkin tidak berfungsi seperti yang sepatutnya. Jangan lupa, anda tidak boleh memadamkan apl ini kerana apl diprapasang pada peranti anda. Dengan melumpuhkan apl, anda mematikan dan menyembunyikan apl ini pada peranti anda."</string>
     <string name="app_disable_notifications_dlg_title" msgid="699530661413553928">"Matikan pemberitahuan"</string>
     <string name="app_install_details_group_title" msgid="2909597319422976921">"Gedung"</string>
     <string name="app_install_details_title" msgid="6954953384372934881">"Butiran apl"</string>

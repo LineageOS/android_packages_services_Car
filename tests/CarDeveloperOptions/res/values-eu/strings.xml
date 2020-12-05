@@ -730,7 +730,7 @@
     <string name="bluetooth_settings_title" msgid="7261244857456521825">"Bluetooth-a"</string>
     <string name="bluetooth_settings_summary" msgid="1221689092429277887">"Kudeatu konexioak, ezarri gailuaren izena eta ikusgaitasuna"</string>
     <string name="bluetooth_pairing_request" msgid="7221745525632573125">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> gailuarekin parekatu nahi duzu?"</string>
-    <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"Bluetooth parekatze-kodea"</string>
+    <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"Bluetooth bidez parekatzeko kodea"</string>
     <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"Idatzi parekatze-kodea eta sakatu Sartu edo Itzuli"</string>
     <string name="bluetooth_enable_alphanumeric_pin" msgid="9138308197078115672">"PINak hizkiak edo ikurrak ditu"</string>
     <string name="bluetooth_pin_values_hint" msgid="8044671726261326240">"Normalean 0000 edo 1234"</string>
@@ -844,7 +844,7 @@
     <string name="wifi_starting" msgid="1299466156783469023">"Wi-Fi konexioa aktibatzen…"</string>
     <string name="wifi_stopping" msgid="413711069039939520">"Wi-Fia desaktibatzen…"</string>
     <string name="wifi_error" msgid="5605801874484465557">"Errorea"</string>
-    <string name="wifi_sap_no_channel_error" msgid="6881796988574851628">"5 GHz-ko banda ez dago erabilgarri herrialde honetan"</string>
+    <string name="wifi_sap_no_channel_error" msgid="6881796988574851628">"5 GHz-eko banda ez dago erabilgarri herrialde honetan"</string>
     <string name="wifi_in_airplane_mode" msgid="4729571191578262246">"Hegaldi moduan"</string>
     <string name="wifi_notify_open_networks" msgid="4782239203624619655">"Sare irekien jakinarazpenak"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"Jakinarazi kalitate handiko sare publikoak erabilgarri daudenean"</string>
@@ -925,9 +925,9 @@
     <string name="wifi_show_password" msgid="7878398590772942202">"Erakutsi pasahitza"</string>
     <string name="wifi_ap_band_config" msgid="6565016368079288433">"Hautatu AP banda"</string>
     <string name="wifi_ap_choose_auto" msgid="7927637960569365785">"Automatikoa"</string>
-    <string name="wifi_ap_choose_2G" msgid="43198403259714736">"2,4 GHz-ko banda"</string>
-    <string name="wifi_ap_choose_5G" msgid="2624859713183683146">"5,0 GHz-ko banda"</string>
-    <string name="wifi_ap_prefer_5G" msgid="8339172330471170142">"5,0 GHz-ko banda hobetsia"</string>
+    <string name="wifi_ap_choose_2G" msgid="43198403259714736">"2,4 GHz-eko banda"</string>
+    <string name="wifi_ap_choose_5G" msgid="2624859713183683146">"5,0 GHz-eko banda"</string>
+    <string name="wifi_ap_prefer_5G" msgid="8339172330471170142">"5,0 GHz-eko banda hobetsia"</string>
     <string name="wifi_ap_2G" msgid="5793110086517338494">"2,4 GHz"</string>
     <string name="wifi_ap_5G" msgid="4584892544393675403">"5,0 GHz"</string>
     <string name="wifi_ap_band_select_one" msgid="4409754936554360355">"Aukeratu gutxienez banda bat wifi-gunerako:"</string>
@@ -1021,7 +1021,7 @@
     <string name="wifi_advanced_mac_address_title" msgid="1162782083754021737">"MAC helbidea"</string>
     <string name="wifi_advanced_ip_address_title" msgid="2708185994512829071">"IP helbidea"</string>
     <string name="wifi_details_title" msgid="2164042631550920157">"Sarearen xehetasunak"</string>
-    <string name="wifi_details_subnet_mask" msgid="53396707004763012">"Azpisarearen maskara"</string>
+    <string name="wifi_details_subnet_mask" msgid="53396707004763012">"Azpisare-maskara"</string>
     <string name="wifi_details_dns" msgid="1118251455740116559">"DNS"</string>
     <string name="wifi_details_ipv6_address_header" msgid="1642310137145363299">"IPv6 helbideak"</string>
     <string name="wifi_saved_access_points_label" msgid="3790693285928292563">"Gordetako sareak"</string>
@@ -1844,7 +1844,7 @@
     <string name="default_emergency_app" msgid="286530070173495823">"Larrialdietarako aplikazioa"</string>
     <string name="reset_app_preferences" msgid="1426500030595212077">"Berrezarri aplikazioen hobespenak"</string>
     <string name="reset_app_preferences_title" msgid="792909865493673598">"Aplikazioen hobespenak berrezarri nahi dituzu?"</string>
-    <string name="reset_app_preferences_desc" msgid="7935273005301096031">"Hauen hobespen guztiak berrezarriko dira:\n\n"<li>"desgaitutako aplikazioak,"</li>\n<li>"desgaitutako aplikazio-jakinarazpenak,"</li>\n<li>"ekintza jakinetarako aplikazio lehenetsiak,"</li>\n<li>"aplikazioen atzeko planoko datuen murriztapenak eta"</li>\n<li>"baimen-murriztapenak."</li>\n\n"Ez dituzu galduko aplikazioetako datuak."</string>
+    <string name="reset_app_preferences_desc" msgid="7935273005301096031">"Hauen hobespen guztiak berrezarriko dira:\n\n"<li>"desgaitutako aplikazioak,"</li>\n<li>"desgaitutako aplikazio-jakinarazpenak,"</li>\n<li>"ekintza jakinetarako aplikazio lehenetsiak,"</li>\n<li>"aplikazioen atzeko planoko datuen murriztapenak,"</li>\n<li>"baimen-murriztapenak."</li>\n\n"Ez dituzu galduko aplikazioetako datuak."</string>
     <string name="reset_app_preferences_button" msgid="2041894727477934656">"Berrezarri aplikazioak"</string>
     <string name="manage_space_text" msgid="6166469422303124302">"Kudeatu tokia"</string>
     <string name="filter" msgid="2426943916212457962">"Iragazi"</string>
@@ -2453,7 +2453,7 @@
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"Bateria-mailaren ehunekoan oinarrituta"</string>
     <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Bateria kargatzeko ohiko ordua iritsi aurretik bateria agortzeko arriskua badago aktibatzen da bateria-aurrezlea"</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Bateria-maila <xliff:g id="PERCENT">%1$s</xliff:g> denean aktibatuko da"</string>
-    <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Ezarri programazioa"</string>
+    <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Ezarri programazio bat"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Desaktibatu guztiz kargatu ondoren"</string>
     <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"Telefonoaren bateria <xliff:g id="PERCENT">%1$s</xliff:g> denean, desaktibatu egiten da bateria-aurrezlea"</string>
     <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"Tabletaren bateria <xliff:g id="PERCENT">%1$s</xliff:g> denean, desaktibatu egiten da bateria-aurrezlea"</string>

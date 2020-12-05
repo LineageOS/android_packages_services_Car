@@ -3140,7 +3140,7 @@
     <string name="alarm_volume_option_title" msgid="3184076022438477047">"Alarmvolum"</string>
     <string name="ring_volume_option_title" msgid="2038924918468372264">"Ringevolum"</string>
     <string name="notification_volume_option_title" msgid="1358512611511348260">"Varselvolum"</string>
-    <string name="ringtone_title" msgid="1409086028485922583">"Telefonringelyd"</string>
+    <string name="ringtone_title" msgid="1409086028485922583">"Ringetone"</string>
     <string name="notification_ringtone_title" msgid="2932960620843976285">"Standard varsellyd"</string>
     <string name="notification_unknown_sound_title" msgid="8043718667804838398">"Lyd fra app"</string>
     <string name="notification_sound_default" msgid="2664544380802426260">"Standard varsellyd"</string>

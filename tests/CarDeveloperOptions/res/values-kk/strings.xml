@@ -1609,7 +1609,7 @@
     <string name="master_clear_progress_title" msgid="378953167274114857">"Өшірілуде"</string>
     <string name="master_clear_progress_text" msgid="5418958116008976218">"Күте тұрыңыз…"</string>
     <string name="call_settings_title" msgid="5033906789261282752">"Қоңырау параметрлері"</string>
-    <string name="call_settings_summary" msgid="2119161087671450035">"Дауыс хабары, қоңырауды басқа нөмірге бағыттау, күту және қоңырау шалушының жеке анықтағышын орнату"</string>
+    <string name="call_settings_summary" msgid="2119161087671450035">"Дауыстық пошта, қоңырауды басқа нөмірге бағыттау және ұстап тұру, қоңырау шалушыт нөмірлерді автоматты анықтау"</string>
     <string name="tether_settings_title_usb" msgid="4265582654602420357">"USB тетеринг"</string>
     <string name="tether_settings_title_wifi" msgid="2060965130234484613">"Алынбалы хот-спот"</string>
     <string name="tether_settings_title_bluetooth" msgid="1999590158102569959">"Bluetooth модем"</string>
@@ -2268,16 +2268,16 @@
     <string name="controls_subtitle" msgid="6920199888882834620">"Қуат қолданысын бейімдеу"</string>
     <string name="packages_subtitle" msgid="6506269487892204413">"Қамтылған орамдар"</string>
     <string name="battery_tip_summary_title" msgid="2750922152518825526">"Қолданбалар қалыпты жұмыс істеп тұр"</string>
-    <string name="battery_tip_summary_summary" product="default" msgid="6294900413896440006">"Телефон фондық режимде батарея зарядын қалыпты күйде пайдаланады"</string>
-    <string name="battery_tip_summary_summary" product="tablet" msgid="5280099016800644130">"Планшет фондық режимде батарея зарядын қалыпты күйде пайдаланады"</string>
-    <string name="battery_tip_summary_summary" product="device" msgid="4459840492610842705">"Құрылғы фондық режимде батарея зарядын қалыпты күйде пайдаланады"</string>
+    <string name="battery_tip_summary_summary" product="default" msgid="6294900413896440006">"Телефон фондық режимде батарея зарядын қалыпты күйде пайдаланады."</string>
+    <string name="battery_tip_summary_summary" product="tablet" msgid="5280099016800644130">"Планшет фондық режимде батарея зарядын қалыпты күйде пайдаланады."</string>
+    <string name="battery_tip_summary_summary" product="device" msgid="4459840492610842705">"Құрылғы фондық режимде батарея зарядын қалыпты күйде пайдаланады."</string>
     <string name="battery_tip_low_battery_title" msgid="6784043681672161175">"Батарея заряды аз қалды"</string>
     <string name="battery_tip_low_battery_summary" msgid="9151355911381188604">"Батарея заряды ұзаққа жетпейді"</string>
     <string name="battery_tip_smart_battery_title" product="default" msgid="5517122075918038665">"Телефон батареясының қызметтік мерзімін ұзартыңыз"</string>
     <string name="battery_tip_smart_battery_title" product="tablet" msgid="203494973250969040">"Планшет батареясының қызметтік мерзімін ұзартыңыз"</string>
     <string name="battery_tip_smart_battery_title" product="device" msgid="7419448992583346364">"Құрылғы батареясының қызметтік мерзімін ұзартыңыз"</string>
     <string name="battery_tip_smart_battery_summary" msgid="5344821856478265778">"Battery Manager функциясын қосыңыз"</string>
-    <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"Battery Saver функциясын қосу"</string>
+    <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"Батареяны үнемдеу режимін қосу"</string>
     <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"Батареяның заряды тез азаюы мүмкін"</string>
     <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"Батареяны үнемдеу режимі қосулы"</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"Кейбір функциялар шектелуі мүмкін"</string>
@@ -2317,9 +2317,9 @@
     <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"Бұл қолданба батареяны фондық режимде пайдаланады. Батареяның заряды тез азаюы мүмкін."</string>
     <string name="battery_tip_unrestrict_app_dialog_ok" msgid="9154938931448151479">"Алу"</string>
     <string name="battery_tip_unrestrict_app_dialog_cancel" msgid="7331148618292397166">"Бас тарту"</string>
-    <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"Қолданбалар батарея зарядын қалыпты тұтынуда. Көп тұтынатын болса, телефонда орындауға болатын әрекеттер ұсынылады.\n\nБатарея заряды аз болса, Battery Saver функциясын қосуыңызға болады."</string>
-    <string name="battery_tip_dialog_summary_message" product="tablet" msgid="1721081030632329647">"Қолданбалар батарея зарядын қалыпты тұтынуда. Көп тұтынатын болса, планшетте орындауға болатын әрекеттер ұсынылады.\n\nБатарея заряды аз болса, Battery Saver функциясын қосуыңызға болады."</string>
-    <string name="battery_tip_dialog_summary_message" product="device" msgid="146872407040848465">"Қолданбалар батарея зарядын қалыпты тұтынуда. Көп тұтынатын болса, құрылғыда орындауға болатын әрекеттер ұсынылады.\n\nБатарея заряды аз болса, Battery Saver функциясын қосуыңызға болады."</string>
+    <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"Қолданбалар батарея зарядын қалыпты тұтынуда. Көп тұтынатын болса, телефонда орындауға болатын әрекеттер ұсынылады.\n\nБатарея заряды аз болса, Батареяны үнемдеу режимін қосуыңызға болады."</string>
+    <string name="battery_tip_dialog_summary_message" product="tablet" msgid="1721081030632329647">"Қолданбалар батарея зарядын қалыпты тұтынуда. Көп тұтынатын болса, планшетте орындауға болатын әрекеттер ұсынылады.\n\nБатарея заряды аз болса, Батареяны үнемдеу режимін қосуыңызға болады."</string>
+    <string name="battery_tip_dialog_summary_message" product="device" msgid="146872407040848465">"Қолданбалар батарея зарядын қалыпты тұтынуда. Көп тұтынатын болса, құрылғыда орындауға болатын әрекеттер ұсынылады.\n\nБатарея заряды аз болса, Батареяны үнемдеу режимін қосуыңызға болады."</string>
     <string name="smart_battery_manager_title" msgid="5744035036663849515">"Battery Manager"</string>
     <string name="smart_battery_title" msgid="4919670408532804351">"Қолданбаларды автоматты түрде реттеу"</string>
     <string name="smart_battery_summary" msgid="640027046471198174">"Сирек пайдаланылатын қолданбалар үшін батареяның пайдаланылуын шектеу"</string>
@@ -3083,7 +3083,7 @@
     <string name="keywords_location" msgid="6439463166207072559">"маңай, орын, тарих, есеп жіберу, GPS"</string>
     <string name="keywords_accounts" msgid="5908945725229306088">"есептік жазба"</string>
     <string name="keywords_users" msgid="5880705776023155640">"шектеу, шектелген"</string>
-    <string name="keywords_keyboard_and_ime" msgid="3327265741354129990">"мәтінді түзету, түзету, дыбыс, дірілдету, авто, тіл, қимыл, ұсыну, ұсыныс, тақырып, тіл тигізетін, сөз, түрі, эмодзи, халықаралық"</string>
+    <string name="keywords_keyboard_and_ime" msgid="3327265741354129990">"мәтінді түзету, түзету, дыбыс, дірілдету, авто, тіл, қимыл, ұсыну, ұсыныс, тақырып, тіл тигізетін, сөз, түрі, эмоджи, халықаралық"</string>
     <string name="keywords_reset_apps" msgid="2645701455052020435">"ысыру, параметрлер, әдепкі"</string>
     <string name="keywords_all_apps" msgid="846444448435698930">"қолданбалар, жүктеу, қолданбалар, жүйе"</string>
     <string name="keywords_app_permissions" msgid="8539841019997048500">"қолданбалар, рұқсаттар, қауіпсіздік"</string>
@@ -3144,7 +3144,7 @@
     <string name="notification_ringtone_title" msgid="2932960620843976285">"Әдепкі хабарландыру сигналы"</string>
     <string name="notification_unknown_sound_title" msgid="8043718667804838398">"Қолданбамен берілген дыбыс"</string>
     <string name="notification_sound_default" msgid="2664544380802426260">"Әдепкі хабарландыру дыбысы"</string>
-    <string name="alarm_ringtone_title" msgid="6411326147408635902">"Әдепкі дабыл сигналы"</string>
+    <string name="alarm_ringtone_title" msgid="6411326147408635902">"Әдепкі оятқыш сигналы"</string>
     <string name="vibrate_when_ringing_title" msgid="2757996559847126952">"Қоңырау кезіндегі діріл"</string>
     <string name="other_sound_settings" msgid="5250376066099818676">"Басқа дыбыстар"</string>
     <string name="dial_pad_tones_title" msgid="8877212139988655769">"Нөмір тергіш дыбысы"</string>

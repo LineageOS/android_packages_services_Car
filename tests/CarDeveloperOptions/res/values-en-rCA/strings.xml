@@ -1313,7 +1313,7 @@
     <string name="security_patch" msgid="483709031051932208">"Android security patch level"</string>
     <string name="model_info" msgid="1729765474260797594">"Model"</string>
     <string name="model_summary" msgid="8781425868254352168">"Model: %1$s"</string>
-    <string name="hardware_info" msgid="174270144950621815">"Model &amp; hardware"</string>
+    <string name="hardware_info" msgid="174270144950621815">"Model and hardware"</string>
     <string name="hardware_revision" msgid="3315744162524354246">"Hardware version"</string>
     <string name="fcc_equipment_id" msgid="8681995718533066093">"Equipment ID"</string>
     <string name="baseband_version" msgid="9115560821840757786">"Baseband version"</string>
@@ -1326,7 +1326,7 @@
     <string name="device_status_summary" product="tablet" msgid="8975790197766171710">"Status of the battery, network and other information"</string>
     <string name="device_status_summary" product="default" msgid="8282235230720651642">"Phone number, signal, etc."</string>
     <string name="storage_settings" msgid="7009733301485139652">"Storage"</string>
-    <string name="storage_settings_for_app" msgid="3028887232073069965">"Storage &amp; cache"</string>
+    <string name="storage_settings_for_app" msgid="3028887232073069965">"Storage and cache"</string>
     <string name="storage_usb_settings" msgid="4470138799276333403">"Storage"</string>
     <string name="storage_settings_title" msgid="7348362600789024415">"Storage settings"</string>
     <string name="storage_settings_summary" product="nosdcard" msgid="600267641559698394">"Unmount USB storage, view available storage"</string>
@@ -2629,8 +2629,8 @@
     <string name="remove_account_label" msgid="5885425720323823387">"Remove account"</string>
     <string name="header_add_an_account" msgid="8482614556580804956">"Add an account"</string>
     <string name="really_remove_account_title" msgid="4166512362915154319">"Remove account?"</string>
-    <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"Removing this account will delete all of its messages, contacts and other data from the tablet!"</string>
-    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Removing this account will delete all of its messages, contacts and other data from the phone!"</string>
+    <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"Removing this account will delete all of its messages, contacts and other data from the tablet."</string>
+    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Removing this account will delete all of its messages, contacts and other data from the phone."</string>
     <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"Removing this account will delete all of its messages, contacts and other data from the device."</string>
     <string name="remove_account_failed" msgid="491458185327106966">"This change isn\'t allowed by your admin"</string>
     <string name="cant_sync_dialog_title" msgid="5483419398223189881">"Cannot sync manually"</string>
@@ -4100,7 +4100,7 @@
       <item quantity="one">1 second</item>
     </plurals>
     <string name="automatic_storage_manager_settings" msgid="2403621409625820182">"Manage storage"</string>
-    <string name="automatic_storage_manager_text" msgid="4270379105066667493">"To help free up storage space, storage manager removes backed up photos and videos from your device."</string>
+    <string name="automatic_storage_manager_text" msgid="4270379105066667493">"To help free up storage space, storage manager removes backed-up photos and videos from your device."</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"Remove photos &amp; videos"</string>
     <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"Storage manager"</string>
     <string name="automatic_storage_manager_master_switch_title" msgid="1456978117739582562">"Use Storage Manager"</string>
