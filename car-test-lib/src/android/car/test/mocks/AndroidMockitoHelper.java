@@ -24,8 +24,10 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
+import android.car.test.util.AndroidHelper;
 import android.car.test.util.UserTestingHelper;
 import android.car.test.util.UserTestingHelper.UserInfoBuilder;
+import android.car.test.util.Visitor;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -176,17 +178,43 @@ public final class AndroidMockitoHelper {
     }
 
     /**
+     * Mocks a successful call to {@code UserManager#removeUserOrSetEphemeral(int)}.
+     */
+    public static void mockUmRemoveUserOrSetEphemeral(@NonNull UserManager um,
+            @NonNull UserInfo user) {
+        mockUmRemoveUserOrSetEphemeral(um, user, /* listener= */ null);
+    }
+
+    /**
      * Mocks a successful call to {@code UserManager#removeUserOrSetEphemeral(int)}, including the
      * respective {@code receiver} notification.
      */
     public static void mockUmRemoveUserOrSetEphemeral(@NonNull Context context,
             @NonNull UserManager um, @NonNull BroadcastReceiver receiver, @NonNull UserInfo user) {
+        mockUmRemoveUserOrSetEphemeral(um, user, (u) -> {
+            int userId = u.id;
+            Intent intent = new Intent(Intent.ACTION_USER_REMOVED);
+            intent.putExtra(Intent.EXTRA_USER_ID, userId);
+            intent.putExtra(Intent.EXTRA_USER_HANDLE, userId);
+            intent.putExtra(Intent.EXTRA_USER, UserHandle.of(userId));
+            Log.v(TAG, "mockUmRemoveUserOrSetEphemeral(): broadcasting "
+                    + AndroidHelper.toString(intent) + " to " + receiver);
+            receiver.onReceive(context, intent);
+        });
+    }
+
+    /**
+     * Mocks a successful call to {@code UserManager#removeUserOrSetEphemeral(int)}, and notifies
+     * {@code listener} when it's called.
+     */
+    public static void mockUmRemoveUserOrSetEphemeral(@NonNull UserManager um,
+            @NonNull UserInfo user, @Nullable Visitor<UserInfo> listener) {
         int userId = user.id;
         when(um.removeUserOrSetEphemeral(userId)).thenAnswer((inv) -> {
-            Intent intent = new Intent(Intent.ACTION_USER_REMOVED);
-            intent.putExtra(Intent.EXTRA_USER_HANDLE, userId);
-            Log.v(TAG, "mockUmRemoveUser(): broadcasting " + intent + " to " + receiver);
-            receiver.onReceive(context, intent);
+            if (listener != null) {
+                Log.v(TAG, "mockUmRemoveUserOrSetEphemeral(" + user + "): notifying " + listener);
+                listener.visit(user);
+            }
             return UserManager.REMOVE_RESULT_REMOVED;
         });
     }
