@@ -236,6 +236,12 @@ UniqueFence HalCamera::requestNewFrame(sp<VirtualCamera> client,
 
     std::lock_guard<std::mutex> lock(mFrameMutex);
 
+    if (mTimelines.find(id) == mTimelines.end()) {
+        // Timeline for this client either does not exist or is deleted.
+        LOG(ERROR) << "Timeline for this client does not exist.";
+        return {};
+    }
+
     mTimelines[id]->BumpFenceEventCounter();
     UniqueFence fence = mTimelines[id]->CreateFence("FrameFence");
 
