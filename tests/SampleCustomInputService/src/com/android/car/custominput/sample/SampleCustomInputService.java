@@ -15,9 +15,6 @@
  */
 package com.android.car.custominput.sample;
 
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.app.Service;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
@@ -43,39 +40,19 @@ public class SampleCustomInputService extends Service implements
 
     private static final String TAG = SampleCustomInputService.class.getSimpleName();
 
-    private static final String CHANNEL_ID = SampleCustomInputService.class.getSimpleName();
-    private static final int FOREGROUND_ID = 1;
-
     private Car mCar;
     private CarInputManager mCarInputManager;
     private CustomInputEventListener mEventHandler;
 
     @Override
-    public void onCreate() {
-        super.onCreate();
-        startForeground();
-    }
-
-    private void startForeground() {
-        // TODO(b/12219669): Start this service from carservice, then the code in below
-        //     won't be needed.
-        NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
-                CHANNEL_ID,
-                NotificationManager.IMPORTANCE_DEFAULT);
-        NotificationManager notificationManager = getSystemService(NotificationManager.class);
-        notificationManager.createNotificationChannel(channel);
-        Notification notification = new Notification.Builder(getApplicationContext(), CHANNEL_ID)
-                .setContentTitle("SampleCustomInputService")
-                .setContentText("Processing...")
-                .setSmallIcon(R.drawable.custom_input_ref_service)
-                .build();
-        startForeground(FOREGROUND_ID, notification);
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        connectToCarService();
-        return START_STICKY;
+    public IBinder onBind(Intent intent) {
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Entering onBind with intent={" + intent + "}");
+        }
+        if (intent != null) {
+            connectToCarService();
+        }
+        return null;
     }
 
     private void connectToCarService() {
@@ -107,7 +84,7 @@ public class SampleCustomInputService extends Service implements
     @Override
     public void onDestroy() {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Service destroyed");
+            Log.d(TAG, "Entering onDestroy");
         }
         if (mCarInputManager != null) {
             mCarInputManager.releaseInputEventCapture(CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
@@ -116,11 +93,6 @@ public class SampleCustomInputService extends Service implements
             mCar.disconnect();
             mCar = null;
         }
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
     }
 
     @Override

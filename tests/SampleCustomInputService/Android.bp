@@ -26,8 +26,8 @@ android_app {
 
     sdk_version: "system_current",
 
-    // This app should be platform signed because it requires android.permission.MONITOR_INPUT
-    // permission, which is of type "signature".
+    // This app should be platform signed because it requires
+    // android.car.permission.CAR_MONITOR_INPUT permission, which is of type "signature".
     certificate: "platform",
 
     optimize: {
@@ -56,16 +56,12 @@ android_app {
 
 android_test {
     name: "SampleCustomInputServiceTest",
-
     srcs: [
         "tests/src/**/*.java",
         ":SampleCustomInputService-srcs",
     ],
-
     manifest: "tests/AndroidManifest.xml",
-
     platform_apis: true,
-
     static_libs: [
         "mockito-target-extended",
         "androidx.test.core",
@@ -73,7 +69,6 @@ android_test {
         "androidx.test.rules",
         "truth-prebuilt",
     ],
-
     libs: [
         "android.car-system-stubs",
         "android.test.mock",
@@ -85,7 +80,6 @@ android_test {
     jni_libs: [
         "libdexmakerjvmtiagent",
     ],
-
     optimize: {
         enabled: false,
     },
