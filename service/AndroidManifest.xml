@@ -484,7 +484,7 @@
          android:description="@string/car_permission_desc_car_test_service"/>
 
     <!-- Allows system app to enable / disable / query features in the system.
-     <p>Protection level: signature|privileged
+         <p>Protection level: signature|privileged
     -->
     <permission android:name="android.car.permission.CONTROL_CAR_FEATURES"
          android:protectionLevel="signature|privileged"
@@ -492,7 +492,7 @@
          android:description="@string/car_permission_desc_control_car_features"/>
 
     <!-- Allows an application to use car watchdog service.
-        <p>Protection level: signature|privileged
+         <p>Protection level: signature|privileged
     -->
     <permission android:name="android.car.permission.USE_CAR_WATCHDOG"
          android:protectionLevel="signature|privileged"
@@ -530,7 +530,6 @@
          android:protectionLevel="signature|privileged"
          android:label="@string/car_permission_label_set_car_vendor_category_door"
          android:description="@string/car_permission_desc_set_car_vendor_category_door"/>
-
 
     <!-- Allows an application to read vendor properties related with seats.
          <p>Protection level: signature|privileged
@@ -637,7 +636,7 @@
          android:description="@string/car_permission_desc_get_car_vendor_category_1"/>
 
     <!-- Allows an application to control vendor properties in category 1.
-        <p>Protection level: signature|privileged
+         <p>Protection level: signature|privileged
     -->
     <permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_1"
          android:protectionLevel="signature|privileged"
@@ -645,7 +644,7 @@
          android:description="@string/car_permission_desc_set_car_vendor_category_1"/>
 
     <!-- Allows an application to access vendor properties in category 2.
-        <p>Protection level: signature|privileged
+         <p>Protection level: signature|privileged
     -->
     <permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_2"
          android:protectionLevel="signature|privileged"
@@ -653,7 +652,7 @@
          android:description="@string/car_permission_desc_get_car_vendor_category_2"/>
 
     <!-- Allows an application to control vendor properties in category 2.
-        <p>Protection level: signature|privileged
+         <p>Protection level: signature|privileged
     -->
     <permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_2"
          android:protectionLevel="signature|privileged"
@@ -661,7 +660,7 @@
          android:description="@string/car_permission_desc_set_car_vendor_category_2"/>
 
     <!-- Allows an application to access vendor properties in category 3.
-        <p>Protection level: signature|privileged
+         <p>Protection level: signature|privileged
     -->
     <permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_3"
          android:protectionLevel="signature|privileged"
@@ -669,7 +668,7 @@
          android:description="@string/car_permission_desc_get_car_vendor_category_3"/>
 
     <!-- Allows an application to control vendor properties in category 3.
-        <p>Protection level: signature|privileged
+         <p>Protection level: signature|privileged
     -->
     <permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_3"
          android:protectionLevel="signature|privileged"
@@ -685,7 +684,7 @@
          android:description="@string/car_permission_desc_get_car_vendor_category_4"/>
 
     <!-- Allows an application to control vendor properties in category 4.
-        <p>Protection level: signature|privileged
+         <p>Protection level: signature|privileged
     -->
     <permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_4"
          android:protectionLevel="signature|privileged"
@@ -701,7 +700,7 @@
          android:description="@string/car_permission_desc_get_car_vendor_category_5"/>
 
     <!-- Allows an application to control vendor properties in category 5.
-        <p>Protection level: signature|privileged
+         <p>Protection level: signature|privileged
     -->
     <permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_5"
          android:protectionLevel="signature|privileged"
@@ -717,7 +716,7 @@
          android:description="@string/car_permission_desc_get_car_vendor_category_6"/>
 
     <!-- Allows an application to control vendor properties in category 6.
-        <p>Protection level: signature|privileged
+         <p>Protection level: signature|privileged
     -->
     <permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_6"
          android:protectionLevel="signature|privileged"
@@ -725,7 +724,7 @@
          android:description="@string/car_permission_desc_set_car_vendor_category_6"/>
 
     <!-- Allows an application to access vendor properties in category 7.
-        <p>Protection level: signature|privileged
+         <p>Protection level: signature|privileged
     -->
     <permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_7"
          android:protectionLevel="signature|privileged"
@@ -733,7 +732,7 @@
          android:description="@string/car_permission_desc_get_car_vendor_category_7"/>
 
     <!-- Allows an application to control vendor properties in category 7.
-        <p>Protection level: signature|privileged
+         <p>Protection level: signature|privileged
     -->
     <permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_7"
          android:protectionLevel="signature|privileged"
@@ -741,7 +740,7 @@
          android:description="@string/car_permission_desc_set_car_vendor_category_7"/>
 
     <!-- Allows an application to access vendor properties in category 8.
-        <p>Protection level: signature|privileged
+         <p>Protection level: signature|privileged
     -->
     <permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_8"
          android:protectionLevel="signature|privileged"
@@ -749,7 +748,7 @@
          android:description="@string/car_permission_desc_get_car_vendor_category_8"/>
 
     <!-- Allows an application to control vendor properties in category 8.
-        <p>Protection level: signature|privileged
+         <p>Protection level: signature|privileged
     -->
     <permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_8"
          android:protectionLevel="signature|privileged"
@@ -765,7 +764,7 @@
          android:description="@string/car_permission_desc_get_car_vendor_category_9"/>
 
     <!-- Allows an application to control vendor properties in category 9.
-        <p>Protection level: signature|privileged
+         <p>Protection level: signature|privileged
     -->
     <permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_9"
          android:protectionLevel="signature|privileged"
@@ -781,7 +780,7 @@
          android:description="@string/car_permission_desc_get_car_vendor_category_10"/>
 
     <!-- Allows an application to control vendor properties in category 10.
-        <p>Protection level: signature|privileged
+         <p>Protection level: signature|privileged
     -->
     <permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_10"
          android:protectionLevel="signature|privileged"
@@ -789,12 +788,29 @@
          android:description="@string/car_permission_desc_set_car_vendor_category_10"/>
 
     <!-- Allows an application to receive Car input events.
-        <p>Protection level: signature
+         <p>Protection level: signature
     -->
     <permission android:name="android.car.permission.CAR_MONITOR_INPUT"
                 android:protectionLevel="signature"
                 android:label="@string/car_permission_label_monitor_input"
                 android:description="@string/car_permission_desc_monitor_input"/>
+
+    <!-- Allows an application to get the current power policy or to be notified of power policy
+         change.
+         <p>Protection level: normal
+    -->
+    <permission android:name="android.car.permission.READ_CAR_POWER_POLICY"
+                android:protectionLevel="normal"
+                android:label="@string/car_permission_label_read_car_power_policy"
+                android:description="@string/car_permission_desc_read_car_power_policy"/>
+
+    <!-- Allows an application to apply a new power policy.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.CONTROL_CAR_POWER_POLICY"
+                android:protectionLevel="signature|privileged"
+                android:label="@string/car_permission_label_control_car_power_policy"
+                android:description="@string/car_permission_desc_control_car_power_policy"/>
 
     <uses-permission android:name="android.permission.CALL_PHONE"/>
     <uses-permission android:name="android.permission.DEVICE_POWER"/>

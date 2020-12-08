@@ -56,7 +56,6 @@ public class CarPublicPermissionTest {
         if (mCar.isFeatureEnabled(Car.DIAGNOSTIC_SERVICE)) {
             assertThrows(SecurityException.class, () -> mCar.getCarManager(Car.DIAGNOSTIC_SERVICE));
         }
-        assertThrows(SecurityException.class, () -> mCar.getCarManager(Car.POWER_SERVICE));
         if (mCar.isFeatureEnabled(Car.VMS_SUBSCRIBER_SERVICE)) {
             assertThrows(SecurityException.class, () -> mCar.getCarManager(
                     Car.VMS_SUBSCRIBER_SERVICE));

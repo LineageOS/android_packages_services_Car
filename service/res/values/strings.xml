@@ -483,6 +483,16 @@
     <!-- Permission text: apps use car watchdog [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_use_car_watchdog">Use car watchdog.</string>
 
+    <!-- Permission text: apps read car power policy [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_read_car_power_policy">read car power policy</string>
+    <!-- Permission text: apps read car power policy [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_read_car_power_policy">Read car power policy.</string>
+
+    <!-- Permission text: apps control car power policy [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_control_car_power_policy">control car power policy</string>
+    <!-- Permission text: apps control car power policy [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_control_car_power_policy">Control car power policy.</string>
+
     <!-- The default name of device enrolled as trust device [CHAR LIMIT=NONE] -->
     <string name="trust_device_default_name">My Device</string>
 

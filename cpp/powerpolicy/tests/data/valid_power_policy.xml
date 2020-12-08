@@ -30,7 +30,7 @@
         <policy id="policy_id_other_off">
             <otherComponents behavior="off"/>
             <component id="POWER_COMPONENT_AUDIO">off</component>
-            <component id="POWER_COMPONENT_DISPLAY_MAIN">off</component>
+            <component id="POWER_COMPONENT_DISPLAY">off</component>
             <component id="POWER_COMPONENT_WIFI">on</component>
             <component id="POWER_COMPONENT_VISUAL_INTERACTION">off</component>
             <component id="POWER_COMPONENT_TRUSTED_DEVICE_DETECTION">off</component>
@@ -38,7 +38,7 @@
         <policy id="policy_id_other_untouched">
             <otherComponents behavior="untouched"/>
             <component id="POWER_COMPONENT_AUDIO">on</component>
-            <component id="POWER_COMPONENT_DISPLAY_MAIN">on</component>
+            <component id="POWER_COMPONENT_DISPLAY">on</component>
             <component id="POWER_COMPONENT_BLUETOOTH">on</component>
             <component id="POWER_COMPONENT_WIFI">on</component>
             <component id="POWER_COMPONENT_VOICE_INTERACTION">on</component>
@@ -48,14 +48,12 @@
         <policy id="policy_id_other_on">
             <otherComponents behavior="on"/>
             <component id="POWER_COMPONENT_AUDIO">off</component>
-            <component id="POWER_COMPONENT_DISPLAY_CLUSTER">off</component>
             <component id="POWER_COMPONENT_VOICE_INTERACTION">off</component>
             <component id="POWER_COMPONENT_VISUAL_INTERACTION">off</component>
             <component id="POWER_COMPONENT_TRUSTED_DEVICE_DETECTION">off</component>
         </policy>
         <policy id="policy_id_other_none">
             <component id="POWER_COMPONENT_AUDIO">off</component>
-            <component id="POWER_COMPONENT_DISPLAY_FRONT_PASSENGER">off</component>
             <component id="POWER_COMPONENT_WIFI">on</component>
             <component id="POWER_COMPONENT_VOICE_INTERACTION">off</component>
             <component id="POWER_COMPONENT_VISUAL_INTERACTION">off</component>

@@ -14,7 +14,7 @@
     <policies>
         <policy id="expected_to_be_registered">
             <otherComponents behavior="off"/>
-            <component id="POWER_COMPONENT_DISPLAY_MAIN">off</component>
+            <component id="POWER_COMPONENT_DISPLAY">off</component>
             <component id="POWER_COMPONENT_UNKNOWN">on</component>
             <component id="POWER_COMPONENT_WIFI">off</component>
             <component id="POWER_COMPONENT_VISUAL_INTERACTION">off</component>
@@ -23,7 +23,6 @@
         <policy id="policy_id_other_on">
             <otherComponents behavior="on"/>
             <component id="POWER_COMPONENT_AUDIO">off</component>
-            <component id="POWER_COMPONENT_DISPLAY_CLUSTER">off</component>
             <component id="POWER_COMPONENT_VOICE_INTERACTION">off</component>
             <component id="POWER_COMPONENT_VISUAL_INTERACTION">off</component>
             <component id="POWER_COMPONENT_TRUSTED_DEVICE_DETECTION">off</component>

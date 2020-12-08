@@ -89,17 +89,15 @@ const std::vector<PowerComponent> kSystemPolicyEnabledComponents =
 const std::vector<PowerComponent> kSystemPolicyDisabledComponents =
         {PowerComponent::AUDIO,
          PowerComponent::MEDIA,
-         PowerComponent::DISPLAY_MAIN,
-         PowerComponent::DISPLAY_CLUSTER,
-         PowerComponent::DISPLAY_FRONT_PASSENGER,
-         PowerComponent::DISPLAY_REAR_PASSENGER,
+         PowerComponent::DISPLAY,
          PowerComponent::BLUETOOTH,
          PowerComponent::PROJECTION,
          PowerComponent::NFC,
          PowerComponent::INPUT,
          PowerComponent::VOICE_INTERACTION,
          PowerComponent::VISUAL_INTERACTION,
-         PowerComponent::LOCATION};
+         PowerComponent::LOCATION,
+         PowerComponent::MICROPHONE};
 const std::unordered_set<PowerComponent> kSystemPolicyConfigurableComponents =
         {PowerComponent::BLUETOOTH, PowerComponent::NFC, PowerComponent::TRUSTED_DEVICE_DETECTION};
 

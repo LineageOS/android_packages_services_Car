@@ -16,18 +16,18 @@
 
 package com.android.car.power;
 
-import static com.android.car.power.PowerComponentUtil.FIRST_POWER_COMPONENT;
-import static com.android.car.power.PowerComponentUtil.INVALID_POWER_COMPONENT;
-import static com.android.car.power.PowerComponentUtil.LAST_POWER_COMPONENT;
-import static com.android.car.power.PowerComponentUtil.isValidPowerComponent;
-import static com.android.car.power.PowerComponentUtil.powerComponentToString;
-import static com.android.car.power.PowerComponentUtil.toPowerComponent;
+import static android.car.hardware.power.PowerComponentUtil.FIRST_POWER_COMPONENT;
+import static android.car.hardware.power.PowerComponentUtil.INVALID_POWER_COMPONENT;
+import static android.car.hardware.power.PowerComponentUtil.LAST_POWER_COMPONENT;
+import static android.car.hardware.power.PowerComponentUtil.isValidPowerComponent;
+import static android.car.hardware.power.PowerComponentUtil.powerComponentToString;
+import static android.car.hardware.power.PowerComponentUtil.toPowerComponent;
 
 import android.annotation.Nullable;
+import android.car.hardware.power.CarPowerPolicy;
+import android.car.hardware.power.PowerComponent;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.frameworks.automotive.powerpolicy.CarPowerPolicy;
-import android.frameworks.automotive.powerpolicy.PowerComponent;
 import android.net.wifi.WifiManager;
 import android.util.AtomicFile;
 import android.util.Slog;
@@ -91,6 +91,8 @@ public final class PowerComponentHandler {
     void applyPowerPolicy(CarPowerPolicy policy) {
         SparseBooleanArray forcedOffComponents = readComponentState();
         boolean componentModified = false;
+        int[] enabledComponents = policy.enabledComponents;
+        int[] disabledComponents = policy.disabledComponents;
         for (int i = 0; i < policy.enabledComponents.length; i++) {
             componentModified |= setComponentEnabledInternal(policy.enabledComponents[i], true,
                     forcedOffComponents);
@@ -226,34 +228,11 @@ public final class PowerComponentHandler {
         // TODO(b/162600135): implement turning on/off media.
     }
 
-    private final class DisplayMainPowerComponentMediator extends PowerComponentMediator {
-        DisplayMainPowerComponentMediator() {
-            super(PowerComponent.DISPLAY_MAIN);
+    private final class DisplayPowerComponentMediator extends PowerComponentMediator {
+        DisplayPowerComponentMediator() {
+            super(PowerComponent.DISPLAY);
         }
-        // TODO(b/162600135): implement turning on/off display main.
-    }
-
-    private final class DisplayClusterPowerComponentMediator extends PowerComponentMediator {
-        DisplayClusterPowerComponentMediator() {
-            super(PowerComponent.DISPLAY_CLUSTER);
-        }
-        // TODO(b/162600135): implement turning on/off display cluster.
-    }
-
-    private final class DisplayFrontPassengerPowerComponentMediator
-            extends PowerComponentMediator {
-        DisplayFrontPassengerPowerComponentMediator() {
-            super(PowerComponent.DISPLAY_FRONT_PASSENGER);
-        }
-        // TODO(b/162600135): implement turning on/off display front passenger.
-    }
-
-    private final class DisplayRearPassengerPowerComponentMediator
-            extends PowerComponentMediator {
-        DisplayRearPassengerPowerComponentMediator() {
-            super(PowerComponent.DISPLAY_REAR_PASSENGER);
-        }
-        // TODO(b/162600135): implement turning on/off display rear passenger.
+        // TODO(b/162600135): implement turning on/off display.
     }
 
     private final class WifiPowerComponentMediator extends PowerComponentMediator {
@@ -350,14 +329,8 @@ public final class PowerComponentHandler {
                     return new PowerComponentHandler.AudioPowerComponentMediator();
                 case PowerComponent.MEDIA:
                     return new MediaPowerComponentMediator();
-                case PowerComponent.DISPLAY_MAIN:
-                    return new DisplayMainPowerComponentMediator();
-                case PowerComponent.DISPLAY_CLUSTER:
-                    return new DisplayClusterPowerComponentMediator();
-                case PowerComponent.DISPLAY_FRONT_PASSENGER:
-                    return new DisplayFrontPassengerPowerComponentMediator();
-                case PowerComponent.DISPLAY_REAR_PASSENGER:
-                    return new DisplayRearPassengerPowerComponentMediator();
+                case PowerComponent.DISPLAY:
+                    return new DisplayPowerComponentMediator();
                 case PowerComponent.WIFI:
                     return new WifiPowerComponentMediator();
                 case PowerComponent.CELLULAR:
