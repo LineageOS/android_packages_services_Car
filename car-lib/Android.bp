@@ -173,7 +173,9 @@ droidstubs {
     name: "android.car-system-stubs-docs",
     defaults: ["android.car-docs-default"],
     removed_dex_api_filename: "system-removed-dex.txt",
-    args: "--hide UnavailableSymbol --no-docs --stub-packages android.car* " +
+    // TODO(b/174572385): Remove CallbackInterface once this b/174572385 is fixed
+    args: "--hide CallbackInterface --hide UnavailableSymbol --hide HiddenSuperclass " +
+        "--no-docs --stub-packages android.car* " +
         "--show-annotation android.annotation.SystemApi ",
     installable: false,
     check_api: {

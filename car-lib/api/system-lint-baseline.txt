@@ -41,8 +41,6 @@ CallbackInterface: android.car.hardware.cabin.CarCabinManager.CarCabinEventCallb
     Callbacks must be abstract class instead of interface to enable extension in future API levels: CarCabinEventCallback
 CallbackInterface: android.car.hardware.hvac.CarHvacManager.CarHvacEventCallback:
     Callbacks must be abstract class instead of interface to enable extension in future API levels: CarHvacEventCallback
-CallbackInterface: android.car.input.CarInputManager.CarInputCaptureCallback:
-    Callbacks must be abstract class instead of interface to enable extension in future API levels: CarInputCaptureCallback
 CallbackInterface: android.car.trust.CarTrustAgentEnrollmentManager.CarTrustAgentBleCallback:
     Callbacks must be abstract class instead of interface to enable extension in future API levels: CarTrustAgentBleCallback
 CallbackInterface: android.car.trust.CarTrustAgentEnrollmentManager.CarTrustAgentEnrollmentCallback:
