@@ -26,6 +26,7 @@ import android.media.AudioManager;
 import android.media.audiopolicy.AudioPolicy;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.SparseArray;
 
 import com.android.car.CarLog;
 import com.android.internal.util.Preconditions;
@@ -51,7 +52,7 @@ class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
     CarZonesAudioFocus(@NonNull AudioManager audioManager,
             @NonNull PackageManager packageManager,
-            @NonNull CarAudioZone[] carAudioZones,
+            @NonNull SparseArray<CarAudioZone> carAudioZones,
             @NonNull CarAudioSettings carAudioSettings,
             boolean enableDelayedAudioFocus) {
         //Create the zones here, the policy will be set setOwningPolicy,
@@ -60,11 +61,12 @@ class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         Objects.requireNonNull(packageManager);
         Objects.requireNonNull(carAudioZones);
         Objects.requireNonNull(carAudioSettings);
-        Preconditions.checkArgument(carAudioZones.length != 0,
+        Preconditions.checkArgument(carAudioZones.size() != 0,
                 "There must be a minimum of one audio zone");
 
         //Create focus for all the zones
-        for (CarAudioZone audioZone : carAudioZones) {
+        for (int i = 0; i < carAudioZones.size(); i++) {
+            CarAudioZone audioZone = carAudioZones.valueAt(i);
             int audioZoneId = audioZone.getId();
             if (Log.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
                 Log.d(CarLog.TAG_AUDIO,
