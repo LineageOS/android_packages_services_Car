@@ -156,22 +156,19 @@ public class CarStatsService {
         }
 
         dumpVmsClientStats((entry) -> {
-            StatsEvent e = StatsEvent.newBuilder()
-                    .setAtomId(atomTag)
-                    .writeInt(entry.getUid())
-                    .addBooleanAnnotation(CarStatsLog.ANNOTATION_ID_IS_UID, true)
-
-                    .writeInt(entry.getLayerType())
-                    .writeInt(entry.getLayerChannel())
-                    .writeInt(entry.getLayerVersion())
-
-                    .writeLong(entry.getTxBytes())
-                    .writeLong(entry.getTxPackets())
-                    .writeLong(entry.getRxBytes())
-                    .writeLong(entry.getRxPackets())
-                    .writeLong(entry.getDroppedBytes())
-                    .writeLong(entry.getDroppedPackets())
-                    .build();
+            StatsEvent e = CarStatsLog.buildStatsEvent(
+                    atomTag,
+                    entry.getUid(),
+                    entry.getLayerType(),
+                    entry.getLayerChannel(),
+                    entry.getLayerVersion(),
+                    entry.getTxBytes(),
+                    entry.getTxPackets(),
+                    entry.getRxBytes(),
+                    entry.getRxPackets(),
+                    entry.getDroppedBytes(),
+                    entry.getDroppedPackets()
+                    );
             pulledData.add(e);
         });
         return StatsManager.PULL_SUCCESS;
