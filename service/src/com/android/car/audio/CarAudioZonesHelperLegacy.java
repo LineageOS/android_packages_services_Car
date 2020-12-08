@@ -15,11 +15,12 @@
  */
 package com.android.car.audio;
 
+import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
+
 import static com.android.car.audio.CarAudioZonesHelper.LEGACY_CONTEXTS;
 
 import android.annotation.NonNull;
 import android.annotation.XmlRes;
-import android.car.media.CarAudioManager;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
@@ -125,14 +126,16 @@ class CarAudioZonesHelperLegacy {
         return busToCarAudioDeviceInfo;
     }
 
-    CarAudioZone[] loadAudioZones() {
-        final CarAudioZone zone = new CarAudioZone(CarAudioManager.PRIMARY_AUDIO_ZONE,
+    SparseArray<CarAudioZone> loadAudioZones() {
+        final CarAudioZone zone = new CarAudioZone(PRIMARY_AUDIO_ZONE,
                 "Primary zone");
         for (CarVolumeGroup group : loadVolumeGroups()) {
             zone.addVolumeGroup(group);
             bindContextsForVolumeGroup(group);
         }
-        return new CarAudioZone[]{zone};
+        SparseArray<CarAudioZone> carAudioZones = new SparseArray<>();
+        carAudioZones.put(PRIMARY_AUDIO_ZONE, zone);
+        return carAudioZones;
     }
 
     private void bindContextsForVolumeGroup(CarVolumeGroup group) {
@@ -201,7 +204,7 @@ class CarAudioZonesHelperLegacy {
             }
         }
 
-        return new CarVolumeGroup(mCarAudioSettings, CarAudioManager.PRIMARY_AUDIO_ZONE, id,
+        return new CarVolumeGroup(mCarAudioSettings, PRIMARY_AUDIO_ZONE, id,
                 contexts.stream().mapToInt(i -> i).filter(i -> i >= 0).toArray());
     }
 
