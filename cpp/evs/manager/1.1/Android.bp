@@ -28,7 +28,6 @@ cc_defaults {
         "libpng",
         "libprocessgroup",
         "libstatslog",
-        "libsync",
         "libui",
         "libutils",
     ],
@@ -47,14 +46,9 @@ cc_defaults {
         "-Wthread-safety",
     ],
 
-    include_dirs: [
-        "system/core/libsync",
-    ],
-
     export_include_dirs: [
         "./",
         "stats/",
-        "sync/",
     ],
 
     product_variables: {
@@ -79,12 +73,8 @@ filegroup {
         "stats/CameraUsageStats.cpp",
         "stats/LooperWrapper.cpp",
         "stats/StatsCollector.cpp",
-        "sync/unique_fd.cpp",
-        "sync/unique_fence.cpp",
-        "sync/unique_timeline.cpp",
     ],
 }
-
 
 cc_library_static {
     name: "libevsmanager_static",
@@ -96,7 +86,6 @@ cc_library_static {
     export_include_dirs: ["."],
 
 }
-
 
 cc_binary {
     name: "android.automotive.evs.manager@1.1",
