@@ -179,6 +179,13 @@ public final class CarAudioManagerPermissionTest {
     }
 
     @Test
+    public void isPlaybackOnVolumeGroupActivePermission() {
+        Exception e = expectThrows(SecurityException.class,
+                () -> mCarAudioManager.isPlaybackOnVolumeGroupActive(PRIMARY_AUDIO_ZONE, GROUP_ID));
+        assertThat(e.getMessage()).contains(PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+    }
+
+    @Test
     public void getUsagesForVolumeGroupIdPermission() {
         Exception e = expectThrows(SecurityException.class,
                 () -> mCarAudioManager.getUsagesForVolumeGroupId(GROUP_ID));

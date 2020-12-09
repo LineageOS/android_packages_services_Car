@@ -109,38 +109,14 @@ final class CarVolume {
      * {@link AudioPlaybackConfiguration}s, {@link CallState}, and active HAL usages
      */
     @AudioContext int getSuggestedAudioContext(
-            List<AudioPlaybackConfiguration> configurations,
-            @CallState int callState, @AttributeUsage int[] activeHalUsages) {
+            @NonNull List<AudioPlaybackConfiguration> configurations,
+            @CallState int callState, @NonNull @AttributeUsage int[] activeHalUsages) {
         int currentContext = DEFAULT_AUDIO_CONTEXT;
         int currentPriority = CONTEXT_HEIGHEST_PRIORITY + mVolumePriorityByAudioContext.size();
 
-        Set<Integer> contexts = new HashSet<>();
+        Set<Integer> activeContexts = getActiveContexts(configurations, callState, activeHalUsages);
 
-        if (callState == TelephonyManager.CALL_STATE_RINGING) {
-            currentContext = CarAudioContext.CALL_RING;
-            currentPriority = mVolumePriorityByAudioContext.get(CarAudioContext.CALL_RING);
-        } else if (callState == TelephonyManager.CALL_STATE_OFFHOOK) {
-            currentContext = CarAudioContext.CALL;
-            currentPriority = mVolumePriorityByAudioContext.get(CarAudioContext.CALL);
-            // If the highest priority has been found, return early.
-            if (currentPriority == CONTEXT_HEIGHEST_PRIORITY) {
-                return currentContext;
-            }
-        }
-
-        for (AudioPlaybackConfiguration configuration : configurations) {
-            if (!configuration.isActive()) {
-                continue;
-            }
-            contexts.add(CarAudioContext
-                    .getContextForUsage(configuration.getAudioAttributes().getSystemUsage()));
-        }
-
-        for (int index = 0; index < activeHalUsages.length; index++) {
-            contexts.add(CarAudioContext.getContextForUsage(activeHalUsages[index]));
-        }
-
-        for (@AudioContext int context : contexts) {
+        for (@AudioContext int context : activeContexts) {
             int priority = mVolumePriorityByAudioContext.get(context, CONTEXT_NOT_PRIORITIZED);
             if (priority == CONTEXT_NOT_PRIORITIZED) {
                 continue;
@@ -157,6 +133,52 @@ final class CarVolume {
         }
 
         return currentContext;
+    }
+
+    public static boolean isAnyContextActive(@NonNull @AudioContext int [] contexts,
+            @NonNull List<AudioPlaybackConfiguration> configurations, @CallState int callState,
+            @NonNull @AttributeUsage int[] activeHalUsages) {
+        Objects.nonNull(contexts);
+        Preconditions.checkArgument(contexts.length != 0,
+                "contexts can not be empty.");
+        Set<Integer> activeContexts = getActiveContexts(configurations, callState, activeHalUsages);
+        for (@AudioContext int context : contexts) {
+            if (activeContexts.contains(context)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static Set<Integer> getActiveContexts(
+            @NonNull List<AudioPlaybackConfiguration> configurations,
+            @CallState int callState, @NonNull  @AttributeUsage int[] activeHalUsages) {
+        Objects.nonNull(configurations);
+        Objects.nonNull(activeHalUsages);
+        Set<Integer> contexts = new HashSet<>();
+        switch (callState) {
+            case TelephonyManager.CALL_STATE_RINGING:
+                contexts.add(CarAudioContext.CALL_RING);
+                break;
+            case TelephonyManager.CALL_STATE_OFFHOOK:
+                contexts.add(CarAudioContext.CALL);
+                break;
+        }
+
+        for (int configIndex = 0; configIndex < configurations.size(); configIndex++) {
+            AudioPlaybackConfiguration configuration = configurations.get(configIndex);
+            if (!configuration.isActive()) {
+                continue;
+            }
+            contexts.add(CarAudioContext
+                    .getContextForUsage(configuration.getAudioAttributes().getSystemUsage()));
+        }
+
+        for (int index = 0; index < activeHalUsages.length; index++) {
+            contexts.add(CarAudioContext.getContextForUsage(activeHalUsages[index]));
+        }
+
+        return contexts;
     }
 
     @IntDef({

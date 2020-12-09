@@ -465,6 +465,25 @@ public final class CarAudioManager extends CarManagerBase {
     }
 
     /**
+     * Determines if a particular volume group has any audio playback in a zone
+     *
+     * @param zoneId The zone id whose volume group is queried.
+     * @param groupId The volume group id whose associated audio usages is returned.
+     * @return {@code true} if the group has active playback, {@code false} otherwise
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
+    public boolean isPlaybackOnVolumeGroupActive(int zoneId, int groupId) {
+        try {
+            return mService.isPlaybackOnVolumeGroupActive(zoneId, groupId);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, false);
+        }
+    }
+
+    /**
      * Gets the audio zones currently available
      *
      * @return audio zone ids
