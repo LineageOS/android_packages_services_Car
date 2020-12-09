@@ -100,30 +100,30 @@ class PipeQueryTest : public ::testing::Test {
 
 // Check retrieval of inserted entries
 TEST_F(PipeQueryTest, GetGraphListTest) {
-    std::shared_ptr<IPipeRunner> dummy1 = ndk::SharedRefBase::make<FakeRunner>();
-    addFakeRunner("dummy1", dummy1);
-    std::shared_ptr<IPipeRunner> dummy2 = ndk::SharedRefBase::make<FakeRunner>();
-    addFakeRunner("dummy2", dummy2);
+    std::shared_ptr<IPipeRunner> stub1 = ndk::SharedRefBase::make<FakeRunner>();
+    addFakeRunner("stub1", stub1);
+    std::shared_ptr<IPipeRunner> stub2 = ndk::SharedRefBase::make<FakeRunner>();
+    addFakeRunner("stub2", stub2);
 
     std::vector<std::string>* outNames = new std::vector<std::string>();
     std::shared_ptr<PipeQuery> qIface = ndk::SharedRefBase::make<PipeQuery>(mRegistry);
     ASSERT_TRUE(qIface->getGraphList(outNames).isOk());
 
     ASSERT_NE(outNames->size(), 0);
-    EXPECT_THAT(std::find(outNames->begin(), outNames->end(), "dummy1"),
+    EXPECT_THAT(std::find(outNames->begin(), outNames->end(), "stub1"),
                 testing::Ne(outNames->end()));
-    EXPECT_THAT(std::find(outNames->begin(), outNames->end(), "dummy2"),
+    EXPECT_THAT(std::find(outNames->begin(), outNames->end(), "stub2"),
                 testing::Ne(outNames->end()));
 }
 
 // Check successful retrieval of runner
 TEST_F(PipeQueryTest, GetRunnerTest) {
-    std::shared_ptr<IPipeRunner> dummy1 = ndk::SharedRefBase::make<FakeRunner>();
-    addFakeRunner("dummy1", dummy1);
+    std::shared_ptr<IPipeRunner> stub1 = ndk::SharedRefBase::make<FakeRunner>();
+    addFakeRunner("stub1", stub1);
 
     std::shared_ptr<PipeQuery> qIface = ndk::SharedRefBase::make<PipeQuery>(mRegistry);
     std::shared_ptr<IClientInfo> info = ndk::SharedRefBase::make<FakeClientInfo>();
     std::shared_ptr<IPipeRunner> runner;
-    ASSERT_TRUE(qIface->getPipeRunner("dummy1", info, &runner).isOk());
+    ASSERT_TRUE(qIface->getPipeRunner("stub1", info, &runner).isOk());
     EXPECT_THAT(runner, testing::NotNull());
 }

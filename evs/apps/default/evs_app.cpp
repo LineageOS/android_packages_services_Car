@@ -133,6 +133,7 @@ int main(int argc, char** argv)
     int displayId = -1;
     bool useExternalMemory = false;
     android_pixel_format_t extMemoryFormat = HAL_PIXEL_FORMAT_RGBA_8888;
+    int32_t mockGearSignal = static_cast<int32_t>(VehicleGear::GEAR_REVERSE);
     for (int i=1; i< argc; i++) {
         if (strcmp(argv[i], "--test") == 0) {
             useVehicleHal = false;
@@ -159,6 +160,15 @@ int main(int argc, char** argv)
                     ++i;
                 }
             }
+        } else if (strcmp(argv[i], "--gear") == 0) {
+            // Gear signal to simulate
+            i += 1; // increase an index to next argument
+            if (strcasecmp(argv[i], "Park") == 0) {
+                mockGearSignal = static_cast<int32_t>(VehicleGear::GEAR_PARK);
+            } else if (strcasecmp(argv[i], "Reverse") != 0) {
+                LOG(WARNING) << "Unknown gear signal, " << argv[i] << ", is ignored "
+                             << "and the reverse signal will be used instead";
+            }
         } else {
             printf("Ignoring unrecognized command line arg '%s'\n", argv[i]);
             printHelp = true;
@@ -166,7 +176,10 @@ int main(int argc, char** argv)
     }
     if (printHelp) {
         printf("Options include:\n");
-        printf("  --test\n\tDo not talk to Vehicle Hal, but simulate 'reverse' instead\n");
+        printf("  --test\n\tDo not talk to Vehicle Hal, "
+               "but simulate a given mock gear signal instead\n");
+        printf("  --gear\n\tMock gear signal for the test mode.");
+        printf("  Available options are Reverse and Park (case insensitive)\n");
         printf("  --hw\n\tBypass EvsManager by connecting directly to EvsEnumeratorHw\n");
         printf("  --mock\n\tConnect directly to EvsEnumeratorHw-Mock\n");
         printf("  --display\n\tSpecify the display to use.  If this is not set, the first"
@@ -229,6 +242,9 @@ int main(int argc, char** argv)
 
     config.useExternalMemory(useExternalMemory);
     config.setExternalMemoryFormat(extMemoryFormat);
+
+    // Set a mock gear signal for the test mode
+    config.setMockGearSignal(mockGearSignal);
 
     // Connect to the Vehicle HAL so we can monitor state
     sp<IVehicle> pVnet;

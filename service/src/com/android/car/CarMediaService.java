@@ -210,10 +210,14 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         if (Log.isLoggable(CarLog.TAG_MEDIA, Log.DEBUG)) {
             Log.d(CarLog.TAG_MEDIA, "CarMediaService.onEvent(" + event + ")");
         }
-        if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING == event.getEventType()) {
-            maybeInitUser(event.getUserId());
-        } else if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKING == event.getEventType()) {
-            onUserUnlock(event.getUserId());
+
+        switch (event.getEventType()) {
+            case CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING:
+                maybeInitUser(event.getUserId());
+                break;
+            case CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED:
+                onUserUnlock(event.getUserId());
+                break;
         }
     };
 
@@ -409,7 +413,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     @Override
     public List<ComponentName> getLastMediaSources(@CarMediaManager.MediaSourceMode int mode) {
         String key = getMediaSourceKey(mode);
-        String serialized = mSharedPrefs.getString(key, null);
+        String serialized = mSharedPrefs.getString(key, "");
         return getComponentNameList(serialized).stream()
                 .map(name -> ComponentName.unflattenFromString(name)).collect(Collectors.toList());
     }
@@ -814,7 +818,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     private @NonNull ComponentName getLastMediaSource(int mode) {
         if (sharedPrefsInitialized()) {
             String key = getMediaSourceKey(mode);
-            String serialized = mSharedPrefs.getString(key, null);
+            String serialized = mSharedPrefs.getString(key, "");
             if (!TextUtils.isEmpty(serialized)) {
                 for (String name : getComponentNameList(serialized)) {
                     ComponentName componentName = ComponentName.unflattenFromString(name);
@@ -840,7 +844,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         return componentNames.stream().collect(Collectors.joining(COMPONENT_NAME_SEPARATOR));
     }
 
-    private List<String> getComponentNameList(String serialized) {
+    private List<String> getComponentNameList(@NonNull String serialized) {
         String[] componentNames = serialized.split(COMPONENT_NAME_SEPARATOR);
         return (Arrays.asList(componentNames));
     }

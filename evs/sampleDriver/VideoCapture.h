@@ -41,12 +41,21 @@ public:
     __u32   getV4LFormat()      { return mFormat; };
 
     // NULL until stream is started
-    void* getLatestData()       { return mPixelBuffer; };
+    void* getLatestData() {
+        if (mFrames.empty()) {
+            // No frame is available
+            return nullptr;
+        }
 
-    bool isFrameReady()         { return mFrameReady; };
-    void markFrameConsumed()    { returnFrame(); };
+        // Return a pointer to the buffer captured most recently
+        const int latestBufferId = *mFrames.end();
+        return mPixelBuffers[latestBufferId];
+    }
 
-    bool isOpen()               { return mDeviceFd >= 0; };
+    bool isFrameReady()             { return !mFrames.empty(); }
+    void markFrameConsumed(int id)  { returnFrame(id); }
+
+    bool isOpen()                   { return mDeviceFd >= 0; }
 
     int setParameter(struct v4l2_control& control);
     int getParameter(struct v4l2_control& control);
@@ -54,13 +63,13 @@ public:
 
 private:
     void collectFrames();
-    void markFrameReady();
-    bool returnFrame();
+    bool returnFrame(int id);
 
     int mDeviceFd = -1;
 
-    v4l2_buffer mBufferInfo = {};
-    void* mPixelBuffer = nullptr;
+    int mNumBuffers = 0;
+    std::unique_ptr<v4l2_buffer[]> mBufferInfos = nullptr;
+    std::unique_ptr<void*[]>       mPixelBuffers = nullptr;
 
     __u32   mFormat = 0;
     __u32   mWidth  = 0;
@@ -71,7 +80,7 @@ private:
 
     std::thread mCaptureThread;             // The thread we'll use to dispatch frames
     std::atomic<int> mRunMode;              // Used to signal the frame loop (see RunModes below)
-    std::atomic<bool> mFrameReady;          // Set when a frame has been delivered
+    std::set<int> mFrames;                  // Set of available frame buffers
 
     // Careful changing these -- we're using bit-wise ops to manipulate these
     enum RunModes {

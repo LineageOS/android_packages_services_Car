@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,10 @@
  * limitations under the License.
  */
 
-#pragma once
+package android.car.watchdog;
 
-#include <string>
-#include <vector>
-#include "core_lib.h"
-
-using namespace std;
-
-// TODO(b/150412555): The helper method should only be used for testing
-// purposes once EVS camera is used.
-namespace android_auto {
-namespace surround_view {
-
-vector<SurroundViewCameraParams> GetCameras();
-
-SurroundView2dParams Get2dParams();
-
-SurroundView3dParams Get3dParams();
-
-BoundingBox GetBoundingBox();
-
-vector<float> GetUndistortionScales();
-
-}  // namespace surround_view
-}  // namespace android_auto
-
+/** @hide */
+oneway interface ICarWatchdogServiceCallback {
+    void onCheckHealthStatus(in int sessionId, in int timeout);
+    void onPrepareProcessTermination();
+}

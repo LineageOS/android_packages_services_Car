@@ -17,13 +17,21 @@
 #pragma once
 
 #include <android/hardware/automotive/evs/1.1/IEvsCamera.h>
+#include <android/hardware/automotive/evs/1.1/IEvsCameraStream.h>
 #include <android/hardware/automotive/evs/1.1/IEvsDisplay.h>
 #include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
 
 #include <ConfigManager.h>
 
+#include <ui/GraphicBuffer.h>
+
+#include <mutex>
+#include <thread>
+
 using ::android::hardware::automotive::evs::V1_0::EvsResult;
 using ::android::hardware::automotive::evs::V1_1::CameraParam;
+using ::android::hardware::automotive::evs::V1_1::EvsEventDesc;
+using ::android::hardware::automotive::evs::V1_1::EvsEventType;
 
 namespace android {
 namespace hardware {
@@ -38,6 +46,7 @@ using CameraDesc_1_1 = ::android::hardware::automotive::evs::V1_1::CameraDesc;
 using IEvsCamera_1_0 = ::android::hardware::automotive::evs::V1_0::IEvsCamera;
 using IEvsCamera_1_1 = ::android::hardware::automotive::evs::V1_1::IEvsCamera;
 using IEvsCameraStream_1_0 = ::android::hardware::automotive::evs::V1_0::IEvsCameraStream;
+using IEvsCameraStream_1_1 = ::android::hardware::automotive::evs::V1_1::IEvsCameraStream;
 using IEvsDisplay_1_0 = ::android::hardware::automotive::evs::V1_0::IEvsDisplay;
 using IEvsEnumerator_1_1 = ::android::hardware::automotive::evs::V1_1::IEvsEnumerator;
 
@@ -45,7 +54,7 @@ using IEvsEnumerator_1_1 = ::android::hardware::automotive::evs::V1_1::IEvsEnume
 // implemented.
 class MockEvsCamera : public IEvsCamera_1_1 {
 public:
-    MockEvsCamera();
+    MockEvsCamera(const std::string& cameraId, const Stream& streamCfg);
 
     // Methods from ::android::hardware::automotive::evs::V1_0::IEvsCamera follow.
     Return<void> getCameraInfo(getCameraInfo_cb _hidl_cb) override;
@@ -79,7 +88,30 @@ public:
                                        importExternalBuffers_cb _hidl_cb) override;
 
 private:
+    void initializeFrames(int framesCount);
+    void generateFrames();
+
     std::unique_ptr<ConfigManager> mConfigManager;
+
+    std::mutex mAccessLock;
+
+    enum StreamStateValues {
+        STOPPED,
+        RUNNING,
+        STOPPING,
+        DEAD,
+    };
+    StreamStateValues mStreamState GUARDED_BY(mAccessLock);
+    Stream mStreamCfg;
+
+    std::vector<android::sp<GraphicBuffer>> mGraphicBuffers;
+    std::vector<BufferDesc_1_1> mBufferDescs;
+    CameraDesc_1_1 mCameraDesc;
+
+    std::string mCameraId;
+    std::thread mCaptureThread;  // The thread we'll use to synthesize frames
+
+    android::sp<IEvsCameraStream_1_1> mStream;
 };
 
 }  // namespace implementation

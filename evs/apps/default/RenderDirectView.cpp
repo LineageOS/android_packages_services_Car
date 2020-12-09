@@ -38,7 +38,7 @@ typedef struct {
     int32_t framerate;
 } RawStreamConfig;
 
-const size_t kStreamCfgSz = sizeof(RawStreamConfig);
+const size_t kStreamCfgSz = sizeof(RawStreamConfig) / sizeof(int32_t);
 
 
 RenderDirectView::RenderDirectView(sp<IEvsEnumerator> enumerator,

@@ -556,7 +556,7 @@ TEST(IoPerfCollectionTest, TestValidCollectionSequence) {
     args.push_back(String16(kMaxDurationFlag));
     args.push_back(String16(std::to_string(kTestCustomCollectionDuration.count()).c_str()));
 
-    ret = collector->dump(-1, args);
+    ret = collector->onCustomCollection(-1, args);
     ASSERT_TRUE(ret.ok()) << ret.error().message();
     uidIoStatsStub->push({
             {1009, {.uid = 1009, .ios = {0, 13000, 0, 15000, 0, 100}}},
@@ -691,7 +691,7 @@ TEST(IoPerfCollectionTest, TestValidCollectionSequence) {
     args.clear();
     args.push_back(String16(kEndCustomCollectionFlag));
     TemporaryFile customDump;
-    ret = collector->dump(customDump.fd, args);
+    ret = collector->onCustomCollection(customDump.fd, args);
     ASSERT_TRUE(ret.ok()) << ret.error().message();
     ret = looperStub->pollCache();
     ASSERT_TRUE(ret) << ret.error().message();
@@ -773,7 +773,7 @@ TEST(IoPerfCollectionTest, TestValidCollectionSequence) {
             << "Boot-time records not persisted until collector termination";
 
     TemporaryFile bugreportDump;
-    ret = collector->dump(bugreportDump.fd, {});
+    ret = collector->onDump(bugreportDump.fd);
     ASSERT_TRUE(ret.ok()) << ret.error().message();
 
     collector->terminate();
@@ -869,7 +869,7 @@ TEST(IoPerfCollectionTest, TestCustomCollectionFiltersPackageNames) {
     args.push_back(String16(kFilterPackagesFlag));
     args.push_back(String16("android.car.cts,system_server"));
 
-    ret = collector->dump(-1, args);
+    ret = collector->onCustomCollection(-1, args);
     ASSERT_TRUE(ret.ok()) << ret.error().message();
 
     // Custom collection
@@ -1028,7 +1028,7 @@ TEST(IoPerfCollectionTest, TestCustomCollectionTerminatesAfterMaxDuration) {
     args.push_back(String16(kMaxDurationFlag));
     args.push_back(String16(std::to_string(kTestCustomCollectionDuration.count()).c_str()));
 
-    ret = collector->dump(-1, args);
+    ret = collector->onCustomCollection(-1, args);
     ASSERT_TRUE(ret.ok()) << ret.error().message();
     // Maximum custom collection iterations during |kTestCustomCollectionDuration|.
     int maxIterations =
@@ -1493,29 +1493,29 @@ TEST(IoPerfCollectionTest, TestHandlesInvalidDumpArguments) {
     args.push_back(String16(kStartCustomCollectionFlag));
     args.push_back(String16("Invalid flag"));
     args.push_back(String16("Invalid value"));
-    ASSERT_FALSE(collector->dump(-1, args).ok());
+    ASSERT_FALSE(collector->onCustomCollection(-1, args).ok());
 
     args.clear();
     args.push_back(String16(kStartCustomCollectionFlag));
     args.push_back(String16(kIntervalFlag));
     args.push_back(String16("Invalid interval"));
-    ASSERT_FALSE(collector->dump(-1, args).ok());
+    ASSERT_FALSE(collector->onCustomCollection(-1, args).ok());
 
     args.clear();
     args.push_back(String16(kStartCustomCollectionFlag));
     args.push_back(String16(kMaxDurationFlag));
     args.push_back(String16("Invalid duration"));
-    ASSERT_FALSE(collector->dump(-1, args).ok());
+    ASSERT_FALSE(collector->onCustomCollection(-1, args).ok());
 
     args.clear();
     args.push_back(String16(kEndCustomCollectionFlag));
     args.push_back(String16(kMaxDurationFlag));
     args.push_back(String16(std::to_string(kTestCustomCollectionDuration.count()).c_str()));
-    ASSERT_FALSE(collector->dump(-1, args).ok());
+    ASSERT_FALSE(collector->onCustomCollection(-1, args).ok());
 
     args.clear();
     args.push_back(String16("Invalid flag"));
-    ASSERT_FALSE(collector->dump(-1, args).ok());
+    ASSERT_FALSE(collector->onCustomCollection(-1, args).ok());
     collector->terminate();
 }
 
