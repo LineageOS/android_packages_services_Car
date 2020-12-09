@@ -25,9 +25,6 @@ cc_library {
         "stats/CameraUsageStats.cpp",
         "stats/LooperWrapper.cpp",
         "stats/StatsCollector.cpp",
-        "sync/unique_fd.cpp",
-        "sync/unique_fence.cpp",
-        "sync/unique_timeline.cpp",
     ],
 
     shared_libs: [
@@ -40,7 +37,6 @@ cc_library {
         "libhidlbase",
         "libprocessgroup",
         "libstatslog",
-        "libsync",
         "libui",
         "libutils",
     ],
@@ -54,14 +50,9 @@ cc_library {
         "-Wthread-safety",
     ],
 
-    include_dirs: [
-        "system/core/libsync",
-    ],
-
     export_include_dirs: [
         "./",
         "stats/",
-        "sync/",
     ],
 
     product_variables: {
@@ -87,9 +78,6 @@ cc_binary {
         "stats/CameraUsageStats.cpp",
         "stats/LooperWrapper.cpp",
         "stats/StatsCollector.cpp",
-        "sync/unique_fd.cpp",
-        "sync/unique_fence.cpp",
-        "sync/unique_timeline.cpp",
     ],
 
     shared_libs: [
@@ -102,7 +90,6 @@ cc_binary {
         "libhidlbase",
         "libprocessgroup",
         "libstatslog",
-        "libsync",
         "libui",
         "libutils",
     ],
@@ -110,18 +97,12 @@ cc_binary {
     init_rc: ["android.automotive.evs.manager@1.1.rc"],
 
     cflags: ["-DLOG_TAG=\"EvsManagerV1_1\""] + [
-        "-DGL_GLEXT_PROTOTYPES",
-        "-DEGL_EGLEXT_PROTOTYPES",
         "-D_LIBCPP_ENABLE_THREAD_SAFETY_ANNOTATIONS",
         "-Wall",
         "-Werror",
         "-Wunused",
         "-Wunreachable-code",
         "-Wthread-safety",
-    ],
-
-    include_dirs: [
-        "system/core/libsync",
     ],
 
     product_variables: {
