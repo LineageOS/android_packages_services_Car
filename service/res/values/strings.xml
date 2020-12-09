@@ -493,6 +493,11 @@
     <!-- Permission text: apps control car power policy [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_control_car_power_policy">Control car power policy.</string>
 
+    <!-- Permission text: app can render templates provided by another app [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_template_renderer">render templates</string>
+    <!-- Permission text: app can render templates provided by another app [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_template_renderer">Render templates.</string>
+
     <!-- The default name of device enrolled as trust device [CHAR LIMIT=NONE] -->
     <string name="trust_device_default_name">My Device</string>
 

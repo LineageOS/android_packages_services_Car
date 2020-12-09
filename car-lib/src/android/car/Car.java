@@ -750,6 +750,16 @@ public final class Car {
     /** Type of car connection: platform runs directly in car. */
     public static final int CONNECTION_TYPE_EMBEDDED = 5;
 
+    /**
+     * Permission necessary to be able to render template-based UI metadata on behalf of another
+     * application.
+     *
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_TEMPLATE_RENDERER =
+            "android.car.permission.TEMPLATE_RENDERER";
+
     /** @hide */
     @IntDef({CONNECTION_TYPE_EMBEDDED})
     @Retention(RetentionPolicy.SOURCE)

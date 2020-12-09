@@ -812,6 +812,15 @@
                 android:label="@string/car_permission_label_control_car_power_policy"
                 android:description="@string/car_permission_desc_control_car_power_policy"/>
 
+    <!-- Allows an application to render template-based UI metadata on behalf of another
+         application.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.TEMPLATE_RENDERER"
+                android:protectionLevel="signature|privileged"
+                android:label="@string/car_permission_label_template_renderer"
+                android:description="@string/car_permission_desc_template_renderer"/>
+
     <uses-permission android:name="android.permission.CALL_PHONE"/>
     <uses-permission android:name="android.permission.DEVICE_POWER"/>
     <uses-permission android:name="android.permission.GRANT_RUNTIME_PERMISSIONS"/>
