@@ -126,4 +126,16 @@
         <item>"no_modify_accounts"</item>
     </string-array>
 
+    <!-- Specifies priority of automatic time sources. Suggestions from higher entries in the list
+         take precedence over lower ones.
+         See com.android.server.timedetector.TimeDetectorStrategy for available sources. -->
+    <string-array name="config_autoTimeSourcesPriority">
+        <item>telephony</item>
+        <item>network</item>
+        <item>gnss</item>
+    </string-array>
+    <!-- Enables the GnssTimeUpdate service. This is a switch for enabling Gnss time based
+         suggestions to TimeDetector service. -->
+    <bool name="config_enableGnssTimeUpdateService">true</bool>
+
 </resources>
