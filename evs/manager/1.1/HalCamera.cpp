@@ -77,19 +77,6 @@ bool HalCamera::ownVirtualCamera(sp<VirtualCamera> virtualCamera) {
         return false;
     }
 
-    if (mSyncSupported) {
-        // Create a timeline
-        std::lock_guard<std::mutex> lock(mFrameMutex);
-        auto timeline = make_unique<UniqueTimeline>(0);
-        if (timeline != nullptr) {
-            mTimelines[(uint64_t)virtualCamera.get()] = std::move(timeline);
-        } else {
-            LOG(WARNING) << "Failed to create a timeline. "
-                         << "Client " << std::hex << virtualCamera.get()
-                         << " will use v1.0 frame delivery mechanism.";
-        }
-    }
-
     // Add this virtualCamera to our ownership list via weak pointer
     mClients.emplace_back(virtualCamera);
 
@@ -220,34 +207,14 @@ bool HalCamera::changeFramesInFlight(const hidl_vec<BufferDesc_1_1>& buffers,
 }
 
 
-UniqueFence HalCamera::requestNewFrame(sp<VirtualCamera> client,
-                                       const int64_t lastTimestamp) {
-    if (!mSyncSupported) {
-        LOG(ERROR) << "This HalCamera does not support a fence-based "
-                   << "frame delivery.";
-        return {};
-    }
-
+void HalCamera::requestNewFrame(sp<VirtualCamera> client,
+                                const int64_t lastTimestamp) {
     FrameRequest req;
     req.client = client;
     req.timestamp = lastTimestamp;
 
-    const uint64_t id = (uint64_t)client.get();
-
     std::lock_guard<std::mutex> lock(mFrameMutex);
-
-    if (mTimelines.find(id) == mTimelines.end()) {
-        // Timeline for this client either does not exist or is deleted.
-        LOG(ERROR) << "Timeline for this client does not exist.";
-        return {};
-    }
-
-    mTimelines[id]->BumpFenceEventCounter();
-    UniqueFence fence = mTimelines[id]->CreateFence("FrameFence");
-
     mNextRequests->push_back(req);
-
-    return fence.Dup();
 }
 
 
@@ -275,15 +242,8 @@ void HalCamera::clientStreamEnding(const VirtualCamera* client) {
             }
         }
 
-        const uint64_t clientId = reinterpret_cast<const uint64_t>(client);
         if (itReq != mNextRequests->end()) {
             mNextRequests->erase(itReq);
-
-            // Signal a pending fence and delete associated timeline.
-            if (mTimelines.find(clientId) != mTimelines.end()) {
-                mTimelines[clientId]->BumpTimelineEventCounter();
-                mTimelines.erase(clientId);
-            }
         }
 
         auto itCam = mClients.begin();
@@ -399,7 +359,8 @@ Return<void> HalCamera::deliverFrame_1_1(const hardware::hidl_vec<BufferDesc_1_1
     //           but this must be derived from current framerate.
     constexpr int64_t kThreshold = 16 * 1e+3; // ms
     unsigned frameDeliveriesV1 = 0;
-    if (mSyncSupported) {
+    {
+        // Handle frame requests from v1.1 clients
         std::lock_guard<std::mutex> lock(mFrameMutex);
         std::swap(mCurrentRequests, mNextRequests);
         while (!mCurrentRequests->empty()) {
@@ -418,7 +379,6 @@ Return<void> HalCamera::deliverFrame_1_1(const hardware::hidl_vec<BufferDesc_1_1
             } else if (vCam != nullptr && vCam->deliverFrame(buffer[0])) {
                 // Forward a frame and move a timeline.
                 LOG(DEBUG) << getId() << " forwarded the buffer #" << buffer[0].bufferId;
-                mTimelines[(uint64_t)vCam.get()]->BumpTimelineEventCounter();
                 ++frameDeliveriesV1;
             }
         }
@@ -432,7 +392,7 @@ Return<void> HalCamera::deliverFrame_1_1(const hardware::hidl_vec<BufferDesc_1_1
     unsigned frameDeliveries = 0;
     for (auto&& client : mClients) {
         sp<VirtualCamera> vCam = client.promote();
-        if (vCam == nullptr || (mSyncSupported && vCam->getVersion() > 0)) {
+        if (vCam == nullptr || vCam->getVersion() > 0) {
             continue;
         }
 
@@ -630,10 +590,8 @@ std::string HalCamera::toString(const char* indent) const {
         buffer += handle->toString(double_indent.c_str());
     }
 
-    StringAppendF(&buffer, "%sMaster client: %p\n"
-                           "%sSynchronization support: %s\n",
-                           indent, mMaster.promote().get(),
-                           indent, mSyncSupported ? "T":"F");
+    StringAppendF(&buffer, "%sMaster client: %p\n",
+                           indent, mMaster.promote().get());
 
     buffer += HalCamera::toString(mStreamConfig, indent);
 
