@@ -47,6 +47,9 @@ common_lib_deps = [
     "blestream-protos",
     "SettingsLib",
     "androidx.preference_preference",
+    // TODO(b/175057848): car-admin-ui-lib is need by NewUserDisclaimerActivity;
+    // it might be better to move that class to CarSystemUI instead.
+    "car-admin-ui-lib",
 ]
 
 android_app {
@@ -118,8 +121,6 @@ android_library {
     ],
 
     static_libs: common_lib_deps,
-
-    min_sdk_version: "25",
 
     product_variables: {
         pdk: {

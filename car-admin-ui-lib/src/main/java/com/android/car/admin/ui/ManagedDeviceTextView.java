@@ -50,27 +50,32 @@ public final class ManagedDeviceTextView extends TextView {
             return;
         }
 
-        Resources res = getResources();
-        CharSequence text;
+        CharSequence text = getManagedDeviceText(context);
+        if (DEBUG) Log.d(TAG, "setting text to '" + text + "'");
+
+        setText(text);
+    }
+
+    /**
+     * Gets the text indicating that the device is managed by an organization.
+     */
+    public static CharSequence getManagedDeviceText(Context context) {
+        Resources res = context.getResources();
         try {
             DevicePolicyManager dpm = context.getSystemService(DevicePolicyManager.class);
             CharSequence orgName = dpm.getDeviceOwnerOrganizationName();
             if (orgName != null) {
-                text = res.getString(R.string.car_admin_ui_managed_device_message_by_org, orgName);
-            } else {
-                if (DEBUG) {
-                    Log.d(TAG, "organization name not set, using device owner app name instead");
-                }
-                text = res.getString(R.string.car_admin_ui_managed_device_message_by_app,
-                        dpm.getDeviceOwnerNameOnAnyUser());
+                return res.getString(R.string.car_admin_ui_managed_device_message_by_org, orgName);
             }
+            if (DEBUG) {
+                Log.d(TAG, "organization name not set, using device owner app name instead");
+            }
+            return res.getString(R.string.car_admin_ui_managed_device_message_by_app,
+                    dpm.getDeviceOwnerNameOnAnyUser());
         } catch (Exception e) {
             Log.w(TAG, "error getting name of device owner organization", e);
-            text = res.getString(R.string.car_admin_ui_managed_device_message_generic);
+            return res.getString(R.string.car_admin_ui_managed_device_message_generic);
         }
-        if (DEBUG) Log.d(TAG, "setting text to '" + text + "'");
-
-        setText(text);
     }
 
     private static boolean isManagedDevice(Context context) {

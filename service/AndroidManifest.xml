@@ -897,5 +897,11 @@
              android:exported="false"
              android:launchMode="singleTask">
         </activity>
+        <activity android:name="com.android.car.admin.NewUserDisclaimerActivity"
+             android:excludeFromRecents="true"
+             android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+             android:exported="false"
+             android:launchMode="singleTask">
+        </activity>
     </application>
 </manifest>

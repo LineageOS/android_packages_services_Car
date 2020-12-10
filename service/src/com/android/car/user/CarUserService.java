@@ -293,7 +293,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             @Nullable UserPreCreator userPreCreator,
             @NonNull CarUxRestrictionsManagerService uxRestrictionService) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Slog.d(TAG, "constructed");
+            Slog.d(TAG, "constructed for user " + context.getUserId());
         }
         mContext = context;
         mHal = hal;

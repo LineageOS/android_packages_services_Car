@@ -28,9 +28,12 @@ import com.android.car.R;
 /**
  * Helper for notification-related tasks
  */
-final class NotificationHelper {
+public final class NotificationHelper {
 
     static final int FACTORY_RESET_NOTIFICATION_ID = 42;
+    public static final int NEW_USER_DISCLAIMER_NOTIFICATION_ID = 108;
+
+    static final String IMPORTANCE_DEFAULT_ID = "importance_default";
     static final String IMPORTANCE_HIGH_ID = "importance_high";
 
     /**
@@ -42,10 +45,14 @@ final class NotificationHelper {
      * {@link NotificationManager.IMPORTANCE_HIGH} is supported.
      */
     @NonNull
-    static Notification.Builder newNotificationBuilder(Context context,
+    public static Notification.Builder newNotificationBuilder(Context context,
             @NotificationManager.Importance int importance) {
         String importanceId, importanceName;
         switch (importance) {
+            case NotificationManager.IMPORTANCE_DEFAULT:
+                importanceId = IMPORTANCE_DEFAULT_ID;
+                importanceName = context.getString(R.string.importance_default);
+                break;
             case NotificationManager.IMPORTANCE_HIGH:
                 importanceId = IMPORTANCE_HIGH_ID;
                 importanceName = context.getString(R.string.importance_high);

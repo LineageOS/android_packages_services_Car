@@ -48,7 +48,7 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
         implements CarServiceBase {
 
     private static final String TAG = CarDevicePolicyService.class.getSimpleName();
-    private static final boolean DEBUG = false;
+    static final boolean DEBUG = false;
 
     private static final int HAL_TIMEOUT_MS = CarProperties.user_hal_timeout().orElse(5_000);
 

@@ -504,6 +504,8 @@
     <!-- Default name for new guest users [CHAR LIMIT=20] -->
     <string name="default_guest_name">Guest</string>
 
+    <!-- Name of the default-importance notification channel [CHAR LIMIT=40] -->
+    <string name="importance_default">Default importance</string>
     <!-- Name of the high-importance notification channel [CHAR LIMIT=40] -->
     <string name="importance_high">High importance</string>
 
@@ -513,5 +515,11 @@
     <string name="factory_reset_full_text" translatable="false">A factory reset is imminent, if you don\'t accept it now, it will be automatically done after reboot.\n\nDo you want to factory reset now?</string>
     <string name="factory_reset_now" translatable="false">Now</string>
     <string name="factory_reset_later" translatable="false">Later</string>
+
+    <!--  TODO(b/175214581): STOPSHIP use proper sentence and remove translatable=false -->
+    <!--  Button on screen that warns the user that device is owned and managed by an enterprise
+          (like a car rental company), asking user to accept [CHAR_LIMIT=20] -->
+    <string name="new_user_managed_device_acceptance" translatable="false">Accept and continue</string>
+    <string name="new_user_managed_notification_title" translatable="false">Managed device</string>
 
 </resources>

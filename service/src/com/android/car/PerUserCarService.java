@@ -15,14 +15,19 @@
  */
 package com.android.car;
 
+import android.annotation.Nullable;
 import android.app.Service;
 import android.car.ICarBluetoothUserService;
 import android.car.ILocationManagerProxy;
 import android.car.IPerUserCarService;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.util.IndentingPrintWriter;
 import android.util.Slog;
+
+import com.android.car.admin.PerUserCarDevicePolicyService;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -41,6 +46,7 @@ public class PerUserCarService extends Service {
 
     private CarBluetoothUserService mCarBluetoothUserService;
     private LocationManagerProxy mLocationManagerProxy;
+    private @Nullable PerUserCarDevicePolicyService mPerUserCarDevicePolicyService;
     private PerUserCarServiceBinder mPerUserCarServiceBinder;
 
     @Override
@@ -62,10 +68,20 @@ public class PerUserCarService extends Service {
 
     @Override
     public void onCreate() {
-        Slog.i(TAG, "created for user " + getApplicationContext().getUserId());
+        Context context = getApplicationContext();
+        Slog.i(TAG, "created for user " + context.getUserId());
 
         mPerUserCarServiceBinder = new PerUserCarServiceBinder();
         mCarBluetoothUserService = new CarBluetoothUserService(this);
+
+        if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN)) {
+            mPerUserCarDevicePolicyService = PerUserCarDevicePolicyService.getInstance(context);
+            mPerUserCarDevicePolicyService.registerBroadcastReceiver();
+        } else if (DBG) {
+            Slog.d(TAG, "Not setting PerUserCarDevicePolicyService because device doesn't have "
+                    + PackageManager.FEATURE_DEVICE_ADMIN);
+        }
+
         mLocationManagerProxy = new LocationManagerProxy(this);
         super.onCreate();
     }
@@ -74,6 +90,9 @@ public class PerUserCarService extends Service {
     public void onDestroy() {
         Slog.i(TAG, "destroyed for user " + getApplicationContext().getUserId());
 
+        if (mPerUserCarDevicePolicyService != null) {
+            mPerUserCarDevicePolicyService.onDestroy();
+        }
         mPerUserCarServiceBinder = null;
     }
 
@@ -84,6 +103,16 @@ public class PerUserCarService extends Service {
             pw.increaseIndent();
             mCarBluetoothUserService.dump(pw);
             pw.decreaseIndent();
+            pw.println();
+
+            if (mPerUserCarDevicePolicyService != null) {
+                pw.println("PerUserCarDevicePolicyService");
+                pw.increaseIndent();
+                mPerUserCarDevicePolicyService.dump(pw);
+                pw.decreaseIndent();
+            } else {
+                pw.println("PerUserCarDevicePolicyService not needed");
+            }
         }
     }
 
