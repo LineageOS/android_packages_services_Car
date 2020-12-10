@@ -1301,7 +1301,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     private static class CpmsState {
         // NOTE: When modifying states below, make sure to update CarPowerStateChanged.State in
-        //   frameworks/base/cmds/statsd/src/atoms.proto also.
+        //   frameworks/proto_logging/stats/atoms.proto also.
         public static final int WAIT_FOR_VHAL = 0;
         public static final int ON = 1;
         public static final int SHUTDOWN_PREPARE = 2;

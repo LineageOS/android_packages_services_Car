@@ -38,7 +38,7 @@ using ::android::base::WriteStringToFd;
 HalCamera::~HalCamera() {
     // Reports the usage statistics before the destruction
     // EvsUsageStatsReported atom is defined in
-    // frameworks/base/cmds/statsd/src/atoms.proto
+    // frameworks/proto_logging/stats/atoms.proto
     mUsageStats->writeStats();
 }
 
