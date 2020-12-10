@@ -653,16 +653,16 @@ bool SurroundView3dSession::handleFrames(int sequenceId) {
                    << mConfig.width
                    << ", new height: "
                    << mConfig.height;
-        delete[] static_cast<char*>(mOutputPointer.data_pointer);
+        delete[] static_cast<char*>(mOutputPointer.cpu_data_pointer);
         mOutputWidth = mConfig.width;
         mOutputHeight = mConfig.height;
         mOutputPointer.height = mOutputHeight;
         mOutputPointer.width = mOutputWidth;
         mOutputPointer.format = Format::RGBA;
-        mOutputPointer.data_pointer =
-            new char[mOutputHeight * mOutputWidth * kOutputNumChannels];
+        mOutputPointer.cpu_data_pointer =
+                static_cast<void*>(new char[mOutputHeight * mOutputWidth * kOutputNumChannels]);
 
-        if (!mOutputPointer.data_pointer) {
+        if (!mOutputPointer.cpu_data_pointer) {
             LOG(ERROR) << "Memory allocation failed. Exiting.";
             return false;
         }
@@ -740,7 +740,7 @@ bool SurroundView3dSession::handleFrames(int sequenceId) {
     } else {
         LOG(ERROR) << "Get3dSurroundView failed. "
                    << "Using memset to initialize to gray.";
-        memset(mOutputPointer.data_pointer, kGrayColor,
+        memset(mOutputPointer.cpu_data_pointer, kGrayColor,
                mOutputHeight * mOutputWidth * kOutputNumChannels);
     }
     ATRACE_END();
@@ -763,7 +763,7 @@ bool SurroundView3dSession::handleFrames(int sequenceId) {
     // the width is 1080, but the stride is 2048. So we'd better copy the
     // data line by line, instead of single memcpy.
     uint8_t* writePtr = static_cast<uint8_t*>(textureDataPtr);
-    uint8_t* readPtr = static_cast<uint8_t*>(mOutputPointer.data_pointer);
+    uint8_t* readPtr = static_cast<uint8_t*>(mOutputPointer.cpu_data_pointer);
     const int readStride = mOutputWidth * kOutputNumChannels;
     const int writeStride = mSvTexture->getStride() * kOutputNumChannels;
     if (readStride == writeStride) {
@@ -850,9 +850,8 @@ bool SurroundView3dSession::initialize() {
         mInputPointers[i].height = mCameraParams[i].size.height;
         mInputPointers[i].format = Format::RGBA;
         mInputPointers[i].cpu_data_pointer =
-                (void*)new uint8_t[mInputPointers[i].width *
-                                   mInputPointers[i].height *
-                                   kInputNumChannels];
+                static_cast<void*>(new uint8_t[mInputPointers[i].width * mInputPointers[i].height *
+                                               kInputNumChannels]);
     }
     LOG(INFO) << "Allocated " << kNumFrames << " input pointers";
 
@@ -866,10 +865,10 @@ bool SurroundView3dSession::initialize() {
     mOutputPointer.height = mOutputHeight;
     mOutputPointer.width = mOutputWidth;
     mOutputPointer.format = Format::RGBA;
-    mOutputPointer.data_pointer = new char[
-        mOutputHeight * mOutputWidth * kOutputNumChannels];
+    mOutputPointer.cpu_data_pointer =
+            static_cast<void*>(new char[mOutputHeight * mOutputWidth * kOutputNumChannels]);
 
-    if (!mOutputPointer.data_pointer) {
+    if (!mOutputPointer.cpu_data_pointer) {
         LOG(ERROR) << "Memory allocation failed. Exiting.";
         return false;
     }

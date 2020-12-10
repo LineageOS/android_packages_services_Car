@@ -17,17 +17,17 @@
 
 #include "SurroundView2dSession.h"
 
+#include "CameraUtils.h"
+
 #include <android-base/logging.h>
+#include <android/hardware/camera/device/3.2/ICameraDevice.h>
 #include <android/hardware_buffer.h>
 #include <system/camera_metadata.h>
 #include <utils/SystemClock.h>
 #include <utils/Trace.h>
+#include <vndk/hardware_buffer.h>
 
 #include <thread>
-
-#include <android/hardware/camera/device/3.2/ICameraDevice.h>
-
-#include "CameraUtils.h"
 
 using ::std::adopt_lock;
 using ::std::lock;
@@ -65,7 +65,6 @@ typedef struct {
 } RawStreamConfig;
 
 static const size_t kStreamCfgSz = sizeof(RawStreamConfig) / sizeof(int32_t);
-static const uint8_t kGrayColor = 128;
 static const int kInputNumChannels = 4;
 static const int kOutputNumChannels = 3;
 static const int kNumFrames = 4;
@@ -136,16 +135,42 @@ Return<void> SurroundView2dSession::FramesHandler::deliverFrame_1_1(
             return {};
         }
 
-        for (int i = 0; i < kNumFrames; i++) {
-            LOG(DEBUG) << "Copying buffer from camera ["
-                       << buffers[indices[i]].deviceId
-                       << "] to Surround View Service";
-            mSession->copyFromBufferToPointers(buffers[indices[i]],
-                                               mSession->mInputPointers[i]);
+        if (mSession->mGpuAccelerationEnabled) {
+            for (int i = 0; i < kNumFrames; i++) {
+                LOG(DEBUG) << "Importing graphic buffer from camera ["
+                           << buffers[indices[i]].deviceId << "]";
+                const AHardwareBuffer_Desc* pDesc = reinterpret_cast<const AHardwareBuffer_Desc*>(
+                        &buffers[indices[i]].buffer.description);
+
+                AHardwareBuffer* hardwareBuffer;
+                status_t status = AHardwareBuffer_createFromHandle(
+                        pDesc, buffers[indices[i]].buffer.nativeHandle,
+                        AHARDWAREBUFFER_CREATE_FROM_HANDLE_METHOD_CLONE, &hardwareBuffer);
+
+                if (status != NO_ERROR) {
+                    LOG(ERROR) << "Can't create AHardwareBuffer from handle. Error: " << status;
+                    return {};
+                }
+
+                mSession->mInputPointers[i].gpu_data_pointer = static_cast<void*>(hardwareBuffer);
+
+                // Keep a reference to the EVS graphic buffers, so we can
+                // release them after Surround View stitching is done.
+                mSession->mEvsGraphicBuffers = buffers;
+            }
+        } else {
+            for (int i = 0; i < kNumFrames; i++) {
+                LOG(DEBUG) << "Copying buffer from camera [" << buffers[indices[i]].deviceId
+                           << "] to Surround View Service";
+                mSession->copyFromBufferToPointers(buffers[indices[i]],
+                                                   mSession->mInputPointers[i]);
+            }
+
+            // On the CPU version, we do not need to hold the Graphic Buffers
+            // any more since they are copied already.
+            mCamera->doneWithFrame_1_1(buffers);
         }
     }
-
-    mCamera->doneWithFrame_1_1(buffers);
 
     // Notify the session that a new set of frames is ready
     mSession->mFramesSignal.notify_all();
@@ -303,6 +328,8 @@ SurroundView2dSession::~SurroundView2dSession() {
     }
 
     mEvs->closeCamera(mCamera);
+
+    // TODO(b/175176576): properly release the mInputPointers and mOutputPointer
 }
 
 // Methods from ::android::hardware::automotive::sv::V1_0::ISurroundViewSession
@@ -469,6 +496,7 @@ Return<void> SurroundView2dSession::projectCameraPoints(const hidl_vec<Point2dIn
     return {};
 }
 
+// TODO(b/175176765): implement a GPU version of this method separately.
 bool SurroundView2dSession::handleFrames(int sequenceId) {
     LOG(INFO) << __FUNCTION__ << "Handling sequenceId " << sequenceId << ".";
 
@@ -482,103 +510,111 @@ bool SurroundView2dSession::handleFrames(int sequenceId) {
         if (mFramesRecord.inUse) {
             LOG(DEBUG) << "Notify SvEvent::FRAME_DROPPED";
             mStream->notify(SvEvent::FRAME_DROPPED);
+
+            // For GPU solution only (the frames were released already for CPU solution).
+            if (mGpuAccelerationEnabled) {
+                mCamera->doneWithFrame_1_1(mEvsGraphicBuffers);
+            }
             return true;
         }
     }
 
-    if (mOutputWidth != mConfig.width || mOutputHeight != mHeight) {
-        LOG(DEBUG) << "Config changed. Re-allocate memory."
-                   << " Old width: "
-                   << mOutputWidth
-                   << " Old height: "
-                   << mOutputHeight
-                   << " New width: "
-                   << mConfig.width
-                   << " New height: "
-                   << mHeight;
-        delete[] static_cast<char*>(mOutputPointer.data_pointer);
-        mOutputWidth = mConfig.width;
-        mOutputHeight = mHeight;
-        mOutputPointer.height = mOutputHeight;
-        mOutputPointer.width = mOutputWidth;
-        mOutputPointer.format = Format::RGB;
-        mOutputPointer.data_pointer =
-            new char[mOutputHeight * mOutputWidth * kOutputNumChannels];
+    // TODO(b/175177030): modifying the width/length on the fly is not supported by the GPU approach
+    // yet.
+    if (!mGpuAccelerationEnabled) {
+        if (mOutputWidth != mConfig.width || mOutputHeight != mHeight) {
+            LOG(DEBUG) << "Config changed. Re-allocate memory."
+                       << " Old width: " << mOutputWidth << " Old height: " << mOutputHeight
+                       << " New width: " << mConfig.width << " New height: " << mHeight;
+            delete[] static_cast<char*>(mOutputPointer.cpu_data_pointer);
+            mOutputWidth = mConfig.width;
+            mOutputHeight = mHeight;
+            mOutputPointer.height = mOutputHeight;
+            mOutputPointer.width = mOutputWidth;
+            mOutputPointer.format = Format::RGB;
+            mOutputPointer.cpu_data_pointer =
+                    static_cast<void*>(new char[mOutputHeight * mOutputWidth * kOutputNumChannels]);
 
-        if (!mOutputPointer.data_pointer) {
-            LOG(ERROR) << "Memory allocation failed. Exiting.";
-            return false;
+            if (!mOutputPointer.cpu_data_pointer) {
+                LOG(ERROR) << "Memory allocation failed. Exiting.";
+                return false;
+            }
+
+            Size2dInteger size = Size2dInteger(mOutputWidth, mOutputHeight);
+            mSurroundView->Update2dOutputResolution(size);
+
+            mSvTexture = new GraphicBuffer(mOutputWidth, mOutputHeight, HAL_PIXEL_FORMAT_RGB_888, 1,
+                                           GRALLOC_USAGE_HW_TEXTURE, "SvTexture");
+            if (mSvTexture->initCheck() == OK) {
+                LOG(INFO) << "Successfully allocated Graphic Buffer";
+            } else {
+                LOG(ERROR) << "Failed to allocate Graphic Buffer";
+                return false;
+            }
         }
-
-        Size2dInteger size = Size2dInteger(mOutputWidth, mOutputHeight);
-        mSurroundView->Update2dOutputResolution(size);
-
-        mSvTexture = new GraphicBuffer(mOutputWidth,
-                                       mOutputHeight,
-                                       HAL_PIXEL_FORMAT_RGB_888,
-                                       1,
-                                       GRALLOC_USAGE_HW_TEXTURE,
-                                       "SvTexture");
-        if (mSvTexture->initCheck() == OK) {
-            LOG(INFO) << "Successfully allocated Graphic Buffer";
-        } else {
-            LOG(ERROR) << "Failed to allocate Graphic Buffer";
-            return false;
-        }
+        LOG(INFO) << "Output Pointer data format: " << mOutputPointer.format;
     }
-    LOG(INFO) << "Output Pointer data format: " << mOutputPointer.format;
 
     ATRACE_BEGIN("SV core lib method: Get2dSurroundView");
+    const string gpuEnabledText = mGpuAccelerationEnabled ? "with GPU acceleration flag enabled"
+                                                          : "with GPU acceleration flag disabled";
     if (mSurroundView->Get2dSurroundView(mInputPointers, &mOutputPointer)) {
-        LOG(INFO) << "Get2dSurroundView succeeded";
+        LOG(INFO) << "Get2dSurroundView succeeded" << gpuEnabledText;
     } else {
-        LOG(ERROR) << "Get2dSurroundView failed. "
-                   << "Using memset to initialize to gray";
-        memset(mOutputPointer.data_pointer, kGrayColor,
-               mOutputHeight * mOutputWidth * kOutputNumChannels);
+        LOG(ERROR) << "Get2dSurroundView failed" << gpuEnabledText;
     }
     ATRACE_END();
 
-    ATRACE_BEGIN("Lock output texture (gpu to cpu)");
-    void* textureDataPtr = nullptr;
-    mSvTexture->lock(GRALLOC_USAGE_SW_WRITE_OFTEN
-                     | GRALLOC_USAGE_SW_READ_NEVER,
-                     &textureDataPtr);
-    ATRACE_END();
-
-    if (!textureDataPtr) {
-        LOG(ERROR) << "Failed to gain write access to GraphicBuffer!";
-        return false;
+    // For GPU solution only (the frames were released already for CPU solution).
+    if (mGpuAccelerationEnabled) {
+        ATRACE_BEGIN("Release the evs frames");
+        mCamera->doneWithFrame_1_1(mEvsGraphicBuffers);
+        ATRACE_END();
     }
 
-    ATRACE_BEGIN("Copy output result");
-    // Note: there is a chance that the stride of the texture is not the same
-    // as the width. For example, when the input frame is 1920 * 1080, the
-    // width is 1080, but the stride is 2048. So we'd better copy the data line
-    // by line, instead of single memcpy.
-    uint8_t* writePtr = static_cast<uint8_t*>(textureDataPtr);
-    uint8_t* readPtr = static_cast<uint8_t*>(mOutputPointer.data_pointer);
-    const int readStride = mOutputWidth * kOutputNumChannels;
-    const int writeStride = mSvTexture->getStride() * kOutputNumChannels;
-    if (readStride == writeStride) {
-        memcpy(writePtr, readPtr, readStride * mSvTexture->getHeight());
+    ANativeWindowBuffer* buffer;
+    if (mGpuAccelerationEnabled) {
+        buffer = mOutputHolder->getNativeBuffer();
     } else {
-        for (int i=0; i<mSvTexture->getHeight(); i++) {
-            memcpy(writePtr, readPtr, readStride);
-            writePtr = writePtr + writeStride;
-            readPtr = readPtr + readStride;
+        ATRACE_BEGIN("Lock output texture (gpu to cpu)");
+        void* textureDataPtr = nullptr;
+        mSvTexture->lock(GRALLOC_USAGE_SW_WRITE_OFTEN | GRALLOC_USAGE_SW_READ_NEVER,
+                         &textureDataPtr);
+        ATRACE_END();
+
+        if (!textureDataPtr) {
+            LOG(ERROR) << "Failed to gain write access to GraphicBuffer!";
+            return false;
         }
+
+        ATRACE_BEGIN("Copy output result");
+        // Note: there is a chance that the stride of the texture is not the same
+        // as the width. For example, when the input frame is 1920 * 1080, the
+        // width is 1080, but the stride is 2048. So we'd better copy the data line
+        // by line, instead of single memcpy.
+        uint8_t* writePtr = static_cast<uint8_t*>(textureDataPtr);
+        uint8_t* readPtr = static_cast<uint8_t*>(mOutputPointer.cpu_data_pointer);
+        const int readStride = mOutputWidth * kOutputNumChannels;
+        const int writeStride = mSvTexture->getStride() * kOutputNumChannels;
+        if (readStride == writeStride) {
+            memcpy(writePtr, readPtr, readStride * mSvTexture->getHeight());
+        } else {
+            for (int i = 0; i < mSvTexture->getHeight(); i++) {
+                memcpy(writePtr, readPtr, readStride);
+                writePtr = writePtr + writeStride;
+                readPtr = readPtr + readStride;
+            }
+        }
+        LOG(DEBUG) << "memcpy finished";
+        ATRACE_END();
+
+        ATRACE_BEGIN("Unlock output texture (cpu to gpu)");
+        mSvTexture->unlock();
+        ATRACE_END();
+
+        buffer = mSvTexture->getNativeBuffer();
+        LOG(DEBUG) << "ANativeWindowBuffer->handle: " << buffer->handle;
     }
-    LOG(DEBUG) << "memcpy finished";
-    ATRACE_END();
-
-    ATRACE_BEGIN("Unlock output texture (cpu to gpu)");
-    mSvTexture->unlock();
-    ATRACE_END();
-
-    ANativeWindowBuffer* buffer = mSvTexture->getNativeBuffer();
-    LOG(DEBUG) << "ANativeWindowBuffer->handle: "
-               << buffer->handle;
 
     {
         scoped_lock<mutex> lock(mAccessLock);
@@ -608,6 +644,8 @@ bool SurroundView2dSession::handleFrames(int sequenceId) {
     return true;
 }
 
+// TODO(b/175176765): consider to HW-specific initialization procedures into
+// separate methods.
 bool SurroundView2dSession::initialize() {
     lock_guard<mutex> lock(mAccessLock, adopt_lock);
 
@@ -633,15 +671,15 @@ bool SurroundView2dSession::initialize() {
                                          mIOModuleConfig->sv2dConfig.carBoundingBox,
                                          mIOModuleConfig->carModelConfig.carModel.texturesMap,
                                          mIOModuleConfig->carModelConfig.carModel.partsMap);
+    mGpuAccelerationEnabled = mIOModuleConfig->sv2dConfig.sv2dParams.gpu_acceleration_enabled;
 
     ATRACE_BEGIN("SV core lib method: SetStaticData");
     mSurroundView->SetStaticData(params);
     ATRACE_END();
 
     ATRACE_BEGIN("SV core lib method: Start2dPipeline");
-    const string gpuEnabledText = mIOModuleConfig->sv2dConfig.sv2dParams.gpu_acceleration_enabled
-            ? "with GPU acceleration flag enabled"
-            : "with GPU acceleration flag disabled";
+    const string gpuEnabledText = mGpuAccelerationEnabled ? "with GPU acceleration flag enabled"
+                                                          : "with GPU acceleration flag disabled";
     if (mSurroundView->Start2dPipeline()) {
         LOG(INFO) << "Start2dPipeline succeeded " << gpuEnabledText;
     } else {
@@ -655,11 +693,16 @@ bool SurroundView2dSession::initialize() {
     for (int i = 0; i < kNumFrames; i++) {
         mInputPointers[i].width = mCameraParams[i].size.width;
         mInputPointers[i].height = mCameraParams[i].size.height;
-        mInputPointers[i].format = Format::RGBA;
-        mInputPointers[i].cpu_data_pointer =
-                (void*)new uint8_t[mInputPointers[i].width *
-                                   mInputPointers[i].height *
-                                   kInputNumChannels];
+
+        // Only allocate CPU memory for CPU solution
+        // For GPU solutions, the Graphic Buffers from EVS will be converted and
+        // stored in gpu_data_pointer
+        if (!mGpuAccelerationEnabled) {
+            mInputPointers[i].format = Format::RGBA;
+            mInputPointers[i].cpu_data_pointer =
+                    static_cast<void*>(new char[mInputPointers[i].width * mInputPointers[i].height *
+                                                kInputNumChannels]);
+        }
     }
     LOG(INFO) << "Allocated " << kNumFrames << " input pointers";
 
@@ -672,23 +715,35 @@ bool SurroundView2dSession::initialize() {
 
     mOutputPointer.height = mOutputHeight;
     mOutputPointer.width = mOutputWidth;
-    mOutputPointer.format = Format::RGB;
-    mOutputPointer.data_pointer = new char[
-        mOutputHeight * mOutputWidth * kOutputNumChannels];
 
-    if (!mOutputPointer.data_pointer) {
-        LOG(ERROR) << "Memory allocation failed. Exiting.";
-        return false;
+    // Only allocate CPU memory for CPU solution
+    if (!mGpuAccelerationEnabled) {
+        mOutputPointer.format = Format::RGB;
+        mOutputPointer.cpu_data_pointer =
+                static_cast<void*>(new char[mOutputHeight * mOutputWidth * kOutputNumChannels]);
+
+        if (!mOutputPointer.cpu_data_pointer) {
+            LOG(ERROR) << "Memory allocation failed. Exiting.";
+            return false;
+        }
     }
     ATRACE_END();
 
     ATRACE_BEGIN("Allocate output texture");
-    mSvTexture = new GraphicBuffer(mOutputWidth,
-                                   mOutputHeight,
-                                   HAL_PIXEL_FORMAT_RGB_888,
-                                   1,
-                                   GRALLOC_USAGE_HW_TEXTURE,
-                                   "SvTexture");
+    if (mGpuAccelerationEnabled) {
+        mOutputHolder = new GraphicBuffer(mOutputWidth, mOutputHeight, HAL_PIXEL_FORMAT_RGBA_8888,
+                                          1, GRALLOC_USAGE_HW_TEXTURE, "SvOutput");
+        mOutputPointer.gpu_data_pointer = static_cast<void*>(mOutputHolder->toAHardwareBuffer());
+        if (mOutputHolder->initCheck() == OK) {
+            LOG(INFO) << "Successfully allocated Graphic Buffer for SvOutput";
+        } else {
+            LOG(ERROR) << "Failed to allocate Graphic Buffer for SvOutput";
+            return false;
+        }
+    } else {
+        mSvTexture = new GraphicBuffer(mOutputWidth, mOutputHeight, HAL_PIXEL_FORMAT_RGB_888, 1,
+                                       GRALLOC_USAGE_HW_TEXTURE, "SvTexture");
+    }
 
     // Note: sv2dParams is in meters while mInfo must be in milli-meters.
     mInfo.width = mIOModuleConfig->sv2dConfig.sv2dParams.physical_size.width * 1000.0;
