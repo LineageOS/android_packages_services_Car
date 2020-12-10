@@ -21,7 +21,11 @@ import android.car.ILocationManagerProxy;
 import android.car.IPerUserCarService;
 import android.content.Intent;
 import android.os.IBinder;
-import android.util.Log;
+import android.util.IndentingPrintWriter;
+import android.util.Slog;
+
+import java.io.FileDescriptor;
+import java.io.PrintWriter;
 
 /**
  * {@link CarService} process runs as the System User. When logged in as a different user, some
@@ -33,35 +37,33 @@ import android.util.Log;
  */
 public class PerUserCarService extends Service {
     private static final boolean DBG = true;
-    private static final String TAG = "PerUserCarService";
-    private volatile CarBluetoothUserService mCarBluetoothUserService;
-    private volatile LocationManagerProxy mLocationManagerProxy;
+    private static final String TAG = PerUserCarService.class.getSimpleName();
+
+    private CarBluetoothUserService mCarBluetoothUserService;
+    private LocationManagerProxy mLocationManagerProxy;
     private PerUserCarServiceBinder mPerUserCarServiceBinder;
 
     @Override
     public IBinder onBind(Intent intent) {
-        if (DBG) {
-            Log.d(TAG, "onBind()");
-        }
+        if (DBG) Slog.d(TAG, "onBind()");
+
         if (mPerUserCarServiceBinder == null) {
-            Log.e(TAG, "UserSvcBinder null");
+            Slog.e(TAG, "PerUserCarServiceBinder null");
         }
         return mPerUserCarServiceBinder;
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (DBG) {
-            Log.d(TAG, "onStart()");
-        }
+        if (DBG) Slog.d(TAG, "onStart()");
+
         return START_STICKY;
     }
 
     @Override
     public void onCreate() {
-        if (DBG) {
-            Log.d(TAG, "onCreate()");
-        }
+        Slog.i(TAG, "created for user " + getApplicationContext().getUserId());
+
         mPerUserCarServiceBinder = new PerUserCarServiceBinder();
         mCarBluetoothUserService = new CarBluetoothUserService(this);
         mLocationManagerProxy = new LocationManagerProxy(this);
@@ -70,10 +72,19 @@ public class PerUserCarService extends Service {
 
     @Override
     public void onDestroy() {
-        if (DBG) {
-            Log.d(TAG, "onDestroy()");
-        }
+        Slog.i(TAG, "destroyed for user " + getApplicationContext().getUserId());
+
         mPerUserCarServiceBinder = null;
+    }
+
+    @Override
+    protected void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
+        try (IndentingPrintWriter pw = new IndentingPrintWriter(writer)) {
+            pw.println("CarBluetoothUserService");
+            pw.increaseIndent();
+            mCarBluetoothUserService.dump(pw);
+            pw.decreaseIndent();
+        }
     }
 
     /**
