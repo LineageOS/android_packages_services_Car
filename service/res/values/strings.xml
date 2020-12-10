@@ -17,9 +17,9 @@
     <string name="app_title" translatable="false">Car service</string>
     <!--  For permissions -->
     <!-- Permission text: can access your car's information [CHAR LIMIT=NONE] -->
-    <string name="car_permission_label">access car\u2019s information</string>
+    <string name="car_permission_label">Car information</string>
     <!-- Permission text: can access your car's information [CHAR LIMIT=NONE] -->
-    <string name="car_permission_desc">Access your car\u2019s information.</string>
+    <string name="car_permission_desc">access your car\u2019s information</string>
     <!-- Permission text: apps can control car camera [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_camera">access car\u2019s camera</string>
     <!-- Permission text: apps can control car camera [CHAR LIMIT=NONE] -->
