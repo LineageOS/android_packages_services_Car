@@ -556,8 +556,8 @@ bool SurroundView2dSession::handleFrames(int sequenceId) {
     }
 
     ATRACE_BEGIN("SV core lib method: Get2dSurroundView");
-    const string gpuEnabledText = mGpuAccelerationEnabled ? "with GPU acceleration flag enabled"
-                                                          : "with GPU acceleration flag disabled";
+    const string gpuEnabledText = mGpuAccelerationEnabled ? " with GPU acceleration flag enabled"
+                                                          : " with GPU acceleration flag disabled";
     if (mSurroundView->Get2dSurroundView(mInputPointers, &mOutputPointer)) {
         LOG(INFO) << "Get2dSurroundView succeeded" << gpuEnabledText;
     } else {
@@ -626,12 +626,19 @@ bool SurroundView2dSession::handleFrames(int sequenceId) {
         AHardwareBuffer_Desc* pDesc =
             reinterpret_cast<AHardwareBuffer_Desc*>(
                 &svBuffer.hardwareBuffer.description);
-        pDesc->width = mOutputWidth;
-        pDesc->height = mOutputHeight;
+        if (mGpuAccelerationEnabled) {
+            pDesc->width = mOutputPointer.width;
+            pDesc->height = mOutputPointer.height;
+            pDesc->stride = mOutputHolder->getStride();
+            pDesc->format = HAL_PIXEL_FORMAT_RGBA_8888;
+        } else {
+            pDesc->width = mOutputWidth;
+            pDesc->height = mOutputHeight;
+            pDesc->stride = mSvTexture->getStride();
+            pDesc->format = HAL_PIXEL_FORMAT_RGB_888;
+        }
         pDesc->layers = 1;
         pDesc->usage = GRALLOC_USAGE_HW_TEXTURE;
-        pDesc->stride = mSvTexture->getStride();
-        pDesc->format = HAL_PIXEL_FORMAT_RGB_888;
         mFramesRecord.frames.timestampNs = elapsedRealtimeNano();
         mFramesRecord.frames.sequenceId = sequenceId;
 
