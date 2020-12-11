@@ -1750,7 +1750,7 @@
     <string name="lock_settings_title" msgid="233657584969886812">"Laitteen suojaus"</string>
     <string name="lockpattern_change_lock_pattern_label" msgid="333149762562581510">"Vaihda lukituksenpoistokuvio"</string>
     <string name="lockpattern_change_lock_pin_label" msgid="3435796032210265723">"Muuta lukituksen poistoon tarvittava PIN-koodi"</string>
-    <string name="lockpattern_recording_intro_header" msgid="2262005028838969839">"Piirrä lukituksenpoistokuvio"</string>
+    <string name="lockpattern_recording_intro_header" msgid="2262005028838969839">"Piirrä lukituksen avaava kuvio"</string>
     <string name="lockpattern_recording_intro_footer" msgid="5426745740754065099">"Saat ohjeita painamalla Valikko-painiketta."</string>
     <string name="lockpattern_recording_inprogress" msgid="4060818382176523671">"Nosta sormi, kun olet valmis"</string>
     <string name="lockpattern_recording_incorrect_too_short" msgid="6374760294545431845">"Yhdistä vähintään <xliff:g id="NUMBER">%d</xliff:g> pistettä. Yritä uudelleen."</string>
