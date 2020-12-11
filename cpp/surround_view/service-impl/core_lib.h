@@ -362,6 +362,10 @@ struct SurroundViewCameraParams {
     // fisheye circular fov.
     float circular_fov;
 
+    // Full path and filename to the validity mask image file.
+    // Mask specifies the valid region of pixels within input camera image.
+    std::string validity_mask_filename;
+
     bool operator==(const SurroundViewCameraParams& rhs) const {
         return (0 == std::memcmp(intrinsics, rhs.intrinsics, 9 * sizeof(float))) &&
                 (0 == std::memcmp(distorion, rhs.distorion, 4 * sizeof(float))) &&
