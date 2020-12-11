@@ -264,7 +264,7 @@
     <string name="sdcard_settings_read_only_status" product="nosdcard" msgid="7959964366461613091">"Hapësira ruajtëse e USB-së e lidhur është vetëm për lexim."</string>
     <string name="sdcard_settings_read_only_status" product="default" msgid="8854112253788893415">"Karta SD e lidhur vetëm për lexim."</string>
     <string name="skip_label" msgid="8067961347551157478">"Kapërce"</string>
-    <string name="next_label" msgid="4710056309804362410">"Përpara"</string>
+    <string name="next_label" msgid="4710056309804362410">"Para"</string>
     <string name="language_picker_title" msgid="7807759931261107686">"Gjuhët"</string>
     <string name="locale_remove_menu" msgid="3395565699934985486">"Hiqe"</string>
     <string name="add_a_language" msgid="4103889327406274800">"Shto gjuhë"</string>
@@ -445,7 +445,7 @@
     <string name="security_settings_fingerprint_enroll_introduction_cancel" msgid="9168637333731599827">"Anulo"</string>
     <string name="security_settings_fingerprint_enroll_introduction_continue" msgid="271662150372486535">"Vazhdo"</string>
     <string name="security_settings_fingerprint_enroll_introduction_cancel_setup" msgid="756928427429893070">"Kapërce"</string>
-    <string name="security_settings_fingerprint_enroll_introduction_continue_setup" msgid="4125977169169671144">"Përpara"</string>
+    <string name="security_settings_fingerprint_enroll_introduction_continue_setup" msgid="4125977169169671144">"Para"</string>
     <string name="setup_fingerprint_enroll_skip_title" msgid="763018850721691594">"Të kapërcehet gjurma e gishtit?"</string>
     <string name="setup_fingerprint_enroll_skip_after_adding_lock_text" msgid="8849928362049018680">"Konfigurimi i gjurmëve të gishtave zgjat vetëm një ose dy minuta. Nëse e kapërcen këtë, mund të shtosh gjurmën tënde të gishtit më vonë te cilësimet."</string>
     <string name="lock_screen_intro_skip_title" msgid="5307431665496346914">"Të kapërcehet kyçja e ekranit?"</string>
@@ -491,7 +491,7 @@
     <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"U arrit kufiri kohor për regjistrimin e gjurmës së gishtit. Provo përsëri."</string>
     <string name="security_settings_fingerprint_enroll_error_generic_dialog_message" msgid="7896295829530444810">"Regjistrimi i gjurmës së gishtit nuk funksionoi. Provo përsëri ose përdor një gisht tjetër."</string>
     <string name="fingerprint_enroll_button_add" msgid="6335782936874996629">"Shto një tjetër"</string>
-    <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"Përpara"</string>
+    <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"Para"</string>
     <string name="security_settings_fingerprint_enroll_disclaimer" msgid="5831834311961551423">"Përveç shkyçjes së telefonit, gjurmën e gishtit mund ta përdorësh edhe për të autorizuar blerjet dhe qasjen në aplikacione. "<annotation id="url">"Mëso më shumë"</annotation></string>
     <string name="security_settings_fingerprint_enroll_disclaimer_lockscreen_disabled" msgid="7954742554236652690">" Opsioni i kyçjes së ekranit është çaktivizuar. Kontakto me administratorin e organizatës tënde për të mësuar më shumë. "<annotation id="admin_details">"Më shumë detaje"</annotation>\n\n"Mund të vazhdosh të përdorësh gjurmën e gishtit për të autorizuar blerjet dhe për qasje në aplikacion. "<annotation id="url">"Mëso më shumë"</annotation></string>
     <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"Ngrije gishtin dhe më pas preke përsëri sensorin"</string>
@@ -709,7 +709,7 @@
     <string name="lockpassword_clear_label" msgid="3201458533657963554">"Pastro"</string>
     <string name="lockpassword_credential_changed" msgid="5183961439209866170">"Kyçja e ekranit është ndryshuar tashmë. Provo përsëri me kyçjen e re të ekranit."</string>
     <string name="lockpattern_tutorial_cancel_label" msgid="450401426127674369">"Anulo"</string>
-    <string name="lockpattern_tutorial_continue_label" msgid="8474690922559443018">"Përpara"</string>
+    <string name="lockpattern_tutorial_continue_label" msgid="8474690922559443018">"Para"</string>
     <string name="lock_setup" msgid="8710689848703935088">"Konfigurimi përfundoi."</string>
     <string name="manage_device_admin" msgid="322047441168191695">"Apl. e admin. të pajisjes"</string>
     <string name="number_of_device_admins_none" msgid="8519193548630223132">"Asnjë aplikacion aktiv"</string>
@@ -2979,7 +2979,7 @@
     <string name="restriction_location_enable_title" msgid="358506740636434856">"Vendndodhja"</string>
     <string name="restriction_location_enable_summary" msgid="4159500201124004463">"Lejo aplikacionet të përdorin informacionin e vendndodhjes tënde"</string>
     <string name="wizard_back" msgid="223654213898117594">"Prapa"</string>
-    <string name="wizard_next" msgid="5239664512608113542">"Përpara"</string>
+    <string name="wizard_next" msgid="5239664512608113542">"Para"</string>
     <string name="wizard_finish" msgid="3742102879981212094">"Përfundo"</string>
     <string name="user_image_take_photo" msgid="2000247510236178111">"Bëj një fotografi"</string>
     <string name="user_image_choose_photo" msgid="4920315415203051898">"Zgjidh një imazh"</string>
@@ -3449,7 +3449,7 @@
     <string name="zen_mode_app_set_behavior" msgid="8597398780262575571">"Këto cilësime nuk mund të ndryshohen në këtë moment. Një aplikacion (<xliff:g id="APP_NAME">%1$s</xliff:g>) ka aktivizuar automatikisht modalitetin \"Mos shqetëso\" me sjelljen e personalizuar."</string>
     <string name="zen_mode_unknown_app_set_behavior" msgid="5666462954329932302">"Këto cilësime nuk mund të ndryshohen në këtë moment. Një aplikacion ka aktivizuar automatikisht modalitetin \"Mos shqetëso\" me sjelljen e personalizuar."</string>
     <string name="zen_mode_qs_set_behavior" msgid="788646569296973998">"Këto cilësime nuk mund të ndryshohen në këtë moment. Modaliteti \"Mos shqetëso\" është aktivizuar manualisht me sjelljen e personalizuar."</string>
-    <string name="zen_schedule_rule_type_name" msgid="4516851728113801329">"Koha"</string>
+    <string name="zen_schedule_rule_type_name" msgid="4516851728113801329">"Ora"</string>
     <string name="zen_schedule_rule_enabled_toast" msgid="1742354493045049048">"Rregulli automatik u vendos. Ai do të aktivizojë gjendjen \"Mos shqetëso\" gjatë kohës së vendosur."</string>
     <string name="zen_event_rule_type_name" msgid="7467729997336583342">"Ngjarje"</string>
     <string name="zen_event_rule_enabled_toast" msgid="7087368268966855976">"Rregulli automatik u vendos. Ai do të aktivizojë gjendjen \"Mos shqetëso\" gjatë kohës së vendosur."</string>
