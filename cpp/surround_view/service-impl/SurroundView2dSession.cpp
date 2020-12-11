@@ -732,17 +732,23 @@ bool SurroundView2dSession::initialize() {
     ATRACE_BEGIN("Allocate output texture");
     if (mGpuAccelerationEnabled) {
         mOutputHolder = new GraphicBuffer(mOutputWidth, mOutputHeight, HAL_PIXEL_FORMAT_RGBA_8888,
-                                          1, GRALLOC_USAGE_HW_TEXTURE, "SvOutput");
-        mOutputPointer.gpu_data_pointer = static_cast<void*>(mOutputHolder->toAHardwareBuffer());
+                                          1, GRALLOC_USAGE_HW_TEXTURE, "SvOutputHolder");
         if (mOutputHolder->initCheck() == OK) {
-            LOG(INFO) << "Successfully allocated Graphic Buffer for SvOutput";
+            LOG(INFO) << "Successfully allocated Graphic Buffer for SvOutputHolder";
         } else {
-            LOG(ERROR) << "Failed to allocate Graphic Buffer for SvOutput";
+            LOG(ERROR) << "Failed to allocate Graphic Buffer for SvOutputHolder";
             return false;
         }
+        mOutputPointer.gpu_data_pointer = static_cast<void*>(mOutputHolder->toAHardwareBuffer());
     } else {
         mSvTexture = new GraphicBuffer(mOutputWidth, mOutputHeight, HAL_PIXEL_FORMAT_RGB_888, 1,
                                        GRALLOC_USAGE_HW_TEXTURE, "SvTexture");
+        if (mSvTexture->initCheck() == OK) {
+            LOG(INFO) << "Successfully allocated Graphic Buffer";
+        } else {
+            LOG(ERROR) << "Failed to allocate Graphic Buffer";
+            return false;
+        }
     }
 
     // Note: sv2dParams is in meters while mInfo must be in milli-meters.
@@ -751,13 +757,6 @@ bool SurroundView2dSession::initialize() {
     mInfo.center.isValid = true;
     mInfo.center.x = mIOModuleConfig->sv2dConfig.sv2dParams.physical_center.x * 1000.0;
     mInfo.center.y = mIOModuleConfig->sv2dConfig.sv2dParams.physical_center.y * 1000.0;
-
-    if (mSvTexture->initCheck() == OK) {
-        LOG(INFO) << "Successfully allocated Graphic Buffer";
-    } else {
-        LOG(ERROR) << "Failed to allocate Graphic Buffer";
-        return false;
-    }
 
     mIsInitialized = true;
 
