@@ -108,7 +108,7 @@
 
     <style name="Widget.DeviceDefault.CompoundButton.Switch" parent="android:Widget.Material.CompoundButton.Switch">
         <item name="android:thumb">@*android:drawable/car_switch_thumb</item>
-        <item name="android:switchMinWidth">@*android:dimen/car_primary_icon_size</item>
+        <item name="android:track">@*android:drawable/car_switch_track</item>
     </style>
 
     <style name="Widget.DeviceDefault.ProgressBar.Horizontal" parent="android:Widget.Material.ProgressBar.Horizontal">
