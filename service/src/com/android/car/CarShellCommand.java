@@ -152,6 +152,7 @@ final class CarShellCommand extends ShellCommand {
     private static final String COMMAND_EMULATE_DRIVING_STATE = "emulate-driving-state";
     private static final String DRIVING_STATE_DRIVE = "drive";
     private static final String DRIVING_STATE_PARK = "park";
+    private static final String DRIVING_STATE_REVERSE = "reverse";
 
     private static final String[] CREATE_OR_MANAGE_USERS_PERMISSIONS = new String[] {
             android.Manifest.permission.CREATE_USERS,
@@ -464,8 +465,8 @@ final class CarShellCommand extends ShellCommand {
                 + "displays the silent state");
         pw.println("\t  and shows how many listeners are monitoring the state.");
 
-        pw.printf("\t%s [%s|%s]\n", COMMAND_EMULATE_DRIVING_STATE, DRIVING_STATE_DRIVE,
-                DRIVING_STATE_PARK);
+        pw.printf("\t%s [%s|%s|%s]\n", COMMAND_EMULATE_DRIVING_STATE, DRIVING_STATE_DRIVE,
+                DRIVING_STATE_PARK, DRIVING_STATE_REVERSE);
         pw.println("\t  Emulates the giving driving state");
 
         pw.printf("\t%s <POLICY_ID> [--enable COMP1,COMP2,...] [--disable COMP1,COMP2,...]\n",
@@ -1688,14 +1689,21 @@ final class CarShellCommand extends ShellCommand {
             case DRIVING_STATE_PARK:
                 emulatePark();
                 break;
+            case DRIVING_STATE_REVERSE:
+                emulateReverse();
+                break;
             default:
                 writer.printf("invalid driving mode %s; must be %s or %s\n", mode,
                         DRIVING_STATE_DRIVE, DRIVING_STATE_PARK);
         }
     }
 
+    /**
+     * Emulates driving mode. Called by
+     * {@code adb shell cmd car_service emulate-driving-state drive}.
+     */
     private void emulateDrive() {
-        Log.i(TAG, "Emulating driving mode");
+        Log.i(TAG, "Emulating driving mode (speed=80mph, gear=8)");
         mHal.injectVhalEvent(Integer.toString(VehiclePropertyIds.PERF_VEHICLE_SPEED),
                 /* zone= */ "0", /* value= */ "80", /* delayTime= */ "2000");
         mHal.injectVhalEvent(Integer.toString(VehiclePropertyIds.GEAR_SELECTION),
@@ -1704,6 +1712,24 @@ final class CarShellCommand extends ShellCommand {
                 /* zone= */ "0", /* value= */ "false", /* delayTime= */ "0");
     }
 
+    /**
+     * Emulates reverse driving mode. Called by
+     * {@code adb shell cmd car_service emulate-driving-state reverse}.
+     */
+    private void emulateReverse() {
+        Log.i(TAG, "Emulating reverse driving mode (speed=5mph)");
+        mHal.injectVhalEvent(Integer.toString(VehiclePropertyIds.PERF_VEHICLE_SPEED),
+                /* zone= */ "0", /* value= */ "5", /* delayTime= */ "2000");
+        mHal.injectVhalEvent(Integer.toString(VehiclePropertyIds.GEAR_SELECTION),
+                /* zone= */ "0", Integer.toString(VehicleGear.GEAR_REVERSE), /* delayTime= */ "0");
+        mHal.injectVhalEvent(Integer.toString(VehiclePropertyIds.PARKING_BRAKE_ON),
+                /* zone= */ "0", /* value= */ "false", /* delayTime= */ "0");
+    }
+
+    /**
+     * Emulates parking mode. Called by
+     * {@code adb shell cmd car_service emulate-driving-state park}.
+     */
     private void emulatePark() {
         Log.i(TAG, "Emulating parking mode");
         mHal.injectVhalEvent(Integer.toString(VehiclePropertyIds.PERF_VEHICLE_SPEED),
