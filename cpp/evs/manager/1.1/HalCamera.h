@@ -18,9 +18,6 @@
 #define ANDROID_AUTOMOTIVE_EVS_V1_1_HALCAMERA_H
 
 #include "stats/CameraUsageStats.h"
-#include "sync/unique_fd.h"
-#include "sync/unique_fence.h"
-#include "sync/unique_timeline.h"
 
 #include <deque>
 #include <list>
@@ -68,7 +65,6 @@ public:
         : mHwCamera(hwCamera),
           mId(deviceId),
           mStreamConfig(cfg),
-          mSyncSupported(UniqueTimeline::Supported()),
           mTimeCreatedMs(android::uptimeMillis()),
           mUsageStats(new CameraUsageStats(recordId)) {
         mCurrentRequests = &mFrameRequests[0];
@@ -90,7 +86,7 @@ public:
     bool                changeFramesInFlight(int delta);
     bool                changeFramesInFlight(const hardware::hidl_vec<BufferDesc_1_1>& buffers,
                                              int* delta);
-    UniqueFence         requestNewFrame(sp<VirtualCamera> virtualCamera,
+    void                requestNewFrame(sp<VirtualCamera> virtualCamera,
                                         const int64_t timestamp);
 
     Return<EvsResult>   clientStreamStarting();
@@ -103,7 +99,6 @@ public:
     Return<EvsResult>   setParameter(sp<VirtualCamera> virtualCamera,
                                      CameraParam id, int32_t& value);
     Return<EvsResult>   getParameter(CameraParam id, int32_t& value);
-    bool                isSyncSupported() const { return mSyncSupported; }
 
     // Returns a snapshot of collected usage statistics
     CameraUsageStatsRecord getStats() const;
@@ -154,9 +149,6 @@ private:
     std::deque<FrameRequest>  mFrameRequests[2] GUARDED_BY(mFrameMutex);
     std::deque<FrameRequest>* mCurrentRequests  PT_GUARDED_BY(mFrameMutex);
     std::deque<FrameRequest>* mNextRequests     PT_GUARDED_BY(mFrameMutex);
-    std::unordered_map<uint64_t,
-                       std::unique_ptr<UniqueTimeline>> mTimelines GUARDED_BY(mFrameMutex);
-    bool                      mSyncSupported;
 
     // Time this object was created
     int64_t mTimeCreatedMs;

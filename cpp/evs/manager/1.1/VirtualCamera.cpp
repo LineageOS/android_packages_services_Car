@@ -152,9 +152,8 @@ bool VirtualCamera::deliverFrame(const BufferDesc_1_1& bufDesc) {
             frame_1_0.bufferId  = bufDesc.bufferId;
 
             mStream->deliverFrame(frame_1_0);
-        } else if (!mCaptureThread.joinable()) {
-            // A capture thread does not run only it failed to create a
-            // timeline.
+        } else if (mCaptureThread.joinable()) {
+            // Keep forwarding frames as long as a capture thread is alive
             if (mFramesHeld.size() > 0 && mStream_1_1 != nullptr) {
                 // Pass this buffer through to our client
                 hardware::hidl_vec<BufferDesc_1_1> frames;
@@ -164,7 +163,12 @@ bool VirtualCamera::deliverFrame(const BufferDesc_1_1& bufDesc) {
                     frames[0] = mFramesHeld[mHalCamera.begin()->first].back();
                 }
 
-                mStream_1_1->deliverFrame_1_1(frames);
+                // Notify a new frame receipt
+                {
+                    std::lock_guard<std::mutex> lock(mFrameDeliveryMutex);
+                    mSourceCameras.erase(bufDesc.deviceId);
+                }
+                mFramesReadySignal.notify_all();
             }
         }
 
@@ -342,18 +346,14 @@ Return<EvsResult> VirtualCamera::startVideoStream(const ::android::sp<IEvsCamera
 
     // Start a thread that waits on the fence and forwards collected frames
     // to the v1.1 client.
-    // If the system does not support a sw sync, EVS does not support a logical
-    // camera device and, therefore, VirtualCamera will subscribe only to a
-    // single hw camera.
     auto pHwCamera = mHalCamera.begin()->second.promote();
-    if (mStream_1_1 != nullptr && pHwCamera != nullptr && pHwCamera->isSyncSupported()) {
+    if (mStream_1_1 != nullptr && pHwCamera != nullptr) {
         mCaptureThread = std::thread([this]() {
             // TODO(b/145466570): With a proper camera hang handler, we may want
             // to reduce an amount of timeout.
-            constexpr int kFrameTimeoutMs = 5000; // timeout in ms.
+            constexpr auto kFrameTimeout = 5s; // timeout in seconds.
             int64_t lastFrameTimestamp = -1;
             while (mStreamState == RUNNING) {
-                UniqueFence fence;
                 unsigned count = 0;
                 for (auto&& [key, hwCamera] : mHalCamera) {
                     auto pHwCamera = hwCamera.promote();
@@ -362,21 +362,20 @@ Return<EvsResult> VirtualCamera::startVideoStream(const ::android::sp<IEvsCamera
                         continue;
                     }
 
-                    UniqueFence another = pHwCamera->requestNewFrame(this, lastFrameTimestamp);
-                    if (!another) {
-                        LOG(WARNING) << key << " returned an invalid fence.";
-                        continue;
+                    pHwCamera->requestNewFrame(this, lastFrameTimestamp);
+                    {
+                        std::lock_guard<std::mutex> lock(mFrameDeliveryMutex);
+                        mSourceCameras.emplace(pHwCamera->getId());
                     }
-
-                    fence = UniqueFence::Merge("MergedFrameFence",
-                                               fence,
-                                               another);
                     ++count;
                 }
 
-                if (fence.Wait(kFrameTimeoutMs) < 0) {
-                    // TODO(b/145466570): Replace this temporarily camera hang
-                    // handler.
+                std::unique_lock<std::mutex> lock(mFrameDeliveryMutex);
+                if (!mFramesReadySignal.wait_for(lock,
+                                                 kFrameTimeout,
+                                                 [this]() REQUIRES(mFrameDeliveryMutex) {
+                                                     return mSourceCameras.empty();
+                                                 })) {
                     PLOG(ERROR) << this << ": Camera hangs?";
                     break;
                 } else if (mStreamState == RUNNING) {
@@ -398,7 +397,11 @@ Return<EvsResult> VirtualCamera::startVideoStream(const ::android::sp<IEvsCamera
                             }
                             frames[i++] = frame;
                         }
-                        mStream_1_1->deliverFrame_1_1(frames);
+
+                        auto ret = mStream_1_1->deliverFrame_1_1(frames);
+                        if (!ret.isOk()) {
+                            LOG(WARNING) << "Failed to forward frames";
+                        }
                     }
                 }
             }
