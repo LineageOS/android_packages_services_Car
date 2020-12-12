@@ -193,7 +193,10 @@ void StreamHandler::doneWithFrame(const BufferDesc_1_1& bufDesc_1_1) {
     hidl_vec<BufferDesc_1_1> frames;
     frames.resize(1);
     frames[0] = mBuffers[mHeldBuffer];
-    mCamera->doneWithFrame_1_1(frames);
+    auto ret = mCamera->doneWithFrame_1_1(frames);
+    if (!ret.isOk()) {
+        LOG(WARNING) << __FUNCTION__ << " fails to return a buffer";
+    }
 
     // Clear the held position
     mHeldBuffer = -1;
@@ -202,7 +205,10 @@ void StreamHandler::doneWithFrame(const BufferDesc_1_1& bufDesc_1_1) {
 
 Return<void> StreamHandler::deliverFrame(const BufferDesc_1_0& bufDesc_1_0) {
     LOG(INFO) << "Ignores a frame delivered from v1.0 EVS service.";
-    mCamera->doneWithFrame(bufDesc_1_0);
+    auto ret = mCamera->doneWithFrame(bufDesc_1_0);
+    if (!ret.isOk()) {
+        LOG(WARNING) << __FUNCTION__ << " fails to return a buffer";
+    }
 
     return Void();
 }
@@ -225,7 +231,10 @@ Return<void> StreamHandler::deliverFrame_1_1(const hidl_vec<BufferDesc_1_1>& buf
             hidl_vec<BufferDesc_1_1> frames;
             frames.resize(1);
             frames[0] = mBuffers[mReadyBuffer];
-            mCamera->doneWithFrame_1_1(frames);
+            auto ret = mCamera->doneWithFrame_1_1(frames);
+            if (!ret.isOk()) {
+                LOG(WARNING) << __FUNCTION__ << " fails to return a buffer";
+            }
 
             // We'll reuse the same ready buffer index
         } else if (mHeldBuffer >= 0) {
