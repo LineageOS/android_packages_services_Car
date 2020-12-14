@@ -44,6 +44,7 @@ LOCAL_STATIC_JAVA_LIBRARIES += \
     android.car.test.utils \
     androidx.test.ext.junit \
     androidx.test.rules \
+    android.frameworks.automotive.powerpolicy-java \
     android.hardware.automotive.vehicle-V2.0-java \
     car-frameworks-service \
     car-service-test-static-lib \
