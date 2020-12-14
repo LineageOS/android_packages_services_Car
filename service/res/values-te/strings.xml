@@ -16,8 +16,8 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="car_permission_label" msgid="741004755205554376">"కారు సమాచారాన్ని యాక్సెస్ చేయగలవు"</string>
-    <string name="car_permission_desc" msgid="162499818870052725">"మీ కారు సమాచారం యాక్సెస్ చేయండి"</string>
+    <string name="car_permission_label" msgid="2215078736675564541">"కారు సమాచారం"</string>
+    <string name="car_permission_desc" msgid="3584369074931334964">"మీ కారుకు సంబంధించిన సమాచారాన్ని యాక్సెస్ చేయండి"</string>
     <string name="car_permission_label_camera" msgid="3725702064841827180">"కారు కెమెరాను యాక్సెస్ చేయగలవు"</string>
     <string name="car_permission_desc_camera" msgid="917024932164501426">"మీ కారు యొక్క కామెరా(లు)ని యాక్సెస్ చేయండి."</string>
     <string name="car_permission_label_energy" msgid="7409144323527821558">"కారు శక్తి సమాచారాన్ని యాక్సెస్ చేయగలవు"</string>
