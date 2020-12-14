@@ -16,8 +16,8 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="car_permission_label" msgid="741004755205554376">"ចូលប្រើព័ត៌មាន​របស់រថយន្ត"</string>
-    <string name="car_permission_desc" msgid="162499818870052725">"ចូលប្រើ​ព័ត៌មាន​របស់រថយន្តអ្នក។"</string>
+    <string name="car_permission_label" msgid="2215078736675564541">"ព័ត៌មាន​រថយន្ត"</string>
+    <string name="car_permission_desc" msgid="3584369074931334964">"ចូលប្រើ​ព័ត៌មានអំពី​រថយន្ត​របស់អ្នក"</string>
     <string name="car_permission_label_camera" msgid="3725702064841827180">"ចូលប្រើកាមេរ៉ារបស់រថយន្ត"</string>
     <string name="car_permission_desc_camera" msgid="917024932164501426">"ចូលប្រើ​កាមេរ៉ារបស់​រថយន្តអ្នក។"</string>
     <string name="car_permission_label_energy" msgid="7409144323527821558">"ចូលប្រើ​ព័ត៌មាន​អំពីថាមពលរបស់​រថយន្ត"</string>
