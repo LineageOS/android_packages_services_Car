@@ -876,8 +876,11 @@ bool SurroundView2dSession::setupEvs() {
         camera.circular_fov = 179;
     }
 
+    // Add validity mask filenames.
+    for (int i = 0; i < mCameraParams.size(); i++) {
+        mCameraParams[i].validity_mask_filename = mIOModuleConfig->cameraConfig.maskFilenames[i];
+    }
     ATRACE_END();
-
     return true;
 }
 
