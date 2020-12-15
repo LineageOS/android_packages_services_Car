@@ -50,7 +50,7 @@ Result<void> populateProcPidDir(const std::string& procDirPath,
     for (const auto& it : pidToTids) {
         // 1. Create /proc/PID dir.
         const auto& pidDirRes = makeDir(StringPrintf("%s/%" PRIu32, procDirPath.c_str(), it.first));
-        if (!pidDirRes) {
+        if (!pidDirRes.ok()) {
             return Error() << "Failed to create top-level per-process directory: "
                            << pidDirRes.error();
         }
@@ -74,7 +74,7 @@ Result<void> populateProcPidDir(const std::string& procDirPath,
 
         // 4. Create /proc/PID/task dir.
         const auto& taskDirRes = makeDir(StringPrintf((procDirPath + kTaskDirFormat).c_str(), pid));
-        if (!taskDirRes) {
+        if (!taskDirRes.ok()) {
             return Error() << "Failed to create task directory: " << taskDirRes.error();
         }
 
@@ -82,7 +82,7 @@ Result<void> populateProcPidDir(const std::string& procDirPath,
         for (const auto& tid : it.second) {
             const auto& tidDirRes = makeDir(
                     StringPrintf((procDirPath + kTaskDirFormat + "/%" PRIu32).c_str(), pid, tid));
-            if (!tidDirRes) {
+            if (!tidDirRes.ok()) {
                 return Error() << "Failed to create per-thread directory: " << tidDirRes.error();
             }
             if (threadStat.find(tid) != threadStat.end()) {
