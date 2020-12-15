@@ -162,15 +162,20 @@ TEST_F(WatchdogInternalHandlerTest, TestRegisterCarWatchdogService) {
     sp<ICarWatchdogServiceForSystem> service = new ICarWatchdogServiceForSystemDefault();
     EXPECT_CALL(*mMockWatchdogServiceHelper, registerService(service))
             .WillOnce(Return(Status::ok()));
-    sp<WatchdogServiceHelperInterface> helper = mMockWatchdogServiceHelper;
+    EXPECT_CALL(*mMockWatchdogServiceHelper, registerService(service))
+            .WillOnce(Return(Status::ok()));
+
     Status status = mWatchdogInternalHandler->registerCarWatchdogService(service);
+
     ASSERT_TRUE(status.isOk()) << status;
 }
 
 TEST_F(WatchdogInternalHandlerTest, TestErrorOnRegisterCarWatchdogServiceWithNonSystemCallingUid) {
     sp<ICarWatchdogServiceForSystem> service = new ICarWatchdogServiceForSystemDefault();
-    EXPECT_CALL(*mMockWatchdogServiceHelper, registerService(service)).Times(0);
+    EXPECT_CALL(*mMockWatchdogServiceHelper, registerService(_)).Times(0);
+
     Status status = mWatchdogInternalHandler->registerCarWatchdogService(service);
+
     ASSERT_FALSE(status.isOk()) << status;
 }
 
@@ -180,7 +185,9 @@ TEST_F(WatchdogInternalHandlerTest,
     sp<ICarWatchdogServiceForSystem> service = new ICarWatchdogServiceForSystemDefault();
     EXPECT_CALL(*mMockWatchdogServiceHelper, registerService(service))
             .WillOnce(Return(Status::fromExceptionCode(Status::EX_ILLEGAL_STATE, "Illegal state")));
+
     Status status = mWatchdogInternalHandler->registerCarWatchdogService(service);
+
     ASSERT_FALSE(status.isOk()) << status;
 }
 

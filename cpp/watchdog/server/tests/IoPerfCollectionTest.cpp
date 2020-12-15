@@ -15,15 +15,16 @@
  */
 
 #include "IoPerfCollection.h"
-
 #include "MockProcPidStat.h"
 #include "MockProcStat.h"
 #include "MockUidIoStats.h"
+#include "MockWatchdogServiceHelper.h"
 #include "utils/PackageNameResolver.h"
 
 #include <WatchdogProperties.sysprop.h>
 #include <android-base/file.h>
 #include <gmock/gmock.h>
+
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -154,9 +155,14 @@ class PackageNameResolverPeer {
 public:
     explicit PackageNameResolverPeer(const std::unordered_map<uid_t, std::string>& mapping) {
         PackageNameResolver::sInstance.clear();
-        PackageNameResolver::getInstance();
-        PackageNameResolver::sInstance->mUidToPackageNameMapping = mapping;
+        sp<PackageNameResolver> instance = PackageNameResolver::getInstance();
+        mMockWatchdogServiceHelper = new MockWatchdogServiceHelper();
+        instance->initWatchdogServiceHelper(mMockWatchdogServiceHelper);
+        instance->mUidToPackageNameMapping = mapping;
     }
+
+private:
+    sp<MockWatchdogServiceHelper> mMockWatchdogServiceHelper;
 };
 
 }  // namespace internal

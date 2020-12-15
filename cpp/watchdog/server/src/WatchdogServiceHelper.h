@@ -17,6 +17,8 @@
 #ifndef CPP_WATCHDOG_SERVER_SRC_WATCHDOGSERVICEHELPER_H_
 #define CPP_WATCHDOG_SERVER_SRC_WATCHDOGSERVICEHELPER_H_
 
+#include "WatchdogProcessService.h"
+
 #include <android-base/result.h>
 #include <android/automotive/watchdog/TimeoutLength.h>
 #include <android/automotive/watchdog/internal/ICarWatchdogServiceForSystem.h>
@@ -33,7 +35,6 @@ namespace automotive {
 namespace watchdog {
 
 class ServiceManager;
-class WatchdogProcessService;
 
 // Forward declaration for testing use only.
 namespace internal {
@@ -59,6 +60,9 @@ public:
                                                  TimeoutLength timeout) const = 0;
     virtual android::binder::Status prepareProcessTermination(
             const android::wp<android::IBinder>& who) = 0;
+    virtual android::binder::Status getPackageInfosForUids(
+            const std::vector<int32_t>& uids, const std::vector<std::string>& vendorPackagePrefixes,
+            std::vector<android::automotive::watchdog::internal::PackageInfo>* packageInfos) = 0;
 
 protected:
     virtual android::base::Result<void> init(
@@ -92,6 +96,9 @@ public:
                                          int32_t sessionId, TimeoutLength timeout) const override;
     android::binder::Status prepareProcessTermination(
             const android::wp<android::IBinder>& who) override;
+    android::binder::Status getPackageInfosForUids(
+            const std::vector<int32_t>& uids, const std::vector<std::string>& vendorPackagePrefixes,
+            std::vector<android::automotive::watchdog::internal::PackageInfo>* packageInfos);
 
 protected:
     android::base::Result<void> init(

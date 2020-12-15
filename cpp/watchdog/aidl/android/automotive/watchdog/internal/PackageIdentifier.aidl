@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright (C) 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,29 +17,16 @@
 package android.automotive.watchdog.internal;
 
 /**
- * Describes the component for which the I/O overuse configuration update was received by
- * ICarWatchdog or the component a package belongs to.
+ * Structure that describes the package identifier.
  */
-@Backing(type="int")
-enum ComponentType {
+parcelable PackageIdentifier {
   /**
-   * Unknown component type when the package was recently removed and the internal structures are
-   * partially updated.
+   * Name of the package.
    */
-  UNKNOWN,
+  String name;
 
   /**
-   * System component.
+   * UID of the package.
    */
-  SYSTEM,
-
-  /**
-   * Vendor component.
-   */
-  VENDOR,
-
-  /**
-   * Third-party component.
-   */
-  THIRD_PARTY,
+  int uid;
 }

@@ -28,6 +28,7 @@ import static com.android.internal.util.function.pooled.PooledLambda.obtainMessa
 import android.annotation.NonNull;
 import android.annotation.UserIdInt;
 import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
+import android.automotive.watchdog.internal.PackageInfo;
 import android.automotive.watchdog.internal.PowerCycle;
 import android.automotive.watchdog.internal.StateType;
 import android.automotive.watchdog.internal.UserState;
@@ -578,6 +579,12 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         @Override
         public void prepareProcessTermination() {
             Slog.w(TAG, "CarWatchdogService is about to be killed by car watchdog daemon");
+        }
+
+        @Override
+        public List<PackageInfo> getPackageInfosForUids(int[] uids, List<String> prefixes) {
+            // TODO(b/170741935): Resolve package names for the given UIDs using package manager.
+            return null;
         }
     }
 
