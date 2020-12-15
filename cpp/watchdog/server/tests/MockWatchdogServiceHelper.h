@@ -24,6 +24,7 @@
 #include <android/automotive/watchdog/TimeoutLength.h>
 #include <android/automotive/watchdog/internal/ICarWatchdogServiceForSystem.h>
 #include <binder/Status.h>
+#include <gmock/gmock.h>
 #include <utils/StrongPointer.h>
 
 namespace android {
@@ -52,6 +53,11 @@ public:
                 (const, override));
     MOCK_METHOD(android::binder::Status, prepareProcessTermination,
                 (const android::wp<android::IBinder>& who), (override));
+    MOCK_METHOD(android::binder::Status, getPackageInfosForUids,
+                (const std::vector<int32_t>& uids,
+                 const std::vector<std::string>& vendorPackagePrefixes,
+                 std::vector<android::automotive::watchdog::internal::PackageInfo>* packageInfos),
+                (override));
 
     MOCK_METHOD(void, terminate, (), (override));
 };

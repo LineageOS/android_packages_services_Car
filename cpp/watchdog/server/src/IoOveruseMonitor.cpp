@@ -18,6 +18,8 @@
 
 #include "IoOveruseMonitor.h"
 
+#include "utils/PackageNameResolver.h"
+
 namespace android {
 namespace automotive {
 namespace watchdog {
@@ -35,6 +37,10 @@ Result<void> IoOveruseMonitor::start() {
     //    and system applications.
     //  2. From /system and /vendor partitions as this contains the default configs shipped with the
     //    the image.
+
+    // TODO(b/167240592): Read the vendor package prefixes from disk before the below call.
+    PackageNameResolver::getInstance()->setVendorPackagePrefixes(
+            mIoOveruseConfigs.vendorPackagePrefixes);
     return {};
 }
 

@@ -44,7 +44,13 @@ Result<void> ServiceManager::startServices(const sp<Looper>& looper) {
         sIoOveruseMonitor != nullptr) {
         return Error(INVALID_OPERATION) << "Cannot start services more than once";
     }
-    PackageNameResolver::getInstance();
+    /*
+     * PackageNameResolver must be initialized first time on the main thread before starting any
+     * other thread as the getInstance method isn't thread safe. Thus initialize PackageNameResolver
+     * by calling the getInstance method before starting other service as they may access
+     * PackageNameResolver's instance during initialization.
+     */
+    sp<PackageNameResolver> packageNameResolver = PackageNameResolver::getInstance();
     auto result = startProcessAnrMonitor(looper);
     if (!result.ok()) {
         return result;
@@ -58,11 +64,14 @@ Result<void> ServiceManager::startServices(const sp<Looper>& looper) {
     if (!result.ok()) {
         return Error() << "Failed to initialize watchdog service helper: " << result.error();
     }
+    result = packageNameResolver->initWatchdogServiceHelper(sWatchdogServiceHelper);
+    if (!result.ok()) {
+        return Error() << "Failed to initialize package name resolver: " << result.error();
+    }
     return {};
 }
 
 void ServiceManager::terminateServices() {
-    PackageNameResolver::terminate();
     if (sWatchdogProcessService != nullptr) {
         sWatchdogProcessService->terminate();
         sWatchdogProcessService.clear();
@@ -82,6 +91,7 @@ void ServiceManager::terminateServices() {
         sWatchdogServiceHelper->terminate();
         sWatchdogServiceHelper.clear();
     }
+    PackageNameResolver::terminate();
 }
 
 Result<void> ServiceManager::startProcessAnrMonitor(const sp<Looper>& looper) {
