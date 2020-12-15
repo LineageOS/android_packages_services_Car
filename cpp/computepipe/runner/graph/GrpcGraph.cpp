@@ -171,7 +171,7 @@ Status GrpcGraph::handleConfigPhase(const runner::ClientConfig& e) {
 // Starts the graph.
 Status GrpcGraph::handleExecutionPhase(const runner::RunnerEvent& e) {
     std::lock_guard lock(mLock);
-    if (mGraphState != PrebuiltGraphState::STOPPED) {
+    if (mGraphState != PrebuiltGraphState::STOPPED || mStreamSetObserver == nullptr) {
         mStatus = Status::ILLEGAL_STATE;
         return mStatus;
     }
