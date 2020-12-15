@@ -51,6 +51,8 @@ interface ICarAudio {
     String getOutputDeviceAddressForUsage(int zoneId, int usage);
 
     List<AudioDeviceAttributes> getInputDevicesForZoneId(int zoneId);
+
+    boolean isPlaybackOnVolumeGroupActive(int volumeGroupId, int audioZoneId);
     /**
      * IBinder is ICarVolumeCallback but passed as IBinder due to aidl hidden.
      */

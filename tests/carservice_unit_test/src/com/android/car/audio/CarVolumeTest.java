@@ -28,6 +28,7 @@ import static android.telephony.TelephonyManager.CALL_STATE_IDLE;
 import static android.telephony.TelephonyManager.CALL_STATE_OFFHOOK;
 import static android.telephony.TelephonyManager.CALL_STATE_RINGING;
 
+import static com.android.car.audio.CarAudioContext.ALARM;
 import static com.android.car.audio.CarAudioContext.CALL;
 import static com.android.car.audio.CarAudioContext.CALL_RING;
 import static com.android.car.audio.CarAudioContext.MUSIC;
@@ -39,6 +40,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertThrows;
 import static org.testng.Assert.expectThrows;
 
 import android.media.AudioAttributes;
@@ -84,6 +86,22 @@ public class CarVolumeTest {
     }
 
     @Test
+    public void getSuggestedAudioContext_withNullConfigurations_fails() {
+        CarVolume carVolume = new CarVolume(VERSION_TWO);
+
+        assertThrows(NullPointerException.class, () -> carVolume.getSuggestedAudioContext(
+                null, CALL_STATE_IDLE, new int[0]));
+    }
+
+    @Test
+    public void getSuggestedAudioContext_withNullHallUsages_fails() {
+        CarVolume carVolume = new CarVolume(VERSION_TWO);
+
+        assertThrows(NullPointerException.class, () -> carVolume.getSuggestedAudioContext(
+                new ArrayList<>(), CALL_STATE_IDLE, null));
+    }
+
+    @Test
     public void getSuggestedAudioContext_withNoConfigurationsAndIdleTelephony_returnsDefault() {
         CarVolume carVolume = new CarVolume(VERSION_TWO);
 
@@ -117,8 +135,9 @@ public class CarVolumeTest {
     }
 
     @Test
-    public void getSuggestedAudioContext_withCallStateRinging_returnsCallRingContext() {
-        CarVolume carVolume = new CarVolume(VERSION_TWO);
+
+    public void getSuggestedAudioContext_withV1AndCallStateRinging_returnsCallRingContext() {
+        CarVolume carVolume = new CarVolume(VERSION_ONE);
 
         @AudioContext int suggestedContext = carVolume.getSuggestedAudioContext(new ArrayList<>(),
                 CALL_STATE_RINGING, new int[0]);
@@ -281,6 +300,135 @@ public class CarVolumeTest {
                 CALL_STATE_IDLE, activeHalUsages);
 
         assertThat(suggestedContext).isEqualTo(MUSIC);
+    }
+
+
+    @Test
+    public void isAnyContextActive_withOneConfigurationAndMatchedContext_returnsTrue() {
+        @AudioContext int[] activeContexts = {VOICE_COMMAND};
+        List<AudioPlaybackConfiguration> configurations = ImmutableList.of(
+                new Builder().setUsage(USAGE_ASSISTANT).build()
+        );
+
+        assertThat(CarVolume.isAnyContextActive(activeContexts, configurations, CALL_STATE_IDLE,
+                new int[0])).isTrue();
+    }
+
+    @Test
+    public void isAnyContextActive_withOneConfigurationAndMismatchedContext_returnsFalse() {
+        @AudioContext int[] activeContexts = {ALARM};
+        List<AudioPlaybackConfiguration> configurations = ImmutableList.of(
+                new Builder().setUsage(USAGE_ASSISTANT).build()
+        );
+
+        assertThat(CarVolume.isAnyContextActive(activeContexts, configurations, CALL_STATE_IDLE,
+                new int[0])).isFalse();
+    }
+
+    @Test
+    public void isAnyContextActive_withOneConfigurationAndMultipleContexts_returnsTrue() {
+        @AudioContext int[] activeContexts = {ALARM, MUSIC, VOICE_COMMAND};
+        List<AudioPlaybackConfiguration> configurations = ImmutableList.of(
+                new Builder().setUsage(USAGE_ASSISTANT).build()
+        );
+
+        assertThat(CarVolume.isAnyContextActive(activeContexts, configurations, CALL_STATE_IDLE,
+                new int[0])).isTrue();
+    }
+
+    @Test
+    public void isAnyContextActive_withOneConfigurationAndMultipleContexts_returnsFalse() {
+        @AudioContext int[] activeContexts = {ALARM, MUSIC, VOICE_COMMAND};
+        List<AudioPlaybackConfiguration> configurations = ImmutableList.of(
+                new Builder().setUsage(USAGE_NOTIFICATION).build()
+        );
+
+        assertThat(CarVolume.isAnyContextActive(activeContexts, configurations, CALL_STATE_IDLE,
+                new int[0])).isFalse();
+    }
+
+    @Test
+    public void isAnyContextActive_withActiveHalUsagesAndMatchedContext_returnsTrue() {
+        @AudioContext int[] activeContexts = {VOICE_COMMAND};
+        @AttributeUsage int[] activeHalUsages = {USAGE_MEDIA, USAGE_ANNOUNCEMENT, USAGE_ASSISTANT};
+        List<AudioPlaybackConfiguration> configurations = new ArrayList<>();
+
+        assertThat(CarVolume.isAnyContextActive(activeContexts, configurations, CALL_STATE_IDLE,
+                activeHalUsages)).isTrue();
+    }
+
+    @Test
+    public void isAnyContextActive_withActiveHalUsagesAndMismatchedContext_returnsFalse() {
+        @AudioContext int[] activeContexts = {ALARM};
+        @AttributeUsage int[] activeHalUsages = {USAGE_MEDIA, USAGE_ANNOUNCEMENT, USAGE_ASSISTANT};
+        List<AudioPlaybackConfiguration> configurations = new ArrayList<>();
+
+        assertThat(CarVolume.isAnyContextActive(activeContexts, configurations, CALL_STATE_IDLE,
+                activeHalUsages)).isFalse();
+    }
+
+    @Test
+    public void isAnyContextActive_withActiveCallAndMatchedContext_returnsTrue() {
+        @AudioContext int[] activeContexts = {CALL};
+        @AttributeUsage int[] activeHalUsages = {};
+        List<AudioPlaybackConfiguration> configurations = new ArrayList<>();
+
+        assertThat(CarVolume.isAnyContextActive(activeContexts, configurations, CALL_STATE_OFFHOOK,
+                activeHalUsages)).isTrue();
+    }
+
+    @Test
+    public void isAnyContextActive_withActiveCallAndMismatchedContext_returnsFalse() {
+        @AudioContext int[] activeContexts = {VOICE_COMMAND};
+        @AttributeUsage int[] activeHalUsages = {};
+        List<AudioPlaybackConfiguration> configurations = new ArrayList<>();
+
+        assertThat(CarVolume.isAnyContextActive(activeContexts, configurations, CALL_STATE_OFFHOOK,
+                activeHalUsages)).isFalse();
+    }
+
+    @Test
+    public void isAnyContextActive_withNullContexts_fails() {
+        @AudioContext int[] activeContexts = null;
+        @AttributeUsage int[] activeHalUsages = {};
+        List<AudioPlaybackConfiguration> configurations = new ArrayList<>();
+
+        assertThrows(NullPointerException.class,
+                () -> CarVolume.isAnyContextActive(activeContexts,
+                configurations, CALL_STATE_OFFHOOK, activeHalUsages));
+    }
+
+    @Test
+    public void isAnyContextActive_withEmptyContexts_fails() {
+        @AudioContext int[] activeContexts = {};
+        @AttributeUsage int[] activeHalUsages = {};
+        List<AudioPlaybackConfiguration> configurations = new ArrayList<>();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> CarVolume.isAnyContextActive(activeContexts,
+                configurations, CALL_STATE_OFFHOOK, activeHalUsages));
+    }
+
+    @Test
+    public void isAnyContextActive_withNullConfigurations_fails() {
+        @AudioContext int[] activeContexts = {ALARM};
+        @AttributeUsage int[] activeHalUsages = {};
+        List<AudioPlaybackConfiguration> configurations = null;
+
+        assertThrows(NullPointerException.class,
+                () -> CarVolume.isAnyContextActive(activeContexts,
+                        configurations, CALL_STATE_OFFHOOK, activeHalUsages));
+    }
+
+    @Test
+    public void isAnyContextActive_withNullHalUsages_fails() {
+        @AudioContext int[] activeContexts = {ALARM};
+        @AttributeUsage int[] activeHalUsages = null;
+        List<AudioPlaybackConfiguration> configurations = new ArrayList<>();
+
+        assertThrows(NullPointerException.class,
+                () -> CarVolume.isAnyContextActive(activeContexts,
+                        configurations, CALL_STATE_OFFHOOK, activeHalUsages));
     }
 
     private static class Builder {

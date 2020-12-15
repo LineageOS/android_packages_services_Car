@@ -846,6 +846,43 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         }
     }
 
+    @Override
+    public boolean isPlaybackOnVolumeGroupActive(int zoneId, int groupId) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        requireDynamicRouting();
+        Preconditions.checkArgument(isAudioZoneIdValid(zoneId),
+                "Invalid audio zone id %d", zoneId);
+
+        return CarVolume.isAnyContextActive(getContextsForVolumeGroupId(zoneId, groupId),
+                getAudioPlaybackConfigurationsForZone(zoneId), getCallStateForZone(zoneId),
+                mHalAudioFocus.getActiveUsagesForZone(zoneId));
+    }
+
+    private @CallState int getCallStateForZone(int zoneId) {
+        synchronized (mImplLock) {
+            // Only driver can use telephony stack
+            if (getUserIdForZoneLocked(zoneId) == mOccupantZoneService.getDriverUserId()) {
+                return mTelephonyManager.getCallState();
+            }
+        }
+        return TelephonyManager.CALL_STATE_IDLE;
+    }
+
+    private List<AudioPlaybackConfiguration> getAudioPlaybackConfigurationsForZone(int zoneId) {
+        List<AudioPlaybackConfiguration> configurations = mAudioManager
+                .getActivePlaybackConfigurations();
+        // TODO(b/175242629) add audio playback configuration filtering
+        return configurations;
+    }
+
+
+    private @NonNull @AudioContext int[] getContextsForVolumeGroupId(int zoneId, int groupId) {
+        synchronized (mImplLock) {
+            CarVolumeGroup group = getCarVolumeGroupLocked(zoneId, groupId);
+            return group.getContexts();
+        }
+    }
+
     /**
      * Gets the ids of all available audio zones
      *
@@ -1124,11 +1161,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     private @AudioContext int getSuggestedAudioContext(int zoneId) {
-        @CallState int callState = mTelephonyManager.getCallState();
-        List<AudioPlaybackConfiguration> configurations =
-                mAudioManager.getActivePlaybackConfigurations();
-        return mCarVolume.getSuggestedAudioContext(configurations, callState,
-                mHalAudioFocus.getActiveUsagesForZone(zoneId));
+        return mCarVolume.getSuggestedAudioContext(getAudioPlaybackConfigurationsForZone(zoneId),
+                getCallStateForZone(zoneId), mHalAudioFocus.getActiveUsagesForZone(zoneId));
     }
 
     /**
