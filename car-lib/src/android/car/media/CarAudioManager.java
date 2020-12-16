@@ -29,7 +29,10 @@ import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.media.AudioManager.AudioDeviceRole;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -109,19 +112,23 @@ public final class CarAudioManager extends CarManagerBase {
     private final CopyOnWriteArrayList<CarVolumeCallback> mCarVolumeCallbacks;
     private final AudioManager mAudioManager;
 
-    private final ICarVolumeCallback mCarVolumeCallbackImpl = new ICarVolumeCallback.Stub() {
+    private final EventHandler mEventHandler;
+
+    private final ICarVolumeCallback mCarVolumeCallbackImpl =
+            new android.car.media.ICarVolumeCallback.Stub() {
         @Override
         public void onGroupVolumeChanged(int zoneId, int groupId, int flags) {
-            for (CarVolumeCallback callback : mCarVolumeCallbacks) {
-                callback.onGroupVolumeChanged(zoneId, groupId, flags);
-            }
+            mEventHandler.dispatchOnGroupVolumeChanged(zoneId, groupId, flags);
+        }
+
+        @Override
+        public void onGroupMuteChanged(int zoneId, int groupId, int flags) {
+            mEventHandler.dispatchOnGroupMuteChanged(zoneId, groupId, flags);
         }
 
         @Override
         public void onMasterMuteChanged(int zoneId, int flags) {
-            for (CarVolumeCallback callback : mCarVolumeCallbacks) {
-                callback.onMasterMuteChanged(zoneId, flags);
-            }
+            mEventHandler.dispatchOnMasterMuteChanged(zoneId, flags);
         }
     };
 
@@ -625,6 +632,7 @@ public final class CarAudioManager extends CarManagerBase {
         mService = ICarAudio.Stub.asInterface(service);
         mAudioManager = getContext().getSystemService(AudioManager.class);
         mCarVolumeCallbacks = new CopyOnWriteArrayList<>();
+        mEventHandler = new EventHandler(getEventHandler().getLooper());
     }
 
     /**
@@ -672,6 +680,47 @@ public final class CarAudioManager extends CarManagerBase {
         }
     }
 
+    /**
+     * Returns the whether a volume group is muted
+     *
+     * @param zoneId The zone id whose volume groups is queried.
+     * @param groupId The volume group id whose mute state is returned.
+     * @return {@code true} if the volume group is muted, {@code false}
+     * otherwise
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
+    public boolean isVolumeGroupMuted(int zoneId, int groupId) {
+        try {
+            return mService.isVolumeGroupMuted(zoneId, groupId);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, false);
+        }
+    }
+
+    /**
+     * Sets a volume group mute
+     *
+     * @param zoneId The zone id whose volume groups will be changed.
+     * @param groupId The volume group id whose mute state will be changed.
+     * @param mute {@code true} to mute volume group, {@code false} otherwise
+     * @param flags One or more flags (e.g., {@link android.media.AudioManager#FLAG_SHOW_UI},
+     * {@link android.media.AudioManager#FLAG_PLAY_SOUND})
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
+    public void setVolumeGroupMute(int zoneId, int groupId, boolean mute, int flags) {
+        try {
+            mService.setVolumeGroupMute(zoneId, groupId, mute, flags);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
     private List<AudioDeviceInfo> convertInputDevicesToDeviceInfos(
             List<AudioDeviceAttributes> devices, @AudioDeviceRole int flag) {
         int addressesSize = devices.size();
@@ -689,6 +738,81 @@ public final class CarAudioManager extends CarManagerBase {
             }
         }
         return deviceInfoList;
+    }
+
+    private final class EventHandler extends Handler {
+        private static final int MSG_GROUP_VOLUME_CHANGE = 1;
+        private static final int MSG_GROUP_MUTE_CHANGE = 2;
+        private static final int MSG_MASTER_MUTE_CHANGE = 3;
+
+        private EventHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MSG_GROUP_VOLUME_CHANGE:
+                    VolumeGroupChangeInfo volumeInfo = (VolumeGroupChangeInfo) msg.obj;
+                    handleOnGroupVolumeChanged(volumeInfo.mZoneId, volumeInfo.mGroupId,
+                            volumeInfo.mFlags);
+                    break;
+                case MSG_GROUP_MUTE_CHANGE:
+                    VolumeGroupChangeInfo muteInfo = (VolumeGroupChangeInfo) msg.obj;
+                    handleOnGroupMuteChanged(muteInfo.mZoneId, muteInfo.mGroupId, muteInfo.mFlags);
+                    break;
+                case MSG_MASTER_MUTE_CHANGE:
+                    handleOnMasterMuteChanged(msg.arg1, msg.arg2);
+                    break;
+                default:
+                    Log.e(CarLibLog.TAG_CAR, "Unknown nessage not handled:" + msg.what);
+                    break;
+            }
+        }
+
+        private void dispatchOnGroupVolumeChanged(int zoneId, int groupId, int flags) {
+            VolumeGroupChangeInfo volumeInfo = new VolumeGroupChangeInfo(zoneId, groupId, flags);
+            sendMessage(obtainMessage(MSG_GROUP_VOLUME_CHANGE, volumeInfo));
+        }
+
+        private void dispatchOnMasterMuteChanged(int zoneId, int flags) {
+            sendMessage(obtainMessage(MSG_MASTER_MUTE_CHANGE, zoneId, flags));
+        }
+
+        private void dispatchOnGroupMuteChanged(int zoneId, int groupId, int flags) {
+            VolumeGroupChangeInfo volumeInfo = new VolumeGroupChangeInfo(zoneId, groupId, flags);
+            sendMessage(obtainMessage(MSG_GROUP_MUTE_CHANGE, volumeInfo));
+        }
+
+        private class VolumeGroupChangeInfo {
+            public int mZoneId;
+            public int mGroupId;
+            public int mFlags;
+
+            VolumeGroupChangeInfo(int zoneId, int groupId, int flags) {
+                mZoneId = zoneId;
+                mGroupId = groupId;
+                mFlags = flags;
+            }
+        }
+    }
+
+    private void handleOnGroupVolumeChanged(int zoneId, int groupId, int flags) {
+        for (CarVolumeCallback callback : mCarVolumeCallbacks) {
+            callback.onGroupVolumeChanged(zoneId, groupId, flags);
+        }
+    }
+
+    private void handleOnMasterMuteChanged(int zoneId, int flags) {
+        for (CarVolumeCallback callback : mCarVolumeCallbacks) {
+            callback.onMasterMuteChanged(zoneId, flags);
+        }
+    }
+
+    private void handleOnGroupMuteChanged(int zoneId, int groupId, int flags) {
+        for (CarVolumeCallback callback : mCarVolumeCallbacks) {
+            callback.onGroupMuteChanged(zoneId, groupId, flags);
+        }
     }
 
     /**
@@ -717,5 +841,16 @@ public final class CarAudioManager extends CarManagerBase {
          * @param flags see {@link android.media.AudioManager} for flag definitions
          */
         public void onMasterMuteChanged(int zoneId, int flags) {}
+
+        /**
+         * This is called whenever a group mute state is changed.
+         * The changed-to mute state is not included, the caller is encouraged to
+         * get the current group mute state via CarAudioManager.
+         *
+         * @param zoneId Id of the audio zone that volume change happens
+         * @param groupId Id of the volume group that volume is changed
+         * @param flags see {@link android.media.AudioManager} for flag definitions
+         */
+        public void onGroupMuteChanged(int zoneId, int groupId, int flags) {}
     }
 }

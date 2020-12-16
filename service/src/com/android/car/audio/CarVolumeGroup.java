@@ -58,6 +58,7 @@ import java.util.Map;
     private int mStepSize = 0;
     private int mStoredGainIndex;
     private int mCurrentGainIndex = -1;
+    private boolean mIsMuted;
     private @UserIdInt int mUserId = UserHandle.USER_CURRENT;
 
     /**
@@ -313,6 +314,7 @@ import java.util.Map;
     void dump(String indent, PrintWriter writer) {
         synchronized (mLock) {
             writer.printf("%sCarVolumeGroup(%d)\n", indent, mId);
+            writer.printf("%sIs Muted(%b)\n", indent, mIsMuted);
             writer.printf("%sUserId(%d)\n", indent, mUserId);
             writer.printf("%sGain values (min / max / default/ current): %d %d %d %d\n",
                     indent, mMinGain, mMaxGain,
@@ -347,5 +349,17 @@ import java.util.Map;
             //Reset devices with current gain index
         }
         setCurrentGainIndex(getCurrentGainIndex());
+    }
+
+    public void setMute(boolean mute) {
+        synchronized (mLock) {
+            mIsMuted = mute;
+        }
+    }
+
+    public boolean isMuted() {
+        synchronized (mLock) {
+            return mIsMuted;
+        }
     }
 }

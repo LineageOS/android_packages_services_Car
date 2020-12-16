@@ -607,6 +607,7 @@ package android.car.media {
 
   public abstract static class CarAudioManager.CarVolumeCallback {
     ctor public CarAudioManager.CarVolumeCallback();
+    method public void onGroupMuteChanged(int, int, int);
     method public void onGroupVolumeChanged(int, int, int);
     method public void onMasterMuteChanged(int, int);
   }

@@ -380,6 +380,10 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         mCarVolumeCallbackHandler.onVolumeGroupChange(zoneId, groupId, flags);
     }
 
+    private void callbackGroupMuteChanged(int zoneId, int groupId, int flags) {
+        mCarVolumeCallbackHandler.onGroupMuteChange(zoneId, groupId, flags);
+    }
+
     private void setMasterMute(boolean mute, int flags) {
         mAudioManager.setMasterMute(mute, flags);
 
@@ -855,7 +859,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
         return CarVolume.isAnyContextActive(getContextsForVolumeGroupId(zoneId, groupId),
                 getAudioPlaybackConfigurationsForZone(zoneId), getCallStateForZone(zoneId),
-                mHalAudioFocus.getActiveUsagesForZone(zoneId));
+                getActiveHalUsagesForZone(zoneId));
     }
 
     private @CallState int getCallStateForZone(int zoneId) {
@@ -1120,6 +1124,34 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         }
     }
 
+    /**
+     * @see {@link android.car.media.CarAudioManager#isVolumeGroupMuted(int, int)}
+     */
+    @Override
+    public boolean isVolumeGroupMuted(int zoneId, int groupId) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        requireDynamicRouting();
+        synchronized (mImplLock) {
+            CarVolumeGroup group = getCarVolumeGroupLocked(zoneId, groupId);
+            return group.isMuted();
+        }
+    }
+
+    /**
+     * @see {@link android.car.media.CarAudioManager#setVolumeGroupMute(int, int, boolean, int)}
+     */
+    @Override
+    public void setVolumeGroupMute(int zoneId, int groupId, boolean mute, int flags) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        requireDynamicRouting();
+        synchronized (mImplLock) {
+            CarVolumeGroup group = getCarVolumeGroupLocked(zoneId, groupId);
+            group.setMute(mute);
+            // TODO(175732501): Add AudioControl HAL mute communication
+            callbackGroupMuteChanged(zoneId, groupId, flags);
+        }
+    }
+
     @Override
     public @NonNull List<AudioDeviceAttributes> getInputDevicesForZoneId(int zoneId) {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
@@ -1162,7 +1194,14 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     private @AudioContext int getSuggestedAudioContext(int zoneId) {
         return mCarVolume.getSuggestedAudioContext(getAudioPlaybackConfigurationsForZone(zoneId),
-                getCallStateForZone(zoneId), mHalAudioFocus.getActiveUsagesForZone(zoneId));
+                getCallStateForZone(zoneId), getActiveHalUsagesForZone(zoneId));
+    }
+
+    private int[] getActiveHalUsagesForZone(int zoneId) {
+        if (mHalAudioFocus == null) {
+            return new int[0];
+        }
+        return mHalAudioFocus.getActiveUsagesForZone(zoneId);
     }
 
     /**
