@@ -15,9 +15,6 @@
  */
 package com.android.car.custominput.sample;
 
-import static android.car.CarOccupantZoneManager.DisplayTypeEnum;
-
-import android.annotation.NonNull;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -31,6 +28,8 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.KeyEvent;
+
+import androidx.annotation.NonNull;
 
 import java.util.List;
 
@@ -125,14 +124,14 @@ public class SampleCustomInputService extends Service implements
     }
 
     @Override
-    public void onCustomInputEvents(@DisplayTypeEnum int targetDisplayType,
+    public void onCustomInputEvents(int targetDisplayType,
             @NonNull List<CustomInputEvent> events) {
         for (CustomInputEvent event : events) {
             mEventHandler.handle(targetDisplayType, event);
         }
     }
 
-    public void injectKeyEvent(KeyEvent event, @DisplayTypeEnum int targetDisplayType) {
+    public void injectKeyEvent(KeyEvent event, int targetDisplayType) {
         if (mCarInputManager == null) {
             throw new IllegalStateException(
                     "Service was properly initialized, reference to CarInputManager is null");

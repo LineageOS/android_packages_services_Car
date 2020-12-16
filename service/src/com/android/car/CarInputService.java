@@ -477,11 +477,12 @@ public class CarInputService extends ICarInput.Stub
 
         // Sets KeyEvent display id
         int oldDisplayId = event.getDisplayId();
-        if (oldDisplayId != Display.INVALID_DISPLAY && oldDisplayId != newDisplayId) {
+        if (oldDisplayId != Display.INVALID_DISPLAY && oldDisplayId != Display.DEFAULT_DISPLAY
+                && oldDisplayId != newDisplayId) {
             Log.w(CarLog.TAG_INPUT, "Incoming KeyEvent parameter is expected to be set "
-                    + "with INVALID_DISPLAY or the display id associated with driver user id ("
-                    + "which is {" + newDisplayId + "}), but instead was set with {"
-                    + oldDisplayId + "}");
+                    + "with INVALID_DISPLAY, DEFAULT_DISPLAY or the current display id associated"
+                    + "with driver user id (which is {" + newDisplayId
+                    + "}), but instead was set with {" + oldDisplayId + "}");
         }
         event.setDisplayId(newDisplayId);
 

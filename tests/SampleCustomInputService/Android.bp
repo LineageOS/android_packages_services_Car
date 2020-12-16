@@ -24,8 +24,7 @@ android_app {
     srcs: [":SampleCustomInputService-srcs"],
     resource_dirs: ["res"],
 
-    // Because it uses a platform API (CarInputManager).
-    platform_apis: true,
+    sdk_version: "system_current",
 
     // This app should be platform signed because it requires android.permission.MONITOR_INPUT
     // permission, which is of type "signature".
@@ -35,13 +34,18 @@ android_app {
         enabled: false,
     },
 
+    libs: [
+        "android.car-system-stubs",
+        "androidx.annotation_annotation",
+    ],
+
+    static_libs: [
+        "androidx.annotation_annotation",
+    ],
+
     dex_preopt: {
         enabled: false,
     },
-
-    libs: [
-        "android.car",
-    ],
 
     product_variables: {
         pdk: {
@@ -71,7 +75,7 @@ android_test {
     ],
 
     libs: [
-        "android.car",
+        "android.car-system-stubs",
         "android.test.mock",
         "android.test.base",
         "android.test.runner",
