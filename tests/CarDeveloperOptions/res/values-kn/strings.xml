@@ -264,7 +264,7 @@
     <string name="sdcard_settings_read_only_status" product="nosdcard" msgid="7959964366461613091">"USB ಸಂಗ್ರಹಣೆಯನ್ನು ಓದಲು ಮಾತ್ರ ಅಳವಡಿಸಲಾಗಿದೆ."</string>
     <string name="sdcard_settings_read_only_status" product="default" msgid="8854112253788893415">"SD ಕಾರ್ಡ್‌ ಅನ್ನು ಓದಲು ಮಾತ್ರ ಅಳವಡಿಸಲಾಗಿದೆ."</string>
     <string name="skip_label" msgid="8067961347551157478">"ಸ್ಕಿಪ್‌"</string>
-    <string name="next_label" msgid="4710056309804362410">"ಮುಂದೆ"</string>
+    <string name="next_label" msgid="4710056309804362410">"ಮುಂದಿನದು"</string>
     <string name="language_picker_title" msgid="7807759931261107686">"ಭಾಷೆಗಳು"</string>
     <string name="locale_remove_menu" msgid="3395565699934985486">"ತೆಗೆದುಹಾಕಿ"</string>
     <string name="add_a_language" msgid="4103889327406274800">"ಭಾಷೆ ಸೇರಿಸಿ"</string>
@@ -445,7 +445,7 @@
     <string name="security_settings_fingerprint_enroll_introduction_cancel" msgid="9168637333731599827">"ರದ್ದುಮಾಡಿ"</string>
     <string name="security_settings_fingerprint_enroll_introduction_continue" msgid="271662150372486535">"ಮುಂದುವರಿಸು"</string>
     <string name="security_settings_fingerprint_enroll_introduction_cancel_setup" msgid="756928427429893070">"ಸ್ಕಿಪ್‌"</string>
-    <string name="security_settings_fingerprint_enroll_introduction_continue_setup" msgid="4125977169169671144">"ಮುಂದೆ"</string>
+    <string name="security_settings_fingerprint_enroll_introduction_continue_setup" msgid="4125977169169671144">"ಮುಂದಿನದು"</string>
     <string name="setup_fingerprint_enroll_skip_title" msgid="763018850721691594">"ಫಿಂಗರ್‌ಪ್ರಿಂಟ್‌ ಸ್ಕಿಪ್ ಮಾಡುವುದೇ?"</string>
     <string name="setup_fingerprint_enroll_skip_after_adding_lock_text" msgid="8849928362049018680">"ಫಿಂಗರ್‌ಪ್ರಿಂಟ್‌ ಸೆಟಪ್‌ ಮಾಡಲು ಒಂದು ಅಥವಾ ಎರಡು ನಿಮಿಷ ತೆಗೆದುಕೊಳ್ಳುತ್ತದೆ. ನೀವು ಇದನ್ನು ಸ್ಕಿಪ್‌ ಮಾಡಿದರೆ, ನೀವು ಸೆಟ್ಟಿಂಗ್‌ಗಳಲ್ಲಿ ನಂತರ ನಿಮ್ಮ ಫಿಂಗರ್‌ಪ್ರಿಂಟ್‌ ಸೇರಿಸಬಹುದು."</string>
     <string name="lock_screen_intro_skip_title" msgid="5307431665496346914">"ಪರದೆಯ ಲಾಕ್ ಸ್ಕಿಪ್ ಮಾಡುವುದೇ?"</string>
@@ -491,7 +491,7 @@
     <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"ಬೆರಳಚ್ಚು ನೋಂದಣಿ ಸಮಯದ ಮಿತಿಯನ್ನು ಮೀರಿದೆ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ."</string>
     <string name="security_settings_fingerprint_enroll_error_generic_dialog_message" msgid="7896295829530444810">"ಬೆರಳಚ್ಚು ನೋಂದಣಿ ಕೆಲಸ ಮಾಡುತ್ತಿಲ್ಲ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ ಅಥವಾ ಬೇರೊಂದು ಬೆರಳನ್ನು ಬಳಸಿ."</string>
     <string name="fingerprint_enroll_button_add" msgid="6335782936874996629">"ಇನ್ನೊಂದನ್ನು ಸೇರಿಸಿ"</string>
-    <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"ಮುಂದೆ"</string>
+    <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"ಮುಂದಿನದು"</string>
     <string name="security_settings_fingerprint_enroll_disclaimer" msgid="5831834311961551423">"ನಿಮ್ಮ ಫೋನ್‌ ಅನ್‌ಲಾಕ್‌ ಮಾಡುವುದಕ್ಕೆ ಹೆಚ್ಚುವರಿಯಾಗಿ, ಖರೀದಿಗಳನ್ನು ದೃಢೀಕರಿಸಲು ಮತ್ತು ಅಪ್ಲಿಕೇಶನ್‌ ಪ್ರವೇಶಿಸಲು ನಿಮ್ಮ ಬೆರಳಚ್ಚು‌ ಅನ್ನು ಕೂಡಾ ನೀವು ಬಳಸಬಹುದು. "<annotation id="url">"ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ"</annotation></string>
     <string name="security_settings_fingerprint_enroll_disclaimer_lockscreen_disabled" msgid="7954742554236652690">" ಪರದೆ ಲಾಕ್ ಆಯ್ಕೆಯನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ. ಇನ್ನಷ್ಟು ತಿಳಿಯಲು ನಿಮ್ಮ ಸಂಸ್ಥೆಯ ನಿರ್ವಾಹಕರನ್ನು ಸಂಪರ್ಕಿಸಿ. "<annotation id="admin_details">"ಹೆಚ್ಚಿನ ವಿವರಗಳು"</annotation>\n\n"ಖರೀದಿಗಳನ್ನು ಅನುಮೋದಿಸಲು ಅಥವಾ ಅಪ್ಲಿಕೇಶನ್‌ಗೆ ಪ್ರವೇಶಿಸಲು ನಿಮ್ಮ ಫಿಂಗರ್ ಪ್ರಿಂಟ್ ಇನ್ನೂ ಬಳಸಬಹುದು. "<annotation id="url">"ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ"</annotation></string>
     <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"ಬೆರಳನ್ನು ಮೇಲಕ್ಕೆ ಎತ್ತಿರಿ, ನಂತರ ಮತ್ತೊಮ್ಮೆ ಸೆನ್ಸರ್ ಅನ್ನು ಸ್ಪರ್ಶಿಸಿ"</string>
@@ -709,7 +709,7 @@
     <string name="lockpassword_clear_label" msgid="3201458533657963554">"ತೆರವುಗೊಳಿಸಿ"</string>
     <string name="lockpassword_credential_changed" msgid="5183961439209866170">"ಸ್ಕ್ರೀನ್ ಲಾಕ್ ಅನ್ನು ಈಗಾಗಲೇ ಬದಲಾಯಿಸಲಾಗಿದೆ. ಹೊಸ ಸ್ಕ್ರೀನ್ ಲಾಕ್ ಬಳಸಿಕೊಂಡು ಪುನಃ ಪ್ರಯತ್ನಿಸಿ."</string>
     <string name="lockpattern_tutorial_cancel_label" msgid="450401426127674369">"ರದ್ದುಮಾಡಿ"</string>
-    <string name="lockpattern_tutorial_continue_label" msgid="8474690922559443018">"ಮುಂದೆ"</string>
+    <string name="lockpattern_tutorial_continue_label" msgid="8474690922559443018">"ಮುಂದಿನದು"</string>
     <string name="lock_setup" msgid="8710689848703935088">"ಸೆಟಪ್ ಪೂರ್ಣಗೊಂಡಿದೆ."</string>
     <string name="manage_device_admin" msgid="322047441168191695">"ಸಾಧನ ನಿರ್ವಹಣಾ ಆ್ಯಪ್‍‍ಗಳು"</string>
     <string name="number_of_device_admins_none" msgid="8519193548630223132">"ಸಕ್ರಿಯ ಅಪ್ಲಿಕೇಶನ್‌ಗಳಿಲ್ಲ"</string>
@@ -2979,7 +2979,7 @@
     <string name="restriction_location_enable_title" msgid="358506740636434856">"ಸ್ಥಳ"</string>
     <string name="restriction_location_enable_summary" msgid="4159500201124004463">"ಅಪ್ಲಿಕೇಶನ್‌ಗಳು ನಿಮ್ಮ ಸ್ಥಳ ಮಾಹಿತಿಯನ್ನು ಬಳಸಲು ಅನುಮತಿಸಿ"</string>
     <string name="wizard_back" msgid="223654213898117594">"ಹಿಂದೆ"</string>
-    <string name="wizard_next" msgid="5239664512608113542">"ಮುಂದೆ"</string>
+    <string name="wizard_next" msgid="5239664512608113542">"ಮುಂದಿನದು"</string>
     <string name="wizard_finish" msgid="3742102879981212094">"ಪೂರ್ಣಗೊಳಿಸು"</string>
     <string name="user_image_take_photo" msgid="2000247510236178111">"ಫೋಟೋವನ್ನು ಸೆರೆಹಿಡಿಯಿರಿ"</string>
     <string name="user_image_choose_photo" msgid="4920315415203051898">"ಚಿತ್ರವನ್ನು ಆಯ್ಕೆಮಾಡಿ"</string>
