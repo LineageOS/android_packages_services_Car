@@ -250,6 +250,7 @@ public class CarPowerManager extends CarManagerBase {
      * @return The current power policy. If no power policy is set, {@code null} is returned.
      * @hide
      */
+    @RequiresPermission(Car.PERMISSION_CAR_POWER)
     @Nullable
     public CarPowerPolicy getCurrentPowerPolicy() {
         // TODO(b/170158642): implement here
@@ -278,6 +279,7 @@ public class CarPowerManager extends CarManagerBase {
      * @param filter Filter specifying power components of interest.
      * @hide
      */
+    @RequiresPermission(Car.PERMISSION_CAR_POWER)
     public void registerPowerPolicyChangeListener(@NonNull CarPowerPolicyChangeListener listener,
             @NonNull CarPowerPolicyFilter filter) {
         // TODO(b/170158642): implement here
@@ -289,6 +291,7 @@ public class CarPowerManager extends CarManagerBase {
      * @param listener Listener that will not be notified any more.
      * @hide
      */
+    @RequiresPermission(Car.PERMISSION_CAR_POWER)
     public void unregisterPowerPolicyChangeListener(
             @NonNull CarPowerPolicyChangeListener listener) {
         // TODO(b/170158642): implement here
