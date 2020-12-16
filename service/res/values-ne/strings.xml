@@ -17,8 +17,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="car_permission_label" msgid="2215078736675564541">"कारको जानकारी"</string>
-    <!-- no translation found for car_permission_desc (3584369074931334964) -->
-    <skip />
+    <string name="car_permission_desc" msgid="3584369074931334964">"आफ्नो कारको जानकारी हेर्नुहोस्"</string>
     <string name="car_permission_label_camera" msgid="3725702064841827180">"काराको क्यामेरामाथि पहुँच राख्ने"</string>
     <string name="car_permission_desc_camera" msgid="917024932164501426">"तपाईंको कारका क्यामेरा(हरू) माथि पहुँच राख्ने।"</string>
     <string name="car_permission_label_energy" msgid="7409144323527821558">"कारको ऊर्जासम्बन्धी जानकारीमाथि पहुँच राख्ने"</string>
