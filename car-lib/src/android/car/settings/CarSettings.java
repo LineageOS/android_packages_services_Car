@@ -145,6 +145,17 @@ public class CarSettings {
                 "android.car.KEY_AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL";
 
         /**
+         * Key to indicate the timeout in milliseconds while a car volume group will be considered
+         * active (after playback has stopped) for volume control changes during volume key events.
+         * <p>The value is an int between 0 ms and 3000 ms (i.e. 0 - 3 seconds)
+         *
+         * @hide
+         */
+        @SystemApi
+        public static final String KEY_CAR_VOLUME_KEY_EVENT_TIMEOUT_MS =
+                "android.car.KEY_CAR_VOLUME_KEY_EVENT_TIMEOUT_MS";
+
+        /**
          * Key for a list of devices to automatically connect on Bluetooth A2DP Sink profile
          * Written to and read by {@link com.android.car.BluetoothDeviceConnectionPolicy}
          * @hide

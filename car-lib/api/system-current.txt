@@ -1052,6 +1052,7 @@ package android.car.settings {
 
   public static final class CarSettings.Secure {
     field public static final String KEY_AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL = "android.car.KEY_AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL";
+    field public static final String KEY_CAR_VOLUME_KEY_EVENT_TIMEOUT_MS = "android.car.KEY_CAR_VOLUME_KEY_EVENT_TIMEOUT_MS";
     field public static final String KEY_ENABLE_INITIAL_NOTICE_SCREEN_TO_USER = "android.car.ENABLE_INITIAL_NOTICE_SCREEN_TO_USER";
     field public static final String KEY_SETUP_WIZARD_IN_PROGRESS = "android.car.SETUP_WIZARD_IN_PROGRESS";
   }
