@@ -1238,13 +1238,13 @@
     <string name="screen_timeout" msgid="1700950247634525588">"Идэвхгүй"</string>
     <string name="screen_timeout_title" msgid="150117777762864112">"Дэлгэц унтарна"</string>
     <string name="screen_timeout_summary" msgid="8644192861778491060">"Идвэхгүй <xliff:g id="TIMEOUT_DESCRIPTION">%1$s</xliff:g> болсны дараа"</string>
-    <string name="wallpaper_settings_title" msgid="347390905813529607">"Ханын зураг"</string>
-    <string name="style_and_wallpaper_settings_title" msgid="8898539141152705754">"Загвар ба ханын зураг"</string>
+    <string name="wallpaper_settings_title" msgid="347390905813529607">"Дэлгэцийн зураг"</string>
+    <string name="style_and_wallpaper_settings_title" msgid="8898539141152705754">"Загвар ба дэлгэцийн зураг"</string>
     <string name="wallpaper_settings_summary_default" msgid="2626880032742784599">"Өгөгдмөл"</string>
     <string name="wallpaper_settings_summary_custom" msgid="8950504698015331202">"Захиалгат"</string>
-    <string name="wallpaper_suggestion_title" msgid="3012130414886743201">"Ханын зураг солих"</string>
+    <string name="wallpaper_suggestion_title" msgid="3012130414886743201">"Дэлгэцийн зураг солих"</string>
     <string name="wallpaper_suggestion_summary" msgid="4247262938988875842">"Дэлгэцээ өөрчлөх"</string>
-    <string name="wallpaper_settings_fragment_title" msgid="1503701065297188901">"Ханын зураг сонгох"</string>
+    <string name="wallpaper_settings_fragment_title" msgid="1503701065297188901">"Дэлгэцийн зураг сонгох"</string>
     <string name="screensaver_settings_title" msgid="7720091234133721021">"Дэлгэц амраагч"</string>
     <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"Цэнэглэх эсвэл суурилуулах үед"</string>
     <string name="screensaver_settings_summary_either_short" msgid="2453772128682850053">"Аль аль нь"</string>
@@ -1694,7 +1694,7 @@
     <string name="license_title" msgid="7582145947873528540">"Лиценз"</string>
     <string name="terms_title" msgid="1804549588198223771">"Ерөнхий нөхцлүүд"</string>
     <string name="webview_license_title" msgid="8244960025549725051">"Системийн WebView-ийн лиценз"</string>
-    <string name="wallpaper_attributions" msgid="2941987966332943253">"Ханын зураг"</string>
+    <string name="wallpaper_attributions" msgid="2941987966332943253">"Дэлгэцийн зураг"</string>
     <string name="wallpaper_attributions_values" msgid="4461979853894606323">"Сансрын зураг нийлүүлэгчид: \n © 2014 CNES / Astrium, DigitalGlobe, Bluesky"</string>
     <string name="settings_manual_activity_title" msgid="7599911755054286789">"Гар ажиллагаатай"</string>
     <string name="settings_manual_activity_unavailable" msgid="4872502775018655343">"Гар ажиллагааг ачаалах явцад алдаа гарлаа."</string>
@@ -2058,8 +2058,8 @@
     <string name="accessibility_preference_magnification_summary" msgid="753307741814376312">"Дэлгэцэд томруулах"</string>
     <string name="accessibility_screen_magnification_short_summary" msgid="5698545174944494486">"Томруулахын тулд 3 удаа дар"</string>
     <string name="accessibility_screen_magnification_navbar_short_summary" msgid="5418767043532322397">"Томруулахын тулд товчлуурыг товшино уу"</string>
-    <string name="accessibility_screen_magnification_summary" msgid="3363006902079431772"><b>"Томруулахын тулд"</b>" дэлгэцийг 3 удаа хурдан товшино уу.\n"<ul><li>"Гүйлгэхийн тулд 2 эсвэл олон хуруугаараа чирнэ үү"</li>\n<li>"Томруулах хэмжээг тохируулахын тулд 2 эсвэл олон хуруугаараа чимхэнэ үү"</li></ul>\n\n<b>"Түр хугацаанд томруулахын тулд"</b>" дэлгэцийг 3 удаа товшиж, сүүлийн товшилтыг удаан дарна уу.\n"<ul><li>"Дэлгэцийг судлахын тулд чирнэ үү"</li>\n<li>"Жижигрүүлэхийн тулд хуруугаа өргөнө үү"</li></ul>\n\n"Та гар, навигацийн самбарт томруулах боломжгүй."</string>
-    <string name="accessibility_screen_magnification_navbar_summary" msgid="4726360285256503132">"Томруулах сонголт асаалттай үед хурдан томруулахын тулд дэлгэцийн доор байрлах Хүртээмжийн товчлуурыг ашиглана уу.\n\n"<b>"Томруулахын тулд"</b>" Хүртээмжийн товчлуурыг товшоод, дэлгэцийг дарна уу.\n"<ul><li>"Гүйлгэхийн тулд 2 эсвэл олон хуруугаараа чирнэ үү"</li>\n<li>"Томруулах хэмжээг тохируулахын тулд 2 эсвэл олон хуруугаараа чимхэнэ үү"</li></ul>\n\n<b>"Түр хугацаанд томруулахын тулд"</b>" Хүртээмжийн товчлуурыг товшиж, дэлгэцийг удаан дарна уу.\n"<ul><li>"Дэлгэцийг судлахын тулд чирнэ үү"</li>\n<li>"Жижигрүүлэхийн тулд хуруугаа өргөнө үү"</li></ul>\n\n"Та гар, навигацийн самбарт томруулах боломжгүй."</string>
+    <string name="accessibility_screen_magnification_summary" msgid="3363006902079431772"><b>"Томруулахын тулд"</b>" дэлгэцийг 3 удаа хурдан товшино уу.\n"<ul><li>"Гүйлгэхийн тулд 2 эсвэл олон хуруугаараа чирнэ үү"</li>\n<li>"Томруулах хэмжээг тохируулахын тулд 2 эсвэл олон хуруугаараа чимхэнэ үү"</li></ul>\n\n<b>"Түр хугацаанд томруулахын тулд"</b>" дэлгэцийг 3 удаа товшиж, сүүлийн товшилтыг удаан дарна уу.\n"<ul><li>"Дэлгэцийг судлахын тулд чирнэ үү"</li>\n<li>"Жижигрүүлэхийн тулд хуруугаа өргөнө үү"</li></ul>\n\n"Та гар, навигацын самбарт томруулах боломжгүй."</string>
+    <string name="accessibility_screen_magnification_navbar_summary" msgid="4726360285256503132">"Томруулах сонголт асаалттай үед хурдан томруулахын тулд дэлгэцийн доор байрлах Хүртээмжийн товчлуурыг ашиглана уу.\n\n"<b>"Томруулахын тулд"</b>" Хүртээмжийн товчлуурыг товшоод, дэлгэцийг дарна уу.\n"<ul><li>"Гүйлгэхийн тулд 2 эсвэл олон хуруугаараа чирнэ үү"</li>\n<li>"Томруулах хэмжээг тохируулахын тулд 2 эсвэл олон хуруугаараа чимхэнэ үү"</li></ul>\n\n<b>"Түр хугацаанд томруулахын тулд"</b>" Хүртээмжийн товчлуурыг товшиж, дэлгэцийг удаан дарна уу.\n"<ul><li>"Дэлгэцийг судлахын тулд чирнэ үү"</li>\n<li>"Жижигрүүлэхийн тулд хуруугаа өргөнө үү"</li></ul>\n\n"Та гар, навигацын самбарт томруулах боломжгүй."</string>
     <string name="accessibility_screen_magnification_navbar_configuration_warning" msgid="6477234309484795550">"Хүртээмжийн товчлуурыг <xliff:g id="SERVICE">%1$s</xliff:g> болгож тохируулсан. Томруулахын тулд Хүртээмжийн товчлуурыг удаан дараад, томруулахыг сонгоно уу."</string>
     <string name="accessibility_global_gesture_preference_title" msgid="3842279082831426816">"Дууны түвшний товчлол"</string>
     <string name="accessibility_shortcut_service_title" msgid="3516052294376744060">"Товчлолын үйлчилгээ"</string>
@@ -2870,7 +2870,7 @@
     <string name="user_add_user_item_title" msgid="6835385073795492410">"Хэрэглэгч"</string>
     <string name="user_add_profile_item_title" msgid="4932743891449790664">"Хязгаарлагдсан профайл"</string>
     <string name="user_add_user_title" msgid="2320897397066676472">"Шинэ хэрэглэгч нэмэх үү?"</string>
-    <string name="user_add_user_message_long" msgid="686637203224195465">"Та нэмэлт хэрэглэгч үүсгэх замаар бусад хүнтэй энэ төхөөрөмжийг хуваалцаж болно. Хэрэглэгч тус бүр апп, ханын цаас болон бусад зүйлээ өөрчлөх боломжтой хувийн орон зайтай байдаг. Түүнчлэн хэрэглэгч нь бүх хэрэглэгчид нөлөөлөх боломжтой Wi-Fi зэрэг төхөөрөмжийн тохиргоог өөрчлөх боломжтой.\n\nХэрэв та шинэ хэрэглэгч нэмэх бол тухайн хүн хувийн орон зайгаа тохируулах ёстой.\n\nХэрэглэгч бүр бусад бүх хэрэглэгчийн өмнөөс апп шинэчилж болно. Хандалтын тохиргоо болон үйлчилгээг шинэ хэрэглэгчид шилжүүлэх боломжгүй байж болзошгүй."</string>
+    <string name="user_add_user_message_long" msgid="686637203224195465">"Та нэмэлт хэрэглэгч үүсгэх замаар бусад хүнтэй энэ төхөөрөмжийг хуваалцаж болно. Хэрэглэгч тус бүр апп, дэлгэцийн зураг болон бусад зүйлээ өөрчлөх боломжтой хувийн орон зайтай байдаг. Түүнчлэн хэрэглэгч нь бүх хэрэглэгчид нөлөөлөх боломжтой Wi-Fi зэрэг төхөөрөмжийн тохиргоог өөрчлөх боломжтой.\n\nХэрэв та шинэ хэрэглэгч нэмэх бол тухайн хүн хувийн орон зайгаа тохируулах ёстой.\n\nХэрэглэгч бүр бусад бүх хэрэглэгчийн өмнөөс апп шинэчилж болно. Хандалтын тохиргоо болон үйлчилгээг шинэ хэрэглэгчид шилжүүлэх боломжгүй байж болзошгүй."</string>
     <string name="user_add_user_message_short" msgid="1802594476285458254">"Та шинэ хэрэглэгч нэмбэл тухайн хүн өөрийн профайлыг тохируулах шаардлагатай.\n\nАль ч хэрэглэгч бүх хэрэглэгчийн аппуудыг шинэчлэх боломжтой."</string>
     <string name="user_setup_dialog_title" msgid="6748950002206392396">"Хэрэглэгчийг одоо тохируулах уу?"</string>
     <string name="user_setup_dialog_message" msgid="2988559933258353919">"Хэрэглэгч төхөөрөмжийг авч өөрийн профайлыг тохируулах боломжтой эсэхийг шалгана уу"</string>
@@ -3859,8 +3859,8 @@
     <string name="storage_summary" msgid="4835916510511133784">"<xliff:g id="PERCENTAGE">%1$s</xliff:g> ашигласан - <xliff:g id="FREE_SPACE">%2$s</xliff:g> сул"</string>
     <string name="storage_summary_with_sdcard" msgid="8742907204848352697">"Дотоод сан: <xliff:g id="PERCENTAGE">%1$s</xliff:g>-г ашигласан - <xliff:g id="FREE_SPACE">%2$s</xliff:g> сул"</string>
     <string name="display_summary" msgid="5725269449657325797">"<xliff:g id="TIMEOUT_DESCRIPTION">%1$s</xliff:g> идэвхгүй байсны дараа унтах"</string>
-    <string name="display_dashboard_summary" msgid="7678566148167010682">"Ханын зураг, идэвхгүй, фонтын хэмжээ"</string>
-    <string name="display_dashboard_summary_with_style" msgid="8981059474501210956">"Загвар ба ханын зураг, идэвхгүй горим, фонтын хэмжээ"</string>
+    <string name="display_dashboard_summary" msgid="7678566148167010682">"Дэлгэцийн зураг, идэвхгүй, фонтын хэмжээ"</string>
+    <string name="display_dashboard_summary_with_style" msgid="8981059474501210956">"Загвар ба дэлгэцийн зураг, идэвхгүй горим, фонтын хэмжээ"</string>
     <string name="display_dashboard_nowallpaper_summary" msgid="8612534364908229000">"Идэвхгүй, фонтын хэмжээ"</string>
     <string name="display_summary_example" msgid="4555020581960719296">"10 минут идэвхгүй байсны дараа унтах"</string>
     <string name="memory_summary" msgid="9121871336058042600">"Ойролцоогоор <xliff:g id="TOTAL_MEMORY">%2$s</xliff:g>-н <xliff:g id="USED_MEMORY">%1$s</xliff:g> санах ойг ашигласан"</string>
