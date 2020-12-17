@@ -138,6 +138,9 @@ final class CarShellCommand extends ShellCommand {
             "get-user-auth-association";
     private static final String COMMAND_SET_USER_AUTH_ASSOCIATION =
             "set-user-auth-association";
+    private static final String COMMAND_POWER_OFF = "power-off";
+    private static final String POWER_OFF_SKIP_GARAGEMODE = "--skip-garagemode";
+    private static final String POWER_OFF_SHUTDOWN = "--shutdown";
 
     // Whitelist of commands allowed in user build. All these command should be protected with
     // a permission. K: command, V: required permission.
@@ -415,6 +418,10 @@ final class CarShellCommand extends ShellCommand {
 
         pw.printf("\t  %s\n", VALID_USER_AUTH_TYPES_HELP);
         pw.printf("\t  %s\n", VALID_USER_AUTH_SET_VALUES_HELP);
+
+        pw.printf("\t%s [%s] [%s]\n", COMMAND_POWER_OFF, POWER_OFF_SKIP_GARAGEMODE,
+                POWER_OFF_SHUTDOWN);
+        pw.println("\t  Powers off the car.");
     }
 
     private static int showInvalidArguments(PrintWriter pw) {
@@ -642,6 +649,10 @@ final class CarShellCommand extends ShellCommand {
             case COMMAND_SET_USER_AUTH_ASSOCIATION:
                 setUserAuthAssociation(args, writer);
                 break;
+            case COMMAND_POWER_OFF:
+                powerOff(args, writer);
+                break;
+
             default:
                 writer.println("Unknown command: \"" + cmd + "\"");
                 showHelp(writer);
@@ -1492,6 +1503,27 @@ final class CarShellCommand extends ShellCommand {
                 writer.println("Unknown value. Valid argument: " + PARAM_ON_MODE + "|"
                         + PARAM_OFF_MODE + "|" + PARAM_QUERY_MODE + "|" + PARAM_REBOOT);
         }
+    }
+
+    private void powerOff(String[] args, PrintWriter writer) {
+        int index = 1;
+        boolean skipGarageMode = false;
+        boolean shutdown = false;
+        while (index < args.length) {
+            switch (args[index]) {
+                case POWER_OFF_SKIP_GARAGEMODE:
+                    skipGarageMode = true;
+                    break;
+                case POWER_OFF_SHUTDOWN:
+                    shutdown = true;
+                    break;
+                default:
+                    writer.printf("Not supported option: %s\n", args[index]);
+                    return;
+            }
+            index++;
+        }
+        mCarPowerManagementService.powerOffFromCommand(skipGarageMode, shutdown);
     }
 
     /**
