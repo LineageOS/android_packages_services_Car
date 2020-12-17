@@ -32,7 +32,6 @@ car_service_sources = [
 common_lib_deps = [
     "android.car.userlib",
     "android.car.watchdoglib",
-    "android.frameworks.automotive.powerpolicy-java",
     "android.frameworks.automotive.powerpolicy.internal-java",
     "android.hidl.base-V1.0-java",
     "android.hardware.automotive.audiocontrol-V1.0-java",

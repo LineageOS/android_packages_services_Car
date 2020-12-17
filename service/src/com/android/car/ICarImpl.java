@@ -467,7 +467,6 @@ public class ICarImpl extends ICar.Stub {
                 assertAnyDiagnosticPermission(mContext);
                 return mCarDiagnosticService;
             case Car.POWER_SERVICE:
-                assertPowerPermission(mContext);
                 return mCarPowerManagementService;
             case Car.CABIN_SERVICE:
             case Car.HVAC_SERVICE:

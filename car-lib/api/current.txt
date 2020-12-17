@@ -40,6 +40,7 @@ package android.car {
     field public static final String PERMISSION_EXTERIOR_ENVIRONMENT = "android.car.permission.CAR_EXTERIOR_ENVIRONMENT";
     field public static final String PERMISSION_IDENTIFICATION = "android.car.permission.CAR_IDENTIFICATION";
     field public static final String PERMISSION_POWERTRAIN = "android.car.permission.CAR_POWERTRAIN";
+    field public static final String PERMISSION_READ_CAR_POWER_POLICY = "android.car.permission.READ_CAR_POWER_POLICY";
     field public static final String PERMISSION_READ_DISPLAY_UNITS = "android.car.permission.READ_CAR_DISPLAY_UNITS";
     field public static final String PERMISSION_READ_INTERIOR_LIGHTS = "android.car.permission.READ_CAR_INTERIOR_LIGHTS";
     field public static final String PERMISSION_READ_STEERING_STATE = "android.car.permission.READ_CAR_STEERING";
@@ -541,6 +542,54 @@ package android.car.hardware {
 
   @Deprecated public static interface CarSensorManager.OnSensorChangedListener {
     method @Deprecated public void onSensorChanged(android.car.hardware.CarSensorEvent);
+  }
+
+}
+
+package android.car.hardware.power {
+
+  public class CarPowerManager {
+    method @RequiresPermission(android.car.Car.PERMISSION_READ_CAR_POWER_POLICY) public void addPowerPolicyChangeListener(@NonNull java.util.concurrent.Executor, @NonNull android.car.hardware.power.CarPowerManager.CarPowerPolicyChangeListener, @NonNull android.car.hardware.power.CarPowerPolicyFilter);
+    method @Nullable @RequiresPermission(android.car.Car.PERMISSION_READ_CAR_POWER_POLICY) public android.car.hardware.power.CarPowerPolicy getCurrentPowerPolicy();
+    method @RequiresPermission(android.car.Car.PERMISSION_READ_CAR_POWER_POLICY) public void removePowerPolicyChangeListener(@NonNull android.car.hardware.power.CarPowerManager.CarPowerPolicyChangeListener);
+  }
+
+  public static interface CarPowerManager.CarPowerPolicyChangeListener {
+    method public void onPolicyChanged(@NonNull android.car.hardware.power.CarPowerPolicy);
+  }
+
+  @com.android.internal.util.DataClass(genHiddenConstructor=true) public final class CarPowerPolicy implements android.os.Parcelable {
+    method @com.android.internal.util.DataClass.Generated.Member public int describeContents();
+    method @com.android.internal.util.DataClass.Generated.Member public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull @com.android.internal.util.DataClass.Generated.Member public static final android.os.Parcelable.Creator<android.car.hardware.power.CarPowerPolicy> CREATOR;
+    field @NonNull public final int[] disabledComponents;
+    field @NonNull public final int[] enabledComponents;
+    field @NonNull public final String policyId;
+  }
+
+  @com.android.internal.util.DataClass(genHiddenConstructor=true) public final class CarPowerPolicyFilter implements android.os.Parcelable {
+    method @com.android.internal.util.DataClass.Generated.Member public int describeContents();
+    method @com.android.internal.util.DataClass.Generated.Member public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull @com.android.internal.util.DataClass.Generated.Member public static final android.os.Parcelable.Creator<android.car.hardware.power.CarPowerPolicyFilter> CREATOR;
+    field @NonNull public final int[] components;
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface PowerComponent {
+    field public static final int AUDIO = 1; // 0x1
+    field public static final int BLUETOOTH = 4; // 0x4
+    field public static final int CELLULAR = 6; // 0x6
+    field public static final int DISPLAY = 3; // 0x3
+    field public static final int ETHERNET = 7; // 0x7
+    field public static final int INPUT = 10; // 0xa
+    field public static final int LOCATION = 14; // 0xe
+    field public static final int MEDIA = 2; // 0x2
+    field public static final int MICROPHONE = 15; // 0xf
+    field public static final int NFC = 9; // 0x9
+    field public static final int PROJECTION = 8; // 0x8
+    field public static final int TRUSTED_DEVICE_DETECTION = 13; // 0xd
+    field public static final int VISUAL_INTERACTION = 12; // 0xc
+    field public static final int VOICE_INTERACTION = 11; // 0xb
+    field public static final int WIFI = 5; // 0x5
   }
 
 }

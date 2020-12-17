@@ -78,62 +78,56 @@ CarPowerPolicy createCarPowerPolicy(const std::string& id,
 
 const CarPowerPolicy kExistingPowerPolicy_OtherOff =
         createCarPowerPolicy("policy_id_other_off", {PowerComponent::WIFI},
-                             {PowerComponent::AUDIO, PowerComponent::MEDIA,
-                              PowerComponent::DISPLAY_MAIN, PowerComponent::DISPLAY_CLUSTER,
-                              PowerComponent::DISPLAY_FRONT_PASSENGER,
-                              PowerComponent::DISPLAY_REAR_PASSENGER, PowerComponent::BLUETOOTH,
-                              PowerComponent::CELLULAR, PowerComponent::ETHERNET,
-                              PowerComponent::PROJECTION, PowerComponent::NFC,
-                              PowerComponent::INPUT, PowerComponent::VOICE_INTERACTION,
-                              PowerComponent::VISUAL_INTERACTION,
-                              PowerComponent::TRUSTED_DEVICE_DETECTION});
+                             {PowerComponent::AUDIO, PowerComponent::MEDIA, PowerComponent::DISPLAY,
+                              PowerComponent::BLUETOOTH, PowerComponent::CELLULAR,
+                              PowerComponent::ETHERNET, PowerComponent::PROJECTION,
+                              PowerComponent::NFC, PowerComponent::INPUT,
+                              PowerComponent::VOICE_INTERACTION, PowerComponent::VISUAL_INTERACTION,
+                              PowerComponent::TRUSTED_DEVICE_DETECTION, PowerComponent::LOCATION,
+                              PowerComponent::MICROPHONE});
 const CarPowerPolicy kExistingPowerPolicy_OtherOn =
         createCarPowerPolicy("policy_id_other_on",
-                             {PowerComponent::MEDIA, PowerComponent::DISPLAY_MAIN,
-                              PowerComponent::DISPLAY_FRONT_PASSENGER,
-                              PowerComponent::DISPLAY_REAR_PASSENGER, PowerComponent::BLUETOOTH,
-                              PowerComponent::WIFI, PowerComponent::CELLULAR,
-                              PowerComponent::ETHERNET, PowerComponent::PROJECTION,
-                              PowerComponent::NFC, PowerComponent::INPUT},
-                             {PowerComponent::AUDIO, PowerComponent::DISPLAY_CLUSTER,
-                              PowerComponent::VOICE_INTERACTION, PowerComponent::VISUAL_INTERACTION,
+                             {PowerComponent::MEDIA, PowerComponent::DISPLAY,
+                              PowerComponent::BLUETOOTH, PowerComponent::WIFI,
+                              PowerComponent::CELLULAR, PowerComponent::ETHERNET,
+                              PowerComponent::PROJECTION, PowerComponent::NFC,
+                              PowerComponent::INPUT, PowerComponent::LOCATION,
+                              PowerComponent::MICROPHONE},
+                             {PowerComponent::AUDIO, PowerComponent::VOICE_INTERACTION,
+                              PowerComponent::VISUAL_INTERACTION,
                               PowerComponent::TRUSTED_DEVICE_DETECTION});
 const CarPowerPolicy kExistingPowerPolicy_OtherUntouched =
         createCarPowerPolicy("policy_id_other_untouched",
-                             {PowerComponent::AUDIO, PowerComponent::DISPLAY_MAIN,
+                             {PowerComponent::AUDIO, PowerComponent::DISPLAY,
                               PowerComponent::BLUETOOTH, PowerComponent::WIFI,
                               PowerComponent::VOICE_INTERACTION, PowerComponent::VISUAL_INTERACTION,
                               PowerComponent::TRUSTED_DEVICE_DETECTION},
                              {});
 const CarPowerPolicy kExistingPowerPolicy_OtherNone =
         createCarPowerPolicy("policy_id_other_none", {PowerComponent::WIFI},
-                             {PowerComponent::AUDIO, PowerComponent::DISPLAY_FRONT_PASSENGER,
-                              PowerComponent::VOICE_INTERACTION, PowerComponent::VISUAL_INTERACTION,
+                             {PowerComponent::AUDIO, PowerComponent::VOICE_INTERACTION,
+                              PowerComponent::VISUAL_INTERACTION,
                               PowerComponent::TRUSTED_DEVICE_DETECTION});
 const CarPowerPolicy& kExistingTransitionPolicy = kExistingPowerPolicy_OtherOn;
 const CarPowerPolicy kDefaultSystemPowerPolicy =
         createCarPowerPolicy("system_power_policy_no_user_interaction",
                              {PowerComponent::WIFI, PowerComponent::CELLULAR,
                               PowerComponent::ETHERNET, PowerComponent::TRUSTED_DEVICE_DETECTION},
-                             {PowerComponent::AUDIO, PowerComponent::MEDIA,
-                              PowerComponent::DISPLAY_MAIN, PowerComponent::DISPLAY_CLUSTER,
-                              PowerComponent::DISPLAY_FRONT_PASSENGER,
-                              PowerComponent::DISPLAY_REAR_PASSENGER, PowerComponent::BLUETOOTH,
-                              PowerComponent::PROJECTION, PowerComponent::NFC,
-                              PowerComponent::INPUT, PowerComponent::VOICE_INTERACTION,
-                              PowerComponent::VISUAL_INTERACTION});
+                             {PowerComponent::AUDIO, PowerComponent::MEDIA, PowerComponent::DISPLAY,
+                              PowerComponent::BLUETOOTH, PowerComponent::PROJECTION,
+                              PowerComponent::NFC, PowerComponent::INPUT,
+                              PowerComponent::VOICE_INTERACTION, PowerComponent::VISUAL_INTERACTION,
+                              PowerComponent::LOCATION, PowerComponent::MICROPHONE});
 const CarPowerPolicy kModifiedSystemPowerPolicy =
         createCarPowerPolicy("system_power_policy_no_user_interaction",
                              {PowerComponent::BLUETOOTH, PowerComponent::WIFI,
                               PowerComponent::CELLULAR, PowerComponent::ETHERNET,
                               PowerComponent::NFC},
-                             {PowerComponent::AUDIO, PowerComponent::MEDIA,
-                              PowerComponent::DISPLAY_MAIN, PowerComponent::DISPLAY_CLUSTER,
-                              PowerComponent::DISPLAY_FRONT_PASSENGER,
-                              PowerComponent::DISPLAY_REAR_PASSENGER, PowerComponent::PROJECTION,
-                              PowerComponent::INPUT, PowerComponent::VOICE_INTERACTION,
-                              PowerComponent::VISUAL_INTERACTION,
-                              PowerComponent::TRUSTED_DEVICE_DETECTION});
+                             {PowerComponent::AUDIO, PowerComponent::MEDIA, PowerComponent::DISPLAY,
+                              PowerComponent::PROJECTION, PowerComponent::INPUT,
+                              PowerComponent::VOICE_INTERACTION, PowerComponent::VISUAL_INTERACTION,
+                              PowerComponent::TRUSTED_DEVICE_DETECTION, PowerComponent::LOCATION,
+                              PowerComponent::MICROPHONE});
 
 std::string getTestDataPath(const char* filename) {
     static std::string baseDir = android::base::GetExecutableDirectory();

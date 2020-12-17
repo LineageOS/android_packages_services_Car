@@ -16,11 +16,11 @@
 
 package com.android.car.power;
 
-import static com.android.car.power.PowerComponentUtil.FIRST_POWER_COMPONENT;
-import static com.android.car.power.PowerComponentUtil.INVALID_POWER_COMPONENT;
-import static com.android.car.power.PowerComponentUtil.LAST_POWER_COMPONENT;
-import static com.android.car.power.PowerComponentUtil.powerComponentToString;
-import static com.android.car.power.PowerComponentUtil.toPowerComponent;
+import static android.car.hardware.power.PowerComponentUtil.FIRST_POWER_COMPONENT;
+import static android.car.hardware.power.PowerComponentUtil.INVALID_POWER_COMPONENT;
+import static android.car.hardware.power.PowerComponentUtil.LAST_POWER_COMPONENT;
+import static android.car.hardware.power.PowerComponentUtil.powerComponentToString;
+import static android.car.hardware.power.PowerComponentUtil.toPowerComponent;
 
 import static org.xmlpull.v1.XmlPullParser.END_DOCUMENT;
 import static org.xmlpull.v1.XmlPullParser.END_TAG;
@@ -29,8 +29,8 @@ import static org.xmlpull.v1.XmlPullParser.TEXT;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.frameworks.automotive.powerpolicy.CarPowerPolicy;
-import android.frameworks.automotive.powerpolicy.PowerComponent;
+import android.car.hardware.power.CarPowerPolicy;
+import android.car.hardware.power.PowerComponent;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReport;
 import android.util.ArrayMap;
 import android.util.ArraySet;
@@ -97,12 +97,10 @@ final class PolicyReader {
             PowerComponent.ETHERNET, PowerComponent.TRUSTED_DEVICE_DETECTION
     };
     private static final int[] SYSTEM_POLICY_DISABLED_COMPONENTS = {
-            PowerComponent.AUDIO, PowerComponent.MEDIA, PowerComponent.DISPLAY_MAIN,
-            PowerComponent.DISPLAY_CLUSTER, PowerComponent.DISPLAY_FRONT_PASSENGER,
-            PowerComponent.DISPLAY_REAR_PASSENGER, PowerComponent.BLUETOOTH,
-            PowerComponent.PROJECTION, PowerComponent.NFC, PowerComponent.INPUT,
-            PowerComponent.VOICE_INTERACTION, PowerComponent.VISUAL_INTERACTION,
-            PowerComponent.LOCATION, PowerComponent.MICROPHONE
+            PowerComponent.AUDIO, PowerComponent.MEDIA, PowerComponent.DISPLAY,
+            PowerComponent.BLUETOOTH, PowerComponent.PROJECTION, PowerComponent.NFC,
+            PowerComponent.INPUT, PowerComponent.VOICE_INTERACTION,
+            PowerComponent.VISUAL_INTERACTION, PowerComponent.LOCATION, PowerComponent.MICROPHONE
     };
     private static final Set<Integer> SYSTEM_POLICY_CONFIGURABLE_COMPONENTS =
             new ArraySet<>(Arrays.asList(PowerComponent.BLUETOOTH, PowerComponent.NFC,
@@ -178,10 +176,8 @@ final class PolicyReader {
         if (errorMsg != null) {
             return errorMsg;
         }
-        CarPowerPolicy policy = new CarPowerPolicy();
-        policy.policyId = policyId;
-        policy.enabledComponents = toIntArray(components, true);
-        policy.disabledComponents = toIntArray(components, false);
+        CarPowerPolicy policy = new CarPowerPolicy(policyId, toIntArray(components, true),
+                toIntArray(components, false));
         mRegisteredPowerPolicies.put(policyId, policy);
         return null;
     }
@@ -232,7 +228,7 @@ final class PolicyReader {
 
         ArrayMap<String, CarPowerPolicy> registeredPolicies = new ArrayMap<>();
         ArrayMap<String, SparseArray<String>> policyGroups = new ArrayMap<>();
-        CarPowerPolicy systemPolicyOverride = new CarPowerPolicy();
+        CarPowerPolicy systemPolicyOverride = null;
 
         int type;
         while ((type = parser.next()) != END_DOCUMENT && type != END_TAG) {
@@ -323,8 +319,6 @@ final class PolicyReader {
     private CarPowerPolicy parsePolicy(XmlPullParser parser, String policyId,
             boolean includeOtherComponents) throws PolicyXmlException, XmlPullParserException,
             IOException {
-        CarPowerPolicy policy = new CarPowerPolicy();
-        policy.policyId = policyId;
         SparseBooleanArray components = new SparseBooleanArray();
         String behavior = POWER_ONOFF_UNTOUCHED;
         boolean otherComponentsProcessed = false;
@@ -402,9 +396,8 @@ final class PolicyReader {
                 components.put(component, enabled);
             }
         }
-        policy.enabledComponents = toIntArray(components, true);
-        policy.disabledComponents = toIntArray(components, false);
-        return policy;
+        return new CarPowerPolicy(policyId, toIntArray(components, true),
+                toIntArray(components, false));
     }
 
     private SparseArray<String> parsePolicyGroup(XmlPullParser parser) throws PolicyXmlException,
@@ -483,8 +476,9 @@ final class PolicyReader {
             removeComponent(enabledComponents, policyOverride.disabledComponents[i]);
             addComponent(disabledComponents, policyOverride.disabledComponents[i]);
         }
-        mSystemPowerPolicy.enabledComponents = CarServiceUtils.toIntArray(enabledComponents);
-        mSystemPowerPolicy.disabledComponents = CarServiceUtils.toIntArray(disabledComponents);
+        mSystemPowerPolicy = new CarPowerPolicy(mSystemPowerPolicy.policyId,
+                CarServiceUtils.toIntArray(enabledComponents),
+                CarServiceUtils.toIntArray(disabledComponents));
     }
 
     private void removeComponent(List<Integer> components, int component) {
@@ -502,10 +496,9 @@ final class PolicyReader {
     }
 
     private void initSystemPowerPolicy() {
-        mSystemPowerPolicy = new CarPowerPolicy();
-        mSystemPowerPolicy.policyId = SYSTEM_POWER_POLICY_NO_USER_INTERACTION;
-        mSystemPowerPolicy.enabledComponents = SYSTEM_POLICY_ENABLED_COMPONENTS.clone();
-        mSystemPowerPolicy.disabledComponents = SYSTEM_POLICY_DISABLED_COMPONENTS.clone();
+        mSystemPowerPolicy = new CarPowerPolicy(SYSTEM_POWER_POLICY_NO_USER_INTERACTION,
+                SYSTEM_POLICY_ENABLED_COMPONENTS.clone(),
+                SYSTEM_POLICY_DISABLED_COMPONENTS.clone());
     }
 
     private String getText(XmlPullParser parser) throws PolicyXmlException, XmlPullParserException,

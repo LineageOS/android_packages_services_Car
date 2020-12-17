@@ -51,6 +51,7 @@ package android.car {
     field public static final String PERMISSION_CONTROL_CAR_FEATURES = "android.car.permission.CONTROL_CAR_FEATURES";
     field public static final String PERMISSION_CONTROL_CAR_MIRRORS = "android.car.permission.CONTROL_CAR_MIRRORS";
     field @Deprecated public static final String PERMISSION_CONTROL_CAR_OCCUPANT_AWARENESS_SYSTEM = "android.car.permission.CONTROL_CAR_OCCUPANT_AWARENESS_SYSTEM";
+    field public static final String PERMISSION_CONTROL_CAR_POWER_POLICY = "android.car.permission.CONTROL_CAR_POWER_POLICY";
     field public static final String PERMISSION_CONTROL_CAR_SEATS = "android.car.permission.CONTROL_CAR_SEATS";
     field public static final String PERMISSION_CONTROL_CAR_WINDOWS = "android.car.permission.CONTROL_CAR_WINDOWS";
     field public static final String PERMISSION_CONTROL_ENERGY_PORTS = "android.car.permission.CONTROL_CAR_ENERGY_PORTS";
@@ -781,9 +782,16 @@ package android.car.hardware.hvac {
 package android.car.hardware.power {
 
   public class CarPowerManager {
+    method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_POWER_POLICY) public void applyPowerPolicy(@NonNull String);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_POWER) public void clearListener();
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_POWER) public int getPowerState();
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_POWER) public void setListener(@Nullable android.car.hardware.power.CarPowerManager.CarPowerStateListener);
   }
 
   public static interface CarPowerManager.CarPowerStateListener {
+  }
+
+  public static interface CarPowerManager.CarPowerStateListenerWithCompletion {
   }
 
 }

@@ -14,26 +14,40 @@
  * limitations under the License.
  */
 
-package com.android.car.power;
+package android.car.hardware.power;
 
-import android.frameworks.automotive.powerpolicy.PowerComponent;
+import android.annotation.NonNull;
+import android.annotation.Nullable;
+import android.util.SparseBooleanArray;
 
 /**
  * Utility class used when dealing with PowerComponent.
+ *
+ * @hide
  */
-final class PowerComponentUtil {
-    static final int INVALID_POWER_COMPONENT = -1;
-    static final int FIRST_POWER_COMPONENT = PowerComponent.AUDIO;
-    static final int LAST_POWER_COMPONENT = PowerComponent.MICROPHONE;
+public final class PowerComponentUtil {
+    /**
+     * Represetns an invalid power component.
+     */
+    public static final int INVALID_POWER_COMPONENT = -1;
+
+    /**
+     * The first component in {@link PowerComponent}.
+     */
+    public static final int FIRST_POWER_COMPONENT = PowerComponent.AUDIO;
+
+    /**
+     * The last component in {@link PowerComponent}.
+     *
+     * <p> This should be updated when a new component is added to {@link PowerComponent}.
+     */
+    public static final int LAST_POWER_COMPONENT = PowerComponent.MICROPHONE;
 
     private static final String POWER_COMPONENT_PREFIX = "POWER_COMPONENT_";
 
     private static final String POWER_COMPONENT_AUDIO = "AUDIO";
     private static final String POWER_COMPONENT_MEDIA = "MEDIA";
-    private static final String POWER_COMPONENT_DISPLAY_MAIN = "DISPLAY_MAIN";
-    private static final String POWER_COMPONENT_DISPLAY_CLUSTER = "DISPLAY_CLUSTER";
-    private static final String POWER_COMPONENT_DISPLAY_FRONT_PASSENGER = "DISPLAY_FRONT_PASSENGER";
-    private static final String POWER_COMPONENT_DISPLAY_REAR_PASSENGER = "DISPLAY_REAR_PASSENGER";
+    private static final String POWER_COMPONENT_DISPLAY = "DISPLAY";
     private static final String POWER_COMPONENT_BLUETOOTH = "BLUETOOTH";
     private static final String POWER_COMPONENT_WIFI = "WIFI";
     private static final String POWER_COMPONENT_CELLULAR = "CELLULAR";
@@ -48,15 +62,50 @@ final class PowerComponentUtil {
     private static final String POWER_COMPONENT_LOCATION = "LOCATION";
     private static final String POWER_COMPONENT_MICROPHONE = "MICROPHONE";
 
+    private interface ComponentFilter {
+        boolean filter(int[] components);
+    }
+
     // PowerComponentUtil is intended to provide static variables and methods.
     private PowerComponentUtil() {}
 
-    static boolean isValidPowerComponent(int component) {
-        return component >= PowerComponent.AUDIO
-                && component <= PowerComponent.TRUSTED_DEVICE_DETECTION;
+    /**
+     * Checks whether the given component is valid.
+     */
+    public static boolean isValidPowerComponent(int component) {
+        return component >= FIRST_POWER_COMPONENT && component <= LAST_POWER_COMPONENT;
     }
 
-    static int toPowerComponent(String component, boolean prefix) {
+    /**
+     * Checks whether the given policy has one ore more components specified in the given filter.
+     */
+    public static boolean hasComponents(@NonNull CarPowerPolicy policy,
+            @NonNull CarPowerPolicyFilter filter) {
+        SparseBooleanArray filterSet = new SparseBooleanArray();
+        int[] components = filter.components;
+        for (int i = 0; i < components.length; i++) {
+            filterSet.put(components[i], true);
+        }
+
+        ComponentFilter componentFilter = (c) -> {
+            for (int i = 0; i < c.length; i++) {
+                if (filterSet.get(c[i])) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        if (componentFilter.filter(policy.enabledComponents)) {
+            return true;
+        }
+        return componentFilter.filter(policy.disabledComponents);
+    }
+
+    /**
+     * Matches the given string to {@link PowerComponent}.
+     */
+    public static int toPowerComponent(@Nullable String component, boolean prefix) {
         if (component == null) {
             return INVALID_POWER_COMPONENT;
         }
@@ -71,14 +120,8 @@ final class PowerComponentUtil {
                 return PowerComponent.AUDIO;
             case POWER_COMPONENT_MEDIA:
                 return PowerComponent.MEDIA;
-            case POWER_COMPONENT_DISPLAY_MAIN:
-                return PowerComponent.DISPLAY_MAIN;
-            case POWER_COMPONENT_DISPLAY_CLUSTER:
-                return PowerComponent.DISPLAY_CLUSTER;
-            case POWER_COMPONENT_DISPLAY_FRONT_PASSENGER:
-                return PowerComponent.DISPLAY_FRONT_PASSENGER;
-            case POWER_COMPONENT_DISPLAY_REAR_PASSENGER:
-                return PowerComponent.DISPLAY_REAR_PASSENGER;
+            case POWER_COMPONENT_DISPLAY:
+                return PowerComponent.DISPLAY;
             case POWER_COMPONENT_BLUETOOTH:
                 return PowerComponent.BLUETOOTH;
             case POWER_COMPONENT_WIFI:
@@ -99,25 +142,27 @@ final class PowerComponentUtil {
                 return PowerComponent.VISUAL_INTERACTION;
             case POWER_COMPONENT_TRUSTED_DEVICE_DETECTION:
                 return PowerComponent.TRUSTED_DEVICE_DETECTION;
+            case POWER_COMPONENT_LOCATION:
+                return PowerComponent.LOCATION;
+            case POWER_COMPONENT_MICROPHONE:
+                return PowerComponent.MICROPHONE;
             default:
                 return INVALID_POWER_COMPONENT;
         }
     }
 
-    static String powerComponentToString(int component) {
+    /**
+     * Convert {@link PowerComponent} to string.
+     */
+    @NonNull
+    public static String powerComponentToString(int component) {
         switch (component) {
             case PowerComponent.AUDIO:
                 return POWER_COMPONENT_AUDIO;
             case PowerComponent.MEDIA:
                 return POWER_COMPONENT_MEDIA;
-            case PowerComponent.DISPLAY_MAIN:
-                return POWER_COMPONENT_DISPLAY_MAIN;
-            case PowerComponent.DISPLAY_CLUSTER:
-                return POWER_COMPONENT_DISPLAY_CLUSTER;
-            case PowerComponent.DISPLAY_FRONT_PASSENGER:
-                return POWER_COMPONENT_DISPLAY_FRONT_PASSENGER;
-            case PowerComponent.DISPLAY_REAR_PASSENGER:
-                return POWER_COMPONENT_DISPLAY_REAR_PASSENGER;
+            case PowerComponent.DISPLAY:
+                return POWER_COMPONENT_DISPLAY;
             case PowerComponent.BLUETOOTH:
                 return POWER_COMPONENT_BLUETOOTH;
             case PowerComponent.WIFI:
@@ -138,6 +183,10 @@ final class PowerComponentUtil {
                 return POWER_COMPONENT_VISUAL_INTERACTION;
             case PowerComponent.TRUSTED_DEVICE_DETECTION:
                 return POWER_COMPONENT_TRUSTED_DEVICE_DETECTION;
+            case PowerComponent.LOCATION:
+                return POWER_COMPONENT_LOCATION;
+            case PowerComponent.MICROPHONE:
+                return POWER_COMPONENT_MICROPHONE;
             default:
                 return "unknown component";
         }

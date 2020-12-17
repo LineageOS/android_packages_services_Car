@@ -15,11 +15,14 @@
  */
 package com.android.car.power;
 
+import static android.car.hardware.power.PowerComponentUtil.hasComponents;
+
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.car.Car;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
+import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.power.CarPowerPolicyFilter;
 import android.car.hardware.power.ICarPower;
 import android.car.hardware.power.ICarPowerPolicyChangeListener;
@@ -50,7 +53,6 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.AtomicFile;
 import android.util.Slog;
-import android.util.SparseBooleanArray;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
@@ -969,13 +971,13 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      * @see android.car.hardware.power.CarPowerManager#getCurrentPowerPolicy
      */
     @Override
-    public android.car.hardware.power.CarPowerPolicy getCurrentPowerPolicy() {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
+    public CarPowerPolicy getCurrentPowerPolicy() {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_READ_CAR_POWER_POLICY);
         String policyId;
         synchronized (mLock) {
             policyId = mCurrentPowerPolicy;
         }
-        return toPowerPolicy(policyId);
+        return clonePowerPolicy(policyId);
     }
 
     /**
@@ -983,7 +985,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      */
     @Override
     public void applyPowerPolicy(String policyId) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_CONTROL_CAR_POWER_POLICY);
         String errorMsg = applyPowerPolicy(policyId, true);
         if (errorMsg != null) {
             throw new IllegalArgumentException(errorMsg);
@@ -991,21 +993,21 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     /**
-     * @see android.car.hardware.power.CarPowerManager#registerPowerPolicyChangeListener
+     * @see android.car.hardware.power.CarPowerManager#addPowerPolicyChangeListener
      */
     @Override
     public void registerPowerPolicyChangeListener(ICarPowerPolicyChangeListener listener,
             CarPowerPolicyFilter filter) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_READ_CAR_POWER_POLICY);
         mPolicyChangeListeners.register(listener, filter);
     }
 
     /**
-     * @see android.car.hardware.power.CarPowerManager#unregisterPowerPolicyChangeListener
+     * @see android.car.hardware.power.CarPowerManager#removePowerPolicyChangeListener
      */
     @Override
     public void unregisterPowerPolicyChangeListener(ICarPowerPolicyChangeListener listener) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_READ_CAR_POWER_POLICY);
         mPolicyChangeListeners.unregister(listener);
     }
 
@@ -1081,8 +1083,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     @Nullable
     private String applyPowerPolicy(String policyId, boolean upToDaemon) {
-        android.frameworks.automotive.powerpolicy.CarPowerPolicy policy =
-                mPolicyReader.getPowerPolicy(policyId);
+        CarPowerPolicy policy = mPolicyReader.getPowerPolicy(policyId);
         if (policy == null) {
             return policyId + " is not registered";
         }
@@ -1113,7 +1114,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
 
         // Notify Java clients
-        android.car.hardware.power.CarPowerPolicy powerPolicy = toPowerPolicy(policyId);
+        CarPowerPolicy powerPolicy = clonePowerPolicy(policyId);
         if (powerPolicy == null) {
             Slog.wtf(TAG, "The new power policy cannot be null");
         }
@@ -1122,7 +1123,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             ICarPowerPolicyChangeListener listener = mPolicyChangeListeners.getBroadcastItem(idx);
             CarPowerPolicyFilter filter =
                     (CarPowerPolicyFilter) mPolicyChangeListeners.getBroadcastCookie(idx);
-            if (!hasMatchedComponents(filter, powerPolicy)) {
+            if (!hasComponents(powerPolicy, filter)) {
                 continue;
             }
             try {
@@ -1135,40 +1136,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         mPolicyChangeListeners.finishBroadcast();
     }
 
-    private interface ComponentFilter {
-        boolean filter(int[] components);
-    }
-
-    private boolean hasMatchedComponents(CarPowerPolicyFilter filter,
-            android.car.hardware.power.CarPowerPolicy policy) {
-        SparseBooleanArray filterMap = new SparseBooleanArray();
-        int[] components = filter.getComponents();
-        for (int i = 0; i < components.length; i++) {
-            filterMap.put(components[i], true);
-        }
-
-        ComponentFilter componentFilter = (c) -> {
-            for (int i = 0; i < c.length; i++) {
-                if (filterMap.get(c[i])) {
-                    return true;
-                }
-            }
-            return false;
-        };
-
-        if (componentFilter.filter(policy.getEnabledComponents())) {
-            return true;
-        }
-        return componentFilter.filter(policy.getDisabledComponents());
-    }
-
-    private android.car.hardware.power.CarPowerPolicy toPowerPolicy(String policyId) {
-        android.frameworks.automotive.powerpolicy.CarPowerPolicy powerPolicy =
-                mPolicyReader.getPowerPolicy(policyId);
+    private CarPowerPolicy clonePowerPolicy(String policyId) {
+        CarPowerPolicy powerPolicy = mPolicyReader.getPowerPolicy(policyId);
         if (powerPolicy == null) {
             return null;
         }
-        return new android.car.hardware.power.CarPowerPolicy(powerPolicy.policyId,
+        return new CarPowerPolicy(powerPolicy.policyId,
                 powerPolicy.enabledComponents.clone(), powerPolicy.disabledComponents.clone());
     }
 
@@ -1637,6 +1610,22 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             }
             index += 2;
         }
+        String errMsg = definePowerPolicy(powerPolicyId, enabledComponents, disabledComponents);
+        if (errMsg == null) {
+            writer.printf("Power policy(%s) is successfully defined.\n", powerPolicyId);
+        }
+        return errMsg;
+    }
+
+    /**
+     * Defines a power policy with the given id and components.
+     *
+     * <p> A policy defined with this method is valid until the system is rebooted/restarted.
+     */
+    @VisibleForTesting
+    @Nullable
+    public String definePowerPolicy(String powerPolicyId, String[] enabledComponents,
+            String[] disabledComponents) {
         String errorMsg = mPolicyReader.definePowerPolicy(powerPolicyId, enabledComponents,
                 disabledComponents);
         if (errorMsg != null) {
@@ -1652,7 +1641,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         } catch (RemoteException e) {
             return "Failed to define power policy: " + e.getMessage();
         }
-        writer.printf("Power policy(%s) is successfully defined.\n", powerPolicyId);
         return null;
     }
 

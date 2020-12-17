@@ -390,6 +390,7 @@ public final class Car {
     @SystemApi
     public static final String PERMISSION_CONTROL_ENERGY_PORTS =
             "android.car.permission.CONTROL_CAR_ENERGY_PORTS";
+
     /**
      * Permission necessary to read car's exterior lights information.
      *  @hide
@@ -523,6 +524,7 @@ public final class Car {
      */
     public static final String PERMISSION_READ_DISPLAY_UNITS =
             "android.car.permission.READ_CAR_DISPLAY_UNITS";
+
     /**
      * Permission necessary to control display units for distance, fuel volume, tire pressure
      * and ev battery.
@@ -571,11 +573,25 @@ public final class Car {
             "android.car.permission.CONTROL_CAR_CLIMATE";
 
     /**
-     * Permission necessary to access Car POWER APIs.
+     * Permission necessary to access restrictive car power management APIs.
      * @hide
      */
     @SystemApi
     public static final String PERMISSION_CAR_POWER = "android.car.permission.CAR_POWER";
+
+    /**
+     * Permission necessary to read the current power policy or be notified of power policy change.
+     */
+    public static final String PERMISSION_READ_CAR_POWER_POLICY =
+            "android.car.permission.READ_CAR_POWER_POLICY";
+
+    /**
+     * Permission necessary to apply a new power policy.
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_CONTROL_CAR_POWER_POLICY =
+            "android.car.permission.CONTROL_CAR_POWER_POLICY";
 
     /**
      * Permission necessary to access Car PROJECTION system APIs.
