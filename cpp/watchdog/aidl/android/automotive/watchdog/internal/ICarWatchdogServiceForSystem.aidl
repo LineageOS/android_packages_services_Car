@@ -45,7 +45,8 @@ interface ICarWatchdogServiceForSystem {
   oneway void prepareProcessTermination();
 
   /**
-   * Returns the package information for the given UIDs.
+   * Returns the package information for the given UIDs. Only UIDs with package information will be
+   * returned.
    *
    * @param uids                        List of UIDs to resolve the package infos.
    * @param vendorPackagePrefixes       List of vendor package prefixes.
