@@ -15,8 +15,9 @@ limitations under the License.
 -->
 <resources>
 
-    <!--  TODO(b/175214581): STOPSHIP use proper sentence and remove translatable=false -->
-    <!--  Warn user that device is owned and managed by an enterprise (like a car rental company) [CHAR_LIMIT=50] -->
-    <string name="car_admin_ui_managed_device_message" translatable="false">This device is managed by an enterprise</string>
+    <!--  TODO(b/175214581): STOPSHIP use proper sentence, remove translatable=false, and document what they mean -->
+    <string name="car_admin_ui_managed_device_message_generic" translatable="false">This device is owned and managed by an enteprise</string>
+    <string name="car_admin_ui_managed_device_message_by_org" translatable="false">This device is owned by and managed by %1$s</string>
+    <string name="car_admin_ui_managed_device_message_by_app" translatable="false">This device is owned by an enterprise and managed by app %1$s</string>
 
 </resources>
