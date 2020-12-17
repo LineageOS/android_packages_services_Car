@@ -18,7 +18,9 @@ package com.android.car.admin.ui;
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -26,6 +28,10 @@ import android.widget.TextView;
  * Custom view used to display a disclaimer when a device is managed by a device owner.
  */
 public final class ManagedDeviceTextView extends TextView {
+
+    private static final String TAG = ManagedDeviceTextView.class.getSimpleName();
+
+    private static final boolean DEBUG = false;
 
     public ManagedDeviceTextView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
@@ -39,11 +45,32 @@ public final class ManagedDeviceTextView extends TextView {
             int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
 
-        if (isManagedDevice(context)) {
-            setText(R.string.car_admin_ui_managed_device_message);
-        } else {
+        if (!isManagedDevice(context)) {
             setVisibility(View.GONE);
+            return;
         }
+
+        Resources res = getResources();
+        CharSequence text;
+        try {
+            DevicePolicyManager dpm = context.getSystemService(DevicePolicyManager.class);
+            CharSequence orgName = dpm.getDeviceOwnerOrganizationName();
+            if (orgName != null) {
+                text = res.getString(R.string.car_admin_ui_managed_device_message_by_org, orgName);
+            } else {
+                if (DEBUG) {
+                    Log.d(TAG, "organization name not set, using device owner app name instead");
+                }
+                text = res.getString(R.string.car_admin_ui_managed_device_message_by_app,
+                        dpm.getDeviceOwnerNameOnAnyUser());
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "error getting name of device owner organization", e);
+            text = res.getString(R.string.car_admin_ui_managed_device_message_generic);
+        }
+        if (DEBUG) Log.d(TAG, "setting text to '" + text + "'");
+
+        setText(text);
     }
 
     private static boolean isManagedDevice(Context context) {
