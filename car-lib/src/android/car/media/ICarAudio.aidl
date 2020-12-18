@@ -48,6 +48,9 @@ interface ICarAudio {
     boolean setZoneIdForUid(int zoneId, int uid);
     boolean clearZoneIdForUid(int uid);
 
+    boolean isVolumeGroupMuted(int zoneId, int groupId);
+    void setVolumeGroupMute(int zoneId, int groupId, boolean mute, int flags);
+
     String getOutputDeviceAddressForUsage(int zoneId, int usage);
 
     List<AudioDeviceAttributes> getInputDevicesForZoneId(int zoneId);

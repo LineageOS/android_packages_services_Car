@@ -64,4 +64,15 @@ class CarVolumeCallbackHandler {
     public void unregisterCallback(@NonNull IBinder binder) {
         mVolumeCallbackContainer.removeBinder(ICarVolumeCallback.Stub.asInterface(binder));
     }
+
+    public void onGroupMuteChange(int zoneId, int groupId, int flags) {
+        for (BinderInterfaceContainer.BinderInterface<ICarVolumeCallback> callback :
+                mVolumeCallbackContainer.getInterfaces()) {
+            try {
+                callback.binderInterface.onGroupMuteChanged(zoneId, groupId, flags);
+            } catch (RemoteException e) {
+                Log.e(CarLog.TAG_AUDIO, "Failed to callback onGroupMuteChanged", e);
+            }
+        }
+    }
 }

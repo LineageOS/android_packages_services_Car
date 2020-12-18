@@ -412,6 +412,35 @@ public class CarVolumeGroupTest extends AbstractExtendedMockitoTestCase{
         assertNull(nullAddress);
     }
 
+    @Test
+    public void isMuted_whenDefault_returnsFalse() {
+        CarAudioSettings settings =
+                generateCarAudioSettings(0 , 0, 2);
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+
+        assertThat(carVolumeGroup.isMuted()).isFalse();
+    }
+
+    @Test
+    public void isMuted_afterMuting_returnsTrue() {
+        CarAudioSettings settings =
+                generateCarAudioSettings(0 , 0, 2);
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setMute(true);
+
+        assertThat(carVolumeGroup.isMuted()).isTrue();
+    }
+
+    @Test
+    public void isMuted_afterUnMuting_returnsFalse() {
+        CarAudioSettings settings =
+                generateCarAudioSettings(0 , 0, 2);
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setMute(false);
+
+        assertThat(carVolumeGroup.isMuted()).isFalse();
+    }
+
     private CarVolumeGroup testVolumeGroupSetup() {
         CarAudioSettings settings =
                 generateCarAudioSettings(0 , 0, 2);
