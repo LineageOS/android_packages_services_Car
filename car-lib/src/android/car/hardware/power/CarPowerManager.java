@@ -384,6 +384,7 @@ public class CarPowerManager extends CarManagerBase {
         checkArgument(listener != null, "Null listener");
         checkArgument(filter != null, "Null filter");
         boolean updateCallbackNeeded = false;
+        CarPowerPolicyFilter newFilter = null;
         synchronized (mLock) {
             mPolicyListenerMap.remove(listener);
             Pair<Executor, CarPowerPolicyFilter> pair =
@@ -399,9 +400,12 @@ public class CarPowerManager extends CarManagerBase {
                     mInterestedComponentMap.put(key, currentCount + 1);
                 }
             }
+            if (updateCallbackNeeded) {
+                newFilter = createFilterFromInterestedComponentsLocked();
+            }
         }
         if (updateCallbackNeeded) {
-            updatePowerPolicyChangeCallback();
+            updatePowerPolicyChangeCallback(newFilter);
         }
     }
 
@@ -416,6 +420,7 @@ public class CarPowerManager extends CarManagerBase {
         assertPermission(Car.PERMISSION_READ_CAR_POWER_POLICY);
         checkArgument(listener != null, "Null listener");
         boolean updateCallbackNeeded = false;
+        CarPowerPolicyFilter filter = null;
         synchronized (mLock) {
             Pair<Executor, CarPowerPolicyFilter> pair = mPolicyListenerMap.remove(listener);
             if (pair == null) {
@@ -431,9 +436,12 @@ public class CarPowerManager extends CarManagerBase {
                     mInterestedComponentMap.put(key, currentCount - 1);
                 }
             }
+            if (updateCallbackNeeded) {
+                filter = createFilterFromInterestedComponentsLocked();
+            }
         }
         if (updateCallbackNeeded) {
-            updatePowerPolicyChangeCallback();
+            updatePowerPolicyChangeCallback(filter);
         }
     }
 
@@ -513,23 +521,25 @@ public class CarPowerManager extends CarManagerBase {
         }
     }
 
-    private void updatePowerPolicyChangeCallback() {
+    private CarPowerPolicyFilter createFilterFromInterestedComponentsLocked() {
         CarPowerPolicyFilter newFilter = null;
-        synchronized (mLock) {
-            int componentCount = mInterestedComponentMap.size();
-            if (componentCount != 0) {
-                int[] components = new int[componentCount];
-                for (int i = 0; i < componentCount; i++) {
-                    components[i] = mInterestedComponentMap.keyAt(i);
-                }
-                newFilter = new CarPowerPolicyFilter(components);
+        int componentCount = mInterestedComponentMap.size();
+        if (componentCount != 0) {
+            int[] components = new int[componentCount];
+            for (int i = 0; i < componentCount; i++) {
+                components[i] = mInterestedComponentMap.keyAt(i);
             }
+            newFilter = new CarPowerPolicyFilter(components);
         }
+        return newFilter;
+    }
+
+    private void updatePowerPolicyChangeCallback(CarPowerPolicyFilter filter) {
         try {
-            if (newFilter == null) {
+            if (filter == null) {
                 mService.unregisterPowerPolicyChangeListener(mPolicyChangeBinderCallback);
             } else {
-                mService.registerPowerPolicyChangeListener(mPolicyChangeBinderCallback, newFilter);
+                mService.registerPowerPolicyChangeListener(mPolicyChangeBinderCallback, filter);
             }
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
