@@ -21,6 +21,7 @@ android_test {
 
     libs: [
         "android.car",
+        "android.frameworks.automotive.powerpolicy-java",
         "android.hardware.automotive.vehicle-V2.0-java",
         "android.test.runner",
         "android.test.base",
