@@ -156,6 +156,20 @@ public class CarSettings {
                 "android.car.KEY_CAR_VOLUME_KEY_EVENT_TIMEOUT_MS";
 
         /**
+         * Key to indicate if mute state should be persisted across boot cycles.
+         * <p>The value is a boolean (1 or 0) where:
+         * <ul>
+         * <li>1 indicates volume group mute states should be persisted across boot cycles.
+         * <li>0 indicates volume group mute states should not be persisted across boot cycles.
+         * </ul>
+         *
+         * @hide
+         */
+        @SystemApi
+        public static final String KEY_AUDIO_PERSIST_VOLUME_GROUP_MUTE_STATES =
+                "android.car.KEY_AUDIO_PERSIST_VOLUME_GROUP_MUTE_STATES";
+
+        /**
          * Key for a list of devices to automatically connect on Bluetooth A2DP Sink profile
          * Written to and read by {@link com.android.car.BluetoothDeviceConnectionPolicy}
          * @hide
