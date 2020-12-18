@@ -22,7 +22,7 @@ import android.media.AudioGain;
 import android.media.AudioGainConfig;
 import android.media.AudioManager;
 import android.media.AudioPort;
-import android.util.Log;
+import android.util.Slog;
 
 import com.android.car.CarLog;
 import com.android.internal.util.Preconditions;
@@ -123,7 +123,7 @@ import java.util.Objects;
         // at the HAL.
         AudioGain audioGain = getAudioGain();
         if (audioGain == null) {
-            Log.e(CarLog.TAG_AUDIO, "getAudioGain() returned null.");
+            Slog.e(CarLog.TAG_AUDIO, "getAudioGain() returned null.");
             return;
         }
 
@@ -134,7 +134,7 @@ import java.util.Objects;
                 new int[] { gainInMillibels },
                 0);
         if (audioGainConfig == null) {
-            Log.e(CarLog.TAG_AUDIO, "Failed to construct AudioGainConfig");
+            Slog.e(CarLog.TAG_AUDIO, "Failed to construct AudioGainConfig");
             return;
         }
 
@@ -144,7 +144,7 @@ import java.util.Objects;
             // we have to remember what we asked for
             mCurrentGain = gainInMillibels;
         } else {
-            Log.e(CarLog.TAG_AUDIO, "Failed to setAudioPortGain: " + r);
+            Slog.e(CarLog.TAG_AUDIO, "Failed to setAudioPortGain: " + r);
         }
     }
 

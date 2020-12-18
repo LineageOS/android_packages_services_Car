@@ -26,6 +26,7 @@ import android.media.AudioManager;
 import android.media.audiopolicy.AudioPolicy;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Slog;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
@@ -69,7 +70,7 @@ class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             CarAudioZone audioZone = carAudioZones.valueAt(i);
             int audioZoneId = audioZone.getId();
             if (Log.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
-                Log.d(CarLog.TAG_AUDIO,
+                Slog.d(CarLog.TAG_AUDIO,
                         "CarZonesAudioFocus adding new zone " + audioZoneId);
             }
             CarAudioFocus zoneFocusListener =
@@ -175,13 +176,13 @@ class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             // check if the zone id is within current zones bounds
             if (mCarAudioService.isAudioZoneIdValid(bundleZoneId)) {
                 if (Log.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
-                    Log.d(CarLog.TAG_AUDIO,
+                    Slog.d(CarLog.TAG_AUDIO,
                             "getFocusForAudioFocusInfo valid zoneId " + bundleZoneId
                                     + " with bundle request for client " + afi.getClientId());
                 }
                 zoneId = bundleZoneId;
             } else {
-                Log.w(CarLog.TAG_AUDIO,
+                Slog.w(CarLog.TAG_AUDIO,
                         "getFocusForAudioFocusInfo invalid zoneId " + bundleZoneId
                                 + " with bundle request for client " + afi.getClientId()
                                 + ", dispatching focus request to zoneId " + zoneId);

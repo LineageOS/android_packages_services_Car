@@ -25,7 +25,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
 import android.util.AttributeSet;
-import android.util.Log;
+import android.util.Slog;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 import android.util.Xml;
@@ -181,7 +181,7 @@ class CarAudioZonesHelperLegacy {
                 }
             }
         } catch (Exception e) {
-            Log.e(CarLog.TAG_AUDIO, "Error parsing volume groups configuration", e);
+            Slog.e(CarLog.TAG_AUDIO, "Error parsing volume groups configuration", e);
         }
         return carVolumeGroups;
     }

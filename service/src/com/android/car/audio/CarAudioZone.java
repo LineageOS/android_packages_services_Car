@@ -18,7 +18,7 @@ package com.android.car.audio;
 import android.car.media.CarAudioManager;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
-import android.util.Log;
+import android.util.Slog;
 
 import com.android.car.CarLog;
 import com.android.internal.util.Preconditions;
@@ -118,7 +118,7 @@ import java.util.Set;
             // One context should not appear in two groups
             for (int context : group.getContexts()) {
                 if (!contextSet.add(context)) {
-                    Log.e(CarLog.TAG_AUDIO, "Context appears in two groups: " + context);
+                    Slog.e(CarLog.TAG_AUDIO, "Context appears in two groups: " + context);
                     return false;
                 }
             }
@@ -126,7 +126,7 @@ import java.util.Set;
             // One address should not appear in two groups
             for (String address : group.getAddresses()) {
                 if (!addresses.add(address)) {
-                    Log.e(CarLog.TAG_AUDIO, "Address appears in two groups: " + address);
+                    Slog.e(CarLog.TAG_AUDIO, "Address appears in two groups: " + address);
                     return false;
                 }
             }
@@ -134,9 +134,9 @@ import java.util.Set;
 
         // All contexts are assigned
         if (contextSet.size() != CarAudioContext.CONTEXTS.length) {
-            Log.e(CarLog.TAG_AUDIO, "Some contexts are not assigned to group");
-            Log.e(CarLog.TAG_AUDIO, "Assigned contexts " + contextSet);
-            Log.e(CarLog.TAG_AUDIO,
+            Slog.e(CarLog.TAG_AUDIO, "Some contexts are not assigned to group");
+            Slog.e(CarLog.TAG_AUDIO, "Assigned contexts " + contextSet);
+            Slog.e(CarLog.TAG_AUDIO,
                     "All contexts " + Arrays.toString(CarAudioContext.CONTEXTS));
             return false;
         }

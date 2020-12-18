@@ -22,7 +22,7 @@ import android.car.media.CarAudioManager;
 import android.content.Context;
 import android.media.AudioDevicePort;
 import android.os.UserHandle;
-import android.util.Log;
+import android.util.Slog;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
@@ -196,7 +196,7 @@ import java.util.Map;
     private int getCurrentGainIndexForUserLocked() {
         int gainIndexForUser = mSettingsManager.getStoredVolumeGainIndexForUser(mUserId, mZoneId,
                 mId);
-        Log.i(CarLog.TAG_AUDIO, "updateUserId userId " + mUserId
+        Slog.i(CarLog.TAG_AUDIO, "updateUserId userId " + mUserId
                 + " gainIndexForUser " + gainIndexForUser);
         return gainIndexForUser;
     }

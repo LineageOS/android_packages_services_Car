@@ -26,7 +26,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.UserHandle;
 import android.provider.Settings;
-import android.util.Log;
+import android.util.Slog;
 
 import com.android.car.audio.CarAudioContext.AudioContext;
 import com.android.internal.annotations.VisibleForTesting;
@@ -353,7 +353,7 @@ final class FocusInteraction {
                     }
                     return AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
                 default:
-                    Log.e(TAG, String.format("Unsupported CarAudioContext %d - rejecting request",
+                    Slog.e(TAG, String.format("Unsupported CarAudioContext %d - rejecting request",
                             holderRow[requestedContext]));
                     return AudioManager.AUDIOFOCUS_REQUEST_FAILED;
             }
