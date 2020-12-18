@@ -57,9 +57,7 @@ PRODUCT_PACKAGES += \
     libmdnssd \
     libnfc_ndef \
     libpowermanager \
-    libspeexresampler \
     libvariablespeed \
-    libwebrtc_audio_preprocessing \
     A2dpSinkService \
     PackageInstaller \
     car-bugreportd \
