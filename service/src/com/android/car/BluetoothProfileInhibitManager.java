@@ -31,6 +31,7 @@ import android.os.RemoteException;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Slog;
 
 import com.android.internal.annotations.GuardedBy;
 
@@ -333,7 +334,7 @@ public class BluetoothProfileInhibitManager {
         record = findInhibitRecord(params, token);
 
         if (record == null) {
-            Log.e(TAG, "Record not found");
+            Slog.e(TAG, "Record not found");
             return false;
         }
 
@@ -352,14 +353,14 @@ public class BluetoothProfileInhibitManager {
 
             Set<InhibitRecord> previousRecords = mProfileInhibits.get(params);
             if (findInhibitRecord(params, record.getToken()) != null) {
-                Log.e(TAG, "Inhibit request already registered - skipping duplicate");
+                Slog.e(TAG, "Inhibit request already registered - skipping duplicate");
                 return false;
             }
 
             try {
                 record.getToken().linkToDeath(record, 0);
             } catch (RemoteException e) {
-                Log.e(TAG, "Could not link to death on inhibit token (already dead?)", e);
+                Slog.e(TAG, "Could not link to death on inhibit token (already dead?)", e);
                 return false;
             }
 
@@ -393,7 +394,7 @@ public class BluetoothProfileInhibitManager {
                                 + " for device " + params.getDevice());
                     }
                 } catch (RemoteException e) {
-                    Log.e(TAG, "Could not disable profile", e);
+                    Slog.e(TAG, "Could not disable profile", e);
                     record.getToken().unlinkToDeath(record, 0);
                     mProfileInhibits.remove(params, record);
                     return false;
@@ -432,7 +433,7 @@ public class BluetoothProfileInhibitManager {
                 return false;
             }
             if (!mProfileInhibits.containsEntry(params, record)) {
-                Log.e(TAG, "Record already removed");
+                Slog.e(TAG, "Record already removed");
                 // Removing something a second time vacuously succeeds.
                 return true;
             }
@@ -594,7 +595,7 @@ public class BluetoothProfileInhibitManager {
      */
     private void logd(String msg) {
         if (DBG) {
-            Log.d(TAG, "[User: " + mUserId + "] " + msg);
+            Slog.d(TAG, "[User: " + mUserId + "] " + msg);
         }
     }
 
@@ -602,13 +603,13 @@ public class BluetoothProfileInhibitManager {
      * Log a message to Log.WARN
      */
     private void logw(String msg) {
-        Log.w(TAG, "[User: " + mUserId + "] " + msg);
+        Slog.w(TAG, "[User: " + mUserId + "] " + msg);
     }
 
     /**
      * Log a message to Log.ERROR
      */
     private void loge(String msg) {
-        Log.e(TAG, "[User: " + mUserId + "] " + msg);
+        Slog.e(TAG, "[User: " + mUserId + "] " + msg);
     }
 }

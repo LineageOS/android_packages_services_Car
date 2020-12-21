@@ -21,7 +21,7 @@ import android.car.Car;
 import android.car.hardware.power.CarPowerManager;
 import android.content.Context;
 import android.util.ArrayMap;
-import android.util.Log;
+import android.util.Slog;
 
 import com.android.car.power.CarPowerManagementService;
 import com.android.internal.annotations.VisibleForTesting;
@@ -44,7 +44,7 @@ public class CarLocalServices {
      */
     @SuppressWarnings("unchecked")
     public static <T> T getService(Class<T> type) {
-        Log.d("CarLocalServices", " getService " + type.getSimpleName());
+        Slog.d("CarLocalServices", " getService " + type.getSimpleName());
         synchronized (sLocalServiceObjects) {
             return (T) sLocalServiceObjects.get(type);
         }
@@ -58,7 +58,7 @@ public class CarLocalServices {
             if (sLocalServiceObjects.containsKey(type)) {
                 throw new IllegalStateException("Overriding service registration");
             }
-            Log.d("CarLocalServices", " Adding " + type.getSimpleName());
+            Slog.d("CarLocalServices", " Adding " + type.getSimpleName());
             sLocalServiceObjects.put(type, service);
         }
     }
@@ -68,7 +68,7 @@ public class CarLocalServices {
      */
     @VisibleForTesting
     public static <T> void removeServiceForTest(Class<T> type) {
-        Log.d("CarLocalServices", " Removing " + type.getSimpleName());
+        Slog.d("CarLocalServices", " Removing " + type.getSimpleName());
         synchronized (sLocalServiceObjects) {
             sLocalServiceObjects.remove(type);
         }
@@ -78,7 +78,7 @@ public class CarLocalServices {
      * Remove all registered services. Should be called when car service restarts.
      */
     public static void removeAllServices() {
-        Log.d("CarLocalServices", " removeAllServices");
+        Slog.d("CarLocalServices", " removeAllServices");
         synchronized (sLocalServiceObjects) {
             sLocalServiceObjects.clear();
         }

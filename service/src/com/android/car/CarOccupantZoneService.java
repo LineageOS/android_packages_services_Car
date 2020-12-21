@@ -48,6 +48,7 @@ import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.IntArray;
 import android.util.Log;
+import android.util.Slog;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 import android.view.Display;
@@ -187,7 +188,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     @VisibleForTesting
     final UserLifecycleListener mUserLifecycleListener = event -> {
         if (Log.isLoggable(CarLog.TAG_MEDIA, Log.DEBUG)) {
-            Log.d(CarLog.TAG_MEDIA, "onEvent(" + event + ")");
+            Slog.d(CarLog.TAG_MEDIA, "onEvent(" + event + ")");
         }
         if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING == event.getEventType()) {
             handleUserChange();
@@ -290,17 +291,17 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                     for (int i = 0; i < mActiveOccupantConfigs.size(); ++i) {
                         OccupantConfig config = mActiveOccupantConfigs.valueAt(i);
                         if (config.userId == userId && zoneId != mActiveOccupantConfigs.keyAt(i)) {
-                            Log.w(TAG, "cannot assign user to two different zone simultaneously");
+                            Slog.w(TAG, "cannot assign user to two different zone simultaneously");
                             return false;
                         }
                     }
                     OccupantConfig zoneConfig = mActiveOccupantConfigs.get(zoneId);
                     if (zoneConfig == null) {
-                        Log.w(TAG, "cannot find the zone(" + zoneId + ")");
+                        Slog.w(TAG, "cannot find the zone(" + zoneId + ")");
                         return false;
                     }
                     if (zoneConfig.userId != UserHandle.USER_NULL && zoneConfig.userId != userId) {
-                        Log.w(TAG, "other user already occupies the zone(" + zoneId + ")");
+                        Slog.w(TAG, "other user already occupies the zone(" + zoneId + ")");
                         return false;
                     }
                     zoneConfig.userId = userId;
@@ -593,7 +594,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                     return mActiveOccupantConfigs.keyAt(i);
                 }
             }
-            Log.w(TAG, "Could not find occupantZoneId for userId" + userId
+            Slog.w(TAG, "Could not find occupantZoneId for userId" + userId
                     + " returning invalid occupant zone id " + OccupantZoneInfo.INVALID_ZONE_ID);
             return OccupantZoneInfo.INVALID_ZONE_ID;
         }
@@ -668,11 +669,11 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             if (!mProfileUsers.contains(userId) && userId != UserHandle.USER_NULL) {
                 // current user can change while this call is happening, so return false rather
                 // than throwing exception
-                Log.w(TAG, "Invalid profile user id:" + userId);
+                Slog.w(TAG, "Invalid profile user id:" + userId);
                 return false;
             }
             if (!mUserManager.isUserRunning(userId)) {
-                Log.w(TAG, "User is not running:" + userId);
+                Slog.w(TAG, "User is not running:" + userId);
                 return false;
             }
             OccupantConfig config = mActiveOccupantConfigs.get(occupantZoneId);
@@ -680,7 +681,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                 throw new IllegalArgumentException("Invalid occupantZoneId:" + occupantZoneId);
             }
             if (config.userId == userId && userId != UserHandle.USER_NULL) {
-                Log.w(TAG, "assignProfileUserToOccupantZone zone:"
+                Slog.w(TAG, "assignProfileUserToOccupantZone zone:"
                         + occupantZoneId + " already set to user:" + userId);
                 return true;
             }
@@ -758,7 +759,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         try {
             helper.setPassengerDisplays(passengerDisplayIds);
         } catch (RemoteException e) {
-            Log.e(TAG, "ICarServiceHelper.setPassengerDisplays failed");
+            Slog.e(TAG, "ICarServiceHelper.setPassengerDisplays failed");
         }
     }
 
@@ -767,16 +768,16 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         ArrayList<ComponentName> componentNames = null;
         if (components == null || components.length == 0) {
             enableSourcePreferred = false;
-            Log.i(TAG, "CarLaunchParamsModifier: disable source-preferred");
+            Slog.i(TAG, "CarLaunchParamsModifier: disable source-preferred");
         } else if (components.length == 1 && components[0].equals(ALL_COMPONENTS)) {
             enableSourcePreferred = true;
-            Log.i(TAG, "CarLaunchParamsModifier: enable source-preferred for all Components");
+            Slog.i(TAG, "CarLaunchParamsModifier: enable source-preferred for all Components");
         } else {
             componentNames = new ArrayList<>((components.length));
             for (String item : components) {
                 ComponentName name = ComponentName.unflattenFromString(item);
                 if (name == null) {
-                    Log.e(TAG, "CarLaunchParamsModifier: Wrong ComponentName=" + item);
+                    Slog.e(TAG, "CarLaunchParamsModifier: Wrong ComponentName=" + item);
                     return;
                 }
                 componentNames.add(name);
@@ -788,7 +789,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             mEnableSourcePreferred = enableSourcePreferred;
             mSourcePreferredComponents = componentNames;
         } catch (RemoteException e) {
-            Log.e(TAG, "ICarServiceHelper.setSourcePreferredComponents failed");
+            Slog.e(TAG, "ICarServiceHelper.setSourcePreferredComponents failed");
         }
     }
 
@@ -827,7 +828,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                 helper.setDisplayAllowlistForUser(userId, allowlists.valueAt(i).toArray());
             }
         } catch (RemoteException e) {
-            Log.e(TAG, "ICarServiceHelper.setDisplayAllowlistForUser failed");
+            Slog.e(TAG, "ICarServiceHelper.setDisplayAllowlistForUser failed");
         }
     }
 
@@ -948,7 +949,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         if (!hasDriver) {
             maxZoneId++;
             mDriverZoneId = maxZoneId;
-            Log.w(TAG, "No driver zone, add one:" + mDriverZoneId);
+            Slog.w(TAG, "No driver zone, add one:" + mDriverZoneId);
             OccupantZoneInfo info = new OccupantZoneInfo(mDriverZoneId,
                     CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER, getDriverSeat());
             mOccupantsConfig.put(mDriverZoneId, info);
@@ -1064,7 +1065,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
 
             DisplayConfig displayConfig = mDisplayConfigs.get(rawPortAddress);
             if (displayConfig == null) {
-                Log.w(TAG,
+                Slog.w(TAG,
                         "Display id:" + display.getDisplayId() + " port:" + rawPortAddress
                                 + " does not have configurations");
                 continue;
@@ -1081,7 +1082,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
         if (!hasDefaultDisplayConfig) {
             // Can reach here if default display has no port / no config
-            Log.w(TAG, "Default display not assigned, will assign to driver zone");
+            Slog.w(TAG, "Default display not assigned, will assign to driver zone");
             addDisplayInfoToOccupantZoneLocked(mDriverZoneId, new DisplayInfo(
                     mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY),
                     CarOccupantZoneManager.DISPLAY_TYPE_MAIN));
@@ -1115,7 +1116,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             OccupantConfig config = mActiveOccupantConfigs.valueAt(i);
             // mProfileUsers empty if not supported
             if (mProfileUsers.contains(config.userId)) {
-                Log.i(TAG, "Profile user:" + config.userId
+                Slog.i(TAG, "Profile user:" + config.userId
                         + " already assigned for occupant zone:" + zoneId);
             } else {
                 config.userId = driverUserId;

@@ -44,7 +44,6 @@ import android.os.ShellCallback;
 import android.os.Trace;
 import android.os.UserManager;
 import android.util.EventLog;
-import android.util.Log;
 import android.util.Slog;
 import android.util.TimingsTraceLog;
 
@@ -375,7 +374,7 @@ public class ICarImpl extends ICar.Stub {
             bundle.putBinder(ICAR_SYSTEM_SERVER_CLIENT, mICarSystemServerClientImpl.asBinder());
         } catch (Exception e) {
             // send back a null response
-            Log.w(TAG, "Exception in setSystemServerConnections", e);
+            Slog.w(TAG, "Exception in setSystemServerConnections", e);
             bundle = null;
         }
 
@@ -383,7 +382,7 @@ public class ICarImpl extends ICar.Stub {
             IResultReceiver resultReceiver = IResultReceiver.Stub.asInterface(receiver);
             resultReceiver.send(/* unused */ 0, bundle);
         } catch (RemoteException e) {
-            Log.w(TAG, "RemoteException from CarServiceHelperService", e);
+            Slog.w(TAG, "RemoteException from CarServiceHelperService", e);
         }
     }
 
@@ -453,7 +452,7 @@ public class ICarImpl extends ICar.Stub {
     @Override
     public IBinder getCarService(String serviceName) {
         if (!mFeatureController.isFeatureEnabled(serviceName)) {
-            Log.w(CarLog.TAG_SERVICE, "getCarService for disabled service:" + serviceName);
+            Slog.w(CarLog.TAG_SERVICE, "getCarService for disabled service:" + serviceName);
             return null;
         }
         switch (serviceName) {
@@ -532,7 +531,7 @@ public class ICarImpl extends ICar.Stub {
                     service = mCarExperimentalFeatureServiceController.getCarService(serviceName);
                 }
                 if (service == null) {
-                    Log.w(CarLog.TAG_SERVICE, "getCarService for unknown service:"
+                    Slog.w(CarLog.TAG_SERVICE, "getCarService for unknown service:"
                             + serviceName);
                 }
                 return service;
@@ -551,8 +550,8 @@ public class ICarImpl extends ICar.Stub {
             case INTERNAL_SYSTEM_ACTIVITY_MONITORING_SERVICE:
                 return mSystemActivityMonitoringService;
             default:
-                Log.w(CarLog.TAG_SERVICE, "getCarInternalService for unknown service:" +
-                        serviceName);
+                Slog.w(CarLog.TAG_SERVICE, "getCarInternalService for unknown service:"
+                        + serviceName);
                 return null;
         }
     }
@@ -813,7 +812,7 @@ public class ICarImpl extends ICar.Stub {
             EventLog.writeEvent(EventLogTags.CAR_SERVICE_ON_USER_LIFECYCLE, eventType, fromUserId,
                     toUserId);
             if (DBG) {
-                Log.d(TAG,
+                Slog.d(TAG,
                         "onUserLifecycleEvent("
                                 + CarUserManager.lifecycleEventTypeToString(eventType) + ", "
                                 + toUserId + ")");
@@ -825,7 +824,7 @@ public class ICarImpl extends ICar.Stub {
         public void initBootUser() throws RemoteException {
             assertCallingFromSystemProcess();
             // TODO(b/160819016): add events log
-            if (DBG) Log.d(TAG, "initBootUser(): ");
+            if (DBG) Slog.d(TAG, "initBootUser(): ");
             mCarUserService.initBootUser();
         }
 
@@ -833,7 +832,7 @@ public class ICarImpl extends ICar.Stub {
         public void preCreateUsers() throws RemoteException {
             assertCallingFromSystemProcess();
             // TODO(b/160819016): add events log
-            if (DBG) Log.d(TAG, "preCreateUsers(): ");
+            if (DBG) Slog.d(TAG, "preCreateUsers(): ");
             mCarUserService.preCreateUsers();
         }
 
@@ -841,7 +840,7 @@ public class ICarImpl extends ICar.Stub {
         public void onUserRemoved(UserInfo user) throws RemoteException {
             assertCallingFromSystemProcess();
             // TODO(b/160819016): add events log
-            if (DBG) Log.d(TAG, "onUserRemoved(): " + user.toFullString());
+            if (DBG) Slog.d(TAG, "onUserRemoved(): " + user.toFullString());
             mCarUserService.onUserRemoved(user);
         }
     }

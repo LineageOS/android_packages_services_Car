@@ -38,7 +38,6 @@ import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.SystemProperties;
-import android.util.Log;
 import android.util.Slog;
 
 import com.android.internal.annotations.GuardedBy;
@@ -374,7 +373,7 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
                             + " after " + retryCount + " retries", e);
                     return null;
                 }
-                Log.i(TAG, "Failed to connect to " + socketName + ". Will try again. "
+                Slog.i(TAG, "Failed to connect to " + socketName + ". Will try again. "
                         + e.getMessage());
             }
         }

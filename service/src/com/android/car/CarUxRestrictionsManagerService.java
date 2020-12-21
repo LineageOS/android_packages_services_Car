@@ -268,7 +268,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         }
 
         // This should rarely happen.
-        Log.w(TAG, "Creating default config");
+        Slog.w(TAG, "Creating default config");
 
         configs = new ArrayList<>();
         synchronized (mLock) {
@@ -290,7 +290,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             return CarUxRestrictionsConfigurationXmlParser.parse(
                     mContext, R.xml.car_ux_restrictions_map);
         } catch (IOException | XmlPullParserException e) {
-            Log.e(TAG, "Could not read config from XML resource", e);
+            Slog.e(TAG, "Could not read config from XML resource", e);
         }
         return null;
     }
@@ -314,7 +314,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                 logd("Attempting to promote stage config");
                 Files.move(stagedConfig, prod, REPLACE_EXISTING);
             } catch (IOException e) {
-                Log.e(TAG, "Could not promote state config", e);
+                Slog.e(TAG, "Could not promote state config", e);
             }
         }
     }
@@ -383,7 +383,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     public void registerUxRestrictionsChangeListener(
             ICarUxRestrictionsChangeListener listener, int displayId) {
         if (listener == null) {
-            Log.e(TAG, "registerUxRestrictionsChangeListener(): listener null");
+            Slog.e(TAG, "registerUxRestrictionsChangeListener(): listener null");
             throw new IllegalArgumentException("Listener is null");
         }
         Integer physicalPort;
@@ -404,7 +404,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     @Override
     public void unregisterUxRestrictionsChangeListener(ICarUxRestrictionsChangeListener listener) {
         if (listener == null) {
-            Log.e(TAG, "unregisterUxRestrictionsChangeListener(): listener null");
+            Slog.e(TAG, "unregisterUxRestrictionsChangeListener(): listener null");
             throw new IllegalArgumentException("Listener is null");
         }
 
@@ -421,15 +421,14 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         CarUxRestrictions restrictions;
         synchronized (mLock) {
             if (mCurrentUxRestrictions == null) {
-                Log.wtf(TAG, "getCurrentUxRestrictions() called before init()");
+                Slog.wtf(TAG, "getCurrentUxRestrictions() called before init()");
                 return null;
             }
             restrictions = mCurrentUxRestrictions.get(getPhysicalPortLocked(displayId));
         }
         if (restrictions == null) {
-            Log.e(TAG, String.format(
-                    "Restrictions are null for displayId:%d. Returning full restrictions.",
-                    displayId));
+            Slog.e(TAG, "Restrictions are null for displayId:" + displayId
+                    + ". Returning full restrictions.");
             restrictions = createFullyRestrictedRestrictions();
         }
         return restrictions;
@@ -522,14 +521,14 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         try {
             fos = stagedFile.startWrite();
         } catch (IOException e) {
-            Log.e(TAG, "Could not open file to persist config", e);
+            Slog.e(TAG, "Could not open file to persist config", e);
             return false;
         }
         try (JsonWriter jsonWriter = new JsonWriter(
                 new OutputStreamWriter(fos, StandardCharsets.UTF_8))) {
             writeJson(jsonWriter, configs);
         } catch (IOException e) {
-            Log.e(TAG, "Could not persist config", e);
+            Slog.e(TAG, "Could not persist config", e);
             stagedFile.failWrite(fos);
             return false;
         }
@@ -554,7 +553,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     @Nullable
     private List<CarUxRestrictionsConfiguration> readPersistedConfig(File file) {
         if (!file.exists()) {
-            Log.e(TAG, "Could not find config file: " + file.getName());
+            Slog.e(TAG, "Could not find config file: " + file.getName());
             return null;
         }
 
@@ -575,12 +574,12 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                     readV2Json(reader, configs);
                     break;
                 default:
-                    Log.e(TAG, "Unable to parse schema for version " + schemaVersion);
+                    Slog.e(TAG, "Unable to parse schema for version " + schemaVersion);
             }
 
             return configs;
         } catch (IOException e) {
-            Log.e(TAG, "Could not read persisted config file " + file.getName(), e);
+            Slog.e(TAG, "Could not read persisted config file " + file.getName(), e);
         }
         return null;
     }
@@ -632,7 +631,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                 reader.endObject();
             }
         } catch (IOException e) {
-            Log.e(TAG, "Could not read persisted config file " + file.getName(), e);
+            Slog.e(TAG, "Could not read persisted config file " + file.getName(), e);
         }
         return UNKNOWN_JSON_SCHEMA_VERSION;
     }
@@ -655,7 +654,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
      */
     public void setUxRChangeBroadcastEnabled(boolean enable) {
         if (!isDebugBuild()) {
-            Log.e(TAG, "Cannot set UX restriction change broadcast.");
+            Slog.e(TAG, "Cannot set UX restriction change broadcast.");
             return;
         }
         // Check if the caller has the same signature as that of the car service.
@@ -757,7 +756,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             // If we get here with driving state != parked or unknown && speed == null,
             // something is wrong.  CarDrivingStateService could not have inferred idling or moving
             // when speed is not available
-            Log.e(TAG, "Unexpected:  Speed null when driving state is: " + drivingState);
+            Slog.e(TAG, "Unexpected:  Speed null when driving state is: " + drivingState);
             return;
         }
         handleDispatchUxRestrictionsLocked(drivingState, mCurrentMovingSpeed);
@@ -815,7 +814,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                 "mCurrentUxRestrictions must be initialized");
 
         if (isDebugBuild() && !mUxRChangeBroadcastEnabled) {
-            Log.d(TAG, "Not dispatching UX Restriction due to setting");
+            Slog.d(TAG, "Not dispatching UX Restriction due to setting");
             return;
         }
 
@@ -844,7 +843,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         for (int port : newUxRestrictions.keySet()) {
             if (!mCurrentUxRestrictions.containsKey(port)) {
                 // This should never happen.
-                Log.wtf(TAG, "Unrecognized port:" + port);
+                Slog.wtf(TAG, "Unrecognized port:" + port);
                 continue;
             }
             CarUxRestrictions uxRestrictions = newUxRestrictions.get(port);
@@ -886,7 +885,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                 try {
                     callback.onUxRestrictionsChanged(restrictions);
                 } catch (RemoteException e) {
-                    Log.e(TAG,
+                    Slog.e(TAG,
                             String.format("Dispatch to listener %s failed for restrictions (%s)",
                                     callback, restrictions));
                 }
@@ -895,8 +894,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         });
 
         if (!success) {
-            Log.e(TAG, String.format("Unable to post (%s) event to dispatch handler",
-                    displayRestrictions));
+            Slog.e(TAG, "Unable to post (" + displayRestrictions + ") event to dispatch handler");
         }
     }
 
@@ -906,7 +904,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         DisplayAddress.Physical address = (DisplayAddress.Physical) defaultDisplay.getAddress();
 
         if (address == null) {
-            Log.e(TAG, "Default display does not have physical display port. Using 0 as port.");
+            Slog.e(TAG, "Default display does not have physical display port. Using 0 as port.");
             return DEFAULT_PORT;
         }
         return address.getPort();
@@ -922,7 +920,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                 // Assume default display is a physical display so assign an address if it
                 // does not have one (possibly due to lower graphic driver version).
                 if (Log.isLoggable(TAG, Log.INFO)) {
-                    Log.i(TAG, "Default display does not have display address. Using default.");
+                    Slog.i(TAG, "Default display does not have display address. Using default.");
                 }
                 synchronized (mLock) {
                     mPhysicalPorts.add(mDefaultDisplayPhysicalPort);
@@ -930,14 +928,13 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             } else if (display.getAddress() instanceof DisplayAddress.Physical) {
                 int port = ((DisplayAddress.Physical) display.getAddress()).getPort();
                 if (Log.isLoggable(TAG, Log.INFO)) {
-                    Log.i(TAG, String.format(
-                            "Display %d uses port %d", display.getDisplayId(), port));
+                    Slog.i(TAG, "Display " + display.getDisplayId() + " uses port " + port);
                 }
                 synchronized (mLock) {
                     mPhysicalPorts.add(port);
                 }
             } else {
-                Log.w(TAG, "At init non-virtual display has a non-physical display address: "
+                Slog.w(TAG, "At init non-virtual display has a non-physical display address: "
                         + display);
             }
         }
@@ -1015,7 +1012,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         if (!mPortLookup.containsKey(displayId)) {
             Display display = mDisplayManager.getDisplay(displayId);
             if (display == null) {
-                Log.w(TAG, "Could not retrieve display for id: " + displayId);
+                Slog.w(TAG, "Could not retrieve display for id: " + displayId);
                 return null;
             }
             int port = doGetPhysicalPortLocked(display);
@@ -1027,18 +1024,18 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     @GuardedBy("mLock")
     private int doGetPhysicalPortLocked(@NonNull Display display) {
         if (display.getType() == Display.TYPE_VIRTUAL) {
-            Log.e(TAG, "Display " + display
+            Slog.e(TAG, "Display " + display
                     + " is a virtual display and does not have a known port.");
             return mDefaultDisplayPhysicalPort;
         }
 
         DisplayAddress address = display.getAddress();
         if (address == null) {
-            Log.e(TAG, "Display " + display
+            Slog.e(TAG, "Display " + display
                     + " is not a virtual display but has null DisplayAddress.");
             return mDefaultDisplayPhysicalPort;
         } else if (!(address instanceof DisplayAddress.Physical)) {
-            Log.e(TAG, "Display " + display + " has non-physical address: " + address);
+            Slog.e(TAG, "Display " + display + " has non-physical address: " + address);
             return mDefaultDisplayPhysicalPort;
         } else {
             return ((DisplayAddress.Physical) address).getPort();
@@ -1158,7 +1155,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             Integer physicalPort = getPhysicalPortLocked(physicalDisplayId);
             if (physicalPort == null) {
                 // This should not happen.
-                Log.wtf(TAG, "No known physicalPort for displayId:" + physicalDisplayId);
+                Slog.wtf(TAG, "No known physicalPort for displayId:" + physicalDisplayId);
                 physicalPort = mDefaultDisplayPhysicalPort;
             }
             mPortLookup.put(virtualDisplayId, physicalPort);

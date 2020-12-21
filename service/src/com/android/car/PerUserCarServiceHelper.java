@@ -25,7 +25,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.UserHandle;
-import android.util.Log;
+import android.util.Slog;
 
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
@@ -77,13 +77,13 @@ public class PerUserCarServiceHelper implements CarServiceBase {
 
     private final UserLifecycleListener mUserLifecycleListener = event -> {
         if (DBG) {
-            Log.d(TAG, "onEvent(" + event + ")");
+            Slog.d(TAG, "onEvent(" + event + ")");
         }
         if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING == event.getEventType()) {
             List<ServiceCallback> callbacks;
             int userId = event.getUserId();
             if (DBG) {
-                Log.d(TAG, "User Switch Happened. New User" + userId);
+                Slog.d(TAG, "User Switch Happened. New User" + userId);
             }
 
             // Before unbinding, notify the callbacks about unbinding from the service
@@ -113,7 +113,7 @@ public class PerUserCarServiceHelper implements CarServiceBase {
         public void onServiceConnected(ComponentName componentName, IBinder service) {
             List<ServiceCallback> callbacks;
             if (DBG) {
-                Log.d(TAG, "Connected to User Service");
+                Slog.d(TAG, "Connected to User Service");
             }
             mPerUserCarService = IPerUserCarService.Stub.asInterface(service);
             if (mPerUserCarService != null) {
@@ -132,7 +132,7 @@ public class PerUserCarServiceHelper implements CarServiceBase {
         public void onServiceDisconnected(ComponentName componentName) {
             List<ServiceCallback> callbacks;
             if (DBG) {
-                Log.d(TAG, "Disconnected from User Service");
+                Slog.d(TAG, "Disconnected from User Service");
             }
             synchronized (mServiceBindLock) {
                 // copy the callbacks
@@ -151,7 +151,7 @@ public class PerUserCarServiceHelper implements CarServiceBase {
      */
     private void bindToPerUserCarService() {
         if (DBG) {
-            Log.d(TAG, "Binding to User service");
+            Slog.d(TAG, "Binding to User service");
         }
         Intent startIntent = new Intent(mContext, PerUserCarService.class);
         synchronized (mServiceBindLock) {
@@ -160,7 +160,7 @@ public class PerUserCarServiceHelper implements CarServiceBase {
                     mContext.BIND_AUTO_CREATE, UserHandle.CURRENT);
             // If valid connection not obtained, unbind
             if (!bindSuccess) {
-                Log.e(TAG, "bindToPerUserCarService() failed to get valid connection");
+                Slog.e(TAG, "bindToPerUserCarService() failed to get valid connection");
                 unbindFromPerUserCarService();
             }
         }
@@ -174,7 +174,7 @@ public class PerUserCarServiceHelper implements CarServiceBase {
             // mBound flag makes sure we are unbinding only when the service is bound.
             if (mBound) {
                 if (DBG) {
-                    Log.d(TAG, "Unbinding from User Service");
+                    Slog.d(TAG, "Unbinding from User Service");
                 }
                 mContext.unbindService(mUserServiceConnection);
                 mBound = false;
@@ -190,7 +190,7 @@ public class PerUserCarServiceHelper implements CarServiceBase {
     public void registerServiceCallback(ServiceCallback listener) {
         if (listener != null) {
             if (DBG) {
-                Log.d(TAG, "Registering PerUserCarService Listener");
+                Slog.d(TAG, "Registering PerUserCarService Listener");
             }
             synchronized (mServiceBindLock) {
                 mServiceCallbacks.add(listener);
@@ -204,7 +204,7 @@ public class PerUserCarServiceHelper implements CarServiceBase {
      */
     public void unregisterServiceCallback(ServiceCallback listener) {
         if (DBG) {
-            Log.d(TAG, "Unregistering PerUserCarService Listener");
+            Slog.d(TAG, "Unregistering PerUserCarService Listener");
         }
         if (listener != null) {
             synchronized (mServiceBindLock) {

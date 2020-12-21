@@ -18,7 +18,6 @@ package com.android.car;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
-
 import android.bluetooth.le.AdvertiseCallback;
 import android.bluetooth.le.AdvertiseData;
 import android.bluetooth.le.AdvertiseSettings;
@@ -26,7 +25,7 @@ import android.bluetooth.le.BluetoothLeAdvertiser;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.ParcelUuid;
-import android.util.Log;
+import android.util.Slog;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -59,7 +58,7 @@ class FastPairProvider {
         Resources res = context.getResources();
         int modelId = res.getInteger(R.integer.fastPairModelId);
         if (modelId == 0) {
-            Log.w(TAG, "Model ID undefined, disabling");
+            Slog.w(TAG, "Model ID undefined, disabling");
             return;
         }
 
@@ -113,13 +112,13 @@ class FastPairProvider {
         @Override
         public void onStartFailure(int errorCode) {
             super.onStartFailure(errorCode);
-            if (DBG) Log.d(TAG, "Advertising failed");
+            if (DBG) Slog.d(TAG, "Advertising failed");
         }
 
         @Override
         public void onStartSuccess(AdvertiseSettings settingsInEffect) {
             super.onStartSuccess(settingsInEffect);
-            if (DBG) Log.d(TAG, "Advertising successfully started");
+            if (DBG) Slog.d(TAG, "Advertising successfully started");
         }
     }
 }

@@ -44,6 +44,7 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.Log;
+import android.util.Slog;
 import android.util.SparseArray;
 
 import com.android.internal.annotations.GuardedBy;
@@ -817,7 +818,8 @@ public class BluetoothProfileDeviceManager {
      */
     private void logd(String msg) {
         if (DBG) {
-            Log.d(TAG, "[" + Utils.getProfileName(mProfileId) + " - User: " + mUserId + "] " + msg);
+            Slog.d(TAG, "[" + Utils.getProfileName(mProfileId) + " - User: " + mUserId + "] "
+                    + msg);
         }
     }
 
@@ -825,6 +827,6 @@ public class BluetoothProfileDeviceManager {
      * Log a message to WARN
      */
     private void logw(String msg) {
-        Log.w(TAG, "[" + Utils.getProfileName(mProfileId) + " - User: " + mUserId + "] " + msg);
+        Slog.w(TAG, "[" + Utils.getProfileName(mProfileId) + " - User: " + mUserId + "] " + msg);
     }
 }
