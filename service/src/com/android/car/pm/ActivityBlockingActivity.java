@@ -41,6 +41,7 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Slog;
 import android.view.Display;
 import android.view.DisplayInfo;
 import android.view.View;
@@ -150,13 +151,13 @@ public class ActivityBlockingActivity extends Activity {
                 BLOCKING_INTENT_EXTRA_BLOCKED_ACTIVITY_NAME);
         if (!TextUtils.isEmpty(blockedActivity)) {
             if (isTopActivityBehindAbaDistractionOptimized()) {
-                Log.e(CarLog.TAG_AM, "Top activity is already DO, so finishing");
+                Slog.e(CarLog.TAG_AM, "Top activity is already DO, so finishing");
                 finish();
                 return;
             }
 
             if (Log.isLoggable(CarLog.TAG_AM, Log.DEBUG)) {
-                Log.d(CarLog.TAG_AM, "Blocking activity " + blockedActivity);
+                Slog.d(CarLog.TAG_AM, "Blocking activity " + blockedActivity);
             }
         }
 
@@ -269,7 +270,7 @@ public class ActivityBlockingActivity extends Activity {
         try {
             taskInfos = mAm.getAllRootTaskInfos();
         } catch (RemoteException e) {
-            Log.e(CarLog.TAG_AM, "Unable to get stack info from ActivityManager");
+            Slog.e(CarLog.TAG_AM, "Unable to get stack info from ActivityManager");
             // assume that the state is still correct, the activity behind is not DO
             return false;
         }
@@ -297,7 +298,7 @@ public class ActivityBlockingActivity extends Activity {
         }
 
         if (Log.isLoggable(CarLog.TAG_AM, Log.DEBUG)) {
-            Log.d(CarLog.TAG_AM, String.format("Top stack behind ABA is: %s", topStackBehindAba));
+            Slog.d(CarLog.TAG_AM, String.format("Top stack behind ABA is: %s", topStackBehindAba));
         }
 
         if (topStackBehindAba != null && topStackBehindAba.topActivity != null) {
@@ -305,7 +306,7 @@ public class ActivityBlockingActivity extends Activity {
                     topStackBehindAba.topActivity.getPackageName(),
                     topStackBehindAba.topActivity.getClassName());
             if (Log.isLoggable(CarLog.TAG_AM, Log.DEBUG)) {
-                Log.d(CarLog.TAG_AM,
+                Slog.d(CarLog.TAG_AM,
                         String.format("Top activity (%s) is DO: %s", topStackBehindAba.topActivity,
                                 isDo));
             }
@@ -422,7 +423,7 @@ public class ActivityBlockingActivity extends Activity {
             }
 
             if (Log.isLoggable(CarLog.TAG_AM, Log.INFO)) {
-                Log.i(CarLog.TAG_AM, "Restarting task " + mBlockedTaskId);
+                Slog.i(CarLog.TAG_AM, "Restarting task " + mBlockedTaskId);
             }
             mCarPackageManager.restartTask(mBlockedTaskId);
             finish();
