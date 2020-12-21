@@ -1437,8 +1437,8 @@
     <string name="dlg_confirm_unmount_text" product="default" msgid="4099391737780732622">"Ak odpojíte SD kartu, niektoré používané aplikácie môžu byť zastavené a nebudú k dispozícii, kým SD kartu znova nepripojíte."</string>
     <string name="dlg_error_unmount_title" product="nosdcard" msgid="3132640848329117857"></string>
     <string name="dlg_error_unmount_title" product="default" msgid="3132640848329117857"></string>
-    <string name="dlg_error_unmount_text" product="nosdcard" msgid="4710773826053117136">"Úložisko USB sa nepodarilo odpojiť. Skúste to znova neskôr."</string>
-    <string name="dlg_error_unmount_text" product="default" msgid="8243603872321575219">"SD kartu sa nepodarilo odpojiť. Skúste to znova neskôr."</string>
+    <string name="dlg_error_unmount_text" product="nosdcard" msgid="4710773826053117136">"Úložisko USB sa nepodarilo odpojiť. Skúste to neskôr."</string>
+    <string name="dlg_error_unmount_text" product="default" msgid="8243603872321575219">"SD kartu sa nepodarilo odpojiť. Skúste to neskôr."</string>
     <string name="unmount_inform_text" product="nosdcard" msgid="2460118115494815052">"Ukladací priestor USB bude odpojený."</string>
     <string name="unmount_inform_text" product="default" msgid="6467461731634304997">"SD karta bude odpojená."</string>
     <string name="sd_ejecting_title" msgid="595074246815112145">"Odpájanie"</string>
@@ -2871,7 +2871,7 @@
     <string name="vpn_lockdown_summary" msgid="6770030025737770861">"Vyberte profil VPN, ku ktorému chcete mať vždy pripojenie. Sieťová premávka bude povolená len v prípade pripojenia k tejto sieti VPN."</string>
     <string name="vpn_lockdown_none" msgid="3789288793603394679">"Žiadna"</string>
     <string name="vpn_lockdown_config_error" msgid="8761770968704589885">"Vždy zapnutá sieť VPN vyžaduje adresu IP pre server aj DNS."</string>
-    <string name="vpn_no_network" msgid="8313250136194588023">"Nie je k dispozícii žiadne sieťové pripojenie. Skúste to znova neskôr."</string>
+    <string name="vpn_no_network" msgid="8313250136194588023">"Nie je k dispozícii žiadne sieťové pripojenie. Skúste to neskôr."</string>
     <string name="vpn_disconnected" msgid="4597953053220332539">"Odpojiť od siete VPN"</string>
     <string name="vpn_disconnected_summary" msgid="3784118965271376808">"Žiadne"</string>
     <string name="vpn_missing_cert" msgid="2713254242731992902">"Chýba certifikát. Skúste upraviť profil."</string>
@@ -4533,7 +4533,7 @@
     <string name="load_networks_progress" msgid="8155227447618984212">"Hľadá sa…"</string>
     <string name="register_on_network" msgid="423929472895070205">"Prebieha registrácia v sieti <xliff:g id="NETWORK">%s</xliff:g>…"</string>
     <string name="not_allowed" msgid="3047048893776257915">"Vaša SIM karta nepovoľuje pripojenie k tejto sieti."</string>
-    <string name="connect_later" msgid="4742215038190504328">"V tejto chvíli sa nedá pripojiť k sieti. Skúste to znova neskôr."</string>
+    <string name="connect_later" msgid="4742215038190504328">"V tejto chvíli sa nedá pripojiť k sieti. Skúste to neskôr."</string>
     <string name="registration_done" msgid="8635020229073784432">"Prihlásenie k sieti prebehlo úspešne."</string>
     <string name="select_automatically" msgid="3421552364854534865">"Vybrať sieť automaticky"</string>
     <string name="carrier_settings_title" msgid="7989949967020825268">"Nastavenia operátora"</string>
