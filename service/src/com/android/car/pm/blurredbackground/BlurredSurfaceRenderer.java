@@ -23,7 +23,7 @@ import android.opengl.GLES11Ext;
 import android.opengl.GLES30;
 import android.opengl.GLSurfaceView;
 import android.os.IBinder;
-import android.util.Log;
+import android.util.Slog;
 import android.view.Surface;
 import android.view.SurfaceControl;
 
@@ -143,7 +143,7 @@ public class BlurredSurfaceRenderer implements GLSurfaceView.Renderer {
         try {
             final IBinder token = SurfaceControl.getInternalDisplayToken();
             if (token == null) {
-                Log.e(TAG,
+                Slog.e(TAG,
                         "Could not find display token for screenshot. Will not capture screenshot");
             } else {
                 final SurfaceControl.DisplayCaptureArgs captureArgs =
@@ -180,10 +180,10 @@ public class BlurredSurfaceRenderer implements GLSurfaceView.Renderer {
 
     private void logWillNotRenderBlurredMsg() {
         if (!mIsScreenShotCaptured) {
-            Log.e(TAG, "Screenshot was not captured. Will not render blurred surface");
+            Slog.e(TAG, "Screenshot was not captured. Will not render blurred surface");
         }
         if (!mShadersLoadedSuccessfully) {
-            Log.e(TAG, "Shaders were not loaded successfully. Will not render blurred surface");
+            Slog.e(TAG, "Shaders were not loaded successfully. Will not render blurred surface");
         }
     }
 
