@@ -20,7 +20,7 @@ package com.android.car.hal;
 import android.annotation.NonNull;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
-import android.util.Log;
+import android.util.Slog;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -90,7 +90,7 @@ public abstract class HalServiceBase {
      * Handles errors and pass error codes  when setting properties.
      */
     public void onPropertySetError(int property, int area, int errorCode) {
-        Log.d(MY_TAG, getClass().getSimpleName() + ".onPropertySetError(): property=" + property
+        Slog.d(MY_TAG, getClass().getSimpleName() + ".onPropertySetError(): property=" + property
                 + ", area=" + area + " , errorCode = " + errorCode);
     }
 

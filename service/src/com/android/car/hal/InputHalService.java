@@ -33,7 +33,7 @@ import android.hardware.automotive.vehicle.V2_0.VehicleHwKeyInputAction;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.os.SystemClock;
-import android.util.Log;
+import android.util.Slog;
 import android.util.SparseArray;
 import android.view.Display;
 import android.view.InputDevice;
@@ -126,7 +126,7 @@ public class InputHalService extends HalServiceBase {
         boolean customInputSupported;
         synchronized (mLock) {
             if (!mKeyInputSupported && !mRotaryInputSupported && !mCustomInputSupported) {
-                Log.w(CarLog.TAG_INPUT,
+                Slog.w(CarLog.TAG_INPUT,
                         "input listener set while rotary and key input not supported");
                 return;
             }
@@ -216,7 +216,7 @@ public class InputHalService extends HalServiceBase {
             listener = mListener;
         }
         if (listener == null) {
-            Log.w(CarLog.TAG_INPUT, "Input event while listener is null");
+            Slog.w(CarLog.TAG_INPUT, "Input event while listener is null");
             return;
         }
         for (VehiclePropValue value : values) {
@@ -231,7 +231,7 @@ public class InputHalService extends HalServiceBase {
                     dispatchCustomInput(listener, value);
                     break;
                 default:
-                    Log.e(CarLog.TAG_INPUT,
+                    Slog.e(CarLog.TAG_INPUT,
                             "Wrong event dispatched, prop:0x" + Integer.toHexString(value.prop));
                     break;
             }
@@ -246,7 +246,7 @@ public class InputHalService extends HalServiceBase {
         int vehicleDisplay = value.value.int32Values.get(2);
         int indentsCount = value.value.int32Values.size() < 4 ? 1 : value.value.int32Values.get(3);
         if (DBG) {
-            Log.i(CarLog.TAG_INPUT, new StringBuilder()
+            Slog.i(CarLog.TAG_INPUT, new StringBuilder()
                     .append("hal event code:").append(code)
                     .append(", action:").append(action)
                     .append(", display: ").append(vehicleDisplay)
@@ -262,7 +262,7 @@ public class InputHalService extends HalServiceBase {
     private void dispatchRotaryInput(InputListener listener, VehiclePropValue value) {
         int timeValuesIndex = 3;  // remaining values are time deltas in nanoseconds
         if (value.value.int32Values.size() < timeValuesIndex) {
-            Log.e(CarLog.TAG_INPUT, "Wrong int32 array size for RotaryInput from vhal:"
+            Slog.e(CarLog.TAG_INPUT, "Wrong int32 array size for RotaryInput from vhal:"
                     + value.value.int32Values.size());
             return;
         }
@@ -271,7 +271,7 @@ public class InputHalService extends HalServiceBase {
         int vehicleDisplay = value.value.int32Values.get(2);
         long timestamp = value.timestamp;  // for first detent, uptime nanoseconds
         if (DBG) {
-            Log.i(CarLog.TAG_INPUT, new StringBuilder()
+            Slog.i(CarLog.TAG_INPUT, new StringBuilder()
                     .append("hal rotary input type: ").append(rotaryInputType)
                     .append(", number of detents:").append(detentCount)
                     .append(", display: ").append(vehicleDisplay)
@@ -280,17 +280,17 @@ public class InputHalService extends HalServiceBase {
         boolean clockwise = detentCount > 0;
         detentCount = Math.abs(detentCount);
         if (detentCount == 0) { // at least there should be one event
-            Log.e(CarLog.TAG_INPUT, "Zero detentCount from vhal, ignore the event");
+            Slog.e(CarLog.TAG_INPUT, "Zero detentCount from vhal, ignore the event");
             return;
         }
         if (vehicleDisplay != VehicleDisplay.MAIN
                 && vehicleDisplay != VehicleDisplay.INSTRUMENT_CLUSTER) {
-            Log.e(CarLog.TAG_INPUT, "Wrong display type for RotaryInput from vhal:"
+            Slog.e(CarLog.TAG_INPUT, "Wrong display type for RotaryInput from vhal:"
                     + vehicleDisplay);
             return;
         }
         if (value.value.int32Values.size() != (timeValuesIndex + detentCount - 1)) {
-            Log.e(CarLog.TAG_INPUT, "Wrong int32 array size for RotaryInput from vhal:"
+            Slog.e(CarLog.TAG_INPUT, "Wrong int32 array size for RotaryInput from vhal:"
                     + value.value.int32Values.size());
             return;
         }
@@ -303,7 +303,7 @@ public class InputHalService extends HalServiceBase {
                 carInputManagerType = CarInputManager.INPUT_TYPE_ROTARY_VOLUME;
                 break;
             default:
-                Log.e(CarLog.TAG_INPUT, "Unknown rotary input type: " + rotaryInputType);
+                Slog.e(CarLog.TAG_INPUT, "Unknown rotary input type: " + rotaryInputType);
                 return;
         }
 
@@ -390,7 +390,7 @@ public class InputHalService extends HalServiceBase {
 
     private void dispatchCustomInput(InputListener listener, VehiclePropValue value) {
         if (DBG) {
-            Log.d(CarLog.TAG_INPUT, "Dispatching CustomInputEvent for listener="
+            Slog.d(CarLog.TAG_INPUT, "Dispatching CustomInputEvent for listener="
                     + listener + " and value=" + value);
         }
         int inputCode = value.value.int32Values.get(0);
@@ -398,7 +398,7 @@ public class InputHalService extends HalServiceBase {
         int repeatCounter = value.value.int32Values.get(2);
 
         if (inputCode < CUSTOM_EVENT_F1 || inputCode > CUSTOM_EVENT_F10) {
-            Log.e(CarLog.TAG_INPUT, "Unknown custom input code: " + inputCode);
+            Slog.e(CarLog.TAG_INPUT, "Unknown custom input code: " + inputCode);
             return;
         }
         CustomInputEvent event = new CustomInputEvent(inputCode, targetDisplayType, repeatCounter);

@@ -37,7 +37,7 @@ import java.util.concurrent.CompletableFuture;
  * Main controller for GarageMode. It controls all the flows of GarageMode and defines the logic.
  */
 public class Controller implements CarPowerStateListenerWithCompletion {
-    private static final Logger LOG = new Logger("Controller");
+    private static final Slogger LOG = new Slogger("Controller");
 
     @VisibleForTesting final WakeupPolicy mWakeupPolicy;
     private final GarageMode mGarageMode;

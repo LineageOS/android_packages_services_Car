@@ -43,6 +43,7 @@ import android.os.UserHandle;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Slog;
 import android.view.KeyEvent;
 
 import com.android.car.AppFocusService;
@@ -114,14 +115,14 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
             IInstrumentClusterNavigation navigationBinder = getNavigationBinder(
                     /* retryOnFail= */ false);
             if (navigationBinder == null) {
-                Log.e(TAG, "onNavigationStateChanged failed, renderer not ready, Bundle:"
+                Slog.e(TAG, "onNavigationStateChanged failed, renderer not ready, Bundle:"
                         + bundle);
                 return;
             }
             try {
                 navigationBinder.onNavigationStateChanged(bundle);
             } catch (RemoteException e) {
-                Log.e(TAG, "onNavigationStateChanged failed, bundle:" + bundle, e);
+                Slog.e(TAG, "onNavigationStateChanged failed, bundle:" + bundle, e);
             }
         }
 
@@ -139,7 +140,7 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
                 try {
                     return navigationBinder.getInstrumentClusterInfo();
                 } catch (RemoteException e) {
-                    Log.e(TAG, "getInstrumentClusterInfo failed", e);
+                    Slog.e(TAG, "getInstrumentClusterInfo failed", e);
                 }
             }
             throw new IllegalStateException("cannot access renderer service");
@@ -154,7 +155,7 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
         @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "onServiceConnected, name: " + name + ", binder: " + binder);
+                Slog.d(TAG, "onServiceConnected, name: " + name + ", binder: " + binder);
             }
             IInstrumentCluster service = IInstrumentCluster.Stub.asInterface(binder);
             ContextOwner navContextOwner;
@@ -171,7 +172,7 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
         @Override
         public void onServiceDisconnected(ComponentName name) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "onServiceDisconnected, name: " + name);
+                Slog.d(TAG, "onServiceDisconnected, name: " + name);
             }
             mContext.unbindService(this);
             synchronized (mLock) {
@@ -221,7 +222,7 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
             try {
                 mLock.wait(RENDERER_SERVICE_WAIT_TIMEOUT_MS);
             } catch (InterruptedException e) {
-                Log.d(TAG, "waitForRenderer, interrupted", e);
+                Slog.d(TAG, "waitForRenderer, interrupted", e);
                 Thread.currentThread().interrupt();
             }
         }
@@ -247,7 +248,7 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
                 navigationBinder = renderer.getNavigationService();
                 break;
             } catch (RemoteException e) {
-                Log.e(TAG, "RemoteException from renderer", e);
+                Slog.e(TAG, "RemoteException from renderer", e);
                 renderer = null;
             }
         }
@@ -263,7 +264,7 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
     @Override
     public void init() {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "init");
+            Slog.d(TAG, "init");
         }
 
         mAppFocusService.registerContextOwnerChangedCallback(this /* FocusOwnershipCallback */);
@@ -287,7 +288,7 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
     @Override
     public void release() {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "release");
+            Slog.d(TAG, "release");
         }
 
         mAppFocusService.unregisterContextOwnerChangedCallback(this);
@@ -352,7 +353,7 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
                     || (!acquire && !Objects.equals(mNavContextOwner, requester))) {
                 // Nothing to do here. Either the same owner is acquiring twice, or someone is
                 // abandoning a focus they didn't have.
-                Log.w(TAG, "Invalid nav context owner change (acquiring: " + acquire
+                Slog.w(TAG, "Invalid nav context owner change (acquiring: " + acquire
                         + "), current owner: [" + mNavContextOwner
                         + "], requester: [" + requester + "]");
                 return;
@@ -372,19 +373,19 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
         try {
             service.setNavigationContextOwner(owner.uid, owner.pid);
         } catch (RemoteException e) {
-            Log.e(TAG, "Failed to call setNavigationContextOwner", e);
+            Slog.e(TAG, "Failed to call setNavigationContextOwner", e);
         }
     }
 
     private boolean isRendererServiceEnabled() {
         if (TextUtils.isEmpty(mRenderingServiceConfig)) {
-            Log.d(TAG, "Instrument cluster renderer was not configured");
+            Slog.d(TAG, "Instrument cluster renderer was not configured");
             return false;
         }
         boolean explicitlyDisabled = "true".equals(Settings.Global
                 .getString(mContext.getContentResolver(), DISABLE_INSTRUMENTATION_SERVICE));
         if (explicitlyDisabled) {
-            Log.i(TAG, "Instrument cluster renderer explicitly disabled by settings");
+            Slog.i(TAG, "Instrument cluster renderer explicitly disabled by settings");
             return false;
         }
         return true;
@@ -395,7 +396,7 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
             return false;
         }
 
-        Log.d(TAG, "bindInstrumentClusterRendererService, component: " + mRenderingServiceConfig);
+        Slog.d(TAG, "bindInstrumentClusterRendererService, component: " + mRenderingServiceConfig);
 
         Intent intent = new Intent();
         intent.setComponent(ComponentName.unflattenFromString(mRenderingServiceConfig));
@@ -428,7 +429,7 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
     @Override
     public void onKeyEvent(KeyEvent event) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "InstrumentClusterService#onKeyEvent: " + event);
+            Slog.d(TAG, "InstrumentClusterService#onKeyEvent: " + event);
         }
 
         IInstrumentCluster service = getInstrumentClusterRendererService();
@@ -436,7 +437,7 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
             try {
                 service.onKeyEvent(event);
             } catch (RemoteException e) {
-                Log.e(TAG, "onKeyEvent", e);
+                Slog.e(TAG, "onKeyEvent", e);
             }
         }
     }
@@ -514,7 +515,7 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
         public void rebind() {
             InstrumentClusterService service = mService.get();
             if (service == null) {
-                Log.i(TAG, "rebind null service");
+                Slog.i(TAG, "rebind null service");
                 return;
             }
             service.mRendererBound = service.bindInstrumentClusterRendererService();
@@ -530,20 +531,20 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
         public void handleMessage(Message msg) {
             InstrumentClusterService service = mService.get();
             if (service == null) {
-                Log.i(TAG, "handleMessage null service");
+                Slog.i(TAG, "handleMessage null service");
                 return;
             }
             service.mRendererBound = service.bindInstrumentClusterRendererService();
 
             if (service.mRendererBound) {
-                Log.w(TAG, "Failed to bound to render service, next attempt in "
+                Slog.w(TAG, "Failed to bound to render service, next attempt in "
                         + NEXT_REBIND_ATTEMPT_DELAY_MS + "ms.");
 
                 int attempts = msg.arg1;
                 if (--attempts >= 0) {
                     sendMessageDelayed(obtainMessage(0, attempts, 0), NEXT_REBIND_ATTEMPT_DELAY_MS);
                 } else {
-                    Log.wtf(TAG, "Failed to rebind with cluster rendering service");
+                    Slog.wtf(TAG, "Failed to rebind with cluster rendering service");
                 }
             }
         }
