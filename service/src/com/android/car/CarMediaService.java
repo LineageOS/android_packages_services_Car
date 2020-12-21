@@ -415,7 +415,8 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
                                 mActiveUserMediaController));
             }
             writer.println("\tNumber of active media sessions: " + mMediaSessionManager
-                    .getActiveSessionsForUser(null, ActivityManager.getCurrentUser()).size());
+                    .getActiveSessionsForUser(null,
+                            new UserHandle(ActivityManager.getCurrentUser())).size());
 
             writer.println("\tPlayback media source history: ");
             for (ComponentName name : getLastMediaSources(MEDIA_SOURCE_MODE_PLAYBACK)) {
@@ -536,10 +537,11 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
             mMediaSessionManager.removeOnActiveSessionsChangedListener(mSessionsListener);
         }
         mSessionsListener = new SessionChangedListener(ActivityManager.getCurrentUser());
+        UserHandle currentUserHandle = new UserHandle(ActivityManager.getCurrentUser());
         mMediaSessionManager.addOnActiveSessionsChangedListener(mSessionsListener, null,
-                ActivityManager.getCurrentUser(), null);
-        mMediaSessionUpdater.registerCallbacks(mMediaSessionManager.getActiveSessionsForUser(
-                null, ActivityManager.getCurrentUser()));
+                currentUserHandle, null);
+        mMediaSessionUpdater.registerCallbacks(mMediaSessionManager.getActiveSessionsForUser(null,
+                currentUserHandle));
     }
 
     /**
@@ -727,7 +729,8 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         synchronized (mLock) {
             mCurrentPlaybackState = PlaybackState.STATE_NONE;
             updateActiveMediaControllerLocked(mMediaSessionManager
-                    .getActiveSessionsForUser(null, ActivityManager.getCurrentUser()));
+                    .getActiveSessionsForUser(null,
+                            new UserHandle(ActivityManager.getCurrentUser())));
         }
     }
 
