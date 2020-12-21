@@ -26,6 +26,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.util.Log;
+import android.util.Slog;
 
 import java.io.PrintWriter;
 import java.util.Objects;
@@ -70,13 +71,13 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper {
     @Override
     public void registerFocusListener(HalFocusListener focusListener) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Registering focus listener on AudioControl HAL");
+            Slog.d(TAG, "Registering focus listener on AudioControl HAL");
         }
         IFocusListener listenerWrapper = new FocusListenerWrapper(focusListener);
         try {
             mAudioControl.registerFocusListener(listenerWrapper);
         } catch (RemoteException e) {
-            Log.e(TAG, "Failed to register focus listener");
+            Slog.e(TAG, "Failed to register focus listener");
             throw new IllegalStateException("IAudioControl#registerFocusListener failed", e);
         }
         mListenerRegistered = true;
@@ -85,7 +86,7 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper {
     @Override
     public void onAudioFocusChange(@AttributeUsage int usage, int zoneId, int focusChange) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "onAudioFocusChange: usage " + AudioAttributes.usageToString(usage)
+            Slog.d(TAG, "onAudioFocusChange: usage " + AudioAttributes.usageToString(usage)
                     + ", zoneId " + zoneId + ", focusChange " + focusChange);
         }
         try {
@@ -107,7 +108,7 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper {
         try {
             mAudioControl.setFadeTowardFront(value);
         } catch (RemoteException e) {
-            Log.e(TAG, "setFadeTowardFront with " + value + " failed", e);
+            Slog.e(TAG, "setFadeTowardFront with " + value + " failed", e);
         }
     }
 
@@ -116,7 +117,7 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper {
         try {
             mAudioControl.setBalanceTowardRight(value);
         } catch (RemoteException e) {
-            Log.e(TAG, "setBalanceTowardRight with " + value + " failed", e);
+            Slog.e(TAG, "setBalanceTowardRight with " + value + " failed", e);
         }
     }
 
@@ -137,7 +138,7 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper {
     }
 
     private void binderDied() {
-        Log.w(TAG, "AudioControl HAL died. Fetching new handle");
+        Slog.w(TAG, "AudioControl HAL died. Fetching new handle");
         mListenerRegistered = false;
         mBinder = AudioControlWrapperAidl.getService();
         mAudioControl = IAudioControl.Stub.asInterface(mBinder);
