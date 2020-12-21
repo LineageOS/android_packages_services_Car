@@ -1750,7 +1750,7 @@
     <string name="lock_settings_title" msgid="233657584969886812">"Enhedssikkerhed"</string>
     <string name="lockpattern_change_lock_pattern_label" msgid="333149762562581510">"Skift oplåsningsmønster"</string>
     <string name="lockpattern_change_lock_pin_label" msgid="3435796032210265723">"Skift pinkode til oplåsning"</string>
-    <string name="lockpattern_recording_intro_header" msgid="2262005028838969839">"Tegn et oplåsningsmønster"</string>
+    <string name="lockpattern_recording_intro_header" msgid="2262005028838969839">"Tegn et mønster til at låse op"</string>
     <string name="lockpattern_recording_intro_footer" msgid="5426745740754065099">"Tryk på Menu for at få hjælp."</string>
     <string name="lockpattern_recording_inprogress" msgid="4060818382176523671">"Slip, når du er færdig"</string>
     <string name="lockpattern_recording_incorrect_too_short" msgid="6374760294545431845">"Forbind mindst <xliff:g id="NUMBER">%d</xliff:g> punkter. Prøv igen."</string>
