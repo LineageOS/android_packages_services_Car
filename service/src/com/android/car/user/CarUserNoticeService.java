@@ -47,6 +47,7 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.Log;
+import android.util.Slog;
 import android.view.IWindowManager;
 import android.view.WindowManagerGlobal;
 
@@ -111,7 +112,7 @@ public final class CarUserNoticeService implements CarServiceBase {
 
     private final UserLifecycleListener mUserLifecycleListener = event -> {
         if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
-            Log.d(TAG_USER, "onEvent(" + event + ")");
+            Slog.d(TAG_USER, "onEvent(" + event + ")");
         }
         if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING == event.getEventType()) {
             CarUserNoticeService.this.mMainHandler.post(() -> {
@@ -143,17 +144,17 @@ public final class CarUserNoticeService implements CarServiceBase {
             // Runs in main thread, so do not use Handler.
             if (Intent.ACTION_SCREEN_OFF.equals(intent.getAction())) {
                 if (isDisplayOn()) {
-                    Log.i(TAG_USER, "SCREEN_OFF while display is already on");
+                    Slog.i(TAG_USER, "SCREEN_OFF while display is already on");
                     return;
                 }
-                Log.i(TAG_USER, "Display off, stopping UI");
+                Slog.i(TAG_USER, "Display off, stopping UI");
                 stopUi(/* clearUiShown= */ true);
             } else if (Intent.ACTION_SCREEN_ON.equals(intent.getAction())) {
                 if (!isDisplayOn()) {
-                    Log.i(TAG_USER, "SCREEN_ON while display is already off");
+                    Slog.i(TAG_USER, "SCREEN_ON while display is already off");
                     return;
                 }
-                Log.i(TAG_USER, "Display on, starting UI");
+                Slog.i(TAG_USER, "Display on, starting UI");
                 startNoticeUiIfNecessary();
             }
         }
@@ -179,7 +180,7 @@ public final class CarUserNoticeService implements CarServiceBase {
             try {
                 binder.setCallbackBinder(mIUserNotice);
             } catch (RemoteException e) {
-                Log.w(TAG_USER, "UserNoticeUI Service died", e);
+                Slog.w(TAG_USER, "UserNoticeUI Service died", e);
                 // Wait for reconnect
                 binder = null;
             }
@@ -240,7 +241,7 @@ public final class CarUserNoticeService implements CarServiceBase {
             try {
                 locked = wm.isKeyguardLocked();
             } catch (RemoteException e) {
-                Log.w(TAG_USER, "system server crashed", e);
+                Slog.w(TAG_USER, "system server crashed", e);
             }
         }
         if (locked) {
@@ -266,7 +267,7 @@ public final class CarUserNoticeService implements CarServiceBase {
     private boolean grantSystemAlertWindowPermission(@UserIdInt int userId) {
         AppOpsManager appOpsManager = mContext.getSystemService(AppOpsManager.class);
         if (appOpsManager == null) {
-            Log.w(TAG_USER, "AppOpsManager not ready yet");
+            Slog.w(TAG_USER, "AppOpsManager not ready yet");
             return false;
         }
         String packageName = mServiceIntent.getComponent().getPackageName();
@@ -274,13 +275,13 @@ public final class CarUserNoticeService implements CarServiceBase {
         try {
             packageUid = mContext.getPackageManager().getPackageUidAsUser(packageName, userId);
         } catch (PackageManager.NameNotFoundException e) {
-            Log.wtf(TAG_USER, "Target package for config_userNoticeUiService not found:"
+            Slog.wtf(TAG_USER, "Target package for config_userNoticeUiService not found:"
                     + packageName + " userId:" + userId);
             return false;
         }
         appOpsManager.setMode(AppOpsManager.OP_SYSTEM_ALERT_WINDOW, packageUid, packageName,
                 AppOpsManager.MODE_ALLOWED);
-        Log.i(TAG_USER, "Granted SYSTEM_ALERT_WINDOW permission to package:" + packageName
+        Slog.i(TAG_USER, "Granted SYSTEM_ALERT_WINDOW permission to package:" + packageName
                 + " package uid:" + packageUid);
         return true;
     }
@@ -327,13 +328,13 @@ public final class CarUserNoticeService implements CarServiceBase {
         boolean bound = mContext.bindServiceAsUser(mServiceIntent, mUiServiceConnection,
                 Context.BIND_AUTO_CREATE, UserHandle.of(userId));
         if (bound) {
-            Log.i(TAG_USER, "Bound UserNoticeUI Service Service:" + mServiceIntent);
+            Slog.i(TAG_USER, "Bound UserNoticeUI Service Service:" + mServiceIntent);
             synchronized (mLock) {
                 mServiceBound = true;
                 mUiShown = true;
             }
         } else {
-            Log.w(TAG_USER, "Cannot bind to UserNoticeUI Service Service" + mServiceIntent);
+            Slog.w(TAG_USER, "Cannot bind to UserNoticeUI Service Service" + mServiceIntent);
         }
     }
 
@@ -349,7 +350,7 @@ public final class CarUserNoticeService implements CarServiceBase {
             }
         }
         if (serviceBound) {
-            Log.i(TAG_USER, "Unbound UserNoticeUI Service");
+            Slog.i(TAG_USER, "Unbound UserNoticeUI Service");
             mContext.unbindService(mUiServiceConnection);
         }
     }

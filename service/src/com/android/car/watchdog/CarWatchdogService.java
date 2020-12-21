@@ -45,7 +45,7 @@ import android.os.Looper;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
-import android.util.Log;
+import android.util.Slog;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
@@ -132,7 +132,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         mCarWatchdogDaemonHelper.addOnConnectionChangeListener(mConnectionListener);
         mCarWatchdogDaemonHelper.connect();
         if (DEBUG) {
-            Log.d(TAG, "CarWatchdogService is initialized");
+            Slog.d(TAG, "CarWatchdogService is initialized");
         }
     }
 
@@ -180,7 +180,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     public void registerClient(ICarWatchdogServiceCallback client, int timeout) {
         ArrayList<ClientInfo> clients = mClientMap.get(timeout);
         if (clients == null) {
-            Log.w(TAG, "Cannot register the client: invalid timeout");
+            Slog.w(TAG, "Cannot register the client: invalid timeout");
             return;
         }
         synchronized (mLock) {
@@ -188,7 +188,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             for (int i = 0; i < clients.size(); i++) {
                 ClientInfo clientInfo = clients.get(i);
                 if (binder == clientInfo.client.asBinder()) {
-                    Log.w(TAG,
+                    Slog.w(TAG,
                             "Cannot register the client: the client(pid:" + clientInfo.pid
                             + ") has been already registered");
                     return;
@@ -200,12 +200,12 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             try {
                 clientInfo.linkToDeath();
             } catch (RemoteException e) {
-                Log.w(TAG, "Cannot register the client: linkToDeath to the client failed");
+                Slog.w(TAG, "Cannot register the client: linkToDeath to the client failed");
                 return;
             }
             clients.add(clientInfo);
             if (DEBUG) {
-                Log.d(TAG, "Client(pid: " + pid + ") is registered");
+                Slog.d(TAG, "Client(pid: " + pid + ") is registered");
             }
         }
     }
@@ -228,13 +228,13 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                     clientInfo.unlinkToDeath();
                     clients.remove(i);
                     if (DEBUG) {
-                        Log.d(TAG, "Client(pid: " + clientInfo.pid + ") is unregistered");
+                        Slog.d(TAG, "Client(pid: " + clientInfo.pid + ") is unregistered");
                     }
                     return;
                 }
             }
         }
-        Log.w(TAG, "Cannot unregister the client: the client has not been registered before");
+        Slog.w(TAG, "Cannot unregister the client: the client has not been registered before");
         return;
     }
 
@@ -270,10 +270,10 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         try {
             mCarWatchdogDaemonHelper.registerCarWatchdogService(mWatchdogServiceForSystem);
             if (DEBUG) {
-                Log.d(TAG, "CarWatchdogService registers to car watchdog daemon");
+                Slog.d(TAG, "CarWatchdogService registers to car watchdog daemon");
             }
         } catch (RemoteException | RuntimeException e) {
-            Log.w(TAG, "Cannot register to car watchdog daemon: " + e);
+            Slog.w(TAG, "Cannot register to car watchdog daemon: " + e);
         }
         UserManager userManager = UserManager.get(mContext);
         List<UserInfo> users = userManager.getUsers();
@@ -291,7 +291,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 }
             }
         } catch (RemoteException | RuntimeException e) {
-            Log.w(TAG, "Notifying system state change failed: " + e);
+            Slog.w(TAG, "Notifying system state change failed: " + e);
         }
     }
 
@@ -299,10 +299,10 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         try {
             mCarWatchdogDaemonHelper.unregisterCarWatchdogService(mWatchdogServiceForSystem);
             if (DEBUG) {
-                Log.d(TAG, "CarWatchdogService unregisters from car watchdog daemon");
+                Slog.d(TAG, "CarWatchdogService unregisters from car watchdog daemon");
             }
         } catch (RemoteException | RuntimeException e) {
-            Log.w(TAG, "Cannot unregister from car watchdog daemon: " + e);
+            Slog.w(TAG, "Cannot unregister from car watchdog daemon: " + e);
         }
     }
 
@@ -366,7 +366,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             try {
                 clientInfo.client.onCheckHealthStatus(clientInfo.sessionId, timeout);
             } catch (RemoteException e) {
-                Log.w(TAG, "Sending a ping message to client(pid: " +  clientInfo.pid
+                Slog.w(TAG, "Sending a ping message to client(pid: " +  clientInfo.pid
                         + ") failed: " + e);
                 synchronized (mLock) {
                     pingedClients.remove(clientInfo.sessionId);
@@ -417,7 +417,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             try {
                 clientInfo.client.onPrepareProcessTermination();
             } catch (RemoteException e) {
-                Log.w(TAG, "Notifying onPrepareProcessTermination to client(pid: " + clientInfo.pid
+                Slog.w(TAG, "Notifying onPrepareProcessTermination to client(pid: " + clientInfo.pid
                         + ") failed: " + e);
             }
         }
@@ -426,7 +426,8 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             mCarWatchdogDaemonHelper.tellCarWatchdogServiceAlive(
                     mWatchdogServiceForSystem, clientsNotResponding, sessionId);
         } catch (RemoteException | RuntimeException e) {
-            Log.w(TAG, "Cannot respond to car watchdog daemon (sessionId=" + sessionId + "): " + e);
+            Slog.w(TAG, "Cannot respond to car watchdog daemon (sessionId=" + sessionId + "): "
+                    + e);
         }
     }
 
@@ -434,7 +435,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         CarPowerManagementService powerService =
                 CarLocalServices.getService(CarPowerManagementService.class);
         if (powerService == null) {
-            Log.w(TAG, "Cannot get CarPowerManagementService");
+            Slog.w(TAG, "Cannot get CarPowerManagementService");
             return;
         }
         powerService.registerListener(new ICarPowerStateListener.Stub() {
@@ -460,11 +461,11 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                     mCarWatchdogDaemonHelper.notifySystemStateChange(StateType.POWER_CYCLE,
                             powerCycle, /* arg2= */ -1);
                     if (DEBUG) {
-                        Log.d(TAG, "Notified car watchdog daemon a power cycle("
+                        Slog.d(TAG, "Notified car watchdog daemon a power cycle("
                                 + powerCycle + ")");
                     }
                 } catch (RemoteException | RuntimeException e) {
-                    Log.w(TAG, "Notifying system state change failed: " + e);
+                    Slog.w(TAG, "Notifying system state change failed: " + e);
                 }
             }
         });
@@ -473,7 +474,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     private void subscribeUserStateChange() {
         CarUserService userService = CarLocalServices.getService(CarUserService.class);
         if (userService == null) {
-            Log.w(TAG, "Cannot get CarUserService");
+            Slog.w(TAG, "Cannot get CarUserService");
             return;
         }
         userService.addUserLifecycleListener((event) -> {
@@ -500,11 +501,11 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 mCarWatchdogDaemonHelper.notifySystemStateChange(StateType.USER_STATE, userId,
                         userState);
                 if (DEBUG) {
-                    Log.d(TAG, "Notified car watchdog daemon a user state: userId = " + userId
+                    Slog.d(TAG, "Notified car watchdog daemon a user state: userId = " + userId
                             + ", userState = " + userStateDesc);
                 }
             } catch (RemoteException | RuntimeException e) {
-                Log.w(TAG, "Notifying system state change failed: " + e);
+                Slog.w(TAG, "Notifying system state change failed: " + e);
             }
         });
     }
@@ -537,7 +538,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             case TIMEOUT_NORMAL:
                 return "normal";
             default:
-                Log.w(TAG, "Unknown timeout value");
+                Slog.w(TAG, "Unknown timeout value");
                 return "unknown";
         }
     }
@@ -551,7 +552,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             case TIMEOUT_NORMAL:
                 return 10000L;
             default:
-                Log.w(TAG, "Unknown timeout value");
+                Slog.w(TAG, "Unknown timeout value");
                 return 10000L;
         }
     }
@@ -568,7 +569,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         public void checkIfAlive(int sessionId, int timeout) {
             CarWatchdogService service = mService.get();
             if (service == null) {
-                Log.w(TAG, "CarWatchdogService is not available");
+                Slog.w(TAG, "CarWatchdogService is not available");
                 return;
             }
             service.postHealthCheckMessage(sessionId);
@@ -576,7 +577,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
         @Override
         public void prepareProcessTermination() {
-            Log.w(TAG, "CarWatchdogService is about to be killed by car watchdog daemon");
+            Slog.w(TAG, "CarWatchdogService is about to be killed by car watchdog daemon");
         }
     }
 
@@ -597,7 +598,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
         @Override
         public void binderDied() {
-            Log.w(TAG, "Client(pid: " + pid + ") died");
+            Slog.w(TAG, "Client(pid: " + pid + ") died");
             onClientDeath(client, timeout);
         }
 

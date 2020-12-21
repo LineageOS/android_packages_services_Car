@@ -84,6 +84,7 @@ import android.sysprop.CarProperties;
 import android.text.TextUtils;
 import android.util.EventLog;
 import android.util.Log;
+import android.util.Slog;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.util.TimingsTraceLog;
@@ -291,8 +292,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             @Nullable InitialUserSetter initialUserSetter,
             @Nullable UserPreCreator userPreCreator,
             @NonNull CarUxRestrictionsManagerService uxRestrictionService) {
-        if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
-            Log.d(TAG_USER, "constructed");
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Slog.d(TAG, "constructed");
         }
         mContext = context;
         mHal = hal;
@@ -314,8 +315,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     @Override
     public void init() {
-        if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
-            Log.d(TAG_USER, "init()");
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Slog.d(TAG, "init()");
         }
         mCarUxRestrictionService.registerUxRestrictionsChangeListener(
                 mCarUxRestrictionsChangeListener, Display.DEFAULT_DISPLAY);
@@ -325,8 +326,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     @Override
     public void release() {
-        if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
-            Log.d(TAG_USER, "release()");
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Slog.d(TAG, "release()");
         }
         mCarUxRestrictionService
                 .unregisterUxRestrictionsChangeListener(mCarUxRestrictionsChangeListener);
@@ -457,7 +458,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             @Override
             protected void onCompleted(UserCreationResult result, Throwable err) {
                 if (result == null) {
-                    Log.w(TAG, "createDriver(" + name + "," + admin + ") failed: " + err);
+                    Slog.w(TAG, "createDriver(" + name + "," + admin + ") failed: " + err);
                 } else {
                     if (result.getStatus() == UserCreationResult.STATUS_SUCCESSFUL) {
                         assignDefaultIcon(result.getUser());
@@ -469,7 +470,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         int flags = 0;
         if (admin) {
             if (!(mUserManager.isAdminUser() || mUserManager.isSystemUser())) {
-                Log.e(TAG_USER, "Only admin users and system user can create other admins.");
+                Slog.e(TAG, "Only admin users and system user can create other admins.");
                 sendUserCreationResultFailure(future, UserCreationResult.STATUS_INVALID_REQUEST);
                 return future;
             }
@@ -489,11 +490,11 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         Objects.requireNonNull(name, "name cannot be null");
         UserInfo driver = mUserManager.getUserInfo(driverId);
         if (driver == null) {
-            Log.w(TAG_USER, "the driver is invalid");
+            Slog.w(TAG, "the driver is invalid");
             return null;
         }
         if (driver.isGuest()) {
-            Log.w(TAG_USER, "a guest driver cannot create a passenger");
+            Slog.w(TAG, "a guest driver cannot create a passenger");
             return null;
         }
         // createPassenger doesn't use user HAL because user HAL doesn't support profile user yet.
@@ -501,7 +502,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 UserManager.USER_TYPE_PROFILE_MANAGED, /* flags */ 0, driverId);
         if (user == null) {
             // Couldn't create user, most likely because there are too many.
-            Log.w(TAG_USER, "can't create a profile for user" + driverId);
+            Slog.w(TAG, "can't create a profile for user" + driverId);
             return null;
         }
         // Passenger user should be a non-admin user.
@@ -518,13 +519,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         checkManageUsersPermission("switchDriver");
         if (UserHelperLite.isHeadlessSystemUser(driverId)) {
             // System user doesn't associate with real person, can not be switched to.
-            Log.w(TAG_USER, "switching to system user in headless system user mode is not allowed");
+            Slog.w(TAG, "switching to system user in headless system user mode is not allowed");
             sendUserSwitchResult(receiver, UserSwitchResult.STATUS_INVALID_REQUEST);
             return;
         }
         int userSwitchable = mUserManager.getUserSwitchability();
         if (userSwitchable != UserManager.SWITCHABILITY_STATUS_OK) {
-            Log.w(TAG_USER, "current process is not allowed to switch user");
+            Slog.w(TAG, "current process is not allowed to switch user");
             sendUserSwitchResult(receiver, UserSwitchResult.STATUS_INVALID_REQUEST);
             return;
         }
@@ -569,16 +570,16 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         synchronized (mLockUser) {
             try {
                 if (!mAm.startUserInBackgroundWithListener(passengerId, null)) {
-                    Log.w(TAG_USER, "could not start passenger");
+                    Slog.w(TAG, "could not start passenger");
                     return false;
                 }
             } catch (RemoteException e) {
                 // ignore
-                Log.w(TAG_USER, "error while starting passenger", e);
+                Slog.w(TAG, "error while starting passenger", e);
                 return false;
             }
             if (!assignUserToOccupantZone(passengerId, zoneId)) {
-                Log.w(TAG_USER, "could not assign passenger to zone");
+                Slog.w(TAG, "could not assign passenger to zone");
                 return false;
             }
             mLastPassengerId = passengerId;
@@ -602,17 +603,17 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         synchronized (mLockUser) {
             UserInfo passenger = mUserManager.getUserInfo(passengerId);
             if (passenger == null) {
-                Log.w(TAG_USER, "passenger " + passengerId + " doesn't exist");
+                Slog.w(TAG, "passenger " + passengerId + " doesn't exist");
                 return false;
             }
             if (mLastPassengerId != passengerId) {
-                Log.w(TAG_USER, "passenger " + passengerId + " hasn't been started");
+                Slog.w(TAG, "passenger " + passengerId + " hasn't been started");
                 return true;
             }
             if (checkCurrentDriver) {
                 int currentUser = ActivityManager.getCurrentUser();
                 if (passenger.profileGroupId != currentUser) {
-                    Log.w(TAG_USER, "passenger " + passengerId
+                    Slog.w(TAG, "passenger " + passengerId
                             + " is not a profile of the current user");
                     return false;
                 }
@@ -622,7 +623,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             // unassigned from the zone.
             stopAllTasks(passengerId);
             if (!unassignUserFromOccupantZone(passengerId)) {
-                Log.w(TAG_USER, "could not unassign user from occupant zone");
+                Slog.w(TAG, "could not unassign user from occupant zone");
                 return false;
             }
             mLastPassengerId = UserHandle.USER_NULL;
@@ -640,13 +641,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     if (info.childTaskUserIds[i] == userId) {
                         int taskId = info.childTaskIds[i];
                         if (!mAm.removeTask(taskId)) {
-                            Log.w(TAG_USER, "could not remove task " + taskId);
+                            Slog.w(TAG, "could not remove task " + taskId);
                         }
                     }
                 }
             }
         } catch (RemoteException e) {
-            Log.e(TAG_USER, "could not get stack info", e);
+            Slog.e(TAG, "could not get stack info", e);
         }
     }
 
@@ -659,13 +660,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         try {
             listener.asBinder().linkToDeath(() -> onListenerDeath(uid), 0);
         } catch (RemoteException e) {
-            Log.wtf(TAG_USER, "Cannot listen to death of " + uid);
+            Slog.wtf(TAG, "Cannot listen to death of " + uid);
         }
         mHandler.post(() -> mAppLifecycleListeners.append(uid, listener));
     }
 
     private void onListenerDeath(int uid) {
-        Log.i(TAG_USER, "Removing listeners for uid " + uid + " on binder death");
+        Slog.i(TAG, "Removing listeners for uid " + uid + " on binder death");
         mHandler.post(() -> mAppLifecycleListeners.remove(uid));
     }
 
@@ -714,7 +715,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             // This mean InitialUserSetter failed and could not fallback, so the initial user was
             // not switched (and most likely is SYSTEM_USER).
             // TODO(b/153104378): should we set it to ActivityManager.getCurrentUser() instead?
-            Log.wtf(TAG_USER, "Initial user set to null");
+            Slog.wtf(TAG, "Initial user set to null");
         }
     }
 
@@ -737,8 +738,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      *
      */
     public void onSuspend() {
-        if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
-            Log.d(TAG_USER, "onSuspend called.");
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Slog.d(TAG, "onSuspend called.");
         }
 
         if (mSwitchGuestUserBeforeSleep) {
@@ -756,8 +757,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      *
      */
     public void onResume() {
-        if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
-            Log.d(TAG_USER, "onResume called.");
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Slog.d(TAG, "onResume called.");
         }
 
         initBootUser(InitialUserInfoRequestType.RESUME);
@@ -796,7 +797,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     case InitialUserInfoResponseAction.SWITCH:
                         int userId = resp.userToSwitchOrCreate.userId;
                         if (userId <= 0) {
-                            Log.w(TAG, "invalid (or missing) user id sent by HAL: " + userId);
+                            Slog.w(TAG, "invalid (or missing) user id sent by HAL: " + userId);
                             fallbackToDefaultInitialUserBehavior(userLocales, replaceGuest);
                             break;
                         }
@@ -823,7 +824,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                         fallbackToDefaultInitialUserBehavior(userLocales, replaceGuest);
                         break;
                     default:
-                        Log.w(TAG_USER, "invalid response action on " + resp);
+                        Slog.w(TAG, "invalid response action on " + resp);
                         fallbackToDefaultInitialUserBehavior(/* user locale */ null, replaceGuest);
                         break;
 
@@ -874,7 +875,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         try {
             helper.setSafetyMode(isSafe);
         } catch (Exception e) {
-            Log.e(TAG, "Exception calling helper.setDpmSafetyMode(" + isSafe + ")", e);
+            Slog.e(TAG, "Exception calling helper.setDpmSafetyMode(" + isSafe + ")", e);
         }
     }
 
@@ -882,10 +883,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         boolean restricted = restrictions != null
                 && (restrictions.getActiveRestrictions() & UX_RESTRICTIONS_NO_SETUP)
                         == UX_RESTRICTIONS_NO_SETUP;
-        if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
-            Log.d(TAG_USER, "setUxRestrictions(" + restrictions + "): restricted=" + restricted);
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Slog.d(TAG, "setUxRestrictions(" + restrictions + "): restricted=" + restricted);
         } else {
-            Log.i(TAG_USER, "Setting UX restricted to " + restricted);
+            Slog.i(TAG, "Setting UX restricted to " + restricted);
         }
 
         ICarServiceHelper helper = null;
@@ -893,7 +894,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         synchronized (mLockUser) {
             mUxRestricted = restricted;
             if (mICarServiceHelper == null) {
-                Log.e(TAG, "onUxRestrictionsChanged(): no mICarServiceHelper");
+                Slog.e(TAG, "onUxRestrictionsChanged(): no mICarServiceHelper");
             }
             helper = mICarServiceHelper;
         }
@@ -955,8 +956,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
         int currentUser = ActivityManager.getCurrentUser();
         if (currentUser == targetUserId) {
-            if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
-                Log.d(TAG_USER, "Current user is same as requested target user: " + targetUserId);
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Slog.d(TAG, "Current user is same as requested target user: " + targetUserId);
             }
             int resultStatus = UserSwitchResult.STATUS_OK_USER_ALREADY_IN_FOREGROUND;
             sendUserSwitchResult(receiver, resultStatus);
@@ -977,16 +978,15 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 }
             } catch (RemoteException e) {
                 // ignore
-                Log.w(TAG_USER,
-                        "error while switching user " + targetUser.toFullString(), e);
+                Slog.w(TAG, "error while switching user " + targetUser.toFullString(), e);
             }
             sendUserSwitchResult(receiver, UserSwitchResult.STATUS_ANDROID_FAILURE);
             return;
         }
 
         synchronized (mLockUser) {
-            if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
-                Log.d(TAG_USER, "switchUser(" + targetUserId + "): currentuser=" + currentUser
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Slog.d(TAG, "switchUser(" + targetUserId + "): currentuser=" + currentUser
                         + ", mUserIdForUserSwitchInProcess=" + mUserIdForUserSwitchInProcess);
             }
 
@@ -996,8 +996,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             // user switch request in process for different target user, but that request is now
             // ignored.
             if (mUserIdForUserSwitchInProcess == targetUserId) {
-                if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
-                    Log.d(TAG_USER,
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Slog.d(TAG,
                             "Another user switch request in process for the requested target user: "
                                     + targetUserId);
                 }
@@ -1016,8 +1016,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         SwitchUserRequest request = createUserSwitchRequest(targetUserId, usersInfo);
 
         mHal.switchUser(request, timeoutMs, (halCallbackStatus, resp) -> {
-            if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
-                Log.d(TAG, "switch response: status="
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Slog.d(TAG, "switch response: status="
                         + UserHalHelper.halCallbackStatusToString(halCallbackStatus)
                         + ", resp=" + resp);
             }
@@ -1026,7 +1026,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
             synchronized (mLockUser) {
                 if (halCallbackStatus != HalCallback.STATUS_OK) {
-                    Log.w(TAG, "invalid callback status ("
+                    Slog.w(TAG, "invalid callback status ("
                             + UserHalHelper.halCallbackStatusToString(halCallbackStatus)
                             + ") for response " + resp);
                     sendUserSwitchResult(receiver, resultStatus);
@@ -1037,9 +1037,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 if (mUserIdForUserSwitchInProcess != targetUserId) {
                     // Another user switch request received while HAL responded. No need to process
                     // this request further
-                    if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
-                        Log.d(TAG_USER, "Another user switch received while HAL responsed. Request "
-                                + "abondoned for : " + targetUserId + ". Current user in process: "
+                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        Slog.d(TAG, "Another user switch received while HAL responsed. Request"
+                                + " abondoned for : " + targetUserId + ". Current user in process: "
                                 + mUserIdForUserSwitchInProcess);
                     }
                     resultStatus =
@@ -1064,7 +1064,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                             }
                         } catch (RemoteException e) {
                             // ignore
-                            Log.w(TAG_USER,
+                            Slog.w(TAG,
                                     "error while switching user " + targetUser.toFullString(), e);
                         }
                         break;
@@ -1074,7 +1074,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                         break;
                     default:
                         // Shouldn't happen because UserHalService validates the status
-                        Log.wtf(TAG, "Received invalid user switch status from HAL: " + resp);
+                        Slog.wtf(TAG, "Received invalid user switch status from HAL: " + resp);
                 }
 
                 if (mRequestIdForUserSwitchInProcess == 0) {
@@ -1150,7 +1150,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
 
         if (isLastAdmin) {
-            Log.w(TAG_USER,
+            Slog.w(TAG,
                     "Last admin user successfully removed or set ephemeral. User Id: " + userId);
         }
 
@@ -1173,8 +1173,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      * Should be called by {@code ICarImpl} only.
      */
     public void onUserRemoved(@NonNull UserInfo user) {
-        if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
-            Log.d(TAG_USER, "onUserRemoved: " + user.toFullString());
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Slog.d(TAG, "onUserRemoved: " + user.toFullString());
         }
         notifyHalUserRemoved(user);
     }
@@ -1183,21 +1183,21 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         if (!isUserHalSupported()) return;
 
         if (user == null) {
-            Log.wtf(TAG, "notifyHalUserRemoved() called for null user");
+            Slog.wtf(TAG, "notifyHalUserRemoved() called for null user");
             return;
         }
 
         int userId = user.id;
 
         if (userId == UserHandle.USER_NULL) {
-            Log.wtf(TAG, "notifyHalUserRemoved() called for UserHandle.USER_NULL");
+            Slog.wtf(TAG, "notifyHalUserRemoved() called for UserHandle.USER_NULL");
             return;
         }
 
         synchronized (mLockUser) {
             if (mFailedToCreateUserIds.get(userId)) {
-                if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
-                    Log.d(TAG, "notifyHalUserRemoved(): skipping " + userId);
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Slog.d(TAG, "notifyHalUserRemoved(): skipping " + userId);
                 }
                 mFailedToCreateUserIds.delete(userId);
                 return;
@@ -1223,7 +1223,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     private void sendUserSwitchUiCallback(@UserIdInt int targetUserId) {
         if (mUserSwitchUiReceiver == null) {
-            Log.w(TAG_USER, "No User switch UI receiver.");
+            Slog.w(TAG, "No User switch UI receiver.");
             return;
         }
 
@@ -1231,7 +1231,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         try {
             mUserSwitchUiReceiver.send(targetUserId, null);
         } catch (RemoteException e) {
-            Log.e(TAG_USER, "Error calling user switch UI receiver.", e);
+            Slog.e(TAG, "Error calling user switch UI receiver.", e);
         }
     }
 
@@ -1242,14 +1242,14 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     UserInfo createUserEvenWhenDisallowed(@Nullable String name, @NonNull String userType,
             @UserInfoFlag int flags) {
         if (mICarServiceHelper == null) {
-            Log.wtf(TAG, "createUserEvenWhenDisallowed(): mICarServiceHelper not set yet",
+            Slog.wtf(TAG, "createUserEvenWhenDisallowed(): mICarServiceHelper not set yet",
                     new Exception());
             return null;
         }
         try {
             return mICarServiceHelper.createUserEvenWhenDisallowed(name, userType, flags);
         } catch (RemoteException e) {
-            Log.e(TAG, "createUserEvenWhenDisallowed(" + UserHelperLite.safeName(name) + ", "
+            Slog.e(TAG, "createUserEvenWhenDisallowed(" + UserHelperLite.safeName(name) + ", "
                     + userType + ", " + UserInfo.flagsToString(flags) + ") failed", e);
             return null;
         }
@@ -1297,8 +1297,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     validCombination = false;
             }
             if (!validCombination) {
-                if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
-                    Log.d(TAG, "Invalid combination of user type(" + userType
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Slog.d(TAG, "Invalid combination of user type(" + userType
                             + ") and flags (" + UserInfo.flagsToString(flags)
                             + ") for caller with restrictions");
                 }
@@ -1310,8 +1310,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             int callingUserId = Binder.getCallingUserHandle().getIdentifier();
             UserInfo callingUser = mUserManager.getUserInfo(callingUserId);
             if (!callingUser.isAdmin() && (flags & UserInfo.FLAG_ADMIN) == UserInfo.FLAG_ADMIN) {
-                if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
-                    Log.d(TAG, "Non-admin user " + callingUserId
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Slog.d(TAG, "Non-admin user " + callingUserId
                             + " can only create non-admin users");
                 }
                 sendUserCreationResultFailure(receiver, UserCreationResult.STATUS_INVALID_REQUEST);
@@ -1324,18 +1324,18 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         try {
             newUser = mUserManager.createUser(name, userType, flags);
             if (newUser == null) {
-                Log.w(TAG, "um.createUser() returned null for user of type " + userType
+                Slog.w(TAG, "um.createUser() returned null for user of type " + userType
                         + " and flags " + UserInfo.flagsToString(flags));
                 sendUserCreationResultFailure(receiver, UserCreationResult.STATUS_ANDROID_FAILURE);
                 return;
             }
-            if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
-                Log.d(TAG, "Created user: " + newUser.toFullString());
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Slog.d(TAG, "Created user: " + newUser.toFullString());
             }
             EventLog.writeEvent(EventLogTags.CAR_USER_SVC_CREATE_USER_USER_CREATED, newUser.id,
                     UserHelperLite.safeName(newUser.name), newUser.userType, newUser.flags);
         } catch (RuntimeException e) {
-            Log.e(TAG_USER, "Error creating user of type " + userType + " and flags"
+            Slog.e(TAG, "Error creating user of type " + userType + " and flags"
                     + UserInfo.flagsToString(flags), e);
             sendUserCreationResultFailure(receiver, UserCreationResult.STATUS_ANDROID_FAILURE);
             return;
@@ -1353,20 +1353,20 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
         request.newUserInfo.userId = newUser.id;
         request.newUserInfo.flags = UserHalHelper.convertFlags(newUser);
-        if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
-            Log.d(TAG, "Create user request: " + request);
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Slog.d(TAG, "Create user request: " + request);
         }
 
         try {
             mHal.createUser(request, timeoutMs, (status, resp) -> {
                 int resultStatus = UserCreationResult.STATUS_HAL_INTERNAL_FAILURE;
-                if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
-                    Log.d(TAG, "createUserResponse: status="
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Slog.d(TAG, "createUserResponse: status="
                             + UserHalHelper.halCallbackStatusToString(status) + ", resp=" + resp);
                 }
                 UserInfo user = null; // user returned in the result
                 if (status != HalCallback.STATUS_OK) {
-                    Log.w(TAG, "invalid callback status ("
+                    Slog.w(TAG, "invalid callback status ("
                             + UserHalHelper.halCallbackStatusToString(status) + ") for response "
                             + resp);
                     EventLog.writeEvent(EventLogTags.CAR_USER_SVC_CREATE_USER_RESP, status,
@@ -1388,7 +1388,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                         break;
                     default:
                         // Shouldn't happen because UserHalService validates the status
-                        Log.wtf(TAG, "Received invalid user switch status from HAL: " + resp);
+                        Slog.wtf(TAG, "Received invalid user switch status from HAL: " + resp);
                 }
                 EventLog.writeEvent(EventLogTags.CAR_USER_SVC_CREATE_USER_RESP, status,
                         resultStatus, resp.errorMessage);
@@ -1399,14 +1399,14 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 sendUserCreationResult(receiver, resultStatus, user, resp.errorMessage);
             });
         } catch (Exception e) {
-            Log.w(TAG, "mHal.createUser(" + request + ") failed", e);
+            Slog.w(TAG, "mHal.createUser(" + request + ") failed", e);
             removeCreatedUser(newUser, "mHal.createUser() failed");
             sendUserCreationResultFailure(receiver, UserCreationResult.STATUS_HAL_INTERNAL_FAILURE);
         }
     }
 
     private void removeCreatedUser(@NonNull UserInfo user, @NonNull String reason) {
-        Log.i(TAG, "removing " + user.toFullString() + "; reason: " + reason);
+        Slog.i(TAG, "removing " + user.toFullString() + "; reason: " + reason);
 
         int userId = user.id;
         EventLog.writeEvent(EventLogTags.CAR_USER_SVC_CREATE_USER_USER_REMOVED, userId, reason);
@@ -1417,10 +1417,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
         try {
             if (!mUserManager.removeUser(userId)) {
-                Log.w(TAG, "Failed to remove user " + user.toFullString());
+                Slog.w(TAG, "Failed to remove user " + user.toFullString());
             }
         } catch (Exception e) {
-            Log.e(TAG, "Failed to remove user " + user.toFullString(), e);
+            Slog.e(TAG, "Failed to remove user " + user.toFullString(), e);
         }
     }
 
@@ -1449,7 +1449,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
         UserIdentificationResponse halResponse = mHal.getUserAssociation(request);
         if (halResponse == null) {
-            Log.w(TAG, "getUserIdentificationAssociation(): HAL returned null for "
+            Slog.w(TAG, "getUserIdentificationAssociation(): HAL returned null for "
                     + Arrays.toString(types));
             return UserIdentificationAssociationResponse.forFailure();
         }
@@ -1500,7 +1500,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
         mHal.setUserAssociation(timeoutMs, request, (status, resp) -> {
             if (status != HalCallback.STATUS_OK) {
-                Log.w(TAG, "setUserIdentificationAssociation(): invalid callback status ("
+                Slog.w(TAG, "setUserIdentificationAssociation(): invalid callback status ("
                         + UserHalHelper.halCallbackStatusToString(status) + ") for response "
                         + resp);
                 if (resp == null || TextUtils.isEmpty(resp.errorMessage)) {
@@ -1524,8 +1524,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             }
             UserIdentificationAssociationResponse response = UserIdentificationAssociationResponse
                     .forSuccess(responseTypes, resp.errorMessage);
-            if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
-                Log.d(TAG, "setUserIdentificationAssociation(): resp= " + resp
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Slog.d(TAG, "setUserIdentificationAssociation(): resp= " + resp
                         + ", converted=" + response);
             }
             result.complete(response);
@@ -1549,7 +1549,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             receiver.send(resultCode, resultData);
         } catch (RemoteException e) {
             // ignore
-            Log.w(TAG_USER, "error while sending results", e);
+            Slog.w(TAG, "error while sending results", e);
         }
     }
 
@@ -1599,7 +1599,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     public void switchAndroidUserFromHal(int requestId, @UserIdInt int targetUserId) {
         EventLog.writeEvent(EventLogTags.CAR_USER_SVC_SWITCH_USER_FROM_HAL_REQ, requestId,
                 targetUserId);
-        Log.i(TAG_USER, "User hal requested a user switch. Target user id " + targetUserId);
+        Slog.i(TAG, "User hal requested a user switch. Target user id " + targetUserId);
 
         try {
             boolean result = mAm.switchUser(targetUserId);
@@ -1610,7 +1610,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             }
         } catch (RemoteException e) {
             // ignore
-            Log.w(TAG_USER, "error while switching user " + targetUserId, e);
+            Slog.w(TAG, "error while switching user " + targetUserId, e);
         }
     }
 
@@ -1618,8 +1618,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         synchronized (mLockUser) {
             if (mUserIdForUserSwitchInProcess != UserHandle.USER_NULL) {
                 // Some other user switch is in process.
-                if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
-                    Log.d(TAG_USER, "User switch for user: " + mUserIdForUserSwitchInProcess
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Slog.d(TAG, "User switch for user: " + mUserIdForUserSwitchInProcess
                             + " is in process. Abandoning it as a new user switch is requested"
                             + " for the target user: " + targetUserId);
                 }
@@ -1710,7 +1710,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     .getString(com.android.internal.R.string.config_systemUIServiceComponent));
             return componentName.getPackageName();
         } catch (RuntimeException e) {
-            Log.w(TAG_USER, "error while getting system UI package name.", e);
+            Slog.w(TAG, "error while getting system UI package name.", e);
             return null;
         }
     }
@@ -1792,7 +1792,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     if (mBackgroundUsersToRestart.size() > (mMaxRunningUsers - 1)) {
                         int userToDrop = mBackgroundUsersToRestart.get(
                                 mBackgroundUsersToRestart.size() - 1);
-                        Log.i(TAG_USER, "New user unlocked:" + userId
+                        Slog.i(TAG, "New user unlocked:" + userId
                                 + ", dropping least recently user from restart list:" + userToDrop);
                         // Drop the least recently used user.
                         mBackgroundUsersToRestart.remove(mBackgroundUsersToRestart.size() - 1);
@@ -1801,7 +1801,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             }
         }
         if (tasks != null && tasks.size() > 0) {
-            Log.d(TAG_USER, "User0 unlocked, run queued tasks:" + tasks.size());
+            Slog.d(TAG, "User0 unlocked, run queued tasks:" + tasks.size());
             for (Runnable r : tasks) {
                 r.run();
             }
@@ -1834,7 +1834,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     } else if (mAm.unlockUser(user, null, null, null)) {
                         startedUsers.add(user);
                     } else { // started but cannot unlock
-                        Log.w(TAG_USER, "Background user started but cannot be unlocked:" + user);
+                        Slog.w(TAG, "Background user started but cannot be unlocked:" + user);
                         if (mUserManager.isUserRunning(user)) {
                             // add to started list so that it can be stopped later.
                             startedUsers.add(user);
@@ -1843,7 +1843,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 }
             } catch (RemoteException e) {
                 // ignore
-                Log.w(TAG_USER, "error while starting user in background", e);
+                Slog.w(TAG, "error while starting user in background", e);
             }
         }
         // Keep only users that were re-started in mBackgroundUsersRestartedHere
@@ -1869,7 +1869,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             return false;
         }
         if (userId == ActivityManager.getCurrentUser()) {
-            Log.i(TAG_USER, "stopBackgroundUser, already a FG user:" + userId);
+            Slog.i(TAG, "stopBackgroundUser, already a FG user:" + userId);
             return false;
         }
         try {
@@ -1882,12 +1882,12 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             } else if (r == ActivityManager.USER_OP_IS_CURRENT) {
                 return false;
             } else {
-                Log.i(TAG_USER, "stopBackgroundUser failed, user:" + userId + " err:" + r);
+                Slog.i(TAG, "stopBackgroundUser failed, user:" + userId + " err:" + r);
                 return false;
             }
         } catch (RemoteException e) {
             // ignore
-            Log.w(TAG_USER, "error while stopping user", e);
+            Slog.w(TAG, "error while stopping user", e);
         }
         return true;
     }
@@ -1919,8 +1919,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         if (mUserIdForUserSwitchInProcess == UserHandle.USER_NULL
                 || mUserIdForUserSwitchInProcess != userId
                 || mRequestIdForUserSwitchInProcess == 0) {
-            if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
-                Log.d(TAG_USER, "No user switch request Id. No android post switch sent.");
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Slog.d(TAG, "No user switch request Id. No android post switch sent.");
             }
             return;
         }
@@ -1932,17 +1932,17 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     private void handleNotifyAppUserLifecycleListeners(UserLifecycleEvent event) {
         int listenersSize = mAppLifecycleListeners.size();
         if (listenersSize == 0) {
-            if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
-                Log.d(TAG_USER, "No app listener to be notified of " + event);
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Slog.d(TAG, "No app listener to be notified of " + event);
             }
             return;
         }
         // Must use a different TimingsTraceLog because it's another thread
-        if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
-            Log.d(TAG_USER, "Notifying " + listenersSize + " app listeners of " + event);
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Slog.d(TAG, "Notifying " + listenersSize + " app listeners of " + event);
         }
         int userId = event.getUserId();
-        TimingsTraceLog t = new TimingsTraceLog(TAG_USER, Trace.TRACE_TAG_SYSTEM_SERVER);
+        TimingsTraceLog t = new TimingsTraceLog(TAG, Trace.TRACE_TAG_SYSTEM_SERVER);
         int eventType = event.getEventType();
         t.traceBegin("notify-app-listeners-user-" + userId + "-event-" + eventType);
         for (int i = 0; i < listenersSize; i++) {
@@ -1957,8 +1957,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 data.putInt(CarUserManager.BUNDLE_PARAM_PREVIOUS_USER_ID, fromUserId);
             }
 
-            if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
-                Log.d(TAG_USER, "Notifying listener for uid " + uid);
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Slog.d(TAG, "Notifying listener for uid " + uid);
             }
             EventLog.writeEvent(EventLogTags.CAR_USER_SVC_NOTIFY_APP_LIFECYCLE_LISTENER,
                     uid, eventType, fromUserId, userId);
@@ -1966,7 +1966,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 t.traceBegin("notify-app-listener-uid-" + uid);
                 listener.send(userId, data);
             } catch (RemoteException e) {
-                Log.e(TAG_USER, "Error calling lifecycle listener", e);
+                Slog.e(TAG, "Error calling lifecycle listener", e);
             } finally {
                 t.traceEnd();
             }
@@ -1975,13 +1975,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     private void handleNotifyServiceUserLifecycleListeners(UserLifecycleEvent event) {
-        TimingsTraceLog t = new TimingsTraceLog(TAG_USER, Trace.TRACE_TAG_SYSTEM_SERVER);
+        TimingsTraceLog t = new TimingsTraceLog(TAG, Trace.TRACE_TAG_SYSTEM_SERVER);
         if (mUserLifecycleListeners.isEmpty()) {
-            Log.w(TAG_USER, "Not notifying internal UserLifecycleListeners");
+            Slog.w(TAG, "Not notifying internal UserLifecycleListeners");
             return;
-        } else if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
-            Log.d(TAG_USER, "Notifying " + mUserLifecycleListeners.size() + " service listeners of "
-                    + event);
+        } else if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Slog.d(TAG, "Notifying " + mUserLifecycleListeners.size()
+                    + " service listeners of " + event);
         }
 
         int userId = event.getUserId();
@@ -1995,7 +1995,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 t.traceBegin("notify-listener-" + listenerName);
                 listener.onEvent(event);
             } catch (RuntimeException e) {
-                Log.e(TAG_USER,
+                Slog.e(TAG,
                         "Exception raised when invoking onEvent for " + listenerName, e);
             } finally {
                 t.traceEnd();
@@ -2005,8 +2005,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     private void onUserSwitching(@UserIdInt int fromUserId, @UserIdInt int toUserId) {
-        Log.i(TAG_USER, "onUserSwitching() callback for user " + toUserId);
-        TimingsTraceLog t = new TimingsTraceLog(TAG_USER, Trace.TRACE_TAG_SYSTEM_SERVER);
+        Slog.i(TAG, "onUserSwitching() callback for user " + toUserId);
+        TimingsTraceLog t = new TimingsTraceLog(TAG, Trace.TRACE_TAG_SYSTEM_SERVER);
         t.traceBegin("onUserSwitching-" + toUserId);
 
         // Switch HAL users if user switch is not requested by CarUserService
@@ -2027,8 +2027,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     private void notifyHalLegacySwitch(@UserIdInt int fromUserId, @UserIdInt int toUserId) {
         synchronized (mLockUser) {
             if (mUserIdForUserSwitchInProcess != UserHandle.USER_NULL) {
-                if (Log.isLoggable(TAG_USER, Log.DEBUG)) {
-                    Log.d(TAG, "notifyHalLegacySwitch(" + fromUserId + ", " + toUserId
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Slog.d(TAG, "notifyHalLegacySwitch(" + fromUserId + ", " + toUserId
                             + "): not needed, normal switch for " + mUserIdForUserSwitchInProcess);
                 }
                 return;
@@ -2145,19 +2145,19 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     private boolean startFirstPassenger(@UserIdInt int driverId) {
         int zoneId = getAvailablePassengerZone();
         if (zoneId == OccupantZoneInfo.INVALID_ZONE_ID) {
-            Log.w(TAG_USER, "passenger occupant zone is not found");
+            Slog.w(TAG, "passenger occupant zone is not found");
             return false;
         }
         List<UserInfo> passengers = getPassengers(driverId);
         if (passengers.size() < 1) {
-            Log.w(TAG_USER, "passenger is not found");
+            Slog.w(TAG, "passenger is not found");
             return false;
         }
         // Only one passenger is supported. If there are two or more passengers, the first passenger
         // is chosen.
         int passengerId = passengers.get(0).id;
         if (!startPassenger(passengerId, zoneId)) {
-            Log.w(TAG_USER, "cannot start passenger " + passengerId);
+            Slog.w(TAG, "cannot start passenger " + passengerId);
             return false;
         }
         return true;
@@ -2182,7 +2182,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         int currentUser = ActivityManager.getCurrentUser();
         int profileCount = getNumberOfManagedProfiles(currentUser);
         if (profileCount > 0) {
-            Log.w(TAG_USER, "max profile of user" + currentUser
+            Slog.w(TAG, "max profile of user" + currentUser
                     + " is exceeded: current profile count is " + profileCount);
             return;
         }
@@ -2190,7 +2190,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         UserInfo passenger = createPassenger("Passenger", currentUser);
         if (passenger == null) {
             // Couldn't create user, most likely because there are too many.
-            Log.w(TAG_USER, "cannot create a passenger user");
+            Slog.w(TAG, "cannot create a passenger user");
             return;
         }
     }
@@ -2200,7 +2200,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         ZoneUserBindingHelper helper = null;
         synchronized (mLockHelper) {
             if (mZoneUserBindingHelper == null) {
-                Log.w(TAG_USER, "implementation is not delegated");
+                Slog.w(TAG, "implementation is not delegated");
                 return new ArrayList<OccupantZoneInfo>();
             }
             helper = mZoneUserBindingHelper;
@@ -2212,7 +2212,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         ZoneUserBindingHelper helper = null;
         synchronized (mLockHelper) {
             if (mZoneUserBindingHelper == null) {
-                Log.w(TAG_USER, "implementation is not delegated");
+                Slog.w(TAG, "implementation is not delegated");
                 return false;
             }
             helper = mZoneUserBindingHelper;
@@ -2224,7 +2224,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         ZoneUserBindingHelper helper = null;
         synchronized (mLockHelper) {
             if (mZoneUserBindingHelper == null) {
-                Log.w(TAG_USER, "implementation is not delegated");
+                Slog.w(TAG, "implementation is not delegated");
                 return false;
             }
             helper = mZoneUserBindingHelper;
@@ -2236,7 +2236,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         ZoneUserBindingHelper helper = null;
         synchronized (mLockHelper) {
             if (mZoneUserBindingHelper == null) {
-                Log.w(TAG_USER, "implementation is not delegated");
+                Slog.w(TAG, "implementation is not delegated");
                 return false;
             }
             helper = mZoneUserBindingHelper;

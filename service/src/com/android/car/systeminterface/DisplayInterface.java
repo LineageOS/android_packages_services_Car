@@ -37,7 +37,7 @@ import android.os.SystemClock;
 import android.os.UserHandle;
 import android.provider.Settings.SettingNotFoundException;
 import android.provider.Settings.System;
-import android.util.Log;
+import android.util.Slog;
 import android.view.Display;
 import android.view.InputDevice;
 
@@ -140,7 +140,7 @@ public interface DisplayInterface {
         public void refreshDisplayBrightness() {
             synchronized (mLock) {
                 if (mService == null) {
-                    Log.e(CarLog.TAG_POWER,
+                    Slog.e(CarLog.TAG_POWER,
                             "Could not set brightness: no CarPowerManagementService");
                     return;
                 }
@@ -152,7 +152,7 @@ public interface DisplayInterface {
                             ActivityManager.getCurrentUser());
                     gamma = convertLinearToGamma(linear, mMinimumBacklight, mMaximumBacklight);
                 } catch (SettingNotFoundException e) {
-                    Log.e(CarLog.TAG_POWER, "Could not get SCREEN_BRIGHTNESS: " + e);
+                    Slog.e(CarLog.TAG_POWER, "Could not get SCREEN_BRIGHTNESS: ", e);
                 }
                 int percentBright = (gamma * 100 + ((GAMMA_SPACE_MAX + 1) / 2)) / GAMMA_SPACE_MAX;
                 mService.sendDisplayBrightness(percentBright);
@@ -222,11 +222,11 @@ public interface DisplayInterface {
             }
             if (on) {
                 mWakeLockInterface.switchToFullWakeLock();
-                Log.i(CarLog.TAG_POWER, "on display");
+                Slog.i(CarLog.TAG_POWER, "on display");
                 mPowerManager.wakeUp(SystemClock.uptimeMillis());
             } else {
                 mWakeLockInterface.switchToPartialWakeLock();
-                Log.i(CarLog.TAG_POWER, "off display");
+                Slog.i(CarLog.TAG_POWER, "off display");
                 mPowerManager.goToSleep(SystemClock.uptimeMillis());
             }
             // Turn touchscreen input devices on or off, the same as the display
