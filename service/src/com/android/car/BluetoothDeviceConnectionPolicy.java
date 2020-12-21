@@ -18,10 +18,20 @@ package com.android.car;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.car.VehicleAreaSeat;
+import android.car.VehicleAreaType;
+import android.car.VehiclePropertyIds;
+import android.car.VehicleSeatOccupancyState;
+import android.car.drivingstate.CarDrivingStateEvent;
+import android.car.hardware.CarPropertyValue;
+import android.car.hardware.property.CarPropertyEvent;
+import android.car.hardware.property.CarPropertyManager;
+import android.car.hardware.property.ICarPropertyEventListener;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.RemoteException;
 import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.Log;
@@ -30,6 +40,7 @@ import com.android.car.power.SilentModeController;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -45,6 +56,7 @@ public class BluetoothDeviceConnectionPolicy {
     private final Context mContext;
     private final BluetoothAdapter mBluetoothAdapter;
     private final CarBluetoothService mCarBluetoothService;
+    private final CarServicesHelper mCarHelper;
 
     private final SilentModeController.SilentModeListener mSilentModeListener =
             new SilentModeController.SilentModeListener() {
@@ -90,7 +102,7 @@ public class BluetoothDeviceConnectionPolicy {
             BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
             if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
                 int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
-                logd("Bluetooth Adapter state changed: " + Utils.getAdapterStateName(state));
+                logd("Bluetooth Adapter state changed: ", Utils.getAdapterStateName(state));
                 if (state == BluetoothAdapter.STATE_ON) {
                     connectDevices();
                 }
@@ -98,6 +110,128 @@ public class BluetoothDeviceConnectionPolicy {
         }
     }
     private final BluetoothBroadcastReceiver mBluetoothBroadcastReceiver;
+
+    /**
+     * A helper class to interact with the VHAL and the rest of the car.
+     */
+    private final class CarServicesHelper {
+        private final CarPropertyService mCarPropertyService;
+        private final CarDrivingStateService mCarDrivingStateService;
+
+        // Location of the driver's seat, e.g., left or right side.
+        private final int mDriverSeat;
+
+        CarServicesHelper() {
+            mCarPropertyService = CarLocalServices.getService(CarPropertyService.class);
+            if (mCarPropertyService == null) Log.w(TAG, "Cannot find CarPropertyService");
+            mDriverSeat = getDriverSeatLocationFromVhal();
+            mCarDrivingStateService = CarLocalServices.getService(CarDrivingStateService.class);
+            if (mCarDrivingStateService == null) Log.w(TAG, "Cannot find mCarDrivingStateService");
+        }
+
+        /**
+         * Set up vehicle event listeners. Remember to call {@link release()} when done.
+         */
+        public void init() {
+            if (mCarPropertyService != null) {
+                mCarPropertyService.registerListener(VehiclePropertyIds.SEAT_OCCUPANCY,
+                        CarPropertyManager.SENSOR_RATE_ONCHANGE, mSeatOnOccupiedListener);
+            }
+        }
+
+        public void release() {
+            if (mCarPropertyService != null) {
+                mCarPropertyService.unregisterListener(VehiclePropertyIds.SEAT_OCCUPANCY,
+                        mSeatOnOccupiedListener);
+            }
+        }
+
+        /**
+         * A {@code ICarPropertyEventListener} that triggers the auto-connection process when
+         * {@code SEAT_OCCUPANCY} is {@code OCCUPIED}.
+         */
+        private final ICarPropertyEventListener mSeatOnOccupiedListener =
+                new ICarPropertyEventListener.Stub() {
+                    @Override
+                    public void onEvent(List<CarPropertyEvent> events) throws RemoteException {
+                        for (CarPropertyEvent event : events) {
+                            onSeatOccupancyCarPropertyEvent(event);
+                        }
+                    }
+                };
+
+        /**
+         * Acts on {@link CarPropertyEvent} events marked with
+         * {@link CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE} and marked with {@link
+         * VehiclePropertyIds.SEAT_OCCUPANCY} by calling {@link connectDevices}.
+         * <p>
+         * Default implementation filters on driver's seat only, but can change to trigger on
+         * any front row seat, or any seat in the car.
+         * <p>
+         * Default implementation also restricts this trigger to when the car is in the
+         * parked state, to discourage drivers from exploiting to connect while driving, and to
+         * also filter out spurious seat sensor signals while driving.
+         * <p>
+         * This method does nothing if the event parameter is {@code null}.
+         *
+         * @param event - The {@link CarPropertyEvent} to be handled.
+         */
+        private void onSeatOccupancyCarPropertyEvent(CarPropertyEvent event) {
+            if ((event == null)
+                    || (event.getEventType() != CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE)) {
+                return;
+            }
+            CarPropertyValue value = event.getCarPropertyValue();
+            logd("Car property changed: ", value.toString());
+            if (mBluetoothAdapter.isEnabled()
+                    && (value.getPropertyId() == VehiclePropertyIds.SEAT_OCCUPANCY)
+                    && ((int) value.getValue() == VehicleSeatOccupancyState.OCCUPIED)
+                    && (value.getAreaId() == mDriverSeat)
+                    && isParked()) {
+                connectDevices();
+            }
+        }
+
+        /**
+         * Gets the location of the driver's seat (e.g., front-left, front-right) from the VHAL.
+         * <p>
+         * Default implementation sets the driver's seat to front-left if mCarPropertyService is
+         * not found.
+         * <p>
+         * Note, comments for {@link CarPropertyManager#getIntProperty(int, int)} indicate it may
+         * take a couple of seconds to complete, whereas there are no such comments for
+         * {@link CarPropertyService#getProperty(int, int)}, but we assume there is also similar
+         * latency in querying VHAL properties.
+         *
+         * @return An {@code int} representing driver's seat location.
+         */
+        private int getDriverSeatLocationFromVhal() {
+            if (mCarPropertyService == null) {
+                return VehicleAreaSeat.SEAT_ROW_1_LEFT;
+            }
+            return (int) mCarPropertyService.getProperty(VehiclePropertyIds.INFO_DRIVER_SEAT,
+                    VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL).getValue();
+        }
+
+        public int getDriverSeatLocation() {
+            return mDriverSeat;
+        }
+
+        /**
+         * Returns {@code true} if the car is in parked gear.
+         * <p>
+         * We are being conservative and only want to trigger when car is in parked state. Extending
+         * this conservative approach, we default return false if {@code mCarDrivingStateService}
+         * is not found.
+         */
+        public boolean isParked() {
+            if (mCarDrivingStateService == null) {
+                return false;
+            }
+            return mCarDrivingStateService.getCurrentDrivingState().eventValue
+                    == CarDrivingStateEvent.DRIVING_STATE_PARKED;
+        }
+    }
 
     /**
      * Create a new BluetoothDeviceConnectionPolicy object, responsible for encapsulating the
@@ -135,6 +269,7 @@ public class BluetoothDeviceConnectionPolicy {
         mCarBluetoothService = bluetoothService;
         mBluetoothBroadcastReceiver = new BluetoothBroadcastReceiver();
         mBluetoothAdapter = Objects.requireNonNull(BluetoothAdapter.getDefaultAdapter());
+        mCarHelper = new CarServicesHelper();
     }
 
     /**
@@ -154,6 +289,7 @@ public class BluetoothDeviceConnectionPolicy {
         } else {
             Log.w(TAG, "Cannot find SilentModeController");
         }
+        mCarHelper.init();
 
         // Since we do this only on start up and on user switch, it's safe to kick off a connect on
         // init. If we have a connect in progress, this won't hurt anything. If we already have
@@ -180,6 +316,7 @@ public class BluetoothDeviceConnectionPolicy {
         if (mBluetoothBroadcastReceiver != null) {
             mContext.unregisterReceiver(mBluetoothBroadcastReceiver);
         }
+        mCarHelper.release();
     }
 
     /**
@@ -238,9 +375,9 @@ public class BluetoothDeviceConnectionPolicy {
     /**
      * Print to debug if debug is enabled
      */
-    private static void logd(String msg) {
+    private static void logd(String... msgParts) {
         if (DBG) {
-            Log.d(TAG, msg);
+            Log.d(TAG, String.join(" ", msgParts));
         }
     }
 }
