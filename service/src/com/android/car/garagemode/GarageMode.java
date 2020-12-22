@@ -43,7 +43,7 @@ import java.util.concurrent.CompletableFuture;
  */
 
 class GarageMode {
-    private static final Logger LOG = new Logger("GarageMode");
+    private static final Slogger LOG = new Slogger("GarageMode");
 
     /**
      * When changing this field value, please update

@@ -29,7 +29,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
-import android.util.Log;
+import android.util.Slog;
 
 import com.android.car.CarLog;
 import com.android.internal.annotations.VisibleForTesting;
@@ -99,7 +99,7 @@ final class HalClient {
             try {
                 return mVehicle.set(propValue);
             } catch (RemoteException e) {
-                Log.e(TAG, getValueErrorMessage("set", propValue), e);
+                Slog.e(TAG, getValueErrorMessage("set", propValue), e);
                 return StatusCode.TRY_AGAIN;
             }
         }, mWaitCapMs, mSleepMs);
@@ -109,7 +109,7 @@ final class HalClient {
         }
 
         if (StatusCode.OK != status) {
-            Log.e(TAG, getPropertyErrorMessage("set", propValue, status));
+            Slog.e(TAG, getPropertyErrorMessage("set", propValue, status));
             throw new ServiceSpecificException(status,
                     "Failed to set property: 0x" + Integer.toHexString(propValue.prop)
                             + " in areaId: 0x" + Integer.toHexString(propValue.areaId));
@@ -145,7 +145,7 @@ final class HalClient {
             if (StatusCode.OK == status) {
                 status = StatusCode.NOT_AVAILABLE;
             }
-            Log.e(TAG, getPropertyErrorMessage("get", requestedPropValue, status));
+            Slog.e(TAG, getPropertyErrorMessage("get", requestedPropValue, status));
             throw new ServiceSpecificException(status,
                     "Failed to get property: 0x" + Integer.toHexString(requestedPropValue.prop)
                             + " in areaId: 0x" + Integer.toHexString(requestedPropValue.areaId));
@@ -163,7 +163,7 @@ final class HalClient {
                         result.propValue = propValue;
                     });
         } catch (RemoteException e) {
-            Log.e(TAG, getValueErrorMessage("get", requestedPropValue), e);
+            Slog.e(TAG, getValueErrorMessage("get", requestedPropValue), e);
             result.status = StatusCode.TRY_AGAIN;
         }
 
@@ -180,21 +180,21 @@ final class HalClient {
         long startTime = elapsedRealtime();
         while (StatusCode.TRY_AGAIN == status && (elapsedRealtime() - startTime) < timeoutMs) {
             if (DEBUG) {
-                Log.d(TAG, "Status before sleeping " + sleepMs + "ms: "
+                Slog.d(TAG, "Status before sleeping " + sleepMs + "ms: "
                         + StatusCode.toString(status));
             }
             try {
                 Thread.sleep(sleepMs);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                Log.e(TAG, "Thread was interrupted while waiting for vehicle HAL.", e);
+                Slog.e(TAG, "Thread was interrupted while waiting for vehicle HAL.", e);
                 break;
             }
 
             status = callback.action();
-            if (DEBUG) Log.d(TAG, "Status after waking up: " + StatusCode.toString(status));
+            if (DEBUG) Slog.d(TAG, "Status after waking up: " + StatusCode.toString(status));
         }
-        if (DEBUG) Log.d(TAG, "Returning status: " + StatusCode.toString(status));
+        if (DEBUG) Slog.d(TAG, "Returning status: " + StatusCode.toString(status));
         return status;
     }
 
@@ -235,7 +235,7 @@ final class HalClient {
         public void handleMessage(Message msg) {
             IVehicleCallback callback = mCallback.get();
             if (callback == null) {
-                Log.i(TAG, "handleMessage null callback");
+                Slog.i(TAG, "handleMessage null callback");
                 return;
             }
 
@@ -252,10 +252,10 @@ final class HalClient {
                         callback.onPropertySetError(obj.errorCode, obj.propId, obj.areaId);
                         break;
                     default:
-                        Log.e(TAG, "Unexpected message: " + msg.what);
+                        Slog.e(TAG, "Unexpected message: " + msg.what);
                 }
             } catch (RemoteException e) {
-                Log.e(TAG, "Message failed: " + msg.what);
+                Slog.e(TAG, "Message failed: " + msg.what);
             }
         }
     }

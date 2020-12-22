@@ -29,7 +29,7 @@ import java.io.PrintWriter;
  * Garage Mode enables idle time in cars.
  */
 public class GarageModeService implements CarServiceBase {
-    private static final Logger LOG = new Logger("Service");
+    private static final Slogger LOG = new Slogger("Service");
 
     private final Context mContext;
     private final Controller mController;

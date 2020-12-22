@@ -28,7 +28,7 @@ import android.car.user.UserRemovalResult;
 import android.content.pm.UserInfo;
 import android.os.UserManager;
 import android.sysprop.CarProperties;
-import android.util.Log;
+import android.util.Slog;
 
 import com.android.car.CarServiceBase;
 import com.android.car.internal.common.UserHelperLite;
@@ -67,12 +67,12 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
 
     @Override
     public void init() {
-        if (DEBUG) Log.d(TAG, "init()");
+        if (DEBUG) Slog.d(TAG, "init()");
     }
 
     @Override
     public void release() {
-        if (DEBUG) Log.d(TAG, "release()");
+        if (DEBUG) Slog.d(TAG, "release()");
     }
 
     @Override
@@ -96,7 +96,7 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
                 break;
             default:
                 if (DEBUG) {
-                    Log.d(TAG, "createUser(): invalid userType (" + userType + ") / flags ("
+                    Slog.d(TAG, "createUser(): invalid userType (" + userType + ") / flags ("
                             + userInfoFlags + ") combination");
                 }
                 return new UserCreationResult(UserCreationResult.STATUS_INVALID_REQUEST);
@@ -105,8 +105,8 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
         AndroidFuture<UserCreationResult> receiver = new AndroidFuture<>();
 
         if (DEBUG) {
-            Log.d(TAG, "calling createUser(" + UserHelperLite.safeName(name) + "," + userType + ", "
-                    + userInfoFlags + ", " + HAL_TIMEOUT_MS + ")");
+            Slog.d(TAG, "calling createUser(" + UserHelperLite.safeName(name) + "," + userType
+                    + ", " + userInfoFlags + ", " + HAL_TIMEOUT_MS + ")");
         }
 
         mCarUserService.createUser(name, userType, userInfoFlags, HAL_TIMEOUT_MS, receiver);
@@ -117,8 +117,8 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
             if (e instanceof InterruptedException) {
                 Thread.currentThread().interrupt();
             }
-            Log.w(TAG, "Timeout waiting " + mFutureTimeoutMs + "ms for UserCreationResult's future",
-                    e);
+            Slog.w(TAG, "Timeout waiting " + mFutureTimeoutMs
+                    + "ms for UserCreationResult's future", e);
             return new UserCreationResult(UserCreationResult.STATUS_HAL_INTERNAL_FAILURE);
         }
     }

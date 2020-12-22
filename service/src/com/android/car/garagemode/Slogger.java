@@ -16,70 +16,70 @@
 
 package com.android.car.garagemode;
 
-import android.util.Log;
+import android.util.Slog;
 
-class Logger {
+class Slogger {
     private final String mTag;
     private final String mPrefix;
 
-    Logger(String prefix) {
+    Slogger(String prefix) {
         mTag = "GarageMode";
         mPrefix = prefix;
     }
 
-    /** Passing message further to Log.v() */
+    /** Passing message further to Slog.v() */
     public void v(String msg) {
-        Log.v(mTag, buildMessage(msg));
+        Slog.v(mTag, buildMessage(msg));
     }
 
-    /** Passing message further to Log.v() */
+    /** Passing message further to Slog.v() */
     public void v(String msg, Exception ex) {
-        Log.v(mTag, buildMessage(msg), ex);
+        Slog.v(mTag, buildMessage(msg), ex);
     }
 
-    /** Passing message further to Log.i() */
+    /** Passing message further to Slog.i() */
     public void i(String msg) {
-        Log.i(mTag, buildMessage(msg));
+        Slog.i(mTag, buildMessage(msg));
     }
 
-    /** Passing message further to Log.i() */
+    /** Passing message further to Slog.i() */
     public void i(String msg, Exception ex) {
-        Log.i(mTag, buildMessage(msg), ex);
+        Slog.i(mTag, buildMessage(msg), ex);
     }
 
-    /** Passing message further to Log.d() */
+    /** Passing message further to Slog.d() */
     public void d(String msg) {
-        Log.d(mTag, buildMessage(msg));
+        Slog.d(mTag, buildMessage(msg));
     }
 
-    /** Passing message further to Log.d() */
+    /** Passing message further to Slog.d() */
     public void d(String msg, Exception ex) {
-        Log.d(mTag, buildMessage(msg), ex);
+        Slog.d(mTag, buildMessage(msg), ex);
     }
 
-    /** Passing message further to Log.w() */
+    /** Passing message further to Slog.w() */
     public void w(String msg, Exception ex) {
-        Log.w(mTag, buildMessage(msg), ex);
+        Slog.w(mTag, buildMessage(msg), ex);
     }
 
-    /** Passing message further to Log.w() */
+    /** Passing message further to Slog.w() */
     public void w(String msg) {
-        Log.w(mTag, buildMessage(msg));
+        Slog.w(mTag, buildMessage(msg));
     }
 
-    /** Passing message further to Log.e() */
+    /** Passing message further to Slog.e() */
     public void e(String msg) {
-        Log.e(mTag, buildMessage(msg));
+        Slog.e(mTag, buildMessage(msg));
     }
 
-    /** Passing message further to Log.e() */
+    /** Passing message further to Slog.e() */
     public void e(String msg, Exception ex) {
-        Log.e(mTag, buildMessage(msg), ex);
+        Slog.e(mTag, buildMessage(msg), ex);
     }
 
-    /** Passing message further to Log.e() */
+    /** Passing message further to Slog.e() */
     public void e(String msg, Throwable ex) {
-        Log.e(mTag, buildMessage(msg), ex);
+        Slog.e(mTag, buildMessage(msg), ex);
     }
 
     private String buildMessage(String msg) {
