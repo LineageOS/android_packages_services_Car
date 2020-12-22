@@ -78,7 +78,7 @@ Result<ProcStatInfo> ProcStat::collect() {
 
     Mutex::Autolock lock(mMutex);
     const auto& info = getProcStatLocked();
-    if (!info) {
+    if (!info.ok()) {
         return Error() << "Failed to get proc stat contents: " << info.error();
     }
 
