@@ -143,6 +143,10 @@
     <string name="car_permission_desc_control_car_features" msgid="7646711104530599901">"Attiva o disattiva le funzionalità dell\'auto."</string>
     <string name="car_permission_label_use_car_watchdog" msgid="6973938293170413475">"Uso del watchdog dell\'auto"</string>
     <string name="car_permission_desc_use_car_watchdog" msgid="8244592601805516086">"Consente di usare il watchdog dell\'auto."</string>
+    <string name="car_permission_label_read_car_power_policy" msgid="4597484321338979324">"Lettura dei criteri di alimentazione dell\'auto"</string>
+    <string name="car_permission_desc_read_car_power_policy" msgid="5430714179790601808">"Leggi i criteri di alimentazione dell\'auto."</string>
+    <string name="car_permission_label_control_car_power_policy" msgid="6840069695926008330">"Controllo dei criteri di alimentazione dell\'auto"</string>
+    <string name="car_permission_desc_control_car_power_policy" msgid="8565782440893507028">"Controlla i criteri di alimentazione dell\'auto."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Mio dispositivo"</string>
     <string name="default_guest_name" msgid="2912812799433131476">"Ospite"</string>
 </resources>

@@ -17,8 +17,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="car_permission_label" msgid="2215078736675564541">"ข้อมูลรถยนต์"</string>
-    <!-- no translation found for car_permission_desc (3584369074931334964) -->
-    <skip />
+    <string name="car_permission_desc" msgid="3584369074931334964">"เข้าถึงข้อมูลรถยนต์ของคุณ"</string>
     <string name="car_permission_label_camera" msgid="3725702064841827180">"เข้าถึงกล้องของรถ"</string>
     <string name="car_permission_desc_camera" msgid="917024932164501426">"เข้าถึงกล้องของรถ"</string>
     <string name="car_permission_label_energy" msgid="7409144323527821558">"เข้าถึงข้อมูลพลังงานของรถ"</string>
@@ -144,6 +143,10 @@
     <string name="car_permission_desc_control_car_features" msgid="7646711104530599901">"เปิดหรือปิดใช้ฟีเจอร์ของรถยนต์"</string>
     <string name="car_permission_label_use_car_watchdog" msgid="6973938293170413475">"ใช้ Watchdog ในรถ"</string>
     <string name="car_permission_desc_use_car_watchdog" msgid="8244592601805516086">"ใช้ Watchdog ในรถ"</string>
+    <string name="car_permission_label_read_car_power_policy" msgid="4597484321338979324">"อ่านนโยบายทางไฟฟ้าสำหรับรถยนต์"</string>
+    <string name="car_permission_desc_read_car_power_policy" msgid="5430714179790601808">"อ่านนโยบายทางไฟฟ้าสำหรับรถยนต์"</string>
+    <string name="car_permission_label_control_car_power_policy" msgid="6840069695926008330">"ควบคุมนโยบายทางไฟฟ้าสำหรับรถยนต์"</string>
+    <string name="car_permission_desc_control_car_power_policy" msgid="8565782440893507028">"ควบคุมนโยบายทางไฟฟ้าสำหรับรถยนต์"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"อุปกรณ์ของฉัน"</string>
     <string name="default_guest_name" msgid="2912812799433131476">"ผู้มาเยือน"</string>
 </resources>
