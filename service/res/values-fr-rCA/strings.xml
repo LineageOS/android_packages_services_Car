@@ -143,6 +143,10 @@
     <string name="car_permission_desc_control_car_features" msgid="7646711104530599901">"Activez ou désactivez les fonctionnalités du véhicule."</string>
     <string name="car_permission_label_use_car_watchdog" msgid="6973938293170413475">"utilisez le service de surveillance automobile"</string>
     <string name="car_permission_desc_use_car_watchdog" msgid="8244592601805516086">"Utilisez le service de surveillance automobile."</string>
+    <string name="car_permission_label_read_car_power_policy" msgid="4597484321338979324">"Lire la politique sur la gestion de l\'alimentation dans la voiture"</string>
+    <string name="car_permission_desc_read_car_power_policy" msgid="5430714179790601808">"Lire la politique sur la gestion de l\'alimentation dans la voiture."</string>
+    <string name="car_permission_label_control_car_power_policy" msgid="6840069695926008330">"Contrôler la politique sur la gestion de l\'alimentation dans la voiture"</string>
+    <string name="car_permission_desc_control_car_power_policy" msgid="8565782440893507028">"Politique sur la gestion de l\'alimentation dans la voiture"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Mon appareil"</string>
     <string name="default_guest_name" msgid="2912812799433131476">"Invité"</string>
 </resources>

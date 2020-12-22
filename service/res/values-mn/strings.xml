@@ -17,8 +17,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="car_permission_label" msgid="2215078736675564541">"Машины мэдээлэл"</string>
-    <!-- no translation found for car_permission_desc (3584369074931334964) -->
-    <skip />
+    <string name="car_permission_desc" msgid="3584369074931334964">"машиныхаа мэдээлэлд хандана уу"</string>
     <string name="car_permission_label_camera" msgid="3725702064841827180">"машины камерт хандах"</string>
     <string name="car_permission_desc_camera" msgid="917024932164501426">"Машиныхаа камерт хандана уу."</string>
     <string name="car_permission_label_energy" msgid="7409144323527821558">"машины эрчим хүчний мэдээлэлд хандах"</string>
@@ -53,8 +52,8 @@
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Машиныхаа аудионы тохиргоог хянана уу."</string>
     <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"Апп блоклолт"</string>
     <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"Жолоодох үеийн аппын блоклолтыг хянана уу."</string>
-    <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"Навигацийн менежер"</string>
-    <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"Навигацийн өгөгдлийг хяналтын самбарт мэдээлэх"</string>
+    <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"Навигацын менежер"</string>
+    <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"Навигацын өгөгдлийг хяналтын самбарт мэдээлэх"</string>
     <string name="car_permission_car_display_in_cluster" msgid="4005987646292458684">"Хяналтын самбарын тайлбарт шууд харуулах"</string>
     <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"Үйл ажиллагааг хяналтын самбарт мэдэгдэхийг аппад зөвшөөрөх"</string>
     <string name="car_permission_car_cluster_control" msgid="1382247204230165674">"Хяналтын самбарын хяналт"</string>
@@ -144,6 +143,10 @@
     <string name="car_permission_desc_control_car_features" msgid="7646711104530599901">"Автомашины онцлогуудыг идэвхжүүлж эсвэл идэвхгүй болгоно уу."</string>
     <string name="car_permission_label_use_car_watchdog" msgid="6973938293170413475">"машины watchdog-г ашиглана уу"</string>
     <string name="car_permission_desc_use_car_watchdog" msgid="8244592601805516086">"Машины watchdog-г ашиглана уу."</string>
+    <string name="car_permission_label_read_car_power_policy" msgid="4597484321338979324">"машины асаах/унтраах бодлогыг уншина"</string>
+    <string name="car_permission_desc_read_car_power_policy" msgid="5430714179790601808">"Машины асаах/унтраах бодлогыг уншина."</string>
+    <string name="car_permission_label_control_car_power_policy" msgid="6840069695926008330">"машины асаах/унтраах бодлогыг хянана"</string>
+    <string name="car_permission_desc_control_car_power_policy" msgid="8565782440893507028">"Машины асаах/унтраах бодлогыг хянана."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Миний төхөөрөмж"</string>
     <string name="default_guest_name" msgid="2912812799433131476">"Зочин"</string>
 </resources>
