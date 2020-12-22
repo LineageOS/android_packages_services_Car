@@ -19,7 +19,7 @@ package com.android.car.audio.hal;
 import android.annotation.Nullable;
 import android.hardware.automotive.audiocontrol.V1_0.IAudioControl;
 import android.os.RemoteException;
-import android.util.Log;
+import android.util.Slog;
 
 import com.android.car.audio.CarAudioContext;
 import com.android.internal.annotations.VisibleForTesting;
@@ -88,7 +88,7 @@ public final class AudioControlWrapperV1 implements AudioControlWrapper {
         try {
             mAudioControlV1.setFadeTowardFront(value);
         } catch (RemoteException e) {
-            Log.e(TAG, "setFadeTowardFront failed", e);
+            Slog.e(TAG, "setFadeTowardFront failed", e);
         }
     }
 
@@ -97,7 +97,7 @@ public final class AudioControlWrapperV1 implements AudioControlWrapper {
         try {
             mAudioControlV1.setBalanceTowardRight(value);
         } catch (RemoteException e) {
-            Log.e(TAG, "setBalanceTowardRight failed", e);
+            Slog.e(TAG, "setBalanceTowardRight failed", e);
         }
     }
 
@@ -118,7 +118,7 @@ public final class AudioControlWrapperV1 implements AudioControlWrapper {
         try {
             return mAudioControlV1.getBusForContext(audioContext);
         } catch (RemoteException e) {
-            Log.e(TAG, "Failed to query IAudioControl HAL to get bus for context", e);
+            Slog.e(TAG, "Failed to query IAudioControl HAL to get bus for context", e);
             throw new IllegalStateException("Failed to query IAudioControl#getBusForContext", e);
         }
     }
@@ -144,7 +144,7 @@ public final class AudioControlWrapperV1 implements AudioControlWrapper {
     }
 
     private void serviceDied(long cookie) {
-        Log.w(TAG, "IAudioControl@1.0 died. Fetching new handle");
+        Slog.w(TAG, "IAudioControl@1.0 died. Fetching new handle");
         mAudioControlV1 = AudioControlWrapperV1.getService();
         linkToDeath(mDeathRecipient);
         if (mDeathRecipient != null) {
