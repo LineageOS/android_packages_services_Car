@@ -1,0 +1,9 @@
+android_app {
+    name: "CarFrameworkPackageStubs",
+
+    srcs: ["src/**/*.java"],
+
+    platform_apis: true,
+
+    certificate: "platform",
+}
