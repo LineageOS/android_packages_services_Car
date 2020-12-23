@@ -21,7 +21,6 @@ import android.content.Context;
 import android.opengl.GLES30;
 import android.opengl.Matrix;
 import android.os.Build;
-import android.util.Log;
 import android.util.Slog;
 
 import libcore.io.Streams;
@@ -133,7 +132,7 @@ public class GLHelper {
             InputStream stream = context.getResources().openRawResource(id);
             return new String(Streams.readFully(new InputStreamReader(stream)));
         } catch (IOException e) {
-            Log.e(TAG, "Failed to load shader");
+            Slog.e(TAG, "Failed to load shader");
             return null;
         }
     }
