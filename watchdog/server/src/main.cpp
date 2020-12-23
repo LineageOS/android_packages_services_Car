@@ -65,7 +65,7 @@ int main(int /*argc*/, char** /*argv*/) {
 
     // Start the services
     auto result = ServiceManager::startServices(looper);
-    if (!result) {
+    if (!result.ok()) {
         ALOGE("Failed to start services: %s", result.error().message().c_str());
         ServiceManager::terminateServices();
         exit(result.error().code());
@@ -88,7 +88,7 @@ int main(int /*argc*/, char** /*argv*/) {
     IPCThreadState::self()->disableBackgroundScheduling(true);
 
     result = ServiceManager::startBinderMediator();
-    if (!result) {
+    if (!result.ok()) {
         ALOGE("Failed to start binder mediator: %s", result.error().message().c_str());
         ServiceManager::terminateServices();
         exit(result.error().code());

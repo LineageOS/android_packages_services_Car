@@ -135,7 +135,7 @@ Result<void> StatsCollector::handleCollectionEvent(CollectionEvent event,
     }
 
     auto ret = collectLocked(info);
-    if (!ret) {
+    if (!ret.ok()) {
         return Error() << toString(event) << " collection failed: "
                        << ret.error();
     }
@@ -324,7 +324,7 @@ Result<std::string> StatsCollector::stopCustomCollection(std::string targetId) {
     }
 
     auto ret = collectLocked(&mCustomCollectionInfo);
-    if (!ret) {
+    if (!ret.ok()) {
         return Error() << toString(mCurrentCollectionEvent) << " collection failed: "
                        << ret.error();
     }

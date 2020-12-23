@@ -798,7 +798,7 @@ void Enumerator::cmdDumpDevice(int fd, const hidl_vec<hidl_string>& options) {
 
                 // Starts a custom collection
                 auto result = mClientsMonitor->startCustomCollection(interval, duration);
-                if (!result) {
+                if (!result.ok()) {
                     LOG(ERROR) << "Failed to start a custom collection.  "
                                << result.error();
                     StringAppendF(&cameraInfo, "Failed to start a custom collection. %s\n",
@@ -811,7 +811,7 @@ void Enumerator::cmdDumpDevice(int fd, const hidl_vec<hidl_string>& options) {
                 }
 
                 auto result = mClientsMonitor->stopCustomCollection(deviceId);
-                if (!result) {
+                if (!result.ok()) {
                     LOG(ERROR) << "Failed to stop a custom collection.  "
                                << result.error();
                     StringAppendF(&cameraInfo, "Failed to stop a custom collection. %s\n",

@@ -53,7 +53,7 @@ TEST(UidIoStatsTest, TestValidStatFile) {
     ASSERT_TRUE(uidIoStats.enabled()) << "Temporary file is inaccessible";
 
     const auto& actualFirstUsage = uidIoStats.collect();
-    EXPECT_TRUE(actualFirstUsage) << actualFirstUsage.error();
+    EXPECT_TRUE(actualFirstUsage.ok()) << actualFirstUsage.error();
     EXPECT_EQ(expectedFirstUsage.size(), actualFirstUsage->size());
     for (const auto& it : expectedFirstUsage) {
         if (actualFirstUsage->find(it.first) == actualFirstUsage->end()) {
@@ -84,7 +84,7 @@ TEST(UidIoStatsTest, TestValidStatFile) {
     };
     ASSERT_TRUE(WriteStringToFile(secondSnapshot, tf.path));
     const auto& actualSecondUsage = uidIoStats.collect();
-    EXPECT_TRUE(actualSecondUsage) << actualSecondUsage.error();
+    EXPECT_TRUE(actualSecondUsage.ok()) << actualSecondUsage.error();
     EXPECT_EQ(expectedSecondUsage.size(), actualSecondUsage->size());
     for (const auto& it : expectedSecondUsage) {
         if (actualSecondUsage->find(it.first) == actualSecondUsage->end()) {
@@ -113,7 +113,7 @@ TEST(UidIoStatsTest, TestErrorOnInvalidStatFile) {
 
     UidIoStats uidIoStats(tf.path);
     ASSERT_TRUE(uidIoStats.enabled()) << "Temporary file is inaccessible";
-    EXPECT_FALSE(uidIoStats.collect()) << "No error returned for invalid file";
+    EXPECT_FALSE(uidIoStats.collect().ok()) << "No error returned for invalid file";
 }
 
 }  // namespace watchdog
