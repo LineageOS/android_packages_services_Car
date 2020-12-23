@@ -182,9 +182,9 @@ bool isEqual(const IoPerfRecord& lhs, const IoPerfRecord& rhs) {
 TEST(IoPerfCollectionTest, TestCollectionStartAndTerminate) {
     sp<IoPerfCollection> collector = new IoPerfCollection();
     const auto& ret = collector->start();
-    ASSERT_TRUE(ret) << ret.error().message();
+    ASSERT_TRUE(ret.ok()) << ret.error().message();
     ASSERT_TRUE(collector->mCollectionThread.joinable()) << "Collection thread not created";
-    ASSERT_FALSE(collector->start())
+    ASSERT_FALSE(collector->start().ok())
             << "No error returned when collector was started more than once";
     ASSERT_TRUE(sysprop::topNStatsPerCategory().has_value());
     ASSERT_EQ(collector->mTopNStatsPerCategory, sysprop::topNStatsPerCategory().value());
@@ -225,7 +225,7 @@ TEST(IoPerfCollectionTest, TestValidCollectionSequence) {
     collector->mHandlerLooper = looperStub;
 
     auto ret = collector->start();
-    ASSERT_TRUE(ret) << ret.error().message();
+    ASSERT_TRUE(ret.ok()) << ret.error().message();
 
     collector->mBoottimeCollection.interval = kTestBootInterval;
     collector->mPeriodicCollection.interval = kTestPeriodicInterval;
@@ -276,7 +276,7 @@ TEST(IoPerfCollectionTest, TestValidCollectionSequence) {
                                   .majorFaultsPercentChange = 0.0},
     };
     ret = looperStub->pollCache();
-    ASSERT_TRUE(ret) << ret.error().message();
+    ASSERT_TRUE(ret.ok()) << ret.error().message();
     ASSERT_EQ(looperStub->numSecondsElapsed(), 0)
             << "Boot-time collection didn't start immediately";
 
@@ -336,14 +336,14 @@ TEST(IoPerfCollectionTest, TestValidCollectionSequence) {
                      .majorFaultsPercentChange = ((11000.0 - 5000.0) / 5000.0) * 100},
     };
     ret = looperStub->pollCache();
-    ASSERT_TRUE(ret) << ret.error().message();
+    ASSERT_TRUE(ret.ok()) << ret.error().message();
     ASSERT_EQ(looperStub->numSecondsElapsed(), kTestBootInterval.count())
             << "Subsequent boot-time collection didn't happen at " << kTestBootInterval.count()
             << " seconds interval";
 
     // #3 Last boot-time collection
     ret = collector->onBootFinished();
-    ASSERT_TRUE(ret) << ret.error().message();
+    ASSERT_TRUE(ret.ok()) << ret.error().message();
     uidIoStatsStub->push({
             {1009, {.uid = 1009, .ios = {0, 7000, 0, 8000, 0, 50}}},
     });
@@ -398,7 +398,7 @@ TEST(IoPerfCollectionTest, TestValidCollectionSequence) {
                                   .majorFaultsPercentChange = ((5000.0 - 11000.0) / 11000.0) * 100},
     };
     ret = looperStub->pollCache();
-    ASSERT_TRUE(ret) << ret.error().message();
+    ASSERT_TRUE(ret.ok()) << ret.error().message();
     ASSERT_EQ(looperStub->numSecondsElapsed(), 0)
             << "Last boot-time collection didn't happen immediately after receiving boot complete "
             << "notification";
@@ -472,7 +472,7 @@ TEST(IoPerfCollectionTest, TestValidCollectionSequence) {
                                   .majorFaultsPercentChange = ((4100.0 - 5000.0) / 5000.0) * 100},
     };
     ret = looperStub->pollCache();
-    ASSERT_TRUE(ret) << ret.error().message();
+    ASSERT_TRUE(ret.ok()) << ret.error().message();
     ASSERT_EQ(looperStub->numSecondsElapsed(), kTestPeriodicInterval.count())
             << "First periodic collection didn't happen at " << kTestPeriodicInterval.count()
             << " seconds interval";
@@ -533,7 +533,7 @@ TEST(IoPerfCollectionTest, TestValidCollectionSequence) {
                      .majorFaultsPercentChange = ((44300.0 - 4100.0) / 4100.0) * 100},
     };
     ret = looperStub->pollCache();
-    ASSERT_TRUE(ret) << ret.error().message();
+    ASSERT_TRUE(ret.ok()) << ret.error().message();
     ASSERT_EQ(looperStub->numSecondsElapsed(), kTestPeriodicInterval.count())
             << "Subsequent periodic collection didn't happen at " << kTestPeriodicInterval.count()
             << " seconds interval";
@@ -613,7 +613,7 @@ TEST(IoPerfCollectionTest, TestValidCollectionSequence) {
                      .majorFaultsPercentChange = ((49800.0 - 44300.0) / 44300.0) * 100},
     };
     ret = looperStub->pollCache();
-    ASSERT_TRUE(ret) << ret.error().message();
+    ASSERT_TRUE(ret.ok()) << ret.error().message();
     ASSERT_EQ(looperStub->numSecondsElapsed(), 0) << "Custom collection didn't start immediately";
 
     // #7 Custom collection
@@ -672,7 +672,7 @@ TEST(IoPerfCollectionTest, TestValidCollectionSequence) {
                      .majorFaultsPercentChange = ((50900.0 - 49800.0) / 49800.0) * 100},
     };
     ret = looperStub->pollCache();
-    ASSERT_TRUE(ret) << ret.error().message();
+    ASSERT_TRUE(ret.ok()) << ret.error().message();
     ASSERT_EQ(looperStub->numSecondsElapsed(), kTestCustomInterval.count())
             << "Subsequent custom collection didn't happen at " << kTestCustomInterval.count()
             << " seconds interval";
@@ -694,7 +694,7 @@ TEST(IoPerfCollectionTest, TestValidCollectionSequence) {
     ret = collector->onCustomCollection(customDump.fd, args);
     ASSERT_TRUE(ret.ok()) << ret.error().message();
     ret = looperStub->pollCache();
-    ASSERT_TRUE(ret) << ret.error().message();
+    ASSERT_TRUE(ret.ok()) << ret.error().message();
 
     // Custom collection cache should be emptied on ending the collection.
     ASSERT_EQ(collector->mCustomCollection.records.size(), 0);
@@ -754,7 +754,7 @@ TEST(IoPerfCollectionTest, TestValidCollectionSequence) {
                                   .majorFaultsPercentChange = ((5701.0 - 50900.0) / 50900.0) * 100},
     };
     ret = looperStub->pollCache();
-    ASSERT_TRUE(ret) << ret.error().message();
+    ASSERT_TRUE(ret.ok()) << ret.error().message();
     ASSERT_EQ(looperStub->numSecondsElapsed(), 0)
             << "Periodic collection didn't start immediately after ending custom collection";
 
@@ -786,7 +786,7 @@ TEST(IoPerfCollectionTest, TestCollectionTerminatesOnZeroEnabledCollectors) {
     collector->mProcPidStat = new ProcPidStatStub();
 
     const auto& ret = collector->start();
-    ASSERT_TRUE(ret) << ret.error().message();
+    ASSERT_TRUE(ret.ok()) << ret.error().message();
 
     ASSERT_EQ(std::async([&]() {
                   if (collector->mCollectionThread.joinable()) {
@@ -810,7 +810,7 @@ TEST(IoPerfCollectionTest, TestCollectionTerminatesOnError) {
 
     // Stub caches are empty so polling them should trigger error.
     const auto& ret = collector->start();
-    ASSERT_TRUE(ret) << ret.error().message();
+    ASSERT_TRUE(ret.ok()) << ret.error().message();
 
     ASSERT_EQ(std::async([&]() {
                   if (collector->mCollectionThread.joinable()) {
@@ -841,23 +841,23 @@ TEST(IoPerfCollectionTest, TestCustomCollectionFiltersPackageNames) {
     collector->mTopNStatsPerCategory = 1;
 
     auto ret = collector->start();
-    ASSERT_TRUE(ret) << ret.error().message();
+    ASSERT_TRUE(ret.ok()) << ret.error().message();
 
     // Dummy boot-time collection
     uidIoStatsStub->push({});
     procStatStub->push(ProcStatInfo{});
     procPidStatStub->push({});
     ret = looperStub->pollCache();
-    ASSERT_TRUE(ret) << ret.error().message();
+    ASSERT_TRUE(ret.ok()) << ret.error().message();
 
     // Dummy Periodic collection
     ret = collector->onBootFinished();
-    ASSERT_TRUE(ret) << ret.error().message();
+    ASSERT_TRUE(ret.ok()) << ret.error().message();
     uidIoStatsStub->push({});
     procStatStub->push(ProcStatInfo{});
     procPidStatStub->push({});
     ret = looperStub->pollCache();
-    ASSERT_TRUE(ret) << ret.error().message();
+    ASSERT_TRUE(ret.ok()) << ret.error().message();
 
     // Start custom Collection
     Vector<String16> args;
@@ -977,7 +977,7 @@ TEST(IoPerfCollectionTest, TestCustomCollectionFiltersPackageNames) {
                      .majorFaultsPercentChange = 0},
     };
     ret = looperStub->pollCache();
-    ASSERT_TRUE(ret) << ret.error().message();
+    ASSERT_TRUE(ret.ok()) << ret.error().message();
     ASSERT_EQ(looperStub->numSecondsElapsed(), 0) << "Custom collection didn't start immediately";
 
     ASSERT_EQ(collector->mCurrCollectionEvent, CollectionEvent::CUSTOM);
@@ -1002,23 +1002,23 @@ TEST(IoPerfCollectionTest, TestCustomCollectionTerminatesAfterMaxDuration) {
     collector->mHandlerLooper = looperStub;
 
     auto ret = collector->start();
-    ASSERT_TRUE(ret) << ret.error().message();
+    ASSERT_TRUE(ret.ok()) << ret.error().message();
 
     // Dummy boot-time collection
     uidIoStatsStub->push({});
     procStatStub->push(ProcStatInfo{});
     procPidStatStub->push({});
     ret = looperStub->pollCache();
-    ASSERT_TRUE(ret) << ret.error().message();
+    ASSERT_TRUE(ret.ok()) << ret.error().message();
 
     // Dummy Periodic collection
     ret = collector->onBootFinished();
-    ASSERT_TRUE(ret) << ret.error().message();
+    ASSERT_TRUE(ret.ok()) << ret.error().message();
     uidIoStatsStub->push({});
     procStatStub->push(ProcStatInfo{});
     procPidStatStub->push({});
     ret = looperStub->pollCache();
-    ASSERT_TRUE(ret) << ret.error().message();
+    ASSERT_TRUE(ret.ok()) << ret.error().message();
 
     // Start custom Collection
     Vector<String16> args;
@@ -1034,12 +1034,12 @@ TEST(IoPerfCollectionTest, TestCustomCollectionTerminatesAfterMaxDuration) {
     int maxIterations =
             static_cast<int>(kTestCustomCollectionDuration.count() / kTestCustomInterval.count());
     for (int i = 0; i < maxIterations; ++i) {
-        ASSERT_TRUE(ret) << ret.error().message();
+        ASSERT_TRUE(ret.ok()) << ret.error().message();
         uidIoStatsStub->push({});
         procStatStub->push(ProcStatInfo{});
         procPidStatStub->push({});
         ret = looperStub->pollCache();
-        ASSERT_TRUE(ret) << ret.error().message();
+        ASSERT_TRUE(ret.ok()) << ret.error().message();
         int secondsElapsed = (i == 0 ? 0 : kTestCustomInterval.count());
         ASSERT_EQ(looperStub->numSecondsElapsed(), secondsElapsed)
                 << "Custom collection didn't happen at " << secondsElapsed
@@ -1052,7 +1052,7 @@ TEST(IoPerfCollectionTest, TestCustomCollectionTerminatesAfterMaxDuration) {
     // after |kTestCustomCollectionDuration|. Thus on processing this message the custom collection
     // should terminate.
     ret = looperStub->pollCache();
-    ASSERT_TRUE(ret) << ret.error().message();
+    ASSERT_TRUE(ret.ok()) << ret.error().message();
     ASSERT_EQ(looperStub->numSecondsElapsed(),
               kTestCustomCollectionDuration.count() % kTestCustomInterval.count())
             << "Custom collection did't end after " << kTestCustomCollectionDuration.count()
@@ -1365,7 +1365,7 @@ TEST(IoPerfCollectionTest, TestValidProcPidContents) {
     TemporaryDir firstSnapshot;
     auto ret = populateProcPidDir(firstSnapshot.path, pidToTids, perProcessStat, perProcessStatus,
                                   perThreadStat);
-    ASSERT_TRUE(ret) << "Failed to populate proc pid dir: " << ret.error();
+    ASSERT_TRUE(ret.ok()) << "Failed to populate proc pid dir: " << ret.error();
 
     IoPerfCollection collector;
     collector.mProcPidStat = new ProcPidStat(firstSnapshot.path);
@@ -1376,7 +1376,7 @@ TEST(IoPerfCollectionTest, TestValidProcPidContents) {
 
     struct ProcessIoPerfData actualProcessIoPerfData = {};
     ret = collector.collectProcessIoPerfDataLocked(CollectionInfo{}, &actualProcessIoPerfData);
-    ASSERT_TRUE(ret) << "Failed to collect first snapshot: " << ret.error();
+    ASSERT_TRUE(ret.ok()) << "Failed to collect first snapshot: " << ret.error();
     EXPECT_TRUE(isEqual(expectedProcessIoPerfData, actualProcessIoPerfData))
             << "First snapshot doesn't match.\nExpected:\n"
             << toString(expectedProcessIoPerfData) << "\nActual:\n"
@@ -1430,13 +1430,13 @@ TEST(IoPerfCollectionTest, TestValidProcPidContents) {
     TemporaryDir secondSnapshot;
     ret = populateProcPidDir(secondSnapshot.path, pidToTids, perProcessStat, perProcessStatus,
                              perThreadStat);
-    ASSERT_TRUE(ret) << "Failed to populate proc pid dir: " << ret.error();
+    ASSERT_TRUE(ret.ok()) << "Failed to populate proc pid dir: " << ret.error();
 
     collector.mProcPidStat->mPath = secondSnapshot.path;
 
     actualProcessIoPerfData = {};
     ret = collector.collectProcessIoPerfDataLocked(CollectionInfo{}, &actualProcessIoPerfData);
-    ASSERT_TRUE(ret) << "Failed to collect second snapshot: " << ret.error();
+    ASSERT_TRUE(ret.ok()) << "Failed to collect second snapshot: " << ret.error();
     EXPECT_TRUE(isEqual(expectedProcessIoPerfData, actualProcessIoPerfData))
             << "Second snapshot doesn't match.\nExpected:\n"
             << toString(expectedProcessIoPerfData) << "\nActual:\n"
@@ -1471,7 +1471,7 @@ TEST(IoPerfCollectionTest, TestProcPidContentsLessThanTopNStatsLimit) {
     TemporaryDir prodDir;
     auto ret = populateProcPidDir(prodDir.path, pidToTids, perProcessStat, perProcessStatus,
                                   perThreadStat);
-    ASSERT_TRUE(ret) << "Failed to populate proc pid dir: " << ret.error();
+    ASSERT_TRUE(ret.ok()) << "Failed to populate proc pid dir: " << ret.error();
 
     IoPerfCollection collector;
     collector.mTopNStatsPerCategory = 5;
@@ -1479,7 +1479,7 @@ TEST(IoPerfCollectionTest, TestProcPidContentsLessThanTopNStatsLimit) {
     collector.mProcPidStat = new ProcPidStat(prodDir.path);
     struct ProcessIoPerfData actualProcessIoPerfData = {};
     ret = collector.collectProcessIoPerfDataLocked(CollectionInfo{}, &actualProcessIoPerfData);
-    ASSERT_TRUE(ret) << "Failed to collect proc pid contents: " << ret.error();
+    ASSERT_TRUE(ret.ok()) << "Failed to collect proc pid contents: " << ret.error();
     EXPECT_TRUE(isEqual(expectedProcessIoPerfData, actualProcessIoPerfData))
             << "proc pid contents don't match.\nExpected:\n"
             << toString(expectedProcessIoPerfData) << "\nActual:\n"

@@ -152,14 +152,14 @@ TEST(ProcPidStatTest, TestValidStatFiles) {
     TemporaryDir firstSnapshot;
     auto ret = populateProcPidDir(firstSnapshot.path, pidToTids, perProcessStat, perProcessStatus,
                                   perThreadStat);
-    ASSERT_TRUE(ret) << "Failed to populate proc pid dir: " << ret.error();
+    ASSERT_TRUE(ret.ok()) << "Failed to populate proc pid dir: " << ret.error();
 
     ProcPidStat procPidStat(firstSnapshot.path);
     ASSERT_TRUE(procPidStat.enabled())
             << "Files under the path `" << firstSnapshot.path << "` are inaccessible";
 
     auto actual = procPidStat.collect();
-    ASSERT_TRUE(actual) << "Failed to collect proc pid stat: " << actual.error();
+    ASSERT_TRUE(actual.ok()) << "Failed to collect proc pid stat: " << actual.error();
 
     EXPECT_TRUE(isEqual(&expected, &actual.value())) << "First snapshot doesn't match.\nExpected:\n"
                                                      << toString(expected) << "\nActual:\n"
@@ -209,14 +209,14 @@ TEST(ProcPidStatTest, TestValidStatFiles) {
     TemporaryDir secondSnapshot;
     ret = populateProcPidDir(secondSnapshot.path, pidToTids, perProcessStat, perProcessStatus,
                              perThreadStat);
-    ASSERT_TRUE(ret) << "Failed to populate proc pid dir: " << ret.error();
+    ASSERT_TRUE(ret.ok()) << "Failed to populate proc pid dir: " << ret.error();
 
     procPidStat.mPath = secondSnapshot.path;
     ASSERT_TRUE(procPidStat.enabled())
             << "Files under the path `" << secondSnapshot.path << "` are inaccessible";
 
     actual = procPidStat.collect();
-    ASSERT_TRUE(actual) << "Failed to collect proc pid stat: " << actual.error();
+    ASSERT_TRUE(actual.ok()) << "Failed to collect proc pid stat: " << actual.error();
 
     EXPECT_TRUE(isEqual(&expected, &actual.value()))
             << "Second snapshot doesn't match.\nExpected:\n"
@@ -287,14 +287,14 @@ TEST(ProcPidStatTest, TestHandlesProcessTerminationBetweenScanningAndParsing) {
     TemporaryDir procDir;
     const auto& ret = populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
                                          perThreadStat);
-    ASSERT_TRUE(ret) << "Failed to populate proc pid dir: " << ret.error();
+    ASSERT_TRUE(ret.ok()) << "Failed to populate proc pid dir: " << ret.error();
 
     ProcPidStat procPidStat(procDir.path);
     ASSERT_TRUE(procPidStat.enabled())
             << "Files under the path `" << procDir.path << "` are inaccessible";
 
     auto actual = procPidStat.collect();
-    ASSERT_TRUE(actual) << "Failed to collect proc pid stat: " << actual.error();
+    ASSERT_TRUE(actual.ok()) << "Failed to collect proc pid stat: " << actual.error();
 
     EXPECT_TRUE(isEqual(&expected, &actual.value()))
             << "Proc pid contents doesn't match.\nExpected:\n"
@@ -360,14 +360,14 @@ TEST(ProcPidStatTest, TestHandlesPidTidReuse) {
     TemporaryDir firstSnapshot;
     auto ret = populateProcPidDir(firstSnapshot.path, pidToTids, perProcessStat, perProcessStatus,
                                   perThreadStat);
-    ASSERT_TRUE(ret) << "Failed to populate proc pid dir: " << ret.error();
+    ASSERT_TRUE(ret.ok()) << "Failed to populate proc pid dir: " << ret.error();
 
     ProcPidStat procPidStat(firstSnapshot.path);
     ASSERT_TRUE(procPidStat.enabled())
             << "Files under the path `" << firstSnapshot.path << "` are inaccessible";
 
     auto actual = procPidStat.collect();
-    ASSERT_TRUE(actual) << "Failed to collect proc pid stat: " << actual.error();
+    ASSERT_TRUE(actual.ok()) << "Failed to collect proc pid stat: " << actual.error();
 
     EXPECT_TRUE(isEqual(&expected, &actual.value())) << "First snapshot doesn't match.\nExpected:\n"
                                                      << toString(expected) << "\nActual:\n"
@@ -437,14 +437,14 @@ TEST(ProcPidStatTest, TestHandlesPidTidReuse) {
     TemporaryDir secondSnapshot;
     ret = populateProcPidDir(secondSnapshot.path, pidToTids, perProcessStat, perProcessStatus,
                              perThreadStat);
-    ASSERT_TRUE(ret) << "Failed to populate proc pid dir: " << ret.error();
+    ASSERT_TRUE(ret.ok()) << "Failed to populate proc pid dir: " << ret.error();
 
     procPidStat.mPath = secondSnapshot.path;
     ASSERT_TRUE(procPidStat.enabled())
             << "Files under the path `" << secondSnapshot.path << "` are inaccessible";
 
     actual = procPidStat.collect();
-    ASSERT_TRUE(actual) << "Failed to collect proc pid stat: " << actual.error();
+    ASSERT_TRUE(actual.ok()) << "Failed to collect proc pid stat: " << actual.error();
 
     EXPECT_TRUE(isEqual(&expected, &actual.value()))
             << "Second snapshot doesn't match.\nExpected:\n"
@@ -472,14 +472,14 @@ TEST(ProcPidStatTest, TestErrorOnCorruptedProcessStatFile) {
     TemporaryDir procDir;
     const auto& ret = populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
                                          perThreadStat);
-    ASSERT_TRUE(ret) << "Failed to populate proc pid dir: " << ret.error();
+    ASSERT_TRUE(ret.ok()) << "Failed to populate proc pid dir: " << ret.error();
 
     ProcPidStat procPidStat(procDir.path);
     ASSERT_TRUE(procPidStat.enabled())
             << "Files under the path `" << procDir.path << "` are inaccessible";
 
     const auto& actual = procPidStat.collect();
-    ASSERT_FALSE(actual) << "No error returned for invalid process stat file";
+    ASSERT_FALSE(actual.ok()) << "No error returned for invalid process stat file";
 }
 
 TEST(ProcPidStatTest, TestErrorOnCorruptedProcessStatusFile) {
@@ -502,14 +502,14 @@ TEST(ProcPidStatTest, TestErrorOnCorruptedProcessStatusFile) {
     TemporaryDir procDir;
     const auto& ret = populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
                                          perThreadStat);
-    ASSERT_TRUE(ret) << "Failed to populate proc pid dir: " << ret.error();
+    ASSERT_TRUE(ret.ok()) << "Failed to populate proc pid dir: " << ret.error();
 
     ProcPidStat procPidStat(procDir.path);
     ASSERT_TRUE(procPidStat.enabled())
             << "Files under the path `" << procDir.path << "` are inaccessible";
 
     const auto& actual = procPidStat.collect();
-    ASSERT_FALSE(actual) << "No error returned for invalid process status file";
+    ASSERT_FALSE(actual.ok()) << "No error returned for invalid process status file";
 }
 
 TEST(ProcPidStatTest, TestErrorOnCorruptedThreadStatFile) {
@@ -532,14 +532,14 @@ TEST(ProcPidStatTest, TestErrorOnCorruptedThreadStatFile) {
     TemporaryDir procDir;
     const auto& ret = populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
                                          perThreadStat);
-    ASSERT_TRUE(ret) << "Failed to populate proc pid dir: " << ret.error();
+    ASSERT_TRUE(ret.ok()) << "Failed to populate proc pid dir: " << ret.error();
 
     ProcPidStat procPidStat(procDir.path);
     ASSERT_TRUE(procPidStat.enabled())
             << "Files under the path `" << procDir.path << "` are inaccessible";
 
     const auto& actual = procPidStat.collect();
-    ASSERT_FALSE(actual) << "No error returned for invalid thread stat file";
+    ASSERT_FALSE(actual.ok()) << "No error returned for invalid thread stat file";
 }
 
 TEST(ProcPidStatTest, TestHandlesSpaceInCommName) {
@@ -571,14 +571,14 @@ TEST(ProcPidStatTest, TestHandlesSpaceInCommName) {
     TemporaryDir procDir;
     const auto& ret = populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
                                          perThreadStat);
-    ASSERT_TRUE(ret) << "Failed to populate proc pid dir: " << ret.error();
+    ASSERT_TRUE(ret.ok()) << "Failed to populate proc pid dir: " << ret.error();
 
     ProcPidStat procPidStat(procDir.path);
     ASSERT_TRUE(procPidStat.enabled())
             << "Files under the path `" << procDir.path << "` are inaccessible";
 
     auto actual = procPidStat.collect();
-    ASSERT_TRUE(actual) << "Failed to collect proc pid stat: " << actual.error();
+    ASSERT_TRUE(actual.ok()) << "Failed to collect proc pid stat: " << actual.error();
 
     EXPECT_TRUE(isEqual(&expected, &actual.value()))
             << "Proc pid contents doesn't match.\nExpected:\n"
