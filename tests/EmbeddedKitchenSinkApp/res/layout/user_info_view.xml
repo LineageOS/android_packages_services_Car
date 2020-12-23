@@ -18,54 +18,78 @@
     NOTE: This layout is meant to be used by the UserInfoView widget only
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:admin_ui="http://schemas.android.com/apk/res-auto"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:orientation="vertical" >
+              android:orientation="horizontal" >
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginRight="30dp">
+        <com.android.car.admin.ui.UserAvatarView
+            android:id="@+id/user_avatar"
+            android:layout_width="108dp"
+            android:layout_height="108dp"
+            admin_ui:badgeDiameter="36dp"
+            admin_ui:badgeMargin="2dp"
+            />
+   </FrameLayout>
+
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal" >
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text="ID: "/>
-        <EditText
-            android:id="@+id/user_id"
-            android:enabled="false"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text=""/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text="Name: "/>
-        <EditText
-            android:id="@+id/user_name"
-            android:enabled="false"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text=""/>
-    </LinearLayout>
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:orientation="horizontal" >
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text="Type: "/>
-        <EditText
-            android:id="@+id/user_type"
-            android:enabled="false"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text=""/>
-    </LinearLayout>
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:orientation="horizontal" >
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text="Flags: "/>
-        <EditText
-            android:id="@+id/user_flags"
-            android:enabled="false"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text=""/>
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="ID: "/>
+            <EditText
+                android:id="@+id/user_id"
+                android:enabled="false"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text=""/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="Name: "/>
+            <EditText
+                android:id="@+id/user_name"
+                android:enabled="false"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text=""/>
+            <TextView
+                android:id="@+id/managed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"/>
+        </LinearLayout>
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:orientation="horizontal" >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="Type: "/>
+            <EditText
+                android:id="@+id/user_type"
+                android:enabled="false"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text=""/>
+        </LinearLayout>
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:orientation="horizontal" >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="Flags: "/>
+            <EditText
+                android:id="@+id/user_flags"
+                android:enabled="false"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text=""/>
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>
