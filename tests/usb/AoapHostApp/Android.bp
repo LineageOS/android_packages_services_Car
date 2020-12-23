@@ -29,6 +29,11 @@ android_app {
         enabled: false,
     },
 
+    enforce_uses_libs: false,
+    dex_preopt: {
+        enabled: false,
+    },
+
     static_libs: [
         "android.car",
     ],

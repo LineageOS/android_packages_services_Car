@@ -27,6 +27,11 @@ android_test {
         enabled: false,
     },
 
+    enforce_uses_libs: false,
+    dex_preopt: {
+        enabled: false,
+    },
+
     static_libs: [
         "com.android.car.obd2",
         "androidx.test.rules",
