@@ -36,7 +36,7 @@
          android:targetPackage="com.android.car.test"
          android:label="Tests for Car APIs"/>
 
-    <application android:label="CarServiceTest"
+    <application android:label="@string/app_title"
          android:name=".CarServiceTestApp"
          android:debuggable="true">
         <uses-library android:name="android.test.runner"/>
