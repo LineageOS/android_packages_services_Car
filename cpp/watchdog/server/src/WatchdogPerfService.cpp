@@ -406,7 +406,7 @@ Result<void> WatchdogPerfService::endCustomCollection(int fd) {
     mHandlerLooper->sendMessage(this, SwitchEvent::END_CUSTOM_COLLECTION);
 
     const auto& result = dumpCollectorsStatusLocked(fd);
-    if (!result) {
+    if (!result.ok()) {
         return Error(FAILED_TRANSACTION) << result.error();
     }
 
