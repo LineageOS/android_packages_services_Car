@@ -25,8 +25,8 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.AtomicFile;
-import android.util.Log;
 import android.util.Pair;
+import android.util.Slog;
 
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -139,7 +139,7 @@ public final class CarFeatureController implements CarServiceBase {
         mContext = context;
         mDefaultEnabledFeaturesFromConfig = Arrays.asList(defaultEnabledFeaturesFromConfig);
         mDisabledFeaturesFromVhal = Arrays.asList(disabledFeaturesFromVhal);
-        Log.i(TAG, "mDefaultEnabledFeaturesFromConfig:" + mDefaultEnabledFeaturesFromConfig
+        Slog.i(TAG, "mDefaultEnabledFeaturesFromConfig:" + mDefaultEnabledFeaturesFromConfig
                 + ",mDisabledFeaturesFromVhal:" + mDisabledFeaturesFromVhal);
         mEnabledFeatures = new HashSet<>(MANDATORY_FEATURES);
         mFeatureConfigFile = new AtomicFile(new File(dataDir, FEATURE_CONFIG_FILE_NAME), TAG);
@@ -199,7 +199,7 @@ public final class CarFeatureController implements CarServiceBase {
         // Ensure that mandatory features are always there
         for (String feature: MANDATORY_FEATURES) {
             if (!mEnabledFeatures.contains(feature)) {
-                Log.e(TAG, "Mandatory feature missing in mEnabledFeatures:" + feature);
+                Slog.e(TAG, "Mandatory feature missing in mEnabledFeatures:" + feature);
                 return false;
             }
         }
@@ -214,7 +214,7 @@ public final class CarFeatureController implements CarServiceBase {
         if (!OPTIONAL_FEATURES.contains(featureName)) {
             synchronized (mLock) {
                 if (!mAvailableExperimentalFeatures.contains(featureName)) {
-                    Log.e(TAG, "enableFeature requested for non-existing feature:"
+                    Slog.e(TAG, "enableFeature requested for non-existing feature:"
                             + featureName);
                     return Car.FEATURE_REQUEST_NOT_EXISTING;
                 }
@@ -243,7 +243,7 @@ public final class CarFeatureController implements CarServiceBase {
             }
         }
         if (shouldUpdateConfigFile) {
-            Log.w(TAG, "Enabling feature in config file:" + featureName);
+            Slog.w(TAG, "Enabling feature in config file:" + featureName);
             dispatchDefaultConfigUpdate();
         }
         if (alreadyEnabled) {
@@ -273,7 +273,7 @@ public final class CarFeatureController implements CarServiceBase {
             }
         }
         if (shouldUpdateConfigFile) {
-            Log.w(TAG, "Disabling feature in config file:" + featureName);
+            Slog.w(TAG, "Disabling feature in config file:" + featureName);
             dispatchDefaultConfigUpdate();
         }
         if (alreadyDisabled) {
@@ -292,7 +292,7 @@ public final class CarFeatureController implements CarServiceBase {
     public boolean setAvailableExperimentalFeatureList(List<String> experimentalFeatures) {
         assertPermission();
         if (Build.IS_USER) {
-            Log.e(TAG, "Experimental feature list set for USER build",
+            Slog.e(TAG, "Experimental feature list set for USER build",
                     new RuntimeException());
             return false;
         }
@@ -328,7 +328,7 @@ public final class CarFeatureController implements CarServiceBase {
     /** Returns currently enabled experimental features */
     public @NonNull List<String> getEnabledExperimentalFeatures() {
         if (Build.IS_USER) {
-            Log.e(TAG, "getEnabledExperimentalFeatures called in USER build",
+            Slog.e(TAG, "getEnabledExperimentalFeatures called in USER build",
                     new RuntimeException());
             return Collections.emptyList();
         }
@@ -346,7 +346,7 @@ public final class CarFeatureController implements CarServiceBase {
     }
 
     void handleCorruptConfigFileLocked(String msg, String line) {
-        Log.e(TAG, msg + ", considered as corrupt, line:" + line);
+        Slog.e(TAG, msg + ", considered as corrupt, line:" + line);
         mEnabledFeatures.clear();
     }
 
@@ -356,7 +356,7 @@ public final class CarFeatureController implements CarServiceBase {
         try {
             fis = mFeatureConfigFile.openRead();
         } catch (FileNotFoundException e) {
-            Log.i(TAG, "Feature config file not found, this could be 1st boot");
+            Slog.i(TAG, "Feature config file not found, this could be 1st boot");
             return false;
         }
         try (BufferedReader reader = new BufferedReader(
@@ -402,10 +402,10 @@ public final class CarFeatureController implements CarServiceBase {
                 }
             }
         } catch (IOException e) {
-            Log.w(TAG, "Cannot load config file", e);
+            Slog.w(TAG, "Cannot load config file", e);
             return false;
         }
-        Log.i(TAG, "Loaded features:" + mEnabledFeatures);
+        Slog.i(TAG, "Loaded features:" + mEnabledFeatures);
         return true;
     }
 
@@ -418,12 +418,12 @@ public final class CarFeatureController implements CarServiceBase {
             try {
                 fos = mFeatureConfigFile.startWrite();
             } catch (IOException e) {
-                Log.e(TAG, "Cannot create config file", e);
+                Slog.e(TAG, "Cannot create config file", e);
                 return;
             }
             try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fos,
                     StandardCharsets.UTF_8))) {
-                Log.i(TAG, "Updating features:" + features);
+                Slog.i(TAG, "Updating features:" + features);
                 for (String feature : features) {
                     writer.write(feature);
                     writer.newLine();
@@ -433,7 +433,7 @@ public final class CarFeatureController implements CarServiceBase {
                 mFeatureConfigFile.finishWrite(fos);
             } catch (IOException e) {
                 mFeatureConfigFile.failWrite(fos);
-                Log.e(TAG, "Cannot create config file", e);
+                Slog.e(TAG, "Cannot create config file", e);
             }
         }
     }
@@ -460,7 +460,7 @@ public final class CarFeatureController implements CarServiceBase {
             }
             mEnabledFeatures.add(feature);
         }
-        Log.i(TAG, "Loaded default features:" + mEnabledFeatures);
+        Slog.i(TAG, "Loaded default features:" + mEnabledFeatures);
     }
 
     private static void addSupportFeatures(Collection<String> features) {

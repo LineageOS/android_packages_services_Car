@@ -35,6 +35,7 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.Log;
+import android.util.Slog;
 
 import com.android.car.power.SilentModeController;
 import com.android.internal.annotations.VisibleForTesting;
@@ -123,10 +124,10 @@ public class BluetoothDeviceConnectionPolicy {
 
         CarServicesHelper() {
             mCarPropertyService = CarLocalServices.getService(CarPropertyService.class);
-            if (mCarPropertyService == null) Log.w(TAG, "Cannot find CarPropertyService");
+            if (mCarPropertyService == null) Slog.w(TAG, "Cannot find CarPropertyService");
             mDriverSeat = getDriverSeatLocationFromVhal();
             mCarDrivingStateService = CarLocalServices.getService(CarDrivingStateService.class);
-            if (mCarDrivingStateService == null) Log.w(TAG, "Cannot find mCarDrivingStateService");
+            if (mCarDrivingStateService == null) Slog.w(TAG, "Cannot find mCarDrivingStateService");
         }
 
         /**
@@ -287,7 +288,7 @@ public class BluetoothDeviceConnectionPolicy {
         if (silentModeController != null) {
             silentModeController.registerListener(mSilentModeListener);
         } else {
-            Log.w(TAG, "Cannot find SilentModeController");
+            Slog.w(TAG, "Cannot find SilentModeController");
         }
         mCarHelper.init();
 
@@ -343,7 +344,7 @@ public class BluetoothDeviceConnectionPolicy {
     private void enableBluetooth() {
         logd("Enable bluetooth adapter");
         if (mBluetoothAdapter == null) {
-            Log.e(TAG, "Cannot enable Bluetooth adapter. The object is null.");
+            Slog.e(TAG, "Cannot enable Bluetooth adapter. The object is null.");
             return;
         }
         mBluetoothAdapter.enable();
@@ -358,7 +359,7 @@ public class BluetoothDeviceConnectionPolicy {
     private void disableBluetooth() {
         logd("Disable bluetooth, do not persist state across reboot");
         if (mBluetoothAdapter == null) {
-            Log.e(TAG, "Cannot disable Bluetooth adapter. The object is null.");
+            Slog.e(TAG, "Cannot disable Bluetooth adapter. The object is null.");
             return;
         }
         mBluetoothAdapter.disable(false);
@@ -377,7 +378,7 @@ public class BluetoothDeviceConnectionPolicy {
      */
     private static void logd(String... msgParts) {
         if (DBG) {
-            Log.d(TAG, String.join(" ", msgParts));
+            Slog.d(TAG, String.join(" ", msgParts));
         }
     }
 }

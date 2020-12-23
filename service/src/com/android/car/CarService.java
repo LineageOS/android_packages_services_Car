@@ -31,7 +31,7 @@ import android.os.ServiceManager;
 import android.os.SystemClock;
 import android.os.SystemProperties;
 import android.util.EventLog;
-import android.util.Log;
+import android.util.Slog;
 
 import com.android.car.internal.common.EventLogTags;
 import com.android.car.systeminterface.SystemInterface;
@@ -63,7 +63,7 @@ public class CarService extends Service {
             10 * 60 * 1000,  // 10 minutes - sliding time window.
             () -> {
                 if (IS_USER_BUILD) {
-                    Log.e(CarLog.TAG_SERVICE, "Vehicle HAL keeps crashing, notifying user...");
+                    Slog.e(CarLog.TAG_SERVICE, "Vehicle HAL keeps crashing, notifying user...");
                     mCanBusErrorNotifier.reportFailure(CarService.this);
                 } else {
                     throw new RuntimeException(
@@ -76,7 +76,7 @@ public class CarService extends Service {
 
     @Override
     public void onCreate() {
-        Log.i(CarLog.TAG_SERVICE, "Service onCreate");
+        Slog.i(CarLog.TAG_SERVICE, "Service onCreate");
         mCanBusErrorNotifier = new CanBusErrorNotifier(this /* context */);
         mVehicle = getVehicle();
         EventLog.writeEvent(EventLogTags.CAR_SERVICE_CREATE, mVehicle == null ? 0 : 1);
@@ -90,7 +90,7 @@ public class CarService extends Service {
             throw new IllegalStateException("Unable to get Vehicle HAL interface descriptor", e);
         }
 
-        Log.i(CarLog.TAG_SERVICE, "Connected to " + mVehicleInterfaceName);
+        Slog.i(CarLog.TAG_SERVICE, "Connected to " + mVehicleInterfaceName);
         EventLog.writeEvent(EventLogTags.CAR_SERVICE_CONNECTED, mVehicleInterfaceName);
 
         mICarImpl = new ICarImpl(this,
@@ -113,7 +113,7 @@ public class CarService extends Service {
     @Override
     public void onDestroy() {
         EventLog.writeEvent(EventLogTags.CAR_SERVICE_CREATE, mVehicle == null ? 0 : 1);
-        Log.i(CarLog.TAG_SERVICE, "Service onDestroy");
+        Slog.i(CarLog.TAG_SERVICE, "Service onDestroy");
         mICarImpl.release();
         mCanBusErrorNotifier.removeFailureReport(this);
 
@@ -176,9 +176,9 @@ public class CarService extends Service {
         try {
             return android.hardware.automotive.vehicle.V2_0.IVehicle.getService(instanceName);
         } catch (RemoteException e) {
-            Log.e(CarLog.TAG_SERVICE, "Failed to get IVehicle/" + instanceName + " service", e);
+            Slog.e(CarLog.TAG_SERVICE, "Failed to get IVehicle/" + instanceName + " service", e);
         } catch (NoSuchElementException e) {
-            Log.e(CarLog.TAG_SERVICE, "IVehicle/" + instanceName + " service not registered yet");
+            Slog.e(CarLog.TAG_SERVICE, "IVehicle/" + instanceName + " service not registered yet");
         }
         return null;
     }
@@ -189,23 +189,23 @@ public class CarService extends Service {
         public void serviceDied(long cookie) {
             EventLog.writeEvent(EventLogTags.CAR_SERVICE_VHAL_DIED, cookie);
             if (RESTART_CAR_SERVICE_WHEN_VHAL_CRASH) {
-                Log.wtf(CarLog.TAG_SERVICE, "***Vehicle HAL died. Car service will restart***");
+                Slog.wtf(CarLog.TAG_SERVICE, "***Vehicle HAL died. Car service will restart***");
                 Process.killProcess(Process.myPid());
                 return;
             }
 
-            Log.wtf(CarLog.TAG_SERVICE, "***Vehicle HAL died.***");
+            Slog.wtf(CarLog.TAG_SERVICE, "***Vehicle HAL died.***");
 
             try {
                 mVehicle.unlinkToDeath(this);
             } catch (RemoteException e) {
-                Log.e(CarLog.TAG_SERVICE, "Failed to unlinkToDeath", e); // Log and continue.
+                Slog.e(CarLog.TAG_SERVICE, "Failed to unlinkToDeath", e); // Log and continue.
             }
             mVehicle = null;
 
             mVhalCrashTracker.crashDetected();
 
-            Log.i(CarLog.TAG_SERVICE,
+            Slog.i(CarLog.TAG_SERVICE,
                     "Trying to reconnect to Vehicle HAL: " + mVehicleInterfaceName);
             mVehicle = getVehicleWithTimeout(WAIT_FOR_VEHICLE_HAL_TIMEOUT_MS);
             if (mVehicle == null) {
@@ -214,7 +214,7 @@ public class CarService extends Service {
 
             linkToDeath(mVehicle, this);
 
-            Log.i(CarLog.TAG_SERVICE, "Notifying car service Vehicle HAL reconnected...");
+            Slog.i(CarLog.TAG_SERVICE, "Notifying car service Vehicle HAL reconnected...");
             mICarImpl.vehicleHalReconnected(mVehicle);
         }
     }

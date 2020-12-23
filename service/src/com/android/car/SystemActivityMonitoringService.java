@@ -36,6 +36,7 @@ import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
 import android.util.Pair;
+import android.util.Slog;
 import android.util.SparseArray;
 import android.view.Display;
 
@@ -137,7 +138,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
             mAm.registerProcessObserver(mProcessObserver);
             mAm.registerTaskStackListener(mTaskListener);
         } catch (RemoteException e) {
-            Log.e(CarLog.TAG_AM, "cannot register activity monitoring", e);
+            Slog.e(CarLog.TAG_AM, "cannot register activity monitoring", e);
             throw new RuntimeException(e);
         }
         updateTasks();
@@ -149,7 +150,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
             mAm.unregisterProcessObserver(mProcessObserver);
             mAm.unregisterTaskStackListener(mTaskListener);
         } catch (RemoteException e) {
-            Log.e(CarLog.TAG_AM, "Failed to unregister listeners", e);
+            Slog.e(CarLog.TAG_AM, "Failed to unregister listeners", e);
         }
     }
 
@@ -191,7 +192,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
             for (int i = 0; i < mTopTasks.size(); i++) {
                 TopTaskInfoContainer topTask = mTopTasks.valueAt(i);
                 if (topTask == null) {
-                    Log.e(CarLog.TAG_AM, "Top tasks contains null. Full content is: "
+                    Slog.e(CarLog.TAG_AM, "Top tasks contains null. Full content is: "
                             + mTopTasks.toString());
                     continue;
                 }
@@ -234,8 +235,8 @@ public class SystemActivityMonitoringService implements CarServiceBase {
                         rootActivityName = info.childTaskNames[i];
                         userId = info.userId;
                         if (Log.isLoggable(CarLog.TAG_AM, Log.DEBUG)) {
-                            Log.d(CarLog.TAG_AM, "Root activity is " + rootActivityName);
-                            Log.d(CarLog.TAG_AM, "User id is " + userId);
+                            Slog.d(CarLog.TAG_AM, "Root activity is " + rootActivityName);
+                            Slog.d(CarLog.TAG_AM, "User id is " + userId);
                         }
                         // Break out of nested loop.
                         break findRootActivityName;
@@ -243,12 +244,12 @@ public class SystemActivityMonitoringService implements CarServiceBase {
                 }
             }
         } catch (RemoteException e) {
-            Log.e(CarLog.TAG_AM, "Could not get stack info", e);
+            Slog.e(CarLog.TAG_AM, "Could not get stack info", e);
             return;
         }
 
         if (rootActivityName == null) {
-            Log.e(CarLog.TAG_AM, "Could not find root activity with task id " + taskId);
+            Slog.e(CarLog.TAG_AM, "Could not find root activity with task id " + taskId);
             return;
         }
 
@@ -260,7 +261,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
                 Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
 
         if (Log.isLoggable(CarLog.TAG_AM, Log.INFO)) {
-            Log.i(CarLog.TAG_AM, "restarting root activity with user id " + userId);
+            Slog.i(CarLog.TAG_AM, "restarting root activity with user id " + userId);
         }
         mContext.startActivityAsUser(rootActivityIntent, new UserHandle(userId));
     }
@@ -276,7 +277,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
         try {
             infos = mAm.getAllRootTaskInfos();
         } catch (RemoteException e) {
-            Log.e(CarLog.TAG_AM, "cannot getTasks", e);
+            Slog.e(CarLog.TAG_AM, "cannot getTasks", e);
             return;
         }
 
@@ -293,7 +294,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
                 focusedStackId = focusedTaskInfo.taskId;
             }
         } catch (RemoteException e) {
-            Log.e(CarLog.TAG_AM, "cannot getFocusedStackId", e);
+            Slog.e(CarLog.TAG_AM, "cannot getFocusedStackId", e);
             return;
         }
 
@@ -318,7 +319,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
                         newTopTaskInfo.position > currentTopTaskInfo.position) {
                     topTasks.put(displayId, newTopTaskInfo);
                     if (Log.isLoggable(CarLog.TAG_AM, Log.INFO)) {
-                        Log.i(CarLog.TAG_AM, "Updating top task to: " + newTopTaskInfo);
+                        Slog.i(CarLog.TAG_AM, "Updating top task to: " + newTopTaskInfo);
                     }
                 }
             }
@@ -335,7 +336,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
                 TopTaskInfoContainer topTask = topTasks.valueAt(i);
 
                 if (Log.isLoggable(CarLog.TAG_AM, Log.INFO)) {
-                    Log.i(CarLog.TAG_AM, "Notifying about top task: " + topTask.toString());
+                    Slog.i(CarLog.TAG_AM, "Notifying about top task: " + topTask.toString());
                 }
                 listener.onActivityLaunch(topTask);
             }
@@ -347,7 +348,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
         try {
             focusedStack = mAm.getFocusedRootTaskInfo();
         } catch (RemoteException e) {
-            Log.e(CarLog.TAG_AM, "cannot getFocusedStackId", e);
+            Slog.e(CarLog.TAG_AM, "cannot getFocusedStackId", e);
             return null;
         }
         if (focusedStack.childTaskNames.length == 0) { // nothing in focused stack
@@ -400,7 +401,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
         int displayId = newActivityIntent.getIntExtra(BLOCKING_INTENT_EXTRA_DISPLAY_ID,
                 Display.DEFAULT_DISPLAY);
         if (Log.isLoggable(CarLog.TAG_AM, Log.DEBUG)) {
-            Log.d(CarLog.TAG_AM, "Launching blocking activity on display: " + displayId);
+            Slog.d(CarLog.TAG_AM, "Launching blocking activity on display: " + displayId);
         }
 
         ActivityOptions options = ActivityOptions.makeBasic();
@@ -416,7 +417,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
         try {
             infos = mAm.getAllRootTaskInfos();
         } catch (RemoteException e) {
-            Log.e(CarLog.TAG_AM, "cannot getTasks", e);
+            Slog.e(CarLog.TAG_AM, "cannot getTasks", e);
             return;
         }
         for (RootTaskInfo info : infos) {
@@ -429,19 +430,19 @@ public class SystemActivityMonitoringService implements CarServiceBase {
                 try {
                     mAm.setFocusedRootTask(info.taskId);
                 } catch (RemoteException e) {
-                    Log.e(CarLog.TAG_AM, "cannot setFocusedRootTask to task:" + info.taskId, e);
+                    Slog.e(CarLog.TAG_AM, "cannot setFocusedRootTask to task:" + info.taskId, e);
                 }
                 return;
             }
         }
-        Log.i(CarLog.TAG_AM, "cannot give focus, cannot find Activity:" + activity);
+        Slog.i(CarLog.TAG_AM, "cannot give focus, cannot find Activity:" + activity);
     }
 
     private class ProcessObserver extends IProcessObserver.Stub {
         @Override
         public void onForegroundActivitiesChanged(int pid, int uid, boolean foregroundActivities) {
             if (Log.isLoggable(CarLog.TAG_AM, Log.INFO)) {
-                Log.i(CarLog.TAG_AM,
+                Slog.i(CarLog.TAG_AM,
                         String.format("onForegroundActivitiesChanged uid %d pid %d fg %b",
                     uid, pid, foregroundActivities));
             }
@@ -462,7 +463,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
         @Override
         public void onTaskStackChanged() {
             if (Log.isLoggable(CarLog.TAG_AM, Log.INFO)) {
-                Log.i(CarLog.TAG_AM, "onTaskStackChanged");
+                Slog.i(CarLog.TAG_AM, "onTaskStackChanged");
             }
             mHandler.requestUpdatingTask();
         }
@@ -511,7 +512,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
         public void handleMessage(Message msg) {
             SystemActivityMonitoringService service = mService.get();
             if (service == null) {
-                Log.i(TAG, "handleMessage null service");
+                Slog.i(TAG, "handleMessage null service");
                 return;
             }
             switch (msg.what) {

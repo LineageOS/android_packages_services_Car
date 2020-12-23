@@ -78,7 +78,7 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.text.TextUtils;
 import android.util.ArrayMap;
-import android.util.Log;
+import android.util.Slog;
 import android.util.SparseArray;
 import android.view.KeyEvent;
 
@@ -535,7 +535,7 @@ final class CarShellCommand extends ShellCommand {
 
         }
         if (VERBOSE) {
-            Log.v(TAG, "cmd: " + cmd + ", requiredPermissions: "
+            Slog.v(TAG, "cmd: " + cmd + ", requiredPermissions: "
                     + Arrays.toString(requiredPermissions));
         }
         if (Build.IS_USER && requiredPermissions == null) {
@@ -1060,13 +1060,13 @@ final class CarShellCommand extends ShellCommand {
             }
         }
 
-        Log.d(TAG, "handleGetInitialUserInfo(): type=" + requestType + " (" + typeArg
+        Slog.d(TAG, "handleGetInitialUserInfo(): type=" + requestType + " (" + typeArg
                 + "), timeout=" + timeout);
 
         CountDownLatch latch = new CountDownLatch(1);
         HalCallback<InitialUserInfoResponse> callback = (status, resp) -> {
             try {
-                Log.d(TAG, "GetUserInfoResponse: status=" + status + ", resp=" + resp);
+                Slog.d(TAG, "GetUserInfoResponse: status=" + status + ", resp=" + resp);
                 writer.printf("Call status: %s\n",
                         UserHalHelper.halCallbackStatusToString(status));
                 if (status != HalCallback.STATUS_OK) {
@@ -1142,7 +1142,7 @@ final class CarShellCommand extends ShellCommand {
             }
         }
 
-        Log.d(TAG, "switchUser(): target=" + targetUserId + ", halOnly=" + halOnly
+        Slog.d(TAG, "switchUser(): target=" + targetUserId + ", halOnly=" + halOnly
                 + ", timeout=" + timeout);
 
         if (halOnly) {
@@ -1158,7 +1158,7 @@ final class CarShellCommand extends ShellCommand {
 
             userHal.switchUser(request, timeout, (status, resp) -> {
                 try {
-                    Log.d(TAG, "SwitchUserResponse: status=" + status + ", resp=" + resp);
+                    Slog.d(TAG, "SwitchUserResponse: status=" + status + ", resp=" + resp);
                     writer.printf("Call Status: %s\n",
                             UserHalHelper.halCallbackStatusToString(status));
                     if (status != HalCallback.STATUS_OK) {
@@ -1233,7 +1233,7 @@ final class CarShellCommand extends ShellCommand {
             userType = android.content.pm.UserInfo.getDefaultUserType(flags);
         }
 
-        Log.d(TAG, "createUser(): name=" + name + ", userType=" + userType
+        Slog.d(TAG, "createUser(): name=" + name + ", userType=" + userType
                 + ", flags=" + android.content.pm.UserInfo.flagsToString(flags)
                 + ", halOnly=" + halOnly + ", timeout=" + timeout);
 
@@ -1269,7 +1269,7 @@ final class CarShellCommand extends ShellCommand {
             return;
         }
         writer.printf("New user: %s\n", newUser.toFullString());
-        Log.i(TAG, "Created new user: " + newUser.toFullString());
+        Slog.i(TAG, "Created new user: " + newUser.toFullString());
 
         request.newUserInfo.userId = newUser.id;
         request.newUserInfo.flags = UserHalHelper.convertFlags(newUser);
@@ -1279,7 +1279,7 @@ final class CarShellCommand extends ShellCommand {
         AtomicBoolean halOk = new AtomicBoolean(false);
         try {
             userHal.createUser(request, timeout, (status, resp) -> {
-                Log.d(TAG, "CreateUserResponse: status=" + status + ", resp=" + resp);
+                Slog.d(TAG, "CreateUserResponse: status=" + status + ", resp=" + resp);
                 writer.printf("Call Status: %s\n",
                         UserHalHelper.halCallbackStatusToString(status));
                 if (status == HalCallback.STATUS_OK) {
@@ -1326,7 +1326,7 @@ final class CarShellCommand extends ShellCommand {
             }
         }
 
-        Log.d(TAG, "handleRemoveUser(): User to remove=" + userId + ", halOnly=" + halOnly);
+        Slog.d(TAG, "handleRemoveUser(): User to remove=" + userId + ", halOnly=" + halOnly);
 
         if (halOnly) {
             UserHalService userHal = mHal.getUserHal();
@@ -1415,10 +1415,10 @@ final class CarShellCommand extends ShellCommand {
             request.userInfo.userId = userId;
             request.userInfo.flags = getUserHalFlags(userId);
 
-            Log.d(TAG, "getUserAuthAssociation(): user=" + userId + ", halOnly=" + halOnly
+            Slog.d(TAG, "getUserAuthAssociation(): user=" + userId + ", halOnly=" + halOnly
                     + ", request=" + request);
             UserIdentificationResponse response = mHal.getUserHal().getUserAssociation(request);
-            Log.d(TAG, "getUserAuthAssociation(): response=" + response);
+            Slog.d(TAG, "getUserAuthAssociation(): response=" + response);
             showResponse(writer, response);
             return;
         }
@@ -1554,11 +1554,11 @@ final class CarShellCommand extends ShellCommand {
             request.userInfo.userId = userId;
             request.userInfo.flags = getUserHalFlags(userId);
 
-            Log.d(TAG, "setUserAuthAssociation(): user=" + userId + ", halOnly=" + halOnly
+            Slog.d(TAG, "setUserAuthAssociation(): user=" + userId + ", halOnly=" + halOnly
                     + ", request=" + request);
             CountDownLatch latch = new CountDownLatch(1);
             mHal.getUserHal().setUserAssociation(timeout, request, (status, response) -> {
-                Log.d(TAG, "setUserAuthAssociation(): response=" + response);
+                Slog.d(TAG, "setUserAuthAssociation(): response=" + response);
                 try {
                     showResponse(writer, response);
                 } finally {
@@ -1703,7 +1703,7 @@ final class CarShellCommand extends ShellCommand {
      * {@code adb shell cmd car_service emulate-driving-state drive}.
      */
     private void emulateDrive() {
-        Log.i(TAG, "Emulating driving mode (speed=80mph, gear=8)");
+        Slog.i(TAG, "Emulating driving mode (speed=80mph, gear=8)");
         mHal.injectVhalEvent(Integer.toString(VehiclePropertyIds.PERF_VEHICLE_SPEED),
                 /* zone= */ "0", /* value= */ "80", /* delayTime= */ "2000");
         mHal.injectVhalEvent(Integer.toString(VehiclePropertyIds.GEAR_SELECTION),
@@ -1717,7 +1717,7 @@ final class CarShellCommand extends ShellCommand {
      * {@code adb shell cmd car_service emulate-driving-state reverse}.
      */
     private void emulateReverse() {
-        Log.i(TAG, "Emulating reverse driving mode (speed=5mph)");
+        Slog.i(TAG, "Emulating reverse driving mode (speed=5mph)");
         mHal.injectVhalEvent(Integer.toString(VehiclePropertyIds.PERF_VEHICLE_SPEED),
                 /* zone= */ "0", /* value= */ "5", /* delayTime= */ "2000");
         mHal.injectVhalEvent(Integer.toString(VehiclePropertyIds.GEAR_SELECTION),
@@ -1731,7 +1731,7 @@ final class CarShellCommand extends ShellCommand {
      * {@code adb shell cmd car_service emulate-driving-state park}.
      */
     private void emulatePark() {
-        Log.i(TAG, "Emulating parking mode");
+        Slog.i(TAG, "Emulating parking mode");
         mHal.injectVhalEvent(Integer.toString(VehiclePropertyIds.PERF_VEHICLE_SPEED),
                 /* zone= */ "0", /* value= */ "0", /* delayTime= */ "0");
         mHal.injectVhalEvent(Integer.toString(VehiclePropertyIds.GEAR_SELECTION),
@@ -1750,8 +1750,8 @@ final class CarShellCommand extends ShellCommand {
      */
     private void injectVhalEvent(String property, String zone, String value,
             boolean isErrorEvent, String delayTime, PrintWriter writer) {
-        Log.i(TAG, "Injecting VHAL event: prop="  + property + ", zone=" + zone + ", value=" + value
-                + ", isError=" + isErrorEvent
+        Slog.i(TAG, "Injecting VHAL event: prop="  + property + ", zone=" + zone + ", value="
+                + value + ", isError=" + isErrorEvent
                 + (TextUtils.isEmpty(delayTime) ?  "" : ", delayTime=" + delayTime));
         if (zone != null && (zone.equalsIgnoreCase(PARAM_VEHICLE_PROPERTY_AREA_GLOBAL))) {
             if (!isPropertyAreaTypeGlobal(property)) {

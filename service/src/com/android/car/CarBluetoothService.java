@@ -27,6 +27,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.Log;
+import android.util.Slog;
 import android.util.SparseArray;
 
 import com.android.internal.annotations.GuardedBy;
@@ -222,10 +223,10 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
                 mCarBluetoothUserService = mPerUserCarService.getBluetoothUserService();
                 mCarBluetoothUserService.setupBluetoothConnectionProxies();
             } catch (RemoteException e) {
-                Log.e(TAG, "Remote Service Exception on ServiceConnection Callback: "
+                Slog.e(TAG, "Remote Service Exception on ServiceConnection Callback: "
                         + e.getMessage());
             } catch (java.lang.NullPointerException e) {
-                Log.e(TAG, "Initialization Failed: " + e.getMessage());
+                Slog.e(TAG, "Initialization Failed: " + e.getMessage());
             }
         } else {
             logd("PerUserCarService not connected. Cannot get bluetooth user proxy objects");
@@ -241,7 +242,7 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
         try {
             mCarBluetoothUserService.closeBluetoothConnectionProxies();
         } catch (RemoteException e) {
-            Log.e(TAG, "Remote Service Exception on ServiceConnection Callback: "
+            Slog.e(TAG, "Remote Service Exception on ServiceConnection Callback: "
                     + e.getMessage());
         }
         mCarBluetoothUserService = null;
@@ -482,7 +483,7 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
             return;
         }
         if (mContext == null) {
-            Log.e(TAG, "CarBluetoothPrioritySettings does not have a Context");
+            Slog.e(TAG, "CarBluetoothPrioritySettings does not have a Context");
         }
         throw new SecurityException("requires permission "
                 + android.Manifest.permission.BLUETOOTH_ADMIN);
@@ -525,7 +526,7 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
      */
     private static void logd(String msg) {
         if (DBG) {
-            Log.d(TAG, msg);
+            Slog.d(TAG, msg);
         }
     }
 }

@@ -21,6 +21,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
+import android.util.Slog;
 
 import com.android.internal.annotations.GuardedBy;
 
@@ -71,7 +72,7 @@ final class CanBusErrorNotifier {
         }
 
         if (Log.isLoggable(TAG, Log.INFO)) {
-            Log.i(TAG, "Changing CAN bus failure state to " + shouldShowNotification);
+            Slog.i(TAG, "Changing CAN bus failure state to " + shouldShowNotification);
         }
 
         if (shouldShowNotification) {
