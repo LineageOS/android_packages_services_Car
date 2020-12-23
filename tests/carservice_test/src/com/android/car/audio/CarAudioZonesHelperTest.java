@@ -131,6 +131,8 @@ public class CarAudioZonesHelperTest {
         when(inputMock.getType()).thenReturn(type);
         when(inputMock.isSource()).thenReturn(true);
         when(inputMock.isSink()).thenReturn(false);
+        when(inputMock.getInternalType()).thenReturn(
+                AudioDeviceInfo.convertDeviceTypeToInternalInputDevice(type));
         return inputMock;
     }
 
