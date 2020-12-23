@@ -21,7 +21,7 @@ import android.app.StatsManager.PullAtomMetadata;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.util.ArrayMap;
-import android.util.Log;
+import android.util.Slog;
 import android.util.StatsEvent;
 
 import com.android.car.CarStatsLog;
@@ -117,7 +117,7 @@ public class CarStatsService {
                     uid -> {
                         String packageName = mPackageManager.getNameForUid(uid);
                         if (DEBUG) {
-                            Log.d(TAG, "Created VmsClientLog: " + packageName);
+                            Slog.d(TAG, "Created VmsClientLog: " + packageName);
                         }
                         return new VmsClientLogger(uid, packageName);
                     });
@@ -151,7 +151,7 @@ public class CarStatsService {
 
     private int pullVmsClientStats(int atomTag, List<StatsEvent> pulledData) {
         if (atomTag != CarStatsLog.VMS_CLIENT_STATS) {
-            Log.w(TAG, "Unexpected atom tag: " + atomTag);
+            Slog.w(TAG, "Unexpected atom tag: " + atomTag);
             return StatsManager.PULL_SKIP;
         }
 

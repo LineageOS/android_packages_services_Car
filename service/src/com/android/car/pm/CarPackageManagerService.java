@@ -57,6 +57,7 @@ import android.text.format.DateFormat;
 import android.util.ArraySet;
 import android.util.Log;
 import android.util.Pair;
+import android.util.Slog;
 import android.util.SparseArray;
 import android.view.Display;
 import android.view.DisplayAddress;
@@ -214,7 +215,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     @Override
     public void setAppBlockingPolicy(String packageName, CarAppBlockingPolicy policy, int flags) {
         if (DBG_POLICY_SET) {
-            Log.i(CarLog.TAG_PACKAGE, "policy setting from binder call, client:" + packageName);
+            Slog.i(CarLog.TAG_PACKAGE, "policy setting from binder call, client:" + packageName);
         }
         doSetAppBlockingPolicy(packageName, policy, flags);
     }
@@ -274,7 +275,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         assertPackageAndClassName(packageName, className);
         synchronized (mLock) {
             if (DBG_POLICY_CHECK) {
-                Log.i(CarLog.TAG_PACKAGE, "isActivityDistractionOptimized"
+                Slog.i(CarLog.TAG_PACKAGE, "isActivityDistractionOptimized"
                         + dumpPoliciesLocked(false));
             }
             AppBlockingPackageInfo info = searchFromBlocklistsLocked(packageName);
@@ -301,7 +302,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         }
         synchronized (mLock) {
             if (DBG_POLICY_CHECK) {
-                Log.i(CarLog.TAG_PACKAGE, "isServiceDistractionOptimized"
+                Slog.i(CarLog.TAG_PACKAGE, "isServiceDistractionOptimized"
                         + dumpPoliciesLocked(false));
             }
             AppBlockingPackageInfo info = searchFromBlocklistsLocked(packageName);
@@ -386,7 +387,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         AppBlockingPackageInfoWrapper wrapper = map.get(packageName);
         if (wrapper == null || !wrapper.isMatching) {
             if (DBG_POLICY_CHECK) {
-                Log.d(CarLog.TAG_PACKAGE, "Pkg not in allowlist:" + packageName);
+                Slog.d(CarLog.TAG_PACKAGE, "Pkg not in allowlist:" + packageName);
             }
             return false;
         }
@@ -408,7 +409,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             try {
                 mLock.wait();
             } catch (InterruptedException e) {
-                Log.e(CarLog.TAG_PACKAGE,
+                Slog.e(CarLog.TAG_PACKAGE,
                         "Interrupted wait during release");
                 Thread.currentThread().interrupt();
             }
@@ -435,7 +436,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
     private final UserLifecycleListener mUserLifecycleListener = event -> {
         if (Log.isLoggable(CarLog.TAG_PACKAGE, Log.DEBUG)) {
-            Log.d(CarLog.TAG_PACKAGE, "CarPackageManagerService.onEvent(" + event + ")");
+            Slog.d(CarLog.TAG_PACKAGE, "CarPackageManagerService.onEvent(" + event + ")");
         }
         if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING == event.getEventType()) {
             CarPackageManagerService.this.mHandler.requestParsingInstalledPkgs(0);
@@ -460,7 +461,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         Display defaultDisplay = mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY);
         if (!physicalDisplays.contains(defaultDisplay)) {
             if (Log.isLoggable(CarLog.TAG_PACKAGE, Log.INFO)) {
-                Log.i(CarLog.TAG_PACKAGE, "Adding default display to physical displays.");
+                Slog.i(CarLog.TAG_PACKAGE, "Adding default display to physical displays.");
             }
             physicalDisplays.add(defaultDisplay);
         }
@@ -495,8 +496,8 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
     private void doUpdatePolicy(String packageName, CarAppBlockingPolicy policy, int flags) {
         if (DBG_POLICY_SET) {
-            Log.i(CarLog.TAG_PACKAGE, "setting policy from:" + packageName + ",policy:" + policy +
-                    ",flags:0x" + Integer.toHexString(flags));
+            Slog.i(CarLog.TAG_PACKAGE, "setting policy from:" + packageName + ",policy:" + policy
+                    + ",flags:0x" + Integer.toHexString(flags));
         }
         AppBlockingPackageInfoWrapper[] blocklistWrapper = verifyList(policy.blacklists);
         AppBlockingPackageInfoWrapper[] allowlistWrapper = verifyList(policy.whitelists);
@@ -521,7 +522,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                 mLock.notifyAll();
             }
             if (DBG_POLICY_SET) {
-                Log.i(CarLog.TAG_PACKAGE, "policy set:" + dumpPoliciesLocked(false));
+                Slog.i(CarLog.TAG_PACKAGE, "policy set:" + dumpPoliciesLocked(false));
             }
         }
         blockTopActivitiesIfNecessary();
@@ -638,7 +639,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         mConfiguredAllowlist = mContext.getString(R.string.activityAllowlist);
         if (mConfiguredAllowlist == null) {
             if (DBG_POLICY_CHECK) {
-                Log.w(CarLog.TAG_PACKAGE, "Allowlist is null.");
+                Slog.w(CarLog.TAG_PACKAGE, "Allowlist is null.");
             }
         }
         parseConfigList(mConfiguredAllowlist, configAllowlist);
@@ -646,7 +647,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         mConfiguredSystemAllowlist = mContext.getString(R.string.systemActivityAllowlist);
         if (mConfiguredSystemAllowlist == null) {
             if (DBG_POLICY_CHECK) {
-                Log.w(CarLog.TAG_PACKAGE, "System allowlist is null.");
+                Slog.w(CarLog.TAG_PACKAGE, "System allowlist is null.");
             }
         }
         parseConfigList(mConfiguredSystemAllowlist, configAllowlist);
@@ -667,7 +668,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         mConfiguredBlocklist = mContext.getString(R.string.activityDenylist);
         if (mConfiguredBlocklist == null) {
             if (DBG_POLICY_CHECK) {
-                Log.d(CarLog.TAG_PACKAGE, "Null blocklist in config");
+                Slog.d(CarLog.TAG_PACKAGE, "Null blocklist in config");
             }
         }
         parseConfigList(mConfiguredBlocklist, configBlocklist);
@@ -713,7 +714,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             Set<String> configActivitiesForPackage = configAllowlist.get(info.packageName);
             if (configActivitiesForPackage != null) {
                 if (DBG_POLICY_CHECK) {
-                    Log.d(CarLog.TAG_PACKAGE, info.packageName + " allowlisted");
+                    Slog.d(CarLog.TAG_PACKAGE, info.packageName + " allowlisted");
                 }
                 if (configActivitiesForPackage.size() == 0) {
                     // Whole Pkg has been allowlisted
@@ -724,14 +725,14 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                         activities.addAll(activitiesForPackage);
                     } else {
                         if (DBG_POLICY_CHECK) {
-                            Log.d(CarLog.TAG_PACKAGE, info.packageName + ": Activities null");
+                            Slog.d(CarLog.TAG_PACKAGE, info.packageName + ": Activities null");
                         }
                     }
                 } else {
                     if (DBG_POLICY_CHECK) {
-                        Log.d(CarLog.TAG_PACKAGE, "Partially Allowlisted. WL Activities:");
+                        Slog.d(CarLog.TAG_PACKAGE, "Partially Allowlisted. WL Activities:");
                         for (String a : configActivitiesForPackage) {
-                            Log.d(CarLog.TAG_PACKAGE, a);
+                            Slog.d(CarLog.TAG_PACKAGE, a);
                         }
                     }
                     activities.addAll(configActivitiesForPackage);
@@ -751,14 +752,14 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                                 info.packageName);
                         if (installerName == null || (installerName != null
                                 && !mAllowedAppInstallSources.contains(installerName))) {
-                            Log.w(CarLog.TAG_PACKAGE,
+                            Slog.w(CarLog.TAG_PACKAGE,
                                     info.packageName + " not installed from permitted sources "
                                             + (installerName == null ? "NULL" : installerName));
                             continue;
                         }
                     }
                 } catch (IllegalArgumentException e) {
-                    Log.w(CarLog.TAG_PACKAGE, info.packageName + " not installed!");
+                    Slog.w(CarLog.TAG_PACKAGE, info.packageName + " not installed!");
                     continue;
                 }
             }
@@ -771,14 +772,14 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                     // Some of the activities in this app are Distraction Optimized.
                     if (DBG_POLICY_CHECK) {
                         for (String activity : doActivities) {
-                            Log.d(CarLog.TAG_PACKAGE, "adding " + activity + " from "
+                            Slog.d(CarLog.TAG_PACKAGE, "adding " + activity + " from "
                                     + info.packageName + " to allowlist");
                         }
                     }
                     activities.addAll(Arrays.asList(doActivities));
                 }
             } catch (NameNotFoundException e) {
-                Log.w(CarLog.TAG_PACKAGE, "Error reading metadata: " + info.packageName);
+                Slog.w(CarLog.TAG_PACKAGE, "Error reading metadata: " + info.packageName);
                 continue;
             }
 
@@ -887,7 +888,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                         serviceInfo.packageName) != PackageManager.PERMISSION_GRANTED) {
                     continue;
                 }
-                Log.i(CarLog.TAG_PACKAGE, "found policy holding service:" + serviceInfo);
+                Slog.i(CarLog.TAG_PACKAGE, "found policy holding service:" + serviceInfo);
                 AppBlockingPolicyProxy proxy = new AppBlockingPolicyProxy(this, mContext,
                         serviceInfo);
                 proxy.connect();
@@ -923,8 +924,8 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         try {
             if (policy != null) {
                 if (DBG_POLICY_SET) {
-                    Log.i(CarLog.TAG_PACKAGE, "policy setting from policy service:" +
-                            proxy.getPackageName());
+                    Slog.i(CarLog.TAG_PACKAGE, "policy setting from policy service:"
+                            + proxy.getPackageName());
                 }
                 doSetAppBlockingPolicy(proxy.getPackageName(), policy, 0);
             }
@@ -1016,7 +1017,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             listenerForTopTaskDisplay = mUxRestrictionsListeners.get(Display.DEFAULT_DISPLAY);
             if (listenerForTopTaskDisplay == null) {
                 // This should never happen.
-                Log.e(CarLog.TAG_PACKAGE, "Missing listener for default display.");
+                Slog.e(CarLog.TAG_PACKAGE, "Missing listener for default display.");
                 return true;
             }
         } else {
@@ -1030,7 +1031,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         List<TopTaskInfoContainer> topTasks = mSystemActivityMonitoringService.getTopTasks();
         for (TopTaskInfoContainer topTask : topTasks) {
             if (topTask == null) {
-                Log.e(CarLog.TAG_PACKAGE, "Top tasks contains null.");
+                Slog.e(CarLog.TAG_PACKAGE, "Top tasks contains null.");
                 continue;
             }
             blockTopActivityIfNecessary(topTask);
@@ -1051,7 +1052,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         // We are not handling the UI blocking until we know what is allowed and what is not.
         if (!mHasParsedPackages) {
             if (Log.isLoggable(CarLog.TAG_PACKAGE, Log.INFO)) {
-                Log.i(CarLog.TAG_PACKAGE, "Packages not parsed, so ignoring block for " + topTask);
+                Slog.i(CarLog.TAG_PACKAGE, "Packages not parsed, so ignoring block for " + topTask);
             }
             return;
         }
@@ -1060,23 +1061,24 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                 topTask.topActivity.getPackageName(),
                 topTask.topActivity.getClassName());
         if (DBG_POLICY_ENFORCEMENT) {
-            Log.i(CarLog.TAG_PACKAGE, "new activity:" + topTask.toString() + " allowed:" + allowed);
+            Slog.i(CarLog.TAG_PACKAGE, "new activity:" + topTask.toString() + " allowed:"
+                    + allowed);
         }
         if (allowed) {
             return;
         }
         synchronized (mLock) {
             if (!mEnableActivityBlocking) {
-                Log.d(CarLog.TAG_PACKAGE, "Current activity " + topTask.topActivity +
-                        " not allowed, blocking disabled. Number of tasks in stack:"
+                Slog.d(CarLog.TAG_PACKAGE, "Current activity " + topTask.topActivity
+                        + " not allowed, blocking disabled. Number of tasks in stack:"
                         + topTask.taskInfo.childTaskIds.length);
                 return;
             }
         }
         if (DBG_POLICY_ENFORCEMENT) {
-            Log.i(CarLog.TAG_PACKAGE, "Current activity " + topTask.topActivity +
-                    " not allowed, will block, number of tasks in stack:" +
-                    topTask.taskInfo.childTaskIds.length);
+            Slog.i(CarLog.TAG_PACKAGE, "Current activity " + topTask.topActivity
+                    + " not allowed, will block, number of tasks in stack:"
+                    + topTask.taskInfo.childTaskIds.length);
         }
 
         // Figure out the root activity of blocked task.
@@ -1106,7 +1108,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         // Intent contains all info to debug what is blocked - log into both logcat and dumpsys.
         String log = "Starting blocking activity with intent: " + newActivityIntent.toUri(0);
         if (Log.isLoggable(CarLog.TAG_PACKAGE, Log.INFO)) {
-            Log.i(CarLog.TAG_PACKAGE, log);
+            Slog.i(CarLog.TAG_PACKAGE, log);
         }
         addLog(log);
         mSystemActivityMonitoringService.blockActivity(topTask, newActivityIntent);
@@ -1149,7 +1151,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     @Override
     public void setEnableActivityBlocking(boolean enable) {
         if (!isDebugBuild()) {
-            Log.e(CarLog.TAG_PACKAGE, "Cannot enable/disable activity blocking");
+            Slog.e(CarLog.TAG_PACKAGE, "Cannot enable/disable activity blocking");
             return;
         }
 
@@ -1248,7 +1250,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         public void handleMessage(Message msg) {
             CarPackageManagerService service = mService.get();
             if (service == null) {
-                Log.i(TAG, "handleMessage null service");
+                Slog.i(TAG, "handleMessage null service");
                 return;
             }
             switch (msg.what) {
@@ -1360,7 +1362,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         @Override
         public void onActivityLaunch(TopTaskInfoContainer topTask) {
             if (topTask == null) {
-                Log.e(CarLog.TAG_PACKAGE, "Received callback with null top task.");
+                Slog.e(CarLog.TAG_PACKAGE, "Received callback with null top task.");
                 return;
             }
             blockTopActivityIfNecessary(topTask);
@@ -1384,7 +1386,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         @Override
         public void onUxRestrictionsChanged(CarUxRestrictions restrictions) {
             if (DBG_POLICY_ENFORCEMENT) {
-                Log.d(CarLog.TAG_PACKAGE, "Received uxr restrictions: "
+                Slog.d(CarLog.TAG_PACKAGE, "Received uxr restrictions: "
                         + restrictions.isRequiresDistractionOptimization()
                         + " : " + restrictions.getActiveRestrictions());
             }
@@ -1410,7 +1412,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                 }
             }
             if (DBG_POLICY_ENFORCEMENT) {
-                Log.d(CarLog.TAG_PACKAGE, "Should check top tasks?: " + shouldCheck);
+                Slog.d(CarLog.TAG_PACKAGE, "Should check top tasks?: " + shouldCheck);
             }
             if (shouldCheck) {
                 // Loop over all top tasks to ensure tasks on virtual display can also be blocked.
@@ -1449,7 +1451,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                 return;
             }
             if (DBG_POLICY_CHECK) {
-                Log.d(CarLog.TAG_PACKAGE,
+                Slog.d(CarLog.TAG_PACKAGE,
                         "PackageParsingEventReceiver Received " + intent.getAction());
             }
             String action = intent.getAction();
@@ -1475,22 +1477,22 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             }
 
             String packageName = intent.getData().getSchemeSpecificPart();
-            Log.d(CarLog.TAG_PACKAGE, "Pkg Changed:" + packageName);
+            Slog.d(CarLog.TAG_PACKAGE, "Pkg Changed:" + packageName);
             String action = intent.getAction();
             if (action == null) {
                 return;
             }
             if (action.equals(Intent.ACTION_PACKAGE_CHANGED)) {
-                Log.d(CarLog.TAG_PACKAGE, "Changed components");
+                Slog.d(CarLog.TAG_PACKAGE, "Changed components");
                 String[] cc = intent.getStringArrayExtra(Intent.EXTRA_CHANGED_COMPONENT_NAME_LIST);
                 if (cc != null) {
                     for (String c : cc) {
-                        Log.d(CarLog.TAG_PACKAGE, c);
+                        Slog.d(CarLog.TAG_PACKAGE, c);
                     }
                 }
             } else if (action.equals(Intent.ACTION_PACKAGE_REMOVED)
                     || action.equals(Intent.ACTION_PACKAGE_ADDED)) {
-                Log.d(CarLog.TAG_PACKAGE, action + " Replacing?: " + intent.getBooleanExtra(
+                Slog.d(CarLog.TAG_PACKAGE, action + " Replacing?: " + intent.getBooleanExtra(
                         Intent.EXTRA_REPLACING, false));
             }
         }
