@@ -118,34 +118,34 @@ TEST_F(WatchdogBinderMediatorTest, TestErrorOnInitWithNullServiceInstances) {
                                        new MockIoOveruseMonitor(), new MockWatchdogServiceHelper(),
                                        kAddServiceFunctionStub);
 
-    ASSERT_FALSE(mediator->init()) << "No error returned on nullptr watchdog process service";
+    ASSERT_FALSE(mediator->init().ok()) << "No error returned on nullptr watchdog process service";
     mediator.clear();
 
     mediator = new WatchdogBinderMediator(new MockWatchdogProcessService(), nullptr,
                                           new MockIoOveruseMonitor(),
                                           new MockWatchdogServiceHelper(), kAddServiceFunctionStub);
 
-    ASSERT_FALSE(mediator->init()) << "No error returned on nullptr watchdog perf service";
+    ASSERT_FALSE(mediator->init().ok()) << "No error returned on nullptr watchdog perf service";
     mediator.clear();
 
     mediator = new WatchdogBinderMediator(new MockWatchdogProcessService(),
                                           new MockWatchdogPerfService(), nullptr,
                                           new MockWatchdogServiceHelper(), kAddServiceFunctionStub);
 
-    ASSERT_FALSE(mediator->init()) << "No error returned on nullptr I/O overuse monitor";
+    ASSERT_FALSE(mediator->init().ok()) << "No error returned on nullptr I/O overuse monitor";
     mediator.clear();
 
     mediator = new WatchdogBinderMediator(new MockWatchdogProcessService(),
                                           new MockWatchdogPerfService(), new MockIoOveruseMonitor(),
                                           nullptr, kAddServiceFunctionStub);
 
-    ASSERT_FALSE(mediator->init()) << "No error returned on nullptr watchdog service helper";
+    ASSERT_FALSE(mediator->init().ok()) << "No error returned on nullptr watchdog service helper";
     mediator.clear();
 
     mediator =
             new WatchdogBinderMediator(nullptr, nullptr, nullptr, nullptr, kAddServiceFunctionStub);
 
-    ASSERT_FALSE(mediator->init()) << "No error returned on nullptr watchdog service helper";
+    ASSERT_FALSE(mediator->init().ok()) << "No error returned on nullptr watchdog service helper";
     mediator.clear();
 }
 
