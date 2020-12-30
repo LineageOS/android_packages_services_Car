@@ -108,13 +108,13 @@ final class CarVolume {
      * Suggests a {@link AudioContext} that should be adjusted based on the current
      * {@link AudioPlaybackConfiguration}s, {@link CallState}, and active HAL usages
      */
-    @AudioContext int getSuggestedAudioContext(
-            @NonNull List<AudioPlaybackConfiguration> configurations,
+    @AudioContext int getSuggestedAudioContext(@NonNull List<Integer> activePlaybackContexts,
             @CallState int callState, @NonNull @AttributeUsage int[] activeHalUsages) {
         int currentContext = DEFAULT_AUDIO_CONTEXT;
         int currentPriority = CONTEXT_HEIGHEST_PRIORITY + mVolumePriorityByAudioContext.size();
 
-        Set<Integer> activeContexts = getActiveContexts(configurations, callState, activeHalUsages);
+        Set<Integer> activeContexts = getActiveContexts(activePlaybackContexts, callState,
+                activeHalUsages);
 
         for (@AudioContext int context : activeContexts) {
             int priority = mVolumePriorityByAudioContext.get(context, CONTEXT_NOT_PRIORITIZED);
@@ -136,12 +136,13 @@ final class CarVolume {
     }
 
     public static boolean isAnyContextActive(@NonNull @AudioContext int [] contexts,
-            @NonNull List<AudioPlaybackConfiguration> configurations, @CallState int callState,
+            @NonNull List<Integer> activePlaybackContext, @CallState int callState,
             @NonNull @AttributeUsage int[] activeHalUsages) {
         Objects.nonNull(contexts);
         Preconditions.checkArgument(contexts.length != 0,
                 "contexts can not be empty.");
-        Set<Integer> activeContexts = getActiveContexts(configurations, callState, activeHalUsages);
+        Set<Integer> activeContexts = getActiveContexts(activePlaybackContext,
+                callState, activeHalUsages);
         for (@AudioContext int context : contexts) {
             if (activeContexts.contains(context)) {
                 return true;
@@ -150,10 +151,9 @@ final class CarVolume {
         return false;
     }
 
-    private static Set<Integer> getActiveContexts(
-            @NonNull List<AudioPlaybackConfiguration> configurations,
+    private static Set<Integer> getActiveContexts(@NonNull List<Integer> activePlaybackContexts,
             @CallState int callState, @NonNull  @AttributeUsage int[] activeHalUsages) {
-        Objects.nonNull(configurations);
+        Objects.nonNull(activePlaybackContexts);
         Objects.nonNull(activeHalUsages);
         Set<Integer> contexts = new HashSet<>();
         switch (callState) {
@@ -165,14 +165,7 @@ final class CarVolume {
                 break;
         }
 
-        for (int configIndex = 0; configIndex < configurations.size(); configIndex++) {
-            AudioPlaybackConfiguration configuration = configurations.get(configIndex);
-            if (!configuration.isActive()) {
-                continue;
-            }
-            contexts.add(CarAudioContext
-                    .getContextForUsage(configuration.getAudioAttributes().getSystemUsage()));
-        }
+        contexts.addAll(activePlaybackContexts);
 
         for (int index = 0; index < activeHalUsages.length; index++) {
             contexts.add(CarAudioContext.getContextForUsage(activeHalUsages[index]));

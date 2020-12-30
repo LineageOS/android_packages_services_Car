@@ -121,9 +121,10 @@ import java.util.Map;
 
     /**
      * @param address Physical address for the audio device
-     * @return Array of car audio contexts {@link CarAudioContext} assigned to a given address
+     * @return List of car audio contexts {@link AudioContext} assigned to a given address
      */
-    int[] getContextsForAddress(@NonNull String address) {
+    @CarAudioContext.AudioContext
+     List<Integer> getContextsForAddress(@NonNull String address) {
         List<Integer> carAudioContexts = new ArrayList<>();
         for (int i = 0; i < mContextToAddress.size(); i++) {
             String value = mContextToAddress.valueAt(i);
@@ -131,7 +132,7 @@ import java.util.Map;
                 carAudioContexts.add(mContextToAddress.keyAt(i));
             }
         }
-        return carAudioContexts.stream().mapToInt(i -> i).toArray();
+        return carAudioContexts;
     }
 
     /**
