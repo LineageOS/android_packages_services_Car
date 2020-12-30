@@ -18,12 +18,16 @@
 
 #include "PackageNameResolver.h"
 
-#include <android/automotive/watchdog/internal/PackageInfo.h>
+#include <android-base/strings.h>
+#include <android/automotive/watchdog/internal/ApplicationCategoryType.h>
+#include <android/automotive/watchdog/internal/ComponentType.h>
+#include <android/automotive/watchdog/internal/UidType.h>
 #include <cutils/android_filesystem_config.h>
 #include <utils/String16.h>
 
 #include <inttypes.h>
-#include <pwd.h>
+
+#include <string_view>
 
 namespace android {
 namespace automotive {
@@ -32,14 +36,70 @@ namespace watchdog {
 using android::IBinder;
 using android::sp;
 using android::String16;
+using android::automotive::watchdog::internal::ApplicationCategoryType;
+using android::automotive::watchdog::internal::ComponentType;
 using android::automotive::watchdog::internal::PackageInfo;
+using android::automotive::watchdog::internal::UidType;
 using android::base::Error;
 using android::base::Result;
+using android::base::StartsWith;
 using android::binder::Status;
 
-sp<PackageNameResolver> PackageNameResolver::sInstance = nullptr;
+using GetpwuidFunction = std::function<struct passwd*(uid_t)>;
 
-sp<PackageNameResolver> PackageNameResolver::getInstance() {
+namespace {
+
+constexpr const char16_t* kSharedPackagePrefix = u"shared:";
+
+ComponentType getComponentTypeForNativeUid(uid_t uid, std::string_view packageName,
+                                           const std::vector<std::string>& vendorPackagePrefixes) {
+    for (const auto& prefix : vendorPackagePrefixes) {
+        if (StartsWith(packageName, prefix)) {
+            return ComponentType::VENDOR;
+        }
+    }
+    if ((uid >= AID_OEM_RESERVED_START && uid <= AID_OEM_RESERVED_END) ||
+        (uid >= AID_OEM_RESERVED_2_START && uid <= AID_OEM_RESERVED_2_END) ||
+        (uid >= AID_ODM_RESERVED_START && uid <= AID_ODM_RESERVED_END)) {
+        return ComponentType::VENDOR;
+    }
+    /**
+     * There are no third party native services. Thus all non-vendor services are considered system
+     * services.
+     */
+    return ComponentType::SYSTEM;
+}
+
+Result<PackageInfo> getPackageInfoForNativeUid(
+        uid_t uid, const std::vector<std::string>& vendorPackagePrefixes,
+        const GetpwuidFunction& getpwuidHandler) {
+    PackageInfo packageInfo;
+    passwd* usrpwd = getpwuidHandler(uid);
+    if (!usrpwd) {
+        return Error() << "Failed to fetch package name";
+    }
+    const char* packageName = usrpwd->pw_name;
+    packageInfo.packageIdentifier.name = String16(packageName);
+    packageInfo.packageIdentifier.uid = uid;
+    packageInfo.uidType = UidType::NATIVE;
+    packageInfo.componentType =
+            getComponentTypeForNativeUid(uid, packageName, vendorPackagePrefixes);
+    /**
+     * TODO(b/167240592): Identify application category type using the package names. Vendor
+     *  should define the mappings from package name to the application category type.
+     */
+    packageInfo.appCategoryType = ApplicationCategoryType::OTHERS;
+    packageInfo.sharedUidPackages = {};
+
+    return packageInfo;
+}
+
+}  // namespace
+
+sp<PackageNameResolver> PackageNameResolver::sInstance = nullptr;
+GetpwuidFunction PackageNameResolver::sGetpwuidHandler = &getpwuid;
+
+sp<IPackageNameResolverInterface> PackageNameResolver::getInstance() {
     if (sInstance == nullptr) {
         sInstance = new PackageNameResolver();
     }
@@ -63,72 +123,100 @@ Result<void> PackageNameResolver::initWatchdogServiceHelper(
     return {};
 }
 
-Result<void> PackageNameResolver::setVendorPackagePrefixes(
+void PackageNameResolver::setVendorPackagePrefixes(
         const std::unordered_set<std::string>& prefixes) {
     std::unique_lock writeLock(mRWMutex);
     mVendorPackagePrefixes.clear();
     for (const auto& prefix : prefixes) {
         mVendorPackagePrefixes.push_back(prefix);
     }
-    // TODO(b/167240592): Update locally cached per-package information to reflect the latest
-    //  vendor package prefixes. Because these prefixes list are not updated frequently, the local
-    //  cache can be cleared on this update. Then the next call to resolve UIDs will use the latest
-    //  prefixes list.
-    return {};
+    mUidToPackageInfoMapping.clear();
 }
 
-std::unordered_map<uid_t, std::string> PackageNameResolver::resolveUids(
-        const std::unordered_set<uid_t>& uids) {
-    std::unordered_map<uid_t, std::string> uidToPackageNameMapping;
-    std::vector<int32_t> missingAppUids;
-    std::vector<uid_t> missingNativeUids;
-    {
-        std::shared_lock readLock(mRWMutex);
-        for (const auto& uid : uids) {
-            if (mUidToPackageNameMapping.find(uid) != mUidToPackageNameMapping.end()) {
-                uidToPackageNameMapping[uid] = mUidToPackageNameMapping.at(uid);
-            } else if (uid >= AID_APP_START) {
-                missingAppUids.emplace_back(static_cast<int32_t>(uid));
-            } else {
-                missingNativeUids.emplace_back(uid);
-            }
-        }
-    }
-
-    if (missingAppUids.empty() && missingNativeUids.empty()) {
-        return uidToPackageNameMapping;
-    }
-
+void PackageNameResolver::updatePackageInfos(const std::vector<uid_t>& uids) {
     std::unique_lock writeLock(mRWMutex);
-    for (const auto& uid : missingNativeUids) {
-        // System/native UIDs.
-        passwd* usrpwd = getpwuid(uid);
-        if (!usrpwd) {
+    std::vector<int32_t> missingUids;
+    for (const uid_t uid : uids) {
+        if (mUidToPackageInfoMapping.find(uid) != mUidToPackageInfoMapping.end()) {
             continue;
         }
-        uidToPackageNameMapping[uid] = std::string(usrpwd->pw_name);
-        mUidToPackageNameMapping[uid] = std::string(usrpwd->pw_name);
+        if (uid >= AID_APP_START) {
+            missingUids.emplace_back(static_cast<int32_t>(uid));
+            continue;
+        }
+        auto result = getPackageInfoForNativeUid(uid, mVendorPackagePrefixes,
+                                                 PackageNameResolver::sGetpwuidHandler);
+        if (!result.ok()) {
+            missingUids.emplace_back(static_cast<int32_t>(uid));
+            continue;
+        }
+        mUidToPackageInfoMapping[uid] = *result;
+        if (result->packageIdentifier.name.startsWith(kSharedPackagePrefix)) {
+            // When the UID is shared, poll car watchdog service to fetch the shared packages info.
+            missingUids.emplace_back(static_cast<int32_t>(uid));
+        }
     }
 
     /*
      * There is delay between creating package manager instance and initializing watchdog service
      * helper. Thus check the watchdog service helper instance before proceeding further.
      */
-    if (missingAppUids.empty() || mWatchdogServiceHelper == nullptr) {
-        return uidToPackageNameMapping;
+    if (missingUids.empty() || mWatchdogServiceHelper == nullptr) {
+        return;
     }
 
     std::vector<PackageInfo> packageInfos;
     Status status =
-            mWatchdogServiceHelper->getPackageInfosForUids(missingAppUids, mVendorPackagePrefixes,
+            mWatchdogServiceHelper->getPackageInfosForUids(missingUids, mVendorPackagePrefixes,
                                                            &packageInfos);
     if (!status.isOk()) {
-        ALOGE("Failed to resolve application UIDs: %s", status.exceptionMessage().c_str());
+        ALOGE("Failed to fetch package infos from car watchdog service: %s",
+              status.exceptionMessage().c_str());
+        return;
+    }
+    for (const auto& packageInfo : packageInfos) {
+        if (packageInfo.packageIdentifier.name.size() == 0) {
+            continue;
+        }
+        mUidToPackageInfoMapping[packageInfo.packageIdentifier.uid] = packageInfo;
+    }
+}
+
+std::unordered_map<uid_t, std::string> PackageNameResolver::getPackageNamesForUids(
+        const std::vector<uid_t>& uids) {
+    std::unordered_map<uid_t, std::string> uidToPackageNameMapping;
+    if (uids.empty()) {
         return uidToPackageNameMapping;
     }
-
-    // TODO(b/167240592): Use the package info here to return the package name mapping for app UIDs.
+    updatePackageInfos(uids);
+    {
+        std::shared_lock readLock(mRWMutex);
+        for (const auto& uid : uids) {
+            if (mUidToPackageInfoMapping.find(uid) != mUidToPackageInfoMapping.end()) {
+                uidToPackageNameMapping[uid] = std::string(
+                        String8(mUidToPackageInfoMapping.at(uid).packageIdentifier.name));
+            }
+        }
+    }
     return uidToPackageNameMapping;
+}
+
+std::unordered_map<uid_t, PackageInfo> PackageNameResolver::getPackageInfosForUids(
+        const std::vector<uid_t>& uids) {
+    std::unordered_map<uid_t, PackageInfo> uidToPackageInfoMapping;
+    if (uids.empty()) {
+        return uidToPackageInfoMapping;
+    }
+    updatePackageInfos(uids);
+    {
+        std::shared_lock readLock(mRWMutex);
+        for (const auto& uid : uids) {
+            if (mUidToPackageInfoMapping.find(uid) != mUidToPackageInfoMapping.end()) {
+                uidToPackageInfoMapping[uid] = mUidToPackageInfoMapping.at(uid);
+            }
+        }
+    }
+    return uidToPackageInfoMapping;
 }
 
 }  // namespace watchdog

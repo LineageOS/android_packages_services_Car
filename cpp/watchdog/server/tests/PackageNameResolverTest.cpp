@@ -17,13 +17,22 @@
 #include "MockWatchdogServiceHelper.h"
 #include "PackageNameResolver.h"
 
+#include <android/automotive/watchdog/internal/ApplicationCategoryType.h>
+#include <android/automotive/watchdog/internal/ComponentType.h>
+#include <android/automotive/watchdog/internal/UidType.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <utils/String16.h>
 
 namespace android {
 namespace automotive {
 namespace watchdog {
 
+using android::String16;
+using android::automotive::watchdog::internal::ApplicationCategoryType;
+using android::automotive::watchdog::internal::ComponentType;
+using android::automotive::watchdog::internal::PackageInfo;
+using android::automotive::watchdog::internal::UidType;
 using ::testing::_;
 using ::testing::DoAll;
 using ::testing::NotNull;
@@ -32,45 +41,188 @@ using ::testing::Return;
 using ::testing::SetArgPointee;
 using ::testing::UnorderedElementsAre;
 
-TEST(PackageNameResolverTest, TestResolvesNativeUid) {
-    PackageNameResolver::sInstance.clear();
-    auto actualMapping = PackageNameResolver::getInstance()->resolveUids({0});
+namespace {
 
-    EXPECT_THAT(actualMapping, UnorderedElementsAre(Pair(0, "root")));
+PackageInfo constructPackageInfo(const char* packageName, int32_t uid, UidType uidType,
+                                 ComponentType componentType,
+                                 ApplicationCategoryType appCategoryType,
+                                 std::vector<String16> sharedUidPackages = {}) {
+    PackageInfo packageInfo;
+    packageInfo.packageIdentifier.name = String16(packageName);
+    packageInfo.packageIdentifier.uid = uid;
+    packageInfo.uidType = uidType;
+    packageInfo.componentType = componentType;
+    packageInfo.appCategoryType = appCategoryType;
+    packageInfo.sharedUidPackages = sharedUidPackages;
+    return packageInfo;
 }
 
-/** TODO(b/167240592): Stub watchdog service helper's getPackageInfosForUids and test when
- *   application UIDs resolving logic is implemented
-TEST(PackageNameResolverTest, TestResolvesApplicationUidFromWatchdogServiceHelper) {
-    PackageNameResolver::sInstance.clear();
-    auto mockWatchdogServiceHelper = new MockWatchdogServiceHelper();
+}  // namespace
+
+namespace internal {
+
+class PackageNameResolverPeer {
+public:
+    PackageNameResolverPeer() {
+        PackageNameResolver::getInstance();
+        mPackageNameResolver = PackageNameResolver::sInstance;
+        mockWatchdogServiceHelper = new MockWatchdogServiceHelper();
+        mPackageNameResolver->initWatchdogServiceHelper(mockWatchdogServiceHelper);
+    }
+
+    ~PackageNameResolverPeer() {
+        PackageNameResolver::sInstance.clear();
+        PackageNameResolver::sGetpwuidHandler = &getpwuid;
+        clearMappingCache();
+    }
+
+    void injectCacheMapping(const std::unordered_map<uid_t, PackageInfo>& mapping) {
+        mPackageNameResolver->mUidToPackageInfoMapping = mapping;
+    }
+
+    void setVendorPackagePrefixes(const std::unordered_set<std::string>& prefixes) {
+        mPackageNameResolver->setVendorPackagePrefixes(prefixes);
+    }
+
+    void stubGetpwuid(const std::unordered_map<uid_t, std::string>& nativeUidToPackageNameMapping) {
+        updateNativeUidToPackageNameMapping(nativeUidToPackageNameMapping);
+        PackageNameResolver::sGetpwuidHandler = [&](uid_t uid) -> struct passwd* {
+            const auto& it = mNativeUidToPackageNameMapping.find(uid);
+            if (it == mNativeUidToPackageNameMapping.end()) {
+                return nullptr;
+            }
+            return &it->second;
+        };
+    }
+
+    sp<MockWatchdogServiceHelper> mockWatchdogServiceHelper;
+
+private:
+    void updateNativeUidToPackageNameMapping(
+            const std::unordered_map<uid_t, std::string>& mapping) {
+        clearMappingCache();
+        for (const auto& it : mapping) {
+            char* packageName = new char[it.second.size() + 1];
+            if (packageName == nullptr) {
+                continue;
+            }
+            memset(packageName, 0, sizeof(packageName));
+            snprintf(packageName, it.second.size() + 1, "%s", it.second.c_str());
+
+            struct passwd pwd {
+                .pw_name = packageName, .pw_uid = it.first
+            };
+            mNativeUidToPackageNameMapping.insert(std::make_pair(it.first, pwd));
+        }
+    }
+
+    void clearMappingCache() {
+        for (const auto it : mNativeUidToPackageNameMapping) {
+            // Delete the previously allocated char array before clearing the mapping.
+            delete it.second.pw_name;
+        }
+        mNativeUidToPackageNameMapping.clear();
+    }
+
+    sp<PackageNameResolver> mPackageNameResolver;
+    std::unordered_map<uid_t, struct passwd> mNativeUidToPackageNameMapping;
+};
+
+}  // namespace internal
+
+TEST(PackageNameResolverTest, TestGetPackageInfosForUidsViaGetpwuid) {
+    internal::PackageNameResolverPeer peer;
     auto packageNameResolver = PackageNameResolver::getInstance();
-    packageNameResolver->initWatchdogServiceHelper(mockWatchdogServiceHelper);
-    std::vector<std::string> prefixes = {"vendor.package.A"};
-    packageNameResolver->setVendorPackagePrefixes(prefixes);
 
-    std::vector<std::string> packageNames = {"shared:android.uid.system"};
-    EXPECT_CALL(*mock, getNamesForUids(std::vector<int32_t>({1001000}), NotNull()))
-            .WillOnce(DoAll(SetArgPointee<1>(packageNames), Return(binder::Status::ok())));
+    std::unordered_map<uid_t, PackageInfo> expectedMappings{
+            {7700,
+             constructPackageInfo("system.package.B", 7700, UidType::NATIVE, ComponentType::SYSTEM,
+                                  ApplicationCategoryType::OTHERS)},
+            {5100,
+             constructPackageInfo("vendor.package.A", 5100, UidType::NATIVE, ComponentType::VENDOR,
+                                  ApplicationCategoryType::OTHERS)},
+            {6700,
+             constructPackageInfo("vendor.pkg", 6700, UidType::NATIVE, ComponentType::VENDOR,
+                                  ApplicationCategoryType::OTHERS)},
+    };
 
-    auto actualMapping = packageNameResolver->resolveUids({1001000});
+    peer.stubGetpwuid(
+            {{7700, "system.package.B"}, {5100, "vendor.package.A"}, {6700, "vendor.pkg"}});
+    EXPECT_CALL(*peer.mockWatchdogServiceHelper, getPackageInfosForUids(_, _, _)).Times(0);
 
-    EXPECT_THAT(actualMapping, UnorderedElementsAre(Pair(1001000, "shared:android.uid.system")));
+    auto actualMappings = packageNameResolver->getPackageInfosForUids({7700, 5100, 6700});
+
+    for (const auto& it : expectedMappings) {
+        ASSERT_TRUE(actualMappings.find(it.first) != actualMappings.end())
+                << "Mapping not found for UID" << it.first;
+        EXPECT_EQ(actualMappings.find(it.first)->second, it.second)
+                << "Expected: " << it.second.toString() << "\n"
+                << "Actual: " << actualMappings.find(it.first)->second.toString();
+    }
 }
- */
+
+TEST(PackageNameResolverTest, TestGetPackageInfosForUidsViaWatchdogService) {
+    internal::PackageNameResolverPeer peer;
+    auto packageNameResolver = PackageNameResolver::getInstance();
+    peer.setVendorPackagePrefixes({"vendor.pkg"});
+    /*
+     * Shared UID should be resolved with car watchdog service as well to get the shared packages
+     * list.
+     */
+    peer.stubGetpwuid({{6100, "shared:system.package.A"}});
+
+    std::unordered_map<uid_t, PackageInfo> expectedMappings{
+            {6100,
+             constructPackageInfo("shared:system.package.A", 6100, UidType::NATIVE,
+                                  ComponentType::SYSTEM, ApplicationCategoryType::OTHERS,
+                                  {String16("system.pkg.1"), String16("system.pkg.2")})},
+            {7700,
+             constructPackageInfo("system.package.B", 7700, UidType::NATIVE, ComponentType::SYSTEM,
+                                  ApplicationCategoryType::OTHERS)},
+            {15100,
+             constructPackageInfo("vendor.package.A", 15100, UidType::NATIVE, ComponentType::VENDOR,
+                                  ApplicationCategoryType::OTHERS)},
+            {16700,
+             constructPackageInfo("vendor.pkg", 16700, UidType::NATIVE, ComponentType::VENDOR,
+                                  ApplicationCategoryType::OTHERS)},
+    };
+
+    std::vector<int32_t> expectedUids = {6100, 7700, 15100, 16700};
+    std::vector<std::string> expectedPrefixes = {"vendor.pkg"};
+    std::vector<PackageInfo> injectPackageInfos = {expectedMappings.at(6100),
+                                                   expectedMappings.at(7700),
+                                                   expectedMappings.at(15100),
+                                                   expectedMappings.at(16700)};
+    EXPECT_CALL(*peer.mockWatchdogServiceHelper,
+                getPackageInfosForUids(expectedUids, expectedPrefixes, _))
+            .WillOnce(DoAll(SetArgPointee<2>(injectPackageInfos), Return(binder::Status::ok())));
+
+    auto actualMappings = packageNameResolver->getPackageInfosForUids({6100, 7700, 15100, 16700});
+
+    for (const auto& it : expectedMappings) {
+        ASSERT_TRUE(actualMappings.find(it.first) != actualMappings.end())
+                << "Mapping not found for UID" << it.first;
+        EXPECT_EQ(actualMappings.find(it.first)->second, it.second)
+                << "Expected: " << it.second.toString() << "\n"
+                << "Actual: " << actualMappings.find(it.first)->second.toString();
+    }
+}
 
 TEST(PackageNameResolverTest, TestResolvesApplicationUidFromLocalCache) {
-    PackageNameResolver::sInstance.clear();
+    internal::PackageNameResolverPeer peer;
     auto packageNameResolver = PackageNameResolver::getInstance();
-    auto mockWatchdogServiceHelper = new MockWatchdogServiceHelper();
-    PackageNameResolver::sInstance->initWatchdogServiceHelper(mockWatchdogServiceHelper);
+    PackageInfo expectedPackageInfo =
+            constructPackageInfo("vendor.package", 1003456, UidType::NATIVE, ComponentType::SYSTEM,
+                                 ApplicationCategoryType::OTHERS);
+    peer.injectCacheMapping({{1003456, expectedPackageInfo}});
 
-    PackageNameResolver::sInstance->mUidToPackageNameMapping = {{1003456, "random package"}};
-    EXPECT_CALL(*mockWatchdogServiceHelper, getPackageInfosForUids(_, _, _)).Times(0);
+    peer.stubGetpwuid({});
+    EXPECT_CALL(*peer.mockWatchdogServiceHelper, getPackageInfosForUids(_, _, _)).Times(0);
 
-    auto actualMapping = packageNameResolver->resolveUids({1003456});
+    auto actualMappings = packageNameResolver->getPackageInfosForUids({1003456});
 
-    EXPECT_THAT(actualMapping, UnorderedElementsAre(Pair(1003456, "random package")));
+    ASSERT_TRUE(actualMappings.find(1003456) != actualMappings.end());
+    EXPECT_EQ(actualMappings.find(1003456)->second, expectedPackageInfo);
 }
 
 }  // namespace watchdog
