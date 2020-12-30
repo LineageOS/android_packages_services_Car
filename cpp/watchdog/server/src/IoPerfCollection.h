@@ -21,6 +21,7 @@
 #include "ProcStat.h"
 #include "UidIoStats.h"
 #include "WatchdogPerfService.h"
+#include "utils/PackageNameResolver.h"
 
 #include <android-base/result.h>
 #include <cutils/multiuser.h>
@@ -117,6 +118,7 @@ class IoPerfCollectionPeer;
 class IoPerfCollection : public DataProcessor {
 public:
     IoPerfCollection() :
+          mPackageNameResolver(PackageNameResolver::getInstance()),
           mBoottimeCollection({}),
           mPeriodicCollection({}),
           mCustomCollection({}),
@@ -180,6 +182,9 @@ private:
 
     // Top N per-process stats per subcategory.
     int mTopNStatsPerSubcategory;
+
+    // Local package name resolver instance. Useful to mock in tests.
+    sp<IPackageNameResolverInterface> mPackageNameResolver;
 
     // Makes sure only one collection is running at any given time.
     Mutex mMutex;
