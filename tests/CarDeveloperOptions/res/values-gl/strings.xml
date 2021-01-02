@@ -1625,7 +1625,7 @@
     <string name="usb_tethering_subtext" product="tablet" msgid="154536000235361034">"Comparte a conexión a Internet da tableta por USB"</string>
     <string name="bluetooth_tether_checkbox_text" msgid="7257293066139372774">"Conexión por Bluetooth"</string>
     <string name="bluetooth_tethering_subtext" product="tablet" msgid="6868756914621131635">"Compartir a conexión a Internet da tableta por Bluetooth"</string>
-    <string name="bluetooth_tethering_subtext" product="default" msgid="9167912297565425178">"Compartir a conexión a Internet do teléfono por Bluetooth"</string>
+    <string name="bluetooth_tethering_subtext" product="default" msgid="9167912297565425178">"Comparte a conexión a Internet do teléfono por Bluetooth"</string>
     <string name="bluetooth_tethering_off_subtext_config" msgid="3981528184780083266">"Compartindo a conexión a Internet de <xliff:g id="DEVICE_NAME">%1$d</xliff:g> por Bluetooth"</string>
     <string name="bluetooth_tethering_overflow_error" msgid="6946561351369376943">"Non se pode compartir a conexión con máis de <xliff:g id="MAXCONNECTION">%1$d</xliff:g> dispositivos"</string>
     <string name="bluetooth_untether_blank" msgid="5428300773782256084">"Desactivarase a conexión compartida de <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
@@ -2922,10 +2922,10 @@
     <string name="nfc_payment_app_and_desc" msgid="102312684211458190">"<xliff:g id="APP">%1$s</xliff:g> - <xliff:g id="DESCRIPTION">%2$s</xliff:g>"</string>
     <string name="nfc_payment_use_default" msgid="3098724195746409476">"Usar aplicación predeterminada"</string>
     <string name="nfc_payment_favor_default" msgid="7555356982142464260">"Sempre"</string>
-    <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Excepto cando estea aberta outra aplicación de pago"</string>
+    <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Excepto cando estea aberta outra aplicación para pagos"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"Nun terminal de Tocar e pagar, paga con:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Pago no terminal"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Configura unha aplicación de pago. A continuación, coloca a parte traseira do teu teléfono sobre calquera terminal que teña o símbolo de pago sen contacto."</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Configura unha aplicación para pagos. A continuación, coloca a parte traseira do teu teléfono sobre calquera terminal que teña o símbolo de pago sen contacto."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"Entendido"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"Máis..."</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"Establecer como preferencia?"</string>

@@ -814,8 +814,8 @@
     <string name="wifi_band_5ghz" msgid="6469832209748522207">"5 GHz"</string>
     <string name="wifi_sign_in_button_text" msgid="7573695522292386360">"Kirjaudu sisään"</string>
     <string name="wifi_tap_to_sign_in" msgid="1075925570550560453">"Napauta tästä kirjautuaksesi verkkoon"</string>
-    <string name="tx_link_speed" msgid="4557508597788146162">"<xliff:g id="TRANSMIT_LINK_SPEED">%1$d</xliff:g> Mt/s"</string>
-    <string name="rx_link_speed" msgid="3735337600274627581">"<xliff:g id="RECEIVE_LINK_SPEED">%1$d</xliff:g> Mt/s"</string>
+    <string name="tx_link_speed" msgid="4557508597788146162">"<xliff:g id="TRANSMIT_LINK_SPEED">%1$d</xliff:g> Mb/s"</string>
+    <string name="rx_link_speed" msgid="3735337600274627581">"<xliff:g id="RECEIVE_LINK_SPEED">%1$d</xliff:g> Mb/s"</string>
     <string name="wifi_ask_enable" msgid="925862998663619616">"<xliff:g id="REQUESTER">%s</xliff:g> haluaa ottaa Wi-Fin käyttöön."</string>
     <string name="wifi_ask_disable" msgid="2146839060110412974">"<xliff:g id="REQUESTER">%s</xliff:g> haluaa poistaa Wi-Fin käytöstä."</string>
     <string name="art_verifier_for_debuggable_title" msgid="5223835619409464642">"Vahvista korjattavien sovell. tavukoodi"</string>
@@ -1057,7 +1057,7 @@
     <string name="wifi_p2p_cancel_connect_message" msgid="3752679335020392154">"Haluatko peruuttaa laitteelle <xliff:g id="PEER_NAME">%1$s</xliff:g> lähetetyn yhteydenmuodostuskutsun?"</string>
     <string name="wifi_p2p_delete_group_message" msgid="3206660449067701089">"Unohdetaanko tämä ryhmä?"</string>
     <string name="wifi_hotspot_checkbox_text" msgid="12062341344410520">"Wi‑Fi-hotspot"</string>
-    <string name="wifi_hotspot_off_subtext" msgid="6177054857136221058">"Internetyhteyttä tai sisältöä ei jaeta muiden laitteiden kanssa."</string>
+    <string name="wifi_hotspot_off_subtext" msgid="6177054857136221058">"Internetyhteyttä tai sisältöä ei jaeta muille laitteille."</string>
     <string name="wifi_hotspot_tethering_on_subtext" product="tablet" msgid="71421730039785897">"Tabletin internetyhteys jaetaan hotspotin kautta"</string>
     <string name="wifi_hotspot_tethering_on_subtext" product="default" msgid="8914285514605049879">"Puhelimen internetyhteys jaetaan hotspotin kautta"</string>
     <string name="wifi_hotspot_on_local_only_subtext" msgid="7415381343846704553">"Sovellus jakaa sisältöä – jos haluat jakaa internetyhteyden, sammuta hotspot ja käynnistä se uudelleen"</string>
@@ -1068,7 +1068,7 @@
     <string name="wifi_hotspot_password_title" msgid="4289338152595154889">"Hotspotin salasana"</string>
     <string name="wifi_hotspot_ap_band_title" msgid="3485744480410441949">"AP-taajuus"</string>
     <string name="wifi_hotspot_footer_info_regular" msgid="3876006922622827363">"Hotspot-ominaisuudella voit luoda muille laitteillesi Wi-Fi-verkon. Ominaisuus jakaa internetyhteyden muille laitteille mobiilidatayhteydellä. Lisämaksuja mobiilidatan käytöstä voidaan periä."</string>
-    <string name="wifi_hotspot_footer_info_local_only" msgid="3339582350894639261">"Sovellukset voivat luoda hotspotin ja jakaa sisältöä lähellä olevien laitteiden kanssa."</string>
+    <string name="wifi_hotspot_footer_info_local_only" msgid="3339582350894639261">"Sovellukset voivat luoda hotspotin ja jakaa sisältöä lähellä oleville laitteille."</string>
     <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"Laita hotspot pois päältä automaattisesti"</string>
     <string name="wifi_hotspot_auto_off_summary" msgid="3866769400624802105">"Wi‑Fi-hotspot poistetaan käytöstä, jos laitteita ei ole yhdistetty."</string>
     <string name="wifi_tether_starting" msgid="7676952148471297900">"Otetaan yhteyspiste käyttöön..."</string>
@@ -1629,7 +1629,7 @@
     <string name="bluetooth_tethering_off_subtext_config" msgid="3981528184780083266">"<xliff:g id="DEVICE_NAME">%1$d</xliff:g> jakaa internetyhteyden Bluetoothilla"</string>
     <string name="bluetooth_tethering_overflow_error" msgid="6946561351369376943">"Voidaan yhdistää korkeintaan <xliff:g id="MAXCONNECTION">%1$d</xliff:g> laitteeseen."</string>
     <string name="bluetooth_untether_blank" msgid="5428300773782256084">"Jaettu internetyhteys katkaistaan laitteesta <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
-    <string name="tethering_footer_info" msgid="8019555174339154124">"Hotspot- ja yhteyden jako ‑ominaisuuksien avulla voit jakaa internetyhteyden muille laitteille mobiilidatayhteydellä. Sovellukset voivat myös luoda hotspotin ja jakaa sisältöä lähellä olevien laitteiden kanssa."</string>
+    <string name="tethering_footer_info" msgid="8019555174339154124">"Hotspot- ja yhteyden jako ‑ominaisuuksien avulla voit jakaa internetyhteyden muille laitteille mobiilidatayhteydellä. Sovellukset voivat myös luoda hotspotin ja jakaa sisältöä lähellä oleville laitteille."</string>
     <string name="tethering_help_button_text" msgid="7653022000284543996">"Ohjeet"</string>
     <string name="network_settings_title" msgid="8516526011407061679">"Mobiiliverkko"</string>
     <string name="manage_mobile_plan_title" msgid="3312016665522553062">"Mobiilisopimus"</string>

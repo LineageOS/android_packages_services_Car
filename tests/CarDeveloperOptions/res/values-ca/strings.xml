@@ -2922,10 +2922,10 @@
     <string name="nfc_payment_app_and_desc" msgid="102312684211458190">"<xliff:g id="APP">%1$s</xliff:g> - <xliff:g id="DESCRIPTION">%2$s</xliff:g>"</string>
     <string name="nfc_payment_use_default" msgid="3098724195746409476">"Utilitza l\'aplicació predeterminada"</string>
     <string name="nfc_payment_favor_default" msgid="7555356982142464260">"Sempre"</string>
-    <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Excepte quan hi hagi oberta una altra aplicació per pagar"</string>
+    <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Excepte quan hi hagi oberta una altra aplicació de pagaments"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"En un terminal que tingui la funció Toca i paga, paga amb:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Pagar a la terminal"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Configura una aplicació per pagar. A continuació, apropa la part posterior del telèfon a un terminal amb el símbol de pagament sense contacte."</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Configura una aplicació de pagaments. A continuació, apropa la part posterior del telèfon a un terminal amb el símbol de pagament sense contacte."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"Entesos"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"Més..."</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"Vols establir-ho com a preferència?"</string>
