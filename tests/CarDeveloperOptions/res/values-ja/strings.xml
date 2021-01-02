@@ -23,11 +23,11 @@
     <string name="deny" msgid="3998166389989144025">"許可しない"</string>
     <string name="device_info_default" msgid="1548919563979154348">"不明"</string>
     <plurals name="show_dev_countdown" formatted="false" msgid="3953785659137161981">
-      <item quantity="other">デベロッパーになるまであと<xliff:g id="STEP_COUNT_1">%1$d</xliff:g>ステップです。</item>
-      <item quantity="one">デベロッパーになるまであと<xliff:g id="STEP_COUNT_0">%1$d</xliff:g>ステップです。</item>
+      <item quantity="other">開発者向けオプションが有効になるまであと <xliff:g id="STEP_COUNT_1">%1$d</xliff:g> 回です</item>
+      <item quantity="one">開発者向けオプションが有効になるまであと <xliff:g id="STEP_COUNT_0">%1$d</xliff:g> 回です</item>
     </plurals>
-    <string name="show_dev_on" msgid="9075712234786224065">"これでデベロッパーになりました！"</string>
-    <string name="show_dev_already" msgid="7665948832405148689">"開発者向けオプションが既に有効です。"</string>
+    <string name="show_dev_on" msgid="9075712234786224065">"開発者向けオプションが有効になりました"</string>
+    <string name="show_dev_already" msgid="7665948832405148689">"開発者向けオプションはすでに有効です"</string>
     <string name="dev_settings_disabled_warning" msgid="3198732189395396721">"まず開発者向けオプションを有効にしてください。"</string>
     <string name="header_category_wireless_networks" msgid="8968405993937795898">"無線とネットワーク"</string>
     <string name="header_category_system" msgid="4045988717359334410">"システム"</string>

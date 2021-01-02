@@ -2455,9 +2455,9 @@
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"<xliff:g id="PERCENT">%1$s</xliff:g> हुँदा सक्रिय हुने छ"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"समयतालिका सेट गर्नुहोस्‌"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"चार्ज पूरा भएपछि निष्क्रिय पार्नुहोस्"</string>
-    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"तपाईंको फोन <xliff:g id="PERCENT">%1$s</xliff:g> भएपछि ब्याट्री सेभर अफ हुन्छ"</string>
+    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"तपाईंको फोनको चार्ज <xliff:g id="PERCENT">%1$s</xliff:g> भएपछि ब्याट्री सेभर अफ हुन्छ"</string>
     <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"तपाईंको ट्याब्लेटको चार्ज <xliff:g id="PERCENT">%1$s</xliff:g> भएपछि ब्याट्री सेभर अफ हुन्छ"</string>
-    <string name="battery_saver_sticky_description_new" product="device" msgid="5056520668081504111">"तपाईंको यन्त्र <xliff:g id="PERCENT">%1$s</xliff:g> भएपछि ब्याट्री सेभर अफ हुन्छ"</string>
+    <string name="battery_saver_sticky_description_new" product="device" msgid="5056520668081504111">"तपाईंको यन्त्रको चार्ज <xliff:g id="PERCENT">%1$s</xliff:g> भएपछि ब्याट्री सेभर अफ हुन्छ"</string>
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"सक्रिय गर्नुहोस्"</string>
@@ -3145,9 +3145,9 @@
     <string name="notification_unknown_sound_title" msgid="8043718667804838398">"अनुप्रयोगले प्रदान गरेको ध्वनि"</string>
     <string name="notification_sound_default" msgid="2664544380802426260">"सूचनाको पूर्वनिर्धारित ध्वनि"</string>
     <string name="alarm_ringtone_title" msgid="6411326147408635902">"अलार्मको पूर्वनिर्धारित ध्वनि"</string>
-    <string name="vibrate_when_ringing_title" msgid="2757996559847126952">"कलका बेला कम्पन गर्नुहोस्"</string>
+    <string name="vibrate_when_ringing_title" msgid="2757996559847126952">"कल आउँदा भाइब्रेट गरियोस्"</string>
     <string name="other_sound_settings" msgid="5250376066099818676">"अन्य ध्वनिहरू"</string>
-    <string name="dial_pad_tones_title" msgid="8877212139988655769">"प्याड टोनहरू डायल गर्नुहोस्"</string>
+    <string name="dial_pad_tones_title" msgid="8877212139988655769">"डायल प्याडको टोन"</string>
     <string name="screen_locking_sounds_title" msgid="4407110895465866809">"स्किन लक आवाज"</string>
     <string name="charging_sounds_title" msgid="5070437987230894287">"चार्ज गर्दाको ध्वनि तथा कम्पन"</string>
     <string name="docking_sounds_title" msgid="2573137471605541366">"डाकिंग आवाज"</string>

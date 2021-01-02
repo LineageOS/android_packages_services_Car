@@ -577,7 +577,7 @@
     <string name="current_screen_lock" msgid="398328543694154510">"موجودہ اسکرین لاک"</string>
     <string name="fingerprint_unlock_set_unlock_pattern" msgid="132337696546315927">"فنگر پرنٹ + پیٹرن"</string>
     <string name="fingerprint_unlock_set_unlock_pin" msgid="886426673328906002">"فنگر پرنٹ + PIN"</string>
-    <string name="fingerprint_unlock_set_unlock_password" msgid="3325527833422156515">"فنگر پرنٹ + پاسورڈ"</string>
+    <string name="fingerprint_unlock_set_unlock_password" msgid="3325527833422156515">"فنگر پرنٹ + پاس ورڈ"</string>
     <string name="fingerprint_unlock_skip_fingerprint" msgid="2063700014903801639">"فنگر پرنٹ کے بغیر جاری رکھیں"</string>
     <string name="fingerprint_unlock_title" msgid="8009992449332532869">"آپ اپنے فون کو اپنا فنگر پرنٹ استعمال کر کے غیر مقفل کر سکتے ہیں۔ سیکیورٹی کیلئے، اس اختیار کو ایک بیک اپ اسکرین قفل درکار ہے۔"</string>
     <string name="face_unlock_set_unlock_pattern" msgid="3748596996869406905">"چہرے سے تصدیق + پیٹرن"</string>
@@ -619,8 +619,8 @@
     <string name="unlock_disable_frp_warning_content_pin_fingerprint_profile" msgid="5118210431544156122">"پروفائل کے تحفظ کی خصوصیات آپ کے PIN کے بغیر کام نہیں کریں گی۔<xliff:g id="EMPTY_LINE">
 
 </xliff:g>آپ کے محفوظ کردہ فنگر پرنٹس بھی اس پروفائل سے ہٹا دیے جائیں گے اور آپ ان سے اپنے پروفائل کو غیر مقفل، خریداریوں کی اجازت یا ایپس میں سائن ان نہیں کر پائیں گے۔"</string>
-    <string name="unlock_disable_frp_warning_content_password_profile" msgid="3989497526180082037">"پروفائل کے تحفظ کی خصوصیات آپ کے پاسورڈ کے بغیر کام نہیں کریں گی۔"</string>
-    <string name="unlock_disable_frp_warning_content_password_fingerprint_profile" msgid="8360485354164416198">"پروفائل کے تحفظ کی خصوصیات آپ کے پاسورڈ کے بغیر کام نہیں کریں گی۔<xliff:g id="EMPTY_LINE">
+    <string name="unlock_disable_frp_warning_content_password_profile" msgid="3989497526180082037">"پروفائل کے تحفظ کی خصوصیات آپ کے پاس ورڈ کے بغیر کام نہیں کریں گی۔"</string>
+    <string name="unlock_disable_frp_warning_content_password_fingerprint_profile" msgid="8360485354164416198">"پروفائل کے تحفظ کی خصوصیات آپ کے پاس ورڈ کے بغیر کام نہیں کریں گی۔<xliff:g id="EMPTY_LINE">
 
 </xliff:g>آپ کے محفوظ کردہ فنگر پرنٹس بھی اس پروفائل سے ہٹا دیے جائیں گے اور آپ ان سے اپنے پروفائل کو غیر مقفل، خریداریوں کی اجازت یا ایپس میں سائن ان نہیں کر پائیں گے۔"</string>
     <string name="unlock_disable_frp_warning_content_unknown_profile" msgid="4066001421137974082">"پروفائل کے تحفظ کی خصوصیات آپ کے اسکرین قفل کے بغیر کام نہیں کریں گی۔"</string>
@@ -1707,8 +1707,8 @@
     <string name="settings_safetylegal_activity_loading" msgid="7680998654145172">"لوڈ ہو رہا ہے…"</string>
     <string name="confirm_device_credential_use_alternate_method" msgid="1279869272895739941">"متبادل طریقہ استعمال کریں"</string>
     <string name="lockpassword_choose_your_screen_lock_header" msgid="6283518876031424798">"اسکرین لاک سیٹ کریں"</string>
-    <string name="lockpassword_choose_your_password_message" msgid="2838273977481046536">"سیکیورٹی کیلئے، پاسورڈ سیٹ کریں"</string>
-    <string name="lockpassword_choose_your_password_header_for_fingerprint" msgid="4921343500484160894">"فنگر پرنٹ کے استعمال کے لیے پاسورڈ سیٹ کریں"</string>
+    <string name="lockpassword_choose_your_password_message" msgid="2838273977481046536">"سیکیورٹی کیلئے، پاس ورڈ سیٹ کریں"</string>
+    <string name="lockpassword_choose_your_password_header_for_fingerprint" msgid="4921343500484160894">"فنگر پرنٹ کے استعمال کے لیے پاس ورڈ سیٹ کریں"</string>
     <string name="lockpassword_choose_your_pattern_header_for_fingerprint" msgid="314870151462139417">"فنگر پرنٹ کے استعمال کے لیے پیٹرن سیٹ کریں"</string>
     <string name="lockpassword_choose_your_pin_message" msgid="8942598950627277885">"سیکیورٹی کیلئے، PIN سیٹ کریں"</string>
     <string name="lockpassword_choose_your_pin_header_for_fingerprint" msgid="1102927520952116303">"فنگر پرنٹ کے استعمال کے لیے PIN سیٹ کریں"</string>
@@ -1728,10 +1728,10 @@
     <string name="lockpassword_choose_your_pin_header_for_face" msgid="7238352632535405068">"چہرے سے تصدیق کے لیے PIN سیٹ کریں"</string>
     <string name="lockpassword_confirm_your_pattern_generic" msgid="6146545393074070916">"جاری رکھنے کیلئے اپنے آلہ کا پیٹرن استعمال کریں"</string>
     <string name="lockpassword_confirm_your_pin_generic" msgid="8732268389177735264">"جاری رکھنے کیلئے اپنے آلہ کا PIN درج کریں"</string>
-    <string name="lockpassword_confirm_your_password_generic" msgid="6304552647060899594">"جاری رکھنے کیلئے اپنے آلہ کا پاسورڈ درج کریں"</string>
+    <string name="lockpassword_confirm_your_password_generic" msgid="6304552647060899594">"جاری رکھنے کیلئے اپنے آلہ کا پاس ورڈ درج کریں"</string>
     <string name="lockpassword_confirm_your_pattern_generic_profile" msgid="3074250084050465513">"جاری رکھنے کیلئے اپنا دفتری پیٹرن استعمال کریں"</string>
     <string name="lockpassword_confirm_your_pin_generic_profile" msgid="6037908971086439523">"جاری رکھنے کیلئے اپنا دفتری PIN درج کریں"</string>
-    <string name="lockpassword_confirm_your_password_generic_profile" msgid="2646162490703489685">"جاری رکھنے کیلئے اپنا دفتری پاسورڈ درج کریں"</string>
+    <string name="lockpassword_confirm_your_password_generic_profile" msgid="2646162490703489685">"جاری رکھنے کیلئے اپنا دفتری پاس ورڈ درج کریں"</string>
     <string name="lockpassword_strong_auth_required_device_pattern" msgid="1014214190135045781">"اضافی سیکیورٹی کیلئے اپنے آلہ کا پیٹرن استعمال کریں"</string>
     <string name="lockpassword_strong_auth_required_device_pin" msgid="24030584350601016">"اضافی سیکیورٹی کیلئے اپنے آلہ کا PIN درج کریں"</string>
     <string name="lockpassword_strong_auth_required_device_password" msgid="7746588206458754598">"اضافی سیکیورٹی کیلئے، اپنے آلہ کا پاس ورڈ درج کریں"</string>
@@ -3565,7 +3565,7 @@
     <string name="encryption_continue_button" msgid="2808797091460167842">"جاری رکھیں"</string>
     <string name="encryption_interstitial_message_pin" msgid="6592265582286340307">"آپ یہ آلہ شروع ہونے سے پہلے اپنے PIN کا تقاضہ کر کے، اسے مزید محفوظ بنا سکتے ہیں۔ جب تک آلہ شروع نہیں ہو جاتا ہے، یہ الارمز سمیت، کالیں، پیغامات یا اطلاعات موصول نہیں کر سکتا ہے۔\n\nاس سے گمشدہ یا چوری ہوئے آلات پر ڈیٹا کی حفاظت کرنے میں مدد ملتی ہے۔ آپ کا آلہ شروع کرنے سے پہلے PIN طلب کریں؟"</string>
     <string name="encryption_interstitial_message_pattern" msgid="5620724295995735120">"آپ یہ آلہ شروع ہونے سے پہلے اپنے پیٹرن کا تقاضہ کر کے، اسے مزید محفوظ بنا سکتے ہیں۔ جب تک آلہ شروع نہیں ہو جاتا ہے، یہ الارمز سمیت، کالیں، پیغامات یا اطلاعات موصول نہیں کر سکتا ہے۔\n\nاس سے گمشدہ یا چوری ہوئے آلات پر ڈیٹا کی حفاظت کرنے میں مدد ملتی ہے۔ آپ کا آلہ شروع کرنے سے پہلے پیٹرن طلب کریں؟"</string>
-    <string name="encryption_interstitial_message_password" msgid="7236688467386126401">"آپ یہ آلہ شروع ہونے سے پہلے اپنے پاسورڈ کا تقاضہ کر کے، اسے مزید محفوظ بنا سکتے ہیں۔ جب تک آلہ شروع نہیں ہو جاتا ہے، یہ الارمز سمیت، کالیں، پیغامات یا اطلاعات موصول نہیں کر سکتا ہے۔\n\nاس سے گمشدہ یا چوری ہوئے آلات پر ڈیٹا کی حفاظت کرنے میں مدد ملتی ہے۔ آپ کا آلہ شروع کرنے سے پہلے پاسورڈ طلب کریں؟"</string>
+    <string name="encryption_interstitial_message_password" msgid="7236688467386126401">"آپ یہ آلہ شروع ہونے سے پہلے اپنے پاس ورڈ کا تقاضہ کر کے، اسے مزید محفوظ بنا سکتے ہیں۔ جب تک آلہ شروع نہیں ہو جاتا ہے، یہ الارمز سمیت، کالیں، پیغامات یا اطلاعات موصول نہیں کر سکتا ہے۔\n\nاس سے گمشدہ یا چوری ہوئے آلات پر ڈیٹا کی حفاظت کرنے میں مدد ملتی ہے۔ آپ کا آلہ شروع کرنے سے پہلے پاس ورڈ طلب کریں؟"</string>
     <string name="encryption_interstitial_message_pin_for_fingerprint" msgid="3706009740537484517">"اپنے آلہ کو غیر مقفل کرنے کیلئے اپنی انگلی کا نشان استعمال کرنے کے علاوہ، آپ یہ آلہ شروع ہونے سے پہلے اپنے PIN کا تقاضہ کر کے اسے مزید محفوظ بنا سکتے ہیں۔ جب تک آلہ شروع نہیں ہو جاتا ہے، یہ الارمز سمیت، کالیں، پیغامات یا اطلاعات موصول نہیں کر سکتا۔\n\nاس سے گمشدہ یا چوری ہوئے آلات پر ڈیٹا کی حفاظت کرنے میں مدد ملتی ہے۔ آپ کا آلہ شروع ہونے سے پہلے PIN طلب کریں؟"</string>
     <string name="encryption_interstitial_message_pattern_for_fingerprint" msgid="5230877866699023998">"اپنے آلہ کو غیر مقفل کرنے کیلئے اپنی انگلی کا نشان استعمال کرنے کے علاوہ، آپ یہ آلہ شروع ہونے سے پہلے اپنے پیٹرن کا تقاضہ کر کے اسے مزید محفوظ بنا سکتے ہیں۔ جب تک آلہ شروع نہیں ہو جاتا ہے، یہ الارمز سمیت، کالیں، پیغامات یا اطلاعات موصول نہیں کر سکتا۔\n\nاس سے گمشدہ یا چوری ہوئے آلات پر ڈیٹا کی حفاظت کرنے میں مدد ملتی ہے۔ آپ کا آلہ شروع کرنے سے پہلے پیٹرن طلب کریں؟"</string>
     <string name="encryption_interstitial_message_password_for_fingerprint" msgid="8451977276748128814">"اپنے آلہ کو غیر مقفل کرنے کیلئے اپنی انگلی کا نشان استعمال کرنے کے علاوہ، آپ یہ آلہ شروع ہونے سے پہلے اپنے پاس ورڈ کا تقاضہ کر کے اسے مزید محفوظ بنا سکتے ہیں۔ جب تک آلہ شروع نہیں ہو جاتا ہے، یہ الارمز سمیت، کالیں، پیغامات یا اطلاعات موصول نہیں کر سکتا۔\n\nاس سے گمشدہ یا چوری ہوئے آلات پر ڈیٹا کی حفاظت کرنے میں مدد ملتی ہے۔ آپ کا آلہ شروع ہونے سے پہلے پاس ورڈ طلب کریں؟"</string>
@@ -3996,7 +3996,7 @@
     <string name="lockpattern_settings_require_cred_before_startup" msgid="63693894094570367">"محفوظ آغاز"</string>
     <string name="lockpattern_settings_require_pattern_before_startup_summary" msgid="2330543541999937953">"آپ کا آلہ چالو کرنے کیلئے پیٹرن درکار ہے۔ آف ہوتے ہوئے یہ آلہ کالز، پیٖغامات، اطلاعات یا الارمز موصول نہیں کر سکتا۔"</string>
     <string name="lockpattern_settings_require_pin_before_startup_summary" msgid="1058173991832208485">"آپ کا آلہ چالو کرنے کیلئے PIN درکار ہے۔ آف ہوتے ہوئے یہ آلہ کالز، پیٖغامات، اطلاعات یا الارمز موصول نہیں کر سکتا۔"</string>
-    <string name="lockpattern_settings_require_password_before_startup_summary" msgid="1266300087760553585">"آپ کا آلہ چالو کرنے کیلئے پاسورڈ درکار ہے۔ آف ہوتے ہوئے یہ آلہ کالز، پیٖغامات، اطلاعات یا الارمز موصول نہیں کر سکتا۔"</string>
+    <string name="lockpattern_settings_require_password_before_startup_summary" msgid="1266300087760553585">"آپ کا آلہ چالو کرنے کیلئے پاس ورڈ درکار ہے۔ آف ہوتے ہوئے یہ آلہ کالز، پیٖغامات، اطلاعات یا الارمز موصول نہیں کر سکتا۔"</string>
     <string name="suggestion_additional_fingerprints" msgid="3434467207282466411">"ایک اور فنگر پرنٹ شامل کریں"</string>
     <string name="suggestion_additional_fingerprints_summary" msgid="1916547587832484196">"مختلف انگلی سے غیر مقفل کریں"</string>
     <string name="battery_saver_on_summary" msgid="6841062406467435672">"آن"</string>
