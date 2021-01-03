@@ -4456,8 +4456,8 @@
     <string name="network_connection_connect_successful" msgid="888912275986965748">"Imeunganisha"</string>
     <string name="network_connection_request_dialog_showall" msgid="396928496030183071">"Onyesha yote"</string>
     <plurals name="show_bluetooth_devices" formatted="false" msgid="7451733907387872891">
-      <item quantity="other">Imeunganisha vifaa <xliff:g id="NUMBER_DEVICE_COUNT_1">%1$d</xliff:g></item>
-      <item quantity="one">Imeunganisha kifaa <xliff:g id="NUMBER_DEVICE_COUNT_0">%1$d</xliff:g></item>
+      <item quantity="other">Vifaa <xliff:g id="NUMBER_DEVICE_COUNT_1">%1$d</xliff:g> vimeunganishwa</item>
+      <item quantity="one">Kifaa <xliff:g id="NUMBER_DEVICE_COUNT_0">%1$d</xliff:g> kimeunganishwa</item>
     </plurals>
     <string name="no_bluetooth_devices" msgid="4338224958734305244">"Hakuna vifaa vya  Bluetooth"</string>
     <string name="bluetooth_left_name" msgid="4393660998014637355">"Kushoto"</string>
