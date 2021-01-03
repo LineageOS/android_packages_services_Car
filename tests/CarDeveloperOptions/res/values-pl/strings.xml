@@ -3187,7 +3187,7 @@
     <string name="keywords_android_version" msgid="4842749998088987740">"stan aktualizacji zabezpieczeń Androida, wersja pasma podstawowego, wersja jądra"</string>
     <string name="keywords_dark_ui_mode" msgid="1027966176887770318">"motyw, jasny, ciemny, tryb"</string>
     <string name="keywords_financial_apps_sms_access" msgid="3236014691838121857">"aplikacja finansowa, SMS, uprawnienia"</string>
-    <string name="keywords_systemui_theme" msgid="9150908170417305866">"tryb ciemny"</string>
+    <string name="keywords_systemui_theme" msgid="9150908170417305866">"ciemny motyw"</string>
     <string name="keywords_device_feedback" msgid="6948977907405738490">"błąd"</string>
     <string name="keywords_ambient_display_screen" msgid="5873935693887583428">"Wygaszacz z powiadomieniami, ekran blokady"</string>
     <string name="keywords_lock_screen_notif" msgid="4914337222856805463">"powiadomienia na ekranie blokady, powiadomienia"</string>
@@ -4211,7 +4211,7 @@
     <string name="dark_ui_mode" msgid="703844190192599217">"Motyw"</string>
     <string name="dark_ui_mode_title" msgid="8774932716427742413">"Wybierz motyw"</string>
     <string name="dark_ui_settings_light_summary" msgid="5219102347744462812">"To ustawienie dotyczy również aplikacji"</string>
-    <string name="dark_ui_settings_dark_summary" msgid="7042737828943784289">"Obsługiwane aplikacje również zostaną przełączone na tryb ciemny"</string>
+    <string name="dark_ui_settings_dark_summary" msgid="7042737828943784289">"Obsługiwane aplikacje również zostaną przełączone na ciemny motyw"</string>
     <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"Kafelki szybkich ustawień dla programisty"</string>
     <string name="winscope_trace_quick_settings_title" msgid="940971040388411374">"Śledzenie Winscope"</string>
     <string name="sensors_off_quick_settings_title" msgid="3655699045300438902">"Wyłącz czujniki"</string>

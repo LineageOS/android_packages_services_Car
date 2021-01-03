@@ -1750,7 +1750,7 @@
     <string name="lock_settings_title" msgid="233657584969886812">"Gailuaren segurtasuna"</string>
     <string name="lockpattern_change_lock_pattern_label" msgid="333149762562581510">"Aldatu desblokeatzeko eredua"</string>
     <string name="lockpattern_change_lock_pin_label" msgid="3435796032210265723">"Aldatu desblokeatzeko PINa"</string>
-    <string name="lockpattern_recording_intro_header" msgid="2262005028838969839">"Marraztu desblokeatzeko eredua"</string>
+    <string name="lockpattern_recording_intro_header" msgid="2262005028838969839">"Marraztu desblokeatzeko eredu bat"</string>
     <string name="lockpattern_recording_intro_footer" msgid="5426745740754065099">"Laguntza lortzeko, sakatu Menua."</string>
     <string name="lockpattern_recording_inprogress" msgid="4060818382176523671">"Bukatutakoan, jaso hatza"</string>
     <string name="lockpattern_recording_incorrect_too_short" msgid="6374760294545431845">"Konektatu <xliff:g id="NUMBER">%d</xliff:g> puntu gutxienez. Saiatu berriro."</string>
@@ -1771,7 +1771,7 @@
     <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"<xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g> fidagarritasun-agenteak desblokeatuta mantentzen duenean izan ezik"</string>
     <string name="lockpattern_settings_choose_lock_pattern" msgid="9042142745571386381">"Ezarri desblokeatzeko eredua"</string>
     <string name="lockpattern_settings_change_lock_pattern" msgid="1456643060737114885">"Aldatu desblokeatzeko eredua"</string>
-    <string name="lockpattern_settings_help_how_to_record" msgid="6037403647312543908">"Desblokeatzeko eredua nola marraztu"</string>
+    <string name="lockpattern_settings_help_how_to_record" msgid="6037403647312543908">"Desblokeatzeko eredu bat nola marraztu"</string>
     <string name="lockpattern_too_many_failed_confirmation_attempts" msgid="3043127997770535921">"Saiakera oker gehiegi egin dituzu. Saiatu berriro <xliff:g id="NUMBER">%d</xliff:g> segundo barru."</string>
     <string name="activity_not_found" msgid="3492413375341165453">"Ez duzu aplikazioa telefonoan instalatu."</string>
     <string name="lock_settings_profile_title" msgid="3928992050074556160">"Laneko profilaren segurtasuna"</string>
