@@ -384,8 +384,8 @@
     <string name="decryption_settings_summary" product="tablet" msgid="7524119945312453569">"சாதனம் என்கிரிப்ட் செய்யப்படவில்லை"</string>
     <string name="lockscreen_settings_title" msgid="1221505938891948413">"பூட்டுத் திரைக் காட்சி"</string>
     <string name="lockscreen_settings_what_to_show_category" msgid="3133378945821488654">"எதைக் காட்ட வேண்டும்"</string>
-    <string name="security_settings_summary" msgid="5210109100643223686">"எனது இருப்பிடம், திரை திற, சிம் கார்டு பூட்டு, நற்சான்று சேமிப்பிட பூட்டு ஆகியவற்றை அமைக்கவும்"</string>
-    <string name="cdma_security_settings_summary" msgid="1783066617800041869">"எனது இருப்பிடம், திரையைத் திற, நற்சான்று சேமிப்பிடப் பூட்டு ஆகியவற்றை அமைக்கவும்"</string>
+    <string name="security_settings_summary" msgid="5210109100643223686">"எனது இருப்பிடம், திரை திற, சிம் கார்டு பூட்டு, அனுமதிச் சான்று சேமிப்பக பூட்டு ஆகியவற்றை அமைக்கவும்"</string>
+    <string name="cdma_security_settings_summary" msgid="1783066617800041869">"எனது இருப்பிடம், திரையைத் திற, அனுமதிச் சான்று சேமிப்பகப் பூட்டு ஆகியவற்றை அமைக்கவும்"</string>
     <string name="security_passwords_title" msgid="6853942836045862315">"தனியுரிமை"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"நிர்வாகி முடக்கியுள்ளார்"</string>
     <string name="security_status_title" msgid="1261960357751754428">"பாதுகாப்பு நிலை"</string>
@@ -585,7 +585,7 @@
     <string name="face_unlock_set_unlock_password" msgid="8962344604388383659">"முக அங்கீகாரம் + கடவுச்சொல்"</string>
     <string name="face_unlock_skip_face" msgid="7173197040501143880">"முக அங்கீகாரத்தைத் தவிர்த்து, தொடரவும்"</string>
     <string name="face_unlock_title" msgid="1298031162909236127">"முகத்தைப் பயன்படுத்தி மொபைலைத் திறக்கலாம். இந்த வசதியை உபயோகிக்கும்போது, பாதுகாப்பிற்காகத் திரைப் பூட்டையும் அமைத்திருப்பது அவசியம்."</string>
-    <string name="unlock_set_unlock_disabled_summary" msgid="1713159782896140817">"நிர்வாகி, என்கிரிப்ஷன் பாலிசி/நற்சான்று சேமிப்பகம் காரணமாக முடக்கப்பட்டது"</string>
+    <string name="unlock_set_unlock_disabled_summary" msgid="1713159782896140817">"நிர்வாகி, என்கிரிப்ஷன் பாலிசி/அனுமதிச் சான்று சேமிப்பகம் காரணமாக முடக்கப்பட்டது"</string>
     <string name="unlock_set_unlock_mode_off" msgid="2950701212659081973">"ஏதுமில்லை"</string>
     <string name="unlock_set_unlock_mode_none" msgid="3441605629077912292">"ஸ்வைப்"</string>
     <string name="unlock_set_unlock_mode_pattern" msgid="8564909572968419459">"பேட்டர்ன்"</string>
@@ -1965,7 +1965,7 @@
     <string name="spellchecker_language" msgid="5168501692418112444">"மொழி"</string>
     <string name="keyboard_and_input_methods_category" msgid="5870292843201629800">"கீபோர்டுகள்"</string>
     <string name="virtual_keyboard_category" msgid="4313267486239328613">"விர்ச்சுவல் கீபோர்டு"</string>
-    <string name="available_virtual_keyboard_category" msgid="2211375533762470875">"கிடைக்கும் விர்ச்சுவல் கீபோர்ட்"</string>
+    <string name="available_virtual_keyboard_category" msgid="2211375533762470875">"கிடைக்கும் விர்ச்சுவல் கீபோர்டு"</string>
     <string name="add_virtual_keyboard" msgid="490638727157806209">"கீபோர்டுகளை நிர்வகி"</string>
     <string name="keyboard_assistance_category" msgid="2276351807419818125">"கீபோர்டு உதவி"</string>
     <string name="physical_keyboard_title" msgid="3508591962962814313">"கைமுறை கீபோர்டு"</string>
@@ -1974,7 +1974,7 @@
     <string name="keyboard_shortcuts_helper" msgid="6574386807271399788">"கீபோர்ட் ஷார்ட்கட்களுக்கான உதவி"</string>
     <string name="keyboard_shortcuts_helper_summary" msgid="8024313306403779742">"கிடைக்கும் ஷார்ட்கட்களைக் காட்டு"</string>
     <string name="language_and_input_for_work_category_title" msgid="2053255944038892588">"பணிக் கணக்கிற்கான கீபோர்டுகள் &amp; கருவிகள்"</string>
-    <string name="virtual_keyboards_for_work_title" msgid="3968291646938204523">"பணிக்கான விர்ச்சுவல் கீபோர்ட்"</string>
+    <string name="virtual_keyboards_for_work_title" msgid="3968291646938204523">"பணிக்கான விர்ச்சுவல் கீபோர்டு"</string>
     <string name="default_keyboard_layout" msgid="9171704064451242230">"இயல்பு"</string>
     <string name="pointer_speed" msgid="800691982011350432">"குறிப்பான் வேகம்"</string>
     <string name="game_controller_settings_category" msgid="9066526500617769463">"கேம் கன்ட்ரோலர்"</string>
@@ -2522,7 +2522,7 @@
     <string name="tts_reset" msgid="8864073594540705579">"மீட்டமை"</string>
     <string name="tts_play" msgid="9023430029380675514">"இயக்கு"</string>
     <string name="vpn_settings_title" msgid="7008219502396889192">"VPN"</string>
-    <string name="credentials_title" msgid="7119207354982673965">"அனுமதிச் சான்று சேமிப்பிடம்"</string>
+    <string name="credentials_title" msgid="7119207354982673965">"அனுமதிச் சான்று சேமிப்பகம்"</string>
     <string name="credentials_install" product="nosdcard" msgid="8509362500537206883">"சேமிப்பிடத்திலிருந்து நிறுவு"</string>
     <string name="credentials_install" product="default" msgid="8997183776710118353">"SD கார்டிலிருந்து நிறுவு"</string>
     <string name="credentials_install_summary" product="nosdcard" msgid="3426661965567059596">"சேமிப்பிடத்திலிருந்து சான்றிதழ்களை நிறுவு"</string>
@@ -2541,8 +2541,8 @@
     <string name="credential_for_vpn_and_apps" msgid="2462642486949593841">"VPN மற்றும் பயன்பாடுகளுக்காக நிறுவியது"</string>
     <string name="credential_for_wifi" msgid="2903295786961726388">"வைஃபைக்காக நிறுவியது"</string>
     <string name="credentials_reset_hint" msgid="3484350477764088169">"எல்லா உள்ளடக்கத்தையும் அகற்றவா?"</string>
-    <string name="credentials_erased" msgid="7287088033523869085">"நற்சான்றிதழ் சேமிப்பிடம் அழிக்கப்பட்டது."</string>
-    <string name="credentials_not_erased" msgid="9137227570738627637">"நற்சான்று சேமிப்பிடத்தை அழிக்க முடியாது."</string>
+    <string name="credentials_erased" msgid="7287088033523869085">"அனுமதிச் சான்று சேமிப்பகம் அழிக்கப்பட்டது."</string>
+    <string name="credentials_not_erased" msgid="9137227570738627637">"அனுமதிச் சான்று சேமிப்பகத்தை அழிக்க முடியாது."</string>
     <string name="usage_access_title" msgid="7981321142726540574">"உபயோக அணுகலுடைய ஆப்ஸ்"</string>
     <string name="emergency_tone_title" msgid="130211364025984428">"அவசரகால டயலிங் சிக்னல்"</string>
     <string name="emergency_tone_summary" msgid="8035940153401622240">"அவசர அழைப்பு இயக்கப்பட்டிருக்கும்போது நடத்தையை அமை"</string>
@@ -2624,7 +2624,7 @@
     <string name="sync_plug" msgid="6703804441408427257"><font fgcolor="#ffffffff">"Google ஒத்திசைவுக்கு வரவேற்கிறோம்!"</font>" \nநீங்கள் எங்கிருந்தாலும் உங்கள் தொடர்புகள், அப்பாயிண்ட்மெண்ட்டுகள் மற்றும் பலவற்றுக்கான அணுகலை அனுமதிப்பதற்காக Google தரவை ஒத்திசைக்கிறது."</string>
     <string name="header_application_sync_settings" msgid="4581847153669774489">"ஆப்ஸ் ஒத்திசைவு அமைப்பு"</string>
     <string name="header_data_and_synchronization" msgid="400831816068697286">"தரவு &amp; ஒத்திசைத்தல்"</string>
-    <string name="preference_change_password_title" msgid="7243527448378789274">"கடவுச்சொல்லை மாற்று"</string>
+    <string name="preference_change_password_title" msgid="7243527448378789274">"கடவுச்சொல்லை மாற்றுதல்"</string>
     <string name="header_account_settings" msgid="8586173964125512219">"கணக்கு அமைப்பு"</string>
     <string name="remove_account_label" msgid="5885425720323823387">"கணக்கை அகற்று"</string>
     <string name="header_add_an_account" msgid="8482614556580804956">"கணக்கைச் சேர்"</string>

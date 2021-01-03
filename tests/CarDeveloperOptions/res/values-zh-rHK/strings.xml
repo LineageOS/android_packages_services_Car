@@ -2449,7 +2449,7 @@
     <string name="process_dex2oat_label" msgid="8249082119748556085">"應用程式優化"</string>
     <string name="battery_saver" msgid="3989710213758938398">"省電模式"</string>
     <string name="battery_saver_auto_title" msgid="4158659069641849952">"自動開啟"</string>
-    <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"不設定時間"</string>
+    <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"沒有設定時間表"</string>
     <string name="battery_saver_auto_routine" msgid="886514412067906980">"根據慣常充電時間"</string>
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"根據百分比"</string>
     <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"如果電量很可能在下次慣常充電時間之前耗盡，「省電模式」就會自動開啟"</string>

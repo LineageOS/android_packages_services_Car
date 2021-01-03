@@ -3113,7 +3113,7 @@
     <string name="keywords_fingerprint_settings" msgid="902902368701134163">"اثر انگشت، افزودن اثر انگشت"</string>
     <string name="keywords_display_auto_brightness" msgid="1810596220466483996">"تار کردن صفحه‌نمایش، صفحه لمسی، باتری، روشنایی هوشمند، روشنایی پویا"</string>
     <string name="keywords_display_adaptive_sleep" msgid="1695357782432822811">"کم‌نور کردن صفحه، خواب، باتری، درنگ، توجه، نمایشگر، صفحه، بی‌فعالیتی"</string>
-    <string name="keywords_auto_rotate" msgid="4320791369951647513">"چرخاندن، چرخش، چرخش، پرتره، منظره، جهت، عمودی، افقی"</string>
+    <string name="keywords_auto_rotate" msgid="4320791369951647513">"چرخاندن، چرخش، چرخش، عمودی، منظره، جهت، چشم‌انداز، افقی"</string>
     <string name="keywords_system_update_settings" msgid="4419971277998986067">"ارتقا دادن، Android"</string>
     <string name="keywords_zen_mode_settings" msgid="4103819458182535493">"«مزاحم نشوید»، زمان‌بندی، اعلان‌ها، مسدود کردن، سکوت، لرزش، خواب، کار، کانونی کردن، صدا، صامت کردن، روز، روز هفته، آخر هفته، شب‌های طول هفته، رویداد"</string>
     <string name="keywords_screen_timeout" msgid="4328381362313993666">"صفحه نمایش، زمان قفل شدن، درنگ، صفحه درحالت قفل"</string>
