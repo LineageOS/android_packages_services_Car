@@ -52,8 +52,8 @@
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Машиныхаа аудионы тохиргоог хянана уу."</string>
     <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"Апп блоклолт"</string>
     <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"Жолоодох үеийн аппын блоклолтыг хянана уу."</string>
-    <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"Навигацийн менежер"</string>
-    <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"Навигацийн өгөгдлийг хяналтын самбарт мэдээлэх"</string>
+    <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"Навигацын менежер"</string>
+    <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"Навигацын өгөгдлийг хяналтын самбарт мэдээлэх"</string>
     <string name="car_permission_car_display_in_cluster" msgid="4005987646292458684">"Хяналтын самбарын тайлбарт шууд харуулах"</string>
     <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"Үйл ажиллагааг хяналтын самбарт мэдэгдэхийг аппад зөвшөөрөх"</string>
     <string name="car_permission_car_cluster_control" msgid="1382247204230165674">"Хяналтын самбарын хяналт"</string>
