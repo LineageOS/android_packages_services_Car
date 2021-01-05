@@ -200,20 +200,26 @@ struct SurroundView2dParams {
     // Blending type for low quality preset.
     BlendingType low_quality_blending;
 
+    // whether gpu acceleration is enabled or not
+    bool gpu_acceleration_enabled;
+
     SurroundView2dParams() :
           resolution{0, 0},
           physical_size{0.0f, 0.0f},
           physical_center{0.0f, 0.0f},
           high_quality_blending(BlendingType::MULTIBAND),
-          low_quality_blending(BlendingType::ALPHA) {}
+          low_quality_blending(BlendingType::ALPHA),
+          gpu_acceleration_enabled(false) {}
 
     SurroundView2dParams(Size2dInteger resolution_, Size2dFloat physical_size_,
-                         Coordinate2dFloat physical_center_) :
+                         Coordinate2dFloat physical_center_,
+                         bool gpu_acceleration_enabled_ = false) :
           resolution(resolution_),
           physical_size(physical_size_),
           physical_center(physical_center_),
           high_quality_blending(BlendingType::MULTIBAND),
-          low_quality_blending(BlendingType::ALPHA) {}
+          low_quality_blending(BlendingType::ALPHA),
+          gpu_acceleration_enabled(gpu_acceleration_enabled_) {}
 
     // Checks if data is valid.
     bool IsValid() const { return resolution.IsValid() && physical_size.IsValid(); }
@@ -222,7 +228,8 @@ struct SurroundView2dParams {
         return resolution == rhs.resolution && physical_size == rhs.physical_size &&
                 physical_center == rhs.physical_center &&
                 high_quality_blending == rhs.high_quality_blending &&
-                low_quality_blending == rhs.low_quality_blending;
+                low_quality_blending == rhs.low_quality_blending &&
+                gpu_acceleration_enabled == rhs.gpu_acceleration_enabled;
     }
 
     SurroundView2dParams& operator=(const SurroundView2dParams& rhs) {
@@ -231,6 +238,7 @@ struct SurroundView2dParams {
         physical_center = rhs.physical_center;
         high_quality_blending = rhs.high_quality_blending;
         low_quality_blending = rhs.low_quality_blending;
+        gpu_acceleration_enabled = rhs.gpu_acceleration_enabled;
         return *this;
     }
 };
@@ -353,6 +361,10 @@ struct SurroundViewCameraParams {
 
     // fisheye circular fov.
     float circular_fov;
+
+    // Full path and filename to the validity mask image file.
+    // Mask specifies the valid region of pixels within input camera image.
+    std::string validity_mask_filename;
 
     bool operator==(const SurroundViewCameraParams& rhs) const {
         return (0 == std::memcmp(intrinsics, rhs.intrinsics, 9 * sizeof(float))) &&
@@ -675,42 +687,57 @@ struct SurroundViewInputBufferPointers {
           height(height_) {}
 };
 
+// Currently we keep both cpu and gpu data pointers, and only one of them should
+// be valid at a certain point. Users need to check null before they make use of
+// the data pointers.
+// TODO(b/174778117): consider use only one data pointer once GPU migration is
+// done. If we are going to keep both cpu and gpu data pointer, specify the type
+// of data for cpu data pointer, instead of using a void pointer.
 struct SurroundViewResultPointer {
-    void* data_pointer;
+    void* gpu_data_pointer;
+    void* cpu_data_pointer;
     Format format;
     int width;
     int height;
     bool is_data_preallocated;
     SurroundViewResultPointer() :
-          data_pointer(nullptr), width(0), height(0), is_data_preallocated(false) {}
+          gpu_data_pointer(nullptr),
+          cpu_data_pointer(nullptr),
+          width(0),
+          height(0),
+          is_data_preallocated(false) {}
 
     // Constructor with result data pointer being allocated within core lib.
     // Use for cases when no already existing buffer is available.
     SurroundViewResultPointer(Format format_, int width_, int height_) :
-          format(format_), width(width_), height(height_) {
+          gpu_data_pointer(nullptr),
+          format(format_),
+          width(width_),
+          height(height_),
+          is_data_preallocated(false) {
         // default formate is gray.
         const int byte_per_pixel = format_ == RGB ? 3 : format_ == RGBA ? 4 : 1;
-        data_pointer = static_cast<void*>(new char[width * height * byte_per_pixel]);
-        is_data_preallocated = false;
+        cpu_data_pointer = static_cast<void*>(new char[width * height * byte_per_pixel]);
     }
 
     // Constructor with pre-allocated data.
     // Use for cases when results must be added to an existing allocated buffer.
     // Example, pre-allocated buffer of a display.
-    SurroundViewResultPointer(void* data_pointer_, Format format_, int width_, int height_) :
-          data_pointer(data_pointer_),
+    SurroundViewResultPointer(void* gpu_data_pointer_, void* cpu_data_pointer_, Format format_,
+                              int width_, int height_) :
+          gpu_data_pointer(gpu_data_pointer_),
+          cpu_data_pointer(cpu_data_pointer_),
           format(format_),
           width(width_),
           height(height_),
           is_data_preallocated(true) {}
 
     ~SurroundViewResultPointer() {
-        if (data_pointer) {
-            // TODO(b/154365307): Fix freeing up of pre-allocated memory.
-            // if (!is_data_preallocated) {
-            //   delete[] static_cast<char*>(data_pointer);
-            // }
-            data_pointer = nullptr;
+        if (cpu_data_pointer) {
+            if (!is_data_preallocated) {
+                delete[] static_cast<char*>(cpu_data_pointer);
+            }
+            cpu_data_pointer = nullptr;
         }
     }
 };

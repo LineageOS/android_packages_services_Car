@@ -174,9 +174,11 @@ cc_library{
         "libhardware",
         "libhidlbase",
         "libhidlmemory",
+        "libnativewindow",
         "libio_module",
         "libui",
         "libutils",
+        "libvulkan",
         "libvhal_handler",
     ],
     required : [
@@ -205,11 +207,11 @@ cc_library{
 }
 
 cc_test{
-    name : "sv_session_tests",
+    name : "sv_2d_session_tests",
     test_suites : ["device-tests"],
     vendor : true,
     srcs : [
-        "SurroundViewSessionTests.cpp",
+        "SurroundView2dSessionTests.cpp",
         "mock-evs/MockEvsCamera.cpp",
         "mock-evs/MockEvsEnumerator.cpp",
         "mock-evs/MockSurroundViewCallback.cpp",
@@ -253,6 +255,70 @@ cc_test{
             enabled : true,
         },
     },
+    required : [
+        "sample_car.obj",
+        "sample_car_material.mtl",
+        "sv_sample_config.xml",
+        "sv_sample_car_model_config.xml",
+    ],
+}
+
+cc_test{
+    name : "sv_3d_session_tests",
+    test_suites : ["device-tests"],
+    vendor : true,
+    srcs : [
+        "SurroundView3dSessionTests.cpp",
+        "mock-evs/MockEvsCamera.cpp",
+        "mock-evs/MockEvsEnumerator.cpp",
+        "mock-evs/MockSurroundViewCallback.cpp",
+    ],
+    include_dirs: [
+        "packages/services/Car/evs/sampleDriver",
+    ],
+    shared_libs : [
+        "android.hardware.automotive.evs@1.0",
+        "android.hardware.automotive.evs@1.1",
+        "android.hardware.automotive.sv@1.0",
+        "android.hardware.automotive.vehicle@2.0",
+        "android.hidl.memory@1.0",
+        "android.hidl.allocator@1.0",
+        "libanimation_module",
+        "libbase",
+        "libbinder",
+        "libcamera_metadata",
+        "libcore_lib_shared",
+        "libcutils",
+        "libevsconfigmanager",
+        "libhardware",
+        "libhidlbase",
+        "libhidlmemory",
+        "libio_module",
+        "libsvsession",
+        "libtinyxml2",
+        "libui",
+        "libutils",
+        "libvhal_handler",
+    ],
+    // Disable builds except for arm64 and emulator devices
+    enabled : false,
+    arch : {
+        arm64 : {
+            enabled : true,
+        },
+        x86 : {
+            enabled : true,
+        },
+        x86_64 : {
+            enabled : true,
+        },
+    },
+    required : [
+        "sample_car.obj",
+        "sample_car_material.mtl",
+        "sv_sample_config.xml",
+        "sv_sample_car_model_config.xml",
+    ],
 }
 
 cc_binary{
@@ -332,6 +398,7 @@ cc_prebuilt_library_shared{
         "libdl",
         "libz",
         "liblog",
+        "libvulkan",
     ],
 }
 

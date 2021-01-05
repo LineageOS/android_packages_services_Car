@@ -169,10 +169,14 @@ private:
     // TODO(b/158479099): Rename it to mMappingInfo
     Sv2dMappingInfo mInfo GUARDED_BY(mAccessLock);
     int mOutputWidth, mOutputHeight GUARDED_BY(mAccessLock);
+    sp<GraphicBuffer> mOutputHolder;
 
     sp<GraphicBuffer> mSvTexture GUARDED_BY(mAccessLock);
 
     bool mIsInitialized GUARDED_BY(mAccessLock) = false;
+
+    bool mGpuAccelerationEnabled;
+    hidl_vec<BufferDesc_1_1> mEvsGraphicBuffers;
 };
 
 }  // namespace implementation
