@@ -175,6 +175,16 @@
     <!-- Permission text: apps can listen to driving state changes [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_driving_state">Listen to Driving state changes.</string>
 
+    <!-- Permission text: apps can control EVS stream state. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_use_evs_service">Use Car EVS Service</string>
+    <!-- Permission text: apps can control EVS stream state. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_use_evs_service">Subscribe to EVS video streams</string>
+
+    <!-- Permission text: apps can monitor status changes of EVS service. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_monitor_evs_status">Monitor Car EVS Service status</string>
+    <!-- Permission text: apps can monitor status changes of EVS service. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_monitor_evs_status">Monitor a status of CarEvsService</string>
+
     <!-- Permission text: apps read Engine Detailed [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_car_engine_detailed">access car\u2019s engine detailed</string>
     <!-- Permission text: apps can listen to Engine Detailed [CHAR LIMIT=NONE] -->
