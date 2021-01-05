@@ -43,6 +43,7 @@ android_app {
         "androidx.annotation_annotation",
     ],
 
+    enforce_uses_libs: false,
     dex_preopt: {
         enabled: false,
     },
