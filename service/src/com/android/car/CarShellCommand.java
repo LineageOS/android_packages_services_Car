@@ -148,6 +148,9 @@ final class CarShellCommand extends ShellCommand {
             "set-user-auth-association";
     private static final String COMMAND_DEFINE_POWER_POLICY = "define-power-policy";
     private static final String COMMAND_APPLY_POWER_POLICY = "apply-power-policy";
+    private static final String COMMAND_POWER_OFF = "power-off";
+    private static final String POWER_OFF_SKIP_GARAGEMODE = "--skip-garagemode";
+    private static final String POWER_OFF_SHUTDOWN = "--shutdown";
 
     private static final String COMMAND_EMULATE_DRIVING_STATE = "emulate-driving-state";
     private static final String DRIVING_STATE_DRIVE = "drive";
@@ -467,7 +470,7 @@ final class CarShellCommand extends ShellCommand {
 
         pw.printf("\t%s [%s|%s|%s]\n", COMMAND_EMULATE_DRIVING_STATE, DRIVING_STATE_DRIVE,
                 DRIVING_STATE_PARK, DRIVING_STATE_REVERSE);
-        pw.println("\t  Emulates the giving driving state");
+        pw.println("\t  Emulates the giving driving state.");
 
         pw.printf("\t%s <POLICY_ID> [--enable COMP1,COMP2,...] [--disable COMP1,COMP2,...]\n",
                 COMMAND_DEFINE_POWER_POLICY);
@@ -475,9 +478,13 @@ final class CarShellCommand extends ShellCommand {
         pw.println("\t  are unchanged when the policy is applied.");
         pw.println("\t  Components should be comma-separated without space.");
 
-        pw.printf("\t%s <POLICY_ID>", COMMAND_APPLY_POWER_POLICY);
+        pw.printf("\t%s <POLICY_ID>\n", COMMAND_APPLY_POWER_POLICY);
         pw.println("\t  Applies power policy which is defined in /vendor/etc/power_policy.xml or");
         pw.printf("\t  by %s command\n", COMMAND_DEFINE_POWER_POLICY);
+
+        pw.printf("\t%s [%s] [%s]\n", COMMAND_POWER_OFF, POWER_OFF_SKIP_GARAGEMODE,
+                POWER_OFF_SHUTDOWN);
+        pw.println("\t  Powers off the car.");
     }
 
     private static int showInvalidArguments(PrintWriter pw) {
@@ -747,6 +754,9 @@ final class CarShellCommand extends ShellCommand {
                             COMMAND_APPLY_POWER_POLICY);
                     return RESULT_ERROR;
                 }
+                break;
+            case COMMAND_POWER_OFF:
+                powerOff(args, writer);
                 break;
 
             default:
@@ -1736,6 +1746,27 @@ final class CarShellCommand extends ShellCommand {
                 /* zone= */ "0", /* value= */ "0", /* delayTime= */ "0");
         mHal.injectVhalEvent(Integer.toString(VehiclePropertyIds.GEAR_SELECTION),
                 /* zone= */ "0", Integer.toString(VehicleGear.GEAR_PARK), /* delayTime= */ "0");
+    }
+
+    private void powerOff(String[] args, PrintWriter writer) {
+        int index = 1;
+        boolean skipGarageMode = false;
+        boolean shutdown = false;
+        while (index < args.length) {
+            switch (args[index]) {
+                case POWER_OFF_SKIP_GARAGEMODE:
+                    skipGarageMode = true;
+                    break;
+                case POWER_OFF_SHUTDOWN:
+                    shutdown = true;
+                    break;
+                default:
+                    writer.printf("Not supported option: %s\n", args[index]);
+                    return;
+            }
+            index++;
+        }
+        mCarPowerManagementService.powerOffFromCommand(skipGarageMode, shutdown);
     }
 
     /**
