@@ -22,6 +22,7 @@ android_app {
 
     sdk_version: "current",
 
+    enforce_uses_libs: false,
     dex_preopt: {
         enabled: false,
     },

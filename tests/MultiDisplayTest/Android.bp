@@ -20,6 +20,7 @@ android_app {
     // Only compile source java files in this apk.
     srcs: ["src/**/*.java"],
 
+    enforce_uses_libs: false,
     dex_preopt: {
         enabled: false,
     },
