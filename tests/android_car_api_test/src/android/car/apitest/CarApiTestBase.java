@@ -84,7 +84,7 @@ abstract class CarApiTestBase {
 
     private Car mCar;
     private CarUserManager mCarUserManager;
-    private UserManager mUserManager;
+    protected UserManager mUserManager;
 
     protected final DefaultServiceConnectionListener mConnectionListener =
             new DefaultServiceConnectionListener();
@@ -92,7 +92,7 @@ abstract class CarApiTestBase {
     private final List<Integer> mUsersToRemove = new ArrayList<>();
 
     @Before
-    public final void connectToCar() throws Exception {
+    public final void setFixturesAndConnectToCar() throws Exception {
         mCar = Car.createCar(getContext(), mConnectionListener);
         mCar.connect();
         mConnectionListener.waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);

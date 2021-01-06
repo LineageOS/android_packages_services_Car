@@ -32,6 +32,7 @@ import android.content.Context;
 import android.content.pm.UserInfo;
 import android.os.PowerManager;
 import android.os.UserHandle;
+import android.os.UserManager;
 import android.util.Log;
 
 import org.junit.Before;
@@ -65,6 +66,16 @@ public final class CarDevicePolicyManagerTest extends CarApiTestBase {
 
         assertWithMessage("Failed to remove user%s: %s", user.toFullString(), result)
                 .that(result.isSuccess()).isTrue();
+    }
+
+    @Test
+    public void testRemoveUser_whenDisallowed() throws Exception {
+        try {
+            testRemoveUser();
+        } finally {
+            mUserManager.setUserRestriction(UserManager.DISALLOW_REMOVE_USER, false,
+                    UserHandle.SYSTEM);
+        }
     }
 
     @Test
