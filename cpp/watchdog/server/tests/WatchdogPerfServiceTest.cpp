@@ -24,7 +24,6 @@
 #include "ProcPidStat.h"
 #include "ProcStat.h"
 #include "UidIoStats.h"
-#include "utils/PackageNameResolver.h"
 
 #include <WatchdogProperties.sysprop.h>
 #include <android-base/file.h>

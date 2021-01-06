@@ -17,11 +17,11 @@
 #ifndef CPP_WATCHDOG_SERVER_SRC_IOPERFCOLLECTION_H_
 #define CPP_WATCHDOG_SERVER_SRC_IOPERFCOLLECTION_H_
 
+#include "PackageInfoResolver.h"
 #include "ProcPidStat.h"
 #include "ProcStat.h"
 #include "UidIoStats.h"
 #include "WatchdogPerfService.h"
-#include "utils/PackageNameResolver.h"
 
 #include <android-base/result.h>
 #include <cutils/multiuser.h>
@@ -118,7 +118,7 @@ class IoPerfCollectionPeer;
 class IoPerfCollection : public DataProcessor {
 public:
     IoPerfCollection() :
-          mPackageNameResolver(PackageNameResolver::getInstance()),
+          mPackageInfoResolver(PackageInfoResolver::getInstance()),
           mBoottimeCollection({}),
           mPeriodicCollection({}),
           mCustomCollection({}),
@@ -183,8 +183,8 @@ private:
     // Top N per-process stats per subcategory.
     int mTopNStatsPerSubcategory;
 
-    // Local package name resolver instance. Useful to mock in tests.
-    sp<IPackageNameResolverInterface> mPackageNameResolver;
+    // Local IPackageInfoResolverInterface instance. Useful to mock in tests.
+    sp<IPackageInfoResolverInterface> mPackageInfoResolver;
 
     // Makes sure only one collection is running at any given time.
     Mutex mMutex;

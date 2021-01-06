@@ -18,8 +18,6 @@
 
 #include "WatchdogPerfService.h"
 
-#include "utils/PackageNameResolver.h"
-
 #include <WatchdogProperties.sysprop.h>
 #include <android-base/file.h>
 #include <android-base/parseint.h>

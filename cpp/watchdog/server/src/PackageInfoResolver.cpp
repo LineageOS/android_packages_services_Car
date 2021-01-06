@@ -16,7 +16,7 @@
 
 #define LOG_TAG "carwatchdogd"
 
-#include "PackageNameResolver.h"
+#include "PackageInfoResolver.h"
 
 #include <android-base/strings.h>
 #include <android/automotive/watchdog/internal/ApplicationCategoryType.h>
@@ -96,21 +96,21 @@ Result<PackageInfo> getPackageInfoForNativeUid(
 
 }  // namespace
 
-sp<PackageNameResolver> PackageNameResolver::sInstance = nullptr;
-GetpwuidFunction PackageNameResolver::sGetpwuidHandler = &getpwuid;
+sp<PackageInfoResolver> PackageInfoResolver::sInstance = nullptr;
+GetpwuidFunction PackageInfoResolver::sGetpwuidHandler = &getpwuid;
 
-sp<IPackageNameResolverInterface> PackageNameResolver::getInstance() {
+sp<IPackageInfoResolverInterface> PackageInfoResolver::getInstance() {
     if (sInstance == nullptr) {
-        sInstance = new PackageNameResolver();
+        sInstance = new PackageInfoResolver();
     }
     return sInstance;
 }
 
-void PackageNameResolver::terminate() {
+void PackageInfoResolver::terminate() {
     sInstance.clear();
 }
 
-Result<void> PackageNameResolver::initWatchdogServiceHelper(
+Result<void> PackageInfoResolver::initWatchdogServiceHelper(
         const sp<WatchdogServiceHelperInterface>& watchdogServiceHelper) {
     std::unique_lock writeLock(mRWMutex);
     if (watchdogServiceHelper == nullptr) {
@@ -123,7 +123,7 @@ Result<void> PackageNameResolver::initWatchdogServiceHelper(
     return {};
 }
 
-void PackageNameResolver::setVendorPackagePrefixes(
+void PackageInfoResolver::setVendorPackagePrefixes(
         const std::unordered_set<std::string>& prefixes) {
     std::unique_lock writeLock(mRWMutex);
     mVendorPackagePrefixes.clear();
@@ -133,7 +133,7 @@ void PackageNameResolver::setVendorPackagePrefixes(
     mUidToPackageInfoMapping.clear();
 }
 
-void PackageNameResolver::updatePackageInfos(const std::vector<uid_t>& uids) {
+void PackageInfoResolver::updatePackageInfos(const std::vector<uid_t>& uids) {
     std::unique_lock writeLock(mRWMutex);
     std::vector<int32_t> missingUids;
     for (const uid_t uid : uids) {
@@ -145,7 +145,7 @@ void PackageNameResolver::updatePackageInfos(const std::vector<uid_t>& uids) {
             continue;
         }
         auto result = getPackageInfoForNativeUid(uid, mVendorPackagePrefixes,
-                                                 PackageNameResolver::sGetpwuidHandler);
+                                                 PackageInfoResolver::sGetpwuidHandler);
         if (!result.ok()) {
             missingUids.emplace_back(static_cast<int32_t>(uid));
             continue;
@@ -182,7 +182,7 @@ void PackageNameResolver::updatePackageInfos(const std::vector<uid_t>& uids) {
     }
 }
 
-std::unordered_map<uid_t, std::string> PackageNameResolver::getPackageNamesForUids(
+std::unordered_map<uid_t, std::string> PackageInfoResolver::getPackageNamesForUids(
         const std::vector<uid_t>& uids) {
     std::unordered_map<uid_t, std::string> uidToPackageNameMapping;
     if (uids.empty()) {
@@ -201,7 +201,7 @@ std::unordered_map<uid_t, std::string> PackageNameResolver::getPackageNamesForUi
     return uidToPackageNameMapping;
 }
 
-std::unordered_map<uid_t, PackageInfo> PackageNameResolver::getPackageInfosForUids(
+std::unordered_map<uid_t, PackageInfo> PackageInfoResolver::getPackageInfosForUids(
         const std::vector<uid_t>& uids) {
     std::unordered_map<uid_t, PackageInfo> uidToPackageInfoMapping;
     if (uids.empty()) {
