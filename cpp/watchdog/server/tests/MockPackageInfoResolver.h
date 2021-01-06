@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#ifndef CPP_WATCHDOG_SERVER_TESTS_MOCKPACKAGENAMERESOLVER_H_
-#define CPP_WATCHDOG_SERVER_TESTS_MOCKPACKAGENAMERESOLVER_H_
+#ifndef CPP_WATCHDOG_SERVER_TESTS_MOCKPACKAGEINFORESOLVER_H_
+#define CPP_WATCHDOG_SERVER_TESTS_MOCKPACKAGEINFORESOLVER_H_
 
-#include "PackageNameResolver.h"
+#include "PackageInfoResolver.h"
 
 #include <android-base/result.h>
 #include <gmock/gmock.h>
@@ -29,9 +29,9 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-class MockPackageNameResolver : public IPackageNameResolverInterface {
+class MockPackageInfoResolver : public IPackageInfoResolverInterface {
 public:
-    MockPackageNameResolver() {}
+    MockPackageInfoResolver() {}
     MOCK_METHOD(android::base::Result<void>, initWatchdogServiceHelper,
                 (const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper),
                 (override));
@@ -47,4 +47,4 @@ public:
 }  // namespace automotive
 }  // namespace android
 
-#endif  //  CPP_WATCHDOG_SERVER_TESTS_MOCKPACKAGENAMERESOLVER_H_
+#endif  //  CPP_WATCHDOG_SERVER_TESTS_MOCKPACKAGEINFORESOLVER_H_

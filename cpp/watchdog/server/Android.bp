@@ -42,9 +42,9 @@ cc_defaults {
 }
 
 cc_library {
-  name: "libwatchdog_utils",
+  name: "libwatchdog_package_info_resolver",
   srcs: [
-      "src/utils/PackageNameResolver.cpp",
+      "src/PackageInfoResolver.cpp",
   ],
   defaults: [
       "carwatchdogd_defaults",
@@ -53,7 +53,7 @@ cc_library {
       "libcutils",
   ],
   export_include_dirs: [
-       "src/utils",
+       "src",
   ],
 }
 
@@ -62,7 +62,7 @@ cc_defaults {
     shared_libs: [
         "libcutils",
         "libprocessgroup",
-        "libwatchdog_utils",
+        "libwatchdog_package_info_resolver",
     ],
 }
 
@@ -102,7 +102,7 @@ cc_test {
         "tests/IoOveruseConfigsTest.cpp",
         "tests/IoPerfCollectionTest.cpp",
         "tests/LooperStub.cpp",
-        "tests/PackageNameResolverTest.cpp",
+        "tests/PackageInfoResolverTest.cpp",
         "tests/ProcPidDir.cpp",
         "tests/ProcPidStatTest.cpp",
         "tests/ProcStatTest.cpp",
@@ -119,7 +119,7 @@ cc_test {
         "libwatchdog_binder_mediator",
         "libwatchdog_perf_service",
         "libwatchdog_process_service",
-        "libwatchdog_utils",
+        "libwatchdog_package_info_resolver",
     ],
 }
 
@@ -178,7 +178,7 @@ cc_binary {
       "libwatchdog_binder_mediator",
       "libwatchdog_perf_service",
       "libwatchdog_process_service",
-      "libwatchdog_utils",
+      "libwatchdog_package_info_resolver",
     ],
     vintf_fragments: ["carwatchdogd.xml"],
 }

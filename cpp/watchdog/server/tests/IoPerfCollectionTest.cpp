@@ -15,12 +15,12 @@
  */
 
 #include "IoPerfCollection.h"
-#include "MockPackageNameResolver.h"
+#include "MockPackageInfoResolver.h"
 #include "MockProcPidStat.h"
 #include "MockProcStat.h"
 #include "MockUidIoStats.h"
 #include "MockWatchdogServiceHelper.h"
-#include "utils/PackageNameResolver.h"
+#include "PackageInfoResolver.h"
 
 #include <WatchdogProperties.sysprop.h>
 #include <android-base/file.h>
@@ -129,15 +129,15 @@ class IoPerfCollectionPeer {
 public:
     explicit IoPerfCollectionPeer(sp<IoPerfCollection> collector) :
           mCollector(collector),
-          mMockPackageNameResolver(new MockPackageNameResolver()) {
-        mCollector->mPackageNameResolver = mMockPackageNameResolver;
+          mMockPackageInfoResolver(new MockPackageInfoResolver()) {
+        mCollector->mPackageInfoResolver = mMockPackageInfoResolver;
     }
 
     IoPerfCollectionPeer() = delete;
     ~IoPerfCollectionPeer() {
         mCollector->terminate();
         mCollector.clear();
-        mMockPackageNameResolver.clear();
+        mMockPackageInfoResolver.clear();
     }
 
     void setTopNStatsPerCategory(int value) { mCollector->mTopNStatsPerCategory = value; }
@@ -145,7 +145,7 @@ public:
     void setTopNStatsPerSubcategory(int value) { mCollector->mTopNStatsPerSubcategory = value; }
 
     void injectUidToPackageNameMapping(std::unordered_map<uid_t, std::string> mapping) {
-        EXPECT_CALL(*mMockPackageNameResolver, getPackageNamesForUids(_))
+        EXPECT_CALL(*mMockPackageInfoResolver, getPackageNamesForUids(_))
                 .WillRepeatedly(Return(mapping));
     }
 
@@ -166,7 +166,7 @@ public:
 
 private:
     sp<IoPerfCollection> mCollector;
-    sp<MockPackageNameResolver> mMockPackageNameResolver;
+    sp<MockPackageInfoResolver> mMockPackageInfoResolver;
 };
 
 }  // namespace internal
@@ -455,9 +455,9 @@ TEST(IoPerfCollectionTest, TestUidIoStatsGreaterThanTopNStatsLimit) {
     IoPerfCollection collector;
     collector.mTopNStatsPerCategory = 2;
 
-    sp<MockPackageNameResolver> mockPackageNameResolver = new MockPackageNameResolver();
-    collector.mPackageNameResolver = mockPackageNameResolver;
-    EXPECT_CALL(*mockPackageNameResolver, getPackageNamesForUids(_))
+    sp<MockPackageInfoResolver> mockPackageInfoResolver = new MockPackageInfoResolver();
+    collector.mPackageInfoResolver = mockPackageInfoResolver;
+    EXPECT_CALL(*mockPackageInfoResolver, getPackageNamesForUids(_))
             .WillRepeatedly(Return<std::unordered_map<uid_t, std::string>>(
                     {{1009, "mount"}, {1001000, "shared:android.uid.system"}}));
 
@@ -618,9 +618,9 @@ TEST(IoPerfCollectionTest, TestProcPidContentsGreaterThanTopNStatsLimit) {
     collector.mTopNStatsPerCategory = 2;
     collector.mTopNStatsPerSubcategory = 2;
 
-    sp<MockPackageNameResolver> mockPackageNameResolver = new MockPackageNameResolver();
-    collector.mPackageNameResolver = mockPackageNameResolver;
-    EXPECT_CALL(*mockPackageNameResolver, getPackageNamesForUids(_))
+    sp<MockPackageInfoResolver> mockPackageInfoResolver = new MockPackageInfoResolver();
+    collector.mPackageInfoResolver = mockPackageInfoResolver;
+    EXPECT_CALL(*mockPackageInfoResolver, getPackageNamesForUids(_))
             .WillRepeatedly(Return<std::unordered_map<uid_t, std::string>>(
                     {{0, "root"}, {1009, "mount"}, {1001000, "shared:android.uid.system"}}));
 
@@ -697,9 +697,9 @@ TEST(IoPerfCollectionTest, TestProcPidContentsLessThanTopNStatsLimit) {
     collector.mTopNStatsPerCategory = 5;
     collector.mTopNStatsPerSubcategory = 3;
 
-    sp<MockPackageNameResolver> mockPackageNameResolver = new MockPackageNameResolver();
-    collector.mPackageNameResolver = mockPackageNameResolver;
-    EXPECT_CALL(*mockPackageNameResolver, getPackageNamesForUids(_))
+    sp<MockPackageInfoResolver> mockPackageInfoResolver = new MockPackageInfoResolver();
+    collector.mPackageInfoResolver = mockPackageInfoResolver;
+    EXPECT_CALL(*mockPackageInfoResolver, getPackageNamesForUids(_))
             .WillRepeatedly(Return<std::unordered_map<uid_t, std::string>>({{0, "root"}}));
 
     struct ProcessIoPerfData actualProcessIoPerfData = {};

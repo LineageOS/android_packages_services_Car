@@ -19,7 +19,7 @@
 #include "ServiceManager.h"
 
 #include "IoPerfCollection.h"
-#include "utils/PackageNameResolver.h"
+#include "PackageInfoResolver.h"
 
 namespace android {
 namespace automotive {
@@ -45,12 +45,12 @@ Result<void> ServiceManager::startServices(const sp<Looper>& looper) {
         return Error(INVALID_OPERATION) << "Cannot start services more than once";
     }
     /*
-     * PackageNameResolver must be initialized first time on the main thread before starting any
-     * other thread as the getInstance method isn't thread safe. Thus initialize PackageNameResolver
+     * PackageInfoResolver must be initialized first time on the main thread before starting any
+     * other thread as the getInstance method isn't thread safe. Thus initialize PackageInfoResolver
      * by calling the getInstance method before starting other service as they may access
-     * PackageNameResolver's instance during initialization.
+     * PackageInfoResolver's instance during initialization.
      */
-    sp<IPackageNameResolverInterface> packageNameResolver = PackageNameResolver::getInstance();
+    sp<IPackageInfoResolverInterface> packageInfoResolver = PackageInfoResolver::getInstance();
     auto result = startProcessAnrMonitor(looper);
     if (!result.ok()) {
         return result;
@@ -64,7 +64,7 @@ Result<void> ServiceManager::startServices(const sp<Looper>& looper) {
     if (!result.ok()) {
         return Error() << "Failed to initialize watchdog service helper: " << result.error();
     }
-    result = packageNameResolver->initWatchdogServiceHelper(sWatchdogServiceHelper);
+    result = packageInfoResolver->initWatchdogServiceHelper(sWatchdogServiceHelper);
     if (!result.ok()) {
         return Error() << "Failed to initialize package name resolver: " << result.error();
     }
@@ -91,7 +91,7 @@ void ServiceManager::terminateServices() {
         sWatchdogServiceHelper->terminate();
         sWatchdogServiceHelper.clear();
     }
-    PackageNameResolver::terminate();
+    PackageInfoResolver::terminate();
 }
 
 Result<void> ServiceManager::startProcessAnrMonitor(const sp<Looper>& looper) {

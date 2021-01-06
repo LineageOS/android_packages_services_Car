@@ -15,7 +15,7 @@
  */
 
 #include "MockWatchdogServiceHelper.h"
-#include "PackageNameResolver.h"
+#include "PackageInfoResolver.h"
 
 #include <android/automotive/watchdog/internal/ApplicationCategoryType.h>
 #include <android/automotive/watchdog/internal/ComponentType.h>
@@ -61,32 +61,32 @@ PackageInfo constructPackageInfo(const char* packageName, int32_t uid, UidType u
 
 namespace internal {
 
-class PackageNameResolverPeer {
+class PackageInfoResolverPeer {
 public:
-    PackageNameResolverPeer() {
-        PackageNameResolver::getInstance();
-        mPackageNameResolver = PackageNameResolver::sInstance;
+    PackageInfoResolverPeer() {
+        PackageInfoResolver::getInstance();
+        mPackageInfoResolver = PackageInfoResolver::sInstance;
         mockWatchdogServiceHelper = new MockWatchdogServiceHelper();
-        mPackageNameResolver->initWatchdogServiceHelper(mockWatchdogServiceHelper);
+        mPackageInfoResolver->initWatchdogServiceHelper(mockWatchdogServiceHelper);
     }
 
-    ~PackageNameResolverPeer() {
-        PackageNameResolver::sInstance.clear();
-        PackageNameResolver::sGetpwuidHandler = &getpwuid;
+    ~PackageInfoResolverPeer() {
+        PackageInfoResolver::sInstance.clear();
+        PackageInfoResolver::sGetpwuidHandler = &getpwuid;
         clearMappingCache();
     }
 
     void injectCacheMapping(const std::unordered_map<uid_t, PackageInfo>& mapping) {
-        mPackageNameResolver->mUidToPackageInfoMapping = mapping;
+        mPackageInfoResolver->mUidToPackageInfoMapping = mapping;
     }
 
     void setVendorPackagePrefixes(const std::unordered_set<std::string>& prefixes) {
-        mPackageNameResolver->setVendorPackagePrefixes(prefixes);
+        mPackageInfoResolver->setVendorPackagePrefixes(prefixes);
     }
 
     void stubGetpwuid(const std::unordered_map<uid_t, std::string>& nativeUidToPackageNameMapping) {
         updateNativeUidToPackageNameMapping(nativeUidToPackageNameMapping);
-        PackageNameResolver::sGetpwuidHandler = [&](uid_t uid) -> struct passwd* {
+        PackageInfoResolver::sGetpwuidHandler = [&](uid_t uid) -> struct passwd* {
             const auto& it = mNativeUidToPackageNameMapping.find(uid);
             if (it == mNativeUidToPackageNameMapping.end()) {
                 return nullptr;
@@ -124,15 +124,15 @@ private:
         mNativeUidToPackageNameMapping.clear();
     }
 
-    sp<PackageNameResolver> mPackageNameResolver;
+    sp<PackageInfoResolver> mPackageInfoResolver;
     std::unordered_map<uid_t, struct passwd> mNativeUidToPackageNameMapping;
 };
 
 }  // namespace internal
 
-TEST(PackageNameResolverTest, TestGetPackageInfosForUidsViaGetpwuid) {
-    internal::PackageNameResolverPeer peer;
-    auto packageNameResolver = PackageNameResolver::getInstance();
+TEST(PackageInfoResolverTest, TestGetPackageInfosForUidsViaGetpwuid) {
+    internal::PackageInfoResolverPeer peer;
+    auto packageInfoResolver = PackageInfoResolver::getInstance();
 
     std::unordered_map<uid_t, PackageInfo> expectedMappings{
             {7700,
@@ -150,7 +150,7 @@ TEST(PackageNameResolverTest, TestGetPackageInfosForUidsViaGetpwuid) {
             {{7700, "system.package.B"}, {5100, "vendor.package.A"}, {6700, "vendor.pkg"}});
     EXPECT_CALL(*peer.mockWatchdogServiceHelper, getPackageInfosForUids(_, _, _)).Times(0);
 
-    auto actualMappings = packageNameResolver->getPackageInfosForUids({7700, 5100, 6700});
+    auto actualMappings = packageInfoResolver->getPackageInfosForUids({7700, 5100, 6700});
 
     for (const auto& it : expectedMappings) {
         ASSERT_TRUE(actualMappings.find(it.first) != actualMappings.end())
@@ -161,9 +161,9 @@ TEST(PackageNameResolverTest, TestGetPackageInfosForUidsViaGetpwuid) {
     }
 }
 
-TEST(PackageNameResolverTest, TestGetPackageInfosForUidsViaWatchdogService) {
-    internal::PackageNameResolverPeer peer;
-    auto packageNameResolver = PackageNameResolver::getInstance();
+TEST(PackageInfoResolverTest, TestGetPackageInfosForUidsViaWatchdogService) {
+    internal::PackageInfoResolverPeer peer;
+    auto packageInfoResolver = PackageInfoResolver::getInstance();
     peer.setVendorPackagePrefixes({"vendor.pkg"});
     /*
      * Shared UID should be resolved with car watchdog service as well to get the shared packages
@@ -197,7 +197,7 @@ TEST(PackageNameResolverTest, TestGetPackageInfosForUidsViaWatchdogService) {
                 getPackageInfosForUids(expectedUids, expectedPrefixes, _))
             .WillOnce(DoAll(SetArgPointee<2>(injectPackageInfos), Return(binder::Status::ok())));
 
-    auto actualMappings = packageNameResolver->getPackageInfosForUids({6100, 7700, 15100, 16700});
+    auto actualMappings = packageInfoResolver->getPackageInfosForUids({6100, 7700, 15100, 16700});
 
     for (const auto& it : expectedMappings) {
         ASSERT_TRUE(actualMappings.find(it.first) != actualMappings.end())
@@ -208,9 +208,9 @@ TEST(PackageNameResolverTest, TestGetPackageInfosForUidsViaWatchdogService) {
     }
 }
 
-TEST(PackageNameResolverTest, TestResolvesApplicationUidFromLocalCache) {
-    internal::PackageNameResolverPeer peer;
-    auto packageNameResolver = PackageNameResolver::getInstance();
+TEST(PackageInfoResolverTest, TestResolvesApplicationUidFromLocalCache) {
+    internal::PackageInfoResolverPeer peer;
+    auto packageInfoResolver = PackageInfoResolver::getInstance();
     PackageInfo expectedPackageInfo =
             constructPackageInfo("vendor.package", 1003456, UidType::NATIVE, ComponentType::SYSTEM,
                                  ApplicationCategoryType::OTHERS);
@@ -219,7 +219,7 @@ TEST(PackageNameResolverTest, TestResolvesApplicationUidFromLocalCache) {
     peer.stubGetpwuid({});
     EXPECT_CALL(*peer.mockWatchdogServiceHelper, getPackageInfosForUids(_, _, _)).Times(0);
 
-    auto actualMappings = packageNameResolver->getPackageInfosForUids({1003456});
+    auto actualMappings = packageInfoResolver->getPackageInfosForUids({1003456});
 
     ASSERT_TRUE(actualMappings.find(1003456) != actualMappings.end());
     EXPECT_EQ(actualMappings.find(1003456)->second, expectedPackageInfo);

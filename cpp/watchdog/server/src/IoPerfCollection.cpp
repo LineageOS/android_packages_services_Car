@@ -457,7 +457,7 @@ void IoPerfCollection::processUidIoPerfData(const std::unordered_set<std::string
         }
     }
 
-    const auto& uidToPackageNameMapping = mPackageNameResolver->getPackageNamesForUids(uids);
+    const auto& uidToPackageNameMapping = mPackageInfoResolver->getPackageNamesForUids(uids);
 
     // Convert the top N I/O usage to UidIoPerfData.
     for (const auto& usage : topNReads) {
@@ -556,7 +556,7 @@ void IoPerfCollection::processProcessIoPerfDataLocked(
         }
     }
 
-    const auto& uidToPackageNameMapping = mPackageNameResolver->getPackageNamesForUids(uids);
+    const auto& uidToPackageNameMapping = mPackageInfoResolver->getPackageNamesForUids(uids);
 
     // Convert the top N uid process stats to ProcessIoPerfData.
     for (const auto& it : topNIoBlockedUids) {
