@@ -19,6 +19,11 @@
 #include <android/hardware/automotive/sv/1.0/ISurroundViewService.h>
 #include <android/hardware/automotive/sv/1.0/ISurroundViewStream.h>
 
+#include <ui/GraphicBuffer.h>
+
+#include <mutex>
+#include <thread>
+
 using namespace android::hardware::automotive::sv::V1_0;
 
 namespace android {
@@ -36,8 +41,15 @@ public:
     android::hardware::Return<void> notify(SvEvent svEvent) override;
     android::hardware::Return<void> receiveFrames(const SvFramesDesc& svFramesDesc) override;
 
+    // Methods to get and clear the mReceivedFramesCount.
+    int getReceivedFramesCount();
+    void clearReceivedFramesCount();
 private:
+    std::mutex mAccessLock;
     android::sp<ISurroundViewSession> mSession;
+
+    // Keeps a count of the number of calls made to receiveFrames().
+    int mReceivedFramesCount GUARDED_BY(mAccessLock) = 0;
 };
 
 }  // namespace implementation
