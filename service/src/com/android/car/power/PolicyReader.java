@@ -34,6 +34,7 @@ import android.car.hardware.power.PowerComponent;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReport;
 import android.util.ArrayMap;
 import android.util.ArraySet;
+import android.util.IndentingPrintWriter;
 import android.util.Slog;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
@@ -62,6 +63,14 @@ import java.util.stream.Collectors;
  * class is not thread-safe, and must be used in the main thread or with additional serialization.
  */
 final class PolicyReader {
+    static final String SYSTEM_POWER_POLICY_PREFIX = "system_power_policy_";
+    // System power policy used for disabling user interaction in Silent Mode or Garage Mode.
+    static final String SYSTEM_POWER_POLICY_NO_USER_INTERACTION =
+            SYSTEM_POWER_POLICY_PREFIX + "no_user_interaction";
+    // Hidden system power policy used when no power policy is explicitly applied. All components
+    // are on.
+    static final String SYSTEM_POWER_POLICY_DEFAULT = SYSTEM_POWER_POLICY_PREFIX + "default";
+
     private static final String TAG = PolicyReader.class.getSimpleName();
     private static final String VENDOR_POLICY_PATH = "/vendor/etc/power_policy.xml";
 
@@ -91,8 +100,8 @@ final class PolicyReader {
     private static final String POWER_STATE_DEEP_SLEEP_ENTRY = "DeepSleepEntry";
     private static final String POWER_STATE_SHUTDOWN_START = "ShutdownStart";
 
-    private static final String SYSTEM_POWER_POLICY_NO_USER_INTERACTION =
-            "system_power_policy_no_user_interaction";
+    private static final int[] ALL_ENABLED_COMPONENTS;
+    private static final int[] NO_DISABLED_COMPONENTS = new int[0];
     private static final int[] SYSTEM_POLICY_ENABLED_COMPONENTS = {
             PowerComponent.WIFI, PowerComponent.CELLULAR,
             PowerComponent.ETHERNET, PowerComponent.TRUSTED_DEVICE_DETECTION
@@ -107,9 +116,16 @@ final class PolicyReader {
             new ArraySet<>(Arrays.asList(PowerComponent.BLUETOOTH, PowerComponent.NFC,
             PowerComponent.TRUSTED_DEVICE_DETECTION));
 
+    static {
+        ALL_ENABLED_COMPONENTS = new int[LAST_POWER_COMPONENT - FIRST_POWER_COMPONENT + 1];
+        for (int c = FIRST_POWER_COMPONENT; c <= LAST_POWER_COMPONENT; c++) {
+            ALL_ENABLED_COMPONENTS[c - FIRST_POWER_COMPONENT] = c;
+        }
+    }
+
     private ArrayMap<String, CarPowerPolicy> mRegisteredPowerPolicies;
     private ArrayMap<String, SparseArray<String>> mPolicyGroups;
-    private CarPowerPolicy mSystemPowerPolicy;
+    private ArrayMap<String, CarPowerPolicy> mSystemPowerPolicy;
 
     /**
      * Gets {@code CarPowerPolicy} corresponding to the given policy ID.
@@ -142,8 +158,8 @@ final class PolicyReader {
      * <p> At this moment, only one system power policy is supported.
      */
     @NonNull
-    CarPowerPolicy getSystemPowerPolicy() {
-        return mSystemPowerPolicy;
+    CarPowerPolicy getSystemPowerPolicy(String policyId) {
+        return mSystemPowerPolicy.get(policyId);
     }
 
     boolean isPowerPolicyGroupAvailable(String policyGroupId) {
@@ -182,23 +198,30 @@ final class PolicyReader {
     }
 
     void dump(PrintWriter writer) {
-        String indent = "  ";
-        String doubleIndent = "    ";
-        writer.printf("Registered power policies:%s\n",
-                mRegisteredPowerPolicies.size() == 0 ? " none" : "");
-        for (Map.Entry<String, CarPowerPolicy> entry : mRegisteredPowerPolicies.entrySet()) {
-            writer.printf("%s%s\n", indent, toString(entry.getValue()));
-        }
-        writer.printf("Power policy groups:%s\n", mPolicyGroups.isEmpty() ? " none" : "");
-        for (Map.Entry<String, SparseArray<String>> entry : mPolicyGroups.entrySet()) {
-            writer.printf("%s%s\n", indent, entry.getKey());
-            SparseArray<String> group = entry.getValue();
-            for (int i = 0; i < group.size(); i++) {
-                writer.printf("%s- %s --> %s\n", doubleIndent, powerStateToString(group.keyAt(i)),
-                        group.valueAt(i));
+        try (IndentingPrintWriter pw = new IndentingPrintWriter(writer)) {
+            pw.printf("Registered power policies:%s\n",
+                    mRegisteredPowerPolicies.size() == 0 ? " none" : "");
+            pw.increaseIndent();
+            for (Map.Entry<String, CarPowerPolicy> entry : mRegisteredPowerPolicies.entrySet()) {
+                pw.println(toString(entry.getValue()));
             }
+            pw.decreaseIndent();
+            pw.printf("Power policy groups:%s\n", mPolicyGroups.isEmpty() ? " none" : "");
+            pw.increaseIndent();
+            for (Map.Entry<String, SparseArray<String>> entry : mPolicyGroups.entrySet()) {
+                pw.printf("%s\n", entry.getKey());
+                pw.increaseIndent();
+                SparseArray<String> group = entry.getValue();
+                for (int i = 0; i < group.size(); i++) {
+                    pw.printf("- %s --> %s\n", powerStateToString(group.keyAt(i)),
+                            group.valueAt(i));
+                }
+                pw.decreaseIndent();
+            }
+            pw.decreaseIndent();
+            pw.printf("System power policy: %s\n",
+                    toString(mSystemPowerPolicy.get(SYSTEM_POWER_POLICY_NO_USER_INTERACTION)));
         }
-        writer.printf("System power policy: %s\n", toString(mSystemPowerPolicy));
     }
 
     @VisibleForTesting
@@ -274,6 +297,10 @@ final class PolicyReader {
                 if (policyId == null || policyId.equals("")) {
                     throw new PolicyXmlException("no |" + ATTR_ID + "| attribute of |" + TAG_POLICY
                             + "| tag");
+                }
+                if (includeOtherComponents && policyId.startsWith(SYSTEM_POWER_POLICY_PREFIX)) {
+                    throw new PolicyXmlException("Policy ID should not start with "
+                            + SYSTEM_POWER_POLICY_PREFIX);
                 }
                 policies.put(policyId, parsePolicy(parser, policyId, includeOtherComponents));
             } else {
@@ -489,9 +516,10 @@ final class PolicyReader {
             removeComponent(enabledComponents, policyOverride.disabledComponents[i]);
             addComponent(disabledComponents, policyOverride.disabledComponents[i]);
         }
-        mSystemPowerPolicy = new CarPowerPolicy(mSystemPowerPolicy.policyId,
-                CarServiceUtils.toIntArray(enabledComponents),
-                CarServiceUtils.toIntArray(disabledComponents));
+        mSystemPowerPolicy.put(SYSTEM_POWER_POLICY_NO_USER_INTERACTION,
+                new CarPowerPolicy(SYSTEM_POWER_POLICY_NO_USER_INTERACTION,
+                    CarServiceUtils.toIntArray(enabledComponents),
+                    CarServiceUtils.toIntArray(disabledComponents)));
     }
 
     private void removeComponent(List<Integer> components, int component) {
@@ -509,9 +537,14 @@ final class PolicyReader {
     }
 
     private void initSystemPowerPolicy() {
-        mSystemPowerPolicy = new CarPowerPolicy(SYSTEM_POWER_POLICY_NO_USER_INTERACTION,
-                SYSTEM_POLICY_ENABLED_COMPONENTS.clone(),
-                SYSTEM_POLICY_DISABLED_COMPONENTS.clone());
+        mSystemPowerPolicy = new ArrayMap<>();
+        mSystemPowerPolicy.put(SYSTEM_POWER_POLICY_NO_USER_INTERACTION,
+                new CarPowerPolicy(SYSTEM_POWER_POLICY_NO_USER_INTERACTION,
+                        SYSTEM_POLICY_ENABLED_COMPONENTS.clone(),
+                        SYSTEM_POLICY_DISABLED_COMPONENTS.clone()));
+        mSystemPowerPolicy.put(SYSTEM_POWER_POLICY_DEFAULT,
+                new CarPowerPolicy(SYSTEM_POWER_POLICY_DEFAULT,
+                        ALL_ENABLED_COMPONENTS.clone(), NO_DISABLED_COMPONENTS.clone()));
     }
 
     private String getText(XmlPullParser parser) throws PolicyXmlException, XmlPullParserException,

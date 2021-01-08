@@ -62,7 +62,7 @@ public final class PolicyReaderUnitTest {
     private static final String POLICY_GROUP_ID_BASIC = "basic_policy_group";
     private static final String POLICY_GROUP_ID_NO_DEFAULT_POLICY = "no_default_policy_group";
     private static final String POLICY_GROUP_ID_MIXED = "mixed_policy_group";
-    private static final String SYSTEM_POWER_POLICY_NO_USER_INTERACTION =
+    private static final String NO_USER_INTERACTION_POLICY_ID =
             "system_power_policy_no_user_interaction";
 
     private static final CarPowerPolicy POLICY_OTHER_OFF = new CarPowerPolicy(POLICY_ID_OTHER_OFF,
@@ -82,13 +82,13 @@ public final class PolicyReaderUnitTest {
     private static final CarPowerPolicy POLICY_OTHER_NONE = new CarPowerPolicy(POLICY_ID_OTHER_NONE,
             new int[]{WIFI},
             new int[]{AUDIO, VOICE_INTERACTION, VISUAL_INTERACTION, TRUSTED_DEVICE_DETECTION});
-    private static final CarPowerPolicy SYSTEM_POWER_POLICY_DEFAULT =
-            new CarPowerPolicy(SYSTEM_POWER_POLICY_NO_USER_INTERACTION,
+    private static final CarPowerPolicy SYSTEM_POWER_POLICY_NO_USER_INTERACTION =
+            new CarPowerPolicy(NO_USER_INTERACTION_POLICY_ID,
                     new int[]{WIFI, CELLULAR, ETHERNET, TRUSTED_DEVICE_DETECTION},
                     new int[]{AUDIO, MEDIA, DISPLAY, BLUETOOTH, PROJECTION, NFC, INPUT,
                             VOICE_INTERACTION, VISUAL_INTERACTION, LOCATION, MICROPHONE});
     private static final CarPowerPolicy SYSTEM_POWER_POLICY_MODIFIED =
-            new CarPowerPolicy(SYSTEM_POWER_POLICY_NO_USER_INTERACTION,
+            new CarPowerPolicy(NO_USER_INTERACTION_POLICY_ID,
                     new int[]{BLUETOOTH, WIFI, CELLULAR, ETHERNET, NFC},
                     new int[]{AUDIO, MEDIA, DISPLAY, PROJECTION, INPUT, VOICE_INTERACTION,
                             VISUAL_INTERACTION, TRUSTED_DEVICE_DETECTION, LOCATION, MICROPHONE});
@@ -104,8 +104,8 @@ public final class PolicyReaderUnitTest {
     }
 
     @Test
-    public void testDefaultSystemPowerPolicy() throws Exception {
-        assertSystemPowerPolicy(SYSTEM_POWER_POLICY_DEFAULT);
+    public void testSystemPowerPolicyNoUserInteraction() throws Exception {
+        assertSystemPowerPolicy(SYSTEM_POWER_POLICY_NO_USER_INTERACTION);
     }
 
     @Test
@@ -132,7 +132,7 @@ public final class PolicyReaderUnitTest {
 
         assertValidPolicyPart();
         assertValidPolicyGroupPart();
-        assertSystemPowerPolicy(SYSTEM_POWER_POLICY_DEFAULT);
+        assertSystemPowerPolicy(SYSTEM_POWER_POLICY_NO_USER_INTERACTION);
     }
 
     @Test
@@ -141,7 +141,7 @@ public final class PolicyReaderUnitTest {
 
         assertValidPolicyPart();
         assertNoPolicyGroupPart();
-        assertSystemPowerPolicy(SYSTEM_POWER_POLICY_DEFAULT);
+        assertSystemPowerPolicy(SYSTEM_POWER_POLICY_NO_USER_INTERACTION);
     }
 
     @Test
@@ -161,6 +161,11 @@ public final class PolicyReaderUnitTest {
     @Test
     public void testInvalidXml_missingGroupPolicy() throws Exception {
         assertInvalidXml(R.raw.invalid_power_policy_group_missing_policy);
+    }
+
+    @Test
+    public void testInvalidXml_incorrectPolicyId() throws Exception {
+        assertInvalidXml(R.raw.invalid_power_policy_incorrect_id);
     }
 
     @Test
@@ -235,7 +240,8 @@ public final class PolicyReaderUnitTest {
     }
 
     private void assertSystemPowerPolicy(CarPowerPolicy expectedSystemPolicy) throws Exception {
-        CarPowerPolicy systemPolicy = mPolicyReader.getSystemPowerPolicy();
+        CarPowerPolicy systemPolicy = mPolicyReader.getSystemPowerPolicy(
+                    PolicyReader.SYSTEM_POWER_POLICY_NO_USER_INTERACTION);
         assertThat(systemPolicy).isNotNull();
         assertPolicyIdentical(systemPolicy, expectedSystemPolicy);
     }
