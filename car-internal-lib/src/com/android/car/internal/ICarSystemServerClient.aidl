@@ -18,6 +18,8 @@ package com.android.car.internal;
 
 import android.content.pm.UserInfo;
 
+import com.android.internal.os.IResultReceiver;
+
 /**
  * API to communicate from CarServiceHelperService to car service.
  */
@@ -49,4 +51,11 @@ oneway interface ICarSystemServerClient {
      * Notify to pre-create users.
      */
     void preCreateUsers();
+
+    /**
+      * Notify that the device must be factory reset, so CarService can ask user to confirm.
+      *
+      * @param callback used to trigger the factory reset.
+      */
+    void onFactoryReset(IResultReceiver callback);
 }

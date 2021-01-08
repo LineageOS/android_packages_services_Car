@@ -498,4 +498,15 @@
 
     <!-- Default name for new guest users [CHAR LIMIT=20] -->
     <string name="default_guest_name">Guest</string>
+
+    <!-- Name of the high-importance notification channel [CHAR LIMIT=40] -->
+    <string name="importance_high">High importance</string>
+
+    <!--  TODO(b/171603586): once the strings below are properly defined, remove translatable=false and add proper description / CHAR_LIMIT  -->
+    <string name="factory_reset_notification_title" translatable="false">Factory reset</string>
+    <string name="factory_reset_notification_text" translatable="false">A factory reset is imminent</string>
+    <string name="factory_reset_full_text" translatable="false">A factory reset is imminent, if you don\'t accept it now, it will be automatically done after reboot.\n\nDo you want to factory reset now?</string>
+    <string name="factory_reset_now" translatable="false">Now</string>
+    <string name="factory_reset_later" translatable="false">Later</string>
+
 </resources>
