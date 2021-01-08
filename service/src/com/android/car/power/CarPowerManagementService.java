@@ -70,6 +70,7 @@ import com.android.car.user.CarUserNoticeService;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.internal.os.IResultReceiver;
 import com.android.internal.util.function.pooled.PooledLambda;
 
 import java.io.BufferedReader;
@@ -206,6 +207,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private String mCurrentPowerPolicy;
     @GuardedBy("mLock")
     private String mCurrentPowerPolicyGroup;
+
+    @GuardedBy("mLock")
+    @Nullable
+    private IResultReceiver mFactoryResetCallback;
+
     private final PowerManagerCallbackList<ICarPowerPolicyChangeListener> mPolicyChangeListeners =
             new PowerManagerCallbackList<>(
                     l -> CarPowerManagementService.this.mPolicyChangeListeners.unregister(l));
@@ -348,6 +354,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             writer.println(", config_maxSuspendWaitDuration:" + getMaxSuspendWaitDurationConfig());
             writer.println("# of power policy change listener:"
                     + mPolicyChangeListeners.getRegisteredCallbackCount());
+            writer.println("mFactoryResetCallback:" + mFactoryResetCallback);
         }
         mPolicyReader.dump(writer);
     }
@@ -478,7 +485,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
     }
 
-    private void handleOn() {
+    @VisibleForTesting
+    void handleOn() {
+        if (factoryResetIfNeeded()) return;
+
         // If current user is a Guest User, we want to inform CarUserNoticeService not to show
         // notice for current user, and show user notice only for the target user.
         if (!mSwitchGuestUserBeforeSleep) {
@@ -501,6 +511,32 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             mUserService.onResume();
         } catch (Exception e) {
             Slog.e(TAG, "Could not switch user on resume", e);
+        }
+    }
+
+    private boolean factoryResetIfNeeded() {
+        IResultReceiver callback;
+        synchronized (mLock) {
+            if (mFactoryResetCallback == null) return false;
+            callback = mFactoryResetCallback;
+        }
+
+        try {
+            Slog.i(TAG, "Factory resetting as it was delayed by user");
+            callback.send(/* resultCode= */ 0, /* resultData= */ null);
+            return true;
+        } catch (Exception e) {
+            Slog.wtf(TAG, "Should have factory reset, but failed", e);
+            return false;
+        }
+    }
+
+    /**
+     * Sets the callback used to factory reset the device on resume when the user delayed it.
+     */
+    public void setFactoryResetCallback(IResultReceiver callback) {
+        synchronized (mLock) {
+            mFactoryResetCallback = callback;
         }
     }
 
