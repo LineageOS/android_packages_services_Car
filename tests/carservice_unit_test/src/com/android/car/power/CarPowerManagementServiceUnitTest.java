@@ -21,9 +21,13 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
 
@@ -63,6 +67,7 @@ import com.android.car.test.utils.TemporaryDirectory;
 import com.android.car.test.utils.TemporaryFile;
 import com.android.car.user.CarUserService;
 import com.android.internal.app.IVoiceInteractionManagerService;
+import com.android.internal.os.IResultReceiver;
 
 import org.junit.After;
 import org.junit.Before;
@@ -349,6 +354,20 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         mService.setShutdownTimersForTest(10, 40);
 
         suspendAndResume();
+    }
+
+    @Test
+    public void testFactoryResetOnResume() throws Exception {
+        IResultReceiver callback = mock(IResultReceiver.class);
+        mService.setFactoryResetCallback(callback);
+
+        // TODO: shouldn't need to expose handleOn() but rather emulate the steps as it's done on
+        // suspendAndResume(), but that method is making too many expectations that won't happen
+        // it's factory reset
+        mService.handleOn();
+
+        // Arguments don't matter
+        verify(callback).send(anyInt(), any());
     }
 
     @Test
