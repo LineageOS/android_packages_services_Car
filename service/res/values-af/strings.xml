@@ -143,14 +143,10 @@
     <string name="car_permission_desc_control_car_features" msgid="7646711104530599901">"Aktiveer of deaktiveer motor se kenmerke."</string>
     <string name="car_permission_label_use_car_watchdog" msgid="6973938293170413475">"gebruik motorwaghond"</string>
     <string name="car_permission_desc_use_car_watchdog" msgid="8244592601805516086">"Gebruik motorwaghond."</string>
-    <!-- no translation found for car_permission_label_read_car_power_policy (4597484321338979324) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_car_power_policy (5430714179790601808) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_car_power_policy (6840069695926008330) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_power_policy (8565782440893507028) -->
-    <skip />
+    <string name="car_permission_label_read_car_power_policy" msgid="4597484321338979324">"lees motorkragbeleid"</string>
+    <string name="car_permission_desc_read_car_power_policy" msgid="5430714179790601808">"Lees motorkragbeleid."</string>
+    <string name="car_permission_label_control_car_power_policy" msgid="6840069695926008330">"beheer motorkragbeleid"</string>
+    <string name="car_permission_desc_control_car_power_policy" msgid="8565782440893507028">"Beheer motorkragbeleid."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"My Toestel"</string>
     <string name="default_guest_name" msgid="2912812799433131476">"Gas"</string>
 </resources>
