@@ -143,14 +143,10 @@
     <string name="car_permission_desc_control_car_features" msgid="7646711104530599901">"গাড়ীৰ সুবিধাসমূহ সক্ষম অথবা অক্ষম কৰক।"</string>
     <string name="car_permission_label_use_car_watchdog" msgid="6973938293170413475">"গাড়ীৰ ৱাচ্‌ডগ ব্যৱহাৰ কৰক"</string>
     <string name="car_permission_desc_use_car_watchdog" msgid="8244592601805516086">"গাড়ীৰ ৱাচ্‌ডগ ব্যৱহাৰ কৰক।"</string>
-    <!-- no translation found for car_permission_label_read_car_power_policy (4597484321338979324) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_car_power_policy (5430714179790601808) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_car_power_policy (6840069695926008330) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_power_policy (8565782440893507028) -->
-    <skip />
+    <string name="car_permission_label_read_car_power_policy" msgid="4597484321338979324">"গাড়ীৰ পাৱাৰ পলিচী পঢ়ে"</string>
+    <string name="car_permission_desc_read_car_power_policy" msgid="5430714179790601808">"গাড়ীৰ পাৱাৰ পলিচী পঢ়ে।"</string>
+    <string name="car_permission_label_control_car_power_policy" msgid="6840069695926008330">"গাড়ীৰ পাৱাৰ পলিচী নিয়ন্ত্ৰণ কৰে"</string>
+    <string name="car_permission_desc_control_car_power_policy" msgid="8565782440893507028">"গাড়ীৰ পাৱাৰ পলিচী নিয়ন্ত্ৰণ কৰে।"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"মোৰ ডিভাইচ"</string>
     <string name="default_guest_name" msgid="2912812799433131476">"অতিথি"</string>
 </resources>
