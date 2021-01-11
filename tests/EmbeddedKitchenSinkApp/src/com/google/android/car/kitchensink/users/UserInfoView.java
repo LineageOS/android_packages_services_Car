@@ -13,15 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.google.android.car.kitchensink.users;
 
 import android.annotation.NonNull;
+import android.annotation.UserIdInt;
+import android.app.admin.DevicePolicyManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.UserInfo;
+import android.graphics.Bitmap;
+import android.os.UserHandle;
+import android.os.UserManager;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.android.car.admin.ui.UserAvatarView;
+import com.android.internal.util.UserIcons;
 
 import com.google.android.car.kitchensink.R;
 
@@ -32,38 +43,74 @@ public final class UserInfoView extends LinearLayout {
 
     private static final String TAG = UserInfoView.class.getSimpleName();
 
+    private UserAvatarView mUserAvatarView;
     private EditText mUserIdEditText;
     private EditText mUserNameEditText;
     private EditText mUserTypeEditText;
     private EditText mUserFlagsEditText;
+    private TextView mManagedTextView;
 
     public UserInfoView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         inflate(context, R.layout.user_info_view, this);
+        mUserAvatarView = findViewById(R.id.user_avatar);
         mUserIdEditText = findViewById(R.id.user_id);
         mUserNameEditText = findViewById(R.id.user_name);
         mUserTypeEditText = findViewById(R.id.user_type);
         mUserFlagsEditText = findViewById(R.id.user_flags);
+        mManagedTextView = findViewById(R.id.managed);
     }
 
     /**
      * Initializes the widget with the given user.
      */
     public void update(@NonNull UserInfo user) {
-        Log.v(TAG, "initializing with " + user);
-        String userId, userName, userType, userFlags;
-        if (user == null) {
-            userId = userName = userType = userFlags = "N/A";
-        } else {
-            userId = String.valueOf(user.id);
-            userName = user.name;
-            userType = user.userType;
-            userFlags = UserInfo.flagsToString(user.flags);
+        Log.v(TAG, "initializing with " + user.toFullString());
+
+        setUserIcon(user.id);
+        mUserIdEditText.setText(String.valueOf(user.id));
+        mUserNameEditText.setText(user.name);
+        mUserTypeEditText.setText(user.userType);
+        mUserFlagsEditText.setText(UserInfo.flagsToString(user.flags));
+        setManagedStatus(user.id);
+    }
+
+    private void setUserIcon(@UserIdInt int userId) {
+        UserManager um = UserManager.get(getContext());
+        Bitmap icon = um.getUserIcon(userId);
+        if (icon == null) {
+            Log.v(TAG, "No icon for user " + userId); // Happens on system user
+            icon = UserIcons.convertToBitmap(
+                    UserIcons.getDefaultUserIcon(getResources(), userId, /* light= */ false));
         }
-        mUserIdEditText.setText(userId);
-        mUserNameEditText.setText(userName);
-        mUserTypeEditText.setText(userType);
-        mUserFlagsEditText.setText(userFlags);
+        mUserAvatarView.setAvatarWithBadge(icon, userId);
+    }
+
+    private void setManagedStatus(@UserIdInt int userId) {
+        // Check managed status
+        DevicePolicyManager dpm = getContext().getSystemService(DevicePolicyManager.class);
+        if (dpm == null) return;
+
+        UserHandle deviceOwner = dpm.getDeviceOwnerUser();
+        Log.v(TAG, "Device owner is " + deviceOwner);
+
+        if (deviceOwner != null && deviceOwner.getIdentifier() == userId) {
+            setManagedText("DeviceOwner");
+            return;
+        }
+
+        ComponentName profileOwner = dpm.getProfileOwnerAsUser(userId);
+        if (profileOwner != null) {
+            Log.v(TAG, "User " + userId + " has profile owner: " + profileOwner);
+            setManagedText("ProfileOwner");
+            return;
+        }
+        mManagedTextView.setVisibility(GONE);
+    }
+
+    private void setManagedText(@NonNull CharSequence text) {
+        mManagedTextView.setText(text);
+        mManagedTextView.setVisibility(VISIBLE);
     }
 }

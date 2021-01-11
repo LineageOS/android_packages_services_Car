@@ -40,6 +40,7 @@ android_app {
         "car-service-test-static-lib",
         "com.google.android.material_material",
         "androidx.appcompat_appcompat",
+        "car-admin-ui-lib",
         "car-ui-lib",
         "android.hidl.base-V1.0-java",
         "android.hardware.automotive.vehicle-V2.0-java",

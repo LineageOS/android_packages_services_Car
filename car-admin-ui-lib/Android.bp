@@ -23,5 +23,10 @@ android_library {
     srcs: [
         "src/**/*.java",
     ],
-    resource_dirs: ["src/main/res"],
+    libs: [
+        "SettingsLib"
+    ],
+    resource_dirs: [
+        "src/main/res"
+    ],
 }
