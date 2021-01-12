@@ -22,9 +22,10 @@
 #include <binder/IPCThreadState.h>
 #include <binder/ProcessState.h>
 #include <log/log.h>
-#include <signal.h>
 #include <utils/Looper.h>
 #include <utils/StrongPointer.h>
+
+#include <signal.h>
 
 using android::IPCThreadState;
 using android::Looper;

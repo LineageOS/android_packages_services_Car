@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef CPP_POWERPOLICY_SRC_POLICYMANAGER_H_
-#define CPP_POWERPOLICY_SRC_POLICYMANAGER_H_
+#ifndef CPP_POWERPOLICY_SERVER_SRC_POLICYMANAGER_H_
+#define CPP_POWERPOLICY_SERVER_SRC_POLICYMANAGER_H_
 
 #include <android-base/result.h>
 #include <android/frameworks/automotive/powerpolicy/CarPowerPolicy.h>
@@ -85,4 +85,4 @@ private:
 }  // namespace frameworks
 }  // namespace android
 
-#endif  // CPP_POWERPOLICY_SRC_POLICYMANAGER_H_
+#endif  // CPP_POWERPOLICY_SERVER_SRC_POLICYMANAGER_H_
