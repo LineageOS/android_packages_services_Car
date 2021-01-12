@@ -2382,15 +2382,6 @@
             <intent-filter tools:node="removeAll"/>
         </activity-alias>
 
-        <activity-alias
-            android:name="com.android.settings.MediaOutputSlice"
-            android:enabled="false"
-            android:exported="false"
-            tools:node="merge"
-            tools:replace="android:exported">
-            <intent-filter tools:node="removeAll"/>
-        </activity-alias>
-
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.android.car.developeroptions"
