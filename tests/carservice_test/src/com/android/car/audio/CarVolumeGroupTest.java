@@ -190,22 +190,19 @@ public class CarVolumeGroupTest extends AbstractExtendedMockitoTestCase{
     public void getContextsForAddress_returnsContextsBoundToThatAddress() {
         CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
 
-        int[] contexts = carVolumeGroup.getContextsForAddress(MEDIA_DEVICE_ADDRESS);
+        List<Integer> contextsList = carVolumeGroup.getContextsForAddress(MEDIA_DEVICE_ADDRESS);
 
-        assertEquals(3, contexts.length);
-        List<Integer> contextsList = Ints.asList(contexts);
-        assertTrue(contextsList.contains(CarAudioContext.MUSIC));
-        assertTrue(contextsList.contains(CarAudioContext.CALL));
-        assertTrue(contextsList.contains(CarAudioContext.CALL_RING));
+        assertThat(contextsList).containsExactly(CarAudioContext.MUSIC,
+                CarAudioContext.CALL, CarAudioContext.CALL_RING);
     }
 
     @Test
     public void getContextsForAddress_returnsEmptyArrayIfAddressNotBound() {
         CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
 
-        int[] contexts = carVolumeGroup.getContextsForAddress(OTHER_ADDRESS);
+        List<Integer> contextsList = carVolumeGroup.getContextsForAddress(OTHER_ADDRESS);
 
-        assertEquals(0, contexts.length);
+        assertThat(contextsList).isEmpty();
     }
 
     @Test

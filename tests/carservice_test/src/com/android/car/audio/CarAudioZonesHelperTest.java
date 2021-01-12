@@ -248,14 +248,12 @@ public class CarAudioZonesHelperTest {
 
         CarAudioZone primaryZone = zones.get(0);
         CarVolumeGroup volumeGroup = primaryZone.getVolumeGroups()[0];
-        assertThat(volumeGroup.getContextsForAddress(BUS_0_ADDRESS)).asList()
+        assertThat(volumeGroup.getContextsForAddress(BUS_0_ADDRESS))
                 .containsExactly(CarAudioContext.MUSIC);
 
         CarAudioZone rearSeatEntertainmentZone = zones.get(2);
         CarVolumeGroup rseVolumeGroup = rearSeatEntertainmentZone.getVolumeGroups()[0];
-        List<Integer> contextForBus100List =
-                Arrays.stream(rseVolumeGroup.getContextsForAddress(BUS_100_ADDRESS))
-                        .boxed().collect(Collectors.toList());
+        List<Integer> contextForBus100List = rseVolumeGroup.getContextsForAddress(BUS_100_ADDRESS);
         List<Integer> contextsList =
                 Arrays.stream(CarAudioContext.CONTEXTS).boxed().collect(Collectors.toList());
         assertThat(contextForBus100List).containsExactlyElementsIn(contextsList);

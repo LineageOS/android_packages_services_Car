@@ -15,9 +15,11 @@
  */
 package com.android.car.audio;
 
+import android.annotation.NonNull;
 import android.car.media.CarAudioManager;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
+import android.media.AudioPlaybackConfiguration;
 import android.util.Slog;
 
 import com.android.car.CarLog;
@@ -28,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -44,6 +47,7 @@ import java.util.Set;
     private final int mId;
     private final String mName;
     private final List<CarVolumeGroup> mVolumeGroups;
+    private final Set<String> mDeviceAddresses;
     private List<AudioDeviceAttributes> mInputAudioDevice;
 
     CarAudioZone(int id, String name) {
@@ -51,6 +55,7 @@ import java.util.Set;
         mName = name;
         mVolumeGroups = new ArrayList<>();
         mInputAudioDevice = new ArrayList<>();
+        mDeviceAddresses = new HashSet<>();
     }
 
     int getId() {
@@ -67,6 +72,7 @@ import java.util.Set;
 
     void addVolumeGroup(CarVolumeGroup volumeGroup) {
         mVolumeGroups.add(volumeGroup);
+        mDeviceAddresses.addAll(volumeGroup.getAddresses());
     }
 
     CarVolumeGroup getVolumeGroup(int groupId) {
@@ -112,12 +118,13 @@ import java.util.Set;
      * Step value validation is done in {@link CarVolumeGroup#bind(int, CarAudioDeviceInfo)}
      */
     boolean validateVolumeGroups() {
-        Set<Integer> contextSet = new HashSet<>();
+        Set<Integer> contexts = new HashSet<>();
         Set<String> addresses = new HashSet<>();
-        for (CarVolumeGroup group : mVolumeGroups) {
+        for (int index = 0; index <  mVolumeGroups.size(); index++) {
+            CarVolumeGroup group = mVolumeGroups.get(index);
             // One context should not appear in two groups
             for (int context : group.getContexts()) {
-                if (!contextSet.add(context)) {
+                if (!contexts.add(context)) {
                     Slog.e(CarLog.TAG_AUDIO, "Context appears in two groups: " + context);
                     return false;
                 }
@@ -133,14 +140,13 @@ import java.util.Set;
         }
 
         // All contexts are assigned
-        if (contextSet.size() != CarAudioContext.CONTEXTS.length) {
+        if (contexts.size() != CarAudioContext.CONTEXTS.length) {
             Slog.e(CarLog.TAG_AUDIO, "Some contexts are not assigned to group");
-            Slog.e(CarLog.TAG_AUDIO, "Assigned contexts " + contextSet);
+            Slog.e(CarLog.TAG_AUDIO, "Assigned contexts " + contexts);
             Slog.e(CarLog.TAG_AUDIO,
                     "All contexts " + Arrays.toString(CarAudioContext.CONTEXTS));
             return false;
         }
-
         return true;
     }
 
@@ -198,5 +204,27 @@ import java.util.Set;
 
     List<AudioDeviceAttributes> getInputAudioDevices() {
         return mInputAudioDevice;
+    }
+
+    public @NonNull List<Integer> findActiveContextsFromPlaybackConfigurations(
+            @NonNull List<AudioPlaybackConfiguration> configurations) {
+        Objects.requireNonNull(configurations);
+        List<Integer> activeContexts = new ArrayList<>();
+        for (int index = 0; index < configurations.size(); index++) {
+            AudioPlaybackConfiguration configuration = configurations.get(index);
+            if (configuration.isActive()) {
+                AudioDeviceInfo info = configuration.getAudioDeviceInfo();
+                if (info == null || info.getAddress() == null || info.getAddress().isEmpty()) {
+                    continue;
+                }
+                if (mDeviceAddresses.contains(info.getAddress())) {
+                    // Note that address's context and the context actually supplied could be
+                    // different
+                    activeContexts.add(CarAudioContext.getContextForUsage(
+                            configuration.getAudioAttributes().getSystemUsage()));
+                }
+            }
+        }
+        return activeContexts;
     }
 }

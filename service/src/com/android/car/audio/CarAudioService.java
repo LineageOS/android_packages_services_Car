@@ -859,7 +859,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 "Invalid audio zone id %d", zoneId);
 
         return CarVolume.isAnyContextActive(getContextsForVolumeGroupId(zoneId, groupId),
-                getAudioPlaybackConfigurationsForZone(zoneId), getCallStateForZone(zoneId),
+                getActiveContextsFromPlaybackConfigurations(zoneId), getCallStateForZone(zoneId),
                 getActiveHalUsagesForZone(zoneId));
     }
 
@@ -873,11 +873,10 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         return TelephonyManager.CALL_STATE_IDLE;
     }
 
-    private List<AudioPlaybackConfiguration> getAudioPlaybackConfigurationsForZone(int zoneId) {
+    private List<Integer> getActiveContextsFromPlaybackConfigurations(int zoneId) {
         List<AudioPlaybackConfiguration> configurations = mAudioManager
                 .getActivePlaybackConfigurations();
-        // TODO(b/175242629) add audio playback configuration filtering
-        return configurations;
+        return getCarAudioZone(zoneId).findActiveContextsFromPlaybackConfigurations(configurations);
     }
 
 
@@ -1194,7 +1193,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     private @AudioContext int getSuggestedAudioContext(int zoneId) {
-        return mCarVolume.getSuggestedAudioContext(getAudioPlaybackConfigurationsForZone(zoneId),
+        return mCarVolume.getSuggestedAudioContext(
+                getActiveContextsFromPlaybackConfigurations(zoneId),
                 getCallStateForZone(zoneId), getActiveHalUsagesForZone(zoneId));
     }
 
