@@ -49,6 +49,9 @@ namespace {
     const int kOptionDumpCameraArgsStartIndex = 4;
 
     const std::regex kEmulatedCameraNamePattern("emulated/[0-9]+", std::regex_constants::icase);
+
+    // Display ID 255 is reserved for the special purpose.
+    constexpr int kExclusiveMainDisplayId = 255;
 }
 
 namespace android {
@@ -93,6 +96,14 @@ bool Enumerator::init(const char* hardwareServiceName) {
             }
         );
     }
+
+    auto it = std::find(mDisplayPorts.begin(), mDisplayPorts.end(), kExclusiveMainDisplayId);
+    if (it != mDisplayPorts.end()) {
+        LOG(WARNING) << kExclusiveMainDisplayId << " is reserved for the special purpose "
+                     << "so will not be available for EVS service.";
+        mDisplayPorts.erase(it);
+    }
+    mDisplayOwnedExclusively = false;
 
     // Starts the statistics collection
     mMonitorEnabled = false;
@@ -462,6 +473,11 @@ Return<sp<IEvsDisplay_1_0>> Enumerator::openDisplay() {
         return nullptr;
     }
 
+    if (mDisplayOwnedExclusively) {
+        LOG(ERROR) << "Display is owned exclusively by another client.";
+        return nullptr;
+    }
+
     // We simply keep track of the most recently opened display instance.
     // In the underlying layers we expect that a new open will cause the previous
     // object to be destroyed.  This avoids any race conditions associated with
@@ -500,6 +516,7 @@ Return<void> Enumerator::closeDisplay(const ::android::sp<IEvsDisplay_1_0>& disp
         sp<HalDisplay> halDisplay = reinterpret_cast<HalDisplay *>(pActiveDisplay.get());
         mHwEnumerator->closeDisplay(halDisplay->getHwDisplay());
         mActiveDisplay = nullptr;
+        mDisplayOwnedExclusively = false;
     }
 
     return Void();
@@ -532,7 +549,16 @@ Return<sp<IEvsDisplay_1_1>> Enumerator::openDisplay_1_1(uint8_t id) {
         return nullptr;
     }
 
-    if (std::find(mDisplayPorts.begin(), mDisplayPorts.end(), id) == mDisplayPorts.end()) {
+    if (mDisplayOwnedExclusively) {
+        LOG(ERROR) << "Display is owned exclusively by another client.";
+        return nullptr;
+    }
+
+    if (id == kExclusiveMainDisplayId) {
+        // The client requests to open the primary display exclusively.
+        id = mInternalDisplayPort;
+        mDisplayOwnedExclusively = true;
+    } else if (std::find(mDisplayPorts.begin(), mDisplayPorts.end(), id) == mDisplayPorts.end()) {
         LOG(ERROR) << "No display is available on the port " << static_cast<int32_t>(id);
         return nullptr;
     }
