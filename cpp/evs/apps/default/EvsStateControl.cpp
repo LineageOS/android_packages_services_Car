@@ -188,6 +188,7 @@ void EvsStateControl::updateLoop() {
 
             if (tgtBuffer.memHandle == nullptr) {
                 LOG(ERROR) << "Didn't get requested output buffer -- skipping this frame.";
+                run = false;
             } else {
                 // Generate our output image
                 if (!mCurrentRenderer->drawFrame(convertBufferDesc(tgtBuffer))) {
