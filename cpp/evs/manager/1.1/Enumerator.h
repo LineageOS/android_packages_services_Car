@@ -110,6 +110,9 @@ private:
     // Boolean flag to tell whether the camera usages are being monitored or not
     bool                              mMonitorEnabled;
 
+    // Boolean flag to tell whether EvsDisplay is owned exclusively or not
+    bool                              mDisplayOwnedExclusively;
+
     // LSHAL dump
     void cmdDump(int fd, const hidl_vec<hidl_string>& options);
     void cmdHelp(int fd);
