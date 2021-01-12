@@ -78,7 +78,7 @@ package android.car.drivingstate {
 package android.car.media {
 
   public final class CarAudioManager {
-    method public boolean isDynamicRoutingEnabled();
+    method @Deprecated public boolean isDynamicRoutingEnabled();
   }
 
 }

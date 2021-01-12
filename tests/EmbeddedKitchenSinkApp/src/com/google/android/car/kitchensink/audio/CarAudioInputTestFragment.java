@@ -108,7 +108,8 @@ public class CarAudioInputTestFragment extends Fragment {
     }
 
     private void initInputInfo() {
-        if (!mCarAudioManager.isDynamicRoutingEnabled()) {
+        if (!mCarAudioManager.isAudioFeatureEnabled(
+                CarAudioManager.AUDIO_FEATURE_DYNAMIC_ROUTING)) {
             return;
         }
         List<Integer> audioZoneList = mCarAudioManager.getAudioZoneIds();
