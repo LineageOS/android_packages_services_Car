@@ -849,7 +849,6 @@ public class ICarImpl extends ICar.Stub {
         public void onFactoryReset(IResultReceiver callback) {
             assertCallingFromSystemProcess();
 
-            // TODO(b/171603586): STOPSHIP persist in case CarService crashes before next resume
             mCarPowerManagementService.setFactoryResetCallback(callback);
             FactoryResetActivity.sendNotification(mContext, callback);
         }
