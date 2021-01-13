@@ -352,7 +352,7 @@ public class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
             callback.onActiveSessionsChanged(controllers);
             return null;
         }).when(mMediaSessionManager).addOnActiveSessionsChangedListener(any(
-                MediaSessionManager.OnActiveSessionsChangedListener.class), any(), anyInt(), any());
+                MediaSessionManager.OnActiveSessionsChangedListener.class), any(), any(), any());
     }
 
     // This method sets up PackageManager queries to return mocked media components if specified
