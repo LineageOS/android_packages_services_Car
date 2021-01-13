@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car.custominput.sample;
+package com.android.car.custominput.sample.unittest;
 
+import static android.car.CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER;
 import static android.car.CarOccupantZoneManager.DISPLAY_TYPE_MAIN;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 import static android.media.AudioAttributes.AttributeUsage;
@@ -40,6 +41,10 @@ import android.media.AudioManager;
 import android.os.Bundle;
 import android.view.Display;
 import android.view.KeyEvent;
+
+import com.android.car.custominput.sample.CustomInputEventListener;
+import com.android.car.custominput.sample.R;
+import com.android.car.custominput.sample.SampleCustomInputService;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -194,11 +199,11 @@ public class CustomInputEventListenerTest {
     @Test
     public void testHandleEvent_ignoringEventsForNonMainDisplay() {
         CustomInputEvent event = new CustomInputEvent(CustomInputEvent.INPUT_CODE_F1,
-                DISPLAY_TYPE_MAIN,
+                DISPLAY_TYPE_INSTRUMENT_CLUSTER,
                 /* repeatCounter= */ 1);
 
         // Act
-        mEventHandler.handle(DISPLAY_TYPE_MAIN, event);
+        mEventHandler.handle(DISPLAY_TYPE_INSTRUMENT_CLUSTER, event);
 
         // Assert
         verify(mService, never()).startActivity(any(Intent.class), any(Bundle.class));

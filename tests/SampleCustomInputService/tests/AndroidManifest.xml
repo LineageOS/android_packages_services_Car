@@ -16,10 +16,10 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.android.car.custominput.sample">
+          package="com.android.car.custominput.sample.unittest">
 
     <instrumentation android:name="androidx.test.runner.AndroidJUnitRunner"
-                     android:targetPackage="com.android.car.custominput.sample"
+                     android:targetPackage="com.android.car.custominput.sample.unittest"
                      android:label="Unit Tests for SampleCustomInputService"/>
 
     <application android:debuggable="true">

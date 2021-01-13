@@ -38,7 +38,7 @@ import java.lang.annotation.RetentionPolicy;
  * Handles incoming {@link CustomInputEvent}. In this implementation, incoming events are expected
  * to have the display id and the function set.
  */
-final class CustomInputEventListener {
+public final class CustomInputEventListener {
 
     private static final String TAG = CustomInputEventListener.class.getSimpleName();
 
@@ -76,7 +76,7 @@ final class CustomInputEventListener {
         int BACK_HOME_ACTION = CustomInputEvent.INPUT_CODE_F8;
     }
 
-    CustomInputEventListener(
+    public CustomInputEventListener(
             @NonNull Context context,
             @NonNull CarAudioManager carAudioManager,
             @NonNull CarOccupantZoneManager carOccupantZoneManager,
@@ -87,7 +87,7 @@ final class CustomInputEventListener {
         mService = service;
     }
 
-    void handle(int targetDisplayType, CustomInputEvent event) {
+    public void handle(int targetDisplayType, CustomInputEvent event) {
         if (!isValidTargetDisplayType(targetDisplayType)) {
             return;
         }

@@ -23,7 +23,6 @@ android_app {
     name: "SampleCustomInputService",
     srcs: [":SampleCustomInputService-srcs"],
     resource_dirs: ["res"],
-
     sdk_version: "system_current",
 
     // This app should be platform signed because it requires
@@ -33,21 +32,17 @@ android_app {
     optimize: {
         enabled: false,
     },
-
     libs: [
         "android.car-system-stubs",
         "androidx.annotation_annotation",
     ],
-
     static_libs: [
         "androidx.annotation_annotation",
     ],
-
     enforce_uses_libs: false,
     dex_preopt: {
         enabled: false,
     },
-
     product_variables: {
         pdk: {
             enabled: false,
@@ -79,9 +74,14 @@ android_test {
 
     // Required by mockito-target-extended (lib used to mock final classes).
     jni_libs: [
+        // For mockito extended
         "libdexmakerjvmtiagent",
     ],
+
     optimize: {
         enabled: false,
     },
+    aaptflags: [
+        "--extra-packages com.android.car.custominput.sample",
+    ],
 }
