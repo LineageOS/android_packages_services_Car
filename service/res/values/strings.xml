@@ -493,6 +493,16 @@
     <!-- Permission text: apps use car watchdog [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_use_car_watchdog">Use car watchdog.</string>
 
+    <!-- Permission text: apps control car watchdog config [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_control_car_watchdog_config">control car watchdog config</string>
+    <!-- Permission text: apps control car watchdog config [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_control_car_watchdog_config">Control car watchdog config.</string>
+
+    <!-- Permission text: apps collect car watchdog metrics [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_collect_car_watchdog_metrics">collect car watchdog metrics</string>
+    <!-- Permission text: apps collect car watchdog metrics [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_collect_car_watchdog_metrics">Collect car watchdog metrics.</string>
+
     <!-- Permission text: apps read car power policy [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_read_car_power_policy">read car power policy</string>
     <!-- Permission text: apps read car power policy [CHAR LIMIT=NONE] -->
