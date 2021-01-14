@@ -1120,6 +1120,56 @@ public final class VehiclePropertyIds {
     public static final int VHAL_HEARTBEAT = 290459443;
 
     /**
+     * Property to start the ClusterUI in cluster display.
+     *
+     * <p>Doesn't require permission because it's not exposed through
+     * {@link android.car.hardware.property.CarPropertyManager}.
+     *
+     * @hide
+     */
+    public static final int CLUSTER_SWITCH_UI = 289410868;
+
+    /**
+     * Property to change the state of the cluster display.
+     *
+     * <p>Doesn't require permission because it's not exposed through
+     * {@link android.car.hardware.property.CarPropertyManager}.
+     *
+     * @hide
+     */
+    public static final int CLUSTER_DISPLAY_STATE = 289476405;
+
+    /**
+     * Property to reports the current display and ClusterUI statue.
+     *
+     * <p>Doesn't require permission because it's not exposed through
+     * {@link android.car.hardware.property.CarPropertyManager}.
+     *
+     * @hide
+     */
+    public static final int CLUSTER_REPORT_STATE = 299896630;
+
+    /**
+     * Property to request to change the cluster display state to show some ClusterUI.
+     *
+     * <p>Doesn't require permission because it's not exposed through
+     * {@link android.car.hardware.property.CarPropertyManager}.
+     *
+     * @hide
+     */
+    public static final int CLUSTER_REQUEST_DISPLAY = 289410871;
+
+    /**
+     * Property to inform the current navigation state.
+     *
+     * <p>Doesn't require permission because it's not exposed through
+     * {@link android.car.hardware.property.CarPropertyManager}.
+     *
+     * @hide
+     */
+    public static final int CLUSTER_NAVIGATION_STATE_LEGACY = 292556600;
+
+    /**
      * Gets a user-friendly representation of a property.
      */
     public static String toString(int property) {
@@ -1410,6 +1460,16 @@ public final class VehiclePropertyIds {
                 return "WATCHDOG_TERMINATED_PROCESS";
             case VHAL_HEARTBEAT:
                 return "VHAL_HEARTBEAT";
+            case CLUSTER_SWITCH_UI:
+                return "CLUSTER_SWITCH_UI";
+            case CLUSTER_DISPLAY_STATE:
+                return "CLUSTER_DISPLAY_STATE";
+            case CLUSTER_REPORT_STATE:
+                return "CLUSTER_REPORT_STATE";
+            case CLUSTER_REQUEST_DISPLAY:
+                return "CLUSTER_REQUEST_DISPLAY";
+            case CLUSTER_NAVIGATION_STATE_LEGACY:
+                return "CLUSTER_NAVIGATION_STATE_LEGACY";
             default:
                 return "0x" + Integer.toHexString(property);
         }
