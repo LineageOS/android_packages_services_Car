@@ -26,7 +26,6 @@ package android.car {
     field public static final String CAR_INPUT_SERVICE = "android.car.input";
     field public static final String CAR_MEDIA_SERVICE = "car_media";
     field public static final String CAR_USER_SERVICE = "car_user_service";
-    field public static final String CAR_WATCHDOG_SERVICE = "car_watchdog";
     field public static final String DIAGNOSTIC_SERVICE = "diagnostic";
     field public static final int FEATURE_REQUEST_ALREADY_IN_THE_STATE = 1; // 0x1
     field public static final int FEATURE_REQUEST_MANDATORY = 2; // 0x2
@@ -46,6 +45,7 @@ package android.car {
     field public static final String PERMISSION_CAR_PROJECTION = "android.car.permission.CAR_PROJECTION";
     field public static final String PERMISSION_CAR_PROJECTION_STATUS = "android.car.permission.ACCESS_CAR_PROJECTION_STATUS";
     field public static final String PERMISSION_CAR_TEST_SERVICE = "android.car.permission.CAR_TEST_SERVICE";
+    field public static final String PERMISSION_COLLECT_CAR_WATCHDOG_METRICS = "android.car.permission.COLLECT_CAR_WATCHDOG_METRICS";
     field public static final String PERMISSION_CONTROL_APP_BLOCKING = "android.car.permission.CONTROL_APP_BLOCKING";
     field public static final String PERMISSION_CONTROL_CAR_CLIMATE = "android.car.permission.CONTROL_CAR_CLIMATE";
     field public static final String PERMISSION_CONTROL_CAR_DOORS = "android.car.permission.CONTROL_CAR_DOORS";
@@ -54,6 +54,7 @@ package android.car {
     field @Deprecated public static final String PERMISSION_CONTROL_CAR_OCCUPANT_AWARENESS_SYSTEM = "android.car.permission.CONTROL_CAR_OCCUPANT_AWARENESS_SYSTEM";
     field public static final String PERMISSION_CONTROL_CAR_POWER_POLICY = "android.car.permission.CONTROL_CAR_POWER_POLICY";
     field public static final String PERMISSION_CONTROL_CAR_SEATS = "android.car.permission.CONTROL_CAR_SEATS";
+    field public static final String PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG = "android.car.permission.CONTROL_CAR_WATCHDOG_CONFIG";
     field public static final String PERMISSION_CONTROL_CAR_WINDOWS = "android.car.permission.CONTROL_CAR_WINDOWS";
     field public static final String PERMISSION_CONTROL_ENERGY_PORTS = "android.car.permission.CONTROL_CAR_ENERGY_PORTS";
     field public static final String PERMISSION_CONTROL_EXTERIOR_LIGHTS = "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS";
@@ -1406,9 +1407,20 @@ package android.car.vms {
 package android.car.watchdog {
 
   public final class CarWatchdogManager {
+    method @RequiresPermission(android.car.Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS) public void addResourceOveruseListenerForSystem(@NonNull java.util.concurrent.Executor, int, @NonNull android.car.watchdog.CarWatchdogManager.ResourceOveruseListener);
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS) public java.util.List<android.car.watchdog.ResourceOveruseStats> getAllResourceOveruseStats(int, int, int);
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG) public java.util.List<android.car.watchdog.PackageKillableState> getPackageKillableStates(@NonNull android.os.UserHandle);
+    method @NonNull @RequiresPermission(anyOf={android.car.Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG, android.car.Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS}) public java.util.List<android.car.watchdog.ResourceOveruseConfiguration> getResourceOveruseConfigurations(int);
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS) public android.car.watchdog.ResourceOveruseStats getResourceOveruseStatsForUserPackage(@NonNull String, int, int, int);
     method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_WATCHDOG) public void registerClient(@NonNull java.util.concurrent.Executor, @NonNull android.car.watchdog.CarWatchdogManager.CarWatchdogClientCallback, int);
+    method @RequiresPermission(android.car.Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS) public void removeResourceOveruseListenerForSystem(@NonNull android.car.watchdog.CarWatchdogManager.ResourceOveruseListener);
+    method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG) public void setKillablePackageAsUser(@NonNull String, @NonNull android.os.UserHandle, boolean);
+    method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG) public void setResourceOveruseConfigurations(@NonNull java.util.List<android.car.watchdog.ResourceOveruseConfiguration>, int);
     method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_WATCHDOG) public void tellClientAlive(@NonNull android.car.watchdog.CarWatchdogManager.CarWatchdogClientCallback, int);
     method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_WATCHDOG) public void unregisterClient(@NonNull android.car.watchdog.CarWatchdogManager.CarWatchdogClientCallback);
+    field public static final int FLAG_MINIMUM_STATS_IO_100_MB = 2; // 0x2
+    field public static final int FLAG_MINIMUM_STATS_IO_1_GB = 4; // 0x4
+    field public static final int FLAG_MINIMUM_STATS_IO_1_MB = 1; // 0x1
     field public static final int TIMEOUT_CRITICAL = 0; // 0x0
     field public static final int TIMEOUT_MODERATE = 1; // 0x1
     field public static final int TIMEOUT_NORMAL = 2; // 0x2
@@ -1418,6 +1430,77 @@ package android.car.watchdog {
     ctor public CarWatchdogManager.CarWatchdogClientCallback();
     method public boolean onCheckHealthStatus(int, int);
     method public void onPrepareProcessTermination();
+  }
+
+  public final class IoOveruseAlertThreshold implements android.os.Parcelable {
+    method public int describeContents();
+    method public long getDurationInSeconds();
+    method public long getWrittenBytesPerSecond();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.watchdog.IoOveruseAlertThreshold> CREATOR;
+  }
+
+  public final class IoOveruseConfiguration implements android.os.Parcelable {
+    method public int describeContents();
+    method @NonNull public java.util.Map<java.lang.String,android.car.watchdog.PerStateBytes> getAppCategorySpecificThresholds();
+    method @NonNull public android.car.watchdog.PerStateBytes getComponentLevelThresholds();
+    method @NonNull public java.util.Map<java.lang.String,android.car.watchdog.PerStateBytes> getPackageSpecificThresholds();
+    method @NonNull public java.util.List<android.car.watchdog.IoOveruseAlertThreshold> getSystemWideThresholds();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.watchdog.IoOveruseConfiguration> CREATOR;
+  }
+
+  public static final class IoOveruseConfiguration.Builder {
+    ctor public IoOveruseConfiguration.Builder(@NonNull android.car.watchdog.PerStateBytes, @NonNull java.util.Map<java.lang.String,android.car.watchdog.PerStateBytes>, @NonNull java.util.Map<java.lang.String,android.car.watchdog.PerStateBytes>, @NonNull java.util.List<android.car.watchdog.IoOveruseAlertThreshold>);
+    method @NonNull public android.car.watchdog.IoOveruseConfiguration.Builder addAppCategorySpecificThresholds(@NonNull String, @NonNull android.car.watchdog.PerStateBytes);
+    method @NonNull public android.car.watchdog.IoOveruseConfiguration.Builder addPackageSpecificThresholds(@NonNull String, @NonNull android.car.watchdog.PerStateBytes);
+    method @NonNull public android.car.watchdog.IoOveruseConfiguration.Builder addSystemWideThresholds(@NonNull android.car.watchdog.IoOveruseAlertThreshold);
+    method @NonNull public android.car.watchdog.IoOveruseConfiguration build();
+    method @NonNull public android.car.watchdog.IoOveruseConfiguration.Builder setAppCategorySpecificThresholds(@NonNull java.util.Map<java.lang.String,android.car.watchdog.PerStateBytes>);
+    method @NonNull public android.car.watchdog.IoOveruseConfiguration.Builder setComponentLevelThresholds(@NonNull android.car.watchdog.PerStateBytes);
+    method @NonNull public android.car.watchdog.IoOveruseConfiguration.Builder setPackageSpecificThresholds(@NonNull java.util.Map<java.lang.String,android.car.watchdog.PerStateBytes>);
+    method @NonNull public android.car.watchdog.IoOveruseConfiguration.Builder setSystemWideThresholds(@NonNull java.util.List<android.car.watchdog.IoOveruseAlertThreshold>);
+  }
+
+  public final class PackageKillableState implements android.os.Parcelable {
+    method public int describeContents();
+    method public int getKillableState();
+    method @NonNull public String getPackageName();
+    method public int getUserId();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.watchdog.PackageKillableState> CREATOR;
+    field public static final int KILLABLE_STATE_NEVER = 3; // 0x3
+    field public static final int KILLABLE_STATE_NO = 2; // 0x2
+    field public static final int KILLABLE_STATE_YES = 1; // 0x1
+  }
+
+  public final class ResourceOveruseConfiguration implements android.os.Parcelable {
+    method public int describeContents();
+    method public int getComponentType();
+    method @Nullable public android.car.watchdog.IoOveruseConfiguration getIoOveruseConfiguration();
+    method @NonNull public java.util.Map<java.lang.String,java.lang.String> getPackagesToAppCategoryTypes();
+    method @NonNull public java.util.List<java.lang.String> getSafeToKillPackages();
+    method @NonNull public java.util.List<java.lang.String> getVendorPackagePrefixes();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field public static final String APPLICATION_CATEGORY_TYPE_MAPS = "android.car.watchdog.app.category.MAPS";
+    field public static final String APPLICATION_CATEGORY_TYPE_MEDIA = "android.car.watchdog.app.category.MEDIA";
+    field public static final int COMPONENT_TYPE_SYSTEM = 1; // 0x1
+    field public static final int COMPONENT_TYPE_THIRD_PARTY = 3; // 0x3
+    field public static final int COMPONENT_TYPE_VENDOR = 2; // 0x2
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.watchdog.ResourceOveruseConfiguration> CREATOR;
+  }
+
+  public static final class ResourceOveruseConfiguration.Builder {
+    ctor public ResourceOveruseConfiguration.Builder(int, @NonNull java.util.List<java.lang.String>, @NonNull java.util.List<java.lang.String>, @NonNull java.util.Map<java.lang.String,java.lang.String>);
+    method @NonNull public android.car.watchdog.ResourceOveruseConfiguration.Builder addPackagesToAppCategoryTypes(@NonNull String, @NonNull String);
+    method @NonNull public android.car.watchdog.ResourceOveruseConfiguration.Builder addSafeToKillPackages(@NonNull String);
+    method @NonNull public android.car.watchdog.ResourceOveruseConfiguration.Builder addVendorPackagePrefixes(@NonNull String);
+    method @NonNull public android.car.watchdog.ResourceOveruseConfiguration build();
+    method @NonNull public android.car.watchdog.ResourceOveruseConfiguration.Builder setComponentType(int);
+    method @NonNull public android.car.watchdog.ResourceOveruseConfiguration.Builder setIoOveruseConfiguration(@NonNull android.car.watchdog.IoOveruseConfiguration);
+    method @NonNull public android.car.watchdog.ResourceOveruseConfiguration.Builder setPackagesToAppCategoryTypes(@NonNull java.util.Map<java.lang.String,java.lang.String>);
+    method @NonNull public android.car.watchdog.ResourceOveruseConfiguration.Builder setSafeToKillPackages(@NonNull java.util.List<java.lang.String>);
+    method @NonNull public android.car.watchdog.ResourceOveruseConfiguration.Builder setVendorPackagePrefixes(@NonNull java.util.List<java.lang.String>);
   }
 
 }

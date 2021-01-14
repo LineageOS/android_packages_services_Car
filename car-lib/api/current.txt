@@ -24,6 +24,7 @@ package android.car {
     field public static final String CAR_UX_RESTRICTION_SERVICE = "uxrestriction";
     field public static final long CAR_WAIT_TIMEOUT_DO_NOT_WAIT = 0L; // 0x0L
     field public static final long CAR_WAIT_TIMEOUT_WAIT_FOREVER = -1L; // 0xffffffffffffffffL
+    field public static final String CAR_WATCHDOG_SERVICE = "car_watchdog";
     field @Deprecated public static final int CONNECTION_TYPE_EMBEDDED = 5; // 0x5
     field public static final String INFO_SERVICE = "info";
     field public static final String META_DATA_DISTRACTION_OPTIMIZED = "distractionOptimized";
@@ -671,6 +672,58 @@ package android.car.media {
     method public void onGroupMuteChanged(int, int, int);
     method public void onGroupVolumeChanged(int, int, int);
     method public void onMasterMuteChanged(int, int);
+  }
+
+}
+
+package android.car.watchdog {
+
+  public final class CarWatchdogManager {
+    method public void addResourceOveruseListener(@NonNull java.util.concurrent.Executor, int, @NonNull android.car.watchdog.CarWatchdogManager.ResourceOveruseListener);
+    method @NonNull public android.car.watchdog.ResourceOveruseStats getResourceOveruseStats(int, int);
+    method public void removeResourceOveruseListener(@NonNull android.car.watchdog.CarWatchdogManager.ResourceOveruseListener);
+    field public static final int FLAG_RESOURCE_OVERUSE_IO = 1; // 0x1
+    field public static final int STATS_PERIOD_CURRENT_DAY = 1; // 0x1
+    field public static final int STATS_PERIOD_PAST_15_DAYS = 4; // 0x4
+    field public static final int STATS_PERIOD_PAST_30_DAYS = 5; // 0x5
+    field public static final int STATS_PERIOD_PAST_3_DAYS = 2; // 0x2
+    field public static final int STATS_PERIOD_PAST_7_DAYS = 3; // 0x3
+  }
+
+  public static interface CarWatchdogManager.ResourceOveruseListener {
+    method public void onOveruse(@NonNull android.car.watchdog.ResourceOveruseStats);
+  }
+
+  public final class IoOveruseStats implements android.os.Parcelable {
+    method public int describeContents();
+    method public long getDurationInSeconds();
+    method @NonNull public android.car.watchdog.PerStateBytes getRemainingWriteBytes();
+    method public long getStartTime();
+    method public long getTotalBytesWritten();
+    method public long getTotalOveruses();
+    method public long getTotalTimesKilled();
+    method public boolean isKillableOnOveruse();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.watchdog.IoOveruseStats> CREATOR;
+  }
+
+  public final class PerStateBytes implements android.os.Parcelable {
+    ctor public PerStateBytes(long, long, long);
+    method public int describeContents();
+    method public long getBackgroundModeBytes();
+    method public long getForegroundModeBytes();
+    method public long getGarageModeBytes();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.watchdog.PerStateBytes> CREATOR;
+  }
+
+  public final class ResourceOveruseStats implements android.os.Parcelable {
+    method public int describeContents();
+    method @Nullable public android.car.watchdog.IoOveruseStats getIoOveruseStats();
+    method @NonNull public String getPackageName();
+    method @NonNull public android.os.UserHandle getUserHandle();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.watchdog.ResourceOveruseStats> CREATOR;
   }
 
 }
