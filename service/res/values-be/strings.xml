@@ -147,14 +147,10 @@
     <string name="car_permission_desc_read_car_power_policy" msgid="5430714179790601808">"Атрымаць інфармацыю пра палітыку сілкавання аўтамабіля"</string>
     <string name="car_permission_label_control_car_power_policy" msgid="6840069695926008330">"кіраваць палітыкай сілкавання аўтамабіля."</string>
     <string name="car_permission_desc_control_car_power_policy" msgid="8565782440893507028">"Кіраваць палітыкай сілкавання аўтамабіля."</string>
-    <!-- no translation found for car_permission_label_template_renderer (3464887382919754850) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_template_renderer (6047233999260920122) -->
-    <skip />
+    <string name="car_permission_label_template_renderer" msgid="3464887382919754850">"візуалізацыя шаблонаў"</string>
+    <string name="car_permission_desc_template_renderer" msgid="6047233999260920122">"Візуалізацыя шаблонаў."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Мая прылада"</string>
     <string name="default_guest_name" msgid="2912812799433131476">"Госць"</string>
-    <!-- no translation found for importance_default (8587741629268312938) -->
-    <skip />
-    <!-- no translation found for importance_high (3141530792377745041) -->
-    <skip />
+    <string name="importance_default" msgid="8587741629268312938">"Стандартная важнасць"</string>
+    <string name="importance_high" msgid="3141530792377745041">"Высокая важнасць"</string>
 </resources>

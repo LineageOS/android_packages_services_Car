@@ -151,7 +151,6 @@
     <string name="car_permission_desc_template_renderer" msgid="6047233999260920122">"Mẫu kết xuất hình ảnh."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Thiết bị của tôi"</string>
     <string name="default_guest_name" msgid="2912812799433131476">"Khách"</string>
-    <!-- no translation found for importance_default (8587741629268312938) -->
-    <skip />
+    <string name="importance_default" msgid="8587741629268312938">"Tầm quan trọng mặc định"</string>
     <string name="importance_high" msgid="3141530792377745041">"Tầm quan trọng cao"</string>
 </resources>
