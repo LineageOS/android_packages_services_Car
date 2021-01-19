@@ -71,6 +71,7 @@ import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.os.IResultReceiver;
+import com.android.internal.util.Preconditions;
 import com.android.internal.util.function.pooled.PooledLambda;
 
 import java.io.BufferedReader;
@@ -96,7 +97,6 @@ import java.util.TimerTask;
 public class CarPowerManagementService extends ICarPower.Stub implements
         CarServiceBase, PowerHalService.PowerEventListener {
 
-    // TODO: replace all usage
     private static final String TAG = CarLog.TAG_POWER;
     private static final String WIFI_STATE_FILENAME = "wifi_state";
     private static final String WIFI_STATE_MODIFIED = "forcibly_disabled";
@@ -206,7 +206,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     @GuardedBy("mLock")
     private String mCurrentPowerPolicy;
     @GuardedBy("mLock")
+    private String mLastPowerPolicy;
+    private String mPendingPowerPolicy;
+    @GuardedBy("mLock")
     private String mCurrentPowerPolicyGroup;
+    @GuardedBy("mLock")
+    private boolean mIsPowerPolicyLocked;
 
     @GuardedBy("mLock")
     @Nullable
@@ -218,6 +223,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     private final PowerComponentHandler mPowerComponentHandler;
     private final PolicyReader mPolicyReader = new PolicyReader();
+    private final SilentModeHandler mSilentModeHandler = new SilentModeHandler(this);
 
     interface ActionOnDeath<T extends IInterface> {
         void take(T listener);
@@ -336,27 +342,29 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     public void dump(PrintWriter writer) {
         synchronized (mLock) {
             writer.println("*PowerManagementService*");
-            // TODO: split it in multiple lines
-            // TODO: lock only what's needed
-            writer.print("mCurrentState:" + mCurrentState);
-            writer.print(",mProcessingStartTime:" + mProcessingStartTime);
-            writer.print(",mLastSleepEntryTime:" + mLastSleepEntryTime);
-            writer.print(",mNextWakeupSec:" + mNextWakeupSec);
-            writer.print(",mShutdownOnNextSuspend:" + mShutdownOnNextSuspend);
-            writer.print(",mShutdownOnFinish:" + mShutdownOnFinish);
-            writer.print(",mShutdownPollingIntervalMs:" + mShutdownPollingIntervalMs);
-            writer.print(",mShutdownPrepareTimeMs:" + mShutdownPrepareTimeMs);
-            writer.println(",mRebootAfterGarageMode:" + mRebootAfterGarageMode);
-            writer.println("mSwitchGuestUserBeforeSleep:" + mSwitchGuestUserBeforeSleep);
-            writer.println("mCurrentPowerPolicy:" + mCurrentPowerPolicy);
-            writer.println("mCurrentPowerPolicyGroup:" + mCurrentPowerPolicyGroup);
-            writer.print("mMaxSuspendWaitDurationMs:" + mMaxSuspendWaitDurationMs);
-            writer.println(", config_maxSuspendWaitDuration:" + getMaxSuspendWaitDurationConfig());
-            writer.println("# of power policy change listener:"
-                    + mPolicyChangeListeners.getRegisteredCallbackCount());
-            writer.println("mFactoryResetCallback:" + mFactoryResetCallback);
+            writer.printf("mCurrentState: %s\n", mCurrentState);
+            writer.printf("mProcessingStartTime: %d\n", mProcessingStartTime);
+            writer.printf("mLastSleepEntryTime: %d\n", mLastSleepEntryTime);
+            writer.printf("mNextWakeupSec: %d\n", mNextWakeupSec);
+            writer.printf("mShutdownOnNextSuspend: %b\n", mShutdownOnNextSuspend);
+            writer.printf("mShutdownOnFinish: %b\n", mShutdownOnFinish);
+            writer.printf("mShutdownPollingIntervalMs: %d\n", mShutdownPollingIntervalMs);
+            writer.printf("mShutdownPrepareTimeMs: %d\n", mShutdownPrepareTimeMs);
+            writer.printf("mRebootAfterGarageMode: %b\n", mRebootAfterGarageMode);
+            writer.printf("mSwitchGuestUserBeforeSleep: %b\n", mSwitchGuestUserBeforeSleep);
+            writer.printf("mCurrentPowerPolicy: %s\n", mCurrentPowerPolicy);
+            writer.printf("mLastPowerPolicy: %s\n", mLastPowerPolicy);
+            writer.printf("mPendingPowerPolicy: %s\n", mPendingPowerPolicy);
+            writer.printf("mCurrentPowerPolicyGroup: %s\n", mCurrentPowerPolicyGroup);
+            writer.printf("mIsPowerPolicyLocked: %b\n", mIsPowerPolicyLocked);
+            writer.printf("mMaxSuspendWaitDurationMs: %d\n", mMaxSuspendWaitDurationMs);
+            writer.printf("config_maxSuspendWaitDuration: %d\n", getMaxSuspendWaitDurationConfig());
+            writer.printf("# of power policy change listener: %d\n",
+                    mPolicyChangeListeners.getRegisteredCallbackCount());
+            writer.printf("mFactoryResetCallback: %s\n", mFactoryResetCallback);
         }
         mPolicyReader.dump(writer);
+        mSilentModeHandler.dump(writer);
     }
 
     @Override
@@ -447,6 +455,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     private void handleWaitForVhal(CpmsState state) {
         int carPowerStateListenerState = state.mCarPowerStateListenerState;
+        // TODO(b/177478420): Restore Wifi, Audio, Location, and Bluetooth, if they are artificially
+        // modified for S2R.
+        mSilentModeHandler.querySilentModeGpio();
         sendPowerManagerEvent(carPowerStateListenerState);
         // Inspect CarPowerStateListenerState to decide which message to send via VHAL
         switch (carPowerStateListenerState) {
@@ -565,6 +576,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 (newState.mCanPostpone
                 ? "starting shutdown prepare with Garage Mode"
                         : "starting shutdown prepare without Garage Mode"));
+        makeSureNoUserInteraction();
         sendPowerManagerEvent(CarPowerStateListener.SHUTDOWN_PREPARE);
         mHal.sendShutdownPrepare();
         doHandlePreprocessing();
@@ -1023,6 +1035,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     @Override
     public void applyPowerPolicy(String policyId) {
         ICarImpl.assertPermission(mContext, Car.PERMISSION_CONTROL_CAR_POWER_POLICY);
+        Preconditions.checkArgument(policyId != null, "policyId cannot be null");
         String errorMsg = applyPowerPolicy(policyId, true);
         if (errorMsg != null) {
             throw new IllegalArgumentException(errorMsg);
@@ -1046,6 +1059,28 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     public void unregisterPowerPolicyChangeListener(ICarPowerPolicyChangeListener listener) {
         ICarImpl.assertPermission(mContext, Car.PERMISSION_READ_CAR_POWER_POLICY);
         mPolicyChangeListeners.unregister(listener);
+    }
+
+    void notifySilentModeChange(boolean silent) {
+        String policyId;
+        synchronized (mLock) {
+            mIsPowerPolicyLocked = silent;
+            if (silent) {
+                policyId = PolicyReader.SYSTEM_POWER_POLICY_NO_USER_INTERACTION;
+            } else {
+                if (mPendingPowerPolicy != null) {
+                    policyId = mPendingPowerPolicy;
+                    mPendingPowerPolicy = null;
+                } else {
+                    policyId = mLastPowerPolicy;
+                }
+            }
+        }
+        mSilentModeHandler.updateKernelSilentMode(silent);
+        String errMsg = applyPowerPolicy(policyId, true);
+        if (errMsg != null) {
+            Slog.w(TAG, "Silent mode changed, but failed to apply power policy: " + errMsg);
+        }
     }
 
     private void doUnregisterListener(ICarPowerStateListener listener) {
@@ -1106,6 +1141,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         if (errorMsg != null) {
             Slog.w(TAG, "Cannot apply power policy: " + errorMsg);
         }
+        mSilentModeHandler.init();
     }
 
     private void setCurrentPowerPolicyGroup(String policyGroupId) {
@@ -1119,13 +1155,22 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     @Nullable
-    private String applyPowerPolicy(String policyId, boolean upToDaemon) {
-        CarPowerPolicy policy = mPolicyReader.getPowerPolicy(policyId);
+    private String applyPowerPolicy(@Nullable String policyId, boolean upToDaemon) {
+        String actualPolicyId = policyId == null ? PolicyReader.SYSTEM_POWER_POLICY_DEFAULT
+                : policyId;
+        CarPowerPolicy policy = mPolicyReader.getPowerPolicy(actualPolicyId);
         if (policy == null) {
             return policyId + " is not registered";
         }
+        synchronized (mLock) {
+            if (mIsPowerPolicyLocked) {
+                mPendingPowerPolicy = policyId;
+                return null;
+            }
+        }
         mPowerComponentHandler.applyPowerPolicy(policy);
         synchronized (mLock) {
+            mLastPowerPolicy = mCurrentPowerPolicy;
             mCurrentPowerPolicy = policyId;
         }
         notifyPowerPolicyChange(policyId, upToDaemon);
@@ -1171,6 +1216,14 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             }
         }
         mPolicyChangeListeners.finishBroadcast();
+    }
+
+    private void makeSureNoUserInteraction() {
+        synchronized (mLock) {
+            mIsPowerPolicyLocked = true;
+        }
+        mSilentModeHandler.updateKernelSilentMode(true);
+        applyPowerPolicy(PolicyReader.SYSTEM_POWER_POLICY_NO_USER_INTERACTION, true);
     }
 
     private CarPowerPolicy clonePowerPolicy(String policyId) {
@@ -1686,7 +1739,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      *
      * <p>If the given ID is not defined, it fails.
      *
-     * @return {@node null}, if successful. Otherwise, error message.
+     * @return {@code null}, if successful. Otherwise, error message.
      */
     @Nullable
     public String applyPowerPolicyFromCommand(String[] args, PrintWriter writer) {
@@ -1694,6 +1747,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             return "Power policy ID should be given";
         }
         String powerPolicyId = args[1];
+        if (powerPolicyId == null) {
+            return "Policy ID cannot be null";
+        }
         String errorMsg = applyPowerPolicy(powerPolicyId, true);
         if (errorMsg != null) {
             return "Failed to apply power policy: " + errorMsg;

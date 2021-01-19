@@ -52,6 +52,8 @@ import java.util.Objects;
  * <p>Notifies others when the mode changes.
  */
 public final class SilentModeController implements CarServiceBase {
+    private static final String TAG = CarLog.TAG_SILENT;
+
     private static final String FORCED_NON_SILENT = "reboot,forcednonsilent";
     private static final String FORCED_SILENT = "reboot,forcedsilent";
     private static final int MSG_SEND_NONSILENT = 0;
@@ -60,7 +62,6 @@ public final class SilentModeController implements CarServiceBase {
     private static final int MSG_SEND_SILENT_TO_ONE = 3;
     private static final String SILENT_BOOT_FILENAME = "/sys/power/kernelsilentboot";
     private static final String SYSTEM_BOOT_REASON = "sys.boot.reason";
-    private static final String TAG = CarLog.TAG_SILENT;
 
     private final Object mLock = new Object();
     private final String mSilentBootFileName;
