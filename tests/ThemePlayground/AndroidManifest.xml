@@ -36,11 +36,23 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity android:name=".ButtonSamples"
+                  android:label="@string/button_elements"
+                  android:windowSoftInputMode="stateUnchanged"
+                  android:resizeableActivity="true"
+                  android:allowEmbedded="true">
+        </activity>
         <activity android:name=".ColorSamples"
              android:label="@string/panel_elements"
              android:windowSoftInputMode="stateUnchanged"
              android:resizeableActivity="true"
              android:allowEmbedded="true">
+        </activity>
+        <activity android:name=".ProgressBarSamples"
+                  android:label="@string/progress_bar_elements"
+                  android:windowSoftInputMode="stateUnchanged"
+                  android:resizeableActivity="true"
+                  android:allowEmbedded="true">
         </activity>
         <activity android:name=".DialogSamples"
              android:label="@string/dialog_elements"
