@@ -26,7 +26,6 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.SystemActivityMonitoringService;
-import com.android.car.user.CarUserService;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -55,15 +54,12 @@ public class CarPackageManagerServiceTest {
     private CarUxRestrictionsManagerService mMockUxrService;
     @Mock
     private SystemActivityMonitoringService mMockSamService;
-    @Mock
-    private CarUserService mMockUserService;
 
     @Before
     public void setUp() {
         mContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
-        mService = new CarPackageManagerService(mContext, mMockUxrService, mMockSamService,
-                mMockUserService);
+        mService = new CarPackageManagerService(mContext, mMockUxrService, mMockSamService);
     }
 
     @Test
