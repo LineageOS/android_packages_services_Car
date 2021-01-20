@@ -214,8 +214,7 @@ public class ICarImpl extends ICar.Stub {
         }
         mCarPackageManagerService = new CarPackageManagerService(serviceContext,
                 mCarUXRestrictionsService,
-                mSystemActivityMonitoringService,
-                mCarUserService);
+                mSystemActivityMonitoringService);
         mPerUserCarServiceHelper = new PerUserCarServiceHelper(serviceContext, mCarUserService);
         mCarBluetoothService = new CarBluetoothService(serviceContext, mPerUserCarServiceHelper);
         mCarInputService = new CarInputService(serviceContext, mHal.getInputHal(), mCarUserService,
