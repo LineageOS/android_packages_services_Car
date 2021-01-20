@@ -34,6 +34,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
+import android.util.IndentingPrintWriter;
 import android.util.JsonWriter;
 import android.util.Log;
 import android.util.Slog;
@@ -56,7 +57,6 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.time.Duration;
 import java.time.Instant;
@@ -503,7 +503,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     }
 
     @Override
-    public void dump(PrintWriter writer) {
+    public void dump(IndentingPrintWriter writer) {
         writer.println("*CarStorageMonitoringService*");
         synchronized (mLock) {
             doInitServiceIfNeededLocked();

@@ -46,6 +46,7 @@ import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.provider.Settings;
+import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.util.Slog;
 import android.view.IWindowManager;
@@ -56,8 +57,6 @@ import com.android.car.CarServiceBase;
 import com.android.car.R;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
-
-import java.io.PrintWriter;
 
 /**
  * Service to show initial notice UI to user. It only launches it when setting is enabled and
@@ -400,7 +399,7 @@ public final class CarUserNoticeService implements CarServiceBase {
     }
 
     @Override
-    public void dump(PrintWriter writer) {
+    public void dump(IndentingPrintWriter writer) {
         synchronized (mLock) {
             if (mServiceIntent == null) {
                 writer.println("*CarUserNoticeService* disabled");

@@ -27,6 +27,7 @@ import android.content.Context;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.ArrayMap;
+import android.util.IndentingPrintWriter;
 import android.util.Slog;
 
 import com.android.car.Listeners.ClientWithRate;
@@ -35,7 +36,6 @@ import com.android.car.hal.DiagnosticHalService.DiagnosticCapabilities;
 import com.android.car.internal.CarPermission;
 import com.android.internal.annotations.GuardedBy;
 
-import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
@@ -664,7 +664,7 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
     }
 
     @Override
-    public void dump(PrintWriter writer) {
+    public void dump(IndentingPrintWriter writer) {
         writer.println("*CarDiagnosticService*");
         writer.println("**last events for diagnostics**");
         if (null != mLiveFrameDiagnosticRecord.getLastEvent()) {

@@ -78,6 +78,7 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.text.TextUtils;
 import android.util.ArrayMap;
+import android.util.IndentingPrintWriter;
 import android.util.Slog;
 import android.util.SparseArray;
 import android.view.KeyEvent;
@@ -94,7 +95,6 @@ import com.android.car.power.SilentModeController;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserService;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -337,15 +337,19 @@ final class CarShellCommand extends ShellCommand {
         } while (arg != null);
         String[] args = new String[argsList.size()];
         argsList.toArray(args);
-        return exec(args, getOutPrintWriter());
+        try (IndentingPrintWriter pw = new IndentingPrintWriter(getOutPrintWriter())) {
+            return exec(args, pw);
+        }
     }
 
     @Override
     public void onHelp() {
-        showHelp(getOutPrintWriter());
+        try (IndentingPrintWriter pw = new IndentingPrintWriter(getOutPrintWriter())) {
+            showHelp(pw);
+        }
     }
 
-    private static void showHelp(PrintWriter pw) {
+    private static void showHelp(IndentingPrintWriter pw) {
         pw.println("Car service commands:");
         pw.println("\t-h");
         pw.println("\t  Print this help text.");
@@ -487,7 +491,7 @@ final class CarShellCommand extends ShellCommand {
         pw.println("\t  Powers off the car.");
     }
 
-    private static int showInvalidArguments(PrintWriter pw) {
+    private static int showInvalidArguments(IndentingPrintWriter pw) {
         pw.println("Incorrect number of arguments.");
         showHelp(pw);
         return RESULT_ERROR;
@@ -531,7 +535,7 @@ final class CarShellCommand extends ShellCommand {
                         + Arrays.toString(requiredPermissions));
     }
 
-    int exec(String[] args, PrintWriter writer) {
+    int exec(String[] args, IndentingPrintWriter writer) {
         String cmd = args[0];
         String[] requiredPermissions = USER_BUILD_COMMAND_TO_PERMISSIONS_MAP.get(cmd);
         if (requiredPermissions == null) {
@@ -767,7 +771,7 @@ final class CarShellCommand extends ShellCommand {
         return RESULT_OK;
     }
 
-    private void startFixedActivity(String[] args, PrintWriter writer) {
+    private void startFixedActivity(String[] args, IndentingPrintWriter writer) {
         if (args.length != 4) {
             writer.println("Incorrect number of arguments");
             showHelp(writer);
@@ -795,7 +799,7 @@ final class CarShellCommand extends ShellCommand {
         writer.println("Succeeded");
     }
 
-    private void stopFixedMode(String[] args, PrintWriter writer) {
+    private void stopFixedMode(String[] args, IndentingPrintWriter writer) {
         if (args.length != 2) {
             writer.println("Incorrect number of arguments");
             showHelp(writer);
@@ -811,7 +815,7 @@ final class CarShellCommand extends ShellCommand {
         mFixedActivityService.stopFixedActivityMode(displayId);
     }
 
-    private void enableDisableFeature(String[] args, PrintWriter writer, boolean enable) {
+    private void enableDisableFeature(String[] args, IndentingPrintWriter writer, boolean enable) {
         if (Binder.getCallingUid() != Process.ROOT_UID) {
             writer.println("Only allowed to root/su");
             return;
@@ -853,7 +857,7 @@ final class CarShellCommand extends ShellCommand {
         Binder.restoreCallingIdentity(id);
     }
 
-    private void injectKey(String[] args, PrintWriter writer) {
+    private void injectKey(String[] args, IndentingPrintWriter writer) {
         int i = 1; // 0 is command itself
         int display = CarOccupantZoneManager.DISPLAY_TYPE_MAIN;
         int delayMs = 0;
@@ -923,7 +927,7 @@ final class CarShellCommand extends ShellCommand {
         mCarInputService.onKeyEvent(new KeyEvent(action, keyCode), display);
     }
 
-    private void injectRotary(String[] args, PrintWriter writer) {
+    private void injectRotary(String[] args, IndentingPrintWriter writer) {
         int i = 1; // 0 is command itself
         int display = CarOccupantZoneManager.DISPLAY_TYPE_MAIN;
         int inputType = CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION;
@@ -991,7 +995,7 @@ final class CarShellCommand extends ShellCommand {
         writer.println("Succeeded in injecting: " + rotaryEvent);
     }
 
-    private void injectCustomInputEvent(String[] args, PrintWriter writer) {
+    private void injectCustomInputEvent(String[] args, IndentingPrintWriter writer) {
         int display = CarOccupantZoneManager.DISPLAY_TYPE_MAIN;
         int repeatCounter = 1;
 
@@ -1036,7 +1040,7 @@ final class CarShellCommand extends ShellCommand {
         writer.printf("Succeeded in injecting {%s}\n", event);
     }
 
-    private boolean checkVehicleDisplay(int vehicleDisplay, PrintWriter writer) {
+    private boolean checkVehicleDisplay(int vehicleDisplay, IndentingPrintWriter writer) {
         if (vehicleDisplay != VehicleDisplay.MAIN
                 && vehicleDisplay != VehicleDisplay.INSTRUMENT_CLUSTER) {
             writer.println("Invalid display:" + vehicleDisplay);
@@ -1046,7 +1050,7 @@ final class CarShellCommand extends ShellCommand {
         return true;
     }
 
-    private void getInitialUserInfo(String[] args, PrintWriter writer) {
+    private void getInitialUserInfo(String[] args, IndentingPrintWriter writer) {
         if (args.length < 2) {
             writer.println("Insufficient number of args");
             return;
@@ -1115,7 +1119,8 @@ final class CarShellCommand extends ShellCommand {
         return UserHalHelper.getFlags(UserManager.get(mContext), userId);
     }
 
-    private static void waitForHal(PrintWriter writer, CountDownLatch latch, int timeoutMs) {
+    private static void waitForHal(IndentingPrintWriter writer, CountDownLatch latch,
+            int timeoutMs) {
         try {
             if (!latch.await(timeoutMs, TimeUnit.MILLISECONDS)) {
                 writer.printf("HAL didn't respond in %dms\n", timeoutMs);
@@ -1127,7 +1132,7 @@ final class CarShellCommand extends ShellCommand {
         return;
     }
 
-    private void switchUser(String[] args, PrintWriter writer) {
+    private void switchUser(String[] args, IndentingPrintWriter writer) {
         if (args.length < 2) {
             writer.println("Insufficient number of args");
             return;
@@ -1208,7 +1213,7 @@ final class CarShellCommand extends ShellCommand {
         writer.println();
     }
 
-    private void createUser(String[] args, PrintWriter writer) {
+    private void createUser(String[] args, IndentingPrintWriter writer) {
         int timeout = DEFAULT_HAL_TIMEOUT_MS;
         int flags = 0;
         boolean halOnly = false;
@@ -1315,7 +1320,7 @@ final class CarShellCommand extends ShellCommand {
         }
     }
 
-    private void removeUser(String[] args, PrintWriter writer) {
+    private void removeUser(String[] args, IndentingPrintWriter writer) {
         if (args.length < 2) {
             writer.println("Insufficient number of args");
             return;
@@ -1360,7 +1365,7 @@ final class CarShellCommand extends ShellCommand {
                 UserRemovalResult.statusToString(result.getStatus()));
     }
 
-    private static <T> T waitForFuture(@NonNull PrintWriter writer,
+    private static <T> T waitForFuture(@NonNull IndentingPrintWriter writer,
             @NonNull AsyncFuture<T> future, int timeoutMs) {
         T result = null;
         try {
@@ -1376,12 +1381,12 @@ final class CarShellCommand extends ShellCommand {
         return result;
     }
 
-    private void getInitialUser(PrintWriter writer) {
+    private void getInitialUser(IndentingPrintWriter writer) {
         android.content.pm.UserInfo user = mCarUserService.getInitialUser();
         writer.println(user == null ? NO_INITIAL_USER : user.id);
     }
 
-    private void getUserAuthAssociation(String[] args, PrintWriter writer) {
+    private void getUserAuthAssociation(String[] args, IndentingPrintWriter writer) {
         if (args.length < 2) {
             writer.println("invalid usage, must pass at least 1 argument");
             return;
@@ -1443,7 +1448,8 @@ final class CarShellCommand extends ShellCommand {
         showResponse(writer, response);
     }
 
-    private CarUserManager getCarUserManager(@NonNull PrintWriter writer, @UserIdInt int userId) {
+    private CarUserManager getCarUserManager(@NonNull IndentingPrintWriter writer,
+            @UserIdInt int userId) {
         Context context;
         if (userId == mContext.getUserId()) {
             context = mContext;
@@ -1465,7 +1471,7 @@ final class CarShellCommand extends ShellCommand {
         return carUserManager;
     }
 
-    private void showResponse(@NonNull PrintWriter writer,
+    private void showResponse(@NonNull IndentingPrintWriter writer,
             @NonNull UserIdentificationResponse response) {
         if (response == null) {
             writer.println("null response");
@@ -1483,7 +1489,7 @@ final class CarShellCommand extends ShellCommand {
         }
     }
 
-    private void showResponse(@NonNull PrintWriter writer,
+    private void showResponse(@NonNull IndentingPrintWriter writer,
             @NonNull UserIdentificationAssociationResponse response) {
         if (response == null) {
             writer.println("null response");
@@ -1508,7 +1514,7 @@ final class CarShellCommand extends ShellCommand {
         }
     }
 
-    private void setUserAuthAssociation(String[] args, PrintWriter writer) {
+    private void setUserAuthAssociation(String[] args, IndentingPrintWriter writer) {
         if (args.length < 3) {
             writer.println("invalid usage, must pass at least 4 arguments");
             return;
@@ -1603,7 +1609,7 @@ final class CarShellCommand extends ShellCommand {
         return INVALID_USER_AUTH_TYPE_OR_VALUE;
     }
 
-    private void forceDayNightMode(String arg, PrintWriter writer) {
+    private void forceDayNightMode(String arg, IndentingPrintWriter writer) {
         int mode;
         switch (arg) {
             case PARAM_DAY_MODE:
@@ -1636,7 +1642,7 @@ final class CarShellCommand extends ShellCommand {
         writer.println("DayNightMode changed to: " + currentMode);
     }
 
-    private void forceGarageMode(String arg, PrintWriter writer) {
+    private void forceGarageMode(String arg, IndentingPrintWriter writer) {
         switch (arg) {
             case PARAM_ON_MODE:
                 mSystemInterface.setDisplayState(false);
@@ -1661,7 +1667,7 @@ final class CarShellCommand extends ShellCommand {
         }
     }
 
-    private void runSilentCommand(String arg, PrintWriter writer) {
+    private void runSilentCommand(String arg, IndentingPrintWriter writer) {
         switch (arg) {
             case "forced-silent":
                 writer.println("Forcing silent mode to silent");
@@ -1686,7 +1692,7 @@ final class CarShellCommand extends ShellCommand {
         }
     }
 
-    private void emulateDrivingState(String[] args, PrintWriter writer) {
+    private void emulateDrivingState(String[] args, IndentingPrintWriter writer) {
         if (args.length != 2) {
             writer.println("invalid usage, must pass driving state");
             return;
@@ -1748,7 +1754,7 @@ final class CarShellCommand extends ShellCommand {
                 /* zone= */ "0", Integer.toString(VehicleGear.GEAR_PARK), /* delayTime= */ "0");
     }
 
-    private void powerOff(String[] args, PrintWriter writer) {
+    private void powerOff(String[] args, IndentingPrintWriter writer) {
         int index = 1;
         boolean skipGarageMode = false;
         boolean shutdown = false;
@@ -1777,10 +1783,10 @@ final class CarShellCommand extends ShellCommand {
      * @param isErrorEvent indicates the type of event
      * @param value    Data value of the event
      * @param delayTime the event timestamp is increased by delayTime
-     * @param writer   PrintWriter
+     * @param writer   IndentingPrintWriter
      */
     private void injectVhalEvent(String property, String zone, String value,
-            boolean isErrorEvent, String delayTime, PrintWriter writer) {
+            boolean isErrorEvent, String delayTime, IndentingPrintWriter writer) {
         Slog.i(TAG, "Injecting VHAL event: prop="  + property + ", zone=" + zone + ", value="
                 + value + ", isError=" + isErrorEvent
                 + (TextUtils.isEmpty(delayTime) ?  "" : ", delayTime=" + delayTime));

@@ -49,6 +49,7 @@ import android.provider.CallLog.Calls;
 import android.provider.Settings;
 import android.telecom.TelecomManager;
 import android.text.TextUtils;
+import android.util.IndentingPrintWriter;
 import android.util.Slog;
 import android.view.Display;
 import android.view.InputDevice;
@@ -63,7 +64,6 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.app.AssistUtils;
 import com.android.internal.app.IVoiceInteractionSessionShowCallback;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collections;
@@ -686,7 +686,7 @@ public class CarInputService extends ICarInput.Stub
     }
 
     @Override
-    public void dump(PrintWriter writer) {
+    public void dump(IndentingPrintWriter writer) {
         writer.println("*Input Service*");
         writer.println("Long-press delay: " + mLongPressDelaySupplier.getAsInt() + "ms");
         writer.println("Call button ends ongoing call: "

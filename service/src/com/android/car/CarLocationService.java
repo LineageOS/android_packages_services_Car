@@ -37,6 +37,7 @@ import android.os.SystemClock;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.AtomicFile;
+import android.util.IndentingPrintWriter;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 import android.util.Slog;
@@ -51,7 +52,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -208,10 +208,11 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
     }
 
     @Override
-    public void dump(PrintWriter writer) {
+    public void dump(IndentingPrintWriter writer) {
         writer.println(TAG);
-        writer.println("Context: " + mContext);
-        writer.println("MAX_LOCATION_INJECTION_ATTEMPTS: " + MAX_LOCATION_INJECTION_ATTEMPTS);
+        mPerUserCarServiceHelper.dump(writer);
+        writer.printf("Context: %s\n", mContext);
+        writer.printf("MAX_LOCATION_INJECTION_ATTEMPTS: %d\n", MAX_LOCATION_INJECTION_ATTEMPTS);
     }
 
     @Override

@@ -42,6 +42,7 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.provider.Settings;
 import android.text.TextUtils;
+import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.util.Slog;
 import android.view.KeyEvent;
@@ -60,7 +61,6 @@ import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
-import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
 import java.util.Objects;
 
@@ -301,7 +301,7 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
     }
 
     @Override
-    public void dump(PrintWriter writer) {
+    public void dump(IndentingPrintWriter writer) {
         writer.println("**" + getClass().getSimpleName() + "**");
         synchronized (mLock) {
             writer.println("bound with renderer: " + mRendererBound);

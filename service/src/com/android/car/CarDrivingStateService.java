@@ -35,12 +35,12 @@ import android.os.HandlerThread;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.util.IndentingPrintWriter;
 import android.util.Slog;
 
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
-import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -247,7 +247,7 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
     }
 
     @Override
-    public void dump(PrintWriter writer) {
+    public void dump(IndentingPrintWriter writer) {
         writer.println("*CarDrivingStateService*");
         mDrivingStateClients.dump(writer, "Driving State Clients ");
         writer.println("Driving state change log:");

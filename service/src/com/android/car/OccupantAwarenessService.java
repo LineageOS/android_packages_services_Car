@@ -29,12 +29,12 @@ import android.hardware.automotive.occupant_awareness.IOccupantAwarenessClientCa
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.ServiceManager;
+import android.util.IndentingPrintWriter;
 import android.util.Slog;
 
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
-import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
 
 /**
@@ -124,7 +124,7 @@ public class OccupantAwarenessService
     }
 
     @Override
-    public void dump(PrintWriter writer) {
+    public void dump(IndentingPrintWriter writer) {
         writer.println("*OccupantAwarenessService*");
         writer.println(
                 String.format(

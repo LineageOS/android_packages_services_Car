@@ -21,6 +21,7 @@ import android.app.StatsManager.PullAtomMetadata;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.util.ArrayMap;
+import android.util.IndentingPrintWriter;
 import android.util.Slog;
 import android.util.StatsEvent;
 
@@ -29,8 +30,6 @@ import com.android.car.stats.VmsClientLogger.ConnectionState;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.ConcurrentUtils;
 
-import java.io.FileDescriptor;
-import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -124,14 +123,17 @@ public class CarStatsService {
         }
     }
 
-    public void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
+    /**
+     * Dump its state.
+     */
+    public void dump(IndentingPrintWriter writer, String[] args) {
         List<String> flags = Arrays.asList(args);
         if (args.length == 0 || flags.contains("--vms-client")) {
             dumpVmsStats(writer);
         }
     }
 
-    private void dumpVmsStats(PrintWriter writer) {
+    private void dumpVmsStats(IndentingPrintWriter writer) {
         synchronized (mVmsClientStats) {
             writer.println(VMS_CONNECTION_STATS_DUMPSYS_HEADER);
             mVmsClientStats.values().stream()

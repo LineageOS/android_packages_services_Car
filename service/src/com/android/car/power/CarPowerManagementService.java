@@ -53,6 +53,7 @@ import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.AtomicFile;
+import android.util.IndentingPrintWriter;
 import android.util.Slog;
 
 import com.android.car.CarLocalServices;
@@ -339,7 +340,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     @Override
-    public void dump(PrintWriter writer) {
+    public void dump(IndentingPrintWriter writer) {
         synchronized (mLock) {
             writer.println("*PowerManagementService*");
             writer.printf("mCurrentState: %s\n", mCurrentState);

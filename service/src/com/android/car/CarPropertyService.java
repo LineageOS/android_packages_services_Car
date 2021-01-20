@@ -29,6 +29,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.util.IndentingPrintWriter;
 import android.util.Pair;
 import android.util.Slog;
 import android.util.SparseArray;
@@ -36,7 +37,6 @@ import android.util.SparseArray;
 import com.android.car.hal.PropertyHalService;
 import com.android.internal.annotations.GuardedBy;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -171,7 +171,7 @@ public class CarPropertyService extends ICarProperty.Stub
     }
 
     @Override
-    public void dump(PrintWriter writer) {
+    public void dump(IndentingPrintWriter writer) {
         writer.println("*CarPropertyService*");
         synchronized (mLock) {
             writer.println("    Listener is set for PropertyHalService: " + mListenerIsSet);

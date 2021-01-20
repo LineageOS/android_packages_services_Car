@@ -26,13 +26,13 @@ import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
+import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.util.Slog;
 import android.util.SparseArray;
 
 import com.android.internal.annotations.GuardedBy;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -493,29 +493,34 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
      * Print out the verbose debug status of this object
      */
     @Override
-    public void dump(PrintWriter writer) {
-        writer.println("*" + TAG + "*");
+    public void dump(IndentingPrintWriter writer) {
+        writer.printf("* %s *\n", TAG);
+        mUserServiceHelper.dump(writer);
+
         synchronized (mPerUserLock) {
-            writer.println("\tUser ID: " + mUserId);
-            writer.println("\tUser Proxies: " + (mCarBluetoothUserService != null ? "Yes" : "No"));
+            writer.printf("User ID: %d\n", mUserId);
+            writer.printf("User Proxies: %s\n", (mCarBluetoothUserService != null ? "Yes" : "No"));
 
             // Profile Device Manager statuses
             for (int i = 0; i < mProfileDeviceManagers.size(); i++) {
                 int key = mProfileDeviceManagers.keyAt(i);
                 BluetoothProfileDeviceManager deviceManager =
                         (BluetoothProfileDeviceManager) mProfileDeviceManagers.get(key);
+                // TODO(b/178040439): use IndentingPrintWriter
                 deviceManager.dump(writer, "\t");
             }
 
             // Profile Inhibits
+            // TODO(b/TBD): use IndentingPrintWriter
             if (mInhibitManager != null) mInhibitManager.dump(writer, "\t");
-            else writer.println("\tBluetoothProfileInhibitManager: null");
+            else writer.println("BluetoothProfileInhibitManager: null");
 
             // Device Connection Policy
-            writer.println("\tUsing default policy? " + (mUseDefaultPolicy ? "Yes" : "No"));
+            writer.printf("Using default policy? %s\n", (mUseDefaultPolicy ? "Yes" : "No"));
             if (mBluetoothDeviceConnectionPolicy == null) {
-                writer.println("\tBluetoothDeviceConnectionPolicy: null");
+                writer.println("BluetoothDeviceConnectionPolicy: null");
             } else {
+                // TODO(b/178040439): use IndentingPrintWriter
                 mBluetoothDeviceConnectionPolicy.dump(writer, "\t");
             }
         }
