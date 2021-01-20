@@ -151,6 +151,6 @@
     <string name="car_permission_desc_template_renderer" msgid="6047233999260920122">"ଟେମ୍ପଲେଟ୍ ରେଣ୍ଡର୍ କରନ୍ତୁ।"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"ମୋ ଡିଭାଇସ୍"</string>
     <string name="default_guest_name" msgid="2912812799433131476">"ଅତିଥି"</string>
-    <string name="importance_default" msgid="8587741629268312938">"ଡିଫଲ୍ଟ ଗୁରୁତ୍ୱପୂର୍ଣ୍ଣ"</string>
+    <string name="importance_default" msgid="8587741629268312938">"ଡିଫଲ୍ଟ ଗୁରୁତ୍ୱ"</string>
     <string name="importance_high" msgid="3141530792377745041">"ଅତି ମହତ୍ତ୍ୱପୂର୍ଣ୍ଣ"</string>
 </resources>
