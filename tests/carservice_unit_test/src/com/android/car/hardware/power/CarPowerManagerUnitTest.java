@@ -53,6 +53,7 @@ import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.systeminterface.SystemStateInterface;
 import com.android.car.user.CarUserService;
+import com.android.internal.annotations.GuardedBy;
 import com.android.internal.app.IVoiceInteractionManagerService;
 
 import org.junit.After;
@@ -408,6 +409,8 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
     }
 
     private static final class MockDisplayInterface implements DisplayInterface {
+        private final Object mLock = new Object();
+        @GuardedBy("mLock")
         private boolean mDisplayOn = true;
         private final Semaphore mDisplayStateWait = new Semaphore(0);
 
@@ -415,18 +418,18 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
         public void setDisplayBrightness(int brightness) {}
 
         @Override
-        public synchronized void setDisplayState(boolean on) {
-            mDisplayOn = on;
+        public void setDisplayState(boolean on) {
+            synchronized (mLock) {
+                mDisplayOn = on;
+            }
             mDisplayStateWait.release();
-        }
-
-        public synchronized boolean getDisplayState() {
-            return mDisplayOn;
         }
 
         public boolean waitForDisplayStateChange(long timeoutMs) throws Exception {
             JavaMockitoHelper.await(mDisplayStateWait, timeoutMs);
-            return mDisplayOn;
+            synchronized (mLock) {
+                return mDisplayOn;
+            }
         }
 
         @Override
@@ -437,6 +440,13 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
 
         @Override
         public void refreshDisplayBrightness() {}
+
+        @Override
+        public boolean isDisplayEnabled() {
+            synchronized (mLock) {
+                return mDisplayOn;
+            }
+        }
     }
 
     /**
