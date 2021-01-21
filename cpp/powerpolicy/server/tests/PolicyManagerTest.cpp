@@ -45,7 +45,8 @@ constexpr const char* kValidPowerPolicyPowerPoliciesOnlyXmlFile =
 constexpr const char* kValidPowerPolicySystemPowerPolicyOnlyXmlFile =
         "valid_power_policy_system_power_policy_only.xml";
 const std::vector<const char*> kInvalidPowerPolicyXmlFiles =
-        {"invalid_power_policy_incorrect_othercomponent.xml",
+        {"invalid_power_policy_incorrect_id.xml",
+         "invalid_power_policy_incorrect_othercomponent.xml",
          "invalid_power_policy_incorrect_value.xml", "invalid_power_policy_unknown_component.xml"};
 const std::vector<const char*> kInvalidPowerPolicyGroupXmlFiles =
         {"invalid_power_policy_group_incorrect_state.xml",
@@ -62,6 +63,7 @@ constexpr const char* kExistingPowerPolicyId_OtherNone = "policy_id_other_none";
 constexpr const char* kNonExistingPowerPolicyId = "non_existing_power_poicy_id";
 constexpr const char* kValidPowerPolicyGroupId = "mixed_policy_group";
 constexpr const char* kInvalidPowerPolicyGroupId = "invalid_policy_group";
+constexpr const char* kSystemPolicyIdNoUserInteraction = "system_power_policy_no_user_interaction";
 
 const VehicleApPowerStateReport kExistingTransition = VehicleApPowerStateReport::WAIT_FOR_VHAL;
 const VehicleApPowerStateReport kNonExistingTransition = static_cast<VehicleApPowerStateReport>(-1);
@@ -109,7 +111,7 @@ const CarPowerPolicy kExistingPowerPolicy_OtherNone =
                               PowerComponent::VISUAL_INTERACTION,
                               PowerComponent::TRUSTED_DEVICE_DETECTION});
 const CarPowerPolicy& kExistingTransitionPolicy = kExistingPowerPolicy_OtherOn;
-const CarPowerPolicy kDefaultSystemPowerPolicy =
+const CarPowerPolicy kSystemPowerPolicyNoUserInteraction =
         createCarPowerPolicy("system_power_policy_no_user_interaction",
                              {PowerComponent::WIFI, PowerComponent::CELLULAR,
                               PowerComponent::ETHERNET, PowerComponent::TRUSTED_DEVICE_DETECTION},
@@ -194,7 +196,7 @@ void checkPowerPolicyGroups(const PolicyManager& policyManager) {
 
 void checkSystemPowerPolicy(const PolicyManager& policyManager,
                             const CarPowerPolicy& expectedPolicy) {
-    CarPowerPolicyPtr policy = policyManager.getSystemPowerPolicy();
+    CarPowerPolicyPtr policy = policyManager.getSystemPowerPolicy(kSystemPolicyIdNoUserInteraction);
     ASSERT_TRUE(isEqual(*policy, expectedPolicy));
 }
 
@@ -210,8 +212,8 @@ void checkInvalidPolicies(const PolicyManager& policyManager) {
                                                      kNonExistingTransition)
                       .get(),
               nullptr);
-    CarPowerPolicyPtr policy = policyManager.getSystemPowerPolicy();
-    ASSERT_TRUE(isEqual(*policy, kDefaultSystemPowerPolicy));
+    CarPowerPolicyPtr policy = policyManager.getSystemPowerPolicy(kSystemPolicyIdNoUserInteraction);
+    ASSERT_TRUE(isEqual(*policy, kSystemPowerPolicyNoUserInteraction));
 }
 
 }  // namespace
@@ -293,7 +295,7 @@ TEST_F(PolicyManagerTest, TestValidXml_NoSystemPowerPolicy) {
 
     checkPolicies(policyManager);
     checkPowerPolicyGroups(policyManager);
-    checkSystemPowerPolicy(policyManager, kDefaultSystemPowerPolicy);
+    checkSystemPowerPolicy(policyManager, kSystemPowerPolicyNoUserInteraction);
 }
 
 TEST_F(PolicyManagerTest, TestValidXml_PoliciesOnly) {
@@ -311,7 +313,7 @@ TEST_F(PolicyManagerTest, TestValidXml_PoliciesOnly) {
                                                      kNonExistingTransition)
                       .get(),
               nullptr);
-    checkSystemPowerPolicy(policyManager, kDefaultSystemPowerPolicy);
+    checkSystemPowerPolicy(policyManager, kSystemPowerPolicyNoUserInteraction);
 }
 
 TEST_F(PolicyManagerTest, TestValidXml_SystemPowerPolicyOnly) {
@@ -370,6 +372,24 @@ TEST_F(PolicyManagerTest, TestValidXml_PowerPolicyGroupAvailable) {
 
     ASSERT_TRUE(policyManager.isPowerPolicyGroupAvailable(kValidPowerPolicyGroupId));
     ASSERT_FALSE(policyManager.isPowerPolicyGroupAvailable(kInvalidPowerPolicyGroupId));
+}
+
+TEST_F(PolicyManagerTest, TestSystemPowerPolicyDefault) {
+    PolicyManager policyManager;
+    internal::PolicyManagerPeer policyManagerPeer(&policyManager);
+    std::unordered_set<PowerComponent> enabledComponentSet;
+    CarPowerPolicyPtr systemPolicyDefault =
+            policyManager.getSystemPowerPolicy("system_power_policy_default");
+    for (const auto& component : systemPolicyDefault->enabledComponents) {
+        enabledComponentSet.insert(component);
+    }
+
+    for (const auto component : enum_range<PowerComponent>()) {
+        ASSERT_GT(enabledComponentSet.count(component), 0);
+        enabledComponentSet.erase(component);
+    }
+    ASSERT_TRUE(enabledComponentSet.empty());
+    ASSERT_TRUE(systemPolicyDefault->disabledComponents.empty());
 }
 
 }  // namespace powerpolicy
