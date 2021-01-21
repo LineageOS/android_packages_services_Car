@@ -359,6 +359,11 @@ public class CarPowerManagementTest extends MockedCarTestBase {
 
         @Override
         public void refreshDisplayBrightness() {}
+
+        @Override
+        public boolean isDisplayEnabled() {
+            return mDisplayOn;
+        }
     }
 
     private class PowerStatePropertyHandler implements VehicleHalPropertyHandler {
