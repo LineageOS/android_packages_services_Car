@@ -55,6 +55,7 @@ import android.os.Process;
 import android.os.UserHandle;
 import android.text.format.DateFormat;
 import android.util.ArraySet;
+import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.util.Pair;
 import android.util.Slog;
@@ -75,7 +76,6 @@ import com.android.internal.annotations.VisibleForTesting;
 
 import com.google.android.collect.Sets;
 
-import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -935,7 +935,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     }
 
     @Override
-    public void dump(PrintWriter writer) {
+    public void dump(IndentingPrintWriter writer) {
         synchronized (mLock) {
             writer.println("*CarPackageManagerService*");
             writer.println("mEnableActivityBlocking:" + mEnableActivityBlocking);

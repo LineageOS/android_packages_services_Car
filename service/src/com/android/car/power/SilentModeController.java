@@ -27,6 +27,7 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemProperties;
+import android.util.IndentingPrintWriter;
 import android.util.Slog;
 
 import com.android.car.CarLocalServices;
@@ -42,7 +43,6 @@ import com.android.internal.util.FunctionalUtils;
 import libcore.io.IoUtils;
 
 import java.io.File;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -179,7 +179,7 @@ public final class SilentModeController implements CarServiceBase {
     }
 
     @Override
-    public void dump(PrintWriter writer) {
+    public void dump(IndentingPrintWriter writer) {
         boolean isSilent;
         boolean powerStateIsOn;
         boolean kernelAllowsSilent;

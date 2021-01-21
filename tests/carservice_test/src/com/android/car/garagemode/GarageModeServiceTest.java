@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.util.IndentingPrintWriter;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -38,7 +39,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-import java.io.PrintWriter;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
@@ -48,7 +48,7 @@ public class GarageModeServiceTest {
     @Mock private Context mMockContext;
     @Mock private Controller mMockController;
     @Mock private ContentResolver mMockContentResolver;
-    @Mock private PrintWriter mMockPrintWriter;
+    @Mock private IndentingPrintWriter mMockPrintWriter;
     @Captor private ArgumentCaptor<String> mCaptorString;
 
     private GarageModeService mService;

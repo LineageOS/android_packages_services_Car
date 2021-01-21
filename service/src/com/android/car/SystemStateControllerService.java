@@ -17,10 +17,9 @@ package com.android.car;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.util.IndentingPrintWriter;
 
 import com.android.car.audio.CarAudioService;
-
-import java.io.PrintWriter;
 
 public class SystemStateControllerService implements CarServiceBase {
     private final CarAudioService mCarAudioService;
@@ -44,6 +43,6 @@ public class SystemStateControllerService implements CarServiceBase {
     }
 
     @Override
-    public void dump(PrintWriter writer) {
+    public void dump(IndentingPrintWriter writer) {
     }
 }

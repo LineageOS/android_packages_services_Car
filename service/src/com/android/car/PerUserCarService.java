@@ -113,6 +113,13 @@ public class PerUserCarService extends Service {
             } else {
                 pw.println("PerUserCarDevicePolicyService not needed");
             }
+            pw.println();
+
+            pw.println("LocationManagerProxy");
+            pw.increaseIndent();
+            mLocationManagerProxy.dump(pw);
+            pw.decreaseIndent();
+            pw.println();
         }
     }
 

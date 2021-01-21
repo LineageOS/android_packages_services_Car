@@ -38,6 +38,7 @@ import android.os.RemoteException;
 import android.os.SharedMemory;
 import android.util.ArrayMap;
 import android.util.ArraySet;
+import android.util.IndentingPrintWriter;
 import android.util.Slog;
 
 import com.android.car.CarServiceBase;
@@ -47,7 +48,6 @@ import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.FunctionalUtils.ThrowingConsumer;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -109,7 +109,7 @@ public class VmsBrokerService extends IVmsBrokerService.Stub implements CarServi
     }
 
     @Override
-    public void dump(PrintWriter writer) {
+    public void dump(IndentingPrintWriter writer) {
         writer.println("*" + TAG + "*");
         synchronized (mLock) {
             writer.println("mAvailableLayers: " + mAvailableLayers.getAvailableLayers());

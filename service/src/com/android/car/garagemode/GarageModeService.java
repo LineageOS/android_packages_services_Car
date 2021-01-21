@@ -18,11 +18,10 @@ package com.android.car.garagemode;
 
 import android.content.Context;
 import android.os.Looper;
+import android.util.IndentingPrintWriter;
 
 import com.android.car.CarServiceBase;
 import com.android.internal.annotations.VisibleForTesting;
-
-import java.io.PrintWriter;
 
 /**
  * Main service container for car Garage Mode.
@@ -66,7 +65,7 @@ public class GarageModeService implements CarServiceBase {
      * @param writer Where to dump the information
      */
     @Override
-    public void dump(PrintWriter writer) {
+    public void dump(IndentingPrintWriter writer) {
         boolean isActive = mController.isGarageModeActive();
         writer.println("GarageModeInProgress " + isActive);
         mController.dump(writer);

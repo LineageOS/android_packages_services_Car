@@ -55,6 +55,7 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.service.media.MediaBrowserService;
 import android.text.TextUtils;
+import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.util.Slog;
 
@@ -63,7 +64,6 @@ import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
-import java.io.PrintWriter;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -397,7 +397,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     }
 
     @Override
-    public void dump(PrintWriter writer) {
+    public void dump(IndentingPrintWriter writer) {
         synchronized (mLock) {
             writer.println("*CarMediaService*");
             writer.println("\tCurrent playback media component: "

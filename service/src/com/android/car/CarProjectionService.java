@@ -64,13 +64,13 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.text.TextUtils;
+import android.util.IndentingPrintWriter;
 import android.util.Slog;
 
 import com.android.car.BinderInterfaceContainer.BinderInterface;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 
-import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -788,7 +788,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
     }
 
     @Override
-    public void dump(PrintWriter writer) {
+    public void dump(IndentingPrintWriter writer) {
         writer.println("**CarProjectionService**");
         synchronized (mLock) {
             writer.println("Registered key event handlers:");

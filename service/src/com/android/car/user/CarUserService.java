@@ -83,6 +83,7 @@ import android.provider.Settings;
 import android.sysprop.CarProperties;
 import android.text.TextUtils;
 import android.util.EventLog;
+import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.util.Slog;
 import android.util.SparseArray;
@@ -334,7 +335,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     @Override
-    public void dump(@NonNull PrintWriter writer) {
+    public void dump(@NonNull IndentingPrintWriter writer) {
         checkHasDumpPermissionGranted("dump()");
 
         writer.println("*CarUserService*");

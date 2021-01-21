@@ -21,13 +21,14 @@ import android.car.ILocationManagerProxy;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
-import android.util.Log;
+import android.util.IndentingPrintWriter;
 import android.util.Slog;
 
 /** Wraps a {@link LocationManager}. */
 public class LocationManagerProxy extends ILocationManagerProxy.Stub {
-    private static final String TAG = "LocationManagerProxy";
-    private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
+
+    private static final String TAG = LocationManagerProxy.class.getSimpleName();
+    private static final boolean DBG = false;
 
     private final LocationManager mLocationManager;
 
@@ -57,5 +58,9 @@ public class LocationManagerProxy extends ILocationManagerProxy.Stub {
             Slog.d(TAG, "Getting last known location for provider " + provider);
         }
         return mLocationManager.getLastKnownLocation(provider);
+    }
+
+    void dump(IndentingPrintWriter pw) {
+        pw.printf("isLocationEnabled: %b\n", isLocationEnabled());
     }
 }

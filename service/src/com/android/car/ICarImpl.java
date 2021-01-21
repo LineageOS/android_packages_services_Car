@@ -44,6 +44,7 @@ import android.os.ShellCallback;
 import android.os.Trace;
 import android.os.UserManager;
 import android.util.EventLog;
+import android.util.IndentingPrintWriter;
 import android.util.Slog;
 import android.util.TimingsTraceLog;
 
@@ -646,6 +647,12 @@ public class ICarImpl extends ICar.Stub {
             return;
         }
 
+        try (IndentingPrintWriter pw = new IndentingPrintWriter(writer)) {
+            dumpIndenting(fd, pw, args);
+        }
+    }
+
+    private void dumpIndenting(FileDescriptor fd, IndentingPrintWriter writer, String[] args) {
         if (args == null || args.length == 0 || (args.length > 0 && "-a".equals(args[0]))) {
             writer.println("*Dump car service*");
             dumpAllServices(writer);
@@ -666,7 +673,7 @@ public class ICarImpl extends ICar.Stub {
         } else if ("--metrics".equals(args[0])) {
             // Strip the --metrics flag when passing dumpsys arguments to CarStatsService
             // allowing for nested flag selection
-            mCarStatsService.dump(fd, writer, Arrays.copyOfRange(args, 1, args.length));
+            mCarStatsService.dump(writer, Arrays.copyOfRange(args, 1, args.length));
         } else if ("--vms-hal".equals(args[0])) {
             mHal.getVmsHal().dumpMetrics(fd);
         } else if ("--hal".equals(args[0])) {
@@ -689,7 +696,7 @@ public class ICarImpl extends ICar.Stub {
         }
     }
 
-    private void dumpAllHals(PrintWriter writer) {
+    private void dumpAllHals(IndentingPrintWriter writer) {
         writer.println("*Dump Vehicle HAL*");
         writer.println("Vehicle HAL Interface: " + mVehicleInterfaceName);
         try {
@@ -701,7 +708,7 @@ public class ICarImpl extends ICar.Stub {
         }
     }
 
-    private void showDumpHelp(PrintWriter writer) {
+    private void showDumpHelp(IndentingPrintWriter writer) {
         writer.println("Car service dump usage:");
         writer.println("[NO ARG]");
         writer.println("\t  dumps everything (all services and HALs)");
@@ -745,13 +752,13 @@ public class ICarImpl extends ICar.Stub {
                 mSilentModeController);
     }
 
-    private void dumpListOfServices(PrintWriter writer) {
+    private void dumpListOfServices(IndentingPrintWriter writer) {
         for (CarServiceBase service : mAllServices) {
             writer.println(service.getClass().getName());
         }
     }
 
-    private void dumpAllServices(PrintWriter writer) {
+    private void dumpAllServices(IndentingPrintWriter writer) {
         writer.println("*Dump all services*");
         for (CarServiceBase service : mAllServices) {
             dumpService(service, writer);
@@ -761,9 +768,9 @@ public class ICarImpl extends ICar.Stub {
         }
     }
 
-    private void dumpIndividualServices(PrintWriter writer, String... serviceNames) {
+    private void dumpIndividualServices(IndentingPrintWriter writer, String... serviceNames) {
         for (String serviceName : serviceNames) {
-            writer.println("** Dumping " + serviceName + "\n");
+            writer.printf("** Dumping %s\n\n", serviceName);
             CarServiceBase service = getCarServiceBySubstring(serviceName);
             if (service == null) {
                 writer.println("No such service!");
@@ -781,7 +788,7 @@ public class ICarImpl extends ICar.Stub {
                 .findFirst().orElse(null);
     }
 
-    private void dumpService(CarServiceBase service, PrintWriter writer) {
+    private void dumpService(CarServiceBase service, IndentingPrintWriter writer) {
         try {
             service.dump(writer);
         } catch (Exception e) {
@@ -790,7 +797,7 @@ public class ICarImpl extends ICar.Stub {
         }
     }
 
-    void execShellCmd(String[] args, PrintWriter writer) {
+    void execShellCmd(String[] args, IndentingPrintWriter writer) {
         newCarShellCommand().exec(args, writer);
     }
 

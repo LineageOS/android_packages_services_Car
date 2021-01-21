@@ -25,12 +25,12 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.UserHandle;
+import android.util.IndentingPrintWriter;
 import android.util.Slog;
 
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,17 +41,18 @@ import java.util.List;
  *
  */
 public class PerUserCarServiceHelper implements CarServiceBase {
+
     private static final String TAG = "PerUserCarSvcHelper";
     private static boolean DBG = false;
+
     private final Context mContext;
     private final CarUserService mUserService;
     private IPerUserCarService mPerUserCarService;
     // listener to call on a ServiceConnection to PerUserCarService
     private List<ServiceCallback> mServiceCallbacks;
-    private static final String EXTRA_USER_HANDLE = "android.intent.extra.user_handle";
     private final Object mServiceBindLock = new Object();
     @GuardedBy("mServiceBindLock")
-    private boolean mBound = false;
+    private boolean mBound;
 
     public PerUserCarServiceHelper(Context context, CarUserService userService) {
         mContext = context;
@@ -236,7 +237,18 @@ public class PerUserCarServiceHelper implements CarServiceBase {
     }
 
     @Override
-    public synchronized void dump(PrintWriter writer) {
-
+    public final void dump(IndentingPrintWriter pw) {
+        pw.println("PerUserCarServiceHelper");
+        pw.increaseIndent();
+        synchronized (mServiceBindLock) {
+            pw.printf("bound: %b\n", mBound);
+            if (mServiceCallbacks == null) {
+                pw.println("no callbacks");
+            } else {
+                int size = mServiceCallbacks.size();
+                pw.printf("%d callback%s\n", size, (size > 1 ? "s" : ""));
+            }
+        }
+        pw.decreaseIndent();
     }
 }
