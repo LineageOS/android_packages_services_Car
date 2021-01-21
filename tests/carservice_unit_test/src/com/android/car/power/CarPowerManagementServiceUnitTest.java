@@ -417,6 +417,14 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
     }
 
     @Test
+    public void testApplySystemPowerPolicyFromApps() {
+        grantPowerPolicyPermission();
+        String policyId = "system_power_policy_no_user_interaction";
+
+        assertThrows(IllegalArgumentException.class, () -> mService.applyPowerPolicy(policyId));
+    }
+
+    @Test
     public void testRegisterPowerPolicyChangeListener() throws Exception {
         grantPowerPolicyPermission();
         String policyId = "policy_id_enable_audio_disable_wifi";
