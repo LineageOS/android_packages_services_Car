@@ -1037,6 +1037,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     public void applyPowerPolicy(String policyId) {
         ICarImpl.assertPermission(mContext, Car.PERMISSION_CONTROL_CAR_POWER_POLICY);
         Preconditions.checkArgument(policyId != null, "policyId cannot be null");
+        Preconditions.checkArgument(!policyId.startsWith(PolicyReader.SYSTEM_POWER_POLICY_PREFIX),
+                "System power policy cannot be applied by apps");
         String errorMsg = applyPowerPolicy(policyId, true);
         if (errorMsg != null) {
             throw new IllegalArgumentException(errorMsg);
@@ -1165,6 +1167,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
         synchronized (mLock) {
             if (mIsPowerPolicyLocked) {
+                Slog.i(TAG, "Power policy is locked. The request policy(" + policyId
+                        + ") will be applied when power policy becomes unlocked");
                 mPendingPowerPolicy = policyId;
                 return null;
             }

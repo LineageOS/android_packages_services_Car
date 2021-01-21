@@ -179,6 +179,12 @@ final class PolicyReader {
     @Nullable
     String definePowerPolicy(String policyId, String[] enabledComponents,
             String[] disabledComponents) {
+        if (policyId == null) {
+            return "policyId cannot be null";
+        }
+        if (policyId.startsWith(SYSTEM_POWER_POLICY_PREFIX)) {
+            return "policyId should not start with " + SYSTEM_POWER_POLICY_PREFIX;
+        }
         if (mRegisteredPowerPolicies.containsKey(policyId)) {
             return policyId + " is already registered";
         }
@@ -605,10 +611,6 @@ final class PolicyReader {
                 return VehicleApPowerStateReport.WAIT_FOR_VHAL;
             case POWER_STATE_ON:
                 return VehicleApPowerStateReport.ON;
-            case POWER_STATE_DEEP_SLEEP_ENTRY:
-                return VehicleApPowerStateReport.DEEP_SLEEP_ENTRY;
-            case POWER_STATE_SHUTDOWN_START:
-                return VehicleApPowerStateReport.SHUTDOWN_START;
             default:
                 return INVALID_POWER_STATE;
         }
@@ -620,10 +622,6 @@ final class PolicyReader {
                 return POWER_STATE_WAIT_FOR_VHAL;
             case VehicleApPowerStateReport.ON:
                 return POWER_STATE_ON;
-            case VehicleApPowerStateReport.DEEP_SLEEP_ENTRY:
-                return POWER_STATE_DEEP_SLEEP_ENTRY;
-            case VehicleApPowerStateReport.SHUTDOWN_START:
-                return POWER_STATE_SHUTDOWN_START;
             default:
                 return "unknown power state";
         }
