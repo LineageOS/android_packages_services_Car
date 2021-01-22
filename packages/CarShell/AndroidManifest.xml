@@ -17,7 +17,7 @@
  */
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-        package="com.android.car.shell"
+        package="com.android.shell"
         coreApp="true"
         android:sharedUserId="android.uid.shell"
         >
