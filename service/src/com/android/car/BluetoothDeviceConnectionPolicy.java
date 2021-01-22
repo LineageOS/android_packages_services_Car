@@ -33,6 +33,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.RemoteException;
 import android.os.UserHandle;
+import android.os.UserManager;
 import android.provider.Settings;
 import android.util.Log;
 import android.util.Slog;
@@ -58,11 +59,16 @@ public class BluetoothDeviceConnectionPolicy {
     private final BluetoothAdapter mBluetoothAdapter;
     private final CarBluetoothService mCarBluetoothService;
     private final CarServicesHelper mCarHelper;
+    private final UserManager mUserManager;
 
     private final SilentModeController.SilentModeListener mSilentModeListener =
             new SilentModeController.SilentModeListener() {
                 @Override
                 public void onModeChange(boolean isSilent) {
+                    if (!mUserManager.isUserUnlocked(mUserId)) {
+                        logd("User " + mUserId + " is locked, ignoring silent mode " + isSilent);
+                        return;
+                    }
                     if (isSilent) {
                         // we'll turn off Bluetooth to disconnect devices and better the "off"
                         // illusion
@@ -271,6 +277,7 @@ public class BluetoothDeviceConnectionPolicy {
         mBluetoothBroadcastReceiver = new BluetoothBroadcastReceiver();
         mBluetoothAdapter = Objects.requireNonNull(BluetoothAdapter.getDefaultAdapter());
         mCarHelper = new CarServicesHelper();
+        mUserManager = mContext.getSystemService(UserManager.class);
     }
 
     /**
