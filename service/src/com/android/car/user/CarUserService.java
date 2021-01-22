@@ -1145,7 +1145,12 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
         // First remove user from android and then remove from HAL because HAL remove user is one
         // way call.
-        int result = mUserManager.removeUserOrSetEphemeral(userId);
+        // TODO(b/170887769): rename hasCallerRestrictions to fromCarDevicePolicyManager (or use an
+        // int / enum to indicate if it's called from CarUserManager or CarDevicePolicyManager), as
+        // it's counter-intuitive that it's "allowed even when disallowed" when it
+        // "has caller restrictions"
+        boolean evenWhenDisallowed = hasCallerRestrictions;
+        int result = mUserManager.removeUserOrSetEphemeral(userId, evenWhenDisallowed);
         if (result == UserManager.REMOVE_RESULT_ERROR) {
             return logAndGetResults(userId, UserRemovalResult.STATUS_ANDROID_FAILURE);
         }
