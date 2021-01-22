@@ -18,11 +18,8 @@ package com.android.car.cluster;
 import static android.car.cluster.renderer.InstrumentClusterRenderingService.EXTRA_BUNDLE_KEY_FOR_INSTRUMENT_CLUSTER_HELPER;
 import static android.car.settings.CarSettings.Global.DISABLE_INSTRUMENTATION_SERVICE;
 
-import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.app.ActivityOptions;
-import android.car.Car;
-import android.car.CarAppFocusManager;
 import android.car.cluster.IInstrumentClusterManagerCallback;
 import android.car.cluster.IInstrumentClusterManagerService;
 import android.car.cluster.renderer.IInstrumentCluster;
@@ -47,22 +44,19 @@ import android.util.Log;
 import android.util.Slog;
 import android.view.KeyEvent;
 
-import com.android.car.AppFocusService;
-import com.android.car.AppFocusService.FocusOwnershipCallback;
 import com.android.car.CarInputService;
 import com.android.car.CarInputService.KeyEventListener;
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
-import com.android.car.ICarImpl;
 import com.android.car.R;
 import com.android.car.am.FixedActivityService;
+import com.android.car.cluster.ClusterNavigationService.ContextOwner;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.lang.ref.WeakReference;
-import java.util.Objects;
 
 /**
  * Service responsible for interaction with car's instrument cluster.
@@ -70,8 +64,8 @@ import java.util.Objects;
  * @hide
  */
 @SystemApi
-public class InstrumentClusterService implements CarServiceBase, FocusOwnershipCallback,
-        KeyEventListener {
+public class InstrumentClusterService implements CarServiceBase, KeyEventListener,
+        ClusterNavigationService.ClusterNavigationServiceCallback {
     private static final String TAG = CarLog.TAG_CLUSTER;
     private static final ContextOwner NO_OWNER = new ContextOwner(0, 0);
 
@@ -79,8 +73,8 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
     private static final long RENDERER_WAIT_MAX_RETRY = 2;
 
     private final Context mContext;
-    private final AppFocusService mAppFocusService;
     private final CarInputService mCarInputService;
+    private final ClusterNavigationService mClusterNavigationService;
     /**
      * TODO: (b/121277787) Remove this on main.
      * @deprecated CarInstrumentClusterManager is being deprecated.
@@ -105,47 +99,49 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
     @GuardedBy("mLock")
     private IInstrumentClusterNavigation mIInstrumentClusterNavigationFromRenderer;
 
-    private final IInstrumentClusterNavigation mIInstrumentClusterNavigationnWrapper =
-            new IInstrumentClusterNavigation.Stub() {
-        @Override
-        public void onNavigationStateChanged(Bundle bundle) {
-            ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_NAVIGATION_MANAGER);
-            assertNavigationFocus();
-            // No retry here as new events will be sent later.
+    @Override
+    public void onNavigationStateChanged(Bundle bundle) {
+        // No retry here as new events will be sent later.
+        IInstrumentClusterNavigation navigationBinder = getNavigationBinder(
+                /* retryOnFail= */ false);
+        if (navigationBinder == null) {
+            Slog.e(TAG, "onNavigationStateChanged failed, renderer not ready, Bundle:"
+                    + bundle);
+            return;
+        }
+        try {
+            navigationBinder.onNavigationStateChanged(bundle);
+        } catch (RemoteException e) {
+            Slog.e(TAG, "onNavigationStateChanged failed, bundle:" + bundle, e);
+        }
+    }
+
+    @Override
+    public CarNavigationInstrumentCluster getInstrumentClusterInfo() {
+        // Failure in this call leads into an issue in the client, so throw exception
+        // when it cannot be recovered / retried.
+        for (int i = 0; i < RENDERER_WAIT_MAX_RETRY; i++) {
             IInstrumentClusterNavigation navigationBinder = getNavigationBinder(
-                    /* retryOnFail= */ false);
+                    /* retryOnFail= */ true);
             if (navigationBinder == null) {
-                Slog.e(TAG, "onNavigationStateChanged failed, renderer not ready, Bundle:"
-                        + bundle);
-                return;
+                continue;
             }
             try {
-                navigationBinder.onNavigationStateChanged(bundle);
+                return navigationBinder.getInstrumentClusterInfo();
             } catch (RemoteException e) {
-                Slog.e(TAG, "onNavigationStateChanged failed, bundle:" + bundle, e);
+                Slog.e(TAG, "getInstrumentClusterInfo failed", e);
             }
         }
+        throw new IllegalStateException("cannot access renderer service");
+    }
 
-        @Override
-        public CarNavigationInstrumentCluster getInstrumentClusterInfo() {
-            ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_NAVIGATION_MANAGER);
-            // Failure in this call leads into an issue in the client, so throw exception
-            // when it cannot be recovered / retried.
-            for (int i = 0; i < RENDERER_WAIT_MAX_RETRY; i++) {
-                IInstrumentClusterNavigation navigationBinder = getNavigationBinder(
-                        /* retryOnFail= */ true);
-                if (navigationBinder == null) {
-                    continue;
-                }
-                try {
-                    return navigationBinder.getInstrumentClusterInfo();
-                } catch (RemoteException e) {
-                    Slog.e(TAG, "getInstrumentClusterInfo failed", e);
-                }
-            }
-            throw new IllegalStateException("cannot access renderer service");
+    @Override
+    public void notifyNavContextOwnerChanged(ContextOwner owner) {
+        IInstrumentCluster service = getInstrumentClusterRendererService();
+        if (service != null) {
+            notifyNavContextOwnerChanged(service, owner);
         }
-    };
+    }
 
     /**
      * Connection to {@link android.car.cluster.renderer.InstrumentClusterRendererService}
@@ -207,10 +203,10 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
                 }
             };
 
-    public InstrumentClusterService(Context context, AppFocusService appFocusService,
+    public InstrumentClusterService(Context context, ClusterNavigationService navigationService,
             CarInputService carInputService) {
         mContext = context;
-        mAppFocusService = appFocusService;
+        mClusterNavigationService = navigationService;
         mCarInputService = carInputService;
         mRenderingServiceConfig = mContext.getString(R.string.instrumentClusterRendererService);
         mDeferredRebinder = new DeferredRebinder(this);
@@ -267,8 +263,6 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
             Slog.d(TAG, "init");
         }
 
-        mAppFocusService.registerContextOwnerChangedCallback(this /* FocusOwnershipCallback */);
-        mCarInputService.setInstrumentClusterKeyListener(this /* KeyEventListener */);
         // TODO(b/124246323) Start earlier once data storage for cluster is clarified
         //  for early boot.
         if (!isRendererServiceEnabled()) {
@@ -277,6 +271,8 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
             }
             return;
         }
+        mClusterNavigationService.setClusterServiceCallback(this);
+        mCarInputService.setInstrumentClusterKeyListener(this /* KeyEventListener */);
         CarLocalServices.getService(CarUserService.class).runOnUser0Unlock(() -> {
             boolean bound = bindInstrumentClusterRendererService();
             synchronized (mLock) {
@@ -291,7 +287,6 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
             Slog.d(TAG, "release");
         }
 
-        mAppFocusService.unregisterContextOwnerChangedCallback(this);
         synchronized (mLock) {
             if (mRendererBound) {
                 mContext.unbindService(mRendererServiceConnection);
@@ -310,61 +305,6 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
             writer.println("mRenderingServiceConfig:" + mRenderingServiceConfig);
             writer.println("mIInstrumentClusterNavigationFromRenderer:"
                     + mIInstrumentClusterNavigationFromRenderer);
-        }
-    }
-
-    @Override
-    public void onFocusAcquired(int appType, int uid, int pid) {
-        changeNavContextOwner(appType, uid, pid, true);
-    }
-
-    @Override
-    public void onFocusAbandoned(int appType, int uid, int pid) {
-        changeNavContextOwner(appType, uid, pid, false);
-    }
-
-    private void assertNavigationFocus() {
-        int uid = Binder.getCallingUid();
-        int pid = Binder.getCallingPid();
-        synchronized (mLock) {
-            if (uid == mNavContextOwner.uid && pid == mNavContextOwner.pid) {
-                return;
-            }
-        }
-        // Stored one failed. There can be a delay, so check with real one again.
-        AppFocusService afs = CarLocalServices.getService(AppFocusService.class);
-        if (afs != null && afs.isFocusOwner(uid, pid,
-                CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION)) {
-            return;
-        }
-        throw new IllegalStateException("Client not owning APP_FOCUS_TYPE_NAVIGATION");
-    }
-
-    private void changeNavContextOwner(int appType, int uid, int pid, boolean acquire) {
-        if (appType != CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION) {
-            return;
-        }
-
-        IInstrumentCluster service;
-        ContextOwner requester = new ContextOwner(uid, pid);
-        ContextOwner newOwner = acquire ? requester : NO_OWNER;
-        synchronized (mLock) {
-            if ((acquire && Objects.equals(mNavContextOwner, requester))
-                    || (!acquire && !Objects.equals(mNavContextOwner, requester))) {
-                // Nothing to do here. Either the same owner is acquiring twice, or someone is
-                // abandoning a focus they didn't have.
-                Slog.w(TAG, "Invalid nav context owner change (acquiring: " + acquire
-                        + "), current owner: [" + mNavContextOwner
-                        + "], requester: [" + requester + "]");
-                return;
-            }
-
-            mNavContextOwner = newOwner;
-            service = mRendererService;
-        }
-
-        if (service != null) {
-            notifyNavContextOwnerChanged(service, newOwner);
         }
     }
 
@@ -409,15 +349,6 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
                 Context.BIND_AUTO_CREATE | Context.BIND_IMPORTANT, UserHandle.SYSTEM);
     }
 
-    @Nullable
-    public IInstrumentClusterNavigation getNavigationService() {
-        if (!isRendererServiceEnabled()) {
-            return null;
-
-        }
-        return mIInstrumentClusterNavigationnWrapper;
-    }
-
     /**
      * @deprecated {@link android.car.cluster.CarInstrumentClusterManager} is now deprecated.
      */
@@ -445,34 +376,6 @@ public class InstrumentClusterService implements CarServiceBase, FocusOwnershipC
     private IInstrumentCluster getInstrumentClusterRendererService() {
         synchronized (mLock) {
             return mRendererService;
-        }
-    }
-
-    private static class ContextOwner {
-        final int uid;
-        final int pid;
-
-        ContextOwner(int uid, int pid) {
-            this.uid = uid;
-            this.pid = pid;
-        }
-
-        @Override
-        public String toString() {
-            return "uid: " + uid + ", pid: " + pid;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            ContextOwner that = (ContextOwner) o;
-            return uid == that.uid && pid == that.pid;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(uid, pid);
         }
     }
 
