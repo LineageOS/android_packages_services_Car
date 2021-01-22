@@ -27,6 +27,8 @@ import com.android.internal.util.Preconditions;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Groupings of {@link AttributeUsage}s to simplify configuration of car audio routing, volume
@@ -237,6 +239,15 @@ public final class CarAudioContext {
      */
     static @AudioContext int getContextForUsage(@AttributeUsage int audioUsage) {
         return USAGE_TO_CONTEXT.get(audioUsage, INVALID);
+    }
+
+    static Set<Integer> getUniqueContextsForUsages(int[] usages) {
+        Set<Integer> uniqueContexts = new HashSet<>();
+        for (int i = 0; i < usages.length; i++) {
+            uniqueContexts.add(getContextForUsage(usages[i]));
+        }
+
+        return uniqueContexts;
     }
 
     static String toString(@AudioContext int audioContext) {
