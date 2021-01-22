@@ -16,9 +16,15 @@
 
 package com.android.car.audio;
 
+import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
+import static android.media.AudioAttributes.USAGE_EMERGENCY;
 import static android.media.AudioAttributes.USAGE_GAME;
 import static android.media.AudioAttributes.USAGE_MEDIA;
 import static android.media.AudioAttributes.USAGE_UNKNOWN;
+
+import static com.android.car.audio.CarAudioContext.EMERGENCY;
+import static com.android.car.audio.CarAudioContext.MUSIC;
+import static com.android.car.audio.CarAudioContext.NAVIGATION;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -46,7 +52,7 @@ public class CarAudioContextTest {
     @Test
     public void getContextForUsage_forValidUsage_returnsContext() {
         assertThat(CarAudioContext.getContextForUsage(USAGE_MEDIA))
-                .isEqualTo(CarAudioContext.MUSIC);
+                .isEqualTo(MUSIC);
     }
 
     @Test
@@ -57,7 +63,7 @@ public class CarAudioContextTest {
 
     @Test
     public void getUsagesForContext_withValidContext_returnsUsages() {
-        int[] usages = CarAudioContext.getUsagesForContext(CarAudioContext.MUSIC);
+        int[] usages = CarAudioContext.getUsagesForContext(MUSIC);
         assertThat(usages).asList().containsExactly(USAGE_UNKNOWN, USAGE_GAME, USAGE_MEDIA);
     }
 
@@ -75,5 +81,30 @@ public class CarAudioContextTest {
             @AttributeUsage int[] usages = CarAudioContext.getUsagesForContext(audioContext);
             assertThat(allUsages.addAll(Ints.asList(usages))).isTrue();
         }
+    }
+
+    @Test
+    public void getUniqueContextsForUsages_withEmptyArray_returnsEmptySet() {
+        Set<Integer> result = CarAudioContext.getUniqueContextsForUsages(new int[0]);
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    public void getUniqueContextsForUsages_withMultipleUsages_filtersDuplicateContexts() {
+        int[] usages = {USAGE_GAME, USAGE_MEDIA};
+
+        Set<Integer> result = CarAudioContext.getUniqueContextsForUsages(usages);
+
+        assertThat(result).containsExactly(MUSIC);
+    }
+
+    @Test
+    public void getUniqueContextsForUsages_withMultipleUsages_returnsAllUniqueContexts() {
+        int[] usages = {USAGE_MEDIA, USAGE_ASSISTANCE_NAVIGATION_GUIDANCE, USAGE_EMERGENCY};
+
+        Set<Integer> result = CarAudioContext.getUniqueContextsForUsages(usages);
+
+        assertThat(result).containsExactly(MUSIC, NAVIGATION, EMERGENCY);
     }
 }
