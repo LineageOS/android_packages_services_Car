@@ -226,18 +226,4 @@ public final class CarAudioManagerPermissionTest {
                 () -> mCarAudioManager.getOutputDeviceForUsage(PRIMARY_AUDIO_ZONE, USAGE_MEDIA));
         assertThat(e.getMessage()).contains(PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
     }
-
-    @Test
-    public void onCarDisconnectedPermission() {
-        Exception e = expectThrows(SecurityException.class,
-                () -> mCarAudioManager.onCarDisconnected());
-        assertThat(e.getMessage()).contains(PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
-    }
-
-    @Test
-    public void onCarDisconnected() {
-        Exception e = expectThrows(SecurityException.class,
-                () -> mCarAudioManager.onCarDisconnected());
-        assertThat(e.getMessage()).contains(PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
-    }
 }

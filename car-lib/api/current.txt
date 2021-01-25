@@ -650,8 +650,11 @@ package android.car.hardware.property {
 package android.car.media {
 
   public final class CarAudioManager {
+    method public boolean isAudioFeatureEnabled(int);
     method public void registerCarVolumeCallback(@NonNull android.car.media.CarAudioManager.CarVolumeCallback);
     method public void unregisterCarVolumeCallback(@NonNull android.car.media.CarAudioManager.CarVolumeCallback);
+    field public static final int AUDIO_FEATURE_DYNAMIC_ROUTING = 1; // 0x1
+    field public static final int AUDIO_FEATURE_VOLUME_GROUP_MUTING = 2; // 0x2
   }
 
   public abstract static class CarAudioManager.CarVolumeCallback {

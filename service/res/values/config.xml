@@ -26,6 +26,12 @@
           during initial development where audio hal does not support bus based addressing yet. -->
     <bool name="audioUseDynamicRouting">false</bool>
 
+    <!--  Configuration to enable muting of individual volume groups. If this is set to
+          false, muting of individual volume groups is disabled, instead muting will toggle master
+          mute. If this is set to true, car volume group muting is enabled and each individual
+          volume group can be muted separately. -->
+    <bool name="audioUseCarVolumeGroupMuting">false</bool>
+
     <!--  Configuration to select version of volume adjustment context priority list.
           Version 1 includes all audio contexts arranged in the following order:
             NAVIGATION, CALL, MUSIC, ANNOUNCEMENT, VOICE_COMMAND, CALL_RING, SYSTEM_SOUND, SAFETY,
@@ -38,7 +44,9 @@
     <integer name="audioVolumeAdjustmentContextsVersion">2</integer>
 
     <!--  Configuration to persist global mute state. If this is set to true,
-          Android will restore the global mute state on boot. -->
+          Android will restore the global mute state on boot. If audioUseCarVolumeGroupMuting is
+          true, this will have no impact on persisting mute changes as mute changes will be based
+          on individual volume group.-->
     <bool name="audioPersistMasterMuteState">true</bool>
     <!-- Whether to block other audio while media audio is muted with display off. When set to true,
          other sounds cannot be played either while display is off. If false, only media is muted

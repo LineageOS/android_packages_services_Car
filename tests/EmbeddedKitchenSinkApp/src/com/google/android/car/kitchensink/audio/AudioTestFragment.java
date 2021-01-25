@@ -427,7 +427,7 @@ public class AudioTestFragment extends Fragment {
     }
 
     private void setActivityCurrentZoneId(TextView currentZoneIdTextView) {
-        if (mCarAudioManager.isDynamicRoutingEnabled()) {
+        if (mCarAudioManager.isAudioFeatureEnabled(CarAudioManager.AUDIO_FEATURE_DYNAMIC_ROUTING)) {
             try {
                 ApplicationInfo info = mContext.getPackageManager().getApplicationInfo(
                         mContext.getPackageName(), 0);
@@ -556,7 +556,8 @@ public class AudioTestFragment extends Fragment {
     }
 
     private void handleSetUpZoneSelection() {
-        if (!Build.IS_EMULATOR || !mCarAudioManager.isDynamicRoutingEnabled()) {
+        if (!Build.IS_EMULATOR || !mCarAudioManager.isAudioFeatureEnabled(
+                CarAudioManager.AUDIO_FEATURE_DYNAMIC_ROUTING)) {
             return;
         }
         //take care of zone selection
@@ -714,7 +715,8 @@ public class AudioTestFragment extends Fragment {
     }
 
     private void setUpDeviceAddressPlayer() {
-        if (!mCarAudioManager.isDynamicRoutingEnabled()) {
+        if (!mCarAudioManager.isAudioFeatureEnabled(
+                CarAudioManager.AUDIO_FEATURE_DYNAMIC_ROUTING)) {
             mDeviceAddressLayout.setVisibility(View.GONE);
             return;
         }

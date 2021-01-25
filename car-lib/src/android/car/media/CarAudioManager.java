@@ -15,6 +15,7 @@
  */
 package android.car.media;
 
+import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
@@ -36,6 +37,8 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -76,6 +79,31 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @SystemApi
     public static final int INVALID_AUDIO_ZONE = 0xffffffff;
+
+    /**
+     * This is used to determine if dynamic routing is enabled via
+     * {@link #isAudioFeatureEnabled()}
+     */
+    public static final int AUDIO_FEATURE_DYNAMIC_ROUTING = 0x1;
+
+    /**
+     * This is used to determine if volume group muting is enabled via
+     * {@link #isAudioFeatureEnabled()}
+     *
+     * <p>
+     * If enabled, car volume group muting APIs can be used to mute each volume group,
+     * also car volume group muting changed callback will be called upon group mute changes. If
+     * disabled, car volume will toggle master mute instead.
+     */
+    public static final int AUDIO_FEATURE_VOLUME_GROUP_MUTING = 0x2;
+
+    /** @hide */
+    @IntDef(flag = false, prefix = "AUDIO_FEATURE", value = {
+            AUDIO_FEATURE_DYNAMIC_ROUTING,
+            AUDIO_FEATURE_VOLUME_GROUP_MUTING
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface CarAudioFeature {}
 
     /**
      * Volume Group ID when volume group not found.
@@ -134,12 +162,27 @@ public final class CarAudioManager extends CarManagerBase {
 
     /**
      * @return Whether dynamic routing is enabled or not.
+     *
+     * @deprecated use {@link #isAudioFeatureEnabled(AUDIO_FEATURE_DYNAMIC_ROUTING)} instead.
+     *
      * @hide
      */
     @TestApi
+    @Deprecated
     public boolean isDynamicRoutingEnabled() {
+        return isAudioFeatureEnabled(AUDIO_FEATURE_DYNAMIC_ROUTING);
+    }
+
+    /**
+     * Determines if an audio feature is enabled.
+     *
+     * @param audioFeature audio feature to query, can be {@link #AUDIO_FEATURE_DYNAMIC_ROUTING} or
+     * {@link #AUDIO_FEATURE_VOLUME_GROUP_MUTING}
+     * @return Returns {@code true} if the feature is enabled, {@code false} otherwise.
+     */
+    public boolean isAudioFeatureEnabled(@CarAudioFeature int audioFeature) {
         try {
-            return mService.isDynamicRoutingEnabled();
+            return mService.isAudioFeatureEnabled(audioFeature);
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, false);
         }
@@ -621,7 +664,7 @@ public final class CarAudioManager extends CarManagerBase {
     /** @hide */
     @Override
     public void onCarDisconnected() {
-        if (mService != null) {
+        if (mService != null && !mCarVolumeCallbacks.isEmpty()) {
             unregisterVolumeCallback();
         }
     }
@@ -683,6 +726,9 @@ public final class CarAudioManager extends CarManagerBase {
     /**
      * Returns the whether a volume group is muted
      *
+     * <p><b>Note:<b/> If {@link #AUDIO_FEATURE_VOLUME_GROUP_MUTING} is disabled this will always
+     * return {@code false} as group mute is disabled.
+     *
      * @param zoneId The zone id whose volume groups is queried.
      * @param groupId The volume group id whose mute state is returned.
      * @return {@code true} if the volume group is muted, {@code false}
@@ -702,6 +748,9 @@ public final class CarAudioManager extends CarManagerBase {
 
     /**
      * Sets a volume group mute
+     *
+     * <p><b>Note:<b/> If {@link #AUDIO_FEATURE_VOLUME_GROUP_MUTING} is disabled this will have no
+     * impact on volume group mute.
      *
      * @param zoneId The zone id whose volume groups will be changed.
      * @param groupId The volume group id whose mute state will be changed.
@@ -837,6 +886,10 @@ public final class CarAudioManager extends CarManagerBase {
          * The changed-to global mute state is not included, the caller is encouraged to
          * get the current global mute state via AudioManager.
          *
+         * <p><b>Note:<b/> If {@link CarAudioManager#AUDIO_FEATURE_VOLUME_GROUP_MUTING} is disabled
+         * this will be triggered on mute changes. Otherwise, car audio mute changes will trigger
+         * {@link #onGroupMuteChanged(int, int, int)}
+         *
          * @param zoneId Id of the audio zone that global mute state change happens
          * @param flags see {@link android.media.AudioManager} for flag definitions
          */
@@ -846,6 +899,10 @@ public final class CarAudioManager extends CarManagerBase {
          * This is called whenever a group mute state is changed.
          * The changed-to mute state is not included, the caller is encouraged to
          * get the current group mute state via CarAudioManager.
+         *
+         * <p><b>Note:<b/> If {@link CarAudioManager#AUDIO_FEATURE_VOLUME_GROUP_MUTING} is enabled
+         * this will be triggered on mute changes. Otherwise, car audio mute changes will trigger
+         * {@link #onMasterMuteChanged(int, int)}
          *
          * @param zoneId Id of the audio zone that volume change happens
          * @param groupId Id of the volume group that volume is changed
