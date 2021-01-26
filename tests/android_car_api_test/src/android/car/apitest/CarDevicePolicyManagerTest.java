@@ -33,6 +33,7 @@ import android.content.pm.UserInfo;
 import android.os.PowerManager;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.platform.test.annotations.FlakyTest;
 import android.util.Log;
 
 import org.junit.Before;
@@ -138,6 +139,7 @@ public final class CarDevicePolicyManagerTest extends CarApiTestBase {
     }
 
     @Test
+    @FlakyTest(bugId = 178475817)
     public void testLockNow_unsafe() throws Exception {
         lockNowTest(/* safe= */ false);
     }
