@@ -65,6 +65,7 @@ import java.time.Duration;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 @SmallTest
 public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
@@ -550,15 +551,22 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
 
     private final class MockedPowerPolicyChangeListener implements
             CarPowerManager.CarPowerPolicyChangeListener {
+        private static final int MAX_LISTENER_WAIT_TIME_SEC = 1;
+
+        private final CountDownLatch mLatch = new CountDownLatch(1);
         private String mCurrentPolicyId;
 
         @Override
         public void onPolicyChanged(@NonNull CarPowerPolicy policy) {
             mCurrentPolicyId = policy.policyId;
+            mLatch.countDown();
         }
 
-        public String getCurrentPolicyId() {
-            return mCurrentPolicyId;
+        public String getCurrentPolicyId() throws Exception {
+            if (mLatch.await(MAX_LISTENER_WAIT_TIME_SEC, TimeUnit.SECONDS)) {
+                return mCurrentPolicyId;
+            }
+            return null;
         }
     }
 }
