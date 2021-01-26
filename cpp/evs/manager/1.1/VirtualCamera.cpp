@@ -154,22 +154,12 @@ bool VirtualCamera::deliverFrame(const BufferDesc_1_1& bufDesc) {
             mStream->deliverFrame(frame_1_0);
         } else if (mCaptureThread.joinable()) {
             // Keep forwarding frames as long as a capture thread is alive
-            if (mFramesHeld.size() > 0 && mStream_1_1 != nullptr) {
-                // Pass this buffer through to our client
-                hardware::hidl_vec<BufferDesc_1_1> frames;
-                frames.resize(1);
-                auto pHwCamera = mHalCamera.begin()->second.promote();
-                if (pHwCamera != nullptr) {
-                    frames[0] = mFramesHeld[mHalCamera.begin()->first].back();
-                }
-
-                // Notify a new frame receipt
-                {
-                    std::lock_guard<std::mutex> lock(mFrameDeliveryMutex);
-                    mSourceCameras.erase(bufDesc.deviceId);
-                }
-                mFramesReadySignal.notify_all();
+            // Notify a new frame receipt
+            {
+                std::lock_guard<std::mutex> lock(mFrameDeliveryMutex);
+                mSourceCameras.erase(bufDesc.deviceId);
             }
+            mFramesReadySignal.notify_all();
         }
 
         return true;
