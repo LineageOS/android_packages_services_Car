@@ -1105,7 +1105,7 @@
     <string name="wifi_hotspot_ap_band_title" msgid="3485744480410441949">"Prieigos taško juosta"</string>
     <string name="wifi_hotspot_footer_info_regular" msgid="3876006922622827363">"Naudodami viešosios interneto prieigos tašką, galite sukurti „Wi‑Fi“ tinklą kitiems įrenginiams. Internetas teikiamas per viešosios interneto prieigos tašką naudojant mobiliųjų duomenų ryšį. Gali būti taikomi papildomi mobiliojo ryšio duomenų mokesčiai."</string>
     <string name="wifi_hotspot_footer_info_local_only" msgid="3339582350894639261">"Programos gali sukurti viešosios interneto prieigos tašką ir bendrinti turinį su netoliese esančiais įrenginiais."</string>
-    <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"Išjungti viešosios interneto prieigos tašką automatiškai"</string>
+    <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"Automatiškai išjungti viešosios interneto prieigos tašką"</string>
     <string name="wifi_hotspot_auto_off_summary" msgid="3866769400624802105">"„Wi‑Fi“ viešosios interneto prieigos taškas bus išjungtas, jei nebus prijungta jokių įrenginių"</string>
     <string name="wifi_tether_starting" msgid="7676952148471297900">"Įjungiamas viešosios interneto prieigos taškas…"</string>
     <string name="wifi_tether_stopping" msgid="7478561853791953349">"Išjungiamas viešosios interneto prieigos taškas…"</string>
@@ -1606,7 +1606,7 @@
     <string name="restore_default_apn" msgid="7195266404077471007">"Atkuriami numatytieji APN nustatymai."</string>
     <string name="menu_restore" msgid="3799288817317293115">"Nustatyti iš naujo į numatytuosius nust."</string>
     <string name="restore_default_apn_completed" msgid="5671734152740058937">"Numatytųjų APN nustatymų nustatymas iš naujo baigtas."</string>
-    <string name="reset_dashboard_title" msgid="7084966342252178530">"Nustat. parinkt. iš naujo"</string>
+    <string name="reset_dashboard_title" msgid="7084966342252178530">"Nust. parinkt. iš naujo"</string>
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"Tinklą, programas arba įrenginį galima nustatyti iš naujo"</string>
     <string name="reset_network_title" msgid="8944059136930806211">"Iš naujo nustatyti „Wi-Fi“, mobiliųjų duomenų ir „Bluetooth“ nustatymus"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"Bus iš naujo nustatyti visi tinklo nustatymai, įskaitant:\n\n"<li>"„Wi‑Fi“;"</li>\n<li>"mobiliojo ryšio duomenis;"</li>\n<li>"„Bluetooth“."</li></string>

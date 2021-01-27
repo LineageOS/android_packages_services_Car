@@ -2917,7 +2917,7 @@
     <string name="nfc_payment_settings_title" msgid="5070077706735415291">"Toca y paga"</string>
     <string name="nfc_payment_how_it_works" msgid="7607901964687787177">"Cómo funciona"</string>
     <string name="nfc_payment_no_apps" msgid="8844440783395420860">"Paga en las tiendas con tu teléfono"</string>
-    <string name="nfc_payment_default" msgid="7869273092463612271">"App de pago predeterminada"</string>
+    <string name="nfc_payment_default" msgid="7869273092463612271">"App de pagos predeterminada"</string>
     <string name="nfc_payment_default_not_set" msgid="955804193510335338">"Sin establecer"</string>
     <string name="nfc_payment_app_and_desc" msgid="102312684211458190">"<xliff:g id="APP">%1$s</xliff:g>: <xliff:g id="DESCRIPTION">%2$s</xliff:g>"</string>
     <string name="nfc_payment_use_default" msgid="3098724195746409476">"Utilizar la aplicación predeterminada"</string>

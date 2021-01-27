@@ -1572,7 +1572,7 @@
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"Желіні, қолданбаны не құрылғыны бастапқы күйіне қайтаруға болады"</string>
     <string name="reset_network_title" msgid="8944059136930806211">"Wi-Fi, мобильдік деректер және Bluetooth параметрлерін бастапқы күйіне қайтару"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"Мұның нәтижесінде барлық желі параметрлері бастапқы күйіне қайтарылады, соның ішінде:\n\n"<li>"Wi‑Fi"</li>\n<li>"мобильдік деректер"</li>\n<li>"Bluetooth"</li></string>
-    <string name="reset_esim_title" msgid="7630781767040831893">"Жүктеп алынған SIM карталарын тазарту"</string>
+    <string name="reset_esim_title" msgid="7630781767040831893">"Жүктеп алынған SIM карталарын өшіру"</string>
     <string name="reset_esim_desc" msgid="433226911566802">"Жаңа SIM карталарын жүктеп алу үшін операторға хабарласыңыз. Мобильдік қызмет жоспарларынан бас тартылмайды."</string>
     <string name="reset_network_button_text" msgid="4293271046867912819">"Параметрлерді бастапқы күйге қайтару"</string>
     <string name="reset_network_final_desc" msgid="2463817067048751373">"Барлық желі параметрлері бастапқы күйіне қайтарылсын ба? Бұл әрекетті қайтару мүмкін емес."</string>
@@ -4419,7 +4419,7 @@
     <string name="mobile_network_erase_sim" msgid="7813251003613841044">"SIM картасын жою"</string>
     <string name="mobile_network_erase_sim_dialog_title" msgid="3796268164204467499">"Бұл жүктеп алынған SIM картасы өшірілсін бе?"</string>
     <string name="mobile_network_erase_sim_dialog_body" msgid="1923189407958581450">"Бұл SIM картасын өшірсеңіз, <xliff:g id="CARRIER_0">%1$s</xliff:g> қызметі бұл құрылғыдан жойылады.\n\n<xliff:g id="CARRIER_1">%2$s</xliff:g> қызметінен бас тартылмайды."</string>
-    <string name="mobile_network_erase_sim_dialog_ok" msgid="7133484721717815447">"Жою"</string>
+    <string name="mobile_network_erase_sim_dialog_ok" msgid="7133484721717815447">"Өшіру"</string>
     <string name="mobile_network_erase_sim_dialog_progress" msgid="4881754030959536493">"SIM тазартылуда…"</string>
     <string name="mobile_network_erase_sim_error_dialog_title" msgid="9026625253242102706">"SIM картасы жойылмады"</string>
     <string name="mobile_network_erase_sim_error_dialog_body" msgid="5955463559366034787">"Қатеге байланысты бұл SIM картасын өшіру мүмкін емес.\n\nҚұрылғыны қайта қосып, әрекетті қайталаңыз."</string>

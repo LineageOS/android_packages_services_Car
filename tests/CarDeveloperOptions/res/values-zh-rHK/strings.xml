@@ -1574,7 +1574,7 @@
     <string name="reset_network_title" msgid="8944059136930806211">"重設 Wi-Fi、流動數據和藍牙"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"此操作會重設所有網絡設定，包括：\n\n"<li>"Wi‑Fi"</li>\n<li>"流動數據"</li>\n<li>"藍牙"</li></string>
     <string name="reset_esim_title" msgid="7630781767040831893">"清除已下載的 SIM 卡"</string>
-    <string name="reset_esim_desc" msgid="433226911566802">"如要下載 SIM 替換卡，請聯絡流動網絡供應商。此動作不會取消任何流動服務計劃。"</string>
+    <string name="reset_esim_desc" msgid="433226911566802">"如要下載替換用的 SIM 卡，請聯絡流動網絡供應商。此操作不會取消任何流動服務計劃。"</string>
     <string name="reset_network_button_text" msgid="4293271046867912819">"重設設定"</string>
     <string name="reset_network_final_desc" msgid="2463817067048751373">"您要重設所有網絡設定嗎？您將無法復原這項動作。"</string>
     <string name="reset_network_final_desc_esim" msgid="4676436976372555750">"您要重設所有網絡設定並清除已下載的 SIM 卡嗎？您無法復原這個動作。"</string>
@@ -2449,7 +2449,7 @@
     <string name="process_dex2oat_label" msgid="8249082119748556085">"應用程式優化"</string>
     <string name="battery_saver" msgid="3989710213758938398">"省電模式"</string>
     <string name="battery_saver_auto_title" msgid="4158659069641849952">"自動開啟"</string>
-    <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"不設定時間"</string>
+    <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"沒有設定時間表"</string>
     <string name="battery_saver_auto_routine" msgid="886514412067906980">"根據慣常充電時間"</string>
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"根據百分比"</string>
     <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"如果電量很可能在下次慣常充電時間之前耗盡，「省電模式」就會自動開啟"</string>

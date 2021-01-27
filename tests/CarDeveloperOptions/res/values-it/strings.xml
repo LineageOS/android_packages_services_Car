@@ -1572,7 +1572,7 @@
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"È possibile reimpostare la rete, le app o il dispositivo"</string>
     <string name="reset_network_title" msgid="8944059136930806211">"Reimposta Wi-Fi, dati mobili e Bluetooth"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"Verranno reimpostate tutte le impostazioni di rete, tra cui:\n\n"<li>"Wi‑Fi"</li>\n<li>"Dati mobili"</li>\n<li>"Bluetooth"</li></string>
-    <string name="reset_esim_title" msgid="7630781767040831893">"Cancella SIM scaricate"</string>
+    <string name="reset_esim_title" msgid="7630781767040831893">"Resetta SIM scaricate"</string>
     <string name="reset_esim_desc" msgid="433226911566802">"Per scaricare le SIM sostitutive, contatta il tuo operatore. Ciò non annullerà alcun piano di servizio mobile."</string>
     <string name="reset_network_button_text" msgid="4293271046867912819">"Reimposta"</string>
     <string name="reset_network_final_desc" msgid="2463817067048751373">"Ripristinare tutte le impostazioni della rete? Questa azione non può essere annullata."</string>
@@ -2455,7 +2455,7 @@
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Si attiva quando la batteria raggiunge <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Imposta una pianificazione"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Disattiva quando la ricarica è completa"</string>
-    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"Risparmio energetico si disattiva quando il livello di carica del telefono è <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
+    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"Il risparmio energetico si disattiva quando il livello di carica del telefono è <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"Risparmio energetico si attiva quando il tablet è a un livello di carica pari a <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_sticky_description_new" product="device" msgid="5056520668081504111">"Risparmio energetico si attiva quando il dispositivo è a un livello di carica pari a <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->

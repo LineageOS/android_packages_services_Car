@@ -1750,7 +1750,7 @@
     <string name="lock_settings_title" msgid="233657584969886812">"Enhedssikkerhed"</string>
     <string name="lockpattern_change_lock_pattern_label" msgid="333149762562581510">"Skift oplåsningsmønster"</string>
     <string name="lockpattern_change_lock_pin_label" msgid="3435796032210265723">"Skift pinkode til oplåsning"</string>
-    <string name="lockpattern_recording_intro_header" msgid="2262005028838969839">"Tegn et oplåsningsmønster"</string>
+    <string name="lockpattern_recording_intro_header" msgid="2262005028838969839">"Tegn et mønster til at låse op"</string>
     <string name="lockpattern_recording_intro_footer" msgid="5426745740754065099">"Tryk på Menu for at få hjælp."</string>
     <string name="lockpattern_recording_inprogress" msgid="4060818382176523671">"Slip, når du er færdig"</string>
     <string name="lockpattern_recording_incorrect_too_short" msgid="6374760294545431845">"Forbind mindst <xliff:g id="NUMBER">%d</xliff:g> punkter. Prøv igen."</string>
@@ -2176,7 +2176,7 @@
     <string name="color_blue" msgid="4055855996393833996">"Blå"</string>
     <string name="color_cyan" msgid="7669317410901991453">"Grønblå"</string>
     <string name="color_yellow" msgid="8847327436896180799">"Gul"</string>
-    <string name="color_magenta" msgid="721976999611563071">"Lyslilla"</string>
+    <string name="color_magenta" msgid="721976999611563071">"Magenta"</string>
     <string name="enable_service_title" msgid="2746143093464928251">"Vil du bruge <xliff:g id="SERVICE">%1$s</xliff:g>?"</string>
     <string name="capabilities_list_title" msgid="8177719542886123788">"<xliff:g id="SERVICE">%1$s</xliff:g> har brug for at:"</string>
     <string name="touch_filtered_warning" msgid="3072665526993043879">"Indstillinger kan ikke bekræfte dit svar, fordi en app tilslører tilladelsesanmodningen."</string>
@@ -2455,9 +2455,9 @@
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Aktiveres ved <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Angiv en tidsplan"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Deaktiver, når enheden er opladet"</string>
-    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"Batterisparefunktion slås fra, når din telefon er på <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
-    <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"Batterisparefunktion slås fra, når din tablet er på <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
-    <string name="battery_saver_sticky_description_new" product="device" msgid="5056520668081504111">"Batterisparefunktion slås fra, når din enhed er på <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
+    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"Batterisparefunktionen slås fra, når din telefon er på <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
+    <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"Batterisparefunktionen slås fra, når din tablet er på <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
+    <string name="battery_saver_sticky_description_new" product="device" msgid="5056520668081504111">"Batterisparefunktionen slås fra, når din enhed er på <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"Aktivér"</string>
@@ -3216,7 +3216,7 @@
     <string name="zen_mode_block_effect_light" msgid="8679333758037487644">"Undlad at bruge blinkende lys"</string>
     <string name="zen_mode_block_effect_peek" msgid="6075662813575910221">"Undlad at vise notifikationer på skærmen"</string>
     <string name="zen_mode_block_effect_status" msgid="6516614225115681068">"Skjul statusbjælkeikoner øverst på skærmen"</string>
-    <string name="zen_mode_block_effect_badge" msgid="3891743027347075136">"Skjul notifikationscirkler på appikoner"</string>
+    <string name="zen_mode_block_effect_badge" msgid="3891743027347075136">"Skjul notifikationsprikker på appikoner"</string>
     <string name="zen_mode_block_effect_ambient" msgid="6382013125863616197">"Væk ikke ved notifikationer"</string>
     <string name="zen_mode_block_effect_list" msgid="6081548478844912181">"Skjul på listen over notifikationer"</string>
     <string name="zen_mode_block_effect_summary_none" msgid="7166175186759564510">"Aldrig"</string>
@@ -3305,7 +3305,7 @@
     <string name="asst_capabilities_actions_replies_summary" msgid="5647029698181357902">"Vis automatisk indholdsbestemte handlinger og hurtige svar i notifikationer"</string>
     <string name="hide_silent_icons_title" msgid="1070905516921542662">"Skjul statusikoner for lydløse notifikationer"</string>
     <string name="hide_silent_icons_summary" msgid="2624346914488256888">"Skjul ikoner for lydløse notifikationer på statusbjælken"</string>
-    <string name="notification_badging_title" msgid="6311699476970264712">"Tillad notifikationscirkler"</string>
+    <string name="notification_badging_title" msgid="6311699476970264712">"Tillad notifikationsprikker"</string>
     <string name="notification_bubbles_title" msgid="9196562435741861317">"Bobler"</string>
     <string name="notification_bubbles_summary" msgid="4624512775901949578">"Få hurtigt adgang til appindhold fra hvor som helst ved hjælp af svævende genveje"</string>
     <string name="bubbles_feature_education" msgid="8979109826818881018">"Nogle notifikationer og andet indhold kan blive vist som bobler på skærmen. Tryk på en boble for at åbne den. Træk den ned ad skærmen for at lukke den."</string>
@@ -3420,8 +3420,8 @@
     <string name="app_notification_block_summary" msgid="4502146897785692336">"Vis aldrig disse notifikationer"</string>
     <string name="notification_content_block_title" msgid="2805138591864484587">"Vis notifikationer"</string>
     <string name="notification_content_block_summary" msgid="2743896875255591743">"Vis aldrig notifikationer i underretningspanelet eller på eksterne enheder"</string>
-    <string name="notification_badge_title" msgid="8989086619255666442">"Tillad notifikationscirkel"</string>
-    <string name="notification_channel_badge_title" msgid="8228215248332054612">"Vis notifikationscirkel"</string>
+    <string name="notification_badge_title" msgid="8989086619255666442">"Tillad notifikationsprik"</string>
+    <string name="notification_channel_badge_title" msgid="8228215248332054612">"Vis notifikationsprik"</string>
     <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"Tilsidesæt Forstyr ikke"</string>
     <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"Bliv ved med at få disse notifikationer, når Forstyr ikke er aktiveret"</string>
     <string name="app_notification_visibility_override_title" msgid="2349335170165637672">"På låseskærmen"</string>

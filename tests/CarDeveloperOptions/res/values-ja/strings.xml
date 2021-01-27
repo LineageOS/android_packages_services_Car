@@ -23,11 +23,11 @@
     <string name="deny" msgid="3998166389989144025">"許可しない"</string>
     <string name="device_info_default" msgid="1548919563979154348">"不明"</string>
     <plurals name="show_dev_countdown" formatted="false" msgid="3953785659137161981">
-      <item quantity="other">デベロッパーになるまであと<xliff:g id="STEP_COUNT_1">%1$d</xliff:g>ステップです。</item>
-      <item quantity="one">デベロッパーになるまであと<xliff:g id="STEP_COUNT_0">%1$d</xliff:g>ステップです。</item>
+      <item quantity="other">開発者向けオプションが有効になるまであと <xliff:g id="STEP_COUNT_1">%1$d</xliff:g> 回です</item>
+      <item quantity="one">開発者向けオプションが有効になるまであと <xliff:g id="STEP_COUNT_0">%1$d</xliff:g> 回です</item>
     </plurals>
-    <string name="show_dev_on" msgid="9075712234786224065">"これでデベロッパーになりました！"</string>
-    <string name="show_dev_already" msgid="7665948832405148689">"開発者向けオプションが既に有効です。"</string>
+    <string name="show_dev_on" msgid="9075712234786224065">"開発者向けオプションが有効になりました"</string>
+    <string name="show_dev_already" msgid="7665948832405148689">"開発者向けオプションはすでに有効です"</string>
     <string name="dev_settings_disabled_warning" msgid="3198732189395396721">"まず開発者向けオプションを有効にしてください。"</string>
     <string name="header_category_wireless_networks" msgid="8968405993937795898">"無線とネットワーク"</string>
     <string name="header_category_system" msgid="4045988717359334410">"システム"</string>
@@ -1572,7 +1572,7 @@
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"ネットワーク、アプリ、デバイスをリセットできます"</string>
     <string name="reset_network_title" msgid="8944059136930806211">"Wi-Fi、モバイル、Bluetooth をリセット"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"以下を含む、すべてのネットワーク設定がリセットされます。\n\n"<li>"Wi‑Fi"</li>\n<li>"モバイルデータ"</li>\n<li>"Bluetooth"</li></string>
-    <string name="reset_esim_title" msgid="7630781767040831893">"ダウンロードされた eSIM の消去"</string>
+    <string name="reset_esim_title" msgid="7630781767040831893">"ダウンロードされた eSIM を消去"</string>
     <string name="reset_esim_desc" msgid="433226911566802">"別の eSIM をダウンロードするには、携帯通信会社にお問い合わせください。この操作でモバイルのサービスプランが解約されることはありません。"</string>
     <string name="reset_network_button_text" msgid="4293271046867912819">"設定をリセット"</string>
     <string name="reset_network_final_desc" msgid="2463817067048751373">"すべてのネットワーク設定をリセットしますか？この操作を取り消すことはできません。"</string>
@@ -4417,7 +4417,7 @@
     <string name="mobile_network_esim_swap_confirm_body" msgid="1192274915146275063">"ダウンロード型 SIM は一度に 1 つのみ有効にできます。\n\n<xliff:g id="CARRIER1">%1$s</xliff:g> に切り替えても、<xliff:g id="CARRIER2">%2$s</xliff:g> サービスが解約されることはありません。"</string>
     <string name="mobile_network_esim_swap_confirm_ok" msgid="4253442720111626242">"<xliff:g id="CARRIER">%1$s</xliff:g> に切り替え"</string>
     <string name="mobile_network_erase_sim" msgid="7813251003613841044">"SIM を消去"</string>
-    <string name="mobile_network_erase_sim_dialog_title" msgid="3796268164204467499">"このダウンロード型 SIM を消去しますか？"</string>
+    <string name="mobile_network_erase_sim_dialog_title" msgid="3796268164204467499">"このダウンロードされた eSIM を消去しますか？"</string>
     <string name="mobile_network_erase_sim_dialog_body" msgid="1923189407958581450">"この SIM を消去すると、このデバイスから <xliff:g id="CARRIER_0">%1$s</xliff:g> サービスが削除されます。\n\n<xliff:g id="CARRIER_1">%2$s</xliff:g> のサービスが解約されることはありません。"</string>
     <string name="mobile_network_erase_sim_dialog_ok" msgid="7133484721717815447">"消去"</string>
     <string name="mobile_network_erase_sim_dialog_progress" msgid="4881754030959536493">"SIM を消去しています…"</string>

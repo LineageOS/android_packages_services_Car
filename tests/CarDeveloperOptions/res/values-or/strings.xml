@@ -263,7 +263,7 @@
     <string name="sdcard_settings_scanning_status" product="default" msgid="67933353112027726">"ମିଡିଆ ପାଇଁ SD କାର୍ଡ ସ୍କାନ୍‌ ହେଉଛି…"</string>
     <string name="sdcard_settings_read_only_status" product="nosdcard" msgid="7959964366461613091">"ମାଉଣ୍ଟ କରାଯାଇଥିବା SD କାର୍ଡରୁ କେବଳ ପଢ଼ିବା ସମ୍ଭବ।"</string>
     <string name="sdcard_settings_read_only_status" product="default" msgid="8854112253788893415">"ମାଉଣ୍ଟ କରାଯାଇଥିବା SD କାର୍ଡରୁ କେବଳ ପଢ଼ିବା ସମ୍ଭବ।"</string>
-    <string name="skip_label" msgid="8067961347551157478">"ଛାଡ଼ି ଦିଅନ୍ତୁ"</string>
+    <string name="skip_label" msgid="8067961347551157478">"ବାଦ୍ ଦିଅନ୍ତୁ"</string>
     <string name="next_label" msgid="4710056309804362410">"ପରବର୍ତ୍ତୀ"</string>
     <string name="language_picker_title" msgid="7807759931261107686">"ଭାଷାଗୁଡିକ"</string>
     <string name="locale_remove_menu" msgid="3395565699934985486">"ବାହାର କରନ୍ତୁ"</string>
@@ -444,7 +444,7 @@
     <string name="security_settings_fingerprint_enroll_introduction_message_setup" msgid="6734490666593320711">"ଫୋନ୍‌କୁ ଅନଲକ୍‌ କିମ୍ୱା କିଣାକିଣିକୁ ଅନୁମୋଦନ କରିବା ପାଇଁ ନିଜ ଆଙ୍ଗୁଠି ଚିହ୍ନର ବ୍ୟବହାର କରନ୍ତୁ।\n\nଧ୍ୟାନଦିଅନ୍ତୁ: ଜଟିଳ ପାଟର୍ନ କିମ୍ୱା ପିନ୍‌ ତୁଳନାରେ ଆପଣଙ୍କର ଆଙ୍ଗୁଠି ଚିହ୍ନ କମ୍ ସୁରକ୍ଷିତ ହୋଇପାରେ।"</string>
     <string name="security_settings_fingerprint_enroll_introduction_cancel" msgid="9168637333731599827">"ବାତିଲ୍"</string>
     <string name="security_settings_fingerprint_enroll_introduction_continue" msgid="271662150372486535">"ଜାରି ରଖ"</string>
-    <string name="security_settings_fingerprint_enroll_introduction_cancel_setup" msgid="756928427429893070">"ଛାଡିଦିଅନ୍ତୁ"</string>
+    <string name="security_settings_fingerprint_enroll_introduction_cancel_setup" msgid="756928427429893070">"ବାଦ୍ ଦିଅନ୍ତୁ"</string>
     <string name="security_settings_fingerprint_enroll_introduction_continue_setup" msgid="4125977169169671144">"ପରବର୍ତ୍ତୀ"</string>
     <string name="setup_fingerprint_enroll_skip_title" msgid="763018850721691594">"ଆଙ୍ଗୁଠି ଚିହ୍ନ ସେଟ୍‌ଅପ୍‌ କରିବାର ପଦକ୍ଷେପଟି ଏଡ଼ାଇ ଯିବେ?"</string>
     <string name="setup_fingerprint_enroll_skip_after_adding_lock_text" msgid="8849928362049018680">"ଟିପଚିହ୍ନ ସେଟଅପ୍‌ କେବଳ ଏକ ମିନିଟ୍ କିମ୍ବା ଦୁଇ ମିନିଟ୍‌ ସମୟ ନିଏ। ଯଦି ଆପଣ ଏହାକୁ ବାଦ୍ ଦିଅନ୍ତି, ଆପଣ ପରେ ସେଟିଂସରେ ନିଜର ଟିପଚିହ୍ନ ଯୋଗ କରିପାରିବେ।"</string>
@@ -1053,7 +1053,7 @@
     <string name="wifi_p2p_disconnect_title" msgid="915880461655863812">"ବିଚ୍ଛିନ୍ନ କରିବେ?"</string>
     <string name="wifi_p2p_disconnect_message" msgid="3745286932812740784">"ଯଦି ଆପଣ ବିଚ୍ଛିନ୍ନ କରନ୍ତି, <xliff:g id="PEER_NAME">%1$s</xliff:g> ସହ ଆପଣଙ୍କ ସଂଯୋଗ ଶେଷ ହୋଇଯିବ।"</string>
     <string name="wifi_p2p_disconnect_multiple_message" msgid="6051173422663731688">"ଯଦି ଆପଣ ବିଚ୍ଛିନ୍ନ କରନ୍ତି, <xliff:g id="PEER_NAME">%1$s</xliff:g> ଏବଂ <xliff:g id="PEER_COUNT">%2$s</xliff:g> ଟି ଅନ୍ୟ ଡିଭାଇସ୍‌ ସହ ଆପଣଙ୍କ ସଂଯୋଜନା ଶେଷ ହେବ।"</string>
-    <string name="wifi_p2p_cancel_connect_title" msgid="2465200999145769427">"ନିମନ୍ତ୍ରଣକୁ କ୍ୟାନ୍ସଲ୍‌ କରିବେ?"</string>
+    <string name="wifi_p2p_cancel_connect_title" msgid="2465200999145769427">"ନିମନ୍ତ୍ରଣକୁ ବାତିଲ୍‌ କରିବେ?"</string>
     <string name="wifi_p2p_cancel_connect_message" msgid="3752679335020392154">"<xliff:g id="PEER_NAME">%1$s</xliff:g> ସହ ସଂଯୋଗ କରିବାକୁ ନିମନ୍ତ୍ରଣକୁ ଆପଣ ବାତିଲ୍‌ କରିବାକୁ ଚାହାଁନ୍ତି କି?"</string>
     <string name="wifi_p2p_delete_group_message" msgid="3206660449067701089">"ଏହି ଗ୍ରୁପ୍‌କୁ ଭୁଲିଯିବେ?"</string>
     <string name="wifi_hotspot_checkbox_text" msgid="12062341344410520">"ୱାଇ-ଫାଇ ହଟସ୍ପଟ୍‌"</string>

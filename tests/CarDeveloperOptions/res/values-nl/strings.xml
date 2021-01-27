@@ -467,7 +467,7 @@
     <string name="security_settings_fingerprint_enroll_dialog_delete" msgid="4312297515772004580">"Verwijderen"</string>
     <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"Raak de sensor aan"</string>
     <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"Plaats je vinger op de sensor en til deze op nadat je een trilling hebt gevoeld."</string>
-    <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"Til op en raak opnieuw aan"</string>
+    <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"Raak de sensor aan"</string>
     <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"Raak de sensor meerdere keren aan om de verschillende delen van je vingerafdruk toe te voegen."</string>
     <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"Vingerafdruk toegevoegd"</string>
     <string name="security_settings_fingerprint_enroll_finish_message" msgid="5862643337893923347">"Als je dit icoon ziet, kun je je vingerafdruk gebruiken voor identificatie of om een aankoop goed te keuren."</string>
@@ -4065,7 +4065,7 @@
     <string name="notification_suggestion_title" msgid="3292107671498148560">"Informatie op vergrendelscherm beheren"</string>
     <string name="notification_suggestion_summary" msgid="6516827892359614597">"Content van meldingen weergeven of verbergen"</string>
     <string name="page_tab_title_summary" msgid="4824744863994538006">"Alle"</string>
-    <string name="page_tab_title_support" msgid="5569262185010367870">"Tips en ondersteuning"</string>
+    <string name="page_tab_title_support" msgid="5569262185010367870">"Tips en support"</string>
     <string name="developer_smallest_width" msgid="2603134476228805075">"Kleinste breedte"</string>
     <string name="premium_sms_none" msgid="940723020871007898">"Er zijn geen geïnstalleerde apps die premium sms-toegang hebben aangevraagd"</string>
     <string name="premium_sms_warning" msgid="7604011651486294515">"Premium sms\'jes kunnen je geld kosten en worden toegevoegd aan de facturen van je provider. Als je rechten aan een app verleent, kun je premium sms\'jes verzenden met die app."</string>

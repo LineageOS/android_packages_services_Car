@@ -1863,7 +1863,7 @@
     <string name="show_running_services" msgid="1895994322704667543">"Прикажи покренуте услуге"</string>
     <string name="show_background_processes" msgid="88012264528093617">"Прикажи кеширане процесе"</string>
     <string name="default_emergency_app" msgid="286530070173495823">"Апликација за хитне случајеве"</string>
-    <string name="reset_app_preferences" msgid="1426500030595212077">"Ресетуј подешавања апликације"</string>
+    <string name="reset_app_preferences" msgid="1426500030595212077">"Ресетуј подешавања апликација"</string>
     <string name="reset_app_preferences_title" msgid="792909865493673598">"Желите да ресетујете подешавања апликације?"</string>
     <string name="reset_app_preferences_desc" msgid="7935273005301096031">"Овим ћете вратити на почетне вредности сва подешавања за:\n\n "<li>"Онемогућене апликације"</li>\n" "<li>"Обавештења о онемогућеним апликацијама"</li>\n" "<li>"Подразумеване апликације за радње"</li>\n" "<li>"Ограничења за позадинске податке за апликације"</li>\n" "<li>"Било каква ограничења за дозволе"</li>\n\n" Нећете изгубити податке апликација."</string>
     <string name="reset_app_preferences_button" msgid="2041894727477934656">"Ресетуј апликације"</string>

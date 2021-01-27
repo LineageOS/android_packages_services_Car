@@ -1608,7 +1608,7 @@
     <string name="restore_default_apn_completed" msgid="5671734152740058937">"Ponastavitev privzetih nastavitev APN-jev končana"</string>
     <string name="reset_dashboard_title" msgid="7084966342252178530">"Možnosti ponastavitve"</string>
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"Ponastavite lahko omrežje, aplikacije ali napravo"</string>
-    <string name="reset_network_title" msgid="8944059136930806211">"Ponastavi Wi-Fi, mob. podatke in Bluetooth"</string>
+    <string name="reset_network_title" msgid="8944059136930806211">"Ponastavi Wi-Fi, mobilne podatke in Bluetooth"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"S tem boste ponastavili vse omrežne nastavitve, vključno s temi:\n\n"<li>"Wi‑Fi"</li>\n<li>"Prenos podatkov v mobilnih omrežjih"</li>\n<li>"Bluetooth"</li></string>
     <string name="reset_esim_title" msgid="7630781767040831893">"Brisanje prenesenih kartic SIM"</string>
     <string name="reset_esim_desc" msgid="433226911566802">"Če želite prenesti nadomestne kartice SIM, se obrnite na operaterja. S tem ne boste prekinili nobenega naročniškega paketa za mobilno telefonijo."</string>
