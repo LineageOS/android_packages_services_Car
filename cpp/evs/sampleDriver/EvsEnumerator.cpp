@@ -153,7 +153,7 @@ EvsEnumerator::EvsEnumerator(sp<IAutomotiveDisplayProxyService> proxyService) {
     if (sConfigManager == nullptr) {
         /* loads and initializes ConfigManager in a separate thread */
         sConfigManager =
-            ConfigManager::Create("/vendor/etc/automotive/evs/evs_sample_configuration.xml");
+            ConfigManager::Create();
     }
 
     if (sDisplayProxy == nullptr) {
