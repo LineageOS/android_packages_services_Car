@@ -19,12 +19,12 @@ package com.android.car.audio.hal;
 import android.annotation.Nullable;
 import android.hardware.automotive.audiocontrol.V1_0.IAudioControl;
 import android.os.RemoteException;
+import android.util.IndentingPrintWriter;
 import android.util.Slog;
 
 import com.android.car.audio.CarAudioContext;
 import com.android.internal.annotations.VisibleForTesting;
 
-import java.io.PrintWriter;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
@@ -79,8 +79,8 @@ public final class AudioControlWrapperV1 implements AudioControlWrapper {
     }
 
     @Override
-    public void dump(String indent, PrintWriter writer) {
-        writer.printf("%s*AudioControlWrapperV1*\n", indent);
+    public void dump(IndentingPrintWriter writer) {
+        writer.println("*AudioControlWrapperV1*");
     }
 
     @Override

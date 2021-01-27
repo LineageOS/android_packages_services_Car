@@ -28,6 +28,7 @@ import android.media.AudioAttributes.AttributeUsage;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.util.Slog;
 import android.util.SparseArray;
@@ -35,7 +36,6 @@ import android.util.SparseArray;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 
-import java.io.PrintWriter;
 import java.util.Objects;
 
 /**
@@ -159,26 +159,31 @@ public final class HalAudioFocus implements HalFocusListener {
     /**
      * dumps the current state of the HalAudioFocus
      *
-     * @param indent indent to append to each new line
      * @param writer stream to write current state
      */
-    public void dump(String indent, PrintWriter writer) {
-        writer.printf("%s*HalAudioFocus*\n", indent);
+    public void dump(IndentingPrintWriter writer) {
+        writer.println("*HalAudioFocus*");
 
-        writer.printf("%s\tCurrent focus requests:\n", indent);
+        writer.increaseIndent();
+        writer.println("Current focus requests:");
+        writer.increaseIndent();
         for (int i = 0; i < mHalFocusRequestsByZoneAndUsage.size(); i++) {
             int zoneId = mHalFocusRequestsByZoneAndUsage.keyAt(i);
-            writer.printf("%s\t\tZone %s:\n", indent, zoneId);
+            writer.printf("Zone %s:\n", zoneId);
+            writer.increaseIndent();
 
             SparseArray<HalAudioFocusRequest> requestsByUsage =
                     mHalFocusRequestsByZoneAndUsage.valueAt(i);
             for (int j = 0; j < requestsByUsage.size(); j++) {
                 int usage = requestsByUsage.keyAt(j);
                 HalAudioFocusRequest request = requestsByUsage.valueAt(j);
-                writer.printf("%s\t\t\t%s - focusGain: %s\n", indent,
-                        AudioAttributes.usageToString(usage), request.mFocusStatus);
+                writer.printf("%s - focusGain: %s\n", AudioAttributes.usageToString(usage),
+                        request.mFocusStatus);
             }
+            writer.decreaseIndent();
         }
+        writer.decreaseIndent();
+        writer.decreaseIndent();
     }
 
     private void abandonAudioFocusLocked(int usage, int zoneId) {

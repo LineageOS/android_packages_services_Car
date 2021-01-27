@@ -23,10 +23,10 @@ import android.hardware.automotive.audiocontrol.V2_0.IFocusListener;
 import android.media.AudioAttributes;
 import android.media.AudioAttributes.AttributeUsage;
 import android.os.RemoteException;
+import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.util.Slog;
 
-import java.io.PrintWriter;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
@@ -98,16 +98,12 @@ public final class AudioControlWrapperV2 implements AudioControlWrapper {
         }
     }
 
-    /**
-     * Dumps the current state of the {@code AudioControlWrapperV2}.
-     *
-     * @param indent indent to append to each new line.
-     * @param writer stream to write current state.
-     */
     @Override
-    public void dump(String indent, PrintWriter writer) {
-        writer.printf("%s*AudioControlWrapperV2*\n", indent);
-        writer.printf("%s\tFocus listener registered on HAL? %b", indent, (mCloseHandle != null));
+    public void dump(IndentingPrintWriter writer) {
+        writer.println("*AudioControlWrapperV2*");
+        writer.increaseIndent();
+        writer.printf("Focus listener registered on HAL? %b\n", (mCloseHandle != null));
+        writer.decreaseIndent();
     }
 
     @Override

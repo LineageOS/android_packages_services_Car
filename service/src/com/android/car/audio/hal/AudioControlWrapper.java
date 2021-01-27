@@ -18,8 +18,7 @@ package com.android.car.audio.hal;
 
 import android.annotation.Nullable;
 import android.media.AudioAttributes.AttributeUsage;
-
-import java.io.PrintWriter;
+import android.util.IndentingPrintWriter;
 
 /**
  * AudioControlWrapper wraps IAudioControl HAL interface, handling version specific support so that
@@ -57,10 +56,9 @@ public interface AudioControlWrapper {
     /**
      * dumps the current state of the AudioControlWrapper
      *
-     * @param indent indent to append to each new line
      * @param writer stream to write current state
      */
-    void dump(String indent, PrintWriter writer);
+    void dump(IndentingPrintWriter writer);
 
     /**
      * Sets the fade for the vehicle.

@@ -25,10 +25,10 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceManager;
+import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.util.Slog;
 
-import java.io.PrintWriter;
 import java.util.Objects;
 
 /**
@@ -98,9 +98,11 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper {
     }
 
     @Override
-    public void dump(String indent, PrintWriter writer) {
-        writer.printf("%s*AudioControlWrapperAidl*\n", indent);
-        writer.printf("%s\tFocus listener registered on HAL? %b", indent, mListenerRegistered);
+    public void dump(IndentingPrintWriter writer) {
+        writer.println("*AudioControlWrapperAidl*");
+        writer.increaseIndent();
+        writer.printf("Focus listener registered on HAL? %b\n", mListenerRegistered);
+        writer.decreaseIndent();
     }
 
     @Override

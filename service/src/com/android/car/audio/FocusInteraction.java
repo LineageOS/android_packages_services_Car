@@ -26,13 +26,13 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.UserHandle;
 import android.provider.Settings;
+import android.util.IndentingPrintWriter;
 import android.util.Slog;
 
 import com.android.car.audio.CarAudioContext.AudioContext;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
-import java.io.PrintWriter;
 import java.util.List;
 import java.util.Objects;
 
@@ -409,10 +409,10 @@ final class FocusInteraction {
         return interactionMatrixClone;
     }
 
-    public void dump(String indent, PrintWriter writer) {
+    public void dump(IndentingPrintWriter writer) {
         boolean rejectNavigationOnCall =
                 mInteractionMatrix[CarAudioContext.CALL][CarAudioContext.NAVIGATION]
                 == INTERACTION_REJECT;
-        writer.printf("%sReject Navigation on Call: %b\n", indent, rejectNavigationOnCall);
+        writer.printf("Reject Navigation on Call: %b\n", rejectNavigationOnCall);
     }
 }
