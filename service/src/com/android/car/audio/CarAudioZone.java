@@ -20,12 +20,12 @@ import android.car.media.CarAudioManager;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioPlaybackConfiguration;
+import android.util.IndentingPrintWriter;
 import android.util.Slog;
 
 import com.android.car.CarLog;
 import com.android.internal.util.Preconditions;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -156,21 +156,21 @@ import java.util.Set;
         }
     }
 
-    void dump(String indent, PrintWriter writer) {
-        String internalIndent = indent + "\t";
-        writer.printf("%sCarAudioZone(%s:%d) isPrimary? %b\n", indent, mName, mId, isPrimaryZone());
-
+    void dump(IndentingPrintWriter writer) {
+        writer.printf("CarAudioZone(%s:%d) isPrimary? %b\n", mName, mId, isPrimaryZone());
+        writer.increaseIndent();
         for (CarVolumeGroup group : mVolumeGroups) {
-            group.dump(internalIndent, writer);
+            group.dump(writer);
         }
 
-        writer.printf("%sInput Audio Device Addresses\n", internalIndent);
-        String devicesIndent = internalIndent + "\t";
+        writer.printf("Input Audio Device Addresses\n");
+        writer.increaseIndent();
         for (AudioDeviceAttributes audioDevice : mInputAudioDevice) {
-            writer.printf("%sDevice Address(%s)\n", devicesIndent,
-                    audioDevice.getAddress());
+            writer.printf("Device Address(%s)\n", audioDevice.getAddress());
         }
+        writer.decreaseIndent();
         writer.println();
+        writer.decreaseIndent();
     }
 
     String getAddressForContext(int audioContext) {

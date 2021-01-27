@@ -22,10 +22,10 @@ import android.content.pm.PackageManager;
 import android.media.AudioFocusInfo;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.util.IndentingPrintWriter;
 
 import com.android.car.audio.CarAudioContext.AudioContext;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -107,11 +107,13 @@ final class FocusEntry {
         return mAudioFocusInfo.getAttributes().usageToString();
     }
 
-    public void dump(String indent, PrintWriter writer) {
-        writer.printf("%s%s - %s\n", indent, getClientId(), getUsageName());
+    public void dump(IndentingPrintWriter writer) {
+        writer.printf("%s - %s\n", getClientId(), getUsageName());
+        writer.increaseIndent();
         // Prints in single line
-        writer.printf("%s\tReceives Duck Events: %b, ", indent, receivesDuckEvents());
+        writer.printf("Receives Duck Events: %b, ", receivesDuckEvents());
         writer.printf("Wants Pause Instead of Ducking: %b, ", wantsPauseInsteadOfDucking());
         writer.printf("Is Ducked: %b\n", isDucked());
+        writer.decreaseIndent();
     }
 }
