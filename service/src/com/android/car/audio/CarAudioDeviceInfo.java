@@ -22,12 +22,12 @@ import android.media.AudioGain;
 import android.media.AudioGainConfig;
 import android.media.AudioManager;
 import android.media.AudioPort;
+import android.util.IndentingPrintWriter;
 import android.util.Slog;
 
 import com.android.car.CarLog;
 import com.android.internal.util.Preconditions;
 
-import java.io.PrintWriter;
 import java.util.Objects;
 
 /**
@@ -231,12 +231,13 @@ import java.util.Objects;
                 + " minGain: " + mMinGain;
     }
 
-    void dump(String indent, PrintWriter writer) {
-        writer.printf("%sCarAudioDeviceInfo Device(%s)\n ",
-                indent, mAudioDeviceInfo.getAddress());
-        writer.printf("%s\tsample rate / encoding format / channel count: %d %d %d\n",
-                indent, getSampleRate(), getEncodingFormat(), getChannelCount());
-        writer.printf("%s\tGain values (min / max / default/ current): %d %d %d %d\n",
-                indent, mMinGain, mMaxGain, mDefaultGain, mCurrentGain);
+    void dump(IndentingPrintWriter writer) {
+        writer.printf("CarAudioDeviceInfo Device(%s)\n", mAudioDeviceInfo.getAddress());
+        writer.increaseIndent();
+        writer.printf("sample rate / encoding format / channel count: %d %d %d\n",
+                getSampleRate(), getEncodingFormat(), getChannelCount());
+        writer.printf("Gain values (min / max / default/ current): %d %d %d %d\n",
+                mMinGain, mMaxGain, mDefaultGain, mCurrentGain);
+        writer.decreaseIndent();
     }
 }

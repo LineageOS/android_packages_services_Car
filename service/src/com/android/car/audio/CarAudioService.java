@@ -317,53 +317,58 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     @Override
     public void dump(IndentingPrintWriter writer) {
         writer.println("*CarAudioService*");
-        writer.println("\tRun in legacy mode? " + (!mUseDynamicRouting));
-        writer.println("\tPersist master mute state? " + mPersistMasterMuteState);
-        writer.println("\tMaster muted? " + mAudioManager.isMasterMute());
-        writer.println("\tVolume context priority list version: "
-                + mAudioVolumeAdjustmentContextsVersion);
+        writer.increaseIndent();
+        writer.printf("Run in legacy mode? %b\n", !mUseDynamicRouting);
+        writer.printf("Persist master mute state? %b\n", mPersistMasterMuteState);
+        writer.printf("Master muted? %b\n", mAudioManager.isMasterMute());
+        writer.printf("Volume context priority list version: %d\n",
+                mAudioVolumeAdjustmentContextsVersion);
         if (mCarAudioConfigurationPath != null) {
-            writer.println("\tCar audio configuration path: " + mCarAudioConfigurationPath);
+            writer.printf("Car audio configuration path: %s\n", mCarAudioConfigurationPath);
         }
         // Empty line for comfortable reading
         writer.println();
         if (mUseDynamicRouting) {
-            writer.println("\tVolume Group Mute Enabled? " + mUseCarVolumeGroupMuting);
+            writer.printf("Volume Group Mute Enabled? %b\n", mUseCarVolumeGroupMuting);
             synchronized (mImplLock) {
                 for (int i = 0; i < mCarAudioZones.size(); i++) {
                     CarAudioZone zone = mCarAudioZones.valueAt(i);
-                    zone.dump("\t", writer);
+                    zone.dump(writer);
                 }
             }
             writer.println();
-            writer.println("\tUserId to Zone Mapping:");
+            writer.println("UserId to Zone Mapping:");
+            writer.increaseIndent();
             for (int index = 0; index < mAudioZoneIdToUserIdMapping.size(); index++) {
                 int audioZoneId = mAudioZoneIdToUserIdMapping.keyAt(index);
-                writer.printf("\t\tUserId %d mapped to zone %d\n",
+                writer.printf("UserId %d mapped to zone %d\n",
                         mAudioZoneIdToUserIdMapping.get(audioZoneId),
                         audioZoneId);
             }
-            writer.println("\tUID to Zone Mapping:");
+            writer.decreaseIndent();
+            writer.println("UID to Zone Mapping:");
+            writer.increaseIndent();
             for (int callingId : mUidToZoneMap.keySet()) {
-                writer.printf("\t\tUID %d mapped to zone %d\n",
+                writer.printf("UID %d mapped to zone %d\n",
                         callingId,
                         mUidToZoneMap.get(callingId));
             }
+            writer.decreaseIndent();
 
             writer.println();
-            mFocusHandler.dump("\t", writer);
+            mFocusHandler.dump(writer);
 
             writer.println();
-            getAudioControlWrapperLocked().dump("\t", writer);
+            getAudioControlWrapperLocked().dump(writer);
 
             if (mHalAudioFocus != null) {
                 writer.println();
-                mHalAudioFocus.dump("\t", writer);
+                mHalAudioFocus.dump(writer);
             } else {
-                writer.println("\tNo HalAudioFocus instance\n");
+                writer.println("No HalAudioFocus instance\n");
             }
         }
-
+        writer.decreaseIndent();
     }
 
     @Override
