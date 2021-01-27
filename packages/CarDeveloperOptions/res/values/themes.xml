@@ -39,6 +39,11 @@
         <item name="buttonBarButtonStyle">@*android:style/Widget.DeviceDefault.Button.ButtonBar.AlertDialog</item>
     </style>
 
+    <style name="MainSwitchText">
+        <item name="android:textSize">@*android:dimen/car_body4_size</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    </style>
+
     <style name="Theme.CarDeveloperOptions" parent="@style/Theme.CarUi.WithToolbar">
         <item name="alertDialogTheme">@style/Theme.AlertDialog</item>
         <item name="switchBarTheme">@style/ThemeOverlay.SwitchBar.Settings</item>
