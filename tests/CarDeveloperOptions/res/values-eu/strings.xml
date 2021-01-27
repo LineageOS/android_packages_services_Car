@@ -844,7 +844,7 @@
     <string name="wifi_starting" msgid="1299466156783469023">"Wi-Fi konexioa aktibatzen…"</string>
     <string name="wifi_stopping" msgid="413711069039939520">"Wi-Fia desaktibatzen…"</string>
     <string name="wifi_error" msgid="5605801874484465557">"Errorea"</string>
-    <string name="wifi_sap_no_channel_error" msgid="6881796988574851628">"5 GHz-ko banda ez dago erabilgarri herrialde honetan"</string>
+    <string name="wifi_sap_no_channel_error" msgid="6881796988574851628">"5 GHz-eko banda ez dago erabilgarri herrialde honetan"</string>
     <string name="wifi_in_airplane_mode" msgid="4729571191578262246">"Hegaldi moduan"</string>
     <string name="wifi_notify_open_networks" msgid="4782239203624619655">"Sare irekien jakinarazpenak"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"Jakinarazi kalitate handiko sare publikoak erabilgarri daudenean"</string>
@@ -925,9 +925,9 @@
     <string name="wifi_show_password" msgid="7878398590772942202">"Erakutsi pasahitza"</string>
     <string name="wifi_ap_band_config" msgid="6565016368079288433">"Hautatu AP banda"</string>
     <string name="wifi_ap_choose_auto" msgid="7927637960569365785">"Automatikoa"</string>
-    <string name="wifi_ap_choose_2G" msgid="43198403259714736">"2,4 GHz-ko banda"</string>
-    <string name="wifi_ap_choose_5G" msgid="2624859713183683146">"5,0 GHz-ko banda"</string>
-    <string name="wifi_ap_prefer_5G" msgid="8339172330471170142">"5,0 GHz-ko banda hobetsia"</string>
+    <string name="wifi_ap_choose_2G" msgid="43198403259714736">"2,4 GHz-eko banda"</string>
+    <string name="wifi_ap_choose_5G" msgid="2624859713183683146">"5,0 GHz-eko banda"</string>
+    <string name="wifi_ap_prefer_5G" msgid="8339172330471170142">"5,0 GHz-eko banda hobetsia"</string>
     <string name="wifi_ap_2G" msgid="5793110086517338494">"2,4 GHz"</string>
     <string name="wifi_ap_5G" msgid="4584892544393675403">"5,0 GHz"</string>
     <string name="wifi_ap_band_select_one" msgid="4409754936554360355">"Aukeratu gutxienez banda bat wifi-gunerako:"</string>
@@ -1466,7 +1466,7 @@
     <string name="storage_wizard_init_internal_title" msgid="8750856962785644870">"Erabili barneko memoria gisa"</string>
     <string name="storage_wizard_init_internal_summary" msgid="4510546464921608029">"Edozein gauza gailu honetan soilik gordetzeko, aplikazioak eta argazkiak barne. Erabilera hau emateko, beste gailu batzuetan funtzionatzea galarazten duen formateatze bat egin behar da memorian."</string>
     <string name="storage_wizard_format_confirm_title" msgid="7785358616068633439">"Formateatu barneko memoria gisa"</string>
-    <string name="storage_wizard_format_confirm_body" msgid="4107762933332992624">"<xliff:g id="NAME_0">^1</xliff:g> formateatu egin behar da segurua izan dadin. \n\nFormateatu ostean, <xliff:g id="NAME_1">^1</xliff:g> memoriak gailu honetan bakarrik funtzionatuko du. \n\n"<b>"Formateatzean, unean <xliff:g id="NAME_2">^1</xliff:g> memorian gordetako datu guztiak ezabatzen dira."</b>" Daturik ez galtzeko, babeskopia bat egitea gomendatzen dizugu."</string>
+    <string name="storage_wizard_format_confirm_body" msgid="4107762933332992624">"<xliff:g id="NAME_0">^1</xliff:g> formateatu egin behar da segurua izan dadin. \n\nFormateatu ostean, <xliff:g id="NAME_1">^1</xliff:g> memoriak gailu honetan bakarrik funtzionatuko du. \n\n"<b>"Formateatzean, unean-unean <xliff:g id="NAME_2">^1</xliff:g> memorian gordetako datu guztiak ezabatzen dira."</b>" Daturik ez galtzeko, babeskopia bat egitea gomendatzen dizugu."</string>
     <string name="storage_wizard_format_confirm_public_title" msgid="5866830103788091426">"Formateatu memoria eramangarri gisa"</string>
     <string name="storage_wizard_format_confirm_public_body" msgid="1451308701654703353">"Hori egiteko, <xliff:g id="NAME_0">^1</xliff:g> formateatu egin behar da. \n\n"<b>"Formateatuz gero, <xliff:g id="NAME_1">^1</xliff:g> gailuko datu guztiak ezabatuko dira."</b>" Datuak ez galtzeko, babeskopiak egitea gomendatzen dugu."</string>
     <string name="storage_wizard_format_confirm_next" msgid="236947984802247625">"Ezabatu eta formateatu"</string>
@@ -1570,9 +1570,9 @@
     <string name="restore_default_apn_completed" msgid="5671734152740058937">"APNaren ezarpen lehenetsiak berrezarri dira."</string>
     <string name="reset_dashboard_title" msgid="7084966342252178530">"Berrezartzeko aukerak"</string>
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"Sarea, aplikazioak edota gailua berrezar daitezke"</string>
-    <string name="reset_network_title" msgid="8944059136930806211">"Berrezarri wifi, Bluetooth eta sare mugikorrak"</string>
+    <string name="reset_network_title" msgid="8944059136930806211">"Berrezarri wifia, Bluetooth-a eta sare mugikorrak"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"Hori eginez gero, sare guztien ezarpenak berrezarriko dira, besteak beste: \n\n"<li>"Wifia"</li>\n<li>"Datu-konexioa"</li>\n<li>"Bluetooth-a"</li></string>
-    <string name="reset_esim_title" msgid="7630781767040831893">"Ezabatu deskargatutako SIMen edukia"</string>
+    <string name="reset_esim_title" msgid="7630781767040831893">"Ezabatu deskargatutako SIMetako edukia"</string>
     <string name="reset_esim_desc" msgid="433226911566802">"Ordezko SIM txartelak deskargatzeko, jarri operadorearekin harremanetan. Ez da utziko bertan behera mugikorraren zerbitzu-planik."</string>
     <string name="reset_network_button_text" msgid="4293271046867912819">"Berrezarri ezarpenak"</string>
     <string name="reset_network_final_desc" msgid="2463817067048751373">"Sareko ezarpen guztiak berrezarri nahi dituzu? Ezin da desegin ekintza hori."</string>
@@ -1750,7 +1750,7 @@
     <string name="lock_settings_title" msgid="233657584969886812">"Gailuaren segurtasuna"</string>
     <string name="lockpattern_change_lock_pattern_label" msgid="333149762562581510">"Aldatu desblokeatzeko eredua"</string>
     <string name="lockpattern_change_lock_pin_label" msgid="3435796032210265723">"Aldatu desblokeatzeko PINa"</string>
-    <string name="lockpattern_recording_intro_header" msgid="2262005028838969839">"Marraztu desblokeatzeko eredua"</string>
+    <string name="lockpattern_recording_intro_header" msgid="2262005028838969839">"Marraztu desblokeatzeko eredu bat"</string>
     <string name="lockpattern_recording_intro_footer" msgid="5426745740754065099">"Laguntza lortzeko, sakatu Menua."</string>
     <string name="lockpattern_recording_inprogress" msgid="4060818382176523671">"Bukatutakoan, jaso hatza"</string>
     <string name="lockpattern_recording_incorrect_too_short" msgid="6374760294545431845">"Konektatu <xliff:g id="NUMBER">%d</xliff:g> puntu gutxienez. Saiatu berriro."</string>
@@ -1771,7 +1771,7 @@
     <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"<xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g> fidagarritasun-agenteak desblokeatuta mantentzen duenean izan ezik"</string>
     <string name="lockpattern_settings_choose_lock_pattern" msgid="9042142745571386381">"Ezarri desblokeatzeko eredua"</string>
     <string name="lockpattern_settings_change_lock_pattern" msgid="1456643060737114885">"Aldatu desblokeatzeko eredua"</string>
-    <string name="lockpattern_settings_help_how_to_record" msgid="6037403647312543908">"Desblokeatzeko eredua nola marraztu"</string>
+    <string name="lockpattern_settings_help_how_to_record" msgid="6037403647312543908">"Desblokeatzeko eredu bat nola marraztu"</string>
     <string name="lockpattern_too_many_failed_confirmation_attempts" msgid="3043127997770535921">"Saiakera oker gehiegi egin dituzu. Saiatu berriro <xliff:g id="NUMBER">%d</xliff:g> segundo barru."</string>
     <string name="activity_not_found" msgid="3492413375341165453">"Ez duzu aplikazioa telefonoan instalatu."</string>
     <string name="lock_settings_profile_title" msgid="3928992050074556160">"Laneko profilaren segurtasuna"</string>
@@ -1795,7 +1795,7 @@
     <string name="see_all_apps_title" msgid="6435061912110347474">"Ikusi <xliff:g id="COUNT">%1$d</xliff:g> aplikazioak"</string>
     <string name="install_all_warning" product="tablet" msgid="4580699862358542727">"Tabletak eta datu pertsonalek aplikazio ezezagunen erasoak jaso ditzakete. Iturburu honetako aplikazioak instalatzen badituzu, onartzen duzu haiek erabiltzeagatik tabletari gerta dakizkiokeen kalteen edo datu-galeren erantzulea zeu zarela."</string>
     <string name="install_all_warning" product="default" msgid="7445839116997296358">"Telefonoak eta datu pertsonalek aplikazio ezezagunen erasoak jaso ditzakete. Iturburu honetako aplikazioak instalatzen badituzu, onartzen duzu haiek erabiltzeagatik telefonoari gerta dakizkiokeen kalteen edo datu-galeren erantzulea zeu zarela."</string>
-    <string name="install_all_warning" product="device" msgid="9141585291103603515">"Gailuak eta datu pertsonalek aplikazio ezezagunen erasoak jaso ditzakete. Iturburu honetako aplikazioak instalatzen badituzu, onartu egingo duzu haiek erabiltzeagatik gailuari agian gertatuko zaizkion kalteen edo datu-galeren erantzulea zeu izango zarela."</string>
+    <string name="install_all_warning" product="device" msgid="9141585291103603515">"Gailuak eta datu pertsonalek aplikazio ezezagunen erasoak jaso ditzakete. Iturburu honetako aplikazioak instalatzen badituzu, onartuko duzu haiek erabiltzeagatik gailuari agian gertatuko zaizkion kalteen edo datu-galeren erantzulea zeu izango zarela."</string>
     <string name="advanced_settings" msgid="6282069364060968122">"Ezarpen aurreratuak"</string>
     <string name="advanced_settings_summary" msgid="5912237062506771716">"Gaitu ezarpenen aukera gehiago"</string>
     <string name="application_info_label" msgid="3886253474964599105">"Aplikazioaren informazioa"</string>
@@ -2453,7 +2453,7 @@
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"Bateria-mailaren ehunekoan oinarrituta"</string>
     <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Bateria kargatzeko ohiko ordua iritsi aurretik bateria agortzeko arriskua badago aktibatzen da bateria-aurrezlea"</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Bateria-maila <xliff:g id="PERCENT">%1$s</xliff:g> denean aktibatuko da"</string>
-    <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Ezarri programazioa"</string>
+    <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Ezarri programazio bat"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Desaktibatu guztiz kargatu ondoren"</string>
     <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"Telefonoaren bateria <xliff:g id="PERCENT">%1$s</xliff:g> denean, desaktibatu egiten da bateria-aurrezlea"</string>
     <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"Tabletaren bateria <xliff:g id="PERCENT">%1$s</xliff:g> denean, desaktibatu egiten da bateria-aurrezlea"</string>
@@ -2634,7 +2634,7 @@
     <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"Kontua kentzen baduzu, bertako mezu, kontaktu eta bestelako datu guztiak ezabatuko dira gailutik!"</string>
     <string name="remove_account_failed" msgid="491458185327106966">"Administratzaileak ez du eman aldaketa egiteko baimena"</string>
     <string name="cant_sync_dialog_title" msgid="5483419398223189881">"Ezin da eskuz sinkronizatu"</string>
-    <string name="cant_sync_dialog_message" msgid="3467126947262857534">"Elementua ezin da unean desgaitu. Ezarpena aldatzeko, aktibatu atzeko planoko datuak eta sinkronizazio automatikoa aldi baterako."</string>
+    <string name="cant_sync_dialog_message" msgid="3467126947262857534">"Elementua ezin da une honetan desgaitu. Ezarpena aldatzeko, aktibatu atzeko planoko datuak eta sinkronizazio automatikoa aldi baterako."</string>
     <string name="enter_password" msgid="2963496904625715235">"Android-eko gailua abiarazteko, idatzi pasahitza"</string>
     <string name="enter_pin" msgid="7140938268709546890">"Android-eko gailua abiarazteko, idatzi PIN kodea"</string>
     <string name="enter_pattern" msgid="1653841963422825336">"Android-eko gailua abiarazteko, marraztu eredua"</string>

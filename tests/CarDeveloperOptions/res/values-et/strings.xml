@@ -1570,10 +1570,10 @@
     <string name="restore_default_apn_completed" msgid="5671734152740058937">"APN-i vaikeseadete lähtestamine on lõpule viidud."</string>
     <string name="reset_dashboard_title" msgid="7084966342252178530">"Lähtestamise valikud"</string>
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"Võrgu, rakendused või seadme saab lähtestada"</string>
-    <string name="reset_network_title" msgid="8944059136930806211">"Lähtesta WiFi, mobiilne andmeside ja Bluetooth"</string>
+    <string name="reset_network_title" msgid="8944059136930806211">"WiFi, mobiilse andmeside ja Bluetoothi lähtestamine"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"See lähtestab kõik võrguseaded, sh:\n\n"<li>"WiFi"</li>\n<li>"Mobiilne andmeside"</li>\n<li>"Bluetooth"</li></string>
-    <string name="reset_esim_title" msgid="7630781767040831893">"Kustuta allalaaditud SIM-id"</string>
-    <string name="reset_esim_desc" msgid="433226911566802">"Asendus-SIM-kaartide allalaadimiseks võtke ühendust operaatoriga. See ei tühista mobiilsideteenuse pakette."</string>
+    <string name="reset_esim_title" msgid="7630781767040831893">"Allalaaditud SIM-ide kustutamine"</string>
+    <string name="reset_esim_desc" msgid="433226911566802">"Asendus-SIM-ide allalaadimiseks võtke ühendust operaatoriga. See ei tühista mobiilsideteenuse pakette."</string>
     <string name="reset_network_button_text" msgid="4293271046867912819">"Lähtesta seaded"</string>
     <string name="reset_network_final_desc" msgid="2463817067048751373">"Kas soovite kõik võrguseaded lähtestada? Seda toimingut ei saa tagasi võtta."</string>
     <string name="reset_network_final_desc_esim" msgid="4676436976372555750">"Kas soovite kõik võrguseaded lähtestada ja allalaaditud SIM-id kustutada? Seda toimingut ei saa tagasi võtta."</string>

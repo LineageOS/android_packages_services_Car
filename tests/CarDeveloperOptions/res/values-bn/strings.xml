@@ -1570,9 +1570,9 @@
     <string name="restore_default_apn_completed" msgid="5671734152740058937">"ডিফল্ট APN সেটিংস রিসেট করা হয়েছে।"</string>
     <string name="reset_dashboard_title" msgid="7084966342252178530">"রিসেট করার বিকল্প"</string>
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"নেটওয়ার্ক, অ্যাপ, অথবা ডিভাইস রিসেট করা যায়"</string>
-    <string name="reset_network_title" msgid="8944059136930806211">"ওয়াই-ফাই, মোবাইল ও ব্লুটুথ রিসেট"</string>
+    <string name="reset_network_title" msgid="8944059136930806211">"ওয়াই-ফাই, মোবাইল ও ব্লুটুথ রিসেট করুন"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"এগুলি সহ সমস্ত নেটওয়ার্ক সেটিংস আবার সেট করবে:\n\n"<li>"ওয়াই ফাই "</li>\n<li>"সেলুলার ডাটা "</li>\n<li>"ব্লুটুথ"</li></string>
-    <string name="reset_esim_title" msgid="7630781767040831893">"ডাউনলোড করা সিম মুছে ফেলা"</string>
+    <string name="reset_esim_title" msgid="7630781767040831893">"ডাউনলোড করা সিম মুছে ফেলুন"</string>
     <string name="reset_esim_desc" msgid="433226911566802">"পরিবর্ত সিম ডাউনলোড করতে আপনার পরিষেবা প্রদানকারীর সাথে যোগাযোগ করুন। এটি মোবাইল পরিষেবার কোনও প্ল্যান বাতিল করবে না।"</string>
     <string name="reset_network_button_text" msgid="4293271046867912819">"সেটিংস রিসেট করুন"</string>
     <string name="reset_network_final_desc" msgid="2463817067048751373">"সব নেটওয়ার্ক সেটিংস রিসেট করবেন? আগের সেটিংসে আর ফিরে যেতে পারবেন না।"</string>

@@ -263,7 +263,7 @@
     <string name="sdcard_settings_scanning_status" product="default" msgid="67933353112027726">"मिडियाको लागि SD कार्ड स्क्यान गर्दै..."</string>
     <string name="sdcard_settings_read_only_status" product="nosdcard" msgid="7959964366461613091">"USB भण्डारण पढ्ने मात्र माउन्ट गरियो।"</string>
     <string name="sdcard_settings_read_only_status" product="default" msgid="8854112253788893415">"SD कार्ड पढ्ने मात्र माउन्ट गरियो।"</string>
-    <string name="skip_label" msgid="8067961347551157478">"छोड्नुहोस्"</string>
+    <string name="skip_label" msgid="8067961347551157478">"स्किप गर्नु"</string>
     <string name="next_label" msgid="4710056309804362410">"अर्को"</string>
     <string name="language_picker_title" msgid="7807759931261107686">"भाषाहरू"</string>
     <string name="locale_remove_menu" msgid="3395565699934985486">"हटाउनुहोस्"</string>
@@ -444,7 +444,7 @@
     <string name="security_settings_fingerprint_enroll_introduction_message_setup" msgid="6734490666593320711">"तपाईंको फोन अनलक वा खरिदहरूको अनुमोदन गर्न आफ्नो फिंगरप्रिन्ट प्रयोग गर्नुहोस्।\n\nटिपोट: तपाईंको फिंगरप्रिन्ट भरपर्दो प्याटर्न वा PIN भन्दा कम सुरक्षित हुनसक्छ।"</string>
     <string name="security_settings_fingerprint_enroll_introduction_cancel" msgid="9168637333731599827">"रद्द गर्नुहोस्"</string>
     <string name="security_settings_fingerprint_enroll_introduction_continue" msgid="271662150372486535">"जारी राख्नुहोस्"</string>
-    <string name="security_settings_fingerprint_enroll_introduction_cancel_setup" msgid="756928427429893070">"छोड्नुहोस्"</string>
+    <string name="security_settings_fingerprint_enroll_introduction_cancel_setup" msgid="756928427429893070">"स्किप गर्नु"</string>
     <string name="security_settings_fingerprint_enroll_introduction_continue_setup" msgid="4125977169169671144">"अर्को"</string>
     <string name="setup_fingerprint_enroll_skip_title" msgid="763018850721691594">"फिंगरप्रिन्ट सेटअप छाड्ने हो?"</string>
     <string name="setup_fingerprint_enroll_skip_after_adding_lock_text" msgid="8849928362049018680">"फिंगरप्रिन्ट सेटअप गर्न केवल एक वा दुई मिनेट लाग्छ। छाड्नु भएको खण्डमा, तपाईं सेटिङहरूमा गएर पछि आफ्नो फिंगरप्रिन्ट थप्न सक्नुहुन्छ।"</string>
@@ -457,7 +457,7 @@
     <string name="lock_screen_intro_skip_dialog_text" product="default" msgid="5361573789585652826">"यन्त्रको सुरक्षासम्बन्धी सुविधाहरू सक्रिय गरिने छैनन्। तपाईं यो फोन हराएको वा चोरी भएको अवस्थामा अरूलाई यो चलाउनबाट रोक्न सक्नुहुने छैन।"</string>
     <string name="skip_anyway_button_label" msgid="4437815969645175429">"जसरी पनि छाड्नुहोस्"</string>
     <string name="go_back_button_label" msgid="7310586887969860472">"पछाडि फिर्ता जानुहोस्"</string>
-    <string name="skip_lock_screen_dialog_button_label" msgid="6706047245716780006">"छाड्नुहोस्"</string>
+    <string name="skip_lock_screen_dialog_button_label" msgid="6706047245716780006">"स्किप गर्नु"</string>
     <string name="cancel_lock_screen_dialog_button_label" msgid="2534925227627658819">"रद्द गर्नुहोस्"</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_title" msgid="8909829699273726469">"सेन्सरमा छुनुहोस्"</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_message" msgid="581120963079780740">"यो तपाईंको फोनको पछाडिको भागमा छ। आफ्नो चोर औंला प्रयोग गर्नुहोस्‌।"</string>
@@ -2240,7 +2240,7 @@
     <string name="background_activity_warning_dialog_title" msgid="2170790412855899678">"पृष्ठभूमिको गतिविधिलाई सीमित गर्ने हो?"</string>
     <string name="background_activity_warning_dialog_text" msgid="8242749826732375096">"तपाईंले कुनै एपको पृष्ठभूमिको गतिविधिलाई सीमित गर्नुभयो भने यसले सही तरिकाले काम नगर्न सक्छ"</string>
     <string name="background_activity_disabled_dialog_text" msgid="4234598000779459640">"यो एपलाई ब्याट्री अप्टिमाइज गर्न भनी सेट नगरिएको हुनाले तपाईं यसमा बन्देज लगाउन सक्नुहुन्न।\n\nअनुप्रयोगमा बन्देज लगाउन पहिले ब्याट्री अप्टिमाइजेसन सुविधा सक्रिय गर्नुहोस्।"</string>
-    <string name="device_screen_usage" msgid="4470485475363132750">"पूर्ण चार्ज भएदेखि स्क्रिनको प्रयोग"</string>
+    <string name="device_screen_usage" msgid="4470485475363132750">"पूर्ण चार्ज भएदेखि स्क्रिनको प्रयोगको अवधि"</string>
     <string name="power_usage_list_summary" msgid="4314438658308211057">"पूर्ण चार्ज भएदेखि ब्याट्रीको प्रयोग"</string>
     <string name="screen_usage_summary" msgid="263396144684078341">"पूर्ण चार्ज भएदेखि स्क्रिन सक्रिय रहेको समय"</string>
     <string name="device_usage_list_summary" msgid="8299017481332816368">"पूर्ण चार्ज भएदेखि यन्त्रको प्रयोग"</string>
@@ -2427,7 +2427,7 @@
     <string name="battery_used_by" msgid="840331542883421888">"<xliff:g id="APP">%2$s</xliff:g> ले प्रयोग गरेको <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_overall_usage" msgid="5874301442415987516">"समग्र ब्याट्रीको <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_detail_since_full_charge" msgid="3814176986148084378">"पछिल्लो पटक पूर्ण चार्ज भएदेखिको विश्लेषण"</string>
-    <string name="battery_last_full_charge" msgid="5624033030647170717">"पछिल्लो पटकको पूर्ण चार्ज"</string>
+    <string name="battery_last_full_charge" msgid="5624033030647170717">"पछिल्लो पटक पूर्ण चार्ज भएको समय"</string>
     <string name="battery_full_charge_last" msgid="4614554109170251301">"पूरा चार्ज हुँदा लगभग यति समय टिक्छ"</string>
     <string name="battery_footer_summary" msgid="4828444679643906943">"ब्याट्री प्रयोगसम्बन्धी डेटा अनुमानित हो र प्रयोगको अनुसार यो मान बदलिन सक्छ"</string>
     <string name="battery_detail_foreground" msgid="6616408559186553085">"सक्रिय प्रयोगमा रहँदा"</string>
@@ -2455,9 +2455,9 @@
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"<xliff:g id="PERCENT">%1$s</xliff:g> हुँदा सक्रिय हुने छ"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"समयतालिका सेट गर्नुहोस्‌"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"चार्ज पूरा भएपछि निष्क्रिय पार्नुहोस्"</string>
-    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"तपाईंको फोन <xliff:g id="PERCENT">%1$s</xliff:g> भएपछि ब्याट्री सेभर अफ हुन्छ"</string>
+    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"तपाईंको फोनको चार्ज <xliff:g id="PERCENT">%1$s</xliff:g> भएपछि ब्याट्री सेभर अफ हुन्छ"</string>
     <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"तपाईंको ट्याब्लेटको चार्ज <xliff:g id="PERCENT">%1$s</xliff:g> भएपछि ब्याट्री सेभर अफ हुन्छ"</string>
-    <string name="battery_saver_sticky_description_new" product="device" msgid="5056520668081504111">"तपाईंको यन्त्र <xliff:g id="PERCENT">%1$s</xliff:g> भएपछि ब्याट्री सेभर अफ हुन्छ"</string>
+    <string name="battery_saver_sticky_description_new" product="device" msgid="5056520668081504111">"तपाईंको यन्त्रको चार्ज <xliff:g id="PERCENT">%1$s</xliff:g> भएपछि ब्याट्री सेभर अफ हुन्छ"</string>
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"सक्रिय गर्नुहोस्"</string>
@@ -3145,9 +3145,9 @@
     <string name="notification_unknown_sound_title" msgid="8043718667804838398">"अनुप्रयोगले प्रदान गरेको ध्वनि"</string>
     <string name="notification_sound_default" msgid="2664544380802426260">"सूचनाको पूर्वनिर्धारित ध्वनि"</string>
     <string name="alarm_ringtone_title" msgid="6411326147408635902">"अलार्मको पूर्वनिर्धारित ध्वनि"</string>
-    <string name="vibrate_when_ringing_title" msgid="2757996559847126952">"कलका बेला कम्पन गर्नुहोस्"</string>
+    <string name="vibrate_when_ringing_title" msgid="2757996559847126952">"कल आउँदा भाइब्रेट गरियोस्"</string>
     <string name="other_sound_settings" msgid="5250376066099818676">"अन्य ध्वनिहरू"</string>
-    <string name="dial_pad_tones_title" msgid="8877212139988655769">"प्याड टोनहरू डायल गर्नुहोस्"</string>
+    <string name="dial_pad_tones_title" msgid="8877212139988655769">"डायल प्याडको टोन"</string>
     <string name="screen_locking_sounds_title" msgid="4407110895465866809">"स्किन लक आवाज"</string>
     <string name="charging_sounds_title" msgid="5070437987230894287">"चार्ज गर्दाको ध्वनि तथा कम्पन"</string>
     <string name="docking_sounds_title" msgid="2573137471605541366">"डाकिंग आवाज"</string>

@@ -27,7 +27,7 @@
       <item quantity="one">Dasturchi sifatida ro‘yxatdan o‘tishni yakunlashga <xliff:g id="STEP_COUNT_0">%1$d</xliff:g> qadam qoldi.</item>
     </plurals>
     <string name="show_dev_on" msgid="9075712234786224065">"Siz endi dasturchisiz!"</string>
-    <string name="show_dev_already" msgid="7665948832405148689">"Shart emas, siz allaqachon dasturchi rejimiga o‘tgansiz."</string>
+    <string name="show_dev_already" msgid="7665948832405148689">"Shart emas, siz allaqachon dasturchi rejimidasiz."</string>
     <string name="dev_settings_disabled_warning" msgid="3198732189395396721">"Avval dasturchi sozlamalarini yoqing."</string>
     <string name="header_category_wireless_networks" msgid="8968405993937795898">"Simsiz tarmoqlar"</string>
     <string name="header_category_system" msgid="4045988717359334410">"Tizim"</string>
@@ -368,7 +368,7 @@
     <string name="profile_info_settings_title" msgid="4855892878512562551">"Profil haqida axborot"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"Hisoblar"</string>
     <string name="location_settings_title" msgid="2707201457572301030">"Joylashuv"</string>
-    <string name="location_settings_master_switch_title" msgid="3108016866082816733">"Joylashuv axborotidan foydalanish"</string>
+    <string name="location_settings_master_switch_title" msgid="3108016866082816733">"Joylashuvni aniqlash"</string>
     <string name="location_settings_summary_location_off" msgid="5563530256978372978">"Yoqilmagan"</string>
     <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
       <item quantity="other">Yoniq – <xliff:g id="COUNT_1">%1$d</xliff:g> ta ilovada joylashuv axborotiga ruxsat bor</item>
@@ -1860,7 +1860,7 @@
     <string name="no_applications" msgid="6811396016303576024">"Hech narsa topilmadi."</string>
     <string name="internal_storage" msgid="7392373600013294853">"Ichki xotira"</string>
     <string name="recompute_size" msgid="4290692197892743928">"Xajm qayta hisoblanmoqda…"</string>
-    <string name="clear_data_dlg_title" msgid="7388024498687029597">"Ilova maʼlumotlari oʻchirilsinmi?"</string>
+    <string name="clear_data_dlg_title" msgid="7388024498687029597">"Bu ilova maʼlumotlari oʻchirilsinmi?"</string>
     <string name="clear_data_dlg_text" msgid="6849657743695013414">"Ushbu ilovaning barcha ma’lumotlari, jumladan, fayllar, ma’lumotlar bazalari, sozlamalar, hisoblar va boshqa narsalar o‘chirib tashlanadi. Keyin ularni qayta tiklab bo‘lmaydi."</string>
     <string name="dlg_ok" msgid="4666570206507476557">"OK"</string>
     <string name="dlg_cancel" msgid="2434951039156262467">"Bekor qilish"</string>
@@ -2442,9 +2442,7 @@
     <!-- no translation found for battery_detail_since_full_charge (3814176986148084378) -->
     <skip />
     <string name="battery_last_full_charge" msgid="5624033030647170717">"Oxirgi toʻliq quvvatlanish"</string>
-    <!-- String.format failed for translation -->
-    <!-- no translation found for battery_full_charge_last (4614554109170251301) -->
-    <skip />
+    <string name="battery_full_charge_last" msgid="4614554109170251301">"Toʻliq quvvat qancha vaqtga yetishi"</string>
     <string name="battery_footer_summary" msgid="4828444679643906943">"Batareyaning qolgan vaqti taxminiy va u foydalanish intensivligiga qarab farq qilishi mumkin"</string>
     <string name="battery_detail_foreground" msgid="6616408559186553085">"Faol rejimda"</string>
     <string name="battery_detail_background" msgid="7938146832943604280">"Fon rejimida"</string>
@@ -2951,7 +2949,7 @@
     <string name="restriction_menu_reset" msgid="3642252461410370554">"Cheklovlarni olib tashlash"</string>
     <string name="restriction_menu_change_pin" msgid="592512748243421101">"PIN kodni o‘zgartirish"</string>
     <string name="app_notifications_switch_label" msgid="670683308275498821">"Xabarnomalarni ko‘rsatish"</string>
-    <string name="help_label" msgid="1296484776243905646">"Yordam va fikr-mulohaza"</string>
+    <string name="help_label" msgid="1296484776243905646">"Yordam/fikr-mulohaza"</string>
     <string name="support_summary" msgid="3278943815956130740">"Yordam maqolalari, telefon va chat, ishni boshlash"</string>
     <string name="user_account_title" msgid="2108666882630552859">"Kontent uchun hisob"</string>
     <string name="user_picture_title" msgid="6664602422948159123">"Suratli hujjat"</string>
@@ -3354,7 +3352,7 @@
     <string name="notification_importance_unspecified" msgid="2515778981253707724">"Ovozga ruxsat berish"</string>
     <string name="notification_importance_blocked" msgid="446807935484629222">"Bildirishnomalar hech qachon ko‘rsatilmasin"</string>
     <string name="notification_importance_min" msgid="4622854784474818944">"Tovushsiz chiqarish va kichraytirish"</string>
-    <string name="notification_importance_low" msgid="7609797151662295364">"Tovushsiz"</string>
+    <string name="notification_importance_low" msgid="7609797151662295364">"Sokin"</string>
     <string name="notification_importance_default" msgid="4091563759103917166">"Tovush bilan"</string>
     <string name="notification_importance_high" msgid="7973764540402436656">"Tovush va qalqib chiquvchi oyna"</string>
     <string name="notification_importance_high_silent" msgid="3177662759865661155">"Ekranga qalqib chiqish"</string>
@@ -3363,7 +3361,7 @@
     <string name="notification_importance_default_title" msgid="7985549807203332482">"Yuqori"</string>
     <string name="notification_importance_high_title" msgid="7258373094258585858">"Ekranga qalqib chiqish"</string>
     <string name="notification_block_title" msgid="2570364198866886906">"Bloklash"</string>
-    <string name="notification_silence_title" msgid="6959637402003838093">"Tovushsiz"</string>
+    <string name="notification_silence_title" msgid="6959637402003838093">"Sokin"</string>
     <string name="notification_alert_title" msgid="750683027055192648">"Signal"</string>
     <string name="allow_interruption" msgid="3548841026410702850">"Bildirishnomalarga ruxsat berish"</string>
     <string name="allow_interruption_summary" msgid="5207637026831135377">"Ilovaga ovozli signal va tebranishni yoqishi hamda ekranga bildirishnomalarni chiqarishiga imkon beradi"</string>
@@ -4526,7 +4524,7 @@
     <string name="wfc_disclaimer_agree_button_text" msgid="4706101805260434404">"DAVOM ETISH"</string>
     <string name="wfc_disclaimer_disagree_text" msgid="908289420390194127">"KERAK EMAS"</string>
     <string name="wfc_disclaimer_location_title_text" msgid="5696194250838686019">"Joylashuv"</string>
-    <string name="wfc_disclaimer_location_desc_text" msgid="3879710366995108723">"Xizmat taʼminotchingiz bu xizmatni taqdim etish uchun joylashuv axborotingizni toʻplashi mumkin.\n\nXizmat taʼminotchingiz maxfiylik siyosati bilan tanishib chiqing."</string>
+    <string name="wfc_disclaimer_location_desc_text" msgid="3879710366995108723">"Mobil operatoringiz bu xizmatni taqdim etish uchun joylashuvingiz haqidagi axborotni olishi mumkin.\n\nUning maxfiylik siyosati bilan tanishib chiqing."</string>
     <string name="forget_passpoint_dialog_message" msgid="3337626966248310367">"Qolgan vaqt yoki axborotga ruxsatni yoʻqotishingiz mumkin. Olib tashlashdan oldin provayderingiz bilan tekshiring."</string>
     <string name="keywords_content_capture" msgid="5401877823529928976">"kontentni yozib olish, smart bildirgilar"</string>
     <string name="content_capture" msgid="1709538093513983279">"Smart bildirgilar"</string>
