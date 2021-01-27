@@ -70,7 +70,7 @@
     <item msgid="4157625910392775808">"Qidiruv…"</item>
     <item msgid="5597394826455877834">"Ulanmoqda…"</item>
     <item msgid="5848277343965362748">"Autentifikatsiya qilinmoqda…"</item>
-    <item msgid="3391238031431440676">"IP manzil o‘zlashtirilmoqda…"</item>
+    <item msgid="3391238031431440676">"IP manzil olinmoqda…"</item>
     <item msgid="5257597310494000224">"Ulandi"</item>
     <item msgid="8472497592913050396">"Muzlatildi"</item>
     <item msgid="1228072488815999109">"Uzilyapti…"</item>
@@ -420,7 +420,7 @@
   </string-array>
   <string-array name="security_settings_premium_sms_values">
     <item msgid="1164265643455394443">"So‘rash"</item>
-    <item msgid="7718817231348607934">"Hech qachon ruxsat berilmasin"</item>
+    <item msgid="7718817231348607934">"Ruxsat berilmasin"</item>
     <item msgid="8184570120217958741">"Har doim ruxsat berilsin"</item>
   </string-array>
   <string-array name="ram_states">
@@ -477,8 +477,8 @@
     <item msgid="1008268820118852416">"Bu – bepul tarmoq"</item>
   </string-array>
   <string-array name="wifi_privacy_entries">
-    <item msgid="6545683814310036454">"Ixtiyoriy MAC manzil (standart)"</item>
-    <item msgid="214234417308375326">"Ixtiyoriy MAC manzil"</item>
+    <item msgid="6545683814310036454">"Tasodifiy MAC manzil (standart)"</item>
+    <item msgid="214234417308375326">"Qurilmaning MAC manzili"</item>
   </string-array>
   <string-array name="wifi_hidden_entries">
     <item msgid="7426878022650940844">"Yo‘q"</item>
