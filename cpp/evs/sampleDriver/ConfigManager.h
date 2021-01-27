@@ -46,7 +46,7 @@ typedef std::array<int32_t, kStreamCfgSz> RawStreamConfiguration;
 
 class ConfigManager {
 public:
-    static std::unique_ptr<ConfigManager> Create(const char *path = "");
+    static std::unique_ptr<ConfigManager> Create();
     ConfigManager(const ConfigManager&) = delete;
     ConfigManager& operator=(const ConfigManager&) = delete;
 
@@ -218,10 +218,12 @@ public:
 
 private:
     /* Constructors */
-    ConfigManager(const char *xmlPath) :
-        mConfigFilePath(xmlPath),
+    ConfigManager() :
         mBinaryFilePath("") {
     }
+
+    static const char* CONFIG_DEFAULT_PATH;
+    static const char* CONFIG_OVERRIDE_PATH;
 
     /* System configuration */
     SystemInfo mSystemInfo;
@@ -249,9 +251,6 @@ private:
      * preparation.
      */
     condition_variable mConfigCond;
-
-    /* A path to XML configuration file */
-    const char *mConfigFilePath;
 
     /* A path to a binary configuration file */
     const char *mBinaryFilePath;
