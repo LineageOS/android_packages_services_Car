@@ -25,6 +25,7 @@ import android.media.AudioFocusInfo;
 import android.media.AudioManager;
 import android.media.audiopolicy.AudioPolicy;
 import android.os.Bundle;
+import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.util.Slog;
 import android.util.SparseArray;
@@ -32,7 +33,6 @@ import android.util.SparseArray;
 import com.android.car.CarLog;
 import com.android.internal.util.Preconditions;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -193,21 +193,22 @@ class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         return focus;
     }
 
-    /**
-     * dumps the current state of the CarZoneAudioFocus
-     *
-     * @param indent indent to append to each new line
-     * @param writer stream to write current state
-     */
-    void dump(String indent, PrintWriter writer) {
-        writer.printf("%s*CarZonesAudioFocus*\n", indent);
-        writer.printf("%s\tDelayed Focus Enabled: %b\n", indent, mDelayedFocusEnabled);
-        writer.printf("%s\tCar Zones Audio Focus Listeners:\n", indent);
+    void dump(IndentingPrintWriter writer) {
+        writer.println("*CarZonesAudioFocus*");
+        writer.increaseIndent();
+        writer.printf("Delayed Focus Enabled: %b\n", mDelayedFocusEnabled);
+
+        writer.println("Car Zones Audio Focus Listeners:");
+        writer.increaseIndent();
         Integer[] keys = mFocusZones.keySet().stream().sorted().toArray(Integer[]::new);
         for (Integer zoneId : keys) {
-            writer.printf("%s\tZone Id: %s\n", indent, zoneId.toString());
-            mFocusZones.get(zoneId).dump(indent + "\t", writer);
+            writer.printf("Zone Id: %s\n", zoneId.toString());
+            writer.increaseIndent();
+            mFocusZones.get(zoneId).dump(writer);
+            writer.decreaseIndent();
         }
+        writer.decreaseIndent();
+        writer.decreaseIndent();
     }
 
     public void updateUserForZoneId(int audioZoneId, @UserIdInt int userId) {

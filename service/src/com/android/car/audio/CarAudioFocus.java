@@ -20,16 +20,16 @@ import android.media.AudioAttributes;
 import android.media.AudioFocusInfo;
 import android.media.AudioManager;
 import android.media.audiopolicy.AudioPolicy;
+import android.util.IndentingPrintWriter;
 import android.util.LocalLog;
 import android.util.Slog;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
 
-public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
+class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
     private static final String TAG = "CarAudioFocus";
 
@@ -602,33 +602,35 @@ public class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         return results;
     }
 
-    /**
-     * dumps the current state of the CarAudioFocus object
-     * @param indent indent to add to each line in the current stream
-     * @param writer stream to write to
-     */
-    public void dump(String indent, PrintWriter writer) {
+    public void dump(IndentingPrintWriter writer) {
         synchronized (mLock) {
-            writer.printf("%s*CarAudioFocus*\n", indent);
-            String innerIndent = indent + "\t";
-            String focusIndent = innerIndent + "\t";
-            mFocusInteraction.dump(innerIndent, writer);
+            writer.println("*CarAudioFocus*");
+            writer.increaseIndent();
+            mFocusInteraction.dump(writer);
 
-            writer.printf("%sCurrent Focus Holders:\n", innerIndent);
+            writer.println("Current Focus Holders:");
+            writer.increaseIndent();
             for (String clientId : mFocusHolders.keySet()) {
-                mFocusHolders.get(clientId).dump(focusIndent, writer);
+                mFocusHolders.get(clientId).dump(writer);
             }
+            writer.decreaseIndent();
 
-            writer.printf("%sTransient Focus Losers:\n", innerIndent);
+            writer.println("Transient Focus Losers:");
+            writer.increaseIndent();
             for (String clientId : mFocusLosers.keySet()) {
-                mFocusLosers.get(clientId).dump(focusIndent, writer);
+                mFocusLosers.get(clientId).dump(writer);
             }
+            writer.decreaseIndent();
 
-            writer.printf("%sQueued Delayed Focus: %s\n", innerIndent,
+            writer.printf("Queued Delayed Focus: %s\n",
                     mDelayedRequest == null ? "None" : mDelayedRequest.getClientId());
 
-            writer.printf("%sFocus Events:\n", innerIndent);
-            mFocusEventLogger.dump(innerIndent + "\t", writer);
+            writer.println("Focus Events:");
+            writer.increaseIndent();
+            mFocusEventLogger.dump(writer);
+            writer.decreaseIndent();
+
+            writer.decreaseIndent();
         }
     }
 

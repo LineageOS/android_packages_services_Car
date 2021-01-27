@@ -22,13 +22,13 @@ import android.car.media.CarAudioManager;
 import android.content.Context;
 import android.media.AudioDevicePort;
 import android.os.UserHandle;
+import android.util.IndentingPrintWriter;
 import android.util.Slog;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
 import com.android.internal.util.Preconditions;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -312,28 +312,28 @@ import java.util.Map;
     }
 
     /** Writes to dumpsys output */
-    void dump(String indent, PrintWriter writer) {
+    void dump(IndentingPrintWriter writer) {
         synchronized (mLock) {
-            writer.printf("%sCarVolumeGroup(%d)\n", indent, mId);
-            writer.printf("%sIs Muted(%b)\n", indent, mIsMuted);
-            writer.printf("%sUserId(%d)\n", indent, mUserId);
-            writer.printf("%sGain values (min / max / default/ current): %d %d %d %d\n",
-                    indent, mMinGain, mMaxGain,
-                    mDefaultGain, getGainForIndexLocked(mCurrentGainIndex));
-            writer.printf("%sGain indexes (min / max / default / current): %d %d %d %d\n",
-                    indent, getMinGainIndex(), getMaxGainIndex(),
-                    getDefaultGainIndex(), mCurrentGainIndex);
+            writer.printf("CarVolumeGroup(%d)\n", mId);
+            writer.increaseIndent();
+            writer.printf("Is Muted(%b)\n", mIsMuted);
+            writer.printf("UserId(%d)\n", mUserId);
+            writer.printf("Gain values (min / max / default/ current): %d %d %d %d\n", mMinGain,
+                    mMaxGain, mDefaultGain, getGainForIndexLocked(mCurrentGainIndex));
+            writer.printf("Gain indexes (min / max / default / current): %d %d %d %d\n",
+                    getMinGainIndex(), getMaxGainIndex(), getDefaultGainIndex(), mCurrentGainIndex);
             for (int i = 0; i < mContextToAddress.size(); i++) {
-                writer.printf("%sContext: %s -> Address: %s\n", indent,
+                writer.printf("Context: %s -> Address: %s\n",
                         CarAudioContext.toString(mContextToAddress.keyAt(i)),
                         mContextToAddress.valueAt(i));
             }
             mAddressToCarAudioDeviceInfo.keySet().stream()
                     .map(mAddressToCarAudioDeviceInfo::get)
-                    .forEach((info -> info.dump(indent, writer)));
+                    .forEach((info -> info.dump(writer)));
 
             // Empty line for comfortable reading
             writer.println();
+            writer.decreaseIndent();
         }
     }
 
