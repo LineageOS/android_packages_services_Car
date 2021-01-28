@@ -24,7 +24,6 @@ import android.app.ActivityManager;
 import android.car.Car;
 import android.car.CarFeatures;
 import android.car.ICar;
-import android.car.cluster.renderer.IInstrumentClusterNavigation;
 import android.car.user.CarUserManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -51,6 +50,7 @@ import android.util.TimingsTraceLog;
 import com.android.car.admin.CarDevicePolicyService;
 import com.android.car.am.FixedActivityService;
 import com.android.car.audio.CarAudioService;
+import com.android.car.cluster.ClusterNavigationService;
 import com.android.car.cluster.InstrumentClusterService;
 import com.android.car.garagemode.GarageModeService;
 import com.android.car.hal.VehicleHal;
@@ -107,6 +107,7 @@ public class ICarImpl extends ICar.Stub {
     private final AppFocusService mAppFocusService;
     private final FixedActivityService mFixedActivityService;
     private final GarageModeService mGarageModeService;
+    private final ClusterNavigationService mClusterNavigationService;
     private final InstrumentClusterService mInstrumentClusterService;
     private final CarLocationService mCarLocationService;
     private final SystemStateControllerService mSystemStateControllerService;
@@ -226,8 +227,9 @@ public class ICarImpl extends ICar.Stub {
         mCarAudioService = new CarAudioService(serviceContext);
         mCarNightService = new CarNightService(serviceContext, mCarPropertyService);
         mFixedActivityService = new FixedActivityService(serviceContext);
+        mClusterNavigationService = new ClusterNavigationService(serviceContext, mAppFocusService);
         mInstrumentClusterService = new InstrumentClusterService(serviceContext,
-                mAppFocusService, mCarInputService);
+                mClusterNavigationService, mCarInputService);
         mSystemStateControllerService = new SystemStateControllerService(
                 serviceContext, mCarAudioService, this);
         mCarStatsService = new CarStatsService(serviceContext);
@@ -300,6 +302,7 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mCarAudioService);
         allServices.add(mCarNightService);
         allServices.add(mFixedActivityService);
+        allServices.add(mClusterNavigationService);
         allServices.add(mInstrumentClusterService);
         allServices.add(mSystemStateControllerService);
         allServices.add(mPerUserCarServiceHelper);
@@ -478,9 +481,7 @@ public class ICarImpl extends ICar.Stub {
                 return mCarPropertyService;
             case Car.CAR_NAVIGATION_SERVICE:
                 assertNavigationManagerPermission(mContext);
-                IInstrumentClusterNavigation navService =
-                        mInstrumentClusterService.getNavigationService();
-                return navService == null ? null : navService.asBinder();
+                return mClusterNavigationService;
             case Car.CAR_INSTRUMENT_CLUSTER_SERVICE:
                 assertClusterManagerPermission(mContext);
                 return mInstrumentClusterService.getManagerService();
