@@ -171,6 +171,7 @@ public final class CarDevicePolicyManagerTest extends CarApiTestBase {
             test.run();
         } finally {
             resetUserPin(1234);
+            unlockDevice();
         }
     }
 
