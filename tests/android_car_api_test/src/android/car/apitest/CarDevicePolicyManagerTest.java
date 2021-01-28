@@ -33,8 +33,9 @@ import android.content.pm.UserInfo;
 import android.os.PowerManager;
 import android.os.UserHandle;
 import android.os.UserManager;
-import android.platform.test.annotations.FlakyTest;
 import android.util.Log;
+
+import androidx.test.filters.FlakyTest;
 
 import org.junit.Before;
 import org.junit.Test;
