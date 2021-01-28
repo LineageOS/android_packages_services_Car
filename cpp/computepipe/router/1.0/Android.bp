@@ -37,8 +37,8 @@ cc_library {
         "liblog",
         "libutils",
         "libbinder_ndk",
-        "android.automotive.computepipe.registry-unstable-ndk_platform",
-        "android.automotive.computepipe.runner-unstable-ndk_platform",
+        "android.automotive.computepipe.registry-V2-ndk_platform",
+        "android.automotive.computepipe.runner-V2-ndk_platform",
     ],
 }
 
@@ -54,7 +54,7 @@ cc_binary {
         "libutils",
         "libbinder_ndk",
         "android.automotive.computepipe.router@1.0-impl",
-        "android.automotive.computepipe.registry-unstable-ndk_platform",
+        "android.automotive.computepipe.registry-V2-ndk_platform",
     ],
     header_libs: [
         "computepipe_router_headers",
