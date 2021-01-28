@@ -26,8 +26,8 @@ cc_defaults {
         "system/libbase/include",
     ],
     shared_libs: [
-        "android.automotive.watchdog-unstable-cpp",
-        "android.automotive.watchdog.internal-unstable-cpp",
+        "android.automotive.watchdog-V3-cpp",
+        "android.automotive.watchdog.internal-cpp",
         "libbase",
         "libbinder",
         "liblog",
