@@ -137,6 +137,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private final CarAudioSettings mCarAudioSettings;
     private final CarVolume mCarVolume;
     private AudioControlWrapper mAudioControlWrapper;
+    private CarDucking mCarDucking;
     private HalAudioFocus mHalAudioFocus;
 
     private CarOccupantZoneService mOccupantZoneService;
@@ -367,6 +368,10 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             } else {
                 writer.println("No HalAudioFocus instance\n");
             }
+            if (mCarDucking != null) {
+                mCarDucking.dump(writer);
+            }
+
         }
         writer.decreaseIndent();
     }
@@ -579,13 +584,17 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         builder.setAudioPolicyVolumeCallback(mAudioPolicyVolumeCallback);
 
         if (sUseCarAudioFocus) {
+            mCarDucking = new CarDucking(mCarAudioZones);
+
             // Configure our AudioPolicy to handle focus events.
             // This gives us the ability to decide which audio focus requests to accept and bypasses
             // the framework ducking logic.
             mFocusHandler = new CarZonesAudioFocus(mAudioManager,
                     mContext.getPackageManager(),
                     mCarAudioZones,
-                    mCarAudioSettings, ENABLE_DELAYED_AUDIO_FOCUS);
+                    mCarAudioSettings,
+                    ENABLE_DELAYED_AUDIO_FOCUS,
+                    mCarDucking);
             builder.setAudioPolicyFocusListener(mFocusHandler);
             builder.setIsAudioFocusPolicy(true);
         }
