@@ -27,6 +27,7 @@ import android.util.Slog;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 
 class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
@@ -547,6 +548,16 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
      */
     ArrayList<AudioFocusInfo> getAudioFocusHoldersForUid(int uid) {
         return getAudioFocusListForUid(uid, mFocusHolders);
+    }
+
+    List<AudioFocusInfo> getAudioFocusHolders() {
+        List<AudioFocusInfo> focusHolders = new ArrayList<>();
+        synchronized (mLock) {
+            for (FocusEntry entry : mFocusHolders.values()) {
+                focusHolders.add(entry.getAudioFocusInfo());
+            }
+            return focusHolders;
+        }
     }
 
     /**
