@@ -31,6 +31,8 @@ import static android.media.AudioManager.AUDIOFOCUS_REQUEST_DELAYED;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_FAILED;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
@@ -54,6 +56,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
+
+import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 public class CarAudioFocusUnitTest {
@@ -593,6 +597,66 @@ public class CarAudioFocusUnitTest {
         verify(mMockAudioManager).dispatchAudioFocusChange(
                 delayedFocusRequest, AUDIOFOCUS_GAIN, mAudioPolicy);
 
+    }
+
+    @Test
+    public void getAudioFocusHolders_withNoFocusHolders_returnsEmptyList() {
+        CarAudioFocus carAudioFocus = getCarAudioFocus(true);
+
+        assertThat(carAudioFocus.getAudioFocusHolders()).isEmpty();
+    }
+
+    @Test
+    public void getAudioFocusHolders_withFocusHolders_returnsPopulatedList() {
+        CarAudioFocus carAudioFocus = getCarAudioFocus(true);
+        AudioFocusInfo info = requestFocusForMediaWithFirstClient(carAudioFocus);
+        AudioFocusInfo secondInfo = getConcurrentInfo(AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
+        carAudioFocus.onAudioFocusRequest(secondInfo, AUDIOFOCUS_REQUEST_GRANTED);
+
+        List<AudioFocusInfo> focusHolders = carAudioFocus.getAudioFocusHolders();
+
+        assertThat(focusHolders).containsExactly(info, secondInfo);
+    }
+
+    @Test
+    public void getAudioFocusHolders_doesNotMutateList() {
+        CarAudioFocus carAudioFocus = getCarAudioFocus(true);
+        AudioFocusInfo info = requestFocusForMediaWithFirstClient(carAudioFocus);
+
+
+        List<AudioFocusInfo> focusHolders = carAudioFocus.getAudioFocusHolders();
+
+        assertThat(focusHolders).containsExactly(info);
+
+        AudioFocusInfo secondInfo = getConcurrentInfo(AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
+        carAudioFocus.onAudioFocusRequest(secondInfo, AUDIOFOCUS_REQUEST_GRANTED);
+
+        assertThat(focusHolders).containsExactly(info);
+    }
+
+    @Test
+    public void getAudioFocusHolders_withTransientFocusLoser_doesNotIncludeTransientLoser() {
+        CarAudioFocus carAudioFocus = getCarAudioFocus(true);
+        AudioFocusInfo info = requestFocusForMediaWithFirstClient(carAudioFocus);
+        AudioFocusInfo callInfo = getInfo(USAGE_VOICE_COMMUNICATION, SECOND_CLIENT_ID,
+                AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, false);
+        carAudioFocus.onAudioFocusRequest(callInfo, AUDIOFOCUS_REQUEST_GRANTED);
+
+        List<AudioFocusInfo> focusHolders = carAudioFocus.getAudioFocusHolders();
+
+        assertThat(focusHolders).containsExactly(callInfo);
+    }
+
+    @Test
+    public void getAudioFocusHolders_withDelayedRequest_doesNotIncludeDelayedRequest() {
+        CarAudioFocus carAudioFocus = getCarAudioFocus(true);
+        AudioFocusInfo callFocusInfo = setupFocusInfoAndRequestFocusForCall(carAudioFocus);
+        AudioFocusInfo delayedFocusInfo = getDelayedExclusiveInfo(AUDIOFOCUS_GAIN);
+        carAudioFocus.onAudioFocusRequest(delayedFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+
+        List<AudioFocusInfo> focusHolders = carAudioFocus.getAudioFocusHolders();
+
+        assertThat(focusHolders).containsExactly(callFocusInfo);
     }
 
     private AudioFocusInfo setupFocusInfoAndRequestFocusForCall(CarAudioFocus carAudioFocus) {

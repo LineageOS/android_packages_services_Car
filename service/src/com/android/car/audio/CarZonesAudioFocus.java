@@ -35,6 +35,7 @@ import com.android.internal.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -45,6 +46,7 @@ import java.util.Objects;
  */
 class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
+    private final CarFocusCallback mCarFocusCallback;
     private final boolean mDelayedFocusEnabled;
     private CarAudioService mCarAudioService; // Dynamically assigned just after construction
     private AudioPolicy mAudioPolicy; // Dynamically assigned just after construction
@@ -55,13 +57,15 @@ class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             @NonNull PackageManager packageManager,
             @NonNull SparseArray<CarAudioZone> carAudioZones,
             @NonNull CarAudioSettings carAudioSettings,
-            boolean enableDelayedAudioFocus) {
+            boolean enableDelayedAudioFocus,
+            @NonNull CarFocusCallback carFocusCallback) {
         //Create the zones here, the policy will be set setOwningPolicy,
         // which is called right after this constructor.
         Objects.requireNonNull(audioManager);
         Objects.requireNonNull(packageManager);
         Objects.requireNonNull(carAudioZones);
         Objects.requireNonNull(carAudioSettings);
+        mCarFocusCallback = Objects.requireNonNull(carFocusCallback);
         Preconditions.checkArgument(carAudioZones.size() != 0,
                 "There must be a minimum of one audio zone");
 
@@ -80,7 +84,6 @@ class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         }
         mDelayedFocusEnabled = enableDelayedAudioFocus;
     }
-
 
     /**
      * Query the current list of focus loser in zoneId for uid
@@ -119,10 +122,9 @@ class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     }
 
     int reevaluateAndRegainAudioFocus(AudioFocusInfo afi) {
-        CarAudioFocus focus = getFocusForAudioFocusInfo(afi);
-        return focus.reevaluateAndRegainAudioFocus(afi);
+        int zoneId = getAudioZoneIdForAudioFocusInfo(afi);
+        return getCarAudioFocusForZoneId(zoneId).reevaluateAndRegainAudioFocus(afi);
     }
-
 
     /**
      * Sets the owning policy of the audio focus
@@ -144,8 +146,9 @@ class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
     @Override
     public void onAudioFocusRequest(AudioFocusInfo afi, int requestResult) {
-        CarAudioFocus focus = getFocusForAudioFocusInfo(afi);
-        focus.onAudioFocusRequest(afi, requestResult);
+        int zoneId = getAudioZoneIdForAudioFocusInfo(afi);
+        getCarAudioFocusForZoneId(zoneId).onAudioFocusRequest(afi, requestResult);
+        notifyFocusCallback(zoneId);
     }
 
     /**
@@ -155,11 +158,16 @@ class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
      */
     @Override
     public void onAudioFocusAbandon(AudioFocusInfo afi) {
-        CarAudioFocus focus = getFocusForAudioFocusInfo(afi);
-        focus.onAudioFocusAbandon(afi);
+        int zoneId = getAudioZoneIdForAudioFocusInfo(afi);
+        getCarAudioFocusForZoneId(zoneId).onAudioFocusAbandon(afi);
+        notifyFocusCallback(zoneId);
     }
 
-    private CarAudioFocus getFocusForAudioFocusInfo(AudioFocusInfo afi) {
+    private CarAudioFocus getCarAudioFocusForZoneId(int zoneId) {
+        return mFocusZones.get(zoneId);
+    }
+
+    private int getAudioZoneIdForAudioFocusInfo(AudioFocusInfo afi) {
         //getFocusForAudioFocusInfo defaults to returning default zoneId
         //if uid has not been mapped, thus the value returned will be
         //default zone focus
@@ -189,15 +197,19 @@ class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             }
         }
 
-        CarAudioFocus focus =  mFocusZones.get(zoneId);
-        return focus;
+        return zoneId;
+    }
+
+    private void notifyFocusCallback(int audioZoneId) {
+        List<AudioFocusInfo> focusHolders = mFocusZones.get(audioZoneId).getAudioFocusHolders();
+        mCarFocusCallback.onFocusChange(audioZoneId, focusHolders);
     }
 
     void dump(IndentingPrintWriter writer) {
         writer.println("*CarZonesAudioFocus*");
         writer.increaseIndent();
         writer.printf("Delayed Focus Enabled: %b\n", mDelayedFocusEnabled);
-
+        writer.printf("Has Focus Callback: %b\n", mCarFocusCallback != null);
         writer.println("Car Zones Audio Focus Listeners:");
         writer.increaseIndent();
         Integer[] keys = mFocusZones.keySet().stream().sorted().toArray(Integer[]::new);
@@ -215,5 +227,18 @@ class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         Preconditions.checkArgument(mCarAudioService.isAudioZoneIdValid(audioZoneId),
                 "Invalid zoneId %d", audioZoneId);
         mFocusZones.get(audioZoneId).getFocusInteraction().setUserIdForSettings(userId);
+    }
+
+    /**
+     * Callback to get notified of the active focus holders after any focus request or abandon  call
+     */
+    public interface CarFocusCallback {
+        /**
+         * Called after a focus request or abandon call is handled.
+         *
+         * @param audioZoneId ID of the zone where the change took place
+         * @param focusHolders list of {@link AudioFocusInfo}s holding focus in specified audio zone
+         */
+        void onFocusChange(int audioZoneId, @NonNull List<AudioFocusInfo> focusHolders);
     }
 }
