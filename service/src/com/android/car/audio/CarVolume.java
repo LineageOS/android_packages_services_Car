@@ -31,7 +31,6 @@ import com.android.internal.util.Preconditions;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -152,10 +151,12 @@ final class CarVolume {
     }
 
     private static Set<Integer> getActiveContexts(@NonNull List<Integer> activePlaybackContexts,
-            @CallState int callState, @NonNull  @AttributeUsage int[] activeHalUsages) {
+            @CallState int callState, @NonNull @AttributeUsage int[] activeHalUsages) {
         Objects.nonNull(activePlaybackContexts);
         Objects.nonNull(activeHalUsages);
-        Set<Integer> contexts = new HashSet<>();
+
+        Set<Integer> contexts = CarAudioContext.getUniqueContextsForUsages(activeHalUsages);
+
         switch (callState) {
             case TelephonyManager.CALL_STATE_RINGING:
                 contexts.add(CarAudioContext.CALL_RING);
@@ -166,11 +167,6 @@ final class CarVolume {
         }
 
         contexts.addAll(activePlaybackContexts);
-
-        for (int index = 0; index < activeHalUsages.length; index++) {
-            contexts.add(CarAudioContext.getContextForUsage(activeHalUsages[index]));
-        }
-
         return contexts;
     }
 
