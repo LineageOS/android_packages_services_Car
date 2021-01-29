@@ -29,4 +29,10 @@ public class CarDevelopmentSettingsDashboardActivity extends SettingsActivity {
     protected boolean isValidFragment(String fragmentName) {
         return CAR_DEVELOPMENT_SETTINGS_FRAGMENT.equals(fragmentName);
     }
+
+    @Override
+    protected boolean isToolbarEnabled() {
+        // Disable the default Settings toolbar in favor of a chassis toolbar.
+        return false;
+    }
 }
