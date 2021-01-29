@@ -393,6 +393,11 @@ public class MockedCarTestBase {
 
         @Override
         public void refreshDisplayBrightness() {}
+
+        @Override
+        public boolean isDisplayEnabled() {
+            return true;
+        }
     }
 
     static final class MockIOInterface implements IOInterface {
