@@ -163,14 +163,12 @@ class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         notifyFocusCallback(zoneId);
     }
 
+    @NonNull
     private CarAudioFocus getCarAudioFocusForZoneId(int zoneId) {
         return mFocusZones.get(zoneId);
     }
 
     private int getAudioZoneIdForAudioFocusInfo(AudioFocusInfo afi) {
-        //getFocusForAudioFocusInfo defaults to returning default zoneId
-        //if uid has not been mapped, thus the value returned will be
-        //default zone focus
         int zoneId = mCarAudioService.getZoneIdForUid(afi.getClientUid());
 
         // If the bundle attribute for AUDIOFOCUS_EXTRA_REQUEST_ZONE_ID has been assigned
