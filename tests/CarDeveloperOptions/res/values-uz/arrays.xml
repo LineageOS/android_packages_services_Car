@@ -420,7 +420,7 @@
   </string-array>
   <string-array name="security_settings_premium_sms_values">
     <item msgid="1164265643455394443">"So‘rash"</item>
-    <item msgid="7718817231348607934">"Hech qachon ruxsat berilmasin"</item>
+    <item msgid="7718817231348607934">"Ruxsat berilmasin"</item>
     <item msgid="8184570120217958741">"Har doim ruxsat berilsin"</item>
   </string-array>
   <string-array name="ram_states">
