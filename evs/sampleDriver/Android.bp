@@ -70,7 +70,7 @@ cc_binary {
 
     required: [
         "evs_configuration.dtd",
-        "evs_sample_configuration.xml",
+        "evs_configuration.xml",
     ],
 
     include_dirs: [
@@ -118,8 +118,8 @@ prebuilt_etc {
 }
 
 prebuilt_etc {
-    name: "evs_sample_configuration.xml",
+    name: "evs_configuration.xml",
     soc_specific: true,
-    src: "resources/evs_sample_configuration.xml",
+    src: "resources/evs_configuration_default.xml",
     sub_dir: "automotive/evs",
 }
