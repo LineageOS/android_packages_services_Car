@@ -1053,7 +1053,7 @@
     <string name="wifi_p2p_disconnect_title" msgid="915880461655863812">"ବିଚ୍ଛିନ୍ନ କରିବେ?"</string>
     <string name="wifi_p2p_disconnect_message" msgid="3745286932812740784">"ଯଦି ଆପଣ ବିଚ୍ଛିନ୍ନ କରନ୍ତି, <xliff:g id="PEER_NAME">%1$s</xliff:g> ସହ ଆପଣଙ୍କ ସଂଯୋଗ ଶେଷ ହୋଇଯିବ।"</string>
     <string name="wifi_p2p_disconnect_multiple_message" msgid="6051173422663731688">"ଯଦି ଆପଣ ବିଚ୍ଛିନ୍ନ କରନ୍ତି, <xliff:g id="PEER_NAME">%1$s</xliff:g> ଏବଂ <xliff:g id="PEER_COUNT">%2$s</xliff:g> ଟି ଅନ୍ୟ ଡିଭାଇସ୍‌ ସହ ଆପଣଙ୍କ ସଂଯୋଜନା ଶେଷ ହେବ।"</string>
-    <string name="wifi_p2p_cancel_connect_title" msgid="2465200999145769427">"ନିମନ୍ତ୍ରଣକୁ କ୍ୟାନ୍ସଲ୍‌ କରିବେ?"</string>
+    <string name="wifi_p2p_cancel_connect_title" msgid="2465200999145769427">"ନିମନ୍ତ୍ରଣକୁ ବାତିଲ୍‌ କରିବେ?"</string>
     <string name="wifi_p2p_cancel_connect_message" msgid="3752679335020392154">"<xliff:g id="PEER_NAME">%1$s</xliff:g> ସହ ସଂଯୋଗ କରିବାକୁ ନିମନ୍ତ୍ରଣକୁ ଆପଣ ବାତିଲ୍‌ କରିବାକୁ ଚାହାଁନ୍ତି କି?"</string>
     <string name="wifi_p2p_delete_group_message" msgid="3206660449067701089">"ଏହି ଗ୍ରୁପ୍‌କୁ ଭୁଲିଯିବେ?"</string>
     <string name="wifi_hotspot_checkbox_text" msgid="12062341344410520">"ୱାଇ-ଫାଇ ହଟସ୍ପଟ୍‌"</string>

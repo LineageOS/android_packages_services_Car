@@ -27,7 +27,7 @@
       <item quantity="one">Dasturchi sifatida ro‘yxatdan o‘tishni yakunlashga <xliff:g id="STEP_COUNT_0">%1$d</xliff:g> qadam qoldi.</item>
     </plurals>
     <string name="show_dev_on" msgid="9075712234786224065">"Siz endi dasturchisiz!"</string>
-    <string name="show_dev_already" msgid="7665948832405148689">"Shart emas, siz allaqachon dasturchi rejimiga o‘tgansiz."</string>
+    <string name="show_dev_already" msgid="7665948832405148689">"Shart emas, siz allaqachon dasturchi rejimidasiz."</string>
     <string name="dev_settings_disabled_warning" msgid="3198732189395396721">"Avval dasturchi sozlamalarini yoqing."</string>
     <string name="header_category_wireless_networks" msgid="8968405993937795898">"Simsiz tarmoqlar"</string>
     <string name="header_category_system" msgid="4045988717359334410">"Tizim"</string>
@@ -1860,7 +1860,7 @@
     <string name="no_applications" msgid="6811396016303576024">"Hech narsa topilmadi."</string>
     <string name="internal_storage" msgid="7392373600013294853">"Ichki xotira"</string>
     <string name="recompute_size" msgid="4290692197892743928">"Xajm qayta hisoblanmoqda…"</string>
-    <string name="clear_data_dlg_title" msgid="7388024498687029597">"Ilova maʼlumotlari oʻchirilsinmi?"</string>
+    <string name="clear_data_dlg_title" msgid="7388024498687029597">"Bu ilova maʼlumotlari oʻchirilsinmi?"</string>
     <string name="clear_data_dlg_text" msgid="6849657743695013414">"Ushbu ilovaning barcha ma’lumotlari, jumladan, fayllar, ma’lumotlar bazalari, sozlamalar, hisoblar va boshqa narsalar o‘chirib tashlanadi. Keyin ularni qayta tiklab bo‘lmaydi."</string>
     <string name="dlg_ok" msgid="4666570206507476557">"OK"</string>
     <string name="dlg_cancel" msgid="2434951039156262467">"Bekor qilish"</string>
