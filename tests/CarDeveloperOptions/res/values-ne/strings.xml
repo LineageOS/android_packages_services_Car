@@ -2240,7 +2240,7 @@
     <string name="background_activity_warning_dialog_title" msgid="2170790412855899678">"पृष्ठभूमिको गतिविधिलाई सीमित गर्ने हो?"</string>
     <string name="background_activity_warning_dialog_text" msgid="8242749826732375096">"तपाईंले कुनै एपको पृष्ठभूमिको गतिविधिलाई सीमित गर्नुभयो भने यसले सही तरिकाले काम नगर्न सक्छ"</string>
     <string name="background_activity_disabled_dialog_text" msgid="4234598000779459640">"यो एपलाई ब्याट्री अप्टिमाइज गर्न भनी सेट नगरिएको हुनाले तपाईं यसमा बन्देज लगाउन सक्नुहुन्न।\n\nअनुप्रयोगमा बन्देज लगाउन पहिले ब्याट्री अप्टिमाइजेसन सुविधा सक्रिय गर्नुहोस्।"</string>
-    <string name="device_screen_usage" msgid="4470485475363132750">"पूर्ण चार्ज भएदेखि स्क्रिनको प्रयोग"</string>
+    <string name="device_screen_usage" msgid="4470485475363132750">"पूर्ण चार्ज भएदेखि स्क्रिनको प्रयोगको अवधि"</string>
     <string name="power_usage_list_summary" msgid="4314438658308211057">"पूर्ण चार्ज भएदेखि ब्याट्रीको प्रयोग"</string>
     <string name="screen_usage_summary" msgid="263396144684078341">"पूर्ण चार्ज भएदेखि स्क्रिन सक्रिय रहेको समय"</string>
     <string name="device_usage_list_summary" msgid="8299017481332816368">"पूर्ण चार्ज भएदेखि यन्त्रको प्रयोग"</string>
@@ -2427,7 +2427,7 @@
     <string name="battery_used_by" msgid="840331542883421888">"<xliff:g id="APP">%2$s</xliff:g> ले प्रयोग गरेको <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_overall_usage" msgid="5874301442415987516">"समग्र ब्याट्रीको <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_detail_since_full_charge" msgid="3814176986148084378">"पछिल्लो पटक पूर्ण चार्ज भएदेखिको विश्लेषण"</string>
-    <string name="battery_last_full_charge" msgid="5624033030647170717">"पछिल्लो पटकको पूर्ण चार्ज"</string>
+    <string name="battery_last_full_charge" msgid="5624033030647170717">"पछिल्लो पटक पूर्ण चार्ज भएको समय"</string>
     <string name="battery_full_charge_last" msgid="4614554109170251301">"पूरा चार्ज हुँदा लगभग यति समय टिक्छ"</string>
     <string name="battery_footer_summary" msgid="4828444679643906943">"ब्याट्री प्रयोगसम्बन्धी डेटा अनुमानित हो र प्रयोगको अनुसार यो मान बदलिन सक्छ"</string>
     <string name="battery_detail_foreground" msgid="6616408559186553085">"सक्रिय प्रयोगमा रहँदा"</string>

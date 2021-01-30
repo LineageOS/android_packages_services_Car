@@ -749,7 +749,7 @@
     <string name="bluetooth_preference_device_settings" msgid="4247085616427015908">"சாதன அமைப்பு"</string>
     <string name="bluetooth_preference_paired_dialog_title" msgid="3567187438908143693">"இணைந்த சாதனம்"</string>
     <string name="bluetooth_preference_paired_dialog_internet_option" msgid="3693599743477470469">"இணைய இணைப்பு"</string>
-    <string name="bluetooth_preference_paired_dialog_keyboard_option" msgid="4627309436489645755">"விசைப்பலகை"</string>
+    <string name="bluetooth_preference_paired_dialog_keyboard_option" msgid="4627309436489645755">"கீபோர்டு"</string>
     <string name="bluetooth_preference_paired_dialog_contacts_option" msgid="5290994459307558039">"தொடர்புகளும் அழைப்பு வரலாறும்"</string>
     <string name="bluetooth_pairing_dialog_title" msgid="7900515495932064945">"இந்தச் சாதனத்துடன் இணைக்கவா?"</string>
     <string name="bluetooth_pairing_dialog_sharing_phonebook_title" msgid="7395493311980018460">"ஃபோன் புத்தகத்தைப் பகிரவா?"</string>
@@ -1948,7 +1948,7 @@
     <string name="language_empty_list_user_restricted" msgid="3837176532474949716">"சாதனத்தின் மொழியை உங்களால் மாற்ற முடியாது."</string>
     <string name="language_keyboard_settings_title" msgid="2672573191605298938">"மொழிகள் &amp; உள்ளீடு"</string>
     <string name="input_assistance" msgid="6442646949054057707">"வசதிகள்"</string>
-    <string name="keyboard_settings_category" msgid="5857591390023852850">"விசைப்பலகை &amp; உள்ளீட்டு முறைகள்"</string>
+    <string name="keyboard_settings_category" msgid="5857591390023852850">"கீபோர்டு &amp; உள்ளீட்டு முறைகள்"</string>
     <string name="phone_language" msgid="8471728119195198790">"மொழிகள்"</string>
     <string name="phone_language_summary" msgid="4537422545235866497"></string>
     <string name="auto_replace" msgid="4908063993127848521">"தானாக மாற்றியமை"</string>
@@ -1956,7 +1956,7 @@
     <string name="auto_caps" msgid="5566082723106296847">"தன்னியக்க பேரெழுத்தாக்கல்"</string>
     <string name="auto_caps_summary" msgid="8505254799874525084">"வாக்கியங்களில் முதல் எழுத்தைப் பேரெழுத்தாக அமை"</string>
     <string name="auto_punctuate" msgid="8386007107100525931">"தன்னியக்க நிறுத்தற்குறியிடுதல்"</string>
-    <string name="hardkeyboard_category" msgid="5937171470391551627">"கைமுறை விசைப்பலகை அமைப்பு"</string>
+    <string name="hardkeyboard_category" msgid="5937171470391551627">"கைமுறை கீபோர்டு அமைப்பு"</string>
     <string name="auto_punctuate_summary" msgid="245694025030386370">"\".\" ஐச் செருக Space விசையை இருமுறை அழுத்தவும்"</string>
     <string name="show_password" msgid="620964020348073739">"கடவுச்சொற்களைக் காட்டு"</string>
     <string name="show_password_summary" msgid="1403805089582258620">"உள்ளிடும் போதே எழுத்துகளைச் சற்று நேரம் காட்டும்"</string>
@@ -1971,7 +1971,7 @@
     <string name="physical_keyboard_title" msgid="3508591962962814313">"கைமுறை கீபோர்டு"</string>
     <string name="show_ime" msgid="7322620473198763563">"விர்ச்சுவல் கீபோர்டைக் காட்டு"</string>
     <string name="show_ime_summary" msgid="3246628154011464373">"கைமுறை கீபோர்டு இயக்கத்தில் இருக்கும் போது இதைத் திரையில் வைத்திரு"</string>
-    <string name="keyboard_shortcuts_helper" msgid="6574386807271399788">"கீபோர்ட் ஷார்ட்கட்களுக்கான உதவி"</string>
+    <string name="keyboard_shortcuts_helper" msgid="6574386807271399788">"கீபோர்டு ஷார்ட்கட்களுக்கான உதவி"</string>
     <string name="keyboard_shortcuts_helper_summary" msgid="8024313306403779742">"கிடைக்கும் ஷார்ட்கட்களைக் காட்டு"</string>
     <string name="language_and_input_for_work_category_title" msgid="2053255944038892588">"பணிக் கணக்கிற்கான கீபோர்டுகள் &amp; கருவிகள்"</string>
     <string name="virtual_keyboards_for_work_title" msgid="3968291646938204523">"பணிக்கான விர்ச்சுவல் கீபோர்டு"</string>
@@ -1980,11 +1980,11 @@
     <string name="game_controller_settings_category" msgid="9066526500617769463">"கேம் கன்ட்ரோலர்"</string>
     <string name="vibrate_input_devices" msgid="3584406079534121467">"அதிர்வைத் திசை திருப்புதல்"</string>
     <string name="vibrate_input_devices_summary" msgid="7503148018220540038">"இணைக்கப்பட்டவுடன், கேம் கண்ட்ரோலருக்கு அதிர்வை அனுப்பு"</string>
-    <string name="keyboard_layout_dialog_title" msgid="4762706917037085797">"விசைப்பலகைத் தளவமைப்பைத் தேர்வுசெய்யவும்"</string>
-    <string name="keyboard_layout_dialog_setup_button" msgid="771293535107618283">"விசைப்பலகைத் தளவமைப்புகளை அமை"</string>
+    <string name="keyboard_layout_dialog_title" msgid="4762706917037085797">"கீபோர்டைத் தளவமைப்பைத் தேர்வுசெய்யவும்"</string>
+    <string name="keyboard_layout_dialog_setup_button" msgid="771293535107618283">"கீபோர்டைத் தளவமைப்புகளை அமை"</string>
     <string name="keyboard_layout_dialog_switch_hint" msgid="138516114253502182">"மாறுவதற்கு Control-Spacebar ஐ அழுத்தவும்"</string>
     <string name="keyboard_layout_default_label" msgid="8368579311667189793">"இயல்புநிலை"</string>
-    <string name="keyboard_layout_picker_title" msgid="6958831599253031987">"விசைப்பலகைத் தளவமைப்புகள்"</string>
+    <string name="keyboard_layout_picker_title" msgid="6958831599253031987">"கீபோர்டைத் தளவமைப்புகள்"</string>
     <string name="user_dict_settings_title" msgid="1415462066249818756">"தனிப்பட்ட அகராதி"</string>
     <string name="user_dict_settings_for_work_title" msgid="3995828731001225748">"பணியாற்றுவதற்கான தனிப்பட்ட அகராதி"</string>
     <string name="user_dict_settings_summary" msgid="3131259534814181196"></string>
@@ -2010,7 +2010,7 @@
     <string name="testing_phone_info" product="default" msgid="1954062952628179016">"மொபைலில் தகவல்"</string>
     <string name="input_methods_settings_title" msgid="880477541100103388">"உரை உள்ளீடு"</string>
     <string name="input_method" msgid="2426639635860376775">"உள்ளீட்டு முறை"</string>
-    <string name="current_input_method" msgid="4831870685505762355">"நடப்பு விசைப்பலகை"</string>
+    <string name="current_input_method" msgid="4831870685505762355">"நடப்பு கீபோர்டு"</string>
     <string name="input_method_selector" msgid="2053594139601607047">"உள்ளீட்டு முறை தேர்ந்தெடுப்பான்"</string>
     <string name="input_method_selector_show_automatically_title" msgid="6641287899537973903">"தானியங்கு"</string>
     <string name="input_method_selector_always_show_title" msgid="214003059953067317">"எப்போதும் காட்டு"</string>
@@ -2020,9 +2020,9 @@
     <string name="input_method_settings_button" msgid="6151412131733672062">"அமைப்பு"</string>
     <string name="input_methods_settings_label_format" msgid="5927400388781960176">"<xliff:g id="IME_NAME">%1$s</xliff:g> அமைப்பு"</string>
     <string name="input_methods_and_subtype_enabler_title" msgid="75557930915149416">"செயலில் உள்ள உள்ளீட்டு முறைகளைத் தேர்வுசெய்க"</string>
-    <string name="onscreen_keyboard_settings_summary" msgid="148763210673670769">"ஸ்கிரீன் கீபோர்ட் அமைப்பு"</string>
-    <string name="builtin_keyboard_settings_title" msgid="3683883402326039724">"கைமுறை விசைப்பலகை"</string>
-    <string name="builtin_keyboard_settings_summary" msgid="6498739864479285932">"கைமுறை விசைப்பலகை அமைப்பு"</string>
+    <string name="onscreen_keyboard_settings_summary" msgid="148763210673670769">"ஸ்கிரீன் கீபோர்டு அமைப்பு"</string>
+    <string name="builtin_keyboard_settings_title" msgid="3683883402326039724">"கைமுறை கீபோர்டு"</string>
+    <string name="builtin_keyboard_settings_summary" msgid="6498739864479285932">"கைமுறை கீபோர்டு அமைப்பு"</string>
     <string name="gadget_picker_title" msgid="9146981887780645322">"கேஜெட்டைத் தேர்வுசெய்க"</string>
     <string name="widget_picker_title" msgid="5424689728810684439">"விட்ஜெட்டைத் தேர்வுசெய்யவும்"</string>
     <string name="allow_bind_app_widget_activity_allow_bind_title" msgid="8168110035319637326">"விட்ஜெட்டை உருவாக்கி, அணுகலை அனுமதிக்கவா?"</string>
@@ -2058,8 +2058,8 @@
     <string name="accessibility_preference_magnification_summary" msgid="753307741814376312">"திரையில் பெரிதாக்குவதை இயக்கும்"</string>
     <string name="accessibility_screen_magnification_short_summary" msgid="5698545174944494486">"அளவை மாற்ற, 3 முறை தட்டவும்"</string>
     <string name="accessibility_screen_magnification_navbar_short_summary" msgid="5418767043532322397">"திரையைப் பெரிதாக்க, பட்டனைத் தட்டவும்"</string>
-    <string name="accessibility_screen_magnification_summary" msgid="3363006902079431772"><b>"பெரிதாக்க"</b>", திரையில் 3 முறை வேகமாகத் தட்டவும்.\n"<ul><li>"ஸ்க்ரோல் செய்ய, இரண்டு அல்லது அதற்கு மேற்பட்ட விரல்களால் இழுக்கவும்"</li>\n<li>"அளவை மாற்ற, இரண்டு அல்லது அதற்கு மேற்பட்ட விரல்களால் பின்ச் செய்யவும்"</li></ul>\n\n<b>"தற்காலிகமாகப் பெரிதாக்க"</b>", திரையை 3 முறை வேகமாகத் தட்டி, மூன்றாவது முறை தட்டும் போது விரலால் திரையைப் பிடித்திருக்கவும்.\n"<ul><li>"திரையில் நகர்த்த, இழுக்கவும்"</li>\n<li>"சிறிதாக்க, விரலை எடுக்கவும்"</li></ul>\n\n"விசைப்பலகையிலும் உலாவல் பட்டியிலும் பெரிதாக்க முடியாது."</string>
-    <string name="accessibility_screen_magnification_navbar_summary" msgid="4726360285256503132">"பெரிதாக்குதலை இயக்கியிருக்கும் போது, உடனடியாகப் பெரிதாக்க, திரையின் கீழ்ப்பகுதியில் இருக்கும் அணுகல்தன்மை பட்டனைப் பயன்படுத்தவும்.\n\n"<b>"பெரிதாக்க"</b>", அணுகல்தன்மை பட்டனைத் தட்டி, திரையில் எங்கேயாவது தட்டவும்.\n"<ul><li>"ஸ்க்ரோல் செய்ய, இரண்டு அல்லது அதற்கு மேற்பட்ட விரல்களால் இழுக்கவும்"</li>\n<li>"அளவை மாற்ற, இரண்டு அல்லது அதற்கு மேற்பட்ட விரல்களால் பின்ச் செய்யவும்"</li></ul>\n\n<b>"தற்காலிகமாகப் பெரிதாக்க"</b>", அணுகல்தன்மை பட்டனைத் தட்டி, திரையில் எங்கேயாவது தொட்டுப் பிடித்திருக்கவும்.\n"<ul><li>"திரையில் நகர்த்த, இழுக்கவும்"</li>\n<li>"சிறிதாக்க, விரலை எடுக்கவும்"</li></ul>\n\n"கீபோர்ட் அல்லது உலாவுதல் பட்டியில் பெரிதாக்க முடியாது."</string>
+    <string name="accessibility_screen_magnification_summary" msgid="3363006902079431772"><b>"பெரிதாக்க"</b>", திரையில் 3 முறை வேகமாகத் தட்டவும்.\n"<ul><li>"ஸ்க்ரோல் செய்ய, இரண்டு அல்லது அதற்கு மேற்பட்ட விரல்களால் இழுக்கவும்"</li>\n<li>"அளவை மாற்ற, இரண்டு அல்லது அதற்கு மேற்பட்ட விரல்களால் பின்ச் செய்யவும்"</li></ul>\n\n<b>"தற்காலிகமாகப் பெரிதாக்க"</b>", திரையை 3 முறை வேகமாகத் தட்டி, மூன்றாவது முறை தட்டும் போது விரலால் திரையைப் பிடித்திருக்கவும்.\n"<ul><li>"திரையில் நகர்த்த, இழுக்கவும்"</li>\n<li>"சிறிதாக்க, விரலை எடுக்கவும்"</li></ul>\n\n"கீபோர்டிலும் உலாவல் பட்டியிலும் பெரிதாக்க முடியாது."</string>
+    <string name="accessibility_screen_magnification_navbar_summary" msgid="4726360285256503132">"பெரிதாக்குதலை இயக்கியிருக்கும் போது, உடனடியாகப் பெரிதாக்க, திரையின் கீழ்ப்பகுதியில் இருக்கும் அணுகல்தன்மை பட்டனைப் பயன்படுத்தவும்.\n\n"<b>"பெரிதாக்க"</b>", அணுகல்தன்மை பட்டனைத் தட்டி, திரையில் எங்கேயாவது தட்டவும்.\n"<ul><li>"ஸ்க்ரோல் செய்ய, இரண்டு அல்லது அதற்கு மேற்பட்ட விரல்களால் இழுக்கவும்"</li>\n<li>"அளவை மாற்ற, இரண்டு அல்லது அதற்கு மேற்பட்ட விரல்களால் பின்ச் செய்யவும்"</li></ul>\n\n<b>"தற்காலிகமாகப் பெரிதாக்க"</b>", அணுகல்தன்மை பட்டனைத் தட்டி, திரையில் எங்கேயாவது தொட்டுப் பிடித்திருக்கவும்.\n"<ul><li>"திரையில் நகர்த்த, இழுக்கவும்"</li>\n<li>"சிறிதாக்க, விரலை எடுக்கவும்"</li></ul>\n\n"கீபோர்டு அல்லது உலாவுதல் பட்டியில் பெரிதாக்க முடியாது."</string>
     <string name="accessibility_screen_magnification_navbar_configuration_warning" msgid="6477234309484795550">"அணுகல்தன்மை பட்டன், <xliff:g id="SERVICE">%1$s</xliff:g> என்பதற்கு அமைக்கப்பட்டுள்ளது. பெரிதாக்குதலைப் பயன்படுத்த, அணுகல்தன்மை பட்டனைத் தொட்டுப் பிடித்து, பெரிதாக்குதலைத் தேர்ந்தெடுக்கவும்."</string>
     <string name="accessibility_global_gesture_preference_title" msgid="3842279082831426816">"ஒலியளவு விசைக்கான ஷார்ட்கட்"</string>
     <string name="accessibility_shortcut_service_title" msgid="3516052294376744060">"ஷார்ட்கட் சேவை"</string>
@@ -2502,7 +2502,7 @@
     <string name="voice_input_output_settings" msgid="2180337183089517667">"குரல் உள்ளீடு &amp; வெளியீடு"</string>
     <string name="voice_input_output_settings_title" msgid="7080213653518526025">"குரல் உள்ளீடு &amp; வெளியீட்டின் அமைப்பு"</string>
     <string name="voice_search_settings_title" msgid="4999026024622014272">"குரல் தேடல்"</string>
-    <string name="keyboard_settings_title" msgid="2056233617644581410">"Android விசைப்பலகை"</string>
+    <string name="keyboard_settings_title" msgid="2056233617644581410">"Android கீபோர்டு"</string>
     <string name="voice_input_settings" msgid="4983011614890521505">"குரல் உள்ளீட்டு அமைப்பு"</string>
     <string name="voice_input_settings_title" msgid="6865032806501269306">"குரல் உள்ளீடு"</string>
     <string name="voice_service_preference_section_title" msgid="2984112696100778038">"குரல் உள்ளீட்டுச் சேவைகள்"</string>
@@ -3051,7 +3051,7 @@
     <string name="keywords_wifi" msgid="8477688080895466846">"வைஃபை, வை-ஃபை, நெட்வொர்க் இணைப்பு, இணையம், வயர்லெஸ், டேட்டா, வை ஃபை"</string>
     <string name="keywords_wifi_notify_open_networks" msgid="1031260564121854773">"வைஃபை அறிவிப்பு, கடவுச்சொல் கேட்காத வைஃபை அறிவிப்பு"</string>
     <string name="keywords_auto_brightness" msgid="5007188989783072428">"தானியங்கு ஒளிர்வு"</string>
-    <string name="keywords_vibrate_on_touch" msgid="3615173661462446877">"அதிர்வை நிறுத்து, தட்டு, கீபோர்ட்"</string>
+    <string name="keywords_vibrate_on_touch" msgid="3615173661462446877">"அதிர்வை நிறுத்து, தட்டு, கீபோர்டு"</string>
     <string name="keywords_time_format" msgid="8265826377023617424">"24 மணிநேர வடிவத்தைப் பயன்படுத்து"</string>
     <string name="keywords_storage_files" msgid="1995055540202216399">"பதிவிறக்கு"</string>
     <string name="keywords_app_default" msgid="1265502485415708667">"இதன்மூலம் திற"</string>
@@ -4193,7 +4193,7 @@
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> ஆப்ஸ்கள்</item>
       <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> ஆப்ஸ்</item>
     </plurals>
-    <string name="enterprise_privacy_input_method" msgid="5885916325874284011">"இயல்பு விசைப்பலகை"</string>
+    <string name="enterprise_privacy_input_method" msgid="5885916325874284011">"இயல்பு கீபோர்டு"</string>
     <string name="enterprise_privacy_input_method_name" msgid="439610095825218563">"<xliff:g id="APP_LABEL">%s</xliff:g>க்கு அமைத்துள்ளார்"</string>
     <string name="enterprise_privacy_always_on_vpn_device" msgid="2022700916516458213">"\"VPNஐ எப்போதும் இயக்கத்தில் வை\" என்பது இயக்கப்பட்டுள்ளது"</string>
     <string name="enterprise_privacy_always_on_vpn_personal" msgid="5644065780843002044">"\"VPNஐ எப்போதும் இயக்கத்தில் வை\" என்பது உங்கள் தனிப்பட்ட சுயவிவரத்தில் இயக்கப்பட்டுள்ளது"</string>

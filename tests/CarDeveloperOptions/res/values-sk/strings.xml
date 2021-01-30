@@ -344,7 +344,7 @@
     <string name="zone_info_offset_and_name" msgid="6043432339008569441">"<xliff:g id="TIME_TYPE">%2$s</xliff:g> (<xliff:g id="OFFSET">%1$s</xliff:g>)"</string>
     <string name="zone_info_footer" msgid="1959594483423380962">"Používa <xliff:g id="OFFSET_AND_NAME">%1$s</xliff:g>. Čas <xliff:g id="DST_TIME_TYPE">%2$s</xliff:g> sa začína <xliff:g id="TRANSITION_DATE">%3$s</xliff:g>."</string>
     <string name="zone_info_footer_no_dst" msgid="7853616006981555000">"Používa <xliff:g id="OFFSET_AND_NAME">%1$s</xliff:g>. Nepoužíva letný čas."</string>
-    <string name="zone_time_type_dst" msgid="7812605402646684853">"Obdobie letného času"</string>
+    <string name="zone_time_type_dst" msgid="7812605402646684853">"Letný čas"</string>
     <string name="zone_time_type_standard" msgid="4093967611947328688">"Štandardný čas"</string>
     <string name="zone_menu_by_region" msgid="8211384017117296924">"Vybrať podľa oblasti"</string>
     <string name="zone_menu_by_offset" msgid="6538342360925785227">"Vybrať podľa čas. posunu UTC"</string>
@@ -1621,7 +1621,7 @@
     <string name="reset_network_complete_toast" msgid="128225929536005495">"Nastavenia sietí boli resetované"</string>
     <string name="reset_esim_error_title" msgid="4728931209471875632">"SIM karty sa nedajú vymazať"</string>
     <string name="reset_esim_error_msg" msgid="4716366079119742235">"Stiahnuté SIM karty sa nedajú vymazať z dôvodu chyby.\n\nReštartujte zariadenie a skúste to znova."</string>
-    <string name="master_clear_title" msgid="1560712943955904673">"Vymazať dáta (obnova výr. nastavení)"</string>
+    <string name="master_clear_title" msgid="1560712943955904673">"Vymazať dáta (obn. výr. nast.)"</string>
     <string name="master_clear_short_title" msgid="919098101581335101">"Vymazať dáta (obn. výr. nast.)"</string>
     <string name="master_clear_desc" product="tablet" msgid="3432373610755760899">"Týmto vymažete všetky dáta z "<b>"interného úložiska"</b>" tabletu, ako napríklad:\n\n"<li>"Účet Google"</li>\n<li>"Dáta aj nastavenia systému a aplikácií"</li>\n<li>"Stiahnuté aplikácie"</li></string>
     <string name="master_clear_desc" product="default" msgid="8765543541962866697">"Táto operácia vymaže všetky dáta v "<b>"internom úložisku"</b>" telefónu:\n\n"<li>"Účet Google"</li>\n<li>"Dáta aj nastavenia systému a aplikácií"</li>\n<li>"Stiahnuté aplikácie"</li></string>

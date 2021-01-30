@@ -2621,7 +2621,7 @@
     <string name="sync_gmail" msgid="4457967084840001296">"Gmail"</string>
     <string name="sync_calendar" msgid="6573708019827519372">"日历"</string>
     <string name="sync_contacts" msgid="5687434785723746534">"联系人"</string>
-    <string name="sync_plug" msgid="6703804441408427257"><font fgcolor="#ffffffff">"欢迎使用 Google Sync！"</font>" \n这款数据同步工具可让您随时随地查看您的联系人、约会以及更多信息。"</string>
+    <string name="sync_plug" msgid="6703804441408427257"><font fgcolor="#ffffffff">"欢迎使用 Google 同步！"</font>" \n这款数据同步工具可让您随时随地查看您的联系人、约会以及更多信息。"</string>
     <string name="header_application_sync_settings" msgid="4581847153669774489">"应用同步设置"</string>
     <string name="header_data_and_synchronization" msgid="400831816068697286">"数据与同步"</string>
     <string name="preference_change_password_title" msgid="7243527448378789274">"更改密码"</string>

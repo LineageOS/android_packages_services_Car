@@ -3195,7 +3195,7 @@
     <string name="zen_mode_summary_combination" msgid="6960111215170691605">"<xliff:g id="MODE">%1$s</xliff:g>: <xliff:g id="EXIT_CONDITION">%2$s</xliff:g>"</string>
     <string name="zen_mode_visual_interruptions_settings_title" msgid="8378266552787406849">"Visuelle Störungen blockieren"</string>
     <string name="zen_mode_visual_signals_settings_subtitle" msgid="6608239691864638854">"Visuelle Signale zulassen"</string>
-    <string name="zen_mode_settings_category" msgid="5601680733422424922">"Wenn \"Bitte nicht stören\" aktiviert ist"</string>
+    <string name="zen_mode_settings_category" msgid="5601680733422424922">"Wenn „Bitte nicht stören“ aktiviert ist"</string>
     <string name="zen_mode_restrict_notifications_title" msgid="7486753018073540477">"Benachrichtigungen einschränken"</string>
     <string name="zen_mode_restrict_notifications_mute" msgid="2673665450311184875">"Kein akustisches Signal bei Benachrichtigungen"</string>
     <string name="zen_mode_restrict_notifications_mute_summary" msgid="1696217042353376674">"Benachrichtigungen werden angezeigt"</string>
@@ -3233,11 +3233,11 @@
     <string name="zen_mode_enable_dialog_turn_on" msgid="6396050543542026184">"Aktivieren"</string>
     <string name="zen_mode_button_turn_on" msgid="1097964136225943415">"Jetzt aktivieren"</string>
     <string name="zen_mode_button_turn_off" msgid="3990967728457149454">"Jetzt deaktivieren"</string>
-    <string name="zen_mode_settings_dnd_manual_end_time" msgid="4307574188962071429">"\"Bitte nicht stören\" ist aktiviert bis <xliff:g id="FORMATTED_TIME">%s</xliff:g>"</string>
+    <string name="zen_mode_settings_dnd_manual_end_time" msgid="4307574188962071429">"„Bitte nicht stören“ ist aktiviert bis <xliff:g id="FORMATTED_TIME">%s</xliff:g>"</string>
     <string name="zen_mode_settings_dnd_manual_indefinite" msgid="3701005376825238752">"\"Bitte nicht stören\" bleibt aktiviert, bis du es deaktivierst."</string>
     <string name="zen_mode_settings_dnd_automatic_rule" msgid="2843297614114625408">"\"Bitte nicht stören\" wurde automatisch durch einen Zeitplan (<xliff:g id="RULE_NAME">%s</xliff:g>) aktiviert"</string>
     <string name="zen_mode_settings_dnd_automatic_rule_app" msgid="5103454923160912313">"\"Bitte nicht stören\" wurde automatisch durch eine App (<xliff:g id="APP_NAME">%s</xliff:g>) aktiviert"</string>
-    <string name="zen_mode_settings_dnd_custom_settings_footer" msgid="6335108298640066560">"\"Bitte nicht stören\" ist mit benutzerdefinierten Einstellungen für \"<xliff:g id="RULE_NAMES">%s</xliff:g>\" aktiviert."</string>
+    <string name="zen_mode_settings_dnd_custom_settings_footer" msgid="6335108298640066560">"„Bitte nicht stören“ ist mit benutzerdefinierten Einstellungen für „<xliff:g id="RULE_NAMES">%s</xliff:g>“ aktiviert."</string>
     <string name="zen_mode_settings_dnd_custom_settings_footer_link" msgid="4007974052885089379"><annotation id="link">" Benutzerdefinierte Einstellungen ansehen"</annotation></string>
     <string name="zen_interruption_level_priority" msgid="9178419297408319234">"Nur wichtige Unterbrechungen"</string>
     <string name="zen_mode_and_condition" msgid="4123722186007123567">"<xliff:g id="ZEN_MODE">%1$s</xliff:g>. <xliff:g id="EXIT_CONDITION">%2$s</xliff:g>."</string>
@@ -3260,7 +3260,7 @@
     <string name="zen_category_exceptions" msgid="2139670640033601899">"Ausnahmen"</string>
     <string name="zen_category_schedule" msgid="989629666210114164">"Zeitplan"</string>
     <string name="zen_sound_title" msgid="3429086967245473870">"Alle Ausnahmen anzeigen"</string>
-    <string name="zen_sound_footer" msgid="1778673975517424878">"Wenn \"Bitte nicht stören\" aktiviert ist, ist weder ein akustisches Signal zu hören noch eine Vibration zu spüren. Mit den Einstellungen oben kannst du festlegen, welche Ausnahmen gelten sollten."</string>
+    <string name="zen_sound_footer" msgid="1778673975517424878">"Wenn „Bitte nicht stören“ aktiviert ist, ist weder ein akustisches Signal zu hören noch eine Vibration zu spüren. Mit den Einstellungen oben kannst du festlegen, welche Ausnahmen gelten sollten."</string>
     <string name="zen_sound_category_title" msgid="2109447208414722786">"Alle stummschalten außer"</string>
     <string name="zen_sound_all_muted" msgid="4844094866910870591">"Stummgeschaltet"</string>
     <string name="zen_sound_none_muted" msgid="4869385974769188085">"Nicht stummgeschaltet"</string>
@@ -3273,7 +3273,7 @@
     <string name="zen_custom_settings_notifications_header" msgid="7469592764589354302">"Benachrichtigungen"</string>
     <string name="zen_custom_settings_duration_header" msgid="1806465684026300942">"Dauer"</string>
     <string name="zen_msg_event_reminder_title" msgid="8685224436389816905">"Nachrichten, Termine &amp; Erinnerungen"</string>
-    <string name="zen_msg_event_reminder_footer" msgid="164400918479831580">"Wenn \"Bitte nicht stören\" aktiviert ist, werden alle Nachrichten, Erinnerungen und Termine stummgeschaltet. Mit den Einstellungen oben kannst du festlegen, welche Ausnahmen gelten sollen. Die Nachrichteneinstellungen lassen sich anpassen, damit dich Freunde, Familie oder andere Kontakte erreichen können."</string>
+    <string name="zen_msg_event_reminder_footer" msgid="164400918479831580">"Wenn „Bitte nicht stören“ aktiviert ist, werden alle Nachrichten, Erinnerungen und Termine stummgeschaltet. Mit den Einstellungen oben kannst du festlegen, welche Ausnahmen gelten sollen. Die Nachrichteneinstellungen lassen sich anpassen, damit dich Freunde, Familie oder andere Kontakte erreichen können."</string>
     <string name="zen_onboarding_ok" msgid="6403635918125323678">"Fertig"</string>
     <string name="zen_onboarding_settings" msgid="1416466597876383322">"Einstellungen"</string>
     <string name="zen_onboarding_new_setting_title" msgid="3622673375041304362">"Kein optisches oder akustisches Signal bei Benachrichtigungen"</string>
@@ -3424,7 +3424,7 @@
     <string name="notification_badge_title" msgid="8989086619255666442">"App-Benachrichtigungspunkt erlauben"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"App-Benachrichtigungspunkt anzeigen"</string>
     <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"\"Bitte nicht stören\" ignorieren"</string>
-    <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"Diese Benachrichtigungen dürfen auch dann gemeldet werden, wenn \"Bitte nicht stören\" aktiviert ist"</string>
+    <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"Diese Benachrichtigungen dürfen auch dann gemeldet werden, wenn „Bitte nicht stören“ aktiviert ist"</string>
     <string name="app_notification_visibility_override_title" msgid="2349335170165637672">"Auf dem Sperrbildschirm"</string>
     <string name="app_notification_row_banned" msgid="2079325338122151677">"Blockiert"</string>
     <string name="app_notification_row_priority" msgid="432299064888787236">"Wichtig"</string>
@@ -3891,7 +3891,7 @@
     <string name="condition_hotspot_title" msgid="4143299802283098506">"Hotspot ist aktiv"</string>
     <string name="condition_airplane_title" msgid="8484582712516148433">"Flugzeugmodus aktiviert"</string>
     <string name="condition_airplane_summary" msgid="3021193218494740742">"Netzwerke nicht verfügbar"</string>
-    <string name="condition_zen_title" msgid="2128184708916052585">"\"Bitte nicht stören\" aktiviert"</string>
+    <string name="condition_zen_title" msgid="2128184708916052585">"„Bitte nicht stören“ aktiviert"</string>
     <string name="condition_zen_summary_phone_muted" msgid="4396050395522974654">"Smartphone stummgeschaltet"</string>
     <string name="condition_zen_summary_with_exceptions" msgid="3435216391993785818">"Mit Ausnahmen"</string>
     <string name="condition_battery_title" msgid="6704870010912986274">"Energiesparmodus aktiviert"</string>
