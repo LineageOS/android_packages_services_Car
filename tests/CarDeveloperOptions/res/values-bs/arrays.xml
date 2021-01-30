@@ -208,7 +208,7 @@
     <item msgid="8636516530542473799">"GID"</item>
   </string-array>
   <string-array name="app_install_location_entries">
-    <item msgid="6621866711026016227">"Interna pohrana uređaja"</item>
+    <item msgid="6621866711026016227">"Unutrašnja pohrana uređaja"</item>
     <item msgid="3186681694079967527">"Izmjenjiva SD kartica"</item>
     <item msgid="6902033473986647035">"Neka sistem odluči"</item>
   </string-array>

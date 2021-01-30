@@ -1572,7 +1572,7 @@
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"Мрежата, приложенията или устройството могат да бъдат нулирани"</string>
     <string name="reset_network_title" msgid="8944059136930806211">"Нулиране на настройките за Wi-Fi, мобилни данни и Bluetooth"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"Така ще нулирате всички мрежови настройки, включително тези за:\n\n"<li>"Wi‑Fi;"</li>\n<li>"мобилни данни;"</li>\n<li>"Bluetooth."</li></string>
-    <string name="reset_esim_title" msgid="7630781767040831893">"Изтеглени SIM карти: Изтриване"</string>
+    <string name="reset_esim_title" msgid="7630781767040831893">"Изтриване на изтеглените SIM карти"</string>
     <string name="reset_esim_desc" msgid="433226911566802">"За да изтеглите SIM карти за замяна, свържете се с оператора си. Плановете за мобилни услуги няма да бъдат анулирани."</string>
     <string name="reset_network_button_text" msgid="4293271046867912819">"Нулиране на настройките"</string>
     <string name="reset_network_final_desc" msgid="2463817067048751373">"Да се нулират ли всички настройки за мрежата? Не можете да отмените това действие."</string>

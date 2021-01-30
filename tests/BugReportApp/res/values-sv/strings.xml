@@ -41,7 +41,7 @@
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"Felrapporten samlas redan in"</string>
     <string name="toast_bug_report_started" msgid="7154589593986557754">"Felrapportering startas"</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"Felrapporten misslyckades"</string>
-    <string name="toast_status_screencap_failed" msgid="2187083897594745149">"Skärmdumpen misslyckades"</string>
+    <string name="toast_status_screencap_failed" msgid="2187083897594745149">"Skärmbilden misslyckades"</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"Statusdumpen misslyckades"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"Felrapporten har påbörjats"</string>
     <string name="notification_bugreport_finished_title" msgid="3970195939909624320">"Felrapporten samlas in"</string>

@@ -1572,7 +1572,7 @@
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"Желіні, қолданбаны не құрылғыны бастапқы күйіне қайтаруға болады"</string>
     <string name="reset_network_title" msgid="8944059136930806211">"Wi-Fi, мобильдік деректер және Bluetooth параметрлерін бастапқы күйіне қайтару"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"Мұның нәтижесінде барлық желі параметрлері бастапқы күйіне қайтарылады, соның ішінде:\n\n"<li>"Wi‑Fi"</li>\n<li>"мобильдік деректер"</li>\n<li>"Bluetooth"</li></string>
-    <string name="reset_esim_title" msgid="7630781767040831893">"Жүктеп алынған SIM карталарын тазарту"</string>
+    <string name="reset_esim_title" msgid="7630781767040831893">"Жүктеп алынған SIM карталарын өшіру"</string>
     <string name="reset_esim_desc" msgid="433226911566802">"Жаңа SIM карталарын жүктеп алу үшін операторға хабарласыңыз. Мобильдік қызмет жоспарларынан бас тартылмайды."</string>
     <string name="reset_network_button_text" msgid="4293271046867912819">"Параметрлерді бастапқы күйге қайтару"</string>
     <string name="reset_network_final_desc" msgid="2463817067048751373">"Барлық желі параметрлері бастапқы күйіне қайтарылсын ба? Бұл әрекетті қайтару мүмкін емес."</string>
@@ -1618,7 +1618,7 @@
     <string name="tether_settings_summary_hotspot_on_tether_on" msgid="1289593649526514499">"Хотспот қосулы, тетеринг"</string>
     <string name="tether_settings_summary_hotspot_on_tether_off" msgid="8010689354668285422">"Хотспот қосулы"</string>
     <string name="tether_settings_summary_hotspot_off_tether_on" msgid="1349909238672649877">"Тетеринг"</string>
-    <string name="tether_settings_disabled_on_data_saver" msgid="3682544845899910726">"Data Saver функциясы қосулы кезде, тетерингті немесе тасымалы хот-спотты пайдалану мүмкін емес"</string>
+    <string name="tether_settings_disabled_on_data_saver" msgid="3682544845899910726">"Трафикті үнемдеу функциясы қосулы кезде, тетерингті немесе тасымалы хот-спотты пайдалану мүмкін емес"</string>
     <string name="usb_title" msgid="7480927657535578688">"USB"</string>
     <string name="usb_tethering_button_text" msgid="6242228383142012332">"USB тетеринг"</string>
     <string name="usb_tethering_subtext" product="default" msgid="1573513260339548671">"Телефонның интернет байланысын USB арқылы бөлісу"</string>
@@ -3897,7 +3897,7 @@
     <string name="condition_battery_summary" msgid="1236078243905690620">"Мүмкіндіктер шектеулі"</string>
     <string name="condition_cellular_title" msgid="6605277435894307935">"Мобильдік деректер өшірулі"</string>
     <string name="condition_cellular_summary" msgid="3607459310548343777">"Интернетке Wi‑Fi арқылы ғана жалғануға болады"</string>
-    <string name="condition_bg_data_title" msgid="184684435298857712">"Data Saver"</string>
+    <string name="condition_bg_data_title" msgid="184684435298857712">"Трафикті үнемдеу"</string>
     <string name="condition_bg_data_summary" msgid="5194942860807136682">"Мүмкіндіктер шектеулі"</string>
     <string name="condition_work_title" msgid="9046811302347490371">"Жұмыс профилі өшірулі"</string>
     <string name="condition_work_summary" msgid="5586134491975748565">"Қолданбалар және хабарландырулар үшін"</string>
@@ -3964,8 +3964,8 @@
     <string name="configure" msgid="8232696842838580549">"Конфигурациялау"</string>
     <string name="data_usage_other_apps" msgid="7002491980141402084">"Басқа қолданбалар трафикке қосылды"</string>
     <plurals name="data_saver_unrestricted_summary" formatted="false" msgid="6046013861315713697">
-      <item quantity="other">Data Saver қосулы кезде, <xliff:g id="COUNT">%1$d</xliff:g> қолданбаға деректерді шексіз пайдалануға рұқсат етілген</item>
-      <item quantity="one">Data Saver қосулы кезде, 1 қолданбаға деректерді шексіз пайдалануға рұқсат етілген</item>
+      <item quantity="other">Трафикті үнемдеу режимі қосулы кезде, <xliff:g id="COUNT">%1$d</xliff:g> қолданбаға деректерді шексіз пайдалануға рұқсат етілген</item>
+      <item quantity="one">Трафикті үнемдеу режимі қосулы кезде, 1 қолданбаға деректерді шексіз пайдалануға рұқсат етілген</item>
     </plurals>
     <string name="data_usage_title" msgid="7874606430902201083">"Негізгі деректер"</string>
     <string name="data_usage_wifi_title" msgid="7161828479387766556">"Wi‑Fi деректері"</string>
@@ -3985,14 +3985,14 @@
     <string name="no_carrier_update_now_text" msgid="4405472895804759042">"Жаңа ғана жаңартылды"</string>
     <string name="launch_mdp_app_text" msgid="9186559496664208252">"Жоспарды көру"</string>
     <string name="launch_wifi_text" msgid="317820210431682605">"Мәліметтерді көру"</string>
-    <string name="data_saver_title" msgid="7903308134514179256">"Data Saver"</string>
+    <string name="data_saver_title" msgid="7903308134514179256">"Трафикті үнемдеу"</string>
     <string name="unrestricted_data_saver" msgid="9139401849550738720">"Шектелмейтін деректер"</string>
     <string name="restrict_background_blacklisted" msgid="7158991683849067124">"Фондық дерек өшірілген"</string>
     <string name="data_saver_on" msgid="7281809065420480881">"Қосулы"</string>
     <string name="data_saver_off" msgid="7439439787358504018">"Өшірулі"</string>
-    <string name="data_saver_switch_title" msgid="8244008132112735207">"Data Saver функциясын қолдану"</string>
+    <string name="data_saver_switch_title" msgid="8244008132112735207">"Трафикті үнемдеу функциясын қолдану"</string>
     <string name="unrestricted_app_title" msgid="4390661122069905122">"Деректерді шексіз пайдалану"</string>
-    <string name="unrestricted_app_summary" msgid="2829141815077800483">"Data Saver қосулы кезде, деректерді шексіз пайдалануға рұқсат ету"</string>
+    <string name="unrestricted_app_summary" msgid="2829141815077800483">"Трафикті үнемдеу режимі қосулы кезде, деректерді шексіз пайдалануға рұқсат ету"</string>
     <string name="home_app" msgid="3695063566006954160">"Негізгі экран қолданбасы"</string>
     <string name="no_default_home" msgid="1518949210961918497">"Әдепкі негізгі бет жоқ"</string>
     <string name="lockpattern_settings_require_cred_before_startup" msgid="63693894094570367">"Қорғалған іске қосу"</string>
@@ -4419,7 +4419,7 @@
     <string name="mobile_network_erase_sim" msgid="7813251003613841044">"SIM картасын жою"</string>
     <string name="mobile_network_erase_sim_dialog_title" msgid="3796268164204467499">"Бұл жүктеп алынған SIM картасы өшірілсін бе?"</string>
     <string name="mobile_network_erase_sim_dialog_body" msgid="1923189407958581450">"Бұл SIM картасын өшірсеңіз, <xliff:g id="CARRIER_0">%1$s</xliff:g> қызметі бұл құрылғыдан жойылады.\n\n<xliff:g id="CARRIER_1">%2$s</xliff:g> қызметінен бас тартылмайды."</string>
-    <string name="mobile_network_erase_sim_dialog_ok" msgid="7133484721717815447">"Жою"</string>
+    <string name="mobile_network_erase_sim_dialog_ok" msgid="7133484721717815447">"Өшіру"</string>
     <string name="mobile_network_erase_sim_dialog_progress" msgid="4881754030959536493">"SIM тазартылуда…"</string>
     <string name="mobile_network_erase_sim_error_dialog_title" msgid="9026625253242102706">"SIM картасы жойылмады"</string>
     <string name="mobile_network_erase_sim_error_dialog_body" msgid="5955463559366034787">"Қатеге байланысты бұл SIM картасын өшіру мүмкін емес.\n\nҚұрылғыны қайта қосып, әрекетті қайталаңыз."</string>

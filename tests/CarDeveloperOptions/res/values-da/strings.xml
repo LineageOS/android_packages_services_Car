@@ -2176,7 +2176,7 @@
     <string name="color_blue" msgid="4055855996393833996">"Blå"</string>
     <string name="color_cyan" msgid="7669317410901991453">"Grønblå"</string>
     <string name="color_yellow" msgid="8847327436896180799">"Gul"</string>
-    <string name="color_magenta" msgid="721976999611563071">"Lyslilla"</string>
+    <string name="color_magenta" msgid="721976999611563071">"Magenta"</string>
     <string name="enable_service_title" msgid="2746143093464928251">"Vil du bruge <xliff:g id="SERVICE">%1$s</xliff:g>?"</string>
     <string name="capabilities_list_title" msgid="8177719542886123788">"<xliff:g id="SERVICE">%1$s</xliff:g> har brug for at:"</string>
     <string name="touch_filtered_warning" msgid="3072665526993043879">"Indstillinger kan ikke bekræfte dit svar, fordi en app tilslører tilladelsesanmodningen."</string>

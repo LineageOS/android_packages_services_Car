@@ -1591,7 +1591,7 @@
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"Var atiestatīt tīklu, lietotnes vai ierīci"</string>
     <string name="reset_network_title" msgid="8944059136930806211">"Atiestatīt Wi-Fi, mobilo datu un Bluetooth iestatījumus"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"Tādējādi tiks atiestatīti visi tīkla iestatījumi, tostarp:\n\n"<li>"Wi‑Fi;"</li>\n<li>"mobilie dati;"</li>\n<li>"Bluetooth."</li></string>
-    <string name="reset_esim_title" msgid="7630781767040831893">"Dzēst lejupielādētās SIM k."</string>
+    <string name="reset_esim_title" msgid="7630781767040831893">"Dzēst lejupielādētās SIM kartes"</string>
     <string name="reset_esim_desc" msgid="433226911566802">"Lai lejupielādētu nomaiņas SIM kartes, sazinieties ar mobilo sakaru operatoru. Ar šo darbību netiks anulēti mobilo sakaru pakalpojumu plāni."</string>
     <string name="reset_network_button_text" msgid="4293271046867912819">"Atiestatīt iestatījumus"</string>
     <string name="reset_network_final_desc" msgid="2463817067048751373">"Vai vēlaties atiestatīt visus tīkla iestatījumus? Šo darbību nevar atsaukt."</string>

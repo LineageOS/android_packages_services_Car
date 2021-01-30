@@ -1606,7 +1606,7 @@
     <string name="restore_default_apn" msgid="7195266404077471007">"Atkuriami numatytieji APN nustatymai."</string>
     <string name="menu_restore" msgid="3799288817317293115">"Nustatyti iš naujo į numatytuosius nust."</string>
     <string name="restore_default_apn_completed" msgid="5671734152740058937">"Numatytųjų APN nustatymų nustatymas iš naujo baigtas."</string>
-    <string name="reset_dashboard_title" msgid="7084966342252178530">"Nustat. parinkt. iš naujo"</string>
+    <string name="reset_dashboard_title" msgid="7084966342252178530">"Nust. parinkt. iš naujo"</string>
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"Tinklą, programas arba įrenginį galima nustatyti iš naujo"</string>
     <string name="reset_network_title" msgid="8944059136930806211">"Iš naujo nustatyti „Wi-Fi“, mobiliųjų duomenų ir „Bluetooth“ nustatymus"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"Bus iš naujo nustatyti visi tinklo nustatymai, įskaitant:\n\n"<li>"„Wi‑Fi“;"</li>\n<li>"mobiliojo ryšio duomenis;"</li>\n<li>"„Bluetooth“."</li></string>

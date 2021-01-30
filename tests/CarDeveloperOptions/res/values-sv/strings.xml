@@ -1710,7 +1710,7 @@
     <string name="lockpassword_choose_your_password_message" msgid="2838273977481046536">"Ange ett lösenord som skydd"</string>
     <string name="lockpassword_choose_your_password_header_for_fingerprint" msgid="4921343500484160894">"Lösenord krävs för fingeravtryck"</string>
     <string name="lockpassword_choose_your_pattern_header_for_fingerprint" msgid="314870151462139417">"Grafiskt lösenord krävs för fingeravtryck"</string>
-    <string name="lockpassword_choose_your_pin_message" msgid="8942598950627277885">"Ange en pinkod som skydd"</string>
+    <string name="lockpassword_choose_your_pin_message" msgid="8942598950627277885">"Välj en pinkod"</string>
     <string name="lockpassword_choose_your_pin_header_for_fingerprint" msgid="1102927520952116303">"Pinkod krävs för fingeravtryck"</string>
     <string name="lockpassword_choose_your_pattern_message" msgid="1503075455752279687">"Ange ett grafiskt lösenord som skydd"</string>
     <string name="lockpassword_confirm_your_password_header" msgid="9055242184126838887">"Ange ditt lösenord igen"</string>
@@ -1813,7 +1813,7 @@
     </plurals>
     <string name="clear_uri_btn_text" msgid="3528618179883855727">"Ta bort åtkomst"</string>
     <string name="controls_label" msgid="5609285071259457221">"Kontroller"</string>
-    <string name="force_stop" msgid="9213858124674772386">"Tvingad avslutning"</string>
+    <string name="force_stop" msgid="9213858124674772386">"Tvinga att avsluta"</string>
     <string name="total_size_label" msgid="3929917501176594692">"Totalt"</string>
     <string name="application_size_label" msgid="175357855490253032">"Appstorlek"</string>
     <string name="external_code_size_label" msgid="3434421216268309411">"Data på USB-lagringsenhet"</string>
@@ -2037,7 +2037,7 @@
     <string name="accessibility_settings" msgid="9140621093888234485">"Tillgänglighet"</string>
     <string name="accessibility_settings_title" msgid="1687226556576913576">"Tillgänglighetsinställningar"</string>
     <string name="accessibility_settings_summary" msgid="5742379519336396561">"Skärmläsare, skärm och interaktionsinställningar"</string>
-    <string name="vision_settings_title" msgid="7315352351051423944">"Syninställningar"</string>
+    <string name="vision_settings_title" msgid="7315352351051423944">"Inställningar för synskadade"</string>
     <string name="vision_settings_description" msgid="3476589459009287332">"Du kan anpassa enheten efter dina behov. Tillgänglighetsfunktionerna kan ändras senare under Inställningar."</string>
     <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"Ändra teckenstorlek"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"Skärmläsningsprogram"</string>
@@ -2158,7 +2158,7 @@
     <string name="captioning_window_color" msgid="8696903405657599896">"Textningsfönstrets färg"</string>
     <string name="captioning_window_opacity" msgid="4315586548781763353">"Textningsfönstrets genomskinlighet"</string>
     <string name="captioning_foreground_color" msgid="7412509133818882005">"Textfärg"</string>
-    <string name="captioning_foreground_opacity" msgid="7635639017810117478">"Textgenomskinlighet"</string>
+    <string name="captioning_foreground_opacity" msgid="7635639017810117478">"Textopacitet"</string>
     <string name="captioning_edge_color" msgid="4330622137047993780">"Kantfärg"</string>
     <string name="captioning_edge_type" msgid="4414946407430588162">"Typ av kant"</string>
     <string name="captioning_typeface" msgid="7893208796949341767">"Teckensnittsfamilj"</string>
@@ -2392,7 +2392,7 @@
     <string name="usage_type_total_battery_capacity" msgid="1954889791720119945">"Total batterikapacitet"</string>
     <string name="usage_type_computed_power" msgid="2594890316149868151">"Beräknad strömförbrukning"</string>
     <string name="usage_type_actual_power" msgid="8067253427718526111">"Faktisk strömförbrukning"</string>
-    <string name="battery_action_stop" msgid="1866624019460630143">"Tvingad avslutning"</string>
+    <string name="battery_action_stop" msgid="1866624019460630143">"Tvinga att avsluta"</string>
     <string name="battery_action_app_details" msgid="1077011181969550402">"Info om appen"</string>
     <string name="battery_action_app_settings" msgid="587998773852488539">"Appinställningar"</string>
     <string name="battery_action_display" msgid="4887913003634317465">"Skärminställningar"</string>
@@ -3760,10 +3760,10 @@
     <string name="background_check_title" msgid="4136736684290307970">"Fullständig bakgrundsåtkomst"</string>
     <string name="assist_access_context_title" msgid="2274614501747710439">"Använda text från skärmen"</string>
     <string name="assist_access_context_summary" msgid="5867997494395842785">"Tillåt att assistentappen får åtkomst till innehåll på skärmen som text"</string>
-    <string name="assist_access_screenshot_title" msgid="1991014038776117688">"Använda skärmdump"</string>
+    <string name="assist_access_screenshot_title" msgid="1991014038776117688">"Använda skärmbild"</string>
     <string name="assist_access_screenshot_summary" msgid="3010943864000489424">"Tillåt att assistentappen får åtkomst till en bild på skärmen"</string>
     <string name="assist_flash_title" msgid="8852484250748551092">"Lys upp skärmen"</string>
-    <string name="assist_flash_summary" msgid="6697095786317559129">"Lys upp skärmens kanter när assistentappen har tillgång till text på skärmen eller på en skärmdump"</string>
+    <string name="assist_flash_summary" msgid="6697095786317559129">"Lys upp skärmens kanter när assistentappen har tillgång till text på skärmen eller på en skärmbild"</string>
     <string name="assist_footer" msgid="7030121180457472165">"Med assistentappar kan du få hjälp som baseras på den information som visas på den aktuella skärmen. Vissa appar har stöd för både översikts- och röstinmatningstjänster som hjälper dig."</string>
     <string name="average_memory_use" msgid="5333366040118953945">"Genomsnittlig minnesanvändning"</string>
     <string name="maximum_memory_use" msgid="6509872438499846077">"Maximal minnesanvändning"</string>
@@ -3876,7 +3876,7 @@
     <string name="disabled_by_policy_title_outgoing_calls" msgid="3805836913095496278">"Utgående samtal har inaktiverats"</string>
     <string name="disabled_by_policy_title_sms" msgid="1453236584236681105">"SMS har inaktiverats"</string>
     <string name="disabled_by_policy_title_camera" msgid="3741138901926111197">"Kameran har inaktiverats"</string>
-    <string name="disabled_by_policy_title_screen_capture" msgid="1856835333536274665">"Skärmdump har inaktiverats"</string>
+    <string name="disabled_by_policy_title_screen_capture" msgid="1856835333536274665">"Skärmbild har inaktiverats"</string>
     <string name="disabled_by_policy_title_suspend_packages" msgid="4254714213391802322">"Det gick inte att öppna appen"</string>
     <string name="default_admin_support_msg" msgid="5789424433689798637">"Kontakta IT-administratören om du har frågor"</string>
     <string name="admin_support_more_info" msgid="8737842638087863477">"Mer information"</string>
