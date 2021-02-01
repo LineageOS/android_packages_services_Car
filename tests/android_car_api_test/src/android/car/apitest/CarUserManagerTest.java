@@ -108,6 +108,7 @@ public final class CarUserManagerTest extends CarApiTestBase {
     }
 
     @Test
+    @FlakyTest(bugId = 179033623)
     public void testLifecycleListener() throws Exception {
         int oldUserId = ActivityManager.getCurrentUser();
         int newUserId = createNewUserDirectly("Test", /* isGuest= */ false).id;
