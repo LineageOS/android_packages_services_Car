@@ -1474,4 +1474,10 @@ public final class VehiclePropertyIds {
                 return "0x" + Integer.toHexString(property);
         }
     }
+
+    /**
+     * @deprecated to prevent others from instantiating this class
+     */
+    @Deprecated
+    public VehiclePropertyIds() {}
 }
