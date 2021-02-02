@@ -33,7 +33,7 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-using android::base::StringPrintf;
+using ::android::base::StringPrintf;
 
 #define PID_FOR_INIT 1
 

@@ -29,17 +29,17 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-using android::defaultServiceManager;
-using android::IBinder;
-using android::sp;
-using android::base::Error;
-using android::base::Join;
-using android::base::ParseUint;
-using android::base::Result;
-using android::base::StringAppendF;
-using android::base::StringPrintf;
-using android::base::WriteStringToFd;
-using android::binder::Status;
+using ::android::defaultServiceManager;
+using ::android::IBinder;
+using ::android::sp;
+using ::android::base::Error;
+using ::android::base::Join;
+using ::android::base::ParseUint;
+using ::android::base::Result;
+using ::android::base::StringAppendF;
+using ::android::base::StringPrintf;
+using ::android::base::WriteStringToFd;
+using ::android::binder::Status;
 
 using AddServiceFunction =
         std::function<android::base::Result<void>(const char*,
