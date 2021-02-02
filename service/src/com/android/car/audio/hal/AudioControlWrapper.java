@@ -17,9 +17,12 @@
 package com.android.car.audio.hal;
 
 import android.annotation.IntDef;
+import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.media.AudioAttributes.AttributeUsage;
 import android.util.IndentingPrintWriter;
+
+import com.android.car.audio.CarDuckingInfo;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -37,7 +40,8 @@ public interface AudioControlWrapper {
             AUDIOCONTROL_FEATURE_AUDIO_DUCKING
     })
     @Retention(RetentionPolicy.SOURCE)
-    @interface AudioControlFeature {}
+    @interface AudioControlFeature {
+    }
 
     /**
      * Closes the focus listener that's registered on the AudioControl HAL
@@ -92,7 +96,16 @@ public interface AudioControlWrapper {
     void setBalanceTowardRight(float value);
 
     /**
+     * Notifies HAL of changes in usages holding focus and the corresponding ducking changes for a
+     * given zone.
+     *
+     * @param carDuckingInfo information about focus and addresses to duck to relay to the HAL.
+     */
+    void onDevicesToDuckChange(@NonNull CarDuckingInfo carDuckingInfo);
+
+    /**
      * Registers recipient to be notified if AudioControl HAL service dies.
+     *
      * @param deathRecipient to be notified upon HAL service death.
      */
     void linkToDeath(@Nullable AudioControlDeathRecipient deathRecipient);

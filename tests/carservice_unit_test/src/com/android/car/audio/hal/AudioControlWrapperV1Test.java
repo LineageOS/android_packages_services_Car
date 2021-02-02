@@ -128,4 +128,12 @@ public class AudioControlWrapperV1Test {
         assertThrows(UnsupportedOperationException.class,
                 () -> audioControlWrapperV1.onAudioFocusChange(USAGE, ZONE_ID, FOCUS_GAIN));
     }
+
+    @Test
+    public void onDevicesToDuckChange_throws() {
+        AudioControlWrapperV1 audioControlWrapperV1 = new AudioControlWrapperV1(mAudioControlV1);
+
+        assertThrows(UnsupportedOperationException.class,
+                () -> audioControlWrapperV1.onDevicesToDuckChange(null));
+    }
 }
