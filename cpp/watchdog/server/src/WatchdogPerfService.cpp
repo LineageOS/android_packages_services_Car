@@ -18,8 +18,6 @@
 
 #include "WatchdogPerfService.h"
 
-#include "utils/PackageNameResolver.h"
-
 #include <WatchdogProperties.sysprop.h>
 #include <android-base/file.h>
 #include <android-base/parseint.h>
@@ -36,15 +34,15 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-using android::String16;
-using android::base::Error;
-using android::base::Join;
-using android::base::ParseUint;
-using android::base::Result;
-using android::base::Split;
-using android::base::StringAppendF;
-using android::base::StringPrintf;
-using android::base::WriteStringToFd;
+using ::android::String16;
+using ::android::base::Error;
+using ::android::base::Join;
+using ::android::base::ParseUint;
+using ::android::base::Result;
+using ::android::base::Split;
+using ::android::base::StringAppendF;
+using ::android::base::StringPrintf;
+using ::android::base::WriteStringToFd;
 
 namespace {
 

@@ -30,9 +30,9 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-using android::sp;
-using android::base::Result;
-using android::binder::Status;
+using ::android::sp;
+using ::android::base::Result;
+using ::android::binder::Status;
 using ::testing::_;
 using ::testing::NiceMock;
 using ::testing::Return;

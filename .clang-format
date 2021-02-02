@@ -31,7 +31,7 @@ IncludeCategories:
     Priority:        3
   - Regex:           '^<[[:alnum:]_]+>'
     Priority:        4
-  - Regex:           '^<.*/[[:alnum:]_]+\.h>'
+  - Regex:           '^<.*/[[:alnum:]_]+\.h>$|^<[[:alnum:]_]+\.sysprop\.h>$'
     Priority:        2
   - Regex:           '^".*'
     Priority:        1

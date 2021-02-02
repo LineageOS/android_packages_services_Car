@@ -42,34 +42,34 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-namespace aawi = android::automotive::watchdog::internal;
+namespace aawi = ::android::automotive::watchdog::internal;
 
-using android::IBinder;
-using android::sp;
-using android::automotive::watchdog::internal::BnCarWatchdogServiceForSystem;
-using android::automotive::watchdog::internal::ICarWatchdogServiceForSystem;
-using android::base::Error;
-using android::base::GetProperty;
-using android::base::ReadFileToString;
-using android::base::Result;
-using android::base::StringAppendF;
-using android::base::StringPrintf;
-using android::base::Trim;
-using android::base::WriteStringToFd;
-using android::binder::Status;
-using android::hardware::hidl_vec;
-using android::hardware::interfacesEqual;
-using android::hardware::Return;
-using android::hardware::automotive::vehicle::V2_0::IVehicle;
-using android::hardware::automotive::vehicle::V2_0::ProcessTerminationReason;
-using android::hardware::automotive::vehicle::V2_0::StatusCode;
-using android::hardware::automotive::vehicle::V2_0::SubscribeFlags;
-using android::hardware::automotive::vehicle::V2_0::SubscribeOptions;
-using android::hardware::automotive::vehicle::V2_0::VehiclePropConfig;
-using android::hardware::automotive::vehicle::V2_0::VehicleProperty;
-using android::hardware::automotive::vehicle::V2_0::VehiclePropertyStatus;
-using android::hardware::automotive::vehicle::V2_0::VehiclePropValue;
-using android::hidl::base::V1_0::IBase;
+using aawi::BnCarWatchdogServiceForSystem;
+using aawi::ICarWatchdogServiceForSystem;
+using ::android::IBinder;
+using ::android::sp;
+using ::android::base::Error;
+using ::android::base::GetProperty;
+using ::android::base::ReadFileToString;
+using ::android::base::Result;
+using ::android::base::StringAppendF;
+using ::android::base::StringPrintf;
+using ::android::base::Trim;
+using ::android::base::WriteStringToFd;
+using ::android::binder::Status;
+using ::android::hardware::hidl_vec;
+using ::android::hardware::interfacesEqual;
+using ::android::hardware::Return;
+using ::android::hardware::automotive::vehicle::V2_0::IVehicle;
+using ::android::hardware::automotive::vehicle::V2_0::ProcessTerminationReason;
+using ::android::hardware::automotive::vehicle::V2_0::StatusCode;
+using ::android::hardware::automotive::vehicle::V2_0::SubscribeFlags;
+using ::android::hardware::automotive::vehicle::V2_0::SubscribeOptions;
+using ::android::hardware::automotive::vehicle::V2_0::VehiclePropConfig;
+using ::android::hardware::automotive::vehicle::V2_0::VehicleProperty;
+using ::android::hardware::automotive::vehicle::V2_0::VehiclePropertyStatus;
+using ::android::hardware::automotive::vehicle::V2_0::VehiclePropValue;
+using ::android::hidl::base::V1_0::IBase;
 
 namespace {
 
@@ -828,7 +828,7 @@ void WatchdogProcessService::checkVhalHealth() {
 }
 
 void WatchdogProcessService::terminateVhal() {
-    using android::hidl::manager::V1_0::IServiceManager;
+    using ::android::hidl::manager::V1_0::IServiceManager;
 
     std::vector<int32_t> processIds;
     sp<IServiceManager> manager = IServiceManager::getService();

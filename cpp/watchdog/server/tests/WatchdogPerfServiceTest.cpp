@@ -24,7 +24,6 @@
 #include "ProcPidStat.h"
 #include "ProcStat.h"
 #include "UidIoStats.h"
-#include "utils/PackageNameResolver.h"
 
 #include <WatchdogProperties.sysprop.h>
 #include <android-base/file.h>
@@ -39,13 +38,13 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-using android::wp;
-using android::base::Error;
-using android::base::Result;
+using ::android::wp;
+using ::android::automotive::watchdog::testing::LooperStub;
+using ::android::base::Error;
+using ::android::base::Result;
 using ::testing::_;
 using ::testing::DefaultValue;
 using ::testing::InSequence;
-using testing::LooperStub;
 using ::testing::Mock;
 using ::testing::NiceMock;
 using ::testing::Return;

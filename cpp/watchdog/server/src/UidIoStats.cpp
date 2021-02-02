@@ -35,12 +35,12 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-using android::base::Error;
-using android::base::ParseUint;
-using android::base::ReadFileToString;
-using android::base::Result;
-using android::base::Split;
-using android::base::StringPrintf;
+using ::android::base::Error;
+using ::android::base::ParseUint;
+using ::android::base::ReadFileToString;
+using ::android::base::Result;
+using ::android::base::Split;
+using ::android::base::StringPrintf;
 
 namespace {
 

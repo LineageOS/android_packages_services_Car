@@ -28,6 +28,9 @@ cc_defaults {
     shared_libs: [
         "android.automotive.watchdog-V3-cpp",
         "android.automotive.watchdog.internal-cpp",
+        "android.automotive.watchdog.internal-unstable-cpp",
+        "android.automotive.watchdog-unstable-cpp",
+        "android.hardware.automotive.vehicle@2.0",
         "libbase",
         "libbinder",
         "liblog",
@@ -39,9 +42,9 @@ cc_defaults {
 }
 
 cc_library {
-  name: "libwatchdog_utils",
+  name: "libwatchdog_package_info_resolver",
   srcs: [
-      "src/utils/PackageNameResolver.cpp",
+      "src/PackageInfoResolver.cpp",
   ],
   defaults: [
       "carwatchdogd_defaults",
@@ -50,7 +53,7 @@ cc_library {
       "libcutils",
   ],
   export_include_dirs: [
-       "src/utils",
+       "src",
   ],
 }
 
@@ -59,7 +62,7 @@ cc_defaults {
     shared_libs: [
         "libcutils",
         "libprocessgroup",
-        "libwatchdog_utils",
+        "libwatchdog_package_info_resolver",
     ],
 }
 
@@ -99,7 +102,7 @@ cc_test {
         "tests/IoOveruseConfigsTest.cpp",
         "tests/IoPerfCollectionTest.cpp",
         "tests/LooperStub.cpp",
-        "tests/PackageNameResolverTest.cpp",
+        "tests/PackageInfoResolverTest.cpp",
         "tests/ProcPidDir.cpp",
         "tests/ProcPidStatTest.cpp",
         "tests/ProcStatTest.cpp",
@@ -115,14 +118,14 @@ cc_test {
         "libgtest",
         "libwatchdog_binder_mediator",
         "libwatchdog_perf_service",
-        "libwatchdog_utils",
+        "libwatchdog_process_service",
+        "libwatchdog_package_info_resolver",
     ],
 }
 
 cc_defaults {
     name: "libwatchdog_process_service_defaults",
     shared_libs: [
-        "android.hardware.automotive.vehicle@2.0",
         "libhidlbase",
     ],
 }
@@ -148,9 +151,7 @@ cc_library {
     srcs: [
         "src/WatchdogBinderMediator.cpp",
         "src/WatchdogInternalHandler.cpp",
-        "src/WatchdogProcessService.cpp",
         "src/WatchdogServiceHelper.cpp",
-        "src/IoPerfCollection.cpp",
     ],
     shared_libs: [
         "libwatchdog_perf_service",
@@ -177,7 +178,7 @@ cc_binary {
       "libwatchdog_binder_mediator",
       "libwatchdog_perf_service",
       "libwatchdog_process_service",
-      "libwatchdog_utils",
+      "libwatchdog_package_info_resolver",
     ],
     vintf_fragments: ["carwatchdogd.xml"],
 }

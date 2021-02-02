@@ -15,15 +15,17 @@
  */
 
 #include "IoPerfCollection.h"
-
+#include "MockPackageInfoResolver.h"
 #include "MockProcPidStat.h"
 #include "MockProcStat.h"
 #include "MockUidIoStats.h"
-#include "utils/PackageNameResolver.h"
+#include "MockWatchdogServiceHelper.h"
+#include "PackageInfoResolver.h"
 
 #include <WatchdogProperties.sysprop.h>
 #include <android-base/file.h>
 #include <gmock/gmock.h>
+
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -34,9 +36,10 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-using android::base::Error;
-using android::base::ReadFdToString;
-using android::base::Result;
+using ::android::base::Error;
+using ::android::base::ReadFdToString;
+using ::android::base::Result;
+using ::testing::_;
 using ::testing::Return;
 
 namespace {
@@ -124,39 +127,46 @@ namespace internal {
 
 class IoPerfCollectionPeer {
 public:
-    explicit IoPerfCollectionPeer(sp<IoPerfCollection> collector) : collector(collector) {}
+    explicit IoPerfCollectionPeer(sp<IoPerfCollection> collector) :
+          mCollector(collector),
+          mMockPackageInfoResolver(new MockPackageInfoResolver()) {
+        mCollector->mPackageInfoResolver = mMockPackageInfoResolver;
+    }
+
     IoPerfCollectionPeer() = delete;
-    ~IoPerfCollectionPeer() { collector->terminate(); }
+    ~IoPerfCollectionPeer() {
+        mCollector->terminate();
+        mCollector.clear();
+        mMockPackageInfoResolver.clear();
+    }
 
-    void setTopNStatsPerCategory(int value) { collector->mTopNStatsPerCategory = value; }
+    void setTopNStatsPerCategory(int value) { mCollector->mTopNStatsPerCategory = value; }
 
-    void setTopNStatsPerSubcategory(int value) { collector->mTopNStatsPerSubcategory = value; }
+    void setTopNStatsPerSubcategory(int value) { mCollector->mTopNStatsPerSubcategory = value; }
+
+    void injectUidToPackageNameMapping(std::unordered_map<uid_t, std::string> mapping) {
+        EXPECT_CALL(*mMockPackageInfoResolver, getPackageNamesForUids(_))
+                .WillRepeatedly(Return(mapping));
+    }
 
     const CollectionInfo& getBoottimeCollectionInfo() {
-        Mutex::Autolock lock(collector->mMutex);
-        return collector->mBoottimeCollection;
+        Mutex::Autolock lock(mCollector->mMutex);
+        return mCollector->mBoottimeCollection;
     }
 
     const CollectionInfo& getPeriodicCollectionInfo() {
-        Mutex::Autolock lock(collector->mMutex);
-        return collector->mPeriodicCollection;
+        Mutex::Autolock lock(mCollector->mMutex);
+        return mCollector->mPeriodicCollection;
     }
 
     const CollectionInfo& getCustomCollectionInfo() {
-        Mutex::Autolock lock(collector->mMutex);
-        return collector->mCustomCollection;
+        Mutex::Autolock lock(mCollector->mMutex);
+        return mCollector->mCustomCollection;
     }
 
-    sp<IoPerfCollection> collector;
-};
-
-class PackageNameResolverPeer {
-public:
-    explicit PackageNameResolverPeer(const std::unordered_map<uid_t, std::string>& mapping) {
-        PackageNameResolver::sInstance.clear();
-        PackageNameResolver::getInstance();
-        PackageNameResolver::sInstance->mUidToPackageNameMapping = mapping;
-    }
+private:
+    sp<IoPerfCollection> mCollector;
+    sp<MockPackageInfoResolver> mMockPackageInfoResolver;
 };
 
 }  // namespace internal
@@ -203,7 +213,7 @@ TEST(IoPerfCollectionTest, TestBoottimeCollection) {
                      .totalMajorFaults = 11000,
                      .majorFaultsPercentChange = 0},
     };
-    internal::PackageNameResolverPeer peer({{1009, "mount"}});
+    collectorPeer.injectUidToPackageNameMapping({{1009, "mount"}});
 
     time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     ASSERT_RESULT_OK(
@@ -272,7 +282,8 @@ TEST(IoPerfCollectionTest, TestPeriodicCollection) {
                      .totalMajorFaults = 11000,
                      .majorFaultsPercentChange = 0},
     };
-    internal::PackageNameResolverPeer peer({{1009, "mount"}});
+
+    collectorPeer.injectUidToPackageNameMapping({{1009, "mount"}});
 
     time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     ASSERT_RESULT_OK(
@@ -374,7 +385,7 @@ TEST(IoPerfCollectionTest, TestCustomCollection) {
                      .totalMajorFaults = 55590,
                      .majorFaultsPercentChange = 0},
     };
-    internal::PackageNameResolverPeer peer({
+    collectorPeer.injectUidToPackageNameMapping({
             {1009, "android.car.cts"},
             {2001, "system_server"},
             {3456, "random_process"},
@@ -441,13 +452,14 @@ TEST(IoPerfCollectionTest, TestUidIoStatsGreaterThanTopNStatsLimit) {
             .total = {{5030, 20300}, {1550, 30300}, {115, 370}},
     };
 
-    internal::PackageNameResolverPeer peer({
-            {1009, "mount"},
-            {1001000, "shared:android.uid.system"},
-    });
-
     IoPerfCollection collector;
     collector.mTopNStatsPerCategory = 2;
+
+    sp<MockPackageInfoResolver> mockPackageInfoResolver = new MockPackageInfoResolver();
+    collector.mPackageInfoResolver = mockPackageInfoResolver;
+    EXPECT_CALL(*mockPackageInfoResolver, getPackageNamesForUids(_))
+            .WillRepeatedly(Return<std::unordered_map<uid_t, std::string>>(
+                    {{1009, "mount"}, {1001000, "shared:android.uid.system"}}));
 
     struct UidIoPerfData actualUidIoPerfData = {};
     collector.processUidIoPerfData({}, mockUidIoStats, &actualUidIoPerfData);
@@ -602,15 +614,15 @@ TEST(IoPerfCollectionTest, TestProcPidContentsGreaterThanTopNStatsLimit) {
             .majorFaultsPercentChange = 0.0,
     };
 
-    internal::PackageNameResolverPeer peer({
-            {0, "root"},
-            {1009, "mount"},
-            {1001000, "shared:android.uid.system"},
-    });
-
     IoPerfCollection collector;
     collector.mTopNStatsPerCategory = 2;
     collector.mTopNStatsPerSubcategory = 2;
+
+    sp<MockPackageInfoResolver> mockPackageInfoResolver = new MockPackageInfoResolver();
+    collector.mPackageInfoResolver = mockPackageInfoResolver;
+    EXPECT_CALL(*mockPackageInfoResolver, getPackageNamesForUids(_))
+            .WillRepeatedly(Return<std::unordered_map<uid_t, std::string>>(
+                    {{0, "root"}, {1009, "mount"}, {1001000, "shared:android.uid.system"}}));
 
     struct ProcessIoPerfData actualProcessIoPerfData = {};
     collector.processProcessIoPerfDataLocked({}, mockProcPidStat, &actualProcessIoPerfData);
@@ -681,13 +693,14 @@ TEST(IoPerfCollectionTest, TestProcPidContentsLessThanTopNStatsLimit) {
             .majorFaultsPercentChange = 0.0,
     };
 
-    internal::PackageNameResolverPeer peer({
-            {0, "root"},
-    });
-
     IoPerfCollection collector;
     collector.mTopNStatsPerCategory = 5;
     collector.mTopNStatsPerSubcategory = 3;
+
+    sp<MockPackageInfoResolver> mockPackageInfoResolver = new MockPackageInfoResolver();
+    collector.mPackageInfoResolver = mockPackageInfoResolver;
+    EXPECT_CALL(*mockPackageInfoResolver, getPackageNamesForUids(_))
+            .WillRepeatedly(Return<std::unordered_map<uid_t, std::string>>({{0, "root"}}));
 
     struct ProcessIoPerfData actualProcessIoPerfData = {};
     collector.processProcessIoPerfDataLocked({}, mockProcPidStat, &actualProcessIoPerfData);

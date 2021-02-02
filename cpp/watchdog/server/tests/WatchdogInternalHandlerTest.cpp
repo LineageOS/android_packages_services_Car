@@ -40,15 +40,15 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-namespace aawi = android::automotive::watchdog::internal;
+namespace aawi = ::android::automotive::watchdog::internal;
 
-using android::sp;
-using android::automotive::watchdog::internal::ComponentType;
-using android::automotive::watchdog::internal::ICarWatchdogServiceForSystem;
-using android::automotive::watchdog::internal::ICarWatchdogServiceForSystemDefault;
-using android::automotive::watchdog::internal::IoOveruseConfiguration;
-using android::base::Result;
-using android::binder::Status;
+using aawi::ComponentType;
+using aawi::ICarWatchdogServiceForSystem;
+using aawi::ICarWatchdogServiceForSystemDefault;
+using aawi::IoOveruseConfiguration;
+using ::android::sp;
+using ::android::base::Result;
+using ::android::binder::Status;
 using ::testing::_;
 using ::testing::Return;
 
@@ -162,15 +162,20 @@ TEST_F(WatchdogInternalHandlerTest, TestRegisterCarWatchdogService) {
     sp<ICarWatchdogServiceForSystem> service = new ICarWatchdogServiceForSystemDefault();
     EXPECT_CALL(*mMockWatchdogServiceHelper, registerService(service))
             .WillOnce(Return(Status::ok()));
-    sp<WatchdogServiceHelperInterface> helper = mMockWatchdogServiceHelper;
+    EXPECT_CALL(*mMockWatchdogServiceHelper, registerService(service))
+            .WillOnce(Return(Status::ok()));
+
     Status status = mWatchdogInternalHandler->registerCarWatchdogService(service);
+
     ASSERT_TRUE(status.isOk()) << status;
 }
 
 TEST_F(WatchdogInternalHandlerTest, TestErrorOnRegisterCarWatchdogServiceWithNonSystemCallingUid) {
     sp<ICarWatchdogServiceForSystem> service = new ICarWatchdogServiceForSystemDefault();
-    EXPECT_CALL(*mMockWatchdogServiceHelper, registerService(service)).Times(0);
+    EXPECT_CALL(*mMockWatchdogServiceHelper, registerService(_)).Times(0);
+
     Status status = mWatchdogInternalHandler->registerCarWatchdogService(service);
+
     ASSERT_FALSE(status.isOk()) << status;
 }
 
@@ -180,7 +185,9 @@ TEST_F(WatchdogInternalHandlerTest,
     sp<ICarWatchdogServiceForSystem> service = new ICarWatchdogServiceForSystemDefault();
     EXPECT_CALL(*mMockWatchdogServiceHelper, registerService(service))
             .WillOnce(Return(Status::fromExceptionCode(Status::EX_ILLEGAL_STATE, "Illegal state")));
+
     Status status = mWatchdogInternalHandler->registerCarWatchdogService(service);
+
     ASSERT_FALSE(status.isOk()) << status;
 }
 

@@ -25,17 +25,18 @@
 #include <binder/IServiceManager.h>
 #include <binder/ProcessState.h>
 #include <log/log.h>
-#include <signal.h>
 #include <utils/Looper.h>
 
-#include <thread>
+#include <signal.h>
 
-using android::IPCThreadState;
-using android::Looper;
-using android::ProcessState;
-using android::sp;
-using android::automotive::watchdog::ServiceManager;
-using android::base::Result;
+#include <thread>  // NOLINT(build/c++11)
+
+using ::android::IPCThreadState;
+using ::android::Looper;
+using ::android::ProcessState;
+using ::android::sp;
+using ::android::automotive::watchdog::ServiceManager;
+using ::android::base::Result;
 
 namespace {
 

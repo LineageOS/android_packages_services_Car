@@ -19,18 +19,18 @@
 #include "ServiceManager.h"
 
 #include "IoPerfCollection.h"
-#include "utils/PackageNameResolver.h"
+#include "PackageInfoResolver.h"
 
 namespace android {
 namespace automotive {
 namespace watchdog {
 
-using android::sp;
-using android::String16;
-using android::automotive::watchdog::WatchdogPerfService;
-using android::automotive::watchdog::WatchdogProcessService;
-using android::base::Error;
-using android::base::Result;
+using ::android::sp;
+using ::android::String16;
+using ::android::automotive::watchdog::WatchdogPerfService;
+using ::android::automotive::watchdog::WatchdogProcessService;
+using ::android::base::Error;
+using ::android::base::Result;
 
 sp<WatchdogProcessService> ServiceManager::sWatchdogProcessService = nullptr;
 sp<WatchdogPerfService> ServiceManager::sWatchdogPerfService = nullptr;
@@ -44,7 +44,13 @@ Result<void> ServiceManager::startServices(const sp<Looper>& looper) {
         sIoOveruseMonitor != nullptr) {
         return Error(INVALID_OPERATION) << "Cannot start services more than once";
     }
-    PackageNameResolver::getInstance();
+    /*
+     * PackageInfoResolver must be initialized first time on the main thread before starting any
+     * other thread as the getInstance method isn't thread safe. Thus initialize PackageInfoResolver
+     * by calling the getInstance method before starting other service as they may access
+     * PackageInfoResolver's instance during initialization.
+     */
+    sp<IPackageInfoResolverInterface> packageInfoResolver = PackageInfoResolver::getInstance();
     auto result = startProcessAnrMonitor(looper);
     if (!result.ok()) {
         return result;
@@ -58,11 +64,14 @@ Result<void> ServiceManager::startServices(const sp<Looper>& looper) {
     if (!result.ok()) {
         return Error() << "Failed to initialize watchdog service helper: " << result.error();
     }
+    result = packageInfoResolver->initWatchdogServiceHelper(sWatchdogServiceHelper);
+    if (!result.ok()) {
+        return Error() << "Failed to initialize package name resolver: " << result.error();
+    }
     return {};
 }
 
 void ServiceManager::terminateServices() {
-    PackageNameResolver::terminate();
     if (sWatchdogProcessService != nullptr) {
         sWatchdogProcessService->terminate();
         sWatchdogProcessService.clear();
@@ -82,6 +91,7 @@ void ServiceManager::terminateServices() {
         sWatchdogServiceHelper->terminate();
         sWatchdogServiceHelper.clear();
     }
+    PackageInfoResolver::terminate();
 }
 
 Result<void> ServiceManager::startProcessAnrMonitor(const sp<Looper>& looper) {
@@ -102,10 +112,12 @@ Result<void> ServiceManager::startPerfService() {
     if (!result.ok()) {
         return Error() << "Failed to register I/O perf collection: " << result.error();
     }
-    // TODO(b/167240592): Register I/O overuse monitor after it is completely implemented.
-    //  Caveat: I/O overuse monitor reads from /data partition when initialized so initializing here
-    //  would cause the read to happen during early-init when the /data partition is not available.
-    //  Thus delay the initialization/registration until the /data partition is available.
+    /*
+     * TODO(b/167240592): Register I/O overuse monitor after it is completely implemented.
+     *  Caveat: I/O overuse monitor reads from /data partition when initialized so initializing here
+     *  would cause the read to happen during early-init when the /data partition is not available.
+     *  Thus delay the initialization/registration until the /data partition is available.
+     */
     result = service->start();
     if (!result.ok()) {
         return Error(result.error().code())
