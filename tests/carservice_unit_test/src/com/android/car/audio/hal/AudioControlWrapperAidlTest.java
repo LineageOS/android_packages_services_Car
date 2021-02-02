@@ -18,6 +18,8 @@ package com.android.car.audio.hal;
 
 import static android.os.IBinder.DeathRecipient;
 
+import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING;
+import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -97,8 +99,20 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     }
 
     @Test
-    public void supportsHalAudioFocus_returnsTrue() {
-        assertThat(mAudioControlWrapperAidl.supportsHalAudioFocus()).isTrue();
+    public void supportsFeature_forAudioFocus_returnsTrue() {
+        assertThat(mAudioControlWrapperAidl.supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_FOCUS))
+                .isTrue();
+    }
+
+    @Test
+    public void supportsFeature_forAudioDucking_returnsTrue() {
+        assertThat(mAudioControlWrapperAidl.supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_DUCKING))
+                .isTrue();
+    }
+
+    @Test
+    public void supportsFeature_forUnknownFeature_returnsFalse() {
+        assertThat(mAudioControlWrapperAidl.supportsFeature(-1)).isFalse();
     }
 
     @Test

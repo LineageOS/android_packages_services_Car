@@ -16,6 +16,9 @@
 
 package com.android.car.audio.hal;
 
+import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING;
+import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.mock;
@@ -78,10 +81,26 @@ public class AudioControlWrapperV1Test {
     }
 
     @Test
-    public void supportsHalAudioFocus_returnsFalse() {
+    public void supportsFeature_withAudioFocus_returnsFalse() {
         AudioControlWrapperV1 audioControlWrapperV1 = new AudioControlWrapperV1(mAudioControlV1);
 
-        assertThat(audioControlWrapperV1.supportsHalAudioFocus()).isFalse();
+        assertThat(audioControlWrapperV1.supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_FOCUS))
+                .isFalse();
+    }
+
+    @Test
+    public void supportsFeature_withAudioDucking_returnsFalse() {
+        AudioControlWrapperV1 audioControlWrapperV1 = new AudioControlWrapperV1(mAudioControlV1);
+
+        assertThat(audioControlWrapperV1.supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_DUCKING))
+                .isFalse();
+    }
+
+    @Test
+    public void supportsFeature_withUnknownFeature_returnsFalse() {
+        AudioControlWrapperV1 audioControlWrapperV1 = new AudioControlWrapperV1(mAudioControlV1);
+
+        assertThat(audioControlWrapperV1.supportsFeature(-1)).isFalse();
     }
 
     @Test
