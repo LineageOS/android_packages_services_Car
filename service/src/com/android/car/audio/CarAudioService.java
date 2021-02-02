@@ -19,6 +19,7 @@ import static android.car.media.CarAudioManager.AUDIO_FEATURE_DYNAMIC_ROUTING;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_VOLUME_GROUP_MUTING;
 import static android.car.media.CarAudioManager.CarAudioFeature;
 import static android.car.media.CarAudioManager.INVALID_VOLUME_GROUP_ID;
+import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -52,6 +53,7 @@ import android.media.AudioPortConfig;
 import android.media.audiopolicy.AudioPolicy;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.os.UserHandle;
 import android.telephony.Annotation.CallState;
 import android.telephony.TelephonyManager;
@@ -148,9 +150,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             new AudioPolicy.AudioPolicyVolumeCallback() {
         @Override
         public void onVolumeAdjustment(int adjustment) {
-            int zoneId = CarAudioManager.PRIMARY_AUDIO_ZONE;
-            @AudioContext int suggestedContext = getSuggestedAudioContext(zoneId);
+            @AudioContext int suggestedContext = getSuggestedAudioContextForPrimaryZone();
 
+            int zoneId = CarAudioManager.PRIMARY_AUDIO_ZONE;
             int groupId;
             synchronized (mImplLock) {
                 groupId = getVolumeGroupIdForAudioContextLocked(zoneId, suggestedContext);
@@ -226,6 +228,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private SparseArray<CarAudioZone> mCarAudioZones;
     private final CarVolumeCallbackHandler mCarVolumeCallbackHandler;
     private final SparseIntArray mAudioZoneIdToUserIdMapping;
+    private final SystemClockWrapper mClock = new SystemClockWrapper();
 
 
     // TODO do not store uid mapping here instead use the uid
@@ -251,7 +254,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         mAudioZoneIdToUserIdMapping = new SparseIntArray();
         mAudioVolumeAdjustmentContextsVersion =
                 mContext.getResources().getInteger(R.integer.audioVolumeAdjustmentContextsVersion);
-        mCarVolume = new CarVolume(mAudioVolumeAdjustmentContextsVersion);
+        mCarVolume = new CarVolume(mClock,
+                mAudioVolumeAdjustmentContextsVersion, mKeyEventTimeoutMs);
     }
 
     /**
@@ -1229,10 +1233,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         return group.getAudioDevicePortForContext(CarAudioContext.getContextForUsage(usage));
     }
 
-    private @AudioContext int getSuggestedAudioContext(int zoneId) {
-        return mCarVolume.getSuggestedAudioContext(
-                getActiveContextsFromPlaybackConfigurations(zoneId),
-                getCallStateForZone(zoneId), getActiveHalUsagesForZone(zoneId));
+    private @AudioContext int getSuggestedAudioContextForPrimaryZone() {
+        int zoneId = PRIMARY_AUDIO_ZONE;
+        return mCarVolume.getSuggestedAudioContextAndSaveIfFound(
+                getActiveContextsFromPlaybackConfigurations(zoneId), getCallStateForZone(zoneId),
+                getActiveHalUsagesForZone(zoneId));
     }
 
     private int[] getActiveHalUsagesForZone(int zoneId) {
@@ -1415,6 +1420,12 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                     == CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_DISPLAY)) {
                 handleOccupantZoneUserChanged();
             }
+        }
+    }
+
+    static final class SystemClockWrapper {
+        public long uptimeMillis() {
+            return SystemClock.uptimeMillis();
         }
     }
 }
