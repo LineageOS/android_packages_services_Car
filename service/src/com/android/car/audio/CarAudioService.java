@@ -136,6 +136,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private final boolean mPersistMasterMuteState;
     private final CarAudioSettings mCarAudioSettings;
     private final CarVolume mCarVolume;
+    private final int mKeyEventTimeoutMs;
     private AudioControlWrapper mAudioControlWrapper;
     private HalAudioFocus mHalAudioFocus;
 
@@ -242,6 +243,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 R.bool.audioUseCarVolumeGroupMuting);
         mPersistMasterMuteState = !mUseCarVolumeGroupMuting && mContext.getResources().getBoolean(
                 R.bool.audioPersistMasterMuteState);
+        mKeyEventTimeoutMs =
+                mContext.getResources().getInteger(R.integer.audioVolumeKeyEventTimeoutMs);
         mUidToZoneMap = new HashMap<>();
         mCarVolumeCallbackHandler = new CarVolumeCallbackHandler();
         mCarAudioSettings = new CarAudioSettings(mContext.getContentResolver());
@@ -323,6 +326,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         writer.printf("Master muted? %b\n", mAudioManager.isMasterMute());
         writer.printf("Volume context priority list version: %d\n",
                 mAudioVolumeAdjustmentContextsVersion);
+        writer.printf("Volume key event timeout ms: %d\n", mKeyEventTimeoutMs);
         if (mCarAudioConfigurationPath != null) {
             writer.printf("Car audio configuration path: %s\n", mCarAudioConfigurationPath);
         }
