@@ -22,7 +22,7 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-using android::sp;
+using ::android::sp;
 
 void LooperWrapper::wake() {
     if (mLooper == nullptr) {

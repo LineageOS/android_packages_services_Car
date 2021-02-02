@@ -36,9 +36,9 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-using android::base::Error;
-using android::base::ReadFdToString;
-using android::base::Result;
+using ::android::base::Error;
+using ::android::base::ReadFdToString;
+using ::android::base::Result;
 using ::testing::_;
 using ::testing::Return;
 

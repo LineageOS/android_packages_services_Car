@@ -30,9 +30,9 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-using android::base::StringAppendF;
-using android::base::StringPrintf;
-using testing::populateProcPidDir;
+using ::android::automotive::watchdog::testing::populateProcPidDir;
+using ::android::base::StringAppendF;
+using ::android::base::StringPrintf;
 
 namespace {
 

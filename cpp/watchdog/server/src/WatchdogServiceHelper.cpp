@@ -26,18 +26,18 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-namespace aawi = android::automotive::watchdog::internal;
+namespace aawi = ::android::automotive::watchdog::internal;
 
-using android::IBinder;
-using android::sp;
-using android::String16;
-using android::wp;
-using android::automotive::watchdog::internal::BnCarWatchdogServiceForSystem;
-using android::automotive::watchdog::internal::ICarWatchdogServiceForSystem;
-using android::automotive::watchdog::internal::PackageInfo;
-using android::base::Error;
-using android::base::Result;
-using android::binder::Status;
+using aawi::BnCarWatchdogServiceForSystem;
+using aawi::ICarWatchdogServiceForSystem;
+using aawi::PackageInfo;
+using ::android::IBinder;
+using ::android::sp;
+using ::android::String16;
+using ::android::wp;
+using ::android::base::Error;
+using ::android::base::Result;
+using ::android::binder::Status;
 
 namespace {
 

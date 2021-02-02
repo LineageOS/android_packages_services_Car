@@ -25,12 +25,12 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-using android::sp;
-using android::String16;
-using android::automotive::watchdog::WatchdogPerfService;
-using android::automotive::watchdog::WatchdogProcessService;
-using android::base::Error;
-using android::base::Result;
+using ::android::sp;
+using ::android::String16;
+using ::android::automotive::watchdog::WatchdogPerfService;
+using ::android::automotive::watchdog::WatchdogProcessService;
+using ::android::base::Error;
+using ::android::base::Result;
 
 sp<WatchdogProcessService> ServiceManager::sWatchdogProcessService = nullptr;
 sp<WatchdogPerfService> ServiceManager::sWatchdogPerfService = nullptr;

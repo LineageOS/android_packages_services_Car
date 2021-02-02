@@ -25,15 +25,15 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-using android::automotive::watchdog::internal::ApplicationCategoryType;
-using android::automotive::watchdog::internal::ComponentType;
-using android::automotive::watchdog::internal::IoOveruseAlertThreshold;
-using android::automotive::watchdog::internal::IoOveruseConfiguration;
-using android::automotive::watchdog::internal::PerStateIoOveruseThreshold;
-using android::base::Join;
-using android::base::Result;
-using android::base::StringAppendF;
-using android::base::StringPrintf;
+using ::android::automotive::watchdog::internal::ApplicationCategoryType;
+using ::android::automotive::watchdog::internal::ComponentType;
+using ::android::automotive::watchdog::internal::IoOveruseAlertThreshold;
+using ::android::automotive::watchdog::internal::IoOveruseConfiguration;
+using ::android::automotive::watchdog::internal::PerStateIoOveruseThreshold;
+using ::android::base::Join;
+using ::android::base::Result;
+using ::android::base::StringAppendF;
+using ::android::base::StringPrintf;
 
 namespace {
 

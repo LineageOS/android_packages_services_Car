@@ -33,17 +33,17 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-using android::IBinder;
-using android::sp;
-using android::String16;
-using android::automotive::watchdog::internal::ApplicationCategoryType;
-using android::automotive::watchdog::internal::ComponentType;
-using android::automotive::watchdog::internal::PackageInfo;
-using android::automotive::watchdog::internal::UidType;
-using android::base::Error;
-using android::base::Result;
-using android::base::StartsWith;
-using android::binder::Status;
+using ::android::IBinder;
+using ::android::sp;
+using ::android::String16;
+using ::android::automotive::watchdog::internal::ApplicationCategoryType;
+using ::android::automotive::watchdog::internal::ComponentType;
+using ::android::automotive::watchdog::internal::PackageInfo;
+using ::android::automotive::watchdog::internal::UidType;
+using ::android::base::Error;
+using ::android::base::Result;
+using ::android::base::StartsWith;
+using ::android::binder::Status;
 
 using GetpwuidFunction = std::function<struct passwd*(uid_t)>;
 
