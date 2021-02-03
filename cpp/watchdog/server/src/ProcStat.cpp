@@ -30,10 +30,10 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-using android::base::Error;
-using android::base::ReadFileToString;
-using android::base::Result;
-using android::base::StartsWith;
+using ::android::base::Error;
+using ::android::base::ReadFileToString;
+using ::android::base::Result;
+using ::android::base::StartsWith;
 using base::ParseUint;
 using base::Split;
 

@@ -27,8 +27,8 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-using android::base::StringPrintf;
-using android::base::WriteStringToFile;
+using ::android::base::StringPrintf;
+using ::android::base::WriteStringToFile;
 
 namespace {
 

@@ -30,13 +30,13 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-namespace aawi = android::automotive::watchdog::internal;
+namespace aawi = ::android::automotive::watchdog::internal;
 
-using android::sp;
-using android::automotive::watchdog::internal::ComponentType;
-using android::automotive::watchdog::internal::ICarWatchdogServiceForSystem;
-using android::automotive::watchdog::internal::IoOveruseConfiguration;
-using android::binder::Status;
+using aawi::ComponentType;
+using aawi::ICarWatchdogServiceForSystem;
+using aawi::IoOveruseConfiguration;
+using ::android::sp;
+using ::android::binder::Status;
 
 namespace {
 

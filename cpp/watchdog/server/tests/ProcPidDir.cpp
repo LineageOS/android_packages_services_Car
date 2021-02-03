@@ -27,9 +27,9 @@ namespace automotive {
 namespace watchdog {
 namespace testing {
 
-using android::base::Error;
-using android::base::Result;
-using android::base::WriteStringToFile;
+using ::android::base::Error;
+using ::android::base::Result;
+using ::android::base::WriteStringToFile;
 
 namespace {
 

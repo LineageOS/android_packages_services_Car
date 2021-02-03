@@ -16,6 +16,7 @@
 
 package android.automotive.watchdog.internal;
 
+import android.automotive.watchdog.internal.PackageInfo;
 import android.automotive.watchdog.internal.TimeoutLength;
 
 /**
@@ -26,7 +27,8 @@ import android.automotive.watchdog.internal.TimeoutLength;
  */
 interface ICarWatchdogServiceForSystem {
   /**
-   * Check if the client is alive.
+   * Checks if the client is alive.
+   *
    * Watchdog server calls this method, expecting the clients will respond within timeout.
    * The final timeout is decided by the server, considering the requested timeout on client
    * registration. If no response from the clients, watchdog server will dump process information
@@ -38,7 +40,16 @@ interface ICarWatchdogServiceForSystem {
   oneway void checkIfAlive(in int sessionId, in TimeoutLength timeout);
 
   /**
-   * Notify the client that it will be forcedly terminated in 1 second.
+   * Notifies the client that it will be forcedly terminated in 1 second.
    */
   oneway void prepareProcessTermination();
+
+  /**
+   * Returns the package information for the given UIDs. Only UIDs with package information will be
+   * returned.
+   *
+   * @param uids                        List of UIDs to resolve the package infos.
+   * @param vendorPackagePrefixes       List of vendor package prefixes.
+   */
+  List<PackageInfo> getPackageInfosForUids(in int[] uids, in List<String> vendorPackagePrefixes);
 }

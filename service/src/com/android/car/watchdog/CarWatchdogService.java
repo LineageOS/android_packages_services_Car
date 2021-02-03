@@ -27,9 +27,14 @@ import static com.android.internal.util.function.pooled.PooledLambda.obtainMessa
 
 import android.annotation.NonNull;
 import android.annotation.UserIdInt;
+import android.automotive.watchdog.internal.ApplicationCategoryType;
+import android.automotive.watchdog.internal.ComponentType;
 import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
+import android.automotive.watchdog.internal.PackageIdentifier;
+import android.automotive.watchdog.internal.PackageInfo;
 import android.automotive.watchdog.internal.PowerCycle;
 import android.automotive.watchdog.internal.StateType;
+import android.automotive.watchdog.internal.UidType;
 import android.automotive.watchdog.internal.UserState;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.hardware.power.ICarPowerStateListener;
@@ -37,11 +42,14 @@ import android.car.watchdog.ICarWatchdogService;
 import android.car.watchdog.ICarWatchdogServiceCallback;
 import android.car.watchdoglib.CarWatchdogDaemonHelper;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.Process;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -56,9 +64,11 @@ import com.android.car.power.CarPowerManagementService;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.internal.util.ArrayUtils;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -84,6 +94,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                     registerToDaemon();
                 }
             };
+    private final PackageManager mPackageManager;
     private final Object mLock = new Object();
     /*
      * Keeps the list of car watchdog client according to timeout:
@@ -116,6 +127,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     @VisibleForTesting
     public CarWatchdogService(Context context) {
         mContext = context;
+        mPackageManager = mContext.getPackageManager();
         mCarWatchdogDaemonHelper = new CarWatchdogDaemonHelper(TAG_WATCHDOG);
         mWatchdogServiceForSystem = new ICarWatchdogServiceForSystemImpl(this);
     }
@@ -557,6 +569,107 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         }
     }
 
+    private List<PackageInfo> getPackageInfosForUids(
+            int[] uids, List<String> vendorPackagePrefixes) {
+        ArrayList<PackageInfo> packageInfos = new ArrayList<>();
+        String[] packageNames = mPackageManager.getNamesForUids(uids);
+        if (ArrayUtils.isEmpty(packageNames)) {
+            return packageInfos;
+        }
+        for (int i = 0; i < uids.length; i++) {
+            if (packageNames[i].isEmpty()) {
+                continue;
+            }
+            packageInfos.add(getPackageInfo(uids[i], packageNames[i], vendorPackagePrefixes));
+        }
+        return packageInfos;
+    }
+
+    private PackageInfo getPackageInfo(
+            int uid, String packageName, List<String> vendorPackagePrefixes) {
+        PackageInfo packageInfo = new PackageInfo();
+        packageInfo.packageIdentifier = new PackageIdentifier();
+        packageInfo.packageIdentifier.uid = uid;
+        packageInfo.packageIdentifier.name = packageName;
+        packageInfo.sharedUidPackages = new ArrayList<>();
+        packageInfo.componentType = ComponentType.UNKNOWN;
+        // TODO(b/170741935): Identify application category type using the package names. Vendor
+        //  should define the mappings from package name to the application category type.
+        packageInfo.appCategoryType = ApplicationCategoryType.OTHERS;
+        int userId = UserHandle.getUserId(uid);
+        int appId = UserHandle.getAppId(uid);
+        if (appId >= Process.FIRST_APPLICATION_UID) {
+            packageInfo.uidType = UidType.APPLICATION;
+        } else {
+            packageInfo.uidType = UidType.NATIVE;
+        }
+
+        if (packageName.startsWith("shared:")) {
+            String[] sharedUidPackages = mPackageManager.getPackagesForUid(uid);
+            if (sharedUidPackages == null) {
+                return packageInfo;
+            }
+            boolean seenVendor = false;
+            boolean seenSystem = false;
+            boolean seenThirdParty = false;
+            for (String ownedPackage : sharedUidPackages) {
+                int componentType = getPackageComponentType(
+                        userId, ownedPackage, vendorPackagePrefixes);
+                switch(componentType) {
+                    case ComponentType.VENDOR:
+                        seenVendor = true;
+                        break;
+                    case ComponentType.SYSTEM:
+                        seenSystem = true;
+                        break;
+                    case ComponentType.THIRD_PARTY:
+                        seenThirdParty = true;
+                }
+            }
+            packageInfo.sharedUidPackages = Arrays.asList(sharedUidPackages);
+            if (seenVendor) {
+                packageInfo.componentType = ComponentType.VENDOR;
+            } else if (seenSystem) {
+                packageInfo.componentType = ComponentType.SYSTEM;
+            } else if (seenThirdParty) {
+                packageInfo.componentType = ComponentType.THIRD_PARTY;
+            }
+        } else {
+            packageInfo.componentType = getPackageComponentType(
+                userId, packageName, vendorPackagePrefixes);
+        }
+        return packageInfo;
+    }
+
+    private int getPackageComponentType(
+            int userId, String packageName, List<String> vendorPackagePrefixes) {
+        for (String prefix : vendorPackagePrefixes) {
+            if (packageName.startsWith(prefix)) {
+                return ComponentType.VENDOR;
+            }
+        }
+        try {
+            final ApplicationInfo info = mPackageManager.getApplicationInfoAsUser(packageName,
+                    0 /* flags */, userId);
+            if ((info.flags & ApplicationInfo.FLAG_SYSTEM) != 0
+                    || (info.flags & ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
+                    || (info.flags & ApplicationInfo.PRIVATE_FLAG_PRODUCT) != 0
+                    || (info.flags & ApplicationInfo.PRIVATE_FLAG_SYSTEM_EXT) != 0
+                    || (info.flags & ApplicationInfo.PRIVATE_FLAG_ODM) != 0) {
+                return ComponentType.SYSTEM;
+            }
+
+            if ((info.flags & ApplicationInfo.PRIVATE_FLAG_OEM) != 0
+                    || (info.flags & ApplicationInfo.PRIVATE_FLAG_VENDOR) != 0) {
+                return ComponentType.VENDOR;
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            Slog.e(TAG, "Package not found: " + packageName, e);
+            return ComponentType.UNKNOWN;
+        }
+        return ComponentType.THIRD_PARTY;
+    }
+
     private static final class ICarWatchdogServiceForSystemImpl
             extends ICarWatchdogServiceForSystem.Stub {
         private final WeakReference<CarWatchdogService> mService;
@@ -578,6 +691,21 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         @Override
         public void prepareProcessTermination() {
             Slog.w(TAG, "CarWatchdogService is about to be killed by car watchdog daemon");
+        }
+
+        @Override
+        public List<PackageInfo> getPackageInfosForUids(
+                int[] uids, List<String> vendorPackagePrefixes) {
+            if (ArrayUtils.isEmpty(uids)) {
+                Slog.w(TAG, "UID list is empty");
+                return null;
+            }
+            CarWatchdogService service = mService.get();
+            if (service == null) {
+                Slog.w(TAG, "CarWatchdogService is not available");
+                return null;
+            }
+            return service.getPackageInfosForUids(uids, vendorPackagePrefixes);
         }
     }
 

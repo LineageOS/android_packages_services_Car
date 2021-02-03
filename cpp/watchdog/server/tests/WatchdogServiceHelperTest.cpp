@@ -22,24 +22,32 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <utils/RefBase.h>
+#include <utils/String16.h>
 
 namespace android {
 namespace automotive {
 namespace watchdog {
 
-namespace aawi = android::automotive::watchdog::internal;
+namespace aawi = ::android::automotive::watchdog::internal;
 
-using android::BBinder;
-using android::IBinder;
-using android::RefBase;
-using android::sp;
-using android::automotive::watchdog::internal::ICarWatchdogServiceForSystem;
-using android::automotive::watchdog::internal::ICarWatchdogServiceForSystemDefault;
-using android::base::Error;
-using android::base::Result;
-using android::binder::Status;
+using aawi::ApplicationCategoryType;
+using aawi::ComponentType;
+using aawi::ICarWatchdogServiceForSystem;
+using aawi::ICarWatchdogServiceForSystemDefault;
+using aawi::PackageInfo;
+using aawi::UidType;
+using ::android::BBinder;
+using ::android::IBinder;
+using ::android::RefBase;
+using ::android::sp;
+using ::android::String16;
+using ::android::base::Error;
+using ::android::base::Result;
+using ::android::binder::Status;
 using ::testing::_;
+using ::testing::DoAll;
 using ::testing::Return;
+using ::testing::SetArgPointee;
 
 namespace internal {
 
@@ -62,6 +70,22 @@ private:
 
 }  // namespace internal
 
+namespace {
+
+PackageInfo constructPackageInfo(const char* packageName, int32_t uid, UidType uidType,
+                                 ComponentType componentType,
+                                 ApplicationCategoryType appCategoryType) {
+    PackageInfo packageInfo;
+    packageInfo.packageIdentifier.name = String16(packageName);
+    packageInfo.packageIdentifier.uid = uid;
+    packageInfo.uidType = uidType;
+    packageInfo.componentType = componentType;
+    packageInfo.appCategoryType = appCategoryType;
+    return packageInfo;
+}
+
+}  // namespace
+
 class WatchdogServiceHelperTest : public ::testing::Test {
 protected:
     virtual void SetUp() {
@@ -76,9 +100,6 @@ protected:
                 .WillOnce(Return(Result<void>()));
         auto result = mWatchdogServiceHelperPeer->init(mMockWatchdogProcessService);
         ASSERT_RESULT_OK(result);
-
-        /*auto watchdogProcessService =
-                static_cast<sp<WatchdogProcessService>>(mMockWatchdogProcessService);*/
     }
 
     virtual void TearDown() {
@@ -104,14 +125,13 @@ protected:
 
         Status status = mWatchdogServiceHelper->registerService(mMockCarWatchdogServiceForSystem);
         ASSERT_TRUE(status.isOk()) << status;
+        ASSERT_NE(mWatchdogServiceHelperPeer->getCarWatchdogServiceForSystem(), nullptr);
     }
 
     sp<WatchdogServiceHelper> mWatchdogServiceHelper;
     sp<MockWatchdogProcessService> mMockWatchdogProcessService;
     sp<MockCarWatchdogServiceForSystem> mMockCarWatchdogServiceForSystem;
     sp<MockBinder> mMockCarWatchdogServiceForSystemBinder;
-
-private:
     sp<internal::WatchdogServiceHelperPeer> mWatchdogServiceHelperPeer;
 };
 
@@ -169,12 +189,14 @@ TEST_F(WatchdogServiceHelperTest, TestRegisterService) {
 
     Status status = mWatchdogServiceHelper->registerService(mMockCarWatchdogServiceForSystem);
     ASSERT_TRUE(status.isOk()) << status;
+    ASSERT_NE(mWatchdogServiceHelperPeer->getCarWatchdogServiceForSystem(), nullptr);
 
     EXPECT_CALL(*mMockCarWatchdogServiceForSystemBinder, linkToDeath(_, nullptr, 0)).Times(0);
     EXPECT_CALL(*mMockWatchdogProcessService, registerCarWatchdogService(_)).Times(0);
 
     status = mWatchdogServiceHelper->registerService(mMockCarWatchdogServiceForSystem);
     ASSERT_TRUE(status.isOk()) << status;
+    ASSERT_NE(mWatchdogServiceHelperPeer->getCarWatchdogServiceForSystem(), nullptr);
 }
 
 TEST_F(WatchdogServiceHelperTest, TestErrorOnRegisterServiceWithBinderDied) {
@@ -208,6 +230,7 @@ TEST_F(WatchdogServiceHelperTest, TestUnregisterService) {
 
     Status status = mWatchdogServiceHelper->unregisterService(mMockCarWatchdogServiceForSystem);
     ASSERT_TRUE(status.isOk()) << status;
+    ASSERT_EQ(mWatchdogServiceHelperPeer->getCarWatchdogServiceForSystem(), nullptr);
 
     EXPECT_CALL(*mMockCarWatchdogServiceForSystemBinder, unlinkToDeath(_, nullptr, 0, nullptr))
             .Times(0);
@@ -263,6 +286,7 @@ TEST_F(WatchdogServiceHelperTest, TestPrepareProcessTermination) {
             .WillOnce(Return(Status::ok()));
     Status status = mWatchdogServiceHelper->prepareProcessTermination(
             mMockCarWatchdogServiceForSystemBinder);
+    ASSERT_EQ(mWatchdogServiceHelperPeer->getCarWatchdogServiceForSystem(), nullptr);
     ASSERT_TRUE(status.isOk()) << status;
 }
 
@@ -287,12 +311,74 @@ TEST_F(WatchdogServiceHelperTest,
 TEST_F(WatchdogServiceHelperTest,
        TestErrorOnPrepareProcessTerminationWithErrorStatusFromCarWatchdogService) {
     registerCarWatchdogService();
+
     EXPECT_CALL(*mMockCarWatchdogServiceForSystem, prepareProcessTermination())
             .WillOnce(Return(Status::fromExceptionCode(Status::EX_ILLEGAL_STATE, "Illegal state")));
+
     Status status = mWatchdogServiceHelper->prepareProcessTermination(
             mMockCarWatchdogServiceForSystemBinder);
+
     ASSERT_FALSE(status.isOk())
             << "prepareProcessTermination should fail when car watchdog service API returns error";
+}
+
+TEST_F(WatchdogServiceHelperTest, TestGetPackageInfosForUids) {
+    std::vector<int32_t> uids = {1000};
+    std::vector<std::string> prefixesStr = {"vendor.package"};
+    std::vector<String16> prefixesStr16 = {String16("vendor.package")};
+    std::vector<PackageInfo> expectedPackageInfo{
+            constructPackageInfo("vendor.package.A", 120000, UidType::NATIVE, ComponentType::VENDOR,
+                                 ApplicationCategoryType::OTHERS),
+            constructPackageInfo("third_party.package.B", 130000, UidType::APPLICATION,
+                                 ComponentType::THIRD_PARTY, ApplicationCategoryType::OTHERS),
+    };
+    std::vector<PackageInfo> actualPackageInfo;
+
+    registerCarWatchdogService();
+
+    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, getPackageInfosForUids(uids, prefixesStr16, _))
+            .WillOnce(DoAll(SetArgPointee<2>(expectedPackageInfo), Return(Status::ok())));
+
+    Status status =
+            mWatchdogServiceHelper->getPackageInfosForUids(uids, prefixesStr, &actualPackageInfo);
+
+    ASSERT_TRUE(status.isOk()) << status;
+    ASSERT_EQ(expectedPackageInfo.size(), actualPackageInfo.size());
+    for (int i = 0; i < expectedPackageInfo.size(); ++i) {
+        EXPECT_EQ(actualPackageInfo[i], expectedPackageInfo[i]);
+    }
+}
+
+TEST_F(WatchdogServiceHelperTest,
+       TestErrorOnGetPackageInfosForUidsWithNoCarWatchdogServiceRegistered) {
+    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, getPackageInfosForUids(_, _, _)).Times(0);
+
+    std::vector<int32_t> uids;
+    std::vector<std::string> prefixes;
+    std::vector<PackageInfo> actualPackageInfo;
+    Status status =
+            mWatchdogServiceHelper->getPackageInfosForUids(uids, prefixes, &actualPackageInfo);
+
+    ASSERT_FALSE(status.isOk()) << "getPackageInfosForUids should fail when no "
+                                   "car watchdog service registered with the helper";
+    ASSERT_TRUE(actualPackageInfo.empty());
+}
+
+TEST_F(WatchdogServiceHelperTest,
+       TestErrorOnGetPackageInfosForUidsWithErrorStatusFromCarWatchdogService) {
+    registerCarWatchdogService();
+    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, getPackageInfosForUids(_, _, _))
+            .WillOnce(Return(Status::fromExceptionCode(Status::EX_ILLEGAL_STATE, "Illegal state")));
+
+    std::vector<int32_t> uids;
+    std::vector<std::string> prefixes;
+    std::vector<PackageInfo> actualPackageInfo;
+    Status status =
+            mWatchdogServiceHelper->getPackageInfosForUids(uids, prefixes, &actualPackageInfo);
+
+    ASSERT_FALSE(status.isOk()) << "getPackageInfosForUids should fail when car watchdog "
+                                   "service API returns error";
+    ASSERT_TRUE(actualPackageInfo.empty());
 }
 
 }  // namespace watchdog

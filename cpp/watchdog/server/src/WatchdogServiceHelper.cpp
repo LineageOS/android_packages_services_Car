@@ -19,7 +19,6 @@
 #include "WatchdogServiceHelper.h"
 
 #include "ServiceManager.h"
-#include "WatchdogProcessService.h"
 
 #include <android/automotive/watchdog/internal/BnCarWatchdogServiceForSystem.h>
 
@@ -27,16 +26,18 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-namespace aawi = android::automotive::watchdog::internal;
+namespace aawi = ::android::automotive::watchdog::internal;
 
-using android::IBinder;
-using android::sp;
-using android::wp;
-using android::automotive::watchdog::internal::BnCarWatchdogServiceForSystem;
-using android::automotive::watchdog::internal::ICarWatchdogServiceForSystem;
-using android::base::Error;
-using android::base::Result;
-using android::binder::Status;
+using aawi::BnCarWatchdogServiceForSystem;
+using aawi::ICarWatchdogServiceForSystem;
+using aawi::PackageInfo;
+using ::android::IBinder;
+using ::android::sp;
+using ::android::String16;
+using ::android::wp;
+using ::android::base::Error;
+using ::android::base::Result;
+using ::android::binder::Status;
 
 namespace {
 
@@ -137,7 +138,7 @@ Status WatchdogServiceHelper::checkIfAlive(const wp<IBinder>& who, int32_t sessi
 Status WatchdogServiceHelper::prepareProcessTermination(const wp<IBinder>& who) {
     sp<ICarWatchdogServiceForSystem> service;
     {
-        std::unique_lock writeLock(mRWMutex);
+        std::shared_lock readLock(mRWMutex);
         if (mService == nullptr ||
             who.unsafe_get() != BnCarWatchdogServiceForSystem::asBinder(mService)) {
             return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
@@ -148,7 +149,27 @@ Status WatchdogServiceHelper::prepareProcessTermination(const wp<IBinder>& who) 
     }
     Status status = service->prepareProcessTermination();
     if (status.isOk()) {
-        unregisterServiceLocked();
+        std::unique_lock writeLock(mRWMutex);
+        /*
+         * prepareTermination callback is called when CarWatchdogService isn't responding, which
+         * indicates the CarWatchdogService is stuck, terminating, or restarting.
+         *
+         * When CarWatchdogService is terminating, it will issue an unregisterService call.
+         * If the unregisterService is executed after the previous |readLock| is released and the
+         * before current |writeLock| is acquired, the |mService| will be updated to null. Then it
+         * won't match |service|.
+         *
+         * When CarWatchdogService is restarting, it will issue an registerService call. When the
+         * registerService is executed between after the previous |readLock| is released and before
+         * the current |writeLock| is acquired, the |mService| will be overwritten. This will lead
+         * to unregistering the new CarWatchdogService.
+         *
+         * To avoid this race condition, check mService before proceeding with unregistering the
+         * CarWatchdogService.
+         */
+        if (mService == service) {
+            unregisterServiceLocked();
+        }
     }
     return status;
 }
@@ -159,6 +180,29 @@ void WatchdogServiceHelper::unregisterServiceLocked() {
     binder->unlinkToDeath(this);
     mService.clear();
     mWatchdogProcessService->unregisterCarWatchdogService(binder);
+}
+
+Status WatchdogServiceHelper::getPackageInfosForUids(
+        const std::vector<int32_t>& uids, const std::vector<std::string>& vendorPackagePrefixes,
+        std::vector<PackageInfo>* packageInfos) {
+    /*
+     * The expected number of vendor package prefixes is in the order of 10s. Thus the overhead of
+     * forwarding these in each get call is very low.
+     */
+    std::vector<String16> prefixes;
+    for (const auto& prefix : vendorPackagePrefixes) {
+        prefixes.push_back(String16(prefix.c_str()));
+    }
+    sp<ICarWatchdogServiceForSystem> service;
+    {
+        std::shared_lock readLock(mRWMutex);
+        if (mService == nullptr) {
+            return fromExceptionCode(Status::EX_ILLEGAL_STATE,
+                                     "Watchdog service is not initialized");
+        }
+        service = mService;
+    }
+    return service->getPackageInfosForUids(uids, prefixes, packageInfos);
 }
 
 }  // namespace watchdog

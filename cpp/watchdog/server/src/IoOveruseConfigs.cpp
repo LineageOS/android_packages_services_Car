@@ -18,6 +18,8 @@
 
 #include "IoOveruseConfigs.h"
 
+#include "PackageInfoResolver.h"
+
 #include <android-base/strings.h>
 
 #include <inttypes.h>
@@ -26,17 +28,17 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-using android::automotive::watchdog::internal::ApplicationCategoryType;
-using android::automotive::watchdog::internal::ComponentType;
-using android::automotive::watchdog::internal::IoOveruseAlertThreshold;
-using android::automotive::watchdog::internal::IoOveruseConfiguration;
-using android::automotive::watchdog::internal::PerStateIoOveruseThreshold;
-using android::base::Error;
-using android::base::Result;
-using android::base::StartsWith;
-using android::base::StringAppendF;
-using android::base::StringPrintf;
-using android::binder::Status;
+using ::android::automotive::watchdog::internal::ApplicationCategoryType;
+using ::android::automotive::watchdog::internal::ComponentType;
+using ::android::automotive::watchdog::internal::IoOveruseAlertThreshold;
+using ::android::automotive::watchdog::internal::IoOveruseConfiguration;
+using ::android::automotive::watchdog::internal::PerStateIoOveruseThreshold;
+using ::android::base::Error;
+using ::android::base::Result;
+using ::android::base::StartsWith;
+using ::android::base::StringAppendF;
+using ::android::base::StringPrintf;
+using ::android::binder::Status;
 
 namespace {
 
@@ -229,6 +231,8 @@ Result<void> IoOveruseConfigs::updateAlertThresholds(
 
 Result<void> IoOveruseConfigs::update(ComponentType type,
                                       const IoOveruseConfiguration& updateConfig) {
+    // TODO(b/177616658): Update the implementation to overwrite the existing configs rather than
+    //  append to them.
     if (String8(updateConfig.componentLevelThresholds.name).string() != toString(type)) {
         return Error(Status::EX_ILLEGAL_ARGUMENT)
                 << "Invalid config. Config's component name "
@@ -271,6 +275,9 @@ Result<void> IoOveruseConfigs::update(ComponentType type,
     if (updatableConfigsFilter & IoOveruseConfigEnum::VENDOR_PACKAGES_REGEX) {
         for (const auto& prefix : updateConfig.vendorPackagePrefixes) {
             vendorPackagePrefixes.insert(std::string(String8(prefix)));
+        }
+        if (!updateConfig.vendorPackagePrefixes.empty()) {
+            PackageInfoResolver::getInstance()->setVendorPackagePrefixes(vendorPackagePrefixes);
         }
     } else if (!updateConfig.vendorPackagePrefixes.empty()) {
         StringAppendF(&nonUpdatableConfigMsgs, "%svendor packages prefixes",

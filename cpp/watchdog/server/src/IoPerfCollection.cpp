@@ -18,8 +18,6 @@
 
 #include "IoPerfCollection.h"
 
-#include "utils/PackageNameResolver.h"
-
 #include <WatchdogProperties.sysprop.h>
 #include <android-base/file.h>
 #include <android-base/stringprintf.h>
@@ -37,12 +35,12 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-using android::wp;
-using android::base::Error;
-using android::base::Result;
-using android::base::StringAppendF;
-using android::base::StringPrintf;
-using android::base::WriteStringToFd;
+using ::android::wp;
+using ::android::base::Error;
+using ::android::base::Result;
+using ::android::base::StringAppendF;
+using ::android::base::StringPrintf;
+using ::android::base::WriteStringToFd;
 
 namespace {
 
@@ -416,14 +414,14 @@ void IoPerfCollection::processUidIoPerfData(const std::unordered_set<std::string
     UidIoUsage tempUsage = {};
     std::vector<const UidIoUsage*> topNReads(mTopNStatsPerCategory, &tempUsage);
     std::vector<const UidIoUsage*> topNWrites(mTopNStatsPerCategory, &tempUsage);
-    std::unordered_set<uid_t> uids;
+    std::vector<uid_t> uids;
 
     for (const auto& uIt : usages) {
         const UidIoUsage& curUsage = uIt.second;
         if (curUsage.ios.isZero()) {
             continue;
         }
-        uids.insert(curUsage.uid);
+        uids.push_back(curUsage.uid);
         uidIoPerfData->total[READ_BYTES][FOREGROUND] +=
                 curUsage.ios.metrics[READ_BYTES][FOREGROUND];
         uidIoPerfData->total[READ_BYTES][BACKGROUND] +=
@@ -459,7 +457,7 @@ void IoPerfCollection::processUidIoPerfData(const std::unordered_set<std::string
         }
     }
 
-    const auto& uidToPackageNameMapping = PackageNameResolver::getInstance()->resolveUids(uids);
+    const auto& uidToPackageNameMapping = mPackageInfoResolver->getPackageNamesForUids(uids);
 
     // Convert the top N I/O usage to UidIoPerfData.
     for (const auto& usage : topNReads) {
@@ -526,7 +524,7 @@ void IoPerfCollection::processProcessIoPerfDataLocked(
     const std::vector<ProcessStats>& processStats = procPidStat.promote()->deltaStats();
 
     const auto& uidProcessStats = getUidProcessStats(processStats, mTopNStatsPerSubcategory);
-    std::unordered_set<uid_t> uids;
+    std::vector<uid_t> uids;
     // Fetch only the top N I/O blocked UIDs and UIDs with most major page faults.
     UidProcessStats temp = {};
     std::vector<const UidProcessStats*> topNIoBlockedUids(mTopNStatsPerCategory, &temp);
@@ -534,7 +532,7 @@ void IoPerfCollection::processProcessIoPerfDataLocked(
     processIoPerfData->totalMajorFaults = 0;
     for (const auto& it : *uidProcessStats) {
         const UidProcessStats& curStats = it.second;
-        uids.insert(curStats.uid);
+        uids.push_back(curStats.uid);
         processIoPerfData->totalMajorFaults += curStats.majorFaults;
         for (auto it = topNIoBlockedUids.begin(); it != topNIoBlockedUids.end(); ++it) {
             const UidProcessStats* topStats = *it;
@@ -558,7 +556,7 @@ void IoPerfCollection::processProcessIoPerfDataLocked(
         }
     }
 
-    const auto& uidToPackageNameMapping = PackageNameResolver::getInstance()->resolveUids(uids);
+    const auto& uidToPackageNameMapping = mPackageInfoResolver->getPackageNamesForUids(uids);
 
     // Convert the top N uid process stats to ProcessIoPerfData.
     for (const auto& it : topNIoBlockedUids) {

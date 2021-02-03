@@ -21,15 +21,15 @@
 #include <android-base/chrono_utils.h>
 #include <utils/Looper.h>
 
-#include <future>
+#include <future>  // NOLINT(build/c++11)
 
 namespace android {
 namespace automotive {
 namespace watchdog {
 namespace testing {
 
-using android::base::Error;
-using android::base::Result;
+using ::android::base::Error;
+using ::android::base::Result;
 
 // As the messages, which are to be polled immediately, are enqueued in the underlying looper
 // handler before calling its poll method, the looper handler doesn't have to wait for any new

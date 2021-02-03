@@ -18,14 +18,16 @@
 
 #include "IoOveruseMonitor.h"
 
+#include "PackageInfoResolver.h"
+
 namespace android {
 namespace automotive {
 namespace watchdog {
 
-using android::automotive::watchdog::internal::ComponentType;
-using android::automotive::watchdog::internal::IoOveruseConfiguration;
-using android::base::Error;
-using android::base::Result;
+using ::android::automotive::watchdog::internal::ComponentType;
+using ::android::automotive::watchdog::internal::IoOveruseConfiguration;
+using ::android::base::Error;
+using ::android::base::Result;
 
 Result<void> IoOveruseMonitor::start() {
     // TODO(b/167240592): Read the latest I/O overuse config, last per-package I/O usage, and
@@ -35,6 +37,10 @@ Result<void> IoOveruseMonitor::start() {
     //    and system applications.
     //  2. From /system and /vendor partitions as this contains the default configs shipped with the
     //    the image.
+
+    // TODO(b/167240592): Read the vendor package prefixes from disk before the below call.
+    PackageInfoResolver::getInstance()->setVendorPackagePrefixes(
+            mIoOveruseConfigs.vendorPackagePrefixes);
     return {};
 }
 
