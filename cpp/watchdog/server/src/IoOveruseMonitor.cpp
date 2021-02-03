@@ -24,10 +24,10 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-using android::automotive::watchdog::internal::ComponentType;
-using android::automotive::watchdog::internal::IoOveruseConfiguration;
-using android::base::Error;
-using android::base::Result;
+using ::android::automotive::watchdog::internal::ComponentType;
+using ::android::automotive::watchdog::internal::IoOveruseConfiguration;
+using ::android::base::Error;
+using ::android::base::Result;
 
 Result<void> IoOveruseMonitor::start() {
     // TODO(b/167240592): Read the latest I/O overuse config, last per-package I/O usage, and

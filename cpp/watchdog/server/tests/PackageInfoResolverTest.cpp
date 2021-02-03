@@ -28,11 +28,11 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-using android::String16;
-using android::automotive::watchdog::internal::ApplicationCategoryType;
-using android::automotive::watchdog::internal::ComponentType;
-using android::automotive::watchdog::internal::PackageInfo;
-using android::automotive::watchdog::internal::UidType;
+using ::android::String16;
+using ::android::automotive::watchdog::internal::ApplicationCategoryType;
+using ::android::automotive::watchdog::internal::ComponentType;
+using ::android::automotive::watchdog::internal::PackageInfo;
+using ::android::automotive::watchdog::internal::UidType;
 using ::testing::_;
 using ::testing::DoAll;
 using ::testing::NotNull;

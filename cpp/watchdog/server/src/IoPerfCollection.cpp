@@ -35,12 +35,12 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-using android::wp;
-using android::base::Error;
-using android::base::Result;
-using android::base::StringAppendF;
-using android::base::StringPrintf;
-using android::base::WriteStringToFd;
+using ::android::wp;
+using ::android::base::Error;
+using ::android::base::Result;
+using ::android::base::StringAppendF;
+using ::android::base::StringPrintf;
+using ::android::base::WriteStringToFd;
 
 namespace {
 

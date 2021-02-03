@@ -26,11 +26,11 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-namespace aawi = android::automotive::watchdog::internal;
+namespace aawi = ::android::automotive::watchdog::internal;
 
-using android::IBinder;
-using android::sp;
-using android::binder::Status;
+using ::android::IBinder;
+using ::android::sp;
+using ::android::binder::Status;
 using ::testing::_;
 using ::testing::Return;
 
