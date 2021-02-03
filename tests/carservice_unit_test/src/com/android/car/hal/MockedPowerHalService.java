@@ -46,6 +46,7 @@ public class MockedPowerHalService extends PowerHalService {
                 mock(VmsHalService.class),
                 mock(UserHalService.class),
                 mock(DiagnosticHalService.class),
+                mock(ClusterHalService.class),
                 mock(HalClient.class));
         return mockedVehicleHal;
     }

@@ -47,11 +47,12 @@ import java.util.List;
 public final class ClusterHalService extends HalServiceBase {
     private static final String TAG = ClusterHalService.class.getSimpleName();
     private static final boolean DBG = false;
+    public static final int DONT_CARE = -1;
 
     /**
      * Interface to receive incoming Cluster HAL events.
      */
-    public interface ClusterHalEventListener {
+    public interface ClusterHalEventCallback {
         /**
          * Called when CLUSTER_SWITCH_UI message is received.
          * @param uiType uiType ClusterOS wants to switch to
@@ -61,11 +62,11 @@ public final class ClusterHalService extends HalServiceBase {
         /**
          * Called when CLUSTER_DISPLAY_STATE message is received.
          * @param onOff 0 - off, 1 - on
-         * @param height height in pixel
          * @param width width in pixel
+         * @param height height in pixel
          * @param insets Insets of the cluster display
          */
-        void onDisplayState(int onOff, int height, int width, Insets insets);
+        void onDisplayState(int onOff, int width, int height, Insets insets);
     };
 
     private static final int[] SUPPORTED_PROPERTIES = new int[]{
@@ -91,7 +92,7 @@ public final class ClusterHalService extends HalServiceBase {
     private final Object mLock = new Object();
 
     @GuardedBy("mLock")
-    private ClusterHalEventListener mListener;
+    private ClusterHalEventCallback mCallback;
 
     private final VehicleHal mHal;
 
@@ -116,17 +117,17 @@ public final class ClusterHalService extends HalServiceBase {
     public void release() {
         if (DBG) Log.d(TAG, "releaseClusterHalService");
         synchronized (mLock) {
-            mListener = null;
+            mCallback = null;
         }
     }
 
     /**
-     * Sets the event listener to receive Cluster HAL events.
+     * Sets the event callback to receive Cluster HAL events.
      */
-    public void setListener(ClusterHalEventListener listener) {
+    public void setCallback(ClusterHalEventCallback callback) {
         LinkedList<VehiclePropValue> eventsToDispatch = null;
         synchronized (mLock) {
-            mListener = listener;
+            mCallback = callback;
         }
     }
 
@@ -151,6 +152,10 @@ public final class ClusterHalService extends HalServiceBase {
         }
         mIsNavigationStateSupported = supportedProperties.indexOf(CLUSTER_NAVIGATION_STATE_LEGACY)
                 >= 0;
+        if (DBG) {
+            Log.d(TAG, "takeProperties: coreSupported=" + mIsCoreSupported
+                    + ", navigationStateSupported=" + mIsNavigationStateSupported);
+        }
     }
 
     @VisibleForTesting
@@ -166,32 +171,51 @@ public final class ClusterHalService extends HalServiceBase {
     @Override
     public void onHalEvents(List<VehiclePropValue> values) {
         if (DBG) Log.d(TAG, "handleHalEvents(): " + values);
-        ClusterHalEventListener listener;
+        ClusterHalEventCallback callback;
         synchronized (mLock) {
-            listener = mListener;
+            callback = mCallback;
         }
-        if (listener == null || !isCoreSupported()) return;
+        if (callback == null || !isCoreSupported()) return;
 
         for (VehiclePropValue value : values) {
             switch (value.prop) {
                 case CLUSTER_SWITCH_UI:
                     int uiType = value.value.int32Values.get(0);
-                    listener.onSwitchUi(uiType);
+                    callback.onSwitchUi(uiType);
                     break;
                 case CLUSTER_DISPLAY_STATE:
                     int onOff = value.value.int32Values.get(0);
-                    int width = value.value.int32Values.get(1);
-                    int height = value.value.int32Values.get(2);
-                    Insets insets = Insets.of(
-                            value.value.int32Values.get(3), value.value.int32Values.get(4),
-                            value.value.int32Values.get(5), value.value.int32Values.get(6));
-                    listener.onDisplayState(onOff, width, height, insets);
+                    int width = DONT_CARE;
+                    int height = DONT_CARE;
+                    if (hasNoDontCare(value.value.int32Values, 1, 2, "width/height")) {
+                        width = value.value.int32Values.get(1);
+                        height = value.value.int32Values.get(2);
+                    }
+                    Insets insets = null;
+                    if (hasNoDontCare(value.value.int32Values, 3, 4, "insets")) {
+                        insets = Insets.of(
+                                value.value.int32Values.get(3), value.value.int32Values.get(4),
+                                value.value.int32Values.get(5), value.value.int32Values.get(6));
+                    }
+                    callback.onDisplayState(onOff, width, height, insets);
                     break;
                 default:
                     Slog.w(TAG, "received unsupported event from HAL: " + value);
             }
         }
+    }
 
+    private static boolean hasNoDontCare(ArrayList<Integer> values, int start, int length,
+            String fieldName) {
+        int count = 0;
+        for (int i = start; i < start + length; ++i) {
+            if (values.get(i) == DONT_CARE) ++count;
+        }
+        if (count == 0) return true;
+        if (count != length) {
+            Slog.w(TAG, "Don't care should be set in the whole " + fieldName);
+        }
+        return false;
     }
 
     /**
