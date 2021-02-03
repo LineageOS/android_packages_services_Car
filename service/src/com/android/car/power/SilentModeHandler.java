@@ -18,6 +18,7 @@ package com.android.car.power;
 import android.annotation.NonNull;
 import android.os.FileObserver;
 import android.os.SystemProperties;
+import android.util.IndentingPrintWriter;
 import android.util.Slog;
 
 import com.android.car.CarLog;
@@ -30,7 +31,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Objects;
 
 /**
@@ -116,7 +116,7 @@ final class SilentModeHandler {
         }
     }
 
-    void dump(PrintWriter writer) {
+    void dump(IndentingPrintWriter writer) {
         synchronized (mLock) {
             writer.printf("Monitoring GPIO signal: %b\n", mFileObserver != null);
             writer.printf("Silent mode by GPIO signal: %b\n", mSilentModeByGpio);
