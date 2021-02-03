@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#ifndef CPP_WATCHDOG_SERVER_SRC_UTILS_PACKAGENAMERESOLVER_H_
-#define CPP_WATCHDOG_SERVER_SRC_UTILS_PACKAGENAMERESOLVER_H_
+#ifndef CPP_WATCHDOG_SERVER_SRC_PACKAGEINFORESOLVER_H_
+#define CPP_WATCHDOG_SERVER_SRC_PACKAGEINFORESOLVER_H_
 
-#include "src/WatchdogServiceHelper.h"
+#include "WatchdogServiceHelper.h"
 
 #include <android-base/result.h>
 #include <android/automotive/watchdog/internal/PackageInfo.h>
@@ -45,11 +45,11 @@ struct IoOveruseConfigs;
 // Forward declaration for testing use only.
 namespace internal {
 
-class PackageNameResolverPeer;
+class PackageInfoResolverPeer;
 
 }  // namespace internal
 
-class IPackageNameResolverInterface : public android::RefBase {
+class IPackageInfoResolverInterface : public android::RefBase {
 public:
     virtual std::unordered_map<uid_t, std::string> getPackageNamesForUids(
             const std::vector<uid_t>& uids) = 0;
@@ -68,20 +68,20 @@ private:
 };
 
 /*
- * PackageNameResolver maintains a cache of the UID to PackageName mapping in the CarWatchdog
- * daemon. PackageNameResolver is a singleton and must be accessed only via the public static
+ * PackageInfoResolver maintains a cache of the UID to PackageInfo mapping in the CarWatchdog
+ * daemon. PackageInfoResolver is a singleton and must be accessed only via the public static
  * methods.
  *
  * TODO(b/158131194): Extend IUidObserver in WatchdogBinderMediator and use the onUidGone API to
  *  keep the local mapping cache up-to-date.
  */
-class PackageNameResolver : public IPackageNameResolverInterface {
+class PackageInfoResolver : public IPackageInfoResolverInterface {
 public:
     /*
-     * Initializes the PackageNameResolver's singleton instance only on the first call. Main thread
+     * Initializes the PackageInfoResolver's singleton instance only on the first call. Main thread
      * should make the first call as this method doesn't offer multi-threading protection.
      */
-    static sp<IPackageNameResolverInterface> getInstance();
+    static sp<IPackageInfoResolverInterface> getInstance();
 
     /*
      * Resolves the given |uids| and returns a mapping of uids to package names. If the mapping
@@ -97,7 +97,7 @@ public:
     std::unordered_map<uid_t, android::automotive::watchdog::internal::PackageInfo>
     getPackageInfosForUids(const std::vector<uid_t>& uids);
 
-    ~PackageNameResolver() {
+    ~PackageInfoResolver() {
         std::unique_lock writeLock(mRWMutex);
         mWatchdogServiceHelper.clear();
         mUidToPackageInfoMapping.clear();
@@ -112,8 +112,8 @@ protected:
     void setVendorPackagePrefixes(const std::unordered_set<std::string>& prefixes);
 
 private:
-    // PackageNameResolver instance can only be obtained via |getInstance|.
-    PackageNameResolver() :
+    // PackageInfoResolver instance can only be obtained via |getInstance|.
+    PackageInfoResolver() :
           mWatchdogServiceHelper(nullptr),
           mUidToPackageInfoMapping({}),
           mVendorPackagePrefixes({}) {}
@@ -121,15 +121,16 @@ private:
     void updatePackageInfos(const std::vector<uid_t>& uids);
 
     // Singleton instance.
-    static android::sp<PackageNameResolver> sInstance;
+    static android::sp<PackageInfoResolver> sInstance;
 
     mutable std::shared_mutex mRWMutex;
+
     /*
-     * ServiceManager::startServices initializes PackageNameResolver. However, between the
+     * ServiceManager::startServices initializes PackageInfoResolver. However, between the
      * |getInstance| and |initWatchdogServiceHelper| calls it initializes few other services, which
-     * may call |resolveUids| simultaneously on a separate thread. In order to avoid a race
-     * condition between |initWatchdogServiceHelper| and |resolveUids| calls, mWatchdogServiceHelper
-     * is guarded by a read-write lock.
+     * may call |getPackageNamesForUids| or |getPackageInfosForUids| simultaneously on a separate
+     * thread. In order to avoid a race condition between |initWatchdogServiceHelper| and
+     * |getPackage*ForUids| calls, mWatchdogServiceHelper is guarded by a read-write lock.
      */
     android::sp<WatchdogServiceHelperInterface> mWatchdogServiceHelper GUARDED_BY(mRWMutex);
     std::unordered_map<uid_t, android::automotive::watchdog::internal::PackageInfo>
@@ -143,14 +144,14 @@ private:
     // For unit tests.
     static std::function<struct passwd*(uid_t)> sGetpwuidHandler;
 
-    friend class internal::PackageNameResolverPeer;
-    FRIEND_TEST(PackageNameResolverTest, TestResolvesNativeUid);
-    FRIEND_TEST(PackageNameResolverTest, TestResolvesApplicationUidFromWatchdogServiceHelper);
-    FRIEND_TEST(PackageNameResolverTest, TestResolvesApplicationUidFromLocalCache);
+    friend class internal::PackageInfoResolverPeer;
+    FRIEND_TEST(PackageInfoResolverTest, TestResolvesNativeUid);
+    FRIEND_TEST(PackageInfoResolverTest, TestResolvesApplicationUidFromWatchdogServiceHelper);
+    FRIEND_TEST(PackageInfoResolverTest, TestResolvesApplicationUidFromLocalCache);
 };
 
 }  // namespace watchdog
 }  // namespace automotive
 }  // namespace android
 
-#endif  //  CPP_WATCHDOG_SERVER_SRC_UTILS_PACKAGENAMERESOLVER_H_
+#endif  //  CPP_WATCHDOG_SERVER_SRC_PACKAGEINFORESOLVER_H_

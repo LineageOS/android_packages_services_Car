@@ -18,7 +18,7 @@
 
 #include "IoOveruseConfigs.h"
 
-#include "utils/PackageNameResolver.h"
+#include "PackageInfoResolver.h"
 
 #include <android-base/strings.h>
 
@@ -277,7 +277,7 @@ Result<void> IoOveruseConfigs::update(ComponentType type,
             vendorPackagePrefixes.insert(std::string(String8(prefix)));
         }
         if (!updateConfig.vendorPackagePrefixes.empty()) {
-            PackageNameResolver::getInstance()->setVendorPackagePrefixes(vendorPackagePrefixes);
+            PackageInfoResolver::getInstance()->setVendorPackagePrefixes(vendorPackagePrefixes);
         }
     } else if (!updateConfig.vendorPackagePrefixes.empty()) {
         StringAppendF(&nonUpdatableConfigMsgs, "%svendor packages prefixes",

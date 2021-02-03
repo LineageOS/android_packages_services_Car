@@ -18,7 +18,7 @@
 
 #include "IoOveruseMonitor.h"
 
-#include "utils/PackageNameResolver.h"
+#include "PackageInfoResolver.h"
 
 namespace android {
 namespace automotive {
@@ -39,7 +39,7 @@ Result<void> IoOveruseMonitor::start() {
     //    the image.
 
     // TODO(b/167240592): Read the vendor package prefixes from disk before the below call.
-    PackageNameResolver::getInstance()->setVendorPackagePrefixes(
+    PackageInfoResolver::getInstance()->setVendorPackagePrefixes(
             mIoOveruseConfigs.vendorPackagePrefixes);
     return {};
 }
