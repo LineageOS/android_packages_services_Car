@@ -50,7 +50,7 @@ Result<void> ServiceManager::startServices(const sp<Looper>& looper) {
      * by calling the getInstance method before starting other service as they may access
      * PackageNameResolver's instance during initialization.
      */
-    sp<PackageNameResolver> packageNameResolver = PackageNameResolver::getInstance();
+    sp<IPackageNameResolverInterface> packageNameResolver = PackageNameResolver::getInstance();
     auto result = startProcessAnrMonitor(looper);
     if (!result.ok()) {
         return result;
@@ -112,10 +112,12 @@ Result<void> ServiceManager::startPerfService() {
     if (!result.ok()) {
         return Error() << "Failed to register I/O perf collection: " << result.error();
     }
-    // TODO(b/167240592): Register I/O overuse monitor after it is completely implemented.
-    //  Caveat: I/O overuse monitor reads from /data partition when initialized so initializing here
-    //  would cause the read to happen during early-init when the /data partition is not available.
-    //  Thus delay the initialization/registration until the /data partition is available.
+    /*
+     * TODO(b/167240592): Register I/O overuse monitor after it is completely implemented.
+     *  Caveat: I/O overuse monitor reads from /data partition when initialized so initializing here
+     *  would cause the read to happen during early-init when the /data partition is not available.
+     *  Thus delay the initialization/registration until the /data partition is available.
+     */
     result = service->start();
     if (!result.ok()) {
         return Error(result.error().code())
