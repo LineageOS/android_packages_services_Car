@@ -19,6 +19,7 @@ package com.android.car.power;
 import static android.car.hardware.power.PowerComponent.AUDIO;
 import static android.car.hardware.power.PowerComponent.BLUETOOTH;
 import static android.car.hardware.power.PowerComponent.CELLULAR;
+import static android.car.hardware.power.PowerComponent.CPU;
 import static android.car.hardware.power.PowerComponent.DISPLAY;
 import static android.car.hardware.power.PowerComponent.ETHERNET;
 import static android.car.hardware.power.PowerComponent.INPUT;
@@ -69,10 +70,10 @@ public final class PolicyReaderUnitTest {
             new int[]{WIFI},
             new int[]{AUDIO, MEDIA, DISPLAY, BLUETOOTH, CELLULAR, ETHERNET, PROJECTION, NFC, INPUT,
                     VOICE_INTERACTION, VISUAL_INTERACTION, TRUSTED_DEVICE_DETECTION, LOCATION,
-                    MICROPHONE});
+                    MICROPHONE, CPU});
     private static final CarPowerPolicy POLICY_OTHER_ON = new CarPowerPolicy(POLICY_ID_OTHER_ON,
             new int[]{MEDIA, DISPLAY, BLUETOOTH, WIFI, CELLULAR, ETHERNET, PROJECTION, NFC, INPUT,
-                    LOCATION, MICROPHONE},
+                    LOCATION, MICROPHONE, CPU},
             new int[]{AUDIO, VOICE_INTERACTION, VISUAL_INTERACTION, TRUSTED_DEVICE_DETECTION});
     private static final CarPowerPolicy POLICY_OTHER_UNTOUCHED =
             new CarPowerPolicy(POLICY_ID_OTHER_UNTOUCHED,
@@ -86,12 +87,13 @@ public final class PolicyReaderUnitTest {
             new CarPowerPolicy(NO_USER_INTERACTION_POLICY_ID,
                     new int[]{WIFI, CELLULAR, ETHERNET, TRUSTED_DEVICE_DETECTION},
                     new int[]{AUDIO, MEDIA, DISPLAY, BLUETOOTH, PROJECTION, NFC, INPUT,
-                            VOICE_INTERACTION, VISUAL_INTERACTION, LOCATION, MICROPHONE});
+                            VOICE_INTERACTION, VISUAL_INTERACTION, LOCATION, MICROPHONE, CPU});
     private static final CarPowerPolicy SYSTEM_POWER_POLICY_MODIFIED =
             new CarPowerPolicy(NO_USER_INTERACTION_POLICY_ID,
                     new int[]{BLUETOOTH, WIFI, CELLULAR, ETHERNET, NFC},
                     new int[]{AUDIO, MEDIA, DISPLAY, PROJECTION, INPUT, VOICE_INTERACTION,
-                            VISUAL_INTERACTION, TRUSTED_DEVICE_DETECTION, LOCATION, MICROPHONE});
+                            VISUAL_INTERACTION, TRUSTED_DEVICE_DETECTION, LOCATION, MICROPHONE,
+                            CPU});
 
     private final Resources mResources =
             InstrumentationRegistry.getInstrumentation().getTargetContext().getResources();
