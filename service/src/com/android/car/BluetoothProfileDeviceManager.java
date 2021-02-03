@@ -43,13 +43,13 @@ import android.os.Parcelable;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.provider.Settings;
+import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.util.Slog;
 import android.util.SparseArray;
 
 import com.android.internal.annotations.GuardedBy;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -798,19 +798,23 @@ public class BluetoothProfileDeviceManager {
      *
      * @param writer PrintWriter object to write lines to
      */
-    public void dump(PrintWriter writer, String indent) {
-        writer.println(indent + "BluetoothProfileDeviceManager [" + Utils.getProfileName(mProfileId)
-                + "]");
-        writer.println(indent + "\tUser: " + mUserId);
-        writer.println(indent + "\tSettings Location: " + mSettingsKey);
-        writer.println(indent + "\tUser Proxies Exist: "
-                + (mBluetoothUserProxies != null ? "Yes" : "No"));
-        writer.println(indent + "\tAuto-Connecting: " + (isAutoConnecting() ? "Yes" : "No"));
-        writer.println(indent + "\tPriority List:");
+    public void dump(IndentingPrintWriter writer) {
+        writer.printf("%s [%s]\n", TAG, Utils.getProfileName(mProfileId));
+        writer.increaseIndent();
+        writer.printf("User: %d\n", mUserId);
+        writer.printf("Settings Location: %s\n", mSettingsKey);
+        writer.printf("User Proxies Exist: %s\n", mBluetoothUserProxies != null ? "Yes" : "No");
+        writer.printf("Auto-Connecting: %s\n", isAutoConnecting() ? "Yes" : "No");
+
+        writer.printf("Priority List:\n");
+        writer.increaseIndent();
         ArrayList<BluetoothDevice> devices = getDeviceListSnapshot();
         for (BluetoothDevice device : devices) {
-            writer.println(indent + "\t\t" + device.getAddress() + " - " + device.getName());
+            writer.printf("%s - %s\n", device.getAddress(), device.getName());
         }
+        writer.decreaseIndent();
+
+        writer.decreaseIndent();
     }
 
     /**

@@ -499,29 +499,29 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
 
         synchronized (mPerUserLock) {
             writer.printf("User ID: %d\n", mUserId);
-            writer.printf("User Proxies: %s\n", (mCarBluetoothUserService != null ? "Yes" : "No"));
+            writer.printf("User Proxies: %s\n", mCarBluetoothUserService != null ? "Yes" : "No");
+            writer.printf("Using default policy? %s\n", mUseDefaultPolicy ? "Yes" : "No");
+
+            // Device Connection Policy
+            if (mBluetoothDeviceConnectionPolicy != null) {
+                mBluetoothDeviceConnectionPolicy.dump(writer);
+            } else {
+                writer.printf("BluetoothDeviceConnectionPolicy: null\n");
+            }
 
             // Profile Device Manager statuses
             for (int i = 0; i < mProfileDeviceManagers.size(); i++) {
                 int key = mProfileDeviceManagers.keyAt(i);
                 BluetoothProfileDeviceManager deviceManager =
                         (BluetoothProfileDeviceManager) mProfileDeviceManagers.get(key);
-                // TODO(b/178040439): use IndentingPrintWriter
-                deviceManager.dump(writer, "\t");
+                deviceManager.dump(writer);
             }
 
             // Profile Inhibits
-            // TODO(b/TBD): use IndentingPrintWriter
-            if (mInhibitManager != null) mInhibitManager.dump(writer, "\t");
-            else writer.println("BluetoothProfileInhibitManager: null");
-
-            // Device Connection Policy
-            writer.printf("Using default policy? %s\n", (mUseDefaultPolicy ? "Yes" : "No"));
-            if (mBluetoothDeviceConnectionPolicy == null) {
-                writer.println("BluetoothDeviceConnectionPolicy: null");
+            if (mInhibitManager != null) {
+                mInhibitManager.dump(writer);
             } else {
-                // TODO(b/178040439): use IndentingPrintWriter
-                mBluetoothDeviceConnectionPolicy.dump(writer, "\t");
+                writer.printf("BluetoothProfileInhibitManager: null\n");
             }
         }
     }
