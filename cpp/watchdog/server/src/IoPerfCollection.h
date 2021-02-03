@@ -18,6 +18,7 @@
 #define CPP_WATCHDOG_SERVER_SRC_IOPERFCOLLECTION_H_
 
 #include "PackageInfoResolver.h"
+#include "ProcDiskStats.h"
 #include "ProcPidStat.h"
 #include "ProcStat.h"
 #include "UidIoStats.h"
@@ -101,8 +102,8 @@ struct IoPerfRecord {
 std::string toString(const IoPerfRecord& record);
 
 struct CollectionInfo {
-    size_t maxCacheSize = 0;                  // Maximum cache size for the collection.
-    std::vector<IoPerfRecord> records;        // Cache of collected performance records.
+    size_t maxCacheSize = 0;            // Maximum cache size for the collection.
+    std::vector<IoPerfRecord> records;  // Cache of collected performance records.
 };
 
 std::string toString(const CollectionInfo& collectionInfo);
@@ -148,6 +149,13 @@ public:
             time_t time, const std::unordered_set<std::string>& filterPackages,
             const android::wp<UidIoStats>& uidIoStats, const android::wp<ProcStat>& procStat,
             const android::wp<ProcPidStat>& procPidStat);
+
+    android::base::Result<void> onPeriodicMonitor(
+            [[maybe_unused]] time_t time,
+            [[maybe_unused]] const android::wp<IProcDiskStatsInterface>& procDiskStats) {
+        // No monitoring done here as this DataProcessor only collects I/O performance records.
+        return {};
+    }
 
     android::base::Result<void> onDump(int fd);
 

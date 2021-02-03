@@ -50,11 +50,11 @@ void IoOveruseMonitor::terminate() {
 }
 
 Result<void> IoOveruseMonitor::onPeriodicCollection(
-        time_t /*time*/, const android::wp<UidIoStats>& uidIoStats,
-        const android::wp<ProcStat>& /*procStat*/,
-        const android::wp<ProcPidStat>& /*procPidStat*/) {
+        [[maybe_unused]] time_t time, const android::wp<UidIoStats>& uidIoStats,
+        [[maybe_unused]] const android::wp<ProcStat>& procStat,
+        [[maybe_unused]] const android::wp<ProcPidStat>& procPidStat) {
     if (uidIoStats == nullptr) {
-        return Error() << "Per-UID I/O stats collector must not be empty";
+        return Error() << "Per-UID I/O stats collector must not be null";
     }
     // TODO(b/167240592): Aggregate per-package I/O usage and compare against the daily thresholds.
     //  When the date hasn't changed, add the polled data to the in-memory stats.
@@ -67,11 +67,13 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
 }
 
 Result<void> IoOveruseMonitor::onCustomCollection(
-        time_t /*time*/, const std::unordered_set<std::string>& /*filterPackages*/,
-        const android::wp<UidIoStats>& uidIoStats, const android::wp<ProcStat>& /*procStat*/,
-        const android::wp<ProcPidStat>& /*procPidStat*/) {
+        [[maybe_unused]] time_t time,
+        [[maybe_unused]] const std::unordered_set<std::string>& filterPackages,
+        const android::wp<UidIoStats>& uidIoStats,
+        [[maybe_unused]] const android::wp<ProcStat>& procStat,
+        [[maybe_unused]] const android::wp<ProcPidStat>& procPidStat) {
     if (uidIoStats == nullptr) {
-        return Error() << "Per-UID I/O stats collector must not be empty";
+        return Error() << "Per-UID I/O stats collector must not be null";
     }
     // TODO(b/167240592): Same as |onPeriodicCollection| because IoOveruseMonitor doesn't do
     //  anything special for custom collection.
@@ -79,12 +81,21 @@ Result<void> IoOveruseMonitor::onCustomCollection(
     return {};
 }
 
+Result<void> IoOveruseMonitor::onPeriodicMonitor(
+        [[maybe_unused]] time_t time, const android::wp<IProcDiskStatsInterface>& procDiskStats) {
+    if (procDiskStats == nullptr) {
+        return Error() << "Proc disk stats collector must not be null";
+    }
+    // TODO(b/167240592): Monitor diskstats for system-level I/O overuse.
+    return {};
+}
+
 Result<void> IoOveruseMonitor::onGarageModeCollection(
-        time_t /*time*/, const android::wp<UidIoStats>& uidIoStats,
-        const android::wp<ProcStat>& /*procStat*/,
-        const android::wp<ProcPidStat>& /*procPidStat*/) {
+        [[maybe_unused]] time_t time, const android::wp<UidIoStats>& uidIoStats,
+        [[maybe_unused]] const android::wp<ProcStat>& procStat,
+        [[maybe_unused]] const android::wp<ProcPidStat>& procPidStat) {
     if (uidIoStats == nullptr) {
-        return Error() << "Per-UID I/O stats collector must not be empty";
+        return Error() << "Per-UID I/O stats collector must not be null";
     }
     // TODO(b/167240592): Perform garage mode monitoring.
     //  When this method is called for the first time, the delta stats represents the last I/O usage
@@ -104,7 +115,7 @@ Result<void> IoOveruseMonitor::onShutdownPrepareComplete() {
     return {};
 }
 
-Result<void> IoOveruseMonitor::onDump(int /*fd*/) {
+Result<void> IoOveruseMonitor::onDump([[maybe_unused]] int fd) {
     // TODO(b/167240592): Dump the list of killed/disabled packages. Dump the list of packages that
     //  exceed xx% of their threshold.
     return {};

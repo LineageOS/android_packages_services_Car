@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-#include "WatchdogPerfService.h"
-
 #include "LooperStub.h"
+#include "MockProcDiskStats.h"
 #include "MockProcPidStat.h"
 #include "MockProcStat.h"
 #include "MockUidIoStats.h"
@@ -24,6 +23,7 @@
 #include "ProcPidStat.h"
 #include "ProcStat.h"
 #include "UidIoStats.h"
+#include "WatchdogPerfService.h"
 
 #include <WatchdogProperties.sysprop.h>
 #include <android-base/file.h>
@@ -53,10 +53,11 @@ using ::testing::UnorderedElementsAreArray;
 
 namespace {
 
-const std::chrono::seconds kTestBootInterval = 1s;
-const std::chrono::seconds kTestPeriodicInterval = 2s;
-const std::chrono::seconds kTestCustomInterval = 3s;
-const std::chrono::seconds kTestCustomCollectionDuration = 11s;
+constexpr std::chrono::seconds kTestBoottimeCollectionInterval = 1s;
+constexpr std::chrono::seconds kTestPeriodicCollectionInterval = 5s;
+constexpr std::chrono::seconds kTestCustomCollectionInterval = 3s;
+constexpr std::chrono::seconds kTestCustomCollectionDuration = 11s;
+constexpr std::chrono::seconds kTestPeriodicMonitorInterval = 2s;
 
 class MockDataProcessor : public DataProcessor {
 public:
@@ -74,6 +75,8 @@ public:
                 (time_t, const std::unordered_set<std::string>&, const wp<UidIoStats>&,
                  const wp<ProcStat>&, const wp<ProcPidStat>&),
                 (override));
+    MOCK_METHOD(Result<void>, onPeriodicMonitor,
+                (time_t, const android::wp<IProcDiskStatsInterface>&), (override));
     MOCK_METHOD(Result<void>, onDump, (int), (override));
     MOCK_METHOD(Result<void>, onCustomCollectionDump, (int), (override));
 };
@@ -91,6 +94,7 @@ public:
     void injectFakes() {
         looperStub = new LooperStub();
         mockUidIoStats = new NiceMock<MockUidIoStats>();
+        mockProcDiskStats = new NiceMock<MockProcDiskStats>();
         mockProcStat = new NiceMock<MockProcStat>();
         mockProcPidStat = new NiceMock<MockProcPidStat>();
         mockDataProcessor = new StrictMock<MockDataProcessor>();
@@ -98,23 +102,24 @@ public:
         Mutex::Autolock lock(service->mMutex);
         service->mHandlerLooper = looperStub;
         service->mUidIoStats = mockUidIoStats;
+        service->mProcDiskStats = mockProcDiskStats;
         service->mProcStat = mockProcStat;
         service->mProcPidStat = mockProcPidStat;
         ASSERT_RESULT_OK(service->registerDataProcessor(mockDataProcessor));
     }
 
     Result<void> start() {
-        auto ret = service->start();
-        if (!ret.ok()) {
+        if (auto ret = service->start(); !ret.ok()) {
             return ret;
         }
         Mutex::Autolock lock(service->mMutex);
-        service->mBoottimeCollection.interval = kTestBootInterval;
-        service->mPeriodicCollection.interval = kTestPeriodicInterval;
+        service->mBoottimeCollection.interval = kTestBoottimeCollectionInterval;
+        service->mPeriodicCollection.interval = kTestPeriodicCollectionInterval;
+        service->mPeriodicMonitor.interval = kTestPeriodicMonitorInterval;
         return {};
     }
 
-    CollectionEvent getCurrCollectionEvent() {
+    EventType getCurrCollectionEvent() {
         Mutex::Autolock lock(service->mMutex);
         return service->mCurrCollectionEvent;
     }
@@ -138,6 +143,7 @@ public:
     // Below fields are populated only on injectFakes.
     sp<LooperStub> looperStub;
     sp<MockUidIoStats> mockUidIoStats;
+    sp<MockProcDiskStats> mockProcDiskStats;
     sp<MockProcStat> mockProcStat;
     sp<MockProcPidStat> mockProcPidStat;
     sp<MockDataProcessor> mockDataProcessor;
@@ -177,6 +183,7 @@ TEST(WatchdogPerfServiceTest, TestValidCollectionSequence) {
     ASSERT_RESULT_OK(servicePeer.start());
 
     wp<UidIoStats> uidIoStats(servicePeer.mockUidIoStats);
+    wp<IProcDiskStatsInterface> procDiskStats(servicePeer.mockProcDiskStats);
     wp<ProcStat> procStat(servicePeer.mockProcStat);
     wp<ProcPidStat> procPidStat(servicePeer.mockProcPidStat);
 
@@ -192,7 +199,7 @@ TEST(WatchdogPerfServiceTest, TestValidCollectionSequence) {
 
     ASSERT_EQ(servicePeer.looperStub->numSecondsElapsed(), 0)
             << "Boot-time collection didn't start immediately";
-    ASSERT_EQ(servicePeer.getCurrCollectionEvent(), CollectionEvent::BOOT_TIME)
+    ASSERT_EQ(servicePeer.getCurrCollectionEvent(), EventType::BOOT_TIME_COLLECTION)
             << "Invalid collection event";
     servicePeer.verifyAndClearExpectations();
 
@@ -206,10 +213,10 @@ TEST(WatchdogPerfServiceTest, TestValidCollectionSequence) {
 
     ASSERT_RESULT_OK(servicePeer.looperStub->pollCache());
 
-    ASSERT_EQ(servicePeer.looperStub->numSecondsElapsed(), kTestBootInterval.count())
-            << "Subsequent boot-time collection didn't happen at " << kTestBootInterval.count()
-            << " seconds interval";
-    ASSERT_EQ(servicePeer.getCurrCollectionEvent(), CollectionEvent::BOOT_TIME)
+    ASSERT_EQ(servicePeer.looperStub->numSecondsElapsed(), kTestBoottimeCollectionInterval.count())
+            << "Subsequent boot-time collection didn't happen at "
+            << kTestBoottimeCollectionInterval.count() << " seconds interval";
+    ASSERT_EQ(servicePeer.getCurrCollectionEvent(), EventType::BOOT_TIME_COLLECTION)
             << "Invalid collection event";
     servicePeer.verifyAndClearExpectations();
 
@@ -228,11 +235,33 @@ TEST(WatchdogPerfServiceTest, TestValidCollectionSequence) {
     ASSERT_EQ(servicePeer.looperStub->numSecondsElapsed(), 0)
             << "Last boot-time collection didn't happen immediately after receiving boot complete "
             << "notification";
-    ASSERT_EQ(servicePeer.getCurrCollectionEvent(), CollectionEvent::PERIODIC)
+    ASSERT_EQ(servicePeer.getCurrCollectionEvent(), EventType::PERIODIC_COLLECTION)
             << "Invalid collection event";
     servicePeer.verifyAndClearExpectations();
 
-    // #4 Periodic collection
+    // #4 Periodic monitor
+    EXPECT_CALL(*servicePeer.mockProcDiskStats, collect()).Times(1);
+    EXPECT_CALL(*servicePeer.mockDataProcessor, onPeriodicMonitor(_, procDiskStats)).Times(1);
+
+    ASSERT_RESULT_OK(servicePeer.looperStub->pollCache());
+
+    ASSERT_EQ(servicePeer.looperStub->numSecondsElapsed(), kTestPeriodicMonitorInterval.count())
+            << "First periodic monitor didn't happen at " << kTestPeriodicMonitorInterval.count()
+            << " seconds interval";
+    servicePeer.verifyAndClearExpectations();
+
+    // #5 Periodic monitor
+    EXPECT_CALL(*servicePeer.mockProcDiskStats, collect()).Times(1);
+    EXPECT_CALL(*servicePeer.mockDataProcessor, onPeriodicMonitor(_, procDiskStats)).Times(1);
+
+    ASSERT_RESULT_OK(servicePeer.looperStub->pollCache());
+
+    ASSERT_EQ(servicePeer.looperStub->numSecondsElapsed(), kTestPeriodicMonitorInterval.count())
+            << "Second periodic monitor didn't happen at " << kTestPeriodicMonitorInterval.count()
+            << " seconds interval";
+    servicePeer.verifyAndClearExpectations();
+
+    // #6 Periodic collection
     EXPECT_CALL(*servicePeer.mockUidIoStats, collect()).Times(1);
     EXPECT_CALL(*servicePeer.mockProcStat, collect()).Times(1);
     EXPECT_CALL(*servicePeer.mockProcPidStat, collect()).Times(1);
@@ -242,18 +271,17 @@ TEST(WatchdogPerfServiceTest, TestValidCollectionSequence) {
 
     ASSERT_RESULT_OK(servicePeer.looperStub->pollCache());
 
-    ASSERT_EQ(servicePeer.looperStub->numSecondsElapsed(), kTestPeriodicInterval.count())
-            << "First periodic collection didn't happen at " << kTestPeriodicInterval.count()
-            << " seconds interval";
-    ASSERT_EQ(servicePeer.getCurrCollectionEvent(), CollectionEvent::PERIODIC)
+    ASSERT_EQ(servicePeer.looperStub->numSecondsElapsed(), 1)
+            << "First periodic collection didn't happen at 1 second interval";
+    ASSERT_EQ(servicePeer.getCurrCollectionEvent(), EventType::PERIODIC_COLLECTION)
             << "Invalid collection event";
     servicePeer.verifyAndClearExpectations();
 
-    // #5 Custom collection
+    // #7 Custom collection
     Vector<String16> args;
     args.push_back(String16(kStartCustomCollectionFlag));
     args.push_back(String16(kIntervalFlag));
-    args.push_back(String16(std::to_string(kTestCustomInterval.count()).c_str()));
+    args.push_back(String16(std::to_string(kTestCustomCollectionInterval.count()).c_str()));
     args.push_back(String16(kMaxDurationFlag));
     args.push_back(String16(std::to_string(kTestCustomCollectionDuration.count()).c_str()));
 
@@ -270,11 +298,11 @@ TEST(WatchdogPerfServiceTest, TestValidCollectionSequence) {
 
     ASSERT_EQ(servicePeer.looperStub->numSecondsElapsed(), 0)
             << "Custom collection didn't start immediately";
-    ASSERT_EQ(servicePeer.getCurrCollectionEvent(), CollectionEvent::CUSTOM)
+    ASSERT_EQ(servicePeer.getCurrCollectionEvent(), EventType::CUSTOM_COLLECTION)
             << "Invalid collection event";
     servicePeer.verifyAndClearExpectations();
 
-    // #6 Custom collection
+    // #8 Custom collection
     EXPECT_CALL(*servicePeer.mockUidIoStats, collect()).Times(1);
     EXPECT_CALL(*servicePeer.mockProcStat, collect()).Times(1);
     EXPECT_CALL(*servicePeer.mockProcPidStat, collect()).Times(1);
@@ -284,14 +312,14 @@ TEST(WatchdogPerfServiceTest, TestValidCollectionSequence) {
 
     ASSERT_RESULT_OK(servicePeer.looperStub->pollCache());
 
-    ASSERT_EQ(servicePeer.looperStub->numSecondsElapsed(), kTestCustomInterval.count())
-            << "Subsequent custom collection didn't happen at " << kTestCustomInterval.count()
-            << " seconds interval";
-    ASSERT_EQ(servicePeer.getCurrCollectionEvent(), CollectionEvent::CUSTOM)
+    ASSERT_EQ(servicePeer.looperStub->numSecondsElapsed(), kTestCustomCollectionInterval.count())
+            << "Subsequent custom collection didn't happen at "
+            << kTestCustomCollectionInterval.count() << " seconds interval";
+    ASSERT_EQ(servicePeer.getCurrCollectionEvent(), EventType::CUSTOM_COLLECTION)
             << "Invalid collection event";
     servicePeer.verifyAndClearExpectations();
 
-    // #7 End custom collection
+    // #9 End custom collection
     TemporaryFile customDump;
     {
         InSequence s;
@@ -303,10 +331,10 @@ TEST(WatchdogPerfServiceTest, TestValidCollectionSequence) {
     args.push_back(String16(kEndCustomCollectionFlag));
     ASSERT_RESULT_OK(service->onCustomCollection(customDump.fd, args));
     ASSERT_RESULT_OK(servicePeer.looperStub->pollCache());
-    ASSERT_EQ(servicePeer.getCurrCollectionEvent(), CollectionEvent::PERIODIC)
+    ASSERT_EQ(servicePeer.getCurrCollectionEvent(), EventType::PERIODIC_COLLECTION)
             << "Invalid collection event";
 
-    // #8 Switch to periodic collection
+    // #10 Switch to periodic collection
     EXPECT_CALL(*servicePeer.mockUidIoStats, collect()).Times(1);
     EXPECT_CALL(*servicePeer.mockProcStat, collect()).Times(1);
     EXPECT_CALL(*servicePeer.mockProcPidStat, collect()).Times(1);
@@ -318,8 +346,17 @@ TEST(WatchdogPerfServiceTest, TestValidCollectionSequence) {
 
     ASSERT_EQ(servicePeer.looperStub->numSecondsElapsed(), 0)
             << "Periodic collection didn't start immediately after ending custom collection";
-    ASSERT_EQ(servicePeer.getCurrCollectionEvent(), CollectionEvent::PERIODIC)
+    ASSERT_EQ(servicePeer.getCurrCollectionEvent(), EventType::PERIODIC_COLLECTION)
             << "Invalid collection event";
+    servicePeer.verifyAndClearExpectations();
+
+    // #11 Periodic monitor.
+    EXPECT_CALL(*servicePeer.mockProcDiskStats, collect()).Times(1);
+    EXPECT_CALL(*servicePeer.mockDataProcessor, onPeriodicMonitor(_, procDiskStats)).Times(1);
+
+    ASSERT_RESULT_OK(servicePeer.looperStub->pollCache());
+
+    ASSERT_EQ(servicePeer.looperStub->numSecondsElapsed(), kTestPeriodicMonitorInterval.count());
     servicePeer.verifyAndClearExpectations();
 
     EXPECT_CALL(*servicePeer.mockDataProcessor, terminate()).Times(1);
@@ -346,7 +383,7 @@ TEST(WatchdogPerfServiceTest, TestCollectionTerminatesOnZeroEnabledCollectors) {
 
     ASSERT_EQ(servicePeer.joinCollectionThread().wait_for(1s), std::future_status::ready)
             << "Collection thread didn't terminate within 1 second.";
-    ASSERT_EQ(servicePeer.getCurrCollectionEvent(), CollectionEvent::TERMINATED);
+    ASSERT_EQ(servicePeer.getCurrCollectionEvent(), EventType::TERMINATED);
 }
 
 TEST(WatchdogPerfServiceTest, TestCollectionTerminatesOnDataCollectorError) {
@@ -370,7 +407,7 @@ TEST(WatchdogPerfServiceTest, TestCollectionTerminatesOnDataCollectorError) {
 
     ASSERT_EQ(servicePeer.joinCollectionThread().wait_for(1s), std::future_status::ready)
             << "Collection thread didn't terminate within 1 second.";
-    ASSERT_EQ(servicePeer.getCurrCollectionEvent(), CollectionEvent::TERMINATED);
+    ASSERT_EQ(servicePeer.getCurrCollectionEvent(), EventType::TERMINATED);
 }
 
 TEST(WatchdogPerfServiceTest, TestCollectionTerminatesOnDataProcessorError) {
@@ -399,7 +436,7 @@ TEST(WatchdogPerfServiceTest, TestCollectionTerminatesOnDataProcessorError) {
 
     ASSERT_EQ(servicePeer.joinCollectionThread().wait_for(1s), std::future_status::ready)
             << "Collection thread didn't terminate within 1 second.";
-    ASSERT_EQ(servicePeer.getCurrCollectionEvent(), CollectionEvent::TERMINATED);
+    ASSERT_EQ(servicePeer.getCurrCollectionEvent(), EventType::TERMINATED);
 }
 
 TEST(WatchdogPerfServiceTest, TestCustomCollection) {
@@ -421,15 +458,15 @@ TEST(WatchdogPerfServiceTest, TestCustomCollection) {
                                      wp<ProcPidStat>(servicePeer.mockProcPidStat)))
             .Times(2);
 
-    // Make sure the collection event changes from CollectionEvent::INIT to
-    // CollectionEvent::BOOT_TIME.
+    // Make sure the collection event changes from EventType::INIT to
+    // EventType::BOOT_TIME_COLLECTION.
     ASSERT_RESULT_OK(servicePeer.looperStub->pollCache());
 
-    // Mock boot complete and switch collection event to CollectionEvent::PERIODIC.
+    // Mock boot complete and switch collection event to EventType::PERIODIC_COLLECTION.
     ASSERT_RESULT_OK(service->onBootFinished());
 
     ASSERT_RESULT_OK(servicePeer.looperStub->pollCache());
-    ASSERT_EQ(servicePeer.getCurrCollectionEvent(), CollectionEvent::PERIODIC)
+    ASSERT_EQ(servicePeer.getCurrCollectionEvent(), EventType::PERIODIC_COLLECTION)
             << "Invalid collection event";
     servicePeer.verifyAndClearExpectations();
 
@@ -437,7 +474,7 @@ TEST(WatchdogPerfServiceTest, TestCustomCollection) {
     Vector<String16> args;
     args.push_back(String16(kStartCustomCollectionFlag));
     args.push_back(String16(kIntervalFlag));
-    args.push_back(String16(std::to_string(kTestCustomInterval.count()).c_str()));
+    args.push_back(String16(std::to_string(kTestCustomCollectionInterval.count()).c_str()));
     args.push_back(String16(kMaxDurationFlag));
     args.push_back(String16(std::to_string(kTestCustomCollectionDuration.count()).c_str()));
     args.push_back(String16(kFilterPackagesFlag));
@@ -446,9 +483,9 @@ TEST(WatchdogPerfServiceTest, TestCustomCollection) {
     ASSERT_RESULT_OK(service->onCustomCollection(-1, args));
 
     // Poll until custom collection auto terminates.
-    int maxIterations =
-            static_cast<int>(kTestCustomCollectionDuration.count() / kTestCustomInterval.count());
-    for (int i = 0; i < maxIterations; ++i) {
+    int maxIterations = static_cast<int>(kTestCustomCollectionDuration.count() /
+                                         kTestCustomCollectionInterval.count());
+    for (int i = 0; i <= maxIterations; ++i) {
         EXPECT_CALL(*servicePeer.mockUidIoStats, collect()).Times(1);
         EXPECT_CALL(*servicePeer.mockProcStat, collect()).Times(1);
         EXPECT_CALL(*servicePeer.mockProcPidStat, collect()).Times(1);
@@ -463,11 +500,11 @@ TEST(WatchdogPerfServiceTest, TestCustomCollection) {
 
         ASSERT_RESULT_OK(servicePeer.looperStub->pollCache());
 
-        int secondsElapsed = (i == 0 ? 0 : kTestCustomInterval.count());
+        int secondsElapsed = (i == 0 ? 0 : kTestCustomCollectionInterval.count());
         ASSERT_EQ(servicePeer.looperStub->numSecondsElapsed(), secondsElapsed)
                 << "Custom collection didn't happen at " << secondsElapsed
                 << " seconds interval in iteration " << i;
-        ASSERT_EQ(servicePeer.getCurrCollectionEvent(), CollectionEvent::CUSTOM)
+        ASSERT_EQ(servicePeer.getCurrCollectionEvent(), EventType::CUSTOM_COLLECTION)
                 << "Invalid collection event";
         servicePeer.verifyAndClearExpectations();
     }
@@ -480,10 +517,10 @@ TEST(WatchdogPerfServiceTest, TestCustomCollection) {
     ASSERT_RESULT_OK(servicePeer.looperStub->pollCache());
 
     ASSERT_EQ(servicePeer.looperStub->numSecondsElapsed(),
-              kTestCustomCollectionDuration.count() % kTestCustomInterval.count())
+              kTestCustomCollectionDuration.count() % kTestCustomCollectionInterval.count())
             << "Custom collection did't end after " << kTestCustomCollectionDuration.count()
             << " seconds";
-    ASSERT_EQ(servicePeer.getCurrCollectionEvent(), CollectionEvent::PERIODIC)
+    ASSERT_EQ(servicePeer.getCurrCollectionEvent(), EventType::PERIODIC_COLLECTION)
             << "Invalid collection event";
     EXPECT_CALL(*servicePeer.mockDataProcessor, terminate()).Times(1);
 }

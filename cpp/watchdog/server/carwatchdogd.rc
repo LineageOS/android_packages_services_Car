@@ -21,17 +21,20 @@ service carwatchdogd /system/bin/carwatchdogd
 on early-init && property:ro.build.type=userdebug
     # Below intervals are in seconds
     setprop ro.carwatchdog.boottime_collection_interval 1
-    setprop ro.carwatchdog.periodic_collection_interval 10
+    setprop ro.carwatchdog.periodic_collection_interval 60
+    setprop ro.carwatchdog.periodic_monitor_interval 5
 
 on early-init && property:ro.build.type=eng
     # Below intervals are in seconds
     setprop ro.carwatchdog.boottime_collection_interval 1
-    setprop ro.carwatchdog.periodic_collection_interval 10
+    setprop ro.carwatchdog.periodic_collection_interval 60
+    setprop ro.carwatchdog.periodic_monitor_interval 5
 
 on early-init && property:ro.build.type=user
     # Below intervals are in seconds
     setprop ro.carwatchdog.boottime_collection_interval 20
-    setprop ro.carwatchdog.periodic_collection_interval 60
+    setprop ro.carwatchdog.periodic_collection_interval 120
+    setprop ro.carwatchdog.periodic_monitor_interval 5
 
 on early-init
     # Number of top stats per category

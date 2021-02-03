@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#define LOG_TAG "carwatchdogd_ioperf_test"
-
 #include "LooperStub.h"
 
 #include <android-base/chrono_utils.h>
@@ -62,7 +60,7 @@ int LooperStub::pollAll(int /*timeoutMillis*/) {
         for (const auto& m : messages) {
             mLooper->sendMessage(mHandler, m);
         }
-        mCache.erase(mCache.begin());
+        mCache.front().clear();
     }
     int result = mLooper->pollAll(kLooperPollTimeout.count());
     Mutex::Autolock lock(mMutex);

@@ -72,6 +72,9 @@ public:
             const android::wp<UidIoStats>& uidIoStats, const android::wp<ProcStat>& procStat,
             const android::wp<ProcPidStat>& procPidStat);
 
+    android::base::Result<void> onPeriodicMonitor(
+            time_t time, const android::wp<IProcDiskStatsInterface>& procDiskStats);
+
     // TODO(b/167240592): Forward WatchdogBinderMediator's notifySystemStateChange call to
     //  WatchdogProcessService. On POWER_CYCLE_SHUTDOWN_PREPARE, switch to garage mode collection
     //  and call this method via the DataProcessor interface.
