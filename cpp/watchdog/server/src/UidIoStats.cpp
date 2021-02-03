@@ -15,7 +15,6 @@
  */
 
 #define LOG_TAG "carwatchdogd"
-#define DEBUG false
 
 #include "UidIoStats.h"
 
@@ -23,13 +22,14 @@
 #include <android-base/parseint.h>
 #include <android-base/stringprintf.h>
 #include <android-base/strings.h>
-#include <inttypes.h>
 #include <log/log.h>
+
+#include <inttypes.h>
 
 #include <string>
 #include <unordered_map>
-#include <vector>
 #include <utility>
+#include <vector>
 
 namespace android {
 namespace automotive {
