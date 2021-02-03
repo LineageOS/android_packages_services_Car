@@ -558,19 +558,19 @@ package android.car.hardware.power {
     method public void onPolicyChanged(@NonNull android.car.hardware.power.CarPowerPolicy);
   }
 
-  @com.android.internal.util.DataClass(genHiddenConstructor=true) public final class CarPowerPolicy implements android.os.Parcelable {
-    method @com.android.internal.util.DataClass.Generated.Member public int describeContents();
-    method @com.android.internal.util.DataClass.Generated.Member public void writeToParcel(@NonNull android.os.Parcel, int);
-    field @NonNull @com.android.internal.util.DataClass.Generated.Member public static final android.os.Parcelable.Creator<android.car.hardware.power.CarPowerPolicy> CREATOR;
+  public final class CarPowerPolicy implements android.os.Parcelable {
+    method public int describeContents();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.hardware.power.CarPowerPolicy> CREATOR;
     field @NonNull public final int[] disabledComponents;
     field @NonNull public final int[] enabledComponents;
     field @NonNull public final String policyId;
   }
 
-  @com.android.internal.util.DataClass(genHiddenConstructor=true) public final class CarPowerPolicyFilter implements android.os.Parcelable {
-    method @com.android.internal.util.DataClass.Generated.Member public int describeContents();
-    method @com.android.internal.util.DataClass.Generated.Member public void writeToParcel(@NonNull android.os.Parcel, int);
-    field @NonNull @com.android.internal.util.DataClass.Generated.Member public static final android.os.Parcelable.Creator<android.car.hardware.power.CarPowerPolicyFilter> CREATOR;
+  public final class CarPowerPolicyFilter implements android.os.Parcelable {
+    method public int describeContents();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.hardware.power.CarPowerPolicyFilter> CREATOR;
     field @NonNull public final int[] components;
   }
 
