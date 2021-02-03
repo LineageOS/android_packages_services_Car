@@ -23,6 +23,8 @@ import static android.car.VehiclePropertyIds.CLUSTER_REQUEST_DISPLAY;
 import static android.car.VehiclePropertyIds.CLUSTER_SWITCH_UI;
 import static android.car.test.util.VehicleHalTestingHelper.newSubscribableConfig;
 
+import static com.android.car.hal.ClusterHalService.DONT_CARE;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.times;
@@ -31,7 +33,7 @@ import static org.mockito.Mockito.verify;
 import android.graphics.Insets;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 
-import com.android.car.hal.ClusterHalService.ClusterHalEventListener;
+import com.android.car.hal.ClusterHalService.ClusterHalEventCallback;
 
 import org.junit.After;
 import org.junit.Before;
@@ -69,19 +71,19 @@ public class ClusterHalServiceTest {
 
     int mUiType = NOT_ASSIGNED;
     int mOnOff = NOT_ASSIGNED;
-    int mHeight = NOT_ASSIGNED;
     int mWidth = NOT_ASSIGNED;
+    int mHeight = NOT_ASSIGNED;
     Insets mInsets = null;
 
-    private final ClusterHalEventListener mHalEventListener = new ClusterHalEventListener() {
+    private final ClusterHalEventCallback mHalEventListener = new ClusterHalEventCallback() {
         public void onSwitchUi(int uiType) {
             mUiType = uiType;
         }
 
-        public void onDisplayState(int onOff, int height, int width, Insets insets) {
+        public void onDisplayState(int onOff, int width, int height, Insets insets) {
             mOnOff = onOff;
-            mHeight = height;
             mWidth = width;
+            mHeight = height;
             mInsets = insets;
         }
     };
@@ -97,7 +99,7 @@ public class ClusterHalServiceTest {
                 newSubscribableConfig(CLUSTER_NAVIGATION_STATE_LEGACY)));
 
         mClusterHalService.init();
-        mClusterHalService.setListener(mHalEventListener);
+        mClusterHalService.setCallback(mHalEventListener);
     }
 
     @After
@@ -160,13 +162,13 @@ public class ClusterHalServiceTest {
         return event;
     }
 
-    private static VehiclePropValue createDisplayStateEvent(int onOff, int height, int width,
+    private static VehiclePropValue createDisplayStateEvent(int onOff, int width, int height,
             int left, int top, int right, int bottom) {
         VehiclePropValue event = new VehiclePropValue();
         event.prop = CLUSTER_DISPLAY_STATE;
         event.value.int32Values.add(onOff);
-        event.value.int32Values.add(height);
         event.value.int32Values.add(width);
+        event.value.int32Values.add(height);
         event.value.int32Values.add(left);
         event.value.int32Values.add(top);
         event.value.int32Values.add(right);
@@ -184,7 +186,7 @@ public class ClusterHalServiceTest {
 
     @Test
     public void testOnSwitchUi_noListener() {
-        mClusterHalService.setListener(null);
+        mClusterHalService.setCallback(null);
 
         mClusterHalService.onHalEvents(Arrays.asList(
                 createSwitchUiEvent(UI_TYPE_1)));
@@ -209,8 +211,8 @@ public class ClusterHalServiceTest {
                         INSET_LEFT, INSET_TOP, INSET_RIGHT, INSET_BOTTOM)));
 
         assertThat(mOnOff).isEqualTo(ON);
-        assertThat(mHeight).isEqualTo(WIDTH);
-        assertThat(mWidth).isEqualTo(HEIGHT);
+        assertThat(mWidth).isEqualTo(WIDTH);
+        assertThat(mHeight).isEqualTo(HEIGHT);
         assertThat(mInsets.left).isEqualTo(INSET_LEFT);
         assertThat(mInsets.top).isEqualTo(INSET_TOP);
         assertThat(mInsets.right).isEqualTo(INSET_RIGHT);
@@ -218,16 +220,43 @@ public class ClusterHalServiceTest {
     }
 
     @Test
+    public void testOnDisplayState_DontAcceptPartialDontCare_Height() {
+        mClusterHalService.onHalEvents(Arrays.asList(
+                createDisplayStateEvent(ON, WIDTH, DONT_CARE,
+                        INSET_LEFT, INSET_TOP, INSET_RIGHT, INSET_BOTTOM)));
+
+        assertThat(mOnOff).isEqualTo(ON);
+        assertThat(mWidth).isEqualTo(NOT_ASSIGNED);
+        assertThat(mHeight).isEqualTo(NOT_ASSIGNED);
+        assertThat(mInsets.left).isEqualTo(INSET_LEFT);
+        assertThat(mInsets.top).isEqualTo(INSET_TOP);
+        assertThat(mInsets.right).isEqualTo(INSET_RIGHT);
+        assertThat(mInsets.bottom).isEqualTo(INSET_BOTTOM);
+    }
+
+    @Test
+    public void testOnDisplayState_DontAcceptPartialDontCare_Inset() {
+        mClusterHalService.onHalEvents(Arrays.asList(
+                createDisplayStateEvent(ON, WIDTH, HEIGHT,
+                        INSET_LEFT, INSET_TOP, INSET_RIGHT, DONT_CARE)));
+
+        assertThat(mOnOff).isEqualTo(ON);
+        assertThat(mWidth).isEqualTo(WIDTH);
+        assertThat(mHeight).isEqualTo(HEIGHT);
+        assertThat(mInsets).isNull();
+    }
+
+    @Test
     public void testOnDisplayState_noListener() {
-        mClusterHalService.setListener(null);
+        mClusterHalService.setCallback(null);
 
         mClusterHalService.onHalEvents(Arrays.asList(
                 createDisplayStateEvent(ON, WIDTH, HEIGHT,
                         INSET_LEFT, INSET_TOP, INSET_RIGHT, INSET_BOTTOM)));
 
         assertThat(mOnOff).isEqualTo(NOT_ASSIGNED);
-        assertThat(mHeight).isEqualTo(NOT_ASSIGNED);
         assertThat(mWidth).isEqualTo(NOT_ASSIGNED);
+        assertThat(mHeight).isEqualTo(NOT_ASSIGNED);
         assertThat(mInsets).isNull();
     }
 
@@ -240,8 +269,8 @@ public class ClusterHalServiceTest {
                         INSET_LEFT, INSET_TOP, INSET_RIGHT, INSET_BOTTOM)));
 
         assertThat(mOnOff).isEqualTo(NOT_ASSIGNED);
-        assertThat(mHeight).isEqualTo(NOT_ASSIGNED);
         assertThat(mWidth).isEqualTo(NOT_ASSIGNED);
+        assertThat(mHeight).isEqualTo(NOT_ASSIGNED);
         assertThat(mInsets).isNull();
     }
 

@@ -89,6 +89,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
     private final VmsHalService mVmsHal;
     private final UserHalService mUserHal;
     private final DiagnosticHalService mDiagnosticHal;
+    private final ClusterHalService mClusterHalService;
 
     private final Object mLock = new Object();
 
@@ -123,11 +124,13 @@ public class VehicleHal extends IVehicleCallback.Stub {
         mVmsHal = new VmsHalService(context, this);
         mUserHal = new UserHalService(this);
         mDiagnosticHal = new DiagnosticHalService(this);
+        mClusterHalService = new ClusterHalService(this);
         mAllServices.addAll(Arrays.asList(mPowerHal,
                 mInputHal,
                 mDiagnosticHal,
                 mVmsHal,
                 mUserHal,
+                mClusterHalService,
                 mPropertyHal)); // mPropertyHal should be the last.
         mHalClient = new HalClient(vehicle, mHandlerThread.getLooper(),
                 /* callback= */ this);
@@ -144,6 +147,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
             VmsHalService vmsHal,
             UserHalService userHal,
             DiagnosticHalService diagnosticHal,
+            ClusterHalService clusterHalService,
             HalClient halClient) {
         mPowerHal = powerHal;
         mPropertyHal = propertyHal;
@@ -151,6 +155,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
         mVmsHal = vmsHal;
         mUserHal = userHal;
         mDiagnosticHal = diagnosticHal;
+        mClusterHalService = clusterHalService;
         mAllServices.addAll(Arrays.asList(mPowerHal,
                 mInputHal,
                 mDiagnosticHal,
@@ -290,6 +295,10 @@ public class VehicleHal extends IVehicleCallback.Stub {
 
     public VmsHalService getVmsHal() {
         return mVmsHal;
+    }
+
+    public ClusterHalService getClusterHal() {
+        return mClusterHalService;
     }
 
     private void assertServiceOwnerLocked(HalServiceBase service, int property) {
