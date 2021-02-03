@@ -20,8 +20,6 @@
         <policyGroup id="mixed_policy_group">
             <defaultPolicy state="WaitForVHAL" id="policy_id_other_on"/>
             <defaultPolicy state="On" id="policy_id_other_untouched"/>
-            <noDefaultPolicy state="DeepSleepEntry"/>
-            <noDefaultPolicy state="ShutdownStart"/>
         </policyGroup>
     </policyGroups>
 
