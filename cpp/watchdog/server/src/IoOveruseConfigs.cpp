@@ -18,6 +18,8 @@
 
 #include "IoOveruseConfigs.h"
 
+#include "utils/PackageNameResolver.h"
+
 #include <android-base/strings.h>
 
 #include <inttypes.h>
@@ -229,6 +231,8 @@ Result<void> IoOveruseConfigs::updateAlertThresholds(
 
 Result<void> IoOveruseConfigs::update(ComponentType type,
                                       const IoOveruseConfiguration& updateConfig) {
+    // TODO(b/177616658): Update the implementation to overwrite the existing configs rather than
+    //  append to them.
     if (String8(updateConfig.componentLevelThresholds.name).string() != toString(type)) {
         return Error(Status::EX_ILLEGAL_ARGUMENT)
                 << "Invalid config. Config's component name "
@@ -271,6 +275,9 @@ Result<void> IoOveruseConfigs::update(ComponentType type,
     if (updatableConfigsFilter & IoOveruseConfigEnum::VENDOR_PACKAGES_REGEX) {
         for (const auto& prefix : updateConfig.vendorPackagePrefixes) {
             vendorPackagePrefixes.insert(std::string(String8(prefix)));
+        }
+        if (!updateConfig.vendorPackagePrefixes.empty()) {
+            PackageNameResolver::getInstance()->setVendorPackagePrefixes(vendorPackagePrefixes);
         }
     } else if (!updateConfig.vendorPackagePrefixes.empty()) {
         StringAppendF(&nonUpdatableConfigMsgs, "%svendor packages prefixes",

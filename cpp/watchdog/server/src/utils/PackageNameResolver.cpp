@@ -18,25 +18,24 @@
 
 #include "PackageNameResolver.h"
 
-#include <binder/IServiceManager.h>
+#include <android/automotive/watchdog/internal/PackageInfo.h>
 #include <cutils/android_filesystem_config.h>
-#include <pwd.h>
+#include <utils/String16.h>
 
 #include <inttypes.h>
+#include <pwd.h>
 
 namespace android {
 namespace automotive {
 namespace watchdog {
 
-using android::defaultServiceManager;
 using android::IBinder;
-using android::IServiceManager;
 using android::sp;
+using android::String16;
+using android::automotive::watchdog::internal::PackageInfo;
 using android::base::Error;
 using android::base::Result;
-using android::content::pm::IPackageManagerNative;
-
-static constexpr const char* kPackageNativeManager = "package_native";
+using android::binder::Status;
 
 sp<PackageNameResolver> PackageNameResolver::sInstance = nullptr;
 
@@ -51,19 +50,31 @@ void PackageNameResolver::terminate() {
     sInstance.clear();
 }
 
-PackageNameResolver::~PackageNameResolver() {
-    if (mPackageManager != nullptr) {
-        IInterface::asBinder(mPackageManager)
-                ->unlinkToDeath(static_cast<IBinder::DeathRecipient*>(this));
+Result<void> PackageNameResolver::initWatchdogServiceHelper(
+        const sp<WatchdogServiceHelperInterface>& watchdogServiceHelper) {
+    std::unique_lock writeLock(mRWMutex);
+    if (watchdogServiceHelper == nullptr) {
+        return Error() << "Must provide a non-null watchdog service helper instance";
     }
+    if (mWatchdogServiceHelper != nullptr) {
+        return Error() << "Duplicate initialization";
+    }
+    mWatchdogServiceHelper = watchdogServiceHelper;
+    return {};
 }
 
-void PackageNameResolver::binderDied(const android::wp<IBinder>& /*who*/) {
-    ALOGI("%s binder died", kPackageNativeManager);
-    std::unique_lock write_lock(mRWMutex);
-    IInterface::asBinder(mPackageManager)
-            ->unlinkToDeath(static_cast<IBinder::DeathRecipient*>(this));
-    mPackageManager = nullptr;
+Result<void> PackageNameResolver::setVendorPackagePrefixes(
+        const std::unordered_set<std::string>& prefixes) {
+    std::unique_lock writeLock(mRWMutex);
+    mVendorPackagePrefixes.clear();
+    for (const auto& prefix : prefixes) {
+        mVendorPackagePrefixes.push_back(prefix);
+    }
+    // TODO(b/167240592): Update locally cached per-package information to reflect the latest
+    //  vendor package prefixes. Because these prefixes list are not updated frequently, the local
+    //  cache can be cleared on this update. Then the next call to resolve UIDs will use the latest
+    //  prefixes list.
+    return {};
 }
 
 std::unordered_map<uid_t, std::string> PackageNameResolver::resolveUids(
@@ -72,7 +83,7 @@ std::unordered_map<uid_t, std::string> PackageNameResolver::resolveUids(
     std::vector<int32_t> missingAppUids;
     std::vector<uid_t> missingNativeUids;
     {
-        std::shared_lock read_lock(mRWMutex);
+        std::shared_lock readLock(mRWMutex);
         for (const auto& uid : uids) {
             if (mUidToPackageNameMapping.find(uid) != mUidToPackageNameMapping.end()) {
                 uidToPackageNameMapping[uid] = mUidToPackageNameMapping.at(uid);
@@ -88,7 +99,7 @@ std::unordered_map<uid_t, std::string> PackageNameResolver::resolveUids(
         return uidToPackageNameMapping;
     }
 
-    std::unique_lock write_lock(mRWMutex);
+    std::unique_lock writeLock(mRWMutex);
     for (const auto& uid : missingNativeUids) {
         // System/native UIDs.
         passwd* usrpwd = getpwuid(uid);
@@ -99,55 +110,25 @@ std::unordered_map<uid_t, std::string> PackageNameResolver::resolveUids(
         mUidToPackageNameMapping[uid] = std::string(usrpwd->pw_name);
     }
 
-    if (missingAppUids.empty()) {
+    /*
+     * There is delay between creating package manager instance and initializing watchdog service
+     * helper. Thus check the watchdog service helper instance before proceeding further.
+     */
+    if (missingAppUids.empty() || mWatchdogServiceHelper == nullptr) {
         return uidToPackageNameMapping;
     }
 
-    // Fetch package native manager binder instance only on noticing missing application UIDs as
-    // this indicates the package manager binder is already initialized. Thus the CarWatchdog daemon
-    // doesn't have to wait for the package manager binder during boot up.
-    auto ret = initializePackageManagerLocked();
-    if (!ret.ok()) {
-        ALOGE("Failed to initialize %s binder instance: %s", kPackageNativeManager,
-              ret.error().message().c_str());
-        return uidToPackageNameMapping;
-    }
-
-    std::vector<std::string> packageNames;
-    const binder::Status& status = mPackageManager->getNamesForUids(missingAppUids, &packageNames);
+    std::vector<PackageInfo> packageInfos;
+    Status status =
+            mWatchdogServiceHelper->getPackageInfosForUids(missingAppUids, mVendorPackagePrefixes,
+                                                           &packageInfos);
     if (!status.isOk()) {
-        ALOGE("Failed to get package name mapping from %s: %s", kPackageNativeManager,
-              status.exceptionMessage().c_str());
+        ALOGE("Failed to resolve application UIDs: %s", status.exceptionMessage().c_str());
         return uidToPackageNameMapping;
     }
 
-    for (size_t i = 0; i < missingAppUids.size(); i++) {
-        const int32_t uid = missingAppUids[i];
-        const std::string& packageName = packageNames[i];
-        if (!packageName.empty()) {
-            uidToPackageNameMapping[static_cast<uid_t>(uid)] = packageName;
-            mUidToPackageNameMapping[static_cast<uid_t>(uid)] = packageName;
-        }
-    }
+    // TODO(b/167240592): Use the package info here to return the package name mapping for app UIDs.
     return uidToPackageNameMapping;
-}
-
-Result<void> PackageNameResolver::initializePackageManagerLocked() {
-    if (mPackageManager != nullptr) {
-        return {};
-    }
-    const sp<IServiceManager> sm = defaultServiceManager();
-    if (sm == nullptr) {
-        return Error() << "Failed to retrieve defaultServiceManager";
-    }
-    sp<IBinder> binder = sm->checkService(String16(kPackageNativeManager));
-    if (binder == nullptr) {
-        return Error() << "Failed to retrieve " << kPackageNativeManager << " service";
-    }
-    ALOGI("Initialized %s binder", kPackageNativeManager);
-    mPackageManager = interface_cast<IPackageManagerNative>(binder);
-    binder->linkToDeath(static_cast<IBinder::DeathRecipient*>(this));
-    return {};
 }
 
 }  // namespace watchdog

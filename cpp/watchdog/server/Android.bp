@@ -28,6 +28,9 @@ cc_defaults {
     shared_libs: [
         "android.automotive.watchdog-V3-cpp",
         "android.automotive.watchdog.internal-cpp",
+        "android.automotive.watchdog.internal-unstable-cpp",
+        "android.automotive.watchdog-unstable-cpp",
+        "android.hardware.automotive.vehicle@2.0",
         "libbase",
         "libbinder",
         "liblog",
@@ -115,6 +118,7 @@ cc_test {
         "libgtest",
         "libwatchdog_binder_mediator",
         "libwatchdog_perf_service",
+        "libwatchdog_process_service",
         "libwatchdog_utils",
     ],
 }
@@ -122,7 +126,6 @@ cc_test {
 cc_defaults {
     name: "libwatchdog_process_service_defaults",
     shared_libs: [
-        "android.hardware.automotive.vehicle@2.0",
         "libhidlbase",
     ],
 }
@@ -148,9 +151,7 @@ cc_library {
     srcs: [
         "src/WatchdogBinderMediator.cpp",
         "src/WatchdogInternalHandler.cpp",
-        "src/WatchdogProcessService.cpp",
         "src/WatchdogServiceHelper.cpp",
-        "src/IoPerfCollection.cpp",
     ],
     shared_libs: [
         "libwatchdog_perf_service",

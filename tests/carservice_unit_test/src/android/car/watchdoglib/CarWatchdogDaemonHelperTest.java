@@ -27,6 +27,7 @@ import static org.testng.Assert.assertThrows;
 import android.automotive.watchdog.internal.ICarWatchdog;
 import android.automotive.watchdog.internal.ICarWatchdogMonitor;
 import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
+import android.automotive.watchdog.internal.PackageInfo;
 import android.automotive.watchdog.internal.PowerCycle;
 import android.automotive.watchdog.internal.StateType;
 import android.os.Binder;
@@ -43,6 +44,7 @@ import org.mockito.Spy;
 import org.mockito.quality.Strictness;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>This class contains unit tests for the {@link CarWatchdogDaemonHelper}.
@@ -191,5 +193,11 @@ public class CarWatchdogDaemonHelperTest {
 
         @Override
         public void prepareProcessTermination() {}
+
+        @Override
+        public List<PackageInfo> getPackageInfosForUids(
+                int[] uids, List<String> vendorPackagePrefixes) {
+            return new ArrayList<>();
+        }
     }
 }
