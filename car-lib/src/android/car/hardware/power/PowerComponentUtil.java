@@ -41,7 +41,7 @@ public final class PowerComponentUtil {
      *
      * <p> This should be updated when a new component is added to {@link PowerComponent}.
      */
-    public static final int LAST_POWER_COMPONENT = PowerComponent.MICROPHONE;
+    public static final int LAST_POWER_COMPONENT = PowerComponent.CPU;
 
     private static final String POWER_COMPONENT_PREFIX = "POWER_COMPONENT_";
 
@@ -61,6 +61,7 @@ public final class PowerComponentUtil {
             "TRUSTED_DEVICE_DETECTION";
     private static final String POWER_COMPONENT_LOCATION = "LOCATION";
     private static final String POWER_COMPONENT_MICROPHONE = "MICROPHONE";
+    private static final String POWER_COMPONENT_CPU = "CPU";
 
     private interface ComponentFilter {
         boolean filter(int[] components);
@@ -146,6 +147,8 @@ public final class PowerComponentUtil {
                 return PowerComponent.LOCATION;
             case POWER_COMPONENT_MICROPHONE:
                 return PowerComponent.MICROPHONE;
+            case POWER_COMPONENT_CPU:
+                return PowerComponent.CPU;
             default:
                 return INVALID_POWER_COMPONENT;
         }
@@ -187,6 +190,8 @@ public final class PowerComponentUtil {
                 return POWER_COMPONENT_LOCATION;
             case PowerComponent.MICROPHONE:
                 return POWER_COMPONENT_MICROPHONE;
+            case PowerComponent.CPU:
+                return POWER_COMPONENT_CPU;
             default:
                 return "unknown component";
         }
