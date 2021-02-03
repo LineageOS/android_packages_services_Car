@@ -603,7 +603,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         if (sUseCarAudioFocus) {
             AudioControlWrapper audioControlWrapper = getAudioControlWrapperLocked();
             if (audioControlWrapper.supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_DUCKING)) {
-                mCarDucking = new CarDucking(mCarAudioZones);
+                mCarDucking = new CarDucking(mCarAudioZones, audioControlWrapper);
             }
 
             // Configure our AudioPolicy to handle focus events.
