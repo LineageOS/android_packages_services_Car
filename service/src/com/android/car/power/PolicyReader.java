@@ -49,7 +49,6 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -197,31 +196,29 @@ final class PolicyReader {
         return null;
     }
 
-    void dump(PrintWriter writer) {
-        try (IndentingPrintWriter pw = new IndentingPrintWriter(writer)) {
-            pw.printf("Registered power policies:%s\n",
-                    mRegisteredPowerPolicies.size() == 0 ? " none" : "");
-            pw.increaseIndent();
-            for (Map.Entry<String, CarPowerPolicy> entry : mRegisteredPowerPolicies.entrySet()) {
-                pw.println(toString(entry.getValue()));
-            }
-            pw.decreaseIndent();
-            pw.printf("Power policy groups:%s\n", mPolicyGroups.isEmpty() ? " none" : "");
-            pw.increaseIndent();
-            for (Map.Entry<String, SparseArray<String>> entry : mPolicyGroups.entrySet()) {
-                pw.printf("%s\n", entry.getKey());
-                pw.increaseIndent();
-                SparseArray<String> group = entry.getValue();
-                for (int i = 0; i < group.size(); i++) {
-                    pw.printf("- %s --> %s\n", powerStateToString(group.keyAt(i)),
-                            group.valueAt(i));
-                }
-                pw.decreaseIndent();
-            }
-            pw.decreaseIndent();
-            pw.printf("System power policy: %s\n",
-                    toString(mSystemPowerPolicy.get(SYSTEM_POWER_POLICY_NO_USER_INTERACTION)));
+    void dump(IndentingPrintWriter writer) {
+        writer.printf("Registered power policies:%s\n",
+                mRegisteredPowerPolicies.size() == 0 ? " none" : "");
+        writer.increaseIndent();
+        for (Map.Entry<String, CarPowerPolicy> entry : mRegisteredPowerPolicies.entrySet()) {
+            writer.println(toString(entry.getValue()));
         }
+        writer.decreaseIndent();
+        writer.printf("Power policy groups:%s\n", mPolicyGroups.isEmpty() ? " none" : "");
+        writer.increaseIndent();
+        for (Map.Entry<String, SparseArray<String>> entry : mPolicyGroups.entrySet()) {
+            writer.printf("%s\n", entry.getKey());
+            writer.increaseIndent();
+            SparseArray<String> group = entry.getValue();
+            for (int i = 0; i < group.size(); i++) {
+                writer.printf("- %s --> %s\n", powerStateToString(group.keyAt(i)),
+                        group.valueAt(i));
+            }
+            writer.decreaseIndent();
+        }
+        writer.decreaseIndent();
+        writer.printf("System power policy: %s\n",
+                toString(mSystemPowerPolicy.get(SYSTEM_POWER_POLICY_NO_USER_INTERACTION)));
     }
 
     @VisibleForTesting
