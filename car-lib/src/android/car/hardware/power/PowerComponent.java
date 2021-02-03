@@ -68,4 +68,9 @@ public @interface PowerComponent {
   /**
      * This is used to turn on/off microphone through power policy.
      */int MICROPHONE = 15;
+  /**
+     * This is used to turn on/off CPU through power policy.
+     * It will turn into off state when system goes into sleep state. It will be restored to on
+     * state when system gets out of sleep state.
+     */int CPU = 16;
 }

@@ -109,7 +109,8 @@ final class PolicyReader {
             PowerComponent.AUDIO, PowerComponent.MEDIA, PowerComponent.DISPLAY,
             PowerComponent.BLUETOOTH, PowerComponent.PROJECTION, PowerComponent.NFC,
             PowerComponent.INPUT, PowerComponent.VOICE_INTERACTION,
-            PowerComponent.VISUAL_INTERACTION, PowerComponent.LOCATION, PowerComponent.MICROPHONE
+            PowerComponent.VISUAL_INTERACTION, PowerComponent.LOCATION, PowerComponent.MICROPHONE,
+            PowerComponent.CPU
     };
     private static final Set<Integer> SYSTEM_POLICY_CONFIGURABLE_COMPONENTS =
             new ArraySet<>(Arrays.asList(PowerComponent.BLUETOOTH, PowerComponent.NFC,

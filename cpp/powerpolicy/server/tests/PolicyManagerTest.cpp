@@ -84,7 +84,7 @@ const CarPowerPolicy kExistingPowerPolicy_OtherOff =
                               PowerComponent::NFC, PowerComponent::INPUT,
                               PowerComponent::VOICE_INTERACTION, PowerComponent::VISUAL_INTERACTION,
                               PowerComponent::TRUSTED_DEVICE_DETECTION, PowerComponent::LOCATION,
-                              PowerComponent::MICROPHONE});
+                              PowerComponent::MICROPHONE, PowerComponent::CPU});
 const CarPowerPolicy kExistingPowerPolicy_OtherOn =
         createCarPowerPolicy("policy_id_other_on",
                              {PowerComponent::MEDIA, PowerComponent::DISPLAY,
@@ -92,7 +92,7 @@ const CarPowerPolicy kExistingPowerPolicy_OtherOn =
                               PowerComponent::CELLULAR, PowerComponent::ETHERNET,
                               PowerComponent::PROJECTION, PowerComponent::NFC,
                               PowerComponent::INPUT, PowerComponent::LOCATION,
-                              PowerComponent::MICROPHONE},
+                              PowerComponent::MICROPHONE, PowerComponent::CPU},
                              {PowerComponent::AUDIO, PowerComponent::VOICE_INTERACTION,
                               PowerComponent::VISUAL_INTERACTION,
                               PowerComponent::TRUSTED_DEVICE_DETECTION});
@@ -117,7 +117,8 @@ const CarPowerPolicy kDefaultSystemPowerPolicy =
                               PowerComponent::BLUETOOTH, PowerComponent::PROJECTION,
                               PowerComponent::NFC, PowerComponent::INPUT,
                               PowerComponent::VOICE_INTERACTION, PowerComponent::VISUAL_INTERACTION,
-                              PowerComponent::LOCATION, PowerComponent::MICROPHONE});
+                              PowerComponent::LOCATION, PowerComponent::MICROPHONE,
+                              PowerComponent::CPU});
 const CarPowerPolicy kModifiedSystemPowerPolicy =
         createCarPowerPolicy("system_power_policy_no_user_interaction",
                              {PowerComponent::BLUETOOTH, PowerComponent::WIFI,
@@ -127,7 +128,7 @@ const CarPowerPolicy kModifiedSystemPowerPolicy =
                               PowerComponent::PROJECTION, PowerComponent::INPUT,
                               PowerComponent::VOICE_INTERACTION, PowerComponent::VISUAL_INTERACTION,
                               PowerComponent::TRUSTED_DEVICE_DETECTION, PowerComponent::LOCATION,
-                              PowerComponent::MICROPHONE});
+                              PowerComponent::MICROPHONE, PowerComponent::CPU});
 
 std::string getTestDataPath(const char* filename) {
     static std::string baseDir = android::base::GetExecutableDirectory();
