@@ -578,6 +578,7 @@ package android.car.hardware.power {
     field public static final int AUDIO = 1; // 0x1
     field public static final int BLUETOOTH = 4; // 0x4
     field public static final int CELLULAR = 6; // 0x6
+    field public static final int CPU = 16; // 0x10
     field public static final int DISPLAY = 3; // 0x3
     field public static final int ETHERNET = 7; // 0x7
     field public static final int INPUT = 10; // 0xa
