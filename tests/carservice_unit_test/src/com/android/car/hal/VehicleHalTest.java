@@ -66,6 +66,7 @@ public final class VehicleHalTest {
     @Mock private VmsHalService mVmsHalService;
     @Mock private UserHalService mUserHalService;
     @Mock private DiagnosticHalService mDiagnosticHalService;
+    @Mock private ClusterHalService mClusterHalService;
     @Mock private HalClient mHalClient;
 
     private VehicleHal mVehicleHal;
@@ -77,7 +78,7 @@ public final class VehicleHalTest {
     public void setUp() throws Exception {
         mVehicleHal = new VehicleHal(mPowerHalService,
                 mPropertyHalService, mInputHalService, mVmsHalService, mUserHalService,
-                mDiagnosticHalService, mHalClient);
+                mDiagnosticHalService, mClusterHalService, mHalClient);
 
         mConfigs.clear();
 
