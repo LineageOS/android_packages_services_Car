@@ -148,52 +148,56 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     private final AudioPolicy.AudioPolicyVolumeCallback mAudioPolicyVolumeCallback =
             new AudioPolicy.AudioPolicyVolumeCallback() {
-        @Override
-        public void onVolumeAdjustment(int adjustment) {
-            @AudioContext int suggestedContext = getSuggestedAudioContextForPrimaryZone();
+                @Override
+                public void onVolumeAdjustment(int adjustment) {
+                    @AudioContext int suggestedContext = getSuggestedAudioContextForPrimaryZone();
 
-            int zoneId = CarAudioManager.PRIMARY_AUDIO_ZONE;
-            int groupId;
-            synchronized (mImplLock) {
-                groupId = getVolumeGroupIdForAudioContextLocked(zoneId, suggestedContext);
-            }
+                    int zoneId = CarAudioManager.PRIMARY_AUDIO_ZONE;
+                    int groupId;
+                    synchronized (mImplLock) {
+                        groupId = getVolumeGroupIdForAudioContext(zoneId, suggestedContext);
+                    }
 
-            if (Log.isLoggable(CarLog.TAG_AUDIO, Log.VERBOSE)) {
-                Slog.v(CarLog.TAG_AUDIO, "onVolumeAdjustment: "
-                        + AudioManager.adjustToString(adjustment) + " suggested audio context: "
-                        + CarAudioContext.toString(suggestedContext) + " suggested volume group: "
-                        + groupId);
-            }
+                    if (Log.isLoggable(CarLog.TAG_AUDIO, Log.VERBOSE)) {
+                        Slog.v(CarLog.TAG_AUDIO, "onVolumeAdjustment: "
+                                + AudioManager.adjustToString(adjustment)
+                                + " suggested audio context: "
+                                + CarAudioContext.toString(suggestedContext)
+                                + " suggested volume group: "
+                                + groupId);
+                    }
 
-            final int currentVolume = getGroupVolume(zoneId, groupId);
-            final int flags = AudioManager.FLAG_FROM_KEY | AudioManager.FLAG_SHOW_UI;
-            switch (adjustment) {
-                case AudioManager.ADJUST_LOWER:
-                    int minValue = Math.max(currentVolume - 1, getGroupMinVolume(zoneId, groupId));
-                    setGroupVolume(zoneId, groupId, minValue , flags);
-                    break;
-                case AudioManager.ADJUST_RAISE:
-                    int maxValue =  Math.min(currentVolume + 1, getGroupMaxVolume(zoneId, groupId));
-                    setGroupVolume(zoneId, groupId, maxValue, flags);
-                    break;
-                case AudioManager.ADJUST_MUTE:
-                    setMasterMute(true, flags);
-                    callbackMasterMuteChange(zoneId, flags);
-                    break;
-                case AudioManager.ADJUST_UNMUTE:
-                    setMasterMute(false, flags);
-                    callbackMasterMuteChange(zoneId, flags);
-                    break;
-                case AudioManager.ADJUST_TOGGLE_MUTE:
-                    setMasterMute(!mAudioManager.isMasterMute(), flags);
-                    callbackMasterMuteChange(zoneId, flags);
-                    break;
-                case AudioManager.ADJUST_SAME:
-                default:
-                    break;
-            }
-        }
-    };
+                    final int currentVolume = getGroupVolume(zoneId, groupId);
+                    final int flags = AudioManager.FLAG_FROM_KEY | AudioManager.FLAG_SHOW_UI;
+                    switch (adjustment) {
+                        case AudioManager.ADJUST_LOWER:
+                            int minValue =
+                                    Math.max(currentVolume - 1, getGroupMinVolume(zoneId, groupId));
+                            setGroupVolume(zoneId, groupId, minValue , flags);
+                            break;
+                        case AudioManager.ADJUST_RAISE:
+                            int maxValue =
+                                    Math.min(currentVolume + 1, getGroupMaxVolume(zoneId, groupId));
+                            setGroupVolume(zoneId, groupId, maxValue, flags);
+                            break;
+                        case AudioManager.ADJUST_MUTE:
+                            setMasterMute(true, flags);
+                            callbackMasterMuteChange(zoneId, flags);
+                            break;
+                        case AudioManager.ADJUST_UNMUTE:
+                            setMasterMute(false, flags);
+                            callbackMasterMuteChange(zoneId, flags);
+                            break;
+                        case AudioManager.ADJUST_TOGGLE_MUTE:
+                            setMasterMute(!mAudioManager.isMasterMute(), flags);
+                            callbackMasterMuteChange(zoneId, flags);
+                            break;
+                        case AudioManager.ADJUST_SAME:
+                        default:
+                            break;
+                    }
+                }
+            };
 
     /**
      * Simulates {@link ICarVolumeCallback} when it's running in legacy mode.
@@ -236,6 +240,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private Map<Integer, Integer> mUidToZoneMap;
     private OccupantZoneConfigChangeListener
             mOccupantZoneConfigChangeListener = new CarAudioOccupantConfigChangeListener();
+    private CarAudioPlaybackCallback mCarAudioPlaybackCallback;
 
     public CarAudioService(Context context) {
         mContext = context;
@@ -271,6 +276,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             if (mUseDynamicRouting) {
                 setupDynamicRoutingLocked();
                 setupHalAudioFocusListenerLocked();
+                setupAudioConfigurationCallbackLocked();
             } else {
                 Slog.i(CarLog.TAG_AUDIO, "Audio dynamic routing not enabled, run in legacy mode");
                 setupLegacyVolumeChangedListener();
@@ -610,6 +616,13 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         }
 
         setupOccupantZoneInfo();
+    }
+
+    private void setupAudioConfigurationCallbackLocked() {
+        mCarAudioPlaybackCallback =
+                new CarAudioPlaybackCallback(getCarAudioZone(PRIMARY_AUDIO_ZONE),
+                        mClock, mKeyEventTimeoutMs);
+        mAudioManager.registerAudioPlaybackCallback(mCarAudioPlaybackCallback, null);
     }
 
     private void setupOccupantZoneInfo() {
@@ -1233,10 +1246,10 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         return group.getAudioDevicePortForContext(CarAudioContext.getContextForUsage(usage));
     }
 
-    private @AudioContext int getSuggestedAudioContextForPrimaryZone() {
+    @AudioContext int getSuggestedAudioContextForPrimaryZone() {
         int zoneId = PRIMARY_AUDIO_ZONE;
         return mCarVolume.getSuggestedAudioContextAndSaveIfFound(
-                getActiveContextsFromPlaybackConfigurations(zoneId), getCallStateForZone(zoneId),
+                getAllActiveContextsForPrimaryZone(), getCallStateForZone(zoneId),
                 getActiveHalUsagesForZone(zoneId));
     }
 
@@ -1407,6 +1420,12 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 "Invalid audio zone Id " + zoneId);
     }
 
+    int getVolumeGroupIdForAudioContext(int zoneId, int suggestedContext) {
+        synchronized (mImplLock) {
+            return getVolumeGroupIdForAudioContextLocked(zoneId, suggestedContext);
+        }
+    }
+
     private class CarAudioOccupantConfigChangeListener implements OccupantZoneConfigChangeListener {
         @Override
         public void onOccupantZoneConfigChanged(int flags) {
@@ -1420,6 +1439,12 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                     == CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_DISPLAY)) {
                 handleOccupantZoneUserChanged();
             }
+        }
+    }
+
+    private List<Integer> getAllActiveContextsForPrimaryZone() {
+        synchronized (mImplLock) {
+            return mCarAudioPlaybackCallback.getAllActiveContextsForPrimaryZone();
         }
     }
 

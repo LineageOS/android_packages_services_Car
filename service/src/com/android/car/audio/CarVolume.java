@@ -18,6 +18,7 @@ package com.android.car.audio;
 
 import static com.android.car.audio.CarAudioService.DEFAULT_AUDIO_CONTEXT;
 import static com.android.car.audio.CarAudioService.SystemClockWrapper;
+import static com.android.car.audio.CarAudioUtils.hasExpired;
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
@@ -224,10 +225,6 @@ final class CarVolume {
         }
 
         return context;
-    }
-
-    static boolean hasExpired(long startTimeMs, long currentTimeMs, int timeoutMs) {
-        return (currentTimeMs - startTimeMs) > timeoutMs;
     }
 
     @IntDef({
