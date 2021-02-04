@@ -56,7 +56,6 @@ public:
     WatchdogBinderMediator(
             const android::sp<WatchdogProcessService>& watchdogProcessService,
             const android::sp<WatchdogPerfService>& watchdogPerfService,
-            const android::sp<IoOveruseMonitor>& ioOveruseMonitor,
             const android::sp<IWatchdogServiceHelperInterface>& watchdogServiceHelper,
             const std::function<android::base::Result<void>(const char*,
                                                             const android::sp<android::IBinder>&)>&
@@ -95,7 +94,6 @@ protected:
     void terminate() {
         mWatchdogProcessService.clear();
         mWatchdogPerfService.clear();
-        mIoOveruseMonitor.clear();
         if (mWatchdogInternalHandler != nullptr) {
             mWatchdogInternalHandler->terminate();
             mWatchdogInternalHandler.clear();
@@ -107,7 +105,6 @@ private:
 
     android::sp<WatchdogProcessService> mWatchdogProcessService;
     android::sp<WatchdogPerfService> mWatchdogPerfService;
-    android::sp<IoOveruseMonitor> mIoOveruseMonitor;
     android::sp<WatchdogInternalHandler> mWatchdogInternalHandler;
 
     // Used by tests to stub the call to IServiceManager.

@@ -39,19 +39,25 @@ namespace watchdog {
 
 class WatchdogBinderMediator;
 
+// For unit test.
+namespace internal {
+
+class WatchdogInternalHandlerPeer;
+
+}  // namespace internal
+
 class WatchdogInternalHandler : public android::automotive::watchdog::internal::BnCarWatchdog {
 public:
     explicit WatchdogInternalHandler(
             const android::sp<WatchdogBinderMediator>& binderMediator,
             const android::sp<IWatchdogServiceHelperInterface>& watchdogServiceHelper,
             const android::sp<WatchdogProcessService>& watchdogProcessService,
-            const android::sp<WatchdogPerfService>& watchdogPerfService,
-            const android::sp<IoOveruseMonitor>& ioOveruseMonitor) :
+            const android::sp<WatchdogPerfService>& watchdogPerfService) :
           mBinderMediator(binderMediator),
           mWatchdogServiceHelper(watchdogServiceHelper),
           mWatchdogProcessService(watchdogProcessService),
           mWatchdogPerfService(watchdogPerfService),
-          mIoOveruseMonitor(ioOveruseMonitor) {}
+          mIoOveruseMonitor(new IoOveruseMonitor()) {}
     ~WatchdogInternalHandler() { terminate(); }
 
     status_t dump(int fd, const Vector<String16>& args) override;
@@ -103,6 +109,8 @@ private:
     friend class WatchdogBinderMediator;
 
     // For unit tests.
+    friend class internal::WatchdogInternalHandlerPeer;
+
     FRIEND_TEST(WatchdogInternalHandlerTest, TestTerminate);
 };
 

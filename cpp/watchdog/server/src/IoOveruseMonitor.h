@@ -38,7 +38,7 @@ namespace watchdog {
 // IoOveruseMonitor implements the I/O overuse monitoring module.
 class IoOveruseMonitor : public IDataProcessorInterface {
 public:
-    IoOveruseMonitor() : mIoOveruseConfigs({}) {}
+    IoOveruseMonitor() : mIsInitialized(false), mIoOveruseConfigs({}) {}
 
     ~IoOveruseMonitor() { terminate(); }
 
@@ -50,10 +50,6 @@ public:
             const android::automotive::watchdog::internal::IoOveruseConfiguration& config);
 
     // Implements IDataProcessorInterface.
-    android::base::Result<void> start();
-
-    void terminate();
-
     android::base::Result<void> onBoottimeCollection(
             time_t /*time*/, const android::wp<UidIoStats>& /*uidIoStats*/,
             const android::wp<ProcStat>& /*procStat*/,
@@ -96,12 +92,21 @@ public:
         return {};
     }
 
+protected:
+    android::base::Result<void> init();
+
+    void terminate();
+
 private:
     // Makes sure only one collection is running at any given time.
     Mutex mMutex;
 
+    bool mIsInitialized GUARDED_BY(mMutex);
+
     // Summary of configs available for all the components and system-wide overuse alert thresholds.
     IoOveruseConfigs mIoOveruseConfigs GUARDED_BY(mMutex);
+
+    friend class WatchdogPerfService;
 };
 
 }  // namespace watchdog

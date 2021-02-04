@@ -119,6 +119,8 @@ class IoPerfCollectionPeer;
 class IoPerfCollection : public IDataProcessorInterface {
 public:
     IoPerfCollection() :
+          mTopNStatsPerCategory(0),
+          mTopNStatsPerSubcategory(0),
           mPackageInfoResolver(PackageInfoResolver::getInstance()),
           mBoottimeCollection({}),
           mPeriodicCollection({}),
@@ -130,11 +132,6 @@ public:
     std::string name() { return "IoPerfCollection"; }
 
     // Implements IDataProcessorInterface.
-    android::base::Result<void> start();
-
-    // Clears in-memory cache.
-    void terminate();
-
     android::base::Result<void> onBoottimeCollection(time_t time,
                                                      const android::wp<UidIoStats>& uidIoStats,
                                                      const android::wp<ProcStat>& procStat,
@@ -160,6 +157,12 @@ public:
     android::base::Result<void> onDump(int fd);
 
     android::base::Result<void> onCustomCollectionDump(int fd);
+
+protected:
+    android::base::Result<void> init();
+
+    // Clears in-memory cache.
+    void terminate();
 
 private:
     // Processes the collected data.
@@ -211,6 +214,8 @@ private:
     // Major faults delta from last collection. Useful when calculating the percentage change in
     // major faults since last collection.
     uint64_t mLastMajorFaults GUARDED_BY(mMutex);
+
+    friend class WatchdogPerfService;
 
     // For unit tests.
     friend class internal::IoPerfCollectionPeer;

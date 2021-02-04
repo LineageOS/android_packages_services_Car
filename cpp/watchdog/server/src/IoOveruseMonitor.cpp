@@ -20,6 +20,8 @@
 
 #include "PackageInfoResolver.h"
 
+#include <binder/Status.h>
+
 namespace android {
 namespace automotive {
 namespace watchdog {
@@ -28,8 +30,13 @@ using ::android::automotive::watchdog::internal::ComponentType;
 using ::android::automotive::watchdog::internal::IoOveruseConfiguration;
 using ::android::base::Error;
 using ::android::base::Result;
+using ::android::binder::Status;
 
-Result<void> IoOveruseMonitor::start() {
+Result<void> IoOveruseMonitor::init() {
+    Mutex::Autolock lock(mMutex);
+    if (mIsInitialized) {
+        return Error() << "Cannot initialize " << name() << " more than once";
+    }
     // TODO(b/167240592): Read the latest I/O overuse config, last per-package I/O usage, and
     //  last N days per-package I/O overuse stats.
     //  The latest I/O overuse config is read in this order:
@@ -41,6 +48,7 @@ Result<void> IoOveruseMonitor::start() {
     // TODO(b/167240592): Read the vendor package prefixes from disk before the below call.
     PackageInfoResolver::getInstance()->setVendorPackagePrefixes(
             mIoOveruseConfigs.vendorPackagePrefixes);
+    mIsInitialized = true;
     return {};
 }
 
@@ -124,6 +132,9 @@ Result<void> IoOveruseMonitor::onDump([[maybe_unused]] int fd) {
 Result<void> IoOveruseMonitor::updateIoOveruseConfiguration(ComponentType type,
                                                             const IoOveruseConfiguration& config) {
     Mutex::Autolock lock(mMutex);
+    if (!mIsInitialized) {
+        return Error(Status::EX_ILLEGAL_STATE) << name() << " is not initialized";
+    }
     return mIoOveruseConfigs.update(type, config);
 }
 

@@ -63,7 +63,7 @@ class MockDataProcessor : public IDataProcessorInterface {
 public:
     MockDataProcessor() { ON_CALL(*this, name()).WillByDefault(Return("MockedDataProcessor")); }
     MOCK_METHOD(std::string, name, (), (override));
-    MOCK_METHOD(Result<void>, start, (), (override));
+    MOCK_METHOD(Result<void>, init, (), (override));
     MOCK_METHOD(void, terminate, (), (override));
     MOCK_METHOD(Result<void>, onBoottimeCollection,
                 (time_t, const wp<UidIoStats>&, const wp<ProcStat>&, const wp<ProcPidStat>&),
@@ -99,12 +99,15 @@ public:
         mockProcPidStat = new NiceMock<MockProcPidStat>();
         mockDataProcessor = new StrictMock<MockDataProcessor>();
 
-        Mutex::Autolock lock(service->mMutex);
-        service->mHandlerLooper = looperStub;
-        service->mUidIoStats = mockUidIoStats;
-        service->mProcDiskStats = mockProcDiskStats;
-        service->mProcStat = mockProcStat;
-        service->mProcPidStat = mockProcPidStat;
+        {
+            Mutex::Autolock lock(service->mMutex);
+            service->mHandlerLooper = looperStub;
+            service->mUidIoStats = mockUidIoStats;
+            service->mProcDiskStats = mockProcDiskStats;
+            service->mProcStat = mockProcStat;
+            service->mProcPidStat = mockProcPidStat;
+        }
+        EXPECT_CALL(*mockDataProcessor, init()).Times(1);
         ASSERT_RESULT_OK(service->registerDataProcessor(mockDataProcessor));
     }
 
@@ -153,6 +156,11 @@ public:
 
 TEST(WatchdogPerfServiceTest, TestServiceStartAndTerminate) {
     sp<WatchdogPerfService> service = new WatchdogPerfService();
+    sp<MockDataProcessor> mockDataProcessor = new MockDataProcessor();
+
+    EXPECT_CALL(*mockDataProcessor, init()).Times(1);
+
+    ASSERT_RESULT_OK(service->registerDataProcessor(mockDataProcessor));
     ASSERT_RESULT_OK(service->start());
     ASSERT_TRUE(service->mCollectionThread.joinable()) << "Collection thread not created";
     ASSERT_FALSE(service->start().ok())
@@ -176,9 +184,7 @@ TEST(WatchdogPerfServiceTest, TestValidCollectionSequence) {
     sp<WatchdogPerfService> service = new WatchdogPerfService();
 
     internal::WatchdogPerfServicePeer servicePeer(service);
-    servicePeer.injectFakes();
-
-    EXPECT_CALL(*servicePeer.mockDataProcessor, start()).Times(1);
+    ASSERT_NO_FATAL_FAILURE(servicePeer.injectFakes());
 
     ASSERT_RESULT_OK(servicePeer.start());
 
@@ -366,9 +372,7 @@ TEST(WatchdogPerfServiceTest, TestCollectionTerminatesOnZeroEnabledCollectors) {
     sp<WatchdogPerfService> service = new WatchdogPerfService();
 
     internal::WatchdogPerfServicePeer servicePeer(service);
-    servicePeer.injectFakes();
-
-    EXPECT_CALL(*servicePeer.mockDataProcessor, start()).Times(1);
+    ASSERT_NO_FATAL_FAILURE(servicePeer.injectFakes());
 
     ASSERT_RESULT_OK(servicePeer.start());
 
@@ -390,9 +394,7 @@ TEST(WatchdogPerfServiceTest, TestCollectionTerminatesOnDataCollectorError) {
     sp<WatchdogPerfService> service = new WatchdogPerfService();
 
     internal::WatchdogPerfServicePeer servicePeer(service);
-    servicePeer.injectFakes();
-
-    EXPECT_CALL(*servicePeer.mockDataProcessor, start()).Times(1);
+    ASSERT_NO_FATAL_FAILURE(servicePeer.injectFakes());
 
     ASSERT_RESULT_OK(servicePeer.start());
 
@@ -414,9 +416,8 @@ TEST(WatchdogPerfServiceTest, TestCollectionTerminatesOnDataProcessorError) {
     sp<WatchdogPerfService> service = new WatchdogPerfService();
 
     internal::WatchdogPerfServicePeer servicePeer(service);
-    servicePeer.injectFakes();
+    ASSERT_NO_FATAL_FAILURE(servicePeer.injectFakes());
 
-    EXPECT_CALL(*servicePeer.mockDataProcessor, start()).Times(1);
     EXPECT_CALL(*servicePeer.mockDataProcessor, name()).Times(1);
 
     ASSERT_RESULT_OK(servicePeer.start());
@@ -443,9 +444,7 @@ TEST(WatchdogPerfServiceTest, TestCustomCollection) {
     sp<WatchdogPerfService> service = new WatchdogPerfService();
 
     internal::WatchdogPerfServicePeer servicePeer(service);
-    servicePeer.injectFakes();
-
-    EXPECT_CALL(*servicePeer.mockDataProcessor, start()).Times(1);
+    ASSERT_NO_FATAL_FAILURE(servicePeer.injectFakes());
 
     ASSERT_RESULT_OK(servicePeer.start());
 

@@ -69,7 +69,7 @@ public:
     // Returns the name of the data processor.
     virtual std::string name() = 0;
     // Callback to initialize the data processor.
-    virtual android::base::Result<void> start() = 0;
+    virtual android::base::Result<void> init() = 0;
     // Callback to terminate the data processor.
     virtual void terminate() = 0;
     // Callback to process the data collected during boot-time.
@@ -151,13 +151,7 @@ public:
 
     // Register a data processor to process the data collected by |WatchdogPerfService|.
     android::base::Result<void> registerDataProcessor(
-            android::sp<IDataProcessorInterface> processor) {
-        if (processor == nullptr) {
-            return android::base::Error() << "Must provide a valid data processor";
-        }
-        mDataProcessors.emplace_back(processor);
-        return {};
-    }
+            android::sp<IDataProcessorInterface> processor);
 
     // Starts the boot-time collection in the looper handler on a new thread and returns
     // immediately. Must be called only once. Otherwise, returns an error.

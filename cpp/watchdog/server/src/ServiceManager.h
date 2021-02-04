@@ -43,7 +43,6 @@ private:
 
     static android::sp<WatchdogProcessService> sWatchdogProcessService;
     static android::sp<WatchdogPerfService> sWatchdogPerfService;
-    static android::sp<IoOveruseMonitor> sIoOveruseMonitor;
     static android::sp<WatchdogBinderMediator> sWatchdogBinderMediator;
     static android::sp<IWatchdogServiceHelperInterface> sWatchdogServiceHelper;
 };

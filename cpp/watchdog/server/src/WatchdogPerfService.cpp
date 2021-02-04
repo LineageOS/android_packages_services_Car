@@ -129,6 +129,20 @@ std::string WatchdogPerfService::EventMetadata::toString() const {
     return buffer;
 }
 
+Result<void> WatchdogPerfService::registerDataProcessor(
+        android::sp<IDataProcessorInterface> processor) {
+    if (processor == nullptr) {
+        return Error() << "Must provide a valid data processor";
+    }
+    if (const auto result = processor->init(); !result.ok()) {
+        return Error() << "Failed to initialize " << processor->name().c_str() << ": "
+                       << result.error().message();
+    }
+    Mutex::Autolock lock(mMutex);
+    mDataProcessors.push_back(processor);
+    return {};
+}
+
 Result<void> WatchdogPerfService::start() {
     {
         Mutex::Autolock lock(mMutex);
@@ -162,15 +176,10 @@ Result<void> WatchdogPerfService::start() {
                 .interval = periodicMonitorInterval,
                 .lastUptime = 0,
         };
-        for (const auto& processor : mDataProcessors) {
-            if (const auto& result = processor->start(); !result.ok()) {
-                std::string errorMsg =
-                        StringPrintf("Failed to start %s: %s", processor->name().c_str(),
-                                     result.error().message().c_str());
-                ALOGE("Terminating %s: %s", kServiceName, errorMsg.c_str());
-                mCurrCollectionEvent = EventType::TERMINATED;
-                return Error() << errorMsg;
-            }
+        if (mDataProcessors.empty()) {
+            ALOGE("Terminating %s: No data processor is registered", kServiceName);
+            mCurrCollectionEvent = EventType::TERMINATED;
+            return Error() << "No data processor is registered";
         }
     }
 
