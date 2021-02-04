@@ -35,13 +35,13 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
+import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.util.Slog;
 
 import com.android.car.power.SilentModeController;
 import com.android.internal.annotations.VisibleForTesting;
 
-import java.io.PrintWriter;
 import java.util.List;
 import java.util.Objects;
 
@@ -375,9 +375,11 @@ public class BluetoothDeviceConnectionPolicy {
     /**
      * Print the verbose status of the object
      */
-    public void dump(PrintWriter writer, String indent) {
-        writer.println(indent + TAG + ":");
-        writer.println(indent + "\tUserId: " + mUserId);
+    public void dump(IndentingPrintWriter writer) {
+        writer.printf("%s:\n", TAG);
+        writer.increaseIndent();
+        writer.printf("UserId: %d\n", mUserId);
+        writer.decreaseIndent();
     }
 
     /**

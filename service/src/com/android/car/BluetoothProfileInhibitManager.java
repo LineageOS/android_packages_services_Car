@@ -30,12 +30,12 @@ import android.os.Looper;
 import android.os.RemoteException;
 import android.provider.Settings;
 import android.text.TextUtils;
+import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.util.Slog;
 
 import com.android.internal.annotations.GuardedBy;
 
-import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -576,18 +576,21 @@ public class BluetoothProfileInhibitManager {
     /**
      * Print the verbose status of the object
      */
-    public void dump(PrintWriter writer, String indent) {
-        writer.println(indent + TAG + ":");
+    public void dump(IndentingPrintWriter writer) {
+        writer.printf("%s:\n", TAG);
+        writer.increaseIndent();
 
         // User metadata
-        writer.println(indent + "\tUser: " + mUserId);
+        writer.printf("User: %d\n", mUserId);
 
         // Current inhibits
         String inhibits;
         synchronized (mProfileInhibitsLock) {
             inhibits = mProfileInhibits.keySet().toString();
         }
-        writer.println(indent + "\tInhibited profiles: " + inhibits);
+        writer.printf("Inhibited profiles: %s\n", inhibits);
+
+        writer.decreaseIndent();
     }
 
     /**
