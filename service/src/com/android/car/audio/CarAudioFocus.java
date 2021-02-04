@@ -24,15 +24,16 @@ import android.util.IndentingPrintWriter;
 import android.util.LocalLog;
 import android.util.Slog;
 
+import com.android.car.CarLog;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-
 class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
-    private static final String TAG = "CarAudioFocus";
+    private static final String TAG = CarLog.tagFor(CarAudioFocus.class);
 
     private static final int FOCUS_EVENT_LOGGER_QUEUE_SIZE = 25;
 

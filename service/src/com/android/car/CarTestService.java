@@ -36,7 +36,7 @@ import java.util.Map;
  */
 class CarTestService extends ICarTest.Stub implements CarServiceBase {
 
-    private static final String TAG = CarTestService.class.getSimpleName();
+    private static final String TAG = CarLog.tagFor(CarTestService.class);
 
     private final Context mContext;
     private final ICarImpl mICarImpl;

@@ -31,6 +31,7 @@ import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.util.Slog;
 
+import com.android.car.CarLog;
 import com.android.car.audio.CarDuckingInfo;
 
 import java.util.Objects;
@@ -39,7 +40,7 @@ import java.util.Objects;
  * Wrapper for AIDL interface for AudioControl HAL
  */
 public final class AudioControlWrapperAidl implements AudioControlWrapper {
-    private static final String TAG = AudioControlWrapperAidl.class.getSimpleName();
+    private static final String TAG = CarLog.tagFor(AudioControlWrapperAidl.class);
     private static final String AUDIO_CONTROL_SERVICE =
             "android.hardware.automotive.audiocontrol.IAudioControl/default";
     private IBinder mBinder;

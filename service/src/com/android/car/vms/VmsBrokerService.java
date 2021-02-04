@@ -41,6 +41,7 @@ import android.util.ArraySet;
 import android.util.IndentingPrintWriter;
 import android.util.Slog;
 
+import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
 import com.android.car.stats.CarStatsService;
 import com.android.car.stats.VmsClientLogger;
@@ -66,7 +67,7 @@ import java.util.stream.Collectors;
  */
 public class VmsBrokerService extends IVmsBrokerService.Stub implements CarServiceBase {
     private static final boolean DBG = false;
-    private static final String TAG = VmsBrokerService.class.getSimpleName();
+    private static final String TAG = CarLog.tagFor(VmsBrokerService.class);
 
     private final Context mContext;
     private final PackageManager mPackageManager;

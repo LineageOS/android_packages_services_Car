@@ -36,6 +36,7 @@ import android.os.Build;
 import android.util.Slog;
 import android.util.SparseArray;
 
+import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
 import com.android.internal.annotations.GuardedBy;
 
@@ -69,7 +70,7 @@ public class PropertyHalService extends HalServiceBase {
     private static final Map<Integer, Integer> PROPERTY_ID_MANAGER_TO_HAL = Map.of(
             VehiclePropertyIds.VEHICLE_SPEED_DISPLAY_UNITS,
             VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS);
-    private static final String TAG = "PropertyHalService";
+    private static final String TAG = CarLog.tagFor(PropertyHalService.class);
     private final VehicleHal mVehicleHal;
     private final PropertyHalServiceIds mPropIds;
 

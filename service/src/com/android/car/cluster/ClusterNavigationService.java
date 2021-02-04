@@ -44,7 +44,7 @@ import java.util.Objects;
  */
 public class ClusterNavigationService extends IInstrumentClusterNavigation.Stub
         implements CarServiceBase, FocusOwnershipCallback {
-    private static final String TAG = CarLog.TAG_CLUSTER;
+    private static final String TAG = CarLog.tagFor(ClusterNavigationService.class);
     private static final ContextOwner NO_OWNER = new ContextOwner(0, 0);
 
     private final Context mContext;

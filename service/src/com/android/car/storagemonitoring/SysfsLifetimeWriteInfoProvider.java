@@ -20,6 +20,7 @@ import android.annotation.Nullable;
 import android.car.storagemonitoring.LifetimeWriteInfo;
 import android.util.Slog;
 
+import com.android.car.CarLog;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.File;
@@ -37,7 +38,7 @@ import java.util.Objects;
  * /sys/fs/<i>type</i>/<i>partition</i>/lifetime_write_kbytes VFS entry points.</p>
  */
 public class SysfsLifetimeWriteInfoProvider implements LifetimeWriteInfoProvider {
-    private static final String TAG = SysfsLifetimeWriteInfoProvider.class.getSimpleName();
+    private static final String TAG = CarLog.tagFor(SysfsLifetimeWriteInfoProvider.class);
 
     private static final String DEFAULT_PATH = "/sys/fs/";
     private static final String[] KNOWN_FILESYSTEMS = new String[] {

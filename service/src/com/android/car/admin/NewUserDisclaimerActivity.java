@@ -28,6 +28,7 @@ import android.os.Bundle;
 import android.util.Slog;
 import android.widget.Button;
 
+import com.android.car.CarLog;
 import com.android.car.R;
 import com.android.car.admin.ui.ManagedDeviceTextView;
 import com.android.car.ui.NotificationHelper;
@@ -37,7 +38,7 @@ import com.android.car.ui.NotificationHelper;
  */
 public final class NewUserDisclaimerActivity extends Activity {
 
-    private static final String TAG = NewUserDisclaimerActivity.class.getSimpleName();
+    private static final String TAG = CarLog.tagFor(NewUserDisclaimerActivity.class);
     private static final int NOTIFICATION_ID =
             NotificationHelper.NEW_USER_DISCLAIMER_NOTIFICATION_ID;
 

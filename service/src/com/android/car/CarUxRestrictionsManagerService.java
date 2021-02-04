@@ -105,7 +105,7 @@ import java.util.Set;
  */
 public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.Stub implements
         CarServiceBase {
-    private static final String TAG = "CarUxR";
+    private static final String TAG = CarLog.tagFor(CarUxRestrictionsManagerService.class);
     private static final boolean DBG = false;
     private static final int MAX_TRANSITION_LOG_SIZE = 20;
     private static final int PROPERTY_UPDATE_RATE = 5; // Update rate in Hz

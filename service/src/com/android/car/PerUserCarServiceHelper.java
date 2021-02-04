@@ -43,7 +43,7 @@ import java.util.List;
  */
 public class PerUserCarServiceHelper implements CarServiceBase {
 
-    private static final String TAG = "PerUserCarSvcHelper";
+    private static final String TAG = CarLog.tagFor(PerUserCarServiceHelper.class);
     private static boolean DBG = false;
 
     private final Context mContext;

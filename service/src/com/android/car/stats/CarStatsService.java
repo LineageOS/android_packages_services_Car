@@ -25,6 +25,7 @@ import android.util.IndentingPrintWriter;
 import android.util.Slog;
 import android.util.StatsEvent;
 
+import com.android.car.CarLog;
 import com.android.car.CarStatsLog;
 import com.android.car.stats.VmsClientLogger.ConnectionState;
 import com.android.internal.annotations.GuardedBy;
@@ -45,7 +46,7 @@ import java.util.function.Function;
  */
 public class CarStatsService {
     private static final boolean DEBUG = false;
-    private static final String TAG = "CarStatsService";
+    private static final String TAG = CarLog.tagFor(CarStatsService.class);
     private static final String VMS_CONNECTION_STATS_DUMPSYS_HEADER =
             "uid,packageName,attempts,connected,disconnected,terminated,errors";
 
