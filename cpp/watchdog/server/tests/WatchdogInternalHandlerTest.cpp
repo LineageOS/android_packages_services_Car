@@ -60,7 +60,7 @@ public:
             const android::sp<WatchdogProcessService>& watchdogProcessService,
             const android::sp<WatchdogPerfService>& watchdogPerfService,
             const android::sp<IoOveruseMonitor>& ioOveruseMonitor,
-            const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper) :
+            const android::sp<IWatchdogServiceHelperInterface>& watchdogServiceHelper) :
           WatchdogBinderMediator(watchdogProcessService, watchdogPerfService, ioOveruseMonitor,
                                  watchdogServiceHelper,
                                  [](const char*, const android::sp<android::IBinder>&)

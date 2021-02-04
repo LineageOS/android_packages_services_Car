@@ -41,7 +41,7 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-class WatchdogServiceHelperInterface;
+class IWatchdogServiceHelperInterface;
 
 class WatchdogProcessService : public android::RefBase {
 public:
@@ -54,7 +54,7 @@ public:
     void doHealthCheck(int what);
 
     virtual android::base::Result<void> registerWatchdogServiceHelper(
-            const android::sp<WatchdogServiceHelperInterface>& helper);
+            const android::sp<IWatchdogServiceHelperInterface>& helper);
 
     virtual android::binder::Status registerClient(const android::sp<ICarWatchdogClient>& client,
                                                    TimeoutLength timeout);
@@ -94,7 +94,7 @@ private:
               userId(userId),
               type(ClientType::Regular),
               client(client) {}
-        ClientInfo(const android::sp<WatchdogServiceHelperInterface>& helper,
+        ClientInfo(const android::sp<IWatchdogServiceHelperInterface>& helper,
                    const android::sp<android::IBinder>& binder, pid_t pid, userid_t userId) :
               pid(pid),
               userId(userId),
@@ -124,7 +124,7 @@ private:
 
         ClientType type;
         android::sp<ICarWatchdogClient> client = nullptr;
-        android::sp<WatchdogServiceHelperInterface> watchdogServiceHelper = nullptr;
+        android::sp<IWatchdogServiceHelperInterface> watchdogServiceHelper = nullptr;
         android::sp<IBinder> watchdogServiceBinder = nullptr;
     };
 
@@ -245,7 +245,7 @@ private:
             mNotSupportedVhalProperties;
     android::sp<PropertyChangeListener> mPropertyChangeListener;
     HeartBeat mVhalHeartBeat GUARDED_BY(mMutex);
-    android::sp<WatchdogServiceHelperInterface> mWatchdogServiceHelper GUARDED_BY(mMutex);
+    android::sp<IWatchdogServiceHelperInterface> mWatchdogServiceHelper GUARDED_BY(mMutex);
 };
 
 }  // namespace watchdog

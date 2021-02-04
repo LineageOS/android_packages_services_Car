@@ -79,7 +79,7 @@ WatchdogBinderMediator::WatchdogBinderMediator(
         const android::sp<WatchdogProcessService>& watchdogProcessService,
         const android::sp<WatchdogPerfService>& watchdogPerfService,
         const android::sp<IoOveruseMonitor>& ioOveruseMonitor,
-        const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper,
+        const android::sp<IWatchdogServiceHelperInterface>& watchdogServiceHelper,
         const AddServiceFunction& addServiceHandler) :
       mWatchdogProcessService(watchdogProcessService),
       mWatchdogPerfService(watchdogPerfService),

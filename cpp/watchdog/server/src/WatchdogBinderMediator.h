@@ -53,13 +53,14 @@ class WatchdogBinderMediatorPeer;
 // the calls either to process ANR or performance services.
 class WatchdogBinderMediator : public BnCarWatchdog {
 public:
-    WatchdogBinderMediator(const android::sp<WatchdogProcessService>& watchdogProcessService,
-                           const android::sp<WatchdogPerfService>& watchdogPerfService,
-                           const android::sp<IoOveruseMonitor>& ioOveruseMonitor,
-                           const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper,
-                           const std::function<android::base::Result<void>(
-                                   const char*, const android::sp<android::IBinder>&)>&
-                                   addServiceHandler = nullptr);
+    WatchdogBinderMediator(
+            const android::sp<WatchdogProcessService>& watchdogProcessService,
+            const android::sp<WatchdogPerfService>& watchdogPerfService,
+            const android::sp<IoOveruseMonitor>& ioOveruseMonitor,
+            const android::sp<IWatchdogServiceHelperInterface>& watchdogServiceHelper,
+            const std::function<android::base::Result<void>(const char*,
+                                                            const android::sp<android::IBinder>&)>&
+                    addServiceHandler = nullptr);
     ~WatchdogBinderMediator() { terminate(); }
 
     // Implements ICarWatchdog.aidl APIs.

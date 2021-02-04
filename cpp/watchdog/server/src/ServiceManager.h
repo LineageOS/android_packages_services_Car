@@ -45,7 +45,7 @@ private:
     static android::sp<WatchdogPerfService> sWatchdogPerfService;
     static android::sp<IoOveruseMonitor> sIoOveruseMonitor;
     static android::sp<WatchdogBinderMediator> sWatchdogBinderMediator;
-    static android::sp<WatchdogServiceHelperInterface> sWatchdogServiceHelper;
+    static android::sp<IWatchdogServiceHelperInterface> sWatchdogServiceHelper;
 };
 
 }  // namespace watchdog
