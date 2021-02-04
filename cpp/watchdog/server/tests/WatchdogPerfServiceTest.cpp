@@ -59,7 +59,7 @@ constexpr std::chrono::seconds kTestCustomCollectionInterval = 3s;
 constexpr std::chrono::seconds kTestCustomCollectionDuration = 11s;
 constexpr std::chrono::seconds kTestPeriodicMonitorInterval = 2s;
 
-class MockDataProcessor : public DataProcessor {
+class MockDataProcessor : public IDataProcessorInterface {
 public:
     MockDataProcessor() { ON_CALL(*this, name()).WillByDefault(Return("MockedDataProcessor")); }
     MOCK_METHOD(std::string, name, (), (override));

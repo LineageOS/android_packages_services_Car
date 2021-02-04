@@ -36,7 +36,7 @@ namespace automotive {
 namespace watchdog {
 
 // IoOveruseMonitor implements the I/O overuse monitoring module.
-class IoOveruseMonitor : public DataProcessor {
+class IoOveruseMonitor : public IDataProcessorInterface {
 public:
     IoOveruseMonitor() : mIoOveruseConfigs({}) {}
 
@@ -49,7 +49,7 @@ public:
             android::automotive::watchdog::internal::ComponentType type,
             const android::automotive::watchdog::internal::IoOveruseConfiguration& config);
 
-    // DataProcessor interface implementation.
+    // Implements IDataProcessorInterface.
     android::base::Result<void> start();
 
     void terminate();
@@ -77,7 +77,7 @@ public:
 
     // TODO(b/167240592): Forward WatchdogBinderMediator's notifySystemStateChange call to
     //  WatchdogProcessService. On POWER_CYCLE_SHUTDOWN_PREPARE, switch to garage mode collection
-    //  and call this method via the DataProcessor interface.
+    //  and call this method via the IDataProcessorInterface.
     android::base::Result<void> onGarageModeCollection(time_t time,
                                                        const android::wp<UidIoStats>& uidIoStats,
                                                        const android::wp<ProcStat>& procStat,
@@ -85,7 +85,7 @@ public:
 
     // TODO(b/167240592): Forward WatchdogBinderMediator's notifySystemStateChange call to
     //  WatchdogProcessService. On POWER_CYCLE_SHUTDOWN_PREPARE_COMPLETE, call this method via
-    //  the DataProcessor interface. onShutdownPrepareComplete, IoOveruseMonitor will flush
+    //  the IDataProcessorInterface. onShutdownPrepareComplete, IoOveruseMonitor will flush
     //  in-memory stats to disk.
     android::base::Result<void> onShutdownPrepareComplete();
 

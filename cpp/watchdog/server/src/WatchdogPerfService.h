@@ -62,10 +62,10 @@ constexpr const char* kFilterPackagesFlag = "--filter_packages";
  * DataProcessor defines methods that must be implemented in order to process the data collected
  * by |WatchdogPerfService|.
  */
-class DataProcessor : public RefBase {
+class IDataProcessorInterface : public RefBase {
 public:
-    DataProcessor() {}
-    virtual ~DataProcessor() {}
+    IDataProcessorInterface() {}
+    virtual ~IDataProcessorInterface() {}
     // Returns the name of the data processor.
     virtual std::string name() = 0;
     // Callback to initialize the data processor.
@@ -150,7 +150,8 @@ public:
     ~WatchdogPerfService() { terminate(); }
 
     // Register a data processor to process the data collected by |WatchdogPerfService|.
-    android::base::Result<void> registerDataProcessor(android::sp<DataProcessor> processor) {
+    android::base::Result<void> registerDataProcessor(
+            android::sp<IDataProcessorInterface> processor) {
         if (processor == nullptr) {
             return android::base::Error() << "Must provide a valid data processor";
         }
@@ -266,7 +267,7 @@ private:
     android::sp<IProcDiskStatsInterface> mProcDiskStats GUARDED_BY(mMutex);
 
     // Data processors for the collected performance data.
-    std::vector<android::sp<DataProcessor>> mDataProcessors GUARDED_BY(mMutex);
+    std::vector<android::sp<IDataProcessorInterface>> mDataProcessors GUARDED_BY(mMutex);
 
     // For unit tests.
     friend class internal::WatchdogPerfServicePeer;

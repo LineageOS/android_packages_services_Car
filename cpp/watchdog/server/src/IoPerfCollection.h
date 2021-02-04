@@ -116,7 +116,7 @@ class IoPerfCollectionPeer;
 }  // namespace internal
 
 // IoPerfCollection implements the I/O performance data collection module.
-class IoPerfCollection : public DataProcessor {
+class IoPerfCollection : public IDataProcessorInterface {
 public:
     IoPerfCollection() :
           mPackageInfoResolver(PackageInfoResolver::getInstance()),
@@ -129,7 +129,7 @@ public:
 
     std::string name() { return "IoPerfCollection"; }
 
-    // Implements DataProcessor interface.
+    // Implements IDataProcessorInterface.
     android::base::Result<void> start();
 
     // Clears in-memory cache.
