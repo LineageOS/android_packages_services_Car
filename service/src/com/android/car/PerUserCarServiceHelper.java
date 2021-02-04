@@ -16,6 +16,7 @@
 
 package com.android.car;
 
+import android.app.ActivityManager;
 import android.car.IPerUserCarService;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleListener;
@@ -62,11 +63,7 @@ public class PerUserCarServiceHelper implements CarServiceBase {
     }
 
     @Override
-    public void init() {
-        synchronized (mServiceBindLock) {
-            bindToPerUserCarService();
-        }
-    }
+    public void init() {}
 
     @Override
     public void release() {
@@ -80,29 +77,39 @@ public class PerUserCarServiceHelper implements CarServiceBase {
         if (DBG) {
             Slog.d(TAG, "onEvent(" + event + ")");
         }
-        if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING == event.getEventType()) {
-            List<ServiceCallback> callbacks;
-            int userId = event.getUserId();
-            if (DBG) {
-                Slog.d(TAG, "User Switch Happened. New User" + userId);
-            }
+        if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING != event.getEventType()) {
+            return;
+        }
 
-            // Before unbinding, notify the callbacks about unbinding from the service
-            // so the callbacks can clean up their state through the binder before the service is
-            // killed.
-            synchronized (mServiceBindLock) {
-                // copy the callbacks
+        int userId = event.getUserId();
+        if (DBG) {
+            Slog.d(TAG, "User Switch Happened. New User" + userId);
+        }
+
+        List<ServiceCallback> callbacks = null;
+        boolean bound;
+        // Before unbinding, notify the callbacks about unbinding from the service
+        // so the callbacks can clean up their state through the binder before the service is
+        // killed.
+        synchronized (mServiceBindLock) {
+            // copy the callbacks
+            bound = mBound;
+            if (bound) {
                 callbacks = new ArrayList<>(mServiceCallbacks);
             }
-            // call them
+        }
+        if (callbacks != null) {
             for (ServiceCallback callback : callbacks) {
                 callback.onPreUnbind();
             }
-            // unbind from the service running as the previous user.
-            unbindFromPerUserCarService();
-            // bind to the service running as the new user
-            bindToPerUserCarService();
         }
+        // unbind from the service running as the previous user.
+        if (bound) {
+            unbindFromPerUserCarService();
+        }
+        // bind to the service running as the new user
+        bindToPerUserCarService();
+
     };
 
     /**
@@ -151,14 +158,15 @@ public class PerUserCarServiceHelper implements CarServiceBase {
      * Current User.
      */
     private void bindToPerUserCarService() {
+        int userId = ActivityManager.getCurrentUser();
         if (DBG) {
-            Slog.d(TAG, "Binding to User service");
+            Slog.d(TAG, "Binding to User service on user " + userId);
         }
         Intent startIntent = new Intent(mContext, PerUserCarService.class);
         synchronized (mServiceBindLock) {
             mBound = true;
             boolean bindSuccess = mContext.bindServiceAsUser(startIntent, mUserServiceConnection,
-                    mContext.BIND_AUTO_CREATE, UserHandle.CURRENT);
+                    Context.BIND_AUTO_CREATE, UserHandle.of(userId));
             // If valid connection not obtained, unbind
             if (!bindSuccess) {
                 Slog.e(TAG, "bindToPerUserCarService() failed to get valid connection");
