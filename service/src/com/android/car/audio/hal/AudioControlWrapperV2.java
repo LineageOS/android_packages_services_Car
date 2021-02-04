@@ -27,6 +27,7 @@ import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.util.Slog;
 
+import com.android.car.CarLog;
 import com.android.car.audio.CarDuckingInfo;
 
 import java.util.NoSuchElementException;
@@ -36,7 +37,7 @@ import java.util.Objects;
  * Wrapper for IAudioControl@2.0.
  */
 public final class AudioControlWrapperV2 implements AudioControlWrapper {
-    private static final String TAG = AudioControlWrapperV2.class.getSimpleName();
+    private static final String TAG = CarLog.tagFor(AudioControlWrapperV2.class);
 
     private IAudioControl mAudioControlV2;
 

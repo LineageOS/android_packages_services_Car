@@ -58,7 +58,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class CarBugreportManagerService extends ICarBugreportService.Stub implements
         CarServiceBase {
 
-    private static final String TAG = "CarBugreportMgrService";
+    private static final String TAG = CarLog.tagFor(CarBugreportManagerService.class);
 
     /**
      * {@code dumpstate} progress prefixes.

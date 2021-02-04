@@ -86,7 +86,7 @@ import java.util.List;
 class CarProjectionService extends ICarProjection.Stub implements CarServiceBase,
         BinderInterfaceContainer.BinderEventHandler<ICarProjectionKeyEventHandler>,
         CarProjectionManager.ProjectionKeyEventHandler {
-    private static final String TAG = CarLog.TAG_PROJECTION;
+    private static final String TAG = CarLog.tagFor(CarProjectionService.class);
     private static final boolean DBG = true;
 
     private final CarInputService mCarInputService;

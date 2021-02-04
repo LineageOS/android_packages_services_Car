@@ -41,7 +41,7 @@ import java.util.Arrays;
  */
 class FastPairProvider {
 
-    private static final String TAG = "FastPairProvider";
+    private static final String TAG = CarLog.tagFor(FastPairProvider.class);
     private static final boolean DBG = Utils.DBG;
 
     // Service ID assigned for FastPair.

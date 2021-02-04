@@ -108,7 +108,7 @@ final class CarShellCommand extends ShellCommand {
 
     private static final String NO_INITIAL_USER = "N/A";
 
-    private static final String TAG = CarShellCommand.class.getSimpleName();
+    private static final String TAG = CarLog.tagFor(CarShellCommand.class);
     private static final boolean VERBOSE = false;
 
     private static final String COMMAND_HELP = "-h";

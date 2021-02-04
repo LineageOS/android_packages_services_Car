@@ -61,6 +61,7 @@ import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
 import com.android.car.CarLocalServices;
+import com.android.car.CarLog;
 import com.android.car.CarStatsLog;
 import com.android.car.internal.common.EventLogTags;
 import com.android.car.internal.common.UserHelperLite;
@@ -84,7 +85,7 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public final class UserHalService extends HalServiceBase {
 
-    private static final String TAG = UserHalService.class.getSimpleName();
+    private static final String TAG = CarLog.tagFor(UserHalService.class);
 
     private static final String UNSUPPORTED_MSG = "Vehicle HAL does not support user management";
     private static final String USER_ASSOCIATION_UNSUPPORTED_MSG =

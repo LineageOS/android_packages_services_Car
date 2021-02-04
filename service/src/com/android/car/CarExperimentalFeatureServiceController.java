@@ -41,7 +41,7 @@ import java.util.List;
  */
 public final class CarExperimentalFeatureServiceController implements CarServiceBase {
 
-    private static final String TAG = "CAR.EXPERIMENTAL";
+    private static final String TAG = CarLog.tagFor(CarExperimentalFeatureServiceController.class);
 
     private final Context mContext;
 

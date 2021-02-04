@@ -128,7 +128,7 @@ public class ICarImpl extends ICar.Stub {
 
     private final CarServiceBase[] mAllServices;
 
-    private static final String TAG = "ICarImpl";
+    private static final String TAG = CarLog.tagFor(ICarImpl.class);
     private static final String VHAL_TIMING_TAG = "VehicleHalTiming";
     private static final boolean DBG = true; // TODO(b/154033860): STOPSHIP if true
 
