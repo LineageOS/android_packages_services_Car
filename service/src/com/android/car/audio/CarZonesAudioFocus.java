@@ -61,13 +61,13 @@ class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             CarFocusCallback carFocusCallback) {
         //Create the zones here, the policy will be set setOwningPolicy,
         // which is called right after this constructor.
-        Objects.requireNonNull(audioManager);
-        Objects.requireNonNull(packageManager);
-        Objects.requireNonNull(carAudioZones);
-        Objects.requireNonNull(carAudioSettings);
-        mCarFocusCallback = carFocusCallback;
+        Objects.requireNonNull(audioManager, "AudioManager cannot be null");
+        Objects.requireNonNull(packageManager, "PackageManager cannot be null");
+        Objects.requireNonNull(carAudioZones, "CarAudioZones cannot be null");
         Preconditions.checkArgument(carAudioZones.size() != 0,
                 "There must be a minimum of one audio zone");
+        Objects.requireNonNull(carAudioSettings, "CarAudioSettings cannot be null");
+        mCarFocusCallback = carFocusCallback;
 
         //Create focus for all the zones
         for (int i = 0; i < carAudioZones.size(); i++) {
@@ -202,6 +202,7 @@ class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         if (mCarFocusCallback == null) {
             return;
         }
+
         List<AudioFocusInfo> focusHolders = mFocusZones.get(audioZoneId).getAudioFocusHolders();
         mCarFocusCallback.onFocusChange(audioZoneId, focusHolders);
     }
