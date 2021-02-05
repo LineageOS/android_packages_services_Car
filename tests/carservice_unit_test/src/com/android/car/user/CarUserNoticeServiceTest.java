@@ -50,6 +50,7 @@ import android.os.PowerManager;
 import android.os.UserHandle;
 import android.provider.Settings;
 
+import androidx.test.filters.FlakyTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.CarLocalServices;
@@ -156,6 +157,7 @@ public class CarUserNoticeServiceTest extends AbstractExtendedMockitoCarServiceT
     }
 
     @Test
+    @FlakyTest(bugId = 179514944)
     public void featureDisabledTest() {
         // Feature is disabled when the string is empty
         when(mMockedResources.getString(R.string.config_userNoticeUiService)).thenReturn("");
@@ -168,6 +170,7 @@ public class CarUserNoticeServiceTest extends AbstractExtendedMockitoCarServiceT
     }
 
     @Test
+    @FlakyTest(bugId = 179514944)
     public void uiHiddenWhenBroadcastOffReceived() throws Exception {
         setUser();
         // reset UI
@@ -178,6 +181,7 @@ public class CarUserNoticeServiceTest extends AbstractExtendedMockitoCarServiceT
     }
 
     @Test
+    @FlakyTest(bugId = 179514944)
     public void uiShownWhenBroadcastOnReceived() throws Exception {
         setUser();
         // reset UI
@@ -194,6 +198,7 @@ public class CarUserNoticeServiceTest extends AbstractExtendedMockitoCarServiceT
     }
 
     @Test
+    @FlakyTest(bugId = 179514944)
     public void uiHiddenWhenPowerShutDown() throws Exception {
         setUser();
         // reset UI
@@ -204,6 +209,7 @@ public class CarUserNoticeServiceTest extends AbstractExtendedMockitoCarServiceT
     }
 
     @Test
+    @FlakyTest(bugId = 179514944)
     public void uiShownWhenPowerOn() throws Exception {
         setUser();
         // reset UI
@@ -220,6 +226,7 @@ public class CarUserNoticeServiceTest extends AbstractExtendedMockitoCarServiceT
     }
 
     @Test
+    @FlakyTest(bugId = 179514944)
     public void uiNotShownIfKeyDisabled() throws Exception {
         setUser();
         // reset UI
