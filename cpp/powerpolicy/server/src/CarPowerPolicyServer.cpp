@@ -76,6 +76,8 @@ constexpr const char* kCarPowerPolicyServerInterface =
         "android.frameworks.automotive.powerpolicy.ICarPowerPolicyServer/default";
 constexpr const char* kCarPowerPolicySystemNotificationInterface =
         "carpowerpolicy_system_notification";
+constexpr const char* kSystemPowerPolicyNoUserInteraction =
+        "system_power_policy_no_user_interaction";
 
 std::string toString(const CallbackInfo& callback) {
     return StringPrintf("callback(pid %d, filter: %s)", callback.pid,
@@ -130,7 +132,9 @@ Return<void> PropertyChangeListener::onPropertyEvent(const hidl_vec<VehiclePropV
                       ret.error().message().c_str());
             }
         } else if (value.prop == static_cast<int32_t>(VehicleProperty::POWER_POLICY_REQ)) {
-            const auto& ret = mService->applyPowerPolicy(value.value.stringValue, false, false);
+            const auto& ret = mService->applyPowerPolicy(value.value.stringValue,
+                                                         /*carServiceExpected=*/false,
+                                                         /*notifyClients=*/false);
             if (!ret.ok()) {
                 ALOGW("Failed to apply power policy(%s): %s", value.value.stringValue.c_str(),
                       ret.error().message().c_str());
@@ -207,6 +211,7 @@ void CarPowerPolicyServer::terminateService() {
 }
 
 CarPowerPolicyServer::CarPowerPolicyServer() :
+      mSilentModeHandler(this),
       mCurrentPowerPolicy(nullptr),
       mLastApplyPowerPolicy(-1),
       mLastSetDefaultPowerPolicyGroup(-1),
@@ -299,6 +304,7 @@ Status CarPowerPolicyServer::notifyCarServiceReady(PolicyState* policyState) {
     if (!status.isOk()) {
         return status;
     }
+    mSilentModeHandler.stopMonitoringSilentModeHwState();
     Mutex::Autolock lock(mMutex);
     policyState->policyId = mCurrentPowerPolicy.get() ? mCurrentPowerPolicy->policyId : "";
     policyState->policyGroupId = mCurrentPolicyGroupId;
@@ -312,7 +318,8 @@ Status CarPowerPolicyServer::notifyPowerPolicyChange(const std::string& policyId
     if (!status.isOk()) {
         return status;
     }
-    const auto& ret = applyPowerPolicy(policyId, true, true);
+    const auto& ret =
+            applyPowerPolicy(policyId, /*carServiceExpected=*/true, /*notifyClients=*/true);
     if (!ret.ok()) {
         return Status::fromExceptionCode(Status::EX_ILLEGAL_STATE,
                                          StringPrintf("Failed to notify power policy change: %s",
@@ -375,14 +382,16 @@ status_t CarPowerPolicyServer::dump(int fd, const Vector<String16>& args) {
             WriteStringToFd(StringPrintf("%s- %s\n", doubleIndent, toString(callback).c_str()), fd);
         }
     }
-    auto ret = mPolicyManager.dump(fd, args);
-    if (!ret.ok()) {
+    if (const auto& ret = mPolicyManager.dump(fd, args); !ret.ok()) {
         ALOGW("Failed to dump power policy handler: %s", ret.error().message().c_str());
         return ret.error().code();
     }
-    ret = mComponentHandler.dump(fd, args);
-    if (!ret.ok()) {
+    if (const auto& ret = mComponentHandler.dump(fd, args); !ret.ok()) {
         ALOGW("Failed to dump power component handler: %s", ret.error().message().c_str());
+        return ret.error().code();
+    }
+    if (const auto& ret = mSilentModeHandler.dump(fd, args); !ret.ok()) {
+        ALOGW("Failed to dump Silent Mode handler: %s", ret.error().message().c_str());
         return ret.error().code();
     }
     return OK;
@@ -392,7 +401,7 @@ Result<void> CarPowerPolicyServer::init(const sp<Looper>& looper) {
     mHandlerLooper = looper;
     mPolicyManager.init();
     mComponentHandler.init();
-    checkSilentModeFromKernel();
+    mSilentModeHandler.init();
 
     status_t status =
             defaultServiceManager()->addService(String16(kCarPowerPolicyServerInterface), this);
@@ -421,6 +430,7 @@ void CarPowerPolicyServer::terminate() {
         }
         mPolicyChangeCallbacks.clear();
     }
+    mSilentModeHandler.release();
     mComponentHandler.finalize();
 }
 
@@ -449,8 +459,7 @@ void CarPowerPolicyServer::handleHidlDeath(const wp<IBase>& who) {
 }
 
 Result<void> CarPowerPolicyServer::applyPowerPolicy(const std::string& policyId,
-                                                    bool carServiceInOperation,
-                                                    bool notifyClients) {
+                                                    bool carServiceExpected, bool notifyClients) {
     CarPowerPolicyPtr policy = mPolicyManager.getPowerPolicy(policyId);
     if (policy == nullptr) {
         return Error()
@@ -461,7 +470,7 @@ Result<void> CarPowerPolicyServer::applyPowerPolicy(const std::string& policyId,
     std::vector<CallbackInfo> clients;
     {
         Mutex::Autolock lock(mMutex);
-        if (mCarServiceInOperation != carServiceInOperation) {
+        if (mCarServiceInOperation != carServiceExpected) {
             return Error() << (mCarServiceInOperation
                                        ? "After CarService starts serving, power policy cannot be "
                                          "managed in car power policy daemon"
@@ -505,14 +514,23 @@ Result<void> CarPowerPolicyServer::setPowerPolicyGroup(const std::string& groupI
     return {};
 }
 
+void CarPowerPolicyServer::notifySilentModeChange(const bool silent) {
+    if (Mutex::Autolock lock(mMutex); mCarServiceInOperation) {
+        return;
+    }
+    ALOGI("Silent Mode is set to %s", silent ? "silent" : "non-silent");
+    if (auto ret = applyPowerPolicy(kSystemPowerPolicyNoUserInteraction,
+                                    /*carServiceExpected=*/false, /*notifyClients=*/true);
+        !ret.ok()) {
+        ALOGW("Failed to apply power policy: %s", ret.error().message().c_str());
+    }
+    mSilentModeHandler.updateKernelSilentMode(silent);
+}
+
 bool CarPowerPolicyServer::isRegisteredLocked(const sp<ICarPowerPolicyChangeCallback>& callback) {
     sp<IBinder> binder = BnCarPowerPolicyChangeCallback::asBinder(callback);
     return lookupPowerPolicyChangeCallback(mPolicyChangeCallbacks, binder) !=
             mPolicyChangeCallbacks.end();
-}
-
-void CarPowerPolicyServer::checkSilentModeFromKernel() {
-    // TODO(b/162599168): check if silent mode is set by kernel.
 }
 
 // This method ensures that the attempt to connect to VHAL occurs in the main thread.
@@ -562,8 +580,9 @@ void CarPowerPolicyServer::subscribeToVhal() {
     subscribeToProperty(static_cast<int32_t>(VehicleProperty::POWER_POLICY_REQ),
                         [this](const VehiclePropValue& value) {
                             if (value.value.stringValue.size() > 0) {
-                                const auto& ret =
-                                        applyPowerPolicy(value.value.stringValue, false, false);
+                                const auto& ret = applyPowerPolicy(value.value.stringValue,
+                                                                   /*carServiceExpected=*/false,
+                                                                   /*notifyClients=*/false);
                                 if (ret.ok()) {
                                     Mutex::Autolock lock(mMutex);
                                     mLastApplyPowerPolicy = value.timestamp;
