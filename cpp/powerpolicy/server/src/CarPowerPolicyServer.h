@@ -19,6 +19,7 @@
 
 #include "PolicyManager.h"
 #include "PowerComponentHandler.h"
+#include "SilentModeHandler.h"
 
 #include <android-base/result.h>
 #include <android/frameworks/automotive/powerpolicy/BnCarPowerPolicyServer.h>
@@ -129,7 +130,22 @@ private:
     android::sp<CarPowerPolicyServer> mService;
 };
 
-class CarPowerPolicyServer : public BnCarPowerPolicyServer {
+/**
+ * ICarPowerPolicyServerInterface defines additional methods as well as public power policy APIs
+ * that car power policy daemon should implement.
+ */
+class ICarPowerPolicyServerInterface : public BnCarPowerPolicyServer {
+public:
+    // Called when Silent Mode is changed.
+    virtual void notifySilentModeChange(const bool silent) = 0;
+};
+
+/**
+ * CarPowerPolicyServer implements ICarPowerPolicyServerInterface.
+ * It handles power policy requests and Silent Mode before Android framework takes control of the
+ * device.
+ */
+class CarPowerPolicyServer : public ICarPowerPolicyServerInterface {
 public:
     static base::Result<sp<CarPowerPolicyServer>> startService(const sp<android::Looper>& looper);
     static void terminateService();
@@ -156,13 +172,14 @@ public:
                                                  bool carServiceInOperation, bool notifyClients);
     android::base::Result<void> setPowerPolicyGroup(const std::string& groupId);
 
+    void notifySilentModeChange(const bool silent);
+
 private:
     CarPowerPolicyServer();
 
     android::base::Result<void> init(const android::sp<android::Looper>& looper);
     void terminate();
     bool isRegisteredLocked(const android::sp<ICarPowerPolicyChangeCallback>& callback);
-    void checkSilentModeFromKernel();
     void connectToVhal();
     void subscribeToVhal();
     void subscribeToProperty(
@@ -180,6 +197,7 @@ private:
     sp<MessageHandlerImpl> mMessageHandler;
     PowerComponentHandler mComponentHandler;
     PolicyManager mPolicyManager;
+    SilentModeHandler mSilentModeHandler;
     android::Mutex mMutex;
     CarPowerPolicyPtr mCurrentPowerPolicy GUARDED_BY(mMutex);
     std::string mCurrentPolicyGroupId GUARDED_BY(mMutex);
