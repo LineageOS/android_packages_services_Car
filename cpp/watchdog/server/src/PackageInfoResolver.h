@@ -40,7 +40,7 @@ namespace watchdog {
 
 class ServiceManager;
 class IoOveruseMonitor;
-struct IoOveruseConfigs;
+class IoOveruseConfigs;
 
 // Forward declaration for testing use only.
 namespace internal {
@@ -64,7 +64,7 @@ protected:
 private:
     friend class ServiceManager;
     friend class IoOveruseMonitor;
-    friend struct IoOveruseConfigs;
+    friend class IoOveruseConfigs;
 };
 
 /*
@@ -139,7 +139,7 @@ private:
 
     friend class ServiceManager;
     friend class IoOveruseMonitor;
-    friend struct IoOveruseConfigs;
+    friend class IoOveruseConfigs;
 
     // For unit tests.
     static std::function<struct passwd*(uid_t)> sGetpwuidHandler;

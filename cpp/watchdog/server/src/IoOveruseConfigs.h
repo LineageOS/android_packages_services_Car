@@ -25,8 +25,9 @@
 #include <android/automotive/watchdog/internal/IoOveruseConfiguration.h>
 #include <android/automotive/watchdog/internal/PerStateIoOveruseThreshold.h>
 
-#include <regex>  // NOLINT
+#include <optional>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -34,31 +35,92 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-struct ComponentSpecificConfig {
+class IoOveruseConfigs;
+
+/*
+ * ComponentSpecificConfig represents the I/O overuse config defined per component.
+ */
+class ComponentSpecificConfig final {
+public:
+    ComponentSpecificConfig() {}
+
+    // Used in tests
+    ComponentSpecificConfig(
+            android::automotive::watchdog::internal::PerStateIoOveruseThreshold genericVal,
+            std::unordered_map<std::string,
+                               android::automotive::watchdog::internal::PerStateIoOveruseThreshold>
+                    perPackageThresholdsVal,
+            std::unordered_set<std::string> safeToKillPackagesVal) :
+          generic(genericVal),
+          perPackageThresholds(perPackageThresholdsVal),
+          safeToKillPackages(safeToKillPackagesVal) {}
+
+    ~ComponentSpecificConfig() {
+        perPackageThresholds.clear();
+        safeToKillPackages.clear();
+    }
+
+    /*
+     * I/O overuse configurations for all packages under the component that are not covered by
+     * |perPackageThresholds| or |IoOveruseConfigs.perCategoryThresholds|.
+     */
     android::automotive::watchdog::internal::PerStateIoOveruseThreshold generic;
+    /*
+     * I/O overuse configurations for specific packages under the component.
+     */
     std::unordered_map<std::string,
                        android::automotive::watchdog::internal::PerStateIoOveruseThreshold>
             perPackageThresholds;
+    /*
+     * List of safe to kill packages under the component in the event of I/O overuse.
+     */
     std::unordered_set<std::string> safeToKillPackages;
 
+protected:
+    /*
+     * Updates |perPackageThresholds|.
+     */
     android::base::Result<void> updatePerPackageThresholds(
             const std::vector<android::automotive::watchdog::internal::PerStateIoOveruseThreshold>&
-                    thresholds);
+                    thresholds,
+            const std::function<void(const std::string&)>& maybeAppendVendorPackagePrefixes);
+    /*
+     * Updates |safeToKillPackages|.
+     */
+    android::base::Result<void> updateSafeToKillPackages(
+            const std::vector<android::String16>& packages,
+            const std::function<void(const std::string&)>& maybeAppendVendorPackagePrefixes);
+
+private:
+    friend class IoOveruseConfigs;
 };
 
-struct IoOveruseConfigs {
+/*
+ * IoOveruseConfigs represents the I/O overuse configuration defined by system and vendor
+ * applications.
+ */
+class IoOveruseConfigs final {
+public:
+    IoOveruseConfigs() {}
+    ~IoOveruseConfigs() {
+        perCategoryThresholds.clear();
+        vendorPackagePrefixes.clear();
+        alertThresholds.clear();
+    }
+
+    // Overwrites the existing configuration for the given |componentType|.
     android::base::Result<void> update(
-            android::automotive::watchdog::internal::ComponentType type,
+            const android::automotive::watchdog::internal::ComponentType componentType,
             const android::automotive::watchdog::internal::IoOveruseConfiguration& config);
 
 private:
-    struct IoOveruseAlertThresholdHash {
+    struct AlertThresholdHashByDuration {
     public:
         size_t operator()(const android::automotive::watchdog::internal::IoOveruseAlertThreshold&
                                   threshold) const;
     };
 
-    struct IoOveruseAlertThresholdEqual {
+    struct AlertThresholdEqualByDuration {
     public:
         bool operator()(
                 const android::automotive::watchdog::internal::IoOveruseAlertThreshold& l,
@@ -66,15 +128,21 @@ private:
     };
 
 public:
+    // System component specific configuration.
     ComponentSpecificConfig systemConfig;
+    // Vendor component specific configuration.
     ComponentSpecificConfig vendorConfig;
+    // Third-party component specific configuration.
     ComponentSpecificConfig thirdPartyConfig;
+    // I/O overuse thresholds per category.
     std::unordered_map<android::automotive::watchdog::internal::ApplicationCategoryType,
                        android::automotive::watchdog::internal::PerStateIoOveruseThreshold>
             perCategoryThresholds;
+    // List of vendor package prefixes.
     std::unordered_set<std::string> vendorPackagePrefixes;
+    // System-wide disk I/O overuse alert thresholds.
     std::unordered_set<android::automotive::watchdog::internal::IoOveruseAlertThreshold,
-                       IoOveruseAlertThresholdHash, IoOveruseAlertThresholdEqual>
+                       AlertThresholdHashByDuration, AlertThresholdEqualByDuration>
             alertThresholds;
 
 private:
