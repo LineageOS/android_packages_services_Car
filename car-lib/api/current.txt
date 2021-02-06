@@ -224,7 +224,7 @@ package android.car {
   }
 
   public final class VehiclePropertyIds {
-    ctor public VehiclePropertyIds();
+    ctor @Deprecated public VehiclePropertyIds();
     method public static String toString(int);
     field @RequiresPermission("android.car.permission.CAR_DYNAMICS_STATE") public static final int ABS_ACTIVE = 287310858; // 0x1120040a
     field @RequiresPermission("android.car.permission.CAR_POWER") public static final int AP_POWER_BOOTUP_REASON = 289409538; // 0x11400a02
