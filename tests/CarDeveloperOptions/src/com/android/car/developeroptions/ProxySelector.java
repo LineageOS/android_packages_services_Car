@@ -23,7 +23,6 @@ import android.app.settings.SettingsEnums;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
-import android.net.Proxy;
 import android.net.ProxyInfo;
 import android.os.Bundle;
 import android.text.Selection;
@@ -43,6 +42,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.android.car.developeroptions.SettingsPreferenceFragment.SettingsDialogFragment;
 import com.android.car.developeroptions.core.InstrumentedFragment;
+import com.android.net.module.util.ProxyUtils;
 
 public class ProxySelector extends InstrumentedFragment implements DialogCreatable {
     private static final String TAG = "ProxySelector";
@@ -185,18 +185,18 @@ public class ProxySelector extends InstrumentedFragment implements DialogCreatab
      * @return 0 on success, string resource ID on failure
      */
     public static int validate(String hostname, String port, String exclList) {
-        switch (Proxy.validate(hostname, port, exclList)) {
-            case Proxy.PROXY_VALID:
+        switch (ProxyUtils.validate(hostname, port, exclList)) {
+            case ProxyUtils.PROXY_VALID:
                 return 0;
-            case Proxy.PROXY_HOSTNAME_EMPTY:
+            case ProxyUtils.PROXY_HOSTNAME_EMPTY:
                 return R.string.proxy_error_empty_host_set_port;
-            case Proxy.PROXY_HOSTNAME_INVALID:
+            case ProxyUtils.PROXY_HOSTNAME_INVALID:
                 return R.string.proxy_error_invalid_host;
-            case Proxy.PROXY_PORT_EMPTY:
+            case ProxyUtils.PROXY_PORT_EMPTY:
                 return R.string.proxy_error_empty_port;
-            case Proxy.PROXY_PORT_INVALID:
+            case ProxyUtils.PROXY_PORT_INVALID:
                 return R.string.proxy_error_invalid_port;
-            case Proxy.PROXY_EXCLLIST_INVALID:
+            case ProxyUtils.PROXY_EXCLLIST_INVALID:
                 return R.string.proxy_error_invalid_exclusion_list;
             default:
                 // should neven happen
