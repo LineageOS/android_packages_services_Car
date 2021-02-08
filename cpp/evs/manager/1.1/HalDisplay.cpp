@@ -20,7 +20,7 @@
 
 #include <android-base/logging.h>
 #include <android-base/stringprintf.h>
-#include <ui/DisplayConfig.h>
+#include <ui/DisplayMode.h>
 #include <ui/DisplayState.h>
 
 using android::base::StringAppendF;
@@ -126,7 +126,7 @@ Return<void> HalDisplay::getDisplayInfo_1_1(getDisplayInfo_1_1_cb _info_cb) {
 
 std::string HalDisplay::toString(const char* indent) {
     std::string buffer;
-    android::DisplayConfig displayConfig;
+    android::ui::DisplayMode displayMode;
     android::ui::DisplayState displayState;
 
     if (mId == std::numeric_limits<int32_t>::min()) {
@@ -137,18 +137,18 @@ std::string HalDisplay::toString(const char* indent) {
     }
 
     getDisplayInfo_1_1([&](auto& config, auto& state) {
-        displayConfig =
-            *(reinterpret_cast<const android::DisplayConfig*>(config.data()));
+        displayMode =
+            *(reinterpret_cast<const android::ui::DisplayMode*>(config.data()));
         displayState =
             *(reinterpret_cast<const android::ui::DisplayState*>(state.data()));
     });
 
     StringAppendF(&buffer, "%sWidth: %" PRId32 "\n",
-                           indent, displayConfig.resolution.getWidth());
+                           indent, displayMode.resolution.getWidth());
     StringAppendF(&buffer, "%sHeight: %" PRId32 "\n",
-                           indent, displayConfig.resolution.getHeight());
+                           indent, displayMode.resolution.getHeight());
     StringAppendF(&buffer, "%sRefresh rate: %f\n",
-                           indent, displayConfig.refreshRate);
+                           indent, displayMode.refreshRate);
     StringAppendF(&buffer, "%sRotation: %" PRId32 "\n",
                            indent, static_cast<int32_t>(displayState.orientation));
 
