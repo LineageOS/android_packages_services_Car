@@ -22,7 +22,7 @@
 
 #include <utility>
 
-#include <ui/DisplayConfig.h>
+#include <ui/DisplayMode.h>
 #include <ui/DisplayState.h>
 #include <ui/GraphicBuffer.h>
 
@@ -198,7 +198,7 @@ bool GlWrapper::initialize(sp<IAutomotiveDisplayProxyService> pWindowProxy,
 
     // We will use the first display in the list as the primary.
     pWindowProxy->getDisplayInfo(displayId, [this](auto dpyConfig, auto dpyState) {
-        DisplayConfig *pConfig = (DisplayConfig*)dpyConfig.data();
+        ui::DisplayMode *pConfig = (ui::DisplayMode*)dpyConfig.data();
         mWidth = pConfig->resolution.getWidth();
         mHeight = pConfig->resolution.getHeight();
 
