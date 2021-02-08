@@ -66,11 +66,13 @@ public class Controller implements CarPowerStateListenerWithCompletion {
     public void init() {
         mCarPowerManager = CarLocalServices.createCarPowerManager(mContext);
         mCarPowerManager.setListenerWithCompletion(Controller.this);
+        mGarageMode.init();
     }
 
     /** release */
     public void release() {
         mCarPowerManager.clearListener();
+        mGarageMode.release();
     }
 
     @Override
