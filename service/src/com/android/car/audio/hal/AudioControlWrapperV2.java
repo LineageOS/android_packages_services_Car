@@ -69,8 +69,11 @@ public final class AudioControlWrapperV2 implements AudioControlWrapper {
     }
 
     @Override
-    public boolean supportsHalAudioFocus() {
-        return true;
+    public boolean supportsFeature(int feature) {
+        if (feature == AUDIOCONTROL_FEATURE_AUDIO_FOCUS) {
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -103,6 +106,12 @@ public final class AudioControlWrapperV2 implements AudioControlWrapper {
         writer.println("*AudioControlWrapperV2*");
         writer.increaseIndent();
         writer.printf("Focus listener registered on HAL? %b\n", (mCloseHandle != null));
+
+        writer.println("Supported Features");
+        writer.increaseIndent();
+        writer.println("- AUDIOCONTROL_FEATURE_AUDIO_FOCUS");
+        writer.decreaseIndent();
+
         writer.decreaseIndent();
     }
 

@@ -56,11 +56,6 @@ public final class AudioControlWrapperV1 implements AudioControlWrapper {
     }
 
     @Override
-    public boolean supportsHalAudioFocus() {
-        return false;
-    }
-
-    @Override
     public void registerFocusListener(HalFocusListener focusListener) {
         throw new UnsupportedOperationException(
                 "Focus listener is unsupported for IAudioControl@1.0");
@@ -73,6 +68,11 @@ public final class AudioControlWrapperV1 implements AudioControlWrapper {
     }
 
     @Override
+    public boolean supportsFeature(int feature) {
+        return false;
+    }
+
+    @Override
     public void onAudioFocusChange(int usage, int zoneId, int focusChange) {
         throw new UnsupportedOperationException(
                 "Focus listener is unsupported for IAudioControl@1.0");
@@ -81,6 +81,7 @@ public final class AudioControlWrapperV1 implements AudioControlWrapper {
     @Override
     public void dump(IndentingPrintWriter writer) {
         writer.println("*AudioControlWrapperV1*");
+        writer.println("Supported Features - none");
     }
 
     @Override
