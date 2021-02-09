@@ -13,8 +13,6 @@
         <policyGroup id="basic_policy_group">
             <defaultPolicy state="WaitForVHAL" id="sample_policy_01"/>
             <defaultPolicy state="On" id="sample_policy_02"/>
-            <defaultPolicy state="DeepSleepEntry" id="sample_policy_03"/>
-            <defaultPolicy state="ShutdownStart" id="sample_policy_04"/>
         </policyGroup>
         <policyGroup id="no_default_policy">
             <noDefaultPolicy state="WaitForVHAL"/>
