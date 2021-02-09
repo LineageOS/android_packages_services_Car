@@ -16,6 +16,8 @@
 
 package com.android.car.audio.hal;
 
+import static android.media.AudioAttributes.USAGE_MEDIA;
+import static android.media.AudioAttributes.USAGE_NOTIFICATION;
 import static android.os.IBinder.DeathRecipient;
 
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING;
@@ -31,17 +33,19 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertThrows;
 
 import android.audio.policy.configuration.V7_0.AudioUsage;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.hardware.automotive.audiocontrol.DuckingInfo;
 import android.hardware.automotive.audiocontrol.IAudioControl;
 import android.hardware.automotive.audiocontrol.IFocusListener;
-import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.os.IBinder;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.android.car.audio.CarDuckingInfo;
 import com.android.car.audio.hal.AudioControlWrapper.AudioControlDeathRecipient;
 import com.android.dx.mockito.inline.extended.ExtendedMockito;
 
@@ -51,12 +55,14 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 @RunWith(AndroidJUnit4.class)
 public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTestCase {
-    private static final String TAG = AudioControlWrapperAidlTest.class.getSimpleName();
     private static final float FADE_VALUE = 5;
     private static final float BALANCE_VALUE = 6;
-    private static final int USAGE = AudioAttributes.USAGE_MEDIA;
+    private static final int USAGE = USAGE_MEDIA;
     private static final String USAGE_NAME = AudioUsage.AUDIO_USAGE_MEDIA.toString();
     private static final int ZONE_ID = 2;
     private static final int FOCUS_GAIN = AudioManager.AUDIOFOCUS_GAIN;
@@ -128,6 +134,85 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         mAudioControlWrapperAidl.onAudioFocusChange(USAGE, ZONE_ID, FOCUS_GAIN);
 
         verify(mAudioControl).onAudioFocusChange(USAGE_NAME, ZONE_ID, FOCUS_GAIN);
+    }
+
+    @Test
+    public void onDevicesToDuckChange_withNullDuckingInfo_throws() {
+        assertThrows(NullPointerException.class,
+                () -> mAudioControlWrapperAidl.onDevicesToDuckChange(null));
+    }
+
+    @Test
+    public void onDevicesToDuckChange_callsHalWithDuckingInfo() throws Exception {
+        CarDuckingInfo carDuckingInfo = new CarDuckingInfo(ZONE_ID, new ArrayList<>(),
+                new ArrayList<>(), new int[0]);
+
+        mAudioControlWrapperAidl.onDevicesToDuckChange(carDuckingInfo);
+
+        ArgumentCaptor<DuckingInfo[]> captor = ArgumentCaptor.forClass(DuckingInfo[].class);
+        verify(mAudioControl).onDevicesToDuckChange(captor.capture());
+        DuckingInfo[] duckingInfos = captor.getValue();
+        assertThat(duckingInfos).hasLength(1);
+    }
+
+    @Test
+    public void onDevicesToDuckChange_convertsUsagesToXsdStrings() throws Exception {
+        CarDuckingInfo carDuckingInfo = new CarDuckingInfo(ZONE_ID, new ArrayList<>(),
+                new ArrayList<>(), new int[]{USAGE_MEDIA, USAGE_NOTIFICATION});
+
+        mAudioControlWrapperAidl.onDevicesToDuckChange(carDuckingInfo);
+
+        ArgumentCaptor<DuckingInfo[]> captor = ArgumentCaptor.forClass(DuckingInfo[].class);
+        verify(mAudioControl).onDevicesToDuckChange(captor.capture());
+        DuckingInfo duckingInfo = captor.getValue()[0];
+        assertThat(duckingInfo.usagesHoldingFocus).asList()
+                .containsExactly(AudioUsage.AUDIO_USAGE_MEDIA.toString(),
+                        AudioUsage.AUDIO_USAGE_NOTIFICATION.toString());
+    }
+
+    @Test
+    public void onDevicesToDuckChange_passesAlongAddressesToDuck() throws Exception {
+        String mediaAddress = "media_bus";
+        String navigationAddress = "navigation_bus";
+        CarDuckingInfo carDuckingInfo = new CarDuckingInfo(ZONE_ID,
+                Arrays.asList(mediaAddress, navigationAddress), new ArrayList<>(), new int[0]);
+
+        mAudioControlWrapperAidl.onDevicesToDuckChange(carDuckingInfo);
+
+        ArgumentCaptor<DuckingInfo[]> captor = ArgumentCaptor.forClass(DuckingInfo[].class);
+        verify(mAudioControl).onDevicesToDuckChange(captor.capture());
+        DuckingInfo duckingInfo = captor.getValue()[0];
+        assertThat(duckingInfo.deviceAddressesToDuck).asList()
+                .containsExactly(mediaAddress, navigationAddress);
+    }
+
+    @Test
+    public void onDevicesToDuckChange_passesAlongAddressesToUnduck() throws Exception {
+        String notificationAddress = "notification_bus";
+        String callAddress = "call_address";
+        CarDuckingInfo carDuckingInfo = new CarDuckingInfo(ZONE_ID, new ArrayList<>(),
+                Arrays.asList(notificationAddress, callAddress), new int[0]);
+
+        mAudioControlWrapperAidl.onDevicesToDuckChange(carDuckingInfo);
+
+        ArgumentCaptor<DuckingInfo[]> captor = ArgumentCaptor.forClass(DuckingInfo[].class);
+        verify(mAudioControl).onDevicesToDuckChange(captor.capture());
+        DuckingInfo duckingInfo = captor.getValue()[0];
+        assertThat(duckingInfo.deviceAddressesToUnduck).asList()
+                .containsExactly(notificationAddress, callAddress);
+    }
+
+    @Test
+    public void onDevicesToDuckChange_passesAlongZoneId() throws Exception {
+        CarDuckingInfo carDuckingInfo = new CarDuckingInfo(ZONE_ID, new ArrayList<>(),
+                new ArrayList<>(), new int[0]);
+
+        mAudioControlWrapperAidl.onDevicesToDuckChange(carDuckingInfo);
+
+        ArgumentCaptor<DuckingInfo[]> captor = ArgumentCaptor.forClass(DuckingInfo[].class);
+        verify(mAudioControl).onDevicesToDuckChange(captor.capture());
+        DuckingInfo duckingInfo = captor.getValue()[0];
+        assertThat(duckingInfo.zoneId).isEqualTo(ZONE_ID);
     }
 
     @Test

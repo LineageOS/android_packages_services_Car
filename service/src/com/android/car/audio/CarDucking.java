@@ -17,7 +17,6 @@
 package com.android.car.audio;
 
 import android.annotation.NonNull;
-import android.media.AudioAttributes;
 import android.media.AudioFocusInfo;
 import android.util.IndentingPrintWriter;
 import android.util.SparseArray;
@@ -28,7 +27,6 @@ import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 final class CarDucking implements CarFocusCallback {
     private static final String TAG = CarDucking.class.getSimpleName();
@@ -85,38 +83,5 @@ final class CarDucking implements CarFocusCallback {
                 oldDuckingInfo.mAddressesToDuck);
 
         return new CarDuckingInfo(zoneId, addressesToDuck, addressesToUnduck, usagesHoldingFocus);
-    }
-
-    @VisibleForTesting
-    static final class CarDuckingInfo {
-        final int mZoneId;
-        final List<String> mAddressesToDuck;
-        final List<String> mAddressesToUnduck;
-        final int[] mUsagesHoldingFocus;
-
-        CarDuckingInfo(int zoneId, List<String> addressesToDuck, List<String> addressesToUnduck,
-                int[] usagesHoldingFocus) {
-            mZoneId = zoneId;
-            mAddressesToDuck = Objects.requireNonNull(addressesToDuck);
-            mAddressesToUnduck = Objects.requireNonNull(addressesToUnduck);
-            mUsagesHoldingFocus = usagesHoldingFocus;
-        }
-
-        void dump(IndentingPrintWriter writer) {
-            writer.printf("Ducking Info for zone %d \n", mZoneId);
-            writer.increaseIndent();
-            writer.printf("Addresses to duck: %s\n",
-                    String.join(", ", mAddressesToDuck));
-            writer.printf("Addresses to unduck: %s\n",
-                    String.join(", ", mAddressesToUnduck));
-            writer.println("Usages holding focus:");
-            writer.increaseIndent();
-            for (int usage : mUsagesHoldingFocus) {
-                writer.printf("%s, ", AudioAttributes.usageToXsdString(usage));
-            }
-            writer.decreaseIndent();
-            writer.println();
-            writer.decreaseIndent();
-        }
     }
 }
