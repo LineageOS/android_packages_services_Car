@@ -213,11 +213,7 @@ import java.util.Set;
         for (int index = 0; index < configurations.size(); index++) {
             AudioPlaybackConfiguration configuration = configurations.get(index);
             if (configuration.isActive()) {
-                AudioDeviceInfo info = configuration.getAudioDeviceInfo();
-                if (info == null || info.getAddress() == null || info.getAddress().isEmpty()) {
-                    continue;
-                }
-                if (mDeviceAddresses.contains(info.getAddress())) {
+                if (isAudioDeviceInfoValidForZone(configuration.getAudioDeviceInfo())) {
                     // Note that address's context and the context actually supplied could be
                     // different
                     activeContexts.add(CarAudioContext.getContextForUsage(
@@ -226,5 +222,16 @@ import java.util.Set;
             }
         }
         return activeContexts;
+    }
+
+    boolean isAudioDeviceInfoValidForZone(AudioDeviceInfo info) {
+        return info != null
+                && info.getAddress() != null
+                && !info.getAddress().isEmpty()
+                && containsDeviceAddress(info.getAddress());
+    }
+
+    private boolean containsDeviceAddress(String deviceAddress) {
+        return mDeviceAddresses.contains(deviceAddress);
     }
 }

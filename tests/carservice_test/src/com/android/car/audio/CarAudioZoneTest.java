@@ -48,6 +48,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
@@ -256,6 +257,49 @@ public class CarAudioZoneTest {
         assertThrows(NullPointerException.class,
                 () -> mTestAudioZone
                         .findActiveContextsFromPlaybackConfigurations(activeConfigurations));
+    }
+
+    @Test
+    public void isAudioDeviceInfoValidForZone_withNullAudioDeviceInfo_returnsFalse() {
+        mTestAudioZone.addVolumeGroup(mMockMusicGroup);
+
+        assertThat(mTestAudioZone.isAudioDeviceInfoValidForZone(null)).isFalse();
+    }
+
+    @Test
+    public void isAudioDeviceInfoValidForZone_withNullDeviceAddress_returnsFalse() {
+        mTestAudioZone.addVolumeGroup(mMockMusicGroup);
+        AudioDeviceInfo nullAddressDeviceInfo = Mockito.mock(AudioDeviceInfo.class);
+        when(nullAddressDeviceInfo.getAddress()).thenReturn(null);
+
+        assertThat(mTestAudioZone.isAudioDeviceInfoValidForZone(nullAddressDeviceInfo)).isFalse();
+    }
+
+    @Test
+    public void isAudioDeviceInfoValidForZone_withEmptyDeviceAddress_returnsFalse() {
+        mTestAudioZone.addVolumeGroup(mMockMusicGroup);
+        AudioDeviceInfo nullAddressDeviceInfo = Mockito.mock(AudioDeviceInfo.class);
+        when(nullAddressDeviceInfo.getAddress()).thenReturn("");
+
+        assertThat(mTestAudioZone.isAudioDeviceInfoValidForZone(nullAddressDeviceInfo)).isFalse();
+    }
+
+    @Test
+    public void isAudioDeviceInfoValidForZone_withDeviceAddressNotInZone_returnsFalse() {
+        mTestAudioZone.addVolumeGroup(mMockMusicGroup);
+        AudioDeviceInfo nullAddressDeviceInfo = Mockito.mock(AudioDeviceInfo.class);
+        when(nullAddressDeviceInfo.getAddress()).thenReturn(VOICE_ADDRESS);
+
+        assertThat(mTestAudioZone.isAudioDeviceInfoValidForZone(nullAddressDeviceInfo)).isFalse();
+    }
+
+    @Test
+    public void isAudioDeviceInfoValidForZone_withDeviceAddressInZone_returnsTrue() {
+        mTestAudioZone.addVolumeGroup(mMockMusicGroup);
+        AudioDeviceInfo nullAddressDeviceInfo = Mockito.mock(AudioDeviceInfo.class);
+        when(nullAddressDeviceInfo.getAddress()).thenReturn(MUSIC_ADDRESS);
+
+        assertThat(mTestAudioZone.isAudioDeviceInfoValidForZone(nullAddressDeviceInfo)).isTrue();
     }
 
     private static class VolumeGroupBuilder {
