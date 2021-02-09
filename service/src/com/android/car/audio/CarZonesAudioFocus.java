@@ -58,14 +58,14 @@ class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             @NonNull SparseArray<CarAudioZone> carAudioZones,
             @NonNull CarAudioSettings carAudioSettings,
             boolean enableDelayedAudioFocus,
-            @NonNull CarFocusCallback carFocusCallback) {
+            CarFocusCallback carFocusCallback) {
         //Create the zones here, the policy will be set setOwningPolicy,
         // which is called right after this constructor.
         Objects.requireNonNull(audioManager);
         Objects.requireNonNull(packageManager);
         Objects.requireNonNull(carAudioZones);
         Objects.requireNonNull(carAudioSettings);
-        mCarFocusCallback = Objects.requireNonNull(carFocusCallback);
+        mCarFocusCallback = carFocusCallback;
         Preconditions.checkArgument(carAudioZones.size() != 0,
                 "There must be a minimum of one audio zone");
 
@@ -199,6 +199,9 @@ class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     }
 
     private void notifyFocusCallback(int audioZoneId) {
+        if (mCarFocusCallback == null) {
+            return;
+        }
         List<AudioFocusInfo> focusHolders = mFocusZones.get(audioZoneId).getAudioFocusHolders();
         mCarFocusCallback.onFocusChange(audioZoneId, focusHolders);
     }
