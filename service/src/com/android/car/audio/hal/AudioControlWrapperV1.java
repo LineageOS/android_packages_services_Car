@@ -23,6 +23,7 @@ import android.util.IndentingPrintWriter;
 import android.util.Slog;
 
 import com.android.car.audio.CarAudioContext;
+import com.android.car.audio.CarDuckingInfo;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.NoSuchElementException;
@@ -100,6 +101,11 @@ public final class AudioControlWrapperV1 implements AudioControlWrapper {
         } catch (RemoteException e) {
             Slog.e(TAG, "setBalanceTowardRight failed", e);
         }
+    }
+
+    @Override
+    public void onDevicesToDuckChange(CarDuckingInfo carDuckingInfo) {
+        throw new UnsupportedOperationException("HAL ducking is unsupported for IAudioControl@1.0");
     }
 
     /**
