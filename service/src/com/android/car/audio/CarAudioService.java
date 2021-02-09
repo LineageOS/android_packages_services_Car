@@ -21,6 +21,9 @@ import static android.car.media.CarAudioManager.CarAudioFeature;
 import static android.car.media.CarAudioManager.INVALID_VOLUME_GROUP_ID;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 
+import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING;
+import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS;
+
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
@@ -598,7 +601,10 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         builder.setAudioPolicyVolumeCallback(mAudioPolicyVolumeCallback);
 
         if (sUseCarAudioFocus) {
-            mCarDucking = new CarDucking(mCarAudioZones);
+            AudioControlWrapper audioControlWrapper = getAudioControlWrapperLocked();
+            if (audioControlWrapper.supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_DUCKING)) {
+                mCarDucking = new CarDucking(mCarAudioZones);
+            }
 
             // Configure our AudioPolicy to handle focus events.
             // This gives us the ability to decide which audio focus requests to accept and bypasses
@@ -651,7 +657,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     private void setupHalAudioFocusListenerLocked() {
         AudioControlWrapper audioControlWrapper = getAudioControlWrapperLocked();
-        if (!audioControlWrapper.supportsHalAudioFocus()) {
+        if (!audioControlWrapper.supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_FOCUS)) {
             Slog.d(CarLog.TAG_AUDIO, "HalAudioFocus is not supported on this device");
             return;
         }
