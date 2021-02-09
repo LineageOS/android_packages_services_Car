@@ -48,6 +48,17 @@
           true, this will have no impact on persisting mute changes as mute changes will be based
           on individual volume group.-->
     <bool name="audioPersistMasterMuteState">true</bool>
+
+    <!--  Configuration to indicate the timeout in milliseconds while a car volume group will be
+          considered active for volume control changes during volume key events. The configuration
+          will be used as follows:
+          - The timeout will be used to determine if a playback (audio context associated with the
+            playback's audio usage) can still be considered for automatic volume selection after it
+            has stopped playing.
+          - The timeout will also be used as the pause duration required in between automatic volume
+            adjustments to change what user is adjusting. -->
+    <integer name="audioVolumeKeyEventTimeoutMs">3000</integer>
+
     <!-- Whether to block other audio while media audio is muted with display off. When set to true,
          other sounds cannot be played either while display is off. If false, only media is muted
          and other sounds can be still played. -->
