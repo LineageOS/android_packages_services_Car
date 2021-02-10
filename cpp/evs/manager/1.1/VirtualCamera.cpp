@@ -59,6 +59,10 @@ void VirtualCamera::shutdown() {
         // Tell the frame delivery pipeline we don't want any more frames
         mStreamState = STOPPING;
 
+        // Awakes the capture thread; this thread will terminate.
+        mFramesReadySignal.notify_all();
+
+        // Returns buffers held by this client
         for (auto&& [key, hwCamera] : mHalCamera) {
             auto pHwCamera = hwCamera.promote();
             if (pHwCamera == nullptr) {
@@ -129,6 +133,13 @@ bool VirtualCamera::deliverFrame(const BufferDesc_1_1& bufDesc) {
             if (!result.isOk()) {
                 LOG(ERROR) << "Error delivering end of stream event";
             }
+        }
+
+        // Marks that a new frame has arrived though it was not accepted
+        {
+            std::lock_guard<std::mutex> lock(mFrameDeliveryMutex);
+            mSourceCameras.erase(bufDesc.deviceId);
+            mFramesReadySignal.notify_all();
         }
 
         return false;
@@ -364,7 +375,12 @@ Return<EvsResult> VirtualCamera::startVideoStream(const ::android::sp<IEvsCamera
                 if (!mFramesReadySignal.wait_for(lock,
                                                  kFrameTimeout,
                                                  [this]() REQUIRES(mFrameDeliveryMutex) {
-                                                     return mSourceCameras.empty();
+                                                     // Stops waiting if
+                                                     // 1) we've requested to stop capturing
+                                                     //    new frames
+                                                     // 2) or, we've got all frames
+                                                     return mStreamState != RUNNING ||
+                                                            mSourceCameras.empty();
                                                  })) {
                     PLOG(ERROR) << this << ": Camera hangs?";
                     break;
@@ -393,8 +409,12 @@ Return<EvsResult> VirtualCamera::startVideoStream(const ::android::sp<IEvsCamera
                             LOG(WARNING) << "Failed to forward frames";
                         }
                     }
+                } else if (mStreamState != RUNNING) {
+                    LOG(DEBUG) << "Requested to stop capturing frames";
                 }
             }
+
+            LOG(DEBUG) << "Exiting a capture thread";
         });
     }
 
@@ -452,7 +472,10 @@ Return<void> VirtualCamera::stopVideoStream()  {
         // Tell the frame delivery pipeline we don't want any more frames
         mStreamState = STOPPING;
 
-        // Deliver an empty frame to close out the frame stream
+        // Awake the capture thread; this thread will terminate.
+        mFramesReadySignal.notify_all();
+
+        // Deliver the stream-ending notification
         if (mStream_1_1 != nullptr) {
             // v1.1 client waits for a stream stopped event
             EvsEventDesc event;
