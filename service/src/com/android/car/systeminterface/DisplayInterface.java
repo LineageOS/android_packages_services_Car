@@ -50,12 +50,37 @@ import com.android.internal.annotations.GuardedBy;
  */
 public interface DisplayInterface {
     /**
+     * Sets display brightness.
+     *
      * @param brightness Level from 0 to 100%
      */
     void setDisplayBrightness(int brightness);
+
+    /**
+     * Turns on or off display.
+     *
+     * @param on {@code true} to turn on, {@code false} to turn off.
+     */
     void setDisplayState(boolean on);
+
+    /**
+     * Starts monitoring the display state change.
+     *
+     * <p> When there is a change, {@link CarPowerManagementService} is notified.
+     *
+     * @param service {@link CarPowerManagementService} to listen to the change.
+     */
     void startDisplayStateMonitoring(CarPowerManagementService service);
+
+    /**
+     * Stops monitoring the display state change.
+     */
     void stopDisplayStateMonitoring();
+
+    /**
+     * Gets the current on/off state of display.
+     */
+    boolean isDisplayEnabled();
 
     /**
      * Refreshing display brightness. Used when user is switching and car turned on.
@@ -242,6 +267,11 @@ public interface DisplayInterface {
                     }
                 }
             }
+        }
+
+        @Override
+        public boolean isDisplayEnabled() {
+            return isMainDisplayOn();
         }
 
         private void onUsersUpdate() {

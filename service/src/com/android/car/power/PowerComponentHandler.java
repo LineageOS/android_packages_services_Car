@@ -29,6 +29,8 @@ import android.car.hardware.power.PowerComponent;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.wifi.WifiManager;
+import android.os.RemoteException;
+import android.os.ServiceManager;
 import android.util.AtomicFile;
 import android.util.Slog;
 import android.util.SparseArray;
@@ -36,6 +38,7 @@ import android.util.SparseBooleanArray;
 
 import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.internal.app.IVoiceInteractionManagerService;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -59,12 +62,14 @@ public final class PowerComponentHandler {
             "forced_off_components";
 
     private final Context mContext;
+    private final SystemInterface mSystemInterface;
     private final AtomicFile mComponentStateFile;
     private final SparseArray<PowerComponentMediator> mPowerComponentMediators =
             new SparseArray<>();
 
     PowerComponentHandler(Context context, SystemInterface systemInterface) {
         mContext = context;
+        mSystemInterface = systemInterface;
         mComponentStateFile = new AtomicFile(new File(systemInterface.getSystemCarDir(),
                 FORCED_OFF_COMPONENTS_FILENAME));
     }
@@ -214,25 +219,28 @@ public final class PowerComponentHandler {
         }
     }
 
-    private final class AudioPowerComponentMediator extends PowerComponentMediator {
-        AudioPowerComponentMediator() {
-            super(PowerComponent.AUDIO);
-        }
-        // TODO(b/162600135): implement turning on/off audio.
-    }
-
-    private final class MediaPowerComponentMediator extends PowerComponentMediator {
-        MediaPowerComponentMediator() {
-            super(PowerComponent.MEDIA);
-        }
-        // TODO(b/162600135): implement turning on/off media.
-    }
-
+    // TODO(b/178824607): Check if power policy can turn on/off display as quickly as the existing
+    // implementation.
     private final class DisplayPowerComponentMediator extends PowerComponentMediator {
         DisplayPowerComponentMediator() {
             super(PowerComponent.DISPLAY);
         }
-        // TODO(b/162600135): implement turning on/off display.
+
+        @Override
+        public boolean isComponentAvailable() {
+            // It is assumed that display is supported in all vehicles.
+            return true;
+        }
+
+        @Override
+        public void setEnabled(boolean enabled) {
+            mSystemInterface.setDisplayState(enabled);
+        }
+
+        @Override
+        public boolean isEnabled() {
+            return mSystemInterface.isDisplayEnabled();
+        }
     }
 
     private final class WifiPowerComponentMediator extends PowerComponentMediator {
@@ -243,82 +251,57 @@ public final class PowerComponentHandler {
             mWifiManager = mContext.getSystemService(WifiManager.class);
         }
 
+        @Override
         public boolean isComponentAvailable() {
             PackageManager pm = mContext.getPackageManager();
             return pm.hasSystemFeature(PackageManager.FEATURE_WIFI);
         }
 
+        @Override
         public void setEnabled(boolean enabled) {
             mWifiManager.setWifiEnabled(enabled);
         }
 
+        @Override
         public boolean isEnabled() {
             return mWifiManager.isWifiEnabled();
         }
     }
 
-    private final class CellularPowerComponentMediator extends PowerComponentMediator {
-        CellularPowerComponentMediator() {
-            super(PowerComponent.CELLULAR);
-        }
-        // TODO(b/162600135): implement turning on/off cellular.
-    }
-
-    private final class EthernetPowerComponentMediator extends PowerComponentMediator {
-        EthernetPowerComponentMediator() {
-            super(PowerComponent.ETHERNET);
-        }
-        // TODO(b/162600135): implement turning on/off ethernet.
-    }
-
-    private final class ProjectionPowerComponentMediator extends PowerComponentMediator {
-        ProjectionPowerComponentMediator() {
-            super(PowerComponent.PROJECTION);
-        }
-        // TODO(b/162600135): implement turning on/off projection.
-    }
-
-    private final class NfcPowerComponentMediator extends PowerComponentMediator {
-        NfcPowerComponentMediator() {
-            super(PowerComponent.NFC);
-        }
-        // TODO(b/162600135): implement turning on/off nfc.
-    }
-
-    private final class InputPowerComponentMediator extends PowerComponentMediator {
-        InputPowerComponentMediator() {
-            super(PowerComponent.INPUT);
-        }
-        // TODO(b/162600135): implement turning on/off input.
-    }
-
     private final class VoiceInteractionPowerComponentMediator extends PowerComponentMediator {
+        private final IVoiceInteractionManagerService mVoiceInteractionManagerService;
+
+        private boolean mIsEnabled = true;
+
         VoiceInteractionPowerComponentMediator() {
             super(PowerComponent.VOICE_INTERACTION);
+            mVoiceInteractionManagerService = IVoiceInteractionManagerService.Stub.asInterface(
+                        ServiceManager.getService(Context.VOICE_INTERACTION_MANAGER_SERVICE));
         }
-        // TODO(b/162600135): implement turning on/off voice interaction.
-    }
 
-    private final class VisualInteractionPowerComponentMediator extends PowerComponentMediator {
-        VisualInteractionPowerComponentMediator() {
-            super(PowerComponent.VISUAL_INTERACTION);
+        @Override
+        public boolean isComponentAvailable() {
+            return mVoiceInteractionManagerService != null;
         }
-        // TODO(b/162600135): implement turning on/off visual interaction.
-    }
 
-    private final class TrustedDeviceDetectionPowerComponentMediator
-            extends PowerComponentMediator {
-        TrustedDeviceDetectionPowerComponentMediator() {
-            super(PowerComponent.TRUSTED_DEVICE_DETECTION);
+        @Override
+        public void setEnabled(boolean enabled) {
+            try {
+                mVoiceInteractionManagerService.setDisabled(!enabled);
+                mIsEnabled = enabled;
+            } catch (RemoteException e) {
+                Slog.w(TAG, "IVoiceInteractionManagerService.setDisabled(" + !enabled + ") failed",
+                        e);
+            }
         }
-        // TODO(b/162600135): implement turning on/off trusted device detection.
-    }
 
-    private final class MicroPhonePowerComponentMediator extends PowerComponentMediator {
-        MicroPhonePowerComponentMediator() {
-            super(PowerComponent.MICROPHONE);
+        @Override
+        public boolean isEnabled() {
+            // IVoiceInteractionManagerService doesn't have a method to tell enabled state. Assuming
+            // voice interaction is controlled only by AAOS CPMS, it tracks the state internally.
+            // TODO(b/178504489): Add isEnabled to IVoiceInterctionManagerService and use it.
+            return mIsEnabled;
         }
-        // TODO(b/162600135): implement turning on/off microphone.
     }
 
     private final class PowerComponentMediatorFactory {
@@ -326,31 +309,35 @@ public final class PowerComponentHandler {
         PowerComponentMediator createPowerComponent(int component) {
             switch (component) {
                 case PowerComponent.AUDIO:
-                    return new PowerComponentHandler.AudioPowerComponentMediator();
+                    // We don't control audio in framework level, because audio is enabled or
+                    // disabled in audio HAL according to the current power policy.
+                    return null;
                 case PowerComponent.MEDIA:
-                    return new MediaPowerComponentMediator();
+                    return null;
                 case PowerComponent.DISPLAY:
                     return new DisplayPowerComponentMediator();
                 case PowerComponent.WIFI:
                     return new WifiPowerComponentMediator();
                 case PowerComponent.CELLULAR:
-                    return new CellularPowerComponentMediator();
+                    return null;
                 case PowerComponent.ETHERNET:
-                    return new EthernetPowerComponentMediator();
+                    return null;
                 case PowerComponent.PROJECTION:
-                    return new ProjectionPowerComponentMediator();
+                    return null;
                 case PowerComponent.NFC:
-                    return new NfcPowerComponentMediator();
+                    return null;
                 case PowerComponent.INPUT:
-                    return new InputPowerComponentMediator();
+                    return null;
                 case PowerComponent.VOICE_INTERACTION:
                     return new VoiceInteractionPowerComponentMediator();
                 case PowerComponent.VISUAL_INTERACTION:
-                    return new VisualInteractionPowerComponentMediator();
+                    return null;
                 case PowerComponent.TRUSTED_DEVICE_DETECTION:
-                    return new TrustedDeviceDetectionPowerComponentMediator();
+                    return null;
                 case PowerComponent.MICROPHONE:
-                    return new MicroPhonePowerComponentMediator();
+                    // We don't control microphone in framework level, because microphone is enabled
+                    // or disabled in audio HAL according to the current power policy.
+                    return null;
                 case PowerComponent.BLUETOOTH:
                     // com.android.car.BluetoothDeviceConnectionPolicy handles power state change.
                     // So, bluetooth mediator is not created.
@@ -359,6 +346,7 @@ public final class PowerComponentHandler {
                     // GNSS HAL handles power state change. So, location mediator is not created.
                     return null;
                 default:
+                    Slog.w(TAG, "Unknown component(" + component + ")");
                     return null;
             }
         }

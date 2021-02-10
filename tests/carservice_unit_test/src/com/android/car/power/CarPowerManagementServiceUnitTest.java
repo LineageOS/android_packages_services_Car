@@ -66,6 +66,7 @@ import com.android.car.systeminterface.WakeLockInterface;
 import com.android.car.test.utils.TemporaryDirectory;
 import com.android.car.test.utils.TemporaryFile;
 import com.android.car.user.CarUserService;
+import com.android.internal.annotations.GuardedBy;
 import com.android.internal.app.IVoiceInteractionManagerService;
 import com.android.internal.os.IResultReceiver;
 
@@ -481,7 +482,7 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         mPowerSignalListener.waitForSleepExit(WAIT_TIMEOUT_MS);
         mService.scheduleNextWakeupTime(WAKE_UP_DELAY);
         // second processing after wakeup
-        assertThat(mDisplayInterface.getDisplayState()).isFalse();
+        assertThat(mDisplayInterface.isDisplayEnabled()).isFalse();
 
         mService.setStateForTesting(/* isBooting= */ false);
 
@@ -507,7 +508,7 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         // Since we just woke up from shutdown, wake up time will be 0
         assertStateReceived(PowerHalService.SET_DEEP_SLEEP_EXIT, 0);
         assertVoiceInteractionEnabled();
-        assertThat(mDisplayInterface.getDisplayState()).isFalse();
+        assertThat(mDisplayInterface.isDisplayEnabled()).isFalse();
     }
 
     private void assertStateReceived(int expectedState, int expectedParam) throws Exception {
@@ -579,6 +580,8 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
     }
 
     private static final class MockDisplayInterface implements DisplayInterface {
+        private final Object mLock = new Object();
+        @GuardedBy("mLock")
         private boolean mDisplayOn = true;
         private final Semaphore mDisplayStateWait = new Semaphore(0);
 
@@ -586,13 +589,11 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         public void setDisplayBrightness(int brightness) {}
 
         @Override
-        public synchronized void setDisplayState(boolean on) {
-            mDisplayOn = on;
+        public void setDisplayState(boolean on) {
+            synchronized (mLock) {
+                mDisplayOn = on;
+            }
             mDisplayStateWait.release();
-        }
-
-        public synchronized boolean getDisplayState() {
-            return mDisplayOn;
         }
 
         private void waitForDisplayOn(long timeoutMs) throws Exception {
@@ -605,7 +606,12 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
 
         private void waitForDisplayState(boolean desiredState, long timeoutMs) throws Exception {
             int nTries = 0;
-            while (mDisplayOn != desiredState) {
+            while (true) {
+                synchronized (mLock) {
+                    if (mDisplayOn == desiredState) {
+                        break;
+                    }
+                }
                 if (nTries > 5) throw new IllegalStateException("timeout");
                 waitForSemaphore(mDisplayStateWait, timeoutMs);
                 nTries++;
@@ -620,6 +626,13 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
 
         @Override
         public void refreshDisplayBrightness() {}
+
+        @Override
+        public boolean isDisplayEnabled() {
+            synchronized (mLock) {
+                return mDisplayOn;
+            }
+        }
     }
 
     private static final class MockSystemStateInterface implements SystemStateInterface {
