@@ -2946,9 +2946,9 @@
     <string name="amber_alerts_title" msgid="8274651933750533271">"AMBER अलर्ट"</string>
     <string name="amber_alerts_summary" msgid="7570943549000256418">"बाल अपहरणों के बारे में बुलेटिन पाएं"</string>
     <string name="repeat_title" msgid="507090203366188931">"दोहराएं"</string>
-    <string name="call_manager_enable_title" msgid="6345443572463650308">"कॉल प्रबंधक चालू करें"</string>
+    <string name="call_manager_enable_title" msgid="6345443572463650308">"कॉल मैनेजर चालू करें"</string>
     <string name="call_manager_enable_summary" msgid="6998536841827752058">"इस सेवा को कॉल करने का आपका तरीका प्रबंधित करने दें."</string>
-    <string name="call_manager_title" msgid="1118074011469650421">"कॉल प्रबंधक"</string>
+    <string name="call_manager_title" msgid="1118074011469650421">"कॉल मैनेजर"</string>
     <!-- no translation found for call_manager_summary (1232655174841493040) -->
     <skip />
     <string name="cell_broadcast_settings" msgid="5750066270993255966">"इमरजेंसी के समय सूचनाएं"</string>
@@ -4100,9 +4100,9 @@
       <item quantity="other"><xliff:g id="NUMBER">%s</xliff:g> सेकंड</item>
     </plurals>
     <string name="automatic_storage_manager_settings" msgid="2403621409625820182">"जगह प्रबंधित करें"</string>
-    <string name="automatic_storage_manager_text" msgid="4270379105066667493">"मेमोरी में जगह खाली करने में मदद करने के लिए, मेमोरी प्रबंधक आपके डिवाइस से बैकअप ली गई फ़ोटो और वीडियो निकाल देता है."</string>
+    <string name="automatic_storage_manager_text" msgid="4270379105066667493">"मेमोरी में जगह खाली करने में मदद करने के लिए, मेमोरी मैनेजर आपके डिवाइस से बैकअप ली गई फ़ोटो और वीडियो निकाल देता है."</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"फ़ोटो और वीडियो निकालें"</string>
-    <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"मेमोरी प्रबंधक"</string>
+    <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"मेमोरी मैनेजर"</string>
     <string name="automatic_storage_manager_master_switch_title" msgid="1456978117739582562">"मेमोरी मैनेजर इस्तेमाल करें"</string>
     <string name="deletion_helper_automatic_title" msgid="4370975149425263205">"ऑटोमैटिक"</string>
     <string name="deletion_helper_manual_title" msgid="1011785013431162078">"मैन्युअल"</string>
@@ -4154,7 +4154,7 @@
     <string name="web_action_section_title" msgid="5563229447734734662">"झटपट ऐप्लिकेशन"</string>
     <string name="instant_apps_settings" msgid="879003203555847537">"झटपट ऐप्लिकेशन से जुड़ी पसंद की सेटिंग"</string>
     <string name="domain_url_section_title" msgid="206403507921518321">"इंस्‍टॉल किए गए ऐप्‍लिकेशन"</string>
-    <string name="automatic_storage_manager_activation_warning" msgid="2630083316417707308">"आपकी जगह का प्रबंधन अब जगह प्रबंधक द्वारा किया जा रहा है"</string>
+    <string name="automatic_storage_manager_activation_warning" msgid="2630083316417707308">"आपकी जगह का प्रबंधन अब जगह मैनेजर द्वारा किया जा रहा है"</string>
     <string name="account_for_section_header" msgid="5975241715840642563">"<xliff:g id="USER_NAME">%1$s</xliff:g> के खाते"</string>
     <string name="configure_section_header" msgid="6988981883075615136">"कॉन्फ़िगर करें"</string>
     <string name="auto_sync_account_title" msgid="2394463123733529506">"डेटा को अपने-आप सिंक होने दें"</string>
@@ -4264,11 +4264,11 @@
     <string name="default_theme" msgid="5986996377385956138">"डिफ़ॉल्ट"</string>
     <string name="show_operator_name_title" msgid="5056163028128447308">"नेटवर्क का नाम"</string>
     <string name="show_operator_name_summary" msgid="6352180285743777497">"स्टेटस बार में नेटवर्क का नाम दिखाएं"</string>
-    <string name="storage_manager_indicator" msgid="4255140732848476875">"जगह प्रबंधक: <xliff:g id="STATUS">^1</xliff:g>"</string>
+    <string name="storage_manager_indicator" msgid="4255140732848476875">"जगह मैनेजर: <xliff:g id="STATUS">^1</xliff:g>"</string>
     <string name="storage_manager_indicator_off" msgid="6404056007102580777">"बंद"</string>
     <string name="storage_manager_indicator_on" msgid="5295306384982062320">"चालू"</string>
     <string name="install_type_instant" msgid="6248487669862821874">"झटपट ऐप"</string>
-    <string name="automatic_storage_manager_deactivation_warning" msgid="7867793739491286374">"जगह प्रबंधक को बंद करना चाहते हैं?"</string>
+    <string name="automatic_storage_manager_deactivation_warning" msgid="7867793739491286374">"जगह मैनेजर को बंद करना चाहते हैं?"</string>
     <string name="storage_movies_tv" msgid="7282484273991655296">"फ़िल्में और टीवी ऐप्लिकेशन"</string>
     <string name="carrier_provisioning" msgid="3309125279191534469">"मोबाइल और इंटरनेट सेवा देने वाली कंपनी की नेटवर्क से जुड़ी जानकारी"</string>
     <string name="trigger_carrier_provisioning" msgid="6284005970057901477">"मोबाइल और इंटरनेट सेवा देने वाली कंपनी का नेटवर्क ट्रिगर करें"</string>

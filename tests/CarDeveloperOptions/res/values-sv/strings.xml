@@ -2158,7 +2158,7 @@
     <string name="captioning_window_color" msgid="8696903405657599896">"Textningsfönstrets färg"</string>
     <string name="captioning_window_opacity" msgid="4315586548781763353">"Textningsfönstrets genomskinlighet"</string>
     <string name="captioning_foreground_color" msgid="7412509133818882005">"Textfärg"</string>
-    <string name="captioning_foreground_opacity" msgid="7635639017810117478">"Textgenomskinlighet"</string>
+    <string name="captioning_foreground_opacity" msgid="7635639017810117478">"Textopacitet"</string>
     <string name="captioning_edge_color" msgid="4330622137047993780">"Kantfärg"</string>
     <string name="captioning_edge_type" msgid="4414946407430588162">"Typ av kant"</string>
     <string name="captioning_typeface" msgid="7893208796949341767">"Teckensnittsfamilj"</string>
