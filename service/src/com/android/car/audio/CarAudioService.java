@@ -137,6 +137,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private final AudioManager mAudioManager;
     private final boolean mUseDynamicRouting;
     private final boolean mUseCarVolumeGroupMuting;
+    private final boolean mUseHalDuckingSignals;
     private final @CarVolume.CarVolumeListVersion int mAudioVolumeAdjustmentContextsVersion;
     private final boolean mPersistMasterMuteState;
     private final CarAudioSettings mCarAudioSettings;
@@ -250,6 +251,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         mContext = context;
         mTelephonyManager = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+
         mUseDynamicRouting = mContext.getResources().getBoolean(R.bool.audioUseDynamicRouting);
         mUseCarVolumeGroupMuting = mUseDynamicRouting && mContext.getResources().getBoolean(
                 R.bool.audioUseCarVolumeGroupMuting);
@@ -257,6 +259,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 R.bool.audioPersistMasterMuteState);
         mKeyEventTimeoutMs =
                 mContext.getResources().getInteger(R.integer.audioVolumeKeyEventTimeoutMs);
+        mUseHalDuckingSignals = mContext.getResources().getBoolean(
+                R.bool.audioUseHalDuckingSignals);
+
         mUidToZoneMap = new HashMap<>();
         mCarVolumeCallbackHandler = new CarVolumeCallbackHandler();
         mCarAudioSettings = new CarAudioSettings(mContext.getContentResolver());
@@ -338,6 +343,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         writer.printf("Run in legacy mode? %b\n", !mUseDynamicRouting);
         writer.printf("Persist master mute state? %b\n", mPersistMasterMuteState);
         writer.printf("Master muted? %b\n", mAudioManager.isMasterMute());
+        writer.printf("Use hal ducking signals %b\n", mUseHalDuckingSignals);
         writer.printf("Volume context priority list version: %d\n",
                 mAudioVolumeAdjustmentContextsVersion);
         writer.printf("Volume key event timeout ms: %d\n", mKeyEventTimeoutMs);
@@ -601,9 +607,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         builder.setAudioPolicyVolumeCallback(mAudioPolicyVolumeCallback);
 
         if (sUseCarAudioFocus) {
-            AudioControlWrapper audioControlWrapper = getAudioControlWrapperLocked();
-            if (audioControlWrapper.supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_DUCKING)) {
-                mCarDucking = new CarDucking(mCarAudioZones);
+            if (mUseHalDuckingSignals) {
+                AudioControlWrapper audioControlWrapper = getAudioControlWrapperLocked();
+                if (audioControlWrapper.supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_DUCKING)) {
+                    mCarDucking = new CarDucking(mCarAudioZones, audioControlWrapper);
+                }
             }
 
             // Configure our AudioPolicy to handle focus events.

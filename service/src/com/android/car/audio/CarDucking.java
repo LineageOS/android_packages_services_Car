@@ -22,23 +22,28 @@ import android.util.IndentingPrintWriter;
 import android.util.SparseArray;
 
 import com.android.car.audio.CarZonesAudioFocus.CarFocusCallback;
+import com.android.car.audio.hal.AudioControlWrapper;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 final class CarDucking implements CarFocusCallback {
     private static final String TAG = CarDucking.class.getSimpleName();
 
     private final SparseArray<CarAudioZone> mCarAudioZones;
+    private final AudioControlWrapper mAudioControlWrapper;
     private final Object mLock = new Object();
 
     @GuardedBy("mLock")
     private final SparseArray<CarDuckingInfo> mCurrentDuckingInfo = new SparseArray<>();
 
-    CarDucking(@NonNull SparseArray<CarAudioZone> carAudioZones) {
-        mCarAudioZones = carAudioZones;
+    CarDucking(@NonNull SparseArray<CarAudioZone> carAudioZones,
+            @NonNull AudioControlWrapper audioControlWrapper) {
+        mCarAudioZones = Objects.requireNonNull(carAudioZones);
+        mAudioControlWrapper = Objects.requireNonNull(audioControlWrapper);
         for (int i = 0; i < carAudioZones.size(); i++) {
             int zoneId = carAudioZones.keyAt(i);
             mCurrentDuckingInfo.put(zoneId,
@@ -59,7 +64,7 @@ final class CarDucking implements CarFocusCallback {
             CarDuckingInfo newDuckingInfo = generateNewDuckingInfoLocked(oldDuckingInfo,
                     focusHolders);
             mCurrentDuckingInfo.put(audioZoneId, newDuckingInfo);
-            // TODO(b/158242859): Notify HAL of change
+            mAudioControlWrapper.onDevicesToDuckChange(newDuckingInfo);
         }
     }
 
