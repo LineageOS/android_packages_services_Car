@@ -474,7 +474,7 @@
   <string-array name="wifi_metered_entries">
     <item msgid="4329206416008519163">"Automatisch erkennen"</item>
     <item msgid="773943026484148895">"Wie \"kostenpflichtig\" behandeln"</item>
-    <item msgid="1008268820118852416">"Wie \"kostenlos\" behandeln"</item>
+    <item msgid="1008268820118852416">"Wie \"ohne Datenlimit\" behandeln"</item>
   </string-array>
   <string-array name="wifi_privacy_entries">
     <item msgid="6545683814310036454">"Zufällige MAC-Adresse verwenden (Standard)"</item>
