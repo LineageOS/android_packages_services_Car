@@ -147,6 +147,11 @@ public class SystemInterface implements ActivityManagerInterface,
     }
 
     @Override
+    public boolean isDisplayEnabled() {
+        return mDisplayInterface.isDisplayEnabled();
+    }
+
+    @Override
     public WearInformationProvider[] getFlashWearInformationProviders() {
         return mStorageMonitoringInterface.getFlashWearInformationProviders();
     }
