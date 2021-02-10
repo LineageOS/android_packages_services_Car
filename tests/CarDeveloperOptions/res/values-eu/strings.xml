@@ -1079,9 +1079,9 @@
     <string name="wifi_hotspot_configure_ap_text" msgid="1000003286253019522">"Wifi-gunearen konfigurazioa"</string>
     <string name="wifi_hotspot_configure_ap_text_summary" msgid="2303120188509955656">"AndroidAP WPA2 PSK wifi-gunea"</string>
     <string name="wifi_tether_configure_ssid_default" msgid="1722238925876152663">"AndroidSarePublikoa"</string>
-    <string name="wifi_calling_settings_title" msgid="626821542308601806">"Wi-Fi bidezko deiak"</string>
+    <string name="wifi_calling_settings_title" msgid="626821542308601806">"Wifi bidezko deiak"</string>
     <string name="wifi_calling_suggestion_title" msgid="1402265373543523970">"Zabaldu deiak egiteko aukera Wi‑Fi konexioarekin"</string>
-    <string name="wifi_calling_suggestion_summary" msgid="198402175473169630">"Aktibatu Wi‑Fi bidezko deiak estaldura zabaltzeko"</string>
+    <string name="wifi_calling_suggestion_summary" msgid="198402175473169630">"Aktibatu Wifi bidezko deiak estaldura zabaltzeko"</string>
     <string name="wifi_calling_mode_title" msgid="3350624859819920176">"Deitzeko aukera lehenetsiak"</string>
     <string name="wifi_calling_mode_dialog_title" msgid="652534533091724333">"Deitzeko aukera hobetsia"</string>
     <string name="wifi_calling_roaming_mode_title" msgid="2059151080231602753">"Ibiltaritzako hobespena"</string>
@@ -1115,9 +1115,9 @@
     <string name="emergency_address_summary" msgid="478668478569851714">"Kokapen gisa erabiliko da larrialdi-zerbitzuetara Wi-Fi bidez deituz gero"</string>
     <string name="private_dns_help_message" msgid="7633526525131196650"><annotation id="url">"Lortu informazio gehiago"</annotation>" DNS pribatuaren eginbideei buruz"</string>
     <string name="wifi_calling_pref_managed_by_carrier" msgid="5458050015417972072">"Operadoreak kudeatzen du ezarpen hau"</string>
-    <string name="wifi_calling_settings_activation_instructions" msgid="2863642668648110908">"Aktibatu Wi-Fi bidezko deiak"</string>
-    <string name="wifi_calling_turn_on" msgid="1212277809455062043">"Aktibatu Wi-Fi bidezko deiak"</string>
-    <string name="wifi_calling_not_supported" msgid="216781767605669775">"%1$s operadoreak ez ditu onartzen Wi‑Fi bidezko deiak"</string>
+    <string name="wifi_calling_settings_activation_instructions" msgid="2863642668648110908">"Aktibatu Wifi bidezko deiak"</string>
+    <string name="wifi_calling_turn_on" msgid="1212277809455062043">"Aktibatu Wifi bidezko deiak"</string>
+    <string name="wifi_calling_not_supported" msgid="216781767605669775">"%1$s operadoreak ez ditu onartzen wifi bidezko deiak"</string>
     <string name="carrier" msgid="3413463182542176886">"Operadorea"</string>
     <string name="display_settings_title" msgid="1243571562133261601">"Bistaratzea"</string>
     <string name="sound_settings" msgid="3306063041029638807">"Soinua"</string>

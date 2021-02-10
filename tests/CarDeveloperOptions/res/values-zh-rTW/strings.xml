@@ -2046,7 +2046,7 @@
     <string name="interaction_control_category_title" msgid="8775039211811947683">"互動控制項"</string>
     <string name="user_installed_services_category_title" msgid="4288689493753221319">"已下載的服務"</string>
     <string name="experimental_category_title" msgid="3797000069740110717">"實驗性"</string>
-    <string name="feature_flags_dashboard_title" msgid="3153034144122754381">"功能標記"</string>
+    <string name="feature_flags_dashboard_title" msgid="3153034144122754381">"功能旗標"</string>
     <string name="talkback_title" msgid="3717960404234260050">"TalkBack"</string>
     <string name="talkback_summary" msgid="6602857105831641574">"這是一種螢幕閱讀器，主要適用於視障和低視能人士"</string>
     <string name="select_to_speak_summary" msgid="7514180457557735421">"輕觸畫面上的項目即可聽取項目內容"</string>

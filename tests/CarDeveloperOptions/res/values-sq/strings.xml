@@ -760,8 +760,8 @@
     <string name="bluetooth_device_context_connect" msgid="1812090541371432890">"Lidh"</string>
     <string name="bluetooth_device_context_disconnect" msgid="8085015949275771802">"Shkëput"</string>
     <string name="bluetooth_device_context_pair_connect" msgid="1503322591778810032">"Ҫifto dhe lidh"</string>
-    <string name="bluetooth_device_context_unpair" msgid="250588431708253041">"Hiq nga çiftimi"</string>
-    <string name="bluetooth_device_context_disconnect_unpair" msgid="4519151805677280077">"Shkëput dhe hiq nga çiftimi"</string>
+    <string name="bluetooth_device_context_unpair" msgid="250588431708253041">"Anulo çiftimin"</string>
+    <string name="bluetooth_device_context_disconnect_unpair" msgid="4519151805677280077">"Shkëput dhe anulo çiftimin"</string>
     <string name="bluetooth_device_context_connect_advanced" msgid="423463405499392444">"Opsionet..."</string>
     <string name="bluetooth_menu_advanced" msgid="7566858513372603652">"Të përparuara"</string>
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"Cilësimet e përparuara të Bluetooth-it"</string>
