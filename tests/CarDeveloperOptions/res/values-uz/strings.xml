@@ -2528,7 +2528,7 @@
     <string name="tts_sliders_title" msgid="1927481069989092278">"Nutq tezligi va ohang"</string>
     <string name="tts_engine_section_title" msgid="7796486438271227076">"Nutq sintezatori"</string>
     <string name="tts_install_voice_title" msgid="3143328760690690254">"Ovozlar"</string>
-    <string name="tts_spoken_language" msgid="8057256621711361944">"So‘zlashuv tili"</string>
+    <string name="tts_spoken_language" msgid="8057256621711361944">"Nutq tili"</string>
     <string name="tts_install_voices_title" msgid="363811937643579286">"Ovozlarni o‘rnatish"</string>
     <string name="tts_install_voices_text" msgid="7464832428439739995">"Ovozlarni o‘rnatish uchun <xliff:g id="TTS_APP_NAME">%s</xliff:g> ilovasiga o‘ting"</string>
     <string name="tts_install_voices_open" msgid="686776451008134790">"Ilovani ochish"</string>
