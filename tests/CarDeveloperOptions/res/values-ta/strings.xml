@@ -864,7 +864,7 @@
     <string name="wifi_scan_notify_text" msgid="7614101215028336927">"இருப்பிடத் துல்லியத்தை மேம்படுத்த, வைஃபை ஆஃப் செய்யப்பட்டிருந்தாலும்கூட, எந்தநேரத்திலும் ஆப்ஸும் சேவைகளும் வைஃபை நெட்வொர்க்குகளைத் தேடலாம். உதாரணத்திற்கு, இருப்பிடம் சார்ந்த அம்சங்கள் மற்றும் சேவைகளை மேம்படுத்துவதற்கும் இதைப் பயன்படுத்தலாம். <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>தேடுதல் அமைப்புகளில்<xliff:g id="LINK_END_1">LINK_END</xliff:g> இதை மாற்றிக்கொள்ளலாம்."</string>
     <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"இருப்பிடத்தின் துல்லியத்தன்மையை மேம்படுத்த, <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>ஸ்கேனிங் அமைப்புகளில்<xliff:g id="LINK_END_1">LINK_END</xliff:g> வைஃபை ஸ்கேனிங்கை இயக்கவும்."</string>
     <string name="wifi_scan_notify_remember_choice" msgid="1235445971400237444">"மீண்டும் காட்டாதே"</string>
-    <string name="wifi_setting_sleep_policy_title" msgid="2120785188625932076">"உறக்கநிலையில் Wi-Fi இயக்கு"</string>
+    <string name="wifi_setting_sleep_policy_title" msgid="2120785188625932076">"உறக்கநிலையில் வைஃபை இயக்கு"</string>
     <string name="wifi_setting_on_during_sleep_title" msgid="856670183023402715">"உறக்கத்தின் போது வைஃபையை இயக்குதல்"</string>
     <string name="wifi_setting_sleep_policy_error" msgid="9029652631829560733">"அமைப்பை மாற்றுவதில் சிக்கல் ஏற்பட்டது"</string>
     <string name="wifi_suspend_efficiency_title" msgid="5292408676086580527">"மேம்பட்ட செயல்திறன்"</string>
@@ -1112,7 +1112,7 @@
     <string name="wifi_calling_off_explanation" msgid="1653424723742898015">"’வைஃபை அழைப்பு’ இயக்கத்தில் இருக்கும்போது உங்கள் விருப்பத்தேர்வையும் சிக்னல் வலிமையையும் பொறுத்து வைஃபை நெட்வொர்க்குகளுக்கோ மொபைல் நெட்வொர்க்கிற்கோ உங்கள் மொபைல் அழைப்புகளைத் திசைதிருப்பும். இந்த அம்சத்தை இயக்குவதற்கு முன், கட்டணங்களையும் பிற விவரங்களையும் குறித்து உங்கள் மொபைல் நிறுவனத்திடமிருந்து தெரிந்துகொள்ளவும்.<xliff:g id="ADDITIONAL_TEXT">%1$s</xliff:g>"</string>
     <string name="wifi_calling_off_explanation_2" msgid="8648609693875720408"></string>
     <string name="emergency_address_title" msgid="5779915349686787024">"அவசர முகவரி"</string>
-    <string name="emergency_address_summary" msgid="478668478569851714">"Wi-Fi மூலம் அவசர அழைப்பை மேற்கொள்ளும்போது, உங்களின் அப்போதைய இருப்பிடமே உங்கள் முகவரியாகக் கருதப்படும்"</string>
+    <string name="emergency_address_summary" msgid="478668478569851714">"வைஃபை மூலம் அவசர அழைப்பை மேற்கொள்ளும்போது, உங்களின் அப்போதைய இருப்பிடமே உங்கள் முகவரியாகக் கருதப்படும்"</string>
     <string name="private_dns_help_message" msgid="7633526525131196650">"தனிப்பட்ட DNS அம்சங்கள் பற்றி "<annotation id="url">"மேலும் அறிக"</annotation></string>
     <string name="wifi_calling_pref_managed_by_carrier" msgid="5458050015417972072">"அமைப்பானது மொபைல் நிறுவனத்தால் நிர்வகிக்கப்படுகிறது"</string>
     <string name="wifi_calling_settings_activation_instructions" msgid="2863642668648110908">"வைஃபை அழைப்பைச் செயல்படுத்தவும்"</string>
@@ -3068,7 +3068,7 @@
     <string name="keywords_display_wallpaper" msgid="1202089324795933197">"பின்னணி, தனிப்படுத்து, பிரத்தியேகமாக்கு திரை"</string>
     <string name="keywords_display_font_size" msgid="1496431330244040196">"உரை அளவு"</string>
     <string name="keywords_display_cast_screen" msgid="5744566533025100355">"திரையில் காட்டு, அலைபரப்பு, திரையை மிரரிங் செய், திரையைக் காட்டு, திரையைப் பகிர், திரைப் பகிர்தல், மிரரிங், திரையை அலைபரப்பு, திரை அலைபரப்புதல்"</string>
-    <string name="keywords_storage" msgid="7704519289838065803">"இடம், டிஸ்க், வட்டு இயக்ககம், சாதனப் பயன்பாடு"</string>
+    <string name="keywords_storage" msgid="7704519289838065803">"இடம், டிஸ்க், ஹார்டு டிரைவ், சாதனப் பயன்பாடு"</string>
     <string name="keywords_battery" msgid="3860198379310375112">"பவர் பயன்பாடு, சார்ஜ்"</string>
     <string name="keywords_spell_checker" msgid="6032411442958278879">"எழுத்துக் கூட்டல், அகராதி, எழுத்துச்சரிபார்ப்பு, தன்னியக்கத் திருத்தம்"</string>
     <string name="keywords_voice_input" msgid="569012518085308407">"கண்டறிவான், உள்ளீடு, பேச்சு, பேசு, மொழி, ஹேண்ட்ஸ்-ஃப்ரீ, ஹேண்ட்ஃப்ரீ, அறிதல், வன்மொழி, சொல், ஆடியோ, வரலாறு, புளூடூத் ஹெட்செட்"</string>

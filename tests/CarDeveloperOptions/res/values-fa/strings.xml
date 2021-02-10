@@ -852,14 +852,14 @@
     <string name="wifi_wakeup_summary" msgid="1152699417411690">"Wi-Fi درنزدیکی شبکه‌های با کیفیت بالای ذخیره‌شده (ازجمله شبکه خانه‌تان) دوباره روشن می‌شود."</string>
     <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"در دسترس نیست چون «مکان» خاموش است. "<annotation id="link">"مکان"</annotation>" را روشن کنید."</string>
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"در دسترس نیست چون «اسکن کردن Wi‑Fi» خاموش است"</string>
-    <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"برای استفاده، یک ارائه‌دهنده رتبه‌بندی شبکه انتخاب کنید"</string>
+    <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"برای استفاده، یک ارائه‌دهنده رده‌بندی شبکه انتخاب کنید"</string>
     <string name="wifi_poor_network_detection" msgid="7193423327400703073">"اجتناب از اتصالات ضعیف"</string>
     <string name="wifi_poor_network_detection_summary" msgid="5539951465985614590">"از شبکه Wi-Fi استفاده نکنید مگر اینکه اتصال اینترنتی مناسب داشته باشد"</string>
     <string name="wifi_avoid_poor_network_detection_summary" msgid="1976503191780928104">"فقط از شبکه‌هایی استفاده می‌شود که اتصال اینترنتی خوبی دارند"</string>
     <string name="use_open_wifi_automatically_title" msgid="3084513215481454350">"اتصال به شبکه‌های باز"</string>
     <string name="use_open_wifi_automatically_summary" msgid="8338020172673161754">"اتصال خودکار به شبکه‌های عمومی با کیفیت بالا"</string>
-    <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"برای استفاده، یک ارائه‌دهنده رتبه‌بندی شبکه انتخاب کنید"</string>
-    <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"برای استفاده، یک ارائه‌دهنده رتبه‌بندی شبکه سازگار انتخاب کنید"</string>
+    <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"برای استفاده، یک ارائه‌دهنده رده‌بندی شبکه انتخاب کنید"</string>
+    <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"برای استفاده، یک ارائه‌دهنده رده‌بندی شبکه سازگار انتخاب کنید"</string>
     <string name="wifi_install_credentials" msgid="5650088113710858289">"نصب مجوزها"</string>
     <string name="wifi_scan_notify_text" msgid="7614101215028336927">"برای بهبود دقت مکان، برنامه‌ها و سرویس‌ها همچنان می‌توانند در هرزمانی شبکه‌های Wi-Fi را اسکن کنند (حتی وقتی Wi-Fi خاموش است). این تنظیم می‌تواند برای مثال برای بهبود ویژگی‌ها و سرویس‌های مکان‌مبنا استفاده شود. می‌توانید در <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>تنظیمات اسکن کردن<xliff:g id="LINK_END_1">LINK_END</xliff:g>، این تنظیم را تغییر دهید."</string>
     <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"برای بهبود دقت مکان، «اسکن کردن Wi‑Fi» را در <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>تنظیمات اسکن<xliff:g id="LINK_END_1">LINK_END</xliff:g> روشن کنید."</string>
@@ -1637,7 +1637,7 @@
     <string name="sms_change_default_dialog_title" msgid="6301260161969667578">"برنامه پیامک تغییر داده شود؟"</string>
     <string name="sms_change_default_dialog_text" msgid="8275088077930942680">"از <xliff:g id="NEW_APP">%1$s</xliff:g> به‌جای <xliff:g id="CURRENT_APP">%2$s</xliff:g> به‌عنوان برنامه پیامک‌تان استفاده می‌کنید؟"</string>
     <string name="sms_change_default_no_previous_dialog_text" msgid="4680224695080527907">"از <xliff:g id="NEW_APP">%s</xliff:g> به‌جای برنامه پبامک‌تان استفاده می‌کنید؟"</string>
-    <string name="network_scorer_picker_title" msgid="1691073966560952916">"ارائه‌دهنده رتبه‌بندی شبکه"</string>
+    <string name="network_scorer_picker_title" msgid="1691073966560952916">"ارائه‌دهنده رده‌بندی شبکه"</string>
     <string name="network_scorer_picker_none_preference" msgid="6448280557733231737">"هیچ‌کدام"</string>
     <string name="network_scorer_change_active_dialog_title" msgid="4274159562371475090">"دستیار Wi‑Fi را تغییر می‌دهید؟"</string>
     <string name="network_scorer_change_active_dialog_text" msgid="4264089809189760730">"از <xliff:g id="NEW_APP">%1$s</xliff:g> به‌جای <xliff:g id="CURRENT_APP">%2$s</xliff:g> استفاده می‌کنید تا ارتباطات شبکه‌تان را مدیریت کنید؟"</string>
@@ -2224,8 +2224,8 @@
     <string name="print_cancelling_state_title_template" msgid="4627355699517405600">"در حال لغو <xliff:g id="PRINT_JOB_NAME">%1$s</xliff:g>"</string>
     <string name="print_failed_state_title_template" msgid="6575080578316671101">"خطای چاپگر <xliff:g id="PRINT_JOB_NAME">%1$s</xliff:g>"</string>
     <string name="print_blocked_state_title_template" msgid="1671128179616943823">"چاپگر کار <xliff:g id="PRINT_JOB_NAME">%1$s</xliff:g> را مسدود کرد"</string>
-    <string name="print_search_box_shown_utterance" msgid="5164929050163660303">"کادر جستجو نمایان شد"</string>
-    <string name="print_search_box_hidden_utterance" msgid="1726782308351002642">"کادر جستجو پنهان شد"</string>
+    <string name="print_search_box_shown_utterance" msgid="5164929050163660303">"چارگوش جستجو نمایان شد"</string>
+    <string name="print_search_box_hidden_utterance" msgid="1726782308351002642">"چارگوش جستجو پنهان شد"</string>
     <string name="printer_info_desc" msgid="5913001479556045848">"اطلاعات بیشتر درباره این چاپگر"</string>
     <string name="power_usage_summary_title" msgid="3871905566750338898">"باتری"</string>
     <string name="power_usage_summary" msgid="2950273948620691117">"چه چیزی باتری را مصرف کرده است"</string>
@@ -2930,7 +2930,7 @@
     <string name="nfc_more_title" msgid="2825856411836382264">"بیشتر..."</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"به عنوان روش ترجیحی شما تنظیم شود؟"</string>
     <string name="nfc_payment_set_default" msgid="1186837502664412132">"همیشه هنگام «ضربه و پرداخت»، از <xliff:g id="APP">%1$s</xliff:g> استفاده شود؟"</string>
-    <string name="nfc_payment_set_default_instead_of" msgid="5746952277762109289">"همیشه هنگام «ضربه و پرداخت» از <xliff:g id="APP_0">%1$s</xliff:g> به جای <xliff:g id="APP_1">%2$s</xliff:g> استفاده شود؟"</string>
+    <string name="nfc_payment_set_default_instead_of" msgid="5746952277762109289">"همیشه هنگام «ضربه و پرداخت» از <xliff:g id="APP_0">%1$s</xliff:g> به‌جای <xliff:g id="APP_1">%2$s</xliff:g> استفاده شود؟"</string>
     <string name="restriction_settings_title" msgid="4143751894908963736">"محدودیت‌ها"</string>
     <string name="restriction_menu_reset" msgid="3642252461410370554">"حذف محدودیت‌ها"</string>
     <string name="restriction_menu_change_pin" msgid="592512748243421101">"تغییر پین"</string>
@@ -3072,7 +3072,7 @@
     <string name="keywords_battery" msgid="3860198379310375112">"مصرف نیرو، شارژ"</string>
     <string name="keywords_spell_checker" msgid="6032411442958278879">"املا، واژه‌نامه، غلط‌گیر املا، تصحیح خودکار"</string>
     <string name="keywords_voice_input" msgid="569012518085308407">"تشخیص‌دهنده، ورودی، گفتار، بلند صحبت کردن، گفتن، صحبت کردن، زبان، هندزفری، هندز فری، تشخیص، توهین‌آمیز، کلمه، صوتی، سابقه، بلوتوث، هدست"</string>
-    <string name="keywords_text_to_speech_output" msgid="1337378060761399890">"رتبه‌بندی، زبان، پیش‌فرض، بلند صحبت کردن، گفتن، صحبت کردن، صحبت، tts، دسترس‌پذیری، صفحه‌خوان، نابینا"</string>
+    <string name="keywords_text_to_speech_output" msgid="1337378060761399890">"رده‌بندی، زبان، پیش‌فرض، بلند صحبت کردن، گفتن، صحبت کردن، صحبت، tts، دسترس‌پذیری، صفحه‌خوان، نابینا"</string>
     <string name="keywords_date_and_time" msgid="4434079919474174978">"ساعت، نظامی"</string>
     <string name="keywords_network_reset" msgid="2064330046866583215">"بازنشانی، بازیابی، کارخانه"</string>
     <string name="keywords_factory_data_reset" msgid="5865739790670615499">"محو کردن، حذف، بازیابی، پاک کردن، برداشتن، بازنشانی کارخانه‌ای"</string>
@@ -4041,8 +4041,8 @@
     <string name="notification_log_details_vibrate_pattern" msgid="7015554755444260922">"الگو"</string>
     <string name="notification_log_details_default" msgid="455451833359888182">"پیش‌فرض"</string>
     <string name="notification_log_details_none" msgid="4294690532744821638">"هیچ‌کدام"</string>
-    <string name="notification_log_details_ranking_null" msgid="3907234749871463339">"شیء رتبه‌بندی وجود ندارد."</string>
-    <string name="notification_log_details_ranking_none" msgid="3687243721168608404">"شیء رتبه‌بندی حاوی این کلید نیست."</string>
+    <string name="notification_log_details_ranking_null" msgid="3907234749871463339">"شیء رده‌بندی وجود ندارد."</string>
+    <string name="notification_log_details_ranking_none" msgid="3687243721168608404">"شیء رده‌بندی حاوی این کلید نیست."</string>
     <string name="theme_customization_category" msgid="4043457940936660368">"سفارشی‌سازی طرح زمینه"</string>
     <string name="theme_customization_accent_color_title" msgid="3949108608589133216">"رنگ تأکیدی"</string>
     <string name="theme_customization_font_title" msgid="309728559821356597">"قلم عنوان / متن"</string>
