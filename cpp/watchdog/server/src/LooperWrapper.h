@@ -41,6 +41,7 @@ public:
     virtual void sendMessageAtTime(nsecs_t uptime, const android::sp<MessageHandler>& handler,
                                    const Message& message);
     virtual void removeMessages(const android::sp<MessageHandler>& handler);
+    virtual void removeMessages(const android::sp<MessageHandler>& handler, int what);
 
 protected:
     android::sp<Looper> mLooper;

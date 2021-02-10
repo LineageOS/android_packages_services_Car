@@ -105,6 +105,7 @@ cc_test {
     test_suites: ["general-tests"],
     srcs: [
         "tests/IoOveruseConfigsTest.cpp",
+        "tests/IoOveruseMonitorTest.cpp",
         "tests/IoPerfCollectionTest.cpp",
         "tests/LooperStub.cpp",
         "tests/PackageInfoResolverTest.cpp",

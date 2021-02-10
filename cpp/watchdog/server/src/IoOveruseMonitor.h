@@ -35,10 +35,23 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
+// Number of periodically monitored stats to cache in memory.
+constexpr int32_t kDefaultPeriodicMonitorBufferSize = 360;
+
+// Forward declaration for testing use only.
+namespace internal {
+
+class IoOveruseMonitorPeer;
+
+}  // namespace internal
+
 // IoOveruseMonitor implements the I/O overuse monitoring module.
 class IoOveruseMonitor : public IDataProcessorInterface {
 public:
-    IoOveruseMonitor() : mIsInitialized(false), mIoOveruseConfigs({}) {}
+    IoOveruseMonitor() :
+          mIsInitialized(false),
+          mIoOveruseConfigs({}),
+          mSystemWideWrittenBytes({}) {}
 
     ~IoOveruseMonitor() { terminate(); }
 
@@ -69,7 +82,8 @@ public:
             const android::wp<ProcPidStat>& procPidStat);
 
     android::base::Result<void> onPeriodicMonitor(
-            time_t time, const android::wp<IProcDiskStatsInterface>& procDiskStats);
+            time_t time, const android::wp<IProcDiskStatsInterface>& procDiskStats,
+            const std::function<void()>& alertHandler);
 
     // TODO(b/167240592): Forward WatchdogBinderMediator's notifySystemStateChange call to
     //  WatchdogProcessService. On POWER_CYCLE_SHUTDOWN_PREPARE, switch to garage mode collection
@@ -98,6 +112,11 @@ protected:
     void terminate();
 
 private:
+    struct WrittenBytesSnapshot {
+        double pollDurationInSecs;
+        uint64_t bytesInKib;
+    };
+
     // Makes sure only one collection is running at any given time.
     Mutex mMutex;
 
@@ -106,7 +125,18 @@ private:
     // Summary of configs available for all the components and system-wide overuse alert thresholds.
     IoOveruseConfigs mIoOveruseConfigs GUARDED_BY(mMutex);
 
+    /*
+     * Delta of system-wide written kib across all disks from the last |mPeriodicMonitorBufferSize|
+     * polls along with the polling duration.
+     */
+    std::vector<WrittenBytesSnapshot> mSystemWideWrittenBytes GUARDED_BY(mMutex);
+    size_t mPeriodicMonitorBufferSize GUARDED_BY(mMutex);
+    time_t mLastPollTime GUARDED_BY(mMutex);
+
     friend class WatchdogPerfService;
+
+    // For unit tests.
+    friend class internal::IoOveruseMonitorPeer;
 };
 
 }  // namespace watchdog
