@@ -37,7 +37,6 @@ public final class ManagerFragment extends Fragment {
     private PersonalStorage mPersonalStorage;
     private OemNetworkPreferencesWrapper mOemNetworkPreferencesWrapper;
 
-    private EditText mOEMDefaultAppsEditText;
     private EditText mOEMPaidAppsEditText;
     private EditText mOEMPaidNoFallbackAppsEditText;
     private EditText mOEMPaidOnlyAppsEditText;
@@ -62,7 +61,6 @@ public final class ManagerFragment extends Fragment {
 
     /** Finds all views on the fragments and stores them in instance variables */
     private void defineViewsFromFragment(View v) {
-        mOEMDefaultAppsEditText = v.findViewById(R.id.OEMDefaultAppsEditText);
         mOEMPaidAppsEditText = v.findViewById(R.id.OEMPaidAppsEditText);
         mOEMPaidNoFallbackAppsEditText = v.findViewById(R.id.OEMPaidNoFallbackAppsEditText);
         mOEMPaidOnlyAppsEditText = v.findViewById(R.id.OEMPaidOnlyAppsEditText);
@@ -77,8 +75,6 @@ public final class ManagerFragment extends Fragment {
 
     /** Sets default values of text fields */
     private void setDefaultValues() {
-        mOEMDefaultAppsEditText.setText(
-                getFromStorage(OemNetworkPreferencesWrapper.OEM_NETWORK_PREFERENCE_DEFAULT));
         mOEMPaidAppsEditText.setText(
                 getFromStorage(OemNetworkPreferencesWrapper.OEM_NETWORK_PREFERENCE_OEM_PAID));
         mOEMPaidNoFallbackAppsEditText.setText(
@@ -97,9 +93,6 @@ public final class ManagerFragment extends Fragment {
 
     private void onApplyConfigurationBtnClick() {
         SparseArray<Set<String>> preference = new SparseArray<>();
-        preference.put(
-                OemNetworkPreferencesWrapper.OEM_NETWORK_PREFERENCE_DEFAULT,
-                Utils.toSet(mOEMDefaultAppsEditText.getText().toString()));
         preference.put(
                 OemNetworkPreferencesWrapper.OEM_NETWORK_PREFERENCE_OEM_PAID,
                 Utils.toSet(mOEMPaidAppsEditText.getText().toString()));

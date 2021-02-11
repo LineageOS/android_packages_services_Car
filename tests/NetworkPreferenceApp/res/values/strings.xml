@@ -20,7 +20,6 @@
   <string name="quit_app" translatable="false">Quit App</string>
 
   <!-- Network Preferences Manager Fragment elements -->
-  <string name="oem_default_apps_text" translatable="false">OemNetworkPreferences.OEM_NETWORK_PREFERENCE_DEFAULT</string>
   <string name="oem_paid_apps_text" translatable="false">OemNetworkPreferences.OEM_NETWORK_PREFERENCE_OEM_PAID</string>
   <string name="oem_paid_no_fallback_apps_text" translatable="false">OemNetworkPreferences.OEM_NETWORK_PREFERENCE_OEM_PAID_NO_FALLBACK</string>
   <string name="oem_paid_only_apps_text" translatable="false">OemNetworkPreferences.OEM_NETWORK_PREFERENCE_OEM_PAID_ONLY</string>
