@@ -27,6 +27,7 @@ import android.util.Slog;
 import android.view.Surface;
 import android.view.SurfaceControl;
 
+import com.android.car.CarLog;
 import com.android.car.R;
 
 import java.nio.IntBuffer;
@@ -39,7 +40,7 @@ import javax.microedition.khronos.opengles.GL10;
  */
 public class BlurredSurfaceRenderer implements GLSurfaceView.Renderer {
 
-    private static final String TAG = "BlurredSurfaceRenderer";
+    private static final String TAG = CarLog.tagFor(BlurredSurfaceRenderer.class);
     private static final int NUM_INDICES_TO_RENDER = 4;
 
     private final String mVertexShader;

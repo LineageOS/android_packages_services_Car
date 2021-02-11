@@ -36,6 +36,7 @@ import android.util.Slog;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
+import com.android.car.CarLog;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.app.IVoiceInteractionManagerService;
@@ -57,7 +58,7 @@ import java.nio.charset.StandardCharsets;
  */
 @VisibleForTesting(visibility = VisibleForTesting.Visibility.PACKAGE)
 public final class PowerComponentHandler {
-    private static final String TAG = PowerComponentHandler.class.getSimpleName();
+    private static final String TAG = CarLog.tagFor(PowerComponentHandler.class);
     private static final String FORCED_OFF_COMPONENTS_FILENAME =
             "forced_off_components";
 

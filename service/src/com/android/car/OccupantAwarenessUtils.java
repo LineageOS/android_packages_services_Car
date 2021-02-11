@@ -30,7 +30,7 @@ import android.hardware.automotive.occupant_awareness.OccupantAwarenessStatus;
 import android.util.Slog;
 
 /*package*/ final class OccupantAwarenessUtils {
-    private static final String TAG = "OccupantAwarenessUtils";
+    private static final String TAG = CarLog.tagFor(OccupantAwarenessUtils.class);
 
     private OccupantAwarenessUtils() {}
 

@@ -54,7 +54,7 @@ import java.util.List;
  */
 public final class CarFeatureController implements CarServiceBase {
 
-    private static final String TAG = "CAR.FEATURE";
+    private static final String TAG = CarLog.tagFor(CarFeatureController.class);
 
     // Use HaseSet for better search performance. Memory consumption is fixed and it not an issue.
     // Should keep alphabetical order under each bucket.

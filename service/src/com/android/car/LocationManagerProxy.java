@@ -27,7 +27,7 @@ import android.util.Slog;
 /** Wraps a {@link LocationManager}. */
 public class LocationManagerProxy extends ILocationManagerProxy.Stub {
 
-    private static final String TAG = LocationManagerProxy.class.getSimpleName();
+    private static final String TAG = CarLog.tagFor(LocationManagerProxy.class);
     private static final boolean DBG = false;
 
     private final LocationManager mLocationManager;

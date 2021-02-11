@@ -475,7 +475,7 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
     }
 
     private static final class DispatchHandler extends Handler {
-        private static final String TAG = DispatchHandler.class.getSimpleName();
+        private static final String TAG = CarLog.tagFor(AppFocusService.class);
 
         private static final int MSG_DISPATCH_OWNERSHIP_LOSS = 0;
         private static final int MSG_DISPATCH_OWNERSHIP_GRANT = 1;

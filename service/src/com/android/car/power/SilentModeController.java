@@ -52,7 +52,7 @@ import java.util.Objects;
  * <p>Notifies others when the mode changes.
  */
 public final class SilentModeController implements CarServiceBase {
-    private static final String TAG = CarLog.TAG_SILENT;
+    private static final String TAG = CarLog.tagFor(SilentModeController.class);
 
     private static final String FORCED_NON_SILENT = "reboot,forcednonsilent";
     private static final String FORCED_SILENT = "reboot,forcedsilent";

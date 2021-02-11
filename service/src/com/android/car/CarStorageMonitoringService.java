@@ -84,7 +84,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
             CarStorageMonitoringManager.SHUTDOWN_COST_INFO_MISSING;
 
     private static final boolean DBG = false;
-    private static final String TAG = CarLog.TAG_STORAGE;
+    private static final String TAG = CarLog.tagFor(CarStorageMonitoringService.class);
     private static final int MIN_WEAR_ESTIMATE_OF_CONCERN = 80;
 
     static final String UPTIME_TRACKER_FILENAME = "service_uptime";

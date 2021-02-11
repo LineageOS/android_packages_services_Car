@@ -57,7 +57,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class CarPropertyService extends ICarProperty.Stub
         implements CarServiceBase, PropertyHalService.PropertyHalListener {
     private static final boolean DBG = true;
-    private static final String TAG = "Property.service";
+    private static final String TAG = CarLog.tagFor(CarPropertyService.class);
     private final Context mContext;
     private final Map<IBinder, Client> mClientMap = new ConcurrentHashMap<>();
     private final PropertyHalService mHal;

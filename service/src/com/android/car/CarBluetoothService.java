@@ -54,7 +54,7 @@ import java.util.List;
  * Provides an interface for other programs to request auto connections.
  */
 public class CarBluetoothService extends ICarBluetooth.Stub implements CarServiceBase {
-    private static final String TAG = "CarBluetoothService";
+    private static final String TAG = CarLog.tagFor(CarBluetoothService.class);
     private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
     private final Context mContext;
 

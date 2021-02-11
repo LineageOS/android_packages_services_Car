@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
  * Manages the inhibiting of Bluetooth profile connections to and from specific devices.
  */
 public class BluetoothProfileInhibitManager {
-    private static final String TAG = "BluetoothProfileInhibitManager";
+    private static final String TAG = CarLog.tagFor(BluetoothProfileInhibitManager.class);
     private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
     private static final String SETTINGS_DELIMITER = ",";
     private static final Binder RESTORED_PROFILE_INHIBIT_TOKEN = new Binder();

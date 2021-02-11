@@ -49,7 +49,7 @@ import java.util.List;
  * from listening to relevant properties from {@link CarPropertyService}
  */
 public class CarDrivingStateService extends ICarDrivingState.Stub implements CarServiceBase {
-    private static final String TAG = "CarDrivingState";
+    private static final String TAG = CarLog.tagFor(CarDrivingStateService.class);
     private static final boolean DBG = false;
     private static final int MAX_TRANSITION_LOG_SIZE = 20;
     private static final int PROPERTY_UPDATE_RATE = 5; // Update rate in Hz

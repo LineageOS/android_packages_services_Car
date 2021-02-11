@@ -28,6 +28,7 @@ import android.telephony.Annotation.CallState;
 import android.telephony.TelephonyManager;
 import android.util.SparseIntArray;
 
+import com.android.car.CarLog;
 import com.android.car.audio.CarAudioContext.AudioContext;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
@@ -42,6 +43,7 @@ import java.util.Set;
  * CarVolume is responsible for determining which audio contexts to prioritize when adjusting volume
  */
 final class CarVolume {
+    private static final String TAG = CarLog.tagFor(CarVolume.class);
     private static final int CONTEXT_HIGHEST_PRIORITY = 0;
     private static final int CONTEXT_NOT_PRIORITIZED = -1;
 

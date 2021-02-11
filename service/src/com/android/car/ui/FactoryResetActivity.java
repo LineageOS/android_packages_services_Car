@@ -31,18 +31,18 @@ import android.os.UserHandle;
 import android.util.Slog;
 import android.widget.Button;
 
+import com.android.car.CarLog;
 import com.android.car.R;
 import com.android.internal.os.IResultReceiver;
 
 // TODO(b/171603586): add unit test
-
 /**
  * Activity shown when a factory request is imminent, it gives the user the option to reset now or
  * wait until the device is rebooted / resumed from suspend.
  */
 public final class FactoryResetActivity extends Activity {
 
-    private static final String TAG = FactoryResetActivity.class.getSimpleName();
+    private static final String TAG = CarLog.tagFor(FactoryResetActivity.class);
 
     public static final String EXTRA_CALLBACK = "factory_reset_callback";
 
