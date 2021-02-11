@@ -183,7 +183,7 @@ final class PolicyReader {
         if (policyId == null) {
             return "policyId cannot be null";
         }
-        if (policyId.startsWith(SYSTEM_POWER_POLICY_PREFIX)) {
+        if (isSystemPowerPolicy(policyId)) {
             return "policyId should not start with " + SYSTEM_POWER_POLICY_PREFIX;
         }
         if (mRegisteredPowerPolicies.containsKey(policyId)) {
@@ -303,7 +303,7 @@ final class PolicyReader {
                     throw new PolicyXmlException("no |" + ATTR_ID + "| attribute of |" + TAG_POLICY
                             + "| tag");
                 }
-                if (includeOtherComponents && policyId.startsWith(SYSTEM_POWER_POLICY_PREFIX)) {
+                if (includeOtherComponents && isSystemPowerPolicy(policyId)) {
                     throw new PolicyXmlException("Policy ID should not start with "
                             + SYSTEM_POWER_POLICY_PREFIX);
                 }
@@ -657,6 +657,10 @@ final class PolicyReader {
             components.put(component, enabled);
         }
         return null;
+    }
+
+    static boolean isSystemPowerPolicy(String policyId) {
+        return policyId == null ? false : policyId.startsWith(SYSTEM_POWER_POLICY_PREFIX);
     }
 
     private static int[] toIntArray(SparseBooleanArray array, boolean value) {

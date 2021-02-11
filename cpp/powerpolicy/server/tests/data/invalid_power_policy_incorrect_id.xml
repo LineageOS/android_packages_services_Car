@@ -24,7 +24,10 @@
 
     <policies>
         <policy id="expected_to_be_registered">
-            <otherComponents behavior="incorrect"/>
+            <otherComponents behavior="on"/>
+        </policy>
+        <policy id="system_power_policy_stand_by">
+            <otherComponents behavior="off"/>
             <component id="POWER_COMPONENT_DISPLAY">off</component>
             <component id="POWER_COMPONENT_WIFI">off</component>
             <component id="POWER_COMPONENT_VISUAL_INTERACTION">off</component>

@@ -34,6 +34,7 @@ namespace powerpolicy {
 
 std::string toString(const CarPowerPolicy& policy);
 std::string toString(const std::vector<PowerComponent>& components);
+bool isSystemPowerPolicy(const std::string& policyId);
 
 using CarPowerPolicyPtr = std::shared_ptr<CarPowerPolicy>;
 using PolicyGroup = std::unordered_map<int32_t, std::string>;
@@ -58,7 +59,7 @@ public:
     CarPowerPolicyPtr getDefaultPowerPolicyForState(
             const std::string& groupId,
             hardware::automotive::vehicle::V2_0::VehicleApPowerStateReport state) const;
-    CarPowerPolicyPtr getSystemPowerPolicy() const;
+    CarPowerPolicyPtr getSystemPowerPolicy(const std::string& policyId) const;
     bool isPowerPolicyGroupAvailable(const std::string& groupId) const;
     base::Result<void> definePowerPolicy(const std::string& policyId,
                                          const std::vector<std::string>& enabledComponents,
@@ -73,7 +74,7 @@ private:
 
 private:
     std::unordered_map<std::string, CarPowerPolicyPtr> mRegisteredPowerPolicies;
-    CarPowerPolicyPtr mSystemPowerPolicy;
+    std::unordered_map<std::string, CarPowerPolicyPtr> mSystemPowerPolicies;
     std::unordered_map<std::string, PolicyGroup> mPolicyGroups;
 
     // For unit tests.
