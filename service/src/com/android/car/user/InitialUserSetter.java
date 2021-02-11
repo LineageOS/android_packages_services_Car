@@ -38,6 +38,7 @@ import android.util.Pair;
 import android.util.Slog;
 import android.util.TimingsTraceLog;
 
+import com.android.car.CarLog;
 import com.android.car.internal.common.UserHelperLite;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
@@ -57,7 +58,7 @@ import java.util.function.Consumer;
  */
 final class InitialUserSetter {
 
-    private static final String TAG = InitialUserSetter.class.getSimpleName();
+    private static final String TAG = CarLog.tagFor(InitialUserSetter.class);
 
     private static final boolean DBG = false;
     private static final int BOOT_USER_NOT_FOUND = -1;

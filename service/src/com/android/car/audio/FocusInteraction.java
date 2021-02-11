@@ -29,6 +29,7 @@ import android.provider.Settings;
 import android.util.IndentingPrintWriter;
 import android.util.Slog;
 
+import com.android.car.CarLog;
 import com.android.car.audio.CarAudioContext.AudioContext;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
@@ -43,7 +44,7 @@ import java.util.Objects;
  */
 final class FocusInteraction {
 
-    private static final String TAG = FocusInteraction.class.getSimpleName();
+    private static final String TAG = CarLog.tagFor(FocusInteraction.class);
 
     @VisibleForTesting
     static final Uri AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL_URI =

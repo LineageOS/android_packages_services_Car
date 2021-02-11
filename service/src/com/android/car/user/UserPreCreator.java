@@ -25,6 +25,7 @@ import android.util.EventLog;
 import android.util.Slog;
 import android.util.SparseBooleanArray;
 
+import com.android.car.CarLog;
 import com.android.car.internal.common.EventLogTags;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -40,7 +41,7 @@ import java.util.List;
  */
 public final class UserPreCreator {
 
-    private static final String TAG = UserPreCreator.class.getSimpleName();
+    private static final String TAG = CarLog.tagFor(UserPreCreator.class);
 
     private final UserManager mUserManager;
 

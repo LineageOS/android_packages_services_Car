@@ -35,7 +35,7 @@ import java.util.List;
 /** Utility class */
 public final class CarServiceUtils {
 
-    private static final String TAG = "CAR.UTIL";
+    private static final String TAG = CarLog.tagFor(CarServiceUtils.class);
     /** Empty int array */
     public  static final int[] EMPTY_INT_ARRAY = new int[0];
 

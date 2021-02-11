@@ -58,7 +58,7 @@ public class InputCaptureClientController {
     private static final boolean DBG_DISPATCH = false;
     private static final boolean DBG_CALLS = false;
 
-    private static final String TAG = CarLog.TAG_INPUT;
+    private static final String TAG = CarLog.tagFor(InputCaptureClientController.class);
     /**
      * This table decides which input key goes into which input type. Not mapped here means it is
      * not supported for capturing. Rotary events are treated separately and this is only for

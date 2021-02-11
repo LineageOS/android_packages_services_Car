@@ -19,11 +19,13 @@ package com.android.car.audio.hal;
 import android.os.IBinder;
 import android.util.Slog;
 
+import com.android.car.CarLog;
+
 /**
  * Factory for constructing wrappers around IAudioControl HAL instances.
  */
 public final class AudioControlFactory {
-    private static final String TAG = AudioControlWrapper.class.getSimpleName();
+    private static final String TAG = CarLog.tagFor(AudioControlFactory.class);
 
     /**
      * Generates {@link AudioControlWrapper} for interacting with IAudioControl HAL service. The HAL

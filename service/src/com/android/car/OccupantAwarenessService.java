@@ -60,7 +60,7 @@ import java.lang.ref.WeakReference;
 public class OccupantAwarenessService
         extends android.car.occupantawareness.IOccupantAwarenessManager.Stub
         implements CarServiceBase {
-    private static final String TAG = CarLog.TAG_OAS;
+    private static final String TAG = CarLog.tagFor(OccupantAwarenessService.class);
     private static final boolean DBG = false;
 
     // HAL service identifier name.

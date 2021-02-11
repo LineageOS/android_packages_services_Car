@@ -43,6 +43,8 @@ import android.util.Pair;
 import android.util.Slog;
 import android.util.SparseArray;
 
+import com.android.car.CarLog;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -67,7 +69,7 @@ public class PropertyHalServiceIds {
     // Key: propId, Value: possible value for the property
     private final HashMap<Integer, Set<Integer>> mPropToValidValue;
     private final HashMap<Integer, Integer> mPropToValidBitFlag;
-    private static final String TAG = "PropertyHalServiceIds";
+    private static final String TAG = CarLog.tagFor(PropertyHalServiceIds.class);
     // Enums are used as return value in Vehicle HAL.
     private static final Set<Integer> FUEL_TYPE =
             new HashSet<>(getIntegersFromDataEnums(FuelType.class));

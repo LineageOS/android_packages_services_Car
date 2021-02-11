@@ -27,19 +27,19 @@ import android.util.DebugUtils;
 import android.util.IndentingPrintWriter;
 import android.util.Slog;
 
+import com.android.car.CarLog;
 import com.android.internal.annotations.GuardedBy;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 // TODO(b/175057848) add unit tests
-
 /**
  * User-specific {@code CarDevicePolicyManagerService}.
  */
 public final class PerUserCarDevicePolicyService {
 
-    private static final String TAG = PerUserCarDevicePolicyService.class.getSimpleName();
+    private static final String TAG = CarLog.tagFor(PerUserCarDevicePolicyService.class);
 
     private static final String PREFIX_NEW_USER_DISCLAIMER_STATUS = "NEW_USER_DISCLAIMER_STATUS_";
 

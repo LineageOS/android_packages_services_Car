@@ -22,6 +22,7 @@ import android.os.RemoteException;
 import android.util.IndentingPrintWriter;
 import android.util.Slog;
 
+import com.android.car.CarLog;
 import com.android.car.audio.CarAudioContext;
 import com.android.car.audio.CarDuckingInfo;
 import com.android.internal.annotations.VisibleForTesting;
@@ -33,7 +34,7 @@ import java.util.Objects;
  * Wrapper for IAudioControl@1.0.
  */
 public final class AudioControlWrapperV1 implements AudioControlWrapper {
-    private static final String TAG = AudioControlWrapperV1.class.getSimpleName();
+    private static final String TAG = CarLog.tagFor(AudioControlWrapperV1.class);
 
     private IAudioControl mAudioControlV1;
     private AudioControlDeathRecipient mDeathRecipient;

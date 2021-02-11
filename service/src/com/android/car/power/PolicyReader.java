@@ -40,6 +40,7 @@ import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.util.Xml;
 
+import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -70,7 +71,7 @@ final class PolicyReader {
     // are on.
     static final String SYSTEM_POWER_POLICY_DEFAULT = SYSTEM_POWER_POLICY_PREFIX + "default";
 
-    private static final String TAG = PolicyReader.class.getSimpleName();
+    private static final String TAG = CarLog.tagFor(PolicyReader.class);
     private static final String VENDOR_POLICY_PATH = "/vendor/etc/power_policy.xml";
 
     private static final String NAMESPACE = null;

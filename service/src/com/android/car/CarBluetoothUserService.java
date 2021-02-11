@@ -38,7 +38,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
 
-    private static final String TAG = CarBluetoothUserService.class.getSimpleName();
+    private static final String TAG = CarLog.tagFor(CarBluetoothUserService.class);
 
     private static final int PROXY_OPERATION_TIMEOUT_MS = 8_000;
 

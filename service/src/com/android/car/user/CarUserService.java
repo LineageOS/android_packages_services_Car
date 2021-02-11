@@ -20,7 +20,6 @@ import static android.Manifest.permission.CREATE_USERS;
 import static android.Manifest.permission.MANAGE_USERS;
 import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_SETUP;
 
-import static com.android.car.CarLog.TAG_USER;
 import static com.android.car.PermissionHelper.checkHasAtLeastOnePermissionGranted;
 import static com.android.car.PermissionHelper.checkHasDumpPermissionGranted;
 
@@ -91,6 +90,7 @@ import android.util.SparseBooleanArray;
 import android.util.TimingsTraceLog;
 import android.view.Display;
 
+import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
 import com.android.car.CarUxRestrictionsManagerService;
@@ -133,7 +133,7 @@ import java.util.concurrent.TimeUnit;
  */
 public final class CarUserService extends ICarUserService.Stub implements CarServiceBase {
 
-    private static final String TAG = TAG_USER;
+    private static final String TAG = CarLog.tagFor(CarUserService.class);
 
     /** {@code int} extra used to represent a user id in a {@link IResultReceiver} response. */
     public static final String BUNDLE_USER_ID = "user.id";

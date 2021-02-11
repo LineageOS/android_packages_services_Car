@@ -31,6 +31,7 @@ import android.sysprop.CarProperties;
 import android.util.IndentingPrintWriter;
 import android.util.Slog;
 
+import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
 import com.android.car.internal.common.UserHelperLite;
 import com.android.car.user.CarUserService;
@@ -47,7 +48,7 @@ import java.util.concurrent.TimeoutException;
 public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
         implements CarServiceBase {
 
-    private static final String TAG = CarDevicePolicyService.class.getSimpleName();
+    private static final String TAG = CarLog.tagFor(CarDevicePolicyService.class);
     static final boolean DEBUG = false;
 
     private static final int HAL_TIMEOUT_MS = CarProperties.user_hal_timeout().orElse(5_000);
