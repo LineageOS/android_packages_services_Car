@@ -2605,7 +2605,7 @@
     <string name="background_data" msgid="8275750862371471171">"Dades en segon pla"</string>
     <string name="background_data_summary" msgid="799640633948841990">"Les aplicacions poden sincronitzar, enviar i rebre dades en qualsevol moment"</string>
     <string name="background_data_dialog_title" msgid="8306650658158895976">"Desactiva dades segon pla?"</string>
-    <string name="background_data_dialog_message" msgid="8126774244911656527">"Desactivar les dades en segon pla augmenta la durada de la bateria i disminueix l\'ús de dades. És possible que algunes aplicacions continuïn utilitzant la connexió de dades en segon pla."</string>
+    <string name="background_data_dialog_message" msgid="8126774244911656527">"Desactivar les dades en segon pla allarga la durada de la bateria i disminueix l\'ús de dades. És possible que algunes aplicacions continuïn utilitzant la connexió de dades en segon pla."</string>
     <string name="sync_automatically" msgid="5746117156896468099">"Sincronitza dades aplicacions autom."</string>
     <string name="sync_enabled" msgid="535172627223336983">"Sincronització activa"</string>
     <string name="sync_disabled" msgid="713721807204805062">"Sincronització desactivada"</string>

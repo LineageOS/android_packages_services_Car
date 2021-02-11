@@ -2068,7 +2068,7 @@
     <string name="user_installed_services_category_title" msgid="4288689493753221319">"Preuzete usluge"</string>
     <string name="experimental_category_title" msgid="3797000069740110717">"Eksperimentalno"</string>
     <string name="feature_flags_dashboard_title" msgid="3153034144122754381">"Oznake funkcija"</string>
-    <string name="talkback_title" msgid="3717960404234260050">"Talkback"</string>
+    <string name="talkback_title" msgid="3717960404234260050">"TalkBack"</string>
     <string name="talkback_summary" msgid="6602857105831641574">"Čitač ekrana prvenstveno za slijepe i slabovidne osobe"</string>
     <string name="select_to_speak_summary" msgid="7514180457557735421">"Dodirnite stavke na ekranu da se naglas pročitaju"</string>
     <string name="accessibility_captioning_title" msgid="5878371993023439642">"Titlovi"</string>
