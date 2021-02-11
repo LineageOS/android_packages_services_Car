@@ -32,16 +32,6 @@
         applier.
     -->
     <!--
-        Preference: OEM_NETWORK_PREFERENCE_DEFAULT
-
-        Use default behavior requesting networks. Equivalent to not setting any
-        preference at all.
-     -->
-    <string-array name="config_network_preference_oem_default_apps" translatable="false">
-        <!-- <item>full.package.name</item> -->
-        <item>com.google.android.apps.maps</item>
-    </string-array>
-    <!--
         Preference: OEM_NETWORK_PREFERENCE_OEM_PAID
 
         If an unmetered network is available, use it
@@ -50,6 +40,7 @@
     -->
     <string-array name="config_network_preference_oem_paid_apps" translatable="false">
         <!-- <item>full.package.name</item> -->
+        <item>com.google.android.apps.maps</item>
     </string-array>
     <!--
         Preference: OEM_NETWORK_PREFERENCE_OEM_PAID_NO_FALLBACK
