@@ -107,7 +107,7 @@ public class NotificationFragment extends Fragment {
         Intent intent = new Intent(mContext, KitchenSinkActivity.class).setAction(action);
 
         return PendingIntent.getForegroundService(mContext, notificationId, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
     }
 
     private void initCancelAllButton(View view) {
@@ -165,7 +165,8 @@ public class NotificationFragment extends Fragment {
 
     private void initImportanceHighBotton(View view) {
         Intent intent = new Intent(mContext, KitchenSinkActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, intent, 0);
+        PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, intent,
+                PendingIntent.FLAG_IMMUTABLE);
 
         Notification notification1 = new Notification
                 .Builder(mContext, IMPORTANCE_HIGH_ID)
@@ -543,7 +544,8 @@ public class NotificationFragment extends Fragment {
 
     private void initCallButton(View view) {
         Intent intent = new Intent(mContext, KitchenSinkActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, intent, 0);
+        PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, intent,
+                PendingIntent.FLAG_IMMUTABLE);
 
         view.findViewById(R.id.category_call_button).setOnClickListener(v -> {
             Notification notification = new Notification
