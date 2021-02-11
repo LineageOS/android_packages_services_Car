@@ -43,7 +43,7 @@ import java.util.List;
  * @hide
  */
 public final class CarUxRestrictionsConfigurationXmlParser {
-    private static final String TAG = "UxRConfigParser";
+    private static final String TAG = CarLog.tagFor(CarUxRestrictionsConfigurationXmlParser.class);
     private static final int UX_RESTRICTIONS_UNKNOWN = -1;
     private static final float INVALID_SPEED = -1f;
     // XML tags to parse

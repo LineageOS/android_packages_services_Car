@@ -51,7 +51,7 @@ import java.util.Objects;
  */
 
 public class BluetoothDeviceConnectionPolicy {
-    private static final String TAG = "BluetoothDeviceConnectionPolicy";
+    private static final String TAG = CarLog.tagFor(BluetoothDeviceConnectionPolicy.class);
     private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
 
     private final int mUserId;

@@ -44,7 +44,7 @@ import java.util.Arrays;
  */
 final class HalClient {
 
-    private static final String TAG = CarLog.TAG_HAL;
+    private static final String TAG = CarLog.tagFor(HalClient.class);
     private static final boolean DEBUG = false;
 
     /**

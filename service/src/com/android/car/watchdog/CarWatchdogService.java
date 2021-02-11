@@ -59,6 +59,7 @@ import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
 import com.android.car.CarLocalServices;
+import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.user.CarUserService;
@@ -80,7 +81,7 @@ import java.util.List;
 public final class CarWatchdogService extends ICarWatchdogService.Stub implements CarServiceBase {
 
     private static final boolean DEBUG = false; // STOPSHIP if true
-    private static final String TAG = TAG_WATCHDOG;
+    private static final String TAG = CarLog.tagFor(CarWatchdogService.class);
     private static final int[] ALL_TIMEOUTS =
             { TIMEOUT_CRITICAL, TIMEOUT_MODERATE, TIMEOUT_NORMAL };
 

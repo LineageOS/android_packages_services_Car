@@ -70,7 +70,7 @@ import java.util.Objects;
 public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         implements CarServiceBase {
 
-    private static final String TAG = CarLog.TAG_OCCUPANT;
+    private static final String TAG = CarLog.tagFor(CarOccupantZoneService.class);
     private static final String ALL_COMPONENTS = "*";
     private static final int INVALID_PORT = -1;
 

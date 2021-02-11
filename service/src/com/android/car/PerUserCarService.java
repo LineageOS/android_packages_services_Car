@@ -42,7 +42,7 @@ import java.io.PrintWriter;
  */
 public class PerUserCarService extends Service {
     private static final boolean DBG = true;
-    private static final String TAG = PerUserCarService.class.getSimpleName();
+    private static final String TAG = CarLog.tagFor(PerUserCarService.class);
 
     private CarBluetoothUserService mCarBluetoothUserService;
     private LocationManagerProxy mLocationManagerProxy;

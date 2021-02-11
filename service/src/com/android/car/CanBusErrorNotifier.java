@@ -32,7 +32,7 @@ import java.util.Set;
  * Class used to notify user about CAN bus failure.
  */
 final class CanBusErrorNotifier {
-    private static final String TAG = CarLog.TAG_CAN_BUS + ".NOTIFIER";
+    private static final String TAG = CarLog.tagFor(CanBusErrorNotifier.class);
     private static final int NOTIFICATION_ID = 1;
     private static final boolean IS_RELEASE_BUILD = "user".equals(Build.TYPE);
 

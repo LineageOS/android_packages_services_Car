@@ -60,7 +60,7 @@ import java.util.concurrent.CompletableFuture;
  */
 public class CarLocationService extends BroadcastReceiver implements CarServiceBase,
         CarPowerStateListenerWithCompletion {
-    private static final String TAG = "CarLocationService";
+    private static final String TAG = CarLog.tagFor(CarLocationService.class);
     private static final String FILENAME = "location_cache.json";
     // The accuracy for the stored timestamp
     private static final long GRANULARITY_ONE_DAY_MS = 24 * 60 * 60 * 1000L;

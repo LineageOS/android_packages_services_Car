@@ -42,8 +42,7 @@ import java.util.Objects;
  * reboot reason.
  */
 final class SilentModeHandler {
-    private static final String TAG = CarLog.TAG_POWER + "_"
-            + SilentModeHandler.class.getSimpleName();
+    private static final String TAG = CarLog.tagFor(SilentModeHandler.class);
 
     private static final String SYSFS_FILENAME_GPIO_MONITORING =
             "/sys/power/pm_silentmode_hw_state";

@@ -23,6 +23,8 @@ import android.opengl.Matrix;
 import android.os.Build;
 import android.util.Slog;
 
+import com.android.car.CarLog;
+
 import libcore.io.Streams;
 
 import java.io.IOException;
@@ -38,7 +40,7 @@ import java.nio.IntBuffer;
  */
 public class GLHelper {
 
-    private static final String TAG = "GLHelper";
+    private static final String TAG = CarLog.tagFor(GLHelper.class);
     private static final int SIZEOF_FLOAT = 4;
 
     /**

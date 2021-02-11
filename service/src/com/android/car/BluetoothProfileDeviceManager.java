@@ -63,7 +63,7 @@ import java.util.Set;
  * connection priorities. Access to these functions is provided through CarBluetoothManager.
  */
 public class BluetoothProfileDeviceManager {
-    private static final String TAG = "BluetoothProfileDeviceManager";
+    private static final String TAG = CarLog.tagFor(BluetoothProfileDeviceManager.class);
     private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
     private final Context mContext;
     private final int mUserId;

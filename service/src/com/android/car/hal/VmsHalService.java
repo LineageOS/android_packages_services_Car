@@ -48,6 +48,7 @@ import android.util.ArraySet;
 import android.util.Slog;
 
 import com.android.car.CarLocalServices;
+import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
 import com.android.car.vms.VmsBrokerService;
 import com.android.internal.annotations.GuardedBy;
@@ -73,7 +74,7 @@ import java.util.function.Supplier;
  */
 public class VmsHalService extends HalServiceBase {
     private static final boolean DBG = false;
-    private static final String TAG = "VmsHalService";
+    private static final String TAG = CarLog.tagFor(VmsHalService.class);
     private static final int HAL_PROPERTY_ID = VehicleProperty.VEHICLE_MAP_SERVICE;
     private static final int[] SUPPORTED_PROPERTIES = new int[]{
             HAL_PROPERTY_ID

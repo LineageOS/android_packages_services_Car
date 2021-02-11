@@ -33,6 +33,7 @@ import android.util.Log;
 import android.util.Slog;
 import android.util.SparseArray;
 
+import com.android.car.CarLog;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 
@@ -42,7 +43,7 @@ import java.util.Objects;
  * Manages focus requests from the HAL on a per-zone per-usage basis
  */
 public final class HalAudioFocus implements HalFocusListener {
-    private static final String TAG = HalAudioFocus.class.getSimpleName();
+    private static final String TAG = CarLog.tagFor(HalAudioFocus.class);
 
     private final AudioManager mAudioManager;
     private final AudioControlWrapper mAudioControlWrapper;
