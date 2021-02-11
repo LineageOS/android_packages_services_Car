@@ -28,8 +28,8 @@ cc_defaults {
     shared_libs: [
         "android.automotive.watchdog-V3-cpp",
         "android.automotive.watchdog.internal-cpp",
-        "android.automotive.watchdog.internal-unstable-cpp",
-        "android.automotive.watchdog-unstable-cpp",
+        "android.automotive.watchdog.internal-cpp",
+        "android.automotive.watchdog-V3-cpp",
         "android.hardware.automotive.vehicle@2.0",
         "libbase",
         "libbinder",
