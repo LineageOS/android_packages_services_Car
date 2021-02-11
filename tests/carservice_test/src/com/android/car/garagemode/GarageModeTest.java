@@ -17,6 +17,7 @@
 package com.android.car.garagemode;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -55,6 +56,9 @@ import java.util.concurrent.TimeUnit;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public final class GarageModeTest {
+
+    private static final int DEFAULT_TIMEOUT_MS = 100;
+
     @Rule
     public final MockitoRule rule = MockitoJUnit.rule();
     private GarageMode mGarageMode;
@@ -99,8 +103,7 @@ public final class GarageModeTest {
 
         mGarageMode.cancel();
 
-        // wait for handler thread to finish
-        assertThat(latch.await(100, TimeUnit.MILLISECONDS)).isTrue();
+        waitForHandlerThreadToFinish(latch);
         verify(mCarUserService).startAllBackgroundUsers();
         verify(mCarUserService).stopBackgroundUser(101);
         verify(mCarUserService).stopBackgroundUser(102);
@@ -113,18 +116,22 @@ public final class GarageModeTest {
         CountDownLatch latch = mockCarUserServiceStartUsersCall(userToStartInBackground);
         mGarageMode.enterGarageMode(/* future= */ null);
 
-        // wait for handler thread to finish
-        assertThat(latch.await(100, TimeUnit.MILLISECONDS)).isTrue();
+        waitForHandlerThreadToFinish(latch);
         assertThat(mGarageMode.getStartedBackgroundUsers()).containsExactly(101, 102, 103);
 
         userToStartInBackground = new ArrayList<>(Arrays.asList(103, 104, 105));
         latch = mockCarUserServiceStartUsersCall(userToStartInBackground);
         mGarageMode.enterGarageMode(/* future= */ null);
 
-        // wait for handler thread to finish
-        assertThat(latch.await(100, TimeUnit.MILLISECONDS)).isTrue();
+        waitForHandlerThreadToFinish(latch);
         assertThat(mGarageMode.getStartedBackgroundUsers()).containsExactly(101, 102, 103, 104,
                 105);
+    }
+
+    private void waitForHandlerThreadToFinish(CountDownLatch latch) throws Exception {
+        assertWithMessage("Latch has timed out.")
+                .that(latch.await(DEFAULT_TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue();
+        mHandler.runWithScissors(() -> {}, DEFAULT_TIMEOUT_MS);
     }
 
     private CountDownLatch mockCarUserServiceStartUsersCall(
@@ -157,3 +164,4 @@ public final class GarageModeTest {
         }).when(mCarUserService).stopBackgroundUser(anyInt());
     }
 }
+
