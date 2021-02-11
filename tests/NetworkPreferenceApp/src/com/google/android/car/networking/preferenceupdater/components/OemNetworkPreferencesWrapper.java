@@ -29,7 +29,6 @@ public final class OemNetworkPreferencesWrapper {
 
     // Convert constants from OemNetworkPreferences into enum
     @IntDef(prefix = { "OEM_NETWORK_PREFERENCE_" }, value = {
-        OEM_NETWORK_PREFERENCE_DEFAULT,
         OEM_NETWORK_PREFERENCE_OEM_PAID,
         OEM_NETWORK_PREFERENCE_OEM_PAID_NO_FALLBACK,
         OEM_NETWORK_PREFERENCE_OEM_PAID_ONLY,
@@ -38,8 +37,6 @@ public final class OemNetworkPreferencesWrapper {
     public @interface Type {}
 
     // Uncomment origins once OemNetworkPreferences class is exposed.
-    public static final int OEM_NETWORK_PREFERENCE_DEFAULT = 0;
-    //        android.net.OemNetworkPreferences.OEM_NETWORK_PREFERENCE_DEFAULT;
     public static final int OEM_NETWORK_PREFERENCE_OEM_PAID = 1;
     //        android.net.OemNetworkPreferences.OEM_NETWORK_PREFERENCE_OEM_PAID;
     public static final int OEM_NETWORK_PREFERENCE_OEM_PAID_NO_FALLBACK = 2;
