@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.KeyEvent;
 
@@ -237,11 +238,14 @@ public final class CustomInputEventListener {
         injectKeyEvent(targetDisplayType, KeyEvent.KEYCODE_HOME);
     }
 
-    private void injectKeyEvent(int targetDisplayType, int keycodeCall) {
-        KeyEvent keyDown = new KeyEvent(KeyEvent.ACTION_DOWN, keycodeCall);
+    private void injectKeyEvent(int targetDisplayType, int keyCode) {
+        long currentTime = SystemClock.uptimeMillis();
+        KeyEvent keyDown = new KeyEvent(/* downTime= */ currentTime, /* eventTime= */ currentTime,
+                KeyEvent.ACTION_DOWN, keyCode, /* repeat= */ 0);
         mService.injectKeyEvent(keyDown, targetDisplayType);
 
-        KeyEvent keyUp = new KeyEvent(KeyEvent.ACTION_UP, keycodeCall);
+        KeyEvent keyUp = new KeyEvent(/* downTime= */ currentTime, /* eventTime= */ currentTime,
+                KeyEvent.ACTION_UP, keyCode, /* repeat= */ 0);
         mService.injectKeyEvent(keyUp, targetDisplayType);
     }
 }
