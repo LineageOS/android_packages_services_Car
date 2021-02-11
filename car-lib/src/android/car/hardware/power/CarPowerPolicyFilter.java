@@ -23,8 +23,11 @@ import com.android.internal.util.DataClass;
 
 /**
  * Filter to receive power policy changes that a listener is interested in.
+ *
+ * For the record: When running codegen, auto-generated constructor of {@link Builder} which takes
+ * one argument should be removed manually, so that we can use the default constructor.
  */
-@DataClass(genHiddenConstructor = true)
+@DataClass(genBuilder = true)
 public final class CarPowerPolicyFilter implements Parcelable {
     /**
      * List of components of interest. Components are one of
@@ -47,16 +50,8 @@ public final class CarPowerPolicyFilter implements Parcelable {
     //@formatter:off
 
 
-    /**
-     * Creates a new CarPowerPolicyFilter.
-     *
-     * @param components
-     *   List of components of interest. Components are one of
-     *   {@code android.frameworks.automotive.powerpolicy.PowerComponent}.
-     * @hide
-     */
     @DataClass.Generated.Member
-    public CarPowerPolicyFilter(
+    /* package-private */ CarPowerPolicyFilter(
             @NonNull int[] components) {
         this.components = components;
         com.android.internal.util.AnnotationValidations.validate(
@@ -108,11 +103,52 @@ public final class CarPowerPolicyFilter implements Parcelable {
         }
     };
 
+    /**
+     * A builder for {@link CarPowerPolicyFilter}
+     */
+    @SuppressWarnings("WeakerAccess")
+    @DataClass.Generated.Member
+    public static final class Builder {
+
+        private @NonNull int[] components;
+
+        private long mBuilderFieldsSet = 0L;
+
+        /**
+         * List of components of interest. Components are one of
+         * {@code android.frameworks.automotive.powerpolicy.PowerComponent}.
+         */
+        @DataClass.Generated.Member
+        public @NonNull Builder setComponents(@NonNull int... value) {
+            checkNotUsed();
+            mBuilderFieldsSet |= 0x1;
+            components = value;
+            return this;
+        }
+
+        /** Builds the instance. This builder should not be touched after calling this! */
+        public @NonNull CarPowerPolicyFilter build() {
+            checkNotUsed();
+            mBuilderFieldsSet |= 0x2; // Mark builder used
+
+            CarPowerPolicyFilter o = new CarPowerPolicyFilter(
+                    components);
+            return o;
+        }
+
+        private void checkNotUsed() {
+            if ((mBuilderFieldsSet & 0x2) != 0) {
+                throw new IllegalStateException(
+                        "This Builder should not be reused. Use a new Builder instance instead");
+            }
+        }
+    }
+
     @DataClass.Generated(
-            time = 1607968601669L,
+            time = 1613117708240L,
             codegenVersion = "1.0.22",
             sourceFile = "packages/services/Car/car-lib/src/android/car/hardware/power/CarPowerPolicyFilter.java",
-            inputSignatures = "public final @android.annotation.NonNull int[] components\nclass CarPowerPolicyFilter extends java.lang.Object implements [android.os.Parcelable]\n@com.android.internal.util.DataClass(genHiddenConstructor=true)")
+            inputSignatures = "public final @android.annotation.NonNull int[] components\nclass CarPowerPolicyFilter extends java.lang.Object implements [android.os.Parcelable]\n@com.android.internal.util.DataClass(genBuilder=true)")
     @Deprecated
     private void __metadata() {}
 
