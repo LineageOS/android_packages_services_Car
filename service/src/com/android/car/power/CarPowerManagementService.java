@@ -1161,7 +1161,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private String applyPowerPolicy(@Nullable String policyId, boolean upToDaemon) {
         String actualPolicyId = policyId == null ? PolicyReader.SYSTEM_POWER_POLICY_DEFAULT
                 : policyId;
-        CarPowerPolicy policy = mPolicyReader.getPowerPolicy(actualPolicyId);
+        CarPowerPolicy policy = PolicyReader.isSystemPowerPolicy(actualPolicyId)
+                ? mPolicyReader.getSystemPowerPolicy(actualPolicyId)
+                : mPolicyReader.getPowerPolicy(actualPolicyId);
         if (policy == null) {
             return policyId + " is not registered";
         }

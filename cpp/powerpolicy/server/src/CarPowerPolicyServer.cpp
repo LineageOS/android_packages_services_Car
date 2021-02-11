@@ -459,8 +459,11 @@ void CarPowerPolicyServer::handleHidlDeath(const wp<IBase>& who) {
 }
 
 Result<void> CarPowerPolicyServer::applyPowerPolicy(const std::string& policyId,
-                                                    bool carServiceExpected, bool notifyClients) {
-    CarPowerPolicyPtr policy = mPolicyManager.getPowerPolicy(policyId);
+                                                    bool carServiceInOperation,
+                                                    bool notifyClients) {
+    CarPowerPolicyPtr policy = isSystemPowerPolicy(policyId)
+            ? mPolicyManager.getSystemPowerPolicy(policyId)
+            : mPolicyManager.getPowerPolicy(policyId);
     if (policy == nullptr) {
         return Error()
                 << StringPrintf("Failed to get power policy(%s): The policy is not registered.",
@@ -468,15 +471,13 @@ Result<void> CarPowerPolicyServer::applyPowerPolicy(const std::string& policyId,
     }
 
     std::vector<CallbackInfo> clients;
-    {
-        Mutex::Autolock lock(mMutex);
-        if (mCarServiceInOperation != carServiceExpected) {
-            return Error() << (mCarServiceInOperation
-                                       ? "After CarService starts serving, power policy cannot be "
-                                         "managed in car power policy daemon"
-                                       : "Before CarService starts serving, power policy cannot be "
-                                         "applied from CarService");
-        }
+    if (Mutex::Autolock lock(mMutex); mCarServiceInOperation != carServiceInOperation) {
+        return Error() << (mCarServiceInOperation
+                                   ? "After CarService starts serving, power policy cannot be "
+                                     "managed in car power policy daemon"
+                                   : "Before CarService starts serving, power policy cannot be "
+                                     "applied from CarService");
+    } else {
         mCurrentPowerPolicy = policy;
         clients = mPolicyChangeCallbacks;
     }
