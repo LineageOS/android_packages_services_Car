@@ -60,6 +60,9 @@
     <integer name="config_jobSchedulerInactivityIdleThreshold">0</integer>
     <integer name="config_jobSchedulerIdleWindowSlop">0</integer>
 
+    <!-- Set the default number of allowed connected Bluetooth AVRCP/A2DP devices -->
+    <integer name="config_bluetooth_max_connected_audio_devices">1</integer>
+
     <!-- Automotive Bluetooth pairing option -->
     <bool name="enable_pbap_pce_profile">true</bool>
 
