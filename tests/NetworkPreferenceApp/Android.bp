@@ -39,6 +39,7 @@ android_app {
 
     static_libs: [
         "vehicle-hal-support-lib",
+        "car-experimental-api-static-lib",
         "androidx.legacy_legacy-support-v4",
     ],
 
