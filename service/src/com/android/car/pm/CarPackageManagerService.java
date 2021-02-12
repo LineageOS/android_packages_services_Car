@@ -56,6 +56,7 @@ import android.text.format.DateFormat;
 import android.util.ArraySet;
 import android.util.IndentingPrintWriter;
 import android.util.Log;
+import android.util.LocalLog;
 import android.util.Pair;
 import android.util.Slog;
 import android.util.SparseArray;
@@ -107,7 +108,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     private final Object mLock = new Object();
 
     // For dumpsys logging.
-    private final LinkedList<String> mBlockedActivityLogs = new LinkedList<>();
+    private final LocalLog mBlockedActivityLogs = new LocalLog(LOG_SIZE);
 
     // Store the allowlist and blocklist strings from the resource file.
     private String mConfiguredAllowlist;
@@ -978,7 +979,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             }
             writer.println("Display Restrictions:\n" + String.join("\n", restrictions));
             writer.println(" Blocked activity log:");
-            writer.println(String.join("\n", mBlockedActivityLogs));
+            mBlockedActivityLogs.dump(writer);
             writer.print(dumpPoliciesLocked(true));
         }
     }
@@ -1137,7 +1138,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         if (Log.isLoggable(CarLog.TAG_PACKAGE, Log.INFO)) {
             Slog.i(CarLog.TAG_PACKAGE, log);
         }
-        addLog(log);
+        mBlockedActivityLogs.log(log);
         mSystemActivityMonitoringService.blockActivity(topTask, newActivityIntent);
     }
 
@@ -1206,23 +1207,6 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         } catch (NameNotFoundException e) {
             return null;
         }
-    }
-
-    /**
-     * Append one line of log for dumpsys.
-     *
-     * <p>Maintains the size of log by {@link #LOG_SIZE} and appends tag and timestamp to the line.
-     */
-    private void addLog(String log) {
-        while (mBlockedActivityLogs.size() >= LOG_SIZE) {
-            mBlockedActivityLogs.remove();
-        }
-        StringBuffer sb = new StringBuffer()
-                .append(CarLog.TAG_PACKAGE).append(':')
-                .append(DateFormat.format(
-                        "MM-dd HH:mm:ss", System.currentTimeMillis())).append(": ")
-                .append(log);
-        mBlockedActivityLogs.add(sb.toString());
     }
 
     /**
