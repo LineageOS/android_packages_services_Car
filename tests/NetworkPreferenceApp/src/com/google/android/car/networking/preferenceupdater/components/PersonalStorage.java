@@ -15,10 +15,10 @@
  */
 package com.google.android.car.networking.preferenceupdater.components;
 
-import static com.google.android.car.networking.preferenceupdater.components.OemNetworkPreferencesWrapper.OEM_NETWORK_PREFERENCE_OEM_PAID;
-import static com.google.android.car.networking.preferenceupdater.components.OemNetworkPreferencesWrapper.OEM_NETWORK_PREFERENCE_OEM_PAID_NO_FALLBACK;
-import static com.google.android.car.networking.preferenceupdater.components.OemNetworkPreferencesWrapper.OEM_NETWORK_PREFERENCE_OEM_PAID_ONLY;
-import static com.google.android.car.networking.preferenceupdater.components.OemNetworkPreferencesWrapper.OEM_NETWORK_PREFERENCE_OEM_PRIVATE_ONLY;
+import static com.google.android.car.networking.preferenceupdater.components.OemNetworkPreferencesAdapter.OEM_NETWORK_PREFERENCE_OEM_PAID;
+import static com.google.android.car.networking.preferenceupdater.components.OemNetworkPreferencesAdapter.OEM_NETWORK_PREFERENCE_OEM_PAID_NO_FALLBACK;
+import static com.google.android.car.networking.preferenceupdater.components.OemNetworkPreferencesAdapter.OEM_NETWORK_PREFERENCE_OEM_PAID_ONLY;
+import static com.google.android.car.networking.preferenceupdater.components.OemNetworkPreferencesAdapter.OEM_NETWORK_PREFERENCE_OEM_PRIVATE_ONLY;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -59,7 +59,7 @@ public final class PersonalStorage {
         mDefaultOemPrivateOnlyApps = getRes(R.array.config_network_preference_oem_private_only);
     }
 
-    public Set<String> get(@OemNetworkPreferencesWrapper.Type int type) {
+    public Set<String> get(@OemNetworkPreferencesAdapter.Type int type) {
         switch (type) {
             case OEM_NETWORK_PREFERENCE_OEM_PAID:
                 return mSharedPrefs.getStringSet(KEY_OEM_PAID_APPS, mDefaultOemPaidApps);

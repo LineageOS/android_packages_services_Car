@@ -27,7 +27,8 @@ import android.widget.EditText;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.car.networking.preferenceupdater.R;
-import com.google.android.car.networking.preferenceupdater.components.OemNetworkPreferencesWrapper;
+import com.google.android.car.networking.preferenceupdater.components.CarDriverDistractionManagerAdapter;
+import com.google.android.car.networking.preferenceupdater.components.OemNetworkPreferencesAdapter;
 import com.google.android.car.networking.preferenceupdater.components.PersonalStorage;
 import com.google.android.car.networking.preferenceupdater.utils.Utils;
 
@@ -35,7 +36,8 @@ import java.util.Set;
 
 public final class ManagerFragment extends Fragment {
     private PersonalStorage mPersonalStorage;
-    private OemNetworkPreferencesWrapper mOemNetworkPreferencesWrapper;
+    private OemNetworkPreferencesAdapter mOemNetworkPreferencesAdapter;
+    private CarDriverDistractionManagerAdapter mCarDriverDistractionManagerAdapter;
 
     private EditText mOEMPaidAppsEditText;
     private EditText mOEMPaidNoFallbackAppsEditText;
@@ -50,7 +52,8 @@ public final class ManagerFragment extends Fragment {
         Context context = getActivity();
 
         mPersonalStorage = new PersonalStorage(context);
-        mOemNetworkPreferencesWrapper = new OemNetworkPreferencesWrapper(context);
+        mOemNetworkPreferencesAdapter = new OemNetworkPreferencesAdapter(context);
+        mCarDriverDistractionManagerAdapter = new CarDriverDistractionManagerAdapter(context);
 
         defineViewsFromFragment(v);
         defineButtonActions();
@@ -76,37 +79,42 @@ public final class ManagerFragment extends Fragment {
     /** Sets default values of text fields */
     private void setDefaultValues() {
         mOEMPaidAppsEditText.setText(
-                getFromStorage(OemNetworkPreferencesWrapper.OEM_NETWORK_PREFERENCE_OEM_PAID));
+                getFromStorage(OemNetworkPreferencesAdapter.OEM_NETWORK_PREFERENCE_OEM_PAID));
         mOEMPaidNoFallbackAppsEditText.setText(
                 getFromStorage(
-                        OemNetworkPreferencesWrapper.OEM_NETWORK_PREFERENCE_OEM_PAID_NO_FALLBACK));
+                        OemNetworkPreferencesAdapter.OEM_NETWORK_PREFERENCE_OEM_PAID_NO_FALLBACK));
         mOEMPaidOnlyAppsEditText.setText(
-                getFromStorage(OemNetworkPreferencesWrapper.OEM_NETWORK_PREFERENCE_OEM_PAID_ONLY));
+                getFromStorage(OemNetworkPreferencesAdapter.OEM_NETWORK_PREFERENCE_OEM_PAID_ONLY));
         mOEMPrivateOnlyAppsEditText.setText(
                 getFromStorage(
-                        OemNetworkPreferencesWrapper.OEM_NETWORK_PREFERENCE_OEM_PRIVATE_ONLY));
+                        OemNetworkPreferencesAdapter.OEM_NETWORK_PREFERENCE_OEM_PRIVATE_ONLY));
     }
 
-    private String getFromStorage(@OemNetworkPreferencesWrapper.Type int type) {
+    private String getFromStorage(@OemNetworkPreferencesAdapter.Type int type) {
         return Utils.toString(mPersonalStorage.get(type));
     }
 
     private void onApplyConfigurationBtnClick() {
+        // First we want to make sure that we are allowed to change
+        if (!mCarDriverDistractionManagerAdapter.allowedToBeDistracted()) {
+            // We are not allowed to apply PANS changes. Do nothing.
+            return;
+        }
         SparseArray<Set<String>> preference = new SparseArray<>();
         preference.put(
-                OemNetworkPreferencesWrapper.OEM_NETWORK_PREFERENCE_OEM_PAID,
+                OemNetworkPreferencesAdapter.OEM_NETWORK_PREFERENCE_OEM_PAID,
                 Utils.toSet(mOEMPaidAppsEditText.getText().toString()));
         preference.put(
-                OemNetworkPreferencesWrapper.OEM_NETWORK_PREFERENCE_OEM_PAID_NO_FALLBACK,
+                OemNetworkPreferencesAdapter.OEM_NETWORK_PREFERENCE_OEM_PAID_NO_FALLBACK,
                 Utils.toSet(mOEMPaidNoFallbackAppsEditText.getText().toString()));
         preference.put(
-                OemNetworkPreferencesWrapper.OEM_NETWORK_PREFERENCE_OEM_PAID_ONLY,
+                OemNetworkPreferencesAdapter.OEM_NETWORK_PREFERENCE_OEM_PAID_ONLY,
                 Utils.toSet(mOEMPaidOnlyAppsEditText.getText().toString()));
         preference.put(
-                OemNetworkPreferencesWrapper.OEM_NETWORK_PREFERENCE_OEM_PRIVATE_ONLY,
+                OemNetworkPreferencesAdapter.OEM_NETWORK_PREFERENCE_OEM_PRIVATE_ONLY,
                 Utils.toSet(mOEMPrivateOnlyAppsEditText.getText().toString()));
 
-        mOemNetworkPreferencesWrapper.applyPreference(preference);
+        mOemNetworkPreferencesAdapter.applyPreference(preference);
 
         // Persist latest preference
         mPersonalStorage.store(preference);
