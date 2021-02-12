@@ -47,7 +47,6 @@ public class CarFeatureTest extends CarApiTestBase  {
             Car.PROPERTY_SERVICE,
             Car.TEST_SERVICE,
             // All items below here are deprecated, but still should be supported
-            Car.CAR_INSTRUMENT_CLUSTER_SERVICE,
             Car.CABIN_SERVICE,
             Car.HVAC_SERVICE,
             Car.SENSOR_SERVICE,
