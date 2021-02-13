@@ -16,9 +16,13 @@
 
 package android.car.hardware.power;
 
+import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.util.SparseBooleanArray;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * Utility class used when dealing with PowerComponent.
@@ -26,6 +30,29 @@ import android.util.SparseBooleanArray;
  * @hide
  */
 public final class PowerComponentUtil {
+    /**
+     * The component is marked as enabled in the power policy.
+     */
+    public static final int COMPONENT_STATE_ENABLED = 1;
+
+    /**
+     * The component is marked as disabled in the power policy.
+     */
+    public static final int COMPONENT_STATE_DISABLED = 2;
+
+    /**
+     * The component is not specified in the power policy.
+     */
+    public static final int COMPONENT_STATE_UNTOUCHED = 3;
+
+    @IntDef(prefix = { "COMPONENT_STATE_" }, value = {
+            COMPONENT_STATE_ENABLED,
+            COMPONENT_STATE_DISABLED,
+            COMPONENT_STATE_UNTOUCHED
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ComponentState { }
+
     /**
      * Represetns an invalid power component.
      */
@@ -195,5 +222,23 @@ public final class PowerComponentUtil {
             default:
                 return "unknown component";
         }
+    }
+
+    /**
+     * Gets the component state in the given power policy.
+     */
+    public static @ComponentState int getComponentState(@NonNull CarPowerPolicy policy,
+            int component) {
+        for (int i = 0; i < policy.enabledComponents.length; i++) {
+            if (component == policy.enabledComponents[i]) {
+                return COMPONENT_STATE_ENABLED;
+            }
+        }
+        for (int i = 0; i < policy.disabledComponents.length; i++) {
+            if (component == policy.disabledComponents[i]) {
+                return COMPONENT_STATE_DISABLED;
+            }
+        }
+        return COMPONENT_STATE_UNTOUCHED;
     }
 }
