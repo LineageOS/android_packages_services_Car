@@ -34,6 +34,7 @@ import android.car.annotation.MandatoryFeature;
 import android.car.annotation.OptionalFeature;
 import android.car.cluster.CarInstrumentClusterManager;
 import android.car.cluster.ClusterActivityState;
+import android.car.cluster.ClusterHomeManager;
 import android.car.content.pm.CarPackageManager;
 import android.car.diagnostic.CarDiagnosticManager;
 import android.car.drivingstate.CarDrivingStateManager;
@@ -339,6 +340,12 @@ public final class Car {
     @MandatoryFeature
     @SystemApi
     public static final String CAR_INPUT_SERVICE = "android.car.input";
+
+    /**
+     * @hide
+     */
+    @OptionalFeature
+    public static final String CLUSTER_HOME_SERVICE = "cluster_home_service";
 
     /**
      * Service for testing. This is system app only feature.
@@ -1790,6 +1797,9 @@ public final class Car {
                 break;
             case CAR_DEVICE_POLICY_SERVICE:
                 manager = new CarDevicePolicyManager(this, binder);
+                break;
+            case CLUSTER_HOME_SERVICE:
+                manager = new ClusterHomeManager(this, binder);
                 break;
             default:
                 // Experimental or non-existing

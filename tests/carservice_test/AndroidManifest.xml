@@ -19,6 +19,7 @@
      android:sharedUserId="com.google.android.car.uid.kitchensink">
 
     <uses-permission android:name="android.Manifest.permission.MODIFY_AUDIO_ROUTING"/>
+    <uses-permission android:name="android.car.permission.ACCESS_PRIVATE_DISPLAY_ID"/>
     <uses-permission android:name="android.car.permission.CONTROL_CAR_CLIMATE"/>
     <uses-permission android:name="android.car.permission.CONTROL_CAR_DOORS"/>
     <uses-permission android:name="android.car.permission.CONTROL_CAR_WINDOWS"/>
