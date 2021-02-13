@@ -64,22 +64,21 @@ public final class CarFeatureController implements CarServiceBase {
             Car.AUDIO_SERVICE,
             Car.BLUETOOTH_SERVICE,
             Car.CAR_BUGREPORT_SERVICE,
+            Car.CAR_DEVICE_POLICY_SERVICE,
             Car.CAR_DRIVING_STATE_SERVICE,
             Car.CAR_INPUT_SERVICE,
             Car.CAR_MEDIA_SERVICE,
             Car.CAR_OCCUPANT_ZONE_SERVICE,
             Car.CAR_USER_SERVICE,
             Car.CAR_UX_RESTRICTION_SERVICE,
+            Car.CAR_WATCHDOG_SERVICE,
             Car.INFO_SERVICE,
             Car.PACKAGE_SERVICE,
             Car.POWER_SERVICE,
             Car.PROJECTION_SERVICE,
             Car.PROPERTY_SERVICE,
             Car.TEST_SERVICE,
-            Car.CAR_WATCHDOG_SERVICE,
-            Car.CAR_DEVICE_POLICY_SERVICE,
             // All items below here are deprecated, but still should be supported
-            Car.CAR_INSTRUMENT_CLUSTER_SERVICE,
             Car.CABIN_SERVICE,
             Car.HVAC_SERVICE,
             Car.SENSOR_SERVICE,
@@ -92,7 +91,9 @@ public final class CarFeatureController implements CarServiceBase {
             Car.DIAGNOSTIC_SERVICE,
             Car.OCCUPANT_AWARENESS_SERVICE,
             Car.STORAGE_MONITORING_SERVICE,
-            Car.VEHICLE_MAP_SERVICE
+            Car.VEHICLE_MAP_SERVICE,
+            // All items below here are deprecated, but still could be supported
+            Car.CAR_INSTRUMENT_CLUSTER_SERVICE
     ));
 
     // Features that depend on another feature being enabled (i.e. legacy API support).

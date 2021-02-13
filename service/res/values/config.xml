@@ -347,6 +347,7 @@
     -->
     <string-array translatable="false" name="config_allowed_optional_car_features">
         <item>car_navigation_service</item>
+        <item>cluster_service</item>
         <item>com.android.car.user.CarUserNoticeService</item>
         <item>diagnostic</item>
         <item>storage_monitoring</item>
