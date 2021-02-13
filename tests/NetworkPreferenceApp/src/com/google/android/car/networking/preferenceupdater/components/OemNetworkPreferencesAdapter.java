@@ -24,16 +24,18 @@ import android.util.SparseArray;
 import java.util.Set;
 
 /** Class wraps OemNetworkPreferences (PANS) APIs and routine around it */
-public final class OemNetworkPreferencesWrapper {
+public final class OemNetworkPreferencesAdapter {
     private ConnectivityManager mConnectivityManager;
 
     // Convert constants from OemNetworkPreferences into enum
-    @IntDef(prefix = { "OEM_NETWORK_PREFERENCE_" }, value = {
-        OEM_NETWORK_PREFERENCE_OEM_PAID,
-        OEM_NETWORK_PREFERENCE_OEM_PAID_NO_FALLBACK,
-        OEM_NETWORK_PREFERENCE_OEM_PAID_ONLY,
-        OEM_NETWORK_PREFERENCE_OEM_PRIVATE_ONLY,
-    })
+    @IntDef(
+            prefix = {"OEM_NETWORK_PREFERENCE_"},
+            value = {
+                OEM_NETWORK_PREFERENCE_OEM_PAID,
+                OEM_NETWORK_PREFERENCE_OEM_PAID_NO_FALLBACK,
+                OEM_NETWORK_PREFERENCE_OEM_PAID_ONLY,
+                OEM_NETWORK_PREFERENCE_OEM_PRIVATE_ONLY,
+            })
     public @interface Type {}
 
     // Uncomment origins once OemNetworkPreferences class is exposed.
@@ -46,7 +48,7 @@ public final class OemNetworkPreferencesWrapper {
     public static final int OEM_NETWORK_PREFERENCE_OEM_PRIVATE_ONLY = 4;
     //        android.net.OemNetworkPreferences.OEM_NETWORK_PREFERENCE_OEM_PRIVATE_ONLY;
 
-    public OemNetworkPreferencesWrapper(Context context) {
+    public OemNetworkPreferencesAdapter(Context context) {
         mConnectivityManager = context.getSystemService(ConnectivityManager.class);
     }
 
