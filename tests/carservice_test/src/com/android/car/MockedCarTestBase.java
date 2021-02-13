@@ -450,7 +450,7 @@ public class MockedCarTestBase {
         }
     }
 
-    static final class MockResources extends Resources {
+    protected static final class MockResources extends Resources {
         private final HashMap<Integer, Boolean> mBooleanOverrides = new HashMap<>();
         private final HashMap<Integer, Integer> mIntegerOverrides = new HashMap<>();
         private final HashMap<Integer, String> mStringOverrides = new HashMap<>();
@@ -486,22 +486,22 @@ public class MockedCarTestBase {
                     super.getStringArray(id));
         }
 
-        MockResources overrideResource(int id, boolean value) {
+        public MockResources overrideResource(int id, boolean value) {
             mBooleanOverrides.put(id, value);
             return this;
         }
 
-        MockResources overrideResource(int id, int value) {
+        public MockResources overrideResource(int id, int value) {
             mIntegerOverrides.put(id, value);
             return this;
         }
 
-        MockResources overrideResource(int id, String value) {
+        public MockResources overrideResource(int id, String value) {
             mStringOverrides.put(id, value);
             return this;
         }
 
-        MockResources overrideResource(int id, String[] value) {
+        public MockResources overrideResource(int id, String[] value) {
             mStringArrayOverrides.put(id, value);
             return this;
         }

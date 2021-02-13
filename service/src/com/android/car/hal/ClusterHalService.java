@@ -33,7 +33,6 @@ import android.util.Log;
 import android.util.Slog;
 
 import com.android.internal.annotations.GuardedBy;
-import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -47,6 +46,8 @@ import java.util.List;
 public final class ClusterHalService extends HalServiceBase {
     private static final String TAG = ClusterHalService.class.getSimpleName();
     private static final boolean DBG = false;
+    public static final int DISPLAY_OFF = 0;
+    public static final int DISPLAY_ON = 1;
     public static final int DONT_CARE = -1;
 
     /**
@@ -158,13 +159,11 @@ public final class ClusterHalService extends HalServiceBase {
         }
     }
 
-    @VisibleForTesting
-    boolean isCoreSupported() {
+    public boolean isCoreSupported() {
         return mIsCoreSupported;
     }
 
-    @VisibleForTesting
-    boolean isNavigationStateSupported() {
+    public boolean isNavigationStateSupported() {
         return mIsNavigationStateSupported;
     }
 
