@@ -1449,6 +1449,17 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         }
     }
 
+    /**
+     * Resets the last selected volume context.
+     */
+    public void resetSelectedVolumeContext() {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        mCarVolume.resetSelectedVolumeContext();
+        synchronized (mImplLock) {
+            mCarAudioPlaybackCallback.resetStillActiveContexts();
+        }
+    }
+
     private class CarAudioOccupantConfigChangeListener implements OccupantZoneConfigChangeListener {
         @Override
         public void onOccupantZoneConfigChanged(int flags) {

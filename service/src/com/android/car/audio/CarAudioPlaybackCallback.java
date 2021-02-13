@@ -144,4 +144,10 @@ final class CarAudioPlaybackCallback extends AudioManager.AudioPlaybackCallback 
         }
         return stillActiveContexts;
     }
+
+    void resetStillActiveContexts() {
+        synchronized (mLock) {
+            mContextStartTime.clear();
+        }
+    }
 }
