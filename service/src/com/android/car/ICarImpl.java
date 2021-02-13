@@ -227,8 +227,12 @@ public class ICarImpl extends ICar.Stub {
         mCarNightService = new CarNightService(serviceContext, mCarPropertyService);
         mFixedActivityService = new FixedActivityService(serviceContext);
         mClusterNavigationService = new ClusterNavigationService(serviceContext, mAppFocusService);
-        mInstrumentClusterService = new InstrumentClusterService(serviceContext,
-                mClusterNavigationService, mCarInputService);
+        if (mFeatureController.isFeatureEnabled(Car.CAR_INSTRUMENT_CLUSTER_SERVICE)) {
+            mInstrumentClusterService = new InstrumentClusterService(serviceContext,
+                    mClusterNavigationService, mCarInputService);
+        } else {
+            mInstrumentClusterService = null;
+        }
         mSystemStateControllerService = new SystemStateControllerService(
                 serviceContext, mCarAudioService, this);
         mCarStatsService = new CarStatsService(serviceContext);
@@ -302,7 +306,7 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mCarNightService);
         allServices.add(mFixedActivityService);
         allServices.add(mClusterNavigationService);
-        allServices.add(mInstrumentClusterService);
+        addServiceIfNonNull(allServices, mInstrumentClusterService);
         allServices.add(mSystemStateControllerService);
         allServices.add(mPerUserCarServiceHelper);
         allServices.add(mCarBluetoothService);

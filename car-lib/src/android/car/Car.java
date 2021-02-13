@@ -194,7 +194,7 @@ public final class Car {
      * @deprecated CarInstrumentClusterManager is being deprecated
      * @hide
      */
-    @MandatoryFeature
+    @OptionalFeature
     @Deprecated
     public static final String CAR_INSTRUMENT_CLUSTER_SERVICE = "cluster_service";
 
