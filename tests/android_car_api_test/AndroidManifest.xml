@@ -36,9 +36,5 @@
         </activity>
         <service android:name=".CarProjectionManagerTest$TestService"
              android:exported="true"/>
-        <activity android:name=".CarActivityViewDisplayIdTestBase$ActivityInActivityView"/>
-        <activity android:name=".CarActivityViewDisplayIdTestBase$ActivityViewTestActivity"/>
-        <activity android:name=".CarActivityViewDisplayIdTestBase$MultiProcessActivityViewTestActivity"
-             android:exported="true" android:process=":activity_view_test"/>
     </application>
 </manifest>
