@@ -26,7 +26,6 @@ import android.annotation.SystemApi;
 import android.car.annotation.RequiredFeature;
 import android.car.Car;
 import android.car.CarManagerBase;
-import android.hardware.HardwareBuffer;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -375,9 +374,9 @@ public final class CarEvsManager extends CarManagerBase {
         /**
          * Called when new frame arrives.
          *
-         * @param buffer {@link android.hardware.HardwareBuffer} contains a EVS frame
+         * @param buffer {@link android.car.evs.CarEvsBufferDescriptor} contains a EVS frame
          */
-        default void onNewFrame(@NonNull HardwareBuffer buffer) {}
+        default void onNewFrame(@NonNull CarEvsBufferDescriptor buffer) {}
     }
 
     /**
@@ -400,7 +399,7 @@ public final class CarEvsManager extends CarManagerBase {
         }
 
         @Override
-        public void onNewFrame(HardwareBuffer buffer) {
+        public void onNewFrame(CarEvsBufferDescriptor buffer) {
             CarEvsManager manager = mManager.get();
             if (manager != null) {
                 manager.handleNewFrame(buffer);
@@ -435,13 +434,14 @@ public final class CarEvsManager extends CarManagerBase {
     }
 
     /**
-     * Gets the {@link android.hardware.HardwareBuffer} from the service listener
+     * Gets the {@link android.car.evs.CarEvsBufferDescriptor} from the service listener
      * {@link #CarEvsStreamListenerToService} and dispatches it to an executor provided
      * to the manager.
      *
-     * @param buffer {@link android.hardware.HardwareBuffer}
+     * @param buffer {@link android.car.evs.CarEvsBufferDescriptor}
      */
-    private void handleNewFrame(HardwareBuffer buffer) {
+    private void handleNewFrame(@NonNull CarEvsBufferDescriptor buffer) {
+        Objects.requireNonNull(buffer);
         if (DBG) {
             Slog.d(TAG, "Received a buffer: " + buffer);
         }
@@ -465,15 +465,16 @@ public final class CarEvsManager extends CarManagerBase {
     }
 
     /**
-     * Returns a consumed {@link android.hardware.HardwareBuffer}.
+     * Returns a consumed {@link android.car.evs.CarEvsBufferDescriptor}.
      *
-     * @param buffer {@link android.hardware.Hardware} to be returned to the EVS service.
+     * @param buffer {@link android.car.evs.CarEvsBufferDescriptor} to be returned to
+     * the EVS service.
      */
     @RequiresPermission(Car.PERMISSION_USE_CAR_EVS_SERVICE)
-    public void returnFrameBuffer(@NonNull HardwareBuffer buffer) {
+    public void returnFrameBuffer(@NonNull CarEvsBufferDescriptor buffer) {
         Objects.requireNonNull(buffer);
         try {
-            mService.returnFrameBuffer(buffer);
+            mService.returnFrameBuffer(buffer.getId());
         } catch (RemoteException err) {
             handleRemoteExceptionFromCarService(err);
         }
