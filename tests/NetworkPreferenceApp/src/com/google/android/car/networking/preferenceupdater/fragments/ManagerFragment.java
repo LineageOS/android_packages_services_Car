@@ -73,6 +73,12 @@ public final class ManagerFragment extends Fragment {
         return v;
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mCarDriverDistractionManagerAdapter.destroy();
+    }
+
     /** Finds all views on the fragments and stores them in instance variables */
     private void defineViewsFromFragment(View v) {
         mOEMPaidAppsEditText = v.findViewById(R.id.OEMPaidAppsEditText);
@@ -124,6 +130,7 @@ public final class ManagerFragment extends Fragment {
         // First we want to make sure that we are allowed to change
         if (!mCarDriverDistractionManagerAdapter.allowedToBeDistracted()) {
             // We are not allowed to apply PANS changes. Do nothing.
+            Log.w(TAG, "Network preferences will not be updated, due to Driver Distraction Mode");
             return;
         }
         SparseArray<Set<String>> preference = new SparseArray<>();
