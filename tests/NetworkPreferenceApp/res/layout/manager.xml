@@ -26,7 +26,6 @@
             style="@style/SectionContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:weightSum="2">
             <TextView
                 android:layout_width="wrap_content"
@@ -46,7 +45,6 @@
             style="@style/SectionContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:weightSum="2">
             <TextView
                 android:layout_width="wrap_content"
@@ -70,6 +68,8 @@
             android:weightSum="2"
             android:orientation="vertical">
             <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:text="@string/oem_paid_apps_text"
                 android:layout_weight="1"/>
             <EditText
@@ -85,6 +85,8 @@
             android:weightSum="2"
             android:orientation="vertical">
             <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:text="@string/oem_paid_no_fallback_apps_text"
                 android:layout_weight="1"/>
             <EditText
@@ -100,6 +102,8 @@
             android:weightSum="2"
             android:orientation="vertical">
             <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:text="@string/oem_paid_only_apps_text"
                 android:layout_weight="1"/>
             <EditText
@@ -115,6 +119,8 @@
             android:weightSum="2"
             android:orientation="vertical">
             <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:text="@string/oem_private_only_apps_text"
                 android:layout_weight="1"/>
             <EditText
@@ -127,7 +133,7 @@
             style="@style/Button"
             android:id="@+id/applyConfigurationBtn"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/button_apply_configuration"/>
     </LinearLayout>
