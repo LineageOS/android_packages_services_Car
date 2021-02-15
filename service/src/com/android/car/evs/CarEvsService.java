@@ -27,7 +27,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.hardware.HardwareBuffer;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteCallbackList;
@@ -164,12 +163,11 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
      *
      * <p>Requires {@link android.car.Car.PERMISSION_USE_CAR_EVS_SERVICE} permissions to access.
      *
-     * @param buffer {@link android.hardware.HardwareBuffer} that contains the imagery data.
+     * @param bufferId An unique 32-bit integer identifier of the buffer to return.
      */
     @Override
-    public void returnFrameBuffer(@NonNull HardwareBuffer buffer) {
+    public void returnFrameBuffer(int bufferId) {
         ICarImpl.assertPermission(mContext, Car.PERMISSION_USE_CAR_EVS_SERVICE);
-        Objects.requireNonNull(buffer);
 
         Slog.e(TAG, "Not implemented yet.");
     }

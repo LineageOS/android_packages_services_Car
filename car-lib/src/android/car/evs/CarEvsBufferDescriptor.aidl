@@ -16,22 +16,4 @@
 
 package android.car.evs;
 
-import android.car.evs.CarEvsBufferDescriptor;
-
-/**
- * ICarEvsStreamCallback is the interface implemented by the clients to receive events and
- * frame buffers from Extended View System stream.
- *
- * @hide
- */
-oneway interface ICarEvsStreamCallback {
-    /**
-     * Called upon a new EVS stream event
-     */
-    void onStreamEvent(int event);
-
-    /**
-     * Called when a new EVS frame arrives
-     */
-    void onNewFrame(in CarEvsBufferDescriptor buffer);
-}
+parcelable CarEvsBufferDescriptor;
