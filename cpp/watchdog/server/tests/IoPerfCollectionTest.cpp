@@ -140,6 +140,8 @@ public:
         mMockPackageInfoResolver.clear();
     }
 
+    Result<void> init() { return mCollector->init(); }
+
     void setTopNStatsPerCategory(int value) { mCollector->mTopNStatsPerCategory = value; }
 
     void setTopNStatsPerSubcategory(int value) { mCollector->mTopNStatsPerSubcategory = value; }
@@ -177,10 +179,9 @@ TEST(IoPerfCollectionTest, TestBoottimeCollection) {
     sp<MockProcPidStat> mockProcPidStat = new MockProcPidStat();
 
     sp<IoPerfCollection> collector = new IoPerfCollection();
-
-    ASSERT_RESULT_OK(collector->start());
-
     internal::IoPerfCollectionPeer collectorPeer(collector);
+
+    ASSERT_RESULT_OK(collectorPeer.init());
 
     const std::unordered_map<uid_t, UidIoUsage> uidIoUsages({
             {1009, {.uid = 1009, .ios = {0, 14000, 0, 16000, 0, 100}}},
@@ -246,10 +247,9 @@ TEST(IoPerfCollectionTest, TestPeriodicCollection) {
     sp<MockProcPidStat> mockProcPidStat = new MockProcPidStat();
 
     sp<IoPerfCollection> collector = new IoPerfCollection();
-
-    ASSERT_RESULT_OK(collector->start());
-
     internal::IoPerfCollectionPeer collectorPeer(collector);
+
+    ASSERT_RESULT_OK(collectorPeer.init());
 
     const std::unordered_map<uid_t, UidIoUsage> uidIoUsages({
             {1009, {.uid = 1009, .ios = {0, 14000, 0, 16000, 0, 100}}},
@@ -318,10 +318,10 @@ TEST(IoPerfCollectionTest, TestCustomCollection) {
     sp<MockProcPidStat> mockProcPidStat = new MockProcPidStat();
 
     sp<IoPerfCollection> collector = new IoPerfCollection();
-
-    ASSERT_RESULT_OK(collector->start());
-
     internal::IoPerfCollectionPeer collectorPeer(collector);
+
+    ASSERT_RESULT_OK(collectorPeer.init());
+
     // Filter by package name should ignore this limit.
     collectorPeer.setTopNStatsPerCategory(1);
 

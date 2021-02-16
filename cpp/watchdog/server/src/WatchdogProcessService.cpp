@@ -139,7 +139,7 @@ WatchdogProcessService::WatchdogProcessService(const sp<Looper>& handlerLooper) 
     }
 }
 Result<void> WatchdogProcessService::registerWatchdogServiceHelper(
-        const sp<WatchdogServiceHelperInterface>& helper) {
+        const sp<IWatchdogServiceHelperInterface>& helper) {
     if (helper == nullptr) {
         return Error() << "Must provide a non-null watchdog service helper instance";
     }

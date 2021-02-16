@@ -23,5 +23,8 @@ allow carwatchdogd proc_uid_io_stats:file r_file_perms;
 # Read /proc/stat file
 allow carwatchdogd proc_stat:file r_file_perms;
 
+# Read /proc/diskstats file
+allow carwatchdogd proc_diskstats:file r_file_perms;
+
 # List HALs to get pid of vehicle HAL.
 allow carwatchdogd hwservicemanager:hwservice_manager list;

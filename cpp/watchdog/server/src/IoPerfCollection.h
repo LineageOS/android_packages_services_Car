@@ -18,6 +18,7 @@
 #define CPP_WATCHDOG_SERVER_SRC_IOPERFCOLLECTION_H_
 
 #include "PackageInfoResolver.h"
+#include "ProcDiskStats.h"
 #include "ProcPidStat.h"
 #include "ProcStat.h"
 #include "UidIoStats.h"
@@ -101,8 +102,8 @@ struct IoPerfRecord {
 std::string toString(const IoPerfRecord& record);
 
 struct CollectionInfo {
-    size_t maxCacheSize = 0;                  // Maximum cache size for the collection.
-    std::vector<IoPerfRecord> records;        // Cache of collected performance records.
+    size_t maxCacheSize = 0;            // Maximum cache size for the collection.
+    std::vector<IoPerfRecord> records;  // Cache of collected performance records.
 };
 
 std::string toString(const CollectionInfo& collectionInfo);
@@ -115,9 +116,11 @@ class IoPerfCollectionPeer;
 }  // namespace internal
 
 // IoPerfCollection implements the I/O performance data collection module.
-class IoPerfCollection : public DataProcessor {
+class IoPerfCollection : public IDataProcessorInterface {
 public:
     IoPerfCollection() :
+          mTopNStatsPerCategory(0),
+          mTopNStatsPerSubcategory(0),
           mPackageInfoResolver(PackageInfoResolver::getInstance()),
           mBoottimeCollection({}),
           mPeriodicCollection({}),
@@ -128,12 +131,7 @@ public:
 
     std::string name() { return "IoPerfCollection"; }
 
-    // Implements DataProcessor interface.
-    android::base::Result<void> start();
-
-    // Clears in-memory cache.
-    void terminate();
-
+    // Implements IDataProcessorInterface.
     android::base::Result<void> onBoottimeCollection(time_t time,
                                                      const android::wp<UidIoStats>& uidIoStats,
                                                      const android::wp<ProcStat>& procStat,
@@ -149,9 +147,22 @@ public:
             const android::wp<UidIoStats>& uidIoStats, const android::wp<ProcStat>& procStat,
             const android::wp<ProcPidStat>& procPidStat);
 
+    android::base::Result<void> onPeriodicMonitor(
+            [[maybe_unused]] time_t time,
+            [[maybe_unused]] const android::wp<IProcDiskStatsInterface>& procDiskStats) {
+        // No monitoring done here as this DataProcessor only collects I/O performance records.
+        return {};
+    }
+
     android::base::Result<void> onDump(int fd);
 
     android::base::Result<void> onCustomCollectionDump(int fd);
+
+protected:
+    android::base::Result<void> init();
+
+    // Clears in-memory cache.
+    void terminate();
 
 private:
     // Processes the collected data.
@@ -203,6 +214,8 @@ private:
     // Major faults delta from last collection. Useful when calculating the percentage change in
     // major faults since last collection.
     uint64_t mLastMajorFaults GUARDED_BY(mMutex);
+
+    friend class WatchdogPerfService;
 
     // For unit tests.
     friend class internal::IoPerfCollectionPeer;

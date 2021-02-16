@@ -163,10 +163,22 @@ Status WatchdogInternalHandler::notifySystemStateChange(aawi::StateType type, in
         case aawi::StateType::BOOT_PHASE: {
             aawi::BootPhase phase = static_cast<aawi::BootPhase>(static_cast<uint32_t>(arg1));
             if (phase >= aawi::BootPhase::BOOT_COMPLETED) {
-                auto ret = mWatchdogPerfService->onBootFinished();
-                if (!ret.ok()) {
-                    return fromExceptionCode(ret.error().code(), ret.error().message());
+                if (const auto result = mWatchdogPerfService->onBootFinished(); !result.ok()) {
+                    return fromExceptionCode(result.error().code(), result.error().message());
                 }
+                /*
+                 * I/O overuse monitor reads from data partition on init so register the I/O
+                 * overuse monitor only on boot-complete.
+                 *
+                 * TODO(b/167240592): Uncomment the below code block after the I/O overuse monitor
+                 *  is completely implemented.
+                 * if (const auto result
+                 *          = mWatchdogPerfService->registerDataProcessor(mIoOveruseMonitor);
+                 *     !result.ok()) {
+                 *    ALOGW("Failed to register I/O overuse monitor to watchdog performance "
+                 *          "service: %s", result.error().message().c_str());
+                 * }
+                 */
             }
             return Status::ok();
         }
@@ -181,8 +193,8 @@ Status WatchdogInternalHandler::updateIoOveruseConfiguration(ComponentType type,
     if (!status.isOk()) {
         return status;
     }
-    auto result = mIoOveruseMonitor->updateIoOveruseConfiguration(type, config);
-    if (!result.ok()) {
+    if (const auto result = mIoOveruseMonitor->updateIoOveruseConfiguration(type, config);
+        !result.ok()) {
         return fromExceptionCode(result.error().code(), result.error().message());
     }
     return Status::ok();

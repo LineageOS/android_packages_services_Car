@@ -40,7 +40,7 @@ namespace watchdog {
 
 class ServiceManager;
 class IoOveruseMonitor;
-struct IoOveruseConfigs;
+class IoOveruseConfigs;
 
 // Forward declaration for testing use only.
 namespace internal {
@@ -58,13 +58,13 @@ public:
 
 protected:
     virtual android::base::Result<void> initWatchdogServiceHelper(
-            const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper) = 0;
+            const android::sp<IWatchdogServiceHelperInterface>& watchdogServiceHelper) = 0;
     virtual void setVendorPackagePrefixes(const std::unordered_set<std::string>& prefixes) = 0;
 
 private:
     friend class ServiceManager;
     friend class IoOveruseMonitor;
-    friend struct IoOveruseConfigs;
+    friend class IoOveruseConfigs;
 };
 
 /*
@@ -107,7 +107,7 @@ protected:
     static void terminate();
 
     android::base::Result<void> initWatchdogServiceHelper(
-            const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper);
+            const android::sp<IWatchdogServiceHelperInterface>& watchdogServiceHelper);
 
     void setVendorPackagePrefixes(const std::unordered_set<std::string>& prefixes);
 
@@ -132,14 +132,14 @@ private:
      * thread. In order to avoid a race condition between |initWatchdogServiceHelper| and
      * |getPackage*ForUids| calls, mWatchdogServiceHelper is guarded by a read-write lock.
      */
-    android::sp<WatchdogServiceHelperInterface> mWatchdogServiceHelper GUARDED_BY(mRWMutex);
+    android::sp<IWatchdogServiceHelperInterface> mWatchdogServiceHelper GUARDED_BY(mRWMutex);
     std::unordered_map<uid_t, android::automotive::watchdog::internal::PackageInfo>
             mUidToPackageInfoMapping GUARDED_BY(mRWMutex);
     std::vector<std::string> mVendorPackagePrefixes GUARDED_BY(mRWMutex);
 
     friend class ServiceManager;
     friend class IoOveruseMonitor;
-    friend struct IoOveruseConfigs;
+    friend class IoOveruseConfigs;
 
     // For unit tests.
     static std::function<struct passwd*(uid_t)> sGetpwuidHandler;

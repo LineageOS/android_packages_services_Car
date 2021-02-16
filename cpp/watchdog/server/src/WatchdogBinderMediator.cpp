@@ -78,12 +78,10 @@ Result<void> addToServiceManager(const char* serviceName, sp<IBinder> service) {
 WatchdogBinderMediator::WatchdogBinderMediator(
         const android::sp<WatchdogProcessService>& watchdogProcessService,
         const android::sp<WatchdogPerfService>& watchdogPerfService,
-        const android::sp<IoOveruseMonitor>& ioOveruseMonitor,
-        const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper,
+        const android::sp<IWatchdogServiceHelperInterface>& watchdogServiceHelper,
         const AddServiceFunction& addServiceHandler) :
       mWatchdogProcessService(watchdogProcessService),
       mWatchdogPerfService(watchdogPerfService),
-      mIoOveruseMonitor(ioOveruseMonitor),
       mAddServiceHandler(addServiceHandler) {
     if (mAddServiceHandler == nullptr) {
         mAddServiceHandler = &addToServiceManager;
@@ -91,13 +89,13 @@ WatchdogBinderMediator::WatchdogBinderMediator(
     if (watchdogServiceHelper != nullptr) {
         mWatchdogInternalHandler =
                 new WatchdogInternalHandler(this, watchdogServiceHelper, mWatchdogProcessService,
-                                            mWatchdogPerfService, mIoOveruseMonitor);
+                                            mWatchdogPerfService);
     }
 }
 
 Result<void> WatchdogBinderMediator::init() {
     if (mWatchdogProcessService == nullptr || mWatchdogPerfService == nullptr ||
-        mIoOveruseMonitor == nullptr || mWatchdogInternalHandler == nullptr) {
+        mWatchdogInternalHandler == nullptr) {
         std::string serviceList;
         if (mWatchdogProcessService == nullptr) {
             StringAppendF(&serviceList, "%s%s", (!serviceList.empty() ? ", " : ""),
@@ -106,10 +104,6 @@ Result<void> WatchdogBinderMediator::init() {
         if (mWatchdogPerfService == nullptr) {
             StringAppendF(&serviceList, "%s%s", (!serviceList.empty() ? ", " : ""),
                           "Watchdog performance service");
-        }
-        if (mIoOveruseMonitor == nullptr) {
-            StringAppendF(&serviceList, "%s%s", (!serviceList.empty() ? ", " : ""),
-                          "Watchdog I/O overuse monitor");
         }
         if (mWatchdogInternalHandler == nullptr) {
             StringAppendF(&serviceList, "%s%s", (!serviceList.empty() ? ", " : ""),

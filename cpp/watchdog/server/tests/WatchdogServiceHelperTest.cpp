@@ -150,7 +150,7 @@ TEST_F(WatchdogServiceHelperTest, TestErrorOnInitWithErrorFromWatchdogProcessSer
     sp<MockWatchdogProcessService> mockWatchdogProcessService(new MockWatchdogProcessService());
 
     EXPECT_CALL(*mockWatchdogProcessService, registerWatchdogServiceHelper(_))
-            .WillOnce([](const sp<WatchdogServiceHelperInterface>&) -> Result<void> {
+            .WillOnce([](const sp<IWatchdogServiceHelperInterface>&) -> Result<void> {
                 return Error() << "Failed to register";
             });
 

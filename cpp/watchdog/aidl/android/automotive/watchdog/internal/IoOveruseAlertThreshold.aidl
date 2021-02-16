@@ -25,13 +25,13 @@ parcelable IoOveruseAlertThreshold {
    * Duration to aggregate the system-wide disk I/O usage and compare the usage against the given
    * written bytes threshold.
    */
-  long aggregateDurationSecs;
+  long aggregateDurationInSecs;
 
   /**
    * Duration to wait before triggering the disk I/O overuse alert. Disk I/O overuse should be
    * detected for the trigger duration before triggering the alert.
    */
-  long triggerDurationSecs;
+  long triggerDurationInSecs;
 
   /**
    * Defines the system-wide disk I/O overuse threshold in terms of number of bytes written to

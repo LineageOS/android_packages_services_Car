@@ -18,6 +18,7 @@
 #define CPP_WATCHDOG_SERVER_SRC_WATCHDOGPERFSERVICE_H_
 
 #include "LooperWrapper.h"
+#include "ProcDiskStats.h"
 #include "ProcPidStat.h"
 #include "ProcStat.h"
 #include "UidIoStats.h"
@@ -26,7 +27,6 @@
 #include <android-base/result.h>
 #include <cutils/multiuser.h>
 #include <gtest/gtest_prod.h>
-#include <time.h>
 #include <utils/Errors.h>
 #include <utils/Looper.h>
 #include <utils/Mutex.h>
@@ -34,6 +34,8 @@
 #include <utils/String16.h>
 #include <utils/StrongPointer.h>
 #include <utils/Vector.h>
+
+#include <time.h>
 
 #include <string>
 #include <thread>  // NOLINT(build/c++11)
@@ -56,69 +58,76 @@ constexpr const char* kIntervalFlag = "--interval";
 constexpr const char* kMaxDurationFlag = "--max_duration";
 constexpr const char* kFilterPackagesFlag = "--filter_packages";
 
-class DataProcessor : public RefBase {
+/*
+ * DataProcessor defines methods that must be implemented in order to process the data collected
+ * by |WatchdogPerfService|.
+ */
+class IDataProcessorInterface : public RefBase {
 public:
-    DataProcessor() {}
-    virtual ~DataProcessor() {}
+    IDataProcessorInterface() {}
+    virtual ~IDataProcessorInterface() {}
+    // Returns the name of the data processor.
     virtual std::string name() = 0;
-    virtual android::base::Result<void> start() = 0;
+    // Callback to initialize the data processor.
+    virtual android::base::Result<void> init() = 0;
+    // Callback to terminate the data processor.
     virtual void terminate() = 0;
+    // Callback to process the data collected during boot-time.
     virtual android::base::Result<void> onBoottimeCollection(
             time_t time, const android::wp<UidIoStats>& uidIoStats,
             const android::wp<ProcStat>& procStat, const android::wp<ProcPidStat>& procPidStat) = 0;
+    // Callback to process the data collected periodically post boot complete.
     virtual android::base::Result<void> onPeriodicCollection(
             time_t time, const android::wp<UidIoStats>& uidIoStats,
             const android::wp<ProcStat>& procStat, const android::wp<ProcPidStat>& procPidStat) = 0;
+    /*
+     * Callback to process the data collected on custom collection and filter the results only to
+     * the specified |filterPackages|.
+     */
     virtual android::base::Result<void> onCustomCollection(
             time_t time, const std::unordered_set<std::string>& filterPackages,
             const android::wp<UidIoStats>& uidIoStats, const android::wp<ProcStat>& procStat,
             const android::wp<ProcPidStat>& procPidStat) = 0;
+    // Callback to periodically monitor the collected data.
+    virtual android::base::Result<void> onPeriodicMonitor(
+            time_t time, const android::wp<IProcDiskStatsInterface>& procDiskStats) = 0;
+    // Callback to dump the boot-time collected and periodically collected data.
     virtual android::base::Result<void> onDump(int fd) = 0;
+    /*
+     * Callback to dump the custom collected data. When fd == -1, clear the custom collection cache.
+     */
     virtual android::base::Result<void> onCustomCollectionDump(int fd) = 0;
 };
 
-struct CollectionMetadata {
-    std::chrono::nanoseconds interval = 0ns;  // Collection interval between subsequent collections.
-    nsecs_t lastCollectionUptime = 0;         // Used to calculate the uptime for next collection.
-    // Filter the results only to the specified packages.
-    std::unordered_set<std::string> filterPackages;
-};
-
-std::string toString(const CollectionMetadata& metadata);
-
-enum CollectionEvent {
+enum EventType {
+    // WatchdogPerfService's state.
     INIT = 0,
-    BOOT_TIME,
-    PERIODIC,
-    CUSTOM,
     TERMINATED,
+
+    // Collection events.
+    BOOT_TIME_COLLECTION,
+    PERIODIC_COLLECTION,
+    CUSTOM_COLLECTION,
+
+    // Monitor event.
+    PERIODIC_MONITOR,
+
     LAST_EVENT,
 };
 
-enum SwitchEvent {
-    // Ends boot-time collection by collecting the last boot-time record and switching the
-    // collection event to periodic collection.
-    END_BOOTTIME_COLLECTION = CollectionEvent::LAST_EVENT + 1,
-    // Ends custom collection, discards collected data and starts periodic collection.
-    END_CUSTOM_COLLECTION
-};
+enum SwitchMessage {
+    /*
+     * On receiving this message, collect the last boot-time record and start periodic collection
+     * and monitor.
+     */
+    END_BOOTTIME_COLLECTION = EventType::LAST_EVENT + 1,
 
-static inline std::string toString(CollectionEvent event) {
-    switch (event) {
-        case CollectionEvent::INIT:
-            return "INIT";
-        case CollectionEvent::BOOT_TIME:
-            return "BOOT_TIME";
-        case CollectionEvent::PERIODIC:
-            return "PERIODIC";
-        case CollectionEvent::CUSTOM:
-            return "CUSTOM";
-        case CollectionEvent::TERMINATED:
-            return "TERMINATED";
-        default:
-            return "INVALID";
-    }
-}
+    /*
+     * On receiving this message, ends custom collection, discard collected data and start periodic
+     * collection and monitor.
+     */
+    END_CUSTOM_COLLECTION,
+};
 
 // WatchdogPerfService collects performance data during boot-time and periodically post boot
 // complete. It exposes APIs that the main thread and binder service can call to start a collection,
@@ -130,21 +139,19 @@ public:
           mBoottimeCollection({}),
           mPeriodicCollection({}),
           mCustomCollection({}),
-          mCurrCollectionEvent(CollectionEvent::INIT),
+          mPeriodicMonitor({}),
+          mCurrCollectionEvent(EventType::INIT),
           mUidIoStats(new UidIoStats()),
           mProcStat(new ProcStat()),
           mProcPidStat(new ProcPidStat()),
+          mProcDiskStats(new ProcDiskStats()),
           mDataProcessors({}) {}
 
     ~WatchdogPerfService() { terminate(); }
 
-    android::base::Result<void> registerDataProcessor(android::sp<DataProcessor> processor) {
-        if (processor == nullptr) {
-            return android::base::Error() << "Must provide a valid data processor";
-        }
-        mDataProcessors.emplace_back(processor);
-        return {};
-    }
+    // Register a data processor to process the data collected by |WatchdogPerfService|.
+    android::base::Result<void> registerDataProcessor(
+            android::sp<IDataProcessorInterface> processor);
 
     // Starts the boot-time collection in the looper handler on a new thread and returns
     // immediately. Must be called only once. Otherwise, returns an error.
@@ -169,6 +176,19 @@ public:
     bool dumpHelpText(int fd);
 
 private:
+    struct EventMetadata {
+        // Collection or monitor event.
+        EventType eventType = EventType::LAST_EVENT;
+        // Interval between subsequent events.
+        std::chrono::nanoseconds interval = 0ns;
+        // Used to calculate the uptime for next event.
+        nsecs_t lastUptime = 0;
+        // Filter the results only to the specified packages.
+        std::unordered_set<std::string> filterPackages;
+
+        std::string toString() const;
+    };
+
     // Dumps the collectors' status when they are disabled.
     android::base::Result<void> dumpCollectorsStatusLocked(int fd);
 
@@ -193,12 +213,14 @@ private:
     // Handles the messages received by the lopper.
     void handleMessage(const Message& message) override;
 
-    // Processes the events received by |handleMessage|.
-    android::base::Result<void> processCollectionEvent(CollectionEvent event,
-                                                       CollectionMetadata* metadata);
+    // Processes the collection events received by |handleMessage|.
+    android::base::Result<void> processCollectionEvent(EventMetadata* metadata);
 
     // Collects/processes the performance data for the current collection event.
-    android::base::Result<void> collectLocked(CollectionMetadata* metadata);
+    android::base::Result<void> collectLocked(EventMetadata* metadata);
+
+    // Processes the monitor events received by |handleMessage|.
+    android::base::Result<void> processMonitorEvent(EventMetadata* metadata);
 
     // Thread on which the actual collection happens.
     std::thread mCollectionThread;
@@ -210,18 +232,21 @@ private:
     android::sp<LooperWrapper> mHandlerLooper GUARDED_BY(mMutex);
 
     // Info for the |CollectionEvent::BOOT_TIME| collection event.
-    CollectionMetadata mBoottimeCollection GUARDED_BY(mMutex);
+    EventMetadata mBoottimeCollection GUARDED_BY(mMutex);
 
     // Info for the |CollectionEvent::PERIODIC| collection event.
-    CollectionMetadata mPeriodicCollection GUARDED_BY(mMutex);
+    EventMetadata mPeriodicCollection GUARDED_BY(mMutex);
 
     // Info for the |CollectionEvent::CUSTOM| collection event. The info is cleared at the end of
     // every custom collection.
-    CollectionMetadata mCustomCollection GUARDED_BY(mMutex);
+    EventMetadata mCustomCollection GUARDED_BY(mMutex);
 
-    // Tracks the current collection event. Updated on |start|, |onBootComplete|,
-    // |startCustomCollection|, |endCustomCollection|, and |terminate|.
-    CollectionEvent mCurrCollectionEvent GUARDED_BY(mMutex);
+    // Info for the |EventType::PERIODIC| monitor event.
+    EventMetadata mPeriodicMonitor GUARDED_BY(mMutex);
+
+    // Tracks either the WatchdogPerfService's state or current collection event. Updated on
+    // |start|, |onBootComplete|, |startCustomCollection|, |endCustomCollection|, and |terminate|.
+    EventType mCurrCollectionEvent GUARDED_BY(mMutex);
 
     // Collector/parser for `/proc/uid_io/stats`.
     android::sp<UidIoStats> mUidIoStats GUARDED_BY(mMutex);
@@ -232,8 +257,11 @@ private:
     // Collector/parser for `/proc/PID/*` stat files.
     android::sp<ProcPidStat> mProcPidStat GUARDED_BY(mMutex);
 
+    // Collector/parser for `/proc/diskstats` file.
+    android::sp<IProcDiskStatsInterface> mProcDiskStats GUARDED_BY(mMutex);
+
     // Data processors for the collected performance data.
-    std::vector<android::sp<DataProcessor>> mDataProcessors GUARDED_BY(mMutex);
+    std::vector<android::sp<IDataProcessorInterface>> mDataProcessors GUARDED_BY(mMutex);
 
     // For unit tests.
     friend class internal::WatchdogPerfServicePeer;
