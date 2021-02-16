@@ -228,10 +228,9 @@ public final class Car {
     public static final String HVAC_SERVICE = "hvac";
 
     /**
-     * @hide
+     * Service name for {@link CarPowerManager}
      */
     @MandatoryFeature
-    @SystemApi
     public static final String POWER_SERVICE = "power";
 
     /**
