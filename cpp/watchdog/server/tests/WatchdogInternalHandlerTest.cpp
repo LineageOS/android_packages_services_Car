@@ -59,10 +59,8 @@ public:
     MockWatchdogBinderMediator(
             const android::sp<WatchdogProcessService>& watchdogProcessService,
             const android::sp<WatchdogPerfService>& watchdogPerfService,
-            const android::sp<IoOveruseMonitor>& ioOveruseMonitor,
-            const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper) :
-          WatchdogBinderMediator(watchdogProcessService, watchdogPerfService, ioOveruseMonitor,
-                                 watchdogServiceHelper,
+            const android::sp<IWatchdogServiceHelperInterface>& watchdogServiceHelper) :
+          WatchdogBinderMediator(watchdogProcessService, watchdogPerfService, watchdogServiceHelper,
                                  [](const char*, const android::sp<android::IBinder>&)
                                          -> Result<void> { return Result<void>{}; }) {}
     ~MockWatchdogBinderMediator() {}
@@ -98,6 +96,23 @@ private:
 
 }  // namespace
 
+namespace internal {
+
+class WatchdogInternalHandlerPeer : public RefBase {
+public:
+    explicit WatchdogInternalHandlerPeer(const sp<WatchdogInternalHandler>& handler) :
+          mWatchdogInternalHandler(handler) {}
+
+    void updateIoOveruseMonitor(const sp<IoOveruseMonitor>& ioOveruseMonitor) {
+        mWatchdogInternalHandler->mIoOveruseMonitor = ioOveruseMonitor;
+    }
+
+private:
+    sp<WatchdogInternalHandler> mWatchdogInternalHandler;
+};
+
+}  // namespace internal
+
 class WatchdogInternalHandlerTest : public ::testing::Test {
 protected:
     virtual void SetUp() {
@@ -105,14 +120,15 @@ protected:
         mMockWatchdogPerfService = new MockWatchdogPerfService();
         mMockIoOveruseMonitor = new MockIoOveruseMonitor();
         mMockWatchdogServiceHelper = new MockWatchdogServiceHelper();
-        mMockWatchdogBinderMediator =
-                new MockWatchdogBinderMediator(mMockWatchdogProcessService,
-                                               mMockWatchdogPerfService, mMockIoOveruseMonitor,
-                                               mMockWatchdogServiceHelper);
+        mMockWatchdogBinderMediator = new MockWatchdogBinderMediator(mMockWatchdogProcessService,
+                                                                     mMockWatchdogPerfService,
+                                                                     mMockWatchdogServiceHelper);
         mWatchdogInternalHandler =
                 new WatchdogInternalHandler(mMockWatchdogBinderMediator, mMockWatchdogServiceHelper,
-                                            mMockWatchdogProcessService, mMockWatchdogPerfService,
-                                            mMockIoOveruseMonitor);
+                                            mMockWatchdogProcessService, mMockWatchdogPerfService);
+        mWatchdogInternalHandlerPeer =
+                new internal::WatchdogInternalHandlerPeer(mWatchdogInternalHandler);
+        mWatchdogInternalHandlerPeer->updateIoOveruseMonitor(mMockIoOveruseMonitor);
     }
     virtual void TearDown() {
         mMockWatchdogBinderMediator.clear();
@@ -133,6 +149,7 @@ protected:
     sp<MockWatchdogPerfService> mMockWatchdogPerfService;
     sp<MockIoOveruseMonitor> mMockIoOveruseMonitor;
     sp<WatchdogInternalHandler> mWatchdogInternalHandler;
+    sp<internal::WatchdogInternalHandlerPeer> mWatchdogInternalHandlerPeer;
     sp<ScopedChangeCallingUid> mScopedChangeCallingUid;
 };
 

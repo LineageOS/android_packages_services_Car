@@ -42,6 +42,15 @@ prop {
     prop_name: "ro.carwatchdog.periodic_collection_interval"
 }
 
+# Interval in seconds between consecutive periodic performance data monitoring.
+prop {
+    api_name: "periodicMonitorInterval"
+    type: Integer
+    scope: Internal
+    access: Readonly
+    prop_name: "ro.carwatchdog.periodic_monitor_interval"
+}
+
 # Top N per-UID statistics/category collected by the performance data collector.
 prop {
     api_name: "topNStatsPerCategory"

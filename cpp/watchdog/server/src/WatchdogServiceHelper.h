@@ -43,7 +43,7 @@ class WatchdogServiceHelperPeer;
 
 }  // namespace internal
 
-class WatchdogServiceHelperInterface : public android::IBinder::DeathRecipient {
+class IWatchdogServiceHelperInterface : public android::IBinder::DeathRecipient {
 public:
     virtual android::binder::Status registerService(
             const android::sp<
@@ -76,7 +76,7 @@ private:
 // WatchdogServiceHelper implements the helper functions for the outbound API requests to
 // the CarWatchdogService. This class doesn't handle the inbound APIs requests from
 // CarWatchdogService except the registration APIs.
-class WatchdogServiceHelper : public WatchdogServiceHelperInterface {
+class WatchdogServiceHelper : public IWatchdogServiceHelperInterface {
 public:
     WatchdogServiceHelper() : mService(nullptr), mWatchdogProcessService(nullptr) {}
     ~WatchdogServiceHelper();

@@ -111,7 +111,7 @@ void PackageInfoResolver::terminate() {
 }
 
 Result<void> PackageInfoResolver::initWatchdogServiceHelper(
-        const sp<WatchdogServiceHelperInterface>& watchdogServiceHelper) {
+        const sp<IWatchdogServiceHelperInterface>& watchdogServiceHelper) {
     std::unique_lock writeLock(mRWMutex);
     if (watchdogServiceHelper == nullptr) {
         return Error() << "Must provide a non-null watchdog service helper instance";
