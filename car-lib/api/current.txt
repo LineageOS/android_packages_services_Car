@@ -45,6 +45,7 @@ package android.car {
     field public static final String PERMISSION_READ_INTERIOR_LIGHTS = "android.car.permission.READ_CAR_INTERIOR_LIGHTS";
     field public static final String PERMISSION_READ_STEERING_STATE = "android.car.permission.READ_CAR_STEERING";
     field public static final String PERMISSION_SPEED = "android.car.permission.CAR_SPEED";
+    field public static final String POWER_SERVICE = "power";
     field public static final String PROPERTY_SERVICE = "property";
     field @Deprecated public static final String SENSOR_SERVICE = "sensor";
   }
@@ -572,6 +573,12 @@ package android.car.hardware.power {
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field @NonNull public static final android.os.Parcelable.Creator<android.car.hardware.power.CarPowerPolicyFilter> CREATOR;
     field @NonNull public final int[] components;
+  }
+
+  public static final class CarPowerPolicyFilter.Builder {
+    ctor public CarPowerPolicyFilter.Builder();
+    method @NonNull public android.car.hardware.power.CarPowerPolicyFilter build();
+    method @NonNull public android.car.hardware.power.CarPowerPolicyFilter.Builder setComponents(@NonNull int...);
   }
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface PowerComponent {

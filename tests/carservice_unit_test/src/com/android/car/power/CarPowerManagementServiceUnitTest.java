@@ -432,11 +432,12 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         MockedPowerPolicyChangeListener listenerAudio = new MockedPowerPolicyChangeListener();
         MockedPowerPolicyChangeListener listenerWifi = new MockedPowerPolicyChangeListener();
         MockedPowerPolicyChangeListener listenerLocation = new MockedPowerPolicyChangeListener();
-        CarPowerPolicyFilter filterAudio =
-                new CarPowerPolicyFilter(new int[]{PowerComponent.AUDIO});
-        CarPowerPolicyFilter filterWifi = new CarPowerPolicyFilter(new int[]{PowerComponent.WIFI});
-        CarPowerPolicyFilter filterLocation =
-                new CarPowerPolicyFilter(new int[]{PowerComponent.LOCATION});
+        CarPowerPolicyFilter filterAudio = new CarPowerPolicyFilter.Builder()
+                .setComponents(new int[]{PowerComponent.AUDIO}).build();
+        CarPowerPolicyFilter filterWifi = new CarPowerPolicyFilter.Builder()
+                .setComponents(new int[]{PowerComponent.WIFI}).build();
+        CarPowerPolicyFilter filterLocation = new CarPowerPolicyFilter.Builder()
+                .setComponents(new int[]{PowerComponent.LOCATION}).build();
 
         mService.registerPowerPolicyChangeListener(listenerAudio, filterAudio);
         mService.registerPowerPolicyChangeListener(listenerWifi, filterWifi);
@@ -453,8 +454,8 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         String policyId = "policy_id_enable_audio_disable_wifi";
         mService.definePowerPolicy(policyId, new String[]{"AUDIO"}, new String[]{"WIFI"});
         MockedPowerPolicyChangeListener listenerAudio = new MockedPowerPolicyChangeListener();
-        CarPowerPolicyFilter filterAudio =
-                new CarPowerPolicyFilter(new int[]{PowerComponent.AUDIO});
+        CarPowerPolicyFilter filterAudio = new CarPowerPolicyFilter.Builder()
+                .setComponents(new int[]{PowerComponent.AUDIO}).build();
 
         mService.registerPowerPolicyChangeListener(listenerAudio, filterAudio);
         mService.unregisterPowerPolicyChangeListener(listenerAudio);
