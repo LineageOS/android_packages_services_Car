@@ -28,8 +28,6 @@ namespace implementation {
 // TODO(b/159733690): the number should come from xml
 const int kFramesCount = 4;
 const int kFrameGenerationDelayMillis = 30;
-const char kConfigFilePath[] =
-        "/vendor/etc/automotive/evs/evs_sample_configuration.xml";
 
 // Evs Camera Id names defined in sv_sample_config.xml.
 const char kEvsCameraDeviceIdNames[4][20] = {
@@ -38,7 +36,7 @@ const char kEvsCameraDeviceIdNames[4][20] = {
 
 
 MockEvsCamera::MockEvsCamera(const string& cameraId, const Stream& streamCfg) {
-    mConfigManager = ConfigManager::Create(kConfigFilePath);
+    mConfigManager = ConfigManager::Create();
 
     mStreamCfg.height = streamCfg.height;
     mStreamCfg.width = streamCfg.width;
