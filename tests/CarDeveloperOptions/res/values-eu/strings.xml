@@ -1067,7 +1067,7 @@
     <string name="wifi_hotspot_name_summary_connected" msgid="8387768642326756749">"<xliff:g id="WIFI_HOTSPOT_NAME">%1$s</xliff:g> sarera konekta daitezke beste gailuak"</string>
     <string name="wifi_hotspot_password_title" msgid="4289338152595154889">"Wifi-gunearen pasahitza"</string>
     <string name="wifi_hotspot_ap_band_title" msgid="3485744480410441949">"Sarbide-puntuaren banda"</string>
-    <string name="wifi_hotspot_footer_info_regular" msgid="3876006922622827363">"Erabili wifi-gunea beste gailuentzako wifi-sare bat sortzeko. Wifi-guneen bidez, Interneteko konexioa ematen da datu-konexioa erabilita. Baliteke datu-konexioa erabiltzeagatiko kostu gehigarriak ordaindu behar izatea."</string>
+    <string name="wifi_hotspot_footer_info_regular" msgid="3876006922622827363">"Erabili wifi-gunea beste gailuentzako wifi-sare bat sortzeko. Wifi-guneen bidez, Interneteko konexioa ematen da datu-konexioa erabilita. Baliteke zerbait ordaindu behar izatea datuak erabiltzeagatik."</string>
     <string name="wifi_hotspot_footer_info_local_only" msgid="3339582350894639261">"Aplikazioek wifi-guneak sor ditzakete edukia inguruko gailuekin partekatzeko."</string>
     <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"Desaktibatu automatikoki wifi-gunea"</string>
     <string name="wifi_hotspot_auto_off_summary" msgid="3866769400624802105">"Wifi-gunea desaktibatu egingo da ez badago gailurik konektatuta"</string>
