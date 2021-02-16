@@ -1798,7 +1798,7 @@
     <string name="install_all_warning" product="device" msgid="9141585291103603515">"Tu dispositivo y tus datos personales son más vulnerables a los ataques de aplicaciones desconocidas. Al instalar aplicaciones de esta fuente, aceptas ser responsable de cualquier daño que sufra tu dispositivo o de la pérdida de datos que se pueda derivar de su uso."</string>
     <string name="advanced_settings" msgid="6282069364060968122">"Ajustes avanzados"</string>
     <string name="advanced_settings_summary" msgid="5912237062506771716">"Habilitar más opciones de configuración"</string>
-    <string name="application_info_label" msgid="3886253474964599105">"Información de aplicaciones"</string>
+    <string name="application_info_label" msgid="3886253474964599105">"Información de la aplicación"</string>
     <string name="storage_label" msgid="1109537840103290384">"Almacenamiento"</string>
     <string name="auto_launch_label" msgid="47089737922907379">"Abrir de forma predeterminada"</string>
     <string name="auto_launch_label_generic" msgid="7865828543459493308">"Valores predeterminados"</string>
