@@ -275,8 +275,13 @@ public class ICarImpl extends ICar.Stub {
         }
         mCarDevicePolicyService = new CarDevicePolicyService(mCarUserService);
         if (mFeatureController.isFeatureEnabled(Car.CLUSTER_HOME_SERVICE)) {
-            mClusterHomeService = new ClusterHomeService(serviceContext, mHal.getClusterHal(),
-                    mInstrumentClusterService, mClusterNavigationService, mCarOccupantZoneService);
+            if (!mFeatureController.isFeatureEnabled(Car.CAR_INSTRUMENT_CLUSTER_SERVICE)) {
+                mClusterHomeService = new ClusterHomeService(serviceContext, mHal.getClusterHal(),
+                        mClusterNavigationService, mCarOccupantZoneService, mFixedActivityService);
+            } else {
+                Slog.w(TAG, "Can't init ClusterHomeService, since Old cluster service is running");
+                mClusterHomeService = null;
+            }
         } else {
             mClusterHomeService = null;
         }

@@ -358,10 +358,9 @@ public final class FixedActivityService implements CarServiceBase {
     }
 
     private void clearRunningActivitiesLocked() {
-        int currentUser = ActivityManager.getCurrentUser();
         for (int i = mRunningActivities.size() - 1; i >= 0; i--) {
             RunningActivityInfo info = mRunningActivities.valueAt(i);
-            if (info == null || info.userId != currentUser) {
+            if (info == null || !isUserAllowedToLaunchActivity(info.userId)) {
                 mRunningActivities.removeAt(i);
             }
         }
@@ -636,7 +635,7 @@ public final class FixedActivityService implements CarServiceBase {
 
     private boolean isUserAllowedToLaunchActivity(@UserIdInt int userId) {
         int currentUser = ActivityManager.getCurrentUser();
-        if (userId == currentUser) {
+        if (userId == currentUser || userId == UserHandle.USER_SYSTEM) {
             return true;
         }
         int[] profileIds = mUm.getEnabledProfileIds(currentUser);

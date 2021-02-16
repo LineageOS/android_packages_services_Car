@@ -16,10 +16,13 @@
 
 package com.android.car.cluster;
 
+import static android.content.Intent.ACTION_MAIN;
+
 import static com.android.car.hal.ClusterHalService.DISPLAY_OFF;
 import static com.android.car.hal.ClusterHalService.DISPLAY_ON;
 import static com.android.car.hal.ClusterHalService.DONT_CARE;
 
+import android.app.ActivityOptions;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.cluster.ClusterHomeManager;
@@ -27,6 +30,7 @@ import android.car.cluster.ClusterState;
 import android.car.cluster.IClusterHomeCallback;
 import android.car.cluster.IClusterHomeService;
 import android.car.navigation.CarNavigationInstrumentCluster;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -36,6 +40,8 @@ import android.hardware.display.DisplayManager;
 import android.os.Bundle;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
+import android.os.UserHandle;
+import android.text.TextUtils;
 import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.util.Slog;
@@ -44,6 +50,8 @@ import android.view.Display;
 import com.android.car.CarLog;
 import com.android.car.CarOccupantZoneService;
 import com.android.car.CarServiceBase;
+import com.android.car.R;
+import com.android.car.am.FixedActivityService;
 import com.android.car.hal.ClusterHalService;
 
 /**
@@ -62,7 +70,8 @@ public class ClusterHomeService extends IClusterHomeService.Stub
     private final ClusterHalService mClusterHalService;
     private final ClusterNavigationService mClusterNavigationService;
     private final CarOccupantZoneService mOccupantZoneService;
-    private final InstrumentClusterService mOldClusterService;
+    private final FixedActivityService mFixedActivityService;
+    private final ComponentName mClusterHomeActivity;
 
     private boolean mServiceEnabled;
 
@@ -76,21 +85,24 @@ public class ClusterHomeService extends IClusterHomeService.Stub
             new RemoteCallbackList<>();
 
     public ClusterHomeService(Context context, ClusterHalService clusterHalService,
-            InstrumentClusterService oldClusterService,
             ClusterNavigationService navigationService,
-            CarOccupantZoneService occupantZoneService) {
+            CarOccupantZoneService occupantZoneService,
+            FixedActivityService fixedActivityService) {
         mContext = context;
         mClusterHalService = clusterHalService;
-        mOldClusterService = oldClusterService;
         mClusterNavigationService = navigationService;
         mOccupantZoneService = occupantZoneService;
+        mFixedActivityService = fixedActivityService;
+        mClusterHomeActivity = ComponentName.unflattenFromString(
+                mContext.getString(R.string.config_clusterHomeActivity));
     }
 
     @Override
     public void init() {
         if (DBG) Slog.d(TAG, "initClusterHomeService");
-        if (mOldClusterService != null) {
-            Slog.i(TAG, "Old instrument cluster service is activated");
+        if (TextUtils.isEmpty(mClusterHomeActivity.getPackageName())
+                || TextUtils.isEmpty(mClusterHomeActivity.getClassName())) {
+            Slog.i(TAG, "Improper ClusterHomeActivity: " + mClusterHomeActivity);
             return;
         }
         if (!mClusterHalService.isCoreSupported()) {
@@ -118,6 +130,12 @@ public class ClusterHomeService extends IClusterHomeService.Stub
         mServiceEnabled = true;
         mClusterHalService.setCallback(this);
         mClusterNavigationService.setClusterServiceCallback(this);
+
+        Intent startHome = new Intent(ACTION_MAIN).setComponent(mClusterHomeActivity);
+        ActivityOptions activityOptions = ActivityOptions.makeBasic()
+                .setLaunchDisplayId(clusterDisplayId);
+        mFixedActivityService.startFixedActivityModeForDisplayAndUser(
+                startHome, activityOptions, clusterDisplayId, UserHandle.USER_SYSTEM);
     }
 
     @Override
