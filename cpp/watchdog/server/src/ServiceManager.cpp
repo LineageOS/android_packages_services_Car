@@ -34,14 +34,12 @@ using ::android::base::Result;
 
 sp<WatchdogProcessService> ServiceManager::sWatchdogProcessService = nullptr;
 sp<WatchdogPerfService> ServiceManager::sWatchdogPerfService = nullptr;
-sp<IoOveruseMonitor> ServiceManager::sIoOveruseMonitor = nullptr;
 sp<WatchdogBinderMediator> ServiceManager::sWatchdogBinderMediator = nullptr;
-sp<WatchdogServiceHelperInterface> ServiceManager::sWatchdogServiceHelper = nullptr;
+sp<IWatchdogServiceHelperInterface> ServiceManager::sWatchdogServiceHelper = nullptr;
 
 Result<void> ServiceManager::startServices(const sp<Looper>& looper) {
     if (sWatchdogBinderMediator != nullptr || sWatchdogServiceHelper != nullptr ||
-        sWatchdogProcessService != nullptr || sWatchdogPerfService != nullptr ||
-        sIoOveruseMonitor != nullptr) {
+        sWatchdogProcessService != nullptr || sWatchdogPerfService != nullptr) {
         return Error(INVALID_OPERATION) << "Cannot start services more than once";
     }
     /*
@@ -51,21 +49,18 @@ Result<void> ServiceManager::startServices(const sp<Looper>& looper) {
      * PackageInfoResolver's instance during initialization.
      */
     sp<IPackageInfoResolverInterface> packageInfoResolver = PackageInfoResolver::getInstance();
-    auto result = startProcessAnrMonitor(looper);
-    if (!result.ok()) {
+    if (const auto result = startProcessAnrMonitor(looper); !result.ok()) {
         return result;
     }
-    result = startPerfService();
-    if (!result.ok()) {
+    if (const auto result = startPerfService(); !result.ok()) {
         return result;
     }
     sWatchdogServiceHelper = new WatchdogServiceHelper();
-    result = sWatchdogServiceHelper->init(sWatchdogProcessService);
-    if (!result.ok()) {
+    if (const auto result = sWatchdogServiceHelper->init(sWatchdogProcessService); !result.ok()) {
         return Error() << "Failed to initialize watchdog service helper: " << result.error();
     }
-    result = packageInfoResolver->initWatchdogServiceHelper(sWatchdogServiceHelper);
-    if (!result.ok()) {
+    if (const auto result = packageInfoResolver->initWatchdogServiceHelper(sWatchdogServiceHelper);
+        !result.ok()) {
         return Error() << "Failed to initialize package name resolver: " << result.error();
     }
     return {};
@@ -75,9 +70,6 @@ void ServiceManager::terminateServices() {
     if (sWatchdogProcessService != nullptr) {
         sWatchdogProcessService->terminate();
         sWatchdogProcessService.clear();
-    }
-    if (sIoOveruseMonitor != nullptr) {
-        sIoOveruseMonitor.clear();
     }
     if (sWatchdogPerfService != nullptr) {
         sWatchdogPerfService->terminate();
@@ -96,8 +88,7 @@ void ServiceManager::terminateServices() {
 
 Result<void> ServiceManager::startProcessAnrMonitor(const sp<Looper>& looper) {
     sp<WatchdogProcessService> service = new WatchdogProcessService(looper);
-    const auto& result = service->start();
-    if (!result.ok()) {
+    if (const auto result = service->start(); !result.ok()) {
         return Error(result.error().code())
                 << "Failed to start watchdog process monitoring: " << result.error();
     }
@@ -107,33 +98,22 @@ Result<void> ServiceManager::startProcessAnrMonitor(const sp<Looper>& looper) {
 
 Result<void> ServiceManager::startPerfService() {
     sp<WatchdogPerfService> service = new WatchdogPerfService();
-    sp<IoOveruseMonitor> ioOveruseMonitor = new IoOveruseMonitor();
-    auto result = service->registerDataProcessor(new IoPerfCollection());
-    if (!result.ok()) {
+    if (const auto result = service->registerDataProcessor(new IoPerfCollection()); !result.ok()) {
         return Error() << "Failed to register I/O perf collection: " << result.error();
     }
-    /*
-     * TODO(b/167240592): Register I/O overuse monitor after it is completely implemented.
-     *  Caveat: I/O overuse monitor reads from /data partition when initialized so initializing here
-     *  would cause the read to happen during early-init when the /data partition is not available.
-     *  Thus delay the initialization/registration until the /data partition is available.
-     */
-    result = service->start();
-    if (!result.ok()) {
+    if (const auto result = service->start(); !result.ok()) {
         return Error(result.error().code())
                 << "Failed to start watchdog performance service: " << result.error();
     }
     sWatchdogPerfService = service;
-    sIoOveruseMonitor = ioOveruseMonitor;
     return {};
 }
 
 Result<void> ServiceManager::startBinderMediator() {
     sWatchdogBinderMediator =
             new WatchdogBinderMediator(sWatchdogProcessService, sWatchdogPerfService,
-                                       sIoOveruseMonitor, sWatchdogServiceHelper);
-    const auto& result = sWatchdogBinderMediator->init();
-    if (!result.ok()) {
+                                       sWatchdogServiceHelper);
+    if (const auto result = sWatchdogBinderMediator->init(); !result.ok()) {
         return Error(result.error().code())
                 << "Failed to initialize watchdog binder mediator: " << result.error();
     }

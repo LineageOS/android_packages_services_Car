@@ -271,8 +271,11 @@ std::string toString(const CollectionInfo& collectionInfo) {
     return buffer;
 }
 
-Result<void> IoPerfCollection::start() {
+Result<void> IoPerfCollection::init() {
     Mutex::Autolock lock(mMutex);
+    if (mTopNStatsPerCategory != 0 || mTopNStatsPerSubcategory != 0) {
+        return Error() << "Cannot initialize " << name() << " more than once";
+    }
     mTopNStatsPerCategory = static_cast<int>(
             sysprop::topNStatsPerCategory().value_or(kDefaultTopNStatsPerCategory));
     mTopNStatsPerSubcategory = static_cast<int>(
