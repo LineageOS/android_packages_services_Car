@@ -47,6 +47,7 @@ import android.media.session.MediaSessionManager.OnActiveSessionsChangedListener
 import android.media.session.PlaybackState;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.HandlerExecutor;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.RemoteCallbackList;
@@ -538,8 +539,8 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         }
         mSessionsListener = new SessionChangedListener(ActivityManager.getCurrentUser());
         UserHandle currentUserHandle = new UserHandle(ActivityManager.getCurrentUser());
-        mMediaSessionManager.addOnActiveSessionsChangedListener(mSessionsListener, null,
-                currentUserHandle, null);
+        mMediaSessionManager.addOnActiveSessionsChangedListener(null, currentUserHandle,
+                new HandlerExecutor(mHandler), mSessionsListener);
         mMediaSessionUpdater.registerCallbacks(mMediaSessionManager.getActiveSessionsForUser(null,
                 currentUserHandle));
     }
