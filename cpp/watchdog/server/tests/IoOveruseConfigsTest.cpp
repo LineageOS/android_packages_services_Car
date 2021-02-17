@@ -72,10 +72,8 @@ std::string toString(const ComponentSpecificConfig& config) {
 }
 
 std::string toString(const IoOveruseAlertThreshold& threshold) {
-    return StringPrintf("aggregateDurationInSecs=%" PRId64 ", triggerDurationInSecs=%" PRId64
-                        ", writtenBytes=%" PRId64,
-                        threshold.aggregateDurationInSecs, threshold.triggerDurationInSecs,
-                        threshold.writtenBytes);
+    return StringPrintf("durationInSeconds=%" PRId64 ", writtenBytesPerSecond=%" PRId64,
+                        threshold.durationInSeconds, threshold.writtenBytesPerSecond);
 }
 
 std::string toString(const IoOveruseConfigs& configs) {
@@ -118,13 +116,11 @@ PerStateIoOveruseThreshold toPerStateIoOveruseThreshold(const ComponentType type
     return toPerStateIoOveruseThreshold(toString(type), fgBytes, bgBytes, garageModeBytes);
 }
 
-IoOveruseAlertThreshold toIoOveruseAlertThreshold(const int64_t aggregateDurationInSecs,
-                                                  const int64_t triggerDurationInSecs,
-                                                  const int64_t writtenBytes) {
+IoOveruseAlertThreshold toIoOveruseAlertThreshold(const int64_t durationInSeconds,
+                                                  const int64_t writtenBytesPerSecond) {
     IoOveruseAlertThreshold threshold;
-    threshold.aggregateDurationInSecs = aggregateDurationInSecs;
-    threshold.triggerDurationInSecs = triggerDurationInSecs;
-    threshold.writtenBytes = writtenBytes;
+    threshold.durationInSeconds = durationInSeconds;
+    threshold.writtenBytesPerSecond = writtenBytesPerSecond;
     return threshold;
 }
 
@@ -146,8 +142,8 @@ TEST(IoOveruseConfigsTest, TestUpdateWithValidConfigs) {
             {toPerStateIoOveruseThreshold("systemPackageA", 600, 400, 1000),
              toPerStateIoOveruseThreshold("systemPackageB", 1200, 800, 1500)};
     systemComponentConfig.safeToKillPackages = toString16Vector({"systemPackageA"});
-    systemComponentConfig.systemWideThresholds = {toIoOveruseAlertThreshold(5, 20, 200),
-                                                  toIoOveruseAlertThreshold(30, 600, 40000)};
+    systemComponentConfig.systemWideThresholds = {toIoOveruseAlertThreshold(5, 200),
+                                                  toIoOveruseAlertThreshold(30, 40000)};
 
     IoOveruseConfiguration vendorComponentConfig;
     vendorComponentConfig.componentLevelThresholds =
@@ -194,8 +190,8 @@ TEST(IoOveruseConfigsTest, TestUpdateWithValidConfigs) {
                                       {ApplicationCategoryType::MEDIA,
                                        toPerStateIoOveruseThreshold("MEDIA", 1200, 800, 1500)}};
     expected.vendorPackagePrefixes = {"vendorPackage", "vendorPkg"};
-    expected.alertThresholds = {toIoOveruseAlertThreshold(5, 20, 200),
-                                toIoOveruseAlertThreshold(30, 600, 40000)};
+    expected.alertThresholds = {toIoOveruseAlertThreshold(5, 200),
+                                toIoOveruseAlertThreshold(30, 40000)};
 
     IoOveruseConfigs actual;
     ASSERT_RESULT_OK(actual.update(ComponentType::SYSTEM, systemComponentConfig));
@@ -213,8 +209,8 @@ TEST(IoOveruseConfigsTest, TestUpdateWithValidConfigs) {
             {toPerStateIoOveruseThreshold("systemPackageC", 700, 100, 200),
              toPerStateIoOveruseThreshold("systemPackageC", 300, 200, 300)};
     systemComponentConfig.safeToKillPackages = toString16Vector({"systemPackageC"});
-    systemComponentConfig.systemWideThresholds = {toIoOveruseAlertThreshold(6, 3, 4),
-                                                  toIoOveruseAlertThreshold(6, 3, 10)};
+    systemComponentConfig.systemWideThresholds = {toIoOveruseAlertThreshold(6, 4),
+                                                  toIoOveruseAlertThreshold(6, 10)};
 
     vendorComponentConfig = {};
     vendorComponentConfig.componentLevelThresholds =
@@ -250,7 +246,7 @@ TEST(IoOveruseConfigsTest, TestUpdateWithValidConfigs) {
                                       {ApplicationCategoryType::MEDIA,
                                        toPerStateIoOveruseThreshold("MEDIA", 1400, 1600, 2000)}};
     expected.vendorPackagePrefixes = {"vendorPackage", "vendorPkg"};
-    expected.alertThresholds = {toIoOveruseAlertThreshold(6, 3, 4)};
+    expected.alertThresholds = {toIoOveruseAlertThreshold(6, 4)};
 
     ASSERT_RESULT_OK(actual.update(ComponentType::SYSTEM, systemComponentConfig));
     ASSERT_RESULT_OK(actual.update(ComponentType::VENDOR, vendorComponentConfig));
@@ -302,7 +298,7 @@ TEST(IoOveruseConfigsTest, TestFailsUpdateOnInvalidConfigs) {
 
     config.componentLevelThresholds =
             toPerStateIoOveruseThreshold(ComponentType::SYSTEM, 100, 200, 300);
-    config.systemWideThresholds = {toIoOveruseAlertThreshold(0, 0, 0)};
+    config.systemWideThresholds = {toIoOveruseAlertThreshold(0, 0)};
 
     ASSERT_FALSE(actual.update(ComponentType::SYSTEM, config).ok())
             << "Should error on invalid system-wide thresholds";
@@ -324,8 +320,8 @@ TEST(IoOveruseConfigsTest, TestIgnoresNonUpdatableConfigsBySystemComponent) {
     config.vendorPackagePrefixes = toString16Vector({"vendorPackage"});
     config.categorySpecificThresholds = {toPerStateIoOveruseThreshold("MAPS", 600, 400, 1000),
                                          toPerStateIoOveruseThreshold("MEDIA", 1200, 800, 1500)};
-    config.systemWideThresholds = {toIoOveruseAlertThreshold(5, 20, 200),
-                                   toIoOveruseAlertThreshold(30, 600, 40000)};
+    config.systemWideThresholds = {toIoOveruseAlertThreshold(5, 200),
+                                   toIoOveruseAlertThreshold(30, 40000)};
     IoOveruseConfigs expected;
     expected.systemConfig =
             ComponentSpecificConfig(config.componentLevelThresholds,
@@ -337,8 +333,8 @@ TEST(IoOveruseConfigsTest, TestIgnoresNonUpdatableConfigsBySystemComponent) {
                                       toPerStateIoOveruseThreshold("systemPackageB", 1200, 800,
                                                                    1500)}},
                                     /*safeToKillPackagesVal=*/{"systemPackageA"});
-    expected.alertThresholds = {toIoOveruseAlertThreshold(5, 20, 200),
-                                toIoOveruseAlertThreshold(30, 600, 40000)};
+    expected.alertThresholds = {toIoOveruseAlertThreshold(5, 200),
+                                toIoOveruseAlertThreshold(30, 40000)};
     IoOveruseConfigs actual;
     ASSERT_RESULT_OK(actual.update(ComponentType::SYSTEM, config));
     ASSERT_TRUE(isEqual(actual, expected)) << "Expected:\n"
@@ -358,8 +354,8 @@ TEST(IoOveruseConfigsTest, TestIgnoresNonUpdatableConfigsByVendorComponent) {
     config.vendorPackagePrefixes = toString16Vector({"vendorPackage"});
     config.categorySpecificThresholds = {toPerStateIoOveruseThreshold("MAPS", 600, 400, 1000),
                                          toPerStateIoOveruseThreshold("MEDIA", 1200, 800, 1500)};
-    config.systemWideThresholds = {toIoOveruseAlertThreshold(5, 20, 200),
-                                   toIoOveruseAlertThreshold(30, 600, 40000)};
+    config.systemWideThresholds = {toIoOveruseAlertThreshold(5, 200),
+                                   toIoOveruseAlertThreshold(30, 40000)};
     IoOveruseConfigs expected;
     expected.vendorConfig =
             ComponentSpecificConfig(config.componentLevelThresholds,
@@ -398,8 +394,8 @@ TEST(IoOveruseConfigsTest, TestIgnoresNonUpdatableConfigsByThirdPartyComponent) 
     config.vendorPackagePrefixes = toString16Vector({"vendorPackage"});
     config.categorySpecificThresholds = {toPerStateIoOveruseThreshold("MAPS", 600, 400, 1000),
                                          toPerStateIoOveruseThreshold("MEDIA", 1200, 800, 1500)};
-    config.systemWideThresholds = {toIoOveruseAlertThreshold(5, 20, 200),
-                                   toIoOveruseAlertThreshold(30, 600, 40000)};
+    config.systemWideThresholds = {toIoOveruseAlertThreshold(5, 200),
+                                   toIoOveruseAlertThreshold(30, 40000)};
     IoOveruseConfigs expected;
     expected.thirdPartyConfig =
             ComponentSpecificConfig(config.componentLevelThresholds, /*perPackageThresholdsVal=*/{},

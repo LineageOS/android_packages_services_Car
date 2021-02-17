@@ -93,11 +93,11 @@ Result<void> containsValidThresholds(const PerStateIoOveruseThreshold& threshold
 }
 
 Result<void> containsValidThreshold(const IoOveruseAlertThreshold& threshold) {
-    if (threshold.aggregateDurationInSecs == 0) {
-        return Error() << "Aggregate duration must be greater than zero";
+    if (threshold.durationInSeconds == 0) {
+        return Error() << "Duration must be greater than zero";
     }
-    if (threshold.writtenBytes == 0) {
-        return Error() << "Written bytes must be greater than zero";
+    if (threshold.writtenBytesPerSecond == 0) {
+        return Error() << "Written bytes/second must be greater than zero";
     }
     return {};
 }
@@ -195,15 +195,12 @@ Result<void> ComponentSpecificConfig::updateSafeToKillPackages(
 
 size_t IoOveruseConfigs::AlertThresholdHashByDuration::operator()(
         const IoOveruseAlertThreshold& threshold) const {
-    return std::hash<std::string>{}(
-            StringPrintf("aggDuration_%" PRId64 "s_triggerDuration_%" PRId64 "s",
-                         threshold.aggregateDurationInSecs, threshold.triggerDurationInSecs));
+    return std::hash<std::string>{}(std::to_string(threshold.durationInSeconds));
 }
 
 bool IoOveruseConfigs::AlertThresholdEqualByDuration::operator()(
         const IoOveruseAlertThreshold& l, const IoOveruseAlertThreshold& r) const {
-    return l.aggregateDurationInSecs == r.aggregateDurationInSecs &&
-            l.triggerDurationInSecs == r.triggerDurationInSecs;
+    return l.durationInSeconds == r.durationInSeconds;
 }
 
 Result<void> IoOveruseConfigs::updatePerCategoryThresholds(
@@ -247,12 +244,10 @@ Result<void> IoOveruseConfigs::updateAlertThresholds(
         }
         if (const auto& it = alertThresholds.find(alertThreshold); it != alertThresholds.end()) {
             StringAppendF(&errorMsgs,
-                          "\tDuplicate threshold received for aggregate duration %" PRId64
-                          " secs and trigger duration %" PRId64
-                          " secs. Overwriting previous threshold"
-                          " with %" PRId64 " written bytes\n",
-                          alertThreshold.aggregateDurationInSecs,
-                          alertThreshold.triggerDurationInSecs, it->writtenBytes);
+                          "\tDuplicate threshold received for duration %" PRId64
+                          ". Overwriting previous threshold with %" PRId64
+                          " written bytes per second \n",
+                          alertThreshold.durationInSeconds, it->writtenBytesPerSecond);
         }
         alertThresholds.emplace(alertThreshold);
     }
