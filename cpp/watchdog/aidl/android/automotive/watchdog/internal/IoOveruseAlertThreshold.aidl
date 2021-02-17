@@ -22,20 +22,13 @@ package android.automotive.watchdog.internal;
  */
 parcelable IoOveruseAlertThreshold {
   /**
-   * Duration to aggregate the system-wide disk I/O usage and compare the usage against the given
-   * written bytes threshold.
+   * Duration over which the given written bytes per second should be checked against.
    */
-  long aggregateDurationInSecs;
+  long durationInSeconds;
 
   /**
-   * Duration to wait before triggering the disk I/O overuse alert. Disk I/O overuse should be
-   * detected for the trigger duration before triggering the alert.
+   * Defines the system-wide disk I/O overuse threshold in terms of number of bytes written per
+   * second to all disks on the device by all packages.
    */
-  long triggerDurationInSecs;
-
-  /**
-   * Defines the system-wide disk I/O overuse threshold in terms of number of bytes written to
-   * all disks on the device by all packages.
-   */
-  long writtenBytes;
+  long writtenBytesPerSecond;
 }
