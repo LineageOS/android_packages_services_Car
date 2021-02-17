@@ -9,7 +9,7 @@ package android.car {
     method @Nullable public static android.car.Car createCar(android.content.Context, @Nullable android.os.Handler);
     method @NonNull public static android.car.Car createCar(@NonNull android.content.Context, @Nullable android.os.Handler, long, @NonNull android.car.Car.CarServiceLifecycleListener);
     method public void disconnect();
-    method public int getCarConnectionType();
+    method @Deprecated public int getCarConnectionType();
     method @Nullable public Object getCarManager(String);
     method public boolean isConnected();
     method public boolean isConnecting();
@@ -24,7 +24,7 @@ package android.car {
     field public static final String CAR_UX_RESTRICTION_SERVICE = "uxrestriction";
     field public static final long CAR_WAIT_TIMEOUT_DO_NOT_WAIT = 0L; // 0x0L
     field public static final long CAR_WAIT_TIMEOUT_WAIT_FOREVER = -1L; // 0xffffffffffffffffL
-    field public static final int CONNECTION_TYPE_EMBEDDED = 5; // 0x5
+    field @Deprecated public static final int CONNECTION_TYPE_EMBEDDED = 5; // 0x5
     field public static final String INFO_SERVICE = "info";
     field public static final String META_DATA_DISTRACTION_OPTIMIZED = "distractionOptimized";
     field public static final String META_DATA_REQUIRES_CAR_FEATURE = "requires-car-feature";

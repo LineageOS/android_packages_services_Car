@@ -753,7 +753,12 @@ public final class Car {
     public static final String PERMISSION_CAR_MONITOR_INPUT =
             "android.car.permission.CAR_MONITOR_INPUT";
 
-    /** Type of car connection: platform runs directly in car. */
+    /**
+     * Type of car connection: platform runs directly in car.
+     *
+     * @deprecated connection type constants are no longer used
+     */
+    @Deprecated
     public static final int CONNECTION_TYPE_EMBEDDED = 5;
 
     /**
@@ -1467,10 +1472,12 @@ public final class Car {
     }
 
     /**
-     * Return the type of currently connected car.
-     * @return
+     * @return the type of currently connected car.
+     *
+     * @deprecated connection type will be always {@link CONNECTION_TYPE_EMBEDDED}
      */
     @ConnectionType
+    @Deprecated
     public int getCarConnectionType() {
         return CONNECTION_TYPE_EMBEDDED;
     }
