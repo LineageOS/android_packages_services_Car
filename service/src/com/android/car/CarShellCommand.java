@@ -91,7 +91,6 @@ import com.android.car.hal.UserHalService;
 import com.android.car.hal.VehicleHal;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.car.power.CarPowerManagementService;
-import com.android.car.power.SilentModeController;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserService;
 
@@ -133,7 +132,6 @@ final class CarShellCommand extends ShellCommand {
     private static final String COMMAND_INJECT_ROTARY = "inject-rotary";
     private static final String COMMAND_INJECT_CUSTOM_INPUT = "inject-custom-input";
     private static final String COMMAND_GET_INITIAL_USER_INFO = "get-initial-user-info";
-    private static final String COMMAND_SILENT_MODE = "silent-mode";
     private static final String COMMAND_SWITCH_USER = "switch-user";
     private static final String COMMAND_REMOVE_USER = "remove-user";
     private static final String COMMAND_CREATE_USER = "create-user";
@@ -151,6 +149,16 @@ final class CarShellCommand extends ShellCommand {
     private static final String COMMAND_POWER_OFF = "power-off";
     private static final String POWER_OFF_SKIP_GARAGEMODE = "--skip-garagemode";
     private static final String POWER_OFF_SHUTDOWN = "--shutdown";
+    private static final String COMMAND_SILENT_MODE = "silent-mode";
+    // Used with COMMAND_SILENT_MODE for forced silent: "forced-silent"
+    private static final String SILENT_MODE_FORCED_SILENT =
+            CarPowerManagementService.SILENT_MODE_FORCED_SILENT;
+    // Used with COMMAND_SILENT_MODE for forced non silent: "forced-non-silent"
+    private static final String SILENT_MODE_FORCED_NON_SILENT =
+            CarPowerManagementService.SILENT_MODE_FORCED_NON_SILENT;
+    // Used with COMMAND_SILENT_MODE for non forced silent mode: "non-forced-silent-mode"
+    private static final String SILENT_MODE_NON_FORCED =
+            CarPowerManagementService.SILENT_MODE_NON_FORCED;
 
     private static final String COMMAND_EMULATE_DRIVING_STATE = "emulate-driving-state";
     private static final String DRIVING_STATE_DRIVE = "drive";
@@ -288,7 +296,6 @@ final class CarShellCommand extends ShellCommand {
     private final CarNightService mCarNightService;
     private final SystemInterface mSystemInterface;
     private final GarageModeService mGarageModeService;
-    private final SilentModeController mSilentModeController;
     private final CarUserService mCarUserService;
     private final CarOccupantZoneService mCarOccupantZoneService;
 
@@ -305,8 +312,7 @@ final class CarShellCommand extends ShellCommand {
             SystemInterface systemInterface,
             GarageModeService garageModeService,
             CarUserService carUserService,
-            CarOccupantZoneService carOccupantZoneService,
-            SilentModeController silentModeController) {
+            CarOccupantZoneService carOccupantZoneService) {
         mContext = context;
         mHal = hal;
         mCarAudioService = carAudioService;
@@ -321,7 +327,6 @@ final class CarShellCommand extends ShellCommand {
         mGarageModeService = garageModeService;
         mCarUserService = carUserService;
         mCarOccupantZoneService = carOccupantZoneService;
-        mSilentModeController = silentModeController;
     }
 
     @Override
@@ -470,8 +475,8 @@ final class CarShellCommand extends ShellCommand {
         pw.printf("\t  %s\n", VALID_USER_AUTH_TYPES_HELP);
         pw.printf("\t  %s\n", VALID_USER_AUTH_SET_VALUES_HELP);
 
-        pw.println("\t" + COMMAND_SILENT_MODE
-                + " [forced-silent|forced-non-silent|non-forced|query]");
+        pw.printf("\t  %s [%s|%s|%s|%s]\n", COMMAND_SILENT_MODE, SILENT_MODE_FORCED_SILENT,
+                SILENT_MODE_FORCED_NON_SILENT, SILENT_MODE_NON_FORCED, PARAM_QUERY_MODE);
         pw.println("\t  Forces silent mode silent or non-silent. With query (or no command) "
                 + "displays the silent state");
         pw.println("\t  and shows how many listeners are monitoring the state.");
@@ -1673,26 +1678,25 @@ final class CarShellCommand extends ShellCommand {
 
     private void runSilentCommand(String arg, IndentingPrintWriter writer) {
         switch (arg) {
-            case "forced-silent":
+            case SILENT_MODE_FORCED_SILENT:
                 writer.println("Forcing silent mode to silent");
-                mSilentModeController.forceSilentMode(true);
+                mCarPowerManagementService.setSilentMode(SILENT_MODE_FORCED_SILENT);
                 break;
-            case "forced-non-silent":
+            case SILENT_MODE_FORCED_NON_SILENT:
                 writer.println("Forcing silent mode to non-silent");
-                mSilentModeController.forceSilentMode(false);
+                mCarPowerManagementService.setSilentMode(SILENT_MODE_FORCED_NON_SILENT);
                 break;
-            case "non-forced":
+            case SILENT_MODE_NON_FORCED:
                 writer.println("Not forcing silent mode");
-                mSilentModeController.unforceSilentMode();
+                mCarPowerManagementService.setSilentMode(SILENT_MODE_NON_FORCED);
                 break;
             case PARAM_QUERY_MODE:
-            case "":
-                mSilentModeController.dump(writer);
+                mCarPowerManagementService.dumpSilentMode(writer);
                 break;
             default:
-                writer.printf("Unknown value: %s. Valid argument: "
-                                + "forced-silent|forced-non-silent|non-forced|%s\n",
-                        arg, PARAM_QUERY_MODE);
+                writer.printf("Unknown value: %s. Valid argument: %s|%s|%s|%s\n", arg,
+                        SILENT_MODE_FORCED_SILENT, SILENT_MODE_FORCED_NON_SILENT,
+                        SILENT_MODE_NON_FORCED, PARAM_QUERY_MODE);
         }
     }
 
