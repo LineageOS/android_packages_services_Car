@@ -191,12 +191,16 @@ final class CarShellCommand extends ShellCommand {
     // Commands that can affect safety should be never allowed in user build.
     private static final ArrayMap<String, String> USER_BUILD_COMMAND_TO_PERMISSION_MAP;
     static {
-        USER_BUILD_COMMAND_TO_PERMISSION_MAP = new ArrayMap<>(5);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP = new ArrayMap<>(7);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_GARAGE_MODE,
                 android.Manifest.permission.DEVICE_POWER);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_RESUME,
                 android.Manifest.permission.DEVICE_POWER);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_SUSPEND,
+                android.Manifest.permission.DEVICE_POWER);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_DEFINE_POWER_POLICY,
+                android.Manifest.permission.DEVICE_POWER);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_APPLY_POWER_POLICY,
                 android.Manifest.permission.DEVICE_POWER);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_GET_INITIAL_USER,
                 android.Manifest.permission.INTERACT_ACROSS_USERS_FULL);
