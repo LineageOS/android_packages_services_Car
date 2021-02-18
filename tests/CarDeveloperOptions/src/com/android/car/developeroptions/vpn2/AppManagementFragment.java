@@ -26,7 +26,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.net.ConnectivityManager;
 import android.net.VpnManager;
 import android.os.Bundle;
 import android.os.UserHandle;
@@ -64,7 +63,6 @@ public class AppManagementFragment extends SettingsPreferenceFragment
     private static final String KEY_FORGET_VPN = "forget_vpn";
 
     private PackageManager mPackageManager;
-    private ConnectivityManager mConnectivityManager;
     private VpnManager mVpnManager;
 
     // VPN app info
@@ -116,7 +114,6 @@ public class AppManagementFragment extends SettingsPreferenceFragment
         addPreferencesFromResource(R.xml.vpn_app_management);
 
         mPackageManager = getContext().getPackageManager();
-        mConnectivityManager = getContext().getSystemService(ConnectivityManager.class);
         mVpnManager = getContext().getSystemService(VpnManager.class);
 
         mPreferenceVersion = findPreference(KEY_VERSION);
@@ -221,7 +218,7 @@ public class AppManagementFragment extends SettingsPreferenceFragment
     }
 
     private boolean setAlwaysOnVpn(boolean isEnabled, boolean isLockdown) {
-        return mConnectivityManager.setAlwaysOnVpnPackageForUser(mUserId,
+        return mVpnManager.setAlwaysOnVpnPackageForUser(mUserId,
                 isEnabled ? mPackageName : null, isLockdown, /* lockdownWhitelist */ null);
     }
 
@@ -246,7 +243,7 @@ public class AppManagementFragment extends SettingsPreferenceFragment
             mPreferenceForget.checkRestrictionAndSetDisabled(UserManager.DISALLOW_CONFIG_VPN,
                     mUserId);
 
-            if (mConnectivityManager.isAlwaysOnVpnPackageSupportedForUser(mUserId, mPackageName)) {
+            if (mVpnManager.isAlwaysOnVpnPackageSupportedForUser(mUserId, mPackageName)) {
                 // setSummary doesn't override the admin message when user restriction is applied
                 mPreferenceAlwaysOn.setSummary(R.string.vpn_always_on_summary);
                 // setEnabled is not required here, as checkRestrictionAndSetDisabled
@@ -260,7 +257,7 @@ public class AppManagementFragment extends SettingsPreferenceFragment
     }
 
     private String getAlwaysOnVpnPackage() {
-        return mConnectivityManager.getAlwaysOnVpnPackageForUser(mUserId);
+        return mVpnManager.getAlwaysOnVpnPackageForUser(mUserId);
     }
 
     private boolean isVpnAlwaysOn() {
