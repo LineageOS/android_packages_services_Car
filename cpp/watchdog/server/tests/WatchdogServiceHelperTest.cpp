@@ -35,6 +35,7 @@ using aawi::ComponentType;
 using aawi::ICarWatchdogServiceForSystem;
 using aawi::ICarWatchdogServiceForSystemDefault;
 using aawi::PackageInfo;
+using aawi::PackageIoOveruseStats;
 using aawi::UidType;
 using ::android::BBinder;
 using ::android::IBinder;
@@ -46,8 +47,11 @@ using ::android::base::Result;
 using ::android::binder::Status;
 using ::testing::_;
 using ::testing::DoAll;
+using ::testing::IsEmpty;
 using ::testing::Return;
+using ::testing::SaveArg;
 using ::testing::SetArgPointee;
+using ::testing::UnorderedElementsAreArray;
 
 namespace internal {
 
@@ -343,10 +347,7 @@ TEST_F(WatchdogServiceHelperTest, TestGetPackageInfosForUids) {
             mWatchdogServiceHelper->getPackageInfosForUids(uids, prefixesStr, &actualPackageInfo);
 
     ASSERT_TRUE(status.isOk()) << status;
-    ASSERT_EQ(expectedPackageInfo.size(), actualPackageInfo.size());
-    for (int i = 0; i < expectedPackageInfo.size(); ++i) {
-        EXPECT_EQ(actualPackageInfo[i], expectedPackageInfo[i]);
-    }
+    EXPECT_THAT(actualPackageInfo, UnorderedElementsAreArray(expectedPackageInfo));
 }
 
 TEST_F(WatchdogServiceHelperTest,
@@ -361,7 +362,7 @@ TEST_F(WatchdogServiceHelperTest,
 
     ASSERT_FALSE(status.isOk()) << "getPackageInfosForUids should fail when no "
                                    "car watchdog service registered with the helper";
-    ASSERT_TRUE(actualPackageInfo.empty());
+    EXPECT_THAT(actualPackageInfo, IsEmpty());
 }
 
 TEST_F(WatchdogServiceHelperTest,
@@ -379,6 +380,49 @@ TEST_F(WatchdogServiceHelperTest,
     ASSERT_FALSE(status.isOk()) << "getPackageInfosForUids should fail when car watchdog "
                                    "service API returns error";
     ASSERT_TRUE(actualPackageInfo.empty());
+}
+
+TEST_F(WatchdogServiceHelperTest, TestNotifyIoOveruse) {
+    PackageIoOveruseStats stats;
+    stats.packageIdentifier.name = String16("randomPackage");
+    stats.packageIdentifier.uid = 101000;
+    stats.maybeKilledOnOveruse = true;
+    stats.periodInDays = 1;
+    stats.numOveruses = 10;
+    std::vector<PackageIoOveruseStats> expectedIoOveruseStats = {stats};
+    std::vector<PackageIoOveruseStats> actualOveruseStats;
+
+    registerCarWatchdogService();
+
+    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, notifyIoOveruse(expectedIoOveruseStats))
+            .WillOnce(DoAll(SaveArg<0>(&actualOveruseStats), Return(Status::ok())));
+
+    Status status = mWatchdogServiceHelper->notifyIoOveruse(expectedIoOveruseStats);
+
+    ASSERT_TRUE(status.isOk()) << status;
+    EXPECT_THAT(actualOveruseStats, UnorderedElementsAreArray(expectedIoOveruseStats));
+}
+
+TEST_F(WatchdogServiceHelperTest, TestErrorsOnNotifyIoOveruseWithNoCarWatchdogServiceRegistered) {
+    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, notifyIoOveruse(_)).Times(0);
+
+    Status status = mWatchdogServiceHelper->notifyIoOveruse({});
+
+    ASSERT_FALSE(status.isOk()) << "notifyIoOveruse should fail when no "
+                                   "car watchdog service registered with the helper";
+}
+
+TEST_F(WatchdogServiceHelperTest,
+       TestErrorsOnNotifyIoOveruseWithErrorStatusFromCarWatchdogService) {
+    registerCarWatchdogService();
+
+    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, notifyIoOveruse(_))
+            .WillOnce(Return(Status::fromExceptionCode(Status::EX_ILLEGAL_STATE, "Illegal state")));
+
+    Status status = mWatchdogServiceHelper->notifyIoOveruse({});
+
+    ASSERT_FALSE(status.isOk()) << "notifyIoOveruse should fail when car watchdog "
+                                   "service API returns error";
 }
 
 }  // namespace watchdog

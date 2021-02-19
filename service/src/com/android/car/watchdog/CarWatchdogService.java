@@ -32,6 +32,7 @@ import android.automotive.watchdog.internal.ComponentType;
 import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
 import android.automotive.watchdog.internal.PackageIdentifier;
 import android.automotive.watchdog.internal.PackageInfo;
+import android.automotive.watchdog.internal.PackageIoOveruseStats;
 import android.automotive.watchdog.internal.PowerCycle;
 import android.automotive.watchdog.internal.StateType;
 import android.automotive.watchdog.internal.UidType;
@@ -707,6 +708,25 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 return null;
             }
             return service.getPackageInfosForUids(uids, vendorPackagePrefixes);
+        }
+
+        @Override
+        public void notifyIoOveruse(List<PackageIoOveruseStats> ioOveruseStats) {
+          /**
+           * TODO(b/170741935): Take action on I/O overuse.
+           * 1. Notify applications of their I/O overuse.
+           * 2. Cache I/O overuse stats for the day.
+           * 3. Identify applications to kill/disable. Plus identify daily disabling apps vs apps
+           *    that should be disabled until user explicitly enables them (apps with recurring I/O
+           *    overuse).
+           * 4. Request package manager to disable/kill apps.
+           * 5. Cache info about apps that should be enabled the following day.
+           * 6. Notify CarWatchdogDaemon of the action taken on the packages whose remaining bytes
+           *    is zero.
+           *
+           * Confirm whether the package_manager service can be used to enable or disable packages
+           *  in garage mode.
+           */
         }
     }
 
