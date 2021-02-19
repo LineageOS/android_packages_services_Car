@@ -16,6 +16,10 @@
 
 // Build the Experimental Car service.
 
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
 experimentalcar_service_sources = ["src/**/*.java"]
 
 android_app {

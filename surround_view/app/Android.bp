@@ -15,6 +15,10 @@
 //
 
 //#################################
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
 cc_binary {
     name: "sv_app",
 
@@ -59,4 +63,3 @@ cc_binary {
         "-Wunreachable-code",
     ],
 }
-
