@@ -38,11 +38,13 @@ public final class PersonalStorage {
     private static final String KEY_OEM_PAID_NO_FALLBACK_APPS = "key_oem_paid_no_fallback_apps";
     private static final String KEY_OEM_PAID_ONLY_APPS = "key_oem_paid_only_apps";
     private static final String KEY_OEM_PRIVATE_ONLY_APPS = "key_oem_private_only_apps";
+    private static final String KEY_REAPPLY_PANS_ON_BOOT_COMPLETE =
+            "key_reapply_pans_on_boot_complete";
 
-    private final ArraySet<String> mDefaultOemPaidApps;
-    private final ArraySet<String> mDefaultOemPaidNoFallbackApps;
-    private final ArraySet<String> mDefaultOemPaidOnlyApps;
-    private final ArraySet<String> mDefaultOemPrivateOnlyApps;
+    private final Set<String> mDefaultOemPaidApps;
+    private final Set<String> mDefaultOemPaidNoFallbackApps;
+    private final Set<String> mDefaultOemPaidOnlyApps;
+    private final Set<String> mDefaultOemPrivateOnlyApps;
 
     private SharedPreferences mSharedPrefs;
     private Context mContext;
@@ -50,11 +52,10 @@ public final class PersonalStorage {
     public PersonalStorage(Context ctx) {
         mContext = ctx;
         mSharedPrefs = ctx.getSharedPreferences(KEY_PREFERENCE_APP, Context.MODE_PRIVATE);
-
         // Loading default values, will be used in case there is nothing in SharedPreferences
         mDefaultOemPaidApps = getRes(R.array.config_network_preference_oem_paid_apps);
-        mDefaultOemPaidNoFallbackApps = getRes(
-                R.array.config_network_preference_oem_paid_no_fallback_apps);
+        mDefaultOemPaidNoFallbackApps =
+                getRes(R.array.config_network_preference_oem_paid_no_fallback_apps);
         mDefaultOemPaidOnlyApps = getRes(R.array.config_network_preference_oem_paid_only);
         mDefaultOemPrivateOnlyApps = getRes(R.array.config_network_preference_oem_private_only);
     }
@@ -76,6 +77,24 @@ public final class PersonalStorage {
         }
     }
 
+    public SparseArray<Set<String>> getAllPrefs() {
+        SparseArray<Set<String>> prefs = new SparseArray<>();
+        prefs.put(
+                OEM_NETWORK_PREFERENCE_OEM_PAID,
+                mSharedPrefs.getStringSet(KEY_OEM_PAID_APPS, mDefaultOemPaidApps));
+        prefs.put(
+                OEM_NETWORK_PREFERENCE_OEM_PAID_NO_FALLBACK,
+                mSharedPrefs.getStringSet(
+                        KEY_OEM_PAID_NO_FALLBACK_APPS, mDefaultOemPaidNoFallbackApps));
+        prefs.put(
+                OEM_NETWORK_PREFERENCE_OEM_PAID_ONLY,
+                mSharedPrefs.getStringSet(KEY_OEM_PAID_ONLY_APPS, mDefaultOemPaidOnlyApps));
+        prefs.put(
+                OEM_NETWORK_PREFERENCE_OEM_PRIVATE_ONLY,
+                mSharedPrefs.getStringSet(KEY_OEM_PRIVATE_ONLY_APPS, mDefaultOemPrivateOnlyApps));
+        return prefs;
+    }
+
     public void store(SparseArray<Set<String>> preference) {
         SharedPreferences.Editor editor = mSharedPrefs.edit();
         Set<String> st = null;
@@ -93,6 +112,16 @@ public final class PersonalStorage {
         if (st != null) editor.putStringSet(KEY_OEM_PRIVATE_ONLY_APPS, st);
 
         editor.apply();
+    }
+
+    public void saveReapplyPansOnBootCompleteState(boolean checked) {
+        SharedPreferences.Editor editor = mSharedPrefs.edit();
+        editor.putBoolean(KEY_REAPPLY_PANS_ON_BOOT_COMPLETE, checked);
+        editor.apply();
+    }
+
+    public boolean getReapplyPansOnBootCompleteState() {
+        return mSharedPrefs.getBoolean(KEY_REAPPLY_PANS_ON_BOOT_COMPLETE, false);
     }
 
     private ArraySet<String> getRes(int resId) {

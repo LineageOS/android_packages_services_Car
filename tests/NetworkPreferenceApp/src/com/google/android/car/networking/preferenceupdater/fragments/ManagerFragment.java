@@ -17,12 +17,15 @@ package com.google.android.car.networking.preferenceupdater.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import androidx.fragment.app.Fragment;
 
@@ -35,6 +38,8 @@ import com.google.android.car.networking.preferenceupdater.utils.Utils;
 import java.util.Set;
 
 public final class ManagerFragment extends Fragment {
+    private static final String TAG = ManagerFragment.class.getSimpleName();
+
     private PersonalStorage mPersonalStorage;
     private OemNetworkPreferencesAdapter mOemNetworkPreferencesAdapter;
     private CarDriverDistractionManagerAdapter mCarDriverDistractionManagerAdapter;
@@ -43,6 +48,8 @@ public final class ManagerFragment extends Fragment {
     private EditText mOEMPaidNoFallbackAppsEditText;
     private EditText mOEMPaidOnlyAppsEditText;
     private EditText mOEMPrivateOnlyAppsEditText;
+    private TextView mCurrentPANSStatusTextView;
+    private ToggleButton mReapplyPANSOnBootToggleButton;
     private Button mApplyConfigurationBtn;
 
     @Override
@@ -59,6 +66,10 @@ public final class ManagerFragment extends Fragment {
         defineButtonActions();
         setDefaultValues();
 
+        // When we start app for the first time, means it never applied any PANS policies.
+        // Set the text to false.
+        updatePansPolicyInEffectStatus(false);
+
         return v;
     }
 
@@ -68,12 +79,17 @@ public final class ManagerFragment extends Fragment {
         mOEMPaidNoFallbackAppsEditText = v.findViewById(R.id.OEMPaidNoFallbackAppsEditText);
         mOEMPaidOnlyAppsEditText = v.findViewById(R.id.OEMPaidOnlyAppsEditText);
         mOEMPrivateOnlyAppsEditText = v.findViewById(R.id.OEMPrivateOnlyAppsEditText);
+        mCurrentPANSStatusTextView = v.findViewById(R.id.currentPANSStatusTextView);
+        mReapplyPANSOnBootToggleButton = v.findViewById(R.id.reapplyPANSOnBootToggleButton);
         mApplyConfigurationBtn = v.findViewById(R.id.applyConfigurationBtn);
     }
 
     /** Defines actions of the buttons on the page */
     private void defineButtonActions() {
         mApplyConfigurationBtn.setOnClickListener(view -> onApplyConfigurationBtnClick());
+        mReapplyPANSOnBootToggleButton.setOnCheckedChangeListener(
+                (buttonView, isChecked) ->
+                        mPersonalStorage.saveReapplyPansOnBootCompleteState(true));
     }
 
     /** Sets default values of text fields */
@@ -88,13 +104,23 @@ public final class ManagerFragment extends Fragment {
         mOEMPrivateOnlyAppsEditText.setText(
                 getFromStorage(
                         OemNetworkPreferencesAdapter.OEM_NETWORK_PREFERENCE_OEM_PRIVATE_ONLY));
+        mReapplyPANSOnBootToggleButton.setChecked(
+                mPersonalStorage.getReapplyPansOnBootCompleteState());
     }
 
     private String getFromStorage(@OemNetworkPreferencesAdapter.Type int type) {
         return Utils.toString(mPersonalStorage.get(type));
     }
 
+    // TODO(178245727): This should be updated once ag/13587171 merged.
+    private void updatePansPolicyInEffectStatus(boolean status) {
+        // Whenever we apply PANS logic, we save it to the PersonalStorage. Meaning we can use
+        // PersonalStorage as the check for having any policy set or not.
+        mCurrentPANSStatusTextView.setText(status ? "Yes" : "No");
+    }
+
     private void onApplyConfigurationBtnClick() {
+        Log.i(TAG, "[NetworkPreferenceApp] PANS Policy was applied!");
         // First we want to make sure that we are allowed to change
         if (!mCarDriverDistractionManagerAdapter.allowedToBeDistracted()) {
             // We are not allowed to apply PANS changes. Do nothing.
@@ -118,5 +144,8 @@ public final class ManagerFragment extends Fragment {
 
         // Persist latest preference
         mPersonalStorage.store(preference);
+
+        // Notify app that PANS policy is now in effect
+        updatePansPolicyInEffectStatus(true);
     }
 }
