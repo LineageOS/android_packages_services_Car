@@ -509,12 +509,24 @@
     <!-- Name of the high-importance notification channel [CHAR LIMIT=40] -->
     <string name="importance_high">High importance</string>
 
-    <!--  TODO(b/171603586): once the strings below are properly defined, remove translatable=false and add proper description / CHAR_LIMIT  -->
-    <string name="factory_reset_notification_title" translatable="false">Factory reset</string>
-    <string name="factory_reset_notification_text" translatable="false">A factory reset is imminent</string>
-    <string name="factory_reset_full_text" translatable="false">A factory reset is imminent, if you don\'t accept it now, it will be automatically done after reboot.\n\nDo you want to factory reset now?</string>
-    <string name="factory_reset_now" translatable="false">Now</string>
-    <string name="factory_reset_later" translatable="false">Later</string>
+    <!-- Title of notification shown when factory reset is required [CHAR_LIMIT=50] -->
+    <string name="factory_reset_notification_title">Factory reset required</string>
+    <!-- Message of notification shown when factory reset is required [CHAR LIMIT=NONE] -->
+    <string name="factory_reset_notification_text">All data in the infotainment system will be erased. After reset, you can set up a new profile.</string>
+    <!-- Label for the button that will show more information on delayed factory reset [CHAR_LIMIT=20] -->
+    <string name="factory_reset_notification_button">More</string>
+    <!-- Title for the dialog when delayed factory reset is required [CHAR_LIMIT=60] -->
+    <string name="factory_reset_parked_title">Reset the infotainment system</string>
+    <!-- Message for the dialog when delayed factory reset is required [CHAR_LIMIT=NONE] -->
+    <string name="factory_reset_parked_text">Your system has received a request to factory reset and erase all data. You can reset it now, or it will reset the next time the car starts. You can then set up a new profile.</string>
+    <!-- Label for the button that will reset the device now [CHAR_LIMIT=20] -->
+    <string name="factory_reset_now_button">Reset Now</string>
+    <!-- Label for the button that will reset the device later [CHAR_LIMIT=20] -->
+    <string name="factory_reset_later_button">Reset Later</string>
+    <!-- Text of the toast shown when the factory reset will be delayed [CHAR_LIMIT=50] -->
+    <string name="factory_reset_later_text">The infotainment system will reset the next time the car starts.</string>
+    <!-- Text of the toast shown to when detailed factory reset information is requested when driving [CHAR_LIMIT=50]-->
+    <string name="factory_reset_driving_text">The car must be parked to start the reset.</string>
 
     <!--  TODO(b/175214581): STOPSHIP use proper sentence and remove translatable=false -->
     <!--  Button on screen that warns the user that device is owned and managed by an enterprise
