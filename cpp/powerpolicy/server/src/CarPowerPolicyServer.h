@@ -33,6 +33,7 @@
 #include <utils/StrongPointer.h>
 #include <utils/Vector.h>
 
+#include <optional>
 #include <unordered_set>
 
 namespace android {
@@ -131,25 +132,27 @@ private:
 };
 
 /**
- * ICarPowerPolicyServerInterface defines additional methods as well as public power policy APIs
- * that car power policy daemon should implement.
+ * ISilentModeChangeHandler defines a method which is called when a Silent Mode hw state is changed.
  */
-class ICarPowerPolicyServerInterface : public BnCarPowerPolicyServer {
+class ISilentModeChangeHandler {
 public:
+    virtual ~ISilentModeChangeHandler() = 0;
+
     // Called when Silent Mode is changed.
-    virtual void notifySilentModeChange(const bool silent) = 0;
+    virtual void notifySilentModeChange(const bool isSilent) = 0;
 };
 
 /**
- * CarPowerPolicyServer implements ICarPowerPolicyServerInterface.
+ * CarPowerPolicyServer implements ISilentModeChangeHandler and ICarPowerPolicyServer.aidl.
  * It handles power policy requests and Silent Mode before Android framework takes control of the
  * device.
  */
-class CarPowerPolicyServer : public ICarPowerPolicyServerInterface {
+class CarPowerPolicyServer final : public ISilentModeChangeHandler, public BnCarPowerPolicyServer {
 public:
     static base::Result<sp<CarPowerPolicyServer>> startService(const sp<android::Looper>& looper);
     static void terminateService();
 
+    // Implements ICarPowerPolicyServer.aidl.
     status_t dump(int fd, const Vector<String16>& args) override;
     binder::Status getCurrentPowerPolicy(CarPowerPolicy* aidlReturn) override;
     binder::Status getPowerComponentState(PowerComponent componentId, bool* aidlReturn) override;
@@ -162,17 +165,32 @@ public:
     void connectToVhalHelper();
     void handleBinderDeath(const android::wp<android::IBinder>& who);
     void handleHidlDeath(const android::wp<android::hidl::base::V1_0::IBase>& who);
+
+    // Implements ICarPowerPolicySystemNotification.aidl.
     android::binder::Status notifyCarServiceReady(
             android::frameworks::automotive::powerpolicy::internal::PolicyState* policyState);
     android::binder::Status notifyPowerPolicyChange(const std::string& policyId);
     android::binder::Status notifyPowerPolicyDefinition(
             const std::string& policyId, const std::vector<std::string>& enabledComponents,
             const std::vector<std::string>& disabledComponents);
+
+    /**
+     * Applies the given power policy.
+     *
+     * @param carServiceInOperation expected Car Service running state.
+     * @param overridePreemptive whether to override a preemptive power policy.
+     */
     android::base::Result<void> applyPowerPolicy(const std::string& policyId,
-                                                 bool carServiceInOperation, bool notifyClients);
+                                                 const bool carServiceInOperation,
+                                                 const bool overridePreemptive);
+    /**
+     * Sets the power policy group which contains rules to map a power state to a default power
+     * policy to apply.
+     */
     android::base::Result<void> setPowerPolicyGroup(const std::string& groupId);
 
-    void notifySilentModeChange(const bool silent);
+    // Implements ISilentModeChangeHandler.
+    void notifySilentModeChange(const bool isSilent);
 
 private:
     CarPowerPolicyServer();
@@ -181,6 +199,7 @@ private:
     void terminate();
     bool isRegisteredLocked(const android::sp<ICarPowerPolicyChangeCallback>& callback);
     void connectToVhal();
+    void applyInitialPowerPolicy();
     void subscribeToVhal();
     void subscribeToProperty(
             int32_t prop,
@@ -188,7 +207,8 @@ private:
                     void(const android::hardware::automotive::vehicle::V2_0::VehiclePropValue&)>
                     processor);
     android::base::Result<void> notifyVhalNewPowerPolicy(const std::string& policyId);
-    bool isPropertySupported(int32_t prop);
+    bool isPropertySupported(const int32_t prop);
+    bool isPowerPolicyAppliedLocked() const;
 
 private:
     static android::sp<CarPowerPolicyServer> sCarPowerPolicyServer;
@@ -199,14 +219,16 @@ private:
     PolicyManager mPolicyManager;
     SilentModeHandler mSilentModeHandler;
     android::Mutex mMutex;
-    CarPowerPolicyPtr mCurrentPowerPolicy GUARDED_BY(mMutex);
+    CarPowerPolicyMeta mCurrentPowerPolicyMeta GUARDED_BY(mMutex);
     std::string mCurrentPolicyGroupId GUARDED_BY(mMutex);
+    std::string mPendingPowerPolicyId GUARDED_BY(mMutex);
+    bool mIsPowerPolicyLocked GUARDED_BY(mMutex);
     std::vector<CallbackInfo> mPolicyChangeCallbacks GUARDED_BY(mMutex);
     android::sp<android::hardware::automotive::vehicle::V2_0::IVehicle> mVhalService
             GUARDED_BY(mMutex);
-    int64_t mLastApplyPowerPolicy GUARDED_BY(mMutex);
-    int64_t mLastSetDefaultPowerPolicyGroup GUARDED_BY(mMutex);
-    bool mCarServiceInOperation GUARDED_BY(mMutex);
+    std::optional<int64_t> mLastApplyPowerPolicyUptimeMs GUARDED_BY(mMutex);
+    std::optional<int64_t> mLastSetDefaultPowerPolicyGroupUptimeMs GUARDED_BY(mMutex);
+    bool mIsCarServiceInOperation GUARDED_BY(mMutex);
     std::unordered_map<int32_t, bool> mSupportedProperties;
     android::sp<BinderDeathRecipient> mBinderDeathRecipient;
     android::sp<HidlDeathRecipient> mHidlDeathRecipient;

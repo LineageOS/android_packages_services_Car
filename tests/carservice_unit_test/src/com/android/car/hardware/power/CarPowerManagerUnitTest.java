@@ -359,7 +359,9 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
                 mVoiceInteractionManagerService, "");
         CarLocalServices.addService(SilentModeController.class, mSilentModeController);
         mService = new CarPowerManagementService(mContext, mResources, mPowerHal, mSystemInterface,
-                null, mCarUserService, mPowerPolicyDaemon, mPowerComponentHandler);
+                null, mCarUserService, mPowerPolicyDaemon, mPowerComponentHandler,
+                /* silentModeHwStatePath= */ null, /* silentModeKernelStatePath= */ null,
+                /* bootReason= */ null);
         mService.init();
         mService.setShutdownTimersForTest(0, 0);
         assertStateReceived(MockedPowerHalService.SET_WAIT_FOR_VHAL, 0);

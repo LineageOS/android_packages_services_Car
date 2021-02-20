@@ -68,7 +68,9 @@ class SilentModeHandlerPeer {
 public:
     explicit SilentModeHandlerPeer(SilentModeHandler* handler) : mHandler(handler) {}
 
-    ~SilentModeHandlerPeer() { mHandler->release(); }
+    ~SilentModeHandlerPeer() {
+        mHandler->stopMonitoringSilentModeHwState(/*shouldWaitThread=*/true);
+    }
 
     void init() {
         mHandler->mSilentModeHwStateFilename = mFileSilentModeHwState.path;
@@ -99,16 +101,18 @@ private:
 
 }  // namespace internal
 
-class MockCarPowerPolicyServer : public ICarPowerPolicyServerInterface {
+class MockCarPowerPolicyServer : public ISilentModeChangeHandler, public BnCarPowerPolicyServer {
 public:
-    MOCK_METHOD(Status, getCurrentPowerPolicy, (CarPowerPolicy*), (override));
-    MOCK_METHOD(Status, getPowerComponentState, (PowerComponent, bool*), (override));
+    MOCK_METHOD(Status, getCurrentPowerPolicy, (CarPowerPolicy * aidlReturn), (override));
+    MOCK_METHOD(Status, getPowerComponentState, (PowerComponent componentId, bool* aidlReturn),
+                (override));
     MOCK_METHOD(Status, registerPowerPolicyChangeCallback,
-                (const sp<ICarPowerPolicyChangeCallback>&, const CarPowerPolicyFilter&),
+                (const sp<ICarPowerPolicyChangeCallback>& callback,
+                 const CarPowerPolicyFilter& filter),
                 (override));
     MOCK_METHOD(Status, unregisterPowerPolicyChangeCallback,
-                (const sp<ICarPowerPolicyChangeCallback>&), (override));
-    MOCK_METHOD(void, notifySilentModeChange, (const bool), (override));
+                (const sp<ICarPowerPolicyChangeCallback>& callback), (override));
+    MOCK_METHOD(void, notifySilentModeChange, (const bool silent), (override));
 };
 
 class SilentModeHandlerTest : public ::testing::Test {
@@ -121,6 +125,7 @@ public:
 TEST_F(SilentModeHandlerTest, TestSilentModeHwStateMonitoring) {
     SilentModeHandler handler(carPowerPolicyServer.get());
     internal::SilentModeHandlerPeer handlerPeer(&handler);
+    handlerPeer.injectBootReason(kBootReasonNormal);
     handlerPeer.init();
 
     handlerPeer.updateSilentModeHwState(/*isSilent=*/true);
@@ -168,6 +173,7 @@ TEST_F(SilentModeHandlerTest, TestRebootForForcedNonSilentMode) {
 TEST_F(SilentModeHandlerTest, TestUpdateKernelSilentMode) {
     SilentModeHandler handler(carPowerPolicyServer.get());
     internal::SilentModeHandlerPeer handlerPeer(&handler);
+    handlerPeer.injectBootReason(kBootReasonNormal);
     handlerPeer.init();
 
     handler.updateKernelSilentMode(true);
