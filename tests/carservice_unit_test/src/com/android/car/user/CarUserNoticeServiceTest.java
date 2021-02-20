@@ -54,11 +54,9 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import com.android.car.CarLocalServices;
 import com.android.car.R;
 import com.android.car.power.CarPowerManagementService;
-import com.android.car.power.SilentModeController;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.app.IVoiceInteractionManagerService;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -103,7 +101,6 @@ public class CarUserNoticeServiceTest extends AbstractExtendedMockitoCarServiceT
     private ArgumentCaptor<CarPowerStateListener> mPowerStateListener;
 
     private CarUserNoticeService mCarUserNoticeService;
-    private SilentModeController mSilentModeController;
 
     private final Handler mHandler = new Handler(Looper.getMainLooper());
 
@@ -136,10 +133,6 @@ public class CarUserNoticeServiceTest extends AbstractExtendedMockitoCarServiceT
         mockContextGetService(mMockContext, AppOpsManager.class, mMockAppOpsManager);
         mockContextGetService(mMockContext, PackageManager.class, mMockPackageManager);
         when(mMockPackageManager.getPackageUidAsUser(any(), anyInt())).thenReturn(1);
-        mSilentModeController = new SilentModeController(mMockContext, mMockSystemInterface,
-                mMockVoiceManager, "");
-        mSilentModeController.init();
-        CarLocalServices.addService(SilentModeController.class, mSilentModeController);
         mCarUserNoticeService = new CarUserNoticeService(mMockContext, mHandler);
         mCarUserNoticeService.init();
         verify(mMockCarUserService).addUserLifecycleListener(
@@ -148,11 +141,6 @@ public class CarUserNoticeServiceTest extends AbstractExtendedMockitoCarServiceT
                 any(IntentFilter.class));
         verify(mCarPowerManager).setListener(mPowerStateListener.capture());
         when(mMockContext.bindServiceAsUser(any(), any(), anyInt(), any())).thenReturn(true);
-    }
-
-    @After
-    public void tearDown() {
-        CarLocalServices.removeServiceForTest(SilentModeController.class);
     }
 
     @Test
