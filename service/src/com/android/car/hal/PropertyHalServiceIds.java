@@ -509,6 +509,12 @@ public class PropertyHalServiceIds {
         mProps.put(VehicleProperty.CABIN_LIGHTS_SWITCH, new Pair<>(
                 Car.PERMISSION_CONTROL_INTERIOR_LIGHTS,
                 Car.PERMISSION_CONTROL_INTERIOR_LIGHTS));
+        mProps.put(VehicleProperty.UNIX_TIME, new Pair<>(
+                Car.PERMISSION_CAR_UNIX_TIME,
+                Car.PERMISSION_CAR_UNIX_TIME));
+        mProps.put(VehicleProperty.STORAGE_ENCRYPTION_BINDING_SEED, new Pair<>(
+                Car.PERMISSION_STORAGE_ENCRYPTION_BINDING_SEED,
+                Car.PERMISSION_STORAGE_ENCRYPTION_BINDING_SEED));
         // Display_Units
         mProps.put(VehicleProperty.DISTANCE_DISPLAY_UNITS, new Pair<>(
                 Car.PERMISSION_READ_DISPLAY_UNITS,
