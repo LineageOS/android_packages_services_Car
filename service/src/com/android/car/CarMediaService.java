@@ -23,6 +23,11 @@ import android.annotation.Nullable;
 import android.annotation.TestApi;
 import android.app.ActivityManager;
 import android.car.Car;
+import android.car.hardware.power.CarPowerPolicy;
+import android.car.hardware.power.CarPowerPolicyFilter;
+import android.car.hardware.power.ICarPowerPolicyChangeListener;
+import android.car.hardware.power.PowerComponent;
+import android.car.hardware.power.PowerComponentUtil;
 import android.car.media.CarMediaManager;
 import android.car.media.CarMediaManager.MediaSourceChangedListener;
 import android.car.media.CarMediaManager.MediaSourceMode;
@@ -59,7 +64,7 @@ import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.util.Slog;
 
-import com.android.car.power.SilentModeController;
+import com.android.car.power.CarPowerManagementService;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -116,11 +121,11 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     @GuardedBy("mLock")
     private int mCurrentPlaybackState;
     @GuardedBy("mLock")
-    private boolean mIsSilentMode;
+    private boolean mIsDisabledByPowerPolicy;
     @GuardedBy("mLock")
-    private boolean mWasPreviouslySilentMode;
+    private boolean mWasPreviouslyDisabledByPowerPolicy;
     @GuardedBy("mLock")
-    private boolean mWasPlayingBeforeGoingSilent;
+    private boolean mWasPlayingBeforeDisabled;
     private SharedPreferences mSharedPrefs;
     private SessionChangedListener mSessionsListener;
     private int mPlayOnMediaSourceChangedConfig;
@@ -230,6 +235,56 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         }
     };
 
+    private final ICarPowerPolicyChangeListener mPowerPolicyChangeListener =
+            new ICarPowerPolicyChangeListener.Stub() {
+                @Override
+                public void onPolicyChanged(CarPowerPolicy policy) {
+                    boolean shouldBePlaying;
+                    MediaController mediaController;
+                    // COMPONENT_STATE_UNTOUCHED is not the case in this callback.
+                    boolean isOff = PowerComponentUtil.getComponentState(policy,
+                            PowerComponent.MEDIA) == PowerComponentUtil.COMPONENT_STATE_DISABLED;
+                    synchronized (mLock) {
+                        boolean weArePlaying = mCurrentPlaybackState == PlaybackState.STATE_PLAYING;
+                        mIsDisabledByPowerPolicy = isOff;
+                        if (isOff) {
+                            if (!mWasPreviouslyDisabledByPowerPolicy) {
+                                // We're disabling media component.
+                                // Remember if we are playing at this transition.
+                                mWasPlayingBeforeDisabled = weArePlaying;
+                                mWasPreviouslyDisabledByPowerPolicy = true;
+                            }
+                            shouldBePlaying = false;
+                        } else {
+                            mWasPreviouslyDisabledByPowerPolicy = false;
+                            shouldBePlaying = mWasPlayingBeforeDisabled;
+                        }
+                        if (shouldBePlaying == weArePlaying) {
+                            return;
+                        }
+                        // Make a change
+                        mediaController = mActiveUserMediaController;
+                        if (mediaController == null) {
+                            return;
+                        }
+                    }
+                    PlaybackState oldState = mediaController.getPlaybackState();
+                    savePlaybackState(
+                            // The new state is the same as the old state, except for play/pause
+                            new PlaybackState.Builder(oldState)
+                                    .setState(shouldBePlaying ? PlaybackState.STATE_PLAYING
+                                                    : PlaybackState.STATE_PAUSED,
+                                            oldState.getPosition(),
+                                            oldState.getPlaybackSpeed())
+                                    .build());
+                    if (shouldBePlaying) {
+                        mediaController.getTransportControls().play();
+                    } else {
+                        mediaController.getTransportControls().pause();
+                    }
+                }
+    };
+
     public CarMediaService(Context context, CarUserService userService) {
         mContext = context;
         mUserManager = (UserManager) mContext.getSystemService(Context.USER_SERVICE);
@@ -257,7 +312,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     public void init() {
         int currentUser = ActivityManager.getCurrentUser();
         maybeInitUser(currentUser);
-        setSilentModeListener();
+        setPowerPolicyChangeListener();
     }
 
     private void maybeInitUser(int userId) {
@@ -339,97 +394,62 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         return mUserManager.getUserInfo(ActivityManager.getCurrentUser()).isEphemeral();
     }
 
-    // Sets a listener to be notified when Silent Mode changes.
-    // Basically, the listener pauses the audio when the system goes
-    // silent and resumes the audio when the system goes non-silent.
+    // Sets a listener to be notified when the current power policy changes.
+    // Basically, the listener pauses the audio when a media component is disabled and resumes
+    // the audio when a media component is enabled.
     // This is called only from init().
-    private void setSilentModeListener() {
-        CarLocalServices.getService(SilentModeController.class).registerListener(
-                (isSilent) -> {
-                    boolean weShouldBePlaying;
-                    MediaController mediaController;
-                    synchronized (mLock) {
-                        boolean weArePlaying = mCurrentPlaybackState == PlaybackState.STATE_PLAYING;
-                        mIsSilentMode = isSilent;
-                        if (isSilent) {
-                            if (!mWasPreviouslySilentMode) {
-                                // We're entering Silent mode.
-                                // Remember if we are playing at this transition.
-                                mWasPlayingBeforeGoingSilent = weArePlaying;
-                                mWasPreviouslySilentMode = true;
-                            }
-                            weShouldBePlaying = false;
-                        } else {
-                            mWasPreviouslySilentMode = false;
-                            weShouldBePlaying = mWasPlayingBeforeGoingSilent;
-                        }
-                        if (weShouldBePlaying == weArePlaying) {
-                            return;
-                        }
-                        // Make a change
-                        mediaController = mActiveUserMediaController;
-                        if (mediaController == null) {
-                            return;
-                        }
-                    }
-                    PlaybackState oldState = mediaController.getPlaybackState();
-                    savePlaybackState(
-                            // The new state is the same as the old state, except for play/pause
-                            new PlaybackState.Builder(oldState)
-                                    .setState(weShouldBePlaying ? PlaybackState.STATE_PLAYING
-                                                    : PlaybackState.STATE_PAUSED,
-                                            oldState.getPosition(),
-                                            oldState.getPlaybackSpeed())
-                                    .build());
-                    if (weShouldBePlaying) {
-                        mediaController.getTransportControls().play();
-                    } else {
-                        mediaController.getTransportControls().pause();
-                    }
-                }
-        );
+    private void setPowerPolicyChangeListener() {
+        CarPowerPolicyFilter filter = new CarPowerPolicyFilter.Builder()
+                .setComponents(PowerComponent.MEDIA).build();
+        CarLocalServices.getService(CarPowerManagementService.class)
+                .registerPowerPolicyChangeListener(mPowerPolicyChangeListener, filter);
     }
 
     @Override
     public void release() {
         mMediaSessionUpdater.unregisterCallbacks();
         mUserService.removeUserLifecycleListener(mUserLifecycleListener);
+        CarLocalServices.getService(CarPowerManagementService.class)
+                .unregisterPowerPolicyChangeListener(mPowerPolicyChangeListener);
     }
 
     @Override
     public void dump(IndentingPrintWriter writer) {
         synchronized (mLock) {
             writer.println("*CarMediaService*");
-            writer.println("\tCurrent playback media component: "
-                    + (mPrimaryMediaComponents[MEDIA_SOURCE_MODE_PLAYBACK] == null ? "-"
-                    : mPrimaryMediaComponents[MEDIA_SOURCE_MODE_PLAYBACK].flattenToString()));
-            writer.println("\tCurrent browse media component: "
-                    + (mPrimaryMediaComponents[MEDIA_SOURCE_MODE_BROWSE] == null ? "-"
-                    : mPrimaryMediaComponents[MEDIA_SOURCE_MODE_BROWSE].flattenToString()));
+            writer.increaseIndent();
+            writer.printf("Current playback media component: %s\n",
+                    mPrimaryMediaComponents[MEDIA_SOURCE_MODE_PLAYBACK] == null ? "-"
+                    : mPrimaryMediaComponents[MEDIA_SOURCE_MODE_PLAYBACK].flattenToString());
+            writer.printf("Current browse media component: %s\n",
+                    mPrimaryMediaComponents[MEDIA_SOURCE_MODE_BROWSE] == null ? "-"
+                    : mPrimaryMediaComponents[MEDIA_SOURCE_MODE_BROWSE].flattenToString());
             if (mActiveUserMediaController != null) {
-                writer.println(
-                        "\tCurrent media controller: "
-                                + mActiveUserMediaController.getPackageName());
-                writer.println(
-                        "\tCurrent browse service extra: " + getClassName(
-                                mActiveUserMediaController));
+                writer.printf("Current media controller: %s\n",
+                        mActiveUserMediaController.getPackageName());
+                writer.printf("Current browse service extra: %s\n",
+                        getClassName(mActiveUserMediaController));
             }
-            writer.println("\tNumber of active media sessions: " + mMediaSessionManager
+            writer.printf("Number of active media sessions: %s\n", mMediaSessionManager
                     .getActiveSessionsForUser(null,
                             new UserHandle(ActivityManager.getCurrentUser())).size());
 
-            writer.println("\tPlayback media source history: ");
+            writer.println("Playback media source history:");
+            writer.increaseIndent();
             for (ComponentName name : getLastMediaSources(MEDIA_SOURCE_MODE_PLAYBACK)) {
-                writer.println("\t" + name.flattenToString());
+                writer.println(name.flattenToString());
             }
-            writer.println("\tBrowse media source history: ");
+            writer.decreaseIndent();
+            writer.println("Browse media source history:");
+            writer.increaseIndent();
             for (ComponentName name : getLastMediaSources(MEDIA_SOURCE_MODE_BROWSE)) {
-                writer.println("\t" + name.flattenToString());
+                writer.println(name.flattenToString());
             }
-            writer.println("\tSilent state: " + (mIsSilentMode ? "Silent" : "Non-silent"));
-            if (mIsSilentMode) {
-                writer.println("\tBefore going Silent, audio was "
-                        + (mWasPlayingBeforeGoingSilent ? "active" : "inactive"));
+            writer.decreaseIndent();
+            writer.printf("Disabled by power policy: %s\n", mIsDisabledByPowerPolicy);
+            if (mIsDisabledByPowerPolicy) {
+                writer.printf("Before being disabled by power policy, audio was %s\n",
+                        mWasPlayingBeforeDisabled ? "active" : "inactive");
             }
         }
     }
