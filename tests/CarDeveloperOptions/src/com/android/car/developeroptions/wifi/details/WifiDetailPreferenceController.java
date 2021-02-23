@@ -39,7 +39,6 @@ import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.net.NetworkRequest;
-import android.net.NetworkUtils;
 import android.net.RouteInfo;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
@@ -72,6 +71,7 @@ import com.android.car.developeroptions.wifi.WifiDialog.WifiDialogListener;
 import com.android.car.developeroptions.wifi.WifiUtils;
 import com.android.car.developeroptions.wifi.dpp.WifiDppUtils;
 import com.android.car.developeroptions.wifi.savedaccesspoints.SavedAccessPointsWifiSettings;
+import com.android.net.module.util.Inet4AddressUtils;
 import com.android.settingslib.core.AbstractPreferenceController;
 import com.android.settingslib.core.instrumentation.MetricsFeatureProvider;
 import com.android.settingslib.core.lifecycle.Lifecycle;
@@ -87,7 +87,6 @@ import com.android.settingslib.wifi.WifiTrackerFactory;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.time.Duration;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
@@ -824,10 +823,8 @@ public class WifiDetailPreferenceController extends AbstractPreferenceController
 
     private static String ipv4PrefixLengthToSubnetMask(int prefixLength) {
         try {
-            InetAddress all = InetAddress.getByAddress(
-                    new byte[]{(byte) 255, (byte) 255, (byte) 255, (byte) 255});
-            return NetworkUtils.getNetworkPart(all, prefixLength).getHostAddress();
-        } catch (UnknownHostException e) {
+            return Inet4AddressUtils.getPrefixMaskAsInet4Address(prefixLength).getHostAddress();
+        } catch (IllegalArgumentException e) {
             return null;
         }
     }
