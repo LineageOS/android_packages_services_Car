@@ -348,12 +348,13 @@ final class CarShellCommand extends ShellCommand {
         pw.println("\tdisable-feature featureName");
         pw.println("\t  Disable the requested feature. Change will happen after reboot");
         pw.println("\t  This requires root/su.");
-        pw.println("\tinject-key [-d display] [-t down_delay_ms] key_code");
-        pw.println("\t  inject key down / up event to car service");
+        pw.println("\tinject-key [-d display] [-t down_delay_ms | -a down|up] key_code");
+        pw.println("\t  inject key down and/or up event to car service");
         pw.println("\t  display: 0 for main, 1 for cluster. If not specified, it will be 0.");
         pw.println("\t  down_delay_ms: delay from down to up key event. If not specified,");
         pw.println("\t                 it will be 0");
         pw.println("\t  key_code: int key code defined in android KeyEvent");
+        pw.println("\t  If -a isn't specified, both down and up will be injected.");
         pw.println("\tinject-rotary [-d display] [-i input_type] [-c clockwise]");
         pw.println("\t              [-dt delta_times_ms]");
         pw.println("\t  inject rotary input event to car service.");
@@ -740,6 +741,7 @@ final class CarShellCommand extends ShellCommand {
         int display = InputHalService.DISPLAY_MAIN;
         int delayMs = 0;
         int keyCode = KeyEvent.KEYCODE_UNKNOWN;
+        int action = -1;
         try {
             while (i < args.length) {
                 switch (args[i]) {
@@ -750,6 +752,16 @@ final class CarShellCommand extends ShellCommand {
                     case "-t":
                         i++;
                         delayMs = Integer.parseInt(args[i]);
+                        break;
+                    case "-a":
+                        i++;
+                        if (args[i].equalsIgnoreCase("down")) {
+                            action = KeyEvent.ACTION_DOWN;
+                        } else if (args[i].equalsIgnoreCase("up")) {
+                            action = KeyEvent.ACTION_UP;
+                        } else {
+                            throw new IllegalArgumentException("Invalid action: " + args[i]);
+                        }
                         break;
                     default:
                         if (keyCode != KeyEvent.KEYCODE_UNKNOWN) {
@@ -782,12 +794,18 @@ final class CarShellCommand extends ShellCommand {
 
             return;
         }
-        KeyEvent keyDown = new KeyEvent(KeyEvent.ACTION_DOWN, keyCode);
-        mCarInputService.onKeyEvent(keyDown, display);
-        SystemClock.sleep(delayMs);
-        KeyEvent keyUp = new KeyEvent(KeyEvent.ACTION_UP, keyCode);
-        mCarInputService.onKeyEvent(keyUp, display);
+        if (action == -1) {
+            injectKeyEvent(KeyEvent.ACTION_DOWN, keyCode, display);
+            SystemClock.sleep(delayMs);
+            injectKeyEvent(KeyEvent.ACTION_UP, keyCode, display);
+        } else {
+            injectKeyEvent(action, keyCode, display);
+        }
         writer.println("Succeeded");
+    }
+
+    private void injectKeyEvent(int action, int keyCode, int display) {
+        mCarInputService.onKeyEvent(new KeyEvent(action, keyCode), display);
     }
 
     private void injectRotary(String[] args, PrintWriter writer) {

@@ -270,7 +270,16 @@ TEST_F(WatchdogBinderMediatorTest, TestTellClientAlive) {
     ASSERT_TRUE(status.isOk()) << status;
 }
 
+TEST_F(WatchdogBinderMediatorTest, TestErrorOnTellMediatorAliveWithNonSystemCallingUid) {
+    sp<ICarWatchdogClient> mediator = new MockICarWatchdogClient();
+    std::vector clientsNotResponding = {123};
+    EXPECT_CALL(*mMockWatchdogProcessService, tellMediatorAlive(_, _, _)).Times(0);
+    Status status = mWatchdogBinderMediator->tellMediatorAlive(mediator, clientsNotResponding, 456);
+    ASSERT_FALSE(status.isOk()) << status;
+}
+
 TEST_F(WatchdogBinderMediatorTest, TestTellMediatorAlive) {
+    setSystemCallingUid();
     sp<ICarWatchdogClient> mediator = new MockICarWatchdogClient();
     std::vector clientsNotResponding = {123};
     EXPECT_CALL(*mMockWatchdogProcessService,
@@ -280,7 +289,15 @@ TEST_F(WatchdogBinderMediatorTest, TestTellMediatorAlive) {
     ASSERT_TRUE(status.isOk()) << status;
 }
 
+TEST_F(WatchdogBinderMediatorTest, TestErrorOnTellDumpFinishedWithNonSystemCallingUid) {
+    sp<ICarWatchdogMonitor> monitor = new MockICarWatchdogMonitor();
+    EXPECT_CALL(*mMockWatchdogProcessService, tellDumpFinished(_, _)).Times(0);
+    Status status = mWatchdogBinderMediator->tellDumpFinished(monitor, 456);
+    ASSERT_FALSE(status.isOk()) << status;
+}
+
 TEST_F(WatchdogBinderMediatorTest, TestTellDumpFinished) {
+    setSystemCallingUid();
     sp<ICarWatchdogMonitor> monitor = new MockICarWatchdogMonitor();
     EXPECT_CALL(*mMockWatchdogProcessService, tellDumpFinished(monitor, 456))
             .WillOnce(Return(Status::ok()));

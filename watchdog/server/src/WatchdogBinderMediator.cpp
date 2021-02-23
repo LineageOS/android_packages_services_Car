@@ -54,7 +54,7 @@ constexpr const char* kHelpText =
         "%s or %s: Displays this help text.\n"
         "When no options are specified, carwatchdog report is generated.\n";
 
-Status checkSystemPermission() {
+Status checkSystemUser() {
     if (IPCThreadState::self()->getCallingUid() != AID_SYSTEM) {
         return Status::fromExceptionCode(Status::EX_SECURITY,
                                          "Calling process does not have proper privilege");
@@ -151,7 +151,7 @@ bool WatchdogBinderMediator::dumpHelpText(int fd, std::string errorMsg) {
 }
 
 Status WatchdogBinderMediator::registerMediator(const sp<ICarWatchdogClient>& mediator) {
-    Status status = checkSystemPermission();
+    Status status = checkSystemUser();
     if (!status.isOk()) {
         return status;
     }
@@ -159,29 +159,47 @@ Status WatchdogBinderMediator::registerMediator(const sp<ICarWatchdogClient>& me
 }
 
 Status WatchdogBinderMediator::unregisterMediator(const sp<ICarWatchdogClient>& mediator) {
-    Status status = checkSystemPermission();
+    Status status = checkSystemUser();
     if (!status.isOk()) {
         return status;
     }
     return mWatchdogProcessService->unregisterMediator(mediator);
 }
 Status WatchdogBinderMediator::registerMonitor(const sp<ICarWatchdogMonitor>& monitor) {
-    Status status = checkSystemPermission();
+    Status status = checkSystemUser();
     if (!status.isOk()) {
         return status;
     }
     return mWatchdogProcessService->registerMonitor(monitor);
 }
 Status WatchdogBinderMediator::unregisterMonitor(const sp<ICarWatchdogMonitor>& monitor) {
-    Status status = checkSystemPermission();
+    Status status = checkSystemUser();
     if (!status.isOk()) {
         return status;
     }
     return mWatchdogProcessService->unregisterMonitor(monitor);
 }
 
+Status WatchdogBinderMediator::tellMediatorAlive(const sp<ICarWatchdogClient>& mediator,
+                                                 const std::vector<int32_t>& clientsNotResponding,
+                                                 int32_t sessionId) {
+    Status status = checkSystemUser();
+    if (!status.isOk()) {
+        return status;
+    }
+    return mWatchdogProcessService->tellMediatorAlive(mediator, clientsNotResponding, sessionId);
+}
+Status WatchdogBinderMediator::tellDumpFinished(const android::sp<ICarWatchdogMonitor>& monitor,
+                                                int32_t pid) {
+    Status status = checkSystemUser();
+    if (!status.isOk()) {
+        return status;
+    }
+    return mWatchdogProcessService->tellDumpFinished(monitor, pid);
+}
+
 Status WatchdogBinderMediator::notifySystemStateChange(StateType type, int32_t arg1, int32_t arg2) {
-    Status status = checkSystemPermission();
+    Status status = checkSystemUser();
     if (!status.isOk()) {
         return status;
     }

@@ -61,14 +61,9 @@ public:
     }
     binder::Status tellMediatorAlive(const sp<ICarWatchdogClient>& mediator,
                                      const std::vector<int32_t>& clientsNotResponding,
-                                     int32_t sessionId) override {
-        return mWatchdogProcessService->tellMediatorAlive(mediator, clientsNotResponding,
-                                                          sessionId);
-    }
+                                     int32_t sessionId) override;
     binder::Status tellDumpFinished(const android::sp<ICarWatchdogMonitor>& monitor,
-                                    int32_t pid) override {
-        return mWatchdogProcessService->tellDumpFinished(monitor, pid);
-    }
+                                    int32_t pid) override;
     binder::Status notifySystemStateChange(StateType type, int32_t arg1, int32_t arg2) override;
 
 protected:

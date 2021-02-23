@@ -27,6 +27,7 @@ import android.car.media.CarAudioManager;
 import android.content.Context;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
+import android.util.SparseArray;
 import android.util.SparseIntArray;
 
 import androidx.test.core.app.ApplicationProvider;
@@ -43,6 +44,7 @@ import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -139,9 +141,9 @@ public class CarAudioZonesHelperTest {
         CarAudioZonesHelper cazh = new CarAudioZonesHelper(mCarAudioSettings, mInputStream,
                 mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
 
-        List<CarAudioZone> zoneList = Arrays.asList(cazh.loadAudioZones());
+        SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
 
-        assertThat(zoneList).hasSize(2);
+        assertThat(zones.size()).isEqualTo(2);
     }
 
     @Test
@@ -151,9 +153,9 @@ public class CarAudioZonesHelperTest {
             CarAudioZonesHelper cazh = new CarAudioZonesHelper(mCarAudioSettings, versionOneStream,
                     mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
 
-            CarAudioZone[] zones = cazh.loadAudioZones();
+            SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
 
-            assertThat(zones.length).isEqualTo(2);
+            assertThat(zones.size()).isEqualTo(2);
         }
     }
 
@@ -162,12 +164,13 @@ public class CarAudioZonesHelperTest {
         CarAudioZonesHelper cazh = new CarAudioZonesHelper(mCarAudioSettings, mInputStream,
                 mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
 
-        CarAudioZone[] zones = cazh.loadAudioZones();
+        SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
+
 
         List<Integer> zoneIds = getListOfZoneIds(zones);
-        assertThat(zoneIds.size()).isEqualTo(2);
-        assertThat(zoneIds)
-                .containsExactly(CarAudioManager.PRIMARY_AUDIO_ZONE, SECONDARY_ZONE_ID).inOrder();
+        assertThat(zones.size()).isEqualTo(2);
+        assertThat(zones.contains(CarAudioManager.PRIMARY_AUDIO_ZONE)).isTrue();
+        assertThat(zones.contains(SECONDARY_ZONE_ID)).isTrue();
     }
 
     @Test
@@ -175,9 +178,9 @@ public class CarAudioZonesHelperTest {
         CarAudioZonesHelper cazh = new CarAudioZonesHelper(mCarAudioSettings, mInputStream,
                 mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
 
-        CarAudioZone[] zones = cazh.loadAudioZones();
+        SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
 
-        assertThat(zones.length).isEqualTo(2);
+        assertThat(zones.size()).isEqualTo(2);
 
         SparseIntArray audioZoneIdToOccupantZoneIdMapping =
                 cazh.getCarAudioZoneIdToOccupantZoneIdMapping();
@@ -192,9 +195,9 @@ public class CarAudioZonesHelperTest {
         CarAudioZonesHelper cazh = new CarAudioZonesHelper(mCarAudioSettings, mInputStream,
                 mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
 
-        CarAudioZone[] zones = cazh.loadAudioZones();
+        SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
 
-        CarAudioZone primaryZone = zones[0];
+        CarAudioZone primaryZone = zones.get(0);
         assertThat(primaryZone.getName()).isEqualTo(PRIMARY_ZONE_NAME);
     }
 
@@ -203,12 +206,12 @@ public class CarAudioZonesHelperTest {
         CarAudioZonesHelper cazh = new CarAudioZonesHelper(mCarAudioSettings, mInputStream,
                 mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
 
-        CarAudioZone[] zones = cazh.loadAudioZones();
+        SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
 
-        CarAudioZone primaryZone = zones[0];
+        CarAudioZone primaryZone = zones.get(0);
         assertThat(primaryZone.isPrimaryZone()).isTrue();
 
-        CarAudioZone rseZone = zones[1];
+        CarAudioZone rseZone = zones.get(2);
         assertThat(rseZone.isPrimaryZone()).isFalse();
     }
 
@@ -217,9 +220,9 @@ public class CarAudioZonesHelperTest {
         CarAudioZonesHelper cazh = new CarAudioZonesHelper(mCarAudioSettings, mInputStream,
                 mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
 
-        CarAudioZone[] zones = cazh.loadAudioZones();
+        SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
 
-        CarAudioZone primaryZone = zones[0];
+        CarAudioZone primaryZone = zones.get(0);
         assertThat(primaryZone.getVolumeGroupCount()).isEqualTo(2);
     }
 
@@ -228,9 +231,9 @@ public class CarAudioZonesHelperTest {
         CarAudioZonesHelper cazh = new CarAudioZonesHelper(mCarAudioSettings, mInputStream,
                 mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
 
-        CarAudioZone[] zones = cazh.loadAudioZones();
+        SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
 
-        CarAudioZone primaryZone = zones[0];
+        CarAudioZone primaryZone = zones.get(0);
         CarVolumeGroup volumeGroup = primaryZone.getVolumeGroups()[0];
         List<String> addresses = volumeGroup.getAddresses();
         assertThat(addresses).containsExactly(BUS_0_ADDRESS, BUS_3_ADDRESS);
@@ -241,14 +244,14 @@ public class CarAudioZonesHelperTest {
         CarAudioZonesHelper cazh = new CarAudioZonesHelper(mCarAudioSettings, mInputStream,
                 mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
 
-        CarAudioZone[] zones = cazh.loadAudioZones();
+        SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
 
-        CarAudioZone primaryZone = zones[0];
+        CarAudioZone primaryZone = zones.get(0);
         CarVolumeGroup volumeGroup = primaryZone.getVolumeGroups()[0];
         assertThat(volumeGroup.getContextsForAddress(BUS_0_ADDRESS)).asList()
                 .containsExactly(CarAudioContext.MUSIC);
 
-        CarAudioZone rearSeatEntertainmentZone = zones[1];
+        CarAudioZone rearSeatEntertainmentZone = zones.get(2);
         CarVolumeGroup rseVolumeGroup = rearSeatEntertainmentZone.getVolumeGroups()[0];
         List<Integer> contextForBus100List =
                 Arrays.stream(rseVolumeGroup.getContextsForAddress(BUS_100_ADDRESS))
@@ -266,9 +269,9 @@ public class CarAudioZonesHelperTest {
         CarAudioZonesHelper cazh = new CarAudioZonesHelper(mCarAudioSettings, versionOneStream,
                 mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
 
-        CarAudioZone[] zones = cazh.loadAudioZones();
+        SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
 
-        CarAudioZone defaultZone = zones[0];
+        CarAudioZone defaultZone = zones.get(0);
         CarVolumeGroup volumeGroup = defaultZone.getVolumeGroups()[0];
         List<Integer> audioContexts = Arrays.stream(volumeGroup.getContexts()).boxed()
                 .collect(Collectors.toList());
@@ -301,12 +304,11 @@ public class CarAudioZonesHelperTest {
                     new CarAudioZonesHelper(mCarAudioSettings, missingAudioZoneIdStream,
                             mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
 
-            CarAudioZone[] zones = cazh.loadAudioZones();
+            SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
 
-            List<Integer> zoneIds = getListOfZoneIds(zones);
-            assertThat(zoneIds.size()).isEqualTo(2);
-            assertThat(zoneIds).contains(CarAudioManager.PRIMARY_AUDIO_ZONE);
-            assertThat(zoneIds).contains(SECONDARY_ZONE_ID);
+            assertThat(zones.size()).isEqualTo(2);
+            assertThat(zones.contains(CarAudioManager.PRIMARY_AUDIO_ZONE)).isTrue();
+            assertThat(zones.contains(SECONDARY_ZONE_ID)).isTrue();
         }
     }
 
@@ -346,9 +348,9 @@ public class CarAudioZonesHelperTest {
                     new CarAudioZonesHelper(mCarAudioSettings, inputDevicesStream,
                             mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos);
 
-            CarAudioZone[] zones = cazh.loadAudioZones();
+            SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
 
-            CarAudioZone primaryZone = zones[0];
+            CarAudioZone primaryZone = zones.get(0);
             List<AudioDeviceAttributes> primaryZoneInputDevices =
                     primaryZone.getInputAudioDevices();
             assertThat(primaryZoneInputDevices).hasSize(2);
@@ -359,7 +361,7 @@ public class CarAudioZonesHelperTest {
             assertThat(primaryZoneInputAddresses).containsExactly(PRIMARY_ZONE_FM_TUNER_ADDRESS,
                     PRIMARY_ZONE_MICROPHONE_ADDRESS).inOrder();
 
-            CarAudioZone secondaryZone = zones[1];
+            CarAudioZone secondaryZone = zones.get(1);
             List<AudioDeviceAttributes> secondaryZoneInputDevices =
                     secondaryZone.getInputAudioDevices();
             List<String> secondaryZoneInputAddresses =
@@ -572,7 +574,11 @@ public class CarAudioZonesHelperTest {
         }
     }
 
-    private List<Integer> getListOfZoneIds(CarAudioZone[] zones) {
-        return Arrays.stream(zones).map(CarAudioZone::getId).collect(Collectors.toList());
+    private List<Integer> getListOfZoneIds(SparseArray<CarAudioZone> zones) {
+        List<Integer> zoneIds = new ArrayList<>();
+        for (int i = 0; i < zones.size(); i++) {
+            zoneIds.add(zones.keyAt(i));
+        }
+        return zoneIds;
     }
 }

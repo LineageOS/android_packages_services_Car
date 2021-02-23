@@ -98,13 +98,17 @@
         <item name="android:paddingEnd">@*android:dimen/car_button_horizontal_padding</item>
     </style>
 
+    <style name="Widget.DeviceDefault.Button.Borderless" parent="android:Widget.Material.Button.Borderless">
+        <item name="android:background">@drawable/btn_borderless_car</item>
+    </style>
+
     <style name="Widget.DeviceDefault.CompoundButton.CheckBox" parent="android:Widget.Material.CompoundButton.CheckBox">
         <item name="android:button">@*android:drawable/car_checkbox</item>
     </style>
 
     <style name="Widget.DeviceDefault.CompoundButton.Switch" parent="android:Widget.Material.CompoundButton.Switch">
         <item name="android:thumb">@*android:drawable/car_switch_thumb</item>
-        <item name="android:switchMinWidth">@*android:dimen/car_primary_icon_size</item>
+        <item name="android:track">@*android:drawable/car_switch_track</item>
     </style>
 
     <style name="Widget.DeviceDefault.ProgressBar.Horizontal" parent="android:Widget.Material.ProgressBar.Horizontal">

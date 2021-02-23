@@ -22,9 +22,12 @@
 #include <android/hardware/automotive/evs/1.1/IEvsCameraStream.h>
 #include <android/hardware/automotive/evs/1.1/IEvsDisplay.h>
 
-#include <thread>
 #include <deque>
+#include <set>
+#include <thread>
 #include <unordered_map>
+
+#include <utils/Mutex.h>
 
 
 using namespace std;
@@ -132,6 +135,11 @@ private:
          deque<BufferDesc_1_1>> mFramesHeld;
     thread                      mCaptureThread;
     CameraDesc*                 mDesc;
+
+    mutable std::mutex          mFrameDeliveryMutex;
+    std::condition_variable     mFramesReadySignal;
+    std::set<std::string>       mSourceCameras GUARDED_BY(mFrameDeliveryMutex);
+
 };
 
 } // namespace implementation
