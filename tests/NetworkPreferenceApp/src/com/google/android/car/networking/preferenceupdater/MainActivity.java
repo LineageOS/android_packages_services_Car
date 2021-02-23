@@ -23,12 +23,13 @@ import android.view.View;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
+import com.google.android.car.networking.preferenceupdater.fragments.ManagerFragment;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public final class MainActivity extends FragmentActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
-
     private final List<MenuEntry> mMenuEntries =
             new ArrayList<MenuEntry>() {
                 {
@@ -54,8 +55,7 @@ public final class MainActivity extends FragmentActivity {
 
         mMenuEntries.get(0).onClick();
 
-        findViewById(R.id.manager_btn)
-                .setOnClickListener((v) -> mMenuEntries.get(0).onClick());
+        findViewById(R.id.manager_btn).setOnClickListener((v) -> mMenuEntries.get(0).onClick());
         findViewById(R.id.exit_button_container)
                 .setOnClickListener((v) -> mMenuEntries.get(1).onClick());
     }
