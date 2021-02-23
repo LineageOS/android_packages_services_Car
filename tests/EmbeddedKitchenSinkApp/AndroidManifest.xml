@@ -220,5 +220,35 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".activityresolver.TestActivity1"
+            android:exported="true"
+            android:label="Test Activity 1">
+            <intent-filter>
+                <action android:name="com.google.android.car.kitchensink.activityresolver.TRIGGER_ACTIVITY_RESOLVER" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".activityresolver.TestActivity2"
+            android:exported="true"
+            android:label="Test Activity 2">
+            <intent-filter>
+                <action android:name="com.google.android.car.kitchensink.activityresolver.TRIGGER_ACTIVITY_RESOLVER" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".activityresolver.TestActivity3"
+            android:exported="true"
+            android:label="Test Activity 3">
+            <intent-filter>
+                <action android:name="com.google.android.car.kitchensink.activityresolver.TRIGGER_ACTIVITY_RESOLVER" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
     </application>
 </manifest>
