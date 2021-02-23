@@ -24,6 +24,11 @@ import android.car.VehiclePropertyIds;
 import android.car.VehicleSeatOccupancyState;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.hardware.CarPropertyValue;
+import android.car.hardware.power.CarPowerPolicy;
+import android.car.hardware.power.CarPowerPolicyFilter;
+import android.car.hardware.power.ICarPowerPolicyChangeListener;
+import android.car.hardware.power.PowerComponent;
+import android.car.hardware.power.PowerComponentUtil;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.ICarPropertyEventListener;
@@ -39,7 +44,7 @@ import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.util.Slog;
 
-import com.android.car.power.SilentModeController;
+import com.android.car.power.CarPowerManagementService;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.List;
@@ -49,7 +54,6 @@ import java.util.Objects;
  * A Bluetooth Device Connection policy that is specific to the use cases of a Car. Contains policy
  * for deciding when to trigger connection and disconnection events.
  */
-
 public class BluetoothDeviceConnectionPolicy {
     private static final String TAG = CarLog.tagFor(BluetoothDeviceConnectionPolicy.class);
     private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
@@ -61,20 +65,19 @@ public class BluetoothDeviceConnectionPolicy {
     private final CarServicesHelper mCarHelper;
     private final UserManager mUserManager;
 
-    private final SilentModeController.SilentModeListener mSilentModeListener =
-            new SilentModeController.SilentModeListener() {
+    private final ICarPowerPolicyChangeListener mPowerPolicyChangeListener =
+            new ICarPowerPolicyChangeListener.Stub() {
                 @Override
-                public void onModeChange(boolean isSilent) {
+                public void onPolicyChanged(CarPowerPolicy policy) {
+                    // COMPONENT_STATE_UNTOUCHED is not the case in this callback.
+                    boolean isOn = PowerComponentUtil.getComponentState(policy,
+                            PowerComponent.BLUETOOTH) == PowerComponentUtil.COMPONENT_STATE_ENABLED;
                     if (!mUserManager.isUserUnlocked(mUserId)) {
-                        logd("User " + mUserId + " is locked, ignoring silent mode " + isSilent);
+                        logd("User " + mUserId + " is locked, ignoring bluetooth power change "
+                                + (isOn ? "on" : "off"));
                         return;
                     }
-                    if (isSilent) {
-                        // we'll turn off Bluetooth to disconnect devices and better the "off"
-                        // illusion
-                        logd("Car is going silent. Disable bluetooth adapter");
-                        disableBluetooth();
-                    } else {
+                    if (isOn) {
                         if (isBluetoothPersistedOn()) {
                             enableBluetooth();
                         }
@@ -86,13 +89,18 @@ public class BluetoothDeviceConnectionPolicy {
                         if (mBluetoothAdapter.getState() == BluetoothAdapter.STATE_ON) {
                             connectDevices();
                         }
+                    } else {
+                        // we'll turn off Bluetooth to disconnect devices and better the "off"
+                        // illusion
+                        logd("Car power policy turns off bluetooth. Disable bluetooth adapter");
+                        disableBluetooth();
                     }
                 }
     };
 
     @VisibleForTesting
-    public SilentModeController.SilentModeListener getSilentModeListener() {
-        return mSilentModeListener;
+    public ICarPowerPolicyChangeListener getPowerPolicyChangeListener() {
+        return mPowerPolicyChangeListener;
     }
 
     /**
@@ -290,12 +298,14 @@ public class BluetoothDeviceConnectionPolicy {
         profileFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         mContext.registerReceiverAsUser(mBluetoothBroadcastReceiver, UserHandle.CURRENT,
                 profileFilter, null, null);
-        SilentModeController silentModeController = CarLocalServices.getService(
-                SilentModeController.class);
-        if (silentModeController != null) {
-            silentModeController.registerListener(mSilentModeListener);
+        CarPowerManagementService cpms = CarLocalServices.getService(
+                CarPowerManagementService.class);
+        if (cpms != null) {
+            CarPowerPolicyFilter filter = new CarPowerPolicyFilter.Builder()
+                    .setComponents(new int[]{PowerComponent.BLUETOOTH}).build();
+            cpms.registerPowerPolicyChangeListener(mPowerPolicyChangeListener, filter);
         } else {
-            Slog.w(TAG, "Cannot find SilentModeController");
+            Slog.w(TAG, "Cannot find CarPowerManagementService");
         }
         mCarHelper.init();
 
@@ -316,10 +326,10 @@ public class BluetoothDeviceConnectionPolicy {
      */
     public void release() {
         logd("release()");
-        SilentModeController silentModeController =
-                CarLocalServices.getService(SilentModeController.class);
-        if (silentModeController != null) {
-            silentModeController.unregisterListener(mSilentModeListener);
+        CarPowerManagementService cpms =
+                CarLocalServices.getService(CarPowerManagementService.class);
+        if (cpms != null) {
+            cpms.unregisterPowerPolicyChangeListener(mPowerPolicyChangeListener);
         }
         if (mBluetoothBroadcastReceiver != null) {
             mContext.unregisterReceiver(mBluetoothBroadcastReceiver);

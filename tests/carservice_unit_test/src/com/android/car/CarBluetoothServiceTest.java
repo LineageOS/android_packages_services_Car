@@ -31,7 +31,6 @@ import android.test.mock.MockContentProvider;
 import android.test.mock.MockContentResolver;
 
 import com.android.car.power.CarPowerManagementService;
-import com.android.car.power.SilentModeController;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.app.IVoiceInteractionManagerService;
 
@@ -74,7 +73,6 @@ public class CarBluetoothServiceTest {
     @Mock private SystemInterface mMockSystemInterface;
     @Mock private CarPowerManagementService mMockCarPowerManagementService;
     private PerUserCarServiceHelper.ServiceCallback mUserSwitchCallback;
-    private SilentModeController mSilentModeController;
 
     //--------------------------------------------------------------------------------------------//
     // Setup/TearDown                                                                             //
@@ -117,13 +115,8 @@ public class CarBluetoothServiceTest {
         } catch (RemoteException e) {
             Assert.fail();
         }
-        mSilentModeController = new SilentModeController(mMockContext, mMockSystemInterface,
-                mMockVoiceService, "");
-        CarLocalServices.addService(SilentModeController.class, mSilentModeController);
         CarLocalServices.addService(CarPowerManagementService.class,
                 mMockCarPowerManagementService);
-        mSilentModeController.init();
-        mSilentModeController.setPowerOnForTest(true);
     }
 
     @After
@@ -132,7 +125,6 @@ public class CarBluetoothServiceTest {
             mCarBluetoothService.release();
             mCarBluetoothService = null;
         }
-        CarLocalServices.removeServiceForTest(SilentModeController.class);
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
     }
 
