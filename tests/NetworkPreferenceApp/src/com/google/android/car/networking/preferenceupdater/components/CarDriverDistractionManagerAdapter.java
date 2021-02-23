@@ -39,6 +39,11 @@ public final class CarDriverDistractionManagerAdapter {
         }
     }
 
+    /** Method that has to be called during destroy. */
+    public void destroy() {
+        mCar.disconnect();
+    }
+
     /**
      * Returns true/false boolean based on the whether driver can be distracted right now or not
      */
