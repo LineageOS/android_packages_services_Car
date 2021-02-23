@@ -18,6 +18,10 @@
 // They're not meant to be used by other system apps and hence are not
 // supported.
 
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
 java_library {
     name: "com.android.car.internal.system",
     srcs: [
@@ -26,5 +30,3 @@ java_library {
         "src/com/android/car/internal/ICarSystemServerClient.aidl",
     ],
 }
-
-
