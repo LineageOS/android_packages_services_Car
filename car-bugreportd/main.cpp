@@ -25,12 +25,15 @@
 #include <android-base/strings.h>
 #include <android-base/unique_fd.h>
 #include <cutils/sockets.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <ftw.h>
 #include <gui/SurfaceComposerClient.h>
 #include <log/log_main.h>
 #include <private/android_filesystem_config.h>
+#include <utils/SystemClock.h>
+#include <ziparchive/zip_writer.h>
+
+#include <errno.h>
+#include <fcntl.h>
+#include <ftw.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/prctl.h>
@@ -39,9 +42,7 @@
 #include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
-#include <ziparchive/zip_writer.h>
 
-#include <chrono>
 #include <string>
 #include <vector>
 
@@ -133,7 +134,8 @@ void zipFilesToFd(const std::vector<std::string>& extra_files, int outfd) {
             ALOGE("Failed to start entry %s", writer->ErrorCodeString(error));
             return;
         }
-        android::base::unique_fd fd(TEMP_FAILURE_RETRY(open(filepath.c_str(), O_RDONLY)));
+        android::base::unique_fd fd(
+                TEMP_FAILURE_RETRY(open(filepath.c_str(), O_RDONLY | O_NOFOLLOW)));
         if (fd == -1) {
             return;
         }
@@ -196,7 +198,7 @@ int copyTo(int fd_in, int fd_out, void* buffer, size_t buffer_len) {
 }
 
 bool copyFile(const std::string& zip_path, int output_socket) {
-    android::base::unique_fd fd(TEMP_FAILURE_RETRY(open(zip_path.c_str(), O_RDONLY)));
+    android::base::unique_fd fd(TEMP_FAILURE_RETRY(open(zip_path.c_str(), O_RDONLY | O_NOFOLLOW)));
     if (fd == -1) {
         ALOGE("Failed to open zip file %s.", zip_path.c_str());
         return false;
@@ -339,7 +341,7 @@ int runCommand(int timeout_secs, const char* file, std::vector<const char*> args
         sigact.sa_handler = SIG_IGN;
         sigaction(SIGPIPE, &sigact, nullptr);
 
-        execvp(file, (char**)args.data());
+        execvp(file, const_cast<char* const*>(args.data()));
         // execvp's result will be handled after waitpid_with_timeout() below, but
         // if it failed, it's safer to exit dumpstate.
         ALOGE("execvp on command %s failed (error: %s)", file, strerror(errno));
@@ -449,7 +451,7 @@ void cleanupBugreportFile(const std::string& zip_path) {
 int main(void) {
     ALOGI("Starting bugreport collecting service");
 
-    auto t0 = std::chrono::steady_clock::now();
+    auto started_at_millis = android::elapsedRealtime();
 
     std::vector<std::string> extra_files;
     if (createTempDir(kTempDirectory) == OK) {
@@ -469,31 +471,28 @@ int main(void) {
         android::base::SetProperty("ctl.stop", "car-dumpstatez");
         return EXIT_FAILURE;
     }
-    bool ret_val = doBugreport(progress_socket, &bytes_written, &zip_path);
+    bool is_success = doBugreport(progress_socket, &bytes_written, &zip_path);
     close(progress_socket);
 
-    if (ret_val) {
+    if (is_success) {
         int output_socket = openSocket(kCarBrOutputSocket);
         if (output_socket != -1) {
-            ret_val = copyFile(zip_path, output_socket);
+            is_success = copyFile(zip_path, output_socket);
             close(output_socket);
         }
     }
 
     int extra_output_socket = openSocket(kCarBrExtraOutputSocket);
-    if (extra_output_socket != -1 && ret_val) {
+    if (extra_output_socket != -1 && is_success) {
         zipFilesToFd(extra_files, extra_output_socket);
     }
     if (extra_output_socket != -1) {
         close(extra_output_socket);
     }
 
-    auto delta = std::chrono::duration_cast<std::chrono::duration<double>>(
-                     std::chrono::steady_clock::now() - t0)
-                     .count();
-
-    std::string result = ret_val ? "success" : "failed";
-    ALOGI("bugreport %s in %.02fs, %zu bytes written", result.c_str(), delta, bytes_written);
+    auto delta_sec = (android::elapsedRealtime() - started_at_millis) / 1000.0;
+    std::string result = is_success ? "success" : "failed";
+    ALOGI("bugreport %s in %.02fs, %zu bytes written", result.c_str(), delta_sec, bytes_written);
     cleanupBugreportFile(zip_path);
 
     recursiveRemoveDir(kTempDirectory);
@@ -502,5 +501,5 @@ int main(void) {
     // car-dumpstatez in case it stalled.
     android::base::SetProperty("ctl.stop", "car-dumpstatez");
 
-    return ret_val ? EXIT_SUCCESS : EXIT_FAILURE;
+    return is_success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
