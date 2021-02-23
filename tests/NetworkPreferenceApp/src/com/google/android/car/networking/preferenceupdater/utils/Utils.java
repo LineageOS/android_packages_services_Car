@@ -30,6 +30,6 @@ public final class Utils {
 
     /** Converts comma separated string to set of strings */
     public static Set<String> toSet(String st) {
-        return Stream.of(TextUtils.split(",", st)).collect(Collectors.toSet());
+        return Stream.of(TextUtils.split(st, ",")).collect(Collectors.toSet());
     }
 }
