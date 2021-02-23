@@ -16,6 +16,10 @@
 
 // Build the Car service.
 
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
 genrule {
     name: "statslog-Car-java-gen",
     tools: ["stats-log-api-gen"],
@@ -154,4 +158,3 @@ android_library {
         },
     },
 }
-
