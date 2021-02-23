@@ -1127,11 +1127,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     private void initializePowerPolicy() {
+        Slog.i(TAG, "CPMS is taking control from carpowerpolicyd");
         ICarPowerPolicySystemNotification daemon;
         synchronized (mLock) {
             daemon = mCarPowerPolicyDaemon;
         }
-
         PolicyState state;
         try {
             state = daemon.notifyCarServiceReady();
