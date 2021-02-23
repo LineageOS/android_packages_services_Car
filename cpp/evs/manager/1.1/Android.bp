@@ -14,6 +14,10 @@
 //
 //
 
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
 cc_defaults {
     name: "android.automotive.evs.manager_defaults",
 
