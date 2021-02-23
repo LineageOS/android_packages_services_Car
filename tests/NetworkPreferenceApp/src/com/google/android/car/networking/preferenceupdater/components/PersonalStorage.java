@@ -15,7 +15,6 @@
  */
 package com.google.android.car.networking.preferenceupdater.components;
 
-import static com.google.android.car.networking.preferenceupdater.components.OemNetworkPreferencesWrapper.OEM_NETWORK_PREFERENCE_DEFAULT;
 import static com.google.android.car.networking.preferenceupdater.components.OemNetworkPreferencesWrapper.OEM_NETWORK_PREFERENCE_OEM_PAID;
 import static com.google.android.car.networking.preferenceupdater.components.OemNetworkPreferencesWrapper.OEM_NETWORK_PREFERENCE_OEM_PAID_NO_FALLBACK;
 import static com.google.android.car.networking.preferenceupdater.components.OemNetworkPreferencesWrapper.OEM_NETWORK_PREFERENCE_OEM_PAID_ONLY;
@@ -35,13 +34,11 @@ import java.util.Set;
 public final class PersonalStorage {
     private static final String KEY_PREFERENCE_APP = "key_preference_app";
 
-    private static final String KEY_OEM_DEFAULT_APPS = "key_oem_default_apps";
     private static final String KEY_OEM_PAID_APPS = "key_oem_paid_apps";
     private static final String KEY_OEM_PAID_NO_FALLBACK_APPS = "key_oem_paid_no_fallback_apps";
     private static final String KEY_OEM_PAID_ONLY_APPS = "key_oem_paid_only_apps";
     private static final String KEY_OEM_PRIVATE_ONLY_APPS = "key_oem_private_only_apps";
 
-    private final ArraySet<String> mDefaultOemDefaultApps;
     private final ArraySet<String> mDefaultOemPaidApps;
     private final ArraySet<String> mDefaultOemPaidNoFallbackApps;
     private final ArraySet<String> mDefaultOemPaidOnlyApps;
@@ -55,7 +52,6 @@ public final class PersonalStorage {
         mSharedPrefs = ctx.getSharedPreferences(KEY_PREFERENCE_APP, Context.MODE_PRIVATE);
 
         // Loading default values, will be used in case there is nothing in SharedPreferences
-        mDefaultOemDefaultApps = getRes(R.array.config_network_preference_oem_default_apps);
         mDefaultOemPaidApps = getRes(R.array.config_network_preference_oem_paid_apps);
         mDefaultOemPaidNoFallbackApps = getRes(
                 R.array.config_network_preference_oem_paid_no_fallback_apps);
@@ -65,8 +61,6 @@ public final class PersonalStorage {
 
     public Set<String> get(@OemNetworkPreferencesWrapper.Type int type) {
         switch (type) {
-            case OEM_NETWORK_PREFERENCE_DEFAULT:
-                return mSharedPrefs.getStringSet(KEY_OEM_DEFAULT_APPS, mDefaultOemDefaultApps);
             case OEM_NETWORK_PREFERENCE_OEM_PAID:
                 return mSharedPrefs.getStringSet(KEY_OEM_PAID_APPS, mDefaultOemPaidApps);
             case OEM_NETWORK_PREFERENCE_OEM_PAID_NO_FALLBACK:
@@ -85,9 +79,6 @@ public final class PersonalStorage {
     public void store(SparseArray<Set<String>> preference) {
         SharedPreferences.Editor editor = mSharedPrefs.edit();
         Set<String> st = null;
-
-        st = preference.get(OEM_NETWORK_PREFERENCE_DEFAULT);
-        if (st != null) editor.putStringSet(KEY_OEM_DEFAULT_APPS, st);
 
         st = preference.get(OEM_NETWORK_PREFERENCE_OEM_PAID);
         if (st != null) editor.putStringSet(KEY_OEM_PAID_APPS, st);
