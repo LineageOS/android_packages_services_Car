@@ -26,19 +26,83 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:weightSum="3"
+            android:weightSum="6"
             android:orientation="vertical">
-            <EditText
-                android:id="@+id/OEMPrivateEditText"
+            <LinearLayout
+                style="@style/SectionContainer"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"/>
-            <EditText
-                android:id="@+id/OEMPaidEditText"
+                android:layout_height="wrap_content"
+                android:weightSum="2"
+                android:orientation="vertical">
+                <TextView
+                    android:text="@string/oem_default_apps_text"
+                    android:layout_weight="1"/>
+                <EditText
+                    android:id="@+id/OEMDefaultAppsEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"/>
+            </LinearLayout>
+            <LinearLayout
+                style="@style/SectionContainer"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"/>
-            />
+                android:layout_height="wrap_content"
+                android:weightSum="2"
+                android:orientation="vertical">
+                <TextView
+                    android:text="@string/oem_paid_apps_text"
+                    android:layout_weight="1"/>
+                <EditText
+                    android:id="@+id/OEMPaidAppsEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"/>
+            </LinearLayout>
+            <LinearLayout
+                style="@style/SectionContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="2"
+                android:orientation="vertical">
+                <TextView
+                    android:text="@string/oem_paid_no_fallback_apps_text"
+                    android:layout_weight="1"/>
+                <EditText
+                    android:id="@+id/OEMPaidNoFallbackAppsEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"/>
+            </LinearLayout>
+            <LinearLayout
+                style="@style/SectionContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="2"
+                android:orientation="vertical">
+                <TextView
+                    android:text="@string/oem_paid_only_apps_text"
+                    android:layout_weight="1"/>
+                <EditText
+                    android:id="@+id/OEMPaidOnlyAppsEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"/>
+            </LinearLayout>
+            <LinearLayout
+                style="@style/SectionContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="2"
+                android:orientation="vertical">
+                <TextView
+                    android:text="@string/oem_private_only_apps_text"
+                    android:layout_weight="1"/>
+                <EditText
+                    android:id="@+id/OEMPrivateOnlyAppsEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"/>
+            </LinearLayout>
             <Button
                 style="@style/Button"
                 android:id="@+id/applyConfigurationBtn"
