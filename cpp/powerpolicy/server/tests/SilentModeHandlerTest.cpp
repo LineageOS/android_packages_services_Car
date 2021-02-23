@@ -108,7 +108,7 @@ public:
                 (override));
     MOCK_METHOD(Status, unregisterPowerPolicyChangeCallback,
                 (const sp<ICarPowerPolicyChangeCallback>&), (override));
-    MOCK_METHOD(void, notifySilentModeChange, (bool), (override));
+    MOCK_METHOD(void, notifySilentModeChange, (const bool), (override));
 };
 
 class SilentModeHandlerTest : public ::testing::Test {

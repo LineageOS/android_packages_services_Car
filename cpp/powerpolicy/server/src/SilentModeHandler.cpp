@@ -26,6 +26,7 @@
 #include <android-base/strings.h>
 
 #include <sys/inotify.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 namespace android {
@@ -49,6 +50,11 @@ constexpr const char* kPropertySystemBootReason = "sys.boot.reason";
 constexpr const char* kSilentModeHwStateFilename = "/sys/power/pm_silentmode_hw_state";
 constexpr const char* kKernelSilentModeFilename = "/sys/power/pm_silentmode_kernel";
 constexpr int kEventBufferSize = 512;
+
+bool fileExists(const char* filename) {
+    struct stat buffer;
+    return stat(filename, &buffer) == 0;
+}
 
 }  // namespace
 
@@ -115,9 +121,6 @@ void SilentModeHandler::stopMonitoringSilentModeHwState() {
         mIsMonitoring = false;
         inotify_rm_watch(mFdInotify, mWdSilentModeHwState);
         mWdSilentModeHwState = -1;
-        if (mSilentModeMonitoringThread.joinable()) {
-            mSilentModeMonitoringThread.join();
-        }
     }
     mFdInotify.reset(-1);
 }
@@ -153,9 +156,15 @@ void SilentModeHandler::startMonitoringSilentModeHwState() {
             return;
         }
     }
+    const char* filename = mSilentModeHwStateFilename.c_str();
+    if (!fileExists(filename)) {
+        ALOGW("Failed to start monitoring Silent Mode HW state: %s doesn't exist", filename);
+        mFdInotify.reset(-1);
+        return;
+    }
     // TODO(b/178843534): Additional masks might be needed to detect sysfs change.
     const uint32_t masks = IN_MODIFY;
-    mWdSilentModeHwState = inotify_add_watch(mFdInotify, mSilentModeHwStateFilename.c_str(), masks);
+    mWdSilentModeHwState = inotify_add_watch(mFdInotify, filename, masks);
     mIsMonitoring = true;
     mSilentModeMonitoringThread = std::thread([this]() {
         char eventBuf[kEventBufferSize];
@@ -194,6 +203,9 @@ void SilentModeHandler::startMonitoringSilentModeHwState() {
 }
 
 void SilentModeHandler::handleSilentModeHwStateChange() {
+    if (!mIsMonitoring) {
+        return;
+    }
     std::string buf;
     if (!ReadFileToString(mSilentModeHwStateFilename.c_str(), &buf)) {
         ALOGW("Failed to read %s", mSilentModeHwStateFilename.c_str());
