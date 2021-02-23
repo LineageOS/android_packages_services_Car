@@ -15,6 +15,10 @@
 //
 
 //#################################
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
 cc_library_shared {
     name: "libevssupport",
 
@@ -73,4 +77,3 @@ prebuilt_etc {
     src: "config.json",
     sub_dir: "automotive/evs_support_lib",
 }
-

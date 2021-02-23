@@ -18,6 +18,10 @@
 // They're not meant to be used by other system apps and hence are not
 // supported.
 
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
 android_library {
     name: "car-admin-ui-lib",
     srcs: [
