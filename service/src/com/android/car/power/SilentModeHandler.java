@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.android.car.power;
 
 import android.annotation.NonNull;
@@ -42,9 +43,13 @@ import java.util.Objects;
  * reboot reason.
  */
 final class SilentModeHandler {
+    static final String SILENT_MODE_FORCED_SILENT = "forced-silent";
+    static final String SILENT_MODE_FORCED_NON_SILENT = "forced-non-silent";
+    static final String SILENT_MODE_NON_FORCED = "non-forced-silent-mode";
+
     private static final String TAG = CarLog.tagFor(SilentModeHandler.class);
 
-    private static final String SYSFS_FILENAME_GPIO_MONITORING =
+    private static final String SYSFS_FILENAME_HW_STATE_MONITORING =
             "/sys/power/pm_silentmode_hw_state";
     private static final String SYSFS_FILENAME_KERNEL_SILENTMODE =
             "/sys/power/pm_silentmode_kernel";
@@ -56,42 +61,44 @@ final class SilentModeHandler {
 
     private final Object mLock = new Object();
     private final CarPowerManagementService mService;
-    private final String mGpioMonitoringFileName;
+    private final String mHwStateMonitoringFileName;
     private final String mKernelSilentModeFileName;
 
+    @GuardedBy("mLock")
     private FileObserver mFileObserver;
     @GuardedBy("mLock")
-    private boolean mSilentModeByGpio;
+    private boolean mSilentModeByHwState;
+    @GuardedBy("mLock")
     private boolean mForcedMode;
 
     SilentModeHandler(@NonNull CarPowerManagementService service) {
-        this(service, SYSFS_FILENAME_GPIO_MONITORING, SYSFS_FILENAME_KERNEL_SILENTMODE,
+        this(service, SYSFS_FILENAME_HW_STATE_MONITORING, SYSFS_FILENAME_KERNEL_SILENTMODE,
                 SystemProperties.get(SYSTEM_BOOT_REASON));
     }
 
     @VisibleForTesting
     SilentModeHandler(@NonNull CarPowerManagementService service,
-            @NonNull String gpioMonitoringFileName, @NonNull String kernelSilentModeFileName,
+            @NonNull String hwStateMonitoringFileName, @NonNull String kernelSilentModeFileName,
             @NonNull String bootReason) {
         Objects.requireNonNull(service, "CarPowerManagementService must not be null");
-        Objects.requireNonNull(gpioMonitoringFileName,
-                "Filename for GPIO monitoring must not be null");
+        Objects.requireNonNull(hwStateMonitoringFileName,
+                "Filename for HW state monitoring must not be null");
         Objects.requireNonNull(kernelSilentModeFileName,
                 "Filename for Kernel silent mode must not be null");
         Objects.requireNonNull(bootReason, "Boot reason must not be null");
         mService = service;
-        mGpioMonitoringFileName = gpioMonitoringFileName;
+        mHwStateMonitoringFileName = hwStateMonitoringFileName;
         mKernelSilentModeFileName = kernelSilentModeFileName;
         switch (bootReason) {
             case FORCED_SILENT:
                 Slog.i(TAG, "Starting in forced silent mode");
                 mForcedMode = true;
-                mSilentModeByGpio = true;
+                mSilentModeByHwState = true;
                 break;
             case FORCED_NON_SILENT:
                 Slog.i(TAG, "Starting in forced non-silent mode");
                 mForcedMode = true;
-                mSilentModeByGpio = false;
+                mSilentModeByHwState = false;
                 break;
             default:
                 mForcedMode = false;
@@ -99,87 +106,161 @@ final class SilentModeHandler {
     }
 
     void init() {
-        if (mForcedMode) {
-            // In forced mode, mSilentModeByGpio is set by shell command and not changed by real
-            // GPIO signal. It's okay to access without lock.
-            updateKernelSilentMode(mSilentModeByGpio);
-            Slog.i(TAG, "Now in forced mode: monitoring " + mGpioMonitoringFileName
+        boolean forcedMode;
+        synchronized (mLock) {
+            forcedMode = mForcedMode;
+        }
+        if (forcedMode) {
+            updateKernelSilentMode(mSilentModeByHwState);
+            Slog.i(TAG, "Now in forced mode: monitoring " + mHwStateMonitoringFileName
                     + " is disabled");
         } else {
-            startMonitoringSilentModeGpio();
+            startMonitoringSilentModeHwState();
         }
     }
 
     void release() {
-        if (mFileObserver != null) {
-            mFileObserver.stopWatching();
-            mFileObserver = null;
+        synchronized (mLock) {
+            stopMonitoringSilentModeHwStateLocked();
         }
     }
 
     void dump(IndentingPrintWriter writer) {
         synchronized (mLock) {
-            writer.printf("Monitoring GPIO signal: %b\n", mFileObserver != null);
-            writer.printf("Silent mode by GPIO signal: %b\n", mSilentModeByGpio);
+            writer.printf("Monitoring HW state signal: %b\n", mFileObserver != null);
+            writer.printf("Silent mode by HW state signal: %b\n", mSilentModeByHwState);
             writer.printf("Forced silent mode: %b\n", mForcedMode);
         }
     }
 
     boolean isSilentMode() {
         synchronized (mLock) {
-            return mSilentModeByGpio;
+            return mSilentModeByHwState;
         }
     }
 
-    void querySilentModeGpio() {
-        if (mFileObserver != null) {
-            mFileObserver.onEvent(FileObserver.MODIFY, mGpioMonitoringFileName);
+    void querySilentModeHwState() {
+        FileObserver fileObserver;
+        synchronized (mLock) {
+            fileObserver = mFileObserver;
+        }
+        if (fileObserver != null) {
+            fileObserver.onEvent(FileObserver.MODIFY, mHwStateMonitoringFileName);
         }
     }
 
     void updateKernelSilentMode(boolean silent) {
         try (BufferedWriter writer =
                 new BufferedWriter(new FileWriter(mKernelSilentModeFileName))) {
-            writer.write(silent ? VALUE_SILENT_MODE : VALUE_NON_SILENT_MODE);
+            String value = silent ? VALUE_SILENT_MODE : VALUE_NON_SILENT_MODE;
+            writer.write(value);
             writer.flush();
+            Slog.i(TAG, mKernelSilentModeFileName + " is updated to " + value);
         } catch (IOException e) {
             Slog.w(TAG, "Failed to update " + mKernelSilentModeFileName + " to "
                     + (silent ? VALUE_SILENT_MODE : VALUE_NON_SILENT_MODE));
         }
     }
 
-    private void startMonitoringSilentModeGpio() {
-        File monitorFile = new File(mGpioMonitoringFileName);
+    void setSilentMode(String silentMode) {
+        switch (silentMode) {
+            case SILENT_MODE_FORCED_SILENT:
+                switchToForcedMode(true);
+                break;
+            case SILENT_MODE_FORCED_NON_SILENT:
+                switchToForcedMode(false);
+                break;
+            case SILENT_MODE_NON_FORCED:
+                switchToNonForcedMode();
+                break;
+            default:
+                Slog.w(TAG, "Unsupported silent mode: " + silentMode);
+        }
+    }
+
+    private void switchToForcedMode(boolean silentMode) {
+        boolean updated = false;
+        synchronized (mLock) {
+            if (!mForcedMode) {
+                stopMonitoringSilentModeHwStateLocked();
+                mForcedMode = true;
+            }
+            if (mSilentModeByHwState != silentMode) {
+                mSilentModeByHwState = silentMode;
+                updated = true;
+            }
+        }
+        if (updated) {
+            updateKernelSilentMode(silentMode);
+            mService.notifySilentModeChange(silentMode);
+        }
+        Slog.i(TAG, "Now in forced " + (silentMode ? "silent" : "non-silent") + " mode: monitoring "
+                + mHwStateMonitoringFileName + " is disabled");
+    }
+
+    private void switchToNonForcedMode() {
+        boolean updated = false;
+        synchronized (mLock) {
+            if (mForcedMode) {
+                Slog.i(TAG, "Now in non forced mode: monitoring " + mHwStateMonitoringFileName
+                        + " is started");
+                mForcedMode = false;
+                updated = true;
+            }
+        }
+        if (updated) {
+            startMonitoringSilentModeHwState();
+        }
+    }
+
+    private void startMonitoringSilentModeHwState() {
+        File monitorFile = new File(mHwStateMonitoringFileName);
         if (!monitorFile.exists()) {
-            Slog.w(TAG, "Failed to start monitoring Silent Mode GPIO: " + mGpioMonitoringFileName
-                    + " doesn't exist");
+            Slog.w(TAG, "Failed to start monitoring Silent Mode HW state: "
+                    + mHwStateMonitoringFileName + " doesn't exist");
             return;
         }
-        mFileObserver = new FileObserver(monitorFile, FileObserver.MODIFY) {
+        FileObserver fileObserver = new FileObserver(monitorFile, FileObserver.MODIFY) {
             @Override
             public void onEvent(int event, String filename) {
                 boolean newSilentMode;
                 boolean oldSilentMode;
                 synchronized (mLock) {
-                    oldSilentMode = mSilentModeByGpio;
-                    try {
-                        String contents = IoUtils.readFileAsString(mGpioMonitoringFileName).trim();
-                        mSilentModeByGpio = VALUE_SILENT_MODE.equals(contents);
-                        Slog.i(TAG, mGpioMonitoringFileName + " indicates "
-                                + (mSilentModeByGpio ? "silent" : "non-silent") + " mode");
-                    } catch (Exception e) {
-                        Slog.w(TAG, "Failed to read " + mGpioMonitoringFileName + ": " + e);
+                    // FileObserver can report events even after stopWatching is called. To ignore
+                    // such events, check the current internal state.
+                    if (mForcedMode) {
                         return;
                     }
-                    newSilentMode = mSilentModeByGpio;
+                    oldSilentMode = mSilentModeByHwState;
+                    try {
+                        String contents = IoUtils.readFileAsString(mHwStateMonitoringFileName)
+                                .trim();
+                        mSilentModeByHwState = VALUE_SILENT_MODE.equals(contents);
+                        Slog.i(TAG, mHwStateMonitoringFileName + " indicates "
+                                + (mSilentModeByHwState ? "silent" : "non-silent") + " mode");
+                    } catch (Exception e) {
+                        Slog.w(TAG, "Failed to read " + mHwStateMonitoringFileName, e);
+                        return;
+                    }
+                    newSilentMode = mSilentModeByHwState;
                 }
                 if (newSilentMode != oldSilentMode) {
                     mService.notifySilentModeChange(newSilentMode);
                 }
             }
         };
-        mFileObserver.startWatching();
+        synchronized (mLock) {
+            mFileObserver = fileObserver;
+        }
+        fileObserver.startWatching();
         // Trigger the observer to get the initial contents
-        querySilentModeGpio();
+        querySilentModeHwState();
+    }
+
+    private void stopMonitoringSilentModeHwStateLocked() {
+        if (mFileObserver != null) {
+            mFileObserver.stopWatching();
+            mFileObserver = null;
+        }
     }
 }

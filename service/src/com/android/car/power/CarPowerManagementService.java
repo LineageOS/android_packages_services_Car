@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.android.car.power;
 
 import static android.car.hardware.power.PowerComponentUtil.hasComponents;
@@ -97,6 +98,11 @@ import java.util.TimerTask;
  */
 public class CarPowerManagementService extends ICarPower.Stub implements
         CarServiceBase, PowerHalService.PowerEventListener {
+    public static final String SILENT_MODE_FORCED_SILENT =
+            SilentModeHandler.SILENT_MODE_FORCED_SILENT;
+    public static final String SILENT_MODE_FORCED_NON_SILENT =
+            SilentModeHandler.SILENT_MODE_FORCED_NON_SILENT;
+    public static final String SILENT_MODE_NON_FORCED = SilentModeHandler.SILENT_MODE_NON_FORCED;
 
     private static final String TAG = CarLog.tagFor(CarPowerManagementService.class);
     private static final String WIFI_STATE_FILENAME = "wifi_state";
@@ -458,7 +464,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         int carPowerStateListenerState = state.mCarPowerStateListenerState;
         // TODO(b/177478420): Restore Wifi, Audio, Location, and Bluetooth, if they are artificially
         // modified for S2R.
-        mSilentModeHandler.querySilentModeGpio();
+        mSilentModeHandler.querySilentModeHwState();
         sendPowerManagerEvent(carPowerStateListenerState);
         // Inspect CarPowerStateListenerState to decide which message to send via VHAL
         switch (carPowerStateListenerState) {
@@ -1788,6 +1794,21 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             mLock.notify();
         }
         mHandler.handlePowerStateChange();
+    }
+
+    /**
+     * Changes Silent Mode to the given mode.
+     */
+    public void setSilentMode(String silentMode) {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
+        mSilentModeHandler.setSilentMode(silentMode);
+    }
+
+    /**
+     * Dumps the current Silent Mode.
+     */
+    public void dumpSilentMode(IndentingPrintWriter writer) {
+        mSilentModeHandler.dump(writer);
     }
 
     // In a real Deep Sleep, the hardware removes power from the CPU (but retains power
