@@ -250,9 +250,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     public CarPowerManagementService(Context context, PowerHalService powerHal,
-            SystemInterface systemInterface, CarUserService carUserService) {
+            SystemInterface systemInterface, CarUserService carUserService,
+            ICarPowerPolicySystemNotification powerPolicyDaemon) {
         this(context, context.getResources(), powerHal, systemInterface, UserManager.get(context),
-                carUserService, null, new PowerComponentHandler(context, systemInterface));
+                carUserService, powerPolicyDaemon,
+                new PowerComponentHandler(context, systemInterface));
     }
 
     @VisibleForTesting
@@ -1132,17 +1134,22 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         synchronized (mLock) {
             daemon = mCarPowerPolicyDaemon;
         }
-        PolicyState state;
-        try {
-            state = daemon.notifyCarServiceReady();
-            setCurrentPowerPolicyGroup(state.policyGroupId);
-        } catch (RemoteException e) {
-            Slog.e(TAG, "Failed to tell car power policy daemon that CarService is ready", e);
-            return;
-        }
-        String errorMsg = applyPowerPolicy(state.policyId, false);
-        if (errorMsg != null) {
-            Slog.w(TAG, "Cannot apply power policy: " + errorMsg);
+        if (daemon != null) {
+            PolicyState state;
+            try {
+                state = daemon.notifyCarServiceReady();
+                setCurrentPowerPolicyGroup(state.policyGroupId);
+            } catch (RemoteException e) {
+                Slog.e(TAG, "Failed to tell car power policy daemon that CarService is ready", e);
+                return;
+            }
+            String errorMsg = applyPowerPolicy(state.policyId, false);
+            if (errorMsg != null) {
+                Slog.w(TAG, "Cannot apply power policy: " + errorMsg);
+            }
+        } else {
+            Slog.w(TAG, "Failed to notify car service is ready. car power policy daemon is not "
+                    + "available");
         }
         mSilentModeHandler.init();
     }

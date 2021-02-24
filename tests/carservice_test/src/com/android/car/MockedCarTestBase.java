@@ -33,6 +33,8 @@ import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Resources;
+import android.frameworks.automotive.powerpolicy.internal.ICarPowerPolicySystemNotification;
+import android.frameworks.automotive.powerpolicy.internal.PolicyState;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
@@ -96,7 +98,6 @@ public class MockedCarTestBase {
     private ICarImpl mCarImpl;
     private MockedVehicleHal mMockedVehicleHal;
     private SystemInterface mFakeSystemInterface;
-    private MockResources mResources;
     private MockedCarTestContext mMockedCarTestContext;
 
     private final List<UserLifecycleListener> mUserLifecycleListeners = new ArrayList<>();
@@ -107,6 +108,7 @@ public class MockedCarTestBase {
             new HashMap<>();
     private final SparseArray<VehiclePropConfigBuilder> mPropToConfigBuilder = new SparseArray<>();
     private final CarWatchdogService mCarWatchdogService = mock(CarWatchdogService.class);
+    private final FakeCarPowerPolicyDaemon mPowerPolicyDaemon = new FakeCarPowerPolicyDaemon();
 
     private MockitoSession mSession;
 
@@ -146,6 +148,8 @@ public class MockedCarTestBase {
         resources.overrideResource(com.android.car.R.bool.audioUseDynamicRouting, false);
         resources.overrideResource(com.android.car.R.array.config_earlyStartupServices,
                 new String[0]);
+        resources.overrideResource(com.android.car.R.integer.maxGarageModeRunningDurationInSecs,
+                900);
     }
 
     protected synchronized Context getContext() {
@@ -217,7 +221,8 @@ public class MockedCarTestBase {
         // This should be done here as feature property is accessed inside the constructor.
         initMockedHal();
         mCarImpl = new ICarImpl(mMockedCarTestContext, mMockedVehicleHal, mFakeSystemInterface,
-                /* errorNotifier= */ null , "MockedCar", mCarUserService, mCarWatchdogService);
+                /* errorNotifier= */ null , "MockedCar", mCarUserService, mCarWatchdogService,
+                mPowerPolicyDaemon);
 
         spyOnBeforeCarImplInit();
         mCarImpl.init();
@@ -541,5 +546,24 @@ public class MockedCarTestBase {
 
         @Override
         public void switchToFullWakeLock() {}
+    }
+
+    static final class FakeCarPowerPolicyDaemon extends ICarPowerPolicySystemNotification.Stub {
+        @Override
+        public PolicyState notifyCarServiceReady() {
+            // do nothing
+            return null;
+        }
+
+        @Override
+        public void notifyPowerPolicyChange(String policyId) {
+            // do nothing
+        }
+
+        @Override
+        public void notifyPowerPolicyDefinition(String policyId, String[] enabledComponents,
+                String[] disabledComponents) {
+            // do nothing
+        }
     }
 }
