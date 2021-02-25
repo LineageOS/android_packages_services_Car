@@ -15,6 +15,7 @@
  */
 package com.android.car;
 
+import static android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue.ASSOCIATE_CURRENT_USER;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue.DISASSOCIATE_ALL_USERS;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue.DISASSOCIATE_CURRENT_USER;
@@ -124,6 +125,7 @@ final class CarShellCommand extends ShellCommand {
     private static final String COMMAND_RESUME = "resume";
     private static final String COMMAND_SUSPEND = "suspend";
     private static final String COMMAND_SET_UID_TO_ZONE = "set-audio-zone-for-uid";
+    private static final String COMMAND_RESET_VOLUME_CONTEXT = "reset-selected-volume-context";
     private static final String COMMAND_START_FIXED_ACTIVITY_MODE = "start-fixed-activity-mode";
     private static final String COMMAND_STOP_FIXED_ACTIVITY_MODE = "stop-fixed-activity-mode";
     private static final String COMMAND_ENABLE_FEATURE = "enable-feature";
@@ -199,7 +201,7 @@ final class CarShellCommand extends ShellCommand {
     // Commands that can affect safety should be never allowed in user build.
     private static final ArrayMap<String, String> USER_BUILD_COMMAND_TO_PERMISSION_MAP;
     static {
-        USER_BUILD_COMMAND_TO_PERMISSION_MAP = new ArrayMap<>(7);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP = new ArrayMap<>(8);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_GARAGE_MODE,
                 android.Manifest.permission.DEVICE_POWER);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_RESUME,
@@ -214,6 +216,8 @@ final class CarShellCommand extends ShellCommand {
                 android.Manifest.permission.INTERACT_ACROSS_USERS_FULL);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_DAY_NIGHT_MODE,
                 android.Manifest.permission.MODIFY_DAY_NIGHT_MODE);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_RESET_VOLUME_CONTEXT,
+                PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
     }
 
     private static final String PARAM_DAY_MODE = "day";
@@ -394,6 +398,8 @@ final class CarShellCommand extends ShellCommand {
         pw.println("\t  When used with dumpsys, only metrics will be in the dumpsys output.");
         pw.printf("\t%s [zoneid] [uid]\n", COMMAND_SET_UID_TO_ZONE);
         pw.println("\t  Maps the audio zoneid to uid.");
+        pw.printf("\t%s\n", COMMAND_RESET_VOLUME_CONTEXT);
+        pw.println("\t  Resets the last selected volume context for volume changes.");
         pw.println("\tstart-fixed-activity displayId packageName activityName");
         pw.println("\t  Start an Activity the specified display as fixed mode");
         pw.println("\tstop-fixed-mode displayId");
@@ -510,6 +516,10 @@ final class CarShellCommand extends ShellCommand {
         int uid = Integer.parseInt(uidString);
         int zoneId = Integer.parseInt(zoneString);
         mCarAudioService.setZoneIdForUid(zoneId, uid);
+    }
+
+    private void runResetSelectedVolumeContext() {
+        mCarAudioService.resetSelectedVolumeContext();
     }
 
     private void runSetOccupantZoneIdForUserId(String occupantZoneIdString,
@@ -667,6 +677,12 @@ final class CarShellCommand extends ShellCommand {
                     return showInvalidArguments(writer);
                 }
                 runSetZoneIdForUid(args[1], args[2]);
+                break;
+            case COMMAND_RESET_VOLUME_CONTEXT:
+                if (args.length > 1) {
+                    return showInvalidArguments(writer);
+                }
+                runResetSelectedVolumeContext();
                 break;
             case COMMAND_SET_USER_ID_TO_OCCUPANT_ZONE:
                 if (args.length != 3) {
