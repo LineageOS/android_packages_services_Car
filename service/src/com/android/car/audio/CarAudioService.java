@@ -100,12 +100,6 @@ import java.util.stream.Collectors;
  * Service responsible for interaction with car's audio system.
  */
 public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
-    // Turning this off will result in falling back to the default focus policy of Android
-    // (which boils down to "grant if not in a phone call, else deny").
-    // Aside from the obvious effect of ignoring the logic in CarAudioFocus, this will also
-    // result in the framework taking over responsibility for ducking in TRANSIENT_LOSS cases.
-    // Search for "DUCK_VSHAPE" in PLaybackActivityMonitor.java to see where this happens.
-    private static boolean sUseCarAudioFocus = true;
 
     // Enable to allowed for delayed audio focus in car audio service.
     private static final boolean ENABLE_DELAYED_AUDIO_FOCUS = true;
@@ -606,32 +600,30 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         // Attach the {@link AudioPolicyVolumeCallback}
         builder.setAudioPolicyVolumeCallback(mAudioPolicyVolumeCallback);
 
-        if (sUseCarAudioFocus) {
-            if (mUseHalDuckingSignals) {
-                AudioControlWrapper audioControlWrapper = getAudioControlWrapperLocked();
-                if (audioControlWrapper.supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_DUCKING)) {
-                    mCarDucking = new CarDucking(mCarAudioZones, audioControlWrapper);
-                }
-            }
 
-            // Configure our AudioPolicy to handle focus events.
-            // This gives us the ability to decide which audio focus requests to accept and bypasses
-            // the framework ducking logic.
-            mFocusHandler = new CarZonesAudioFocus(mAudioManager,
-                    mContext.getPackageManager(),
-                    mCarAudioZones,
-                    mCarAudioSettings,
-                    ENABLE_DELAYED_AUDIO_FOCUS,
-                    mCarDucking);
-            builder.setAudioPolicyFocusListener(mFocusHandler);
-            builder.setIsAudioFocusPolicy(true);
+        if (mUseHalDuckingSignals) {
+            AudioControlWrapper audioControlWrapper = getAudioControlWrapperLocked();
+            if (audioControlWrapper.supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_DUCKING)) {
+                mCarDucking = new CarDucking(mCarAudioZones, audioControlWrapper);
+            }
         }
+
+        // Configure our AudioPolicy to handle focus events.
+        // This gives us the ability to decide which audio focus requests to accept and bypasses
+        // the framework ducking logic.
+        mFocusHandler = new CarZonesAudioFocus(mAudioManager,
+                mContext.getPackageManager(),
+                mCarAudioZones,
+                mCarAudioSettings,
+                ENABLE_DELAYED_AUDIO_FOCUS,
+                mCarDucking);
+        builder.setAudioPolicyFocusListener(mFocusHandler);
+        builder.setIsAudioFocusPolicy(true);
 
         mAudioPolicy = builder.build();
-        if (sUseCarAudioFocus) {
-            // Connect the AudioPolicy and the focus listener
-            mFocusHandler.setOwningPolicy(this, mAudioPolicy);
-        }
+
+        // Connect the AudioPolicy and the focus listener
+        mFocusHandler.setOwningPolicy(this, mAudioPolicy);
 
         int r = mAudioManager.registerAudioPolicy(mAudioPolicy);
         if (r != AudioManager.SUCCESS) {
