@@ -304,6 +304,50 @@ public final class CarAudioPlaybackCallbackTest {
 
     @Test
     public void
+            getAllActiveContextsForPrimaryZone_afterResetStillActiveContexts_returnsEmptyContext() {
+        List<AudioPlaybackConfiguration> activeConfigurations = ImmutableList.of(
+                new AudioPlaybackConfigurationBuilder()
+                        .setUsage(USAGE_MEDIA)
+                        .setDeviceAddress(PRIMARY_MEDIA_ADDRESS)
+                        .build(),
+                new AudioPlaybackConfigurationBuilder()
+                        .setUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
+                        .setDeviceAddress(PRIMARY_NAVIGATION_ADDRESS)
+                        .build()
+        );
+
+        List<AudioPlaybackConfiguration> configurationsChanged = ImmutableList.of(
+                new AudioPlaybackConfigurationBuilder()
+                        .setUsage(USAGE_MEDIA)
+                        .setDeviceAddress(PRIMARY_MEDIA_ADDRESS)
+                        .setInactive()
+                        .build(),
+                new AudioPlaybackConfigurationBuilder()
+                        .setUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
+                        .setDeviceAddress(PRIMARY_NAVIGATION_ADDRESS)
+                        .setInactive()
+                        .build()
+        );
+
+        CarAudioPlaybackCallback callback =
+                new CarAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
+
+        callback.onPlaybackConfigChanged(activeConfigurations);
+
+        callback.onPlaybackConfigChanged(configurationsChanged);
+
+        callback.resetStillActiveContexts();
+
+        when(mClock.uptimeMillis()).thenReturn(TIMER_BEFORE_TIMEOUT_MS);
+
+        List<Integer> activeContexts =
+                callback.getAllActiveContextsForPrimaryZone();
+
+        assertThat(activeContexts).isEmpty();
+    }
+
+    @Test
+    public void
             getAllActiveContextsForPrimaryZone_withInactiveConfig_afterTimeout_returnsContext() {
         List<AudioPlaybackConfiguration> activeConfigurations = ImmutableList.of(
                 new AudioPlaybackConfigurationBuilder()

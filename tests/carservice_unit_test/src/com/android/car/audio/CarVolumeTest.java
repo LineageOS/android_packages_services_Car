@@ -400,6 +400,24 @@ public class CarVolumeTest {
         assertThat(newContext).isEqualTo(CALL);
     }
 
+    @Test
+    public void getSuggestedAudioContext_afterResetSelectedVolumeContext_returnsDefaultContext() {
+        List<Integer> activePlaybackContexts = ImmutableList.of(VOICE_COMMAND);
+
+        mCarVolume.getSuggestedAudioContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_IDLE,
+                new int[0]);
+
+        when(mMockClock.uptimeMillis()).thenReturn(START_TIME_ONE_SECOND);
+
+        mCarVolume.resetSelectedVolumeContext();
+
+        @AudioContext int suggestedContext =
+                mCarVolume.getSuggestedAudioContextAndSaveIfFound(new ArrayList<>(),
+                        CALL_STATE_IDLE, new int[0]);
+
+        assertThat(suggestedContext).isEqualTo(DEFAULT_AUDIO_CONTEXT);
+    }
+
 
     @Test
     public void isAnyContextActive_withOneConfigurationAndMatchedContext_returnsTrue() {
