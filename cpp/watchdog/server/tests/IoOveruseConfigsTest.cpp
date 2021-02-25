@@ -33,7 +33,6 @@ using ::android::automotive::watchdog::internal::ComponentType;
 using ::android::automotive::watchdog::internal::IoOveruseAlertThreshold;
 using ::android::automotive::watchdog::internal::IoOveruseConfiguration;
 using ::android::automotive::watchdog::internal::PackageInfo;
-using ::android::automotive::watchdog::internal::PerStateBytes;
 using ::android::automotive::watchdog::internal::PerStateIoOveruseThreshold;
 using ::android::base::StringPrintf;
 using ::testing::AnyOf;

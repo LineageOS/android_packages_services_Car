@@ -18,6 +18,7 @@
 #define CPP_WATCHDOG_SERVER_TESTS_MOCKIOOVERUSEMONITOR_H_
 
 #include "IoOveruseMonitor.h"
+#include "MockDataProcessor.h"
 
 #include <android-base/result.h>
 #include <android/automotive/watchdog/internal/ComponentType.h>
@@ -28,17 +29,22 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-class MockIoOveruseMonitor : public IoOveruseMonitor {
+class MockIoOveruseMonitor : public MockDataProcessor, public IIoOveruseMonitor {
 public:
-    MockIoOveruseMonitor(
-            const android::sp<IWatchdogServiceHelperInterface>& watchdogServiceHelper) :
-          IoOveruseMonitor(watchdogServiceHelper) {}
+    MockIoOveruseMonitor() {
+        ON_CALL(*this, name()).WillByDefault(::testing::Return("MockIoOveruseMonitor"));
+    }
     ~MockIoOveruseMonitor() {}
+
     MOCK_METHOD(android::base::Result<void>, updateIoOveruseConfiguration,
                 (android::automotive::watchdog::internal::ComponentType,
                  const android::automotive::watchdog::internal::IoOveruseConfiguration&),
                 (override));
-    MOCK_METHOD(android::base::Result<void>, onDump, (int fd), (override));
+    MOCK_METHOD(android::base::Result<void>, addIoOveruseListener,
+                (const sp<IResourceOveruseListener>&), (override));
+    MOCK_METHOD(android::base::Result<void>, removeIoOveruseListener,
+                (const sp<IResourceOveruseListener>&), (override));
+    MOCK_METHOD(android::base::Result<void>, getIoOveruseStats, (IoOveruseStats*), (override));
 };
 
 }  // namespace watchdog

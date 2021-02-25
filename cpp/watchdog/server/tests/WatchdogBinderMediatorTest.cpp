@@ -15,14 +15,17 @@
  */
 
 #include "MockIoOveruseMonitor.h"
+#include "MockResourceOveruseListener.h"
 #include "MockWatchdogPerfService.h"
 #include "MockWatchdogProcessService.h"
 #include "MockWatchdogServiceHelper.h"
 #include "WatchdogBinderMediator.h"
 
+#include <android-base/stringprintf.h>
 #include <binder/IBinder.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <utils/String16.h>
 
 #include <errno.h>
 
@@ -31,11 +34,16 @@ namespace automotive {
 namespace watchdog {
 
 using ::android::sp;
+using ::android::String16;
 using ::android::base::Result;
+using ::android::base::StringAppendF;
 using ::android::binder::Status;
 using ::testing::_;
+using ::testing::DoAll;
 using ::testing::NiceMock;
 using ::testing::Return;
+using ::testing::SetArgPointee;
+using ::testing::UnorderedElementsAreArray;
 
 namespace {
 
@@ -54,6 +62,14 @@ public:
     MOCK_METHOD(std::string, getInterfaceHash, (), (override));
 };
 
+std::string toString(const std::vector<ResourceOveruseStats>& resourceOveruseStats) {
+    std::string buffer;
+    for (const auto& stats : resourceOveruseStats) {
+        StringAppendF(&buffer, "%s\n", stats.toString().c_str());
+    }
+    return buffer;
+}
+
 }  // namespace
 
 namespace internal {
@@ -64,7 +80,10 @@ public:
           mMediator(mediator) {}
     ~WatchdogBinderMediatorPeer() { mMediator.clear(); }
 
-    Result<void> init() { return mMediator->init(); }
+    Result<void> init(const sp<IIoOveruseMonitor>& ioOveruseMonitor) {
+        mMediator->mIoOveruseMonitor = ioOveruseMonitor;
+        return mMediator->init();
+    }
 
 private:
     sp<WatchdogBinderMediator> mMediator;
@@ -82,16 +101,19 @@ protected:
                                            new MockWatchdogServiceHelper(),
                                            kAddServiceFunctionStub);
         internal::WatchdogBinderMediatorPeer mediatorPeer(mWatchdogBinderMediator);
-        ASSERT_RESULT_OK(mediatorPeer.init());
+        mMockIoOveruseMonitor = new MockIoOveruseMonitor();
+        ASSERT_RESULT_OK(mediatorPeer.init(mMockIoOveruseMonitor));
     }
     virtual void TearDown() {
         mMockWatchdogProcessService.clear();
         mMockWatchdogPerfService.clear();
+        mMockIoOveruseMonitor.clear();
         mWatchdogBinderMediator.clear();
     }
 
     sp<MockWatchdogProcessService> mMockWatchdogProcessService;
     sp<MockWatchdogPerfService> mMockWatchdogPerfService;
+    sp<MockIoOveruseMonitor> mMockIoOveruseMonitor;
     sp<WatchdogBinderMediator> mWatchdogBinderMediator;
 };
 
@@ -105,6 +127,7 @@ TEST_F(WatchdogBinderMediatorTest, TestInit) {
 
     ASSERT_NE(mediator->mWatchdogProcessService, nullptr);
     ASSERT_NE(mediator->mWatchdogPerfService, nullptr);
+    ASSERT_NE(mediator->mIoOveruseMonitor, nullptr);
     ASSERT_NE(mediator->mWatchdogInternalHandler, nullptr);
 }
 
@@ -113,38 +136,40 @@ TEST_F(WatchdogBinderMediatorTest, TestErrorOnInitWithNullServiceInstances) {
             new WatchdogBinderMediator(nullptr, new MockWatchdogPerfService(),
                                        new MockWatchdogServiceHelper(), kAddServiceFunctionStub);
 
-    ASSERT_FALSE(mediator->init().ok()) << "No error returned on nullptr watchdog process service";
+    EXPECT_FALSE(mediator->init().ok()) << "No error returned on nullptr watchdog process service";
     mediator.clear();
 
     mediator = new WatchdogBinderMediator(new MockWatchdogProcessService(), nullptr,
                                           new MockWatchdogServiceHelper(), kAddServiceFunctionStub);
 
-    ASSERT_FALSE(mediator->init().ok()) << "No error returned on nullptr watchdog perf service";
+    EXPECT_FALSE(mediator->init().ok()) << "No error returned on nullptr watchdog perf service";
     mediator.clear();
 
     mediator = new WatchdogBinderMediator(new MockWatchdogProcessService(),
                                           new MockWatchdogPerfService(), nullptr,
                                           kAddServiceFunctionStub);
 
-    ASSERT_FALSE(mediator->init().ok()) << "No error returned on nullptr watchdog service helper";
+    EXPECT_FALSE(mediator->init().ok()) << "No error returned on nullptr watchdog service helper";
     mediator.clear();
 
     mediator = new WatchdogBinderMediator(nullptr, nullptr, nullptr, kAddServiceFunctionStub);
 
-    ASSERT_FALSE(mediator->init().ok()) << "No error returned on nullptr watchdog service helper";
+    EXPECT_FALSE(mediator->init().ok()) << "No error returned on null services";
     mediator.clear();
 }
 
 TEST_F(WatchdogBinderMediatorTest, TestTerminate) {
-    ASSERT_NE(mWatchdogBinderMediator->mWatchdogProcessService, nullptr);
-    ASSERT_NE(mWatchdogBinderMediator->mWatchdogPerfService, nullptr);
-    ASSERT_NE(mWatchdogBinderMediator->mWatchdogInternalHandler, nullptr);
+    EXPECT_NE(mWatchdogBinderMediator->mWatchdogProcessService, nullptr);
+    EXPECT_NE(mWatchdogBinderMediator->mWatchdogPerfService, nullptr);
+    EXPECT_NE(mWatchdogBinderMediator->mIoOveruseMonitor, nullptr);
+    EXPECT_NE(mWatchdogBinderMediator->mWatchdogInternalHandler, nullptr);
 
     mWatchdogBinderMediator->terminate();
 
-    ASSERT_EQ(mWatchdogBinderMediator->mWatchdogProcessService, nullptr);
-    ASSERT_EQ(mWatchdogBinderMediator->mWatchdogPerfService, nullptr);
-    ASSERT_EQ(mWatchdogBinderMediator->mWatchdogInternalHandler, nullptr);
+    EXPECT_EQ(mWatchdogBinderMediator->mWatchdogProcessService, nullptr);
+    EXPECT_EQ(mWatchdogBinderMediator->mWatchdogPerfService, nullptr);
+    EXPECT_EQ(mWatchdogBinderMediator->mIoOveruseMonitor, nullptr);
+    EXPECT_EQ(mWatchdogBinderMediator->mWatchdogInternalHandler, nullptr);
 }
 
 TEST_F(WatchdogBinderMediatorTest, TestHandlesEmptyDumpArgs) {
@@ -200,6 +225,71 @@ TEST_F(WatchdogBinderMediatorTest, TestTellClientAlive) {
             .WillOnce(Return(Status::ok()));
     Status status = mWatchdogBinderMediator->tellClientAlive(client, 456);
     ASSERT_TRUE(status.isOk()) << status;
+}
+
+TEST_F(WatchdogBinderMediatorTest, TestAddResourceOveruseListener) {
+    sp<IResourceOveruseListener> listener = new MockResourceOveruseListener();
+    EXPECT_CALL(*mMockIoOveruseMonitor, addIoOveruseListener(listener))
+            .WillOnce(Return(Result<void>{}));
+
+    Status status =
+            mWatchdogBinderMediator->addResourceOveruseListener({ResourceType::IO}, listener);
+    ASSERT_TRUE(status.isOk()) << status;
+}
+
+TEST_F(WatchdogBinderMediatorTest, TestErrorsAddResourceOveruseListenerOnInvalidArgs) {
+    sp<IResourceOveruseListener> listener = new MockResourceOveruseListener();
+    EXPECT_CALL(*mMockIoOveruseMonitor, addIoOveruseListener(listener)).Times(0);
+
+    ASSERT_FALSE(mWatchdogBinderMediator->addResourceOveruseListener({}, listener).isOk())
+            << "Should fail on empty resource types";
+
+    ASSERT_FALSE(
+            mWatchdogBinderMediator->addResourceOveruseListener({ResourceType::IO}, nullptr).isOk())
+            << "Should fail on null listener";
+}
+
+TEST_F(WatchdogBinderMediatorTest, TestRemoveResourceOveruseListener) {
+    sp<IResourceOveruseListener> listener = new MockResourceOveruseListener();
+    EXPECT_CALL(*mMockIoOveruseMonitor, removeIoOveruseListener(listener))
+            .WillOnce(Return(Result<void>{}));
+
+    Status status = mWatchdogBinderMediator->removeResourceOveruseListener(listener);
+    ASSERT_TRUE(status.isOk()) << status;
+}
+
+TEST_F(WatchdogBinderMediatorTest, TestGetResourceOveruseStats) {
+    IoOveruseStats ioOveruseStats;
+    ioOveruseStats.killableOnOveruse = true;
+    ioOveruseStats.startTime = 99898;
+    ioOveruseStats.durationInSeconds = 12345;
+    ioOveruseStats.totalOveruses = 3;
+    std::vector<ResourceOveruseStats> expected;
+    ResourceOveruseStats stats;
+    stats.set<ResourceOveruseStats::ioOveruseStats>(ioOveruseStats);
+    expected.emplace_back(std::move(stats));
+
+    EXPECT_CALL(*mMockIoOveruseMonitor, getIoOveruseStats(_))
+            .WillOnce(DoAll(SetArgPointee<0>(ioOveruseStats), Return(Result<void>{})));
+
+    std::vector<ResourceOveruseStats> actual;
+    Status status = mWatchdogBinderMediator->getResourceOveruseStats({ResourceType::IO}, &actual);
+    ASSERT_TRUE(status.isOk()) << status;
+    EXPECT_THAT(actual, UnorderedElementsAreArray(expected))
+            << "Expected: " << toString(expected) << "\nActual: " << toString(actual);
+}
+
+TEST_F(WatchdogBinderMediatorTest, TestErrorsGetResourceOveruseStatsOnInvalidArgs) {
+    sp<IResourceOveruseListener> listener = new MockResourceOveruseListener();
+    EXPECT_CALL(*mMockIoOveruseMonitor, getIoOveruseStats(_)).Times(0);
+
+    std::vector<ResourceOveruseStats> actual;
+    ASSERT_FALSE(mWatchdogBinderMediator->getResourceOveruseStats({}, &actual).isOk())
+            << "Should fail on empty resource types";
+
+    ASSERT_FALSE(
+            mWatchdogBinderMediator->getResourceOveruseStats({ResourceType::IO}, nullptr).isOk())
+            << "Should fail on null listener";
 }
 
 TEST_F(WatchdogBinderMediatorTest, TestRegisterMediator) {

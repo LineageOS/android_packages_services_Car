@@ -33,12 +33,12 @@ namespace watchdog {
 
 using ::android::String16;
 using ::android::String8;
+using ::android::automotive::watchdog::PerStateBytes;
 using ::android::automotive::watchdog::internal::ApplicationCategoryType;
 using ::android::automotive::watchdog::internal::ComponentType;
 using ::android::automotive::watchdog::internal::IoOveruseAlertThreshold;
 using ::android::automotive::watchdog::internal::IoOveruseConfiguration;
 using ::android::automotive::watchdog::internal::PackageInfo;
-using ::android::automotive::watchdog::internal::PerStateBytes;
 using ::android::automotive::watchdog::internal::PerStateIoOveruseThreshold;
 using ::android::base::Error;
 using ::android::base::Result;
