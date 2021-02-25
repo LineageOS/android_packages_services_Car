@@ -40,6 +40,7 @@ PRODUCT_PACKAGES += \
     DefaultStorageMonitoringCompanionApp \
     EmbeddedKitchenSinkApp \
     DirectRenderingCluster \
+    ClusterHomeSample \
     GarageModeTestApp \
     ExperimentalCarService \
     BugReportApp \
