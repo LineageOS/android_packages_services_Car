@@ -124,4 +124,8 @@
         <item>"no_modify_accounts"</item>
     </string-array>
 
+    <!-- Use a car-specific activity resolver that supports rotary. -->
+    <string name="config_customResolverActivity" translatable="false"
+        >com.android.car.activityresolver/.CarResolverActivity</string>
+
 </resources>

@@ -21,6 +21,7 @@ PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/priv
 
 PRODUCT_PACKAGES += \
     Bluetooth \
+    CarActivityResolver \
     CarDeveloperOptions \
     OneTimeInitializer \
     Provision \
