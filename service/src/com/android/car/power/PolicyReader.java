@@ -241,7 +241,7 @@ final class PolicyReader {
             readPowerPolicyFromXml(inputStream);
         } catch (IOException | XmlPullParserException | PolicyXmlException e) {
             Slog.w(TAG, "Proceed without registered policies: failed to parse "
-                    + VENDOR_POLICY_PATH, e);
+                    + VENDOR_POLICY_PATH + ": " + e);
         }
     }
 

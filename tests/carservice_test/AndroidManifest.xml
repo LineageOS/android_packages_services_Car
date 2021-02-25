@@ -32,6 +32,7 @@
     <uses-permission android:name="android.car.permission.CAR_MONITOR_INPUT"/>
     <uses-permission android:name="android.car.permission.STORAGE_MONITORING"/>
     <uses-permission android:name="android.car.permission.READ_CAR_OCCUPANT_AWARENESS_STATE"/>
+    <uses-permission android:name="android.car.permission.READ_CAR_POWER_POLICY"/>
 
     <instrumentation android:name="androidx.test.runner.AndroidJUnitRunner"
          android:targetPackage="com.android.car.test"
