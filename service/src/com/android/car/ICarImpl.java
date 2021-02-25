@@ -29,6 +29,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
 import android.content.res.Resources;
+import android.frameworks.automotive.powerpolicy.internal.ICarPowerPolicySystemNotification;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
@@ -152,14 +153,16 @@ public class ICarImpl extends ICar.Stub {
     public ICarImpl(Context serviceContext, IVehicle vehicle, SystemInterface systemInterface,
             CanBusErrorNotifier errorNotifier, String vehicleInterfaceName) {
         this(serviceContext, vehicle, systemInterface, errorNotifier, vehicleInterfaceName,
-                /* carUserService= */ null, /* carWatchdogService= */ null);
+                /* carUserService= */ null, /* carWatchdogService= */ null,
+                /* powerPolicyDaemon= */ null);
     }
 
     @VisibleForTesting
     ICarImpl(Context serviceContext, IVehicle vehicle, SystemInterface systemInterface,
             CanBusErrorNotifier errorNotifier, String vehicleInterfaceName,
             @Nullable CarUserService carUserService,
-            @Nullable CarWatchdogService carWatchdogService) {
+            @Nullable CarWatchdogService carWatchdogService,
+            @Nullable ICarPowerPolicySystemNotification powerPolicyDaemon) {
         mContext = serviceContext;
         mSystemInterface = systemInterface;
         mHal = new VehicleHal(serviceContext, vehicle);
@@ -202,7 +205,7 @@ public class ICarImpl extends ICar.Stub {
         mCarOccupantZoneService = new CarOccupantZoneService(serviceContext);
         mSystemActivityMonitoringService = new SystemActivityMonitoringService(serviceContext);
         mCarPowerManagementService = new CarPowerManagementService(mContext, mHal.getPowerHal(),
-                systemInterface, mCarUserService);
+                systemInterface, mCarUserService, powerPolicyDaemon);
         mSilentModeController = new SilentModeController(mContext, systemInterface);
         if (mFeatureController.isFeatureEnabled(CarFeatures.FEATURE_CAR_USER_NOTICE_SERVICE)) {
             mCarUserNoticeService = new CarUserNoticeService(serviceContext);
