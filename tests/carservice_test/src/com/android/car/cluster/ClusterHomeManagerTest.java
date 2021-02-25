@@ -32,9 +32,12 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
+import android.hardware.display.DisplayManager;
 import android.os.SystemClock;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.Display;
+import android.view.DisplayAddress;
 
 import com.android.car.MockedCarTestBase;
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
@@ -62,9 +65,6 @@ public class ClusterHomeManagerTest extends MockedCarTestBase {
     private static final int INSET_RIGHT = 780;
     private static final int INSET_BOTTOM = 590;
 
-    private static final String[] DEFAULT_OCCUPANT_DISPLAY_MAPPING = {
-            "displayPort=0,displayType=INSTRUMENT_CLUSTER,occupantZoneId=0",
-    };
     private static final String[] ENABLED_OPTIONAL_FEATURES = {
             Car.CLUSTER_HOME_SERVICE
     };
@@ -109,17 +109,32 @@ public class ClusterHomeManagerTest extends MockedCarTestBase {
     protected synchronized void configureResourceOverrides(
             MockedCarTestBase.MockResources resources) {
         super.configureResourceOverrides(resources);
+        StringBuilder occupantDisplayMapping = new StringBuilder();
+        occupantDisplayMapping.append("displayPort=");
+        occupantDisplayMapping.append(getDefaultDisplayPort());
+        occupantDisplayMapping.append("displayType=INSTRUMENT_CLUSTER,occupantZoneId=0");
         resources.overrideResource(com.android.car.R.array.config_occupant_display_mapping,
-                DEFAULT_OCCUPANT_DISPLAY_MAPPING);
+                occupantDisplayMapping.toString());
         resources.overrideResource(com.android.car.R.array.config_allowed_optional_car_features,
                 ENABLED_OPTIONAL_FEATURES);
+    }
+
+    private int getDefaultDisplayPort() {
+        DisplayManager displayManager = getTestContext().getSystemService(DisplayManager.class);
+        Display defaultDisplay = displayManager.getDisplay(Display.DEFAULT_DISPLAY);
+        DisplayAddress address = (DisplayAddress.Physical) defaultDisplay.getAddress();
+        if (!(address instanceof DisplayAddress.Physical)) {
+            throw new IllegalStateException("Default display is not a physical display");
+        }
+        DisplayAddress.Physical physicalAddress = (DisplayAddress.Physical) address;
+        return physicalAddress.getPort();
     }
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
         mClusterHomeManager = (ClusterHomeManager) getCar().getCarManager(Car.CLUSTER_HOME_SERVICE);
-        if (!isNoHalPropertyTest()) {
+        if (!isNoHalPropertyTest() && mClusterHomeManager != null) {
             mClusterHomeManager.registerClusterHomeCallback(
                     getContext().getMainExecutor(), mClusterHomeCallback);
         }
@@ -127,7 +142,7 @@ public class ClusterHomeManagerTest extends MockedCarTestBase {
 
     @Override
     public void tearDown() throws Exception {
-        if (!isNoHalPropertyTest()) {
+        if (!isNoHalPropertyTest() && mClusterHomeManager != null) {
             mClusterHomeManager.unregisterClusterHomeCallback(mClusterHomeCallback);
         }
         super.tearDown();
