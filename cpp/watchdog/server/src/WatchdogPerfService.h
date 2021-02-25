@@ -88,9 +88,13 @@ public:
             time_t time, const std::unordered_set<std::string>& filterPackages,
             const android::wp<UidIoStats>& uidIoStats, const android::wp<ProcStat>& procStat,
             const android::wp<ProcPidStat>& procPidStat) = 0;
-    // Callback to periodically monitor the collected data.
+    /*
+     * Callback to periodically monitor the collected data and trigger the given |alertHandler|
+     * on detecting resource overuse.
+     */
     virtual android::base::Result<void> onPeriodicMonitor(
-            time_t time, const android::wp<IProcDiskStatsInterface>& procDiskStats) = 0;
+            time_t time, const android::wp<IProcDiskStatsInterface>& procDiskStats,
+            const std::function<void()>& alertHandler) = 0;
     // Callback to dump the boot-time collected and periodically collected data.
     virtual android::base::Result<void> onDump(int fd) = 0;
     /*
@@ -221,6 +225,10 @@ private:
 
     // Processes the monitor events received by |handleMessage|.
     android::base::Result<void> processMonitorEvent(EventMetadata* metadata);
+
+    // Returns the metadata for the current collection based on |mCurrCollectionEvent|. Returns
+    // nullptr on invalid collection event.
+    EventMetadata* currCollectionMetadataLocked();
 
     // Thread on which the actual collection happens.
     std::thread mCollectionThread;

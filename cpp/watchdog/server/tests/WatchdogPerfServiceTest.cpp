@@ -76,7 +76,8 @@ public:
                  const wp<ProcStat>&, const wp<ProcPidStat>&),
                 (override));
     MOCK_METHOD(Result<void>, onPeriodicMonitor,
-                (time_t, const android::wp<IProcDiskStatsInterface>&), (override));
+                (time_t, const android::wp<IProcDiskStatsInterface>&, const std::function<void()>&),
+                (override));
     MOCK_METHOD(Result<void>, onDump, (int), (override));
     MOCK_METHOD(Result<void>, onCustomCollectionDump, (int), (override));
 };
@@ -247,7 +248,7 @@ TEST(WatchdogPerfServiceTest, TestValidCollectionSequence) {
 
     // #4 Periodic monitor
     EXPECT_CALL(*servicePeer.mockProcDiskStats, collect()).Times(1);
-    EXPECT_CALL(*servicePeer.mockDataProcessor, onPeriodicMonitor(_, procDiskStats)).Times(1);
+    EXPECT_CALL(*servicePeer.mockDataProcessor, onPeriodicMonitor(_, procDiskStats, _)).Times(1);
 
     ASSERT_RESULT_OK(servicePeer.looperStub->pollCache());
 
@@ -258,7 +259,7 @@ TEST(WatchdogPerfServiceTest, TestValidCollectionSequence) {
 
     // #5 Periodic monitor
     EXPECT_CALL(*servicePeer.mockProcDiskStats, collect()).Times(1);
-    EXPECT_CALL(*servicePeer.mockDataProcessor, onPeriodicMonitor(_, procDiskStats)).Times(1);
+    EXPECT_CALL(*servicePeer.mockDataProcessor, onPeriodicMonitor(_, procDiskStats, _)).Times(1);
 
     ASSERT_RESULT_OK(servicePeer.looperStub->pollCache());
 
@@ -358,7 +359,7 @@ TEST(WatchdogPerfServiceTest, TestValidCollectionSequence) {
 
     // #11 Periodic monitor.
     EXPECT_CALL(*servicePeer.mockProcDiskStats, collect()).Times(1);
-    EXPECT_CALL(*servicePeer.mockDataProcessor, onPeriodicMonitor(_, procDiskStats)).Times(1);
+    EXPECT_CALL(*servicePeer.mockDataProcessor, onPeriodicMonitor(_, procDiskStats, _)).Times(1);
 
     ASSERT_RESULT_OK(servicePeer.looperStub->pollCache());
 
@@ -521,6 +522,72 @@ TEST(WatchdogPerfServiceTest, TestCustomCollection) {
             << " seconds";
     ASSERT_EQ(servicePeer.getCurrCollectionEvent(), EventType::PERIODIC_COLLECTION)
             << "Invalid collection event";
+    EXPECT_CALL(*servicePeer.mockDataProcessor, terminate()).Times(1);
+}
+
+TEST(WatchdogPerfServiceTest, TestPeriodicMonitorRequestsCollection) {
+    sp<WatchdogPerfService> service = new WatchdogPerfService();
+
+    internal::WatchdogPerfServicePeer servicePeer(service);
+    ASSERT_NO_FATAL_FAILURE(servicePeer.injectFakes());
+
+    ASSERT_RESULT_OK(servicePeer.start());
+
+    wp<UidIoStats> uidIoStats(servicePeer.mockUidIoStats);
+    wp<IProcDiskStatsInterface> procDiskStats(servicePeer.mockProcDiskStats);
+    wp<ProcStat> procStat(servicePeer.mockProcStat);
+    wp<ProcPidStat> procPidStat(servicePeer.mockProcPidStat);
+
+    EXPECT_CALL(*servicePeer.mockUidIoStats, collect()).Times(2);
+    EXPECT_CALL(*servicePeer.mockProcStat, collect()).Times(2);
+    EXPECT_CALL(*servicePeer.mockProcPidStat, collect()).Times(2);
+    EXPECT_CALL(*servicePeer.mockDataProcessor,
+                onBoottimeCollection(_, uidIoStats, procStat, procPidStat))
+            .Times(2);
+
+    // Make sure the collection event changes from EventType::INIT to
+    // EventType::BOOT_TIME_COLLECTION.
+    ASSERT_RESULT_OK(servicePeer.looperStub->pollCache());
+
+    // Mock boot complete.
+    ASSERT_RESULT_OK(service->onBootFinished());
+
+    // Process |SwitchMessage::END_BOOTTIME_COLLECTION|.
+    ASSERT_RESULT_OK(servicePeer.looperStub->pollCache());
+    ASSERT_EQ(servicePeer.getCurrCollectionEvent(), EventType::PERIODIC_COLLECTION)
+            << "Invalid collection event";
+
+    servicePeer.verifyAndClearExpectations();
+
+    // Periodic monitor issuing an alert to start new collection.
+    EXPECT_CALL(*servicePeer.mockProcDiskStats, collect()).Times(1);
+    EXPECT_CALL(*servicePeer.mockDataProcessor, onPeriodicMonitor(_, procDiskStats, _))
+            .WillOnce([&](auto, auto, const auto& alertHandler) -> Result<void> {
+                alertHandler();
+                return {};
+            });
+
+    ASSERT_RESULT_OK(servicePeer.looperStub->pollCache());
+
+    ASSERT_EQ(servicePeer.looperStub->numSecondsElapsed(), kTestPeriodicMonitorInterval.count())
+            << "First periodic monitor didn't happen at " << kTestPeriodicMonitorInterval.count()
+            << " seconds interval";
+    servicePeer.verifyAndClearExpectations();
+
+    EXPECT_CALL(*servicePeer.mockUidIoStats, collect()).Times(1);
+    EXPECT_CALL(*servicePeer.mockProcStat, collect()).Times(1);
+    EXPECT_CALL(*servicePeer.mockProcPidStat, collect()).Times(1);
+    EXPECT_CALL(*servicePeer.mockDataProcessor,
+                onPeriodicCollection(_, uidIoStats, procStat, procPidStat))
+            .Times(1);
+
+    ASSERT_RESULT_OK(servicePeer.looperStub->pollCache());
+
+    ASSERT_EQ(servicePeer.looperStub->numSecondsElapsed(), 0)
+            << "First periodic collection didn't happen immediately after the alert";
+
+    servicePeer.verifyAndClearExpectations();
+
     EXPECT_CALL(*servicePeer.mockDataProcessor, terminate()).Times(1);
 }
 

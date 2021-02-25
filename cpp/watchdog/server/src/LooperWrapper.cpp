@@ -65,6 +65,14 @@ void LooperWrapper::removeMessages(const sp<MessageHandler>& handler) {
     return mLooper->removeMessages(handler);
 }
 
+void LooperWrapper::removeMessages(const android::sp<MessageHandler>& handler, int what) {
+    if (mLooper == nullptr) {
+        ALOGW("No looper in LooperWrapper");
+        return;
+    }
+    return mLooper->removeMessages(handler, what);
+}
+
 }  // namespace watchdog
 }  // namespace automotive
 }  // namespace android

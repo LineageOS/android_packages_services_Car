@@ -24,15 +24,15 @@ parcelable PerStateBytes {
   /**
    * Number of bytes attributed to the application foreground mode.
    */
-  long applicationForegroundBytes;
+  long foregroundBytes;
 
   /**
    * Number of bytes attributed to the application background mode.
    */
-  long applicationBackgroundBytes;
+  long backgroundBytes;
 
   /**
    * Number of bytes attributed to the system garage mode.
    */
-  long systemGarageModeBytes;
+  long garageModeBytes;
 }

@@ -149,7 +149,8 @@ public:
 
     android::base::Result<void> onPeriodicMonitor(
             [[maybe_unused]] time_t time,
-            [[maybe_unused]] const android::wp<IProcDiskStatsInterface>& procDiskStats) {
+            [[maybe_unused]] const android::wp<IProcDiskStatsInterface>& procDiskStats,
+            [[maybe_unused]] const std::function<void()>& alertHandler) {
         // No monitoring done here as this DataProcessor only collects I/O performance records.
         return {};
     }

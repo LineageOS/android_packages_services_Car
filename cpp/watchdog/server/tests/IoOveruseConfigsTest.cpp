@@ -54,9 +54,9 @@ std::string toString(const PerStateIoOveruseThreshold& thresholds) {
     return StringPrintf("name=%s, foregroundBytes=%" PRId64 ", backgroundBytes=%" PRId64
                         ", garageModeBytes=%" PRId64,
                         String8(thresholds.name).c_str(),
-                        thresholds.perStateWriteBytes.applicationForegroundBytes,
-                        thresholds.perStateWriteBytes.applicationBackgroundBytes,
-                        thresholds.perStateWriteBytes.systemGarageModeBytes);
+                        thresholds.perStateWriteBytes.foregroundBytes,
+                        thresholds.perStateWriteBytes.backgroundBytes,
+                        thresholds.perStateWriteBytes.garageModeBytes);
 }
 
 std::string toString(const ComponentSpecificConfig& config) {
@@ -103,9 +103,9 @@ PerStateIoOveruseThreshold toPerStateIoOveruseThreshold(const std::string& name,
                                                         const int64_t garageModeBytes) {
     PerStateIoOveruseThreshold threshold;
     threshold.name = String16(String8(name.c_str()));
-    threshold.perStateWriteBytes.applicationForegroundBytes = fgBytes;
-    threshold.perStateWriteBytes.applicationBackgroundBytes = bgBytes;
-    threshold.perStateWriteBytes.systemGarageModeBytes = garageModeBytes;
+    threshold.perStateWriteBytes.foregroundBytes = fgBytes;
+    threshold.perStateWriteBytes.backgroundBytes = bgBytes;
+    threshold.perStateWriteBytes.garageModeBytes = garageModeBytes;
     return threshold;
 }
 

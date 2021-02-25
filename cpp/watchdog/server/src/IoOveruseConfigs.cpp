@@ -61,18 +61,18 @@ const int32_t kVendorComponentUpdatableConfigs = COMPONENT_SPECIFIC_GENERIC_THRE
 const int32_t kThirdPartyComponentUpdatableConfigs = COMPONENT_SPECIFIC_GENERIC_THRESHOLDS;
 
 bool isZeroValueThresholds(const PerStateIoOveruseThreshold& thresholds) {
-    return thresholds.perStateWriteBytes.applicationForegroundBytes == 0 &&
-            thresholds.perStateWriteBytes.applicationBackgroundBytes == 0 &&
-            thresholds.perStateWriteBytes.systemGarageModeBytes == 0;
+    return thresholds.perStateWriteBytes.foregroundBytes == 0 &&
+            thresholds.perStateWriteBytes.backgroundBytes == 0 &&
+            thresholds.perStateWriteBytes.garageModeBytes == 0;
 }
 
 std::string toString(const PerStateIoOveruseThreshold& thresholds) {
     return StringPrintf("name=%s, foregroundBytes=%" PRId64 ", backgroundBytes=%" PRId64
                         ", garageModeBytes=%" PRId64,
                         String8(thresholds.name).c_str(),
-                        thresholds.perStateWriteBytes.applicationForegroundBytes,
-                        thresholds.perStateWriteBytes.applicationBackgroundBytes,
-                        thresholds.perStateWriteBytes.systemGarageModeBytes);
+                        thresholds.perStateWriteBytes.foregroundBytes,
+                        thresholds.perStateWriteBytes.backgroundBytes,
+                        thresholds.perStateWriteBytes.garageModeBytes);
 }
 
 Result<void> containsValidThresholds(const PerStateIoOveruseThreshold& thresholds) {
@@ -84,9 +84,9 @@ Result<void> containsValidThresholds(const PerStateIoOveruseThreshold& threshold
         return Error() << "Zero value thresholds for " << thresholds.name;
     }
 
-    if (thresholds.perStateWriteBytes.applicationForegroundBytes == 0 ||
-        thresholds.perStateWriteBytes.applicationBackgroundBytes == 0 ||
-        thresholds.perStateWriteBytes.systemGarageModeBytes == 0) {
+    if (thresholds.perStateWriteBytes.foregroundBytes == 0 ||
+        thresholds.perStateWriteBytes.backgroundBytes == 0 ||
+        thresholds.perStateWriteBytes.garageModeBytes == 0) {
         return Error() << "Some thresholds are zero: " << toString(thresholds);
     }
     return {};

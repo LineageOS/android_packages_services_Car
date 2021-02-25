@@ -42,6 +42,15 @@ prop {
     prop_name: "ro.carwatchdog.periodic_collection_interval"
 }
 
+# Maximum number of periodically monitored records to be cached in memory.
+prop {
+    api_name: "periodicMonitorBufferSize"
+    type: Integer
+    scope: Internal
+    access: Readonly
+    prop_name: "ro.carwatchdog.periodic_monitor_buffer_size"
+}
+
 # Interval in seconds between consecutive periodic performance data monitoring.
 prop {
     api_name: "periodicMonitorInterval"

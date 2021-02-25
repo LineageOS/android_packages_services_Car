@@ -644,6 +644,7 @@ Result<void> WatchdogPerfService::processMonitorEvent(
                 << std::chrono::duration_cast<std::chrono::seconds>(kMinEventInterval).count()
                 << " seconds";
     }
+    Mutex::Autolock lock(mMutex);
     if (!mProcDiskStats->enabled()) {
         return Error() << "Cannot access proc disk stats for monitoring";
     }
@@ -651,8 +652,31 @@ Result<void> WatchdogPerfService::processMonitorEvent(
     if (const auto result = mProcDiskStats->collect(); !result.ok()) {
         return Error() << "Failed to collect disk stats: " << result.error();
     }
+    auto* currCollectionMetadata = currCollectionMetadataLocked();
+    if (currCollectionMetadata == nullptr) {
+        return Error() << "No metadata available for current collection event: "
+                       << toString(mCurrCollectionEvent);
+    }
+    bool requestedCollection = false;
+    const auto requestCollection = [&]() mutable {
+        if (requestedCollection) {
+            return;
+        }
+        const nsecs_t prevUptime =
+                currCollectionMetadata->lastUptime - currCollectionMetadata->interval.count();
+        nsecs_t uptime = mHandlerLooper->now();
+        if (const auto delta = std::abs(uptime - prevUptime); delta < kMinEventInterval.count()) {
+            return;
+        }
+        currCollectionMetadata->lastUptime = uptime;
+        mHandlerLooper->removeMessages(this, currCollectionMetadata->eventType);
+        mHandlerLooper->sendMessage(this, currCollectionMetadata->eventType);
+        requestedCollection = true;
+    };
     for (const auto& processor : mDataProcessors) {
-        if (const auto result = processor->onPeriodicMonitor(now, mProcDiskStats); !result.ok()) {
+        if (const auto result =
+                    processor->onPeriodicMonitor(now, mProcDiskStats, requestCollection);
+            !result.ok()) {
             return Error() << processor->name() << " failed on " << toString(metadata->eventType)
                            << ": " << result.error();
         }
@@ -660,6 +684,19 @@ Result<void> WatchdogPerfService::processMonitorEvent(
     metadata->lastUptime += metadata->interval.count();
     mHandlerLooper->sendMessageAtTime(metadata->lastUptime, this, metadata->eventType);
     return {};
+}
+
+WatchdogPerfService::EventMetadata* WatchdogPerfService::currCollectionMetadataLocked() {
+    switch (mCurrCollectionEvent) {
+        case EventType::BOOT_TIME_COLLECTION:
+            return &mBoottimeCollection;
+        case EventType::PERIODIC_COLLECTION:
+            return &mPeriodicCollection;
+        case EventType::CUSTOM_COLLECTION:
+            return &mCustomCollection;
+        default:
+            return nullptr;
+    }
 }
 
 }  // namespace watchdog

@@ -35,16 +35,14 @@ parcelable IoOveruseConfiguration {
    * provide package specific thresholds only for the packages in the current component.
    * Third-party component must define only component-level thresholds.
    */
-  PerStateIoOveruseThreshold[] packageSpecificThresholds;
+  List<PerStateIoOveruseThreshold> packageSpecificThresholds;
 
   /**
-   * Category specific I/O overuse thresholds for vendor and third-party packages. This field
-   * must be defined only by the vendor component and the category specific thresholds are applied
-   * to both vendor and third-party packages that fall under the defined categories.
-   * The categories must match the categories defined in the PackageManager's ApplicationInfo
-   * class.
+   * Category specific I/O overuse thresholds for all packages that are not covered by package
+   * specific thresholds and identified by one of the application category types. This field
+   * must be defined only by the vendor component.
    */
-  PerStateIoOveruseThreshold[] categorySpecificThresholds;
+  List<PerStateIoOveruseThreshold> categorySpecificThresholds;
 
   /**
    * List of only non-critical system and vendor packages that are safe to kill on disk I/O
@@ -56,11 +54,12 @@ parcelable IoOveruseConfiguration {
    * Array of system-wide I/O overuse thresholds that triggers the system-wide disk I/O overuse
    * alert. This must be defined only by the system component.
    */
-  IoOveruseAlertThreshold[] systemWideThresholds;
+  List<IoOveruseAlertThreshold> systemWideThresholds;
 
   /**
-   * Defines list of vendor package prefixes. Any package name starting with any of these prefixes
-   * will be recognized as a vendor package. This must be defined only by the vendor component.
+   * Defines the list of vendor package prefixes. Any pre-installed package name starting with one
+   * of these prefixes will be identified as a vendor package in addition to packages under the
+   * vendor partition. This must be defined only by the vendor component.
    */
-  String[] vendorPackagePrefixes;
+  List<String> vendorPackagePrefixes;
 }

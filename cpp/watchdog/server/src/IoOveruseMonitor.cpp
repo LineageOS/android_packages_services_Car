@@ -20,6 +20,7 @@
 
 #include "PackageInfoResolver.h"
 
+#include <WatchdogProperties.sysprop.h>
 #include <binder/Status.h>
 
 namespace android {
@@ -32,10 +33,20 @@ using ::android::base::Error;
 using ::android::base::Result;
 using ::android::binder::Status;
 
+constexpr size_t kMaxPeriodicMonitorBufferSize = 1000;
+
 Result<void> IoOveruseMonitor::init() {
     Mutex::Autolock lock(mMutex);
     if (mIsInitialized) {
         return Error() << "Cannot initialize " << name() << " more than once";
+    }
+    mPeriodicMonitorBufferSize = static_cast<size_t>(
+            sysprop::periodicMonitorBufferSize().value_or(kDefaultPeriodicMonitorBufferSize));
+    if (mPeriodicMonitorBufferSize == 0 ||
+        mPeriodicMonitorBufferSize > kMaxPeriodicMonitorBufferSize) {
+        return Error() << "Periodic monitor buffer size cannot be zero or above "
+                       << kDefaultPeriodicMonitorBufferSize << ". Received "
+                       << mPeriodicMonitorBufferSize;
     }
     // TODO(b/167240592): Read the latest I/O overuse config, last per-package I/O usage, and
     //  last N days per-package I/O overuse stats.
@@ -54,6 +65,10 @@ Result<void> IoOveruseMonitor::init() {
 
 void IoOveruseMonitor::terminate() {
     // TODO(b/167240592): Clear the in-memory cache.
+    Mutex::Autolock lock(mMutex);
+
+    ALOGW("Terminating %s", name().c_str());
+    mSystemWideWrittenBytes.clear();
     return;
 }
 
@@ -90,11 +105,53 @@ Result<void> IoOveruseMonitor::onCustomCollection(
 }
 
 Result<void> IoOveruseMonitor::onPeriodicMonitor(
-        [[maybe_unused]] time_t time, const android::wp<IProcDiskStatsInterface>& procDiskStats) {
+        time_t time, const android::wp<IProcDiskStatsInterface>& procDiskStats,
+        const std::function<void()>& alertHandler) {
     if (procDiskStats == nullptr) {
         return Error() << "Proc disk stats collector must not be null";
     }
-    // TODO(b/167240592): Monitor diskstats for system-level I/O overuse.
+    if (mLastPollTime == 0) {
+        /*
+         * Do not record the first disk stats as it reflects the aggregated disks stats since the
+         * system boot up and is not in sync with the polling period. This will lead to spurious
+         * I/O overuse alerting.
+         */
+        mLastPollTime = time;
+        return {};
+    }
+    const auto diskStats = procDiskStats.promote()->deltaSystemWideDiskStats();
+    mSystemWideWrittenBytes.push_back({.pollDurationInSecs = difftime(time, mLastPollTime),
+                                       .bytesInKib = diskStats.numKibWritten});
+    for (const auto& threshold : mIoOveruseConfigs.alertThresholds) {
+        uint64_t accountedWrittenKib = 0;
+        double accountedDurationInSecs = 0;
+        size_t accountedPolls = 0;
+        for (auto rit = mSystemWideWrittenBytes.rbegin(); rit != mSystemWideWrittenBytes.rend();
+             ++rit) {
+            accountedWrittenKib += rit->bytesInKib;
+            accountedDurationInSecs += rit->pollDurationInSecs;
+            ++accountedPolls;
+            if (accountedDurationInSecs >= threshold.durationInSeconds) {
+                break;
+            }
+        }
+        // Heuristic to handle spurious alerting when the buffer is partially filled.
+        if (const size_t bufferSize = mSystemWideWrittenBytes.size();
+            accountedPolls == bufferSize && bufferSize < mPeriodicMonitorBufferSize + 1 &&
+            threshold.durationInSeconds > accountedDurationInSecs) {
+            continue;
+        }
+        const double thresholdKbps = threshold.writtenBytesPerSecond / 1024.0;
+        if (const auto kbps = accountedWrittenKib / accountedDurationInSecs;
+            kbps >= thresholdKbps) {
+            alertHandler();
+            break;
+        }
+    }
+    if (mSystemWideWrittenBytes.size() > mPeriodicMonitorBufferSize) {
+        mSystemWideWrittenBytes.erase(mSystemWideWrittenBytes.begin());  // Erase the oldest entry.
+    }
+    mLastPollTime = time;
     return {};
 }
 
