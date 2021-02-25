@@ -26,6 +26,7 @@ namespace automotive {
 namespace watchdog {
 namespace testing {
 
+using ::android::Message;
 using ::android::base::Error;
 using ::android::base::Result;
 
@@ -88,6 +89,20 @@ void LooperStub::removeMessages(const android::sp<MessageHandler>& handler) {
     Mutex::Autolock lock(mMutex);
     mCache.clear();
     mLooper->removeMessages(handler);
+}
+
+void LooperStub::removeMessages(const android::sp<MessageHandler>& handler, int what) {
+    Mutex::Autolock lock(mMutex);
+    for (auto& entry : mCache) {
+        for (auto it = entry.begin(); it != entry.end();) {
+            if (it->what == what) {
+                entry.erase(it);
+            } else {
+                ++it;
+            }
+        }
+    }
+    mLooper->removeMessages(handler, what);
 }
 
 Result<void> LooperStub::pollCache() {

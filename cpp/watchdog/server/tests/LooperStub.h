@@ -58,6 +58,9 @@ public:
     // Removes all the messages from the cache and looper for |mHandler|.
     void removeMessages(const android::sp<MessageHandler>& handler) override;
 
+    // Removes the |what| message from the cache and looper for |mHandler|.
+    void removeMessages(const android::sp<MessageHandler>& handler, int what) override;
+
     // Sets |mShouldPoll| so that the subsequent |pollAll| call processes the next non-empty
     // CacheEntry in |mCache|. Before returning, waits for the pollAll call sent to the underlying
     // looper to complete. Thus the caller can be certain this message was processed.
