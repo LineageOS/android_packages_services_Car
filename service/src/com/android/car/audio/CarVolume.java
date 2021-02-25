@@ -139,6 +139,13 @@ final class CarVolume {
         return context;
     }
 
+    /**
+     * @see {@link CarAudioService#resetSelectedVolumeContext()}
+     */
+    public void resetSelectedVolumeContext() {
+        setAudioContextStillActive(CarAudioContext.INVALID);
+    }
+
     private @AudioContext int findActiveContextWithHighestPriority(
             Set<Integer> activeContexts) {
         int currentContext = DEFAULT_AUDIO_CONTEXT;
