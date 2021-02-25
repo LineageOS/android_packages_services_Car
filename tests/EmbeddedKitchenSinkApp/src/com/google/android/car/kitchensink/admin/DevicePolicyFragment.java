@@ -78,6 +78,10 @@ public final class DevicePolicyFragment extends Fragment {
     private EditText mWipeDataFlagsText;
     private Button mWipeDataButton;
 
+    private Button mCheckLockTasksButton;
+    private Button mStartLockTasksButton;
+    private Button mStopLockTasksButton;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
@@ -115,6 +119,15 @@ public final class DevicePolicyFragment extends Fragment {
         mWipeDataFlagsText = view.findViewById(R.id.wipe_data_flags);
         mWipeDataButton = view.findViewById(R.id.wipe_data);
         mWipeDataButton.setOnClickListener((v) -> wipeData());
+
+        mCheckLockTasksButton = view.findViewById(R.id.check_lock_tasks);
+        mCheckLockTasksButton.setOnClickListener((v) -> checkLockTasks());
+
+        mStartLockTasksButton = view.findViewById(R.id.start_lock_tasks);
+        mStartLockTasksButton.setOnClickListener((v) -> startLockTask());
+
+        mStopLockTasksButton = view.findViewById(R.id.stop_lock_tasks);
+        mStopLockTasksButton.setOnClickListener((v) -> stopLockTasks());
 
         updateState();
     }
@@ -186,6 +199,39 @@ public final class DevicePolicyFragment extends Fragment {
             .show();
     }
 
+    private boolean isAllowedToCheckLockTasks() {
+        return mDevicePolicyManager.isLockTaskPermitted(getContext().getPackageName());
+    }
+
+    private void checkLockTasks() {
+        boolean isAllowed = isAllowedToCheckLockTasks();
+        showMessage("KitchenSink %s allowed to lock tasks", isAllowed ? "IS" : "is NOT");
+    }
+
+    private void startLockTask() {
+        Log.v(TAG, "startLockTask()");
+        if (!isAllowedToCheckLockTasks()) {
+            showMessage("KitchenSink is not allowed to lock tasks, "
+                    + "you must use the DPC app to allow it");
+            return;
+        }
+
+        try {
+            getActivity().startLockTask();
+        } catch (IllegalStateException e) {
+            showError(e, "No lock task present");
+        }
+    }
+
+    private void stopLockTasks() {
+        Log.v(TAG, "stopLockTasks()");
+        try {
+            getActivity().stopLockTask();
+        } catch (IllegalStateException e) {
+            showError(e, "No lock task present");
+        }
+    }
+
     private void selfDestruct() {
         int flags = 0;
         String flagsText = mWipeDataFlagsText.getText().toString();
@@ -222,6 +268,13 @@ public final class DevicePolicyFragment extends Fragment {
     private void showMessage(@NonNull String pattern, @Nullable Object... args) {
         String message = String.format(pattern, args);
         Log.v(TAG, "showMessage(): " + message);
+        new AlertDialog.Builder(getContext()).setMessage(message).show();
+    }
+
+    private void showError(@NonNull Exception e, @NonNull String pattern,
+            @Nullable Object... args) {
+        String message = String.format(pattern, args);
+        Log.e(TAG, "showError(): " + message, e);
         new AlertDialog.Builder(getContext()).setMessage(message).show();
     }
 }
