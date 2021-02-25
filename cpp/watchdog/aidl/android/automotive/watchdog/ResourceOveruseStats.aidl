@@ -14,22 +14,18 @@
  * limitations under the License.
  */
 
-package android.automotive.watchdog.internal;
+package android.automotive.watchdog;
 
-import android.automotive.watchdog.internal.PackageIdentifier;
 import android.automotive.watchdog.IoOveruseStats;
 
 /**
- * Structure that describes the I/O overuse stats for a package.
+ * Resource overuse stats interface for all resources.
  */
-parcelable PackageIoOveruseStats {
+@VintfStability
+union ResourceOveruseStats {
   /**
-   * Identifier for the package whose stats are stored in the below fields.
+   * I/O overuse stats for a package.
    */
-  PackageIdentifier packageIdentifier;
-
-   /**
-    * I/O overuse stats for the package.
-    */
   IoOveruseStats ioOveruseStats;
+  // Overuse stats for other resource types may be added in the future.
 }
