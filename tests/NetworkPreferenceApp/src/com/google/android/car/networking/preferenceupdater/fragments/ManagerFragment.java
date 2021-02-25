@@ -51,6 +51,7 @@ public final class ManagerFragment extends Fragment {
     private TextView mCurrentPANSStatusTextView;
     private ToggleButton mReapplyPANSOnBootToggleButton;
     private Button mApplyConfigurationBtn;
+    private Button mResetNetworkPreferencesBtn;
 
     @Override
     public View onCreateView(
@@ -88,6 +89,7 @@ public final class ManagerFragment extends Fragment {
         mCurrentPANSStatusTextView = v.findViewById(R.id.currentPANSStatusTextView);
         mReapplyPANSOnBootToggleButton = v.findViewById(R.id.reapplyPANSOnBootToggleButton);
         mApplyConfigurationBtn = v.findViewById(R.id.applyConfigurationBtn);
+        mResetNetworkPreferencesBtn = v.findViewById(R.id.resetNetworkPreferencesBtn);
     }
 
     /** Defines actions of the buttons on the page */
@@ -96,6 +98,8 @@ public final class ManagerFragment extends Fragment {
         mReapplyPANSOnBootToggleButton.setOnCheckedChangeListener(
                 (buttonView, isChecked) ->
                         mPersonalStorage.saveReapplyPansOnBootCompleteState(true));
+        mResetNetworkPreferencesBtn.setOnClickListener(
+                view -> mOemNetworkPreferencesAdapter.resetNetworkPreferences());
     }
 
     /** Sets default values of text fields */
