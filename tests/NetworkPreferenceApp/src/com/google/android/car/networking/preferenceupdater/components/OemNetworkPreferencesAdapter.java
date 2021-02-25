@@ -95,6 +95,16 @@ public final class OemNetworkPreferencesAdapter {
         }
     }
 
+    /**
+     * This should reset the OEM Network preferences set by this application or by any other
+     * application which calls into setOemNetworkPreferences() API.
+     */
+    public void resetNetworkPreferences() {
+        // Considering that applyPreference will call into setOemNetworkPreference() all we need
+        // is to pass null and it will delete PersonalStorage data and will reset PANS.
+        applyPreference(null);
+    }
+
     private void addPreference(
             int prefId,
             @Nullable OemNetworkPreferences.Builder builder,
