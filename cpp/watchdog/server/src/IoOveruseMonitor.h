@@ -25,18 +25,22 @@
 #include "WatchdogPerfService.h"
 
 #include <android-base/result.h>
+#include <android-base/stringprintf.h>
+#include <android/automotive/watchdog/BnResourceOveruseListener.h>
+#include <android/automotive/watchdog/PerStateBytes.h>
 #include <android/automotive/watchdog/internal/ComponentType.h>
 #include <android/automotive/watchdog/internal/IoOveruseConfiguration.h>
 #include <android/automotive/watchdog/internal/PackageInfo.h>
 #include <android/automotive/watchdog/internal/PackageIoOveruseStats.h>
-#include <android/automotive/watchdog/internal/PerStateBytes.h>
-#include <cutils/multiuser.h>
 #include <utils/Mutex.h>
 
 #include <time.h>
 
+#include <ostream>
 #include <string>
+#include <unordered_map>
 #include <unordered_set>
+#include <vector>
 
 namespace android {
 namespace automotive {
@@ -52,8 +56,31 @@ class IoOveruseMonitorPeer;
 
 }  // namespace internal
 
-// IoOveruseMonitor implements the I/O overuse monitoring module.
-class IoOveruseMonitor : public IDataProcessorInterface {
+// Used only in tests.
+std::tuple<int64_t, int64_t> calculateStartAndDuration(const time_t& currentTime);
+
+/*
+ * IIoOveruseMonitor interface defines the methods that the I/O overuse monitoring module
+ * should implement.
+ */
+class IIoOveruseMonitor : virtual public IDataProcessorInterface {
+public:
+    // Below API is from internal/ICarWatchdog.aidl. Please refer to the AIDL for description.
+    virtual android::base::Result<void> updateIoOveruseConfiguration(
+            android::automotive::watchdog::internal::ComponentType type,
+            const android::automotive::watchdog::internal::IoOveruseConfiguration& config) = 0;
+
+    // Below methods support APIs from ICarWatchdog.aidl. Please refer to the AIDL for description.
+    virtual android::base::Result<void> addIoOveruseListener(
+            const sp<IResourceOveruseListener>& listener) = 0;
+
+    virtual android::base::Result<void> removeIoOveruseListener(
+            const sp<IResourceOveruseListener>& listener) = 0;
+
+    virtual android::base::Result<void> getIoOveruseStats(IoOveruseStats* ioOveruseStats) = 0;
+};
+
+class IoOveruseMonitor final : public IIoOveruseMonitor {
 public:
     explicit IoOveruseMonitor(
             const android::sp<IWatchdogServiceHelperInterface>& watchdogServiceHelper) :
@@ -63,18 +90,15 @@ public:
           mLastSystemWideIoMonitorTime(0),
           mUserPackageDailyIoUsageById({}),
           mIoOveruseWarnPercentage(0),
-          mLastUserPackageIoMonitorTime(0) {}
+          mLastUserPackageIoMonitorTime(0),
+          mOveruseListenersByUid({}),
+          mBinderDeathRecipient(new BinderDeathRecipient(this)) {}
 
     ~IoOveruseMonitor() { terminate(); }
 
+    // Below methods implement IDataProcessorInterface.
     std::string name() { return "IoOveruseMonitor"; }
-
-    // WatchdogBinderMediator API implementation.
-    virtual android::base::Result<void> updateIoOveruseConfiguration(
-            android::automotive::watchdog::internal::ComponentType type,
-            const android::automotive::watchdog::internal::IoOveruseConfiguration& config);
-
-    // Implements IDataProcessorInterface.
+    friend std::ostream& operator<<(std::ostream& os, const IoOveruseMonitor& monitor);
     android::base::Result<void> onBoottimeCollection(
             time_t /*time*/, const android::wp<UidIoStats>& /*uidIoStats*/,
             const android::wp<ProcStat>& /*procStat*/,
@@ -113,6 +137,18 @@ public:
         return {};
     }
 
+    // Below methods implement AIDL interfaces.
+    android::base::Result<void> updateIoOveruseConfiguration(
+            android::automotive::watchdog::internal::ComponentType type,
+            const android::automotive::watchdog::internal::IoOveruseConfiguration& config);
+
+    android::base::Result<void> addIoOveruseListener(const sp<IResourceOveruseListener>& listener);
+
+    android::base::Result<void> removeIoOveruseListener(
+            const sp<IResourceOveruseListener>& listener);
+
+    android::base::Result<void> getIoOveruseStats(IoOveruseStats* ioOveruseStats);
+
 protected:
     android::base::Result<void> init();
 
@@ -128,54 +164,69 @@ private:
         UserPackageIoUsage(const android::automotive::watchdog::internal::PackageInfo& packageInfo,
                            const IoUsage& IoUsage, const bool isGarageModeActive);
         android::automotive::watchdog::internal::PackageInfo packageInfo = {};
-        android::automotive::watchdog::internal::PerStateBytes writtenBytes = {};
-        android::automotive::watchdog::internal::PerStateBytes forgivenWriteBytes = {};
-        int numOveruses = 0;
+        PerStateBytes writtenBytes = {};
+        PerStateBytes forgivenWriteBytes = {};
+        int totalOveruses = 0;
         bool isPackageWarned = false;
 
         UserPackageIoUsage& operator+=(const UserPackageIoUsage& r);
 
-        const std::string id() const {
-            const auto& id = packageInfo.packageIdentifier;
-            return StringPrintf("%s:%" PRId32, String8(id.name).c_str(),
-                                multiuser_get_user_id(id.uid));
-        }
+        const std::string id() const;
     };
 
+    class BinderDeathRecipient final : public android::IBinder::DeathRecipient {
+    public:
+        explicit BinderDeathRecipient(const android::sp<IoOveruseMonitor>& service) :
+              mService(service) {}
+
+        void binderDied(const android::wp<android::IBinder>& who) override {
+            mService->handleBinderDeath(who);
+        }
+
+    private:
+        android::sp<IoOveruseMonitor> mService;
+    };
+
+private:
     bool isInitializedLocked() { return mIoOveruseConfigs != nullptr; }
 
-    void notifyNativePackages(
-            const std::vector<android::automotive::watchdog::internal::PackageIoOveruseStats>&
-                    stats);
+    void notifyNativePackagesLocked(const std::unordered_map<uid_t, IoOveruseStats>& statsByUid);
 
-    void notifyWatchdogService(
-            const std::vector<android::automotive::watchdog::internal::PackageIoOveruseStats>&
-                    stats);
+    void notifyWatchdogServiceLocked(const std::unordered_map<uid_t, IoOveruseStats>& statsByUid);
+
+    void handleBinderDeath(const wp<IBinder>& who);
+
+    using ListenersByUidMap = std::unordered_map<uid_t, android::sp<IResourceOveruseListener>>;
+    using Processor = std::function<void(ListenersByUidMap&, ListenersByUidMap::const_iterator)>;
+    bool findListenerAndProcessLocked(const sp<IBinder>& binder, const Processor& processor);
 
     // Local IPackageInfoResolverInterface instance. Useful to mock in tests.
     sp<IPackageInfoResolverInterface> mPackageInfoResolver;
 
     // Makes sure only one collection is running at any given time.
-    mutable Mutex mMutex;
+    mutable std::shared_mutex mRwMutex;
 
-    android::sp<IWatchdogServiceHelperInterface> mWatchdogServiceHelper GUARDED_BY(mMutex);
+    android::sp<IWatchdogServiceHelperInterface> mWatchdogServiceHelper GUARDED_BY(mRwMutex);
 
     // Summary of configs available for all the components and system-wide overuse alert thresholds.
-    sp<IIoOveruseConfigs> mIoOveruseConfigs GUARDED_BY(mMutex);
+    sp<IIoOveruseConfigs> mIoOveruseConfigs GUARDED_BY(mRwMutex);
 
     /*
      * Delta of system-wide written kib across all disks from the last |mPeriodicMonitorBufferSize|
      * polls along with the polling duration.
      */
-    std::vector<WrittenBytesSnapshot> mSystemWideWrittenBytes GUARDED_BY(mMutex);
-    size_t mPeriodicMonitorBufferSize GUARDED_BY(mMutex);
-    time_t mLastSystemWideIoMonitorTime GUARDED_BY(mMutex);
+    std::vector<WrittenBytesSnapshot> mSystemWideWrittenBytes GUARDED_BY(mRwMutex);
+    size_t mPeriodicMonitorBufferSize GUARDED_BY(mRwMutex);
+    time_t mLastSystemWideIoMonitorTime GUARDED_BY(mRwMutex);
 
     // Cache of per user package I/O usage.
     std::unordered_map<std::string, UserPackageIoUsage> mUserPackageDailyIoUsageById
-            GUARDED_BY(mMutex);
-    double mIoOveruseWarnPercentage GUARDED_BY(mMutex);
-    time_t mLastUserPackageIoMonitorTime GUARDED_BY(mMutex);
+            GUARDED_BY(mRwMutex);
+    double mIoOveruseWarnPercentage GUARDED_BY(mRwMutex);
+    time_t mLastUserPackageIoMonitorTime GUARDED_BY(mRwMutex);
+
+    ListenersByUidMap mOveruseListenersByUid GUARDED_BY(mRwMutex);
+    android::sp<BinderDeathRecipient> mBinderDeathRecipient;
 
     friend class WatchdogPerfService;
 

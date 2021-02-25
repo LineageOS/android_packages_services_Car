@@ -23,18 +23,20 @@
 #include <WatchdogProperties.sysprop.h>
 #include <android/automotive/watchdog/internal/PackageIdentifier.h>
 #include <android/automotive/watchdog/internal/UidType.h>
+#include <binder/IPCThreadState.h>
 #include <binder/Status.h>
+#include <cutils/multiuser.h>
 
 namespace android {
 namespace automotive {
 namespace watchdog {
 
+using ::android::IPCThreadState;
 using ::android::automotive::watchdog::internal::ComponentType;
 using ::android::automotive::watchdog::internal::IoOveruseConfiguration;
 using ::android::automotive::watchdog::internal::PackageIdentifier;
 using ::android::automotive::watchdog::internal::PackageInfo;
 using ::android::automotive::watchdog::internal::PackageIoOveruseStats;
-using ::android::automotive::watchdog::internal::PerStateBytes;
 using ::android::automotive::watchdog::internal::UidType;
 using ::android::base::Error;
 using ::android::base::Result;
@@ -42,10 +44,46 @@ using ::android::binder::Status;
 
 constexpr double kDefaultIoOveruseWarnPercentage = 80;
 constexpr size_t kMaxPeriodicMonitorBufferSize = 1000;
-constexpr int kMonitoringPeriodInDays = 1;
+
+namespace {
+
+std::string uniquePackageIdStr(const PackageIdentifier& id) {
+    return StringPrintf("%s:%" PRId32, String8(id.name).c_str(), multiuser_get_user_id(id.uid));
+}
+
+PerStateBytes diff(const PerStateBytes& lhs, const PerStateBytes& rhs) {
+    const auto sub = [](const uint64_t& l, const uint64_t& r) -> uint64_t {
+        return l >= r ? (l - r) : 0;
+    };
+    PerStateBytes result;
+    result.foregroundBytes = sub(lhs.foregroundBytes, rhs.foregroundBytes);
+    result.backgroundBytes = sub(lhs.backgroundBytes, rhs.backgroundBytes);
+    result.garageModeBytes = sub(lhs.garageModeBytes, rhs.garageModeBytes);
+    return result;
+}
+
+std::tuple<int64_t, int64_t> calculateStartAndDuration(struct tm currentTm) {
+    // The stats are stored per-day so the start time is always the beginning of the day.
+    auto startTm = currentTm;
+    startTm.tm_sec = 0;
+    startTm.tm_min = 0;
+    startTm.tm_hour = 0;
+
+    int64_t startTime = static_cast<int64_t>(mktime(&startTm));
+    int64_t currentEpochSeconds = static_cast<int64_t>(mktime(&currentTm));
+    return std::make_tuple(startTime, currentEpochSeconds - startTime);
+}
+
+}  // namespace
+
+std::tuple<int64_t, int64_t> calculateStartAndDuration(const time_t& currentTime) {
+    struct tm currentGmt;
+    gmtime_r(&currentTime, &currentGmt);
+    return calculateStartAndDuration(currentGmt);
+}
 
 Result<void> IoOveruseMonitor::init() {
-    Mutex::Autolock lock(mMutex);
+    std::unique_lock writeLock(mRwMutex);
     if (isInitializedLocked()) {
         return Error() << "Cannot initialize " << name() << " more than once";
     }
@@ -77,11 +115,18 @@ Result<void> IoOveruseMonitor::init() {
 }
 
 void IoOveruseMonitor::terminate() {
-    // TODO(b/167240592): Clear the in-memory cache.
-    Mutex::Autolock lock(mMutex);
+    std::unique_lock writeLock(mRwMutex);
 
     ALOGW("Terminating %s", name().c_str());
+    mWatchdogServiceHelper.clear();
+    mIoOveruseConfigs.clear();
     mSystemWideWrittenBytes.clear();
+    mUserPackageDailyIoUsageById.clear();
+    for (const auto& [uid, listener] : mOveruseListenersByUid) {
+        BnResourceOveruseListener::asBinder(listener)->unlinkToDeath(mBinderDeathRecipient);
+    }
+    mBinderDeathRecipient.clear();
+    mOveruseListenersByUid.clear();
     return;
 }
 
@@ -93,7 +138,7 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
         return Error() << "Per-UID I/O stats collector must not be null";
     }
 
-    Mutex::Autolock lock(mMutex);
+    std::unique_lock writeLock(mRwMutex);
     struct tm prevGmt, curGmt;
     gmtime_r(&mLastUserPackageIoMonitorTime, &prevGmt);
     gmtime_r(&time, &curGmt);
@@ -107,6 +152,7 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
         mUserPackageDailyIoUsageById.clear();
     }
     mLastUserPackageIoMonitorTime = time;
+    const auto [startTime, durationInSeconds] = calculateStartAndDuration(curGmt);
 
     const auto perUidIoUsage = uidIoStats.promote()->deltaStats();
     /*
@@ -117,12 +163,12 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
     for (const auto& [uid, uidIoStats] : perUidIoUsage) {
         seenUids.push_back(uid);
     }
-    const auto packageInfoByUid = mPackageInfoResolver->getPackageInfosForUids(seenUids);
-    std::vector<PackageIoOveruseStats> overusingNativeStats;
-    std::vector<PackageIoOveruseStats> overusingAppStats;
+    const auto packageInfosByUid = mPackageInfoResolver->getPackageInfosForUids(seenUids);
+    std::unordered_map<uid_t, IoOveruseStats> overusingNativeStats;
+    std::unordered_map<uid_t, IoOveruseStats> overusingAppStats;
     for (const auto& [uid, uidIoStats] : perUidIoUsage) {
-        const auto& packageInfo = packageInfoByUid.find(uid);
-        if (packageInfo == packageInfoByUid.end()) {
+        const auto& packageInfo = packageInfosByUid.find(uid);
+        if (packageInfo == packageInfosByUid.end()) {
             continue;
         }
         /*
@@ -142,37 +188,24 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
             dailyIoUsage = &it->second;
         }
 
-        const auto diff = [](const PerStateBytes& lhs, const PerStateBytes& rhs) -> PerStateBytes {
-            const auto sub = [](const uint64_t& l, const uint64_t& r) -> uint64_t {
-                return l >= r ? (l - r) : 0;
-            };
-            PerStateBytes result;
-            result.foregroundBytes = sub(lhs.foregroundBytes, rhs.foregroundBytes);
-            result.backgroundBytes = sub(lhs.backgroundBytes, rhs.backgroundBytes);
-            result.garageModeBytes = sub(lhs.garageModeBytes, rhs.garageModeBytes);
-            return result;
-        };
-
         const auto threshold = mIoOveruseConfigs->fetchThreshold(dailyIoUsage->packageInfo);
 
-        PackageIoOveruseStats stats;
-        stats.packageIdentifier = dailyIoUsage->packageInfo.packageIdentifier;
-        stats.periodInDays = kMonitoringPeriodInDays;
+        IoOveruseStats stats;
+        stats.startTime = startTime;
+        stats.durationInSeconds = durationInSeconds;
         stats.writtenBytes = dailyIoUsage->writtenBytes;
         stats.remainingWriteBytes =
                 diff(threshold, diff(dailyIoUsage->writtenBytes, dailyIoUsage->forgivenWriteBytes));
-        /*
-         * Native packages can't be disabled so don't kill them on I/O overuse rather only notify
-         * them.
-         */
+
         if (dailyIoUsage->packageInfo.uidType == UidType::NATIVE) {
             if (stats.remainingWriteBytes.foregroundBytes == 0 ||
                 stats.remainingWriteBytes.backgroundBytes == 0 ||
                 stats.remainingWriteBytes.garageModeBytes == 0) {
                 dailyIoUsage->forgivenWriteBytes = dailyIoUsage->writtenBytes;
-                stats.maybeKilledOnOveruse = false;
-                stats.numOveruses = ++dailyIoUsage->numOveruses;
-                overusingNativeStats.emplace_back(std::move(stats));
+                stats.killableOnOveruse =
+                        mIoOveruseConfigs->isSafeToKill(dailyIoUsage->packageInfo);
+                stats.totalOveruses = ++dailyIoUsage->totalOveruses;
+                overusingNativeStats[uid] = std::move(stats);
             }
             continue;
         }
@@ -200,20 +233,20 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
         if (stats.remainingWriteBytes.foregroundBytes == 0 ||
             stats.remainingWriteBytes.backgroundBytes == 0 ||
             stats.remainingWriteBytes.garageModeBytes == 0) {
-            stats.maybeKilledOnOveruse = mIoOveruseConfigs->isSafeToKill(dailyIoUsage->packageInfo);
+            stats.killableOnOveruse = mIoOveruseConfigs->isSafeToKill(dailyIoUsage->packageInfo);
             // Reset counters as the package may be disabled/killed by car watchdog service.
             dailyIoUsage->forgivenWriteBytes = dailyIoUsage->writtenBytes;
-            stats.numOveruses = ++dailyIoUsage->numOveruses;
+            stats.totalOveruses = ++dailyIoUsage->totalOveruses;
             dailyIoUsage->isPackageWarned = false;
-            overusingAppStats.emplace_back(std::move(stats));
+            overusingAppStats[uid] = std::move(stats);
         } else if (exceedsWarnWriteBytes && !dailyIoUsage->isPackageWarned) {
-            stats.maybeKilledOnOveruse = mIoOveruseConfigs->isSafeToKill(dailyIoUsage->packageInfo);
+            stats.killableOnOveruse = mIoOveruseConfigs->isSafeToKill(dailyIoUsage->packageInfo);
             /*
              * No need to warn applications that won't be killed on I/O overuse as they will be sent
              * a notification when they exceed their daily threshold.
              */
-            if (stats.maybeKilledOnOveruse) {
-                overusingAppStats.emplace_back(std::move(stats));
+            if (stats.killableOnOveruse) {
+                overusingAppStats[uid] = std::move(stats);
             }
             // Avoid duplicate warning before the daily threshold exceeded notification is sent.
             dailyIoUsage->isPackageWarned = true;
@@ -221,11 +254,11 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
     }
 
     if (!overusingNativeStats.empty()) {
-        notifyNativePackages(overusingNativeStats);
+        notifyNativePackagesLocked(overusingNativeStats);
     }
 
     if (!overusingAppStats.empty()) {
-        notifyWatchdogService(overusingAppStats);
+        notifyWatchdogServiceLocked(overusingAppStats);
     }
 
     return {};
@@ -302,15 +335,34 @@ Result<void> IoOveruseMonitor::onDump([[maybe_unused]] int fd) {
     return {};
 }
 
-void IoOveruseMonitor::notifyNativePackages(
-        [[maybe_unused]] const std::vector<PackageIoOveruseStats>& stats) {
-    /*
-     * TODO(b/167240592): Notify native packages via ICarWatchdog's public API and upload metrics.
-     */
+void IoOveruseMonitor::notifyNativePackagesLocked(
+        const std::unordered_map<uid_t, IoOveruseStats>& statsByUid) {
+    for (const auto& [uid, ioOveruseStats] : statsByUid) {
+        IResourceOveruseListener* listener;
+        if (const auto it = mOveruseListenersByUid.find(uid); it == mOveruseListenersByUid.end()) {
+            continue;
+        } else {
+            listener = it->second.get();
+        }
+        ResourceOveruseStats stats;
+        stats.set<ResourceOveruseStats::ioOveruseStats>(ioOveruseStats);
+        listener->onOveruse(stats);
+    }
+    // TODO(b/167240592): Upload I/O overuse metrics for native packages.
 }
 
-void IoOveruseMonitor::notifyWatchdogService(const std::vector<PackageIoOveruseStats>& stats) {
-    if (const auto status = mWatchdogServiceHelper->notifyIoOveruse(stats); !status.isOk()) {
+void IoOveruseMonitor::notifyWatchdogServiceLocked(
+        const std::unordered_map<uid_t, IoOveruseStats>& statsByUid) {
+    std::vector<PackageIoOveruseStats> packageIoOveruseStats;
+    for (const auto& [uid, ioOveruseStats] : statsByUid) {
+        PackageIoOveruseStats stats;
+        stats.packageIdentifier.uid = uid;
+        stats.ioOveruseStats = ioOveruseStats;
+        packageIoOveruseStats.emplace_back(std::move(stats));
+    }
+
+    if (const auto status = mWatchdogServiceHelper->notifyIoOveruse(packageIoOveruseStats);
+        !status.isOk()) {
         ALOGW("Failed to notify car watchdog service of I/O overusing packages");
         /*
          * TODO(b/167240592): Upload metrics for all I/O overusing packages with decision as not
@@ -327,11 +379,108 @@ void IoOveruseMonitor::notifyWatchdogService(const std::vector<PackageIoOveruseS
 
 Result<void> IoOveruseMonitor::updateIoOveruseConfiguration(ComponentType type,
                                                             const IoOveruseConfiguration& config) {
-    Mutex::Autolock lock(mMutex);
+    std::unique_lock writeLock(mRwMutex);
     if (!isInitializedLocked()) {
         return Error(Status::EX_ILLEGAL_STATE) << name() << " is not initialized";
     }
     return mIoOveruseConfigs->update(type, config);
+}
+
+Result<void> IoOveruseMonitor::addIoOveruseListener(const sp<IResourceOveruseListener>& listener) {
+    pid_t callingPid = IPCThreadState::self()->getCallingPid();
+    uid_t callingUid = IPCThreadState::self()->getCallingUid();
+    std::unique_lock writeLock(mRwMutex);
+    auto binder = BnResourceOveruseListener::asBinder(listener);
+    if (findListenerAndProcessLocked(binder, nullptr)) {
+        ALOGW("Failed to register the I/O overuse listener (pid: %d, uid: %d) as it is already "
+              "registered",
+              callingPid, callingUid);
+        return {};
+    }
+    if (const auto status = binder->linkToDeath(mBinderDeathRecipient); status != OK) {
+        return Error(Status::EX_ILLEGAL_STATE)
+                << "(pid " << callingPid << ", uid: " << callingUid << ") is dead";
+    }
+    mOveruseListenersByUid[callingUid] = listener;
+    return {};
+}
+
+Result<void> IoOveruseMonitor::removeIoOveruseListener(
+        const sp<IResourceOveruseListener>& listener) {
+    std::unique_lock writeLock(mRwMutex);
+    const auto processor = [&](ListenersByUidMap& listeners, ListenersByUidMap::const_iterator it) {
+        auto binder = BnResourceOveruseListener::asBinder(it->second);
+        binder->unlinkToDeath(mBinderDeathRecipient);
+        listeners.erase(it);
+    };
+    if (const auto binder = BnResourceOveruseListener::asBinder(listener);
+        !findListenerAndProcessLocked(binder, processor)) {
+        return Error(Status::EX_ILLEGAL_ARGUMENT) << "Listener is not previously registered";
+    }
+    return {};
+}
+
+Result<void> IoOveruseMonitor::getIoOveruseStats(IoOveruseStats* ioOveruseStats) {
+    if (std::shared_lock readLock(mRwMutex); !isInitializedLocked()) {
+        return Error(Status::EX_ILLEGAL_STATE) << "I/O overuse monitor is not initialized";
+    }
+    uid_t callingUid = IPCThreadState::self()->getCallingUid();
+    const auto packageInfosByUid = mPackageInfoResolver->getPackageInfosForUids({callingUid});
+    const PackageInfo* packageInfo;
+    if (const auto it = packageInfosByUid.find(callingUid); it == packageInfosByUid.end()) {
+        return Error(Status::EX_ILLEGAL_ARGUMENT)
+                << "Package information not available for calling UID(" << callingUid << ")";
+    } else {
+        packageInfo = &it->second;
+    }
+    std::shared_lock readLock(mRwMutex);
+    const UserPackageIoUsage* dailyIoUsage;
+    if (const auto it = mUserPackageDailyIoUsageById.find(
+                uniquePackageIdStr(packageInfo->packageIdentifier));
+        it == mUserPackageDailyIoUsageById.end()) {
+        return Error(Status::EX_ILLEGAL_ARGUMENT)
+                << "Calling UID " << callingUid << " doesn't have I/O overuse stats";
+    } else {
+        dailyIoUsage = &it->second;
+    }
+    ioOveruseStats->killableOnOveruse = mIoOveruseConfigs->isSafeToKill(*packageInfo);
+    const auto thresholdBytes = mIoOveruseConfigs->fetchThreshold(*packageInfo);
+    ioOveruseStats->remainingWriteBytes =
+            diff(thresholdBytes,
+                 diff(dailyIoUsage->writtenBytes, dailyIoUsage->forgivenWriteBytes));
+    ioOveruseStats->totalOveruses = dailyIoUsage->totalOveruses;
+    ioOveruseStats->writtenBytes = dailyIoUsage->writtenBytes;
+    const auto [startTime, durationInSeconds] =
+            calculateStartAndDuration(mLastUserPackageIoMonitorTime);
+    ioOveruseStats->startTime = startTime;
+    ioOveruseStats->durationInSeconds = durationInSeconds;
+    return {};
+}
+
+void IoOveruseMonitor::handleBinderDeath(const wp<IBinder>& who) {
+    std::unique_lock writeLock(mRwMutex);
+    IBinder* binder = who.unsafe_get();
+    findListenerAndProcessLocked(binder,
+                                 [&](ListenersByUidMap& listeners,
+                                     ListenersByUidMap::const_iterator it) {
+                                     ALOGW("Resource overuse notification handler died for uid(%d)",
+                                           it->first);
+                                     listeners.erase(it);
+                                 });
+}
+
+bool IoOveruseMonitor::findListenerAndProcessLocked(const sp<IBinder>& binder,
+                                                    const Processor& processor) {
+    for (auto it = mOveruseListenersByUid.begin(); it != mOveruseListenersByUid.end(); ++it) {
+        if (BnResourceOveruseListener::asBinder(it->second) != binder) {
+            continue;
+        }
+        if (processor != nullptr) {
+            processor(mOveruseListenersByUid, it);
+        }
+        return true;
+    }
+    return false;
 }
 
 IoOveruseMonitor::UserPackageIoUsage::UserPackageIoUsage(const PackageInfo& pkgInfo,
@@ -364,6 +513,10 @@ IoOveruseMonitor::UserPackageIoUsage& IoOveruseMonitor::UserPackageIoUsage::oper
             sum(writtenBytes.garageModeBytes, r.writtenBytes.garageModeBytes);
 
     return *this;
+}
+
+const std::string IoOveruseMonitor::UserPackageIoUsage::id() const {
+    return uniquePackageIdStr(packageInfo.packageIdentifier);
 }
 
 }  // namespace watchdog

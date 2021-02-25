@@ -40,6 +40,7 @@ using ::android::automotive::watchdog::internal::IoOveruseAlertThreshold;
 using ::android::automotive::watchdog::internal::IoOveruseConfiguration;
 using ::android::automotive::watchdog::internal::PackageInfo;
 using ::android::automotive::watchdog::internal::PerStateIoOveruseThreshold;
+using ::android::automotive::watchdog::internal::UidType;
 using ::android::base::Error;
 using ::android::base::Result;
 using ::android::base::StartsWith;
@@ -419,6 +420,10 @@ PerStateBytes IoOveruseConfigs::fetchThreshold(const PackageInfo& packageInfo) c
 }
 
 bool IoOveruseConfigs::isSafeToKill(const PackageInfo& packageInfo) const {
+    if (packageInfo.uidType == UidType::NATIVE) {
+        // Native packages can't be disabled so don't kill them on I/O overuse.
+        return false;
+    }
     const std::string packageName = std::string(String8(packageInfo.packageIdentifier.name));
     switch (packageInfo.componentType) {
         case ComponentType::SYSTEM:
