@@ -25,4 +25,10 @@
   <string name="oem_paid_only_apps_text" translatable="false">OemNetworkPreferences.OEM_NETWORK_PREFERENCE_OEM_PAID_ONLY</string>
   <string name="oem_private_only_apps_text" translatable="false">OemNetworkPreferences.OEM_NETWORK_PREFERENCE_OEM_PRIVATE_ONLY</string>
   <string name="button_apply_configuration" translatable="false">Apply Configuration</string>
+  <string name="button_reset_network_preference" translatable="false">Reset Network Preference</string>
+  <string name="label_is_pans_overridden" translatable="false">Is PANS overridden?</string>
+  <string name="label_apply_latest_policy_on_boot" translatable="false">Apply latest policy on device boot?</string>
+  <string name="no" translatable="false">No</string>
+  <string name="on" translatable="false">On</string>
+  <string name="off" translatable="false">Off</string>
 </resources>

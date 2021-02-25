@@ -17,7 +17,7 @@
   <style
       name="NetworkPreferenceApp"
       parent="android:Theme.DeviceDefault.NoActionBar">
-    <item name="android:textSize">24sp</item>
+    <item name="android:textSize">18sp</item>
   </style>
   <style name="SectionContainer">
     <!-- Customize your theme here. -->
