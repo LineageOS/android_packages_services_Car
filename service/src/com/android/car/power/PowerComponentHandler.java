@@ -346,6 +346,8 @@ public final class PowerComponentHandler {
                 case PowerComponent.LOCATION:
                     // GNSS HAL handles power state change. So, location mediator is not created.
                     return null;
+                case PowerComponent.CPU:
+                    return null;
                 default:
                     Slog.w(TAG, "Unknown component(" + component + ")");
                     return null;
