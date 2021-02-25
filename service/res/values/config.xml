@@ -78,6 +78,9 @@
     <!--  Service responsible for displaying information on the car instrument cluster. -->
     <string name="instrumentClusterRendererService" translatable="false">android.car.cluster/.ClusterRenderingService</string>
 
+    <!--  The name of Activity who is in charge of ClusterHome. -->
+    <string name="config_clusterHomeActivity" translatable="false">com.android.car.cluster.home/.ClusterHomeActivity</string>
+
     <!--  Service responsible for handling the rotary controller input. This service will start
           on boot or on user switch. Set this string to empty if you don't want to start this
           service. -->
