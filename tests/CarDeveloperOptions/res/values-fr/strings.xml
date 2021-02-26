@@ -2113,7 +2113,7 @@
     <string name="accessibility_summary_state_disabled" msgid="9197369047683087620">"Désactivé"</string>
     <string name="accessibility_summary_state_stopped" msgid="3170264683616172746">"Ce service ne fonctionne pas. Appuyez ici pour en savoir plus."</string>
     <string name="accessibility_description_state_stopped" msgid="7666178628053039493">"Ce service ne fonctionne pas."</string>
-    <string name="enable_quick_setting" msgid="1580451877998661255">"Afficher dans la fenêtre de configuration rapide"</string>
+    <string name="enable_quick_setting" msgid="1580451877998661255">"Afficher dans les Réglages rapides"</string>
     <string name="daltonizer_type" msgid="6890356081036026791">"Mode de correction"</string>
     <plurals name="accessibilty_autoclick_preference_subtitle_extremely_short_delay" formatted="false" msgid="3810676455925024813">
       <item quantity="one">Délai extrêmement court (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> ms)</item>
@@ -4078,7 +4078,7 @@
     <string name="dark_ui_mode_title" msgid="8774932716427742413">"Sélectionner un thème"</string>
     <string name="dark_ui_settings_light_summary" msgid="5219102347744462812">"Ce paramètre s\'applique aussi aux applications"</string>
     <string name="dark_ui_settings_dark_summary" msgid="7042737828943784289">"Le thème sombre s\'appliquera également aux applications compatibles."</string>
-    <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"Tuiles de configuration rapide pour les développeurs"</string>
+    <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"Blocs Réglages rapides pour les développeurs"</string>
     <string name="winscope_trace_quick_settings_title" msgid="940971040388411374">"Trace Winscope"</string>
     <string name="sensors_off_quick_settings_title" msgid="3655699045300438902">"Capteurs désactivés"</string>
     <string name="managed_profile_settings_title" msgid="4340409321523532402">"Paramètres du profil professionnel"</string>
