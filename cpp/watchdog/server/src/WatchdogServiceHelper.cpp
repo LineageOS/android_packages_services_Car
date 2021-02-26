@@ -31,6 +31,7 @@ namespace aawi = ::android::automotive::watchdog::internal;
 using aawi::BnCarWatchdogServiceForSystem;
 using aawi::ICarWatchdogServiceForSystem;
 using aawi::PackageInfo;
+using aawi::PackageIoOveruseStats;
 using ::android::IBinder;
 using ::android::sp;
 using ::android::String16;
@@ -73,14 +74,13 @@ Status WatchdogServiceHelper::registerService(
     if (mService != nullptr && curBinder == newBinder) {
         return Status::ok();
     }
-    status_t ret = newBinder->linkToDeath(this);
-    if (ret != OK) {
+    if (status_t ret = newBinder->linkToDeath(this); ret != OK) {
         return Status::fromExceptionCode(Status::EX_ILLEGAL_STATE,
                                          "Failed to register car watchdog service as it is dead");
     }
     unregisterServiceLocked();
-    Status status = mWatchdogProcessService->registerCarWatchdogService(newBinder);
-    if (!status.isOk()) {
+    if (Status status = mWatchdogProcessService->registerCarWatchdogService(newBinder);
+        !status.isOk()) {
         newBinder->unlinkToDeath(this);
         return status;
     }
@@ -90,8 +90,8 @@ Status WatchdogServiceHelper::registerService(
 
 Status WatchdogServiceHelper::unregisterService(const sp<ICarWatchdogServiceForSystem>& service) {
     std::unique_lock writeLock(mRWMutex);
-    sp<IBinder> binder = BnCarWatchdogServiceForSystem::asBinder(service);
-    if (binder != BnCarWatchdogServiceForSystem::asBinder(mService)) {
+    if (sp<IBinder> binder = BnCarWatchdogServiceForSystem::asBinder(service);
+        binder != BnCarWatchdogServiceForSystem::asBinder(mService)) {
         return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
                                  "Failed to unregister car watchdog service as it is not "
                                  "registered");
@@ -102,9 +102,8 @@ Status WatchdogServiceHelper::unregisterService(const sp<ICarWatchdogServiceForS
 
 void WatchdogServiceHelper::binderDied(const wp<android::IBinder>& who) {
     std::unique_lock writeLock(mRWMutex);
-    IBinder* diedBinder = who.unsafe_get();
     sp<IBinder> curBinder = BnCarWatchdogServiceForSystem::asBinder(mService);
-    if (curBinder == nullptr || diedBinder != curBinder) {
+    if (IBinder* diedBinder = who.unsafe_get(); curBinder == nullptr || diedBinder != curBinder) {
         return;
     }
     ALOGW("Car watchdog service had died.");
@@ -121,15 +120,13 @@ void WatchdogServiceHelper::terminate() {
 Status WatchdogServiceHelper::checkIfAlive(const wp<IBinder>& who, int32_t sessionId,
                                            TimeoutLength timeout) const {
     sp<ICarWatchdogServiceForSystem> service;
-    {
-        std::shared_lock readLock(mRWMutex);
-        if (mService == nullptr ||
-            who.unsafe_get() != BnCarWatchdogServiceForSystem::asBinder(mService)) {
-            return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
-                                     "Dropping checkIfAlive request as the given car watchdog "
-                                     "service "
-                                     "binder isn't registered");
-        }
+    if (std::shared_lock readLock(mRWMutex); mService == nullptr ||
+        who.unsafe_get() != BnCarWatchdogServiceForSystem::asBinder(mService)) {
+        return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
+                                 "Dropping checkIfAlive request as the given car watchdog "
+                                 "service "
+                                 "binder isn't registered");
+    } else {
         service = mService;
     }
     return service->checkIfAlive(sessionId, static_cast<aawi::TimeoutLength>(timeout));
@@ -137,14 +134,12 @@ Status WatchdogServiceHelper::checkIfAlive(const wp<IBinder>& who, int32_t sessi
 
 Status WatchdogServiceHelper::prepareProcessTermination(const wp<IBinder>& who) {
     sp<ICarWatchdogServiceForSystem> service;
-    {
-        std::shared_lock readLock(mRWMutex);
-        if (mService == nullptr ||
-            who.unsafe_get() != BnCarWatchdogServiceForSystem::asBinder(mService)) {
-            return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
-                                     "Dropping prepareProcessTermination request as the given "
-                                     "car watchdog service binder isn't registered");
-        }
+    if (std::shared_lock readLock(mRWMutex); mService == nullptr ||
+        who.unsafe_get() != BnCarWatchdogServiceForSystem::asBinder(mService)) {
+        return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
+                                 "Dropping prepareProcessTermination request as the given "
+                                 "car watchdog service binder isn't registered");
+    } else {
         service = mService;
     }
     Status status = service->prepareProcessTermination();
@@ -194,15 +189,23 @@ Status WatchdogServiceHelper::getPackageInfosForUids(
         prefixes.push_back(String16(prefix.c_str()));
     }
     sp<ICarWatchdogServiceForSystem> service;
-    {
-        std::shared_lock readLock(mRWMutex);
-        if (mService == nullptr) {
-            return fromExceptionCode(Status::EX_ILLEGAL_STATE,
-                                     "Watchdog service is not initialized");
-        }
+    if (std::shared_lock readLock(mRWMutex); mService == nullptr) {
+        return fromExceptionCode(Status::EX_ILLEGAL_STATE, "Watchdog service is not initialized");
+    } else {
         service = mService;
     }
     return service->getPackageInfosForUids(uids, prefixes, packageInfos);
+}
+
+Status WatchdogServiceHelper::notifyIoOveruse(
+        const std::vector<PackageIoOveruseStats>& ioOveruseStats) {
+    sp<ICarWatchdogServiceForSystem> service;
+    if (std::shared_lock readLock(mRWMutex); mService == nullptr) {
+        return fromExceptionCode(Status::EX_ILLEGAL_STATE, "Watchdog service is not initialized");
+    } else {
+        service = mService;
+    }
+    return service->notifyIoOveruse(ioOveruseStats);
 }
 
 }  // namespace watchdog

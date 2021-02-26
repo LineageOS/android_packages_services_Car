@@ -57,7 +57,7 @@ public:
           mWatchdogServiceHelper(watchdogServiceHelper),
           mWatchdogProcessService(watchdogProcessService),
           mWatchdogPerfService(watchdogPerfService),
-          mIoOveruseMonitor(new IoOveruseMonitor()) {}
+          mIoOveruseMonitor(new IoOveruseMonitor(watchdogServiceHelper)) {}
     ~WatchdogInternalHandler() { terminate(); }
 
     status_t dump(int fd, const Vector<String16>& args) override;

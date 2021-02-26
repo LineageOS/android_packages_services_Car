@@ -37,6 +37,14 @@ public:
     MOCK_METHOD((const std::unordered_map<uid_t, UidIoUsage>), latestStats, (), (const, override));
     MOCK_METHOD((const std::unordered_map<uid_t, UidIoUsage>), deltaStats, (), (const, override));
     MOCK_METHOD(std::string, filePath, (), (override));
+
+    void expectDeltaStats(const std::unordered_map<uid_t, IoUsage>& deltaStats) {
+        std::unordered_map<uid_t, UidIoUsage> stats;
+        for (const auto& [uid, ios] : deltaStats) {
+            stats[uid] = UidIoUsage{.uid = uid, .ios = ios};
+        }
+        EXPECT_CALL(*this, deltaStats()).WillOnce(::testing::Return(stats));
+    }
 };
 
 }  // namespace watchdog
