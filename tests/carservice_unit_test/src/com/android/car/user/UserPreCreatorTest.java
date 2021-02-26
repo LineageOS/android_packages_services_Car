@@ -20,10 +20,8 @@ import static android.car.test.util.UserTestingHelper.getDefaultUserType;
 import static android.car.test.util.UserTestingHelper.newGuestUser;
 import static android.car.test.util.UserTestingHelper.newSecondaryUser;
 
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
-import static org.mockito.AdditionalAnswers.answerVoid;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -65,7 +63,6 @@ public final class UserPreCreatorTest extends AbstractExtendedMockitoTestCase {
         builder.spyStatic(CarProperties.class);
     }
 
-
     @Before
     public void setUpMocks() {
         mUserPreCreator = spy(new UserPreCreator(mUserManager));
@@ -78,7 +75,6 @@ public final class UserPreCreatorTest extends AbstractExtendedMockitoTestCase {
         // Set number of requested user
         setNumberRequestedUsersProperty(1);
         setNumberRequestedGuestsProperty(0);
-        mockRunAsync();
         SyncAnswer<UserInfo> syncUserInfo = mockPreCreateUser(/* isGuest= */ false);
 
         mUserPreCreator.managePreCreatedUsers();
@@ -94,7 +90,6 @@ public final class UserPreCreatorTest extends AbstractExtendedMockitoTestCase {
         // Set number of requested user
         setNumberRequestedUsersProperty(0);
         setNumberRequestedGuestsProperty(1);
-        mockRunAsync();
         SyncAnswer<UserInfo> syncUserInfo = mockPreCreateUser(/* isGuest= */ true);
 
         mUserPreCreator.managePreCreatedUsers();
@@ -109,7 +104,6 @@ public final class UserPreCreatorTest extends AbstractExtendedMockitoTestCase {
                 /* isInitialized= */ true);
         setNumberRequestedUsersProperty(0);
         setNumberRequestedGuestsProperty(0);
-        mockRunAsync();
 
         SyncAnswer<Boolean> syncRemoveStatus = mockRemoveUser(PRE_CREATED_USER_ID);
 
@@ -125,7 +119,6 @@ public final class UserPreCreatorTest extends AbstractExtendedMockitoTestCase {
                 /* isInitialized= */ true);
         setNumberRequestedUsersProperty(0);
         setNumberRequestedGuestsProperty(0);
-        mockRunAsync();
         SyncAnswer<Boolean>  syncRemoveStatus = mockRemoveUser(PRE_CREATED_GUEST_ID);
 
         mUserPreCreator.managePreCreatedUsers();
@@ -140,7 +133,6 @@ public final class UserPreCreatorTest extends AbstractExtendedMockitoTestCase {
                 /* isInitialized= */ false);
         setNumberRequestedUsersProperty(0);
         setNumberRequestedGuestsProperty(0);
-        mockRunAsync();
         SyncAnswer<Boolean>  syncRemoveStatus = mockRemoveUser(PRE_CREATED_USER_ID);
 
         mUserPreCreator.managePreCreatedUsers();
@@ -188,7 +180,7 @@ public final class UserPreCreatorTest extends AbstractExtendedMockitoTestCase {
     }
 
     private void verifyPostPreCreatedUserSkipped() throws Exception {
-        verify(mUserPreCreator, never()).runAsync(any());
+        verify(mUserManager, never()).preCreateUser(any());
     }
 
     private void verifyPostPreCreatedUserException() throws Exception {
@@ -201,10 +193,6 @@ public final class UserPreCreatorTest extends AbstractExtendedMockitoTestCase {
 
     private void setNumberRequestedGuestsProperty(int numberGuest) {
         doReturn(Optional.of(numberGuest)).when(() -> CarProperties.number_pre_created_guests());
-    }
-
-    private void mockRunAsync() {
-        doAnswer(answerVoid(Runnable::run)).when(mUserPreCreator).runAsync(any(Runnable.class));
     }
 
     private SyncAnswer<UserInfo> mockPreCreateUser(boolean isGuest) {
