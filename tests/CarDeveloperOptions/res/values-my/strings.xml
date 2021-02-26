@@ -4018,7 +4018,7 @@
     <string name="notification_log_details_key" msgid="5246636581068083931">"ကီး"</string>
     <string name="notification_log_details_group" msgid="5773333552680090289">"အုပ်စု"</string>
     <string name="notification_log_details_group_summary" msgid="3161461545200780773">"(အကျဉ်းချုပ်)"</string>
-    <string name="notification_log_details_visibility" msgid="7623631733460653410">"မြင်နိင်စွမ်း"</string>
+    <string name="notification_log_details_visibility" msgid="7623631733460653410">"မြင်နိုင်မှု"</string>
     <string name="notification_log_details_public_version" msgid="3828112447520697692">"အများသုံးဗားရှင်း"</string>
     <string name="notification_log_details_priority" msgid="4518553990099409699">"ဦးစားပေးမှု"</string>
     <string name="notification_log_details_importance" msgid="5002791265017246702">"အရေးပါမှု"</string>

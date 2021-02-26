@@ -751,7 +751,7 @@
     <string name="bluetooth_preference_paired_dialog_internet_option" msgid="3693599743477470469">"Koneksi internet"</string>
     <string name="bluetooth_preference_paired_dialog_keyboard_option" msgid="4627309436489645755">"Keyboard"</string>
     <string name="bluetooth_preference_paired_dialog_contacts_option" msgid="5290994459307558039">"Kontak dan histori panggilan"</string>
-    <string name="bluetooth_pairing_dialog_title" msgid="7900515495932064945">"Sandingkan dengan perangkat ini?"</string>
+    <string name="bluetooth_pairing_dialog_title" msgid="7900515495932064945">"Sambungkan dengan perangkat ini?"</string>
     <string name="bluetooth_pairing_dialog_sharing_phonebook_title" msgid="7395493311980018460">"Bagikan buku telepon?"</string>
     <string name="bluetooth_pairing_dialog_contants_request" msgid="2103132762434487717">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> ingin mengakses kontak dan histori panggilan Anda."</string>
     <string name="bluetooth_pairing_dialog_paring_request" msgid="5513953935086446387">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> ingin terhubung dengan Bluetooth. Saat terhubung, perangkat dapat mengakses kontak &amp; histori panggilan."</string>

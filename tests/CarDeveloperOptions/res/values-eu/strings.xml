@@ -961,7 +961,7 @@
     <string name="wifi_dpp_connecting" msgid="4229290407210299897">"Konektatzen…"</string>
     <string name="wifi_dpp_share_hotspot" msgid="847987212473038179">"Partekatu wifi-gunea"</string>
     <string name="wifi_dpp_lockscreen_title" msgid="3910665850075275963">"Egiaztatu zeu zarela"</string>
-    <string name="wifi_dpp_wifi_password" msgid="8007558344032612455">"Wifi-sarearen pasahitza: <xliff:g id="PASSWORD">%1$s</xliff:g>"</string>
+    <string name="wifi_dpp_wifi_password" msgid="8007558344032612455">"Wifi-sareko pasahitza: <xliff:g id="PASSWORD">%1$s</xliff:g>"</string>
     <string name="wifi_dpp_hotspot_password" msgid="6172326289042241924">"Wifi-gunearen pasahitza: <xliff:g id="PASSWORD">%1$s</xliff:g>"</string>
     <string name="wifi_dpp_add_device" msgid="1347056725253936358">"Gehitu gailu bat"</string>
     <string name="wifi_dpp_connect_network_using_qr_code" msgid="115993715600532357">"Konektatu sare honetara QR kode baten bidez"</string>
@@ -972,7 +972,7 @@
     <string name="wifi_multiple_cert_added" msgid="7986200585749147204">"(Ziurtagiri batzuk gehitu dira)"</string>
     <string name="wifi_use_system_certs" msgid="4794489370929885022">"Erabili sistemaren ziurtagiriak"</string>
     <string name="wifi_do_not_provide_eap_user_cert" msgid="4044301449482425250">"Ez zehaztu"</string>
-    <string name="wifi_do_not_validate_eap_server" msgid="1892537559682474878">"Ez balidatu"</string>
+    <string name="wifi_do_not_validate_eap_server" msgid="1892537559682474878">"Ez baliozkotu"</string>
     <string name="wifi_do_not_validate_eap_server_warning" msgid="3895397996759837323">"Ez da zehaztu ziurtagiririk. Konexioa ez da izango pribatua."</string>
     <string name="wifi_ssid_too_long" msgid="34911971389775920">"Sarearen izena luzeegia da."</string>
     <string name="wifi_no_domain_warning" msgid="735859919311067606">"Domeinua zehaztu behar da."</string>
@@ -1795,7 +1795,7 @@
     <string name="see_all_apps_title" msgid="6435061912110347474">"Ikusi <xliff:g id="COUNT">%1$d</xliff:g> aplikazioak"</string>
     <string name="install_all_warning" product="tablet" msgid="4580699862358542727">"Tabletak eta datu pertsonalek aplikazio ezezagunen erasoak jaso ditzakete. Iturburu honetako aplikazioak instalatzen badituzu, onartzen duzu haiek erabiltzeagatik tabletari gerta dakizkiokeen kalteen edo datu-galeren erantzulea zeu zarela."</string>
     <string name="install_all_warning" product="default" msgid="7445839116997296358">"Telefonoak eta datu pertsonalek aplikazio ezezagunen erasoak jaso ditzakete. Iturburu honetako aplikazioak instalatzen badituzu, onartzen duzu haiek erabiltzeagatik telefonoari gerta dakizkiokeen kalteen edo datu-galeren erantzulea zeu zarela."</string>
-    <string name="install_all_warning" product="device" msgid="9141585291103603515">"Gailuak eta datu pertsonalek aplikazio ezezagunen erasoak jaso ditzakete. Iturburu honetako aplikazioak instalatzen badituzu, onartuko duzu haiek erabiltzeagatik gailuari agian gertatuko zaizkion kalteen edo datu-galeren erantzulea zeu izango zarela."</string>
+    <string name="install_all_warning" product="device" msgid="9141585291103603515">"Gailuak eta datu pertsonalek aplikazio ezezagunen erasoak jaso ditzakete. Iturburu honetako aplikazioak instalatzen badituzu, onartu egingo duzu haiek erabiltzeagatik gailuari agian gertatuko zaizkion kalteen edo datu-galeren erantzulea zeu izango zarela."</string>
     <string name="advanced_settings" msgid="6282069364060968122">"Ezarpen aurreratuak"</string>
     <string name="advanced_settings_summary" msgid="5912237062506771716">"Gaitu ezarpenen aukera gehiago"</string>
     <string name="application_info_label" msgid="3886253474964599105">"Aplikazioaren informazioa"</string>
@@ -2027,7 +2027,7 @@
     <string name="widget_picker_title" msgid="5424689728810684439">"Aukeratu widgeta"</string>
     <string name="allow_bind_app_widget_activity_allow_bind_title" msgid="8168110035319637326">"Widgeta sortu eta sartzeko baimena eman?"</string>
     <string name="allow_bind_app_widget_activity_allow_bind" msgid="2782554863244412872">"Widgeta sortu ondoren, <xliff:g id="WIDGET_HOST_NAME">%1$s</xliff:g> ostalariak bistaratzen dituen datu guztiak atzitu ahal izango ditu."</string>
-    <string name="allow_bind_app_widget_activity_always_allow_bind" msgid="1185486443615658430">"Eman baimena beti widgetak sortzeko eta haietako datuak atzitzeko <xliff:g id="WIDGET_HOST_NAME">%1$s</xliff:g> ostalariari"</string>
+    <string name="allow_bind_app_widget_activity_always_allow_bind" msgid="1185486443615658430">"Eman widgetak sortzeko eta haietako datuak atzitzeko baimena beti <xliff:g id="WIDGET_HOST_NAME">%1$s</xliff:g> ostalariari"</string>
     <string name="usage_stats_label" msgid="3128999956478977035">"Erabilera-estatistikak"</string>
     <string name="testing_usage_stats" msgid="704965692323956976">"Erabilera-estatistikak"</string>
     <string name="display_order_text" msgid="2973620313510295873">"Ordenatzeko irizpidea:"</string>
@@ -2552,7 +2552,7 @@
     <string name="backup_section_title" msgid="8177209731777904656">"Babeskopiak eta leheneratzea"</string>
     <string name="personal_data_section_title" msgid="9161854418510071558">"Datu pertsonalak"</string>
     <string name="backup_data_title" msgid="4461508563849583624">"Egin nire datuen babeskopia"</string>
-    <string name="backup_data_summary" msgid="555459891017933746">"Egin datuen, wifi-sareen pasahitzen eta beste ezarpenen babeskopia Google-ren zerbitzarietan."</string>
+    <string name="backup_data_summary" msgid="555459891017933746">"Egin datuen, wifi-sareetako pasahitzen eta beste ezarpenen babeskopia Google-ren zerbitzarietan."</string>
     <string name="backup_configure_account_title" msgid="1534734650559070294">"Babesk. gordetzeko kontua"</string>
     <string name="backup_data_management_title" msgid="6299288795610243508">"Kudeatu babeskopiak gordetzeko kontua"</string>
     <string name="include_app_data_title" msgid="6117211611131913293">"Sartu aplikazioetako datuak"</string>
@@ -2561,7 +2561,7 @@
     <string name="backup_inactive_title" msgid="5513496915638307750">"Babeskopia-zerbitzua ez dago aktibo"</string>
     <string name="backup_configure_account_default_summary" msgid="5718298066335006412">"Ez dago babeskopiak gordetzen dituen aplikaziorik"</string>
     <string name="backup_erase_dialog_title" msgid="8178424339104463014"></string>
-    <string name="backup_erase_dialog_message" msgid="8767843355330070902">"Wifi-sareen pasahitzen, laster-marken, bestelako ezarpenen eta aplikazioetako datuen babeskopiak egiteari utzi eta Google-ren zerbitzarietako kopia guztiak ezabatu nahi dituzu?"</string>
+    <string name="backup_erase_dialog_message" msgid="8767843355330070902">"Wifi-sareetako pasahitzen, laster-marken, bestelako ezarpenen eta aplikazioetako datuen babeskopiak egiteari utzi eta Google-ren zerbitzarietako kopia guztiak ezabatu nahi dituzu?"</string>
     <string name="fullbackup_erase_dialog_message" msgid="2588536036471144070">"Gailuko datuen (adibidez, Wi-Fi pasahitzak eta deien historia) eta aplikazioetako datuen (besteak beste, ezarpenak eta aplikazioek gordetako fitxategiak) babeskopiak egiteari utzi nahi diozu eta urruneko zerbitzarietako kopia guztiak ezabatu nahi dituzu?"</string>
     <string name="fullbackup_data_summary" msgid="406274198094268556">"Egin babeskopiak automatikoki urrunetik, bai gailuetako datuenak (esaterako, Wi-Fi sareetako pasahitzak eta deien historia), bai aplikazioetako datuenak (esaterako, ezarpenak eta aplikazioek gordetako fitxategiak).\n\nBabeskopiak automatikoki egiteko aukera aktibatzean, gailuko eta aplikazioetako datuak urrunetik gordetzen dira aldizka. Aplikazioetako datuak aplikazioek gordetako edozein datu izan daitezke (garatzaileen ezarpenen arabera), eta kontuzkoak izan litezkeen datuak ere sar daitezke (adibidez, kontaktuak, mezuak eta argazkiak)."</string>
     <string name="device_admin_settings_title" msgid="2074319456047334589">"Gailua administratzeko aplikazioaren ezarpenak"</string>
