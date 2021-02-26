@@ -30,11 +30,13 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemClock;
 import android.os.SystemProperties;
+import android.os.Trace;
 import android.util.EventLog;
 import android.util.Slog;
 
 import com.android.car.internal.common.EventLogTags;
 import com.android.car.systeminterface.SystemInterface;
+import com.android.car.util.LimitedTimingsTraceLog;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.RingBufferIndices;
 
@@ -43,6 +45,8 @@ import java.io.PrintWriter;
 import java.util.NoSuchElementException;
 
 public class CarService extends Service {
+    public static final String CAR_SERVICE_INIT_TIMING_TAG = "CAR.InitTiming";
+    public static final int CAR_SERVICE_INIT_TIMING_MIN_DURATION_MS = 5;
 
     private static final boolean RESTART_CAR_SERVICE_WHEN_VHAL_CRASH = true;
 
@@ -76,9 +80,16 @@ public class CarService extends Service {
 
     @Override
     public void onCreate() {
-        Slog.i(CarLog.TAG_SERVICE, "Service onCreate");
+        LimitedTimingsTraceLog initTiming = new LimitedTimingsTraceLog(CAR_SERVICE_INIT_TIMING_TAG,
+                Trace.TRACE_TAG_SYSTEM_SERVER, CAR_SERVICE_INIT_TIMING_MIN_DURATION_MS);
+        initTiming.traceBegin("CarService.onCreate");
+
         mCanBusErrorNotifier = new CanBusErrorNotifier(this /* context */);
+
+        initTiming.traceBegin("getVehicle");
         mVehicle = getVehicle();
+        initTiming.traceEnd();
+
         EventLog.writeEvent(EventLogTags.CAR_SERVICE_CREATE, mVehicle == null ? 0 : 1);
 
         if (mVehicle == null) {
@@ -104,7 +115,10 @@ public class CarService extends Service {
 
         ServiceManager.addService("car_service", mICarImpl);
         SystemProperties.set("boot.car_service_created", "1");
+
         super.onCreate();
+
+        initTiming.traceEnd(); // "CarService.onCreate"
     }
 
     // onDestroy is best-effort and might not get called on shutdown/reboot. As such it is not
