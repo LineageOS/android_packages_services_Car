@@ -469,7 +469,7 @@
     <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"Col·loca el dit al sensor i aixeca\'l quan notis una vibració."</string>
     <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"Aixeca el dit i toca de nou"</string>
     <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"Continua aixecant el dit per afegir les diferents parts de l\'empremta digital"</string>
-    <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"Empremta digital afegida"</string>
+    <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"S\'ha afegit l\'empremta digital"</string>
     <string name="security_settings_fingerprint_enroll_finish_message" msgid="5862643337893923347">"Quan vegis aquesta icona, fes servir l\'empremta digital per identificar-te o aprovar compres."</string>
     <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"Fes-ho més tard"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_title" msgid="2816424026528101690">"Sortir de configuració d\'empremta digital?"</string>

@@ -53,7 +53,7 @@
     <string name="radio_info_ims_reg_status_not_registered" msgid="1286050699734226077">"பதிவுசெய்யப்படவில்லை"</string>
     <string name="radio_info_ims_feature_status_available" msgid="2040629393134756058">"இருக்கிறது"</string>
     <string name="radio_info_ims_feature_status_unavailable" msgid="3348223769202693596">"இல்லை"</string>
-    <string name="radio_info_ims_reg_status" msgid="4771711884059371514">"IMS பதிவு: <xliff:g id="STATUS">%1$s</xliff:g>\nவாய்ஸ் ஓவர் LTE: <xliff:g id="AVAILABILITY_0">%2$s</xliff:g>\nவாய்ஸ் ஓவர் WiFi: <xliff:g id="AVAILABILITY_1">%3$s</xliff:g>\nவீடியோ அழைப்பு: <xliff:g id="AVAILABILITY_2">%4$s</xliff:g>\nUT இடைமுகம்: <xliff:g id="AVAILABILITY_3">%5$s</xliff:g>"</string>
+    <string name="radio_info_ims_reg_status" msgid="4771711884059371514">"IMS பதிவு: <xliff:g id="STATUS">%1$s</xliff:g>\nவாய்ஸ் ஓவர் LTE: <xliff:g id="AVAILABILITY_0">%2$s</xliff:g>\nவாய்ஸ் ஓவர் வைஃபை: <xliff:g id="AVAILABILITY_1">%3$s</xliff:g>\nவீடியோ அழைப்பு: <xliff:g id="AVAILABILITY_2">%4$s</xliff:g>\nUT இடைமுகம்: <xliff:g id="AVAILABILITY_3">%5$s</xliff:g>"</string>
     <string name="radioInfo_service_in" msgid="1297020186765943857">"சேவையில் உள்ளது"</string>
     <string name="radioInfo_service_out" msgid="8460363463722476510">"சேவையில் இல்லை"</string>
     <string name="radioInfo_service_emergency" msgid="7674989004735662599">"அவசர அழைப்புகள் மட்டும்"</string>

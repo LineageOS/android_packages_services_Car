@@ -4156,9 +4156,9 @@
     <string name="notification_log_details_importance" msgid="5002791265017246702">"důležitost"</string>
     <string name="notification_log_details_explanation" msgid="7957412639879215408">"vysvětlení"</string>
     <string name="notification_log_details_badge" msgid="7935214085444299041">"může zobrazovat odznak"</string>
-    <string name="notification_log_details_content_intent" msgid="7977718786166542328">"objekt Intent"</string>
-    <string name="notification_log_details_delete_intent" msgid="2648845671811460483">"smazání objektu Intent"</string>
-    <string name="notification_log_details_full_screen_intent" msgid="4790242436201154">"objekt Intent pro celou obrazovku"</string>
+    <string name="notification_log_details_content_intent" msgid="7977718786166542328">"intent"</string>
+    <string name="notification_log_details_delete_intent" msgid="2648845671811460483">"smazání intentu"</string>
+    <string name="notification_log_details_full_screen_intent" msgid="4790242436201154">"intent pro celou obrazovku"</string>
     <string name="notification_log_details_actions" msgid="4096917954653586430">"akce"</string>
     <string name="notification_log_details_title" msgid="1673066058045472579">"nadpis"</string>
     <string name="notification_log_details_remoteinput" msgid="739338559646354829">"vzdálené vstupy"</string>
