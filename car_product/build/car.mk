@@ -23,6 +23,7 @@ PRODUCT_PACKAGES += \
     Bluetooth \
     CarActivityResolver \
     CarDeveloperOptions \
+    CarSettingsIntelligence \
     OneTimeInitializer \
     CarProvision \
     StatementService \
