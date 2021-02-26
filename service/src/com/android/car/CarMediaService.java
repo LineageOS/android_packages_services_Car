@@ -25,9 +25,8 @@ import android.app.ActivityManager;
 import android.car.Car;
 import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.power.CarPowerPolicyFilter;
-import android.car.hardware.power.ICarPowerPolicyChangeListener;
+import android.car.hardware.power.ICarPowerPolicyListener;
 import android.car.hardware.power.PowerComponent;
-import android.car.hardware.power.PowerComponentUtil;
 import android.car.media.CarMediaManager;
 import android.car.media.CarMediaManager.MediaSourceChangedListener;
 import android.car.media.CarMediaManager.MediaSourceMode;
@@ -236,15 +235,14 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         }
     };
 
-    private final ICarPowerPolicyChangeListener mPowerPolicyChangeListener =
-            new ICarPowerPolicyChangeListener.Stub() {
+    private final ICarPowerPolicyListener mPowerPolicyListener =
+            new ICarPowerPolicyListener.Stub() {
                 @Override
                 public void onPolicyChanged(CarPowerPolicy policy) {
                     boolean shouldBePlaying;
                     MediaController mediaController;
                     // COMPONENT_STATE_UNTOUCHED is not the case in this callback.
-                    boolean isOff = PowerComponentUtil.getComponentState(policy,
-                            PowerComponent.MEDIA) == PowerComponentUtil.COMPONENT_STATE_DISABLED;
+                    boolean isOff = !policy.isComponentEnabled(PowerComponent.MEDIA);
                     synchronized (mLock) {
                         boolean weArePlaying = mCurrentPlaybackState == PlaybackState.STATE_PLAYING;
                         mIsDisabledByPowerPolicy = isOff;
@@ -313,7 +311,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     public void init() {
         int currentUser = ActivityManager.getCurrentUser();
         maybeInitUser(currentUser);
-        setPowerPolicyChangeListener();
+        setPowerPolicyListener();
     }
 
     private void maybeInitUser(int userId) {
@@ -399,11 +397,11 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     // Basically, the listener pauses the audio when a media component is disabled and resumes
     // the audio when a media component is enabled.
     // This is called only from init().
-    private void setPowerPolicyChangeListener() {
+    private void setPowerPolicyListener() {
         CarPowerPolicyFilter filter = new CarPowerPolicyFilter.Builder()
                 .setComponents(PowerComponent.MEDIA).build();
         CarLocalServices.getService(CarPowerManagementService.class)
-                .registerPowerPolicyChangeListener(mPowerPolicyChangeListener, filter);
+                .addPowerPolicyListener(filter, mPowerPolicyListener);
     }
 
     @Override
@@ -411,7 +409,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
         mMediaSessionUpdater.unregisterCallbacks();
         mUserService.removeUserLifecycleListener(mUserLifecycleListener);
         CarLocalServices.getService(CarPowerManagementService.class)
-                .unregisterPowerPolicyChangeListener(mPowerPolicyChangeListener);
+                .removePowerPolicyListener(mPowerPolicyListener);
     }
 
     @Override

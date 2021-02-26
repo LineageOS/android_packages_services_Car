@@ -52,16 +52,16 @@ public class CarPowerManager extends CarManagerBase {
     private final Object mLock = new Object();
     private final ICarPower mService;
     @GuardedBy("mLock")
-    private final ArrayMap<CarPowerPolicyChangeListener, Pair<Executor, CarPowerPolicyFilter>>
+    private final ArrayMap<CarPowerPolicyListener, Pair<Executor, CarPowerPolicyFilter>>
             mPolicyListenerMap = new ArrayMap<>();
     // key: power component, value: number of listeners to have interest in the component
     @GuardedBy("mLock")
     private final SparseIntArray mInterestedComponentMap = new SparseIntArray();
-    private final ICarPowerPolicyChangeListener mPolicyChangeBinderCallback =
-            new ICarPowerPolicyChangeListener.Stub() {
+    private final ICarPowerPolicyListener mPolicyChangeBinderCallback =
+            new ICarPowerPolicyListener.Stub() {
         @Override
         public void onPolicyChanged(CarPowerPolicy policy) {
-            notifyPolicyChangeListeners(policy);
+            notifyPowerPolicyListeners(policy);
         }
     };
 
@@ -180,9 +180,9 @@ public class CarPowerManager extends CarManagerBase {
      * Listeners to receive power policy change.
      *
      * <p> Applications interested in power policy change register
-     * {@code CarPowerPolicyChangeListener} and will be notified when power policy changes.
+     * {@code CarPowerPolicyListener} and will be notified when power policy changes.
      */
-    public interface CarPowerPolicyChangeListener {
+    public interface CarPowerPolicyListener {
         /**
          * Called with {@link #CarPowerPolicy} when power policy changes.
          *
@@ -329,7 +329,13 @@ public class CarPowerManager extends CarManagerBase {
     /**
      * Gets the current power policy.
      *
-     * @return The current power policy. If no power policy is set, {@code null} is returned.
+     * <p>The returned power policy has ID of the power policy applied most recently. If no power
+     * policy has been applied, the ID is an empty string. Note that enabled components and disabled
+     * components might be different from those of the latest power policy applied. This is because
+     * the returned power policy contains the current state of all power components determined by
+     * applying power policies in an accumulative way.
+     *
+     * @return The power policy containing the latest state of all power components.
      */
     @RequiresPermission(Car.PERMISSION_READ_CAR_POWER_POLICY)
     @Nullable
@@ -365,6 +371,31 @@ public class CarPowerManager extends CarManagerBase {
     }
 
     /**
+     * Sets the current power policy group.
+     *
+     * Power policy group defines a rule to apply a certain power policy according to the power
+     * state transition. For example, a power policy named "default_for_on" is supposed to be
+     * applied when the power state becomes ON. This rule is specified in the power policy group.
+     * Many power policy groups can be pre-defined, and one of them is set for the current one using
+     * {@code setPowerPolicyGroup}.
+     *
+     * @param policyGroupId ID of power policy group.
+     * @throws IllegalArgumentException if {@code policyGroupId} is null.
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(Car.PERMISSION_CONTROL_CAR_POWER_POLICY)
+    public void setPowerPolicyGroup(@NonNull String policyGroupId) {
+        checkArgument(policyGroupId != null, "Null policyGroupId");
+        try {
+            mService.setPowerPolicyGroup(policyGroupId);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
      * Subscribes to power policy change.
      *
      * <p>If the same listener is added with different filters, the listener is notified based on
@@ -377,12 +408,12 @@ public class CarPowerManager extends CarManagerBase {
      *                                  null.
      */
     @RequiresPermission(Car.PERMISSION_READ_CAR_POWER_POLICY)
-    public void addPowerPolicyChangeListener(@NonNull @CallbackExecutor Executor executor,
-            @NonNull CarPowerPolicyChangeListener listener, @NonNull CarPowerPolicyFilter filter) {
+    public void addPowerPolicyListener(@NonNull @CallbackExecutor Executor executor,
+            @NonNull CarPowerPolicyFilter filter, @NonNull CarPowerPolicyListener listener) {
         assertPermission(Car.PERMISSION_READ_CAR_POWER_POLICY);
         checkArgument(executor != null, "Null executor");
-        checkArgument(listener != null, "Null listener");
         checkArgument(filter != null, "Null filter");
+        checkArgument(listener != null, "Null listener");
         boolean updateCallbackNeeded = false;
         CarPowerPolicyFilter newFilter = null;
         synchronized (mLock) {
@@ -416,7 +447,7 @@ public class CarPowerManager extends CarManagerBase {
      * @throws IllegalArgumentException if {@code listener} is null.
      */
     @RequiresPermission(Car.PERMISSION_READ_CAR_POWER_POLICY)
-    public void removePowerPolicyChangeListener(@NonNull CarPowerPolicyChangeListener listener) {
+    public void removePowerPolicyListener(@NonNull CarPowerPolicyListener listener) {
         assertPermission(Car.PERMISSION_READ_CAR_POWER_POLICY);
         checkArgument(listener != null, "Null listener");
         boolean updateCallbackNeeded = false;
@@ -537,29 +568,29 @@ public class CarPowerManager extends CarManagerBase {
     private void updatePowerPolicyChangeCallback(CarPowerPolicyFilter filter) {
         try {
             if (filter == null) {
-                mService.unregisterPowerPolicyChangeListener(mPolicyChangeBinderCallback);
+                mService.removePowerPolicyListener(mPolicyChangeBinderCallback);
             } else {
-                mService.registerPowerPolicyChangeListener(mPolicyChangeBinderCallback, filter);
+                mService.addPowerPolicyListener(filter, mPolicyChangeBinderCallback);
             }
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
         }
     }
 
-    private void notifyPolicyChangeListeners(CarPowerPolicy policy) {
-        ArrayList<Pair<CarPowerPolicyChangeListener, Executor>> listeners = new ArrayList<>();
+    private void notifyPowerPolicyListeners(CarPowerPolicy policy) {
+        ArrayList<Pair<CarPowerPolicyListener, Executor>> listeners = new ArrayList<>();
         synchronized (mLock) {
             for (int i = 0; i < mPolicyListenerMap.size(); i++) {
-                CarPowerPolicyChangeListener listener = mPolicyListenerMap.keyAt(i);
+                CarPowerPolicyListener listener = mPolicyListenerMap.keyAt(i);
                 Pair<Executor, CarPowerPolicyFilter> pair = mPolicyListenerMap.valueAt(i);
                 if (PowerComponentUtil.hasComponents(policy, pair.second)) {
                     listeners.add(
-                            new Pair<CarPowerPolicyChangeListener, Executor>(listener, pair.first));
+                            new Pair<CarPowerPolicyListener, Executor>(listener, pair.first));
                 }
             }
         }
         for (int i = 0; i < listeners.size(); i++) {
-            Pair<CarPowerPolicyChangeListener, Executor> pair = listeners.get(i);
+            Pair<CarPowerPolicyListener, Executor> pair = listeners.get(i);
             pair.second.execute(() -> {
                 pair.first.onPolicyChanged(policy);
             });

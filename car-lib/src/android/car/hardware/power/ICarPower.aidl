@@ -18,7 +18,7 @@ package android.car.hardware.power;
 
 import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.power.CarPowerPolicyFilter;
-import android.car.hardware.power.ICarPowerPolicyChangeListener;
+import android.car.hardware.power.ICarPowerPolicyListener;
 import android.car.hardware.power.ICarPowerStateListener;
 
 /** @hide */
@@ -41,8 +41,10 @@ interface ICarPower {
 
     void applyPowerPolicy(String policyId);
 
-    void registerPowerPolicyChangeListener(in ICarPowerPolicyChangeListener listener,
-            in CarPowerPolicyFilter filter);
+    void setPowerPolicyGroup(String policyGroupId);
 
-    void unregisterPowerPolicyChangeListener(in ICarPowerPolicyChangeListener listener);
+    void addPowerPolicyListener(in CarPowerPolicyFilter filter,
+            in ICarPowerPolicyListener listener);
+
+    void removePowerPolicyListener(in ICarPowerPolicyListener listener);
 }

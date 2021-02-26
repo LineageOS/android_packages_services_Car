@@ -124,10 +124,10 @@ public final class PowerComponentUtil {
             return false;
         };
 
-        if (componentFilter.filter(policy.enabledComponents)) {
+        if (componentFilter.filter(policy.getEnabledComponents())) {
             return true;
         }
-        return componentFilter.filter(policy.disabledComponents);
+        return componentFilter.filter(policy.getDisabledComponents());
     }
 
     /**
@@ -222,23 +222,5 @@ public final class PowerComponentUtil {
             default:
                 return "unknown component";
         }
-    }
-
-    /**
-     * Gets the component state in the given power policy.
-     */
-    public static @ComponentState int getComponentState(@NonNull CarPowerPolicy policy,
-            int component) {
-        for (int i = 0; i < policy.enabledComponents.length; i++) {
-            if (component == policy.enabledComponents[i]) {
-                return COMPONENT_STATE_ENABLED;
-            }
-        }
-        for (int i = 0; i < policy.disabledComponents.length; i++) {
-            if (component == policy.disabledComponents[i]) {
-                return COMPONENT_STATE_DISABLED;
-            }
-        }
-        return COMPONENT_STATE_UNTOUCHED;
     }
 }

@@ -550,22 +550,23 @@ package android.car.hardware {
 package android.car.hardware.power {
 
   public class CarPowerManager {
-    method @RequiresPermission(android.car.Car.PERMISSION_READ_CAR_POWER_POLICY) public void addPowerPolicyChangeListener(@NonNull java.util.concurrent.Executor, @NonNull android.car.hardware.power.CarPowerManager.CarPowerPolicyChangeListener, @NonNull android.car.hardware.power.CarPowerPolicyFilter);
+    method @RequiresPermission(android.car.Car.PERMISSION_READ_CAR_POWER_POLICY) public void addPowerPolicyListener(@NonNull java.util.concurrent.Executor, @NonNull android.car.hardware.power.CarPowerPolicyFilter, @NonNull android.car.hardware.power.CarPowerManager.CarPowerPolicyListener);
     method @Nullable @RequiresPermission(android.car.Car.PERMISSION_READ_CAR_POWER_POLICY) public android.car.hardware.power.CarPowerPolicy getCurrentPowerPolicy();
-    method @RequiresPermission(android.car.Car.PERMISSION_READ_CAR_POWER_POLICY) public void removePowerPolicyChangeListener(@NonNull android.car.hardware.power.CarPowerManager.CarPowerPolicyChangeListener);
+    method @RequiresPermission(android.car.Car.PERMISSION_READ_CAR_POWER_POLICY) public void removePowerPolicyListener(@NonNull android.car.hardware.power.CarPowerManager.CarPowerPolicyListener);
   }
 
-  public static interface CarPowerManager.CarPowerPolicyChangeListener {
+  public static interface CarPowerManager.CarPowerPolicyListener {
     method public void onPolicyChanged(@NonNull android.car.hardware.power.CarPowerPolicy);
   }
 
   public final class CarPowerPolicy implements android.os.Parcelable {
     method public int describeContents();
+    method @NonNull public int[] getDisabledComponents();
+    method @NonNull public int[] getEnabledComponents();
+    method @NonNull public String getPolicyId();
+    method public boolean isComponentEnabled(int);
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field @NonNull public static final android.os.Parcelable.Creator<android.car.hardware.power.CarPowerPolicy> CREATOR;
-    field @NonNull public final int[] disabledComponents;
-    field @NonNull public final int[] enabledComponents;
-    field @NonNull public final String policyId;
   }
 
   public final class CarPowerPolicyFilter implements android.os.Parcelable {
