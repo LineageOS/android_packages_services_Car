@@ -152,6 +152,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     public static final String VEHICLE_HAL_NOT_SUPPORTED = "Vehicle Hal not supported.";
 
+    public static final String HANDLER_THREAD_NAME = "UserService";
+
     private final Context mContext;
     private final IActivityManager mAm;
     private final UserManager mUserManager;
@@ -182,10 +184,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     private final UserHalService mHal;
 
-    // HandlerThread and Handler used when notifying app listeners (mAppLifecycleListeners).
     private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
-            getClass().getSimpleName());
-    private final Handler mHandler = new Handler(mHandlerThread.getLooper());
+            HANDLER_THREAD_NAME);
+    private final Handler mHandler;
 
     /**
      * List of listeners to be notified on new user activities events.
@@ -216,6 +217,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     // TODO(b/163566866): Use mSwitchGuestUserBeforeSleep for new create guest request
     private final boolean mSwitchGuestUserBeforeSleep;
+
+    private final int mUserPreCreationDelayMs;
 
     @Nullable
     @GuardedBy("mLockUser")
@@ -283,7 +286,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             @NonNull IActivityManager am, int maxRunningUsers,
             @NonNull CarUxRestrictionsManagerService uxRestrictionService) {
         this(context, hal, userManager, am, maxRunningUsers,
-                /* initialUserSetter= */ null, /* userPreCreator= */ null, uxRestrictionService);
+                /* initialUserSetter= */ null, /* userPreCreator= */ null, uxRestrictionService,
+                null);
     }
 
     @VisibleForTesting
@@ -292,7 +296,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             @NonNull IActivityManager am, int maxRunningUsers,
             @Nullable InitialUserSetter initialUserSetter,
             @Nullable UserPreCreator userPreCreator,
-            @NonNull CarUxRestrictionsManagerService uxRestrictionService) {
+            @NonNull CarUxRestrictionsManagerService uxRestrictionService,
+            @Nullable Handler handler) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Slog.d(TAG, "constructed for user " + context.getUserId());
         }
@@ -302,6 +307,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         mMaxRunningUsers = maxRunningUsers;
         mUserManager = userManager;
         mLastPassengerId = UserHandle.USER_NULL;
+        mHandler = handler == null ? new Handler(mHandlerThread.getLooper()) : handler;
         mInitialUserSetter =
                 initialUserSetter == null ? new InitialUserSetter(context, this,
                         (u) -> setInitialUser(u)) : initialUserSetter;
@@ -311,6 +317,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         mEnablePassengerSupport = resources.getBoolean(R.bool.enablePassengerSupport);
         mSwitchGuestUserBeforeSleep = resources.getBoolean(
                 R.bool.config_switchGuestUserBeforeGoingSleep);
+        mUserPreCreationDelayMs = resources.getInteger(
+                R.integer.config_WaitDurationForUserPreCreation);
         mCarUxRestrictionService = uxRestrictionService;
     }
 
@@ -351,6 +359,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             }
             writer.printf("Is UX restricted: %b\n", mUxRestricted);
         }
+
+        writer.println("SwitchGuestUserBeforeSleep: " + mSwitchGuestUserBeforeSleep);
+        writer.println("UserPreCreationDelayMs: " + mUserPreCreationDelayMs);
+
         writer.println("MaxRunningUsers: " + mMaxRunningUsers);
         List<UserInfo> allDrivers = getAllDrivers();
         int driversSize = allDrivers.size();
@@ -747,7 +759,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             initResumeReplaceGuest();
         }
 
-        preCreateUsers();
+        // No delay required for pre-creating users on suspend.
+        preCreateUsersInternal(/*delay=*/ 0);
     }
 
     /**
@@ -762,15 +775,14 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             Slog.d(TAG, "onResume called.");
         }
 
-        initBootUser(InitialUserInfoRequestType.RESUME);
+        mHandler.post(() -> initBootUser(InitialUserInfoRequestType.RESUME));
     }
 
     /**
      * Calls to start user at the android startup.
      */
     public void initBootUser() {
-        int requestType = getInitialUserInfoRequestType();
-        initBootUser(requestType);
+        mHandler.post(() -> initBootUser(getInitialUserInfoRequestType()));
     }
 
     private void initBootUser(int requestType) {
@@ -954,8 +966,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         Objects.requireNonNull(receiver);
         UserInfo targetUser = mUserManager.getUserInfo(targetUserId);
         Preconditions.checkArgument(targetUser != null, "Target user doesn't exist");
+        mHandler.post(()-> switchUserInternal(targetUser, timeoutMs, receiver));
+    }
 
+    private void switchUserInternal(@NonNull UserInfo targetUser, int timeoutMs,
+            @NonNull AndroidFuture<UserSwitchResult> receiver) {
         int currentUser = ActivityManager.getCurrentUser();
+        int targetUserId = targetUser.id;
         if (currentUser == targetUserId) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Slog.d(TAG, "Current user is same as requested target user: " + targetUserId);
@@ -1006,8 +1023,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 int resultStatus = UserSwitchResult.STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO;
                 sendUserSwitchResult(receiver, resultStatus);
                 return;
-            }
-            else {
+            } else {
                 mUserIdForUserSwitchInProcess = targetUserId;
                 mRequestIdForUserSwitchInProcess = 0;
             }
@@ -1280,11 +1296,18 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         Objects.requireNonNull(userType, "user type cannot be null");
         Objects.requireNonNull(receiver, "receiver cannot be null");
         checkManageOrCreateUsersPermission(flags);
-
         EventLog.writeEvent(EventLogTags.CAR_USER_SVC_CREATE_USER_REQ,
                 UserHelperLite.safeName(name), userType, flags, timeoutMs,
                 hasCallerRestrictions ? 1 : 0);
+        mHandler.post(() -> createUserInternal(name, userType, flags, timeoutMs, receiver,
+                hasCallerRestrictions));
 
+    }
+
+    private void createUserInternal(@Nullable String name, @NonNull String userType,
+            @UserInfoFlag int flags, int timeoutMs,
+            @NonNull AndroidFuture<UserCreationResult> receiver,
+            boolean hasCallerRestrictions) {
         if (hasCallerRestrictions) {
             // Restrictions:
             // - type/flag can only be normal user, admin, or guest
@@ -2267,7 +2290,11 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      * Manages the required number of pre-created users.
      */
     public void preCreateUsers() {
-        mUserPreCreator.managePreCreatedUsers();
+        preCreateUsersInternal(mUserPreCreationDelayMs);
+    }
+
+    private void preCreateUsersInternal(int delay) {
+        mHandler.postDelayed(() -> mUserPreCreator.managePreCreatedUsers(), delay);
     }
 
     // TODO(b/167698977): members below were copied from UserManagerService; it would be better to

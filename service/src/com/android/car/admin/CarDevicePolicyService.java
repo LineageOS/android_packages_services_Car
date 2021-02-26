@@ -57,7 +57,7 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
     private final int mFutureTimeoutMs;
 
     public CarDevicePolicyService(@NonNull CarUserService carUserService) {
-        this(carUserService, HAL_TIMEOUT_MS + 100);
+        this(carUserService, HAL_TIMEOUT_MS + 60_000);
     }
 
     @VisibleForTesting

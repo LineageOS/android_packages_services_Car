@@ -132,55 +132,30 @@ public final class UserPreCreator {
             return;
         }
 
-        // Finally, manage them....
+        if (numberUsersToAdd > 0) {
+            preCreateUsers(numberUsersToAdd, /* isGuest= */ false);
+        }
+        if (numberGuestsToAdd > 0) {
+            preCreateUsers(numberGuestsToAdd, /* isGuest= */ true);
+        }
 
-        // In theory, we could submit multiple user pre-creations in parallel, but we're
-        // submitting just 1 task, for 2 reasons:
-        //   1.To minimize it's effect on other system server initialization tasks.
-        //   2.The pre-created users will be unlocked in parallel anyways.
-        runAsync(() -> {
-            if (numberUsersToAdd > 0) {
-                preCreateUsers(numberUsersToAdd, /* isGuest= */ false);
+        int totalNumberToRemove = extraPreCreatedUsers.size();
+        Slog.d(TAG, "Must delete " + totalNumberToRemove + " pre-created users");
+        if (totalNumberToRemove > 0) {
+            int[] usersToRemove = new int[totalNumberToRemove];
+            for (int i = 0; i < totalNumberToRemove; i++) {
+                usersToRemove[i] = extraPreCreatedUsers.get(i);
             }
-            if (numberGuestsToAdd > 0) {
-                preCreateUsers(numberGuestsToAdd, /* isGuest= */ true);
-            }
+            removePreCreatedUsers(usersToRemove);
+        }
 
-            int totalNumberToRemove = extraPreCreatedUsers.size();
-            Slog.d(TAG, "Must delete " + totalNumberToRemove + " pre-created users");
-            if (totalNumberToRemove > 0) {
-                int[] usersToRemove = new int[totalNumberToRemove];
-                for (int i = 0; i < totalNumberToRemove; i++) {
-                    usersToRemove[i] = extraPreCreatedUsers.get(i);
-                }
-                removePreCreatedUsers(usersToRemove);
+        if (numberInvalidUsersToRemove > 0) {
+            for (int i = 0; i < numberInvalidUsersToRemove; i++) {
+                int userId = invalidPreCreatedUsers.keyAt(i);
+                Slog.w(TAG, "removing invalid pre-created user " + userId);
+                mUserManager.removeUser(userId);
             }
-
-            if (numberInvalidUsersToRemove > 0) {
-                for (int i = 0; i < numberInvalidUsersToRemove; i++) {
-                    int userId = invalidPreCreatedUsers.keyAt(i);
-                    Slog.w(TAG, "removing invalid pre-created user " + userId);
-                    mUserManager.removeUser(userId);
-                }
-            }
-        });
-    }
-
-    @VisibleForTesting
-    void runAsync(Runnable r) {
-        // We cannot use SystemServerInitThreadPool because user pre-creation can take too long,
-        // which would crash the SystemServer on SystemServerInitThreadPool.shutdown();
-        String threadName = TAG + ".AsyncTask";
-        Slog.d(TAG, "Starting thread " + threadName);
-        new Thread(() -> {
-            try {
-                r.run();
-                Slog.d(TAG, "Finishing thread " + threadName);
-            } catch (RuntimeException e) {
-                Slog.e(TAG, "runAsync() failed", e);
-                throw e;
-            }
-        }, threadName).start();
+        }
     }
 
     private void preCreateUsers(int size, boolean isGuest) {

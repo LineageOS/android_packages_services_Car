@@ -51,7 +51,6 @@ import android.hardware.automotive.vehicle.V2_0.UsersInfo;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.ServiceSpecificException;
 import android.sysprop.CarProperties;
 import android.text.TextUtils;
@@ -62,6 +61,7 @@ import android.util.SparseBooleanArray;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
+import com.android.car.CarServiceUtils;
 import com.android.car.CarStatsLog;
 import com.android.car.internal.common.EventLogTags;
 import com.android.car.internal.common.UserHelperLite;
@@ -140,7 +140,8 @@ public final class UserHalService extends HalServiceBase {
     private final SparseArray<PendingRequest<?, ?>> mPendingRequests = new SparseArray<>();
 
     public UserHalService(VehicleHal hal) {
-        this(hal, new Handler(Looper.getMainLooper()));
+        this(hal, new Handler(CarServiceUtils.getHandlerThread(
+                CarUserService.HANDLER_THREAD_NAME).getLooper()));
     }
 
     @VisibleForTesting
