@@ -166,7 +166,7 @@ public class ICarImplTest extends AbstractExtendedMockitoTestCase {
 
         ICarImpl carImpl = new ICarImpl(mContext, mMockVehicle, mFakeSystemInterface,
                 /* errorNotifier= */ null, "MockedCar", /* carUserService= */ null,
-                mCarWatchdogService, /* powerPolicyDaemon= */ null);
+                mCarWatchdogService, new MockedCarTestBase.FakeCarPowerPolicyDaemon());
         carImpl.init();
         Car mCar = new Car(mContext, carImpl, /* handler= */ null);
 
