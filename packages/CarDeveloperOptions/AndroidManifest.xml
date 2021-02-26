@@ -1986,6 +1986,24 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.Settings$AlarmsAndRemindersActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
+            android:name="com.android.settings.Settings$AlarmsAndRemindersAppActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.Settings$ManageExternalSourcesActivity"
             android:enabled="false"
             android:exported="false"
@@ -2550,6 +2568,15 @@
 
         <receiver
             android:name="com.android.settings.sim.receivers.SimSlotChangeReceiver"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </receiver>
+
+        <receiver
+            android:name="com.android.settings.sim.receivers.SuwFinishReceiver"
             android:enabled="false"
             android:exported="false"
             tools:node="merge"
