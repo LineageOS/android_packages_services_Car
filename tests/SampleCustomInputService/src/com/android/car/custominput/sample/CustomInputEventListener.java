@@ -186,20 +186,20 @@ public final class CustomInputEventListener {
         int volume = mCarAudioManager.getGroupVolume(zoneId, volumeGroupId);
         if (volume > maxVolume) {
             throw new IllegalStateException("Volume (" + volume + ") is higher than MaxVolume ("
-                    + maxVolume + ") for zoneId {" + zoneId + "} and volumeGroupId {"
-                    + volumeGroupId + "}");
+                    + maxVolume + ") for zoneId (" + zoneId + ") and volumeGroupId ("
+                    + volumeGroupId + ")");
         }
-        String usageName = AudioAttributes.usageToString(usage);
         if (volume == maxVolume) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "Current " + usageName + " volume is already equal to max volume ("
-                        + maxVolume + ")");
+                Log.d(TAG, "Volume for stream type (" + usage + ") is already max (" + maxVolume
+                        + ")");
             }
             return;
         }
         volume++;
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Increasing " + usageName + " volume to: " + volume + " (max volume is "
+            Log.d(TAG, "Increasing volume for stream type (" + usage + ") to: " + volume
+                    + " (max volume is "
                     + maxVolume + ")");
         }
         mCarAudioManager.setGroupVolume(volumeGroupId, volume, AudioManager.FLAG_SHOW_UI);
@@ -212,20 +212,20 @@ public final class CustomInputEventListener {
         int volume = mCarAudioManager.getGroupVolume(zoneId, volumeGroupId);
         if (volume < minVolume) {
             throw new IllegalStateException("Volume (" + volume + ") is lower than MinVolume ("
-                    + minVolume + ") for zoneId {" + zoneId + "} and volumeGroupId {"
-                    + volumeGroupId + "}");
+                    + minVolume + ") for zoneId (" + zoneId + ") and volumeGroupId ("
+                    + volumeGroupId + ")");
         }
-        String usageName = AudioAttributes.usageToString(usage);
         if (volume == minVolume) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "Current " + usageName + " volume is already equal to min volume ("
-                        + minVolume + ")");
+                Log.d(TAG, "Volume for stream type (" + usage + ") is already min (" + minVolume
+                        + ")");
             }
             return;
         }
         volume--;
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Decreasing " + usageName + " volume to: " + volume + " (min volume is "
+            Log.d(TAG, "Decreasing volume for stream type (" + usage + ") to: " + volume
+                    + " (min volume is "
                     + minVolume + ")");
         }
         mCarAudioManager.setGroupVolume(volumeGroupId, volume, AudioManager.FLAG_SHOW_UI);
