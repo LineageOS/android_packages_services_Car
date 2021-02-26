@@ -18,6 +18,7 @@
 #define CPP_WATCHDOG_SERVER_SRC_IOOVERUSEMONITOR_H_
 
 #include "IoOveruseConfigs.h"
+#include "PackageInfoResolver.h"
 #include "ProcPidStat.h"
 #include "ProcStat.h"
 #include "UidIoStats.h"
@@ -26,7 +27,13 @@
 #include <android-base/result.h>
 #include <android/automotive/watchdog/internal/ComponentType.h>
 #include <android/automotive/watchdog/internal/IoOveruseConfiguration.h>
+#include <android/automotive/watchdog/internal/PackageInfo.h>
+#include <android/automotive/watchdog/internal/PackageIoOveruseStats.h>
+#include <android/automotive/watchdog/internal/PerStateBytes.h>
+#include <cutils/multiuser.h>
 #include <utils/Mutex.h>
+
+#include <time.h>
 
 #include <string>
 #include <unordered_set>
@@ -48,10 +55,15 @@ class IoOveruseMonitorPeer;
 // IoOveruseMonitor implements the I/O overuse monitoring module.
 class IoOveruseMonitor : public IDataProcessorInterface {
 public:
-    IoOveruseMonitor() :
-          mIsInitialized(false),
-          mIoOveruseConfigs({}),
-          mSystemWideWrittenBytes({}) {}
+    explicit IoOveruseMonitor(
+            const android::sp<IWatchdogServiceHelperInterface>& watchdogServiceHelper) :
+          mWatchdogServiceHelper(watchdogServiceHelper),
+          mSystemWideWrittenBytes({}),
+          mPeriodicMonitorBufferSize(0),
+          mLastSystemWideIoMonitorTime(0),
+          mUserPackageDailyIoUsageById({}),
+          mIoOveruseWarnPercentage(0),
+          mLastUserPackageIoMonitorTime(0) {}
 
     ~IoOveruseMonitor() { terminate(); }
 
@@ -71,6 +83,9 @@ public:
         return {};
     }
 
+    // TODO(b/167240592): Forward WatchdogBinderMediator's notifySystemStateChange call to
+    //  WatchdogPerfService. On POWER_CYCLE_SHUTDOWN_PREPARE, switch to garage mode collection
+    //  and pass collection flag as a param in this API to indicate garage mode collection.
     android::base::Result<void> onPeriodicCollection(time_t time,
                                                      const android::wp<UidIoStats>& uidIoStats,
                                                      const android::wp<ProcStat>& procStat,
@@ -84,14 +99,6 @@ public:
     android::base::Result<void> onPeriodicMonitor(
             time_t time, const android::wp<IProcDiskStatsInterface>& procDiskStats,
             const std::function<void()>& alertHandler);
-
-    // TODO(b/167240592): Forward WatchdogBinderMediator's notifySystemStateChange call to
-    //  WatchdogProcessService. On POWER_CYCLE_SHUTDOWN_PREPARE, switch to garage mode collection
-    //  and call this method via the IDataProcessorInterface.
-    android::base::Result<void> onGarageModeCollection(time_t time,
-                                                       const android::wp<UidIoStats>& uidIoStats,
-                                                       const android::wp<ProcStat>& procStat,
-                                                       const android::wp<ProcPidStat>& procPidStat);
 
     // TODO(b/167240592): Forward WatchdogBinderMediator's notifySystemStateChange call to
     //  WatchdogProcessService. On POWER_CYCLE_SHUTDOWN_PREPARE_COMPLETE, call this method via
@@ -117,13 +124,44 @@ private:
         uint64_t bytesInKib;
     };
 
-    // Makes sure only one collection is running at any given time.
-    Mutex mMutex;
+    struct UserPackageIoUsage {
+        UserPackageIoUsage(const android::automotive::watchdog::internal::PackageInfo& packageInfo,
+                           const IoUsage& IoUsage, const bool isGarageModeActive);
+        android::automotive::watchdog::internal::PackageInfo packageInfo = {};
+        android::automotive::watchdog::internal::PerStateBytes writtenBytes = {};
+        android::automotive::watchdog::internal::PerStateBytes forgivenWriteBytes = {};
+        int numOveruses = 0;
+        bool isPackageWarned = false;
 
-    bool mIsInitialized GUARDED_BY(mMutex);
+        UserPackageIoUsage& operator+=(const UserPackageIoUsage& r);
+
+        const std::string id() const {
+            const auto& id = packageInfo.packageIdentifier;
+            return StringPrintf("%s:%" PRId32, String8(id.name).c_str(),
+                                multiuser_get_user_id(id.uid));
+        }
+    };
+
+    bool isInitializedLocked() { return mIoOveruseConfigs != nullptr; }
+
+    void notifyNativePackages(
+            const std::vector<android::automotive::watchdog::internal::PackageIoOveruseStats>&
+                    stats);
+
+    void notifyWatchdogService(
+            const std::vector<android::automotive::watchdog::internal::PackageIoOveruseStats>&
+                    stats);
+
+    // Local IPackageInfoResolverInterface instance. Useful to mock in tests.
+    sp<IPackageInfoResolverInterface> mPackageInfoResolver;
+
+    // Makes sure only one collection is running at any given time.
+    mutable Mutex mMutex;
+
+    android::sp<IWatchdogServiceHelperInterface> mWatchdogServiceHelper GUARDED_BY(mMutex);
 
     // Summary of configs available for all the components and system-wide overuse alert thresholds.
-    IoOveruseConfigs mIoOveruseConfigs GUARDED_BY(mMutex);
+    sp<IIoOveruseConfigs> mIoOveruseConfigs GUARDED_BY(mMutex);
 
     /*
      * Delta of system-wide written kib across all disks from the last |mPeriodicMonitorBufferSize|
@@ -131,7 +169,13 @@ private:
      */
     std::vector<WrittenBytesSnapshot> mSystemWideWrittenBytes GUARDED_BY(mMutex);
     size_t mPeriodicMonitorBufferSize GUARDED_BY(mMutex);
-    time_t mLastPollTime GUARDED_BY(mMutex);
+    time_t mLastSystemWideIoMonitorTime GUARDED_BY(mMutex);
+
+    // Cache of per user package I/O usage.
+    std::unordered_map<std::string, UserPackageIoUsage> mUserPackageDailyIoUsageById
+            GUARDED_BY(mMutex);
+    double mIoOveruseWarnPercentage GUARDED_BY(mMutex);
+    time_t mLastUserPackageIoMonitorTime GUARDED_BY(mMutex);
 
     friend class WatchdogPerfService;
 

@@ -18,9 +18,10 @@
 #define CPP_WATCHDOG_SERVER_SRC_UIDIOSTATS_H_
 
 #include <android-base/result.h>
-#include <stdint.h>
 #include <utils/Mutex.h>
 #include <utils/RefBase.h>
+
+#include <stdint.h>
 
 #include <string>
 #include <unordered_map>
@@ -45,7 +46,7 @@ enum MetricType {
 };
 
 class IoUsage {
-  public:
+public:
     IoUsage() : metrics{{0}} {};
     IoUsage(uint64_t fgRdBytes, uint64_t bgRdBytes, uint64_t fgWrBytes, uint64_t bgWrBytes,
             uint64_t fgFsync, uint64_t bgFsync) {
@@ -61,10 +62,18 @@ class IoUsage {
         return memcmp(&metrics, &usage.metrics, sizeof(metrics)) == 0;
     }
     uint64_t sumReadBytes() const {
-        return metrics[READ_BYTES][FOREGROUND] + metrics[READ_BYTES][BACKGROUND];
+        const auto& [fgBytes, bgBytes] =
+                std::tuple(metrics[READ_BYTES][FOREGROUND], metrics[READ_BYTES][BACKGROUND]);
+        return (std::numeric_limits<uint64_t>::max() - fgBytes) > bgBytes
+                ? (fgBytes + bgBytes)
+                : std::numeric_limits<uint64_t>::max();
     }
     uint64_t sumWriteBytes() const {
-        return metrics[WRITE_BYTES][FOREGROUND] + metrics[WRITE_BYTES][BACKGROUND];
+        const auto& [fgBytes, bgBytes] =
+                std::tuple(metrics[WRITE_BYTES][FOREGROUND], metrics[WRITE_BYTES][BACKGROUND]);
+        return (std::numeric_limits<uint64_t>::max() - fgBytes) > bgBytes
+                ? (fgBytes + bgBytes)
+                : std::numeric_limits<uint64_t>::max();
     }
     bool isZero() const;
     std::string toString() const;

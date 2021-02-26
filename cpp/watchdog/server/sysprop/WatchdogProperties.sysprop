@@ -77,3 +77,12 @@ prop {
     access: Readonly
     prop_name: "ro.carwatchdog.top_n_stats_per_subcategory"
 }
+
+# Percentage of I/O overuse threshold.
+prop {
+    api_name: "ioOveruseWarnPercentage"
+    type: Integer
+    scope: Internal
+    access: Readonly
+    prop_name: "ro.carwatchdog.io_overuse_warn_percentage"
+}

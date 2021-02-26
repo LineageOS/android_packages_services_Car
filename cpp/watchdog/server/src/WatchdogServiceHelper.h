@@ -22,6 +22,8 @@
 #include <android-base/result.h>
 #include <android/automotive/watchdog/TimeoutLength.h>
 #include <android/automotive/watchdog/internal/ICarWatchdogServiceForSystem.h>
+#include <android/automotive/watchdog/internal/PackageInfo.h>
+#include <android/automotive/watchdog/internal/PackageIoOveruseStats.h>
 #include <binder/IBinder.h>
 #include <binder/Status.h>
 #include <gtest/gtest_prod.h>
@@ -63,6 +65,9 @@ public:
     virtual android::binder::Status getPackageInfosForUids(
             const std::vector<int32_t>& uids, const std::vector<std::string>& vendorPackagePrefixes,
             std::vector<android::automotive::watchdog::internal::PackageInfo>* packageInfos) = 0;
+    virtual android::binder::Status notifyIoOveruse(
+            const std::vector<android::automotive::watchdog::internal::PackageIoOveruseStats>&
+                    ioOveruseStats) = 0;
 
 protected:
     virtual android::base::Result<void> init(
@@ -76,7 +81,7 @@ private:
 // WatchdogServiceHelper implements the helper functions for the outbound API requests to
 // the CarWatchdogService. This class doesn't handle the inbound APIs requests from
 // CarWatchdogService except the registration APIs.
-class WatchdogServiceHelper : public IWatchdogServiceHelperInterface {
+class WatchdogServiceHelper final : public IWatchdogServiceHelperInterface {
 public:
     WatchdogServiceHelper() : mService(nullptr), mWatchdogProcessService(nullptr) {}
     ~WatchdogServiceHelper();
@@ -99,6 +104,9 @@ public:
     android::binder::Status getPackageInfosForUids(
             const std::vector<int32_t>& uids, const std::vector<std::string>& vendorPackagePrefixes,
             std::vector<android::automotive::watchdog::internal::PackageInfo>* packageInfos);
+    android::binder::Status notifyIoOveruse(
+            const std::vector<android::automotive::watchdog::internal::PackageIoOveruseStats>&
+                    ioOveruseStats);
 
 protected:
     android::base::Result<void> init(
