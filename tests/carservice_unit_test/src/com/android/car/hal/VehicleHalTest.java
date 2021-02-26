@@ -215,7 +215,7 @@ public final class VehicleHalTest {
         int areaId = VehicleHal.NO_AREA;
 
         // Act
-        mVehicleHal.injectOnPropertySetError("" + propId, "" + areaId, "" + errorCode);
+        mVehicleHal.onPropertySetError(errorCode, propId, areaId);
 
         // Assert
         verify(mPowerHalService).onPropertySetError(propId, areaId, errorCode);
@@ -268,8 +268,9 @@ public final class VehicleHalTest {
 
         // Assert
         String actual = writer.toString();
-        assertThat(actual).contains("Prop: 0x00000001, service: mPowerHalService");
-        assertThat(actual).contains("Prop: 0x00000002, service: mPropertyHalService");
+        assertThat(actual).contains("Property Id: 1 // 0x1 name: 0x1, service: mPowerHalService");
+        assertThat(actual).contains(
+                "Property Id: 2 // 0x2 name: 0x2, service: mPropertyHalService");
     }
 
     @Test
@@ -319,7 +320,7 @@ public final class VehicleHalTest {
         when(mHalClient.getValue(any(VehiclePropValue.class))).thenReturn(propValue);
 
         // Act
-        mVehicleHal.dumpPropertyValueByCommend(printWriter, /* propId= */ "", /* areaId= */"");
+        mVehicleHal.dumpPropertyValueByCommend(printWriter, /* propId= */ -1, /* areaId= */-1);
 
         // Assert
         assertThat(writer.toString()).contains("string: some_value");
