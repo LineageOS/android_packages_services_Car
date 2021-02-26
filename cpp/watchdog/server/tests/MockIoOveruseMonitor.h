@@ -30,11 +30,13 @@ namespace watchdog {
 
 class MockIoOveruseMonitor : public IoOveruseMonitor {
 public:
-    MockIoOveruseMonitor() {}
+    MockIoOveruseMonitor(
+            const android::sp<IWatchdogServiceHelperInterface>& watchdogServiceHelper) :
+          IoOveruseMonitor(watchdogServiceHelper) {}
     ~MockIoOveruseMonitor() {}
     MOCK_METHOD(android::base::Result<void>, updateIoOveruseConfiguration,
-                (android::automotive::watchdog::internal::ComponentType type,
-                 const android::automotive::watchdog::internal::IoOveruseConfiguration& config),
+                (android::automotive::watchdog::internal::ComponentType,
+                 const android::automotive::watchdog::internal::IoOveruseConfiguration&),
                 (override));
     MOCK_METHOD(android::base::Result<void>, onDump, (int fd), (override));
 };

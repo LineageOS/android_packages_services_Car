@@ -62,10 +62,13 @@ public:
                 (int32_t, android::automotive::watchdog::internal::TimeoutLength), (override));
     MOCK_METHOD(android::binder::Status, prepareProcessTermination, (), (override));
     MOCK_METHOD(android::binder::Status, getPackageInfosForUids,
-                (const std::vector<int32_t>& uids,
-                 const std::vector<::android::String16>& vendorPackagePrefixes,
-                 std::vector<android::automotive::watchdog::internal::PackageInfo>* packageInfos),
+                (const std::vector<int32_t>&, const std::vector<::android::String16>&,
+                 std::vector<android::automotive::watchdog::internal::PackageInfo>*),
                 (override));
+    MOCK_METHOD(
+            android::binder::Status, notifyIoOveruse,
+            (const std::vector<android::automotive::watchdog::internal::PackageIoOveruseStats>&),
+            (override));
 
 private:
     sp<MockBinder> mBinder;

@@ -17,6 +17,7 @@
 package android.automotive.watchdog.internal;
 
 import android.automotive.watchdog.internal.PackageInfo;
+import android.automotive.watchdog.internal.PackageIoOveruseStats;
 import android.automotive.watchdog.internal.TimeoutLength;
 
 /**
@@ -52,4 +53,12 @@ interface ICarWatchdogServiceForSystem {
    * @param vendorPackagePrefixes       List of vendor package prefixes.
    */
   List<PackageInfo> getPackageInfosForUids(in int[] uids, in List<String> vendorPackagePrefixes);
+
+  /**
+   * Notifies watchdog server of I/O overusing applications.
+   *
+   * @param ioOveruseStats              Package I/O stats for packages that are either overusing
+   *                                    I/O or about to exceed their I/O usage threshold.
+   */
+  oneway void notifyIoOveruse(in List<PackageIoOveruseStats> ioOveruseStats);
 }

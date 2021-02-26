@@ -28,6 +28,7 @@ import android.automotive.watchdog.internal.ICarWatchdog;
 import android.automotive.watchdog.internal.ICarWatchdogMonitor;
 import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
 import android.automotive.watchdog.internal.PackageInfo;
+import android.automotive.watchdog.internal.PackageIoOveruseStats;
 import android.automotive.watchdog.internal.PowerCycle;
 import android.automotive.watchdog.internal.StateType;
 import android.os.Binder;
@@ -199,5 +200,8 @@ public class CarWatchdogDaemonHelperTest {
                 int[] uids, List<String> vendorPackagePrefixes) {
             return new ArrayList<>();
         }
+
+        @Override
+        public void notifyIoOveruse(List<PackageIoOveruseStats> ioOveruseStats) {}
     }
 }

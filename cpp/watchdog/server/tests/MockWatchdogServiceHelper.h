@@ -31,33 +31,33 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-class MockWatchdogServiceHelper : public WatchdogServiceHelper {
+class MockWatchdogServiceHelper : public IWatchdogServiceHelperInterface {
 public:
     MockWatchdogServiceHelper() {}
     ~MockWatchdogServiceHelper() {}
 
-    MOCK_METHOD(android::base::Result<void>, init,
-                (const android::sp<WatchdogProcessService>& watchdogProcessService), (override));
+    MOCK_METHOD(android::base::Result<void>, init, (const android::sp<WatchdogProcessService>&),
+                (override));
     MOCK_METHOD(android::binder::Status, registerService,
-                (const sp<android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>&
-                         service),
+                (const sp<android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>&),
                 (override));
     MOCK_METHOD(android::binder::Status, unregisterService,
-                (const sp<android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>&
-                         service),
+                (const sp<android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>&),
                 (override));
+    MOCK_METHOD(void, binderDied, (const android::wp<android::IBinder>&), (override));
 
     MOCK_METHOD(android::binder::Status, checkIfAlive,
-                (const android::wp<android::IBinder>& who, int32_t sessionId,
-                 TimeoutLength timeout),
-                (const, override));
+                (const android::wp<android::IBinder>&, int32_t, TimeoutLength), (const, override));
     MOCK_METHOD(android::binder::Status, prepareProcessTermination,
-                (const android::wp<android::IBinder>& who), (override));
+                (const android::wp<android::IBinder>&), (override));
     MOCK_METHOD(android::binder::Status, getPackageInfosForUids,
-                (const std::vector<int32_t>& uids,
-                 const std::vector<std::string>& vendorPackagePrefixes,
-                 std::vector<android::automotive::watchdog::internal::PackageInfo>* packageInfos),
+                (const std::vector<int32_t>&, const std::vector<std::string>&,
+                 std::vector<android::automotive::watchdog::internal::PackageInfo>*),
                 (override));
+    MOCK_METHOD(
+            android::binder::Status, notifyIoOveruse,
+            (const std::vector<android::automotive::watchdog::internal::PackageIoOveruseStats>&),
+            (override));
 
     MOCK_METHOD(void, terminate, (), (override));
 };

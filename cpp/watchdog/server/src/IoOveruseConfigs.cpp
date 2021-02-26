@@ -21,17 +21,24 @@
 #include "PackageInfoResolver.h"
 
 #include <android-base/strings.h>
+#include <utils/String8.h>
 
 #include <inttypes.h>
+
+#include <limits>
 
 namespace android {
 namespace automotive {
 namespace watchdog {
 
+using ::android::String16;
+using ::android::String8;
 using ::android::automotive::watchdog::internal::ApplicationCategoryType;
 using ::android::automotive::watchdog::internal::ComponentType;
 using ::android::automotive::watchdog::internal::IoOveruseAlertThreshold;
 using ::android::automotive::watchdog::internal::IoOveruseConfiguration;
+using ::android::automotive::watchdog::internal::PackageInfo;
+using ::android::automotive::watchdog::internal::PerStateBytes;
 using ::android::automotive::watchdog::internal::PerStateIoOveruseThreshold;
 using ::android::base::Error;
 using ::android::base::Result;
@@ -145,7 +152,7 @@ Result<void> isValidIoOveruseConfiguration(const ComponentType componentType,
 Result<void> ComponentSpecificConfig::updatePerPackageThresholds(
         const std::vector<PerStateIoOveruseThreshold>& thresholds,
         const std::function<void(const std::string&)>& maybeAppendVendorPackagePrefixes) {
-    perPackageThresholds.clear();
+    mPerPackageThresholds.clear();
     if (thresholds.empty()) {
         return Error() << "\tNo per-package thresholds provided so clearing it\n";
     }
@@ -163,12 +170,12 @@ Result<void> ComponentSpecificConfig::updatePerPackageThresholds(
                           packageName.c_str(), result.error().message().c_str());
             continue;
         }
-        if (const auto& it = perPackageThresholds.find(packageName);
-            it != perPackageThresholds.end()) {
+        if (const auto& it = mPerPackageThresholds.find(packageName);
+            it != mPerPackageThresholds.end()) {
             StringAppendF(&errorMsgs, "\tDuplicate threshold received for package '%s'\n",
                           packageName.c_str());
         }
-        perPackageThresholds[packageName] = packageThreshold;
+        mPerPackageThresholds[packageName] = packageThreshold;
     }
     return errorMsgs.empty() ? Result<void>{} : Error() << errorMsgs;
 }
@@ -176,7 +183,7 @@ Result<void> ComponentSpecificConfig::updatePerPackageThresholds(
 Result<void> ComponentSpecificConfig::updateSafeToKillPackages(
         const std::vector<String16>& packages,
         const std::function<void(const std::string&)>& maybeAppendVendorPackagePrefixes) {
-    safeToKillPackages.clear();
+    mSafeToKillPackages.clear();
     if (packages.empty()) {
         return Error() << "\tNo safe-to-kill packages provided so clearing it\n";
     }
@@ -188,7 +195,7 @@ Result<void> ComponentSpecificConfig::updateSafeToKillPackages(
             continue;
         }
         maybeAppendVendorPackagePrefixes(packageName);
-        safeToKillPackages.insert(packageName);
+        mSafeToKillPackages.insert(packageName);
     }
     return errorMsgs.empty() ? Result<void>{} : Error() << errorMsgs;
 }
@@ -205,7 +212,7 @@ bool IoOveruseConfigs::AlertThresholdEqualByDuration::operator()(
 
 Result<void> IoOveruseConfigs::updatePerCategoryThresholds(
         const std::vector<PerStateIoOveruseThreshold>& thresholds) {
-    perCategoryThresholds.clear();
+    mPerCategoryThresholds.clear();
     if (thresholds.empty()) {
         return Error() << "\tNo per-category thresholds provided so clearing it\n";
     }
@@ -221,12 +228,12 @@ Result<void> IoOveruseConfigs::updatePerCategoryThresholds(
             category == ApplicationCategoryType::OTHERS) {
             StringAppendF(&errorMsgs, "\tInvalid application category %s\n", name.c_str());
         } else {
-            if (const auto& it = perCategoryThresholds.find(category);
-                it != perCategoryThresholds.end()) {
+            if (const auto& it = mPerCategoryThresholds.find(category);
+                it != mPerCategoryThresholds.end()) {
                 StringAppendF(&errorMsgs, "\tDuplicate threshold received for category: '%s'\n",
                               name.c_str());
             }
-            perCategoryThresholds[category] = categoryThreshold;
+            mPerCategoryThresholds[category] = categoryThreshold;
         }
     }
     return errorMsgs.empty() ? Result<void>{} : Error() << errorMsgs;
@@ -234,7 +241,7 @@ Result<void> IoOveruseConfigs::updatePerCategoryThresholds(
 
 Result<void> IoOveruseConfigs::updateAlertThresholds(
         const std::vector<IoOveruseAlertThreshold>& thresholds) {
-    alertThresholds.clear();
+    mAlertThresholds.clear();
     std::string errorMsgs;
     for (const auto& alertThreshold : thresholds) {
         if (auto result = containsValidThreshold(alertThreshold); !result.ok()) {
@@ -242,14 +249,14 @@ Result<void> IoOveruseConfigs::updateAlertThresholds(
                           result.error().message().c_str());
             continue;
         }
-        if (const auto& it = alertThresholds.find(alertThreshold); it != alertThresholds.end()) {
+        if (const auto& it = mAlertThresholds.find(alertThreshold); it != mAlertThresholds.end()) {
             StringAppendF(&errorMsgs,
                           "\tDuplicate threshold received for duration %" PRId64
                           ". Overwriting previous threshold with %" PRId64
                           " written bytes per second \n",
                           alertThreshold.durationInSeconds, it->writtenBytesPerSecond);
         }
-        alertThresholds.emplace(alertThreshold);
+        mAlertThresholds.emplace(alertThreshold);
     }
     return errorMsgs.empty() ? Result<void>{} : Error() << errorMsgs;
 }
@@ -267,15 +274,15 @@ Result<void> IoOveruseConfigs::update(const ComponentType componentType,
     int32_t updatableConfigsFilter = 0;
     switch (componentType) {
         case ComponentType::SYSTEM:
-            targetComponentConfig = &systemConfig;
+            targetComponentConfig = &mSystemConfig;
             updatableConfigsFilter = kSystemComponentUpdatableConfigs;
             break;
         case ComponentType::VENDOR:
-            targetComponentConfig = &vendorConfig;
+            targetComponentConfig = &mVendorConfig;
             updatableConfigsFilter = kVendorComponentUpdatableConfigs;
             break;
         case ComponentType::THIRD_PARTY:
-            targetComponentConfig = &thirdPartyConfig;
+            targetComponentConfig = &mThirdPartyConfig;
             updatableConfigsFilter = kThirdPartyComponentUpdatableConfigs;
             break;
         default:
@@ -289,15 +296,15 @@ Result<void> IoOveruseConfigs::update(const ComponentType componentType,
     }
 
     if ((updatableConfigsFilter & IoOveruseConfigEnum::COMPONENT_SPECIFIC_GENERIC_THRESHOLDS)) {
-        targetComponentConfig->generic = updateConfig.componentLevelThresholds;
+        targetComponentConfig->mGeneric = updateConfig.componentLevelThresholds;
     }
 
     std::string nonUpdatableConfigMsgs;
     if (updatableConfigsFilter & IoOveruseConfigEnum::VENDOR_PACKAGE_PREFIXES) {
-        vendorPackagePrefixes.clear();
+        mVendorPackagePrefixes.clear();
         for (const auto& prefixStr16 : updateConfig.vendorPackagePrefixes) {
             if (auto prefix = std::string(String8(prefixStr16)); !prefix.empty()) {
-                vendorPackagePrefixes.insert(prefix);
+                mVendorPackagePrefixes.insert(prefix);
             }
         }
     } else if (!updateConfig.vendorPackagePrefixes.empty()) {
@@ -308,7 +315,7 @@ Result<void> IoOveruseConfigs::update(const ComponentType componentType,
     std::string errorMsgs;
     const auto maybeAppendVendorPackagePrefixes =
             [& componentType = std::as_const(componentType),
-             &vendorPackagePrefixes = vendorPackagePrefixes](const std::string& packageName) {
+             &vendorPackagePrefixes = mVendorPackagePrefixes](const std::string& packageName) {
                 if (componentType != ComponentType::VENDOR) {
                     return;
                 }
@@ -373,6 +380,56 @@ Result<void> IoOveruseConfigs::update(const ComponentType componentType,
               componentTypeStr.c_str(), errorMsgs.c_str());
     }
     return {};
+}
+
+PerStateBytes IoOveruseConfigs::fetchThreshold(const PackageInfo& packageInfo) const {
+    const std::string packageName = std::string(String8(packageInfo.packageIdentifier.name));
+    switch (packageInfo.componentType) {
+        case ComponentType::SYSTEM:
+            if (const auto it = mSystemConfig.mPerPackageThresholds.find(packageName);
+                it != mSystemConfig.mPerPackageThresholds.end()) {
+                return it->second.perStateWriteBytes;
+            }
+            if (const auto it = mPerCategoryThresholds.find(packageInfo.appCategoryType);
+                it != mPerCategoryThresholds.end()) {
+                return it->second.perStateWriteBytes;
+            }
+            return mSystemConfig.mGeneric.perStateWriteBytes;
+        case ComponentType::VENDOR:
+            if (const auto it = mVendorConfig.mPerPackageThresholds.find(packageName);
+                it != mVendorConfig.mPerPackageThresholds.end()) {
+                return it->second.perStateWriteBytes;
+            }
+            if (const auto it = mPerCategoryThresholds.find(packageInfo.appCategoryType);
+                it != mPerCategoryThresholds.end()) {
+                return it->second.perStateWriteBytes;
+            }
+            return mVendorConfig.mGeneric.perStateWriteBytes;
+        case ComponentType::THIRD_PARTY:
+            if (const auto it = mPerCategoryThresholds.find(packageInfo.appCategoryType);
+                it != mPerCategoryThresholds.end()) {
+                return it->second.perStateWriteBytes;
+            }
+            return mThirdPartyConfig.mGeneric.perStateWriteBytes;
+        default:
+            ALOGW("Returning default threshold for %s",
+                  packageInfo.packageIdentifier.toString().c_str());
+            return defaultThreshold().perStateWriteBytes;
+    }
+}
+
+bool IoOveruseConfigs::isSafeToKill(const PackageInfo& packageInfo) const {
+    const std::string packageName = std::string(String8(packageInfo.packageIdentifier.name));
+    switch (packageInfo.componentType) {
+        case ComponentType::SYSTEM:
+            return mSystemConfig.mSafeToKillPackages.find(packageName) !=
+                    mSystemConfig.mSafeToKillPackages.end();
+        case ComponentType::VENDOR:
+            return mVendorConfig.mSafeToKillPackages.find(packageName) !=
+                    mVendorConfig.mSafeToKillPackages.end();
+        default:
+            return true;
+    }
 }
 
 }  // namespace watchdog

@@ -118,8 +118,8 @@ protected:
     virtual void SetUp() {
         mMockWatchdogProcessService = new MockWatchdogProcessService();
         mMockWatchdogPerfService = new MockWatchdogPerfService();
-        mMockIoOveruseMonitor = new MockIoOveruseMonitor();
         mMockWatchdogServiceHelper = new MockWatchdogServiceHelper();
+        mMockIoOveruseMonitor = new MockIoOveruseMonitor(mMockWatchdogServiceHelper);
         mMockWatchdogBinderMediator = new MockWatchdogBinderMediator(mMockWatchdogProcessService,
                                                                      mMockWatchdogPerfService,
                                                                      mMockWatchdogServiceHelper);
