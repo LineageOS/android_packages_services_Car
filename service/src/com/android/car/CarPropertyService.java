@@ -178,28 +178,34 @@ public class CarPropertyService extends ICarProperty.Stub
     @Override
     public void dump(IndentingPrintWriter writer) {
         writer.println("*CarPropertyService*");
+        writer.increaseIndent();
         synchronized (mLock) {
-            writer.println("    Listener is set for PropertyHalService: " + mListenerIsSet);
-            writer.println("    There are " + mClientMap.size() + " clients "
-                    + "using CarPropertyService.");
-            writer.println("    Properties registered: ");
+            writer.println(String.format("Listener is set for PropertyHalService: %s",
+                    mListenerIsSet));
+            writer.println(String.format("There are %d clients using CarPropertyService.",
+                    mClientMap.size()));
+            writer.println("Properties registered: ");
+            writer.increaseIndent();
             for (int propId : mPropIdClientMap.keySet()) {
-                writer.println("        propId: 0x" + toHexString(propId)
+                writer.println("propId: 0x" + toHexString(propId)
                         + " is registered by " + mPropIdClientMap.get(propId).size()
                         + " client(s).");
             }
-            writer.println("    Properties changed by CarPropertyService: ");
+            writer.decreaseIndent();
+            writer.println("Properties changed by CarPropertyService: ");
+            writer.increaseIndent();
             for (int i = 0; i < mSetOperationClientMap.size(); i++) {
                 int propId = mSetOperationClientMap.keyAt(i);
                 SparseArray areaIdToClient = mSetOperationClientMap.valueAt(i);
                 for (int j = 0; j < areaIdToClient.size(); j++) {
                     int areaId = areaIdToClient.keyAt(j);
-                    writer.println("        propId: 0x" + toHexString(propId)
-                            + " areaId: 0x" + toHexString(areaId)
-                            + " by client: " + areaIdToClient.valueAt(j));
+                    writer.println(String.format("propId: 0x%s areaId: 0x%s by client: %s",
+                            toHexString(propId), toHexString(areaId), areaIdToClient.valueAt(j)));
                 }
             }
+            writer.decreaseIndent();
         }
+        writer.decreaseIndent();
     }
 
     @Override
