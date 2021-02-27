@@ -54,6 +54,7 @@ common_lib_deps = [
     // TODO(b/175057848): car-admin-ui-lib is need by NewUserDisclaimerActivity;
     // it might be better to move that class to CarSystemUI instead.
     "car-admin-ui-lib",
+    "cartelemetry-protos",
 ]
 
 android_app {
