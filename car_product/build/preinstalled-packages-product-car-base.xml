@@ -32,6 +32,11 @@
         <install-in user-type="SYSTEM" />
     </install-in-user-type>
 
+    <!-- This package is required for system user to test cluster_home_service -->
+    <install-in-user-type package="com.android.car.cluster.home">
+        <install-in user-type="SYSTEM" />
+    </install-in-user-type>
+
 <!--
   Apps that need to run on SYSTEM and evaluated by package owner.
   Here the apps will have FULL and SYSTEM.
