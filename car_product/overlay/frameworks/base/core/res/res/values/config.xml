@@ -139,8 +139,4 @@
          suggestions to TimeDetector service. -->
     <bool name="config_enableGnssTimeUpdateService">true</bool>
 
-    <!-- Use a car-specific activity resolver that supports rotary. -->
-    <string name="config_customResolverActivity" translatable="false"
-        >com.android.car.activityresolver/.CarResolverActivity</string>
-
 </resources>
