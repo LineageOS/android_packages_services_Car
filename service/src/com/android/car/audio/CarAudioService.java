@@ -189,6 +189,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private OccupantZoneConfigChangeListener
             mOccupantZoneConfigChangeListener = new CarAudioOccupantConfigChangeListener();
     private CarAudioPlaybackCallback mCarAudioPlaybackCallback;
+    private CarAudioPowerListener mCarAudioPowerListener;
 
     public CarAudioService(Context context) {
         mContext = context;
@@ -229,6 +230,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 setupDynamicRoutingLocked();
                 setupHalAudioFocusListenerLocked();
                 setupAudioConfigurationCallbackLocked();
+                setupPowerPolicyListener();
             } else {
                 Slog.i(CarLog.TAG_AUDIO, "Audio dynamic routing not enabled, run in legacy mode");
                 setupLegacyVolumeChangedListener();
@@ -238,6 +240,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         }
 
         restoreMasterMuteState();
+    }
+
+    private void setupPowerPolicyListener() {
+        mCarAudioPowerListener = CarAudioPowerListener.newCarAudioPowerListener(this);
+        mCarAudioPowerListener.startListeningForPolicyChanges();
     }
 
     private void restoreMasterMuteState() {
@@ -275,6 +282,10 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 mAudioControlWrapper.unlinkToDeath();
                 mAudioControlWrapper = null;
             }
+
+            if (mCarAudioPowerListener != null) {
+                mCarAudioPowerListener.stopListeningForPolicyChanges();
+            }
         }
     }
 
@@ -282,9 +293,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     public void dump(IndentingPrintWriter writer) {
         writer.println("*CarAudioService*");
         writer.increaseIndent();
+
+        writer.println("Configurations:");
+        writer.increaseIndent();
         writer.printf("Run in legacy mode? %b\n", !mUseDynamicRouting);
         writer.printf("Persist master mute state? %b\n", mPersistMasterMuteState);
-        writer.printf("Master muted? %b\n", mAudioManager.isMasterMute());
         writer.printf("Use hal ducking signals %b\n", mUseHalDuckingSignals);
         writer.printf("Volume context priority list version: %d\n",
                 mAudioVolumeAdjustmentContextsVersion);
@@ -292,8 +305,18 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         if (mCarAudioConfigurationPath != null) {
             writer.printf("Car audio configuration path: %s\n", mCarAudioConfigurationPath);
         }
-        // Empty line for comfortable reading
+        writer.decreaseIndent();
         writer.println();
+
+        writer.println("Current State:");
+        writer.increaseIndent();
+        writer.printf("Master muted? %b\n", mAudioManager.isMasterMute());
+        if (mCarAudioPowerListener != null) {
+            writer.printf("Audio enabled? %b\n", mCarAudioPowerListener.isAudioEnabled());
+        }
+        writer.decreaseIndent();
+        writer.println();
+
         if (mUseDynamicRouting) {
             writer.printf("Volume Group Mute Enabled? %b\n", mUseCarVolumeGroupMuting);
             synchronized (mImplLock) {
@@ -344,6 +367,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 writer.println("No HalAudioFocus instance\n");
             }
             if (mCarDucking != null) {
+                writer.println();
                 mCarDucking.dump(writer);
             }
             if (mCarVolumeGroupMuting != null) {
@@ -1207,6 +1231,20 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         requireDynamicRouting();
 
         return getCarAudioZone(zoneId).getInputAudioDevices();
+    }
+
+    void disableAudio() {
+        // Todo (b/176258537) abandon focus and mute everything
+        if (Log.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
+            Slog.d(CarLog.TAG_AUDIO, "Disabling audio");
+        }
+    }
+
+    void enableAudio() {
+        // Todo (b/176258537) resume focus and unmute appropriate things
+        if (Log.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
+            Slog.d(CarLog.TAG_AUDIO, "Enabling audio");
+        }
     }
 
     private void enforcePermission(String permissionName) {
