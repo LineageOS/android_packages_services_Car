@@ -176,6 +176,15 @@
          android.car.permission.STORAGE_MONITORING permission. -->
     <string name="intentReceiverForUnacceptableIoMetrics" translatable="false">com.google.android.car.defaultstoragemonitoringcompanionapp/.ExcessiveIoIntentReceiver</string>
 
+     <!-- The path to a file that contains lifetime estimation metrics for the eMMC storage on
+          this system, in the lifetimeA lifetimeB format, as defined by the eMMC extended CSD
+          register specification. -->
+     <string name="eMmcLifetimeFilePath" translatable="false">/sys/bus/mmc/devices/mmc0:0001/life_time</string>
+
+     <!-- The path to a file that contains end of life estimation metrics for the eMMC storage on
+          this system, in the format defined by the eMMC extended CSD register specification. -->
+     <string name="eMmcEolFilePath" translatable="false">/sys/bus/mmc/devices/mmc0:0001/pre_eol_info</string>
+
     <!-- The Model ID to advertise Bluetooth Fast Pair connections with.  Must be overlayed with
          device specific model id. -->
     <integer name="fastPairModelId">0x000000</integer>

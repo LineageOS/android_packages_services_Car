@@ -851,7 +851,8 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         }
 
         @Override
-        public WearInformationProvider[] getFlashWearInformationProviders() {
+        public WearInformationProvider[] getFlashWearInformationProviders(
+                String lifetimePath, String eolPath) {
             return new WearInformationProvider[] {this};
         }
 

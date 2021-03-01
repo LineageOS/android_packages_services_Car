@@ -20,7 +20,6 @@ import android.annotation.Nullable;
 import android.util.Slog;
 
 import com.android.car.CarLog;
-import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -48,8 +47,7 @@ public class EMmcWearInformationProvider implements WearInformationProvider {
         this(DEFAULT_LIFE_TIME_FILE, DEFAULT_PRE_EOL_FILE);
     }
 
-    @VisibleForTesting
-    EMmcWearInformationProvider(@NonNull File lifetimeFile, @NonNull File preEolFile) {
+    public EMmcWearInformationProvider(@NonNull File lifetimeFile, @NonNull File preEolFile) {
         mLifetimeFile = lifetimeFile;
         mPreEolFile = preEolFile;
     }
