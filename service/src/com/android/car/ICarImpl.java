@@ -51,6 +51,7 @@ import android.util.Slog;
 import android.util.TimingsTraceLog;
 
 import com.android.car.admin.CarDevicePolicyService;
+import com.android.car.admin.FactoryResetActivity;
 import com.android.car.am.FixedActivityService;
 import com.android.car.audio.CarAudioService;
 import com.android.car.cluster.ClusterHomeService;
@@ -66,7 +67,6 @@ import com.android.car.power.CarPowerManagementService;
 import com.android.car.power.SilentModeController;
 import com.android.car.stats.CarStatsService;
 import com.android.car.systeminterface.SystemInterface;
-import com.android.car.ui.FactoryResetActivity;
 import com.android.car.user.CarUserNoticeService;
 import com.android.car.user.CarUserService;
 import com.android.car.util.LimitedTimingsTraceLog;

@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// TODO(b/175057848): move to com.android.car.ui;
 package com.android.car.admin;
 
 import static com.android.car.admin.CarDevicePolicyService.DEBUG;
@@ -31,8 +30,8 @@ import android.widget.Button;
 import com.android.car.CarLog;
 import com.android.car.R;
 import com.android.car.admin.ui.ManagedDeviceTextView;
-import com.android.car.ui.NotificationHelper;
 
+// TODO(b/171603586): STOPSHIP move UI related activities to CarSettings
 /**
  * Shows a disclaimer when a new user is added in a device that is managed by a device owner.
  */
