@@ -17,7 +17,6 @@
 package android.car.admin;
 
 import android.annotation.IntDef;
-import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.annotation.TestApi;
 import android.car.user.UserRemovalResult;
@@ -97,9 +96,7 @@ public final class RemoveUserResult {
      * @hide
      */
     @VisibleForTesting
-    public RemoveUserResult(@Nullable UserRemovalResult result) {
-        int status = result == null ? STATUS_FAILURE_GENERIC : result.getStatus();
-
+    public RemoveUserResult(@UserRemovalResult.Status int status) {
         switch (status) {
             case UserRemovalResult.STATUS_SUCCESSFUL:
                 mStatus = STATUS_SUCCESS;
