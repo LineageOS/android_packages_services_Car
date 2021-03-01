@@ -152,8 +152,10 @@ public class SystemInterface implements ActivityManagerInterface,
     }
 
     @Override
-    public WearInformationProvider[] getFlashWearInformationProviders() {
-        return mStorageMonitoringInterface.getFlashWearInformationProviders();
+    public WearInformationProvider[] getFlashWearInformationProviders(
+            String lifetimePath, String eolPath) {
+        return mStorageMonitoringInterface.getFlashWearInformationProviders(
+                lifetimePath, eolPath);
     }
 
     @Override

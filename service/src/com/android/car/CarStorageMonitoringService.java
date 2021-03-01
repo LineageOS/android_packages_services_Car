@@ -148,7 +148,9 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         mLifetimeWriteFile = new File(systemInterface.getSystemCarDir(), LIFETIME_WRITES_FILENAME);
         mOnShutdownReboot = new OnShutdownReboot(mContext);
         mSystemInterface = systemInterface;
-        mWearInformationProviders = systemInterface.getFlashWearInformationProviders();
+        mWearInformationProviders = systemInterface.getFlashWearInformationProviders(
+                mConfiguration.eMmcLifetimeFilePath,
+                mConfiguration.eMmcEolFilePath);
         mStorageMonitoringPermission =
                 new CarPermission(mContext, Car.PERMISSION_STORAGE_MONITORING);
         mWearEstimateChanges = Collections.emptyList();
@@ -641,6 +643,8 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         final int ioStatsRefreshRateMs;
         final int maxExcessiveIoSamplesInWindow;
         final long uptimeIntervalBetweenUptimeDataWriteMs;
+        final String eMmcLifetimeFilePath;
+        final String eMmcEolFilePath;
 
         Configuration(Resources resources) throws Resources.NotFoundException {
             ioStatsNumSamplesToStore = resources.getInteger(R.integer.ioStatsNumSamplesToStore);
@@ -659,6 +663,8 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
                     resources.getString(R.string.activityHandlerForFlashWearChanges);
             intentReceiverForUnacceptableIoMetrics =
                     resources.getString(R.string.intentReceiverForUnacceptableIoMetrics);
+            eMmcLifetimeFilePath = resources.getString(R.string.eMmcLifetimeFilePath);
+            eMmcEolFilePath = resources.getString(R.string.eMmcEolFilePath);
         }
 
         @Override
@@ -671,7 +677,9 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
                             + "ioStatsNumSamplesToStore = %d, "
                             + "ioStatsRefreshRateMs = %d, "
                             + "maxExcessiveIoSamplesInWindow = %d, "
-                            + "uptimeIntervalBetweenUptimeDataWriteMs = %d",
+                            + "uptimeIntervalBetweenUptimeDataWriteMs = %d, "
+                            + "eMmcLifetimeFilePath = %s, "
+                            + "eMmcEolFilePath = %s",
                     acceptableBytesWrittenPerSample,
                     acceptableFsyncCallsPerSample,
                     acceptableHoursPerOnePercentFlashWear,
@@ -680,7 +688,9 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
                     ioStatsNumSamplesToStore,
                     ioStatsRefreshRateMs,
                     maxExcessiveIoSamplesInWindow,
-                    uptimeIntervalBetweenUptimeDataWriteMs);
+                    uptimeIntervalBetweenUptimeDataWriteMs,
+                    eMmcLifetimeFilePath,
+                    eMmcEolFilePath);
         }
     }
 }
