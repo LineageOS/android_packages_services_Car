@@ -2077,6 +2077,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
         CarUserService service = newCarUserService(/* switchGuestUserBeforeGoingSleep= */ true);
         service.onSuspend();
+        waitForHandlerThreadToFinish();
 
         verify(mInitialUserSetter).set(argThat((info) -> {
             return info.type == InitialUserSetter.TYPE_REPLACE_GUEST;
@@ -2090,6 +2091,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
         CarUserService service = newCarUserService(/* switchGuestUserBeforeGoingSleep= */ true);
         service.onSuspend();
+        waitForHandlerThreadToFinish();
 
         verify(mInitialUserSetter, never()).set(any());
         verify(mUserPreCreator).managePreCreatedUsers();
