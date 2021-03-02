@@ -112,9 +112,9 @@ public class ClusterHomeManagerTest extends MockedCarTestBase {
         StringBuilder occupantDisplayMapping = new StringBuilder();
         occupantDisplayMapping.append("displayPort=");
         occupantDisplayMapping.append(getDefaultDisplayPort());
-        occupantDisplayMapping.append("displayType=INSTRUMENT_CLUSTER,occupantZoneId=0");
+        occupantDisplayMapping.append(",displayType=INSTRUMENT_CLUSTER,occupantZoneId=0");
         resources.overrideResource(com.android.car.R.array.config_occupant_display_mapping,
-                occupantDisplayMapping.toString());
+                new String[] {occupantDisplayMapping.toString()});
         resources.overrideResource(com.android.car.R.array.config_allowed_optional_car_features,
                 ENABLED_OPTIONAL_FEATURES);
     }
