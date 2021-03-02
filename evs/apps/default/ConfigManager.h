@@ -31,8 +31,11 @@ public:
         float position[3] = {0};    // x, y, z -> right, fwd, up in the units of car space
         float yaw   = 0;    // radians positive to the left (right hand rule about global z axis)
         float pitch = 0;    // positive upward (ie: right hand rule about local x axis)
+        float roll  = 0;    // radians positively increasing clockwisely around the optical axis
         float hfov  = 0;    // radians
         float vfov  = 0;    // radians
+        bool  hflip = false;// boolean to flip the preview horizontally
+        bool  vflip = false;// boolean to flip the preview vertically
     };
 
     struct DisplayInfo {

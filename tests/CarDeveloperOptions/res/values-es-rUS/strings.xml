@@ -83,7 +83,8 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Aumenta o reduce el tamaño del texto en pantalla."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Reducir el tamaño"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Aumentar el tamaño"</string>
-    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
+    <!-- no translation found for font_size_preview_text (360019784926073822) -->
+    <skip />
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Texto de muestra"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"El maravilloso mago de Oz"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"Capítulo 11: La maravillosa Ciudad Esmeralda de Oz"</string>
@@ -95,7 +96,7 @@
     <string name="bluetooth_is_discoverable" msgid="6748888489356326898">"Visible para todos los dispositivos Bluetooth cercanos (<xliff:g id="DISCOVERABLE_TIME_PERIOD">%1$s</xliff:g>)"</string>
     <string name="bluetooth_is_discoverable_always" msgid="6835934878803488274">"Visible para todos los dispositivos Bluetooth cercanos"</string>
     <string name="bluetooth_not_visible_to_other_devices" msgid="9134284066024557293">"No visible para otros dispositivos Bluetooth"</string>
-    <string name="bluetooth_only_visible_to_paired_devices" msgid="3830247336229883519">"Solo visible para los dispositivos vinculados"</string>
+    <string name="bluetooth_only_visible_to_paired_devices" msgid="3830247336229883519">"Solo visible para los dispositivos sincronizados"</string>
     <string name="bluetooth_visibility_timeout" msgid="4804679276398564496">"Definir visibilidad"</string>
     <string name="bluetooth_lock_voice_dialing" msgid="1600385868298081015">"Bloquear marcación por voz"</string>
     <string name="bluetooth_lock_voice_dialing_summary" msgid="5005776616112427980">"Impedir el uso de Bluetooth del dispositivo cuando la pantalla esté bloqueada."</string>
@@ -113,7 +114,7 @@
     <string name="bluetooth_disconnect_all_profiles" product="device" msgid="4707569949253450208">"Tu dispositivo se desconectará de <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
     <string name="bluetooth_disconnect_dialog_ok" msgid="4183522987246110145">"Desconectar"</string>
     <string name="bluetooth_empty_list_user_restricted" msgid="3616298363281495777">"No tienes permiso para cambiar la configuración de Bluetooth."</string>
-    <string name="bluetooth_pairing_pref_title" msgid="2904954138013884029">"Vincular dispositivo nuevo"</string>
+    <string name="bluetooth_pairing_pref_title" msgid="2904954138013884029">"Sincronizar dispositivo nuevo"</string>
     <string name="bluetooth_is_visible_message" msgid="6341088682252805612">"Los dispositivos cercanos podrán ver tu <xliff:g id="DEVICE_NAME">%1$s</xliff:g> si está abierta la configuración de Bluetooth."</string>
     <string name="bluetooth_footer_mac_message" product="default" msgid="335341476746836260">"Dirección Bluetooth del teléfono: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_footer_mac_message" product="tablet" msgid="6033609611245782463">"Dirección Bluetooth de la tablet: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
@@ -124,8 +125,8 @@
     <string name="progress_scanning" msgid="633923400401041181">"Buscando"</string>
     <string name="bluetooth_no_devices_found" msgid="4396050022213494322">"No se encontraron dispositivos Bluetooth cercanos."</string>
     <string name="bluetooth_notif_ticker" msgid="8398481099943141819">"Solicitud de vinculación de Bluetooth"</string>
-    <string name="bluetooth_notif_title" msgid="5090288898529286011">"Solicitud de vinculación"</string>
-    <string name="bluetooth_notif_message" msgid="6612367890895077938">"Presiona para vincular con <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
+    <string name="bluetooth_notif_title" msgid="5090288898529286011">"Vinculando solicitud"</string>
+    <string name="bluetooth_notif_message" msgid="6612367890895077938">"Presiona para realizar una sincronización con <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
     <string name="bluetooth_show_received_files" msgid="5060846395852236652">"Archivos recibidos"</string>
     <string name="bluetooth_show_files_received_via_bluetooth" msgid="1699095577431389560">"Archivos recibidos (Bluetooth)"</string>
     <string name="device_picker" msgid="8345264486071697705">"Elegir dispositivo"</string>
@@ -165,7 +166,7 @@
     <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"Visible como \"<xliff:g id="DEVICE_NAME">^1</xliff:g>\" para otros dispositivos"</string>
     <string name="bluetooth_off_footer" msgid="7658444560543730571">"Activa el Bluetooth para establecer conexión con otros dispositivos."</string>
     <string name="bluetooth_paired_device_title" msgid="8361860197780425286">"Tus dispositivos"</string>
-    <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"Vincular dispositivo nuevo"</string>
+    <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"Sincronizar dispositivo nuevo"</string>
     <string name="bluetooth_pref_summary" product="tablet" msgid="3601662966604648212">"Permite que la tablet se comunique con dispositivos Bluetooth cercanos"</string>
     <string name="bluetooth_pref_summary" product="device" msgid="2286727776570956969">"Permite que el dispositivo se comunique con dispositivos Bluetooth cercanos"</string>
     <string name="bluetooth_pref_summary" product="default" msgid="863659221858781186">"Permite que el teléfono se comunique con dispositivos Bluetooth cercanos"</string>
@@ -178,7 +179,7 @@
     <string name="connected_device_available_call_title" msgid="6774859446815858428">"Dispositivos de llamada disponibles"</string>
     <string name="connected_device_connected_title" msgid="6255107326608785482">"Conectados actualmente"</string>
     <string name="connected_device_saved_title" msgid="8270136893488475163">"Dispositivos guardados"</string>
-    <string name="connected_device_add_device_summary" msgid="7960491471270158891">"Se activará el Bluetooth para vincular"</string>
+    <string name="connected_device_add_device_summary" msgid="7960491471270158891">"Se activará el Bluetooth para sincronizar"</string>
     <string name="connected_device_connections_title" msgid="9205000271382018428">"Preferencias de conexión"</string>
     <string name="connected_device_previously_connected_title" msgid="225918223397410428">"Dispositivos conectados previamente"</string>
     <string name="connected_device_previously_connected_screen_title" msgid="2018789662358162716">"Conectados anteriormente"</string>
@@ -406,11 +407,11 @@
     <string name="security_settings_face_enroll_introduction_message_setup" msgid="4533297059466270074">"Usa tu rostro para desbloquear el teléfono, autorizar compras o acceder a las apps"</string>
     <string name="security_settings_face_enroll_introduction_footer_message" msgid="7764021721107723266"></string>
     <string name="security_settings_face_enroll_repeat_title" msgid="2507710348140837875">"Centra el rostro en el círculo"</string>
-    <string name="security_settings_face_enroll_enrolling_skip" msgid="4346077260378772613">"Más tarde"</string>
+    <string name="security_settings_face_enroll_enrolling_skip" msgid="4346077260378772613">"Hacerlo más tarde"</string>
     <string name="face_add_max" msgid="8870899421165189413">"Puedes agregar hasta <xliff:g id="COUNT">%d</xliff:g> rostros"</string>
     <string name="face_intro_error_max" msgid="4024147799079828937">"Agregaste la cantidad máxima permitida de rostros"</string>
     <string name="face_intro_error_unknown" msgid="3241592604198351134">"No se pueden agregar más rostros"</string>
-    <string name="security_settings_face_enroll_error_dialog_title" msgid="3933492758701563051">"No se completó la inscripción"</string>
+    <string name="security_settings_face_enroll_error_dialog_title" msgid="3933492758701563051">"No se completó el registro"</string>
     <string name="security_settings_face_enroll_dialog_ok" msgid="1078348922734845090">"Aceptar"</string>
     <string name="security_settings_face_enroll_error_timeout_dialog_message" msgid="4917894418448325405">"Se alcanzó el límite de tiempo para el registro de rostros. Vuelve a intentarlo."</string>
     <string name="security_settings_face_enroll_error_generic_dialog_message" msgid="5160473187142616862">"No funcionó el registro de rostros."</string>
@@ -471,7 +472,7 @@
     <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"Sigue levantando el dedo para agregar diferentes partes de la huella digital."</string>
     <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"Se agregó la huella digital"</string>
     <string name="security_settings_fingerprint_enroll_finish_message" msgid="5862643337893923347">"Cuando veas este ícono, usa tu huella digital para identificarte o aprobar compras."</string>
-    <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"Más tarde"</string>
+    <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"Hacerlo más tarde"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_title" msgid="2816424026528101690">"¿Omitir configuración de huella digital?"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_message" msgid="8139299964344809780">"Decidiste usar la huella digital como una de las formas para desbloquear el teléfono. Si omites este paso, tendrás que configurarla más tarde. La configuración tarda un minuto aproximadamente."</string>
     <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="tablet" msgid="1384438077720821127">"Protege la tablet con una opción de bloqueo de pantalla para que nadie pueda usarla si la pierdes o te la roban. Además, tienes que establecer una opción de bloqueo de pantalla para configurar la huella digital. Presiona Cancelar y, luego, establece un PIN o elige otra opción de bloqueo de pantalla."</string>
@@ -487,8 +488,8 @@
     <string name="security_settings_fingerprint_enroll_done" msgid="4111289529758845926">"Listo"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_title" msgid="7410398793283818609">"Ese no es el sensor"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_message" msgid="7192100314788868883">"Toca el sensor en la parte posterior del teléfono con el dedo índice."</string>
-    <string name="security_settings_fingerprint_enroll_error_dialog_title" msgid="1415709674142168770">"No se completó la inscripción"</string>
-    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"Se alcanzó el límite de tiempo para la inscripción de huellas digitales. Vuelve a intentarlo."</string>
+    <string name="security_settings_fingerprint_enroll_error_dialog_title" msgid="1415709674142168770">"No se completó el registro"</string>
+    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"Se alcanzó el límite de tiempo para el registro de huellas digitales. Vuelve a intentarlo."</string>
     <string name="security_settings_fingerprint_enroll_error_generic_dialog_message" msgid="7896295829530444810">"El registro de huellas digitales no funcionó. Vuelve a intentarlo o usa otro dedo."</string>
     <string name="fingerprint_enroll_button_add" msgid="6335782936874996629">"Agregar otra huella digital"</string>
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"Siguiente"</string>
@@ -731,15 +732,15 @@
     <string name="bluetooth_settings_summary" msgid="1221689092429277887">"Administrar conexiones, establecer nombre y detección del dispositivo"</string>
     <string name="bluetooth_pairing_request" msgid="7221745525632573125">"¿Vincular con <xliff:g id="DEVICE_NAME">%1$s</xliff:g>?"</string>
     <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"Código de vinculación Bluetooth"</string>
-    <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"Ingresa el código de vinculación y luego presiona Intro."</string>
+    <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"Ingresa el código de sincronización y luego presiona Intro."</string>
     <string name="bluetooth_enable_alphanumeric_pin" msgid="9138308197078115672">"El PIN contiene letras o símbolos."</string>
     <string name="bluetooth_pin_values_hint" msgid="8044671726261326240">"Por lo general, 0000 o 1234"</string>
     <string name="bluetooth_pin_values_hint_16_digits" msgid="2665983525706661525">"Debe contener 16 dígitos"</string>
     <string name="bluetooth_enter_pin_other_device" msgid="1727015949040507621">"Puede que también tengas que escribir este PIN en el otro dispositivo."</string>
     <string name="bluetooth_enter_passkey_other_device" msgid="1709886959534143500">"Puede que también tengas que escribir esta clave de acceso en otro dispositivo."</string>
-    <string name="bluetooth_confirm_passkey_msg" msgid="7094455604290076371">"Para vincular con&lt;br&gt;&lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt;&lt;br&gt;&lt;br&gt;asegúrate de que se muestre esta clave de acceso:&lt;br&gt;&lt;b&gt;<xliff:g id="PASSKEY">%2$s</xliff:g>&lt;/b&gt;."</string>
-    <string name="bluetooth_incoming_pairing_msg" msgid="940451919337185024">"Desde: &lt;br&gt;&lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt;&lt;br&gt;&lt;br&gt;¿Vincular con este dispositivo?"</string>
-    <string name="bluetooth_display_passkey_pin_msg" msgid="5909423849232791647">"Para vincular con:<xliff:g id="BOLD1_0">&lt;br&gt;&lt;b&gt;</xliff:g><xliff:g id="DEVICE_NAME">%1$s</xliff:g><xliff:g id="END_BOLD1">&lt;/b&gt;&lt;br&gt;&lt;br&gt;</xliff:g>Escribe allí:<xliff:g id="BOLD2_1">&lt;br&gt;&lt;b&gt;</xliff:g><xliff:g id="PASSKEY">%2$s</xliff:g><xliff:g id="END_BOLD2">&lt;/b&gt;</xliff:g> y luego presiona Volver o Intro."</string>
+    <string name="bluetooth_confirm_passkey_msg" msgid="7094455604290076371">"Para sincronizar con&lt;br&gt;&lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt;&lt;br&gt;&lt;br&gt;asegúrate de que se muestre esta clave de acceso:&lt;br&gt;&lt;b&gt;<xliff:g id="PASSKEY">%2$s</xliff:g>&lt;/b&gt;."</string>
+    <string name="bluetooth_incoming_pairing_msg" msgid="940451919337185024">"¿Desde: &lt;br&gt;&lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt;&lt;br&gt;&lt;br&gt;sincronizas con este dispositivo?"</string>
+    <string name="bluetooth_display_passkey_pin_msg" msgid="5909423849232791647">"Para sincronizar con:<xliff:g id="BOLD1_0">&lt;br&gt;&lt;b&gt;</xliff:g><xliff:g id="DEVICE_NAME">%1$s</xliff:g><xliff:g id="END_BOLD1">&lt;/b&gt;&lt;br&gt;&lt;br&gt;</xliff:g>Escribe allí:<xliff:g id="BOLD2_1">&lt;br&gt;&lt;b&gt;</xliff:g><xliff:g id="PASSKEY">%2$s</xliff:g><xliff:g id="END_BOLD2">&lt;/b&gt;</xliff:g> y luego presiona Volver o Enter."</string>
     <string name="bluetooth_pairing_shares_phonebook" msgid="7474404818877079813">"Permitir el acceso a tus contactos y al historial de llamadas"</string>
     <string name="bluetooth_error_title" msgid="5718761586633101960"></string>
     <string name="bluetooth_connecting_error_message" msgid="8473359363469518478">"No se pudo establecer conexión con <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
@@ -747,14 +748,14 @@
     <string name="bluetooth_search_for_devices" msgid="6796307228261078451">"Actualizar"</string>
     <string name="bluetooth_searching_for_devices" msgid="7820814625522702494">"Buscando..."</string>
     <string name="bluetooth_preference_device_settings" msgid="4247085616427015908">"Configuración de dispositivos"</string>
-    <string name="bluetooth_preference_paired_dialog_title" msgid="3567187438908143693">"Dispositivo vinculado"</string>
+    <string name="bluetooth_preference_paired_dialog_title" msgid="3567187438908143693">"Dispositivo sincronizado"</string>
     <string name="bluetooth_preference_paired_dialog_internet_option" msgid="3693599743477470469">"Conexión a Internet"</string>
     <string name="bluetooth_preference_paired_dialog_keyboard_option" msgid="4627309436489645755">"Teclado"</string>
     <string name="bluetooth_preference_paired_dialog_contacts_option" msgid="5290994459307558039">"Contactos e historial de llamadas"</string>
-    <string name="bluetooth_pairing_dialog_title" msgid="7900515495932064945">"¿Vincular con este dispositivo?"</string>
+    <string name="bluetooth_pairing_dialog_title" msgid="7900515495932064945">"¿Sincronizar con este dispositivo?"</string>
     <string name="bluetooth_pairing_dialog_sharing_phonebook_title" msgid="7395493311980018460">"¿Compartir libreta telefónica?"</string>
     <string name="bluetooth_pairing_dialog_contants_request" msgid="2103132762434487717">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> quiere acceder a tus contactos y al historial de llamadas."</string>
-    <string name="bluetooth_pairing_dialog_paring_request" msgid="5513953935086446387">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> quiere vincularse con Bluetooth. Al conectarse, podrá acceder a tus contactos y llamadas."</string>
+    <string name="bluetooth_pairing_dialog_paring_request" msgid="5513953935086446387">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> quiere sincronizarse con Bluetooth. Al conectarse, podrá acceder a contactos e hist. de llamadas."</string>
     <string name="bluetooth_preference_found_media_devices" msgid="5748539613567836379">"Dispositivos disponibles"</string>
     <string name="bluetooth_preference_no_found_devices" msgid="4190090666412408576">"No hay dispositivos disponibles."</string>
     <string name="bluetooth_device_context_connect" msgid="1812090541371432890">"Conectar"</string>
@@ -772,9 +773,9 @@
     <string name="device_details_title" msgid="726517818032923222">"Detalles del dispositivo"</string>
     <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"Dirección Bluetooth del dispositivo: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"¿Olvidar este dispositivo?"</string>
-    <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"El teléfono ya no estará vinculado con <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
-    <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"La tablet ya no estará vinculada con <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
-    <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"El dispositivo ya no estará vinculado con <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
+    <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"El teléfono ya no estará sincronizado con <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
+    <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"La tablet ya no estará sincronizada con <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
+    <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"El dispositivo ya no estará sincronizado con <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
     <string name="bluetooth_unpair_dialog_forget_confirm_button" msgid="8485211340349958886">"Olvidar este dispositivo"</string>
     <string name="bluetooth_connect_specific_profiles_title" msgid="2381509181266180406">"Conectar a..."</string>
     <string name="bluetooth_disconnect_a2dp_profile" msgid="8072503764470451567">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> se desconectará del audio multimedia."</string>
@@ -783,7 +784,7 @@
     <string name="bluetooth_disconnect_pan_user_profile" msgid="5523689915196343097">"Se desconectará el acceso a Internet a través de <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
     <string name="bluetooth_disconnect_pan_nap_profile" product="tablet" msgid="8145126793699232403">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> dejará de compartir la conexión a Internet desde esta tablet."</string>
     <string name="bluetooth_disconnect_pan_nap_profile" product="default" msgid="6040826983120279685">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> dejará de compartir la conexión a Internet desde este teléfono."</string>
-    <string name="bluetooth_device_advanced_title" msgid="5752155558126694036">"Dispositivo Bluetooth vinculado"</string>
+    <string name="bluetooth_device_advanced_title" msgid="5752155558126694036">"Dispositivo Bluetooth sincronizado"</string>
     <string name="bluetooth_device_advanced_online_mode_title" msgid="7665622268007450665">"Conectar"</string>
     <string name="bluetooth_device_advanced_online_mode_summary" msgid="4180673788239241086">"Conectar al dispositivo Bluetooth"</string>
     <string name="bluetooth_device_advanced_profile_header_title" msgid="1414487572426490659">"Utilizar para"</string>
@@ -826,7 +827,7 @@
     <string name="nfc_disclaimer_title" msgid="4860231267351602970">"Activa NFC"</string>
     <string name="nfc_disclaimer_content" msgid="3066113577854565782">"NFC intercambia datos entre este dispositivo y otras orientaciones o dispositivos cercanos, como terminales de pago, lectores de acceso o etiquetas."</string>
     <string name="nfc_secure_settings_title" msgid="5153751163174916581">"Proteger NFC"</string>
-    <string name="nfc_secure_toggle_summary" product="default" msgid="7631183023440112192">"Permitir el uso de NFC en pagos y transporte público solo cuando la pantalla está desbloqueada"</string>
+    <string name="nfc_secure_toggle_summary" product="default" msgid="7631183023440112192">"Permitir uso de pagos NFC y Transit solo cuando la pantalla está desbloqueada"</string>
     <string name="android_beam_settings_title" msgid="3083436415873738389">"Android Beam"</string>
     <string name="android_beam_on_summary" msgid="8068287225180474199">"Listo para transmitir contenido de aplicaciones por NFC"</string>
     <string name="android_beam_off_summary" msgid="7365818039159364600">"Desactivada"</string>
@@ -888,7 +889,7 @@
     <string name="wifi_menu_remember" msgid="717257200269700641">"Recordar red"</string>
     <string name="wifi_menu_forget" msgid="7561140554450163075">"Olvidar red"</string>
     <string name="wifi_menu_modify" msgid="4080178040721021101">"Modificar red"</string>
-    <string name="wifi_empty_list_wifi_off" msgid="272877164691346240">"Para ver las redes disponibles, activa el Wi-Fi."</string>
+    <string name="wifi_empty_list_wifi_off" msgid="272877164691346240">"Para ver las redes disponibles, activa Wi-Fi."</string>
     <string name="wifi_empty_list_wifi_on" msgid="881478805041020600">"Buscando redes Wi-Fi…"</string>
     <string name="wifi_empty_list_user_restricted" msgid="2341613007817352431">"No tienes permiso para cambiar la red Wi‑Fi."</string>
     <string name="wifi_more" msgid="3538241640407382185">"Más"</string>
@@ -905,11 +906,11 @@
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"Ingresa el SSID"</string>
     <string name="wifi_security" msgid="9136702039496152831">"Seguridad"</string>
     <string name="wifi_hidden_network" msgid="6647772204699776833">"Red oculta"</string>
-    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Si el router no emite un ID de red, pero quieres conectarte a la red en el futuro, configúrala para que esté oculta.\n\nEs posible que esta acción implique riesgos de seguridad porque el teléfono emitirá la señal regularmente para buscar la red.\n\nSi configuras la red para que esté oculta, no se modificarán los ajustes del router."</string>
+    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Si tu router no emite un ID de red, pero quieres conectarte a la red en el futuro, configúrala para que esté oculta.\n\nEs posible que esta acción suponga un riesgo de seguridad, ya que tu teléfono emitirá su señal de forma regular para buscar la red.\n\nSi configuras la red para que esté oculta, no se modificarán los ajustes del router."</string>
     <string name="wifi_signal" msgid="696548364467704808">"Potencia de la señal"</string>
     <string name="wifi_status" msgid="3439931558930689940">"Estado"</string>
-    <string name="tx_wifi_speed" msgid="2571810085003261073">"Velocidad enlace de transmisión"</string>
-    <string name="rx_wifi_speed" msgid="7392873246110937187">"Velocidad enlace de recepción"</string>
+    <string name="tx_wifi_speed" msgid="2571810085003261073">"Transmitir velocidad de vínculo"</string>
+    <string name="rx_wifi_speed" msgid="7392873246110937187">"Recibir velocidad de vínculo"</string>
     <string name="wifi_frequency" msgid="6132852924995724246">"Frecuencia"</string>
     <string name="wifi_ip_address" msgid="5572539114989914831">"Dirección IP"</string>
     <string name="passpoint_label" msgid="7429247462404128615">"Se guardó mediante"</string>
@@ -1102,10 +1103,7 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
-    <item msgid="6452246499629557266">"Wi-Fi"</item>
-    <item msgid="2271962426654621656">"Móvil"</item>
-  </string-array>
+    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Si no hay ninguna red Wi-Fi disponible, usa una red móvil"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Si la red móvil no está disponible, usa Wi-Fi"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Llamar mediante Wi-Fi. La llamada finalizará si se pierde la conexión."</string>
@@ -1586,7 +1584,7 @@
     <string name="master_clear_title" msgid="1560712943955904673">"Borrar todos los datos (restablecer la configuración de fábrica)"</string>
     <string name="master_clear_short_title" msgid="919098101581335101">"Borrar todos los datos"</string>
     <string name="master_clear_desc" product="tablet" msgid="3432373610755760899">"Esta acción borrará todos los datos del "<b>"almacenamiento interno"</b>" de tu tablet, como\n\n"<li>"Tu Cuenta de Google"</li>\n<li>"Los datos y la configuración del sistema y de las apps"</li>\n<li>"Las apps descargadas"</li></string>
-    <string name="master_clear_desc" product="default" msgid="8765543541962866697">"Se borrarán todos los datos del "<b>"almacenamiento interno"</b>" del teléfono, por ejemplo:\n\n"<li>"Tu Cuenta de Google"</li>\n<li>"Los datos y la configuración del sistema y de las apps"</li>\n<li>"Las apps descargadas"</li></string>
+    <string name="master_clear_desc" product="default" msgid="8765543541962866697">"Esta acción borrará todos los datos del "<b>"almacenamiento interno"</b>" de tu teléfono, como\n\n"<li>"Tu Cuenta de Google"</li>\n<li>"Los datos y la configuración del sistema y de las apps"</li>\n<li>"Las apps descargadas"</li></string>
     <string name="master_clear_accounts" product="default" msgid="3432884235445405376">\n\n"Accediste a las siguientes cuentas:\n"</string>
     <string name="master_clear_other_users_present" product="default" msgid="5993259656117566767">\n\n"Hay otros usuarios presentes en este dispositivo.\n"</string>
     <string name="master_clear_desc_also_erases_external" msgid="3947303501615091903"><li>"Música"</li>\n<li>"Fotos"</li>\n<li>"Otros datos de usuario"</li></string>
@@ -2055,7 +2053,7 @@
     <string name="accessibility_screen_magnification_gestures_title" msgid="9199287875401817974">"Ampliar presionando tres veces"</string>
     <string name="accessibility_screen_magnification_navbar_title" msgid="400655612610761242">"Ampliar con el botón"</string>
     <string name="accessibility_screen_magnification_state_navbar_gesture" msgid="1863831350878995600">"Ampliar con el botón y al presionar tres veces"</string>
-    <string name="accessibility_preference_magnification_summary" msgid="753307741814376312">"Amplía la pantalla"</string>
+    <string name="accessibility_preference_magnification_summary" msgid="753307741814376312">"Ampliar la pantalla"</string>
     <string name="accessibility_screen_magnification_short_summary" msgid="5698545174944494486">"Presiona tres veces para ampliar"</string>
     <string name="accessibility_screen_magnification_navbar_short_summary" msgid="5418767043532322397">"Presiona un botón para ampliar"</string>
     <string name="accessibility_screen_magnification_summary" msgid="3363006902079431772"><b>"Para ampliar"</b>", presiona la pantalla 3 veces rápidamente \n"<ul><li>"Arrastra 2 o más dedos para desplazarte."</li>\n<li>"Pellizca con 2 o más dedos para ajustar el zoom."</li></ul>\n\n<b>"Para hacer zoom de manera temporal"</b>", presiona la pantalla 3 veces rápidamente y mantén presionado la última vez.\n"<ul><li>"Arrastra el dedo para moverte por la pantalla."</li>\n<li>"Levanta el dedo para alejar la imagen."</li></ul>\n\n"No se puede ampliar el teclado ni la barra de navegación."</string>
@@ -2102,8 +2100,8 @@
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"Audífonos"</string>
     <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"No hay audífonos conectados"</string>
     <string name="accessibility_hearingaid_adding_summary" msgid="4139031880828714300">"Agregar audífonos"</string>
-    <string name="accessibility_hearingaid_pair_instructions_first_message" msgid="2671518890909750740">"Para vincular audífonos, busca y presiona tu dispositivo en la pantalla siguiente."</string>
-    <string name="accessibility_hearingaid_pair_instructions_second_message" msgid="1584538735488464991">"Asegúrate de que tus audífonos estén en modo de vinculación."</string>
+    <string name="accessibility_hearingaid_pair_instructions_first_message" msgid="2671518890909750740">"Para sincronizar tus audífonos, busca y presiona tu dispositivo en la pantalla siguiente."</string>
+    <string name="accessibility_hearingaid_pair_instructions_second_message" msgid="1584538735488464991">"Asegúrate de que tus audífonos estén en modo de sincronización."</string>
     <string name="accessibility_hearingaid_active_device_summary" msgid="6081382497207168885">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> activo"</string>
     <plurals name="show_number_hearingaid_count" formatted="false" msgid="7906547154695855096">
       <item quantity="other"><xliff:g id="NUMBER_DEVICE_COUNT_1">%1$d</xliff:g> audífonos guardados</item>
@@ -2317,9 +2315,9 @@
     <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"Esta app podrá usar la batería en segundo plano. La batería podría agotarse antes de lo esperado."</string>
     <string name="battery_tip_unrestrict_app_dialog_ok" msgid="9154938931448151479">"Quitar"</string>
     <string name="battery_tip_unrestrict_app_dialog_cancel" msgid="7331148618292397166">"Cancelar"</string>
-    <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"Tus apps consumen una cantidad normal de batería. Si consumen demasiada batería, el teléfono te recomendará acciones.\n\nSi tienes poca batería, también puedes activar el Ahorro de batería."</string>
-    <string name="battery_tip_dialog_summary_message" product="tablet" msgid="1721081030632329647">"Tus apps consumen una cantidad normal de batería. Si consumen demasiada batería, la tablet te recomendará acciones.\n\nSi tienes poca batería, también puedes activar el Ahorro de batería."</string>
-    <string name="battery_tip_dialog_summary_message" product="device" msgid="146872407040848465">"Tus apps consumen una cantidad normal de batería. Si consumen demasiada batería, el dispositivo te recomendará acciones.\n\nSi tienes poca batería, también puedes activar el Ahorro de batería."</string>
+    <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"La cantidad de batería que usan tus apps es normal. Si consumen demasiada batería, el teléfono te recomendará acciones.\n\nSi tienes poca batería, también puedes activar el Ahorro de batería."</string>
+    <string name="battery_tip_dialog_summary_message" product="tablet" msgid="1721081030632329647">"La cantidad de batería que usan tus apps es normal. Si consumen demasiada batería, la tablet te recomendará acciones.\n\nSi tienes poca batería, también puedes activar el Ahorro de batería."</string>
+    <string name="battery_tip_dialog_summary_message" product="device" msgid="146872407040848465">"La cantidad de batería que usan tus apps es normal. Si consumen demasiada batería, el dispositivo te recomendará acciones.\n\nSi tienes poca batería, también puedes activar el Ahorro de batería."</string>
     <string name="smart_battery_manager_title" msgid="5744035036663849515">"Administrador de batería"</string>
     <string name="smart_battery_title" msgid="4919670408532804351">"Administra apps automáticamente"</string>
     <string name="smart_battery_summary" msgid="640027046471198174">"Limitar el consumo de batería de las apps que no uses con frecuencia"</string>
@@ -2531,7 +2529,7 @@
     <string name="credentials_reset_summary" msgid="7622528359699428555">"Quitar todos los certificados"</string>
     <string name="trusted_credentials" msgid="6989242522455395200">"Credenciales de confianza"</string>
     <string name="trusted_credentials_summary" msgid="7411781319056251582">"Mostrar certificados de CA de confianza"</string>
-    <string name="user_credentials" msgid="8365731467650306757">"Credenciales de usuario"</string>
+    <string name="user_credentials" msgid="8365731467650306757">"Credenciales del usuario"</string>
     <string name="user_credentials_summary" msgid="7350223899317423252">"Ver y modificar las credenciales guardadas"</string>
     <string name="advanced_security_title" msgid="286883005673855845">"Configuración avanzada"</string>
     <string name="credential_storage_type" msgid="2585337320206095255">"Tipo de almacenamiento"</string>
@@ -2756,7 +2754,7 @@
     <string name="vpn_username" msgid="5357878823189445042">"Nombre de usuario"</string>
     <string name="vpn_password" msgid="5325943601523662246">"Contraseña"</string>
     <string name="vpn_save_login" msgid="6215503139606646915">"Guardar información de la cuenta"</string>
-    <string name="vpn_not_used" msgid="2889520789132261454">"(No se utiliza)"</string>
+    <string name="vpn_not_used" msgid="2889520789132261454">"(no se utiliza)"</string>
     <string name="vpn_no_ca_cert" msgid="486605757354800838">"(no verificar el servidor)"</string>
     <string name="vpn_no_server_cert" msgid="679622228649855629">"(recibido desde el servidor)"</string>
     <string name="vpn_always_on_invalid_reason_type" msgid="165810330614905489">"Este tipo de VPN no puede permanecer conectada todo el tiempo"</string>
@@ -2917,7 +2915,7 @@
     <string name="nfc_payment_settings_title" msgid="5070077706735415291">"Toca y paga"</string>
     <string name="nfc_payment_how_it_works" msgid="7607901964687787177">"Cómo funciona"</string>
     <string name="nfc_payment_no_apps" msgid="8844440783395420860">"Paga en las tiendas con tu teléfono"</string>
-    <string name="nfc_payment_default" msgid="7869273092463612271">"App de pagos predeterminada"</string>
+    <string name="nfc_payment_default" msgid="7869273092463612271">"App de pago predeterminada"</string>
     <string name="nfc_payment_default_not_set" msgid="955804193510335338">"Sin establecer"</string>
     <string name="nfc_payment_app_and_desc" msgid="102312684211458190">"<xliff:g id="APP">%1$s</xliff:g>: <xliff:g id="DESCRIPTION">%2$s</xliff:g>"</string>
     <string name="nfc_payment_use_default" msgid="3098724195746409476">"Utilizar la aplicación predeterminada"</string>
@@ -2971,7 +2969,7 @@
     <string name="restriction_wifi_config_title" msgid="1689176998451296068">"Wi‑Fi y red de celulares"</string>
     <string name="restriction_wifi_config_summary" msgid="2450206736438594690">"Permitir modificar la configuración de la red Wi‑Fi y de la red de celulares"</string>
     <string name="restriction_bluetooth_config_title" msgid="34551118506640221">"Bluetooth"</string>
-    <string name="restriction_bluetooth_config_summary" msgid="5304900222614952895">"Permitir modificar la vinculación y configuración de Bluetooth"</string>
+    <string name="restriction_bluetooth_config_summary" msgid="5304900222614952895">"Permitir modificar la sincronización y configuración de Bluetooth"</string>
     <string name="restriction_nfc_enable_title" msgid="5146674482590550598">"NFC"</string>
     <string name="restriction_nfc_enable_summary_config" msgid="405349698260328073">"Permitir intercambio de datos cuando el dispositivo <xliff:g id="DEVICE_NAME">%1$s</xliff:g> toque otro dispositivo con NFC"</string>
     <string name="restriction_nfc_enable_summary" product="tablet" msgid="3292205836938064931">"Permitir el intercambio de datos cuando la tablet toque otro dispositivo"</string>
@@ -3118,7 +3116,7 @@
     <string name="keywords_zen_mode_settings" msgid="4103819458182535493">"no interrumpir, programar, notificaciones, bloquear, silenciar, vibrar, suspender, trabajar, enfocar, sonido, silencio, día, día de la semana, fin de semana, noche de la semana, evento"</string>
     <string name="keywords_screen_timeout" msgid="4328381362313993666">"pantalla, tiempo de bloqueo, tiempo de espera, bloqueo de pantalla"</string>
     <string name="keywords_storage_settings" msgid="6422454520424236476">"memoria, caché, datos, eliminar, borrar, liberar, espacio"</string>
-    <string name="keywords_bluetooth_settings" msgid="1152229891590622822">"conectado, dispositivo, audífonos, auriculares, bocina, inalámbrico, vincular, auricular, música, multimedia"</string>
+    <string name="keywords_bluetooth_settings" msgid="1152229891590622822">"conectado, dispositivo, audífonos, auriculares, bocina, inalámbrico, sincronizar, auricular, música, multimedia"</string>
     <string name="keywords_wallpaper" msgid="7665778626293643625">"fondo, pantalla, pantalla bloqueada, tema"</string>
     <string name="keywords_assist_input" msgid="8392362788794886564">"predeterminado, asistente"</string>
     <string name="keywords_default_payment_app" msgid="845369409578423996">"pago, predeterminado"</string>
@@ -3440,7 +3438,7 @@
     <string name="zen_mode_add_event_rule" msgid="1398181272397489506">"Agregar programa de eventos"</string>
     <string name="zen_mode_add_time_rule" msgid="5999467757140524729">"Agregar programa de tiempo"</string>
     <string name="zen_mode_delete_rule" msgid="2292933835997203801">"Borrar programa"</string>
-    <string name="zen_mode_choose_rule_type" msgid="8877138307319450306">"Elegir el tipo de programa"</string>
+    <string name="zen_mode_choose_rule_type" msgid="8877138307319450306">"Elegir tipo de programa"</string>
     <string name="zen_mode_delete_rule_confirmation" msgid="2646596466259025978">"¿Quieres borrar la regla \"<xliff:g id="RULE">%1$s</xliff:g>\"?"</string>
     <string name="zen_mode_delete_rule_button" msgid="611058106279881991">"Borrar"</string>
     <string name="zen_mode_rule_type_unknown" msgid="2819480113355191421">"Desconocido"</string>
@@ -3709,7 +3707,7 @@
     <string name="high_power_off" msgid="5906679734326490426">"Optimizando el uso de la batería"</string>
     <string name="high_power_system" msgid="739584574711292753">"Optimización de la batería no disponible"</string>
     <string name="high_power_desc" msgid="333756885680362741">"No se aplica la optimización de la batería, por lo que se puede agotar más rápido."</string>
-    <string name="high_power_prompt_title" msgid="2805745781720454052">"¿Permitir que la app se ejecute siempre en segundo plano?"</string>
+    <string name="high_power_prompt_title" msgid="2805745781720454052">"¿Deseas permitir que la app se ejecute siempre en segundo plano?"</string>
     <string name="high_power_prompt_body" msgid="8067395096053552289">"Si permites que <xliff:g id="APP_NAME">%1$s</xliff:g> se ejecute siempre en segundo plano, es posible que se reduzca la duración de la batería. \n\nPuedes cambiar esta opción más tarde en Configuración &gt; Apps y notificaciones."</string>
     <string name="battery_summary" msgid="4345690800899981339">"Se usó el <xliff:g id="PERCENTAGE">%1$s</xliff:g> desde la última carga completa"</string>
     <string name="battery_power_management" msgid="2853925857548647969">"Administración de energía"</string>
@@ -3802,7 +3800,7 @@
     <string name="system_alert_window_apps_title" msgid="9188448296493699566">"Aplicaciones"</string>
     <string name="system_alert_window_access_title" msgid="5187343732185369675">"Mostrar sobre otras apps"</string>
     <string name="permit_draw_overlay" msgid="9039092257052422344">"Permitir mostrar sobre otras apps"</string>
-    <string name="allow_overlay_description" msgid="6669524816705082807">"Permite que esta app se muestre sobre otras en uso. Es posible que interfiera con el uso de esas apps, afecte su apariencia o modifique el comportamiento."</string>
+    <string name="allow_overlay_description" msgid="6669524816705082807">"Permite que esta app se muestre sobre otras en uso. Es posible que interfiera con el uso de esas apps o cambie afecte su apariencia o el comportamiento."</string>
     <string name="keywords_vr_listener" msgid="5312633527788917750">"rv, procesador de realidad virtual, estéreo, servicio de ayuda"</string>
     <string name="keywords_system_alert_window" msgid="3936658600272194599">"sistema, alerta, ventana, cuadro de diálogo, mostrar sobre otras apps"</string>
     <string name="overlay_settings" msgid="3325154759946433666">"Mostrar sobre otras apps"</string>

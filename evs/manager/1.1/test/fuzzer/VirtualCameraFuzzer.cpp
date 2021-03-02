@@ -68,7 +68,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     bool videoStarted = false;
 
     while (fdp.remaining_bytes() > kMaxFuzzerConsumedBytes) {
-        switch (fdp.ConsumeIntegralInRange<uint32_t>(0, EVS_FUZZ_API_SUM)) {
+        switch (fdp.ConsumeIntegralInRange<uint32_t>(0, EVS_FUZZ_API_SUM - 1)) {
             case EVS_FUZZ_GET_ALLOWED_BUFFERS: {
                 virtualCamera->getAllowedBuffers();
                 break;

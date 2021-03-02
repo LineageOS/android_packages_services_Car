@@ -27,6 +27,7 @@ import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -40,10 +41,10 @@ import android.media.AudioManager;
 import android.media.audiopolicy.AudioPolicy;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.SparseArray;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -71,26 +72,13 @@ public class CarZonesAudioFocusTest {
     @Mock
     private AudioManager mMockAudioManager;
     @Mock
-    private PackageManager mMockPackageManager;
-    @Mock
     private AudioPolicy mAudioPolicy;
-    @Mock
-    private CarAudioZone mPrimaryAudioZone;
-    @Mock
-    private CarAudioZone mSecondaryAudioZone;
     @Mock
     private CarAudioService mCarAudioService;
     @Mock
     private ContentResolver mContentResolver;
     @Mock
     private CarAudioSettings mCarAudioSettings;
-
-    private CarAudioZone[] mMockAudioZones;
-
-    @Before
-    public void setUp() {
-        mMockAudioZones = generateAudioZones();
-    }
 
     @Test
     public void onAudioFocusRequest_withNoCurrentFocusHolder_requestGranted() {
@@ -303,18 +291,22 @@ public class CarZonesAudioFocusTest {
                 .setFocusRequestResult(audioFocusClient, expectedAudioFocusResults, mAudioPolicy);
     }
 
-    private CarAudioZone[] generateAudioZones() {
-        mPrimaryAudioZone = new CarAudioZone(PRIMARY_ZONE_ID, "Primary zone");
-        mSecondaryAudioZone = new CarAudioZone(SECONDARY_ZONE_ID, "Secondary zone");
-        CarAudioZone[] zones = {mPrimaryAudioZone, mSecondaryAudioZone};
+    private SparseArray<CarAudioZone> generateAudioZones() {
+        SparseArray<CarAudioZone> zones = new SparseArray<>();
+        zones.put(PRIMARY_ZONE_ID, new CarAudioZone(PRIMARY_ZONE_ID, "Primary zone"));
+        zones.put(SECONDARY_ZONE_ID, new CarAudioZone(SECONDARY_ZONE_ID, "Secondary zone"));
         return zones;
     }
 
     private CarZonesAudioFocus getCarZonesAudioFocus(boolean enableDelayedFocus) {
+        SparseArray<CarAudioZone> zones = generateAudioZones();
+        PackageManager mockPackageManager = mock(PackageManager.class);
         CarZonesAudioFocus carZonesAudioFocus =
-                new CarZonesAudioFocus(mMockAudioManager, mMockPackageManager,
-                        mMockAudioZones, mCarAudioSettings, enableDelayedFocus);
+                new CarZonesAudioFocus(mMockAudioManager, mockPackageManager, zones,
+                        mCarAudioSettings, enableDelayedFocus);
         carZonesAudioFocus.setOwningPolicy(mCarAudioService, mAudioPolicy);
+
+
         return carZonesAudioFocus;
     }
 
