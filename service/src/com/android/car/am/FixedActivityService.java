@@ -17,7 +17,7 @@ package com.android.car.am;
 
 import static android.app.ActivityTaskManager.INVALID_TASK_ID;
 import static android.os.Process.INVALID_UID;
-import static android.view.WindowManager.LayoutParams.TYPE_SYSTEM_DIALOG;
+import static android.view.WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG;
 
 import static com.android.car.CarLog.TAG_AM;
 
@@ -484,7 +484,11 @@ public final class FixedActivityService implements CarServiceBase {
                             return;
                         }
                         Presentation p = new Presentation(mContext, display,
-                                android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+                                android.R.style.Theme_Black_NoTitleBar_Fullscreen,
+                                // TYPE_PRESENTATION can't be used in the internal display.
+                                // Select TYPE_KEYGUARD_DIALOG, since it's used in
+                                // {@Code KeyguardDisplayManager.KeyguardPresentation}.
+                                TYPE_KEYGUARD_DIALOG);
                         p.setContentView(R.layout.activity_continuous_blank);
                         synchronized (mLock) {
                             RunningActivityInfo info = mRunningActivities.get(displayIdForActivity);
@@ -494,9 +498,6 @@ public final class FixedActivityService implements CarServiceBase {
                             }
                             mBlockingPresentations.append(displayIdForActivity, p);
                         }
-                        // Change the window type, since we can't show the Presentation window
-                        // in the internal display.
-                        p.getWindow().setType(TYPE_SYSTEM_DIALOG);
                         p.show();
                     });
                 }
