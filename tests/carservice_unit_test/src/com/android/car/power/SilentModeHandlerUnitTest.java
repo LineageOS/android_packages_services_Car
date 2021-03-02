@@ -19,6 +19,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
 import android.os.SystemClock;
@@ -47,6 +48,7 @@ public final class SilentModeHandlerUnitTest {
     private static final String BOOT_REASON_FORCED_NON_SILENT = "reboot,forcednonsilent";
     private static final String VALUE_SILENT_MODE = "1";
     private static final String VALUE_NON_SILENT_MODE = "0";
+    private static final int BUFFER_TIME_TO_AVOID_RACE_CONDITION = 10000;
 
     private static final int MAX_POLLING_TRIES = 5;
     private static final int POLLING_DELAY_MS = 50;
@@ -133,13 +135,15 @@ public final class SilentModeHandlerUnitTest {
     @Test
     public void testSetSilentMode_normalSilentToForcedNonSilent() throws Exception {
         testSetSilentMode_toForced(true, false);
-        verify(mCarPowerManagementService).notifySilentModeChange(false);
+        verify(mCarPowerManagementService, timeout(BUFFER_TIME_TO_AVOID_RACE_CONDITION))
+                .notifySilentModeChange(false);
     }
 
     @Test
     public void testSetSilentMode_normalNonSilentToForcedSilent() throws Exception {
         testSetSilentMode_toForced(false, true);
-        verify(mCarPowerManagementService).notifySilentModeChange(true);
+        verify(mCarPowerManagementService, timeout(BUFFER_TIME_TO_AVOID_RACE_CONDITION))
+                .notifySilentModeChange(true);
     }
 
     @Test
@@ -194,7 +198,8 @@ public final class SilentModeHandlerUnitTest {
                 initSilentMode ? VALUE_NON_SILENT_MODE : VALUE_SILENT_MODE);
 
         assertSilentMode(handler, !initSilentMode);
-        verify(mCarPowerManagementService).notifySilentModeChange(!initSilentMode);
+        verify(mCarPowerManagementService, timeout(BUFFER_TIME_TO_AVOID_RACE_CONDITION))
+                .notifySilentModeChange(!initSilentMode);
     }
 
     private String readFileAsString(Path path) throws Exception {
