@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.ui;
+package com.android.car.admin;
 
 import android.annotation.NonNull;
 import android.app.Notification;
@@ -25,6 +25,7 @@ import android.os.Bundle;
 
 import com.android.car.R;
 
+// TODO(b/171603586): STOPSHIP move this class to CarSettings
 /**
  * Helper for notification-related tasks
  */
