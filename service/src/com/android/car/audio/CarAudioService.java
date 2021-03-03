@@ -90,6 +90,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -364,6 +365,16 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                         audioZoneId);
             }
             writer.decreaseIndent();
+            writer.println();
+            writer.println("Audio Zone to Occupant Zone Mapping:");
+            writer.increaseIndent();
+            for (int index = 0; index < mAudioZoneIdToOccupantZoneIdMapping.size(); index++) {
+                int audioZoneId = mAudioZoneIdToOccupantZoneIdMapping.keyAt(index);
+                writer.printf("AudioZoneId %d mapped to OccupantZoneId %d\n", audioZoneId,
+                        mAudioZoneIdToOccupantZoneIdMapping.get(audioZoneId));
+            }
+            writer.decreaseIndent();
+            writer.println();
             writer.println("UID to Zone Mapping:");
             writer.increaseIndent();
             for (int callingId : mUidToZoneMap.keySet()) {
@@ -1295,22 +1306,60 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         int driverUserId = mOccupantZoneService.getDriverUserId();
         synchronized (mImplLock) {
             if (!isOccupantZoneMappingAvailableLocked()) {
-                //No occupant zone to audio zone mapping, re-adjust to settings driver.
-                for (int i = 0; i < mCarAudioZones.size(); i++) {
-                    CarAudioZone zone = mCarAudioZones.valueAt(i);
-                    zone.updateVolumeGroupsForUser(driverUserId);
-                    mFocusHandler.updateUserForZoneId(zone.getId(), driverUserId);
-                }
+                adjustZonesToUserIdLocked(driverUserId);
                 return;
             }
             int occupantZoneForDriver =  getOccupantZoneIdForDriver();
+            Set<Integer> assignedZones = new HashSet<Integer>();
             for (int index = 0; index < mAudioZoneIdToOccupantZoneIdMapping.size(); index++) {
                 int audioZoneId = mAudioZoneIdToOccupantZoneIdMapping.keyAt(index);
                 int occupantZoneId = mAudioZoneIdToOccupantZoneIdMapping.get(audioZoneId);
+                assignedZones.add(audioZoneId);
                 updateUserForOccupantZoneLocked(occupantZoneId, audioZoneId, driverUserId,
                         occupantZoneForDriver);
             }
+
+            assignMissingZonesToDriverLocked(driverUserId, assignedZones);
         }
+    }
+
+    private void assignMissingZonesToDriverLocked(@UserIdInt int driverUserId,
+            Set<Integer> assignedZones) {
+        for (int i = 0; i < mCarAudioZones.size(); i++) {
+            CarAudioZone zone = mCarAudioZones.valueAt(i);
+            if (assignedZones.contains(zone.getId())) {
+                continue;
+            }
+            assignUserIdToAudioZoneLocked(zone, driverUserId);
+        }
+    }
+
+    private void adjustZonesToUserIdLocked(@UserIdInt int userId) {
+        for (int i = 0; i < mCarAudioZones.size(); i++) {
+            CarAudioZone zone = mCarAudioZones.valueAt(i);
+            assignUserIdToAudioZoneLocked(zone, userId);
+        }
+    }
+
+    private void assignUserIdToAudioZoneLocked(CarAudioZone zone, @UserIdInt int userId) {
+        if (userId == getUserIdForZoneLocked(zone.getId())) {
+            if (Log.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
+                Slog.d(CarLog.TAG_AUDIO,
+                        "assignUserIdToAudioZone userId(" + userId
+                                + ") already assigned to audioZoneId("
+                                + zone.getId() + ")");
+            }
+            return;
+        }
+        if (Log.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
+            Slog.d(CarLog.TAG_AUDIO,
+                    "assignUserIdToAudioZone assigning userId("
+                            + userId + ") to audioZoneId("
+                            + zone.getId() + ")");
+        }
+        zone.updateVolumeGroupsForUser(userId);
+        mFocusHandler.updateUserForZoneId(zone.getId(), userId);
+        setUserIdForAudioZoneLocked(userId, zone.getId());
     }
 
     private boolean isOccupantZoneMappingAvailableLocked() {
@@ -1324,9 +1373,17 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         int userId = mOccupantZoneService.getUserForOccupant(occupantZoneId);
         int prevUserId = getUserIdForZoneLocked(audioZoneId);
 
-        // user in occupant zone has not changed
         if (userId == prevUserId) {
+            if (Log.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
+                Slog.d(CarLog.TAG_AUDIO, "updateUserForOccupantZone userId(" + userId
+                        + ") already assigned to audioZoneId(" + audioZoneId + ")");
+            }
             return;
+        }
+        if (Log.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
+            Slog.d(CarLog.TAG_AUDIO,
+                    "updateUserForOccupantZone assigning userId("
+                            + userId + ") to audioZoneId(" + audioZoneId + ")");
         }
         // If the user has changed, be sure to remove from current routing
         // This would be true even if the new user is UserHandle.USER_NULL,
@@ -1336,16 +1393,17 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         if (userId == UserHandle.USER_NULL) {
             // Reset zone back to driver user id
             resetZoneToDefaultUser(audioZone, driverUserId);
+            setUserIdForAudioZoneLocked(userId, audioZoneId);
             return;
         }
 
         // Only set user id device affinities for driver when it is the driver's occupant zone
         if (userId != driverUserId || occupantZoneId == occupantZoneForDriver) {
             setUserIdDeviceAffinitiesLocked(audioZone, userId, audioZoneId);
-            mAudioZoneIdToUserIdMapping.put(audioZoneId, userId);
         }
         audioZone.updateVolumeGroupsForUser(userId);
         mFocusHandler.updateUserForZoneId(audioZoneId, userId);
+        setUserIdForAudioZoneLocked(userId, audioZoneId);
     }
 
     private int getOccupantZoneIdForDriver() {
@@ -1394,6 +1452,10 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     private @UserIdInt int getUserIdForZoneLocked(int audioZoneId) {
         return mAudioZoneIdToUserIdMapping.get(audioZoneId, UserHandle.USER_NULL);
+    }
+
+    private void setUserIdForAudioZoneLocked(@UserIdInt int userId, int audioZoneId) {
+        mAudioZoneIdToUserIdMapping.put(audioZoneId, userId);
     }
 
     private AudioControlWrapper getAudioControlWrapperLocked() {
