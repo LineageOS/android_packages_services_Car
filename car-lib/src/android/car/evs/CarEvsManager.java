@@ -30,7 +30,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 import android.util.Slog;
-import android.view.Surface;
+import android.view.SurfaceHolder;
 
 import com.android.internal.annotations.GuardedBy;
 
@@ -480,8 +480,42 @@ public final class CarEvsManager extends CarManagerBase {
         }
     }
 
+    // TODO(b/180451643): Adds APIs that allows the launchers to request to start EVS service.
     /**
-     * Requests to start a {@link #CarEvsServiceType}.
+     * Requests to start {@link #CarEvsServiceType}.
+     *
+     * @param type A type of EVS service to start.
+     * @return {@link #CarEvsStatus} to tell the result of the request.
+     */
+    @RequiresPermission(Car.PERMISSION_USE_CAR_EVS_SERVICE)
+    public @CarEvsStatus int requestToStartService(@CarEvsServiceType int type) {
+        try {
+            return mService.requestToStartService(type);
+        } catch (RemoteException err) {
+            handleRemoteExceptionFromCarService(err);
+        }
+
+        return CarEvsManager.SERVICE_STATUS_UNAVAILABLE;
+    }
+
+    /**
+     * Requests to stop {@link #CarEvsServiceType}.
+     *
+     * @return {@link #CarEvsStatus} to tell the result of the request.
+     */
+    @RequiresPermission(Car.PERMISSION_USE_CAR_EVS_SERVICE)
+    public int requestToStopService() {
+        try {
+            return mService.requestToStopService();
+        } catch (RemoteException err) {
+            handleRemoteExceptionFromCarService(err);
+        }
+
+        return CarEvsManager.SERVICE_STATUS_UNAVAILABLE;
+    }
+
+    /**
+     * Requests to start a video stream from {@link #CarEvsServiceType}.
      *
      * @param type A type of EVS service.
      * @param token A session token that is issued to privileged clients.  SystemUI clients must
@@ -496,10 +530,10 @@ public final class CarEvsManager extends CarManagerBase {
      * @return {@link #CarEvsStatus} to tell the result of the request.
      */
     @RequiresPermission(Car.PERMISSION_USE_CAR_EVS_SERVICE)
-    public @CarEvsStatus int startEvs(
+    public @CarEvsStatus int startVideoStream(
             @CarEvsServiceType int type,
             @Nullable IBinder token,
-            @Nullable Surface output,
+            @Nullable SurfaceHolder output,
             @NonNull @CallbackExecutor Executor executor,
             @NonNull CarEvsStreamCallback callback) {
         if (DBG) {
@@ -525,13 +559,11 @@ public final class CarEvsManager extends CarManagerBase {
         }
     }
 
-    // TODO(b/180451643): Adds APIs that allows the launchers to request to start EVS service.
-
     /**
      * Requests to stop a current {@link #CarEvsServiceType}.
      */
     @RequiresPermission(Car.PERMISSION_USE_CAR_EVS_SERVICE)
-    public void stopEvs() {
+    public void stopVideoStream() {
         synchronized (mStreamLock) {
             if (mStreamCallback == null) {
                 Slog.e(TAG, "The service has not started yet.");

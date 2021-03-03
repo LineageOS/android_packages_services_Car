@@ -645,10 +645,12 @@ package android.car.evs {
     method @RequiresPermission(android.car.Car.PERMISSION_MONITOR_CAR_EVS_STATUS) public void clearStatusListener();
     method @Nullable @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_EVS_SERVICE) public android.os.IBinder generateSessionToken();
     method @RequiresPermission(android.car.Car.PERMISSION_MONITOR_CAR_EVS_STATUS) public int getCurrentStatus();
+    method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_EVS_SERVICE) public int requestToStartService(int);
+    method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_EVS_SERVICE) public int requestToStopService();
     method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_EVS_SERVICE) public void returnFrameBuffer(@NonNull android.car.evs.CarEvsBufferDescriptor);
     method @RequiresPermission(android.car.Car.PERMISSION_MONITOR_CAR_EVS_STATUS) public void setStatusListener(@NonNull java.util.concurrent.Executor, @NonNull android.car.evs.CarEvsManager.CarEvsStatusListener);
-    method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_EVS_SERVICE) public int startEvs(int, @Nullable android.os.IBinder, @Nullable android.view.Surface, @NonNull java.util.concurrent.Executor, @NonNull android.car.evs.CarEvsManager.CarEvsStreamCallback);
-    method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_EVS_SERVICE) public void stopEvs();
+    method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_EVS_SERVICE) public int startVideoStream(int, @Nullable android.os.IBinder, @Nullable android.view.SurfaceHolder, @NonNull java.util.concurrent.Executor, @NonNull android.car.evs.CarEvsManager.CarEvsStreamCallback);
+    method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_EVS_SERVICE) public void stopVideoStream();
     field public static final String EXTRA_SESSION_TOKEN = "android.car.evs.extra.SESSION_TOKEN";
     field public static final int SERVICE_STATUS_ACTIVE = 3; // 0x3
     field public static final int SERVICE_STATUS_INACTIVE = 1; // 0x1

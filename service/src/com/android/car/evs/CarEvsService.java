@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.android.car.evs;
 
 import android.annotation.NonNull;
@@ -118,6 +119,32 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         Objects.requireNonNull(listener);
 
         mStatusListeners.unregister(listener);
+    }
+
+    /**
+     * Requests to start a EVS service.
+     *
+     * <p>Requires {@link android.car.Car.PERMISSION_USE_CAR_EVS_SERVICE} permissions to access.
+     *
+     * @param type {@link android.car.evs.CarEvsManager#CarEvsServiceType}
+     */
+    @Override
+    public int requestToStartService(int type) {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_USE_CAR_EVS_SERVICE);
+
+        return CarEvsManager.STATUS_ERROR_UNAVAILABLE;
+    }
+
+    /**
+     * Requests to stop a current EVS service.
+     *
+     * <p>Requires {@link android.car.Car.PERMISSION_USE_CAR_EVS_SERVICE} permissions to access.
+     */
+    @Override
+    public int requestToStopService() {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_USE_CAR_EVS_SERVICE);
+
+        return CarEvsManager.STATUS_ERROR_UNAVAILABLE;
     }
 
     /**
