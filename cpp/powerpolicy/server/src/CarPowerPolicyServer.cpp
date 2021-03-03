@@ -544,7 +544,7 @@ void CarPowerPolicyServer::connectToVhal() {
 void CarPowerPolicyServer::connectToVhalHelper() {
     {
         Mutex::Autolock lock(mMutex);
-        if (mVhalService.get() != nullptr) {
+        if (mVhalService != nullptr) {
             return;
         }
     }
@@ -622,6 +622,10 @@ void CarPowerPolicyServer::subscribeToProperty(
     sp<IVehicle> vhalService;
     {
         Mutex::Autolock lock(mMutex);
+        if (mVhalService == nullptr) {
+            ALOGW("Failed to subscribe to property(%d): VHAL is not ready", prop);
+            return;
+        }
         vhalService = mVhalService;
     }
     StatusCode status;
@@ -659,6 +663,9 @@ Result<void> CarPowerPolicyServer::notifyVhalNewPowerPolicy(const std::string& p
     sp<IVehicle> vhalService;
     {
         Mutex::Autolock lock(mMutex);
+        if (mVhalService == nullptr) {
+            return Error() << "VHAL is not ready";
+        }
         vhalService = mVhalService;
     }
     auto ret = vhalService->set(propValue);
@@ -677,6 +684,10 @@ bool CarPowerPolicyServer::isPropertySupported(int32_t prop) {
     sp<IVehicle> vhalService;
     {
         Mutex::Autolock lock(mMutex);
+        if (mVhalService == nullptr) {
+            ALOGW("Failed to check if property(%d) is supported: VHAL is not ready", prop);
+            return false;
+        }
         vhalService = mVhalService;
     }
     vhalService->getPropConfigs(props,
