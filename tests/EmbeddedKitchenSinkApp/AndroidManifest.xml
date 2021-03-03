@@ -204,6 +204,22 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".AudioAutoStartActivity"
+            android:label="@string/audio_auto_start_activity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".OccupantZoneStartActivity"
+            android:label="@string/occupant_zone_start_activity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+            </intent-filter>
+        </activity>
+
         <activity android:name=".NoCrashActivity"
              android:label="@string/no_crash_activity"
              android:exported="true">

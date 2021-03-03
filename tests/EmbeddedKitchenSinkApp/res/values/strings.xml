@@ -119,6 +119,7 @@
     <string name="player_started" translatable="false">Player Started</string>
     <string name="player_delayed" translatable="false">Player Delayed</string>
     <string name="player_stopped" translatable="false">Player Stopped</string>
+    <string name="player_status_title" translatable="false">Player Status</string>
     <string name="nav_play" translatable="false">Nav Play</string>
     <string name="vr_play" translatable="false">VR Play</string>
     <string name="system_play" translatable="false">System Play</string>
@@ -362,6 +363,8 @@
     <string name="always_crashing_activity" translatable="false">Always Crash Activity</string>
     <string name="no_crash_activity" translatable="false">No Crash Activity</string>
     <string name="empty_activity" translatable="false">Empty Activity</string>
+    <string name="audio_auto_start_activity" translatable="false">Audio Auto Start Activity</string>
+    <string name="occupant_zone_start_activity" translatable="false">Occupant Zone Start Activity</string>
 
     <!-- ExperimentalFeatureTest -->
     <string name="experimental_ping" translatable="false">Ping Service</string>
