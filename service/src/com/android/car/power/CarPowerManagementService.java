@@ -1205,13 +1205,16 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             synchronized (mLock) {
                 daemon = mCarPowerPolicyDaemon;
             }
-
-            try {
-                daemon.notifyPowerPolicyChange(policyId);
-            } catch (RemoteException e) {
-                Slog.e(TAG, "Failed to notify car power policy daemon of a new power policy("
-                        + policyId + ")", e);
-                return;
+            String errMsg = "Failed to notify car power policy daemon of a new power policy("
+                    + policyId + ")";
+            if (daemon != null) {
+                try {
+                    daemon.notifyPowerPolicyChange(policyId);
+                } catch (RemoteException e) {
+                    Slog.w(TAG, errMsg, e);
+                }
+            } else {
+                Slog.w(TAG, errMsg + ": car power policy daemon is not ready");
             }
         }
 
