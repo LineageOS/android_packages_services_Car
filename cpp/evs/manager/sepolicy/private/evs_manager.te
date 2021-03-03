@@ -12,3 +12,6 @@ allow evs_manager shell:fifo_file write;
 
 # allow evs_manager to send information to statsd socket
 unix_socket_send(evs_manager, statsdw, statsd)
+
+# allow to use carservice_app
+binder_call(evs_manager, carservice_app)

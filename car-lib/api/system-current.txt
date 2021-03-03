@@ -21,6 +21,7 @@ package android.car {
     field @Deprecated public static final String CABIN_SERVICE = "cabin";
     field public static final String CAR_DEVICE_POLICY_SERVICE = "car_device_policy_service";
     field public static final String CAR_DRIVING_STATE_SERVICE = "drivingstate";
+    field public static final String CAR_EVS_SERVICE = "car_evs_service";
     field public static final String CAR_EXTRA_CLUSTER_ACTIVITY_STATE = "android.car.cluster.ClusterActivityState";
     field public static final String CAR_INPUT_SERVICE = "android.car.input";
     field public static final String CAR_MEDIA_SERVICE = "car_media";
@@ -59,12 +60,14 @@ package android.car {
     field public static final String PERMISSION_EXTERIOR_LIGHTS = "android.car.permission.CAR_EXTERIOR_LIGHTS";
     field public static final String PERMISSION_MILEAGE = "android.car.permission.CAR_MILEAGE";
     field @Deprecated public static final String PERMISSION_MOCK_VEHICLE_HAL = "android.car.permission.CAR_MOCK_VEHICLE_HAL";
+    field public static final String PERMISSION_MONITOR_CAR_EVS_STATUS = "android.car.permission.MONITOR_CAR_EVS_STATUS";
     field public static final String PERMISSION_READ_CAR_OCCUPANT_AWARENESS_STATE = "android.car.permission.READ_CAR_OCCUPANT_AWARENESS_STATE";
     field public static final String PERMISSION_READ_CAR_VENDOR_PERMISSION_INFO = "android.car.permission.READ_CAR_VENDOR_PERMISSION_INFO";
     field public static final String PERMISSION_RECEIVE_CAR_AUDIO_DUCKING_EVENTS = "android.car.permission.RECEIVE_CAR_AUDIO_DUCKING_EVENTS";
     field public static final String PERMISSION_STORAGE_MONITORING = "android.car.permission.STORAGE_MONITORING";
     field public static final String PERMISSION_TEMPLATE_RENDERER = "android.car.permission.TEMPLATE_RENDERER";
     field public static final String PERMISSION_TIRES = "android.car.permission.CAR_TIRES";
+    field public static final String PERMISSION_USE_CAR_EVS_SERVICE = "android.car.permission.USE_CAR_EVS_SERVICE";
     field public static final String PERMISSION_USE_CAR_WATCHDOG = "android.car.permission.USE_CAR_WATCHDOG";
     field public static final String PERMISSION_VENDOR_EXTENSION = "android.car.permission.CAR_VENDOR_EXTENSION";
     field public static final String PERMISSION_VMS_PUBLISHER = "android.car.permission.VMS_PUBLISHER";
@@ -623,6 +626,56 @@ package android.car.drivingstate {
 
   public static interface CarDrivingStateManager.CarDrivingStateEventListener {
     method public void onDrivingStateChanged(android.car.drivingstate.CarDrivingStateEvent);
+  }
+
+}
+
+package android.car.evs {
+
+  public final class CarEvsBufferDescriptor implements android.os.Parcelable {
+    ctor public CarEvsBufferDescriptor(int, @NonNull android.hardware.HardwareBuffer);
+    method public int describeContents();
+    method @NonNull public android.hardware.HardwareBuffer getHardwareBuffer();
+    method public int getId();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.evs.CarEvsBufferDescriptor> CREATOR;
+  }
+
+  public final class CarEvsManager {
+    method @RequiresPermission(android.car.Car.PERMISSION_MONITOR_CAR_EVS_STATUS) public void clearStatusListener();
+    method @Nullable @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_EVS_SERVICE) public android.os.IBinder generateSessionToken();
+    method @RequiresPermission(android.car.Car.PERMISSION_MONITOR_CAR_EVS_STATUS) public int getCurrentStatus();
+    method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_EVS_SERVICE) public void returnFrameBuffer(@NonNull android.car.evs.CarEvsBufferDescriptor);
+    method @RequiresPermission(android.car.Car.PERMISSION_MONITOR_CAR_EVS_STATUS) public void setStatusListener(@NonNull java.util.concurrent.Executor, @NonNull android.car.evs.CarEvsManager.CarEvsStatusListener);
+    method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_EVS_SERVICE) public int startEvs(int, @Nullable android.os.IBinder, @Nullable android.view.Surface, @NonNull java.util.concurrent.Executor, @NonNull android.car.evs.CarEvsManager.CarEvsStreamCallback);
+    method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_EVS_SERVICE) public void stopEvs();
+    field public static final String EXTRA_SESSION_TOKEN = "android.car.evs.extra.SESSION_TOKEN";
+    field public static final int SERVICE_STATUS_ACTIVE = 3; // 0x3
+    field public static final int SERVICE_STATUS_INACTIVE = 1; // 0x1
+    field public static final int SERVICE_STATUS_REQUESTED = 2; // 0x2
+    field public static final int SERVICE_STATUS_UNAVAILABLE = 0; // 0x0
+    field public static final int SERVICE_TYPE_REARVIEW = 0; // 0x0
+    field public static final int SERVICE_TYPE_SURROUNDVIEW = 1; // 0x1
+    field public static final int STATUS_ERROR_BUSY = -2; // 0xfffffffe
+    field public static final int STATUS_ERROR_UNAVAILABLE = -1; // 0xffffffff
+    field public static final int STATUS_SUCCESS = 0; // 0x0
+    field public static final int STREAM_EVENT_FRAME_DROPPED = 3; // 0x3
+    field public static final int STREAM_EVENT_NONE = 0; // 0x0
+    field public static final int STREAM_EVENT_OTHER_ERRORS = 7; // 0x7
+    field public static final int STREAM_EVENT_PARAMETER_CHANGED = 5; // 0x5
+    field public static final int STREAM_EVENT_PRIMARY_OWNER_CHANGED = 6; // 0x6
+    field public static final int STREAM_EVENT_STREAM_STARTED = 1; // 0x1
+    field public static final int STREAM_EVENT_STREAM_STOPPED = 2; // 0x2
+    field public static final int STREAM_EVENT_TIMEOUT = 4; // 0x4
+  }
+
+  public static interface CarEvsManager.CarEvsStatusListener {
+    method public void onStatusChanged(int, int);
+  }
+
+  public static interface CarEvsManager.CarEvsStreamCallback {
+    method public default void onNewFrame(@NonNull android.car.evs.CarEvsBufferDescriptor);
+    method public default void onStreamEvent(int);
   }
 
 }

@@ -59,6 +59,7 @@ import com.android.car.cluster.ClusterNavigationService;
 import com.android.car.cluster.InstrumentClusterService;
 import com.android.car.garagemode.GarageModeService;
 import com.android.car.hal.VehicleHal;
+import com.android.car.evs.CarEvsService;
 import com.android.car.internal.ICarServiceHelper;
 import com.android.car.internal.ICarSystemServerClient;
 import com.android.car.internal.common.EventLogTags;
@@ -132,6 +133,7 @@ public class ICarImpl extends ICar.Stub {
     private final CarWatchdogService mCarWatchdogService;
     private final CarDevicePolicyService mCarDevicePolicyService;
     private final ClusterHomeService mClusterHomeService;
+    private final CarEvsService mCarEvsService;
 
     private final CarServiceBase[] mAllServices;
 
@@ -347,6 +349,12 @@ public class ICarImpl extends ICar.Stub {
             mClusterHomeService = null;
         }
 
+        if (mFeatureController.isFeatureEnabled(Car.CAR_EVS_SERVICE)) {
+            mCarEvsService = new CarEvsService(serviceContext);
+        } else {
+            mCarEvsService = null;
+        }
+
         // Be careful with order. Service depending on other service should be inited later.
         List<CarServiceBase> allServices = new ArrayList<>();
         allServices.add(mFeatureController);
@@ -382,6 +390,7 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mCarWatchdogService);
         allServices.add(mCarDevicePolicyService);
         addServiceIfNonNull(allServices, mClusterHomeService);
+        addServiceIfNonNull(allServices, mCarEvsService);
 
         // Always put mCarExperimentalFeatureServiceController in last.
         addServiceIfNonNull(allServices, mCarExperimentalFeatureServiceController);
@@ -607,6 +616,8 @@ public class ICarImpl extends ICar.Stub {
                 return mCarDevicePolicyService;
             case Car.CLUSTER_HOME_SERVICE:
                 return mClusterHomeService;
+            case Car.CAR_EVS_SERVICE:
+                return mCarEvsService;
             default:
                 IBinder service = null;
                 if (mCarExperimentalFeatureServiceController != null) {

@@ -39,6 +39,7 @@ import android.car.content.pm.CarPackageManager;
 import android.car.diagnostic.CarDiagnosticManager;
 import android.car.drivingstate.CarDrivingStateManager;
 import android.car.drivingstate.CarUxRestrictionsManager;
+import android.car.evs.CarEvsManager;
 import android.car.hardware.CarSensorManager;
 import android.car.hardware.CarVendorExtensionManager;
 import android.car.hardware.cabin.CarCabinManager;
@@ -354,6 +355,15 @@ public final class Car {
     @MandatoryFeature
     @SystemApi
     public static final String TEST_SERVICE = "car-service-test";
+
+    /**
+     * Service name for {@link android.car.evs.CarEvsManager}
+     *
+     * @hide
+     */
+    @OptionalFeature
+    @SystemApi
+    public static final String CAR_EVS_SERVICE = "car_evs_service";
 
     /** Permission necessary to access car's mileage information.
      *  @hide
@@ -752,6 +762,24 @@ public final class Car {
     @SystemApi
     public static final String PERMISSION_CAR_MONITOR_INPUT =
             "android.car.permission.CAR_MONITOR_INPUT";
+
+    /**
+     * Permission necessary to use the Extended View System service.
+     *
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_USE_CAR_EVS_SERVICE =
+            "android.car.permission.USE_CAR_EVS_SERVICE";
+
+    /**
+     * Permission necessary to monitor the status of the Extended View System service.
+     *
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_MONITOR_CAR_EVS_STATUS =
+            "android.car.permission.MONITOR_CAR_EVS_STATUS";
 
     /**
      * Type of car connection: platform runs directly in car.
@@ -1799,6 +1827,9 @@ public final class Car {
                 break;
             case CLUSTER_HOME_SERVICE:
                 manager = new ClusterHomeManager(this, binder);
+                break;
+            case CAR_EVS_SERVICE:
+                manager = new CarEvsManager(this, binder);
                 break;
             default:
                 // Experimental or non-existing
