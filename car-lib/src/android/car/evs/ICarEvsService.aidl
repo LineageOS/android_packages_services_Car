@@ -36,12 +36,12 @@ interface ICarEvsService {
     void unregisterStatusListener(in ICarEvsStatusListener listener);
 
     /**
-     * Requests to start a given service type.
+     * Requests to start a video stream.
      */
     int startVideoStream(int serviceType, in IBinder token, in ICarEvsStreamCallback callback);
 
     /**
-     * Requests to stop a currently active service.
+     * Requests to stop an active video stream.
      */
     void stopVideoStream(in ICarEvsStreamCallback callback);
 
@@ -59,4 +59,14 @@ interface ICarEvsService {
      * Returns a generated session token.
      */
     IBinder generateSessionToken();
+
+    /**
+     * Requests to start a given service type.
+     */
+    int requestToStartService(int type);
+
+    /**
+     * Requests to stop a service currently active.
+     */
+    int requestToStopService();
 }
