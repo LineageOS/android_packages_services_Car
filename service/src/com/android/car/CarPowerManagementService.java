@@ -93,9 +93,13 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private static final String WIFI_STATE_MODIFIED = "forcibly_disabled";
     private static final String WIFI_STATE_ORIGINAL = "original";
     // If Suspend to RAM fails, we retry with an exponential back-off:
-    // 10 msec, 20 msec, ..., 1280 msec, for a maximum of about 2.5 seconds.
-    private static final int MAX_SUSPEND_TRIES = 9; // Initial + 8 retries
+    // The wait interval will be 10 msec, 20 msec, 40 msec, ...
+    // Once the wait interval goes beyond 1000 msec, it is fixed at 1000 msec.
     private static final long INITIAL_SUSPEND_RETRY_INTERVAL_MS = 10;
+    private static final long MAX_RETRY_INTERVAL_MS = 1000;
+    // Minimum and maximum wait duration before the system goes into Suspend to RAM.
+    private static final long MIN_SUSPEND_WAIT_DURATION_MS = 0;
+    private static final long MAX_SUSPEND_WAIT_DURATION_MS = 3 * 60 * 1000;
 
     private final Object mLock = new Object();
     private final Object mSimulationWaitObject = new Object();
@@ -175,6 +179,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     // This is a temp work-around to reduce user switching delay after wake-up.
     private final boolean mSwitchGuestUserBeforeSleep;
 
+    // CPMS tries to enter Suspend to RAM within the duration specified at
+    // mMaxSuspendWaitDurationMs. The default max duration is MAX_SUSPEND_WAIT_DURATION, and can be
+    // overridden by setting config_maxSuspendWaitDuration in an overrlay resource.
+    // The valid range is MIN_SUSPEND_WAIT_DRATION to MAX_SUSPEND_WAIT_DURATION.
+    private final long mMaxSuspendWaitDurationMs;
+
     private class PowerManagerCallbackList extends RemoteCallbackList<ICarPowerStateListener> {
         /**
          * Old version of {@link #onCallbackDied(E, Object)} that
@@ -225,6 +235,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         mWifiManager = context.getSystemService(WifiManager.class);
         mWifiStateFile = new AtomicFile(
                 new File(mSystemInterface.getSystemCarDir(), WIFI_STATE_FILENAME));
+        mMaxSuspendWaitDurationMs = Math.max(MIN_SUSPEND_WAIT_DURATION_MS,
+                Math.min(getMaxSuspendWaitDurationConfig(), MAX_SUSPEND_WAIT_DURATION_MS));
     }
 
     @VisibleForTesting
@@ -287,6 +299,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             writer.print(",mDisableUserSwitchDuringResume:" + mDisableUserSwitchDuringResume);
             writer.println(",mRebootAfterGarageMode:" + mRebootAfterGarageMode);
             writer.println("mSwitchGuestUserBeforeSleep:" + mSwitchGuestUserBeforeSleep);
+            writer.print("mMaxSuspendWaitDurationMs:" + mMaxSuspendWaitDurationMs);
+            writer.println(", config_maxSuspendWaitDuration:" + getMaxSuspendWaitDurationConfig());
         }
         mInitialUserSetter.dump(writer);
     }
@@ -1199,7 +1213,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     // Returns true if we successfully suspended.
     private boolean suspendWithRetries() {
         long retryIntervalMs = INITIAL_SUSPEND_RETRY_INTERVAL_MS;
-        int tryCount = 0;
+        long totalWaitDurationMs = 0;
 
         while (true) {
             Slog.i(TAG, "Entering Suspend to RAM");
@@ -1207,20 +1221,20 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             if (suspendSucceeded) {
                 return true;
             }
-            tryCount++;
-            if (tryCount >= MAX_SUSPEND_TRIES) {
+            if (totalWaitDurationMs >= mMaxSuspendWaitDurationMs) {
                 break;
             }
             // We failed to suspend. Block the thread briefly and try again.
             synchronized (mLock) {
                 if (mPendingPowerStates.isEmpty()) {
-                    Slog.w(TAG, "Failed to Suspend; will retry later.");
+                    Slog.w(TAG, "Failed to Suspend; will retry after " + retryIntervalMs + "ms.");
                     try {
                         mLock.wait(retryIntervalMs);
                     } catch (InterruptedException ignored) {
                         Thread.currentThread().interrupt();
                     }
-                    retryIntervalMs *= 2;
+                    totalWaitDurationMs += retryIntervalMs;
+                    retryIntervalMs = Math.min(retryIntervalMs * 2, MAX_RETRY_INTERVAL_MS);
                 }
                 // Check for a new power state now, before going around the loop again
                 if (!mPendingPowerStates.isEmpty()) {
@@ -1230,7 +1244,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             }
         }
         // Too many failures trying to suspend. Shut down.
-        Slog.w(TAG, "Could not Suspend to RAM. Shutting down.");
+        Slog.w(TAG, "Could not Suspend to RAM after " + totalWaitDurationMs
+                + "ms long trial. Shutting down.");
         mSystemInterface.shutdown();
         return false;
     }
@@ -1430,5 +1445,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             mInSimulatedDeepSleepMode = false;
         }
         Slog.i(TAG, "Exit Deep Sleep simulation");
+    }
+
+    private int getMaxSuspendWaitDurationConfig() {
+        return mContext.getResources().getInteger(R.integer.config_maxSuspendWaitDuration);
     }
 }

@@ -58,8 +58,9 @@ public:
                 (const hidl_string& deviceId, getPhysicalCameraInfo_cb _hidl_cb), (override));
     MOCK_METHOD(Return<EvsResult>, pauseVideoStream, (), (override));
     MOCK_METHOD(Return<EvsResult>, resumeVideoStream, (), (override));
-    MOCK_METHOD(Return<EvsResult>, doneWithFrame_1_1,
-                (const hardware::hidl_vec<BufferDesc_1_1>& buffer), (override));
+    Return<EvsResult> doneWithFrame_1_1(const hardware::hidl_vec<BufferDesc_1_1>& buffer) override {
+        return EvsResult::OK;
+    }
     MOCK_METHOD(Return<EvsResult>, setMaster, (), (override));
     MOCK_METHOD(Return<EvsResult>, forceMaster, (const sp<IEvsDisplay_1_0>& display), (override));
     MOCK_METHOD(Return<EvsResult>, unsetMaster, (), (override));

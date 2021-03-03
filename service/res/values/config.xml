@@ -360,4 +360,11 @@
 
     <!-- The ComponentName of the media source that will be selected as the default -->
     <string name="config_defaultMediaSource">com.android.bluetooth/com.android.bluetooth.avrcpcontroller.BluetoothMediaBrowserService</string>
+
+    <!-- A configuration flag to enable ending an ongoing call using the physical Call button. -->
+    <bool name="config_callButtonEndsOngoingCall">false</bool>
+
+    <!-- Number of milliseconds to wait before the system goes into Suspend-to-RAM.
+         The valid range is 0 to 3 * 60 * 1000. The default duration is 3 min (= 3 * 60 * 1000). -->
+    <integer name="config_maxSuspendWaitDuration">180000</integer>
 </resources>

@@ -17,7 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name" msgid="2596316479611335185">"બગ રિપોર્ટ"</string>
+    <string name="app_name" msgid="2596316479611335185">"ખામીની જાણકારી"</string>
     <string name="bugreport_info_quit" msgid="5590138890181142473">"બંધ કરો"</string>
     <string name="bugreport_info_start" msgid="667324824650830832">"ખામીની જાણકારી શરૂ કરો"</string>
     <string name="bugreport_info_status" msgid="7211044508792815451">"સ્ટેટસ:"</string>

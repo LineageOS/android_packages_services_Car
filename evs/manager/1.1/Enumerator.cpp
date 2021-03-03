@@ -343,13 +343,6 @@ Return<sp<IEvsCamera_1_1>> Enumerator::openCamera_1_1(const hidl_string& cameraI
                     mHwEnumerator->closeCamera(device);
                     success = false;
                     break;
-                } else if (!hwCamera->isSyncSupported()) {
-                    LOG(INFO) << id << " does not support a sw_sync.";
-                    if (physicalCameras.size() > 1) {
-                        LOG(ERROR) << "sw_sync is required for logical camera devices.";
-                        success = false;
-                        break;
-                    }
                 }
             }
 
