@@ -141,6 +141,55 @@ public class ApnEditor extends SettingsPreferenceFragment
     private Uri mCarrierUri;
 
     /**
+     * APN types for data connections.  These are usage categories for an APN
+     * entry.  One APN entry may support multiple APN types, eg, a single APN
+     * may service regular internet traffic ("default") as well as MMS-specific
+     * connections.<br/>
+     * APN_TYPE_ALL is a special type to indicate that this APN entry can
+     * service all data connections.
+     */
+    public static final String APN_TYPE_ALL = "*";
+    /** APN type for default data traffic */
+    public static final String APN_TYPE_DEFAULT = "default";
+    /** APN type for MMS traffic */
+    public static final String APN_TYPE_MMS = "mms";
+    /** APN type for SUPL assisted GPS */
+    public static final String APN_TYPE_SUPL = "supl";
+    /** APN type for DUN traffic */
+    public static final String APN_TYPE_DUN = "dun";
+    /** APN type for HiPri traffic */
+    public static final String APN_TYPE_HIPRI = "hipri";
+    /** APN type for FOTA */
+    public static final String APN_TYPE_FOTA = "fota";
+    /** APN type for IMS */
+    public static final String APN_TYPE_IMS = "ims";
+    /** APN type for CBS */
+    public static final String APN_TYPE_CBS = "cbs";
+    /** APN type for IA Initial Attach APN */
+    public static final String APN_TYPE_IA = "ia";
+    /** APN type for Emergency PDN. This is not an IA apn, but is used
+     * for access to carrier services in an emergency call situation. */
+    public static final String APN_TYPE_EMERGENCY = "emergency";
+    /** APN type for Mission Critical Services */
+    public static final String APN_TYPE_MCX = "mcx";
+    /** APN type for XCAP */
+    public static final String APN_TYPE_XCAP = "xcap";
+    /** Array of all APN types */
+    public static final String[] APN_TYPES = {APN_TYPE_DEFAULT,
+            APN_TYPE_MMS,
+            APN_TYPE_SUPL,
+            APN_TYPE_DUN,
+            APN_TYPE_HIPRI,
+            APN_TYPE_FOTA,
+            APN_TYPE_IMS,
+            APN_TYPE_CBS,
+            APN_TYPE_IA,
+            APN_TYPE_EMERGENCY,
+            APN_TYPE_MCX,
+            APN_TYPE_XCAP,
+    };
+
+    /**
      * Standard projection for the interesting columns of a normal note.
      */
     private static final String[] sProjection = new String[] {
@@ -349,7 +398,7 @@ public class ApnEditor extends SettingsPreferenceFragment
             Log.d(TAG, "hasAllApns: true because apnList.contains(PhoneConstants.APN_TYPE_ALL)");
             return true;
         }
-        for (String apn : PhoneConstants.APN_TYPES) {
+        for (String apn : APN_TYPES) {
             if (!apnList.contains(apn)) {
                 return false;
             }
@@ -1164,7 +1213,7 @@ public class ApnEditor extends SettingsPreferenceFragment
             StringBuilder editableApnTypes = new StringBuilder();
             List<String> readOnlyApnTypes = Arrays.asList(mReadOnlyApnTypes);
             boolean first = true;
-            for (String apnType : PhoneConstants.APN_TYPES) {
+            for (String apnType : APN_TYPES) {
                 // add APN type if it is not read-only and is not wild-cardable
                 if (!readOnlyApnTypes.contains(apnType)
                         && !apnType.equals(PhoneConstants.APN_TYPE_IA)
