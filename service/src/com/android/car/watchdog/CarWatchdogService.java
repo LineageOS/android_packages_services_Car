@@ -71,6 +71,7 @@ import com.android.internal.util.ArrayUtils;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -571,13 +572,13 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         }
     }
 
-    private List<PackageInfo> getPackageInfosForUids(
-            int[] uids, List<String> vendorPackagePrefixes) {
-        ArrayList<PackageInfo> packageInfos = new ArrayList<>();
+    private List<PackageInfo> getPackageInfosForUids(int[] uids,
+            List<String> vendorPackagePrefixes) {
         String[] packageNames = mPackageManager.getNamesForUids(uids);
         if (ArrayUtils.isEmpty(packageNames)) {
-            return packageInfos;
+            return Collections.emptyList();
         }
+        ArrayList<PackageInfo> packageInfos = new ArrayList<>();
         for (int i = 0; i < uids.length; i++) {
             if (packageNames[i].isEmpty()) {
                 continue;
@@ -600,11 +601,8 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         packageInfo.appCategoryType = ApplicationCategoryType.OTHERS;
         int userId = UserHandle.getUserId(uid);
         int appId = UserHandle.getAppId(uid);
-        if (appId >= Process.FIRST_APPLICATION_UID) {
-            packageInfo.uidType = UidType.APPLICATION;
-        } else {
-            packageInfo.uidType = UidType.NATIVE;
-        }
+        packageInfo.uidType = appId >= Process.FIRST_APPLICATION_UID ? UidType.APPLICATION :
+            UidType.NATIVE;
 
         if (packageName.startsWith("shared:")) {
             String[] sharedUidPackages = mPackageManager.getPackagesForUid(uid);
@@ -614,9 +612,14 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             boolean seenVendor = false;
             boolean seenSystem = false;
             boolean seenThirdParty = false;
-            for (String ownedPackage : sharedUidPackages) {
-                int componentType = getPackageComponentType(
-                        userId, ownedPackage, vendorPackagePrefixes);
+            /**
+             * A shared UID has multiple packages associated with it and these packages may be
+             * mapped to different component types. Thus map the shared UID to the most restrictive
+             * component type.
+             */
+            for (String curPackageName : sharedUidPackages) {
+                int componentType =
+                        getPackageComponentType(userId, curPackageName, vendorPackagePrefixes);
                 switch(componentType) {
                     case ComponentType.VENDOR:
                         seenVendor = true;
@@ -626,6 +629,11 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                         break;
                     case ComponentType.THIRD_PARTY:
                         seenThirdParty = true;
+                        break;
+                    default:
+                        Slog.w(TAG,
+                                "Unknown component type " + componentType + " for package "
+                                + curPackageName);
                 }
             }
             packageInfo.sharedUidPackages = Arrays.asList(sharedUidPackages);
@@ -652,7 +660,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         }
         try {
             final ApplicationInfo info = mPackageManager.getApplicationInfoAsUser(packageName,
-                    0 /* flags */, userId);
+                /* flags= */ 0, userId);
             if ((info.flags & ApplicationInfo.FLAG_SYSTEM) != 0
                     || (info.flags & ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
                     || (info.flags & ApplicationInfo.PRIVATE_FLAG_PRODUCT) != 0
@@ -666,7 +674,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 return ComponentType.VENDOR;
             }
         } catch (PackageManager.NameNotFoundException e) {
-            Slog.e(TAG, "Package not found: " + packageName, e);
+            Slog.e(TAG, "Package '" + packageName + "' not found for user " + userId + ": ", e);
             return ComponentType.UNKNOWN;
         }
         return ComponentType.THIRD_PARTY;
