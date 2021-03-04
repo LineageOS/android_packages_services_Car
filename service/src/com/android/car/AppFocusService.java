@@ -164,7 +164,8 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
                                 + appType + "," + ownerInfo);
                     }
                 }
-                updateFocusOwner(appType, info);
+                mFocusOwners.put(appType, info);
+                dispatchAcquireFocusOwnerLocked(appType, info, mFocusOwnershipCallbacks);
             }
             info.addOwnedAppType(appType);
             mDispatchHandler.requestAppFocusOwnershipGrantDispatch(
@@ -214,9 +215,7 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
                 if (DBG) {
                     Slog.i(CarLog.TAG_APP_FOCUS, "abandoning focus " + appType + "," + info);
                 }
-                for (FocusOwnershipCallback ownershipCallback : mFocusOwnershipCallbacks) {
-                    ownershipCallback.onFocusAbandoned(appType, info.mUid, info.mPid);
-                }
+                dispatchAbandonFocusOwnerLocked(appType, info, mFocusOwnershipCallbacks);
                 for (BinderInterfaceContainer.BinderInterface<IAppFocusListener> client :
                         mAllChangeClients.getInterfaces()) {
                     ClientInfo clientInfo = (ClientInfo) client;
@@ -323,17 +322,24 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
         }
     }
 
-    private void updateFocusOwner(int appType, OwnershipClientInfo owner) {
-        CarServiceUtils.runOnMain(() -> {
-            List<FocusOwnershipCallback> focusOwnershipCallbacks;
-            synchronized (mLock) {
-                mFocusOwners.put(appType, owner);
-                focusOwnershipCallbacks = new ArrayList<>(mFocusOwnershipCallbacks);
-            }
-            for (FocusOwnershipCallback callback : focusOwnershipCallbacks) {
-                callback.onFocusAcquired(appType, owner.getUid(), owner.getPid());
-            }
-        });
+    private void dispatchAcquireFocusOwnerLocked(int appType, OwnershipClientInfo owner,
+            List<FocusOwnershipCallback> focusOwnershipCallbacks) {
+        // Dispatches each callback separately, not to make the copy of mFocusOwnershipCallbacks.
+        for (int i = focusOwnershipCallbacks.size() - 1; i >= 0; --i) {
+            FocusOwnershipCallback callback = focusOwnershipCallbacks.get(i);
+            mDispatchHandler.post(
+                    () -> callback.onFocusAcquired(appType, owner.getUid(), owner.getPid()));
+        }
+    }
+
+    private void dispatchAbandonFocusOwnerLocked(int appType, OwnershipClientInfo owner,
+            List<FocusOwnershipCallback> focusOwnershipCallbacks) {
+        // Dispatches each callback separately, not to make the copy of mFocusOwnershipCallbacks.
+        for (int i = focusOwnershipCallbacks.size() - 1; i >= 0; --i) {
+            FocusOwnershipCallback callback = focusOwnershipCallbacks.get(i);
+            mDispatchHandler.post(
+                    () -> callback.onFocusAbandoned(appType, owner.getUid(), owner.getPid()));
+        }
     }
 
     private void dispatchAppFocusOwnershipLoss(IAppFocusOwnershipCallback callback, int appType) {
