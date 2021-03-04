@@ -1,4 +1,4 @@
-service car-bugreportd /system/bin/car-bugreportd
+service carbugreportd /system/bin/carbugreportd
     socket car_br_progress_socket stream 0660 shell log
     socket car_br_output_socket stream 0660 shell log
     socket car_br_extra_output_socket stream 0660 shell log
@@ -8,9 +8,9 @@ service car-bugreportd /system/bin/car-bugreportd
     disabled
     oneshot
 
-# car-dumpstatez generates a zipped bugreport but also uses a socket to print the file location once
+# cardumpstatez generates a zipped bugreport but also uses a socket to print the file location once
 # it is finished.
-service car-dumpstatez /system/bin/dumpstate -S -d -z
+service cardumpstatez /system/bin/dumpstate -S -d -z
     socket dumpstate stream 0660 shell log
     class main
     disabled
