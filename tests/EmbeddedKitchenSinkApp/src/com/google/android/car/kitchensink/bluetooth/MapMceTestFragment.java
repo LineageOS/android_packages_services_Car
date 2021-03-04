@@ -340,9 +340,9 @@ public class MapMceTestFragment extends Fragment {
                 }
 
                 mSentIntent = PendingIntent.getBroadcast(getContext(), 0, mSendIntent,
-                        PendingIntent.FLAG_ONE_SHOT);
+                        PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
                 mDeliveredIntent = PendingIntent.getBroadcast(getContext(), 0, mDeliveryIntent,
-                        PendingIntent.FLAG_ONE_SHOT);
+                        PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_IMMUTABLE);
                 Log.d(TAG,"Sending message in kitchesink app: " + message);
                 mMapProfile.sendMessage(
                         remoteDevice,
