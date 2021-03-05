@@ -43,6 +43,28 @@ cc_library {
     srcs: [
         "src/CarTelemetryImpl.cpp",
     ],
+    // Allow dependencies to use header files.
+    export_include_dirs: [
+        "src",
+    ],
+}
+
+cc_test {
+    name: "cartelemetryd_impl_test",
+    defaults: [
+        "cartelemetryd_defaults",
+    ],
+    test_suites: ["general-tests"],
+    srcs: [
+        "tests/CarTelemetryImplTest.cpp",
+    ],
+    static_libs: [
+        "libgmock",
+        "libgtest",
+    ],
+    shared_libs: [
+        "android.automotive.telemetryd@1.0-impl",
+    ],
 }
 
 cc_binary {
