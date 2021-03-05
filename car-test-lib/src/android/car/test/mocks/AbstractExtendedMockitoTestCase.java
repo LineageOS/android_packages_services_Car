@@ -320,7 +320,7 @@ public abstract class AbstractExtendedMockitoTestCase {
         }).when(() -> Slog.wtf(anyString(), anyString()));
         doAnswer((invocation) -> {
             return addWtf(invocation);
-        }).when(() -> Slog.wtf(anyString(), anyString(), notNull()));
+        }).when(() -> Slog.wtf(anyString(), anyString(), any(Throwable.class)));
     }
 
     private Object addWtf(InvocationOnMock invocation) {
