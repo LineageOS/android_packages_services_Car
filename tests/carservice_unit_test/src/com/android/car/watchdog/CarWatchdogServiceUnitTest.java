@@ -58,7 +58,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -185,9 +184,9 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
         List<PackageInfo> actualPackageInfos = mWatchdogServiceForSystemImpl.getPackageInfosForUids(
                 uids, new ArrayList<>());
 
-        assertWithMessage("Expected: %s\nActual: %s", toString(expectedPackageInfos),
-                toString(actualPackageInfos)).that(
-                equals(expectedPackageInfos, actualPackageInfos)).isTrue();
+        assertWithMessage("Package infos for UIDs:\nExpected: %s\nActual: %s",
+            toString(expectedPackageInfos), toString(actualPackageInfos))
+            .that(equals(expectedPackageInfos, actualPackageInfos)).isTrue();
     }
 
     @Test
@@ -216,9 +215,9 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
         List<PackageInfo> actualPackageInfos = mWatchdogServiceForSystemImpl.getPackageInfosForUids(
                 uids, new ArrayList<>(Arrays.asList("vendor.package.", "vendor.pkg.")));
 
-        assertWithMessage("Expected: %s\nActual: %s", toString(expectedPackageInfos),
-                toString(actualPackageInfos)).that(
-                        equals(expectedPackageInfos, actualPackageInfos)).isTrue();
+        assertWithMessage("Package infos for UIDs:\nExpected: %s\nActual: %s",
+            toString(expectedPackageInfos), toString(actualPackageInfos))
+            .that(equals(expectedPackageInfos, actualPackageInfos)).isTrue();
     }
 
     @Test
@@ -252,9 +251,9 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
         List<PackageInfo> actualPackageInfos = mWatchdogServiceForSystemImpl.getPackageInfosForUids(
                 uids, new ArrayList<>());
 
-        assertWithMessage("Expected: %s\nActual: %s", toString(expectedPackageInfos),
-                toString(actualPackageInfos)).that(
-                equals(expectedPackageInfos, actualPackageInfos)).isTrue();
+        assertWithMessage("Package infos for UIDs:\nExpected: %s\nActual: %s",
+            toString(expectedPackageInfos), toString(actualPackageInfos))
+            .that(equals(expectedPackageInfos, actualPackageInfos)).isTrue();
     }
 
     @Override
@@ -323,23 +322,22 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
             throws PackageManager.NameNotFoundException {
         String[] packageNames = new String[packageInfos.size()];
         for (int i = 0; i < packageInfos.size(); ++i) {
-            packageNames[i] = packageInfos.get(i).packageIdentifier.name;
-            when(mMockPackageManager.getPackagesForUid(packageInfos.get(i).packageIdentifier.uid))
-                    .thenReturn(packageInfos.get(i).sharedUidPackages.toArray(new String[0]));
+            PackageInfo packageInfo = packageInfos.get(i);
+            packageNames[i] = packageInfo.packageIdentifier.name;
+            when(mMockPackageManager.getPackagesForUid(packageInfo.packageIdentifier.uid))
+                    .thenReturn(packageInfo.sharedUidPackages.toArray(new String[0]));
         }
         when(mMockPackageManager.getNamesForUids(any())).thenReturn(packageNames);
         when(mMockPackageManager.getApplicationInfoAsUser(any(), anyInt(), anyInt())).thenAnswer(
-                new Answer<ApplicationInfo>() {
-                    public ApplicationInfo answer(InvocationOnMock invocation) throws Throwable {
-                        String packageName =  invocation.getArgument(0);
-                        ApplicationInfo applicationInfo = applicationInfos.getOrDefault(
-                                packageName, null);
-                        if (applicationInfo == null) {
-                            throw new PackageManager.NameNotFoundException(
-                                    "Package " + packageName + " not found exception");
-                        }
-                        return applicationInfo;
+                (InvocationOnMock invocation) -> {
+                    String packageName = invocation.getArgument(0);
+                    ApplicationInfo applicationInfo = applicationInfos
+                            .getOrDefault(packageName, /* defaultValue= */ null);
+                    if (applicationInfo == null) {
+                        throw new PackageManager.NameNotFoundException(
+                            "Package " + packageName + " not found exception");
                     }
+                    return applicationInfo;
                 });
     }
 
@@ -366,34 +364,33 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
     private String toString(List<PackageInfo> packageInfos) {
         StringBuilder builder = new StringBuilder();
         for (PackageInfo packageInfo : packageInfos) {
-            builder.append(toString(packageInfo) + "\n");
+            builder = toString(builder, packageInfo).append('\n');
         }
         return builder.toString();
     }
 
-    private String toString(PackageInfo packageInfo) {
+    private StringBuilder toString(StringBuilder builder, PackageInfo packageInfo) {
         if (packageInfo == null) {
-            return "Null package info\n";
+            return builder.append("Null package info\n");
         }
-        StringBuilder builder = new StringBuilder();
-        builder.append("Package name: '" + packageInfo.packageIdentifier.name + "', UID: "
-                + packageInfo.packageIdentifier.uid + "\n");
-        builder.append("Owned packages: ");
+        builder.append("Package name: '").append(packageInfo.packageIdentifier.name)
+            .append("', UID: ").append(packageInfo.packageIdentifier.uid).append('\n')
+            .append("Owned packages: ");
         if (packageInfo.sharedUidPackages != null) {
             for (int i = 0; i < packageInfo.sharedUidPackages.size(); ++i) {
-                builder.append("'" + packageInfo.sharedUidPackages.get(i) + "'");
+                builder.append('\'').append(packageInfo.sharedUidPackages.get(i)).append('\'');
                 if (i < packageInfo.sharedUidPackages.size() - 1) {
                     builder.append(", ");
                 }
             }
-            builder.append("\n");
+            builder.append('\n');
         } else {
             builder.append("Null");
         }
-        builder.append("Component type: " + packageInfo.componentType + "\n");
-        builder.append("Application category type: " + packageInfo.appCategoryType + "\n");
+        builder.append("Component type: ").append(packageInfo.componentType).append('\n')
+            .append("Application category type: ").append(packageInfo.appCategoryType).append('\n');
 
-        return builder.toString();
+        return builder;
     }
 
     private boolean equals(List<PackageInfo> lhs, List<PackageInfo> rhs) {
