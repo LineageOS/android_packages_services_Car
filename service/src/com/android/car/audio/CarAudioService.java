@@ -146,59 +146,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     private CarOccupantZoneManager mOccupantZoneManager;
 
-    private final AudioPolicy.AudioPolicyVolumeCallback mAudioPolicyVolumeCallback =
-            new AudioPolicy.AudioPolicyVolumeCallback() {
-                @Override
-                public void onVolumeAdjustment(int adjustment) {
-                    @AudioContext int suggestedContext = getSuggestedAudioContextForPrimaryZone();
-
-                    int zoneId = CarAudioManager.PRIMARY_AUDIO_ZONE;
-                    int groupId;
-                    synchronized (mImplLock) {
-                        groupId = getVolumeGroupIdForAudioContext(zoneId, suggestedContext);
-                    }
-
-                    if (Log.isLoggable(CarLog.TAG_AUDIO, Log.VERBOSE)) {
-                        Slog.v(CarLog.TAG_AUDIO, "onVolumeAdjustment: "
-                                + AudioManager.adjustToString(adjustment)
-                                + " suggested audio context: "
-                                + CarAudioContext.toString(suggestedContext)
-                                + " suggested volume group: "
-                                + groupId);
-                    }
-
-                    final int currentVolume = getGroupVolume(zoneId, groupId);
-                    final int flags = AudioManager.FLAG_FROM_KEY | AudioManager.FLAG_SHOW_UI;
-                    switch (adjustment) {
-                        case AudioManager.ADJUST_LOWER:
-                            int minValue =
-                                    Math.max(currentVolume - 1, getGroupMinVolume(zoneId, groupId));
-                            setGroupVolume(zoneId, groupId, minValue , flags);
-                            break;
-                        case AudioManager.ADJUST_RAISE:
-                            int maxValue =
-                                    Math.min(currentVolume + 1, getGroupMaxVolume(zoneId, groupId));
-                            setGroupVolume(zoneId, groupId, maxValue, flags);
-                            break;
-                        case AudioManager.ADJUST_MUTE:
-                            setMasterMute(true, flags);
-                            callbackMasterMuteChange(zoneId, flags);
-                            break;
-                        case AudioManager.ADJUST_UNMUTE:
-                            setMasterMute(false, flags);
-                            callbackMasterMuteChange(zoneId, flags);
-                            break;
-                        case AudioManager.ADJUST_TOGGLE_MUTE:
-                            setMasterMute(!mAudioManager.isMasterMute(), flags);
-                            callbackMasterMuteChange(zoneId, flags);
-                            break;
-                        case AudioManager.ADJUST_SAME:
-                        default:
-                            break;
-                    }
-                }
-            };
-
     /**
      * Simulates {@link ICarVolumeCallback} when it's running in legacy mode.
      * This receiver assumes the intent is sent to {@link CarAudioManager#PRIMARY_AUDIO_ZONE}.
@@ -446,8 +393,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         mCarVolumeCallbackHandler.onGroupMuteChange(zoneId, groupId, flags);
     }
 
-    private void setMasterMute(boolean mute, int flags) {
+    void setMasterMute(boolean mute, int flags) {
         mAudioManager.setMasterMute(mute, flags);
+
+        // Master Mute only appliers to primary zone
+        callbackMasterMuteChange(PRIMARY_AUDIO_ZONE, flags);
 
         // When the master mute is turned ON, we want the playing app to get a "pause" command.
         // When the volume is unmuted, we want to resume playback.
@@ -456,7 +406,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         mAudioManager.dispatchMediaKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, keycode));
     }
 
-    private void callbackMasterMuteChange(int zoneId, int flags) {
+    void callbackMasterMuteChange(int zoneId, int flags) {
         mCarVolumeCallbackHandler.onMasterMuteChanged(zoneId, flags);
 
         // Persists master mute state if applicable
@@ -609,7 +559,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         CarAudioDynamicRouting.setupAudioDynamicRouting(builder, mCarAudioZones);
 
         // Attach the {@link AudioPolicyVolumeCallback}
-        builder.setAudioPolicyVolumeCallback(mAudioPolicyVolumeCallback);
+        CarAudioPolicyVolumeCallback
+                .addVolumeCallbackToPolicy(builder, this, mAudioManager);
 
 
         if (mUseHalDuckingSignals) {
