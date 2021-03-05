@@ -110,13 +110,13 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
             Slog.e(TAG, "init failure.  Driving state will always be fully restrictive");
             return;
         }
-        subscribeToProperties();
-
+        // Gets the boot state first, before getting any events from car.
         synchronized (mLock) {
             mCurrentDrivingState = createDrivingStateEvent(inferDrivingStateLocked());
             addTransitionLogLocked(TAG + " Boot", CarDrivingStateEvent.DRIVING_STATE_UNKNOWN,
                     mCurrentDrivingState.eventValue, mCurrentDrivingState.timeStamp);
         }
+        subscribeToProperties();
     }
 
     @Override
@@ -143,7 +143,8 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
      * @return {@code true} if supported, {@code false} if not
      */
     private boolean checkPropertySupport() {
-        List<CarPropertyConfig> configs = mPropertyService.getPropertyList();
+        List<CarPropertyConfig> configs = mPropertyService
+                .getPropertyConfigList(REQUIRED_PROPERTIES);
         for (int propertyId : REQUIRED_PROPERTIES) {
             boolean found = false;
             for (CarPropertyConfig config : configs) {
@@ -365,8 +366,9 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
     }
 
     private List<Integer> getSupportedGears() {
-        List<CarPropertyConfig> properyList = mPropertyService.getPropertyList();
-        for (CarPropertyConfig p : properyList) {
+        List<CarPropertyConfig> propertyList = mPropertyService
+                .getPropertyConfigList(REQUIRED_PROPERTIES);
+        for (CarPropertyConfig p : propertyList) {
             if (p.getPropertyId() == VehicleProperty.GEAR_SELECTION) {
                 return p.getConfigArray();
             }
