@@ -49,7 +49,6 @@ import android.util.SparseArray;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
-import com.android.car.pm.CarPackageManagerService;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.ActivityManagerInterface;
 import com.android.car.systeminterface.DisplayInterface;
@@ -127,6 +126,18 @@ public class MockedCarTestBase {
     protected synchronized void configureMockedHal() {
     }
 
+    /**
+     * Called after {@codeICarImpl} is created and before {@code ICarImpl.init()} is called.
+     *
+     * <p> Subclass that intend to apply spyOn() to the service under testing should override this.
+     * <pre class="prettyprint">
+     * @Override
+     * protected synchronized void spyOnBeforeCarImplInit() {
+     *     mServiceUnderTest = CarLocalServices.getService(CarXXXService.class);
+     *     ExtendedMockito.spyOn(mServiceUnderTest);
+     * }
+     * </pre>
+     */
     protected synchronized void spyOnBeforeCarImplInit() {
     }
 
@@ -255,10 +266,6 @@ public class MockedCarTestBase {
         }
     }
 
-    public CarPropertyService getCarPropertyService() {
-        return (CarPropertyService) mCarImpl.getCarService(Car.PROPERTY_SERVICE);
-    }
-
     public void injectErrorEvent(int propId, int areaId, int errorCode) {
         mMockedVehicleHal.injectError(errorCode, propId, areaId);
     }
@@ -268,10 +275,6 @@ public class MockedCarTestBase {
      */
     public Car createNewCar() {
         return new Car(mMockedCarTestContext, mCarImpl, null /* handler */);
-    }
-
-    public CarPackageManagerService getPackageManagerService() {
-        return (CarPackageManagerService) mCarImpl.getCarService(Car.PACKAGE_SERVICE);
     }
 
     protected synchronized void reinitializeMockedHal() throws Exception {

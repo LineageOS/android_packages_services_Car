@@ -51,7 +51,7 @@ public class CarPackageManagerTest extends MockedCarTestBase {
         TestAppBlockingPolicyService.controlPolicySettingFromService(policyFromService);
         mCarPm = (CarPackageManager) getCar().getCarManager(Car.PACKAGE_SERVICE);
         assertNotNull(mCarPm);
-        mCarPmService = getPackageManagerService();
+        mCarPmService = CarLocalServices.getService(CarPackageManagerService.class);
         assertNotNull(mCarPmService);
         mCarPmService.startAppBlockingPolicies();
     }
