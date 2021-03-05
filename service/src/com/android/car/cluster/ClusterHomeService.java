@@ -74,6 +74,7 @@ public class ClusterHomeService extends IClusterHomeService.Stub
     private final ComponentName mClusterHomeActivity;
 
     private boolean mServiceEnabled;
+    private int mClusterDisplayId = Display.INVALID_DISPLAY;
 
     private int mOnOff = DISPLAY_OFF;
     private int mWidth;
@@ -111,19 +112,19 @@ public class ClusterHomeService extends IClusterHomeService.Stub
         }
 
         DisplayManager displayManager = mContext.getSystemService(DisplayManager.class);
-        int clusterDisplayId = mOccupantZoneService.getDisplayIdForDriver(
+        mClusterDisplayId = mOccupantZoneService.getDisplayIdForDriver(
                 CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER);
-        if (clusterDisplayId == Display.INVALID_DISPLAY) {
+        if (mClusterDisplayId == Display.INVALID_DISPLAY) {
             Slog.i(TAG, "No cluster display is defined");
             return;
         }
-        Display clusterDisplay = displayManager.getDisplay(clusterDisplayId);
+        Display clusterDisplay = displayManager.getDisplay(mClusterDisplayId);
         Point size = new Point();
         clusterDisplay.getRealSize(size);
         mWidth = size.x;
         mHeight = size.y;
         if (DBG) {
-            Slog.d(TAG, "Found cluster displayId=" + clusterDisplayId
+            Slog.d(TAG, "Found cluster displayId=" + mClusterDisplayId
                     + ", width=" + mWidth + ", height=" + mHeight);
         }
 
@@ -133,9 +134,9 @@ public class ClusterHomeService extends IClusterHomeService.Stub
 
         Intent startHome = new Intent(ACTION_MAIN).setComponent(mClusterHomeActivity);
         ActivityOptions activityOptions = ActivityOptions.makeBasic()
-                .setLaunchDisplayId(clusterDisplayId);
+                .setLaunchDisplayId(mClusterDisplayId);
         mFixedActivityService.startFixedActivityModeForDisplayAndUser(
-                startHome, activityOptions, clusterDisplayId, UserHandle.USER_SYSTEM);
+                startHome, activityOptions, mClusterDisplayId, UserHandle.USER_SYSTEM);
     }
 
     @Override
@@ -265,21 +266,23 @@ public class ClusterHomeService extends IClusterHomeService.Stub
     }
 
     @Override
-    public boolean startFixedActivityModeForDisplayAndUser(Intent intent,
+    public boolean startFixedActivityModeAsUser(Intent intent,
             Bundle activityOptionsBundle, int userId) {
         enforcePermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL);
         if (!mServiceEnabled) throw new IllegalStateException("Service is not enabled");
 
-        // TODO: Implement this
-        return true;
+        ActivityOptions activityOptions = ActivityOptions.fromBundle(activityOptionsBundle);
+        activityOptions.setLaunchDisplayId(mClusterDisplayId);
+        return mFixedActivityService.startFixedActivityModeForDisplayAndUser(
+                intent, activityOptions, mClusterDisplayId, userId);
     }
 
     @Override
-    public void stopFixedActivityMode(int displayId) {
+    public void stopFixedActivityMode() {
         enforcePermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL);
         if (!mServiceEnabled) throw new IllegalStateException("Service is not enabled");
 
-        // TODO: Implement this
+        mFixedActivityService.stopFixedActivityMode(mClusterDisplayId);
     }
 
     @Override
