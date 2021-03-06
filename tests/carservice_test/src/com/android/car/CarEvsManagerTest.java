@@ -110,7 +110,6 @@ public final class CarEvsManagerTest extends MockedCarTestBase {
         mEvsManager.setStatusListener(mCallbackExecutor, mStatusListener);
 
         // Request to start a service
-        // TODO(b/162894134): This is expected to fail without ag/13804907.
         assertThat(
                 mEvsManager.startActivity(CarEvsManager.SERVICE_TYPE_REARVIEW)
         ).isEqualTo(CarEvsManager.ERROR_NONE);
