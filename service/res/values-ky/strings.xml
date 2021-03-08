@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"Конок"</string>
     <string name="importance_default" msgid="8587741629268312938">"Демейки маанилүүлүк"</string>
     <string name="importance_high" msgid="3141530792377745041">"Өтө маанилүү"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"Баштапкы абалга кайтаруу талап кылынат"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Инфозоок тутумундагы бардык маалымат өчүрүлөт. Баштапкы абалга келтирилгенден кийин жаңы профилди жөндөп алсаңыз болот."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Дагы"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"Инфозоок тутумун баштапкы абалга келтирүү"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"Тутум баштапкы абалга кайтаруу жана бардык маалыматты өчүрүү сурамын алды. Аны азыр аткарсаңыз болот же унаа кийинки жолу от алганда тутум башкапкы абалга кайтарылат. Андан кийин жаңы профилди жөндөп алсаңыз болот."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"Азыр баштапкы абалга келтирүү"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"Кийинчерээк баштапкы абалга келтирүү"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"Инфозоок тутуму унаа кайра от алганда баштапкы абалга келтирилет."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"Баштапкы абалга келтирүү үчүн унааны токтотуңуз."</string>
 </resources>

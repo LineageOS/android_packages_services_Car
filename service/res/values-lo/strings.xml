@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"ແຂກ"</string>
     <string name="importance_default" msgid="8587741629268312938">"ຄວາມສຳຄັນເລີ່ມຕົ້ນ"</string>
     <string name="importance_high" msgid="3141530792377745041">"ຄວາມສໍາຄັນສູງ"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"ຕ້ອງຣິເຊັດເປັນຄ່າຈາກໂຮງງານ"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"ຂໍ້ມູນທັງໝົດໃນລະບົບສາລະບັນເທີງຈະຖືກລຶບ. ຫຼັງຈາກຣີເຊັດແລ້ວ, ທ່ານສາມາດຕັ້ງຄ່າໂປຣໄຟລ໌ໃໝ່."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"ເພີ່ມເຕີມ"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"ຣີເຊັດລະບົບສາລະບັນເທີງ"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"ລະບົບຂອງທ່ານໄດ້ຮັບຄຳຂໍໃຫ້ຣີເຊັດເປັນຄ່າຈາກໂຮງງານ ແລະ ລຶບຂໍ້ມູນທັງໝົດ. ທ່ານສາມາດຣີເຊັດມັນໄດ້ດຽວນີ້ ຫຼື ມັນຈະຣີເຊັດໃນຄັ້ງຕໍ່ໄປທີ່ລົດຕິດຈັກ. ຈາກນັ້ນທ່ານສາມາດຕັ້ງຄ່າໂປຣໄຟລ໌ໃໝ່."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"ຣີເຊັດດຽວນີ້"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"ຣີເຊັດໃນພາຍຫຼັງ"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"ລະບົບສາລະບັນເທີງຈະຣີເຊັດໃນຄັ້ງຕໍ່ໄປທີ່ລົດຕິດຈັກ."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"ຕ້ອງຈອດລົດເພື່ອເລີ່ມຕົ້ນການຣີເຊັດ."</string>
 </resources>

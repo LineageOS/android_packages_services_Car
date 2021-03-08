@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"Visitante"</string>
     <string name="importance_default" msgid="8587741629268312938">"Importância padrão"</string>
     <string name="importance_high" msgid="3141530792377745041">"Importância elevada"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"Redefinição para configuração original necessária"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Todos os dados do sistema de infoentretenimento serão limpos. Depois da redefinição, será possível configurar um novo perfil."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Mais"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"Redefina o sistema de infoentretenimento"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"É preciso redefinir o sistema para a configuração original e limpar todos os dados. Você pode fazer isso agora, ou ele será redefinido da próxima vez que ligar o carro. Depois disso, será possível configurar um novo perfil."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"Redefinir agora"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"Redefinir mais tarde"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"O sistema de infoentretenimento se redefinirá ao ligar o carro."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"É preciso estacionar para iniciar a redefinição."</string>
 </resources>

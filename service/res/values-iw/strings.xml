@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"אורח"</string>
     <string name="importance_default" msgid="8587741629268312938">"חשיבות ברירת מחדל"</string>
     <string name="importance_high" msgid="3141530792377745041">"חשיבות גבוהה"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"נדרש איפוס להגדרות המקוריות"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"כל הנתונים במערכת המידע והבידור יימחקו. לאחר האיפוס ניתן יהיה להגדיר פרופיל חדש."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"עוד"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"איפוס מערכת המידע והבידור"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"המערכת שלך קיבלה בקשה לאיפוס להגדרות המקוריות ולמחיקת כל הנתונים. ניתן לבצע את האיפוס עכשיו, או שהוא יתבצע בהתנעה הבאה של המכונית. לאחר מכן ניתן יהיה להגדיר פרופיל חדש."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"לאיפוס עכשיו"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"לאיפוס מאוחר יותר"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"מערכת המידע והבידור תתאפס בהתנעה הבאה של המכונית."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"אפשר להתחיל באיפוס רק כשהמכונית חונה."</string>
 </resources>

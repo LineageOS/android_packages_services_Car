@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"Invitat"</string>
     <string name="importance_default" msgid="8587741629268312938">"Importanță prestabilită"</string>
     <string name="importance_high" msgid="3141530792377745041">"Importanță ridicată"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"Este necesară revenirea la setările din fabrică"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Toate datele din sistemul de infotainment se vor șterge. După resetare, puteți configura un profil nou."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Mai mult"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"Resetați sistemul de infotainment"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"Sistemul dvs. a primit solicitarea de a reveni la setările din fabrică și a șterge toate datele. Îl puteți reseta acum sau se va reseta data viitoare când pornește mașina. Apoi puteți configura un nou profil."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"Resetați acum"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"Resetați mai târziu"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"Sistemul de infotainment se va reseta când pornește mașina."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"Mașina trebuie să fie parcată pentru a reseta."</string>
 </resources>

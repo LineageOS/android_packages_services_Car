@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"Viesis"</string>
     <string name="importance_default" msgid="8587741629268312938">"Noklusējuma svarīgums"</string>
     <string name="importance_high" msgid="3141530792377745041">"Ļoti svarīgs"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"Nepieciešama rūpnīcas datu atiestatīšana"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Visi informatīvi izklaidējošās sistēmas dati tiks dzēsti. Pēc atiestatīšanas varēsiet iestatīt jaunu profilu."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Vairāk"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"Informatīvi izklaidējošās sistēmas atiestatīšana"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"Jūsu sistēma saņēma pieprasījumu atiestatīt rūpnīcas datus un dzēst visus datus. Varat veikt atiestatīšanu tūlīt, vai arī sistēma tiks atiestatīta, nākamreiz palaižot automašīnu. Pēc tam varēsiet iestatīt jaunu profilu."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"Atiestatīt tūlīt"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"Atiestatīt vēlāk"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"Informatīvi izklaidējošā sistēma tiks atiestatīta, nākamreiz palaižot automašīnu."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"Automašīnai jābūt apturētai, lai sāktu atiestatīšanu."</string>
 </resources>

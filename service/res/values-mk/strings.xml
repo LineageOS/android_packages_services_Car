@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"Гостин"</string>
     <string name="importance_default" msgid="8587741629268312938">"Стандардна важност"</string>
     <string name="importance_high" msgid="3141530792377745041">"Голема важност"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"Потребно е ресетирање на фабричките поставки"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Сите податоци во системот за информации и забава ќе се избришат. По ресетирањето, може да поставите нов профил."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Повеќе"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"Ресетирање на системот за информации и забава"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"Вашиот систем прими барање за ресетирање на фабрички поставки и за бришење на сите податоци. Може да го ресетирате сега или самиот ќе се ресетира при следното вклучување на автомобилот. Тогаш може да поставите нов профил."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"Ресетирај сега"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"Ресетирај подоцна"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"Системот ќе се ресетира при следното вклучување."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"Автомобилот мора да биде паркиран за ресетирањето."</string>
 </resources>

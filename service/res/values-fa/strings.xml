@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"مهمان"</string>
     <string name="importance_default" msgid="8587741629268312938">"اهمیت پیش‌فرض"</string>
     <string name="importance_high" msgid="3141530792377745041">"اهمیت زیاد"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"بازنشانی کارخانه‌ای لازم است"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"همه داده‌های موجود در سیستم اطلاعات-سرگرمی پاک خواهد شد. بعداز بازنشانی، می‌توانید نمایه جدیدی راه‌اندازی کنید."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"بیشتر"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"بازنشانی سیستم اطلاعات-سرگرمی"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"سیستم درخواستی برای بازنشانی کارخانه‌ای و پاک کردن همه داده‌ها دریافت کرده است. می‌توانید آن را اکنون بازنشانی کنید، یا دفعه بعدی که خودرو راه‌اندازی می‌شود سیستم بازنشانی خواهد شد. می‌توانید بعداً نمایه جدیدی راه‌اندازی کنید."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"اکنون بازنشانی شود"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"بعداً بازنشانی شود"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"دفعه بعدی که خودرو راه‌اندازی شد، سیستم اطلاعات-سرگرمی بازنشانی می‌شود."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"برای شروع بازنشانی، خودرو باید پارک شده باشد."</string>
 </resources>

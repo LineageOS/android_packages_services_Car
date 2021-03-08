@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"Invitado"</string>
     <string name="importance_default" msgid="8587741629268312938">"Importancia de config. predeterminada"</string>
     <string name="importance_high" msgid="3141530792377745041">"Importancia alta"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"Se debe restablecer la configuración de fábrica"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Se borrarán todos los datos en el sistema de infoentretenimiento. Una vez que se restablezca, podrás configurar un perfil nuevo."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Más"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"Restablecer el sistema de infoentretenimiento"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"El sistema recibió una solicitud para restablecer la configuración de fábrica y borrar todos los datos. Puedes hacerlo ahora o esperar a que se restablezca la próxima vez que enciendas el vehículo. Tras el restablecimiento, podrás configurar otro perfil."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"Restablecer ahora"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"Restablecer luego"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"Se restablecerá el sistema cuando arranques el auto."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"Estaciona el vehículo para el restablecimiento."</string>
 </resources>

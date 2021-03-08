@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"Tetamu"</string>
     <string name="importance_default" msgid="8587741629268312938">"Kepentingan lalai"</string>
     <string name="importance_high" msgid="3141530792377745041">"Kepentingan tinggi"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"Tetapan semula kilang diperlukan"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Semua data dalam sistem maklumat hibur akan dipadamkan. Selepas penetapan semula, anda boleh menyediakan profil baharu."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Lagi"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"Tetapkan semula sistem maklumat hibur"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"Sistem anda telah menerima permintaan bagi penetapan semula kilang dan pemadaman semua data. Anda boleh menetapkan semula sistem sekarang atau selepas kereta dihidupkan nanti. Kemudian anda boleh menyediakan profil baharu."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"Tetapkan Semula Sekarang"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"Tetapkan Semula Kemudian"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"Sistem maklumat hibur akan ditetapkan semula selepas kereta dihidupkan nanti."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"Kereta mesti diparkir untuk memulakan penetapan semula."</string>
 </resources>

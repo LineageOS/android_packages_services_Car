@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"Гість"</string>
     <string name="importance_default" msgid="8587741629268312938">"Пріоритет за умовчанням"</string>
     <string name="importance_high" msgid="3141530792377745041">"Високий пріоритет"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"Потрібно скинути налаштування"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Усі дані інформаційно-розважальної системи буде видалено. Після цього ви зможете налаштувати новий профіль."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Докладніше"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"Скиньте налаштування інформаційно-розважальної системи"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"Система отримала запит скинути налаштування та видалити всі дані. Якщо ви не зробите цього зараз, налаштування буде скинуто, коли ви наступного разу заведете авто. Після цього ви зможете налаштувати новий профіль."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"Скинути зараз"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"Скинути пізніше"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"Систему буде скинуто, коли ви наступного разу заведете авто."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"Налаштування не можна скинути, доки ви за кермом."</string>
 </resources>

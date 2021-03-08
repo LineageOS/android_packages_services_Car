@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"ضيف"</string>
     <string name="importance_default" msgid="8587741629268312938">"مدى الأهمية التلقائي"</string>
     <string name="importance_high" msgid="3141530792377745041">"أهمية عالية"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"يجب إعادة الضبط على الإعدادات الأصلية"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"سيتم محو كل البيانات المتوفرة في \"نظام الترفيه والمعلومات\". بعد إعادة الضبط، يمكنك إعداد ملف شخصي جديد."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"المزيد"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"إعادة ضبط \"نظام الترفيه والمعلومات\""</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"تلقّى النظام طلبًا لإعادة الضبط على الإعدادات الأصلية ومحو كل البيانات. يمكنك إعادة ضبط النظام الآن أو ستتم إعادة ضبطه عند تشغيل السيارة لاحقًا. وبعد إعادة الضبط، يمكنك إعداد ملف شخصي جديد."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"إعادة الضبط الآن"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"إعادة الضبط لاحقًا"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"سيُعاد ضبط \"نظام الترفيه والمعلومات\" عند تشغيل السيارة لاحقًا."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"يجب أن تكون السيارة متوقفة لبدء إعادة الضبط."</string>
 </resources>

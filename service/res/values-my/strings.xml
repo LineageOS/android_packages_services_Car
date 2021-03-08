@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"ဧည့်သည်"</string>
     <string name="importance_default" msgid="8587741629268312938">"ပုံမှန် အရေးပါမှု"</string>
     <string name="importance_high" msgid="3141530792377745041">"အလွန်အရေးပါသည်"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"စက်ရုံထုတ်အတိုင်း ပြင်ဆင်သတ်မှတ်ရန် လိုအပ်သည်"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"သတင်းနှင့်ဖျော်ဖြေရေး စနစ်ရှိ ဒေတာအားလုံးကို ဖျက်လိုက်ပါမည်။ ပြင်ဆင်သတ်မှတ်ပြီးနောက် ပရိုဖိုင်အသစ် ထည့်သွင်းနိုင်သည်။"</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"နောက်ထပ်"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"သတင်းနှင့်ဖျော်ဖြေရေး စနစ် ပြင်ဆင်သတ်မှတ်ခြင်း"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"စက်ရုံထုတ်အတိုင်း ပြင်ဆင်သတ်မှတ်ရန်နှင့် ဒေတာအားလုံးဖျက်ရန် တောင်းဆိုချက်ကို သင်၏စနစ်က ရရှိထားသည်။ ယခု ပြင်ဆင်သတ်မှတ်နိုင်သည် (သို့) နောက်တစ်ကြိမ် ကားစက်နှိုးသောအခါ ပြင်ဆင်သတ်မှတ်ပါမည်။ ထို့နောက် ပရိုဖိုင်အသစ် ထည့်သွင်းနိုင်သည်။"</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"ယခု ပြင်ဆင်သတ်မှတ်ရန်"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"နောက်မှ ပြင်ဆင်သတ်မှတ်ရန်"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"နောက်တစ်ကြိမ် ကားစက်နှိုးသောအခါ သတင်းနှင့်ဖျော်ဖြေရေး စနစ်ကို ပြင်ဆင်သတ်မှတ်ပါမည်။"</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"ပြင်ဆင်သတ်မှတ်မှု စတင်ရန် ကားကို ရပ်နားထားရမည်။"</string>
 </resources>

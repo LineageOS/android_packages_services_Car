@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"Қонақ"</string>
     <string name="importance_default" msgid="8587741629268312938">"Әдепкі маңыздылық"</string>
     <string name="importance_high" msgid="3141530792377745041">"Жоғары маңыздылық"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"Зауыттық параметрлерге қайтару қажет"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Ақпараттық ойын-сауық жүйесіндегі барлық деректер өшіріледі. Бастапқы күйге қайтарылғаннан кейін, жаңа профильді реттеуіңізге болады."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Тағы басқа"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"Ақпараттық ойын-сауық жүйесін бастапқы күйге қайтару"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"Жүйеге зауыттық параметрлерге қайтару және барлық деректерді жою сұрауы жіберілді. Оны қазір қайтаруыңызға болады немесе ол келесіде көлік оталған кезде бастапқы күйге қайтарылады. Содан кейін жаңа профильді реттеуіңізге болады."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"Қазір қайтару"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"Кейінірек қайтару"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"Ақпараттық ойын-сауық жүйесі келесіде көлік оталған кезде бастапқы күйге қайтарылады."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"Бастапқы күйге қайтару үшін көлікті тұраққа қою керек."</string>
 </resources>

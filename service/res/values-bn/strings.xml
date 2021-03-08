@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"অতিথি"</string>
     <string name="importance_default" msgid="8587741629268312938">"ডিফল্ট গুরুত্ব"</string>
     <string name="importance_high" msgid="3141530792377745041">"খুব গুরুত্বপূর্ণ"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"ফ্যাক্টরি রিসেট করতে হবে"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"ইনফোটেইনমেন্ট সিস্টেমের সব ডেটা মুছে যাবে। রিসেট করার পরে আপনি নতুন প্রোফাইল সেট আপ করতে পারবেন।"</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"আরও"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"ইনফোটেইনমেন্ট সিস্টেম রিসেট করুন"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"আপনার সিস্টেমের জন্য ফ্যাক্টরি রিসেট করা এবং সব ডেটা মুছে ফেলার অনুরোধ করা হয়েছে। আপনি এখনই রিসেট করতে পারবেন বা পরের বার গাড়ি চালু হলে এটি রিসেট হবে। আপনি তারপর নতুন প্রোফাইল সেট আপ করতে পারবেন।"</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"এখনই আবার রিসেট করুন"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"পরে রিসেট করুন"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"ইনফোটেইনমেন্ট সিস্টেম পরের বার গাড়ি চালু হলে রিসেট হবে।"</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"রিসেট শুরু করতে গাড়িকে পার্কিং অবস্থায় থাকতে হবে।"</string>
 </resources>

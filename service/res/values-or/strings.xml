@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"ଅତିଥି"</string>
     <string name="importance_default" msgid="8587741629268312938">"ଡିଫଲ୍ଟ ଗୁରୁତ୍ୱ"</string>
     <string name="importance_high" msgid="3141530792377745041">"ଅତି ମହତ୍ତ୍ୱପୂର୍ଣ୍ଣ"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"ଫ୍ୟାକ୍ଟୋରୀ ରିସେଟ୍ ଆବଶ୍ୟକ"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"ଇନଫୋଟେନମେଣ୍ଟ ସିଷ୍ଟମରେ ଥିବା ସମସ୍ତ ଡାଟା ଖାଲି ହୋଇଯିବ। ରିସେଟ୍ ହେବା ପରେ, ଆପଣ ଏକ ନୂଆ ପ୍ରୋଫାଇଲ୍ ସେଟ୍ ଅପ୍ କରିପାରିବେ।"</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"ଅଧିକ"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"ଇନଫୋଟେନମେଣ୍ଟ ସିଷ୍ଟମ୍ ରିସେଟ୍ କରନ୍ତୁ"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"ଆପଣଙ୍କର ସିଷ୍ଟମ୍ ଫ୍ୟାକ୍ଟୋରୀ ରିସେଟ୍ ଏବଂ ସମସ୍ତ ଡାଟା ଖାଲି କରିବାକୁ ଏକ ଅନୁରୋଧ ପ୍ରାପ୍ତ କରିଛି। ଆପଣ ଏବେ ଏହା ରିସେଟ୍ କରିପାରିବେ କିମ୍ବା ପରବର୍ତ୍ତୀ ସମୟରେ କାର୍ ଷ୍ଟାର୍ଟ ହେଲେ ଏହା ରିସେଟ୍ ହେବ। ଆପଣ ତା\'ପରେ ଏକ ନୂଆ ପ୍ରୋଫାଇଲ୍ ସେଟ୍ ଅପ୍ କରିପାରିବେ।"</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"ଏବେ ରିସେଟ୍ କରନ୍ତୁ"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"ପରେ ରିସେଟ୍ କରନ୍ତୁ"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"କାର୍ ଷ୍ଟାର୍ଟ ହେଲେ ଇନଫୋଟେନମେଣ୍ଟ ସିଷ୍ଟମ ରିସେଟ୍ ହେବ।"</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"ରିସେଟ୍ ଆରମ୍ଭ କରିବାକୁ କାର୍ ପାର୍କ କରାଯିବା ଆବଶ୍ୟକ।"</string>
 </resources>

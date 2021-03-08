@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"Invité"</string>
     <string name="importance_default" msgid="8587741629268312938">"Importance par défaut"</string>
     <string name="importance_high" msgid="3141530792377745041">"Importance élevée"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"Rétablissement des paramètres par défaut requis"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Toutes les données du système d\'infodivertissement seront effacées. Vous pourrez configurer un nouveau profil après la réinitialisation."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Plus"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"Réinitialiser le système d\'infodivertissement"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"Votre système a reçu une demande de rétablissement des paramètres par défaut et de l\'effacement de toutes les données. Vous pouvez le réinitialiser maintenant ou au prochain démarrage du véhicule. Vous pourrez alors configurer un nouveau profil."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"Réinit. maintenant"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"Réinit. plus tard"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"Le système d\'infodivertissement se réinitialisera au prochain démarrage du véhicule."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"Garez-vous pour lancer la réinitialisation."</string>
 </resources>

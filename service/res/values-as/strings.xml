@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"অতিথি"</string>
     <string name="importance_default" msgid="8587741629268312938">"ডিফ’ল্ট গুৰুত্ব"</string>
     <string name="importance_high" msgid="3141530792377745041">"অধিক গুৰুত্বপূৰ্ণ"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"ফেক্টৰী ৰিছেট কৰাৰ আৱশ্যক"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"ইনফ’টেইনমেণ্ট ছিষ্টেমটোত থকা আটাইবোৰ ডেটা মচা হ\'ব। ৰিছেট কৰাৰ পাছত, আপুনি এটা নতুন প্ৰ\'ফাইল ছেট আপ কৰিব পাৰে।"</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"অধিক"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"ইনফ’টেইনমেণ্ট ছিষ্টেমটো ৰিছেট কৰক"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"আপোনাৰ ছিষ্টেমটোৱে ফেক্টৰী ৰিছেট কৰিবলৈ আৰু আটাইবোৰ ডেটা মচিবলৈ এটা অনুৰোধ পাইছে। আপুনি এইটো এতিয়াই ৰিছেট কৰিব পাৰে অথবা পৰৱৰ্তী সময়ত গাড়ীখন ষ্টাৰ্ট হ\'লে এইটো ৰিছেট কৰা হ\'ব। আপুনি তেতিয়া এটা নতুন প্ৰ\'ফাইল ছেট আপ কৰিব পাৰে।"</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"এতিয়া ৰিছেট কৰক"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"পাছত ৰিছেট কৰক"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"ইনফ’টেইনমেণ্ট ছিষ্টেমটোৱে পৰৱৰ্তী সময়ত গাড়ীখন ষ্টাৰ্ট হ\'লে ৰিছেট কৰিব।"</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"ৰিছেট কৰাটো আৰম্ভ কৰিবলৈ গাড়ীখন ৰখাই থ\'বই লাগিব।"</string>
 </resources>

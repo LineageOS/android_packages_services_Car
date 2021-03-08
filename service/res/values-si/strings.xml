@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"අමුත්තා"</string>
     <string name="importance_default" msgid="8587741629268312938">"පෙරනිමි වැදගත්කම"</string>
     <string name="importance_high" msgid="3141530792377745041">"ඉහළ වැදගත්කමකින් යුතු"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"කර්මාන්තශාලා යළි සැකසීම අවශ්‍යයි"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"තොරතුරු විනෝදාස්වාද පද්ධතියේ සියලු දත්ත මකනු ඇත. යළි සැකසීමෙන් පසුව, ඔබට නව පැතිකඩක් පිහිටුවිය හැකිය."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"තව"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"තොරතුරු විනෝදාස්වාද පද්ධතිය යළි සකසන්න"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"කර්මාන්තශාලා යළි සැකසීමට සහ සියලු දත්ත මැකීමට ඔබගේ පද්ධතියට ඉල්ලීමක් ලැබී ඇත. ඔබට දැන් එය යළි සැකසිය හැකිය, නැතහොත් ඊළඟ වතාවේ මෝටර් රථය ආරම්භ වන විට එය යළි සකසනු ඇත. ඔබට අනතුරුව නව පැතිකඩක් පිහිටුවිය හැකිය."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"දැන් යළි සකසන්න"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"පසුව යළි සකසන්න"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"ඊළඟට මෝටර් රථය අරඹන විට තොරතුරු විනෝදාස්වාද පද්ධතිය යළි සැකසේ."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"යළි සැකසීම ඇරඹීමට මෝටර් රථය නවතා තැබිය යුතුය."</string>
 </resources>

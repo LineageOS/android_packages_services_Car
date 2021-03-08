@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"Misafir"</string>
     <string name="importance_default" msgid="8587741629268312938">"Varsayılan önem"</string>
     <string name="importance_high" msgid="3141530792377745041">"Önem düzeyi yüksek"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"Fabrika ayarlarına sıfırlama işlemi gerekli"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Bilgi-eğlence sistemindeki tüm veriler silinir. Sıfırlama işleminden sonra yeni profil oluşturabilirsiniz."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Diğer"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"Bilgi-eğlence sistemini sıfırlayın"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"Sisteminiz, fabrika ayarlarına sıfırlama ve tüm verileri silme isteği aldı. Sistemi şimdi sıfırlayabilirsiniz veya sistem, araba tekrar çalıştırıldığında sıfırlanır. Ardından yeni profil oluşturabilirsiniz."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"Şimdi Sıfırla"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"Daha Sonra Sıfırla"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"Bilgi-eğlence sistemi, araç tekrar çalıştırıldığında sıfırlanacaktır."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"Sıfırlamayı başlatmak için araç park edilmelidir."</string>
 </resources>

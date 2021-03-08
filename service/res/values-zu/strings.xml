@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"Isihambeli"</string>
     <string name="importance_default" msgid="8587741629268312938">"Ukubaluleka okuzenzakalelayo"</string>
     <string name="importance_high" msgid="3141530792377745041">"Ukubaluleka okuphezulu"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"Kudingeka ukusethwa kabusha njengasekuqaleni"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Yonke idatha yesistimu ye-infotainment izosulwa. Ngemva kokusetha kabusha, ungasetha iphrofayela entsha."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Okuningi"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"Setha kabusha isistimu ye-infotainment"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"Isistimu yakho ithole isicelo sokusethwa kabusha njengasekuqaleni nokususa yonke idatha. Ungayisetha kabusha manje, noma izosethwa kabusha ngesikhathi esizayo lapho imoto iqala. Ungabe ususetha iphrofayela entsha."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"Setha kabusha Manje"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"Setha Kabusha Kamuva"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"Isistimu ye-infotainment izosethwa kabusha ngesikhathi esizayo lapho imoto iqala."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"Imoto kufanele ipakwe ukuze uqale ukusetha kabusha."</string>
 </resources>

@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"விருந்தினர்"</string>
     <string name="importance_default" msgid="8587741629268312938">"இயல்புநிலை முக்கியத்துவம்"</string>
     <string name="importance_high" msgid="3141530792377745041">"அதிக முக்கியத்துவம்"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"ஆரம்பநிலைக்கு மீட்டமைக்க வேண்டும்"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"இன்ஃபோடெயின்மென்ட் சிஸ்டத்திலுள்ள அனைத்துத் தரவும் அழிக்கப்படும். மீட்டமைத்த பிறகு, புதிய சுயவிவரத்தை அமைக்கலாம்."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"மேலும்"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"இன்ஃபோடெயின்மென்ட் சிஸ்டத்தை மீட்டமையுங்கள்"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"ஆரம்பநிலைக்கு மீட்டமைப்பதற்கும் அனைத்துத் தரவையும் அழிப்பதற்குமான கோரிக்கையை உங்கள் சிஸ்டம் பெற்றுள்ளது. இப்போது மீட்டமைக்கலாம் அல்லது அடுத்தமுறை காரை இயக்கத் தொடங்கும்போது மீட்டமைக்கப்படும். அதன்பிறகு புதிய சுயவிவரத்தை அமைக்கலாம்."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"இப்போதே மீட்டமை"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"பிறகு மீட்டமை"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"அடுத்தமுறை காரை இயக்கத் தொடங்கும்போது இன்ஃபோடெயின்மென்ட் சிஸ்டம் மீட்டமைக்கப்படும்."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"மீட்டமைத்தலைத் தொடங்க காரை நிறுத்த வேண்டும்."</string>
 </resources>

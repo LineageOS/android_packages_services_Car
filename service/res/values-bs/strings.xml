@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"Gost"</string>
     <string name="importance_default" msgid="8587741629268312938">"Zadana važnost"</string>
     <string name="importance_high" msgid="3141530792377745041">"Visoka važnost"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"Potrebno je vratiti na fabričke postavke"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Svi podaci u infromativno-zabavnom sistemu će se potpuno izbrisati. Nakon vraćanja na zadano, možete postaviti novi profil."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Više"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"Vratite informativno-zabavni sistem na zadano"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"Sistem je primio zahtjev za vraćanje na fabričke postavke i potpuno brisanje svih podataka. Vraćanje na zadano možete izvršiti sada ili će se uređaj vratiti na zadano prilikom sljedećeg pokretanja automobila. Tada možete postaviti novi profil."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"Vrati sada na zadano"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"Vrati na zad. kasnije"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"Info-zab. sist. će se vratiti na zadano kad opet pokrenete auto."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"Da počnete vraćanje na zadano, parkirajte automobil."</string>
 </resources>

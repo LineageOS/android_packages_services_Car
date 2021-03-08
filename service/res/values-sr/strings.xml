@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"Гост"</string>
     <string name="importance_default" msgid="8587741629268312938">"Подразумевана важност"</string>
     <string name="importance_high" msgid="3141530792377745041">"Велика важност"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"Потребно је ресетовање на фабричка подешавања"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Сви подаци из система за инфо-забаву ће бити обрисани. После ресетовања можете да подесите нови профил."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Још"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"Ресетујте систем за инфо-забаву"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"Систем је примио захтев да се ресетује на фабричка подешавања и обрише све податке. Можете да га ресетујете одмах или ће се ресетовати када следећи пут упалите кола. Тада можете да подесите нови профил."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"Ресетуј"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"Ресетуј касније"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"Сис. за инфо-заб. се ресет. када опет упал. кола."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"Морате да паркирате кола за почетак ресетовања."</string>
 </resources>

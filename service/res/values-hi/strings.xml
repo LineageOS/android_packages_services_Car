@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"मेहमान"</string>
     <string name="importance_default" msgid="8587741629268312938">"डिफ़ॉल्ट अहमियत"</string>
     <string name="importance_high" msgid="3141530792377745041">"ज़्यादा अहमियत वाला"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"फ़ैक्ट्री रीसेट ज़रूरी है"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"सूचना और मनोरंजन की सुविधा देने वाले डिवाइस से, पूरा डेटा हमेशा के लिए मिटा दिया जाएगा. रीसेट करने के बाद, आप एक नई प्रोफ़ाइल सेट अप कर सकते हैं."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"ज़्यादा देखें"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"सूचना और मनोरंजन की सुविधा देने वाले डिवाइस को रीसेट करें"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"आपके सिस्टम को, फ़ैक्ट्री रीसेट करने और पूरे डेटा को हमेशा के लिए मिटाने का अनुरोध मिला है. आप इसे अभी रीसेट कर सकते हैं या यह अगली बार कार के स्टार्ट होने पर रीसेट होगा. इसके बाद, आप नई प्रोफ़ाइल सेट अप कर सकते हैं."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"अभी रीसेट करें"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"बाद में रीसेट करें"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"अगली बार कार के स्टार्ट होने पर, सूचना और मनोरंजन की सुविधा देने वाला डिवाइस रीसेट होगा."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"रीसेट शुरू करने के लिए ज़रूरी है कि कार पार्क हो."</string>
 </resources>

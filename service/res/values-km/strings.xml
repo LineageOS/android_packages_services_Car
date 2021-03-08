@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"ភ្ញៀវ"</string>
     <string name="importance_default" msgid="8587741629268312938">"កម្រិតសំខាន់​តាមលំនាំដើម"</string>
     <string name="importance_high" msgid="3141530792377745041">"សំខាន់ខ្លាំង"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"តម្រូវឱ្យកំណត់​ដូច​ចេញ​ពី​រោងចក្រ​"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"ទិន្នន័យទាំងអស់នៅក្នុងប្រព័ន្ធ​ព័ត៌មាន​ និងកម្សាន្តនឹងត្រូវលុប។ បន្ទាប់ពីការកំណត់ឡើងវិញ អ្នកអាចរៀបចំកម្រងព័ត៌មានថ្មីបាន។"</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"ច្រើន​ទៀត"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"កំណត់ប្រព័ន្ធ​ព័ត៌មាន​ និងកម្សាន្តឡើងវិញ"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"ប្រព័ន្ធ​របស់អ្នកបានទទួលសំណើសុំកំណត់​ដូច​ចេញ​ពី​រោងចក្រ​ និងលុបទិន្នន័យទាំងអស់។ អ្នកអាចកំណត់ប្រព័ន្ធឡើងវិញឥឡូវនេះ ឬវានឹងកំណត់ឡើងវិញ នៅពេលរថយន្តចាប់ផ្ដើមលើកក្រោយ។ បន្ទាប់ពីនោះ អ្នកអាចរៀបចំកម្រងព័ត៌មានថ្មីបាន។"</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"កំណត់ឡើងវិញឥឡូវនេះ"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"ចាប់ផ្ដើមឡើងវិញពេលក្រោយ"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"ប្រព័ន្ធ​ព័ត៌មាន​ និងកម្សាន្តនឹងកំណត់ឡើងវិញ នៅពេលរថយន្តចាប់ផ្ដើមលើកក្រោយ។"</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"ត្រូវតែចតរថយន្ត ដើម្បីចាប់ផ្ដើមការកំណត់ឡើងវិញ។"</string>
 </resources>

@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"Khách"</string>
     <string name="importance_default" msgid="8587741629268312938">"Tầm quan trọng mặc định"</string>
     <string name="importance_high" msgid="3141530792377745041">"Tầm quan trọng cao"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"Yêu cầu đặt lại về trạng thái ban đầu"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Mọi dữ liệu trong hệ thống thông tin giải trí sẽ bị xóa. Sau khi đặt lại xong, bạn có thể thiết lập một hồ sơ mới."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Khác"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"Đặt lại hệ thống thông tin giải trí"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"Hệ thống của bạn đã nhận được một yêu cầu đặt lại về trạng thái ban đầu và xóa mọi dữ liệu. Bạn có thể đặt lại ngay hoặc đặt lại vào lần khởi động xe tiếp theo. Sau đó, bạn có thể thiết lập một hồ sơ mới."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"Đặt lại ngay"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"Đặt lại sau"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"Hệ thống thông tin giải trí sẽ được đặt lại vào lần khởi động xe tiếp theo."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"Bạn phải đỗ xe để bắt đầu quá trình đặt lại."</string>
 </resources>

@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"مہمان"</string>
     <string name="importance_default" msgid="8587741629268312938">"ڈیفالٹ اہمیت"</string>
     <string name="importance_high" msgid="3141530792377745041">"زیادہ اہمیت"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"فیکٹری ری سیٹ درکار ہے"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"معلوماتی انٹرٹینمنٹ سسٹم میں موجود سبھی ڈیٹا کو صاف کر دیا جائے گا۔ ری سیٹ کرنے کے بعد آپ نئی پروفائل سیٹ اپ کر سکتے ہیں۔"</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"مزید"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"معلوماتی انٹرٹینمنٹ سسٹم ری سیٹ کریں"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"آپ کے سسٹم کو فیکٹری ری سیٹ اور سبھی ڈیٹا کو صاف کرنے کی درخواست موصول ہوئی ہے۔ آپ اسے ابھی ری سیٹ کر سکتے ہیں یا اگلی بار کار کے شروع ہونے پر یہ ری سیٹ ہو جائے گا۔ پھر اس کے بعد آپ نئی پروفائل سیٹ اپ کر سکتے ہیں۔"</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"ابھی ری سیٹ کریں"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"بعد میں ری سیٹ کریں"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"اگلی بار کار کے شروع ہونے پر معلوماتی انٹرٹینمنٹ سسٹم ری سیٹ ہو جائے گا۔"</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"ری سیٹ شروع کرنے کیلئے کار کا پارک ہونا ضروری ہے۔"</string>
 </resources>

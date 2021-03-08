@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"Guest"</string>
     <string name="importance_default" msgid="8587741629268312938">"Default importance"</string>
     <string name="importance_high" msgid="3141530792377745041">"High importance"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"Factory reset required"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"All data in the infotainment system will be erased. After reset, you can set up a new profile."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"More"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"Reset the infotainment system"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"Your system has received a request to factory reset and erase all data. You can reset it now, or it will reset the next time the car starts. You can then set up a new profile."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"Reset now"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"Reset later"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"The infotainment system will reset the next time the car starts."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"The car must be parked to start the reset."</string>
 </resources>

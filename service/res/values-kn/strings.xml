@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"ಅತಿಥಿ"</string>
     <string name="importance_default" msgid="8587741629268312938">"ಮಹತ್ವವಾದುದು: ಡೀಫಾಲ್ಟ್"</string>
     <string name="importance_high" msgid="3141530792377745041">"ಉನ್ನತ ಪ್ರಾಮುಖ್ಯತೆ"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"ಫ್ಯಾಕ್ಟರಿ ರೀಸೆಟ್‌ನ ಅಗತ್ಯವಿದೆ"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"ಇನ್‌ಫೋಟೈನ್‌ಮೆಂಟ್ ಸಿಸ್ಟಂನಲ್ಲಿರುವ ಎಲ್ಲಾ ಡೇಟಾವನ್ನು ಅಳಿಸಲಾಗುತ್ತದೆ. ರೀಸೆಟ್ ಮಾಡಿದ ನಂತರ, ನೀವು ಹೊಸ ಪ್ರೊಫೈಲ್ ಅನ್ನು ಸೆಟಪ್ ಮಾಡಬಹುದು."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"ಇನ್ನಷ್ಟು"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"ಇನ್‌ಫೋಟೈನ್‌ಮೆಂಟ್ ಸಿಸ್ಟಂ ಅನ್ನು ರೀಸೆಟ್ ಮಾಡಿ"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"ಫ್ಯಾಕ್ಟರಿ ರೀಸೆಟ್ ಮಾಡಲು ಮತ್ತು ಎಲ್ಲಾ ಡೇಟಾವನ್ನು ಅಳಿಸಲು ನಿಮ್ಮ ಸಿಸ್ಟಂ ವಿನಂತಿಯನ್ನು ಸ್ವೀಕರಿಸಿದೆ. ನೀವು ಅದನ್ನು ಈಗಲೇ ರೀಸೆಟ್ ಮಾಡಬಹುದು ಅಥವಾ ಮುಂದಿನ ಬಾರಿ ಕಾರ್ ಆರಂಭವಾದಾಗ ಅದನ್ನು ರೀಸೆಟ್ ಮಾಡಲಾಗುತ್ತದೆ. ನಂತರ ನೀವು ಹೊಸ ಪ್ರೊಫೈಲ್ ಅನ್ನು ಸೆಟಪ್ ಮಾಡಬಹುದು."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"ಈಗಲೇ ರೀಸೆಟ್ ಮಾಡಿ"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"ನಂತರ ರೀಸೆಟ್ ಮಾಡಿ"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"ಮುಂದಿನ ಬಾರಿ ಕಾರ್ ಆರಂಭವಾದಾಗ ಇನ್‌ಫೋಟೈನ್‌ಮೆಂಟ್ ಸಿಸ್ಟಂ ಅನ್ನು ರೀಸೆಟ್ ಮಾಡಲಾಗುತ್ತದೆ."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"ರೀಸೆಟ್ ಅನ್ನು ಪ್ರಾರಂಭಿಸಲು ಕಾರ್ ಅನ್ನು ನಿಲ್ಲಿಸಿರಬೇಕು."</string>
 </resources>

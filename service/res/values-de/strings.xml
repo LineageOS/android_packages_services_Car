@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"Gast"</string>
     <string name="importance_default" msgid="8587741629268312938">"Wichtigkeit: Standard"</string>
     <string name="importance_high" msgid="3141530792377745041">"Hohe Wichtigkeit"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"Zurücksetzen auf Werkseinstellungen erforderlich"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Alle Daten im Infotainmentsystem werden gelöscht. Danach kannst du ein neues Profil einrichten."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Mehr"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"Infotainmentsystem zurücksetzen"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"Dein System hat eine Anfrage zum Zurücksetzen auf die Werkseinstellungen und Löschen aller Daten erhalten. Das kannst du jetzt machen. Ansonsten wird das System beim nächsten Start zurückgesetzt. Danach kannst du ein neues Profil einrichten."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"Jetzt zurücksetzen"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"Später zurücksetzen"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"Das Infotainmentsystem wird beim nächsten Start zurückgesetzt."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"Zum Zurücksetzen muss das Auto stehen."</string>
 </resources>

@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"Gjest"</string>
     <string name="importance_default" msgid="8587741629268312938">"Standard viktighet"</string>
     <string name="importance_high" msgid="3141530792377745041">"Høy viktighet"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"Tilbakestilling til fabrikkstandard er nødvendig"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Alle data i infotainment-systemet slettes. Du kan konfigurere en ny profil etter tilbakestillingen."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Mer"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"Tilbakestill infotainment-systemet"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"Systemet har mottatt en forespørsel om å tilbakestille systemet til fabrikkstandard samt slette alle data. Du kan tilbakestille det nå, eller så tilbakestilles det neste gang bilen starter. Deretter kan du konfigurere en ny profil."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"Tilbakestill nå"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"Tilbakestill senere"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"Infotainment-systemet tilbakestilles neste gang bilen starter."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"Bilen må være parkert før tilbakestillingen kan starte."</string>
 </resources>

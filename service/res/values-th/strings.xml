@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"ผู้มาเยือน"</string>
     <string name="importance_default" msgid="8587741629268312938">"ความสำคัญเริ่มต้น"</string>
     <string name="importance_high" msgid="3141530792377745041">"ความสำคัญสูง"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"ต้องรีเซ็ตเป็นค่าเริ่มต้น"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"ข้อมูลทั้งหมดในระบบสาระบันเทิงจะถูกลบ คุณจะตั้งค่าโปรไฟล์ใหม่ได้หลังจากรีเซ็ต"</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"เพิ่มเติม"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"รีเซ็ตระบบสาระบันเทิง"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"ระบบได้รับคำขอให้รีเซ็ตเป็นค่าเริ่มต้นและลบข้อมูลทั้งหมด คุณรีเซ็ตได้เลย ไม่เช่นนั้นระบบจะรีเซ็ตเมื่อสตาร์ทรถในครั้งถัดไป จากนั้นจึงจะตั้งค่าโปรไฟล์ใหม่ได้"</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"รีเซ็ตเลย"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"รีเซ็ตภายหลัง"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"ระบบสาระบันเทิงจะรีเซ็ตเมื่อสตาร์ทรถในครั้งถัดไป"</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"ต้องจอดรถเพื่อเริ่มการรีเซ็ต"</string>
 </resources>

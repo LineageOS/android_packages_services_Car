@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"അതിഥി"</string>
     <string name="importance_default" msgid="8587741629268312938">"ഡിഫോൾട്ട് പ്രാധാന്യം"</string>
     <string name="importance_high" msgid="3141530792377745041">"ഉയർന്ന പ്രാധാന്യം"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"ഫാക്‌ടറി റീസെറ്റ് നടത്തേണ്ടതുണ്ട്"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"ഇൻഫോറ്റേയിൻമെന്റ് സിസ്‌റ്റത്തിലെ എല്ലാ ഡാറ്റയും മായ്ക്കും. റീസെറ്റിന് ശേഷം, നിങ്ങൾക്ക് പുതിയ പ്രൊഫൈൽ സജ്ജീകരിക്കാം."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"കൂടുതൽ"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"ഇൻഫോറ്റേയിൻമെന്റ് സിസ്‌റ്റം റീസെറ്റ് ചെയ്യുക"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"ഫാക്‌ടറി റീസെറ്റിനും എല്ലാ ഡാറ്റയും മായ്ക്കാനുമുള്ള ഒരു അഭ്യർത്ഥന നിങ്ങളുടെ സിസ്‌റ്റത്തിന് ലഭിച്ചു. നിങ്ങൾക്കിത് ഇപ്പോൾ അല്ലെങ്കിൽ അടുത്ത തവണ കാർ സ്‌റ്റാർട്ട് ചെയ്യുമ്പോൾ റീസെറ്റ് ചെയ്യാം. നിങ്ങൾക്ക് തുടർന്ന് ഒരു പുതിയ പ്രൊഫൈൽ സജ്ജീകരിക്കാം."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"ഇപ്പോൾ റീസെറ്റ് ചെയ്യൂ"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"പിന്നീട് റീസെറ്റ് ചെയ്യൂ"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"അടുത്ത തവണ കാർ സ്റ്റാർട്ട് ചെയ്യുമ്പോൾ ഈ ഇൻഫോറ്റേയിൻമെന്റ് സിസ്റ്റം റീസെറ്റ് ചെയ്യും."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"റീസെറ്റ് ആരംഭിക്കാൻ കാർ പാർക്ക് ചെയ്‌തിരിക്കണം."</string>
 </resources>

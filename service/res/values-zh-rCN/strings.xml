@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"访客"</string>
     <string name="importance_default" msgid="8587741629268312938">"重要性：默认"</string>
     <string name="importance_high" msgid="3141530792377745041">"重要性：高"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"需要恢复出厂设置"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"系统将清空信息娱乐系统中的所有数据。重置完成后，您可以设置新的个人资料。"</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"更多"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"重置信息娱乐系统"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"您的系统已收到恢复出厂设置并清空所有数据的请求。您可以立即重置，也可以让系统在下次汽车发动时重置。重置完成后，您可以设置新的个人资料。"</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"立即重置"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"以后再重置"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"信息娱乐系统将在下次汽车发动时重置。"</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"必须停车才能启动重置流程。"</string>
 </resources>

@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"Mgeni"</string>
     <string name="importance_default" msgid="8587741629268312938">"Umuhimu wa kiwango cha chaguomsingi"</string>
     <string name="importance_high" msgid="3141530792377745041">"Umuhimu wa kiwango cha juu"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"Unahitaji kurejesha mipangilio ya kiwandani"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Data yote kwenye mfumo wa habari na burudani itafutwa. Baada ya kuweka upya, unaweza kuweka wasifu mpya."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Zaidi"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"Weka upya mfumo wa habari na burudani"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"Mfumo wako umepokea ombi la kurejesha mipangilio iliyotoka nayo kiwandani na kufuta data yote. Unaweza kuuweka upya sasa au utawekwa upya gari litakapowashwa. Kisha unaweza kuweka wasifu mpya."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"Weka Upya Sasa"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"Weka Upya Baadaye"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"Mfumo wa habari na burudani utawekwa upya gari litakapowashwa."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"Ni lazima uegeshe gari ili uanze kuweka upya."</string>
 </resources>

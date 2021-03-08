@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"Gæst"</string>
     <string name="importance_default" msgid="8587741629268312938">"Standardvigtighed"</string>
     <string name="importance_high" msgid="3141530792377745041">"Stor vigtighed"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"Fabriksindstillingerne skal gendannes"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Alle data i infotainmentsystemet ryddes. Når nulstillingen er gennemført, kan du konfigurere en ny profil."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Mere"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"Nulstil infotainmentsystemet"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"Systemet har modtaget en anmodning om at gendanne fabriksindstillingerne og rydde alle data. Du kan gendanne fabriksindstillingerne nu. Hvis ikke du gør det, gendannes de næste gang, bilen starter. Derefter kan du konfigurere en ny profil."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"Nulstil nu"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"Nulstil senere"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"Infotainmentsystemet nulstilles, næste gang bilen starter."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"Nulstillingen kan kun startes, når bilen er parkeret."</string>
 </resources>

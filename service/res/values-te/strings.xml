@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"అతిథి"</string>
     <string name="importance_default" msgid="8587741629268312938">"ప్రాముఖ్యత ఆటోమేటిక్ సెట్టింగ్‌గా ఉన్నది"</string>
     <string name="importance_high" msgid="3141530792377745041">"అధిక ప్రాముఖ్యత"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"ఫ్యాక్టరీ రీసెట్ చేయడం అవసరం"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"సమాచారంతో కూడిన వినోదం సిస్టమ్‌లోని మొత్తం డేటా ఫ్యాక్టరీ రీసెట్ చేయబడుతుంది. రీసెట్ చేసిన తర్వాత, మీరు కొత్త ప్రొఫైల్‌ను సెటప్ చేయవచ్చు."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"మరిన్ని"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"సమాచారంతో కూడిన వినోదం సిస్టమ్‌ను రీసెట్ చేయండి"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"ఫ్యాక్టరీ రీసెట్ చేయడానికి, మొత్తం డేటాను తొలగించడానికి మీ సిస్టమ్ రిక్వెస్ట్‌ను అందుకుంది. మీరు దీన్ని ఇప్పుడే రీసెట్ చేయవచ్చు లేదా తర్వాతి సారి కారు ప్రారంభమైనప్పుడు ఇది రీసెట్ అవుతుంది. అప్పుడు మీరు కొత్త ప్రొఫైల్‌ను సెటప్ చేయవచ్చు."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"ఇప్పుడే రీసెట్ చేయి"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"తర్వాత రీసెట్ చేయి"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"ఇన్ఫోటైన్‌మెంట్ సిస్టం కారు స్టార్టయ్యాక రీసెట్ అవుతుంది."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"రీసెట్ ప్రారంభించడానికి మీ కారును పార్క్ చేయండి."</string>
 </resources>

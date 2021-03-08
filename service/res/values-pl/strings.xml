@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"Gość"</string>
     <string name="importance_default" msgid="8587741629268312938">"Domyślny stopień ważności"</string>
     <string name="importance_high" msgid="3141530792377745041">"Bardzo ważne"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"Wymagane przywrócenie do ustawień fabrycznych"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Wszystkie dane systemu multimedialno-rozrywkowego zostaną wykasowane. Po zresetowaniu możesz założyć nowy profil."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Więcej"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"Zresetuj system multimedialno-rozrywkowy"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"System otrzymał prośbę o przywrócenie do ustawień fabrycznych i wykasowanie wszystkich danych. Możesz to zrobić teraz lub poczekać, aż nastąpi to automatycznie przy ponownym uruchomieniu samochodu. Wtedy będzie można założyć nowy profil."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"Resetuj teraz"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"Zresetuj później"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"System zresetuje się, gdy samochód się uruchomi."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"Aby rozpocząć resetowanie, zaparkuj samochód."</string>
 </resources>

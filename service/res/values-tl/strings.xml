@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"Bisita"</string>
     <string name="importance_default" msgid="8587741629268312938">"Default na halaga"</string>
     <string name="importance_high" msgid="3141530792377745041">"Napakahalaga"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"Kinakailangan ang pag-factory reset"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Buburahin ang lahat ng data sa infotainment system. Pagkatapos ng pag-reset, makakapag-set up ka ng bagong profile."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Higit pa"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"I-reset ang infotainment system"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"Nakatanggap ang iyong system ng kahilingang mag-factory reset at magbura ng lahat ng data. Puwede mo itong i-reset ngayon, o magre-reset ito sa susunod na mag-start ang sasakyan. Pagkatapos, makakapag-set up ka ng bagong profile."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"I-reset Ngayon"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"I-reset Mamaya"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"Magre-reset ang infotainment system sa susunod na mag-start ang sasakyan."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"Dapat nakaparada ang sasakyan para makapag-reset."</string>
 </resources>

@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"訪客"</string>
     <string name="importance_default" msgid="8587741629268312938">"預設重要性"</string>
     <string name="importance_high" msgid="3141530792377745041">"高重要性"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"必須恢復原廠設定"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"系統將清除資訊娛樂系統中的所有資料。重設完成後即可設定新的設定檔。"</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"更多"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"重設資訊娛樂系統"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"系統已收到恢復原廠設定並清除所有資料的要求。你可選擇立即重設，或是讓系統在下次車輛發動時進行重設。重設完成後即可設定新的設定檔。"</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"立即重設"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"稍後重設"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"資訊娛樂系統將在下次車輛發動時重設。"</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"必須停車才能啟動重設程序。"</string>
 </resources>

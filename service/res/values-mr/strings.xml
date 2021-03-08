@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"अतिथी"</string>
     <string name="importance_default" msgid="8587741629268312938">"डीफॉल्ट महत्त्वाची"</string>
     <string name="importance_high" msgid="3141530792377745041">"सर्वाधिक महत्त्वाचे"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"फॅक्टरी रीसेट आवश्यक"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"इंफोटेनमेंट सिस्टममधील सर्व डेटा मिटवला जाईल. रीसेट झाल्यानंतर, तुम्ही नवीन प्रोफाइल सेट करू शकता."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"आणखी"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"इंफोटेनमेंट सिस्टम रीसेट करा"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"तुमच्या सिस्टमला फॅक्टरी रीसेट करण्याची आणि सर्व डेटा मिटवण्याची विनंती मिळाली आहे. तुम्ही ती आता रीसेट करू शकता किंवा पुढील वेळी कार सुरू झाल्यावर ती रीसेट होईल. त्यांनतर तुम्ही नवीन प्रोफाइल सेट करू शकता."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"आता रीसेट करा"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"नंतर रीसेट करा"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"पुढील वेळी कार सुरू झाल्यावर इंफोटेनमेंट सिस्टम रीसेट होईल."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"रीसेट सुरू करण्यासाठी कार पार्क केलेली असावी."</string>
 </resources>

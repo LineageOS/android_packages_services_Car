@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"Convidado"</string>
     <string name="importance_default" msgid="8587741629268312938">"Importancia predeterminada"</string>
     <string name="importance_high" msgid="3141530792377745041">"Importancia alta"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"É necesario restablecer a configuración de fábrica"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Borraranse todos os datos do sistema de información e entretemento. Despois do restablecemento, poderás configurar un perfil novo."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Máis"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"Restablece o sistema de información e entretemento"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"O sistema recibiu unha solicitude para restablecer a configuración de fábrica e borrar todos os datos. Podes facelo agora ou a próxima vez que se arrinque o coche. Despois, poderás configurar un perfil novo."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"Restablecer agora"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"Restablecer despois"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"O sistema restablecerase cando se volva arrincar o coche."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"O coche debe estar aparcado para restablecelo."</string>
 </resources>

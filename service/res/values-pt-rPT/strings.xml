@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"Convidado"</string>
     <string name="importance_default" msgid="8587741629268312938">"Importância predefinida"</string>
     <string name="importance_high" msgid="3141530792377745041">"Importância alta"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"Reposição de fábrica obrigatória"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Todos os dados no sistema de infoentretenimento serão apagados. Após a reposição, pode configurar um novo perfil."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Mais"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"Reponha o sistema de infoentretenimento"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"O sistema recebeu um pedido para efetuar uma reposição de fábrica e apagar todos os dados. Pode repô-lo agora ou este será reposto quando voltar a ligar o carro. Em seguida, pode configurar um novo perfil."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"Repor agora"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"Repor mais tarde"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"O sist. infoentretenim. é reposto quando ligar o carro de novo."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"O carro deve estar estacionado para a reposição."</string>
 </resources>

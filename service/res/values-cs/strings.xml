@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"Host"</string>
     <string name="importance_default" msgid="8587741629268312938">"Výchozí důležitost"</string>
     <string name="importance_high" msgid="3141530792377745041">"Vysoká důležitost"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"Je vyžadováno resetování do továrního nastavení"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Všechna data informačního a zábavního systému budou smazána. Po resetu můžete nastavit nový profil."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Více"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"Resetování informačního a zábavního systému"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"Systém přijal požadavek na resetování do továrního nastavení a vymazání všech dat. Můžete ho resetovat hned, nebo se resetuje při příštím nastartování auta. Poté můžete nastavit nový profil"</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"Resetovat"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"Resetovat později"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"Systém se resetuje při příštím nastartování auta."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"Před zahájením resetu musí být auto zaparkované."</string>
 </resources>

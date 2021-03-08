@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"სტუმარი"</string>
     <string name="importance_default" msgid="8587741629268312938">"ნაგულისხმევი მნიშვნელოვნება"</string>
     <string name="importance_high" msgid="3141530792377745041">"მაღალი პრიორიტეტი"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"საჭიროა ქარხნული პარამეტრების დაბრუნება"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"გართობის/საინფორმაციო სისტემაში არსებული ყველა მონაცემი ამოიშლება. გადაყენების შემდეგ შეგიძლიათ, ახალი პროფილი დააყენოთ."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"მეტი"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"გართობის/საინფორმაციო სისტემის გადაყენება"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"თქვენმა სისტემამ მიიღო ქარხნული პარამეტრების დაბრუნებისა და ყველა მონაცემის ამოშლის მოთხოვნა. შეგიძლიათ გადააყენოთ ახლავე ან გადაყენდება მანქანის შემდეგ დაქოქვაზე. შემდეგ შეგიძლიათ, დააყენოთ ახალი პროფილი."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"ახლავე გადაყენება"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"მოგვიან. გადაყენება"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"გართობის/საინფორმაციო სისტემა გადაყენდება მანქანის შემდეგ დაქოქვაზე."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"გადაყენებისთვის მანქანა პარკირებული უნდა იყოს."</string>
 </resources>

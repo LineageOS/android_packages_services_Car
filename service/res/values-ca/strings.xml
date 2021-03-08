@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"Convidat"</string>
     <string name="importance_default" msgid="8587741629268312938">"Importància predeterminada"</string>
     <string name="importance_high" msgid="3141530792377745041">"Molt important"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"Cal restablir les dades de fàbrica"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Totes les dades del sistema d\'informació i entreteniment s\'esborraran. Després del restabliment, podràs configurar un perfil nou."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Més"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"Restableix el sistema d\'informació i entreteniment"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"El teu sistema ha rebut una sol·licitud per restablir les dades de fàbrica i esborrar totes les dades. Pots restablir-lo ara, o es restablirà la pròxima vegada que s\'engegui el cotxe. A continuació, podràs configurar un perfil nou."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"Restableix ara"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"Restableix més tard"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"El sist. d\'infoentreteniment es restablirà en engegar el cotxe."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"El cotxe ha d\'estar aparcat per al restabliment."</string>
 </resources>

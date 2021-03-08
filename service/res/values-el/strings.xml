@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"Επισκέπτης"</string>
     <string name="importance_default" msgid="8587741629268312938">"Προεπιλεγμένη βαρύτητα"</string>
     <string name="importance_high" msgid="3141530792377745041">"Μεγάλης βαρύτητας"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"Απαιτείται επαναφορά εργοστασιακών ρυθμίσεων"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Όλα τα δεδομένα στο σύστημα ενημέρωσης και ψυχαγωγίας θα διαγραφούν. Μπορείτε να ρυθμίσετε ένα νέο προφίλ μετά την επαναφορά."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Περισσότερα"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"Επαναφορά του συστήματος ενημέρωσης και ψυχαγωγίας"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"Το σύστημά σας έλαβε ένα αίτημα για επαναφορά εργοστασιακών ρυθμίσεων και διαγραφή όλων των δεδομένων. Μπορείτε να κάνετε την επαναφορά τώρα, ειδάλλως θα εκτελεστεί κατά την επόμενη εκκίνηση του αυτοκινήτου. Στη συνέχεια, θα μπορείτε να ρυθμίσετε ένα νέο προφίλ."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"Επαναφορά τώρα"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"Επαναφορά αργότερα"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"Επαναφ. συστήμ. ενημέρ. και ψυχαγ. στην επόμενη εκκίνηση αυτοκ."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"Σταθμεύστε το αυτοκίνητο για έναρξη επαναφοράς."</string>
 </resources>

@@ -153,4 +153,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"ਮਹਿਮਾਨ"</string>
     <string name="importance_default" msgid="8587741629268312938">"ਪੂਰਵ-ਨਿਰਧਾਰਿਤ ਮਹੱਤਤਾ"</string>
     <string name="importance_high" msgid="3141530792377745041">"ਉੱਚ ਮਹੱਤਤਾ"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"ਫੈਕਟਰੀ ਰੀਸੈੱਟ ਦੀ ਲੋੜ ਹੈ"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"ਵਾਹਨ ਆਡੀਓ ਸਿਸਟਮ ਦਾ ਸਾਰਾ ਡਾਟਾ ਮਿਟਾ ਦਿੱਤਾ ਜਾਵੇਗਾ। ਰੀਸੈੱਟ ਕਰਨ ਤੋਂ ਬਾਅਦ, ਤੁਸੀਂ ਨਵੇਂ ਪ੍ਰੋਫਾਈਲ ਦਾ ਸੈੱਟਅੱਪ ਕਰ ਸਕਦੇ ਹੋ।"</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"ਹੋਰ"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"ਵਾਹਨ ਆਡੀਓ ਸਿਸਟਮ ਨੂੰ ਰੀਸੈੱਟ ਕਰੋ"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"ਤੁਹਾਡੇ ਸਿਸਟਮ ਨੂੰ ਫੈਕਟਰੀ ਰੀਸੈੱਟ ਕਰਨ ਅਤੇ ਸਾਰੇ ਡਾਟੇ ਨੂੰ ਮਿਟਾਉਣ ਦੀ ਬੇਨਤੀ ਪ੍ਰਾਪਤ ਹੋਈ ਹੈ। ਤੁਸੀਂ ਇਸਨੂੰ ਹੁਣੇ ਰੀਸੈੱਟ ਕਰ ਸਕਦੇ ਹੋ, ਜਾਂ ਅਗਲੀ ਵਾਰ ਕਾਰ ਦੇ ਸ਼ੁਰੂ ਹੋਣ \'ਤੇ ਇਹ ਰੀਸੈੱਟ ਹੋ ਜਾਵੇਗਾ। ਉਸ ਤੋਂ ਬਾਅਦ ਤੁਸੀਂ ਨਵੇਂ ਪ੍ਰੋਫਾਈਲ ਦਾ ਸੈੱਟਅੱਪ ਕਰ ਸਕਦੇ ਹੋ।"</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"ਹੁਣੇ ਰੀਸੈੱਟ ਕਰੋ"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"ਬਾਅਦ ਵਿੱਚ ਰੀਸੈੱਟ ਕਰੋ"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"ਅਗਲੀ ਵਾਰ ਕਾਰ ਦੇ ਸ਼ੁਰੂ ਹੋਣ \'ਤੇ ਵਾਹਨ ਆਡੀਓ ਸਿਸਟਮ ਰੀਸੈੱਟ ਹੋਵੇਗਾ।"</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"ਰੀਸੈੱਟ ਸ਼ੁਰੂ ਕਰਨ ਲਈ ਕਾਰ ਪਾਰਕ ਕੀਤੀ ਜਾਣੀ ਲਾਜ਼ਮੀ ਹੈ।"</string>
 </resources>
