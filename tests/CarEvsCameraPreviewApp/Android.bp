@@ -16,10 +16,13 @@
 android_app {
     name: "CarEvsCameraPreviewApp",
 
+    owner: "google",
+
     srcs: ["src/**/*.java"],
 
     resource_dirs: ["res"],
 
+    // This app uses system APIs.
     sdk_version: "system_current",
 
     certificate: "platform",
@@ -28,24 +31,28 @@ android_app {
         enabled: false,
     },
 
+    // Disable dexpreopt and verify_uses_libraries check as the app contains
+    // no Java code to be dexpreopted.
+    enforce_uses_libs:false,
+    dex_preopt: {
+        enabled: false,
+    },
+
     libs: [
         "android.car-system-stubs",
         "androidx.annotation_annotation",
     ],
 
-    static_libs: [
-        "androidx.annotation_annotation",
-    ],
+    static_libs: ["androidx.annotation_annotation"],
 
-    enforce_uses_libs: false,
-
-    dex_preopt: {
-        enabled: false,
-    },
+    // To make this app be able to re-installed
+    use_embedded_native_libs: true,
+    jni_libs: ["libcarevsglrenderer_jni"],
 
     product_variables: {
         pdk: {
+            // disable build in PDK
             enabled: false,
-        }
-    }
+        },
+    },
 }
