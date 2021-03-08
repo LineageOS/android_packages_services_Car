@@ -177,8 +177,16 @@
     <string name="intentReceiverForUnacceptableIoMetrics" translatable="false">com.google.android.car.defaultstoragemonitoringcompanionapp/.ExcessiveIoIntentReceiver</string>
 
     <!-- The Model ID to advertise Bluetooth Fast Pair connections with.  Must be overlayed with
-         device specific model id. -->
+         device specific model id. A model id of 0 will disable Fast Pair-->
     <integer name="fastPairModelId">0x000000</integer>
+
+    <!-- The Anti Spoofing Public key associated with the advertised Fast Pair Model ID, base64
+         encoded. -->
+    <string name="fastPairAntiSpoofKey" translatable="false"></string>
+
+    <!-- Enable to allow Fast Pair to automatically accept incoming pairing requests with matching
+         Simple Secure Pairing codes without requiring further user input. -->
+    <bool name="fastPairAutomaticAcceptance">false</bool>
 
     <!-- Maximum allowed time to run garage mode. Note that 15 min (=900sec) is the minimum required
          duration and this should not be made shorter. -->
