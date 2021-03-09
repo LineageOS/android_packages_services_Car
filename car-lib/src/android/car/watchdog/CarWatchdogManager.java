@@ -56,13 +56,28 @@ public final class CarWatchdogManager extends CarManagerBase {
     // Message ID representing main thread activeness checking.
     private static final int WHAT_CHECK_MAIN_THREAD = 1;
 
-    /** Timeout for services which should be responsive. The length is 3,000 milliseconds. */
+    /**
+     * Timeout for services which should be responsive. The length is 3,000 milliseconds.
+     *
+     * @hide
+     */
+    @SystemApi
     public static final int TIMEOUT_CRITICAL = 0;
 
-    /** Timeout for services which are relatively responsive. The length is 5,000 milliseconds. */
+    /**
+     * Timeout for services which are relatively responsive. The length is 5,000 milliseconds.
+     *
+     * @hide
+     */
+    @SystemApi
     public static final int TIMEOUT_MODERATE = 1;
 
-    /** Timeout for all other services. The length is 10,000 milliseconds. */
+    /**
+     * Timeout for all other services. The length is 10,000 milliseconds.
+     *
+     * @hide
+     */
+    @SystemApi
     public static final int TIMEOUT_NORMAL = 2;
 
     /** @hide */
@@ -92,25 +107,28 @@ public final class CarWatchdogManager extends CarManagerBase {
     /**
      * CarWatchdogClientCallback is implemented by the clients which want to be health-checked by
      * car watchdog server. Every time onCheckHealthStatus is called, they are expected to
-     * respond by calling {@link CarWatchdogManager.tellClientAlive} within timeout. If they don't
+     * respond by calling {@link #tellClientAlive} within timeout. If they don't
      * respond, car watchdog server reports the current state and kills them.
      *
      * <p>Before car watchdog server kills the client, it calls onPrepareProcessTermination to allow
      * them to prepare the termination. They will be killed in 1 second.
+     *
+     * @hide
      */
+    @SystemApi
     public abstract static class CarWatchdogClientCallback {
         /**
          * Car watchdog server pings the client to check if it is alive.
          *
-         * <p>The callback method is called at the Executor which is specifed in {@link
-         * #registerClient}.
+         * <p>The callback method is called at the Executor which is specified in {@link
+         * CarWatchdogManager#registerClient}.
          *
          * @param sessionId Unique id to distinguish each health checking.
          * @param timeout Time duration within which the client should respond.
          *
          * @return whether the response is immediately acknowledged. If {@code true}, car watchdog
          *         server considers that the response is acknowledged already. If {@code false},
-         *         the client should call {@link CarWatchdogManager.tellClientAlive} later to tell
+         *         the client should call {@link CarWatchdogManager#tellClientAlive} later to tell
          *         that it is alive.
          */
         public boolean onCheckHealthStatus(int sessionId, @TimeoutLengthEnum int timeout) {
@@ -120,8 +138,8 @@ public final class CarWatchdogManager extends CarManagerBase {
         /**
          * Car watchdog server notifies the client that it will be terminated in 1 second.
          *
-         * <p>The callback method is called at the Executor which is specifed in {@link
-         * #registerClient}.
+         * <p>The callback method is called at the Executor which is specified in {@link
+         * CarWatchdogManager#registerClient}.
          */
         public void onPrepareProcessTermination() {}
     }
@@ -144,7 +162,10 @@ public final class CarWatchdogManager extends CarManagerBase {
      * @param timeout The time duration within which the client desires to respond. The actual
      *        timeout is decided by watchdog server.
      * @throws IllegalStateException if at least one client is already registered.
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission(Car.PERMISSION_USE_CAR_WATCHDOG)
     public void registerClient(@NonNull @CallbackExecutor Executor executor,
             @NonNull CarWatchdogClientCallback client, @TimeoutLengthEnum int timeout) {
@@ -176,7 +197,10 @@ public final class CarWatchdogManager extends CarManagerBase {
      * Unregisters the car watchdog client from {@link CarWatchdogManager}.
      *
      * @param client Watchdog client implementing {@link CarWatchdogClientCallback} interface.
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission(Car.PERMISSION_USE_CAR_WATCHDOG)
     public void unregisterClient(@NonNull CarWatchdogClientCallback client) {
         synchronized (mLock) {
@@ -203,8 +227,11 @@ public final class CarWatchdogManager extends CarManagerBase {
      * @param client Watchdog client implementing {@link CarWatchdogClientCallback} interface.
      * @param sessionId Session id given by {@link CarWatchdogManager}.
      * @throws IllegalStateException if {@code client} is not registered.
-     * @throws IllegalArgumentException if {@code session Id} is not correct.
+     * @throws IllegalArgumentException if {@code sessionId} is not correct.
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission(Car.PERMISSION_USE_CAR_WATCHDOG)
     public void tellClientAlive(@NonNull CarWatchdogClientCallback client, int sessionId) {
         boolean shouldReport;
